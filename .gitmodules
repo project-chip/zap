@@ -1,0 +1,4 @@
+[submodule "zcl"]
+	path = zcl
+	url = ../zcl.git
+	branch = master

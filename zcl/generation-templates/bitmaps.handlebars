@@ -1,0 +1,9 @@
+{{#each type}}
+   {{#each this.BITMAP_FIELDS}}
+#define EMBER_AF_{{strong ../NAME}}_{{strong NAME}} ({{VALUE}})
+   {{/each}}
+{{/each}}
+
+/** @} END Enums */
+/** @} END addtogroup */
+#endif // SILABS_EMBER_AF_ENUMS

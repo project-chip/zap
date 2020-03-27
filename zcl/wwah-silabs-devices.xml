@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<configurator>
+  <deviceType>
+    <name>SL-WWAH-door-lock</name>
+    <domain>WWAH</domain>
+    <typeName>SL WWAH Door Lock</typeName>
+    <zigbeeType>Coordinator</zigbeeType>
+    <profileId editable="false">0x0104</profileId>
+    <deviceId editable="false">0x0000</deviceId>
+    <clusters lockOthers="true">
+      <include client="false" server="true" clientLocked="true" serverLocked="true">Basic</include>
+      <include client="false" server="true" clientLocked="true" serverLocked="true">Power Configuration</include>
+      <include client="false" server="true" clientLocked="true" serverLocked="true">Identify</include>
+      <include client="true" server="false" clientLocked="false" serverLocked="false">Over the Air Bootloading</include>
+      <include client="false" server="true" clientLocked="true" serverLocked="true">Alarms</include>
+      <include client="false" server="true" clientLocked="true" serverLocked="true">Poll Control</include>
+      <include client="false" server="true" clientLocked="true" serverLocked="true">Door Lock</include>
+      <include client="false" server="true" clientLocked="true" serverLocked="true">Diagnostics</include>
+      <include client="false" server="true" clientLocked="true" serverLocked="true">Time</include>
+      <include client="false" server="true" clientLocked="true" serverLocked="true">SL Works With All Hubs</include>
+    </clusters>
+  </deviceType>
+</configurator>

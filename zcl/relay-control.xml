@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<configurator>
+  <cluster>
+    <name>Relay Control</name>
+    <domain>Ember</domain>
+    <description>Commands to turn on and off the stack's relay capabilities, and to determine whether or not relay is enabled.</description>
+    <code>0xC00D</code>
+    <define>RELAY_CONTROL_CLUSTER</define>
+    <client init="false" tick="false">true</client>
+    <server init="false" tick="false">true</server>
+    <command source="client" code="0x00" name="SetRelayState" optional="false">
+      <description>
+        Sets the on-off state of stack relay.
+      </description>
+      <arg name="isEnabled" type="BOOLEAN"/>
+      <arg name="magicNumber" type="INT32U"/>
+    </command>
+    <command source="client" code="0x01" name="GetRelayState" optional="false">
+      <description>
+        Client-to-server query that provides the on-off state of stack relay.
+      </description>
+    </command>
+    <command source="server" code="0x00" name="GetRelayStateResponse" optional="false" disableDefaultResponse="true">
+      <description>
+        Response to GetRelayState query.
+      </description>
+      <arg name="isEnabled" type="BOOLEAN"/>
+    </command>
+  </cluster>
+</configurator>

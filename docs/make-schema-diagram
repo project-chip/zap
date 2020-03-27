@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# This script is generating a zap schema diagram out of a sqlite file.
+#
+# It assumes that you have installed a schemacrawler tool and few other things.
+# You can find schemacrawler at: https://www.schemacrawler.com/
+#
+# You need to have graphviz package installed for this to work correctly.
+
+# It also has only ever been tested on Linux.
+#
+
+SC_HOME=~/schemacrawler-16.4.1-distribution/
+SC_BIN=${SC_HOME}/_schemacrawler/schemacrawler.sh
+
+SQLITE=~/.silabs/zap/zap.sqlite
+SVG=zap-schema.svg
+
+echo "Creating schema diagram to ${SVG} from database at ${SQLITE} ..."
+
+
+# Generate the dot file using the schemacrawler
+${SC_BIN} --server sqlite --database=${SQLITE} --command=schema --info-level=standard --output-format=scdot --output-file=zap-schema.dot
+
+if [ ! $? -eq 0 ]; then
+  echo ""
+  echo "Error executing schemacrawler from ${SC_BIN}"
+  echo "Please make sure schemacrawler is properly installed."
+  echo ""
+  echo "You can download it from: https://www.schemacrawler.com/"
+  exit
+fi
+
+# Fix the background of all HTML tables to white
+sed -i 's/color="#888888"/color="#888888" bgcolor="#ffffff"/g' zap-schema.dot
+
+# Fix the overall background of the image to transparent
+sed -i 's/rankdir="RL"/rankdir="RL"\n    bgcolor="transparent"/g' zap-schema.dot
+
+# Make edges black and bold
+sed -i 's/edge \[/edge\[\n    color="black"\n    style="bold"/g' zap-schema.dot
+
+# Remove the date stamp, so we don't create unnecessary commits
+sed -i '/.*td align=.left..202.*/d' zap-schema.dot
+sed -i 's/>generated on/ colspan=\"2\">SQL schema is copyrighted by Silicon Labs./g' zap-schema.dot
+
+# Convert the dot to svg using the "dot" tool from graphviz
+dot -Tsvg zap-schema.dot -o ${SVG}
+if [ ! $? -eq 0 ]; then
+  echo ""
+  echo "Error executing 'dot' command from graphviz package."
+  echo "Please make sure graphviz is installed and on your PATH."
+  exit
+fi
+
+echo "Diagram created: ${SVG}"

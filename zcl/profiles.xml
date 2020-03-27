@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<map>
+  <mapping code="0x0000" translation="ZigBee device profile"/>
+  <mapping code="0x0101" translation="Industrial plant monitoring"/>
+  <mapping code="0x0103" translation="Test profile 1"/>
+  <mapping code="0x0104" translation="Home automation"/>
+  <mapping code="0x0105" translation="Commercial building automation"/>
+  <mapping code="0x0106" translation="Wireless sensor networks"/>
+  <mapping code="0x0107" translation="Telecom Applications"/>
+  <mapping code="0x0108" translation="Personal, Home &amp; Hospital Care"/>
+  <mapping code="0x0109" translation="Smart Energy"/>
+  <mapping code="0x7F01" translation="Test profile 2"/>
+  <mapping code="0x7F02" translation="Gateway Specification profile"/>
+  <mapping code="0xA1E0" translation="Green Power"/>
+</map>
