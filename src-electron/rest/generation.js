@@ -8,7 +8,7 @@
 
 import { logError } from '../main-process/env';
 import { mapDatabase, resolveTemplateDirectory, compileTemplate, infoFromDb, groupInfoIntoDbRow, resolveHelper, generateDataToPreview } from '../generator/static_generator.js'
-import { getUppercase, getStrong, getHexValue } from "../handlebars/helpers/helper_utils.js"
+import { getUppercase, getStrong, getHexValue, getLargestStringInArray, getSwitch, getCase, getDefault } from "../handlebars/helpers/helper_utils.js"
 
 /**
  *
@@ -23,12 +23,22 @@ export function registerGenerationApi(db, app) {
         const HANDLEBAR_HELPER_UPPERCASE = 'uppercase';
         const HANDLEBAR_HELPER_STRONG = 'strong';
         const HANDLEBAR_HELPER_HEX_VALUE = 'hexValue';
-        const HANDLEBAR_TEMPLATE_FILE_CLUSTERS = "cluster-id.handlebars"
-        const HANDLEBAR_TEMPLATE_FILE_ENUMS = "enums.handlebars"
-        const HANDLEBAR_TEMPLATE_FILE_BITMAPS = "bitmaps.handlebars"
-        const DATABASE_ROW_TYPE_CLUSTER = "clusters"
-        const DATABASE_ROW_TYPE_ENUMS = "enums"
-        const DATABASE_ROW_TYPE_BITMAPS = "bitmaps"
+        const HANDLEBAR_HELPER_LENGTH_OF_LARGEST_STRING = 'largestStringInArray';
+        const HANDLEBAR_HELPER_SWITCH = "switch";
+        const HANDLEBAR_HELPER_CASE = "case";
+        const HANDLEBAR_HELPER_DEFAULT = "default";
+        const HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE = "att-storage.handlebars";
+        const HANDLEBAR_TEMPLATE_FILE_AF_STRUCTS = "af-structs.handlebars";
+        const HANDLEBAR_TEMPLATE_FILE_CLUSTERS = "cluster-id.handlebars";
+        const HANDLEBAR_TEMPLATE_FILE_ENUMS = "enums.handlebars";
+        const HANDLEBAR_TEMPLATE_FILE_BITMAPS = "bitmaps.handlebars";
+        const HANDLEBAR_TEMPLATE_FILE_PRINT_CLUSTERS = "print-cluster.handlebars";
+        const DATABASE_ROW_TYPE_CLUSTER = "clusters";
+        const DATABASE_ROW_TYPE_ENUMS = "enums";
+        const DATABASE_ROW_TYPE_BITMAPS = "bitmaps";
+        const DATABASE_ROW_TYPE_PRINT_CLUSTER = "print-cluster";
+        const DATABASE_ROW_TYPE_AF_STRUCTS = "af-structs";
+        const DATABASE_ROW_TYPE_ATT_STORAGE = "att-storage";
 
 
         //cluster-id.h generation
@@ -61,10 +71,55 @@ export function registerGenerationApi(db, app) {
             .then(resultToFile => generateDataToPreview(resultToFile, enumsRowToHandlebarTemplateFileMap))
             .catch(err => logError(err))
 
+        //print-cluster.h generation
+        var printClusterHandleBarHelpers = {}
+        printClusterHandleBarHelpers[HANDLEBAR_HELPER_UPPERCASE] = getUppercase;
+        printClusterHandleBarHelpers[HANDLEBAR_HELPER_LENGTH_OF_LARGEST_STRING] = getLargestStringInArray;
+        var printClusterRowToHandleBarTemplateFileMap = [{ dbRowType: DATABASE_ROW_TYPE_PRINT_CLUSTER, hTemplateFile: HANDLEBAR_TEMPLATE_FILE_PRINT_CLUSTERS }];
+
+        const printClusterGenerationCode = await mapDatabase(db)
+            .then(templateDir => resolveTemplateDirectory(templateDir, ""))
+            .then(templates => compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_PRINT_CLUSTERS]))
+            .then(databaseRows => infoFromDb(databaseRows, [DATABASE_ROW_TYPE_PRINT_CLUSTER]))
+            .then(helperResolution => resolveHelper(helperResolution, printClusterHandleBarHelpers))
+            .then(resultToFile => generateDataToPreview(resultToFile, printClusterRowToHandleBarTemplateFileMap))
+            .catch(err => logError(err))
+
+        //af-structs.h generation
+        var afStructsHandleBarHelpers = {}
+        afStructsHandleBarHelpers[HANDLEBAR_HELPER_SWITCH] = getSwitch;
+        afStructsHandleBarHelpers[HANDLEBAR_HELPER_CASE] = getCase;
+        afStructsHandleBarHelpers[HANDLEBAR_HELPER_DEFAULT] = getDefault;
+        var afStructsRowToHandleBarTemplateFileMap = [{ dbRowType: DATABASE_ROW_TYPE_AF_STRUCTS, hTemplateFile: HANDLEBAR_TEMPLATE_FILE_AF_STRUCTS }];
+
+        const afStructsGenerationCode = await mapDatabase(db)
+            .then(templateDir => resolveTemplateDirectory(templateDir, ""))
+            .then(templates => compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_AF_STRUCTS]))
+            .then(databaseRows => infoFromDb(databaseRows, [DATABASE_ROW_TYPE_AF_STRUCTS]))
+            .then(databaseRowsWithEnumItems => groupInfoIntoDbRow(databaseRowsWithEnumItems, { tableName: 'STRUCT_ITEMS', foreignKey: 'STRUCT_REF', primaryKey: 'STRUCT_ID', dbType: 'af-structs', columns: { NAME: "NAME", VALUE: "TYPE" } }))
+            .then(helperResolution => resolveHelper(helperResolution, afStructsHandleBarHelpers))
+            .then(resultToFile => generateDataToPreview(resultToFile, afStructsRowToHandleBarTemplateFileMap))
+            .catch(err => logError(err))
+
+        //att-storage.h generation
+        var attStorageRowToHandleBarTemplateFileMap = [{ dbRowType: DATABASE_ROW_TYPE_ATT_STORAGE, hTemplateFile: HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE }];
+
+        const attStorageGenerationCode = await mapDatabase(db)
+            .then(templateDir => resolveTemplateDirectory(templateDir, ""))
+            .then(templates => compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE]))
+            .then(resultToFile => generateDataToPreview(resultToFile, attStorageRowToHandleBarTemplateFileMap))
+            .catch(err => logError(err))
+
         if (request.params.name === DATABASE_ROW_TYPE_CLUSTER) {
             response.json(clusterGenerationCode);
         } else if (request.params.name === DATABASE_ROW_TYPE_ENUMS) {
             response.json(enumGenerationCode);
+        } else if (request.params.name === DATABASE_ROW_TYPE_PRINT_CLUSTER) {
+            response.json(printClusterGenerationCode);
+        } else if (request.params.name === DATABASE_ROW_TYPE_AF_STRUCTS) {
+            response.json(afStructsGenerationCode);
+        } else if (request.params.name == DATABASE_ROW_TYPE_ATT_STORAGE) {
+            response.json(attStorageGenerationCode);
         }
     })
 

@@ -21,6 +21,8 @@
               v-model="selectedReporting"
               :val="props.row.id"
               indeterminate-value="false"
+              keep-color
+              :color="handleColorSelection(selectedReporting, requiredReporting, props.row.id)"
               @input="handleSelection(props.row.id, selectedReporting,'selectedReporting')"
             />
           </q-td>
@@ -76,11 +78,27 @@ export default {
   name: 'ZclReportingView',
   mounted () {
     this.$serverOn('zcl-item', (event, arg) => {
-      console.log('zcl-item:')
-      console.log(arg)
-      this.item = arg.data
-      this.title = arg.title
-      this.type = arg.type
+      if (arg.type === 'endpointTypeReportableAttributes') {
+        this.$store.dispatch('zap/setReportableAttributeStateLists', arg.data)
+      }
+    })
+    this.$serverOn('singleReportableAttributeState', (event, arg) => {
+      if (arg.action === 'boolean') {
+        this.$store.dispatch('zap/updateSelectedAttributes', {
+          id: arg.id,
+          added: arg.added,
+          listType: arg.listType,
+          view: 'reportingView'
+        })
+      } else if (arg.action === 'text') {
+        this.$store.dispatch('zap/updateAttributeDefaults', {
+          id: arg.id,
+          newDefaultValue: arg.added,
+          listType: arg.listType,
+          view: 'reportingView'
+
+        })
+      }
     })
   },
   computed: {
@@ -123,6 +141,16 @@ export default {
       get () {
         return this.$store.state.zap.reportingView.reportableChange
       }
+    },
+    selectedEndpointId: {
+      get () {
+        return this.$store.state.zap.endpointTypeView.selectedEndpointType
+      }
+    },
+    requiredReporting: {
+      get () {
+        return this.attributeData.filter(attribute => attribute.isReportable).map(attribute => attribute.id)
+      }
     }
   },
   methods: {
@@ -134,20 +162,32 @@ export default {
       } else {
         addedValue = false
       }
-      this.$store.dispatch('zap/updateSelectedAttributes', {
-        id: id,
-        added: addedValue,
-        listType: listType,
-        view: 'reportingView'
-      })
+
+      this.$serverPost(`/reportableAttribute/update`,
+        {
+          action: 'boolean',
+          endpointTypeId: this.selectedEndpointId,
+          id: id,
+          value: addedValue,
+          listType: listType
+        })
     },
     handleAttributeDefaultChange (id, newValue, listType) {
-      this.$store.dispatch('zap/updateAttributeDefaults', {
-        id: id,
-        newDefaultValue: newValue,
-        listType: listType,
-        view: 'reportingView'
-      })
+      this.$serverPost(`/reportableAttribute/update`,
+        {
+          action: 'text',
+          endpointTypeId: this.selectedEndpointId,
+          id: id,
+          value: newValue,
+          listType: listType
+        })
+    },
+    handleColorSelection (selectedList, recommendedList, id) {
+      if (recommendedList.includes(id)) {
+        if (selectedList.includes(id)) return 'green'
+        else return 'red'
+      }
+      return 'primary'
     }
   },
   data () {

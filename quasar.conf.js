@@ -19,7 +19,7 @@ module.exports = function (ctx) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/cli-documentation/boot-files
-    boot: ['axios'],
+    boot: ['axios', 'globalapi'],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
     css: [
@@ -183,7 +183,8 @@ module.exports = function (ctx) {
         // win32metadata: { ... }
 
         platform: 'darwin,linux,win32',
-        arch: 'ia32,x64',
+        //arch: 'ia32,x64',
+        arch: 'x64',
         extraResource: 'src-electron/db/zap-schema.sql',
         afterCopy: [(buildPath, electronVersion, platform, arch, callback) => {
           require('electron-rebuild').rebuild({ buildPath, electronVersion, arch })

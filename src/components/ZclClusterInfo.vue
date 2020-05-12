@@ -1,7 +1,7 @@
 <template>
-  <div v-show='item'>
-    <div v-show='item.label'>Cluster: {{ item.label }}</div>
-    <div v-show='item.caption'>Description: {{ item.caption }}</div>
+  <div v-show="item">
+    <div>Cluster: {{ item.label }}</div>
+    <div>Description: {{ item.caption }}</div>
   </div>
 </template>
 
@@ -9,24 +9,16 @@
 export default {
   name: 'ZclClusterInfo',
   mounted () {
-    this.$serverOn('zcl-item', (event, arg) => {
-      console.log('zcl-item:')
-      console.log(arg)
-      this.item = arg.data
-      this.title = arg.title
-      this.type = arg.type
-      this.attributeData = arg.attributeData
-      this.commandData = arg.commandData
-    })
+  },
+  computed: {
+    item: {
+      get () {
+        return this.$store.state.zap.clustersView.selected[0]
+      }
+    }
   },
   data () {
     return {
-      item: {},
-      title: '',
-      type: '',
-      attributeData: [],
-      commandData: [],
-      selection: []
     }
   }
 }

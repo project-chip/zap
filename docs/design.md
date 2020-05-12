@@ -2,7 +2,7 @@
 
 The ZAP project delivers a ZCL configuration via an "advanced configurator" and a generator platform.
 
-- [Zigbe Advanced Platform](#zigbe-advanced-platform)
+- [Zigbee Advanced Platform (ZAP)](#zigbee-advanced-platform-zap)
   - [Use cases](#use-cases)
     - [Standalone electron application](#standalone-electron-application)
     - [Command line regeneration](#command-line-regeneration)
@@ -16,6 +16,9 @@ The ZAP project delivers a ZCL configuration via an "advanced configurator" and 
     - [Schema design principles](#schema-design-principles)
     - [Schema diagram](#schema-diagram)
   - [Embedded code](#embedded-code)
+    - [Database](#database)
+    - [Metalayer](#metalayer)
+    - [Zap API](#zap-api)
   - [Versioning and backwards compatibility](#versioning-and-backwards-compatibility)
     - [Compatibility considerations](#compatibility-considerations)
     - [Dealing with the generation variant](#dealing-with-the-generation-variant)
@@ -137,22 +140,48 @@ _Developer note_: If there are any changes to the SQL script, the picture should
 
 ## Embedded code
 
-Following is the laundry-list of changes in the embedded code:
+### Database 
 
-* Rethink and reengineer entire ZCL embedded layers as a "addon library", that interfaces with lower layers via a well-defined API, instead of direct calls into the stack APIs wherever needed.
+We need to develop a common database layer that will be used across both Thread, CHIP and Zigbee or any other underlying platform. We should investigate both current options and come up with the best solution for both.
 
-* Develop the API for the Zigbee stack.
+The database needs to support:
 
-* Develop the same API for the pure-simulation environment, which allows ZCL library to run in Posix environment, possibly on top of java simulator.
+- **singleton attributes**: the attributes that have same value across multiple endpoints.
+- **flash-saved attributes**: the attributes whose value is saved to flash for persistence across resets.
+- **external attributes**: the attributes whose value is not stored anywhere, but whenever the code queries them, the value is received or stored via a customer callback.
+- **manufacturer-specific attributes and commands**
+- **external APIs**: that might allow other data tokens to be stored into this database for any purpose customers might come up with
 
-* Abandon current mechanism of parsing OTA content and issuing callbacks for it, and replace it with a struct-driven event-bus approach.
+The database design should be ZCL-independent, but should be developed as just-a-database, useful for storing anything. ZCL is a special case that uses this database. It should build into a library that should also compile on POSIX and be fully unit-testable on a Linux box.
+It is also possible to reuse an existing embedded database for this purpose.
 
-* Threads? (Discuss. TBD.)
+The access to the database should be done with a well defined API, so the rest of the ZCL application layer should be able to the transplanted from one to another databse. In a case of a desktop-application (for unit testing, for example), and use on Android devices, using sqlite database might make a lot of sense.
+The APIs should be cleanly separated, so that migrating application layer from embedded database onto a sqlite file should be possible.
 
-* Develop a clean API that allows from-the-top extensions, which are essentially customer callbacks to the ZCL command/attribute logic and ability to contribute custom commands and attributes from the top. (Either based on source-code approach or library add-ons.)
+### Metalayer
 
-* Rework the attribute storage logic: develop a reusable embedded database which covers all the features ZCL offering needs, while being an independent UP component, that can be used by any other part of the SDK as well. For example, BLE characteristics could use same database.
+The metalayer is the struct/spec layer that was created for Thread. In zigbee, there is no concept of a "command struct". Commands are parsed from a packet payload and then passed around as long list of function arguments, which is unwieldy and confusing. For Thread, Richard created a layer where each command from XML files, is generated into a struct that will be populated by the code and the spec which is a chunk of metadata used to populate the struct. Once the struct is created, a pointer to this data is passed around the functions as a single pointer, which is much more handy. We should create a single metalayer, probably copying the Thread model, and then retrofit Zigbee code with it.
 
+Zigbee metalayer should be a library, built and fully unit-testable on a Linux environment.
+
+### Zap API
+
+Zap implements the clusters in a form of "plugins". Each cluster server or client implementation will typically be a separate plugin.
+In order for these plugins to me interchangeably used on top of any transport layer or underlying stack implementation, the code in them is NOT allowed to use any underlying stack or RTOS APIs. 
+They are only allowed to use the Zap API, which will be defined for this purpose.
+
+There will be multiple actual implementations of Zap API:
+- **mock implementation**: pure stubs, do nothing, just allows a compile to succeed without any underlying layers.
+- **Silabs Zigbee implementation**: implementation that binds the zap library with the Silicon Labs Zigbee Pro stack.
+- **Posix implementation**: POSIX based C code implementation, used in enhanced unit tests and simulation runs.
+- **CHIP implementation**: Implementation of the API on top of CHIP OpenWeave stack.
+
+Zap API will provide functions in roughly following categories:
+- **network abstraction layer**: abstractions for basic interaction with sending and receiving packets
+- **payload codecs**: abstractions for encoding and decoding payload into the ZCL structures.
+- **OS abstraction layer**: abstractions for any kind of RTOS or lower level services, such as event management, memory allocation, etc., required by the plugin code.
+- **DB abstraction layer**: abstractions to access embedded attribute database for storage of ZCL attributes or other tokens. 
+  
 ## Versioning and backwards compatibility
 
 Zap infrastructure needs to be able to deal with the use case, where a user has multiple ZCL data packs installed and at the same time, the user may have multiple projects (either in IDE, or outside of it) opened simultaneously against one or more ZCL data packs.

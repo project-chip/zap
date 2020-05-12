@@ -13,11 +13,11 @@ import axios from 'axios'
 import fs from "fs"
 import { version } from '../package.json'
 import { closeDatabase, initDatabase, loadSchema } from "../src-electron/db/db-api"
-import { selectCountFrom } from "../src-electron/db/query"
+import { zclPropertiesFile } from '../src-electron/main-process/args'
 import { logError, logInfo, schemaFile, setDevelopmentEnv, sqliteTestFile } from "../src-electron/main-process/env"
 import { initHttpServer, shutdownHttpServer } from "../src-electron/server/http-server"
 import { loadZcl } from "../src-electron/zcl/zcl-loader"
-import { zclPropertiesFile } from '../src-electron/main-process/args'
+import { selectCountFrom } from '../src-electron/db/query-generic'
 
 var db
 const port = 9074
@@ -75,4 +75,26 @@ describe('Session specific tests', () => {
             expect(response.data).toMatch(/\#define ZCL_BASIC_CLUSTER_ID 0x0000/);
           })
     })
+
+    test('test that there is generation data in the print-cluster.h file', () => {
+        return axios.get(`${baseUrl}/preview/print-cluster`)
+          .then((response) => {
+            expect(response.data).toMatch(/\#if defined(ZCL_USING_BASIC_CLUSTER_SERVER) || defined(ZCL_USING_BASIC_CLUSTER_CLIENT)/);
+          })
+    })
+
+    test('test that there is generation data in the af-structs.h file', () => {
+        return axios.get(`${baseUrl}/preview/af-structs`)
+          .then((response) => {
+            expect(response.data).toMatch(/typedef struct _IasAceZoneStatusResult {/);
+            expect(response.data).toMatch(/            uint8_t zoneId;/);
+          })
+    })
+
+    test('test that there is generation data in the att-storage.h file', () => {
+      return axios.get(`${baseUrl}/preview/att-storage`)
+        .then((response) => {
+          expect(response.data).toMatch(/\#define ATTRIBUTE_MASK_WRITABLE \(0x01\)/);
+        })
+  })
 })

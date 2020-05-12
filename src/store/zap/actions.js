@@ -63,6 +63,7 @@ export function updateSelectedServers (context, selectionContext) {
   context.commit('updateInclusionList', selectionContext)
   Vue.prototype.$serverPost(`/cluster`,
     {
+      endpointTypeId: selectionContext.endpointTypeId,
       id: selectionContext.id,
       side: 'server',
       flag: selectionContext.added
@@ -73,6 +74,7 @@ export function updateSelectedClients (context, selectionContext) {
   context.commit('updateInclusionList', selectionContext)
   Vue.prototype.$serverPost(`/cluster`,
     {
+      endpointTypeId: selectionContext.endpointTypeId,
       id: selectionContext.id,
       side: 'client',
       flag: selectionContext.added
@@ -91,6 +93,12 @@ export function updateSelectedEndpoint (context, endpoint) {
 }
 
 export function setDeviceTypeReference (context, endpointIdDeviceTypeRefPair) {
+  Vue.prototype.$serverGet(`/endpointTypeDeviceTypeClusters/${endpointIdDeviceTypeRefPair.deviceTypeRef}`)
+  Vue.prototype.$serverGet(`/endpointTypeDeviceTypeAttributes/${endpointIdDeviceTypeRefPair.deviceTypeRef}`)
+  Vue.prototype.$serverGet(`/endpointTypeDeviceTypeCommands/${endpointIdDeviceTypeRefPair.deviceTypeRef}`)
+  Vue.prototype.$serverGet(`/endpointTypeClusters/${endpointIdDeviceTypeRefPair.endpointId}`)
+  Vue.prototype.$serverGet(`/endpointTypeAttributes/${endpointIdDeviceTypeRefPair.endpointId}`)
+  Vue.prototype.$serverGet(`/endpointTypeCommands/${endpointIdDeviceTypeRefPair.endpointId}`)
   context.commit('setDeviceTypeReference', endpointIdDeviceTypeRefPair)
 }
 
@@ -106,10 +114,141 @@ export function removeEndpointType (context, endpointType) {
   context.commit('removeEndpointType', endpointType)
 }
 
-export function updateSelectedEndpointType (context, endpointType) {
-  context.commit('updateSelectedEndpointType', endpointType)
+export function updateEndpoint (context, endpoint) {
+  context.commit('updateEndpoint', endpoint)
+}
+
+export function updateSelectedEndpointType (context, endpointTypeDeviceTypeRefPair) {
+  if (endpointTypeDeviceTypeRefPair != null) {
+    Vue.prototype.$serverGet(`/endpointTypeClusters/${endpointTypeDeviceTypeRefPair.endpointType}`)
+    Vue.prototype.$serverGet(`/endpointTypeAttributes/${endpointTypeDeviceTypeRefPair.endpointType}`)
+    Vue.prototype.$serverGet(`/endpointTypeCommands/${endpointTypeDeviceTypeRefPair.endpointType}`)
+    Vue.prototype.$serverGet(`/endpointTypeReportableAttributes/${endpointTypeDeviceTypeRefPair.endpointType}`)
+    Vue.prototype.$serverGet(`/endpointTypeDeviceTypeClusters/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`)
+    Vue.prototype.$serverGet(`/endpointTypeDeviceTypeAttributes/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`)
+    Vue.prototype.$serverGet(`/endpointTypeDeviceTypeCommands/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`)
+  }
+  context.commit('updateSelectedEndpointType', endpointTypeDeviceTypeRefPair.endpointType)
 }
 
 export function deleteEndpoint (context, endpoint) {
   context.commit('deleteEndpoint', endpoint)
+}
+
+export function setClusterList (context, selectionContext) {
+  var enabledClients = []
+  var enabledServers = []
+  selectionContext.forEach(record => {
+    if (record.enabled) {
+      if (record.side === 'client') {
+        enabledClients.push(record.clusterRef)
+      } else {
+        enabledServers.push(record.clusterRef)
+      }
+    }
+  })
+  context.commit(`setClusterList`, {
+    clients: enabledClients,
+    servers: enabledServers
+  })
+}
+
+export function setAttributeStateLists (context, selectionContext) {
+  var includedAttributes = []
+  var externalAttributes = []
+  var flashAttributes = []
+  var singletonAttributes = []
+  var boundedAttributes = []
+  var defaultValue = {}
+
+  selectionContext.forEach(record => {
+    if (record.included === 1) includedAttributes.push(record.attributeRef)
+    if (record.external === 1) externalAttributes.push(record.attributeRef)
+    if (record.flash === 1) flashAttributes.push(record.attributeRef)
+    if (record.singleton === 1) singletonAttributes.push(record.attributeRef)
+    if (record.bounded === 1) boundedAttributes.push(record.attributeRef)
+    defaultValue[record.attributeRef] = record.defaultValue
+  })
+  context.commit(`setAttributeLists`, {
+    included: includedAttributes,
+    external: externalAttributes,
+    flash: flashAttributes,
+    singleton: singletonAttributes,
+    bounded: boundedAttributes,
+    defaultValue: defaultValue
+  })
+}
+
+export function setReportableAttributeStateLists (context, selectionContext) {
+  var includedAttributes = []
+  var min = {}
+  var max = {}
+  var change = {}
+
+  selectionContext.forEach(record => {
+    if (record.included === 1) includedAttributes.push(record.attributeRef)
+    min[record.attributeRef] = record.minInterval
+    max[record.attributeRef] = record.maxInterval
+    change[record.attributeRef] = record.reportableChange
+  })
+
+  context.commit(`setReportableAttributeLists`, {
+    included: includedAttributes,
+    minInterval: min,
+    maxInterval: max,
+    reportableChange: change
+  })
+}
+
+export function setCommandStateLists (context, selectionContext) {
+  var incoming = []
+  var outgoing = []
+  selectionContext.forEach(record => {
+    if (record.incoming === 1) incoming.push(record.commandRef)
+    if (record.outgoing === 1) outgoing.push(record.commandRef)
+  })
+  context.commit(`setCommandLists`, {
+    incoming: incoming,
+    outgoing: outgoing
+  })
+}
+
+// TODO (?) This does not handle/highlight prohibited clusters. For now we just keep it in here
+export function setRecommendedClusterList (context, data) {
+  console.log(data)
+  var recommendedClients = []
+  var recommendedServers = []
+  var notRecommendedClients = []
+  var notRecommendedServers = []
+
+  data.forEach(record => {
+    if (record.includeClient) recommendedClients.push(record.clusterRef)
+    else notRecommendedClients.push(record.clusterRef)
+    if (record.includeServer) recommendedServers.push(record.clusterRef)
+    else notRecommendedServers.push(record.clusterRef)
+  })
+  context.commit(`setRecommendedClusterList`, {
+    recommendedClients: recommendedClients,
+    recommendedServers: recommendedServers
+  })
+}
+
+export function setRequiredAttributes (context, data) {
+  var requiredAttributes = []
+  data.forEach(record => {
+    if (record.attributeRef) requiredAttributes.push(record.attributeRef)
+  })
+  context.commit(`setRequiredAttributesList`, {
+    requiredAttributes: requiredAttributes
+  })
+}
+
+export function setRequiredCommands (context, data) {
+  var requiredCommands = []
+  data.forEach(record => {
+    if (record.commandRef) requiredCommands.push(record.commandRef)
+  })
+  context.commit(`setRequiredCommandsList`, {
+    requiredCommands: requiredCommands
+  })
 }

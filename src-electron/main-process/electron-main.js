@@ -39,7 +39,7 @@ function startSelfCheck() {
     })
 }
 
-function startNormal(ui) {
+function startNormal(ui, showUrl) {
   initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
     .then((db) => loadSchema(db, schemaFile(), version))
@@ -49,8 +49,12 @@ function startNormal(ui) {
       if (ui) {
         initializeElectronUi(httpPort)
       } else {
-        if (app.dock)
+        if (app.dock) {
           app.dock.hide()
+        }
+        if ( showUrl ) {
+          console.log(`http://localhost:${httpPort}/index.html`)
+        }
       }
     })
     .catch((err) => {
@@ -62,10 +66,12 @@ function startNormal(ui) {
 app.on('ready', () => {
   var argv = processCommandLineArguments(process.argv)
 
-  if ( argv._.includes('selfcheck')) {
+  logInfo(argv)
+  
+  if ( argv._.includes('selfCheck')) {
     startSelfCheck()
   } else {
-    startNormal(!argv.noUi)
+    startNormal(!argv.noUi, argv.showUrl)
   }
 })
 

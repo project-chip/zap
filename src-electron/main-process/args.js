@@ -27,7 +27,7 @@ export function processCommandLineArguments(argv) {
           })
       })
     .command(
-      'selfcheck',
+      'selfCheck',
       'Perform the self-check of the application.'
     )
     .option('httpPort', {
@@ -44,6 +44,9 @@ export function processCommandLineArguments(argv) {
     })
     .option('noUi', {
       desc: 'Don\'t show the main window when starting.'
+    })
+    .option('showUrl', {
+      desc: 'Print out the URL that an external browser should use.'
     })
     .usage('Usage: $0 <command> [options]')
     .help()

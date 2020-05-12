@@ -7,8 +7,9 @@ import fs from 'fs'
 import crc from 'crc'
 
 import { parseString } from 'xml2js'
-import { forPathCrc, updatePathCrc, insertPathCrc, insertClusters, insertDomains, insertStructs, insertBitmaps, insertEnums, insertDeviceTypes, updateClusterReferencesForDeviceTypeClusters } from '../db/query'
+import { insertClusters, insertDomains, insertStructs, insertBitmaps, insertEnums, insertDeviceTypes, updateClusterReferencesForDeviceTypeClusters,updateAttributeReferencesForDeviceTypeReferences,updateCommandReferencesForDeviceTypeReferences } from '../db/query-zcl'
 import { dbBeginTransaction, dbCommit } from '../db/db-api'
+import { forPathCrc, updatePathCrc, insertPathCrc } from '../db/query-package'
 
 const fsp = fs.promises
 
@@ -137,7 +138,8 @@ function prepareCluster(cluster) {
         max: attribute.$.max,
         isWritable: attribute.$.writable == 'true',
         defaultValue: attribute.$.default,
-        isOptional: attribute.$.optional == 'true'
+        isOptional: attribute.$.optional == 'true',
+        isReportable: attribute.$.reportable == 'true'
       })
     })
   }
@@ -202,12 +204,22 @@ function prepareDeviceType(deviceType) {
     deviceType.clusters.forEach(cluster => {
       if ('include' in cluster) {
         cluster.include.forEach(include => {
+          var attributes = []
+          var commands = []
+          if ('requireAttribute' in include) {
+            attributes = include.requireAttribute
+          }
+          if ('requireCommand' in include) {
+            commands = include.requireCommand
+          }
           ret.clusters.push({
             client: 'true' == include.$.client,
             server: 'true' == include.$.server,
             clientLocked: 'true' == include.$.clientLocked,
             serverLocked: 'true' == include.$.serverLocked,
-            clusterName: (include.$.cluster != undefined ? include.$.cluster : include._)
+            clusterName: (include.$.cluster != undefined ? include.$.cluster : include._),
+            requiredAttributes: attributes,
+            requiredCommands: commands
           })
         })
       }
@@ -254,7 +266,8 @@ function processParsedZclData(db, argument) {
 }
 
 function processPostLoading(db) {
-  return updateClusterReferencesForDeviceTypeClusters(db);
+  return updateClusterReferencesForDeviceTypeClusters(db).then(res =>
+    updateAttributeReferencesForDeviceTypeReferences(db)).then(res => updateCommandReferencesForDeviceTypeReferences(db));
 }
 
 // Promises to qualify whether zcl file needs to be reloaded.

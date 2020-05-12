@@ -7,15 +7,141 @@
  */
 
 import { logInfo } from '../main-process/env'
-import { insertOrReplaceClusterState, updateKeyValue, insertEndpoint, insertEndpointType, deleteEndpointType, deleteEndpoint } from '../db/query'
 import { httpCode } from '../server/http-server'
+import { insertOrReplaceClusterState, insertOrUpdateAttributeState, insertOrUpdateCommandState, insertOrUpdateReportableAttributeState, updateKeyValue, insertEndpoint, deleteEndpoint, editEndpoint, insertEndpointType, deleteEndpointType, updateEndpointType } from '../db/query-config'
 
 export function registerSessionApi(db, app) {
     app.post('/post/cluster', (request, response) => {
         var { id, side, flag, endpointTypeId } = request.body
         insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
-            .then(() => response.status(httpCode.ok).send())
+            .then(() => response.json({
+                replyId: "zcl-endpointType-cluster-selection-response",
+                endpointTypeId: endpointTypeId,
+                id: id, 
+                side: side, 
+                flag: flag
+            }).status(httpCode.ok).send())
             .catch((err) => response.status(httpCode.badRequest).send())
+    })
+
+
+    app.post('/post/attribute/update', (request, response) => {
+        var { action, endpointTypeId, id, value, listType} = request.body
+        var booleanParam = ''
+        switch (listType) {
+            case 'selectedAttributes':
+                booleanParam = 'INCLUDED'
+                break
+            case 'selectedExternal':
+                booleanParam = "EXTERNAL"
+                break
+            case 'selectedFlash':
+                booleanParam = "FLASH"
+                break
+            case 'selectedSingleton':
+                booleanParam = "SINGLETON"
+                break
+            case 'selectedBounded':
+                booleanParam = "BOUNDED"
+            case 'defaultValue':
+                booleanParam = "DEFAULT_VALUE"
+            default: 
+                break
+        }
+        switch (action) {
+            case 'boolean':
+                insertOrUpdateAttributeState(db, endpointTypeId, id, value, booleanParam).then(() => {
+                    response.json({
+                        action: action,
+                        endpointTypeId: endpointTypeId,
+                        id: id,
+                        added: value,
+                        listType: listType,
+                        replyId: 'singleAttributeState'
+                    })
+                    return response.status(httpCode.ok).send()
+                })
+                break
+            case 'text': 
+                insertOrUpdateAttributeState(db, endpointTypeId, id, value, booleanParam).then(() => {
+                    response.json({
+                        action: action, 
+                        endpointTypeId: endpointTypeId,
+                        id: id,
+                        added: value,
+                        listType: listType,
+                        replyId: 'singleAttributeState'
+                    })
+                    return response.status(httpCode.ok).send()
+                })
+            default:
+                break
+        }
+    })
+
+    app.post('/post/command/update', (request, response) => {
+        var { action, endpointTypeId, id, value, listType} = request.body
+        var booleanParam = ''
+
+        switch (listType) {
+            case 'selectedIn':
+                booleanParam = "INCOMING"
+                break
+            case 'selectedOut':
+                booleanParam = "OUTGOING"
+                break
+            default: 
+                break
+        }
+        switch (action) {
+            case 'boolean':
+                insertOrUpdateCommandState(db, endpointTypeId, id, value, booleanParam).then(() => {
+                    response.json({
+                        action: action,
+                        endpointTypeId: endpointTypeId,
+                        id: id,
+                        added: value,
+                        listType: listType,
+                        replyId: 'singleCommandState'
+                    })
+                    return response.status(httpCode.ok).send()
+                })
+                break
+            default:
+                break
+        }
+    })
+
+    app.post('/post/reportableAttribute/update', (request, response) => {
+        var { action, endpointTypeId, id, value, listType} = request.body
+        var booleanParam = ''
+        switch (listType) {
+            case 'selectedReporting':
+                booleanParam = 'INCLUDED'
+                break
+            case 'reportingMin':
+                booleanParam = "MIN_INTERVAL"
+                break
+            case 'reportingMax':
+                booleanParam = "MAX_INTERVAL"
+                break
+            case 'reportableChange':
+                booleanParam = "REPORTABLE_CHANGE"
+                break
+            default: 
+                break
+        }
+        insertOrUpdateReportableAttributeState(db, endpointTypeId, id, value, booleanParam).then(() => {
+            response.json({
+                action: action,
+                endpointTypeId: endpointTypeId,
+                id: id, 
+                added: value,
+                listType: listType,
+                replyId: 'singleReportableAttributeState'
+            })
+            return response.status(httpCode.ok).send()
+        })
     })
 
     app.post('/post/save', (request, response) => {
@@ -59,6 +185,31 @@ export function registerSessionApi(db, app) {
                     })
                     return response.status(httpCode.ok).send()
                 })
+                break
+            case 'e':
+                var changeParam = ""
+                switch(context.updatedKey) {
+                    case 'endpointId': 
+                        changeParam = "ENDPOINT_ID"
+                        break
+                    case 'endpointType':
+                        changeParam = "ENDPOINT_TYPE_REF"
+                        break
+                    case 'networkId':
+                        changeParam = "NETWORK_ID"
+                        break
+                }
+                editEndpoint(db, sessionId, context.id, changeParam, context.value).then(data => {
+                    response.json({
+                        action: 'u',
+                        endpointId: context.id,
+                        updatedKey: context.updatedKey,
+                        updatedValue: context.value,
+                        replyId: "zcl-endpoint-response"
+                    })
+                    return response.status(httpCode.ok).send()
+                })
+                break
             default:
                 break
         }
@@ -97,5 +248,33 @@ export function registerSessionApi(db, app) {
             default:
                 break
         }
+    })
+
+    app.post('/post/endpointType/update', (request, response) => {
+        var {action, endpointTypeId, updatedKey, updatedValue} = request.body
+        var sessionId = request.session.zapSessionId
+
+        var param = ''
+        switch (updatedKey) {
+            case 'deviceTypeRef':
+                param = "DEVICE_TYPE_REF"
+                break
+            case 'name': 
+                param = "NAME"
+            default: 
+                break
+        }
+        
+        updateEndpointType(db, sessionId, endpointTypeId, param, updatedValue).then(() => {
+            response.json({
+                action: action,
+                endpointTypeId: endpointTypeId, 
+                updatedKey: updatedKey,
+                updatedValue: updatedValue,
+                replyId: "zcl-endpointType-response"
+            })
+            return response.status(httpCode.ok).send()
+        })
+
     })
 }

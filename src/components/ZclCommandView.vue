@@ -18,22 +18,24 @@
             <q-checkbox
               dark
               class="q-mt-xs"
-              v-model="selectionIn"
+              v-model="selectionOut"
               :val="props.row.id"
               indeterminate-value="false"
-              @input="handleCommandSelection(props.row.id, selectionIn,'selectedIn')"
-
+              keep-color
+              :color="handleColorSelection(selectionOut, requiredCommands, props.row.id)"
+              @input="handleCommandSelection(props.row.id, selectionOut,'selectedOut')"
             />
           </q-td>
           <q-td key="in" :props="props" auto-width>
             <q-checkbox
               dark
               class="q-mt-xs"
-              v-model="selectionOut"
+              v-model="selectionIn"
               :val="props.row.id"
               indeterminate-value="false"
-              @input="handleCommandSelection(props.row.id, selectionOut,'selectedOut')"
-
+              keep-color
+              :color="handleColorSelection(selectionOut, [], props.row.id)"
+              @input="handleCommandSelection(props.row.id, selectionIn,'selectedIn')"
             />
           </q-td>
           <q-td key="direction" :props="props" auto-width>
@@ -65,6 +67,22 @@ export default {
       if (arg.type === 'cluster') {
         this.$store.dispatch('zap/updateCommands', arg.commandData || [])
       }
+      if (arg.type === 'endpointTypeCommands') {
+        this.$store.dispatch('zap/setCommandStateLists', arg.data)
+      }
+      if (arg.type === 'deviceTypeCommands') {
+        this.$store.dispatch('zap/setRequiredCommands', arg.data)
+      }
+    })
+    this.$serverOn('singleCommandState', (event, arg) => {
+      if (arg.action === 'boolean') {
+        this.$store.dispatch('zap/updateSelectedCommands', {
+          id: arg.id,
+          added: arg.added,
+          listType: arg.listType,
+          view: 'commandView'
+        })
+      }
     })
   },
   computed: {
@@ -82,6 +100,16 @@ export default {
       get () {
         return this.$store.state.zap.commandView.selectedOut
       }
+    },
+    selectedEndpointId: {
+      get () {
+        return this.$store.state.zap.endpointTypeView.selectedEndpointType
+      }
+    },
+    requiredCommands: {
+      get () {
+        return this.$store.state.zap.commandView.requiredCommands
+      }
     }
   },
   methods: {
@@ -93,12 +121,27 @@ export default {
       } else {
         addedValue = false
       }
-      this.$store.dispatch('zap/updateSelectedCommands', {
-        id: id,
-        added: addedValue,
-        listType: listType,
-        view: 'commandView'
-      })
+      this.$serverPost(`/command/update`,
+        {
+          action: 'boolean',
+          endpointTypeId: this.selectedEndpointId,
+          id: id,
+          value: addedValue,
+          listType: listType
+        })
+      // this.$store.dispatch('zap/updateSelectedCommands', {
+      //   id: id,
+      //   added: addedValue,
+      //   listType: listType,
+      //   view: 'commandView'
+      // })
+    },
+    handleColorSelection (selectedList, recommendedList, id) {
+      if (recommendedList.includes(id)) {
+        if (selectedList.includes(id)) return 'green'
+        else return 'red'
+      }
+      return 'primary'
     }
   },
   data () {

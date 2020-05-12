@@ -4,7 +4,6 @@ import Vue from 'vue'
 import axios from 'axios'
 import events from 'events'
 
-console.log('Client init with axios  mode.')
 Vue.prototype.$axios = axios({ withCredentials: true })
 var eventEmitter = new events.EventEmitter()
 

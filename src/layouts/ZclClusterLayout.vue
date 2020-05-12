@@ -4,12 +4,12 @@
         v-model="splitterModel"
         separator-class="bg-orange"
         separator-style="width: 3px"
-        style="height: 800px"
+        style="height: 600px"
       >
         <template v-slot:before>
           <div class="q-pa-md">
-            <ZclEndpointConfig class="bg-grey-10 text-white" />
             <ZclEndpointTypeConfig class="bg-grey-10 text-white" />
+            <ZclEndpointConfig class="bg-grey-10 text-white" />
             <ZclClusterList class="bg-grey-10 text-white" />
           </div>
         </template>

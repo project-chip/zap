@@ -10,6 +10,55 @@ export function getUppercase(str) {
 };
 
 /**
+ *
+ *
+ * @export
+ * @param {*} value
+ * @param {*} options
+ * @returns String
+ * Description: getSwitch helper receives a options hash which contains
+ * options.fn that behaves like a compiled handlebars template.
+ */
+export function getSwitch(value, options) {
+	this.switch_value = value.toLowerCase();
+	this.switch_break = false;
+	return options.fn(this);
+};
+
+/**
+ *
+ *
+ * @export
+ * @param {*} value
+ * @param {*} options
+ * @returns String
+ * Description: getCase helper receives a options hash which contains
+ * options.fn that behaves like a compiled handlebars template.
+ */
+export function getCase(value, options) {
+	if (value == this.switch_value) {
+		this.switch_break = true;
+	  	return options.fn(this);
+	}
+};
+
+/**
+ *
+ *
+ * @export
+ * @param {*} value
+ * @param {*} options
+ * @returns String
+ * Description: getDefault helper receives a options hash which contains
+ * options.fn that behaves like a compiled handlebars template.
+ */
+export function getDefault(value, options) {
+	if (this.switch_break == false) {
+		return options.fn(this);
+	}
+ };
+
+/**
 Given: String
 Return: String
 Description: return the given string such that camel case is changed into a
@@ -52,4 +101,22 @@ function findAndReplace(string, target, replacement) {
 		}
 	}
 	return string;
+}
+
+/**
+ *
+ *
+ * Given: String Array
+ * @returns the length of largest String in the array
+ */
+export function getLargestStringInArray() {
+	var stringArray = arguments[0];
+	var lengthOfLargestString = 0, i = 0, stringLength = 0;
+	for(i=0; i<stringArray.length;i++) {
+		stringLength = stringArray[i].NAME.length;
+		if ( stringLength > lengthOfLargestString ) {
+			lengthOfLargestString = stringLength;
+		}
+	}
+	return lengthOfLargestString;
 }

@@ -1,10 +1,15 @@
 import fs from "fs"
 import { version } from '../package.json'
 import { closeDatabase, initDatabase, loadSchema } from "../src-electron/db/db-api"
-import { ensureZapSessionId, getPathCrc, getSessionIdFromWindowdId, insertClusters, insertPathCrc, selectAllClusters, selectAttributesByClusterId, selectClusterById, selectCommandsByClusterId, deleteEndpoint, getSessionDirtyFlag, setSessionClean } from "../src-electron/db/query"
 import { zclPropertiesFile } from "../src-electron/main-process/args"
-import { logInfo, schemaFile, sqliteTestFile } from "../src-electron/main-process/env"
+import { logInfo, schemaFile, sqliteTestFile, logError } from "../src-electron/main-process/env"
+import { createStateFromDatabase } from "../src-electron/main-process/importexport"
 import { loadZcl } from "../src-electron/zcl/zcl-loader"
+import { getPathCrc, insertPathCrc } from "../src-electron/db/query-package"
+import { insertClusters, selectAllClusters, selectClusterById, selectAttributesByClusterId, selectCommandsByClusterId } from "../src-electron/db/query-zcl"
+import { ensureZapSessionId, setSessionClean, getSessionIdFromWindowdId, getSessionDirtyFlag } from "../src-electron/db/query-session"
+import { insertEndpointType, deleteEndpoint, deleteEndpointType } from "../src-electron/db/query-config"
+import { insertFileLocation, selectFileLocation } from "../src-electron/db/query-generic"
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -40,6 +45,15 @@ test('Path CRC queries.', () => {
         .then((c) => expect(c).toBe(crc))
 })
 
+test('File location queries.', () => {
+    return insertFileLocation(db, '/random/file/path', 'cat')
+      .then(() => selectFileLocation(db, 'cat'))
+      .then(filePath => expect(filePath).toBe('/random/file/path'))
+      .then(() => insertFileLocation(db, '/random/file/second/path', 'cat'))
+      .then(() => selectFileLocation(db, 'cat'))
+      .then(filePath => expect(filePath).toBe('/random/file/second/path'))
+})
+
 test('Simple cluster addition.', () => {
     return insertPathCrc(db, 'test', 1)
         .then((rowid) => insertClusters(db, rowid, [{
@@ -49,7 +63,7 @@ test('Simple cluster addition.', () => {
             define: 'TEST'
         }]))
         .then((rowids) => selectAllClusters(db))
-        .then((rows) => new Promise((resolve,reject) => {
+        .then((rows) => new Promise((resolve, reject) => {
             expect(rows.length).toBe(1)
             let rowid = rows[0].CLUSTER_ID
             expect(rows[0].CODE).toBe('0x1234')
@@ -57,20 +71,20 @@ test('Simple cluster addition.', () => {
             resolve(rowid)
         }))
         .then((rowid) => selectClusterById(db, rowid))
-        .then((row) => new Promise((resolve,reject) => {
+        .then((row) => new Promise((resolve, reject) => {
             expect(row.CODE).toBe('0x1234')
             expect(row.NAME).toBe('Test')
             resolve(row.CLUSTER_ID)
         }))
         .then((rowid) => {
             selectAttributesByClusterId(db, rowid)
-            .then(rows => {
-                expect(rows.length).toBe(0)
-            })
-            .then(() => selectCommandsByClusterId(db, rowid))
-            .then(rows => {
-                expect(rows.length).toBe(0)
-            })
+                .then(rows => {
+                    expect(rows.length).toBe(0)
+                })
+                .then(() => selectCommandsByClusterId(db, rowid))
+                .then(rows => {
+                    expect(rows.length).toBe(0)
+                })
         })
 })
 
@@ -93,18 +107,60 @@ describe('Session specific queries', () => {
     test('Make sure session is dirty', () => {
         var sid;
         return getSessionIdFromWindowdId(db, 666)
-         .then(data => {
-             sid = data.sessionId
-             return getSessionDirtyFlag(db, sid)
-         })
-         .then(result => {
-             expect(result).toBeTruthy()
-         })
-         .then(() => setSessionClean(db, sid))
-         .then(() => getSessionDirtyFlag(db, sid))
-         .then(result => {
-            expect(result).toBeFalsy()
-         })
+            .then(data => {
+                sid = data.sessionId
+                return getSessionDirtyFlag(db, sid)
+            })
+            .then(result => {
+                expect(result).toBeTruthy()
+            })
+            .then(() => setSessionClean(db, sid))
+            .then(() => getSessionDirtyFlag(db, sid))
+            .then(result => {
+                expect(result).toBeFalsy()
+            })
+    })
+
+    test('Make sure triggers work', () => {
+        var sid;
+        var endpointTypeId;
+        return getSessionIdFromWindowdId(db, 666)
+            .then(data => {
+                sid = data.sessionId
+                return getSessionDirtyFlag(db, sid)
+            })
+            .then(result => {
+                expect(result).toBeFalsy()
+            })
+            .then(() => insertEndpointType(db, sid, 'Test endpoint'))
+            .then((id) => {
+                endpointTypeId = id
+                return getSessionDirtyFlag(db, sid)
+            })
+            .then(result => {
+                expect(result).toBeTruthy()
+            })
+            .then(() => setSessionClean(db, sid))
+            .then(() => getSessionDirtyFlag(db, sid))
+            .then(result => {
+                expect(result).toBeFalsy()
+            })
+            .then(() => deleteEndpointType(db, endpointTypeId))
+            .then(() => getSessionDirtyFlag(db, sid))
+            .then(result => {
+                expect(result).toBeTruthy()
+            })
+    }, 2000)
+
+    test('Test state creation', () => {
+        return createStateFromDatabase(db, sid)
+          .then(state => {
+              expect(state.creator).toBe('zap')
+              expect(state.writeTime).toBeTruthy()
+          })
+          .catch(err => {
+              logError("Error", err)
+          })
     })
 
     test('Empty delete', () => {

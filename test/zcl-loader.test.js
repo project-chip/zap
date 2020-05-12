@@ -3,10 +3,10 @@ var sq = require('sqlite3')
 import { loadSchema, closeDatabase } from '../src-electron/db/db-api'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
 import { zclDomains, zclClusters, zclEnums, zclStructs, zclDeviceTypes, zclBitmaps } from '../src-electron/zcl/zcl-model'
-import { selectCountFrom } from '../src-electron/db/query'
 import { version } from '../package.json'
 import { schemaFile } from '../src-electron/main-process/env'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
+import { selectCountFrom } from '../src-electron/db/query-generic'
 
 test('test opening and closing the database', () => {
     var db = new sq.Database(':memory:')

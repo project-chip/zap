@@ -107,14 +107,16 @@ export function dbUpdate(db, query, args) {
  * @param {*} args
  * @returns A promise that resolves with the rowid from the inserted row, or rejects with an error from the query.
  */
-export function dbInsert(db, query, args) {
+export function dbInsert(db, query, args, enabledLogging = true) {
     return new Promise((resolve, reject) => {
         db.run(query, args, function (err) {
             if (err) {
-                logError(`Failed insert: ${query}: ${args}`)
+                if ( enabledLogging)
+                    logError(`Failed insert: ${query}: ${args}`)
                 reject(err)
             } else {
-                logInfo(`Executed insert: ${query}: ${args} => rowid: ${this.lastID}`)
+                if ( enabledLogging)
+                    logInfo(`Executed insert: ${query}: ${args} => rowid: ${this.lastID}`)
                 resolve(this.lastID)
             }
         })

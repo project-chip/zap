@@ -54,6 +54,10 @@ export function addEndpoint (state, endpoint) {
   Vue.set(state.endpointView.networkId, endpoint.id, endpoint.network)
 }
 
+export function updateEndpoint (state, context) {
+  Vue.set(state.endpointView[context.updatedKey], context.endpointId, context.updatedValue)
+}
+
 export function initializeDefaultEndpointsTypes (state, defaultEndpointsTypes) {
   defaultEndpointsTypes.forEach(endpointType => {
     if (state.endpointTypeView.name[endpointType.id] === undefined) {
@@ -124,4 +128,72 @@ export function deleteEndpoint (state, endpoint) {
   Vue.delete(state.endpointView.endpointId, endpoint.id)
   Vue.delete(state.endpointView.endpointType, endpoint.id)
   Vue.delete(state.endpointView.networkId, endpoint.id)
+}
+
+export function setClusterList (state, data) {
+  state.clustersView.selectedClients = data.clients
+  state.clustersView.selectedServers = data.servers
+}
+
+export function resetAttributeDefaults (state) {
+  state.attributeView.defaultValues = {}
+  state.attributes.forEach(attribute => {
+    Vue.set(state.attributeView.defaultValues, attribute.id, attribute.defaultValue)
+  })
+}
+
+export function resetReportableAttributeDefaults (state) {
+  state.reportingView.reportingMin = {}
+  state.reportingView.reportingMin = {}
+  state.reportingView.reportableChange = {}
+  state.attributes.forEach(attribute => {
+    Vue.set(state.reportingView.reportingMin, attribute.id, 0)
+    Vue.set(state.reportingView.reportingMax, attribute.id, 65344)
+    Vue.set(state.reportingView.reportableChange, attribute.id, 0)
+  })
+}
+
+export function setAttributeLists (state, data) {
+  state.attributeView.selectedAttributes = data.included
+  state.attributeView.selectedExternal = data.external
+  state.attributeView.selectedFlash = data.flash
+  state.attributeView.selectedSingleton = data.singleton
+  state.attributeView.selectedBounded = data.bounded
+  resetAttributeDefaults(state)
+  Object.entries(data.defaultValue).forEach(([attributeRef, defaultVal]) => {
+    Vue.set(state.attributeView.defaultValues, attributeRef, defaultVal)
+  })
+}
+
+export function setReportableAttributeLists (state, data) {
+  state.reportingView.selectedReporting = data.included
+  resetReportableAttributeDefaults(state)
+  Object.entries(data.minInterval).forEach(([attributeRef, defaultVal]) => {
+    Vue.set(state.reportingView.reportingMin, attributeRef, defaultVal)
+  })
+
+  Object.entries(data.maxInterval).forEach(([attributeRef, defaultVal]) => {
+    Vue.set(state.reportingView.reportingMax, attributeRef, defaultVal)
+  })
+  Object.entries(data.reportableChange).forEach(([attributeRef, defaultVal]) => {
+    Vue.set(state.reportingView.reportableChange, attributeRef, defaultVal)
+  })
+}
+
+export function setCommandLists (state, data) {
+  state.commandView.selectedIn = data.incoming
+  state.commandView.selectedOut = data.outgoing
+}
+
+export function setRecommendedClusterList (state, data) {
+  Vue.set(state.clustersView, 'recommendedClients', data.recommendedClients)
+  Vue.set(state.clustersView, 'recommendedServers', data.recommendedServers)
+}
+
+export function setRequiredAttributesList (state, data) {
+  Vue.set(state.attributeView, 'requiredAttributes', data.requiredAttributes)
+}
+
+export function setRequiredCommandsList (state, data) {
+  Vue.set(state.commandView, 'requiredCommands', data.requiredCommands)
 }

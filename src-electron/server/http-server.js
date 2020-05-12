@@ -6,15 +6,15 @@
  * @module JS API: http server
  */
 
-import { logInfo, logError } from '../main-process/env.js'
+import bodyParser from 'body-parser'
 import express from 'express'
 import session from 'express-session'
-import bodyParser from 'body-parser'
 import path from 'path'
-import { ensureZapSessionId } from '../db/query.js'
-import { registerStaticZclApi } from '../rest/static-zcl.js'
+import { ensureZapSessionId } from '../db/query-session.js'
+import { logError, logInfo } from '../main-process/env.js'
 import { registerAdminApi } from '../rest/admin.js'
 import { registerGenerationApi } from '../rest/generation.js'
+import { registerStaticZclApi } from '../rest/static-zcl.js'
 import { registerSessionApi } from '../rest/user-data.js'
 
 var httpServer = null

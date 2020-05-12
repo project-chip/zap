@@ -20,7 +20,10 @@ export default function () {
     clustersView: {
       selected: [],
       selectedServers: [],
-      selectedClients: []
+      selectedClients: [],
+      // These are based off of the selected ZCL Endpoints Device Type
+      recommendedClients: [],
+      recommendedServers: []
     },
     attributeView: {
       selectedAttributes: [],
@@ -28,11 +31,15 @@ export default function () {
       selectedFlash: [],
       selectedSingleton: [],
       selectedBounded: [],
-      defaultValues: {}
+      defaultValues: {},
+      // These are based off of the selected ZCL Endpoint Device Type
+      recommendedAttributes: []
     },
     commandView: {
       selectedIn: [],
-      selectedOut: []
+      selectedOut: [],
+      // These are based off of the selected ZCL Endpoint Device Type
+      requiredCommands: []
     },
     reportingView: {
       selectedReporting: [],

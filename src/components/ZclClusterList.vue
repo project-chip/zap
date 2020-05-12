@@ -20,8 +20,11 @@
             <q-checkbox
               dark
               class="q-mt-xs"
+              :disable="selectedEndpointId == 0"
               v-model="selectionClient"
+              keep-color
               :val="props.row.id"
+              :color="handleColorSelection(selectionClient, recommendedClients, props.row.id)"
               indeterminate-value="false"
               @input="handleClusterSelection(props.row.id, true)"
             />
@@ -30,9 +33,12 @@
             <q-checkbox
               dark
               class="q-mt-xs"
+              keep-color
+              :disable="selectedEndpointId.length == 0"
               v-model="selectionServer"
               :val="props.row.id"
               indeterminate-value="false"
+              :color="handleColorSelection(selectionServer, recommendedServers, props.row.id)"
               @input="handleClusterSelection(props.row.id, false)"
             />
           </q-td>
@@ -75,6 +81,21 @@ export default {
         return this.$store.state.zap.clustersView.selectedServers
       },
       set (val) {}
+    },
+    selectedEndpointId: {
+      get () {
+        return this.$store.state.zap.endpointTypeView.selectedEndpointType
+      }
+    },
+    recommendedClients: {
+      get () {
+        return this.$store.state.zap.clustersView.recommendedClients
+      }
+    },
+    recommendedServers: {
+      get () {
+        return this.$store.state.zap.clustersView.recommendedServers
+      }
     }
   },
 
@@ -93,10 +114,17 @@ export default {
         addedValue = false
       }
       if (isClient) {
-        this.$store.dispatch('zap/updateSelectedClients', { id: id, added: addedValue, listType: 'selectedClients', view: 'clustersView' })
+        this.$store.dispatch('zap/updateSelectedClients', { endpointTypeId: this.selectedEndpointId, id: id, added: addedValue, listType: 'selectedClients', view: 'clustersView' })
       } else {
-        this.$store.dispatch('zap/updateSelectedServers', { id: id, added: addedValue, listType: 'selectedServers', view: 'clustersView' })
+        this.$store.dispatch('zap/updateSelectedServers', { endpointTypeId: this.selectedEndpointId, id: id, added: addedValue, listType: 'selectedServers', view: 'clustersView' })
       }
+    },
+    handleColorSelection (selectedList, recommendedList, id) {
+      if (recommendedList.includes(id)) {
+        if (selectedList.includes(id)) return 'green'
+        else return 'red'
+      }
+      return 'primary'
     }
   },
 
@@ -104,6 +132,14 @@ export default {
     this.$serverOn('zcl-item-list', (event, arg) => {
       this.title = arg.title
       this.type = arg.type
+    })
+    this.$serverOn('zcl-item', (event, arg) => {
+      if (arg.type === 'endpointTypeClusters') {
+        this.$store.dispatch('zap/setClusterList', arg.data)
+      }
+      if (arg.type === `deviceTypeClusters`) {
+        this.$store.dispatch('zap/setRecommendedClusterList', arg.data)
+      }
     })
   },
   data () {

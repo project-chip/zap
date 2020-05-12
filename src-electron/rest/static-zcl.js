@@ -45,6 +45,27 @@ function processGetEntityRequest(db, path, id, replyId, callback) {
         case 'deviceType':
             Zcl.zclDeviceTypes(db, id).then(x => callback(replyId, { data: x, title: `Device type: ${id}`, type: 'device_type' }))
             break
+        case 'endpointTypeClusters': 
+            Zcl.zclEndpointTypeClusters(db, id).then( x => callback(replyId, {data: x, type: `endpointTypeClusters`}))
+            break
+        case 'endpointTypeAttributes':
+            Zcl.zclEndpointTypeAttributes(db, id).then( x => callback(replyId, {data: x, type: `endpointTypeAttributes`}))
+            break
+        case 'endpointTypeCommands':
+            Zcl.zclEndpointTypeCommands(db, id).then( x => callback(replyId, {data: x, type: `endpointTypeCommands`}))
+            break
+        case 'endpointTypeReportableAttributes': 
+            Zcl.zclEndpointTypeReportableAttributes(db, id).then( x => callback(replyId, {data: x, type: `endpointTypeReportableAttributes`}))
+            break
+        case `endpointTypeDeviceTypeClusters`:
+            Zcl.zclDeviceTypeClusters(db, id).then ( x => callback(replyId, {data: x, type: `deviceTypeClusters`}))
+            break
+        case `endpointTypeDeviceTypeAttributes`:
+            Zcl.zclDeviceTypeAttributes(db, id).then ( x => callback(replyId, {data: x, type: `deviceTypeAttributes`}))
+            break
+        case `endpointTypeDeviceTypeCommands`:
+            Zcl.zclDeviceTypeCommands(db, id).then ( x => callback(replyId, {data: x, type: `deviceTypeCommands`}))
+            break
     }
 }
 

@@ -35,6 +35,22 @@
         </q-card-actions>
         </q-card>
       </q-dialog>
+      <q-dialog v-model="confirmEptTypeUpdate">
+        <q-card>
+          <q-card-section>
+            <div class="text-h6">Please confirm</div>
+          </q-card-section>
+          <q-card-section>
+            You are trying to change the device type! This will reset all settings to the default required for the device type.
+            You will lose data!
+          </q-card-section>
+          <q-card-section align="right">
+            <q-btn flat label="Cancel" color="primary" v-close-popup />
+            <q-btn flat label="Confirm" color="primary" v-close-popup @click="setZclDeviceType(desiredZclEndpointType)"/>
+          </q-card-section>
+
+        </q-card>
+      </q-dialog>
     </div>
 
   <div class="row">
@@ -59,7 +75,7 @@
           :options="zclDeviceTypeOptions"
           :option-label="(item) => item === null ? '' : zclDeviceTypes[item].label"
           label="ZCL Device Type"
-          @input="setZclDeviceType($event)"
+          @input="showConfirmZclDeviceTypeChangeDialog($event)"
         />
       </div>
     </div>
@@ -75,23 +91,24 @@ export default {
         this.$store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
 
         var indexOnOff = -1
-        var indexDoorLock = -1
-        // We kick start everything by having automatically adding a centralized endpointType using the HA-onoff deviceType
-        for (var x in this.zclDeviceTypes) {
-          if (this.zclDeviceTypes[x]['label'] === 'HA-onoff') { indexOnOff = x }
-          if (this.zclDeviceTypes[x]['label'] === 'HA-doorlock') { indexDoorLock = x }
-        }
-        let onOffEptType = {
-          name: 'Centralized',
-          deviceTypeRef: indexOnOff !== -1 ? indexOnOff : 1
-        }
+        // var indexDoorLock = -1
 
-        let doorlockEptType = {
-          name: 'Primary',
-          deviceTypeRef: indexDoorLock !== -1 ? indexDoorLock : 1
+        // We kick start everything by having automatically adding a centralized endpointType using the HA-onoff deviceType
+        if (this.zclEndpointTypeOptions.length < 1) {
+          for (var x in this.zclDeviceTypes) {
+            if (this.zclDeviceTypes[x]['label'] === 'HA-onoff') { indexOnOff = x }
+            //          if (this.zclDeviceTypes[x]['label'] === 'HA-doorlock') { indexDoorLock = x }
+          }
+          let onOffEptType = {
+            name: 'Centralized',
+            deviceTypeRef: indexOnOff !== -1 ? indexOnOff : 1
+          }
+
+          this.addEndpointType(onOffEptType)
+          // Server does not handle multiple requests coming in at the same time
+          // correctly well. It fails with a 'transaction in a transaction' issue
+          // this.addEndpointType(doorlockEptType)
         }
-        this.addEndpointType(onOffEptType)
-        this.addEndpointType(doorlockEptType)
       }
     })
 
@@ -112,6 +129,15 @@ export default {
             })
           }
           break
+        case 'u':
+        // update
+          if (arg.updatedKey === 'deviceTypeRef') {
+            this.$store.dispatch('zap/setDeviceTypeReference', {
+              endpointId: this.selectedEndpointType,
+              deviceTypeRef: arg.updatedValue
+            })
+          }
+          break
         default:
           break
       }
@@ -120,11 +146,18 @@ export default {
     this.$serverGet('/deviceType/all')
   },
   methods: {
+    showConfirmZclDeviceTypeChangeDialog (value) {
+      this.desiredZclEndpointType = value
+      this.confirmEptTypeUpdate = true
+    },
     setZclDeviceType (value) {
-      this.$store.dispatch('zap/setDeviceTypeReference', {
-        endpointId: this.selectedEndpointType,
-        deviceTypeRef: value
-      })
+      this.$serverPost(`/endpointType/update`,
+        {
+          action: 'u',
+          endpointTypeId: this.selectedEndpointType,
+          updatedKey: 'deviceTypeRef',
+          updatedValue: value
+        })
     },
     addEndpointType (newEndpointType) {
       let name = newEndpointType.name
@@ -140,8 +173,11 @@ export default {
         }
       )
     },
-    setSelectedEndpointType (event) {
-      this.$store.dispatch('zap/updateSelectedEndpointType', event)
+    setSelectedEndpointType (id) {
+      this.$store.dispatch('zap/updateSelectedEndpointType', {
+        endpointType: id,
+        deviceTypeRef: this.zclDeviceTypesRecord[id]
+      })
     },
     deleteEptType (selectedEndpointType) {
       this.$serverPost(`/endpointType`, {
@@ -175,6 +211,11 @@ export default {
         return this.$store.state.zap.endpointTypeView.deviceTypeRef[this.selectedEndpointType]
       }
     },
+    zclDeviceTypesRecord: {
+      get () {
+        return this.$store.state.zap.endpointTypeView.deviceTypeRef
+      }
+    },
     selectedEndpointType: {
       get () {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
@@ -197,6 +238,8 @@ export default {
       title: '',
       model: [],
       newEptTypeDialog: [],
+      confirmEptTypeUpdate: [],
+      desiredZclEndpointType: [],
       type: ''
     }
   }

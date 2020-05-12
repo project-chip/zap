@@ -21,6 +21,8 @@
               v-model="selection"
               :val="props.row.id"
               indeterminate-value="false"
+              keep-color
+              :color="handleColorSelection(selection, requiredAttributes, props.row)"
               @input="handleAttributeSelection(props.row.id, selection, 'selectedAttributes')"
             />
           </q-td>
@@ -101,6 +103,27 @@ export default {
       if (arg.type === 'cluster') {
         this.$store.dispatch('zap/updateAttributes', arg.attributeData || [])
       }
+      if (arg.type === 'endpointTypeAttributes') {
+        this.$store.dispatch('zap/setAttributeStateLists', arg.data)
+      }
+      if (arg.type === 'deviceTypeAttributes') {
+        this.$store.dispatch('zap/setRequiredAttributes', arg.data)
+      }
+    })
+    this.$serverOn('singleAttributeState', (event, arg) => {
+      if (arg.action === 'boolean') {
+        this.$store.dispatch('zap/updateSelectedAttributes', {
+          id: arg.id,
+          added: arg.added,
+          listType: arg.listType,
+          view: 'attributeView'
+        })
+      } else if (arg.action === 'text') {
+        this.$store.dispatch('zap/updateAttributeDefaults', {
+          id: arg.id,
+          newDefaultValue: arg.added
+        })
+      }
     })
   },
   methods: {
@@ -112,18 +135,33 @@ export default {
       } else {
         addedValue = false
       }
-      this.$store.dispatch('zap/updateSelectedAttributes', {
-        id: id,
-        added: addedValue,
-        listType: listType,
-        view: 'attributeView'
-      })
+
+      this.$serverPost(`/attribute/update`,
+        {
+          action: 'boolean',
+          endpointTypeId: this.selectedEndpointId,
+          id: id,
+          value: addedValue,
+          listType: listType
+        })
     },
     handleAttributeDefaultChange (id, newValue) {
-      this.$store.dispatch('zap/updateAttributeDefaults', {
-        id: id,
-        newDefaultValue: newValue
-      })
+      this.$serverPost(`/attribute/update`,
+        {
+          action: 'text',
+          endpointTypeId: this.selectedEndpointId,
+          id: id,
+          value: newValue,
+          listType: 'defaultValue'
+        })
+    },
+    handleColorSelection (selectedList, recommendedList, attributeData) {
+      let relevantAttributeList = attributeData.side === 'client' ? this.selectionClusterClient : this.selectionClusterServer
+      if (recommendedList.includes(attributeData.id) && relevantAttributeList.includes(attributeData.clusterRef)) {
+        if (selectedList.includes(attributeData.id)) return 'green'
+        else return 'red'
+      }
+      return 'primary'
     }
   },
 
@@ -162,7 +200,31 @@ export default {
       get () {
         return this.$store.state.zap.attributeView.defaultValues
       }
-    }
+    },
+    selectedEndpointId: {
+      get () {
+        return this.$store.state.zap.endpointTypeView.selectedEndpointType
+      }
+    },
+    requiredDeviceTypeAttributes: {
+      get () {
+        return this.$store.state.zap.attributeView.requiredAttributes
+      }
+    },
+    requiredAttributes: {
+      get () {
+        return this.attributeData.filter(attribute => !attribute.isOptional || (this.requiredDeviceTypeAttributes.includes(attribute.id))).map(attribute => attribute.id)
+      }
+    },
+    selectionClusterClient: {
+      get () {
+        return this.$store.state.zap.clustersView.selectedClients
+      }
+    },
+    selectionClusterServer: {
+      get () {
+        return this.$store.state.zap.clustersView.selectedServers
+      } }
   },
   data () {
     return {

@@ -1,0 +1,29 @@
+# Adapter pack file for Studio.
+#
+label=Zigbee Advanced platform
+path=.,dist/electron/zap-linux-x64/
+requiredFeatureLevel=apack.core:4
+
+executable(zap:linux.x86_64) {
+  exe=zap
+}
+
+function(run) {
+  cmd=$(zap) --zclProperties zcl/zcl-studio.properties
+}
+
+function(zapHelp) {
+  cmd=$(zap) --help
+}
+
+function(zapSelfcheck) {
+  cmd=$(zap) --selfCheck
+}
+
+function(zapServer) {
+  cmd=$(zap) --noUi --showUrl --zclProperties zcl/zcl-studio.properties
+}
+
+function(zapFull) {
+  cmd=$(zap) --showUrl --zclProperties zcl/zcl-studio.properties
+}

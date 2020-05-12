@@ -51,7 +51,22 @@
       <template v-slot:body="props">
         <q-tr :props="props" clickable @click="setActiveIndex(props.row)" dark>
           <q-td key="eptId" :props="props" auto-width>
-            0x{{ endpointId[props.row.id].toString(16).padStart(4, "0") }}
+            {{getFormattedEndpointId(props.row.id)}}
+            <q-popup-edit dark dense>
+            <q-input
+              debounce="300"
+              type="text"
+              v-model="endpointId[props.row.id]"
+              dark
+              dense
+              prefix="0x"
+              mask="XXXX"
+              fill-mask="0"
+              reverse-fill-mask
+              @input="handleEndpointChange(props.row.id, 'endpointId', endpointId[props.row.id])"
+              :rules="[ val => val.length <= 4 || 'EndpointId is a 2 byte value' ]"
+            />
+            </q-popup-edit>
           </q-td>
           <q-td key="profileId" :props="props" auto-width>
             {{ (deviceTypes[endpointDeviceTypeRef[endpointType[props.row.id]]] ? deviceTypes[endpointDeviceTypeRef[endpointType[props.row.id]]].profileId.toString(16) : "").padStart(4, "0") }}
@@ -64,9 +79,31 @@
           </q-td>
           <q-td key="endpointType" :props="props" auto-width>
             {{ endpointTypeName[endpointType[props.row.id]] }}
+            <q-popup-edit dark dense>
+                <q-select
+                  filled
+                  v-model="endpointType[props.row.id]"
+                  :options="Object.keys(endpointTypeName)"
+                  :option-label="(item) => item === null ? '' : endpointTypeName[item]"
+                  label="Endpoint Type"
+                  dense
+                  dark
+                  @input="handleEndpointChange(props.row.id, 'endpointType', $event)"
+                />
+            </q-popup-edit>
           </q-td>
           <q-td key="nwkId" :props="props" auto-width>
             {{ networkId[props.row.id] }}
+            <q-popup-edit dark dense>
+            <q-input
+              debounce="300"
+              type="text"
+              v-model="networkId[props.row.id]"
+              dark
+              dense
+              @input="handleEndpointChange(props.row.id, 'networkId', networkId[props.row.id])"
+            />
+            </q-popup-edit>
           </q-td>
         </q-tr>
       </template>
@@ -92,6 +129,13 @@ export default {
           this.activeIndex = []
           this.$store.dispatch('zap/deleteEndpoint', {
             id: arg.id
+          })
+          break
+        case 'u':
+          this.$store.dispatch('zap/updateEndpoint', {
+            id: arg.endpointId,
+            updatedKey: arg.updatedKey,
+            updatedValue: arg.updatedValue
           })
           break
         default:
@@ -251,8 +295,24 @@ export default {
       } else {
         this.activeIndex = [index]
         this.$store.dispatch('zap/updateSelectedEndpoint', index.id)
-        this.$store.dispatch('zap/updateSelectedEndpointType', this.endpointType[index.id])
+        this.$store.dispatch('zap/updateSelectedEndpointType', {
+          endpointType: this.endpointType[index.id],
+          deviceTypeRef: this.endpointDeviceTypeRef[index.id]
+        })
       }
+    },
+    getFormattedEndpointId (endpointRef) {
+      return '0x' + this.endpointId[endpointRef].toString(16).padStart(4, '0')
+    },
+    handleEndpointChange (id, changeId, value) {
+      this.$serverPost('/endpoint', {
+        action: 'e',
+        context: {
+          id: id,
+          updatedKey: changeId,
+          value: value
+        }
+      })
     }
   }
 }

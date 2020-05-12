@@ -6,7 +6,7 @@
 import Handlebars from 'handlebars';
 var fs = require('fs-extra');
 
-import { selectAllClusters, selectAllEnums, selectAllEnumItems, selectAllBitmaps, selectAllBitmapFields } from "../db/query.js"
+import { selectAllClusters, selectAllEnums, selectAllEnumItems, selectAllBitmaps, selectAllBitmapFields, selectAllStructs, selectAllStructItems } from "../db/query-zcl.js"
 
 /**
  * Find the handlebar template file, compile and return the template file.
@@ -107,6 +107,12 @@ export function infoFromDb(map, dbRowType) {
 			} else if (dbRowType[i] == "bitmaps") {
 				dbInfo[i] = selectAllBitmaps(db)
 				.then((dbRows) => map[dbRowType[i]] = dbRows);
+			} else if (dbRowType[i] === "print-cluster") {
+				dbInfo[i] = selectAllClusters(db)
+				.then((dbRows) => map[dbRowType[i]] = dbRows);
+			} else if (dbRowType[i] === "af-structs") {
+				dbInfo[i] = selectAllStructs(db)
+				.then((dbRows) => map[dbRowType[i]] = dbRows);
 			}
 		}
 		// Going through an array of promises and resolving them.
@@ -153,6 +159,8 @@ export function groupInfoIntoDbRow(map, groupByParams) {
 			subItems = selectAllEnumItems(db);
 		} else if (subItemName == 'BITMAP_FIELDS') {
 			subItems = selectAllBitmapFields(db);
+		} else if (subItemName == 'STRUCT_ITEMS') {
+			subItems = selectAllStructItems(db);
 		} else {
 			return;
 		}

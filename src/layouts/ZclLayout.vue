@@ -71,6 +71,24 @@
                       <q-item-label>enums.h</q-item-label>
                     </q-item-section>
                   </q-item>
+
+                  <q-item clickable v-close-popup @click="generationButtonText='print-cluster.h';getGeneratedFile('print-cluster')" :label="generationButtonText">
+                    <q-item-section>
+                      <q-item-label>print-cluster.h</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
+                  <q-item clickable v-close-popup @click="generationButtonText='af-structs.h';getGeneratedFile('af-structs')" :label="generationButtonText">
+                    <q-item-section>
+                      <q-item-label>af-structs.h</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
+                  <q-item clickable v-close-popup @click="generationButtonText='att-storage.h';getGeneratedFile('att-storage')" :label="generationButtonText">
+                    <q-item-section>
+                      <q-item-label>att-storage.h</q-item-label>
+                    </q-item-section>
+                  </q-item>
                 </q-list>
               </q-btn-dropdown>
               <div>

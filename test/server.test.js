@@ -15,9 +15,12 @@ import { logError, setDevelopmentEnv, sqliteTestFile, logInfo, setMainDatabase, 
 import fs from "fs"
 import path from 'path'
 import axios from 'axios'
-import { getAllSesionKeyValues, selectCountFrom, insertPathCrc, insertClusters, insertDomains, getAllSessions, deleteSession } from "../src-electron/db/query"
 import { exportDataIntoFile, importDataFromFile } from "../src-electron/main-process/importexport"
 import { version } from '../package.json'
+import { selectCountFrom } from "../src-electron/db/query-generic"
+import { getAllSessions, deleteSession } from "../src-electron/db/query-session"
+import { insertPathCrc } from "../src-electron/db/query-package"
+import { insertClusters, insertDomains } from "../src-electron/db/query-zcl"
 
 var db
 const port = 9073

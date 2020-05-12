@@ -443,7 +443,7 @@
       </description>
       <arg name="groupId" type="INT16U"/>
       <arg name="sceneId" type="INT8U"/>
-      <arg name="transitionTime" type="INT16U" introducedIn="zcl-7.0-07-5123-07"/>
+      <arg name="transitionTime" type="INT16U" introducedIn="zcl-7.0-07-5123-07" optional="1"/>
     </command>
     <command source="client" code="0x06" name="GetSceneMembership" optional="false" cli="zcl scenes get">
       <description>
