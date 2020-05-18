@@ -1,3 +1,5 @@
+// Copyright (c) 2019 Silicon Labs. All rights reserved.
+
 /**
 Given: String
 Return: String
@@ -38,7 +40,7 @@ export function getSwitch(value, options) {
 export function getCase(value, options) {
 	if (value == this.switch_value) {
 		this.switch_break = true;
-	  	return options.fn(this);
+		return options.fn(this);
 	}
 };
 
@@ -56,7 +58,7 @@ export function getDefault(value, options) {
 	if (this.switch_break == false) {
 		return options.fn(this);
 	}
- };
+};
 
 /**
 Given: String
@@ -65,7 +67,7 @@ Description: return the given string such that camel case is changed into a
 string with underscores and is also uppercase.
 */
 export function getStrong(str) {
-	str = str.replace(/\.?([A-Z][a-z])/g, function (x,y){return "_" + y}).replace(/^_/, "");
+	str = str.replace(/\.?([A-Z][a-z])/g, function (x, y) { return "_" + y }).replace(/^_/, "");
 	return str.toUpperCase();
 };
 
@@ -94,9 +96,9 @@ Description: Change the target values using the replacement mentioned and
 return the given string.
 */
 function findAndReplace(string, target, replacement) {
-	var i=0, j = 0, length = string.length, targetLength = target.length;
-	for( j=0; j < targetLength; j++) {
-	 	for (i=0; i < length; i++) {
+	var i = 0, j = 0, length = string.length, targetLength = target.length;
+	for (j = 0; j < targetLength; j++) {
+		for (i = 0; i < length; i++) {
 			string = string.replace(target[j], replacement);
 		}
 	}
@@ -112,11 +114,29 @@ function findAndReplace(string, target, replacement) {
 export function getLargestStringInArray() {
 	var stringArray = arguments[0];
 	var lengthOfLargestString = 0, i = 0, stringLength = 0;
-	for(i=0; i<stringArray.length;i++) {
+	for (i = 0; i < stringArray.length; i++) {
 		stringLength = stringArray[i].NAME.length;
-		if ( stringLength > lengthOfLargestString ) {
+		if (stringLength > lengthOfLargestString) {
 			lengthOfLargestString = stringLength;
 		}
 	}
 	return lengthOfLargestString;
+}
+
+/**
+ *
+ *
+ * @export
+ * @param {*} str
+ * Descrtiption: Given a String, remove underscores from it and return it.
+ */
+export function getCamelCaseWithoutUnderscore(str) {
+	var tempArray = str.split("_");
+	let res = "";
+	var i = 0;
+	for (i = 0; i < tempArray.length; i++) {
+		tempArray[i] = tempArray[i].substr(0, 1).toUpperCase() + tempArray[i].substr(1).toLowerCase();
+		res += tempArray[i];
+	}
+	return res;
 }

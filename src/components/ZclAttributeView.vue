@@ -83,11 +83,11 @@
               :val="props.row.id"
               indeterminate-value="false"
               @input="handleAttributeSelection(props.row.id, selectionBounded,'selectedBounded')"
-
             />
           </q-td>
           <q-td key="default" :props="props" auto-width>
-            <q-input v-model="selectionDefault[props.row.id]" dark dense @input="handleAttributeDefaultChange(props.row.id, selectionDefault[props.row.id])"/>
+            <q-input v-model="selectionDefault[props.row.id]" dark dense bottom-slots :error="!isDefaultValueValid(props.row.id)" :error-message="getDefaultValueErrorMessage(props.row.id)"
+                              @input="handleAttributeDefaultChange(props.row.id, selectionDefault[props.row.id])"/>
           </q-td>
         </q-tr>
       </template>
@@ -121,7 +121,8 @@ export default {
       } else if (arg.action === 'text') {
         this.$store.dispatch('zap/updateAttributeDefaults', {
           id: arg.id,
-          newDefaultValue: arg.added
+          newDefaultValue: arg.added,
+          defaultValueValidationIssues: arg.validationIssues.defaultValue
         })
       }
     })
@@ -162,6 +163,14 @@ export default {
         else return 'red'
       }
       return 'primary'
+    },
+    isDefaultValueValid (id) {
+      return this.defaultValueValidation[id] != null ? this.defaultValueValidation[id].length === 0 : true
+    },
+    getDefaultValueErrorMessage (id) {
+      return this.defaultValueValidation[id] != null ? this.defaultValueValidation[id].reduce((validationIssueString, currentVal) => {
+        return validationIssueString + '\n' + currentVal
+      }, '') : ''
     }
   },
 
@@ -224,7 +233,12 @@ export default {
     selectionClusterServer: {
       get () {
         return this.$store.state.zap.clustersView.selectedServers
-      } }
+      } },
+    defaultValueValidation: {
+      get () {
+        return this.$store.state.zap.attributeView.defaultValueValidationIssues
+      }
+    }
   },
   data () {
     return {

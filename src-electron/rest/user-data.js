@@ -9,6 +9,7 @@
 import { logInfo } from '../main-process/env'
 import { httpCode } from '../server/http-server'
 import { insertOrReplaceClusterState, insertOrUpdateAttributeState, insertOrUpdateCommandState, insertOrUpdateReportableAttributeState, updateKeyValue, insertEndpoint, deleteEndpoint, editEndpoint, insertEndpointType, deleteEndpointType, updateEndpointType } from '../db/query-config'
+import { validateEndpoint, validateAttribute } from '../validation/validation'
 
 export function registerSessionApi(db, app) {
     app.post('/post/cluster', (request, response) => {
@@ -17,8 +18,8 @@ export function registerSessionApi(db, app) {
             .then(() => response.json({
                 replyId: "zcl-endpointType-cluster-selection-response",
                 endpointTypeId: endpointTypeId,
-                id: id, 
-                side: side, 
+                id: id,
+                side: side,
                 flag: flag
             }).status(httpCode.ok).send())
             .catch((err) => response.status(httpCode.badRequest).send())
@@ -26,7 +27,7 @@ export function registerSessionApi(db, app) {
 
 
     app.post('/post/attribute/update', (request, response) => {
-        var { action, endpointTypeId, id, value, listType} = request.body
+        var { action, endpointTypeId, id, value, listType } = request.body
         var booleanParam = ''
         switch (listType) {
             case 'selectedAttributes':
@@ -45,42 +46,28 @@ export function registerSessionApi(db, app) {
                 booleanParam = "BOUNDED"
             case 'defaultValue':
                 booleanParam = "DEFAULT_VALUE"
-            default: 
-                break
-        }
-        switch (action) {
-            case 'boolean':
-                insertOrUpdateAttributeState(db, endpointTypeId, id, value, booleanParam).then(() => {
-                    response.json({
-                        action: action,
-                        endpointTypeId: endpointTypeId,
-                        id: id,
-                        added: value,
-                        listType: listType,
-                        replyId: 'singleAttributeState'
-                    })
-                    return response.status(httpCode.ok).send()
-                })
-                break
-            case 'text': 
-                insertOrUpdateAttributeState(db, endpointTypeId, id, value, booleanParam).then(() => {
-                    response.json({
-                        action: action, 
-                        endpointTypeId: endpointTypeId,
-                        id: id,
-                        added: value,
-                        listType: listType,
-                        replyId: 'singleAttributeState'
-                    })
-                    return response.status(httpCode.ok).send()
-                })
             default:
                 break
         }
+        insertOrUpdateAttributeState(db, endpointTypeId, id, value, booleanParam).then(row => {
+            return validateAttribute(db,  endpointTypeId, id).then(validationData => {
+                console.log(validationData)
+                response.json({
+                    action: action,
+                    endpointTypeId: endpointTypeId,
+                    id: id,
+                    added: value,
+                    listType: listType,
+                    validationIssues: validationData,
+                    replyId: 'singleAttributeState'
+                })
+                return response.status(httpCode.ok).send()
+            })
+        })
     })
 
     app.post('/post/command/update', (request, response) => {
-        var { action, endpointTypeId, id, value, listType} = request.body
+        var { action, endpointTypeId, id, value, listType } = request.body
         var booleanParam = ''
 
         switch (listType) {
@@ -90,7 +77,7 @@ export function registerSessionApi(db, app) {
             case 'selectedOut':
                 booleanParam = "OUTGOING"
                 break
-            default: 
+            default:
                 break
         }
         switch (action) {
@@ -113,7 +100,7 @@ export function registerSessionApi(db, app) {
     })
 
     app.post('/post/reportableAttribute/update', (request, response) => {
-        var { action, endpointTypeId, id, value, listType} = request.body
+        var { action, endpointTypeId, id, value, listType } = request.body
         var booleanParam = ''
         switch (listType) {
             case 'selectedReporting':
@@ -128,14 +115,14 @@ export function registerSessionApi(db, app) {
             case 'reportableChange':
                 booleanParam = "REPORTABLE_CHANGE"
                 break
-            default: 
+            default:
                 break
         }
         insertOrUpdateReportableAttributeState(db, endpointTypeId, id, value, booleanParam).then(() => {
             response.json({
                 action: action,
                 endpointTypeId: endpointTypeId,
-                id: id, 
+                id: id,
                 added: value,
                 listType: listType,
                 replyId: 'singleReportableAttributeState'
@@ -165,8 +152,8 @@ export function registerSessionApi(db, app) {
                     response.json({
                         action: 'c',
                         id: newId,
-                        eptId: context.eptId, 
-                        endpointType: context.endpointType, 
+                        eptId: context.eptId,
+                        endpointType: context.endpointType,
                         nwkId: context.nwkId,
                         replyId: "zcl-endpoint-response"
                     })
@@ -188,8 +175,8 @@ export function registerSessionApi(db, app) {
                 break
             case 'e':
                 var changeParam = ""
-                switch(context.updatedKey) {
-                    case 'endpointId': 
+                switch (context.updatedKey) {
+                    case 'endpointId':
                         changeParam = "ENDPOINT_ID"
                         break
                     case 'endpointType':
@@ -216,7 +203,7 @@ export function registerSessionApi(db, app) {
     })
 
     app.post('/post/endpointType', (request, response) => {
-        var {action, context} = request.body
+        var { action, context } = request.body
         var sessionId = request.session.zapSessionId
         switch (action) {
             case 'c':
@@ -224,8 +211,8 @@ export function registerSessionApi(db, app) {
                     response.json({
                         action: 'c',
                         id: newId,
-                        name: context.name, 
-                        deviceTypeRef: context.deviceTypeRef, 
+                        name: context.name,
+                        deviceTypeRef: context.deviceTypeRef,
                         replyId: "zcl-endpointType-response"
                     })
                     return response.status(httpCode.ok).send()
@@ -233,8 +220,8 @@ export function registerSessionApi(db, app) {
                     return response.status(httpCode.badRequest).send()
                 })
                 break
-            case 'd': 
-                deleteEndpointType(db, context.id).then (removed => {
+            case 'd':
+                deleteEndpointType(db, context.id).then(removed => {
                     response.json({
                         action: 'd',
                         successful: removed > 0,
@@ -251,7 +238,7 @@ export function registerSessionApi(db, app) {
     })
 
     app.post('/post/endpointType/update', (request, response) => {
-        var {action, endpointTypeId, updatedKey, updatedValue} = request.body
+        var { action, endpointTypeId, updatedKey, updatedValue } = request.body
         var sessionId = request.session.zapSessionId
 
         var param = ''
@@ -259,16 +246,16 @@ export function registerSessionApi(db, app) {
             case 'deviceTypeRef':
                 param = "DEVICE_TYPE_REF"
                 break
-            case 'name': 
+            case 'name':
                 param = "NAME"
-            default: 
+            default:
                 break
         }
-        
+
         updateEndpointType(db, sessionId, endpointTypeId, param, updatedValue).then(() => {
             response.json({
                 action: action,
-                endpointTypeId: endpointTypeId, 
+                endpointTypeId: endpointTypeId,
                 updatedKey: updatedKey,
                 updatedValue: updatedValue,
                 replyId: "zcl-endpointType-response"

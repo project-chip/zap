@@ -42,9 +42,9 @@ export function selectFileLocation(db, category) {
     return dbGet(db, 'SELECT FILE_PATH FROM FILE_LOCATION WHERE CATEGORY = ?', [category])
         .then(row => {
             if (row == null) {
-                return Promise.resolve('')
+                return ''
             } else {
-                return Promise.resolve(row.FILE_PATH)
+                return row.FILE_PATH
             }
         })
 }

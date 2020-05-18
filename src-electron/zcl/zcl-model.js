@@ -4,7 +4,7 @@
  * ZCL specific stuff.
  */
 
-import { selectAllClusters, selectAllAttributes, selectAllCommands, selectClusterById, selectAllDomains, selectDomainById, selectAllEnums, selectEnumById, selectAllStructs, selectStructById, selectAllBitmaps, selectBitmapById, selectAllDeviceTypes, selectDeviceTypeById, selectAttributesByClusterId, selectCommandsByClusterId, selectEndpointTypeClustersByEndpointTypeId, selectEndpointTypeAttributesByEndpointId, selectEndpointTypeCommandsByEndpointId, selectEndpointTypeReportableAttributeByEndpointId, selectDeviceTypeClustersByDeviceTypeRef, selectDeviceTypeAttributesByDeviceTypeRef, selectDeviceTypeCommandsByDeviceTypeRef} from '../db/query-zcl.js'
+import { selectAllClusters, selectAllAttributes, selectAllCommands, selectClusterById, selectAllDomains, selectDomainById, selectAllEnums, selectEnumById, selectAllStructs, selectStructById, selectAllBitmaps, selectBitmapById, selectAllDeviceTypes, selectDeviceTypeById, selectAttributesByClusterId, selectCommandsByClusterId, selectEndpointTypeClustersByEndpointTypeId, selectEndpointTypeAttributesByEndpointId, selectEndpointTypeCommandsByEndpointId, selectEndpointTypeReportableAttributeByEndpointId, selectDeviceTypeClustersByDeviceTypeRef, selectDeviceTypeAttributesByDeviceTypeRef, selectDeviceTypeCommandsByDeviceTypeRef, selectEndpointTypeAttribute, selectAttributeByAttributeRef} from '../db/query-zcl.js'
 
 export function zclClusters(db, id) {
   const f = (x) => {
@@ -49,6 +49,28 @@ export function zclAttributes(db, clusterId) {
   } else {
     return selectAttributesByClusterId(db, clusterId).then(rows => rows.map(f))
   }
+}
+
+export function zclAttribute(db, attributeRef) {
+  const f = (x) => {
+    return {
+      id: x.ATTRIBUTE_ID,
+      clusterRef: x.CLUSTER_REF,
+      code: x.CODE,
+      manufacturerCode: x.MANUFACTURER_CODE,
+      label: x.NAME,
+      type: x.TYPE,
+      side: x.SIDE,
+      define: x.DEFINE,
+      min: x.MIN, 
+      max: x.MAX,
+      isWritable: x.IS_WRITABLE,
+      defaultValue: x.DEFAULT_VALUE,
+      isOptional: x.IS_OPTIONAL,
+      isReportable: x.IS_REPORTABLE
+    }
+  }
+  return selectAttributeByAttributeRef(db, attributeRef).then(f)
 }
 
 export function zclCommands(db, clusterId) {
@@ -191,6 +213,22 @@ export function zclCommands(db, clusterId) {
       }
     }
       return selectEndpointTypeAttributesByEndpointId(db, id).then(rows => rows.map(f))
+  }
+
+  export function zclEndpointTypeAttribute(db, endpointTypeId, attributeRef) {
+    const f = (x) => {
+      return {
+        endpointTypeRef: x.ENDPOINT_TYPE_REF,
+        attributeRef: x.ATTRIBUTE_REF,
+        included: x.INCLUDED,
+        external: x.EXTERNAL,
+        flash: x.FLASH,
+        singleton: x.SINGLETON,
+        bounded: x.BOUNDED,
+        defaultValue: x.DEFAULT_VALUE
+      }
+    }
+    return selectEndpointTypeAttribute(db, endpointTypeId, attributeRef).then(f)
   }
 
   export function zclEndpointTypeCommands(db, id) {

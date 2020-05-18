@@ -33,7 +33,8 @@ export default function () {
       selectedBounded: [],
       defaultValues: {},
       // These are based off of the selected ZCL Endpoint Device Type
-      recommendedAttributes: []
+      recommendedAttributes: [],
+      defaultValueValidationIssues: {}
     },
     commandView: {
       selectedIn: [],

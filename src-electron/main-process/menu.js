@@ -2,17 +2,19 @@
 
 import { dialog, Menu } from 'electron'
 import { getSessionIdFromWindowdId } from '../db/query-session.js'
-import { compileTemplate, generateDataToFile, groupInfoIntoDbRow, infoFromDb, mapDatabase, resolveHelper, resolveTemplateDirectory } from '../generator/static_generator.js'
-import { getHexValue, getStrong, getUppercase, getLargestStringInArray, getSwitch, getCase, getDefault } from "../handlebars/helpers/helper_utils.js"
+import { compileTemplate, generateDataToFile, groupInfoIntoDbRow, infoFromDb, mapDatabase, resolveHelper, resolveTemplateDirectory } from '../generator/static-generator.js'
+import { getHexValue, getStrong, getUppercase, getLargestStringInArray, getSwitch, getCase, getDefault, getCamelCaseWithoutUnderscore } from "../handlebars/helpers/helper-utils.js"
 import { appDirectory, logError, logInfo, mainDatabase } from './env.js'
-import { exportDataIntoFile } from './importexport.js'
 import { showErrorMessage } from './ui.js'
 import { windowCreate } from './window.js'
 import { selectFileLocation, insertFileLocation } from '../db/query-generic.js'
+import { updateKeyValue, getSessionKeyValue } from '../db/query-config.js'
+import { exportDataIntoFile } from '../importexport/export.js'
+import { readDataFromFile, writeStateToDatabase } from '../importexport/import.js'
 
 var httpPort
 var generationDirectory = appDirectory() + "/generation-output"
-var handlebarTemplateDirectory = __dirname + '/../../zcl/generation-templates'
+var handlebarTemplateDirectory = __dirname + '/../../gen-template'
 
 const template = [
   {
@@ -107,7 +109,7 @@ function doOpen(menuItem, browserWindow, event) {
   selectFileLocation(mainDatabase(), 'save')
     .then(filePath => {
       var opts = {
-        properties: ['multiSelections']
+        properties: ['openFile', 'multiSelections']
       }
       if (filePath != null) {
         opts.defaultPath = filePath
@@ -129,7 +131,15 @@ function doOpen(menuItem, browserWindow, event) {
  * @param {*} event
  */
 function doSave(menuItem, browserWindow, event) {
-  doSaveAs(menuItem, browserWindow, event)
+  getSessionIdFromWindowdId(mainDatabase(), browserWindow.id)
+    .then(row => getSessionKeyValue(mainDatabase(), row.sessionId, 'filePath'))
+    .then(filePath => {
+      if (filePath == null) {
+        doSaveAs(menuItem, browserWindow, event)
+      } else {
+        return fileSave(mainDatabase(), browserWindow.id, filePath)
+      }
+    })
 }
 
 /**
@@ -160,6 +170,7 @@ function doSaveAs(menuItem, browserWindow, event) {
     .then(filePath => {
       if (filePath != null) {
         insertFileLocation(mainDatabase(), filePath, 'save')
+        browserWindow.setTitle(filePath)
         dialog.showMessageBox(browserWindow, {
           title: 'Save',
           message: `Save done. Output: ${filePath}`,
@@ -237,18 +248,21 @@ function generateCode(db) {
   const HANDLEBAR_HELPER_SWITCH = "switch";
   const HANDLEBAR_HELPER_CASE = "case";
   const HANDLEBAR_HELPER_DEFAULT = "default";
+  const HANDLEBAR_HELPER_CAMEL_CASE = "camelCaseWithoutUnderscore";
   const HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE = "att-storage.handlebars";
   const HANDLEBAR_TEMPLATE_FILE_AF_STRUCTS = "af-structs.handlebars";
   const HANDLEBAR_TEMPLATE_FILE_CLUSTERS = "cluster-id.handlebars";
   const HANDLEBAR_TEMPLATE_FILE_ENUMS = "enums.handlebars";
   const HANDLEBAR_TEMPLATE_FILE_BITMAPS = "bitmaps.handlebars";
   const HANDLEBAR_TEMPLATE_FILE_PRINT_CLUSTERS = "print-cluster.handlebars";
+  const HANDLEBAR_TEMPLATE_FILE_DEBUG_PRINTING = "debug-printing-zcl.handlebars";
   const DATABASE_ROW_TYPE_CLUSTER = "clusters";
   const DATABASE_ROW_TYPE_ENUMS = "enums";
   const DATABASE_ROW_TYPE_BITMAPS = "bitmaps";
   const DATABASE_ROW_TYPE_AF_STRUCTS = "af-structs";
   const DATABASE_ROW_TYPE_PRINT_CLUSTER = "print-cluster";
   const DATABASE_ROW_TYPE_ATT_STORAGE = "att-storage";
+  const DATABASE_ROW_TYPE_DEBUG_PRINTING = "debug-printing-zcl";
 
   //cluster-id.h generation
   var clusterHandleBarHelpers = {}
@@ -273,8 +287,8 @@ function generateCode(db) {
     .then(templateDir => resolveTemplateDirectory(templateDir, handlebarTemplateDirectory))
     .then(templates => compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_ENUMS, HANDLEBAR_TEMPLATE_FILE_BITMAPS]))
     .then(databaseRows => infoFromDb(databaseRows, [DATABASE_ROW_TYPE_ENUMS, DATABASE_ROW_TYPE_BITMAPS]))
-    .then(databaseRowsWithEnumItems => groupInfoIntoDbRow(databaseRowsWithEnumItems, { tableName: 'ENUM_ITEMS', foreignKey: 'ENUM_REF', primaryKey: 'ENUM_ID', dbType: 'enums', columns: { NAME: "NAME", VALUE: "VALUE" } }))
-    .then(databaseRowsWithBitmapFields => groupInfoIntoDbRow(databaseRowsWithBitmapFields, { tableName: 'BITMAP_FIELDS', foreignKey: 'BITMAP_REF', primaryKey: 'BITMAP_ID', dbType: 'bitmaps', columns: { NAME: "NAME", VALUE: "MASK" } }))
+    .then(databaseRowsWithEnumItems => groupInfoIntoDbRow(databaseRowsWithEnumItems, { tableName: 'ENUM_ITEMS', foreignKey: 'ENUM_REF', primaryKey: 'ENUM_ID', dbType: 'enums' }))
+    .then(databaseRowsWithBitmapFields => groupInfoIntoDbRow(databaseRowsWithBitmapFields, { tableName: 'BITMAP_FIELDS', foreignKey: 'BITMAP_REF', primaryKey: 'BITMAP_ID', dbType: 'bitmaps' }))
     .then(helperResolution => resolveHelper(helperResolution, enumHandleBarHelpers))
     .then(directoryResolution => resolveGenerationDirectory(directoryResolution))
     .then(resultToFile => generateDataToFile(resultToFile, 'enums.h', enumsRowToHandlebarTemplateFileMap))
@@ -304,21 +318,35 @@ function generateCode(db) {
     .then(templateDir => resolveTemplateDirectory(templateDir, handlebarTemplateDirectory))
     .then(templates => compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_AF_STRUCTS]))
     .then(databaseRows => infoFromDb(databaseRows, [DATABASE_ROW_TYPE_AF_STRUCTS]))
-    .then(databaseRowsWithEnumItems => groupInfoIntoDbRow(databaseRowsWithEnumItems, { tableName: 'STRUCT_ITEMS', foreignKey: 'STRUCT_REF', primaryKey: 'STRUCT_ID', dbType: 'af-structs', columns: { NAME: "NAME", VALUE: "TYPE" } }))
+    .then(databaseRowsWithEnumItems => groupInfoIntoDbRow(databaseRowsWithEnumItems, { tableName: 'STRUCT_ITEMS', foreignKey: 'STRUCT_REF', primaryKey: 'STRUCT_ID', dbType: 'af-structs' }))
     .then(helperResolution => resolveHelper(helperResolution, afStructsHandleBarHelpers))
     .then(directoryResolution => resolveGenerationDirectory(directoryResolution))
     .then(resultToFile => generateDataToFile(resultToFile, 'af-structs.h', afStructsRowToHandleBarTemplateFileMap))
     .catch(err => logError(err))
-    
+
   //att-storage.h generation
   var attStorageRowToHandleBarTemplateFileMap = [{ dbRowType: DATABASE_ROW_TYPE_ATT_STORAGE, hTemplateFile: HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE }];
+  mapDatabase(db)
+    .then(templateDir => resolveTemplateDirectory(templateDir, ""))
+    .then(templates => compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE]))
+    .then(directoryResolution => resolveGenerationDirectory(directoryResolution))
+    .then(resultToFile => generateDataToFile(resultToFile, 'att-storage.h', attStorageRowToHandleBarTemplateFileMap))
+    .catch(err => logError(err))
+
+  //debug-printing-zcl.h generation
+  var debugPrintingHandleBarHelpers = {}
+  debugPrintingHandleBarHelpers[HANDLEBAR_HELPER_UPPERCASE] = getUppercase;
+  debugPrintingHandleBarHelpers[HANDLEBAR_HELPER_CAMEL_CASE] = getCamelCaseWithoutUnderscore;
+  var debugPrintingRowToHandlebarTemplateFileMap = [{ dbRowType: DATABASE_ROW_TYPE_DEBUG_PRINTING, hTemplateFile: HANDLEBAR_TEMPLATE_FILE_DEBUG_PRINTING }];
 
   mapDatabase(db)
-      .then(templateDir => resolveTemplateDirectory(templateDir, ""))
-      .then(templates => compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE]))
-      .then(directoryResolution => resolveGenerationDirectory(directoryResolution))
-      .then(resultToFile => generateDataToFile(resultToFile, 'att-storage.h', attStorageRowToHandleBarTemplateFileMap))
-      .catch(err => logError(err))
+    .then(templateDir => resolveTemplateDirectory(templateDir, ""))
+    .then(templates => compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_DEBUG_PRINTING]))
+    .then(databaseRows => infoFromDb(databaseRows, [DATABASE_ROW_TYPE_DEBUG_PRINTING]))
+    .then(helperResolution => resolveHelper(helperResolution, debugPrintingHandleBarHelpers))
+    .then(directoryResolution => resolveGenerationDirectory(directoryResolution))
+    .then(resultToFile => generateDataToFile(resultToFile, 'debug-printing-zcl.h', debugPrintingRowToHandlebarTemplateFileMap))
+    .catch(err => logError(err))
 }
 /**
  * perform the save.
@@ -330,22 +358,43 @@ function generateCode(db) {
  */
 function fileSave(db, winId, filePath) {
   return getSessionIdFromWindowdId(db, winId)
+    .then(row => {
+      return updateKeyValue(db, row.sessionId, 'filePath', filePath).then(() => Promise.resolve(row))
+    })
     .then(row => exportDataIntoFile(db, row.sessionId, filePath))
     .catch(err => showErrorMessage("File save", err))
 }
 
 /**
- * Perform the do open action.
+ * Perform the do open action, possibly reading in multiple files.
  *
  * @param {*} db
  * @param {*} winId
  * @param {*} filePaths
  */
 function fileOpen(db, winId, filePaths) {
-  filePaths.forEach((item, index) => {
-    logInfo(`Opening: ${item}`)
-    windowCreate(httpPort, item)
+  filePaths.forEach((filePath, index) => {
+    readAndProcessFile(db, filePath)
   })
+}
+
+/**
+ * Process a single file, parsing it in as JSON and then possibly opening
+ * a new window if all is good.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ */
+function readAndProcessFile(db, filePath) {
+  logInfo(`Read and process: ${filePath}`)
+  readDataFromFile(filePath)
+    .then(state => writeStateToDatabase(mainDatabase(), state))
+    .then(sessionId => {
+      windowCreate(httpPort, filePath, sessionId)
+      return Promise.resolve(true)
+    }).catch(err => {
+      showErrorMessage(filePath, err)
+    })
 }
 
 /**

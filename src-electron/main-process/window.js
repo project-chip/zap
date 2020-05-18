@@ -22,8 +22,18 @@ export function windowCreateIfNotThere(port) {
 
 let windowCounter = 0
 
-// Create a new window from a given path.
-export function windowCreate(port, filePath = null) {
+/**
+ * Create a window, possibly with a given file path and with a desire to attach to a given sessionId
+ * 
+ * Win id will be passed on in the URL, and if sessionId is present, so will it.
+ * 
+ * @export
+ * @param {*} port
+ * @param {*} [filePath=null]
+ * @param {*} [sessionId=null]
+ * @returns BrowserWindow that got created
+ */
+export function windowCreate(port, filePath = null, sessionId = null) {
   logInfo(__dirname)
   let newSession = session.fromPartition(`zap-${windowCounter++}`)
   let w = new BrowserWindow({
@@ -39,7 +49,10 @@ export function windowCreate(port, filePath = null) {
       session: newSession
     }
   })
-  w.loadURL(`http://localhost:${port}/index.html?winId=${w.id}`)
+  if (sessionId == null)
+    w.loadURL(`http://localhost:${port}/index.html?winId=${w.id}`)
+  else
+    w.loadURL(`http://localhost:${port}/index.html?winId=${w.id}&sessionId=${sessionId}`)
   w.on('page-title-updated', (e) => {
     e.preventDefault()
   }) // EO page-title-updated
@@ -47,7 +60,7 @@ export function windowCreate(port, filePath = null) {
   w.on('close', (e) => {
     e.preventDefault()
     getWindowDirtyFlagWithCallback(mainDatabase(), w.id, (dirty) => {
-      if ( dirty ) {
+      if (dirty) {
         const result = dialog.showMessageBoxSync(w, {
           type: 'warning',
           title: 'Unsaved changes?',
@@ -59,8 +72,8 @@ export function windowCreate(port, filePath = null) {
           defaultId: 0,
           cancelId: 1
         });
-  
-        if (result === 0) w.destroy(); 
+
+        if (result === 0) w.destroy();
       } else {
         w.destroy()
       }

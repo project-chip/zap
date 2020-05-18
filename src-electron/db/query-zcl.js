@@ -5,7 +5,8 @@
  * 
  * @module DB API: zcl database access
  */
-import { dbAll, dbGet, dbMultiInsert, dbUpdate, dbInsert } from './db-api.js';
+import { dbAll, dbGet, dbMultiInsert, dbUpdate, dbInsert, dbMultiSelect } from './db-api.js';
+import { logInfo, logWarning } from '../main-process/env.js';
 
 /**
  * Retrieves all the enums in the database.
@@ -145,6 +146,10 @@ export function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
     return dbAll(db, `SELECT ENDPOINT_TYPE_REF, ATTRIBUTE_REF, INCLUDED, EXTERNAL, FLASH, SINGLETON, BOUNDED, DEFAULT_VALUE FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ? ORDER BY ATTRIBUTE_REF`, [endpointTypeId])
 }
 
+export function selectEndpointTypeAttribute(db, endpointTypeId, attributeRef) {
+    return dbGet(db, 'SELECT ENDPOINT_TYPE_REF, ATTRIBUTE_REF, INCLUDED, EXTERNAL, FLASH, SINGLETON, BOUNDED, DEFAULT_VALUE FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ? AND ATTRIBUTE_REF = ?', [endpointTypeId, attributeRef])
+}
+
 export function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
     return dbAll(db, `SELECT ENDPOINT_TYPE_REF, COMMAND_REF, INCOMING, OUTGOING FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ? ORDER BY COMMAND_REF`, [endpointTypeId])
 }
@@ -174,6 +179,152 @@ export function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
 }
 
 /**
+ * Inserts globals into the database.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ * @returns Promise of globals insertion.
+ */
+export function insertGlobals(db, packageId, data) {
+    logInfo(`Insert globals: ${data.length}`)
+    var commandsToLoad = []
+    var attributesToLoad = []
+    var argsForCommands = []
+    var argsToLoad = []
+    var i
+    for (i = 0; i < data.length; i++) {
+        var lastId = null
+        if ('commands' in data[i]) {
+            var commands = data[i].commands
+            commandsToLoad.push(...commands.map(command => [
+                lastId,
+                command.code,
+                command.name,
+                command.description,
+                command.source,
+                command.isOptional]))
+            argsForCommands.push(...commands.map(command => command.args))
+        }
+        if ('attributes' in data[i]) {
+            var attributes = data[i].attributes
+            attributesToLoad.push(...attributes.map(attribute => [
+                lastId,
+                attribute.code,
+                attribute.name,
+                attribute.type,
+                attribute.side,
+                attribute.define,
+                attribute.min,
+                attribute.max,
+                attribute.isWritable,
+                attribute.defaultValue,
+                attribute.isOptional,
+                attribute.isReportable
+            ]))
+        }
+
+    }
+    var pCommand = dbMultiInsert(db,
+        "INSERT INTO COMMAND (CLUSTER_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?)",
+        commandsToLoad).then(lids => {
+            var i
+            for (i = 0; i < lids.length; i++) {
+                var lastId = lids[i]
+                var args = argsForCommands[i]
+                if (args != undefined && args != null) {
+                    argsToLoad.push(...args.map(arg => [lastId, arg.name, arg.type, arg.isArray]))
+                }
+            }
+            return dbMultiInsert(db,
+                "INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY) VALUES (?,?,?,?)",
+                argsToLoad)
+        })
+    var pAttribute = dbMultiInsert(db,
+        "INSERT INTO ATTRIBUTE (CLUSTER_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+        attributesToLoad)
+    return Promise.all([pCommand, pAttribute])
+}
+
+/**
+ *  Inserts cluster extensions into the database.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ * @returns Promise of cluster extension insertion.
+ */
+export function insertClusterExtensions(db, packageId, data) {
+    return dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', data.map(cluster => [cluster.code]))
+        .then(rows => {
+            var commandsToLoad = []
+            var attributesToLoad = []
+            var argsForCommands = []
+            var argsToLoad = []
+            var i
+            for (i = 0; i < rows.length; i++) {
+                var row = rows[i]
+                if (row != null) {
+                    var lastId = row.CLUSTER_ID
+                    if ('commands' in data[i]) {
+                        var commands = data[i].commands
+                        commandsToLoad.push(...commands.map(command => [
+                            lastId,
+                            command.code,
+                            command.name,
+                            command.description,
+                            command.source,
+                            command.isOptional]))
+                        argsForCommands.push(...commands.map(command => command.args))
+                    }
+                    if ('attributes' in data[i]) {
+                        var attributes = data[i].attributes
+                        attributesToLoad.push(...attributes.map(attribute => [
+                            lastId,
+                            attribute.code,
+                            attribute.name,
+                            attribute.type,
+                            attribute.side,
+                            attribute.define,
+                            attribute.min,
+                            attribute.max,
+                            attribute.isWritable,
+                            attribute.defaultValue,
+                            attribute.isOptional,
+                            attribute.isReportable
+                        ]))
+                    }
+                } else {
+                    // DANGER: We got here, but we don't have rows. Why not? 
+                    // Because clusters at this point have not yet been created? Odd.
+                    logWarning(`Attempting to insert cluster extension, but the cluster was not found: ${data[i].code}`)
+                }
+            }
+            var pCommand = dbMultiInsert(db,
+                "INSERT INTO COMMAND (CLUSTER_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?)",
+                commandsToLoad).then(lids => {
+                    var i
+                    for (i = 0; i < lids.length; i++) {
+                        var lastId = lids[i]
+                        var args = argsForCommands[i]
+                        if (args != undefined && args != null) {
+                            argsToLoad.push(...args.map(arg => [lastId, arg.name, arg.type, arg.isArray]))
+                        }
+                    }
+                    return dbMultiInsert(db,
+                        "INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY) VALUES (?,?,?,?)",
+                        argsToLoad)
+                })
+            var pAttribute = dbMultiInsert(db,
+                "INSERT INTO ATTRIBUTE (CLUSTER_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                attributesToLoad)
+            return Promise.all([pCommand, pAttribute])
+        })
+}
+
+/**
  * Inserts clusters into the database.
  *
  * @export
@@ -183,6 +334,8 @@ export function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
  * @returns Promise of cluster insertion.
  */
 export function insertClusters(db, packageId, data) {
+    // If data is extension, we only have code there and we need to simply add commands and clusters.
+    // But if it's not an extension, we need to insert the cluster and then run with
     return dbMultiInsert(db, "INSERT INTO CLUSTER (PACKAGE_REF, CODE, NAME, DESCRIPTION, DEFINE) VALUES (?, ?, ?, ?, ?)", data.map(cluster => [packageId, cluster.code, cluster.name, cluster.description, cluster.define]))
         .then(lastIdsArray => {
             var commandsToLoad = []
@@ -194,7 +347,13 @@ export function insertClusters(db, packageId, data) {
                 var lastId = lastIdsArray[i]
                 if ('commands' in data[i]) {
                     var commands = data[i].commands
-                    commandsToLoad.push(...commands.map(command => [lastId, command.code, command.name, command.description, command.source, command.isOptional]))
+                    commandsToLoad.push(...commands.map(command => [
+                        lastId,
+                        command.code,
+                        command.name,
+                        command.description,
+                        command.source,
+                        command.isOptional]))
                     argsForCommands.push(...commands.map(command => command.args))
                 }
                 if ('attributes' in data[i]) {
@@ -257,16 +416,16 @@ export function insertDeviceTypes(db, packageId, data) {
                 var lastId = lastIdsArray[i]
                 var clusters = data[i].clusters
                 // This is an array that links the generated deviceTyepRef to the cluster via generating an array of arrays, 
-                var zclIdsPromises = Promise.all(clusters.map( cluster => {
-                    return dbInsert(db, 
-                                'INSERT INTO DEVICE_TYPE_CLUSTER (DEVICE_TYPE_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER) VALUES (?,?,?,?,?,?)',
-                                [lastId, cluster.clusterName, cluster.client, cluster.server, cluster.clientLocked, cluster.serverLocked],
-                                true).then( deviceTypeClusterRef => {
-                                    return   {
-                                                dtClusterRef: deviceTypeClusterRef, 
-                                                clusterData: cluster
-                                            }
-                                })
+                var zclIdsPromises = Promise.all(clusters.map(cluster => {
+                    return dbInsert(db,
+                        'INSERT INTO DEVICE_TYPE_CLUSTER (DEVICE_TYPE_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER) VALUES (?,?,?,?,?,?)',
+                        [lastId, cluster.clusterName, cluster.client, cluster.server, cluster.clientLocked, cluster.serverLocked],
+                        true).then(deviceTypeClusterRef => {
+                            return {
+                                dtClusterRef: deviceTypeClusterRef,
+                                clusterData: cluster
+                            }
+                        })
                 }))
 
                 zclIdsPromises.then(dtClusterRefDataPairs => {
@@ -290,14 +449,14 @@ export function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
     dtClusterRefDataPairs.map(dtClusterRefDataPair => {
         var dtClusterRef = dtClusterRefDataPair.dtClusterRef
         var clusterData = dtClusterRefDataPair.clusterData
-        if ( 'requiredAttributes' in clusterData) {
+        if ('requiredAttributes' in clusterData) {
             clusterData.requiredAttributes.forEach(attributeName => {
                 attributes.push([dtClusterRef, attributeName])
             })
         }
     })
     return dbMultiInsert(db, 'INSERT INTO DEVICE_TYPE_ATTRIBUTE (DEVICE_TYPE_CLUSTER_REF, ATTRIBUTE_NAME) VALUES (?, ?)',
-                            attributes)
+        attributes)
 }
 
 /**
@@ -307,18 +466,18 @@ export function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
  * @param {*} dtClusterRefDataPairs 
  */
 export function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
-    var commands= []
+    var commands = []
     dtClusterRefDataPairs.map(dtClusterRefDataPair => {
         var dtClusterRef = dtClusterRefDataPair.dtClusterRef
         var clusterData = dtClusterRefDataPair.clusterData
-        if ( 'requiredCommands' in clusterData) {
+        if ('requiredCommands' in clusterData) {
             clusterData.requiredCommands.forEach(commandName => {
                 commands.push([dtClusterRef, commandName])
             })
         }
     })
     return dbMultiInsert(db, 'INSERT INTO DEVICE_TYPE_COMMAND (DEVICE_TYPE_CLUSTER_REF, COMMAND_NAME) VALUES (?, ?)',
-                            commands)
+        commands)
 }
 
 export function updateClusterReferencesForDeviceTypeClusters(db) {

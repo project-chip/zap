@@ -96,5 +96,13 @@ describe('Session specific tests', () => {
         .then((response) => {
           expect(response.data).toMatch(/\#define ATTRIBUTE_MASK_WRITABLE \(0x01\)/);
         })
-  })
+    })
+
+    test('test that there is generation data in the debug-printing-zcl.h file', () => {
+      return axios.get(`${baseUrl}/preview/debug-printing-zcl`)
+        .then((response) => {
+          expect(response.data).toMatch(/\#if defined\(EMBER_AF_PRINT_ENABLE\) && defined\(EMBER_AF_PRINT_BASIC_CLUSTER\)/);
+          expect(response.data).toMatch(/    \#define emberAfBasicClusterPrint\(...\) emberAfPrint\(EMBER_AF_PRINT_BASIC_CLUSTER, __VA_ARGS__\)/);
+        })
+    })
 })

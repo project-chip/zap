@@ -7,13 +7,18 @@ import fs from 'fs'
 import crc from 'crc'
 
 import { parseString } from 'xml2js'
-import { insertClusters, insertDomains, insertStructs, insertBitmaps, insertEnums, insertDeviceTypes, updateClusterReferencesForDeviceTypeClusters,updateAttributeReferencesForDeviceTypeReferences,updateCommandReferencesForDeviceTypeReferences } from '../db/query-zcl'
+import { insertClusters, insertDomains, insertStructs, insertBitmaps, insertEnums, insertDeviceTypes, updateClusterReferencesForDeviceTypeClusters, updateAttributeReferencesForDeviceTypeReferences, updateCommandReferencesForDeviceTypeReferences, insertClusterExtensions, insertGlobals } from '../db/query-zcl'
 import { dbBeginTransaction, dbCommit } from '../db/db-api'
 import { forPathCrc, updatePathCrc, insertPathCrc } from '../db/query-package'
 
 const fsp = fs.promises
 
-// Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
+/**
+ * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
+ *
+ * @param {*} propertiesFile
+ * @returns Promise of resolved files.
+ */
 function collectZclFiles(propertiesFile) {
   return new Promise((resolve, reject) => {
     logInfo(`Collecting ZCL files from: ${propertiesFile}`)
@@ -33,42 +38,57 @@ function collectZclFiles(propertiesFile) {
   })
 }
 
-// Promises to read a file and resolve with the content
+/**
+ * Promises to read a file and resolve with the content
+ *
+ * @param {*} file
+ * @returns promise that resolves as readFile
+ */
 function readZclFile(file) {
   logInfo(`Reading individual file: ${file}`)
   return fsp.readFile(file)
 }
 
-// Promises to calculate the CRC of the file, and resolve with an array [filePath,data,crc]
+/**
+ * Promises to calculate the CRC of the file, and resolve with an array [filePath,data,crc]
+ *
+ * @param {*} filePath
+ * @param {*} data
+ * @returns Promise of a resolved CRC file.
+ */
 function calculateCrc(filePath, data) {
   return new Promise((resolve, reject) => {
     var actualCrc = crc.crc32(data)
     logInfo(`For file: ${filePath}, got CRC: ${actualCrc}`)
-    resolve([filePath, data, actualCrc])
+    resolve({
+      filePath: filePath,
+      data: data,
+      actualCrc: actualCrc
+    })
   })
 }
 
-// Promises to parse the ZCL file, expecting array of [filePath, data, packageId, msg]
-// Resolves with the array [filePath,result,packageId,msg]
+/**
+ * Promises to parse the ZCL file, expecting array of [filePath, data, packageId, msg]
+ *
+ * @param {*} argument
+ * @returns promise that resolves with the array [filePath,result,packageId,msg]
+ */
 function parseZclFile(argument) {
-  var filePath = argument[0]
-  var data = argument[1]
-  var packageId = argument[2]
-  var msg = argument[3]
-
   // No data, we skip this.
-  if (data == null)
-    return Promise.resolve([null, null, null, msg])
+  if (!('data' in argument))
+    return Promise.resolve(argument)
   else {
     var p = new Promise((resolve, reject) => {
       // ... otherwise, we promise to parse this.
-      logInfo(`Executing XML parser on ${filePath}`)
-      parseString(data, (err, result) => {
+      parseString(argument.data, (err, result) => {
         if (err) {
-          logError(`Failed to parse ${filePath}: ${err}`)
+          logError(`Failed to parse ${argument.filePath}: ${err}`)
           reject(err)
         } else {
-          resolve([filePath, result, packageId, null])
+          argument.result = result
+          delete argument.data
+          resolve(argument)
         }
       })
     })
@@ -76,6 +96,12 @@ function parseZclFile(argument) {
   }
 }
 
+/**
+ * Prepare bitmap for database insertion.
+ *
+ * @param {*} bm
+ * @returns Object for insertion into the database
+ */
 function prepareBitmap(bm) {
   var ret = { name: bm.$.name, type: bm.$.type }
   if ('field' in bm) {
@@ -90,18 +116,43 @@ function prepareBitmap(bm) {
   return ret
 }
 
+/**
+ * Processes bitmaps for DB insertion.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns Promise of inserted bitmaps
+ */
 function processBitmaps(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} bitmaps.`)
   return insertBitmaps(db, packageId, data.map(x => prepareBitmap(x)))
 }
 
-function prepareCluster(cluster) {
+/**
+ * Prepare XML cluster for insertion into the database.
+ * This method can also prepare clusterExtensions.
+ * 
+ * @param {*} cluster
+ * @returns Object containing all data from XML.
+ */
+function prepareCluster(cluster, isExtension = false) {
   var ret = {
-    code: cluster.code[0],
-    name: cluster.name[0],
-    description: cluster.description[0],
-    define: cluster.define[0]
+    isExtension: isExtension
+  };
+
+  if (isExtension) {
+    if (('$' in cluster) && ('code' in cluster.$)) {
+      ret.code = cluster.$.code
+    }
+  } else {
+    ret.code = cluster.code[0]
+    ret.name = cluster.name[0]
+    ret.description = cluster.description[0]
+    ret.define = cluster.define[0]
   }
+
   if ('command' in cluster) {
     ret.commands = []
     cluster.command.forEach(command => {
@@ -146,20 +197,81 @@ function prepareCluster(cluster) {
   return ret
 }
 
+/**
+ * Process clusters for insertion into the database.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns Promise of cluster insertion.
+ */
 function processClusters(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} clusters.`)
   return insertClusters(db, packageId, data.map(x => prepareCluster(x)))
 }
 
+/**
+ * Cluster Extension contains attributes and commands in a same way as regular cluster,
+ * and it has an attribute code="0xXYZ" where code is a cluster code.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns promise to resolve the clusterExtension tags
+ */
+function processClusterExtensions(db, filePath, packageId, data) {
+  logInfo(`${filePath}, ${packageId}: ${data.length} cluster extensions.`)
+  return insertClusterExtensions(db, packageId, data.map(x => prepareCluster(x, true)))
+}
+
+/**
+ * Processes the globals in the XML files. The `global` tag contains
+ * attributes and commands in a same way as cluster or clusterExtension
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns promise to resolve the globals
+ */
+function processGlobals(db, filePath, packageId, data) {
+  logInfo(`${filePath}, ${packageId}: ${data.length} globals.`)
+  return insertGlobals(db, packageId, data.map(x => prepareCluster(x, true)))
+}
+
+
+/**
+ * Convert domain from XMl to domain for DB.
+ *
+ * @param {*} domain
+ * @returns Domain object for DB.
+ */
 function prepareDomain(domain) {
   return { name: domain.$.name }
 }
 
+/**
+ * Process domains for insertion.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns Promise of database insertion of domains.
+ */
 function processDomains(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} domains.`)
   return insertDomains(db, packageId, data.map(x => prepareDomain(x)))
 }
 
+/**
+ * Prepares structs for the insertion into the database.
+ *
+ * @param {*} struct
+ * @returns Object ready to insert into the database.
+ */
 function prepareStruct(struct) {
   var ret = { name: struct.$.name }
   if ('item' in struct) {
@@ -174,11 +286,26 @@ function prepareStruct(struct) {
   return ret
 }
 
+/**
+ * Processes structs.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns Promise of inserted structs.
+ */
 function processStructs(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} structs.`)
   return insertStructs(db, packageId, data.map(x => prepareStruct(x)))
 }
 
+/**
+ * Prepares an enum for insertion into the database.
+ *
+ * @param {*} en
+ * @returns An object ready to go to the database.
+ */
 function prepareEnum(en) {
   var ret = { name: en.$.name, type: en.$.type }
   if ('item' in en) {
@@ -192,13 +319,34 @@ function prepareEnum(en) {
   }
   return ret
 }
+
+/**
+ * Processes the enums.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise of inserted enums.
+ */
 function processEnums(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} enums.`)
   return insertEnums(db, packageId, data.map(x => prepareEnum(x)))
 }
 
+/**
+ * Preparation step for the device types.
+ *
+ * @param {*} deviceType
+ * @returns an object containing the prepared device types.
+ */
 function prepareDeviceType(deviceType) {
-  var ret = { code: deviceType.deviceId[0]['_'], profileId: deviceType.profileId[0]['_'], name: deviceType.name[0], description: deviceType.typeName[0] }
+  var ret = {
+    code: deviceType.deviceId[0]['_'],
+    profileId: deviceType.profileId[0]['_'],
+    name: deviceType.name[0],
+    description: deviceType.typeName[0]
+  }
   if ('clusters' in deviceType) {
     ret.clusters = []
     deviceType.clusters.forEach(cluster => {
@@ -228,85 +376,127 @@ function prepareDeviceType(deviceType) {
   return ret
 }
 
+/**
+ * Process all device types.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns Promise of a resolved device types.
+ */
 function processDeviceTypes(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} deviceTypes.`)
   return insertDeviceTypes(db, packageId, data.map(x => prepareDeviceType(x)))
 }
-function processGlobals(db, filePath, packageId, data) {
-  logInfo(`${filePath}, ${packageId}: ${data.length} globals.`)
-  return Promise.resolve(true)
-}
-function processClusterExtensions(db, filePath, packageId, data) {
-  logInfo(`${filePath}, ${packageId}: ${data.length} extensions.`)
-  return Promise.resolve(true)
-}
 
+/**
+ * After XML parser is done with the barebones parsing, this function
+ * branches the individual toplevel tags.
+ *
+ * @param {*} db
+ * @param {*} argument
+ * @returns promise that resolves when all the subtags are parsed.
+ */
 function processParsedZclData(db, argument) {
-  var filePath = argument[0]
-  var data = argument[1]
-  var packageId = argument[2]
-  var msg = argument[3]
+  var filePath = argument.filePath
+  var data = argument.result
+  var packageId = argument.packageId
 
-  if (data == null) {
-    return Promise.resolve(msg)
+  if (!('result' in argument)) {
+    return Promise.resolve(argument.error)
   } else {
-    var sp = []
+    var immediatePromises = []
+    var laterPromises = []
     if ('configurator' in data) {
-      if ('bitmap' in data.configurator) sp.push(processBitmaps(db, filePath, packageId, data.configurator.bitmap))
-      if ('cluster' in data.configurator) sp.push(processClusters(db, filePath, packageId, data.configurator.cluster))
-      if ('domain' in data.configurator) sp.push(processDomains(db, filePath, packageId, data.configurator.domain))
-      if ('enum' in data.configurator) sp.push(processEnums(db, filePath, packageId, data.configurator.enum))
-      if ('struct' in data.configurator) sp.push(processStructs(db, filePath, packageId, data.configurator.struct))
-      if ('deviceType' in data.configurator) sp.push(processDeviceTypes(db, filePath, packageId, data.configurator.deviceType))
-      if ('global' in data.configurator) sp.push(processGlobals(db, filePath, packageId, data.configurator.global))
-      if ('clusterExtension' in data.configurator) sp.push(processClusterExtensions(db, filePath, packageId, data.configurator.clusterExtension))
+      if ('bitmap' in data.configurator) immediatePromises.push(processBitmaps(db, filePath, packageId, data.configurator.bitmap))
+      if ('cluster' in data.configurator) immediatePromises.push(processClusters(db, filePath, packageId, data.configurator.cluster))
+      if ('domain' in data.configurator) immediatePromises.push(processDomains(db, filePath, packageId, data.configurator.domain))
+      if ('enum' in data.configurator) immediatePromises.push(processEnums(db, filePath, packageId, data.configurator.enum))
+      if ('struct' in data.configurator) immediatePromises.push(processStructs(db, filePath, packageId, data.configurator.struct))
+      if ('deviceType' in data.configurator) immediatePromises.push(processDeviceTypes(db, filePath, packageId, data.configurator.deviceType))
+      if ('global' in data.configurator) immediatePromises.push(processGlobals(db, filePath, packageId, data.configurator.global))
+      if ('clusterExtension' in data.configurator) laterPromises.push(() => processClusterExtensions(db, filePath, packageId, data.configurator.clusterExtension))
     }
-    return Promise.all(sp)
+    // This thing resolves the immediate promises and then resolves itself with passing the later promises down the chain.
+    return Promise.all(immediatePromises)
+      .then(() => Promise.resolve(laterPromises))
   }
 }
 
+/**
+ * Promises to perform a post loading step.
+ *
+ * @param {*} db
+ * @returns Promise to deal with the post-loading cleanup.
+ */
 function processPostLoading(db) {
-  return updateClusterReferencesForDeviceTypeClusters(db).then(res =>
-    updateAttributeReferencesForDeviceTypeReferences(db)).then(res => updateCommandReferencesForDeviceTypeReferences(db));
+  return updateClusterReferencesForDeviceTypeClusters(db)
+    .then(res => updateAttributeReferencesForDeviceTypeReferences(db))
+    .then(res => updateCommandReferencesForDeviceTypeReferences(db));
 }
 
-// Promises to qualify whether zcl file needs to be reloaded.
-// If yes, the it will resolve with [filePath, data, packageId, NULL]
-// If not, then it will resolve with [null, null, null, msg]
-function qualifyZclFile(db, array) {
+
+/**
+ * Promises to qualify whether zcl file needs to be reloaded.
+ * If yes, the it will resolve with [filePath, data, packageId, NULL]
+ * If not, then it will resolve with [null, null, null, msg]
+ *
+ * @param {*} db
+ * @param {*} object
+ * @returns Promise that resolves int he object of data.
+ */
+function qualifyZclFile(db, info) {
   return new Promise((resolve, reject) => {
-    var filePath = array[0]
-    var data = array[1]
-    var actualCrc = array[2]
+    var filePath = info.filePath
+    var data = info.data
+    var actualCrc = info.actualCrc
     forPathCrc(db, filePath, (storedCrc, packageId) => { // This is executed if CRC is found in the database.
       if (storedCrc == actualCrc) {
         logInfo(`CRC match for file ${filePath}, skipping parsing.`)
-        resolve([null, null, null, `${filePath} skipped`])
+        resolve({
+          error: `${filePath} skipped`
+        })
       } else {
         logInfo(`CRC missmatch for file ${filePath}, package id ${packageId}, parsing.`)
         updatePathCrc(db, filePath, actualCrc).then(
-          () => resolve([filePath, data, packageId, null])
+          () => resolve({
+            filePath: filePath,
+            data: data,
+            packageId: packageId
+          })
         )
       }
     },
       () => { // This is executed if there is no CRC in the database.
         logInfo(`No CRC in the database for file ${filePath}, parsing.`)
         insertPathCrc(db, filePath, actualCrc).then((packageId) => {
-          resolve([filePath, data, packageId, null])
+          resolve({
+            filePath: filePath,
+            data: data,
+            packageId: packageId
+          })
         })
       })
   })
 }
 
-// Promises to iterate over all the XML files and returns an aggregate promise
-// that will be resolved when all the XML files are done, or rejected if at least one fails.
+/**
+ *
+ * Promises to iterate over all the XML files and returns an aggregate promise
+ * that will be resolved when all the XML files are done, or rejected if at least one fails.
+ *
+ * @param {*} db
+ * @param {*} files
+ * @returns Promise that resolves when all the individual promises of each file pass.
+ */
 function parseZclFiles(db, files) {
   logInfo(`Starting to parse ZCL files: ${files}`)
   var individualPromises = []
   files.forEach(element => {
     var p = readZclFile(element)
       .then(data => calculateCrc(element, data))
-      .then(array => qualifyZclFile(db, array))
+      .then(data => qualifyZclFile(db, data))
       .then(result => parseZclFile(result))
       .then(result => processParsedZclData(db, result))
       .catch(err => logError(err))
@@ -314,12 +504,25 @@ function parseZclFiles(db, files) {
   })
   return Promise.all(individualPromises)
 }
-
+/**
+ * Toplevel function that loads the properties file and orchestrates the promise chain.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} propertiesFile
+ * @returns a Promise that resolves with the db.
+ */
 export function loadZcl(db, propertiesFile) {
   logInfo(`Loading zcl file: ${propertiesFile}`)
   return dbBeginTransaction(db).then(() => collectZclFiles(propertiesFile))
     .then((files) => parseZclFiles(db, files))
-    .then(result => processPostLoading(db))
+    .then(arrayOfLaterPromisesArray => {
+      var p = []
+      arrayOfLaterPromisesArray.forEach(promises => {
+        promises.forEach(x => p.push(x()))
+      })
+      return Promise.all(p)
+    }).then(() => processPostLoading(db))
     .then(() => dbCommit(db))
     .then(() => Promise.resolve(db))
 }

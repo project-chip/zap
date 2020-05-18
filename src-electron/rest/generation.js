@@ -7,8 +7,8 @@
  */
 
 import { logError } from '../main-process/env';
-import { mapDatabase, resolveTemplateDirectory, compileTemplate, infoFromDb, groupInfoIntoDbRow, resolveHelper, generateDataToPreview } from '../generator/static_generator.js'
-import { getUppercase, getStrong, getHexValue, getLargestStringInArray, getSwitch, getCase, getDefault } from "../handlebars/helpers/helper_utils.js"
+import { mapDatabase, resolveTemplateDirectory, compileTemplate, infoFromDb, groupInfoIntoDbRow, resolveHelper, generateDataToPreview } from '../generator/static-generator.js'
+import { getUppercase, getStrong, getHexValue, getLargestStringInArray, getSwitch, getCase, getDefault, getCamelCaseWithoutUnderscore } from "../handlebars/helpers/helper-utils.js"
 
 /**
  *
@@ -27,18 +27,21 @@ export function registerGenerationApi(db, app) {
         const HANDLEBAR_HELPER_SWITCH = "switch";
         const HANDLEBAR_HELPER_CASE = "case";
         const HANDLEBAR_HELPER_DEFAULT = "default";
+        const HANDLEBAR_HELPER_CAMEL_CASE = "camelCaseWithoutUnderscore";
         const HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE = "att-storage.handlebars";
         const HANDLEBAR_TEMPLATE_FILE_AF_STRUCTS = "af-structs.handlebars";
         const HANDLEBAR_TEMPLATE_FILE_CLUSTERS = "cluster-id.handlebars";
         const HANDLEBAR_TEMPLATE_FILE_ENUMS = "enums.handlebars";
         const HANDLEBAR_TEMPLATE_FILE_BITMAPS = "bitmaps.handlebars";
         const HANDLEBAR_TEMPLATE_FILE_PRINT_CLUSTERS = "print-cluster.handlebars";
+        const HANDLEBAR_TEMPLATE_FILE_DEBUG_PRINTING = "debug-printing-zcl.handlebars";
         const DATABASE_ROW_TYPE_CLUSTER = "clusters";
         const DATABASE_ROW_TYPE_ENUMS = "enums";
         const DATABASE_ROW_TYPE_BITMAPS = "bitmaps";
         const DATABASE_ROW_TYPE_PRINT_CLUSTER = "print-cluster";
         const DATABASE_ROW_TYPE_AF_STRUCTS = "af-structs";
         const DATABASE_ROW_TYPE_ATT_STORAGE = "att-storage";
+        const DATABASE_ROW_TYPE_DEBUG_PRINTING = "debug-printing-zcl";
 
 
         //cluster-id.h generation
@@ -65,8 +68,8 @@ export function registerGenerationApi(db, app) {
             .then(templateDir => resolveTemplateDirectory(templateDir, ""))
             .then(templates => compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_ENUMS, HANDLEBAR_TEMPLATE_FILE_BITMAPS]))
             .then(databaseRows => infoFromDb(databaseRows, [DATABASE_ROW_TYPE_ENUMS, DATABASE_ROW_TYPE_BITMAPS]))
-            .then(databaseRowsWithEnumItems => groupInfoIntoDbRow(databaseRowsWithEnumItems, { tableName: 'ENUM_ITEMS', foreignKey: 'ENUM_REF', primaryKey: 'ENUM_ID', dbType: 'enums', columns: { NAME: "NAME", VALUE: "VALUE" } }))
-            .then(databaseRowsWithBitmapFields => groupInfoIntoDbRow(databaseRowsWithBitmapFields, { tableName: 'BITMAP_FIELDS', foreignKey: 'BITMAP_REF', primaryKey: 'BITMAP_ID', dbType: 'bitmaps', columns: { NAME: "NAME", VALUE: "MASK" } }))
+            .then(databaseRowsWithEnumItems => groupInfoIntoDbRow(databaseRowsWithEnumItems, { tableName: 'ENUM_ITEMS', foreignKey: 'ENUM_REF', primaryKey: 'ENUM_ID', dbType: 'enums' }))
+            .then(databaseRowsWithBitmapFields => groupInfoIntoDbRow(databaseRowsWithBitmapFields, { tableName: 'BITMAP_FIELDS', foreignKey: 'BITMAP_REF', primaryKey: 'BITMAP_ID', dbType: 'bitmaps' }))
             .then(helperResolution => resolveHelper(helperResolution, enumHandleBarHelpers))
             .then(resultToFile => generateDataToPreview(resultToFile, enumsRowToHandlebarTemplateFileMap))
             .catch(err => logError(err))
@@ -96,7 +99,7 @@ export function registerGenerationApi(db, app) {
             .then(templateDir => resolveTemplateDirectory(templateDir, ""))
             .then(templates => compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_AF_STRUCTS]))
             .then(databaseRows => infoFromDb(databaseRows, [DATABASE_ROW_TYPE_AF_STRUCTS]))
-            .then(databaseRowsWithEnumItems => groupInfoIntoDbRow(databaseRowsWithEnumItems, { tableName: 'STRUCT_ITEMS', foreignKey: 'STRUCT_REF', primaryKey: 'STRUCT_ID', dbType: 'af-structs', columns: { NAME: "NAME", VALUE: "TYPE" } }))
+            .then(databaseRowsWithEnumItems => groupInfoIntoDbRow(databaseRowsWithEnumItems, { tableName: 'STRUCT_ITEMS', foreignKey: 'STRUCT_REF', primaryKey: 'STRUCT_ID', dbType: 'af-structs' }))
             .then(helperResolution => resolveHelper(helperResolution, afStructsHandleBarHelpers))
             .then(resultToFile => generateDataToPreview(resultToFile, afStructsRowToHandleBarTemplateFileMap))
             .catch(err => logError(err))
@@ -110,6 +113,20 @@ export function registerGenerationApi(db, app) {
             .then(resultToFile => generateDataToPreview(resultToFile, attStorageRowToHandleBarTemplateFileMap))
             .catch(err => logError(err))
 
+        //debug-printing-zcl.h generation
+        var debugPrintingHandleBarHelpers = {}
+        debugPrintingHandleBarHelpers[HANDLEBAR_HELPER_UPPERCASE] = getUppercase;
+        debugPrintingHandleBarHelpers[HANDLEBAR_HELPER_CAMEL_CASE] = getCamelCaseWithoutUnderscore;
+        var debugPrintingRowToHandlebarTemplateFileMap = [{ dbRowType: DATABASE_ROW_TYPE_DEBUG_PRINTING, hTemplateFile: HANDLEBAR_TEMPLATE_FILE_DEBUG_PRINTING }];
+
+        const debugPrintingGenerationCode = await mapDatabase(db)
+            .then(templateDir => resolveTemplateDirectory(templateDir, ""))
+            .then(templates => compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_DEBUG_PRINTING]))
+            .then(databaseRows => infoFromDb(databaseRows, [DATABASE_ROW_TYPE_DEBUG_PRINTING]))
+            .then(helperResolution => resolveHelper(helperResolution, debugPrintingHandleBarHelpers))
+            .then(resultToFile => generateDataToPreview(resultToFile, debugPrintingRowToHandlebarTemplateFileMap))
+            .catch(err => logError(err))
+
         if (request.params.name === DATABASE_ROW_TYPE_CLUSTER) {
             response.json(clusterGenerationCode);
         } else if (request.params.name === DATABASE_ROW_TYPE_ENUMS) {
@@ -118,8 +135,10 @@ export function registerGenerationApi(db, app) {
             response.json(printClusterGenerationCode);
         } else if (request.params.name === DATABASE_ROW_TYPE_AF_STRUCTS) {
             response.json(afStructsGenerationCode);
-        } else if (request.params.name == DATABASE_ROW_TYPE_ATT_STORAGE) {
+        } else if (request.params.name === DATABASE_ROW_TYPE_ATT_STORAGE) {
             response.json(attStorageGenerationCode);
+        } else if (request.params.name === DATABASE_ROW_TYPE_DEBUG_PRINTING) {
+            response.json(debugPrintingGenerationCode);
         }
     })
 

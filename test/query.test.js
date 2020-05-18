@@ -1,15 +1,15 @@
 import fs from "fs"
 import { version } from '../package.json'
-import { closeDatabase, initDatabase, loadSchema } from "../src-electron/db/db-api"
+import { closeDatabase, initDatabase, loadSchema, dbInsert, dbGet } from "../src-electron/db/db-api"
 import { zclPropertiesFile } from "../src-electron/main-process/args"
 import { logInfo, schemaFile, sqliteTestFile, logError } from "../src-electron/main-process/env"
-import { createStateFromDatabase } from "../src-electron/main-process/importexport"
 import { loadZcl } from "../src-electron/zcl/zcl-loader"
 import { getPathCrc, insertPathCrc } from "../src-electron/db/query-package"
 import { insertClusters, selectAllClusters, selectClusterById, selectAttributesByClusterId, selectCommandsByClusterId } from "../src-electron/db/query-zcl"
 import { ensureZapSessionId, setSessionClean, getSessionIdFromWindowdId, getSessionDirtyFlag } from "../src-electron/db/query-session"
-import { insertEndpointType, deleteEndpoint, deleteEndpointType } from "../src-electron/db/query-config"
+import { insertEndpointType, deleteEndpoint, deleteEndpointType, updateKeyValue, getSessionKeyValue } from "../src-electron/db/query-config"
 import { insertFileLocation, selectFileLocation } from "../src-electron/db/query-generic"
+import { createStateFromDatabase } from "../src-electron/importexport/export"
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -47,11 +47,22 @@ test('Path CRC queries.', () => {
 
 test('File location queries.', () => {
     return insertFileLocation(db, '/random/file/path', 'cat')
-      .then(() => selectFileLocation(db, 'cat'))
-      .then(filePath => expect(filePath).toBe('/random/file/path'))
-      .then(() => insertFileLocation(db, '/random/file/second/path', 'cat'))
-      .then(() => selectFileLocation(db, 'cat'))
-      .then(filePath => expect(filePath).toBe('/random/file/second/path'))
+        .then(() => selectFileLocation(db, 'cat'))
+        .then(filePath => expect(filePath).toBe('/random/file/path'))
+        .then(() => insertFileLocation(db, '/random/file/second/path', 'cat'))
+        .then(() => selectFileLocation(db, 'cat'))
+        .then(filePath => expect(filePath).toBe('/random/file/second/path'))
+})
+
+test('Replace query', () => {
+    return dbInsert(db, "REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)", ['thePath', 12])
+        .then(rowId => expect(rowId).toBeGreaterThan(0))
+        .then(() => dbGet(db, "SELECT CRC FROM PACKAGE WHERE PATH = ?", ['thePath']))
+        .then(result => expect(result.CRC).toBe(12))
+        .then(() => dbInsert(db, "REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)", ['thePath', 13]))
+        .then(rowId => expect(rowId).toBeGreaterThan(0))
+        .then(() => dbGet(db, "SELECT CRC FROM PACKAGE WHERE PATH = ?", ['thePath']))
+        .then(result => expect(result.CRC).toBe(13))
 })
 
 test('Simple cluster addition.', () => {
@@ -104,6 +115,15 @@ describe('Session specific queries', () => {
         })
     })
 
+    test('Random key value queries', () => {
+        return updateKeyValue(db, sid, 'key1', 'value1')
+            .then(() => getSessionKeyValue(db, sid, 'key1'))
+            .then(value => { expect(value).toBe('value1') })
+            .then(() => updateKeyValue(db, sid, 'key1', 'value2'))
+            .then(() => getSessionKeyValue(db, sid, 'key1'))
+            .then(value => { expect(value).toBe('value2') })
+    })
+
     test('Make sure session is dirty', () => {
         var sid;
         return getSessionIdFromWindowdId(db, 666)
@@ -154,13 +174,13 @@ describe('Session specific queries', () => {
 
     test('Test state creation', () => {
         return createStateFromDatabase(db, sid)
-          .then(state => {
-              expect(state.creator).toBe('zap')
-              expect(state.writeTime).toBeTruthy()
-          })
-          .catch(err => {
-              logError("Error", err)
-          })
+            .then(state => {
+                expect(state.creator).toBe('zap')
+                expect(state.writeTime).toBeTruthy()
+            })
+            .catch(err => {
+                logError("Error", err)
+            })
     })
 
     test('Empty delete', () => {

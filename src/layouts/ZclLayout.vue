@@ -89,6 +89,12 @@
                       <q-item-label>att-storage.h</q-item-label>
                     </q-item-section>
                   </q-item>
+
+                  <q-item clickable v-close-popup @click="generationButtonText='debug-printing-zcl.h';getGeneratedFile('debug-printing-zcl')" :label="generationButtonText">
+                    <q-item-section>
+                      <q-item-label>debug-printing-zcl.h</q-item-label>
+                    </q-item-section>
+                  </q-item>
                 </q-list>
               </q-btn-dropdown>
               <div>

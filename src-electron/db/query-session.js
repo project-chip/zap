@@ -54,10 +54,10 @@ export function setSessionClean(db, sessionId) {
 export function getSessionDirtyFlag(db, sessionId) {
     return dbGet(db, "SELECT DIRTY FROM SESSION WHERE SESSION_ID = ?", [sessionId])
         .then(row => {
-            if ( row == null ) {
+            if (row == null) {
                 reject()
             } else {
-                return Promise.resolve(row.DIRTY)
+                return row.DIRTY
             }
         })
 }
@@ -106,21 +106,48 @@ export function getSessionIdFromWindowdId(db, windowId) {
 /**
  * Returns a promise that will resolve into a sessionID created from a query.
  *
+ * This method has essetially two different use cases:
+ *   1.) When there is no sessionId yet (so sessionId argument is null), then this method is expected to either create a new session, or find a 
+ *       sessionId that is already associated with the given sessionKey.
+ * 
+ *   2.) When a sessionId is passed, then the method simply updates the row with a given sessionId to contain sessionKey and windowId.
+ * 
+ * In either case, the returned promise resolves with a sessionId.
+ * 
  * @export
  * @param {*} db
  * @param {*} sessionKey
  * @param {*} windowId
+ * @parem {*} sessionId If sessionId exists already, then it's passed in. If it doesn't then this is null.
  * @returns promise that resolves into a session id.
  */
-export function ensureZapSessionId(db, sessionKey, windowId) {
-    return dbGet(db, "SELECT SESSION_ID FROM SESSION WHERE SESSION_KEY = ?", [sessionKey])
-        .then(row => {
-            if (row == null) {
-                return dbInsert(db, "INSERT INTO SESSION (SESSION_KEY, SESSION_WINID, CREATION_TIME) VALUES (?,?,?)", [sessionKey, windowId, Date.now()])
-            } else {
-                return Promise.resolve(row.SESSION_ID)
-            }
-        })
+export function ensureZapSessionId(db, sessionKey, windowId, sessionId = null) {
+
+    if (sessionId == null) {
+        // There is no sessionId from before, so we check if there is one mapped to sessionKey already
+        return dbGet(db, "SELECT SESSION_ID FROM SESSION WHERE SESSION_KEY = ?", [sessionKey])
+            .then(row => {
+                if (row == null) {
+                    return dbInsert(db, "INSERT INTO SESSION (SESSION_KEY, SESSION_WINID, CREATION_TIME) VALUES (?,?,?)", [sessionKey, windowId, Date.now()])
+                } else {
+                    return Promise.resolve(row.SESSION_ID)
+                }
+            })
+    } else {
+        // This is a case where we want to attach to a given sessionId.
+        return dbUpdate(db, "UPDATE SESSION SET SESSION_WINID = ?, SESSION_KEY = ? WHERE SESSION_ID = ?", [windowId, sessionKey, sessionId])
+            .then(() => Promise.resolve(sessionId))
+    }
+}
+
+/**
+ * When loading in a file, we start with a blank session.
+ *
+ * @export
+ * @param {*} db
+ */
+export function createBlankSession(db) {
+    return dbInsert(db, "INSERT INTO SESSION (SESSION_KEY, SESSION_WINID, CREATION_TIME, DIRTY) VALUES (?,?,?,?)", ['', '', Date.now(), 0])
 }
 
 /**

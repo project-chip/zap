@@ -34,9 +34,9 @@ export const httpCode = {
  * @param {*} port Port for the HTTP server.
  * @returns A promise that resolves with an express app.
  */
-export function initHttpServer (db, port) {
+export function initHttpServer(db, port) {
 
-  return new Promise((resolve,reject) => {
+  return new Promise((resolve, reject) => {
     logInfo(`Creating HTTP server on port: ${port}`)
     const app = express()
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -50,18 +50,21 @@ export function initHttpServer (db, port) {
     // this is a generic logging stuff
     app.use((req, res, next) => {
       logInfo(`Request: ${req.url}, session: ${req.session.id}`)
-      if ( req.session.zapSessionId) {
+      if (req.session.zapSessionId) {
         logInfo(`Zap session id exists: ${req.session.zapSessionId}`)
         next()
       } else {
         logInfo('Creating zap session')
         let windowId = null
-        if ( 'winId' in req.query )
+        let sessionId = null
+        if ('winId' in req.query)
           windowId = req.query.winId
+        if ('sessionId' in req.query)
+          sessionId = req.query.sessionId
 
-        ensureZapSessionId(db, req.session.id, windowId).then(
-          (rowid) => {
-            req.session.zapSessionId = rowid
+        ensureZapSessionId(db, req.session.id, windowId, sessionId).then(
+          (sessionId) => {
+            req.session.zapSessionId = sessionId
             next()
           }
         ).catch(
@@ -78,9 +81,9 @@ export function initHttpServer (db, port) {
     registerGenerationApi(db, app)
     registerAdminApi(db, app)
 
-    var staticDir = path.join(__dirname,__indexDirOffset)
+    var staticDir = path.join(__dirname, __indexDirOffset)
     logInfo(`Static content directory: ${staticDir}`)
-    
+
     app.use(express.static(staticDir))
 
     httpServer = app.listen(port, () => {
@@ -96,8 +99,8 @@ export function initHttpServer (db, port) {
  * @returns Promise that resolves when server is shut down.
  */
 export function shutdownHttpServer() {
-  return new Promise((resolve,reject) => {
-    if ( httpServer != null ) {
+  return new Promise((resolve, reject) => {
+    if (httpServer != null) {
       httpServer.close(() => {
         logInfo('HTTP server shut down.')
         httpServer = null

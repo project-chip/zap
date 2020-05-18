@@ -5,10 +5,9 @@
  * 
  * @module DB API: user configuration queries against the database.
  */
-import { dbAll, dbGet, dbInsert, dbMultiInsert, dbRemove, dbUpdate, dbBeginTransaction, dbCommit } from './db-api.js'
+import { dbAll, dbGet, dbInsert, dbRemove, dbUpdate, dbBeginTransaction, dbCommit } from './db-api.js'
 import { selectAttributeByAttributeRef } from './query-zcl.js'
 import { zclDeviceTypeClusters, zclDeviceTypeAttributes, zclDeviceTypeCommands, zclAttributes, zclCommands } from '../zcl/zcl-model.js'
-import { logError, logInfo } from '../main-process/env.js'
 
 
 
@@ -26,6 +25,45 @@ import { logError, logInfo } from '../main-process/env.js'
 export function updateKeyValue(db, sessionId, key, value) {
     return dbInsert(db, "INSERT OR REPLACE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)", [sessionId, key, value])
 }
+
+/**
+ * Retrieves a value of a single session key.
+ * 
+ * @param {*} db 
+ * @param {*} sessionId 
+ * @returns A promise that resolves with a value or with 'undefined' if none is found.
+ */
+export function getSessionKeyValue(db, sessionId, key) {
+    return dbGet(db, "SELECT VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? AND KEY = ?", [sessionId, key])
+        .then(row => new Promise((resolve, reject) => {
+            if (row == null)
+                resolve(undefined)
+            else
+                resolve(row.VALUE)
+        }))
+}
+
+
+/**
+ * Resolves to an array of objects that contain 'key' and 'value'
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise to retrieve all session key values.
+ */
+export function getAllSessionKeyValues(db, sessionId) {
+    return dbAll(db, "SELECT KEY, VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? ORDER BY KEY", [sessionId])
+        .then(rows => new Promise((resolve, reject) => {
+            resolve(rows.map(row => {
+                return {
+                    key: row.KEY,
+                    value: row.VALUE
+                }
+            }))
+        }))
+}
+
 /**
  * Promises to update the cluster include/exclude state.
  * If the entry [as defined uniquely by endpointTypeId, clusterId, side] is not there, then insert
@@ -115,9 +153,14 @@ export function insertOrUpdateReportableAttributeState(db, endpointTypeId, id, v
         })
 }
 
-/*
-  Resolves into all the cluster states.
-*/
+/**
+ * Resolves into all the cluster states.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with cluster states.
+ */
 export function getAllEndpointTypeClusterState(db, endpointTypeId) {
     return dbAll(db, "SELECT CLUSTER.NAME, CLUSTER.CODE, CLUSTER.MANUFACTURER_CODE, ENDPOINT_TYPE_CLUSTER.SIDE, ENDPOINT_TYPE_CLUSTER.ENABLED FROM ENDPOINT_TYPE_CLUSTER INNER JOIN CLUSTER WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?", [endpointTypeId])
         .then((rows) => new Promise((resolve, reject) => {
@@ -168,7 +211,7 @@ export function deleteEndpoint(db, id) {
 }
 
 export function editEndpoint(db, sessionId, endpointRef, param, updatedValue) {
-    return dbUpdate(db, "UPDATE ENDPOINT SET " + param + " = ? WHERE ENDPOINT_REF = ? AND SESSION_REF = ?", [updatedValue, endpointRef, sessionId])
+    return dbUpdate(db, `UPDATE ENDPOINT SET ${param} = ? WHERE ENDPOINT_REF = ? AND SESSION_REF = ?`, [updatedValue, endpointRef, sessionId])
 }
 
 /**
@@ -200,12 +243,19 @@ export function deleteEndpointType(db, id) {
     return dbRemove(db, "DELETE FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?", [id])
 }
 
-
+/**
+ * Deletes referenced things. This should be done with CASCADE DELETE
+ *
+ * @export
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise of removal.
+ */
 export function deleteEndpointTypeData(db, endpointTypeId) {
     return Promise.all([dbRemove(db, "DELETE FROM ENDPOINT_TYPE_CLUSTER WHERE ENDPOINT_TYPE_REF = ?", [endpointTypeId]),
-                        dbRemove(db, "DELETE FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ?", [endpointTypeId]),
-                        dbRemove(db, "DELETE FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ?", [endpointTypeId]),
-                        dbRemove(db, "DELETE FROM ENDPOINT_TYPE_REPORTABLE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ? ", [endpointTypeId])])
+    dbRemove(db, "DELETE FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ?", [endpointTypeId]),
+    dbRemove(db, "DELETE FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ?", [endpointTypeId]),
+    dbRemove(db, "DELETE FROM ENDPOINT_TYPE_REPORTABLE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ? ", [endpointTypeId])])
 }
 
 /**
@@ -217,7 +267,7 @@ export function deleteEndpointTypeData(db, endpointTypeId) {
  * @param {*} updatedValue 
  */
 export function updateEndpointType(db, sessionId, endpointTypeId, param, updatedValue) {
-    return dbUpdate(db, "UPDATE ENDPOINT_TYPE SET " + param + " = ? WHERE ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?", [updatedValue, endpointTypeId, sessionId]).then(newEndpointId => {
+    return dbUpdate(db, `UPDATE ENDPOINT_TYPE SET ${param} = ? WHERE ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?`, [updatedValue, endpointTypeId, sessionId]).then(newEndpointId => {
         if (param === 'DEVICE_TYPE_REF') {
             return new Promise((resolve, reject) => deleteEndpointTypeData(db, endpointTypeId)
                 .then(newData => setEndpointDefaults(db, endpointTypeId, updatedValue).then(newData => {
@@ -288,8 +338,8 @@ function resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef) {
         return Promise.all(attributes.map(attribute => {
             if (attribute.attributeRef != null) {
                 return Promise.all([insertOrUpdateAttributeState(db, endpointTypeId, attribute.attributeRef, true, 'INCLUDED'),
-                                    resolveReportableAttribute(db, endpointTypeId, attribute)
-                                    ])
+                resolveReportableAttribute(db, endpointTypeId, attribute)
+                ])
             } else {
                 return new Promise((resolve, reject) => {
                     return resolve();
@@ -369,117 +419,81 @@ function resolveNonOptionalAttributes(db, endpointTypeId, attributes) {
     }))
 }
 
-
-
 /**
- * Resolves to an array of objects that contain 'key' and 'value'
+ * Extracts raw endpoint types rows.
  *
  * @export
  * @param {*} db
  * @param {*} sessionId
- * @returns Promise to retrieve all session key values.
- */
-export function getAllSesionKeyValues(db, sessionId) {
-    return dbAll(db, "SELECT KEY, VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? ORDER BY KEY", [sessionId])
-        .then((rows) => new Promise((resolve, reject) => {
-            if (rows == null) {
-                resolve([])
-            } else {
-                var result = rows.map(row => {
-                    return {
-                        key: row.KEY,
-                        value: row.VALUE
-                    }
-                })
-                resolve(result)
-            }
-        }))
-}
-/**
- * Resolves to an array of endpoint types.
- *
- * @export
- * @param {*} db
- * @param {*} sessionId
- * @returns Promise to retrieve all endpoint types.
+ * @returns promise that resolves into rows in the database table.
  */
 export function getAllEndpointTypes(db, sessionId) {
     return dbAll(db, "SELECT ENDPOINT_TYPE_ID, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE SESSION_REF = ? ORDER BY NAME", [sessionId])
-        .then((rows) => new Promise((resolve, reject) => {
-            if (rows == null) {
-                resolve([])
-            } else {
-                var result = rows.map(row => {
-                    return {
-                        endpointTypeId: row.ENDPOINT_TYPE_ID,
-                        name: row.NAME,
-                        deviceTypeId: row.DEVICE_TYPE_REF
-                    }
-                })
-                resolve(result)
+        .then(rows => Promise.resolve(rows.map(row => {
+            return {
+                endpointTypeId: row.ENDPOINT_TYPE_ID,
+                name: row.NAME,
+                deviceTypeId: row.DEVICE_TYPE_REF
             }
-        }))
-        .then(result => {
-            var promises = []
-            result.forEach(row => {
-                promises.push(new Promise((resolve, reject) => {
-                    return dbAll(db, "SELECT CLUSTER_REF, SIDE, ENABLED FROM ENDPOINT_TYPE_CLUSTER WHERE ENDPOINT_TYPE_REF = ?", [row.endpointTypeId])
-                        .then(rows => new Promise((resolve, reject) => {
-                            if (rows != null)
-                                row.clusters = rows
-                            resolve()
-                        })).then(() => resolve())
-                        .catch(err => {
-                            logError(err)
-                            throw err
-                        })
-                }))
-
-                promises.push(new Promise((resolve, reject) => {
-                    return dbAll(db, "SELECT ATTRIBUTE_REF, INCLUDED, EXTERNAL, FLASH, SINGLETON, BOUNDED, DEFAULT_VALUE FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ?", [row.endpointTypeId])
-                        .then(rows => new Promise((resolve, reject) => {
-                            if (rows != null)
-                                row.attributes = rows
-                            resolve()
-                        })).then(() => resolve())
-                        .catch(err => {
-                            logError(err)
-                            throw err
-                        })
-                }))
-
-                promises.push(new Promise((resolve, reject) => {
-                    return dbAll(db, "SELECT COMMAND_REF, INCOMING, OUTGOING FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ?", [row.endpointTypeId])
-                        .then(rows => new Promise((resolve, reject) => {
-                            if (rows != null)
-                                row.commands = rows
-                            resolve()
-                        })).then(() => resolve())
-                        .catch(err => {
-                            logError(err)
-                            throw err
-                        })
-                }))
-            })
-            return Promise.all(promises).then(() => Promise.resolve(result))
-        })
+        })))
 }
 
-export function getAllEndpoints(db, sessionId) {
-    return dbAll(db, "SELECT ENDPOINT_TYPE_REF, PROFILE, NETWORK_ID WHERE SESSION_REF = ?", [sessionId])
-        .then((rows) => new Promise((resolve, reject) => {
-            if (rows == null) {
-                resolve([])
-            } else {
-                var result = rows.map(row => {
-                    return {
-                        profile: row.PROFILE,
-                        networkId: row.NETWORK_ID,
-                        endpointType: row.ENDPOINT_TYPE_REF
-                    }
-                })
-                resolve(result)
+/**
+ * Extracts clusters from the endpoint_type_cluster table.
+ *
+ * @export
+ * @param {*} endpointTypeId
+ * @returns A promise that resolves into the rows.
+ */
+export function getEndpointTypeClusters(db, endpointTypeId) {
+    return dbAll(db, "SELECT CLUSTER_REF, SIDE, ENABLED FROM ENDPOINT_TYPE_CLUSTER WHERE ENDPOINT_TYPE_REF = ?", [endpointTypeId])
+        .then(rows => Promise.resolve(rows.map(row => {
+            return {
+                clusterId: row.CLUSTER_REF,
+                side: row.SIDE,
+                isEnabled: row.ENABLED
             }
-        }))
+        })))
 }
 
+/**
+ * Extracts attributes from the endpoint_type_attribute table.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns A promise that resolves into the rows.
+ */
+export function getEndpointTypeAttributes(db, endpointTypeId) {
+    return dbAll(db, "SELECT ATTRIBUTE_REF, INCLUDED, EXTERNAL, FLASH, SINGLETON, BOUNDED, DEFAULT_VALUE FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ?", [endpointTypeId])
+        .then(rows => Promise.resolve(rows.map(row => {
+            return {
+                attributeId: row.ATTRIBUTE_REF,
+                isIncluded: row.INCLUDED,
+                isExternal: row.EXTERNAL,
+                isFlash: row.FLASH,
+                isSingleton: row.SINGLETON,
+                isBounder: row.BOUNDED,
+                defaultValue: row.DEFAULT_VALUE,
+            }
+        })))
+}
+
+/**
+ * Extracts commands from the endpoint_type_command table.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns A promise that resolves into the rows.
+ */
+export function getEndpointTypeCommands(db, endpointTypeId) {
+    return dbAll(db, "SELECT COMMAND_REF, INCOMING, OUTGOING FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ?", [endpointTypeId])
+        .then(rows => Promise.resolve(rows.map(row => {
+            return {
+                commandID: row.COMMAND_REF,
+                isIncoming: row.INCOMING,
+                isOutgoing: row.OUTGOING,
+            }
+        })))
+}

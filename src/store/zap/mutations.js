@@ -80,6 +80,7 @@ export function updateReportingAttributeDefaults (state, selectionContext) {
 
 export function updateAttributeDefaults (state, selectionContext) {
   Vue.set(state.attributeView.defaultValues, selectionContext.id, selectionContext.newDefaultValue)
+  Vue.set(state.attributeView.defaultValueValidationIssues, selectionContext.id, selectionContext.defaultValueValidationIssues)
 }
 
 export function updateCommands (state, commands) {

@@ -1,3 +1,5 @@
+// Copyright (c) 2020 Silicon Labs. All rights reserved.
+
 import { processCommandLineArguments } from "../src-electron/main-process/args"
 import yargs from 'yargs'
 

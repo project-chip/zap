@@ -62,7 +62,7 @@ export function dbCommit(db) {
  * @returns A promise that resolve with the number of delete rows, or rejects with an error from query.
  */
 export function dbRemove(db, query, args) {
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
         db.run(query, args, function (err) {
             if (err) {
                 logError(`Failed remove: ${query}: ${args}`)
@@ -71,7 +71,7 @@ export function dbRemove(db, query, args) {
                 logInfo(`Executed remove: ${query}: ${args}`)
                 resolve(this.changes)
             }
-        })        
+        })
     })
 }
 
@@ -94,7 +94,7 @@ export function dbUpdate(db, query, args) {
                 logInfo(`Executed update: ${query}: ${args}`)
                 resolve()
             }
-        })        
+        })
     })
 }
 
@@ -111,17 +111,18 @@ export function dbInsert(db, query, args, enabledLogging = true) {
     return new Promise((resolve, reject) => {
         db.run(query, args, function (err) {
             if (err) {
-                if ( enabledLogging)
+                if (enabledLogging)
                     logError(`Failed insert: ${query}: ${args}`)
                 reject(err)
             } else {
-                if ( enabledLogging)
+                if (enabledLogging)
                     logInfo(`Executed insert: ${query}: ${args} => rowid: ${this.lastID}`)
                 resolve(this.lastID)
             }
         })
     })
 }
+
 /**
  * Returns a promise to execute a query to perform a select that returns all rows that match a query.
  *
@@ -165,6 +166,40 @@ export function dbGet(db, query, args) {
             }
         })
 
+    })
+}
+
+/**
+ * Returns a promise to perform a prepared statement, using data from array for SQL parameters.
+ * It resolves with an array of rows, containing the data, or rejects with an error.
+ * 
+ * @param {*} db 
+ * @param {*} sql 
+ * @param {*} arrayOfArrays 
+ */
+export function dbMultiSelect(db, sql, arrayOfArrays) {
+    return new Promise((resolve, reject) => {
+        logInfo(`Preparing statement: ${sql} to select ${arrayOfArrays.length} rows.`)
+        var rows = []
+        var statement = db.prepare(sql, function (err) {
+            if (err) reject(err)
+            for (const singleArray of arrayOfArrays) {
+                statement.get(singleArray, (err, row) => {
+                    if (err) {
+                        reject(err)
+                    } else {
+                        rows.push(row)
+                    }
+                })
+            }
+            statement.finalize((err) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(rows)
+                }
+            })
+        })
     })
 }
 
@@ -278,6 +313,6 @@ export function loadSchema(db, schema, appVersion) {
             })
         });
     })
-    .then(db => insertOrReplaceVersion(db, appVersion))
-    .then(rowid => Promise.resolve(db))
+        .then(db => insertOrReplaceVersion(db, appVersion))
+        .then(rowid => Promise.resolve(db))
 }

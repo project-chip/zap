@@ -1,3 +1,5 @@
+// Copyright (c) 2020 Silicon Labs. All rights reserved.
+
 import * as Env from '../src-electron/main-process/env.js'
 
 test('Test environment', () => {

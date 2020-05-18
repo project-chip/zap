@@ -20,8 +20,7 @@
 <dd><p>This module provides queries for ZCL static queries.</p>
 </dd>
 <dt><a href="#module_JS API_ generator logic">JS API: generator logic</a></dt>
-<dd><p>Copyright (c) 2020 Silicon Labs. All rights reserved.</p>
-</dd>
+<dd></dd>
 <dt><a href="#module_REST API_ admin functions">REST API: admin functions</a></dt>
 <dd><p>This module provides the REST API to the admin functions.</p>
 </dd>
@@ -94,6 +93,82 @@ correct directory.</p>
 <dt><a href="#initMenu">initMenu(port)</a></dt>
 <dd><p>Initialize a menu.</p>
 </dd>
+<dt><a href="#collectZclFiles">collectZclFiles(propertiesFile)</a> ⇒</dt>
+<dd><p>Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.</p>
+</dd>
+<dt><a href="#readZclFile">readZclFile(file)</a> ⇒</dt>
+<dd><p>Promises to read a file and resolve with the content</p>
+</dd>
+<dt><a href="#calculateCrc">calculateCrc(filePath, data)</a> ⇒</dt>
+<dd><p>Promises to calculate the CRC of the file, and resolve with an array [filePath,data,crc]</p>
+</dd>
+<dt><a href="#parseZclFile">parseZclFile(argument)</a> ⇒</dt>
+<dd><p>Promises to parse the ZCL file, expecting array of [filePath, data, packageId, msg]</p>
+</dd>
+<dt><a href="#prepareBitmap">prepareBitmap(bm)</a> ⇒</dt>
+<dd><p>Prepare bitmap for database insertion.</p>
+</dd>
+<dt><a href="#processBitmaps">processBitmaps(db, filePath, packageId, data)</a> ⇒</dt>
+<dd><p>Processes bitmaps for DB insertion.</p>
+</dd>
+<dt><a href="#prepareCluster">prepareCluster(cluster)</a> ⇒</dt>
+<dd><p>Prepare XML cluster for insertion into the database.
+This method can also prepare clusterExtensions.</p>
+</dd>
+<dt><a href="#processClusters">processClusters(db, filePath, packageId, data)</a> ⇒</dt>
+<dd><p>Process clusters for insertion into the database.</p>
+</dd>
+<dt><a href="#processClusterExtensions">processClusterExtensions(db, filePath, packageId, data)</a> ⇒</dt>
+<dd><p>Cluster Extension contains attributes and commands in a same way as regular cluster,
+and it has an attribute code=&quot;0xXYZ&quot; where code is a cluster code.</p>
+</dd>
+<dt><a href="#processGlobals">processGlobals(db, filePath, packageId, data)</a> ⇒</dt>
+<dd><p>Processes the globals in the XML files. The <code>global</code> tag contains
+attributes and commands in a same way as cluster or clusterExtension</p>
+</dd>
+<dt><a href="#prepareDomain">prepareDomain(domain)</a> ⇒</dt>
+<dd><p>Convert domain from XMl to domain for DB.</p>
+</dd>
+<dt><a href="#processDomains">processDomains(db, filePath, packageId, data)</a> ⇒</dt>
+<dd><p>Process domains for insertion.</p>
+</dd>
+<dt><a href="#prepareStruct">prepareStruct(struct)</a> ⇒</dt>
+<dd><p>Prepares structs for the insertion into the database.</p>
+</dd>
+<dt><a href="#processStructs">processStructs(db, filePath, packageId, data)</a> ⇒</dt>
+<dd><p>Processes structs.</p>
+</dd>
+<dt><a href="#prepareEnum">prepareEnum(en)</a> ⇒</dt>
+<dd><p>Prepares an enum for insertion into the database.</p>
+</dd>
+<dt><a href="#processEnums">processEnums(db, filePath, packageId, data)</a> ⇒</dt>
+<dd><p>Processes the enums.</p>
+</dd>
+<dt><a href="#prepareDeviceType">prepareDeviceType(deviceType)</a> ⇒</dt>
+<dd><p>Preparation step for the device types.</p>
+</dd>
+<dt><a href="#processDeviceTypes">processDeviceTypes(db, filePath, packageId, data)</a> ⇒</dt>
+<dd><p>Process all device types.</p>
+</dd>
+<dt><a href="#processParsedZclData">processParsedZclData(db, argument)</a> ⇒</dt>
+<dd><p>After XML parser is done with the barebones parsing, this function
+branches the individual toplevel tags.</p>
+</dd>
+<dt><a href="#processPostLoading">processPostLoading(db)</a> ⇒</dt>
+<dd><p>Promises to perform a post loading step.</p>
+</dd>
+<dt><a href="#qualifyZclFile">qualifyZclFile(db, object)</a> ⇒</dt>
+<dd><p>Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with [filePath, data, packageId, NULL]
+If not, then it will resolve with [null, null, null, msg]</p>
+</dd>
+<dt><a href="#parseZclFiles">parseZclFiles(db, files)</a> ⇒</dt>
+<dd><p>Promises to iterate over all the XML files and returns an aggregate promise
+that will be resolved when all the XML files are done, or rejected if at least one fails.</p>
+</dd>
+<dt><a href="#loadZcl">loadZcl(db, propertiesFile)</a> ⇒</dt>
+<dd><p>Toplevel function that loads the properties file and orchestrates the promise chain.</p>
+</dd>
 </dl>
 
 <a name="module_JS API_ low level database access"></a>
@@ -111,6 +186,7 @@ This module provides generic DB functions for performing SQL queries.
         * [.dbInsert(db, query, args)](#module_JS API_ low level database access.dbInsert) ⇒
         * [.dbAll(db, query, args)](#module_JS API_ low level database access.dbAll) ⇒
         * [.dbGet(db, query, args)](#module_JS API_ low level database access.dbGet) ⇒
+        * [.dbMultiSelect(db, sql, arrayOfArrays)](#module_JS API_ low level database access.dbMultiSelect)
         * [.dbMultiInsert(db, sql, arrayOfArrays)](#module_JS API_ low level database access.dbMultiInsert) ⇒
         * [.closeDatabase(database)](#module_JS API_ low level database access.closeDatabase) ⇒
         * [.initDatabase(sqlitePath)](#module_JS API_ low level database access.initDatabase) ⇒
@@ -212,6 +288,20 @@ Returns a promise to execute a query to perform a select that returns first row 
 | query | <code>\*</code> | 
 | args | <code>\*</code> | 
 
+<a name="module_JS API_ low level database access.dbMultiSelect"></a>
+
+### JS API: low level database access.dbMultiSelect(db, sql, arrayOfArrays)
+Returns a promise to perform a prepared statement, using data from array for SQL parameters.
+It resolves with an array of rows, containing the data, or rejects with an error.
+
+**Kind**: static method of [<code>JS API: low level database access</code>](#module_JS API_ low level database access)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sql | <code>\*</code> | 
+| arrayOfArrays | <code>\*</code> | 
+
 <a name="module_JS API_ low level database access.dbMultiInsert"></a>
 
 ### JS API: low level database access.dbMultiInsert(db, sql, arrayOfArrays) ⇒
@@ -287,18 +377,22 @@ This module provides queries for user configuration.
 
 * [DB API: user configuration queries against the database.](#module_DB API_ user configuration queries against the database.)
     * [.updateKeyValue(db, sessionId, key, value)](#module_DB API_ user configuration queries against the database..updateKeyValue) ⇒
+    * [.getKeyValue(db, sessionId)](#module_DB API_ user configuration queries against the database..getKeyValue) ⇒
+    * [.getAllSesionKeyValues(db, sessionId)](#module_DB API_ user configuration queries against the database..getAllSesionKeyValues) ⇒
     * [.insertOrReplaceClusterState(db, endpointTypeId, clusterRef, side, enabled)](#module_DB API_ user configuration queries against the database..insertOrReplaceClusterState) ⇒
     * [.insertOrUpdateAttributeState(db, endpointTypeId, id, value, booleanParam)](#module_DB API_ user configuration queries against the database..insertOrUpdateAttributeState)
     * [.insertOrUpdateCommandState(db, endpointTypeId, id, value, booleanParam)](#module_DB API_ user configuration queries against the database..insertOrUpdateCommandState)
     * [.insertOrUpdateReportableAttributeState(db, endpointTypeId, id, value, booleanParam)](#module_DB API_ user configuration queries against the database..insertOrUpdateReportableAttributeState)
+    * [.getAllEndpointTypeClusterState(db, endpointTypeId)](#module_DB API_ user configuration queries against the database..getAllEndpointTypeClusterState) ⇒
     * [.insertEndpoint(db, sessionId, endpointId, endpointTypeRef, networkId)](#module_DB API_ user configuration queries against the database..insertEndpoint) ⇒
     * [.deleteEndpoint(db, id)](#module_DB API_ user configuration queries against the database..deleteEndpoint) ⇒
     * [.insertEndpointType(db, sessionId, name, deviceTypeRef)](#module_DB API_ user configuration queries against the database..insertEndpointType) ⇒
     * [.deleteEndpointType(db, sessionId, id)](#module_DB API_ user configuration queries against the database..deleteEndpointType)
+    * [.deleteEndpointTypeData(db, endpointTypeId)](#module_DB API_ user configuration queries against the database..deleteEndpointTypeData) ⇒
     * [.updateEndpointType(db, sessionId, endpointTypeId, param, updatedValue)](#module_DB API_ user configuration queries against the database..updateEndpointType)
     * [.setEndpointDefaults(db, endpointTypeId)](#module_DB API_ user configuration queries against the database..setEndpointDefaults)
-    * [.getAllSesionKeyValues(db, sessionId)](#module_DB API_ user configuration queries against the database..getAllSesionKeyValues) ⇒
     * [.getAllEndpointTypes(db, sessionId)](#module_DB API_ user configuration queries against the database..getAllEndpointTypes) ⇒
+    * [.getAllEndpoints(db, sessionId)](#module_DB API_ user configuration queries against the database..getAllEndpoints) ⇒
 
 <a name="module_DB API_ user configuration queries against the database..updateKeyValue"></a>
 
@@ -314,6 +408,32 @@ Promises to update or insert a key/value pair in SESSION_KEY_VALUE table.
 | sessionId | <code>\*</code> | 
 | key | <code>\*</code> | 
 | value | <code>\*</code> | 
+
+<a name="module_DB API_ user configuration queries against the database..getKeyValue"></a>
+
+### DB API: user configuration queries against the database..getKeyValue(db, sessionId) ⇒
+Retrieves a value of a single session key.
+
+**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module_DB API_ user configuration queries against the database.)  
+**Returns**: A promise of a session key value.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+
+<a name="module_DB API_ user configuration queries against the database..getAllSesionKeyValues"></a>
+
+### DB API: user configuration queries against the database..getAllSesionKeyValues(db, sessionId) ⇒
+Resolves to an array of objects that contain 'key' and 'value'
+
+**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module_DB API_ user configuration queries against the database.)  
+**Returns**: Promise to retrieve all session key values.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
 
 <a name="module_DB API_ user configuration queries against the database..insertOrReplaceClusterState"></a>
 
@@ -384,6 +504,19 @@ Afterwards, update entry.
 | value | <code>\*</code> | 
 | booleanParam | <code>\*</code> | 
 
+<a name="module_DB API_ user configuration queries against the database..getAllEndpointTypeClusterState"></a>
+
+### DB API: user configuration queries against the database..getAllEndpointTypeClusterState(db, endpointTypeId) ⇒
+Resolves into all the cluster states.
+
+**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module_DB API_ user configuration queries against the database.)  
+**Returns**: Promise that resolves with cluster states.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointTypeId | <code>\*</code> | 
+
 <a name="module_DB API_ user configuration queries against the database..insertEndpoint"></a>
 
 ### DB API: user configuration queries against the database..insertEndpoint(db, sessionId, endpointId, endpointTypeRef, networkId) ⇒
@@ -441,6 +574,19 @@ Promise to delete an endpoint type.
 | sessionId | <code>\*</code> | 
 | id | <code>\*</code> | 
 
+<a name="module_DB API_ user configuration queries against the database..deleteEndpointTypeData"></a>
+
+### DB API: user configuration queries against the database..deleteEndpointTypeData(db, endpointTypeId) ⇒
+Deletes referenced things. This should be done with CASCADE DELETE
+
+**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module_DB API_ user configuration queries against the database.)  
+**Returns**: Promise of removal.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointTypeId | <code>\*</code> | 
+
 <a name="module_DB API_ user configuration queries against the database..updateEndpointType"></a>
 
 ### DB API: user configuration queries against the database..updateEndpointType(db, sessionId, endpointTypeId, param, updatedValue)
@@ -468,19 +614,6 @@ Promise to set the default attributes and clusters for a endpoint type.
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 
-<a name="module_DB API_ user configuration queries against the database..getAllSesionKeyValues"></a>
-
-### DB API: user configuration queries against the database..getAllSesionKeyValues(db, sessionId) ⇒
-Resolves to an array of objects that contain 'key' and 'value'
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module_DB API_ user configuration queries against the database.)  
-**Returns**: Promise to retrieve all session key values.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| sessionId | <code>\*</code> | 
-
 <a name="module_DB API_ user configuration queries against the database..getAllEndpointTypes"></a>
 
 ### DB API: user configuration queries against the database..getAllEndpointTypes(db, sessionId) ⇒
@@ -488,6 +621,19 @@ Resolves to an array of endpoint types.
 
 **Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module_DB API_ user configuration queries against the database.)  
 **Returns**: Promise to retrieve all endpoint types.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+
+<a name="module_DB API_ user configuration queries against the database..getAllEndpoints"></a>
+
+### DB API: user configuration queries against the database..getAllEndpoints(db, sessionId) ⇒
+Retrieves all the endpoints for session.
+
+**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module_DB API_ user configuration queries against the database.)  
+**Returns**: Promise of the endpoints  
 
 | Param | Type |
 | --- | --- |
@@ -729,6 +875,8 @@ This module provides queries for ZCL static queries.
     * [.selectAllStructs(db)](#module_DB API_ zcl database access.selectAllStructs) ⇒
     * [.selectAllClusters(db)](#module_DB API_ zcl database access.selectAllClusters) ⇒
     * [.selectAllDeviceTypes(db)](#module_DB API_ zcl database access.selectAllDeviceTypes) ⇒
+    * [.insertGlobals(db, packageId, data)](#module_DB API_ zcl database access.insertGlobals) ⇒
+    * [.insertClusterExtensions(db, packageId, data)](#module_DB API_ zcl database access.insertClusterExtensions) ⇒
     * [.insertClusters(db, packageId, data)](#module_DB API_ zcl database access.insertClusters) ⇒
     * [.insertDeviceTypes(db, packageId, data)](#module_DB API_ zcl database access.insertDeviceTypes) ⇒
     * [.insertDeviceTypeAttributes(db, dtClusterRefDataPairs)](#module_DB API_ zcl database access.insertDeviceTypeAttributes)
@@ -809,6 +957,34 @@ Retrieves all the device types in the database.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access.insertGlobals"></a>
+
+### DB API: zcl database access.insertGlobals(db, packageId, data) ⇒
+Inserts globals into the database.
+
+**Kind**: static method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: Promise of globals insertion.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access.insertClusterExtensions"></a>
+
+### DB API: zcl database access.insertClusterExtensions(db, packageId, data) ⇒
+Inserts cluster extensions into the database.
+
+**Kind**: static method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: Promise of cluster extension insertion.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access.insertClusters"></a>
 
@@ -925,8 +1101,6 @@ Inserts bitmaps into the database. Data is an array of objects that must contain
 <a name="module_JS API_ generator logic"></a>
 
 ## JS API: generator logic
-Copyright (c) 2020 Silicon Labs. All rights reserved.
-
 
 * [JS API: generator logic](#module_JS API_ generator logic)
     * [.mapDatabase(db)](#module_JS API_ generator logic.mapDatabase) ⇒
@@ -1009,13 +1183,12 @@ content.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| map | <code>Object</code> | Map containing database, compiled templates, database and database rows for different datbase types. |
+| map | <code>Object</code> | Map containing database, compiled templates, database and database rows for different database types. |
 | groupByParams | <code>Object</code> | Object to group information by |
 | groupByParams.subItemName | <code>string</code> |  |
 | groupByParams.foreignKey | <code>string</code> |  |
 | groupByParams.primaryKey | <code>string</code> |  |
 | groupByParams.dbType | <code>string</code> |  |
-| groupByParams.columns | <code>string</code> |  |
 
 <a name="module_JS API_ generator logic.resolveHelper"></a>
 
@@ -1370,4 +1543,316 @@ Initialize a menu.
 | Param | Type |
 | --- | --- |
 | port | <code>\*</code> | 
+
+<a name="collectZclFiles"></a>
+
+## collectZclFiles(propertiesFile) ⇒
+Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
+
+**Kind**: global function  
+**Returns**: Promise of resolved files.  
+
+| Param | Type |
+| --- | --- |
+| propertiesFile | <code>\*</code> | 
+
+<a name="readZclFile"></a>
+
+## readZclFile(file) ⇒
+Promises to read a file and resolve with the content
+
+**Kind**: global function  
+**Returns**: promise that resolves as readFile  
+
+| Param | Type |
+| --- | --- |
+| file | <code>\*</code> | 
+
+<a name="calculateCrc"></a>
+
+## calculateCrc(filePath, data) ⇒
+Promises to calculate the CRC of the file, and resolve with an array [filePath,data,crc]
+
+**Kind**: global function  
+**Returns**: Promise of a resolved CRC file.  
+
+| Param | Type |
+| --- | --- |
+| filePath | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="parseZclFile"></a>
+
+## parseZclFile(argument) ⇒
+Promises to parse the ZCL file, expecting array of [filePath, data, packageId, msg]
+
+**Kind**: global function  
+**Returns**: promise that resolves with the array [filePath,result,packageId,msg]  
+
+| Param | Type |
+| --- | --- |
+| argument | <code>\*</code> | 
+
+<a name="prepareBitmap"></a>
+
+## prepareBitmap(bm) ⇒
+Prepare bitmap for database insertion.
+
+**Kind**: global function  
+**Returns**: Object for insertion into the database  
+
+| Param | Type |
+| --- | --- |
+| bm | <code>\*</code> | 
+
+<a name="processBitmaps"></a>
+
+## processBitmaps(db, filePath, packageId, data) ⇒
+Processes bitmaps for DB insertion.
+
+**Kind**: global function  
+**Returns**: Promise of inserted bitmaps  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="prepareCluster"></a>
+
+## prepareCluster(cluster) ⇒
+Prepare XML cluster for insertion into the database.
+This method can also prepare clusterExtensions.
+
+**Kind**: global function  
+**Returns**: Object containing all data from XML.  
+
+| Param | Type |
+| --- | --- |
+| cluster | <code>\*</code> | 
+
+<a name="processClusters"></a>
+
+## processClusters(db, filePath, packageId, data) ⇒
+Process clusters for insertion into the database.
+
+**Kind**: global function  
+**Returns**: Promise of cluster insertion.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="processClusterExtensions"></a>
+
+## processClusterExtensions(db, filePath, packageId, data) ⇒
+Cluster Extension contains attributes and commands in a same way as regular cluster,
+and it has an attribute code="0xXYZ" where code is a cluster code.
+
+**Kind**: global function  
+**Returns**: promise to resolve the clusterExtension tags  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="processGlobals"></a>
+
+## processGlobals(db, filePath, packageId, data) ⇒
+Processes the globals in the XML files. The `global` tag contains
+attributes and commands in a same way as cluster or clusterExtension
+
+**Kind**: global function  
+**Returns**: promise to resolve the globals  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="prepareDomain"></a>
+
+## prepareDomain(domain) ⇒
+Convert domain from XMl to domain for DB.
+
+**Kind**: global function  
+**Returns**: Domain object for DB.  
+
+| Param | Type |
+| --- | --- |
+| domain | <code>\*</code> | 
+
+<a name="processDomains"></a>
+
+## processDomains(db, filePath, packageId, data) ⇒
+Process domains for insertion.
+
+**Kind**: global function  
+**Returns**: Promise of database insertion of domains.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="prepareStruct"></a>
+
+## prepareStruct(struct) ⇒
+Prepares structs for the insertion into the database.
+
+**Kind**: global function  
+**Returns**: Object ready to insert into the database.  
+
+| Param | Type |
+| --- | --- |
+| struct | <code>\*</code> | 
+
+<a name="processStructs"></a>
+
+## processStructs(db, filePath, packageId, data) ⇒
+Processes structs.
+
+**Kind**: global function  
+**Returns**: Promise of inserted structs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="prepareEnum"></a>
+
+## prepareEnum(en) ⇒
+Prepares an enum for insertion into the database.
+
+**Kind**: global function  
+**Returns**: An object ready to go to the database.  
+
+| Param | Type |
+| --- | --- |
+| en | <code>\*</code> | 
+
+<a name="processEnums"></a>
+
+## processEnums(db, filePath, packageId, data) ⇒
+Processes the enums.
+
+**Kind**: global function  
+**Returns**: A promise of inserted enums.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="prepareDeviceType"></a>
+
+## prepareDeviceType(deviceType) ⇒
+Preparation step for the device types.
+
+**Kind**: global function  
+**Returns**: an object containing the prepared device types.  
+
+| Param | Type |
+| --- | --- |
+| deviceType | <code>\*</code> | 
+
+<a name="processDeviceTypes"></a>
+
+## processDeviceTypes(db, filePath, packageId, data) ⇒
+Process all device types.
+
+**Kind**: global function  
+**Returns**: Promise of a resolved device types.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="processParsedZclData"></a>
+
+## processParsedZclData(db, argument) ⇒
+After XML parser is done with the barebones parsing, this function
+branches the individual toplevel tags.
+
+**Kind**: global function  
+**Returns**: promise that resolves when all the subtags are parsed.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| argument | <code>\*</code> | 
+
+<a name="processPostLoading"></a>
+
+## processPostLoading(db) ⇒
+Promises to perform a post loading step.
+
+**Kind**: global function  
+**Returns**: Promise to deal with the post-loading cleanup.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="qualifyZclFile"></a>
+
+## qualifyZclFile(db, object) ⇒
+Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with [filePath, data, packageId, NULL]
+If not, then it will resolve with [null, null, null, msg]
+
+**Kind**: global function  
+**Returns**: Promise that resolves int he object of data.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| object | <code>\*</code> | 
+
+<a name="parseZclFiles"></a>
+
+## parseZclFiles(db, files) ⇒
+Promises to iterate over all the XML files and returns an aggregate promise
+that will be resolved when all the XML files are done, or rejected if at least one fails.
+
+**Kind**: global function  
+**Returns**: Promise that resolves when all the individual promises of each file pass.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| files | <code>\*</code> | 
+
+<a name="loadZcl"></a>
+
+## loadZcl(db, propertiesFile) ⇒
+Toplevel function that loads the properties file and orchestrates the promise chain.
+
+**Kind**: global function  
+**Returns**: a Promise that resolves with the db.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| propertiesFile | <code>\*</code> | 
 

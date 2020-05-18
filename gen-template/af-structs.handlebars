@@ -9,7 +9,7 @@
 {{#each type}}
 typedef struct _{{this.NAME}} {
     {{#each this.STRUCT_ITEMS}}
-        {{#switch VALUE}}
+        {{#switch TYPE}}
             {{#case 'attribute_id' ~}}uint16_t {{NAME}};{{/case ~}}           
             {{#case 'bitmap24' ~}}uint32_t {{NAME}};{{/case ~}}
             {{#case 'bitmap8' ~}}uint8_t {{NAME}};{{/case ~}}

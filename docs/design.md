@@ -149,7 +149,7 @@ The database needs to support:
 - **singleton attributes**: the attributes that have same value across multiple endpoints.
 - **flash-saved attributes**: the attributes whose value is saved to flash for persistence across resets.
 - **external attributes**: the attributes whose value is not stored anywhere, but whenever the code queries them, the value is received or stored via a customer callback.
-- **manufacturer-specific attributes and commands**
+- **manufacturer-specific attributes and commands**: schema needs to make sure all manufacturer specific data has place in the tables
 - **external APIs**: that might allow other data tokens to be stored into this database for any purpose customers might come up with
 
 The database design should be ZCL-independent, but should be developed as just-a-database, useful for storing anything. ZCL is a special case that uses this database. It should build into a library that should also compile on POSIX and be fully unit-testable on a Linux box.
