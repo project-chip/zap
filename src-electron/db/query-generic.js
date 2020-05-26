@@ -5,7 +5,7 @@
  *
  * @module DB API: generic queries against the database.
  */
-import { dbGet, dbInsert } from './db-api.js'
+import * as DbApi from './db-api.js'
 
 /**
  * Simple query that returns number of rows in a given table.
@@ -16,7 +16,9 @@ import { dbGet, dbInsert } from './db-api.js'
  * @returns a promise that resolves into the count of the rows in the table.
  */
 export function selectCountFrom(db, table) {
-  return dbGet(db, `SELECT COUNT(*) FROM ${table}`).then((x) => x['COUNT(*)'])
+  return DbApi.dbGet(db, `SELECT COUNT(*) FROM ${table}`).then(
+    (x) => x['COUNT(*)']
+  )
 }
 
 /**
@@ -28,7 +30,7 @@ export function selectCountFrom(db, table) {
  * @param {*} category
  */
 export function insertFileLocation(db, filePath, category) {
-  return dbInsert(
+  return DbApi.dbInsert(
     db,
     'INSERT OR REPLACE INTO FILE_LOCATION (CATEGORY, FILE_PATH, ACCESS_TIME) VALUES (?,?,?)',
     [category, filePath, Date.now()]
@@ -43,9 +45,11 @@ export function insertFileLocation(db, filePath, category) {
  * @param {*} category
  */
 export function selectFileLocation(db, category) {
-  return dbGet(db, 'SELECT FILE_PATH FROM FILE_LOCATION WHERE CATEGORY = ?', [
-    category,
-  ]).then((row) => {
+  return DbApi.dbGet(
+    db,
+    'SELECT FILE_PATH FROM FILE_LOCATION WHERE CATEGORY = ?',
+    [category]
+  ).then((row) => {
     if (row == null) {
       return ''
     } else {
