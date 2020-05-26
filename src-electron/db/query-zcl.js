@@ -5,16 +5,9 @@
  *
  * @module DB API: zcl database access
  */
-import {
-  dbAll,
-  dbGet,
-  dbMultiInsert,
-  dbUpdate,
-  dbInsert,
-  dbMultiSelect,
-} from './db-api.js'
-import { logInfo, logWarning } from '../util/env.js'
-import { dbMap } from './db-mapping.js'
+import * as DbApi from './db-api.js'
+import * as Env from '../util/env.js'
+import * as DbMapping from './db-mapping.js'
 
 /**
  * Retrieves all the enums in the database.
@@ -24,15 +17,19 @@ import { dbMap } from './db-mapping.js'
  * @returns Promise that resolves with the rows of enums.
  */
 export function selectAllEnums(db) {
-  return dbAll(db, 'SELECT ENUM_ID, NAME, TYPE FROM ENUM ORDER BY NAME', [])
+  return DbApi.dbAll(
+    db,
+    'SELECT ENUM_ID, NAME, TYPE FROM ENUM ORDER BY NAME',
+    []
+  )
 }
 
 export function selectAllEnumItemsById(db, id) {
-  return dbAll(db, 'SELECT NAME FROM ENUM_ITEM WHERE ENUM_REF=?', [id])
+  return DbApi.dbAll(db, 'SELECT NAME FROM ENUM_ITEM WHERE ENUM_REF=?', [id])
 }
 
 export function selectAllEnumItems(db) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     'SELECT NAME, VALUE, ENUM_REF FROM ENUM_ITEM ORDER BY ENUM_REF',
     []
@@ -40,11 +37,11 @@ export function selectAllEnumItems(db) {
 }
 
 export function selectEnumById(db, id) {
-  return dbGet(
+  return DbApi.dbGet(
     db,
     'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE ENUM_ID = ? ORDER BY NAME',
     [id]
-  ).then(dbMap.enum)
+  ).then(DbMapping.dbMap.enum)
 }
 
 /**
@@ -55,11 +52,15 @@ export function selectEnumById(db, id) {
  * @returns Promise that resolves with the rows of bitmaps.
  */
 export function selectAllBitmaps(db) {
-  return dbAll(db, 'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP ORDER BY NAME', [])
+  return DbApi.dbAll(
+    db,
+    'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP ORDER BY NAME',
+    []
+  )
 }
 
 export function selectAllBitmapFields(db) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     'SELECT NAME, MASK, BITMAP_REF FROM BITMAP_FIELD ORDER BY NAME',
     []
@@ -67,11 +68,11 @@ export function selectAllBitmapFields(db) {
 }
 
 export function selectBitmapById(db, id) {
-  return dbGet(
+  return DbApi.dbGet(
     db,
     'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE BITMAP_ID = ? ORDER BY NAME',
     [id]
-  ).then(dbMap.bitmap)
+  ).then(DbMapping.dbMap.bitmap)
 }
 
 /**
@@ -82,15 +83,15 @@ export function selectBitmapById(db, id) {
  * @returns Promise that resolves with the rows of domains.
  */
 export function selectAllDomains(db) {
-  return dbAll(db, 'SELECT DOMAIN_ID, NAME FROM DOMAIN ORDER BY NAME', [])
+  return DbApi.dbAll(db, 'SELECT DOMAIN_ID, NAME FROM DOMAIN ORDER BY NAME', [])
 }
 
 export function selectDomainById(db, id) {
-  return dbGet(
+  return DbApi.dbGet(
     db,
     'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE DOMAIN_ID = ? ORDER BY NAME',
     [id]
-  ).then(dbMap.domain)
+  ).then(DbMapping.dbMap.domain)
 }
 
 /**
@@ -101,19 +102,19 @@ export function selectDomainById(db, id) {
  * @returns Promise that resolves with the rows of structs.
  */
 export function selectAllStructs(db) {
-  return dbAll(db, 'SELECT STRUCT_ID, NAME FROM STRUCT ORDER BY NAME', [])
+  return DbApi.dbAll(db, 'SELECT STRUCT_ID, NAME FROM STRUCT ORDER BY NAME', [])
 }
 
 export function selectStructById(db, id) {
-  return dbGet(
+  return DbApi.dbGet(
     db,
     'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ? ORDER BY NAME',
     [id]
-  ).then(dbMap.struct)
+  ).then(DbMapping.dbMap.struct)
 }
 
 export function selectAllStructItems(db) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     'SELECT NAME, TYPE, STRUCT_REF FROM STRUCT_ITEM ORDER BY STRUCT_REF',
     []
@@ -121,7 +122,9 @@ export function selectAllStructItems(db) {
 }
 
 export function selectStructItemById(db, id) {
-  return dbAll(db, 'SELECT NAME FROM STRUCT_ITEM WHERE STRUCT_REF=?', [id])
+  return DbApi.dbAll(db, 'SELECT NAME FROM STRUCT_ITEM WHERE STRUCT_REF=?', [
+    id,
+  ])
 }
 
 /**
@@ -132,7 +135,7 @@ export function selectStructItemById(db, id) {
  * @returns Promise that resolves with the rows of clusters.
  */
 export function selectAllClusters(db) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE FROM CLUSTER ORDER BY CODE',
     []
@@ -140,11 +143,11 @@ export function selectAllClusters(db) {
 }
 
 export function selectClusterById(db, id) {
-  return dbGet(
+  return DbApi.dbGet(
     db,
     'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE FROM CLUSTER WHERE CLUSTER_ID = ?',
     [id]
-  ).then(dbMap.cluster)
+  ).then(DbMapping.dbMap.cluster)
 }
 
 /**
@@ -155,55 +158,55 @@ export function selectClusterById(db, id) {
  * @returns Promise that resolves with the rows of device types.
  */
 export function selectAllDeviceTypes(db) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     'SELECT DEVICE_TYPE_ID, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE ORDER BY CODE',
     []
-  ).then((rows) => rows.map(dbMap.deviceType))
+  ).then((rows) => rows.map(DbMapping.dbMap.deviceType))
 }
 
 export function selectDeviceTypeById(db, id) {
-  return dbGet(
+  return DbApi.dbGet(
     db,
     'SELECT DEVICE_TYPE_ID, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ?',
     [id]
-  ).then(dbMap.deviceType)
+  ).then(DbMapping.dbMap.deviceType)
 }
 
 export function selectAttributesByClusterId(db, clusterId) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT ATTRIBUTE_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE FROM ATTRIBUTE WHERE CLUSTER_REF = ? ORDER BY CODE`,
     [clusterId]
-  ).then((rows) => rows.map(dbMap.attribute))
+  ).then((rows) => rows.map(DbMapping.dbMap.attribute))
 }
 
 export function selectAttributeById(db, id) {
-  return dbGet(
+  return DbApi.dbGet(
     db,
     'SELECT ATTRIBUTE_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
     [id]
-  ).then(dbMap.attribute)
+  ).then(DbMapping.dbMap.attribute)
 }
 
 export function selectAllAttributes(db) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT ATTRIBUTE_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE FROM ATTRIBUTE ORDER BY CODE`,
     []
-  ).then((rows) => rows.map(dbMap.attribute))
+  ).then((rows) => rows.map(DbMapping.dbMap.attribute))
 }
 
 export function selectCommandsByClusterId(db, clusterId) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE CLUSTER_REF = ? ORDER BY CODE`,
     [clusterId]
-  ).then((rows) => rows.map(dbMap.command))
+  ).then((rows) => rows.map(DbMapping.dbMap.command))
 }
 
 export function selectAllCommands(db) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND ORDER BY CODE`,
     []
@@ -211,7 +214,7 @@ export function selectAllCommands(db) {
 }
 
 export function selectAllGlobalCommands(db) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE CLUSTER_REF IS NULL ORDER BY CODE`,
     []
@@ -219,7 +222,7 @@ export function selectAllGlobalCommands(db) {
 }
 
 export function selectAllClusterCommands(db) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE CLUSTER_REF IS NOT NULL ORDER BY CODE`,
     []
@@ -227,7 +230,7 @@ export function selectAllClusterCommands(db) {
 }
 
 export function selectAllCommandArguments(db) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT COMMAND_REF, NAME, TYPE, IS_ARRAY FROM COMMAND_ARG ORDER BY COMMAND_REF`,
     []
@@ -235,61 +238,61 @@ export function selectAllCommandArguments(db) {
 }
 
 export function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED FROM ENDPOINT_TYPE_CLUSTER WHERE ENDPOINT_TYPE_REF = ? ORDER BY CLUSTER_REF`,
     [endpointTypeId]
-  ).then((rows) => rows.map(dbMap.endpointTypeCluster))
+  ).then((rows) => rows.map(DbMapping.dbMap.endpointTypeCluster))
 }
 
 export function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT ENDPOINT_TYPE_REF, ATTRIBUTE_REF, INCLUDED, EXTERNAL, FLASH, SINGLETON, BOUNDED, DEFAULT_VALUE FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ? ORDER BY ATTRIBUTE_REF`,
     [endpointTypeId]
-  ).then((rows) => rows.map(dbMap.endpointTypeAttribute))
+  ).then((rows) => rows.map(DbMapping.dbMap.endpointTypeAttribute))
 }
 
 export function selectEndpointTypeAttribute(db, endpointTypeId, attributeRef) {
-  return dbGet(
+  return DbApi.dbGet(
     db,
     'SELECT ENDPOINT_TYPE_REF, ATTRIBUTE_REF, INCLUDED, EXTERNAL, FLASH, SINGLETON, BOUNDED, DEFAULT_VALUE FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ? AND ATTRIBUTE_REF = ?',
     [endpointTypeId, attributeRef]
-  ).then(dbMap.endpointTypeAttribute)
+  ).then(DbMapping.dbMap.endpointTypeAttribute)
 }
 
 export function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT ENDPOINT_TYPE_REF, COMMAND_REF, INCOMING, OUTGOING FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ? ORDER BY COMMAND_REF`,
     [endpointTypeId]
-  ).then((rows) => rows.map(dbMap.endpointTypeCommand))
+  ).then((rows) => rows.map(DbMapping.dbMap.endpointTypeCommand))
 }
 
 export function selectEndpointTypeReportableAttributeByEndpointId(
   db,
   endpointTypeId
 ) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT ENDPOINT_TYPE_REF, ATTRIBUTE_REF, INCLUDED, MIN_INTERVAL, MAX_INTERVAL, REPORTABLE_CHANGE FROM ENDPOINT_TYPE_REPORTABLE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ? ORDER BY ATTRIBUTE_REF`,
     [endpointTypeId]
-  ).then((rows) => rows.map(dbMap.endpointTypeReportableAttribute))
+  ).then((rows) => rows.map(DbMapping.dbMap.endpointTypeReportableAttribute))
 }
 
 export function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT DEVICE_TYPE_CLUSTER_ID, DEVICE_TYPE_REF, CLUSTER_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER FROM DEVICE_TYPE_CLUSTER WHERE DEVICE_TYPE_REF = ? ORDER BY CLUSTER_REF`,
     [deviceTypeRef]
-  ).then((rows) => rows.map(dbMap.endpointTypeCluster))
+  ).then((rows) => rows.map(DbMapping.dbMap.endpointTypeCluster))
 }
 
 export function selectDeviceTypeAttributesByDeviceTypeClusterRef(
   db,
   deviceTypeClusterRef
 ) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT DEVICE_TYPE_CLUSTER_REF, ATTRIBUTE_REF, ATTRIBUTE_NAME FROM DEVICE_TYPE_ATTRIBUTE WHERE DEVICE_TYPE_CLUSTER_REF = ? ORDER BY ATTRIBUTE_REF`,
     [deviceTypeClusterRef]
@@ -300,7 +303,7 @@ export function selectDeviceTypeCommandsByDeviceTypeClusterRef(
   db,
   deviceTypeClusterRef
 ) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT DEVICE_TYPE_CLUSTER_REF, COMMAND_REF, COMMAND_NAME FROM DEVICE_TYPE_COMMAND WHERE DEVICE_TYPE_CLUSTER_REF = ? ORDER BY COMMAND_REF`,
     [deviceTypeClusterRef]
@@ -308,19 +311,19 @@ export function selectDeviceTypeCommandsByDeviceTypeClusterRef(
 }
 
 export function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT DEVICE_TYPE_CLUSTER.CLUSTER_REF, DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF, DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF, DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_NAME FROM DEVICE_TYPE_ATTRIBUTE, DEVICE_TYPE_CLUSTER WHERE DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ? AND DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF`,
     [deviceTypeRef]
-  ).then((rows) => rows.map(dbMap.deviceTypeAttribute))
+  ).then((rows) => rows.map(DbMapping.dbMap.deviceTypeAttribute))
 }
 
 export function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
-  return dbAll(
+  return DbApi.dbAll(
     db,
     `SELECT DEVICE_TYPE_CLUSTER.CLUSTER_REF, DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF, DEVICE_TYPE_COMMAND.COMMAND_REF, DEVICE_TYPE_COMMAND.COMMAND_NAME FROM DEVICE_TYPE_COMMAND, DEVICE_TYPE_CLUSTER WHERE DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ? AND DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF`,
     [deviceTypeRef]
-  ).then((rows) => rows.map(dbMap.deviceTypeCommand))
+  ).then((rows) => rows.map(DbMapping.dbMap.deviceTypeCommand))
 }
 
 /**
@@ -333,7 +336,7 @@ export function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
  * @returns Promise of globals insertion.
  */
 export function insertGlobals(db, packageId, data) {
-  logInfo(`Insert globals: ${data.length}`)
+  Env.logInfo(`Insert globals: ${data.length}`)
   var commandsToLoad = []
   var attributesToLoad = []
   var argsForCommands = []
@@ -375,7 +378,7 @@ export function insertGlobals(db, packageId, data) {
       )
     }
   }
-  var pCommand = dbMultiInsert(
+  var pCommand = DbApi.dbMultiInsert(
     db,
     'INSERT INTO COMMAND (CLUSTER_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?)',
     commandsToLoad
@@ -390,13 +393,13 @@ export function insertGlobals(db, packageId, data) {
         )
       }
     }
-    return dbMultiInsert(
+    return DbApi.dbMultiInsert(
       db,
       'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY) VALUES (?,?,?,?)',
       argsToLoad
     )
   })
-  var pAttribute = dbMultiInsert(
+  var pAttribute = DbApi.dbMultiInsert(
     db,
     'INSERT INTO ATTRIBUTE (CLUSTER_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
     attributesToLoad
@@ -414,7 +417,7 @@ export function insertGlobals(db, packageId, data) {
  * @returns Promise of cluster extension insertion.
  */
 export function insertClusterExtensions(db, packageId, data) {
-  return dbMultiSelect(
+  return DbApi.dbMultiSelect(
     db,
     'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?',
     data.map((cluster) => [cluster.code])
@@ -464,12 +467,12 @@ export function insertClusterExtensions(db, packageId, data) {
       } else {
         // DANGER: We got here, but we don't have rows. Why not?
         // Because clusters at this point have not yet been created? Odd.
-        logWarning(
+        Env.logWarning(
           `Attempting to insert cluster extension, but the cluster was not found: ${data[i].code}`
         )
       }
     }
-    var pCommand = dbMultiInsert(
+    var pCommand = DbApi.dbMultiInsert(
       db,
       'INSERT INTO COMMAND (CLUSTER_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?)',
       commandsToLoad
@@ -484,13 +487,13 @@ export function insertClusterExtensions(db, packageId, data) {
           )
         }
       }
-      return dbMultiInsert(
+      return DbApi.dbMultiInsert(
         db,
         'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY) VALUES (?,?,?,?)',
         argsToLoad
       )
     })
-    var pAttribute = dbMultiInsert(
+    var pAttribute = DbApi.dbMultiInsert(
       db,
       'INSERT INTO ATTRIBUTE (CLUSTER_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
       attributesToLoad
@@ -511,7 +514,7 @@ export function insertClusterExtensions(db, packageId, data) {
 export function insertClusters(db, packageId, data) {
   // If data is extension, we only have code there and we need to simply add commands and clusters.
   // But if it's not an extension, we need to insert the cluster and then run with
-  return dbMultiInsert(
+  return DbApi.dbMultiInsert(
     db,
     'INSERT INTO CLUSTER (PACKAGE_REF, CODE, NAME, DESCRIPTION, DEFINE) VALUES (?, ?, ?, ?, ?)',
     data.map((cluster) => [
@@ -563,7 +566,7 @@ export function insertClusters(db, packageId, data) {
         )
       }
     }
-    var pCommand = dbMultiInsert(
+    var pCommand = DbApi.dbMultiInsert(
       db,
       'INSERT INTO COMMAND (CLUSTER_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?)',
       commandsToLoad
@@ -578,13 +581,13 @@ export function insertClusters(db, packageId, data) {
           )
         }
       }
-      return dbMultiInsert(
+      return DbApi.dbMultiInsert(
         db,
         'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY) VALUES (?,?,?,?)',
         argsToLoad
       )
     })
-    var pAttribute = dbMultiInsert(
+    var pAttribute = DbApi.dbMultiInsert(
       db,
       'INSERT INTO ATTRIBUTE (CLUSTER_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
       attributesToLoad
@@ -603,7 +606,7 @@ export function insertClusters(db, packageId, data) {
  * @returns Promise of an insertion of device types.
  */
 export function insertDeviceTypes(db, packageId, data) {
-  return dbMultiInsert(
+  return DbApi.dbMultiInsert(
     db,
     'INSERT INTO DEVICE_TYPE (PACKAGE_REF, CODE, PROFILE_ID, NAME, DESCRIPTION) VALUES (?, ?, ?, ?, ?)',
     data.map((dt) => {
@@ -619,7 +622,7 @@ export function insertDeviceTypes(db, packageId, data) {
         // This is an array that links the generated deviceTyepRef to the cluster via generating an array of arrays,
         var zclIdsPromises = Promise.all(
           clusters.map((cluster) => {
-            return dbInsert(
+            return DbApi.dbInsert(
               db,
               'INSERT INTO DEVICE_TYPE_CLUSTER (DEVICE_TYPE_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER) VALUES (?,?,?,?,?,?)',
               [
@@ -667,7 +670,7 @@ export function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
       })
     }
   })
-  return dbMultiInsert(
+  return DbApi.dbMultiInsert(
     db,
     'INSERT INTO DEVICE_TYPE_ATTRIBUTE (DEVICE_TYPE_CLUSTER_REF, ATTRIBUTE_NAME) VALUES (?, ?)',
     attributes
@@ -691,7 +694,7 @@ export function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
       })
     }
   })
-  return dbMultiInsert(
+  return DbApi.dbMultiInsert(
     db,
     'INSERT INTO DEVICE_TYPE_COMMAND (DEVICE_TYPE_CLUSTER_REF, COMMAND_NAME) VALUES (?, ?)',
     commands
@@ -699,7 +702,7 @@ export function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
 }
 
 export function updateClusterReferencesForDeviceTypeClusters(db) {
-  return dbUpdate(
+  return DbApi.dbUpdate(
     db,
     'UPDATE DEVICE_TYPE_CLUSTER SET CLUSTER_REF = (SELECT CLUSTER.CLUSTER_ID FROM CLUSTER WHERE lower(CLUSTER.NAME) = lower(DEVICE_TYPE_CLUSTER.CLUSTER_NAME))',
     []
@@ -707,7 +710,7 @@ export function updateClusterReferencesForDeviceTypeClusters(db) {
 }
 
 export function updateAttributeReferencesForDeviceTypeReferences(db) {
-  return dbUpdate(
+  return DbApi.dbUpdate(
     db,
     'UPDATE DEVICE_TYPE_ATTRIBUTE SET ATTRIBUTE_REF = (SELECT ATTRIBUTE.ATTRIBUTE_ID FROM ATTRIBUTE WHERE upper(ATTRIBUTE.DEFINE) = upper(DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_NAME))',
     []
@@ -715,7 +718,7 @@ export function updateAttributeReferencesForDeviceTypeReferences(db) {
 }
 
 export function updateCommandReferencesForDeviceTypeReferences(db) {
-  return dbUpdate(
+  return DbApi.dbUpdate(
     db,
     'UPDATE DEVICE_TYPE_COMMAND SET COMMAND_REF = (SELECT COMMAND.COMMAND_ID FROM COMMAND WHERE upper(COMMAND.NAME) = upper(DEVICE_TYPE_COMMAND.COMMAND_NAME))',
     []
@@ -734,7 +737,7 @@ export function updateCommandReferencesForDeviceTypeReferences(db) {
  * @returns A promise that resolves with an array of rowids of all inserted domains.
  */
 export function insertDomains(db, packageId, data) {
-  return dbMultiInsert(
+  return DbApi.dbMultiInsert(
     db,
     'INSERT INTO DOMAIN (PACKAGE_REF, NAME) VALUES (?, ?)',
     data.map((domain) => {
@@ -755,7 +758,7 @@ export function insertDomains(db, packageId, data) {
  * @returns A promise that resolves with an array of struct item rowids.
  */
 export function insertStructs(db, packageId, data) {
-  return dbMultiInsert(
+  return DbApi.dbMultiInsert(
     db,
     'INSERT INTO STRUCT (PACKAGE_REF, NAME) VALUES (?, ?)',
     data.map((struct) => {
@@ -771,7 +774,7 @@ export function insertStructs(db, packageId, data) {
         itemsToLoad.push(...items.map((item) => [lastId, item.name, item.type]))
       }
     }
-    return dbMultiInsert(
+    return DbApi.dbMultiInsert(
       db,
       'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE) VALUES (?,?,?)',
       itemsToLoad
@@ -789,7 +792,7 @@ export function insertStructs(db, packageId, data) {
  * @returns A promise of enum insertion.
  */
 export function insertEnums(db, packageId, data) {
-  return dbMultiInsert(
+  return DbApi.dbMultiInsert(
     db,
     'INSERT INTO ENUM (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
     data.map((en) => {
@@ -807,7 +810,7 @@ export function insertEnums(db, packageId, data) {
         )
       }
     }
-    return dbMultiInsert(
+    return DbApi.dbMultiInsert(
       db,
       'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE) VALUES (?, ?, ?)',
       itemsToLoad
@@ -825,7 +828,7 @@ export function insertEnums(db, packageId, data) {
  * @returns A promise of bitmap insertions.
  */
 export function insertBitmaps(db, packageId, data) {
-  return dbMultiInsert(
+  return DbApi.dbMultiInsert(
     db,
     'INSERT INTO BITMAP (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
     data.map((bm) => [packageId, bm.name, bm.type])
@@ -841,7 +844,7 @@ export function insertBitmaps(db, packageId, data) {
         )
       }
     }
-    return dbMultiInsert(
+    return DbApi.dbMultiInsert(
       db,
       'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK) VALUES (?, ?, ?)',
       fieldsToLoad
