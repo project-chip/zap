@@ -15,7 +15,7 @@ export function validateAttribute(db, endpointTypeId, attributeRef) {
     endpointTypeId,
     attributeRef
   ).then((endpointAttribute) =>
-    QueryZcl.electAttributeById(db, attributeRef).then(
+    QueryZcl.selectAttributeById(db, attributeRef).then(
       (attribute) =>
         new Promise((resolve, reject) => {
           var defaultAttributeIssues = []
