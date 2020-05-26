@@ -3,7 +3,6 @@
 
 module.exports = function (ctx) {
   return {
-
     // Source files of application
     sourceFiles: {
       rootComponent: 'src/App.vue',
@@ -13,7 +12,7 @@ module.exports = function (ctx) {
       registerServiceWorker: 'src-pwa/register-service-worker.js',
       serviceWorker: 'src-pwa/custom-service-worker.js',
       electronMainDev: 'src-electron/main-process/electron-main.dev.js',
-      electronMainProd: 'src-electron/main-process/electron-main.js'
+      electronMainProd: 'src-electron/main-process/electron-main.js',
     },
 
     // app boot file (/src/boot)
@@ -22,9 +21,7 @@ module.exports = function (ctx) {
     boot: ['axios', 'globalapi'],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
-    css: [
-      'app.sass'
-    ],
+    css: ['app.sass'],
 
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
@@ -36,7 +33,7 @@ module.exports = function (ctx) {
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
       'roboto-font', // optional, you are not bound to it
-      'material-icons' // optional, you are not bound to it
+      'material-icons', // optional, you are not bound to it
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
@@ -57,7 +54,7 @@ module.exports = function (ctx) {
       directives: [],
 
       // Quasar plugins
-      plugins: []
+      plugins: [],
     },
 
     // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie
@@ -82,8 +79,8 @@ module.exports = function (ctx) {
           loader: 'eslint-loader',
           exclude: /node_modules/,
           options: {
-            formatter: require('eslint').CLIEngine.getFormatter('stylish')
-          }
+            formatter: require('eslint').CLIEngine.getFormatter('stylish'),
+          },
         })
         cfg.module.rules.push({
           enforce: 'pre',
@@ -94,14 +91,14 @@ module.exports = function (ctx) {
             name: '[path][name].[ext]',
           },
         })
-      }
+      },
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
       https: false,
       port: 8080,
-      open: true // opens browser window automatically
+      open: true, // opens browser window automatically
     },
 
     // animations: 'all', // --- includes all animations
@@ -110,7 +107,7 @@ module.exports = function (ctx) {
 
     // https://quasar.dev/quasar-cli/developing-ssr/configuring-ssr
     ssr: {
-      pwa: false
+      pwa: false,
     },
 
     // https://quasar.dev/quasar-cli/developing-pwa/configuring-pwa
@@ -127,43 +124,43 @@ module.exports = function (ctx) {
         theme_color: '#027be3',
         icons: [
           {
-            'src': 'statics/icons/icon-128x128.png',
-            'sizes': '128x128',
-            'type': 'image/png'
+            src: 'statics/icons/icon-128x128.png',
+            sizes: '128x128',
+            type: 'image/png',
           },
           {
-            'src': 'statics/icons/icon-192x192.png',
-            'sizes': '192x192',
-            'type': 'image/png'
+            src: 'statics/icons/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
           },
           {
-            'src': 'statics/icons/icon-256x256.png',
-            'sizes': '256x256',
-            'type': 'image/png'
+            src: 'statics/icons/icon-256x256.png',
+            sizes: '256x256',
+            type: 'image/png',
           },
           {
-            'src': 'statics/icons/icon-384x384.png',
-            'sizes': '384x384',
-            'type': 'image/png'
+            src: 'statics/icons/icon-384x384.png',
+            sizes: '384x384',
+            type: 'image/png',
           },
           {
-            'src': 'statics/icons/icon-512x512.png',
-            'sizes': '512x512',
-            'type': 'image/png'
-          }
-        ]
-      }
+            src: 'statics/icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+        ],
+      },
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/developing-cordova-apps/configuring-cordova
     cordova: {
       // noIosLegacyBuildFlag: true, // uncomment only if you know what you are doing
-      id: ''
+      id: '',
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/developing-capacitor-apps/configuring-capacitor
     capacitor: {
-      hideSplashscreen: true
+      hideSplashscreen: true,
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/developing-electron-apps/configuring-electron
@@ -186,17 +183,20 @@ module.exports = function (ctx) {
         //arch: 'ia32,x64',
         arch: 'x64',
         extraResource: 'src-electron/db/zap-schema.sql',
-        afterCopy: [(buildPath, electronVersion, platform, arch, callback) => {
-          require('electron-rebuild').rebuild({ buildPath, electronVersion, arch })
-            .then(() => callback())
-            .catch((error) => callback(error));
-        }]
+        afterCopy: [
+          (buildPath, electronVersion, platform, arch, callback) => {
+            require('electron-rebuild')
+              .rebuild({ buildPath, electronVersion, arch })
+              .then(() => callback())
+              .catch((error) => callback(error))
+          },
+        ],
       },
 
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'zap'
+        appId: 'zap',
       },
 
       // keep in sync with electron-main
@@ -216,7 +216,7 @@ module.exports = function (ctx) {
             name: '[path][name].[ext]',
           },
         })
-      }
-    }
+      },
+    },
   }
 }
