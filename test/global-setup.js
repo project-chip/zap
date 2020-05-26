@@ -1,5 +1,5 @@
-import { logInfo } from '../src-electron/main-process/env'
+import { logInfo } from '../src-electron/util/env'
 
 module.exports = async () => {
-    logInfo('Global setup.')
+  logInfo('Global setup.')
 }

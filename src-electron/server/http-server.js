@@ -1,8 +1,8 @@
 // Copyright (c) 2020 Silicon Labs. All rights reserved.
 
-/** 
+/**
  * This module provides the HTTP server functionality.
- * 
+ *
  * @module JS API: http server
  */
 
@@ -11,7 +11,7 @@ import express from 'express'
 import session from 'express-session'
 import path from 'path'
 import { ensureZapSessionId } from '../db/query-session.js'
-import { logError, logInfo } from '../main-process/env.js'
+import { logError, logInfo } from '../util/env.js'
 import { registerAdminApi } from '../rest/admin.js'
 import { registerGenerationApi } from '../rest/generation.js'
 import { registerStaticZclApi } from '../rest/static-zcl.js'
@@ -22,7 +22,7 @@ var httpServer = null
 export const httpCode = {
   ok: 200,
   badRequest: 400,
-  notFound: 404
+  notFound: 404,
 }
 
 /**
@@ -35,43 +35,36 @@ export const httpCode = {
  * @returns A promise that resolves with an express app.
  */
 export function initHttpServer(db, port) {
-
   return new Promise((resolve, reject) => {
-    logInfo(`Creating HTTP server on port: ${port}`)
     const app = express()
-    app.use(bodyParser.urlencoded({ extended: true }));
-    app.use(bodyParser.json());
-    app.use(session({
-      secret: 'Zap@Watt@SiliconLabs',
-      resave: true,
-      saveUninitialized: true
-    }))
+    app.use(bodyParser.urlencoded({ extended: true }))
+    app.use(bodyParser.json())
+    app.use(
+      session({
+        secret: 'Zap@Watt@SiliconLabs',
+        resave: true,
+        saveUninitialized: true,
+      })
+    )
 
     // this is a generic logging stuff
     app.use((req, res, next) => {
-      logInfo(`Request: ${req.url}, session: ${req.session.id}`)
       if (req.session.zapSessionId) {
-        logInfo(`Zap session id exists: ${req.session.zapSessionId}`)
         next()
       } else {
-        logInfo('Creating zap session')
         let windowId = null
         let sessionId = null
-        if ('winId' in req.query)
-          windowId = req.query.winId
-        if ('sessionId' in req.query)
-          sessionId = req.query.sessionId
+        if ('winId' in req.query) windowId = req.query.winId
+        if ('sessionId' in req.query) sessionId = req.query.sessionId
 
-        ensureZapSessionId(db, req.session.id, windowId, sessionId).then(
-          (sessionId) => {
+        ensureZapSessionId(db, req.session.id, windowId, sessionId)
+          .then((sessionId) => {
             req.session.zapSessionId = sessionId
             next()
-          }
-        ).catch(
-          (err) => {
+          })
+          .catch((err) => {
             logError('Could not create session: ' + err.message)
-          }
-        )
+          })
       }
     })
 
@@ -82,7 +75,6 @@ export function initHttpServer(db, port) {
     registerAdminApi(db, app)
 
     var staticDir = path.join(__dirname, __indexDirOffset)
-    logInfo(`Static content directory: ${staticDir}`)
 
     app.use(express.static(staticDir))
 

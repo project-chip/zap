@@ -13,20 +13,19 @@ const routes = [
       { path: 'structs', component: () => import('pages/ZclBrowsing.vue') },
       { path: 'devicetypes', component: () => import('pages/ZclBrowsing.vue') },
       { path: 'settings', component: () => import('pages/ZclSettings.vue') },
-      { path: 'sql', component: () => import('pages/SqlQuery.vue') }
-    ]
+    ],
   },
   {
     path: '/zcl',
-    component: () => import('layouts/ZclLayout.vue')
-  }
+    component: () => import('layouts/ZclLayout.vue'),
+  },
 ]
 
 // Always leave this as last one
 if (process.env.MODE !== 'ssr') {
   routes.push({
     path: '*',
-    component: () => import('pages/Error404.vue')
+    component: () => import('pages/Error404.vue'),
   })
 }
 

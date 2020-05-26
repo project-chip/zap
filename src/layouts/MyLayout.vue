@@ -87,7 +87,8 @@
         <q-item
           to="/settings"
           clickable
-          @click="getEntities('/deviceType/all')">
+          @click="getEntities('/deviceType/all')"
+        >
           <q-item-section avatar>
             <q-icon name="settings" />
           </q-item-section>
@@ -97,9 +98,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item
-          clickable
-          @click="generate()">
+        <q-item clickable @click="generate()">
           <q-item-section avatar>
             <q-icon name="settings" />
           </q-item-section>
@@ -109,21 +108,19 @@
           </q-item-section>
         </q-item>
 
-      <q-item
-          clickable
-          to="/sql">
+        <q-item clickable to="/sql">
           <q-item-section avatar>
             <q-icon name="database" />
           </q-item-section>
           <q-item-section>
             <q-item-label>SQL Query</q-item-label>
-            <q-item-label caption>Run SQL Queries against the database</q-item-label>
+            <q-item-label caption
+              >Run SQL Queries against the database</q-item-label
+            >
           </q-item-section>
         </q-item>
 
-      <q-item
-          clickable
-          to="/zcl">
+        <q-item clickable to="/zcl">
           <q-item-section avatar>
             <q-icon name="database" />
           </q-item-section>
@@ -145,17 +142,17 @@
 export default {
   name: 'MyLayout',
   methods: {
-    getEntities (url) {
+    getEntities(url) {
       this.$serverGet(url)
     },
-    generate () {
+    generate() {
       this.$serverGet('/generate')
+    },
+  },
+  data() {
+    return {
+      leftDrawerOpen: false,
     }
   },
-  data () {
-    return {
-      leftDrawerOpen: false
-    }
-  }
 }
 </script>

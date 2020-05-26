@@ -6,6 +6,6 @@
 
 <script>
 export default {
-  name: 'ZclApplicationSetup'
+  name: 'ZclApplicationSetup',
 }
 </script>

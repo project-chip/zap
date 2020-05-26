@@ -24,7 +24,13 @@
               v-model="selectionClient"
               keep-color
               :val="props.row.id"
-              :color="handleColorSelection(selectionClient, recommendedClients, props.row.id)"
+              :color="
+                handleColorSelection(
+                  selectionClient,
+                  recommendedClients,
+                  props.row.id
+                )
+              "
               indeterminate-value="false"
               @input="handleClusterSelection(props.row.id, true)"
             />
@@ -38,7 +44,13 @@
               v-model="selectionServer"
               :val="props.row.id"
               indeterminate-value="false"
-              :color="handleColorSelection(selectionServer, recommendedServers, props.row.id)"
+              :color="
+                handleColorSelection(
+                  selectionServer,
+                  recommendedServers,
+                  props.row.id
+                )
+              "
               @input="handleClusterSelection(props.row.id, false)"
             />
           </q-td>
@@ -61,50 +73,50 @@ export default {
   name: 'ZclClusterist',
   computed: {
     items: {
-      get () {
+      get() {
         return this.$store.state.zap.clusters
-      }
+      },
     },
     selected: {
-      get () {
+      get() {
         return this.$store.state.zap.clustersView.selected
-      }
+      },
     },
     selectionClient: {
-      get () {
+      get() {
         return this.$store.state.zap.clustersView.selectedClients
       },
-      set (val) {}
+      set(val) {},
     },
     selectionServer: {
-      get () {
+      get() {
         return this.$store.state.zap.clustersView.selectedServers
       },
-      set (val) {}
+      set(val) {},
     },
     selectedEndpointId: {
-      get () {
+      get() {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
-      }
+      },
     },
     recommendedClients: {
-      get () {
+      get() {
         return this.$store.state.zap.clustersView.recommendedClients
-      }
+      },
     },
     recommendedServers: {
-      get () {
+      get() {
         return this.$store.state.zap.clustersView.recommendedServers
-      }
-    }
+      },
+    },
   },
 
   methods: {
-    getSingleEntity (id) {
+    getSingleEntity(id) {
       this.$serverGet(`/${this.type}/${id.id}`)
       this.$store.dispatch('zap/updateSelectedCluster', [id])
     },
-    handleClusterSelection (id, isClient) {
+    handleClusterSelection(id, isClient) {
       var clusterList = isClient ? this.selectionClient : this.selectionServer
       var indexOfValue = clusterList.indexOf(id)
       var addedValue = false
@@ -114,21 +126,33 @@ export default {
         addedValue = false
       }
       if (isClient) {
-        this.$store.dispatch('zap/updateSelectedClients', { endpointTypeId: this.selectedEndpointId, id: id, added: addedValue, listType: 'selectedClients', view: 'clustersView' })
+        this.$store.dispatch('zap/updateSelectedClients', {
+          endpointTypeId: this.selectedEndpointId,
+          id: id,
+          added: addedValue,
+          listType: 'selectedClients',
+          view: 'clustersView',
+        })
       } else {
-        this.$store.dispatch('zap/updateSelectedServers', { endpointTypeId: this.selectedEndpointId, id: id, added: addedValue, listType: 'selectedServers', view: 'clustersView' })
+        this.$store.dispatch('zap/updateSelectedServers', {
+          endpointTypeId: this.selectedEndpointId,
+          id: id,
+          added: addedValue,
+          listType: 'selectedServers',
+          view: 'clustersView',
+        })
       }
     },
-    handleColorSelection (selectedList, recommendedList, id) {
+    handleColorSelection(selectedList, recommendedList, id) {
       if (recommendedList.includes(id)) {
         if (selectedList.includes(id)) return 'green'
         else return 'red'
       }
       return 'primary'
-    }
+    },
   },
 
-  mounted () {
+  mounted() {
     this.$serverOn('zcl-item-list', (event, arg) => {
       this.title = arg.title
       this.type = arg.type
@@ -142,13 +166,13 @@ export default {
       }
     })
   },
-  data () {
+  data() {
     return {
       title: 'unknown',
       type: 'unknown',
       selection: [],
       pagination: {
-        rowsPerPage: 0
+        rowsPerPage: 0,
       },
       columns: [
         {
@@ -156,38 +180,38 @@ export default {
           label: 'Client',
           field: 'client',
           align: 'left',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'server',
           label: 'Server',
           field: 'server',
           align: 'left',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'code',
           align: 'left',
           label: 'Cluster Code',
           field: 'code',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'manufacturerCode',
           align: 'left',
           label: 'Manufacturer Code',
           field: 'manufacturerCode',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'label',
           align: 'left',
           label: 'Name',
           field: 'label',
-          sortable: true
-        }
-      ]
+          sortable: true,
+        },
+      ],
     }
-  }
+  },
 }
 </script>

@@ -1,13 +1,13 @@
 // Copyright (c) 2020 Silicon Labs. All rights reserved.
 
-/* 
+/*
  * This file provides the functionality that reads the ZAP data from a JSON file
  * and imports it into a database.
  */
 import fs from 'fs'
-import { updateKeyValue } from '../db/query-config'
+import { updateKeyValue, insertEndpointTypes } from '../db/query-config'
 import { createBlankSession } from '../db/query-session'
-import { logInfo } from '../main-process/env'
+import { logInfo } from '../util/env'
 import { importSessionKeyValues } from './mapping'
 
 /**
@@ -18,13 +18,13 @@ import { importSessionKeyValues } from './mapping'
  * @returns Promise of file reading.
  */
 export function readDataFromFile(filePath) {
-    return new Promise((resolve, reject) => {
-        fs.readFile(filePath, (err, data) => {
-            if (err) reject(err)
-            let state = JSON.parse(data)
-            resolve(state)
-        })
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, (err, data) => {
+      if (err) reject(err)
+      let state = JSON.parse(data)
+      resolve(state)
     })
+  })
 }
 
 /**
@@ -37,16 +37,26 @@ export function readDataFromFile(filePath) {
  * @returns a promise that resolves with the sucessful writing
  */
 export function writeStateToDatabase(db, state) {
-    return createBlankSession(db)
-        .then(sessionId => {
-            logInfo('Reading state from file into the database...')
-            if ('keyValuePairs' in state) {
-                return importSessionKeyValues(db, sessionId, state.keyValuePairs)
-                    .then(() => Promise.resolve(sessionId))
-            } else {
-                return Promise.resolve(sessionId)
-            }
-        })
+  return createBlankSession(db)
+    .then((sessionId) => {
+      logInfo('Reading state from file into the database...')
+      if ('keyValuePairs' in state) {
+        return importSessionKeyValues(db, sessionId, state.keyValuePairs).then(
+          () => sessionId
+        )
+      } else {
+        return sessionId
+      }
+    })
+    .then((sessionId) => {
+      if ('endpointTypes' in state) {
+        return insertEndpointTypes(db, sessionId, state.endpointTypes).then(
+          () => sessionId
+        )
+      } else {
+        return sessionId
+      }
+    })
 }
 
 /**
@@ -60,6 +70,7 @@ export function writeStateToDatabase(db, state) {
  * @returns Promise of file reading.
  */
 export function importDataFromFile(db, filePath) {
-    return readDataFromFile(filePath).then(state => writeStateToDatabase(db, state))
+  return readDataFromFile(filePath).then((state) =>
+    writeStateToDatabase(db, state)
+  )
 }
-

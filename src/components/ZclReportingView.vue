@@ -22,8 +22,20 @@
               :val="props.row.id"
               indeterminate-value="false"
               keep-color
-              :color="handleColorSelection(selectedReporting, requiredReporting, props.row.id)"
-              @input="handleSelection(props.row.id, selectedReporting,'selectedReporting')"
+              :color="
+                handleColorSelection(
+                  selectedReporting,
+                  requiredReporting,
+                  props.row.id
+                )
+              "
+              @input="
+                handleSelection(
+                  props.row.id,
+                  selectedReporting,
+                  'selectedReporting'
+                )
+              "
             />
           </q-td>
           <q-td key="clientServer" :props="props" auto-width>
@@ -44,7 +56,13 @@
               v-model.number="selectionMin[props.row.id]"
               dark
               dense
-              @input="handleAttributeDefaultChange(props.row.id, selectionMin[props.row.id],'reportingMin')"
+              @input="
+                handleAttributeDefaultChange(
+                  props.row.id,
+                  selectionMin[props.row.id],
+                  'reportingMin'
+                )
+              "
             />
           </q-td>
 
@@ -52,7 +70,13 @@
             <q-input
               type="number"
               v-model.number="selectionMax[props.row.id]"
-              @input="handleAttributeDefaultChange(props.row.id, selectionMax[props.row.id],'reportingMax')"
+              @input="
+                handleAttributeDefaultChange(
+                  props.row.id,
+                  selectionMax[props.row.id],
+                  'reportingMax'
+                )
+              "
               dark
               dense
             />
@@ -61,7 +85,13 @@
           <q-td key="reportable" :props="props" auto-width>
             <q-input
               v-model.number="selectionReportableChange[props.row.id]"
-              @input="handleAttributeDefaultChange(props.row.id, selectionReportableChange[props.row.id], 'reportableChange')"
+              @input="
+                handleAttributeDefaultChange(
+                  props.row.id,
+                  selectionReportableChange[props.row.id],
+                  'reportableChange'
+                )
+              "
               dark
               type="number"
               dense
@@ -76,7 +106,7 @@
 <script>
 export default {
   name: 'ZclReportingView',
-  mounted () {
+  mounted() {
     this.$serverOn('zcl-item', (event, arg) => {
       if (arg.type === 'endpointTypeReportableAttributes') {
         this.$store.dispatch('zap/setReportableAttributeStateLists', arg.data)
@@ -88,23 +118,22 @@ export default {
           id: arg.id,
           added: arg.added,
           listType: arg.listType,
-          view: 'reportingView'
+          view: 'reportingView',
         })
       } else if (arg.action === 'text') {
         this.$store.dispatch('zap/updateAttributeDefaults', {
           id: arg.id,
           newDefaultValue: arg.added,
           listType: arg.listType,
-          view: 'reportingView'
-
+          view: 'reportingView',
         })
       }
     })
   },
   computed: {
     attributeData: {
-      get () {
-        return this.$store.state.zap.attributes.filter(attribute => {
+      get() {
+        return this.$store.state.zap.attributes.filter((attribute) => {
           if (
             this.$store.state.zap.attributeView.selectedAttributes.includes(
               attribute.id
@@ -115,46 +144,48 @@ export default {
             return false
           }
         })
-      }
+      },
     },
     selection: {
-      get () {
+      get() {
         return this.$store.state.zap.attributeView.selectedAttributes
-      }
+      },
     },
     selectedReporting: {
-      get () {
+      get() {
         return this.$store.state.zap.reportingView.selectedReporting
-      }
+      },
     },
     selectionMin: {
-      get () {
+      get() {
         return this.$store.state.zap.reportingView.reportingMin
-      }
+      },
     },
     selectionMax: {
-      get () {
+      get() {
         return this.$store.state.zap.reportingView.reportingMax
-      }
+      },
     },
     selectionReportableChange: {
-      get () {
+      get() {
         return this.$store.state.zap.reportingView.reportableChange
-      }
+      },
     },
     selectedEndpointId: {
-      get () {
+      get() {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
-      }
+      },
     },
     requiredReporting: {
-      get () {
-        return this.attributeData.filter(attribute => attribute.isReportable).map(attribute => attribute.id)
-      }
-    }
+      get() {
+        return this.attributeData
+          .filter((attribute) => attribute.isReportable)
+          .map((attribute) => attribute.id)
+      },
+    },
   },
   methods: {
-    handleSelection (id, list, listType) {
+    handleSelection(id, list, listType) {
       var indexOfValue = list.indexOf(id)
       var addedValue = false
       if (indexOfValue === -1) {
@@ -163,40 +194,38 @@ export default {
         addedValue = false
       }
 
-      this.$serverPost(`/reportableAttribute/update`,
-        {
-          action: 'boolean',
-          endpointTypeId: this.selectedEndpointId,
-          id: id,
-          value: addedValue,
-          listType: listType
-        })
+      this.$serverPost(`/reportableAttribute/update`, {
+        action: 'boolean',
+        endpointTypeId: this.selectedEndpointId,
+        id: id,
+        value: addedValue,
+        listType: listType,
+      })
     },
-    handleAttributeDefaultChange (id, newValue, listType) {
-      this.$serverPost(`/reportableAttribute/update`,
-        {
-          action: 'text',
-          endpointTypeId: this.selectedEndpointId,
-          id: id,
-          value: newValue,
-          listType: listType
-        })
+    handleAttributeDefaultChange(id, newValue, listType) {
+      this.$serverPost(`/reportableAttribute/update`, {
+        action: 'text',
+        endpointTypeId: this.selectedEndpointId,
+        id: id,
+        value: newValue,
+        listType: listType,
+      })
     },
-    handleColorSelection (selectedList, recommendedList, id) {
+    handleColorSelection(selectedList, recommendedList, id) {
       if (recommendedList.includes(id)) {
         if (selectedList.includes(id)) return 'green'
         else return 'red'
       }
       return 'primary'
-    }
+    },
   },
-  data () {
+  data() {
     return {
       item: {},
       title: '',
       type: '',
       pagination: {
-        rowsPerPage: 0
+        rowsPerPage: 0,
       },
       columns: [
         {
@@ -204,59 +233,59 @@ export default {
           label: 'Included',
           field: 'included',
           align: 'left',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'clientServer',
           label: 'Client/Server',
           field: 'clientServer',
           align: 'left',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'attrName',
           label: 'Attribute Name',
           field: 'attrName',
           align: 'left',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'attrID',
           align: 'left',
           label: 'Attribute ID',
           field: 'attrID',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'mfgID',
           align: 'left',
           label: 'Manufacturing ID',
           field: 'mfgID',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'min',
           align: 'left',
           label: 'Min Interval (s)',
           field: 'min',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'max',
           align: 'left',
           label: 'Max Interval (s)',
           field: 'max',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'reportable',
           align: 'left',
           label: 'Reportable Change',
           field: 'reportable',
-          sortable: true
-        }
-      ]
+          sortable: true,
+        },
+      ],
     }
-  }
+  },
 }
 </script>

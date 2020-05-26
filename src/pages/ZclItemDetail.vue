@@ -1,14 +1,12 @@
 <!-- Copyright (c) 2019 Silicon Labs. All rights reserved. -->
 <template>
-  <div>
-    {{ title }}: {{ item }}
-  </div>
+  <div>{{ title }}: {{ item }}</div>
 </template>
 
 <script>
 export default {
   name: 'ZclItemDetail',
-  mounted () {
+  mounted() {
     this.$serverOn('zcl-item', (event, arg) => {
       console.log('zcl-item:')
       console.log(arg)
@@ -20,12 +18,12 @@ export default {
       }
     })
   },
-  data () {
+  data() {
     return {
       item: {},
       title: '',
-      type: ''
+      type: '',
     }
-  }
+  },
 }
 </script>

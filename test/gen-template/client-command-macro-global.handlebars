@@ -1,0 +1,271 @@
+// Enclosing macro to prevent multiple inclusion
+#ifndef SILABS_CLUSTER_CLIENT_API
+#define SILABS_CLUSTER_CLIENT_API
+
+
+// This is generated client API
+
+
+
+/**
+ * @addtogroup command Application Framework command interface Reference
+ * This document describes the ZCL command interface used by the Ember
+ * Application Framework for filling ZCL command buffers.
+ * @{
+ */
+/** @name Global Commands */
+// @{
+ {{#each type}}
+/** @brief {{trimNewLinesTabs this.DESCRIPTION}}
+ *
+ * Command: {{this.NAME}}
+ * @param clusterId EmberAfClusterId
+ {{#each this.COMMAND_ARG}}
+ * @param {{this.NAME}} {{#if this.IS_ARRAY~}}uint8_t*
+                        {{else~}}
+                            {{#switch this.TYPE~}}
+                                {{#case 'data8'~}}uint8_t{{/case~}}
+                                {{#case 'boolean'~}}uint8_t{{/case~}}
+                                {{#case 'bitmap8'~}}uint8_t{{/case~}}
+                                {{#case 'int8u'~}}uint8_t{{/case~}}
+                                {{#case 'int8s'~}}int8_t{{/case~}}
+                                {{#case 'enum8'~}}uint8_t{{/case~}}
+                                {{#case 'data16'~}}uint16_t{{/case~}}
+                                {{#case 'bitmap16'~}}uint16_t{{/case~}}
+                                {{#case 'int16u'~}}uint16_t{{/case~}}
+                                {{#case 'int16s'~}}int16_t{{/case~}}
+                                {{#case 'enum16'~}}uint16_t{{/case~}}
+                                {{#case 'float_semi'~}}uint16_t{{/case~}}
+                                {{#case 'cluster_id'~}}uint16_t{{/case~}}
+                                {{#case 'attribute_id'~}}uint16_t{{/case~}}
+                                {{#case 'data24'~}}uint32_t{{/case~}}
+                                {{#case 'bitmap24'~}}uint32_t{{/case~}}
+                                {{#case 'int24u'~}}uint32_t{{/case~}}
+                                {{#case 'int24s'~}}int32_t{{/case~}}
+                                {{#case 'data32'~}}uint32_t{{/case~}}
+                                {{#case 'bitmap32'~}}uint32_t{{/case~}}
+                                {{#case 'int32u'~}}uint32_t{{/case~}}
+                                {{#case 'int32s'~}}int32_t{{/case~}}
+                                {{#case 'float_single'~}}uint32_t{{/case~}}
+                                {{#case 'time_of_day'~}}uint32_t{{/case~}}
+                                {{#case 'date'~}}uint32_t{{/case~}}
+                                {{#case 'utc_time'~}}uint32_t{{/case~}}
+                                {{#case 'bacnet_oid'~}}uint32_t{{/case~}}
+                                {{#default 'uint8_t'~}}uint8_t*{{/default~}}
+                            {{/switch}}
+                        {{/if}}
+ {{#if this.IS_ARRAY~}}* @param {{this.NAME}}Len uint16_t{{/if}}
+ {{/each}}
+ */
+{{#if (eitherCommandSource this.SOURCE)}}
+#define emberAfFillCommandGlobalServerToClient{{this.NAME}}(clusterId, \
+    {{#each this.COMMAND_ARG}}
+        {{#if this.IS_ARRAY~}}
+            {{#if @last}}
+            {{this.NAME}}, \
+            {{this.NAME}}Len) \
+            {{else}}
+            {{this.NAME}}, \
+            {{this.NAME}}Len, \
+            {{/if}}
+        {{else}}
+            {{#if @last}}
+            {{this.NAME}}) \
+            {{else}}
+            {{this.NAME}}, \
+            {{/if}}
+        {{/if}}
+    {{/each}}
+ emberAfFillExternal{{#if (commandManufactureSpecific this.MANUFACTURER_CODE)}}ManufacturerSpecific{{/if}}Buffer((ZCL_GLOBAL_COMMAND \
+    {{#if (commandManufactureSpecific this.MANUFACTURER_CODE)}}| ZCL_MANUFACTURER_SPECIFIC_MASK{{/if}} | ZCL_FRAME_CONTROL_SERVER_TO_CLIENT), \
+    clusterId, \
+    {{~#if (commandManufactureSpecific this.MANUFACTURER_CODE)}}0x{{this.MANUFACTURER_CODE}},{{/if}}
+    ZCL_{{strong this.NAME}}_COMMAND_ID, \
+    "{{formatCharactersForCommandArguments this.COMMAND_ARG}}", \
+    {{#each this.COMMAND_ARG}}
+        {{#if this.IS_ARRAY~}}
+            {{#if @last}}
+                {{this.NAME}}, \
+                {{this.NAME}}Len);
+            {{else}}
+                {{this.NAME}}, \
+                {{this.NAME}}Len, \
+            {{/if}}
+        {{else}}
+            {{#if @last}}
+                {{this.NAME}});
+            {{else}}
+                {{this.NAME}}, \
+            {{/if}}
+        {{/if}}
+    {{/each}}
+
+/** @brief {{trimNewLinesTabs this.DESCRIPTION}}
+ *
+ * Command: {{this.NAME}}
+ * @param clusterId EmberAfClusterId
+ {{#each this.COMMAND_ARG}}
+ * @param {{this.NAME}} {{#if this.IS_ARRAY~}}uint8_t*
+                        {{else~}}
+                            {{#switch this.TYPE~}}
+                                {{#case 'data8'~}}uint8_t{{/case~}}
+                                {{#case 'boolean'~}}uint8_t{{/case~}}
+                                {{#case 'bitmap8'~}}uint8_t{{/case~}}
+                                {{#case 'int8u'~}}uint8_t{{/case~}}
+                                {{#case 'int8s'~}}int8_t{{/case~}}
+                                {{#case 'enum8'~}}uint8_t{{/case~}}
+                                {{#case 'data16'~}}uint16_t{{/case~}}
+                                {{#case 'bitmap16'~}}uint16_t{{/case~}}
+                                {{#case 'int16u'~}}uint16_t{{/case~}}
+                                {{#case 'int16s'~}}int16_t{{/case~}}
+                                {{#case 'enum16'~}}uint16_t{{/case~}}
+                                {{#case 'float_semi'~}}uint16_t{{/case~}}
+                                {{#case 'cluster_id'~}}uint16_t{{/case~}}
+                                {{#case 'attribute_id'~}}uint16_t{{/case~}}
+                                {{#case 'data24'~}}uint32_t{{/case~}}
+                                {{#case 'bitmap24'~}}uint32_t{{/case~}}
+                                {{#case 'int24u'~}}uint32_t{{/case~}}
+                                {{#case 'int24s'~}}int32_t{{/case~}}
+                                {{#case 'data32'~}}uint32_t{{/case~}}
+                                {{#case 'bitmap32'~}}uint32_t{{/case~}}
+                                {{#case 'int32u'~}}uint32_t{{/case~}}
+                                {{#case 'int32s'~}}int32_t{{/case~}}
+                                {{#case 'float_single'~}}uint32_t{{/case~}}
+                                {{#case 'time_of_day'~}}uint32_t{{/case~}}
+                                {{#case 'date'~}}uint32_t{{/case~}}
+                                {{#case 'utc_time'~}}uint32_t{{/case~}}
+                                {{#case 'bacnet_oid'~}}uint32_t{{/case~}}
+                                {{#default 'uint8_t'~}}uint8_t*{{/default~}}
+                            {{/switch}}
+                        {{/if}}
+ {{#if this.IS_ARRAY~}}* @param {{this.NAME}}Len uint16_t{{/if}}
+ {{/each}}
+ */
+#define emberAfFillCommandGlobalClientToServer{{this.NAME}}(clusterId, \
+    {{#each this.COMMAND_ARG}}
+        {{#if this.IS_ARRAY~}}
+            {{#if @last}}
+            {{this.NAME}}, \
+            {{this.NAME}}Len) \
+            {{else}}
+            {{this.NAME}}, \
+            {{this.NAME}}Len, \
+            {{/if}}
+        {{else}}
+            {{#if @last}}
+            {{this.NAME}}) \
+            {{else}}
+            {{this.NAME}}, \
+            {{/if}}
+        {{/if}}
+    {{/each}}
+  emberAfFillExternal{{#if (commandManufactureSpecific this.MANUFACTURER_CODE)}}ManufacturerSpecific{{/if}}Buffer((ZCL_GLOBAL_COMMAND \
+    {{#if (commandManufactureSpecific this.MANUFACTURER_CODE)}}| ZCL_MANUFACTURER_SPECIFIC_MASK{{/if}} | ZCL_FRAME_CONTROL_CLIENT_TO_SERVER), \
+    clusterId, \
+    {{~#if (commandManufactureSpecific this.MANUFACTURER_CODE)}}0x{{this.MANUFACTURER_CODE}},{{/if}}
+    ZCL_{{strong this.NAME}}_COMMAND_ID, \
+    "{{formatCharactersForCommandArguments this.COMMAND_ARG}}", \
+    {{#each this.COMMAND_ARG}}
+        {{#if this.IS_ARRAY~}}
+            {{#if @last}}
+                {{this.NAME}}, \
+                {{this.NAME}}Len);
+            {{else}}
+                {{this.NAME}}, \
+                {{this.NAME}}Len, \
+            {{/if}}
+        {{else}}
+            {{#if @last}}
+                {{this.NAME}});
+            {{else}}
+                {{this.NAME}}, \
+            {{/if}}
+        {{/if}}
+    {{/each}}
+
+{{else}}
+/** @brief {{trimNewLinesTabs this.DESCRIPTION}}
+ *
+ * Command: {{this.NAME}}
+ * @param clusterId EmberAfClusterId
+ {{#each this.COMMAND_ARG}}
+ * @param {{this.NAME}} {{#if this.IS_ARRAY~}}uint8_t*
+                        {{else~}}
+                            {{#switch this.TYPE~}}
+                                {{#case 'data8'~}}uint8_t{{/case~}}
+                                {{#case 'boolean'~}}uint8_t{{/case~}}
+                                {{#case 'bitmap8'~}}uint8_t{{/case~}}
+                                {{#case 'int8u'~}}uint8_t{{/case~}}
+                                {{#case 'int8s'~}}int8_t{{/case~}}
+                                {{#case 'enum8'~}}uint8_t{{/case~}}
+                                {{#case 'data16'~}}uint16_t{{/case~}}
+                                {{#case 'bitmap16'~}}uint16_t{{/case~}}
+                                {{#case 'int16u'~}}uint16_t{{/case~}}
+                                {{#case 'int16s'~}}int16_t{{/case~}}
+                                {{#case 'enum16'~}}uint16_t{{/case~}}
+                                {{#case 'float_semi'~}}uint16_t{{/case~}}
+                                {{#case 'cluster_id'~}}uint16_t{{/case~}}
+                                {{#case 'attribute_id'~}}uint16_t{{/case~}}
+                                {{#case 'data24'~}}uint32_t{{/case~}}
+                                {{#case 'bitmap24'~}}uint32_t{{/case~}}
+                                {{#case 'int24u'~}}uint32_t{{/case~}}
+                                {{#case 'int24s'~}}int32_t{{/case~}}
+                                {{#case 'data32'~}}uint32_t{{/case~}}
+                                {{#case 'bitmap32'~}}uint32_t{{/case~}}
+                                {{#case 'int32u'~}}uint32_t{{/case~}}
+                                {{#case 'int32s'~}}int32_t{{/case~}}
+                                {{#case 'float_single'~}}uint32_t{{/case~}}
+                                {{#case 'time_of_day'~}}uint32_t{{/case~}}
+                                {{#case 'date'~}}uint32_t{{/case~}}
+                                {{#case 'utc_time'~}}uint32_t{{/case~}}
+                                {{#case 'bacnet_oid'~}}uint32_t{{/case~}}
+                                {{#default 'uint8_t'~}}uint8_t*{{/default~}}
+                            {{/switch}}
+                        {{/if}}
+ {{#if this.IS_ARRAY~}}* @param {{this.NAME}}Len uint16_t{{/if}}
+ {{/each}}
+ */
+#define emberAfFillCommandGlobal{{direction this.SOURCE}}{{this.NAME}}(clusterId, \
+    {{#each this.COMMAND_ARG}}
+        {{#if this.IS_ARRAY~}}
+            {{#if @last}}
+            {{this.NAME}}, \
+            {{this.NAME}}Len) \
+            {{else}}
+            {{this.NAME}}, \
+            {{this.NAME}}Len, \
+            {{/if}}
+        {{else}}
+            {{#if @last}}
+            {{this.NAME}}) \
+            {{else}}
+            {{this.NAME}}, \
+            {{/if}}
+        {{/if}}
+    {{/each}}
+  emberAfFillExternal{{#if (commandManufactureSpecific this.MANUFACTURER_CODE)}}ManufacturerSpecific{{/if}}Buffer((ZCL_GLOBAL_COMMAND \
+    {{#if (commandManufactureSpecific this.MANUFACTURER_CODE)}}| ZCL_MANUFACTURER_SPECIFIC_MASK{{/if}} | ZCL_FRAME_CONTROL_{{strong (direction this.SOURCE)}}), \
+    clusterId, \
+    {{~#if (commandManufactureSpecific this.MANUFACTURER_CODE)}}0x{{this.MANUFACTURER_CODE}},{{/if}}
+    ZCL_{{strong this.NAME}}_COMMAND_ID, \
+    "{{formatCharactersForCommandArguments this.COMMAND_ARG}}", \
+    {{#each this.COMMAND_ARG}}
+        {{#if this.IS_ARRAY~}}
+            {{#if @last}}
+                {{this.NAME}}, \
+                {{this.NAME}}Len);
+            {{else}}
+                {{this.NAME}}, \
+                {{this.NAME}}Len, \
+            {{/if}}
+        {{else}}
+            {{#if @last}}
+                {{this.NAME}});
+            {{else}}
+                {{this.NAME}}, \
+            {{/if}}
+        {{/if}}
+    {{/each}}
+{{/if}}
+ {{/each}}
+ /** @} END Global Commands */

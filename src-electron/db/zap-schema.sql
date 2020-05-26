@@ -276,7 +276,8 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_CLUSTER" (
   "SIDE" text,
   "ENABLED" integer,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
-  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID)
+  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
+  UNIQUE(ENDPOINT_TYPE_REF, CLUSTER_REF)
 );
 /*
   ENDPOINT_TYPE_ATTRIBUTE table contains the user data configuration for the various parameters that exist
@@ -285,14 +286,15 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_CLUSTER" (
 CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
   "ENDPOINT_TYPE_REF" integer,
   "ATTRIBUTE_REF" integer,
-  "INCLUDED" integer,
-  "EXTERNAL" integer,
-  "FLASH" integer,
-  "SINGLETON" integer,
-  "BOUNDED" integer,
+  "INCLUDED" integer default false,
+  "EXTERNAL" integer default false,
+  "FLASH" integer default false,
+  "SINGLETON" integer default false,
+  "BOUNDED" integer default false,
   "DEFAULT_VALUE" text,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
-  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID)
+  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID),
+  UNIQUE(ENDPOINT_TYPE_REF, ATTRIBUTE_REF)
 );
 /*
   ENDPOINT_TYPE_COMMAND table contains the user data configuration for the various parameters that exist
@@ -301,10 +303,11 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
 CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_COMMAND" (
   "ENDPOINT_TYPE_REF" integer,
   "COMMAND_REF" integer,
-  "INCOMING" integer,
-  "OUTGOING" integer,
+  "INCOMING" integer default false,
+  "OUTGOING" integer default false,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
-  foreign key (COMMAND_REF) references COMMAND(COMMAND_ID)
+  foreign key (COMMAND_REF) references COMMAND(COMMAND_ID),
+  UNIQUE(ENDPOINT_TYPE_REF, COMMAND_REF)
 );
 /*
   ENDPOINT_TYPE_ATTRIBUTE_REPORTING table contains the user data configuration for each attribute reporting. 
@@ -315,12 +318,13 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_COMMAND" (
 CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_REPORTABLE_ATTRIBUTE" (
   "ENDPOINT_TYPE_REF" integer,
   "ATTRIBUTE_REF" integer,
-  "INCLUDED" integer,
-  "MIN_INTERVAL" integer,
-  "MAX_INTERVAL" integer,
-  "REPORTABLE_CHANGE" integer,
+  "INCLUDED" integer default false,
+  "MIN_INTERVAL" integer default 0,
+  "MAX_INTERVAL" integer default 65344,
+  "REPORTABLE_CHANGE" integer default 0,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
-  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID)
+  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID),
+  UNIQUE(ENDPOINT_TYPE_REF, ATTRIBUTE_REF)
 );
 /*
 

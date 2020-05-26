@@ -9,20 +9,34 @@ var eventEmitter = new events.EventEmitter()
 
 Vue.prototype.$serverGet = (url) => {
   console.log(`serverGet: ${url}`)
-  axios.get('/get' + url).then(response => {
-    console.log('get response:')
-    console.log(response)
-    eventEmitter.emit(response.data['replyId'], response.data['replyId'], response.data)
-  }).catch(error => console.log(error))
+  axios
+    .get('/get' + url)
+    .then((response) => {
+      console.log('get response:')
+      console.log(response)
+      eventEmitter.emit(
+        response.data['replyId'],
+        response.data['replyId'],
+        response.data
+      )
+    })
+    .catch((error) => console.log(error))
 }
 
 Vue.prototype.$serverPost = (url, data) => {
   console.log(`serverPost: ${url}, ${data}`)
-  axios.post('/post' + url, data).then(response => {
-    console.log('post response')
-    console.log(response)
-    eventEmitter.emit(response.data['replyId'], response.data['replyId'], response.data)
-  }).catch(error => console.log(error))
+  axios
+    .post('/post' + url, data)
+    .then((response) => {
+      console.log('post response')
+      console.log(response)
+      eventEmitter.emit(
+        response.data['replyId'],
+        response.data['replyId'],
+        response.data
+      )
+    })
+    .catch((error) => console.log(error))
 }
 
 Vue.prototype.$serverOn = (channel, listener) => {

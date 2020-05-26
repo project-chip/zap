@@ -22,12 +22,20 @@
               :val="props.row.id"
               indeterminate-value="false"
               keep-color
-              :color="handleColorSelection(selection, requiredAttributes, props.row)"
-              @input="handleAttributeSelection(props.row.id, selection, 'selectedAttributes')"
+              :color="
+                handleColorSelection(selection, requiredAttributes, props.row)
+              "
+              @input="
+                handleAttributeSelection(
+                  props.row.id,
+                  selection,
+                  'selectedAttributes'
+                )
+              "
             />
           </q-td>
           <q-td key="clientServer" :props="props" auto-width>
-            {{props.row.side}}
+            {{ props.row.side }}
           </q-td>
           <q-td key="attrName" :props="props" auto-width>
             {{ props.row.label }}
@@ -36,7 +44,7 @@
             {{ props.row.code }}
           </q-td>
           <q-td key="mfgID" :props="props" auto-width>
-            {{ props.row.manufacturerCode}}
+            {{ props.row.manufacturerCode }}
           </q-td>
 
           <q-td key="external" :props="props" auto-width>
@@ -46,7 +54,13 @@
               v-model="selectionExternal"
               :val="props.row.id"
               indeterminate-value="false"
-              @input="handleAttributeSelection(props.row.id, selectionExternal,'selectedExternal')"
+              @input="
+                handleAttributeSelection(
+                  props.row.id,
+                  selectionExternal,
+                  'selectedExternal'
+                )
+              "
             />
           </q-td>
 
@@ -57,7 +71,13 @@
               v-model="selectionFlash"
               :val="props.row.id"
               indeterminate-value="false"
-              @input="handleAttributeSelection(props.row.id, selectionFlash,'selectedFlash')"
+              @input="
+                handleAttributeSelection(
+                  props.row.id,
+                  selectionFlash,
+                  'selectedFlash'
+                )
+              "
             />
           </q-td>
           <q-td key="flash" :props="props" auto-width>
@@ -67,8 +87,13 @@
               v-model="selectionSingleton"
               :val="props.row.id"
               indeterminate-value="false"
-              @input="handleAttributeSelection(props.row.id, selectionSingleton,'selectedSingleton')"
-
+              @input="
+                handleAttributeSelection(
+                  props.row.id,
+                  selectionSingleton,
+                  'selectedSingleton'
+                )
+              "
             />
           </q-td>
 
@@ -82,12 +107,30 @@
               v-model="selectionBounded"
               :val="props.row.id"
               indeterminate-value="false"
-              @input="handleAttributeSelection(props.row.id, selectionBounded,'selectedBounded')"
+              @input="
+                handleAttributeSelection(
+                  props.row.id,
+                  selectionBounded,
+                  'selectedBounded'
+                )
+              "
             />
           </q-td>
           <q-td key="default" :props="props" auto-width>
-            <q-input v-model="selectionDefault[props.row.id]" dark dense bottom-slots :error="!isDefaultValueValid(props.row.id)" :error-message="getDefaultValueErrorMessage(props.row.id)"
-                              @input="handleAttributeDefaultChange(props.row.id, selectionDefault[props.row.id])"/>
+            <q-input
+              v-model="selectionDefault[props.row.id]"
+              dark
+              dense
+              bottom-slots
+              :error="!isDefaultValueValid(props.row.id)"
+              :error-message="getDefaultValueErrorMessage(props.row.id)"
+              @input="
+                handleAttributeDefaultChange(
+                  props.row.id,
+                  selectionDefault[props.row.id]
+                )
+              "
+            />
           </q-td>
         </q-tr>
       </template>
@@ -98,7 +141,7 @@
 <script>
 export default {
   name: 'ZclAttributeView',
-  mounted () {
+  mounted() {
     this.$serverOn('zcl-item', (event, arg) => {
       if (arg.type === 'cluster') {
         this.$store.dispatch('zap/updateAttributes', arg.attributeData || [])
@@ -116,19 +159,19 @@ export default {
           id: arg.id,
           added: arg.added,
           listType: arg.listType,
-          view: 'attributeView'
+          view: 'attributeView',
         })
       } else if (arg.action === 'text') {
         this.$store.dispatch('zap/updateAttributeDefaults', {
           id: arg.id,
           newDefaultValue: arg.added,
-          defaultValueValidationIssues: arg.validationIssues.defaultValue
+          defaultValueValidationIssues: arg.validationIssues.defaultValue,
         })
       }
     })
   },
   methods: {
-    handleAttributeSelection (id, list, listType) {
+    handleAttributeSelection(id, list, listType) {
       var indexOfValue = list.indexOf(id)
       var addedValue = false
       if (indexOfValue === -1) {
@@ -137,113 +180,131 @@ export default {
         addedValue = false
       }
 
-      this.$serverPost(`/attribute/update`,
-        {
-          action: 'boolean',
-          endpointTypeId: this.selectedEndpointId,
-          id: id,
-          value: addedValue,
-          listType: listType
-        })
+      this.$serverPost(`/attribute/update`, {
+        action: 'boolean',
+        endpointTypeId: this.selectedEndpointId,
+        id: id,
+        value: addedValue,
+        listType: listType,
+      })
     },
-    handleAttributeDefaultChange (id, newValue) {
-      this.$serverPost(`/attribute/update`,
-        {
-          action: 'text',
-          endpointTypeId: this.selectedEndpointId,
-          id: id,
-          value: newValue,
-          listType: 'defaultValue'
-        })
+    handleAttributeDefaultChange(id, newValue) {
+      this.$serverPost(`/attribute/update`, {
+        action: 'text',
+        endpointTypeId: this.selectedEndpointId,
+        id: id,
+        value: newValue,
+        listType: 'defaultValue',
+      })
     },
-    handleColorSelection (selectedList, recommendedList, attributeData) {
-      let relevantAttributeList = attributeData.side === 'client' ? this.selectionClusterClient : this.selectionClusterServer
-      if (recommendedList.includes(attributeData.id) && relevantAttributeList.includes(attributeData.clusterRef)) {
+    handleColorSelection(selectedList, recommendedList, attributeData) {
+      let relevantAttributeList =
+        attributeData.side === 'client'
+          ? this.selectionClusterClient
+          : this.selectionClusterServer
+      if (
+        recommendedList.includes(attributeData.id) &&
+        relevantAttributeList.includes(attributeData.clusterRef)
+      ) {
         if (selectedList.includes(attributeData.id)) return 'green'
         else return 'red'
       }
       return 'primary'
     },
-    isDefaultValueValid (id) {
-      return this.defaultValueValidation[id] != null ? this.defaultValueValidation[id].length === 0 : true
+    isDefaultValueValid(id) {
+      return this.defaultValueValidation[id] != null
+        ? this.defaultValueValidation[id].length === 0
+        : true
     },
-    getDefaultValueErrorMessage (id) {
-      return this.defaultValueValidation[id] != null ? this.defaultValueValidation[id].reduce((validationIssueString, currentVal) => {
-        return validationIssueString + '\n' + currentVal
-      }, '') : ''
-    }
+    getDefaultValueErrorMessage(id) {
+      return this.defaultValueValidation[id] != null
+        ? this.defaultValueValidation[id].reduce(
+            (validationIssueString, currentVal) => {
+              return validationIssueString + '\n' + currentVal
+            },
+            ''
+          )
+        : ''
+    },
   },
 
   computed: {
     attributeData: {
-      get () {
+      get() {
         return this.$store.state.zap.attributes
-      }
+      },
     },
     selection: {
-      get () {
+      get() {
         return this.$store.state.zap.attributeView.selectedAttributes
-      }
+      },
     },
     selectionExternal: {
-      get () {
+      get() {
         return this.$store.state.zap.attributeView.selectedExternal
-      }
+      },
     },
     selectionFlash: {
-      get () {
+      get() {
         return this.$store.state.zap.attributeView.selectedFlash
-      }
+      },
     },
     selectionSingleton: {
-      get () {
+      get() {
         return this.$store.state.zap.attributeView.selectedSingleton
-      }
+      },
     },
     selectionBounded: {
-      get () {
+      get() {
         return this.$store.state.zap.attributeView.selectedBounded
-      }
+      },
     },
     selectionDefault: {
-      get () {
+      get() {
         return this.$store.state.zap.attributeView.defaultValues
-      }
+      },
     },
     selectedEndpointId: {
-      get () {
+      get() {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
-      }
+      },
     },
     requiredDeviceTypeAttributes: {
-      get () {
+      get() {
         return this.$store.state.zap.attributeView.requiredAttributes
-      }
+      },
     },
     requiredAttributes: {
-      get () {
-        return this.attributeData.filter(attribute => !attribute.isOptional || (this.requiredDeviceTypeAttributes.includes(attribute.id))).map(attribute => attribute.id)
-      }
+      get() {
+        return this.attributeData
+          .filter(
+            (attribute) =>
+              !attribute.isOptional ||
+              this.requiredDeviceTypeAttributes.includes(attribute.id)
+          )
+          .map((attribute) => attribute.id)
+      },
     },
     selectionClusterClient: {
-      get () {
+      get() {
         return this.$store.state.zap.clustersView.selectedClients
-      }
+      },
     },
     selectionClusterServer: {
-      get () {
+      get() {
         return this.$store.state.zap.clustersView.selectedServers
-      } },
+      },
+    },
     defaultValueValidation: {
-      get () {
+      get() {
         return this.$store.state.zap.attributeView.defaultValueValidationIssues
-      }
-    }
+      },
+    },
   },
-  data () {
+  data() {
     return {
       pagination: {
-        rowsPerPage: 0
+        rowsPerPage: 0,
       },
       columns: [
         {
@@ -251,80 +312,80 @@ export default {
           label: 'Included',
           field: 'included',
           align: 'left',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'clientServer',
           label: 'Client/Server',
           field: 'clientServer',
           align: 'left',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'attrName',
           label: 'Attribute Name',
           field: 'attrName',
           align: 'left',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'attrID',
           align: 'left',
           label: 'Attribute ID',
           field: 'attrID',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'mfgID',
           align: 'left',
           label: 'Manufacturing ID',
           field: 'mfgID',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'external',
           align: 'left',
           label: 'External',
           field: 'external',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'flash',
           align: 'left',
           label: 'Flash',
           field: 'flash',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'singleton',
           align: 'left',
           label: 'Singleton',
           field: 'singleton',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'type',
           align: 'left',
           label: 'Type',
           field: 'type',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'bounded',
           align: 'left',
           label: 'Bounded',
           field: 'bounded',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'default',
           align: 'left',
           label: 'Default',
           field: 'default',
-          sortable: true
-        }
-      ]
+          sortable: true,
+        },
+      ],
     }
-  }
+  },
 }
 </script>

@@ -1,13 +1,28 @@
 // Copyright (c) 2019 Silicon Labs. All rights reserved.
 
 import { app } from 'electron'
-import { initHttpServer } from '../server/http-server.js'
-import { initializeElectronUi, windowCreateIfNotThere } from './window.js'
-import { processCommandLineArguments, zclPropertiesFile, httpPort } from './args.js'
-import { initDatabase, closeDatabase, loadSchema } from '../db/db-api.js'
-import { setMainDatabase, mainDatabase, logInfo, logError, logWarning, logInit, logInitLogFile, logInitStdout, sqliteFile, setDevelopmentEnv, setProductionEnv, schemaFile } from './env.js'
-import { loadZcl } from '../zcl/zcl-loader.js'
 import { version } from '../../package.json'
+import { closeDatabase, initDatabase, loadSchema } from '../db/db-api.js'
+import { initHttpServer } from '../server/http-server.js'
+import { loadZcl } from '../zcl/zcl-loader.js'
+import {
+  httpPort,
+  processCommandLineArguments,
+  zclPropertiesFile,
+} from './args.js'
+import {
+  logError,
+  logInfo,
+  logInitLogFile,
+  logInitStdout,
+  mainDatabase,
+  schemaFile,
+  setDevelopmentEnv,
+  setMainDatabase,
+  setProductionEnv,
+  sqliteFile,
+} from '../util/env.js'
+import { initializeElectronUi, windowCreateIfNotThere } from './window.js'
 
 logInitLogFile()
 
@@ -33,7 +48,8 @@ function startSelfCheck() {
     .then((db) => loadZcl(db, zclPropertiesFile))
     .then(() => {
       logInfo('Self-check done!')
-    }).catch((err)=> {
+    })
+    .catch((err) => {
       logError(err)
       throw err
     })
@@ -52,7 +68,7 @@ function startNormal(ui, showUrl) {
         if (app.dock) {
           app.dock.hide()
         }
-        if ( showUrl ) {
+        if (showUrl) {
           console.log(`http://localhost:${httpPort}/index.html`)
         }
       }
@@ -67,8 +83,8 @@ app.on('ready', () => {
   var argv = processCommandLineArguments(process.argv)
 
   logInfo(argv)
-  
-  if ( argv._.includes('selfCheck')) {
+
+  if (argv._.includes('selfCheck')) {
     startSelfCheck()
   } else {
     startNormal(!argv.noUi, argv.showUrl)
@@ -87,5 +103,7 @@ app.on('activate', () => {
 })
 
 app.on('quit', () => {
-  closeDatabase(mainDatabase()).then(() => logInfo('Database closed, shutting down.'))
+  closeDatabase(mainDatabase()).then(() =>
+    logInfo('Database closed, shutting down.')
+  )
 })
