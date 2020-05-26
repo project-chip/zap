@@ -1,13 +1,21 @@
 <template>
   <div>
-      <div class="row">
-        <font size="4">
-        Endpoint Type Manager
-        </font>
-      </div>
     <div class="row">
-      <q-btn color="primary" label="New Endpoint Type"  @click="newEptTypeDialog = true"/>
-      <q-btn color="primary" label="Delete Endpoint Type"  @click="deleteEptType(selectedEndpointType)"/>
+      <font size="4">
+        Endpoint Type Manager
+      </font>
+    </div>
+    <div class="row">
+      <q-btn
+        color="primary"
+        label="New Endpoint Type"
+        @click="newEptTypeDialog = true"
+      />
+      <q-btn
+        color="primary"
+        label="Delete Endpoint Type"
+        @click="deleteEptType(selectedEndpointType)"
+      />
       <q-dialog v-model="newEptTypeDialog">
         <q-card>
           <q-card-section>
@@ -17,22 +25,38 @@
           </q-card-section>
           <q-card-section>
             <div>
-              <q-form @submit="newEptType()" @reset="onReset" class="q-gutter-md">
-                <q-input filled v-model="newEndpointType.name" label="Endpoint Type Name"/>
+              <q-form
+                @submit="newEptType()"
+                @reset="onReset"
+                class="q-gutter-md"
+              >
+                <q-input
+                  filled
+                  v-model="newEndpointType.name"
+                  label="Endpoint Type Name"
+                />
                 <q-select
                   filled
                   v-model="newEndpointType.deviceTypeRef"
                   :options="zclDeviceTypeOptions"
-                  :option-label="(item) => item === null ? '' : zclDeviceTypes[item].label"
+                  :option-label="
+                    (item) => (item === null ? '' : zclDeviceTypes[item].label)
+                  "
                   label="ZCL Device Type"
                 />
               </q-form>
             </div>
           </q-card-section>
           <q-card-actions align="right">
-          <q-btn flat label="Create Endpoint Type" color="primary" v-close-popup @click="addEndpointType(newEndpointType)"/>
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
-        </q-card-actions>
+            <q-btn
+              flat
+              label="Create Endpoint Type"
+              color="primary"
+              v-close-popup
+              @click="addEndpointType(newEndpointType)"
+            />
+            <q-btn flat label="Cancel" color="primary" v-close-popup />
+          </q-card-actions>
         </q-card>
       </q-dialog>
       <q-dialog v-model="confirmEptTypeUpdate">
@@ -41,39 +65,49 @@
             <div class="text-h6">Please confirm</div>
           </q-card-section>
           <q-card-section>
-            You are trying to change the device type! This will reset all settings to the default required for the device type.
-            You will lose data!
+            You are trying to change the device type! This will reset all
+            settings to the default required for the device type. You will lose
+            data!
           </q-card-section>
           <q-card-section align="right">
             <q-btn flat label="Cancel" color="primary" v-close-popup />
-            <q-btn flat label="Confirm" color="primary" v-close-popup @click="setZclDeviceType(desiredZclEndpointType)"/>
+            <q-btn
+              flat
+              label="Confirm"
+              color="primary"
+              v-close-popup
+              @click="setZclDeviceType(desiredZclEndpointType)"
+            />
           </q-card-section>
-
         </q-card>
       </q-dialog>
     </div>
 
-  <div class="row">
+    <div class="row">
       <div class="col">
         <q-select
           dark
           dense
           v-model="selectedEndpointType"
           :options="zclEndpointTypeOptions"
-          :option-label="(item) => item === null ? '' : zclEndpointTypeName[item]"
+          :option-label="
+            (item) => (item === null ? '' : zclEndpointTypeName[item])
+          "
           label="Endpoint Type Name"
           @input="setSelectedEndpointType($event)"
         />
       </div>
     </div>
-      <div class="row">
+    <div class="row">
       <div class="col">
         <q-select
           dark
           dense
           v-model="zclDeviceType"
           :options="zclDeviceTypeOptions"
-          :option-label="(item) => item === null ? '' : zclDeviceTypes[item].label"
+          :option-label="
+            (item) => (item === null ? '' : zclDeviceTypes[item].label)
+          "
           label="ZCL Device Type"
           @input="showConfirmZclDeviceTypeChangeDialog($event)"
         />
@@ -85,7 +119,7 @@
 <script>
 export default {
   name: 'ZclEndpointTypeConfig',
-  mounted () {
+  mounted() {
     this.$serverOn('zcl-item-list', (event, arg) => {
       if (arg.type === 'device_type') {
         this.$store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
@@ -96,12 +130,14 @@ export default {
         // We kick start everything by having automatically adding a centralized endpointType using the HA-onoff deviceType
         if (this.zclEndpointTypeOptions.length < 1) {
           for (var x in this.zclDeviceTypes) {
-            if (this.zclDeviceTypes[x]['label'] === 'HA-onoff') { indexOnOff = x }
+            if (this.zclDeviceTypes[x]['label'] === 'HA-onoff') {
+              indexOnOff = x
+            }
             //          if (this.zclDeviceTypes[x]['label'] === 'HA-doorlock') { indexDoorLock = x }
           }
           let onOffEptType = {
             name: 'Centralized',
-            deviceTypeRef: indexOnOff !== -1 ? indexOnOff : 1
+            deviceTypeRef: indexOnOff !== -1 ? indexOnOff : 1,
           }
 
           this.addEndpointType(onOffEptType)
@@ -118,23 +154,23 @@ export default {
           this.$store.dispatch('zap/addEndpointType', {
             id: arg.id,
             name: arg.name,
-            deviceTypeRef: arg.deviceTypeRef
+            deviceTypeRef: arg.deviceTypeRef,
           })
           break
         case 'd':
-        // delete
+          // delete
           if (arg.successful) {
             this.$store.dispatch(`zap/removeEndpointType`, {
-              id: arg.id
+              id: arg.id,
             })
           }
           break
         case 'u':
-        // update
+          // update
           if (arg.updatedKey === 'deviceTypeRef') {
             this.$store.dispatch('zap/setDeviceTypeReference', {
               endpointId: this.selectedEndpointType,
-              deviceTypeRef: arg.updatedValue
+              deviceTypeRef: arg.updatedValue,
             })
           }
           break
@@ -146,102 +182,102 @@ export default {
     this.$serverGet('/deviceType/all')
   },
   methods: {
-    showConfirmZclDeviceTypeChangeDialog (value) {
+    showConfirmZclDeviceTypeChangeDialog(value) {
       this.desiredZclEndpointType = value
       this.confirmEptTypeUpdate = true
     },
-    setZclDeviceType (value) {
-      this.$serverPost(`/endpointType/update`,
-        {
-          action: 'u',
-          endpointTypeId: this.selectedEndpointType,
-          updatedKey: 'deviceTypeRef',
-          updatedValue: value
-        })
+    setZclDeviceType(value) {
+      this.$serverPost(`/endpointType/update`, {
+        action: 'u',
+        endpointTypeId: this.selectedEndpointType,
+        updatedKey: 'deviceTypeRef',
+        updatedValue: value,
+      })
     },
-    addEndpointType (newEndpointType) {
+    addEndpointType(newEndpointType) {
       let name = newEndpointType.name
       let deviceTypeRef = newEndpointType.deviceTypeRef
 
-      this.$serverPost(`/endpointType`,
-        {
-          action: 'c',
-          context: {
-            name: name,
-            deviceTypeRef: deviceTypeRef
-          }
-        }
-      )
-    },
-    setSelectedEndpointType (id) {
-      this.$store.dispatch('zap/updateSelectedEndpointType', {
-        endpointType: id,
-        deviceTypeRef: this.zclDeviceTypesRecord[id]
+      this.$serverPost(`/endpointType`, {
+        action: 'c',
+        context: {
+          name: name,
+          deviceTypeRef: deviceTypeRef,
+        },
       })
     },
-    deleteEptType (selectedEndpointType) {
+    setSelectedEndpointType(id) {
+      this.$store.dispatch('zap/updateSelectedEndpointType', {
+        endpointType: id,
+        deviceTypeRef: this.zclDeviceTypesRecord[id],
+      })
+    },
+    deleteEptType(selectedEndpointType) {
       this.$serverPost(`/endpointType`, {
         action: 'd',
         context: {
-          id: selectedEndpointType
-        }
+          id: selectedEndpointType,
+        },
       })
-    }
+    },
   },
   computed: {
     zclDeviceTypeOptions: {
-      get () {
-        return Object.keys(this.$store.state.zap.zclDeviceTypes).map(key => {
+      get() {
+        return Object.keys(this.$store.state.zap.zclDeviceTypes).map((key) => {
           return key
         })
-      }
+      },
     },
     zclDeviceTypes: {
-      get () {
+      get() {
         return this.$store.state.zap.zclDeviceTypes
-      }
+      },
     },
     zclEndpointTypeName: {
-      get () {
+      get() {
         return this.$store.state.zap.endpointTypeView.name
-      }
+      },
     },
     zclDeviceType: {
-      get () {
-        return this.$store.state.zap.endpointTypeView.deviceTypeRef[this.selectedEndpointType]
-      }
+      get() {
+        return this.$store.state.zap.endpointTypeView.deviceTypeRef[
+          this.selectedEndpointType
+        ]
+      },
     },
     zclDeviceTypesRecord: {
-      get () {
+      get() {
         return this.$store.state.zap.endpointTypeView.deviceTypeRef
-      }
+      },
     },
     selectedEndpointType: {
-      get () {
+      get() {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
-      }
+      },
     },
     zclEndpointTypeOptions: {
-      get () {
-        return Object.keys(this.zclEndpointTypeName).map(key => {
+      get() {
+        return Object.keys(this.zclEndpointTypeName).map((key) => {
           return key
         })
-      }
-    }
+      },
+    },
   },
-  data () {
+  data() {
     return {
       item: {},
       newEndpointType: {
         name: '',
-        deviceTypeRef: null },
+        deviceTypeRef: null,
+      },
       title: '',
       model: [],
       newEptTypeDialog: [],
       confirmEptTypeUpdate: [],
       desiredZclEndpointType: [],
-      type: ''
+      type: '',
     }
-  }
+  },
 }
 </script>

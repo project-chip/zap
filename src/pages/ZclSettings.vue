@@ -16,17 +16,18 @@ export default {
   name: 'ZclSettings',
   components: {},
   methods: {
-    fileUpload (test) {
+    fileUpload(test) {
       console.log(test)
-      if (test) { test.map(a => console.log(a)) }
-    }
+      if (test) {
+        test.map((a) => console.log(a))
+      }
+    },
   },
-  mounted () {
-  },
-  data () {
+  mounted() {},
+  data() {
     return {
-      files: []
+      files: [],
     }
-  }
+  },
 }
 </script>

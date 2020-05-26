@@ -10,12 +10,14 @@ export default function () {
       selectedEndpoint: [],
       endpointId: {},
       endpointType: {},
-      networkId: {}
+      networkId: {},
+      endpointIdValidationIssues: {},
+      networkIdValidationIssues: {},
     },
     endpointTypeView: {
       selectedEndpointType: [],
       name: {},
-      deviceTypeRef: {}
+      deviceTypeRef: {},
     },
     clustersView: {
       selected: [],
@@ -23,7 +25,7 @@ export default function () {
       selectedClients: [],
       // These are based off of the selected ZCL Endpoints Device Type
       recommendedClients: [],
-      recommendedServers: []
+      recommendedServers: [],
     },
     attributeView: {
       selectedAttributes: [],
@@ -34,19 +36,19 @@ export default function () {
       defaultValues: {},
       // These are based off of the selected ZCL Endpoint Device Type
       recommendedAttributes: [],
-      defaultValueValidationIssues: {}
+      defaultValueValidationIssues: {},
     },
     commandView: {
       selectedIn: [],
       selectedOut: [],
       // These are based off of the selected ZCL Endpoint Device Type
-      requiredCommands: []
+      requiredCommands: [],
     },
     reportingView: {
       selectedReporting: [],
       reportingMin: {},
       reportingMax: {},
-      reportableChange: {}
-    }
+      reportableChange: {},
+    },
   }
 }

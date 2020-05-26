@@ -1,15 +1,26 @@
 // Copyright (c) 2020 Silicon Labs. All rights reserved.
 
-import { logInfo, logError } from '../main-process/env'
-import properties from 'properties'
-import path from 'path'
 import fs from 'fs'
-import crc from 'crc'
-
+import path from 'path'
+import properties from 'properties'
 import { parseString } from 'xml2js'
-import { insertClusters, insertDomains, insertStructs, insertBitmaps, insertEnums, insertDeviceTypes, updateClusterReferencesForDeviceTypeClusters, updateAttributeReferencesForDeviceTypeReferences, updateCommandReferencesForDeviceTypeReferences, insertClusterExtensions, insertGlobals } from '../db/query-zcl'
 import { dbBeginTransaction, dbCommit } from '../db/db-api'
-import { forPathCrc, updatePathCrc, insertPathCrc } from '../db/query-package'
+import { forPathCrc, insertPathCrc, updatePathCrc } from '../db/query-package'
+import {
+  insertBitmaps,
+  insertClusterExtensions,
+  insertClusters,
+  insertDeviceTypes,
+  insertDomains,
+  insertEnums,
+  insertGlobals,
+  insertStructs,
+  updateAttributeReferencesForDeviceTypeReferences,
+  updateClusterReferencesForDeviceTypeClusters,
+  updateCommandReferencesForDeviceTypeReferences,
+} from '../db/query-zcl'
+import { logError, logInfo } from '../util/env'
+import { calculateCrc } from '../util/util.js'
 
 const fsp = fs.promises
 
@@ -29,8 +40,13 @@ function collectZclFiles(propertiesFile) {
         reject(err)
       } else {
         // We create our specific fileReader context
-        var fileLocation = path.join(path.dirname(propertiesFile), zclProps.xmlRoot)
-        var files = zclProps.xmlFile.split(',').map(data => path.join(fileLocation, data.trim()))
+        var fileLocation = path.join(
+          path.dirname(propertiesFile),
+          zclProps.xmlRoot
+        )
+        var files = zclProps.xmlFile
+          .split(',')
+          .map((data) => path.join(fileLocation, data.trim()))
         logInfo(`Resolving: ${files}`)
         resolve(files)
       }
@@ -50,25 +66,6 @@ function readZclFile(file) {
 }
 
 /**
- * Promises to calculate the CRC of the file, and resolve with an array [filePath,data,crc]
- *
- * @param {*} filePath
- * @param {*} data
- * @returns Promise of a resolved CRC file.
- */
-function calculateCrc(filePath, data) {
-  return new Promise((resolve, reject) => {
-    var actualCrc = crc.crc32(data)
-    logInfo(`For file: ${filePath}, got CRC: ${actualCrc}`)
-    resolve({
-      filePath: filePath,
-      data: data,
-      actualCrc: actualCrc
-    })
-  })
-}
-
-/**
  * Promises to parse the ZCL file, expecting array of [filePath, data, packageId, msg]
  *
  * @param {*} argument
@@ -76,9 +73,9 @@ function calculateCrc(filePath, data) {
  */
 function parseZclFile(argument) {
   // No data, we skip this.
-  if (!('data' in argument))
+  if (!('data' in argument)) {
     return Promise.resolve(argument)
-  else {
+  } else {
     var p = new Promise((resolve, reject) => {
       // ... otherwise, we promise to parse this.
       parseString(argument.data, (err, result) => {
@@ -106,10 +103,10 @@ function prepareBitmap(bm) {
   var ret = { name: bm.$.name, type: bm.$.type }
   if ('field' in bm) {
     ret.fields = []
-    bm.field.forEach(field => {
+    bm.field.forEach((field) => {
       ret.fields.push({
         name: field.$.name,
-        mask: field.$.mask
+        mask: field.$.mask,
       })
     })
   }
@@ -127,23 +124,27 @@ function prepareBitmap(bm) {
  */
 function processBitmaps(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} bitmaps.`)
-  return insertBitmaps(db, packageId, data.map(x => prepareBitmap(x)))
+  return insertBitmaps(
+    db,
+    packageId,
+    data.map((x) => prepareBitmap(x))
+  )
 }
 
 /**
  * Prepare XML cluster for insertion into the database.
  * This method can also prepare clusterExtensions.
- * 
+ *
  * @param {*} cluster
  * @returns Object containing all data from XML.
  */
 function prepareCluster(cluster, isExtension = false) {
   var ret = {
-    isExtension: isExtension
-  };
+    isExtension: isExtension,
+  }
 
   if (isExtension) {
-    if (('$' in cluster) && ('code' in cluster.$)) {
+    if ('$' in cluster && 'code' in cluster.$) {
       ret.code = cluster.$.code
     }
   } else {
@@ -155,21 +156,21 @@ function prepareCluster(cluster, isExtension = false) {
 
   if ('command' in cluster) {
     ret.commands = []
-    cluster.command.forEach(command => {
+    cluster.command.forEach((command) => {
       var cmd = {
         code: command.$.code,
         name: command.$.name,
         description: command.description[0],
         source: command.$.source,
-        isOptional: command.$.optional == 'true'
+        isOptional: command.$.optional == 'true',
       }
       if ('arg' in command) {
         cmd.args = []
-        command.arg.forEach(arg => {
+        command.arg.forEach((arg) => {
           cmd.args.push({
             name: arg.$.name,
             type: arg.$.type,
-            isArray: (arg.$.array == "true" ? 1 : 0)
+            isArray: arg.$.array == 'true' ? 1 : 0,
           })
         })
       }
@@ -178,7 +179,7 @@ function prepareCluster(cluster, isExtension = false) {
   }
   if ('attribute' in cluster) {
     ret.attributes = []
-    cluster.attribute.forEach(attribute => {
+    cluster.attribute.forEach((attribute) => {
       ret.attributes.push({
         code: attribute.$.code,
         name: attribute._,
@@ -190,7 +191,7 @@ function prepareCluster(cluster, isExtension = false) {
         isWritable: attribute.$.writable == 'true',
         defaultValue: attribute.$.default,
         isOptional: attribute.$.optional == 'true',
-        isReportable: attribute.$.reportable == 'true'
+        isReportable: attribute.$.reportable == 'true',
       })
     })
   }
@@ -208,7 +209,11 @@ function prepareCluster(cluster, isExtension = false) {
  */
 function processClusters(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} clusters.`)
-  return insertClusters(db, packageId, data.map(x => prepareCluster(x)))
+  return insertClusters(
+    db,
+    packageId,
+    data.map((x) => prepareCluster(x))
+  )
 }
 
 /**
@@ -223,7 +228,11 @@ function processClusters(db, filePath, packageId, data) {
  */
 function processClusterExtensions(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} cluster extensions.`)
-  return insertClusterExtensions(db, packageId, data.map(x => prepareCluster(x, true)))
+  return insertClusterExtensions(
+    db,
+    packageId,
+    data.map((x) => prepareCluster(x, true))
+  )
 }
 
 /**
@@ -238,9 +247,12 @@ function processClusterExtensions(db, filePath, packageId, data) {
  */
 function processGlobals(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} globals.`)
-  return insertGlobals(db, packageId, data.map(x => prepareCluster(x, true)))
+  return insertGlobals(
+    db,
+    packageId,
+    data.map((x) => prepareCluster(x, true))
+  )
 }
-
 
 /**
  * Convert domain from XMl to domain for DB.
@@ -263,7 +275,11 @@ function prepareDomain(domain) {
  */
 function processDomains(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} domains.`)
-  return insertDomains(db, packageId, data.map(x => prepareDomain(x)))
+  return insertDomains(
+    db,
+    packageId,
+    data.map((x) => prepareDomain(x))
+  )
 }
 
 /**
@@ -276,10 +292,10 @@ function prepareStruct(struct) {
   var ret = { name: struct.$.name }
   if ('item' in struct) {
     ret.items = []
-    struct.item.forEach(item => {
+    struct.item.forEach((item) => {
       ret.items.push({
         name: item.$.name,
-        type: item.$.type
+        type: item.$.type,
       })
     })
   }
@@ -297,7 +313,11 @@ function prepareStruct(struct) {
  */
 function processStructs(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} structs.`)
-  return insertStructs(db, packageId, data.map(x => prepareStruct(x)))
+  return insertStructs(
+    db,
+    packageId,
+    data.map((x) => prepareStruct(x))
+  )
 }
 
 /**
@@ -310,10 +330,10 @@ function prepareEnum(en) {
   var ret = { name: en.$.name, type: en.$.type }
   if ('item' in en) {
     ret.items = []
-    en.item.forEach(item => {
+    en.item.forEach((item) => {
       ret.items.push({
         name: item.$.name,
-        value: item.$.value
+        value: item.$.value,
       })
     })
   }
@@ -331,7 +351,11 @@ function prepareEnum(en) {
  */
 function processEnums(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} enums.`)
-  return insertEnums(db, packageId, data.map(x => prepareEnum(x)))
+  return insertEnums(
+    db,
+    packageId,
+    data.map((x) => prepareEnum(x))
+  )
 }
 
 /**
@@ -345,13 +369,13 @@ function prepareDeviceType(deviceType) {
     code: deviceType.deviceId[0]['_'],
     profileId: deviceType.profileId[0]['_'],
     name: deviceType.name[0],
-    description: deviceType.typeName[0]
+    description: deviceType.typeName[0],
   }
   if ('clusters' in deviceType) {
     ret.clusters = []
-    deviceType.clusters.forEach(cluster => {
+    deviceType.clusters.forEach((cluster) => {
       if ('include' in cluster) {
-        cluster.include.forEach(include => {
+        cluster.include.forEach((include) => {
           var attributes = []
           var commands = []
           if ('requireAttribute' in include) {
@@ -365,9 +389,10 @@ function prepareDeviceType(deviceType) {
             server: 'true' == include.$.server,
             clientLocked: 'true' == include.$.clientLocked,
             serverLocked: 'true' == include.$.serverLocked,
-            clusterName: (include.$.cluster != undefined ? include.$.cluster : include._),
+            clusterName:
+              include.$.cluster != undefined ? include.$.cluster : include._,
             requiredAttributes: attributes,
-            requiredCommands: commands
+            requiredCommands: commands,
           })
         })
       }
@@ -387,7 +412,11 @@ function prepareDeviceType(deviceType) {
  */
 function processDeviceTypes(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} deviceTypes.`)
-  return insertDeviceTypes(db, packageId, data.map(x => prepareDeviceType(x)))
+  return insertDeviceTypes(
+    db,
+    packageId,
+    data.map((x) => prepareDeviceType(x))
+  )
 }
 
 /**
@@ -404,23 +433,56 @@ function processParsedZclData(db, argument) {
   var packageId = argument.packageId
 
   if (!('result' in argument)) {
-    return Promise.resolve(argument.error)
+    return Promise.resolve([])
   } else {
     var immediatePromises = []
     var laterPromises = []
     if ('configurator' in data) {
-      if ('bitmap' in data.configurator) immediatePromises.push(processBitmaps(db, filePath, packageId, data.configurator.bitmap))
-      if ('cluster' in data.configurator) immediatePromises.push(processClusters(db, filePath, packageId, data.configurator.cluster))
-      if ('domain' in data.configurator) immediatePromises.push(processDomains(db, filePath, packageId, data.configurator.domain))
-      if ('enum' in data.configurator) immediatePromises.push(processEnums(db, filePath, packageId, data.configurator.enum))
-      if ('struct' in data.configurator) immediatePromises.push(processStructs(db, filePath, packageId, data.configurator.struct))
-      if ('deviceType' in data.configurator) immediatePromises.push(processDeviceTypes(db, filePath, packageId, data.configurator.deviceType))
-      if ('global' in data.configurator) immediatePromises.push(processGlobals(db, filePath, packageId, data.configurator.global))
-      if ('clusterExtension' in data.configurator) laterPromises.push(() => processClusterExtensions(db, filePath, packageId, data.configurator.clusterExtension))
+      if ('bitmap' in data.configurator)
+        immediatePromises.push(
+          processBitmaps(db, filePath, packageId, data.configurator.bitmap)
+        )
+      if ('cluster' in data.configurator)
+        immediatePromises.push(
+          processClusters(db, filePath, packageId, data.configurator.cluster)
+        )
+      if ('domain' in data.configurator)
+        immediatePromises.push(
+          processDomains(db, filePath, packageId, data.configurator.domain)
+        )
+      if ('enum' in data.configurator)
+        immediatePromises.push(
+          processEnums(db, filePath, packageId, data.configurator.enum)
+        )
+      if ('struct' in data.configurator)
+        immediatePromises.push(
+          processStructs(db, filePath, packageId, data.configurator.struct)
+        )
+      if ('deviceType' in data.configurator)
+        immediatePromises.push(
+          processDeviceTypes(
+            db,
+            filePath,
+            packageId,
+            data.configurator.deviceType
+          )
+        )
+      if ('global' in data.configurator)
+        immediatePromises.push(
+          processGlobals(db, filePath, packageId, data.configurator.global)
+        )
+      if ('clusterExtension' in data.configurator)
+        laterPromises.push(() =>
+          processClusterExtensions(
+            db,
+            filePath,
+            packageId,
+            data.configurator.clusterExtension
+          )
+        )
     }
     // This thing resolves the immediate promises and then resolves itself with passing the later promises down the chain.
-    return Promise.all(immediatePromises)
-      .then(() => Promise.resolve(laterPromises))
+    return Promise.all(immediatePromises).then(() => laterPromises)
   }
 }
 
@@ -432,15 +494,14 @@ function processParsedZclData(db, argument) {
  */
 function processPostLoading(db) {
   return updateClusterReferencesForDeviceTypeClusters(db)
-    .then(res => updateAttributeReferencesForDeviceTypeReferences(db))
-    .then(res => updateCommandReferencesForDeviceTypeReferences(db));
+    .then((res) => updateAttributeReferencesForDeviceTypeReferences(db))
+    .then((res) => updateCommandReferencesForDeviceTypeReferences(db))
 }
-
 
 /**
  * Promises to qualify whether zcl file needs to be reloaded.
- * If yes, the it will resolve with [filePath, data, packageId, NULL]
- * If not, then it will resolve with [null, null, null, msg]
+ * If yes, the it will resolve with {filePath, data, packageId}
+ * If not, then it will resolve with {error}
  *
  * @param {*} db
  * @param {*} object
@@ -451,33 +512,41 @@ function qualifyZclFile(db, info) {
     var filePath = info.filePath
     var data = info.data
     var actualCrc = info.actualCrc
-    forPathCrc(db, filePath, (storedCrc, packageId) => { // This is executed if CRC is found in the database.
-      if (storedCrc == actualCrc) {
-        logInfo(`CRC match for file ${filePath}, skipping parsing.`)
-        resolve({
-          error: `${filePath} skipped`
-        })
-      } else {
-        logInfo(`CRC missmatch for file ${filePath}, package id ${packageId}, parsing.`)
-        updatePathCrc(db, filePath, actualCrc).then(
-          () => resolve({
-            filePath: filePath,
-            data: data,
-            packageId: packageId
+    forPathCrc(
+      db,
+      filePath,
+      (storedCrc, packageId) => {
+        // This is executed if CRC is found in the database.
+        if (storedCrc == actualCrc) {
+          logInfo(`CRC match for file ${filePath}, skipping parsing.`)
+          resolve({
+            error: `${filePath} skipped`,
           })
-        )
-      }
-    },
-      () => { // This is executed if there is no CRC in the database.
+        } else {
+          logInfo(
+            `CRC missmatch for file ${filePath}, package id ${packageId}, parsing.`
+          )
+          updatePathCrc(db, filePath, actualCrc).then(() =>
+            resolve({
+              filePath: filePath,
+              data: data,
+              packageId: packageId,
+            })
+          )
+        }
+      },
+      () => {
+        // This is executed if there is no CRC in the database.
         logInfo(`No CRC in the database for file ${filePath}, parsing.`)
         insertPathCrc(db, filePath, actualCrc).then((packageId) => {
           resolve({
             filePath: filePath,
             data: data,
-            packageId: packageId
+            packageId: packageId,
           })
         })
-      })
+      }
+    )
   })
 }
 
@@ -493,13 +562,13 @@ function qualifyZclFile(db, info) {
 function parseZclFiles(db, files) {
   logInfo(`Starting to parse ZCL files: ${files}`)
   var individualPromises = []
-  files.forEach(element => {
+  files.forEach((element) => {
     var p = readZclFile(element)
-      .then(data => calculateCrc(element, data))
-      .then(data => qualifyZclFile(db, data))
-      .then(result => parseZclFile(result))
-      .then(result => processParsedZclData(db, result))
-      .catch(err => logError(err))
+      .then((data) => calculateCrc(element, data))
+      .then((data) => qualifyZclFile(db, data))
+      .then((result) => parseZclFile(result))
+      .then((result) => processParsedZclData(db, result))
+      .catch((err) => logError(err))
     individualPromises.push(p)
   })
   return Promise.all(individualPromises)
@@ -514,15 +583,17 @@ function parseZclFiles(db, files) {
  */
 export function loadZcl(db, propertiesFile) {
   logInfo(`Loading zcl file: ${propertiesFile}`)
-  return dbBeginTransaction(db).then(() => collectZclFiles(propertiesFile))
+  return dbBeginTransaction(db)
+    .then(() => collectZclFiles(propertiesFile))
     .then((files) => parseZclFiles(db, files))
-    .then(arrayOfLaterPromisesArray => {
+    .then((arrayOfLaterPromisesArray) => {
       var p = []
-      arrayOfLaterPromisesArray.forEach(promises => {
-        promises.forEach(x => p.push(x()))
+      arrayOfLaterPromisesArray.forEach((promises) => {
+        promises.forEach((x) => p.push(x()))
       })
       return Promise.all(p)
-    }).then(() => processPostLoading(db))
+    })
+    .then(() => processPostLoading(db))
     .then(() => dbCommit(db))
-    .then(() => Promise.resolve(db))
+    .then(() => db)
 }

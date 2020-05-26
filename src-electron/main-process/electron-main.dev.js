@@ -1,6 +1,6 @@
 // Copyright (c) 2019 Silicon Labs. All rights reserved.
 
-import { logError, logInitStdout } from './env.js'
+import { logError, logInitStdout } from '../util/env.js'
 
 /**
  * This file is used specifically and only for development. It installs
@@ -17,9 +17,10 @@ require('electron-debug')({ showDevTools: false })
 // Install `vue-devtools`
 require('electron').app.on('ready', () => {
   let installExtension = require('electron-devtools-installer')
-  installExtension.default(installExtension.VUEJS_DEVTOOLS)
+  installExtension
+    .default(installExtension.VUEJS_DEVTOOLS)
     .then(() => {})
-    .catch(err => {
+    .catch((err) => {
       logError('Unable to install `vue-devtools`: \n', err)
     })
 })

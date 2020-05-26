@@ -1,8 +1,8 @@
 // Copyright (c) 2019 Silicon Labs. All rights reserved.
 
-import { Menu, Tray, nativeImage, app} from 'electron'
+import { Menu, Tray, nativeImage, app } from 'electron'
 import { windowCreate } from './window.js'
-import { logInfo, iconsDirectory, logError } from './env.js'
+import { logInfo, iconsDirectory, logError } from '../util/env.js'
 import path from 'path'
 import fs from 'fs'
 
@@ -11,11 +11,10 @@ let tray
 export function initTray(port) {
   logInfo('Initializing tray...')
 
+  let trayIconPath = path.join(iconsDirectory(), 'zap_32x32.png')
+  let dockIconPath = path.join(iconsDirectory(), 'zap_128x128.png')
 
-  let trayIconPath =  path.join(iconsDirectory(), 'zap_32x32.png')
-  let dockIconPath =  path.join(iconsDirectory(), 'zap_128x128.png')
-
-  if ( !fs.existsSync(trayIconPath)) {
+  if (!fs.existsSync(trayIconPath)) {
     logError(`Tray not created, icon does not exist: ${trayIconPath}`)
     return
   } else {
@@ -23,7 +22,7 @@ export function initTray(port) {
   }
 
   let trayIcon = nativeImage.createFromPath(trayIconPath)
-  if ( trayIcon.isEmpty() ) {
+  if (trayIcon.isEmpty()) {
     logError('Image got created, but it is empty')
   }
   tray = new Tray(trayIcon.resize({ width: 16, height: 16 }))
@@ -34,19 +33,19 @@ export function initTray(port) {
       type: 'normal',
       click: (item, window, event) => {
         windowCreate(port)
-      }
-    }, {
+      },
+    },
+    {
       label: 'Quit ZAP',
-      role: 'quit'
-    }
+      role: 'quit',
+    },
   ])
 
   // This covers the case of the mac dock
-  if ( app.dock ) {
+  if (app.dock) {
     app.dock.setIcon(dockIconPath)
     app.dock.setMenu(contextMenu)
   }
-  
 
   tray.setToolTip('ZCL Advanced Platform')
   tray.setContextMenu(contextMenu)

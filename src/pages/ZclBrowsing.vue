@@ -20,7 +20,7 @@ export default {
   name: 'ZclBrowsing',
   components: {
     ZclItemList,
-    ZclItemDetail
-  }
+    ZclItemDetail,
+  },
 }
 </script>

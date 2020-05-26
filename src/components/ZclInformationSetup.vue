@@ -1,6 +1,14 @@
 <template>
   <div>
-    <q-input debounce="500" type="textarea" rounded filled v-model="informationText" label="Information about the application" :min-rows="3"/>
+    <q-input
+      debounce="500"
+      type="textarea"
+      rounded
+      filled
+      v-model="informationText"
+      label="Information about the application"
+      :min-rows="3"
+    />
   </div>
 </template>
 
@@ -9,25 +17,25 @@ export default {
   name: 'ZclInformationSetup',
   computed: {
     informationText: {
-      get () {
+      get() {
         return this.$store.state.zap.informationText
       },
-      set (val) {
+      set(val) {
         this.$store.dispatch('zap/updateInformationText', val)
-      }
-    }
+      },
+    },
   },
-  updated () {
+  updated() {
     console.log('INFO updated')
   },
-  created () {
+  created() {
     console.log('INFO created')
   },
-  mounted () {
+  mounted() {
     console.log('INFO mounted')
   },
-  destroyed () {
+  destroyed() {
     console.log('INFO destroyed')
-  }
+  },
 }
 </script>

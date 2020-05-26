@@ -6,6 +6,6 @@
 
 <script>
 export default {
-  name: 'ZclCustomSetup'
+  name: 'ZclCustomSetup',
 }
 </script>

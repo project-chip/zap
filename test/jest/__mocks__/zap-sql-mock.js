@@ -1,3 +1,6 @@
-const Path = require('path');
+const Path = require("path");
 
-module.exports = Path.join(__dirname, "../../../src-electron/db/zap-schema.sql");
+module.exports = Path.join(
+  __dirname,
+  "../../../src-electron/db/zap-schema.sql"
+);

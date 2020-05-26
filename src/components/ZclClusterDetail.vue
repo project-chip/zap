@@ -1,10 +1,10 @@
 <!-- Copyright (c) 2019 Silicon Labs. All rights reserved. -->
 <template>
-  <div >
-    <div v-show="selectedEndpointId.length==0 && item.length>0">
+  <div>
+    <div v-show="selectedEndpointId.length == 0 && item.length > 0">
       Please select an endpoint type before trying to configure anything.
     </div>
-    <div v-show="item.length>0 && selectedEndpointId.length>0">
+    <div v-show="item.length > 0 && selectedEndpointId.length > 0">
       <zcl-cluster-info />
       <q-tabs v-model="tab" dense align="justify">
         <q-tab name="attributes" label="Attributes" />
@@ -34,26 +34,26 @@ export default {
   name: 'ZclClusterDetail',
   computed: {
     item: {
-      get () {
+      get() {
         return this.$store.state.zap.clustersView.selected
-      }
+      },
     },
     selectedEndpointId: {
-      get () {
+      get() {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
-      }
-    }
+      },
+    },
   },
-  data () {
+  data() {
     return {
-      tab: 'attributes'
+      tab: 'attributes',
     }
   },
   components: {
     ZclAttributeView,
     ZclCommandView,
     ZclClusterInfo,
-    ZclReportingView
-  }
+    ZclReportingView,
+  },
 }
 </script>

@@ -9,7 +9,7 @@
           <q-checkbox
             class="q-mt-xs"
             v-model="selection"
-            :val=item.id
+            :val="item.id"
             indeterminate-value="false"
             dark
             @input="handleClusterSelection(item.id)"
@@ -33,14 +33,14 @@
 export default {
   name: 'ZclItemList',
   methods: {
-    getSingleEntity (id) {
+    getSingleEntity(id) {
       this.$serverGet(`/${this.type}/${id}`)
     },
-    handleClusterSelection (item) {
+    handleClusterSelection(item) {
       this.$serverPost(`/${this.type}/${item}`)
-    }
+    },
   },
-  mounted () {
+  mounted() {
     this.$serverOn('zcl-item-list', (event, arg) => {
       console.log('zcl-item-list:')
       this.items = arg.data
@@ -50,13 +50,13 @@ export default {
     })
     this.$serverGet('/cluster/all')
   },
-  data () {
+  data() {
     return {
       items: [],
       title: 'unknown',
       type: 'unknown',
-      selection: []
+      selection: [],
     }
-  }
+  },
 }
 </script>

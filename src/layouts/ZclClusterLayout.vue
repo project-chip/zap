@@ -1,24 +1,24 @@
 <template>
   <div class="q-pa-md bg-grey-10 text-white">
-      <q-splitter
-        v-model="splitterModel"
-        separator-class="bg-orange"
-        separator-style="width: 3px"
-        style="height: 600px"
-      >
-        <template v-slot:before>
-          <div class="q-pa-md">
-            <ZclEndpointTypeConfig class="bg-grey-10 text-white" />
-            <ZclEndpointConfig class="bg-grey-10 text-white" />
-            <ZclClusterList class="bg-grey-10 text-white" />
-          </div>
-        </template>
-        <template v-slot:after>
-          <div class="q-pa-md">
-            <ZclClusterDetails class="bg-grey-10 text-white" />
-          </div>
-        </template>
-      </q-splitter>
+    <q-splitter
+      v-model="splitterModel"
+      separator-class="bg-orange"
+      separator-style="width: 3px"
+      style="height: 600px;"
+    >
+      <template v-slot:before>
+        <div class="q-pa-md">
+          <ZclEndpointTypeConfig class="bg-grey-10 text-white" />
+          <ZclEndpointConfig class="bg-grey-10 text-white" />
+          <ZclClusterList class="bg-grey-10 text-white" />
+        </div>
+      </template>
+      <template v-slot:after>
+        <div class="q-pa-md">
+          <ZclClusterDetails class="bg-grey-10 text-white" />
+        </div>
+      </template>
+    </q-splitter>
   </div>
 </template>
 <script>
@@ -32,9 +32,9 @@ export default {
     ZclEndpointConfig,
     ZclClusterList,
     ZclEndpointTypeConfig,
-    ZclClusterDetails
+    ZclClusterDetails,
   },
-  mounted () {
+  mounted() {
     this.$serverOn('zcl-item-list', (event, arg) => {
       if (arg.type === 'cluster') {
         this.$store.dispatch('zap/updateClusters', arg.data)
@@ -42,10 +42,10 @@ export default {
     })
     this.$serverGet('/cluster/all')
   },
-  data () {
+  data() {
     return {
-      splitterModel: 50
+      splitterModel: 50,
     }
-  }
+  },
 }
 </script>

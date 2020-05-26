@@ -13,7 +13,6 @@ pipeline
                 script 
                 {
                     checkout scm
-                    sh 'git submodule update --init --recursive'
                 }
             }
         }
@@ -35,6 +34,16 @@ pipeline
                 script 
                 {
                     sh 'npm run lic'
+                }
+            }
+        }
+        stage('Outdated packages report')
+        {
+            steps
+            {
+                script 
+                {
+                    sh 'npm outdated || true'
                 }
             }
         }

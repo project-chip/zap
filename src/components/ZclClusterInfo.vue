@@ -8,18 +8,16 @@
 <script>
 export default {
   name: 'ZclClusterInfo',
-  mounted () {
-  },
+  mounted() {},
   computed: {
     item: {
-      get () {
+      get() {
         return this.$store.state.zap.clustersView.selected[0]
-      }
-    }
+      },
+    },
   },
-  data () {
-    return {
-    }
-  }
+  data() {
+    return {}
+  },
 }
 </script>

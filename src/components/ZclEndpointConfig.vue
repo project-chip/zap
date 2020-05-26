@@ -1,9 +1,22 @@
 <template>
   <div class="bg-grey-10 text-white">
     <div>
-      <q-btn color="primary" label="New Endpoint" @click="newEptDialog = true" />
-      <q-btn color="primary" label="Delete Endpoint" @click="deleteEpt(activeIndex)" />
-      <q-btn color="primary" label="Copy Endpoint" @click="copyEpt()" v-show="activeIndex.length>0" />
+      <q-btn
+        color="primary"
+        label="New Endpoint"
+        @click="newEptDialog = true"
+      />
+      <q-btn
+        color="primary"
+        label="Delete Endpoint"
+        @click="deleteEpt(activeIndex)"
+      />
+      <q-btn
+        color="primary"
+        label="Copy Endpoint"
+        @click="copyEpt()"
+        v-show="activeIndex.length > 0"
+      />
 
       <q-dialog v-model="newEptDialog">
         <q-card>
@@ -16,25 +29,40 @@
           <q-card-section>
             <div>
               <q-form @submit="newEpt()" @reset="onReset" class="q-gutter-md">
-                <q-input filled v-model="newEndpoint.newEptId" label="Endpoint Id*"/>
+                <q-input
+                  filled
+                  v-model="newEndpoint.newEptId"
+                  label="Endpoint Id*"
+                />
                 <q-select
                   filled
                   v-model="newEndpoint.newEndpointType"
                   :options="Object.keys(endpointTypeName)"
-                  :option-label="(item) => item === null ? '' : endpointTypeName[item]"
+                  :option-label="
+                    (item) => (item === null ? '' : endpointTypeName[item])
+                  "
                   label="Endpoint Type"
                 />
-                <q-input filled v-model="newEndpoint.newNetworkId" label="Network Id"/>
+                <q-input
+                  filled
+                  v-model="newEndpoint.newNetworkId"
+                  label="Network Id"
+                />
               </q-form>
             </div>
           </q-card-section>
           <q-card-actions align="right">
-          <q-btn flat label="Create Endpoint" color="primary" v-close-popup @click="newEpt(newEndpoint)"/>
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
-        </q-card-actions>
+            <q-btn
+              flat
+              label="Create Endpoint"
+              color="primary"
+              v-close-popup
+              @click="newEpt(newEndpoint)"
+            />
+            <q-btn flat label="Cancel" color="primary" v-close-popup />
+          </q-card-actions>
         </q-card>
       </q-dialog>
-
     </div>
     <q-table
       title="Endpoint Manager"
@@ -51,58 +79,113 @@
       <template v-slot:body="props">
         <q-tr :props="props" clickable @click="setActiveIndex(props.row)" dark>
           <q-td key="eptId" :props="props" auto-width>
-            {{getFormattedEndpointId(props.row.id)}}
+            <q-badge
+              :color="
+                !isValueValid(endpointIdValidation, props.row.id)
+                  ? 'red'
+                  : 'primary'
+              "
+            >
+              {{ getFormattedEndpointId(props.row.id) }}
+            </q-badge>
             <q-popup-edit dark dense>
-            <q-input
-              debounce="300"
-              type="text"
-              v-model="endpointId[props.row.id]"
-              dark
-              dense
-              prefix="0x"
-              mask="XXXX"
-              fill-mask="0"
-              reverse-fill-mask
-              @input="handleEndpointChange(props.row.id, 'endpointId', endpointId[props.row.id])"
-              :rules="[ val => val.length <= 4 || 'EndpointId is a 2 byte value' ]"
-            />
+              <q-input
+                debounce="300"
+                type="text"
+                v-model="endpointId[props.row.id]"
+                dark
+                dense
+                prefix="0x"
+                mask="XXXX"
+                fill-mask="0"
+                reverse-fill-mask
+                @input="
+                  handleEndpointChange(
+                    props.row.id,
+                    'endpointId',
+                    endpointId[props.row.id]
+                  )
+                "
+                :error="!isValueValid(endpointIdValidation, props.row.id)"
+                :error-message="
+                  getValueErrorMessage(endpointIdValidation, props.row.id)
+                "
+              />
             </q-popup-edit>
           </q-td>
           <q-td key="profileId" :props="props" auto-width>
-            {{ (deviceTypes[endpointDeviceTypeRef[endpointType[props.row.id]]] ? deviceTypes[endpointDeviceTypeRef[endpointType[props.row.id]]].profileId.toString(16) : "").padStart(4, "0") }}
+            {{
+              (deviceTypes[endpointDeviceTypeRef[endpointType[props.row.id]]]
+                ? deviceTypes[
+                    endpointDeviceTypeRef[endpointType[props.row.id]]
+                  ].profileId.toString(16)
+                : ''
+              ).padStart(4, '0')
+            }}
           </q-td>
           <q-td key="deviceId" :props="props" auto-width>
-            {{ (deviceTypes[endpointDeviceTypeRef[endpointType[props.row.id]]] ? deviceTypes[endpointDeviceTypeRef[endpointType[props.row.id]]].code.toString(16) : "").padStart(4, "0") }}
+            {{
+              (deviceTypes[endpointDeviceTypeRef[endpointType[props.row.id]]]
+                ? deviceTypes[
+                    endpointDeviceTypeRef[endpointType[props.row.id]]
+                  ].code.toString(16)
+                : ''
+              ).padStart(4, '0')
+            }}
           </q-td>
           <q-td key="version" :props="props" auto-width>
             1
           </q-td>
           <q-td key="endpointType" :props="props" auto-width>
-            {{ endpointTypeName[endpointType[props.row.id]] }}
+            <q-badge :color="'primary'">
+              {{ endpointTypeName[endpointType[props.row.id]] }}
+            </q-badge>
             <q-popup-edit dark dense>
-                <q-select
-                  filled
-                  v-model="endpointType[props.row.id]"
-                  :options="Object.keys(endpointTypeName)"
-                  :option-label="(item) => item === null ? '' : endpointTypeName[item]"
-                  label="Endpoint Type"
-                  dense
-                  dark
-                  @input="handleEndpointChange(props.row.id, 'endpointType', $event)"
-                />
+              <q-select
+                filled
+                v-model="endpointType[props.row.id]"
+                :options="Object.keys(endpointTypeName)"
+                :option-label="
+                  (item) => (item === null ? '' : endpointTypeName[item])
+                "
+                label="Endpoint Type"
+                dense
+                dark
+                @input="
+                  handleEndpointChange(props.row.id, 'endpointType', $event)
+                "
+              />
             </q-popup-edit>
           </q-td>
           <q-td key="nwkId" :props="props" auto-width>
-            {{ networkId[props.row.id] }}
+            <q-badge
+              :color="
+                !isValueValid(networkIdValidation, props.row.id)
+                  ? 'red'
+                  : 'primary'
+              "
+            >
+              {{ networkId[props.row.id] }}
+            </q-badge>
             <q-popup-edit dark dense>
-            <q-input
-              debounce="300"
-              type="text"
-              v-model="networkId[props.row.id]"
-              dark
-              dense
-              @input="handleEndpointChange(props.row.id, 'networkId', networkId[props.row.id])"
-            />
+              <q-input
+                debounce="300"
+                type="text"
+                v-model="networkId[props.row.id]"
+                dark
+                dense
+                :error="!isValueValid(networkIdValidation, props.row.id)"
+                :error-message="
+                  getValueErrorMessage(networkIdValidation, props.row.id)
+                "
+                @input="
+                  handleEndpointChange(
+                    props.row.id,
+                    'networkId',
+                    networkId[props.row.id]
+                  )
+                "
+              />
             </q-popup-edit>
           </q-td>
         </q-tr>
@@ -114,28 +197,34 @@
 <script>
 export default {
   name: 'ZclEndpointConfig',
-  mounted () {
+  mounted() {
     this.$serverOn('zcl-endpoint-response', (event, arg) => {
       switch (arg.action) {
         case 'c':
+          console.log(arg.validationIssues)
           this.$store.dispatch('zap/addEndpoint', {
             id: arg.id,
             eptId: arg.eptId,
             endpointType: arg.endpointType,
-            network: arg.nwkId
+            network: arg.nwkId,
+            endpointIdValidationIssues: arg.validationIssues.endpointId,
+            networkIdValidationIssues: arg.validationIssues.networkId,
           })
           break
         case 'd':
           this.activeIndex = []
           this.$store.dispatch('zap/deleteEndpoint', {
-            id: arg.id
+            id: arg.id,
           })
           break
         case 'u':
+          console.log(arg.validationIssues)
           this.$store.dispatch('zap/updateEndpoint', {
             id: arg.endpointId,
             updatedKey: arg.updatedKey,
-            updatedValue: arg.updatedValue
+            updatedValue: arg.updatedValue,
+            endpointIdValidationIssues: arg.validationIssues.endpointId,
+            networkIdValidationIssues: arg.validationIssues.networkId,
           })
           break
         default:
@@ -145,65 +234,76 @@ export default {
   },
   computed: {
     endpoints: {
-      get () {
-        return Object.keys(this.$store.state.zap.endpointView.endpointId).map(endpointId => {
-          return {
-            id: endpointId
+      get() {
+        return Object.keys(this.$store.state.zap.endpointView.endpointId).map(
+          (endpointId) => {
+            return {
+              id: endpointId,
+            }
           }
-        })
-      }
+        )
+      },
     },
     endpointId: {
-      get () {
+      get() {
         return this.$store.state.zap.endpointView.endpointId
-      }
+      },
     },
     endpointType: {
-      get () {
+      get() {
         return this.$store.state.zap.endpointView.endpointType
-      }
+      },
     },
     networkId: {
-      get () {
+      get() {
         return this.$store.state.zap.endpointView.networkId
-      }
+      },
     },
     endpointTypeName: {
-      get () {
+      get() {
         return this.$store.state.zap.endpointTypeView.name
-      }
+      },
     },
     deviceTypes: {
-      get () {
+      get() {
         return this.$store.state.zap.zclDeviceTypes
-      }
+      },
     },
     endpointDeviceTypeRef: {
-      get () {
+      get() {
         return this.$store.state.zap.endpointTypeView.deviceTypeRef
-      }
+      },
     },
     zclDeviceTypeOptions: {
-      get () {
-        return Object.keys(this.$store.state.zap.zclDeviceTypes).map(key => {
+      get() {
+        return Object.keys(this.$store.state.zap.zclDeviceTypes).map((key) => {
           return key
         })
-      }
-    }
-
+      },
+    },
+    endpointIdValidation: {
+      get() {
+        return this.$store.state.zap.endpointView.endpointIdValidationIssues
+      },
+    },
+    networkIdValidation: {
+      get() {
+        return this.$store.state.zap.endpointView.networkIdValidationIssues
+      },
+    },
   },
 
-  data () {
+  data() {
     return {
       pagination: {
-        rowsPerPage: 0
+        rowsPerPage: 0,
       },
       activeIndex: [],
       newEptDialog: [],
       newEndpoint: {
         newEndpointId: '',
         newEndpointType: '',
-        newNetworkId: ''
+        newNetworkId: '',
       },
       columns: [
         {
@@ -211,84 +311,88 @@ export default {
           label: 'Endpoint ID',
           field: 'eptId',
           align: 'left',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'profileId',
           label: 'Profile Id',
           field: 'profileId',
           align: 'left',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'deviceId',
           align: 'left',
           label: 'Device Id',
           field: 'deviceId',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'version',
           align: 'left',
           label: 'Version',
           field: 'version',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'endpointType',
           align: 'left',
           label: 'Endpoint Type',
           field: 'endpointType',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'nwkId',
           align: 'left',
           label: 'Network Id',
           field: 'nwkId',
-          sortable: true
-        }
-      ]
+          sortable: true,
+        },
+      ],
     }
   },
   methods: {
-    newEpt (newEndpoint) {
+    newEpt(newEndpoint) {
       let eptId = this.newEndpoint.newEptId
       let nwkId = this.newEndpoint.newNetworkId
       let endpointType = this.newEndpoint.newEndpointType
 
-      this.$serverPost(`/endpoint`,
-        {
-          action: 'c',
-          context: {
-            eptId: eptId,
-            nwkId: nwkId,
-            endpointType: endpointType
-          }
-        }
-      )
+      this.$serverPost(`/endpoint`, {
+        action: 'c',
+        context: {
+          eptId: eptId,
+          nwkId: nwkId,
+          endpointType: endpointType,
+        },
+      })
     },
-    deleteEpt () {
+    deleteEpt() {
       if (this.activeIndex.length > 0) {
         this.$serverPost('/endpoint', {
           action: 'd',
           context: {
-            id: this.activeIndex[0].id
-          }
+            id: this.activeIndex[0].id,
+          },
         })
       }
     },
-    copyEpt () {
+    copyEpt() {
       this.$serverPost(`/endpoint`, {
         action: 'c',
         context: {
-          nwkId: this.networkId[this.$store.state.zap.endpointView.selectedEndpoint],
-          eptId: this.endpointId[this.$store.state.zap.endpointView.selectedEndpoint],
-          endpointType: this.endpointType[this.$store.state.zap.endpointView.selectedEndpoint]
-        }
+          nwkId: this.networkId[
+            this.$store.state.zap.endpointView.selectedEndpoint
+          ],
+          eptId: this.endpointId[
+            this.$store.state.zap.endpointView.selectedEndpoint
+          ],
+          endpointType: this.endpointType[
+            this.$store.state.zap.endpointView.selectedEndpoint
+          ],
+        },
       })
     },
-    setActiveIndex (index) {
+    setActiveIndex(index) {
       if (this.activeIndex.length === 1 && this.activeIndex[0] === index) {
         this.activeIndex = []
         this.$store.dispatch('zap/updateSelectedEndpoint', null)
@@ -297,23 +401,37 @@ export default {
         this.$store.dispatch('zap/updateSelectedEndpoint', index.id)
         this.$store.dispatch('zap/updateSelectedEndpointType', {
           endpointType: this.endpointType[index.id],
-          deviceTypeRef: this.endpointDeviceTypeRef[index.id]
+          deviceTypeRef: this.endpointDeviceTypeRef[
+            this.endpointType[index.id]
+          ],
         })
       }
     },
-    getFormattedEndpointId (endpointRef) {
+    getFormattedEndpointId(endpointRef) {
       return '0x' + this.endpointId[endpointRef].toString(16).padStart(4, '0')
     },
-    handleEndpointChange (id, changeId, value) {
+    handleEndpointChange(id, changeId, value) {
       this.$serverPost('/endpoint', {
         action: 'e',
         context: {
           id: id,
           updatedKey: changeId,
-          value: value
-        }
+          value: value,
+        },
       })
-    }
-  }
+    },
+    isValueValid(validationArray, id) {
+      return validationArray[id] != null
+        ? validationArray[id].length === 0
+        : true
+    },
+    getValueErrorMessage(validationArray, id) {
+      return validationArray[id] != null
+        ? validationArray[id].reduce((validationIssueString, currentVal) => {
+            return validationIssueString + '\n' + currentVal
+          }, '')
+        : ''
+    },
+  },
 }
 </script>
