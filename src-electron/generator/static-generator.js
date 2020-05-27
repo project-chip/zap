@@ -33,7 +33,7 @@ import {
   selectAllGlobalCommands,
   selectAllClusterCommands,
 } from '../db/query-zcl.js'
-import { logError } from '../util/env.js'
+import { logError, logInfo } from '../util/env.js'
 
 /**
  * Find the handlebar template file, compile and return the template file.
@@ -48,8 +48,10 @@ import { logError } from '../util/env.js'
 Handlebars.getTemplate = function (templateDirectory = '', name = '') {
   var source = ''
   if (templateDirectory) {
+    logInfo('Using ' + templateDirectory + '/' + name + ' as a template')
     source = readFileSync(templateDirectory + '/' + name, 'utf8')
   } else {
+    logInfo('Using the test template Directory for ' + name)
     templateDirectory = __dirname + '/../../test/gen-template'
     source = readFileSync(templateDirectory + '/' + name, 'utf8')
   }
@@ -82,6 +84,10 @@ export function mapDatabase(db) {
  * directory.
  */
 export function resolveTemplateDirectory(map, handlebarTemplateDirectory = '') {
+  logInfo(
+    'Resolving the handlebar template directory to ' +
+      handlebarTemplateDirectory
+  )
   return new Promise((resolve, reject) => {
     map.handlebarTemplateDirectory = handlebarTemplateDirectory
     resolve(map)

@@ -10,7 +10,7 @@
  */
 
 import axios from 'axios'
-import fs from 'fs'
+import fs from 'fs-extra'
 import { version } from '../package.json'
 import {
   closeDatabase,
@@ -24,6 +24,7 @@ import {
   schemaFile,
   setDevelopmentEnv,
   sqliteTestFile,
+  setMainDatabase,
 } from '../src-electron/util/env'
 import {
   initHttpServer,
@@ -31,16 +32,21 @@ import {
 } from '../src-electron/server/http-server'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
 import { selectCountFrom } from '../src-electron/db/query-generic'
+import {
+  setHandlebarTemplateDirForCli,
+  generateCodeViaCli,
+} from '../src-electron/main-process/menu'
 
 var db
 const port = 9074
 const baseUrl = `http://localhost:${port}`
 var packageId
 var sessionId
+var file = sqliteTestFile(3)
 
 beforeAll(() => {
   setDevelopmentEnv()
-  var file = sqliteTestFile(3)
+  file = sqliteTestFile(3)
   return initDatabase(file)
     .then((d) => loadSchema(d, schemaFile(), version))
     .then((d) => {
@@ -74,6 +80,45 @@ describe('Session specific tests', () => {
   test('http server initialization', () => {
     return initHttpServer(db, port)
   })
+
+  test('Test command line generation using api used for command line generation', () => {
+    initDatabase(file)
+      .then((db) => attachToDb(db))
+      .then((db) => loadSchema(db, schemaFile(), version))
+      .then((db) => loadZcl(db, zclPropertiesFile))
+      .then(() => {
+        setHandlebarTemplateDirForCli('./test/gen-template/')
+        generateCodeViaCli('./generation-test/')
+      })
+      .then(() => {
+        return new Promise((resolve, reject) => {
+          fs.readdir('./generation-test/', (err, files) => {
+            resolve(files)
+          })
+        })
+      })
+      .then((files) => {
+        let i = 0
+        let count = 0
+        for (i = 0; i < files.length; i++) {
+          if (files[i].endsWith('.h')) {
+            count++
+          }
+        }
+        // counting the number of files generated
+        expect(count).toBe(8)
+      })
+      .then(() => fs.remove('./generation-test'))
+      .then(() => {
+        logInfo('Removed the generation directory created for test purposes')
+      })
+  })
+  function attachToDb(db) {
+    return new Promise((resolve, reject) => {
+      setMainDatabase(db)
+      resolve(db)
+    })
+  }
 
   test('test that there is generation data in the enums.h file', () => {
     return axios.get(`${baseUrl}/preview/enums`).then((response) => {

@@ -38,6 +38,7 @@ import {
   sqliteFile,
 } from '../util/env.js'
 import { initializeElectronUi, windowCreateIfNotThere } from './window.js'
+import { generateCodeViaCli, setHandlebarTemplateDirForCli } from './menu.js'
 
 logInitLogFile()
 
@@ -93,6 +94,50 @@ function startNormal(ui, showUrl) {
       throw err
     })
 }
+/**
+ *
+ *
+ * @param {*} generationDir
+ * @param {*} handlebarTemplateDir
+ */
+function applyGenerationSettings(
+  generationDir,
+  handlebarTemplateDir,
+  zclPropertiesFilePath
+) {
+  logInfo('Start Generation...')
+  initDatabase(sqliteFile())
+    .then((db) => attachToDb(db))
+    .then((db) => loadSchema(db, schemaFile(), version))
+    .then((db) =>
+      loadZcl(
+        db,
+        zclPropertiesFilePath ? zclPropertiesFilePath : zclPropertiesFile
+      )
+    )
+    .then(() =>
+      setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir)
+    )
+    .then(() => {
+      logInfo('Generation done!')
+    })
+    .then(() => app.quit())
+}
+/**
+ *
+ *
+ * @param {*} generationDir
+ * @param {*} handlebarTemplateDir
+ * @returns
+ */
+function setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) {
+  return new Promise((resolve, reject) => {
+    if (handlebarTemplateDir) {
+      setHandlebarTemplateDirForCli(handlebarTemplateDir)
+    }
+    generateCodeViaCli(generationDir)
+  })
+}
 
 app.on('ready', () => {
   var argv = processCommandLineArguments(process.argv)
@@ -101,6 +146,12 @@ app.on('ready', () => {
 
   if (argv._.includes('selfCheck')) {
     startSelfCheck()
+  } else if (argv._.includes('generate')) {
+    // generate can have:
+    // - Generation Directory (-output)
+    // - Handlebar Template Directory (-template)
+    // - Xml Data directory (-xml)
+    applyGenerationSettings(argv.output, argv.template, argv.zclProperties)
   } else {
     startNormal(!argv.noUi, argv.showUrl)
   }

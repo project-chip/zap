@@ -260,6 +260,27 @@ function generateInDir(browserWindow) {
 }
 
 /**
+ *
+ *
+ * @export
+ * @param {*} generationDir
+ */
+export function generateCodeViaCli(generationDir) {
+  generationDirectory = generationDir
+  generateCode(mainDatabase())
+}
+
+/**
+ *
+ *
+ * @export
+ * @param {*} handlebarTemplateDir
+ */
+export function setHandlebarTemplateDirForCli(handlebarTemplateDir) {
+  handlebarTemplateDirectory = handlebarTemplateDir
+}
+
+/**
  * This function gets the directory where user wants the output and calls
  * generateCode function which generates the code in the user selected output.
  *
@@ -521,7 +542,9 @@ function generateCode(db) {
     },
   ]
   mapDatabase(db)
-    .then((templateDir) => resolveTemplateDirectory(templateDir, ''))
+    .then((templateDir) =>
+      resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
+    )
     .then((templates) =>
       compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE])
     )
@@ -551,7 +574,9 @@ function generateCode(db) {
   ]
 
   mapDatabase(db)
-    .then((templateDir) => resolveTemplateDirectory(templateDir, ''))
+    .then((templateDir) =>
+      resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
+    )
     .then((templates) =>
       compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_DEBUG_PRINTING])
     )
@@ -593,7 +618,9 @@ function generateCode(db) {
   ]
 
   mapDatabase(db)
-    .then((templateDir) => resolveTemplateDirectory(templateDir, ''))
+    .then((templateDir) =>
+      resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
+    )
     .then((templates) =>
       compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_CALLBACK_ZCL])
     )
@@ -670,7 +697,9 @@ function generateCode(db) {
   ]
 
   mapDatabase(db)
-    .then((templateDir) => resolveTemplateDirectory(templateDir, ''))
+    .then((templateDir) =>
+      resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
+    )
     .then((templates) =>
       compileTemplate(templates, [
         HANDLEBAR_TEMPLATE_FILE_CLIENT_COMMAND_MACRO_GLOBAL,
