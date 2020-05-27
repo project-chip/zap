@@ -1,4 +1,19 @@
-// Copyright (c) 2020 Silicon Labs. All rights reserved.
+/**
+ *
+ *    Copyright (c) 2020 Silicon Labs
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 
 /**
  * This module provides the HTTP server functionality.
@@ -11,7 +26,7 @@ import express from 'express'
 import session from 'express-session'
 import path from 'path'
 import { ensureZapSessionId } from '../db/query-session.js'
-import { logError, logInfo } from '../util/env.js'
+import * as Env from '../util/env.js'
 import { registerAdminApi } from '../rest/admin.js'
 import { registerGenerationApi } from '../rest/generation.js'
 import { registerStaticZclApi } from '../rest/static-zcl.js'
@@ -63,7 +78,7 @@ export function initHttpServer(db, port) {
             next()
           })
           .catch((err) => {
-            logError('Could not create session: ' + err.message)
+            Env.logError('Could not create session: ' + err.message)
           })
       }
     })
@@ -79,7 +94,7 @@ export function initHttpServer(db, port) {
     app.use(express.static(staticDir))
 
     httpServer = app.listen(port, () => {
-      logInfo(`HTTP server created on port: ${port}`)
+      Env.logInfo(`HTTP server created on port: ${port}`)
       resolve(app)
     })
   })
@@ -94,7 +109,7 @@ export function shutdownHttpServer() {
   return new Promise((resolve, reject) => {
     if (httpServer != null) {
       httpServer.close(() => {
-        logInfo('HTTP server shut down.')
+        Env.logInfo('HTTP server shut down.')
         httpServer = null
         resolve(null)
       })

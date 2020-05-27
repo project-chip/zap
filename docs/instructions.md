@@ -2,14 +2,6 @@
 
 This section lists instructions for various things you might need to do in this repo.
 
-**Update submodules: **
-
-After cloning, you have to update all the submodules, since this repo does have submodules.
-
-```bash
-git submodule update --init --recursive
-```
-
 **Install the dependencies:**
 
 ```bash

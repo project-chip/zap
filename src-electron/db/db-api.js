@@ -1,4 +1,19 @@
-// Copyright (c) 2020 Silicon Labs. All rights reserved.
+/**
+ *
+ *    Copyright (c) 2020 Silicon Labs
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 
 /**
  * This module provides generic DB functions for performing SQL queries.
@@ -7,9 +22,8 @@
  */
 
 import * as Env from '../util/env.js'
-
-var sq = require('sqlite3')
-var fs = require('fs')
+import * as Sq from 'sqlite3'
+import * as Fs from 'fs'
 
 /**
  * Returns a promise to begin a transaction
@@ -261,7 +275,7 @@ export function closeDatabase(database) {
  */
 export function initDatabase(sqlitePath) {
   return new Promise((resolve, reject) => {
-    var db = new sq.Database(sqlitePath, (err) => {
+    var db = new Sq.Database(sqlitePath, (err) => {
       if (err) {
         return reject(err)
       } else {
@@ -297,7 +311,7 @@ function insertOrReplaceSetting(db, category, key, value) {
  */
 export function loadSchema(db, schemaPath, appVersion) {
   return new Promise((resolve, reject) => {
-    fs.readFile(schemaPath, 'utf8', (err, data) => {
+    Fs.readFile(schemaPath, 'utf8', (err, data) => {
       if (err) return reject(err)
       db.serialize(() => {
         Env.logSql('Populate schema.')
