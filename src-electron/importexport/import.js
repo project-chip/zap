@@ -4,11 +4,11 @@
  * This file provides the functionality that reads the ZAP data from a JSON file
  * and imports it into a database.
  */
-import fs from 'fs'
-import { updateKeyValue, insertEndpointTypes } from '../db/query-config'
-import { createBlankSession } from '../db/query-session'
-import { logInfo } from '../util/env'
-import { importSessionKeyValues } from './mapping'
+import * as Fs from 'fs'
+import * as QueryConfig from '../db/query-config'
+import * as QuerySession from '../db/query-session'
+import * as Env from '../util/env'
+import * as Mapping from './mapping'
 
 /**
  * Reads the data from the file and resolves with the state object if all is good.
@@ -19,7 +19,7 @@ import { importSessionKeyValues } from './mapping'
  */
 export function readDataFromFile(filePath) {
   return new Promise((resolve, reject) => {
-    fs.readFile(filePath, (err, data) => {
+    Fs.readFile(filePath, (err, data) => {
       if (err) reject(err)
       let state = JSON.parse(data)
       resolve(state)
@@ -37,22 +37,26 @@ export function readDataFromFile(filePath) {
  * @returns a promise that resolves with the sucessful writing
  */
 export function writeStateToDatabase(db, state) {
-  return createBlankSession(db)
+  return QuerySession.createBlankSession(db)
     .then((sessionId) => {
-      logInfo('Reading state from file into the database...')
+      Env.logInfo('Reading state from file into the database...')
       if ('keyValuePairs' in state) {
-        return importSessionKeyValues(db, sessionId, state.keyValuePairs).then(
-          () => sessionId
-        )
+        return Mapping.importSessionKeyValues(
+          db,
+          sessionId,
+          state.keyValuePairs
+        ).then(() => sessionId)
       } else {
         return sessionId
       }
     })
     .then((sessionId) => {
       if ('endpointTypes' in state) {
-        return insertEndpointTypes(db, sessionId, state.endpointTypes).then(
-          () => sessionId
-        )
+        return QueryConfig.insertEndpointTypes(
+          db,
+          sessionId,
+          state.endpointTypes
+        ).then(() => sessionId)
       } else {
         return sessionId
       }
