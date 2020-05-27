@@ -7,9 +7,8 @@
  */
 
 import * as Env from '../util/env.js'
-
-var sq = require('sqlite3')
-var fs = require('fs')
+import * as Sq from 'sqlite3'
+import * as Fs from 'fs'
 
 /**
  * Returns a promise to begin a transaction
@@ -261,7 +260,7 @@ export function closeDatabase(database) {
  */
 export function initDatabase(sqlitePath) {
   return new Promise((resolve, reject) => {
-    var db = new sq.Database(sqlitePath, (err) => {
+    var db = new Sq.Database(sqlitePath, (err) => {
       if (err) {
         return reject(err)
       } else {
@@ -297,7 +296,7 @@ function insertOrReplaceSetting(db, category, key, value) {
  */
 export function loadSchema(db, schemaPath, appVersion) {
   return new Promise((resolve, reject) => {
-    fs.readFile(schemaPath, 'utf8', (err, data) => {
+    Fs.readFile(schemaPath, 'utf8', (err, data) => {
       if (err) return reject(err)
       db.serialize(() => {
         Env.logSql('Populate schema.')
