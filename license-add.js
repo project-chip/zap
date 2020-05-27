@@ -56,8 +56,8 @@ async function processSingleFile(path) {
           console.log(`    - add: ${path}: `)
         }
         // Now we write license and then data
-        var output = ''
-        output.concat(license, data)
+        var output = license
+        output = output.concat(data)
         fs.writeFile(path, output, (err) => {
           if (err) throw err
         })
