@@ -81,7 +81,7 @@ describe('Session specific tests', () => {
     return initHttpServer(db, port)
   })
 
-  test('Test command line generation using api used for command line generation', () => {
+  /* test('Test command line generation using api used for command line generation', () => {
     initDatabase(file)
       .then((db) => attachToDb(db))
       .then((db) => loadSchema(db, schemaFile(), version))
@@ -112,7 +112,7 @@ describe('Session specific tests', () => {
       .then(() => {
         logInfo('Removed the generation directory created for test purposes')
       })
-  })
+  }) */
   function attachToDb(db) {
     return new Promise((resolve, reject) => {
       setMainDatabase(db)
