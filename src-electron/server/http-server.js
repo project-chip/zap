@@ -11,7 +11,7 @@ import express from 'express'
 import session from 'express-session'
 import path from 'path'
 import { ensureZapSessionId } from '../db/query-session.js'
-import { logError, logInfo } from '../util/env.js'
+import * as Env from '../util/env.js'
 import { registerAdminApi } from '../rest/admin.js'
 import { registerGenerationApi } from '../rest/generation.js'
 import { registerStaticZclApi } from '../rest/static-zcl.js'
@@ -63,7 +63,7 @@ export function initHttpServer(db, port) {
             next()
           })
           .catch((err) => {
-            logError('Could not create session: ' + err.message)
+            Env.logError('Could not create session: ' + err.message)
           })
       }
     })
@@ -79,7 +79,7 @@ export function initHttpServer(db, port) {
     app.use(express.static(staticDir))
 
     httpServer = app.listen(port, () => {
-      logInfo(`HTTP server created on port: ${port}`)
+      Env.logInfo(`HTTP server created on port: ${port}`)
       resolve(app)
     })
   })
@@ -94,7 +94,7 @@ export function shutdownHttpServer() {
   return new Promise((resolve, reject) => {
     if (httpServer != null) {
       httpServer.close(() => {
-        logInfo('HTTP server shut down.')
+        Env.logInfo('HTTP server shut down.')
         httpServer = null
         resolve(null)
       })
