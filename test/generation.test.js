@@ -81,38 +81,33 @@ describe('Session specific tests', () => {
     return initHttpServer(db, port)
   })
 
-  /* test('Test command line generation using api used for command line generation', () => {
-    initDatabase(file)
+  test('Test command line generation using api used for command line generation', () => {
+    return initDatabase(file)
       .then((db) => attachToDb(db))
       .then((db) => loadSchema(db, schemaFile(), version))
       .then((db) => loadZcl(db, zclPropertiesFile))
-      .then(() => {
-        setHandlebarTemplateDirForCli('./test/gen-template/')
-        generateCodeViaCli('./generation-test/')
-      })
-      .then(() => {
+      .then((db) => setHandlebarTemplateDirForCli('./test/gen-template/'))
+      .then((handlebarTemplateDir) => generateCodeViaCli('./generation-test/'))
+      .then((res) => {
         return new Promise((resolve, reject) => {
-          fs.readdir('./generation-test/', (err, files) => {
-            resolve(files)
-          })
+          let i = 0
+          for (i = 0; i < res.length; i++) {
+            expect(res[i]).toBeDefined()
+          }
+          let size = Object.keys(res).length
+          resolve(size)
         })
       })
-      .then((files) => {
-        let i = 0
-        let count = 0
-        for (i = 0; i < files.length; i++) {
-          if (files[i].endsWith('.h')) {
-            count++
-          }
-        }
-        // counting the number of files generated
-        expect(count).toBe(8)
+      .then((size) => {
+        return new Promise((resolve, reject) => {
+          expect(size).toBe(8)
+          resolve(size)
+        })
       })
       .then(() => fs.remove('./generation-test'))
-      .then(() => {
-        logInfo('Removed the generation directory created for test purposes')
-      })
-  }) */
+      .catch((error) => console.log(error))
+  })
+
   function attachToDb(db) {
     return new Promise((resolve, reject) => {
       setMainDatabase(db)

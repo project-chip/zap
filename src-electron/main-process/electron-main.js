@@ -102,7 +102,7 @@ function applyGenerationSettings(
   zclPropertiesFilePath
 ) {
   logInfo('Start Generation...')
-  initDatabase(sqliteFile())
+  return initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
     .then((db) => loadSchema(db, schemaFile(), version))
     .then((db) =>
@@ -111,13 +111,10 @@ function applyGenerationSettings(
         zclPropertiesFilePath ? zclPropertiesFilePath : Args.zclPropertiesFile
       )
     )
-    .then(() =>
+    .then((db) =>
       setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir)
     )
-    .then(() => {
-      logInfo('Generation done!')
-    })
-    .then(() => app.quit())
+    .then((res) => app.quit())
 }
 /**
  *
@@ -127,12 +124,13 @@ function applyGenerationSettings(
  * @returns Returns a promise of a generation
  */
 function setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) {
-  return new Promise((resolve, reject) => {
-    if (handlebarTemplateDir) {
-      setHandlebarTemplateDirForCli(handlebarTemplateDir)
-    }
-    generateCodeViaCli(generationDir)
-  })
+  if (handlebarTemplateDir) {
+    return setHandlebarTemplateDirForCli(
+      handlebarTemplateDir
+    ).then((handlebarTemplateDir) => generateCodeViaCli(generationDir))
+  } else {
+    return generateCodeViaCli(generationDir)
+  }
 }
 
 app.on('ready', () => {

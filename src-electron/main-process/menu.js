@@ -267,7 +267,7 @@ function generateInDir(browserWindow) {
  */
 export function generateCodeViaCli(generationDir) {
   generationDirectory = generationDir
-  generateCode(mainDatabase())
+  return generateCode(mainDatabase())
 }
 
 /**
@@ -277,7 +277,10 @@ export function generateCodeViaCli(generationDir) {
  * @param {*} handlebarTemplateDir
  */
 export function setHandlebarTemplateDirForCli(handlebarTemplateDir) {
-  handlebarTemplateDirectory = handlebarTemplateDir
+  return new Promise((resolve, reject) => {
+    handlebarTemplateDirectory = handlebarTemplateDir
+    resolve(handlebarTemplateDir)
+  })
 }
 
 /**
@@ -358,6 +361,8 @@ function generateCode(db) {
   const DATABASE_ROW_TYPE_CLIENT_COMMAND_MACRO_CLUSTER_COMMANDS =
     'client-command-macro-cluster-commands'
 
+  let generatedCodeMap = {}
+
   //cluster-id.h generation
   var clusterHandleBarHelpers = {}
   clusterHandleBarHelpers[HANDLEBAR_HELPER_UPPERCASE] = getUppercase
@@ -367,7 +372,7 @@ function generateCode(db) {
       hTemplateFile: HANDLEBAR_TEMPLATE_FILE_CLUSTERS,
     },
   ]
-  mapDatabase(db)
+  const clusterGenerationCode = mapDatabase(db)
     .then((templateDir) =>
       resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
     )
@@ -390,6 +395,12 @@ function generateCode(db) {
         clusterRowToHandlebarTemplateFileMap
       )
     )
+    .then((result) => {
+      return new Promise((resolve, reject) => {
+        generatedCodeMap.clusterId = result
+        resolve(generatedCodeMap)
+      })
+    })
     .catch((err) => logError(err))
 
   //enums.h generation
@@ -406,7 +417,7 @@ function generateCode(db) {
       hTemplateFile: HANDLEBAR_TEMPLATE_FILE_BITMAPS,
     },
   ]
-  mapDatabase(db)
+  const enumGenerationCode = mapDatabase(db)
     .then((templateDir) =>
       resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
     )
@@ -451,6 +462,12 @@ function generateCode(db) {
         enumsRowToHandlebarTemplateFileMap
       )
     )
+    .then((result) => {
+      return new Promise((resolve, reject) => {
+        generatedCodeMap.enums = result
+        resolve(generatedCodeMap)
+      })
+    })
     .catch((err) => logError(err))
 
   //print-cluster.h
@@ -465,7 +482,7 @@ function generateCode(db) {
       hTemplateFile: HANDLEBAR_TEMPLATE_FILE_PRINT_CLUSTERS,
     },
   ]
-  mapDatabase(db)
+  const printClusterGenerationCode = mapDatabase(db)
     .then((templateDir) =>
       resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
     )
@@ -488,6 +505,12 @@ function generateCode(db) {
         printClusterRowToHandleBarTemplateFileMap
       )
     )
+    .then((result) => {
+      return new Promise((resolve, reject) => {
+        generatedCodeMap.printCluster = result
+        resolve(generatedCodeMap)
+      })
+    })
     .catch((err) => logError(err))
 
   //af-structs.h
@@ -501,7 +524,7 @@ function generateCode(db) {
       hTemplateFile: HANDLEBAR_TEMPLATE_FILE_AF_STRUCTS,
     },
   ]
-  mapDatabase(db)
+  const afStructsGenerationCode = mapDatabase(db)
     .then((templateDir) =>
       resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
     )
@@ -532,6 +555,12 @@ function generateCode(db) {
         afStructsRowToHandleBarTemplateFileMap
       )
     )
+    .then((result) => {
+      return new Promise((resolve, reject) => {
+        generatedCodeMap.afStructs = result
+        resolve(generatedCodeMap)
+      })
+    })
     .catch((err) => logError(err))
 
   //att-storage.h generation
@@ -541,7 +570,7 @@ function generateCode(db) {
       hTemplateFile: HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE,
     },
   ]
-  mapDatabase(db)
+  const attStorageGenerationCode = mapDatabase(db)
     .then((templateDir) =>
       resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
     )
@@ -558,6 +587,12 @@ function generateCode(db) {
         attStorageRowToHandleBarTemplateFileMap
       )
     )
+    .then((result) => {
+      return new Promise((resolve, reject) => {
+        generatedCodeMap.attStorage = result
+        resolve(generatedCodeMap)
+      })
+    })
     .catch((err) => logError(err))
 
   //debug-printing-zcl.h generation
@@ -573,7 +608,7 @@ function generateCode(db) {
     },
   ]
 
-  mapDatabase(db)
+  const debugPrintingGenerationCode = mapDatabase(db)
     .then((templateDir) =>
       resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
     )
@@ -596,6 +631,12 @@ function generateCode(db) {
         debugPrintingRowToHandlebarTemplateFileMap
       )
     )
+    .then((result) => {
+      return new Promise((resolve, reject) => {
+        generatedCodeMap.debugPrintingZcl = result
+        resolve(generatedCodeMap)
+      })
+    })
     .catch((err) => logError(err))
 
   //callback-zcl.h generation
@@ -617,7 +658,7 @@ function generateCode(db) {
     },
   ]
 
-  mapDatabase(db)
+  const callbackZclGenerationCode = mapDatabase(db)
     .then((templateDir) =>
       resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
     )
@@ -660,6 +701,12 @@ function generateCode(db) {
         callbackZclRowToHandlebarTemplateFileMap
       )
     )
+    .then((result) => {
+      return new Promise((resolve, reject) => {
+        generatedCodeMap.callbackZcl = result
+        resolve(generatedCodeMap)
+      })
+    })
     .catch((err) => logError(err))
 
   //client-command-macro.h generation
@@ -696,7 +743,7 @@ function generateCode(db) {
     },
   ]
 
-  mapDatabase(db)
+  const clientCommandMacroGenerationCode = mapDatabase(db)
     .then((templateDir) =>
       resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
     )
@@ -752,7 +799,28 @@ function generateCode(db) {
         clientCommandMacroRowToHandlebarTemplateFileMap
       )
     )
+    .then((result) => {
+      return new Promise((resolve, reject) => {
+        generatedCodeMap.clientCommandMacro = result
+        resolve(generatedCodeMap)
+      })
+    })
     .catch((err) => logError(err))
+
+  return Promise.all([
+    clusterGenerationCode,
+    enumGenerationCode,
+    printClusterGenerationCode,
+    afStructsGenerationCode,
+    attStorageGenerationCode,
+    debugPrintingGenerationCode,
+    callbackZclGenerationCode,
+    clientCommandMacroGenerationCode,
+  ])
+    .then((results) => generatedCodeMap)
+    .catch((error) => {
+      console.error(error)
+    })
 }
 /**
  * perform the save.
