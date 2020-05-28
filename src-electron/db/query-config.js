@@ -153,7 +153,7 @@ export function insertOrUpdateAttributeState(
     (staticAttribute) => {
       return DbApi.dbInsert(
         db,
-        'INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (ENDPOINT_TYPE_REF, ATTRIBUTE_REF, DEFAULT_VALUE) SELECT  ?, ?, ? WHERE NOT EXISTS (SELECT COUNT(1) FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ? AND ATTRIBUTE_REF = ?)',
+        'INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (ENDPOINT_TYPE_REF, ATTRIBUTE_REF, DEFAULT_VALUE) SELECT ?, ?, ? WHERE ((SELECT COUNT(1) FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ? AND ATTRIBUTE_REF = ?) == 0)',
         [
           endpointTypeId,
           attributeId,
@@ -161,15 +161,15 @@ export function insertOrUpdateAttributeState(
           endpointTypeId,
           attributeId,
         ]
-      ).then((promiseResult) =>
-        DbApi.dbUpdate(
+      ).then((promiseResult) => {
+        return DbApi.dbUpdate(
           db,
           'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
             param +
             ' = ? WHERE ENDPOINT_TYPE_REF = ? AND ATTRIBUTE_REF = ?',
           [value, endpointTypeId, attributeId]
         )
-      )
+      })
     }
   )
 }
@@ -193,7 +193,7 @@ export function insertOrUpdateCommandState(
 ) {
   return DbApi.dbInsert(
     db,
-    'INSERT INTO ENDPOINT_TYPE_COMMAND (ENDPOINT_TYPE_REF, COMMAND_REF) SELECT ?, ? WHERE NOT EXISTS ( SELECT COUNT(1) FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ? AND COMMAND_REF = ? )',
+    'INSERT INTO ENDPOINT_TYPE_COMMAND (ENDPOINT_TYPE_REF, COMMAND_REF) SELECT ?, ? WHERE (( SELECT COUNT(1) FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ? AND COMMAND_REF = ? ) == 0)',
     [endpointTypeId, id, endpointTypeId, id]
   ).then((promiseResult) =>
     DbApi.dbUpdate(
