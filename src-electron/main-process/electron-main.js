@@ -20,11 +20,7 @@ import { version } from '../../package.json'
 import { closeDatabase, initDatabase, loadSchema } from '../db/db-api.js'
 import { initHttpServer } from '../server/http-server.js'
 import { loadZcl } from '../zcl/zcl-loader.js'
-import {
-  httpPort,
-  processCommandLineArguments,
-  zclPropertiesFile,
-} from './args.js'
+import * as Args from './args.js'
 import {
   logError,
   logInfo,
@@ -61,7 +57,7 @@ function startSelfCheck() {
   initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
     .then((db) => loadSchema(db, schemaFile(), version))
-    .then((db) => loadZcl(db, zclPropertiesFile))
+    .then((db) => loadZcl(db, Args.zclPropertiesFile))
     .then(() => {
       logInfo('Self-check done!')
     })
@@ -75,17 +71,17 @@ function startNormal(ui, showUrl) {
   initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
     .then((db) => loadSchema(db, schemaFile(), version))
-    .then((db) => loadZcl(db, zclPropertiesFile))
-    .then((db) => initHttpServer(db, httpPort))
+    .then((db) => loadZcl(db, Args.zclPropertiesFile))
+    .then((db) => initHttpServer(db, Args.httpPort))
     .then(() => {
       if (ui) {
-        initializeElectronUi(httpPort)
+        initializeElectronUi(Args.httpPort)
       } else {
         if (app.dock) {
           app.dock.hide()
         }
         if (showUrl) {
-          console.log(`http://localhost:${httpPort}/index.html`)
+          console.log(`http://localhost:${Args.httpPort}/index.html`)
         }
       }
     })
@@ -112,7 +108,7 @@ function applyGenerationSettings(
     .then((db) =>
       loadZcl(
         db,
-        zclPropertiesFilePath ? zclPropertiesFilePath : zclPropertiesFile
+        zclPropertiesFilePath ? zclPropertiesFilePath : Args.zclPropertiesFile
       )
     )
     .then(() =>
@@ -140,7 +136,7 @@ function setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) {
 }
 
 app.on('ready', () => {
-  var argv = processCommandLineArguments(process.argv)
+  var argv = Args.processCommandLineArguments(process.argv)
 
   logInfo(argv)
 
@@ -165,7 +161,7 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   logInfo('Activate...')
-  windowCreateIfNotThere(httpPort)
+  windowCreateIfNotThere(Args.httpPort)
 })
 
 app.on('quit', () => {
