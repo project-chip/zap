@@ -124,7 +124,7 @@ function applyGenerationSettings(
  *
  * @param {*} generationDir
  * @param {*} handlebarTemplateDir
- * @returns
+ * @returns Returns a promise of a generation
  */
 function setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) {
   return new Promise((resolve, reject) => {
