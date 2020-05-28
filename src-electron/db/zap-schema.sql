@@ -277,7 +277,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_CLUSTER" (
   "ENABLED" integer,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  UNIQUE(ENDPOINT_TYPE_REF, CLUSTER_REF)
+  UNIQUE(ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE)
 );
 /*
   ENDPOINT_TYPE_ATTRIBUTE table contains the user data configuration for the various parameters that exist

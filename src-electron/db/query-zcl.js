@@ -300,7 +300,7 @@ export function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
     db,
     `SELECT DEVICE_TYPE_CLUSTER_ID, DEVICE_TYPE_REF, CLUSTER_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER FROM DEVICE_TYPE_CLUSTER WHERE DEVICE_TYPE_REF = ? ORDER BY CLUSTER_REF`,
     [deviceTypeRef]
-  ).then((rows) => rows.map(DbMapping.dbMap.endpointTypeCluster))
+  ).then((rows) => rows.map(DbMapping.dbMap.deviceTypeCluster))
 }
 
 export function selectDeviceTypeAttributesByDeviceTypeClusterRef(
