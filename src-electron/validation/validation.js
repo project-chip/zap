@@ -68,7 +68,8 @@ export function validateEndpoint(db, endpointId) {
           zclEndpointIdIssues.push('EndpointId is out of valid range')
         if (!isValidNumberString(endpoint.networkId))
           zclNetworkIdIssues.push('NetworkId is invalid number string')
-
+        if (extractIntegerValue(endpoint.endpointId) == 0)
+          zclEndpointIdIssues.push('0 is not a valid endpointId')
         resolve({
           endpointId: zclEndpointIdIssues,
           networkId: zclNetworkIdIssues,
