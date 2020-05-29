@@ -20,11 +20,7 @@ import { version } from '../../package.json'
 import { closeDatabase, initDatabase, loadSchema } from '../db/db-api.js'
 import { initHttpServer } from '../server/http-server.js'
 import { loadZcl } from '../zcl/zcl-loader.js'
-import {
-  httpPort,
-  processCommandLineArguments,
-  zclPropertiesFile,
-} from './args.js'
+import * as Args from './args.js'
 import {
   logError,
   logInfo,
@@ -38,6 +34,7 @@ import {
   sqliteFile,
 } from '../util/env.js'
 import { initializeElectronUi, windowCreateIfNotThere } from './window.js'
+import { generateCodeViaCli, setHandlebarTemplateDirForCli } from './menu.js'
 
 logInitLogFile()
 
@@ -60,7 +57,7 @@ function startSelfCheck() {
   initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
     .then((db) => loadSchema(db, schemaFile(), version))
-    .then((db) => loadZcl(db, zclPropertiesFile))
+    .then((db) => loadZcl(db, Args.zclPropertiesFile))
     .then(() => {
       logInfo('Self-check done!')
     })
@@ -74,17 +71,17 @@ function startNormal(ui, showUrl) {
   initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
     .then((db) => loadSchema(db, schemaFile(), version))
-    .then((db) => loadZcl(db, zclPropertiesFile))
-    .then((db) => initHttpServer(db, httpPort))
+    .then((db) => loadZcl(db, Args.zclPropertiesFile))
+    .then((db) => initHttpServer(db, Args.httpPort))
     .then(() => {
       if (ui) {
-        initializeElectronUi(httpPort)
+        initializeElectronUi(Args.httpPort)
       } else {
         if (app.dock) {
           app.dock.hide()
         }
         if (showUrl) {
-          console.log(`http://localhost:${httpPort}/index.html`)
+          console.log(`http://localhost:${Args.httpPort}/index.html`)
         }
       }
     })
@@ -93,14 +90,62 @@ function startNormal(ui, showUrl) {
       throw err
     })
 }
+/**
+ *
+ *
+ * @param {*} generationDir
+ * @param {*} handlebarTemplateDir
+ */
+function applyGenerationSettings(
+  generationDir,
+  handlebarTemplateDir,
+  zclPropertiesFilePath
+) {
+  logInfo('Start Generation...')
+  return initDatabase(sqliteFile())
+    .then((db) => attachToDb(db))
+    .then((db) => loadSchema(db, schemaFile(), version))
+    .then((db) =>
+      loadZcl(
+        db,
+        zclPropertiesFilePath ? zclPropertiesFilePath : Args.zclPropertiesFile
+      )
+    )
+    .then((db) =>
+      setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir)
+    )
+    .then((res) => app.quit())
+}
+/**
+ *
+ *
+ * @param {*} generationDir
+ * @param {*} handlebarTemplateDir
+ * @returns Returns a promise of a generation
+ */
+function setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) {
+  if (handlebarTemplateDir) {
+    return setHandlebarTemplateDirForCli(
+      handlebarTemplateDir
+    ).then((handlebarTemplateDir) => generateCodeViaCli(generationDir))
+  } else {
+    return generateCodeViaCli(generationDir)
+  }
+}
 
 app.on('ready', () => {
-  var argv = processCommandLineArguments(process.argv)
+  var argv = Args.processCommandLineArguments(process.argv)
 
   logInfo(argv)
 
   if (argv._.includes('selfCheck')) {
     startSelfCheck()
+  } else if (argv._.includes('generate')) {
+    // generate can have:
+    // - Generation Directory (-output)
+    // - Handlebar Template Directory (-template)
+    // - Xml Data directory (-xml)
+    applyGenerationSettings(argv.output, argv.template, argv.zclProperties)
   } else {
     startNormal(!argv.noUi, argv.showUrl)
   }
@@ -114,7 +159,7 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   logInfo('Activate...')
-  windowCreateIfNotThere(httpPort)
+  windowCreateIfNotThere(Args.httpPort)
 })
 
 app.on('quit', () => {

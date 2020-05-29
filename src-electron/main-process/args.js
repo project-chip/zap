@@ -57,6 +57,14 @@ export function processCommandLineArguments(argv) {
     .option('showUrl', {
       desc: 'Print out the URL that an external browser should use.',
     })
+    .option('output', {
+      desc: 'Specifying the output directory for generation',
+      type: 'string',
+    })
+    .option('template', {
+      desc: 'Specifying the handlebar template directory for generation',
+      type: 'string',
+    })
     .usage('Usage: $0 <command> [options]')
     .help()
     .parse(argv)

@@ -151,34 +151,23 @@ export function insertOrUpdateAttributeState(
 ) {
   return QueryZcl.selectAttributeById(db, attributeId).then(
     (staticAttribute) => {
-      return DbApi.dbGet(
+      return DbApi.dbInsert(
         db,
-        'SELECT COUNT(1) FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ? AND ATTRIBUTE_REF = ?',
-        [endpointTypeId, attributeId]
-      ).then((count) => {
-        return (count['COUNT(1)'] == 0
-          ? DbApi.dbInsert(
-              db,
-              'INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (ENDPOINT_TYPE_REF, ATTRIBUTE_REF, DEFAULT_VALUE) VALUES ( ?, ?, ?)',
-              [
-                endpointTypeId,
-                attributeId,
-                staticAttribute.defaultValue
-                  ? staticAttribute.defaultValue
-                  : '',
-              ]
-            )
-          : new Promise((resolve, reject) => {
-              resolve()
-            })
-        ).then((promiseResult) =>
-          DbApi.dbUpdate(
-            db,
-            'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
-              param +
-              ' = ? WHERE ENDPOINT_TYPE_REF = ? AND ATTRIBUTE_REF = ?',
-            [value, endpointTypeId, attributeId]
-          )
+        'INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (ENDPOINT_TYPE_REF, ATTRIBUTE_REF, DEFAULT_VALUE) SELECT ?, ?, ? WHERE ((SELECT COUNT(1) FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ? AND ATTRIBUTE_REF = ?) == 0)',
+        [
+          endpointTypeId,
+          attributeId,
+          staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
+          endpointTypeId,
+          attributeId,
+        ]
+      ).then((promiseResult) => {
+        return DbApi.dbUpdate(
+          db,
+          'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
+            param +
+            ' = ? WHERE ENDPOINT_TYPE_REF = ? AND ATTRIBUTE_REF = ?',
+          [value, endpointTypeId, attributeId]
         )
       })
     }
@@ -202,30 +191,19 @@ export function insertOrUpdateCommandState(
   value,
   param
 ) {
-  return DbApi.dbGet(
+  return DbApi.dbInsert(
     db,
-    'SELECT COUNT(1) FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ? AND COMMAND_REF = ?',
-    [endpointTypeId, id]
-  ).then((count) => {
-    return (count['COUNT(1)'] == 0
-      ? DbApi.dbInsert(
-          db,
-          'INSERT INTO ENDPOINT_TYPE_COMMAND (ENDPOINT_TYPE_REF, COMMAND_REF) VALUES ( ?, ?)',
-          [endpointTypeId, id]
-        )
-      : new Promise((resolve, reject) => {
-          resolve()
-        })
-    ).then((promiseResult) =>
-      DbApi.dbUpdate(
-        db,
-        'UPDATE ENDPOINT_TYPE_COMMAND SET ' +
-          param +
-          ' = ? WHERE ENDPOINT_TYPE_REF = ? AND COMMAND_REF = ?',
-        [value, endpointTypeId, id]
-      )
+    'INSERT INTO ENDPOINT_TYPE_COMMAND (ENDPOINT_TYPE_REF, COMMAND_REF) SELECT ?, ? WHERE (( SELECT COUNT(1) FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ? AND COMMAND_REF = ? ) == 0)',
+    [endpointTypeId, id, endpointTypeId, id]
+  ).then((promiseResult) =>
+    DbApi.dbUpdate(
+      db,
+      'UPDATE ENDPOINT_TYPE_COMMAND SET ' +
+        param +
+        ' = ? WHERE ENDPOINT_TYPE_REF = ? AND COMMAND_REF = ?',
+      [value, endpointTypeId, id]
     )
-  })
+  )
 }
 
 /**

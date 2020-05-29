@@ -145,7 +145,7 @@ export default {
         // We kick start everything by having automatically adding a centralized endpointType using the HA-onoff deviceType
         if (this.zclEndpointTypeOptions.length < 1) {
           for (var x in this.zclDeviceTypes) {
-            if (this.zclDeviceTypes[x]['label'] === 'HA-onoff') {
+            if (this.zclDeviceTypes[x]['label'] === 'ZLL-onofflight') {
               indexOnOff = x
             }
             //          if (this.zclDeviceTypes[x]['label'] === 'HA-doorlock') { indexDoorLock = x }

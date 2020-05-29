@@ -68,7 +68,8 @@ export function validateEndpoint(db, endpointId) {
           zclEndpointIdIssues.push('EndpointId is out of valid range')
         if (!isValidNumberString(endpoint.networkId))
           zclNetworkIdIssues.push('NetworkId is invalid number string')
-
+        if (extractIntegerValue(endpoint.endpointId) == 0)
+          zclEndpointIdIssues.push('0 is not a valid endpointId')
         resolve({
           endpointId: zclEndpointIdIssues,
           networkId: zclNetworkIdIssues,
@@ -77,19 +78,20 @@ export function validateEndpoint(db, endpointId) {
   )
 }
 //This applies to both actual numbers as well as octet strings.
-function isValidNumberString(value) {
+export function isValidNumberString(value) {
   //We test to see if the number is valid in hex. Decimals numbers also pass this test
   return /^(0x|0X)?[0-9a-fA-F]+$/.test(value)
 }
 
-function isValidFloat(value) {
+export function isValidFloat(value) {
   return /^[0-9]+(\.)?[0-9]*$/.test(value)
 }
-function extractFloatValue(value) {
+
+export function extractFloatValue(value) {
   return parseFloat(value)
 }
 
-function extractIntegerValue(value) {
+export function extractIntegerValue(value) {
   if (/^[0-9]+$/.test(value)) {
     return parseInt(value)
   } else if (/^[0-9]+$/.test(value)) {

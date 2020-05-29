@@ -265,7 +265,9 @@ export function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
     db,
     `SELECT ENDPOINT_TYPE_REF, ATTRIBUTE_REF, INCLUDED, EXTERNAL, FLASH, SINGLETON, BOUNDED, DEFAULT_VALUE FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ? ORDER BY ATTRIBUTE_REF`,
     [endpointTypeId]
-  ).then((rows) => rows.map(DbMapping.dbMap.endpointTypeAttribute))
+  ).then((rows) => {
+    return rows.map(DbMapping.dbMap.endpointTypeAttribute)
+  })
 }
 
 export function selectEndpointTypeAttribute(db, endpointTypeId, attributeRef) {
@@ -300,7 +302,7 @@ export function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
     db,
     `SELECT DEVICE_TYPE_CLUSTER_ID, DEVICE_TYPE_REF, CLUSTER_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER FROM DEVICE_TYPE_CLUSTER WHERE DEVICE_TYPE_REF = ? ORDER BY CLUSTER_REF`,
     [deviceTypeRef]
-  ).then((rows) => rows.map(DbMapping.dbMap.endpointTypeCluster))
+  ).then((rows) => rows.map(DbMapping.dbMap.deviceTypeCluster))
 }
 
 export function selectDeviceTypeAttributesByDeviceTypeClusterRef(
@@ -337,6 +339,7 @@ export function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
   return DbApi.dbAll(
     db,
     `SELECT DEVICE_TYPE_CLUSTER.CLUSTER_REF, DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF, DEVICE_TYPE_COMMAND.COMMAND_REF, DEVICE_TYPE_COMMAND.COMMAND_NAME FROM DEVICE_TYPE_COMMAND, DEVICE_TYPE_CLUSTER WHERE DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ? AND DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF`,
+
     [deviceTypeRef]
   ).then((rows) => rows.map(DbMapping.dbMap.deviceTypeCommand))
 }

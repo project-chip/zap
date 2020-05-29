@@ -131,7 +131,7 @@ export const dbMap = {
   deviceTypeAttribute: (x) => {
     if (x == null) return undefined
     return {
-      deviceTypeClusterRef: x.DEVICE_TYPE_REF_CLUSTER_REF,
+      deviceTypeClusterRef: x.DEVICE_TYPE_CLUSTER_REF,
       attributeRef: x.ATTRIBUTE_REF,
       attributeName: x.ATTRIBUTE_NAME,
     }
@@ -140,7 +140,7 @@ export const dbMap = {
   deviceTypeCommand: (x) => {
     if (x == null) return undefined
     return {
-      deviceTypeClusterRef: x.DEVICE_TYPE_REF_CLUSTER_REF,
+      deviceTypeClusterRef: x.DEVICE_TYPE_CLUSTER_REF,
       commandRef: x.COMMAND_REF,
       commandName: x.COMMAND_NAME,
     }

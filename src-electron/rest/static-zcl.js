@@ -179,10 +179,7 @@ function processGetEntityRequest(db, path, id, replyId, callback) {
       )
       break
     case `endpointTypeDeviceTypeAttributes`:
-      QueryZcl.selectDeviceTypeAttributesByDeviceTypeClusterRef(
-        db,
-        id
-      ).then((x) =>
+      QueryZcl.selectDeviceTypeAttributesByDeviceTypeRef(db, id).then((x) =>
         callback(replyId, { data: x, type: `deviceTypeAttributes` })
       )
       break
