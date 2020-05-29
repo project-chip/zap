@@ -106,7 +106,7 @@ describe('Session specific tests', () => {
       })
       .then(() => fs.remove('./generation-test'))
       .catch((error) => console.log(error))
-  })
+  }, 2000)
 
   function attachToDb(db) {
     return new Promise((resolve, reject) => {
