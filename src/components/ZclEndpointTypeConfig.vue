@@ -57,14 +57,13 @@ limitations under the License.
       <!-- this section is for buttons delete/new endpoint type -->
       <q-btn
         color="primary"
-        size="13px"
+        size="12px"
         label="Delete Endpoint Type"
         @click="deleteEptType(selectedEndpointType)"
       />
-      <q-space />
       <q-btn
         color="primary"
-        size="13px"
+        size="12px"
         label="New Endpoint Type"
         @click="newEptTypeDialog = true"
       />
