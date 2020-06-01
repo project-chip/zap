@@ -23,76 +23,6 @@ limitations under the License.
           Endpoint Configuration
         </p>
       </div>
-      <div class="row">
-        <!-- this section is for buttons delete/copy/new endpoint  -->
-        <q-btn
-          color="primary"
-          size="13px"
-          label="Delete Endpoint"
-          @click="deleteEpt(activeIndex)"
-        />
-        <q-space />
-        <q-btn
-          color="primary"
-          size="13px"
-          label="Copy Endpoint"
-          @click="copyEpt()"
-          v-show="activeIndex.length > 0"
-        />
-        <q-space />
-        <q-btn
-          color="primary"
-          size="13px"
-          label="New Endpoint"
-          @click="newEptDialog = true"
-        />
-      </div>
-      <q-dialog v-model="newEptDialog">
-        <q-card>
-          <q-card-section>
-            <div>
-              <p style="text-align: center; font-size: 1vw;">New Endpoint</p>
-            </div>
-          </q-card-section>
-
-          <q-card-section>
-            <div>
-              <q-form @submit="newEpt()" @reset="onReset" class="q-gutter-md">
-                <q-input
-                  filled
-                  v-model="newEndpoint.newEptId"
-                  label="Endpoint Id*"
-                />
-                <q-select
-                  filled
-                  v-model="newEndpoint.newEndpointType"
-                  :options="Object.keys(endpointTypeName)"
-                  :option-label="
-                    (item) => (item === null ? '' : endpointTypeName[item])
-                  "
-                  label="Endpoint Type"
-                />
-                <q-input
-                  filled
-                  v-model="newEndpoint.newNetworkId"
-                  label="Network Id"
-                />
-              </q-form>
-            </div>
-          </q-card-section>
-          <q-card-actions align="right">
-            <q-btn flat label="Cancel" color="primary" v-close-popup />
-            <q-btn
-              flat
-              label="Create Endpoint"
-              color="primary"
-              v-close-popup
-              @click="newEpt(newEndpoint)"
-            />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
-
       <div>
         <!-- this section is for the table -->
         <q-table
@@ -232,6 +162,73 @@ limitations under the License.
           </template>
         </q-table>
       </div>
+      <div class="row">
+        <!-- this section is for buttons delete/copy/new endpoint  -->
+        <q-btn
+          color="primary"
+          size="12px"
+          label="Delete Endpoint"
+          @click="deleteEpt(activeIndex)"
+        />
+        <q-btn
+          color="primary"
+          size="12px"
+          label="Copy Endpoint"
+          @click="copyEpt()"
+          v-show="activeIndex.length > 0"
+        />
+        <q-btn
+          color="primary"
+          size="12px"
+          label="New Endpoint"
+          @click="newEptDialog = true"
+        />
+      </div>
+      <q-dialog v-model="newEptDialog">
+        <q-card>
+          <q-card-section>
+            <div>
+              <p style="text-align: center; font-size: 1vw;">New Endpoint</p>
+            </div>
+          </q-card-section>
+
+          <q-card-section>
+            <div>
+              <q-form @submit="newEpt()" @reset="onReset" class="q-gutter-md">
+                <q-input
+                  filled
+                  v-model="newEndpoint.newEptId"
+                  label="Endpoint Id*"
+                />
+                <q-select
+                  filled
+                  v-model="newEndpoint.newEndpointType"
+                  :options="Object.keys(endpointTypeName)"
+                  :option-label="
+                    (item) => (item === null ? '' : endpointTypeName[item])
+                  "
+                  label="Endpoint Type"
+                />
+                <q-input
+                  filled
+                  v-model="newEndpoint.newNetworkId"
+                  label="Network Id"
+                />
+              </q-form>
+            </div>
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="Cancel" color="primary" v-close-popup />
+            <q-btn
+              flat
+              label="Create Endpoint"
+              color="primary"
+              v-close-popup
+              @click="newEpt(newEndpoint)"
+            />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </div>
   </div>
 </template>
