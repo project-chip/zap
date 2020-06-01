@@ -74,6 +74,7 @@ const template = [
       },
       {
         label: 'Open File...',
+        accelerator: 'CmdOrCtrl+O',
         click(menuItem, browserWindow, event) {
           doOpen(menuItem, browserWindow, event)
         },
@@ -102,6 +103,7 @@ const template = [
       },
       {
         label: 'Save',
+        accelerator: 'CmdOrCtrl+S',
         click(menuItem, browserWindow, event) {
           doSave(menuItem, browserWindow, event)
         },

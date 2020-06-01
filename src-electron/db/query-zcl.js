@@ -367,6 +367,7 @@ export function insertGlobals(db, packageId, data) {
       commandsToLoad.push(
         ...commands.map((command) => [
           lastId,
+          packageId,
           command.code,
           command.name,
           command.description,
@@ -381,6 +382,7 @@ export function insertGlobals(db, packageId, data) {
       attributesToLoad.push(
         ...attributes.map((attribute) => [
           lastId,
+          packageId,
           attribute.code,
           attribute.name,
           attribute.type,
@@ -398,7 +400,7 @@ export function insertGlobals(db, packageId, data) {
   }
   var pCommand = DbApi.dbMultiInsert(
     db,
-    'INSERT INTO COMMAND (CLUSTER_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?)',
+    'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?)',
     commandsToLoad
   ).then((lids) => {
     var i
@@ -419,7 +421,7 @@ export function insertGlobals(db, packageId, data) {
   })
   var pAttribute = DbApi.dbMultiInsert(
     db,
-    'INSERT INTO ATTRIBUTE (CLUSTER_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+    'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
     attributesToLoad
   )
   return Promise.all([pCommand, pAttribute])
@@ -454,6 +456,7 @@ export function insertClusterExtensions(db, packageId, data) {
           commandsToLoad.push(
             ...commands.map((command) => [
               lastId,
+              packageId,
               command.code,
               command.name,
               command.description,
@@ -468,6 +471,7 @@ export function insertClusterExtensions(db, packageId, data) {
           attributesToLoad.push(
             ...attributes.map((attribute) => [
               lastId,
+              packageId,
               attribute.code,
               attribute.name,
               attribute.type,
@@ -492,7 +496,7 @@ export function insertClusterExtensions(db, packageId, data) {
     }
     var pCommand = DbApi.dbMultiInsert(
       db,
-      'INSERT INTO COMMAND (CLUSTER_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?)',
+      'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?)',
       commandsToLoad
     ).then((lids) => {
       var i
@@ -513,7 +517,7 @@ export function insertClusterExtensions(db, packageId, data) {
     })
     var pAttribute = DbApi.dbMultiInsert(
       db,
-      'INSERT INTO ATTRIBUTE (CLUSTER_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+      'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
       attributesToLoad
     )
     return Promise.all([pCommand, pAttribute])
@@ -555,6 +559,7 @@ export function insertClusters(db, packageId, data) {
         commandsToLoad.push(
           ...commands.map((command) => [
             lastId,
+            packageId,
             command.code,
             command.name,
             command.description,
@@ -569,6 +574,7 @@ export function insertClusters(db, packageId, data) {
         attributesToLoad.push(
           ...attributes.map((attribute) => [
             lastId,
+            packageId,
             attribute.code,
             attribute.name,
             attribute.type,
@@ -586,7 +592,7 @@ export function insertClusters(db, packageId, data) {
     }
     var pCommand = DbApi.dbMultiInsert(
       db,
-      'INSERT INTO COMMAND (CLUSTER_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?)',
+      'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?)',
       commandsToLoad
     ).then((lids) => {
       var i
@@ -607,7 +613,7 @@ export function insertClusters(db, packageId, data) {
     })
     var pAttribute = DbApi.dbMultiInsert(
       db,
-      'INSERT INTO ATTRIBUTE (CLUSTER_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+      'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
       attributesToLoad
     )
     return Promise.all([pCommand, pAttribute])

@@ -9,7 +9,7 @@ executable(zap:linux.x86_64) {
 }
 
 function(run) {
-  cmd=$(zap) --zclProperties zcl/zcl-studio.properties
+  cmd=$(zap) --zclProperties test/zcl/zcl-test.properties
 }
 
 function(zapHelp) {
@@ -21,9 +21,9 @@ function(zapSelfcheck) {
 }
 
 function(zapServer) {
-  cmd=$(zap) --noUi --showUrl --zclProperties zcl/zcl-studio.properties
+  cmd=$(zap) --noUi --showUrl --zclProperties test/zcl/zcl-test.properties
 }
 
 function(zapFull) {
-  cmd=$(zap) --showUrl --zclProperties zcl/zcl-studio.properties
+  cmd=$(zap) --showUrl --zclProperties test/zcl/zcl-test.properties
 }

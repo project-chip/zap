@@ -25,10 +25,10 @@ module.exports = {
       // We need to settle on much higher number, so we will slowly
       // be inching this upward, as we add more unit tests.
       // DO NOT EVER DECREASE THESE NUMBERS, PLEASE, UNLESS FOR A GOOD REASON.
-      statements: 65,
-      branches: 49,
-      functions: 65,
-      lines: 65,
+      statements: 67,
+      branches: 52,
+      functions: 67,
+      lines: 67,
     },
   },
   testMatch: ['<rootDir>/test/*.test.js'],

@@ -114,7 +114,7 @@ function checkAttributeBoundsInteger(attribute, endpointAttribute) {
   return checkBoundsInteger(defaultValue, min, max)
 }
 
-function checkBoundsInteger(defaultValue, min, max) {
+export function checkBoundsInteger(defaultValue, min, max) {
   if (Number.isNaN(min)) min = Number.MIN_SAFE_INTEGER
   if (Number.isNaN(max)) max = Number.MAX_SAFE_INTEGER
   return defaultValue >= min && defaultValue <= max
@@ -133,14 +133,14 @@ function getBoundsFloat(attribute) {
   }
 }
 
-function checkBoundsFloat(defaultValue, min, max) {
+export function checkBoundsFloat(defaultValue, min, max) {
   if (Number.isNaN(min)) min = Number.MIN_VALUE
   if (Number.isNaN(max)) max = Number.MAX_VALUE
   return defaultValue >= min && defaultValue <= max
 }
 
 // This function checks to see if
-function isStringType(type) {
+export function isStringType(type) {
   switch (type) {
     case 'CHAR_STRING':
     case 'OCTET_STRING':
@@ -153,7 +153,7 @@ function isStringType(type) {
   }
 }
 
-function isFloatType(type) {
+export function isFloatType(type) {
   switch (type) {
     case 'FLOAT_SEMI':
     case 'FLOAT_SINGLE':
