@@ -111,25 +111,11 @@ export function insertOrReplaceClusterState(
   side,
   enabled
 ) {
-  return DbApi.dbGet(
+  return DbApi.dbInsert(
     db,
-    'SELECT COUNT(1) FROM ENDPOINT_TYPE_CLUSTER WHERE ENDPOINT_TYPE_REF = ? AND CLUSTER_REF = ? AND SIDE = ?',
-    [endpointTypeId, clusterRef, side]
-  ).then((count) => {
-    if (count['COUNT(1)'] > 0) {
-      return DbApi.dbUpdate(
-        db,
-        'UPDATE ENDPOINT_TYPE_CLUSTER SET ENABLED = ? WHERE ENDPOINT_TYPE_REF = ? AND CLUSTER_REF = ? AND SIDE = ?',
-        [enabled, endpointTypeId, clusterRef, side]
-      )
-    } else {
-      return DbApi.dbInsert(
-        db,
-        'INSERT OR REPLACE INTO ENDPOINT_TYPE_CLUSTER ( ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED ) VALUES ( ?, ?, ?, ?)',
-        [endpointTypeId, clusterRef, side, enabled]
-      )
-    }
-  })
+    'INSERT OR REPLACE INTO ENDPOINT_TYPE_CLUSTER ( ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED ) VALUES ( ?, ?, ?, ?)',
+    [endpointTypeId, clusterRef, side, enabled]
+  )
 }
 
 /**
