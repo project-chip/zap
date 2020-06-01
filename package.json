@@ -37,7 +37,7 @@
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "crc": "^3.8.0",
-    "electron-builder": "^22.7.0",
+    "electron-builder": "^20.44.4",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "node-abi": "^2.17.0",
