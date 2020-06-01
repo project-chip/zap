@@ -61,7 +61,6 @@ limitations under the License.
         label="Delete Endpoint Type"
         @click="deleteEptType(selectedEndpointType)"
       />
-      <q-space />
       <q-btn
         color="primary"
         size="12px"
