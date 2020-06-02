@@ -157,6 +157,14 @@ export function selectAllClusters(db) {
   )
 }
 
+export function selectAllClustersApartFromNull(db) {
+  return DbApi.dbAll(
+    db,
+    'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE FROM CLUSTER WHERE CLUSTER_ID IS NOT NULL ORDER BY CODE',
+    []
+  )
+}
+
 export function selectClusterById(db, id) {
   return DbApi.dbGet(
     db,

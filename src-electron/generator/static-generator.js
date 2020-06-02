@@ -22,6 +22,7 @@ import Handlebars from 'handlebars'
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs-extra'
 import {
   selectAllClusters,
+  selectAllClustersApartFromNull,
   selectAllEnums,
   selectAllEnumItems,
   selectAllBitmaps,
@@ -34,6 +35,21 @@ import {
   selectAllClusterCommands,
 } from '../db/query-zcl.js'
 import { logError, logInfo } from '../util/env.js'
+import {
+  getHexValue,
+  getStrong,
+  getUppercase,
+  getLargestStringInArray,
+  getSwitch,
+  getCase,
+  getDefault,
+  getCamelCaseWithoutUnderscore,
+  isEitherCommandSource,
+  isCommandManufactureSpecific,
+  getDirection,
+  trimNewLinesTabs,
+  getFormatCharactersForCommandArguments,
+} from '../handlebars/helpers/helper-utils.js'
 
 /**
  * Find the handlebar template file, compile and return the template file.
@@ -84,10 +100,6 @@ export function mapDatabase(db) {
  * directory.
  */
 export function resolveTemplateDirectory(map, handlebarTemplateDirectory = '') {
-  logInfo(
-    'Resolving the handlebar template directory to ' +
-      handlebarTemplateDirectory
-  )
   return new Promise((resolve, reject) => {
     map.handlebarTemplateDirectory = handlebarTemplateDirectory
     resolve(map)
@@ -105,12 +117,12 @@ export function resolveTemplateDirectory(map, handlebarTemplateDirectory = '') {
  */
 export function compileTemplate(map, templateFiles) {
   return new Promise((resolve, reject) => {
-    for (let i = 0; i < templateFiles.length; i++) {
+    for (var templateFile of templateFiles) {
       var compiledTemplate = Handlebars.getTemplate(
         map.handlebarTemplateDirectory,
-        templateFiles[i]
+        templateFile
       )
-      map[templateFiles[i]] = compiledTemplate
+      map[templateFile] = compiledTemplate
     }
     resolve(map)
   })
@@ -124,63 +136,63 @@ export function compileTemplate(map, templateFiles) {
  *
  * @export
  * @param {Object} map Map for database, template directory and compiled templates
- * @param {string[]} dbRowType Array of strings with each string representing a
+ * @param {string[]} dbRowTypeArray Array of strings with each string representing a
  * type of database row
  * @returns A promise with resolve listed on a map which has the database rows.
  */
-export function infoFromDb(map, dbRowType) {
+export function infoFromDb(map, dbRowTypeArray) {
   return new Promise((resolve, reject) => {
     var db = map.database
-    var dbInfo = []
-    for (let i = 0; i < dbRowType.length; i++) {
-      if (dbRowType[i] === 'clusters') {
-        dbInfo[i] = selectAllClusters(db).then(
-          (dbRows) => (map[dbRowType[i]] = dbRows)
+    var dbInfo = {}
+    for (let dbRowType of dbRowTypeArray) {
+      if (dbRowType === 'clusters') {
+        dbInfo[dbRowType] = selectAllClusters(db).then(
+          (dbRows) => (map[dbRowType] = dbRows)
         )
-      } else if (dbRowType[i] == 'enums') {
-        dbInfo[i] = selectAllEnums(db).then(
-          (dbRows) => (map[dbRowType[i]] = dbRows)
+      } else if (dbRowType == 'enums') {
+        dbInfo[dbRowType] = selectAllEnums(db).then(
+          (dbRows) => (map[dbRowType] = dbRows)
         )
-      } else if (dbRowType[i] == 'bitmaps') {
-        dbInfo[i] = selectAllBitmaps(db).then(
-          (dbRows) => (map[dbRowType[i]] = dbRows)
+      } else if (dbRowType == 'bitmaps') {
+        dbInfo[dbRowType] = selectAllBitmaps(db).then(
+          (dbRows) => (map[dbRowType] = dbRows)
         )
-      } else if (dbRowType[i] === 'print-cluster') {
-        dbInfo[i] = selectAllClusters(db).then(
-          (dbRows) => (map[dbRowType[i]] = dbRows)
+      } else if (dbRowType === 'print-cluster') {
+        dbInfo[dbRowType] = selectAllClusters(db).then(
+          (dbRows) => (map[dbRowType] = dbRows)
         )
-      } else if (dbRowType[i] === 'af-structs') {
-        dbInfo[i] = selectAllStructs(db).then(
-          (dbRows) => (map[dbRowType[i]] = dbRows)
+      } else if (dbRowType === 'af-structs') {
+        dbInfo[dbRowType] = selectAllStructs(db).then(
+          (dbRows) => (map[dbRowType] = dbRows)
         )
-      } else if (dbRowType[i] === 'debug-printing-zcl') {
-        dbInfo[i] = selectAllClusters(db).then(
-          (dbRows) => (map[dbRowType[i]] = dbRows)
+      } else if (dbRowType === 'debug-printing-zcl') {
+        dbInfo[dbRowType] = selectAllClusters(db).then(
+          (dbRows) => (map[dbRowType] = dbRows)
         )
-      } else if (dbRowType[i] === 'callback-zcl') {
-        dbInfo[i] = selectAllClusters(db).then(
-          (dbRows) => (map[dbRowType[i]] = dbRows)
+      } else if (dbRowType === 'callback-zcl') {
+        dbInfo[dbRowType] = selectAllClusters(db).then(
+          (dbRows) => (map[dbRowType] = dbRows)
         )
-      } else if (dbRowType[i] === 'callback-zcl-command') {
-        dbInfo[i] = selectAllCommands(db).then(
-          (dbRows) => (map[dbRowType[i]] = dbRows)
+      } else if (dbRowType === 'callback-zcl-command') {
+        dbInfo[dbRowType] = selectAllCommands(db).then(
+          (dbRows) => (map[dbRowType] = dbRows)
         )
-      } else if (dbRowType[i] === 'client-command-macro-global') {
-        dbInfo[i] = selectAllGlobalCommands(db).then(
-          (dbRows) => (map[dbRowType[i]] = dbRows)
+      } else if (dbRowType === 'client-command-macro-global') {
+        dbInfo[dbRowType] = selectAllGlobalCommands(db).then(
+          (dbRows) => (map[dbRowType] = dbRows)
         )
-      } else if (dbRowType[i] === 'client-command-macro-cluster') {
-        dbInfo[i] = selectAllClusters(db).then(
-          (dbRows) => (map[dbRowType[i]] = dbRows)
+      } else if (dbRowType === 'client-command-macro-cluster') {
+        dbInfo[dbRowType] = selectAllClustersApartFromNull(db).then(
+          (dbRows) => (map[dbRowType] = dbRows)
         )
-      } else if (dbRowType[i] === 'client-command-macro-cluster-commands') {
-        dbInfo[i] = selectAllCommands(db).then(
-          (dbRows) => (map[dbRowType[i]] = dbRows)
+      } else if (dbRowType === 'client-command-macro-cluster-commands') {
+        dbInfo[dbRowType] = selectAllClusterCommands(db).then(
+          (dbRows) => (map[dbRowType] = dbRows)
         )
       }
     }
     // Going through an array of promises and resolving them.
-    Promise.all(dbInfo)
+    Promise.all(Object.values(dbInfo))
       .then(() => {
         resolve(map)
       })
@@ -207,61 +219,78 @@ export function infoFromDb(map, dbRowType) {
  * content.
  */
 export function groupInfoIntoDbRow(map, groupByParams) {
-  return new Promise((resolve, reject) => {
-    // Table Name for the creating a sub-list
-    var subItemName = groupByParams.tableName
-    // Foreign Key in the table
-    var foreignKey = groupByParams.foreignKey
-    // Primary key in the parent table inorder to join
-    var primaryKey = groupByParams.primaryKey
-    // dbType to call the sql queries on the table
-    var dbType = groupByParams.dbType
+  let groupDbRowInfo = []
+  let i = 0
+  if (groupByParams) {
+    for (i = 0; i < groupByParams.length; i++) {
+      // Table Name for the creating a sub-list
+      let subItemName = groupByParams[i].tableName
+      // Foreign Key in the table
+      let foreignKey = groupByParams[i].foreignKey
+      // Primary key in the parent table inorder to join
+      let primaryKey = groupByParams[i].primaryKey
+      // dbType to call the sql queries on the table
+      let dbType = groupByParams[i].dbType
 
-    var db = map.database
-    // for eg map[ENUM_ITEMS], map[BITMAP_FIELDS], etc
-    var dbRows = map[dbType]
-    // Collecting the rows having the same key in subDBRows
-    var subDbRows = []
-    var subItems
-    if (groupByParams.subItems) {
-      subItems = new Promise((resolve, reject) => {
-        resolve(groupByParams.subItems)
-      })
-    }
-    if (!subItems) {
-      if (subItemName == 'ENUM_ITEMS') {
-        subItems = selectAllEnumItems(db)
-      } else if (subItemName == 'BITMAP_FIELDS') {
-        subItems = selectAllBitmapFields(db)
-      } else if (subItemName == 'STRUCT_ITEMS') {
-        subItems = selectAllStructItems(db)
-      } else if (subItemName == 'COMMAND_ARG') {
-        subItems = selectAllCommandArguments(db)
-      } else {
-        return
+      let db = map.database
+      // for eg map[ENUM_ITEMS], map[BITMAP_FIELDS], etc
+      let dbRows = map[dbType]
+      // Collecting the rows having the same key in subDBRows
+      let subDbRows = []
+      let subItems
+      if (groupByParams[i].subItems) {
+        subItems = new Promise((resolve, reject) => {
+          resolve(map[groupByParams[i].subItems])
+        })
       }
-    }
+      if (!subItems) {
+        if (subItemName == 'ENUM_ITEMS') {
+          subItems = selectAllEnumItems(db)
+        } else if (subItemName == 'BITMAP_FIELDS') {
+          subItems = selectAllBitmapFields(db)
+        } else if (subItemName == 'STRUCT_ITEMS') {
+          subItems = selectAllStructItems(db)
+        } else if (subItemName == 'COMMAND_ARG') {
+          subItems = selectAllCommandArguments(db)
+        } else {
+          return
+        }
+      }
 
-    subItems
-      .then(function (rows) {
-        for (let i = 0; i < rows.length; i++) {
-          // create a map here and print in next prmoise to see if it is populated
-          if (subDbRows[rows[i][foreignKey]] == null) {
-            subDbRows[rows[i][foreignKey]] = [rows[i]]
-          } else {
-            subDbRows[rows[i][foreignKey]].push(rows[i])
-          }
-        }
-        for (let j = 0; j < dbRows.length; j++) {
-          var pk = dbRows[j][primaryKey]
-          dbRows[j][subItemName] = subDbRows[pk]
-        }
-        resolve(map)
-      })
+      groupDbRowInfo[i] = subItems
+        .then(
+          (rows) =>
+            new Promise((resolve, reject) => {
+              for (let i = 0; i < rows.length; i++) {
+                // create a map here and print in next prmoise to see if it is populated
+                if (subDbRows[rows[i][foreignKey]] == null) {
+                  subDbRows[rows[i][foreignKey]] = [rows[i]]
+                } else {
+                  subDbRows[rows[i][foreignKey]].push(rows[i])
+                }
+              }
+              for (let j = 0; j < dbRows.length; j++) {
+                var pk = dbRows[j][primaryKey]
+                dbRows[j][subItemName] = subDbRows[pk]
+              }
+              resolve(map)
+            })
+        )
+        .catch((reason) => {
+          logError(
+            `groupInfoIntoDbRow Handle rejected promise (${reason}) here.`
+          )
+        })
+    }
+    // Going through an array of promises and resolving them.
+    return Promise.all(groupDbRowInfo)
+      .then((results) => map)
       .catch((reason) => {
         logError(`groupInfoIntoDbRow Handle rejected promise (${reason}) here.`)
       })
-  })
+  } else {
+    return new Promise((resolve, reject) => map)
+  }
 }
 
 /**
@@ -275,7 +304,78 @@ export function groupInfoIntoDbRow(map, groupByParams) {
  */
 export function resolveHelper(map, helperFunctions) {
   return new Promise((resolve, reject) => {
-    map.helperFunctions = helperFunctions
+    let handlebarHelpers = {},
+      i = 0
+    for (i = 0; i < helperFunctions.length; i++) {
+      switch (helperFunctions[i]['helperFunctionName']) {
+        case 'getUppercase':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = getUppercase
+          break
+        case 'getStrong':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = getStrong
+          break
+        case 'getHexValue':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = getHexValue
+          break
+        case 'getLargestStringInArray':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = getLargestStringInArray
+          break
+        case 'getSwitch':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = getSwitch
+          break
+        case 'getCase':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = getCase
+          break
+        case 'getDefault':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = getDefault
+          break
+        case 'getCamelCaseWithoutUnderscore':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = getCamelCaseWithoutUnderscore
+          break
+        case 'isEitherCommandSource':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = isEitherCommandSource
+          break
+        case 'isCommandManufactureSpecific':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = isCommandManufactureSpecific
+          break
+        case 'getDirection':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = getDirection
+          break
+        case 'trimNewLinesTabs':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = trimNewLinesTabs
+          break
+        case 'getFormatCharactersForCommandArguments':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = getFormatCharactersForCommandArguments
+          break
+      }
+    }
+    map.helperFunctions = handlebarHelpers
     resolve(map)
   })
 }
@@ -374,5 +474,27 @@ export function generateDataToFile(
     }
     resolve(result)
     writeFileSync(generationDirectory + '/' + outputFileName, result)
+  })
+}
+
+/**
+ *
+ *
+ * @export
+ * @param {*} filePath
+ * @returns
+ */
+export function getGenerationProperties(filePath) {
+  return new Promise((resolve, reject) => {
+    let rawData
+    let actualFilePath = filePath
+    if (!actualFilePath || 0 === actualFilePath.length) {
+      actualFilePath =
+        __dirname + '/../../test/gen-template/generation-options.json'
+    }
+    logInfo('Reading generation properties from ' + actualFilePath)
+    rawData = readFileSync(actualFilePath)
+    var generationOptions = JSON.parse(rawData)
+    resolve(generationOptions)
   })
 }

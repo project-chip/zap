@@ -20,27 +20,13 @@ import { getSessionInfoFromWindowId } from '../db/query-session.js'
 import {
   compileTemplate,
   generateDataToFile,
+  getGenerationProperties,
   groupInfoIntoDbRow,
   infoFromDb,
   mapDatabase,
   resolveHelper,
   resolveTemplateDirectory,
 } from '../generator/static-generator.js'
-import {
-  getHexValue,
-  getStrong,
-  getUppercase,
-  getLargestStringInArray,
-  getSwitch,
-  getCase,
-  getDefault,
-  getCamelCaseWithoutUnderscore,
-  isEitherCommandSource,
-  isCommandManufactureSpecific,
-  getDirection,
-  trimNewLinesTabs,
-  getFormatCharactersForCommandArguments,
-} from '../handlebars/helpers/helper-utils.js'
 import { appDirectory, logError, logInfo, mainDatabase } from '../util/env.js'
 import { showErrorMessage } from './ui.js'
 import { windowCreate } from './window.js'
@@ -55,6 +41,8 @@ import {
 var httpPort
 var generationDirectory = appDirectory() + '/generation-output'
 var handlebarTemplateDirectory = __dirname + '/../../test/gen-template'
+var generationOptionsFile =
+  __dirname + '/../../test/gen-template/generation-options.json'
 
 const template = [
   {
@@ -250,7 +238,11 @@ function generateInDir(browserWindow) {
     .then((filePath) => {
       if (filePath != null) {
         generationDirectory = filePath
-        generateCode(mainDatabase())
+        getGenerationProperties(
+          generationOptionsFile
+        ).then((generationOptions) =>
+          generateCode(mainDatabase(), generationOptions)
+        )
         dialog.showMessageBox(browserWindow, {
           title: 'Generation',
           message: `Generation Output: ${filePath}`,
@@ -269,7 +261,9 @@ function generateInDir(browserWindow) {
  */
 export function generateCodeViaCli(generationDir) {
   generationDirectory = generationDir
-  return generateCode(mainDatabase())
+  return getGenerationProperties(
+    generationOptionsFile
+  ).then((generationOptions) => generateCode(mainDatabase(), generationOptions))
 }
 
 /**
@@ -319,510 +313,69 @@ function setHandlebarTemplateDirectory(browserWindow) {
  *
  * @param {*} db
  */
-function generateCode(db) {
-  const HANDLEBAR_HELPER_UPPERCASE = 'uppercase'
-  const HANDLEBAR_HELPER_STRONG = 'strong'
-  const HANDLEBAR_HELPER_HEX_VALUE = 'hexValue'
-  const HANDLEBAR_HELPER_LENGTH_OF_LARGEST_STRING = 'largestStringInArray'
-  const HANDLEBAR_HELPER_SWITCH = 'switch'
-  const HANDLEBAR_HELPER_CASE = 'case'
-  const HANDLEBAR_HELPER_DEFAULT = 'default'
-  const HANDLEBAR_HELPER_CAMEL_CASE = 'camelCaseWithoutUnderscore'
-  const HANDLEBAR_HELPER_EITHER_COMMAND_SOURCE = 'eitherCommandSource'
-  const HANDLEBAR_HELPER_COMMAND_MANUFACTURE_SPECIFIC =
-    'commandManufactureSpecific'
-  const HANDLEBAR_HELPER_DIRECTION = 'direction'
-  const HANDLEBAR_HELPER_TRIM_NEW_LINES_TABS = 'trimNewLinesTabs'
-  const HANDLEBAR_HELPER_FORMAT_CHARACTERS_FOR_COMMAND_AGRS =
-    'formatCharactersForCommandArguments'
-  const HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE = 'att-storage.handlebars'
-  const HANDLEBAR_TEMPLATE_FILE_AF_STRUCTS = 'af-structs.handlebars'
-  const HANDLEBAR_TEMPLATE_FILE_CLUSTERS = 'cluster-id.handlebars'
-  const HANDLEBAR_TEMPLATE_FILE_ENUMS = 'enums.handlebars'
-  const HANDLEBAR_TEMPLATE_FILE_BITMAPS = 'bitmaps.handlebars'
-  const HANDLEBAR_TEMPLATE_FILE_PRINT_CLUSTERS = 'print-cluster.handlebars'
-  const HANDLEBAR_TEMPLATE_FILE_DEBUG_PRINTING = 'debug-printing-zcl.handlebars'
-  const HANDLEBAR_TEMPLATE_FILE_CALLBACK_ZCL = 'callback-zcl.handlebars'
-  const HANDLEBAR_TEMPLATE_FILE_CLIENT_COMMAND_MACRO_GLOBAL =
-    'client-command-macro-global.handlebars'
-  const HANDLEBAR_TEMPLATE_FILE_CLIENT_COMMAND_MACRO_CLUSTER =
-    'client-command-macro-cluster.handlebars'
-  const DATABASE_ROW_TYPE_CLUSTER = 'clusters'
-  const DATABASE_ROW_TYPE_ENUMS = 'enums'
-  const DATABASE_ROW_TYPE_BITMAPS = 'bitmaps'
-  const DATABASE_ROW_TYPE_AF_STRUCTS = 'af-structs'
-  const DATABASE_ROW_TYPE_PRINT_CLUSTER = 'print-cluster'
-  const DATABASE_ROW_TYPE_ATT_STORAGE = 'att-storage'
-  const DATABASE_ROW_TYPE_DEBUG_PRINTING = 'debug-printing-zcl'
-  const DATABASE_ROW_TYPE_CALLBACK_ZCL = 'callback-zcl'
-  const DATABASE_ROW_TYPE_CALLBACK_ZCL_COMMAND = 'callback-zcl-command'
-  const DATABASE_ROW_TYPE_CLIENT_COMMAND_MACRO_GLOBAL =
-    'client-command-macro-global'
-  const DATABASE_ROW_TYPE_CLIENT_COMMAND_MACRO_CLUSTER =
-    'client-command-macro-cluster'
-  const DATABASE_ROW_TYPE_CLIENT_COMMAND_MACRO_CLUSTER_COMMANDS =
-    'client-command-macro-cluster-commands'
+function generateCode(db, generationOptions) {
+  //Keeping track of each generation promise
+  let generatedCodeMap = []
 
-  let generatedCodeMap = {}
+  // The template file which provides meta data information on generation
+  var currentGenerationOptions = generationOptions['generation-options']
 
-  //cluster-id.h generation
-  var clusterHandleBarHelpers = {}
-  clusterHandleBarHelpers[HANDLEBAR_HELPER_UPPERCASE] = getUppercase
-  var clusterRowToHandlebarTemplateFileMap = [
-    {
-      dbRowType: DATABASE_ROW_TYPE_CLUSTER,
-      hTemplateFile: HANDLEBAR_TEMPLATE_FILE_CLUSTERS,
-    },
-  ]
-  const clusterGenerationCode = mapDatabase(db)
-    .then((templateDir) =>
-      resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
-    )
-    .then((templates) =>
-      compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_CLUSTERS])
-    )
-    .then((databaseRows) =>
-      infoFromDb(databaseRows, [DATABASE_ROW_TYPE_CLUSTER])
-    )
-    .then((helperResolution) =>
-      resolveHelper(helperResolution, clusterHandleBarHelpers)
-    )
-    .then((directoryResolution) =>
-      resolveGenerationDirectory(directoryResolution)
-    )
-    .then((resultToFile) =>
-      generateDataToFile(
-        resultToFile,
-        'cluster-id.h',
-        clusterRowToHandlebarTemplateFileMap
+  // Going through each of the generation options and performing generation
+  let generationOptionIndex = 0
+  for (
+    generationOptionIndex = 0;
+    generationOptionIndex < currentGenerationOptions.length;
+    generationOptionIndex++
+  ) {
+    let i = 0
+    let templateArray = new Set()
+    let dbRowTypeArray = new Set()
+    let groupInfoToDb =
+      currentGenerationOptions[generationOptionIndex][
+        'group-info-into-db-row-type'
+      ]
+    let helperApis =
+      currentGenerationOptions[generationOptionIndex]['helper-api-name']
+    let filename = currentGenerationOptions[generationOptionIndex]['filename']
+    let handlebarTemplatePerDataRow =
+      currentGenerationOptions[generationOptionIndex][
+        'handlebar-templates-per-data-row'
+      ]
+
+    for (i = 0; i < handlebarTemplatePerDataRow.length; i++) {
+      templateArray.add(handlebarTemplatePerDataRow[i]['hTemplateFile'])
+      dbRowTypeArray.add(handlebarTemplatePerDataRow[i]['dbRowType'])
+    }
+
+    for (i = 0; i < groupInfoToDb.length; i++) {
+      let dbType = groupInfoToDb[i].dbType
+      if (!dbRowTypeArray.has(dbType)) {
+        dbRowTypeArray.add(dbType)
+      }
+    }
+
+    generatedCodeMap[generationOptionIndex] = mapDatabase(db)
+      .then((templateDir) =>
+        resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
       )
-    )
-    .then((result) => {
-      return new Promise((resolve, reject) => {
-        generatedCodeMap.clusterId = result
-        resolve(generatedCodeMap)
-      })
-    })
-    .catch((err) => logError(err))
-
-  //enums.h generation
-  var enumHandleBarHelpers = {}
-  enumHandleBarHelpers[HANDLEBAR_HELPER_STRONG] = getStrong
-  enumHandleBarHelpers[HANDLEBAR_HELPER_HEX_VALUE] = getHexValue
-  var enumsRowToHandlebarTemplateFileMap = [
-    {
-      dbRowType: DATABASE_ROW_TYPE_ENUMS,
-      hTemplateFile: HANDLEBAR_TEMPLATE_FILE_ENUMS,
-    },
-    {
-      dbRowType: DATABASE_ROW_TYPE_BITMAPS,
-      hTemplateFile: HANDLEBAR_TEMPLATE_FILE_BITMAPS,
-    },
-  ]
-  const enumGenerationCode = mapDatabase(db)
-    .then((templateDir) =>
-      resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
-    )
-    .then((templates) =>
-      compileTemplate(templates, [
-        HANDLEBAR_TEMPLATE_FILE_ENUMS,
-        HANDLEBAR_TEMPLATE_FILE_BITMAPS,
-      ])
-    )
-    .then((databaseRows) =>
-      infoFromDb(databaseRows, [
-        DATABASE_ROW_TYPE_ENUMS,
-        DATABASE_ROW_TYPE_BITMAPS,
-      ])
-    )
-    .then((databaseRowsWithEnumItems) =>
-      groupInfoIntoDbRow(databaseRowsWithEnumItems, {
-        tableName: 'ENUM_ITEMS',
-        foreignKey: 'ENUM_REF',
-        primaryKey: 'ENUM_ID',
-        dbType: 'enums',
-      })
-    )
-    .then((databaseRowsWithBitmapFields) =>
-      groupInfoIntoDbRow(databaseRowsWithBitmapFields, {
-        tableName: 'BITMAP_FIELDS',
-        foreignKey: 'BITMAP_REF',
-        primaryKey: 'BITMAP_ID',
-        dbType: 'bitmaps',
-      })
-    )
-    .then((helperResolution) =>
-      resolveHelper(helperResolution, enumHandleBarHelpers)
-    )
-    .then((directoryResolution) =>
-      resolveGenerationDirectory(directoryResolution)
-    )
-    .then((resultToFile) =>
-      generateDataToFile(
-        resultToFile,
-        'enums.h',
-        enumsRowToHandlebarTemplateFileMap
+      .then((templates) => compileTemplate(templates, templateArray))
+      .then((databaseRows) => infoFromDb(databaseRows, dbRowTypeArray))
+      .then((databaseRowsWithMoreInfo) =>
+        groupInfoIntoDbRow(databaseRowsWithMoreInfo, groupInfoToDb)
       )
-    )
-    .then((result) => {
-      return new Promise((resolve, reject) => {
-        generatedCodeMap.enums = result
-        resolve(generatedCodeMap)
-      })
-    })
-    .catch((err) => logError(err))
-
-  //print-cluster.h
-  var printClusterHandleBarHelpers = {}
-  printClusterHandleBarHelpers[HANDLEBAR_HELPER_UPPERCASE] = getUppercase
-  printClusterHandleBarHelpers[
-    HANDLEBAR_HELPER_LENGTH_OF_LARGEST_STRING
-  ] = getLargestStringInArray
-  var printClusterRowToHandleBarTemplateFileMap = [
-    {
-      dbRowType: DATABASE_ROW_TYPE_PRINT_CLUSTER,
-      hTemplateFile: HANDLEBAR_TEMPLATE_FILE_PRINT_CLUSTERS,
-    },
-  ]
-  const printClusterGenerationCode = mapDatabase(db)
-    .then((templateDir) =>
-      resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
-    )
-    .then((templates) =>
-      compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_PRINT_CLUSTERS])
-    )
-    .then((databaseRows) =>
-      infoFromDb(databaseRows, [DATABASE_ROW_TYPE_PRINT_CLUSTER])
-    )
-    .then((helperResolution) =>
-      resolveHelper(helperResolution, printClusterHandleBarHelpers)
-    )
-    .then((directoryResolution) =>
-      resolveGenerationDirectory(directoryResolution)
-    )
-    .then((resultToFile) =>
-      generateDataToFile(
-        resultToFile,
-        'print-cluster.h',
-        printClusterRowToHandleBarTemplateFileMap
+      .then((helperResolution) => resolveHelper(helperResolution, helperApis))
+      .then((directoryResolution) =>
+        resolveGenerationDirectory(directoryResolution)
       )
-    )
-    .then((result) => {
-      return new Promise((resolve, reject) => {
-        generatedCodeMap.printCluster = result
-        resolve(generatedCodeMap)
-      })
-    })
-    .catch((err) => logError(err))
-
-  //af-structs.h
-  var afStructsHandleBarHelpers = {}
-  afStructsHandleBarHelpers[HANDLEBAR_HELPER_SWITCH] = getSwitch
-  afStructsHandleBarHelpers[HANDLEBAR_HELPER_CASE] = getCase
-  afStructsHandleBarHelpers[HANDLEBAR_HELPER_DEFAULT] = getDefault
-  var afStructsRowToHandleBarTemplateFileMap = [
-    {
-      dbRowType: DATABASE_ROW_TYPE_AF_STRUCTS,
-      hTemplateFile: HANDLEBAR_TEMPLATE_FILE_AF_STRUCTS,
-    },
-  ]
-  const afStructsGenerationCode = mapDatabase(db)
-    .then((templateDir) =>
-      resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
-    )
-    .then((templates) =>
-      compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_AF_STRUCTS])
-    )
-    .then((databaseRows) =>
-      infoFromDb(databaseRows, [DATABASE_ROW_TYPE_AF_STRUCTS])
-    )
-    .then((databaseRowsWithEnumItems) =>
-      groupInfoIntoDbRow(databaseRowsWithEnumItems, {
-        tableName: 'STRUCT_ITEMS',
-        foreignKey: 'STRUCT_REF',
-        primaryKey: 'STRUCT_ID',
-        dbType: 'af-structs',
-      })
-    )
-    .then((helperResolution) =>
-      resolveHelper(helperResolution, afStructsHandleBarHelpers)
-    )
-    .then((directoryResolution) =>
-      resolveGenerationDirectory(directoryResolution)
-    )
-    .then((resultToFile) =>
-      generateDataToFile(
-        resultToFile,
-        'af-structs.h',
-        afStructsRowToHandleBarTemplateFileMap
+      .then((resultToFile) =>
+        generateDataToFile(resultToFile, filename, handlebarTemplatePerDataRow)
       )
-    )
-    .then((result) => {
-      return new Promise((resolve, reject) => {
-        generatedCodeMap.afStructs = result
-        resolve(generatedCodeMap)
-      })
-    })
-    .catch((err) => logError(err))
+      .catch((err) => logError(err))
+  }
 
-  //att-storage.h generation
-  var attStorageRowToHandleBarTemplateFileMap = [
-    {
-      dbRowType: DATABASE_ROW_TYPE_ATT_STORAGE,
-      hTemplateFile: HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE,
-    },
-  ]
-  const attStorageGenerationCode = mapDatabase(db)
-    .then((templateDir) =>
-      resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
-    )
-    .then((templates) =>
-      compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_ATT_STORAGE])
-    )
-    .then((directoryResolution) =>
-      resolveGenerationDirectory(directoryResolution)
-    )
-    .then((resultToFile) =>
-      generateDataToFile(
-        resultToFile,
-        'att-storage.h',
-        attStorageRowToHandleBarTemplateFileMap
-      )
-    )
-    .then((result) => {
-      return new Promise((resolve, reject) => {
-        generatedCodeMap.attStorage = result
-        resolve(generatedCodeMap)
-      })
-    })
-    .catch((err) => logError(err))
-
-  //debug-printing-zcl.h generation
-  var debugPrintingHandleBarHelpers = {}
-  debugPrintingHandleBarHelpers[HANDLEBAR_HELPER_UPPERCASE] = getUppercase
-  debugPrintingHandleBarHelpers[
-    HANDLEBAR_HELPER_CAMEL_CASE
-  ] = getCamelCaseWithoutUnderscore
-  var debugPrintingRowToHandlebarTemplateFileMap = [
-    {
-      dbRowType: DATABASE_ROW_TYPE_DEBUG_PRINTING,
-      hTemplateFile: HANDLEBAR_TEMPLATE_FILE_DEBUG_PRINTING,
-    },
-  ]
-
-  const debugPrintingGenerationCode = mapDatabase(db)
-    .then((templateDir) =>
-      resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
-    )
-    .then((templates) =>
-      compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_DEBUG_PRINTING])
-    )
-    .then((databaseRows) =>
-      infoFromDb(databaseRows, [DATABASE_ROW_TYPE_DEBUG_PRINTING])
-    )
-    .then((helperResolution) =>
-      resolveHelper(helperResolution, debugPrintingHandleBarHelpers)
-    )
-    .then((directoryResolution) =>
-      resolveGenerationDirectory(directoryResolution)
-    )
-    .then((resultToFile) =>
-      generateDataToFile(
-        resultToFile,
-        'debug-printing-zcl.h',
-        debugPrintingRowToHandlebarTemplateFileMap
-      )
-    )
-    .then((result) => {
-      return new Promise((resolve, reject) => {
-        generatedCodeMap.debugPrintingZcl = result
-        resolve(generatedCodeMap)
-      })
-    })
-    .catch((err) => logError(err))
-
-  //callback-zcl.h generation
-  var callbackZclHandleBarHelpers = {}
-  callbackZclHandleBarHelpers[
-    HANDLEBAR_HELPER_CAMEL_CASE
-  ] = getCamelCaseWithoutUnderscore
-  callbackZclHandleBarHelpers[HANDLEBAR_HELPER_SWITCH] = getSwitch
-  callbackZclHandleBarHelpers[HANDLEBAR_HELPER_CASE] = getCase
-  callbackZclHandleBarHelpers[HANDLEBAR_HELPER_DEFAULT] = getDefault
-  var callbackZclRowToHandlebarTemplateFileMap = [
-    {
-      dbRowType: DATABASE_ROW_TYPE_CALLBACK_ZCL,
-      hTemplateFile: HANDLEBAR_TEMPLATE_FILE_CALLBACK_ZCL,
-    },
-    {
-      dbRowType: DATABASE_ROW_TYPE_CALLBACK_ZCL_COMMAND,
-      hTemplateFile: HANDLEBAR_TEMPLATE_FILE_CALLBACK_ZCL,
-    },
-  ]
-
-  const callbackZclGenerationCode = mapDatabase(db)
-    .then((templateDir) =>
-      resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
-    )
-    .then((templates) =>
-      compileTemplate(templates, [HANDLEBAR_TEMPLATE_FILE_CALLBACK_ZCL])
-    )
-    .then((databaseRows) =>
-      infoFromDb(databaseRows, [
-        DATABASE_ROW_TYPE_CALLBACK_ZCL,
-        DATABASE_ROW_TYPE_CALLBACK_ZCL_COMMAND,
-      ])
-    )
-    .then((databaseRowsWithCommands) =>
-      groupInfoIntoDbRow(databaseRowsWithCommands, {
-        tableName: 'COMMAND_ARG',
-        foreignKey: 'COMMAND_REF',
-        primaryKey: 'COMMAND_ID',
-        dbType: 'callback-zcl-command',
-      })
-    )
-    .then((databaseRowsWithCallbackItems) =>
-      groupInfoIntoDbRow(databaseRowsWithCallbackItems, {
-        tableName: 'COMMAND',
-        foreignKey: 'CLUSTER_REF',
-        primaryKey: 'CLUSTER_ID',
-        dbType: 'callback-zcl',
-        subItems: databaseRowsWithCallbackItems['callback-zcl-command'],
-      })
-    )
-    .then((helperResolution) =>
-      resolveHelper(helperResolution, callbackZclHandleBarHelpers)
-    )
-    .then((directoryResolution) =>
-      resolveGenerationDirectory(directoryResolution)
-    )
-    .then((resultToFile) =>
-      generateDataToFile(
-        resultToFile,
-        'callback-zcl.h',
-        callbackZclRowToHandlebarTemplateFileMap
-      )
-    )
-    .then((result) => {
-      return new Promise((resolve, reject) => {
-        generatedCodeMap.callbackZcl = result
-        resolve(generatedCodeMap)
-      })
-    })
-    .catch((err) => logError(err))
-
-  //client-command-macro.h generation
-  var clientCommandMacroHandleBarHelpers = {}
-  clientCommandMacroHandleBarHelpers[
-    HANDLEBAR_HELPER_EITHER_COMMAND_SOURCE
-  ] = isEitherCommandSource
-  clientCommandMacroHandleBarHelpers[
-    HANDLEBAR_HELPER_COMMAND_MANUFACTURE_SPECIFIC
-  ] = isCommandManufactureSpecific
-  clientCommandMacroHandleBarHelpers[HANDLEBAR_HELPER_DIRECTION] = getDirection
-  clientCommandMacroHandleBarHelpers[
-    HANDLEBAR_HELPER_TRIM_NEW_LINES_TABS
-  ] = trimNewLinesTabs
-  clientCommandMacroHandleBarHelpers[HANDLEBAR_HELPER_SWITCH] = getSwitch
-  clientCommandMacroHandleBarHelpers[HANDLEBAR_HELPER_CASE] = getCase
-  clientCommandMacroHandleBarHelpers[HANDLEBAR_HELPER_DEFAULT] = getDefault
-  clientCommandMacroHandleBarHelpers[HANDLEBAR_HELPER_STRONG] = getStrong
-  clientCommandMacroHandleBarHelpers[
-    HANDLEBAR_HELPER_FORMAT_CHARACTERS_FOR_COMMAND_AGRS
-  ] = getFormatCharactersForCommandArguments
-  clientCommandMacroHandleBarHelpers[HANDLEBAR_HELPER_UPPERCASE] = getUppercase
-  clientCommandMacroHandleBarHelpers[
-    HANDLEBAR_HELPER_CAMEL_CASE
-  ] = getCamelCaseWithoutUnderscore
-  var clientCommandMacroRowToHandlebarTemplateFileMap = [
-    {
-      dbRowType: DATABASE_ROW_TYPE_CLIENT_COMMAND_MACRO_GLOBAL,
-      hTemplateFile: HANDLEBAR_TEMPLATE_FILE_CLIENT_COMMAND_MACRO_GLOBAL,
-    },
-    {
-      dbRowType: DATABASE_ROW_TYPE_CLIENT_COMMAND_MACRO_CLUSTER,
-      hTemplateFile: HANDLEBAR_TEMPLATE_FILE_CLIENT_COMMAND_MACRO_CLUSTER,
-    },
-  ]
-
-  const clientCommandMacroGenerationCode = mapDatabase(db)
-    .then((templateDir) =>
-      resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
-    )
-    .then((templates) =>
-      compileTemplate(templates, [
-        HANDLEBAR_TEMPLATE_FILE_CLIENT_COMMAND_MACRO_GLOBAL,
-        HANDLEBAR_TEMPLATE_FILE_CLIENT_COMMAND_MACRO_CLUSTER,
-      ])
-    )
-    .then((databaseRows) =>
-      infoFromDb(databaseRows, [
-        DATABASE_ROW_TYPE_CLIENT_COMMAND_MACRO_GLOBAL,
-        DATABASE_ROW_TYPE_CLIENT_COMMAND_MACRO_CLUSTER,
-        DATABASE_ROW_TYPE_CLIENT_COMMAND_MACRO_CLUSTER_COMMANDS,
-      ])
-    )
-    .then((databaseRowsWithCommands) =>
-      groupInfoIntoDbRow(databaseRowsWithCommands, {
-        tableName: 'COMMAND_ARG',
-        foreignKey: 'COMMAND_REF',
-        primaryKey: 'COMMAND_ID',
-        dbType: 'client-command-macro-global',
-      })
-    )
-    .then((databaseRowsWithCommands) =>
-      groupInfoIntoDbRow(databaseRowsWithCommands, {
-        tableName: 'COMMAND_ARG',
-        foreignKey: 'COMMAND_REF',
-        primaryKey: 'COMMAND_ID',
-        dbType: 'client-command-macro-cluster-commands',
-      })
-    )
-    .then((databaseRowsWithCommands) =>
-      groupInfoIntoDbRow(databaseRowsWithCommands, {
-        tableName: 'COMMAND',
-        foreignKey: 'CLUSTER_REF',
-        primaryKey: 'CLUSTER_ID',
-        dbType: 'client-command-macro-cluster',
-        subItems:
-          databaseRowsWithCommands['client-command-macro-cluster-commands'],
-      })
-    )
-    .then((helperResolution) =>
-      resolveHelper(helperResolution, clientCommandMacroHandleBarHelpers)
-    )
-    .then((directoryResolution) =>
-      resolveGenerationDirectory(directoryResolution)
-    )
-    .then((resultToFile) =>
-      generateDataToFile(
-        resultToFile,
-        'client-command-macro.h',
-        clientCommandMacroRowToHandlebarTemplateFileMap
-      )
-    )
-    .then((result) => {
-      return new Promise((resolve, reject) => {
-        generatedCodeMap.clientCommandMacro = result
-        resolve(generatedCodeMap)
-      })
-    })
-    .catch((err) => logError(err))
-
-  return Promise.all([
-    clusterGenerationCode,
-    enumGenerationCode,
-    printClusterGenerationCode,
-    afStructsGenerationCode,
-    attStorageGenerationCode,
-    debugPrintingGenerationCode,
-    callbackZclGenerationCode,
-    clientCommandMacroGenerationCode,
-  ])
-    .then((results) => generatedCodeMap)
-    .catch((error) => {
-      console.error(error)
-    })
+  return Promise.all(generatedCodeMap).catch((error) => {
+    logError(error)
+  })
 }
 /**
  * perform the save.

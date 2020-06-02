@@ -127,7 +127,7 @@ describe('Session specific tests', () => {
   }, 2000)
 
   test('test that there is generation data in the cluster-id.h file', () => {
-    return axios.get(`${baseUrl}/preview/clusters`).then((response) => {
+    return axios.get(`${baseUrl}/preview/cluster-id`).then((response) => {
       expect(response.data).toMatch(/\#define ZCL_BASIC_CLUSTER_ID 0x0000/)
     })
   })
@@ -183,7 +183,7 @@ describe('Session specific tests', () => {
 
   test('test that there is generation data in the client-command-macro.h file', () => {
     return axios
-      .get(`${baseUrl}/preview/client-command-macro-global`)
+      .get(`${baseUrl}/preview/client-command-macro`)
       .then((response) => {
         expect(response.data).toMatch(
           /      \#define emberAfFillCommandIso7816ProtocolTunnelClusterServerToClientTransferApdu\(/
