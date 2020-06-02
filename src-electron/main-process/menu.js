@@ -37,6 +37,7 @@ import {
   readDataFromFile,
   writeStateToDatabase,
 } from '../importexport/import.js'
+import * as Preference from './preference.js'
 
 var httpPort
 var generationDirectory = appDirectory() + '/generation-output'
@@ -69,6 +70,12 @@ const template = [
       },
       {
         type: 'separator',
+      },
+      {
+        label: 'Preferences...',
+        click(menuItem, browserWindow, event) {
+          Preference.createOrShowWindow(httpPort)
+        },
       },
       {
         label: 'Session Information...',
