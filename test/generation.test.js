@@ -204,4 +204,10 @@ describe('Session specific tests', () => {
         )
       })
   })
+
+  test('No generation test', () => {
+    return axios.get(`${baseUrl}/preview/no-file`).then((response) => {
+      expect(response.data).toMatch(/No Generation Result for this file/)
+    })
+  })
 })

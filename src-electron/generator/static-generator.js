@@ -381,23 +381,6 @@ export function resolveHelper(map, helperFunctions) {
 }
 
 /**
- * Resolve the generation directory to be able to generate to the correct
- * directory.
- *
- * @export
- * @param {Object} map
- * @param {string} generationDirectory generation directory path.
- * @returns A promise with resolve listed on a map which has the generation
- * directory.
- */
-export function resolveGenerationDirectory(map, generationDirectory) {
-  return new Promise((resolve, reject) => {
-    map.generationDirectory = generationDirectory
-    resolve(map)
-  })
-}
-
-/**
  * The database information is used to show the generation output to a preview
  * pane using the compiled handlebar templates.
  *

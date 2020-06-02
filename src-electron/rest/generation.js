@@ -110,9 +110,13 @@ export function registerGenerationApi(db, app) {
           // Making sure all generation promises are resolved before handling the get request
           Promise.all(Object.values(generatedCodeMap))
             .then((messages) => {
-              generatedCodeMap[request.params.name].then((result) =>
-                response.json(result)
-              )
+              if (generatedCodeMap[request.params.name]) {
+                generatedCodeMap[request.params.name].then((result) =>
+                  response.json(result)
+                )
+              } else {
+                response.json('No Generation Result for this file')
+              }
             })
             .catch((err) => console.log(err))
         })
