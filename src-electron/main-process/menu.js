@@ -42,7 +42,7 @@ var httpPort
 var generationDirectory = appDirectory() + '/generation-output'
 var handlebarTemplateDirectory = __dirname + '/../../test/gen-template'
 var generationOptionsFile =
-  __dirname + '/../../test/gen-template/generation-options.json'
+  handlebarTemplateDirectory + '/generation-options.json'
 
 const template = [
   {
@@ -275,6 +275,8 @@ export function generateCodeViaCli(generationDir) {
 export function setHandlebarTemplateDirForCli(handlebarTemplateDir) {
   return new Promise((resolve, reject) => {
     handlebarTemplateDirectory = handlebarTemplateDir
+    generationOptionsFile =
+      handlebarTemplateDirectory + '/generation-options.json'
     resolve(handlebarTemplateDir)
   })
 }
