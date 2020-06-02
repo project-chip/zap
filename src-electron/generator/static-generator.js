@@ -482,7 +482,7 @@ export function generateDataToFile(
  *
  * @export
  * @param {*} filePath
- * @returns
+ * @returns A promise with the generation options
  */
 export function getGenerationProperties(filePath) {
   return new Promise((resolve, reject) => {
