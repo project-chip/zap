@@ -145,7 +145,13 @@ export function infoFromDb(map, dbRowTypeArray) {
     var db = map.database
     var dbInfo = {}
     for (let dbRowType of dbRowTypeArray) {
-      if (dbRowType === 'clusters') {
+      if (
+        dbRowType === 'clusters' ||
+        dbRowType === 'print-cluster' ||
+        dbRowType === 'debug-printing-zcl' ||
+        dbRowType === 'callback-zcl' ||
+        dbRowType === 'client-command-macro-cluster'
+      ) {
         dbInfo[dbRowType] = selectAllClustersApartFromNull(db).then(
           (dbRows) => (map[dbRowType] = dbRows)
         )
@@ -157,36 +163,19 @@ export function infoFromDb(map, dbRowTypeArray) {
         dbInfo[dbRowType] = selectAllBitmaps(db).then(
           (dbRows) => (map[dbRowType] = dbRows)
         )
-      } else if (dbRowType === 'print-cluster') {
-        dbInfo[dbRowType] = selectAllClustersApartFromNull(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
       } else if (dbRowType === 'af-structs') {
         dbInfo[dbRowType] = selectAllStructs(db).then(
           (dbRows) => (map[dbRowType] = dbRows)
         )
-      } else if (dbRowType === 'debug-printing-zcl') {
-        dbInfo[dbRowType] = selectAllClustersApartFromNull(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
-      } else if (dbRowType === 'callback-zcl') {
-        dbInfo[dbRowType] = selectAllClustersApartFromNull(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
-      } else if (dbRowType === 'callback-zcl-command') {
+      } else if (
+        dbRowType === 'callback-zcl-command' ||
+        dbRowType === 'client-command-macro-cluster-commands'
+      ) {
         dbInfo[dbRowType] = selectAllCommands(db).then(
           (dbRows) => (map[dbRowType] = dbRows)
         )
       } else if (dbRowType === 'client-command-macro-global') {
         dbInfo[dbRowType] = selectAllGlobalCommands(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
-      } else if (dbRowType === 'client-command-macro-cluster') {
-        dbInfo[dbRowType] = selectAllClustersApartFromNull(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
-      } else if (dbRowType === 'client-command-macro-cluster-commands') {
-        dbInfo[dbRowType] = selectAllClusterCommands(db).then(
           (dbRows) => (map[dbRowType] = dbRows)
         )
       }
