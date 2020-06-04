@@ -183,7 +183,7 @@ void emberAf{{camelCaseWithoutUnderscore this.define}}ServerTickCallback(uint8_t
  *
  */
 void emberAf{{camelCaseWithoutUnderscore ../define}}{{this.label}}Callback(
-    {{#each this.COMMAND_ARG}}
+    {{#each this.CommandArguments}}
         {{#if @last}}
             {{#switch type}}
                 {{#case 'attribute_id' ~}}uint16_t {{label}}{{/case ~}}           

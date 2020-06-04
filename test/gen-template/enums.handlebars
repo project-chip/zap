@@ -14,7 +14,7 @@
 
 {{#each type}}
 typedef enum {
-   {{#each this.ENUM_ITEMS}}
+   {{#each this.EnumItems}}
    	EMBER_ZCL_{{strong ../label}}_{{strong label}} = {{hexValue value}},
    {{/each}}
 }EmberAf{{this.label}};

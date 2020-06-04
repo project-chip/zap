@@ -31,13 +31,13 @@
       ],
       "group-info-into-db-row-type": [
         {
-          "tableName": "ENUM_ITEMS",
+          "joinRecords": "EnumItems",
           "foreignKey": "enumRef",
           "primaryKey": "id",
           "dbType": "enums"
         },
         {
-          "tableName": "BITMAP_FIELDS",
+          "joinRecords": "BitmapFields",
           "foreignKey": "bitmapRef",
           "primaryKey": "id",
           "dbType": "bitmaps"
@@ -86,7 +86,7 @@
       ],
       "group-info-into-db-row-type": [
         {
-          "tableName": "STRUCT_ITEMS",
+          "joinRecords": "StructItems",
           "foreignKey": "structRef",
           "primaryKey": "id",
           "dbType": "af-structs"
@@ -155,13 +155,13 @@
       ],
       "group-info-into-db-row-type": [
         {
-          "tableName": "COMMAND_ARG",
+          "joinRecords": "CommandArguments",
           "foreignKey": "commandRef",
           "primaryKey": "id",
           "dbType": "callback-zcl-command"
         },
         {
-          "tableName": "COMMAND",
+          "joinRecords": "COMMAND",
           "foreignKey": "clusterRef",
           "primaryKey": "id",
           "dbType": "callback-zcl",
@@ -202,19 +202,19 @@
       ],
       "group-info-into-db-row-type": [
         {
-          "tableName": "COMMAND_ARG",
+          "joinRecords": "CommandArguments",
           "foreignKey": "commandRef",
           "primaryKey": "id",
           "dbType": "client-command-macro-global"
         },
         {
-          "tableName": "COMMAND_ARG",
+          "joinRecords": "CommandArguments",
           "foreignKey": "commandRef",
           "primaryKey": "id",
           "dbType": "client-command-macro-cluster-commands"
         },
         {
-          "tableName": "COMMAND",
+          "joinRecords": "COMMAND",
           "foreignKey": "clusterRef",
           "primaryKey": "id",
           "dbType": "client-command-macro-cluster",

@@ -213,7 +213,7 @@ export function groupInfoIntoDbRow(map, groupByParams) {
   if (groupByParams) {
     for (i = 0; i < groupByParams.length; i++) {
       // Table Name for the creating a sub-list
-      let subItemName = groupByParams[i].tableName
+      let subItemName = groupByParams[i].joinRecords
       // Foreign Key in the table
       let foreignKey = groupByParams[i].foreignKey
       // Primary key in the parent table inorder to join
@@ -222,7 +222,7 @@ export function groupInfoIntoDbRow(map, groupByParams) {
       let dbType = groupByParams[i].dbType
 
       let db = map.database
-      // for eg map[ENUM_ITEMS], map[BITMAP_FIELDS], etc
+      // for eg map[EnumItems], map[BitmapFields], etc
       let dbRows = map[dbType]
       // Collecting the rows having the same key in subDBRows
       let subDbRows = []
@@ -233,13 +233,13 @@ export function groupInfoIntoDbRow(map, groupByParams) {
         })
       }
       if (!subItems) {
-        if (subItemName == 'ENUM_ITEMS') {
+        if (subItemName == 'EnumItems') {
           subItems = selectAllEnumItems(db)
-        } else if (subItemName == 'BITMAP_FIELDS') {
+        } else if (subItemName == 'BitmapFields') {
           subItems = selectAllBitmapFields(db)
-        } else if (subItemName == 'STRUCT_ITEMS') {
+        } else if (subItemName == 'StructItems') {
           subItems = selectAllStructItems(db)
-        } else if (subItemName == 'COMMAND_ARG') {
+        } else if (subItemName == 'CommandArguments') {
           subItems = selectAllCommandArguments(db)
         } else {
           return

@@ -20,7 +20,7 @@
  *
  * Command: {{this.label}}
  * @param clusterId EmberAfClusterId
- {{#each this.COMMAND_ARG}}
+ {{#each this.CommandArguments}}
  * @param {{this.label}} {{#if this.isArray~}}uint8_t*
                         {{else~}}
                             {{#switch this.type~}}
@@ -59,7 +59,7 @@
  */
 {{#if (eitherCommandSource this.source)}}
 #define emberAfFillCommandGlobalServerToClient{{this.label}}(clusterId, \
-    {{#each this.COMMAND_ARG}}
+    {{#each this.CommandArguments}}
         {{#if this.isArray~}}
             {{#if @last}}
             {{this.label}}, \
@@ -81,8 +81,8 @@
     clusterId, \
     {{~#if (commandManufactureSpecific this.manufacturerCode)}}0x{{this.manufacturerCode}},{{/if}}
     ZCL_{{strong this.label}}_COMMAND_ID, \
-    "{{formatCharactersForCommandArguments this.COMMAND_ARG}}", \
-    {{#each this.COMMAND_ARG}}
+    "{{formatCharactersForCommandArguments this.CommandArguments}}", \
+    {{#each this.CommandArguments}}
         {{#if this.isArray~}}
             {{#if @last}}
                 {{this.label}}, \
@@ -104,7 +104,7 @@
  *
  * Command: {{this.label}}
  * @param clusterId EmberAfClusterId
- {{#each this.COMMAND_ARG}}
+ {{#each this.CommandArguments}}
  * @param {{this.label}} {{#if this.isArray~}}uint8_t*
                         {{else~}}
                             {{#switch this.type~}}
@@ -142,7 +142,7 @@
  {{/each}}
  */
 #define emberAfFillCommandGlobalClientToServer{{this.label}}(clusterId, \
-    {{#each this.COMMAND_ARG}}
+    {{#each this.CommandArguments}}
         {{#if this.isArray~}}
             {{#if @last}}
             {{this.label}}, \
@@ -164,8 +164,8 @@
     clusterId, \
     {{~#if (commandManufactureSpecific this.manufacturerCode)}}0x{{this.manufacturerCode}},{{/if}}
     ZCL_{{strong this.label}}_COMMAND_ID, \
-    "{{formatCharactersForCommandArguments this.COMMAND_ARG}}", \
-    {{#each this.COMMAND_ARG}}
+    "{{formatCharactersForCommandArguments this.CommandArguments}}", \
+    {{#each this.CommandArguments}}
         {{#if this.isArray~}}
             {{#if @last}}
                 {{this.label}}, \
@@ -188,7 +188,7 @@
  *
  * Command: {{this.label}}
  * @param clusterId EmberAfClusterId
- {{#each this.COMMAND_ARG}}
+ {{#each this.CommandArguments}}
  * @param {{this.label}} {{#if this.isArray~}}uint8_t*
                         {{else~}}
                             {{#switch this.type~}}
@@ -226,7 +226,7 @@
  {{/each}}
  */
 #define emberAfFillCommandGlobal{{direction this.source}}{{this.label}}(clusterId, \
-    {{#each this.COMMAND_ARG}}
+    {{#each this.CommandArguments}}
         {{#if this.isArray~}}
             {{#if @last}}
             {{this.label}}, \
@@ -248,8 +248,8 @@
     clusterId, \
     {{~#if (commandManufactureSpecific this.manufacturerCode)}}0x{{this.manufacturerCode}},{{/if}}
     ZCL_{{strong this.label}}_COMMAND_ID, \
-    "{{formatCharactersForCommandArguments this.COMMAND_ARG}}", \
-    {{#each this.COMMAND_ARG}}
+    "{{formatCharactersForCommandArguments this.CommandArguments}}", \
+    {{#each this.CommandArguments}}
         {{#if this.isArray~}}
             {{#if @last}}
                 {{this.label}}, \

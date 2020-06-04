@@ -8,7 +8,7 @@
 
 {{#each type}}
 typedef struct _{{this.label}} {
-    {{#each this.STRUCT_ITEMS}}
+    {{#each this.StructItems}}
         {{#switch type}}
             {{#case 'attribute_id' ~}}uint16_t {{label}};{{/case ~}}           
             {{#case 'bitmap24' ~}}uint32_t {{label}};{{/case ~}}
