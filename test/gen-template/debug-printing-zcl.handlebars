@@ -7,23 +7,23 @@
 #define SILABS_EMBER_AF_DEBUG_PRINTING
 
 {{#each type}}
-// Printing macros for cluster: {{this.NAME}}
-#if defined(EMBER_AF_PRINT_ENABLE) && defined(EMBER_AF_PRINT_{{uppercase this.DEFINE}})
-    #define emberAf{{camelCaseWithoutUnderscore this.DEFINE}}Print(...) emberAfPrint(EMBER_AF_PRINT_{{uppercase this.DEFINE}}, __VA_ARGS__)
-    #define emberAf{{camelCaseWithoutUnderscore this.DEFINE}}Println(...) emberAfPrintln(EMBER_AF_PRINT_{{uppercase this.DEFINE}},  __VA_ARGS__)
+// Printing macros for cluster: {{this.label}}
+#if defined(EMBER_AF_PRINT_ENABLE) && defined(EMBER_AF_PRINT_{{uppercase this.define}})
+    #define emberAf{{camelCaseWithoutUnderscore this.define}}Print(...) emberAfPrint(EMBER_AF_PRINT_{{uppercase this.define}}, __VA_ARGS__)
+    #define emberAf{{camelCaseWithoutUnderscore this.define}}Println(...) emberAfPrintln(EMBER_AF_PRINT_{{uppercase this.define}},  __VA_ARGS__)
     // Blocking IO is enabled for all serial ports, therefore flush calls are unnecessary.
-    #define emberAf{{camelCaseWithoutUnderscore this.DEFINE}}Flush()
-    #define emberAf{{camelCaseWithoutUnderscore this.DEFINE}}DebugExec(x) if ( emberAfPrintEnabled(EMBER_AF_PRINT_{{uppercase this.DEFINE}}) ) { x; }
-    #define emberAf{{camelCaseWithoutUnderscore this.DEFINE}}PrintBuffer(buffer, len, withSpace) emberAfPrintBuffer(EMBER_AF_PRINT_{{uppercase this.DEFINE}}, (buffer), (len), (withSpace))
-    #define emberAf{{camelCaseWithoutUnderscore this.DEFINE}}PrintString(buffer) emberAfPrintString(EMBER_AF_PRINT_{{uppercase this.DEFINE}}, (buffer))
+    #define emberAf{{camelCaseWithoutUnderscore this.define}}Flush()
+    #define emberAf{{camelCaseWithoutUnderscore this.define}}DebugExec(x) if ( emberAfPrintEnabled(EMBER_AF_PRINT_{{uppercase this.define}}) ) { x; }
+    #define emberAf{{camelCaseWithoutUnderscore this.define}}PrintBuffer(buffer, len, withSpace) emberAfPrintBuffer(EMBER_AF_PRINT_{{uppercase this.define}}, (buffer), (len), (withSpace))
+    #define emberAf{{camelCaseWithoutUnderscore this.define}}PrintString(buffer) emberAfPrintString(EMBER_AF_PRINT_{{uppercase this.define}}, (buffer))
 #else
-    #define emberAf{{camelCaseWithoutUnderscore this.DEFINE}}Print(...)
-    #define emberAf{{camelCaseWithoutUnderscore this.DEFINE}}Println(...)
-    #define emberAf{{camelCaseWithoutUnderscore this.DEFINE}}Flush()
-    #define emberAf{{camelCaseWithoutUnderscore this.DEFINE}}DebugExec(x)
-    #define emberAf{{camelCaseWithoutUnderscore this.DEFINE}}PrintBuffer(buffer, len, withSpace)
-    #define emberAf{{camelCaseWithoutUnderscore this.DEFINE}}PrintString(buffer)
-#endif //defined(EMBER_AF_PRINT_ENABLE) && defined(EMBER_AF_PRINT_{{uppercase this.DEFINE}})
+    #define emberAf{{camelCaseWithoutUnderscore this.define}}Print(...)
+    #define emberAf{{camelCaseWithoutUnderscore this.define}}Println(...)
+    #define emberAf{{camelCaseWithoutUnderscore this.define}}Flush()
+    #define emberAf{{camelCaseWithoutUnderscore this.define}}DebugExec(x)
+    #define emberAf{{camelCaseWithoutUnderscore this.define}}PrintBuffer(buffer, len, withSpace)
+    #define emberAf{{camelCaseWithoutUnderscore this.define}}PrintString(buffer)
+#endif //defined(EMBER_AF_PRINT_ENABLE) && defined(EMBER_AF_PRINT_{{uppercase this.define}})
 
 {{/each}}
 

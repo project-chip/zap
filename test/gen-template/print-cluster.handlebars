@@ -8,17 +8,17 @@
 // The names of clusters that are not present, are removed.
 
 {{#each type}}
-#if defined(ZCL_USING_{{uppercase this.DEFINE}}_SERVER) || defined(ZCL_USING_{{uppercase this.DEFINE}}_CLIENT)
-    #define SILABS_PRINTCLUSTER_{{uppercase this.DEFINE}} {ZCL_{{uppercase this.DEFINE}}_ID, {{this.CODE}}, {{this.NAME}} },
+#if defined(ZCL_USING_{{uppercase this.define}}_SERVER) || defined(ZCL_USING_{{uppercase this.define}}_CLIENT)
+    #define SILABS_PRINTCLUSTER_{{uppercase this.define}} {ZCL_{{uppercase this.define}}_ID, {{this.code}}, {{this.label}} },
 #else
-    #define SILABS_PRINTCLUSTER_{{uppercase this.DEFINE}}
+    #define SILABS_PRINTCLUSTER_{{uppercase this.define}}
 #endif
 
 {{/each}}
 
 #define CLUSTER_IDS_TO_NAMES \
 {{#each type}}
-    #define SILABS_PRINTCLUSTER_{{uppercase this.DEFINE}} \
+    #define SILABS_PRINTCLUSTER_{{uppercase this.define}} \
 {{/each}}
 
 #define MAX_CLUSTER_NAME_LENGTH  {{largestStringInArray type}}

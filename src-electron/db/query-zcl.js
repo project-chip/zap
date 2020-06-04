@@ -36,7 +36,7 @@ export function selectAllEnums(db) {
     db,
     'SELECT ENUM_ID, NAME, TYPE FROM ENUM ORDER BY NAME',
     []
-  )
+  ).then((rows) => rows.map(DbMapping.dbMap.enum))
 }
 
 export function selectAllEnumItemsById(db, id) {
@@ -48,7 +48,7 @@ export function selectAllEnumItems(db) {
     db,
     'SELECT NAME, VALUE, ENUM_REF FROM ENUM_ITEM ORDER BY ENUM_REF',
     []
-  )
+  ).then((rows) => rows.map(DbMapping.dbMap.enumItem))
 }
 
 export function selectEnumById(db, id) {
@@ -71,7 +71,7 @@ export function selectAllBitmaps(db) {
     db,
     'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP ORDER BY NAME',
     []
-  )
+  ).then((rows) => rows.map(DbMapping.dbMap.bitmap))
 }
 
 export function selectAllBitmapFields(db) {
@@ -79,7 +79,7 @@ export function selectAllBitmapFields(db) {
     db,
     'SELECT NAME, MASK, BITMAP_REF FROM BITMAP_FIELD ORDER BY NAME',
     []
-  )
+  ).then((rows) => rows.map(DbMapping.dbMap.bitmapField))
 }
 
 export function selectBitmapById(db, id) {
@@ -117,7 +117,11 @@ export function selectDomainById(db, id) {
  * @returns Promise that resolves with the rows of structs.
  */
 export function selectAllStructs(db) {
-  return DbApi.dbAll(db, 'SELECT STRUCT_ID, NAME FROM STRUCT ORDER BY NAME', [])
+  return DbApi.dbAll(
+    db,
+    'SELECT STRUCT_ID, NAME FROM STRUCT ORDER BY NAME',
+    []
+  ).then((rows) => rows.map(DbMapping.dbMap.struct))
 }
 
 export function selectStructById(db, id) {
@@ -133,7 +137,7 @@ export function selectAllStructItems(db) {
     db,
     'SELECT NAME, TYPE, STRUCT_REF FROM STRUCT_ITEM ORDER BY STRUCT_REF',
     []
-  )
+  ).then((rows) => rows.map(DbMapping.dbMap.structItem))
 }
 
 export function selectStructItemById(db, id) {
@@ -154,7 +158,7 @@ export function selectAllClusters(db) {
     db,
     'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE FROM CLUSTER ORDER BY CODE',
     []
-  )
+  ) //.then((rows) => rows.map(DbMapping.dbMap.cluster))
 }
 
 export function selectAllClustersApartFromNull(db) {
@@ -162,7 +166,7 @@ export function selectAllClustersApartFromNull(db) {
     db,
     'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE FROM CLUSTER WHERE CLUSTER_ID IS NOT NULL ORDER BY CODE',
     []
-  )
+  ).then((rows) => rows.map(DbMapping.dbMap.cluster))
 }
 
 export function selectClusterById(db, id) {
@@ -233,7 +237,7 @@ export function selectAllCommands(db) {
     db,
     `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND ORDER BY CODE`,
     []
-  )
+  ).then((rows) => rows.map(DbMapping.dbMap.command))
 }
 
 export function selectAllGlobalCommands(db) {
@@ -241,7 +245,7 @@ export function selectAllGlobalCommands(db) {
     db,
     `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE CLUSTER_REF IS NULL ORDER BY CODE`,
     []
-  )
+  ).then((rows) => rows.map(DbMapping.dbMap.command))
 }
 
 export function selectAllClusterCommands(db) {
@@ -249,7 +253,7 @@ export function selectAllClusterCommands(db) {
     db,
     `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE CLUSTER_REF IS NOT NULL ORDER BY CODE`,
     []
-  )
+  ).then((rows) => rows.map(DbMapping.dbMap.command))
 }
 
 export function selectAllCommandArguments(db) {
@@ -257,7 +261,7 @@ export function selectAllCommandArguments(db) {
     db,
     `SELECT COMMAND_REF, NAME, TYPE, IS_ARRAY FROM COMMAND_ARG ORDER BY COMMAND_REF`,
     []
-  )
+  ).then((rows) => rows.map(DbMapping.dbMap.commandArgument))
 }
 
 export function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {

@@ -146,7 +146,7 @@ export function infoFromDb(map, dbRowTypeArray) {
     var dbInfo = {}
     for (let dbRowType of dbRowTypeArray) {
       if (dbRowType === 'clusters') {
-        dbInfo[dbRowType] = selectAllClusters(db).then(
+        dbInfo[dbRowType] = selectAllClustersApartFromNull(db).then(
           (dbRows) => (map[dbRowType] = dbRows)
         )
       } else if (dbRowType == 'enums') {
@@ -158,7 +158,7 @@ export function infoFromDb(map, dbRowTypeArray) {
           (dbRows) => (map[dbRowType] = dbRows)
         )
       } else if (dbRowType === 'print-cluster') {
-        dbInfo[dbRowType] = selectAllClusters(db).then(
+        dbInfo[dbRowType] = selectAllClustersApartFromNull(db).then(
           (dbRows) => (map[dbRowType] = dbRows)
         )
       } else if (dbRowType === 'af-structs') {
@@ -166,11 +166,11 @@ export function infoFromDb(map, dbRowTypeArray) {
           (dbRows) => (map[dbRowType] = dbRows)
         )
       } else if (dbRowType === 'debug-printing-zcl') {
-        dbInfo[dbRowType] = selectAllClusters(db).then(
+        dbInfo[dbRowType] = selectAllClustersApartFromNull(db).then(
           (dbRows) => (map[dbRowType] = dbRows)
         )
       } else if (dbRowType === 'callback-zcl') {
-        dbInfo[dbRowType] = selectAllClusters(db).then(
+        dbInfo[dbRowType] = selectAllClustersApartFromNull(db).then(
           (dbRows) => (map[dbRowType] = dbRows)
         )
       } else if (dbRowType === 'callback-zcl-command') {

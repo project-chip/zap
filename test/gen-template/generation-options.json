@@ -32,14 +32,14 @@
       "group-info-into-db-row-type": [
         {
           "tableName": "ENUM_ITEMS",
-          "foreignKey": "ENUM_REF",
-          "primaryKey": "ENUM_ID",
+          "foreignKey": "enumRef",
+          "primaryKey": "id",
           "dbType": "enums"
         },
         {
           "tableName": "BITMAP_FIELDS",
-          "foreignKey": "BITMAP_REF",
-          "primaryKey": "BITMAP_ID",
+          "foreignKey": "bitmapRef",
+          "primaryKey": "id",
           "dbType": "bitmaps"
         }
       ],
@@ -87,8 +87,8 @@
       "group-info-into-db-row-type": [
         {
           "tableName": "STRUCT_ITEMS",
-          "foreignKey": "STRUCT_REF",
-          "primaryKey": "STRUCT_ID",
+          "foreignKey": "structRef",
+          "primaryKey": "id",
           "dbType": "af-structs"
         }
       ],
@@ -156,14 +156,14 @@
       "group-info-into-db-row-type": [
         {
           "tableName": "COMMAND_ARG",
-          "foreignKey": "COMMAND_REF",
-          "primaryKey": "COMMAND_ID",
+          "foreignKey": "commandRef",
+          "primaryKey": "id",
           "dbType": "callback-zcl-command"
         },
         {
           "tableName": "COMMAND",
-          "foreignKey": "CLUSTER_REF",
-          "primaryKey": "CLUSTER_ID",
+          "foreignKey": "clusterRef",
+          "primaryKey": "id",
           "dbType": "callback-zcl",
           "subItems": "callback-zcl-command"
         }
@@ -203,20 +203,20 @@
       "group-info-into-db-row-type": [
         {
           "tableName": "COMMAND_ARG",
-          "foreignKey": "COMMAND_REF",
-          "primaryKey": "COMMAND_ID",
+          "foreignKey": "commandRef",
+          "primaryKey": "id",
           "dbType": "client-command-macro-global"
         },
         {
           "tableName": "COMMAND_ARG",
-          "foreignKey": "COMMAND_REF",
-          "primaryKey": "COMMAND_ID",
+          "foreignKey": "commandRef",
+          "primaryKey": "id",
           "dbType": "client-command-macro-cluster-commands"
         },
         {
           "tableName": "COMMAND",
-          "foreignKey": "CLUSTER_REF",
-          "primaryKey": "CLUSTER_ID",
+          "foreignKey": "clusterRef",
+          "primaryKey": "id",
           "dbType": "client-command-macro-cluster",
           "subItems": "client-command-macro-cluster-commands"
         }
