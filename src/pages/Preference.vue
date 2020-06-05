@@ -38,18 +38,15 @@ limitations under the License.
           transition-next="jump-up"
         >
           <q-tab-panel name="zcl">
-            <div class="text-h4 q-mb-md">Zigbee Cluster Library</div>
-            <p>Zcl preferences.</p>
+            <PreferenceZcl />
           </q-tab-panel>
 
           <q-tab-panel name="gen">
-            <div class="text-h4 q-mb-md">Generation</div>
-            <p>Generation preferences.</p>
+            <PreferenceGeneration />
           </q-tab-panel>
 
           <q-tab-panel name="user">
-            <div class="text-h4 q-mb-md">User settings</div>
-            <p>User preferences.</p>
+            <PreferenceUser />
           </q-tab-panel>
         </q-tab-panels>
       </template>
@@ -57,7 +54,16 @@ limitations under the License.
   </div>
 </template>
 <script>
+import PreferenceZcl from './PreferenceZcl.vue'
+import PreferenceGeneration from './PreferenceGeneration.vue'
+import PreferenceUser from './PreferenceUser.vue'
 export default {
+  name: 'Preference',
+  components: {
+    PreferenceZcl,
+    PreferenceGeneration,
+    PreferenceUser,
+  },
   data() {
     return {
       tab: 'zcl',
