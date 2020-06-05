@@ -62,7 +62,7 @@ export default {
   components: {
     PreferenceZcl,
     PreferenceGeneration,
-    Pre,
+    PreferenceUser,
   },
   data() {
     return {
