@@ -139,7 +139,7 @@ export function getLargestStringInArray() {
     i = 0,
     stringLength = 0
   for (i = 0; i < stringArray.length; i++) {
-    stringLength = stringArray[i].NAME.length
+    stringLength = stringArray[i].label.length
     if (stringLength > lengthOfLargestString) {
       lengthOfLargestString = stringLength
     }
@@ -206,11 +206,11 @@ export function getFormatCharactersForCommandArguments(commandArgs) {
   if (commandArgs) {
     for (i = 0; i < commandArgs.length; i++) {
       commandArg = commandArgs[i]
-      if (commandArg.IS_ARRAY) {
+      if (commandArg.isArray) {
         res += 'b'
         continue
       }
-      switch (commandArg.TYPE.toLowerCase()) {
+      switch (commandArg.type.toLowerCase()) {
         case 'data8':
           res += 'u'
           break

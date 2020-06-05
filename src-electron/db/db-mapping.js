@@ -68,6 +68,18 @@ export const dbMap = {
     }
   },
 
+  commandArgument: (x) => {
+    if (x == null) return undefined
+    return {
+      commandRef: x.COMMAND_REF,
+      label: x.NAME,
+      type: x.TYPE,
+      code: x.CODE,
+      isArray: x.IS_ARRAY,
+      caption: `Command argument of type ${x.TYPE}`,
+    }
+  },
+
   domain: (x) => {
     if (x == null) return undefined
     return {
@@ -86,6 +98,16 @@ export const dbMap = {
     }
   },
 
+  enumItem: (x) => {
+    if (x == null) return undefined
+    return {
+      label: x.NAME,
+      value: x.VALUE,
+      enumRef: x.ENUM_REF,
+      caption: `EnumItem, named ${x.NAME}`,
+    }
+  },
+
   struct: (x) => {
     if (x == null) return undefined
     return {
@@ -95,12 +117,32 @@ export const dbMap = {
     }
   },
 
+  structItem: (x) => {
+    if (x == null) return undefined
+    return {
+      label: x.NAME,
+      structRef: x.STRUCT_REF,
+      type: x.TYPE,
+      caption: `Struct Item of type ${x.TYPE}`,
+    }
+  },
+
   bitmap: (x) => {
     if (x == null) return undefined
     return {
       id: x.BITMAP_ID,
       label: x.NAME,
-      caption: `Enum of type ${x.TYPE}`,
+      caption: `Bitmap of type ${x.TYPE}`,
+    }
+  },
+
+  bitmapField: (x) => {
+    if (x == null) return undefined
+    return {
+      label: x.NAME,
+      mask: x.MASK,
+      bitmapRef: x.BITMAP_REF,
+      caption: `BitmapField, named ${x.NAME}`,
     }
   },
 

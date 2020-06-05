@@ -92,7 +92,7 @@ limitations under the License.
                     v-close-popup
                     @click="
                       generationButtonText = 'cluster-id.h'
-                      getGeneratedFile('clusters')
+                      getGeneratedFile('cluster-id')
                     "
                     key="status"
                     :label="generationButtonText"
@@ -191,7 +191,7 @@ limitations under the License.
                     v-close-popup
                     @click="
                       generationButtonText = 'client-command-macro.h'
-                      getGeneratedFile('client-command-macro-global')
+                      getGeneratedFile('client-command-macro')
                     "
                     :label="generationButtonText"
                   >

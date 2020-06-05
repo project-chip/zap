@@ -1,18 +1,18 @@
 {{#each type}}
-/** @name {{this.NAME}} cluster Callbacks */
+/** @name {{this.label}} cluster Callbacks */
 // @{
 
-/** @brief {{this.NAME}} cluster Client Attribute Changed
+/** @brief {{this.label}} cluster Client Attribute Changed
  *
  * Client Attribute Changed
  *
  * @param endpoint Endpoint that is being initialized  Ver.: always
  * @param attributeId Attribute that changed  Ver.: always
  */
-void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ClientAttributeChangedCallback(uint8_t endpoint,
+void emberAf{{camelCaseWithoutUnderscore this.define}}ClientAttributeChangedCallback(uint8_t endpoint,
                                                        EmberAfAttributeId attributeId);
 
-/** @brief {{this.NAME}} cluster Client Default Response
+/** @brief {{this.label}} cluster Client Default Response
  *
  * This function is called when the client receives the default response from
  * the server.
@@ -21,19 +21,19 @@ void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ClientAttributeChangedCall
  * @param commandId Command id  Ver.: always
  * @param status Status in default response  Ver.: always
  */
-void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ClientDefaultResponseCallback(uint8_t endpoint,
+void emberAf{{camelCaseWithoutUnderscore this.define}}ClientDefaultResponseCallback(uint8_t endpoint,
                                                       uint8_t commandId,
                                                       EmberAfStatus status);
 
-/** @brief {{this.NAME}} cluster Client Init
+/** @brief {{this.label}} cluster Client Init
  *
  * Client Init
  *
  * @param endpoint Endpoint that is being initialized  Ver.: always
  */
-void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ClientInitCallback(uint8_t endpoint);
+void emberAf{{camelCaseWithoutUnderscore this.define}}ClientInitCallback(uint8_t endpoint);
 
-/** @brief {{this.NAME}} cluster Client Manufacturer Specific Attribute Changed
+/** @brief {{this.label}} cluster Client Manufacturer Specific Attribute Changed
  *
  * Client Manufacturer Specific Attribute Changed
  *
@@ -42,11 +42,11 @@ void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ClientInitCallback(uint8_t
  * @param manufacturerCode Manufacturer Code of the attribute that changed 
  * Ver.: always
  */
-void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ClientManufacturerSpecificAttributeChangedCallback(uint8_t endpoint,
+void emberAf{{camelCaseWithoutUnderscore this.define}}ClientManufacturerSpecificAttributeChangedCallback(uint8_t endpoint,
                                                                            EmberAfAttributeId attributeId,
                                                                            uint16_t manufacturerCode);
 
-/** @brief {{this.NAME}} cluster Client Message Sent
+/** @brief {{this.label}} cluster Client Message Sent
  *
  * Client Message Sent
  *
@@ -58,14 +58,14 @@ void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ClientManufacturerSpecific
  * @param message The message that was sent  Ver.: always
  * @param status The status of the sent message  Ver.: always
  */
-void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ClientMessageSentCallback(EmberOutgoingMessageType type,
+void emberAf{{camelCaseWithoutUnderscore this.define}}ClientMessageSentCallback(EmberOutgoingMessageType type,
                                                   uint16_t indexOrDestination,
                                                   EmberApsFrame *apsFrame,
                                                   uint16_t msgLen,
                                                   uint8_t *message,
                                                   EmberStatus status);
 
-/** @brief {{this.NAME}} cluster Client Pre Attribute Changed
+/** @brief {{this.label}} cluster Client Pre Attribute Changed
  *
  * Client Pre Attribute Changed
  *
@@ -75,31 +75,31 @@ void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ClientMessageSentCallback(
  * @param size Attribute size  Ver.: always
  * @param value Attribute value  Ver.: always
  */
-EmberAfStatus emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ClientPreAttributeChangedCallback(uint8_t endpoint,
+EmberAfStatus emberAf{{camelCaseWithoutUnderscore this.define}}ClientPreAttributeChangedCallback(uint8_t endpoint,
                                                                    EmberAfAttributeId attributeId,
                                                                    EmberAfAttributeType attributeType,
                                                                    uint8_t size,
                                                                    uint8_t *value);
 
-/** @brief {{this.NAME}} cluster Client Tick
+/** @brief {{this.label}} cluster Client Tick
  *
  * Client Tick
  *
  * @param endpoint Endpoint that is being served  Ver.: always
  */
-void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ClientTickCallback(uint8_t endpoint);
+void emberAf{{camelCaseWithoutUnderscore this.define}}ClientTickCallback(uint8_t endpoint);
 
-/** @brief {{this.NAME}} cluster Server Attribute Changed
+/** @brief {{this.label}} cluster Server Attribute Changed
  *
  * Server Attribute Changed
  *
  * @param endpoint Endpoint that is being initialized  Ver.: always
  * @param attributeId Attribute that changed  Ver.: always
  */
-void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ServerAttributeChangedCallback(uint8_t endpoint,
+void emberAf{{camelCaseWithoutUnderscore this.define}}ServerAttributeChangedCallback(uint8_t endpoint,
                                                        EmberAfAttributeId attributeId);
 
-/** @brief {{this.NAME}} cluster Server Default Response
+/** @brief {{this.label}} cluster Server Default Response
  *
  * This function is called when the server receives the default response from
  * the client.
@@ -108,19 +108,19 @@ void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ServerAttributeChangedCall
  * @param commandId Command id  Ver.: always
  * @param status Status in default response  Ver.: always
  */
-void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ServerDefaultResponseCallback(uint8_t endpoint,
+void emberAf{{camelCaseWithoutUnderscore this.define}}ServerDefaultResponseCallback(uint8_t endpoint,
                                                       uint8_t commandId,
                                                       EmberAfStatus status);
 
-/** @brief {{this.NAME}} cluster Server Init
+/** @brief {{this.label}} cluster Server Init
  *
  * Server Init
  *
  * @param endpoint Endpoint that is being initialized  Ver.: always
  */
-void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ServerInitCallback(uint8_t endpoint);
+void emberAf{{camelCaseWithoutUnderscore this.define}}ServerInitCallback(uint8_t endpoint);
 
-/** @brief {{this.NAME}} cluster Server Manufacturer Specific Attribute Changed
+/** @brief {{this.label}} cluster Server Manufacturer Specific Attribute Changed
  *
  * Server Manufacturer Specific Attribute Changed
  *
@@ -129,11 +129,11 @@ void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ServerInitCallback(uint8_t
  * @param manufacturerCode Manufacturer Code of the attribute that changed 
  * Ver.: always
  */
-void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ServerManufacturerSpecificAttributeChangedCallback(uint8_t endpoint,
+void emberAf{{camelCaseWithoutUnderscore this.define}}ServerManufacturerSpecificAttributeChangedCallback(uint8_t endpoint,
                                                                            EmberAfAttributeId attributeId,
                                                                            uint16_t manufacturerCode);
 
-/** @brief {{this.NAME}} cluster Server Message Sent
+/** @brief {{this.label}} cluster Server Message Sent
  *
  * Server Message Sent
  *
@@ -145,14 +145,14 @@ void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ServerManufacturerSpecific
  * @param message The message that was sent  Ver.: always
  * @param status The status of the sent message  Ver.: always
  */
-void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ServerMessageSentCallback(EmberOutgoingMessageType type,
+void emberAf{{camelCaseWithoutUnderscore this.define}}ServerMessageSentCallback(EmberOutgoingMessageType type,
                                                   uint16_t indexOrDestination,
                                                   EmberApsFrame *apsFrame,
                                                   uint16_t msgLen,
                                                   uint8_t *message,
                                                   EmberStatus status);
 
-/** @brief {{this.NAME}} cluster Server Pre Attribute Changed
+/** @brief {{this.label}} cluster Server Pre Attribute Changed
  *
  * Server Pre Attribute Changed
  *
@@ -162,101 +162,101 @@ void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ServerMessageSentCallback(
  * @param size Attribute size  Ver.: always
  * @param value Attribute value  Ver.: always
  */
-EmberAfStatus emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ServerPreAttributeChangedCallback(uint8_t endpoint,
+EmberAfStatus emberAf{{camelCaseWithoutUnderscore this.define}}ServerPreAttributeChangedCallback(uint8_t endpoint,
                                                                    EmberAfAttributeId attributeId,
                                                                    EmberAfAttributeType attributeType,
                                                                    uint8_t size,
                                                                    uint8_t *value);
 
-/** @brief {{this.NAME}} cluster Server Tick
+/** @brief {{this.label}} cluster Server Tick
  *
  * Server Tick
  *
  * @param endpoint Endpoint that is being served  Ver.: always
  */
-void emberAf{{camelCaseWithoutUnderscore this.DEFINE}}ServerTickCallback(uint8_t endpoint);
+void emberAf{{camelCaseWithoutUnderscore this.define}}ServerTickCallback(uint8_t endpoint);
 
 {{#each this.COMMAND}}
-/** @brief {{../NAME}} Cluster {{this.NAME}}
+/** @brief {{../label}} Cluster {{this.label}}
  *
- * {{this.NAME}}
+ * {{this.label}}
  *
  */
-void emberAf{{camelCaseWithoutUnderscore ../DEFINE}}{{this.NAME}}Callback(
-    {{#each this.COMMAND_ARG}}
+void emberAf{{camelCaseWithoutUnderscore ../define}}{{this.label}}Callback(
+    {{#each this.CommandArguments}}
         {{#if @last}}
-            {{#switch TYPE}}
-                {{#case 'attribute_id' ~}}uint16_t {{NAME}}{{/case ~}}           
-                {{#case 'bitmap24' ~}}uint32_t {{NAME}}{{/case ~}}
-                {{#case 'bitmap8' ~}}uint8_t {{NAME}}{{/case ~}}
-                {{#case 'boolean' ~}}uint8_t {{NAME}}{{/case ~}}
-                {{#case 'char_string' ~}}uint8_t* {{NAME}}{{/case ~}}
-                {{#case 'cluster_id' ~}}uint16_t {{NAME}}{{/case ~}}
-                {{#case 'data16' ~}}uint16_t {{NAME}}{{/case ~}}
-                {{#case 'date' ~}}uint32_t {{NAME}}{{/case ~}}
-                {{#case 'deviceinformationrecordsort' ~}}uint8_t {{NAME}}{{/case ~}}
-                {{#case 'eventconfiguration' ~}}uint8_t {{NAME}}{{/case ~}}
-                {{#case 'eventlogid' ~}}uint8_t {{NAME}}{{/case ~}}
-                {{#case 'iaszonestatus' ~}}uint16_t {{NAME}}{{/case ~}}
-                {{#case 'ieee_address' ~}}uint8_t* {{NAME}}{{/case ~}}
-                {{#case 'int16s' ~}}int16_t {{NAME}}{{/case ~}}
-                {{#case 'int16u' ~}}uint16_t {{NAME}}{{/case ~}}
-                {{#case 'int24u' ~}}uint32_t {{NAME}}{{/case ~}}
-                {{#case 'int32u' ~}}uint32_t {{NAME}}{{/case ~}}
-                {{#case 'int48u' ~}}uint8_t* {{NAME}}{{/case ~}}
-                {{#case 'int8s' ~}}int8_t {{NAME}}{{/case ~}}
-                {{#case 'int8u' ~}}uint8_t {{NAME}}{{/case ~}}
-                {{#case 'no_data' ~}}uint8_t* {{NAME}}{{/case ~}}
-                {{#case 'octet_string' ~}}uint8_t* {{NAME}}{{/case ~}}
-                {{#case 'pricetier' ~}}uint8_t {{NAME}}{{/case ~}}
-                {{#case 'repaymentdebttype' ~}}uint8_t {{NAME}}{{/case ~}}
-                {{#case 'snapshotcause' ~}}uint32_t {{NAME}}{{/case ~}}
-                {{#case 'snapshotpayloadtype' ~}}uint8_t {{NAME}}{{/case ~}}
-                {{#case 'snapshotscheduleconfirmation' ~}}uint8_t {{NAME}}{{/case ~}}
-                {{#case 'status' ~}}uint8_t {{NAME}}{{/case ~}}
-                {{#case 'utc_time' ~}}uint32_t {{NAME}}{{/case ~}}
-                {{#case 'enum8' ~}}uint8_t {{NAME}}{{/case ~}}
-                {{#default 'uint8_t' ~}}uint8_t {{NAME}}{{/default}}
+            {{#switch type}}
+                {{#case 'attribute_id' ~}}uint16_t {{label}}{{/case ~}}           
+                {{#case 'bitmap24' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'bitmap8' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'boolean' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'char_string' ~}}uint8_t* {{label}}{{/case ~}}
+                {{#case 'cluster_id' ~}}uint16_t {{label}}{{/case ~}}
+                {{#case 'data16' ~}}uint16_t {{label}}{{/case ~}}
+                {{#case 'date' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'deviceinformationrecordsort' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'eventconfiguration' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'eventlogid' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'iaszonestatus' ~}}uint16_t {{label}}{{/case ~}}
+                {{#case 'ieee_address' ~}}uint8_t* {{label}}{{/case ~}}
+                {{#case 'int16s' ~}}int16_t {{label}}{{/case ~}}
+                {{#case 'int16u' ~}}uint16_t {{label}}{{/case ~}}
+                {{#case 'int24u' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'int32u' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'int48u' ~}}uint8_t* {{label}}{{/case ~}}
+                {{#case 'int8s' ~}}int8_t {{label}}{{/case ~}}
+                {{#case 'int8u' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'no_data' ~}}uint8_t* {{label}}{{/case ~}}
+                {{#case 'octet_string' ~}}uint8_t* {{label}}{{/case ~}}
+                {{#case 'pricetier' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'repaymentdebttype' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'snapshotcause' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'snapshotpayloadtype' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'snapshotscheduleconfirmation' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'status' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'utc_time' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'enum8' ~}}uint8_t {{label}}{{/case ~}}
+                {{#default 'uint8_t' ~}}uint8_t {{label}}{{/default}}
             {{/switch}}
         {{else}}
-            {{#switch TYPE}}
-                {{#case 'attribute_id' ~}}uint16_t {{NAME}},{{/case ~}}           
-                {{#case 'bitmap24' ~}}uint32_t {{NAME}},{{/case ~}}
-                {{#case 'bitmap8' ~}}uint8_t {{NAME}},{{/case ~}}
-                {{#case 'boolean' ~}}uint8_t {{NAME}},{{/case ~}}
-                {{#case 'char_string' ~}}uint8_t* {{NAME}},{{/case ~}}
-                {{#case 'cluster_id' ~}}uint16_t {{NAME}},{{/case ~}}
-                {{#case 'data16' ~}}uint16_t {{NAME}},{{/case ~}}
-                {{#case 'date' ~}}uint32_t {{NAME}},{{/case ~}}
-                {{#case 'deviceinformationrecordsort' ~}}uint8_t {{NAME}},{{/case ~}}
-                {{#case 'eventconfiguration' ~}}uint8_t {{NAME}},{{/case ~}}
-                {{#case 'eventlogid' ~}}uint8_t {{NAME}},{{/case ~}}
-                {{#case 'iaszonestatus' ~}}uint16_t {{NAME}},{{/case ~}}
-                {{#case 'ieee_address' ~}}uint8_t* {{NAME}},{{/case ~}}
-                {{#case 'int16s' ~}}int16_t {{NAME}},{{/case ~}}
-                {{#case 'int16u' ~}}uint16_t {{NAME}},{{/case ~}}
-                {{#case 'int24u' ~}}uint32_t {{NAME}},{{/case ~}}
-                {{#case 'int32u' ~}}uint32_t {{NAME}},{{/case ~}}
-                {{#case 'int48u' ~}}uint8_t* {{NAME}},{{/case ~}}
-                {{#case 'int8s' ~}}int8_t {{NAME}},{{/case ~}}
-                {{#case 'int8u' ~}}uint8_t {{NAME}},{{/case ~}}
-                {{#case 'no_data' ~}}uint8_t* {{NAME}},{{/case ~}}
-                {{#case 'octet_string' ~}}uint8_t* {{NAME}},{{/case ~}}
-                {{#case 'pricetier' ~}}uint8_t {{NAME}},{{/case ~}}
-                {{#case 'repaymentdebttype' ~}}uint8_t {{NAME}},{{/case ~}}
-                {{#case 'snapshotcause' ~}}uint32_t {{NAME}},{{/case ~}}
-                {{#case 'snapshotpayloadtype' ~}}uint8_t {{NAME}},{{/case ~}}
-                {{#case 'snapshotscheduleconfirmation' ~}}uint8_t {{NAME}},{{/case ~}}
-                {{#case 'status' ~}}uint8_t {{NAME}},{{/case ~}}
-                {{#case 'utc_time' ~}}uint32_t {{NAME}},{{/case ~}}
-                {{#case 'enum8' ~}}uint8_t {{NAME}},{{/case ~}}
-                {{#default 'uint8_t' ~}}uint8_t {{NAME}},{{/default}}
+            {{#switch type}}
+                {{#case 'attribute_id' ~}}uint16_t {{label}},{{/case ~}}           
+                {{#case 'bitmap24' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'bitmap8' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'boolean' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'char_string' ~}}uint8_t* {{label}},{{/case ~}}
+                {{#case 'cluster_id' ~}}uint16_t {{label}},{{/case ~}}
+                {{#case 'data16' ~}}uint16_t {{label}},{{/case ~}}
+                {{#case 'date' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'deviceinformationrecordsort' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'eventconfiguration' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'eventlogid' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'iaszonestatus' ~}}uint16_t {{label}},{{/case ~}}
+                {{#case 'ieee_address' ~}}uint8_t* {{label}},{{/case ~}}
+                {{#case 'int16s' ~}}int16_t {{label}},{{/case ~}}
+                {{#case 'int16u' ~}}uint16_t {{label}},{{/case ~}}
+                {{#case 'int24u' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'int32u' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'int48u' ~}}uint8_t* {{label}},{{/case ~}}
+                {{#case 'int8s' ~}}int8_t {{label}},{{/case ~}}
+                {{#case 'int8u' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'no_data' ~}}uint8_t* {{label}},{{/case ~}}
+                {{#case 'octet_string' ~}}uint8_t* {{label}},{{/case ~}}
+                {{#case 'pricetier' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'repaymentdebttype' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'snapshotcause' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'snapshotpayloadtype' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'snapshotscheduleconfirmation' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'status' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'utc_time' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'enum8' ~}}uint8_t {{label}},{{/case ~}}
+                {{#default 'uint8_t' ~}}uint8_t {{label}},{{/default}}
             {{/switch}}
         {{/if}}
     {{/each}});
 {{/each}}
 
-/** @} END {{this.NAME}} cluster Callbacks */
+/** @} END {{this.label}} cluster Callbacks */
 
 
 {{/each}}

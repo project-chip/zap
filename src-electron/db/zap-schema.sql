@@ -22,7 +22,8 @@
  
  Table records the CRC at the time loading.
  */
-CREATE TABLE IF NOT EXISTS "PACKAGE" (
+DROP TABLE IF EXISTS "PACKAGE";
+CREATE TABLE "PACKAGE" (
   "PACKAGE_ID" integer primary key autoincrement,
   "PATH" text NOT NULL UNIQUE,
   "CRC" integer
@@ -40,6 +41,7 @@ CREATE TABLE IF NOT EXISTS "PACKAGE" (
 /*
  CLUSTER table contains the clusters loaded from the ZCL XML files.
  */
+DROP TABLE IF EXISTS "CLUSTER";
 CREATE TABLE IF NOT EXISTS "CLUSTER" (
   "CLUSTER_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
@@ -53,6 +55,7 @@ CREATE TABLE IF NOT EXISTS "CLUSTER" (
 /*
  COMMAND table contains commands contained inside a cluster.
  */
+DROP TABLE IF EXISTS "COMMAND";
 CREATE TABLE IF NOT EXISTS "COMMAND" (
   "COMMAND_ID" integer primary key autoincrement,
   "CLUSTER_REF" integer,
@@ -69,6 +72,7 @@ CREATE TABLE IF NOT EXISTS "COMMAND" (
 /*
  COMMAND_ARG table contains arguments for a command.
  */
+DROP TABLE IF EXISTS "COMMAND_ARG";
 CREATE TABLE IF NOT EXISTS "COMMAND_ARG" (
   "COMMAND_REF" integer,
   "NAME" text,
@@ -79,6 +83,7 @@ CREATE TABLE IF NOT EXISTS "COMMAND_ARG" (
 /*
  ATTRIBUTE table contains attributes for the cluster.
  */
+DROP TABLE IF EXISTS "ATTRIBUTE";
 CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   "ATTRIBUTE_ID" integer primary key autoincrement,
   "CLUSTER_REF" integer,
@@ -101,6 +106,7 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
 /*
  BITMAP table contains the bitmaps directly loaded from packages.
  */
+DROP TABLE IF EXISTS "BITMAP";
 CREATE TABLE IF NOT EXISTS "BITMAP" (
   "BITMAP_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
@@ -111,6 +117,7 @@ CREATE TABLE IF NOT EXISTS "BITMAP" (
 /*
  BITMAP_FIELD contains items that make up a bitmap.
  */
+DROP TABLE IF EXISTS "BITMAP_FIELD";
 CREATE TABLE IF NOT EXISTS "BITMAP_FIELD" (
   "BITMAP_REF" integer,
   "NAME" text,
@@ -120,6 +127,7 @@ CREATE TABLE IF NOT EXISTS "BITMAP_FIELD" (
 /*
  DOMAIN table contains domains directly loaded from packages.
  */
+DROP TABLE IF EXISTS "DOMAIN";
 CREATE TABLE IF NOT EXISTS "DOMAIN" (
   "DOMAIN_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
@@ -129,6 +137,7 @@ CREATE TABLE IF NOT EXISTS "DOMAIN" (
 /*
  ENUM table contains enums directly loaded from packages.
  */
+DROP TABLE IF EXISTS "ENUM";
 CREATE TABLE IF NOT EXISTS "ENUM" (
   "ENUM_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
@@ -139,6 +148,7 @@ CREATE TABLE IF NOT EXISTS "ENUM" (
 /*
  ENUM_ITEM table contains individual enum items.
  */
+DROP TABLE IF EXISTS "ENUM_ITEM";
 CREATE TABLE IF NOT EXISTS "ENUM_ITEM" (
   "ENUM_REF" integer,
   "NAME" text,
@@ -148,6 +158,7 @@ CREATE TABLE IF NOT EXISTS "ENUM_ITEM" (
 /*
  STRUCT table contains structs directly loaded from packages.
  */
+DROP TABLE IF EXISTS "STRUCT";
 CREATE TABLE IF NOT EXISTS "STRUCT" (
   "STRUCT_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
@@ -157,6 +168,7 @@ CREATE TABLE IF NOT EXISTS "STRUCT" (
 /*
  STRUCT_ITEM table contains individual struct items.
  */
+DROP TABLE IF EXISTS "STRUCT_ITEM";
 CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
   "STRUCT_REF" integer,
   "NAME" text,
@@ -166,6 +178,7 @@ CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
 /*
  DEVICE_TYPE table contains device types directly loaded from packages.
  */
+DROP TABLE IF EXISTS "DEVICE_TYPE";
 CREATE TABLE IF NOT EXISTS "DEVICE_TYPE" (
   "DEVICE_TYPE_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
@@ -178,6 +191,7 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE" (
 /*
  DEVICE_TYPE_CLUSTER contains clusters that belong to the device type.
  */
+DROP TABLE IF EXISTS "DEVICE_TYPE_CLUSTER";
 CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_CLUSTER" (
   "DEVICE_TYPE_CLUSTER_ID" integer primary key autoincrement,
   "DEVICE_TYPE_REF" integer,
@@ -193,6 +207,7 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_CLUSTER" (
 /*
  DEVICE_TYPE_ATTRIBUTE contains attribuets that belong to a device type cluster. 
  */
+DROP TABLE IF EXISTS "DEVICE_TYPE_ATTRIBUTE";
 CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_ATTRIBUTE" (
   "DEVICE_TYPE_CLUSTER_REF" integer,
   "ATTRIBUTE_REF" integer,
@@ -203,6 +218,7 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_ATTRIBUTE" (
 /*
  DEVICE_TYPE_COMMAND contains attribuets that belong to a device type cluster. 
  */
+DROP TABLE IF EXISTS "DEVICE_TYPE_COMMAND";
 CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_COMMAND" (
   "DEVICE_TYPE_CLUSTER_REF" integer,
   "COMMAND_REF" integer,
@@ -226,6 +242,7 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_COMMAND" (
  In case of electron SESSION_WINID is the window ID for a given
  session.
  */
+DROP TABLE IF EXISTS "SESSION";
 CREATE TABLE IF NOT EXISTS "SESSION" (
   "SESSION_ID" integer primary key autoincrement,
   "SESSION_KEY" text,
@@ -238,6 +255,7 @@ CREATE TABLE IF NOT EXISTS "SESSION" (
  SESSION_KEY_VALUE table contains the data points that are simple
  key/value pairs.
  */
+DROP TABLE IF EXISTS "SESSION_KEY_VALUE";
 CREATE TABLE IF NOT EXISTS "SESSION_KEY_VALUE" (
   "SESSION_REF" integer,
   "KEY" text,
@@ -248,6 +266,7 @@ CREATE TABLE IF NOT EXISTS "SESSION_KEY_VALUE" (
 /*
  ENDPOINT_TYPE contains the bulk of the configuration: clusters, attributes, etc.
  */
+DROP TABLE IF EXISTS "ENDPOINT_TYPE";
 CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE" (
   "ENDPOINT_TYPE_ID" integer primary key autoincrement,
   "SESSION_REF" integer,
@@ -259,6 +278,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE" (
 /*
  ENDPOINT table contains the toplevel configured endpoints.
  */
+DROP TABLE IF EXISTS "ENDPOINT";
 CREATE TABLE IF NOT EXISTS "ENDPOINT" (
   "ENDPOINT_REF" integer primary key autoincrement,
   "SESSION_REF" integer,
@@ -274,6 +294,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT" (
  SIDE is client or server
  STATE is 1 for ON and 0 for OFF.
  */
+DROP TABLE IF EXISTS "ENDPOINT_TYPE_CLUSTER";
 CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_CLUSTER" (
   "ENDPOINT_TYPE_REF" integer,
   "CLUSTER_REF" integer,
@@ -287,6 +308,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_CLUSTER" (
  ENDPOINT_TYPE_ATTRIBUTE table contains the user data configuration for the various parameters that exist
  for an attribute on an endpoint. This essentially lets you determine if something should be included or not.
  */
+DROP TABLE IF EXISTS "ENDPOINT_TYPE_ATTRIBUTE";
 CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
   "ENDPOINT_TYPE_REF" integer,
   "ATTRIBUTE_REF" integer,
@@ -304,6 +326,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
  ENDPOINT_TYPE_COMMAND table contains the user data configuration for the various parameters that exist
  for commands on an endpoint. This essentially lets you determine if something should be included or not.
  */
+DROP TABLE IF EXISTS "ENDPOINT_TYPE_COMMAND";
 CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_COMMAND" (
   "ENDPOINT_TYPE_REF" integer,
   "COMMAND_REF" integer,
@@ -319,6 +342,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_COMMAND" (
  reportable attribute. 
  TODO integrate this into the ENDPOINT_TYPE_ATTRIBUTE table anyway?
  */
+DROP TABLE IF EXISTS "ENDPOINT_TYPE_REPORTABLE_ATTRIBUTE";
 CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_REPORTABLE_ATTRIBUTE" (
   "ENDPOINT_TYPE_REF" integer,
   "ATTRIBUTE_REF" integer,
@@ -520,7 +544,8 @@ CREATE TABLE IF NOT EXISTS "SETTING" (
   "VALUE" text
 );
 /*
- Previously touched file locations. This should be used as a history for dialogs.
+ Previously touched file locations. This should be used as a history for dialogs or any other place that needs to
+ save some file location.
  */
 CREATE TABLE IF NOT EXISTS "FILE_LOCATION" (
   "CATEGORY" text NOT NULL UNIQUE,

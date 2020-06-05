@@ -14,10 +14,10 @@
 
 {{#each type}}
 typedef enum {
-   {{#each this.ENUM_ITEMS}}
-   	EMBER_ZCL_{{strong ../NAME}}_{{strong NAME}} = {{hexValue VALUE}},
+   {{#each this.EnumItems}}
+   	EMBER_ZCL_{{strong ../label}}_{{strong label}} = {{hexValue value}},
    {{/each}}
-}EmberAf{{this.NAME}};
+}EmberAf{{this.label}};
 
 {{/each}}
 

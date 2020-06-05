@@ -579,7 +579,7 @@ function parseZclFiles(db, files) {
   var individualPromises = []
   files.forEach((element) => {
     var p = readZclFile(element)
-      .then((data) => calculateCrc(element, data))
+      .then((data) => calculateCrc({ filePath: element, data: data }))
       .then((data) => qualifyZclFile(db, data))
       .then((result) => parseZclFile(result))
       .then((result) => processParsedZclData(db, result))

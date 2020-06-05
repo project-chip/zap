@@ -1,0 +1,272 @@
+{
+  "generation-options": [
+    {
+      "filename": "cluster-id.h",
+      "handlebar-templates-per-data-row": [
+        {
+          "dbRowType": "clusters",
+          "hTemplateFile": "cluster-id.handlebars"
+        }
+      ],
+      "group-info-into-db-row-type": [],
+      "helper-api-name": [
+        {
+          "helperNameForTemplate": "uppercase",
+          "helperFunctionName": "getUppercase"
+        }
+      ]
+    },
+
+    {
+      "filename": "enums.h",
+      "handlebar-templates-per-data-row": [
+        {
+          "dbRowType": "enums",
+          "hTemplateFile": "enums.handlebars"
+        },
+        {
+          "dbRowType": "bitmaps",
+          "hTemplateFile": "bitmaps.handlebars"
+        }
+      ],
+      "group-info-into-db-row-type": [
+        {
+          "joinRecords": "EnumItems",
+          "foreignKey": "enumRef",
+          "primaryKey": "id",
+          "dbType": "enums"
+        },
+        {
+          "joinRecords": "BitmapFields",
+          "foreignKey": "bitmapRef",
+          "primaryKey": "id",
+          "dbType": "bitmaps"
+        }
+      ],
+      "helper-api-name": [
+        {
+          "helperNameForTemplate": "strong",
+          "helperFunctionName": "getStrong"
+        },
+        {
+          "helperNameForTemplate": "hexValue",
+          "helperFunctionName": "getHexValue"
+        }
+      ]
+    },
+
+    {
+      "filename": "print-cluster.h",
+      "handlebar-templates-per-data-row": [
+        {
+          "dbRowType": "print-cluster",
+          "hTemplateFile": "print-cluster.handlebars"
+        }
+      ],
+      "group-info-into-db-row-type": [],
+      "helper-api-name": [
+        {
+          "helperNameForTemplate": "uppercase",
+          "helperFunctionName": "getUppercase"
+        },
+        {
+          "helperNameForTemplate": "largestStringInArray",
+          "helperFunctionName": "getLargestStringInArray"
+        }
+      ]
+    },
+
+    {
+      "filename": "af-structs.h",
+      "handlebar-templates-per-data-row": [
+        {
+          "dbRowType": "af-structs",
+          "hTemplateFile": "af-structs.handlebars"
+        }
+      ],
+      "group-info-into-db-row-type": [
+        {
+          "joinRecords": "StructItems",
+          "foreignKey": "structRef",
+          "primaryKey": "id",
+          "dbType": "af-structs"
+        }
+      ],
+      "helper-api-name": [
+        {
+          "helperNameForTemplate": "switch",
+          "helperFunctionName": "getSwitch"
+        },
+        {
+          "helperNameForTemplate": "case",
+          "helperFunctionName": "getCase"
+        },
+        {
+          "helperNameForTemplate": "default",
+          "helperFunctionName": "getDefault"
+        }
+      ]
+    },
+
+    {
+      "filename": "att-storage.h",
+      "handlebar-templates-per-data-row": [
+        {
+          "dbRowType": "att-storage",
+          "hTemplateFile": "att-storage.handlebars"
+        }
+      ],
+      "group-info-into-db-row-type": [],
+      "helper-api-name": []
+    },
+
+    {
+      "filename": "debug-printing-zcl.h",
+      "handlebar-templates-per-data-row": [
+        {
+          "dbRowType": "debug-printing-zcl",
+          "hTemplateFile": "debug-printing-zcl.handlebars"
+        }
+      ],
+      "group-info-into-db-row-type": [],
+      "helper-api-name": [
+        {
+          "helperNameForTemplate": "uppercase",
+          "helperFunctionName": "getUppercase"
+        },
+        {
+          "helperNameForTemplate": "camelCaseWithoutUnderscore",
+          "helperFunctionName": "getCamelCaseWithoutUnderscore"
+        }
+      ]
+    },
+
+    {
+      "filename": "callback-zcl.h",
+      "handlebar-templates-per-data-row": [
+        {
+          "dbRowType": "callback-zcl",
+          "hTemplateFile": "callback-zcl.handlebars"
+        },
+        {
+          "dbRowType": "callback-zcl-command",
+          "hTemplateFile": "callback-zcl.handlebars"
+        }
+      ],
+      "group-info-into-db-row-type": [
+        {
+          "joinRecords": "CommandArguments",
+          "foreignKey": "commandRef",
+          "primaryKey": "id",
+          "dbType": "callback-zcl-command"
+        },
+        {
+          "joinRecords": "COMMAND",
+          "foreignKey": "clusterRef",
+          "primaryKey": "id",
+          "dbType": "callback-zcl",
+          "subItems": "callback-zcl-command"
+        }
+      ],
+      "helper-api-name": [
+        {
+          "helperNameForTemplate": "camelCaseWithoutUnderscore",
+          "helperFunctionName": "getCamelCaseWithoutUnderscore"
+        },
+        {
+          "helperNameForTemplate": "switch",
+          "helperFunctionName": "getSwitch"
+        },
+        {
+          "helperNameForTemplate": "case",
+          "helperFunctionName": "getCase"
+        },
+        {
+          "helperNameForTemplate": "default",
+          "helperFunctionName": "getDefault"
+        }
+      ]
+    },
+
+    {
+      "filename": "client-command-macro.h",
+      "handlebar-templates-per-data-row": [
+        {
+          "dbRowType": "client-command-macro-global",
+          "hTemplateFile": "client-command-macro-global.handlebars"
+        },
+        {
+          "dbRowType": "client-command-macro-cluster",
+          "hTemplateFile": "client-command-macro-cluster.handlebars"
+        }
+      ],
+      "group-info-into-db-row-type": [
+        {
+          "joinRecords": "CommandArguments",
+          "foreignKey": "commandRef",
+          "primaryKey": "id",
+          "dbType": "client-command-macro-global"
+        },
+        {
+          "joinRecords": "CommandArguments",
+          "foreignKey": "commandRef",
+          "primaryKey": "id",
+          "dbType": "client-command-macro-cluster-commands"
+        },
+        {
+          "joinRecords": "COMMAND",
+          "foreignKey": "clusterRef",
+          "primaryKey": "id",
+          "dbType": "client-command-macro-cluster",
+          "subItems": "client-command-macro-cluster-commands"
+        }
+      ],
+      "helper-api-name": [
+        {
+          "helperNameForTemplate": "eitherCommandSource",
+          "helperFunctionName": "isEitherCommandSource"
+        },
+        {
+          "helperNameForTemplate": "commandManufactureSpecific",
+          "helperFunctionName": "isCommandManufactureSpecific"
+        },
+        {
+          "helperNameForTemplate": "direction",
+          "helperFunctionName": "getDirection"
+        },
+        {
+          "helperNameForTemplate": "trimNewLinesTabs",
+          "helperFunctionName": "trimNewLinesTabs"
+        },
+        {
+          "helperNameForTemplate": "switch",
+          "helperFunctionName": "getSwitch"
+        },
+        {
+          "helperNameForTemplate": "case",
+          "helperFunctionName": "getCase"
+        },
+        {
+          "helperNameForTemplate": "default",
+          "helperFunctionName": "getDefault"
+        },
+        {
+          "helperNameForTemplate": "strong",
+          "helperFunctionName": "getStrong"
+        },
+        {
+          "helperNameForTemplate": "formatCharactersForCommandArguments",
+          "helperFunctionName": "getFormatCharactersForCommandArguments"
+        },
+        {
+          "helperNameForTemplate": "uppercase",
+          "helperFunctionName": "getUppercase"
+        },
+        {
+          "helperNameForTemplate": "camelCaseWithoutUnderscore",
+          "helperFunctionName": "getCamelCaseWithoutUnderscore"
+        }
+      ]
+    }
+  ]
+}
