@@ -174,6 +174,7 @@ limitations under the License.
           <q-btn
             color="primary"
             size="0.8vw"
+            style="margin-left: 5px;"
             label="Copy Endpoint"
             @click="copyEpt()"
             v-show="activeIndex.length > 0"
@@ -181,6 +182,7 @@ limitations under the License.
           <q-btn
             color="primary"
             size="0.8vw"
+            style="margin-left: 5px;"
             label="New Endpoint"
             @click="newEptDialog = true"
           />
@@ -224,6 +226,7 @@ limitations under the License.
               flat
               label="Create Endpoint"
               color="primary"
+              style="margin-left: 5px;"
               v-close-popup
               @click="newEpt(newEndpoint)"
             />

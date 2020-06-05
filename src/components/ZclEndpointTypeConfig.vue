@@ -65,6 +65,7 @@ limitations under the License.
         <q-btn
           color="primary"
           size="0.8vw"
+          style="margin-left: 5px;"
           label="New Endpoint Type"
           @click="newEptTypeDialog = true"
         />
@@ -108,6 +109,7 @@ limitations under the License.
               flat
               label="Create Endpoint Type"
               color="primary"
+              style="margin-left: 5px;"
               v-close-popup
               @click="addEndpointType(newEndpointType)"
             />
@@ -130,6 +132,7 @@ limitations under the License.
               flat
               label="Confirm"
               color="primary"
+              style="margin-left: 5px;"
               v-close-popup
               @click="setZclDeviceType(desiredZclEndpointType)"
             />
