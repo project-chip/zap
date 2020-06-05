@@ -58,13 +58,13 @@ limitations under the License.
       <p align="right">
         <q-btn
           color="primary"
-          size="12px"
+          size="0.8vw"
           label="Delete Endpoint Type"
           @click="deleteEptType(selectedEndpointType)"
         />
         <q-btn
           color="primary"
-          size="12px"
+          size="0.8vw"
           label="New Endpoint Type"
           @click="newEptTypeDialog = true"
         />
