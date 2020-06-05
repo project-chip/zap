@@ -162,27 +162,29 @@ limitations under the License.
           </template>
         </q-table>
       </div>
-      <div class="row">
+      <div>
         <!-- this section is for buttons delete/copy/new endpoint  -->
-        <q-btn
-          color="primary"
-          size="12px"
-          label="Delete Endpoint"
-          @click="deleteEpt(activeIndex)"
-        />
-        <q-btn
-          color="primary"
-          size="12px"
-          label="Copy Endpoint"
-          @click="copyEpt()"
-          v-show="activeIndex.length > 0"
-        />
-        <q-btn
-          color="primary"
-          size="12px"
-          label="New Endpoint"
-          @click="newEptDialog = true"
-        />
+        <p align="right">
+          <q-btn
+            color="primary"
+            size="12px"
+            label="Delete Endpoint"
+            @click="deleteEpt(activeIndex)"
+          />
+          <q-btn
+            color="primary"
+            size="12px"
+            label="Copy Endpoint"
+            @click="copyEpt()"
+            v-show="activeIndex.length > 0"
+          />
+          <q-btn
+            color="primary"
+            size="12px"
+            label="New Endpoint"
+            @click="newEptDialog = true"
+          />
+        </p>
       </div>
       <q-dialog v-model="newEptDialog">
         <q-card>

@@ -53,25 +53,29 @@ limitations under the License.
         />
       </div>
     </div>
-    <div class="row">
+    <div>
       <!-- this section is for buttons delete/new endpoint type -->
-      <q-btn
-        color="primary"
-        size="12px"
-        label="Delete Endpoint Type"
-        @click="deleteEptType(selectedEndpointType)"
-      />
-      <q-btn
-        color="primary"
-        size="12px"
-        label="New Endpoint Type"
-        @click="newEptTypeDialog = true"
-      />
+      <p align="right">
+        <q-btn
+          color="primary"
+          size="12px"
+          label="Delete Endpoint Type"
+          @click="deleteEptType(selectedEndpointType)"
+        />
+        <q-btn
+          color="primary"
+          size="12px"
+          label="New Endpoint Type"
+          @click="newEptTypeDialog = true"
+        />
+      </p>
       <q-dialog v-model="newEptTypeDialog">
         <q-card>
           <q-card-section>
             <div>
-              New Endpoint Type
+              <p style="text-align: center; font-size: 1vw;">
+                New Endpoint Type
+              </p>
             </div>
           </q-card-section>
           <q-card-section>
