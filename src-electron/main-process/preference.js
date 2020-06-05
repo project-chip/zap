@@ -41,8 +41,8 @@ function createWindow(port) {
     height: 600,
     resizable: true,
     center: true,
+    title: 'ZAP Preferences',
     icon: path.join(Env.iconsDirectory(), 'zap_32x32.png'),
-    title: 'ZAP preferences',
     useContentSize: true,
     webPreferences: {
       nodeIntegration: false,
@@ -53,4 +53,7 @@ function createWindow(port) {
   window.on('close', (e) => {
     window = null
   })
+  window.on('page-title-updated', (e) => {
+    e.preventDefault()
+  }) // EO page-title-updated
 }
