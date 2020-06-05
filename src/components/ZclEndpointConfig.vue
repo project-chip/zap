@@ -167,20 +167,20 @@ limitations under the License.
         <p align="right">
           <q-btn
             color="primary"
-            size="12px"
+            size="0.8vw"
             label="Delete Endpoint"
             @click="deleteEpt(activeIndex)"
           />
           <q-btn
             color="primary"
-            size="12px"
+            size="0.8vw"
             label="Copy Endpoint"
             @click="copyEpt()"
             v-show="activeIndex.length > 0"
           />
           <q-btn
             color="primary"
-            size="12px"
+            size="0.8vw"
             label="New Endpoint"
             @click="newEptDialog = true"
           />
@@ -193,7 +193,6 @@ limitations under the License.
               <p style="text-align: center; font-size: 1vw;">New Endpoint</p>
             </div>
           </q-card-section>
-
           <q-card-section>
             <div>
               <q-form @submit="newEpt()" @reset="onReset" class="q-gutter-md">
