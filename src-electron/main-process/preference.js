@@ -48,8 +48,8 @@ function createWindow(port) {
       nodeIntegration: false,
     },
   })
-  window.loadURL(`http://localhost:${port}/preference`)
-
+  window.setMenu(null)
+  window.loadURL(`http://localhost:${port}/#/preference`)
   window.on('close', (e) => {
     window = null
   })
