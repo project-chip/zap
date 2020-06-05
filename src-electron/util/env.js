@@ -26,6 +26,7 @@ var pino_logger = pino({
   level: process.env.ZAP_LOGLEVEL || 'warn', // This sets the default log level. If you set this, to say `sql`, then you will get SQL queries.
   customLevels: {
     sql: 25,
+    all: 1,
   },
 })
 

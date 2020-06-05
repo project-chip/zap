@@ -21,18 +21,13 @@ import { crc32 } from 'crc'
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
  *
- * @param {*} filePath
- * @param {*} data
- * @returns Promise of a resolved CRC file.
+ * @param {*} context that contains 'filePath' and 'data' keys for the file and contents of the file.
+ * @returns Promise that resolves with the same object, just adds the 'crc' key into it.
  */
-export function calculateCrc(filePath, data) {
+export function calculateCrc(context) {
   return new Promise((resolve, reject) => {
-    var actualCrc = crc32(data)
-    logInfo(`For file: ${filePath}, got CRC: ${actualCrc}`)
-    resolve({
-      filePath: filePath,
-      data: data,
-      actualCrc: actualCrc,
-    })
+    context.crc = crc32(context.data)
+    logInfo(`For file: ${context.filePath}, got CRC: ${context.crc}`)
+    resolve(context)
   })
 }

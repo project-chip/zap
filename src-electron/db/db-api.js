@@ -24,6 +24,8 @@
 import * as Env from '../util/env.js'
 import * as Sq from 'sqlite3'
 import * as Fs from 'fs'
+import { calculateCrc } from '../util/util.js'
+import { getPathCrc } from './query-package.js'
 
 /**
  * Returns a promise to begin a transaction
@@ -300,6 +302,38 @@ function insertOrReplaceSetting(db, category, key, value) {
   )
 }
 
+function determineIfSchemaShouldLoad(db, context) {
+  return new Promise((resolve, reject) => {
+    return dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', [
+      context.filePath,
+    ])
+      .then((row) => {
+        if (row == null) {
+          context.mustLoad = true
+        } else {
+          context.mustLoad = row.CRC != context.crc
+        }
+        resolve(context)
+      })
+      .catch((err) => {
+        // Fall through, do nothing
+        context.mustLoad = true
+        resolve(context)
+      })
+  })
+}
+
+function updateCurrentSchemaCrc(db, context) {
+  return new Promise((resolve, reject) => {
+    dbInsert(db, 'INSERT OR REPLACE INTO PACKAGE (PATH, CRC) VALUES ( ?, ? )', [
+      context.filePath,
+      context.crc,
+    ]).then(() => {
+      resolve(context)
+    })
+  })
+}
+
 /**
  * Returns a promise to load schema into a blank database, and inserts a version to the settings table.j
  *
@@ -313,18 +347,33 @@ export function loadSchema(db, schemaPath, appVersion) {
   return new Promise((resolve, reject) => {
     Fs.readFile(schemaPath, 'utf8', (err, data) => {
       if (err) return reject(err)
-      db.serialize(() => {
-        Env.logSql('Populate schema.')
-        db.exec(data, (err) => {
-          if (err) {
-            Env.logError('Failed to populate schema')
-            Env.logError(err)
-          }
-          resolve(db)
-        })
-      })
+      resolve(data)
     })
   })
-    .then((db) => insertOrReplaceSetting(db, 'APP', 'VERSION', appVersion))
+    .then((data) => calculateCrc({ filePath: schemaPath, data: data }))
+    .then((context) => determineIfSchemaShouldLoad(db, context))
+    .then(
+      (context) =>
+        new Promise((resolve, reject) => {
+          if (context.mustLoad) {
+            Env.logSql('Schema load: must be done.')
+            db.serialize(() => {
+              db.exec(context.data, (err) => {
+                if (err) {
+                  Env.logError('Failed to populate schema')
+                  Env.logError(err)
+                  reject(err)
+                }
+                resolve(context)
+              })
+            })
+          } else {
+            Env.logSql('Schema load: skipped.')
+            resolve(context)
+          }
+        })
+    )
+    .then((context) => updateCurrentSchemaCrc(db, context))
+    .then((context) => insertOrReplaceSetting(db, 'APP', 'VERSION', appVersion))
     .then((rowid) => Promise.resolve(db))
 }
