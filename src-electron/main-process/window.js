@@ -48,7 +48,6 @@ let windowCounter = 0
  * @returns BrowserWindow that got created
  */
 export function windowCreate(port, filePath = null, sessionId = null) {
-  logInfo(__dirname)
   let newSession = session.fromPartition(`zap-${windowCounter++}`)
   let w = new BrowserWindow({
     width: 1600,

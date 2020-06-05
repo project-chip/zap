@@ -9,8 +9,6 @@ module.exports = function (ctx) {
       router: 'src/router',
       store: 'src/store',
       indexHtmlTemplate: 'src/index.template.html',
-      registerServiceWorker: 'src-pwa/register-service-worker.js',
-      serviceWorker: 'src-pwa/custom-service-worker.js',
       electronMainDev: 'src-electron/main-process/electron-main.dev.js',
       electronMainProd: 'src-electron/main-process/electron-main.js',
     },
