@@ -17,13 +17,6 @@ limitations under the License.
   <div class="bg-grey-10 text-white">
     <div>
       <div>
-        <!-- this section is for Title -->
-        <br />
-        <p style="text-align: center; font-size: 2vw;">
-          Endpoint Configuration
-        </p>
-      </div>
-      <div>
         <!-- this section is for the table -->
         <q-table
           title="Endpoint Manager"
