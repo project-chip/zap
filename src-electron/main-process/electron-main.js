@@ -81,7 +81,8 @@ function startNormal(ui, showUrl) {
           app.dock.hide()
         }
         if (showUrl) {
-          console.log(`http://localhost:${Args.httpPort}/index.html`)
+          // NOTE: this is parsed/used by Studio as the default landing page.
+          console.log(`url: http://localhost:${httpServerPort()}/index.html`)
         }
       }
     })
