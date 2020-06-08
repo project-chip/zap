@@ -18,7 +18,7 @@
 import { app } from 'electron'
 import { version } from '../../package.json'
 import { closeDatabase, initDatabase, loadSchema } from '../db/db-api.js'
-import { initHttpServer } from '../server/http-server.js'
+import { initHttpServer, httpServerPort } from '../server/http-server.js'
 import { loadZcl } from '../zcl/zcl-loader.js'
 import * as Args from './args.js'
 import {
@@ -75,7 +75,7 @@ function startNormal(ui, showUrl) {
     .then((db) => initHttpServer(db, Args.httpPort))
     .then(() => {
       if (ui) {
-        initializeElectronUi(Args.httpPort)
+        initializeElectronUi(httpServerPort())
       } else {
         if (app.dock) {
           app.dock.hide()

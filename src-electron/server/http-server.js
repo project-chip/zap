@@ -94,11 +94,22 @@ export function initHttpServer(db, port) {
     app.use(express.static(staticDir))
 
     httpServer = app.listen(port, () => {
-      Env.logInfo(`HTTP server created on port: ${port}`)
+      Env.logInfo(`HTTP server created on port: ` + httpServerPort())
       resolve(app)
+    })
+
+    process.on('uncaughtException', function (err) {
+      Env.logInfo(`HTTP server port ` + port + `is busy.`)
+      if (err.errno === 'EADDRINUSE') {
+        httpServer = app.listen(0, () => {
+          Env.logInfo(`HTTP server created on port: ` + httpServerPort())
+          resolve(app)
+        })
+      }
     })
   })
 }
+
 /**
  * Promises to shut down the http server.
  *
@@ -116,4 +127,18 @@ export function shutdownHttpServer() {
     }
     resolve(null)
   })
+}
+
+/**
+ * Port http server is listening on.
+ *
+ * @export
+ * @returns port
+ */
+export function httpServerPort() {
+  if (httpServer) {
+    return httpServer.address().port
+  } else {
+    return 0
+  }
 }
