@@ -17,7 +17,7 @@ limitations under the License.
   <div>
     <div>
       <!-- this section is for Title -->
-      <p style="text-align: center; font-size: 2vw;">
+      <p style="text-align: left; font-size: 2vw;">
         Endpoint Type Manager
       </p>
     </div>
