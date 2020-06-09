@@ -99,7 +99,7 @@ export function initHttpServer(db, port) {
     })
 
     process.on('uncaughtException', function (err) {
-      Env.logInfo(`HTTP server port ` + port + `is busy.`)
+      Env.logInfo(`HTTP server port ` + port + ` is busy.`)
       if (err.errno === 'EADDRINUSE') {
         httpServer = app.listen(0, () => {
           Env.logInfo(`HTTP server created on port: ` + httpServerPort())
