@@ -120,4 +120,26 @@ export function registerGenerationApi(db, app) {
       })
     })
   })
+
+  // Return generatedCodeMap in JSON
+  // e.g. {
+  //       "cluster-id" : "...",
+  //       "enums" : "..."
+  //      }
+  app.get('/generate', (request, response) => {
+    getGenerationProperties('').then((generationOptions) => {
+      getGeneratedCodeMap(generationOptions, db).then((map) => {
+        // making sure all generation promises are resolved before handling the get request
+
+        Promise.all(Object.values(map)).then((values) => {
+          let merged = Object.keys(map).reduce(
+            (obj, key, index) => ({ ...obj, [key]: values[index] }),
+            {}
+          )
+
+          response.json(merged)
+        })
+      })
+    })
+  })
 }
