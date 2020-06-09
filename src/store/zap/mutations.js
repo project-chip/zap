@@ -86,7 +86,6 @@ export function addEndpoint(state, endpoint) {
     endpoint.id,
     endpoint.networkIdValidationIssues
   )
-  console.log(state.endpointView)
 }
 
 export function updateEndpoint(state, context) {
@@ -105,7 +104,6 @@ export function updateEndpoint(state, context) {
     context.id,
     context.networkIdValidationIssues
   )
-  console.log(state.endpointView)
 }
 
 export function initializeDefaultEndpointsTypes(state, defaultEndpointsTypes) {

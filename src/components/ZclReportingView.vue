@@ -47,7 +47,8 @@ limitations under the License.
                 handleSelection(
                   props.row.id,
                   selectedReporting,
-                  'selectedReporting'
+                  'selectedReporting',
+                  props.row
                 )
               "
             />
@@ -74,7 +75,8 @@ limitations under the License.
                 handleAttributeDefaultChange(
                   props.row.id,
                   selectionMin[props.row.id],
-                  'reportingMin'
+                  'reportingMin',
+                  props.row
                 )
               "
             />
@@ -88,7 +90,8 @@ limitations under the License.
                 handleAttributeDefaultChange(
                   props.row.id,
                   selectionMax[props.row.id],
-                  'reportingMax'
+                  'reportingMax',
+                  props.row
                 )
               "
               dark
@@ -103,7 +106,8 @@ limitations under the License.
                 handleAttributeDefaultChange(
                   props.row.id,
                   selectionReportableChange[props.row.id],
-                  'reportableChange'
+                  'reportableChange',
+                  props.row
                 )
               "
               dark
@@ -197,9 +201,14 @@ export default {
           .map((attribute) => attribute.id)
       },
     },
+    selectedCluster: {
+      get() {
+        return this.$store.state.zap.clustersView.selected[0] || {}
+      },
+    },
   },
   methods: {
-    handleSelection(id, list, listType) {
+    handleSelection(id, list, listType, attributeData) {
       var indexOfValue = list.indexOf(id)
       var addedValue = false
       if (indexOfValue === -1) {
@@ -214,15 +223,19 @@ export default {
         id: id,
         value: addedValue,
         listType: listType,
+        clusterRef: this.selectedCluster.id,
+        attributeSide: attributeData.side,
       })
     },
-    handleAttributeDefaultChange(id, newValue, listType) {
+    handleAttributeDefaultChange(id, newValue, listType, attributeData) {
       this.$serverPost(`/reportableAttribute/update`, {
         action: 'text',
         endpointTypeId: this.selectedEndpointId,
         id: id,
         value: newValue,
         listType: listType,
+        clusterRef: this.selectedCluster.id,
+        attributeSide: attributeData.side,
       })
     },
     handleColorSelection(selectedList, recommendedList, id) {

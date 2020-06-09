@@ -47,7 +47,8 @@ limitations under the License.
                 handleCommandSelection(
                   props.row.id,
                   selectionOut,
-                  'selectedOut'
+                  'selectedOut',
+                  props.row
                 )
               "
             />
@@ -60,9 +61,14 @@ limitations under the License.
               :val="props.row.id"
               indeterminate-value="false"
               keep-color
-              :color="handleColorSelection(selectionOut, [], props.row.id)"
+              :color="handleColorSelection(selectionIn, [], props.row.id)"
               @input="
-                handleCommandSelection(props.row.id, selectionIn, 'selectedIn')
+                handleCommandSelection(
+                  props.row.id,
+                  selectionIn,
+                  'selectedIn',
+                  props.row
+                )
               "
             />
           </q-td>
@@ -139,9 +145,14 @@ export default {
         return this.$store.state.zap.commandView.requiredCommands
       },
     },
+    selectedCluster: {
+      get() {
+        return this.$store.state.zap.clustersView.selected[0] || {}
+      },
+    },
   },
   methods: {
-    handleCommandSelection(id, list, listType) {
+    handleCommandSelection(id, list, listType, commandData) {
       var indexOfValue = list.indexOf(id)
       var addedValue = false
       if (indexOfValue === -1) {
@@ -155,13 +166,9 @@ export default {
         id: id,
         value: addedValue,
         listType: listType,
+        clusterRef: this.selectedCluster.id,
+        commandSide: commandData.source,
       })
-      // this.$store.dispatch('zap/updateSelectedCommands', {
-      //   id: id,
-      //   added: addedValue,
-      //   listType: listType,
-      //   view: 'commandView'
-      // })
     },
     handleColorSelection(selectedList, recommendedList, id) {
       if (recommendedList.includes(id)) {

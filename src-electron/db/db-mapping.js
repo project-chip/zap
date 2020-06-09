@@ -203,6 +203,7 @@ export const dbMap = {
   endpointTypeCluster: (x) => {
     if (x == null) return undefined
     return {
+      endpointTypeClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       clusterRef: x.CLUSTER_REF,
       side: x.SIDE,
@@ -213,6 +214,7 @@ export const dbMap = {
     if (x == null) return undefined
     return {
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      clusterRef: x.CLUSTER_REF,
       attributeRef: x.ATTRIBUTE_REF,
       included: x.INCLUDED,
       external: x.EXTERNAL,
@@ -236,7 +238,7 @@ export const dbMap = {
     return {
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       attributeRef: x.ATTRIBUTE_REF,
-      included: x.INCLUDED,
+      includedReportable: x.INCLUDED_REPORTABLE,
       minInterval: x.MIN_INTERVAL,
       maxInterval: x.MAX_INTERVAL,
       reportableChange: x.REPORTABLE_CHANGE,

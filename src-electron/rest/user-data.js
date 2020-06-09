@@ -27,7 +27,6 @@ import {
   insertOrReplaceClusterState,
   insertOrUpdateAttributeState,
   insertOrUpdateCommandState,
-  insertOrUpdateReportableAttributeState,
   updateKeyValue,
   insertEndpoint,
   deleteEndpoint,
@@ -58,54 +57,82 @@ export function registerSessionApi(db, app) {
   })
 
   app.post('/post/attribute/update', (request, response) => {
-    var { action, endpointTypeId, id, value, listType } = request.body
-    var booleanParam = ''
-    switch (listType) {
-      case 'selectedAttributes':
-        booleanParam = 'INCLUDED'
-        break
-      case 'selectedExternal':
-        booleanParam = 'EXTERNAL'
-        break
-      case 'selectedFlash':
-        booleanParam = 'FLASH'
-        break
-      case 'selectedSingleton':
-        booleanParam = 'SINGLETON'
-        break
-      case 'selectedBounded':
-        booleanParam = 'BOUNDED'
-      case 'defaultValue':
-        booleanParam = 'DEFAULT_VALUE'
-      default:
-        break
-    }
-    insertOrUpdateAttributeState(
-      db,
+    var {
+      action,
       endpointTypeId,
       id,
       value,
-      booleanParam
-    ).then((row) => {
-      return validateAttribute(db, endpointTypeId, id).then(
-        (validationData) => {
-          response.json({
-            action: action,
-            endpointTypeId: endpointTypeId,
-            id: id,
-            added: value,
-            listType: listType,
-            validationIssues: validationData,
-            replyId: 'singleAttributeState',
-          })
-          return response.status(httpCode.ok).send()
-        }
-      )
-    })
+      listType,
+      clusterRef,
+      attributeSide,
+    } = request.body
+    var booleanParam = ''
+    var paramType = ''
+    switch (listType) {
+      case 'selectedAttributes':
+        booleanParam = 'INCLUDED'
+        paramType = 'bool'
+        break
+      case 'selectedExternal':
+        booleanParam = 'EXTERNAL'
+        paramType = 'bool'
+        break
+      case 'selectedFlash':
+        booleanParam = 'FLASH'
+        paramType = 'bool'
+        break
+      case 'selectedSingleton':
+        booleanParam = 'SINGLETON'
+        paramType = 'bool'
+        break
+      case 'selectedBounded':
+        booleanParam = 'BOUNDED'
+        paramType = 'bool'
+      case 'defaultValue':
+        booleanParam = 'DEFAULT_VALUE'
+        paramType = 'text'
+      default:
+        break
+    }
+
+    if (paramType != '') {
+      insertOrUpdateAttributeState(
+        db,
+        endpointTypeId,
+        clusterRef,
+        attributeSide,
+        id,
+        [{ key: booleanParam, value: value, type: paramType }]
+      ).then((row) => {
+        return validateAttribute(db, endpointTypeId, id).then(
+          (validationData) => {
+            response.json({
+              action: action,
+              endpointTypeId: endpointTypeId,
+              clusterRef: clusterRef,
+              id: id,
+              added: value,
+              listType: listType,
+              validationIssues: validationData,
+              replyId: 'singleAttributeState',
+            })
+            return response.status(httpCode.ok).send()
+          }
+        )
+      })
+    }
   })
 
   app.post('/post/command/update', (request, response) => {
-    var { action, endpointTypeId, id, value, listType } = request.body
+    var {
+      action,
+      endpointTypeId,
+      id,
+      value,
+      listType,
+      clusterRef,
+      commandSide,
+    } = request.body
     var booleanParam = ''
 
     switch (listType) {
@@ -118,37 +145,43 @@ export function registerSessionApi(db, app) {
       default:
         break
     }
-    switch (action) {
-      case 'boolean':
-        insertOrUpdateCommandState(
-          db,
-          endpointTypeId,
-          id,
-          value,
-          booleanParam
-        ).then(() => {
-          response.json({
-            action: action,
-            endpointTypeId: endpointTypeId,
-            id: id,
-            added: value,
-            listType: listType,
-            replyId: 'singleCommandState',
-          })
-          return response.status(httpCode.ok).send()
-        })
-        break
-      default:
-        break
-    }
+    insertOrUpdateCommandState(
+      db,
+      endpointTypeId,
+      clusterRef,
+      commandSide,
+      id,
+      value,
+      booleanParam
+    ).then(() => {
+      response.json({
+        action: action,
+        endpointTypeId: endpointTypeId,
+        id: id,
+        added: value,
+        listType: listType,
+        side: commandSide,
+        clusterRef: clusterRef,
+        replyId: 'singleCommandState',
+      })
+      return response.status(httpCode.ok).send()
+    })
   })
 
   app.post('/post/reportableAttribute/update', (request, response) => {
-    var { action, endpointTypeId, id, value, listType } = request.body
+    var {
+      action,
+      endpointTypeId,
+      id,
+      value,
+      listType,
+      clusterRef,
+      attributeSide,
+    } = request.body
     var booleanParam = ''
     switch (listType) {
       case 'selectedReporting':
-        booleanParam = 'INCLUDED'
+        booleanParam = 'INCLUDED_REPORTABLE'
         break
       case 'reportingMin':
         booleanParam = 'MIN_INTERVAL'
@@ -162,12 +195,13 @@ export function registerSessionApi(db, app) {
       default:
         break
     }
-    insertOrUpdateReportableAttributeState(
+    insertOrUpdateAttributeState(
       db,
       endpointTypeId,
+      clusterRef,
+      attributeSide,
       id,
-      value,
-      booleanParam
+      [{ key: booleanParam, value: value }]
     ).then(() => {
       response.json({
         action: action,
