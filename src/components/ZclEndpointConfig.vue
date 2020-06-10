@@ -237,7 +237,6 @@ export default {
     this.$serverOn('zcl-endpoint-response', (event, arg) => {
       switch (arg.action) {
         case 'c':
-          console.log(arg.validationIssues)
           this.$store.dispatch('zap/addEndpoint', {
             id: arg.id,
             eptId: arg.eptId,
@@ -254,7 +253,6 @@ export default {
           })
           break
         case 'u':
-          console.log(arg.validationIssues)
           this.$store.dispatch('zap/updateEndpoint', {
             id: arg.endpointId,
             updatedKey: arg.updatedKey,

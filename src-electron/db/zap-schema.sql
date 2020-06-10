@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS "STRUCT" (
  */
 DROP TABLE IF EXISTS "STRUCT_ITEM";
 CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
-  "STRUCT_REF" integer,
+  "STRUCT_REF" integer, 
   "NAME" text,
   "TYPE" text,
   foreign key (STRUCT_REF) references STRUCT(STRUCT_ID)
@@ -296,10 +296,11 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT" (
  */
 DROP TABLE IF EXISTS "ENDPOINT_TYPE_CLUSTER";
 CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_CLUSTER" (
+  "ENDPOINT_TYPE_CLUSTER_ID" integer primary key autoincrement, 
   "ENDPOINT_TYPE_REF" integer,
   "CLUSTER_REF" integer,
   "SIDE" text,
-  "ENABLED" integer,
+  "ENABLED" integer default false,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
   UNIQUE(ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE)
@@ -311,6 +312,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_CLUSTER" (
 DROP TABLE IF EXISTS "ENDPOINT_TYPE_ATTRIBUTE";
 CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
   "ENDPOINT_TYPE_REF" integer,
+  "ENDPOINT_TYPE_CLUSTER_REF" integer, 
   "ATTRIBUTE_REF" integer,
   "INCLUDED" integer default false,
   "EXTERNAL" integer default false,
@@ -318,9 +320,14 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
   "SINGLETON" integer default false,
   "BOUNDED" integer default false,
   "DEFAULT_VALUE" text,
+  "INCLUDED_REPORTABLE" integer default false,
+  "MIN_INTERVAL" integer default 0,
+  "MAX_INTERVAL" integer default 65344,
+  "REPORTABLE_CHANGE" integer default 0,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
+  foreign key (ENDPOINT_TYPE_CLUSTER_REF) references ENDPOINT_TYPE_CLUSTER(ENDPOINT_TYPE_CLUSTER_ID),
   foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID),
-  UNIQUE(ENDPOINT_TYPE_REF, ATTRIBUTE_REF)
+  UNIQUE(ENDPOINT_TYPE_REF, ATTRIBUTE_REF, ENDPOINT_TYPE_CLUSTER_REF)
 );
 /*
  ENDPOINT_TYPE_COMMAND table contains the user data configuration for the various parameters that exist
@@ -329,31 +336,16 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
 DROP TABLE IF EXISTS "ENDPOINT_TYPE_COMMAND";
 CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_COMMAND" (
   "ENDPOINT_TYPE_REF" integer,
+  "ENDPOINT_TYPE_CLUSTER_REF" integer, 
   "COMMAND_REF" integer,
   "INCOMING" integer default false,
   "OUTGOING" integer default false,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
+  foreign key (ENDPOINT_TYPE_CLUSTER_REF) references ENDPOINT_TYPE_CLUSTER(ENDPOINT_TYPE_CLUSTER_ID),
   foreign key (COMMAND_REF) references COMMAND(COMMAND_ID),
-  UNIQUE(ENDPOINT_TYPE_REF, COMMAND_REF)
+  UNIQUE(ENDPOINT_TYPE_REF, COMMAND_REF, ENDPOINT_TYPE_CLUSTER_REF)
 );
-/*
- ENDPOINT_TYPE_ATTRIBUTE_REPORTING table contains the user data configuration for each attribute reporting. 
- This is distinct from ENDPOINT_TYPE_ATTRIBUTE so as seperate the inclusion of an attribute from its inclusion as a
- reportable attribute. 
- TODO integrate this into the ENDPOINT_TYPE_ATTRIBUTE table anyway?
- */
-DROP TABLE IF EXISTS "ENDPOINT_TYPE_REPORTABLE_ATTRIBUTE";
-CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_REPORTABLE_ATTRIBUTE" (
-  "ENDPOINT_TYPE_REF" integer,
-  "ATTRIBUTE_REF" integer,
-  "INCLUDED" integer default false,
-  "MIN_INTERVAL" integer default 0,
-  "MAX_INTERVAL" integer default 65344,
-  "REPORTABLE_CHANGE" integer default 0,
-  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
-  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID),
-  UNIQUE(ENDPOINT_TYPE_REF, ATTRIBUTE_REF)
-);
+
 /*
  * 
  * $$$$$$$$\        $$\                                                   
@@ -368,6 +360,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_REPORTABLE_ATTRIBUTE" (
  *                      \$$$$$$  |\$$$$$$  |                              
  *                       \______/  \______/                               
  */
+
 CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_ENDPOINT_TYPE_ATTRIBUTE"
 AFTER
 INSERT ON "ENDPOINT_TYPE_ATTRIBUTE" BEGIN

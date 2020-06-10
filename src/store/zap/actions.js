@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 import Vue from 'vue'
+import * as Util from '../../util/util.js'
 
 export function updateInformationText(context, text) {
   context.commit('updateInformationText', text)
@@ -211,12 +212,16 @@ export function setAttributeStateLists(context, selectionContext) {
   var defaultValue = {}
 
   selectionContext.forEach((record) => {
-    if (record.included === 1) includedAttributes.push(record.attributeRef)
-    if (record.external === 1) externalAttributes.push(record.attributeRef)
-    if (record.flash === 1) flashAttributes.push(record.attributeRef)
-    if (record.singleton === 1) singletonAttributes.push(record.attributeRef)
-    if (record.bounded === 1) boundedAttributes.push(record.attributeRef)
-    defaultValue[record.attributeRef] = record.defaultValue
+    var resolvedReference = Util.cantorPair(
+      record.attributeRef,
+      record.clusterRef
+    )
+    if (record.included === 1) includedAttributes.push(resolvedReference)
+    if (record.external === 1) externalAttributes.push(resolvedReference)
+    if (record.flash === 1) flashAttributes.push(resolvedReference)
+    if (record.singleton === 1) singletonAttributes.push(resolvedReference)
+    if (record.bounded === 1) boundedAttributes.push(resolvedReference)
+    defaultValue[resolvedReference] = record.defaultValue
   })
   context.commit(`setAttributeLists`, {
     included: includedAttributes,
@@ -235,10 +240,16 @@ export function setReportableAttributeStateLists(context, selectionContext) {
   var change = {}
 
   selectionContext.forEach((record) => {
-    if (record.included === 1) includedAttributes.push(record.attributeRef)
-    min[record.attributeRef] = record.minInterval
-    max[record.attributeRef] = record.maxInterval
-    change[record.attributeRef] = record.reportableChange
+    var resolvedReference = Util.cantorPair(
+      record.attributeRef,
+      record.clusterRef
+    )
+
+    if (record.includedReportable === 1)
+      includedAttributes.push(resolvedReference)
+    min[resolvedReference] = record.minInterval
+    max[resolvedReference] = record.maxInterval
+    change[resolvedReference] = record.reportableChange
   })
 
   context.commit(`setReportableAttributeLists`, {
@@ -253,8 +264,12 @@ export function setCommandStateLists(context, selectionContext) {
   var incoming = []
   var outgoing = []
   selectionContext.forEach((record) => {
-    if (record.incoming === 1) incoming.push(record.commandRef)
-    if (record.outgoing === 1) outgoing.push(record.commandRef)
+    var resolvedReference = Util.cantorPair(
+      record.commandRef,
+      record.clusterRef
+    )
+    if (record.incoming === 1) incoming.push(resolvedReference)
+    if (record.outgoing === 1) outgoing.push(resolvedReference)
   })
   context.commit(`setCommandLists`, {
     incoming: incoming,
@@ -264,7 +279,6 @@ export function setCommandStateLists(context, selectionContext) {
 
 // TODO (?) This does not handle/highlight prohibited clusters. For now we just keep it in here
 export function setRecommendedClusterList(context, data) {
-  console.log(data)
   var recommendedClients = []
   var recommendedServers = []
   var notRecommendedClients = []
