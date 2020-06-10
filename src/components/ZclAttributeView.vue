@@ -199,7 +199,7 @@ export default {
   },
   methods: {
     handleAttributeSelection(list, listType, attributeData, clusterId) {
-      // We determien the ID that we need to toggle within the list.
+      // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base ZCL attribute and cluster data.
 
       var indexOfValue = list.indexOf(
@@ -249,14 +249,27 @@ export default {
           ? this.selectionClusterClient
           : this.selectionClusterServer
 
-      if (
-        recommendedList.includes(attributeData.id) &&
-        relevantAttributeList.includes(clusterId)
+      let isClusterIncluded = relevantAttributeList.includes(clusterId)
+      let isAttributeRecommended = recommendedList.includes(attributeData.id)
+      let isAttributeSelected = selectedList.includes(resolvedId)
+
+      if (isClusterIncluded && isAttributeRecommended && isAttributeSelected) {
+        return 'green'
+      } else if (
+        isClusterIncluded &&
+        isAttributeRecommended &&
+        !isAttributeSelected
       ) {
-        if (selectedList.includes(resolvedId)) return 'green'
-        else return 'red'
+        return 'red'
+      } else if (
+        !isClusterIncluded &&
+        isAttributeRecommended &&
+        isAttributeSelected
+      ) {
+        return 'orange'
+      } else {
+        return 'primary'
       }
-      return 'primary'
     },
 
     isDefaultValueValid(id) {

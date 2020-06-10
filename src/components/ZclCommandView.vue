@@ -33,22 +33,23 @@ limitations under the License.
               dark
               class="q-mt-xs"
               v-model="selectionOut"
-              :val="props.row.id"
+              :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
               :color="
                 handleColorSelection(
                   selectionOut,
                   requiredCommands,
-                  props.row.id
+                  props.row,
+                  selectedCluster.id
                 )
               "
               @input="
                 handleCommandSelection(
-                  props.row.id,
                   selectionOut,
                   'selectedOut',
-                  props.row
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
@@ -58,22 +59,22 @@ limitations under the License.
               dark
               class="q-mt-xs"
               v-model="selectionIn"
-              :val="props.row.id"
+              :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
-              :color="handleColorSelection(selectionIn, [], props.row.id)"
+              :color="'primary'"
               @input="
                 handleCommandSelection(
-                  props.row.id,
                   selectionIn,
                   'selectedIn',
-                  props.row
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
           </q-td>
           <q-td key="direction" :props="props" auto-width>
-            {{ props.row.source }}
+            {{ props.row.source === 'client' ? 'C -> S' : 'S -> C' }}
           </q-td>
           <q-td key="opt" :props="props" auto-width>
             {{ props.row.isOptional }}
@@ -94,6 +95,8 @@ limitations under the License.
 </template>
 
 <script>
+import * as Util from '../util/util.js'
+
 export default {
   name: 'ZclCommandView',
   mounted() {
@@ -111,7 +114,7 @@ export default {
     this.$serverOn('singleCommandState', (event, arg) => {
       if (arg.action === 'boolean') {
         this.$store.dispatch('zap/updateSelectedCommands', {
-          id: arg.id,
+          id: this.hashCommandIdClusterId(arg.id, arg.clusterRef),
           added: arg.added,
           listType: arg.listType,
           view: 'commandView',
@@ -145,6 +148,16 @@ export default {
         return this.$store.state.zap.commandView.requiredCommands
       },
     },
+    selectionClusterClient: {
+      get() {
+        return this.$store.state.zap.clustersView.selectedClients
+      },
+    },
+    selectionClusterServer: {
+      get() {
+        return this.$store.state.zap.clustersView.selectedServers
+      },
+    },
     selectedCluster: {
       get() {
         return this.$store.state.zap.clustersView.selected[0] || {}
@@ -152,30 +165,64 @@ export default {
     },
   },
   methods: {
-    handleCommandSelection(id, list, listType, commandData) {
-      var indexOfValue = list.indexOf(id)
+    handleCommandSelection(list, listType, commandData, clusterId) {
+      // We determine the ID that we need to toggle within the list.
+      // This ID comes from hashing the base Command ID and cluster data.
+
+      var indexOfValue = list.indexOf(
+        this.hashCommandIdClusterId(commandData.id, clusterId)
+      )
+
       var addedValue = false
       if (indexOfValue === -1) {
         addedValue = true
       } else {
         addedValue = false
       }
+
       this.$serverPost(`/command/update`, {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointId,
-        id: id,
+        id: commandData.id,
         value: addedValue,
         listType: listType,
-        clusterRef: this.selectedCluster.id,
+        clusterRef: clusterId,
         commandSide: commandData.source,
       })
     },
-    handleColorSelection(selectedList, recommendedList, id) {
-      if (recommendedList.includes(id)) {
-        if (selectedList.includes(id)) return 'green'
-        else return 'red'
+    handleColorSelection(selectedList, recommendedList, command, clusterId) {
+      let relevantClusterList =
+        command.source === 'client'
+          ? this.selectionClusterClient
+          : this.selectionClusterServer
+
+      let isClusterIncluded = relevantClusterList.includes(clusterId)
+      let isCommandRecommended =
+        recommendedList.includes(command.id) || !command.isOptional
+      let isCommandIncluded = selectedList.includes(
+        this.hashCommandIdClusterId(command.id, clusterId)
+      )
+
+      if (isCommandRecommended && isCommandIncluded && isClusterIncluded) {
+        return 'green'
+      } else if (
+        isCommandRecommended &&
+        !isCommandIncluded &&
+        isClusterIncluded
+      ) {
+        return 'red'
+      } else if (
+        isCommandRecommended &&
+        isCommandIncluded &&
+        !isClusterIncluded
+      ) {
+        return 'orange'
+      } else {
+        return 'primary'
       }
-      return 'primary'
+    },
+    hashCommandIdClusterId(commandId, clusterId) {
+      return Util.cantorPair(commandId, clusterId)
     },
   },
   data() {

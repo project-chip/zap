@@ -240,11 +240,16 @@ export function setReportableAttributeStateLists(context, selectionContext) {
   var change = {}
 
   selectionContext.forEach((record) => {
+    var resolvedReference = Util.cantorPair(
+      record.attributeRef,
+      record.clusterRef
+    )
+
     if (record.includedReportable === 1)
-      includedAttributes.push(record.attributeRef)
-    min[record.attributeRef] = record.minInterval
-    max[record.attributeRef] = record.maxInterval
-    change[record.attributeRef] = record.reportableChange
+      includedAttributes.push(resolvedReference)
+    min[resolvedReference] = record.minInterval
+    max[resolvedReference] = record.maxInterval
+    change[resolvedReference] = record.reportableChange
   })
 
   context.commit(`setReportableAttributeLists`, {
@@ -259,8 +264,12 @@ export function setCommandStateLists(context, selectionContext) {
   var incoming = []
   var outgoing = []
   selectionContext.forEach((record) => {
-    if (record.incoming === 1) incoming.push(record.commandRef)
-    if (record.outgoing === 1) outgoing.push(record.commandRef)
+    var resolvedReference = Util.cantorPair(
+      record.commandRef,
+      record.clusterRef
+    )
+    if (record.incoming === 1) incoming.push(resolvedReference)
+    if (record.outgoing === 1) outgoing.push(resolvedReference)
   })
   context.commit(`setCommandLists`, {
     incoming: incoming,

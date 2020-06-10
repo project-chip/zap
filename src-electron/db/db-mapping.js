@@ -228,6 +228,7 @@ export const dbMap = {
     if (x == null) return undefined
     return {
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      clusterRef: x.CLUSTER_REF,
       commandRef: x.COMMAND_REF,
       incoming: x.INCOMING,
       outgoing: x.OUTGOING,
