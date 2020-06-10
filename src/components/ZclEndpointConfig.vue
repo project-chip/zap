@@ -16,31 +16,178 @@ limitations under the License.
 <template>
   <div class="bg-grey-10 text-white">
     <div>
-      <q-btn
-        color="primary"
-        label="New Endpoint"
-        @click="newEptDialog = true"
-      />
-      <q-btn
-        color="primary"
-        label="Delete Endpoint"
-        @click="deleteEpt(activeIndex)"
-      />
-      <q-btn
-        color="primary"
-        label="Copy Endpoint"
-        @click="copyEpt()"
-        v-show="activeIndex.length > 0"
-      />
-
+      <div>
+        <!-- this section is for the table -->
+        <q-table
+          title="Endpoint Manager"
+          :data.sync="endpoints"
+          :columns="columns"
+          row-key="id"
+          dense
+          wrap-cells
+          dark
+          binary-state-sort
+          :selected.sync="activeIndex"
+          :pagination.sync="pagination"
+        >
+          <template v-slot:body="props">
+            <q-tr
+              :props="props"
+              clickable
+              @click="setActiveIndex(props.row)"
+              dark
+            >
+              <q-td key="eptId" :props="props" auto-width>
+                <q-badge
+                  :color="
+                    !isValueValid(endpointIdValidation, props.row.id)
+                      ? 'red'
+                      : 'primary'
+                  "
+                >
+                  {{ getFormattedEndpointId(props.row.id) }}
+                </q-badge>
+                <q-popup-edit dark dense>
+                  <q-input
+                    debounce="300"
+                    type="text"
+                    v-model="endpointId[props.row.id]"
+                    dark
+                    dense
+                    prefix="0x"
+                    mask="XXXX"
+                    fill-mask="0"
+                    reverse-fill-mask
+                    @input="
+                      handleEndpointChange(
+                        props.row.id,
+                        'endpointId',
+                        endpointId[props.row.id]
+                      )
+                    "
+                    :error="!isValueValid(endpointIdValidation, props.row.id)"
+                    :error-message="
+                      getValueErrorMessage(endpointIdValidation, props.row.id)
+                    "
+                  />
+                </q-popup-edit>
+              </q-td>
+              <q-td key="profileId" :props="props" auto-width>
+                {{
+                  (deviceTypes[
+                    endpointDeviceTypeRef[endpointType[props.row.id]]
+                  ]
+                    ? deviceTypes[
+                        endpointDeviceTypeRef[endpointType[props.row.id]]
+                      ].profileId.toString(16)
+                    : ''
+                  ).padStart(4, '0')
+                }}
+              </q-td>
+              <q-td key="deviceId" :props="props" auto-width>
+                {{
+                  (deviceTypes[
+                    endpointDeviceTypeRef[endpointType[props.row.id]]
+                  ]
+                    ? deviceTypes[
+                        endpointDeviceTypeRef[endpointType[props.row.id]]
+                      ].code.toString(16)
+                    : ''
+                  ).padStart(4, '0')
+                }}
+              </q-td>
+              <q-td key="version" :props="props" auto-width>
+                1
+              </q-td>
+              <q-td key="endpointType" :props="props" auto-width>
+                <q-badge :color="'primary'">
+                  {{ endpointTypeName[endpointType[props.row.id]] }}
+                </q-badge>
+                <q-popup-edit dark dense>
+                  <q-select
+                    filled
+                    v-model="endpointType[props.row.id]"
+                    :options="Object.keys(endpointTypeName)"
+                    :option-label="
+                      (item) => (item === null ? '' : endpointTypeName[item])
+                    "
+                    label="Endpoint Type"
+                    dense
+                    dark
+                    @input="
+                      handleEndpointChange(props.row.id, 'endpointType', $event)
+                    "
+                  />
+                </q-popup-edit>
+              </q-td>
+              <q-td key="nwkId" :props="props" auto-width>
+                <q-badge
+                  :color="
+                    !isValueValid(networkIdValidation, props.row.id)
+                      ? 'red'
+                      : 'primary'
+                  "
+                >
+                  {{ networkId[props.row.id] }}
+                </q-badge>
+                <q-popup-edit dark dense>
+                  <q-input
+                    debounce="300"
+                    type="text"
+                    v-model="networkId[props.row.id]"
+                    dark
+                    dense
+                    :error="!isValueValid(networkIdValidation, props.row.id)"
+                    :error-message="
+                      getValueErrorMessage(networkIdValidation, props.row.id)
+                    "
+                    @input="
+                      handleEndpointChange(
+                        props.row.id,
+                        'networkId',
+                        networkId[props.row.id]
+                      )
+                    "
+                  />
+                </q-popup-edit>
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+      </div>
+      <div>
+        <!-- this section is for buttons delete/copy/new endpoint  -->
+        <p align="right">
+          <q-btn
+            color="primary"
+            size="0.8vw"
+            label="Delete Endpoint"
+            @click="deleteEpt(activeIndex)"
+          />
+          <q-btn
+            color="primary"
+            size="0.8vw"
+            style="margin-left: 5px;"
+            label="Copy Endpoint"
+            @click="copyEpt()"
+            v-show="activeIndex.length > 0"
+          />
+          <q-btn
+            color="primary"
+            size="0.8vw"
+            style="margin-left: 5px;"
+            label="New Endpoint"
+            @click="newEptDialog = true"
+          />
+        </p>
+      </div>
       <q-dialog v-model="newEptDialog">
         <q-card>
           <q-card-section>
             <div>
-              New Endpoint
+              <p style="text-align: center; font-size: 1vw;">New Endpoint</p>
             </div>
           </q-card-section>
-
           <q-card-section>
             <div>
               <q-form @submit="newEpt()" @reset="onReset" class="q-gutter-md">
@@ -67,145 +214,19 @@ limitations under the License.
             </div>
           </q-card-section>
           <q-card-actions align="right">
+            <q-btn flat label="Cancel" color="primary" v-close-popup />
             <q-btn
               flat
               label="Create Endpoint"
               color="primary"
+              style="margin-left: 5px;"
               v-close-popup
               @click="newEpt(newEndpoint)"
             />
-            <q-btn flat label="Cancel" color="primary" v-close-popup />
           </q-card-actions>
         </q-card>
       </q-dialog>
     </div>
-    <q-table
-      title="Endpoint Manager"
-      :data.sync="endpoints"
-      :columns="columns"
-      row-key="id"
-      dense
-      wrap-cells
-      dark
-      binary-state-sort
-      :selected.sync="activeIndex"
-      :pagination.sync="pagination"
-    >
-      <template v-slot:body="props">
-        <q-tr :props="props" clickable @click="setActiveIndex(props.row)" dark>
-          <q-td key="eptId" :props="props" auto-width>
-            <q-badge
-              :color="
-                !isValueValid(endpointIdValidation, props.row.id)
-                  ? 'red'
-                  : 'primary'
-              "
-            >
-              {{ getFormattedEndpointId(props.row.id) }}
-            </q-badge>
-            <q-popup-edit dark dense>
-              <q-input
-                debounce="300"
-                type="text"
-                v-model="endpointId[props.row.id]"
-                dark
-                dense
-                prefix="0x"
-                mask="XXXX"
-                fill-mask="0"
-                reverse-fill-mask
-                @input="
-                  handleEndpointChange(
-                    props.row.id,
-                    'endpointId',
-                    endpointId[props.row.id]
-                  )
-                "
-                :error="!isValueValid(endpointIdValidation, props.row.id)"
-                :error-message="
-                  getValueErrorMessage(endpointIdValidation, props.row.id)
-                "
-              />
-            </q-popup-edit>
-          </q-td>
-          <q-td key="profileId" :props="props" auto-width>
-            {{
-              (deviceTypes[endpointDeviceTypeRef[endpointType[props.row.id]]]
-                ? deviceTypes[
-                    endpointDeviceTypeRef[endpointType[props.row.id]]
-                  ].profileId.toString(16)
-                : ''
-              ).padStart(4, '0')
-            }}
-          </q-td>
-          <q-td key="deviceId" :props="props" auto-width>
-            {{
-              (deviceTypes[endpointDeviceTypeRef[endpointType[props.row.id]]]
-                ? deviceTypes[
-                    endpointDeviceTypeRef[endpointType[props.row.id]]
-                  ].code.toString(16)
-                : ''
-              ).padStart(4, '0')
-            }}
-          </q-td>
-          <q-td key="version" :props="props" auto-width>
-            1
-          </q-td>
-          <q-td key="endpointType" :props="props" auto-width>
-            <q-badge :color="'primary'">
-              {{ endpointTypeName[endpointType[props.row.id]] }}
-            </q-badge>
-            <q-popup-edit dark dense>
-              <q-select
-                filled
-                v-model="endpointType[props.row.id]"
-                :options="Object.keys(endpointTypeName)"
-                :option-label="
-                  (item) => (item === null ? '' : endpointTypeName[item])
-                "
-                label="Endpoint Type"
-                dense
-                dark
-                @input="
-                  handleEndpointChange(props.row.id, 'endpointType', $event)
-                "
-              />
-            </q-popup-edit>
-          </q-td>
-          <q-td key="nwkId" :props="props" auto-width>
-            <q-badge
-              :color="
-                !isValueValid(networkIdValidation, props.row.id)
-                  ? 'red'
-                  : 'primary'
-              "
-            >
-              {{ networkId[props.row.id] }}
-            </q-badge>
-            <q-popup-edit dark dense>
-              <q-input
-                debounce="300"
-                type="text"
-                v-model="networkId[props.row.id]"
-                dark
-                dense
-                :error="!isValueValid(networkIdValidation, props.row.id)"
-                :error-message="
-                  getValueErrorMessage(networkIdValidation, props.row.id)
-                "
-                @input="
-                  handleEndpointChange(
-                    props.row.id,
-                    'networkId',
-                    networkId[props.row.id]
-                  )
-                "
-              />
-            </q-popup-edit>
-          </q-td>
-        </q-tr>
-      </template>
-    </q-table>
   </div>
 </template>
 
