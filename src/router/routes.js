@@ -32,7 +32,11 @@ const routes = [
   },
   {
     path: '/zcl',
-    component: () => import('layouts/ZclLayout.vue'),
+    component: () => import('pages/ZclBrowsing.vue'),
+  },
+  {
+    path: '/preference',
+    component: () => import('pages/Preference.vue'),
   },
 ]
 

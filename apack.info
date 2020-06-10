@@ -8,8 +8,13 @@ executable(zap:linux.x86_64) {
   exe=zap
 }
 
+executable(zap:macosx.x86_64) {
+  exe=dist/electron/zap-darwin-x64/zap.app/Contents/MacOS/zap
+}
+
 function(run) {
-  cmd=$(zap) --zclProperties test/zcl/zcl-test.properties
+  zclProperties.description=Location for ZCL XML file
+  cmd=$(zap) --zclProperties ${zclProperties}
 }
 
 function(zapHelp) {
@@ -21,9 +26,41 @@ function(zapSelfcheck) {
 }
 
 function(zapServer) {
-  cmd=$(zap) --noUi --showUrl --zclProperties test/zcl/zcl-test.properties
+  httpPort.description=Port used for HTTP server
+  zclProperties.description=Location for ZCL XML file
+  output.description=Output directory for project generation
+  cmd=$(zap) --httpPort ${port} --noUi --showUrl --zclProperties ${zclProperties} --output ${output}
 }
 
 function(zapFull) {
-  cmd=$(zap) --showUrl --zclProperties test/zcl/zcl-test.properties
+  zclProperties.description=Location for ZCL XML file
+  cmd=$(zap) --showUrl --zclProperties ${zclProperties}
+}
+
+option(auto-regen) {
+  name=Automatic regeneration
+  description=Automatically regenerate when configuration file is saved.
+  type=boolean
+  default=false
+}
+
+option(port) {
+  name=Port used for HTTP server
+  description=Default port used for the ZAP HTTP server
+  type=integer
+  default=9070
+}
+
+option(zclProperties) {
+  name=Path to ZCL xml properties file
+  description=Path to ZCL xml properties file (relative to the stack)
+  type=string
+  default=./app/zcl/zcl-studio.properties
+}
+
+option(output) {
+  name=Output directory for project generation
+  description=Directory where the generated files will be written to.
+  type=string
+  default=./
 }

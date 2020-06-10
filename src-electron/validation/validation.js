@@ -24,11 +24,17 @@
 import * as QueryZcl from '../db/query-zcl'
 import * as QueryConfig from '../db/query-config'
 
-export function validateAttribute(db, endpointTypeId, attributeRef) {
+export function validateAttribute(
+  db,
+  endpointTypeId,
+  attributeRef,
+  clusterRef
+) {
   return QueryZcl.selectEndpointTypeAttribute(
     db,
     endpointTypeId,
-    attributeRef
+    attributeRef,
+    clusterRef
   ).then((endpointAttribute) =>
     QueryZcl.selectAttributeById(db, attributeRef).then(
       (attribute) =>

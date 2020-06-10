@@ -15,27 +15,68 @@ limitations under the License.
 -->
 <template>
   <div>
-    <div class="row">
-      <font size="4">
+    <div>
+      <!-- this section is for Title -->
+      <p style="text-align: left; font-size: 2vw;">
         Endpoint Type Manager
-      </font>
+      </p>
     </div>
     <div class="row">
-      <q-btn
-        color="primary"
-        label="New Endpoint Type"
-        @click="newEptTypeDialog = true"
-      />
-      <q-btn
-        color="primary"
-        label="Delete Endpoint Type"
-        @click="deleteEptType(selectedEndpointType)"
-      />
+      <!-- this section is the input for "Enpoint Type Name" -->
+      <div class="col">
+        <q-select
+          dark
+          dense
+          v-model="selectedEndpointType"
+          :options="zclEndpointTypeOptions"
+          :option-label="
+            (item) => (item === null ? '' : zclEndpointTypeName[item])
+          "
+          label="Endpoint Type Name"
+          @input="setSelectedEndpointType($event)"
+        />
+      </div>
+    </div>
+    <div class="row">
+      <!-- this section is the input for "ZCL Device Type" -->
+      <div class="col">
+        <q-select
+          dark
+          dense
+          v-model="zclDeviceType"
+          :options="zclDeviceTypeOptions"
+          :option-label="
+            (item) => (item === null ? '' : zclDeviceTypes[item].label)
+          "
+          label="ZCL Device Type"
+          @input="showConfirmZclDeviceTypeChangeDialog($event)"
+        />
+      </div>
+    </div>
+    <div>
+      <!-- this section is for buttons delete/new endpoint type -->
+      <p align="right">
+        <q-btn
+          color="primary"
+          size="0.8vw"
+          label="Delete Endpoint Type"
+          @click="deleteEptType(selectedEndpointType)"
+        />
+        <q-btn
+          color="primary"
+          size="0.8vw"
+          style="margin-left: 5px;"
+          label="New Endpoint Type"
+          @click="newEptTypeDialog = true"
+        />
+      </p>
       <q-dialog v-model="newEptTypeDialog">
         <q-card>
           <q-card-section>
             <div>
-              New Endpoint Type
+              <p style="text-align: center; font-size: 1vw;">
+                New Endpoint Type
+              </p>
             </div>
           </q-card-section>
           <q-card-section>
@@ -63,14 +104,15 @@ limitations under the License.
             </div>
           </q-card-section>
           <q-card-actions align="right">
+            <q-btn flat label="Cancel" color="primary" v-close-popup />
             <q-btn
               flat
               label="Create Endpoint Type"
               color="primary"
+              style="margin-left: 5px;"
               v-close-popup
               @click="addEndpointType(newEndpointType)"
             />
-            <q-btn flat label="Cancel" color="primary" v-close-popup />
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -90,43 +132,13 @@ limitations under the License.
               flat
               label="Confirm"
               color="primary"
+              style="margin-left: 5px;"
               v-close-popup
               @click="setZclDeviceType(desiredZclEndpointType)"
             />
           </q-card-section>
         </q-card>
       </q-dialog>
-    </div>
-
-    <div class="row">
-      <div class="col">
-        <q-select
-          dark
-          dense
-          v-model="selectedEndpointType"
-          :options="zclEndpointTypeOptions"
-          :option-label="
-            (item) => (item === null ? '' : zclEndpointTypeName[item])
-          "
-          label="Endpoint Type Name"
-          @input="setSelectedEndpointType($event)"
-        />
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <q-select
-          dark
-          dense
-          v-model="zclDeviceType"
-          :options="zclDeviceTypeOptions"
-          :option-label="
-            (item) => (item === null ? '' : zclDeviceTypes[item].label)
-          "
-          label="ZCL Device Type"
-          @input="showConfirmZclDeviceTypeChangeDialog($event)"
-        />
-      </div>
     </div>
   </div>
 </template>

@@ -82,8 +82,7 @@ describe('Session specific tests', () => {
   })
 
   test('Test command line generation using api used for command line generation', () => {
-    return initDatabase(file)
-      .then((db) => attachToDb(db))
+    return attachToDb(db)
       .then((db) => loadSchema(db, schemaFile(), version))
       .then((db) => loadZcl(db, zclPropertiesFile))
       .then((db) => setHandlebarTemplateDirForCli('./test/gen-template/'))

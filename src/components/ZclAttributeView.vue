@@ -33,17 +33,23 @@ limitations under the License.
               dark
               class="q-mt-xs"
               v-model="selection"
-              :val="props.row.id"
+              :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
               :color="
-                handleColorSelection(selection, requiredAttributes, props.row)
+                handleColorSelection(
+                  selection,
+                  requiredAttributes,
+                  props.row,
+                  selectedCluster.id
+                )
               "
               @input="
                 handleAttributeSelection(
-                  props.row.id,
                   selection,
-                  'selectedAttributes'
+                  'selectedAttributes',
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
@@ -66,13 +72,14 @@ limitations under the License.
               dark
               class="q-mt-xs"
               v-model="selectionExternal"
-              :val="props.row.id"
+              :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               @input="
                 handleAttributeSelection(
-                  props.row.id,
                   selectionExternal,
-                  'selectedExternal'
+                  'selectedExternal',
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
@@ -83,13 +90,14 @@ limitations under the License.
               dark
               class="q-mt-xs"
               v-model="selectionFlash"
-              :val="props.row.id"
+              :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               @input="
                 handleAttributeSelection(
-                  props.row.id,
                   selectionFlash,
-                  'selectedFlash'
+                  'selectedFlash',
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
@@ -99,13 +107,14 @@ limitations under the License.
               dark
               class="q-mt-xs"
               v-model="selectionSingleton"
-              :val="props.row.id"
+              :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               @input="
                 handleAttributeSelection(
-                  props.row.id,
                   selectionSingleton,
-                  'selectedSingleton'
+                  'selectedSingleton',
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
@@ -119,29 +128,45 @@ limitations under the License.
               dark
               class="q-mt-xs"
               v-model="selectionBounded"
-              :val="props.row.id"
+              :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               @input="
                 handleAttributeSelection(
-                  props.row.id,
                   selectionBounded,
-                  'selectedBounded'
+                  'selectedBounded',
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
           </q-td>
           <q-td key="default" :props="props" auto-width>
             <q-input
-              v-model="selectionDefault[props.row.id]"
+              v-model="
+                selectionDefault[
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                ]
+              "
               dark
               dense
               bottom-slots
-              :error="!isDefaultValueValid(props.row.id)"
-              :error-message="getDefaultValueErrorMessage(props.row.id)"
+              :error="
+                !isDefaultValueValid(
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                )
+              "
+              :error-message="
+                getDefaultValueErrorMessage(
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                )
+              "
               @input="
                 handleAttributeDefaultChange(
-                  props.row.id,
-                  selectionDefault[props.row.id]
+                  selectionDefault[
+                    hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  ],
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
@@ -153,6 +178,7 @@ limitations under the License.
 </template>
 
 <script>
+import * as Util from '../util/util.js'
 export default {
   name: 'ZclAttributeView',
   mounted() {
@@ -170,14 +196,14 @@ export default {
     this.$serverOn('singleAttributeState', (event, arg) => {
       if (arg.action === 'boolean') {
         this.$store.dispatch('zap/updateSelectedAttributes', {
-          id: arg.id,
+          id: this.hashAttributeIdClusterId(arg.id, arg.clusterRef),
           added: arg.added,
           listType: arg.listType,
           view: 'attributeView',
         })
       } else if (arg.action === 'text') {
         this.$store.dispatch('zap/updateAttributeDefaults', {
-          id: arg.id,
+          id: this.hashAttributeIdClusterId(arg.id, this.selectedCluster.id),
           newDefaultValue: arg.added,
           defaultValueValidationIssues: arg.validationIssues.defaultValue,
         })
@@ -185,8 +211,13 @@ export default {
     })
   },
   methods: {
-    handleAttributeSelection(id, list, listType) {
-      var indexOfValue = list.indexOf(id)
+    handleAttributeSelection(list, listType, attributeData, clusterId) {
+      // We determine the ID that we need to toggle within the list.
+      // This ID comes from hashing the base ZCL attribute and cluster data.
+
+      var indexOfValue = list.indexOf(
+        this.hashAttributeIdClusterId(attributeData.id, clusterId)
+      )
       var addedValue = false
       if (indexOfValue === -1) {
         addedValue = true
@@ -197,34 +228,63 @@ export default {
       this.$serverPost(`/attribute/update`, {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointId,
-        id: id,
+        id: attributeData.id,
         value: addedValue,
         listType: listType,
+        clusterRef: clusterId,
+        attributeSide: attributeData.side,
       })
     },
-    handleAttributeDefaultChange(id, newValue) {
+
+    handleAttributeDefaultChange(newValue, attributeData, clusterId) {
       this.$serverPost(`/attribute/update`, {
         action: 'text',
         endpointTypeId: this.selectedEndpointId,
-        id: id,
+        id: attributeData.id,
         value: newValue,
         listType: 'defaultValue',
+        clusterRef: clusterId,
+        attributeSide: attributeData.side,
       })
     },
-    handleColorSelection(selectedList, recommendedList, attributeData) {
+    handleColorSelection(
+      selectedList,
+      recommendedList,
+      attributeData,
+      clusterId
+    ) {
+      var resolvedId = this.hashAttributeIdClusterId(
+        attributeData.id,
+        clusterId
+      )
       let relevantAttributeList =
         attributeData.side === 'client'
           ? this.selectionClusterClient
           : this.selectionClusterServer
-      if (
-        recommendedList.includes(attributeData.id) &&
-        relevantAttributeList.includes(attributeData.clusterRef)
+
+      let isClusterIncluded = relevantAttributeList.includes(clusterId)
+      let isAttributeRecommended = recommendedList.includes(attributeData.id)
+      let isAttributeSelected = selectedList.includes(resolvedId)
+
+      if (isClusterIncluded && isAttributeRecommended && isAttributeSelected) {
+        return 'green'
+      } else if (
+        isClusterIncluded &&
+        isAttributeRecommended &&
+        !isAttributeSelected
       ) {
-        if (selectedList.includes(attributeData.id)) return 'green'
-        else return 'red'
+        return 'red'
+      } else if (
+        !isClusterIncluded &&
+        isAttributeRecommended &&
+        isAttributeSelected
+      ) {
+        return 'orange'
+      } else {
+        return 'primary'
       }
-      return 'primary'
     },
+
     isDefaultValueValid(id) {
       return this.defaultValueValidation[id] != null
         ? this.defaultValueValidation[id].length === 0
@@ -239,6 +299,9 @@ export default {
             ''
           )
         : ''
+    },
+    hashAttributeIdClusterId(attributeId, clusterId) {
+      return Util.cantorPair(attributeId, clusterId)
     },
   },
 
@@ -312,6 +375,11 @@ export default {
     defaultValueValidation: {
       get() {
         return this.$store.state.zap.attributeView.defaultValueValidationIssues
+      },
+    },
+    selectedCluster: {
+      get() {
+        return this.$store.state.zap.clustersView.selected[0] || {}
       },
     },
   },
