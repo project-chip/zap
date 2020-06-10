@@ -238,6 +238,7 @@ export const dbMap = {
     if (x == null) return undefined
     return {
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      clusterRef: x.CLUSTER_REF,
       attributeRef: x.ATTRIBUTE_REF,
       includedReportable: x.INCLUDED_REPORTABLE,
       minInterval: x.MIN_INTERVAL,

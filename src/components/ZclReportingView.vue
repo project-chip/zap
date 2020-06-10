@@ -33,22 +33,16 @@ limitations under the License.
               dark
               class="q-mt-xs"
               v-model="selectedReporting"
-              :val="props.row.id"
+              :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
-              :color="
-                handleColorSelection(
-                  selectedReporting,
-                  requiredReporting,
-                  props.row.id
-                )
-              "
+              :color="'primary'"
               @input="
                 handleSelection(
-                  props.row.id,
                   selectedReporting,
                   'selectedReporting',
-                  props.row
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
@@ -73,10 +67,10 @@ limitations under the License.
               dense
               @input="
                 handleAttributeDefaultChange(
-                  props.row.id,
                   selectionMin[props.row.id],
                   'reportingMin',
-                  props.row
+                  props.row,
+                  clusterId
                 )
               "
             />
@@ -88,10 +82,10 @@ limitations under the License.
               v-model.number="selectionMax[props.row.id]"
               @input="
                 handleAttributeDefaultChange(
-                  props.row.id,
                   selectionMax[props.row.id],
                   'reportingMax',
-                  props.row
+                  props.row,
+                  clusterId
                 )
               "
               dark
@@ -104,10 +98,10 @@ limitations under the License.
               v-model.number="selectionReportableChange[props.row.id]"
               @input="
                 handleAttributeDefaultChange(
-                  props.row.id,
                   selectionReportableChange[props.row.id],
                   'reportableChange',
-                  props.row
+                  props.row,
+                  clusterId
                 )
               "
               dark
@@ -122,6 +116,7 @@ limitations under the License.
 </template>
 
 <script>
+import * as Util from '../util/util.js'
 export default {
   name: 'ZclReportingView',
   mounted() {
@@ -133,7 +128,7 @@ export default {
     this.$serverOn('singleReportableAttributeState', (event, arg) => {
       if (arg.action === 'boolean') {
         this.$store.dispatch('zap/updateSelectedAttributes', {
-          id: arg.id,
+          id: this.hashAttributeIdClusterId(arg.id, arg.clusterRef),
           added: arg.added,
           listType: arg.listType,
           view: 'reportingView',
@@ -154,7 +149,10 @@ export default {
         return this.$store.state.zap.attributes.filter((attribute) => {
           if (
             this.$store.state.zap.attributeView.selectedAttributes.includes(
-              attribute.id
+              this.hashAttributeIdClusterId(
+                attribute.id,
+                this.selectedCluster.id
+              )
             )
           ) {
             return true
@@ -208,8 +206,13 @@ export default {
     },
   },
   methods: {
-    handleSelection(id, list, listType, attributeData) {
-      var indexOfValue = list.indexOf(id)
+    handleSelection(list, listType, attributeData, clusterId) {
+      // We determine the ID that we need to toggle within the list.
+      // This ID comes from hashing the base ZCL attribute and cluster data.
+
+      var indexOfValue = list.indexOf(
+        this.hashAttributeIdClusterId(attributeData.id, clusterId)
+      )
       var addedValue = false
       if (indexOfValue === -1) {
         addedValue = true
@@ -220,30 +223,32 @@ export default {
       this.$serverPost(`/reportableAttribute/update`, {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointId,
-        id: id,
+        id: attributeData.id,
         value: addedValue,
         listType: listType,
-        clusterRef: this.selectedCluster.id,
+        clusterRef: clusterId,
         attributeSide: attributeData.side,
       })
     },
-    handleAttributeDefaultChange(id, newValue, listType, attributeData) {
+    handleAttributeDefaultChange(
+      id,
+      newValue,
+      listType,
+      attributeData,
+      clusterId
+    ) {
       this.$serverPost(`/reportableAttribute/update`, {
         action: 'text',
         endpointTypeId: this.selectedEndpointId,
         id: id,
         value: newValue,
         listType: listType,
-        clusterRef: this.selectedCluster.id,
+        clusterRef: clusterId,
         attributeSide: attributeData.side,
       })
     },
-    handleColorSelection(selectedList, recommendedList, id) {
-      if (recommendedList.includes(id)) {
-        if (selectedList.includes(id)) return 'green'
-        else return 'red'
-      }
-      return 'primary'
+    hashAttributeIdClusterId(attributeId, clusterId) {
+      return Util.cantorPair(attributeId, clusterId)
     },
   },
   data() {

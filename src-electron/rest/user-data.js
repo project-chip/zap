@@ -206,6 +206,7 @@ export function registerSessionApi(db, app) {
       response.json({
         action: action,
         endpointTypeId: endpointTypeId,
+        clusterRef: clusterRef,
         id: id,
         added: value,
         listType: listType,
