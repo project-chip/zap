@@ -142,16 +142,29 @@ limitations under the License.
           </q-td>
           <q-td key="default" :props="props" auto-width>
             <q-input
-              v-model="selectionDefault[props.row.id]"
+              v-model="
+                selectionDefault[
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                ]
+              "
               dark
               dense
               bottom-slots
-              :error="!isDefaultValueValid(props.row.id)"
-              :error-message="getDefaultValueErrorMessage(props.row.id)"
+              :error="
+                !isDefaultValueValid(
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                )
+              "
+              :error-message="
+                getDefaultValueErrorMessage(
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                )
+              "
               @input="
                 handleAttributeDefaultChange(
-                  props.row.id,
-                  selectionDefault[props.row.id],
+                  selectionDefault[
+                    hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  ],
                   props.row,
                   selectedCluster.id
                 )
@@ -190,7 +203,7 @@ export default {
         })
       } else if (arg.action === 'text') {
         this.$store.dispatch('zap/updateAttributeDefaults', {
-          id: arg.id,
+          id: this.hashAttributeIdClusterId(arg.id, this.selectedCluster.id),
           newDefaultValue: arg.added,
           defaultValueValidationIssues: arg.validationIssues.defaultValue,
         })
@@ -223,11 +236,11 @@ export default {
       })
     },
 
-    handleAttributeDefaultChange(id, newValue, attributeData, clusterId) {
+    handleAttributeDefaultChange(newValue, attributeData, clusterId) {
       this.$serverPost(`/attribute/update`, {
         action: 'text',
         endpointTypeId: this.selectedEndpointId,
-        id: id,
+        id: attributeData.id,
         value: newValue,
         listType: 'defaultValue',
         clusterRef: clusterId,

@@ -104,7 +104,7 @@ export function registerSessionApi(db, app) {
         id,
         [{ key: booleanParam, value: value, type: paramType }]
       ).then((row) => {
-        return validateAttribute(db, endpointTypeId, id).then(
+        return validateAttribute(db, endpointTypeId, id, clusterRef).then(
           (validationData) => {
             response.json({
               action: action,

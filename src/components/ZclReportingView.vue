@@ -62,15 +62,21 @@ limitations under the License.
           <q-td key="min" :props="props" auto-width>
             <q-input
               type="number"
-              v-model.number="selectionMin[props.row.id]"
+              v-model.number="
+                selectionMin[
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                ]
+              "
               dark
               dense
               @input="
                 handleAttributeDefaultChange(
-                  selectionMin[props.row.id],
+                  selectionMin[
+                    hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  ],
                   'reportingMin',
                   props.row,
-                  clusterId
+                  selectedCluster.id
                 )
               "
             />
@@ -79,13 +85,19 @@ limitations under the License.
           <q-td key="max" :props="props" auto-width>
             <q-input
               type="number"
-              v-model.number="selectionMax[props.row.id]"
+              v-model.number="
+                selectionMax[
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                ]
+              "
               @input="
                 handleAttributeDefaultChange(
-                  selectionMax[props.row.id],
+                  selectionMax[
+                    hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  ],
                   'reportingMax',
                   props.row,
-                  clusterId
+                  selectedCluster.id
                 )
               "
               dark
@@ -95,13 +107,19 @@ limitations under the License.
 
           <q-td key="reportable" :props="props" auto-width>
             <q-input
-              v-model.number="selectionReportableChange[props.row.id]"
+              v-model.number="
+                selectionReportableChange[
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                ]
+              "
               @input="
                 handleAttributeDefaultChange(
-                  selectionReportableChange[props.row.id],
+                  selectionReportableChange[
+                    hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  ],
                   'reportableChange',
                   props.row,
-                  clusterId
+                  selectedCluster.id
                 )
               "
               dark
@@ -135,7 +153,7 @@ export default {
         })
       } else if (arg.action === 'text') {
         this.$store.dispatch('zap/updateAttributeDefaults', {
-          id: arg.id,
+          id: hashAttributeIdClusterId(arg.id, selectedCluster.id),
           newDefaultValue: arg.added,
           listType: arg.listType,
           view: 'reportingView',
@@ -230,17 +248,11 @@ export default {
         attributeSide: attributeData.side,
       })
     },
-    handleAttributeDefaultChange(
-      id,
-      newValue,
-      listType,
-      attributeData,
-      clusterId
-    ) {
+    handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
       this.$serverPost(`/reportableAttribute/update`, {
         action: 'text',
         endpointTypeId: this.selectedEndpointId,
-        id: id,
+        id: attributeData.id,
         value: newValue,
         listType: listType,
         clusterRef: clusterId,
