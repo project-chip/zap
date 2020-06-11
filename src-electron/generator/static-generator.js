@@ -18,7 +18,7 @@
 /**
  * @module JS API: generator logic
  */
-import Handlebars from 'handlebars'
+import Handlebars from 'handlebars/dist/cjs/handlebars'
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs-extra'
 import {
   selectAllClusters,
