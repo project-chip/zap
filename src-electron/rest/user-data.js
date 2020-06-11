@@ -274,13 +274,13 @@ export function registerSessionApi(db, app) {
         var changeParam = ''
         switch (context.updatedKey) {
           case 'endpointId':
-            changeParam = 'ENDPOINT_ID'
+            changeParam = 'ENDPOINT_IDENTIFIER'
             break
           case 'endpointType':
             changeParam = 'ENDPOINT_TYPE_REF'
             break
           case 'networkId':
-            changeParam = 'NETWORK_ID'
+            changeParam = 'NETWORK_IDENTIFIER'
             break
         }
         updateEndpoint(

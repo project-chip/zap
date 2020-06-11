@@ -191,12 +191,12 @@ export const dbMap = {
   endpoint: (x) => {
     if (x == null) return undefined
     return {
-      endpointRef: x.ENDPOINT_REF,
+      endpointRef: x.ENDPOINT_ID,
       sessionRef: x.SESSION_REF,
-      endpointId: x.ENDPOINT_ID,
+      endpointId: x.ENDPOINT_IDENTIFIER,
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       profileId: x.PROFILE,
-      networkId: x.NETWORK_ID,
+      networkId: x.NETWORK_IDENTIFIER,
     }
   },
 

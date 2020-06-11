@@ -74,22 +74,22 @@ export function createStateFromDatabase(db, sessionId) {
 
     // Deal with the key/value table
     var getKeyValues = Mapping.exportSessionKeyValues(db, sessionId).then(
-      (rows) => {
-        state.keyValuePairs = rows
-        Env.logInfo(`Retrieved session keys: ${rows.length}`)
-        return Promise.resolve(rows)
+      (data) => {
+        state.keyValuePairs = data
+        Env.logInfo(`Retrieved session keys: ${data.length}`)
+        return Promise.resolve(data)
       }
     )
     promises.push(getKeyValues)
 
-    var getAllEndpoint = Mapping.exportEndpointTypes(db, sessionId).then(
-      (rows) => {
-        Env.logInfo(`Retrieved endpoint types: ${rows.length}`)
-        state.endpointTypes = rows
-        return Promise.resolve(rows)
+    var getAllEndpointTypes = Mapping.exportEndpointTypes(db, sessionId).then(
+      (data) => {
+        Env.logInfo(`Retrieved endpoint types: ${data.length}`)
+        state.endpointTypes = data
+        return Promise.resolve(data)
       }
     )
-    promises.push(getAllEndpoint)
+    promises.push(getAllEndpointTypes)
 
     return Promise.all(promises)
       .then(() => resolve(state))
