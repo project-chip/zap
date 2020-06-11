@@ -54,18 +54,18 @@ limitations under the License.
               "
             />
           </q-td>
-          <q-td key="clientServer" :props="props" auto-width>
-            {{ props.row.side }}
-          </q-td>
-          <q-td key="attrName" :props="props" auto-width>
-            {{ props.row.label }}
-          </q-td>
-          <q-td key="attrID" :props="props" auto-width>
-            {{ props.row.code }}
-          </q-td>
-          <q-td key="mfgID" :props="props" auto-width>
-            {{ props.row.manufacturerCode }}
-          </q-td>
+          <q-td key="clientServer" :props="props" auto-width>{{
+            props.row.side
+          }}</q-td>
+          <q-td key="attrName" :props="props" auto-width>{{
+            props.row.label
+          }}</q-td>
+          <q-td key="attrID" :props="props" auto-width>{{
+            props.row.code
+          }}</q-td>
+          <q-td key="mfgID" :props="props" auto-width>{{
+            props.row.manufacturerCode
+          }}</q-td>
 
           <q-td key="external" :props="props" auto-width>
             <q-checkbox
@@ -120,9 +120,7 @@ limitations under the License.
             />
           </q-td>
 
-          <q-td key="type" :props="props" auto-width>
-            {{ props.row.type }}
-          </q-td>
+          <q-td key="type" :props="props" auto-width>{{ props.row.type }}</q-td>
           <q-td key="bounded" :props="props" auto-width>
             <q-checkbox
               dark
@@ -178,7 +176,8 @@ limitations under the License.
 </template>
 
 <script>
-import * as Util from '../util/util.js'
+import * as Util from '../util/util'
+import * as RestApi from '../../src-shared/rest-api'
 export default {
   name: 'ZclAttributeView',
   mounted() {
@@ -193,7 +192,7 @@ export default {
         this.$store.dispatch('zap/setRequiredAttributes', arg.data)
       }
     })
-    this.$serverOn('singleAttributeState', (event, arg) => {
+    this.$serverOn(RestApi.replyId.singleAttributeState, (event, arg) => {
       if (arg.action === 'boolean') {
         this.$store.dispatch('zap/updateSelectedAttributes', {
           id: this.hashAttributeIdClusterId(arg.id, arg.clusterRef),

@@ -36,6 +36,7 @@ import {
   updateEndpointType,
 } from '../db/query-config'
 import { validateEndpoint, validateAttribute } from '../validation/validation'
+import * as RestApi from '../../src-shared/rest-api'
 
 export function registerSessionApi(db, app) {
   app.post('/post/cluster', (request, response) => {
@@ -44,7 +45,7 @@ export function registerSessionApi(db, app) {
       .then(() =>
         response
           .json({
-            replyId: 'zcl-endpointType-cluster-selection-response',
+            replyId: RestApi.replyId.zclEndpointTypeClusterSelectionResponse,
             endpointTypeId: endpointTypeId,
             id: id,
             side: side,
@@ -114,7 +115,7 @@ export function registerSessionApi(db, app) {
               added: value,
               listType: listType,
               validationIssues: validationData,
-              replyId: 'singleAttributeState',
+              replyId: RestApi.replyId.singleAttributeState,
             })
             return response.status(httpCode.ok).send()
           }
@@ -162,7 +163,7 @@ export function registerSessionApi(db, app) {
         listType: listType,
         side: commandSide,
         clusterRef: clusterRef,
-        replyId: 'singleCommandState',
+        replyId: RestApi.replyId.singleCommandState,
       })
       return response.status(httpCode.ok).send()
     })
@@ -249,7 +250,7 @@ export function registerSessionApi(db, app) {
                 eptId: context.eptId,
                 endpointType: context.endpointType,
                 nwkId: context.nwkId,
-                replyId: 'zcl-endpoint-response',
+                replyId: RestApi.replyId.zclEndpointResponse,
                 validationIssues: validationData,
               })
               return response.status(httpCode.ok).send()
@@ -265,7 +266,7 @@ export function registerSessionApi(db, app) {
             action: 'd',
             successful: removed > 0,
             id: context.id,
-            replyId: 'zcl-endpoint-response',
+            replyId: RestApi.replyId.zclEndpointResponse,
           })
           return response.status(httpCode.ok).send()
         })
@@ -296,7 +297,7 @@ export function registerSessionApi(db, app) {
               endpointId: context.id,
               updatedKey: context.updatedKey,
               updatedValue: context.value,
-              replyId: 'zcl-endpoint-response',
+              replyId: RestApi.replyId.zclEndpointResponse,
               validationIssues: validationData,
             })
             return response.status(httpCode.ok).send()

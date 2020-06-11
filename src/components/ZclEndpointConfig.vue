@@ -44,9 +44,8 @@ limitations under the License.
                       ? 'red'
                       : 'primary'
                   "
+                  >{{ getFormattedEndpointId(props.row.id) }}</q-badge
                 >
-                  {{ getFormattedEndpointId(props.row.id) }}
-                </q-badge>
                 <q-popup-edit dark dense>
                   <q-input
                     debounce="300"
@@ -96,13 +95,11 @@ limitations under the License.
                   ).padStart(4, '0')
                 }}
               </q-td>
-              <q-td key="version" :props="props" auto-width>
-                1
-              </q-td>
+              <q-td key="version" :props="props" auto-width>1</q-td>
               <q-td key="endpointType" :props="props" auto-width>
-                <q-badge :color="'primary'">
-                  {{ endpointTypeName[endpointType[props.row.id]] }}
-                </q-badge>
+                <q-badge :color="'primary'">{{
+                  endpointTypeName[endpointType[props.row.id]]
+                }}</q-badge>
                 <q-popup-edit dark dense>
                   <q-select
                     filled
@@ -127,9 +124,8 @@ limitations under the License.
                       ? 'red'
                       : 'primary'
                   "
+                  >{{ networkId[props.row.id] }}</q-badge
                 >
-                  {{ networkId[props.row.id] }}
-                </q-badge>
                 <q-popup-edit dark dense>
                   <q-input
                     debounce="300"
@@ -231,10 +227,11 @@ limitations under the License.
 </template>
 
 <script>
+import * as RestApi from '../../src-shared/rest-api'
 export default {
   name: 'ZclEndpointConfig',
   mounted() {
-    this.$serverOn('zcl-endpoint-response', (event, arg) => {
+    this.$serverOn(RestApi.replyId.zclEndpointResponse, (event, arg) => {
       switch (arg.action) {
         case 'c':
           this.$store.dispatch('zap/addEndpoint', {

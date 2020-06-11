@@ -73,21 +73,21 @@ limitations under the License.
               "
             />
           </q-td>
-          <q-td key="direction" :props="props" auto-width>
-            {{ props.row.source === 'client' ? 'C -> S' : 'S -> C' }}
-          </q-td>
-          <q-td key="opt" :props="props" auto-width>
-            {{ props.row.isOptional }}
-          </q-td>
-          <q-td key="commandName" :props="props" auto-width>
-            {{ props.row.label }}
-          </q-td>
-          <q-td key="commandId" :props="props" auto-width>
-            {{ props.row.code }}
-          </q-td>
-          <q-td key="mfgId" :props="props" auto-width>
-            {{ props.row.manufacturerCode }}
-          </q-td>
+          <q-td key="direction" :props="props" auto-width>{{
+            props.row.source === 'client' ? 'C -> S' : 'S -> C'
+          }}</q-td>
+          <q-td key="opt" :props="props" auto-width>{{
+            props.row.isOptional
+          }}</q-td>
+          <q-td key="commandName" :props="props" auto-width>{{
+            props.row.label
+          }}</q-td>
+          <q-td key="commandId" :props="props" auto-width>{{
+            props.row.code
+          }}</q-td>
+          <q-td key="mfgId" :props="props" auto-width>{{
+            props.row.manufacturerCode
+          }}</q-td>
         </q-tr>
       </template>
     </q-table>
@@ -96,6 +96,7 @@ limitations under the License.
 
 <script>
 import * as Util from '../util/util.js'
+import * as RestApi from '../../src-shared/rest-api'
 
 export default {
   name: 'ZclCommandView',
@@ -111,7 +112,7 @@ export default {
         this.$store.dispatch('zap/setRequiredCommands', arg.data)
       }
     })
-    this.$serverOn('singleCommandState', (event, arg) => {
+    this.$serverOn(RestApi.replyId.singleCommandState, (event, arg) => {
       if (arg.action === 'boolean') {
         this.$store.dispatch('zap/updateSelectedCommands', {
           id: this.hashCommandIdClusterId(arg.id, arg.clusterRef),

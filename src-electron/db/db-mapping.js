@@ -210,6 +210,7 @@ export const dbMap = {
       enabled: x.ENABLED,
     }
   },
+
   endpointTypeAttribute: (x) => {
     if (x == null) return undefined
     return {
@@ -224,6 +225,7 @@ export const dbMap = {
       defaultValue: x.DEFAULT_VALUE,
     }
   },
+
   endpointTypeCommand: (x) => {
     if (x == null) return undefined
     return {
@@ -234,6 +236,7 @@ export const dbMap = {
       outgoing: x.OUTGOING,
     }
   },
+
   endpointTypeReportableAttribute: (x) => {
     if (x == null) return undefined
     return {
@@ -245,5 +248,16 @@ export const dbMap = {
       maxInterval: x.MAX_INTERVAL,
       reportableChange: x.REPORTABLE_CHANGE,
     }
+  },
+}
+
+export const reverseMap = {
+  endpoint: {
+    endpointRef: 'ENDPOINT_ID',
+    sessionRef: 'SESSION_REF',
+    endpointId: 'ENDPOINT_IDENTIFIER',
+    endpointTypeRef: 'ENDPOINT_TYPE_REF',
+    profileId: 'PROFILE',
+    networkId: 'NETWORK_IDENTIFIER',
   },
 }
