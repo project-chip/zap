@@ -234,7 +234,7 @@ export function registerSessionApi(db, app) {
     var { action, context } = request.body
     var sessionId = request.session.zapSessionId
     switch (action) {
-      case 'c':
+      case RestApi.action.create:
         insertEndpoint(
           db,
           sessionId,
@@ -245,7 +245,7 @@ export function registerSessionApi(db, app) {
           .then((newId) => {
             return validateEndpoint(db, newId).then((validationData) => {
               response.json({
-                action: 'c',
+                action: action,
                 id: newId,
                 eptId: context.eptId,
                 endpointType: context.endpointType,
@@ -260,10 +260,10 @@ export function registerSessionApi(db, app) {
             return response.status(httpCode.badRequest).send()
           })
         break
-      case 'd':
+      case RestApi.action.delete:
         deleteEndpoint(db, context.id).then((removed) => {
           response.json({
-            action: 'd',
+            action: action,
             successful: removed > 0,
             id: context.id,
             replyId: RestApi.replyId.zclEndpointResponse,
@@ -271,7 +271,7 @@ export function registerSessionApi(db, app) {
           return response.status(httpCode.ok).send()
         })
         break
-      case 'e':
+      case RestApi.action.edit:
         var changeParam = ''
         switch (context.updatedKey) {
           case 'endpointId':
@@ -293,7 +293,7 @@ export function registerSessionApi(db, app) {
         ).then((data) => {
           return validateEndpoint(db, context.id).then((validationData) => {
             response.json({
-              action: 'u',
+              action: RestApi.action.update,
               endpointId: context.id,
               updatedKey: context.updatedKey,
               updatedValue: context.value,
@@ -313,11 +313,11 @@ export function registerSessionApi(db, app) {
     var { action, context } = request.body
     var sessionId = request.session.zapSessionId
     switch (action) {
-      case 'c':
+      case RestApi.action.create:
         insertEndpointType(db, sessionId, context.name, context.deviceTypeRef)
           .then((newId) => {
             response.json({
-              action: 'c',
+              action: action,
               id: newId,
               name: context.name,
               deviceTypeRef: context.deviceTypeRef,
@@ -329,10 +329,10 @@ export function registerSessionApi(db, app) {
             return response.status(httpCode.badRequest).send()
           })
         break
-      case 'd':
+      case RestApi.action.delete:
         deleteEndpointType(db, context.id).then((removed) => {
           response.json({
-            action: 'd',
+            action: action,
             successful: removed > 0,
             id: context.id,
             replyId: RestApi.replyId.zclEndpointTypeResponse,

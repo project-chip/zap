@@ -23,3 +23,10 @@ export const replyId = {
   singleAttributeState: 'singleAttributeState',
   singleCommandState: 'singleCommandState',
 }
+
+export const action = {
+  update: 'u',
+  create: 'c',
+  delete: 'd',
+  edit: 'e',
+}
