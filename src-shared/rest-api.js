@@ -28,5 +28,4 @@ export const action = {
   update: 'u',
   create: 'c',
   delete: 'd',
-  edit: 'e',
 }

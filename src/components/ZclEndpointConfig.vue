@@ -233,7 +233,7 @@ export default {
   mounted() {
     this.$serverOn(RestApi.replyId.zclEndpointResponse, (event, arg) => {
       switch (arg.action) {
-        case 'c':
+        case RestApi.action.create:
           this.$store.dispatch('zap/addEndpoint', {
             id: arg.id,
             eptId: arg.eptId,
@@ -243,13 +243,13 @@ export default {
             networkIdValidationIssues: arg.validationIssues.networkId,
           })
           break
-        case 'd':
+        case RestApi.action.delete:
           this.activeIndex = []
           this.$store.dispatch('zap/deleteEndpoint', {
             id: arg.id,
           })
           break
-        case 'u':
+        case RestApi.action.update:
           this.$store.dispatch('zap/updateEndpoint', {
             id: arg.endpointId,
             updatedKey: arg.updatedKey,
@@ -389,7 +389,7 @@ export default {
       let endpointType = this.newEndpoint.newEndpointType
 
       this.$serverPost(`/endpoint`, {
-        action: 'c',
+        action: RestApi.action.create,
         context: {
           eptId: eptId,
           nwkId: nwkId,
@@ -400,7 +400,7 @@ export default {
     deleteEpt() {
       if (this.activeIndex.length > 0) {
         this.$serverPost('/endpoint', {
-          action: 'd',
+          action: RestApi.action.delete,
           context: {
             id: this.activeIndex[0].id,
           },
@@ -409,7 +409,7 @@ export default {
     },
     copyEpt() {
       this.$serverPost(`/endpoint`, {
-        action: 'c',
+        action: RestApi.action.create,
         context: {
           nwkId: this.networkId[
             this.$store.state.zap.endpointView.selectedEndpoint
@@ -443,7 +443,7 @@ export default {
     },
     handleEndpointChange(id, changeId, value) {
       this.$serverPost('/endpoint', {
-        action: 'e',
+        action: RestApi.action.update,
         context: {
           id: id,
           updatedKey: changeId,

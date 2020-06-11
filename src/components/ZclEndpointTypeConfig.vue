@@ -179,23 +179,21 @@ export default {
 
     this.$serverOn(RestApi.replyId.zclEndpointTypeResponse, (event, arg) => {
       switch (arg.action) {
-        case 'c':
+        case RestApi.action.create:
           this.$store.dispatch('zap/addEndpointType', {
             id: arg.id,
             name: arg.name,
             deviceTypeRef: arg.deviceTypeRef,
           })
           break
-        case 'd':
-          // delete
+        case RestApi.action.delete:
           if (arg.successful) {
             this.$store.dispatch(`zap/removeEndpointType`, {
               id: arg.id,
             })
           }
           break
-        case 'u':
-          // update
+        case RestApi.action.update:
           if (arg.updatedKey === 'deviceTypeRef') {
             this.$store.dispatch('zap/setDeviceTypeReference', {
               endpointId: this.selectedEndpointType,
@@ -217,7 +215,7 @@ export default {
     },
     setZclDeviceType(value) {
       this.$serverPost(`/endpointType/update`, {
-        action: 'u',
+        action: RestApi.action.update,
         endpointTypeId: this.selectedEndpointType,
         updatedKey: 'deviceTypeRef',
         updatedValue: value,
@@ -228,7 +226,7 @@ export default {
       let deviceTypeRef = newEndpointType.deviceTypeRef
 
       this.$serverPost(`/endpointType`, {
-        action: 'c',
+        action: RestApi.action.create,
         context: {
           name: name,
           deviceTypeRef: deviceTypeRef,
@@ -243,7 +241,7 @@ export default {
     },
     deleteEptType(selectedEndpointType) {
       this.$serverPost(`/endpointType`, {
-        action: 'd',
+        action: RestApi.action.delete,
         context: {
           id: selectedEndpointType,
         },

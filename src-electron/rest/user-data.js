@@ -271,7 +271,7 @@ export function registerSessionApi(db, app) {
           return response.status(httpCode.ok).send()
         })
         break
-      case RestApi.action.edit:
+      case RestApi.action.update:
         var changeParam = ''
         switch (context.updatedKey) {
           case 'endpointId':
