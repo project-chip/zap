@@ -321,7 +321,7 @@ export function registerSessionApi(db, app) {
               id: newId,
               name: context.name,
               deviceTypeRef: context.deviceTypeRef,
-              replyId: 'zcl-endpointType-response',
+              replyId: RestApi.replyId.zclEndpointTypeResponse,
             })
             return response.status(httpCode.ok).send()
           })
@@ -335,7 +335,7 @@ export function registerSessionApi(db, app) {
             action: 'd',
             successful: removed > 0,
             id: context.id,
-            replyId: 'zcl-endpointType-response',
+            replyId: RestApi.replyId.zclEndpointTypeResponse,
           })
           return response.status(httpCode.ok).send()
         })
@@ -367,7 +367,7 @@ export function registerSessionApi(db, app) {
           endpointTypeId: endpointTypeId,
           updatedKey: updatedKey,
           updatedValue: updatedValue,
-          replyId: 'zcl-endpointType-response',
+          replyId: RestApi.replyId.zclEndpointTypeResponse,
         })
         return response.status(httpCode.ok).send()
       }

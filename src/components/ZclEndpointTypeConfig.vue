@@ -144,6 +144,8 @@ limitations under the License.
 </template>
 
 <script>
+import * as RestApi from '../../src-shared/rest-api'
+
 export default {
   name: 'ZclEndpointTypeConfig',
   mounted() {
@@ -175,7 +177,7 @@ export default {
       }
     })
 
-    this.$serverOn('zcl-endpointType-response', (event, arg) => {
+    this.$serverOn(RestApi.replyId.zclEndpointTypeResponse, (event, arg) => {
       switch (arg.action) {
         case 'c':
           this.$store.dispatch('zap/addEndpointType', {
