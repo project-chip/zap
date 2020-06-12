@@ -11,11 +11,13 @@ import {
   schemaFile,
   sqliteTestFile,
   appDirectory,
+  logError,
 } from '../src-electron/util/env'
 import { runSdkGeneration } from '../src-electron/sdk-gen/sdk-gen'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
 import { selectAllClusters } from '../src-electron/db/query-zcl'
+import { resolve } from 'dns'
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -25,7 +27,6 @@ import { selectAllClusters } from '../src-electron/db/query-zcl'
  */
 
 var db
-var sid
 
 beforeAll(() => {
   var file = sqliteTestFile(4)

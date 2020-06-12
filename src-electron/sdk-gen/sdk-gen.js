@@ -35,7 +35,7 @@ function createDeviceTypeComponent(deviceType) {
     label: deviceType.label,
     description: deviceType.caption,
     package: 'Zigbee',
-    category: 'Zigbee',
+    category: 'Zigbee|Zigbee Cluster Library|Device Type',
     quality: 'production',
   }
 }
@@ -43,11 +43,10 @@ function createDeviceTypeComponent(deviceType) {
 function createClusterDefComponent(cluster) {
   return {
     id: 'zcl_cluster_' + cleanse(cluster.label) + '_def',
-    label: cluster.label + ' definition',
-    description:
-      'This component provides definition for the cluster.\n' + cluster.caption,
+    label: cluster.label,
+    description: cluster.caption,
     package: 'Zigbee',
-    category: 'Zigbee',
+    category: 'Zigbee|Zigbee Cluster Library|Configuration',
     quality: 'production',
   }
 }
@@ -55,12 +54,10 @@ function createClusterDefComponent(cluster) {
 function createClusterImpComponent(cluster) {
   return {
     id: 'zcl_cluster_' + cleanse(cluster.label) + '_imp',
-    label: cluster.label + ' implementation',
-    description:
-      'This component provides implementation for the cluster.\n' +
-      cluster.caption,
+    label: cluster.label,
+    description: cluster.caption,
     package: 'Zigbee',
-    category: 'Zigbee',
+    category: 'Zigbee|Zigbee Cluster Library|Implementation',
     quality: 'production',
   }
 }
