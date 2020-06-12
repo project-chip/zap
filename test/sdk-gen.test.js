@@ -15,6 +15,7 @@ import {
 import { runSdkGeneration } from '../src-electron/sdk-gen/sdk-gen'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
+import { selectAllClusters } from '../src-electron/db/query-zcl'
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -41,6 +42,12 @@ afterAll(() => {
   var file = sqliteTestFile(4)
   return closeDatabase(db).then(() => {
     if (fs.existsSync(file)) fs.unlinkSync(file)
+  })
+})
+
+test('Cluster data existence', () => {
+  return selectAllClusters(db).then((data) => {
+    expect(data.length).toBeGreaterThan(10)
   })
 })
 
