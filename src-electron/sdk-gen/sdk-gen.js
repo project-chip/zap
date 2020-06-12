@@ -29,15 +29,51 @@ function cleanse(name) {
   return ret
 }
 
+function createDeviceTypeComponent(deviceType) {
+  return {
+    id: 'zcl_device_type_' + cleanse(deviceType.label),
+    label: deviceType.label,
+    description: deviceType.caption,
+    package: 'Zigbee',
+    category: 'Zigbee',
+    quality: 'production',
+  }
+}
+
+function createClusterDefComponent(cluster) {
+  return {
+    id: 'zcl_cluster_' + cleanse(cluster.label) + '_def',
+    label: cluster.label + ' definition',
+    description:
+      'This component provides definition for the cluster.\n' + cluster.caption,
+    package: 'Zigbee',
+    category: 'Zigbee',
+    quality: 'production',
+  }
+}
+
+function createClusterImpComponent(cluster) {
+  return {
+    id: 'zcl_cluster_' + cleanse(cluster.label) + '_imp',
+    label: cluster.label + ' implementation',
+    description:
+      'This component provides implementation for the cluster.\n' +
+      cluster.caption,
+    package: 'Zigbee',
+    category: 'Zigbee',
+    quality: 'production',
+  }
+}
+
 function generateSingleDeviceType(ctx, deviceType) {
   var fileName = path.join(
     ctx.generationDir,
-    'device_type_' + cleanse(deviceType.label) + '.slcc'
+    'zcl_device_type_' + cleanse(deviceType.label) + '.slcc'
   )
 
   console.log(`   - ${fileName}`)
 
-  var output = yaml.stringify(deviceType)
+  var output = yaml.stringify(createDeviceTypeComponent(deviceType))
   if (ctx.dontWrite) return Promise.resolve()
   else return fs.promises.writeFile(fileName, output)
 }
@@ -45,10 +81,10 @@ function generateSingleDeviceType(ctx, deviceType) {
 function generateSingleCluster(ctx, cluster) {
   var fileName = path.join(
     ctx.generationDir,
-    'cluster_def_' + cleanse(cluster.label) + '.slcc'
+    'zcl_cluster_def_' + cleanse(cluster.label) + '.slcc'
   )
   console.log(`   - ${fileName}`)
-  var output = yaml.stringify(cluster)
+  var output = yaml.stringify(createClusterDefComponent(cluster))
   if (ctx.dontWrite) return Promise.resolve()
   else return fs.promises.writeFile(fileName, output)
 }
@@ -56,10 +92,10 @@ function generateSingleCluster(ctx, cluster) {
 function generateSingleClusterImplementation(ctx, cluster) {
   var fileName = path.join(
     ctx.generationDir,
-    'cluster_imp_' + cleanse(cluster.label) + '.slcc'
+    'zcl_cluster_imp_' + cleanse(cluster.label) + '.slcc'
   )
   console.log(`   - ${fileName}`)
-  var output = yaml.stringify(cluster)
+  var output = yaml.stringify(createClusterImpComponent(cluster))
   if (ctx.dontWrite) return Promise.resolve()
   else return fs.promises.writeFile(fileName, output)
 }

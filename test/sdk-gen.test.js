@@ -49,6 +49,6 @@ test('SDK generation', () => {
     db: db,
     generationDir: path.join(appDirectory(), 'sdk-gen'),
     templateDir: '',
-    dontWrite: true,
+    dontWrite: false,
   })
 })
