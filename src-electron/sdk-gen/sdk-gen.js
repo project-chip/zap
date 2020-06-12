@@ -19,6 +19,7 @@ import * as QueryZcl from '../db/query-zcl'
 import path from 'path'
 import yaml from 'yaml'
 import * as fs from 'fs'
+import { logError } from '../util/env'
 
 function cleanse(name) {
   var ret = name.replace(/-/g, '_')
@@ -96,9 +97,17 @@ export function runSdkGeneration(ctx) {
     `Generating SDK artifacts into ${ctx.generationDir}, using templates from ${ctx.templateDir}`
   )
   var promises = []
-
   promises.push(generateDeviceTypes(ctx))
   promises.push(generateClusters(ctx))
 
-  return Promise.all(promises)
+  var mainPromise
+  if (ctx.dontWrite) {
+    mainPromise = Promise.all(promises)
+  } else {
+    mainPromise = fs.promises
+      .mkdir(ctx.generationDir, { recursive: true })
+      .then(() => Promise.all(promises))
+  }
+
+  return mainPromise
 }
