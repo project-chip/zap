@@ -17,10 +17,13 @@
 
 import * as QueryZcl from '../db/query-zcl'
 import path from 'path'
+import yaml from 'yaml'
+import * as fs from 'fs'
 
 function cleanse(name) {
-  var ret = name.replace('-', '_')
-  var ret = ret.replace(' ', '_')
+  var ret = name.replace(/-/g, '_')
+  var ret = ret.replace(/ /g, '_')
+  var ret = ret.replace(/\//g, '_')
   var ret = ret.toLowerCase()
   return ret
 }
@@ -30,8 +33,12 @@ function generateSingleDeviceType(ctx, deviceType) {
     ctx.generationDir,
     'device_type_' + cleanse(deviceType.label) + '.slcc'
   )
+
   console.log(`   - ${fileName}`)
-  return Promise.resolve(1)
+
+  var output = yaml.stringify(deviceType)
+  if (ctx.dontWrite) return Promise.resolve()
+  else return fs.promises.writeFile(fileName, output)
 }
 
 function generateSingleCluster(ctx, cluster) {
@@ -40,7 +47,9 @@ function generateSingleCluster(ctx, cluster) {
     'cluster_def_' + cleanse(cluster.label) + '.slcc'
   )
   console.log(`   - ${fileName}`)
-  return Promise.resolve(1)
+  var output = yaml.stringify(cluster)
+  if (ctx.dontWrite) return Promise.resolve()
+  else return fs.promises.writeFile(fileName, output)
 }
 
 function generateSingleClusterImplementation(ctx, cluster) {
@@ -49,7 +58,9 @@ function generateSingleClusterImplementation(ctx, cluster) {
     'cluster_imp_' + cleanse(cluster.label) + '.slcc'
   )
   console.log(`   - ${fileName}`)
-  return Promise.resolve(1)
+  var output = yaml.stringify(cluster)
+  if (ctx.dontWrite) return Promise.resolve()
+  else return fs.promises.writeFile(fileName, output)
 }
 
 function generateDeviceTypes(ctx) {
