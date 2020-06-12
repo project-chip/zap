@@ -16,16 +16,39 @@
  */
 
 import * as QueryZcl from '../db/query-zcl'
+import path from 'path'
+
+function cleanse(name) {
+  var ret = name.replace('-', '_')
+  var ret = ret.replace(' ', '_')
+  var ret = ret.toLowerCase()
+  return ret
+}
 
 function generateSingleDeviceType(ctx, deviceType) {
+  var fileName = path.join(
+    ctx.generationDir,
+    'device_type_' + cleanse(deviceType.label) + '.slcc'
+  )
+  console.log(`   - ${fileName}`)
   return Promise.resolve(1)
 }
 
 function generateSingleCluster(ctx, cluster) {
+  var fileName = path.join(
+    ctx.generationDir,
+    'cluster_def_' + cleanse(cluster.label) + '.slcc'
+  )
+  console.log(`   - ${fileName}`)
   return Promise.resolve(1)
 }
 
 function generateSingleClusterImplementation(ctx, cluster) {
+  var fileName = path.join(
+    ctx.generationDir,
+    'cluster_imp_' + cleanse(cluster.label) + '.slcc'
+  )
+  console.log(`   - ${fileName}`)
   return Promise.resolve(1)
 }
 
@@ -55,10 +78,7 @@ function generateClusters(ctx) {
 /**
  * Using SDK generation templates it returns a promise of created files.
  *
- * @export
- * @param {*} db
- * @param {*} generationDir
- * @param {*} templateDir
+ * @param {*} ctx Contains generationDir, templateDir, db and options dontWrite which can prevent final writing.
  */
 export function runSdkGeneration(ctx) {
   console.log(

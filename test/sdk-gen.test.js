@@ -38,9 +38,11 @@ afterAll(() => {
   })
 })
 
-test('SDK generation', () =>
-  runSdkGeneration({
+test('SDK generation', () => {
+  return runSdkGeneration({
     db: db,
     generationDir: '',
     templateDir: '',
-  }))
+    dontWrite: true,
+  })
+})

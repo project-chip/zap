@@ -30,9 +30,7 @@ const singleItem = 'zcl-item'
 
 function zclClusters(db, id) {
   if (id == 'all') {
-    return QueryZcl.selectAllClusters(db).then((rows) =>
-      rows.map(DbMapping.dbMap.cluster)
-    )
+    return QueryZcl.selectAllClusters(db)
   } else {
     return QueryZcl.selectClusterById(db, id)
   }

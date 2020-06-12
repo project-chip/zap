@@ -158,14 +158,6 @@ export function selectAllClusters(db) {
     db,
     'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE FROM CLUSTER ORDER BY CODE',
     []
-  ) //.then((rows) => rows.map(DbMapping.dbMap.cluster))
-}
-
-export function selectAllClustersApartFromNull(db) {
-  return DbApi.dbAll(
-    db,
-    'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE FROM CLUSTER WHERE CLUSTER_ID IS NOT NULL ORDER BY CODE',
-    []
   ).then((rows) => rows.map(DbMapping.dbMap.cluster))
 }
 

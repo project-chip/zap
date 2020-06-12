@@ -127,9 +127,9 @@ test('Simple cluster addition.', () => {
       (rows) =>
         new Promise((resolve, reject) => {
           expect(rows.length).toBe(1)
-          let rowid = rows[0].CLUSTER_ID
-          expect(rows[0].CODE).toBe('0x1234')
-          expect(rows[0].NAME).toBe('Test')
+          let rowid = rows[0].id
+          expect(rows[0].code).toBe('0x1234')
+          expect(rows[0].label).toBe('Test')
           resolve(rowid)
         })
     )
