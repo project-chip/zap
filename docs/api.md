@@ -4,6 +4,9 @@
 <dt><a href="#module_JS API_ low level database access">JS API: low level database access</a></dt>
 <dd><p>This module provides generic DB functions for performing SQL queries.</p>
 </dd>
+<dt><a href="#module_DB API_ DB mappings between columns and JS object keys.">DB API: DB mappings between columns and JS object keys.</a></dt>
+<dd><p>This module provides mappings between database columns and JS keys.</p>
+</dd>
 <dt><a href="#module_DB API_ user configuration queries against the database.">DB API: user configuration queries against the database.</a></dt>
 <dd><p>This module provides queries for user configuration.</p>
 </dd>
@@ -35,6 +38,22 @@
 </dd>
 <dt><a href="#module_JS API_ http server">JS API: http server</a></dt>
 <dd><p>This module provides the HTTP server functionality.</p>
+</dd>
+</dl>
+
+## Constants
+
+<dl>
+<dt><a href="#replyId">replyId</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre><p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
 </dd>
 </dl>
 
@@ -72,6 +91,10 @@ Reads the data from the file and resolves with the state object if all is good.<
 <dd><p>Process the command line arguments and resets the state in this file
 to the specified values.</p>
 </dd>
+<dt><a href="#applyGenerationSettings">applyGenerationSettings(generationDir, handlebarTemplateDir)</a></dt>
+<dd></dd>
+<dt><a href="#setGenerationDirAndTemplateDir">setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir)</a> ⇒</dt>
+<dd></dd>
 <dt><a href="#doOpen">doOpen(menuItem, browserWindow, event)</a></dt>
 <dd><p>Perform a file-&gt;open operation.</p>
 </dd>
@@ -86,6 +109,10 @@ to the specified values.</p>
 calls generateCode function which generates the code in the user selected
 output.</p>
 </dd>
+<dt><a href="#generateCodeViaCli">generateCodeViaCli(generationDir)</a></dt>
+<dd></dd>
+<dt><a href="#setHandlebarTemplateDirForCli">setHandlebarTemplateDirForCli(handlebarTemplateDir)</a></dt>
+<dd></dd>
 <dt><a href="#setHandlebarTemplateDirectory">setHandlebarTemplateDirectory(browserWindow)</a></dt>
 <dd><p>This function gets the directory where user wants the output and calls
 generateCode function which generates the code in the user selected output.</p>
@@ -110,18 +137,21 @@ correct directory.</p>
 <dt><a href="#initMenu">initMenu(port)</a></dt>
 <dd><p>Initialize a menu.</p>
 </dd>
+<dt><a href="#createOrShowWindow">createOrShowWindow(port)</a></dt>
+<dd><p>Call this function to create a new or show an existing preference window.</p>
+</dd>
 <dt><a href="#windowCreate">windowCreate(port, [filePath], [sessionId])</a> ⇒</dt>
 <dd><p>Create a window, possibly with a given file path and with a desire to attach to a given sessionId</p>
 <p>Win id will be passed on in the URL, and if sessionId is present, so will it.</p>
+</dd>
+<dt><a href="#calculateCrc">calculateCrc(context)</a> ⇒</dt>
+<dd><p>Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }</p>
 </dd>
 <dt><a href="#collectZclFiles">collectZclFiles(propertiesFile)</a> ⇒</dt>
 <dd><p>Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.</p>
 </dd>
 <dt><a href="#readZclFile">readZclFile(file)</a> ⇒</dt>
 <dd><p>Promises to read a file and resolve with the content</p>
-</dd>
-<dt><a href="#calculateCrc">calculateCrc(filePath, data)</a> ⇒</dt>
-<dd><p>Promises to calculate the CRC of the file, and resolve with an array [filePath,data,crc]</p>
 </dd>
 <dt><a href="#parseZclFile">parseZclFile(argument)</a> ⇒</dt>
 <dd><p>Promises to parse the ZCL file, expecting array of [filePath, data, packageId, msg]</p>
@@ -180,8 +210,8 @@ branches the individual toplevel tags.</p>
 </dd>
 <dt><a href="#qualifyZclFile">qualifyZclFile(db, object)</a> ⇒</dt>
 <dd><p>Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with [filePath, data, packageId, NULL]
-If not, then it will resolve with [null, null, null, msg]</p>
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}</p>
 </dd>
 <dt><a href="#parseZclFiles">parseZclFiles(db, files)</a> ⇒</dt>
 <dd><p>Promises to iterate over all the XML files and returns an aggregate promise
@@ -211,9 +241,9 @@ This module provides generic DB functions for performing SQL queries.
     - [.dbMultiInsert(db, sql, arrayOfArrays)](#module*JS API* low level database access.dbMultiInsert) ⇒
     - [.closeDatabase(database)](#module*JS API* low level database access.closeDatabase) ⇒
     - [.initDatabase(sqlitePath)](#module*JS API* low level database access.initDatabase) ⇒
-    - [.loadSchema(db, schema, appVersion)](#module*JS API* low level database access.loadSchema) ⇒
+    - [.loadSchema(db, schemaPath, appVersion)](#module*JS API* low level database access.loadSchema) ⇒
   - _inner_
-    - [~insertOrReplaceVersion(db, version)](#module*JS API* low level database access..insertOrReplaceVersion) ⇒
+    - [~insertOrReplaceSetting(db, version)](#module*JS API* low level database access..insertOrReplaceSetting) ⇒
 
 <a name="module_JS API_ low level database access.dbBeginTransaction"></a>
 
@@ -376,7 +406,7 @@ Returns a promise to initialize a database.
 
 <a name="module_JS API_ low level database access.loadSchema"></a>
 
-### JS API: low level database access.loadSchema(db, schema, appVersion) ⇒
+### JS API: low level database access.loadSchema(db, schemaPath, appVersion) ⇒
 
 Returns a promise to load schema into a blank database, and inserts a version to the settings table.j
 
@@ -386,14 +416,14 @@ Returns a promise to load schema into a blank database, and inserts a version to
 | Param      | Type            |
 | ---------- | --------------- |
 | db         | <code>\*</code> |
-| schema     | <code>\*</code> |
+| schemaPath | <code>\*</code> |
 | appVersion | <code>\*</code> |
 
-<a name="module_JS API_ low level database access..insertOrReplaceVersion"></a>
+<a name="module_JS API_ low level database access..insertOrReplaceSetting"></a>
 
-### JS API: low level database access~insertOrReplaceVersion(db, version) ⇒
+### JS API: low level database access~insertOrReplaceSetting(db, version) ⇒
 
-Returns a promise to insert or replace a version of the application into the database.
+Returns a promise to insert or replace a setting into the database.
 
 **Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
 **Returns**: A promise that resolves with a rowid of created setting row or rejects with error if something goes wrong.
@@ -402,6 +432,12 @@ Returns a promise to insert or replace a version of the application into the dat
 | ------- | --------------- |
 | db      | <code>\*</code> |
 | version | <code>\*</code> |
+
+<a name="module_DB API_ DB mappings between columns and JS object keys."></a>
+
+## DB API: DB mappings between columns and JS object keys.
+
+This module provides mappings between database columns and JS keys.
 
 <a name="module_DB API_ user configuration queries against the database."></a>
 
@@ -414,11 +450,10 @@ This module provides queries for user configuration.
   - [.getSessionKeyValue(db, sessionId)](#module*DB API* user configuration queries against the database..getSessionKeyValue) ⇒
   - [.getAllSessionKeyValues(db, sessionId)](#module*DB API* user configuration queries against the database..getAllSessionKeyValues) ⇒
   - [.insertOrReplaceClusterState(db, endpointTypeId, clusterRef, side, enabled)](#module*DB API* user configuration queries against the database..insertOrReplaceClusterState) ⇒
-  - [.insertOrUpdateAttributeState(db, endpointTypeId, id, value, booleanParam)](#module*DB API* user configuration queries against the database..insertOrUpdateAttributeState)
-  - [.insertOrUpdateCommandState(db, endpointTypeId, id, value, booleanParam)](#module*DB API* user configuration queries against the database..insertOrUpdateCommandState)
-  - [.insertOrUpdateReportableAttributeState(db, endpointTypeId, id, value, booleanParam)](#module*DB API* user configuration queries against the database..insertOrUpdateReportableAttributeState)
+  - [.insertOrUpdateAttributeState(db, endpointTypeId, clusterRef, side, attributeId, paramValuePairArray)](#module*DB API* user configuration queries against the database..insertOrUpdateAttributeState)
+  - [.insertOrUpdateCommandState(db, endpointTypeId, clusterRef, side, id, value, booleanParam)](#module*DB API* user configuration queries against the database..insertOrUpdateCommandState)
   - [.getAllEndpointTypeClusterState(db, endpointTypeId)](#module*DB API* user configuration queries against the database..getAllEndpointTypeClusterState) ⇒
-  - [.insertEndpoint(db, sessionId, endpointId, endpointTypeRef, networkId)](#module*DB API* user configuration queries against the database..insertEndpoint) ⇒
+  - [.insertEndpoint(db, sessionId, endpointIdentifier, endpointTypeRef, networkIdentifier)](#module*DB API* user configuration queries against the database..insertEndpoint) ⇒
   - [.deleteEndpoint(db, id)](#module*DB API* user configuration queries against the database..deleteEndpoint) ⇒
   - [.insertEndpointType(db, sessionId, name, deviceTypeRef)](#module*DB API* user configuration queries against the database..insertEndpointType) ⇒
   - [.deleteEndpointType(db, sessionId, id)](#module*DB API* user configuration queries against the database..deleteEndpointType)
@@ -428,6 +463,7 @@ This module provides queries for user configuration.
   - [.insertEndpointTypes(db, sessionId, endpoints)](#module*DB API* user configuration queries against the database..insertEndpointTypes)
   - [.getAllEndpointTypes(db, sessionId)](#module*DB API* user configuration queries against the database..getAllEndpointTypes) ⇒
   - [.getEndpointTypeClusters(endpointTypeId)](#module*DB API* user configuration queries against the database..getEndpointTypeClusters) ⇒
+  - [.getOrInsertDefaultEndpointTypeCluster(db, endpointTypeId, clusterRef, side)](#module*DB API* user configuration queries against the database..getOrInsertDefaultEndpointTypeCluster)
   - [.getEndpointTypeAttributes(db, endpointTypeId)](#module*DB API* user configuration queries against the database..getEndpointTypeAttributes) ⇒
   - [.getEndpointTypeCommands(db, endpointTypeId)](#module*DB API* user configuration queries against the database..getEndpointTypeCommands) ⇒
 
@@ -496,7 +532,7 @@ Else update the entry in place.
 
 <a name="module_DB API_ user configuration queries against the database..insertOrUpdateAttributeState"></a>
 
-### DB API: user configuration queries against the database..insertOrUpdateAttributeState(db, endpointTypeId, id, value, booleanParam)
+### DB API: user configuration queries against the database..insertOrUpdateAttributeState(db, endpointTypeId, clusterRef, side, attributeId, paramValuePairArray)
 
 Promise to update the attribute state.
 If the attribute entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
@@ -504,17 +540,18 @@ Afterwards, update entry.
 
 **Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)
 
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-| id             | <code>\*</code> |
-| value          | <code>\*</code> |
-| booleanParam   | <code>\*</code> |
+| Param               | Type            | Description                                                                                                                                                                                          |
+| ------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| db                  | <code>\*</code> |                                                                                                                                                                                                      |
+| endpointTypeId      | <code>\*</code> |                                                                                                                                                                                                      |
+| clusterRef          | <code>\*</code> | // We want this to be explicitly passed in, rather than derived from that static attribute due to this possibly being a global attribute.                                                            |
+| side                | <code>\*</code> | // We want this to be explicitly passed in, rather than derived from that static attribute due to this possibly being a global attribute. Note we handle bidirectional attributes with two instances |
+| attributeId         | <code>\*</code> |                                                                                                                                                                                                      |
+| paramValuePairArray | <code>\*</code> | An array of objects whose keys are [key, value]. Key is name of the column to be editted. Value is what the column should be set to. This does not handle empty arrays.                              |
 
 <a name="module_DB API_ user configuration queries against the database..insertOrUpdateCommandState"></a>
 
-### DB API: user configuration queries against the database..insertOrUpdateCommandState(db, endpointTypeId, id, value, booleanParam)
+### DB API: user configuration queries against the database..insertOrUpdateCommandState(db, endpointTypeId, clusterRef, side, id, value, booleanParam)
 
 Promise to update the command state.
 If the attribute entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
@@ -522,31 +559,15 @@ Afterwards, update entry.
 
 **Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)
 
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-| id             | <code>\*</code> |
-| value          | <code>\*</code> |
-| booleanParam   | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..insertOrUpdateReportableAttributeState"></a>
-
-### DB API: user configuration queries against the database..insertOrUpdateReportableAttributeState(db, endpointTypeId, id, value, booleanParam)
-
-Promise to update the reportable attribute state.
-If the reportable attribute entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
-Afterwards, update entry.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-| id             | <code>\*</code> |
-| value          | <code>\*</code> |
-| booleanParam   | <code>\*</code> |
+| Param          | Type            | Description                                                                        |
+| -------------- | --------------- | ---------------------------------------------------------------------------------- |
+| db             | <code>\*</code> |                                                                                    |
+| endpointTypeId | <code>\*</code> |                                                                                    |
+| clusterRef     | <code>\*</code> | // Note that this is the clusterRef from CLUSTER and not the ENDPOINT_TYPE_CLUSTER |
+| side           | <code>\*</code> | // client or server                                                                |
+| id             | <code>\*</code> |                                                                                    |
+| value          | <code>\*</code> |                                                                                    |
+| booleanParam   | <code>\*</code> |                                                                                    |
 
 <a name="module_DB API_ user configuration queries against the database..getAllEndpointTypeClusterState"></a>
 
@@ -564,20 +585,20 @@ Resolves into all the cluster states.
 
 <a name="module_DB API_ user configuration queries against the database..insertEndpoint"></a>
 
-### DB API: user configuration queries against the database..insertEndpoint(db, sessionId, endpointId, endpointTypeRef, networkId) ⇒
+### DB API: user configuration queries against the database..insertEndpoint(db, sessionId, endpointIdentifier, endpointTypeRef, networkIdentifier) ⇒
 
 Promises to add an endpoint.
 
 **Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
 **Returns**: Promise to update endpoints.
 
-| Param           | Type            |
-| --------------- | --------------- |
-| db              | <code>\*</code> |
-| sessionId       | <code>\*</code> |
-| endpointId      | <code>\*</code> |
-| endpointTypeRef | <code>\*</code> |
-| networkId       | <code>\*</code> |
+| Param              | Type            |
+| ------------------ | --------------- |
+| db                 | <code>\*</code> |
+| sessionId          | <code>\*</code> |
+| endpointIdentifier | <code>\*</code> |
+| endpointTypeRef    | <code>\*</code> |
+| networkIdentifier  | <code>\*</code> |
 
 <a name="module_DB API_ user configuration queries against the database..deleteEndpoint"></a>
 
@@ -706,6 +727,21 @@ Extracts clusters from the endpoint_type_cluster table.
 | Param          | Type            |
 | -------------- | --------------- |
 | endpointTypeId | <code>\*</code> |
+
+<a name="module_DB API_ user configuration queries against the database..getOrInsertDefaultEndpointTypeCluster"></a>
+
+### DB API: user configuration queries against the database..getOrInsertDefaultEndpointTypeCluster(db, endpointTypeId, clusterRef, side)
+
+Get or inserts default endpoint type cluster given endpoint type, cluster ref, and side.
+
+**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)
+
+| Param          | Type            |
+| -------------- | --------------- |
+| db             | <code>\*</code> |
+| endpointTypeId | <code>\*</code> |
+| clusterRef     | <code>\*</code> |
+| side           | <code>\*</code> |
 
 <a name="module_DB API_ user configuration queries against the database..getEndpointTypeAttributes"></a>
 
@@ -1253,12 +1289,12 @@ Inserts bitmaps into the database. Data is an array of objects that must contain
   - [.mapDatabase(db)](#module*JS API* generator logic.mapDatabase) ⇒
   - [.resolveTemplateDirectory(map, handlebarTemplateDirectory)](#module*JS API* generator logic.resolveTemplateDirectory) ⇒
   - [.compileTemplate(map, templateFiles)](#module*JS API* generator logic.compileTemplate) ⇒
-  - [.infoFromDb(map, dbRowType)](#module*JS API* generator logic.infoFromDb) ⇒
+  - [.infoFromDb(map, dbRowTypeArray)](#module*JS API* generator logic.infoFromDb) ⇒
   - [.groupInfoIntoDbRow(map, groupByParams)](#module*JS API* generator logic.groupInfoIntoDbRow) ⇒
   - [.resolveHelper(map, helperFunctions)](#module*JS API* generator logic.resolveHelper) ⇒
-  - [.resolveGenerationDirectory(map, generationDirectory)](#module*JS API* generator logic.resolveGenerationDirectory) ⇒
   - [.generateDataToPreview(map, databaseRowToHandlebarTemplateFileMap)](#module*JS API* generator logic.generateDataToPreview) ⇒
   - [.generateDataToFile(map, outputFileName, databaseRowToHandlebarTemplateFileMap)](#module*JS API* generator logic.generateDataToFile) ⇒
+  - [.getGenerationProperties(filePath)](#module*JS API* generator logic.getGenerationProperties) ⇒
 
 <a name="module_JS API_ generator logic.mapDatabase"></a>
 
@@ -1306,7 +1342,7 @@ templates.
 
 <a name="module_JS API_ generator logic.infoFromDb"></a>
 
-### JS API: generator logic.infoFromDb(map, dbRowType) ⇒
+### JS API: generator logic.infoFromDb(map, dbRowTypeArray) ⇒
 
 The database information is retrieved by calling database query
 functions. Then a resolve is listed on the map containing database, compiled
@@ -1316,10 +1352,10 @@ promises.
 **Kind**: static method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: A promise with resolve listed on a map which has the database rows.
 
-| Param     | Type                              | Description                                                           |
-| --------- | --------------------------------- | --------------------------------------------------------------------- |
-| map       | <code>Object</code>               | Map for database, template directory and compiled templates           |
-| dbRowType | <code>Array.&lt;string&gt;</code> | Array of strings with each string representing a type of database row |
+| Param          | Type                              | Description                                                           |
+| -------------- | --------------------------------- | --------------------------------------------------------------------- |
+| map            | <code>Object</code>               | Map for database, template directory and compiled templates           |
+| dbRowTypeArray | <code>Array.&lt;string&gt;</code> | Array of strings with each string representing a type of database row |
 
 <a name="module_JS API_ generator logic.groupInfoIntoDbRow"></a>
 
@@ -1357,22 +1393,6 @@ functions.
 | map             | <code>Object</code> |                                                  |
 | helperFunctions | <code>Object</code> | Map for handlebar helper name to helper function |
 
-<a name="module_JS API_ generator logic.resolveGenerationDirectory"></a>
-
-### JS API: generator logic.resolveGenerationDirectory(map, generationDirectory) ⇒
-
-Resolve the generation directory to be able to generate to the correct
-directory.
-
-**Kind**: static method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: A promise with resolve listed on a map which has the generation
-directory.
-
-| Param               | Type                | Description                |
-| ------------------- | ------------------- | -------------------------- |
-| map                 | <code>Object</code> |                            |
-| generationDirectory | <code>string</code> | generation directory path. |
-
 <a name="module_JS API_ generator logic.generateDataToPreview"></a>
 
 ### JS API: generator logic.generateDataToPreview(map, databaseRowToHandlebarTemplateFileMap) ⇒
@@ -1408,6 +1428,17 @@ using the compiled handlebar templates.
 | databaseRowToHandlebarTemplateFileMap               | <code>Array.&lt;Object&gt;</code> | Map linking the database row type with handlebar template file. |
 | databaseRowToHandlebarTemplateFileMap.dbRowType     | <code>string</code>               | Database row type                                               |
 | databaseRowToHandlebarTemplateFileMap.hTemplateFile | <code>string</code>               | Handlebar template file                                         |
+
+<a name="module_JS API_ generator logic.getGenerationProperties"></a>
+
+### JS API: generator logic.getGenerationProperties(filePath) ⇒
+
+**Kind**: static method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: A promise with the generation options
+
+| Param    | Type            |
+| -------- | --------------- |
+| filePath | <code>\*</code> |
 
 <a name="module_REST API_ admin functions"></a>
 
@@ -1493,6 +1524,7 @@ This module provides the HTTP server functionality.
 - [JS API: http server](#module*JS API* http server)
   - [.initHttpServer(db, port)](#module*JS API* http server.initHttpServer) ⇒
   - [.shutdownHttpServer()](#module*JS API* http server.shutdownHttpServer) ⇒
+  - [.httpServerPort()](#module*JS API* http server.httpServerPort) ⇒
 
 <a name="module_JS API_ http server.initHttpServer"></a>
 
@@ -1517,6 +1549,33 @@ Promises to shut down the http server.
 
 **Kind**: static method of [<code>JS API: http server</code>](#module*JS API* http server)  
 **Returns**: Promise that resolves when server is shut down.  
+<a name="module_JS API_ http server.httpServerPort"></a>
+
+### JS API: http server.httpServerPort() ⇒
+
+Port http server is listening on.
+
+**Kind**: static method of [<code>JS API: http server</code>](#module*JS API* http server)  
+**Returns**: port  
+<a name="replyId"></a>
+
+## replyId
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
 <a name="exportDataIntoFile"></a>
 
 ## exportDataIntoFile(db, sessionId, filePath) ⇒
@@ -1646,6 +1705,29 @@ to the specified values.
 | ----- | --------------- |
 | argv  | <code>\*</code> |
 
+<a name="applyGenerationSettings"></a>
+
+## applyGenerationSettings(generationDir, handlebarTemplateDir)
+
+**Kind**: global function
+
+| Param                | Type            |
+| -------------------- | --------------- |
+| generationDir        | <code>\*</code> |
+| handlebarTemplateDir | <code>\*</code> |
+
+<a name="setGenerationDirAndTemplateDir"></a>
+
+## setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) ⇒
+
+**Kind**: global function  
+**Returns**: Returns a promise of a generation
+
+| Param                | Type            |
+| -------------------- | --------------- |
+| generationDir        | <code>\*</code> |
+| handlebarTemplateDir | <code>\*</code> |
+
 <a name="doOpen"></a>
 
 ## doOpen(menuItem, browserWindow, event)
@@ -1701,6 +1783,26 @@ output.
 | Param         | Type            |
 | ------------- | --------------- |
 | browserWindow | <code>\*</code> |
+
+<a name="generateCodeViaCli"></a>
+
+## generateCodeViaCli(generationDir)
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| generationDir | <code>\*</code> |
+
+<a name="setHandlebarTemplateDirForCli"></a>
+
+## setHandlebarTemplateDirForCli(handlebarTemplateDir)
+
+**Kind**: global function
+
+| Param                | Type            |
+| -------------------- | --------------- |
+| handlebarTemplateDir | <code>\*</code> |
 
 <a name="setHandlebarTemplateDirectory"></a>
 
@@ -1796,6 +1898,18 @@ Initialize a menu.
 | ----- | --------------- |
 | port  | <code>\*</code> |
 
+<a name="createOrShowWindow"></a>
+
+## createOrShowWindow(port)
+
+Call this function to create a new or show an existing preference window.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| port  | <code>\*</code> |
+
 <a name="windowCreate"></a>
 
 ## windowCreate(port, [filePath], [sessionId]) ⇒
@@ -1812,6 +1926,19 @@ Win id will be passed on in the URL, and if sessionId is present, so will it.
 | port        | <code>\*</code> |               |
 | [filePath]  | <code>\*</code> | <code></code> |
 | [sessionId] | <code>\*</code> | <code></code> |
+
+<a name="calculateCrc"></a>
+
+## calculateCrc(context) ⇒
+
+Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
+
+**Kind**: global function  
+**Returns**: Promise that resolves with the same object, just adds the 'crc' key into it.
+
+| Param   | Type            | Description                                                                     |
+| ------- | --------------- | ------------------------------------------------------------------------------- |
+| context | <code>\*</code> | that contains 'filePath' and 'data' keys for the file and contents of the file. |
 
 <a name="collectZclFiles"></a>
 
@@ -1838,20 +1965,6 @@ Promises to read a file and resolve with the content
 | Param | Type            |
 | ----- | --------------- |
 | file  | <code>\*</code> |
-
-<a name="calculateCrc"></a>
-
-## calculateCrc(filePath, data) ⇒
-
-Promises to calculate the CRC of the file, and resolve with an array [filePath,data,crc]
-
-**Kind**: global function  
-**Returns**: Promise of a resolved CRC file.
-
-| Param    | Type            |
-| -------- | --------------- |
-| filePath | <code>\*</code> |
-| data     | <code>\*</code> |
 
 <a name="parseZclFile"></a>
 
@@ -2108,8 +2221,8 @@ Promises to perform a post loading step.
 ## qualifyZclFile(db, object) ⇒
 
 Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with [filePath, data, packageId, NULL]
-If not, then it will resolve with [null, null, null, msg]
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}
 
 **Kind**: global function  
 **Returns**: Promise that resolves int he object of data.

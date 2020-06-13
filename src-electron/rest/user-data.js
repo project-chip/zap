@@ -36,6 +36,7 @@ import {
   updateEndpointType,
 } from '../db/query-config'
 import { validateEndpoint, validateAttribute } from '../validation/validation'
+import * as RestApi from '../../src-shared/rest-api'
 
 export function registerSessionApi(db, app) {
   app.post('/post/cluster', (request, response) => {
@@ -44,7 +45,7 @@ export function registerSessionApi(db, app) {
       .then(() =>
         response
           .json({
-            replyId: 'zcl-endpointType-cluster-selection-response',
+            replyId: RestApi.replyId.zclEndpointTypeClusterSelectionResponse,
             endpointTypeId: endpointTypeId,
             id: id,
             side: side,
@@ -114,7 +115,7 @@ export function registerSessionApi(db, app) {
               added: value,
               listType: listType,
               validationIssues: validationData,
-              replyId: 'singleAttributeState',
+              replyId: RestApi.replyId.singleAttributeState,
             })
             return response.status(httpCode.ok).send()
           }
@@ -162,7 +163,7 @@ export function registerSessionApi(db, app) {
         listType: listType,
         side: commandSide,
         clusterRef: clusterRef,
-        replyId: 'singleCommandState',
+        replyId: RestApi.replyId.singleCommandState,
       })
       return response.status(httpCode.ok).send()
     })
@@ -233,7 +234,7 @@ export function registerSessionApi(db, app) {
     var { action, context } = request.body
     var sessionId = request.session.zapSessionId
     switch (action) {
-      case 'c':
+      case RestApi.action.create:
         insertEndpoint(
           db,
           sessionId,
@@ -244,12 +245,12 @@ export function registerSessionApi(db, app) {
           .then((newId) => {
             return validateEndpoint(db, newId).then((validationData) => {
               response.json({
-                action: 'c',
+                action: action,
                 id: newId,
                 eptId: context.eptId,
                 endpointType: context.endpointType,
                 nwkId: context.nwkId,
-                replyId: 'zcl-endpoint-response',
+                replyId: RestApi.replyId.zclEndpointResponse,
                 validationIssues: validationData,
               })
               return response.status(httpCode.ok).send()
@@ -259,28 +260,28 @@ export function registerSessionApi(db, app) {
             return response.status(httpCode.badRequest).send()
           })
         break
-      case 'd':
+      case RestApi.action.delete:
         deleteEndpoint(db, context.id).then((removed) => {
           response.json({
-            action: 'd',
+            action: action,
             successful: removed > 0,
             id: context.id,
-            replyId: 'zcl-endpoint-response',
+            replyId: RestApi.replyId.zclEndpointResponse,
           })
           return response.status(httpCode.ok).send()
         })
         break
-      case 'e':
+      case RestApi.action.update:
         var changeParam = ''
         switch (context.updatedKey) {
           case 'endpointId':
-            changeParam = 'ENDPOINT_ID'
+            changeParam = 'ENDPOINT_IDENTIFIER'
             break
           case 'endpointType':
             changeParam = 'ENDPOINT_TYPE_REF'
             break
           case 'networkId':
-            changeParam = 'NETWORK_ID'
+            changeParam = 'NETWORK_IDENTIFIER'
             break
         }
         updateEndpoint(
@@ -292,11 +293,11 @@ export function registerSessionApi(db, app) {
         ).then((data) => {
           return validateEndpoint(db, context.id).then((validationData) => {
             response.json({
-              action: 'u',
+              action: RestApi.action.update,
               endpointId: context.id,
               updatedKey: context.updatedKey,
               updatedValue: context.value,
-              replyId: 'zcl-endpoint-response',
+              replyId: RestApi.replyId.zclEndpointResponse,
               validationIssues: validationData,
             })
             return response.status(httpCode.ok).send()
@@ -312,15 +313,15 @@ export function registerSessionApi(db, app) {
     var { action, context } = request.body
     var sessionId = request.session.zapSessionId
     switch (action) {
-      case 'c':
+      case RestApi.action.create:
         insertEndpointType(db, sessionId, context.name, context.deviceTypeRef)
           .then((newId) => {
             response.json({
-              action: 'c',
+              action: action,
               id: newId,
               name: context.name,
               deviceTypeRef: context.deviceTypeRef,
-              replyId: 'zcl-endpointType-response',
+              replyId: RestApi.replyId.zclEndpointTypeResponse,
             })
             return response.status(httpCode.ok).send()
           })
@@ -328,13 +329,13 @@ export function registerSessionApi(db, app) {
             return response.status(httpCode.badRequest).send()
           })
         break
-      case 'd':
+      case RestApi.action.delete:
         deleteEndpointType(db, context.id).then((removed) => {
           response.json({
-            action: 'd',
+            action: action,
             successful: removed > 0,
             id: context.id,
-            replyId: 'zcl-endpointType-response',
+            replyId: RestApi.replyId.zclEndpointTypeResponse,
           })
           return response.status(httpCode.ok).send()
         })
@@ -366,7 +367,7 @@ export function registerSessionApi(db, app) {
           endpointTypeId: endpointTypeId,
           updatedKey: updatedKey,
           updatedValue: updatedValue,
-          replyId: 'zcl-endpointType-response',
+          replyId: RestApi.replyId.zclEndpointTypeResponse,
         })
         return response.status(httpCode.ok).send()
       }

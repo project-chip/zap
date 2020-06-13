@@ -14,6 +14,18 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-const Path = require('path')
 
-module.exports = Path.join(__dirname, '../../../src/zap.png')
+export const replyId = {
+  zclEndpointTypeResponse: 'zcl-endpointType-response',
+  zclEndpointResponse: 'zcl-endpoint-response',
+  zclEndpointTypeClusterSelectionResponse:
+    'zcl-endpointType-cluster-selection-response',
+  singleAttributeState: 'singleAttributeState',
+  singleCommandState: 'singleCommandState',
+}
+
+export const action = {
+  update: 'u',
+  create: 'c',
+  delete: 'd',
+}

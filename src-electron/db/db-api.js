@@ -262,8 +262,10 @@ export function dbMultiInsert(db, sql, arrayOfArrays) {
  */
 export function closeDatabase(database) {
   return new Promise((resolve, reject) => {
+    Env.logSql('About to close database.')
     database.close((err) => {
       if (err) return reject(err)
+      Env.logSql('Database is closed.')
       resolve()
     })
   })

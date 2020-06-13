@@ -18,11 +18,10 @@
 /**
  * @module JS API: generator logic
  */
-import Handlebars from 'handlebars'
+import Handlebars from 'handlebars/dist/cjs/handlebars'
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs-extra'
 import {
   selectAllClusters,
-  selectAllClustersApartFromNull,
   selectAllEnums,
   selectAllEnumItems,
   selectAllBitmaps,
@@ -152,7 +151,7 @@ export function infoFromDb(map, dbRowTypeArray) {
         dbRowType === 'callback-zcl' ||
         dbRowType === 'client-command-macro-cluster'
       ) {
-        dbInfo[dbRowType] = selectAllClustersApartFromNull(db).then(
+        dbInfo[dbRowType] = selectAllClusters(db).then(
           (dbRows) => (map[dbRowType] = dbRows)
         )
       } else if (dbRowType == 'enums') {

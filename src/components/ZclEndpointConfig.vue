@@ -44,9 +44,8 @@ limitations under the License.
                       ? 'red'
                       : 'primary'
                   "
+                  >{{ getFormattedEndpointId(props.row.id) }}</q-badge
                 >
-                  {{ getFormattedEndpointId(props.row.id) }}
-                </q-badge>
                 <q-popup-edit dark dense>
                   <q-input
                     debounce="300"
@@ -96,13 +95,11 @@ limitations under the License.
                   ).padStart(4, '0')
                 }}
               </q-td>
-              <q-td key="version" :props="props" auto-width>
-                1
-              </q-td>
+              <q-td key="version" :props="props" auto-width>1</q-td>
               <q-td key="endpointType" :props="props" auto-width>
-                <q-badge :color="'primary'">
-                  {{ endpointTypeName[endpointType[props.row.id]] }}
-                </q-badge>
+                <q-badge :color="'primary'">{{
+                  endpointTypeName[endpointType[props.row.id]]
+                }}</q-badge>
                 <q-popup-edit dark dense>
                   <q-select
                     filled
@@ -127,9 +124,8 @@ limitations under the License.
                       ? 'red'
                       : 'primary'
                   "
+                  >{{ networkId[props.row.id] }}</q-badge
                 >
-                  {{ networkId[props.row.id] }}
-                </q-badge>
                 <q-popup-edit dark dense>
                   <q-input
                     debounce="300"
@@ -231,12 +227,13 @@ limitations under the License.
 </template>
 
 <script>
+import * as RestApi from '../../src-shared/rest-api'
 export default {
   name: 'ZclEndpointConfig',
   mounted() {
-    this.$serverOn('zcl-endpoint-response', (event, arg) => {
+    this.$serverOn(RestApi.replyId.zclEndpointResponse, (event, arg) => {
       switch (arg.action) {
-        case 'c':
+        case RestApi.action.create:
           this.$store.dispatch('zap/addEndpoint', {
             id: arg.id,
             eptId: arg.eptId,
@@ -246,13 +243,13 @@ export default {
             networkIdValidationIssues: arg.validationIssues.networkId,
           })
           break
-        case 'd':
+        case RestApi.action.delete:
           this.activeIndex = []
           this.$store.dispatch('zap/deleteEndpoint', {
             id: arg.id,
           })
           break
-        case 'u':
+        case RestApi.action.update:
           this.$store.dispatch('zap/updateEndpoint', {
             id: arg.endpointId,
             updatedKey: arg.updatedKey,
@@ -392,7 +389,7 @@ export default {
       let endpointType = this.newEndpoint.newEndpointType
 
       this.$serverPost(`/endpoint`, {
-        action: 'c',
+        action: RestApi.action.create,
         context: {
           eptId: eptId,
           nwkId: nwkId,
@@ -403,7 +400,7 @@ export default {
     deleteEpt() {
       if (this.activeIndex.length > 0) {
         this.$serverPost('/endpoint', {
-          action: 'd',
+          action: RestApi.action.delete,
           context: {
             id: this.activeIndex[0].id,
           },
@@ -412,7 +409,7 @@ export default {
     },
     copyEpt() {
       this.$serverPost(`/endpoint`, {
-        action: 'c',
+        action: RestApi.action.create,
         context: {
           nwkId: this.networkId[
             this.$store.state.zap.endpointView.selectedEndpoint
@@ -446,7 +443,7 @@ export default {
     },
     handleEndpointChange(id, changeId, value) {
       this.$serverPost('/endpoint', {
-        action: 'e',
+        action: RestApi.action.update,
         context: {
           id: id,
           updatedKey: changeId,

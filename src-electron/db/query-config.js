@@ -288,22 +288,22 @@ export function getAllEndpointTypeClusterState(db, endpointTypeId) {
  * @export
  * @param {*} db
  * @param {*} sessionId
- * @param {*} endpointId
+ * @param {*} endpointIdentifier
  * @param {*} endpointTypeRef
- * @param {*} networkId
+ * @param {*} networkIdentifier
  * @returns Promise to update endpoints.
  */
 export function insertEndpoint(
   db,
   sessionId,
-  endpointId,
+  endpointIdentifier,
   endpointTypeRef,
-  networkId
+  networkIdentifier
 ) {
   return DbApi.dbInsert(
     db,
-    'INSERT OR REPLACE INTO ENDPOINT ( SESSION_REF, ENDPOINT_ID, ENDPOINT_TYPE_REF, NETWORK_ID ) VALUES ( ?, ?, ?, ?)',
-    [sessionId, endpointId, endpointTypeRef, networkId]
+    'INSERT OR REPLACE INTO ENDPOINT ( SESSION_REF, ENDPOINT_IDENTIFIER, ENDPOINT_TYPE_REF, NETWORK_IDENTIFIER ) VALUES ( ?, ?, ?, ?)',
+    [sessionId, endpointIdentifier, endpointTypeRef, networkIdentifier]
   )
 }
 
@@ -316,27 +316,21 @@ export function insertEndpoint(
  * @returns Promise to delete an endpoint that resolves with the number of rows that were deleted.
  */
 export function deleteEndpoint(db, id) {
-  return DbApi.dbRemove(db, 'DELETE FROM ENDPOINT WHERE ENDPOINT_REF = ?', [id])
+  return DbApi.dbRemove(db, 'DELETE FROM ENDPOINT WHERE ENDPOINT_ID = ?', [id])
 }
 
-export function updateEndpoint(
-  db,
-  sessionId,
-  endpointRef,
-  param,
-  updatedValue
-) {
+export function updateEndpoint(db, sessionId, endpointId, param, updatedValue) {
   return DbApi.dbUpdate(
     db,
-    `UPDATE ENDPOINT SET ${param} = ? WHERE ENDPOINT_REF = ? AND SESSION_REF = ?`,
-    [updatedValue, endpointRef, sessionId]
+    `UPDATE ENDPOINT SET ${param} = ? WHERE ENDPOINT_ID = ? AND SESSION_REF = ?`,
+    [updatedValue, endpointId, sessionId]
   )
 }
 
 export function selectEndpoint(db, endpointRef) {
   return DbApi.dbGet(
     db,
-    'SELECT ENDPOINT_REF, SESSION_REF, ENDPOINT_ID, ENDPOINT_TYPE_REF, PROFILE, NETWORK_ID FROM ENDPOINT WHERE ENDPOINT_REF = ?',
+    'SELECT ENDPOINT_ID, SESSION_REF, ENDPOINT_IDENTIFIER, ENDPOINT_TYPE_REF, PROFILE, NETWORK_IDENTIFIER FROM ENDPOINT WHERE ENDPOINT_ID = ?',
     [endpointRef]
   ).then(DbMapping.dbMap.endpoint)
 }

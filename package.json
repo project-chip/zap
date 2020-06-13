@@ -27,8 +27,8 @@
     "browser": "quasar dev",
     "zap": "quasar build && quasar dev -m electron",
     "build-spa": "quasar build",
-    "doc": "jsdoc src-electron -r -d ./generated-html/",
-    "apidoc": "jsdoc2md src-electron/**/*.js > docs/api.md",
+    "doc": "jsdoc src-electron src-shared -r -d ./generated-html/",
+    "apidoc": "jsdoc2md src-shared/**/*.js src-electron/**/*.js > docs/api.md",
     "format-code": "pretty-quick",
     "pretty-quick": "pretty-quick"
   },
@@ -40,6 +40,7 @@
     "electron-builder": "^20.44.4",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "jest": "^26.0.1",
     "node-abi": "^2.17.0",
     "node-gyp": "^6.1.0",
     "node-pre-gyp": "^0.14.0",
@@ -48,6 +49,7 @@
     "quasar": "^1.11.3",
     "sqlite3": "^4.2.0",
     "xml2js": "^0.4.23",
+    "yaml": "^1.10.0",
     "yargs": "^15.3.1"
   },
   "devDependencies": {

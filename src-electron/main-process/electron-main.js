@@ -35,6 +35,7 @@ import {
 } from '../util/env.js'
 import { initializeElectronUi, windowCreateIfNotThere } from './window.js'
 import { generateCodeViaCli, setHandlebarTemplateDirForCli } from './menu.js'
+import { runSdkGeneration } from '../sdk-gen/sdk-gen'
 
 logInitLogFile()
 
@@ -134,6 +135,31 @@ function setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) {
   }
 }
 
+export function startSdkGeneration(
+  generationDir,
+  handlebarTemplateDir,
+  zclPropertiesFilePath
+) {
+  logInfo('Start SDK generation...')
+  return initDatabase(sqliteFile())
+    .then((db) => attachToDb(db))
+    .then((db) => loadSchema(db, schemaFile(), version))
+    .then((db) =>
+      loadZcl(
+        db,
+        zclPropertiesFilePath ? zclPropertiesFilePath : Args.zclPropertiesFile
+      )
+    )
+    .then((db) =>
+      runSdkGeneration({
+        db: db,
+        generationDir: generationDir,
+        templateDir: handlebarTemplateDir,
+      })
+    )
+    .then((res) => app.quit())
+}
+
 app.on('ready', () => {
   var argv = Args.processCommandLineArguments(process.argv)
 
@@ -147,6 +173,8 @@ app.on('ready', () => {
     // - Handlebar Template Directory (-template)
     // - Xml Data directory (-xml)
     applyGenerationSettings(argv.output, argv.template, argv.zclProperties)
+  } else if (argv._.includes('sdkGen')) {
+    startSdkGeneration(argv.output, argv.template, argv.zclProperties)
   } else {
     startNormal(!argv.noUi, argv.showUrl)
   }
