@@ -24,6 +24,8 @@ pipeline
                 {
                     sh 'npm install'
                     sh 'npm list || true'
+                    sh 'npm --version'
+                    sh 'node --version'
                 }
             }
         }
