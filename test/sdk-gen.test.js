@@ -15,6 +15,7 @@ import {
   schemaFile,
   sqliteTestFile,
   appDirectory,
+  setDevelopmentEnv,
 } from '../src-electron/util/env'
 import { runSdkGeneration } from '../src-electron/sdk-gen/sdk-gen'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
@@ -23,15 +24,18 @@ import { selectAllClusters } from '../src-electron/db/query-zcl'
 
 describe('SDK gen tests', () => {
   var db
-  beforeAll(() =>
-    initDatabase(sqliteTestFile(4))
+  beforeAll(() => {
+    setDevelopmentEnv()
+    var file = sqliteTestFile(4)
+
+    return initDatabase(file)
       .then((d) => loadSchema(d, schemaFile(), version))
       .then((d) => loadZcl(d, zclPropertiesFile))
       .then((d) => {
         db = d
         logInfo('DB initialized.')
       })
-  )
+  }, 5000)
 
   afterAll(() => {
     var file = sqliteTestFile(4)
