@@ -56,7 +56,7 @@ limitations under the License.
 `
 
 // Directories that we will scan
-const directories = ['src', 'src-electron']
+const directories = ['src', 'src-electron', 'test']
 
 async function processSingleFile(path) {
   var isVue = path.endsWith('.vue')
