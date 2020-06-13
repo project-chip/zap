@@ -53,10 +53,6 @@ export function importSessionKeyValues(db, sessionId, keyValuePairs) {
   return Promise.all(allQueries).then(() => Promise.resolve(sessionId))
 }
 
-export function exportEndpoints(db, sessionId) {
-  QueryConfig.getAll
-}
-
 /**
  * Resolves to an array of endpoint types.
  *
