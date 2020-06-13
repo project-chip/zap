@@ -40,6 +40,7 @@
     "electron-builder": "^20.44.4",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "jest": "^26.0.1",
     "node-abi": "^2.17.0",
     "node-gyp": "^6.1.0",
     "node-pre-gyp": "^0.14.0",

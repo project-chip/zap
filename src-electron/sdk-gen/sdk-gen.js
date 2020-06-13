@@ -23,10 +23,23 @@ import { logError } from '../util/env'
 
 function cleanse(name) {
   var ret = name.replace(/-/g, '_')
-  var ret = ret.replace(/ /g, '_')
-  var ret = ret.replace(/\//g, '_')
-  var ret = ret.toLowerCase()
+  ret = ret.replace(/ /g, '_')
+  ret = ret.replace(/\//g, '_')
+  ret = ret.replace(/\./g, '_')
+  ret = ret.replace(/\(/g, '')
+  ret = ret.replace(/\)/g, '')
+  ret = ret.toLowerCase()
   return ret
+}
+
+function toSlcc(obj) {
+  var ret = '---\n'
+  return ret.concat(yaml.stringify(obj))
+}
+
+// Device types
+function deviceTypeContribFileName(deviceType) {
+  return 'zcl_device_type_' + cleanse(deviceType.label) + '.zapcontrib'
 }
 
 function createDeviceTypeComponent(deviceType) {
@@ -37,7 +50,47 @@ function createDeviceTypeComponent(deviceType) {
     package: 'Zigbee',
     category: 'Zigbee|Zigbee Cluster Library|Device Type',
     quality: 'production',
+    root_path: 'app/zigbee/component',
+    config_file: [
+      {
+        path: deviceTypeContribFileName(deviceType),
+        directory: 'zap',
+      },
+    ],
   }
+}
+
+function createDeviceTypeContrib(deviceType) {
+  var output = Object.assign({}, deviceType)
+  delete output.id
+  return output
+}
+
+function generateSingleDeviceTypeZapContrib(ctx, deviceType) {
+  var fileName = path.join(
+    ctx.generationDir,
+    deviceTypeContribFileName(deviceType)
+  )
+  var output = JSON.stringify(createDeviceTypeContrib(deviceType))
+  if (ctx.dontWrite) return Promise.resolve()
+  else return fs.promises.writeFile(fileName, output)
+}
+
+function generateSingleDeviceTypeSlcc(ctx, deviceType) {
+  var fileName = path.join(
+    ctx.generationDir,
+    'zcl_device_type_' + cleanse(deviceType.label) + '.slcc'
+  )
+
+  var output = toSlcc(createDeviceTypeComponent(deviceType))
+  if (ctx.dontWrite) return Promise.resolve()
+  else return fs.promises.writeFile(fileName, output)
+}
+
+// Cluster definitions
+
+function clusterDefContribFileName(cluster) {
+  return 'zcl_cluster_def_' + cleanse(cluster.label) + '.zapcontrib'
 }
 
 function createClusterDefComponent(cluster) {
@@ -48,7 +101,48 @@ function createClusterDefComponent(cluster) {
     package: 'Zigbee',
     category: 'Zigbee|Zigbee Cluster Library|Configuration',
     quality: 'production',
+    root_path: 'app/zigbee/component',
+    config_file: [
+      {
+        path: clusterDefContribFileName(cluster),
+        directory: 'zap',
+      },
+    ],
   }
+}
+
+function createClusterDefContrib(cluster) {
+  var clusterOut = Object.assign({}, cluster)
+  delete clusterOut.id
+  return {
+    cluster: clusterOut,
+    type: 'def',
+  }
+}
+
+function generateSingleClusterDefContrib(ctx, cluster) {
+  var fileName = path.join(
+    ctx.generationDir,
+    clusterDefContribFileName(cluster)
+  )
+  var output = JSON.stringify(createClusterDefContrib(cluster))
+  if (ctx.dontWrite) return Promise.resolve()
+  else return fs.promises.writeFile(fileName, output)
+}
+
+function generateSingleClusterDefSlcc(ctx, cluster) {
+  var fileName = path.join(
+    ctx.generationDir,
+    'zcl_cluster_def_' + cleanse(cluster.label) + '.slcc'
+  )
+  var output = toSlcc(createClusterDefComponent(cluster))
+  if (ctx.dontWrite) return Promise.resolve()
+  else return fs.promises.writeFile(fileName, output)
+}
+
+// Cluster implementations
+function clusterImpContribFileName(cluster) {
+  return 'zcl_cluster_imp_' + cleanse(cluster.label) + '.zapcontrib'
 }
 
 function createClusterImpComponent(cluster) {
@@ -59,40 +153,41 @@ function createClusterImpComponent(cluster) {
     package: 'Zigbee',
     category: 'Zigbee|Zigbee Cluster Library|Implementation',
     quality: 'production',
+    root_path: 'app/zigbee/component',
+    config_file: [
+      {
+        path: clusterImpContribFileName(cluster),
+        directory: 'zap',
+      },
+    ],
   }
 }
 
-function generateSingleDeviceType(ctx, deviceType) {
+function createClusterImpContrib(cluster) {
+  var clusterOut = Object.assign({}, cluster)
+  delete clusterOut.id
+  return {
+    cluster: clusterOut,
+    type: 'imp',
+  }
+}
+
+function generateSingleClusterImpContrib(ctx, cluster) {
   var fileName = path.join(
     ctx.generationDir,
-    'zcl_device_type_' + cleanse(deviceType.label) + '.slcc'
+    clusterImpContribFileName(cluster)
   )
-
-  console.log(`   - ${fileName}`)
-
-  var output = yaml.stringify(createDeviceTypeComponent(deviceType))
+  var output = JSON.stringify(createClusterImpContrib(cluster))
   if (ctx.dontWrite) return Promise.resolve()
   else return fs.promises.writeFile(fileName, output)
 }
 
-function generateSingleCluster(ctx, cluster) {
-  var fileName = path.join(
-    ctx.generationDir,
-    'zcl_cluster_def_' + cleanse(cluster.label) + '.slcc'
-  )
-  console.log(`   - ${fileName}`)
-  var output = yaml.stringify(createClusterDefComponent(cluster))
-  if (ctx.dontWrite) return Promise.resolve()
-  else return fs.promises.writeFile(fileName, output)
-}
-
-function generateSingleClusterImplementation(ctx, cluster) {
+function generateSingleClusterImpSlcc(ctx, cluster) {
   var fileName = path.join(
     ctx.generationDir,
     'zcl_cluster_imp_' + cleanse(cluster.label) + '.slcc'
   )
-  console.log(`   - ${fileName}`)
-  var output = yaml.stringify(createClusterImpComponent(cluster))
+  var output = toSlcc(createClusterImpComponent(cluster))
   if (ctx.dontWrite) return Promise.resolve()
   else return fs.promises.writeFile(fileName, output)
 }
@@ -102,7 +197,8 @@ function generateDeviceTypes(ctx) {
     var promises = []
     console.log(`Generating ${deviceTypeArray.length} device types`)
     deviceTypeArray.forEach((element) => {
-      promises.push(generateSingleDeviceType(ctx, element))
+      promises.push(generateSingleDeviceTypeSlcc(ctx, element))
+      promises.push(generateSingleDeviceTypeZapContrib(ctx, element))
     })
     return Promise.all(promises)
   })
@@ -113,8 +209,10 @@ function generateClusters(ctx) {
     var promises = []
     console.log(`Generating ${clustersArray.length} clusters`)
     clustersArray.forEach((element) => {
-      promises.push(generateSingleCluster(ctx, element))
-      promises.push(generateSingleClusterImplementation(ctx, element))
+      promises.push(generateSingleClusterDefSlcc(ctx, element))
+      promises.push(generateSingleClusterDefContrib(ctx, element))
+      promises.push(generateSingleClusterImpSlcc(ctx, element))
+      promises.push(generateSingleClusterImpContrib(ctx, element))
     })
     return Promise.all(promises)
   })
