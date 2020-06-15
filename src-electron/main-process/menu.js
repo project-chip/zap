@@ -235,7 +235,10 @@ function doSaveAs(menuItem, browserWindow, event) {
  */
 function generateInDir(browserWindow) {
   dialog
-    .showOpenDialog({ properties: ['openDirectory'] })
+    .showOpenDialog({
+      buttonLabel: 'Save',
+      properties: ['openDirectory', 'createDirectory'],
+    })
     .then((result) => {
       if (!result.canceled) {
         return Promise.resolve(result.filePaths[0])
