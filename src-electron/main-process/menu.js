@@ -249,7 +249,7 @@ function generateInDir(browserWindow) {
         getGenerationProperties(
           generationOptionsFile
         ).then((generationOptions) =>
-          generateCode(mainDatabase(), generationOptions)
+          generateCode(mainDatabase(), generationOptions, generationDirectory)
         )
         dialog.showMessageBox(browserWindow, {
           title: 'Generation',
@@ -271,7 +271,9 @@ export function generateCodeViaCli(generationDir) {
   generationDirectory = generationDir
   return getGenerationProperties(
     generationOptionsFile
-  ).then((generationOptions) => generateCode(mainDatabase(), generationOptions))
+  ).then((generationOptions) =>
+    generateCode(mainDatabase(), generationOptions, generationDirectory)
+  )
 }
 
 /**
@@ -323,7 +325,7 @@ function setHandlebarTemplateDirectory(browserWindow) {
  *
  * @param {*} db
  */
-function generateCode(db, generationOptions) {
+function generateCode(db, generationOptions, generationDirectory) {
   //Keeping track of each generation promise
   let generatedCodeMap = []
 
@@ -374,9 +376,12 @@ function generateCode(db, generationOptions) {
         groupInfoIntoDbRow(databaseRowsWithMoreInfo, groupInfoToDb)
       )
       .then((helperResolution) => resolveHelper(helperResolution, helperApis))
-      .then((directoryResolution) =>
-        resolveGenerationDirectory(directoryResolution)
-      )
+      .then((directoryResolution) => {
+        return new Promise((resolve, reject) => {
+          directoryResolution.generationDirectory = generationDirectory
+          resolve(directoryResolution)
+        })
+      })
       .then((resultToFile) =>
         generateDataToFile(resultToFile, filename, handlebarTemplatePerDataRow)
       )
@@ -437,20 +442,6 @@ function readAndProcessFile(db, filePath) {
     .catch((err) => {
       showErrorMessage(filePath, err)
     })
-}
-
-/**
- * Description: Resolve the generation directory to be able to generate to the
- * correct directory.
- * @export
- * @param {*} map
- * @returns promise that resolves into a map.
- */
-export function resolveGenerationDirectory(map) {
-  return new Promise((resolve, reject) => {
-    map.generationDirectory = generationDirectory
-    resolve(map)
-  })
 }
 
 /**
