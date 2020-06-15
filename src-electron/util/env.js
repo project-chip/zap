@@ -15,10 +15,10 @@
  *    limitations under the License.
  */
 
-import path from 'path'
-import os from 'os'
-import fs from 'fs'
-import pino from 'pino'
+const path = require('path')
+const os = require('os')
+const fs = require('fs')
+const pino = require('pino')
 
 // Basic environment tie-ins
 var pino_logger = pino({

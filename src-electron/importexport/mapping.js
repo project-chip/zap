@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-import * as QueryConfig from '../db/query-config'
+import * as QueryConfig from '../db/query-config.js'
 
 /**
  * This file contains queries and mapping for reading and writing a file.

@@ -15,7 +15,8 @@
  *    limitations under the License.
  */
 
-import { dialog, Menu } from 'electron'
+const { dialog, Menu } = require('electron')
+
 import { getSessionInfoFromWindowId } from '../db/query-session.js'
 import {
   compileTemplate,

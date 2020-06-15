@@ -19,10 +19,11 @@
  * This file provides the functionality that reads the ZAP data from a database
  * and exports it into a file.
  */
-import * as Fs from 'fs'
-import * as QuerySession from '../db/query-session'
-import * as Env from '../util/env'
-import * as Mapping from './mapping'
+const Fs = require('fs')
+
+import * as QuerySession from '../db/query-session.js'
+import * as Env from '../util/env.js'
+import * as Mapping from './mapping.js'
 
 /**
  * Toplevel file that takes a given session ID and exports the data into the file

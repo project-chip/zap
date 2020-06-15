@@ -15,9 +15,9 @@
  *    limitations under the License.
  */
 
-import { BrowserWindow } from 'electron'
-import path from 'path'
-import * as Env from '../util/env'
+const { BrowserWindow } = require('electron')
+const path = require('path')
+import * as Env from '../util/env.js'
 
 let window = null
 

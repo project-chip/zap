@@ -15,12 +15,12 @@
  *    limitations under the License.
  */
 
-import { Menu, Tray, nativeImage, app } from 'electron'
+const { Menu, Tray, nativeImage, app } = require('electron')
+const path = require('path')
+const fs = require('fs')
+
 import { windowCreate } from './window.js'
 import { logInfo, iconsDirectory, logError } from '../util/env.js'
-import path from 'path'
-import fs from 'fs'
-
 let tray
 
 export function initTray(port) {

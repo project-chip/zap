@@ -15,11 +15,12 @@
  *    limitations under the License.
  */
 
+const { session, BrowserWindow, dialog } = require('electron')
+const path = require('path')
+
 import { logInfo, iconsDirectory, mainDatabase, logError } from '../util/env.js'
 import { initMenu } from './menu.js'
 import { initTray } from './tray.js'
-import { session, BrowserWindow, dialog } from 'electron'
-import path from 'path'
 import { getWindowDirtyFlagWithCallback } from '../db/query-session.js'
 
 export function initializeElectronUi(port) {

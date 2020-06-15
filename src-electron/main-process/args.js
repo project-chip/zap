@@ -15,8 +15,8 @@
  *    limitations under the License.
  */
 
-import yargs from 'yargs'
-import { logInfo } from '../util/env'
+const yargs = require('yargs')
+import { logInfo } from '../util/env.js'
 
 // TODO how to handle relative pathing for things like properties file.
 export var zclPropertiesFile = './test/zcl/zcl-test.properties'

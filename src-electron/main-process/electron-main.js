@@ -15,7 +15,8 @@
  *    limitations under the License.
  */
 
-import { app } from 'electron'
+const { app } = require('electron')
+
 import { version } from '../../package.json'
 import { closeDatabase, initDatabase, loadSchema } from '../db/db-api.js'
 import { initHttpServer, httpServerPort } from '../server/http-server.js'
@@ -35,7 +36,7 @@ import {
 } from '../util/env.js'
 import { initializeElectronUi, windowCreateIfNotThere } from './window.js'
 import { generateCodeViaCli, setHandlebarTemplateDirForCli } from './menu.js'
-import { runSdkGeneration } from '../sdk-gen/sdk-gen'
+import { runSdkGeneration } from '../sdk-gen/sdk-gen.js'
 
 logInitLogFile()
 

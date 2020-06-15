@@ -21,9 +21,10 @@
  * @module JS API: low level database access
  */
 
+const Sq = require('sqlite3')
+const Fs = require('fs')
+
 import * as Env from '../util/env.js'
-import * as Sq from 'sqlite3'
-import * as Fs from 'fs'
 import { calculateCrc } from '../util/util.js'
 import { getPathCrc } from './query-package.js'
 

@@ -18,8 +18,15 @@
 /**
  * @module JS API: generator logic
  */
-import Handlebars from 'handlebars/dist/cjs/handlebars'
-import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs-extra'
+const Handlebars = require('handlebars/dist/cjs/handlebars')
+
+const {
+  readFileSync,
+  existsSync,
+  mkdirSync,
+  writeFileSync,
+} = require('fs-extra')
+
 import {
   selectAllClusters,
   selectAllEnums,

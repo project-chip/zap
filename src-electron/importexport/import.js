@@ -19,11 +19,12 @@
  * This file provides the functionality that reads the ZAP data from a JSON file
  * and imports it into a database.
  */
-import * as Fs from 'fs'
-import * as QueryConfig from '../db/query-config'
-import * as QuerySession from '../db/query-session'
-import * as Env from '../util/env'
-import * as Mapping from './mapping'
+const Fs = require('fs')
+
+import * as QueryConfig from '../db/query-config.js'
+import * as QuerySession from '../db/query-session.js'
+import * as Env from '../util/env.js'
+import * as Mapping from './mapping.js'
 
 /**
  * Reads the data from the file and resolves with the state object if all is good.
