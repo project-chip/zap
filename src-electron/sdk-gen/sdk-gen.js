@@ -15,10 +15,11 @@
  *    limitations under the License.
  */
 
+const path = require('path')
+const yaml = require('yaml')
+const fs = require('fs')
+
 import * as QueryZcl from '../db/query-zcl'
-import path from 'path'
-import yaml from 'yaml'
-import * as fs from 'fs'
 import { logError } from '../util/env'
 
 function cleanse(name) {
