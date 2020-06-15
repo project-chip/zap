@@ -106,6 +106,8 @@ export function initHttpServer(db, port) {
           Env.logInfo(`HTTP server created on port: ` + httpServerPort())
           resolve(app)
         })
+      } else {
+        Env.logError(err)
       }
     })
   })
