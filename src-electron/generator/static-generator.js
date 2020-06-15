@@ -476,3 +476,81 @@ export function getGenerationProperties(filePath) {
     resolve(generationOptions)
   })
 }
+
+/**
+ * This function generates the code into the user defined directory using promises
+ *
+ * @param {*} db
+ */
+export function generateCode(
+  db,
+  generationOptions,
+  generationDirectory,
+  handlebarTemplateDirectory
+) {
+  //Keeping track of each generation promise
+  let generatedCodeMap = []
+
+  // The template file which provides meta data information on generation
+  var currentGenerationOptions = generationOptions['generation-options']
+
+  // Going through each of the generation options and performing generation
+  let generationOptionIndex = 0
+  for (
+    generationOptionIndex = 0;
+    generationOptionIndex < currentGenerationOptions.length;
+    generationOptionIndex++
+  ) {
+    let i = 0
+    let templateArray = new Set()
+    let dbRowTypeArray = new Set()
+    let groupInfoToDb =
+      currentGenerationOptions[generationOptionIndex][
+        'group-info-into-db-row-type'
+      ]
+    let helperApis =
+      currentGenerationOptions[generationOptionIndex]['helper-api-name']
+    let filename = currentGenerationOptions[generationOptionIndex]['filename']
+    let handlebarTemplatePerDataRow =
+      currentGenerationOptions[generationOptionIndex][
+        'handlebar-templates-per-data-row'
+      ]
+
+    for (i = 0; i < handlebarTemplatePerDataRow.length; i++) {
+      templateArray.add(handlebarTemplatePerDataRow[i]['hTemplateFile'])
+      dbRowTypeArray.add(handlebarTemplatePerDataRow[i]['dbRowType'])
+    }
+
+    for (i = 0; i < groupInfoToDb.length; i++) {
+      let dbType = groupInfoToDb[i].dbType
+      if (!dbRowTypeArray.has(dbType)) {
+        dbRowTypeArray.add(dbType)
+      }
+    }
+
+    generatedCodeMap[generationOptionIndex] = mapDatabase(db)
+      .then((templateDir) =>
+        resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
+      )
+      .then((templates) => compileTemplate(templates, templateArray))
+      .then((databaseRows) => infoFromDb(databaseRows, dbRowTypeArray))
+      .then((databaseRowsWithMoreInfo) =>
+        groupInfoIntoDbRow(databaseRowsWithMoreInfo, groupInfoToDb)
+      )
+      .then((helperResolution) => resolveHelper(helperResolution, helperApis))
+      .then((directoryResolution) => {
+        return new Promise((resolve, reject) => {
+          directoryResolution.generationDirectory = generationDirectory
+          resolve(directoryResolution)
+        })
+      })
+      .then((resultToFile) =>
+        generateDataToFile(resultToFile, filename, handlebarTemplatePerDataRow)
+      )
+      .catch((err) => logError(err))
+  }
+
+  return Promise.all(generatedCodeMap).catch((error) => {
+    logError(error)
+  })
+}
