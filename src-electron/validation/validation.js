@@ -21,8 +21,8 @@
  *
  */
 
-import * as QueryZcl from '../db/query-zcl'
-import * as QueryConfig from '../db/query-config'
+import * as QueryZcl from '../db/query-zcl.js'
+import * as QueryConfig from '../db/query-config.js'
 
 export function validateAttribute(
   db,

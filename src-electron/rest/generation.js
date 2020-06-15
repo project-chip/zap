@@ -21,7 +21,7 @@
  * @module REST API: generation functions
  */
 
-import { logError, logInfo } from '../util/env'
+import { logError, logInfo } from '../util/env.js'
 import {
   mapDatabase,
   resolveTemplateDirectory,

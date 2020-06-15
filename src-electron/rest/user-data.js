@@ -21,8 +21,8 @@
  * @module REST API: user data
  */
 
-import { logInfo } from '../util/env'
-import { httpCode } from '../server/http-server'
+import { logInfo } from '../util/env.js'
+import { httpCode } from '../server/http-server.js'
 import {
   insertOrReplaceClusterState,
   insertOrUpdateAttributeState,
@@ -34,9 +34,12 @@ import {
   insertEndpointType,
   deleteEndpointType,
   updateEndpointType,
-} from '../db/query-config'
-import { validateEndpoint, validateAttribute } from '../validation/validation'
-import * as RestApi from '../../src-shared/rest-api'
+} from '../db/query-config.js'
+import {
+  validateEndpoint,
+  validateAttribute,
+} from '../validation/validation.js'
+import * as RestApi from '../../src-shared/rest-api.js'
 
 export function registerSessionApi(db, app) {
   app.post('/post/cluster', (request, response) => {

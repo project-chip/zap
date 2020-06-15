@@ -16,8 +16,8 @@
  */
 
 import { logInfo } from './env'
-import { crc32 } from 'crc'
 
+const crc32 = require('crc').crc32
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
  *

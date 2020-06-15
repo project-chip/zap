@@ -138,7 +138,7 @@ describe('Session specific tests', () => {
     return axios.get(`${baseUrl}/preview/cluster-id`).then((response) => {
       expect(response.data).toMatch(/\#define ZCL_BASIC_CLUSTER_ID 0x0000/)
     })
-  })
+  }, 2000)
 
   test('test that there is generation data in the print-cluster.h file', () => {
     return axios.get(`${baseUrl}/preview/print-cluster`).then((response) => {
@@ -146,20 +146,20 @@ describe('Session specific tests', () => {
         /\#if defined(ZCL_USING_BASIC_CLUSTER_SERVER) || defined(ZCL_USING_BASIC_CLUSTER_CLIENT)/
       )
     })
-  })
+  }, 2000)
 
   test('test that there is generation data in the af-structs.h file', () => {
     return axios.get(`${baseUrl}/preview/af-structs`).then((response) => {
       expect(response.data).toMatch(/typedef struct _IasAceZoneStatusResult {/)
       expect(response.data).toMatch(/            uint8_t zoneId;/)
     })
-  })
+  }, 2000)
 
   test('test that there is generation data in the att-storage.h file', () => {
     return axios.get(`${baseUrl}/preview/att-storage`).then((response) => {
       expect(response.data).toMatch(/\#define ATTRIBUTE_MASK_WRITABLE \(0x01\)/)
     })
-  })
+  }, 2000)
 
   test('test that there is generation data in the debug-printing-zcl.h file', () => {
     return axios
@@ -172,7 +172,7 @@ describe('Session specific tests', () => {
           /    \#define emberAfBasicClusterPrint\(...\) emberAfPrint\(EMBER_AF_PRINT_BASIC_CLUSTER, __VA_ARGS__\)/
         )
       })
-  })
+  }, 2000)
 
   test('test that there is generation data in the callback-zcl.h file', () => {
     return axios.get(`${baseUrl}/preview/callback-zcl`).then((response) => {
@@ -187,7 +187,7 @@ describe('Session specific tests', () => {
       )
       expect(response.data).toMatch(/                uint16_t timeout/)
     })
-  })
+  }, 2000)
 
   test('test that there is generation data in the client-command-macro.h file', () => {
     return axios
@@ -211,11 +211,11 @@ describe('Session specific tests', () => {
           /                                    apdu\);/
         )
       })
-  })
+  }, 2000)
 
   test('No generation test', () => {
     return axios.get(`${baseUrl}/preview/no-file`).then((response) => {
       expect(response.data).toMatch(/No Generation Result for this file/)
     })
-  })
+  }, 2000)
 })

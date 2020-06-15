@@ -21,10 +21,11 @@
  * @module JS API: http server
  */
 
-import bodyParser from 'body-parser'
-import express from 'express'
-import session from 'express-session'
-import path from 'path'
+const bodyParser = require('body-parser')
+const express = require('express')
+const session = require('express-session')
+const path = require('path')
+
 import { ensureZapSessionId } from '../db/query-session.js'
 import * as Env from '../util/env.js'
 import { registerAdminApi } from '../rest/admin.js'

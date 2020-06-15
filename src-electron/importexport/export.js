@@ -19,7 +19,7 @@
  * This file provides the functionality that reads the ZAP data from a database
  * and exports it into a file.
  */
-const Fs = require('fs')
+const fs = require('fs')
 
 import * as QuerySession from '../db/query-session.js'
 import * as Env from '../util/env.js'
@@ -42,7 +42,7 @@ export function exportDataIntoFile(db, sessionId, filePath) {
       Env.logInfo(state)
       return new Promise((resolve, reject) => {
         Env.logInfo(`Writing the file to ${filePath}`)
-        Fs.writeFile(filePath, JSON.stringify(state, null, 2), (err) => {
+        fs.writeFile(filePath, JSON.stringify(state, null, 2), (err) => {
           if (err) reject(err)
           resolve()
         })

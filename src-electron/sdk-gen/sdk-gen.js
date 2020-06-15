@@ -19,8 +19,7 @@ const path = require('path')
 const yaml = require('yaml')
 const fs = require('fs')
 
-import * as QueryZcl from '../db/query-zcl'
-import { logError } from '../util/env'
+import * as QueryZcl from '../db/query-zcl.js'
 
 function cleanse(name) {
   var ret = name.replace(/-/g, '_')

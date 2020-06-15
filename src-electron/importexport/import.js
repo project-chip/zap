@@ -19,7 +19,7 @@
  * This file provides the functionality that reads the ZAP data from a JSON file
  * and imports it into a database.
  */
-const Fs = require('fs')
+const fs = require('fs')
 
 import * as QueryConfig from '../db/query-config.js'
 import * as QuerySession from '../db/query-session.js'
@@ -35,7 +35,7 @@ import * as Mapping from './mapping.js'
  */
 export function readDataFromFile(filePath) {
   return new Promise((resolve, reject) => {
-    Fs.readFile(filePath, (err, data) => {
+    fs.readFile(filePath, (err, data) => {
       if (err) reject(err)
       let state = JSON.parse(data)
       resolve(state)
