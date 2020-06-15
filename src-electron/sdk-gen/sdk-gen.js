@@ -28,6 +28,7 @@ function cleanse(name) {
   ret = ret.replace(/\./g, '_')
   ret = ret.replace(/\(/g, '')
   ret = ret.replace(/\)/g, '')
+  ret = ret.replace(/\#/g, '')
   ret = ret.toLowerCase()
   return ret
 }
