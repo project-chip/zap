@@ -39,21 +39,7 @@ export function validateAttribute(
     QueryZcl.selectAttributeById(db, attributeRef).then(
       (attribute) =>
         new Promise((resolve, reject) => {
-          var defaultAttributeIssues = []
-          if (!isStringType(attribute.type)) {
-            if (isFloatType(attribute.type)) {
-              if (!isValidFloat(endpointAttribute.defaultValue))
-                defaultAttributeIssues.push('Invalid Float')
-              if (!checkAttributeBoundsFloat(attribute, endpointAttribute))
-                defaultAttributeIssues.push('Out of range')
-            } else {
-              if (!isValidNumberString(endpointAttribute.defaultValue))
-                defaultAttributeIssues.push('Invalid Integer')
-              if (!checkAttributeBoundsInteger(attribute, endpointAttribute))
-                defaultAttributeIssues.push('Out of range')
-            }
-          }
-          resolve({ defaultValue: defaultAttributeIssues })
+          resolve(validateSpecificAttribute(endpointAttribute, attribute))
         })
     )
   )
@@ -63,26 +49,50 @@ export function validateEndpoint(db, endpointId) {
   return QueryConfig.selectEndpoint(db, endpointId).then(
     (endpoint) =>
       new Promise((resolve, reject) => {
-        var zclEndpointIdIssues = []
-        var zclNetworkIdIssues = []
-        if (!isValidNumberString(endpoint.endpointId))
-          zclEndpointIdIssues.push('EndpointId is invalid number string')
-        if (
-          extractIntegerValue(endpoint.endpointId) > 0xffff ||
-          extractIntegerValue(endpoint.endpointId) < 0
-        )
-          zclEndpointIdIssues.push('EndpointId is out of valid range')
-        if (!isValidNumberString(endpoint.networkId))
-          zclNetworkIdIssues.push('NetworkId is invalid number string')
-        if (extractIntegerValue(endpoint.endpointId) == 0)
-          zclEndpointIdIssues.push('0 is not a valid endpointId')
-        resolve({
-          endpointId: zclEndpointIdIssues,
-          networkId: zclNetworkIdIssues,
-        })
+        resolve(validateSpecificEndpoint(endpoint))
       })
   )
 }
+
+export function validateSpecificAttribute(endpointAttribute, attribute) {
+  var defaultAttributeIssues = []
+  if (!isStringType(attribute.type)) {
+    if (isFloatType(attribute.type)) {
+      if (!isValidFloat(endpointAttribute.defaultValue))
+        defaultAttributeIssues.push('Invalid Float')
+      //Interpreting float values
+      if (!checkAttributeBoundsFloat(attribute, endpointAttribute))
+        defaultAttributeIssues.push('Out of range')
+    } else {
+      if (!isValidNumberString(endpointAttribute.defaultValue))
+        defaultAttributeIssues.push('Invalid Integer')
+      if (!checkAttributeBoundsInteger(attribute, endpointAttribute))
+        defaultAttributeIssues.push('Out of range')
+    }
+  }
+  return { defaultValue: defaultAttributeIssues }
+}
+
+export function validateSpecificEndpoint(endpoint) {
+  var zclEndpointIdIssues = []
+  var zclNetworkIdIssues = []
+  if (!isValidNumberString(endpoint.endpointId))
+    zclEndpointIdIssues.push('EndpointId is invalid number string')
+  if (
+    extractIntegerValue(endpoint.endpointId) > 0xffff ||
+    extractIntegerValue(endpoint.endpointId) < 0
+  )
+    zclEndpointIdIssues.push('EndpointId is out of valid range')
+  if (!isValidNumberString(endpoint.networkId))
+    zclNetworkIdIssues.push('NetworkId is invalid number string')
+  if (extractIntegerValue(endpoint.endpointId) == 0)
+    zclEndpointIdIssues.push('0 is not a valid endpointId')
+  return {
+    endpointId: zclEndpointIdIssues,
+    networkId: zclNetworkIdIssues,
+  }
+}
+
 //This applies to both actual numbers as well as octet strings.
 export function isValidNumberString(value) {
   //We test to see if the number is valid in hex. Decimals numbers also pass this test
@@ -90,7 +100,7 @@ export function isValidNumberString(value) {
 }
 
 export function isValidFloat(value) {
-  return /^[0-9]+(\.)?[0-9]*$/.test(value)
+  return /^[0-9]*(\.)?[0-9]*$/.test(value)
 }
 
 export function extractFloatValue(value) {
@@ -100,14 +110,14 @@ export function extractFloatValue(value) {
 export function extractIntegerValue(value) {
   if (/^[0-9]+$/.test(value)) {
     return parseInt(value)
-  } else if (/^[0-9]+$/.test(value)) {
+  } else if (/^[0-9ABCDEF]+$/.test(value)) {
     return parseInt(value, 16)
   } else {
     return parseInt(value, 16)
   }
 }
 
-function getBoundsInteger(attribute) {
+export function getBoundsInteger(attribute) {
   return {
     min: extractIntegerValue(attribute.min),
     max: extractIntegerValue(attribute.max),
@@ -132,7 +142,7 @@ function checkAttributeBoundsFloat(attribute, endpointAttribute) {
   return checkBoundsFloat(defaultValue, min, max)
 }
 
-function getBoundsFloat(attribute) {
+export function getBoundsFloat(attribute) {
   return {
     min: extractFloatValue(attribute.min),
     max: extractFloatValue(attribute.max),
@@ -153,7 +163,6 @@ export function isStringType(type) {
     case 'LONG_CHAR_STRING':
     case 'LONG_OCTET_STRING':
       return true
-      break
     default:
       return false
   }
@@ -165,7 +174,6 @@ export function isFloatType(type) {
     case 'FLOAT_SINGLE':
     case 'FLOAT_DOUBLE':
       return true
-      break
     default:
       return false
   }

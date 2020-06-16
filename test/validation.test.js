@@ -19,34 +19,59 @@
  */
 
 import * as Validation from '../src-electron/validation/validation'
+import { version } from '../package.json'
+
+import { initDatabase, loadSchema } from '../src-electron/db/db-api'
+
+import { logInfo, schemaFile, sqliteTestFile } from '../src-electron/util/env'
+import { loadZcl } from '../src-electron/zcl/zcl-loader'
+import { zclPropertiesFile } from '../src-electron/main-process/args'
+
+import { selectAttributesByClusterCodeAndManufacturerCode } from '../src-electron/db/query-zcl'
+
+var db
+
+beforeAll(() => {
+  var file = sqliteTestFile('validation')
+  return initDatabase(file)
+    .then((d) => loadSchema(d, schemaFile(), version))
+    .then((d) => loadZcl(d, zclPropertiesFile))
+    .then((d) => {
+      db = d
+      logInfo('DB initialized.')
+    })
+})
 
 test('isValidNumberString Functions', () => {
   // Integer
-  expect(Validation.isValidNumberString('0x0000'))
-  expect(Validation.isValidNumberString('0x0001'))
-  expect(!Validation.isValidNumberString('0x00asdfajaklsf;01'))
+  expect(Validation.isValidNumberString('0x0000')).toBeTruthy()
+  expect(Validation.isValidNumberString('0x0001')).toBeTruthy()
+  expect(!Validation.isValidNumberString('0x00asdfajaklsf;01')).toBeTruthy()
   // Float
-  expect(Validation.isValidFloat('.0001'))
-  expect(Validation.isValidFloat('5.6'))
-  expect(Validation.isValidFloat('5'))
-  expect(!Validation.isValidFloat('5.6....'))
+  expect(Validation.isValidFloat('5.6')).toBeTruthy()
+  expect(Validation.isValidFloat('5')).toBeTruthy()
+  expect(!Validation.isValidFloat('5.6....')).toBeTruthy()
+  expect(Validation.isValidFloat('.0001')).toBeTruthy()
 })
 
 test('extractValue Functions', () => {
   //Integer
-  expect(Validation.extractIntegerValue('5') == 5)
-  expect(Validation.extractIntegerValue('0x05') == 5)
-  expect(Validation.extractIntegerValue('A') == 10)
+  expect(Validation.extractIntegerValue('5') == 5).toBeTruthy()
+  expect(Validation.extractIntegerValue('0x05') == 5).toBeTruthy()
+  expect(Validation.extractIntegerValue('A') == 10).toBeTruthy()
   //float
-  expect(Validation.extractFloatValue('0.53') == 0.53)
-  expect(Validation.extractFloatValue('.53') == 0.53)
+  expect(Validation.extractFloatValue('0.53') == 0.53).toBeTruthy()
+  expect(Validation.extractFloatValue('.53') == 0.53).toBeTruthy()
 })
 
 test('Test int bounds', () => {
   //Integer
-  expect(Validation.checkBoundsInteger(50, 25, 60))
-  expect(!Validation.checkBoundsInteger(50, 25, 20))
-  expect(!Validation.checkBoundsInteger(50, 51, 55))
+  expect(Validation.checkBoundsInteger(50, 25, 60)).toBeTruthy()
+  expect(!Validation.checkBoundsInteger(50, 25, 20)).toBeTruthy()
+  expect(!Validation.checkBoundsInteger(50, 51, 55)).toBeTruthy()
+  expect(!Validation.checkBoundsInteger(30, 'avaa', 2)).toBeTruthy()
+  expect(!Validation.checkBoundsInteger(30, 45, 50)).toBeTruthy()
+  expect(Validation.checkBoundsInteger('asdfa', 40, 50)).toBeFalsy()
 
   //Float
   expect(Validation.checkBoundsFloat(35.0, 25, 50.0))
@@ -65,4 +90,150 @@ test('Validate types', () => {
   expect(Validation.isFloatType('FLOAT_SINGLE'))
   expect(Validation.isFloatType('FLOAT_DOUBLE'))
   expect(!Validation.isFloatType('LONG_OCTET_STRING'))
+})
+
+test('Integer Test', () => {
+  return selectAttributesByClusterCodeAndManufacturerCode(
+    db,
+    '0x0003',
+    null
+  ).then((attribute) => {
+    var attribute = attribute.filter((e) => {
+      return e.code === '0x0000'
+    })[0]
+
+    //Test Constraints
+    var minMax = Validation.getBoundsInteger(attribute)
+    expect(minMax.min == 0).toBeTruthy()
+    expect(minMax.max === 0xffff).toBeTruthy()
+
+    return Promise.resolve()
+  })
+})
+
+test('validate Attribute Test', () => {
+  var fakeEndpointAttribute = {
+    defaultValue: '30',
+  }
+
+  var fakeAttribute = {
+    type: 'UINT16',
+    min: '0x0010',
+    max: '50',
+  }
+
+  expect(
+    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+      .defaultValue.length == 0
+  ).toBeTruthy()
+  // Check for if attribute is out of bounds.
+  fakeEndpointAttribute.defaultValue = '60'
+  expect(
+    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+      .defaultValue.length == 0
+  ).toBeFalsy()
+  fakeEndpointAttribute.defaultValue = '5'
+  expect(
+    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+      .defaultValue.length == 0
+  ).toBeFalsy()
+
+  //Check if attribute is actually a number
+  fakeEndpointAttribute.defaultValue = 'xxxxxx'
+  expect(
+    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+      .defaultValue.length == 0
+  ).toBeFalsy()
+
+  var fakeAttribute = {
+    type: 'FLOAT_SINGLE',
+    min: '0.5',
+    max: '2',
+  }
+
+  var fakeEndpointAttribute = {
+    defaultValue: '1.5',
+  }
+  expect(
+    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+      .defaultValue.length == 0
+  ).toBeTruthy()
+  //Check out of bounds.
+  var fakeEndpointAttribute = {
+    defaultValue: '4.5',
+  }
+  expect(
+    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+      .defaultValue.length == 0
+  ).toBeFalsy()
+  var fakeEndpointAttribute = {
+    defaultValue: '.25',
+  }
+  expect(
+    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+      .defaultValue.length == 0
+  ).toBeFalsy()
+
+  //Check if attribute is actually a number
+  fakeEndpointAttribute.defaultValue = 'xxxxxx'
+  expect(
+    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+      .defaultValue.length == 0
+  ).toBeFalsy()
+
+  // Expect no issues with strings.
+  var fakeAttribute = {
+    type: 'CHAR_STRING',
+  }
+  var fakeEndpointAttribute = {
+    defaultValue: '30adfadf',
+  }
+  expect(
+    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+      .defaultValue.length == 0
+  ).toBeTruthy()
+})
+
+test('validate endpoint test', () => {
+  //Validate normal operation
+  var endpoint = {
+    endpointId: '1',
+    networkId: '0',
+  }
+  expect(
+    Validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+  ).toBeTruthy()
+  expect(
+    Validation.validateSpecificEndpoint(endpoint).networkId.length == 0
+  ).toBeTruthy()
+
+  //Validate not a number
+  var endpoint = {
+    endpointId: 'blah',
+    networkId: 'blah',
+  }
+  expect(
+    Validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+  ).toBeFalsy()
+  expect(
+    Validation.validateSpecificEndpoint(endpoint).networkId.length == 0
+  ).toBeFalsy()
+
+  //Validate 0 not being valid Endpoint ID
+  var endpoint = {
+    endpointId: '0',
+    networkId: 'blah',
+  }
+  expect(
+    Validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+  ).toBeFalsy()
+
+  //Validate out of bounds on endpointId
+  var endpoint = {
+    endpointId: '0xFFFFFFFF',
+    networkId: 'blah',
+  }
+  expect(
+    Validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+  ).toBeFalsy()
 })

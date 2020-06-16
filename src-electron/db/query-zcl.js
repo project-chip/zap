@@ -200,6 +200,27 @@ export function selectAttributesByClusterId(db, clusterId) {
   ).then((rows) => rows.map(DbMapping.dbMap.attribute))
 }
 
+export function selectAttributesByClusterCodeAndManufacturerCode(
+  db,
+  clusterCode,
+  manufacturerCode
+) {
+  var manufacturerString
+  if (manufacturerCode == null) {
+    manufacturerString = ' AND CLUSTER.MANUFACTURER_CODE IS NULL'
+  } else {
+    manufacturerString =
+      ' AND CLUSTER.MANUFACTURER_CODE IS NULL OR MANUFACTURER_CODE = ' +
+      manufacturerCode
+  }
+  return DbApi.dbAll(
+    db,
+    `SELECT ATTRIBUTE.ATTRIBUTE_ID, ATTRIBUTE.CLUSTER_REF, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.NAME, ATTRIBUTE.TYPE, ATTRIBUTE.SIDE, ATTRIBUTE.DEFINE, ATTRIBUTE.MIN, ATTRIBUTE.MAX, ATTRIBUTE.IS_WRITABLE, ATTRIBUTE.DEFAULT_VALUE, ATTRIBUTE.IS_OPTIONAL, ATTRIBUTE.IS_REPORTABLE FROM ATTRIBUTE, CLUSTER WHERE CLUSTER.CODE = ? AND CLUSTER.CLUSTER_ID = ATTRIBUTE.CLUSTER_REF` +
+      manufacturerString,
+    [clusterCode]
+  ).then((rows) => rows.map(DbMapping.dbMap.attribute))
+}
+
 export function selectAttributeById(db, id) {
   return DbApi.dbGet(
     db,
