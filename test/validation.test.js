@@ -35,12 +35,15 @@ beforeAll(() => {
   var file = sqliteTestFile('validation')
   return initDatabase(file)
     .then((d) => loadSchema(d, schemaFile(), version))
-    .then((d) => loadZcl(d, zclPropertiesFile))
     .then((d) => {
       db = d
       logInfo('DB initialized.')
     })
 })
+
+test('Load the static data.', () => {
+  return loadZcl(db, zclPropertiesFile)
+}, 5000)
 
 test('isValidNumberString Functions', () => {
   // Integer
@@ -109,7 +112,7 @@ test('Integer Test', () => {
 
     return Promise.resolve()
   })
-})
+}, 1000)
 
 test('validate Attribute Test', () => {
   var fakeEndpointAttribute = {
@@ -192,7 +195,7 @@ test('validate Attribute Test', () => {
     Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
       .defaultValue.length == 0
   ).toBeTruthy()
-})
+}, 2000)
 
 test('validate endpoint test', () => {
   //Validate normal operation
@@ -236,4 +239,4 @@ test('validate endpoint test', () => {
   expect(
     Validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
   ).toBeFalsy()
-})
+}, 2000)
