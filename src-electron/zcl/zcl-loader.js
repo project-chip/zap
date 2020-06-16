@@ -19,8 +19,12 @@ import fs from 'fs'
 import path from 'path'
 import properties from 'properties'
 import { parseString } from 'xml2js'
-import { dbBeginTransaction, dbCommit } from '../db/db-api'
-import { forPathCrc, insertPathCrc, updatePathCrc } from '../db/query-package'
+import { dbBeginTransaction, dbCommit } from '../db/db-api.js'
+import {
+  forPathCrc,
+  insertPathCrc,
+  updatePathCrc,
+} from '../db/query-package.js'
 import {
   insertBitmaps,
   insertClusterExtensions,
@@ -33,9 +37,9 @@ import {
   updateAttributeReferencesForDeviceTypeReferences,
   updateClusterReferencesForDeviceTypeClusters,
   updateCommandReferencesForDeviceTypeReferences,
-} from '../db/query-zcl'
-import { logError, logInfo } from '../util/env'
-import { calculateCrc } from '../util/util.js'
+} from '../db/query-zcl.js'
+const { logError, logInfo } = require('../util/env.js')
+const { calculateCrc } = require('../util/util.js')
 
 const fsp = fs.promises
 

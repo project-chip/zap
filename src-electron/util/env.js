@@ -33,26 +33,30 @@ var pino_logger = pino({
 var explicit_logger_set = false
 var dbInstance
 
-export function setDevelopmentEnv() {
+function setDevelopmentEnv() {
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
   global.__indexDirOffset = path.join('../../dist/spa')
 }
+exports.setDevelopmentEnv = setDevelopmentEnv
 
-export function setProductionEnv() {
+function setProductionEnv() {
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
   global.__indexDirOffset = path.join('.').replace(/\\/g, '\\\\')
 }
+exports.setProductionEnv = setProductionEnv
 
-export function setMainDatabase(db) {
+function setMainDatabase(db) {
   dbInstance = db
 }
+exports.setMainDatabase = setMainDatabase
 
-export function mainDatabase() {
+function mainDatabase() {
   return dbInstance
 }
+exports.mainDatabase = mainDatabase
 
 // Returns an app directory. It creates it, if it doesn't exist
-export function appDirectory() {
+function appDirectory() {
   var appDir = path.join(os.homedir(), '.silabs', 'zap')
 
   if (!fs.existsSync(appDir)) {
@@ -62,57 +66,68 @@ export function appDirectory() {
   }
   return appDir
 }
+exports.appDirectory = appDirectory
 
-export function iconsDirectory() {
+function iconsDirectory() {
   return path.join(__dirname, '../icons')
 }
+exports.iconsDirectory = iconsDirectory
 
-export function schemaFile() {
+function schemaFile() {
   var p = path.join(__dirname, '../db/zap-schema.sql')
   if (!fs.existsSync(p)) p = path.join(__dirname, '../zap-schema.sql')
   if (!fs.existsSync(p))
     throw new Error('Could not locate zap-schema.sql file.')
   return p
 }
+exports.schemaFile = schemaFile
 
-export function sqliteFile() {
+function sqliteFile() {
   return path.join(appDirectory(), 'zap.sqlite')
 }
+exports.sqliteFile = sqliteFile
 
-export function sqliteTestFile(id) {
+function sqliteTestFile(id) {
   return path.join(appDirectory(), `test-${id}.sqlite`)
 }
+exports.sqliteTestFile = sqliteTestFile
 
-export function logInitStdout() {
+function logInitStdout() {
   if (!explicit_logger_set) {
     pino_logger = pino()
     explicit_logger_set = true
   }
 }
+exports.logInitStdout = logInitStdout
 
-export function logInitLogFile() {
+function logInitLogFile() {
   if (!explicit_logger_set) {
     pino_logger = pino(pino.destination(path.join(appDirectory(), 'zap.log')))
     explicit_logger_set = true
   }
 }
+exports.logInitLogFile = logInitLogFile
 
 // Use this function to log info-level messages
-export function logInfo(msg) {
+function logInfo(msg) {
   return pino_logger.info(msg)
 }
+exports.logInfo = logInfo
 
 // Use this function to log error-level messages
-export function logError(msg) {
+function logError(msg) {
   return pino_logger.error(msg)
 }
+exports.logError = logError
 
 // Use this function to log warning-level messages
-export function logWarning(msg) {
+function logWarning(msg) {
   return pino_logger.warn(msg)
 }
+exports.logWarning = logWarning
 
 // Use this function to log SQL messages.
-export function logSql(msg) {
+function logSql(msg) {
   return pino_logger.debug(msg)
 }
+exports.logSql = logSql

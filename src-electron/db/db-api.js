@@ -24,8 +24,10 @@
 const Sq = require('sqlite3')
 const Fs = require('fs')
 
-import * as Env from '../util/env.js'
-import { calculateCrc } from '../util/util.js'
+const Env = require('../util/env.js')
+
+const { calculateCrc } = require('../util/util.js')
+
 import { getPathCrc } from './query-package.js'
 
 /**

@@ -20,8 +20,9 @@
  *
  * @module DB API: zcl database access
  */
+const Env = require('../util/env.js')
+
 import * as DbApi from './db-api.js'
-import * as Env from '../util/env.js'
 import * as DbMapping from './db-mapping.js'
 
 /**

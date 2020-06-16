@@ -18,9 +18,9 @@
 const { Menu, Tray, nativeImage, app } = require('electron')
 const path = require('path')
 const fs = require('fs')
+const { logInfo, iconsDirectory, logError } = require('../util/env.js')
 
 import { windowCreate } from './window.js'
-import { logInfo, iconsDirectory, logError } from '../util/env.js'
 let tray
 
 export function initTray(port) {

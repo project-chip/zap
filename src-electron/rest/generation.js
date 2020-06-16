@@ -21,7 +21,8 @@
  * @module REST API: generation functions
  */
 
-import { logError, logInfo } from '../util/env.js'
+const { logError, logInfo } = require('../util/env.js')
+
 import {
   mapDatabase,
   resolveTemplateDirectory,

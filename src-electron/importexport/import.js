@@ -20,10 +20,10 @@
  * and imports it into a database.
  */
 const fs = require('fs')
+const Env = require('../util/env.js')
 
 import * as QueryConfig from '../db/query-config.js'
 import * as QuerySession from '../db/query-session.js'
-import * as Env from '../util/env.js'
 import * as Mapping from './mapping.js'
 
 /**

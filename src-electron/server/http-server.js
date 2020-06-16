@@ -25,9 +25,9 @@ const bodyParser = require('body-parser')
 const express = require('express')
 const session = require('express-session')
 const path = require('path')
+const Env = require('../util/env.js')
 
 import { ensureZapSessionId } from '../db/query-session.js'
-import * as Env from '../util/env.js'
 import { registerAdminApi } from '../rest/admin.js'
 import { registerGenerationApi } from '../rest/generation.js'
 import { registerStaticZclApi } from '../rest/static-zcl.js'
@@ -80,6 +80,7 @@ export function initHttpServer(db, port) {
           })
           .catch((err) => {
             Env.logError('Could not create session: ' + err.message)
+            Env.logError(err)
           })
       }
     })

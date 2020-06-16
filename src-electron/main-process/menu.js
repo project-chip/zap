@@ -16,6 +16,12 @@
  */
 
 const { dialog, Menu } = require('electron')
+const {
+  appDirectory,
+  logError,
+  logInfo,
+  mainDatabase,
+} = require('../util/env.js')
 
 import { getSessionInfoFromWindowId } from '../db/query-session.js'
 import {
@@ -29,7 +35,6 @@ import {
   resolveTemplateDirectory,
   generateCode,
 } from '../generator/static-generator.js'
-import { appDirectory, logError, logInfo, mainDatabase } from '../util/env.js'
 import { showErrorMessage } from './ui.js'
 import { windowCreate } from './window.js'
 import { selectFileLocation, insertFileLocation } from '../db/query-generic.js'

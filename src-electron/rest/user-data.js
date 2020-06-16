@@ -21,7 +21,8 @@
  * @module REST API: user data
  */
 
-import { logInfo } from '../util/env.js'
+const { logInfo } = require('../util/env.js')
+
 import { httpCode } from '../server/http-server.js'
 import {
   insertOrReplaceClusterState,

@@ -40,7 +40,7 @@ import {
   selectAllGlobalCommands,
   selectAllClusterCommands,
 } from '../db/query-zcl.js'
-import { logError, logInfo } from '../util/env.js'
+const { logError, logInfo } = require('../util/env.js')
 import {
   getHexValue,
   getStrong,

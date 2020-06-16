@@ -14,8 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-import * as Env from '../util/env.js'
+const env = require('../util/env.js')
 
 /**
  * This file is used specifically and only for development. It installs
@@ -23,8 +22,7 @@ import * as Env from '../util/env.js'
  *  modify this file, but it can be used to extend your development
  *  environment.
  */
-
-Env.logInitStdout()
+env.logInitStdout()
 
 // Install `electron-debug` with `devtron`
 require('electron-debug')({ showDevTools: false })
@@ -36,7 +34,7 @@ require('electron').app.on('ready', () => {
     .default(installExtension.VUEJS_DEVTOOLS)
     .then(() => {})
     .catch((err) => {
-      Env.logError('Unable to install `vue-devtools`: \n', err)
+      env.logError('Unable to install `vue-devtools`: \n', err)
     })
 })
 
