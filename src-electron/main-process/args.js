@@ -60,6 +60,7 @@ export function processCommandLineArguments(argv) {
     })
     .option('output', {
       desc: 'Specifying the output directory for generation',
+      alias: 'o',
       type: 'string',
     })
     .option('template', {
