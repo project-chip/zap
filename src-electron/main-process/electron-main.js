@@ -21,7 +21,7 @@ import { version } from '../../package.json'
 import { closeDatabase, initDatabase, loadSchema } from '../db/db-api.js'
 import { initHttpServer, httpServerPort } from '../server/http-server.js'
 import { loadZcl } from '../zcl/zcl-loader.js'
-import * as Args from './args.js'
+const Args = require('./args.js')
 const {
   logError,
   logInfo,
@@ -59,7 +59,7 @@ function startSelfCheck() {
   initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
     .then((db) => loadSchema(db, schemaFile(), version))
-    .then((db) => loadZcl(db, Args.zclPropertiesFile))
+    .then((db) => loadZcl(db, args.zclPropertiesFile))
     .then(() => {
       logInfo('Self-check done!')
     })
@@ -73,8 +73,8 @@ function startNormal(ui, showUrl) {
   initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
     .then((db) => loadSchema(db, schemaFile(), version))
-    .then((db) => loadZcl(db, Args.zclPropertiesFile))
-    .then((db) => initHttpServer(db, Args.httpPort))
+    .then((db) => loadZcl(db, args.zclPropertiesFile))
+    .then((db) => initHttpServer(db, args.httpPort))
     .then(() => {
       if (ui) {
         initializeElectronUi(httpServerPort())
@@ -111,7 +111,7 @@ function applyGenerationSettings(
     .then((db) =>
       loadZcl(
         db,
-        zclPropertiesFilePath ? zclPropertiesFilePath : Args.zclPropertiesFile
+        zclPropertiesFilePath ? zclPropertiesFilePath : args.zclPropertiesFile
       )
     )
     .then((db) =>
@@ -148,7 +148,7 @@ export function startSdkGeneration(
     .then((db) =>
       loadZcl(
         db,
-        zclPropertiesFilePath ? zclPropertiesFilePath : Args.zclPropertiesFile
+        zclPropertiesFilePath ? zclPropertiesFilePath : args.zclPropertiesFile
       )
     )
     .then((db) =>
@@ -162,7 +162,7 @@ export function startSdkGeneration(
 }
 
 app.on('ready', () => {
-  var argv = Args.processCommandLineArguments(process.argv)
+  var argv = args.processCommandLineArguments(process.argv)
 
   logInfo(argv)
 
@@ -189,7 +189,7 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   logInfo('Activate...')
-  windowCreateIfNotThere(Args.httpPort)
+  windowCreateIfNotThere(args.httpPort)
 })
 
 app.on('quit', () => {

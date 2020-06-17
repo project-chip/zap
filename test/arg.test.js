@@ -18,11 +18,11 @@
  * @jest-environment node
  */
 
-import { processCommandLineArguments } from '../src-electron/main-process/args'
-import yargs from 'yargs'
+const args = require('../src-electron/main-process/args')
+const yargs = require('yargs')
 
 test('Test basic command line processing', () => {
-  var args = processCommandLineArguments([
+  var a = args.processCommandLineArguments([
     'node',
     'test.js',
     '--noUI',
@@ -33,11 +33,11 @@ test('Test basic command line processing', () => {
     'XmlRoot',
   ])
 
-  expect(args.noUI).toBeTruthy()
-  expect(args.httpPort).toBeTruthy()
-  expect(args.httpPort).toEqual(123)
-  expect(args.arglessArg).toBeTruthy()
-  expect(args.xmlRoot).toBe('XmlRoot')
+  expect(a.noUI).toBeTruthy()
+  expect(a.httpPort).toBeTruthy()
+  expect(a.httpPort).toEqual(123)
+  expect(a.arglessArg).toBeTruthy()
+  expect(a.xmlRoot).toBe('XmlRoot')
 })
 
 test('Verify how yargs works', () => {
