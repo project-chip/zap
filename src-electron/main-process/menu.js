@@ -20,18 +20,8 @@ const { appDirectory, logInfo, mainDatabase } = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const queryGeneric = require('../db/query-generic.js')
 const { getSessionInfoFromWindowId } = require('../db/query-session.js')
+const staticGenerator = require('../generator/static-generator.js')
 
-import {
-  compileTemplate,
-  generateDataToFile,
-  getGenerationProperties,
-  groupInfoIntoDbRow,
-  infoFromDb,
-  mapDatabase,
-  resolveHelper,
-  resolveTemplateDirectory,
-  generateCode,
-} from '../generator/static-generator.js'
 import { showErrorMessage } from './ui.js'
 import { windowCreate } from './window.js'
 import { exportDataIntoFile } from '../importexport/export.js'
@@ -252,16 +242,16 @@ function generateInDir(browserWindow) {
     .then((filePath) => {
       if (filePath != null) {
         generationDirectory = filePath
-        getGenerationProperties(
-          generationOptionsFile
-        ).then((generationOptions) =>
-          generateCode(
-            mainDatabase(),
-            generationOptions,
-            generationDirectory,
-            handlebarTemplateDirectory
+        staticGenerator
+          .getGenerationProperties(generationOptionsFile)
+          .then((generationOptions) =>
+            staticGenerator.generateCode(
+              mainDatabase(),
+              generationOptions,
+              generationDirectory,
+              handlebarTemplateDirectory
+            )
           )
-        )
         dialog.showMessageBox(browserWindow, {
           title: 'Generation',
           message: `Generation Output: ${filePath}`,
@@ -280,16 +270,16 @@ function generateInDir(browserWindow) {
  */
 function generateCodeViaCli(generationDir) {
   generationDirectory = generationDir
-  return getGenerationProperties(
-    generationOptionsFile
-  ).then((generationOptions) =>
-    generateCode(
-      mainDatabase(),
-      generationOptions,
-      generationDirectory,
-      handlebarTemplateDirectory
+  return staticGenerator
+    .getGenerationProperties(generationOptionsFile)
+    .then((generationOptions) =>
+      staticGenerator.generateCode(
+        mainDatabase(),
+        generationOptions,
+        generationDirectory,
+        handlebarTemplateDirectory
+      )
     )
-  )
 }
 exports.generateCodeViaCli = generateCodeViaCli
 

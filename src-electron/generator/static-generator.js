@@ -28,7 +28,7 @@ const {
 } = require('fs-extra')
 
 const { logError, logInfo } = require('../util/env.js')
-import {
+const {
   getHexValue,
   getStrong,
   getUppercase,
@@ -42,7 +42,7 @@ import {
   getDirection,
   trimNewLinesTabs,
   getFormatCharactersForCommandArguments,
-} from '../handlebars/helpers/helper-utils.js'
+} = require('../handlebars/helpers/helper-utils.js')
 
 /**
  * Find the handlebar template file, compile and return the template file.
@@ -74,7 +74,7 @@ Handlebars.getTemplate = function (templateDirectory = '', name = '') {
  * @param {Object} db database
  * @returns A promise with resolve listed on the map
  */
-export function mapDatabase(db) {
+function mapDatabase(db) {
   return new Promise((resolve, reject) => {
     var resultantMap = {}
     resultantMap.database = db
@@ -92,7 +92,7 @@ export function mapDatabase(db) {
  * @returns A promise with resolve listed on a map which has the handlebar
  * directory.
  */
-export function resolveTemplateDirectory(map, handlebarTemplateDirectory = '') {
+function resolveTemplateDirectory(map, handlebarTemplateDirectory = '') {
   return new Promise((resolve, reject) => {
     map.handlebarTemplateDirectory = handlebarTemplateDirectory
     resolve(map)
@@ -108,7 +108,7 @@ export function resolveTemplateDirectory(map, handlebarTemplateDirectory = '') {
  * @returns A promise with resolve listed on a map which has the compiled
  * templates.
  */
-export function compileTemplate(map, templateFiles) {
+function compileTemplate(map, templateFiles) {
   return new Promise((resolve, reject) => {
     for (var templateFile of templateFiles) {
       var compiledTemplate = Handlebars.getTemplate(
@@ -133,7 +133,7 @@ export function compileTemplate(map, templateFiles) {
  * type of database row
  * @returns A promise with resolve listed on a map which has the database rows.
  */
-export function infoFromDb(map, dbRowTypeArray) {
+function infoFromDb(map, dbRowTypeArray) {
   return new Promise((resolve, reject) => {
     var db = map.database
     var dbInfo = {}
@@ -200,7 +200,7 @@ export function infoFromDb(map, dbRowTypeArray) {
  * compiled templates and database rows along with additional grouped by
  * content.
  */
-export function groupInfoIntoDbRow(map, groupByParams) {
+function groupInfoIntoDbRow(map, groupByParams) {
   let groupDbRowInfo = []
   let i = 0
   if (groupByParams) {
@@ -284,7 +284,7 @@ export function groupInfoIntoDbRow(map, groupByParams) {
  * @returns A promise with resolve listed on a map which has the helper
  * functions.
  */
-export function resolveHelper(map, helperFunctions) {
+function resolveHelper(map, helperFunctions) {
   return new Promise((resolve, reject) => {
     let handlebarHelpers = {},
       i = 0
@@ -377,10 +377,7 @@ export function resolveHelper(map, helperFunctions) {
  * @returns A promise with resolve listed on the data which can be seen in the
  * preview pane.
  */
-export function generateDataToPreview(
-  map,
-  databaseRowToHandlebarTemplateFileMap
-) {
+function generateDataToPreview(map, databaseRowToHandlebarTemplateFileMap) {
   return new Promise((resolve, reject) => {
     var result = '',
       code = ''
@@ -428,7 +425,7 @@ export function generateDataToPreview(
  * template file
  * @returns A new promise resolve listed on the data which is generated.
  */
-export function generateDataToFile(
+function generateDataToFile(
   map,
   outputFileName,
   databaseRowToHandlebarTemplateFileMap
@@ -463,7 +460,7 @@ export function generateDataToFile(
  * @param {*} filePath
  * @returns A promise with the generation options
  */
-export function getGenerationProperties(filePath) {
+function getGenerationProperties(filePath) {
   return new Promise((resolve, reject) => {
     let rawData
     let actualFilePath = filePath
@@ -483,7 +480,7 @@ export function getGenerationProperties(filePath) {
  *
  * @param {*} db
  */
-export function generateCode(
+function generateCode(
   db,
   generationOptions,
   generationDirectory,
@@ -555,3 +552,14 @@ export function generateCode(
     logError(error)
   })
 }
+// exports
+exports.mapDatabase = mapDatabase
+exports.resolveTemplateDirectory = resolveTemplateDirectory
+exports.compileTemplate = compileTemplate
+exports.infoFromDb = infoFromDb
+exports.groupInfoIntoDbRow = groupInfoIntoDbRow
+exports.resolveHelper = resolveHelper
+exports.generateDataToPreview = generateDataToPreview
+exports.generateDataToFile = generateDataToFile
+exports.getGenerationProperties = getGenerationProperties
+exports.generateCode = generateCode

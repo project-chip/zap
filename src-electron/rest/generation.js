@@ -23,7 +23,7 @@
 
 const { logError, logInfo } = require('../util/env.js')
 
-import {
+const {
   mapDatabase,
   resolveTemplateDirectory,
   compileTemplate,
@@ -32,7 +32,7 @@ import {
   resolveHelper,
   generateDataToPreview,
   getGenerationProperties,
-} from '../generator/static-generator.js'
+} = require('../generator/static-generator.js')
 
 function getGeneratedCodeMap(generationOptions, db) {
   return new Promise((resolve, reject) => {

@@ -35,7 +35,9 @@ const {
 const axios = require('axios')
 const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
 
-import fs from 'fs-extra'
+const fs = require('fs')
+const fsExtra = require('fs-extra')
+
 import { version } from '../package.json'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
 import {
@@ -110,7 +112,7 @@ describe('Session specific tests', () => {
           resolve(size)
         })
       })
-      .then(() => fs.remove('./generation-test'))
+      .then(() => fsExtra.remove('./generation-test'))
       .catch((error) => console.log(error))
   }, 2000)
 
