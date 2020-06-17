@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-import { dbAll } from '../db/db-api.js'
+const dbApi = require('../db/db-api.js')
 /**
  * This module provides the REST API to the admin functions.
  *
@@ -47,7 +47,8 @@ export function registerAdminApi(db, app) {
     var sql = request.body.sql
     if (sql) {
       var replyObject = { replyId: 'sql-result' }
-      dbAll(db, sql, [])
+      dbApi
+        .dbAll(db, sql, [])
         .then((rows) => {
           replyObject.result = rows
           response.json(replyObject)

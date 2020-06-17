@@ -19,7 +19,7 @@ import fs from 'fs'
 import path from 'path'
 import properties from 'properties'
 import { parseString } from 'xml2js'
-import { dbBeginTransaction, dbCommit } from '../db/db-api.js'
+const dbApi = require('../db/db-api.js')
 import {
   forPathCrc,
   insertPathCrc,
@@ -602,7 +602,8 @@ function parseZclFiles(db, files) {
  */
 export function loadZcl(db, propertiesFile) {
   logInfo(`Loading zcl file: ${propertiesFile}`)
-  return dbBeginTransaction(db)
+  return dbApi
+    .dbBeginTransaction(db)
     .then(() => collectZclFiles(propertiesFile))
     .then((files) => parseZclFiles(db, files))
     .then((arrayOfLaterPromisesArray) => {
@@ -613,6 +614,6 @@ export function loadZcl(db, propertiesFile) {
       return Promise.all(p)
     })
     .then(() => processPostLoading(db))
-    .then(() => dbCommit(db))
+    .then(() => dbApi.dbCommit(db))
     .then(() => db)
 }

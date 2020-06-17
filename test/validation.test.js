@@ -21,7 +21,7 @@
 import * as Validation from '../src-electron/validation/validation'
 import { version } from '../package.json'
 
-import { initDatabase, loadSchema } from '../src-electron/db/db-api'
+const dbApi = require('../src-electron/db/db-api.js')
 
 import { logInfo, schemaFile, sqliteTestFile } from '../src-electron/util/env'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
@@ -33,8 +33,9 @@ var db
 
 beforeAll(() => {
   var file = sqliteTestFile('validation')
-  return initDatabase(file)
-    .then((d) => loadSchema(d, schemaFile(), version))
+  return dbApi
+    .initDatabase(file)
+    .then((d) => dbApi.loadSchema(d, schemaFile(), version))
     .then((d) => {
       db = d
       logInfo('DB initialized.')

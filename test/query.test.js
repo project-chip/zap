@@ -19,13 +19,7 @@
  */
 import fs from 'fs'
 import { version } from '../package.json'
-import {
-  closeDatabase,
-  initDatabase,
-  loadSchema,
-  dbInsert,
-  dbGet,
-} from '../src-electron/db/db-api'
+const dbApi = require('../src-electron/db/db-api.js')
 import { zclPropertiesFile } from '../src-electron/main-process/args'
 import {
   logInfo,
@@ -76,8 +70,9 @@ var sid
 
 beforeAll(() => {
   var file = sqliteTestFile(1)
-  return initDatabase(file)
-    .then((d) => loadSchema(d, schemaFile(), version))
+  return dbApi
+    .initDatabase(file)
+    .then((d) => dbApi.loadSchema(d, schemaFile(), version))
     .then((d) => {
       db = d
       logInfo('DB initialized.')
@@ -86,7 +81,7 @@ beforeAll(() => {
 
 afterAll(() => {
   var file = sqliteTestFile(1)
-  return closeDatabase(db).then(() => {
+  return dbApi.closeDatabase(db).then(() => {
     if (fs.existsSync(file)) fs.unlinkSync(file)
   })
 })
@@ -109,24 +104,25 @@ test('File location queries.', () => {
 })
 
 test('Replace query', () => {
-  return dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
-    'thePath',
-    12,
-  ])
+  return dbApi
+    .dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
+      'thePath',
+      12,
+    ])
     .then((rowId) => expect(rowId).toBeGreaterThan(0))
     .then(() =>
-      dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
+      dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
     )
     .then((result) => expect(result.CRC).toBe(12))
     .then(() =>
-      dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
+      dbApi.dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
         'thePath',
         13,
       ])
     )
     .then((rowId) => expect(rowId).toBeGreaterThan(0))
     .then(() =>
-      dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
+      dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
     )
     .then((result) => expect(result.CRC).toBe(13))
 })

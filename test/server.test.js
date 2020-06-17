@@ -22,11 +22,7 @@ import {
   initHttpServer,
   shutdownHttpServer,
 } from '../src-electron/server/http-server'
-import {
-  initDatabase,
-  closeDatabase,
-  loadSchema,
-} from '../src-electron/db/db-api'
+const dbApi = require('../src-electron/db/db-api.js')
 import {
   logError,
   setDevelopmentEnv,
@@ -58,8 +54,9 @@ beforeAll(() => {
   setDevelopmentEnv()
   var file = sqliteTestFile(2)
   axiosInstance = axios.create({ baseURL: baseUrl })
-  return initDatabase(file)
-    .then((d) => loadSchema(d, schemaFile(), version))
+  return dbApi
+    .initDatabase(file)
+    .then((d) => dbApi.loadSchema(d, schemaFile(), version))
     .then((d) => {
       db = d
       logInfo(`Test database initialized: ${file}.`)
@@ -69,7 +66,7 @@ beforeAll(() => {
 
 afterAll(() => {
   return shutdownHttpServer()
-    .then(() => closeDatabase(db))
+    .then(() => dbApi.closeDatabase(db))
     .then(() => {
       var file = sqliteTestFile(2)
       logInfo(`Removing test database: ${file}`)

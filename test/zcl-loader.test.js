@@ -21,11 +21,7 @@
 var sq = require('sqlite3')
 
 import { version } from '../package.json'
-import {
-  closeDatabase,
-  dbMultiSelect,
-  loadSchema,
-} from '../src-electron/db/db-api'
+const dbApi = require('../src-electron/db/db-api.js')
 import { selectCountFrom } from '../src-electron/db/query-generic'
 import {
   selectAllBitmaps,
@@ -41,17 +37,20 @@ import { loadZcl } from '../src-electron/zcl/zcl-loader'
 
 test('test opening and closing the database', () => {
   var db = new sq.Database(':memory:')
-  return closeDatabase(db)
+  return dbApi.closeDatabase(db)
 })
 
 test('test database schema loading in memory', () => {
   var db = new sq.Database(':memory:')
-  return loadSchema(db, schemaFile(), version).then((db) => closeDatabase(db))
+  return dbApi
+    .loadSchema(db, schemaFile(), version)
+    .then((db) => dbApi.closeDatabase(db))
 })
 
 test('test zcl data loading in memory', () => {
   var db = new sq.Database(':memory:')
-  return loadSchema(db, schemaFile(), version)
+  return dbApi
+    .loadSchema(db, schemaFile(), version)
     .then((db) => loadZcl(db, zclPropertiesFile)) // Maybe: ../../../zcl/zcl-studio.properties
     .then(() => selectAllClusters(db))
     .then((x) => expect(x.length).toEqual(106))
@@ -78,7 +77,7 @@ test('test zcl data loading in memory', () => {
     .then(() => selectCountFrom(db, 'STRUCT_ITEM'))
     .then((x) => expect(x).toEqual(154))
     .then(() =>
-      dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', [
+      dbApi.dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', [
         ['0x0000'],
         ['0x0006'],
       ])
@@ -91,6 +90,6 @@ test('test zcl data loading in memory', () => {
       expect(rows[1].CLUSTER_ID).not.toBeUndefined()
     })
     .finally(() => {
-      closeDatabase(db)
+      dbApi.closeDatabase(db)
     })
 }, 5000) // Give this test 5 secs to resolve

@@ -16,9 +16,9 @@
  */
 
 const { app } = require('electron')
+const dbApi = require('./db-api.js')
 
 import { version } from '../../package.json'
-import { closeDatabase, initDatabase, loadSchema } from '../db/db-api.js'
 import { initHttpServer, httpServerPort } from '../server/http-server.js'
 import { loadZcl } from '../zcl/zcl-loader.js'
 const Args = require('./args.js')
@@ -56,9 +56,10 @@ function attachToDb(db) {
 function startSelfCheck() {
   logInitStdout()
   logInfo('Starting self-check')
-  initDatabase(sqliteFile())
+  dbApi
+    .initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => loadSchema(db, schemaFile(), version))
+    .then((db) => dbApi.loadSchema(db, schemaFile(), version))
     .then((db) => loadZcl(db, args.zclPropertiesFile))
     .then(() => {
       logInfo('Self-check done!')
@@ -70,9 +71,10 @@ function startSelfCheck() {
 }
 
 function startNormal(ui, showUrl) {
-  initDatabase(sqliteFile())
+  dbApi
+    .initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => loadSchema(db, schemaFile(), version))
+    .then((db) => dbApi.loadSchema(db, schemaFile(), version))
     .then((db) => loadZcl(db, args.zclPropertiesFile))
     .then((db) => initHttpServer(db, args.httpPort))
     .then(() => {
@@ -105,9 +107,10 @@ function applyGenerationSettings(
   zclPropertiesFilePath
 ) {
   logInfo('Start Generation...')
-  return initDatabase(sqliteFile())
+  return dbApi
+    .initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => loadSchema(db, schemaFile(), version))
+    .then((db) => dbApi.loadSchema(db, schemaFile(), version))
     .then((db) =>
       loadZcl(
         db,
@@ -142,9 +145,10 @@ export function startSdkGeneration(
   zclPropertiesFilePath
 ) {
   logInfo('Start SDK generation...')
-  return initDatabase(sqliteFile())
+  return dbApi
+    .initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => loadSchema(db, schemaFile(), version))
+    .then((db) => dbApi.loadSchema(db, schemaFile(), version))
     .then((db) =>
       loadZcl(
         db,
@@ -193,7 +197,7 @@ app.on('activate', () => {
 })
 
 app.on('quit', () => {
-  closeDatabase(mainDatabase()).then(() =>
-    logInfo('Database closed, shutting down.')
-  )
+  dbApi
+    .closeDatabase(mainDatabase())
+    .then(() => logInfo('Database closed, shutting down.'))
 })

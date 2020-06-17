@@ -21,14 +21,10 @@
  * @module JS API: low level database access
  */
 
-const Sq = require('sqlite3')
-const Fs = require('fs')
-
-const Env = require('../util/env.js')
-
-const { calculateCrc } = require('../util/util.js')
-
-import { getPathCrc } from './query-package.js'
+const sqlite = require('sqlite3')
+const fs = require('fs')
+const env = require('../util/env.js')
+const util = require('../util/util.js')
 
 /**
  * Returns a promise to begin a transaction
@@ -37,19 +33,21 @@ import { getPathCrc } from './query-package.js'
  * @param {*} db
  * @returns A promise that resolves without an argument and rejects with an error from BEGIN TRANSACTION query.
  */
-export function dbBeginTransaction(db) {
+function dbBeginTransaction(db) {
   return new Promise((resolve, reject) => {
     db.run('BEGIN TRANSACTION', [], function (err) {
       if (err) {
-        Env.logError('Failed to BEGIN TRANSACTION')
+        env.logError('Failed to BEGIN TRANSACTION')
         reject(err)
       } else {
-        Env.logSql('Executed BEGIN TRANSACTION')
+        env.logSql('Executed BEGIN TRANSACTION')
         resolve()
       }
     })
   })
 }
+exports.dbBeginTransaction = dbBeginTransaction
+
 /**
  * Returns a promise to execute a commit.
  *
@@ -57,19 +55,20 @@ export function dbBeginTransaction(db) {
  * @param {*} db
  * @returns A promise that resolves without an argument or rejects with an error from COMMIT query.
  */
-export function dbCommit(db) {
+function dbCommit(db) {
   return new Promise((resolve, reject) => {
     db.run('COMMIT', [], function (err) {
       if (err) {
-        Env.logError('Failed to COMMIT')
+        env.logError('Failed to COMMIT')
         reject(err)
       } else {
-        Env.logSql('Executed COMMIT')
+        env.logSql('Executed COMMIT')
         resolve()
       }
     })
   })
 }
+exports.dbCommit = dbCommit
 
 /**
  * Returns a promise to execute a DELETE FROM query.
@@ -80,19 +79,20 @@ export function dbCommit(db) {
  * @param {*} args
  * @returns A promise that resolve with the number of delete rows, or rejects with an error from query.
  */
-export function dbRemove(db, query, args) {
+function dbRemove(db, query, args) {
   return new Promise((resolve, reject) => {
     db.run(query, args, function (err) {
       if (err) {
-        Env.logError(`Failed remove: ${query}: ${args}`)
+        env.logError(`Failed remove: ${query}: ${args}`)
         reject(err)
       } else {
-        Env.logSql(`Executed remove: ${query}: ${args}`)
+        env.logSql(`Executed remove: ${query}: ${args}`)
         resolve(this.changes)
       }
     })
   })
 }
+exports.dbRemove = dbRemove
 
 /**
  * Returns a promise to execute an update query.
@@ -103,19 +103,20 @@ export function dbRemove(db, query, args) {
  * @param {*} args
  * @returns A promise that resolves without an argument, or rejects with an error from the query.
  */
-export function dbUpdate(db, query, args) {
+function dbUpdate(db, query, args) {
   return new Promise((resolve, reject) => {
     db.run(query, args, function (err) {
       if (err) {
-        Env.logError(`Failed update: ${query}: ${args}`)
+        env.logError(`Failed update: ${query}: ${args}`)
         reject(err)
       } else {
-        Env.logSql(`Executed update: ${query}: ${args}`)
+        env.logSql(`Executed update: ${query}: ${args}`)
         resolve()
       }
     })
   })
 }
+exports.dbUpdate = dbUpdate
 
 /**
  * Returns a promise to execute an insert query.
@@ -126,14 +127,14 @@ export function dbUpdate(db, query, args) {
  * @param {*} args
  * @returns A promise that resolves with the rowid from the inserted row, or rejects with an error from the query.
  */
-export function dbInsert(db, query, args) {
+function dbInsert(db, query, args) {
   return new Promise((resolve, reject) => {
     db.run(query, args, function (err) {
       if (err) {
-        Env.logError(`Failed insert: ${query}: ${args}`)
+        env.logError(`Failed insert: ${query}: ${args}`)
         reject(err)
       } else {
-        Env.logSql(
+        env.logSql(
           `Executed insert: ${query}: ${args} => rowid: ${this.lastID}`
         )
         resolve(this.lastID)
@@ -141,6 +142,7 @@ export function dbInsert(db, query, args) {
     })
   })
 }
+exports.dbInsert = dbInsert
 
 /**
  * Returns a promise to execute a query to perform a select that returns all rows that match a query.
@@ -151,19 +153,21 @@ export function dbInsert(db, query, args) {
  * @param {*} args
  * @returns A promise that resolves with the rows that got retrieved from the database, or rejects with an error from the query.
  */
-export function dbAll(db, query, args) {
+function dbAll(db, query, args) {
   return new Promise((resolve, reject) => {
     db.all(query, args, (err, rows) => {
       if (err) {
-        Env.logSql(`Failed all: ${query}: ${args}`)
+        env.logSql(`Failed all: ${query}: ${args}`)
         reject(err)
       } else {
-        Env.logSql(`Executed all: ${query}: ${args}`)
+        env.logSql(`Executed all: ${query}: ${args}`)
         resolve(rows)
       }
     })
   })
 }
+exports.dbAll = dbAll
+
 /**
  * Returns a promise to execute a query to perform a select that returns first row that matches a query.
  *
@@ -173,19 +177,20 @@ export function dbAll(db, query, args) {
  * @param {*} args
  * @returns A promise that resolves with a single row that got retrieved from the database, or rejects with an error from the query.
  */
-export function dbGet(db, query, args) {
+function dbGet(db, query, args) {
   return new Promise((resolve, reject) => {
     db.get(query, args, (err, row) => {
       if (err) {
-        Env.logError(`Failed get: ${query}: ${args}`)
+        env.logError(`Failed get: ${query}: ${args}`)
         reject(err)
       } else {
-        Env.logSql(`Executed get: ${query}: ${args}`)
+        env.logSql(`Executed get: ${query}: ${args}`)
         resolve(row)
       }
     })
   })
 }
+exports.dbGet = dbGet
 
 /**
  * Returns a promise to perform a prepared statement, using data from array for SQL parameters.
@@ -195,9 +200,9 @@ export function dbGet(db, query, args) {
  * @param {*} sql
  * @param {*} arrayOfArrays
  */
-export function dbMultiSelect(db, sql, arrayOfArrays) {
+function dbMultiSelect(db, sql, arrayOfArrays) {
   return new Promise((resolve, reject) => {
-    Env.logSql(
+    env.logSql(
       `Preparing statement: ${sql} to select ${arrayOfArrays.length} rows.`
     )
     var rows = []
@@ -222,6 +227,7 @@ export function dbMultiSelect(db, sql, arrayOfArrays) {
     })
   })
 }
+exports.dbMultiSelect = dbMultiSelect
 
 /**
  * Returns a promise to perfom a prepared statement, using data from array for SQL parameters.
@@ -233,9 +239,9 @@ export function dbMultiSelect(db, sql, arrayOfArrays) {
  * @param {*} arrayOfArrays
  * @returns A promise that resolves with the array of rowids for the rows that got inserted, or rejects with an error from the query.
  */
-export function dbMultiInsert(db, sql, arrayOfArrays) {
+function dbMultiInsert(db, sql, arrayOfArrays) {
   return new Promise((resolve, reject) => {
-    Env.logSql(
+    env.logSql(
       `Preparing statement: ${sql} to insert ${arrayOfArrays.length} records.`
     )
     var lastIds = []
@@ -254,6 +260,7 @@ export function dbMultiInsert(db, sql, arrayOfArrays) {
     })
   })
 }
+exports.dbMultiInsert = dbMultiInsert
 
 /**
  * Returns a promise that will resolve when the database in question is closed.
@@ -263,16 +270,18 @@ export function dbMultiInsert(db, sql, arrayOfArrays) {
  * @param {*} database
  * @returns A promise that resolves without an argument or rejects with error from the database closing.
  */
-export function closeDatabase(database) {
+function closeDatabase(database) {
   return new Promise((resolve, reject) => {
-    Env.logSql('About to close database.')
+    env.logSql('About to close database.')
     database.close((err) => {
       if (err) return reject(err)
-      Env.logSql('Database is closed.')
+      env.logSql('Database is closed.')
       resolve()
     })
   })
 }
+exports.closeDatabase = closeDatabase
+
 /**
  * Returns a promise to initialize a database.
  *
@@ -280,18 +289,20 @@ export function closeDatabase(database) {
  * @param {*} sqlitePath
  * @returns A promise that resolves with the database object that got created, or rejects with an error if something went wrong.
  */
-export function initDatabase(sqlitePath) {
+function initDatabase(sqlitePath) {
   return new Promise((resolve, reject) => {
-    var db = new Sq.Database(sqlitePath, (err) => {
+    var db = new sqlite.Database(sqlitePath, (err) => {
       if (err) {
         return reject(err)
       } else {
-        Env.logSql(`Connected to the database at: ${sqlitePath}`)
+        env.logSql(`Connected to the database at: ${sqlitePath}`)
         resolve(db)
       }
     })
   })
 }
+exports.initDatabase = initDatabase
+
 /**
  * Returns a promise to insert or replace a setting into the database.
  *
@@ -348,32 +359,32 @@ function updateCurrentSchemaCrc(db, context) {
  * @param {*} appVersion
  * @returns A promise that resolves with the same db that got passed in, or rejects with an error.
  */
-export function loadSchema(db, schemaPath, appVersion) {
+function loadSchema(db, schemaPath, appVersion) {
   return new Promise((resolve, reject) => {
-    Fs.readFile(schemaPath, 'utf8', (err, data) => {
+    fs.readFile(schemaPath, 'utf8', (err, data) => {
       if (err) return reject(err)
       resolve(data)
     })
   })
-    .then((data) => calculateCrc({ filePath: schemaPath, data: data }))
+    .then((data) => util.calculateCrc({ filePath: schemaPath, data: data }))
     .then((context) => determineIfSchemaShouldLoad(db, context))
     .then(
       (context) =>
         new Promise((resolve, reject) => {
           if (context.mustLoad) {
-            Env.logSql('Schema load: must be done.')
+            env.logSql('Schema load: must be done.')
             db.serialize(() => {
               db.exec(context.data, (err) => {
                 if (err) {
-                  Env.logError('Failed to populate schema')
-                  Env.logError(err)
+                  env.logError('Failed to populate schema')
+                  env.logError(err)
                   reject(err)
                 }
                 resolve(context)
               })
             })
           } else {
-            Env.logSql('Schema load: skipped.')
+            env.logSql('Schema load: skipped.')
             resolve(context)
           }
         })
@@ -382,3 +393,4 @@ export function loadSchema(db, schemaPath, appVersion) {
     .then((context) => insertOrReplaceSetting(db, 'APP', 'VERSION', appVersion))
     .then((rowid) => Promise.resolve(db))
 }
+exports.loadSchema = loadSchema

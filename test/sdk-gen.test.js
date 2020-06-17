@@ -21,11 +21,7 @@
 import path from 'path'
 import fs from 'fs'
 import { version } from '../package.json'
-import {
-  closeDatabase,
-  initDatabase,
-  loadSchema,
-} from '../src-electron/db/db-api'
+const dbApi = require('../src-electron/db/db-api.js')
 import {
   logInfo,
   schemaFile,
@@ -44,8 +40,9 @@ describe('SDK gen tests', () => {
     setDevelopmentEnv()
     var file = sqliteTestFile(4)
 
-    return initDatabase(file)
-      .then((d) => loadSchema(d, schemaFile(), version))
+    return dbApi
+      .initDatabase(file)
+      .then((d) => dbApi.loadSchema(d, schemaFile(), version))
       .then((d) => loadZcl(d, zclPropertiesFile))
       .then((d) => {
         db = d
@@ -55,7 +52,7 @@ describe('SDK gen tests', () => {
 
   afterAll(() => {
     var file = sqliteTestFile(4)
-    return closeDatabase(db).then(() => {
+    return dbApi.closeDatabase(db).then(() => {
       if (fs.existsSync(file)) fs.unlinkSync(file)
     })
   })

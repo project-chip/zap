@@ -18,14 +18,11 @@
  * @jest-environment node
  */
 
+const dbApi = require('../src-electron/db/db-api.js')
+
 import axios from 'axios'
 import fs from 'fs-extra'
 import { version } from '../package.json'
-import {
-  closeDatabase,
-  initDatabase,
-  loadSchema,
-} from '../src-electron/db/db-api'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
 import {
   logError,
@@ -56,8 +53,9 @@ var file = sqliteTestFile(3)
 beforeAll(() => {
   setDevelopmentEnv()
   file = sqliteTestFile(3)
-  return initDatabase(file)
-    .then((d) => loadSchema(d, schemaFile(), version))
+  return dbApi
+    .initDatabase(file)
+    .then((d) => dbApi.loadSchema(d, schemaFile(), version))
     .then((d) => {
       db = d
       logInfo(`Test database initialized: ${file}.`)
@@ -67,7 +65,7 @@ beforeAll(() => {
 
 afterAll(() => {
   return shutdownHttpServer()
-    .then(() => closeDatabase(db))
+    .then(() => dbApi.closeDatabase(db))
     .then(() => {
       var file = sqliteTestFile(3)
       logInfo(`Removing test database: ${file}`)
@@ -92,7 +90,7 @@ describe('Session specific tests', () => {
 
   test('Test command line generation using api used for command line generation', () => {
     return attachToDb(db)
-      .then((db) => loadSchema(db, schemaFile(), version))
+      .then((db) => dbApi.loadSchema(db, schemaFile(), version))
       .then((db) => loadZcl(db, zclPropertiesFile))
       .then((db) => setHandlebarTemplateDirForCli('./test/gen-template/'))
       .then((handlebarTemplateDir) => generateCodeViaCli('./generation-test/'))

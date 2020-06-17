@@ -20,7 +20,7 @@
  *
  * @module DB API: package-based queries.
  */
-import * as DbApi from './db-api.js'
+const dbApi = require('./db-api.js')
 
 /**
  * Checks if the package with a given path exists and executes appropriate action.
@@ -32,15 +32,17 @@ import * as DbApi from './db-api.js'
  * @param {*} noneCallback This callback is executed if the row does not exist.
  */
 export function forPathCrc(db, path, crcCallback, noneCallback) {
-  DbApi.dbGet(db, 'SELECT PACKAGE_ID, PATH, CRC FROM PACKAGE WHERE PATH = ?', [
-    path,
-  ]).then((row) => {
-    if (row == null) {
-      noneCallback()
-    } else {
-      crcCallback(row.CRC, row.PACKAGE_ID)
-    }
-  })
+  dbApi
+    .dbGet(db, 'SELECT PACKAGE_ID, PATH, CRC FROM PACKAGE WHERE PATH = ?', [
+      path,
+    ])
+    .then((row) => {
+      if (row == null) {
+        noneCallback()
+      } else {
+        crcCallback(row.CRC, row.PACKAGE_ID)
+      }
+    })
 }
 
 /**
@@ -52,7 +54,7 @@ export function forPathCrc(db, path, crcCallback, noneCallback) {
  * @returns Promise resolving with a CRC or null.
  */
 export function getPathCrc(db, path) {
-  return DbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', [path]).then(
+  return dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', [path]).then(
     (row) =>
       new Promise((resolve, reject) => {
         if (row == null) {
@@ -73,7 +75,7 @@ export function getPathCrc(db, path) {
  * @returns Promise of an insertion.
  */
 export function insertPathCrc(db, path, crc) {
-  return DbApi.dbInsert(db, 'INSERT INTO PACKAGE ( PATH, CRC ) VALUES (?, ?)', [
+  return dbApi.dbInsert(db, 'INSERT INTO PACKAGE ( PATH, CRC ) VALUES (?, ?)', [
     path,
     crc,
   ])
@@ -89,7 +91,7 @@ export function insertPathCrc(db, path, crc) {
  * @returns Promise of an update.
  */
 export function updatePathCrc(db, path, crc) {
-  return DbApi.dbInsert(db, 'UPDATE PACKAGE SET CRC = ? WHERE PATH = ?', [
+  return dbApi.dbInsert(db, 'UPDATE PACKAGE SET CRC = ? WHERE PATH = ?', [
     path,
     crc,
   ])
