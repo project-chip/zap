@@ -253,7 +253,12 @@ function generateInDir(browserWindow) {
         getGenerationProperties(
           generationOptionsFile
         ).then((generationOptions) =>
-          generateCode(mainDatabase(), generationOptions, generationDirectory)
+          generateCode(
+            mainDatabase(),
+            generationOptions,
+            generationDirectory,
+            handlebarTemplateDirectory
+          )
         )
         dialog.showMessageBox(browserWindow, {
           title: 'Generation',
@@ -276,7 +281,12 @@ export function generateCodeViaCli(generationDir) {
   return getGenerationProperties(
     generationOptionsFile
   ).then((generationOptions) =>
-    generateCode(mainDatabase(), generationOptions, generationDirectory)
+    generateCode(
+      mainDatabase(),
+      generationOptions,
+      generationDirectory,
+      handlebarTemplateDirectory
+    )
   )
 }
 
