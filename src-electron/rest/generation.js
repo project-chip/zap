@@ -109,6 +109,27 @@ function getGeneratedCodeMap(generationOptions, db) {
  * @param {*} app
  */
 export function registerGenerationApi(db, app) {
+  app.get('/preview/:name/:index', (request, response) => {
+    getGenerationProperties('').then((generationOptions) => {
+      getGeneratedCodeMap(generationOptions, db).then((map) => {
+        if (map[request.params.name]) {
+          map[request.params.name].then((result) => {
+            if (request.params.index in result) {
+              response.json({
+                result: result[request.params.index],
+                size: Object.keys(result).length,
+              })
+            } else {
+              response.json('No Generation Result for this file')
+            }
+          })
+        } else {
+          response.json('No Generation Result for this file')
+        }
+      })
+    })
+  })
+
   app.get('/preview/:name', (request, response) => {
     getGenerationProperties('').then((generationOptions) => {
       getGeneratedCodeMap(generationOptions, db).then((map) => {
@@ -130,13 +151,11 @@ export function registerGenerationApi(db, app) {
     getGenerationProperties('').then((generationOptions) => {
       getGeneratedCodeMap(generationOptions, db).then((map) => {
         // making sure all generation promises are resolved before handling the get request
-
         Promise.all(Object.values(map)).then((values) => {
           let merged = Object.keys(map).reduce(
             (obj, key, index) => ({ ...obj, [key]: values[index] }),
             {}
           )
-
           response.json(merged)
         })
       })

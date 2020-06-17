@@ -395,7 +395,11 @@ export function generateDataToPreview(
   databaseRowToHandlebarTemplateFileMap
 ) {
   return new Promise((resolve, reject) => {
-    var result = ''
+    var result = '',
+      code = ''
+    var loc = 0,
+      index = 0
+    var indexedResult = { 1: '' }
     for (let i = 0; i < databaseRowToHandlebarTemplateFileMap.length; i++) {
       var compiledTemplate =
         map[databaseRowToHandlebarTemplateFileMap[i].hTemplateFile]
@@ -408,7 +412,17 @@ export function generateDataToPreview(
       })
       result = result + define
     }
-    resolve(result)
+    code = result.split(/\n/)
+    loc = code.length
+    // Indexing the generation result for faster preview pane generation
+    for (let i = 0; i < loc; i++) {
+      if (i % 2000 === 0) {
+        index++
+        indexedResult[index] = ''
+      }
+      indexedResult[index] = indexedResult[index].concat(code[i]).concat('\n')
+    }
+    resolve(indexedResult)
   })
 }
 

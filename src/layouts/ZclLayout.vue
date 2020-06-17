@@ -202,12 +202,19 @@ limitations under the License.
                 </q-list>
               </q-btn-dropdown>
               <div>
-                <q-input
-                  :value="generationData"
-                  type="textarea"
-                  rows="30"
-                  readonly
-                />
+                <template>
+                  <div class="q-ma-md">
+                    <q-scroll-area
+                      style="height: 600px; max-width: 800px;"
+                      ref="generationScroll"
+                    >
+                      <pre class="q-ma-none container">{{
+                        generationData
+                      }}</pre>
+                      <q-scroll-observer @scroll="onScroll" />
+                    </q-scroll-area>
+                  </div>
+                </template>
               </div>
             </div>
           </q-drawer>
@@ -222,14 +229,19 @@ import ZclApplicationSetup from '../components/ZclApplicationSetup.vue'
 import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclClusterLayout from './ZclClusterLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
+import { scroll } from 'quasar'
+const { getScrollHeight } = scroll
 
 export default {
   name: 'ZclLayout',
   methods: {
-    getGeneratedFile(fileName) {
-      this.$serverGetWithType('/preview/' + fileName, 'preview')
+    getGeneratedFile(fileName, index = 1) {
+      this.$serverGetWithType('/preview/' + fileName + '/' + index, 'preview')
         .then((result) => {
-          this.generationData = result.data
+          this.generationData = result.data['result']
+          this.maxIndex = result.data['size']
+          this.index = index
+          this.currentFile = fileName
         })
         .catch((err) => console.log('Server Get:' + err))
     },
@@ -240,6 +252,30 @@ export default {
         this.$q.dark.set(true)
       } else {
         this.$q.dark.set(false)
+      }
+    },
+
+    onScroll(info) {
+      this.scrollInfo = info
+      const scrollArea = this.$refs.generationScroll
+      const scrollTarget = scrollArea.getScrollTarget()
+      this.scrollHeight = scrollTarget.scrollHeight
+      this.clientHeight = scrollTarget.clientHeight
+      this.scrollTop = scrollTarget.scrollTop
+      if (
+        this.scrollInfo.direction === 'down' &&
+        this.scrollHeight - this.scrollTop === this.clientHeight &&
+        this.maxIndex > this.index
+      ) {
+        this.index = this.index + 1
+        this.$serverGetWithType(
+          '/preview/' + this.currentFile + '/' + this.index,
+          'preview'
+        )
+          .then((result) => {
+            this.generationData = this.generationData + result.data['result']
+          })
+          .catch((err) => console.log('Server Get:' + err))
       }
     },
   },
@@ -258,6 +294,13 @@ export default {
       drawerRight: false,
       generationData: 'Generated Data',
       generationButtonText: 'Select File',
+      currentFile: '',
+      scrollInfo: {},
+      scrollHeight: '',
+      clientHeight: '',
+      scrollTop: '',
+      index: 0,
+      maxIndex: 0,
     }
   },
   mounted() {
