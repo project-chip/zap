@@ -25,7 +25,7 @@ const bodyParser = require('body-parser')
 const express = require('express')
 const session = require('express-session')
 const path = require('path')
-const Env = require('../util/env.js')
+const env = require('../util/env.js')
 
 import { ensureZapSessionId } from '../db/query-session.js'
 import { registerAdminApi } from '../rest/admin.js'
@@ -79,8 +79,8 @@ export function initHttpServer(db, port) {
             next()
           })
           .catch((err) => {
-            Env.logError('Could not create session: ' + err.message)
-            Env.logError(err)
+            env.logError('Could not create session: ' + err.message)
+            env.logError(err)
           })
       }
     })
@@ -96,15 +96,15 @@ export function initHttpServer(db, port) {
     app.use(express.static(staticDir))
 
     httpServer = app.listen(port, () => {
-      Env.logInfo(`HTTP server created on port: ` + httpServerPort())
+      env.logInfo(`HTTP server created on port: ` + httpServerPort())
       resolve(app)
     })
 
     process.on('uncaughtException', function (err) {
-      Env.logInfo(`HTTP server port ` + port + ` is busy.`)
+      env.logInfo(`HTTP server port ` + port + ` is busy.`)
       if (err.errno === 'EADDRINUSE') {
         httpServer = app.listen(0, () => {
-          Env.logInfo(`HTTP server created on port: ` + httpServerPort())
+          env.logInfo(`HTTP server created on port: ` + httpServerPort())
           resolve(app)
         })
       } else {
@@ -124,7 +124,7 @@ export function shutdownHttpServer() {
   return new Promise((resolve, reject) => {
     if (httpServer != null) {
       httpServer.close(() => {
-        Env.logInfo('HTTP server shut down.')
+        env.logInfo('HTTP server shut down.')
         httpServer = null
         resolve(null)
       })
