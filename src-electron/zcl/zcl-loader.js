@@ -20,11 +20,11 @@ import path from 'path'
 import properties from 'properties'
 import { parseString } from 'xml2js'
 const dbApi = require('../db/db-api.js')
-import {
+const {
   forPathCrc,
   insertPathCrc,
   updatePathCrc,
-} from '../db/query-package.js'
+} = require('../db/query-package.js')
 const queryZcl = require('../db/query-zcl.js')
 const { logError, logInfo } = require('../util/env.js')
 const { calculateCrc } = require('../util/util.js')

@@ -31,7 +31,7 @@ const dbApi = require('./db-api.js')
  * @param {*} crcCallback This callback is executed if the row exists, with arguments (CRC, PACKAGE_ID)
  * @param {*} noneCallback This callback is executed if the row does not exist.
  */
-export function forPathCrc(db, path, crcCallback, noneCallback) {
+function forPathCrc(db, path, crcCallback, noneCallback) {
   dbApi
     .dbGet(db, 'SELECT PACKAGE_ID, PATH, CRC FROM PACKAGE WHERE PATH = ?', [
       path,
@@ -53,7 +53,7 @@ export function forPathCrc(db, path, crcCallback, noneCallback) {
  * @param {*} path
  * @returns Promise resolving with a CRC or null.
  */
-export function getPathCrc(db, path) {
+function getPathCrc(db, path) {
   return dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', [path]).then(
     (row) =>
       new Promise((resolve, reject) => {
@@ -74,7 +74,7 @@ export function getPathCrc(db, path) {
  * @param {*} crc CRC of the file.
  * @returns Promise of an insertion.
  */
-export function insertPathCrc(db, path, crc) {
+function insertPathCrc(db, path, crc) {
   return dbApi.dbInsert(db, 'INSERT INTO PACKAGE ( PATH, CRC ) VALUES (?, ?)', [
     path,
     crc,
@@ -90,9 +90,14 @@ export function insertPathCrc(db, path, crc) {
  * @param {*} crc
  * @returns Promise of an update.
  */
-export function updatePathCrc(db, path, crc) {
+function updatePathCrc(db, path, crc) {
   return dbApi.dbInsert(db, 'UPDATE PACKAGE SET CRC = ? WHERE PATH = ?', [
     path,
     crc,
   ])
 }
+// exports
+exports.forPathCrc = forPathCrc
+exports.getPathCrc = getPathCrc
+exports.insertPathCrc = insertPathCrc
+exports.updatePathCrc = updatePathCrc

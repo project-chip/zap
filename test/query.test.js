@@ -20,21 +20,24 @@
 const fs = require('fs')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
-const { zclPropertiesFile } = require('../src-electron/main-process/args')
+const { zclPropertiesFile } = require('../src-electron/main-process/args.js')
 const queryConfig = require('../src-electron/db/query-config.js')
-
-import { version } from '../package.json'
-import {
+const {
   logInfo,
   schemaFile,
   sqliteTestFile,
-  logError,
-} from '../src-electron/util/env'
-import { loadZcl } from '../src-electron/zcl/zcl-loader'
+} = require('../src-electron/util/env.js')
+const {
+  insertFileLocation,
+  selectFileLocation,
+} = require('../src-electron/db/query-generic.js')
 const {
   getPathCrc,
   insertPathCrc,
-} = require('../src-electron/db/query-package')
+} = require('../src-electron/db/query-package.js')
+
+import { version } from '../package.json'
+import { loadZcl } from '../src-electron/zcl/zcl-loader'
 import {
   ensureZapSessionId,
   setSessionClean,
@@ -42,10 +45,6 @@ import {
   getSessionDirtyFlag,
 } from '../src-electron/db/query-session'
 
-const {
-  insertFileLocation,
-  selectFileLocation,
-} = require('../src-electron/db/query-generic.js')
 import { createStateFromDatabase } from '../src-electron/importexport/export'
 
 /*

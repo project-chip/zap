@@ -19,6 +19,7 @@
  */
 
 const dbApi = require('../src-electron/db/db-api.js')
+const { selectCountFrom } = require('../src-electron/db/query-generic.js')
 
 import axios from 'axios'
 import fs from 'fs-extra'
@@ -37,7 +38,6 @@ import {
   shutdownHttpServer,
 } from '../src-electron/server/http-server'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
-import { selectCountFrom } from '../src-electron/db/query-generic'
 import {
   setHandlebarTemplateDirForCli,
   generateCodeViaCli,

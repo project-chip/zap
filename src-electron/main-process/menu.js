@@ -18,6 +18,7 @@
 const { dialog, Menu } = require('electron')
 const { appDirectory, logInfo, mainDatabase } = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
+const queryGeneric = require('../db/query-generic.js')
 
 import { getSessionInfoFromWindowId } from '../db/query-session.js'
 import {
@@ -33,7 +34,6 @@ import {
 } from '../generator/static-generator.js'
 import { showErrorMessage } from './ui.js'
 import { windowCreate } from './window.js'
-import { selectFileLocation, insertFileLocation } from '../db/query-generic.js'
 import { exportDataIntoFile } from '../importexport/export.js'
 import {
   readDataFromFile,
@@ -151,7 +151,8 @@ const template = [
  * @param {*} event
  */
 function doOpen(menuItem, browserWindow, event) {
-  selectFileLocation(mainDatabase(), 'save')
+  queryGeneric
+    .selectFileLocation(mainDatabase(), 'save')
     .then((filePath) => {
       var opts = {
         properties: ['openFile', 'multiSelections'],
@@ -198,7 +199,8 @@ function doSave(menuItem, browserWindow, event) {
  * @param {*} event
  */
 function doSaveAs(menuItem, browserWindow, event) {
-  selectFileLocation(mainDatabase(), 'save')
+  queryGeneric
+    .selectFileLocation(mainDatabase(), 'save')
     .then((filePath) => {
       var opts = {}
       if (filePath != null) {
@@ -215,7 +217,7 @@ function doSaveAs(menuItem, browserWindow, event) {
     })
     .then((filePath) => {
       if (filePath != null) {
-        insertFileLocation(mainDatabase(), filePath, 'save')
+        queryGeneric.insertFileLocation(mainDatabase(), filePath, 'save')
         browserWindow.setTitle(filePath)
         dialog.showMessageBox(browserWindow, {
           title: 'Save',
