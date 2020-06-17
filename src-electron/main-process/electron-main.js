@@ -37,9 +37,9 @@ const {
   generateCodeViaCli,
   setHandlebarTemplateDirForCli,
 } = require('./menu.js')
+const { loadZcl } = require('../zcl/zcl-loader.js')
 
 import { initHttpServer, httpServerPort } from '../server/http-server.js'
-import { loadZcl } from '../zcl/zcl-loader.js'
 import { initializeElectronUi, windowCreateIfNotThere } from './window.js'
 
 logInitLogFile()

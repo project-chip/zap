@@ -18,13 +18,13 @@
  * @jest-environment node
  */
 
+const dbApi = require('../src-electron/db/db-api.js')
+const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
+
 import * as Validation from '../src-electron/validation/validation'
 import { version } from '../package.json'
 
-const dbApi = require('../src-electron/db/db-api.js')
-
 import { logInfo, schemaFile, sqliteTestFile } from '../src-electron/util/env'
-import { loadZcl } from '../src-electron/zcl/zcl-loader'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
 
 const {

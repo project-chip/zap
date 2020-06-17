@@ -15,10 +15,10 @@
  *    limitations under the License.
  */
 
-import fs from 'fs'
-import path from 'path'
-import properties from 'properties'
-import { parseString } from 'xml2js'
+const fs = require('fs')
+const path = require('path')
+const properties = require('properties')
+const { parseString } = require('xml2js')
 const dbApi = require('../db/db-api.js')
 const {
   forPathCrc,
@@ -591,7 +591,7 @@ function parseZclFiles(db, files) {
  * @param {*} propertiesFile
  * @returns a Promise that resolves with the db.
  */
-export function loadZcl(db, propertiesFile) {
+function loadZcl(db, propertiesFile) {
   logInfo(`Loading zcl file: ${propertiesFile}`)
   return dbApi
     .dbBeginTransaction(db)
@@ -608,3 +608,5 @@ export function loadZcl(db, propertiesFile) {
     .then(() => dbApi.dbCommit(db))
     .then(() => db)
 }
+
+exports.loadZcl = loadZcl

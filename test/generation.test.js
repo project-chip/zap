@@ -32,8 +32,8 @@ const {
   setHandlebarTemplateDirForCli,
   generateCodeViaCli,
 } = require('../src-electron/main-process/menu.js')
-
 const axios = require('axios')
+const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
 
 import fs from 'fs-extra'
 import { version } from '../package.json'
@@ -42,7 +42,6 @@ import {
   initHttpServer,
   shutdownHttpServer,
 } from '../src-electron/server/http-server'
-import { loadZcl } from '../src-electron/zcl/zcl-loader'
 
 var db
 const port = 9074

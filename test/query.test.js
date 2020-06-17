@@ -41,9 +41,9 @@ const {
   getSessionInfoFromWindowId,
   getSessionDirtyFlag,
 } = require('../src-electron/db/query-session.js')
+const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
 
 import { version } from '../package.json'
-import { loadZcl } from '../src-electron/zcl/zcl-loader'
 
 import { createStateFromDatabase } from '../src-electron/importexport/export'
 

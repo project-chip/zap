@@ -23,11 +23,11 @@ var sq = require('sqlite3')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const { selectCountFrom } = require('../src-electron/db/query-generic.js')
+const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
 
 import { version } from '../package.json'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
 import { schemaFile } from '../src-electron/util/env'
-import { loadZcl } from '../src-electron/zcl/zcl-loader'
 
 test('test opening and closing the database', () => {
   var db = new sq.Database(':memory:')

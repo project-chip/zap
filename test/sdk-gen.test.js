@@ -21,9 +21,11 @@
 const dbApi = require('../src-electron/db/db-api.js')
 const { selectAllClusters } = require('../src-electron/db/query-zcl.js')
 const { runSdkGeneration } = require('../src-electron/sdk-gen/sdk-gen.js')
+const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
 
-import path from 'path'
-import fs from 'fs'
+const path = require('path')
+const fs = require('fs')
+
 import { version } from '../package.json'
 import {
   logInfo,
@@ -32,7 +34,6 @@ import {
   appDirectory,
   setDevelopmentEnv,
 } from '../src-electron/util/env'
-import { loadZcl } from '../src-electron/zcl/zcl-loader'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
 
 describe('SDK gen tests', () => {
