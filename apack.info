@@ -4,6 +4,11 @@ label=Zigbee Advanced platform
 path=.,dist/electron/zap-linux-x64/
 requiredFeatureLevel=apack.core:4
 
+id=zclConfigurator
+
+# Trigger file extension. No period.
+uc.triggerExtension=zap
+
 executable(zap:linux.x86_64) {
   exe=zap
 }
