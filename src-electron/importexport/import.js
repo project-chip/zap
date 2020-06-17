@@ -21,8 +21,8 @@
  */
 const fs = require('fs')
 const Env = require('../util/env.js')
+const queryConfig = require('../db/query-config.js')
 
-import * as QueryConfig from '../db/query-config.js'
 import * as QuerySession from '../db/query-session.js'
 import * as Mapping from './mapping.js'
 
@@ -68,11 +68,9 @@ export function writeStateToDatabase(db, state) {
     })
     .then((sessionId) => {
       if ('endpointTypes' in state) {
-        return QueryConfig.insertEndpointTypes(
-          db,
-          sessionId,
-          state.endpointTypes
-        ).then(() => sessionId)
+        return queryConfig
+          .insertEndpointTypes(db, sessionId, state.endpointTypes)
+          .then(() => sessionId)
       } else {
         return sessionId
       }

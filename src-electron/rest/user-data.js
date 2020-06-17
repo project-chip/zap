@@ -22,9 +22,7 @@
  */
 
 const { logInfo } = require('../util/env.js')
-
-import { httpCode } from '../server/http-server.js'
-import {
+const {
   insertOrReplaceClusterState,
   insertOrUpdateAttributeState,
   insertOrUpdateCommandState,
@@ -35,7 +33,10 @@ import {
   insertEndpointType,
   deleteEndpointType,
   updateEndpointType,
-} from '../db/query-config.js'
+} = require('../db/query-config.js')
+
+import { httpCode } from '../server/http-server.js'
+
 import {
   validateEndpoint,
   validateAttribute,

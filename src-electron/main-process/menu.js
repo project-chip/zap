@@ -17,6 +17,7 @@
 
 const { dialog, Menu } = require('electron')
 const { appDirectory, logInfo, mainDatabase } = require('../util/env.js')
+const queryConfig = require('../db/query-config.js')
 
 import { getSessionInfoFromWindowId } from '../db/query-session.js'
 import {
@@ -33,7 +34,6 @@ import {
 import { showErrorMessage } from './ui.js'
 import { windowCreate } from './window.js'
 import { selectFileLocation, insertFileLocation } from '../db/query-generic.js'
-import { updateKeyValue, getSessionKeyValue } from '../db/query-config.js'
 import { exportDataIntoFile } from '../importexport/export.js'
 import {
   readDataFromFile,
@@ -179,7 +179,7 @@ function doOpen(menuItem, browserWindow, event) {
 function doSave(menuItem, browserWindow, event) {
   getSessionInfoFromWindowId(mainDatabase(), browserWindow.id)
     .then((row) =>
-      getSessionKeyValue(mainDatabase(), row.sessionId, 'filePath')
+      queryConfig.getSessionKeyValue(mainDatabase(), row.sessionId, 'filePath')
     )
     .then((filePath) => {
       if (filePath == null) {
@@ -345,9 +345,9 @@ function setHandlebarTemplateDirectory(browserWindow) {
 function fileSave(db, winId, filePath) {
   return getSessionInfoFromWindowId(db, winId)
     .then((row) => {
-      return updateKeyValue(db, row.sessionId, 'filePath', filePath).then(
-        () => row
-      )
+      return queryConfig
+        .updateKeyValue(db, row.sessionId, 'filePath', filePath)
+        .then(() => row)
     })
     .then((row) => exportDataIntoFile(db, row.sessionId, filePath))
     .catch((err) => showErrorMessage('File save', err))

@@ -34,7 +34,7 @@ const queryZcl = require('./query-zcl.js')
  * @param {*} value
  * @returns A promise of creating or updating a row, resolves with the rowid of a new row.
  */
-export function updateKeyValue(db, sessionId, key, value) {
+function updateKeyValue(db, sessionId, key, value) {
   return dbApi.dbInsert(
     db,
     'INSERT OR REPLACE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
@@ -49,7 +49,7 @@ export function updateKeyValue(db, sessionId, key, value) {
  * @param {*} sessionId
  * @returns A promise that resolves with a value or with 'undefined' if none is found.
  */
-export function getSessionKeyValue(db, sessionId, key) {
+function getSessionKeyValue(db, sessionId, key) {
   return dbApi
     .dbGet(
       db,
@@ -73,7 +73,7 @@ export function getSessionKeyValue(db, sessionId, key) {
  * @param {*} sessionId
  * @returns Promise to retrieve all session key values.
  */
-export function getAllSessionKeyValues(db, sessionId) {
+function getAllSessionKeyValues(db, sessionId) {
   return dbApi
     .dbAll(
       db,
@@ -108,7 +108,7 @@ export function getAllSessionKeyValues(db, sessionId) {
  * @param {*} enabled
  * @returns Promise to update the cluster exclude/include state.
  */
-export function insertOrReplaceClusterState(
+function insertOrReplaceClusterState(
   db,
   endpointTypeId,
   clusterRef,
@@ -133,7 +133,7 @@ export function insertOrReplaceClusterState(
  * @param {*} attributeId
  * @param {*} paramValuePairArray An array of objects whose keys are [key, value]. Key is name of the column to be editted. Value is what the column should be set to. This does not handle empty arrays.
  */
-export function insertOrUpdateAttributeState(
+function insertOrUpdateAttributeState(
   db,
   endpointTypeId,
   clusterRef,
@@ -213,7 +213,7 @@ function paramValuePairIntoSqlClause(paramValuePair) {
  * @param {*} value
  * @param {*} booleanParam
  */
-export function insertOrUpdateCommandState(
+function insertOrUpdateCommandState(
   db,
   endpointTypeId,
   clusterRef,
@@ -261,7 +261,7 @@ export function insertOrUpdateCommandState(
  * @param {*} endpointTypeId
  * @returns Promise that resolves with cluster states.
  */
-export function getAllEndpointTypeClusterState(db, endpointTypeId) {
+function getAllEndpointTypeClusterState(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -303,7 +303,7 @@ export function getAllEndpointTypeClusterState(db, endpointTypeId) {
  * @param {*} networkIdentifier
  * @returns Promise to update endpoints.
  */
-export function insertEndpoint(
+function insertEndpoint(
   db,
   sessionId,
   endpointIdentifier,
@@ -325,11 +325,11 @@ export function insertEndpoint(
  * @param {*} id
  * @returns Promise to delete an endpoint that resolves with the number of rows that were deleted.
  */
-export function deleteEndpoint(db, id) {
+function deleteEndpoint(db, id) {
   return dbApi.dbRemove(db, 'DELETE FROM ENDPOINT WHERE ENDPOINT_ID = ?', [id])
 }
 
-export function updateEndpoint(db, sessionId, endpointId, param, updatedValue) {
+function updateEndpoint(db, sessionId, endpointId, param, updatedValue) {
   return dbApi.dbUpdate(
     db,
     `UPDATE ENDPOINT SET ${param} = ? WHERE ENDPOINT_ID = ? AND SESSION_REF = ?`,
@@ -337,7 +337,7 @@ export function updateEndpoint(db, sessionId, endpointId, param, updatedValue) {
   )
 }
 
-export function selectEndpoint(db, endpointRef) {
+function selectEndpoint(db, endpointRef) {
   return dbApi
     .dbGet(
       db,
@@ -357,7 +357,7 @@ export function selectEndpoint(db, endpointRef) {
  * @param {*} deviceTypeRef
  * @returns Promise to update endpoints.
  */
-export function insertEndpointType(db, sessionId, name, deviceTypeRef) {
+function insertEndpointType(db, sessionId, name, deviceTypeRef) {
   return dbApi
     .dbInsert(
       db,
@@ -380,7 +380,7 @@ export function insertEndpointType(db, sessionId, name, deviceTypeRef) {
  * @param {*} id
  */
 
-export function deleteEndpointType(db, id) {
+function deleteEndpointType(db, id) {
   return dbApi.dbRemove(
     db,
     'DELETE FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?',
@@ -396,7 +396,7 @@ export function deleteEndpointType(db, id) {
  * @param {*} endpointTypeId
  * @returns Promise of removal.
  */
-export function deleteEndpointTypeData(db, endpointTypeId) {
+function deleteEndpointTypeData(db, endpointTypeId) {
   return Promise.all([
     dbApi.dbRemove(
       db,
@@ -424,7 +424,7 @@ export function deleteEndpointTypeData(db, endpointTypeId) {
  * @param {*} param
  * @param {*} updatedValue
  */
-export function updateEndpointType(
+function updateEndpointType(
   db,
   sessionId,
   endpointTypeId,
@@ -459,7 +459,7 @@ export function updateEndpointType(
  * @param {*} db
  * @param {*} endpointTypeId
  */
-export function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
+function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
   return dbApi
     .dbBeginTransaction(db)
     .then((data) => {
@@ -695,7 +695,7 @@ function resolveNonOptionalAndReportableAttributes(
  * @param {*} sessionId
  * @param {*} endpoints
  */
-export function insertEndpointTypes(db, sessionId, endpoints) {
+function insertEndpointTypes(db, sessionId, endpoints) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO ENDPOINT_TYPE (SESSION_REF, NAME, DEVICE_TYPE_REF) VALUES (?,?,?)',
@@ -713,7 +713,7 @@ export function insertEndpointTypes(db, sessionId, endpoints) {
  * @param {*} sessionId
  * @returns promise that resolves into rows in the database table.
  */
-export function getAllEndpointTypes(db, sessionId) {
+function getAllEndpointTypes(db, sessionId) {
   return dbApi
     .dbAll(
       db,
@@ -738,7 +738,7 @@ export function getAllEndpointTypes(db, sessionId) {
  * @param {*} endpointTypeId
  * @returns A promise that resolves into the rows.
  */
-export function getEndpointTypeClusters(db, endpointTypeId) {
+function getEndpointTypeClusters(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -756,7 +756,7 @@ export function getEndpointTypeClusters(db, endpointTypeId) {
  * @param {*} side
  */
 
-export function getOrInsertDefaultEndpointTypeCluster(
+function getOrInsertDefaultEndpointTypeCluster(
   db,
   endpointTypeId,
   clusterRef,
@@ -798,7 +798,7 @@ export function getOrInsertDefaultEndpointTypeCluster(
  * @param {*} endpointTypeId
  * @returns A promise that resolves into the rows.
  */
-export function getEndpointTypeAttributes(db, endpointTypeId) {
+function getEndpointTypeAttributes(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -829,7 +829,7 @@ export function getEndpointTypeAttributes(db, endpointTypeId) {
  * @param {*} endpointTypeId
  * @returns A promise that resolves into the rows.
  */
-export function getEndpointTypeCommands(db, endpointTypeId) {
+function getEndpointTypeCommands(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -846,3 +846,26 @@ export function getEndpointTypeCommands(db, endpointTypeId) {
       })
     )
 }
+// exports
+exports.updateKeyValue = updateKeyValue
+exports.getSessionKeyValue = getSessionKeyValue
+exports.getAllSessionKeyValues = getAllSessionKeyValues
+exports.insertOrReplaceClusterState = insertOrReplaceClusterState
+exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState
+exports.insertOrUpdateCommandState = insertOrUpdateCommandState
+exports.getAllEndpointTypeClusterState = getAllEndpointTypeClusterState
+exports.insertEndpoint = insertEndpoint
+exports.deleteEndpoint = deleteEndpoint
+exports.updateEndpoint = updateEndpoint
+exports.selectEndpoint = selectEndpoint
+exports.insertEndpointType = insertEndpointType
+exports.deleteEndpointType = deleteEndpointType
+exports.deleteEndpointTypeData = deleteEndpointTypeData
+exports.updateEndpointType = updateEndpointType
+exports.setEndpointDefaults = setEndpointDefaults
+exports.insertEndpointTypes = insertEndpointTypes
+exports.getAllEndpointTypes = getAllEndpointTypes
+exports.getEndpointTypeClusters = getEndpointTypeClusters
+exports.getOrInsertDefaultEndpointTypeCluster = getOrInsertDefaultEndpointTypeCluster
+exports.getEndpointTypeAttributes = getEndpointTypeAttributes
+exports.getEndpointTypeCommands = getEndpointTypeCommands

@@ -22,7 +22,7 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
-import * as QueryConfig from '../db/query-config.js'
+const queryConfig = require('../db/query-config.js')
 
 export function validateAttribute(
   db,
@@ -43,7 +43,7 @@ export function validateAttribute(
 }
 
 export function validateEndpoint(db, endpointId) {
-  return QueryConfig.selectEndpoint(db, endpointId).then(
+  return queryConfig.selectEndpoint(db, endpointId).then(
     (endpoint) =>
       new Promise((resolve, reject) => {
         resolve(validateSpecificEndpoint(endpoint))

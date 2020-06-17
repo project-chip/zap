@@ -17,10 +17,13 @@
  *
  * @jest-environment node
  */
-import fs from 'fs'
-import { version } from '../package.json'
+const fs = require('fs')
 const dbApi = require('../src-electron/db/db-api.js')
-import { zclPropertiesFile } from '../src-electron/main-process/args'
+const queryZcl = require('../src-electron/db/query-zcl.js')
+const { zclPropertiesFile } = require('../src-electron/main-process/args')
+const queryConfig = require('../src-electron/db/query-config.js')
+
+import { version } from '../package.json'
 import {
   logInfo,
   schemaFile,
@@ -28,28 +31,21 @@ import {
   logError,
 } from '../src-electron/util/env'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
-import { getPathCrc, insertPathCrc } from '../src-electron/db/query-package'
-const queryZcl = require('../src-electron/db/query-zcl')
+const {
+  getPathCrc,
+  insertPathCrc,
+} = require('../src-electron/db/query-package')
 import {
   ensureZapSessionId,
   setSessionClean,
   getSessionInfoFromWindowId,
   getSessionDirtyFlag,
 } from '../src-electron/db/query-session'
-import {
-  insertEndpointType,
-  deleteEndpoint,
-  deleteEndpointType,
-  updateKeyValue,
-  getSessionKeyValue,
-  getAllEndpointTypes,
-} from '../src-electron/db/query-config'
-import * as QueryZcl from '../src-electron/db/query-zcl.js'
-import * as QueryConfig from '../src-electron/db/query-config.js'
-import {
+
+const {
   insertFileLocation,
   selectFileLocation,
-} from '../src-electron/db/query-generic'
+} = require('../src-electron/db/query-generic.js')
 import { createStateFromDatabase } from '../src-electron/importexport/export'
 
 /*
@@ -184,17 +180,18 @@ describe('Session specific queries', () => {
   })
 
   test('Random key value queries', () => {
-    return updateKeyValue(db, sid, 'key1', 'value1')
-      .then(() => getSessionKeyValue(db, sid, 'key1'))
+    return queryConfig
+      .updateKeyValue(db, sid, 'key1', 'value1')
+      .then(() => queryConfig.getSessionKeyValue(db, sid, 'key1'))
       .then((value) => {
         expect(value).toBe('value1')
       })
-      .then(() => updateKeyValue(db, sid, 'key1', 'value2'))
-      .then(() => getSessionKeyValue(db, sid, 'key1'))
+      .then(() => queryConfig.updateKeyValue(db, sid, 'key1', 'value2'))
+      .then(() => queryConfig.getSessionKeyValue(db, sid, 'key1'))
       .then((value) => {
         expect(value).toBe('value2')
       })
-      .then(() => getSessionKeyValue(db, sid, 'nonexistent'))
+      .then(() => queryConfig.getSessionKeyValue(db, sid, 'nonexistent'))
       .then((value) => {
         expect(value).toBeUndefined()
       })
@@ -228,7 +225,7 @@ describe('Session specific queries', () => {
       .then((result) => {
         expect(result).toBeFalsy()
       })
-      .then(() => insertEndpointType(db, sid, 'Test endpoint'))
+      .then(() => queryConfig.insertEndpointType(db, sid, 'Test endpoint'))
       .then((id) => {
         endpointTypeId = id
         return getSessionDirtyFlag(db, sid)
@@ -236,7 +233,7 @@ describe('Session specific queries', () => {
       .then((result) => {
         expect(result).toBeTruthy()
       })
-      .then(() => getAllEndpointTypes(db, sid))
+      .then(() => queryConfig.getAllEndpointTypes(db, sid))
       .then((rows) => {
         expect(rows.length).toBe(1)
       })
@@ -245,7 +242,7 @@ describe('Session specific queries', () => {
       .then((result) => {
         expect(result).toBeFalsy()
       })
-      .then(() => deleteEndpointType(db, endpointTypeId))
+      .then(() => queryConfig.deleteEndpointType(db, endpointTypeId))
       .then(() => getSessionDirtyFlag(db, sid))
       .then((result) => {
         expect(result).toBeTruthy()
@@ -257,9 +254,9 @@ describe('Session specific queries', () => {
     return getSessionInfoFromWindowId(db, 666)
       .then((data) => {
         sid = data.sessionId
-        return updateKeyValue(db, sid, 'testKey', 'testValue')
+        return queryConfig.updateKeyValue(db, sid, 'testKey', 'testValue')
       })
-      .then(() => getSessionKeyValue(db, sid, 'testKey'))
+      .then(() => queryConfig.getSessionKeyValue(db, sid, 'testKey'))
       .then((value) => {
         expect(value).toBe('testValue')
       })
@@ -271,7 +268,7 @@ describe('Session specific queries', () => {
     return getSessionInfoFromWindowId(db, 666)
       .then((data) => {
         sid = data.sessionId
-        return insertEndpointType(db, sid, 'Test endpoint')
+        return queryConfig.insertEndpointType(db, sid, 'Test endpoint')
       })
       .then((id) => {
         endpointTypeId = id
@@ -294,7 +291,7 @@ describe('Session specific queries', () => {
   })
 
   test('Empty delete', () => {
-    return deleteEndpoint(db, 123).then((data) => {
+    return queryConfig.deleteEndpoint(db, 123).then((data) => {
       expect(data).toBe(0)
     })
   })
@@ -309,7 +306,7 @@ describe('Endpoint Type Config Queries', () => {
   var haOnOffDeviceType, zllOnOffLightDevice
 
   test('Insert EndpointType and test various states', () => {
-    return QueryZcl.selectAllDeviceTypes(db).then((rows) => {
+    return queryZcl.selectAllDeviceTypes(db).then((rows) => {
       let haOnOffDeviceTypeArray = rows.filter(
         (data) => data.label === 'HA-onoff'
       )
@@ -327,15 +324,11 @@ describe('Endpoint Type Config Queries', () => {
   })
 
   test('Insert Endpoint Type', () => {
-    return QueryConfig.insertEndpointType(
-      db,
-      sid,
-      'testEndpointType',
-      haOnOffDeviceType.id
-    )
+    return queryConfig
+      .insertEndpointType(db, sid, 'testEndpointType', haOnOffDeviceType.id)
       .then((rowId) => {
         endpointTypeIdOnOff = rowId
-        return QueryZcl.selectEndpointType(db, rowId)
+        return queryZcl.selectEndpointType(db, rowId)
       })
       .then((endpointType) => {
         expect(endpointType.deviceTypeRef).toBe(haOnOffDeviceType.id)
@@ -344,24 +337,26 @@ describe('Endpoint Type Config Queries', () => {
   })
 
   test('Test get all cluster states', () => {
-    return QueryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
+    return queryConfig
+      .getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
       .then((clusters) => {
         expect(clusters.length).toBe(6)
         return Promise.resolve()
       })
       .then(() => {
-        return QueryConfig.insertOrReplaceClusterState(
-          db,
-          endpointTypeIdOnOff,
-          7,
-          'CLIENT',
-          true
-        )
+        return queryConfig
+          .insertOrReplaceClusterState(
+            db,
+            endpointTypeIdOnOff,
+            7,
+            'CLIENT',
+            true
+          )
           .then((rowId) => {
             expect(typeof rowId).toBe('number')
           })
           .then(() => {
-            return QueryConfig.getAllEndpointTypeClusterState(
+            return queryConfig.getAllEndpointTypeClusterState(
               db,
               endpointTypeIdOnOff
             )
@@ -374,25 +369,26 @@ describe('Endpoint Type Config Queries', () => {
   })
 
   test('Test get all attribute states', () => {
-    return QueryConfig.getEndpointTypeAttributes(db, endpointTypeIdOnOff).then(
-      (attributes) => {
+    return queryConfig
+      .getEndpointTypeAttributes(db, endpointTypeIdOnOff)
+      .then((attributes) => {
         expect(attributes.length).toBe(10)
-      }
-    )
+      })
   })
 
   test('Get all cluster commands', () => {
-    return QueryConfig.getEndpointTypeCommands(db, endpointTypeIdOnOff).then(
-      (commands) => {
+    return queryConfig
+      .getEndpointTypeCommands(db, endpointTypeIdOnOff)
+      .then((commands) => {
         expect(commands.length).toBe(6)
-      }
-    )
+      })
   })
 
   test('Delete Endpoint Type', () => {
-    return QueryConfig.deleteEndpointType(db, endpointTypeIdOnOff)
-      .then(QueryConfig.deleteEndpointTypeData(db, endpointTypeIdOnOff))
-      .then(QueryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
+    return queryConfig
+      .deleteEndpointType(db, endpointTypeIdOnOff)
+      .then(queryConfig.deleteEndpointTypeData(db, endpointTypeIdOnOff))
+      .then(queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
       .then((clusters) => {
         expect(clusters.length).toBe(undefined)
         return Promise.resolve()
