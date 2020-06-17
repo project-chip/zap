@@ -21,7 +21,7 @@
  *
  */
 
-import * as QueryZcl from '../db/query-zcl.js'
+const queryZcl = require('../db/query-zcl.js')
 import * as QueryConfig from '../db/query-config.js'
 
 export function validateAttribute(
@@ -30,19 +30,16 @@ export function validateAttribute(
   attributeRef,
   clusterRef
 ) {
-  return QueryZcl.selectEndpointTypeAttribute(
-    db,
-    endpointTypeId,
-    attributeRef,
-    clusterRef
-  ).then((endpointAttribute) =>
-    QueryZcl.selectAttributeById(db, attributeRef).then(
-      (attribute) =>
-        new Promise((resolve, reject) => {
-          resolve(validateSpecificAttribute(endpointAttribute, attribute))
-        })
+  return queryZcl
+    .selectEndpointTypeAttribute(db, endpointTypeId, attributeRef, clusterRef)
+    .then((endpointAttribute) =>
+      queryZcl.selectAttributeById(db, attributeRef).then(
+        (attribute) =>
+          new Promise((resolve, reject) => {
+            resolve(validateSpecificAttribute(endpointAttribute, attribute))
+          })
+      )
     )
-  )
 }
 
 export function validateEndpoint(db, endpointId) {

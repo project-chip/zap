@@ -25,19 +25,7 @@ import {
   insertPathCrc,
   updatePathCrc,
 } from '../db/query-package.js'
-import {
-  insertBitmaps,
-  insertClusterExtensions,
-  insertClusters,
-  insertDeviceTypes,
-  insertDomains,
-  insertEnums,
-  insertGlobals,
-  insertStructs,
-  updateAttributeReferencesForDeviceTypeReferences,
-  updateClusterReferencesForDeviceTypeClusters,
-  updateCommandReferencesForDeviceTypeReferences,
-} from '../db/query-zcl.js'
+const queryZcl = require('../db/query-zcl.js')
 const { logError, logInfo } = require('../util/env.js')
 const { calculateCrc } = require('../util/util.js')
 
@@ -143,7 +131,7 @@ function prepareBitmap(bm) {
  */
 function processBitmaps(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} bitmaps.`)
-  return insertBitmaps(
+  return queryZcl.insertBitmaps(
     db,
     packageId,
     data.map((x) => prepareBitmap(x))
@@ -228,7 +216,7 @@ function prepareCluster(cluster, isExtension = false) {
  */
 function processClusters(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} clusters.`)
-  return insertClusters(
+  return queryZcl.insertClusters(
     db,
     packageId,
     data.map((x) => prepareCluster(x))
@@ -247,7 +235,7 @@ function processClusters(db, filePath, packageId, data) {
  */
 function processClusterExtensions(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} cluster extensions.`)
-  return insertClusterExtensions(
+  return queryZcl.insertClusterExtensions(
     db,
     packageId,
     data.map((x) => prepareCluster(x, true))
@@ -266,7 +254,7 @@ function processClusterExtensions(db, filePath, packageId, data) {
  */
 function processGlobals(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} globals.`)
-  return insertGlobals(
+  return queryZcl.insertGlobals(
     db,
     packageId,
     data.map((x) => prepareCluster(x, true))
@@ -294,7 +282,7 @@ function prepareDomain(domain) {
  */
 function processDomains(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} domains.`)
-  return insertDomains(
+  return queryZcl.insertDomains(
     db,
     packageId,
     data.map((x) => prepareDomain(x))
@@ -332,7 +320,7 @@ function prepareStruct(struct) {
  */
 function processStructs(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} structs.`)
-  return insertStructs(
+  return queryZcl.insertStructs(
     db,
     packageId,
     data.map((x) => prepareStruct(x))
@@ -370,7 +358,7 @@ function prepareEnum(en) {
  */
 function processEnums(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} enums.`)
-  return insertEnums(
+  return queryZcl.insertEnums(
     db,
     packageId,
     data.map((x) => prepareEnum(x))
@@ -431,7 +419,7 @@ function prepareDeviceType(deviceType) {
  */
 function processDeviceTypes(db, filePath, packageId, data) {
   logInfo(`${filePath}, ${packageId}: ${data.length} deviceTypes.`)
-  return insertDeviceTypes(
+  return queryZcl.insertDeviceTypes(
     db,
     packageId,
     data.map((x) => prepareDeviceType(x))
@@ -512,9 +500,12 @@ function processParsedZclData(db, argument) {
  * @returns Promise to deal with the post-loading cleanup.
  */
 function processPostLoading(db) {
-  return updateClusterReferencesForDeviceTypeClusters(db)
-    .then((res) => updateAttributeReferencesForDeviceTypeReferences(db))
-    .then((res) => updateCommandReferencesForDeviceTypeReferences(db))
+  return queryZcl
+    .updateClusterReferencesForDeviceTypeClusters(db)
+    .then((res) =>
+      queryZcl.updateAttributeReferencesForDeviceTypeReferences(db)
+    )
+    .then((res) => queryZcl.updateCommandReferencesForDeviceTypeReferences(db))
 }
 
 /**

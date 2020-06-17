@@ -22,7 +22,7 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
-import * as QueryZcl from './query-zcl.js'
+const queryZcl = require('./query-zcl.js')
 
 /**
  * Promises to update or insert a key/value pair in SESSION_KEY_VALUE table.
@@ -147,8 +147,9 @@ export function insertOrUpdateAttributeState(
     clusterRef,
     side
   ).then((cluster) => {
-    return QueryZcl.selectAttributeById(db, attributeId).then(
-      (staticAttribute) => {
+    return queryZcl
+      .selectAttributeById(db, attributeId)
+      .then((staticAttribute) => {
         return dbApi
           .dbInsert(
             db,
@@ -172,8 +173,7 @@ export function insertOrUpdateAttributeState(
               [endpointTypeId, cluster.endpointTypeClusterId, attributeId]
             )
           })
-      }
-    )
+      })
   })
 }
 
@@ -499,127 +499,124 @@ export function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
 }
 
 function resolveDefaultClusters(db, endpointTypeId, deviceTypeRef) {
-  return QueryZcl.selectDeviceTypeClustersByDeviceTypeRef(
-    db,
-    deviceTypeRef
-  ).then((clusters) => {
-    return Promise.all(
-      clusters.map((cluster) => {
-        var clientServerPromise = []
-        if (cluster.includeClient) {
-          clientServerPromise.push(
-            new Promise((resolve, reject) =>
-              insertOrReplaceClusterState(
-                db,
-                endpointTypeId,
-                cluster.clusterRef,
-                'client',
-                true
-              ).then((data) => {
-                resolve({ clusterRef: cluster.clusterRef, side: 'client' })
-              })
+  return queryZcl
+    .selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef)
+    .then((clusters) => {
+      return Promise.all(
+        clusters.map((cluster) => {
+          var clientServerPromise = []
+          if (cluster.includeClient) {
+            clientServerPromise.push(
+              new Promise((resolve, reject) =>
+                insertOrReplaceClusterState(
+                  db,
+                  endpointTypeId,
+                  cluster.clusterRef,
+                  'client',
+                  true
+                ).then((data) => {
+                  resolve({ clusterRef: cluster.clusterRef, side: 'client' })
+                })
+              )
             )
-          )
-        }
-        if (cluster.includeServer) {
-          clientServerPromise.push(
-            new Promise((resolve, reject) =>
-              insertOrReplaceClusterState(
-                db,
-                endpointTypeId,
-                cluster.clusterRef,
-                'server',
-                true
-              ).then((data) => {
-                resolve({ clusterRef: cluster.clusterRef, side: 'server' })
-              })
+          }
+          if (cluster.includeServer) {
+            clientServerPromise.push(
+              new Promise((resolve, reject) =>
+                insertOrReplaceClusterState(
+                  db,
+                  endpointTypeId,
+                  cluster.clusterRef,
+                  'server',
+                  true
+                ).then((data) => {
+                  resolve({ clusterRef: cluster.clusterRef, side: 'server' })
+                })
+              )
             )
-          )
-        }
-        return Promise.all(clientServerPromise)
-      })
-    )
-  })
+          }
+          return Promise.all(clientServerPromise)
+        })
+      )
+    })
 }
 
 function resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef) {
-  return QueryZcl.selectDeviceTypeAttributesByDeviceTypeRef(
-    db,
-    deviceTypeRef
-  ).then((deviceTypeAttributes) => {
-    return Promise.all(
-      deviceTypeAttributes.map((deviceAttribute) => {
-        if (deviceAttribute.attributeRef != null) {
-          return QueryZcl.selectAttributeById(
-            db,
-            deviceAttribute.attributeRef
-          ).then((attribute) => {
-            Promise.all([
-              insertOrUpdateAttributeState(
-                db,
-                endpointTypeId,
-                attribute.clusterRef,
-                attribute.side,
-                deviceAttribute.attributeRef,
-                [
-                  { key: 'INCLUDED', value: true, type: 'bool' },
-                  {
-                    key: 'INCLUDED_REPORTABLE',
-                    value: deviceAttribute.isReportable == true,
-                    type: 'bool',
-                  },
-                ]
-              ),
-            ])
-          })
-        } else {
-          return new Promise((resolve, reject) => {
-            return resolve()
-          })
-        }
-      })
-    )
-  })
+  return queryZcl
+    .selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef)
+    .then((deviceTypeAttributes) => {
+      return Promise.all(
+        deviceTypeAttributes.map((deviceAttribute) => {
+          if (deviceAttribute.attributeRef != null) {
+            return queryZcl
+              .selectAttributeById(db, deviceAttribute.attributeRef)
+              .then((attribute) => {
+                Promise.all([
+                  insertOrUpdateAttributeState(
+                    db,
+                    endpointTypeId,
+                    attribute.clusterRef,
+                    attribute.side,
+                    deviceAttribute.attributeRef,
+                    [
+                      { key: 'INCLUDED', value: true, type: 'bool' },
+                      {
+                        key: 'INCLUDED_REPORTABLE',
+                        value: deviceAttribute.isReportable == true,
+                        type: 'bool',
+                      },
+                    ]
+                  ),
+                ])
+              })
+          } else {
+            return new Promise((resolve, reject) => {
+              return resolve()
+            })
+          }
+        })
+      )
+    })
 }
 
 function resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef) {
-  return QueryZcl.selectDeviceTypeCommandsByDeviceTypeRef(
-    db,
-    deviceTypeRef
-  ).then((commands) => {
-    return Promise.all(
-      commands.map((deviceCommand) => {
-        if (deviceCommand.commandRef != null) {
-          return QueryZcl.selectCommandById(db, deviceCommand.commandRef).then(
-            (command) => {
-              if (command != null) {
-                return insertOrUpdateCommandState(
-                  db,
-                  endpointTypeId,
-                  command.clusterRef,
-                  command.source,
-                  deviceCommand.commandRef,
-                  true,
-                  'OUTGOING'
-                )
-              }
-            }
-          )
-        } else {
-          return new Promise((resolve, reject) => {
-            return resolve()
-          })
-        }
-      })
-    )
-  })
+  return queryZcl
+    .selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef)
+    .then((commands) => {
+      return Promise.all(
+        commands.map((deviceCommand) => {
+          if (deviceCommand.commandRef != null) {
+            return queryZcl
+              .selectCommandById(db, deviceCommand.commandRef)
+              .then((command) => {
+                if (command != null) {
+                  return insertOrUpdateCommandState(
+                    db,
+                    endpointTypeId,
+                    command.clusterRef,
+                    command.source,
+                    deviceCommand.commandRef,
+                    true,
+                    'OUTGOING'
+                  )
+                }
+              })
+          } else {
+            return new Promise((resolve, reject) => {
+              return resolve()
+            })
+          }
+        })
+      )
+    })
 }
 
 function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
   return Promise.all(
     clusters.map((cluster) => {
-      return QueryZcl.selectCommandsByClusterId(db, cluster.clusterRef).then(
-        (commands) => {
+      return queryZcl
+        .selectCommandsByClusterId(db, cluster.clusterRef)
+        .then((commands) => {
           return Promise.all(
             commands.map((command) => {
               if (!command.isOptional) {
@@ -639,8 +636,7 @@ function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
               }
             })
           )
-        }
-      )
+        })
     })
   )
 }
@@ -648,8 +644,9 @@ function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
 function resolveDefaultAttributes(db, endpointTypeId, clusters) {
   return Promise.all(
     clusters.map((cluster) => {
-      return QueryZcl.selectAttributesByClusterId(db, cluster.clusterRef).then(
-        (attributes) => {
+      return queryZcl
+        .selectAttributesByClusterId(db, cluster.clusterRef)
+        .then((attributes) => {
           var promiseArray = []
           promiseArray.push(
             resolveNonOptionalAndReportableAttributes(
@@ -660,8 +657,7 @@ function resolveDefaultAttributes(db, endpointTypeId, clusters) {
             )
           )
           return Promise.all(promiseArray)
-        }
-      )
+        })
     })
   )
 }

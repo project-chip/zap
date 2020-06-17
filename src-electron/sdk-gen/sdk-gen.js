@@ -18,8 +18,7 @@
 const path = require('path')
 const yaml = require('yaml')
 const fs = require('fs')
-
-import * as QueryZcl from '../db/query-zcl.js'
+const queryZcl = require('../db/query-zcl.js')
 
 function cleanse(name) {
   var ret = name.replace(/-/g, '_')
@@ -222,15 +221,15 @@ function generateSingleCommandSlcc(ctx, cluster, command) {
 }
 
 function generateSingleClusterCommands(ctx, cluster) {
-  return QueryZcl.selectCommandsByClusterId(ctx.db, cluster.id).then(
-    (commandsArray) => {
+  return queryZcl
+    .selectCommandsByClusterId(ctx.db, cluster.id)
+    .then((commandsArray) => {
       var promises = []
       commandsArray.forEach((command) => {
         promises.push(generateSingleCommandSlcc(ctx, cluster, command))
       })
       return Promise.all(promises)
-    }
-  )
+    })
 }
 
 // Attributes
@@ -261,19 +260,19 @@ function generateSingleAttributeSlcc(ctx, cluster, attribute) {
 }
 
 function generateSingleClusterAttributes(ctx, cluster) {
-  return QueryZcl.selectAttributesByClusterId(ctx.db, cluster.id).then(
-    (attributesArray) => {
+  return queryZcl
+    .selectAttributesByClusterId(ctx.db, cluster.id)
+    .then((attributesArray) => {
       var promises = []
       attributesArray.forEach((attribute) => {
         promises.push(generateSingleAttributeSlcc(ctx, cluster, attribute))
       })
       return Promise.all(promises)
-    }
-  )
+    })
 }
 
 function generateDeviceTypes(ctx) {
-  return QueryZcl.selectAllDeviceTypes(ctx.db).then((deviceTypeArray) => {
+  return queryZcl.selectAllDeviceTypes(ctx.db).then((deviceTypeArray) => {
     var promises = []
     console.log(`Generating ${deviceTypeArray.length} device types`)
     deviceTypeArray.forEach((element) => {
@@ -285,7 +284,7 @@ function generateDeviceTypes(ctx) {
 }
 
 function generateClusters(ctx) {
-  return QueryZcl.selectAllClusters(ctx.db).then((clustersArray) => {
+  return queryZcl.selectAllClusters(ctx.db).then((clustersArray) => {
     var promises = []
     console.log(`Generating ${clustersArray.length} clusters`)
     clustersArray.forEach((element) => {

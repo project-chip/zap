@@ -18,11 +18,13 @@
  * @jest-environment node
  */
 
+const dbApi = require('../src-electron/db/db-api.js')
+const queryZcl = require('../src-electron/db/query-zcl.js')
+
 import {
   initHttpServer,
   shutdownHttpServer,
 } from '../src-electron/server/http-server'
-const dbApi = require('../src-electron/db/db-api.js')
 import {
   logError,
   setDevelopmentEnv,
@@ -38,7 +40,6 @@ import { version } from '../package.json'
 import { selectCountFrom } from '../src-electron/db/query-generic'
 import { getAllSessions, deleteSession } from '../src-electron/db/query-session'
 import { insertPathCrc } from '../src-electron/db/query-package'
-import { insertClusters, insertDomains } from '../src-electron/db/query-zcl'
 import { exportDataIntoFile } from '../src-electron/importexport/export'
 import { importDataFromFile } from '../src-electron/importexport/import'
 
@@ -130,7 +131,7 @@ describe('Session specific tests', () => {
   })
 
   test('load 2 clusters', () => {
-    return insertClusters(db, packageId, [
+    return queryZcl.insertClusters(db, packageId, [
       {
         code: 0x1111,
         name: 'One',
@@ -160,7 +161,7 @@ describe('Session specific tests', () => {
   })
 
   test('load domains', () => {
-    return insertDomains(db, packageId, [
+    return queryZcl.insertDomains(db, packageId, [
       { name: 'one' },
       { name: 'two' },
       { name: 'three' },

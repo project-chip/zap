@@ -27,7 +27,9 @@ import { logInfo, schemaFile, sqliteTestFile } from '../src-electron/util/env'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
 
-import { selectAttributesByClusterCodeAndManufacturerCode } from '../src-electron/db/query-zcl'
+const {
+  selectAttributesByClusterCodeAndManufacturerCode,
+} = require('../src-electron/db/query-zcl.js')
 
 var db
 

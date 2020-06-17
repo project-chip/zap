@@ -29,13 +29,7 @@ import {
 } from '../src-electron/util/env'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
 import { getPathCrc, insertPathCrc } from '../src-electron/db/query-package'
-import {
-  insertClusters,
-  selectAllClusters,
-  selectClusterById,
-  selectAttributesByClusterId,
-  selectCommandsByClusterId,
-} from '../src-electron/db/query-zcl'
+const queryZcl = require('../src-electron/db/query-zcl')
 import {
   ensureZapSessionId,
   setSessionClean,
@@ -130,7 +124,7 @@ test('Replace query', () => {
 test('Simple cluster addition.', () => {
   return insertPathCrc(db, 'test', 1)
     .then((rowid) =>
-      insertClusters(db, rowid, [
+      queryZcl.insertClusters(db, rowid, [
         {
           code: '0x1234',
           name: 'Test',
@@ -139,7 +133,7 @@ test('Simple cluster addition.', () => {
         },
       ])
     )
-    .then((rowids) => selectAllClusters(db))
+    .then((rowids) => queryZcl.selectAllClusters(db))
     .then(
       (rows) =>
         new Promise((resolve, reject) => {
@@ -150,7 +144,7 @@ test('Simple cluster addition.', () => {
           resolve(rowid)
         })
     )
-    .then((rowid) => selectClusterById(db, rowid))
+    .then((rowid) => queryZcl.selectClusterById(db, rowid))
     .then(
       (row) =>
         new Promise((resolve, reject) => {
@@ -160,11 +154,12 @@ test('Simple cluster addition.', () => {
         })
     )
     .then((rowid) => {
-      selectAttributesByClusterId(db, rowid)
+      queryZcl
+        .selectAttributesByClusterId(db, rowid)
         .then((rows) => {
           expect(rows.length).toBe(0)
         })
-        .then(() => selectCommandsByClusterId(db, rowid))
+        .then(() => queryZcl.selectCommandsByClusterId(db, rowid))
         .then((rows) => {
           expect(rows.length).toBe(0)
         })

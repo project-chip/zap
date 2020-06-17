@@ -19,7 +19,7 @@
  * @module JS API: generator logic
  */
 const Handlebars = require('handlebars/dist/cjs/handlebars')
-
+const queryZcl = require('../db/query-zcl')
 const {
   readFileSync,
   existsSync,
@@ -27,19 +27,6 @@ const {
   writeFileSync,
 } = require('fs-extra')
 
-import {
-  selectAllClusters,
-  selectAllEnums,
-  selectAllEnumItems,
-  selectAllBitmaps,
-  selectAllBitmapFields,
-  selectAllStructs,
-  selectAllStructItems,
-  selectAllCommands,
-  selectAllCommandArguments,
-  selectAllGlobalCommands,
-  selectAllClusterCommands,
-} from '../db/query-zcl.js'
 const { logError, logInfo } = require('../util/env.js')
 import {
   getHexValue,
@@ -158,32 +145,32 @@ export function infoFromDb(map, dbRowTypeArray) {
         dbRowType === 'callback-zcl' ||
         dbRowType === 'client-command-macro-cluster'
       ) {
-        dbInfo[dbRowType] = selectAllClusters(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
+        dbInfo[dbRowType] = queryZcl
+          .selectAllClusters(db)
+          .then((dbRows) => (map[dbRowType] = dbRows))
       } else if (dbRowType == 'enums') {
-        dbInfo[dbRowType] = selectAllEnums(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
+        dbInfo[dbRowType] = queryZcl
+          .selectAllEnums(db)
+          .then((dbRows) => (map[dbRowType] = dbRows))
       } else if (dbRowType == 'bitmaps') {
-        dbInfo[dbRowType] = selectAllBitmaps(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
+        dbInfo[dbRowType] = queryZcl
+          .selectAllBitmaps(db)
+          .then((dbRows) => (map[dbRowType] = dbRows))
       } else if (dbRowType === 'af-structs') {
-        dbInfo[dbRowType] = selectAllStructs(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
+        dbInfo[dbRowType] = queryZcl
+          .selectAllStructs(db)
+          .then((dbRows) => (map[dbRowType] = dbRows))
       } else if (
         dbRowType === 'callback-zcl-command' ||
         dbRowType === 'client-command-macro-cluster-commands'
       ) {
-        dbInfo[dbRowType] = selectAllCommands(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
+        dbInfo[dbRowType] = queryZcl
+          .selectAllCommands(db)
+          .then((dbRows) => (map[dbRowType] = dbRows))
       } else if (dbRowType === 'client-command-macro-global') {
-        dbInfo[dbRowType] = selectAllGlobalCommands(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
+        dbInfo[dbRowType] = queryZcl
+          .selectAllGlobalCommands(db)
+          .then((dbRows) => (map[dbRowType] = dbRows))
       }
     }
     // Going through an array of promises and resolving them.
@@ -240,13 +227,13 @@ export function groupInfoIntoDbRow(map, groupByParams) {
       }
       if (!subItems) {
         if (subItemName == 'EnumItems') {
-          subItems = selectAllEnumItems(db)
+          subItems = queryZcl.selectAllEnumItems(db)
         } else if (subItemName == 'BitmapFields') {
-          subItems = selectAllBitmapFields(db)
+          subItems = queryZcl.selectAllBitmapFields(db)
         } else if (subItemName == 'StructItems') {
-          subItems = selectAllStructItems(db)
+          subItems = queryZcl.selectAllStructItems(db)
         } else if (subItemName == 'CommandArguments') {
-          subItems = selectAllCommandArguments(db)
+          subItems = queryZcl.selectAllCommandArguments(db)
         } else {
           return
         }

@@ -20,17 +20,11 @@
 
 var sq = require('sqlite3')
 
-import { version } from '../package.json'
 const dbApi = require('../src-electron/db/db-api.js')
+const queryZcl = require('../src-electron/db/query-zcl')
+
+import { version } from '../package.json'
 import { selectCountFrom } from '../src-electron/db/query-generic'
-import {
-  selectAllBitmaps,
-  selectAllClusters,
-  selectAllDeviceTypes,
-  selectAllDomains,
-  selectAllEnums,
-  selectAllStructs,
-} from '../src-electron/db/query-zcl'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
 import { schemaFile } from '../src-electron/util/env'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
@@ -52,17 +46,17 @@ test('test zcl data loading in memory', () => {
   return dbApi
     .loadSchema(db, schemaFile(), version)
     .then((db) => loadZcl(db, zclPropertiesFile)) // Maybe: ../../../zcl/zcl-studio.properties
-    .then(() => selectAllClusters(db))
+    .then(() => queryZcl.selectAllClusters(db))
     .then((x) => expect(x.length).toEqual(106))
-    .then(() => selectAllDomains(db))
+    .then(() => queryZcl.selectAllDomains(db))
     .then((x) => expect(x.length).toEqual(20))
-    .then(() => selectAllEnums(db))
+    .then(() => queryZcl.selectAllEnums(db))
     .then((x) => expect(x.length).toEqual(206))
-    .then(() => selectAllStructs(db))
+    .then(() => queryZcl.selectAllStructs(db))
     .then((x) => expect(x.length).toEqual(50))
-    .then(() => selectAllBitmaps(db))
+    .then(() => queryZcl.selectAllBitmaps(db))
     .then((x) => expect(x.length).toEqual(121))
-    .then(() => selectAllDeviceTypes(db))
+    .then(() => queryZcl.selectAllDeviceTypes(db))
     .then((x) => expect(x.length).toEqual(152))
     .then(() => selectCountFrom(db, 'COMMAND_ARG'))
     .then((x) => expect(x).toEqual(1668))

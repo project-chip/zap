@@ -32,7 +32,7 @@ import {
 import { runSdkGeneration } from '../src-electron/sdk-gen/sdk-gen'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
-import { selectAllClusters } from '../src-electron/db/query-zcl'
+const { selectAllClusters } = require('../src-electron/db/query-zcl.js')
 
 describe('SDK gen tests', () => {
   var db

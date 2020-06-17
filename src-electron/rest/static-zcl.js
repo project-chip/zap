@@ -22,8 +22,8 @@
  */
 
 import * as HttpServer from '../server/http-server.js'
-import * as QueryZcl from '../db/query-zcl.js'
 
+const queryZcl = require('../db/query-zcl.js')
 const dbMapping = require('../db/db-mapping.js')
 
 const itemList = 'zcl-item-list'
@@ -31,75 +31,75 @@ const singleItem = 'zcl-item'
 
 function zclClusters(db, id) {
   if (id == 'all') {
-    return QueryZcl.selectAllClusters(db)
+    return queryZcl.selectAllClusters(db)
   } else {
-    return QueryZcl.selectClusterById(db, id)
+    return queryZcl.selectClusterById(db, id)
   }
 }
 
 function zclAttributes(db, clusterId) {
   if (clusterId == 'all') {
-    return QueryZcl.selectAllAttributes(db)
+    return queryZcl.selectAllAttributes(db)
   } else {
-    return QueryZcl.selectAttributesByClusterId(db, clusterId)
+    return queryZcl.selectAttributesByClusterId(db, clusterId)
   }
 }
 
 function zclCommands(db, clusterId) {
   if (clusterId == 'all') {
-    return QueryZcl.selectAllCommands(db).then((rows) =>
-      rows.map(dbMapping.map.command)
-    )
+    return queryZcl
+      .selectAllCommands(db)
+      .then((rows) => rows.map(dbMapping.map.command))
   } else {
-    return QueryZcl.selectCommandsByClusterId(db, clusterId)
+    return queryZcl.selectCommandsByClusterId(db, clusterId)
   }
 }
 
 function zclDomains(db, id) {
   if (id == 'all') {
-    return QueryZcl.selectAllDomains(db).then((rows) =>
-      rows.map(dbMapping.map.domain)
-    )
+    return queryZcl
+      .selectAllDomains(db)
+      .then((rows) => rows.map(dbMapping.map.domain))
   } else {
-    return QueryZcl.selectDomainById(db, id)
+    return queryZcl.selectDomainById(db, id)
   }
 }
 
 function zclEnums(db, id) {
   if (id == 'all') {
-    return QueryZcl.selectAllEnums(db).then((rows) =>
-      rows.map(dbMapping.map.enum)
-    )
+    return queryZcl
+      .selectAllEnums(db)
+      .then((rows) => rows.map(dbMapping.map.enum))
   } else {
-    return QueryZcl.selectEnumById(db, id)
+    return queryZcl.selectEnumById(db, id)
   }
 }
 
 function zclStructs(db, id) {
   if (id == 'all') {
-    return QueryZcl.selectAllStructs(db).then((rows) =>
-      rows.map(dbMapping.map.struct)
-    )
+    return queryZcl
+      .selectAllStructs(db)
+      .then((rows) => rows.map(dbMapping.map.struct))
   } else {
-    return QueryZcl.selectStructById(db, id)
+    return queryZcl.selectStructById(db, id)
   }
 }
 
 export function zclBitmaps(db, id) {
   if (id == 'all') {
-    return QueryZcl.selectAllBitmaps(db).then((rows) =>
-      rows.map(dbMapping.map.bitmap)
-    )
+    return queryZcl
+      .selectAllBitmaps(db)
+      .then((rows) => rows.map(dbMapping.map.bitmap))
   } else {
-    return QueryZcl.selectBitmapById(db, id)
+    return queryZcl.selectBitmapById(db, id)
   }
 }
 
 export function zclDeviceTypes(db, id) {
   if (id == 'all') {
-    return QueryZcl.selectAllDeviceTypes(db)
+    return queryZcl.selectAllDeviceTypes(db)
   } else {
-    return QueryZcl.selectDeviceTypeById(db, id)
+    return queryZcl.selectDeviceTypeById(db, id)
   }
 }
 
@@ -150,42 +150,52 @@ function processGetEntityRequest(db, path, id, replyId, callback) {
       )
       break
     case 'endpointTypeClusters':
-      QueryZcl.selectEndpointTypeClustersByEndpointTypeId(db, id).then((x) =>
-        callback(replyId, { data: x, type: `endpointTypeClusters` })
-      )
+      queryZcl
+        .selectEndpointTypeClustersByEndpointTypeId(db, id)
+        .then((x) =>
+          callback(replyId, { data: x, type: `endpointTypeClusters` })
+        )
       break
     case 'endpointTypeAttributes':
-      QueryZcl.selectEndpointTypeAttributesByEndpointId(db, id).then((x) =>
-        callback(replyId, { data: x, type: `endpointTypeAttributes` })
-      )
+      queryZcl
+        .selectEndpointTypeAttributesByEndpointId(db, id)
+        .then((x) =>
+          callback(replyId, { data: x, type: `endpointTypeAttributes` })
+        )
       break
     case 'endpointTypeCommands':
-      QueryZcl.selectEndpointTypeCommandsByEndpointId(db, id).then((x) =>
-        callback(replyId, { data: x, type: `endpointTypeCommands` })
-      )
+      queryZcl
+        .selectEndpointTypeCommandsByEndpointId(db, id)
+        .then((x) =>
+          callback(replyId, { data: x, type: `endpointTypeCommands` })
+        )
       break
     case 'endpointTypeReportableAttributes':
-      QueryZcl.selectEndpointTypeReportableAttributeByEndpointId(
-        db,
-        id
-      ).then((x) =>
-        callback(replyId, { data: x, type: `endpointTypeReportableAttributes` })
-      )
+      queryZcl
+        .selectEndpointTypeReportableAttributeByEndpointId(db, id)
+        .then((x) =>
+          callback(replyId, {
+            data: x,
+            type: `endpointTypeReportableAttributes`,
+          })
+        )
       break
     case `endpointTypeDeviceTypeClusters`:
-      QueryZcl.selectDeviceTypeClustersByDeviceTypeRef(db, id).then((x) =>
-        callback(replyId, { data: x, type: `deviceTypeClusters` })
-      )
+      queryZcl
+        .selectDeviceTypeClustersByDeviceTypeRef(db, id)
+        .then((x) => callback(replyId, { data: x, type: `deviceTypeClusters` }))
       break
     case `endpointTypeDeviceTypeAttributes`:
-      QueryZcl.selectDeviceTypeAttributesByDeviceTypeRef(db, id).then((x) =>
-        callback(replyId, { data: x, type: `deviceTypeAttributes` })
-      )
+      queryZcl
+        .selectDeviceTypeAttributesByDeviceTypeRef(db, id)
+        .then((x) =>
+          callback(replyId, { data: x, type: `deviceTypeAttributes` })
+        )
       break
     case `endpointTypeDeviceTypeCommands`:
-      QueryZcl.selectDeviceTypeCommandsByDeviceTypeRef(db, id).then((x) =>
-        callback(replyId, { data: x, type: `deviceTypeCommands` })
-      )
+      queryZcl
+        .selectDeviceTypeCommandsByDeviceTypeRef(db, id)
+        .then((x) => callback(replyId, { data: x, type: `deviceTypeCommands` }))
       break
   }
 }

@@ -31,17 +31,17 @@ const dbMapping = require('./db-mapping.js')
  * @param {*} db
  * @returns Promise that resolves with the rows of enums.
  */
-export function selectAllEnums(db) {
+function selectAllEnums(db) {
   return dbApi
     .dbAll(db, 'SELECT ENUM_ID, NAME, TYPE FROM ENUM ORDER BY NAME', [])
     .then((rows) => rows.map(dbMapping.map.enum))
 }
 
-export function selectAllEnumItemsById(db, id) {
+function selectAllEnumItemsById(db, id) {
   return dbApi.dbAll(db, 'SELECT NAME FROM ENUM_ITEM WHERE ENUM_REF=?', [id])
 }
 
-export function selectAllEnumItems(db) {
+function selectAllEnumItems(db) {
   return dbApi
     .dbAll(
       db,
@@ -51,7 +51,7 @@ export function selectAllEnumItems(db) {
     .then((rows) => rows.map(dbMapping.map.enumItem))
 }
 
-export function selectEnumById(db, id) {
+function selectEnumById(db, id) {
   return dbApi
     .dbGet(
       db,
@@ -68,13 +68,13 @@ export function selectEnumById(db, id) {
  * @param {*} db
  * @returns Promise that resolves with the rows of bitmaps.
  */
-export function selectAllBitmaps(db) {
+function selectAllBitmaps(db) {
   return dbApi
     .dbAll(db, 'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP ORDER BY NAME', [])
     .then((rows) => rows.map(dbMapping.map.bitmap))
 }
 
-export function selectAllBitmapFields(db) {
+function selectAllBitmapFields(db) {
   return dbApi
     .dbAll(
       db,
@@ -84,7 +84,7 @@ export function selectAllBitmapFields(db) {
     .then((rows) => rows.map(dbMapping.map.bitmapField))
 }
 
-export function selectBitmapById(db, id) {
+function selectBitmapById(db, id) {
   return dbApi
     .dbGet(
       db,
@@ -101,11 +101,11 @@ export function selectBitmapById(db, id) {
  * @param {*} db
  * @returns Promise that resolves with the rows of domains.
  */
-export function selectAllDomains(db) {
+function selectAllDomains(db) {
   return dbApi.dbAll(db, 'SELECT DOMAIN_ID, NAME FROM DOMAIN ORDER BY NAME', [])
 }
 
-export function selectDomainById(db, id) {
+function selectDomainById(db, id) {
   return dbApi
     .dbGet(
       db,
@@ -122,13 +122,13 @@ export function selectDomainById(db, id) {
  * @param {*} db
  * @returns Promise that resolves with the rows of structs.
  */
-export function selectAllStructs(db) {
+function selectAllStructs(db) {
   return dbApi
     .dbAll(db, 'SELECT STRUCT_ID, NAME FROM STRUCT ORDER BY NAME', [])
     .then((rows) => rows.map(dbMapping.map.struct))
 }
 
-export function selectStructById(db, id) {
+function selectStructById(db, id) {
   return dbApi
     .dbGet(
       db,
@@ -138,7 +138,7 @@ export function selectStructById(db, id) {
     .then(dbMapping.map.struct)
 }
 
-export function selectAllStructItems(db) {
+function selectAllStructItems(db) {
   return dbApi
     .dbAll(
       db,
@@ -148,7 +148,7 @@ export function selectAllStructItems(db) {
     .then((rows) => rows.map(dbMapping.map.structItem))
 }
 
-export function selectStructItemById(db, id) {
+function selectStructItemById(db, id) {
   return dbApi.dbAll(db, 'SELECT NAME FROM STRUCT_ITEM WHERE STRUCT_REF=?', [
     id,
   ])
@@ -161,7 +161,7 @@ export function selectStructItemById(db, id) {
  * @param {*} db
  * @returns Promise that resolves with the rows of clusters.
  */
-export function selectAllClusters(db) {
+function selectAllClusters(db) {
   return dbApi
     .dbAll(
       db,
@@ -171,7 +171,7 @@ export function selectAllClusters(db) {
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
 
-export function selectClusterById(db, id) {
+function selectClusterById(db, id) {
   return dbApi
     .dbGet(
       db,
@@ -188,7 +188,7 @@ export function selectClusterById(db, id) {
  * @param {*} db
  * @returns Promise that resolves with the rows of device types.
  */
-export function selectAllDeviceTypes(db) {
+function selectAllDeviceTypes(db) {
   return dbApi
     .dbAll(
       db,
@@ -198,7 +198,7 @@ export function selectAllDeviceTypes(db) {
     .then((rows) => rows.map(dbMapping.map.deviceType))
 }
 
-export function selectDeviceTypeById(db, id) {
+function selectDeviceTypeById(db, id) {
   return dbApi
     .dbGet(
       db,
@@ -208,7 +208,7 @@ export function selectDeviceTypeById(db, id) {
     .then(dbMapping.map.deviceType)
 }
 
-export function selectAttributesByClusterId(db, clusterId) {
+function selectAttributesByClusterId(db, clusterId) {
   return dbApi
     .dbAll(
       db,
@@ -218,7 +218,7 @@ export function selectAttributesByClusterId(db, clusterId) {
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-export function selectAttributesByClusterCodeAndManufacturerCode(
+function selectAttributesByClusterCodeAndManufacturerCode(
   db,
   clusterCode,
   manufacturerCode
@@ -241,7 +241,7 @@ export function selectAttributesByClusterCodeAndManufacturerCode(
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-export function selectAttributeById(db, id) {
+function selectAttributeById(db, id) {
   return dbApi
     .dbGet(
       db,
@@ -251,7 +251,7 @@ export function selectAttributeById(db, id) {
     .then(dbMapping.map.attribute)
 }
 
-export function selectAllAttributes(db) {
+function selectAllAttributes(db) {
   return dbApi
     .dbAll(
       db,
@@ -261,7 +261,7 @@ export function selectAllAttributes(db) {
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-export function selectCommandById(db, id) {
+function selectCommandById(db, id) {
   return dbApi
     .dbGet(
       db,
@@ -271,7 +271,7 @@ export function selectCommandById(db, id) {
     .then(dbMapping.map.command)
 }
 
-export function selectCommandsByClusterId(db, clusterId) {
+function selectCommandsByClusterId(db, clusterId) {
   return dbApi
     .dbAll(
       db,
@@ -281,7 +281,7 @@ export function selectCommandsByClusterId(db, clusterId) {
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-export function selectAllCommands(db) {
+function selectAllCommands(db) {
   return dbApi
     .dbAll(
       db,
@@ -291,7 +291,7 @@ export function selectAllCommands(db) {
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-export function selectAllGlobalCommands(db) {
+function selectAllGlobalCommands(db) {
   return dbApi
     .dbAll(
       db,
@@ -301,7 +301,7 @@ export function selectAllGlobalCommands(db) {
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-export function selectAllClusterCommands(db) {
+function selectAllClusterCommands(db) {
   return dbApi
     .dbAll(
       db,
@@ -311,7 +311,7 @@ export function selectAllClusterCommands(db) {
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-export function selectAllCommandArguments(db) {
+function selectAllCommandArguments(db) {
   return dbApi
     .dbAll(
       db,
@@ -321,7 +321,7 @@ export function selectAllCommandArguments(db) {
     .then((rows) => rows.map(dbMapping.map.commandArgument))
 }
 
-export function selectEndpointType(db, id) {
+function selectEndpointType(db, id) {
   return DbApi.dbGet(
     db,
     `SELECT ENDPOINT_TYPE_ID, SESSION_REF, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?`,
@@ -329,7 +329,7 @@ export function selectEndpointType(db, id) {
   ).then(DbMapping.dbMap.endpointType)
 }
 
-export function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
+function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -339,7 +339,7 @@ export function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
     .then((rows) => rows.map(dbMapping.map.endpointTypeCluster))
 }
 
-export function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
+function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -351,7 +351,7 @@ export function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
     })
 }
 
-export function selectEndpointTypeAttribute(
+function selectEndpointTypeAttribute(
   db,
   endpointTypeId,
   attributeRef,
@@ -366,7 +366,7 @@ export function selectEndpointTypeAttribute(
     .then(dbMapping.map.endpointTypeAttribute)
 }
 
-export function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
+function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -376,10 +376,7 @@ export function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
     .then((rows) => rows.map(dbMapping.map.endpointTypeCommand))
 }
 
-export function selectEndpointTypeReportableAttributeByEndpointId(
-  db,
-  endpointTypeId
-) {
+function selectEndpointTypeReportableAttributeByEndpointId(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -389,7 +386,7 @@ export function selectEndpointTypeReportableAttributeByEndpointId(
     .then((rows) => rows.map(dbMapping.map.endpointTypeReportableAttribute))
 }
 
-export function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
+function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
   return dbApi
     .dbAll(
       db,
@@ -399,7 +396,7 @@ export function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
     .then((rows) => rows.map(dbMapping.map.deviceTypeCluster))
 }
 
-export function selectDeviceTypeAttributesByDeviceTypeClusterRef(
+function selectDeviceTypeAttributesByDeviceTypeClusterRef(
   db,
   deviceTypeClusterRef
 ) {
@@ -410,7 +407,7 @@ export function selectDeviceTypeAttributesByDeviceTypeClusterRef(
   )
 }
 
-export function selectDeviceTypeCommandsByDeviceTypeClusterRef(
+function selectDeviceTypeCommandsByDeviceTypeClusterRef(
   db,
   deviceTypeClusterRef
 ) {
@@ -421,7 +418,7 @@ export function selectDeviceTypeCommandsByDeviceTypeClusterRef(
   )
 }
 
-export function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
+function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
   return dbApi
     .dbAll(
       db,
@@ -431,7 +428,7 @@ export function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
     .then((rows) => rows.map(dbMapping.map.deviceTypeAttribute))
 }
 
-export function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
+function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
   return dbApi
     .dbAll(
       db,
@@ -451,7 +448,7 @@ export function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
  * @param {*} data
  * @returns Promise of globals insertion.
  */
-export function insertGlobals(db, packageId, data) {
+function insertGlobals(db, packageId, data) {
   Env.logInfo(`Insert globals: ${data.length}`)
   var commandsToLoad = []
   var attributesToLoad = []
@@ -536,7 +533,7 @@ export function insertGlobals(db, packageId, data) {
  * @param {*} data
  * @returns Promise of cluster extension insertion.
  */
-export function insertClusterExtensions(db, packageId, data) {
+function insertClusterExtensions(db, packageId, data) {
   return dbApi
     .dbMultiSelect(
       db,
@@ -637,7 +634,7 @@ export function insertClusterExtensions(db, packageId, data) {
  * @param {*} data an array of objects that must contain: code, name, description, define. It also contains commands: and attributes:
  * @returns Promise of cluster insertion.
  */
-export function insertClusters(db, packageId, data) {
+function insertClusters(db, packageId, data) {
   // If data is extension, we only have code there and we need to simply add commands and clusters.
   // But if it's not an extension, we need to insert the cluster and then run with
   return dbApi
@@ -737,7 +734,7 @@ export function insertClusters(db, packageId, data) {
  * @param {*} data an array of objects that must contain: code, name, description
  * @returns Promise of an insertion of device types.
  */
-export function insertDeviceTypes(db, packageId, data) {
+function insertDeviceTypes(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
@@ -795,7 +792,7 @@ export function insertDeviceTypes(db, packageId, data) {
  * @param {*} db
  * @param {*} dtClusterRefDataPairs
  */
-export function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
+function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
   var attributes = []
   dtClusterRefDataPairs.map((dtClusterRefDataPair) => {
     var dtClusterRef = dtClusterRefDataPair.dtClusterRef
@@ -819,7 +816,7 @@ export function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
  * @param {*} db
  * @param {*} dtClusterRefDataPairs
  */
-export function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
+function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
   var commands = []
   dtClusterRefDataPairs.map((dtClusterRefDataPair) => {
     var dtClusterRef = dtClusterRefDataPair.dtClusterRef
@@ -837,7 +834,7 @@ export function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
   )
 }
 
-export function updateClusterReferencesForDeviceTypeClusters(db) {
+function updateClusterReferencesForDeviceTypeClusters(db) {
   return dbApi.dbUpdate(
     db,
     'UPDATE DEVICE_TYPE_CLUSTER SET CLUSTER_REF = (SELECT CLUSTER.CLUSTER_ID FROM CLUSTER WHERE lower(CLUSTER.NAME) = lower(DEVICE_TYPE_CLUSTER.CLUSTER_NAME))',
@@ -845,7 +842,7 @@ export function updateClusterReferencesForDeviceTypeClusters(db) {
   )
 }
 
-export function updateAttributeReferencesForDeviceTypeReferences(db) {
+function updateAttributeReferencesForDeviceTypeReferences(db) {
   return dbApi.dbUpdate(
     db,
     'UPDATE DEVICE_TYPE_ATTRIBUTE SET ATTRIBUTE_REF = (SELECT ATTRIBUTE.ATTRIBUTE_ID FROM ATTRIBUTE WHERE upper(ATTRIBUTE.DEFINE) = upper(DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_NAME))',
@@ -853,7 +850,7 @@ export function updateAttributeReferencesForDeviceTypeReferences(db) {
   )
 }
 
-export function updateCommandReferencesForDeviceTypeReferences(db) {
+function updateCommandReferencesForDeviceTypeReferences(db) {
   return dbApi.dbUpdate(
     db,
     'UPDATE DEVICE_TYPE_COMMAND SET COMMAND_REF = (SELECT COMMAND.COMMAND_ID FROM COMMAND WHERE upper(COMMAND.NAME) = upper(DEVICE_TYPE_COMMAND.COMMAND_NAME))',
@@ -872,7 +869,7 @@ export function updateCommandReferencesForDeviceTypeReferences(db) {
  * @param {*} data
  * @returns A promise that resolves with an array of rowids of all inserted domains.
  */
-export function insertDomains(db, packageId, data) {
+function insertDomains(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO DOMAIN (PACKAGE_REF, NAME) VALUES (?, ?)',
@@ -893,7 +890,7 @@ export function insertDomains(db, packageId, data) {
  * @param {*} data
  * @returns A promise that resolves with an array of struct item rowids.
  */
-export function insertStructs(db, packageId, data) {
+function insertStructs(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
@@ -931,7 +928,7 @@ export function insertStructs(db, packageId, data) {
  * @param {*} data an array of objects that must contain: name, type
  * @returns A promise of enum insertion.
  */
-export function insertEnums(db, packageId, data) {
+function insertEnums(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
@@ -969,7 +966,7 @@ export function insertEnums(db, packageId, data) {
  * @param {*} data Array of object containing 'name' and 'type'.
  * @returns A promise of bitmap insertions.
  */
-export function insertBitmaps(db, packageId, data) {
+function insertBitmaps(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
@@ -995,3 +992,56 @@ export function insertBitmaps(db, packageId, data) {
       )
     })
 }
+
+// exports
+exports.selectAllEnums = selectAllEnums
+exports.selectAllEnumItemsById = selectAllEnumItemsById
+exports.selectAllEnumItems = selectAllEnumItems
+exports.selectEnumById = selectEnumById
+exports.selectAllBitmaps = selectAllBitmaps
+exports.selectAllBitmapFields = selectAllBitmapFields
+exports.selectBitmapById = selectBitmapById
+exports.selectAllDomains = selectAllDomains
+exports.selectDomainById = selectDomainById
+exports.selectAllStructs = selectAllStructs
+exports.selectStructById = selectStructById
+exports.selectAllStructItems = selectAllStructItems
+exports.selectStructItemById = selectStructItemById
+exports.selectAllClusters = selectAllClusters
+exports.selectClusterById = selectClusterById
+exports.selectAllDeviceTypes = selectAllDeviceTypes
+exports.selectDeviceTypeById = selectDeviceTypeById
+exports.selectAttributesByClusterId = selectAttributesByClusterId
+exports.selectAttributesByClusterCodeAndManufacturerCode = selectAttributesByClusterCodeAndManufacturerCode
+exports.selectAttributeById = selectAttributeById
+exports.selectAllAttributes = selectAllAttributes
+exports.selectCommandById = selectCommandById
+exports.selectCommandsByClusterId = selectCommandsByClusterId
+exports.selectAllCommands = selectAllCommands
+exports.selectAllGlobalCommands = selectAllGlobalCommands
+exports.selectAllClusterCommands = selectAllClusterCommands
+exports.selectAllCommandArguments = selectAllCommandArguments
+exports.selectEndpointTypeClustersByEndpointTypeId = selectEndpointTypeClustersByEndpointTypeId
+exports.selectEndpointTypeAttributesByEndpointId = selectEndpointTypeAttributesByEndpointId
+exports.selectEndpointTypeAttribute = selectEndpointTypeAttribute
+exports.selectEndpointTypeCommandsByEndpointId = selectEndpointTypeCommandsByEndpointId
+exports.selectEndpointTypeReportableAttributeByEndpointId = selectEndpointTypeReportableAttributeByEndpointId
+exports.selectDeviceTypeClustersByDeviceTypeRef = selectDeviceTypeClustersByDeviceTypeRef
+exports.selectDeviceTypeAttributesByDeviceTypeClusterRef = selectDeviceTypeAttributesByDeviceTypeClusterRef
+exports.selectDeviceTypeCommandsByDeviceTypeClusterRef = selectDeviceTypeCommandsByDeviceTypeClusterRef
+exports.selectDeviceTypeAttributesByDeviceTypeRef = selectDeviceTypeAttributesByDeviceTypeRef
+exports.selectDeviceTypeCommandsByDeviceTypeRef = selectDeviceTypeCommandsByDeviceTypeRef
+exports.insertGlobals = insertGlobals
+exports.insertClusterExtensions = insertClusterExtensions
+exports.insertClusters = insertClusters
+exports.insertDeviceTypes = insertDeviceTypes
+exports.insertDeviceTypeAttributes = insertDeviceTypeAttributes
+exports.insertDeviceTypeCommands = insertDeviceTypeCommands
+exports.updateClusterReferencesForDeviceTypeClusters = updateClusterReferencesForDeviceTypeClusters
+exports.updateAttributeReferencesForDeviceTypeReferences = updateAttributeReferencesForDeviceTypeReferences
+exports.updateCommandReferencesForDeviceTypeReferences = updateCommandReferencesForDeviceTypeReferences
+exports.insertDomains = insertDomains
+exports.insertStructs = insertStructs
+exports.insertEnums = insertEnums
+exports.insertBitmaps = insertBitmaps
+exports.selectEndpointType = selectEndpointType
