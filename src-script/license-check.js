@@ -18,9 +18,13 @@
 //Usage 'node ./license-check.js --production'
 
 var fs = require('fs')
-var checker = require('./node_modules/license-checker/lib/index')
-var args = require('./node_modules/license-checker/lib/args').parse()
-var whiteList = fs.readFileSync('license-whitelist.txt').toString().split('\n')
+var path = require('path')
+var checker = require('../node_modules/license-checker/lib/index')
+var args = require('../node_modules/license-checker/lib/args').parse()
+var whiteList = fs
+  .readFileSync(path.join(__dirname, 'license-whitelist.txt'))
+  .toString()
+  .split('\n')
 var fail = false
 checker.init(args, function (err, json) {
   for (x in json) {

@@ -8,7 +8,7 @@
   "author": "Timotej Ecimovic <timotej.ecimovic@silabs.com>",
   "private": true,
   "scripts": {
-    "lic": "node license-check.js --production",
+    "lic": "node src-script/license-check.js --production",
     "lint": "eslint --ext .js,.vue src",
     "electron-dev": "quasar dev -m electron",
     "electron-build": "quasar build -m electron",
