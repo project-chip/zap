@@ -21,7 +21,7 @@
  * @module REST API: static zcl functions
  */
 
-import * as HttpServer from '../server/http-server.js'
+const httpServer = require('../server/http-server.js')
 
 const queryZcl = require('../db/query-zcl.js')
 const dbMapping = require('../db/db-mapping.js')
@@ -211,7 +211,7 @@ function registerStaticZclApi(db, app) {
     const { id, entity } = request.params
     var processReply = (replyId, object) => {
       object.replyId = replyId
-      response.status(HttpServer.httpCode.ok).json(object)
+      response.status(httpServer.httpCode.ok).json(object)
     }
     var replyId = id === 'all' ? itemList : singleItem
     processGetEntityRequest(db, entity, id, replyId, processReply)

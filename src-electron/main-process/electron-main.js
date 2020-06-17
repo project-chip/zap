@@ -39,8 +39,7 @@ const {
 } = require('./menu.js')
 const { loadZcl } = require('../zcl/zcl-loader.js')
 const { initializeElectronUi, windowCreateIfNotThere } = require('./window.js')
-
-import { initHttpServer, httpServerPort } from '../server/http-server.js'
+const { initHttpServer, httpServerPort } = require('../server/http-server.js')
 
 logInitLogFile()
 

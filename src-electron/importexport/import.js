@@ -23,8 +23,7 @@ const fs = require('fs')
 const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
-
-import * as Mapping from './mapping.js'
+const Mapping = require('./mapping.js')
 
 /**
  * Reads the data from the file and resolves with the state object if all is good.

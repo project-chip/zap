@@ -39,7 +39,7 @@ const {
   validateAttribute,
 } = require('../validation/validation.js')
 
-import { httpCode } from '../server/http-server.js'
+const { httpCode } = require('../server/http-server.js')
 
 import * as RestApi from '../../src-shared/rest-api.js'
 

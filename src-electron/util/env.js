@@ -37,23 +37,19 @@ function setDevelopmentEnv() {
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
   global.__indexDirOffset = path.join('../../dist/spa')
 }
-exports.setDevelopmentEnv = setDevelopmentEnv
 
 function setProductionEnv() {
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
   global.__indexDirOffset = path.join('.').replace(/\\/g, '\\\\')
 }
-exports.setProductionEnv = setProductionEnv
 
 function setMainDatabase(db) {
   dbInstance = db
 }
-exports.setMainDatabase = setMainDatabase
 
 function mainDatabase() {
   return dbInstance
 }
-exports.mainDatabase = mainDatabase
 
 // Returns an app directory. It creates it, if it doesn't exist
 function appDirectory() {
@@ -66,12 +62,10 @@ function appDirectory() {
   }
   return appDir
 }
-exports.appDirectory = appDirectory
 
 function iconsDirectory() {
   return path.join(__dirname, '../icons')
 }
-exports.iconsDirectory = iconsDirectory
 
 function schemaFile() {
   var p = path.join(__dirname, '../db/zap-schema.sql')
@@ -80,17 +74,14 @@ function schemaFile() {
     throw new Error('Could not locate zap-schema.sql file.')
   return p
 }
-exports.schemaFile = schemaFile
 
 function sqliteFile() {
   return path.join(appDirectory(), 'zap.sqlite')
 }
-exports.sqliteFile = sqliteFile
 
 function sqliteTestFile(id) {
   return path.join(appDirectory(), `test-${id}.sqlite`)
 }
-exports.sqliteTestFile = sqliteTestFile
 
 function logInitStdout() {
   if (!explicit_logger_set) {
@@ -98,7 +89,6 @@ function logInitStdout() {
     explicit_logger_set = true
   }
 }
-exports.logInitStdout = logInitStdout
 
 function logInitLogFile() {
   if (!explicit_logger_set) {
@@ -106,28 +96,39 @@ function logInitLogFile() {
     explicit_logger_set = true
   }
 }
-exports.logInitLogFile = logInitLogFile
 
 // Use this function to log info-level messages
 function logInfo(msg) {
   return pino_logger.info(msg)
 }
-exports.logInfo = logInfo
 
 // Use this function to log error-level messages
 function logError(msg) {
   return pino_logger.error(msg)
 }
-exports.logError = logError
 
 // Use this function to log warning-level messages
 function logWarning(msg) {
   return pino_logger.warn(msg)
 }
-exports.logWarning = logWarning
 
 // Use this function to log SQL messages.
 function logSql(msg) {
   return pino_logger.debug(msg)
 }
+
+exports.setDevelopmentEnv = setDevelopmentEnv
+exports.setProductionEnv = setProductionEnv
+exports.setMainDatabase = setMainDatabase
+exports.mainDatabase = mainDatabase
+exports.appDirectory = appDirectory
+exports.iconsDirectory = iconsDirectory
+exports.schemaFile = schemaFile
+exports.sqliteFile = sqliteFile
+exports.sqliteTestFile = sqliteTestFile
+exports.logInitStdout = logInitStdout
+exports.logInitLogFile = logInitLogFile
+exports.logInfo = logInfo
+exports.logError = logError
+exports.logWarning = logWarning
 exports.logSql = logSql

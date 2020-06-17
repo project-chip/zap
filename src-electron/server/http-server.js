@@ -35,7 +35,7 @@ const { registerSessionApi } = require('../rest/user-data.js')
 
 var httpServer = null
 
-export const httpCode = {
+const httpCode = {
   ok: 200,
   badRequest: 400,
   notFound: 404,
@@ -50,7 +50,7 @@ export const httpCode = {
  * @param {*} port Port for the HTTP server.
  * @returns A promise that resolves with an express app.
  */
-export function initHttpServer(db, port) {
+function initHttpServer(db, port) {
   return new Promise((resolve, reject) => {
     const app = express()
     app.use(bodyParser.urlencoded({ extended: true }))
@@ -120,7 +120,7 @@ export function initHttpServer(db, port) {
  * @export
  * @returns Promise that resolves when server is shut down.
  */
-export function shutdownHttpServer() {
+function shutdownHttpServer() {
   return new Promise((resolve, reject) => {
     if (httpServer != null) {
       httpServer.close(() => {
@@ -139,10 +139,15 @@ export function shutdownHttpServer() {
  * @export
  * @returns port
  */
-export function httpServerPort() {
+function httpServerPort() {
   if (httpServer) {
     return httpServer.address().port
   } else {
     return 0
   }
 }
+// exports
+exports.initHttpServer = initHttpServer
+exports.shutdownHttpServer = shutdownHttpServer
+exports.httpServerPort = httpServerPort
+exports.httpCode = httpCode

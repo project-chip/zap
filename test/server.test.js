@@ -20,17 +20,17 @@
 
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
-const { selectCountFrom } = require('../src-electron/db/query-generic')
+const { selectCountFrom } = require('../src-electron/db/query-generic.js')
 const { insertPathCrc } = require('../src-electron/db/query-package.js')
 const {
   getAllSessions,
   deleteSession,
 } = require('../src-electron/db/query-session.js')
 
-import {
+const {
   initHttpServer,
   shutdownHttpServer,
-} from '../src-electron/server/http-server'
+} = require('../src-electron/server/http-server.js')
 import {
   logError,
   setDevelopmentEnv,
