@@ -21,7 +21,8 @@
  */
 const fs = require('fs')
 const Env = require('../util/env.js')
-import * as QuerySession from '../db/query-session.js'
+const querySession = require('../db/query-session.js')
+
 import * as Mapping from './mapping.js'
 
 /**
@@ -48,7 +49,7 @@ export function exportDataIntoFile(db, sessionId, filePath) {
       })
     })
     .then(() => {
-      return QuerySession.setSessionClean(db, sessionId)
+      return querySession.setSessionClean(db, sessionId)
     })
     .then(() => {
       return Promise.resolve(filePath)

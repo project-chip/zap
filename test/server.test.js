@@ -22,6 +22,10 @@ const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const { selectCountFrom } = require('../src-electron/db/query-generic')
 const { insertPathCrc } = require('../src-electron/db/query-package.js')
+const {
+  getAllSessions,
+  deleteSession,
+} = require('../src-electron/db/query-session.js')
 
 import {
   initHttpServer,
@@ -39,10 +43,6 @@ import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
 import { version } from '../package.json'
-import {
-  getAllSessions,
-  deleteSession,
-} from '../src-electron/db/query-session.js'
 import { exportDataIntoFile } from '../src-electron/importexport/export.js'
 import { importDataFromFile } from '../src-electron/importexport/import.js'
 

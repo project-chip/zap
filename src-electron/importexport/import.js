@@ -22,8 +22,8 @@
 const fs = require('fs')
 const Env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
+const querySession = require('../db/query-session.js')
 
-import * as QuerySession from '../db/query-session.js'
 import * as Mapping from './mapping.js'
 
 /**
@@ -53,7 +53,8 @@ export function readDataFromFile(filePath) {
  * @returns a promise that resolves with the sucessful writing
  */
 export function writeStateToDatabase(db, state) {
-  return QuerySession.createBlankSession(db)
+  return querySession
+    .createBlankSession(db)
     .then((sessionId) => {
       Env.logInfo('Reading state from file into the database...')
       if ('keyValuePairs' in state) {

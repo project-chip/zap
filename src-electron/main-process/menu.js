@@ -19,8 +19,8 @@ const { dialog, Menu } = require('electron')
 const { appDirectory, logInfo, mainDatabase } = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const queryGeneric = require('../db/query-generic.js')
+const { getSessionInfoFromWindowId } = require('../db/query-session.js')
 
-import { getSessionInfoFromWindowId } from '../db/query-session.js'
 import {
   compileTemplate,
   generateDataToFile,

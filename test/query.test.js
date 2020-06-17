@@ -35,15 +35,15 @@ const {
   getPathCrc,
   insertPathCrc,
 } = require('../src-electron/db/query-package.js')
-
-import { version } from '../package.json'
-import { loadZcl } from '../src-electron/zcl/zcl-loader'
-import {
+const {
   ensureZapSessionId,
   setSessionClean,
   getSessionInfoFromWindowId,
   getSessionDirtyFlag,
-} from '../src-electron/db/query-session'
+} = require('../src-electron/db/query-session.js')
+
+import { version } from '../package.json'
+import { loadZcl } from '../src-electron/zcl/zcl-loader'
 
 import { createStateFromDatabase } from '../src-electron/importexport/export'
 

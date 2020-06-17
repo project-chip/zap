@@ -26,8 +26,8 @@ const express = require('express')
 const session = require('express-session')
 const path = require('path')
 const env = require('../util/env.js')
+const { ensureZapSessionId } = require('../db/query-session.js')
 
-import { ensureZapSessionId } from '../db/query-session.js'
 import { registerAdminApi } from '../rest/admin.js'
 import { registerGenerationApi } from '../rest/generation.js'
 import { registerStaticZclApi } from '../rest/static-zcl.js'
