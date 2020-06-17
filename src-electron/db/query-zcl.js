@@ -285,6 +285,14 @@ export function selectAllCommandArguments(db) {
   ).then((rows) => rows.map(DbMapping.dbMap.commandArgument))
 }
 
+export function selectEndpointType(db, id) {
+  return DbApi.dbGet(
+    db,
+    `SELECT ENDPOINT_TYPE_ID, SESSION_REF, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?`,
+    [id]
+  ).then(DbMapping.dbMap.endpointType)
+}
+
 export function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
   return DbApi.dbAll(
     db,

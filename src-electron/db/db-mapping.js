@@ -199,7 +199,15 @@ export const dbMap = {
       networkId: x.NETWORK_IDENTIFIER,
     }
   },
-
+  endpointType: (x) => {
+    if (x == null) return undefined
+    return {
+      endpointTypeId: x.ENDPOINT_TYPE_ID,
+      sessionRef: x.SESSION_REF,
+      name: x.NAME,
+      deviceTypeRef: x.DEVICE_TYPE_REF,
+    }
+  },
   endpointTypeCluster: (x) => {
     if (x == null) return undefined
     return {

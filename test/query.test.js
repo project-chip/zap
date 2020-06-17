@@ -56,6 +56,8 @@ import {
   getSessionKeyValue,
   getAllEndpointTypes,
 } from '../src-electron/db/query-config'
+import * as QueryZcl from '../src-electron/db/query-zcl.js'
+import * as QueryConfig from '../src-electron/db/query-config.js'
 import {
   insertFileLocation,
   selectFileLocation,
@@ -201,6 +203,10 @@ describe('Session specific queries', () => {
       .then((value) => {
         expect(value).toBe('value2')
       })
+      .then(() => getSessionKeyValue(db, sid, 'nonexistent'))
+      .then((value) => {
+        expect(value).toBeUndefined()
+      })
   })
 
   test('Make sure session is dirty', () => {
@@ -300,5 +306,105 @@ describe('Session specific queries', () => {
     return deleteEndpoint(db, 123).then((data) => {
       expect(data).toBe(0)
     })
+  })
+})
+describe('Endpoint Type Config Queries', () => {
+  beforeAll(() => {
+    return ensureZapSessionId(db, 'SESSION', 666).then((id) => {
+      sid = id
+    })
+  })
+  var endpointTypeIdOnOff
+  var haOnOffDeviceType, zllOnOffLightDevice
+
+  test('Insert EndpointType and test various states', () => {
+    return QueryZcl.selectAllDeviceTypes(db).then((rows) => {
+      let haOnOffDeviceTypeArray = rows.filter(
+        (data) => data.label === 'HA-onoff'
+      )
+      let zllOnOffLightDeviceTypeArray = rows.filter(
+        (data) => data.label === 'ZLL-onofflight'
+      )
+      expect(haOnOffDeviceTypeArray.length > 0).toBeTruthy()
+      expect(zllOnOffLightDeviceTypeArray.length > 0).toBeTruthy()
+      haOnOffDeviceType = haOnOffDeviceTypeArray[0]
+      zllOnOffLightDevice = zllOnOffLightDeviceTypeArray[0]
+      expect(typeof haOnOffDeviceType).toBe('object')
+      expect(typeof zllOnOffLightDevice).toBe('object')
+      return Promise.resolve()
+    })
+  })
+
+  test('Insert Endpoint Type', () => {
+    return QueryConfig.insertEndpointType(
+      db,
+      sid,
+      'testEndpointType',
+      haOnOffDeviceType.id
+    )
+      .then((rowId) => {
+        endpointTypeIdOnOff = rowId
+        return QueryZcl.selectEndpointType(db, rowId)
+      })
+      .then((endpointType) => {
+        expect(endpointType.deviceTypeRef).toBe(haOnOffDeviceType.id)
+        expect(endpointType.name).toBe('testEndpointType')
+      })
+  })
+
+  test('Test get all cluster states', () => {
+    return QueryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
+      .then((clusters) => {
+        expect(clusters.length).toBe(6)
+        return Promise.resolve()
+      })
+      .then(() => {
+        return QueryConfig.insertOrReplaceClusterState(
+          db,
+          endpointTypeIdOnOff,
+          7,
+          'CLIENT',
+          true
+        )
+          .then((rowId) => {
+            expect(typeof rowId).toBe('number')
+          })
+          .then(() => {
+            return QueryConfig.getAllEndpointTypeClusterState(
+              db,
+              endpointTypeIdOnOff
+            )
+          })
+          .then((clusters) => {
+            expect(clusters.length).toBe(7)
+            return Promise.resolve()
+          })
+      })
+  })
+
+  test('Test get all attribute states', () => {
+    return QueryConfig.getEndpointTypeAttributes(db, endpointTypeIdOnOff).then(
+      (attributes) => {
+        expect(attributes.length).toBe(10)
+      }
+    )
+  })
+
+  test('Get all cluster commands', () => {
+    return QueryConfig.getEndpointTypeCommands(db, endpointTypeIdOnOff).then(
+      (commands) => {
+        expect(commands.length).toBe(6)
+      }
+    )
+  })
+
+  test('Delete Endpoint Type', () => {
+    return QueryConfig.deleteEndpointType(db, endpointTypeIdOnOff)
+      .then(QueryConfig.deleteEndpointTypeData(db, endpointTypeIdOnOff))
+      .then(QueryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
+      .then((clusters) => {
+        expect(clusters.length).toBe(undefined)
+        return Promise.resolve()
+      })
   })
 })
