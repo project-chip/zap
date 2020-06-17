@@ -16,7 +16,7 @@
  */
 
 const { app } = require('electron')
-const dbApi = require('./db-api.js')
+const dbApi = require('../db/db-api.js')
 
 import { version } from '../../package.json'
 import { initHttpServer, httpServerPort } from '../server/http-server.js'
@@ -165,39 +165,41 @@ export function startSdkGeneration(
     .then((res) => app.quit())
 }
 
-app.on('ready', () => {
-  var argv = args.processCommandLineArguments(process.argv)
+if (app != null) {
+  app.on('ready', () => {
+    var argv = args.processCommandLineArguments(process.argv)
 
-  logInfo(argv)
+    logInfo(argv)
 
-  if (argv._.includes('selfCheck')) {
-    startSelfCheck()
-  } else if (argv._.includes('generate')) {
-    // generate can have:
-    // - Generation Directory (-output)
-    // - Handlebar Template Directory (-template)
-    // - Xml Data directory (-xml)
-    applyGenerationSettings(argv.output, argv.template, argv.zclProperties)
-  } else if (argv._.includes('sdkGen')) {
-    startSdkGeneration(argv.output, argv.template, argv.zclProperties)
-  } else {
-    startNormal(!argv.noUi, argv.showUrl)
-  }
-})
+    if (argv._.includes('selfCheck')) {
+      startSelfCheck()
+    } else if (argv._.includes('generate')) {
+      // generate can have:
+      // - Generation Directory (-output)
+      // - Handlebar Template Directory (-template)
+      // - Xml Data directory (-xml)
+      applyGenerationSettings(argv.output, argv.template, argv.zclProperties)
+    } else if (argv._.includes('sdkGen')) {
+      startSdkGeneration(argv.output, argv.template, argv.zclProperties)
+    } else {
+      startNormal(!argv.noUi, argv.showUrl)
+    }
+  })
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+      app.quit()
+    }
+  })
 
-app.on('activate', () => {
-  logInfo('Activate...')
-  windowCreateIfNotThere(args.httpPort)
-})
+  app.on('activate', () => {
+    logInfo('Activate...')
+    windowCreateIfNotThere(args.httpPort)
+  })
 
-app.on('quit', () => {
-  dbApi
-    .closeDatabase(mainDatabase())
-    .then(() => logInfo('Database closed, shutting down.'))
-})
+  app.on('quit', () => {
+    dbApi
+      .closeDatabase(mainDatabase())
+      .then(() => logInfo('Database closed, shutting down.'))
+  })
+}
