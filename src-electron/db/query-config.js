@@ -21,7 +21,7 @@
  * @module DB API: user configuration queries against the database.
  */
 const dbApi = require('./db-api.js')
-import * as DbMapping from './db-mapping.js'
+const dbMapping = require('./db-mapping.js')
 import * as QueryZcl from './query-zcl.js'
 
 /**
@@ -344,7 +344,7 @@ export function selectEndpoint(db, endpointRef) {
       'SELECT ENDPOINT_ID, SESSION_REF, ENDPOINT_IDENTIFIER, ENDPOINT_TYPE_REF, PROFILE, NETWORK_IDENTIFIER FROM ENDPOINT WHERE ENDPOINT_ID = ?',
       [endpointRef]
     )
-    .then(DbMapping.dbMap.endpoint)
+    .then(dbMapping.map.endpoint)
 }
 
 /**
@@ -749,7 +749,7 @@ export function getEndpointTypeClusters(db, endpointTypeId) {
       'SELECT ENDPOINT_TYPE_CLUSTER_ID, ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED FROM ENDPOINT_TYPE_CLUSTER WHERE ENDPOINT_TYPE_REF = ?',
       [endpointTypeId]
     )
-    .then((rows) => rows.map(DbMapping.dbMap.endpointTypeCluster))
+    .then((rows) => rows.map(dbMapping.map.endpointTypeCluster))
 }
 
 /**
@@ -789,7 +789,7 @@ export function getOrInsertDefaultEndpointTypeCluster(
           [endpointTypeId, clusterRef, side]
         )
         .then((eptClusterData) => {
-          return DbMapping.dbMap.endpointTypeCluster(eptClusterData)
+          return dbMapping.map.endpointTypeCluster(eptClusterData)
         })
     })
 }

@@ -16,12 +16,7 @@
  */
 
 const { dialog, Menu } = require('electron')
-const {
-  appDirectory,
-  logError,
-  logInfo,
-  mainDatabase,
-} = require('../util/env.js')
+const { appDirectory, logInfo, mainDatabase } = require('../util/env.js')
 
 import { getSessionInfoFromWindowId } from '../db/query-session.js'
 import {

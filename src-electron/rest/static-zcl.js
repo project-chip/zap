@@ -23,7 +23,8 @@
 
 import * as HttpServer from '../server/http-server.js'
 import * as QueryZcl from '../db/query-zcl.js'
-import * as DbMapping from '../db/db-mapping.js'
+
+const dbMapping = require('../db/db-mapping.js')
 
 const itemList = 'zcl-item-list'
 const singleItem = 'zcl-item'
@@ -47,7 +48,7 @@ function zclAttributes(db, clusterId) {
 function zclCommands(db, clusterId) {
   if (clusterId == 'all') {
     return QueryZcl.selectAllCommands(db).then((rows) =>
-      rows.map(DbMapping.dbMap.command)
+      rows.map(dbMapping.map.command)
     )
   } else {
     return QueryZcl.selectCommandsByClusterId(db, clusterId)
@@ -57,7 +58,7 @@ function zclCommands(db, clusterId) {
 function zclDomains(db, id) {
   if (id == 'all') {
     return QueryZcl.selectAllDomains(db).then((rows) =>
-      rows.map(DbMapping.dbMap.domain)
+      rows.map(dbMapping.map.domain)
     )
   } else {
     return QueryZcl.selectDomainById(db, id)
@@ -67,7 +68,7 @@ function zclDomains(db, id) {
 function zclEnums(db, id) {
   if (id == 'all') {
     return QueryZcl.selectAllEnums(db).then((rows) =>
-      rows.map(DbMapping.dbMap.enum)
+      rows.map(dbMapping.map.enum)
     )
   } else {
     return QueryZcl.selectEnumById(db, id)
@@ -77,7 +78,7 @@ function zclEnums(db, id) {
 function zclStructs(db, id) {
   if (id == 'all') {
     return QueryZcl.selectAllStructs(db).then((rows) =>
-      rows.map(DbMapping.dbMap.struct)
+      rows.map(dbMapping.map.struct)
     )
   } else {
     return QueryZcl.selectStructById(db, id)
@@ -87,7 +88,7 @@ function zclStructs(db, id) {
 export function zclBitmaps(db, id) {
   if (id == 'all') {
     return QueryZcl.selectAllBitmaps(db).then((rows) =>
-      rows.map(DbMapping.dbMap.bitmap)
+      rows.map(dbMapping.map.bitmap)
     )
   } else {
     return QueryZcl.selectBitmapById(db, id)

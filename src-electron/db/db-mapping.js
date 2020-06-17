@@ -21,7 +21,7 @@
  * @module DB API: DB mappings between columns and JS object keys.
  */
 
-export const dbMap = {
+exports.map = {
   cluster: (x) => {
     if (x == null) return undefined
     return {
@@ -259,7 +259,7 @@ export const dbMap = {
   },
 }
 
-export const reverseMap = {
+exports.reverseMap = {
   endpoint: {
     endpointRef: 'ENDPOINT_ID',
     sessionRef: 'SESSION_REF',

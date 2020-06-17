@@ -17,11 +17,11 @@
  *
  * @jest-environment node
  */
-import { dbMap } from '../src-electron/db/db-mapping'
+const dbMapping = require('../src-electron/db/db-mapping.js')
 
 test('Test DB mappings', () => {
-  Object.keys(dbMap).forEach((k) => {
-    dbMap[k](null)
-    dbMap[k]({ a: 1 })
+  Object.keys(dbMapping.map).forEach((k) => {
+    dbMapping.map[k](null)
+    dbMapping.map[k]({ a: 1 })
   })
 })

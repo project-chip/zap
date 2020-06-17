@@ -22,8 +22,7 @@
  */
 const Env = require('../util/env.js')
 const dbApi = require('./db-api.js')
-
-import * as DbMapping from './db-mapping.js'
+const dbMapping = require('./db-mapping.js')
 
 /**
  * Retrieves all the enums in the database.
@@ -35,7 +34,7 @@ import * as DbMapping from './db-mapping.js'
 export function selectAllEnums(db) {
   return dbApi
     .dbAll(db, 'SELECT ENUM_ID, NAME, TYPE FROM ENUM ORDER BY NAME', [])
-    .then((rows) => rows.map(DbMapping.dbMap.enum))
+    .then((rows) => rows.map(dbMapping.map.enum))
 }
 
 export function selectAllEnumItemsById(db, id) {
@@ -49,7 +48,7 @@ export function selectAllEnumItems(db) {
       'SELECT NAME, VALUE, ENUM_REF FROM ENUM_ITEM ORDER BY ENUM_REF',
       []
     )
-    .then((rows) => rows.map(DbMapping.dbMap.enumItem))
+    .then((rows) => rows.map(dbMapping.map.enumItem))
 }
 
 export function selectEnumById(db, id) {
@@ -59,7 +58,7 @@ export function selectEnumById(db, id) {
       'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE ENUM_ID = ? ORDER BY NAME',
       [id]
     )
-    .then(DbMapping.dbMap.enum)
+    .then(dbMapping.map.enum)
 }
 
 /**
@@ -72,7 +71,7 @@ export function selectEnumById(db, id) {
 export function selectAllBitmaps(db) {
   return dbApi
     .dbAll(db, 'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP ORDER BY NAME', [])
-    .then((rows) => rows.map(DbMapping.dbMap.bitmap))
+    .then((rows) => rows.map(dbMapping.map.bitmap))
 }
 
 export function selectAllBitmapFields(db) {
@@ -82,7 +81,7 @@ export function selectAllBitmapFields(db) {
       'SELECT NAME, MASK, BITMAP_REF FROM BITMAP_FIELD ORDER BY NAME',
       []
     )
-    .then((rows) => rows.map(DbMapping.dbMap.bitmapField))
+    .then((rows) => rows.map(dbMapping.map.bitmapField))
 }
 
 export function selectBitmapById(db, id) {
@@ -92,7 +91,7 @@ export function selectBitmapById(db, id) {
       'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE BITMAP_ID = ? ORDER BY NAME',
       [id]
     )
-    .then(DbMapping.dbMap.bitmap)
+    .then(dbMapping.map.bitmap)
 }
 
 /**
@@ -113,7 +112,7 @@ export function selectDomainById(db, id) {
       'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE DOMAIN_ID = ? ORDER BY NAME',
       [id]
     )
-    .then(DbMapping.dbMap.domain)
+    .then(dbMapping.map.domain)
 }
 
 /**
@@ -126,7 +125,7 @@ export function selectDomainById(db, id) {
 export function selectAllStructs(db) {
   return dbApi
     .dbAll(db, 'SELECT STRUCT_ID, NAME FROM STRUCT ORDER BY NAME', [])
-    .then((rows) => rows.map(DbMapping.dbMap.struct))
+    .then((rows) => rows.map(dbMapping.map.struct))
 }
 
 export function selectStructById(db, id) {
@@ -136,7 +135,7 @@ export function selectStructById(db, id) {
       'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ? ORDER BY NAME',
       [id]
     )
-    .then(DbMapping.dbMap.struct)
+    .then(dbMapping.map.struct)
 }
 
 export function selectAllStructItems(db) {
@@ -146,7 +145,7 @@ export function selectAllStructItems(db) {
       'SELECT NAME, TYPE, STRUCT_REF FROM STRUCT_ITEM ORDER BY STRUCT_REF',
       []
     )
-    .then((rows) => rows.map(DbMapping.dbMap.structItem))
+    .then((rows) => rows.map(dbMapping.map.structItem))
 }
 
 export function selectStructItemById(db, id) {
@@ -169,7 +168,7 @@ export function selectAllClusters(db) {
       'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE FROM CLUSTER ORDER BY CODE',
       []
     )
-    .then((rows) => rows.map(DbMapping.dbMap.cluster))
+    .then((rows) => rows.map(dbMapping.map.cluster))
 }
 
 export function selectClusterById(db, id) {
@@ -179,7 +178,7 @@ export function selectClusterById(db, id) {
       'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE FROM CLUSTER WHERE CLUSTER_ID = ?',
       [id]
     )
-    .then(DbMapping.dbMap.cluster)
+    .then(dbMapping.map.cluster)
 }
 
 /**
@@ -196,7 +195,7 @@ export function selectAllDeviceTypes(db) {
       'SELECT DEVICE_TYPE_ID, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE ORDER BY CODE',
       []
     )
-    .then((rows) => rows.map(DbMapping.dbMap.deviceType))
+    .then((rows) => rows.map(dbMapping.map.deviceType))
 }
 
 export function selectDeviceTypeById(db, id) {
@@ -206,7 +205,7 @@ export function selectDeviceTypeById(db, id) {
       'SELECT DEVICE_TYPE_ID, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ?',
       [id]
     )
-    .then(DbMapping.dbMap.deviceType)
+    .then(dbMapping.map.deviceType)
 }
 
 export function selectAttributesByClusterId(db, clusterId) {
@@ -216,7 +215,7 @@ export function selectAttributesByClusterId(db, clusterId) {
       `SELECT ATTRIBUTE_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE FROM ATTRIBUTE WHERE CLUSTER_REF = ?  OR CLUSTER_REF IS NULL ORDER BY CODE`,
       [clusterId]
     )
-    .then((rows) => rows.map(DbMapping.dbMap.attribute))
+    .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
 export function selectAttributesByClusterCodeAndManufacturerCode(
@@ -239,7 +238,7 @@ export function selectAttributesByClusterCodeAndManufacturerCode(
         manufacturerString,
       [clusterCode]
     )
-    .then((rows) => rows.map(DbMapping.dbMap.attribute))
+    .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
 export function selectAttributeById(db, id) {
@@ -249,7 +248,7 @@ export function selectAttributeById(db, id) {
       'SELECT ATTRIBUTE_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
       [id]
     )
-    .then(DbMapping.dbMap.attribute)
+    .then(dbMapping.map.attribute)
 }
 
 export function selectAllAttributes(db) {
@@ -259,7 +258,7 @@ export function selectAllAttributes(db) {
       `SELECT ATTRIBUTE_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE FROM ATTRIBUTE ORDER BY CODE`,
       []
     )
-    .then((rows) => rows.map(DbMapping.dbMap.attribute))
+    .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
 export function selectCommandById(db, id) {
@@ -269,7 +268,7 @@ export function selectCommandById(db, id) {
       `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE COMMAND_ID = ?`,
       [id]
     )
-    .then(DbMapping.dbMap.command)
+    .then(dbMapping.map.command)
 }
 
 export function selectCommandsByClusterId(db, clusterId) {
@@ -279,7 +278,7 @@ export function selectCommandsByClusterId(db, clusterId) {
       `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE CLUSTER_REF = ? ORDER BY CODE`,
       [clusterId]
     )
-    .then((rows) => rows.map(DbMapping.dbMap.command))
+    .then((rows) => rows.map(dbMapping.map.command))
 }
 
 export function selectAllCommands(db) {
@@ -289,7 +288,7 @@ export function selectAllCommands(db) {
       `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND ORDER BY CODE`,
       []
     )
-    .then((rows) => rows.map(DbMapping.dbMap.command))
+    .then((rows) => rows.map(dbMapping.map.command))
 }
 
 export function selectAllGlobalCommands(db) {
@@ -299,7 +298,7 @@ export function selectAllGlobalCommands(db) {
       `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE CLUSTER_REF IS NULL ORDER BY CODE`,
       []
     )
-    .then((rows) => rows.map(DbMapping.dbMap.command))
+    .then((rows) => rows.map(dbMapping.map.command))
 }
 
 export function selectAllClusterCommands(db) {
@@ -309,7 +308,7 @@ export function selectAllClusterCommands(db) {
       `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE CLUSTER_REF IS NOT NULL ORDER BY CODE`,
       []
     )
-    .then((rows) => rows.map(DbMapping.dbMap.command))
+    .then((rows) => rows.map(dbMapping.map.command))
 }
 
 export function selectAllCommandArguments(db) {
@@ -319,7 +318,7 @@ export function selectAllCommandArguments(db) {
       `SELECT COMMAND_REF, NAME, TYPE, IS_ARRAY FROM COMMAND_ARG ORDER BY COMMAND_REF`,
       []
     )
-    .then((rows) => rows.map(DbMapping.dbMap.commandArgument))
+    .then((rows) => rows.map(dbMapping.map.commandArgument))
 }
 
 export function selectEndpointType(db, id) {
@@ -337,7 +336,7 @@ export function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
       `SELECT ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED FROM ENDPOINT_TYPE_CLUSTER WHERE ENDPOINT_TYPE_REF = ? ORDER BY CLUSTER_REF`,
       [endpointTypeId]
     )
-    .then((rows) => rows.map(DbMapping.dbMap.endpointTypeCluster))
+    .then((rows) => rows.map(dbMapping.map.endpointTypeCluster))
 }
 
 export function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
@@ -348,7 +347,7 @@ export function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
       [endpointTypeId]
     )
     .then((rows) => {
-      return rows.map(DbMapping.dbMap.endpointTypeAttribute)
+      return rows.map(dbMapping.map.endpointTypeAttribute)
     })
 }
 
@@ -364,7 +363,7 @@ export function selectEndpointTypeAttribute(
       'SELECT ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER.CLUSTER_REF, ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF, ENDPOINT_TYPE_ATTRIBUTE.INCLUDED, ENDPOINT_TYPE_ATTRIBUTE.EXTERNAL, ENDPOINT_TYPE_ATTRIBUTE.FLASH, ENDPOINT_TYPE_ATTRIBUTE.SINGLETON, ENDPOINT_TYPE_ATTRIBUTE.BOUNDED, ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE FROM ENDPOINT_TYPE_ATTRIBUTE, ENDPOINT_TYPE_CLUSTER WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ? AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID AND ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = ?',
       [endpointTypeId, attributeRef, clusterRef]
     )
-    .then(DbMapping.dbMap.endpointTypeAttribute)
+    .then(dbMapping.map.endpointTypeAttribute)
 }
 
 export function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
@@ -374,7 +373,7 @@ export function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
       `SELECT ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER.CLUSTER_REF, ENDPOINT_TYPE_COMMAND.COMMAND_REF, ENDPOINT_TYPE_COMMAND.INCOMING, ENDPOINT_TYPE_COMMAND.OUTGOING FROM ENDPOINT_TYPE_COMMAND, ENDPOINT_TYPE_CLUSTER  WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID ORDER BY COMMAND_REF`,
       [endpointTypeId]
     )
-    .then((rows) => rows.map(DbMapping.dbMap.endpointTypeCommand))
+    .then((rows) => rows.map(dbMapping.map.endpointTypeCommand))
 }
 
 export function selectEndpointTypeReportableAttributeByEndpointId(
@@ -387,7 +386,7 @@ export function selectEndpointTypeReportableAttributeByEndpointId(
       `SELECT ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER.CLUSTER_REF, ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF, ENDPOINT_TYPE_ATTRIBUTE.INCLUDED_REPORTABLE, ENDPOINT_TYPE_ATTRIBUTE.MIN_INTERVAL, ENDPOINT_TYPE_ATTRIBUTE.MAX_INTERVAL, ENDPOINT_TYPE_ATTRIBUTE.REPORTABLE_CHANGE FROM ENDPOINT_TYPE_ATTRIBUTE, ENDPOINT_TYPE_CLUSTER WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID ORDER BY ATTRIBUTE_REF`,
       [endpointTypeId]
     )
-    .then((rows) => rows.map(DbMapping.dbMap.endpointTypeReportableAttribute))
+    .then((rows) => rows.map(dbMapping.map.endpointTypeReportableAttribute))
 }
 
 export function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
@@ -397,7 +396,7 @@ export function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
       `SELECT DEVICE_TYPE_CLUSTER_ID, DEVICE_TYPE_REF, CLUSTER_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER FROM DEVICE_TYPE_CLUSTER WHERE DEVICE_TYPE_REF = ? ORDER BY CLUSTER_REF`,
       [deviceTypeRef]
     )
-    .then((rows) => rows.map(DbMapping.dbMap.deviceTypeCluster))
+    .then((rows) => rows.map(dbMapping.map.deviceTypeCluster))
 }
 
 export function selectDeviceTypeAttributesByDeviceTypeClusterRef(
@@ -429,7 +428,7 @@ export function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
       `SELECT DEVICE_TYPE_CLUSTER.CLUSTER_REF, DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF, DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF, DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_NAME FROM DEVICE_TYPE_ATTRIBUTE, DEVICE_TYPE_CLUSTER WHERE DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ? AND DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF`,
       [deviceTypeRef]
     )
-    .then((rows) => rows.map(DbMapping.dbMap.deviceTypeAttribute))
+    .then((rows) => rows.map(dbMapping.map.deviceTypeAttribute))
 }
 
 export function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
@@ -440,7 +439,7 @@ export function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
 
       [deviceTypeRef]
     )
-    .then((rows) => rows.map(DbMapping.dbMap.deviceTypeCommand))
+    .then((rows) => rows.map(dbMapping.map.deviceTypeCommand))
 }
 
 /**
