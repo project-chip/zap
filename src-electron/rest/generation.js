@@ -109,7 +109,7 @@ function getGeneratedCodeMap(generationOptions, db) {
  * @param {*} db
  * @param {*} app
  */
-export function registerGenerationApi(db, app) {
+function registerGenerationApi(db, app) {
   app.get('/preview/:name/:index', (request, response) => {
     getGenerationProperties('').then((generationOptions) => {
       getGeneratedCodeMap(generationOptions, db).then((map) => {
@@ -124,18 +124,6 @@ export function registerGenerationApi(db, app) {
               response.json('No Generation Result for this file')
             }
           })
-        } else {
-          response.json('No Generation Result for this file')
-        }
-      })
-    })
-  })
-
-  app.get('/preview/:name', (request, response) => {
-    getGenerationProperties('').then((generationOptions) => {
-      getGeneratedCodeMap(generationOptions, db).then((map) => {
-        if (map[request.params.name]) {
-          map[request.params.name].then((result) => response.json(result))
         } else {
           response.json('No Generation Result for this file')
         }
@@ -163,3 +151,5 @@ export function registerGenerationApi(db, app) {
     })
   })
 }
+
+exports.registerGenerationApi = registerGenerationApi

@@ -43,7 +43,7 @@ import { httpCode } from '../server/http-server.js'
 
 import * as RestApi from '../../src-shared/rest-api.js'
 
-export function registerSessionApi(db, app) {
+function registerSessionApi(db, app) {
   app.post('/post/cluster', (request, response) => {
     var { id, side, flag, endpointTypeId } = request.body
     insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
@@ -237,7 +237,7 @@ export function registerSessionApi(db, app) {
 
   app.post('/post/endpoint', (request, response) => {
     var { action, context } = request.body
-    var sessionId = request.session.zapSessionId
+    var sessionIdexport = request.session.zapSessionId
     switch (action) {
       case RestApi.action.create:
         insertEndpoint(
@@ -379,3 +379,5 @@ export function registerSessionApi(db, app) {
     )
   })
 }
+
+exports.registerSessionApi = registerSessionApi

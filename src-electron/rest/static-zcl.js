@@ -85,7 +85,7 @@ function zclStructs(db, id) {
   }
 }
 
-export function zclBitmaps(db, id) {
+function zclBitmaps(db, id) {
   if (id == 'all') {
     return queryZcl
       .selectAllBitmaps(db)
@@ -95,7 +95,7 @@ export function zclBitmaps(db, id) {
   }
 }
 
-export function zclDeviceTypes(db, id) {
+function zclDeviceTypes(db, id) {
   if (id == 'all') {
     return queryZcl.selectAllDeviceTypes(db)
   } else {
@@ -206,7 +206,7 @@ function processGetEntityRequest(db, path, id, replyId, callback) {
  * @export
  * @param {*} app Express instance.
  */
-export function registerStaticZclApi(db, app) {
+function registerStaticZclApi(db, app) {
   app.get('/get/:entity/:id', (request, response) => {
     const { id, entity } = request.params
     var processReply = (replyId, object) => {
@@ -217,3 +217,7 @@ export function registerStaticZclApi(db, app) {
     processGetEntityRequest(db, entity, id, replyId, processReply)
   })
 }
+
+exports.registerStaticZclApi = registerStaticZclApi
+exports.zclBitmaps = zclBitmaps
+exports.zclDeviceTypes = zclDeviceTypes

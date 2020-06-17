@@ -42,7 +42,7 @@ const dbApi = require('../db/db-api.js')
  * @param {*} db
  * @param {*} app
  */
-export function registerAdminApi(db, app) {
+function registerAdminApi(db, app) {
   app.post('/post/sql', (request, response) => {
     var sql = request.body.sql
     if (sql) {
@@ -60,3 +60,4 @@ export function registerAdminApi(db, app) {
     }
   })
 }
+exports.registerAdminApi = registerAdminApi

@@ -28,10 +28,10 @@ const path = require('path')
 const env = require('../util/env.js')
 const { ensureZapSessionId } = require('../db/query-session.js')
 
-import { registerAdminApi } from '../rest/admin.js'
-import { registerGenerationApi } from '../rest/generation.js'
-import { registerStaticZclApi } from '../rest/static-zcl.js'
-import { registerSessionApi } from '../rest/user-data.js'
+const { registerAdminApi } = require('../rest/admin.js')
+const { registerGenerationApi } = require('../rest/generation.js')
+const { registerStaticZclApi } = require('../rest/static-zcl.js')
+const { registerSessionApi } = require('../rest/user-data.js')
 
 var httpServer = null
 
