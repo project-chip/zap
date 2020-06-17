@@ -29,7 +29,7 @@ const queryConfig = require('../db/query-config.js')
  * @param {*} sessionId
  * @returns Promise to retrieve all session key values.
  */
-export function exportSessionKeyValues(db, sessionId) {
+function exportSessionKeyValues(db, sessionId) {
   return queryConfig.getAllSessionKeyValues(db, sessionId)
 }
 
@@ -40,7 +40,7 @@ export function exportSessionKeyValues(db, sessionId) {
  * @param {*} sessionId
  * @param {*} keyValuePairs
  */
-export function importSessionKeyValues(db, sessionId, keyValuePairs) {
+function importSessionKeyValues(db, sessionId, keyValuePairs) {
   var allQueries = []
   if (keyValuePairs != null) {
     // Write key value pairs
@@ -61,7 +61,7 @@ export function importSessionKeyValues(db, sessionId, keyValuePairs) {
  * @param {*} sessionId
  * @returns Promise to retrieve all endpoint types.
  */
-export function exportEndpointTypes(db, sessionId) {
+function exportEndpointTypes(db, sessionId) {
   return queryConfig.getAllEndpointTypes(db, sessionId).then((endpoints) => {
     var promises = []
     endpoints.forEach((endpoint) => {
@@ -98,3 +98,7 @@ export function exportEndpointTypes(db, sessionId) {
     return Promise.all(promises).then(() => endpoints)
   })
 }
+// exports
+exports.exportSessionKeyValues = exportSessionKeyValues
+exports.importSessionKeyValues = importSessionKeyValues
+exports.exportEndpointTypes = exportEndpointTypes

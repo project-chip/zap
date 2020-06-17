@@ -20,10 +20,9 @@
  * and exports it into a file.
  */
 const fs = require('fs')
-const Env = require('../util/env.js')
+const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
-
-import * as Mapping from './mapping.js'
+const mapping = require('./mapping.js')
 
 /**
  * Toplevel file that takes a given session ID and exports the data into the file
@@ -34,14 +33,14 @@ import * as Mapping from './mapping.js'
  * @param {*} filePath
  * @returns A promise that resolves with the path of the file written.
  */
-export function exportDataIntoFile(db, sessionId, filePath) {
-  Env.logInfo(`Writing state from session ${sessionId} into file ${filePath}`)
+function exportDataIntoFile(db, sessionId, filePath) {
+  env.logInfo(`Writing state from session ${sessionId} into file ${filePath}`)
   return createStateFromDatabase(db, sessionId)
     .then((state) => {
-      Env.logInfo(`About to write the file to ${filePath}`)
-      Env.logInfo(state)
+      env.logInfo(`About to write the file to ${filePath}`)
+      env.logInfo(state)
       return new Promise((resolve, reject) => {
-        Env.logInfo(`Writing the file to ${filePath}`)
+        env.logInfo(`Writing the file to ${filePath}`)
         fs.writeFile(filePath, JSON.stringify(state, null, 2), (err) => {
           if (err) reject(err)
           resolve()
@@ -65,7 +64,7 @@ export function exportDataIntoFile(db, sessionId, filePath) {
  * @param {*} sessionId
  * @returns state object that needs to be saved into a file.
  */
-export function createStateFromDatabase(db, sessionId) {
+function createStateFromDatabase(db, sessionId) {
   return new Promise((resolve, reject) => {
     var state = {
       writeTime: new Date().toString(),
@@ -74,22 +73,22 @@ export function createStateFromDatabase(db, sessionId) {
     var promises = []
 
     // Deal with the key/value table
-    var getKeyValues = Mapping.exportSessionKeyValues(db, sessionId).then(
-      (data) => {
+    var getKeyValues = mapping
+      .exportSessionKeyValues(db, sessionId)
+      .then((data) => {
         state.keyValuePairs = data
-        Env.logInfo(`Retrieved session keys: ${data.length}`)
+        env.logInfo(`Retrieved session keys: ${data.length}`)
         return Promise.resolve(data)
-      }
-    )
+      })
     promises.push(getKeyValues)
 
-    var getAllEndpointTypes = Mapping.exportEndpointTypes(db, sessionId).then(
-      (data) => {
-        Env.logInfo(`Retrieved endpoint types: ${data.length}`)
+    var getAllEndpointTypes = mapping
+      .exportEndpointTypes(db, sessionId)
+      .then((data) => {
+        env.logInfo(`Retrieved endpoint types: ${data.length}`)
         state.endpointTypes = data
         return Promise.resolve(data)
-      }
-    )
+      })
     promises.push(getAllEndpointTypes)
 
     return Promise.all(promises)
@@ -97,3 +96,6 @@ export function createStateFromDatabase(db, sessionId) {
       .catch((err) => reject(err))
   })
 }
+// exports
+exports.exportDataIntoFile = exportDataIntoFile
+exports.createStateFromDatabase = createStateFromDatabase

@@ -20,7 +20,7 @@
  * and imports it into a database.
  */
 const fs = require('fs')
-const Env = require('../util/env.js')
+const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
 
@@ -33,7 +33,7 @@ import * as Mapping from './mapping.js'
  * @param {*} filePath
  * @returns Promise of file reading.
  */
-export function readDataFromFile(filePath) {
+function readDataFromFile(filePath) {
   return new Promise((resolve, reject) => {
     fs.readFile(filePath, (err, data) => {
       if (err) reject(err)
@@ -52,11 +52,11 @@ export function readDataFromFile(filePath) {
  * @param {*} state
  * @returns a promise that resolves with the sucessful writing
  */
-export function writeStateToDatabase(db, state) {
+function writeStateToDatabase(db, state) {
   return querySession
     .createBlankSession(db)
     .then((sessionId) => {
-      Env.logInfo('Reading state from file into the database...')
+      env.logInfo('Reading state from file into the database...')
       if ('keyValuePairs' in state) {
         return Mapping.importSessionKeyValues(
           db,
@@ -88,8 +88,12 @@ export function writeStateToDatabase(db, state) {
  * @returns a promise that resolves with the resolution of writing into a database.
  * @returns Promise of file reading.
  */
-export function importDataFromFile(db, filePath) {
+function importDataFromFile(db, filePath) {
   return readDataFromFile(filePath).then((state) =>
     writeStateToDatabase(db, state)
   )
 }
+// exports
+exports.readDataFromFile = readDataFromFile
+exports.writeStateToDatabase = writeStateToDatabase
+exports.importDataFromFile = importDataFromFile
