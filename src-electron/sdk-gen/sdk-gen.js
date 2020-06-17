@@ -304,7 +304,7 @@ function generateClusters(ctx) {
  *
  * @param {*} ctx Contains generationDir, templateDir, db and options dontWrite which can prevent final writing.
  */
-export function runSdkGeneration(ctx) {
+function runSdkGeneration(ctx) {
   console.log(
     `Generating SDK artifacts into ${ctx.generationDir}, using templates from ${ctx.templateDir}`
   )
@@ -323,3 +323,5 @@ export function runSdkGeneration(ctx) {
 
   return mainPromise
 }
+
+exports.runSdkGeneration = runSdkGeneration

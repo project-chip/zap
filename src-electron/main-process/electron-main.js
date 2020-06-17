@@ -17,10 +17,8 @@
 
 const { app } = require('electron')
 const dbApi = require('../db/db-api.js')
+const { runSdkGeneration } = require('../sdk-gen/sdk-gen.js')
 
-import { version } from '../../package.json'
-import { initHttpServer, httpServerPort } from '../server/http-server.js'
-import { loadZcl } from '../zcl/zcl-loader.js'
 const Args = require('./args.js')
 const {
   logError,
@@ -34,9 +32,15 @@ const {
   setProductionEnv,
   sqliteFile,
 } = require('../util/env.js')
+const { version } = require('../../package.json')
+const {
+  generateCodeViaCli,
+  setHandlebarTemplateDirForCli,
+} = require('./menu.js')
+
+import { initHttpServer, httpServerPort } from '../server/http-server.js'
+import { loadZcl } from '../zcl/zcl-loader.js'
 import { initializeElectronUi, windowCreateIfNotThere } from './window.js'
-import { generateCodeViaCli, setHandlebarTemplateDirForCli } from './menu.js'
-import { runSdkGeneration } from '../sdk-gen/sdk-gen.js'
 
 logInitLogFile()
 
@@ -139,7 +143,7 @@ function setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) {
   }
 }
 
-export function startSdkGeneration(
+function startSdkGeneration(
   generationDir,
   handlebarTemplateDir,
   zclPropertiesFilePath
@@ -203,3 +207,5 @@ if (app != null) {
       .then(() => logInfo('Database closed, shutting down.'))
   })
 }
+
+exports.loaded = true

@@ -21,5 +21,5 @@
 const electronMain = require('../src-electron/main-process/electron-main.js')
 
 test('Make sure electron main process loads', () => {
-  expect(electronMain.startSdkGeneration).not.toBeUndefined()
+  expect(electronMain.loaded).toBeTruthy()
 })

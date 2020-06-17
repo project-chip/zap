@@ -21,7 +21,8 @@ const path = require('path')
 const { iconsDirectory, mainDatabase } = require('../util/env.js')
 const { getWindowDirtyFlagWithCallback } = require('../db/query-session.js')
 
-import { initMenu } from './menu.js'
+const { initMenu } = require('./menu.js')
+
 import { initTray } from './tray.js'
 
 export function initializeElectronUi(port) {

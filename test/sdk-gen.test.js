@@ -18,10 +18,13 @@
  * @jest-environment node
  */
 
+const dbApi = require('../src-electron/db/db-api.js')
+const { selectAllClusters } = require('../src-electron/db/query-zcl.js')
+const { runSdkGeneration } = require('../src-electron/sdk-gen/sdk-gen.js')
+
 import path from 'path'
 import fs from 'fs'
 import { version } from '../package.json'
-const dbApi = require('../src-electron/db/db-api.js')
 import {
   logInfo,
   schemaFile,
@@ -29,10 +32,8 @@ import {
   appDirectory,
   setDevelopmentEnv,
 } from '../src-electron/util/env'
-import { runSdkGeneration } from '../src-electron/sdk-gen/sdk-gen'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
-const { selectAllClusters } = require('../src-electron/db/query-zcl.js')
 
 describe('SDK gen tests', () => {
   var db

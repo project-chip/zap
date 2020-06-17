@@ -20,28 +20,29 @@
 
 const dbApi = require('../src-electron/db/db-api.js')
 const { selectCountFrom } = require('../src-electron/db/query-generic.js')
-
-import axios from 'axios'
-import fs from 'fs-extra'
-import { version } from '../package.json'
-import { zclPropertiesFile } from '../src-electron/main-process/args'
-import {
+const {
   logError,
   logInfo,
   schemaFile,
   setDevelopmentEnv,
   sqliteTestFile,
   setMainDatabase,
-} from '../src-electron/util/env'
+} = require('../src-electron/util/env.js')
+const {
+  setHandlebarTemplateDirForCli,
+  generateCodeViaCli,
+} = require('../src-electron/main-process/menu.js')
+
+const axios = require('axios')
+
+import fs from 'fs-extra'
+import { version } from '../package.json'
+import { zclPropertiesFile } from '../src-electron/main-process/args'
 import {
   initHttpServer,
   shutdownHttpServer,
 } from '../src-electron/server/http-server'
 import { loadZcl } from '../src-electron/zcl/zcl-loader'
-import {
-  setHandlebarTemplateDirForCli,
-  generateCodeViaCli,
-} from '../src-electron/main-process/menu'
 
 var db
 const port = 9074

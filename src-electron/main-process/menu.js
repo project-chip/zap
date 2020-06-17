@@ -278,7 +278,7 @@ function generateInDir(browserWindow) {
  * @export
  * @param {*} generationDir
  */
-export function generateCodeViaCli(generationDir) {
+function generateCodeViaCli(generationDir) {
   generationDirectory = generationDir
   return getGenerationProperties(
     generationOptionsFile
@@ -291,6 +291,7 @@ export function generateCodeViaCli(generationDir) {
     )
   )
 }
+exports.generateCodeViaCli = generateCodeViaCli
 
 /**
  *
@@ -298,7 +299,7 @@ export function generateCodeViaCli(generationDir) {
  * @export
  * @param {*} handlebarTemplateDir
  */
-export function setHandlebarTemplateDirForCli(handlebarTemplateDir) {
+function setHandlebarTemplateDirForCli(handlebarTemplateDir) {
   return new Promise((resolve, reject) => {
     handlebarTemplateDirectory = handlebarTemplateDir
     generationOptionsFile =
@@ -306,6 +307,7 @@ export function setHandlebarTemplateDirForCli(handlebarTemplateDir) {
     resolve(handlebarTemplateDir)
   })
 }
+exports.setHandlebarTemplateDirForCli = setHandlebarTemplateDirForCli
 
 /**
  * This function gets the directory where user wants the output and calls
@@ -394,8 +396,10 @@ function readAndProcessFile(db, filePath) {
  * @export
  * @param {*} port
  */
-export function initMenu(port) {
+function initMenu(port) {
   httpPort = port
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
 }
+
+exports.initMenu = initMenu
