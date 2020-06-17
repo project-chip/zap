@@ -21,14 +21,15 @@ const queryConfig = require('../db/query-config.js')
 const queryGeneric = require('../db/query-generic.js')
 const { getSessionInfoFromWindowId } = require('../db/query-session.js')
 const staticGenerator = require('../generator/static-generator.js')
+const { exportDataIntoFile } = require('../importexport/export.js')
+const {
+  readDataFromFile,
+  writeStateToDatabase,
+} = require('../importexport/import.js')
 
 import { showErrorMessage } from './ui.js'
 import { windowCreate } from './window.js'
-import { exportDataIntoFile } from '../importexport/export.js'
-import {
-  readDataFromFile,
-  writeStateToDatabase,
-} from '../importexport/import.js'
+
 import * as Preference from './preference.js'
 
 var httpPort

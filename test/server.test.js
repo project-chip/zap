@@ -43,8 +43,8 @@ import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
 import { version } from '../package.json'
-import { exportDataIntoFile } from '../src-electron/importexport/export.js'
-import { importDataFromFile } from '../src-electron/importexport/import.js'
+const { exportDataIntoFile } = require('../src-electron/importexport/export.js')
+const { importDataFromFile } = require('../src-electron/importexport/import.js')
 
 var db
 const port = 9073

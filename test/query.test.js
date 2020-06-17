@@ -43,9 +43,11 @@ const {
 } = require('../src-electron/db/query-session.js')
 const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
 
-import { version } from '../package.json'
+const {
+  createStateFromDatabase,
+} = require('../src-electron/importexport/export.js')
 
-import { createStateFromDatabase } from '../src-electron/importexport/export'
+import { version } from '../package.json'
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
