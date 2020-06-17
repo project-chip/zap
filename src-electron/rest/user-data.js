@@ -34,13 +34,13 @@ const {
   deleteEndpointType,
   updateEndpointType,
 } = require('../db/query-config.js')
+const {
+  validateEndpoint,
+  validateAttribute,
+} = require('../validation/validation.js')
 
 import { httpCode } from '../server/http-server.js'
 
-import {
-  validateEndpoint,
-  validateAttribute,
-} from '../validation/validation.js'
 import * as RestApi from '../../src-shared/rest-api.js'
 
 export function registerSessionApi(db, app) {

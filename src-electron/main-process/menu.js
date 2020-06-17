@@ -26,11 +26,9 @@ const {
   readDataFromFile,
   writeStateToDatabase,
 } = require('../importexport/import.js')
-
-import { showErrorMessage } from './ui.js'
-import { windowCreate } from './window.js'
-
-import * as Preference from './preference.js'
+const { showErrorMessage } = require('./ui.js')
+const { windowCreate } = require('./window.js')
+const preference = require('./preference.js')
 
 var httpPort
 var generationDirectory = appDirectory() + '/generation-output'
@@ -57,7 +55,7 @@ const template = [
       {
         label: 'Open File...',
         accelerator: 'CmdOrCtrl+O',
-        click(menuItem, browserWindow, event) {
+        click(meimportnuItem, browserWindow, event) {
           doOpen(menuItem, browserWindow, event)
         },
       },
@@ -67,7 +65,7 @@ const template = [
       {
         label: 'Preferences...',
         click(menuItem, browserWindow, event) {
-          Preference.createOrShowWindow(httpPort)
+          preference.createOrShowWindow(httpPort)
         },
       },
       {

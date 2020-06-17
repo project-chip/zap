@@ -19,11 +19,11 @@ const { Menu, Tray, nativeImage, app } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const { logInfo, iconsDirectory, logError } = require('../util/env.js')
+const { windowCreate } = require('./window.js')
 
-import { windowCreate } from './window.js'
 let tray
 
-export function initTray(port) {
+function initTray(port) {
   logInfo('Initializing tray...')
 
   let trayIconPath = path.join(iconsDirectory(), 'zap_32x32.png')
@@ -66,3 +66,5 @@ export function initTray(port) {
   tray.setContextMenu(contextMenu)
   logInfo('Tray initialized.')
 }
+
+exports.initTray = initTray

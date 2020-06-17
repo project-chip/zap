@@ -27,13 +27,14 @@ let window = null
  * @export
  * @param {*} port
  */
-export function createOrShowWindow(port) {
+function createOrShowWindow(port) {
   if (window == null) {
     createWindow(port)
   } else {
     window.show()
   }
 }
+exports.createOrShowWindow = createOrShowWindow
 
 function createWindow(port) {
   window = new BrowserWindow({

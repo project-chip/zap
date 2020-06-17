@@ -38,9 +38,9 @@ const {
   setHandlebarTemplateDirForCli,
 } = require('./menu.js')
 const { loadZcl } = require('../zcl/zcl-loader.js')
+const { initializeElectronUi, windowCreateIfNotThere } = require('./window.js')
 
 import { initHttpServer, httpServerPort } from '../server/http-server.js'
-import { initializeElectronUi, windowCreateIfNotThere } from './window.js'
 
 logInitLogFile()
 

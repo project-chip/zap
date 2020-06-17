@@ -17,21 +17,18 @@
 
 const { session, BrowserWindow, dialog } = require('electron')
 const path = require('path')
-
 const { iconsDirectory, mainDatabase } = require('../util/env.js')
 const { getWindowDirtyFlagWithCallback } = require('../db/query-session.js')
-
 const { initMenu } = require('./menu.js')
+const { initTray } = require('./tray.js')
 
-import { initTray } from './tray.js'
-
-export function initializeElectronUi(port) {
+function initializeElectronUi(port) {
   let w = windowCreate(port)
   initMenu(port)
   initTray(port)
 }
 
-export function windowCreateIfNotThere(port) {
+function windowCreateIfNotThere(port) {
   if (BrowserWindow.getAllWindows().length == 0) {
     windowCreate(port)
   }
@@ -50,7 +47,7 @@ let windowCounter = 0
  * @param {*} [sessionId=null]
  * @returns BrowserWindow that got created
  */
-export function windowCreate(port, filePath = null, sessionId = null) {
+function windowCreate(port, filePath = null, sessionId = null) {
   let newSession = session.fromPartition(`zap-${windowCounter++}`)
   let w = new BrowserWindow({
     width: 1600,
@@ -98,3 +95,7 @@ export function windowCreate(port, filePath = null, sessionId = null) {
 
   return w
 }
+// exports
+exports.initializeElectronUi = initializeElectronUi
+exports.windowCreateIfNotThere = windowCreateIfNotThere
+exports.windowCreate = windowCreate

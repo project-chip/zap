@@ -24,12 +24,7 @@
 const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
 
-export function validateAttribute(
-  db,
-  endpointTypeId,
-  attributeRef,
-  clusterRef
-) {
+function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {
   return queryZcl
     .selectEndpointTypeAttribute(db, endpointTypeId, attributeRef, clusterRef)
     .then((endpointAttribute) =>
@@ -42,7 +37,7 @@ export function validateAttribute(
     )
 }
 
-export function validateEndpoint(db, endpointId) {
+function validateEndpoint(db, endpointId) {
   return queryConfig.selectEndpoint(db, endpointId).then(
     (endpoint) =>
       new Promise((resolve, reject) => {
@@ -51,7 +46,7 @@ export function validateEndpoint(db, endpointId) {
   )
 }
 
-export function validateSpecificAttribute(endpointAttribute, attribute) {
+function validateSpecificAttribute(endpointAttribute, attribute) {
   var defaultAttributeIssues = []
   if (!isStringType(attribute.type)) {
     if (isFloatType(attribute.type)) {
@@ -70,7 +65,7 @@ export function validateSpecificAttribute(endpointAttribute, attribute) {
   return { defaultValue: defaultAttributeIssues }
 }
 
-export function validateSpecificEndpoint(endpoint) {
+function validateSpecificEndpoint(endpoint) {
   var zclEndpointIdIssues = []
   var zclNetworkIdIssues = []
   if (!isValidNumberString(endpoint.endpointId))
@@ -91,20 +86,20 @@ export function validateSpecificEndpoint(endpoint) {
 }
 
 //This applies to both actual numbers as well as octet strings.
-export function isValidNumberString(value) {
+function isValidNumberString(value) {
   //We test to see if the number is valid in hex. Decimals numbers also pass this test
   return /^(0x|0X)?[0-9a-fA-F]+$/.test(value)
 }
 
-export function isValidFloat(value) {
+function isValidFloat(value) {
   return /^[0-9]*(\.)?[0-9]*$/.test(value)
 }
 
-export function extractFloatValue(value) {
+function extractFloatValue(value) {
   return parseFloat(value)
 }
 
-export function extractIntegerValue(value) {
+function extractIntegerValue(value) {
   if (/^[0-9]+$/.test(value)) {
     return parseInt(value)
   } else if (/^[0-9ABCDEF]+$/.test(value)) {
@@ -114,7 +109,7 @@ export function extractIntegerValue(value) {
   }
 }
 
-export function getBoundsInteger(attribute) {
+function getBoundsInteger(attribute) {
   return {
     min: extractIntegerValue(attribute.min),
     max: extractIntegerValue(attribute.max),
@@ -127,7 +122,7 @@ function checkAttributeBoundsInteger(attribute, endpointAttribute) {
   return checkBoundsInteger(defaultValue, min, max)
 }
 
-export function checkBoundsInteger(defaultValue, min, max) {
+function checkBoundsInteger(defaultValue, min, max) {
   if (Number.isNaN(min)) min = Number.MIN_SAFE_INTEGER
   if (Number.isNaN(max)) max = Number.MAX_SAFE_INTEGER
   return defaultValue >= min && defaultValue <= max
@@ -139,21 +134,21 @@ function checkAttributeBoundsFloat(attribute, endpointAttribute) {
   return checkBoundsFloat(defaultValue, min, max)
 }
 
-export function getBoundsFloat(attribute) {
+function getBoundsFloat(attribute) {
   return {
     min: extractFloatValue(attribute.min),
     max: extractFloatValue(attribute.max),
   }
 }
 
-export function checkBoundsFloat(defaultValue, min, max) {
+function checkBoundsFloat(defaultValue, min, max) {
   if (Number.isNaN(min)) min = Number.MIN_VALUE
   if (Number.isNaN(max)) max = Number.MAX_VALUE
   return defaultValue >= min && defaultValue <= max
 }
 
 // This function checks to see if
-export function isStringType(type) {
+function isStringType(type) {
   switch (type) {
     case 'CHAR_STRING':
     case 'OCTET_STRING':
@@ -165,7 +160,7 @@ export function isStringType(type) {
   }
 }
 
-export function isFloatType(type) {
+function isFloatType(type) {
   switch (type) {
     case 'FLOAT_SEMI':
     case 'FLOAT_SINGLE':
@@ -175,3 +170,19 @@ export function isFloatType(type) {
       return false
   }
 }
+
+// exports
+exports.validateAttribute = validateAttribute
+exports.validateEndpoint = validateEndpoint
+exports.validateSpecificAttribute = validateSpecificAttribute
+exports.validateSpecificEndpoint = validateSpecificEndpoint
+exports.isValidNumberString = isValidNumberString
+exports.isValidFloat = isValidFloat
+exports.extractFloatValue = extractFloatValue
+exports.extractIntegerValue = extractIntegerValue
+exports.getBoundsInteger = getBoundsInteger
+exports.checkBoundsInteger = checkBoundsInteger
+exports.getBoundsFloat = getBoundsFloat
+exports.checkBoundsFloat = checkBoundsFloat
+exports.isStringType = isStringType
+exports.isFloatType = isFloatType

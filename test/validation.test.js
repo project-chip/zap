@@ -20,11 +20,15 @@
 
 const dbApi = require('../src-electron/db/db-api.js')
 const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
+const Validation = require('../src-electron/validation/validation.js')
 
-import * as Validation from '../src-electron/validation/validation'
+const {
+  logInfo,
+  schemaFile,
+  sqliteTestFile,
+} = require('../src-electron/util/env.js')
+
 import { version } from '../package.json'
-
-import { logInfo, schemaFile, sqliteTestFile } from '../src-electron/util/env'
 import { zclPropertiesFile } from '../src-electron/main-process/args'
 
 const {
