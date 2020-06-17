@@ -73,7 +73,7 @@ Handlebars.getTemplate = function (templateDirectory = '', name = '') {
     logInfo('Using ' + templateDirectory + '/' + name + ' as a template')
     source = readFileSync(templateDirectory + '/' + name, 'utf8')
   } else {
-    logInfo('Using the test template Directory for ' + name)
+    logInfo('Using the test template directory for ' + name)
     templateDirectory = __dirname + '/../../test/gen-template'
     source = readFileSync(templateDirectory + '/' + name, 'utf8')
   }
