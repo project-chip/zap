@@ -131,6 +131,18 @@ function registerGenerationApi(db, app) {
     })
   })
 
+  app.get('/preview/:name', (request, response) => {
+    getGenerationProperties('').then((generationOptions) => {
+      getGeneratedCodeMap(generationOptions, db).then((map) => {
+        if (map[request.params.name]) {
+          map[request.params.name].then((result) => response.json(result))
+        } else {
+          response.json('No Generation Result for this file')
+        }
+      })
+    })
+  })
+
   // Return generatedCodeMap in JSON
   // e.g. {
   //       "cluster-id" : "...",
