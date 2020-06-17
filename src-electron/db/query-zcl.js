@@ -322,11 +322,13 @@ function selectAllCommandArguments(db) {
 }
 
 function selectEndpointType(db, id) {
-  return DbApi.dbGet(
-    db,
-    `SELECT ENDPOINT_TYPE_ID, SESSION_REF, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?`,
-    [id]
-  ).then(DbMapping.dbMap.endpointType)
+  return dbApi
+    .dbGet(
+      db,
+      `SELECT ENDPOINT_TYPE_ID, SESSION_REF, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?`,
+      [id]
+    )
+    .then(dbMapping.map.endpointType)
 }
 
 function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
