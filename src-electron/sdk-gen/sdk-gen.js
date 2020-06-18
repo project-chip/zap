@@ -283,7 +283,7 @@ function generateDeviceTypes(ctx) {
   })
 }
 
-function generateClusters(ctx) {
+function generateClusters(ctx, alsoGenerateCommandsAndAttributes) {
   return queryZcl.selectAllClusters(ctx.db).then((clustersArray) => {
     var promises = []
     console.log(`Generating ${clustersArray.length} clusters`)
@@ -292,8 +292,10 @@ function generateClusters(ctx) {
       promises.push(generateSingleClusterDefContrib(ctx, element))
       promises.push(generateSingleClusterImpSlcc(ctx, element))
       promises.push(generateSingleClusterImpContrib(ctx, element))
-      promises.push(generateSingleClusterAttributes(ctx, element))
-      promises.push(generateSingleClusterCommands(ctx, element))
+      if (alsoGenerateCommandsAndAttributes) {
+        promises.push(generateSingleClusterAttributes(ctx, element))
+        promises.push(generateSingleClusterCommands(ctx, element))
+      }
     })
     return Promise.all(promises)
   })
@@ -310,7 +312,7 @@ function runSdkGeneration(ctx) {
   )
   var promises = []
   promises.push(generateDeviceTypes(ctx))
-  promises.push(generateClusters(ctx))
+  promises.push(generateClusters(ctx, false))
 
   var mainPromise
   if (ctx.dontWrite) {
