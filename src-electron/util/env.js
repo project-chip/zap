@@ -19,6 +19,7 @@ const path = require('path')
 const os = require('os')
 const fs = require('fs')
 const pino = require('pino')
+const { version } = require('../../package.json')
 
 // Basic environment tie-ins
 var pino_logger = pino({
@@ -84,6 +85,10 @@ function sqliteTestFile(id) {
   return path.join(appDirectory(), `test-${id}.sqlite`)
 }
 
+function zapVersion() {
+  return version
+}
+
 function logInitStdout() {
   if (!explicit_logger_set) {
     pino_logger = pino()
@@ -134,3 +139,4 @@ exports.logError = logError
 exports.logWarning = logWarning
 exports.logSql = logSql
 exports.httpStaticContent = httpStaticContent
+exports.zapVersion = zapVersion

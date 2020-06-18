@@ -26,15 +26,15 @@ const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
 const path = require('path')
 const fs = require('fs')
 
-import { version } from '../package.json'
-import {
+const {
   logInfo,
   schemaFile,
   sqliteTestFile,
   appDirectory,
   setDevelopmentEnv,
-} from '../src-electron/util/env'
-import { zclPropertiesFile } from '../src-electron/main-process/args'
+  zapVersion,
+} = require('../src-electron/util/env.js')
+const args = require('../src-electron/main-process/args.js')
 
 describe('SDK gen tests', () => {
   var db
@@ -44,8 +44,8 @@ describe('SDK gen tests', () => {
 
     return dbApi
       .initDatabase(file)
-      .then((d) => dbApi.loadSchema(d, schemaFile(), version))
-      .then((d) => loadZcl(d, zclPropertiesFile))
+      .then((d) => dbApi.loadSchema(d, schemaFile(), zapVersion()))
+      .then((d) => loadZcl(d, args.zclPropertiesFile))
       .then((d) => {
         db = d
         logInfo('DB initialized.')

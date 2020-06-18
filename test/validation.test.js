@@ -26,10 +26,10 @@ const {
   logInfo,
   schemaFile,
   sqliteTestFile,
+  zapVersion,
 } = require('../src-electron/util/env.js')
 
-import { version } from '../package.json'
-import { zclPropertiesFile } from '../src-electron/main-process/args'
+const args = require('../src-electron/main-process/args')
 
 const {
   selectAttributesByClusterCodeAndManufacturerCode,
@@ -41,7 +41,7 @@ beforeAll(() => {
   var file = sqliteTestFile('validation')
   return dbApi
     .initDatabase(file)
-    .then((d) => dbApi.loadSchema(d, schemaFile(), version))
+    .then((d) => dbApi.loadSchema(d, schemaFile(), zapVersion()))
     .then((d) => {
       db = d
       logInfo('DB initialized.')
@@ -49,7 +49,7 @@ beforeAll(() => {
 })
 
 test('Load the static data.', () => {
-  return loadZcl(db, zclPropertiesFile)
+  return loadZcl(db, args.zclPropertiesFile)
 }, 5000)
 
 test('isValidNumberString Functions', () => {

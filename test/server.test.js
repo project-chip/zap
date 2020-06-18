@@ -31,18 +31,18 @@ const {
   initHttpServer,
   shutdownHttpServer,
 } = require('../src-electron/server/http-server.js')
-import {
+const {
   logError,
   setDevelopmentEnv,
   sqliteTestFile,
   logInfo,
   appDirectory,
   schemaFile,
-} from '../src-electron/util/env.js'
-import fs from 'fs'
-import path from 'path'
-import axios from 'axios'
-import { version } from '../package.json'
+  zapVersion,
+} = require('../src-electron/util/env.js')
+const fs = require('fs')
+const path = require('path')
+const axios = require('axios')
 const { exportDataIntoFile } = require('../src-electron/importexport/export.js')
 const { importDataFromFile } = require('../src-electron/importexport/import.js')
 
@@ -60,7 +60,7 @@ beforeAll(() => {
   axiosInstance = axios.create({ baseURL: baseUrl })
   return dbApi
     .initDatabase(file)
-    .then((d) => dbApi.loadSchema(d, schemaFile(), version))
+    .then((d) => dbApi.loadSchema(d, schemaFile(), zapVersion()))
     .then((d) => {
       db = d
       logInfo(`Test database initialized: ${file}.`)

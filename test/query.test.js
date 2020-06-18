@@ -26,6 +26,7 @@ const {
   logInfo,
   schemaFile,
   sqliteTestFile,
+  zapVersion,
 } = require('../src-electron/util/env.js')
 const {
   insertFileLocation,
@@ -47,8 +48,6 @@ const {
   createStateFromDatabase,
 } = require('../src-electron/importexport/export.js')
 
-import { version } from '../package.json'
-
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
  * Author: Timotej Ecimovic
@@ -63,7 +62,7 @@ beforeAll(() => {
   var file = sqliteTestFile(1)
   return dbApi
     .initDatabase(file)
-    .then((d) => dbApi.loadSchema(d, schemaFile(), version))
+    .then((d) => dbApi.loadSchema(d, schemaFile(), zapVersion()))
     .then((d) => {
       db = d
       logInfo('DB initialized.')

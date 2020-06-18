@@ -18,16 +18,13 @@
  * @jest-environment node
  */
 
-var sq = require('sqlite3')
-
+const sq = require('sqlite3')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const { selectCountFrom } = require('../src-electron/db/query-generic.js')
 const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
-
-import { version } from '../package.json'
-import { zclPropertiesFile } from '../src-electron/main-process/args'
-import { schemaFile } from '../src-electron/util/env'
+const args = require('../src-electron/main-process/args.js')
+const env = require('../src-electron/util/env.js')
 
 test('test opening and closing the database', () => {
   var db = new sq.Database(':memory:')
@@ -37,15 +34,15 @@ test('test opening and closing the database', () => {
 test('test database schema loading in memory', () => {
   var db = new sq.Database(':memory:')
   return dbApi
-    .loadSchema(db, schemaFile(), version)
+    .loadSchema(db, env.schemaFile(), env.zapVersion())
     .then((db) => dbApi.closeDatabase(db))
 })
 
 test('test zcl data loading in memory', () => {
   var db = new sq.Database(':memory:')
   return dbApi
-    .loadSchema(db, schemaFile(), version)
-    .then((db) => loadZcl(db, zclPropertiesFile)) // Maybe: ../../../zcl/zcl-studio.properties
+    .loadSchema(db, env.schemaFile(), env.zapVersion())
+    .then((db) => loadZcl(db, args.zclPropertiesFile)) // Maybe: ../../../zcl/zcl-studio.properties
     .then(() => queryZcl.selectAllClusters(db))
     .then((x) => expect(x.length).toEqual(106))
     .then(() => queryZcl.selectAllDomains(db))
