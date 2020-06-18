@@ -19,13 +19,8 @@
  * @module JS API: generator logic
  */
 const Handlebars = require('handlebars/dist/cjs/handlebars')
-const queryZcl = require('../db/query-zcl')
-const {
-  readFileSync,
-  existsSync,
-  mkdirSync,
-  writeFileSync,
-} = require('fs-extra')
+const queryZcl = require('../db/query-zcl.js')
+const fsExtra = require('fs-extra')
 
 const { logError, logInfo } = require('../util/env.js')
 const {
@@ -58,11 +53,11 @@ Handlebars.getTemplate = function (templateDirectory = '', name = '') {
   var source = ''
   if (templateDirectory) {
     logInfo('Using ' + templateDirectory + '/' + name + ' as a template')
-    source = readFileSync(templateDirectory + '/' + name, 'utf8')
+    source = fsExtra.readFileSync(templateDirectory + '/' + name, 'utf8')
   } else {
     logInfo('Using the test template directory for ' + name)
     templateDirectory = __dirname + '/../../test/gen-template'
-    source = readFileSync(templateDirectory + '/' + name, 'utf8')
+    source = fsExtra.readFileSync(templateDirectory + '/' + name, 'utf8')
   }
   return Handlebars.compile(source)
 }
@@ -443,13 +438,13 @@ function generateDataToFile(
       var define = compiledTemplate({
         type: dbRows,
       })
-      if (!existsSync(generationDirectory)) {
-        mkdirSync(generationDirectory)
+      if (!fsExtra.existsSync(generationDirectory)) {
+        fsExtra.mkdirSync(generationDirectory)
       }
       result = result + define
     }
     resolve(result)
-    writeFileSync(generationDirectory + '/' + outputFileName, result)
+    fsExtra.writeFileSync(generationDirectory + '/' + outputFileName, result)
   })
 }
 
@@ -469,7 +464,7 @@ function getGenerationProperties(filePath) {
         __dirname + '/../../test/gen-template/generation-options.json'
     }
     logInfo('Reading generation properties from ' + actualFilePath)
-    rawData = readFileSync(actualFilePath)
+    rawData = fsExtra.readFileSync(actualFilePath)
     var generationOptions = JSON.parse(rawData)
     resolve(generationOptions)
   })
