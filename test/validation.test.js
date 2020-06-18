@@ -24,6 +24,7 @@ const Validation = require('../src-electron/validation/validation.js')
 const { zclPropertiesFile } = require('../src-electron/main-process/args.js')
 const QuerySession = require('../src-electron/db/query-session.js')
 const QueryConfig = require('../src-electron/db/query-config.js')
+const fs = require('fs')
 
 const {
   logInfo,
@@ -48,6 +49,13 @@ beforeAll(() => {
       db = d
       logInfo('DB initialized.')
     })
+})
+
+afterAll(() => {
+  var file = sqliteTestFile('validation')
+  return dbApi.closeDatabase(db).then(() => {
+    if (fs.existsSync(file)) fs.unlinkSync(file)
+  })
 })
 
 test('Load the static data.', () => {
@@ -252,13 +260,17 @@ test('validate endpoint test', () => {
 
 describe('Validate endpoint for duplicate endpointIds', () => {
   var endpointTypeIdOnOff
+  var endpointTypeReference
+  var eptId
   beforeAll(() => {
     return loadZcl(db, zclPropertiesFile)
-      .then(
-        QuerySession.ensureZapSessionId(db, 'SESSION', 666).then((id) => {
-          sid = id
-        })
-      )
+      .then(() => {
+        return QuerySession.ensureZapSessionId(db, 'SESSION', 666).then(
+          (id) => {
+            sid = id
+          }
+        )
+      })
       .then(() => {
         return QueryConfig.insertEndpointType(
           db,
@@ -270,5 +282,30 @@ describe('Validate endpoint for duplicate endpointIds', () => {
           return QueryZcl.selectEndpointType(db, rowId)
         })
       })
+      .then((endpointType) => {
+        endpointTypeReference = endpointType.endpointTypeId
+        return QueryConfig.insertEndpoint(
+          db,
+          sid,
+          1,
+          endpointType.endpointTypeId,
+          1
+        ).then(
+          QueryConfig.insertEndpoint(db, sid, 1, endpointType.endpointTypeId, 1)
+        )
+      })
+      .then((endpointId) => {
+        eptId = endpointId
+      })
+  })
+  test('Test endpoint for duplicates', () => {
+    return Validation.validateEndpoint(db, eptId).then((data) => {
+      return Validation.validateNoDuplicateEndpoints(db, eptId, sid).then(
+        (hasNoDuplicates) => {
+          expect(hasNoDuplicates).toBeFalsy()
+          return Promise.resolve()
+        }
+      )
+    })
   })
 })

@@ -23,6 +23,7 @@
 
 const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
+const dbApi = require('../db/db-api.js')
 
 function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {
   return queryZcl
@@ -38,12 +39,34 @@ function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {
 }
 
 function validateEndpoint(db, endpointId) {
-  return queryConfig.selectEndpoint(db, endpointId).then(
-    (endpoint) =>
-      new Promise((resolve, reject) => {
-        resolve(validateSpecificEndpoint(endpoint))
+  return queryConfig.selectEndpoint(db, endpointId).then((endpoint) => {
+    return new Promise((resolve, reject) => {
+      resolve(validateSpecificEndpoint(endpoint))
+    }).then((currentIssues) => {
+      return validateNoDuplicateEndpoints(
+        db,
+        endpoint.endpointId,
+        endpoint.sessionRef
+      ).then((noDuplicates) => {
+        if (!noDuplicates) {
+          currentIssues.endpointId.push('Duplicate EndpointIds Exist')
+        }
+        return Promise.resolve(currentIssues)
       })
-  )
+    })
+  })
+}
+
+function validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef) {
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT ENDPOINT_IDENTIFIER FROM ENDPOINT WHERE ENDPOINT_IDENTIFIER = ? AND SESSION_REF = ?',
+      [endpointIdentifier, sessionRef]
+    )
+    .then((data) => {
+      return data.length <= 1
+    })
 }
 
 function validateSpecificAttribute(endpointAttribute, attribute) {
@@ -174,6 +197,7 @@ function isFloatType(type) {
 // exports
 exports.validateAttribute = validateAttribute
 exports.validateEndpoint = validateEndpoint
+exports.validateNoDuplicateEndpoints = validateNoDuplicateEndpoints
 exports.validateSpecificAttribute = validateSpecificAttribute
 exports.validateSpecificEndpoint = validateSpecificEndpoint
 exports.isValidNumberString = isValidNumberString

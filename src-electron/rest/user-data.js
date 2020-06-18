@@ -285,7 +285,13 @@ function registerSessionApi(db, app) {
             break
         }
         queryConfig
-          .updateEndpoint(db, sessionId, context.id, changeParam, context.value)
+          .updateEndpoint(
+            db,
+            sessionIdexport,
+            context.id,
+            changeParam,
+            context.value
+          )
           .then((data) => {
             return validation
               .validateEndpoint(db, context.id)
