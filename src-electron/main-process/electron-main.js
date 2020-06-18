@@ -19,7 +19,7 @@ const { app } = require('electron')
 const dbApi = require('../db/db-api.js')
 const { runSdkGeneration } = require('../sdk-gen/sdk-gen.js')
 
-const Args = require('./args.js')
+const args = require('./args.js')
 const {
   logError,
   logInfo,

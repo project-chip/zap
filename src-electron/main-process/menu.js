@@ -280,7 +280,6 @@ function generateCodeViaCli(generationDir) {
       )
     )
 }
-exports.generateCodeViaCli = generateCodeViaCli
 
 /**
  *
@@ -296,7 +295,6 @@ function setHandlebarTemplateDirForCli(handlebarTemplateDir) {
     resolve(handlebarTemplateDir)
   })
 }
-exports.setHandlebarTemplateDirForCli = setHandlebarTemplateDirForCli
 
 /**
  * This function gets the directory where user wants the output and calls
@@ -391,4 +389,6 @@ function initMenu(port) {
   Menu.setApplicationMenu(menu)
 }
 
+exports.generateCodeViaCli = generateCodeViaCli
+exports.setHandlebarTemplateDirForCli = setHandlebarTemplateDirForCli
 exports.initMenu = initMenu

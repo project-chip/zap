@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-export const replyId = {
+const replyId = {
   zclEndpointTypeResponse: 'zcl-endpointType-response',
   zclEndpointResponse: 'zcl-endpoint-response',
   zclEndpointTypeClusterSelectionResponse:
@@ -24,8 +24,11 @@ export const replyId = {
   singleCommandState: 'singleCommandState',
 }
 
-export const action = {
+const action = {
   update: 'u',
   create: 'c',
   delete: 'd',
 }
+
+exports.replyId = replyId
+exports.action = action

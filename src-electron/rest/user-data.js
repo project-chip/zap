@@ -41,7 +41,7 @@ const {
 
 const { httpCode } = require('../server/http-server.js')
 
-import * as RestApi from '../../src-shared/rest-api.js'
+const RestApi = require('../../src-shared/rest-api.js')
 
 function registerSessionApi(db, app) {
   app.post('/post/cluster', (request, response) => {
