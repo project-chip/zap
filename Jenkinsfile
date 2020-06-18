@@ -69,6 +69,16 @@ pipeline
                 }
             }
         }
+	    stage('Self check')
+	    {   
+            steps
+            {
+                script
+                {
+                    sh 'npm run self-check'
+                }
+            }
+	    }
         stage('Zap application build')
         {
             steps

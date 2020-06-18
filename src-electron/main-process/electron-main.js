@@ -58,14 +58,15 @@ function attachToDb(db) {
 
 function startSelfCheck() {
   logInitStdout()
-  logInfo('Starting self-check')
+  console.log('Starting self-check')
   dbApi
     .initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, schemaFile(), version))
     .then((db) => loadZcl(db, args.zclPropertiesFile))
     .then(() => {
-      logInfo('Self-check done!')
+      console.log('Self-check done!')
+      app.quit()
     })
     .catch((err) => {
       logError(err)
