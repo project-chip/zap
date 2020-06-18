@@ -41,4 +41,4 @@ require('electron').app.on('ready', () => {
 })
 
 // Require `main` process to boot app
-require('./electron-main')
+require('./electron-main.js')

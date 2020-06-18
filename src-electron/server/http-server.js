@@ -91,9 +91,7 @@ function initHttpServer(db, port) {
     registerGenerationApi(db, app)
     registerAdminApi(db, app)
 
-    var staticDir = path.join(__dirname, __indexDirOffset)
-
-    app.use(express.static(staticDir))
+    app.use(express.static(env.httpStaticContent))
 
     httpServer = app.listen(port, () => {
       env.logInfo(`HTTP server created on port: ` + httpServerPort())

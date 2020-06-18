@@ -19,12 +19,12 @@ const { session, BrowserWindow, dialog } = require('electron')
 const path = require('path')
 const { iconsDirectory, mainDatabase } = require('../util/env.js')
 const { getWindowDirtyFlagWithCallback } = require('../db/query-session.js')
-const { initMenu } = require('./menu.js')
+const menu = require('./menu.js')
 const { initTray } = require('./tray.js')
 
 function initializeElectronUi(port) {
   let w = windowCreate(port)
-  initMenu(port)
+  menu.initMenu(port)
   initTray(port)
 }
 

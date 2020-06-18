@@ -32,15 +32,16 @@ var pino_logger = pino({
 
 var explicit_logger_set = false
 var dbInstance
+var httpStaticContent = path.join(__dirname, '../../dist/spa')
 
 function setDevelopmentEnv() {
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
-  global.__indexDirOffset = path.join('../../dist/spa')
+  httpStaticContent = path.join(__dirname, '../../dist/spa')
 }
 
 function setProductionEnv() {
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
-  global.__indexDirOffset = path.join('.').replace(/\\/g, '\\\\')
+  httpStaticContent = path.join('.').replace(/\\/g, '\\\\')
 }
 
 function setMainDatabase(db) {
@@ -132,3 +133,4 @@ exports.logInfo = logInfo
 exports.logError = logError
 exports.logWarning = logWarning
 exports.logSql = logSql
+exports.httpStaticContent = httpStaticContent

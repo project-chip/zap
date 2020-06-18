@@ -39,7 +39,7 @@ const {
   validateAttribute,
 } = require('../validation/validation.js')
 
-const { httpCode } = require('../server/http-server.js')
+const httpServer = require('../server/http-server.js')
 
 const RestApi = require('../../src-shared/rest-api.js')
 
@@ -56,10 +56,10 @@ function registerSessionApi(db, app) {
             side: side,
             flag: flag,
           })
-          .status(httpCode.ok)
+          .status(httpServer.httpCode.ok)
           .send()
       )
-      .catch((err) => response.status(httpCode.badRequest).send())
+      .catch((err) => response.status(httpServer.httpCode.badRequest).send())
   })
 
   app.post('/post/attribute/update', (request, response) => {
@@ -122,7 +122,7 @@ function registerSessionApi(db, app) {
               validationIssues: validationData,
               replyId: RestApi.replyId.singleAttributeState,
             })
-            return response.status(httpCode.ok).send()
+            return response.status(httpServer.httpCode.ok).send()
           }
         )
       })
@@ -170,7 +170,7 @@ function registerSessionApi(db, app) {
         clusterRef: clusterRef,
         replyId: RestApi.replyId.singleCommandState,
       })
-      return response.status(httpCode.ok).send()
+      return response.status(httpServer.httpCode.ok).send()
     })
   })
 
@@ -218,7 +218,7 @@ function registerSessionApi(db, app) {
         listType: listType,
         replyId: 'singleReportableAttributeState',
       })
-      return response.status(httpCode.ok).send()
+      return response.status(httpServer.httpCode.ok).send()
     })
   })
 
@@ -228,7 +228,7 @@ function registerSessionApi(db, app) {
     logInfo(`[${sessionId}]: Saving: ${key} => ${value}`)
     updateKeyValue(db, sessionId, key, value)
       .then(() => {
-        response.status(httpCode.ok)
+        response.status(httpServer.httpCode.ok)
       })
       .catch((err) => {
         throw err
@@ -258,11 +258,11 @@ function registerSessionApi(db, app) {
                 replyId: RestApi.replyId.zclEndpointResponse,
                 validationIssues: validationData,
               })
-              return response.status(httpCode.ok).send()
+              return response.status(httpServer.httpCode.ok).send()
             })
           })
           .catch((err) => {
-            return response.status(httpCode.badRequest).send()
+            return response.status(httpServer.httpCode.badRequest).send()
           })
         break
       case RestApi.action.delete:
@@ -273,7 +273,7 @@ function registerSessionApi(db, app) {
             id: context.id,
             replyId: RestApi.replyId.zclEndpointResponse,
           })
-          return response.status(httpCode.ok).send()
+          return response.status(httpServer.httpCode.ok).send()
         })
         break
       case RestApi.action.update:
@@ -305,7 +305,7 @@ function registerSessionApi(db, app) {
               replyId: RestApi.replyId.zclEndpointResponse,
               validationIssues: validationData,
             })
-            return response.status(httpCode.ok).send()
+            return response.status(httpServer.httpCode.ok).send()
           })
         })
         break
@@ -328,10 +328,10 @@ function registerSessionApi(db, app) {
               deviceTypeRef: context.deviceTypeRef,
               replyId: RestApi.replyId.zclEndpointTypeResponse,
             })
-            return response.status(httpCode.ok).send()
+            return response.status(httpServer.httpCode.ok).send()
           })
           .catch((err) => {
-            return response.status(httpCode.badRequest).send()
+            return response.status(httpServer.httpCode.badRequest).send()
           })
         break
       case RestApi.action.delete:
@@ -342,7 +342,7 @@ function registerSessionApi(db, app) {
             id: context.id,
             replyId: RestApi.replyId.zclEndpointTypeResponse,
           })
-          return response.status(httpCode.ok).send()
+          return response.status(httpServer.httpCode.ok).send()
         })
         break
       default:
@@ -374,7 +374,7 @@ function registerSessionApi(db, app) {
           updatedValue: updatedValue,
           replyId: RestApi.replyId.zclEndpointTypeResponse,
         })
-        return response.status(httpCode.ok).send()
+        return response.status(httpServer.httpCode.ok).send()
       }
     )
   })
