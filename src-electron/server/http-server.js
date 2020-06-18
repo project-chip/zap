@@ -24,14 +24,12 @@
 const bodyParser = require('body-parser')
 const express = require('express')
 const session = require('express-session')
-const path = require('path')
 const env = require('../util/env.js')
-const { ensureZapSessionId } = require('../db/query-session.js')
-
-const { registerAdminApi } = require('../rest/admin.js')
-const { registerGenerationApi } = require('../rest/generation.js')
-const { registerStaticZclApi } = require('../rest/static-zcl.js')
-const { registerSessionApi } = require('../rest/user-data.js')
+const querySession = require('../db/query-session.js')
+const admin = require('../rest/admin.js')
+const generation = require('../rest/generation.js')
+const staticZcl = require('../rest/static-zcl.js')
+const userData = require('../rest/user-data.js')
 
 var httpServer = null
 
@@ -73,7 +71,8 @@ function initHttpServer(db, port) {
         if ('winId' in req.query) windowId = req.query.winId
         if ('sessionId' in req.query) sessionId = req.query.sessionId
 
-        ensureZapSessionId(db, req.session.id, windowId, sessionId)
+        querySession
+          .ensureZapSessionId(db, req.session.id, windowId, sessionId)
           .then((sessionId) => {
             req.session.zapSessionId = sessionId
             next()
@@ -86,10 +85,10 @@ function initHttpServer(db, port) {
     })
 
     // Simple get for an entity, id can be all or specific id
-    registerStaticZclApi(db, app)
-    registerSessionApi(db, app)
-    registerGenerationApi(db, app)
-    registerAdminApi(db, app)
+    staticZcl.registerStaticZclApi(db, app)
+    userData.registerSessionApi(db, app)
+    generation.registerGenerationApi(db, app)
+    admin.registerAdminApi(db, app)
 
     app.use(express.static(env.httpStaticContent))
 
