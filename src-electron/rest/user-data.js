@@ -25,7 +25,7 @@ const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const validation = require('../validation/validation.js')
 const httpServer = require('../server/http-server.js')
-const RestApi = require('../../src-shared/rest-api.js')
+const restApi = require('../../src-shared/rest-api.js')
 
 function registerSessionApi(db, app) {
   app.post('/post/cluster', (request, response) => {
@@ -35,7 +35,7 @@ function registerSessionApi(db, app) {
       .then(() =>
         response
           .json({
-            replyId: RestApi.replyId.zclEndpointTypeClusterSelectionResponse,
+            replyId: restApi.replyId.zclEndpointTypeClusterSelectionResponse,
             endpointTypeId: endpointTypeId,
             id: id,
             side: side,
@@ -108,7 +108,7 @@ function registerSessionApi(db, app) {
                 added: value,
                 listType: listType,
                 validationIssues: validationData,
-                replyId: RestApi.replyId.singleAttributeState,
+                replyId: restApi.replyId.singleAttributeState,
               })
               return response.status(httpServer.httpCode.ok).send()
             })
@@ -157,7 +157,7 @@ function registerSessionApi(db, app) {
           listType: listType,
           side: commandSide,
           clusterRef: clusterRef,
-          replyId: RestApi.replyId.singleCommandState,
+          replyId: restApi.replyId.singleCommandState,
         })
         return response.status(httpServer.httpCode.ok).send()
       })
@@ -231,7 +231,7 @@ function registerSessionApi(db, app) {
     var { action, context } = request.body
     var sessionIdexport = request.session.zapSessionId
     switch (action) {
-      case RestApi.action.create:
+      case restApi.action.create:
         queryConfig
           .insertEndpoint(
             db,
@@ -250,7 +250,7 @@ function registerSessionApi(db, app) {
                   eptId: context.eptId,
                   endpointType: context.endpointType,
                   nwkId: context.nwkId,
-                  replyId: RestApi.replyId.zclEndpointResponse,
+                  replyId: restApi.replyId.zclEndpointResponse,
                   validationIssues: validationData,
                 })
                 return response.status(httpServer.httpCode.ok).send()
@@ -260,18 +260,18 @@ function registerSessionApi(db, app) {
             return response.status(httpServer.httpCode.badRequest).send()
           })
         break
-      case RestApi.action.delete:
+      case restApi.action.delete:
         queryConfig.deleteEndpoint(db, context.id).then((removed) => {
           response.json({
             action: action,
             successful: removed > 0,
             id: context.id,
-            replyId: RestApi.replyId.zclEndpointResponse,
+            replyId: restApi.replyId.zclEndpointResponse,
           })
           return response.status(httpServer.httpCode.ok).send()
         })
         break
-      case RestApi.action.update:
+      case restApi.action.update:
         var changeParam = ''
         switch (context.updatedKey) {
           case 'endpointId':
@@ -291,11 +291,11 @@ function registerSessionApi(db, app) {
               .validateEndpoint(db, context.id)
               .then((validationData) => {
                 response.json({
-                  action: RestApi.action.update,
+                  action: restApi.action.update,
                   endpointId: context.id,
                   updatedKey: context.updatedKey,
                   updatedValue: context.value,
-                  replyId: RestApi.replyId.zclEndpointResponse,
+                  replyId: restApi.replyId.zclEndpointResponse,
                   validationIssues: validationData,
                 })
                 return response.status(httpServer.httpCode.ok).send()
@@ -311,7 +311,7 @@ function registerSessionApi(db, app) {
     var { action, context } = request.body
     var sessionId = request.session.zapSessionId
     switch (action) {
-      case RestApi.action.create:
+      case restApi.action.create:
         queryConfig
           .insertEndpointType(
             db,
@@ -325,7 +325,7 @@ function registerSessionApi(db, app) {
               id: newId,
               name: context.name,
               deviceTypeRef: context.deviceTypeRef,
-              replyId: RestApi.replyId.zclEndpointTypeResponse,
+              replyId: restApi.replyId.zclEndpointTypeResponse,
             })
             return response.status(httpServer.httpCode.ok).send()
           })
@@ -333,13 +333,13 @@ function registerSessionApi(db, app) {
             return response.status(httpServer.httpCode.badRequest).send()
           })
         break
-      case RestApi.action.delete:
+      case restApi.action.delete:
         queryConfig.deleteEndpointType(db, context.id).then((removed) => {
           response.json({
             action: action,
             successful: removed > 0,
             id: context.id,
-            replyId: RestApi.replyId.zclEndpointTypeResponse,
+            replyId: restApi.replyId.zclEndpointTypeResponse,
           })
           return response.status(httpServer.httpCode.ok).send()
         })
@@ -372,7 +372,7 @@ function registerSessionApi(db, app) {
           endpointTypeId: endpointTypeId,
           updatedKey: updatedKey,
           updatedValue: updatedValue,
-          replyId: RestApi.replyId.zclEndpointTypeResponse,
+          replyId: restApi.replyId.zclEndpointTypeResponse,
         })
         return response.status(httpServer.httpCode.ok).send()
       })
