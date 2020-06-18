@@ -205,7 +205,7 @@ limitations under the License.
                 <template>
                   <div class="q-ma-md">
                     <q-scroll-area
-                      style="height: 600px; max-width: 800px;"
+                      style="height: 70vh; width: 55vw;"
                       ref="generationScroll"
                     >
                       <pre class="q-ma-none container">{{
@@ -242,6 +242,7 @@ export default {
           this.maxIndex = result.data['size']
           this.index = index
           this.currentFile = fileName
+          this.$refs.generationScroll.setScrollPosition(0)
         })
         .catch((err) => console.log('Server Get:' + err))
     },
