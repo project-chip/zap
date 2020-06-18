@@ -235,7 +235,7 @@ function registerSessionApi(db, app) {
         queryConfig
           .insertEndpoint(
             db,
-            sessionId,
+            sessionIdexport,
             context.eptId,
             context.endpointType,
             context.nwkId

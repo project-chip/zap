@@ -384,6 +384,20 @@ describe('Endpoint Type Config Queries', () => {
       })
   })
 
+  test('Insert Endpoint Test', () => {
+    return queryConfig
+      .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9)
+      .then((rowId) => {
+        return queryConfig.selectEndpoint(db, rowId)
+      })
+      .then((endpoint) => {
+        expect(endpoint.endpointId).toBe(4)
+        expect(endpoint.profileId).toBe('0x0104')
+        expect(endpoint.networkId).toBe(9)
+        expect(endpoint.endpointTypeRef).toBe(endpointTypeIdOnOff)
+      })
+  })
+
   test('Delete Endpoint Type', () => {
     return queryConfig
       .deleteEndpointType(db, endpointTypeIdOnOff)

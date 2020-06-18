@@ -131,7 +131,7 @@ function dbInsert(db, query, args) {
   return new Promise((resolve, reject) => {
     db.run(query, args, function (err) {
       if (err) {
-        env.logError(`Failed insert: ${query}: ${args}`)
+        env.logError(`Failed insert: ${query}: ${args} : ${err}`)
         reject(err)
       } else {
         env.logSql(
@@ -157,7 +157,7 @@ function dbAll(db, query, args) {
   return new Promise((resolve, reject) => {
     db.all(query, args, (err, rows) => {
       if (err) {
-        env.logSql(`Failed all: ${query}: ${args}`)
+        env.logSql(`Failed all: ${query}: ${args} : ${err}`)
         reject(err)
       } else {
         env.logSql(`Executed all: ${query}: ${args}`)
@@ -181,7 +181,7 @@ function dbGet(db, query, args) {
   return new Promise((resolve, reject) => {
     db.get(query, args, (err, row) => {
       if (err) {
-        env.logError(`Failed get: ${query}: ${args}`)
+        env.logError(`Failed get: ${query}: ${args} : ${err}`)
         reject(err)
       } else {
         env.logSql(`Executed get: ${query}: ${args}`)
