@@ -27,9 +27,18 @@ env.setDevelopmentEnv()
 var file = env.sqliteTestFile(42)
 var db
 
+function usage() {
+  console.log(`Usage: node ${process.argv[1]} <DIRECTORY>
+
+  Arguments:
+     <DIRECTORY> - specifies the directory where the files are going to be written into. If it does not exist, it gets created.
+  `)
+}
+
 var targetDir = process.argv[2]
 if (targetDir === undefined) {
   console.log('Error: requires a directory argument.')
+  usage()
   process.exit(1)
 }
 
