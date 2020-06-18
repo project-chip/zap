@@ -15,65 +15,59 @@
  *    limitations under the License.
  */
 
-import { app } from 'electron'
-import { version } from '../../package.json'
-import { closeDatabase, initDatabase, loadSchema } from '../db/db-api.js'
-import { initHttpServer, httpServerPort } from '../server/http-server.js'
-import { loadZcl } from '../zcl/zcl-loader.js'
-import * as Args from './args.js'
-import {
-  logError,
-  logInfo,
-  logInitLogFile,
-  logInitStdout,
-  mainDatabase,
-  schemaFile,
-  setDevelopmentEnv,
-  setMainDatabase,
-  setProductionEnv,
-  sqliteFile,
-} from '../util/env.js'
-import { initializeElectronUi, windowCreateIfNotThere } from './window.js'
-import { generateCodeViaCli, setHandlebarTemplateDirForCli } from './menu.js'
-import { runSdkGeneration } from '../sdk-gen/sdk-gen'
+const { app } = require('electron')
+const dbApi = require('../db/db-api.js')
+const { runSdkGeneration } = require('../sdk-gen/sdk-gen.js')
+const args = require('./args.js')
+const env = require('../util/env.js')
+const {
+  generateCodeViaCli,
+  setHandlebarTemplateDirForCli,
+} = require('./menu.js')
+const { loadZcl } = require('../zcl/zcl-loader.js')
+const { initializeElectronUi, windowCreateIfNotThere } = require('./window.js')
+const { initHttpServer, httpServerPort } = require('../server/http-server.js')
 
-logInitLogFile()
+env.logInitLogFile()
 
 if (process.env.DEV) {
-  setDevelopmentEnv()
+  env.setDevelopmentEnv()
 } else {
-  setProductionEnv()
+  env.setProductionEnv()
 }
 
 function attachToDb(db) {
   return new Promise((resolve, reject) => {
-    setMainDatabase(db)
+    env.setMainDatabase(db)
     resolve(db)
   })
 }
 
 function startSelfCheck() {
-  logInitStdout()
-  logInfo('Starting self-check')
-  initDatabase(sqliteFile())
+  env.logInitStdout()
+  console.log('Starting self-check')
+  dbApi
+    .initDatabase(env.sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => loadSchema(db, schemaFile(), version))
-    .then((db) => loadZcl(db, Args.zclPropertiesFile))
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+    .then((db) => loadZcl(db, args.zclPropertiesFile))
     .then(() => {
-      logInfo('Self-check done!')
+      console.log('Self-check done!')
+      app.quit()
     })
     .catch((err) => {
-      logError(err)
+      env.logError(err)
       throw err
     })
 }
 
 function startNormal(ui, showUrl) {
-  initDatabase(sqliteFile())
+  dbApi
+    .initDatabase(env.sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => loadSchema(db, schemaFile(), version))
-    .then((db) => loadZcl(db, Args.zclPropertiesFile))
-    .then((db) => initHttpServer(db, Args.httpPort))
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+    .then((db) => loadZcl(db, args.zclPropertiesFile))
+    .then((db) => initHttpServer(db, args.httpPort))
     .then(() => {
       if (ui) {
         initializeElectronUi(httpServerPort())
@@ -88,7 +82,7 @@ function startNormal(ui, showUrl) {
       }
     })
     .catch((err) => {
-      logError(err)
+      env.logError(err)
       throw err
     })
 }
@@ -103,14 +97,15 @@ function applyGenerationSettings(
   handlebarTemplateDir,
   zclPropertiesFilePath
 ) {
-  logInfo('Start Generation...')
-  return initDatabase(sqliteFile())
+  env.logInfo('Start Generation...')
+  return dbApi
+    .initDatabase(env.sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => loadSchema(db, schemaFile(), version))
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) =>
       loadZcl(
         db,
-        zclPropertiesFilePath ? zclPropertiesFilePath : Args.zclPropertiesFile
+        zclPropertiesFilePath ? zclPropertiesFilePath : args.zclPropertiesFile
       )
     )
     .then((db) =>
@@ -135,19 +130,20 @@ function setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) {
   }
 }
 
-export function startSdkGeneration(
+function startSdkGeneration(
   generationDir,
   handlebarTemplateDir,
   zclPropertiesFilePath
 ) {
-  logInfo('Start SDK generation...')
-  return initDatabase(sqliteFile())
+  env.logInfo('Start SDK generation...')
+  return dbApi
+    .initDatabase(env.sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => loadSchema(db, schemaFile(), version))
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) =>
       loadZcl(
         db,
-        zclPropertiesFilePath ? zclPropertiesFilePath : Args.zclPropertiesFile
+        zclPropertiesFilePath ? zclPropertiesFilePath : args.zclPropertiesFile
       )
     )
     .then((db) =>
@@ -160,39 +156,43 @@ export function startSdkGeneration(
     .then((res) => app.quit())
 }
 
-app.on('ready', () => {
-  var argv = Args.processCommandLineArguments(process.argv)
+if (app != null) {
+  app.on('ready', () => {
+    var argv = args.processCommandLineArguments(process.argv)
 
-  logInfo(argv)
+    env.logInfo(argv)
 
-  if (argv._.includes('selfCheck')) {
-    startSelfCheck()
-  } else if (argv._.includes('generate')) {
-    // generate can have:
-    // - Generation Directory (-output)
-    // - Handlebar Template Directory (-template)
-    // - Xml Data directory (-xml)
-    applyGenerationSettings(argv.output, argv.template, argv.zclProperties)
-  } else if (argv._.includes('sdkGen')) {
-    startSdkGeneration(argv.output, argv.template, argv.zclProperties)
-  } else {
-    startNormal(!argv.noUi, argv.showUrl)
-  }
-})
+    if (argv._.includes('selfCheck')) {
+      startSelfCheck()
+    } else if (argv._.includes('generate')) {
+      // generate can have:
+      // - Generation Directory (-output)
+      // - Handlebar Template Directory (-template)
+      // - Xml Data directory (-xml)
+      applyGenerationSettings(argv.output, argv.template, argv.zclProperties)
+    } else if (argv._.includes('sdkGen')) {
+      startSdkGeneration(argv.output, argv.template, argv.zclProperties)
+    } else {
+      startNormal(!argv.noUi, argv.showUrl)
+    }
+  })
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+      app.quit()
+    }
+  })
 
-app.on('activate', () => {
-  logInfo('Activate...')
-  windowCreateIfNotThere(Args.httpPort)
-})
+  app.on('activate', () => {
+    env.logInfo('Activate...')
+    windowCreateIfNotThere(args.httpPort)
+  })
 
-app.on('quit', () => {
-  closeDatabase(mainDatabase()).then(() =>
-    logInfo('Database closed, shutting down.')
-  )
-})
+  app.on('quit', () => {
+    dbApi
+      .closeDatabase(env.mainDatabase())
+      .then(() => env.logInfo('Database closed, shutting down.'))
+  })
+}
+
+exports.loaded = true

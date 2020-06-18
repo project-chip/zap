@@ -14,8 +14,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-import { logInfo } from '../src-electron/util/env'
+const env = require('../src-electron/util/env.js')
 
 module.exports = async () => {
-  logInfo('Global setup.')
+  env.logInfo('Global setup.')
 }

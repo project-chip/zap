@@ -15,11 +15,10 @@
  *    limitations under the License.
  */
 
-import * as QueryZcl from '../db/query-zcl'
-import path from 'path'
-import yaml from 'yaml'
-import * as fs from 'fs'
-import { logError } from '../util/env'
+const path = require('path')
+const yaml = require('yaml')
+const fs = require('fs')
+const queryZcl = require('../db/query-zcl.js')
 
 function cleanse(name) {
   var ret = name.replace(/-/g, '_')
@@ -28,6 +27,8 @@ function cleanse(name) {
   ret = ret.replace(/\./g, '_')
   ret = ret.replace(/\(/g, '')
   ret = ret.replace(/\)/g, '')
+  ret = ret.replace(/\#/g, '')
+  ret = ret.replace(/\:/g, '_')
   ret = ret.toLowerCase()
   return ret
 }
@@ -192,8 +193,86 @@ function generateSingleClusterImpSlcc(ctx, cluster) {
   else return fs.promises.writeFile(fileName, output)
 }
 
+// Commands
+function createCommand(componentId, cluster, command) {
+  return {
+    id: componentId,
+    label: command.label,
+    package: 'Zigbee',
+    category:
+      'Zigbee|Zigbee Cluster Library|Configuration|' +
+      cluster.label +
+      '|Commands',
+    quality: 'production',
+    root_path: 'app/zigbee/component',
+  }
+}
+
+function generateSingleCommandSlcc(ctx, cluster, command) {
+  var clusterName = cleanse(cluster.label)
+  var commandName = cleanse(command.label)
+  var componentId = `zcl_cluster_${clusterName}_command_${commandName}`
+  var fileName = path.join(ctx.generationDir, componentId + '.slcc')
+
+  var output = toSlcc(createCommand(componentId, cluster, command))
+
+  if (ctx.dontWrite) return Promise.resolve()
+  else return fs.promises.writeFile(fileName, output)
+}
+
+function generateSingleClusterCommands(ctx, cluster) {
+  return queryZcl
+    .selectCommandsByClusterId(ctx.db, cluster.id)
+    .then((commandsArray) => {
+      var promises = []
+      commandsArray.forEach((command) => {
+        promises.push(generateSingleCommandSlcc(ctx, cluster, command))
+      })
+      return Promise.all(promises)
+    })
+}
+
+// Attributes
+function createAttribute(componentId, cluster, attribute) {
+  return {
+    id: componentId,
+    label: attribute.label,
+    package: 'Zigbee',
+    category:
+      'Zigbee|Zigbee Cluster Library|Configuration|' +
+      cluster.label +
+      '|Attributes',
+    quality: 'production',
+    root_path: 'app/zigbee/component',
+  }
+}
+
+function generateSingleAttributeSlcc(ctx, cluster, attribute) {
+  var clusterName = cleanse(cluster.label)
+  var attributeName = cleanse(attribute.label)
+  var componentId = `zcl_cluster_${clusterName}_attribute_${attributeName}`
+  var fileName = path.join(ctx.generationDir, componentId + '.slcc')
+
+  var output = toSlcc(createAttribute(componentId, cluster, attribute))
+
+  if (ctx.dontWrite) return Promise.resolve()
+  else return fs.promises.writeFile(fileName, output)
+}
+
+function generateSingleClusterAttributes(ctx, cluster) {
+  return queryZcl
+    .selectAttributesByClusterId(ctx.db, cluster.id)
+    .then((attributesArray) => {
+      var promises = []
+      attributesArray.forEach((attribute) => {
+        promises.push(generateSingleAttributeSlcc(ctx, cluster, attribute))
+      })
+      return Promise.all(promises)
+    })
+}
+
 function generateDeviceTypes(ctx) {
-  return QueryZcl.selectAllDeviceTypes(ctx.db).then((deviceTypeArray) => {
+  return queryZcl.selectAllDeviceTypes(ctx.db).then((deviceTypeArray) => {
     var promises = []
     console.log(`Generating ${deviceTypeArray.length} device types`)
     deviceTypeArray.forEach((element) => {
@@ -204,8 +283,8 @@ function generateDeviceTypes(ctx) {
   })
 }
 
-function generateClusters(ctx) {
-  return QueryZcl.selectAllClusters(ctx.db).then((clustersArray) => {
+function generateClusters(ctx, alsoGenerateCommandsAndAttributes) {
+  return queryZcl.selectAllClusters(ctx.db).then((clustersArray) => {
     var promises = []
     console.log(`Generating ${clustersArray.length} clusters`)
     clustersArray.forEach((element) => {
@@ -213,6 +292,10 @@ function generateClusters(ctx) {
       promises.push(generateSingleClusterDefContrib(ctx, element))
       promises.push(generateSingleClusterImpSlcc(ctx, element))
       promises.push(generateSingleClusterImpContrib(ctx, element))
+      if (alsoGenerateCommandsAndAttributes) {
+        promises.push(generateSingleClusterAttributes(ctx, element))
+        promises.push(generateSingleClusterCommands(ctx, element))
+      }
     })
     return Promise.all(promises)
   })
@@ -223,13 +306,13 @@ function generateClusters(ctx) {
  *
  * @param {*} ctx Contains generationDir, templateDir, db and options dontWrite which can prevent final writing.
  */
-export function runSdkGeneration(ctx) {
+function runSdkGeneration(ctx) {
   console.log(
     `Generating SDK artifacts into ${ctx.generationDir}, using templates from ${ctx.templateDir}`
   )
   var promises = []
   promises.push(generateDeviceTypes(ctx))
-  promises.push(generateClusters(ctx))
+  promises.push(generateClusters(ctx, false))
 
   var mainPromise
   if (ctx.dontWrite) {
@@ -242,3 +325,5 @@ export function runSdkGeneration(ctx) {
 
   return mainPromise
 }
+
+exports.runSdkGeneration = runSdkGeneration

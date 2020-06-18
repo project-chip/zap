@@ -21,20 +21,19 @@
  * @module JS API: http server
  */
 
-import bodyParser from 'body-parser'
-import express from 'express'
-import session from 'express-session'
-import path from 'path'
-import { ensureZapSessionId } from '../db/query-session.js'
-import * as Env from '../util/env.js'
-import { registerAdminApi } from '../rest/admin.js'
-import { registerGenerationApi } from '../rest/generation.js'
-import { registerStaticZclApi } from '../rest/static-zcl.js'
-import { registerSessionApi } from '../rest/user-data.js'
+const bodyParser = require('body-parser')
+const express = require('express')
+const session = require('express-session')
+const env = require('../util/env.js')
+const querySession = require('../db/query-session.js')
+const admin = require('../rest/admin.js')
+const generation = require('../rest/generation.js')
+const staticZcl = require('../rest/static-zcl.js')
+const userData = require('../rest/user-data.js')
 
 var httpServer = null
 
-export const httpCode = {
+const httpCode = {
   ok: 200,
   badRequest: 400,
   notFound: 404,
@@ -49,7 +48,7 @@ export const httpCode = {
  * @param {*} port Port for the HTTP server.
  * @returns A promise that resolves with an express app.
  */
-export function initHttpServer(db, port) {
+function initHttpServer(db, port) {
   return new Promise((resolve, reject) => {
     const app = express()
     app.use(bodyParser.urlencoded({ extended: true }))
@@ -72,39 +71,41 @@ export function initHttpServer(db, port) {
         if ('winId' in req.query) windowId = req.query.winId
         if ('sessionId' in req.query) sessionId = req.query.sessionId
 
-        ensureZapSessionId(db, req.session.id, windowId, sessionId)
+        querySession
+          .ensureZapSessionId(db, req.session.id, windowId, sessionId)
           .then((sessionId) => {
             req.session.zapSessionId = sessionId
             next()
           })
           .catch((err) => {
-            Env.logError('Could not create session: ' + err.message)
+            env.logError('Could not create session: ' + err.message)
+            env.logError(err)
           })
       }
     })
 
     // Simple get for an entity, id can be all or specific id
-    registerStaticZclApi(db, app)
-    registerSessionApi(db, app)
-    registerGenerationApi(db, app)
-    registerAdminApi(db, app)
+    staticZcl.registerStaticZclApi(db, app)
+    userData.registerSessionApi(db, app)
+    generation.registerGenerationApi(db, app)
+    admin.registerAdminApi(db, app)
 
-    var staticDir = path.join(__dirname, __indexDirOffset)
-
-    app.use(express.static(staticDir))
+    app.use(express.static(env.httpStaticContent))
 
     httpServer = app.listen(port, () => {
-      Env.logInfo(`HTTP server created on port: ` + httpServerPort())
+      env.logInfo(`HTTP server created on port: ` + httpServerPort())
       resolve(app)
     })
 
     process.on('uncaughtException', function (err) {
-      Env.logInfo(`HTTP server port ` + port + ` is busy.`)
+      env.logInfo(`HTTP server port ` + port + ` is busy.`)
       if (err.errno === 'EADDRINUSE') {
         httpServer = app.listen(0, () => {
-          Env.logInfo(`HTTP server created on port: ` + httpServerPort())
+          env.logInfo(`HTTP server created on port: ` + httpServerPort())
           resolve(app)
         })
+      } else {
+        Env.logError(err)
       }
     })
   })
@@ -116,11 +117,11 @@ export function initHttpServer(db, port) {
  * @export
  * @returns Promise that resolves when server is shut down.
  */
-export function shutdownHttpServer() {
+function shutdownHttpServer() {
   return new Promise((resolve, reject) => {
     if (httpServer != null) {
       httpServer.close(() => {
-        Env.logInfo('HTTP server shut down.')
+        env.logInfo('HTTP server shut down.')
         httpServer = null
         resolve(null)
       })
@@ -135,10 +136,15 @@ export function shutdownHttpServer() {
  * @export
  * @returns port
  */
-export function httpServerPort() {
+function httpServerPort() {
   if (httpServer) {
     return httpServer.address().port
   } else {
     return 0
   }
 }
+// exports
+exports.initHttpServer = initHttpServer
+exports.shutdownHttpServer = shutdownHttpServer
+exports.httpServerPort = httpServerPort
+exports.httpCode = httpCode

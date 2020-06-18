@@ -21,7 +21,7 @@ Return: String
 Description: return the given string in uppercase and convert spaces into
 underscores.
 */
-export function getUppercase(str) {
+function getUppercase(str) {
   str = findAndReplace(str, [' '], '_')
   return str.toUpperCase()
 }
@@ -36,7 +36,7 @@ export function getUppercase(str) {
  * Description: getSwitch helper receives a options hash which contains
  * options.fn that behaves like a compiled handlebars template.
  */
-export function getSwitch(value, options) {
+function getSwitch(value, options) {
   this.switch_value = value.toLowerCase()
   this.switch_break = false
   return options.fn(this)
@@ -52,7 +52,7 @@ export function getSwitch(value, options) {
  * Description: getCase helper receives a options hash which contains
  * options.fn that behaves like a compiled handlebars template.
  */
-export function getCase(value, options) {
+function getCase(value, options) {
   if (value == this.switch_value) {
     this.switch_break = true
     return options.fn(this)
@@ -69,7 +69,7 @@ export function getCase(value, options) {
  * Description: getDefault helper receives a options hash which contains
  * options.fn that behaves like a compiled handlebars template.
  */
-export function getDefault(value, options) {
+function getDefault(value, options) {
   if (this.switch_break == false) {
     return options.fn(this)
   }
@@ -81,7 +81,7 @@ Return: String
 Description: return the given string such that camel case is changed into a
 string with underscores and is also uppercase.
 */
-export function getStrong(str) {
+function getStrong(str) {
   str = str
     .replace(/\.?([A-Z][a-z])/g, function (x, y) {
       return '_' + y
@@ -96,7 +96,7 @@ Return: String
 Description: return the given string but convert it into a number and then
 into a hex string to keep consistency in the hex strings values.
 */
-export function getHexValue(str) {
+function getHexValue(str) {
   var hexString = parseInt(str, 16).toString(16).toUpperCase()
   var prefix
   if (hexString.length % 2 == 0) {
@@ -133,7 +133,7 @@ function findAndReplace(string, target, replacement) {
  * Given: String Array
  * @returns the length of largest String in the array
  */
-export function getLargestStringInArray() {
+function getLargestStringInArray() {
   var stringArray = arguments[0]
   var lengthOfLargestString = 0,
     i = 0,
@@ -154,7 +154,7 @@ export function getLargestStringInArray() {
  * @param {*} str
  * Descrtiption: Given a String, remove underscores from it and return it.
  */
-export function getCamelCaseWithoutUnderscore(str) {
+function getCamelCaseWithoutUnderscore(str) {
   let res = ''
   if (str) {
     var tempArray = str.split('_')
@@ -169,21 +169,21 @@ export function getCamelCaseWithoutUnderscore(str) {
   return res
 }
 
-export function isEitherCommandSource(str) {
+function isEitherCommandSource(str) {
   if (str && str.toLowerCase() === 'either') {
     return true
   }
   return false
 }
 
-export function isCommandManufactureSpecific(str) {
+function isCommandManufactureSpecific(str) {
   if (str) {
     return true
   }
   return false
 }
 
-export function getDirection(str) {
+function getDirection(str) {
   if (str && str.toLowerCase() === 'client') {
     return 'ClientToServer'
   } else {
@@ -191,7 +191,7 @@ export function getDirection(str) {
   }
 }
 
-export function trimNewLinesTabs(str) {
+function trimNewLinesTabs(str) {
   let res = str
   if (res) {
     res = str.replace(/  |\r\n|\n|\r/gm, '')
@@ -199,7 +199,7 @@ export function trimNewLinesTabs(str) {
   return res
 }
 
-export function getFormatCharactersForCommandArguments(commandArgs) {
+function getFormatCharactersForCommandArguments(commandArgs) {
   let commandArg = {}
   let res = ''
   var i = 0
@@ -312,3 +312,17 @@ export function getFormatCharactersForCommandArguments(commandArgs) {
   }
   return res
 }
+// exports
+exports.getUppercase = getUppercase
+exports.getSwitch = getSwitch
+exports.getCase = getCase
+exports.getDefault = getDefault
+exports.getStrong = getStrong
+exports.getHexValue = getHexValue
+exports.getLargestStringInArray = getLargestStringInArray
+exports.getCamelCaseWithoutUnderscore = getCamelCaseWithoutUnderscore
+exports.isEitherCommandSource = isEitherCommandSource
+exports.isCommandManufactureSpecific = isCommandManufactureSpecific
+exports.getDirection = getDirection
+exports.trimNewLinesTabs = trimNewLinesTabs
+exports.getFormatCharactersForCommandArguments = getFormatCharactersForCommandArguments

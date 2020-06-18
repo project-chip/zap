@@ -15,12 +15,12 @@
  *    limitations under the License.
  */
 
-import yargs from 'yargs'
-import { logInfo } from '../util/env'
+const yargs = require('yargs')
+const env = require('../util/env.js')
 
 // TODO how to handle relative pathing for things like properties file.
-export var zclPropertiesFile = './test/zcl/zcl-test.properties'
-export var httpPort = 9070
+exports.zclPropertiesFile = './test/zcl/zcl-test.properties'
+exports.httpPort = 9070
 
 /**
  * Process the command line arguments and resets the state in this file
@@ -30,7 +30,7 @@ export var httpPort = 9070
  * @param {*} argv
  * @returns parsed argv object
  */
-export function processCommandLineArguments(argv) {
+function processCommandLineArguments(argv) {
   var ret = yargs
     .command('generate', 'Generate ZCL artifacts.', (yargs) => {
       yargs.positional('outputDir', {
@@ -44,13 +44,13 @@ export function processCommandLineArguments(argv) {
       desc: 'Port used for the HTTP server',
       alias: 'p',
       type: 'number',
-      default: httpPort,
+      default: exports.httpPort,
     })
     .option('zclProperties', {
       desc: 'zcl.properties file to read in.',
       alias: 'zcl',
       type: 'string',
-      default: zclPropertiesFile,
+      default: exports.zclPropertiesFile,
     })
     .option('noUi', {
       desc: "Don't show the main window when starting.",
@@ -60,6 +60,7 @@ export function processCommandLineArguments(argv) {
     })
     .option('output', {
       desc: 'Specifying the output directory for generation',
+      alias: 'o',
       type: 'string',
     })
     .option('template', {
@@ -71,11 +72,13 @@ export function processCommandLineArguments(argv) {
     .parse(argv)
 
   // Now populate exported variables with this.
-  logInfo('Command line arguments:')
-  logInfo(ret)
+  env.logInfo('Command line arguments:')
+  env.logInfo(ret)
 
-  zclPropertiesFile = ret.zclProperties
-  httpPort = ret.httpPort
+  exports.zclPropertiesFile = ret.zclProperties
+  exports.httpPort = ret.httpPort
 
   return ret
 }
+
+exports.processCommandLineArguments = processCommandLineArguments

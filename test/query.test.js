@@ -17,50 +17,36 @@
  *
  * @jest-environment node
  */
-import fs from 'fs'
-import { version } from '../package.json'
-import {
-  closeDatabase,
-  initDatabase,
-  loadSchema,
-  dbInsert,
-  dbGet,
-} from '../src-electron/db/db-api'
-import { zclPropertiesFile } from '../src-electron/main-process/args'
-import {
+const fs = require('fs')
+const dbApi = require('../src-electron/db/db-api.js')
+const queryZcl = require('../src-electron/db/query-zcl.js')
+const { zclPropertiesFile } = require('../src-electron/main-process/args.js')
+const queryConfig = require('../src-electron/db/query-config.js')
+const {
   logInfo,
   schemaFile,
   sqliteTestFile,
-  logError,
-} from '../src-electron/util/env'
-import { loadZcl } from '../src-electron/zcl/zcl-loader'
-import { getPathCrc, insertPathCrc } from '../src-electron/db/query-package'
-import {
-  insertClusters,
-  selectAllClusters,
-  selectClusterById,
-  selectAttributesByClusterId,
-  selectCommandsByClusterId,
-} from '../src-electron/db/query-zcl'
-import {
+  zapVersion,
+} = require('../src-electron/util/env.js')
+const {
+  insertFileLocation,
+  selectFileLocation,
+} = require('../src-electron/db/query-generic.js')
+const {
+  getPathCrc,
+  insertPathCrc,
+} = require('../src-electron/db/query-package.js')
+const {
   ensureZapSessionId,
   setSessionClean,
   getSessionInfoFromWindowId,
   getSessionDirtyFlag,
-} from '../src-electron/db/query-session'
-import {
-  insertEndpointType,
-  deleteEndpoint,
-  deleteEndpointType,
-  updateKeyValue,
-  getSessionKeyValue,
-  getAllEndpointTypes,
-} from '../src-electron/db/query-config'
-import {
-  insertFileLocation,
-  selectFileLocation,
-} from '../src-electron/db/query-generic'
-import { createStateFromDatabase } from '../src-electron/importexport/export'
+} = require('../src-electron/db/query-session.js')
+const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
+
+const {
+  createStateFromDatabase,
+} = require('../src-electron/importexport/export.js')
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -74,8 +60,9 @@ var sid
 
 beforeAll(() => {
   var file = sqliteTestFile(1)
-  return initDatabase(file)
-    .then((d) => loadSchema(d, schemaFile(), version))
+  return dbApi
+    .initDatabase(file)
+    .then((d) => dbApi.loadSchema(d, schemaFile(), zapVersion()))
     .then((d) => {
       db = d
       logInfo('DB initialized.')
@@ -84,7 +71,7 @@ beforeAll(() => {
 
 afterAll(() => {
   var file = sqliteTestFile(1)
-  return closeDatabase(db).then(() => {
+  return dbApi.closeDatabase(db).then(() => {
     if (fs.existsSync(file)) fs.unlinkSync(file)
   })
 })
@@ -107,24 +94,25 @@ test('File location queries.', () => {
 })
 
 test('Replace query', () => {
-  return dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
-    'thePath',
-    12,
-  ])
+  return dbApi
+    .dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
+      'thePath',
+      12,
+    ])
     .then((rowId) => expect(rowId).toBeGreaterThan(0))
     .then(() =>
-      dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
+      dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
     )
     .then((result) => expect(result.CRC).toBe(12))
     .then(() =>
-      dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
+      dbApi.dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
         'thePath',
         13,
       ])
     )
     .then((rowId) => expect(rowId).toBeGreaterThan(0))
     .then(() =>
-      dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
+      dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
     )
     .then((result) => expect(result.CRC).toBe(13))
 })
@@ -132,7 +120,7 @@ test('Replace query', () => {
 test('Simple cluster addition.', () => {
   return insertPathCrc(db, 'test', 1)
     .then((rowid) =>
-      insertClusters(db, rowid, [
+      queryZcl.insertClusters(db, rowid, [
         {
           code: '0x1234',
           name: 'Test',
@@ -141,7 +129,7 @@ test('Simple cluster addition.', () => {
         },
       ])
     )
-    .then((rowids) => selectAllClusters(db))
+    .then((rowids) => queryZcl.selectAllClusters(db))
     .then(
       (rows) =>
         new Promise((resolve, reject) => {
@@ -152,7 +140,7 @@ test('Simple cluster addition.', () => {
           resolve(rowid)
         })
     )
-    .then((rowid) => selectClusterById(db, rowid))
+    .then((rowid) => queryZcl.selectClusterById(db, rowid))
     .then(
       (row) =>
         new Promise((resolve, reject) => {
@@ -162,11 +150,12 @@ test('Simple cluster addition.', () => {
         })
     )
     .then((rowid) => {
-      selectAttributesByClusterId(db, rowid)
+      queryZcl
+        .selectAttributesByClusterId(db, rowid)
         .then((rows) => {
           expect(rows.length).toBe(0)
         })
-        .then(() => selectCommandsByClusterId(db, rowid))
+        .then(() => queryZcl.selectCommandsByClusterId(db, rowid))
         .then((rows) => {
           expect(rows.length).toBe(0)
         })
@@ -191,15 +180,20 @@ describe('Session specific queries', () => {
   })
 
   test('Random key value queries', () => {
-    return updateKeyValue(db, sid, 'key1', 'value1')
-      .then(() => getSessionKeyValue(db, sid, 'key1'))
+    return queryConfig
+      .updateKeyValue(db, sid, 'key1', 'value1')
+      .then(() => queryConfig.getSessionKeyValue(db, sid, 'key1'))
       .then((value) => {
         expect(value).toBe('value1')
       })
-      .then(() => updateKeyValue(db, sid, 'key1', 'value2'))
-      .then(() => getSessionKeyValue(db, sid, 'key1'))
+      .then(() => queryConfig.updateKeyValue(db, sid, 'key1', 'value2'))
+      .then(() => queryConfig.getSessionKeyValue(db, sid, 'key1'))
       .then((value) => {
         expect(value).toBe('value2')
+      })
+      .then(() => queryConfig.getSessionKeyValue(db, sid, 'nonexistent'))
+      .then((value) => {
+        expect(value).toBeUndefined()
       })
   })
 
@@ -231,7 +225,7 @@ describe('Session specific queries', () => {
       .then((result) => {
         expect(result).toBeFalsy()
       })
-      .then(() => insertEndpointType(db, sid, 'Test endpoint'))
+      .then(() => queryConfig.insertEndpointType(db, sid, 'Test endpoint'))
       .then((id) => {
         endpointTypeId = id
         return getSessionDirtyFlag(db, sid)
@@ -239,7 +233,7 @@ describe('Session specific queries', () => {
       .then((result) => {
         expect(result).toBeTruthy()
       })
-      .then(() => getAllEndpointTypes(db, sid))
+      .then(() => queryConfig.getAllEndpointTypes(db, sid))
       .then((rows) => {
         expect(rows.length).toBe(1)
       })
@@ -248,7 +242,7 @@ describe('Session specific queries', () => {
       .then((result) => {
         expect(result).toBeFalsy()
       })
-      .then(() => deleteEndpointType(db, endpointTypeId))
+      .then(() => queryConfig.deleteEndpointType(db, endpointTypeId))
       .then(() => getSessionDirtyFlag(db, sid))
       .then((result) => {
         expect(result).toBeTruthy()
@@ -260,9 +254,9 @@ describe('Session specific queries', () => {
     return getSessionInfoFromWindowId(db, 666)
       .then((data) => {
         sid = data.sessionId
-        return updateKeyValue(db, sid, 'testKey', 'testValue')
+        return queryConfig.updateKeyValue(db, sid, 'testKey', 'testValue')
       })
-      .then(() => getSessionKeyValue(db, sid, 'testKey'))
+      .then(() => queryConfig.getSessionKeyValue(db, sid, 'testKey'))
       .then((value) => {
         expect(value).toBe('testValue')
       })
@@ -274,7 +268,7 @@ describe('Session specific queries', () => {
     return getSessionInfoFromWindowId(db, 666)
       .then((data) => {
         sid = data.sessionId
-        return insertEndpointType(db, sid, 'Test endpoint')
+        return queryConfig.insertEndpointType(db, sid, 'Test endpoint')
       })
       .then((id) => {
         endpointTypeId = id
@@ -297,8 +291,107 @@ describe('Session specific queries', () => {
   })
 
   test('Empty delete', () => {
-    return deleteEndpoint(db, 123).then((data) => {
+    return queryConfig.deleteEndpoint(db, 123).then((data) => {
       expect(data).toBe(0)
     })
+  })
+})
+describe('Endpoint Type Config Queries', () => {
+  beforeAll(() => {
+    return ensureZapSessionId(db, 'SESSION', 666).then((id) => {
+      sid = id
+    })
+  })
+  var endpointTypeIdOnOff
+  var haOnOffDeviceType, zllOnOffLightDevice
+
+  test('Insert EndpointType and test various states', () => {
+    return queryZcl.selectAllDeviceTypes(db).then((rows) => {
+      let haOnOffDeviceTypeArray = rows.filter(
+        (data) => data.label === 'HA-onoff'
+      )
+      let zllOnOffLightDeviceTypeArray = rows.filter(
+        (data) => data.label === 'ZLL-onofflight'
+      )
+      expect(haOnOffDeviceTypeArray.length > 0).toBeTruthy()
+      expect(zllOnOffLightDeviceTypeArray.length > 0).toBeTruthy()
+      haOnOffDeviceType = haOnOffDeviceTypeArray[0]
+      zllOnOffLightDevice = zllOnOffLightDeviceTypeArray[0]
+      expect(typeof haOnOffDeviceType).toBe('object')
+      expect(typeof zllOnOffLightDevice).toBe('object')
+      return Promise.resolve()
+    })
+  })
+
+  test('Insert Endpoint Type', () => {
+    return queryConfig
+      .insertEndpointType(db, sid, 'testEndpointType', haOnOffDeviceType.id)
+      .then((rowId) => {
+        endpointTypeIdOnOff = rowId
+        return queryZcl.selectEndpointType(db, rowId)
+      })
+      .then((endpointType) => {
+        expect(endpointType.deviceTypeRef).toBe(haOnOffDeviceType.id)
+        expect(endpointType.name).toBe('testEndpointType')
+      })
+  })
+
+  test('Test get all cluster states', () => {
+    return queryConfig
+      .getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
+      .then((clusters) => {
+        expect(clusters.length).toBe(6)
+        return Promise.resolve()
+      })
+      .then(() => {
+        return queryConfig
+          .insertOrReplaceClusterState(
+            db,
+            endpointTypeIdOnOff,
+            7,
+            'CLIENT',
+            true
+          )
+          .then((rowId) => {
+            expect(typeof rowId).toBe('number')
+          })
+          .then(() => {
+            return queryConfig.getAllEndpointTypeClusterState(
+              db,
+              endpointTypeIdOnOff
+            )
+          })
+          .then((clusters) => {
+            expect(clusters.length).toBe(7)
+            return Promise.resolve()
+          })
+      })
+  })
+
+  test('Test get all attribute states', () => {
+    return queryConfig
+      .getEndpointTypeAttributes(db, endpointTypeIdOnOff)
+      .then((attributes) => {
+        expect(attributes.length).toBe(10)
+      })
+  })
+
+  test('Get all cluster commands', () => {
+    return queryConfig
+      .getEndpointTypeCommands(db, endpointTypeIdOnOff)
+      .then((commands) => {
+        expect(commands.length).toBe(6)
+      })
+  })
+
+  test('Delete Endpoint Type', () => {
+    return queryConfig
+      .deleteEndpointType(db, endpointTypeIdOnOff)
+      .then(queryConfig.deleteEndpointTypeData(db, endpointTypeIdOnOff))
+      .then(queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
+      .then((clusters) => {
+        expect(clusters.length).toBe(undefined)
+        return Promise.resolve()
+      })
   })
 })

@@ -17,11 +17,11 @@
  *
  * @jest-environment node
  */
-const dbMapping = require('../src-electron/db/db-mapping.js')
 
-test('Test DB mappings', () => {
-  Object.keys(dbMapping.map).forEach((k) => {
-    dbMapping.map[k](null)
-    dbMapping.map[k]({ a: 1 })
-  })
+const electronMain = require('../src-electron/main-process/electron-main.js')
+
+test('Make sure electron main process loads', () => {
+  expect(electronMain.loaded).toBeTruthy()
 })
+
+require('../src-electron/main-process/preference.js')

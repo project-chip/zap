@@ -15,9 +15,9 @@
  *    limitations under the License.
  */
 
-import { BrowserWindow } from 'electron'
-import path from 'path'
-import * as Env from '../util/env'
+const { BrowserWindow } = require('electron')
+const path = require('path')
+const Env = require('../util/env.js')
 
 let window = null
 
@@ -27,13 +27,14 @@ let window = null
  * @export
  * @param {*} port
  */
-export function createOrShowWindow(port) {
+function createOrShowWindow(port) {
   if (window == null) {
     createWindow(port)
   } else {
     window.show()
   }
 }
+exports.createOrShowWindow = createOrShowWindow
 
 function createWindow(port) {
   window = new BrowserWindow({

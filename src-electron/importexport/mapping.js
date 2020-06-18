@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-import * as QueryConfig from '../db/query-config'
+const queryConfig = require('../db/query-config.js')
 
 /**
  * This file contains queries and mapping for reading and writing a file.
@@ -29,8 +29,8 @@ import * as QueryConfig from '../db/query-config'
  * @param {*} sessionId
  * @returns Promise to retrieve all session key values.
  */
-export function exportSessionKeyValues(db, sessionId) {
-  return QueryConfig.getAllSessionKeyValues(db, sessionId)
+function exportSessionKeyValues(db, sessionId) {
+  return queryConfig.getAllSessionKeyValues(db, sessionId)
 }
 
 /**
@@ -40,13 +40,13 @@ export function exportSessionKeyValues(db, sessionId) {
  * @param {*} sessionId
  * @param {*} keyValuePairs
  */
-export function importSessionKeyValues(db, sessionId, keyValuePairs) {
+function importSessionKeyValues(db, sessionId, keyValuePairs) {
   var allQueries = []
   if (keyValuePairs != null) {
     // Write key value pairs
     keyValuePairs.forEach((element) => {
       allQueries.push(
-        QueryConfig.updateKeyValue(db, sessionId, element.key, element.value)
+        queryConfig.updateKeyValue(db, sessionId, element.key, element.value)
       )
     })
   }
@@ -61,12 +61,12 @@ export function importSessionKeyValues(db, sessionId, keyValuePairs) {
  * @param {*} sessionId
  * @returns Promise to retrieve all endpoint types.
  */
-export function exportEndpointTypes(db, sessionId) {
-  return QueryConfig.getAllEndpointTypes(db, sessionId).then((endpoints) => {
+function exportEndpointTypes(db, sessionId) {
+  return queryConfig.getAllEndpointTypes(db, sessionId).then((endpoints) => {
     var promises = []
     endpoints.forEach((endpoint) => {
       promises.push(
-        QueryConfig.getEndpointTypeClusters(db, endpoint.endpointTypeId).then(
+        queryConfig.getEndpointTypeClusters(db, endpoint.endpointTypeId).then(
           (clusterRows) =>
             new Promise((resolve, reject) => {
               endpoint.clusters = clusterRows
@@ -76,7 +76,7 @@ export function exportEndpointTypes(db, sessionId) {
       )
 
       promises.push(
-        QueryConfig.getEndpointTypeAttributes(db, endpoint.endpointTypeId).then(
+        queryConfig.getEndpointTypeAttributes(db, endpoint.endpointTypeId).then(
           (attributeRows) =>
             new Promise((resolve, reject) => {
               endpoint.attributes = attributeRows
@@ -86,7 +86,7 @@ export function exportEndpointTypes(db, sessionId) {
       )
 
       promises.push(
-        QueryConfig.getEndpointTypeCommands(db, endpoint.endpointTypeId).then(
+        queryConfig.getEndpointTypeCommands(db, endpoint.endpointTypeId).then(
           (commandRows) =>
             new Promise((resolve, reject) => {
               endpoint.commands = commandRows
@@ -98,3 +98,7 @@ export function exportEndpointTypes(db, sessionId) {
     return Promise.all(promises).then(() => endpoints)
   })
 }
+// exports
+exports.exportSessionKeyValues = exportSessionKeyValues
+exports.importSessionKeyValues = importSessionKeyValues
+exports.exportEndpointTypes = exportEndpointTypes

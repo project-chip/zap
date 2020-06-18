@@ -130,10 +130,6 @@ generateCode function which generates the code in the user selected output.</p>
 <dd><p>Process a single file, parsing it in as JSON and then possibly opening
 a new window if all is good.</p>
 </dd>
-<dt><a href="#resolveGenerationDirectory">resolveGenerationDirectory(map)</a> ⇒</dt>
-<dd><p>Description: Resolve the generation directory to be able to generate to the
-correct directory.</p>
-</dd>
 <dt><a href="#initMenu">initMenu(port)</a></dt>
 <dd><p>Initialize a menu.</p>
 </dd>

@@ -20,7 +20,7 @@
  *
  * @module DB API: session related queries.
  */
-import * as DbApi from './db-api.js'
+const dbApi = require('./db-api.js')
 
 /**
  * Returns a promise that resolves into an array of objects containing 'sessionId', 'sessionKey' and 'creationTime'.
@@ -29,25 +29,23 @@ import * as DbApi from './db-api.js'
  * @param {*} db
  * @returns A promise of executing a query.
  */
-export function getAllSessions(db) {
-  return DbApi.dbAll(
-    db,
-    'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION',
-    []
-  ).then((rows) => {
-    if (rows == null) {
-      reject()
-    } else {
-      var map = rows.map((row) => {
-        return {
-          sessionId: row.SESSION_ID,
-          sessionKey: row.SESSION_KEY,
-          creationTime: row.CREATION_TIME,
-        }
-      })
-      return Promise.resolve(map)
-    }
-  })
+function getAllSessions(db) {
+  return dbApi
+    .dbAll(db, 'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION', [])
+    .then((rows) => {
+      if (rows == null) {
+        reject()
+      } else {
+        var map = rows.map((row) => {
+          return {
+            sessionId: row.SESSION_ID,
+            sessionKey: row.SESSION_KEY,
+            creationTime: row.CREATION_TIME,
+          }
+        })
+        return Promise.resolve(map)
+      }
+    })
 }
 
 /**
@@ -58,8 +56,8 @@ export function getAllSessions(db) {
  * @param {*} sessionId
  * @returns A promise that resolves with the number of rows updated.
  */
-export function setSessionClean(db, sessionId) {
-  return DbApi.dbUpdate(
+function setSessionClean(db, sessionId) {
+  return dbApi.dbUpdate(
     db,
     'UPDATE SESSION SET DIRTY = ? WHERE SESSION_ID = ?',
     [0, sessionId]
@@ -73,16 +71,16 @@ export function setSessionClean(db, sessionId) {
  * @param {*} sessionId
  * @returns A promise that resolves into true or false, reflecting session dirty state.
  */
-export function getSessionDirtyFlag(db, sessionId) {
-  return DbApi.dbGet(db, 'SELECT DIRTY FROM SESSION WHERE SESSION_ID = ?', [
-    sessionId,
-  ]).then((row) => {
-    if (row == null) {
-      reject()
-    } else {
-      return row.DIRTY
-    }
-  })
+function getSessionDirtyFlag(db, sessionId) {
+  return dbApi
+    .dbGet(db, 'SELECT DIRTY FROM SESSION WHERE SESSION_ID = ?', [sessionId])
+    .then((row) => {
+      if (row == null) {
+        reject()
+      } else {
+        return row.DIRTY
+      }
+    })
 }
 
 /**
@@ -93,7 +91,7 @@ export function getSessionDirtyFlag(db, sessionId) {
  * @param {*} windowId
  * @param {*} fn
  */
-export function getWindowDirtyFlagWithCallback(db, windowId, fn) {
+function getWindowDirtyFlagWithCallback(db, windowId, fn) {
   db.get(
     'SELECT DIRTY FROM SESSION WHERE SESSION_WINID = ?',
     [windowId],
@@ -115,22 +113,24 @@ export function getWindowDirtyFlagWithCallback(db, windowId, fn) {
  * @param {*} windowId
  * @returns A promise that resolves into an object containing sessionId, sessionKey and creationTime.
  */
-export function getSessionInfoFromWindowId(db, windowId) {
-  return DbApi.dbGet(
-    db,
-    'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION WHERE SESSION_WINID = ?',
-    [windowId]
-  ).then((row) => {
-    if (row == null) {
-      reject()
-    } else {
-      return {
-        sessionId: row.SESSION_ID,
-        sessionKey: row.SESSION_KEY,
-        creationTime: row.CREATION_TIME,
+function getSessionInfoFromWindowId(db, windowId) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION WHERE SESSION_WINID = ?',
+      [windowId]
+    )
+    .then((row) => {
+      if (row == null) {
+        reject()
+      } else {
+        return {
+          sessionId: row.SESSION_ID,
+          sessionKey: row.SESSION_KEY,
+          creationTime: row.CREATION_TIME,
+        }
       }
-    }
-  })
+    })
 }
 
 /**
@@ -151,31 +151,33 @@ export function getSessionInfoFromWindowId(db, windowId) {
  * @parem {*} sessionId If sessionId exists already, then it's passed in. If it doesn't then this is null.
  * @returns promise that resolves into a session id.
  */
-export function ensureZapSessionId(db, sessionKey, windowId, sessionId = null) {
+function ensureZapSessionId(db, sessionKey, windowId, sessionId = null) {
   if (sessionId == null) {
     // There is no sessionId from before, so we check if there is one mapped to sessionKey already
-    return DbApi.dbGet(
-      db,
-      'SELECT SESSION_ID FROM SESSION WHERE SESSION_KEY = ?',
-      [sessionKey]
-    ).then((row) => {
-      if (row == null) {
-        return DbApi.dbInsert(
-          db,
-          'INSERT INTO SESSION (SESSION_KEY, SESSION_WINID, CREATION_TIME) VALUES (?,?,?)',
-          [sessionKey, windowId, Date.now()]
-        )
-      } else {
-        return Promise.resolve(row.SESSION_ID)
-      }
-    })
+    return dbApi
+      .dbGet(db, 'SELECT SESSION_ID FROM SESSION WHERE SESSION_KEY = ?', [
+        sessionKey,
+      ])
+      .then((row) => {
+        if (row == null) {
+          return dbApi.dbInsert(
+            db,
+            'INSERT INTO SESSION (SESSION_KEY, SESSION_WINID, CREATION_TIME) VALUES (?,?,?)',
+            [sessionKey, windowId, Date.now()]
+          )
+        } else {
+          return Promise.resolve(row.SESSION_ID)
+        }
+      })
   } else {
     // This is a case where we want to attach to a given sessionId.
-    return DbApi.dbUpdate(
-      db,
-      'UPDATE SESSION SET SESSION_WINID = ?, SESSION_KEY = ? WHERE SESSION_ID = ?',
-      [windowId, sessionKey, sessionId]
-    ).then(() => Promise.resolve(sessionId))
+    return dbApi
+      .dbUpdate(
+        db,
+        'UPDATE SESSION SET SESSION_WINID = ?, SESSION_KEY = ? WHERE SESSION_ID = ?',
+        [windowId, sessionKey, sessionId]
+      )
+      .then(() => Promise.resolve(sessionId))
   }
 }
 
@@ -185,8 +187,8 @@ export function ensureZapSessionId(db, sessionKey, windowId, sessionId = null) {
  * @export
  * @param {*} db
  */
-export function createBlankSession(db) {
-  return DbApi.dbInsert(
+function createBlankSession(db) {
+  return dbApi.dbInsert(
     db,
     'INSERT INTO SESSION (SESSION_KEY, SESSION_WINID, CREATION_TIME, DIRTY) VALUES (?,?,?,?)',
     ['', '', Date.now(), 0]
@@ -201,8 +203,17 @@ export function createBlankSession(db) {
  * @param {*} sessionId
  * @returns A promise of a removal of session.
  */
-export function deleteSession(db, sessionId) {
-  return DbApi.dbRemove(db, 'DELETE FROM SESSION WHERE SESSION_ID = ?', [
+function deleteSession(db, sessionId) {
+  return dbApi.dbRemove(db, 'DELETE FROM SESSION WHERE SESSION_ID = ?', [
     sessionId,
   ])
 }
+// exports
+exports.getAllSessions = getAllSessions
+exports.setSessionClean = setSessionClean
+exports.getSessionDirtyFlag = getSessionDirtyFlag
+exports.getWindowDirtyFlagWithCallback = getWindowDirtyFlagWithCallback
+exports.getSessionInfoFromWindowId = getSessionInfoFromWindowId
+exports.ensureZapSessionId = ensureZapSessionId
+exports.createBlankSession = createBlankSession
+exports.deleteSession = deleteSession

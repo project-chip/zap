@@ -15,8 +15,8 @@
  *    limitations under the License.
  */
 
-import { logInfo } from './env'
-import { crc32 } from 'crc'
+const env = require('./env.js')
+const crc = require('crc')
 
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
@@ -24,10 +24,11 @@ import { crc32 } from 'crc'
  * @param {*} context that contains 'filePath' and 'data' keys for the file and contents of the file.
  * @returns Promise that resolves with the same object, just adds the 'crc' key into it.
  */
-export function calculateCrc(context) {
+function calculateCrc(context) {
   return new Promise((resolve, reject) => {
-    context.crc = crc32(context.data)
-    logInfo(`For file: ${context.filePath}, got CRC: ${context.crc}`)
+    context.crc = crc.crc32(context.data)
+    env.logInfo(`For file: ${context.filePath}, got CRC: ${context.crc}`)
     resolve(context)
   })
 }
+exports.calculateCrc = calculateCrc

@@ -18,23 +18,12 @@
 /**
  * @module JS API: generator logic
  */
-import Handlebars from 'handlebars/dist/cjs/handlebars'
-import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs-extra'
-import {
-  selectAllClusters,
-  selectAllEnums,
-  selectAllEnumItems,
-  selectAllBitmaps,
-  selectAllBitmapFields,
-  selectAllStructs,
-  selectAllStructItems,
-  selectAllCommands,
-  selectAllCommandArguments,
-  selectAllGlobalCommands,
-  selectAllClusterCommands,
-} from '../db/query-zcl.js'
-import { logError, logInfo } from '../util/env.js'
-import {
+const Handlebars = require('handlebars/dist/cjs/handlebars')
+const queryZcl = require('../db/query-zcl.js')
+const fsExtra = require('fs-extra')
+
+const { logError, logInfo } = require('../util/env.js')
+const {
   getHexValue,
   getStrong,
   getUppercase,
@@ -48,7 +37,7 @@ import {
   getDirection,
   trimNewLinesTabs,
   getFormatCharactersForCommandArguments,
-} from '../handlebars/helpers/helper-utils.js'
+} = require('../handlebars/helpers/helper-utils.js')
 
 /**
  * Find the handlebar template file, compile and return the template file.
@@ -64,11 +53,11 @@ Handlebars.getTemplate = function (templateDirectory = '', name = '') {
   var source = ''
   if (templateDirectory) {
     logInfo('Using ' + templateDirectory + '/' + name + ' as a template')
-    source = readFileSync(templateDirectory + '/' + name, 'utf8')
+    source = fsExtra.readFileSync(templateDirectory + '/' + name, 'utf8')
   } else {
-    logInfo('Using the test template Directory for ' + name)
+    logInfo('Using the test template directory for ' + name)
     templateDirectory = __dirname + '/../../test/gen-template'
-    source = readFileSync(templateDirectory + '/' + name, 'utf8')
+    source = fsExtra.readFileSync(templateDirectory + '/' + name, 'utf8')
   }
   return Handlebars.compile(source)
 }
@@ -80,7 +69,7 @@ Handlebars.getTemplate = function (templateDirectory = '', name = '') {
  * @param {Object} db database
  * @returns A promise with resolve listed on the map
  */
-export function mapDatabase(db) {
+function mapDatabase(db) {
   return new Promise((resolve, reject) => {
     var resultantMap = {}
     resultantMap.database = db
@@ -98,7 +87,7 @@ export function mapDatabase(db) {
  * @returns A promise with resolve listed on a map which has the handlebar
  * directory.
  */
-export function resolveTemplateDirectory(map, handlebarTemplateDirectory = '') {
+function resolveTemplateDirectory(map, handlebarTemplateDirectory = '') {
   return new Promise((resolve, reject) => {
     map.handlebarTemplateDirectory = handlebarTemplateDirectory
     resolve(map)
@@ -114,7 +103,7 @@ export function resolveTemplateDirectory(map, handlebarTemplateDirectory = '') {
  * @returns A promise with resolve listed on a map which has the compiled
  * templates.
  */
-export function compileTemplate(map, templateFiles) {
+function compileTemplate(map, templateFiles) {
   return new Promise((resolve, reject) => {
     for (var templateFile of templateFiles) {
       var compiledTemplate = Handlebars.getTemplate(
@@ -139,7 +128,7 @@ export function compileTemplate(map, templateFiles) {
  * type of database row
  * @returns A promise with resolve listed on a map which has the database rows.
  */
-export function infoFromDb(map, dbRowTypeArray) {
+function infoFromDb(map, dbRowTypeArray) {
   return new Promise((resolve, reject) => {
     var db = map.database
     var dbInfo = {}
@@ -151,32 +140,32 @@ export function infoFromDb(map, dbRowTypeArray) {
         dbRowType === 'callback-zcl' ||
         dbRowType === 'client-command-macro-cluster'
       ) {
-        dbInfo[dbRowType] = selectAllClusters(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
+        dbInfo[dbRowType] = queryZcl
+          .selectAllClusters(db)
+          .then((dbRows) => (map[dbRowType] = dbRows))
       } else if (dbRowType == 'enums') {
-        dbInfo[dbRowType] = selectAllEnums(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
+        dbInfo[dbRowType] = queryZcl
+          .selectAllEnums(db)
+          .then((dbRows) => (map[dbRowType] = dbRows))
       } else if (dbRowType == 'bitmaps') {
-        dbInfo[dbRowType] = selectAllBitmaps(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
+        dbInfo[dbRowType] = queryZcl
+          .selectAllBitmaps(db)
+          .then((dbRows) => (map[dbRowType] = dbRows))
       } else if (dbRowType === 'af-structs') {
-        dbInfo[dbRowType] = selectAllStructs(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
+        dbInfo[dbRowType] = queryZcl
+          .selectAllStructs(db)
+          .then((dbRows) => (map[dbRowType] = dbRows))
       } else if (
         dbRowType === 'callback-zcl-command' ||
         dbRowType === 'client-command-macro-cluster-commands'
       ) {
-        dbInfo[dbRowType] = selectAllCommands(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
+        dbInfo[dbRowType] = queryZcl
+          .selectAllCommands(db)
+          .then((dbRows) => (map[dbRowType] = dbRows))
       } else if (dbRowType === 'client-command-macro-global') {
-        dbInfo[dbRowType] = selectAllGlobalCommands(db).then(
-          (dbRows) => (map[dbRowType] = dbRows)
-        )
+        dbInfo[dbRowType] = queryZcl
+          .selectAllGlobalCommands(db)
+          .then((dbRows) => (map[dbRowType] = dbRows))
       }
     }
     // Going through an array of promises and resolving them.
@@ -206,7 +195,7 @@ export function infoFromDb(map, dbRowTypeArray) {
  * compiled templates and database rows along with additional grouped by
  * content.
  */
-export function groupInfoIntoDbRow(map, groupByParams) {
+function groupInfoIntoDbRow(map, groupByParams) {
   let groupDbRowInfo = []
   let i = 0
   if (groupByParams) {
@@ -233,13 +222,13 @@ export function groupInfoIntoDbRow(map, groupByParams) {
       }
       if (!subItems) {
         if (subItemName == 'EnumItems') {
-          subItems = selectAllEnumItems(db)
+          subItems = queryZcl.selectAllEnumItems(db)
         } else if (subItemName == 'BitmapFields') {
-          subItems = selectAllBitmapFields(db)
+          subItems = queryZcl.selectAllBitmapFields(db)
         } else if (subItemName == 'StructItems') {
-          subItems = selectAllStructItems(db)
+          subItems = queryZcl.selectAllStructItems(db)
         } else if (subItemName == 'CommandArguments') {
-          subItems = selectAllCommandArguments(db)
+          subItems = queryZcl.selectAllCommandArguments(db)
         } else {
           return
         }
@@ -290,7 +279,7 @@ export function groupInfoIntoDbRow(map, groupByParams) {
  * @returns A promise with resolve listed on a map which has the helper
  * functions.
  */
-export function resolveHelper(map, helperFunctions) {
+function resolveHelper(map, helperFunctions) {
   return new Promise((resolve, reject) => {
     let handlebarHelpers = {},
       i = 0
@@ -383,12 +372,13 @@ export function resolveHelper(map, helperFunctions) {
  * @returns A promise with resolve listed on the data which can be seen in the
  * preview pane.
  */
-export function generateDataToPreview(
-  map,
-  databaseRowToHandlebarTemplateFileMap
-) {
+function generateDataToPreview(map, databaseRowToHandlebarTemplateFileMap) {
   return new Promise((resolve, reject) => {
-    var result = ''
+    var result = '',
+      code = ''
+    var loc = 0,
+      index = 0
+    var indexedResult = { 1: '' }
     for (let i = 0; i < databaseRowToHandlebarTemplateFileMap.length; i++) {
       var compiledTemplate =
         map[databaseRowToHandlebarTemplateFileMap[i].hTemplateFile]
@@ -401,7 +391,17 @@ export function generateDataToPreview(
       })
       result = result + define
     }
-    resolve(result)
+    code = result.split(/\n/)
+    loc = code.length
+    // Indexing the generation result for faster preview pane generation
+    for (let i = 0; i < loc; i++) {
+      if (i % 2000 === 0) {
+        index++
+        indexedResult[index] = ''
+      }
+      indexedResult[index] = indexedResult[index].concat(code[i]).concat('\n')
+    }
+    resolve(indexedResult)
   })
 }
 
@@ -420,7 +420,7 @@ export function generateDataToPreview(
  * template file
  * @returns A new promise resolve listed on the data which is generated.
  */
-export function generateDataToFile(
+function generateDataToFile(
   map,
   outputFileName,
   databaseRowToHandlebarTemplateFileMap
@@ -438,13 +438,13 @@ export function generateDataToFile(
       var define = compiledTemplate({
         type: dbRows,
       })
-      if (!existsSync(generationDirectory)) {
-        mkdirSync(generationDirectory)
+      if (!fsExtra.existsSync(generationDirectory)) {
+        fsExtra.mkdirSync(generationDirectory)
       }
       result = result + define
     }
     resolve(result)
-    writeFileSync(generationDirectory + '/' + outputFileName, result)
+    fsExtra.writeFileSync(generationDirectory + '/' + outputFileName, result)
   })
 }
 
@@ -455,7 +455,7 @@ export function generateDataToFile(
  * @param {*} filePath
  * @returns A promise with the generation options
  */
-export function getGenerationProperties(filePath) {
+function getGenerationProperties(filePath) {
   return new Promise((resolve, reject) => {
     let rawData
     let actualFilePath = filePath
@@ -464,8 +464,97 @@ export function getGenerationProperties(filePath) {
         __dirname + '/../../test/gen-template/generation-options.json'
     }
     logInfo('Reading generation properties from ' + actualFilePath)
-    rawData = readFileSync(actualFilePath)
+    rawData = fsExtra.readFileSync(actualFilePath)
     var generationOptions = JSON.parse(rawData)
     resolve(generationOptions)
   })
 }
+
+/**
+ * This function generates the code into the user defined directory using promises
+ *
+ * @param {*} db
+ */
+function generateCode(
+  db,
+  generationOptions,
+  generationDirectory,
+  handlebarTemplateDirectory
+) {
+  //Keeping track of each generation promise
+  let generatedCodeMap = []
+
+  // The template file which provides meta data information on generation
+  var currentGenerationOptions = generationOptions['generation-options']
+
+  // Going through each of the generation options and performing generation
+  let generationOptionIndex = 0
+  for (
+    generationOptionIndex = 0;
+    generationOptionIndex < currentGenerationOptions.length;
+    generationOptionIndex++
+  ) {
+    let i = 0
+    let templateArray = new Set()
+    let dbRowTypeArray = new Set()
+    let groupInfoToDb =
+      currentGenerationOptions[generationOptionIndex][
+        'group-info-into-db-row-type'
+      ]
+    let helperApis =
+      currentGenerationOptions[generationOptionIndex]['helper-api-name']
+    let filename = currentGenerationOptions[generationOptionIndex]['filename']
+    let handlebarTemplatePerDataRow =
+      currentGenerationOptions[generationOptionIndex][
+        'handlebar-templates-per-data-row'
+      ]
+
+    for (i = 0; i < handlebarTemplatePerDataRow.length; i++) {
+      templateArray.add(handlebarTemplatePerDataRow[i]['hTemplateFile'])
+      dbRowTypeArray.add(handlebarTemplatePerDataRow[i]['dbRowType'])
+    }
+
+    for (i = 0; i < groupInfoToDb.length; i++) {
+      let dbType = groupInfoToDb[i].dbType
+      if (!dbRowTypeArray.has(dbType)) {
+        dbRowTypeArray.add(dbType)
+      }
+    }
+
+    generatedCodeMap[generationOptionIndex] = mapDatabase(db)
+      .then((templateDir) =>
+        resolveTemplateDirectory(templateDir, handlebarTemplateDirectory)
+      )
+      .then((templates) => compileTemplate(templates, templateArray))
+      .then((databaseRows) => infoFromDb(databaseRows, dbRowTypeArray))
+      .then((databaseRowsWithMoreInfo) =>
+        groupInfoIntoDbRow(databaseRowsWithMoreInfo, groupInfoToDb)
+      )
+      .then((helperResolution) => resolveHelper(helperResolution, helperApis))
+      .then((directoryResolution) => {
+        return new Promise((resolve, reject) => {
+          directoryResolution.generationDirectory = generationDirectory
+          resolve(directoryResolution)
+        })
+      })
+      .then((resultToFile) =>
+        generateDataToFile(resultToFile, filename, handlebarTemplatePerDataRow)
+      )
+      .catch((err) => logError(err))
+  }
+
+  return Promise.all(generatedCodeMap).catch((error) => {
+    logError(error)
+  })
+}
+// exports
+exports.mapDatabase = mapDatabase
+exports.resolveTemplateDirectory = resolveTemplateDirectory
+exports.compileTemplate = compileTemplate
+exports.infoFromDb = infoFromDb
+exports.groupInfoIntoDbRow = groupInfoIntoDbRow
+exports.resolveHelper = resolveHelper
+exports.generateDataToPreview = generateDataToPreview
+exports.generateDataToFile = generateDataToFile
+exports.getGenerationProperties = getGenerationProperties
+exports.generateCode = generateCode

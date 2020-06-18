@@ -18,52 +18,42 @@
  * @jest-environment node
  */
 
-var sq = require('sqlite3')
-
-import { version } from '../package.json'
-import {
-  closeDatabase,
-  dbMultiSelect,
-  loadSchema,
-} from '../src-electron/db/db-api'
-import { selectCountFrom } from '../src-electron/db/query-generic'
-import {
-  selectAllBitmaps,
-  selectAllClusters,
-  selectAllDeviceTypes,
-  selectAllDomains,
-  selectAllEnums,
-  selectAllStructs,
-} from '../src-electron/db/query-zcl'
-import { zclPropertiesFile } from '../src-electron/main-process/args'
-import { schemaFile } from '../src-electron/util/env'
-import { loadZcl } from '../src-electron/zcl/zcl-loader'
+const sq = require('sqlite3')
+const dbApi = require('../src-electron/db/db-api.js')
+const queryZcl = require('../src-electron/db/query-zcl.js')
+const { selectCountFrom } = require('../src-electron/db/query-generic.js')
+const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
+const args = require('../src-electron/main-process/args.js')
+const env = require('../src-electron/util/env.js')
 
 test('test opening and closing the database', () => {
   var db = new sq.Database(':memory:')
-  return closeDatabase(db)
+  return dbApi.closeDatabase(db)
 })
 
 test('test database schema loading in memory', () => {
   var db = new sq.Database(':memory:')
-  return loadSchema(db, schemaFile(), version).then((db) => closeDatabase(db))
+  return dbApi
+    .loadSchema(db, env.schemaFile(), env.zapVersion())
+    .then((db) => dbApi.closeDatabase(db))
 })
 
 test('test zcl data loading in memory', () => {
   var db = new sq.Database(':memory:')
-  return loadSchema(db, schemaFile(), version)
-    .then((db) => loadZcl(db, zclPropertiesFile)) // Maybe: ../../../zcl/zcl-studio.properties
-    .then(() => selectAllClusters(db))
+  return dbApi
+    .loadSchema(db, env.schemaFile(), env.zapVersion())
+    .then((db) => loadZcl(db, args.zclPropertiesFile)) // Maybe: ../../../zcl/zcl-studio.properties
+    .then(() => queryZcl.selectAllClusters(db))
     .then((x) => expect(x.length).toEqual(106))
-    .then(() => selectAllDomains(db))
+    .then(() => queryZcl.selectAllDomains(db))
     .then((x) => expect(x.length).toEqual(20))
-    .then(() => selectAllEnums(db))
+    .then(() => queryZcl.selectAllEnums(db))
     .then((x) => expect(x.length).toEqual(206))
-    .then(() => selectAllStructs(db))
+    .then(() => queryZcl.selectAllStructs(db))
     .then((x) => expect(x.length).toEqual(50))
-    .then(() => selectAllBitmaps(db))
+    .then(() => queryZcl.selectAllBitmaps(db))
     .then((x) => expect(x.length).toEqual(121))
-    .then(() => selectAllDeviceTypes(db))
+    .then(() => queryZcl.selectAllDeviceTypes(db))
     .then((x) => expect(x.length).toEqual(152))
     .then(() => selectCountFrom(db, 'COMMAND_ARG'))
     .then((x) => expect(x).toEqual(1668))
@@ -78,7 +68,7 @@ test('test zcl data loading in memory', () => {
     .then(() => selectCountFrom(db, 'STRUCT_ITEM'))
     .then((x) => expect(x).toEqual(154))
     .then(() =>
-      dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', [
+      dbApi.dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', [
         ['0x0000'],
         ['0x0006'],
       ])
@@ -91,6 +81,6 @@ test('test zcl data loading in memory', () => {
       expect(rows[1].CLUSTER_ID).not.toBeUndefined()
     })
     .finally(() => {
-      closeDatabase(db)
+      dbApi.closeDatabase(db)
     })
 }, 5000) // Give this test 5 secs to resolve

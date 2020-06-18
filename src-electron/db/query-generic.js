@@ -20,7 +20,7 @@
  *
  * @module DB API: generic queries against the database.
  */
-import * as DbApi from './db-api.js'
+const dbApi = require('./db-api.js')
 
 /**
  * Simple query that returns number of rows in a given table.
@@ -30,10 +30,10 @@ import * as DbApi from './db-api.js'
  * @param {*} table
  * @returns a promise that resolves into the count of the rows in the table.
  */
-export function selectCountFrom(db, table) {
-  return DbApi.dbGet(db, `SELECT COUNT(*) FROM ${table}`).then(
-    (x) => x['COUNT(*)']
-  )
+function selectCountFrom(db, table) {
+  return dbApi
+    .dbGet(db, `SELECT COUNT(*) FROM ${table}`)
+    .then((x) => x['COUNT(*)'])
 }
 
 /**
@@ -44,8 +44,8 @@ export function selectCountFrom(db, table) {
  * @param {*} filePath
  * @param {*} category
  */
-export function insertFileLocation(db, filePath, category) {
-  return DbApi.dbInsert(
+function insertFileLocation(db, filePath, category) {
+  return dbApi.dbInsert(
     db,
     'INSERT OR REPLACE INTO FILE_LOCATION (CATEGORY, FILE_PATH, ACCESS_TIME) VALUES (?,?,?)',
     [category, filePath, Date.now()]
@@ -59,16 +59,20 @@ export function insertFileLocation(db, filePath, category) {
  * @param {*} db
  * @param {*} category
  */
-export function selectFileLocation(db, category) {
-  return DbApi.dbGet(
-    db,
-    'SELECT FILE_PATH FROM FILE_LOCATION WHERE CATEGORY = ?',
-    [category]
-  ).then((row) => {
-    if (row == null) {
-      return ''
-    } else {
-      return row.FILE_PATH
-    }
-  })
+function selectFileLocation(db, category) {
+  return dbApi
+    .dbGet(db, 'SELECT FILE_PATH FROM FILE_LOCATION WHERE CATEGORY = ?', [
+      category,
+    ])
+    .then((row) => {
+      if (row == null) {
+        return ''
+      } else {
+        return row.FILE_PATH
+      }
+    })
 }
+// exports
+exports.selectCountFrom = selectCountFrom
+exports.insertFileLocation = insertFileLocation
+exports.selectFileLocation = selectFileLocation

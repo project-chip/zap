@@ -18,33 +18,33 @@
  * @jest-environment node
  */
 
-import {
+const dbApi = require('../src-electron/db/db-api.js')
+const queryZcl = require('../src-electron/db/query-zcl.js')
+const { selectCountFrom } = require('../src-electron/db/query-generic.js')
+const { insertPathCrc } = require('../src-electron/db/query-package.js')
+const {
+  getAllSessions,
+  deleteSession,
+} = require('../src-electron/db/query-session.js')
+
+const {
   initHttpServer,
   shutdownHttpServer,
-} from '../src-electron/server/http-server'
-import {
-  initDatabase,
-  closeDatabase,
-  loadSchema,
-} from '../src-electron/db/db-api'
-import {
+} = require('../src-electron/server/http-server.js')
+const {
   logError,
   setDevelopmentEnv,
   sqliteTestFile,
   logInfo,
   appDirectory,
   schemaFile,
-} from '../src-electron/util/env'
-import fs from 'fs'
-import path from 'path'
-import axios from 'axios'
-import { version } from '../package.json'
-import { selectCountFrom } from '../src-electron/db/query-generic'
-import { getAllSessions, deleteSession } from '../src-electron/db/query-session'
-import { insertPathCrc } from '../src-electron/db/query-package'
-import { insertClusters, insertDomains } from '../src-electron/db/query-zcl'
-import { exportDataIntoFile } from '../src-electron/importexport/export'
-import { importDataFromFile } from '../src-electron/importexport/import'
+  zapVersion,
+} = require('../src-electron/util/env.js')
+const fs = require('fs')
+const path = require('path')
+const axios = require('axios')
+const { exportDataIntoFile } = require('../src-electron/importexport/export.js')
+const { importDataFromFile } = require('../src-electron/importexport/import.js')
 
 var db
 const port = 9073
@@ -58,8 +58,9 @@ beforeAll(() => {
   setDevelopmentEnv()
   var file = sqliteTestFile(2)
   axiosInstance = axios.create({ baseURL: baseUrl })
-  return initDatabase(file)
-    .then((d) => loadSchema(d, schemaFile(), version))
+  return dbApi
+    .initDatabase(file)
+    .then((d) => dbApi.loadSchema(d, schemaFile(), zapVersion()))
     .then((d) => {
       db = d
       logInfo(`Test database initialized: ${file}.`)
@@ -69,7 +70,7 @@ beforeAll(() => {
 
 afterAll(() => {
   return shutdownHttpServer()
-    .then(() => closeDatabase(db))
+    .then(() => dbApi.closeDatabase(db))
     .then(() => {
       var file = sqliteTestFile(2)
       logInfo(`Removing test database: ${file}`)
@@ -133,7 +134,7 @@ describe('Session specific tests', () => {
   })
 
   test('load 2 clusters', () => {
-    return insertClusters(db, packageId, [
+    return queryZcl.insertClusters(db, packageId, [
       {
         code: 0x1111,
         name: 'One',
@@ -163,7 +164,7 @@ describe('Session specific tests', () => {
   })
 
   test('load domains', () => {
-    return insertDomains(db, packageId, [
+    return queryZcl.insertDomains(db, packageId, [
       { name: 'one' },
       { name: 'two' },
       { name: 'three' },

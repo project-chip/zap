@@ -15,10 +15,11 @@
  *    limitations under the License.
  */
 
-import path from 'path'
-import os from 'os'
-import fs from 'fs'
-import pino from 'pino'
+const path = require('path')
+const os = require('os')
+const fs = require('fs')
+const pino = require('pino')
+const { version } = require('../../package.json')
 
 // Basic environment tie-ins
 var pino_logger = pino({
@@ -32,27 +33,28 @@ var pino_logger = pino({
 
 var explicit_logger_set = false
 var dbInstance
+var httpStaticContent = path.join(__dirname, '../../dist/spa')
 
-export function setDevelopmentEnv() {
+function setDevelopmentEnv() {
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
-  global.__indexDirOffset = path.join('../../dist/spa')
+  httpStaticContent = path.join(__dirname, '../../dist/spa')
 }
 
-export function setProductionEnv() {
+function setProductionEnv() {
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
-  global.__indexDirOffset = path.join('.').replace(/\\/g, '\\\\')
+  httpStaticContent = path.join('.').replace(/\\/g, '\\\\')
 }
 
-export function setMainDatabase(db) {
+function setMainDatabase(db) {
   dbInstance = db
 }
 
-export function mainDatabase() {
+function mainDatabase() {
   return dbInstance
 }
 
 // Returns an app directory. It creates it, if it doesn't exist
-export function appDirectory() {
+function appDirectory() {
   var appDir = path.join(os.homedir(), '.silabs', 'zap')
 
   if (!fs.existsSync(appDir)) {
@@ -63,11 +65,11 @@ export function appDirectory() {
   return appDir
 }
 
-export function iconsDirectory() {
+function iconsDirectory() {
   return path.join(__dirname, '../icons')
 }
 
-export function schemaFile() {
+function schemaFile() {
   var p = path.join(__dirname, '../db/zap-schema.sql')
   if (!fs.existsSync(p)) p = path.join(__dirname, '../zap-schema.sql')
   if (!fs.existsSync(p))
@@ -75,22 +77,26 @@ export function schemaFile() {
   return p
 }
 
-export function sqliteFile() {
+function sqliteFile() {
   return path.join(appDirectory(), 'zap.sqlite')
 }
 
-export function sqliteTestFile(id) {
+function sqliteTestFile(id) {
   return path.join(appDirectory(), `test-${id}.sqlite`)
 }
 
-export function logInitStdout() {
+function zapVersion() {
+  return version
+}
+
+function logInitStdout() {
   if (!explicit_logger_set) {
     pino_logger = pino()
     explicit_logger_set = true
   }
 }
 
-export function logInitLogFile() {
+function logInitLogFile() {
   if (!explicit_logger_set) {
     pino_logger = pino(pino.destination(path.join(appDirectory(), 'zap.log')))
     explicit_logger_set = true
@@ -98,21 +104,39 @@ export function logInitLogFile() {
 }
 
 // Use this function to log info-level messages
-export function logInfo(msg) {
+function logInfo(msg) {
   return pino_logger.info(msg)
 }
 
 // Use this function to log error-level messages
-export function logError(msg) {
+function logError(msg) {
   return pino_logger.error(msg)
 }
 
 // Use this function to log warning-level messages
-export function logWarning(msg) {
+function logWarning(msg) {
   return pino_logger.warn(msg)
 }
 
 // Use this function to log SQL messages.
-export function logSql(msg) {
+function logSql(msg) {
   return pino_logger.debug(msg)
 }
+
+exports.setDevelopmentEnv = setDevelopmentEnv
+exports.setProductionEnv = setProductionEnv
+exports.setMainDatabase = setMainDatabase
+exports.mainDatabase = mainDatabase
+exports.appDirectory = appDirectory
+exports.iconsDirectory = iconsDirectory
+exports.schemaFile = schemaFile
+exports.sqliteFile = sqliteFile
+exports.sqliteTestFile = sqliteTestFile
+exports.logInitStdout = logInitStdout
+exports.logInitLogFile = logInitLogFile
+exports.logInfo = logInfo
+exports.logError = logError
+exports.logWarning = logWarning
+exports.logSql = logSql
+exports.httpStaticContent = httpStaticContent
+exports.zapVersion = zapVersion

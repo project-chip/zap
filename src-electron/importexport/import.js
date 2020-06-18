@@ -19,11 +19,11 @@
  * This file provides the functionality that reads the ZAP data from a JSON file
  * and imports it into a database.
  */
-import * as Fs from 'fs'
-import * as QueryConfig from '../db/query-config'
-import * as QuerySession from '../db/query-session'
-import * as Env from '../util/env'
-import * as Mapping from './mapping'
+const fs = require('fs')
+const env = require('../util/env.js')
+const queryConfig = require('../db/query-config.js')
+const querySession = require('../db/query-session.js')
+const Mapping = require('./mapping.js')
 
 /**
  * Reads the data from the file and resolves with the state object if all is good.
@@ -32,9 +32,9 @@ import * as Mapping from './mapping'
  * @param {*} filePath
  * @returns Promise of file reading.
  */
-export function readDataFromFile(filePath) {
+function readDataFromFile(filePath) {
   return new Promise((resolve, reject) => {
-    Fs.readFile(filePath, (err, data) => {
+    fs.readFile(filePath, (err, data) => {
       if (err) reject(err)
       let state = JSON.parse(data)
       resolve(state)
@@ -51,10 +51,11 @@ export function readDataFromFile(filePath) {
  * @param {*} state
  * @returns a promise that resolves with the sucessful writing
  */
-export function writeStateToDatabase(db, state) {
-  return QuerySession.createBlankSession(db)
+function writeStateToDatabase(db, state) {
+  return querySession
+    .createBlankSession(db)
     .then((sessionId) => {
-      Env.logInfo('Reading state from file into the database...')
+      env.logInfo('Reading state from file into the database...')
       if ('keyValuePairs' in state) {
         return Mapping.importSessionKeyValues(
           db,
@@ -67,11 +68,9 @@ export function writeStateToDatabase(db, state) {
     })
     .then((sessionId) => {
       if ('endpointTypes' in state) {
-        return QueryConfig.insertEndpointTypes(
-          db,
-          sessionId,
-          state.endpointTypes
-        ).then(() => sessionId)
+        return queryConfig
+          .insertEndpointTypes(db, sessionId, state.endpointTypes)
+          .then(() => sessionId)
       } else {
         return sessionId
       }
@@ -88,8 +87,12 @@ export function writeStateToDatabase(db, state) {
  * @returns a promise that resolves with the resolution of writing into a database.
  * @returns Promise of file reading.
  */
-export function importDataFromFile(db, filePath) {
+function importDataFromFile(db, filePath) {
   return readDataFromFile(filePath).then((state) =>
     writeStateToDatabase(db, state)
   )
 }
+// exports
+exports.readDataFromFile = readDataFromFile
+exports.writeStateToDatabase = writeStateToDatabase
+exports.importDataFromFile = importDataFromFile

@@ -18,7 +18,7 @@
  * @jest-environment node
  */
 
-import * as Env from '../src-electron/util/env.js'
+const Env = require('../src-electron/util/env.js')
 
 test('Test environment', () => {
   expect(Env.appDirectory().length).toBeGreaterThan(10)
