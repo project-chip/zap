@@ -18,27 +18,27 @@
 const { Menu, Tray, nativeImage, app } = require('electron')
 const path = require('path')
 const fs = require('fs')
-const { logInfo, iconsDirectory, logError } = require('../util/env.js')
-const { windowCreate } = require('./window.js')
+const env = require('../util/env.js')
+const window = require('./window.js')
 
 let tray
 
 function initTray(port) {
-  logInfo('Initializing tray...')
+  env.logInfo('Initializing tray...')
 
-  let trayIconPath = path.join(iconsDirectory(), 'zap_32x32.png')
-  let dockIconPath = path.join(iconsDirectory(), 'zap_128x128.png')
+  let trayIconPath = path.join(env.iconsDirectory(), 'zap_32x32.png')
+  let dockIconPath = path.join(env.iconsDirectory(), 'zap_128x128.png')
 
   if (!fs.existsSync(trayIconPath)) {
-    logError(`Tray not created, icon does not exist: ${trayIconPath}`)
+    env.logError(`Tray not created, icon does not exist: ${trayIconPath}`)
     return
   } else {
-    logInfo(`Using tray icon: ${trayIconPath}`)
+    env.logInfo(`Using tray icon: ${trayIconPath}`)
   }
 
   let trayIcon = nativeImage.createFromPath(trayIconPath)
   if (trayIcon.isEmpty()) {
-    logError('Image got created, but it is empty')
+    env.logError('Image got created, but it is empty')
   }
   tray = new Tray(trayIcon.resize({ width: 16, height: 16 }))
 
@@ -47,7 +47,7 @@ function initTray(port) {
       label: 'New ZCL configuration',
       type: 'normal',
       click: (item, window, event) => {
-        windowCreate(port)
+        window.windowCreate(port)
       },
     },
     {
@@ -64,7 +64,7 @@ function initTray(port) {
 
   tray.setToolTip('ZCL Advanced Platform')
   tray.setContextMenu(contextMenu)
-  logInfo('Tray initialized.')
+  env.logInfo('Tray initialized.')
 }
 
 exports.initTray = initTray

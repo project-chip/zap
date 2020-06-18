@@ -18,21 +18,8 @@
 const { app } = require('electron')
 const dbApi = require('../db/db-api.js')
 const { runSdkGeneration } = require('../sdk-gen/sdk-gen.js')
-
 const args = require('./args.js')
-const {
-  logError,
-  logInfo,
-  logInitLogFile,
-  logInitStdout,
-  mainDatabase,
-  schemaFile,
-  setDevelopmentEnv,
-  setMainDatabase,
-  setProductionEnv,
-  sqliteFile,
-  zapVersion,
-} = require('../util/env.js')
+const env = require('../util/env.js')
 const {
   generateCodeViaCli,
   setHandlebarTemplateDirForCli,
@@ -41,44 +28,44 @@ const { loadZcl } = require('../zcl/zcl-loader.js')
 const { initializeElectronUi, windowCreateIfNotThere } = require('./window.js')
 const { initHttpServer, httpServerPort } = require('../server/http-server.js')
 
-logInitLogFile()
+env.logInitLogFile()
 
 if (process.env.DEV) {
-  setDevelopmentEnv()
+  env.setDevelopmentEnv()
 } else {
-  setProductionEnv()
+  env.setProductionEnv()
 }
 
 function attachToDb(db) {
   return new Promise((resolve, reject) => {
-    setMainDatabase(db)
+    env.setMainDatabase(db)
     resolve(db)
   })
 }
 
 function startSelfCheck() {
-  logInitStdout()
+  env.logInitStdout()
   console.log('Starting self-check')
   dbApi
-    .initDatabase(sqliteFile())
+    .initDatabase(env.sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => dbApi.loadSchema(db, schemaFile(), zapVersion()))
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => loadZcl(db, args.zclPropertiesFile))
     .then(() => {
       console.log('Self-check done!')
       app.quit()
     })
     .catch((err) => {
-      logError(err)
+      env.logError(err)
       throw err
     })
 }
 
 function startNormal(ui, showUrl) {
   dbApi
-    .initDatabase(sqliteFile())
+    .initDatabase(env.sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => dbApi.loadSchema(db, schemaFile(), zapVersion()))
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => loadZcl(db, args.zclPropertiesFile))
     .then((db) => initHttpServer(db, args.httpPort))
     .then(() => {
@@ -95,7 +82,7 @@ function startNormal(ui, showUrl) {
       }
     })
     .catch((err) => {
-      logError(err)
+      env.logError(err)
       throw err
     })
 }
@@ -110,11 +97,11 @@ function applyGenerationSettings(
   handlebarTemplateDir,
   zclPropertiesFilePath
 ) {
-  logInfo('Start Generation...')
+  env.logInfo('Start Generation...')
   return dbApi
-    .initDatabase(sqliteFile())
+    .initDatabase(env.sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => dbApi.loadSchema(db, schemaFile(), zapVersion()))
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) =>
       loadZcl(
         db,
@@ -148,11 +135,11 @@ function startSdkGeneration(
   handlebarTemplateDir,
   zclPropertiesFilePath
 ) {
-  logInfo('Start SDK generation...')
+  env.logInfo('Start SDK generation...')
   return dbApi
-    .initDatabase(sqliteFile())
+    .initDatabase(env.sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => dbApi.loadSchema(db, schemaFile(), zapVersion()))
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) =>
       loadZcl(
         db,
@@ -173,7 +160,7 @@ if (app != null) {
   app.on('ready', () => {
     var argv = args.processCommandLineArguments(process.argv)
 
-    logInfo(argv)
+    env.logInfo(argv)
 
     if (argv._.includes('selfCheck')) {
       startSelfCheck()
@@ -197,14 +184,14 @@ if (app != null) {
   })
 
   app.on('activate', () => {
-    logInfo('Activate...')
+    env.logInfo('Activate...')
     windowCreateIfNotThere(args.httpPort)
   })
 
   app.on('quit', () => {
     dbApi
-      .closeDatabase(mainDatabase())
-      .then(() => logInfo('Database closed, shutting down.'))
+      .closeDatabase(env.mainDatabase())
+      .then(() => env.logInfo('Database closed, shutting down.'))
   })
 }
 

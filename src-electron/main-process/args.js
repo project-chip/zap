@@ -16,7 +16,7 @@
  */
 
 const yargs = require('yargs')
-const { logInfo } = require('../util/env.js')
+const env = require('../util/env.js')
 
 // TODO how to handle relative pathing for things like properties file.
 exports.zclPropertiesFile = './test/zcl/zcl-test.properties'
@@ -72,8 +72,8 @@ function processCommandLineArguments(argv) {
     .parse(argv)
 
   // Now populate exported variables with this.
-  logInfo('Command line arguments:')
-  logInfo(ret)
+  env.logInfo('Command line arguments:')
+  env.logInfo(ret)
 
   exports.zclPropertiesFile = ret.zclProperties
   exports.httpPort = ret.httpPort
