@@ -18,16 +18,12 @@
 const fs = require('fs')
 const path = require('path')
 const properties = require('properties')
-const { parseString } = require('xml2js')
+const xml2js = require('xml2js')
 const dbApi = require('../db/db-api.js')
-const {
-  forPathCrc,
-  insertPathCrc,
-  updatePathCrc,
-} = require('../db/query-package.js')
+const queryPackage = require('../db/query-package.js')
 const queryZcl = require('../db/query-zcl.js')
-const { logError, logInfo } = require('../util/env.js')
-const { calculateCrc } = require('../util/util.js')
+const env = require('../util/env.js')
+const util = require('../util/util.js')
 
 const fsp = fs.promises
 
@@ -39,11 +35,11 @@ const fsp = fs.promises
  */
 function collectZclFiles(propertiesFile) {
   return new Promise((resolve, reject) => {
-    logInfo(`Collecting ZCL files from: ${propertiesFile}`)
+    env.logInfo(`Collecting ZCL files from: ${propertiesFile}`)
     properties.parse(propertiesFile, { path: true }, (err, zclProps) => {
-      logInfo(`Parsed the file...`)
+      env.logInfo(`Parsed the file...`)
       if (err) {
-        logError(`Could not read file: ${propertiesFile}`)
+        env.logError(`Could not read file: ${propertiesFile}`)
         reject(err)
       } else {
         // We create our specific fileReader context
@@ -54,7 +50,7 @@ function collectZclFiles(propertiesFile) {
         var files = zclProps.xmlFile
           .split(',')
           .map((data) => path.join(fileLocation, data.trim()))
-        logInfo(`Resolving: ${files}`)
+        env.logInfo(`Resolving: ${files}`)
         resolve(files)
       }
     })
@@ -68,7 +64,7 @@ function collectZclFiles(propertiesFile) {
  * @returns promise that resolves as readFile
  */
 function readZclFile(file) {
-  logInfo(`Reading individual file: ${file}`)
+  env.logInfo(`Reading individual file: ${file}`)
   return fsp.readFile(file)
 }
 
@@ -85,9 +81,9 @@ function parseZclFile(argument) {
   } else {
     var p = new Promise((resolve, reject) => {
       // ... otherwise, we promise to parse this.
-      parseString(argument.data, (err, result) => {
+      xml2js.parseString(argument.data, (err, result) => {
         if (err) {
-          logError(`Failed to parse ${argument.filePath}: ${err}`)
+          env.logError(`Failed to parse ${argument.filePath}: ${err}`)
           reject(err)
         } else {
           argument.result = result
@@ -130,7 +126,7 @@ function prepareBitmap(bm) {
  * @returns Promise of inserted bitmaps
  */
 function processBitmaps(db, filePath, packageId, data) {
-  logInfo(`${filePath}, ${packageId}: ${data.length} bitmaps.`)
+  env.logInfo(`${filePath}, ${packageId}: ${data.length} bitmaps.`)
   return queryZcl.insertBitmaps(
     db,
     packageId,
@@ -215,7 +211,7 @@ function prepareCluster(cluster, isExtension = false) {
  * @returns Promise of cluster insertion.
  */
 function processClusters(db, filePath, packageId, data) {
-  logInfo(`${filePath}, ${packageId}: ${data.length} clusters.`)
+  env.logInfo(`${filePath}, ${packageId}: ${data.length} clusters.`)
   return queryZcl.insertClusters(
     db,
     packageId,
@@ -234,7 +230,7 @@ function processClusters(db, filePath, packageId, data) {
  * @returns promise to resolve the clusterExtension tags
  */
 function processClusterExtensions(db, filePath, packageId, data) {
-  logInfo(`${filePath}, ${packageId}: ${data.length} cluster extensions.`)
+  env.logInfo(`${filePath}, ${packageId}: ${data.length} cluster extensions.`)
   return queryZcl.insertClusterExtensions(
     db,
     packageId,
@@ -253,7 +249,7 @@ function processClusterExtensions(db, filePath, packageId, data) {
  * @returns promise to resolve the globals
  */
 function processGlobals(db, filePath, packageId, data) {
-  logInfo(`${filePath}, ${packageId}: ${data.length} globals.`)
+  env.logInfo(`${filePath}, ${packageId}: ${data.length} globals.`)
   return queryZcl.insertGlobals(
     db,
     packageId,
@@ -281,7 +277,7 @@ function prepareDomain(domain) {
  * @returns Promise of database insertion of domains.
  */
 function processDomains(db, filePath, packageId, data) {
-  logInfo(`${filePath}, ${packageId}: ${data.length} domains.`)
+  env.logInfo(`${filePath}, ${packageId}: ${data.length} domains.`)
   return queryZcl.insertDomains(
     db,
     packageId,
@@ -319,7 +315,7 @@ function prepareStruct(struct) {
  * @returns Promise of inserted structs.
  */
 function processStructs(db, filePath, packageId, data) {
-  logInfo(`${filePath}, ${packageId}: ${data.length} structs.`)
+  env.logInfo(`${filePath}, ${packageId}: ${data.length} structs.`)
   return queryZcl.insertStructs(
     db,
     packageId,
@@ -357,7 +353,7 @@ function prepareEnum(en) {
  * @returns A promise of inserted enums.
  */
 function processEnums(db, filePath, packageId, data) {
-  logInfo(`${filePath}, ${packageId}: ${data.length} enums.`)
+  env.logInfo(`${filePath}, ${packageId}: ${data.length} enums.`)
   return queryZcl.insertEnums(
     db,
     packageId,
@@ -418,7 +414,7 @@ function prepareDeviceType(deviceType) {
  * @returns Promise of a resolved device types.
  */
 function processDeviceTypes(db, filePath, packageId, data) {
-  logInfo(`${filePath}, ${packageId}: ${data.length} deviceTypes.`)
+  env.logInfo(`${filePath}, ${packageId}: ${data.length} deviceTypes.`)
   return queryZcl.insertDeviceTypes(
     db,
     packageId,
@@ -522,21 +518,21 @@ function qualifyZclFile(db, info) {
     var filePath = info.filePath
     var data = info.data
     var actualCrc = info.actualCrc
-    forPathCrc(
+    queryPackage.forPathCrc(
       db,
       filePath,
       (storedCrc, packageId) => {
         // This is executed if CRC is found in the database.
         if (storedCrc == actualCrc) {
-          logInfo(`CRC match for file ${filePath}, skipping parsing.`)
+          env.logInfo(`CRC match for file ${filePath}, skipping parsing.`)
           resolve({
             error: `${filePath} skipped`,
           })
         } else {
-          logInfo(
+          env.logInfo(
             `CRC missmatch for file ${filePath}, package id ${packageId}, parsing.`
           )
-          updatePathCrc(db, filePath, actualCrc).then(() =>
+          queryPackage.updatePathCrc(db, filePath, actualCrc).then(() =>
             resolve({
               filePath: filePath,
               data: data,
@@ -547,14 +543,16 @@ function qualifyZclFile(db, info) {
       },
       () => {
         // This is executed if there is no CRC in the database.
-        logInfo(`No CRC in the database for file ${filePath}, parsing.`)
-        insertPathCrc(db, filePath, actualCrc).then((packageId) => {
-          resolve({
-            filePath: filePath,
-            data: data,
-            packageId: packageId,
+        env.logInfo(`No CRC in the database for file ${filePath}, parsing.`)
+        queryPackage
+          .insertPathCrc(db, filePath, actualCrc)
+          .then((packageId) => {
+            resolve({
+              filePath: filePath,
+              data: data,
+              packageId: packageId,
+            })
           })
-        })
       }
     )
   })
@@ -570,15 +568,15 @@ function qualifyZclFile(db, info) {
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
 function parseZclFiles(db, files) {
-  logInfo(`Starting to parse ZCL files: ${files}`)
+  env.logInfo(`Starting to parse ZCL files: ${files}`)
   var individualPromises = []
   files.forEach((element) => {
     var p = readZclFile(element)
-      .then((data) => calculateCrc({ filePath: element, data: data }))
+      .then((data) => util.calculateCrc({ filePath: element, data: data }))
       .then((data) => qualifyZclFile(db, data))
       .then((result) => parseZclFile(result))
       .then((result) => processParsedZclData(db, result))
-      .catch((err) => logError(err))
+      .catch((err) => env.logError(err))
     individualPromises.push(p)
   })
   return Promise.all(individualPromises)
@@ -592,7 +590,7 @@ function parseZclFiles(db, files) {
  * @returns a Promise that resolves with the db.
  */
 function loadZcl(db, propertiesFile) {
-  logInfo(`Loading zcl file: ${propertiesFile}`)
+  env.logInfo(`Loading zcl file: ${propertiesFile}`)
   return dbApi
     .dbBeginTransaction(db)
     .then(() => collectZclFiles(propertiesFile))

@@ -21,18 +21,8 @@
  * @module REST API: generation functions
  */
 
-const { logError, logInfo } = require('../util/env.js')
-
-const {
-  mapDatabase,
-  resolveTemplateDirectory,
-  compileTemplate,
-  infoFromDb,
-  groupInfoIntoDbRow,
-  resolveHelper,
-  generateDataToPreview,
-  getGenerationProperties,
-} = require('../generator/static-generator.js')
+const env = require('../util/env.js')
+const staticGenerator = require('../generator/static-generator.js')
 
 function getGeneratedCodeMap(generationOptions, db) {
   return new Promise((resolve, reject) => {
@@ -81,18 +71,33 @@ function getGeneratedCodeMap(generationOptions, db) {
           dbRowTypeArray.add(dbType)
         }
       }
-      generatedCodeMap[filename] = mapDatabase(db)
-        .then((templateDir) => resolveTemplateDirectory(templateDir, ''))
-        .then((templates) => compileTemplate(templates, templateArray))
-        .then((databaseRows) => infoFromDb(databaseRows, dbRowTypeArray))
+      generatedCodeMap[filename] = staticGenerator
+        .mapDatabase(db)
+        .then((templateDir) =>
+          staticGenerator.resolveTemplateDirectory(templateDir, '')
+        )
+        .then((templates) =>
+          staticGenerator.compileTemplate(templates, templateArray)
+        )
+        .then((databaseRows) =>
+          staticGenerator.infoFromDb(databaseRows, dbRowTypeArray)
+        )
         .then((databaseRowsWithMoreInfo) =>
-          groupInfoIntoDbRow(databaseRowsWithMoreInfo, groupInfoToDb)
+          staticGenerator.groupInfoIntoDbRow(
+            databaseRowsWithMoreInfo,
+            groupInfoToDb
+          )
         )
-        .then((helperResolution) => resolveHelper(helperResolution, helperApis))
+        .then((helperResolution) =>
+          staticGenerator.resolveHelper(helperResolution, helperApis)
+        )
         .then((resultToFile) =>
-          generateDataToPreview(resultToFile, handlebarTemplatePerDataRow)
+          staticGenerator.generateDataToPreview(
+            resultToFile,
+            handlebarTemplatePerDataRow
+          )
         )
-        .catch((err) => logError(err))
+        .catch((err) => env.logError(err))
     }
 
     // Making sure all generation promises are resolved before handling the get request
@@ -111,7 +116,7 @@ function getGeneratedCodeMap(generationOptions, db) {
  */
 function registerGenerationApi(db, app) {
   app.get('/preview/:name/:index', (request, response) => {
-    getGenerationProperties('').then((generationOptions) => {
+    staticGenerator.getGenerationProperties('').then((generationOptions) => {
       getGeneratedCodeMap(generationOptions, db).then((map) => {
         if (map[request.params.name]) {
           map[request.params.name].then((result) => {
@@ -132,7 +137,7 @@ function registerGenerationApi(db, app) {
   })
 
   app.get('/preview/:name', (request, response) => {
-    getGenerationProperties('').then((generationOptions) => {
+    staticGenerator.getGenerationProperties('').then((generationOptions) => {
       getGeneratedCodeMap(generationOptions, db).then((map) => {
         if (map[request.params.name]) {
           map[request.params.name].then((result) => response.json(result))
@@ -149,7 +154,7 @@ function registerGenerationApi(db, app) {
   //       "enums" : "..."
   //      }
   app.get('/generate', (request, response) => {
-    getGenerationProperties('').then((generationOptions) => {
+    staticGenerator.getGenerationProperties('').then((generationOptions) => {
       getGeneratedCodeMap(generationOptions, db).then((map) => {
         // making sure all generation promises are resolved before handling the get request
         Promise.all(Object.values(map)).then((values) => {

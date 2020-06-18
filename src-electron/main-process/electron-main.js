@@ -31,8 +31,8 @@ const {
   setMainDatabase,
   setProductionEnv,
   sqliteFile,
+  zapVersion,
 } = require('../util/env.js')
-const { version } = require('../../package.json')
 const {
   generateCodeViaCli,
   setHandlebarTemplateDirForCli,
@@ -62,7 +62,7 @@ function startSelfCheck() {
   dbApi
     .initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => dbApi.loadSchema(db, schemaFile(), version))
+    .then((db) => dbApi.loadSchema(db, schemaFile(), zapVersion()))
     .then((db) => loadZcl(db, args.zclPropertiesFile))
     .then(() => {
       console.log('Self-check done!')
@@ -78,7 +78,7 @@ function startNormal(ui, showUrl) {
   dbApi
     .initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => dbApi.loadSchema(db, schemaFile(), version))
+    .then((db) => dbApi.loadSchema(db, schemaFile(), zapVersion()))
     .then((db) => loadZcl(db, args.zclPropertiesFile))
     .then((db) => initHttpServer(db, args.httpPort))
     .then(() => {
@@ -114,7 +114,7 @@ function applyGenerationSettings(
   return dbApi
     .initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => dbApi.loadSchema(db, schemaFile(), version))
+    .then((db) => dbApi.loadSchema(db, schemaFile(), zapVersion()))
     .then((db) =>
       loadZcl(
         db,
@@ -152,7 +152,7 @@ function startSdkGeneration(
   return dbApi
     .initDatabase(sqliteFile())
     .then((db) => attachToDb(db))
-    .then((db) => dbApi.loadSchema(db, schemaFile(), version))
+    .then((db) => dbApi.loadSchema(db, schemaFile(), zapVersion()))
     .then((db) =>
       loadZcl(
         db,
