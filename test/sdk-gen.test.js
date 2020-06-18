@@ -71,7 +71,7 @@ describe('SDK gen tests', () => {
       db: db,
       generationDir: dir,
       templateDir: '',
-      dontWrite: false,
+      dontWrite: true,
     })
   }, 5000)
 })
