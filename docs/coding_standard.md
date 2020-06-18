@@ -72,14 +72,26 @@ Using tabs is your choice as a free person, but for each tab found in the code u
 ---
 
 **Q: Imports?**
-**A:** In order to maintain a uniform code style, when importing a module, one should import them using the pattern:
+**A:** In back-end node.js code, when importing a module, one should import them using the pattern:
 
 ```
-   import * as SnakeCasedFileName from '../path/to/file/snake-cased-file-name.js'
+const lowerCaseCamelName = require('relative/path/file.js')
 ```
 
 When using functions from these imported modules, one should use the pattern
 
 ```
-   SnakeCasedFileName.importedFunction()
+lowerCaseCamelName.importedFunction()
 ```
+
+If you are importing just a single symbol from a module, you can also do:
+
+```
+const { symbol } = require('relative/path/file.js')
+```
+
+but it's preferable to use the previous syntax, with loading entire module into its own namespace.
+
+You can not use ES6 import/export syntax on the node.js backend.
+
+In front-end java code, using ES6 is ok, as quasar transpiles all that code to a browser standard JS anyway.
