@@ -34,10 +34,10 @@ function executeCmd(ctx, cmd, args) {
       }
     })
     c.stdout.on('data', (data) => {
-      console.log(data)
+      console.log('> ' + data)
     })
     c.stderr.on('data', (data) => {
-      console.log('err: ' + data)
+      console.log('err> ' + data)
     })
   })
 }
