@@ -189,70 +189,64 @@ void emberAf{{camelCaseWithoutUnderscore ../define}}{{this.label}}Callback(
     {{#each this.CommandArguments}}
         {{#if @last}}
             {{#switch type}}
-                {{#case 'attribute_id' ~}}uint16_t {{label}}{{/case ~}}           
-                {{#case 'bitmap24' ~}}uint32_t {{label}}{{/case ~}}
-                {{#case 'bitmap8' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'data8' ~}}uint8_t {{label}}{{/case ~}}
                 {{#case 'boolean' ~}}uint8_t {{label}}{{/case ~}}
-                {{#case 'char_string' ~}}uint8_t* {{label}}{{/case ~}}
-                {{#case 'cluster_id' ~}}uint16_t {{label}}{{/case ~}}
-                {{#case 'data16' ~}}uint16_t {{label}}{{/case ~}}
-                {{#case 'date' ~}}uint32_t {{label}}{{/case ~}}
-                {{#case 'deviceinformationrecordsort' ~}}uint8_t {{label}}{{/case ~}}
-                {{#case 'eventconfiguration' ~}}uint8_t {{label}}{{/case ~}}
-                {{#case 'eventlogid' ~}}uint8_t {{label}}{{/case ~}}
-                {{#case 'iaszonestatus' ~}}uint16_t {{label}}{{/case ~}}
-                {{#case 'ieee_address' ~}}uint8_t* {{label}}{{/case ~}}
-                {{#case 'int16s' ~}}int16_t {{label}}{{/case ~}}
-                {{#case 'int16u' ~}}uint16_t {{label}}{{/case ~}}
-                {{#case 'int24u' ~}}uint32_t {{label}}{{/case ~}}
-                {{#case 'int32u' ~}}uint32_t {{label}}{{/case ~}}
-                {{#case 'int48u' ~}}uint8_t* {{label}}{{/case ~}}
-                {{#case 'int8s' ~}}int8_t {{label}}{{/case ~}}
+                {{#case 'bitmap8' ~}}uint8_t {{label}}{{/case ~}}
                 {{#case 'int8u' ~}}uint8_t {{label}}{{/case ~}}
-                {{#case 'no_data' ~}}uint8_t* {{label}}{{/case ~}}
-                {{#case 'octet_string' ~}}uint8_t* {{label}}{{/case ~}}
-                {{#case 'pricetier' ~}}uint8_t {{label}}{{/case ~}}
-                {{#case 'repaymentdebttype' ~}}uint8_t {{label}}{{/case ~}}
-                {{#case 'snapshotcause' ~}}uint32_t {{label}}{{/case ~}}
-                {{#case 'snapshotpayloadtype' ~}}uint8_t {{label}}{{/case ~}}
-                {{#case 'snapshotscheduleconfirmation' ~}}uint8_t {{label}}{{/case ~}}
-                {{#case 'status' ~}}uint8_t {{label}}{{/case ~}}
-                {{#case 'utc_time' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'int8s' ~}}int8_t {{label}}{{/case ~}}
                 {{#case 'enum8' ~}}uint8_t {{label}}{{/case ~}}
+                {{#case 'data16' ~}}uint16_t {{label}}{{/case ~}}
+                {{#case 'bitmap16' ~}}uint16_t {{label}}{{/case ~}}
+                {{#case 'int16u' ~}}uint16_t {{label}}{{/case ~}}
+                {{#case 'int16s' ~}}int16_t {{label}}{{/case ~}}
+                {{#case 'enum16' ~}}uint16_t {{label}}{{/case ~}}
+                {{#case 'float_semi' ~}}uint16_t {{label}}{{/case ~}}
+                {{#case 'cluster_id' ~}}uint16_t {{label}}{{/case ~}}
+                {{#case 'attribute_id' ~}}uint16_t {{label}}{{/case ~}}
+                {{#case 'data24' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'bitmap24' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'int24u' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'int24s' ~}}int32_t {{label}}{{/case ~}}
+                {{#case 'data32' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'bitmap32' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'int32u' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'int32s' ~}}int32_t {{label}}{{/case ~}}
+                {{#case 'float_single' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'time_of_day' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'date' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'utc_time' ~}}uint32_t {{label}}{{/case ~}}
+                {{#case 'bacnet_oid' ~}}uint32_t {{label}}{{/case ~}}
                 {{#default 'uint8_t' ~}}uint8_t {{label}}{{/default}}
             {{/switch}}
         {{else}}
             {{#switch type}}
-                {{#case 'attribute_id' ~}}uint16_t {{label}},{{/case ~}}           
-                {{#case 'bitmap24' ~}}uint32_t {{label}},{{/case ~}}
-                {{#case 'bitmap8' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'data8' ~}}uint8_t {{label}},{{/case ~}}
                 {{#case 'boolean' ~}}uint8_t {{label}},{{/case ~}}
-                {{#case 'char_string' ~}}uint8_t* {{label}},{{/case ~}}
-                {{#case 'cluster_id' ~}}uint16_t {{label}},{{/case ~}}
-                {{#case 'data16' ~}}uint16_t {{label}},{{/case ~}}
-                {{#case 'date' ~}}uint32_t {{label}},{{/case ~}}
-                {{#case 'deviceinformationrecordsort' ~}}uint8_t {{label}},{{/case ~}}
-                {{#case 'eventconfiguration' ~}}uint8_t {{label}},{{/case ~}}
-                {{#case 'eventlogid' ~}}uint8_t {{label}},{{/case ~}}
-                {{#case 'iaszonestatus' ~}}uint16_t {{label}},{{/case ~}}
-                {{#case 'ieee_address' ~}}uint8_t* {{label}},{{/case ~}}
-                {{#case 'int16s' ~}}int16_t {{label}},{{/case ~}}
-                {{#case 'int16u' ~}}uint16_t {{label}},{{/case ~}}
-                {{#case 'int24u' ~}}uint32_t {{label}},{{/case ~}}
-                {{#case 'int32u' ~}}uint32_t {{label}},{{/case ~}}
-                {{#case 'int48u' ~}}uint8_t* {{label}},{{/case ~}}
-                {{#case 'int8s' ~}}int8_t {{label}},{{/case ~}}
+                {{#case 'bitmap8' ~}}uint8_t {{label}},{{/case ~}}
                 {{#case 'int8u' ~}}uint8_t {{label}},{{/case ~}}
-                {{#case 'no_data' ~}}uint8_t* {{label}},{{/case ~}}
-                {{#case 'octet_string' ~}}uint8_t* {{label}},{{/case ~}}
-                {{#case 'pricetier' ~}}uint8_t {{label}},{{/case ~}}
-                {{#case 'repaymentdebttype' ~}}uint8_t {{label}},{{/case ~}}
-                {{#case 'snapshotcause' ~}}uint32_t {{label}},{{/case ~}}
-                {{#case 'snapshotpayloadtype' ~}}uint8_t {{label}},{{/case ~}}
-                {{#case 'snapshotscheduleconfirmation' ~}}uint8_t {{label}},{{/case ~}}
-                {{#case 'status' ~}}uint8_t {{label}},{{/case ~}}
-                {{#case 'utc_time' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'int8s' ~}}int8_t {{label}},{{/case ~}}
                 {{#case 'enum8' ~}}uint8_t {{label}},{{/case ~}}
+                {{#case 'data16' ~}}uint16_t {{label}},{{/case ~}}
+                {{#case 'bitmap16' ~}}uint16_t {{label}},{{/case ~}}
+                {{#case 'int16u' ~}}uint16_t {{label}},{{/case ~}}
+                {{#case 'int16s' ~}}int16_t {{label}},{{/case ~}}
+                {{#case 'enum16' ~}}uint16_t {{label}},{{/case ~}}
+                {{#case 'float_semi' ~}}uint16_t {{label}},{{/case ~}}
+                {{#case 'cluster_id' ~}}uint16_t {{label}},{{/case ~}}
+                {{#case 'attribute_id' ~}}uint16_t {{label}},{{/case ~}}
+                {{#case 'data24' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'bitmap24' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'int24u' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'int24s' ~}}int32_t {{label}},{{/case ~}}
+                {{#case 'data32' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'bitmap32' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'int32u' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'int32s' ~}}int32_t {{label}},{{/case ~}}
+                {{#case 'float_single' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'time_of_day' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'date' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'utc_time' ~}}uint32_t {{label}},{{/case ~}}
+                {{#case 'bacnet_oid' ~}}uint32_t {{label}},{{/case ~}}
                 {{#default 'uint8_t' ~}}uint8_t {{label}},{{/default}}
             {{/switch}}
         {{/if}}
