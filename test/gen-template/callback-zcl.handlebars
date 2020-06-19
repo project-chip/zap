@@ -1,8 +1,8 @@
 {{#each type}}
-/** @name {{this.label}} cluster Callbacks */
+/** @name {{this.label}} Cluster Callbacks */
 // @{
 
-/** @brief {{this.label}} cluster Client Attribute Changed
+/** @brief {{this.label}} Cluster Client Attribute Changed
  *
  * Client Attribute Changed
  *
@@ -12,7 +12,7 @@
 void emberAf{{camelCaseWithoutUnderscore this.define}}ClientAttributeChangedCallback(uint8_t endpoint,
                                                        EmberAfAttributeId attributeId);
 
-/** @brief {{this.label}} cluster Client Default Response
+/** @brief {{this.label}} Cluster Client Default Response
  *
  * This function is called when the client receives the default response from
  * the server.
@@ -25,7 +25,7 @@ void emberAf{{camelCaseWithoutUnderscore this.define}}ClientDefaultResponseCallb
                                                       uint8_t commandId,
                                                       EmberAfStatus status);
 
-/** @brief {{this.label}} cluster Client Init
+/** @brief {{this.label}} Cluster Client Init
  *
  * Client Init
  *
@@ -33,7 +33,7 @@ void emberAf{{camelCaseWithoutUnderscore this.define}}ClientDefaultResponseCallb
  */
 void emberAf{{camelCaseWithoutUnderscore this.define}}ClientInitCallback(uint8_t endpoint);
 
-/** @brief {{this.label}} cluster Client Manufacturer Specific Attribute Changed
+/** @brief {{this.label}} Cluster Client Manufacturer Specific Attribute Changed
  *
  * Client Manufacturer Specific Attribute Changed
  *
@@ -46,7 +46,7 @@ void emberAf{{camelCaseWithoutUnderscore this.define}}ClientManufacturerSpecific
                                                                            EmberAfAttributeId attributeId,
                                                                            uint16_t manufacturerCode);
 
-/** @brief {{this.label}} cluster Client Message Sent
+/** @brief {{this.label}} Cluster Client Message Sent
  *
  * Client Message Sent
  *
@@ -65,7 +65,7 @@ void emberAf{{camelCaseWithoutUnderscore this.define}}ClientMessageSentCallback(
                                                   uint8_t *message,
                                                   EmberStatus status);
 
-/** @brief {{this.label}} cluster Client Pre Attribute Changed
+/** @brief {{this.label}} Cluster Client Pre Attribute Changed
  *
  * Client Pre Attribute Changed
  *
@@ -81,7 +81,7 @@ EmberAfStatus emberAf{{camelCaseWithoutUnderscore this.define}}ClientPreAttribut
                                                                    uint8_t size,
                                                                    uint8_t *value);
 
-/** @brief {{this.label}} cluster Client Tick
+/** @brief {{this.label}} Cluster Client Tick
  *
  * Client Tick
  *
@@ -99,7 +99,7 @@ void emberAf{{camelCaseWithoutUnderscore this.define}}ClientTickCallback(uint8_t
 void emberAf{{camelCaseWithoutUnderscore this.define}}ServerAttributeChangedCallback(uint8_t endpoint,
                                                        EmberAfAttributeId attributeId);
 
-/** @brief {{this.label}} cluster Server Default Response
+/** @brief {{this.label}} Cluster Server Default Response
  *
  * This function is called when the server receives the default response from
  * the client.
@@ -112,7 +112,7 @@ void emberAf{{camelCaseWithoutUnderscore this.define}}ServerDefaultResponseCallb
                                                       uint8_t commandId,
                                                       EmberAfStatus status);
 
-/** @brief {{this.label}} cluster Server Init
+/** @brief {{this.label}} Cluster Server Init
  *
  * Server Init
  *
@@ -133,7 +133,7 @@ void emberAf{{camelCaseWithoutUnderscore this.define}}ServerManufacturerSpecific
                                                                            EmberAfAttributeId attributeId,
                                                                            uint16_t manufacturerCode);
 
-/** @brief {{this.label}} cluster Server Message Sent
+/** @brief {{this.label}} Cluster Server Message Sent
  *
  * Server Message Sent
  *
@@ -152,7 +152,7 @@ void emberAf{{camelCaseWithoutUnderscore this.define}}ServerMessageSentCallback(
                                                   uint8_t *message,
                                                   EmberStatus status);
 
-/** @brief {{this.label}} cluster Server Pre Attribute Changed
+/** @brief {{this.label}} Cluster Server Pre Attribute Changed
  *
  * Server Pre Attribute Changed
  *
@@ -168,7 +168,7 @@ EmberAfStatus emberAf{{camelCaseWithoutUnderscore this.define}}ServerPreAttribut
                                                                    uint8_t size,
                                                                    uint8_t *value);
 
-/** @brief {{this.label}} cluster Server Tick
+/** @brief {{this.label}} Cluster Server Tick
  *
  * Server Tick
  *
@@ -177,10 +177,13 @@ EmberAfStatus emberAf{{camelCaseWithoutUnderscore this.define}}ServerPreAttribut
 void emberAf{{camelCaseWithoutUnderscore this.define}}ServerTickCallback(uint8_t endpoint);
 
 {{#each this.COMMAND}}
-/** @brief {{../label}} Cluster {{this.label}}
+/** @brief {{../label}} Cluster {{convertCamelCaseToSpace this.label}}
  *
- * {{this.label}}
  *
+ *
+ {{#each this.CommandArguments}}
+ * @param {{label}} Ver.: always
+ {{/each}}
  */
 void emberAf{{camelCaseWithoutUnderscore ../define}}{{this.label}}Callback(
     {{#each this.CommandArguments}}
@@ -256,7 +259,7 @@ void emberAf{{camelCaseWithoutUnderscore ../define}}{{this.label}}Callback(
     {{/each}});
 {{/each}}
 
-/** @} END {{this.label}} cluster Callbacks */
+/** @} END {{this.label}} Cluster Callbacks */
 
 
 {{/each}}

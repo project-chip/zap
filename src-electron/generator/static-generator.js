@@ -37,6 +37,7 @@ const {
   getDirection,
   trimNewLinesTabs,
   getFormatCharactersForCommandArguments,
+  convertCamelCaseToSpace,
 } = require('../handlebars/helpers/helper-utils.js')
 
 /**
@@ -349,6 +350,11 @@ function resolveHelper(map, helperFunctions) {
           handlebarHelpers[
             helperFunctions[i]['helperNameForTemplate']
           ] = getFormatCharactersForCommandArguments
+          break
+        case 'convertCamelCaseToSpace':
+          handlebarHelpers[
+            helperFunctions[i]['helperNameForTemplate']
+          ] = convertCamelCaseToSpace
           break
       }
     }
