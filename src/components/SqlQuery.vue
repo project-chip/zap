@@ -19,9 +19,7 @@ limitations under the License.
     <p>Count: {{ count }}</p>
     <q-list dark bordered separator>
       <div v-for="(item, index) in items" v-bind:key="index" class="row">
-        <q-item>
-          {{ item }}
-        </q-item>
+        <q-item>{{ item }}</q-item>
       </div>
     </q-list>
     <pre>
@@ -40,8 +38,6 @@ export default {
   },
   mounted() {
     this.$serverOn('sql-result', (event, arg) => {
-      console.log('sql-result')
-      console.log(arg)
       this.items = arg.result
       this.count = arg.result.length
     })
