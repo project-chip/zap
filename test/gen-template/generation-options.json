@@ -184,6 +184,10 @@
         {
           "helperNameForTemplate": "default",
           "helperFunctionName": "getDefault"
+        },
+        {
+          "helperNameForTemplate": "convertCamelCaseToSpace",
+          "helperFunctionName": "convertCamelCaseToSpace"
         }
       ]
     },

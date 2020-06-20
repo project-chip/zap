@@ -21,6 +21,10 @@
 const dbApi = require('../src-electron/db/db-api.js')
 const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
 const Validation = require('../src-electron/validation/validation.js')
+const { zclPropertiesFile } = require('../src-electron/main-process/args.js')
+const QuerySession = require('../src-electron/db/query-session.js')
+const QueryConfig = require('../src-electron/db/query-config.js')
+const fs = require('fs')
 
 const {
   logInfo,
@@ -31,11 +35,10 @@ const {
 
 const args = require('../src-electron/main-process/args')
 
-const {
-  selectAttributesByClusterCodeAndManufacturerCode,
-} = require('../src-electron/db/query-zcl.js')
+const QueryZcl = require('../src-electron/db/query-zcl.js')
 
 var db
+var sid
 
 beforeAll(() => {
   var file = sqliteTestFile('validation')
@@ -46,6 +49,13 @@ beforeAll(() => {
       db = d
       logInfo('DB initialized.')
     })
+})
+
+afterAll(() => {
+  var file = sqliteTestFile('validation')
+  return dbApi.closeDatabase(db).then(() => {
+    if (fs.existsSync(file)) fs.unlinkSync(file)
+  })
 })
 
 test('Load the static data.', () => {
@@ -103,7 +113,7 @@ test('Validate types', () => {
 })
 
 test('Integer Test', () => {
-  return selectAttributesByClusterCodeAndManufacturerCode(
+  return QueryZcl.selectAttributesByClusterCodeAndManufacturerCode(
     db,
     '0x0003',
     null
@@ -247,3 +257,55 @@ test('validate endpoint test', () => {
     Validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
   ).toBeFalsy()
 }, 2000)
+
+describe('Validate endpoint for duplicate endpointIds', () => {
+  var endpointTypeIdOnOff
+  var endpointTypeReference
+  var eptId
+  beforeAll(() => {
+    return loadZcl(db, zclPropertiesFile)
+      .then(() => {
+        return QuerySession.ensureZapSessionId(db, 'SESSION', 666).then(
+          (id) => {
+            sid = id
+          }
+        )
+      })
+      .then(() => {
+        return QueryConfig.insertEndpointType(
+          db,
+          sid,
+          'testEndpointType',
+          0
+        ).then((rowId) => {
+          endpointTypeIdOnOff = rowId
+          return QueryZcl.selectEndpointType(db, rowId)
+        })
+      })
+      .then((endpointType) => {
+        endpointTypeReference = endpointType.endpointTypeId
+        return QueryConfig.insertEndpoint(
+          db,
+          sid,
+          1,
+          endpointType.endpointTypeId,
+          1
+        ).then(
+          QueryConfig.insertEndpoint(db, sid, 1, endpointType.endpointTypeId, 1)
+        )
+      })
+      .then((endpointId) => {
+        eptId = endpointId
+      })
+  })
+  test('Test endpoint for duplicates', () => {
+    return Validation.validateEndpoint(db, eptId).then((data) => {
+      return Validation.validateNoDuplicateEndpoints(db, eptId, sid).then(
+        (hasNoDuplicates) => {
+          expect(hasNoDuplicates).toBeFalsy()
+          return Promise.resolve()
+        }
+      )
+    })
+  })
+})

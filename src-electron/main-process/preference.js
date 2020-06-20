@@ -17,7 +17,7 @@
 
 const { BrowserWindow } = require('electron')
 const path = require('path')
-const Env = require('../util/env.js')
+const env = require('../util/env.js')
 
 let window = null
 
@@ -43,7 +43,7 @@ function createWindow(port) {
     resizable: true,
     center: true,
     title: 'ZAP Preferences',
-    icon: path.join(Env.iconsDirectory(), 'zap_32x32.png'),
+    icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
     useContentSize: true,
     webPreferences: {
       nodeIntegration: false,

@@ -93,6 +93,19 @@ function getStrong(str) {
 /**
 Given: String
 Return: String
+Description: return the given string such that camel case is changed into a
+string with spaces.
+*/
+function convertCamelCaseToSpace(str) {
+  str = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+    return ' ' + y
+  })
+  return str
+}
+
+/**
+Given: String
+Return: String
 Description: return the given string but convert it into a number and then
 into a hex string to keep consistency in the hex strings values.
 */
@@ -326,3 +339,4 @@ exports.isCommandManufactureSpecific = isCommandManufactureSpecific
 exports.getDirection = getDirection
 exports.trimNewLinesTabs = trimNewLinesTabs
 exports.getFormatCharactersForCommandArguments = getFormatCharactersForCommandArguments
+exports.convertCamelCaseToSpace = convertCamelCaseToSpace

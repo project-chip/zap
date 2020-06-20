@@ -17,15 +17,15 @@
 
 const { session, BrowserWindow, dialog } = require('electron')
 const path = require('path')
-const { iconsDirectory, mainDatabase } = require('../util/env.js')
-const { getWindowDirtyFlagWithCallback } = require('../db/query-session.js')
+const env = require('../util/env.js')
+const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
-const { initTray } = require('./tray.js')
+const tray = require('./tray.js')
 
 function initializeElectronUi(port) {
   let w = windowCreate(port)
   menu.initMenu(port)
-  initTray(port)
+  tray.initTray(port)
 }
 
 function windowCreateIfNotThere(port) {
@@ -54,7 +54,7 @@ function windowCreate(port, filePath = null, sessionId = null) {
     height: 800,
     resizable: true,
     center: true,
-    icon: path.join(iconsDirectory(), 'zap_32x32.png'),
+    icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
     title: filePath == null ? 'New Configuration' : filePath,
     useContentSize: true,
     webPreferences: {
@@ -74,23 +74,27 @@ function windowCreate(port, filePath = null, sessionId = null) {
 
   w.on('close', (e) => {
     e.preventDefault()
-    getWindowDirtyFlagWithCallback(mainDatabase(), w.id, (dirty) => {
-      if (dirty) {
-        const result = dialog.showMessageBoxSync(w, {
-          type: 'warning',
-          title: 'Unsaved changes?',
-          message:
-            'Your changes will be lost if you do not save them into the file.',
-          buttons: ['Quit Anyway', 'Cancel'],
-          defaultId: 0,
-          cancelId: 1,
-        })
+    querySession.getWindowDirtyFlagWithCallback(
+      env.mainDatabase(),
+      w.id,
+      (dirty) => {
+        if (dirty) {
+          const result = dialog.showMessageBoxSync(w, {
+            type: 'warning',
+            title: 'Unsaved changes?',
+            message:
+              'Your changes will be lost if you do not save them into the file.',
+            buttons: ['Quit Anyway', 'Cancel'],
+            defaultId: 0,
+            cancelId: 1,
+          })
 
-        if (result === 0) w.destroy()
-      } else {
-        w.destroy()
+          if (result === 0) w.destroy()
+        } else {
+          w.destroy()
+        }
       }
-    })
+    )
   }) // EO close
 
   return w
