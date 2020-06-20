@@ -24,20 +24,20 @@ const path = require('path')
 
 function executeCmd(ctx, cmd, args) {
   return new Promise((resolve, reject) => {
-    console.log(`✔ Executing: ${cmd}`)
+    console.log(`🚀 Executing: ${cmd}`)
     var c = spawn(cmd, args)
     c.on('exit', (code) => {
       if (code == 0) resolve(ctx)
       else {
-        console.log(`Program ${cmd} exited with error code: ${code}`)
+        console.log(`👎 Program ${cmd} exited with error code: ${code}`)
         reject()
       }
     })
     c.stdout.on('data', (data) => {
-      console.log('> ' + data)
+      console.log('➤ ' + data)
     })
     c.stderr.on('data', (data) => {
-      console.log('err> ' + data)
+      console.log('⇝ ' + data)
     })
   })
 }
@@ -46,7 +46,7 @@ var fileName = path.join(spaDir, 'hash.json')
 
 hashElement('src', hashOptions)
   .then((currentHash) => {
-    console.log(`✔ Current  hash: ${currentHash.hash}`)
+    console.log(`🔍 Current  hash: ${currentHash.hash}`)
     return {
       currentHash: currentHash,
     }
@@ -57,18 +57,18 @@ hashElement('src', hashOptions)
         fs.readFile(fileName, (err, data) => {
           var oldHash = null
           if (err) {
-            console.log(`✘ Error reading old hash file: ${fileName}`)
+            console.log(`👎 Error reading old hash file: ${fileName}`)
             ctx.needsRebuild = true
           } else {
             oldHash = JSON.parse(data)
-            console.log(`✔ Previous hash: ${oldHash.hash}`)
+            console.log(`🔍 Previous hash: ${oldHash.hash}`)
             ctx.needsRebuild = oldHash.hash != ctx.currentHash.hash
           }
           if (ctx.needsRebuild) {
-            console.log(`✘ Front-end code changed, so we need to rebuild SPA.`)
+            console.log(`🐝 Front-end code changed, so we need to rebuild SPA.`)
           } else {
             console.log(
-              `✔ There were no changes to front-end code, so we don't have to rebuild the SPA.`
+              `👍 There were no changes to front-end code, so we don't have to rebuild the SPA.`
             )
           }
           resolve(ctx)
@@ -83,7 +83,7 @@ hashElement('src', hashOptions)
     (ctx) =>
       new Promise((resolve, reject) => {
         if (ctx.needsRebuild) {
-          console.log('✔ Writing out new hash file.')
+          console.log('✍ Writing out new hash file.')
           fs.writeFile(fileName, JSON.stringify(ctx.currentHash), (err) => {
             if (err) reject(err)
             else resolve(ctx)
@@ -96,6 +96,9 @@ hashElement('src', hashOptions)
   .then((ctx) =>
     executeCmd(ctx, 'electron', ['src-electron/main-process/electron-main.js'])
   )
+  .then(() => {
+    console.log('😎 All done.')
+  })
   .catch((err) => {
     console.log(err)
   })
