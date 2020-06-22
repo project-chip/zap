@@ -22,10 +22,11 @@ pipeline
             {
                 script 
                 {
-                    sh 'npm install'
-                    sh 'npm list || true'
+                    sh 'uname -a'
                     sh 'npm --version'
                     sh 'node --version'
+                    sh 'npm install'
+                    sh 'npm list || true'
                 }
             }
         }
