@@ -49,7 +49,7 @@ beforeAll(() => {
       db = d
       logInfo('DB initialized.')
     })
-})
+}, 5000)
 
 afterAll(() => {
   var file = sqliteTestFile('validation')
