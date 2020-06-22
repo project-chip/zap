@@ -94,7 +94,9 @@ hashElement('src', hashOptions)
       })
   )
   .then((ctx) =>
-    executeCmd(ctx, 'electron', ['src-electron/main-process/electron-main.js'])
+    executeCmd(ctx, 'electron', [
+      'src-electron/main-process/electron-main.dev.js',
+    ])
   )
   .then(() => {
     console.log('😎 All done.')
