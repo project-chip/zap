@@ -15,7 +15,6 @@
  *    limitations under the License.
  */
 
-const path = require('path')
 const fs = require('fs')
 const dbApi = require('../src-electron/db/db-api.js')
 const env = require('../src-electron/util/env.js')
@@ -42,7 +41,7 @@ if (targetDir === undefined) {
   process.exit(1)
 }
 
-console.log(`Generating into ${targetDir}`)
+console.log(`✍ Generating into ${targetDir}`)
 dbApi
   .initDatabase(file)
   .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
