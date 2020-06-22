@@ -105,7 +105,7 @@ function initHttpServer(db, port) {
           resolve(app)
         })
       } else {
-        Env.logError(err)
+        env.logError(err)
       }
     })
   })
