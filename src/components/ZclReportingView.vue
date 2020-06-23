@@ -139,24 +139,24 @@ export default {
   name: 'ZclReportingView',
   mounted() {
     this.$serverOn('zcl-item', (event, arg) => {
-      if (arg.type === 'endpointTypeReportableAttributes') {
-        this.$store.dispatch('zap/setReportableAttributeStateLists', arg.data)
+      if (arg.type === 'endpointTypeAttributes') {
+        this.$store.dispatch('zap/setAttributeStateLists', arg.data)
       }
     })
-    this.$serverOn('singleReportableAttributeState', (event, arg) => {
+    this.$serverOn('singleAttributeState', (event, arg) => {
       if (arg.action === 'boolean') {
         this.$store.dispatch('zap/updateSelectedAttributes', {
           id: this.hashAttributeIdClusterId(arg.id, arg.clusterRef),
           added: arg.added,
           listType: arg.listType,
-          view: 'reportingView',
+          view: 'attributeView',
         })
       } else if (arg.action === 'text') {
         this.$store.dispatch('zap/updateAttributeDefaults', {
-          id: hashAttributeIdClusterId(arg.id, selectedCluster.id),
+          id: this.hashAttributeIdClusterId(arg.id, arg.clusterRef),
           newDefaultValue: arg.added,
           listType: arg.listType,
-          view: 'reportingView',
+          view: 'attributeView',
         })
       }
     })
@@ -187,22 +187,22 @@ export default {
     },
     selectedReporting: {
       get() {
-        return this.$store.state.zap.reportingView.selectedReporting
+        return this.$store.state.zap.attributeView.selectedReporting
       },
     },
     selectionMin: {
       get() {
-        return this.$store.state.zap.reportingView.reportingMin
+        return this.$store.state.zap.attributeView.reportingMin
       },
     },
     selectionMax: {
       get() {
-        return this.$store.state.zap.reportingView.reportingMax
+        return this.$store.state.zap.attributeView.reportingMax
       },
     },
     selectionReportableChange: {
       get() {
-        return this.$store.state.zap.reportingView.reportableChange
+        return this.$store.state.zap.attributeView.reportableChange
       },
     },
     selectedEndpointId: {
@@ -238,7 +238,7 @@ export default {
         addedValue = false
       }
 
-      this.$serverPost(`/reportableAttribute/update`, {
+      this.$serverPost(`/attribute/update`, {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointId,
         id: attributeData.id,
@@ -249,7 +249,7 @@ export default {
       })
     },
     handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
-      this.$serverPost(`/reportableAttribute/update`, {
+      this.$serverPost(`/attribute/update`, {
         action: 'text',
         endpointTypeId: this.selectedEndpointId,
         id: attributeData.id,

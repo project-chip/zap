@@ -41,14 +41,14 @@ export function updateAttributes(state, attributes) {
         attribute.defaultValue
       )
     }
-    if (state.reportingView.reportingMin[attribute.id] === undefined) {
-      Vue.set(state.reportingView.reportingMin, attribute.id, 0)
+    if (state.attributeView.reportingMin[attribute.id] === undefined) {
+      Vue.set(state.attributeView.reportingMin, attribute.id, 0)
     }
-    if (state.reportingView.reportingMax[attribute.id] === undefined) {
-      Vue.set(state.reportingView.reportingMax, attribute.id, 65344)
+    if (state.attributeView.reportingMax[attribute.id] === undefined) {
+      Vue.set(state.attributeView.reportingMax, attribute.id, 65344)
     }
-    if (state.reportingView.reportableChange[attribute.id] === undefined) {
-      Vue.set(state.reportingView.reportableChange, attribute.id, 0)
+    if (state.attributeView.reportableChange[attribute.id] === undefined) {
+      Vue.set(state.attributeView.reportableChange, attribute.id, 0)
     }
   })
   state.attributes = attributes
@@ -130,14 +130,6 @@ export function addEndpointType(state, endpointType) {
   )
 }
 
-export function updateReportingAttributeDefaults(state, selectionContext) {
-  Vue.set(
-    state.reportingView[selectionContext.listType],
-    selectionContext.id,
-    selectionContext.newDefaultValue
-  )
-}
-
 export function updateAttributeDefaults(state, selectionContext) {
   Vue.set(
     state.attributeView.defaultValues,
@@ -210,23 +202,19 @@ export function setClusterList(state, data) {
 
 export function resetAttributeDefaults(state) {
   state.attributeView.defaultValues = {}
+  state.attributeView.reportingMin = {}
+  state.attributeView.reportingMin = {}
+  state.attributeView.reportableChange = {}
+
   state.attributes.forEach((attribute) => {
     Vue.set(
       state.attributeView.defaultValues,
       attribute.id,
       attribute.defaultValue
     )
-  })
-}
-
-export function resetReportableAttributeDefaults(state) {
-  state.reportingView.reportingMin = {}
-  state.reportingView.reportingMin = {}
-  state.reportingView.reportableChange = {}
-  state.attributes.forEach((attribute) => {
-    Vue.set(state.reportingView.reportingMin, attribute.id, 0)
-    Vue.set(state.reportingView.reportingMax, attribute.id, 65344)
-    Vue.set(state.reportingView.reportableChange, attribute.id, 0)
+    Vue.set(state.attributeView.reportingMin, attribute.id, 0)
+    Vue.set(state.attributeView.reportingMax, attribute.id, 65344)
+    Vue.set(state.attributeView.reportableChange, attribute.id, 0)
   })
 }
 
@@ -236,25 +224,22 @@ export function setAttributeLists(state, data) {
   state.attributeView.selectedFlash = data.flash
   state.attributeView.selectedSingleton = data.singleton
   state.attributeView.selectedBounded = data.bounded
+  state.attributeView.selectedReporting = data.includedReportable
+
   resetAttributeDefaults(state)
   Object.entries(data.defaultValue).forEach(([attributeRef, defaultVal]) => {
     Vue.set(state.attributeView.defaultValues, attributeRef, defaultVal)
   })
-}
-
-export function setReportableAttributeLists(state, data) {
-  state.reportingView.selectedReporting = data.included
-  resetReportableAttributeDefaults(state)
   Object.entries(data.minInterval).forEach(([attributeRef, defaultVal]) => {
-    Vue.set(state.reportingView.reportingMin, attributeRef, defaultVal)
+    Vue.set(state.attributeView.reportingMin, attributeRef, defaultVal)
   })
 
   Object.entries(data.maxInterval).forEach(([attributeRef, defaultVal]) => {
-    Vue.set(state.reportingView.reportingMax, attributeRef, defaultVal)
+    Vue.set(state.attributeView.reportingMax, attributeRef, defaultVal)
   })
   Object.entries(data.reportableChange).forEach(
     ([attributeRef, defaultVal]) => {
-      Vue.set(state.reportingView.reportableChange, attributeRef, defaultVal)
+      Vue.set(state.attributeView.reportableChange, attributeRef, defaultVal)
     }
   )
 }
