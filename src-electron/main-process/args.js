@@ -67,6 +67,10 @@ function processCommandLineArguments(argv) {
       desc: 'Specifying the handlebar template directory for generation',
       type: 'string',
     })
+    .option('clearDb', {
+      desc: 'Clear out the database and start with a new file.',
+      type: 'string',
+    })
     .usage('Usage: $0 <command> [options]')
     .help()
     .parse(argv)

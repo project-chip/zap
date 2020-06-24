@@ -19,7 +19,7 @@ const { Menu, Tray, nativeImage, app } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const env = require('../util/env.js')
-const window = require('./window.js')
+const win = require('./window.js')
 
 let tray
 
@@ -47,7 +47,7 @@ function initTray(port) {
       label: 'New ZCL configuration',
       type: 'normal',
       click: (item, window, event) => {
-        window.windowCreate(port)
+        win.windowCreate(port)
       },
     },
     {

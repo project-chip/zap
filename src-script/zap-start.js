@@ -34,10 +34,10 @@ function executeCmd(ctx, cmd, args) {
       }
     })
     c.stdout.on('data', (data) => {
-      console.log('➤ ' + data)
+      process.stdout.write('➤ ' + data)
     })
     c.stderr.on('data', (data) => {
-      console.log('⇝ ' + data)
+      process.stderr.write('⇝ ' + data)
     })
   })
 }
@@ -94,7 +94,9 @@ hashElement('src', hashOptions)
       })
   )
   .then((ctx) =>
-    executeCmd(ctx, 'electron', ['src-electron/main-process/electron-main.js'])
+    executeCmd(ctx, 'electron', [
+      'src-electron/main-process/electron-main.dev.js',
+    ])
   )
   .then(() => {
     console.log('😎 All done.')

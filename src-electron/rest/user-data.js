@@ -79,41 +79,52 @@ function registerSessionApi(db, app) {
       case 'selectedBounded':
         booleanParam = 'BOUNDED'
         paramType = 'bool'
+        break
       case 'defaultValue':
         booleanParam = 'DEFAULT_VALUE'
         paramType = 'text'
+        break
+      case 'selectedReporting':
+        booleanParam = 'INCLUDED_REPORTABLE'
+        break
+      case 'reportingMin':
+        booleanParam = 'MIN_INTERVAL'
+        break
+      case 'reportingMax':
+        booleanParam = 'MAX_INTERVAL'
+        break
+      case 'reportableChange':
+        booleanParam = 'REPORTABLE_CHANGE'
+        break
       default:
         break
     }
-
-    if (paramType != '') {
-      queryConfig
-        .insertOrUpdateAttributeState(
-          db,
-          endpointTypeId,
-          clusterRef,
-          attributeSide,
-          id,
-          [{ key: booleanParam, value: value, type: paramType }]
-        )
-        .then((row) => {
-          return validation
-            .validateAttribute(db, endpointTypeId, id, clusterRef)
-            .then((validationData) => {
-              response.json({
-                action: action,
-                endpointTypeId: endpointTypeId,
-                clusterRef: clusterRef,
-                id: id,
-                added: value,
-                listType: listType,
-                validationIssues: validationData,
-                replyId: restApi.replyId.singleAttributeState,
-              })
-              return response.status(httpServer.httpCode.ok).send()
+    queryConfig
+      .insertOrUpdateAttributeState(
+        db,
+        endpointTypeId,
+        clusterRef,
+        attributeSide,
+        id,
+        [{ key: booleanParam, value: value }]
+      )
+      .then((row) => {
+        return validation
+          .validateAttribute(db, endpointTypeId, id, clusterRef)
+          .then((validationData) => {
+            response.json({
+              action: action,
+              endpointTypeId: endpointTypeId,
+              clusterRef: clusterRef,
+              id: id,
+              added: value,
+              listType: listType,
+              validationIssues: validationData,
+              replyId: restApi.replyId.singleAttributeState,
             })
-        })
-    }
+            return response.status(httpServer.httpCode.ok).send()
+          })
+      })
   })
 
   app.post('/post/command/update', (request, response) => {
@@ -158,56 +169,6 @@ function registerSessionApi(db, app) {
           side: commandSide,
           clusterRef: clusterRef,
           replyId: restApi.replyId.singleCommandState,
-        })
-        return response.status(httpServer.httpCode.ok).send()
-      })
-  })
-
-  app.post('/post/reportableAttribute/update', (request, response) => {
-    var {
-      action,
-      endpointTypeId,
-      id,
-      value,
-      listType,
-      clusterRef,
-      attributeSide,
-    } = request.body
-    var booleanParam = ''
-    switch (listType) {
-      case 'selectedReporting':
-        booleanParam = 'INCLUDED_REPORTABLE'
-        break
-      case 'reportingMin':
-        booleanParam = 'MIN_INTERVAL'
-        break
-      case 'reportingMax':
-        booleanParam = 'MAX_INTERVAL'
-        break
-      case 'reportableChange':
-        booleanParam = 'REPORTABLE_CHANGE'
-        break
-      default:
-        break
-    }
-    queryConfig
-      .insertOrUpdateAttributeState(
-        db,
-        endpointTypeId,
-        clusterRef,
-        attributeSide,
-        id,
-        [{ key: booleanParam, value: value }]
-      )
-      .then(() => {
-        response.json({
-          action: action,
-          endpointTypeId: endpointTypeId,
-          clusterRef: clusterRef,
-          id: id,
-          added: value,
-          listType: listType,
-          replyId: 'singleReportableAttributeState',
         })
         return response.status(httpServer.httpCode.ok).send()
       })

@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 
+const fs = require('fs')
 const { app } = require('electron')
 const dbApi = require('../db/db-api.js')
 const { runSdkGeneration } = require('../sdk-gen/sdk-gen.js')
@@ -156,11 +157,29 @@ function startSdkGeneration(
     .then((res) => app.quit())
 }
 
+function clearDatabaseFile() {
+  var path = env.sqliteFile()
+  var pathBak = path + '~'
+  if (fs.existsSync(path)) {
+    if (fs.existsSync(pathBak)) {
+      env.logWarning(`Deleting old backup file: ${pathBak}`)
+      fs.unlinkSync(pathBak)
+    }
+    env.logWarning(
+      `Database restart requested, moving file: ${path} to ${pathBak}`
+    )
+    fs.renameSync(path, pathBak)
+  }
+}
+
 if (app != null) {
   app.on('ready', () => {
     var argv = args.processCommandLineArguments(process.argv)
-
     env.logInfo(argv)
+
+    if (argv.clearDb != null) {
+      clearDatabaseFile()
+    }
 
     if (argv._.includes('selfCheck')) {
       startSelfCheck()

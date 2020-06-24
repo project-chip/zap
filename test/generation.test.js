@@ -62,7 +62,7 @@ beforeAll(() => {
       logInfo(`Test database initialized: ${file}.`)
     })
     .catch((err) => logError(`Error: ${err}`))
-})
+}, 5000)
 
 afterAll(() => {
   return shutdownHttpServer()

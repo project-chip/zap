@@ -53,18 +53,16 @@ export default function () {
       // These are based off of the selected ZCL Endpoint Device Type
       recommendedAttributes: [],
       defaultValueValidationIssues: {},
+      selectedReporting: [],
+      reportingMin: {},
+      reportingMax: {},
+      reportableChange: {},
     },
     commandView: {
       selectedIn: [],
       selectedOut: [],
       // These are based off of the selected ZCL Endpoint Device Type
       requiredCommands: [],
-    },
-    reportingView: {
-      selectedReporting: [],
-      reportingMin: {},
-      reportingMax: {},
-      reportableChange: {},
     },
   }
 }

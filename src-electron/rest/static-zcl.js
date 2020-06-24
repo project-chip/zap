@@ -170,16 +170,6 @@ function processGetEntityRequest(db, path, id, replyId, callback) {
           callback(replyId, { data: x, type: `endpointTypeCommands` })
         )
       break
-    case 'endpointTypeReportableAttributes':
-      queryZcl
-        .selectEndpointTypeReportableAttributeByEndpointId(db, id)
-        .then((x) =>
-          callback(replyId, {
-            data: x,
-            type: `endpointTypeReportableAttributes`,
-          })
-        )
-      break
     case `endpointTypeDeviceTypeClusters`:
       queryZcl
         .selectDeviceTypeClustersByDeviceTypeRef(db, id)

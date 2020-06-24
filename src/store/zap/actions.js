@@ -163,9 +163,6 @@ export function updateSelectedEndpointType(
       `/endpointTypeCommands/${endpointTypeDeviceTypeRefPair.endpointType}`
     )
     Vue.prototype.$serverGet(
-      `/endpointTypeReportableAttributes/${endpointTypeDeviceTypeRefPair.endpointType}`
-    )
-    Vue.prototype.$serverGet(
       `/endpointTypeDeviceTypeClusters/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
     )
     Vue.prototype.$serverGet(
@@ -211,6 +208,11 @@ export function setAttributeStateLists(context, selectionContext) {
   var boundedAttributes = []
   var defaultValue = {}
 
+  var includedReportableAttributes = []
+  var min = {}
+  var max = {}
+  var change = {}
+
   selectionContext.forEach((record) => {
     var resolvedReference = Util.cantorPair(
       record.attributeRef,
@@ -221,7 +223,12 @@ export function setAttributeStateLists(context, selectionContext) {
     if (record.flash === 1) flashAttributes.push(resolvedReference)
     if (record.singleton === 1) singletonAttributes.push(resolvedReference)
     if (record.bounded === 1) boundedAttributes.push(resolvedReference)
+    if (record.includedReportable === 1)
+      includedReportableAttributes.push(resolvedReference)
     defaultValue[resolvedReference] = record.defaultValue
+    min[resolvedReference] = record.minInterval
+    max[resolvedReference] = record.maxInterval
+    change[resolvedReference] = record.reportableChange
   })
   context.commit(`setAttributeLists`, {
     included: includedAttributes,
@@ -230,30 +237,7 @@ export function setAttributeStateLists(context, selectionContext) {
     singleton: singletonAttributes,
     bounded: boundedAttributes,
     defaultValue: defaultValue,
-  })
-}
-
-export function setReportableAttributeStateLists(context, selectionContext) {
-  var includedAttributes = []
-  var min = {}
-  var max = {}
-  var change = {}
-
-  selectionContext.forEach((record) => {
-    var resolvedReference = Util.cantorPair(
-      record.attributeRef,
-      record.clusterRef
-    )
-
-    if (record.includedReportable === 1)
-      includedAttributes.push(resolvedReference)
-    min[resolvedReference] = record.minInterval
-    max[resolvedReference] = record.maxInterval
-    change[resolvedReference] = record.reportableChange
-  })
-
-  context.commit(`setReportableAttributeLists`, {
-    included: includedAttributes,
+    includedReportable: includedReportableAttributes,
     minInterval: min,
     maxInterval: max,
     reportableChange: change,
