@@ -305,7 +305,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       .then((endpointId) => {
         eptId = endpointId
       })
-  })
+  }, 5000)
   test('Test endpoint for duplicates', () => {
     return Validation.validateEndpoint(db, eptId).then((data) => {
       return Validation.validateNoDuplicateEndpoints(db, eptId, sid).then(
