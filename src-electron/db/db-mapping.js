@@ -22,6 +22,21 @@
  */
 
 exports.map = {
+  package: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.PACKAGE_ID,
+      path: x.PATH,
+      crc: x.CRC,
+    }
+  },
+  trackedFile: (x) => {
+    if (x == null) return undefined
+    return {
+      path: x.PATH,
+      crc: x.CRC,
+    }
+  },
   cluster: (x) => {
     if (x == null) return undefined
     return {

@@ -518,33 +518,11 @@ function qualifyZclFile(db, info) {
     var filePath = info.filePath
     var data = info.data
     var actualCrc = info.actualCrc
-    queryPackage.forPathCrc(
-      db,
-      filePath,
-      (storedCrc, packageId) => {
-        // This is executed if CRC is found in the database.
-        if (storedCrc == actualCrc) {
-          env.logInfo(`CRC match for file ${filePath}, skipping parsing.`)
-          resolve({
-            error: `${filePath} skipped`,
-          })
-        } else {
-          env.logInfo(
-            `CRC missmatch for file ${filePath}, package id ${packageId}, parsing.`
-          )
-          queryPackage.updatePathCrc(db, filePath, actualCrc).then(() =>
-            resolve({
-              filePath: filePath,
-              data: data,
-              packageId: packageId,
-            })
-          )
-        }
-      },
-      () => {
+    queryPackage.getPackage(db, filePath).then((pkg) => {
+      if (pkg == null) {
         // This is executed if there is no CRC in the database.
         env.logInfo(`No CRC in the database for file ${filePath}, parsing.`)
-        queryPackage
+        return queryPackage
           .insertPathCrc(db, filePath, actualCrc)
           .then((packageId) => {
             resolve({
@@ -553,8 +531,29 @@ function qualifyZclFile(db, info) {
               packageId: packageId,
             })
           })
+      } else {
+        // This is executed if CRC is found in the database.
+        if (pkg.crc == actualCrc) {
+          env.logInfo(`CRC match for file ${pkg.path}, skipping parsing.`)
+          resolve({
+            error: `${pkg.path} skipped`,
+          })
+        } else {
+          env.logInfo(
+            `CRC missmatch for file ${pkg.path}, package id ${pkg.id}, parsing.`
+          )
+          return queryPackage
+            .updatePathCrc(db, filePath, actualCrc)
+            .then(() => {
+              resolve({
+                filePath: filePath,
+                data: data,
+                packageId: pkg.id,
+              })
+            })
+        }
       }
-    )
+    })
   })
 }
 

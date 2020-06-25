@@ -21,28 +21,27 @@
  * @module DB API: package-based queries.
  */
 const dbApi = require('./db-api.js')
+const dbMapping = require('./db-mapping.js')
 
 /**
  * Checks if the package with a given path exists and executes appropriate action.
+ * Returns the promise that resolves the the package or null if nothing was found.
  *
  * @export
  * @param {*} db
  * @param {*} path Path of a file to check.
- * @param {*} crcCallback This callback is executed if the row exists, with arguments (CRC, PACKAGE_ID)
- * @param {*} noneCallback This callback is executed if the row does not exist.
  */
-function forPathCrc(db, path, crcCallback, noneCallback) {
-  dbApi
+function getPackage(db, path) {
+  return dbApi
     .dbGet(db, 'SELECT PACKAGE_ID, PATH, CRC FROM PACKAGE WHERE PATH = ?', [
       path,
     ])
-    .then((row) => {
-      if (row == null) {
-        noneCallback()
-      } else {
-        crcCallback(row.CRC, row.PACKAGE_ID)
-      }
-    })
+    .then(
+      (row) =>
+        new Promise((resolve, reject) => {
+          resolve(dbMapping.map.package(row))
+        })
+    )
 }
 
 /**
@@ -97,7 +96,7 @@ function updatePathCrc(db, path, crc) {
   ])
 }
 // exports
-exports.forPathCrc = forPathCrc
+exports.getPackage = getPackage
 exports.getPathCrc = getPathCrc
 exports.insertPathCrc = insertPathCrc
 exports.updatePathCrc = updatePathCrc
