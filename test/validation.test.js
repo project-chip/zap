@@ -272,18 +272,26 @@ describe('Validate endpoint for duplicate endpointIds', () => {
         )
       })
       .then(() => {
+        return QueryZcl.selectAllDeviceTypes(db).then((rows) => {
+          let haOnOffDeviceTypeArray = rows.filter(
+            (data) => data.label === 'HA-onoff'
+          )
+          haOnOffDeviceType = haOnOffDeviceTypeArray[0]
+          return Promise.resolve(haOnOffDeviceType.id)
+        })
+      })
+      .then((deviceTypeId) => {
         return QueryConfig.insertEndpointType(
           db,
           sid,
           'testEndpointType',
-          0
+          deviceTypeId
         ).then((rowId) => {
           endpointTypeIdOnOff = rowId
           return QueryZcl.selectEndpointType(db, rowId)
         })
       })
       .then((endpointType) => {
-        endpointTypeReference = endpointType.endpointTypeId
         return QueryConfig.insertEndpoint(
           db,
           sid,
