@@ -401,7 +401,6 @@ describe('Endpoint Type Config Queries', () => {
   test('Delete Endpoint Type', () => {
     return queryConfig
       .deleteEndpointType(db, endpointTypeIdOnOff)
-      .then(queryConfig.deleteEndpointTypeData(db, endpointTypeIdOnOff))
       .then(queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
       .then((clusters) => {
         expect(clusters.length).toBe(undefined)
