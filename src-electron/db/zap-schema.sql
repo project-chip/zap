@@ -26,6 +26,7 @@ DROP TABLE IF EXISTS "PACKAGE";
 CREATE TABLE "PACKAGE" (
   "PACKAGE_ID" integer primary key autoincrement,
   "PATH" text NOT NULL UNIQUE,
+  "TYPE" text,
   "CRC" integer
 );
 /*
@@ -295,7 +296,8 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT" (
   "ENDPOINT_IDENTIFIER" integer,
   "NETWORK_IDENTIFIER" integer,
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
-  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete set NULL
+  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete
+  set NULL
 );
 /*
  SESSION_CLUSTER contains the on/off values for cluster.
@@ -559,5 +561,4 @@ CREATE TABLE IF NOT EXISTS "FILE_LOCATION" (
   "FILE_PATH" path,
   "ACCESS_TIME" integer
 );
-
-PRAGMA foreign_keys=ON;
+PRAGMA foreign_keys = ON;

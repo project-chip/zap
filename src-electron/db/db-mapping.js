@@ -28,6 +28,7 @@ exports.map = {
       id: x.PACKAGE_ID,
       path: x.PATH,
       crc: x.CRC,
+      type: x.TYPE,
     }
   },
   trackedFile: (x) => {

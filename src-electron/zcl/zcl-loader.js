@@ -24,7 +24,7 @@ const queryPackage = require('../db/query-package.js')
 const queryZcl = require('../db/query-zcl.js')
 const env = require('../util/env.js')
 const util = require('../util/util.js')
-
+const dbEnum = require('../db/db-enum.js')
 const fsp = fs.promises
 
 /**
@@ -523,7 +523,7 @@ function qualifyZclFile(db, info) {
         // This is executed if there is no CRC in the database.
         env.logInfo(`No CRC in the database for file ${filePath}, parsing.`)
         return queryPackage
-          .insertPathCrc(db, filePath, actualCrc)
+          .insertPathCrc(db, filePath, actualCrc, dbEnum.packageType.zclXml)
           .then((packageId) => {
             resolve({
               filePath: filePath,

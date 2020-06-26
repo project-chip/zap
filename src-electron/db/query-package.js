@@ -33,9 +33,11 @@ const dbMapping = require('./db-mapping.js')
  */
 function getPackage(db, path) {
   return dbApi
-    .dbGet(db, 'SELECT PACKAGE_ID, PATH, CRC FROM PACKAGE WHERE PATH = ?', [
-      path,
-    ])
+    .dbGet(
+      db,
+      'SELECT PACKAGE_ID, PATH, TYPE, CRC FROM PACKAGE WHERE PATH = ?',
+      [path]
+    )
     .then(
       (row) =>
         new Promise((resolve, reject) => {
@@ -73,11 +75,12 @@ function getPathCrc(db, path) {
  * @param {*} crc CRC of the file.
  * @returns Promise of an insertion.
  */
-function insertPathCrc(db, path, crc) {
-  return dbApi.dbInsert(db, 'INSERT INTO PACKAGE ( PATH, CRC ) VALUES (?, ?)', [
-    path,
-    crc,
-  ])
+function insertPathCrc(db, path, crc, type) {
+  return dbApi.dbInsert(
+    db,
+    'INSERT INTO PACKAGE ( PATH, CRC, TYPE ) VALUES (?, ?, ?)',
+    [path, crc, type]
+  )
 }
 
 /**
