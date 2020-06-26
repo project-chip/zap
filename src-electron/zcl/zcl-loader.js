@@ -33,25 +33,26 @@ const fsp = fs.promises
  * @param {*} propertiesFile
  * @returns Promise of resolved files.
  */
-function collectZclFiles(propertiesFile) {
+function collectZclFiles(ctx) {
   return new Promise((resolve, reject) => {
-    env.logInfo(`Collecting ZCL files from: ${propertiesFile}`)
-    properties.parse(propertiesFile, { path: true }, (err, zclProps) => {
+    env.logInfo(`Collecting ZCL files from: ${ctx.propertiesFile}`)
+    properties.parse(ctx.propertiesFile, { path: true }, (err, zclProps) => {
       env.logInfo(`Parsed the file...`)
       if (err) {
-        env.logError(`Could not read file: ${propertiesFile}`)
+        env.logError(`Could not read file: ${ctx.propertiesFile}`)
         reject(err)
       } else {
         // We create our specific fileReader context
         var fileLocation = path.join(
-          path.dirname(propertiesFile),
+          path.dirname(ctx.propertiesFile),
           zclProps.xmlRoot
         )
         var files = zclProps.xmlFile
           .split(',')
           .map((data) => path.join(fileLocation, data.trim()))
         env.logInfo(`Resolving: ${files}`)
-        resolve(files)
+        ctx.files = files
+        resolve(ctx)
       }
     })
   })
@@ -590,10 +591,13 @@ function parseZclFiles(db, files) {
  */
 function loadZcl(db, propertiesFile) {
   env.logInfo(`Loading zcl file: ${propertiesFile}`)
+  var ctx = {
+    propertiesFile: propertiesFile,
+  }
   return dbApi
     .dbBeginTransaction(db)
-    .then(() => collectZclFiles(propertiesFile))
-    .then((files) => parseZclFiles(db, files))
+    .then(() => collectZclFiles(ctx))
+    .then((ctx) => parseZclFiles(db, ctx.files))
     .then((arrayOfLaterPromisesArray) => {
       var p = []
       arrayOfLaterPromisesArray.forEach((promises) => {
