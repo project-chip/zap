@@ -255,6 +255,18 @@ CREATE TABLE IF NOT EXISTS "SESSION" (
   UNIQUE(SESSION_KEY)
 );
 /*
+ SESSION_PACKAGE table is a junction table, listing which packages
+ are used for a given session.
+ */
+DROP TABLE IF EXISTS "SESSION_PACKAGE";
+CREATE TABLE IF NOT EXISTS "SESSION_PACKAGE" (
+  "SESSION_REF" integer,
+  "PACKAGE_REF" integer,
+  foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
+  UNIQUE(SESSION_REF, PACKAGE_REF)
+);
+/*
  SESSION_KEY_VALUE table contains the data points that are simple
  key/value pairs.
  */
