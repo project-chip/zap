@@ -22,6 +22,7 @@
  */
 exports.packageType = {
   zclProperties: 'zcl-properties',
-  zclXml: 'zcl-xml',
+  zclXml: 'zcl-xml-child',
+  zclXmlStandalone: 'zcl-xml-standalone',
   sqlSchema: 'sql-schema',
 }
