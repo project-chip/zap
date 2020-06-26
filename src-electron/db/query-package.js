@@ -68,7 +68,7 @@ function getPathCrc(db, path) {
 }
 
 /**
- * Inserts a given path CRC combination into the table.
+ * Inserts a given path CRC type combination into the package table.
  *
  * @param {*} db
  * @param {*} path Path of the file.

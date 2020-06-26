@@ -30,14 +30,6 @@ CREATE TABLE "PACKAGE" (
   "CRC" integer
 );
 /*
- In case a PACKAGE is composed of multiple files, then each individual file is recorded in the
- TRACKED_FILE table.
- This table does NOT have a link to PACKAGE, as the pathname itself is unique key.
- It can be also used for storing CRCs of any other files, such as the schema file.
- */
-DROP TABLE IF EXISTS "TRACKED_FILE";
-CREATE TABLE "TRACKED_FILE" ("PATH" text NOT NULL UNIQUE, "CRC" integer);
-/*
  *  $$$$$$\    $$\                $$\     $$\                       $$\            $$\               
  * $$  __$$\   $$ |               $$ |    \__|                      $$ |           $$ |              
  * $$ /  \__|$$$$$$\    $$$$$$\ $$$$$$\   $$\  $$$$$$$\        $$$$$$$ | $$$$$$\ $$$$$$\    $$$$$$\  
