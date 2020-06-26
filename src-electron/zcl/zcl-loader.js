@@ -51,7 +51,7 @@ function readPropertiesFile(ctx) {
  */
 function recordToplevelPackage(db, ctx) {
   return queryPackage
-    .insertOrUpdatePackage(
+    .registerPackage(
       db,
       ctx.propertiesFile,
       ctx.crc,
@@ -106,7 +106,7 @@ function readZclFile(file) {
 }
 
 /**
- * Promises to parse the ZCL file, expecting array of [filePath, data, packageId, msg]
+ * Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
  *
  * @param {*} argument
  * @returns promise that resolves with the array [filePath,result,packageId,msg]
@@ -550,7 +550,7 @@ function processPostLoading(db) {
  * @param {*} object
  * @returns Promise that resolves int he object of data.
  */
-function qualifyZclFile(db, info) {
+function qualifyZclFile(db, info, parentPackageId) {
   return new Promise((resolve, reject) => {
     var filePath = info.filePath
     var data = info.data
@@ -560,12 +560,18 @@ function qualifyZclFile(db, info) {
         // This is executed if there is no CRC in the database.
         env.logInfo(`No CRC in the database for file ${filePath}, parsing.`)
         return queryPackage
-          .insertPathCrc(db, filePath, actualCrc, dbEnum.packageType.zclXml)
+          .insertPathCrc(
+            db,
+            filePath,
+            actualCrc,
+            dbEnum.packageType.zclXml,
+            parentPackageId
+          )
           .then((packageId) => {
             resolve({
               filePath: filePath,
               data: data,
-              packageId: packageId,
+              packageId: parentPackageId,
             })
           })
       } else {
@@ -585,7 +591,7 @@ function qualifyZclFile(db, info) {
               resolve({
                 filePath: filePath,
                 data: data,
-                packageId: pkg.id,
+                packageId: parentPackageId,
               })
             })
         }
@@ -606,10 +612,12 @@ function qualifyZclFile(db, info) {
 function parseZclFiles(db, ctx) {
   env.logInfo(`Starting to parse ZCL files: ${ctx.files}`)
   var individualPromises = []
-  ctx.files.forEach((element) => {
-    var p = readZclFile(element)
-      .then((data) => util.calculateCrc({ filePath: element, data: data }))
-      .then((data) => qualifyZclFile(db, data))
+  ctx.files.forEach((individualFile) => {
+    var p = readZclFile(individualFile)
+      .then((data) =>
+        util.calculateCrc({ filePath: individualFile, data: data })
+      )
+      .then((data) => qualifyZclFile(db, data, ctx.packageId))
       .then((result) => parseZclFile(result))
       .then((result) => processParsedZclData(db, result))
       .catch((err) => env.logError(err))

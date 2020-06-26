@@ -75,15 +75,15 @@ function getPathCrc(db, path) {
  * @param {*} crc CRC of the file.
  * @returns Promise of an insertion.
  */
-function insertPathCrc(db, path, crc, type) {
+function insertPathCrc(db, path, crc, type, parentId = null) {
   return dbApi.dbInsert(
     db,
-    'INSERT INTO PACKAGE ( PATH, CRC, TYPE ) VALUES (?, ?, ?)',
-    [path, crc, type]
+    'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF ) VALUES (?, ?, ?, ?)',
+    [path, crc, type, parentId]
   )
 }
 /**
- * Inserts opr updates a package
+ * Inserts or updates a package. Resolves with a packageId.
  *
  * @param {*} db
  * @param {*} path
@@ -92,13 +92,20 @@ function insertPathCrc(db, path, crc, type) {
  * @param {*} [parentId=null]
  * @returns Promise of an insert or update.
  */
-function insertOrUpdatePackage(db, path, crc, type, parentId = null) {
-  return dbApi.dbInsert(
-    db,
-    'INSERT OR REPLACE INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF ) VALUES (?,?,?,?)',
-    [path, crc, type, parentId]
-  )
+function registerPackage(db, path, crc, type, parentId = null) {
+  return getPackage(db, path).then((row) => {
+    if (row == null) {
+      return dbApi.dbInsert(
+        db,
+        'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF ) VALUES (?,?,?,?)',
+        [path, crc, type, parentId]
+      )
+    } else {
+      return Promise.resolve(row.id)
+    }
+  })
 }
+
 /**
  * Updates a CRC in the table.
  *
@@ -119,4 +126,4 @@ exports.getPackage = getPackage
 exports.getPathCrc = getPathCrc
 exports.insertPathCrc = insertPathCrc
 exports.updatePathCrc = updatePathCrc
-exports.insertOrUpdatePackage = insertOrUpdatePackage
+exports.registerPackage = registerPackage
