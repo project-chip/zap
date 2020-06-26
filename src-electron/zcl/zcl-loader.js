@@ -45,6 +45,25 @@ function readPropertiesFile(ctx) {
 }
 
 /**
+ * Records the toplevel package information and puts ctx.packageId into the context.
+ *
+ * @param {*} ctx
+ */
+function recordToplevelPackage(db, ctx) {
+  return queryPackage
+    .insertOrUpdatePackage(
+      db,
+      ctx.propertiesFile,
+      ctx.crc,
+      dbEnum.packageType.zclProperties
+    )
+    .then((id) => {
+      ctx.packageId = id
+      return Promise.resolve(ctx)
+    })
+}
+
+/**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
  *
  * @param {*} propertiesFile
@@ -584,10 +603,10 @@ function qualifyZclFile(db, info) {
  * @param {*} files
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
-function parseZclFiles(db, files) {
-  env.logInfo(`Starting to parse ZCL files: ${files}`)
+function parseZclFiles(db, ctx) {
+  env.logInfo(`Starting to parse ZCL files: ${ctx.files}`)
   var individualPromises = []
-  files.forEach((element) => {
+  ctx.files.forEach((element) => {
     var p = readZclFile(element)
       .then((data) => util.calculateCrc({ filePath: element, data: data }))
       .then((data) => qualifyZclFile(db, data))
@@ -614,8 +633,9 @@ function loadZcl(db, propertiesFile) {
   return dbApi
     .dbBeginTransaction(db)
     .then(() => readPropertiesFile(ctx))
+    .then((ctx) => recordToplevelPackage(db, ctx))
     .then((ctx) => collectZclFiles(ctx))
-    .then((ctx) => parseZclFiles(db, ctx.files))
+    .then((ctx) => parseZclFiles(db, ctx))
     .then((arrayOfLaterPromisesArray) => {
       var p = []
       arrayOfLaterPromisesArray.forEach((promises) => {
