@@ -28,6 +28,23 @@ const dbEnum = require('../db/db-enum.js')
 const fsp = fs.promises
 
 /**
+ * Reads the properties file into ctx.data and also calculates crc into ctx.crc
+ *
+ * @param {*} ctx
+ * @returns Promise to populate data, filePath and crc into the context.
+ */
+function readPropertiesFile(ctx) {
+  return fsp
+    .readFile(ctx.propertiesFile, { encoding: 'utf-8' })
+    .then((data) => {
+      ctx.data = data
+      ctx.filePath = ctx.propertiesFile
+      return Promise.resolve(ctx)
+    })
+    .then((ctx) => util.calculateCrc(ctx))
+}
+
+/**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
  *
  * @param {*} propertiesFile
@@ -36,7 +53,7 @@ const fsp = fs.promises
 function collectZclFiles(ctx) {
   return new Promise((resolve, reject) => {
     env.logInfo(`Collecting ZCL files from: ${ctx.propertiesFile}`)
-    properties.parse(ctx.propertiesFile, { path: true }, (err, zclProps) => {
+    properties.parse(ctx.data, {}, (err, zclProps) => {
       env.logInfo(`Parsed the file...`)
       if (err) {
         env.logError(`Could not read file: ${ctx.propertiesFile}`)
@@ -596,7 +613,8 @@ function loadZcl(db, propertiesFile) {
   }
   return dbApi
     .dbBeginTransaction(db)
-    .then(() => collectZclFiles(ctx))
+    .then(() => readPropertiesFile(ctx))
+    .then((ctx) => collectZclFiles(ctx))
     .then((ctx) => parseZclFiles(db, ctx.files))
     .then((arrayOfLaterPromisesArray) => {
       var p = []

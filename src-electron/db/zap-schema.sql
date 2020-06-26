@@ -29,7 +29,8 @@ CREATE TABLE "PACKAGE" (
   "PATH" text NOT NULL UNIQUE,
   "TYPE" text,
   "CRC" integer,
-  foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+  foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  UNIQUE(PATH)
 );
 /*
  *  $$$$$$\    $$\                $$\     $$\                       $$\            $$\               

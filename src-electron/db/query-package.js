@@ -82,7 +82,23 @@ function insertPathCrc(db, path, crc, type) {
     [path, crc, type]
   )
 }
-
+/**
+ * Inserts opr updates a package
+ *
+ * @param {*} db
+ * @param {*} path
+ * @param {*} crc
+ * @param {*} type
+ * @param {*} [parentId=null]
+ * @returns Promise of an insert or update.
+ */
+function insertOrUpdatePackage(db, path, crc, type, parentId = null) {
+  return dbApi.dbInsert(
+    db,
+    'INSERT OR REPLACE INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF ) VALUES (?,?,?,?)',
+    [path, crc, type, parentId]
+  )
+}
 /**
  * Updates a CRC in the table.
  *
@@ -103,3 +119,4 @@ exports.getPackage = getPackage
 exports.getPathCrc = getPathCrc
 exports.insertPathCrc = insertPathCrc
 exports.updatePathCrc = updatePathCrc
+exports.insertOrUpdatePackage = insertOrUpdatePackage
