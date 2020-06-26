@@ -25,9 +25,11 @@
 DROP TABLE IF EXISTS "PACKAGE";
 CREATE TABLE "PACKAGE" (
   "PACKAGE_ID" integer primary key autoincrement,
+  "PARENT_PACKAGE_REF" integer,
   "PATH" text NOT NULL UNIQUE,
   "TYPE" text,
-  "CRC" integer
+  "CRC" integer,
+  foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*
  *  $$$$$$\    $$\                $$\     $$\                       $$\            $$\               
