@@ -20,7 +20,7 @@ var opts = {
   //debug: true,
   appPath: './dist/electron/zap-darwin-x64/zap.app',
   out: './dist/electron/zap-darwin-x64/',
-  name: 'zap',
+  name: 'zap-darwin-x64',
   overwrite: true,
 }
 

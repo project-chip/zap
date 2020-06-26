@@ -87,6 +87,7 @@ pipeline
                 script 
                 {
                     sh 'npm run electron-build'
+                    sh 'npm run electron-build-dmg'
                 }
             }
         }
@@ -107,7 +108,8 @@ pipeline
                 script 
                 {
                     zip archive: true, dir: './dist/electron/zap-linux-x64', glob: '', zipFile: 'zap-linux-x64.zip'
-                    zip archive: true, dir: './dist/electron/zap-darwin-x64', glob: '', zipFile: 'zap-darwin-x64.zip'
+                    //zip archive: true, dir: './dist/electron/zap-darwin-x64', glob: '', zipFile: 'zap-darwin-x64.zip'
+                    archiveArtifacts artifacts:'./dist/electron/zap-darwin-x64/zap-darwin-x64.dmg', fingerprint: false
                     zip archive: true, dir: './dist/electron/zap-win32-x64', glob: '', zipFile: 'zap-win32-x64.zip'
                     //zip archive: true, dir: './dist/electron/zap-linux-ia32', glob: '', zipFile: 'zap-linux-ia32.zip'
                     //zip archive: true, dir: './dist/electron/zap-win32-ia32', glob: '', zipFile: 'zap-win32-ia32.zip'
