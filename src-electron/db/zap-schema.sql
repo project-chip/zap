@@ -20,13 +20,18 @@
  loading of the other data. They may be individual files, or
  collection of files.
  
- Table records the CRC at the time loading.
+ Table records the CRC of the toplevel file at the time loading.
  */
 DROP TABLE IF EXISTS "PACKAGE";
 CREATE TABLE "PACKAGE" (
   "PACKAGE_ID" integer primary key autoincrement,
+  "PARENT_PACKAGE_REF" integer,
   "PATH" text NOT NULL UNIQUE,
-  "CRC" integer
+  "TYPE" text,
+  "CRC" integer,
+  "VERSION" text,
+  foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  UNIQUE(PATH)
 );
 /*
  *  $$$$$$\    $$\                $$\     $$\                       $$\            $$\               
@@ -252,6 +257,18 @@ CREATE TABLE IF NOT EXISTS "SESSION" (
   UNIQUE(SESSION_KEY)
 );
 /*
+ SESSION_PACKAGE table is a junction table, listing which packages
+ are used for a given session.
+ */
+DROP TABLE IF EXISTS "SESSION_PACKAGE";
+CREATE TABLE IF NOT EXISTS "SESSION_PACKAGE" (
+  "SESSION_REF" integer,
+  "PACKAGE_REF" integer,
+  foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
+  UNIQUE(SESSION_REF, PACKAGE_REF)
+);
+/*
  SESSION_KEY_VALUE table contains the data points that are simple
  key/value pairs.
  */
@@ -287,7 +304,8 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT" (
   "ENDPOINT_IDENTIFIER" integer,
   "NETWORK_IDENTIFIER" integer,
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
-  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID)
+  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete
+  set NULL
 );
 /*
  SESSION_CLUSTER contains the on/off values for cluster.
@@ -551,3 +569,4 @@ CREATE TABLE IF NOT EXISTS "FILE_LOCATION" (
   "FILE_PATH" path,
   "ACCESS_TIME" integer
 );
+PRAGMA foreign_keys = ON;

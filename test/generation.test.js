@@ -83,9 +83,7 @@ describe('Session specific tests', () => {
 
   test(
     'Now actually load the static data.',
-    () => {
-      return loadZcl(db, args.zclPropertiesFile)
-    },
+    () => loadZcl(db, args.zclPropertiesFile),
     timeout
   )
 
@@ -99,7 +97,7 @@ describe('Session specific tests', () => {
       return attachToDb(db)
         .then((db) => dbApi.loadSchema(db, schemaFile(), zapVersion()))
         .then((db) => loadZcl(db, args.zclPropertiesFile))
-        .then((db) => setHandlebarTemplateDirForCli('./test/gen-template/'))
+        .then((ctx) => setHandlebarTemplateDirForCli('./test/gen-template/'))
         .then((handlebarTemplateDir) =>
           generateCodeViaCli('./generation-test/')
         )

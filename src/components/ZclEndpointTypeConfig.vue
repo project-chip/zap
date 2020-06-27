@@ -152,28 +152,6 @@ export default {
     this.$serverOn('zcl-item-list', (event, arg) => {
       if (arg.type === 'device_type') {
         this.$store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
-
-        var indexOnOff = -1
-        // var indexDoorLock = -1
-
-        // We kick start everything by having automatically adding a centralized endpointType using the HA-onoff deviceType
-        if (this.zclEndpointTypeOptions.length < 1) {
-          for (var x in this.zclDeviceTypes) {
-            if (this.zclDeviceTypes[x]['label'] === 'ZLL-onofflight') {
-              indexOnOff = x
-            }
-            //          if (this.zclDeviceTypes[x]['label'] === 'HA-doorlock') { indexDoorLock = x }
-          }
-          let onOffEptType = {
-            name: 'Centralized',
-            deviceTypeRef: indexOnOff !== -1 ? indexOnOff : 1,
-          }
-
-          this.addEndpointType(onOffEptType)
-          // Server does not handle multiple requests coming in at the same time
-          // correctly well. It fails with a 'transaction in a transaction' issue
-          // this.addEndpointType(doorlockEptType)
-        }
       }
     })
 

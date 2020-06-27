@@ -46,8 +46,8 @@ describe('SDK gen tests', () => {
       .initDatabase(file)
       .then((d) => dbApi.loadSchema(d, schemaFile(), zapVersion()))
       .then((d) => loadZcl(d, args.zclPropertiesFile))
-      .then((d) => {
-        db = d
+      .then((ctx) => {
+        db = ctx.db
         logInfo('DB initialized.')
       })
   }, 5000)

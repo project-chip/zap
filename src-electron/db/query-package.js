@@ -21,28 +21,52 @@
  * @module DB API: package-based queries.
  */
 const dbApi = require('./db-api.js')
+const dbMapping = require('./db-mapping.js')
 
 /**
  * Checks if the package with a given path exists and executes appropriate action.
+ * Returns the promise that resolves the the package or null if nothing was found.
  *
  * @export
  * @param {*} db
  * @param {*} path Path of a file to check.
- * @param {*} crcCallback This callback is executed if the row exists, with arguments (CRC, PACKAGE_ID)
- * @param {*} noneCallback This callback is executed if the row does not exist.
  */
-function forPathCrc(db, path, crcCallback, noneCallback) {
-  dbApi
-    .dbGet(db, 'SELECT PACKAGE_ID, PATH, CRC FROM PACKAGE WHERE PATH = ?', [
-      path,
-    ])
-    .then((row) => {
-      if (row == null) {
-        noneCallback()
-      } else {
-        crcCallback(row.CRC, row.PACKAGE_ID)
-      }
-    })
+function getPackageByPath(db, path) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ?',
+      [path]
+    )
+    .then(
+      (row) =>
+        new Promise((resolve, reject) => {
+          resolve(dbMapping.map.package(row))
+        })
+    )
+}
+
+/**
+ * Checks if the package with a given path exists and executes appropriate action.
+ * Returns the promise that resolves the the package or null if nothing was found.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} path Path of a file to check.
+ */
+function getPackageByPackageId(db, packageId) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PACKAGE_ID = ?',
+      [packageId]
+    )
+    .then(
+      (row) =>
+        new Promise((resolve, reject) => {
+          resolve(dbMapping.map.package(row))
+        })
+    )
 }
 
 /**
@@ -67,18 +91,58 @@ function getPathCrc(db, path) {
 }
 
 /**
- * Inserts a given path CRC combination into the table.
+ * Updates the version inside the package.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} version
+ * @returns A promise of an updated version.
+ */
+function updateVersion(db, packageId, version) {
+  return dbApi.dbUpdate(
+    db,
+    'UPDATE PACKAGE SET VERSION = ? WHERE PACKAGE_ID = ?',
+    [version, packageId]
+  )
+}
+
+/**
+ * Inserts a given path CRC type combination into the package table.
  *
  * @param {*} db
  * @param {*} path Path of the file.
  * @param {*} crc CRC of the file.
  * @returns Promise of an insertion.
  */
-function insertPathCrc(db, path, crc) {
-  return dbApi.dbInsert(db, 'INSERT INTO PACKAGE ( PATH, CRC ) VALUES (?, ?)', [
-    path,
-    crc,
-  ])
+function insertPathCrc(db, path, crc, type, parentId = null) {
+  return dbApi.dbInsert(
+    db,
+    'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF ) VALUES (?, ?, ?, ?)',
+    [path, crc, type, parentId]
+  )
+}
+/**
+ * Inserts or updates a package. Resolves with a packageId.
+ *
+ * @param {*} db
+ * @param {*} path
+ * @param {*} crc
+ * @param {*} type
+ * @param {*} [parentId=null]
+ * @returns Promise of an insert or update.
+ */
+function registerPackage(db, path, crc, type, parentId = null) {
+  return getPackageByPath(db, path).then((row) => {
+    if (row == null) {
+      return dbApi.dbInsert(
+        db,
+        'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF ) VALUES (?,?,?,?)',
+        [path, crc, type, parentId]
+      )
+    } else {
+      return Promise.resolve(row.id)
+    }
+  })
 }
 
 /**
@@ -91,13 +155,16 @@ function insertPathCrc(db, path, crc) {
  * @returns Promise of an update.
  */
 function updatePathCrc(db, path, crc) {
-  return dbApi.dbInsert(db, 'UPDATE PACKAGE SET CRC = ? WHERE PATH = ?', [
+  return dbApi.dbUpdate(db, 'UPDATE PACKAGE SET CRC = ? WHERE PATH = ?', [
     path,
     crc,
   ])
 }
 // exports
-exports.forPathCrc = forPathCrc
+exports.getPackageByPath = getPackageByPath
+exports.getPackageByPackageId = getPackageByPackageId
 exports.getPathCrc = getPathCrc
 exports.insertPathCrc = insertPathCrc
 exports.updatePathCrc = updatePathCrc
+exports.registerPackage = registerPackage
+exports.updateVersion = updateVersion

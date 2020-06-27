@@ -395,34 +395,6 @@ function deleteEndpointType(db, id) {
 }
 
 /**
- * Deletes referenced things. This should be done with CASCADE DELETE
- *
- * @export
- * @param {*} db
- * @param {*} endpointTypeId
- * @returns Promise of removal.
- */
-function deleteEndpointTypeData(db, endpointTypeId) {
-  return Promise.all([
-    dbApi.dbRemove(
-      db,
-      'DELETE FROM ENDPOINT_TYPE_CLUSTER WHERE ENDPOINT_TYPE_REF = ?',
-      [endpointTypeId]
-    ),
-    dbApi.dbRemove(
-      db,
-      'DELETE FROM ENDPOINT_TYPE_ATTRIBUTE WHERE ENDPOINT_TYPE_REF = ?',
-      [endpointTypeId]
-    ),
-    dbApi.dbRemove(
-      db,
-      'DELETE FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ?',
-      [endpointTypeId]
-    ),
-  ])
-}
-
-/**
  * Promise to update a an endpoint type.
  * @param {*} db
  * @param {*} sessionId
@@ -446,12 +418,10 @@ function updateEndpointType(
     .then((newEndpointId) => {
       if (param === 'DEVICE_TYPE_REF') {
         return new Promise((resolve, reject) =>
-          deleteEndpointTypeData(db, endpointTypeId).then((newData) =>
-            setEndpointDefaults(db, endpointTypeId, updatedValue).then(
-              (newData) => {
-                resolve(newEndpointId)
-              }
-            )
+          setEndpointDefaults(db, endpointTypeId, updatedValue).then(
+            (newData) => {
+              resolve(newEndpointId)
+            }
           )
         )
       } else {
@@ -866,7 +836,6 @@ exports.updateEndpoint = updateEndpoint
 exports.selectEndpoint = selectEndpoint
 exports.insertEndpointType = insertEndpointType
 exports.deleteEndpointType = deleteEndpointType
-exports.deleteEndpointTypeData = deleteEndpointTypeData
 exports.updateEndpointType = updateEndpointType
 exports.setEndpointDefaults = setEndpointDefaults
 exports.insertEndpointTypes = insertEndpointTypes

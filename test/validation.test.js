@@ -112,24 +112,27 @@ test('Validate types', () => {
   expect(!Validation.isFloatType('LONG_OCTET_STRING'))
 })
 
-test('Integer Test', () => {
-  return QueryZcl.selectAttributesByClusterCodeAndManufacturerCode(
-    db,
-    '0x0003',
-    null
-  ).then((attribute) => {
-    var attribute = attribute.filter((e) => {
-      return e.code === '0x0000'
-    })[0]
+test(
+  'Integer Test',
+  () =>
+    QueryZcl.selectAttributesByClusterCodeAndManufacturerCode(
+      db,
+      '0x0003',
+      null
+    ).then((attribute) => {
+      var attribute = attribute.filter((e) => {
+        return e.code === '0x0000'
+      })[0]
 
-    //Test Constraints
-    var minMax = Validation.getBoundsInteger(attribute)
-    expect(minMax.min == 0).toBeTruthy()
-    expect(minMax.max === 0xffff).toBeTruthy()
+      //Test Constraints
+      var minMax = Validation.getBoundsInteger(attribute)
+      expect(minMax.min == 0).toBeTruthy()
+      expect(minMax.max === 0xffff).toBeTruthy()
 
-    return Promise.resolve()
-  })
-}, 1000)
+      return Promise.resolve()
+    }),
+  1000
+)
 
 test('validate Attribute Test', () => {
   var fakeEndpointAttribute = {
@@ -264,27 +267,33 @@ describe('Validate endpoint for duplicate endpointIds', () => {
   var eptId
   beforeAll(() => {
     return loadZcl(db, zclPropertiesFile)
-      .then(() => {
-        return QuerySession.ensureZapSessionId(db, 'SESSION', 666).then(
-          (id) => {
-            sid = id
-          }
-        )
-      })
-      .then(() => {
-        return QueryConfig.insertEndpointType(
+      .then((ctx) =>
+        QuerySession.ensureZapSessionId(db, 'SESSION', 666).then((id) => {
+          sid = id
+        })
+      )
+      .then(() =>
+        QueryZcl.selectAllDeviceTypes(db).then((rows) => {
+          let haOnOffDeviceTypeArray = rows.filter(
+            (data) => data.label === 'HA-onoff'
+          )
+          haOnOffDeviceType = haOnOffDeviceTypeArray[0]
+          return Promise.resolve(haOnOffDeviceType.id)
+        })
+      )
+      .then((deviceTypeId) =>
+        QueryConfig.insertEndpointType(
           db,
           sid,
           'testEndpointType',
-          0
+          deviceTypeId
         ).then((rowId) => {
           endpointTypeIdOnOff = rowId
           return QueryZcl.selectEndpointType(db, rowId)
         })
-      })
-      .then((endpointType) => {
-        endpointTypeReference = endpointType.endpointTypeId
-        return QueryConfig.insertEndpoint(
+      )
+      .then((endpointType) =>
+        QueryConfig.insertEndpoint(
           db,
           sid,
           1,
@@ -293,19 +302,18 @@ describe('Validate endpoint for duplicate endpointIds', () => {
         ).then(
           QueryConfig.insertEndpoint(db, sid, 1, endpointType.endpointTypeId, 1)
         )
-      })
+      )
       .then((endpointId) => {
         eptId = endpointId
       })
-  })
-  test('Test endpoint for duplicates', () => {
-    return Validation.validateEndpoint(db, eptId).then((data) => {
-      return Validation.validateNoDuplicateEndpoints(db, eptId, sid).then(
+  }, 10000)
+  test('Test endpoint for duplicates', () =>
+    Validation.validateEndpoint(db, eptId).then((data) =>
+      Validation.validateNoDuplicateEndpoints(db, eptId, sid).then(
         (hasNoDuplicates) => {
           expect(hasNoDuplicates).toBeFalsy()
           return Promise.resolve()
         }
       )
-    })
-  })
+    ))
 })
