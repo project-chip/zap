@@ -178,11 +178,11 @@ exports.dbAll = dbAll
  * @param {*} args
  * @returns A promise that resolves with a single row that got retrieved from the database, or rejects with an error from the query.
  */
-function dbGet(db, query, args) {
+function dbGet(db, query, args, reportError = true) {
   return new Promise((resolve, reject) => {
     db.get(query, args, (err, row) => {
       if (err) {
-        env.logError(`Failed get: ${query}: ${args} : ${err}`)
+        if (reportError) env.logError(`Failed get: ${query}: ${args} : ${err}`)
         reject(err)
       } else {
         env.logSql(`Executed get: ${query}: ${args}`)
@@ -321,9 +321,12 @@ function insertOrReplaceSetting(db, category, key, value) {
 
 function determineIfSchemaShouldLoad(db, context) {
   return new Promise((resolve, reject) => {
-    return dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', [
-      context.filePath,
-    ])
+    return dbGet(
+      db,
+      'SELECT CRC FROM PACKAGE WHERE PATH = ?',
+      [context.filePath],
+      false
+    )
       .then((row) => {
         if (row == null) {
           context.mustLoad = true
