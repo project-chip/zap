@@ -27,10 +27,7 @@ const {
   deleteSession,
 } = require('../src-electron/db/query-session.js')
 
-const {
-  initHttpServer,
-  shutdownHttpServer,
-} = require('../src-electron/server/http-server.js')
+const httpServer = require('../src-electron/server/http-server.js')
 const {
   logError,
   setDevelopmentEnv,
@@ -68,29 +65,27 @@ beforeAll(() => {
     .catch((err) => logError(`Error: ${err}`))
 }, 5000)
 
-afterAll(() => {
-  return shutdownHttpServer()
+afterAll(() =>
+  httpServer
+    .shutdownHttpServer()
     .then(() => dbApi.closeDatabase(db))
     .then(() => {
       var file = sqliteTestFile(2)
       logInfo(`Removing test database: ${file}`)
       if (fs.existsSync(file)) fs.unlinkSync(file)
     })
-})
+)
 
 describe('Session specific tests', () => {
-  test('make sure there is no session at the beginning', () => {
-    return selectCountFrom(db, 'SESSION').then((cnt) => {
+  test('make sure there is no session at the beginning', () =>
+    selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(0)
-    })
-  })
+    }))
 
-  test('http server initialization', () => {
-    return initHttpServer(db, port)
-  })
+  test('http server initialization', () => httpServer.initHttpServer(db, port))
 
-  test('get index.html', () => {
-    return axiosInstance.get('/index.html').then((response) => {
+  test('get index.html', () =>
+    axiosInstance.get('/index.html').then((response) => {
       sessionCookie = response.headers['set-cookie'][0]
       axiosInstance.defaults.headers.Cookie = sessionCookie
       expect(
@@ -98,43 +93,37 @@ describe('Session specific tests', () => {
           'Configuration tool for the Zigbee Cluster Library'
         )
       ).toBeTruthy()
-    })
-  })
+    }))
 
-  test('make sure there is 1 session after index.html', () => {
-    return selectCountFrom(db, 'SESSION').then((cnt) => {
+  test('make sure there is 1 session after index.html', () =>
+    selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(1)
-    })
-  })
+    }))
 
-  test('save session', () => {
-    return getAllSessions(db).then((results) => {
+  test('save session', () =>
+    getAllSessions(db).then((results) => {
       sessionId = results[0].sessionId
       logInfo(`SESSION ID: ${sessionId}`)
-    })
-  })
+    }))
 
-  test('test that there is 0 clusters initially', () => {
-    return axiosInstance.get('/get/cluster/all').then((response) => {
+  test('test that there is 0 clusters initially', () =>
+    axiosInstance.get('/get/cluster/all').then((response) => {
       expect(response.data.data.length).toBe(0)
       expect(response.data.type).toBe('cluster')
-    })
-  })
+    }))
 
-  test('make sure there is still 1 session after previous call', () => {
-    return selectCountFrom(db, 'SESSION').then((cnt) => {
+  test('make sure there is still 1 session after previous call', () =>
+    selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(1)
-    })
-  })
+    }))
 
-  test('add a package', () => {
-    return insertPathCrc(db, 'PATH', 32).then((pkg) => {
+  test('add a package', () =>
+    insertPathCrc(db, 'PATH', 32).then((pkg) => {
       packageId = pkg
-    })
-  })
+    }))
 
-  test('load 2 clusters', () => {
-    return queryZcl.insertClusters(db, packageId, [
+  test('load 2 clusters', () =>
+    queryZcl.insertClusters(db, packageId, [
       {
         code: 0x1111,
         name: 'One',
@@ -147,37 +136,32 @@ describe('Session specific tests', () => {
         description: 'Cluster two',
         define: 'TWO',
       },
-    ])
-  })
+    ]))
 
-  test('test that there are 2 clusters now', () => {
-    return axiosInstance.get('/get/cluster/all').then((response) => {
+  test('test that there are 2 clusters now', () =>
+    axiosInstance.get('/get/cluster/all').then((response) => {
       expect(response.data.data.length).toBe(2)
       expect(response.data.type).toBe('cluster')
-    })
-  })
+    }))
 
-  test('make sure there is still 1 session after previous call', () => {
-    return selectCountFrom(db, 'SESSION').then((cnt) => {
+  test('make sure there is still 1 session after previous call', () =>
+    selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(1)
-    })
-  })
+    }))
 
-  test('load domains', () => {
-    return queryZcl.insertDomains(db, packageId, [
+  test('load domains', () =>
+    queryZcl.insertDomains(db, packageId, [
       { name: 'one' },
       { name: 'two' },
       { name: 'three' },
       { name: 'four' },
-    ])
-  })
+    ]))
 
-  test('test that there are domains', () => {
-    return axiosInstance.get('/get/domain/all').then((response) => {
+  test('test that there are domains', () =>
+    axiosInstance.get('/get/domain/all').then((response) => {
       expect(response.data.data.length).toBe(4)
       expect(response.data.type).toBe('domain')
-    })
-  })
+    }))
 
   // We save and then load, which creates a new session.
   test('save into a file and load from file', () => {
@@ -198,37 +182,33 @@ describe('Session specific tests', () => {
 
   // After a new file is loaded a new session will be created.
   // Therefore, at this point, there have to be EXACTLY 2 sessions.
-  test('make sure there is now 2 sessions after previous call', () => {
-    return selectCountFrom(db, 'SESSION').then((cnt) => {
+  test('make sure there is now 2 sessions after previous call', () =>
+    selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(2)
-    })
-  })
+    }))
 
-  test('delete the first session', () => {
-    return deleteSession(db, sessionId)
+  test('delete the first session', () =>
+    deleteSession(db, sessionId)
       .then(() => selectCountFrom(db, 'SESSION'))
       .then((cnt) => {
         expect(cnt).toBe(1)
-      })
-  })
+      }))
 
-  test('delete the second session', () => {
-    return deleteSession(db, secondSessionId)
+  test('delete the second session', () =>
+    deleteSession(db, secondSessionId)
       .then(() => selectCountFrom(db, 'SESSION'))
       .then((cnt) => {
         expect(cnt).toBe(0)
-      })
-  })
+      }))
 })
 
 describe('Admin tests', () => {
-  test('test sql admin interface', () => {
-    return axiosInstance
+  test('test sql admin interface', () =>
+    axiosInstance
       .post('/post/sql', { sql: 'SELECT * FROM PACKAGE' })
       .then((response) => {
         expect(response).not.toBeNull()
         expect(response.data.result).not.toBeNull()
         expect(response.data.replyId).toBe('sql-result')
-      })
-  })
+      }))
 })

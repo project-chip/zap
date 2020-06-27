@@ -86,8 +86,9 @@ function collectZclFiles(ctx) {
         var files = zclProps.xmlFile
           .split(',')
           .map((data) => path.join(fileLocation, data.trim()))
-        env.logInfo(`Resolving: ${files}`)
         ctx.files = files
+        ctx.version = zclProps.version
+        env.logInfo(`Resolving: ${ctx.files}, version: ${ctx.version}`)
         resolve(ctx)
       }
     })
@@ -555,7 +556,7 @@ function qualifyZclFile(db, info, parentPackageId) {
     var filePath = info.filePath
     var data = info.data
     var actualCrc = info.actualCrc
-    queryPackage.getPackage(db, filePath).then((pkg) => {
+    queryPackage.getPackageByPath(db, filePath).then((pkg) => {
       if (pkg == null) {
         // This is executed if there is no CRC in the database.
         env.logInfo(`No CRC in the database for file ${filePath}, parsing.`)
@@ -625,6 +626,22 @@ function parseZclFiles(db, ctx) {
   })
   return Promise.all(individualPromises)
 }
+
+/**
+ * Records the version into the database.
+ *
+ * @param {*} db
+ * @param {*} ctx
+ */
+function recordVersion(ctx) {
+  if (ctx.version == null) return Promise.resolve(ctx)
+  else {
+    return queryPackage
+      .updateVersion(ctx.db, ctx.packageId, ctx.version)
+      .then(() => ctx)
+  }
+}
+
 /**
  * Toplevel function that loads the properties file and orchestrates the promise chain.
  *
@@ -637,12 +654,14 @@ function loadZcl(db, propertiesFile) {
   env.logInfo(`Loading zcl file: ${propertiesFile}`)
   var ctx = {
     propertiesFile: propertiesFile,
+    db: db,
   }
   return dbApi
     .dbBeginTransaction(db)
     .then(() => readPropertiesFile(ctx))
     .then((ctx) => recordToplevelPackage(db, ctx))
     .then((ctx) => collectZclFiles(ctx))
+    .then((ctx) => recordVersion(ctx))
     .then((ctx) => parseZclFiles(db, ctx))
     .then((arrayOfLaterPromisesArray) => {
       var p = []
@@ -653,7 +672,7 @@ function loadZcl(db, propertiesFile) {
     })
     .then(() => processPostLoading(db))
     .then(() => dbApi.dbCommit(db))
-    .then(() => db)
+    .then(() => ctx)
 }
 
 exports.loadZcl = loadZcl

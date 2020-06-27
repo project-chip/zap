@@ -21,6 +21,7 @@
 const sq = require('sqlite3')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
+const queryPackage = require('../src-electron/db/query-package.js')
 const { selectCountFrom } = require('../src-electron/db/query-generic.js')
 const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/main-process/args.js')
@@ -40,9 +41,12 @@ test('test database schema loading in memory', () => {
 
 test('test zcl data loading in memory', () => {
   var db = new sq.Database(':memory:')
+  var packageId
   return dbApi
     .loadSchema(db, env.schemaFile(), env.zapVersion())
     .then((db) => loadZcl(db, args.zclPropertiesFile)) // Maybe: ../../../zcl/zcl-studio.properties
+    .then((ctx) => queryPackage.getPackageByPackageId(ctx.db, ctx.packageId))
+    .then((package) => expect(package.version).toEqual('ZCL Test Data'))
     .then(() => queryZcl.selectAllClusters(db))
     .then((x) => expect(x.length).toEqual(106))
     .then(() => queryZcl.selectAllDomains(db))

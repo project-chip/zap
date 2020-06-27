@@ -31,12 +31,35 @@ const dbMapping = require('./db-mapping.js')
  * @param {*} db
  * @param {*} path Path of a file to check.
  */
-function getPackage(db, path) {
+function getPackageByPath(db, path) {
   return dbApi
     .dbGet(
       db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC FROM PACKAGE WHERE PATH = ?',
+      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ?',
       [path]
+    )
+    .then(
+      (row) =>
+        new Promise((resolve, reject) => {
+          resolve(dbMapping.map.package(row))
+        })
+    )
+}
+
+/**
+ * Checks if the package with a given path exists and executes appropriate action.
+ * Returns the promise that resolves the the package or null if nothing was found.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} path Path of a file to check.
+ */
+function getPackageByPackageId(db, packageId) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PACKAGE_ID = ?',
+      [packageId]
     )
     .then(
       (row) =>
@@ -68,6 +91,22 @@ function getPathCrc(db, path) {
 }
 
 /**
+ * Updates the version inside the package.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} version
+ * @returns A promise of an updated version.
+ */
+function updateVersion(db, packageId, version) {
+  return dbApi.dbUpdate(
+    db,
+    'UPDATE PACKAGE SET VERSION = ? WHERE PACKAGE_ID = ?',
+    [version, packageId]
+  )
+}
+
+/**
  * Inserts a given path CRC type combination into the package table.
  *
  * @param {*} db
@@ -93,7 +132,7 @@ function insertPathCrc(db, path, crc, type, parentId = null) {
  * @returns Promise of an insert or update.
  */
 function registerPackage(db, path, crc, type, parentId = null) {
-  return getPackage(db, path).then((row) => {
+  return getPackageByPath(db, path).then((row) => {
     if (row == null) {
       return dbApi.dbInsert(
         db,
@@ -116,14 +155,16 @@ function registerPackage(db, path, crc, type, parentId = null) {
  * @returns Promise of an update.
  */
 function updatePathCrc(db, path, crc) {
-  return dbApi.dbInsert(db, 'UPDATE PACKAGE SET CRC = ? WHERE PATH = ?', [
+  return dbApi.dbUpdate(db, 'UPDATE PACKAGE SET CRC = ? WHERE PATH = ?', [
     path,
     crc,
   ])
 }
 // exports
-exports.getPackage = getPackage
+exports.getPackageByPath = getPackageByPath
+exports.getPackageByPackageId = getPackageByPackageId
 exports.getPathCrc = getPathCrc
 exports.insertPathCrc = insertPathCrc
 exports.updatePathCrc = updatePathCrc
 exports.registerPackage = registerPackage
+exports.updateVersion = updateVersion

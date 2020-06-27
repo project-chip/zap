@@ -52,7 +52,7 @@ function startSelfCheck() {
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => loadZcl(db, args.zclPropertiesFile))
-    .then(() => {
+    .then((ctx) => {
       console.log('Self-check done!')
       app.quit()
     })
@@ -68,7 +68,7 @@ function startNormal(ui, showUrl) {
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => loadZcl(db, args.zclPropertiesFile))
-    .then((db) => initHttpServer(db, args.httpPort))
+    .then((ctx) => initHttpServer(ctx.db, args.httpPort))
     .then(() => {
       if (ui) {
         initializeElectronUi(httpServerPort())
@@ -109,7 +109,7 @@ function applyGenerationSettings(
         zclPropertiesFilePath ? zclPropertiesFilePath : args.zclPropertiesFile
       )
     )
-    .then((db) =>
+    .then((ctx) =>
       setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir)
     )
     .then((res) => app.quit())
@@ -147,9 +147,9 @@ function startSdkGeneration(
         zclPropertiesFilePath ? zclPropertiesFilePath : args.zclPropertiesFile
       )
     )
-    .then((db) =>
+    .then((ctx) =>
       runSdkGeneration({
-        db: db,
+        db: ctx.db,
         generationDir: generationDir,
         templateDir: handlebarTemplateDir,
       })

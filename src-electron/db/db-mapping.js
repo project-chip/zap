@@ -29,6 +29,7 @@ exports.map = {
       path: x.PATH,
       crc: x.CRC,
       type: x.TYPE,
+      version: x.VERSION,
     }
   },
   trackedFile: (x) => {

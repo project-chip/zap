@@ -84,17 +84,16 @@ test('Path CRC queries.', () => {
     .then((c) => expect(c).toBe(crc))
 })
 
-test('File location queries.', () => {
-  return insertFileLocation(db, '/random/file/path', 'cat')
+test('File location queries.', () =>
+  insertFileLocation(db, '/random/file/path', 'cat')
     .then(() => selectFileLocation(db, 'cat'))
     .then((filePath) => expect(filePath).toBe('/random/file/path'))
     .then(() => insertFileLocation(db, '/random/file/second/path', 'cat'))
     .then(() => selectFileLocation(db, 'cat'))
-    .then((filePath) => expect(filePath).toBe('/random/file/second/path'))
-})
+    .then((filePath) => expect(filePath).toBe('/random/file/second/path')))
 
-test('Replace query', () => {
-  return dbApi
+test('Replace query', () =>
+  dbApi
     .dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
       'thePath',
       12,
@@ -114,11 +113,10 @@ test('Replace query', () => {
     .then(() =>
       dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
     )
-    .then((result) => expect(result.CRC).toBe(13))
-})
+    .then((result) => expect(result.CRC).toBe(13)))
 
-test('Simple cluster addition.', () => {
-  return insertPathCrc(db, 'test', 1)
+test('Simple cluster addition.', () =>
+  insertPathCrc(db, 'test', 1)
     .then((rowid) =>
       queryZcl.insertClusters(db, rowid, [
         {
@@ -159,28 +157,28 @@ test('Simple cluster addition.', () => {
         .then((rows) => {
           expect(rows.length).toBe(0)
         })
-    })
-})
+    }))
 
-test('Now actually load the static data.', () => {
-  return loadZcl(db, zclPropertiesFile)
-}, 5000)
+test(
+  'Now actually load the static data.',
+  () => loadZcl(db, zclPropertiesFile),
+  5000
+)
 
 describe('Session specific queries', () => {
-  beforeAll(() => {
-    return ensureZapSessionId(db, 'SESSION', 666).then((id) => {
+  beforeAll(() =>
+    ensureZapSessionId(db, 'SESSION', 666).then((id) => {
       sid = id
     })
-  })
+  )
 
-  test('Test some attribute queries.', () => {
-    return getSessionInfoFromWindowId(db, 666).then((data) => {
+  test('Test some attribute queries.', () =>
+    getSessionInfoFromWindowId(db, 666).then((data) => {
       expect(data.sessionId).toBe(sid)
-    })
-  })
+    }))
 
-  test('Random key value queries', () => {
-    return queryConfig
+  test('Random key value queries', () =>
+    queryConfig
       .updateKeyValue(db, sid, 'key1', 'value1')
       .then(() => queryConfig.getSessionKeyValue(db, sid, 'key1'))
       .then((value) => {
@@ -194,8 +192,7 @@ describe('Session specific queries', () => {
       .then(() => queryConfig.getSessionKeyValue(db, sid, 'nonexistent'))
       .then((value) => {
         expect(value).toBeUndefined()
-      })
-  })
+      }))
 
   test('Make sure session is dirty', () => {
     var sid
@@ -290,23 +287,22 @@ describe('Session specific queries', () => {
       })
   })
 
-  test('Empty delete', () => {
-    return queryConfig.deleteEndpoint(db, 123).then((data) => {
+  test('Empty delete', () =>
+    queryConfig.deleteEndpoint(db, 123).then((data) => {
       expect(data).toBe(0)
-    })
-  })
+    }))
 })
 describe('Endpoint Type Config Queries', () => {
-  beforeAll(() => {
-    return ensureZapSessionId(db, 'SESSION', 666).then((id) => {
+  beforeAll(() =>
+    ensureZapSessionId(db, 'SESSION', 666).then((id) => {
       sid = id
     })
-  })
+  )
   var endpointTypeIdOnOff
   var haOnOffDeviceType, zllOnOffLightDevice
 
-  test('Insert EndpointType and test various states', () => {
-    return queryZcl.selectAllDeviceTypes(db).then((rows) => {
+  test('Insert EndpointType and test various states', () =>
+    queryZcl.selectAllDeviceTypes(db).then((rows) => {
       let haOnOffDeviceTypeArray = rows.filter(
         (data) => data.label === 'HA-onoff'
       )
@@ -320,11 +316,10 @@ describe('Endpoint Type Config Queries', () => {
       expect(typeof haOnOffDeviceType).toBe('object')
       expect(typeof zllOnOffLightDevice).toBe('object')
       return Promise.resolve()
-    })
-  })
+    }))
 
-  test('Insert Endpoint Type', () => {
-    return queryConfig
+  test('Insert Endpoint Type', () =>
+    queryConfig
       .insertEndpointType(db, sid, 'testEndpointType', haOnOffDeviceType.id)
       .then((rowId) => {
         endpointTypeIdOnOff = rowId
@@ -333,18 +328,17 @@ describe('Endpoint Type Config Queries', () => {
       .then((endpointType) => {
         expect(endpointType.deviceTypeRef).toBe(haOnOffDeviceType.id)
         expect(endpointType.name).toBe('testEndpointType')
-      })
-  })
+      }))
 
-  test('Test get all cluster states', () => {
-    return queryConfig
+  test('Test get all cluster states', () =>
+    queryConfig
       .getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
       .then((clusters) => {
         expect(clusters.length).toBe(6)
         return Promise.resolve()
       })
-      .then(() => {
-        return queryConfig
+      .then(() =>
+        queryConfig
           .insertOrReplaceClusterState(
             db,
             endpointTypeIdOnOff,
@@ -355,37 +349,31 @@ describe('Endpoint Type Config Queries', () => {
           .then((rowId) => {
             expect(typeof rowId).toBe('number')
           })
-          .then(() => {
-            return queryConfig.getAllEndpointTypeClusterState(
-              db,
-              endpointTypeIdOnOff
-            )
-          })
+          .then(() =>
+            queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
+          )
           .then((clusters) => {
             expect(clusters.length).toBe(7)
             return Promise.resolve()
           })
-      })
-  })
+      ))
 
-  test('Test get all attribute states', () => {
-    return queryConfig
+  test('Test get all attribute states', () =>
+    queryConfig
       .getEndpointTypeAttributes(db, endpointTypeIdOnOff)
       .then((attributes) => {
         expect(attributes.length).toBe(10)
-      })
-  })
+      }))
 
-  test('Get all cluster commands', () => {
-    return queryConfig
+  test('Get all cluster commands', () =>
+    queryConfig
       .getEndpointTypeCommands(db, endpointTypeIdOnOff)
       .then((commands) => {
         expect(commands.length).toBe(6)
-      })
-  })
+      }))
 
-  test('Insert Endpoint Test', () => {
-    return queryConfig
+  test('Insert Endpoint Test', () =>
+    queryConfig
       .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9)
       .then((rowId) => {
         return queryConfig.selectEndpoint(db, rowId)
@@ -395,16 +383,14 @@ describe('Endpoint Type Config Queries', () => {
         expect(endpoint.profileId).toBe('0x0104')
         expect(endpoint.networkId).toBe(9)
         expect(endpoint.endpointTypeRef).toBe(endpointTypeIdOnOff)
-      })
-  })
+      }))
 
-  test('Delete Endpoint Type', () => {
-    return queryConfig
+  test('Delete Endpoint Type', () =>
+    queryConfig
       .deleteEndpointType(db, endpointTypeIdOnOff)
       .then(queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
       .then((clusters) => {
         expect(clusters.length).toBe(undefined)
         return Promise.resolve()
-      })
-  })
+      }))
 })
