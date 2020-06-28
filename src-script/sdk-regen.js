@@ -46,10 +46,10 @@ dbApi
   .initDatabase(file)
   .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
   .then((d) => zclLoader.loadZcl(d, zclPropertiesFile))
-  .then((d) => {
-    db = d
+  .then((ctx) => {
+    db = ctx.db
     return sdkGen.runSdkGeneration({
-      db: db,
+      db: ctx.db,
       generationDir: targetDir,
       dontWrite: false,
     })
