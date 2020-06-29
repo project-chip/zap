@@ -19,11 +19,11 @@
  */
 
 const dbApi = require('../src-electron/db/db-api.js')
-const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const Validation = require('../src-electron/validation/validation.js')
-const { zclPropertiesFile } = require('../src-electron/main-process/args.js')
-const QuerySession = require('../src-electron/db/query-session.js')
-const QueryConfig = require('../src-electron/db/query-config.js')
+const args = require('../src-electron/main-process/args.js')
+const querySession = require('../src-electron/db/query-session.js')
+const queryConfig = require('../src-electron/db/query-config.js')
 const fs = require('fs')
 
 const {
@@ -33,9 +33,7 @@ const {
   zapVersion,
 } = require('../src-electron/util/env.js')
 
-const args = require('../src-electron/main-process/args')
-
-const QueryZcl = require('../src-electron/db/query-zcl.js')
+const queryZcl = require('../src-electron/db/query-zcl.js')
 
 var db
 var sid
@@ -59,7 +57,7 @@ afterAll(() => {
 })
 
 test('Load the static data.', () => {
-  return loadZcl(db, args.zclPropertiesFile)
+  return zclLoader.loadZcl(db, args.zclPropertiesFile)
 }, 5000)
 
 test('isValidNumberString Functions', () => {
@@ -115,22 +113,18 @@ test('Validate types', () => {
 test(
   'Integer Test',
   () =>
-    QueryZcl.selectAttributesByClusterCodeAndManufacturerCode(
-      db,
-      '0x0003',
-      null
-    ).then((attribute) => {
-      var attribute = attribute.filter((e) => {
-        return e.code === '0x0000'
-      })[0]
+    queryZcl
+      .selectAttributesByClusterCodeAndManufacturerCode(db, '0x0003', null)
+      .then((attribute) => {
+        var attribute = attribute.filter((e) => {
+          return e.code === '0x0000'
+        })[0]
 
-      //Test Constraints
-      var minMax = Validation.getBoundsInteger(attribute)
-      expect(minMax.min == 0).toBeTruthy()
-      expect(minMax.max === 0xffff).toBeTruthy()
-
-      return Promise.resolve()
-    }),
+        //Test Constraints
+        var minMax = Validation.getBoundsInteger(attribute)
+        expect(minMax.min == 0).toBeTruthy()
+        expect(minMax.max === 0xffff).toBeTruthy()
+      }),
   1000
 )
 
@@ -266,14 +260,15 @@ describe('Validate endpoint for duplicate endpointIds', () => {
   var endpointTypeReference
   var eptId
   beforeAll(() => {
-    return loadZcl(db, zclPropertiesFile)
+    return zclLoader
+      .loadZcl(db, args.zclPropertiesFile)
       .then((ctx) =>
-        QuerySession.ensureZapSessionId(db, 'SESSION', 666).then((id) => {
+        querySession.ensureZapSessionId(db, 'SESSION', 666).then((id) => {
           sid = id
         })
       )
       .then(() =>
-        QueryZcl.selectAllDeviceTypes(db).then((rows) => {
+        queryZcl.selectAllDeviceTypes(db).then((rows) => {
           let haOnOffDeviceTypeArray = rows.filter(
             (data) => data.label === 'HA-onoff'
           )
@@ -282,38 +277,34 @@ describe('Validate endpoint for duplicate endpointIds', () => {
         })
       )
       .then((deviceTypeId) =>
-        QueryConfig.insertEndpointType(
-          db,
-          sid,
-          'testEndpointType',
-          deviceTypeId
-        ).then((rowId) => {
-          endpointTypeIdOnOff = rowId
-          return QueryZcl.selectEndpointType(db, rowId)
-        })
+        queryConfig
+          .insertEndpointType(db, sid, 'testEndpointType', deviceTypeId)
+          .then((rowId) => {
+            endpointTypeIdOnOff = rowId
+            return queryZcl.selectEndpointType(db, rowId)
+          })
       )
       .then((endpointType) =>
-        QueryConfig.insertEndpoint(
-          db,
-          sid,
-          1,
-          endpointType.endpointTypeId,
-          1
-        ).then(
-          QueryConfig.insertEndpoint(db, sid, 1, endpointType.endpointTypeId, 1)
-        )
+        queryConfig
+          .insertEndpoint(db, sid, 1, endpointType.endpointTypeId, 1)
+          .then(
+            queryConfig.insertEndpoint(
+              db,
+              sid,
+              1,
+              endpointType.endpointTypeId,
+              1
+            )
+          )
       )
       .then((endpointId) => {
         eptId = endpointId
       })
   }, 10000)
   test('Test endpoint for duplicates', () =>
-    Validation.validateEndpoint(db, eptId).then((data) =>
-      Validation.validateNoDuplicateEndpoints(db, eptId, sid).then(
-        (hasNoDuplicates) => {
-          expect(hasNoDuplicates).toBeFalsy()
-          return Promise.resolve()
-        }
-      )
-    ))
+    Validation.validateEndpoint(db, eptId)
+      .then((data) => Validation.validateNoDuplicateEndpoints(db, eptId, sid))
+      .then((hasNoDuplicates) => {
+        expect(hasNoDuplicates).toBeFalsy()
+      }))
 })
