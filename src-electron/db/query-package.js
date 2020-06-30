@@ -194,6 +194,22 @@ function insertSessionPackage(db, sessionId, packageId) {
   )
 }
 
+/**
+ * Returns the session package IDs.
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns The promise that resolves into an array of package IDs.
+ */
+function getSessionPackages(db, sessionId) {
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT PACKAGE_REF FROM SESSION_PACKAGE WHERE SESSION_REF = ?',
+      [sessionId]
+    )
+    .then((rows) => rows.map((r) => r.PACKAGE_REF))
+}
+
 // exports
 exports.getPackageByPath = getPackageByPath
 exports.getPackageByPackageId = getPackageByPackageId
@@ -204,3 +220,4 @@ exports.updatePathCrc = updatePathCrc
 exports.registerPackage = registerPackage
 exports.updateVersion = updateVersion
 exports.insertSessionPackage = insertSessionPackage
+exports.getSessionPackages = getSessionPackages

@@ -21,7 +21,7 @@
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const { selectCountFrom } = require('../src-electron/db/query-generic.js')
-const { insertPathCrc } = require('../src-electron/db/query-package.js')
+const queryPackage = require('../src-electron/db/query-package.js')
 const {
   getAllSessions,
   deleteSession,
@@ -118,7 +118,7 @@ describe('Session specific tests', () => {
     }))
 
   test('add a package', () =>
-    insertPathCrc(db, 'PATH', 32).then((pkg) => {
+    queryPackage.insertPathCrc(db, 'PATH', 32).then((pkg) => {
       packageId = pkg
     }))
 

@@ -32,6 +32,7 @@ const admin = require('../rest/admin.js')
 const generation = require('../rest/generation.js')
 const staticZcl = require('../rest/static-zcl.js')
 const userData = require('../rest/user-data.js')
+const util = require('../util/util.js')
 
 var httpServer = null
 
@@ -39,42 +40,6 @@ const httpCode = {
   ok: 200,
   badRequest: 400,
   notFound: 404,
-}
-
-/**
- * This function assigns a proper package ID to the session.
- *
- * @param {*} db
- * @param {*} sessionId
- * @returns Promise that resolves with the session id for chaining.
- */
-function initializeSessionPackage(db, sessionId) {
-  return queryPackage
-    .getPackagesByType(db, dbEnum.packageType.zclProperties)
-    .then((rows) => {
-      var packageId
-      if (rows.length == 1) {
-        packageId = rows[0].id
-        env.logInfo(
-          `Single package found, using it for the session: ${packageId}`
-        )
-      } else if (rows.length == 0) {
-        env.logError(`No package found for session.`)
-        packageId = null
-      } else {
-        packageId = rows[0].id
-        env.logWarning(
-          `Multiple toplevel packages found. Using the first one: ${packageId}`
-        )
-      }
-      if (packageId != null) {
-        return queryPackage
-          .insertSessionPackage(db, sessionId, packageId)
-          .then(() => sessionId)
-      } else {
-        return sessionId
-      }
-    })
 }
 
 /**
@@ -111,7 +76,7 @@ function initHttpServer(db, port) {
 
         querySession
           .ensureZapSessionId(db, req.session.id, windowId, sessionId)
-          .then((sessionId) => initializeSessionPackage(db, sessionId))
+          .then((sessionId) => util.initializeSessionPackage(db, sessionId))
           .then((sessionId) => {
             req.session.zapSessionId = sessionId
             next()
