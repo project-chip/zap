@@ -23,6 +23,8 @@ const fs = require('fs')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const queryConfig = require('../db/query-config.js')
+const queryPackage = require('../db/query-package.js')
+const queryZcl = require('../db/query-zcl.js')
 
 /**
  * Resolves to an array of objects that contain 'key' and 'value'
@@ -54,6 +56,7 @@ function exportEndpointTypes(db, sessionId) {
             new Promise((resolve, reject) => {
               endpoint.clusters = clusterRows
               clusterRows.forEach((x) => {
+                // Delete the database entities, everything is dereferenced
                 delete x.endpointTypeRef
                 delete x.endpointTypeClusterId
               })
@@ -68,6 +71,7 @@ function exportEndpointTypes(db, sessionId) {
             new Promise((resolve, reject) => {
               endpoint.attributes = attributeRows
               attributeRows.forEach((x) => {
+                // Delete the database entities, everything is dereferenced
                 delete x.endpointTypeRef
                 delete x.endpointTypeAttributeId
               })
@@ -82,6 +86,7 @@ function exportEndpointTypes(db, sessionId) {
             new Promise((resolve, reject) => {
               endpoint.commands = commandRows
               commandRows.forEach((x) => {
+                // Delete the database entities, everything is dereferenced
                 delete x.endpointTypeRef
                 delete x.endpointTypeCommandId
               })
@@ -89,9 +94,16 @@ function exportEndpointTypes(db, sessionId) {
             })
         )
       )
+
+      // We dereferenced everything, we can now delete the key
+      delete endpoint.endpointTypeId
     })
     return Promise.all(promises).then(() => endpoints)
   })
+}
+
+function exportSessionPackages(db, sessionId) {
+  return Promise.resolve({ package: '' })
 }
 
 /**
@@ -150,6 +162,14 @@ function createStateFromDatabase(db, sessionId) {
       return Promise.resolve(data)
     })
     promises.push(getKeyValues)
+
+    var getSessionPackages = exportSessionPackages(db, sessionId).then(
+      (data) => {
+        state.package = data
+        return Promise.resolve(data)
+      }
+    )
+    promises.push(getSessionPackages)
 
     var getAllEndpointTypes = exportEndpointTypes(db, sessionId).then(
       (data) => {
