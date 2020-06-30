@@ -190,7 +190,7 @@ limitations under the License.
             <div>
               <q-form @submit="newEpt()" @reset="onReset" class="q-gutter-md">
                 <q-input
-                  v-model="newEndpoint.newEptId"
+                  v-model="newEndpoint.newEndpointId"
                   outlined
                   label="Endpoint"
                   stack-label
@@ -388,7 +388,7 @@ export default {
   },
   methods: {
     newEpt(newEndpoint) {
-      let eptId = this.newEndpoint.newEptId
+      let eptId = this.newEndpoint.newEndpointId
       let nwkId = this.newEndpoint.newNetworkId
       let endpointType = this.newEndpoint.newEndpointType
 
