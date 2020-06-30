@@ -18,39 +18,32 @@
  * @jest-environment node
  */
 
+const fs = require('fs')
 const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const Validation = require('../src-electron/validation/validation.js')
 const args = require('../src-electron/main-process/args.js')
 const querySession = require('../src-electron/db/query-session.js')
 const queryConfig = require('../src-electron/db/query-config.js')
-const fs = require('fs')
-
-const {
-  logInfo,
-  schemaFile,
-  sqliteTestFile,
-  zapVersion,
-} = require('../src-electron/util/env.js')
-
 const queryZcl = require('../src-electron/db/query-zcl.js')
+const env = require('../src-electron/util/env.js')
 
 var db
 var sid
 
 beforeAll(() => {
-  var file = sqliteTestFile('validation')
+  var file = env.sqliteTestFile('validation')
   return dbApi
     .initDatabase(file)
-    .then((d) => dbApi.loadSchema(d, schemaFile(), zapVersion()))
+    .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
     .then((d) => {
       db = d
-      logInfo('DB initialized.')
+      env.logInfo('DB initialized.')
     })
 }, 5000)
 
 afterAll(() => {
-  var file = sqliteTestFile('validation')
+  var file = env.sqliteTestFile('validation')
   return dbApi.closeDatabase(db).then(() => {
     if (fs.existsSync(file)) fs.unlinkSync(file)
   })
