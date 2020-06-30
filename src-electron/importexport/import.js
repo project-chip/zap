@@ -78,14 +78,12 @@ function writeStateToDatabase(db, state) {
 }
 
 /**
- * Take a given session ID and import the data from the file
- * Reads the data from the file and resolves with the state object if all is good.
+ * Writes the data from the file into a new session.
  *
  * @export
  * @param {*} db
  * @param {*} filePath
- * @returns a promise that resolves with the resolution of writing into a database.
- * @returns Promise of file reading.
+ * @returns a promise that resolves with the session Id of the written data.
  */
 function importDataFromFile(db, filePath) {
   return readDataFromFile(filePath).then((state) =>
