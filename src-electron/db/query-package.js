@@ -177,6 +177,23 @@ function updatePathCrc(db, path, crc) {
     crc,
   ])
 }
+
+/**
+ * Inserts a mapping between session and package.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageId
+ * @returns Promise of an insert.
+ */
+function insertSessionPackage(db, sessionId, packageId) {
+  return dbApi.dbInsert(
+    db,
+    'INSERT INTO SESSION_PACKAGE (SESSION_REF, PACKAGE_REF) VALUES (?,?)',
+    [sessionId, packageId]
+  )
+}
+
 // exports
 exports.getPackageByPath = getPackageByPath
 exports.getPackageByPackageId = getPackageByPackageId
@@ -186,3 +203,4 @@ exports.insertPathCrc = insertPathCrc
 exports.updatePathCrc = updatePathCrc
 exports.registerPackage = registerPackage
 exports.updateVersion = updateVersion
+exports.insertSessionPackage = insertSessionPackage
