@@ -72,6 +72,7 @@ function createStateFromDatabase(db, sessionId) {
     }
     var promises = []
 
+    env.logInfo(`Exporting data for session: ${sessionId}`)
     // Deal with the key/value table
     var getKeyValues = mapping
       .exportSessionKeyValues(db, sessionId)
