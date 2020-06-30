@@ -148,7 +148,7 @@ function getSessionInfoFromWindowId(db, windowId) {
  * @param {*} db
  * @param {*} sessionKey
  * @param {*} windowId
- * @parem {*} sessionId If sessionId exists already, then it's passed in. If it doesn't then this is null.
+ * @param {*} sessionId If sessionId exists already, then it's passed in. If it doesn't then this is null.
  * @returns promise that resolves into a session id.
  */
 function ensureZapSessionId(db, sessionKey, windowId, sessionId = null) {

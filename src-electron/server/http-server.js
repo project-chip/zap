@@ -39,6 +39,10 @@ const httpCode = {
   notFound: 404,
 }
 
+function initializeSessionPackage(db, sessionId) {
+  return Promise.resolve(sessionId)
+}
+
 /**
  * Promises to initialize the http server on a given port
  * using a given database.
@@ -73,6 +77,7 @@ function initHttpServer(db, port) {
 
         querySession
           .ensureZapSessionId(db, req.session.id, windowId, sessionId)
+          .then((sessionId) => initializeSessionPackage(db, sessionId))
           .then((sessionId) => {
             req.session.zapSessionId = sessionId
             next()
