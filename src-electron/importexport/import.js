@@ -23,7 +23,26 @@ const fs = require('fs')
 const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
-const Mapping = require('./mapping.js')
+
+/**
+ * Resolves with a promise that imports session key values.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} keyValuePairs
+ */
+function importSessionKeyValues(db, sessionId, keyValuePairs) {
+  var allQueries = []
+  if (keyValuePairs != null) {
+    // Write key value pairs
+    keyValuePairs.forEach((element) => {
+      allQueries.push(
+        queryConfig.updateKeyValue(db, sessionId, element.key, element.value)
+      )
+    })
+  }
+  return Promise.all(allQueries).then(() => Promise.resolve(sessionId))
+}
 
 /**
  * Reads the data from the file and resolves with the state object if all is good.
@@ -57,11 +76,9 @@ function writeStateToDatabase(db, state) {
     .then((sessionId) => {
       env.logInfo('Reading state from file into the database...')
       if ('keyValuePairs' in state) {
-        return Mapping.importSessionKeyValues(
-          db,
-          sessionId,
-          state.keyValuePairs
-        ).then(() => sessionId)
+        return importSessionKeyValues(db, sessionId, state.keyValuePairs).then(
+          () => sessionId
+        )
       } else {
         return sessionId
       }
