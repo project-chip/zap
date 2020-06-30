@@ -190,7 +190,7 @@ limitations under the License.
             <div>
               <q-form @submit="newEpt()" @reset="onReset" class="q-gutter-md">
                 <q-input
-                  v-model="newEndpoint.newEndpointId"
+                  v-model="newEndpoint.newEptId"
                   outlined
                   label="Endpoint"
                   stack-label
