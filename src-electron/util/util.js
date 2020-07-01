@@ -17,7 +17,8 @@
 
 const env = require('./env.js')
 const crc = require('crc')
-
+const queryPackage = require('../db/query-package.js')
+const dbEnum = require('../db/db-enum.js')
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
  *
@@ -31,4 +32,42 @@ function calculateCrc(context) {
     resolve(context)
   })
 }
+
+/**
+ * This function assigns a proper package ID to the session.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise that resolves with the session id for chaining.
+ */
+function initializeSessionPackage(db, sessionId) {
+  return queryPackage
+    .getPackagesByType(db, dbEnum.packageType.zclProperties)
+    .then((rows) => {
+      var packageId
+      if (rows.length == 1) {
+        packageId = rows[0].id
+        env.logInfo(
+          `Single package found, using it for the session: ${packageId}`
+        )
+      } else if (rows.length == 0) {
+        env.logError(`No package found for session.`)
+        packageId = null
+      } else {
+        packageId = rows[0].id
+        env.logWarning(
+          `Multiple toplevel packages found. Using the first one: ${packageId}`
+        )
+      }
+      if (packageId != null) {
+        return queryPackage
+          .insertSessionPackage(db, sessionId, packageId)
+          .then(() => sessionId)
+      } else {
+        return sessionId
+      }
+    })
+}
+
 exports.calculateCrc = calculateCrc
+exports.initializeSessionPackage = initializeSessionPackage

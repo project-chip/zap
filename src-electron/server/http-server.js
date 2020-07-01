@@ -26,10 +26,13 @@ const express = require('express')
 const session = require('express-session')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
+const queryPackage = require('../db/query-package.js')
+const dbEnum = require('../db/db-enum.js')
 const admin = require('../rest/admin.js')
 const generation = require('../rest/generation.js')
 const staticZcl = require('../rest/static-zcl.js')
 const userData = require('../rest/user-data.js')
+const util = require('../util/util.js')
 
 var httpServer = null
 
@@ -73,6 +76,7 @@ function initHttpServer(db, port) {
 
         querySession
           .ensureZapSessionId(db, req.session.id, windowId, sessionId)
+          .then((sessionId) => util.initializeSessionPackage(db, sessionId))
           .then((sessionId) => {
             req.session.zapSessionId = sessionId
             next()

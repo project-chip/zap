@@ -96,7 +96,7 @@ function clusterDefContribFileName(cluster) {
 
 function createClusterDefComponent(cluster) {
   return {
-    id: 'zcl_cluster_' + cleanse(cluster.label) + '_def',
+    id: `zcl_cluster_${cleanse(cluster.label)}_def`,
     label: cluster.label,
     description: cluster.caption,
     package: 'Zigbee',
@@ -134,7 +134,7 @@ function generateSingleClusterDefContrib(ctx, cluster) {
 function generateSingleClusterDefSlcc(ctx, cluster) {
   var fileName = path.join(
     ctx.generationDir,
-    'zcl_cluster_def_' + cleanse(cluster.label) + '.slcc'
+    `zcl_cluster_def_${cleanse(cluster.label)}.slcc`
   )
   var output = toSlcc(createClusterDefComponent(cluster))
   if (ctx.dontWrite) return Promise.resolve()
@@ -143,12 +143,12 @@ function generateSingleClusterDefSlcc(ctx, cluster) {
 
 // Cluster implementations
 function clusterImpContribFileName(cluster) {
-  return 'zcl_cluster_imp_' + cleanse(cluster.label) + '.zapcontrib'
+  return `zcl_cluster_imp_${cleanse(cluster.label)}.zapcontrib`
 }
 
 function createClusterImpComponent(cluster) {
   return {
-    id: 'zcl_cluster_' + cleanse(cluster.label) + '_imp',
+    id: `zcl_cluster_${cleanse(cluster.label)}_imp`,
     label: cluster.label,
     description: cluster.caption,
     package: 'Zigbee',
@@ -186,7 +186,7 @@ function generateSingleClusterImpContrib(ctx, cluster) {
 function generateSingleClusterImpSlcc(ctx, cluster) {
   var fileName = path.join(
     ctx.generationDir,
-    'zcl_cluster_imp_' + cleanse(cluster.label) + '.slcc'
+    `zcl_cluster_imp_${cleanse(cluster.label)}.slcc`
   )
   var output = toSlcc(createClusterImpComponent(cluster))
   if (ctx.dontWrite) return Promise.resolve()
@@ -199,10 +199,7 @@ function createCommand(componentId, cluster, command) {
     id: componentId,
     label: command.label,
     package: 'Zigbee',
-    category:
-      'Zigbee|Zigbee Cluster Library|Configuration|' +
-      cluster.label +
-      '|Commands',
+    category: `Zigbee|Zigbee Cluster Library|Configuration|${cluster.label}|Commands`,
     quality: 'production',
     root_path: 'app/zigbee/component',
   }
@@ -238,10 +235,7 @@ function createAttribute(componentId, cluster, attribute) {
     id: componentId,
     label: attribute.label,
     package: 'Zigbee',
-    category:
-      'Zigbee|Zigbee Cluster Library|Configuration|' +
-      cluster.label +
-      '|Attributes',
+    category: `Zigbee|Zigbee Cluster Library|Configuration|${cluster.label}|Attributes`,
     quality: 'production',
     root_path: 'app/zigbee/component',
   }
@@ -283,7 +277,7 @@ function generateDeviceTypes(ctx) {
   })
 }
 
-function generateClusters(ctx, alsoGenerateCommandsAndAttributes) {
+function generateClusters(ctx, options) {
   return queryZcl.selectAllClusters(ctx.db).then((clustersArray) => {
     var promises = []
     console.log(`Generating ${clustersArray.length} clusters`)
@@ -292,9 +286,11 @@ function generateClusters(ctx, alsoGenerateCommandsAndAttributes) {
       promises.push(generateSingleClusterDefContrib(ctx, element))
       promises.push(generateSingleClusterImpSlcc(ctx, element))
       promises.push(generateSingleClusterImpContrib(ctx, element))
-      if (alsoGenerateCommandsAndAttributes) {
-        promises.push(generateSingleClusterAttributes(ctx, element))
+      if (options.generateCommands) {
         promises.push(generateSingleClusterCommands(ctx, element))
+      }
+      if (options.generateAttributes) {
+        promises.push(generateSingleClusterAttributes(ctx, element))
       }
     })
     return Promise.all(promises)
@@ -306,11 +302,17 @@ function generateClusters(ctx, alsoGenerateCommandsAndAttributes) {
  *
  * @param {*} ctx Contains generationDir, templateDir, db and options dontWrite which can prevent final writing.
  */
-function runSdkGeneration(ctx) {
+function runSdkGeneration(
+  ctx,
+  options = {
+    generateCommands: false,
+    generateAttributes: false,
+  }
+) {
   console.log(`Generating SDK artifacts into ${ctx.generationDir}`)
   var promises = []
   promises.push(generateDeviceTypes(ctx))
-  promises.push(generateClusters(ctx, false))
+  promises.push(generateClusters(ctx, options))
 
   var mainPromise
   if (ctx.dontWrite) {

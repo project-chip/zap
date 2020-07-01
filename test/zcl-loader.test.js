@@ -20,10 +20,11 @@
 
 const sq = require('sqlite3')
 const dbApi = require('../src-electron/db/db-api.js')
+const dbEnum = require('../src-electron/db/db-enum.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const queryPackage = require('../src-electron/db/query-package.js')
-const { selectCountFrom } = require('../src-electron/db/query-generic.js')
-const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
+const queryGeneric = require('../src-electron/db/query-generic.js')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/main-process/args.js')
 const env = require('../src-electron/util/env.js')
 
@@ -44,9 +45,13 @@ test('test zcl data loading in memory', () => {
   var packageId
   return dbApi
     .loadSchema(db, env.schemaFile(), env.zapVersion())
-    .then((db) => loadZcl(db, args.zclPropertiesFile)) // Maybe: ../../../zcl/zcl-studio.properties
+    .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile)) // Maybe: ../../../zcl/zcl-studio.properties
     .then((ctx) => queryPackage.getPackageByPackageId(ctx.db, ctx.packageId))
     .then((package) => expect(package.version).toEqual('ZCL Test Data'))
+    .then(() =>
+      queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
+    )
+    .then((rows) => expect(rows.length).toEqual(1))
     .then(() => queryZcl.selectAllClusters(db))
     .then((x) => expect(x.length).toEqual(106))
     .then(() => queryZcl.selectAllDomains(db))
@@ -59,17 +64,17 @@ test('test zcl data loading in memory', () => {
     .then((x) => expect(x.length).toEqual(121))
     .then(() => queryZcl.selectAllDeviceTypes(db))
     .then((x) => expect(x.length).toEqual(152))
-    .then(() => selectCountFrom(db, 'COMMAND_ARG'))
+    .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
     .then((x) => expect(x).toEqual(1668))
-    .then(() => selectCountFrom(db, 'COMMAND'))
+    .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
     .then((x) => expect(x).toEqual(560))
-    .then(() => selectCountFrom(db, 'ENUM_ITEM'))
+    .then(() => queryGeneric.selectCountFrom(db, 'ENUM_ITEM'))
     .then((x) => expect(x).toEqual(1552))
-    .then(() => selectCountFrom(db, 'ATTRIBUTE'))
+    .then(() => queryGeneric.selectCountFrom(db, 'ATTRIBUTE'))
     .then((x) => expect(x).toEqual(3416))
-    .then(() => selectCountFrom(db, 'BITMAP_FIELD'))
+    .then(() => queryGeneric.selectCountFrom(db, 'BITMAP_FIELD'))
     .then((x) => expect(x).toEqual(724))
-    .then(() => selectCountFrom(db, 'STRUCT_ITEM'))
+    .then(() => queryGeneric.selectCountFrom(db, 'STRUCT_ITEM'))
     .then((x) => expect(x).toEqual(154))
     .then(() =>
       dbApi.dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', [

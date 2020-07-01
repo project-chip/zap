@@ -16,22 +16,19 @@
  */
 
 const { dialog, Menu } = require('electron')
-const { appDirectory, logInfo, mainDatabase } = require('../util/env.js')
+const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const queryGeneric = require('../db/query-generic.js')
-const { getSessionInfoFromWindowId } = require('../db/query-session.js')
+const querySession = require('../db/query-session.js')
 const staticGenerator = require('../generator/static-generator.js')
-const { exportDataIntoFile } = require('../importexport/export.js')
-const {
-  readDataFromFile,
-  writeStateToDatabase,
-} = require('../importexport/import.js')
+const exportJs = require('../importexport/export.js')
+const importJs = require('../importexport/import.js')
 const { showErrorMessage } = require('./ui.js')
 const { windowCreate } = require('./window.js')
 const preference = require('./preference.js')
 
 var httpPort
-var generationDirectory = appDirectory() + '/generation-output'
+var generationDirectory = env.appDirectory() + '/generation-output'
 var handlebarTemplateDirectory = __dirname + '/../../test/gen-template'
 var generationOptionsFile =
   handlebarTemplateDirectory + '/generation-options.json'
@@ -55,7 +52,7 @@ const template = [
       {
         label: 'Open File...',
         accelerator: 'CmdOrCtrl+O',
-        click(meimportnuItem, browserWindow, event) {
+        click(menuItem, browserWindow, event) {
           doOpen(menuItem, browserWindow, event)
         },
       },
@@ -72,7 +69,8 @@ const template = [
         label: 'Session Information...',
         click(menuItem, browserWindow, event) {
           let winId = browserWindow.id
-          getSessionInfoFromWindowId(mainDatabase(), winId)
+          querySession
+            .getSessionInfoFromWindowId(env.mainDatabase(), winId)
             .then((row) => {
               dialog.showMessageBox(browserWindow, {
                 title: 'Information',
@@ -141,7 +139,7 @@ const template = [
  */
 function doOpen(menuItem, browserWindow, event) {
   queryGeneric
-    .selectFileLocation(mainDatabase(), 'save')
+    .selectFileLocation(env.mainDatabase(), 'save')
     .then((filePath) => {
       var opts = {
         properties: ['openFile', 'multiSelections'],
@@ -153,7 +151,7 @@ function doOpen(menuItem, browserWindow, event) {
     })
     .then((result) => {
       if (!result.canceled) {
-        fileOpen(mainDatabase(), browserWindow.id, result.filePaths)
+        fileOpen(env.mainDatabase(), browserWindow.id, result.filePaths)
       }
     })
     .catch((err) => showErrorMessage('Open file', err))
@@ -167,15 +165,20 @@ function doOpen(menuItem, browserWindow, event) {
  * @param {*} event
  */
 function doSave(menuItem, browserWindow, event) {
-  getSessionInfoFromWindowId(mainDatabase(), browserWindow.id)
+  querySession
+    .getSessionInfoFromWindowId(env.mainDatabase(), browserWindow.id)
     .then((row) =>
-      queryConfig.getSessionKeyValue(mainDatabase(), row.sessionId, 'filePath')
+      queryConfig.getSessionKeyValue(
+        env.mainDatabase(),
+        row.sessionId,
+        'filePath'
+      )
     )
     .then((filePath) => {
       if (filePath == null) {
         doSaveAs(menuItem, browserWindow, event)
       } else {
-        return fileSave(mainDatabase(), browserWindow.id, filePath)
+        return fileSave(env.mainDatabase(), browserWindow.id, filePath)
       }
     })
 }
@@ -189,7 +192,7 @@ function doSave(menuItem, browserWindow, event) {
  */
 function doSaveAs(menuItem, browserWindow, event) {
   queryGeneric
-    .selectFileLocation(mainDatabase(), 'save')
+    .selectFileLocation(env.mainDatabase(), 'save')
     .then((filePath) => {
       var opts = {}
       if (filePath != null) {
@@ -199,14 +202,14 @@ function doSaveAs(menuItem, browserWindow, event) {
     })
     .then((result) => {
       if (!result.canceled) {
-        return fileSave(mainDatabase(), browserWindow.id, result.filePath)
+        return fileSave(env.mainDatabase(), browserWindow.id, result.filePath)
       } else {
         return null
       }
     })
     .then((filePath) => {
       if (filePath != null) {
-        queryGeneric.insertFileLocation(mainDatabase(), filePath, 'save')
+        queryGeneric.insertFileLocation(env.mainDatabase(), filePath, 'save')
         browserWindow.setTitle(filePath)
         dialog.showMessageBox(browserWindow, {
           title: 'Save',
@@ -245,7 +248,7 @@ function generateInDir(browserWindow) {
           .getGenerationProperties(generationOptionsFile)
           .then((generationOptions) =>
             staticGenerator.generateCode(
-              mainDatabase(),
+              env.mainDatabase(),
               generationOptions,
               generationDirectory,
               handlebarTemplateDirectory
@@ -273,7 +276,7 @@ function generateCodeViaCli(generationDir) {
     .getGenerationProperties(generationOptionsFile)
     .then((generationOptions) =>
       staticGenerator.generateCode(
-        mainDatabase(),
+        env.mainDatabase(),
         generationOptions,
         generationDirectory,
         handlebarTemplateDirectory
@@ -317,7 +320,7 @@ function setHandlebarTemplateDirectory(browserWindow) {
         handlebarTemplateDirectory = filePath
         dialog.showMessageBox(browserWindow, {
           title: 'Handlebar Templates',
-          message: `Handlebar Template Directory: ${filePath}`,
+          message: `Handlebar Template Directory: meimportnuItem${filePath}`,
           buttons: ['Ok'],
         })
       }
@@ -334,13 +337,14 @@ function setHandlebarTemplateDirectory(browserWindow) {
  * @returns Promise of saving.
  */
 function fileSave(db, winId, filePath) {
-  return getSessionInfoFromWindowId(db, winId)
+  return querySession
+    .getSessionInfoFromWindowId(db, winId)
     .then((row) => {
       return queryConfig
         .updateKeyValue(db, row.sessionId, 'filePath', filePath)
         .then(() => row)
     })
-    .then((row) => exportDataIntoFile(db, row.sessionId, filePath))
+    .then((row) => exportJs.exportDataIntoFile(db, row.sessionId, filePath))
     .catch((err) => showErrorMessage('File save', err))
 }
 
@@ -365,9 +369,9 @@ function fileOpen(db, winId, filePaths) {
  * @param {*} filePath
  */
 function readAndProcessFile(db, filePath) {
-  logInfo(`Read and process: ${filePath}`)
-  readDataFromFile(filePath)
-    .then((state) => writeStateToDatabase(mainDatabase(), state))
+  env.logInfo(`Read and process: ${filePath}`)
+  importJs
+    .importDataFromFile(env.mainDatabase(), filePath)
     .then((sessionId) => {
       windowCreate(httpPort, filePath, sessionId)
       return true

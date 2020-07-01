@@ -178,19 +178,22 @@ limitations under the License.
         </p>
       </div>
       <q-dialog v-model="newEptDialog">
-        <q-card>
+        <q-card style="width: 200vw;">
           <q-card-section>
             <div>
-              <p style="text-align: center; font-size: 1vw;">New Endpoint</p>
+              <b style="text-align: center; font-size: 1vw;"
+                >Create New Endpoint</b
+              >
             </div>
           </q-card-section>
           <q-card-section>
             <div>
               <q-form @submit="newEpt()" @reset="onReset" class="q-gutter-md">
                 <q-input
-                  filled
-                  v-model="newEndpoint.newEptId"
-                  label="Endpoint Id*"
+                  v-model="newEndpoint.newEndpointId"
+                  outlined
+                  label="Endpoint"
+                  stack-label
                 />
                 <q-select
                   filled
@@ -202,22 +205,23 @@ limitations under the License.
                   label="Endpoint Type"
                 />
                 <q-input
-                  filled
                   v-model="newEndpoint.newNetworkId"
-                  label="Network Id"
+                  outlined
+                  label="Network"
+                  stack-label
                 />
               </q-form>
             </div>
           </q-card-section>
           <q-card-actions align="right">
-            <q-btn flat label="Cancel" color="primary" v-close-popup />
+            <q-btn label="Cancel" v-close-popup size="0.8vw" />
             <q-btn
-              flat
               label="Create Endpoint"
               color="primary"
               style="margin-left: 5px;"
               v-close-popup
               @click="newEpt(newEndpoint)"
+              size="0.8vw"
             />
           </q-card-actions>
         </q-card>
@@ -332,9 +336,9 @@ export default {
       activeIndex: [],
       newEptDialog: [],
       newEndpoint: {
-        newEndpointId: '',
+        newEndpointId: '0x0001',
         newEndpointType: '',
-        newNetworkId: '',
+        newNetworkId: 'Primary',
       },
       columns: [
         {
@@ -384,7 +388,7 @@ export default {
   },
   methods: {
     newEpt(newEndpoint) {
-      let eptId = this.newEndpoint.newEptId
+      let eptId = this.newEndpoint.newEndpointId
       let nwkId = this.newEndpoint.newNetworkId
       let endpointType = this.newEndpoint.newEndpointType
 

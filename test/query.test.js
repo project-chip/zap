@@ -20,33 +20,15 @@
 const fs = require('fs')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
-const { zclPropertiesFile } = require('../src-electron/main-process/args.js')
+const args = require('../src-electron/main-process/args.js')
 const queryConfig = require('../src-electron/db/query-config.js')
-const {
-  logInfo,
-  schemaFile,
-  sqliteTestFile,
-  zapVersion,
-} = require('../src-electron/util/env.js')
-const {
-  insertFileLocation,
-  selectFileLocation,
-} = require('../src-electron/db/query-generic.js')
-const {
-  getPathCrc,
-  insertPathCrc,
-} = require('../src-electron/db/query-package.js')
-const {
-  ensureZapSessionId,
-  setSessionClean,
-  getSessionInfoFromWindowId,
-  getSessionDirtyFlag,
-} = require('../src-electron/db/query-session.js')
-const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
-
-const {
-  createStateFromDatabase,
-} = require('../src-electron/importexport/export.js')
+const env = require('../src-electron/util/env.js')
+const util = require('../src-electron/util/util.js')
+const queryGeneric = require('../src-electron/db/query-generic.js')
+const queryPackage = require('../src-electron/db/query-package.js')
+const querySession = require('../src-electron/db/query-session.js')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
+const exportJs = require('../src-electron/importexport/export.js')
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -59,18 +41,18 @@ var db
 var sid
 
 beforeAll(() => {
-  var file = sqliteTestFile(1)
+  var file = env.sqliteTestFile(1)
   return dbApi
     .initDatabase(file)
-    .then((d) => dbApi.loadSchema(d, schemaFile(), zapVersion()))
+    .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
     .then((d) => {
       db = d
-      logInfo('DB initialized.')
+      env.logInfo('DB initialized.')
     })
 }, 5000)
 
 afterAll(() => {
-  var file = sqliteTestFile(1)
+  var file = env.sqliteTestFile(1)
   return dbApi.closeDatabase(db).then(() => {
     if (fs.existsSync(file)) fs.unlinkSync(file)
   })
@@ -79,17 +61,21 @@ afterAll(() => {
 test('Path CRC queries.', () => {
   var path = '/some/random/path'
   var crc = 42
-  return insertPathCrc(db, path, crc)
-    .then((rowid) => getPathCrc(db, path))
+  return queryPackage
+    .insertPathCrc(db, path, crc)
+    .then((rowid) => queryPackage.getPathCrc(db, path))
     .then((c) => expect(c).toBe(crc))
 })
 
 test('File location queries.', () =>
-  insertFileLocation(db, '/random/file/path', 'cat')
-    .then(() => selectFileLocation(db, 'cat'))
+  queryGeneric
+    .insertFileLocation(db, '/random/file/path', 'cat')
+    .then(() => queryGeneric.selectFileLocation(db, 'cat'))
     .then((filePath) => expect(filePath).toBe('/random/file/path'))
-    .then(() => insertFileLocation(db, '/random/file/second/path', 'cat'))
-    .then(() => selectFileLocation(db, 'cat'))
+    .then(() =>
+      queryGeneric.insertFileLocation(db, '/random/file/second/path', 'cat')
+    )
+    .then(() => queryGeneric.selectFileLocation(db, 'cat'))
     .then((filePath) => expect(filePath).toBe('/random/file/second/path')))
 
 test('Replace query', () =>
@@ -116,7 +102,8 @@ test('Replace query', () =>
     .then((result) => expect(result.CRC).toBe(13)))
 
 test('Simple cluster addition.', () =>
-  insertPathCrc(db, 'test', 1)
+  queryPackage
+    .insertPathCrc(db, 'test', 1)
     .then((rowid) =>
       queryZcl.insertClusters(db, rowid, [
         {
@@ -161,19 +148,27 @@ test('Simple cluster addition.', () =>
 
 test(
   'Now actually load the static data.',
-  () => loadZcl(db, zclPropertiesFile),
+  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
   5000
 )
 
 describe('Session specific queries', () => {
   beforeAll(() =>
-    ensureZapSessionId(db, 'SESSION', 666).then((id) => {
-      sid = id
-    })
+    querySession
+      .ensureZapSessionId(db, 'SESSION', 666)
+      .then((id) => util.initializeSessionPackage(db, id))
+      .then((id) => {
+        sid = id
+      })
   )
 
+  test('Test that package id for session is preset.', () =>
+    queryPackage
+      .getSessionPackages(db, sid)
+      .then((ids) => expect(ids.length).toBe(1)))
+
   test('Test some attribute queries.', () =>
-    getSessionInfoFromWindowId(db, 666).then((data) => {
+    querySession.getSessionInfoFromWindowId(db, 666).then((data) => {
       expect(data.sessionId).toBe(sid)
     }))
 
@@ -196,16 +191,17 @@ describe('Session specific queries', () => {
 
   test('Make sure session is dirty', () => {
     var sid
-    return getSessionInfoFromWindowId(db, 666)
+    return querySession
+      .getSessionInfoFromWindowId(db, 666)
       .then((data) => {
         sid = data.sessionId
-        return getSessionDirtyFlag(db, sid)
+        return querySession.getSessionDirtyFlag(db, sid)
       })
       .then((result) => {
         expect(result).toBeTruthy()
       })
-      .then(() => setSessionClean(db, sid))
-      .then(() => getSessionDirtyFlag(db, sid))
+      .then(() => querySession.setSessionClean(db, sid))
+      .then(() => querySession.getSessionDirtyFlag(db, sid))
       .then((result) => {
         expect(result).toBeFalsy()
       })
@@ -214,10 +210,11 @@ describe('Session specific queries', () => {
   test('Make sure triggers work', () => {
     var sid
     var endpointTypeId
-    return getSessionInfoFromWindowId(db, 666)
+    return querySession
+      .getSessionInfoFromWindowId(db, 666)
       .then((data) => {
         sid = data.sessionId
-        return getSessionDirtyFlag(db, sid)
+        return querySession.getSessionDirtyFlag(db, sid)
       })
       .then((result) => {
         expect(result).toBeFalsy()
@@ -225,7 +222,7 @@ describe('Session specific queries', () => {
       .then(() => queryConfig.insertEndpointType(db, sid, 'Test endpoint'))
       .then((id) => {
         endpointTypeId = id
-        return getSessionDirtyFlag(db, sid)
+        return querySession.getSessionDirtyFlag(db, sid)
       })
       .then((result) => {
         expect(result).toBeTruthy()
@@ -234,13 +231,13 @@ describe('Session specific queries', () => {
       .then((rows) => {
         expect(rows.length).toBe(1)
       })
-      .then(() => setSessionClean(db, sid))
-      .then(() => getSessionDirtyFlag(db, sid))
+      .then(() => querySession.setSessionClean(db, sid))
+      .then(() => querySession.getSessionDirtyFlag(db, sid))
       .then((result) => {
         expect(result).toBeFalsy()
       })
       .then(() => queryConfig.deleteEndpointType(db, endpointTypeId))
-      .then(() => getSessionDirtyFlag(db, sid))
+      .then(() => querySession.getSessionDirtyFlag(db, sid))
       .then((result) => {
         expect(result).toBeTruthy()
       })
@@ -248,7 +245,8 @@ describe('Session specific queries', () => {
 
   test('Test key values', () => {
     var sid
-    return getSessionInfoFromWindowId(db, 666)
+    return querySession
+      .getSessionInfoFromWindowId(db, 666)
       .then((data) => {
         sid = data.sessionId
         return queryConfig.updateKeyValue(db, sid, 'testKey', 'testValue')
@@ -262,7 +260,8 @@ describe('Session specific queries', () => {
   test('Test state creation', () => {
     var sid
     var endpointTypeId
-    return getSessionInfoFromWindowId(db, 666)
+    return querySession
+      .getSessionInfoFromWindowId(db, 666)
       .then((data) => {
         sid = data.sessionId
         return queryConfig.insertEndpointType(db, sid, 'Test endpoint')
@@ -270,7 +269,7 @@ describe('Session specific queries', () => {
       .then((id) => {
         endpointTypeId = id
       })
-      .then(() => createStateFromDatabase(db, sid))
+      .then(() => exportJs.createStateFromDatabase(db, sid))
       .then((state) => {
         expect(state.creator).toBe('zap')
         expect(state.writeTime).toBeTruthy()
@@ -294,7 +293,7 @@ describe('Session specific queries', () => {
 })
 describe('Endpoint Type Config Queries', () => {
   beforeAll(() =>
-    ensureZapSessionId(db, 'SESSION', 666).then((id) => {
+    querySession.ensureZapSessionId(db, 'SESSION', 666).then((id) => {
       sid = id
     })
   )

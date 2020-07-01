@@ -18,60 +18,58 @@
  * @jest-environment node
  */
 
-const dbApi = require('../src-electron/db/db-api.js')
-const { selectAllClusters } = require('../src-electron/db/query-zcl.js')
-const { runSdkGeneration } = require('../src-electron/sdk-gen/sdk-gen.js')
-const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
-
 const path = require('path')
 const fs = require('fs')
 
-const {
-  logInfo,
-  schemaFile,
-  sqliteTestFile,
-  appDirectory,
-  setDevelopmentEnv,
-  zapVersion,
-} = require('../src-electron/util/env.js')
+const dbApi = require('../src-electron/db/db-api.js')
+const queryZcl = require('../src-electron/db/query-zcl.js')
+const sdkGen = require('../src-electron/sdk-gen/sdk-gen.js')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
+const env = require('../src-electron/util/env.js')
 const args = require('../src-electron/main-process/args.js')
 
 describe('SDK gen tests', () => {
   var db
   beforeAll(() => {
-    setDevelopmentEnv()
-    var file = sqliteTestFile(4)
+    env.setDevelopmentEnv()
+    var file = env.sqliteTestFile(4)
 
     return dbApi
       .initDatabase(file)
-      .then((d) => dbApi.loadSchema(d, schemaFile(), zapVersion()))
-      .then((d) => loadZcl(d, args.zclPropertiesFile))
+      .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
+      .then((d) => zclLoader.loadZcl(d, args.zclPropertiesFile))
       .then((ctx) => {
         db = ctx.db
-        logInfo('DB initialized.')
+        env.logInfo('DB initialized.')
       })
   }, 5000)
 
   afterAll(() => {
-    var file = sqliteTestFile(4)
+    var file = env.sqliteTestFile(4)
     return dbApi.closeDatabase(db).then(() => {
       if (fs.existsSync(file)) fs.unlinkSync(file)
     })
   })
 
   test('Cluster data existence', () => {
-    return selectAllClusters(db).then((data) => {
+    return queryZcl.selectAllClusters(db).then((data) => {
       expect(data.length).toBeGreaterThan(10)
     })
   })
 
   test('SDK generation', () => {
-    var dir = path.join(appDirectory(), 'sdk-gen')
-    return runSdkGeneration({
-      db: db,
-      generationDir: dir,
-      templateDir: '',
-      dontWrite: true,
-    })
+    var dir = path.join(env.appDirectory(), 'sdk-gen')
+    return sdkGen.runSdkGeneration(
+      {
+        db: db,
+        generationDir: dir,
+        templateDir: '',
+        dontWrite: true,
+      },
+      {
+        generateCommands: true,
+        generateAttributes: true,
+      }
+    )
   }, 5000)
 })

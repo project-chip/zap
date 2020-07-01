@@ -47,6 +47,23 @@ function getPackageByPath(db, path) {
 }
 
 /**
+ * Returns packages of a given type.
+ *
+ * @param {*} db
+ * @param {*} type
+ * @returns A promise that resolves into the rows array of packages.
+ */
+function getPackagesByType(db, type) {
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE TYPE = ?',
+      [type]
+    )
+    .then((rows) => rows.map((row) => dbMapping.map.package(row)))
+}
+
+/**
  * Checks if the package with a given path exists and executes appropriate action.
  * Returns the promise that resolves the the package or null if nothing was found.
  *
@@ -160,11 +177,47 @@ function updatePathCrc(db, path, crc) {
     crc,
   ])
 }
+
+/**
+ * Inserts a mapping between session and package.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageId
+ * @returns Promise of an insert.
+ */
+function insertSessionPackage(db, sessionId, packageId) {
+  return dbApi.dbInsert(
+    db,
+    'INSERT INTO SESSION_PACKAGE (SESSION_REF, PACKAGE_REF) VALUES (?,?)',
+    [sessionId, packageId]
+  )
+}
+
+/**
+ * Returns the session package IDs.
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns The promise that resolves into an array of package IDs.
+ */
+function getSessionPackages(db, sessionId) {
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT PACKAGE_REF FROM SESSION_PACKAGE WHERE SESSION_REF = ?',
+      [sessionId]
+    )
+    .then((rows) => rows.map((r) => r.PACKAGE_REF))
+}
+
 // exports
 exports.getPackageByPath = getPackageByPath
 exports.getPackageByPackageId = getPackageByPackageId
+exports.getPackagesByType = getPackagesByType
 exports.getPathCrc = getPathCrc
 exports.insertPathCrc = insertPathCrc
 exports.updatePathCrc = updatePathCrc
 exports.registerPackage = registerPackage
 exports.updateVersion = updateVersion
+exports.insertSessionPackage = insertSessionPackage
+exports.getSessionPackages = getSessionPackages

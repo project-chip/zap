@@ -22,7 +22,89 @@
 const fs = require('fs')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
-const mapping = require('./mapping.js')
+const queryConfig = require('../db/query-config.js')
+const queryPackage = require('../db/query-package.js')
+const queryZcl = require('../db/query-zcl.js')
+
+/**
+ * Resolves to an array of objects that contain 'key' and 'value'
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise to retrieve all session key values.
+ */
+function exportSessionKeyValues(db, sessionId) {
+  return queryConfig.getAllSessionKeyValues(db, sessionId)
+}
+
+/**
+ * Resolves to an array of endpoint types.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise to retrieve all endpoint types.
+ */
+function exportEndpointTypes(db, sessionId) {
+  return queryConfig.getAllEndpointTypes(db, sessionId).then((endpoints) => {
+    var promises = []
+    endpoints.forEach((endpoint) => {
+      promises.push(
+        queryConfig.getEndpointTypeClusters(db, endpoint.endpointTypeId).then(
+          (clusterRows) =>
+            new Promise((resolve, reject) => {
+              endpoint.clusters = clusterRows
+              clusterRows.forEach((x) => {
+                // Delete the database entities, everything is dereferenced
+                delete x.endpointTypeRef
+                delete x.endpointTypeClusterId
+              })
+              resolve(clusterRows)
+            })
+        )
+      )
+
+      promises.push(
+        queryConfig.getEndpointTypeAttributes(db, endpoint.endpointTypeId).then(
+          (attributeRows) =>
+            new Promise((resolve, reject) => {
+              endpoint.attributes = attributeRows
+              attributeRows.forEach((x) => {
+                // Delete the database entities, everything is dereferenced
+                delete x.endpointTypeRef
+                delete x.endpointTypeAttributeId
+              })
+              resolve(attributeRows)
+            })
+        )
+      )
+
+      promises.push(
+        queryConfig.getEndpointTypeCommands(db, endpoint.endpointTypeId).then(
+          (commandRows) =>
+            new Promise((resolve, reject) => {
+              endpoint.commands = commandRows
+              commandRows.forEach((x) => {
+                // Delete the database entities, everything is dereferenced
+                delete x.endpointTypeRef
+                delete x.endpointTypeCommandId
+              })
+              resolve(commandRows)
+            })
+        )
+      )
+
+      // We dereferenced everything, we can now delete the key
+      delete endpoint.endpointTypeId
+    })
+    return Promise.all(promises).then(() => endpoints)
+  })
+}
+
+function exportSessionPackages(db, sessionId) {
+  return Promise.resolve({ package: '' })
+}
 
 /**
  * Toplevel file that takes a given session ID and exports the data into the file
@@ -72,23 +154,30 @@ function createStateFromDatabase(db, sessionId) {
     }
     var promises = []
 
+    env.logInfo(`Exporting data for session: ${sessionId}`)
     // Deal with the key/value table
-    var getKeyValues = mapping
-      .exportSessionKeyValues(db, sessionId)
-      .then((data) => {
-        state.keyValuePairs = data
-        env.logInfo(`Retrieved session keys: ${data.length}`)
-        return Promise.resolve(data)
-      })
+    var getKeyValues = exportSessionKeyValues(db, sessionId).then((data) => {
+      state.keyValuePairs = data
+      env.logInfo(`Retrieved session keys: ${data.length}`)
+      return Promise.resolve(data)
+    })
     promises.push(getKeyValues)
 
-    var getAllEndpointTypes = mapping
-      .exportEndpointTypes(db, sessionId)
-      .then((data) => {
+    var getSessionPackages = exportSessionPackages(db, sessionId).then(
+      (data) => {
+        state.package = data
+        return Promise.resolve(data)
+      }
+    )
+    promises.push(getSessionPackages)
+
+    var getAllEndpointTypes = exportEndpointTypes(db, sessionId).then(
+      (data) => {
         env.logInfo(`Retrieved endpoint types: ${data.length}`)
         state.endpointTypes = data
         return Promise.resolve(data)
-      })
+      }
+    )
     promises.push(getAllEndpointTypes)
 
     return Promise.all(promises)
