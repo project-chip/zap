@@ -106,9 +106,12 @@ describe('Session specific tests', () => {
     }))
 
   test('add a package', () =>
-    queryPackage.insertPathCrc(db, 'PATH', 32).then((pkg) => {
-      packageId = pkg
-    }))
+    queryPackage
+      .insertPathCrc(db, 'PATH', 32)
+      .then((pkg) => {
+        packageId = pkg
+      })
+      .then(() => queryPackage.insertSessionPackage(db, sessionId, packageId)))
 
   test('load 2 clusters', () =>
     queryZcl.insertClusters(db, packageId, [
