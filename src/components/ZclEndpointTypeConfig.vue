@@ -17,9 +17,7 @@ limitations under the License.
   <div>
     <div>
       <!-- this section is for Title -->
-      <p style="text-align: left; font-size: 2vw;">
-        Endpoint Type Manager
-      </p>
+      <p style="text-align: left; font-size: 2vw;">Endpoint Type Manager</p>
     </div>
     <div class="row">
       <!-- this section is the input for "Enpoint Type Name" -->
@@ -46,7 +44,7 @@ limitations under the License.
           v-model="zclDeviceType"
           :options="zclDeviceTypeOptions"
           :option-label="
-            (item) => (item === null ? '' : zclDeviceTypes[item].label)
+            (item) => (item === null ? '' : zclDeviceTypes[item].description)
           "
           label="ZCL Device Type"
           @input="showConfirmZclDeviceTypeChangeDialog($event)"
@@ -96,7 +94,8 @@ limitations under the License.
                   v-model="newEndpointType.deviceTypeRef"
                   :options="zclDeviceTypeOptions"
                   :option-label="
-                    (item) => (item === null ? '' : zclDeviceTypes[item].label)
+                    (item) =>
+                      item === null ? '' : zclDeviceTypes[item].description
                   "
                   label="ZCL Device Type"
                 />
@@ -229,9 +228,10 @@ export default {
   computed: {
     zclDeviceTypeOptions: {
       get() {
-        return Object.keys(this.$store.state.zap.zclDeviceTypes).map((key) => {
-          return key
-        })
+        var dt = this.$store.state.zap.zclDeviceTypes
+        return Object.keys(dt).sort((a, b) =>
+          dt[a].description.localeCompare(dt[b].description)
+        )
       },
     },
     zclDeviceTypes: {
