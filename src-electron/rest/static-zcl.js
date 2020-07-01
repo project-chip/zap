@@ -218,7 +218,6 @@ function parseForZclData(db, path, id, packageIdArray) {
 }
 
 function processGetEntityRequest(db, path, id, replyId, sessionId, callback) {
-  var finalData = {}
   queryPackage
     .getSessionPackages(db, sessionId)
     .then((packageIdArray) => {
