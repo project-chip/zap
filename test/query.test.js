@@ -29,6 +29,7 @@ const queryPackage = require('../src-electron/db/query-package.js')
 const querySession = require('../src-electron/db/query-session.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const exportJs = require('../src-electron/importexport/export.js')
+const dbEnum = require('../src-electron/db/db-enum.js')
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -283,6 +284,9 @@ describe('Session specific queries', () => {
         expect(state.endpointTypes[0].clusters.length).toBe(0)
         expect(state.endpointTypes[0].attributes.length).toBe(0)
         expect(state.endpointTypes[0].commands.length).toBe(0)
+        expect(state.package.length).toBe(1)
+        expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
+        expect(state.package[0].version).toBe('ZCL Test Data')
       })
   })
 

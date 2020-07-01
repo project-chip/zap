@@ -25,6 +25,7 @@ const querySession = require('../db/query-session.js')
 const queryConfig = require('../db/query-config.js')
 const queryPackage = require('../db/query-package.js')
 const queryZcl = require('../db/query-zcl.js')
+const queryImpExp = require('../db/query-impexp.js')
 
 /**
  * Resolves to an array of objects that contain 'key' and 'value'
@@ -50,48 +51,18 @@ function exportEndpointTypes(db, sessionId) {
   return queryConfig.getAllEndpointTypes(db, sessionId).then((endpoints) => {
     var promises = []
     endpoints.forEach((endpoint) => {
+      // Add in the clusters.
       promises.push(
-        queryConfig
-          .getEndpointTypeClusters(db, endpoint.endpointTypeId)
-          .then((clusterRows) => {
-            var individualClusterPromises = []
-            endpoint.clusters = clusterRows
-            clusterRows.forEach((x) => {
-              // Delete the database entities, everything is dereferenced
-              delete x.endpointTypeRef
-              delete x.endpointTypeClusterId
-            })
-            return clusterRows
+        queryImpExp
+          .exportClustersFromEndpointType(db, endpoint.endpointTypeId)
+          .then((data) => {
+            endpoint.clusters = data
+            return data
           })
       )
 
-      promises.push(
-        queryConfig
-          .getEndpointTypeAttributes(db, endpoint.endpointTypeId)
-          .then((attributeRows) => {
-            endpoint.attributes = attributeRows
-            attributeRows.forEach((x) => {
-              // Delete the database entities, everything is dereferenced
-              delete x.endpointTypeRef
-              delete x.endpointTypeAttributeId
-            })
-            return attributeRows
-          })
-      )
-
-      promises.push(
-        queryConfig
-          .getEndpointTypeCommands(db, endpoint.endpointTypeId)
-          .then((commandRows) => {
-            endpoint.commands = commandRows
-            commandRows.forEach((x) => {
-              // Delete the database entities, everything is dereferenced
-              delete x.endpointTypeRef
-              delete x.endpointTypeCommandId
-            })
-            return commandRows
-          })
-      )
+      endpoint.commands = []
+      endpoint.attributes = []
 
       // We dereferenced everything, we can now delete the key
       delete endpoint.endpointTypeId
@@ -100,8 +71,14 @@ function exportEndpointTypes(db, sessionId) {
   })
 }
 
+/**
+ * Resolves with data for packages.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ */
 function exportSessionPackages(db, sessionId) {
-  return Promise.resolve({ package: '' })
+  return queryImpExp.exportPackagesFromSession(db, sessionId)
 }
 
 /**
