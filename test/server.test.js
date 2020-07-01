@@ -20,7 +20,7 @@
 
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
-const { selectCountFrom } = require('../src-electron/db/query-generic.js')
+const queryGeneric = require('../src-electron/db/query-generic.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const {
   getAllSessions,
@@ -78,7 +78,7 @@ afterAll(() =>
 
 describe('Session specific tests', () => {
   test('make sure there is no session at the beginning', () =>
-    selectCountFrom(db, 'SESSION').then((cnt) => {
+    queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(0)
     }))
 
@@ -96,7 +96,7 @@ describe('Session specific tests', () => {
     }))
 
   test('make sure there is 1 session after index.html', () =>
-    selectCountFrom(db, 'SESSION').then((cnt) => {
+    queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(1)
     }))
 
@@ -113,7 +113,7 @@ describe('Session specific tests', () => {
     }))
 
   test('make sure there is still 1 session after previous call', () =>
-    selectCountFrom(db, 'SESSION').then((cnt) => {
+    queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(1)
     }))
 
@@ -145,7 +145,7 @@ describe('Session specific tests', () => {
     }))
 
   test('make sure there is still 1 session after previous call', () =>
-    selectCountFrom(db, 'SESSION').then((cnt) => {
+    queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(1)
     }))
 
@@ -183,20 +183,20 @@ describe('Session specific tests', () => {
   // After a new file is loaded a new session will be created.
   // Therefore, at this point, there have to be EXACTLY 2 sessions.
   test('make sure there is now 2 sessions after previous call', () =>
-    selectCountFrom(db, 'SESSION').then((cnt) => {
+    queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(2)
     }))
 
   test('delete the first session', () =>
     deleteSession(db, sessionId)
-      .then(() => selectCountFrom(db, 'SESSION'))
+      .then(() => queryGeneric.selectCountFrom(db, 'SESSION'))
       .then((cnt) => {
         expect(cnt).toBe(1)
       }))
 
   test('delete the second session', () =>
     deleteSession(db, secondSessionId)
-      .then(() => selectCountFrom(db, 'SESSION'))
+      .then(() => queryGeneric.selectCountFrom(db, 'SESSION'))
       .then((cnt) => {
         expect(cnt).toBe(0)
       }))

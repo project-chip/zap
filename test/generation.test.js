@@ -18,88 +18,77 @@
  * @jest-environment node
  */
 
-const dbApi = require('../src-electron/db/db-api.js')
-const { selectCountFrom } = require('../src-electron/db/query-generic.js')
-const {
-  logError,
-  logInfo,
-  schemaFile,
-  setDevelopmentEnv,
-  sqliteTestFile,
-  setMainDatabase,
-  zapVersion,
-} = require('../src-electron/util/env.js')
-const {
-  setHandlebarTemplateDirForCli,
-  generateCodeViaCli,
-} = require('../src-electron/main-process/menu.js')
-const axios = require('axios')
-const { loadZcl } = require('../src-electron/zcl/zcl-loader.js')
 const fs = require('fs')
 const fsExtra = require('fs-extra')
+const axios = require('axios')
+const dbApi = require('../src-electron/db/db-api.js')
+const queryGeneric = require('../src-electron/db/query-generic.js')
+const env = require('../src-electron/util/env.js')
+const menuJs = require('../src-electron/main-process/menu.js')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/main-process/args.js')
-const {
-  initHttpServer,
-  shutdownHttpServer,
-} = require('../src-electron/server/http-server.js')
+const httpServer = require('../src-electron/server/http-server.js')
 
 var db
 const port = 9074
 const baseUrl = `http://localhost:${port}`
 var packageId
 var sessionId
-var file = sqliteTestFile(3)
+var file = env.sqliteTestFile(3)
 const timeout = 5000
 
 beforeAll(() => {
-  setDevelopmentEnv()
-  file = sqliteTestFile(3)
+  env.setDevelopmentEnv()
+  file = env.sqliteTestFile(3)
   return dbApi
     .initDatabase(file)
-    .then((d) => dbApi.loadSchema(d, schemaFile(), zapVersion()))
+    .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
     .then((d) => {
       db = d
-      logInfo(`Test database initialized: ${file}.`)
+      env.logInfo(`Test database initialized: ${file}.`)
     })
-    .catch((err) => logError(`Error: ${err}`))
+    .catch((err) => env.logError(`Error: ${err}`))
 }, 5000)
 
 afterAll(() => {
-  return shutdownHttpServer()
+  return httpServer
+    .shutdownHttpServer()
     .then(() => dbApi.closeDatabase(db))
     .then(() => {
-      var file = sqliteTestFile(3)
-      logInfo(`Removing test database: ${file}`)
+      var file = env.sqliteTestFile(3)
+      env.logInfo(`Removing test database: ${file}`)
       if (fs.existsSync(file)) fs.unlinkSync(file)
     })
 })
 
 describe('Session specific tests', () => {
   test('make sure there is no session at the beginning', () => {
-    return selectCountFrom(db, 'SESSION').then((cnt) => {
+    return queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(0)
     })
   })
 
   test(
     'Now actually load the static data.',
-    () => loadZcl(db, args.zclPropertiesFile),
+    () => zclLoader.loadZcl(db, args.zclPropertiesFile),
     timeout
   )
 
   test('http server initialization', () => {
-    return initHttpServer(db, port)
+    return httpServer.initHttpServer(db, port)
   })
 
   test(
     'Test command line generation using api used for command line generation',
     () => {
       return attachToDb(db)
-        .then((db) => dbApi.loadSchema(db, schemaFile(), zapVersion()))
-        .then((db) => loadZcl(db, args.zclPropertiesFile))
-        .then((ctx) => setHandlebarTemplateDirForCli('./test/gen-template/'))
+        .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+        .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
+        .then((ctx) =>
+          menuJs.setHandlebarTemplateDirForCli('./test/gen-template/')
+        )
         .then((handlebarTemplateDir) =>
-          generateCodeViaCli('./generation-test/')
+          menuJs.generateCodeViaCli('./generation-test/')
         )
         .then((res) => {
           return new Promise((resolve, reject) => {
@@ -125,7 +114,7 @@ describe('Session specific tests', () => {
 
   function attachToDb(db) {
     return new Promise((resolve, reject) => {
-      setMainDatabase(db)
+      env.setMainDatabase(db)
       resolve(db)
     })
   }

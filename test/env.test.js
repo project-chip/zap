@@ -18,22 +18,22 @@
  * @jest-environment node
  */
 
-const Env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.js')
 
 test('Test environment', () => {
-  expect(Env.appDirectory().length).toBeGreaterThan(10)
-  expect(Env.sqliteFile().length).toBeGreaterThan(10)
-  expect(Env.iconsDirectory().length).toBeGreaterThan(10)
+  expect(env.appDirectory().length).toBeGreaterThan(10)
+  expect(env.sqliteFile().length).toBeGreaterThan(10)
+  expect(env.iconsDirectory().length).toBeGreaterThan(10)
 })
 
 test('Test logging', () => {
-  Env.logSql('Sql log test.')
-  Env.logInfo('Info log test.')
-  Env.logWarning('Warn log test.')
-  Env.logError('Error log test.')
+  env.logSql('Sql log test.')
+  env.logInfo('Info log test.')
+  env.logWarning('Warn log test.')
+  env.logError('Error log test.')
 })
 
 test('Main database', () => {
-  Env.setMainDatabase('stalin')
-  expect(Env.mainDatabase()).toBe('stalin')
+  env.setMainDatabase('stalin')
+  expect(env.mainDatabase()).toBe('stalin')
 })

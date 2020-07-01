@@ -18,8 +18,8 @@
  * @jest-environment node
  */
 
-const args = require('../src-electron/main-process/args')
 const yargs = require('yargs')
+const args = require('../src-electron/main-process/args.js')
 
 test('Test basic command line processing', () => {
   var a = args.processCommandLineArguments([
