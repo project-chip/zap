@@ -90,5 +90,29 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENABLED = 1 AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_
     .then((rows) => rows.map(mapFunction))
 }
 
+/**
+ * Returns a promise of data for attributes inside an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the attribute data.
+ */
+function exportAttributesFromEndpointType(db, endpointTypeId) {
+  return Promise.resolve([])
+}
+
+/**
+ * Returns a promise of data for commands inside an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the command data.
+ */
+function exportCommandsFromEndpointType(db, endpointTypeId) {
+  return Promise.resolve([])
+}
+
 exports.exportClustersFromEndpointType = exportClustersFromEndpointType
 exports.exportPackagesFromSession = exportPackagesFromSession
+exports.exportAttributesFromEndpointType = exportAttributesFromEndpointType
+exports.exportCommandsFromEndpointType = exportCommandsFromEndpointType

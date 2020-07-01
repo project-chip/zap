@@ -61,8 +61,23 @@ function exportEndpointTypes(db, sessionId) {
           })
       )
 
-      endpoint.commands = []
-      endpoint.attributes = []
+      promises.push(
+        queryImpExp
+          .exportCommandsFromEndpointType(db, endpoint.endpointTypeId)
+          .then((data) => {
+            endpoint.commands = data
+            return data
+          })
+      )
+
+      promises.push(
+        queryImpExp
+          .exportAttributesFromEndpointType(db, endpoint.endpointTypeId)
+          .then((data) => {
+            endpoint.attributes = data
+            return data
+          })
+      )
 
       // We dereferenced everything, we can now delete the key
       delete endpoint.endpointTypeId
