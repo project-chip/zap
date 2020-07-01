@@ -18,30 +18,18 @@
  * @jest-environment node
  */
 
+const fs = require('fs')
+const path = require('path')
+const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const queryPackage = require('../src-electron/db/query-package.js')
-const {
-  getAllSessions,
-  deleteSession,
-} = require('../src-electron/db/query-session.js')
-
+const querySession = require('../src-electron/db/query-session.js')
 const httpServer = require('../src-electron/server/http-server.js')
-const {
-  logError,
-  setDevelopmentEnv,
-  sqliteTestFile,
-  logInfo,
-  appDirectory,
-  schemaFile,
-  zapVersion,
-} = require('../src-electron/util/env.js')
-const fs = require('fs')
-const path = require('path')
-const axios = require('axios')
-const { exportDataIntoFile } = require('../src-electron/importexport/export.js')
-const { importDataFromFile } = require('../src-electron/importexport/import.js')
+const env = require('../src-electron/util/env.js')
+const exportJs = require('../src-electron/importexport/export.js')
+const importJs = require('../src-electron/importexport/import.js')
 
 var db
 const port = 9073
@@ -52,17 +40,17 @@ var sessionCookie = null
 var axiosInstance = null
 
 beforeAll(() => {
-  setDevelopmentEnv()
-  var file = sqliteTestFile(2)
+  env.setDevelopmentEnv()
+  var file = env.sqliteTestFile(2)
   axiosInstance = axios.create({ baseURL: baseUrl })
   return dbApi
     .initDatabase(file)
-    .then((d) => dbApi.loadSchema(d, schemaFile(), zapVersion()))
+    .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
     .then((d) => {
       db = d
-      logInfo(`Test database initialized: ${file}.`)
+      env.logInfo(`Test database initialized: ${file}.`)
     })
-    .catch((err) => logError(`Error: ${err}`))
+    .catch((err) => env.logError(`Error: ${err}`))
 }, 5000)
 
 afterAll(() =>
@@ -70,8 +58,8 @@ afterAll(() =>
     .shutdownHttpServer()
     .then(() => dbApi.closeDatabase(db))
     .then(() => {
-      var file = sqliteTestFile(2)
-      logInfo(`Removing test database: ${file}`)
+      var file = env.sqliteTestFile(2)
+      env.logInfo(`Removing test database: ${file}`)
       if (fs.existsSync(file)) fs.unlinkSync(file)
     })
 )
@@ -101,9 +89,9 @@ describe('Session specific tests', () => {
     }))
 
   test('save session', () =>
-    getAllSessions(db).then((results) => {
+    querySession.getAllSessions(db).then((results) => {
       sessionId = results[0].sessionId
-      logInfo(`SESSION ID: ${sessionId}`)
+      env.logInfo(`SESSION ID: ${sessionId}`)
     }))
 
   test('test that there is 0 clusters initially', () =>
@@ -165,14 +153,15 @@ describe('Session specific tests', () => {
 
   // We save and then load, which creates a new session.
   test('save into a file and load from file', () => {
-    var f = path.join(appDirectory(), 'test-output.json')
+    var f = path.join(env.appDirectory(), 'test-output.json')
     if (fs.existsSync(f)) fs.unlinkSync(f)
     expect(fs.existsSync(f)).toBeFalsy()
-    return exportDataIntoFile(db, sessionId, f)
+    return exportJs
+      .exportDataIntoFile(db, sessionId, f)
       .then(() => {
         expect(fs.existsSync(f)).toBeTruthy()
       })
-      .then(() => importDataFromFile(db, f))
+      .then(() => importJs.importDataFromFile(db, f))
       .then((nextSessionId) => {
         secondSessionId = nextSessionId
         fs.unlinkSync(f)
@@ -188,14 +177,16 @@ describe('Session specific tests', () => {
     }))
 
   test('delete the first session', () =>
-    deleteSession(db, sessionId)
+    querySession
+      .deleteSession(db, sessionId)
       .then(() => queryGeneric.selectCountFrom(db, 'SESSION'))
       .then((cnt) => {
         expect(cnt).toBe(1)
       }))
 
   test('delete the second session', () =>
-    deleteSession(db, secondSessionId)
+    querySession
+      .deleteSession(db, secondSessionId)
       .then(() => queryGeneric.selectCountFrom(db, 'SESSION'))
       .then((cnt) => {
         expect(cnt).toBe(0)
