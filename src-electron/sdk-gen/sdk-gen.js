@@ -302,16 +302,17 @@ function generateClusters(ctx, options) {
  *
  * @param {*} ctx Contains generationDir, templateDir, db and options dontWrite which can prevent final writing.
  */
-function runSdkGeneration(ctx) {
+function runSdkGeneration(
+  ctx,
+  options = {
+    generateCommands: false,
+    generateAttributes: false,
+  }
+) {
   console.log(`Generating SDK artifacts into ${ctx.generationDir}`)
   var promises = []
   promises.push(generateDeviceTypes(ctx))
-  promises.push(
-    generateClusters(ctx, {
-      generateCommands: false,
-      generateAttributes: false,
-    })
-  )
+  promises.push(generateClusters(ctx, options))
 
   var mainPromise
   if (ctx.dontWrite) {

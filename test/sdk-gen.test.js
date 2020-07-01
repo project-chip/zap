@@ -59,11 +59,17 @@ describe('SDK gen tests', () => {
 
   test('SDK generation', () => {
     var dir = path.join(env.appDirectory(), 'sdk-gen')
-    return sdkGen.runSdkGeneration({
-      db: db,
-      generationDir: dir,
-      templateDir: '',
-      dontWrite: true,
-    })
+    return sdkGen.runSdkGeneration(
+      {
+        db: db,
+        generationDir: dir,
+        templateDir: '',
+        dontWrite: true,
+      },
+      {
+        generateCommands: true,
+        generateAttributes: true,
+      }
+    )
   }, 5000)
 })
