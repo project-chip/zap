@@ -51,48 +51,46 @@ function exportEndpointTypes(db, sessionId) {
     var promises = []
     endpoints.forEach((endpoint) => {
       promises.push(
-        queryConfig.getEndpointTypeClusters(db, endpoint.endpointTypeId).then(
-          (clusterRows) =>
-            new Promise((resolve, reject) => {
-              endpoint.clusters = clusterRows
-              clusterRows.forEach((x) => {
-                // Delete the database entities, everything is dereferenced
-                delete x.endpointTypeRef
-                delete x.endpointTypeClusterId
-              })
-              resolve(clusterRows)
+        queryConfig
+          .getEndpointTypeClusters(db, endpoint.endpointTypeId)
+          .then((clusterRows) => {
+            var individualClusterPromises = []
+            endpoint.clusters = clusterRows
+            clusterRows.forEach((x) => {
+              // Delete the database entities, everything is dereferenced
+              delete x.endpointTypeRef
+              delete x.endpointTypeClusterId
             })
-        )
+            return clusterRows
+          })
       )
 
       promises.push(
-        queryConfig.getEndpointTypeAttributes(db, endpoint.endpointTypeId).then(
-          (attributeRows) =>
-            new Promise((resolve, reject) => {
-              endpoint.attributes = attributeRows
-              attributeRows.forEach((x) => {
-                // Delete the database entities, everything is dereferenced
-                delete x.endpointTypeRef
-                delete x.endpointTypeAttributeId
-              })
-              resolve(attributeRows)
+        queryConfig
+          .getEndpointTypeAttributes(db, endpoint.endpointTypeId)
+          .then((attributeRows) => {
+            endpoint.attributes = attributeRows
+            attributeRows.forEach((x) => {
+              // Delete the database entities, everything is dereferenced
+              delete x.endpointTypeRef
+              delete x.endpointTypeAttributeId
             })
-        )
+            return attributeRows
+          })
       )
 
       promises.push(
-        queryConfig.getEndpointTypeCommands(db, endpoint.endpointTypeId).then(
-          (commandRows) =>
-            new Promise((resolve, reject) => {
-              endpoint.commands = commandRows
-              commandRows.forEach((x) => {
-                // Delete the database entities, everything is dereferenced
-                delete x.endpointTypeRef
-                delete x.endpointTypeCommandId
-              })
-              resolve(commandRows)
+        queryConfig
+          .getEndpointTypeCommands(db, endpoint.endpointTypeId)
+          .then((commandRows) => {
+            endpoint.commands = commandRows
+            commandRows.forEach((x) => {
+              // Delete the database entities, everything is dereferenced
+              delete x.endpointTypeRef
+              delete x.endpointTypeCommandId
             })
-        )
+            return commandRows
+          })
       )
 
       // We dereferenced everything, we can now delete the key
