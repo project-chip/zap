@@ -1,0 +1,250 @@
+{
+  "writeTime": "Wed Jul 01 2020 21:39:03 GMT-0400 (Eastern Daylight Time)",
+  "creator": "zap",
+  "package": [
+    {
+      "path": "./test/zcl/zcl-test.properties",
+      "version": "ZCL Test Data",
+      "type": "zcl-properties"
+    }
+  ],
+  "keyValuePairs": [
+    {
+      "key": "filePath",
+      "value": "/home/timotej/git/zap/test.json"
+    }
+  ],
+  "endpointTypes": [
+    {
+      "name": "gimbalu",
+      "deviceTypeName": "TA-chattingstation",
+      "deviceTypeCode": "0x0601",
+      "clusters": [
+        {
+          "name": "Basic",
+          "code": "0x0000",
+          "mfgCode": null,
+          "side": "server"
+        },
+        {
+          "name": "Power Configuration",
+          "code": "0x0001",
+          "mfgCode": null,
+          "side": "client"
+        },
+        {
+          "name": "Power Configuration",
+          "code": "0x0001",
+          "mfgCode": null,
+          "side": "server"
+        },
+        {
+          "name": "Chatting",
+          "code": "0x0905",
+          "mfgCode": null,
+          "side": "server"
+        }
+      ],
+      "commands": [
+        {
+          "name": "JoinChatRequest",
+          "code": "0x00",
+          "mfgCode": null,
+          "incoming": 0,
+          "outgoing": 1
+        },
+        {
+          "name": "LeaveChatRequest",
+          "code": "0x01",
+          "mfgCode": null,
+          "incoming": 0,
+          "outgoing": 1
+        },
+        {
+          "name": "SearchChatRequest",
+          "code": "0x02",
+          "mfgCode": null,
+          "incoming": 0,
+          "outgoing": 1
+        },
+        {
+          "name": "ChatMessage",
+          "code": "0x05",
+          "mfgCode": null,
+          "incoming": 0,
+          "outgoing": 1
+        },
+        {
+          "name": "JoinChatResponse",
+          "code": "0x01",
+          "mfgCode": null,
+          "incoming": 0,
+          "outgoing": 1
+        },
+        {
+          "name": "UserLeft",
+          "code": "0x02",
+          "mfgCode": null,
+          "incoming": 0,
+          "outgoing": 1
+        },
+        {
+          "name": "UserJoined",
+          "code": "0x03",
+          "mfgCode": null,
+          "incoming": 0,
+          "outgoing": 1
+        },
+        {
+          "name": "SearchChatResponse",
+          "code": "0x04",
+          "mfgCode": null,
+          "incoming": 0,
+          "outgoing": 1
+        }
+      ],
+      "attributes": [
+        {
+          "name": "cluster revision",
+          "code": "0xFFFD",
+          "mfgCode": null,
+          "external": 0,
+          "flash": 0,
+          "singleton": 0,
+          "bounded": 0,
+          "defaultValue": "0x0001",
+          "reportable": 0,
+          "minInterval": 0,
+          "maxInterval": 65344,
+          "reportableChange": 0
+        },
+        {
+          "name": "cluster revision",
+          "code": "0xFFFD",
+          "mfgCode": null,
+          "external": 0,
+          "flash": 0,
+          "singleton": 0,
+          "bounded": 0,
+          "defaultValue": "0x0001",
+          "reportable": 0,
+          "minInterval": 0,
+          "maxInterval": 65344,
+          "reportableChange": 0
+        },
+        {
+          "name": "cluster revision",
+          "code": "0xFFFD",
+          "mfgCode": null,
+          "external": 0,
+          "flash": 0,
+          "singleton": 0,
+          "bounded": 0,
+          "defaultValue": "0x0001",
+          "reportable": 0,
+          "minInterval": 0,
+          "maxInterval": 65344,
+          "reportableChange": 0
+        },
+        {
+          "name": "cluster revision",
+          "code": "0xFFFD",
+          "mfgCode": null,
+          "external": 0,
+          "flash": 0,
+          "singleton": 0,
+          "bounded": 0,
+          "defaultValue": "0x0001",
+          "reportable": 0,
+          "minInterval": 0,
+          "maxInterval": 65344,
+          "reportableChange": 0
+        },
+        {
+          "name": "ZCL version",
+          "code": "0x0000",
+          "mfgCode": null,
+          "external": 0,
+          "flash": 0,
+          "singleton": 0,
+          "bounded": 0,
+          "defaultValue": "0x03",
+          "reportable": 0,
+          "minInterval": 0,
+          "maxInterval": 65344,
+          "reportableChange": 0
+        },
+        {
+          "name": "power source",
+          "code": "0x0007",
+          "mfgCode": null,
+          "external": 0,
+          "flash": 0,
+          "singleton": 0,
+          "bounded": 0,
+          "defaultValue": "0x00",
+          "reportable": 0,
+          "minInterval": 0,
+          "maxInterval": 65344,
+          "reportableChange": 0
+        },
+        {
+          "name": "u id",
+          "code": "0x0000",
+          "mfgCode": null,
+          "external": 0,
+          "flash": 0,
+          "singleton": 0,
+          "bounded": 0,
+          "defaultValue": "",
+          "reportable": 0,
+          "minInterval": 0,
+          "maxInterval": 65344,
+          "reportableChange": 0
+        },
+        {
+          "name": "nickname",
+          "code": "0x0001",
+          "mfgCode": null,
+          "external": 0,
+          "flash": 0,
+          "singleton": 0,
+          "bounded": 0,
+          "defaultValue": "",
+          "reportable": 0,
+          "minInterval": 0,
+          "maxInterval": 65344,
+          "reportableChange": 0
+        },
+        {
+          "name": "c iD",
+          "code": "0x0010",
+          "mfgCode": null,
+          "external": 0,
+          "flash": 0,
+          "singleton": 0,
+          "bounded": 0,
+          "defaultValue": "",
+          "reportable": 0,
+          "minInterval": 0,
+          "maxInterval": 65344,
+          "reportableChange": 0
+        },
+        {
+          "name": "name",
+          "code": "0x0011",
+          "mfgCode": null,
+          "external": 0,
+          "flash": 0,
+          "singleton": 0,
+          "bounded": 0,
+          "defaultValue": "",
+          "reportable": 0,
+          "minInterval": 0,
+          "maxInterval": 65344,
+          "reportableChange": 0
+        }
+      ]
+    }
+  ]
+}
