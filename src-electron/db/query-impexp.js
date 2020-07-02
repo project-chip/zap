@@ -98,7 +98,47 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENABLED = 1 AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_
  * @returns Promise that resolves with the attribute data.
  */
 function exportAttributesFromEndpointType(db, endpointTypeId) {
-  return Promise.resolve([])
+  var mapFunction = (x) => {
+    return {
+      name: x.NAME,
+      code: x.CODE,
+      mfgCode: x.MANUFACTURER_CODE,
+      external: x.EXTERNAL,
+      flash: x.FLASH,
+      singleton: x.SINGLETON,
+      bounded: x.BOUNDED,
+      defaultValue: x.DEFAULT_VALUE,
+      reportable: x.INCLUDED_REPORTABLE,
+      minInterval: x.MIN_INTERVAL,
+      maxInterval: x.MAX_INTERVAL,
+      reportableChange: x.REPORTABLE_CHANGE,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  ATTRIBUTE.NAME,
+  ATTRIBUTE.CODE,
+  ATTRIBUTE.MANUFACTURER_CODE,
+  ENDPOINT_TYPE_ATTRIBUTE.EXTERNAL,
+  ENDPOINT_TYPE_ATTRIBUTE.FLASH,
+  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
+  ENDPOINT_TYPE_ATTRIBUTE.BOUNDED,
+  ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE,
+  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED_REPORTABLE,
+  ENDPOINT_TYPE_ATTRIBUTE.MIN_INTERVAL,
+  ENDPOINT_TYPE_ATTRIBUTE.MAX_INTERVAL,
+  ENDPOINT_TYPE_ATTRIBUTE.REPORTABLE_CHANGE
+FROM ATTRIBUTE
+INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
+ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+WHERE ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?
+    `,
+      [endpointTypeId]
+    )
+    .then((rows) => rows.map(mapFunction))
 }
 
 /**
@@ -109,7 +149,33 @@ function exportAttributesFromEndpointType(db, endpointTypeId) {
  * @returns Promise that resolves with the command data.
  */
 function exportCommandsFromEndpointType(db, endpointTypeId) {
-  return Promise.resolve([])
+  var mapFunction = (x) => {
+    return {
+      name: x.NAME,
+      code: x.CODE,
+      mfgCode: x.MANUFACTURER_CODE,
+      incoming: x.INCOMING,
+      outgoing: x.OUTGOING,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    COMMAND.NAME,
+    COMMAND.CODE,
+    COMMAND.MANUFACTURER_CODE,
+    ENDPOINT_TYPE_COMMAND.INCOMING,
+    ENDPOINT_TYPE_COMMAND.OUTGOING
+  FROM COMMAND
+  INNER JOIN ENDPOINT_TYPE_COMMAND
+  ON COMMAND.COMMAND_ID = ENDPOINT_TYPE_COMMAND.COMMAND_REF
+  WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ?
+        `,
+      [endpointTypeId]
+    )
+    .then((rows) => rows.map(mapFunction))
 }
 
 exports.exportClustersFromEndpointType = exportClustersFromEndpointType
