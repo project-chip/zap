@@ -23,8 +23,6 @@ const fs = require('fs')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const queryConfig = require('../db/query-config.js')
-const queryPackage = require('../db/query-package.js')
-const queryZcl = require('../db/query-zcl.js')
 const queryImpExp = require('../db/query-impexp.js')
 
 /**
@@ -48,7 +46,7 @@ function exportSessionKeyValues(db, sessionId) {
  * @returns Promise to retrieve all endpoint types.
  */
 function exportEndpointTypes(db, sessionId) {
-  return queryConfig.getAllEndpointTypes(db, sessionId).then((endpoints) => {
+  return queryImpExp.exportEndpointTypes(db, sessionId).then((endpoints) => {
     var promises = []
     endpoints.forEach((endpoint) => {
       // Add in the clusters.

@@ -21,7 +21,46 @@
  * @module DB API: package-based queries.
  */
 const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping.js')
+
+/**
+ * Extracts raw endpoint types rows.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into rows in the database table.
+ */
+function exportEndpointTypes(db, sessionId) {
+  var mapFunction = (x) => {
+    return {
+      endpointTypeId: x.ENDPOINT_TYPE_ID,
+      name: x.NAME,
+      deviceTypeName: x.DEVICE_TYPE_NAME,
+      deviceTypeCode: x.DEVICE_TYPE_CODE,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  ENDPOINT_TYPE.ENDPOINT_TYPE_ID, 
+  ENDPOINT_TYPE.NAME, 
+  ENDPOINT_TYPE.DEVICE_TYPE_REF,
+  DEVICE_TYPE.CODE AS DEVICE_TYPE_CODE,
+  DEVICE_TYPE.NAME AS DEVICE_TYPE_NAME
+FROM 
+  ENDPOINT_TYPE 
+LEFT JOIN
+  DEVICE_TYPE
+ON 
+  ENDPOINT_TYPE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+WHERE ENDPOINT_TYPE.SESSION_REF = ? ORDER BY ENDPOINT_TYPE.NAME`,
+      [sessionId]
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+exports.exportEndpointTypes = exportEndpointTypes
 
 /**
  * Exports packages for externalized form.
