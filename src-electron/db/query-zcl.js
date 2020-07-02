@@ -605,6 +605,7 @@ function insertClusterExtensions(db, packageId, data) {
                 lastId,
                 packageId,
                 command.code,
+                command.manufacturerCode,
                 command.name,
                 command.description,
                 command.source,
@@ -620,6 +621,7 @@ function insertClusterExtensions(db, packageId, data) {
                 lastId,
                 packageId,
                 attribute.code,
+                attribute.manufacturerCode,
                 attribute.name,
                 attribute.type,
                 attribute.side,
@@ -644,7 +646,7 @@ function insertClusterExtensions(db, packageId, data) {
       var pCommand = dbApi
         .dbMultiInsert(
           db,
-          'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?)',
+          'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?,?)',
           commandsToLoad
         )
         .then((lids) => {
@@ -666,7 +668,7 @@ function insertClusterExtensions(db, packageId, data) {
         })
       var pAttribute = dbApi.dbMultiInsert(
         db,
-        'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         attributesToLoad
       )
       return Promise.all([pCommand, pAttribute])
@@ -688,14 +690,17 @@ function insertClusters(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
-      'INSERT INTO CLUSTER (PACKAGE_REF, CODE, NAME, DESCRIPTION, DEFINE) VALUES (?, ?, ?, ?, ?)',
-      data.map((cluster) => [
-        packageId,
-        cluster.code,
-        cluster.name,
-        cluster.description,
-        cluster.define,
-      ])
+      'INSERT INTO CLUSTER (PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE) VALUES (?, ?, ?, ?, ?, ?)',
+      data.map((cluster) => {
+        return [
+          packageId,
+          cluster.code,
+          cluster.manufacturerCode,
+          cluster.name,
+          cluster.description,
+          cluster.define,
+        ]
+      })
     )
     .then((lastIdsArray) => {
       var commandsToLoad = []

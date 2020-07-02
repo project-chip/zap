@@ -193,6 +193,7 @@ function prepareCluster(cluster, isExtension = false) {
     ret.name = cluster.name[0]
     ret.description = cluster.description[0]
     ret.define = cluster.define[0]
+    if ('$' in cluster) ret.manufacturerCode = cluster['$'].manufacturerCode
   }
 
   if ('command' in cluster) {
@@ -200,6 +201,7 @@ function prepareCluster(cluster, isExtension = false) {
     cluster.command.forEach((command) => {
       var cmd = {
         code: command.$.code,
+        manufacturerCode: command.$.manufacturerCode,
         name: command.$.name,
         description: command.description[0],
         source: command.$.source,
@@ -223,6 +225,7 @@ function prepareCluster(cluster, isExtension = false) {
     cluster.attribute.forEach((attribute) => {
       ret.attributes.push({
         code: attribute.$.code,
+        manufacturerCode: attribute.$.manufacturerCode,
         name: attribute._,
         type: attribute.$.type,
         side: attribute.$.side,
