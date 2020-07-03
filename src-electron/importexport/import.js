@@ -23,6 +23,8 @@ const fs = require('fs')
 const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
+const queryPackage = require('../db/query-package.js')
+const dbApi = require('../db/db-api.js')
 
 /**
  * Resolves with a promise that imports session key values.
@@ -34,6 +36,7 @@ const querySession = require('../db/query-session.js')
 function importSessionKeyValues(db, sessionId, keyValuePairs) {
   var allQueries = []
   if (keyValuePairs != null) {
+    env.logInfo(`Loading ${keyValuePairs.length} packages`)
     // Write key value pairs
     keyValuePairs.forEach((element) => {
       allQueries.push(
@@ -41,7 +44,27 @@ function importSessionKeyValues(db, sessionId, keyValuePairs) {
       )
     })
   }
-  return Promise.all(allQueries).then(() => Promise.resolve(sessionId))
+  return Promise.all(allQueries).then(() => sessionId)
+}
+
+function importPackages(db, sessionId, packages) {
+  var allQueries = []
+  if (packages != null) {
+    env.logInfo(`Loading ${packages.length} packages`)
+    packages.forEach((p) => {
+      // Each p has 'path', 'version', 'type'
+    })
+  }
+  return Promise.all(allQueries).then(() => sessionId)
+}
+
+function importEndpointTypes(db, sessionId, endpointTypes) {
+  var allQueries = []
+  if (endpointTypes != null) {
+    env.logInfo(`Loading ${endpointTypes.length} endpoint types`)
+    endpointTypes.forEach((et) => {})
+  }
+  return Promise.all(allQueries).then(() => sessionId)
 }
 
 /**
@@ -71,17 +94,27 @@ function readDataFromFile(filePath) {
  * @returns a promise that resolves with the sucessful writing
  */
 function writeStateToDatabase(db, state) {
-  return querySession
-    .createBlankSession(db)
+  return dbApi
+    .dbBeginTransaction(db)
+    .then(() => querySession.createBlankSession(db))
     .then((sessionId) => {
       env.logInfo('Reading state from file into the database...')
-      if ('keyValuePairs' in state) {
-        return importSessionKeyValues(db, sessionId, state.keyValuePairs).then(
-          () => sessionId
-        )
-      } else {
-        return sessionId
+      var promises = []
+      if ('package' in state) {
+        promises.push(importPackages(db, sessionId, state.packages))
       }
+
+      if ('keyValuePairs' in state) {
+        promises.push(
+          importSessionKeyValues(db, sessionId, state.keyValuePairs)
+        )
+      }
+
+      if ('endpointTypes' in state) {
+        promises.push(importEndpointTypes(db, sessionId, state.endpointTypes))
+      }
+
+      return Promise.all(promises).then(() => sessionId)
     })
     .then((sessionId) => {
       if ('endpointTypes' in state) {
@@ -92,6 +125,7 @@ function writeStateToDatabase(db, state) {
         return sessionId
       }
     })
+    .finally(() => dbApi.dbCommit(db))
 }
 
 /**

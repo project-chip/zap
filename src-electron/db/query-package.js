@@ -31,12 +31,35 @@ const dbMapping = require('./db-mapping.js')
  * @param {*} db
  * @param {*} path Path of a file to check.
  */
-function getPackageByPath(db, path) {
+function getPackageByPathAndParent(db, path, parentId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ?',
-      [path]
+      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ? AND PARENT_PACKAGE_REF = ?',
+      [path, parentId]
+    )
+    .then(
+      (row) =>
+        new Promise((resolve, reject) => {
+          resolve(dbMapping.map.package(row))
+        })
+    )
+}
+
+/**
+ * Returns the package by path and type.
+ *
+ * @param {*} db
+ * @param {*} path
+ * @param {*} type
+ * @returns Promise of a query.
+ */
+function getPackageByPathAndType(db, path, type) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ? AND TYPE = ?',
+      [path, type]
     )
     .then(
       (row) =>
@@ -148,13 +171,13 @@ function insertPathCrc(db, path, crc, type, parentId = null) {
  * @param {*} [parentId=null]
  * @returns Promise of an insert or update.
  */
-function registerPackage(db, path, crc, type, parentId = null) {
-  return getPackageByPath(db, path).then((row) => {
+function registerTopLevelPackage(db, path, crc, type) {
+  return getPackageByPathAndType(db, path, type).then((row) => {
     if (row == null) {
       return dbApi.dbInsert(
         db,
         'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF ) VALUES (?,?,?,?)',
-        [path, crc, type, parentId]
+        [path, crc, type, null]
       )
     } else {
       return Promise.resolve(row.id)
@@ -171,11 +194,12 @@ function registerPackage(db, path, crc, type, parentId = null) {
  * @param {*} crc
  * @returns Promise of an update.
  */
-function updatePathCrc(db, path, crc) {
-  return dbApi.dbUpdate(db, 'UPDATE PACKAGE SET CRC = ? WHERE PATH = ?', [
-    path,
-    crc,
-  ])
+function updatePathCrc(db, path, crc, parentId) {
+  return dbApi.dbUpdate(
+    db,
+    'UPDATE PACKAGE SET CRC = ? WHERE PATH = ? AND PARENT_PACKAGE_REF = ?',
+    [path, crc, parentId]
+  )
 }
 
 /**
@@ -256,13 +280,13 @@ function callPackageSpecificFunctionOverSessionPackages(
 }
 
 // exports
-exports.getPackageByPath = getPackageByPath
+exports.getPackageByPathAndParent = getPackageByPathAndParent
 exports.getPackageByPackageId = getPackageByPackageId
 exports.getPackagesByType = getPackagesByType
 exports.getPathCrc = getPathCrc
 exports.insertPathCrc = insertPathCrc
 exports.updatePathCrc = updatePathCrc
-exports.registerPackage = registerPackage
+exports.registerTopLevelPackage = registerTopLevelPackage
 exports.updateVersion = updateVersion
 exports.insertSessionPackage = insertSessionPackage
 exports.getSessionPackages = getSessionPackages

@@ -81,26 +81,36 @@ test('File location queries.', () =>
 
 test('Replace query', () =>
   dbApi
-    .dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
-      'thePath',
-      12,
-    ])
-    .then((rowId) => expect(rowId).toBeGreaterThan(0))
-    .then(() =>
-      dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
-    )
-    .then((result) => expect(result.CRC).toBe(12))
-    .then(() =>
-      dbApi.dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
-        'thePath',
-        13,
-      ])
+    .dbInsert(
+      db,
+      'REPLACE INTO SETTING (CATEGORY, KEY, VALUE) VALUES (?,?,?)',
+      ['cat', 'key', 12]
     )
     .then((rowId) => expect(rowId).toBeGreaterThan(0))
     .then(() =>
-      dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
+      dbApi.dbGet(
+        db,
+        'SELECT VALUE FROM SETTING WHERE CATEGORY = ? AND KEY = ?',
+        ['cat', 'key']
+      )
     )
-    .then((result) => expect(result.CRC).toBe(13)))
+    .then((result) => expect(result.VALUE).toBe('12'))
+    .then(() =>
+      dbApi.dbInsert(
+        db,
+        'REPLACE INTO SETTING (CATEGORY, KEY, VALUE) VALUES (?,?,?)',
+        ['cat', 'key', 13]
+      )
+    )
+    .then((rowId) => expect(rowId).toBeGreaterThan(0))
+    .then(() =>
+      dbApi.dbGet(
+        db,
+        'SELECT VALUE FROM SETTING WHERE CATEGORY = ? AND KEY = ?',
+        ['cat', 'key']
+      )
+    )
+    .then((result) => expect(result.VALUE).toBe('13')))
 
 test('Simple cluster addition.', () =>
   queryPackage

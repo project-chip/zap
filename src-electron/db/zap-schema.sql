@@ -26,12 +26,11 @@ DROP TABLE IF EXISTS "PACKAGE";
 CREATE TABLE "PACKAGE" (
   "PACKAGE_ID" integer primary key autoincrement,
   "PARENT_PACKAGE_REF" integer,
-  "PATH" text NOT NULL UNIQUE,
+  "PATH" text NOT NULL,
   "TYPE" text,
   "CRC" integer,
   "VERSION" text,
-  foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID),
-  UNIQUE(PATH)
+  foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*
  *  $$$$$$\    $$\                $$\     $$\                       $$\            $$\               
@@ -558,7 +557,8 @@ END;
 CREATE TABLE IF NOT EXISTS "SETTING" (
   "CATEGORY" text,
   "KEY" text,
-  "VALUE" text
+  "VALUE" text,
+  UNIQUE(CATEGORY, KEY)
 );
 /*
  Previously touched file locations. This should be used as a history for dialogs or any other place that needs to
