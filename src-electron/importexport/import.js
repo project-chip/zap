@@ -24,7 +24,9 @@ const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
 const queryPackage = require('../db/query-package.js')
+const queryImpexp = require('../db/query-impexp.js')
 const dbApi = require('../db/db-api.js')
+const dbEnum = require('../db/db-enum.js')
 
 /**
  * Resolves with a promise that imports session key values.
@@ -47,24 +49,63 @@ function importSessionKeyValues(db, sessionId, keyValuePairs) {
   return Promise.all(allQueries).then(() => sessionId)
 }
 
+// Resolves into a { packageId:, packageType:} object, pkg has `path`, `version`, `type`.
+function importSinglePackage(db, sessionId, pkg) {
+  return Promise.resolve({
+    packageId: 0, // TODO
+    packageType: pkg.type,
+  })
+}
+
+// Resolves an array of { packageId:, packageType:} objects into { packageId: id, otherIds: [] }
+function convertPackageResult(sessionId, data) {
+  var ret = {
+    sessionId: sessionId,
+    packageId: null,
+    otherIds: [],
+  }
+  data.forEach((obj) => {
+    if (obj.type == dbEnum.packageType.zclProperties) {
+      ret.packageId = obj.packageId
+    } else {
+      ret.otherIds.push(obj.packageId)
+    }
+  })
+  return ret
+}
+
+// Returns a promise that resolves into an object containing: packageId and otherIds
 function importPackages(db, sessionId, packages) {
   var allQueries = []
   if (packages != null) {
     env.logInfo(`Loading ${packages.length} packages`)
     packages.forEach((p) => {
-      // Each p has 'path', 'version', 'type'
+      allQueries.push(importSinglePackage(db, sessionId, p))
     })
   }
-  return Promise.all(allQueries).then(() => sessionId)
+  return Promise.all(allQueries).then((data) =>
+    convertPackageResult(sessionId, data)
+  )
 }
 
-function importEndpointTypes(db, sessionId, endpointTypes) {
+function importEndpointTypes(db, sessionId, packageId, endpointTypes) {
   var allQueries = []
   if (endpointTypes != null) {
     env.logInfo(`Loading ${endpointTypes.length} endpoint types`)
-    endpointTypes.forEach((et) => {})
+    endpointTypes.forEach((et) => {
+      allQueries.push(
+        queryImpexp
+          .importEndpointType(db, sessionId, packageId, et)
+          .then((endpointId) => {
+            // Now we need to import commands, attributes and clusters.
+            var promises = []
+
+            return Promise.all(promises)
+          })
+      )
+    })
   }
-  return Promise.all(allQueries).then(() => sessionId)
+  return Promise.all(allQueries)
 }
 
 /**
@@ -97,33 +138,26 @@ function writeStateToDatabase(db, state) {
   return dbApi
     .dbBeginTransaction(db)
     .then(() => querySession.createBlankSession(db))
-    .then((sessionId) => {
-      env.logInfo('Reading state from file into the database...')
+    .then((sessionId) => importPackages(db, sessionId, state.packages))
+    .then((data) => {
       var promises = []
-      if ('package' in state) {
-        promises.push(importPackages(db, sessionId, state.packages))
-      }
-
       if ('keyValuePairs' in state) {
         promises.push(
-          importSessionKeyValues(db, sessionId, state.keyValuePairs)
+          importSessionKeyValues(db, data.sessionId, state.keyValuePairs)
         )
       }
 
       if ('endpointTypes' in state) {
-        promises.push(importEndpointTypes(db, sessionId, state.endpointTypes))
+        promises.push(
+          importEndpointTypes(
+            db,
+            data.sessionId,
+            data.packageId,
+            state.endpointTypes
+          )
+        )
       }
-
-      return Promise.all(promises).then(() => sessionId)
-    })
-    .then((sessionId) => {
-      if ('endpointTypes' in state) {
-        return queryConfig
-          .insertEndpointTypes(db, sessionId, state.endpointTypes)
-          .then(() => sessionId)
-      } else {
-        return sessionId
-      }
+      return Promise.all(promises).then(() => data.sessionId)
     })
     .finally(() => dbApi.dbCommit(db))
 }

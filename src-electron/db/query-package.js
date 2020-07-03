@@ -38,12 +38,7 @@ function getPackageByPathAndParent(db, path, parentId) {
       'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ? AND PARENT_PACKAGE_REF = ?',
       [path, parentId]
     )
-    .then(
-      (row) =>
-        new Promise((resolve, reject) => {
-          resolve(dbMapping.map.package(row))
-        })
-    )
+    .then((row) => dbMapping.map.package(row))
 }
 
 /**
@@ -61,12 +56,26 @@ function getPackageByPathAndType(db, path, type) {
       'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ? AND TYPE = ?',
       [path, type]
     )
-    .then(
-      (row) =>
-        new Promise((resolve, reject) => {
-          resolve(dbMapping.map.package(row))
-        })
+    .then((row) => dbMapping.map.package(row))
+}
+
+/**
+ * Returns the package ID by path and type and version.
+ *
+ * @param {*} db
+ * @param {*} path
+ * @param {*} type
+ * @param {*} version
+ * @returns Promise of a query.
+ */
+function getPackageByPathAndTypeAndVersion(db, path, type, version) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT PACKAGE_ID FROM PACKAGE WHERE PATH = ? AND TYPE = ? AND VERSION = ?',
+      [path, type, version]
     )
+    .then((row) => row.PACKAGE_ID)
 }
 
 /**
@@ -101,12 +110,7 @@ function getPackageByPackageId(db, packageId) {
       'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PACKAGE_ID = ?',
       [packageId]
     )
-    .then(
-      (row) =>
-        new Promise((resolve, reject) => {
-          resolve(dbMapping.map.package(row))
-        })
-    )
+    .then((row) => dbMapping.map.package(row))
 }
 
 /**
@@ -272,9 +276,9 @@ function callPackageSpecificFunctionOverSessionPackages(
     )
     .then((arrayOfQueryPromises) => {
       return Promise.resolve(
-        Promise.all(arrayOfQueryPromises).then((dataArray) => {
-          return dataArray.reduce(mergeFunction, [])
-        })
+        Promise.all(arrayOfQueryPromises).then((dataArray) =>
+          dataArray.reduce(mergeFunction, [])
+        )
       )
     })
 }

@@ -21,6 +21,7 @@
  * @module DB API: package-based queries.
  */
 const dbApi = require('./db-api.js')
+const env = require('../util/env.js')
 
 /**
  * Extracts raw endpoint types rows.
@@ -217,7 +218,27 @@ function exportCommandsFromEndpointType(db, endpointTypeId) {
     .then((rows) => rows.map(mapFunction))
 }
 
+function importEndpointType(db, sessionId, packageId, endpointType) {
+  env.logWarning(`IMPORT ET: ${endpointType.deviceTypeCode}, ${packageId}`)
+  // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', 'clusters', 'commands', 'attributes'
+  return dbApi.dbInsert(
+    db,
+    `
+INSERT INTO ENDPOINT_TYPE (
+  SESSION_REF, 
+  NAME, 
+  DEVICE_TYPE_REF
+) VALUES(
+  ?, 
+  ?, 
+  (SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PACKAGE_REF = ?)
+)`,
+    [sessionId, endpointType.name, endpointType.deviceTypeCode, packageId]
+  )
+}
+
 exports.exportClustersFromEndpointType = exportClustersFromEndpointType
 exports.exportPackagesFromSession = exportPackagesFromSession
 exports.exportAttributesFromEndpointType = exportAttributesFromEndpointType
 exports.exportCommandsFromEndpointType = exportCommandsFromEndpointType
+exports.importEndpointType = importEndpointType

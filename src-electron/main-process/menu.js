@@ -24,7 +24,7 @@ const staticGenerator = require('../generator/static-generator.js')
 const exportJs = require('../importexport/export.js')
 const importJs = require('../importexport/import.js')
 const { showErrorMessage } = require('./ui.js')
-const { windowCreate } = require('./window.js')
+const windowJs = require('./window.js')
 const preference = require('./preference.js')
 
 var httpPort
@@ -373,7 +373,7 @@ function readAndProcessFile(db, filePath) {
   importJs
     .importDataFromFile(env.mainDatabase(), filePath)
     .then((sessionId) => {
-      windowCreate(httpPort, filePath, sessionId)
+      windowJs.windowCreate(httpPort, filePath, sessionId)
       return true
     })
     .catch((err) => {
