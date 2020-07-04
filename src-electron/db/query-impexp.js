@@ -219,7 +219,6 @@ function exportCommandsFromEndpointType(db, endpointTypeId) {
 }
 
 function importEndpointType(db, sessionId, packageId, endpointType) {
-  env.logWarning(`IMPORT ET: ${endpointType.deviceTypeCode}, ${packageId}`)
   // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', 'clusters', 'commands', 'attributes'
   return dbApi.dbInsert(
     db,

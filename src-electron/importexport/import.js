@@ -52,7 +52,7 @@ function importSessionKeyValues(db, sessionId, keyValuePairs) {
 // Resolves into a { packageId:, packageType:} object, pkg has `path`, `version`, `type`.
 function importSinglePackage(db, sessionId, pkg) {
   return queryPackage
-    .getPackageByPathAndTypeAndVersion(db, pkg.path, pkg.type, pkg.version)
+    .getPackageIdByPathAndTypeAndVersion(db, pkg.path, pkg.type, pkg.version)
     .then((pkgId) => {
       if (pkgId != null) {
         return {
@@ -60,11 +60,30 @@ function importSinglePackage(db, sessionId, pkg) {
           packageType: pkg.type,
         }
       } else {
-        env.logInfo('Packages from the file did not match loaded packages.')
-        // Not a full match of a package
-        return Promise.resolve({
-          packageId: 0, // TODO
-          packageType: pkg.type,
+        env.logInfo(
+          'Packages from the file did not match loaded packages making best bet.'
+        )
+        return queryPackage.getPackagesByType(db, pkg.type).then((packages) => {
+          packages.forEach((p) => {
+            if (p.version == pkg.version) {
+              return {
+                packageId: p.id,
+                packageType: pkg.type,
+              }
+            }
+          })
+
+          if (packages.length > 0) {
+            var p = packages[0]
+            env.logWarning(
+              `Required package did not match the version. Using first found:${p.id}.`
+            )
+            return {
+              packageId: p.id,
+              packageType: pkg.type,
+            }
+          }
+          throw `None of the packages found match the required package: ${pkg.path}`
         })
       }
     })

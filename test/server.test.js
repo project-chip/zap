@@ -22,6 +22,7 @@ const fs = require('fs')
 const path = require('path')
 const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
+const dbEnum = require('../src-electron/db/db-enum.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const queryPackage = require('../src-electron/db/query-package.js')
@@ -107,7 +108,7 @@ describe('Session specific tests', () => {
 
   test('add a package', () =>
     queryPackage
-      .insertPathCrc(db, 'PATH', 32)
+      .insertPathCrc(db, 'PATH', 32, dbEnum.packageType.zclProperties)
       .then((pkg) => {
         packageId = pkg
       })

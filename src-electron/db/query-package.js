@@ -68,7 +68,7 @@ function getPackageByPathAndType(db, path, type) {
  * @param {*} version
  * @returns Promise of a query.
  */
-function getPackageByPathAndTypeAndVersion(db, path, type, version) {
+function getPackageIdByPathAndTypeAndVersion(db, path, type, version) {
   return dbApi
     .dbGet(
       db,
@@ -298,4 +298,4 @@ exports.updateVersion = updateVersion
 exports.insertSessionPackage = insertSessionPackage
 exports.getSessionPackages = getSessionPackages
 exports.callPackageSpecificFunctionOverSessionPackages = callPackageSpecificFunctionOverSessionPackages
-exports.getPackageByPathAndTypeAndVersion = getPackageByPathAndTypeAndVersion
+exports.getPackageIdByPathAndTypeAndVersion = getPackageIdByPathAndTypeAndVersion
