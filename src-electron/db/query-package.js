@@ -75,7 +75,10 @@ function getPackageByPathAndTypeAndVersion(db, path, type, version) {
       'SELECT PACKAGE_ID FROM PACKAGE WHERE PATH = ? AND TYPE = ? AND VERSION = ?',
       [path, type, version]
     )
-    .then((row) => row.PACKAGE_ID)
+    .then((row) => {
+      if (row == null) return null
+      else return row.PACKAGE_ID
+    })
 }
 
 /**
@@ -295,3 +298,4 @@ exports.updateVersion = updateVersion
 exports.insertSessionPackage = insertSessionPackage
 exports.getSessionPackages = getSessionPackages
 exports.callPackageSpecificFunctionOverSessionPackages = callPackageSpecificFunctionOverSessionPackages
+exports.getPackageByPathAndTypeAndVersion = getPackageByPathAndTypeAndVersion

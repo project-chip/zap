@@ -38,7 +38,7 @@ const dbEnum = require('../db/db-enum.js')
 function importSessionKeyValues(db, sessionId, keyValuePairs) {
   var allQueries = []
   if (keyValuePairs != null) {
-    env.logInfo(`Loading ${keyValuePairs.length} packages`)
+    env.logInfo(`Loading ${keyValuePairs.length} key value pairs.`)
     // Write key value pairs
     keyValuePairs.forEach((element) => {
       allQueries.push(
@@ -51,10 +51,23 @@ function importSessionKeyValues(db, sessionId, keyValuePairs) {
 
 // Resolves into a { packageId:, packageType:} object, pkg has `path`, `version`, `type`.
 function importSinglePackage(db, sessionId, pkg) {
-  return Promise.resolve({
-    packageId: 0, // TODO
-    packageType: pkg.type,
-  })
+  return queryPackage
+    .getPackageByPathAndTypeAndVersion(db, pkg.path, pkg.type, pkg.version)
+    .then((pkgId) => {
+      if (pkgId != null) {
+        return {
+          packageId: pkgId,
+          packageType: pkg.type,
+        }
+      } else {
+        env.logInfo('Packages from the file did not match loaded packages.')
+        // Not a full match of a package
+        return Promise.resolve({
+          packageId: 0, // TODO
+          packageType: pkg.type,
+        })
+      }
+    })
 }
 
 // Resolves an array of { packageId:, packageType:} objects into { packageId: id, otherIds: [] }
@@ -65,7 +78,7 @@ function convertPackageResult(sessionId, data) {
     otherIds: [],
   }
   data.forEach((obj) => {
-    if (obj.type == dbEnum.packageType.zclProperties) {
+    if (obj.packageType == dbEnum.packageType.zclProperties) {
       ret.packageId = obj.packageId
     } else {
       ret.otherIds.push(obj.packageId)
@@ -83,9 +96,9 @@ function importPackages(db, sessionId, packages) {
       allQueries.push(importSinglePackage(db, sessionId, p))
     })
   }
-  return Promise.all(allQueries).then((data) =>
-    convertPackageResult(sessionId, data)
-  )
+  return Promise.all(allQueries).then((data) => {
+    return convertPackageResult(sessionId, data)
+  })
 }
 
 function importEndpointTypes(db, sessionId, packageId, endpointTypes) {
@@ -138,7 +151,7 @@ function writeStateToDatabase(db, state) {
   return dbApi
     .dbBeginTransaction(db)
     .then(() => querySession.createBlankSession(db))
-    .then((sessionId) => importPackages(db, sessionId, state.packages))
+    .then((sessionId) => importPackages(db, sessionId, state.package))
     .then((data) => {
       var promises = []
       if ('keyValuePairs' in state) {
