@@ -132,6 +132,27 @@ function importEndpointTypes(db, sessionId, packageId, endpointTypes) {
             // Now we need to import commands, attributes and clusters.
             var promises = []
 
+            // et.clusters
+            et.clusters.forEach((cluster) => {
+              // code, mfgCode, side
+              promises.push(
+                queryImpexp.importClusterForEndpointType(
+                  db,
+                  packageId,
+                  endpointId,
+                  cluster
+                )
+              )
+            })
+
+            // et.commands
+            et.commands.forEach((command) => {
+              // code, mfgCode, incomint, outgoing
+            })
+
+            // et.attributes
+            et.attributes.forEach((attribute) => {})
+
             return Promise.all(promises)
           })
       )
@@ -172,6 +193,7 @@ function writeStateToDatabase(db, state) {
     .then(() => querySession.createBlankSession(db))
     .then((sessionId) => importPackages(db, sessionId, state.package))
     .then((data) => {
+      // data: { sessionId, packageId, otherIds}
       var promises = []
       if ('keyValuePairs' in state) {
         promises.push(

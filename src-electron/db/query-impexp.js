@@ -131,6 +131,42 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENABLED = 1 AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_
 }
 
 /**
+ * Imports a single cluster to endpoint type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} cluster Object populated same way as export method leaves it.
+ * @returns Promise of an imported cluster.
+ */
+function importClusterForEndpointType(db, packageId, endpointTypeId, cluster) {
+  return dbApi.dbInsert(
+    db,
+    `
+INSERT INTO ENDPOINT_TYPE_CLUSTER 
+  (ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED) 
+VALUES
+  (?, 
+   (SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? AND ${
+     cluster.mfgCode == null
+       ? 'MANUFACTURER_CODE IS NULL'
+       : 'MANUFACTURER_CODE = ?'
+   }),
+   ?,
+   ?)`,
+    cluster.mfgCode == null
+      ? [endpointTypeId, packageId, cluster.code, cluster.side, 1]
+      : [
+          endpointTypeId,
+          packageId,
+          cluster.code,
+          cluster.mfgCode,
+          cluster.side,
+          1,
+        ]
+  )
+}
+
+/**
  * Returns a promise of data for attributes inside an endpoint type.
  *
  * @param {*} db
@@ -241,3 +277,4 @@ exports.exportPackagesFromSession = exportPackagesFromSession
 exports.exportAttributesFromEndpointType = exportAttributesFromEndpointType
 exports.exportCommandsFromEndpointType = exportCommandsFromEndpointType
 exports.importEndpointType = importEndpointType
+exports.importClusterForEndpointType = importClusterForEndpointType
