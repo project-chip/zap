@@ -218,6 +218,24 @@ WHERE ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_
 }
 
 /**
+ * Imports an attribute information of an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} endpointTypeId
+ * @param {*} attribute
+ * @returns Promise of an attribute insertion.
+ */
+function importAttributeForEndpointType(
+  db,
+  packageId,
+  endpointTypeId,
+  attribute
+) {
+  return Promise.resolve(1)
+}
+
+/**
  * Returns a promise of data for commands inside an endpoint type.
  *
  * @param {*} db
@@ -254,6 +272,28 @@ function exportCommandsFromEndpointType(db, endpointTypeId) {
     .then((rows) => rows.map(mapFunction))
 }
 
+/**
+ * Imports a command information of an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} endpointTypeId
+ * @param {*} command
+ * @returns Promise of a command insertion.
+ */
+function importCommandForEndpointType(db, packageId, endpointTypeId, command) {
+  return Promise.resolve(1)
+}
+
+/**
+ * Imports an endpoint type, resolving other data along the way.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageId
+ * @param {*} endpointType
+ * @returns Promise of endpoint insertion.
+ */
 function importEndpointType(db, sessionId, packageId, endpointType) {
   // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', 'clusters', 'commands', 'attributes'
   return dbApi.dbInsert(
@@ -278,3 +318,5 @@ exports.exportAttributesFromEndpointType = exportAttributesFromEndpointType
 exports.exportCommandsFromEndpointType = exportCommandsFromEndpointType
 exports.importEndpointType = importEndpointType
 exports.importClusterForEndpointType = importClusterForEndpointType
+exports.importAttributeForEndpointType = importAttributeForEndpointType
+exports.importCommandForEndpointType = importCommandForEndpointType

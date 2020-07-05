@@ -147,11 +147,23 @@ function importEndpointTypes(db, sessionId, packageId, endpointTypes) {
 
             // et.commands
             et.commands.forEach((command) => {
-              // code, mfgCode, incomint, outgoing
+              queryImpexp.importCommandForEndpointType(
+                db,
+                packageId,
+                endpointId,
+                command
+              )
             })
 
             // et.attributes
-            et.attributes.forEach((attribute) => {})
+            et.attributes.forEach((attribute) => {
+              queryImpexp.importAttributeForEndpointType(
+                db,
+                packageId,
+                endpointId,
+                attribute
+              )
+            })
 
             return Promise.all(promises)
           })
