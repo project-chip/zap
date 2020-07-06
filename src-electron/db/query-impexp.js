@@ -135,6 +135,7 @@ function exportClustersFromEndpointType(db, endpointTypeId) {
       code: x.CODE,
       mfgCode: x.MANUFACTURER_CODE,
       side: x.SIDE,
+      enabled: x.ENABLED,
     }
   }
 
@@ -146,11 +147,12 @@ SELECT
   CLUSTER.CODE, 
   CLUSTER.MANUFACTURER_CODE,
   CLUSTER.NAME,
-  ENDPOINT_TYPE_CLUSTER.SIDE
+  ENDPOINT_TYPE_CLUSTER.SIDE,
+  ENDPOINT_TYPE_CLUSTER.ENABLED
 FROM CLUSTER
 INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-WHERE ENDPOINT_TYPE_CLUSTER.ENABLED = 1 AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?`,
+WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?`,
       [endpointTypeId]
     )
     .then((rows) => rows.map(mapFunction))
@@ -187,7 +189,7 @@ VALUES
           cluster.code,
           cluster.mfgCode,
           cluster.side,
-          1,
+          cluster.enabled,
         ]
   )
 }
