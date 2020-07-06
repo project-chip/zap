@@ -131,6 +131,7 @@ function importEndpointTypes(db, sessionId, packageId, endpointTypes) {
           .then((endpointId) => {
             // Now we need to import commands, attributes and clusters.
             var promises = []
+            var endpointClusterId = null
 
             // et.clusters
             et.clusters.forEach((cluster) => {
@@ -151,6 +152,7 @@ function importEndpointTypes(db, sessionId, packageId, endpointTypes) {
                 db,
                 packageId,
                 endpointId,
+                endpointClusterId,
                 command
               )
             })
@@ -161,6 +163,7 @@ function importEndpointTypes(db, sessionId, packageId, endpointTypes) {
                 db,
                 packageId,
                 endpointId,
+                endpointClusterId,
                 attribute
               )
             })

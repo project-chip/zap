@@ -61,7 +61,33 @@ WHERE ENDPOINT_TYPE.SESSION_REF = ? ORDER BY ENDPOINT_TYPE.NAME`,
     )
     .then((rows) => rows.map(mapFunction))
 }
-exports.exportEndpointTypes = exportEndpointTypes
+
+/**
+ * Imports an endpoint type, resolving other data along the way.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageId
+ * @param {*} endpointType
+ * @returns Promise of endpoint insertion.
+ */
+function importEndpointType(db, sessionId, packageId, endpointType) {
+  // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', 'clusters', 'commands', 'attributes'
+  return dbApi.dbInsert(
+    db,
+    `
+INSERT INTO ENDPOINT_TYPE (
+  SESSION_REF, 
+  NAME, 
+  DEVICE_TYPE_REF
+) VALUES(
+  ?, 
+  ?, 
+  (SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PACKAGE_REF = ?)
+)`,
+    [sessionId, endpointType.name, endpointType.deviceTypeCode, packageId]
+  )
+}
 
 /**
  * Exports packages for externalized form.
@@ -223,6 +249,7 @@ WHERE ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_
  * @param {*} db
  * @param {*} packageId
  * @param {*} endpointTypeId
+ * @param {*} endpointClusterId may be null if global attribute
  * @param {*} attribute
  * @returns Promise of an attribute insertion.
  */
@@ -230,8 +257,54 @@ function importAttributeForEndpointType(
   db,
   packageId,
   endpointTypeId,
+  endpointClusterId,
   attribute
 ) {
+  var arg = [endpointTypeId, endpointClusterId, attribute.code, packageId]
+  if (attribute.mfgCode != null) arg.push(attribute.mfgCode)
+  arg.push(
+    1,
+    attribute.external,
+    attribute.flash,
+    attribute.singleton,
+    attribute.bounded,
+    attribute.defaultValue,
+    attribute.reportable,
+    attribute.minInterval,
+    attribute.maxInterval,
+    attribute.reportableChange
+  )
+  return dbApi.dbInsert(
+    db,
+    `
+INSERT INTO ENDPOINT_TYPE_ATTRIBUTE
+( ENDPOINT_TYPE_REF,
+  ENDPOINT_TYPE_CLUSTER_REF,
+  ATTRIBUTE_REF,
+  INCLUDED,
+  EXTERNAL,
+  FLASH,
+  SINGLETON,
+  BOUNDED,
+  DEFAULT_VALUE,
+  INCLUDED_REPORTABLE,
+  MIN_INTERVAL,
+  MAX_INTERVAL,
+  REPORTABLE_CHANGE )
+VALUES
+( ?, ?,
+  ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE
+    WHERE CODE = ?
+    AND PACKAGE_REF = ?
+    AND ${
+      attribute.mfgCode == null
+        ? 'MANUFACTURER_CODE IS NULL'
+        : 'MANUFACTURER_CODE = ?'
+    }),
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `,
+    arg
+  )
   return Promise.resolve(1)
 }
 
@@ -278,45 +351,30 @@ function exportCommandsFromEndpointType(db, endpointTypeId) {
  * @param {*} db
  * @param {*} packageId
  * @param {*} endpointTypeId
+ * @param {*} endpointClusterId may be null if global command
  * @param {*} command
  * @returns Promise of a command insertion.
  */
-function importCommandForEndpointType(db, packageId, endpointTypeId, command) {
+function importCommandForEndpointType(
+  db,
+  packageId,
+  endpointTypeId,
+  endpointClusterId,
+  command
+) {
   return Promise.resolve(1)
 }
 
-/**
- * Imports an endpoint type, resolving other data along the way.
- *
- * @param {*} db
- * @param {*} sessionId
- * @param {*} packageId
- * @param {*} endpointType
- * @returns Promise of endpoint insertion.
- */
-function importEndpointType(db, sessionId, packageId, endpointType) {
-  // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', 'clusters', 'commands', 'attributes'
-  return dbApi.dbInsert(
-    db,
-    `
-INSERT INTO ENDPOINT_TYPE (
-  SESSION_REF, 
-  NAME, 
-  DEVICE_TYPE_REF
-) VALUES(
-  ?, 
-  ?, 
-  (SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PACKAGE_REF = ?)
-)`,
-    [sessionId, endpointType.name, endpointType.deviceTypeCode, packageId]
-  )
-}
+exports.exportEndpointTypes = exportEndpointTypes
+exports.importEndpointType = importEndpointType
 
 exports.exportClustersFromEndpointType = exportClustersFromEndpointType
-exports.exportPackagesFromSession = exportPackagesFromSession
-exports.exportAttributesFromEndpointType = exportAttributesFromEndpointType
-exports.exportCommandsFromEndpointType = exportCommandsFromEndpointType
-exports.importEndpointType = importEndpointType
 exports.importClusterForEndpointType = importClusterForEndpointType
+
+exports.exportPackagesFromSession = exportPackagesFromSession
+
+exports.exportAttributesFromEndpointType = exportAttributesFromEndpointType
 exports.importAttributeForEndpointType = importAttributeForEndpointType
+
+exports.exportCommandsFromEndpointType = exportCommandsFromEndpointType
 exports.importCommandForEndpointType = importCommandForEndpointType
