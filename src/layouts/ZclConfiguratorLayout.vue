@@ -15,63 +15,62 @@ limitations under the License.
 -->
 
 <template>
-  <q-layout view="hHh Lpr lFf">
-    <q-header
-      elevated
-      bordered
-      height-hint="500"
-      class="shadow-2 zclConfiguratorLayoutHeader"
-    >
-      <q-toolbar bordered class="shadow-2 zclConfiguratorLayoutHeader">
-        <q-toolbar-title>
-          Zigbee Clusters Configurator
-        </q-toolbar-title>
-        <q-space />
+  <div>
+    <q-layout view="hHh Lpr lFf">
+      <q-header
+        elevated
+        bordered
+        height-hint="500"
+        class="shadow-2 zclConfiguratorLayoutHeader"
+      >
+        <q-toolbar bordered class="shadow-2 zclConfiguratorLayoutHeader">
+          <q-toolbar-title>
+            Zigbee Clusters Configurator
+          </q-toolbar-title>
+          <q-space />
 
-        <!-- TODO add a link to said manual here/manage the implementation of manual. -->
-        <q-btn outline color="primary" label="Manual" />
-        <!-- TODO add handler for closing. -->
-        <q-btn
-          color="primary"
-          flat
-          icon="close"
-          :ripple="false"
-          :unelevated="true"
-          :outline="none"
-        />
-      </q-toolbar>
-      <q-toolbar class="shadow-2 zclConfiguratorLayoutHeader">
-        <div class="row">
-          <div class="col-m-4 vertical-align:middle">
-            Manufacturer Name or Code
-          </div>
-          <div></div>
-        </div>
-      </q-toolbar>
-    </q-header>
+          <!-- TODO add a link to said manual here/manage the implementation of manual. -->
+          <q-btn outline color="primary" label="Manual" />
+          <!-- TODO add handler for closing. -->
+          <q-btn
+            color="primary"
+            flat
+            icon="close"
+            :ripple="false"
+            :unelevated="true"
+            :outline="none"
+          />
+        </q-toolbar>
+        <ZclGeneralOptionsBar />
+      </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      content-class="bg-grey-2"
-    >
-    </q-drawer>
-  </q-layout>
+      <q-drawer
+        v-model="leftDrawerOpen"
+        show-if-above
+        bordered
+        content-class="bg-grey-2"
+      >
+      </q-drawer>
+    </q-layout>
+  </div>
 </template>
 
 <script>
 import { matClose } from '@quasar/extras/material-icons'
+import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
 export default {
   name: 'ZclConfiguratorLayout',
   methods: {},
   data() {
     return {
-      leftDrawerOpen: true,
+      leftDrawerOpen: false,
     }
   },
   created() {
     this.matClose = matClose
+  },
+  components: {
+    ZclGeneralOptionsBar,
   },
 }
 </script>
