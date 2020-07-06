@@ -54,26 +54,38 @@ function exportEndpointTypes(db, sessionId) {
         queryImpExp
           .exportClustersFromEndpointType(db, endpoint.endpointTypeId)
           .then((data) => {
+            var ps = []
+            data.forEach((endpointCluster) => {
+              var endpointClusterId = endpointCluster.endpointClusterId
+              delete endpointCluster.endpointClusterId
+              promises.push(
+                queryImpExp
+                  .exportCommandsFromEndpointTypeCluster(
+                    db,
+                    endpoint.endpointTypeId,
+                    endpointClusterId
+                  )
+                  .then((data) => {
+                    endpointCluster.commands = data
+                    return data
+                  })
+              )
+
+              promises.push(
+                queryImpExp
+                  .exportAttributesFromEndpointTypeCluster(
+                    db,
+                    endpoint.endpointTypeId,
+                    endpointClusterId
+                  )
+                  .then((data) => {
+                    endpointCluster.attributes = data
+                    return data
+                  })
+              )
+            })
             endpoint.clusters = data
-            return data
-          })
-      )
-
-      promises.push(
-        queryImpExp
-          .exportCommandsFromEndpointType(db, endpoint.endpointTypeId)
-          .then((data) => {
-            endpoint.commands = data
-            return data
-          })
-      )
-
-      promises.push(
-        queryImpExp
-          .exportAttributesFromEndpointType(db, endpoint.endpointTypeId)
-          .then((data) => {
-            endpoint.attributes = data
-            return data
+            return Promise.all(ps)
           })
       )
 

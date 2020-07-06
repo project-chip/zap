@@ -292,8 +292,6 @@ describe('Session specific queries', () => {
         expect(state.endpointTypes.length).toBe(1)
         expect(state.endpointTypes[0].name).toBe('Test endpoint')
         expect(state.endpointTypes[0].clusters.length).toBe(0)
-        expect(state.endpointTypes[0].attributes.length).toBe(0)
-        expect(state.endpointTypes[0].commands.length).toBe(0)
         expect(state.package.length).toBe(1)
         expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
         expect(state.package[0].version).toBe('ZCL Test Data')

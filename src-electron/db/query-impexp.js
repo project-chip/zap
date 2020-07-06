@@ -136,6 +136,7 @@ function exportClustersFromEndpointType(db, endpointTypeId) {
       mfgCode: x.MANUFACTURER_CODE,
       side: x.SIDE,
       enabled: x.ENABLED,
+      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
     }
   }
 
@@ -148,7 +149,8 @@ SELECT
   CLUSTER.MANUFACTURER_CODE,
   CLUSTER.NAME,
   ENDPOINT_TYPE_CLUSTER.SIDE,
-  ENDPOINT_TYPE_CLUSTER.ENABLED
+  ENDPOINT_TYPE_CLUSTER.ENABLED,
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
 FROM CLUSTER
 INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
@@ -201,7 +203,11 @@ VALUES
  * @param {*} endpointTypeId
  * @returns Promise that resolves with the attribute data.
  */
-function exportAttributesFromEndpointType(db, endpointTypeId) {
+function exportAttributesFromEndpointTypeCluster(
+  db,
+  endpointTypeId,
+  endpointClusterId
+) {
   var mapFunction = (x) => {
     return {
       name: x.NAME,
@@ -317,7 +323,11 @@ VALUES
  * @param {*} endpointTypeId
  * @returns Promise that resolves with the command data.
  */
-function exportCommandsFromEndpointType(db, endpointTypeId) {
+function exportCommandsFromEndpointTypeCluster(
+  db,
+  endpointTypeId,
+  endpointClusterId
+) {
   var mapFunction = (x) => {
     return {
       name: x.NAME,
@@ -371,12 +381,12 @@ exports.exportEndpointTypes = exportEndpointTypes
 exports.importEndpointType = importEndpointType
 
 exports.exportClustersFromEndpointType = exportClustersFromEndpointType
-exports.importClusterForEndpointType = importClusterForEndpointType
+exports.importClusterFIorEndpointType = importClusterForEndpointType
 
 exports.exportPackagesFromSession = exportPackagesFromSession
 
-exports.exportAttributesFromEndpointType = exportAttributesFromEndpointType
+exports.exportAttributesFromEndpointTypeCluster = exportAttributesFromEndpointTypeCluster
 exports.importAttributeForEndpointType = importAttributeForEndpointType
 
-exports.exportCommandsFromEndpointType = exportCommandsFromEndpointType
+exports.exportCommandsFromEndpointTypeCluster = exportCommandsFromEndpointTypeCluster
 exports.importCommandForEndpointType = importCommandForEndpointType
