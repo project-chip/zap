@@ -26,8 +26,21 @@ limitations under the License.
         <q-toolbar-title>
           Zigbee Clusters Configurator
         </q-toolbar-title>
+        <q-space />
+
+        <!-- TODO add a link to said manual here/manage the implementation of manual. -->
+        <q-btn outline color="primary" label="Manual" />
+        <!-- TODO add handler for closing. -->
+        <q-btn
+          color="primary"
+          flat
+          icon="close"
+          :ripple="false"
+          :unelevated="true"
+          :outline="none"
+        />
       </q-toolbar>
-      <q-toolbar bordered class="shadow-2 zclConfiguratorLayoutHeader">
+      <q-toolbar class="shadow-2 zclConfiguratorLayoutHeader">
         <div class="row">
           <div class="col-m-4 vertical-align:middle">
             Manufacturer Name or Code
@@ -48,6 +61,7 @@ limitations under the License.
 </template>
 
 <script>
+import { matClose } from '@quasar/extras/material-icons'
 export default {
   name: 'ZclConfiguratorLayout',
   methods: {},
@@ -55,6 +69,9 @@ export default {
     return {
       leftDrawerOpen: true,
     }
+  },
+  created() {
+    this.matClose = matClose
   },
 }
 </script>
