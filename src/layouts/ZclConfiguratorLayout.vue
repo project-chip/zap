@@ -43,13 +43,8 @@ limitations under the License.
         </q-toolbar>
         <ZclGeneralOptionsBar />
       </q-header>
-
-      <q-drawer
-        v-model="leftDrawerOpen"
-        show-if-above
-        bordered
-        content-class="bg-grey-2"
-      >
+      <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+        <zcl-endpoint-manager />
       </q-drawer>
     </q-layout>
   </div>
@@ -58,19 +53,27 @@ limitations under the License.
 <script>
 import { matClose } from '@quasar/extras/material-icons'
 import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
+import ZclEndpointManager from '../components/ZclEndpointManager.vue'
+
 export default {
   name: 'ZclConfiguratorLayout',
   methods: {},
+  computed: {
+    leftDrawerOpen: {
+      get() {
+        return this.$store.state.zap.leftDrawerOpenState
+      },
+    },
+  },
   data() {
-    return {
-      leftDrawerOpen: false,
-    }
+    return {}
   },
   created() {
     this.matClose = matClose
   },
   components: {
     ZclGeneralOptionsBar,
+    ZclEndpointManager,
   },
 }
 </script>
