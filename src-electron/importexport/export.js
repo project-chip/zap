@@ -54,45 +54,48 @@ function exportEndpointTypes(db, sessionId) {
         queryImpExp
           .exportClustersFromEndpointType(db, endpoint.endpointTypeId)
           .then((data) => {
+            endpoint.clusters = data
+
             var ps = []
             data.forEach((endpointCluster) => {
               var endpointClusterId = endpointCluster.endpointClusterId
               delete endpointCluster.endpointClusterId
-              promises.push(
+              ps.push(
                 queryImpExp
                   .exportCommandsFromEndpointTypeCluster(
                     db,
                     endpoint.endpointTypeId,
                     endpointClusterId
                   )
-                  .then((data) => {
-                    endpointCluster.commands = data
-                    return data
+                  .then((commands) => {
+                    endpointCluster.commands = commands
+                    return commands
                   })
               )
 
-              promises.push(
+              ps.push(
                 queryImpExp
                   .exportAttributesFromEndpointTypeCluster(
                     db,
                     endpoint.endpointTypeId,
                     endpointClusterId
                   )
-                  .then((data) => {
-                    endpointCluster.attributes = data
-                    return data
+                  .then((attributes) => {
+                    endpointCluster.attributes = attributes
+                    return attributes
                   })
               )
             })
-            endpoint.clusters = data
             return Promise.all(ps)
           })
       )
-
-      // We dereferenced everything, we can now delete the key
-      delete endpoint.endpointTypeId
     })
-    return Promise.all(promises).then(() => endpoints)
+    return Promise.all(promises).then(() => {
+      endpoints.forEach((ep) => {
+        delete ep.endpointTypeId
+      })
+      return endpoints
+    })
   })
 }
 
