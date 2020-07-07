@@ -200,7 +200,7 @@ describe('Session specific tests', () => {
 describe('Admin tests', () => {
   test('test sql admin interface', () =>
     axiosInstance
-      .post('/post/sql', { sql: 'SELECT * FROM PACKAGE' })
+      .post('/sql', { sql: 'SELECT * FROM PACKAGE' })
       .then((response) => {
         expect(response).not.toBeNull()
         expect(response.data.result).not.toBeNull()

@@ -43,7 +43,7 @@ const dbApi = require('../db/db-api.js')
  * @param {*} app
  */
 function registerAdminApi(db, app) {
-  app.post('/post/sql', (request, response) => {
+  app.post('/sql', (request, response) => {
     var sql = request.body.sql
     if (sql) {
       var replyObject = { replyId: 'sql-result' }

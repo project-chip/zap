@@ -41,7 +41,7 @@ Vue.prototype.$serverGet = (url) => {
 Vue.prototype.$serverPost = (url, data) => {
   console.log(`serverPost: ${url}, ${data}`)
   axios
-    .post('/post' + url, data)
+    .post(url, data)
     .then((response) => {
       console.log('post response')
       console.log(response)
