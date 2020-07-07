@@ -122,6 +122,7 @@ function registerGenerationApi(db, app) {
           map[request.params.name].then((result) => {
             if (request.params.index in result) {
               response.json({
+                replyId: 'preview',
                 result: result[request.params.index],
                 size: Object.keys(result).length,
               })
@@ -140,7 +141,10 @@ function registerGenerationApi(db, app) {
     staticGenerator.getGenerationProperties('').then((generationOptions) => {
       getGeneratedCodeMap(generationOptions, db).then((map) => {
         if (map[request.params.name]) {
-          map[request.params.name].then((result) => response.json(result))
+          map[request.params.name].then((result) => {
+            result.replyId = 'preview'
+            return response.json(result)
+          })
         } else {
           response.json('No Generation Result for this file')
         }
@@ -162,6 +166,7 @@ function registerGenerationApi(db, app) {
             (obj, key, index) => ({ ...obj, [key]: values[index] }),
             {}
           )
+          merged.replyId = 'generate'
           response.json(merged)
         })
       })
