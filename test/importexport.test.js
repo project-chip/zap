@@ -18,12 +18,15 @@
  * @jest-environment node
  */
 const path = require('path')
+const fs = require('fs')
 const importJs = require('../src-electron/importexport/import.js')
+const exportJs = require('../src-electron/importexport/export.js')
 const dbEnum = require('../src-electron/db/db-enum.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const env = require('../src-electron/util/env.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/main-process/args.js')
+const queryGeneric = require('../src-electron/db/query-generic.js')
 
 var db
 var testFile = path.join(__dirname, 'resource/save-file-1.json')
@@ -41,6 +44,13 @@ beforeAll(() => {
     .catch((err) => env.logError(`Error: ${err}`))
 }, 5000)
 
+afterAll(() => {
+  var file = env.sqliteTestFile(89)
+  return dbApi.closeDatabase(db).then(() => {
+    if (fs.existsSync(file)) fs.unlinkSync(file)
+  })
+})
+
 test(
   'Load the static data.',
   () => zclLoader.loadZcl(db, args.zclPropertiesFile),
@@ -55,5 +65,29 @@ test('Test file existence', () => {
 })
 
 test('Test file import', () => {
-  importJs.importDataFromFile(db, testFile).then((sessionId) => {})
+  var sid
+  return importJs
+    .importDataFromFile(db, testFile)
+    .then((sessionId) => (sid = sessionId))
+    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE'))
+    .then((x) => expect(x).toBe(1))
+    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER'))
+    .then((x) => expect(x).toBe(11))
+    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND'))
+    .then((x) => expect(x).toBe(7))
+    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE'))
+    .then((x) => expect(x).toBe(21))
+    .then(() => exportJs.createStateFromDatabase(db, sid))
+    .then((state) => {
+      var commandCount = 0
+      var attributeCount = 0
+      expect(state.endpointTypes.length).toBe(1)
+      expect(state.endpointTypes[0].clusters.length).toBe(11)
+      state.endpointTypes[0].clusters.forEach((c) => {
+        commandCount += c.commands.length
+        attributeCount += c.attributes.length
+      })
+      expect(commandCount).toBe(7)
+      expect(attributeCount).toBe(21)
+    })
 })
