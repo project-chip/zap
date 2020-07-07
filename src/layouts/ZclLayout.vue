@@ -17,8 +17,8 @@ limitations under the License.
   <div class="q-pa-md dark">
     <q-dialog v-model="zclDialogFlag">
       <q-card>
-        <q-card-section
-          ><div class="text-h6">{{ zclDialogTitle }}</div>
+        <q-card-section>
+          <div class="text-h6">{{ zclDialogTitle }}</div>
         </q-card-section>
         <q-card-section class="q-pt-none">{{ zclDialogText }}</q-card-section>
         <q-card-actions align="right">
@@ -48,22 +48,18 @@ limitations under the License.
               <q-expansion-item
                 expand-separator
                 label="Application Configuration"
-                caption=""
+                caption
               >
                 <ZclApplicationSetup />
               </q-expansion-item>
               <q-expansion-item
                 expand-separator
                 label="Information Configuration"
-                caption=""
+                caption
               >
                 <ZclInformationSetup />
               </q-expansion-item>
-              <q-expansion-item
-                expand-separator
-                label="SQL Query Test"
-                caption=""
-              >
+              <q-expansion-item expand-separator label="SQL Query Test" caption>
                 <sql-query />
               </q-expansion-item>
             </q-tab-panel>
@@ -241,7 +237,7 @@ export default {
   name: 'ZclLayout',
   methods: {
     getGeneratedFile(fileName, index = 1) {
-      this.$serverGetWithType('/preview/' + fileName + '/' + index, 'preview')
+      this.$serverGetWithType('/preview/' + fileName + '/' + index)
         .then((result) => {
           this.generationData = result.data['result']
           this.maxIndex = result.data['size']

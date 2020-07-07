@@ -62,9 +62,7 @@ Vue.prototype.$emitEvent = (channel) => {
   eventEmitter.emit(channel)
 }
 
-Vue.prototype.$serverGetWithType = (url, type) => {
+Vue.prototype.$serverGetWithType = (url) => {
   console.log(`serverGet: ${url}`)
-  if (type === 'preview') {
-    return axios.get(url)
-  }
+  return axios.get(url)
 }
