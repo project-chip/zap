@@ -26,9 +26,6 @@ const env = require('../util/env.js')
 const util = require('../util/util.js')
 const dbEnum = require('../db/db-enum.js')
 const fsp = fs.promises
-var handlebarTemplateDirectory = __dirname + '/../../test/gen-template'
-var generationOptionsFile =
-  handlebarTemplateDirectory + '/generation-options.json'
 
 /**
  * Reads the properties file into ctx.data and also calculates crc into ctx.crc
@@ -54,7 +51,12 @@ function readPropertiesFile(ctx) {
  */
 function recordToplevelPackage(db, ctx) {
   return queryPackage
-    .registerTopLevelPackage(db, ctx.propertiesFile, ctx.crc, ctx.type)
+    .registerTopLevelPackage(
+      db,
+      ctx.propertiesFile,
+      ctx.crc,
+      dbEnum.packageType.zclProperties
+    )
     .then((id) => {
       ctx.packageId = id
       return Promise.resolve(ctx)
@@ -662,17 +664,9 @@ function loadZcl(db, propertiesFile) {
   var ctx = {
     propertiesFile: path.resolve(propertiesFile),
     db: db,
-    type: dbEnum.packageType.zclProperties,
-  }
-  var ctxGeneration = {
-    propertiesFile: path.resolve(generationOptionsFile),
-    db: db,
-    type: dbEnum.packageType.generationProperties,
   }
   return dbApi
     .dbBeginTransaction(db)
-    .then(() => readPropertiesFile(ctxGeneration))
-    .then((ctxGeneration) => recordToplevelPackage(db, ctxGeneration))
     .then(() => readPropertiesFile(ctx))
     .then((ctx) => recordToplevelPackage(db, ctx))
     .then((ctx) => collectZclFiles(ctx))

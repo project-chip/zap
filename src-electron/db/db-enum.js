@@ -25,5 +25,4 @@ exports.packageType = {
   zclXml: 'zcl-xml-child',
   zclXmlStandalone: 'zcl-xml-standalone',
   sqlSchema: 'sql-schema',
-  generationProperties: 'generation-properties',
 }
