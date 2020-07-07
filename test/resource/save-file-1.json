@@ -16,7 +16,7 @@
   ],
   "endpointTypes": [
     {
-      "name": "111",
+      "name": "Saved endpoint type",
       "deviceTypeName": "TA-billingunit",
       "deviceTypeCode": "0x0203",
       "clusters": [
