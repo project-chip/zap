@@ -24,170 +24,208 @@
 const httpServer = require('../server/http-server.js')
 
 const queryZcl = require('../db/query-zcl.js')
+const queryPackage = require('../db/query-package.js')
 const dbMapping = require('../db/db-mapping.js')
 
 const itemList = 'zcl-item-list'
 const singleItem = 'zcl-item'
 
-function zclClusters(db, id) {
-  if (id == 'all') {
-    return queryZcl.selectAllClusters(db)
-  } else {
-    return queryZcl.selectClusterById(db, id)
+// This function builds a function that has the following skeleton.
+// This is used to simplify all the logic where we have selectAll and selectById for
+// each of the different ZCL entities.
+function zclEntityQuery(selectAllFunction, selectByIdFunction) {
+  return (db, id, packageId = null) => {
+    if (id == 'all') {
+      return selectAllFunction(db, packageId)
+    } else {
+      return selectByIdFunction(db, id, packageId)
+    }
   }
 }
 
-function zclAttributes(db, clusterId) {
-  if (clusterId == 'all') {
-    return queryZcl.selectAllAttributes(db)
-  } else {
-    return queryZcl.selectAttributesByClusterId(db, clusterId)
-  }
+// For the CLUSTER path, we have special handling to also sideload attributes and commands relevant to that cluster.
+function returnZclEntitiesForClusterId(db, clusterId, packageId) {
+  return zclEntityQuery(queryZcl.selectAllClusters, queryZcl.selectClusterById)(
+    db,
+    clusterId,
+    packageId
+  ).then((x) =>
+    zclEntityQuery(
+      queryZcl.selectAllAttributes,
+      queryZcl.selectAttributesByClusterId
+    )(db, clusterId, packageId).then((y) =>
+      zclEntityQuery(
+        queryZcl.selectAllCommands,
+        queryZcl.selectCommandsByClusterId
+      )(db, clusterId, packageId).then((z) => {
+        return { clusterData: x, attributeData: y, commandData: z }
+      })
+    )
+  )
 }
 
-function zclCommands(db, clusterId) {
-  if (clusterId == 'all') {
-    return queryZcl
-      .selectAllCommands(db)
-      .then((rows) => rows.map(dbMapping.map.command))
-  } else {
-    return queryZcl.selectCommandsByClusterId(db, clusterId)
+// This is the special merge function used for the CLUSTER path
+function mergeZclClusterAttributeCommandData(accumulated, currentValue) {
+  return {
+    clusterData: [accumulated.clusterData, currentValue.clusterData].flat(1),
+    commandData: [accumulated.commandData, currentValue.commandData].flat(1),
+    attributeData: [accumulated.attributeData, currentValue.attributeData].flat(
+      1
+    ),
   }
 }
-
-function zclDomains(db, id) {
-  if (id == 'all') {
-    return queryZcl
-      .selectAllDomains(db)
-      .then((rows) => rows.map(dbMapping.map.domain))
-  } else {
-    return queryZcl.selectDomainById(db, id)
-  }
+//This maps over each packageId, and runs the query callback.
+function reduceAndConcatenateZclEntity(
+  db,
+  id,
+  packageIdArray,
+  zclQueryCallback,
+  mergeFunction = (accumulated, currentValue) => {
+    return [accumulated, currentValue].flat(1)
+  },
+  defaultValue = []
+) {
+  var dataArray = packageIdArray.map((packageId) =>
+    zclQueryCallback(db, id, packageId)
+  )
+  return Promise.all(dataArray).then((x) =>
+    x.reduce(mergeFunction, defaultValue)
+  )
 }
 
-function zclEnums(db, id) {
-  if (id == 'all') {
-    return queryZcl
-      .selectAllEnums(db)
-      .then((rows) => rows.map(dbMapping.map.enum))
-  } else {
-    return queryZcl.selectEnumById(db, id)
-  }
-}
-
-function zclStructs(db, id) {
-  if (id == 'all') {
-    return queryZcl
-      .selectAllStructs(db)
-      .then((rows) => rows.map(dbMapping.map.struct))
-  } else {
-    return queryZcl.selectStructById(db, id)
-  }
-}
-
-function zclBitmaps(db, id) {
-  if (id == 'all') {
-    return queryZcl
-      .selectAllBitmaps(db)
-      .then((rows) => rows.map(dbMapping.map.bitmap))
-  } else {
-    return queryZcl.selectBitmapById(db, id)
-  }
-}
-
-function zclDeviceTypes(db, id) {
-  if (id == 'all') {
-    return queryZcl.selectAllDeviceTypes(db)
-  } else {
-    return queryZcl.selectDeviceTypeById(db, id)
-  }
-}
-
-function processGetEntityRequest(db, path, id, replyId, callback) {
+function parseForZclData(db, path, id, packageIdArray) {
   switch (path) {
     case 'cluster':
-      zclClusters(db, id).then((x) =>
-        zclAttributes(db, id).then((y) =>
-          zclCommands(db, id).then((z) =>
-            callback(replyId, {
-              data: x,
-              attributeData: y,
-              commandData: z,
-              title: `Cluster: ${id}`,
-              type: 'cluster',
-            })
-          )
-        )
-      )
+      return reduceAndConcatenateZclEntity(
+        db,
+        id,
+        packageIdArray,
+        returnZclEntitiesForClusterId,
+        mergeZclClusterAttributeCommandData,
+        { clusterData: [], attributeData: [], commandData: [] }
+      ).then((data) => {
+        return {
+          data: data.clusterData,
+          attributeData: data.attributeData,
+          commandData: data.commandData,
+          title: `Cluster: ${id}`,
+          type: 'cluster',
+        }
+      })
       break
     case 'domain':
-      zclDomains(db, id).then((x) =>
-        callback(replyId, { data: x, title: `Domain: ${id}`, type: 'domain' })
-      )
+      return reduceAndConcatenateZclEntity(
+        db,
+        id,
+        packageIdArray,
+        zclEntityQuery(queryZcl.selectAllDomains, queryZcl.selectDomainById)
+      ).then((data) => {
+        return { data: data, title: `Domain: ${id}`, type: 'domain' }
+      })
       break
     case 'bitmap':
-      zclBitmaps(db, id).then((x) =>
-        callback(replyId, { data: x, title: `Bitmap: ${id}`, type: 'bitmap' })
-      )
+      return reduceAndConcatenateZclEntity(
+        db,
+        id,
+        packageIdArray,
+        zclEntityQuery(queryZcl.selectAllBitmaps, queryZcl.selectBitmapById)
+      ).then((x) => {
+        return { data: x, title: `Bitmap: ${id}`, type: 'bitmap' }
+      })
       break
     case 'enum':
-      zclEnums(db, id).then((x) =>
-        callback(replyId, { data: x, title: `Enum: ${id}`, type: 'enum' })
-      )
+      return reduceAndConcatenateZclEntity(
+        db,
+        id,
+        packageIdArray,
+        zclEntityQuery(queryZcl.selectAllEnums, queryZcl.selectEnumById)
+      ).then((x) => {
+        return { data: x, title: `Enum: ${id}`, type: 'enum' }
+      })
       break
     case 'struct':
-      zclStructs(db, id).then((x) =>
-        callback(replyId, { data: x, title: `Struct: ${id}`, type: 'struct' })
-      )
-      break
+      return reduceAndConcatenateZclEntity(
+        db,
+        id,
+        packageIdArray,
+        zclEntityQuery(queryZcl.selectAllStructs, queryZcl.selectStructById)
+      ).then((x) => {
+        return { data: x, title: `Struct: ${id}`, type: 'struct' }
+      })
+      breaks
     case 'deviceType':
-      zclDeviceTypes(db, id).then((x) =>
-        callback(replyId, {
+      return reduceAndConcatenateZclEntity(
+        db,
+        id,
+        packageIdArray,
+        zclEntityQuery(
+          queryZcl.selectAllDeviceTypes,
+          queryZcl.selectDeviceTypeById
+        )
+      ).then((x) => {
+        return {
           data: x,
           title: `Device type: ${id}`,
           type: 'device_type',
-        })
-      )
+        }
+      })
       break
     case 'endpointTypeClusters':
-      queryZcl
+      return queryZcl
         .selectEndpointTypeClustersByEndpointTypeId(db, id)
-        .then((x) =>
-          callback(replyId, { data: x, type: `endpointTypeClusters` })
-        )
+        .then((x) => {
+          return { data: x, type: `endpointTypeClusters` }
+        })
       break
     case 'endpointTypeAttributes':
-      queryZcl
+      return queryZcl
         .selectEndpointTypeAttributesByEndpointId(db, id)
-        .then((x) =>
-          callback(replyId, { data: x, type: `endpointTypeAttributes` })
-        )
+        .then((x) => {
+          return { data: x, type: `endpointTypeAttributes` }
+        })
       break
     case 'endpointTypeCommands':
-      queryZcl
+      return queryZcl
         .selectEndpointTypeCommandsByEndpointId(db, id)
-        .then((x) =>
-          callback(replyId, { data: x, type: `endpointTypeCommands` })
-        )
+        .then((x) => {
+          return { data: x, type: `endpointTypeCommands` }
+        })
       break
     case `endpointTypeDeviceTypeClusters`:
-      queryZcl
+      return queryZcl
         .selectDeviceTypeClustersByDeviceTypeRef(db, id)
-        .then((x) => callback(replyId, { data: x, type: `deviceTypeClusters` }))
+        .then((x) => {
+          return { data: x, type: `deviceTypeClusters` }
+        })
       break
     case `endpointTypeDeviceTypeAttributes`:
-      queryZcl
+      return queryZcl
         .selectDeviceTypeAttributesByDeviceTypeRef(db, id)
-        .then((x) =>
-          callback(replyId, { data: x, type: `deviceTypeAttributes` })
-        )
+        .then((x) => {
+          return { data: x, type: `deviceTypeAttributes` }
+        })
       break
     case `endpointTypeDeviceTypeCommands`:
-      queryZcl
+      return queryZcl
         .selectDeviceTypeCommandsByDeviceTypeRef(db, id)
-        .then((x) => callback(replyId, { data: x, type: `deviceTypeCommands` }))
+        .then((x) => {
+          return { data: x, type: `deviceTypeCommands` }
+        })
       break
+    default:
+      return { type: 'Unknown' }
   }
+}
+
+function processGetEntityRequest(db, path, id, replyId, sessionId, callback) {
+  queryPackage
+    .getSessionPackages(db, sessionId)
+    .then((packageIdArray) => {
+      return parseForZclData(db, path, id, packageIdArray)
+    })
+    .then((finalData) => {
+      callback(replyId, finalData)
+    })
 }
 
 /**
@@ -199,15 +237,15 @@ function processGetEntityRequest(db, path, id, replyId, callback) {
 function registerStaticZclApi(db, app) {
   app.get('/get/:entity/:id', (request, response) => {
     const { id, entity } = request.params
+    var sessionId = request.session.zapSessionId
+
     var processReply = (replyId, object) => {
       object.replyId = replyId
       response.status(httpServer.httpCode.ok).json(object)
     }
     var replyId = id === 'all' ? itemList : singleItem
-    processGetEntityRequest(db, entity, id, replyId, processReply)
+    processGetEntityRequest(db, entity, id, replyId, sessionId, processReply)
   })
 }
 
 exports.registerStaticZclApi = registerStaticZclApi
-exports.zclBitmaps = zclBitmaps
-exports.zclDeviceTypes = zclDeviceTypes

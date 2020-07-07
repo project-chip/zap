@@ -177,10 +177,11 @@ module.exports = function (ctx) {
         // Windows only
         // win32metadata: { ... }
 
-        platform: 'darwin,linux,win32',
+        platform: 'linux,darwin,win32',
+        //platform: 'linux',
         //arch: 'ia32,x64',
         arch: 'x64',
-        extraResource: 'src-electron/db/zap-schema.sql',
+        extraResource: ['src-electron/db/zap-schema.sql', 'src-electron/icons'],
         afterCopy: [
           (buildPath, electronVersion, platform, arch, callback) => {
             require('electron-rebuild')

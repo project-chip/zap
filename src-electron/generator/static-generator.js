@@ -20,6 +20,8 @@
  */
 const Handlebars = require('handlebars/dist/cjs/handlebars')
 const queryZcl = require('../db/query-zcl.js')
+const queryPackage = require('../db/query-package.js')
+
 const fsExtra = require('fs-extra')
 
 const { logError, logInfo } = require('../util/env.js')
@@ -141,6 +143,9 @@ function infoFromDb(map, dbRowTypeArray) {
         dbRowType === 'callback-zcl' ||
         dbRowType === 'client-command-macro-cluster'
       ) {
+        // When one has the right sessionID, use the following
+        // dbInfo[dbRowType] = queryPackage.callPackageSpecificFunctionOverSessionPackages(db, sessionId, queryZcl
+        //  .selectAllClusters, [])
         dbInfo[dbRowType] = queryZcl
           .selectAllClusters(db)
           .then((dbRows) => (map[dbRowType] = dbRows))

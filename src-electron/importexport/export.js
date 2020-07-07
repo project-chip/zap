@@ -23,8 +23,7 @@ const fs = require('fs')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const queryConfig = require('../db/query-config.js')
-const queryPackage = require('../db/query-package.js')
-const queryZcl = require('../db/query-zcl.js')
+const queryImpExp = require('../db/query-impexp.js')
 
 /**
  * Resolves to an array of objects that contain 'key' and 'value'
@@ -47,63 +46,67 @@ function exportSessionKeyValues(db, sessionId) {
  * @returns Promise to retrieve all endpoint types.
  */
 function exportEndpointTypes(db, sessionId) {
-  return queryConfig.getAllEndpointTypes(db, sessionId).then((endpoints) => {
+  return queryImpExp.exportEndpointTypes(db, sessionId).then((endpoints) => {
     var promises = []
     endpoints.forEach((endpoint) => {
+      // Add in the clusters.
       promises.push(
-        queryConfig.getEndpointTypeClusters(db, endpoint.endpointTypeId).then(
-          (clusterRows) =>
-            new Promise((resolve, reject) => {
-              endpoint.clusters = clusterRows
-              clusterRows.forEach((x) => {
-                // Delete the database entities, everything is dereferenced
-                delete x.endpointTypeRef
-                delete x.endpointTypeClusterId
-              })
-              resolve(clusterRows)
-            })
-        )
-      )
+        queryImpExp
+          .exportClustersFromEndpointType(db, endpoint.endpointTypeId)
+          .then((data) => {
+            endpoint.clusters = data
 
-      promises.push(
-        queryConfig.getEndpointTypeAttributes(db, endpoint.endpointTypeId).then(
-          (attributeRows) =>
-            new Promise((resolve, reject) => {
-              endpoint.attributes = attributeRows
-              attributeRows.forEach((x) => {
-                // Delete the database entities, everything is dereferenced
-                delete x.endpointTypeRef
-                delete x.endpointTypeAttributeId
-              })
-              resolve(attributeRows)
-            })
-        )
-      )
+            var ps = []
+            data.forEach((endpointCluster) => {
+              var endpointClusterId = endpointCluster.endpointClusterId
+              delete endpointCluster.endpointClusterId
+              ps.push(
+                queryImpExp
+                  .exportCommandsFromEndpointTypeCluster(
+                    db,
+                    endpoint.endpointTypeId,
+                    endpointClusterId
+                  )
+                  .then((commands) => {
+                    endpointCluster.commands = commands
+                    return commands
+                  })
+              )
 
-      promises.push(
-        queryConfig.getEndpointTypeCommands(db, endpoint.endpointTypeId).then(
-          (commandRows) =>
-            new Promise((resolve, reject) => {
-              endpoint.commands = commandRows
-              commandRows.forEach((x) => {
-                // Delete the database entities, everything is dereferenced
-                delete x.endpointTypeRef
-                delete x.endpointTypeCommandId
-              })
-              resolve(commandRows)
+              ps.push(
+                queryImpExp
+                  .exportAttributesFromEndpointTypeCluster(
+                    db,
+                    endpoint.endpointTypeId,
+                    endpointClusterId
+                  )
+                  .then((attributes) => {
+                    endpointCluster.attributes = attributes
+                    return attributes
+                  })
+              )
             })
-        )
+            return Promise.all(ps)
+          })
       )
-
-      // We dereferenced everything, we can now delete the key
-      delete endpoint.endpointTypeId
     })
-    return Promise.all(promises).then(() => endpoints)
+    return Promise.all(promises).then(() => {
+      endpoints.forEach((ep) => {
+        delete ep.endpointTypeId
+      })
+      return endpoints
+    })
   })
 }
 
+/**
+ * Resolves with data for packages.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ */
 function exportSessionPackages(db, sessionId) {
-  return Promise.resolve({ package: '' })
+  return queryImpExp.exportPackagesFromSession(db, sessionId)
 }
 
 /**

@@ -31,6 +31,7 @@ limitations under the License.
         <q-tabs flat v-model="tab">
           <q-tab name="general" label="General" />
           <q-tab name="zclClusters" label="ZCL Clusters" />
+          <q-tab name="reformedUI" label="Reformed UI" />
         </q-tabs>
         <q-space />
         <q-btn flat @click="drawerRight = !drawerRight" dense label="Preview" />
@@ -68,6 +69,9 @@ limitations under the License.
             </q-tab-panel>
             <q-tab-panel name="zclClusters">
               <ZclClusterLayout />
+            </q-tab-panel>
+            <q-tab-panel name="reformedUI">
+              <zcl-configurator-layout />
             </q-tab-panel>
           </q-tab-panels>
           <q-drawer
@@ -228,6 +232,7 @@ limitations under the License.
 import ZclApplicationSetup from '../components/ZclApplicationSetup.vue'
 import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclClusterLayout from './ZclClusterLayout.vue'
+import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
 import { scroll } from 'quasar'
 const { getScrollHeight } = scroll
@@ -284,6 +289,7 @@ export default {
     ZclApplicationSetup,
     ZclInformationSetup,
     ZclClusterLayout,
+    ZclConfiguratorLayout,
     SqlQuery,
   },
   data() {

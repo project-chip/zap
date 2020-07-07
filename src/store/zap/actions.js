@@ -299,3 +299,7 @@ export function setRequiredCommands(context, data) {
     requiredCommands: requiredCommands,
   })
 }
+
+export function setLeftDrawerState(context, data) {
+  context.commit('setLeftDrawerState', data)
+}

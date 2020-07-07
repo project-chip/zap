@@ -77,6 +77,30 @@ test('test zcl data loading in memory', () => {
     .then(() => queryGeneric.selectCountFrom(db, 'STRUCT_ITEM'))
     .then((x) => expect(x).toEqual(154))
     .then(() =>
+      dbApi.dbAll(
+        db,
+        'SELECT MANUFACTURER_CODE FROM CLUSTER WHERE MANUFACTURER_CODE NOT NULL',
+        []
+      )
+    )
+    .then((x) => expect(x.length).toEqual(2))
+    .then(() =>
+      dbApi.dbAll(
+        db,
+        'SELECT MANUFACTURER_CODE FROM COMMAND WHERE MANUFACTURER_CODE NOT NULL',
+        []
+      )
+    )
+    .then((x) => expect(x.length).toEqual(5))
+    .then(() =>
+      dbApi.dbAll(
+        db,
+        'SELECT MANUFACTURER_CODE FROM ATTRIBUTE WHERE MANUFACTURER_CODE NOT NULL',
+        []
+      )
+    )
+    .then((x) => expect(x.length).toEqual(4))
+    .then(() =>
       dbApi.dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', [
         ['0x0000'],
         ['0x0006'],

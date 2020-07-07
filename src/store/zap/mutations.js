@@ -261,3 +261,7 @@ export function setRequiredAttributesList(state, data) {
 export function setRequiredCommandsList(state, data) {
   Vue.set(state.commandView, 'requiredCommands', data.requiredCommands)
 }
+
+export function setLeftDrawerState(state, data) {
+  state.leftDrawerOpenState = data
+}

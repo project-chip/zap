@@ -29,6 +29,7 @@ const queryPackage = require('../src-electron/db/query-package.js')
 const querySession = require('../src-electron/db/query-session.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const exportJs = require('../src-electron/importexport/export.js')
+const dbEnum = require('../src-electron/db/db-enum.js')
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -80,26 +81,36 @@ test('File location queries.', () =>
 
 test('Replace query', () =>
   dbApi
-    .dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
-      'thePath',
-      12,
-    ])
-    .then((rowId) => expect(rowId).toBeGreaterThan(0))
-    .then(() =>
-      dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
-    )
-    .then((result) => expect(result.CRC).toBe(12))
-    .then(() =>
-      dbApi.dbInsert(db, 'REPLACE INTO PACKAGE (PATH, CRC) VALUES (?,?)', [
-        'thePath',
-        13,
-      ])
+    .dbInsert(
+      db,
+      'REPLACE INTO SETTING (CATEGORY, KEY, VALUE) VALUES (?,?,?)',
+      ['cat', 'key', 12]
     )
     .then((rowId) => expect(rowId).toBeGreaterThan(0))
     .then(() =>
-      dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', ['thePath'])
+      dbApi.dbGet(
+        db,
+        'SELECT VALUE FROM SETTING WHERE CATEGORY = ? AND KEY = ?',
+        ['cat', 'key']
+      )
     )
-    .then((result) => expect(result.CRC).toBe(13)))
+    .then((result) => expect(result.VALUE).toBe('12'))
+    .then(() =>
+      dbApi.dbInsert(
+        db,
+        'REPLACE INTO SETTING (CATEGORY, KEY, VALUE) VALUES (?,?,?)',
+        ['cat', 'key', 13]
+      )
+    )
+    .then((rowId) => expect(rowId).toBeGreaterThan(0))
+    .then(() =>
+      dbApi.dbGet(
+        db,
+        'SELECT VALUE FROM SETTING WHERE CATEGORY = ? AND KEY = ?',
+        ['cat', 'key']
+      )
+    )
+    .then((result) => expect(result.VALUE).toBe('13')))
 
 test('Simple cluster addition.', () =>
   queryPackage
@@ -281,8 +292,9 @@ describe('Session specific queries', () => {
         expect(state.endpointTypes.length).toBe(1)
         expect(state.endpointTypes[0].name).toBe('Test endpoint')
         expect(state.endpointTypes[0].clusters.length).toBe(0)
-        expect(state.endpointTypes[0].attributes.length).toBe(0)
-        expect(state.endpointTypes[0].commands.length).toBe(0)
+        expect(state.package.length).toBe(1)
+        expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
+        expect(state.package[0].version).toBe('ZCL Test Data')
       })
   })
 
