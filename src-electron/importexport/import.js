@@ -131,40 +131,48 @@ function importEndpointTypes(db, sessionId, packageId, endpointTypes) {
           .then((endpointId) => {
             // Now we need to import commands, attributes and clusters.
             var promises = []
-            var endpointClusterId = null
 
             // et.clusters
             et.clusters.forEach((cluster) => {
               // code, mfgCode, side
               promises.push(
-                queryImpexp.importClusterForEndpointType(
-                  db,
-                  packageId,
-                  endpointId,
-                  cluster
-                )
-              )
-            })
+                queryImpexp
+                  .importClusterForEndpointType(
+                    db,
+                    packageId,
+                    endpointId,
+                    cluster
+                  )
+                  .then((endpointClusterId) => {
+                    var ps = []
 
-            // et.commands
-            et.commands.forEach((command) => {
-              queryImpexp.importCommandForEndpointType(
-                db,
-                packageId,
-                endpointId,
-                endpointClusterId,
-                command
-              )
-            })
+                    if ('commands' in cluster)
+                      cluster.commands.forEach((command) => {
+                        ps.push(
+                          queryImpexp.importCommandForEndpointType(
+                            db,
+                            packageId,
+                            endpointId,
+                            endpointClusterId,
+                            command
+                          )
+                        )
+                      })
 
-            // et.attributes
-            et.attributes.forEach((attribute) => {
-              queryImpexp.importAttributeForEndpointType(
-                db,
-                packageId,
-                endpointId,
-                endpointClusterId,
-                attribute
+                    if ('attributes' in cluster)
+                      cluster.attributes.forEach((attribute) => {
+                        ps.push(
+                          queryImpexp.importAttributeForEndpointType(
+                            db,
+                            packageId,
+                            endpointId,
+                            endpointClusterId,
+                            attribute
+                          )
+                        )
+                      })
+                    return Promise.all(ps)
+                  })
               )
             })
 

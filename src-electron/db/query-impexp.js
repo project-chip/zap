@@ -213,6 +213,7 @@ function exportAttributesFromEndpointTypeCluster(
       name: x.NAME,
       code: x.CODE,
       mfgCode: x.MANUFACTURER_CODE,
+      included: x.INCLUDED,
       external: x.EXTERNAL,
       flash: x.FLASH,
       singleton: x.SINGLETON,
@@ -232,6 +233,7 @@ SELECT
   ATTRIBUTE.NAME,
   ATTRIBUTE.CODE,
   ATTRIBUTE.MANUFACTURER_CODE,
+  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED,
   ENDPOINT_TYPE_ATTRIBUTE.EXTERNAL,
   ENDPOINT_TYPE_ATTRIBUTE.FLASH,
   ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
@@ -244,8 +246,7 @@ SELECT
 FROM ATTRIBUTE
 INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
 ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
-WHERE ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 
-      AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?
+WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?
       AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ?
     `,
       [endpointTypeId, endpointClusterId]
@@ -273,7 +274,7 @@ function importAttributeForEndpointType(
   var arg = [endpointTypeId, endpointClusterId, attribute.code, packageId]
   if (attribute.mfgCode != null) arg.push(attribute.mfgCode)
   arg.push(
-    1,
+    attribute.included,
     attribute.external,
     attribute.flash,
     attribute.singleton,
@@ -315,7 +316,6 @@ VALUES
   `,
     arg
   )
-  return Promise.resolve(1)
 }
 
 /**
@@ -376,14 +376,42 @@ function importCommandForEndpointType(
   endpointClusterId,
   command
 ) {
-  return Promise.resolve(1)
+  var arg = [endpointTypeId, endpointClusterId, command.code, packageId]
+  if (command.mfgCode != null) arg.push(command.mfgCode)
+  arg.push(command.incoming, command.outgoing)
+  return dbApi.dbInsert(
+    db,
+    `
+INSERT INTO ENDPOINT_TYPE_COMMAND
+( ENDPOINT_TYPE_REF,
+  ENDPOINT_TYPE_CLUSTER_REF,
+  COMMAND_REF, 
+  INCOMING,
+  OUTGOING )
+VALUES
+  ( ?, ?,
+    ( SELECT COMMAND_ID 
+      FROM COMMAND WHERE 
+        CODE = ? 
+        AND PACKAGE_REF = ?
+        AND ${
+          command.mfgCode == null
+            ? 'MANUFACTURER_CODE IS NULL'
+            : 'MANUFACTURER_CODE = ?'
+        }),
+    ?,
+    ?
+    )
+  `,
+    arg
+  )
 }
 
 exports.exportEndpointTypes = exportEndpointTypes
 exports.importEndpointType = importEndpointType
 
 exports.exportClustersFromEndpointType = exportClustersFromEndpointType
-exports.importClusterFIorEndpointType = importClusterForEndpointType
+exports.importClusterForEndpointType = importClusterForEndpointType
 
 exports.exportPackagesFromSession = exportPackagesFromSession
 
