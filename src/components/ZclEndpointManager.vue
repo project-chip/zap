@@ -19,7 +19,7 @@ limitations under the License.
     <!-- Add onClick handler for new endpoint-->
     <div class="row">
       <q-btn
-        class="vertical-align:middle q-pa-md q-mini-drawer-hide"
+        class="vertical-align:middle q-pa-md q-mini-drawer-hide row-8"
         text-color="primary"
         @click="test()"
         icon="add"
@@ -38,16 +38,26 @@ limitations under the License.
         :unelevated="false"
         :outline="none"
         @click="miniState = !miniState"
+        class="col"
       />
     </div>
-    <q-separator />
+    <q-separator class="q-mini-drawer-hide" />
+    <template v-for="(child, index) in endpoints">
+      <zcl-endpoint-card
+        v-bind:key="index"
+        v-bind:endpointReference="child.id"
+        class="q-mini-drawer-hide"
+      >
+      </zcl-endpoint-card>
+    </template>
   </div>
 </template>
 
 <script>
+import ZclEndpointCard from './ZclEndpointCard.vue'
 export default {
   name: 'ZclEndpointManager',
-  components: {},
+  components: { ZclEndpointCard },
 
   methods: {
     test() {
@@ -73,8 +83,23 @@ export default {
     },
   },
 
+  computed: {
+    endpoints: {
+      get() {
+        return Object.keys(this.$store.state.zap.endpointView.endpointId).map(
+          (endpointId) => {
+            return {
+              id: endpointId,
+            }
+          }
+        )
+      },
+    },
+  },
   data() {
-    return {}
+    return {
+      tester: ['a', 'b', 'c'],
+    }
   },
 }
 </script>
