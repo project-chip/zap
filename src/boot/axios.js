@@ -25,7 +25,7 @@ var eventEmitter = new events.EventEmitter()
 Vue.prototype.$serverGet = (url) => {
   console.log(`serverGet: ${url}`)
   axios
-    .get('/get' + url)
+    .get(url)
     .then((response) => {
       console.log('get response:')
       console.log(response)

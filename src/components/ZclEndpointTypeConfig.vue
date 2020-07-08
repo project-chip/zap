@@ -183,7 +183,7 @@ export default {
       }
     })
 
-    this.$serverGet('/deviceType/all')
+    this.$serverGet('/zcl/deviceType/all')
   },
   methods: {
     showConfirmZclDeviceTypeChangeDialog(value) {

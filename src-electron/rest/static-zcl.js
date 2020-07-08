@@ -229,13 +229,13 @@ function processGetEntityRequest(db, path, id, replyId, sessionId, callback) {
 }
 
 /**
- * API: /get/:entity/:id
+ * API: /zcl/:entity/:id
  *
  * @export
  * @param {*} app Express instance.
  */
 function registerStaticZclApi(db, app) {
-  app.get('/get/:entity/:id', (request, response) => {
+  app.get('/zcl/:entity/:id', (request, response) => {
     const { id, entity } = request.params
     var sessionId = request.session.zapSessionId
 

@@ -112,22 +112,22 @@ export function updateSelectedEndpoint(context, endpoint) {
 
 export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
   Vue.prototype.$serverGet(
-    `/endpointTypeDeviceTypeClusters/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
+    `/zcl/endpointTypeDeviceTypeClusters/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
   )
   Vue.prototype.$serverGet(
-    `/endpointTypeDeviceTypeAttributes/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
+    `/zcl/endpointTypeDeviceTypeAttributes/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
   )
   Vue.prototype.$serverGet(
-    `/endpointTypeDeviceTypeCommands/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
+    `/zcl/endpointTypeDeviceTypeCommands/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
   )
   Vue.prototype.$serverGet(
-    `/endpointTypeClusters/${endpointIdDeviceTypeRefPair.endpointId}`
+    `/zcl/endpointTypeClusters/${endpointIdDeviceTypeRefPair.endpointId}`
   )
   Vue.prototype.$serverGet(
-    `/endpointTypeAttributes/${endpointIdDeviceTypeRefPair.endpointId}`
+    `/zcl/endpointTypeAttributes/${endpointIdDeviceTypeRefPair.endpointId}`
   )
   Vue.prototype.$serverGet(
-    `/endpointTypeCommands/${endpointIdDeviceTypeRefPair.endpointId}`
+    `/zcl/endpointTypeCommands/${endpointIdDeviceTypeRefPair.endpointId}`
   )
   context.commit('setDeviceTypeReference', endpointIdDeviceTypeRefPair)
 }
@@ -154,22 +154,22 @@ export function updateSelectedEndpointType(
 ) {
   if (endpointTypeDeviceTypeRefPair != null) {
     Vue.prototype.$serverGet(
-      `/endpointTypeClusters/${endpointTypeDeviceTypeRefPair.endpointType}`
+      `/zcl/endpointTypeClusters/${endpointTypeDeviceTypeRefPair.endpointType}`
     )
     Vue.prototype.$serverGet(
-      `/endpointTypeAttributes/${endpointTypeDeviceTypeRefPair.endpointType}`
+      `/zcl/endpointTypeAttributes/${endpointTypeDeviceTypeRefPair.endpointType}`
     )
     Vue.prototype.$serverGet(
-      `/endpointTypeCommands/${endpointTypeDeviceTypeRefPair.endpointType}`
+      `/zcl/endpointTypeCommands/${endpointTypeDeviceTypeRefPair.endpointType}`
     )
     Vue.prototype.$serverGet(
-      `/endpointTypeDeviceTypeClusters/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+      `/zcl/endpointTypeDeviceTypeClusters/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
     )
     Vue.prototype.$serverGet(
-      `/endpointTypeDeviceTypeAttributes/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+      `/zcl/endpointTypeDeviceTypeAttributes/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
     )
     Vue.prototype.$serverGet(
-      `/endpointTypeDeviceTypeCommands/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+      `/zcl/endpointTypeDeviceTypeCommands/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
     )
   }
   context.commit(

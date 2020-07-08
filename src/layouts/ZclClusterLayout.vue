@@ -55,7 +55,7 @@ export default {
         this.$store.dispatch('zap/updateClusters', arg.data)
       }
     })
-    this.$serverGet('/cluster/all')
+    this.$serverGet('/zcl/cluster/all')
   },
   data() {
     return {
