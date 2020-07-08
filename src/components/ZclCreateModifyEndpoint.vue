@@ -35,7 +35,7 @@ limitations under the License.
             />
           </q-field>
           <q-field label="Profile ID" stack-label>
-            <q-input outlined v-model="zclProfileId" disabled class="col" />
+            <q-input outlined v-model="zclProfileId" disable class="col" />
           </q-field>
           <q-field label="Device Type" stack-label>
             <q-select
