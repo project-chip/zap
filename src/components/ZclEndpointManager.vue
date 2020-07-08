@@ -77,13 +77,10 @@ export default {
       get() {
         return this.$store.state.zap.miniState
       },
-      set(newLeftDrawerOpenState) {
-        this.$store.dispatch('zap/setMiniState', newLeftDrawerOpenState)
+      set(newMiniState) {
+        this.$store.dispatch('zap/setMiniState', newMiniState)
       },
     },
-  },
-
-  computed: {
     endpoints: {
       get() {
         return Object.keys(this.$store.state.zap.endpointView.endpointId).map(
