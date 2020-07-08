@@ -237,7 +237,7 @@ export default {
   name: 'ZclLayout',
   methods: {
     getGeneratedFile(fileName, index = 1) {
-      this.$serverGetWithType('/preview/' + fileName + '/' + index)
+      this.$serverGet('/preview/' + fileName + '/' + index)
         .then((result) => {
           this.generationData = result.data['result']
           this.maxIndex = result.data['size']
@@ -270,10 +270,7 @@ export default {
         this.maxIndex > this.index
       ) {
         this.index = this.index + 1
-        this.$serverGetWithType(
-          '/preview/' + this.currentFile + '/' + this.index,
-          'preview'
-        )
+        this.$serverGet('/preview/' + this.currentFile + '/' + this.index)
           .then((result) => {
             this.generationData = this.generationData + result.data['result']
           })
