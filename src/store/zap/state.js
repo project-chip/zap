@@ -17,6 +17,7 @@
 export default function () {
   return {
     leftDrawerOpenState: true,
+    miniState: false,
     informationText: 'Use this as a placeholder for information.',
     clusters: [],
     attributes: [],

@@ -43,9 +43,14 @@ limitations under the License.
         </q-toolbar>
         <ZclGeneralOptionsBar />
       </q-header>
-      <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+      <q-drawer
+        v-model="leftDrawerOpen"
+        bordered
+        :mini="!leftDrawerOpen || miniState"
+      >
         <zcl-endpoint-manager />
       </q-drawer>
+      <q-page-container> </q-page-container>
     </q-layout>
   </div>
 </template>
@@ -57,11 +62,20 @@ import ZclEndpointManager from '../components/ZclEndpointManager.vue'
 
 export default {
   name: 'ZclConfiguratorLayout',
+
   methods: {},
   computed: {
     leftDrawerOpen: {
       get() {
         return this.$store.state.zap.leftDrawerOpenState
+      },
+      set(newLeftDrawerOpenState) {
+        this.$store.dispatch('zap/setLeftDrawerState', newLeftDrawerOpenState)
+      },
+    },
+    miniState: {
+      get() {
+        return this.$store.state.zap.miniState
       },
     },
   },

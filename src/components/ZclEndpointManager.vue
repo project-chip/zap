@@ -18,10 +18,17 @@ limitations under the License.
   <div>
     <!-- Add onClick handler for new endpoint-->
     <div class="row">
-      <div color="primary" class="vertical-align:middle q-pa-md">
-        <q-icon left name="add" color="primary" />
-        Add New Endpoint
-      </div>
+      <q-btn
+        class="vertical-align:middle q-pa-md q-mini-drawer-hide"
+        text-color="primary"
+        @click="test()"
+        icon="add"
+        label="Add New Endpoint"
+        flat
+        :ripple="false"
+        :unelevated="false"
+        :outline="none"
+      />
       <q-space />
       <q-btn
         text-color="primary"
@@ -30,16 +37,23 @@ limitations under the License.
         :ripple="false"
         :unelevated="false"
         :outline="none"
-        @click="leftDrawerOpen = !leftDrawerOpen"
+        @click="miniState = !miniState"
       />
     </div>
+    <q-separator />
   </div>
 </template>
 
 <script>
 export default {
   name: 'ZclEndpointManager',
-  methods: {},
+  components: {},
+
+  methods: {
+    test() {
+      console.log('New Endpoint should pop up')
+    },
+  },
   computed: {
     leftDrawerOpen: {
       get() {
@@ -47,6 +61,14 @@ export default {
       },
       set(newLeftDrawerOpenState) {
         this.$store.dispatch('zap/setLeftDrawerState', newLeftDrawerOpenState)
+      },
+    },
+    miniState: {
+      get() {
+        return this.$store.state.zap.miniState
+      },
+      set(newLeftDrawerOpenState) {
+        this.$store.dispatch('zap/setMiniState', newLeftDrawerOpenState)
       },
     },
   },
