@@ -33,8 +33,8 @@ limitations under the License.
               ]
                 ? deviceTypes[
                     endpointDeviceTypeRef[endpointType[endpointReference]]
-                  ].profileId.toString(16)
-                : '0x'
+                  ].description
+                : ''
               ).padStart(4, '0')
             }}
           </div>

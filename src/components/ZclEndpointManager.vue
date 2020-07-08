@@ -21,7 +21,7 @@ limitations under the License.
       <q-btn
         class="vertical-align:middle q-pa-md q-mini-drawer-hide row-8"
         text-color="primary"
-        @click="test()"
+        @click="newEndpointDialog = true"
         icon="add"
         label="Add New Endpoint"
         flat
@@ -50,17 +50,22 @@ limitations under the License.
       >
       </zcl-endpoint-card>
     </template>
+
+    <q-dialog v-model="newEndpointDialog" class="background-color:transparent">
+      <zcl-create-modify-endpoint />
+    </q-dialog>
   </div>
 </template>
 
 <script>
 import ZclEndpointCard from './ZclEndpointCard.vue'
+import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
 export default {
   name: 'ZclEndpointManager',
-  components: { ZclEndpointCard },
+  components: { ZclEndpointCard, ZclCreateModifyEndpoint },
 
   methods: {
-    test() {
+    newEndpoint() {
       console.log('New Endpoint should pop up')
     },
   },
@@ -96,6 +101,7 @@ export default {
   data() {
     return {
       tester: ['a', 'b', 'c'],
+      newEndpointDialog: false,
     }
   },
 }
