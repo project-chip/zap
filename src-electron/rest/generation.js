@@ -23,6 +23,7 @@
 
 const env = require('../util/env.js')
 const staticGenerator = require('../generator/static-generator.js')
+const restApi = require('../../src-shared/rest-api.js')
 
 function getGeneratedCodeMap(generationOptions, db) {
   return new Promise((resolve, reject) => {
@@ -157,7 +158,7 @@ function registerGenerationApi(db, app) {
   //       "cluster-id" : "...",
   //       "enums" : "..."
   //      }
-  app.get('/generate', (request, response) => {
+  app.get(restApi.uri.generate, (request, response) => {
     staticGenerator.getGenerationProperties('').then((generationOptions) => {
       getGeneratedCodeMap(generationOptions, db).then((map) => {
         // making sure all generation promises are resolved before handling the get request

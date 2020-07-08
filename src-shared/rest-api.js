@@ -34,6 +34,7 @@ const action = {
 const uri = {
   saveSessionKeyValue: '/save',
   sql: '/sql',
+  generate: '/generate',
 }
 
 exports.replyId = replyId

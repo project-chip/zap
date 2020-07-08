@@ -26,9 +26,7 @@ limitations under the License.
           icon="menu"
           aria-label="Menu"
         />
-        <q-toolbar-title>
-          Zigbee Cluster Library
-        </q-toolbar-title>
+        <q-toolbar-title>Zigbee Cluster Library</q-toolbar-title>
       </q-toolbar>
     </q-header>
 
@@ -153,6 +151,8 @@ limitations under the License.
 </template>
 
 <script>
+import restApi from '../../src-shared/rest-api.js'
+
 export default {
   name: 'MyLayout',
   methods: {
@@ -160,7 +160,7 @@ export default {
       this.$serverGet(url)
     },
     generate() {
-      this.$serverGet('/generate')
+      this.$serverGet(restApi.uri.generate)
     },
   },
   data() {
