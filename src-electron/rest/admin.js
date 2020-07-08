@@ -16,6 +16,8 @@
  */
 
 const dbApi = require('../db/db-api.js')
+const restApi = require('../../src-shared/rest-api.js')
+
 /**
  * This module provides the REST API to the admin functions.
  *
@@ -43,10 +45,10 @@ const dbApi = require('../db/db-api.js')
  * @param {*} app
  */
 function registerAdminApi(db, app) {
-  app.post('/sql', (request, response) => {
+  app.post(restApi.uri.sql, (request, response) => {
     var sql = request.body.sql
     if (sql) {
-      var replyObject = { replyId: 'sql-result' }
+      var replyObject = { replyId: restApi.replyId.sqlResult }
       dbApi
         .dbAll(db, sql, [])
         .then((rows) => {

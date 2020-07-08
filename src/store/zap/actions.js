@@ -16,10 +16,14 @@
  */
 import Vue from 'vue'
 import * as Util from '../../util/util.js'
+import restApi from '../../../src-shared/rest-api.js'
 
 export function updateInformationText(context, text) {
   context.commit('updateInformationText', text)
-  Vue.prototype.$serverPost('/save', { key: 'informationText', value: text })
+  Vue.prototype.$serverPost(restApi.uri.saveSessionKeyValue, {
+    key: 'informationText',
+    value: text,
+  })
 }
 
 export function updateClusters(context, clusters) {

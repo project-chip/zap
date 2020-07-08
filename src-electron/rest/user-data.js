@@ -174,7 +174,7 @@ function registerSessionApi(db, app) {
       })
   })
 
-  app.post('/save', (request, response) => {
+  app.post(restApi.uri.saveSessionKeyValue, (request, response) => {
     var { key, value } = request.body
     var sessionId = request.session.zapSessionId
     env.logInfo(`[${sessionId}]: Saving: ${key} => ${value}`)
