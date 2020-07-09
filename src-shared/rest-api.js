@@ -22,6 +22,7 @@ const replyId = {
     'zcl-endpointType-cluster-selection-response',
   singleAttributeState: 'singleAttributeState',
   singleCommandState: 'singleCommandState',
+  sqlResult: 'sql-result',
 }
 
 const action = {
@@ -30,5 +31,12 @@ const action = {
   delete: 'd',
 }
 
+const uri = {
+  saveSessionKeyValue: '/save',
+  sql: '/sql',
+  generate: '/generate',
+}
+
 exports.replyId = replyId
 exports.action = action
+exports.uri = uri

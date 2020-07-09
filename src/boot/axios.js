@@ -22,10 +22,14 @@ import events from 'events'
 Vue.prototype.$axios = axios({ withCredentials: true })
 var eventEmitter = new events.EventEmitter()
 
+// serverGet method issues a GET to a given URL,
+// then emits the response onto the event emitter.
+// The resolve promise with the response is returned
+// for possible chaining.
 Vue.prototype.$serverGet = (url) => {
   console.log(`serverGet: ${url}`)
-  axios
-    .get('/get' + url)
+  return axios
+    .get(url)
     .then((response) => {
       console.log('get response:')
       console.log(response)
@@ -34,14 +38,19 @@ Vue.prototype.$serverGet = (url) => {
         response.data['replyId'],
         response.data
       )
+      return response
     })
     .catch((error) => console.log(error))
 }
 
+// serverGet method issues a POST to a given URL,
+// then emits the response onto the event emitter.
+// The resolve promise with the response is returned
+// for possible chaining.
 Vue.prototype.$serverPost = (url, data) => {
   console.log(`serverPost: ${url}, ${data}`)
-  axios
-    .post('/post' + url, data)
+  return axios
+    .post(url, data)
     .then((response) => {
       console.log('post response')
       console.log(response)
@@ -50,21 +59,18 @@ Vue.prototype.$serverPost = (url, data) => {
         response.data['replyId'],
         response.data
       )
+      return response
     })
     .catch((error) => console.log(error))
 }
 
+// serverOn allows a listener to be registered
+// to a data transfer on a given channel
 Vue.prototype.$serverOn = (channel, listener) => {
   eventEmitter.on(channel, listener)
 }
 
+// Emits empty event on a channel.
 Vue.prototype.$emitEvent = (channel) => {
   eventEmitter.emit(channel)
-}
-
-Vue.prototype.$serverGetWithType = (url, type) => {
-  console.log(`serverGet: ${url}`)
-  if (type === 'preview') {
-    return axios.get(url)
-  }
 }

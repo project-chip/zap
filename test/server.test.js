@@ -96,7 +96,7 @@ describe('Session specific tests', () => {
     }))
 
   test('test that there is 0 clusters initially', () =>
-    axiosInstance.get('/get/cluster/all').then((response) => {
+    axiosInstance.get('/zcl/cluster/all').then((response) => {
       expect(response.data.data.length).toBe(0)
       expect(response.data.type).toBe('cluster')
     }))
@@ -131,7 +131,7 @@ describe('Session specific tests', () => {
     ]))
 
   test('test that there are 2 clusters now', () =>
-    axiosInstance.get('/get/cluster/all').then((response) => {
+    axiosInstance.get('/zcl/cluster/all').then((response) => {
       expect(response.data.data.length).toBe(2)
       expect(response.data.type).toBe('cluster')
     }))
@@ -150,7 +150,7 @@ describe('Session specific tests', () => {
     ]))
 
   test('test that there are domains', () =>
-    axiosInstance.get('/get/domain/all').then((response) => {
+    axiosInstance.get('/zcl/domain/all').then((response) => {
       expect(response.data.data.length).toBe(4)
       expect(response.data.type).toBe('domain')
     }))
@@ -200,7 +200,7 @@ describe('Session specific tests', () => {
 describe('Admin tests', () => {
   test('test sql admin interface', () =>
     axiosInstance
-      .post('/post/sql', { sql: 'SELECT * FROM PACKAGE' })
+      .post('/sql', { sql: 'SELECT * FROM PACKAGE' })
       .then((response) => {
         expect(response).not.toBeNull()
         expect(response.data.result).not.toBeNull()

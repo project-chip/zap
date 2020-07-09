@@ -30,14 +30,15 @@ limitations under the License.
 </template>
 
 <script>
+import restApi from '../../src-shared/rest-api.js'
 export default {
   methods: {
     hitEnter() {
-      this.$serverPost('/sql', { sql: this.text })
+      this.$serverPost(restApi.uri.sql, { sql: this.text })
     },
   },
   mounted() {
-    this.$serverOn('sql-result', (event, arg) => {
+    this.$serverOn(restApi.replyId.sqlResult, (event, arg) => {
       this.items = arg.result
       this.count = arg.result.length
     })

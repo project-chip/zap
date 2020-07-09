@@ -265,3 +265,7 @@ export function setRequiredCommandsList(state, data) {
 export function setLeftDrawerState(state, data) {
   state.leftDrawerOpenState = data
 }
+
+export function setMiniState(state, data) {
+  state.miniState = data
+}

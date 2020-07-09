@@ -217,34 +217,27 @@ function parseForZclData(db, path, id, packageIdArray) {
   }
 }
 
-function processGetEntityRequest(db, path, id, replyId, sessionId, callback) {
-  queryPackage
-    .getSessionPackages(db, sessionId)
-    .then((packageIdArray) => {
-      return parseForZclData(db, path, id, packageIdArray)
-    })
-    .then((finalData) => {
-      callback(replyId, finalData)
-    })
-}
-
 /**
- * API: /get/:entity/:id
+ * API: /zcl/:entity/:id
  *
  * @export
  * @param {*} app Express instance.
  */
 function registerStaticZclApi(db, app) {
-  app.get('/get/:entity/:id', (request, response) => {
+  app.get('/zcl/:entity/:id', (request, response) => {
     const { id, entity } = request.params
     var sessionId = request.session.zapSessionId
 
-    var processReply = (replyId, object) => {
-      object.replyId = replyId
-      response.status(httpServer.httpCode.ok).json(object)
-    }
     var replyId = id === 'all' ? itemList : singleItem
-    processGetEntityRequest(db, entity, id, replyId, sessionId, processReply)
+    queryPackage
+      .getSessionPackages(db, sessionId)
+      .then((packageIdArray) => {
+        return parseForZclData(db, entity, id, packageIdArray)
+      })
+      .then((finalData) => {
+        finalData.replyId = replyId
+        response.status(httpServer.httpCode.ok).json(finalData)
+      })
   })
 }
 

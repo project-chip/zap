@@ -28,7 +28,7 @@ const httpServer = require('../server/http-server.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 function registerSessionApi(db, app) {
-  app.post('/post/cluster', (request, response) => {
+  app.post('/cluster', (request, response) => {
     var { id, side, flag, endpointTypeId } = request.body
     queryConfig
       .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
@@ -47,7 +47,7 @@ function registerSessionApi(db, app) {
       .catch((err) => response.status(httpServer.httpCode.badRequest).send())
   })
 
-  app.post('/post/attribute/update', (request, response) => {
+  app.post('/attribute/update', (request, response) => {
     var {
       action,
       endpointTypeId,
@@ -127,7 +127,7 @@ function registerSessionApi(db, app) {
       })
   })
 
-  app.post('/post/command/update', (request, response) => {
+  app.post('/command/update', (request, response) => {
     var {
       action,
       endpointTypeId,
@@ -174,7 +174,7 @@ function registerSessionApi(db, app) {
       })
   })
 
-  app.post('/post/save', (request, response) => {
+  app.post(restApi.uri.saveSessionKeyValue, (request, response) => {
     var { key, value } = request.body
     var sessionId = request.session.zapSessionId
     env.logInfo(`[${sessionId}]: Saving: ${key} => ${value}`)
@@ -188,7 +188,7 @@ function registerSessionApi(db, app) {
       })
   })
 
-  app.post('/post/endpoint', (request, response) => {
+  app.post('/endpoint', (request, response) => {
     var { action, context } = request.body
     var sessionIdexport = request.session.zapSessionId
     switch (action) {
@@ -274,7 +274,7 @@ function registerSessionApi(db, app) {
     }
   })
 
-  app.post('/post/endpointType', (request, response) => {
+  app.post('/endpointType', (request, response) => {
     var { action, context } = request.body
     var sessionId = request.session.zapSessionId
     switch (action) {
@@ -316,7 +316,7 @@ function registerSessionApi(db, app) {
     }
   })
 
-  app.post('/post/endpointType/update', (request, response) => {
+  app.post('/endpointType/update', (request, response) => {
     var { action, endpointTypeId, updatedKey, updatedValue } = request.body
     var sessionId = request.session.zapSessionId
 

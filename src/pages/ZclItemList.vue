@@ -48,7 +48,7 @@ export default {
   name: 'ZclItemList',
   methods: {
     getSingleEntity(id) {
-      this.$serverGet(`/${this.type}/${id}`)
+      this.$serverGet(`/zcl/${this.type}/${id}`)
     },
     handleClusterSelection(item) {
       this.$serverPost(`/${this.type}/${item}`)
@@ -62,7 +62,7 @@ export default {
       this.type = arg.type
       this.selection = []
     })
-    this.$serverGet('/cluster/all')
+    this.$serverGet('/zcl/cluster/all')
   },
   data() {
     return {

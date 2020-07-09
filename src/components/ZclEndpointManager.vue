@@ -18,10 +18,17 @@ limitations under the License.
   <div>
     <!-- Add onClick handler for new endpoint-->
     <div class="row">
-      <div color="primary" class="vertical-align:middle q-pa-md">
-        <q-icon left name="add" color="primary" />
-        Add New Endpoint
-      </div>
+      <q-btn
+        class="vertical-align:middle q-pa-md q-mini-drawer-hide row-8"
+        text-color="primary"
+        @click="newEndpointDialog = true"
+        icon="add"
+        label="Add New Endpoint"
+        flat
+        :ripple="false"
+        :unelevated="false"
+        :outline="none"
+      />
       <q-space />
       <q-btn
         text-color="primary"
@@ -30,16 +37,38 @@ limitations under the License.
         :ripple="false"
         :unelevated="false"
         :outline="none"
-        @click="leftDrawerOpen = !leftDrawerOpen"
+        @click="miniState = !miniState"
+        class="col"
       />
     </div>
+    <q-separator class="q-mini-drawer-hide" />
+    <template v-for="(child, index) in endpoints">
+      <zcl-endpoint-card
+        v-bind:key="index"
+        v-bind:endpointReference="child.id"
+        class="q-mini-drawer-hide"
+      >
+      </zcl-endpoint-card>
+    </template>
+
+    <q-dialog v-model="newEndpointDialog" class="background-color:transparent">
+      <zcl-create-modify-endpoint />
+    </q-dialog>
   </div>
 </template>
 
 <script>
+import ZclEndpointCard from './ZclEndpointCard.vue'
+import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
 export default {
   name: 'ZclEndpointManager',
-  methods: {},
+  components: { ZclEndpointCard, ZclCreateModifyEndpoint },
+
+  methods: {
+    newEndpoint() {
+      console.log('New Endpoint should pop up')
+    },
+  },
   computed: {
     leftDrawerOpen: {
       get() {
@@ -49,10 +78,31 @@ export default {
         this.$store.dispatch('zap/setLeftDrawerState', newLeftDrawerOpenState)
       },
     },
+    miniState: {
+      get() {
+        return this.$store.state.zap.miniState
+      },
+      set(newMiniState) {
+        this.$store.dispatch('zap/setMiniState', newMiniState)
+      },
+    },
+    endpoints: {
+      get() {
+        return Object.keys(this.$store.state.zap.endpointView.endpointId).map(
+          (endpointId) => {
+            return {
+              id: endpointId,
+            }
+          }
+        )
+      },
+    },
   },
-
   data() {
-    return {}
+    return {
+      tester: ['a', 'b', 'c'],
+      newEndpointDialog: false,
+    }
   },
 }
 </script>

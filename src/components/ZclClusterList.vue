@@ -68,15 +68,13 @@ limitations under the License.
               @input="handleClusterSelection(props.row.id, false)"
             />
           </q-td>
-          <q-td key="code" :props="props" auto-width>
-            {{ props.row.code }}
-          </q-td>
-          <q-td key="manufacturerCode" :props="props" auto-width>
-            {{ props.row.manufacturerCode }}
-          </q-td>
-          <q-td key="label" :props="props" auto-width>
-            {{ props.row.label }}
-          </q-td>
+          <q-td key="code" :props="props" auto-width>{{ props.row.code }}</q-td>
+          <q-td key="manufacturerCode" :props="props" auto-width>{{
+            props.row.manufacturerCode
+          }}</q-td>
+          <q-td key="label" :props="props" auto-width>{{
+            props.row.label
+          }}</q-td>
         </q-tr>
       </template>
     </q-table>
@@ -127,7 +125,7 @@ export default {
 
   methods: {
     getSingleEntity(id) {
-      this.$serverGet(`/${this.type}/${id.id}`)
+      this.$serverGet(`/zcl/${this.type}/${id.id}`)
       this.$store.dispatch('zap/updateSelectedCluster', [id])
     },
     handleClusterSelection(id, isClient) {
