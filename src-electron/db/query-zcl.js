@@ -451,7 +451,7 @@ function selectAllGlobalCommands(db, packageId = null) {
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllClusterCommands(db) {
+function selectAllClusterCommands(db, packageId = null) {
   return dbApi
     .dbAll(
       db,
