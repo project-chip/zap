@@ -6,10 +6,19 @@
 
 **A:** You need to rebuild your native sqlite3 bindings.
 
-To fix this, run:
+To fix this in most cases, run:
 
 - `npm install`
 - `./node_modules/.bin/electron-rebuild -w sqlite3 -p`
+
+If it still doesn't get fixed, do:
+
+- `rm -rf node_modules`
+  and then try again the above commands.
+
+Occasionally upgrading your `npm` also makes a difference:
+
+- `npm install -g npm`
 
 ---
 
