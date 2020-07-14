@@ -188,6 +188,17 @@ export default {
       }).then((data) => {
         console.log('Updated Endpoint Type')
       })
+
+      this.$serverPost('/endpoint', {
+        action: RestApi.action.update,
+        context: {
+          id: endpointReference,
+          changes: [
+            { updatedKey: 'endpointId', value: newEndpoint.newEndpointId },
+            { updatedKey: 'networkId', value: newEndpoint.newNetworkId },
+          ],
+        },
+      })
     },
   },
 }

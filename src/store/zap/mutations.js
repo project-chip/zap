@@ -89,11 +89,9 @@ export function addEndpoint(state, endpoint) {
 }
 
 export function updateEndpoint(state, context) {
-  Vue.set(
-    state.endpointView[context.updatedKey],
-    context.id,
-    context.updatedValue
-  )
+  context.changes.forEach((data) => {
+    Vue.set(state.endpointView[data.updatedKey], context.id, data.value)
+  })
   Vue.set(
     state.endpointView.endpointIdValidationIssues,
     context.id,

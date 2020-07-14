@@ -256,8 +256,7 @@ export default {
         case RestApi.action.update:
           this.$store.dispatch('zap/updateEndpoint', {
             id: arg.endpointId,
-            updatedKey: arg.updatedKey,
-            updatedValue: arg.updatedValue,
+            changes: arg.changes,
             endpointIdValidationIssues: arg.validationIssues.endpointId,
             networkIdValidationIssues: arg.validationIssues.networkId,
           })
@@ -450,8 +449,7 @@ export default {
         action: RestApi.action.update,
         context: {
           id: id,
-          updatedKey: changeId,
-          value: value,
+          changes: [{ updatedKey: changeId, value: value }],
         },
       })
     },

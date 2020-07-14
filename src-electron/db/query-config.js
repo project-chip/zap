@@ -382,11 +382,13 @@ function deleteEndpoint(db, id) {
   return dbApi.dbRemove(db, 'DELETE FROM ENDPOINT WHERE ENDPOINT_ID = ?', [id])
 }
 
-function updateEndpoint(db, sessionId, endpointId, param, updatedValue) {
+function updateEndpoint(db, sessionId, endpointId, changesArray) {
   return dbApi.dbUpdate(
     db,
-    `UPDATE ENDPOINT SET ${param} = ? WHERE ENDPOINT_ID = ? AND SESSION_REF = ?`,
-    [updatedValue, endpointId, sessionId]
+    `UPDATE ENDPOINT SET ` +
+      getAllParamValuePairArrayClauses(changesArray) +
+      `WHERE ENDPOINT_ID = ? AND SESSION_REF = ?`,
+    [endpointId, sessionId]
   )
 }
 

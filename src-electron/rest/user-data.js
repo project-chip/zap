@@ -106,7 +106,7 @@ function registerSessionApi(db, app) {
         clusterRef,
         attributeSide,
         id,
-        [{ key: booleanParam, value: value }]
+        [{ key: booleanParam, value: value, type: paramType }]
       )
       .then((row) => {
         return validation
@@ -233,26 +233,26 @@ function registerSessionApi(db, app) {
         })
         break
       case restApi.action.update:
-        var changeParam = ''
-        switch (context.updatedKey) {
-          case 'endpointId':
-            changeParam = 'ENDPOINT_IDENTIFIER'
-            break
-          case 'endpointType':
-            changeParam = 'ENDPOINT_TYPE_REF'
-            break
-          case 'networkId':
-            changeParam = 'NETWORK_IDENTIFIER'
-            break
-        }
+        let changes = context.changes.map((data) => {
+          var changeParam = ''
+          var paramType = ''
+          switch (data.updatedKey) {
+            case 'endpointId':
+              changeParam = 'ENDPOINT_IDENTIFIER'
+              break
+            case 'endpointType':
+              changeParam = 'ENDPOINT_TYPE_REF'
+              break
+            case 'networkId':
+              changeParam = 'NETWORK_IDENTIFIER'
+              paramType = 'text'
+              break
+          }
+          return { key: changeParam, value: data.value, type: paramType }
+        })
+
         queryConfig
-          .updateEndpoint(
-            db,
-            sessionIdexport,
-            context.id,
-            changeParam,
-            context.value
-          )
+          .updateEndpoint(db, sessionIdexport, context.id, changes)
           .then((data) => {
             return validation
               .validateEndpoint(db, context.id)
@@ -260,8 +260,7 @@ function registerSessionApi(db, app) {
                 response.json({
                   action: restApi.action.update,
                   endpointId: context.id,
-                  updatedKey: context.updatedKey,
-                  updatedValue: context.value,
+                  changes: context.changes,
                   replyId: restApi.replyId.zclEndpointResponse,
                   validationIssues: validationData,
                 })
