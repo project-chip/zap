@@ -69,7 +69,7 @@ function recordToplevelPackage(db, ctx) {
  * @param {*} propertiesFile
  * @returns Promise of resolved files.
  */
-function collectZclFiles(ctx) {
+function collectZclData(ctx) {
   return new Promise((resolve, reject) => {
     env.logInfo(`Collecting ZCL files from: ${ctx.propertiesFile}`)
     properties.parse(ctx.data, {}, (err, zclProps) => {
@@ -83,13 +83,28 @@ function collectZclFiles(ctx) {
           path.dirname(ctx.propertiesFile),
           zclProps.xmlRoot
         )
-        var files = zclProps.xmlFile
+
+        //ZCL Xml Files.
+        var zclFiles = zclProps.xmlFile
           .split(',')
           .map((data) => path.join(fileLocation, data.trim()))
           .map((data) => path.resolve(data))
-        ctx.files = files
+        ctx.zclFiles = zclFiles
+
+        // Manufacturers XML file.
+        if (zclProps.manufacturersXml) {
+          ctx.manufacturersXml = path.resolve(
+            path.join(fileLocation, zclProps.manufacturersXml.trim())
+          )
+        }
+
+        // Default Reponse Policy Options
+        if (zclProps.defaultResponsePolicyOptions) {
+          ctx.defaultResponsePolicyOptions = zclProps.defaultResponsePolicy
+        }
+
         ctx.version = zclProps.version
-        env.logInfo(`Resolving: ${ctx.files}, version: ${ctx.version}`)
+        env.logInfo(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
         resolve(ctx)
       }
     })
@@ -616,13 +631,13 @@ function qualifyZclFile(db, info, parentPackageId) {
  * that will be resolved when all the XML files are done, or rejected if at least one fails.
  *
  * @param {*} db
- * @param {*} files
+ * @param {*} ctx
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
 function parseZclFiles(db, ctx) {
-  env.logInfo(`Starting to parse ZCL files: ${ctx.files}`)
+  env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   var individualPromises = []
-  ctx.files.forEach((individualFile) => {
+  ctx.zclFiles.forEach((individualFile) => {
     var p = readZclFile(individualFile)
       .then((data) =>
         util.calculateCrc({ filePath: individualFile, data: data })
@@ -669,7 +684,7 @@ function loadZcl(db, propertiesFile) {
     .dbBeginTransaction(db)
     .then(() => readPropertiesFile(ctx))
     .then((ctx) => recordToplevelPackage(db, ctx))
-    .then((ctx) => collectZclFiles(ctx))
+    .then((ctx) => collectZclData(ctx))
     .then((ctx) => recordVersion(ctx))
     .then((ctx) => parseZclFiles(db, ctx))
     .then((arrayOfLaterPromisesArray) => {

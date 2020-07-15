@@ -176,10 +176,6 @@ export default {
     editEpt(newEndpoint, endpointReference) {
       let endpointTypeReference = this.endpointType[this.endpointReference]
 
-      console.log(newEndpoint)
-      console.log(endpointReference)
-      console.log(endpointTypeReference)
-
       this.$serverPost(`/endpointType/update`, {
         action: RestApi.action.update,
         endpointTypeId: endpointTypeReference,
