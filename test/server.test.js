@@ -31,6 +31,7 @@ const httpServer = require('../src-electron/server/http-server.js')
 const env = require('../src-electron/util/env.js')
 const exportJs = require('../src-electron/importexport/export.js')
 const importJs = require('../src-electron/importexport/import.js')
+const restApi = require('../src-shared/rest-api.js')
 
 var db
 const port = 9073
@@ -195,6 +196,14 @@ describe('Session specific tests', () => {
       .then((cnt) => {
         expect(cnt).toBe(0)
       }))
+})
+
+describe('Init state test', () => {
+  test('test initial state', () =>
+    axiosInstance.get(restApi.uri.initialState).then((response) => {
+      expect(response.data.replyId).toBe(restApi.replyId.initialState)
+      expect(response.data.state).not.toBeNull()
+    }))
 })
 
 describe('Admin tests', () => {

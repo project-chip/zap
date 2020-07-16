@@ -26,6 +26,7 @@ const queryConfig = require('../db/query-config.js')
 const validation = require('../validation/validation.js')
 const httpServer = require('../server/http-server.js')
 const restApi = require('../../src-shared/rest-api.js')
+const exportJs = require('../importexport/export.js')
 
 function registerSessionApi(db, app) {
   app.post('/cluster', (request, response) => {
@@ -188,7 +189,7 @@ function registerSessionApi(db, app) {
       })
   })
 
-  app.post('/endpoint', (request, response) => {
+  app.post(restApi.uri.endpoint, (request, response) => {
     var { action, context } = request.body
     var sessionIdexport = request.session.zapSessionId
     switch (action) {
@@ -273,7 +274,7 @@ function registerSessionApi(db, app) {
     }
   })
 
-  app.post('/endpointType', (request, response) => {
+  app.post(restApi.uri.endpointType, (request, response) => {
     var { action, context } = request.body
     var sessionId = request.session.zapSessionId
     switch (action) {
@@ -342,6 +343,17 @@ function registerSessionApi(db, app) {
         })
         return response.status(httpServer.httpCode.ok).send()
       })
+  })
+
+  app.get(restApi.uri.initialState, (request, response) => {
+    var sessionId = request.session.zapSessionId
+    exportJs.createStateFromDatabase(db, sessionId).then((state) => {
+      response.json({
+        replyId: restApi.replyId.initialState,
+        state: state,
+      })
+      return response.state(httpServer.httpCode.ok).send()
+    })
   })
 }
 

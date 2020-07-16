@@ -23,6 +23,7 @@ const replyId = {
   singleAttributeState: 'singleAttributeState',
   singleCommandState: 'singleCommandState',
   sqlResult: 'sql-result',
+  initialState: 'initial-state',
 }
 
 const action = {
@@ -35,6 +36,9 @@ const uri = {
   saveSessionKeyValue: '/save',
   sql: '/sql',
   generate: '/generate',
+  endpoint: '/endpoint',
+  endpointType: '/endpointType',
+  initialState: '/initialState',
 }
 
 exports.replyId = replyId

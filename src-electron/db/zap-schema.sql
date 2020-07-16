@@ -16,6 +16,10 @@
  * http://patorjk.com/software/taag/#p=display&f=Big%20Money-nw
  */
 /*
+ Global SQLite settings.
+ */
+PRAGMA foreign_keys = ON;
+/*
  PACKAGE table contains the "packages" that are the sources for the
  loading of the other data. They may be individual files, or
  collection of files.
@@ -569,4 +573,3 @@ CREATE TABLE IF NOT EXISTS "FILE_LOCATION" (
   "FILE_PATH" path,
   "ACCESS_TIME" integer
 );
-PRAGMA foreign_keys = ON;

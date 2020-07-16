@@ -311,3 +311,12 @@ export function setLeftDrawerState(context, data) {
 export function setMiniState(context, data) {
   context.commit('setMiniState', data)
 }
+
+/**
+ * This action loads the initial data from the database.
+ *
+ * @export
+ * @param {*} context
+ * @param {*} data
+ */
+export function loadInitialData(context, data) {}
