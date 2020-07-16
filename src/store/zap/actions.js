@@ -323,11 +323,11 @@ export function loadInitialData(context, data) {
   Vue.prototype.$serverGet(restApi.uri.initialState).then((response) => {
     var initialState = response.data.state
     if ('endpoints' in initialState) {
-      context.commit('initializeEndpoints', initialState.endpoints)
+      //context.commit('initializeEndpoints', initialState.endpoints)
     }
 
     if ('endpointTypes' in initialState) {
-      context.commit('initializeEndpointTypes', initialState.endpointTypes)
+      //context.commit('initializeEndpointTypes', initialState.endpointTypes)
     }
   })
 }
