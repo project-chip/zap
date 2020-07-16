@@ -26,7 +26,6 @@ const queryConfig = require('../db/query-config.js')
 const validation = require('../validation/validation.js')
 const httpServer = require('../server/http-server.js')
 const restApi = require('../../src-shared/rest-api.js')
-const exportJs = require('../importexport/export.js')
 
 function registerSessionApi(db, app) {
   app.post('/cluster', (request, response) => {
@@ -347,7 +346,17 @@ function registerSessionApi(db, app) {
 
   app.get(restApi.uri.initialState, (request, response) => {
     var sessionId = request.session.zapSessionId
-    exportJs.createStateFromDatabase(db, sessionId).then((state) => {
+    var state = {}
+
+    var statePopulators = []
+    var endpointTypes = queryConfig
+      .getAllEndpointTypes(db, sessionId)
+      .then((rows) => {
+        state['endpointTypes'] = rows
+      })
+    statePopulators.push(endpointTypes)
+
+    Promise.all(statePopulators).then(() => {
       response.json({
         replyId: restApi.replyId.initialState,
         state: state,
