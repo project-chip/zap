@@ -547,6 +547,19 @@ function processParsedZclData(db, argument) {
 }
 
 /**
+ * Resolve later promises.
+ * This function resolves the later promises associated with processParsedZclData.
+ * @param {*} laterPromises
+ */
+function resolveLaterPromises(laterPromises) {
+  var p = []
+  laterPromises.flat(1).forEach((promises) => {
+    p.push(promises())
+  })
+  return Promise.all(p)
+}
+
+/**
  * Promises to perform a post loading step.
  *
  * @param {*} db
@@ -637,18 +650,20 @@ function qualifyZclFile(db, info, parentPackageId) {
 function parseZclFiles(db, ctx) {
   env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   var individualPromises = []
-  ctx.zclFiles.forEach((individualFile) => {
-    var p = readZclFile(individualFile)
-      .then((data) =>
-        util.calculateCrc({ filePath: individualFile, data: data })
-      )
-      .then((data) => qualifyZclFile(db, data, ctx.packageId))
-      .then((result) => parseZclFile(result))
-      .then((result) => processParsedZclData(db, result))
-      .catch((err) => env.logError(err))
-    individualPromises.push(p)
-  })
-  return Promise.all(individualPromises)
+  return Promise.all(
+    ctx.zclFiles.map((individualFile) => {
+      return readZclFile(individualFile)
+        .then((data) =>
+          util.calculateCrc({ filePath: individualFile, data: data })
+        )
+        .then((data) => qualifyZclFile(db, data, ctx.packageId))
+        .then((result) => parseZclFile(result))
+        .then((result) => processParsedZclData(db, result))
+        .then((result) => resolveLaterPromises(result))
+        .then(() => ctx)
+        .catch((err) => env.logError(err))
+    })
+  )
 }
 
 /**
@@ -687,13 +702,6 @@ function loadZcl(db, propertiesFile) {
     .then((ctx) => collectZclData(ctx))
     .then((ctx) => recordVersion(ctx))
     .then((ctx) => parseZclFiles(db, ctx))
-    .then((arrayOfLaterPromisesArray) => {
-      var p = []
-      arrayOfLaterPromisesArray.forEach((promises) => {
-        promises.forEach((x) => p.push(x()))
-      })
-      return Promise.all(p)
-    })
     .then(() => processPostLoading(db))
     .then(() => dbApi.dbCommit(db))
     .then(() => ctx)
