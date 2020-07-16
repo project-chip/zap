@@ -319,4 +319,9 @@ export function setMiniState(context, data) {
  * @param {*} context
  * @param {*} data
  */
-export function loadInitialData(context, data) {}
+export function loadInitialData(context, data) {
+  Vue.prototype.$serverGet(restApi.uri.initialState).then((response) => {
+    console.log(response.data.replyId)
+    console.log(response.data.state)
+  })
+}

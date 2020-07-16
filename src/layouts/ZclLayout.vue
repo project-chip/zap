@@ -323,6 +323,7 @@ export default {
       attributeFilter: ['data-theme'],
       subtree: false,
     })
+    this.$store.dispatch('zap/loadInitialData')
   },
 }
 </script>

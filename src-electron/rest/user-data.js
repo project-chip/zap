@@ -352,7 +352,7 @@ function registerSessionApi(db, app) {
         replyId: restApi.replyId.initialState,
         state: state,
       })
-      return response.state(httpServer.httpCode.ok).send()
+      return response.status(httpServer.httpCode.ok).send()
     })
   })
 }
