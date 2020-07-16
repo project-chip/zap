@@ -24,6 +24,41 @@ const dbApi = require('./db-api.js')
 const env = require('../util/env.js')
 
 /**
+ * Imports a single endpoint
+ * @param {} db
+ * @param {*} sessionId
+ * @param {*} endpoint
+ */
+function importEndpoint(db, sessionId, endpoint) {
+  return dbApi.dbInsert(
+    db,
+    `
+INSERT INTO ENDPOINT (
+  SESSION_REF,
+  ENDPOINT_TYPE_REF,
+  PROFILE,
+  ENDPOINT_IDENTIFIER,
+  NETWORK_IDENTIFIER
+) VALUES (
+  ?,
+  (SELECT ENDPOINT_TYPE_ID FROM ENDPOINT_TYPE WHERE NAME = ? AND SESSION_REF = ?),
+  ?,
+  ?,
+  ?
+)
+  `,
+    [
+      sessionId,
+      endpoint.endpointTypeName,
+      sessionId,
+      endpoint.profileId,
+      endpoint.endpointId,
+      endpoint.networkId,
+    ]
+  )
+}
+
+/**
  * Extracts endpoints.
  *
  * @param {*} db
@@ -460,3 +495,4 @@ exports.exportCommandsFromEndpointTypeCluster = exportCommandsFromEndpointTypeCl
 exports.importCommandForEndpointType = importCommandForEndpointType
 
 exports.exportEndpoints = exportEndpoints
+exports.importEndpoint = importEndpoint

@@ -120,6 +120,17 @@ function importPackages(db, sessionId, packages) {
   })
 }
 
+function importEndpoints(db, sessionId, endpoints) {
+  var allQueries = []
+  if (endpoints != null) {
+    env.logInfo(`Loading ${endpoints.length} endpoints`)
+    endpoints.forEach((endpoint) => {
+      allQueries.push(queryImpexp.importEndpoint(db, sessionId, endpoint))
+    })
+  }
+  return Promise.all(allQueries)
+}
+
 function importEndpointTypes(db, sessionId, packageId, endpointTypes) {
   var allQueries = []
   if (endpointTypes != null) {
@@ -217,15 +228,16 @@ function writeStateToDatabase(db, state) {
     .then((sessionId) => importPackages(db, sessionId, state.package))
     .then((data) => {
       // data: { sessionId, packageId, otherIds}
-      var promises = []
+      var promisesStage1 = [] // Stage 1 is endpoint types
+      var promisesStage2 = [] // Stage 2 is endpoints, which require endpoint types to be loaded prior.
       if ('keyValuePairs' in state) {
-        promises.push(
+        promisesStage1.push(
           importSessionKeyValues(db, data.sessionId, state.keyValuePairs)
         )
       }
 
       if ('endpointTypes' in state) {
-        promises.push(
+        promisesStage1.push(
           importEndpointTypes(
             db,
             data.sessionId,
@@ -234,7 +246,15 @@ function writeStateToDatabase(db, state) {
           )
         )
       }
-      return Promise.all(promises).then(() => data.sessionId)
+
+      if ('endpoints' in state) {
+        promisesStage2.push(
+          importEndpoints(db, data.sessionId, state.endpoints)
+        )
+      }
+      return Promise.all(promisesStage1)
+        .then(() => Promise.all(promisesStage2))
+        .then(() => data.sessionId)
     })
     .finally(() => dbApi.dbCommit(db))
 }
