@@ -267,3 +267,11 @@ export function setLeftDrawerState(state, data) {
 export function setMiniState(state, data) {
   state.miniState = data
 }
+
+export function initializeEndpoints(state, endpoints) {
+  console.log('Initializing endpoints')
+}
+
+export function initializeEndpointTypes(state, endpointTypes) {
+  console.log('Initializing endpoint types')
+}

@@ -76,6 +76,7 @@ pipeline
             {
                 script
                 {
+                    sh 'rm -rf ~/.silabs/zap'
                     sh 'npm run self-check'
                 }
             }
