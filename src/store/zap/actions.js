@@ -335,3 +335,16 @@ export function loadInitialData(context, data) {
     }
   })
 }
+
+/**
+ * This action loads the option from the backend
+ */
+export function loadOptions(context, option) {
+  Vue.prototype.$serverGet(`${restApi.uri.option}/${option}`).then((data) => {
+    let optionsData = {
+      data: data.data.data,
+      option: data.data.option,
+    }
+    context.commit('setOptions', optionsData)
+  })
+}

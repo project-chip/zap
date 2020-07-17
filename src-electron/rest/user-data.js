@@ -23,6 +23,7 @@
 
 const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
+const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const httpServer = require('../server/http-server.js')
 const restApi = require('../../src-shared/rest-api.js')
@@ -367,6 +368,26 @@ function registerSessionApi(db, app) {
         state: state,
       })
       return response.status(restApi.httpCode.ok).send()
+    })
+  })
+
+  app.get(`${restApi.uri.option}/:option`, (request, response) => {
+    var sessionId = request.session.zapSessionId
+    const { option } = request.params
+    queryPackage.getSessionPackages(db, sessionId).then((packages) => {
+      var p = packages.map((packageId) => {
+        return queryPackage.selectAllOptionsValues(db, packageId, option)
+      })
+      Promise.all(p)
+        .then((data) => data.flat(1))
+        .then((data) => {
+          response.json({
+            data: data,
+            option: option,
+            replyId: 'option',
+          })
+          return response.status(httpServer.httpCode.ok).send()
+        })
     })
   })
 }

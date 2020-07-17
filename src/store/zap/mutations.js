@@ -275,3 +275,15 @@ export function initializeEndpoints(state, endpoints) {
 export function initializeEndpointTypes(state, endpointTypes) {
   console.log('Initializing endpoint types')
 }
+
+export function setOptions(state, data) {
+  Vue.set(
+    state.genericOptions,
+    data.option,
+    data.data
+      .filter((d) => {
+        return d.optionKey === data.option
+      })
+      .map((d) => d.optionValue)
+  )
+}

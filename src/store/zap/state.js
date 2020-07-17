@@ -24,6 +24,8 @@ export default function () {
     commands: [],
     zclDeviceTypes: {},
     endpoints: [],
+    genericOptions: {},
+    selectedGenericOptions: {},
     endpointView: {
       selectedEndpoint: [],
       endpointId: {},

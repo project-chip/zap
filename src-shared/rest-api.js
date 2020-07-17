@@ -39,6 +39,7 @@ const uri = {
   endpoint: '/endpoint',
   endpointType: '/endpointType',
   initialState: '/initialState',
+  option: '/option',
 }
 
 const httpCode = {

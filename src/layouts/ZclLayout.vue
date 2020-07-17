@@ -324,6 +324,7 @@ export default {
       subtree: false,
     })
     this.$store.dispatch('zap/loadInitialData')
+    this.$store.dispatch('zap/loadOptions', 'defaultResponsePolicy')
   },
 }
 </script>
