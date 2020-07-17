@@ -118,7 +118,7 @@ test(
         expect(minMax.min == 0).toBeTruthy()
         expect(minMax.max === 0xffff).toBeTruthy()
       }),
-  1000
+  2000
 )
 
 test('validate Attribute Test', () => {
@@ -292,6 +292,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       )
       .then((endpointId) => {
         eptId = endpointId
+        return Promise.resolve()
       })
   }, 10000)
   test('Test endpoint for duplicates', () =>
