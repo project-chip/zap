@@ -312,6 +312,12 @@ function insertOptionsKeyValues(db, packageId, optionKey, optionValues) {
     .catch()
 }
 
+/**
+ * This function returns all options assocaited with a specific key.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} optionKey
+ */
 function selectAllOptionsValues(db, packageId, optionKey) {
   return dbApi
     .dbAll(
@@ -336,3 +342,4 @@ exports.getSessionPackages = getSessionPackages
 exports.callPackageSpecificFunctionOverSessionPackages = callPackageSpecificFunctionOverSessionPackages
 exports.getPackageIdByPathAndTypeAndVersion = getPackageIdByPathAndTypeAndVersion
 exports.insertOptionsKeyValues = insertOptionsKeyValues
+exports.selectAllOptionsValues = selectAllOptionsValues

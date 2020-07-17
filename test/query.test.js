@@ -404,4 +404,18 @@ describe('Endpoint Type Config Queries', () => {
         expect(clusters.length).toBe(undefined)
         return Promise.resolve()
       }))
+
+  test('Test inserting and retrieving options', () =>
+    queryPackage.insertPathCrc(db, 'junk', 123).then((pkgId) => {
+      queryPackage
+        .insertOptionsKeyValues(db, pkgId, 'test', ['1', '2', '3'])
+        .then(() => {
+          return queryPackage
+            .selectAllOptionsValues(db, pkgId, 'test')
+            .then((data) => {
+              expect(data.length).toBe(3)
+              return Promise.resolve()
+            })
+        })
+    }))
 })
