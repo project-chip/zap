@@ -22,7 +22,7 @@ limitations under the License.
       </div>
       <div class="q-pr-xl">
         <q-select
-          :options="mfgCodeOptions"
+          :options="manufacturerCodesOptions"
           v-model="selectedMfgCodeOption"
           style="width: 200px;"
           outlined
@@ -52,6 +52,11 @@ export default {
     defaultResponsePolicyOptions: {
       get() {
         return this.$store.state.zap.genericOptions['defaultResponsePolicy']
+      },
+    },
+    manufacturerCodesOptions: {
+      get() {
+        return this.$store.state.zap.genericOptions['manufacturerCodes']
       },
     },
   },

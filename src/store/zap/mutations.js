@@ -283,7 +283,16 @@ export function setOptions(state, data) {
         .filter((d) => {
           return d.optionKey === data.option
         })
-        .map((d) => d.optionValue)
+        .map((d) => {
+          switch (data.type) {
+            case 'string':
+              return d.optionValue
+            case 'object':
+              return JSON.parse(d.optionValue)
+            default:
+              return d.optionValue
+          }
+        })
     ),
   ])
 }

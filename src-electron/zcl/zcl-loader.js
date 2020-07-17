@@ -25,6 +25,7 @@ const queryZcl = require('../db/query-zcl.js')
 const env = require('../util/env.js')
 const util = require('../util/util.js')
 const dbEnum = require('../db/db-enum.js')
+const { resolve } = require('path')
 const fsp = fs.promises
 
 /**
@@ -684,7 +685,21 @@ function recordVersion(ctx) {
 }
 
 function parseManufacturerData(db, ctx) {
-  return new Promise((resolve, reject) => resolve(ctx))
+  if (!ctx.manufacturersXml) return Promise.resolve()
+  return readZclFile(ctx.manufacturersXml)
+    .then((data) => {
+      parseZclFile({ data: data }).then((manufacturerMap) =>
+        queryPackage.insertOptionsKeyValues(
+          db,
+          ctx.packageId,
+          'manufacturerCodes',
+          manufacturerMap.result.map.mapping.map((data) => {
+            return JSON.stringify(data['$'])
+          })
+        )
+      )
+    })
+    .then(() => Promise.resolve(ctx))
 }
 
 function parseOptions(db, ctx) {
