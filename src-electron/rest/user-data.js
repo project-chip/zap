@@ -386,7 +386,7 @@ function registerSessionApi(db, app) {
             option: option,
             replyId: 'option',
           })
-          return response.status(httpServer.httpCode.ok).send()
+          return response.status(restApi.httpCode.ok).send()
         })
     })
   })

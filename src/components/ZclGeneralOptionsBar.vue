@@ -46,11 +46,18 @@ limitations under the License.
 <script>
 export default {
   name: 'ZclGeneralOptionsBar',
+  onMounted() {},
   methods: {},
+  computed: {
+    defaultResponsePolicyOptions: {
+      get() {
+        return this.$store.state.zap.genericOptions['defaultResponsePolicy']
+      },
+    },
+  },
   data() {
     return {
       mfgCodeOptions: ['Silicon Labs (0x1049)'],
-      defaultResponsePolicyOptions: ['Always', 'Conditional', 'Never'],
       selectedMfgCodeOption: '',
       selectedDefaultResponsePolicy: '',
     }

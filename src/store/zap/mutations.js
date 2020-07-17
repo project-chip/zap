@@ -277,13 +277,13 @@ export function initializeEndpointTypes(state, endpointTypes) {
 }
 
 export function setOptions(state, data) {
-  Vue.set(
-    state.genericOptions,
-    data.option,
-    data.data
-      .filter((d) => {
-        return d.optionKey === data.option
-      })
-      .map((d) => d.optionValue)
-  )
+  Vue.set(state.genericOptions, data.option, [
+    ...new Set(
+      data.data
+        .filter((d) => {
+          return d.optionKey === data.option
+        })
+        .map((d) => d.optionValue)
+    ),
+  ])
 }
