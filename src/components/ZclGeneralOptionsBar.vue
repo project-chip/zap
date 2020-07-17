@@ -61,9 +61,15 @@ export default {
     },
     selectedDefaultResponsePolicy: {
       get() {
-        return this.$store.state.zap.selectedGenericOptions[
+        return this.$store.state.zap.genericOptions[
           'defaultResponsePolicy'
-        ]
+        ].find(
+          (o) =>
+            o.code ===
+            this.$store.state.zap.selectedGenericOptions[
+              'defaultResponsePolicy'
+            ]
+        )
       },
     },
   },

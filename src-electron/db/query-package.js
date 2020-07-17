@@ -299,14 +299,14 @@ function insertOptionsKeyValues(db, packageId, optionKey, optionValues) {
     .dbMultiInsert(
       db,
       `INSERT INTO OPTIONS 
-        (PACKAGE_REF, OPTION_KEY, OPTION_VALUE) 
+        (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL) 
        VALUES 
-        (?, ?, ?)
+        (?, ?, ?, ?)
        ON CONFLICT
-        (PACKAGE_REF, OPTION_KEY, OPTION_VALUE)
-       DO UPDATE SET OPTION_VALUE = OPTION_VALUE`,
+        (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
+       DO UPDATE SET OPTION_CATEGORY = OPTION_CATEGORY`,
       optionValues.map((optionValue) => {
-        return [packageId, optionKey, optionValue]
+        return [packageId, optionKey, optionValue.code, optionValue.label]
       })
     )
     .catch()
@@ -318,12 +318,12 @@ function insertOptionsKeyValues(db, packageId, optionKey, optionValues) {
  * @param {*} packageId
  * @param {*} optionKey
  */
-function selectAllOptionsValues(db, packageId, optionKey) {
+function selectAllOptionsValues(db, packageId, optionCategory) {
   return dbApi
     .dbAll(
       db,
-      `SELECT OPTION_ID, PACKAGE_REF, OPTION_KEY, OPTION_VALUE FROM OPTIONS WHERE PACKAGE_REF = ? AND OPTION_KEY = ?`,
-      [packageId, optionKey]
+      `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM OPTIONS WHERE PACKAGE_REF = ? AND OPTION_CATEGORY = ?`,
+      [packageId, optionCategory]
     )
     .then((rows) => rows.map(dbMapping.map.options))
 }

@@ -37,8 +37,9 @@ exports.map = {
     return {
       id: x.OPTION_ID,
       packageRef: x.PACKAGE_REF,
-      optionKey: x.OPTION_KEY,
-      optionValue: x.OPTION_VALUE,
+      optionCategory: x.OPTION_CATEGORY,
+      optionCode: x.OPTION_CODE,
+      optionLabel: x.OPTION_LABEL,
     }
   },
   trackedFile: (x) => {

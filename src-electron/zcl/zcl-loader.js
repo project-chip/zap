@@ -694,7 +694,8 @@ function parseManufacturerData(db, ctx) {
           ctx.packageId,
           'manufacturerCodes',
           manufacturerMap.result.map.mapping.map((data) => {
-            return JSON.stringify(data['$'])
+            let mfgPair = data['$']
+            return { code: mfgPair['code'], label: mfgPair['translation'] }
           })
         )
       )
@@ -711,7 +712,9 @@ function parseOptions(db, ctx) {
       db,
       ctx.packageId,
       optionKey,
-      optionValues
+      optionValues.map((optionValue) => {
+        return { code: optionValue.toLowerCase(), label: optionValue }
+      })
     )
   })
   return Promise.all(promises)
