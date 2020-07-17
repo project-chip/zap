@@ -29,7 +29,8 @@ limitations under the License.
                 ? 'NULL'
                 : item.optionLabel + ' (' + item.optionCode + ')'
           "
-          v-model="selectedMfgCodeOption"
+          @input="handleOptionChange('manufacturerCodes', $event)"
+          v-model="selectedManufacturerCode"
           style="width: 200px;"
           outlined
           dense
@@ -76,6 +77,15 @@ export default {
             this.$store.state.zap.selectedGenericOptions[
               'defaultResponsePolicy'
             ]
+        )
+      },
+    },
+    selectedManufacturerCode: {
+      get() {
+        return this.$store.state.zap.genericOptions['manufacturerCodes'].find(
+          (o) =>
+            o.optionCode ===
+            this.$store.state.zap.selectedGenericOptions['manufacturerCodes']
         )
       },
     },
