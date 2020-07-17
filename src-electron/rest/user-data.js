@@ -182,6 +182,10 @@ function registerSessionApi(db, app) {
     queryConfig
       .updateKeyValue(db, sessionId, key, value)
       .then(() => {
+        response.json({
+          key: key,
+          value: value,
+        })
         response.status(restApi.httpCode.ok).send()
       })
       .catch((err) => {

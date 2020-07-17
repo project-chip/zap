@@ -351,3 +351,14 @@ export function loadOptions(context, option) {
       context.commit('setOptions', optionsData)
     })
 }
+
+export function setSelectedGenericOption(context, optionData) {
+  Vue.prototype
+    .$serverPost(restApi.uri.saveSessionKeyValue, {
+      key: optionData.option,
+      value: optionData.value,
+    })
+    .then((response) => {
+      context.commit('setSelectedGenericOption', response.data)
+    })
+}

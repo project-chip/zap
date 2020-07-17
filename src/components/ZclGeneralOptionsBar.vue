@@ -35,6 +35,7 @@ limitations under the License.
       <q-select
         :options="defaultResponsePolicyOptions"
         v-model="selectedDefaultResponsePolicy"
+        @input="handleOptionChange('defaultResponsePolicy', $event)"
         style="width: 150px;"
         outlined
         dense
@@ -47,7 +48,6 @@ limitations under the License.
 export default {
   name: 'ZclGeneralOptionsBar',
   onMounted() {},
-  methods: {},
   computed: {
     defaultResponsePolicyOptions: {
       get() {
@@ -59,13 +59,26 @@ export default {
         return this.$store.state.zap.genericOptions['manufacturerCodes']
       },
     },
+    selectedDefaultResponsePolicy: {
+      get() {
+        return this.$store.state.zap.selectedGenericOptions[
+          'defaultResponsePolicy'
+        ]
+      },
+    },
   },
   data() {
     return {
-      mfgCodeOptions: ['Silicon Labs (0x1049)'],
       selectedMfgCodeOption: '',
-      selectedDefaultResponsePolicy: '',
     }
+  },
+  methods: {
+    handleOptionChange(option, value) {
+      this.$store.dispatch('zap/setSelectedGenericOption', {
+        option: option,
+        value: value,
+      })
+    },
   },
 }
 </script>
