@@ -273,7 +273,9 @@ export function initializeEndpoints(state, endpoints) {
 }
 
 export function initializeEndpointTypes(state, endpointTypes) {
-  console.log('Initializing endpoint types')
+  endpointTypes.forEach((et) => {
+    Vue.set(state.endpointTypeView.name, et.id, et.name)
+  })
 }
 
 export function setOptions(state, data) {
