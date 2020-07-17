@@ -348,5 +348,6 @@ export function loadOptions(context, option) {
         option: data.data.option,
         type: option.type,
       }
+      context.commit('setOptions', optionsData)
     })
 }
