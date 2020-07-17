@@ -292,6 +292,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       )
       .then((endpointId) => {
         eptId = endpointId
+        return Promise.resolve()
       })
   }, 10000)
   test('Test endpoint for duplicates', () =>
