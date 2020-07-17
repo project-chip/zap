@@ -32,6 +32,15 @@ exports.map = {
       version: x.VERSION,
     }
   },
+  options: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.OPTION_ID,
+      packageRef: x.PACKAGE_REF,
+      optionKey: x.OPTION_KEY,
+      optionValue: x.OPTION_VALUE,
+    }
+  },
   trackedFile: (x) => {
     if (x == null) return undefined
     return {

@@ -36,6 +36,21 @@ CREATE TABLE "PACKAGE" (
   "VERSION" text,
   foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
+
+
+/*
+ OPTIONS table contains generic 'options' that are encoded from within each packages. 
+*/
+DROP TABLE IF EXISTS "OPTIONS";
+CREATE TABLE "OPTIONS" (
+  "OPTION_ID" integer primary key autoincrement, 
+  "PACKAGE_REF" integer,
+  "OPTION_KEY" text,
+  "OPTION_VALUE" text,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  UNIQUE(PACKAGE_REF, OPTION_KEY, OPTION_VALUE)
+);
+
 /*
  *  $$$$$$\    $$\                $$\     $$\                       $$\            $$\               
  * $$  __$$\   $$ |               $$ |    \__|                      $$ |           $$ |              

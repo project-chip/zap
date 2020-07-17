@@ -72,7 +72,7 @@ function recordToplevelPackage(db, ctx) {
 function collectData(ctx) {
   return new Promise((resolve, reject) => {
     env.logInfo(`Collecting ZCL files from: ${ctx.propertiesFile}`)
-    properties.parse(ctx.data, {}, (err, zclProps) => {
+    properties.parse(ctx.data, { namespaces: true }, (err, zclProps) => {
       env.logInfo(`Parsed the file...`)
       if (err) {
         env.logError(`Could not read file: ${ctx.propertiesFile}`)
@@ -99,8 +99,8 @@ function collectData(ctx) {
         }
 
         // Default Reponse Policy Options
-        if (zclProps.defaultResponsePolicyOptions) {
-          ctx.defaultResponsePolicyOptions = zclProps.defaultResponsePolicy
+        if (zclProps.options) {
+          ctx.options = zclProps.options
         }
 
         ctx.version = zclProps.version
@@ -663,7 +663,9 @@ function parseZclFiles(db, ctx) {
         .then(() => ctx)
         .catch((err) => env.logError(err))
     })
-  ).then(() => processZclPostLoading(db))
+  )
+    .then(() => processZclPostLoading(db))
+    .then(() => ctx)
 }
 
 /**
@@ -682,11 +684,22 @@ function recordVersion(ctx) {
 }
 
 function parseManufacturerData(db, ctx) {
-  return Promise.resolve(ctx)
+  return new Promise((resolve, reject) => resolve(ctx))
 }
 
-function parseDefaultResponsePolicyOptions(db, ctx) {
-  return Promise.resolve(ctx)
+function parseOptions(db, ctx) {
+  let promises = Object.keys(ctx.options).map((optionKey) => {
+    let optionValues = ctx.options[optionKey]
+      .split(',')
+      .map((optionValue) => optionValue.trim())
+    return queryPackage.insertOptionsKeyValues(
+      db,
+      ctx.packageId,
+      optionKey,
+      optionValues
+    )
+  })
+  return Promise.all(promises)
 }
 
 /**
@@ -711,7 +724,7 @@ function loadZcl(db, propertiesFile) {
     .then((ctx) => recordVersion(ctx))
     .then((ctx) => parseZclFiles(db, ctx))
     .then((ctx) => parseManufacturerData(db, ctx))
-    .then((ctx) => parseDefaultResponsePolicyOptions(db, ctx))
+    .then((ctx) => parseOptions(db, ctx))
     .then(() => dbApi.dbCommit(db))
     .then(() => ctx)
 }
