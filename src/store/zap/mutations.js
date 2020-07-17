@@ -286,7 +286,7 @@ export function setOptions(state, data) {
           return d.optionCategory === data.option
         })
         .map((d) => {
-          return { code: d.optionCode, label: d.optionLabel }
+          return { optionCode: d.optionCode, optionLabel: d.optionLabel }
         })
     ),
   ])

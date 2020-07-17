@@ -356,7 +356,7 @@ export function setSelectedGenericOption(context, optionData) {
   Vue.prototype
     .$serverPost(restApi.uri.saveSessionKeyValue, {
       key: optionData.option,
-      value: optionData.value.code,
+      value: optionData.value.optionCode,
     })
     .then((response) => {
       context.commit('setSelectedGenericOption', response.data)

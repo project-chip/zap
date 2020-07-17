@@ -23,6 +23,12 @@ limitations under the License.
       <div class="q-pr-xl">
         <q-select
           :options="manufacturerCodesOptions"
+          :option-label="
+            (item) =>
+              item === null
+                ? 'NULL'
+                : item.optionLabel + ' (' + item.optionCode + ')'
+          "
           v-model="selectedMfgCodeOption"
           style="width: 200px;"
           outlined
@@ -35,6 +41,7 @@ limitations under the License.
       <q-select
         :options="defaultResponsePolicyOptions"
         v-model="selectedDefaultResponsePolicy"
+        :option-label="(item) => (item === null ? 'NULL' : item.optionLabel)"
         @input="handleOptionChange('defaultResponsePolicy', $event)"
         style="width: 150px;"
         outlined
@@ -65,7 +72,7 @@ export default {
           'defaultResponsePolicy'
         ].find(
           (o) =>
-            o.code ===
+            o.optionCode ===
             this.$store.state.zap.selectedGenericOptions[
               'defaultResponsePolicy'
             ]
@@ -74,9 +81,7 @@ export default {
     },
   },
   data() {
-    return {
-      selectedMfgCodeOption: '',
-    }
+    return {}
   },
   methods: {
     handleOptionChange(option, value) {
