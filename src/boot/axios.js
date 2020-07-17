@@ -19,6 +19,8 @@ import Vue from 'vue'
 import axios from 'axios'
 import events from 'events'
 
+import restApi from '../../src-shared/rest-api.js'
+
 Vue.prototype.$axios = axios({ withCredentials: true })
 var eventEmitter = new events.EventEmitter()
 
@@ -34,8 +36,11 @@ const log = true
  * @returns response, for chaining.
  */
 function processResponse(method, url, response) {
-  if (log) console.log(`${method} ← : ${url}`)
+  if (log) console.log(`${method} ← : ${url}, ${response.status}`)
   if (log) console.log(response)
+  if (!restApi.httpCode.isSuccess(response.status)) {
+    throw response
+  }
   eventEmitter.emit(
     response.data['replyId'],
     response.data['replyId'],

@@ -19,11 +19,15 @@ import * as Util from '../../util/util.js'
 import restApi from '../../../src-shared/rest-api.js'
 
 export function updateInformationText(context, text) {
-  context.commit('updateInformationText', text)
-  Vue.prototype.$serverPost(restApi.uri.saveSessionKeyValue, {
-    key: 'informationText',
-    value: text,
-  })
+  Vue.prototype
+    .$serverPost(restApi.uri.saveSessionKeyValue, {
+      key: 'informationText',
+      value: text,
+    })
+    .then((response) => {
+      console.log('got response for information text')
+      context.commit('updateInformationText', text)
+    })
 }
 
 export function updateClusters(context, clusters) {
@@ -323,11 +327,11 @@ export function loadInitialData(context, data) {
   Vue.prototype.$serverGet(restApi.uri.initialState).then((response) => {
     var initialState = response.data.state
     if ('endpoints' in initialState) {
-      //context.commit('initializeEndpoints', initialState.endpoints)
+      context.commit('initializeEndpoints', initialState.endpoints)
     }
 
     if ('endpointTypes' in initialState) {
-      //context.commit('initializeEndpointTypes', initialState.endpointTypes)
+      context.commit('initializeEndpointTypes', initialState.endpointTypes)
     }
   })
 }

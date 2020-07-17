@@ -41,10 +41,10 @@ function registerSessionApi(db, app) {
             side: side,
             flag: flag,
           })
-          .status(httpServer.httpCode.ok)
+          .status(restApi.httpCode.ok)
           .send()
       )
-      .catch((err) => response.status(httpServer.httpCode.badRequest).send())
+      .catch((err) => response.status(restApi.httpCode.badRequest).send())
   })
 
   app.post('/attribute/update', (request, response) => {
@@ -122,7 +122,7 @@ function registerSessionApi(db, app) {
               validationIssues: validationData,
               replyId: restApi.replyId.singleAttributeState,
             })
-            return response.status(httpServer.httpCode.ok).send()
+            return response.status(restApi.httpCode.ok).send()
           })
       })
   })
@@ -170,7 +170,7 @@ function registerSessionApi(db, app) {
           clusterRef: clusterRef,
           replyId: restApi.replyId.singleCommandState,
         })
-        return response.status(httpServer.httpCode.ok).send()
+        return response.status(restApi.httpCode.ok).send()
       })
   })
 
@@ -181,7 +181,7 @@ function registerSessionApi(db, app) {
     queryConfig
       .updateKeyValue(db, sessionId, key, value)
       .then(() => {
-        response.status(httpServer.httpCode.ok)
+        response.status(restApi.httpCode.ok).send()
       })
       .catch((err) => {
         throw err
@@ -214,11 +214,11 @@ function registerSessionApi(db, app) {
                   replyId: restApi.replyId.zclEndpointResponse,
                   validationIssues: validationData,
                 })
-                return response.status(httpServer.httpCode.ok).send()
+                return response.status(restApi.httpCode.ok).send()
               })
           })
           .catch((err) => {
-            return response.status(httpServer.httpCode.badRequest).send()
+            return response.status(restApi.httpCode.badRequest).send()
           })
         break
       case restApi.action.delete:
@@ -229,7 +229,7 @@ function registerSessionApi(db, app) {
             id: context.id,
             replyId: restApi.replyId.zclEndpointResponse,
           })
-          return response.status(httpServer.httpCode.ok).send()
+          return response.status(restApi.httpCode.ok).send()
         })
         break
       case restApi.action.update:
@@ -264,7 +264,7 @@ function registerSessionApi(db, app) {
                   replyId: restApi.replyId.zclEndpointResponse,
                   validationIssues: validationData,
                 })
-                return response.status(httpServer.httpCode.ok).send()
+                return response.status(restApi.httpCode.ok).send()
               })
           })
         break
@@ -293,10 +293,10 @@ function registerSessionApi(db, app) {
               deviceTypeRef: context.deviceTypeRef,
               replyId: restApi.replyId.zclEndpointTypeResponse,
             })
-            return response.status(httpServer.httpCode.ok).send()
+            return response.status(restApi.httpCode.ok).send()
           })
           .catch((err) => {
-            return response.status(httpServer.httpCode.badRequest).send()
+            return response.status(restApi.httpCode.badRequest).send()
           })
         break
       case restApi.action.delete:
@@ -307,7 +307,7 @@ function registerSessionApi(db, app) {
             id: context.id,
             replyId: restApi.replyId.zclEndpointTypeResponse,
           })
-          return response.status(httpServer.httpCode.ok).send()
+          return response.status(restApi.httpCode.ok).send()
         })
         break
       default:
@@ -340,7 +340,7 @@ function registerSessionApi(db, app) {
           updatedValue: updatedValue,
           replyId: restApi.replyId.zclEndpointTypeResponse,
         })
-        return response.status(httpServer.httpCode.ok).send()
+        return response.status(restApi.httpCode.ok).send()
       })
   })
 
@@ -366,7 +366,7 @@ function registerSessionApi(db, app) {
         replyId: restApi.replyId.initialState,
         state: state,
       })
-      return response.status(httpServer.httpCode.ok).send()
+      return response.status(restApi.httpCode.ok).send()
     })
   })
 }

@@ -29,6 +29,7 @@ const dbMapping = require('../db/db-mapping.js')
 
 const itemList = 'zcl-item-list'
 const singleItem = 'zcl-item'
+const restApi = require('../../src-shared/rest-api.js')
 
 // This function builds a function that has the following skeleton.
 // This is used to simplify all the logic where we have selectAll and selectById for
@@ -236,7 +237,7 @@ function registerStaticZclApi(db, app) {
       })
       .then((finalData) => {
         finalData.replyId = replyId
-        response.status(httpServer.httpCode.ok).json(finalData)
+        response.status(restApi.httpCode.ok).json(finalData)
       })
   })
 }

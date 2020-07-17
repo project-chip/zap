@@ -41,6 +41,16 @@ const uri = {
   initialState: '/initialState',
 }
 
+const httpCode = {
+  ok: 200,
+  badRequest: 400,
+  notFound: 404,
+  isSuccess: (code) => {
+    return code >= 200 && code < 300
+  },
+}
+
 exports.replyId = replyId
 exports.action = action
 exports.uri = uri
+exports.httpCode = httpCode
