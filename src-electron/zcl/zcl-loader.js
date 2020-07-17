@@ -69,7 +69,7 @@ function recordToplevelPackage(db, ctx) {
  * @param {*} propertiesFile
  * @returns Promise of resolved files.
  */
-function collectZclData(ctx) {
+function collectData(ctx) {
   return new Promise((resolve, reject) => {
     env.logInfo(`Collecting ZCL files from: ${ctx.propertiesFile}`)
     properties.parse(ctx.data, {}, (err, zclProps) => {
@@ -565,7 +565,7 @@ function resolveLaterPromises(laterPromises) {
  * @param {*} db
  * @returns Promise to deal with the post-loading cleanup.
  */
-function processPostLoading(db) {
+function processZclPostLoading(db) {
   return queryZcl
     .updateClusterReferencesForDeviceTypeClusters(db)
     .then((res) =>
@@ -663,7 +663,7 @@ function parseZclFiles(db, ctx) {
         .then(() => ctx)
         .catch((err) => env.logError(err))
     })
-  )
+  ).then(() => processZclPostLoading(db))
 }
 
 /**
@@ -679,6 +679,14 @@ function recordVersion(ctx) {
       .updateVersion(ctx.db, ctx.packageId, ctx.version)
       .then(() => ctx)
   }
+}
+
+function parseManufacturerData(db, ctx) {
+  return Promise.resolve(ctx)
+}
+
+function parseDefaultResponsePolicyOptions(db, ctx) {
+  return Promise.resolve(ctx)
 }
 
 /**
@@ -699,10 +707,11 @@ function loadZcl(db, propertiesFile) {
     .dbBeginTransaction(db)
     .then(() => readPropertiesFile(ctx))
     .then((ctx) => recordToplevelPackage(db, ctx))
-    .then((ctx) => collectZclData(ctx))
+    .then((ctx) => collectData(ctx))
     .then((ctx) => recordVersion(ctx))
     .then((ctx) => parseZclFiles(db, ctx))
-    .then(() => processPostLoading(db))
+    .then((ctx) => parseManufacturerData(db, ctx))
+    .then((ctx) => parseDefaultResponsePolicyOptions(db, ctx))
     .then(() => dbApi.dbCommit(db))
     .then(() => ctx)
 }
