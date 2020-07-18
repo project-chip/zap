@@ -295,21 +295,19 @@ function callPackageSpecificFunctionOverSessionPackages(
  * @param {*} optionValues - The array of values associated with this option.
  */
 function insertOptionsKeyValues(db, packageId, optionKey, optionValues) {
-  return dbApi
-    .dbMultiInsert(
-      db,
-      `INSERT INTO OPTIONS 
+  return dbApi.dbMultiInsert(
+    db,
+    `INSERT INTO OPTIONS 
         (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL) 
        VALUES 
         (?, ?, ?, ?)
        ON CONFLICT
         (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
        DO UPDATE SET OPTION_CATEGORY = OPTION_CATEGORY`,
-      optionValues.map((optionValue) => {
-        return [packageId, optionKey, optionValue.code, optionValue.label]
-      })
-    )
-    .catch()
+    optionValues.map((optionValue) => {
+      return [packageId, optionKey, optionValue.code, optionValue.label]
+    })
+  )
 }
 
 /**

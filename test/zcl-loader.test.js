@@ -46,7 +46,10 @@ test('test zcl data loading in memory', () => {
   return dbApi
     .loadSchema(db, env.schemaFile(), env.zapVersion())
     .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile)) // Maybe: ../../../zcl/zcl-studio.properties
-    .then((ctx) => queryPackage.getPackageByPackageId(ctx.db, ctx.packageId))
+    .then((ctx) => {
+      packageId = ctx.packageId
+      return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
+    })
     .then((package) => expect(package.version).toEqual('ZCL Test Data'))
     .then(() =>
       queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
@@ -113,6 +116,14 @@ test('test zcl data loading in memory', () => {
       expect(rows[0].CLUSTER_ID).not.toBeUndefined()
       expect(rows[1].CLUSTER_ID).not.toBeUndefined()
     })
+    .then(() =>
+      queryPackage.selectAllOptionsValues(
+        db,
+        packageId,
+        'defaultResponsePolicy'
+      )
+    )
+    .then((rows) => expect(rows.length).toBe(3))
     .finally(() => {
       dbApi.closeDatabase(db)
     })
