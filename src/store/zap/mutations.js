@@ -269,7 +269,9 @@ export function setMiniState(state, data) {
 }
 
 export function initializeEndpoints(state, endpoints) {
-  console.log('Initializing endpoints')
+  endpoints.forEach((e) => {
+    Vue.set(state.endpointView.endpoint, e.endpointRef, e.endpointId)
+  })
 }
 
 export function initializeEndpointTypes(state, endpointTypes) {
