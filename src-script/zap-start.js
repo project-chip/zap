@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 
+const { spawn } = require('cross-spawn')
 const { hashElement } = require('folder-hash')
 const hashOptions = {}
 const spaDir = 'dist/spa'
