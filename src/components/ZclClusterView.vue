@@ -16,7 +16,7 @@ limitations under the License.
 <template>
   <div>
     <q-page padding>
-      <div class="row q-mb-none">
+      <div class="row q-mb-md">
         <q-btn
           flat
           dense
@@ -35,20 +35,22 @@ limitations under the License.
         </q-breadcrumbs>
       </div>
 
-      <h2 class="q-py-none">
+      <div v-show="item">
+        <div>{{ item.label }}</div>
+      </div>
+
+      <h2>
         <b>{{ item.label }}</b>
       </h2>
 
-      <div class="row q-py-none">
+      <div class="row q-pb-md">
         <div class="col">
-          <p v-if="selectionServer">
-            Cluster ID: 0x000{{ item.id }}, Enabled for <b>Server</b>
+          <p v-if="clusters.serverEnabled">
+            Cluster ID: {{ clusters.id }}, Enabled for <b>Server</b>
           </p>
           <p v-else>
-            Cluster ID: 0x000{{ item.id }}, Disabled for <b>Server</b>
+            Cluster ID: {{ clusters.id }}, Not Enabled for <b>Server</b>
           </p>
-          <p v-if="selectionClient">Enabled for <b>Client</b></p>
-          <p v-else>Disabled for <b>Client</b></p>
         </div>
         <div>
           <q-toggle
@@ -95,7 +97,7 @@ export default {
   computed: {
     item: {
       get() {
-        return this.$store.state.zap.clustersView.selected[0]
+        return this.$store.state.zap.clustersView.selected
       },
     },
     selectedEndpointId: {
@@ -103,23 +105,15 @@ export default {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
       },
     },
-    selectionClient: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedClients
-      },
-      set(val) {},
-    },
-    selectionServer: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedServers
-      },
-      set(val) {},
-    },
   },
 
   data() {
     return {
       clusters: {
+        label: 'On/Off',
+        id: '0x0006',
+        serverEnabled: true,
+        commandDiscovery: true,
         locationBreadcrums: [
           'Endpoint x0001',
           'General Clusters',
