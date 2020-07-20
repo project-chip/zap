@@ -52,7 +52,7 @@ limitations under the License.
     </template>
 
     <q-dialog v-model="newEndpointDialog" class="background-color:transparent">
-      <zcl-create-modify-endpoint />
+      <zcl-create-modify-endpoint v-bind:endpointReference="null" />
     </q-dialog>
   </div>
 </template>
@@ -63,12 +63,6 @@ import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
 export default {
   name: 'ZclEndpointManager',
   components: { ZclEndpointCard, ZclCreateModifyEndpoint },
-
-  methods: {
-    newEndpoint() {
-      console.log('New Endpoint should pop up')
-    },
-  },
   computed: {
     leftDrawerOpen: {
       get() {
@@ -100,7 +94,6 @@ export default {
   },
   data() {
     return {
-      tester: ['a', 'b', 'c'],
       newEndpointDialog: false,
     }
   },

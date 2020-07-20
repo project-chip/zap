@@ -22,8 +22,15 @@ limitations under the License.
       </div>
       <div class="q-pr-xl">
         <q-select
-          :options="mfgCodeOptions"
-          v-model="selectedMfgCodeOption"
+          :options="manufacturerCodesOptions"
+          :option-label="
+            (item) =>
+              item === null
+                ? 'NULL'
+                : item.optionLabel + ' (' + item.optionCode + ')'
+          "
+          @input="handleOptionChange('manufacturerCodes', $event)"
+          v-model="selectedManufacturerCode"
           style="width: 200px;"
           outlined
           dense
@@ -35,6 +42,8 @@ limitations under the License.
       <q-select
         :options="defaultResponsePolicyOptions"
         v-model="selectedDefaultResponsePolicy"
+        :option-label="(item) => (item === null ? 'NULL' : item.optionLabel)"
+        @input="handleOptionChange('defaultResponsePolicy', $event)"
         style="width: 150px;"
         outlined
         dense
@@ -46,14 +55,51 @@ limitations under the License.
 <script>
 export default {
   name: 'ZclGeneralOptionsBar',
-  methods: {},
+  onMounted() {},
+  computed: {
+    defaultResponsePolicyOptions: {
+      get() {
+        return this.$store.state.zap.genericOptions['defaultResponsePolicy']
+      },
+    },
+    manufacturerCodesOptions: {
+      get() {
+        return this.$store.state.zap.genericOptions['manufacturerCodes']
+      },
+    },
+    selectedDefaultResponsePolicy: {
+      get() {
+        return this.$store.state.zap.genericOptions[
+          'defaultResponsePolicy'
+        ].find(
+          (o) =>
+            o.optionCode ===
+            this.$store.state.zap.selectedGenericOptions[
+              'defaultResponsePolicy'
+            ]
+        )
+      },
+    },
+    selectedManufacturerCode: {
+      get() {
+        return this.$store.state.zap.genericOptions['manufacturerCodes'].find(
+          (o) =>
+            o.optionCode ===
+            this.$store.state.zap.selectedGenericOptions['manufacturerCodes']
+        )
+      },
+    },
+  },
   data() {
-    return {
-      mfgCodeOptions: ['Silicon Labs (0x1049)'],
-      defaultResponsePolicyOptions: ['Always', 'Conditional', 'Never'],
-      selectedMfgCodeOption: '',
-      selectedDefaultResponsePolicy: '',
-    }
+    return {}
+  },
+  methods: {
+    handleOptionChange(option, value) {
+      this.$store.dispatch('zap/setSelectedGenericOption', {
+        option: option,
+        value: value,
+      })
+    },
   },
 }
 </script>

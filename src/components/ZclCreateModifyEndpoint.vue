@@ -18,7 +18,7 @@ limitations under the License.
     <q-card>
       <q-card-section>
         <div class="text-h6 text-align:left">
-          Create New Endpoint
+          {{ this.endpointRefernce ? 'Create New Endpoint' : 'Edit Endpoint' }}
         </div>
         <q-form>
           <q-field label="Endpoint" stack-label>
@@ -68,11 +68,15 @@ limitations under the License.
       <q-card-actions>
         <q-btn label="Cancel" v-close-popup class="col" />
         <q-btn
-          label="Create"
+          :label="endpointReference ? 'Edit' : 'Create'"
           color="primary"
           v-close-popup
           class="col"
-          @click="newEpt(newEndpoint)"
+          @click="
+            endpointReference
+              ? editEpt(newEndpoint, endpointReference)
+              : newEpt(newEndpoint)
+          "
         />
       </q-card-actions>
     </q-card>
@@ -84,6 +88,16 @@ import * as RestApi from '../../src-shared/rest-api'
 
 export default {
   name: 'ZclCreateModifyEndpoint',
+  props: ['endpointReference'],
+  mounted() {
+    if (this.endpointReference != null) {
+      this.newEndpoint.newEndpointId = this.endpointId[this.endpointReference]
+      this.newEndpoint.newNetworkId = this.networkId[this.endpointReference]
+      this.newEndpoint.newDeviceTypeRef = this.endpointDeviceTypeRef[
+        this.endpointType[this.endpointReference]
+      ]
+    }
+  },
   data() {
     return {
       newEndpoint: {
@@ -115,6 +129,26 @@ export default {
           : ''
       },
     },
+    endpointId: {
+      get() {
+        return this.$store.state.zap.endpointView.endpointId
+      },
+    },
+    endpointType: {
+      get() {
+        return this.$store.state.zap.endpointView.endpointType
+      },
+    },
+    networkId: {
+      get() {
+        return this.$store.state.zap.endpointView.networkId
+      },
+    },
+    endpointDeviceTypeRef: {
+      get() {
+        return this.$store.state.zap.endpointTypeView.deviceTypeRef
+      },
+    },
   },
   methods: {
     newEpt(newEndpoint) {
@@ -137,6 +171,29 @@ export default {
             endpointType: response.data.id,
           },
         })
+      })
+    },
+    editEpt(newEndpoint, endpointReference) {
+      let endpointTypeReference = this.endpointType[this.endpointReference]
+
+      this.$serverPost(`/endpointType/update`, {
+        action: RestApi.action.update,
+        endpointTypeId: endpointTypeReference,
+        updatedKey: `deviceTypeRef`,
+        updatedValue: newEndpoint.newDeviceTypeRef,
+      }).then((data) => {
+        console.log('Updated Endpoint Type')
+      })
+
+      this.$serverPost('/endpoint', {
+        action: RestApi.action.update,
+        context: {
+          id: endpointReference,
+          changes: [
+            { updatedKey: 'endpointId', value: newEndpoint.newEndpointId },
+            { updatedKey: 'networkId', value: newEndpoint.newNetworkId },
+          ],
+        },
       })
     },
   },

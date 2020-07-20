@@ -69,10 +69,10 @@ function recordToplevelPackage(db, ctx) {
  * @param {*} propertiesFile
  * @returns Promise of resolved files.
  */
-function collectZclFiles(ctx) {
+function collectData(ctx) {
   return new Promise((resolve, reject) => {
     env.logInfo(`Collecting ZCL files from: ${ctx.propertiesFile}`)
-    properties.parse(ctx.data, {}, (err, zclProps) => {
+    properties.parse(ctx.data, { namespaces: true }, (err, zclProps) => {
       env.logInfo(`Parsed the file...`)
       if (err) {
         env.logError(`Could not read file: ${ctx.propertiesFile}`)
@@ -83,13 +83,28 @@ function collectZclFiles(ctx) {
           path.dirname(ctx.propertiesFile),
           zclProps.xmlRoot
         )
-        var files = zclProps.xmlFile
+
+        //ZCL Xml Files.
+        var zclFiles = zclProps.xmlFile
           .split(',')
           .map((data) => path.join(fileLocation, data.trim()))
           .map((data) => path.resolve(data))
-        ctx.files = files
+        ctx.zclFiles = zclFiles
+
+        // Manufacturers XML file.
+        if (zclProps.manufacturersXml) {
+          ctx.manufacturersXml = path.resolve(
+            path.join(fileLocation, zclProps.manufacturersXml.trim())
+          )
+        }
+
+        // Default Reponse Policy Options
+        if (zclProps.options) {
+          ctx.options = zclProps.options
+        }
+
         ctx.version = zclProps.version
-        env.logInfo(`Resolving: ${ctx.files}, version: ${ctx.version}`)
+        env.logInfo(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
         resolve(ctx)
       }
     })
@@ -532,12 +547,25 @@ function processParsedZclData(db, argument) {
 }
 
 /**
+ * Resolve later promises.
+ * This function resolves the later promises associated with processParsedZclData.
+ * @param {*} laterPromises
+ */
+function resolveLaterPromises(laterPromises) {
+  var p = []
+  laterPromises.flat(1).forEach((promises) => {
+    p.push(promises())
+  })
+  return Promise.all(p)
+}
+
+/**
  * Promises to perform a post loading step.
  *
  * @param {*} db
  * @returns Promise to deal with the post-loading cleanup.
  */
-function processPostLoading(db) {
+function processZclPostLoading(db) {
   return queryZcl
     .updateClusterReferencesForDeviceTypeClusters(db)
     .then((res) =>
@@ -616,24 +644,28 @@ function qualifyZclFile(db, info, parentPackageId) {
  * that will be resolved when all the XML files are done, or rejected if at least one fails.
  *
  * @param {*} db
- * @param {*} files
+ * @param {*} ctx
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
 function parseZclFiles(db, ctx) {
-  env.logInfo(`Starting to parse ZCL files: ${ctx.files}`)
+  env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   var individualPromises = []
-  ctx.files.forEach((individualFile) => {
-    var p = readZclFile(individualFile)
-      .then((data) =>
-        util.calculateCrc({ filePath: individualFile, data: data })
-      )
-      .then((data) => qualifyZclFile(db, data, ctx.packageId))
-      .then((result) => parseZclFile(result))
-      .then((result) => processParsedZclData(db, result))
-      .catch((err) => env.logError(err))
-    individualPromises.push(p)
-  })
-  return Promise.all(individualPromises)
+  return Promise.all(
+    ctx.zclFiles.map((individualFile) => {
+      return readZclFile(individualFile)
+        .then((data) =>
+          util.calculateCrc({ filePath: individualFile, data: data })
+        )
+        .then((data) => qualifyZclFile(db, data, ctx.packageId))
+        .then((result) => parseZclFile(result))
+        .then((result) => processParsedZclData(db, result))
+        .then((result) => resolveLaterPromises(result))
+        .then(() => ctx)
+        .catch((err) => env.logError(err))
+    })
+  )
+    .then(() => processZclPostLoading(db))
+    .then(() => ctx)
 }
 
 /**
@@ -649,6 +681,42 @@ function recordVersion(ctx) {
       .updateVersion(ctx.db, ctx.packageId, ctx.version)
       .then(() => ctx)
   }
+}
+
+function parseManufacturerData(db, ctx) {
+  if (!ctx.manufacturersXml) return Promise.resolve(ctx)
+  return readZclFile(ctx.manufacturersXml)
+    .then((data) =>
+      parseZclFile({ data: data }).then((manufacturerMap) =>
+        queryPackage.insertOptionsKeyValues(
+          db,
+          ctx.packageId,
+          'manufacturerCodes',
+          manufacturerMap.result.map.mapping.map((data) => {
+            let mfgPair = data['$']
+            return { code: mfgPair['code'], label: mfgPair['translation'] }
+          })
+        )
+      )
+    )
+    .then(() => Promise.resolve(ctx))
+}
+
+function parseOptions(db, ctx) {
+  let promises = Object.keys(ctx.options).map((optionKey) => {
+    let optionValues = ctx.options[optionKey]
+      .split(',')
+      .map((optionValue) => optionValue.trim())
+    return queryPackage.insertOptionsKeyValues(
+      db,
+      ctx.packageId,
+      optionKey,
+      optionValues.map((optionValue) => {
+        return { code: optionValue.toLowerCase(), label: optionValue }
+      })
+    )
+  })
+  return Promise.all(promises)
 }
 
 /**
@@ -669,17 +737,11 @@ function loadZcl(db, propertiesFile) {
     .dbBeginTransaction(db)
     .then(() => readPropertiesFile(ctx))
     .then((ctx) => recordToplevelPackage(db, ctx))
-    .then((ctx) => collectZclFiles(ctx))
+    .then((ctx) => collectData(ctx))
     .then((ctx) => recordVersion(ctx))
     .then((ctx) => parseZclFiles(db, ctx))
-    .then((arrayOfLaterPromisesArray) => {
-      var p = []
-      arrayOfLaterPromisesArray.forEach((promises) => {
-        promises.forEach((x) => p.push(x()))
-      })
-      return Promise.all(p)
-    })
-    .then(() => processPostLoading(db))
+    .then((ctx) => parseManufacturerData(db, ctx))
+    .then((ctx) => parseOptions(db, ctx))
     .then(() => dbApi.dbCommit(db))
     .then(() => ctx)
 }

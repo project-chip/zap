@@ -24,6 +24,79 @@ const dbApi = require('./db-api.js')
 const env = require('../util/env.js')
 
 /**
+ * Imports a single endpoint
+ * @param {} db
+ * @param {*} sessionId
+ * @param {*} endpoint
+ */
+function importEndpoint(db, sessionId, endpoint) {
+  return dbApi.dbInsert(
+    db,
+    `
+INSERT INTO ENDPOINT (
+  SESSION_REF,
+  ENDPOINT_TYPE_REF,
+  PROFILE,
+  ENDPOINT_IDENTIFIER,
+  NETWORK_IDENTIFIER
+) VALUES (
+  ?,
+  (SELECT ENDPOINT_TYPE_ID FROM ENDPOINT_TYPE WHERE NAME = ? AND SESSION_REF = ?),
+  ?,
+  ?,
+  ?
+)
+  `,
+    [
+      sessionId,
+      endpoint.endpointTypeName,
+      sessionId,
+      endpoint.profileId,
+      endpoint.endpointId,
+      endpoint.networkId,
+    ]
+  )
+}
+
+/**
+ * Extracts endpoints.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ */
+function exportEndpoints(db, sessionId) {
+  var mapFunction = (x) => {
+    return {
+      endpointTypeName: x.NAME,
+      profileId: x.PROFILE,
+      endpointId: x.ENDPOINT_IDENTIFIER,
+      networkId: x.NETWORK_IDENTIFIER,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  ENDPOINT_TYPE.NAME,
+  ENDPOINT.PROFILE,
+  ENDPOINT.ENDPOINT_IDENTIFIER,
+  ENDPOINT.NETWORK_IDENTIFIER
+FROM 
+  ENDPOINT
+LEFT JOIN
+  ENDPOINT_TYPE
+ON
+  ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+WHERE
+  ENDPOINT.SESSION_REF = ?
+    `,
+      [sessionId]
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
  * Extracts raw endpoint types rows.
  *
  * @export
@@ -420,3 +493,6 @@ exports.importAttributeForEndpointType = importAttributeForEndpointType
 
 exports.exportCommandsFromEndpointTypeCluster = exportCommandsFromEndpointTypeCluster
 exports.importCommandForEndpointType = importCommandForEndpointType
+
+exports.exportEndpoints = exportEndpoints
+exports.importEndpoint = importEndpoint

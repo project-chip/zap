@@ -36,12 +36,6 @@ const util = require('../util/util.js')
 
 var httpServer = null
 
-const httpCode = {
-  ok: 200,
-  badRequest: 400,
-  notFound: 404,
-}
-
 /**
  * Promises to initialize the http server on a given port
  * using a given database.
@@ -151,4 +145,3 @@ function httpServerPort() {
 exports.initHttpServer = initHttpServer
 exports.shutdownHttpServer = shutdownHttpServer
 exports.httpServerPort = httpServerPort
-exports.httpCode = httpCode

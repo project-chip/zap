@@ -16,6 +16,10 @@
  * http://patorjk.com/software/taag/#p=display&f=Big%20Money-nw
  */
 /*
+ Global SQLite settings.
+ */
+PRAGMA foreign_keys = ON;
+/*
  PACKAGE table contains the "packages" that are the sources for the
  loading of the other data. They may be individual files, or
  collection of files.
@@ -32,6 +36,22 @@ CREATE TABLE "PACKAGE" (
   "VERSION" text,
   foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
+
+
+/*
+ OPTIONS table contains generic 'options' that are encoded from within each packages. 
+*/
+DROP TABLE IF EXISTS "OPTIONS";
+CREATE TABLE "OPTIONS" (
+  "OPTION_ID" integer primary key autoincrement, 
+  "PACKAGE_REF" integer,
+  "OPTION_CATEGORY" text,
+  "OPTION_CODE" text,
+  "OPTION_LABEL" text, 
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  UNIQUE(PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
+);
+
 /*
  *  $$$$$$\    $$\                $$\     $$\                       $$\            $$\               
  * $$  __$$\   $$ |               $$ |    \__|                      $$ |           $$ |              
@@ -569,4 +589,3 @@ CREATE TABLE IF NOT EXISTS "FILE_LOCATION" (
   "FILE_PATH" path,
   "ACCESS_TIME" integer
 );
-PRAGMA foreign_keys = ON;

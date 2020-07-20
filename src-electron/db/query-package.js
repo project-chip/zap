@@ -286,6 +286,46 @@ function callPackageSpecificFunctionOverSessionPackages(
     })
 }
 
+/**
+ * This function inserts an option and its values into the DB.
+ *
+ * @param {*} db
+ * @param {*} packageId - Package Reference
+ * @param {*} optionName - The name of the option.
+ * @param {*} optionValues - The array of values associated with this option.
+ */
+function insertOptionsKeyValues(db, packageId, optionKey, optionValues) {
+  return dbApi.dbMultiInsert(
+    db,
+    `INSERT INTO OPTIONS 
+        (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL) 
+       VALUES 
+        (?, ?, ?, ?)
+       ON CONFLICT
+        (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
+       DO UPDATE SET OPTION_CATEGORY = OPTION_CATEGORY`,
+    optionValues.map((optionValue) => {
+      return [packageId, optionKey, optionValue.code, optionValue.label]
+    })
+  )
+}
+
+/**
+ * This function returns all options assocaited with a specific key.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} optionKey
+ */
+function selectAllOptionsValues(db, packageId, optionCategory) {
+  return dbApi
+    .dbAll(
+      db,
+      `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM OPTIONS WHERE PACKAGE_REF = ? AND OPTION_CATEGORY = ?`,
+      [packageId, optionCategory]
+    )
+    .then((rows) => rows.map(dbMapping.map.options))
+}
+
 // exports
 exports.getPackageByPathAndParent = getPackageByPathAndParent
 exports.getPackageByPackageId = getPackageByPackageId
@@ -299,3 +339,5 @@ exports.insertSessionPackage = insertSessionPackage
 exports.getSessionPackages = getSessionPackages
 exports.callPackageSpecificFunctionOverSessionPackages = callPackageSpecificFunctionOverSessionPackages
 exports.getPackageIdByPathAndTypeAndVersion = getPackageIdByPathAndTypeAndVersion
+exports.insertOptionsKeyValues = insertOptionsKeyValues
+exports.selectAllOptionsValues = selectAllOptionsValues

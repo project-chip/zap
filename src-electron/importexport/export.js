@@ -38,6 +38,17 @@ function exportSessionKeyValues(db, sessionId) {
 }
 
 /**
+ * Resolves to an array of endpoints.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise to retrieve all endpoints.
+ */
+function exportEndpoints(db, sessionId) {
+  return queryImpExp.exportEndpoints(db, sessionId)
+}
+
+/**
  * Resolves to an array of endpoint types.
  *
  * @export
@@ -162,14 +173,14 @@ function createStateFromDatabase(db, sessionId) {
     var getKeyValues = exportSessionKeyValues(db, sessionId).then((data) => {
       state.keyValuePairs = data
       env.logInfo(`Retrieved session keys: ${data.length}`)
-      return Promise.resolve(data)
+      return data
     })
     promises.push(getKeyValues)
 
     var getSessionPackages = exportSessionPackages(db, sessionId).then(
       (data) => {
         state.package = data
-        return Promise.resolve(data)
+        return data
       }
     )
     promises.push(getSessionPackages)
@@ -178,10 +189,17 @@ function createStateFromDatabase(db, sessionId) {
       (data) => {
         env.logInfo(`Retrieved endpoint types: ${data.length}`)
         state.endpointTypes = data
-        return Promise.resolve(data)
+        return data
       }
     )
     promises.push(getAllEndpointTypes)
+
+    var getAllEndpoints = exportEndpoints(db, sessionId).then((data) => {
+      env.logInfo(`Retrieve endpoints: ${data.length}`)
+      state.endpoints = data
+      return data
+    })
+    promises.push(getAllEndpoints)
 
     return Promise.all(promises)
       .then(() => resolve(state))

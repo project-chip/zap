@@ -23,6 +23,7 @@
 
 const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
+const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const httpServer = require('../server/http-server.js')
 const restApi = require('../../src-shared/rest-api.js')
@@ -41,10 +42,10 @@ function registerSessionApi(db, app) {
             side: side,
             flag: flag,
           })
-          .status(httpServer.httpCode.ok)
+          .status(restApi.httpCode.ok)
           .send()
       )
-      .catch((err) => response.status(httpServer.httpCode.badRequest).send())
+      .catch((err) => response.status(restApi.httpCode.badRequest).send())
   })
 
   app.post('/attribute/update', (request, response) => {
@@ -106,7 +107,7 @@ function registerSessionApi(db, app) {
         clusterRef,
         attributeSide,
         id,
-        [{ key: booleanParam, value: value }]
+        [{ key: booleanParam, value: value, type: paramType }]
       )
       .then((row) => {
         return validation
@@ -122,7 +123,7 @@ function registerSessionApi(db, app) {
               validationIssues: validationData,
               replyId: restApi.replyId.singleAttributeState,
             })
-            return response.status(httpServer.httpCode.ok).send()
+            return response.status(restApi.httpCode.ok).send()
           })
       })
   })
@@ -170,7 +171,7 @@ function registerSessionApi(db, app) {
           clusterRef: clusterRef,
           replyId: restApi.replyId.singleCommandState,
         })
-        return response.status(httpServer.httpCode.ok).send()
+        return response.status(restApi.httpCode.ok).send()
       })
   })
 
@@ -181,14 +182,18 @@ function registerSessionApi(db, app) {
     queryConfig
       .updateKeyValue(db, sessionId, key, value)
       .then(() => {
-        response.status(httpServer.httpCode.ok)
+        response.json({
+          key: key,
+          value: value,
+        })
+        response.status(restApi.httpCode.ok).send()
       })
       .catch((err) => {
         throw err
       })
   })
 
-  app.post('/endpoint', (request, response) => {
+  app.post(restApi.uri.endpoint, (request, response) => {
     var { action, context } = request.body
     var sessionIdexport = request.session.zapSessionId
     switch (action) {
@@ -214,11 +219,11 @@ function registerSessionApi(db, app) {
                   replyId: restApi.replyId.zclEndpointResponse,
                   validationIssues: validationData,
                 })
-                return response.status(httpServer.httpCode.ok).send()
+                return response.status(restApi.httpCode.ok).send()
               })
           })
           .catch((err) => {
-            return response.status(httpServer.httpCode.badRequest).send()
+            return response.status(restApi.httpCode.badRequest).send()
           })
         break
       case restApi.action.delete:
@@ -229,30 +234,30 @@ function registerSessionApi(db, app) {
             id: context.id,
             replyId: restApi.replyId.zclEndpointResponse,
           })
-          return response.status(httpServer.httpCode.ok).send()
+          return response.status(restApi.httpCode.ok).send()
         })
         break
       case restApi.action.update:
-        var changeParam = ''
-        switch (context.updatedKey) {
-          case 'endpointId':
-            changeParam = 'ENDPOINT_IDENTIFIER'
-            break
-          case 'endpointType':
-            changeParam = 'ENDPOINT_TYPE_REF'
-            break
-          case 'networkId':
-            changeParam = 'NETWORK_IDENTIFIER'
-            break
-        }
+        let changes = context.changes.map((data) => {
+          var changeParam = ''
+          var paramType = ''
+          switch (data.updatedKey) {
+            case 'endpointId':
+              changeParam = 'ENDPOINT_IDENTIFIER'
+              break
+            case 'endpointType':
+              changeParam = 'ENDPOINT_TYPE_REF'
+              break
+            case 'networkId':
+              changeParam = 'NETWORK_IDENTIFIER'
+              paramType = 'text'
+              break
+          }
+          return { key: changeParam, value: data.value, type: paramType }
+        })
+
         queryConfig
-          .updateEndpoint(
-            db,
-            sessionIdexport,
-            context.id,
-            changeParam,
-            context.value
-          )
+          .updateEndpoint(db, sessionIdexport, context.id, changes)
           .then((data) => {
             return validation
               .validateEndpoint(db, context.id)
@@ -260,12 +265,11 @@ function registerSessionApi(db, app) {
                 response.json({
                   action: restApi.action.update,
                   endpointId: context.id,
-                  updatedKey: context.updatedKey,
-                  updatedValue: context.value,
+                  changes: context.changes,
                   replyId: restApi.replyId.zclEndpointResponse,
                   validationIssues: validationData,
                 })
-                return response.status(httpServer.httpCode.ok).send()
+                return response.status(restApi.httpCode.ok).send()
               })
           })
         break
@@ -274,7 +278,7 @@ function registerSessionApi(db, app) {
     }
   })
 
-  app.post('/endpointType', (request, response) => {
+  app.post(restApi.uri.endpointType, (request, response) => {
     var { action, context } = request.body
     var sessionId = request.session.zapSessionId
     switch (action) {
@@ -294,10 +298,10 @@ function registerSessionApi(db, app) {
               deviceTypeRef: context.deviceTypeRef,
               replyId: restApi.replyId.zclEndpointTypeResponse,
             })
-            return response.status(httpServer.httpCode.ok).send()
+            return response.status(restApi.httpCode.ok).send()
           })
           .catch((err) => {
-            return response.status(httpServer.httpCode.badRequest).send()
+            return response.status(restApi.httpCode.badRequest).send()
           })
         break
       case restApi.action.delete:
@@ -308,7 +312,7 @@ function registerSessionApi(db, app) {
             id: context.id,
             replyId: restApi.replyId.zclEndpointTypeResponse,
           })
-          return response.status(httpServer.httpCode.ok).send()
+          return response.status(restApi.httpCode.ok).send()
         })
         break
       default:
@@ -341,8 +345,54 @@ function registerSessionApi(db, app) {
           updatedValue: updatedValue,
           replyId: restApi.replyId.zclEndpointTypeResponse,
         })
-        return response.status(httpServer.httpCode.ok).send()
+        return response.status(restApi.httpCode.ok).send()
       })
+  })
+
+  app.get(restApi.uri.initialState, (request, response) => {
+    var sessionId = request.session.zapSessionId
+    var state = {}
+
+    var statePopulators = []
+    var endpointTypes = queryConfig
+      .getAllEndpointTypes(db, sessionId)
+      .then((rows) => {
+        state['endpointTypes'] = rows
+      })
+    statePopulators.push(endpointTypes)
+
+    var endpoints = queryConfig.getAllEndpoints(db, sessionId).then((rows) => {
+      state['endpoints'] = rows
+    })
+    statePopulators.push(endpoints)
+
+    Promise.all(statePopulators).then(() => {
+      response.json({
+        replyId: restApi.replyId.initialState,
+        state: state,
+      })
+      return response.status(restApi.httpCode.ok).send()
+    })
+  })
+
+  app.get(`${restApi.uri.option}/:option`, (request, response) => {
+    var sessionId = request.session.zapSessionId
+    const { option } = request.params
+    queryPackage.getSessionPackages(db, sessionId).then((packages) => {
+      var p = packages.map((packageId) => {
+        return queryPackage.selectAllOptionsValues(db, packageId, option)
+      })
+      Promise.all(p)
+        .then((data) => data.flat(1))
+        .then((data) => {
+          response.json({
+            data: data,
+            option: option,
+            replyId: 'option',
+          })
+          return response.status(restApi.httpCode.ok).send()
+        })
+    })
   })
 }
 

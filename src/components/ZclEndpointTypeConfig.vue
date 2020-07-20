@@ -173,7 +173,7 @@ export default {
         case RestApi.action.update:
           if (arg.updatedKey === 'deviceTypeRef') {
             this.$store.dispatch('zap/setDeviceTypeReference', {
-              endpointId: this.selectedEndpointType,
+              endpointId: arg.endpointTypeId,
               deviceTypeRef: arg.updatedValue,
             })
           }

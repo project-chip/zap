@@ -208,6 +208,7 @@ function deleteSession(db, sessionId) {
     sessionId,
   ])
 }
+
 // exports
 exports.getAllSessions = getAllSessions
 exports.setSessionClean = setSessionClean

@@ -382,12 +382,34 @@ function deleteEndpoint(db, id) {
   return dbApi.dbRemove(db, 'DELETE FROM ENDPOINT WHERE ENDPOINT_ID = ?', [id])
 }
 
-function updateEndpoint(db, sessionId, endpointId, param, updatedValue) {
+function updateEndpoint(db, sessionId, endpointId, changesArray) {
   return dbApi.dbUpdate(
     db,
-    `UPDATE ENDPOINT SET ${param} = ? WHERE ENDPOINT_ID = ? AND SESSION_REF = ?`,
-    [updatedValue, endpointId, sessionId]
+    `UPDATE ENDPOINT SET ` +
+      getAllParamValuePairArrayClauses(changesArray) +
+      `WHERE ENDPOINT_ID = ? AND SESSION_REF = ?`,
+    [endpointId, sessionId]
   )
+}
+
+function getAllEndpoints(db, sessionId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  ENDPOINT_ID,
+  SESSION_REF,
+  ENDPOINT_TYPE_REF,
+  PROFILE,
+  ENDPOINT_IDENTIFIER,
+  NETWORK_IDENTIFIER
+FROM ENDPOINT
+WHERE SESSION_REF = ?
+    `,
+      [sessionId]
+    )
+    .then((rows) => rows.map(dbMapping.map.endpoint))
 }
 
 function selectEndpoint(db, endpointRef) {
@@ -935,3 +957,4 @@ exports.getEndpointTypeClusters = getEndpointTypeClusters
 exports.getOrInsertDefaultEndpointTypeCluster = getOrInsertDefaultEndpointTypeCluster
 exports.getEndpointTypeAttributes = getEndpointTypeAttributes
 exports.getEndpointTypeCommands = getEndpointTypeCommands
+exports.getAllEndpoints = getAllEndpoints

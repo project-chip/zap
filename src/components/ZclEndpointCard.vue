@@ -82,6 +82,7 @@ limitations under the License.
           v-close-popup
           size="sm"
           icon="delete"
+          @click="deleteEpt()"
         />
         <div>
           <q-btn
@@ -92,6 +93,7 @@ limitations under the License.
             icon="edit"
             size="sm"
             v-close-popup
+            @click="modifyEndpointDialog = !modifyEndpointDialog"
           />
           <q-btn
             flat
@@ -104,22 +106,43 @@ limitations under the License.
         </div>
       </q-card-actions>
     </q-card>
+    <q-dialog
+      v-model="modifyEndpointDialog"
+      class="background-color:transparent"
+    >
+      <zcl-create-modify-endpoint
+        v-bind:endpointReference="endpointReference"
+      />
+    </q-dialog>
   </div>
 </template>
 
 <script>
+import * as RestApi from '../../src-shared/rest-api'
+import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
+
 export default {
   name: 'ZclEndpointCard',
   props: ['endpointReference'],
+  components: { ZclCreateModifyEndpoint },
   data() {
-    return {}
+    return {
+      modifyEndpointDialog: false,
+    }
   },
   methods: {
     getFormattedEndpointId(endpointRef) {
       return '0x' + this.endpointId[endpointRef].toString(16).padStart(4, '0')
     },
+    deleteEpt() {
+      this.$serverPost('/endpoint', {
+        action: RestApi.action.delete,
+        context: {
+          id: this.endpointReference,
+        },
+      })
+    },
   },
-
   computed: {
     endpointId: {
       get() {

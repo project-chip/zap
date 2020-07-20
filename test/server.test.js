@@ -31,6 +31,7 @@ const httpServer = require('../src-electron/server/http-server.js')
 const env = require('../src-electron/util/env.js')
 const exportJs = require('../src-electron/importexport/export.js')
 const importJs = require('../src-electron/importexport/import.js')
+const restApi = require('../src-shared/rest-api.js')
 
 var db
 const port = 9073
@@ -197,6 +198,14 @@ describe('Session specific tests', () => {
       }))
 })
 
+describe('Init state test', () => {
+  test('test initial state', () =>
+    axiosInstance.get(restApi.uri.initialState).then((response) => {
+      expect(response.data.replyId).toBe(restApi.replyId.initialState)
+      expect(response.data.state).not.toBeNull()
+    }))
+})
+
 describe('Admin tests', () => {
   test('test sql admin interface', () =>
     axiosInstance
@@ -204,6 +213,8 @@ describe('Admin tests', () => {
       .then((response) => {
         expect(response).not.toBeNull()
         expect(response.data.result).not.toBeNull()
+        expect(response.data.result.endpoints).not.toBeNull()
+        expect(response.data.result.endpointTypes).not.toBeNull()
         expect(response.data.replyId).toBe('sql-result')
       }))
 })

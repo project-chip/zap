@@ -323,6 +323,15 @@ export default {
       attributeFilter: ['data-theme'],
       subtree: false,
     })
+    this.$store.dispatch('zap/loadInitialData')
+    this.$store.dispatch('zap/loadOptions', {
+      key: 'defaultResponsePolicy',
+      type: 'string',
+    })
+    this.$store.dispatch('zap/loadOptions', {
+      key: 'manufacturerCodes',
+      type: 'object',
+    })
   },
 }
 </script>

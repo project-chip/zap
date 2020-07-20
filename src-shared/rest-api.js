@@ -23,6 +23,7 @@ const replyId = {
   singleAttributeState: 'singleAttributeState',
   singleCommandState: 'singleCommandState',
   sqlResult: 'sql-result',
+  initialState: 'initial-state',
 }
 
 const action = {
@@ -35,8 +36,22 @@ const uri = {
   saveSessionKeyValue: '/save',
   sql: '/sql',
   generate: '/generate',
+  endpoint: '/endpoint',
+  endpointType: '/endpointType',
+  initialState: '/initialState',
+  option: '/option',
+}
+
+const httpCode = {
+  ok: 200,
+  badRequest: 400,
+  notFound: 404,
+  isSuccess: (code) => {
+    return code >= 200 && code < 300
+  },
 }
 
 exports.replyId = replyId
 exports.action = action
 exports.uri = uri
+exports.httpCode = httpCode

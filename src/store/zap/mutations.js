@@ -89,11 +89,9 @@ export function addEndpoint(state, endpoint) {
 }
 
 export function updateEndpoint(state, context) {
-  Vue.set(
-    state.endpointView[context.updatedKey],
-    context.id,
-    context.updatedValue
-  )
+  context.changes.forEach((data) => {
+    Vue.set(state.endpointView[data.updatedKey], context.id, data.value)
+  })
   Vue.set(
     state.endpointView.endpointIdValidationIssues,
     context.id,
@@ -268,4 +266,34 @@ export function setLeftDrawerState(state, data) {
 
 export function setMiniState(state, data) {
   state.miniState = data
+}
+
+export function initializeEndpoints(state, endpoints) {
+  endpoints.forEach((e) => {
+    Vue.set(state.endpointView.endpoint, e.endpointRef, e.endpointId)
+  })
+}
+
+export function initializeEndpointTypes(state, endpointTypes) {
+  endpointTypes.forEach((et) => {
+    Vue.set(state.endpointTypeView.name, et.id, et.name)
+  })
+}
+
+export function setOptions(state, data) {
+  Vue.set(state.genericOptions, data.option, [
+    ...new Set(
+      data.data
+        .filter((d) => {
+          return d.optionCategory === data.option
+        })
+        .map((d) => {
+          return { optionCode: d.optionCode, optionLabel: d.optionLabel }
+        })
+    ),
+  ])
+}
+
+export function setSelectedGenericOption(state, keyValue) {
+  Vue.set(state.selectedGenericOptions, keyValue.key, keyValue.value)
 }

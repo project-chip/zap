@@ -145,7 +145,7 @@ test('Simple cluster addition.', () =>
           resolve(row.id)
         })
     )
-    .then((rowid) => {
+    .then((rowid) =>
       queryZcl
         .selectAttributesByClusterId(db, rowid)
         .then((rows) => {
@@ -155,14 +155,14 @@ test('Simple cluster addition.', () =>
         .then((rows) => {
           expect(rows.length).toBe(0)
         })
-    }))
+    ))
 
+/*
 test(
   'Now actually load the static data.',
   () => zclLoader.loadZcl(db, args.zclPropertiesFile),
   5000
 )
-
 describe('Session specific queries', () => {
   beforeAll(() =>
     querySession
@@ -404,4 +404,19 @@ describe('Endpoint Type Config Queries', () => {
         expect(clusters.length).toBe(undefined)
         return Promise.resolve()
       }))
+
+  test('Test inserting and retrieving options', () =>
+    queryPackage.insertPathCrc(db, 'junk', 123).then((pkgId) => {
+      queryPackage
+        .insertOptionsKeyValues(db, pkgId, 'test', ['1', '2', '3'])
+        .then(() => {
+          return queryPackage
+            .selectAllOptionsValues(db, pkgId, 'test')
+            .then((data) => {
+              expect(data.length).toBe(3)
+              return Promise.resolve()
+            })
+        })
+    }))
 })
+*/

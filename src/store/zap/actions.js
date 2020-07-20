@@ -19,11 +19,15 @@ import * as Util from '../../util/util.js'
 import restApi from '../../../src-shared/rest-api.js'
 
 export function updateInformationText(context, text) {
-  context.commit('updateInformationText', text)
-  Vue.prototype.$serverPost(restApi.uri.saveSessionKeyValue, {
-    key: 'informationText',
-    value: text,
-  })
+  Vue.prototype
+    .$serverPost(restApi.uri.saveSessionKeyValue, {
+      key: 'informationText',
+      value: text,
+    })
+    .then((response) => {
+      console.log('got response for information text')
+      context.commit('updateInformationText', text)
+    })
 }
 
 export function updateClusters(context, clusters) {
@@ -310,4 +314,51 @@ export function setLeftDrawerState(context, data) {
 
 export function setMiniState(context, data) {
   context.commit('setMiniState', data)
+}
+
+/**
+ * This action loads the initial data from the database.
+ *
+ * @export
+ * @param {*} context
+ * @param {*} data
+ */
+export function loadInitialData(context, data) {
+  Vue.prototype.$serverGet(restApi.uri.initialState).then((response) => {
+    var initialState = response.data.state
+    if ('endpoints' in initialState) {
+      context.commit('initializeEndpoints', initialState.endpoints)
+    }
+
+    if ('endpointTypes' in initialState) {
+      context.commit('initializeEndpointTypes', initialState.endpointTypes)
+    }
+  })
+}
+
+/**
+ * This action loads the option from the backend
+ */
+export function loadOptions(context, option) {
+  Vue.prototype
+    .$serverGet(`${restApi.uri.option}/${option.key}`)
+    .then((data) => {
+      let optionsData = {
+        data: data.data.data,
+        option: data.data.option,
+        type: option.type,
+      }
+      context.commit('setOptions', optionsData)
+    })
+}
+
+export function setSelectedGenericOption(context, optionData) {
+  Vue.prototype
+    .$serverPost(restApi.uri.saveSessionKeyValue, {
+      key: optionData.option,
+      value: optionData.value.optionCode,
+    })
+    .then((response) => {
+      context.commit('setSelectedGenericOption', response.data)
+    })
 }

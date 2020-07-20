@@ -30,7 +30,7 @@ limitations under the License.
           <q-space />
 
           <!-- TODO add a link to said manual here/manage the implementation of manual. -->
-          <q-btn outline color="primary" label="Manual" />
+          <q-btn outline color="primary" label="View Manual" />
           <!-- TODO add handler for closing. -->
           <q-btn
             color="primary"
