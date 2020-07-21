@@ -270,7 +270,7 @@ export function setMiniState(state, data) {
 
 export function initializeEndpoints(state, endpoints) {
   endpoints.forEach((e) => {
-    Vue.set(state.endpointView.endpoint, e.endpointRef, e.endpointId)
+    Vue.set(state.endpointView.endpointId, e.endpointRef, e.endpointId)
   })
 }
 
