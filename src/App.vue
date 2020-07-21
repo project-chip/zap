@@ -23,5 +23,11 @@ limitations under the License.
 <script>
 export default {
   name: 'App',
+  mounted() {
+    // Parse the query string into the front end.
+    const querystring = require('querystring')
+    let query = querystring.parse(global.location.search)
+    console.log(query)
+  },
 }
 </script>
