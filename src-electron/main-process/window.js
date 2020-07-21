@@ -70,9 +70,9 @@ function windowCreate(port, filePath = null, sessionId = null, uiMode = null) {
     },
   })
 
-  let queryString = createQueryString(w.winId, sessionId, uiMode)
+  let queryString = createQueryString(w.id, sessionId, uiMode)
 
-  w.loadURL(`http://localhost:${port}/index.html?` + queryString)
+  w.loadURL(`http://localhost:${port}/index.html` + queryString)
 
   w.on('page-title-updated', (e) => {
     e.preventDefault()
