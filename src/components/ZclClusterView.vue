@@ -35,10 +35,6 @@ limitations under the License.
         </q-breadcrumbs>
       </div>
 
-      <div v-show="item">
-        <div>{{ item.label }}</div>
-      </div>
-
       <h2>
         <b>{{ item.label }}</b>
       </h2>
@@ -46,11 +42,9 @@ limitations under the License.
       <div class="row q-pb-md">
         <div class="col">
           <p v-if="clusters.serverEnabled">
-            Cluster ID: {{ clusters.id }}, Enabled for <b>Server</b>
+            Cluster ID: {{ item.id }}, Enabled for <b>Server</b>
           </p>
-          <p v-else>
-            Cluster ID: {{ clusters.id }}, Not Enabled for <b>Server</b>
-          </p>
+          <p v-else>Cluster ID: {{ item.id }}, Not Enabled for <b>Server</b></p>
         </div>
         <div>
           <q-toggle
@@ -97,7 +91,7 @@ export default {
   computed: {
     item: {
       get() {
-        return this.$store.state.zap.clustersView.selected
+        return this.$store.state.zap.clustersView.selected[0]
       },
     },
     selectedEndpointId: {
