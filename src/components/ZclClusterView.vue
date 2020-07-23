@@ -16,7 +16,7 @@ limitations under the License.
 <template>
   <div>
     <q-page padding>
-      <div class="row q-mb-none">
+      <div class="row q-py-none">
         <q-btn
           flat
           dense
@@ -25,30 +25,30 @@ limitations under the License.
           icon="keyboard_arrow_left"
         />
         <q-breadcrumbs>
-          <!-- not sure how this aspect will work so it was left alone -->
-          <q-breadcrumbs-el
-            v-for="locationBreadcrum in clusters.locationBreadcrums"
-            :key="locationBreadcrum"
-          >
-            {{ locationBreadcrum }}
-          </q-breadcrumbs-el>
+          <!-- this needs to be updated depending on how the pages will work -->
+          <q-breadcrumbs-el label="Endpoint x0001" to="/"></q-breadcrumbs-el>
+          <q-breadcrumbs-el label="General Clusters" to="/"></q-breadcrumbs-el>
+          <q-breadcrumbs-el label="{{ item.label }}" to="/"></q-breadcrumbs-el>
         </q-breadcrumbs>
       </div>
 
-      <h2 class="q-py-none">
+      <h2 class="q-py-sm">
         <b>{{ item.label }}</b>
       </h2>
 
       <div class="row q-py-none">
         <div class="col">
-          <p v-if="selectionServer">
-            Cluster ID: 0x000{{ item.id }}, Enabled for <b>Server</b>
+          <p v-if="selectionServer && selectionClient">
+            Cluster ID: 0x000{{ item.id }}, Enabled for <b>Server</b> and
+            <b>Client</b>
           </p>
-          <p v-else>
-            Cluster ID: 0x000{{ item.id }}, Disabled for <b>Server</b>
+          <p v-else-if="~selectionServer && selectionClient">
+            Cluster ID: 0x000{{ item.id }}, Enabled for <b>Client</b>
           </p>
-          <p v-if="selectionClient">Enabled for <b>Client</b></p>
-          <p v-else>Disabled for <b>Client</b></p>
+          <p v-else-if="selectionServer && ~selectionClient">
+            Cluster ID: 0x000{{ item.id }}, Enable for <b>Server</b>
+          </p>
+          <p v-else>Cluster ID: 0x000{{ item.id }}, Disabled for <b>all</b></p>
         </div>
         <div>
           <q-toggle
@@ -74,7 +74,7 @@ limitations under the License.
           <ZclAttributeView />
         </div>
         <div class="col" v-show="tab == 'commands'">
-          <ZclCommandView />
+          <ZclCommandnewView />
         </div>
         <div class="col" v-show="tab == 'reporting'">
           <ZclReportingView />
@@ -85,7 +85,7 @@ limitations under the License.
 </template>
 <script>
 import ZclAttributeView from './ZclAttributeView.vue'
-import ZclCommandView from './ZclCommandView.vue'
+import ZclCommandnewView from './ZclCommandnewView.vue'
 import ZclClusterInfo from './ZclClusterInfo.vue'
 import ZclReportingView from './ZclReportingView.vue'
 
@@ -132,7 +132,7 @@ export default {
 
   components: {
     ZclAttributeView,
-    ZclCommandView,
+    ZclCommandnewView,
     ZclReportingView,
   },
 }
