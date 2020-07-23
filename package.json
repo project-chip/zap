@@ -100,7 +100,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged && jsdoc src-electron -r -d ./generated-html/"
+      "pre-commit": "pretty-quick --staged && jsdoc src-electron src-shared -r -d ./generated-html/"
     }
   },
   "prettier": {
