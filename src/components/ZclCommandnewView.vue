@@ -16,11 +16,12 @@ limitations under the License.
 <template>
   <div v-show="commandData.length > 0">
     <q-table
+      title="Commands"
       :data="commandData"
       :columns="columns"
-      row-key="<b>name</b>"
+      row-key="name"
       dense
-      flat
+      wrap-cells
       binary-state-sort
       :pagination.sync="pagination"
     >
@@ -78,9 +79,7 @@ limitations under the License.
           <q-td key="commandName" :props="props" auto-width>{{
             props.row.label
           }}</q-td>
-          <q-td key="required" :props="props" auto-width>
-            <!-- TODO add required  -->
-          </q-td>
+          <!-- TODO add required column -->
           <q-td key="mfgId" :props="props" auto-width>{{
             props.row.manufacturerCode
           }}</q-td>
@@ -98,6 +97,9 @@ export default {
   name: 'ZclCommandnewView',
   mounted() {
     this.$serverOn('zcl-item', (event, arg) => {
+      if (arg.type === 'cluster') {
+        this.$store.dispatch('zap/updateCommands', arg.commandData || [])
+      }
       if (arg.type === 'endpointTypeCommands') {
         this.$store.dispatch('zap/setCommandStateLists', arg.data)
       }
@@ -249,22 +251,16 @@ export default {
         {
           name: 'commandId',
           align: 'left',
-          label: 'ID',
+          label: 'Command ID',
           field: 'commandId',
           sortable: true,
         },
+        // TODO add required column
         {
           name: 'commandName',
           align: 'left',
-          label: 'Command',
+          label: 'Command Name',
           field: 'commandName',
-          sortable: true,
-        },
-        {
-          name: 'required',
-          align: 'left',
-          label: 'Required',
-          field: 'required',
           sortable: true,
         },
         {
