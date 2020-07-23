@@ -21,6 +21,7 @@ limitations under the License.
 </template>
 
 <script>
+import restApi from '../src-shared/rest-api.js'
 export default {
   name: 'App',
   mounted() {
@@ -28,6 +29,9 @@ export default {
     const querystring = require('querystring')
     let query = querystring.parse(global.location.search)
     console.log(query)
+    if (query[`uiMode`]) {
+      this.$store.dispatch('zap/setDefaultUiMode', query[`uiMode`])
+    }
   },
 }
 </script>

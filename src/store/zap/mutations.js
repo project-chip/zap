@@ -297,3 +297,7 @@ export function setOptions(state, data) {
 export function setSelectedGenericOption(state, keyValue) {
   Vue.set(state.selectedGenericOptions, keyValue.key, keyValue.value)
 }
+
+export function setDefaultUiMode(state, uiMode) {
+  Vue.set(state.calledArgs, `defaultUiMode`, uiMode)
+}

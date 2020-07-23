@@ -49,14 +49,6 @@ export default {
     ZclEndpointTypeConfig,
     ZclClusterDetails,
   },
-  mounted() {
-    this.$serverOn('zcl-item-list', (event, arg) => {
-      if (arg.type === 'cluster') {
-        this.$store.dispatch('zap/updateClusters', arg.data)
-      }
-    })
-    this.$serverGet('/zcl/cluster/all')
-  },
   data() {
     return {
       splitterModel: 50,

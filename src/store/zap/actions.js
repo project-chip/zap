@@ -362,3 +362,7 @@ export function setSelectedGenericOption(context, optionData) {
       context.commit('setSelectedGenericOption', response.data)
     })
 }
+
+export function setDefaultUiMode(context, uiMode) {
+  context.commit(`setDefaultUiMode`, uiMode)
+}

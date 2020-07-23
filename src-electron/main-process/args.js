@@ -17,11 +17,12 @@
 
 const yargs = require('yargs')
 const env = require('../util/env.js')
+const restApi = require(`../../src-shared/rest-api.js`)
 
 // TODO how to handle relative pathing for things like properties file.
 exports.zclPropertiesFile = './test/zcl/zcl-test.properties'
 exports.httpPort = 9070
-exports.uiMode = 'ZIGBEE'
+exports.uiMode = restApi.uiMode.ZIGBEE
 
 /**
  * Process the command line arguments and resets the state in this file

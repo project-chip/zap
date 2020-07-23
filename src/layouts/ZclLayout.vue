@@ -30,8 +30,8 @@ limitations under the License.
       <q-toolbar class="shadow-2">
         <q-tabs flat v-model="tab">
           <q-tab name="general" label="General" />
-          <q-tab name="zclClusters" label="ZCL Clusters" />
-          <q-tab name="reformedUI" label="Reformed UI" />
+          <q-tab :name="restApi.uiMode.OLD" label="ZCL Clusters" />
+          <q-tab :name="restApi.uiMode.ZIGBEE" label="Reformed UI" />
         </q-tabs>
         <q-space />
         <q-btn flat @click="drawerRight = !drawerRight" dense label="Preview" />
@@ -63,10 +63,10 @@ limitations under the License.
                 <sql-query />
               </q-expansion-item>
             </q-tab-panel>
-            <q-tab-panel name="zclClusters">
+            <q-tab-panel :name="restApi.uiMode.OLD">
               <ZclClusterLayout />
             </q-tab-panel>
-            <q-tab-panel name="reformedUI">
+            <q-tab-panel :name="restApi.uiMode.ZIGBEE">
               <zcl-configurator-layout />
             </q-tab-panel>
           </q-tab-panels>
@@ -230,6 +230,7 @@ import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclClusterLayout from './ZclClusterLayout.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
+const restApi = require(`../../src-shared/rest-api.js`)
 import { scroll } from 'quasar'
 const { getScrollHeight } = scroll
 
@@ -287,7 +288,8 @@ export default {
   },
   data() {
     return {
-      tab: 'zclClusters',
+      restApi: restApi,
+      tab: this.$store.state.zap.calledArgs['defaultUiMode'],
       zclDialogFlag: false,
       zclDialogTitle: '',
       zclDialogText: '',
@@ -332,6 +334,18 @@ export default {
       key: 'manufacturerCodes',
       type: 'object',
     })
+    this.$serverOn('zcl-item-list', (event, arg) => {
+      if (arg.type === 'cluster') {
+        this.$store.dispatch('zap/updateClusters', arg.data)
+      }
+    })
+    this.$serverGet('/zcl/cluster/all')
+    this.$serverOn('zcl-item-list', (event, arg) => {
+      if (arg.type === 'device_type') {
+        this.$store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
+      }
+    })
+    this.$serverGet('/zcl/deviceType/all')
   },
 }
 </script>

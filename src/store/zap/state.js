@@ -14,6 +14,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+const restApi = require('../../../src-shared/rest-api.js')
+
 export default function () {
   return {
     leftDrawerOpenState: true,
@@ -68,5 +70,6 @@ export default function () {
       // These are based off of the selected ZCL Endpoint Device Type
       requiredCommands: [],
     },
+    calledArgs: { defaultUiMode: restApi.uiMode.OLD },
   }
 }
