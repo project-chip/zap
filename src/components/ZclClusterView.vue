@@ -38,7 +38,6 @@ limitations under the License.
 
       <div class="row q-py-none">
         <div class="col">
-          <!--  -->
           <p v-if="selectionServer && selectionClient">
             Cluster ID: 0x000{{ item.id }}, Enabled for <b>Server</b> and
             <b>Client</b>
