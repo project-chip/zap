@@ -62,7 +62,7 @@ function startSelfCheck() {
     })
 }
 
-function startNormal(ui, showUrl) {
+function startNormal(uiEnabled, showUrl, uiMode) {
   dbApi
     .initDatabase(env.sqliteFile())
     .then((db) => attachToDb(db))
@@ -70,8 +70,8 @@ function startNormal(ui, showUrl) {
     .then((db) => loadZcl(db, args.zclPropertiesFile))
     .then((ctx) => initHttpServer(ctx.db, args.httpPort))
     .then(() => {
-      if (ui) {
-        initializeElectronUi(httpServerPort())
+      if (uiEnabled) {
+        initializeElectronUi(httpServerPort(), { uiMode: uiMode })
       } else {
         if (app.dock) {
           app.dock.hide()
@@ -192,7 +192,7 @@ if (app != null) {
     } else if (argv._.includes('sdkGen')) {
       startSdkGeneration(argv.output, argv.template, argv.zclProperties)
     } else {
-      startNormal(!argv.noUi, argv.showUrl)
+      startNormal(!argv.noUi, argv.showUrl, argv.uiMode)
     }
   })
 
