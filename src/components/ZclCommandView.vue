@@ -102,9 +102,6 @@ export default {
   name: 'ZclCommandView',
   mounted() {
     this.$serverOn('zcl-item', (event, arg) => {
-      if (arg.type === 'cluster') {
-        this.$store.dispatch('zap/updateCommands', arg.commandData || [])
-      }
       if (arg.type === 'endpointTypeCommands') {
         this.$store.dispatch('zap/setCommandStateLists', arg.data)
       }

@@ -182,9 +182,6 @@ export default {
   name: 'ZclAttributeView',
   mounted() {
     this.$serverOn('zcl-item', (event, arg) => {
-      if (arg.type === 'cluster') {
-        this.$store.dispatch('zap/updateAttributes', arg.attributeData || [])
-      }
       if (arg.type === 'endpointTypeAttributes') {
         this.$store.dispatch('zap/setAttributeStateLists', arg.data)
       }
