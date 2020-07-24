@@ -23,14 +23,16 @@
 
 const env = require('../util/env.js')
 const restApi = require('../../src-shared/rest-api.js')
+const args = require('../main-process/args.js')
 const axios = require('axios')
+
 const replyId = 'uc-tree'
-const server = 'http://127.0.0.1:9000'
+
+// const baseUrl = `http://localhost:${args.studioPort}`
+const baseUrl = `http://localhost:` + args.studioPort
 const op_tree = '/rest/clic/components/all/project/'
 const op_add = '/rest/clic/component/add/project/'
 const op_remove = '/rest/clic/component/remove/project/'
-const proj_path =
-  '_2FUsers_2Fjiteng_2FsimplicityStudioV5Platform_2Fswitch_uc_2Fswitch_uc.slcp'
 
 /**
  *
