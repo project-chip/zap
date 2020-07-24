@@ -55,9 +55,9 @@ function processResponse(method, url, response) {
  * @param {*} url
  * @returns Promise that resolves into a response.
  */
-function serverGet(url) {
-  if (log) console.log(`GET → : ${url}`)
-  return axios['get'](url)
+function serverGet(url, data) {
+  if (log) console.log(`GET → : ${url}, ${data}`)
+  return axios['get'](url, data)
     .then((response) => processResponse('GET', url, response))
     .catch((error) => console.log(error))
 }
