@@ -23,6 +23,7 @@
 
 const env = require('../util/env.js')
 const restApi = require('../../src-shared/rest-api.js')
+const axios = require('axios')
 const replyId = 'uc-tree'
 const server = 'http://127.0.0.1:9000'
 const op_tree = '/rest/clic/components/all/project/'
@@ -39,64 +40,44 @@ const proj_path =
  * @param {*} app
  */
 function registerUcComponentApi(db, app) {
-  const axios = require('axios')
-
   // app.get('/uc/info', (req, res) => {})
 
   app.get('/uc/tree', (req, res) => {
     axios
-      .get(server + op_tree + proj_path)
+      .get(baseUrl + op_tree + req.query.studioConfigPath)
       .then(function (response) {
         let r = {
           replyId: replyId,
           data: response.data,
         }
-        // console.log(r)
         res.send(r)
       })
-      .catch(function (error) {
-        // handle error
-        console.log(error)
-        res.send(error.response.data)
-      })
-      .finally(function () {
-        // always executed
+      .catch(function (err) {
+        res.send(err.response.data)
       })
   })
 
-  // app.get('/uc/details', (req, res) => {})
-  app.get('/uc/remove/:componentId', (req, res) => {
-    const { componentId } = req.params
+  app.get('/uc/add', (req, res) => {
     axios
-      .post(server + op_remove + proj_path, {
-        componentId: componentId,
+      .post(baseUrl + op_add + req.query.studioConfigPath, {
+        componentId: req.query.componentId,
       })
-      .then(function (r) {
-        res.send(r.data)
-      })
-      .catch(function (error) {
-        console.log(error)
-        res.send(error.response)
+      .then((r) => res.send(r.data))
+      .catch(function (err) {
+        res.send(err.response.data)
       })
   })
 
-  app.get('/uc/add/:componentId', (req, res) => {
-    const { componentId } = req.params
+  app.get('/uc/remove', (req, res) => {
     axios
-      .post(server + op_add + proj_path, {
-        componentId: componentId,
+      .post(baseUrl + op_remove + req.query.studioConfigPath, {
+        componentId: req.query.componentId,
       })
-      .then(function (r) {
-        res.send(r.data)
-      })
-      .catch(function (error) {
-        console.log(error)
-        res.send(error.response)
+      .then((r) => res.send(r.data))
+      .catch(function (err) {
+        res.send(err.response.data)
       })
   })
-
-  // component detail
-  // add/remove component
 }
 
 exports.registerUcComponentApi = registerUcComponentApi

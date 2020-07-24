@@ -499,3 +499,7 @@ export function setSelectedGenericOption(context, optionData) {
 export function setDefaultUiMode(context, uiMode) {
   context.commit(`setDefaultUiMode`, uiMode)
 }
+
+export function setStudioConfigPath(context, filePath) {
+  context.commit('setStudioConfigPath', filePath)
+}

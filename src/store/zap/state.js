@@ -18,6 +18,7 @@ const restApi = require('../../../src-shared/rest-api.js')
 
 export default function () {
   return {
+    studioConfigPath: '',
     leftDrawerOpenState: true,
     miniState: false,
     informationText: 'Use this as a placeholder for information.',

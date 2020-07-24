@@ -301,3 +301,7 @@ export function setSelectedGenericOption(state, keyValue) {
 export function setDefaultUiMode(state, uiMode) {
   Vue.set(state.calledArgs, `defaultUiMode`, uiMode)
 }
+
+export function setStudioConfigPath(state, filePath) {
+  state.studioConfigPath = filePath
+}

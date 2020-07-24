@@ -75,7 +75,12 @@ export default {
 
       this.uc.last_ticked = this.uc.ticked
     })
-    this.$serverGet('/uc/tree')
+
+    this.$serverGet('/uc/tree', {
+      params: {
+        studioConfigPath: this.$store.state.zap.studioConfigPath,
+      },
+    })
   },
 
   methods: {
@@ -87,16 +92,27 @@ export default {
       let disabledItems = this.uc.last_ticked.filter(
         (x) => !this.uc.ticked.includes(x)
       )
+
       console.log('Enable: ' + enabledItems)
       enabledItems.forEach(function (item) {
         let id = item.substr(item.lastIndexOf('-') + 1)
-        this.$serverGet('/uc/add/' + id)
+        this.$serverGet('/uc/add', {
+          params: {
+            componentId: id,
+            studioConfigPath: this.$store.state.zap.studioConfigPath,
+          },
+        })
       }, this)
 
       console.log('Disable: ' + disabledItems)
       disabledItems.forEach(function (item) {
         let id = item.substr(item.lastIndexOf('-') + 1)
-        this.$serverGet('/uc/remove/' + id)
+        this.$serverGet('/uc/remove', {
+          params: {
+            componentId: id,
+            studioConfigPath: this.$store.state.zap.studioConfigPath,
+          },
+        })
       }, this)
 
       this.uc.last_ticked = this.uc.ticked

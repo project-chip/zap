@@ -27,10 +27,19 @@ export default {
   mounted() {
     // Parse the query string into the front end.
     const querystring = require('querystring')
-    let query = querystring.parse(global.location.search)
-    console.log(query)
+    let search = global.location.search
+
+    if (search[0] === '?') {
+      search = search.substring(1)
+    }
+
+    let query = querystring.parse(search)
     if (query[`uiMode`]) {
       this.$store.dispatch('zap/setDefaultUiMode', query[`uiMode`])
+    }
+
+    if (query['studioConfigPath']) {
+      this.$store.dispatch('zap/setStudioConfigPath', query['studioConfigPath'])
     }
   },
 }
