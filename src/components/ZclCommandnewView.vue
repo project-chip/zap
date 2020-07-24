@@ -26,7 +26,11 @@ limitations under the License.
       :pagination.sync="pagination"
     >
       <template v-slot:body="props">
-        <q-tr :props="props" light>
+        <q-tr
+          :props="props"
+          light
+          style="nth-child(even): background-color: #C0C0C0"
+        >
           <q-td key="out" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
@@ -250,14 +254,14 @@ export default {
         {
           name: 'commandId',
           align: 'left',
-          label: 'Command ID',
+          label: 'ID',
           field: 'commandId',
           sortable: true,
         },
         {
           name: 'commandName',
           align: 'left',
-          label: 'Command Name',
+          label: 'Command',
           field: 'commandName',
           sortable: true,
         },
