@@ -28,7 +28,7 @@ limitations under the License.
           <!-- this needs to be updated depending on how the pages will work -->
           <q-breadcrumbs-el label="Endpoint x0001" to="/"></q-breadcrumbs-el>
           <q-breadcrumbs-el label="General Clusters" to="/"></q-breadcrumbs-el>
-          <q-breadcrumbs-el label="{{ item.label }}" to="/"></q-breadcrumbs-el>
+          <q-breadcrumbs-el to="/">{{ item.label }}</q-breadcrumbs-el>
         </q-breadcrumbs>
       </div>
 
@@ -38,6 +38,7 @@ limitations under the License.
 
       <div class="row q-py-none">
         <div class="col">
+          <!--  -->
           <p v-if="selectionServer && selectionClient">
             Cluster ID: 0x000{{ item.id }}, Enabled for <b>Server</b> and
             <b>Client</b>

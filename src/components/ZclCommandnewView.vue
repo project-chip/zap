@@ -79,7 +79,9 @@ limitations under the License.
           <q-td key="commandName" :props="props" auto-width>{{
             props.row.label
           }}</q-td>
-          <!-- TODO add required column -->
+          <q-td key="required" :props="props" auto-width>
+            <!-- TODO add required  -->
+          </q-td>
           <q-td key="mfgId" :props="props" auto-width>{{
             props.row.manufacturerCode
           }}</q-td>
@@ -97,9 +99,6 @@ export default {
   name: 'ZclCommandnewView',
   mounted() {
     this.$serverOn('zcl-item', (event, arg) => {
-      if (arg.type === 'cluster') {
-        this.$store.dispatch('zap/updateCommands', arg.commandData || [])
-      }
       if (arg.type === 'endpointTypeCommands') {
         this.$store.dispatch('zap/setCommandStateLists', arg.data)
       }
@@ -255,12 +254,18 @@ export default {
           field: 'commandId',
           sortable: true,
         },
-        // TODO add required column
         {
           name: 'commandName',
           align: 'left',
           label: 'Command Name',
           field: 'commandName',
+          sortable: true,
+        },
+        {
+          name: 'required',
+          align: 'left',
+          label: 'Required',
+          field: 'required',
           sortable: true,
         },
         {
