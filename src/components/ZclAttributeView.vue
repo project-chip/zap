@@ -180,37 +180,10 @@ import * as Util from '../util/util'
 import * as RestApi from '../../src-shared/rest-api'
 export default {
   name: 'ZclAttributeView',
-  mounted() {
-    this.$serverOn('zcl-item', (event, arg) => {
-      if (arg.type === 'endpointTypeAttributes') {
-        this.$store.dispatch('zap/setAttributeStateLists', arg.data)
-      }
-      if (arg.type === 'deviceTypeAttributes') {
-        this.$store.dispatch('zap/setRequiredAttributes', arg.data)
-      }
-    })
-    this.$serverOn(RestApi.replyId.singleAttributeState, (event, arg) => {
-      if (arg.action === 'boolean') {
-        this.$store.dispatch('zap/updateSelectedAttributes', {
-          id: this.hashAttributeIdClusterId(arg.id, arg.clusterRef),
-          added: arg.added,
-          listType: arg.listType,
-          view: 'attributeView',
-        })
-      } else if (arg.action === 'text') {
-        this.$store.dispatch('zap/updateAttributeDefaults', {
-          id: this.hashAttributeIdClusterId(arg.id, this.selectedCluster.id),
-          newDefaultValue: arg.added,
-          defaultValueValidationIssues: arg.validationIssues.defaultValue,
-        })
-      }
-    })
-  },
   methods: {
     handleAttributeSelection(list, listType, attributeData, clusterId) {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base ZCL attribute and cluster data.
-
       var indexOfValue = list.indexOf(
         this.hashAttributeIdClusterId(attributeData.id, clusterId)
       )
@@ -221,7 +194,7 @@ export default {
         addedValue = false
       }
 
-      this.$serverPost(`/attribute/update`, {
+      let editContext = {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointId,
         id: attributeData.id,
@@ -229,11 +202,12 @@ export default {
         listType: listType,
         clusterRef: clusterId,
         attributeSide: attributeData.side,
-      })
+      }
+      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
 
     handleAttributeDefaultChange(newValue, attributeData, clusterId) {
-      this.$serverPost(`/attribute/update`, {
+      let editContext = {
         action: 'text',
         endpointTypeId: this.selectedEndpointId,
         id: attributeData.id,
@@ -241,7 +215,8 @@ export default {
         listType: 'defaultValue',
         clusterRef: clusterId,
         attributeSide: attributeData.side,
-      })
+      }
+      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
     handleColorSelection(
       selectedList,

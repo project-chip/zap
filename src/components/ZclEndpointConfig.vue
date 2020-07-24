@@ -234,38 +234,6 @@ limitations under the License.
 import * as RestApi from '../../src-shared/rest-api'
 export default {
   name: 'ZclEndpointConfig',
-  mounted() {
-    this.$serverOn(RestApi.replyId.zclEndpointResponse, (event, arg) => {
-      switch (arg.action) {
-        case RestApi.action.create:
-          this.$store.dispatch('zap/addEndpoint', {
-            id: arg.id,
-            eptId: arg.eptId,
-            endpointType: arg.endpointType,
-            network: arg.nwkId,
-            endpointIdValidationIssues: arg.validationIssues.endpointId,
-            networkIdValidationIssues: arg.validationIssues.networkId,
-          })
-          break
-        case RestApi.action.delete:
-          this.activeIndex = []
-          this.$store.dispatch('zap/deleteEndpoint', {
-            id: arg.id,
-          })
-          break
-        case RestApi.action.update:
-          this.$store.dispatch('zap/updateEndpoint', {
-            id: arg.endpointId,
-            changes: arg.changes,
-            endpointIdValidationIssues: arg.validationIssues.endpointId,
-            networkIdValidationIssues: arg.validationIssues.networkId,
-          })
-          break
-        default:
-          break
-      }
-    })
-  },
   computed: {
     endpoints: {
       get() {
@@ -391,27 +359,30 @@ export default {
       let nwkId = this.newEndpoint.newNetworkId
       let endpointType = this.newEndpoint.newEndpointType
 
-      this.$serverPost(`/endpoint`, {
+      let editContext = {
         action: RestApi.action.create,
         context: {
           eptId: eptId,
           nwkId: nwkId,
           endpointType: endpointType,
         },
-      })
+      }
+      this.$store.dispatch('zap/addEndpoint', editContext)
     },
     deleteEpt() {
       if (this.activeIndex.length > 0) {
-        this.$serverPost('/endpoint', {
+        let editContext = {
           action: RestApi.action.delete,
           context: {
             id: this.activeIndex[0].id,
           },
-        })
+        }
+        this.$store.dispatch('zap/deleteEndpoint', editContext)
+        this.activeIndex = []
       }
     },
     copyEpt() {
-      this.$serverPost(`/endpoint`, {
+      let editContext = {
         action: RestApi.action.create,
         context: {
           nwkId: this.networkId[
@@ -424,7 +395,8 @@ export default {
             this.$store.state.zap.endpointView.selectedEndpoint
           ],
         },
-      })
+      }
+      this.$store.dispatch('zap/addEndpoint', editContext)
     },
     setActiveIndex(index) {
       if (this.activeIndex.length === 1 && this.activeIndex[0] === index) {
@@ -445,13 +417,14 @@ export default {
       return '0x' + this.endpointId[endpointRef].toString(16).padStart(4, '0')
     },
     handleEndpointChange(id, changeId, value) {
-      this.$serverPost('/endpoint', {
+      let editContext = {
         action: RestApi.action.update,
         context: {
           id: id,
           changes: [{ updatedKey: changeId, value: value }],
         },
-      })
+      }
+      this.$store.dispatch('zap/updateEndpoint', editContext)
     },
     isValueValid(validationArray, id) {
       return validationArray[id] != null

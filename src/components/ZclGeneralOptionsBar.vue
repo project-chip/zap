@@ -55,7 +55,6 @@ limitations under the License.
 <script>
 export default {
   name: 'ZclGeneralOptionsBar',
-  onMounted() {},
   computed: {
     defaultResponsePolicyOptions: {
       get() {

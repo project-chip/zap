@@ -72,20 +72,46 @@ export function selectConfiguration(context, configurationName) {
   context.commit('selectConfiguration', configurationName)
 }
 
-export function updateSelectedAttributes(context, selectionContext) {
-  context.commit('updateInclusionList', selectionContext)
+export function updateSelectedAttribute(context, selectionContext) {
+  Vue.prototype
+    .$serverPost(`/attribute/update`, selectionContext)
+    .then((data) => {
+      let arg = data.data
+      if (arg.action === 'boolean') {
+        context.commit('updateInclusionList', {
+          id: Util.cantorPair(arg.id, arg.clusterRef),
+          added: arg.added,
+          listType: arg.listType,
+          view: 'attributeView',
+        })
+      } else if (arg.action === 'text') {
+        context.commit('updateAttributeDefaults', {
+          id: Util.cantorPair(arg.id, arg.clusterRef),
+          newDefaultValue: arg.added,
+          defaultValueValidationIssues: arg.validationIssues.defaultValue,
+        })
+      }
+    })
 }
 
 export function updateReportingAttributeDefaults(context, selectionContext) {
   context.commit('updateReportingAttributeDefaults', selectionContext)
 }
 
-export function updateAttributeDefaults(context, selectionContext) {
-  context.commit('updateAttributeDefaults', selectionContext)
-}
-
 export function updateSelectedCommands(context, selectionContext) {
-  context.commit('updateInclusionList', selectionContext)
+  Vue.prototype
+    .$serverPost(`/command/update`, selectionContext)
+    .then((data) => {
+      let arg = data.data
+      if (arg.action === 'boolean') {
+        context.commit('updateInclusionList', {
+          id: Util.cantorPair(arg.id, arg.clusterRef),
+          added: arg.added,
+          listType: arg.listType,
+          view: 'commandView',
+        })
+      }
+    })
 }
 
 export function updateSelectedServers(context, selectionContext) {
@@ -123,29 +149,64 @@ export function updateSelectedEndpoint(context, endpoint) {
 }
 
 export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
-  Vue.prototype.$serverGet(
-    `/zcl/endpointTypeDeviceTypeClusters/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
-  )
-  Vue.prototype.$serverGet(
-    `/zcl/endpointTypeDeviceTypeAttributes/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
-  )
-  Vue.prototype.$serverGet(
-    `/zcl/endpointTypeDeviceTypeCommands/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
-  )
-  Vue.prototype.$serverGet(
-    `/zcl/endpointTypeClusters/${endpointIdDeviceTypeRefPair.endpointId}`
-  )
-  Vue.prototype.$serverGet(
-    `/zcl/endpointTypeAttributes/${endpointIdDeviceTypeRefPair.endpointId}`
-  )
-  Vue.prototype.$serverGet(
-    `/zcl/endpointTypeCommands/${endpointIdDeviceTypeRefPair.endpointId}`
-  )
+  Vue.prototype
+    .$serverGet(
+      `/zcl/endpointTypeDeviceTypeClusters/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
+    )
+    .then((data) => {
+      setRecommendedClusterList(context, data.data.data)
+    })
+  Vue.prototype
+    .$serverGet(
+      `/zcl/endpointTypeDeviceTypeAttributes/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
+    )
+    .then((data) => {
+      setRequiredAttributes(context, data.data.data)
+    })
+  Vue.prototype
+    .$serverGet(
+      `/zcl/endpointTypeDeviceTypeCommands/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
+    )
+    .then((data) => {
+      setRequiredCommands(context, data.data.data)
+    })
+
+  Vue.prototype
+    .$serverGet(
+      `/zcl/endpointTypeClusters/${endpointIdDeviceTypeRefPair.endpointId}`
+    )
+    .then((data) => {
+      setClusterList(context, data.data.data)
+    })
+  Vue.prototype
+    .$serverGet(
+      `/zcl/endpointTypeAttributes/${endpointIdDeviceTypeRefPair.endpointId}`
+    )
+    .then((data) => {
+      setAttributeStateLists(context, data.data.data || [])
+    })
+  Vue.prototype
+    .$serverGet(
+      `/zcl/endpointTypeCommands/${endpointIdDeviceTypeRefPair.endpointId}`
+    )
+    .then((data) => {
+      setCommandStateLists(context, data.data.data || [])
+    })
   context.commit('setDeviceTypeReference', endpointIdDeviceTypeRefPair)
 }
 
-export function addEndpoint(context, endpoint) {
-  context.commit('addEndpoint', endpoint)
+export function addEndpoint(context, newEndpointContext) {
+  Vue.prototype.$serverPost(`/endpoint`, newEndpointContext).then((data) => {
+    let arg = data.data
+    context.commit('addEndpoint', {
+      id: arg.id,
+      eptId: arg.eptId,
+      endpointType: arg.endpointType,
+      network: arg.nwkId,
+      endpointIdValidationIssues: arg.validationIssues.endpointId,
+      networkIdValidationIssues: arg.validationIssues.networkId,
+    })
+  })
 }
 
 export function addEndpointType(context, endpointType) {
@@ -157,7 +218,15 @@ export function removeEndpointType(context, endpointType) {
 }
 
 export function updateEndpoint(context, endpoint) {
-  context.commit('updateEndpoint', endpoint)
+  Vue.prototype.$serverPost('/endpoint', endpoint).then((data) => {
+    let arg = data.data
+    context.commit('updateEndpoint', {
+      id: arg.endpointId,
+      changes: arg.changes,
+      endpointIdValidationIssues: arg.validationIssues.endpointId,
+      networkIdValidationIssues: arg.validationIssues.networkId,
+    })
+  })
 }
 
 export function updateSelectedEndpointType(
@@ -165,24 +234,48 @@ export function updateSelectedEndpointType(
   endpointTypeDeviceTypeRefPair
 ) {
   if (endpointTypeDeviceTypeRefPair != null) {
-    Vue.prototype.$serverGet(
-      `/zcl/endpointTypeClusters/${endpointTypeDeviceTypeRefPair.endpointType}`
-    )
-    Vue.prototype.$serverGet(
-      `/zcl/endpointTypeAttributes/${endpointTypeDeviceTypeRefPair.endpointType}`
-    )
-    Vue.prototype.$serverGet(
-      `/zcl/endpointTypeCommands/${endpointTypeDeviceTypeRefPair.endpointType}`
-    )
-    Vue.prototype.$serverGet(
-      `/zcl/endpointTypeDeviceTypeClusters/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
-    )
-    Vue.prototype.$serverGet(
-      `/zcl/endpointTypeDeviceTypeAttributes/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
-    )
-    Vue.prototype.$serverGet(
-      `/zcl/endpointTypeDeviceTypeCommands/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
-    )
+    Vue.prototype
+      .$serverGet(
+        `/zcl/endpointTypeClusters/${endpointTypeDeviceTypeRefPair.endpointType}`
+      )
+      .then((data) => {
+        setClusterList(context, data.data.data)
+      })
+    Vue.prototype
+      .$serverGet(
+        `/zcl/endpointTypeAttributes/${endpointTypeDeviceTypeRefPair.endpointType}`
+      )
+      .then((data) => {
+        setAttributeStateLists(context, data.data.data || [])
+      })
+    Vue.prototype
+      .$serverGet(
+        `/zcl/endpointTypeCommands/${endpointTypeDeviceTypeRefPair.endpointType}`
+      )
+      .then((data) => {
+        setCommandStateLists(context, data.data.data || [])
+      })
+    Vue.prototype
+      .$serverGet(
+        `/zcl/endpointTypeDeviceTypeClusters/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+      )
+      .then((data) => {
+        setRecommendedClusterList(context, data.data.data)
+      })
+    Vue.prototype
+      .$serverGet(
+        `/zcl/endpointTypeDeviceTypeAttributes/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+      )
+      .then((data) => {
+        setRequiredAttributes(context, data.data.data)
+      })
+    Vue.prototype
+      .$serverGet(
+        `/zcl/endpointTypeDeviceTypeCommands/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+      )
+      .then((data) => {
+        setRequiredCommands(context, data.data.data)
+      })
   }
   context.commit(
     'updateSelectedEndpointType',
@@ -191,7 +284,10 @@ export function updateSelectedEndpointType(
 }
 
 export function deleteEndpoint(context, endpoint) {
-  context.commit('deleteEndpoint', endpoint)
+  Vue.prototype.$serverPost('/endpoint', endpoint).then((data) => {
+    let arg = data.data
+    context.commit('deleteEndpoint', { id: arg.id })
+  })
 }
 
 export function setClusterList(context, selectionContext) {

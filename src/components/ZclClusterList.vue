@@ -162,17 +162,6 @@ export default {
       return 'primary'
     },
   },
-
-  mounted() {
-    this.$serverOn('zcl-item', (event, arg) => {
-      if (arg.type === 'endpointTypeClusters') {
-        this.$store.dispatch('zap/setClusterList', arg.data)
-      }
-      if (arg.type === `deviceTypeClusters`) {
-        this.$store.dispatch('zap/setRecommendedClusterList', arg.data)
-      }
-    })
-  },
   data() {
     return {
       title: 'unknown',
