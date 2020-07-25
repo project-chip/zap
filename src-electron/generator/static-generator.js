@@ -18,6 +18,8 @@
 /**
  * @module JS API: generator logic
  */
+const path = require('path')
+
 const handlebars = require('handlebars/dist/cjs/handlebars')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
@@ -39,14 +41,16 @@ const helperUtil = require('./helper-util.js')
  */
 function getHandlebarsTemplate(templateDirectory = '', name = '') {
   var source = ''
+  var fileName
   if (templateDirectory) {
-    env.logInfo('Using ' + templateDirectory + '/' + name + ' as a template')
-    source = fsExtra.readFileSync(templateDirectory + '/' + name, 'utf8')
+    fileName = path.join(templateDirectory, name)
+    env.logInfo('Using ' + fileName + ' as a template')
   } else {
     env.logInfo('Using the test template directory for ' + name)
     templateDirectory = __dirname + '/../../test/gen-template'
-    source = fsExtra.readFileSync(templateDirectory + '/' + name, 'utf8')
+    fileName = path.join(templateDirectory, name)
   }
+  source = fsExtra.readFileSync(fileName, 'utf8')
   return handlebars.compile(source)
 }
 
