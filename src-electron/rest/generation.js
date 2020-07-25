@@ -25,89 +25,6 @@ const env = require('../util/env.js')
 const staticGenerator = require('../generator/static-generator.js')
 const restApi = require('../../src-shared/rest-api.js')
 
-function getGeneratedCodeMap(generationOptions, db) {
-  return new Promise((resolve, reject) => {
-    // A map to handle to get request
-    const generatedCodeMap = {}
-
-    // The template file which provides meta data information on generation
-    var currentGenerationOptions = generationOptions['generation-options']
-
-    // Going through each of the generation options and performing generation
-    let generationOptionIndex = 0
-    for (
-      generationOptionIndex = 0;
-      generationOptionIndex < currentGenerationOptions.length;
-      generationOptionIndex++
-    ) {
-      let i = 0
-      let templateArray = new Set()
-      let dbRowTypeArray = new Set()
-      let groupInfoToDb =
-        currentGenerationOptions[generationOptionIndex][
-          'group-info-into-db-row-type'
-        ]
-      let helperApis =
-        currentGenerationOptions[generationOptionIndex]['helper-api-name']
-      let handlebarTemplatePerDataRow =
-        currentGenerationOptions[generationOptionIndex][
-          'handlebar-templates-per-data-row'
-        ]
-
-      //creating generatedCodeMap keys which will be the same as request.params.name
-      let filename = currentGenerationOptions[generationOptionIndex]['filename']
-      let extensionIndex = filename.lastIndexOf('.')
-      if (extensionIndex > 0) {
-        filename = filename.substr(0, extensionIndex)
-      }
-
-      for (i = 0; i < handlebarTemplatePerDataRow.length; i++) {
-        templateArray.add(handlebarTemplatePerDataRow[i]['hTemplateFile'])
-        dbRowTypeArray.add(handlebarTemplatePerDataRow[i]['dbRowType'])
-      }
-
-      for (i = 0; i < groupInfoToDb.length; i++) {
-        let dbType = groupInfoToDb[i].dbType
-        if (!dbRowTypeArray.has(dbType)) {
-          dbRowTypeArray.add(dbType)
-        }
-      }
-      generatedCodeMap[filename] = staticGenerator
-        .mapDatabase(db)
-        .then((templateDir) =>
-          staticGenerator.resolveTemplateDirectory(templateDir, '')
-        )
-        .then((templates) =>
-          staticGenerator.compileTemplate(templates, templateArray)
-        )
-        .then((databaseRows) =>
-          staticGenerator.infoFromDb(databaseRows, dbRowTypeArray)
-        )
-        .then((databaseRowsWithMoreInfo) =>
-          staticGenerator.groupInfoIntoDbRow(
-            databaseRowsWithMoreInfo,
-            groupInfoToDb
-          )
-        )
-        .then((helperResolution) =>
-          staticGenerator.resolveHelper(helperResolution, helperApis)
-        )
-        .then((resultToFile) =>
-          staticGenerator.generateDataToPreview(
-            resultToFile,
-            handlebarTemplatePerDataRow
-          )
-        )
-        .catch((err) => env.logError(err))
-    }
-
-    // Making sure all generation promises are resolved before handling the get request
-    Promise.all(Object.values(generatedCodeMap)).then((messages) => {
-      resolve(generatedCodeMap)
-    })
-  })
-}
-
 /**
  *
  *
@@ -118,7 +35,7 @@ function getGeneratedCodeMap(generationOptions, db) {
 function registerGenerationApi(db, app) {
   app.get('/preview/:name/:index', (request, response) => {
     staticGenerator.getGenerationProperties('').then((generationOptions) => {
-      getGeneratedCodeMap(generationOptions, db).then((map) => {
+      staticGenerator.getGeneratedCodeMap(generationOptions, db).then((map) => {
         if (map[request.params.name]) {
           map[request.params.name].then((result) => {
             if (request.params.index in result) {
@@ -140,7 +57,7 @@ function registerGenerationApi(db, app) {
 
   app.get('/preview/:name', (request, response) => {
     staticGenerator.getGenerationProperties('').then((generationOptions) => {
-      getGeneratedCodeMap(generationOptions, db).then((map) => {
+      staticGenerator.getGeneratedCodeMap(generationOptions, db).then((map) => {
         if (map[request.params.name]) {
           map[request.params.name].then((result) => {
             result.replyId = 'preview'
