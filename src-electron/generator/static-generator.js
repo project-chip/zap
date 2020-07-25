@@ -18,7 +18,7 @@
 /**
  * @module JS API: generator logic
  */
-const Handlebars = require('handlebars/dist/cjs/handlebars')
+const handlebars = require('handlebars/dist/cjs/handlebars')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 
@@ -37,7 +37,7 @@ const helperUtil = require('./helper-util.js')
  * @param {string} [name=""] Name of the template file
  * @returns A compiled Template
  */
-Handlebars.getTemplate = function (templateDirectory = '', name = '') {
+function getHandlebarsTemplate(templateDirectory = '', name = '') {
   var source = ''
   if (templateDirectory) {
     env.logInfo('Using ' + templateDirectory + '/' + name + ' as a template')
@@ -47,7 +47,7 @@ Handlebars.getTemplate = function (templateDirectory = '', name = '') {
     templateDirectory = __dirname + '/../../test/gen-template'
     source = fsExtra.readFileSync(templateDirectory + '/' + name, 'utf8')
   }
-  return Handlebars.compile(source)
+  return handlebars.compile(source)
 }
 
 /**
@@ -94,7 +94,7 @@ function resolveTemplateDirectory(map, handlebarTemplateDirectory = '') {
 function compileTemplate(map, templateFiles) {
   return new Promise((resolve, reject) => {
     for (var templateFile of templateFiles) {
-      var compiledTemplate = Handlebars.getTemplate(
+      var compiledTemplate = getHandlebarsTemplate(
         map.handlebarTemplateDirectory,
         templateFile
       )
@@ -312,7 +312,7 @@ function generateDataToPreview(map, databaseRowToHandlebarTemplateFileMap) {
         map[databaseRowToHandlebarTemplateFileMap[i].hTemplateFile]
       var dbRows = map[databaseRowToHandlebarTemplateFileMap[i].dbRowType]
       for (var key in map.helperFunctions) {
-        Handlebars.registerHelper(key, map.helperFunctions[key])
+        handlebars.registerHelper(key, map.helperFunctions[key])
       }
       var define = compiledTemplate({
         type: dbRows,
@@ -361,7 +361,7 @@ function generateDataToFile(
         map[databaseRowToHandlebarTemplateFileMap[i].hTemplateFile]
       var dbRows = map[databaseRowToHandlebarTemplateFileMap[i].dbRowType]
       for (var key in map.helperFunctions) {
-        Handlebars.registerHelper(key, map.helperFunctions[key])
+        handlebars.registerHelper(key, map.helperFunctions[key])
       }
       var define = compiledTemplate({
         type: dbRows,
