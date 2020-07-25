@@ -274,67 +274,11 @@ function groupInfoIntoDbRow(map, groupByParams) {
  */
 function resolveHelper(map, helperFunctions) {
   return new Promise((resolve, reject) => {
-    let handlebarHelpers = {},
-      i = 0
+    let handlebarHelpers = {}
+    let i = 0
     for (i = 0; i < helperFunctions.length; i++) {
-      switch (helperFunctions[i]['helperFunctionName']) {
-        case 'getUppercase':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.getUppercase
-          break
-        case 'getStrong':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.getStrong
-          break
-        case 'getHexValue':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.getHexValue
-          break
-        case 'getLargestStringInArray':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.getLargestStringInArray
-          break
-        case 'getSwitch':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.getSwitch
-          break
-        case 'getCase':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.getCase
-          break
-        case 'getDefault':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.getDefault
-          break
-        case 'getCamelCaseWithoutUnderscore':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.getCamelCaseWithoutUnderscore
-          break
-        case 'isEitherCommandSource':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.isEitherCommandSource
-          break
-        case 'isCommandManufactureSpecific':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.isCommandManufactureSpecific
-          break
-        case 'getDirection':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.getDirection
-          break
-        case 'trimNewLinesTabs':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.trimNewLinesTabs
-          break
-        case 'getFormatCharactersForCommandArguments':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.getFormatCharactersForCommandArguments
-          break
-        case 'convertCamelCaseToSpace':
-          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
-            helperUtil.convertCamelCaseToSpace
-          break
-      }
+      handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+        helperUtil[helperFunctions[i]['helperFunctionName']]
     }
     map.helperFunctions = handlebarHelpers
     resolve(map)
