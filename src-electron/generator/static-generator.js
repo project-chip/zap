@@ -24,7 +24,7 @@ const queryPackage = require('../db/query-package.js')
 
 const fsExtra = require('fs-extra')
 
-const { logError, logInfo } = require('../util/env.js')
+const env = require('../util/env.js')
 const {
   getHexValue,
   getStrong,
@@ -40,7 +40,7 @@ const {
   trimNewLinesTabs,
   getFormatCharactersForCommandArguments,
   convertCamelCaseToSpace,
-} = require('../handlebars/helpers/helper-utils.js')
+} = require('./helper-utils.js')
 
 /**
  * Find the handlebar template file, compile and return the template file.
@@ -55,10 +55,10 @@ const {
 Handlebars.getTemplate = function (templateDirectory = '', name = '') {
   var source = ''
   if (templateDirectory) {
-    logInfo('Using ' + templateDirectory + '/' + name + ' as a template')
+    env.logInfo('Using ' + templateDirectory + '/' + name + ' as a template')
     source = fsExtra.readFileSync(templateDirectory + '/' + name, 'utf8')
   } else {
-    logInfo('Using the test template directory for ' + name)
+    env.logInfo('Using the test template directory for ' + name)
     templateDirectory = __dirname + '/../../test/gen-template'
     source = fsExtra.readFileSync(templateDirectory + '/' + name, 'utf8')
   }
@@ -180,7 +180,7 @@ function infoFromDb(map, dbRowTypeArray) {
         resolve(map)
       })
       .catch((reason) => {
-        logError(`infoFromDb Handle rejected promise (${reason}) here.`)
+        env.logError(`infoFromDb Handle rejected promise (${reason}) here.`)
       })
   })
 }
@@ -260,7 +260,7 @@ function groupInfoIntoDbRow(map, groupByParams) {
             })
         )
         .catch((reason) => {
-          logError(
+          env.logError(
             `groupInfoIntoDbRow Handle rejected promise (${reason}) here.`
           )
         })
@@ -269,7 +269,9 @@ function groupInfoIntoDbRow(map, groupByParams) {
     return Promise.all(groupDbRowInfo)
       .then((results) => map)
       .catch((reason) => {
-        logError(`groupInfoIntoDbRow Handle rejected promise (${reason}) here.`)
+        env.logError(
+          `groupInfoIntoDbRow Handle rejected promise (${reason}) here.`
+        )
       })
   } else {
     return new Promise((resolve, reject) => map)
@@ -474,7 +476,7 @@ function getGenerationProperties(filePath) {
       actualFilePath =
         __dirname + '/../../test/gen-template/generation-options.json'
     }
-    logInfo('Reading generation properties from ' + actualFilePath)
+    env.logInfo('Reading generation properties from ' + actualFilePath)
     rawData = fsExtra.readFileSync(actualFilePath)
     var generationOptions = JSON.parse(rawData)
     resolve(generationOptions)
@@ -551,11 +553,11 @@ function generateCode(
       .then((resultToFile) =>
         generateDataToFile(resultToFile, filename, handlebarTemplatePerDataRow)
       )
-      .catch((err) => logError(err))
+      .catch((err) => env.logError(err))
   }
 
   return Promise.all(generatedCodeMap).catch((error) => {
-    logError(error)
+    env.logError(error)
   })
 }
 // exports
