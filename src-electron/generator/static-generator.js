@@ -25,22 +25,7 @@ const queryPackage = require('../db/query-package.js')
 const fsExtra = require('fs-extra')
 
 const env = require('../util/env.js')
-const {
-  getHexValue,
-  getStrong,
-  getUppercase,
-  getLargestStringInArray,
-  getSwitch,
-  getCase,
-  getDefault,
-  getCamelCaseWithoutUnderscore,
-  isEitherCommandSource,
-  isCommandManufactureSpecific,
-  getDirection,
-  trimNewLinesTabs,
-  getFormatCharactersForCommandArguments,
-  convertCamelCaseToSpace,
-} = require('./helper-utils.js')
+const helperUtil = require('./helper-util.js')
 
 /**
  * Find the handlebar template file, compile and return the template file.
@@ -294,74 +279,60 @@ function resolveHelper(map, helperFunctions) {
     for (i = 0; i < helperFunctions.length; i++) {
       switch (helperFunctions[i]['helperFunctionName']) {
         case 'getUppercase':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getUppercase
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.getUppercase
           break
         case 'getStrong':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getStrong
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.getStrong
           break
         case 'getHexValue':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getHexValue
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.getHexValue
           break
         case 'getLargestStringInArray':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getLargestStringInArray
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.getLargestStringInArray
           break
         case 'getSwitch':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getSwitch
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.getSwitch
           break
         case 'getCase':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getCase
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.getCase
           break
         case 'getDefault':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getDefault
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.getDefault
           break
         case 'getCamelCaseWithoutUnderscore':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getCamelCaseWithoutUnderscore
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.getCamelCaseWithoutUnderscore
           break
         case 'isEitherCommandSource':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = isEitherCommandSource
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.isEitherCommandSource
           break
         case 'isCommandManufactureSpecific':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = isCommandManufactureSpecific
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.isCommandManufactureSpecific
           break
         case 'getDirection':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getDirection
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.getDirection
           break
         case 'trimNewLinesTabs':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = trimNewLinesTabs
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.trimNewLinesTabs
           break
         case 'getFormatCharactersForCommandArguments':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getFormatCharactersForCommandArguments
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.getFormatCharactersForCommandArguments
           break
         case 'convertCamelCaseToSpace':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = convertCamelCaseToSpace
+          handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+            helperUtil.convertCamelCaseToSpace
           break
       }
     }
