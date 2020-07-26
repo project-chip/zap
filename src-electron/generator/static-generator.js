@@ -18,29 +18,16 @@
 /**
  * @module JS API: generator logic
  */
-const Handlebars = require('handlebars/dist/cjs/handlebars')
+const path = require('path')
+
+const handlebars = require('handlebars/dist/cjs/handlebars')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 
 const fsExtra = require('fs-extra')
 
-const { logError, logInfo } = require('../util/env.js')
-const {
-  getHexValue,
-  getStrong,
-  getUppercase,
-  getLargestStringInArray,
-  getSwitch,
-  getCase,
-  getDefault,
-  getCamelCaseWithoutUnderscore,
-  isEitherCommandSource,
-  isCommandManufactureSpecific,
-  getDirection,
-  trimNewLinesTabs,
-  getFormatCharactersForCommandArguments,
-  convertCamelCaseToSpace,
-} = require('../handlebars/helpers/helper-utils.js')
+const env = require('../util/env.js')
+const helperUtil = require('./helper-util.js')
 
 /**
  * Find the handlebar template file, compile and return the template file.
@@ -52,17 +39,18 @@ const {
  * @param {string} [name=""] Name of the template file
  * @returns A compiled Template
  */
-Handlebars.getTemplate = function (templateDirectory = '', name = '') {
+function getHandlebarsTemplate(templateDirectory = '', name = '') {
   var source = ''
+  var fileName
   if (templateDirectory) {
-    logInfo('Using ' + templateDirectory + '/' + name + ' as a template')
-    source = fsExtra.readFileSync(templateDirectory + '/' + name, 'utf8')
+    fileName = path.join(templateDirectory, name)
   } else {
-    logInfo('Using the test template directory for ' + name)
     templateDirectory = __dirname + '/../../test/gen-template'
-    source = fsExtra.readFileSync(templateDirectory + '/' + name, 'utf8')
+    fileName = path.join(templateDirectory, name)
   }
-  return Handlebars.compile(source)
+  env.logInfo('Using ' + fileName + ' as a template')
+  source = fsExtra.readFileSync(fileName, 'utf8')
+  return handlebars.compile(source)
 }
 
 /**
@@ -109,7 +97,7 @@ function resolveTemplateDirectory(map, handlebarTemplateDirectory = '') {
 function compileTemplate(map, templateFiles) {
   return new Promise((resolve, reject) => {
     for (var templateFile of templateFiles) {
-      var compiledTemplate = Handlebars.getTemplate(
+      var compiledTemplate = getHandlebarsTemplate(
         map.handlebarTemplateDirectory,
         templateFile
       )
@@ -180,7 +168,7 @@ function infoFromDb(map, dbRowTypeArray) {
         resolve(map)
       })
       .catch((reason) => {
-        logError(`infoFromDb Handle rejected promise (${reason}) here.`)
+        env.logError(`infoFromDb Handle rejected promise (${reason}) here.`)
       })
   })
 }
@@ -260,7 +248,7 @@ function groupInfoIntoDbRow(map, groupByParams) {
             })
         )
         .catch((reason) => {
-          logError(
+          env.logError(
             `groupInfoIntoDbRow Handle rejected promise (${reason}) here.`
           )
         })
@@ -269,7 +257,9 @@ function groupInfoIntoDbRow(map, groupByParams) {
     return Promise.all(groupDbRowInfo)
       .then((results) => map)
       .catch((reason) => {
-        logError(`groupInfoIntoDbRow Handle rejected promise (${reason}) here.`)
+        env.logError(
+          `groupInfoIntoDbRow Handle rejected promise (${reason}) here.`
+        )
       })
   } else {
     return new Promise((resolve, reject) => map)
@@ -287,81 +277,10 @@ function groupInfoIntoDbRow(map, groupByParams) {
  */
 function resolveHelper(map, helperFunctions) {
   return new Promise((resolve, reject) => {
-    let handlebarHelpers = {},
-      i = 0
-    for (i = 0; i < helperFunctions.length; i++) {
-      switch (helperFunctions[i]['helperFunctionName']) {
-        case 'getUppercase':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getUppercase
-          break
-        case 'getStrong':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getStrong
-          break
-        case 'getHexValue':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getHexValue
-          break
-        case 'getLargestStringInArray':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getLargestStringInArray
-          break
-        case 'getSwitch':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getSwitch
-          break
-        case 'getCase':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getCase
-          break
-        case 'getDefault':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getDefault
-          break
-        case 'getCamelCaseWithoutUnderscore':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getCamelCaseWithoutUnderscore
-          break
-        case 'isEitherCommandSource':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = isEitherCommandSource
-          break
-        case 'isCommandManufactureSpecific':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = isCommandManufactureSpecific
-          break
-        case 'getDirection':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getDirection
-          break
-        case 'trimNewLinesTabs':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = trimNewLinesTabs
-          break
-        case 'getFormatCharactersForCommandArguments':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = getFormatCharactersForCommandArguments
-          break
-        case 'convertCamelCaseToSpace':
-          handlebarHelpers[
-            helperFunctions[i]['helperNameForTemplate']
-          ] = convertCamelCaseToSpace
-          break
-      }
+    let handlebarHelpers = {}
+    for (let i = 0; i < helperFunctions.length; i++) {
+      handlebarHelpers[helperFunctions[i]['helperNameForTemplate']] =
+        helperUtil[helperFunctions[i]['helperFunctionName']]
     }
     map.helperFunctions = handlebarHelpers
     resolve(map)
@@ -395,7 +314,7 @@ function generateDataToPreview(map, databaseRowToHandlebarTemplateFileMap) {
         map[databaseRowToHandlebarTemplateFileMap[i].hTemplateFile]
       var dbRows = map[databaseRowToHandlebarTemplateFileMap[i].dbRowType]
       for (var key in map.helperFunctions) {
-        Handlebars.registerHelper(key, map.helperFunctions[key])
+        handlebars.registerHelper(key, map.helperFunctions[key])
       }
       var define = compiledTemplate({
         type: dbRows,
@@ -444,7 +363,7 @@ function generateDataToFile(
         map[databaseRowToHandlebarTemplateFileMap[i].hTemplateFile]
       var dbRows = map[databaseRowToHandlebarTemplateFileMap[i].dbRowType]
       for (var key in map.helperFunctions) {
-        Handlebars.registerHelper(key, map.helperFunctions[key])
+        handlebars.registerHelper(key, map.helperFunctions[key])
       }
       var define = compiledTemplate({
         type: dbRows,
@@ -471,10 +390,12 @@ function getGenerationProperties(filePath) {
     let rawData
     let actualFilePath = filePath
     if (!actualFilePath || 0 === actualFilePath.length) {
-      actualFilePath =
-        __dirname + '/../../test/gen-template/generation-options.json'
+      actualFilePath = path.join(
+        __dirname,
+        '../../test/gen-template/generation-options.json'
+      )
     }
-    logInfo('Reading generation properties from ' + actualFilePath)
+    env.logInfo('Reading generation properties from ' + actualFilePath)
     rawData = fsExtra.readFileSync(actualFilePath)
     var generationOptions = JSON.parse(rawData)
     resolve(generationOptions)
@@ -542,30 +463,116 @@ function generateCode(
         groupInfoIntoDbRow(databaseRowsWithMoreInfo, groupInfoToDb)
       )
       .then((helperResolution) => resolveHelper(helperResolution, helperApis))
-      .then((directoryResolution) => {
-        return new Promise((resolve, reject) => {
-          directoryResolution.generationDirectory = generationDirectory
-          resolve(directoryResolution)
-        })
-      })
+      .then(
+        (directoryResolution) =>
+          new Promise((resolve, reject) => {
+            directoryResolution.generationDirectory = generationDirectory
+            resolve(directoryResolution)
+          })
+      )
       .then((resultToFile) =>
         generateDataToFile(resultToFile, filename, handlebarTemplatePerDataRow)
       )
-      .catch((err) => logError(err))
+      .catch((err) => env.logError(err))
   }
 
   return Promise.all(generatedCodeMap).catch((error) => {
-    logError(error)
+    env.logError(error)
   })
 }
+
+function getGeneratedCodeMap(generationOptions, db) {
+  return new Promise((resolve, reject) => {
+    // A map to handle to get request
+    const generatedCodeMap = {}
+
+    // The template file which provides meta data information on generation
+    var currentGenerationOptions = generationOptions['generation-options']
+
+    // Going through each of the generation options and performing generation
+    let generationOptionIndex = 0
+    for (
+      generationOptionIndex = 0;
+      generationOptionIndex < currentGenerationOptions.length;
+      generationOptionIndex++
+    ) {
+      let i = 0
+      let templateArray = new Set()
+      let dbRowTypeArray = new Set()
+      let groupInfoToDb =
+        currentGenerationOptions[generationOptionIndex][
+          'group-info-into-db-row-type'
+        ]
+      let helperApis =
+        currentGenerationOptions[generationOptionIndex]['helper-api-name']
+      let handlebarTemplatePerDataRow =
+        currentGenerationOptions[generationOptionIndex][
+          'handlebar-templates-per-data-row'
+        ]
+
+      //creating generatedCodeMap keys which will be the same as request.params.name
+      let filename = currentGenerationOptions[generationOptionIndex]['filename']
+      let extensionIndex = filename.lastIndexOf('.')
+      if (extensionIndex > 0) {
+        filename = filename.substr(0, extensionIndex)
+      }
+
+      for (i = 0; i < handlebarTemplatePerDataRow.length; i++) {
+        templateArray.add(handlebarTemplatePerDataRow[i]['hTemplateFile'])
+        dbRowTypeArray.add(handlebarTemplatePerDataRow[i]['dbRowType'])
+      }
+
+      for (i = 0; i < groupInfoToDb.length; i++) {
+        let dbType = groupInfoToDb[i].dbType
+        if (!dbRowTypeArray.has(dbType)) {
+          dbRowTypeArray.add(dbType)
+        }
+      }
+      generatedCodeMap[filename] = mapDatabase(db)
+        .then((templateDir) => resolveTemplateDirectory(templateDir, ''))
+        .then((templates) => compileTemplate(templates, templateArray))
+        .then((databaseRows) => infoFromDb(databaseRows, dbRowTypeArray))
+        .then((databaseRowsWithMoreInfo) =>
+          groupInfoIntoDbRow(databaseRowsWithMoreInfo, groupInfoToDb)
+        )
+        .then((helperResolution) => resolveHelper(helperResolution, helperApis))
+        .then((resultToFile) =>
+          generateDataToPreview(resultToFile, handlebarTemplatePerDataRow)
+        )
+        .catch((err) => env.logError(err))
+    }
+
+    // Making sure all generation promises are resolved before handling the get request
+    Promise.all(Object.values(generatedCodeMap)).then((messages) => {
+      resolve(generatedCodeMap)
+    })
+  })
+}
+
+function writeGeneratedFiles(
+  generationOptionsFile,
+  db,
+  generationDirectory,
+  handlebarTemplateDirectory
+) {
+  return getGenerationProperties(
+    generationOptionsFile
+  ).then((generationOptions) =>
+    generateCode(
+      db,
+      generationOptions,
+      generationDirectory,
+      handlebarTemplateDirectory
+    )
+  )
+}
+
+function createGeneratedFileMap(db) {
+  return getGenerationProperties('').then((generationOptions) =>
+    getGeneratedCodeMap(generationOptions, db)
+  )
+}
+
 // exports
-exports.mapDatabase = mapDatabase
-exports.resolveTemplateDirectory = resolveTemplateDirectory
-exports.compileTemplate = compileTemplate
-exports.infoFromDb = infoFromDb
-exports.groupInfoIntoDbRow = groupInfoIntoDbRow
-exports.resolveHelper = resolveHelper
-exports.generateDataToPreview = generateDataToPreview
-exports.generateDataToFile = generateDataToFile
-exports.getGenerationProperties = getGenerationProperties
-exports.generateCode = generateCode
+exports.writeGeneratedFiles = writeGeneratedFiles
+exports.createGeneratedFileMap = createGeneratedFileMap
