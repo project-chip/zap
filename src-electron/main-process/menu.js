@@ -242,7 +242,7 @@ function generateInDir(browserWindow) {
     })
     .then((filePath) => {
       if (filePath != null) {
-        staticGenerator.performGeneration(
+        staticGenerator.writeGeneratedFiles(
           generationOptionsFile,
           env.mainDatabase(),
           filePath,
@@ -265,7 +265,7 @@ function generateInDir(browserWindow) {
  * @param {*} generationDir
  */
 function generateCodeViaCli(generationDir) {
-  return staticGenerator.performGeneration(
+  return staticGenerator.writeGeneratedFiles(
     generationOptionsFile,
     env.mainDatabase(),
     generationDir,

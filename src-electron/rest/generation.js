@@ -34,39 +34,35 @@ const restApi = require('../../src-shared/rest-api.js')
  */
 function registerGenerationApi(db, app) {
   app.get('/preview/:name/:index', (request, response) => {
-    staticGenerator.getGenerationProperties('').then((generationOptions) => {
-      staticGenerator.getGeneratedCodeMap(generationOptions, db).then((map) => {
-        if (map[request.params.name]) {
-          map[request.params.name].then((result) => {
-            if (request.params.index in result) {
-              response.json({
-                replyId: 'preview',
-                result: result[request.params.index],
-                size: Object.keys(result).length,
-              })
-            } else {
-              response.json('No Generation Result for this file')
-            }
-          })
-        } else {
-          response.json('No Generation Result for this file')
-        }
-      })
+    staticGenerator.createGeneratedFileMap(db).then((map) => {
+      if (map[request.params.name]) {
+        map[request.params.name].then((result) => {
+          if (request.params.index in result) {
+            response.json({
+              replyId: 'preview',
+              result: result[request.params.index],
+              size: Object.keys(result).length,
+            })
+          } else {
+            response.json('No Generation Result for this file')
+          }
+        })
+      } else {
+        response.json('No Generation Result for this file')
+      }
     })
   })
 
   app.get('/preview/:name', (request, response) => {
-    staticGenerator.getGenerationProperties('').then((generationOptions) => {
-      staticGenerator.getGeneratedCodeMap(generationOptions, db).then((map) => {
-        if (map[request.params.name]) {
-          map[request.params.name].then((result) => {
-            result.replyId = 'preview'
-            return response.json(result)
-          })
-        } else {
-          response.json('No Generation Result for this file')
-        }
-      })
+    staticGenerator.createGeneratedFileMap(db).then((map) => {
+      if (map[request.params.name]) {
+        map[request.params.name].then((result) => {
+          result.replyId = 'preview'
+          return response.json(result)
+        })
+      } else {
+        response.json('No Generation Result for this file')
+      }
     })
   })
 
@@ -76,17 +72,15 @@ function registerGenerationApi(db, app) {
   //       "enums" : "..."
   //      }
   app.get(restApi.uri.generate, (request, response) => {
-    staticGenerator.getGenerationProperties('').then((generationOptions) => {
-      staticGenerator.getGeneratedCodeMap(generationOptions, db).then((map) => {
-        // making sure all generation promises are resolved before handling the get request
-        Promise.all(Object.values(map)).then((values) => {
-          let merged = Object.keys(map).reduce(
-            (obj, key, index) => ({ ...obj, [key]: values[index] }),
-            {}
-          )
-          merged.replyId = 'generate'
-          response.json(merged)
-        })
+    staticGenerator.createGeneratedFileMap(db).then((map) => {
+      // making sure all generation promises are resolved before handling the get request
+      Promise.all(Object.values(map)).then((values) => {
+        let merged = Object.keys(map).reduce(
+          (obj, key, index) => ({ ...obj, [key]: values[index] }),
+          {}
+        )
+        merged.replyId = 'generate'
+        response.json(merged)
       })
     })
   })

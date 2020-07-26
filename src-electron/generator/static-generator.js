@@ -549,7 +549,7 @@ function getGeneratedCodeMap(generationOptions, db) {
   })
 }
 
-function performGeneration(
+function writeGeneratedFiles(
   generationOptionsFile,
   db,
   generationDirectory,
@@ -567,8 +567,12 @@ function performGeneration(
   )
 }
 
+function createGeneratedFileMap(db) {
+  return getGenerationProperties('').then((generationOptions) =>
+    getGeneratedCodeMap(generationOptions, db)
+  )
+}
+
 // exports
-exports.getGenerationProperties = getGenerationProperties
-exports.generateCode = generateCode
-exports.getGeneratedCodeMap = getGeneratedCodeMap
-exports.performGeneration = performGeneration
+exports.writeGeneratedFiles = writeGeneratedFiles
+exports.createGeneratedFileMap = createGeneratedFileMap
