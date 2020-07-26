@@ -77,7 +77,7 @@ function registerGenerationApi(db, app) {
   //      }
   app.get(restApi.uri.generate, (request, response) => {
     staticGenerator.getGenerationProperties('').then((generationOptions) => {
-      getGeneratedCodeMap(generationOptions, db).then((map) => {
+      staticGenerator.getGeneratedCodeMap(generationOptions, db).then((map) => {
         // making sure all generation promises are resolved before handling the get request
         Promise.all(Object.values(map)).then((values) => {
           let merged = Object.keys(map).reduce(

@@ -44,12 +44,11 @@ function getHandlebarsTemplate(templateDirectory = '', name = '') {
   var fileName
   if (templateDirectory) {
     fileName = path.join(templateDirectory, name)
-    env.logInfo('Using ' + fileName + ' as a template')
   } else {
-    env.logInfo('Using the test template directory for ' + name)
     templateDirectory = __dirname + '/../../test/gen-template'
     fileName = path.join(templateDirectory, name)
   }
+  env.logInfo('Using ' + fileName + ' as a template')
   source = fsExtra.readFileSync(fileName, 'utf8')
   return handlebars.compile(source)
 }
@@ -391,8 +390,10 @@ function getGenerationProperties(filePath) {
     let rawData
     let actualFilePath = filePath
     if (!actualFilePath || 0 === actualFilePath.length) {
-      actualFilePath =
-        __dirname + '/../../test/gen-template/generation-options.json'
+      actualFilePath = path.join(
+        __dirname,
+        '../../test/gen-template/generation-options.json'
+      )
     }
     env.logInfo('Reading generation properties from ' + actualFilePath)
     rawData = fsExtra.readFileSync(actualFilePath)
@@ -548,7 +549,26 @@ function getGeneratedCodeMap(generationOptions, db) {
   })
 }
 
+function performGeneration(
+  generationOptionsFile,
+  db,
+  generationDirectory,
+  handlebarTemplateDirectory
+) {
+  return getGenerationProperties(
+    generationOptionsFile
+  ).then((generationOptions) =>
+    generateCode(
+      db,
+      generationOptions,
+      generationDirectory,
+      handlebarTemplateDirectory
+    )
+  )
+}
+
 // exports
 exports.getGenerationProperties = getGenerationProperties
 exports.generateCode = generateCode
 exports.getGeneratedCodeMap = getGeneratedCodeMap
+exports.performGeneration = performGeneration

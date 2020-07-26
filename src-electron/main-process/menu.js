@@ -28,7 +28,6 @@ const windowJs = require('./window.js')
 const preference = require('./preference.js')
 
 var httpPort
-var generationDirectory = env.appDirectory() + '/generation-output'
 var handlebarTemplateDirectory = __dirname + '/../../test/gen-template'
 var generationOptionsFile =
   handlebarTemplateDirectory + '/generation-options.json'
@@ -243,17 +242,12 @@ function generateInDir(browserWindow) {
     })
     .then((filePath) => {
       if (filePath != null) {
-        generationDirectory = filePath
-        staticGenerator
-          .getGenerationProperties(generationOptionsFile)
-          .then((generationOptions) =>
-            staticGenerator.generateCode(
-              env.mainDatabase(),
-              generationOptions,
-              generationDirectory,
-              handlebarTemplateDirectory
-            )
-          )
+        staticGenerator.performGeneration(
+          generationOptionsFile,
+          env.mainDatabase(),
+          filePath,
+          handlebarTemplateDirectory
+        )
         dialog.showMessageBox(browserWindow, {
           title: 'Generation',
           message: `Generation Output: ${filePath}`,
@@ -271,17 +265,12 @@ function generateInDir(browserWindow) {
  * @param {*} generationDir
  */
 function generateCodeViaCli(generationDir) {
-  generationDirectory = generationDir
-  return staticGenerator
-    .getGenerationProperties(generationOptionsFile)
-    .then((generationOptions) =>
-      staticGenerator.generateCode(
-        env.mainDatabase(),
-        generationOptions,
-        generationDirectory,
-        handlebarTemplateDirectory
-      )
-    )
+  return staticGenerator.performGeneration(
+    generationOptionsFile,
+    env.mainDatabase(),
+    generationDir,
+    handlebarTemplateDirectory
+  )
 }
 
 /**
