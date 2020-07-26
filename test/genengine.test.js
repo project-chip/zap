@@ -20,12 +20,42 @@
 
 const genEngine = require('../src-electron/generator/generation-engine.js')
 const args = require('../src-electron/main-process/args.js')
+const env = require('../src-electron/util/env.js')
+const dbApi = require('../src-electron/db/db-api.js')
+const fs = require('fs')
+
+var db
+
+beforeAll(() => {
+  var file = env.sqliteTestFile(54)
+  return dbApi
+    .initDatabase(file)
+    .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
+    .then((d) => {
+      db = d
+      env.logInfo('DB initialized.')
+    })
+}, 5000)
+
+afterAll(() => {
+  var file = env.sqliteTestFile(54)
+  return dbApi.closeDatabase(db).then(() => {
+    if (fs.existsSync(file)) fs.unlinkSync(file)
+  })
+})
 
 test('Basic gen template parsing', () => {
   genEngine
-    .loadGenTemplate({ path: args.genTemplateJsonFile })
+    .loadGenTemplate({ path: args.genTemplateJsonFile, db: db })
     .then((context) => {
       expect(context.crc).not.toBeNull()
-      expect(context.object).not.toBeNull()
+      expect(context.templates).not.toBeNull()
+      expect(context.templates.name).toEqual('Test templates')
+      expect(context.templates.version).toEqual('1.0')
+      return context
+    })
+    .then((context) => genEngine.recordTemplatesPackage(context))
+    .then((context) => {
+      expect(context.packageId).not.toBeNull()
     })
 })

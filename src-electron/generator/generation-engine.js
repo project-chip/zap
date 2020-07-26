@@ -21,12 +21,14 @@
 
 const fs = require('fs')
 const util = require('../util/util.js')
+const queryPackage = require('../db/query-package.js')
+const dbEnum = require('../db/db-enum.js')
 
 /**
  * Given a path, it will read generation template object into memory.
  *
  * @param {*} context.path
- * @returns context.object, context.crc
+ * @returns context.templates, context.crc
  */
 function loadGenTemplate(context) {
   return new Promise((resolve, reject) => {
@@ -37,11 +39,26 @@ function loadGenTemplate(context) {
     })
       .then((context) => util.calculateCrc(context))
       .then((context) => {
-        context.object = JSON.parse(context.data)
+        context.templates = JSON.parse(context.data)
         return context
       })
       .then((context) => resolve(context))
   })
 }
 
+function recordTemplatesPackage(context) {
+  return queryPackage
+    .insertPathCrc(
+      context.db,
+      context.path,
+      context.crc,
+      dbEnum.packageType.genTemplatesJson
+    )
+    .then((packageId) => {
+      context.packageId = packageId
+      return context
+    })
+}
+
 exports.loadGenTemplate = loadGenTemplate
+exports.recordTemplatesPackage = recordTemplatesPackage
