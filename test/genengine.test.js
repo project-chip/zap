@@ -49,9 +49,10 @@ test('Basic gen template parsing', () => {
     .loadGenTemplate({ path: args.genTemplateJsonFile, db: db })
     .then((context) => {
       expect(context.crc).not.toBeNull()
-      expect(context.templates).not.toBeNull()
-      expect(context.templates.name).toEqual('Test templates')
-      expect(context.templates.version).toEqual('1.0')
+      expect(context.templateData).not.toBeNull()
+      expect(context.templateData.name).toEqual('Test templates')
+      expect(context.templateData.version).toEqual('1.0')
+      expect(context.templateData.templates.length).toBeGreaterThan(1)
       return context
     })
     .then((context) => genEngine.recordTemplatesPackage(context))

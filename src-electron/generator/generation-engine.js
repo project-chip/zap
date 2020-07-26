@@ -39,13 +39,19 @@ function loadGenTemplate(context) {
     })
       .then((context) => util.calculateCrc(context))
       .then((context) => {
-        context.templates = JSON.parse(context.data)
+        context.templateData = JSON.parse(context.data)
         return context
       })
       .then((context) => resolve(context))
   })
 }
 
+/**
+ * Given a loading context, it records the package into the packages table and adds the packageId field into the resolved context.
+ *
+ * @param {*} context
+ * @returns promise that resolves with the same context passed in, except packageId added to it
+ */
 function recordTemplatesPackage(context) {
   return queryPackage
     .insertPathCrc(
