@@ -21,6 +21,7 @@ const restApi = require(`../../src-shared/rest-api.js`)
 
 // TODO how to handle relative pathing for things like properties file.
 exports.zclPropertiesFile = './test/zcl/zcl-test.properties'
+exports.genTemplateJsonFile = './test/gen-template/generation-options.json'
 exports.httpPort = 9070
 exports.uiMode = restApi.uiMode.ZIGBEE
 
@@ -53,6 +54,12 @@ function processCommandLineArguments(argv) {
       alias: 'zcl',
       type: 'string',
       default: exports.zclPropertiesFile,
+    })
+    .option('gentemplateJson', {
+      desc: 'gen-template.json file to read in.',
+      alias: 'gen',
+      type: 'string',
+      default: exports.genTemplateJsonFile,
     })
     .option('uiMode', {
       desc: 'Mode of the UI to begin in. Options are: ZIGBEE, OLD',
