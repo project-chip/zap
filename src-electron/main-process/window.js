@@ -22,8 +22,8 @@ const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
 const tray = require('./tray.js')
 
-function initializeElectronUi(port) {
-  let w = windowCreate(port)
+function initializeElectronUi(port, arguments) {
+  let w = windowCreate(port, arguments)
   menu.initMenu(port)
   tray.initTray(port)
 }
@@ -36,6 +36,13 @@ function windowCreateIfNotThere(port) {
 
 let windowCounter = 0
 
+function createQueryString(winId, sessionId = null, uiMode = null) {
+  var queryString = `?winId=${winId}`
+  if (sessionId) queryString += `&sessionId=${sessionId}`
+  if (uiMode) queryString += `&uiMode=${uiMode}`
+  return queryString
+}
+
 /**
  * Create a window, possibly with a given file path and with a desire to attach to a given sessionId
  *
@@ -47,7 +54,7 @@ let windowCounter = 0
  * @param {*} [sessionId=null]
  * @returns BrowserWindow that got created
  */
-function windowCreate(port, filePath = null, sessionId = null) {
+function windowCreate(port, arguments = {}) {
   let newSession = session.fromPartition(`zap-${windowCounter++}`)
   let w = new BrowserWindow({
     width: 1600,
@@ -55,19 +62,23 @@ function windowCreate(port, filePath = null, sessionId = null) {
     resizable: true,
     center: true,
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
-    title: filePath == null ? 'New Configuration' : filePath,
+    title:
+      arguments.filePath == null ? 'New Configuration' : arguments.filePath,
     useContentSize: true,
     webPreferences: {
       nodeIntegration: false,
       session: newSession,
     },
   })
-  if (sessionId == null)
-    w.loadURL(`http://localhost:${port}/index.html?winId=${w.id}`)
-  else
-    w.loadURL(
-      `http://localhost:${port}/index.html?winId=${w.id}&sessionId=${sessionId}`
-    )
+
+  let queryString = createQueryString(
+    w.id,
+    arguments.sessionId,
+    arguments.uiMode
+  )
+
+  w.loadURL(`http://localhost:${port}/index.html` + queryString)
+
   w.on('page-title-updated', (e) => {
     e.preventDefault()
   }) // EO page-title-updated
@@ -103,3 +114,4 @@ function windowCreate(port, filePath = null, sessionId = null) {
 exports.initializeElectronUi = initializeElectronUi
 exports.windowCreateIfNotThere = windowCreateIfNotThere
 exports.windowCreate = windowCreate
+exports.createQueryString = createQueryString

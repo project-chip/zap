@@ -25,4 +25,6 @@ exports.packageType = {
   zclXml: 'zcl-xml-child',
   zclXmlStandalone: 'zcl-xml-standalone',
   sqlSchema: 'sql-schema',
+  genTemplatesJson: 'gen-templates-json',
+  genSingleTemplate: 'gen-template',
 }

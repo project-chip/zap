@@ -4,6 +4,9 @@
 <dt><a href="#module_JS API_ low level database access">JS API: low level database access</a></dt>
 <dd><p>This module provides generic DB functions for performing SQL queries.</p>
 </dd>
+<dt><a href="#module_DB API_ DB types and enums.">DB API: DB types and enums.</a></dt>
+<dd><p>This module provides mappings between database columns and JS keys.</p>
+</dd>
 <dt><a href="#module_DB API_ DB mappings between columns and JS object keys.">DB API: DB mappings between columns and JS object keys.</a></dt>
 <dd><p>This module provides mappings between database columns and JS keys.</p>
 </dd>
@@ -12,6 +15,9 @@
 </dd>
 <dt><a href="#module_DB API_ generic queries against the database.">DB API: generic queries against the database.</a></dt>
 <dd><p>This module provides generic queries.</p>
+</dd>
+<dt><a href="#module_DB API_ package-based queries.">DB API: package-based queries.</a></dt>
+<dd><p>This module provides queries related to imports and exports of files.</p>
 </dd>
 <dt><a href="#module_DB API_ package-based queries.">DB API: package-based queries.</a></dt>
 <dd><p>This module provides queries related to packages.</p>
@@ -49,7 +55,96 @@
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at</p>
-<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre><p>   Unless required by applicable law or agreed to in writing, software
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#yargs">yargs</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#fs">fs</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#dbApi">dbApi</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#path">path</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#path">path</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#env">env</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#queryZcl">queryZcl</a></dt>
+<dd><p>This module provides the APIs for validating inputs to the database, and returning flags indicating if
+things were successful or not.</p>
+</dd>
+<dt><a href="#fs">fs</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
@@ -60,12 +155,27 @@
 ## Functions
 
 <dl>
+<dt><a href="#exportSessionKeyValues">exportSessionKeyValues(db, sessionId)</a> ⇒</dt>
+<dd><p>Resolves to an array of objects that contain &#39;key&#39; and &#39;value&#39;</p>
+</dd>
+<dt><a href="#exportEndpoints">exportEndpoints(db, sessionId)</a> ⇒</dt>
+<dd><p>Resolves to an array of endpoints.</p>
+</dd>
+<dt><a href="#exportEndpointTypes">exportEndpointTypes(db, sessionId)</a> ⇒</dt>
+<dd><p>Resolves to an array of endpoint types.</p>
+</dd>
+<dt><a href="#exportSessionPackages">exportSessionPackages(db, sessionId)</a></dt>
+<dd><p>Resolves with data for packages.</p>
+</dd>
 <dt><a href="#exportDataIntoFile">exportDataIntoFile(db, sessionId, filePath)</a> ⇒</dt>
 <dd><p>Toplevel file that takes a given session ID and exports the data into the file</p>
 </dd>
 <dt><a href="#createStateFromDatabase">createStateFromDatabase(db, sessionId)</a> ⇒</dt>
 <dd><p>Given a database and a session id, this method returns a promise that
 resolves with a state object that needs to be saved into a file.</p>
+</dd>
+<dt><a href="#importSessionKeyValues">importSessionKeyValues(db, sessionId, keyValuePairs)</a></dt>
+<dd><p>Resolves with a promise that imports session key values.</p>
 </dd>
 <dt><a href="#readDataFromFile">readDataFromFile(filePath)</a> ⇒</dt>
 <dd><p>Reads the data from the file and resolves with the state object if all is good.</p>
@@ -75,17 +185,7 @@ resolves with a state object that needs to be saved into a file.</p>
 with the succesfull writing into the database.</p>
 </dd>
 <dt><a href="#importDataFromFile">importDataFromFile(db, filePath)</a> ⇒</dt>
-<dd><p>Take a given session ID and import the data from the file
-Reads the data from the file and resolves with the state object if all is good.</p>
-</dd>
-<dt><a href="#exportSessionKeyValues">exportSessionKeyValues(db, sessionId)</a> ⇒</dt>
-<dd><p>Resolves to an array of objects that contain &#39;key&#39; and &#39;value&#39;</p>
-</dd>
-<dt><a href="#importSessionKeyValues">importSessionKeyValues(db, sessionId, keyValuePairs)</a></dt>
-<dd><p>Resolves with a promise that imports session key values.</p>
-</dd>
-<dt><a href="#exportEndpointTypes">exportEndpointTypes(db, sessionId)</a> ⇒</dt>
-<dd><p>Resolves to an array of endpoint types.</p>
+<dd><p>Writes the data from the file into a new session.</p>
 </dd>
 <dt><a href="#processCommandLineArguments">processCommandLineArguments(argv)</a> ⇒</dt>
 <dd><p>Process the command line arguments and resets the state in this file
@@ -117,9 +217,6 @@ output.</p>
 <dd><p>This function gets the directory where user wants the output and calls
 generateCode function which generates the code in the user selected output.</p>
 </dd>
-<dt><a href="#generateCode">generateCode(db)</a></dt>
-<dd><p>This function generates the code into the user defined directory using promises</p>
-</dd>
 <dt><a href="#fileSave">fileSave(db, winId, filePath)</a> ⇒</dt>
 <dd><p>perform the save.</p>
 </dd>
@@ -140,17 +237,29 @@ a new window if all is good.</p>
 <dd><p>Create a window, possibly with a given file path and with a desire to attach to a given sessionId</p>
 <p>Win id will be passed on in the URL, and if sessionId is present, so will it.</p>
 </dd>
+<dt><a href="#runSdkGeneration">runSdkGeneration(ctx)</a></dt>
+<dd><p>Using SDK generation templates it returns a promise of created files.</p>
+</dd>
 <dt><a href="#calculateCrc">calculateCrc(context)</a> ⇒</dt>
 <dd><p>Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }</p>
 </dd>
-<dt><a href="#collectZclFiles">collectZclFiles(propertiesFile)</a> ⇒</dt>
+<dt><a href="#initializeSessionPackage">initializeSessionPackage(db, sessionId)</a> ⇒</dt>
+<dd><p>This function assigns a proper package ID to the session.</p>
+</dd>
+<dt><a href="#readPropertiesFile">readPropertiesFile(ctx)</a> ⇒</dt>
+<dd><p>Reads the properties file into ctx.data and also calculates crc into ctx.crc</p>
+</dd>
+<dt><a href="#recordToplevelPackage">recordToplevelPackage(ctx)</a></dt>
+<dd><p>Records the toplevel package information and puts ctx.packageId into the context.</p>
+</dd>
+<dt><a href="#collectData">collectData(propertiesFile)</a> ⇒</dt>
 <dd><p>Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.</p>
 </dd>
 <dt><a href="#readZclFile">readZclFile(file)</a> ⇒</dt>
 <dd><p>Promises to read a file and resolve with the content</p>
 </dd>
 <dt><a href="#parseZclFile">parseZclFile(argument)</a> ⇒</dt>
-<dd><p>Promises to parse the ZCL file, expecting array of [filePath, data, packageId, msg]</p>
+<dd><p>Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }</p>
 </dd>
 <dt><a href="#prepareBitmap">prepareBitmap(bm)</a> ⇒</dt>
 <dd><p>Prepare bitmap for database insertion.</p>
@@ -201,17 +310,24 @@ attributes and commands in a same way as cluster or clusterExtension</p>
 <dd><p>After XML parser is done with the barebones parsing, this function
 branches the individual toplevel tags.</p>
 </dd>
-<dt><a href="#processPostLoading">processPostLoading(db)</a> ⇒</dt>
+<dt><a href="#resolveLaterPromises">resolveLaterPromises(laterPromises)</a></dt>
+<dd><p>Resolve later promises.
+This function resolves the later promises associated with processParsedZclData.</p>
+</dd>
+<dt><a href="#processZclPostLoading">processZclPostLoading(db)</a> ⇒</dt>
 <dd><p>Promises to perform a post loading step.</p>
 </dd>
-<dt><a href="#qualifyZclFile">qualifyZclFile(db, object)</a> ⇒</dt>
+<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
 <dd><p>Promises to qualify whether zcl file needs to be reloaded.
 If yes, the it will resolve with {filePath, data, packageId}
 If not, then it will resolve with {error}</p>
 </dd>
-<dt><a href="#parseZclFiles">parseZclFiles(db, files)</a> ⇒</dt>
+<dt><a href="#parseZclFiles">parseZclFiles(db, ctx)</a> ⇒</dt>
 <dd><p>Promises to iterate over all the XML files and returns an aggregate promise
 that will be resolved when all the XML files are done, or rejected if at least one fails.</p>
+</dd>
+<dt><a href="#recordVersion">recordVersion(db, ctx)</a></dt>
+<dd><p>Records the version into the database.</p>
 </dd>
 <dt><a href="#loadZcl">loadZcl(db, propertiesFile)</a> ⇒</dt>
 <dd><p>Toplevel function that loads the properties file and orchestrates the promise chain.</p>
@@ -225,55 +341,53 @@ that will be resolved when all the XML files are done, or rejected if at least o
 This module provides generic DB functions for performing SQL queries.
 
 - [JS API: low level database access](#module*JS API* low level database access)
-  - _static_
-    - [.dbBeginTransaction(db)](#module*JS API* low level database access.dbBeginTransaction) ⇒
-    - [.dbCommit(db)](#module*JS API* low level database access.dbCommit) ⇒
-    - [.dbRemove(db, query, args)](#module*JS API* low level database access.dbRemove) ⇒
-    - [.dbUpdate(db, query, args)](#module*JS API* low level database access.dbUpdate) ⇒
-    - [.dbInsert(db, query, args)](#module*JS API* low level database access.dbInsert) ⇒
-    - [.dbAll(db, query, args)](#module*JS API* low level database access.dbAll) ⇒
-    - [.dbGet(db, query, args)](#module*JS API* low level database access.dbGet) ⇒
-    - [.dbMultiSelect(db, sql, arrayOfArrays)](#module*JS API* low level database access.dbMultiSelect)
-    - [.dbMultiInsert(db, sql, arrayOfArrays)](#module*JS API* low level database access.dbMultiInsert) ⇒
-    - [.closeDatabase(database)](#module*JS API* low level database access.closeDatabase) ⇒
-    - [.initDatabase(sqlitePath)](#module*JS API* low level database access.initDatabase) ⇒
-    - [.loadSchema(db, schemaPath, appVersion)](#module*JS API* low level database access.loadSchema) ⇒
-  - _inner_
-    - [~insertOrReplaceSetting(db, version)](#module*JS API* low level database access..insertOrReplaceSetting) ⇒
+  - [~dbBeginTransaction(db)](#module*JS API* low level database access..dbBeginTransaction) ⇒
+  - [~dbCommit(db)](#module*JS API* low level database access..dbCommit) ⇒
+  - [~dbRemove(db, query, args)](#module*JS API* low level database access..dbRemove) ⇒
+  - [~dbUpdate(db, query, args)](#module*JS API* low level database access..dbUpdate) ⇒
+  - [~dbInsert(db, query, args)](#module*JS API* low level database access..dbInsert) ⇒
+  - [~dbAll(db, query, args)](#module*JS API* low level database access..dbAll) ⇒
+  - [~dbGet(db, query, args)](#module*JS API* low level database access..dbGet) ⇒
+  - [~dbMultiSelect(db, sql, arrayOfArrays)](#module*JS API* low level database access..dbMultiSelect)
+  - [~dbMultiInsert(db, sql, arrayOfArrays)](#module*JS API* low level database access..dbMultiInsert) ⇒
+  - [~closeDatabase(database)](#module*JS API* low level database access..closeDatabase) ⇒
+  - [~initDatabase(sqlitePath)](#module*JS API* low level database access..initDatabase) ⇒
+  - [~insertOrReplaceSetting(db, version)](#module*JS API* low level database access..insertOrReplaceSetting) ⇒
+  - [~loadSchema(db, schemaPath, appVersion)](#module*JS API* low level database access..loadSchema) ⇒
 
-<a name="module_JS API_ low level database access.dbBeginTransaction"></a>
+<a name="module_JS API_ low level database access..dbBeginTransaction"></a>
 
-### JS API: low level database access.dbBeginTransaction(db) ⇒
+### JS API: low level database access~dbBeginTransaction(db) ⇒
 
 Returns a promise to begin a transaction
 
-**Kind**: static method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
 **Returns**: A promise that resolves without an argument and rejects with an error from BEGIN TRANSACTION query.
 
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
-<a name="module_JS API_ low level database access.dbCommit"></a>
+<a name="module_JS API_ low level database access..dbCommit"></a>
 
-### JS API: low level database access.dbCommit(db) ⇒
+### JS API: low level database access~dbCommit(db) ⇒
 
 Returns a promise to execute a commit.
 
-**Kind**: static method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
 **Returns**: A promise that resolves without an argument or rejects with an error from COMMIT query.
 
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
-<a name="module_JS API_ low level database access.dbRemove"></a>
+<a name="module_JS API_ low level database access..dbRemove"></a>
 
-### JS API: low level database access.dbRemove(db, query, args) ⇒
+### JS API: low level database access~dbRemove(db, query, args) ⇒
 
 Returns a promise to execute a DELETE FROM query.
 
-**Kind**: static method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
 **Returns**: A promise that resolve with the number of delete rows, or rejects with an error from query.
 
 | Param | Type            |
@@ -282,13 +396,13 @@ Returns a promise to execute a DELETE FROM query.
 | query | <code>\*</code> |
 | args  | <code>\*</code> |
 
-<a name="module_JS API_ low level database access.dbUpdate"></a>
+<a name="module_JS API_ low level database access..dbUpdate"></a>
 
-### JS API: low level database access.dbUpdate(db, query, args) ⇒
+### JS API: low level database access~dbUpdate(db, query, args) ⇒
 
 Returns a promise to execute an update query.
 
-**Kind**: static method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
 **Returns**: A promise that resolves without an argument, or rejects with an error from the query.
 
 | Param | Type            |
@@ -297,13 +411,13 @@ Returns a promise to execute an update query.
 | query | <code>\*</code> |
 | args  | <code>\*</code> |
 
-<a name="module_JS API_ low level database access.dbInsert"></a>
+<a name="module_JS API_ low level database access..dbInsert"></a>
 
-### JS API: low level database access.dbInsert(db, query, args) ⇒
+### JS API: low level database access~dbInsert(db, query, args) ⇒
 
 Returns a promise to execute an insert query.
 
-**Kind**: static method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
 **Returns**: A promise that resolves with the rowid from the inserted row, or rejects with an error from the query.
 
 | Param | Type            |
@@ -312,13 +426,13 @@ Returns a promise to execute an insert query.
 | query | <code>\*</code> |
 | args  | <code>\*</code> |
 
-<a name="module_JS API_ low level database access.dbAll"></a>
+<a name="module_JS API_ low level database access..dbAll"></a>
 
-### JS API: low level database access.dbAll(db, query, args) ⇒
+### JS API: low level database access~dbAll(db, query, args) ⇒
 
 Returns a promise to execute a query to perform a select that returns all rows that match a query.
 
-**Kind**: static method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
 **Returns**: A promise that resolves with the rows that got retrieved from the database, or rejects with an error from the query.
 
 | Param | Type            |
@@ -327,13 +441,13 @@ Returns a promise to execute a query to perform a select that returns all rows t
 | query | <code>\*</code> |
 | args  | <code>\*</code> |
 
-<a name="module_JS API_ low level database access.dbGet"></a>
+<a name="module_JS API_ low level database access..dbGet"></a>
 
-### JS API: low level database access.dbGet(db, query, args) ⇒
+### JS API: low level database access~dbGet(db, query, args) ⇒
 
 Returns a promise to execute a query to perform a select that returns first row that matches a query.
 
-**Kind**: static method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
 **Returns**: A promise that resolves with a single row that got retrieved from the database, or rejects with an error from the query.
 
 | Param | Type            |
@@ -342,14 +456,14 @@ Returns a promise to execute a query to perform a select that returns first row 
 | query | <code>\*</code> |
 | args  | <code>\*</code> |
 
-<a name="module_JS API_ low level database access.dbMultiSelect"></a>
+<a name="module_JS API_ low level database access..dbMultiSelect"></a>
 
-### JS API: low level database access.dbMultiSelect(db, sql, arrayOfArrays)
+### JS API: low level database access~dbMultiSelect(db, sql, arrayOfArrays)
 
 Returns a promise to perform a prepared statement, using data from array for SQL parameters.
 It resolves with an array of rows, containing the data, or rejects with an error.
 
-**Kind**: static method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)
 
 | Param         | Type            |
 | ------------- | --------------- |
@@ -357,14 +471,14 @@ It resolves with an array of rows, containing the data, or rejects with an error
 | sql           | <code>\*</code> |
 | arrayOfArrays | <code>\*</code> |
 
-<a name="module_JS API_ low level database access.dbMultiInsert"></a>
+<a name="module_JS API_ low level database access..dbMultiInsert"></a>
 
-### JS API: low level database access.dbMultiInsert(db, sql, arrayOfArrays) ⇒
+### JS API: low level database access~dbMultiInsert(db, sql, arrayOfArrays) ⇒
 
 Returns a promise to perfom a prepared statement, using data from array for SQL parameters.
 It resolves with an array of rowids, or rejects with an error.
 
-**Kind**: static method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
 **Returns**: A promise that resolves with the array of rowids for the rows that got inserted, or rejects with an error from the query.
 
 | Param         | Type            |
@@ -373,47 +487,32 @@ It resolves with an array of rowids, or rejects with an error.
 | sql           | <code>\*</code> |
 | arrayOfArrays | <code>\*</code> |
 
-<a name="module_JS API_ low level database access.closeDatabase"></a>
+<a name="module_JS API_ low level database access..closeDatabase"></a>
 
-### JS API: low level database access.closeDatabase(database) ⇒
+### JS API: low level database access~closeDatabase(database) ⇒
 
 Returns a promise that will resolve when the database in question is closed.
 Rejects with an error if closing fails.
 
-**Kind**: static method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
 **Returns**: A promise that resolves without an argument or rejects with error from the database closing.
 
 | Param    | Type            |
 | -------- | --------------- |
 | database | <code>\*</code> |
 
-<a name="module_JS API_ low level database access.initDatabase"></a>
+<a name="module_JS API_ low level database access..initDatabase"></a>
 
-### JS API: low level database access.initDatabase(sqlitePath) ⇒
+### JS API: low level database access~initDatabase(sqlitePath) ⇒
 
 Returns a promise to initialize a database.
 
-**Kind**: static method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
 **Returns**: A promise that resolves with the database object that got created, or rejects with an error if something went wrong.
 
 | Param      | Type            |
 | ---------- | --------------- |
 | sqlitePath | <code>\*</code> |
-
-<a name="module_JS API_ low level database access.loadSchema"></a>
-
-### JS API: low level database access.loadSchema(db, schemaPath, appVersion) ⇒
-
-Returns a promise to load schema into a blank database, and inserts a version to the settings table.j
-
-**Kind**: static method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
-**Returns**: A promise that resolves with the same db that got passed in, or rejects with an error.
-
-| Param      | Type            |
-| ---------- | --------------- |
-| db         | <code>\*</code> |
-| schemaPath | <code>\*</code> |
-| appVersion | <code>\*</code> |
 
 <a name="module_JS API_ low level database access..insertOrReplaceSetting"></a>
 
@@ -429,6 +528,27 @@ Returns a promise to insert or replace a setting into the database.
 | db      | <code>\*</code> |
 | version | <code>\*</code> |
 
+<a name="module_JS API_ low level database access..loadSchema"></a>
+
+### JS API: low level database access~loadSchema(db, schemaPath, appVersion) ⇒
+
+Returns a promise to load schema into a blank database, and inserts a version to the settings table.j
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Returns**: A promise that resolves with the same db that got passed in, or rejects with an error.
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| schemaPath | <code>\*</code> |
+| appVersion | <code>\*</code> |
+
+<a name="module_DB API_ DB types and enums."></a>
+
+## DB API: DB types and enums.
+
+This module provides mappings between database columns and JS keys.
+
 <a name="module_DB API_ DB mappings between columns and JS object keys."></a>
 
 ## DB API: DB mappings between columns and JS object keys.
@@ -441,383 +561,17 @@ This module provides mappings between database columns and JS keys.
 
 This module provides queries for user configuration.
 
-- [DB API: user configuration queries against the database.](#module*DB API* user configuration queries against the database.)
-  - [.updateKeyValue(db, sessionId, key, value)](#module*DB API* user configuration queries against the database..updateKeyValue) ⇒
-  - [.getSessionKeyValue(db, sessionId)](#module*DB API* user configuration queries against the database..getSessionKeyValue) ⇒
-  - [.getAllSessionKeyValues(db, sessionId)](#module*DB API* user configuration queries against the database..getAllSessionKeyValues) ⇒
-  - [.insertOrReplaceClusterState(db, endpointTypeId, clusterRef, side, enabled)](#module*DB API* user configuration queries against the database..insertOrReplaceClusterState) ⇒
-  - [.insertOrUpdateAttributeState(db, endpointTypeId, clusterRef, side, attributeId, paramValuePairArray)](#module*DB API* user configuration queries against the database..insertOrUpdateAttributeState)
-  - [.insertOrUpdateCommandState(db, endpointTypeId, clusterRef, side, id, value, booleanParam)](#module*DB API* user configuration queries against the database..insertOrUpdateCommandState)
-  - [.getAllEndpointTypeClusterState(db, endpointTypeId)](#module*DB API* user configuration queries against the database..getAllEndpointTypeClusterState) ⇒
-  - [.insertEndpoint(db, sessionId, endpointIdentifier, endpointTypeRef, networkIdentifier)](#module*DB API* user configuration queries against the database..insertEndpoint) ⇒
-  - [.deleteEndpoint(db, id)](#module*DB API* user configuration queries against the database..deleteEndpoint) ⇒
-  - [.insertEndpointType(db, sessionId, name, deviceTypeRef)](#module*DB API* user configuration queries against the database..insertEndpointType) ⇒
-  - [.deleteEndpointType(db, sessionId, id)](#module*DB API* user configuration queries against the database..deleteEndpointType)
-  - [.deleteEndpointTypeData(db, endpointTypeId)](#module*DB API* user configuration queries against the database..deleteEndpointTypeData) ⇒
-  - [.updateEndpointType(db, sessionId, endpointTypeId, param, updatedValue)](#module*DB API* user configuration queries against the database..updateEndpointType)
-  - [.setEndpointDefaults(db, endpointTypeId)](#module*DB API* user configuration queries against the database..setEndpointDefaults)
-  - [.insertEndpointTypes(db, sessionId, endpoints)](#module*DB API* user configuration queries against the database..insertEndpointTypes)
-  - [.getAllEndpointTypes(db, sessionId)](#module*DB API* user configuration queries against the database..getAllEndpointTypes) ⇒
-  - [.getEndpointTypeClusters(endpointTypeId)](#module*DB API* user configuration queries against the database..getEndpointTypeClusters) ⇒
-  - [.getOrInsertDefaultEndpointTypeCluster(db, endpointTypeId, clusterRef, side)](#module*DB API* user configuration queries against the database..getOrInsertDefaultEndpointTypeCluster)
-  - [.getEndpointTypeAttributes(db, endpointTypeId)](#module*DB API* user configuration queries against the database..getEndpointTypeAttributes) ⇒
-  - [.getEndpointTypeCommands(db, endpointTypeId)](#module*DB API* user configuration queries against the database..getEndpointTypeCommands) ⇒
-
-<a name="module_DB API_ user configuration queries against the database..updateKeyValue"></a>
-
-### DB API: user configuration queries against the database..updateKeyValue(db, sessionId, key, value) ⇒
-
-Promises to update or insert a key/value pair in SESSION_KEY_VALUE table.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: A promise of creating or updating a row, resolves with the rowid of a new row.
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
-| key       | <code>\*</code> |
-| value     | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..getSessionKeyValue"></a>
-
-### DB API: user configuration queries against the database..getSessionKeyValue(db, sessionId) ⇒
-
-Retrieves a value of a single session key.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: A promise that resolves with a value or with 'undefined' if none is found.
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..getAllSessionKeyValues"></a>
-
-### DB API: user configuration queries against the database..getAllSessionKeyValues(db, sessionId) ⇒
-
-Resolves to an array of objects that contain 'key' and 'value'
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: Promise to retrieve all session key values.
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..insertOrReplaceClusterState"></a>
-
-### DB API: user configuration queries against the database..insertOrReplaceClusterState(db, endpointTypeId, clusterRef, side, enabled) ⇒
-
-Promises to update the cluster include/exclude state.
-If the entry [as defined uniquely by endpointTypeId, clusterId, side] is not there, then insert
-Else update the entry in place.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: Promise to update the cluster exclude/include state.
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-| clusterRef     | <code>\*</code> |
-| side           | <code>\*</code> |
-| enabled        | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..insertOrUpdateAttributeState"></a>
-
-### DB API: user configuration queries against the database..insertOrUpdateAttributeState(db, endpointTypeId, clusterRef, side, attributeId, paramValuePairArray)
-
-Promise to update the attribute state.
-If the attribute entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
-Afterwards, update entry.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)
-
-| Param               | Type            | Description                                                                                                                                                                                          |
-| ------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| db                  | <code>\*</code> |                                                                                                                                                                                                      |
-| endpointTypeId      | <code>\*</code> |                                                                                                                                                                                                      |
-| clusterRef          | <code>\*</code> | // We want this to be explicitly passed in, rather than derived from that static attribute due to this possibly being a global attribute.                                                            |
-| side                | <code>\*</code> | // We want this to be explicitly passed in, rather than derived from that static attribute due to this possibly being a global attribute. Note we handle bidirectional attributes with two instances |
-| attributeId         | <code>\*</code> |                                                                                                                                                                                                      |
-| paramValuePairArray | <code>\*</code> | An array of objects whose keys are [key, value]. Key is name of the column to be editted. Value is what the column should be set to. This does not handle empty arrays.                              |
-
-<a name="module_DB API_ user configuration queries against the database..insertOrUpdateCommandState"></a>
-
-### DB API: user configuration queries against the database..insertOrUpdateCommandState(db, endpointTypeId, clusterRef, side, id, value, booleanParam)
-
-Promise to update the command state.
-If the attribute entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
-Afterwards, update entry.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)
-
-| Param          | Type            | Description                                                                        |
-| -------------- | --------------- | ---------------------------------------------------------------------------------- |
-| db             | <code>\*</code> |                                                                                    |
-| endpointTypeId | <code>\*</code> |                                                                                    |
-| clusterRef     | <code>\*</code> | // Note that this is the clusterRef from CLUSTER and not the ENDPOINT_TYPE_CLUSTER |
-| side           | <code>\*</code> | // client or server                                                                |
-| id             | <code>\*</code> |                                                                                    |
-| value          | <code>\*</code> |                                                                                    |
-| booleanParam   | <code>\*</code> |                                                                                    |
-
-<a name="module_DB API_ user configuration queries against the database..getAllEndpointTypeClusterState"></a>
-
-### DB API: user configuration queries against the database..getAllEndpointTypeClusterState(db, endpointTypeId) ⇒
-
-Resolves into all the cluster states.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: Promise that resolves with cluster states.
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..insertEndpoint"></a>
-
-### DB API: user configuration queries against the database..insertEndpoint(db, sessionId, endpointIdentifier, endpointTypeRef, networkIdentifier) ⇒
-
-Promises to add an endpoint.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: Promise to update endpoints.
-
-| Param              | Type            |
-| ------------------ | --------------- |
-| db                 | <code>\*</code> |
-| sessionId          | <code>\*</code> |
-| endpointIdentifier | <code>\*</code> |
-| endpointTypeRef    | <code>\*</code> |
-| networkIdentifier  | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..deleteEndpoint"></a>
-
-### DB API: user configuration queries against the database..deleteEndpoint(db, id) ⇒
-
-Deletes an endpoint.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: Promise to delete an endpoint that resolves with the number of rows that were deleted.
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-| id    | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..insertEndpointType"></a>
-
-### DB API: user configuration queries against the database..insertEndpointType(db, sessionId, name, deviceTypeRef) ⇒
-
-Promises to add an endpoint type.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: Promise to update endpoints.
-
-| Param         | Type            |
-| ------------- | --------------- |
-| db            | <code>\*</code> |
-| sessionId     | <code>\*</code> |
-| name          | <code>\*</code> |
-| deviceTypeRef | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..deleteEndpointType"></a>
-
-### DB API: user configuration queries against the database..deleteEndpointType(db, sessionId, id)
-
-Promise to delete an endpoint type.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
-| id        | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..deleteEndpointTypeData"></a>
-
-### DB API: user configuration queries against the database..deleteEndpointTypeData(db, endpointTypeId) ⇒
-
-Deletes referenced things. This should be done with CASCADE DELETE
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: Promise of removal.
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..updateEndpointType"></a>
-
-### DB API: user configuration queries against the database..updateEndpointType(db, sessionId, endpointTypeId, param, updatedValue)
-
-Promise to update a an endpoint type.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| sessionId      | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-| param          | <code>\*</code> |
-| updatedValue   | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..setEndpointDefaults"></a>
-
-### DB API: user configuration queries against the database..setEndpointDefaults(db, endpointTypeId)
-
-Promise to set the default attributes and clusters for a endpoint type.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..insertEndpointTypes"></a>
-
-### DB API: user configuration queries against the database..insertEndpointTypes(db, sessionId, endpoints)
-
-Inserts endpoint types.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
-| endpoints | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..getAllEndpointTypes"></a>
-
-### DB API: user configuration queries against the database..getAllEndpointTypes(db, sessionId) ⇒
-
-Extracts raw endpoint types rows.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: promise that resolves into rows in the database table.
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..getEndpointTypeClusters"></a>
-
-### DB API: user configuration queries against the database..getEndpointTypeClusters(endpointTypeId) ⇒
-
-Extracts clusters from the endpoint_type_cluster table.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: A promise that resolves into the rows.
-
-| Param          | Type            |
-| -------------- | --------------- |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..getOrInsertDefaultEndpointTypeCluster"></a>
-
-### DB API: user configuration queries against the database..getOrInsertDefaultEndpointTypeCluster(db, endpointTypeId, clusterRef, side)
-
-Get or inserts default endpoint type cluster given endpoint type, cluster ref, and side.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-| clusterRef     | <code>\*</code> |
-| side           | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..getEndpointTypeAttributes"></a>
-
-### DB API: user configuration queries against the database..getEndpointTypeAttributes(db, endpointTypeId) ⇒
-
-Extracts attributes from the endpoint_type_attribute table.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: A promise that resolves into the rows.
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ user configuration queries against the database..getEndpointTypeCommands"></a>
-
-### DB API: user configuration queries against the database..getEndpointTypeCommands(db, endpointTypeId) ⇒
-
-Extracts commands from the endpoint_type_command table.
-
-**Kind**: static method of [<code>DB API: user configuration queries against the database.</code>](#module*DB API* user configuration queries against the database.)  
-**Returns**: A promise that resolves into the rows.
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
 <a name="module_DB API_ generic queries against the database."></a>
 
 ## DB API: generic queries against the database.
 
 This module provides generic queries.
 
-- [DB API: generic queries against the database.](#module*DB API* generic queries against the database.)
-  - [.selectCountFrom(db, table)](#module*DB API* generic queries against the database..selectCountFrom) ⇒
-  - [.insertFileLocation(db, filePath, category)](#module*DB API* generic queries against the database..insertFileLocation)
-  - [.selectFileLocation(db, category)](#module*DB API* generic queries against the database..selectFileLocation)
+<a name="module_DB API_ package-based queries."></a>
 
-<a name="module_DB API_ generic queries against the database..selectCountFrom"></a>
+## DB API: package-based queries.
 
-### DB API: generic queries against the database..selectCountFrom(db, table) ⇒
-
-Simple query that returns number of rows in a given table.
-
-**Kind**: static method of [<code>DB API: generic queries against the database.</code>](#module*DB API* generic queries against the database.)  
-**Returns**: a promise that resolves into the count of the rows in the table.
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-| table | <code>\*</code> |
-
-<a name="module_DB API_ generic queries against the database..insertFileLocation"></a>
-
-### DB API: generic queries against the database..insertFileLocation(db, filePath, category)
-
-Writes the saved location of the file.
-
-**Kind**: static method of [<code>DB API: generic queries against the database.</code>](#module*DB API* generic queries against the database.)
-
-| Param    | Type            |
-| -------- | --------------- |
-| db       | <code>\*</code> |
-| filePath | <code>\*</code> |
-| category | <code>\*</code> |
-
-<a name="module_DB API_ generic queries against the database..selectFileLocation"></a>
-
-### DB API: generic queries against the database..selectFileLocation(db, category)
-
-Retrieves the saved location from a file
-
-**Kind**: static method of [<code>DB API: generic queries against the database.</code>](#module*DB API* generic queries against the database.)
-
-| Param    | Type            |
-| -------- | --------------- |
-| db       | <code>\*</code> |
-| category | <code>\*</code> |
+This module provides queries related to imports and exports of files.
 
 <a name="module_DB API_ package-based queries."></a>
 
@@ -825,205 +579,11 @@ Retrieves the saved location from a file
 
 This module provides queries related to packages.
 
-- [DB API: package-based queries.](#module*DB API* package-based queries.)
-  - [.forPathCrc(db, path, crcCallback, noneCallback)](#module*DB API* package-based queries..forPathCrc)
-  - [.getPathCrc(db, path)](#module*DB API* package-based queries..getPathCrc) ⇒
-  - [.insertPathCrc(db, path, crc)](#module*DB API* package-based queries..insertPathCrc) ⇒
-  - [.updatePathCrc(db, path, crc)](#module*DB API* package-based queries..updatePathCrc) ⇒
-
-<a name="module_DB API_ package-based queries..forPathCrc"></a>
-
-### DB API: package-based queries..forPathCrc(db, path, crcCallback, noneCallback)
-
-Checks if the package with a given path exists and executes appropriate action.
-
-**Kind**: static method of [<code>DB API: package-based queries.</code>](#module*DB API* package-based queries.)
-
-| Param        | Type            | Description                                                                   |
-| ------------ | --------------- | ----------------------------------------------------------------------------- |
-| db           | <code>\*</code> |                                                                               |
-| path         | <code>\*</code> | Path of a file to check.                                                      |
-| crcCallback  | <code>\*</code> | This callback is executed if the row exists, with arguments (CRC, PACKAGE_ID) |
-| noneCallback | <code>\*</code> | This callback is executed if the row does not exist.                          |
-
-<a name="module_DB API_ package-based queries..getPathCrc"></a>
-
-### DB API: package-based queries..getPathCrc(db, path) ⇒
-
-Resolves with a CRC or null for a given path.
-
-**Kind**: static method of [<code>DB API: package-based queries.</code>](#module*DB API* package-based queries.)  
-**Returns**: Promise resolving with a CRC or null.
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-| path  | <code>\*</code> |
-
-<a name="module_DB API_ package-based queries..insertPathCrc"></a>
-
-### DB API: package-based queries..insertPathCrc(db, path, crc) ⇒
-
-Inserts a given path CRC combination into the table.
-
-**Kind**: static method of [<code>DB API: package-based queries.</code>](#module*DB API* package-based queries.)  
-**Returns**: Promise of an insertion.
-
-| Param | Type            | Description       |
-| ----- | --------------- | ----------------- |
-| db    | <code>\*</code> |                   |
-| path  | <code>\*</code> | Path of the file. |
-| crc   | <code>\*</code> | CRC of the file.  |
-
-<a name="module_DB API_ package-based queries..updatePathCrc"></a>
-
-### DB API: package-based queries..updatePathCrc(db, path, crc) ⇒
-
-Updates a CRC in the table.
-
-**Kind**: static method of [<code>DB API: package-based queries.</code>](#module*DB API* package-based queries.)  
-**Returns**: Promise of an update.
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-| path  | <code>\*</code> |
-| crc   | <code>\*</code> |
-
 <a name="module_DB API_ session related queries."></a>
 
 ## DB API: session related queries.
 
 This module provides session related queries.
-
-- [DB API: session related queries.](#module*DB API* session related queries.)
-  - [.getAllSessions(db)](#module*DB API* session related queries..getAllSessions) ⇒
-  - [.setSessionClean(db, sessionId)](#module*DB API* session related queries..setSessionClean) ⇒
-  - [.getSessionDirtyFlag(db, sessionId)](#module*DB API* session related queries..getSessionDirtyFlag) ⇒
-  - [.getWindowDirtyFlagWithCallback(db, windowId, fn)](#module*DB API* session related queries..getWindowDirtyFlagWithCallback)
-  - [.getSessionInfoFromWindowId(db, windowId)](#module*DB API* session related queries..getSessionInfoFromWindowId) ⇒
-  - [.ensureZapSessionId(db, sessionKey, windowId)](#module*DB API* session related queries..ensureZapSessionId) ⇒
-  - [.createBlankSession(db)](#module*DB API* session related queries..createBlankSession)
-  - [.deleteSession(db, sessionId)](#module*DB API* session related queries..deleteSession) ⇒
-
-<a name="module_DB API_ session related queries..getAllSessions"></a>
-
-### DB API: session related queries..getAllSessions(db) ⇒
-
-Returns a promise that resolves into an array of objects containing 'sessionId', 'sessionKey' and 'creationTime'.
-
-**Kind**: static method of [<code>DB API: session related queries.</code>](#module*DB API* session related queries.)  
-**Returns**: A promise of executing a query.
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-
-<a name="module_DB API_ session related queries..setSessionClean"></a>
-
-### DB API: session related queries..setSessionClean(db, sessionId) ⇒
-
-Sets the session dirty flag to false.
-
-**Kind**: static method of [<code>DB API: session related queries.</code>](#module*DB API* session related queries.)  
-**Returns**: A promise that resolves with the number of rows updated.
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
-
-<a name="module_DB API_ session related queries..getSessionDirtyFlag"></a>
-
-### DB API: session related queries..getSessionDirtyFlag(db, sessionId) ⇒
-
-Resolves with true or false, depending whether this session is dirty.
-
-**Kind**: static method of [<code>DB API: session related queries.</code>](#module*DB API* session related queries.)  
-**Returns**: A promise that resolves into true or false, reflecting session dirty state.
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
-
-<a name="module_DB API_ session related queries..getWindowDirtyFlagWithCallback"></a>
-
-### DB API: session related queries..getWindowDirtyFlagWithCallback(db, windowId, fn)
-
-Executes the query for the dirty flag with a callback, not a promise.
-
-**Kind**: static method of [<code>DB API: session related queries.</code>](#module*DB API* session related queries.)
-
-| Param    | Type            |
-| -------- | --------------- |
-| db       | <code>\*</code> |
-| windowId | <code>\*</code> |
-| fn       | <code>\*</code> |
-
-<a name="module_DB API_ session related queries..getSessionInfoFromWindowId"></a>
-
-### DB API: session related queries..getSessionInfoFromWindowId(db, windowId) ⇒
-
-Resolves into a session id, obtained from window id.
-
-**Kind**: static method of [<code>DB API: session related queries.</code>](#module*DB API* session related queries.)  
-**Returns**: A promise that resolves into an object containing sessionId, sessionKey and creationTime.
-
-| Param    | Type            |
-| -------- | --------------- |
-| db       | <code>\*</code> |
-| windowId | <code>\*</code> |
-
-<a name="module_DB API_ session related queries..ensureZapSessionId"></a>
-
-### DB API: session related queries..ensureZapSessionId(db, sessionKey, windowId) ⇒
-
-Returns a promise that will resolve into a sessionID created from a query.
-
-This method has essetially two different use cases:
-1.) When there is no sessionId yet (so sessionId argument is null), then this method is expected to either create a new session, or find a
-sessionId that is already associated with the given sessionKey.
-
-2.) When a sessionId is passed, then the method simply updates the row with a given sessionId to contain sessionKey and windowId.
-
-In either case, the returned promise resolves with a sessionId.
-
-**Kind**: static method of [<code>DB API: session related queries.</code>](#module*DB API* session related queries.)  
-**Returns**: promise that resolves into a session id.  
-**Parem**: <code>\*</code> sessionId If sessionId exists already, then it's passed in. If it doesn't then this is null.
-
-| Param      | Type            |
-| ---------- | --------------- |
-| db         | <code>\*</code> |
-| sessionKey | <code>\*</code> |
-| windowId   | <code>\*</code> |
-
-<a name="module_DB API_ session related queries..createBlankSession"></a>
-
-### DB API: session related queries..createBlankSession(db)
-
-When loading in a file, we start with a blank session.
-
-**Kind**: static method of [<code>DB API: session related queries.</code>](#module*DB API* session related queries.)
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-
-<a name="module_DB API_ session related queries..deleteSession"></a>
-
-### DB API: session related queries..deleteSession(db, sessionId) ⇒
-
-Promises to delete a session from the database, including all the rows that have the session as a foreign key.
-
-**Kind**: static method of [<code>DB API: session related queries.</code>](#module*DB API* session related queries.)  
-**Returns**: A promise of a removal of session.
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access"></a>
 
@@ -1032,108 +592,108 @@ Promises to delete a session from the database, including all the rows that have
 This module provides queries for ZCL static queries.
 
 - [DB API: zcl database access](#module*DB API* zcl database access)
-  - [.selectAllEnums(db)](#module*DB API* zcl database access.selectAllEnums) ⇒
-  - [.selectAllBitmaps(db)](#module*DB API* zcl database access.selectAllBitmaps) ⇒
-  - [.selectAllDomains(db)](#module*DB API* zcl database access.selectAllDomains) ⇒
-  - [.selectAllStructs(db)](#module*DB API* zcl database access.selectAllStructs) ⇒
-  - [.selectAllClusters(db)](#module*DB API* zcl database access.selectAllClusters) ⇒
-  - [.selectAllDeviceTypes(db)](#module*DB API* zcl database access.selectAllDeviceTypes) ⇒
-  - [.insertGlobals(db, packageId, data)](#module*DB API* zcl database access.insertGlobals) ⇒
-  - [.insertClusterExtensions(db, packageId, data)](#module*DB API* zcl database access.insertClusterExtensions) ⇒
-  - [.insertClusters(db, packageId, data)](#module*DB API* zcl database access.insertClusters) ⇒
-  - [.insertDeviceTypes(db, packageId, data)](#module*DB API* zcl database access.insertDeviceTypes) ⇒
-  - [.insertDeviceTypeAttributes(db, dtClusterRefDataPairs)](#module*DB API* zcl database access.insertDeviceTypeAttributes)
-  - [.insertDeviceTypeCommands(db, dtClusterRefDataPairs)](#module*DB API* zcl database access.insertDeviceTypeCommands)
-  - [.insertDomains(db, packageId, data)](#module*DB API* zcl database access.insertDomains) ⇒
-  - [.insertStructs(db, packageId, data)](#module*DB API* zcl database access.insertStructs) ⇒
-  - [.insertEnums(db, packageId, data)](#module*DB API* zcl database access.insertEnums) ⇒
-  - [.insertBitmaps(db, packageId, data)](#module*DB API* zcl database access.insertBitmaps) ⇒
+  - [~selectAllEnums(db)](#module*DB API* zcl database access..selectAllEnums) ⇒
+  - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
+  - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
+  - [~selectAllStructs(db)](#module*DB API* zcl database access..selectAllStructs) ⇒
+  - [~selectAllClusters(db)](#module*DB API* zcl database access..selectAllClusters) ⇒
+  - [~selectAllDeviceTypes(db)](#module*DB API* zcl database access..selectAllDeviceTypes) ⇒
+  - [~insertGlobals(db, packageId, data)](#module*DB API* zcl database access..insertGlobals) ⇒
+  - [~insertClusterExtensions(db, packageId, data)](#module*DB API* zcl database access..insertClusterExtensions) ⇒
+  - [~insertClusters(db, packageId, data)](#module*DB API* zcl database access..insertClusters) ⇒
+  - [~insertDeviceTypes(db, packageId, data)](#module*DB API* zcl database access..insertDeviceTypes) ⇒
+  - [~insertDeviceTypeAttributes(db, dtClusterRefDataPairs)](#module*DB API* zcl database access..insertDeviceTypeAttributes)
+  - [~insertDeviceTypeCommands(db, dtClusterRefDataPairs)](#module*DB API* zcl database access..insertDeviceTypeCommands)
+  - [~insertDomains(db, packageId, data)](#module*DB API* zcl database access..insertDomains) ⇒
+  - [~insertStructs(db, packageId, data)](#module*DB API* zcl database access..insertStructs) ⇒
+  - [~insertEnums(db, packageId, data)](#module*DB API* zcl database access..insertEnums) ⇒
+  - [~insertBitmaps(db, packageId, data)](#module*DB API* zcl database access..insertBitmaps) ⇒
 
-<a name="module_DB API_ zcl database access.selectAllEnums"></a>
+<a name="module_DB API_ zcl database access..selectAllEnums"></a>
 
-### DB API: zcl database access.selectAllEnums(db) ⇒
+### DB API: zcl database access~selectAllEnums(db) ⇒
 
 Retrieves all the enums in the database.
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: Promise that resolves with the rows of enums.
 
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access.selectAllBitmaps"></a>
+<a name="module_DB API_ zcl database access..selectAllBitmaps"></a>
 
-### DB API: zcl database access.selectAllBitmaps(db) ⇒
+### DB API: zcl database access~selectAllBitmaps(db) ⇒
 
 Retrieves all the bitmaps in the database.
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: Promise that resolves with the rows of bitmaps.
 
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access.selectAllDomains"></a>
+<a name="module_DB API_ zcl database access..selectAllDomains"></a>
 
-### DB API: zcl database access.selectAllDomains(db) ⇒
+### DB API: zcl database access~selectAllDomains(db) ⇒
 
 Retrieves all the domains in the database.
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: Promise that resolves with the rows of domains.
 
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access.selectAllStructs"></a>
+<a name="module_DB API_ zcl database access..selectAllStructs"></a>
 
-### DB API: zcl database access.selectAllStructs(db) ⇒
+### DB API: zcl database access~selectAllStructs(db) ⇒
 
 Retrieves all the structs in the database.
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: Promise that resolves with the rows of structs.
 
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access.selectAllClusters"></a>
+<a name="module_DB API_ zcl database access..selectAllClusters"></a>
 
-### DB API: zcl database access.selectAllClusters(db) ⇒
+### DB API: zcl database access~selectAllClusters(db) ⇒
 
 Retrieves all the clusters in the database.
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: Promise that resolves with the rows of clusters.
 
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access.selectAllDeviceTypes"></a>
+<a name="module_DB API_ zcl database access..selectAllDeviceTypes"></a>
 
-### DB API: zcl database access.selectAllDeviceTypes(db) ⇒
+### DB API: zcl database access~selectAllDeviceTypes(db) ⇒
 
 Retrieves all the device types in the database.
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: Promise that resolves with the rows of device types.
 
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access.insertGlobals"></a>
+<a name="module_DB API_ zcl database access..insertGlobals"></a>
 
-### DB API: zcl database access.insertGlobals(db, packageId, data) ⇒
+### DB API: zcl database access~insertGlobals(db, packageId, data) ⇒
 
 Inserts globals into the database.
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: Promise of globals insertion.
 
 | Param     | Type            |
@@ -1142,13 +702,13 @@ Inserts globals into the database.
 | packageId | <code>\*</code> |
 | data      | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access.insertClusterExtensions"></a>
+<a name="module_DB API_ zcl database access..insertClusterExtensions"></a>
 
-### DB API: zcl database access.insertClusterExtensions(db, packageId, data) ⇒
+### DB API: zcl database access~insertClusterExtensions(db, packageId, data) ⇒
 
 Inserts cluster extensions into the database.
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: Promise of cluster extension insertion.
 
 | Param     | Type            |
@@ -1157,13 +717,13 @@ Inserts cluster extensions into the database.
 | packageId | <code>\*</code> |
 | data      | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access.insertClusters"></a>
+<a name="module_DB API_ zcl database access..insertClusters"></a>
 
-### DB API: zcl database access.insertClusters(db, packageId, data) ⇒
+### DB API: zcl database access~insertClusters(db, packageId, data) ⇒
 
 Inserts clusters into the database.
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: Promise of cluster insertion.
 
 | Param     | Type            | Description                                                                                                        |
@@ -1172,13 +732,13 @@ Inserts clusters into the database.
 | packageId | <code>\*</code> |                                                                                                                    |
 | data      | <code>\*</code> | an array of objects that must contain: code, name, description, define. It also contains commands: and attributes: |
 
-<a name="module_DB API_ zcl database access.insertDeviceTypes"></a>
+<a name="module_DB API_ zcl database access..insertDeviceTypes"></a>
 
-### DB API: zcl database access.insertDeviceTypes(db, packageId, data) ⇒
+### DB API: zcl database access~insertDeviceTypes(db, packageId, data) ⇒
 
 Inserts device types into the database.
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: Promise of an insertion of device types.
 
 | Param     | Type            | Description                                                    |
@@ -1187,42 +747,42 @@ Inserts device types into the database.
 | packageId | <code>\*</code> |                                                                |
 | data      | <code>\*</code> | an array of objects that must contain: code, name, description |
 
-<a name="module_DB API_ zcl database access.insertDeviceTypeAttributes"></a>
+<a name="module_DB API_ zcl database access..insertDeviceTypeAttributes"></a>
 
-### DB API: zcl database access.insertDeviceTypeAttributes(db, dtClusterRefDataPairs)
+### DB API: zcl database access~insertDeviceTypeAttributes(db, dtClusterRefDataPairs)
 
 This handles the loading of device type attribute requirements into the database.
 There is a need to post-process to attach the actual attribute ref after the fact
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
 
 | Param                 | Type            |
 | --------------------- | --------------- |
 | db                    | <code>\*</code> |
 | dtClusterRefDataPairs | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access.insertDeviceTypeCommands"></a>
+<a name="module_DB API_ zcl database access..insertDeviceTypeCommands"></a>
 
-### DB API: zcl database access.insertDeviceTypeCommands(db, dtClusterRefDataPairs)
+### DB API: zcl database access~insertDeviceTypeCommands(db, dtClusterRefDataPairs)
 
 This handles the loading of device type command requirements into the database.
 There is a need to post-process to attach the actual command ref after the fact
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
 
 | Param                 | Type            |
 | --------------------- | --------------- |
 | db                    | <code>\*</code> |
 | dtClusterRefDataPairs | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access.insertDomains"></a>
+<a name="module_DB API_ zcl database access..insertDomains"></a>
 
-### DB API: zcl database access.insertDomains(db, packageId, data) ⇒
+### DB API: zcl database access~insertDomains(db, packageId, data) ⇒
 
 Inserts domains into the database.
 data is an array of objects that must contain: name
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: A promise that resolves with an array of rowids of all inserted domains.
 
 | Param     | Type            |
@@ -1231,14 +791,14 @@ data is an array of objects that must contain: name
 | packageId | <code>\*</code> |
 | data      | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access.insertStructs"></a>
+<a name="module_DB API_ zcl database access..insertStructs"></a>
 
-### DB API: zcl database access.insertStructs(db, packageId, data) ⇒
+### DB API: zcl database access~insertStructs(db, packageId, data) ⇒
 
 Inserts structs into the database.
 data is an array of objects that must contain: name
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: A promise that resolves with an array of struct item rowids.
 
 | Param     | Type            |
@@ -1247,13 +807,13 @@ data is an array of objects that must contain: name
 | packageId | <code>\*</code> |
 | data      | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access.insertEnums"></a>
+<a name="module_DB API_ zcl database access..insertEnums"></a>
 
-### DB API: zcl database access.insertEnums(db, packageId, data) ⇒
+### DB API: zcl database access~insertEnums(db, packageId, data) ⇒
 
 Inserts enums into the database.
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: A promise of enum insertion.
 
 | Param     | Type            | Description                                       |
@@ -1262,13 +822,13 @@ Inserts enums into the database.
 | packageId | <code>\*</code> |                                                   |
 | data      | <code>\*</code> | an array of objects that must contain: name, type |
 
-<a name="module_DB API_ zcl database access.insertBitmaps"></a>
+<a name="module_DB API_ zcl database access..insertBitmaps"></a>
 
-### DB API: zcl database access.insertBitmaps(db, packageId, data) ⇒
+### DB API: zcl database access~insertBitmaps(db, packageId, data) ⇒
 
 Inserts bitmaps into the database. Data is an array of objects that must contain: name, type
 
-**Kind**: static method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: A promise of bitmap insertions.
 
 | Param     | Type            | Description                                   |
@@ -1282,37 +842,38 @@ Inserts bitmaps into the database. Data is an array of objects that must contain
 ## JS API: generator logic
 
 - [JS API: generator logic](#module*JS API* generator logic)
-  - [.mapDatabase(db)](#module*JS API* generator logic.mapDatabase) ⇒
-  - [.resolveTemplateDirectory(map, handlebarTemplateDirectory)](#module*JS API* generator logic.resolveTemplateDirectory) ⇒
-  - [.compileTemplate(map, templateFiles)](#module*JS API* generator logic.compileTemplate) ⇒
-  - [.infoFromDb(map, dbRowTypeArray)](#module*JS API* generator logic.infoFromDb) ⇒
-  - [.groupInfoIntoDbRow(map, groupByParams)](#module*JS API* generator logic.groupInfoIntoDbRow) ⇒
-  - [.resolveHelper(map, helperFunctions)](#module*JS API* generator logic.resolveHelper) ⇒
-  - [.generateDataToPreview(map, databaseRowToHandlebarTemplateFileMap)](#module*JS API* generator logic.generateDataToPreview) ⇒
-  - [.generateDataToFile(map, outputFileName, databaseRowToHandlebarTemplateFileMap)](#module*JS API* generator logic.generateDataToFile) ⇒
-  - [.getGenerationProperties(filePath)](#module*JS API* generator logic.getGenerationProperties) ⇒
+  - [~mapDatabase(db)](#module*JS API* generator logic..mapDatabase) ⇒
+  - [~resolveTemplateDirectory(map, handlebarTemplateDirectory)](#module*JS API* generator logic..resolveTemplateDirectory) ⇒
+  - [~compileTemplate(map, templateFiles)](#module*JS API* generator logic..compileTemplate) ⇒
+  - [~infoFromDb(map, dbRowTypeArray)](#module*JS API* generator logic..infoFromDb) ⇒
+  - [~groupInfoIntoDbRow(map, groupByParams)](#module*JS API* generator logic..groupInfoIntoDbRow) ⇒
+  - [~resolveHelper(map, helperFunctions)](#module*JS API* generator logic..resolveHelper) ⇒
+  - [~generateDataToPreview(map, databaseRowToHandlebarTemplateFileMap)](#module*JS API* generator logic..generateDataToPreview) ⇒
+  - [~generateDataToFile(map, outputFileName, databaseRowToHandlebarTemplateFileMap)](#module*JS API* generator logic..generateDataToFile) ⇒
+  - [~getGenerationProperties(filePath)](#module*JS API* generator logic..getGenerationProperties) ⇒
+  - [~generateCode(db)](#module*JS API* generator logic..generateCode)
 
-<a name="module_JS API_ generator logic.mapDatabase"></a>
+<a name="module_JS API_ generator logic..mapDatabase"></a>
 
-### JS API: generator logic.mapDatabase(db) ⇒
+### JS API: generator logic~mapDatabase(db) ⇒
 
 Resolve is listed on the map containing the database.
 
-**Kind**: static method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: A promise with resolve listed on the map
 
 | Param | Type                | Description |
 | ----- | ------------------- | ----------- |
 | db    | <code>Object</code> | database    |
 
-<a name="module_JS API_ generator logic.resolveTemplateDirectory"></a>
+<a name="module_JS API_ generator logic..resolveTemplateDirectory"></a>
 
-### JS API: generator logic.resolveTemplateDirectory(map, handlebarTemplateDirectory) ⇒
+### JS API: generator logic~resolveTemplateDirectory(map, handlebarTemplateDirectory) ⇒
 
 Resolve the handlebar template directory to be able to use the correct
 handlebar templates for generation/preview.
 
-**Kind**: static method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: A promise with resolve listed on a map which has the handlebar
 directory.
 
@@ -1321,13 +882,13 @@ directory.
 | map                        | <code>Object</code> | HashMap                           |
 | handlebarTemplateDirectory | <code>string</code> | Handlebar template directory path |
 
-<a name="module_JS API_ generator logic.compileTemplate"></a>
+<a name="module_JS API_ generator logic..compileTemplate"></a>
 
-### JS API: generator logic.compileTemplate(map, templateFiles) ⇒
+### JS API: generator logic~compileTemplate(map, templateFiles) ⇒
 
 Resolve the compiled handlebar templates for use.
 
-**Kind**: static method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: A promise with resolve listed on a map which has the compiled
 templates.
 
@@ -1336,16 +897,16 @@ templates.
 | map           | <code>Object</code>               | Map for database and template directory |
 | templateFiles | <code>Array.&lt;string&gt;</code> | Array of handlebar template files       |
 
-<a name="module_JS API_ generator logic.infoFromDb"></a>
+<a name="module_JS API_ generator logic..infoFromDb"></a>
 
-### JS API: generator logic.infoFromDb(map, dbRowTypeArray) ⇒
+### JS API: generator logic~infoFromDb(map, dbRowTypeArray) ⇒
 
 The database information is retrieved by calling database query
 functions. Then a resolve is listed on the map containing database, compiled
 template and database row information so that they can be passed on to more
 promises.
 
-**Kind**: static method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: A promise with resolve listed on a map which has the database rows.
 
 | Param          | Type                              | Description                                                           |
@@ -1353,14 +914,14 @@ promises.
 | map            | <code>Object</code>               | Map for database, template directory and compiled templates           |
 | dbRowTypeArray | <code>Array.&lt;string&gt;</code> | Array of strings with each string representing a type of database row |
 
-<a name="module_JS API_ generator logic.groupInfoIntoDbRow"></a>
+<a name="module_JS API_ generator logic..groupInfoIntoDbRow"></a>
 
-### JS API: generator logic.groupInfoIntoDbRow(map, groupByParams) ⇒
+### JS API: generator logic~groupInfoIntoDbRow(map, groupByParams) ⇒
 
 Additional information attached to each database row. Essentially a way
 to group by content.
 
-**Kind**: static method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: A promise with resolve listed on a map which has the database,
 compiled templates and database rows along with additional grouped by
 content.
@@ -1374,13 +935,13 @@ content.
 | groupByParams.primaryKey  | <code>string</code> |                                                                                                       |
 | groupByParams.dbType      | <code>string</code> |                                                                                                       |
 
-<a name="module_JS API_ generator logic.resolveHelper"></a>
+<a name="module_JS API_ generator logic..resolveHelper"></a>
 
-### JS API: generator logic.resolveHelper(map, helperFunctions) ⇒
+### JS API: generator logic~resolveHelper(map, helperFunctions) ⇒
 
 Resolve the helper functions to be used in later promises.
 
-**Kind**: static method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: A promise with resolve listed on a map which has the helper
 functions.
 
@@ -1389,14 +950,14 @@ functions.
 | map             | <code>Object</code> |                                                  |
 | helperFunctions | <code>Object</code> | Map for handlebar helper name to helper function |
 
-<a name="module_JS API_ generator logic.generateDataToPreview"></a>
+<a name="module_JS API_ generator logic..generateDataToPreview"></a>
 
-### JS API: generator logic.generateDataToPreview(map, databaseRowToHandlebarTemplateFileMap) ⇒
+### JS API: generator logic~generateDataToPreview(map, databaseRowToHandlebarTemplateFileMap) ⇒
 
 The database information is used to show the generation output to a preview
 pane using the compiled handlebar templates.
 
-**Kind**: static method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: A promise with resolve listed on the data which can be seen in the
 preview pane.
 
@@ -1407,14 +968,14 @@ preview pane.
 | databaseRowToHandlebarTemplateFileMap.dbRowType     | <code>string</code>               | Database row type                                               |
 | databaseRowToHandlebarTemplateFileMap.hTemplateFile | <code>string</code>               | Handlebar template file                                         |
 
-<a name="module_JS API_ generator logic.generateDataToFile"></a>
+<a name="module_JS API_ generator logic..generateDataToFile"></a>
 
-### JS API: generator logic.generateDataToFile(map, outputFileName, databaseRowToHandlebarTemplateFileMap) ⇒
+### JS API: generator logic~generateDataToFile(map, outputFileName, databaseRowToHandlebarTemplateFileMap) ⇒
 
 The database information is used to write the generation output to a file
 using the compiled handlebar templates.
 
-**Kind**: static method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: A new promise resolve listed on the data which is generated.
 
 | Param                                               | Type                              | Description                                                     |
@@ -1425,16 +986,28 @@ using the compiled handlebar templates.
 | databaseRowToHandlebarTemplateFileMap.dbRowType     | <code>string</code>               | Database row type                                               |
 | databaseRowToHandlebarTemplateFileMap.hTemplateFile | <code>string</code>               | Handlebar template file                                         |
 
-<a name="module_JS API_ generator logic.getGenerationProperties"></a>
+<a name="module_JS API_ generator logic..getGenerationProperties"></a>
 
-### JS API: generator logic.getGenerationProperties(filePath) ⇒
+### JS API: generator logic~getGenerationProperties(filePath) ⇒
 
-**Kind**: static method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: A promise with the generation options
 
 | Param    | Type            |
 | -------- | --------------- |
 | filePath | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..generateCode"></a>
+
+### JS API: generator logic~generateCode(db)
+
+This function generates the code into the user defined directory using promises
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
 
 <a name="module_REST API_ admin functions"></a>
 
@@ -1442,9 +1015,9 @@ using the compiled handlebar templates.
 
 This module provides the REST API to the admin functions.
 
-<a name="module_REST API_ admin functions.registerAdminApi"></a>
+<a name="module_REST API_ admin functions..registerAdminApi"></a>
 
-### REST API: admin functions.registerAdminApi(db, app)
+### REST API: admin functions~registerAdminApi(db, app)
 
 API: /post/sql
 Request JSON:
@@ -1463,7 +1036,7 @@ Response JSON:
   }
 </pre>
 
-**Kind**: static method of [<code>REST API: admin functions</code>](#module*REST API* admin functions)
+**Kind**: inner method of [<code>REST API: admin functions</code>](#module*REST API* admin functions)
 
 | Param | Type            |
 | ----- | --------------- |
@@ -1476,11 +1049,11 @@ Response JSON:
 
 This module provides the REST API to the generation.
 
-<a name="module_REST API_ generation functions.registerGenerationApi"></a>
+<a name="module_REST API_ generation functions..registerGenerationApi"></a>
 
-### REST API: generation functions.registerGenerationApi(db, app)
+### REST API: generation functions~registerGenerationApi(db, app)
 
-**Kind**: static method of [<code>REST API: generation functions</code>](#module*REST API* generation functions)
+**Kind**: inner method of [<code>REST API: generation functions</code>](#module*REST API* generation functions)
 
 | Param | Type            |
 | ----- | --------------- |
@@ -1493,13 +1066,13 @@ This module provides the REST API to the generation.
 
 This module provides the REST API to the static zcl queries.
 
-<a name="module_REST API_ static zcl functions.registerStaticZclApi"></a>
+<a name="module_REST API_ static zcl functions..registerStaticZclApi"></a>
 
-### REST API: static zcl functions.registerStaticZclApi(app)
+### REST API: static zcl functions~registerStaticZclApi(app)
 
-API: /get/:entity/:id
+API: /zcl/:entity/:id
 
-**Kind**: static method of [<code>REST API: static zcl functions</code>](#module*REST API* static zcl functions)
+**Kind**: inner method of [<code>REST API: static zcl functions</code>](#module*REST API* static zcl functions)
 
 | Param | Type            | Description       |
 | ----- | --------------- | ----------------- |
@@ -1518,18 +1091,18 @@ This module provides the REST API to the user specific data.
 This module provides the HTTP server functionality.
 
 - [JS API: http server](#module*JS API* http server)
-  - [.initHttpServer(db, port)](#module*JS API* http server.initHttpServer) ⇒
-  - [.shutdownHttpServer()](#module*JS API* http server.shutdownHttpServer) ⇒
-  - [.httpServerPort()](#module*JS API* http server.httpServerPort) ⇒
+  - [~initHttpServer(db, port)](#module*JS API* http server..initHttpServer) ⇒
+  - [~shutdownHttpServer()](#module*JS API* http server..shutdownHttpServer) ⇒
+  - [~httpServerPort()](#module*JS API* http server..httpServerPort) ⇒
 
-<a name="module_JS API_ http server.initHttpServer"></a>
+<a name="module_JS API_ http server..initHttpServer"></a>
 
-### JS API: http server.initHttpServer(db, port) ⇒
+### JS API: http server~initHttpServer(db, port) ⇒
 
 Promises to initialize the http server on a given port
 using a given database.
 
-**Kind**: static method of [<code>JS API: http server</code>](#module*JS API* http server)  
+**Kind**: inner method of [<code>JS API: http server</code>](#module*JS API* http server)  
 **Returns**: A promise that resolves with an express app.
 
 | Param | Type            | Description               |
@@ -1537,21 +1110,21 @@ using a given database.
 | db    | <code>\*</code> | Database object to use.   |
 | port  | <code>\*</code> | Port for the HTTP server. |
 
-<a name="module_JS API_ http server.shutdownHttpServer"></a>
+<a name="module_JS API_ http server..shutdownHttpServer"></a>
 
-### JS API: http server.shutdownHttpServer() ⇒
+### JS API: http server~shutdownHttpServer() ⇒
 
 Promises to shut down the http server.
 
-**Kind**: static method of [<code>JS API: http server</code>](#module*JS API* http server)  
+**Kind**: inner method of [<code>JS API: http server</code>](#module*JS API* http server)  
 **Returns**: Promise that resolves when server is shut down.  
-<a name="module_JS API_ http server.httpServerPort"></a>
+<a name="module_JS API_ http server..httpServerPort"></a>
 
-### JS API: http server.httpServerPort() ⇒
+### JS API: http server~httpServerPort() ⇒
 
 Port http server is listening on.
 
-**Kind**: static method of [<code>JS API: http server</code>](#module*JS API* http server)  
+**Kind**: inner method of [<code>JS API: http server</code>](#module*JS API* http server)  
 **Returns**: port  
 <a name="replyId"></a>
 
@@ -1572,6 +1145,202 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
+<a name="yargs"></a>
+
+## yargs
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="fs"></a>
+
+## fs
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="dbApi"></a>
+
+## dbApi
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="path"></a>
+
+## path
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="path"></a>
+
+## path
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="env"></a>
+
+## env
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="queryZcl"></a>
+
+## queryZcl
+
+This module provides the APIs for validating inputs to the database, and returning flags indicating if
+things were successful or not.
+
+**Kind**: global constant  
+<a name="fs"></a>
+
+## fs
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="exportSessionKeyValues"></a>
+
+## exportSessionKeyValues(db, sessionId) ⇒
+
+Resolves to an array of objects that contain 'key' and 'value'
+
+**Kind**: global function  
+**Returns**: Promise to retrieve all session key values.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+
+<a name="exportEndpoints"></a>
+
+## exportEndpoints(db, sessionId) ⇒
+
+Resolves to an array of endpoints.
+
+**Kind**: global function  
+**Returns**: Promise to retrieve all endpoints.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+
+<a name="exportEndpointTypes"></a>
+
+## exportEndpointTypes(db, sessionId) ⇒
+
+Resolves to an array of endpoint types.
+
+**Kind**: global function  
+**Returns**: Promise to retrieve all endpoint types.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+
+<a name="exportSessionPackages"></a>
+
+## exportSessionPackages(db, sessionId)
+
+Resolves with data for packages.
+
+**Kind**: global function
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+
 <a name="exportDataIntoFile"></a>
 
 ## exportDataIntoFile(db, sessionId, filePath) ⇒
@@ -1601,6 +1370,20 @@ resolves with a state object that needs to be saved into a file.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="importSessionKeyValues"></a>
+
+## importSessionKeyValues(db, sessionId, keyValuePairs)
+
+Resolves with a promise that imports session key values.
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| sessionId     | <code>\*</code> |
+| keyValuePairs | <code>\*</code> |
 
 <a name="readDataFromFile"></a>
 
@@ -1634,58 +1417,15 @@ with the succesfull writing into the database.
 
 ## importDataFromFile(db, filePath) ⇒
 
-Take a given session ID and import the data from the file
-Reads the data from the file and resolves with the state object if all is good.
+Writes the data from the file into a new session.
 
 **Kind**: global function  
-**Returns**: a promise that resolves with the resolution of writing into a database.Promise of file reading.
+**Returns**: a promise that resolves with the session Id of the written data.
 
 | Param    | Type            |
 | -------- | --------------- |
 | db       | <code>\*</code> |
 | filePath | <code>\*</code> |
-
-<a name="exportSessionKeyValues"></a>
-
-## exportSessionKeyValues(db, sessionId) ⇒
-
-Resolves to an array of objects that contain 'key' and 'value'
-
-**Kind**: global function  
-**Returns**: Promise to retrieve all session key values.
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
-
-<a name="importSessionKeyValues"></a>
-
-## importSessionKeyValues(db, sessionId, keyValuePairs)
-
-Resolves with a promise that imports session key values.
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| db            | <code>\*</code> |
-| sessionId     | <code>\*</code> |
-| keyValuePairs | <code>\*</code> |
-
-<a name="exportEndpointTypes"></a>
-
-## exportEndpointTypes(db, sessionId) ⇒
-
-Resolves to an array of endpoint types.
-
-**Kind**: global function  
-**Returns**: Promise to retrieve all endpoint types.
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
 
 <a name="processCommandLineArguments"></a>
 
@@ -1813,18 +1553,6 @@ generateCode function which generates the code in the user selected output.
 | ------------- | --------------- |
 | browserWindow | <code>\*</code> |
 
-<a name="generateCode"></a>
-
-## generateCode(db)
-
-This function generates the code into the user defined directory using promises
-
-**Kind**: global function
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-
 <a name="fileSave"></a>
 
 ## fileSave(db, winId, filePath) ⇒
@@ -1868,20 +1596,6 @@ a new window if all is good.
 | db       | <code>\*</code> |
 | filePath | <code>\*</code> |
 
-<a name="resolveGenerationDirectory"></a>
-
-## resolveGenerationDirectory(map) ⇒
-
-Description: Resolve the generation directory to be able to generate to the
-correct directory.
-
-**Kind**: global function  
-**Returns**: promise that resolves into a map.
-
-| Param | Type            |
-| ----- | --------------- |
-| map   | <code>\*</code> |
-
 <a name="initMenu"></a>
 
 ## initMenu(port)
@@ -1923,6 +1637,18 @@ Win id will be passed on in the URL, and if sessionId is present, so will it.
 | [filePath]  | <code>\*</code> | <code></code> |
 | [sessionId] | <code>\*</code> | <code></code> |
 
+<a name="runSdkGeneration"></a>
+
+## runSdkGeneration(ctx)
+
+Using SDK generation templates it returns a promise of created files.
+
+**Kind**: global function
+
+| Param | Type            | Description                                                                                    |
+| ----- | --------------- | ---------------------------------------------------------------------------------------------- |
+| ctx   | <code>\*</code> | Contains generationDir, templateDir, db and options dontWrite which can prevent final writing. |
+
 <a name="calculateCrc"></a>
 
 ## calculateCrc(context) ⇒
@@ -1936,9 +1662,48 @@ Promises to calculate the CRC of the file, and resolve with an object { filePath
 | ------- | --------------- | ------------------------------------------------------------------------------- |
 | context | <code>\*</code> | that contains 'filePath' and 'data' keys for the file and contents of the file. |
 
-<a name="collectZclFiles"></a>
+<a name="initializeSessionPackage"></a>
 
-## collectZclFiles(propertiesFile) ⇒
+## initializeSessionPackage(db, sessionId) ⇒
+
+This function assigns a proper package ID to the session.
+
+**Kind**: global function  
+**Returns**: Promise that resolves with the session id for chaining.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+
+<a name="readPropertiesFile"></a>
+
+## readPropertiesFile(ctx) ⇒
+
+Reads the properties file into ctx.data and also calculates crc into ctx.crc
+
+**Kind**: global function  
+**Returns**: Promise to populate data, filePath and crc into the context.
+
+| Param | Type            |
+| ----- | --------------- |
+| ctx   | <code>\*</code> |
+
+<a name="recordToplevelPackage"></a>
+
+## recordToplevelPackage(ctx)
+
+Records the toplevel package information and puts ctx.packageId into the context.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| ctx   | <code>\*</code> |
+
+<a name="collectData"></a>
+
+## collectData(propertiesFile) ⇒
 
 Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
 
@@ -1966,7 +1731,7 @@ Promises to read a file and resolve with the content
 
 ## parseZclFile(argument) ⇒
 
-Promises to parse the ZCL file, expecting array of [filePath, data, packageId, msg]
+Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
 
 **Kind**: global function  
 **Returns**: promise that resolves with the array [filePath,result,packageId,msg]
@@ -2199,9 +1964,22 @@ branches the individual toplevel tags.
 | db       | <code>\*</code> |
 | argument | <code>\*</code> |
 
-<a name="processPostLoading"></a>
+<a name="resolveLaterPromises"></a>
 
-## processPostLoading(db) ⇒
+## resolveLaterPromises(laterPromises)
+
+Resolve later promises.
+This function resolves the later promises associated with processParsedZclData.
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| laterPromises | <code>\*</code> |
+
+<a name="processZclPostLoading"></a>
+
+## processZclPostLoading(db) ⇒
 
 Promises to perform a post loading step.
 
@@ -2214,7 +1992,7 @@ Promises to perform a post loading step.
 
 <a name="qualifyZclFile"></a>
 
-## qualifyZclFile(db, object) ⇒
+## qualifyZclFile(db, info, parentPackageId) ⇒
 
 Promises to qualify whether zcl file needs to be reloaded.
 If yes, the it will resolve with {filePath, data, packageId}
@@ -2223,14 +2001,15 @@ If not, then it will resolve with {error}
 **Kind**: global function  
 **Returns**: Promise that resolves int he object of data.
 
-| Param  | Type            |
-| ------ | --------------- |
-| db     | <code>\*</code> |
-| object | <code>\*</code> |
+| Param           | Type            |
+| --------------- | --------------- |
+| db              | <code>\*</code> |
+| info            | <code>\*</code> |
+| parentPackageId | <code>\*</code> |
 
 <a name="parseZclFiles"></a>
 
-## parseZclFiles(db, files) ⇒
+## parseZclFiles(db, ctx) ⇒
 
 Promises to iterate over all the XML files and returns an aggregate promise
 that will be resolved when all the XML files are done, or rejected if at least one fails.
@@ -2241,7 +2020,20 @@ that will be resolved when all the XML files are done, or rejected if at least o
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
-| files | <code>\*</code> |
+| ctx   | <code>\*</code> |
+
+<a name="recordVersion"></a>
+
+## recordVersion(db, ctx)
+
+Records the version into the database.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+| ctx   | <code>\*</code> |
 
 <a name="loadZcl"></a>
 

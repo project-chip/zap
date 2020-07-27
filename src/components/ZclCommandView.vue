@@ -100,29 +100,6 @@ import * as RestApi from '../../src-shared/rest-api'
 
 export default {
   name: 'ZclCommandView',
-  mounted() {
-    this.$serverOn('zcl-item', (event, arg) => {
-      if (arg.type === 'cluster') {
-        this.$store.dispatch('zap/updateCommands', arg.commandData || [])
-      }
-      if (arg.type === 'endpointTypeCommands') {
-        this.$store.dispatch('zap/setCommandStateLists', arg.data)
-      }
-      if (arg.type === 'deviceTypeCommands') {
-        this.$store.dispatch('zap/setRequiredCommands', arg.data)
-      }
-    })
-    this.$serverOn(RestApi.replyId.singleCommandState, (event, arg) => {
-      if (arg.action === 'boolean') {
-        this.$store.dispatch('zap/updateSelectedCommands', {
-          id: this.hashCommandIdClusterId(arg.id, arg.clusterRef),
-          added: arg.added,
-          listType: arg.listType,
-          view: 'commandView',
-        })
-      }
-    })
-  },
   computed: {
     commandData: {
       get() {
@@ -180,8 +157,7 @@ export default {
       } else {
         addedValue = false
       }
-
-      this.$serverPost(`/command/update`, {
+      let editContext = {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointId,
         id: commandData.id,
@@ -189,7 +165,8 @@ export default {
         listType: listType,
         clusterRef: clusterId,
         commandSide: commandData.source,
-      })
+      }
+      this.$store.dispatch('zap/updateSelectedCommands', editContext)
     },
     handleColorSelection(selectedList, recommendedList, command, clusterId) {
       let relevantClusterList =

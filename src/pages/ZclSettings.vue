@@ -37,7 +37,6 @@ export default {
       }
     },
   },
-  mounted() {},
   data() {
     return {
       files: [],

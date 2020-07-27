@@ -42,6 +42,11 @@ const uri = {
   option: '/option',
 }
 
+const uiMode = {
+  ZIGBEE: `zigbee`,
+  OLD: `old`,
+}
+
 const httpCode = {
   ok: 200,
   badRequest: 400,
@@ -55,3 +60,4 @@ exports.replyId = replyId
 exports.action = action
 exports.uri = uri
 exports.httpCode = httpCode
+exports.uiMode = uiMode

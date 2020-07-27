@@ -157,12 +157,12 @@ test('Simple cluster addition.', () =>
         })
     ))
 
-/*
 test(
   'Now actually load the static data.',
   () => zclLoader.loadZcl(db, args.zclPropertiesFile),
   5000
 )
+
 describe('Session specific queries', () => {
   beforeAll(() =>
     querySession
@@ -419,4 +419,3 @@ describe('Endpoint Type Config Queries', () => {
         })
     }))
 })
-*/

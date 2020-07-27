@@ -42,6 +42,23 @@ function getPackageByPathAndParent(db, path, parentId) {
 }
 
 /**
+ * Get packages that have a given parent.
+ *
+ * @param {*} db
+ * @param {*} parentId
+ * @returns promise that resolves into an array of packages.
+ */
+function getPackageByParent(db, parentId) {
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PARENT_PACKAGE_REF = ?',
+      [parentId]
+    )
+    .then((rows) => rows.map(dbMapping.map.package))
+}
+
+/**
  * Returns the package by path and type.
  *
  * @param {*} db
@@ -341,3 +358,4 @@ exports.callPackageSpecificFunctionOverSessionPackages = callPackageSpecificFunc
 exports.getPackageIdByPathAndTypeAndVersion = getPackageIdByPathAndTypeAndVersion
 exports.insertOptionsKeyValues = insertOptionsKeyValues
 exports.selectAllOptionsValues = selectAllOptionsValues
+exports.getPackageByParent = getPackageByParent

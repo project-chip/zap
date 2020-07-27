@@ -148,12 +148,6 @@ import * as RestApi from '../../src-shared/rest-api'
 export default {
   name: 'ZclEndpointTypeConfig',
   mounted() {
-    this.$serverOn('zcl-item-list', (event, arg) => {
-      if (arg.type === 'device_type') {
-        this.$store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
-      }
-    })
-
     this.$serverOn(RestApi.replyId.zclEndpointTypeResponse, (event, arg) => {
       switch (arg.action) {
         case RestApi.action.create:
@@ -182,8 +176,6 @@ export default {
           break
       }
     })
-
-    this.$serverGet('/zcl/deviceType/all')
   },
   methods: {
     showConfirmZclDeviceTypeChangeDialog(value) {

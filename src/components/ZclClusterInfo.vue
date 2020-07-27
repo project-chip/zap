@@ -23,7 +23,6 @@ limitations under the License.
 <script>
 export default {
   name: 'ZclClusterInfo',
-  mounted() {},
   computed: {
     item: {
       get() {

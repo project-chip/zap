@@ -19,9 +19,18 @@
  */
 
 const electronMain = require('../src-electron/main-process/electron-main.js')
+const window = require('../src-electron/main-process/window.js')
 
 test('Make sure electron main process loads', () => {
   expect(electronMain.loaded).toBeTruthy()
+})
+
+test('Test constructing queries for the window', () => {
+  var query = window.createQueryString('blah', 1, 'tuna')
+  console.log(query)
+  expect(query).toBe(`?winId=blah&sessionId=1&uiMode=tuna`)
+  query = window.createQueryString('ba')
+  expect(query).toBe(`?winId=ba`)
 })
 
 require('../src-electron/main-process/preference.js')

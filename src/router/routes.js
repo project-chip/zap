@@ -24,10 +24,6 @@ const routes = [
     ],
   },
   {
-    path: '/zcl',
-    component: () => import('pages/ZclBrowsing.vue'),
-  },
-  {
     path: '/preference',
     component: () => import('pages/Preference.vue'),
   },

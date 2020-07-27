@@ -137,30 +137,6 @@ limitations under the License.
 import * as Util from '../util/util.js'
 export default {
   name: 'ZclReportingView',
-  mounted() {
-    this.$serverOn('zcl-item', (event, arg) => {
-      if (arg.type === 'endpointTypeAttributes') {
-        this.$store.dispatch('zap/setAttributeStateLists', arg.data)
-      }
-    })
-    this.$serverOn('singleAttributeState', (event, arg) => {
-      if (arg.action === 'boolean') {
-        this.$store.dispatch('zap/updateSelectedAttributes', {
-          id: this.hashAttributeIdClusterId(arg.id, arg.clusterRef),
-          added: arg.added,
-          listType: arg.listType,
-          view: 'attributeView',
-        })
-      } else if (arg.action === 'text') {
-        this.$store.dispatch('zap/updateAttributeDefaults', {
-          id: this.hashAttributeIdClusterId(arg.id, arg.clusterRef),
-          newDefaultValue: arg.added,
-          listType: arg.listType,
-          view: 'attributeView',
-        })
-      }
-    })
-  },
   computed: {
     attributeData: {
       get() {
@@ -238,7 +214,7 @@ export default {
         addedValue = false
       }
 
-      this.$serverPost(`/attribute/update`, {
+      let editContext = {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointId,
         id: attributeData.id,
@@ -246,10 +222,12 @@ export default {
         listType: listType,
         clusterRef: clusterId,
         attributeSide: attributeData.side,
-      })
+      }
+
+      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
     handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
-      this.$serverPost(`/attribute/update`, {
+      let editContext = {
         action: 'text',
         endpointTypeId: this.selectedEndpointId,
         id: attributeData.id,
@@ -257,7 +235,8 @@ export default {
         listType: listType,
         clusterRef: clusterId,
         attributeSide: attributeData.side,
-      })
+      }
+      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
     hashAttributeIdClusterId(attributeId, clusterId) {
       return Util.cantorPair(attributeId, clusterId)

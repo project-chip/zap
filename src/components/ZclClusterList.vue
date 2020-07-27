@@ -125,8 +125,7 @@ export default {
 
   methods: {
     getSingleEntity(id) {
-      this.$serverGet(`/zcl/${this.type}/${id.id}`)
-      this.$store.dispatch('zap/updateSelectedCluster', [id])
+      this.$store.dispatch('zap/updateSelectedCluster', id)
     },
     handleClusterSelection(id, isClient) {
       var clusterList = isClient ? this.selectionClient : this.selectionServer
@@ -163,25 +162,9 @@ export default {
       return 'primary'
     },
   },
-
-  mounted() {
-    this.$serverOn('zcl-item-list', (event, arg) => {
-      this.title = arg.title
-      this.type = arg.type
-    })
-    this.$serverOn('zcl-item', (event, arg) => {
-      if (arg.type === 'endpointTypeClusters') {
-        this.$store.dispatch('zap/setClusterList', arg.data)
-      }
-      if (arg.type === `deviceTypeClusters`) {
-        this.$store.dispatch('zap/setRecommendedClusterList', arg.data)
-      }
-    })
-  },
   data() {
     return {
       title: 'unknown',
-      type: 'unknown',
       selection: [],
       pagination: {
         rowsPerPage: 0,
