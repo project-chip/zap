@@ -83,5 +83,17 @@ function recordTemplatesPackage(context) {
     .then(() => context)
 }
 
+function loadTemplates(db, genTemplatesJson) {
+  var context = {
+    db: db,
+    path: genTemplatesJson,
+  }
+
+  return loadGenTemplate(context).then((context) =>
+    recordTemplatesPackage(context)
+  )
+}
+
+exports.loadTemplates = loadTemplates
 exports.loadGenTemplate = loadGenTemplate
 exports.recordTemplatesPackage = recordTemplatesPackage

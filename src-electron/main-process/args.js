@@ -97,6 +97,7 @@ function processCommandLineArguments(argv) {
   exports.zclPropertiesFile = ret.zclProperties
   exports.httpPort = ret.httpPort
   exports.uiMode = ret.uiMode
+  exports.genTemplateJsonFile = ret.gentemplateJson
 
   return ret
 }

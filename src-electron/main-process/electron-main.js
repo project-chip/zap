@@ -26,8 +26,9 @@ const {
   setHandlebarTemplateDirForCli,
 } = require('./menu.js')
 const zclLoader = require('../zcl/zcl-loader.js')
-const { initializeElectronUi, windowCreateIfNotThere } = require('./window.js')
+const windowJs = require('./window.js')
 const httpServer = require('../server/http-server.js')
+const generatorEngine = require('../generator/generation-engine.js')
 
 env.logInitLogFile()
 
@@ -52,6 +53,9 @@ function startSelfCheck() {
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then((ctx) =>
+      generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
+    )
     .then((ctx) => {
       console.log('Self-check done!')
       app.quit()
@@ -71,7 +75,9 @@ function startNormal(uiEnabled, showUrl, uiMode) {
     .then((ctx) => httpServer.initHttpServer(ctx.db, args.httpPort))
     .then(() => {
       if (uiEnabled) {
-        initializeElectronUi(httpServer.httpServerPort(), { uiMode: uiMode })
+        windowJs.initializeElectronUi(httpServer.httpServerPort(), {
+          uiMode: uiMode,
+        })
       } else {
         if (app.dock) {
           app.dock.hide()
@@ -206,7 +212,7 @@ if (app != null) {
 
   app.on('activate', () => {
     env.logInfo('Activate...')
-    windowCreateIfNotThere(args.httpPort)
+    windowJs.windowCreateIfNotThere(args.httpPort)
   })
 
   app.on('quit', () => {

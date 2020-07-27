@@ -225,95 +225,43 @@ function getFormatCharactersForCommandArguments(commandArgs) {
       }
       switch (commandArg.type.toLowerCase()) {
         case 'data8':
-          res += 'u'
-          break
         case 'boolean':
-          res += 'u'
-          break
         case 'bitmap8':
-          res += 'u'
-          break
         case 'int8u':
-          res += 'u'
-          break
         case 'int8s':
-          res += 'u'
-          break
         case 'enum8':
           res += 'u'
           break
         case 'data16':
-          res += 'v'
-          break
         case 'bitmap16':
-          res += 'v'
-          break
         case 'int16u':
-          res += 'v'
-          break
         case 'int16s':
-          res += 'v'
-          break
         case 'enum16':
-          res += 'v'
-          break
         case 'float_semi':
-          res += 'v'
-          break
         case 'cluster_id':
-          res += 'v'
-          break
         case 'attribute_id':
           res += 'v'
           break
         case 'data24':
-          res += 'x'
-          break
         case 'bitmap24':
-          res += 'x'
-          break
         case 'int24u':
-          res += 'x'
-          break
         case 'int24s':
-          res += 'x'
-          break
         case 'data32':
-          res += 'w'
-          break
         case 'bitmap32':
-          res += 'w'
-          break
         case 'int32u':
-          res += 'w'
-          break
         case 'int32s':
-          res += 'w'
-          break
         case 'float_single':
-          res += 'w'
-          break
         case 'time_of_day':
-          res += 'w'
-          break
         case 'date':
-          res += 'w'
-          break
         case 'utc_time':
-          res += 'w'
-          break
         case 'bacnet_oid':
           res += 'w'
           break
         case 'char_string':
-          res += 's'
-          break
         case 'octet_string':
           res += 's'
           break
         case 'long_string':
-          res += 'l'
-          break
         case 'long_octet_string':
           res += 'l'
           break
