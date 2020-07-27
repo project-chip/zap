@@ -350,13 +350,7 @@ export default {
           align: 'left',
           sortable: true,
         },
-        {
-          name: 'required',
-          label: 'Required',
-          field: 'required',
-          align: 'left',
-          sortable: true,
-        },
+
         {
           name: 'clientServer',
           label: 'Client/Server',
@@ -367,17 +361,11 @@ export default {
         {
           name: 'mfgID',
           align: 'left',
-          label: 'Mfg Code',
+
           field: 'mfgID',
           sortable: true,
         },
-        {
-          name: 'stgOpt',
-          label: 'Storage Option',
-          field: 'stgOpt',
-          align: 'left',
-          sortable: true,
-        },
+
         {
           name: 'singleton',
           align: 'left',
