@@ -195,13 +195,13 @@ function insertPathCrc(db, path, crc, type, parentId = null) {
  * @param {*} [parentId=null]
  * @returns Promise of an insert or update.
  */
-function registerTopLevelPackage(db, path, crc, type) {
+function registerTopLevelPackage(db, path, crc, type, version = null) {
   return getPackageByPathAndType(db, path, type).then((row) => {
     if (row == null) {
       return dbApi.dbInsert(
         db,
-        'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF ) VALUES (?,?,?,?)',
-        [path, crc, type, null]
+        'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION ) VALUES (?,?,?,?,?)',
+        [path, crc, type, null, version]
       )
     } else {
       return Promise.resolve(row.id)

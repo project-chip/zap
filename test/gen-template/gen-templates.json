@@ -1,6 +1,6 @@
 {
   "name": "Test templates",
-  "version": "1.0",
+  "version": "test-v1",
   "templates": [
     {
       "path": "af-structs.handlebars",

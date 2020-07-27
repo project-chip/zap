@@ -59,7 +59,8 @@ function recordTemplatesPackage(context) {
       context.db,
       context.path,
       context.crc,
-      dbEnum.packageType.genTemplatesJson
+      dbEnum.packageType.genTemplatesJson,
+      context.templateData.version
     )
     .then((packageId) => {
       context.packageId = packageId

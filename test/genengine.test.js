@@ -52,7 +52,7 @@ test('Basic gen template parsing', () =>
       expect(context.crc).not.toBeNull()
       expect(context.templateData).not.toBeNull()
       expect(context.templateData.name).toEqual('Test templates')
-      expect(context.templateData.version).toEqual('1.0')
+      expect(context.templateData.version).toEqual('test-v1')
       expect(context.templateData.templates.length).toBeGreaterThan(1)
       expect(context.packageId).not.toBeNull()
       return context

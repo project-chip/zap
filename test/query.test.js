@@ -30,6 +30,7 @@ const querySession = require('../src-electron/db/query-session.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const exportJs = require('../src-electron/importexport/export.js')
 const dbEnum = require('../src-electron/db/db-enum.js')
+const generationEngine = require('../src-electron/generator/generation-engine.js')
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -163,6 +164,9 @@ test(
   5000
 )
 
+test('Now load the generation data.', () =>
+  generationEngine.loadTemplates(db, args.genTemplateJsonFile))
+
 describe('Session specific queries', () => {
   beforeAll(() =>
     querySession
@@ -176,7 +180,7 @@ describe('Session specific queries', () => {
   test('Test that package id for session is preset.', () =>
     queryPackage
       .getSessionPackages(db, sid)
-      .then((ids) => expect(ids.length).toBe(1)))
+      .then((ids) => expect(ids.length).toBe(2))) // One for zclpropertie and one for gen template
 
   test('Test some attribute queries.', () =>
     querySession.getSessionInfoFromWindowId(db, 666).then((data) => {
@@ -292,9 +296,24 @@ describe('Session specific queries', () => {
         expect(state.endpointTypes.length).toBe(1)
         expect(state.endpointTypes[0].name).toBe('Test endpoint')
         expect(state.endpointTypes[0].clusters.length).toBe(0)
-        expect(state.package.length).toBe(1)
-        expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
-        expect(state.package[0].version).toBe('ZCL Test Data')
+        expect(state.package.length).toBe(2)
+        var zclIndex
+        var genIndex
+        if (state.package[0].type === dbEnum.packageType.zclProperties) {
+          zclIndex = 0
+          genIndex = 1
+        } else {
+          zclIndex = 1
+          genIndex = 0
+        }
+        expect(state.package[zclIndex].type).toBe(
+          dbEnum.packageType.zclProperties
+        )
+        expect(state.package[zclIndex].version).toBe('ZCL Test Data')
+        expect(state.package[genIndex].type).toBe(
+          dbEnum.packageType.genTemplatesJson
+        )
+        expect(state.package[genIndex].version).toBe('test-v1')
       })
   })
 
