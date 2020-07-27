@@ -79,7 +79,11 @@ test('Create session', () =>
     templateContext.sessionId = sessionId
   }))
 
-test('Load ZCL stuff', () => zclLoader.loadZcl(db, args.zclPropertiesFile))
+test(
+  'Load ZCL stuff',
+  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
+  5000
+)
 
 test('Initialize session packages', () =>
   utilJs
