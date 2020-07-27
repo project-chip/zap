@@ -70,7 +70,9 @@ function recordTemplatesPackage(context) {
       var promises = []
       env.logInfo(`Loading ${context.templateData.templates.length} templates.`)
       context.templateData.templates.forEach((template) => {
-        var templatePath = path.join(path.dirname(context.path), template.path)
+        var templatePath = path.resolve(
+          path.join(path.dirname(context.path), template.path)
+        )
         promises.push(
           queryPackage.insertPathCrc(
             context.db,
@@ -89,13 +91,15 @@ function recordTemplatesPackage(context) {
 function loadTemplates(db, genTemplatesJson) {
   var context = {
     db: db,
-    path: genTemplatesJson,
+    path: path.resolve(genTemplatesJson),
   }
   env.logInfo(`Loading generation templates from: ${genTemplatesJson}`)
   return loadGenTemplate(context).then((context) =>
     recordTemplatesPackage(context)
   )
 }
+
+function generate(db, packageId) {}
 
 exports.loadTemplates = loadTemplates
 exports.loadGenTemplate = loadGenTemplate
