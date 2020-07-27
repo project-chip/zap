@@ -20,6 +20,7 @@
  */
 
 const fs = require('fs')
+const path = require('path')
 const util = require('../util/util.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../db/db-enum.js')
@@ -37,13 +38,12 @@ function loadGenTemplate(context) {
       context.data = data
       resolve(context)
     })
-      .then((context) => util.calculateCrc(context))
-      .then((context) => {
-        context.templateData = JSON.parse(context.data)
-        return context
-      })
-      .then((context) => resolve(context))
   })
+    .then((context) => util.calculateCrc(context))
+    .then((context) => {
+      context.templateData = JSON.parse(context.data)
+      return context
+    })
 }
 
 /**
@@ -54,7 +54,7 @@ function loadGenTemplate(context) {
  */
 function recordTemplatesPackage(context) {
   return queryPackage
-    .insertPathCrc(
+    .registerTopLevelPackage(
       context.db,
       context.path,
       context.crc,
@@ -64,6 +64,23 @@ function recordTemplatesPackage(context) {
       context.packageId = packageId
       return context
     })
+    .then((context) => {
+      var promises = []
+      context.templateData.templates.forEach((template) => {
+        var templatePath = path.join(path.dirname(context.path), template.path)
+        promises.push(
+          queryPackage.insertPathCrc(
+            context.db,
+            templatePath,
+            null,
+            dbEnum.packageType.genSingleTemplate,
+            context.packageId
+          )
+        )
+      })
+      return Promise.all(promises)
+    })
+    .then(() => context)
 }
 
 exports.loadGenTemplate = loadGenTemplate

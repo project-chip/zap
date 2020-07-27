@@ -23,6 +23,7 @@ const args = require('../src-electron/main-process/args.js')
 const env = require('../src-electron/util/env.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const fs = require('fs')
+const queryPackage = require('../src-electron/db/query-package.js')
 
 var db
 
@@ -44,7 +45,7 @@ afterAll(() => {
   })
 })
 
-test('Basic gen template parsing', () => {
+test('Basic gen template parsing', () =>
   genEngine
     .loadGenTemplate({ path: args.genTemplateJsonFile, db: db })
     .then((context) => {
@@ -58,5 +59,11 @@ test('Basic gen template parsing', () => {
     .then((context) => genEngine.recordTemplatesPackage(context))
     .then((context) => {
       expect(context.packageId).not.toBeNull()
+      return context
     })
-})
+    .then((context) =>
+      queryPackage.getPackageByParent(context.db, context.packageId)
+    )
+    .then((packages) => {
+      expect(packages.length).toBe(10)
+    }))
