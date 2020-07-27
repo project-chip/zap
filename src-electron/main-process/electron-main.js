@@ -18,16 +18,16 @@
 const fs = require('fs')
 const { app } = require('electron')
 const dbApi = require('../db/db-api.js')
-const { runSdkGeneration } = require('../sdk-gen/sdk-gen.js')
+const sdkGen = require('../sdk-gen/sdk-gen.js')
 const args = require('./args.js')
 const env = require('../util/env.js')
 const {
   generateCodeViaCli,
   setHandlebarTemplateDirForCli,
 } = require('./menu.js')
-const { loadZcl } = require('../zcl/zcl-loader.js')
+const zclLoader = require('../zcl/zcl-loader.js')
 const { initializeElectronUi, windowCreateIfNotThere } = require('./window.js')
-const { initHttpServer, httpServerPort } = require('../server/http-server.js')
+const httpServer = require('../server/http-server.js')
 
 env.logInitLogFile()
 
@@ -51,7 +51,7 @@ function startSelfCheck() {
     .initDatabase(env.sqliteFile())
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
-    .then((db) => loadZcl(db, args.zclPropertiesFile))
+    .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
     .then((ctx) => {
       console.log('Self-check done!')
       app.quit()
@@ -67,18 +67,20 @@ function startNormal(uiEnabled, showUrl, uiMode) {
     .initDatabase(env.sqliteFile())
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
-    .then((db) => loadZcl(db, args.zclPropertiesFile))
-    .then((ctx) => initHttpServer(ctx.db, args.httpPort))
+    .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then((ctx) => httpServer.initHttpServer(ctx.db, args.httpPort))
     .then(() => {
       if (uiEnabled) {
-        initializeElectronUi(httpServerPort(), { uiMode: uiMode })
+        initializeElectronUi(httpServer.httpServerPort(), { uiMode: uiMode })
       } else {
         if (app.dock) {
           app.dock.hide()
         }
         if (showUrl) {
           // NOTE: this is parsed/used by Studio as the default landing page.
-          console.log(`url: http://localhost:${httpServerPort()}/index.html`)
+          console.log(
+            `url: http://localhost:${httpServer.httpServerPort()}/index.html`
+          )
         }
       }
     })
@@ -104,7 +106,7 @@ function applyGenerationSettings(
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) =>
-      loadZcl(
+      zclLoader.loadZcl(
         db,
         zclPropertiesFilePath ? zclPropertiesFilePath : args.zclPropertiesFile
       )
@@ -142,13 +144,13 @@ function startSdkGeneration(
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) =>
-      loadZcl(
+      zclLoader.loadZcl(
         db,
         zclPropertiesFilePath ? zclPropertiesFilePath : args.zclPropertiesFile
       )
     )
     .then((ctx) =>
-      runSdkGeneration({
+      sdkGen.runSdkGeneration({
         db: ctx.db,
         generationDir: generationDir,
         templateDir: handlebarTemplateDir,
