@@ -34,12 +34,11 @@ const port = 9074
 const baseUrl = `http://localhost:${port}`
 var packageId
 var sessionId
-var file = env.sqliteTestFile(3)
 const timeout = 5000
 
 beforeAll(() => {
   env.setDevelopmentEnv()
-  file = env.sqliteTestFile(3)
+  var file = env.sqliteTestFile('generation')
   return dbApi
     .initDatabase(file)
     .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
@@ -55,7 +54,7 @@ afterAll(() => {
     .shutdownHttpServer()
     .then(() => dbApi.closeDatabase(db))
     .then(() => {
-      var file = env.sqliteTestFile(3)
+      var file = env.sqliteTestFile('generation')
       env.logInfo(`Removing test database: ${file}`)
       if (fs.existsSync(file)) fs.unlinkSync(file)
     })

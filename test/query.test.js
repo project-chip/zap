@@ -42,7 +42,7 @@ var db
 var sid
 
 beforeAll(() => {
-  var file = env.sqliteTestFile(1)
+  var file = env.sqliteTestFile('query')
   return dbApi
     .initDatabase(file)
     .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
@@ -53,7 +53,7 @@ beforeAll(() => {
 }, 5000)
 
 afterAll(() => {
-  var file = env.sqliteTestFile(1)
+  var file = env.sqliteTestFile('query')
   return dbApi.closeDatabase(db).then(() => {
     if (fs.existsSync(file)) fs.unlinkSync(file)
   })

@@ -28,7 +28,7 @@ const queryPackage = require('../src-electron/db/query-package.js')
 var db
 
 beforeAll(() => {
-  var file = env.sqliteTestFile(54)
+  var file = env.sqliteTestFile('genengine')
   return dbApi
     .initDatabase(file)
     .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
@@ -39,7 +39,7 @@ beforeAll(() => {
 }, 5000)
 
 afterAll(() => {
-  var file = env.sqliteTestFile(54)
+  var file = env.sqliteTestFile('genengine')
   return dbApi.closeDatabase(db).then(() => {
     if (fs.existsSync(file)) fs.unlinkSync(file)
   })
