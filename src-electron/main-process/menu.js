@@ -23,7 +23,7 @@ const querySession = require('../db/query-session.js')
 const staticGenerator = require('../generator/static-generator.js')
 const exportJs = require('../importexport/export.js')
 const importJs = require('../importexport/import.js')
-const { showErrorMessage } = require('./ui.js')
+const uiJs = require('./ui.js')
 const windowJs = require('./window.js')
 const preference = require('./preference.js')
 
@@ -81,7 +81,7 @@ const template = [
                 buttons: ['Dismiss'],
               })
             })
-            .catch((err) => showErrorMessage('Session info', err))
+            .catch((err) => uiJs.showErrorMessage('Session info', err))
         },
       },
       {
@@ -153,7 +153,7 @@ function doOpen(menuItem, browserWindow, event) {
         fileOpen(env.mainDatabase(), browserWindow.id, result.filePaths)
       }
     })
-    .catch((err) => showErrorMessage('Open file', err))
+    .catch((err) => uiJs.showErrorMessage('Open file', err))
 }
 
 /**
@@ -217,7 +217,7 @@ function doSaveAs(menuItem, browserWindow, event) {
         })
       }
     })
-    .catch((err) => showErrorMessage('Save file', err))
+    .catch((err) => uiJs.showErrorMessage('Save file', err))
 }
 
 /**
@@ -255,7 +255,7 @@ function generateInDir(browserWindow) {
         })
       }
     })
-    .catch((err) => showErrorMessage('Save file', err))
+    .catch((err) => uiJs.showErrorMessage('Save file', err))
 }
 
 /**
@@ -314,7 +314,7 @@ function setHandlebarTemplateDirectory(browserWindow) {
         })
       }
     })
-    .catch((err) => showErrorMessage('Save file', err))
+    .catch((err) => uiJs.showErrorMessage('Save file', err))
 }
 
 /**
@@ -334,7 +334,7 @@ function fileSave(db, winId, filePath) {
         .then(() => row)
     })
     .then((row) => exportJs.exportDataIntoFile(db, row.sessionId, filePath))
-    .catch((err) => showErrorMessage('File save', err))
+    .catch((err) => uiJs.showErrorMessage('File save', err))
 }
 
 /**
@@ -366,7 +366,7 @@ function readAndProcessFile(db, filePath) {
       return true
     })
     .catch((err) => {
-      showErrorMessage(filePath, err)
+      uiJs.showErrorMessage(filePath, err)
     })
 }
 
