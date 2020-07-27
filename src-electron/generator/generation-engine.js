@@ -70,7 +70,9 @@ function recordTemplatesPackage(context) {
       var promises = []
       env.logInfo(`Loading ${context.templateData.templates.length} templates.`)
       context.templateData.templates.forEach((template) => {
-        var templatePath = path.join(path.dirname(context.path), template.path)
+        var templatePath = path.resolve(
+          path.join(path.dirname(context.path), template.path)
+        )
         promises.push(
           queryPackage.insertPathCrc(
             context.db,
@@ -86,10 +88,17 @@ function recordTemplatesPackage(context) {
     .then(() => context)
 }
 
+/**
+ * Main API function to load templates from a gen-template.json file.
+ *
+ * @param {*} db Database
+ * @param {*} genTemplatesJson Path to the JSON file
+ * @returns the loading context, contains: db, path, crc, packageId and templateData
+ */
 function loadTemplates(db, genTemplatesJson) {
   var context = {
     db: db,
-    path: genTemplatesJson,
+    path: path.resolve(genTemplatesJson),
   }
   env.logInfo(`Loading generation templates from: ${genTemplatesJson}`)
   return loadGenTemplate(context).then((context) =>
@@ -97,6 +106,35 @@ function loadTemplates(db, genTemplatesJson) {
   )
 }
 
+/**
+ * Main API function to generate stuff.
+ *
+ * @param {*} db Database
+ * @param {*} packageId packageId
+ * @returns Promise that resolves into a generation result.
+ */
+function generate(db, sessionId, packageId) {
+  return queryPackage.getPackageByPackageId(db, packageId).then((pkg) => {
+    if (pkg == null) throw `Invalid packageId: ${packageId}`
+    if (pkg.type === dbEnum.packageType.genTemplatesJson) {
+      return {
+        success: true,
+        partial: false,
+      }
+      return true
+    } else if (pkg.type === dbEnum.packageType.genSingleTemplate) {
+      return {
+        success: true,
+        partial: true,
+      }
+      return true
+    } else {
+      throw `Invalid package type: ${pkg.type}`
+    }
+  })
+}
+
 exports.loadTemplates = loadTemplates
 exports.loadGenTemplate = loadGenTemplate
 exports.recordTemplatesPackage = recordTemplatesPackage
+exports.generate = generate

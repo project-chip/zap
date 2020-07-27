@@ -16,6 +16,7 @@
  */
 
 const yargs = require('yargs')
+
 const env = require('../util/env.js')
 const restApi = require(`../../src-shared/rest-api.js`)
 

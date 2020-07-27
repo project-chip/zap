@@ -24,6 +24,10 @@ const env = require('../src-electron/util/env.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const fs = require('fs')
 const queryPackage = require('../src-electron/db/query-package.js')
+const querySession = require('../src-electron/db/query-session.js')
+const utilJs = require('../src-electron/util/util.js')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
+const dbEnum = require('../src-electron/db/db-enum.js')
 
 var db
 
@@ -45,21 +49,61 @@ afterAll(() => {
   })
 })
 
-test('Basic gen template parsing', () =>
-  genEngine
-    .loadTemplates(db, args.genTemplateJsonFile)
-    .then((context) => {
-      expect(context.crc).not.toBeNull()
-      expect(context.templateData).not.toBeNull()
-      expect(context.templateData.name).toEqual('Test templates')
-      expect(context.templateData.version).toEqual('test-v1')
-      expect(context.templateData.templates.length).toBeGreaterThan(1)
-      expect(context.packageId).not.toBeNull()
-      return context
+var templateContext
+
+test('Basic gen template parsing and generation', () =>
+  genEngine.loadTemplates(db, args.genTemplateJsonFile).then((context) => {
+    expect(context.crc).not.toBeNull()
+    expect(context.templateData).not.toBeNull()
+    expect(context.templateData.name).toEqual('Test templates')
+    expect(context.templateData.version).toEqual('test-v1')
+    expect(context.templateData.templates.length).toBeGreaterThan(1)
+    expect(context.packageId).not.toBeNull()
+    templateContext = context
+  }))
+
+test('Validate package loading', () =>
+  queryPackage
+    .getPackageByParent(templateContext.db, templateContext.packageId)
+    .then((packages) => {
+      templateContext.packages = packages
+      return templateContext
     })
-    .then((context) =>
-      queryPackage.getPackageByParent(context.db, context.packageId)
+    .then((context) => {
+      expect(context.packages.length).toBe(10)
+    }))
+
+test('Create session', () =>
+  querySession.createBlankSession(db).then((sessionId) => {
+    expect(sessionId).not.toBeNull()
+    templateContext.sessionId = sessionId
+  }))
+
+test(
+  'Load ZCL stuff',
+  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
+  5000
+)
+
+test('Initialize session packages', () =>
+  utilJs
+    .initializeSessionPackage(templateContext.db, templateContext.sessionId)
+    .then((sessionId) =>
+      queryPackage.getSessionPackages(templateContext.db, sessionId)
     )
     .then((packages) => {
-      expect(packages.length).toBe(10)
+      expect(packages.length).toBe(2)
+    }))
+
+test('Validate basic generation', () =>
+  genEngine
+    .generate(
+      templateContext.db,
+      templateContext.sessionId,
+      templateContext.packageId
+    )
+    .then((genResult) => {
+      expect(genResult).not.toBeNull()
+      expect(genResult.partial).toBeFalsy()
+      expect(genResult.success).toBeTruthy()
     }))

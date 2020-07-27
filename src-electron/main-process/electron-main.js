@@ -15,16 +15,14 @@
  *    limitations under the License.
  */
 
-const fs = require('fs')
 const { app } = require('electron')
+const fs = require('fs')
+
 const dbApi = require('../db/db-api.js')
 const sdkGen = require('../sdk-gen/sdk-gen.js')
 const args = require('./args.js')
 const env = require('../util/env.js')
-const {
-  generateCodeViaCli,
-  setHandlebarTemplateDirForCli,
-} = require('./menu.js')
+const menuJs = require('./menu.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const windowJs = require('./window.js')
 const httpServer = require('../server/http-server.js')
@@ -134,11 +132,11 @@ function applyGenerationSettings(
  */
 function setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) {
   if (handlebarTemplateDir) {
-    return setHandlebarTemplateDirForCli(
-      handlebarTemplateDir
-    ).then((handlebarTemplateDir) => generateCodeViaCli(generationDir))
+    return menuJs
+      .setHandlebarTemplateDirForCli(handlebarTemplateDir)
+      .then((handlebarTemplateDir) => menuJs.generateCodeViaCli(generationDir))
   } else {
-    return generateCodeViaCli(generationDir)
+    return menuJs.generateCodeViaCli(generationDir)
   }
 }
 
