@@ -26,8 +26,8 @@ module.exports = {
       // be inching this upward, as we add more unit tests.
       // DO NOT EVER DECREASE THESE NUMBERS, PLEASE, UNLESS FOR A GOOD REASON.
       statements: 75,
-      branches: 58,
-      functions: 72,
+      branches: 59,
+      functions: 75,
       lines: 75,
     },
   },
