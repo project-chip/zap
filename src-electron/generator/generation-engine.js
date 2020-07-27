@@ -24,6 +24,7 @@ const path = require('path')
 const util = require('../util/util.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../db/db-enum.js')
+const env = require('../util/env.js')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -66,6 +67,7 @@ function recordTemplatesPackage(context) {
     })
     .then((context) => {
       var promises = []
+      env.logInfo(`Loading ${context.templateData.templates.length} templates.`)
       context.templateData.templates.forEach((template) => {
         var templatePath = path.join(path.dirname(context.path), template.path)
         promises.push(
@@ -88,7 +90,7 @@ function loadTemplates(db, genTemplatesJson) {
     db: db,
     path: genTemplatesJson,
   }
-
+  env.logInfo(`Loading generation templates from: ${genTemplatesJson}`)
   return loadGenTemplate(context).then((context) =>
     recordTemplatesPackage(context)
   )

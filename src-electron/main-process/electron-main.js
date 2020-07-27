@@ -72,6 +72,9 @@ function startNormal(uiEnabled, showUrl, uiMode) {
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then((ctx) =>
+      generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
+    )
     .then((ctx) => httpServer.initHttpServer(ctx.db, args.httpPort))
     .then(() => {
       if (uiEnabled) {
