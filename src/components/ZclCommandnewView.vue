@@ -16,21 +16,16 @@ limitations under the License.
 <template>
   <div v-show="commandData.length > 0">
     <q-table
-      title="Commands"
       :data="commandData"
       :columns="columns"
-      row-key="name"
+      row-key="<b>name</b>"
       dense
-      wrap-cells
+      flat
       binary-state-sort
       :pagination.sync="pagination"
     >
       <template v-slot:body="props">
-        <q-tr
-          :props="props"
-          light
-          style="nth-child(even): background-color: #C0C0C0"
-        >
+        <q-tr :props="props" light>
           <q-td key="out" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
