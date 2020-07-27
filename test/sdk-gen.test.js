@@ -32,7 +32,7 @@ describe('SDK gen tests', () => {
   var db
   beforeAll(() => {
     env.setDevelopmentEnv()
-    var file = env.sqliteTestFile(4)
+    var file = env.sqliteTestFile('sdkgen')
 
     return dbApi
       .initDatabase(file)
@@ -45,7 +45,7 @@ describe('SDK gen tests', () => {
   }, 5000)
 
   afterAll(() => {
-    var file = env.sqliteTestFile(4)
+    var file = env.sqliteTestFile('sdkgen')
     return dbApi.closeDatabase(db).then(() => {
       if (fs.existsSync(file)) fs.unlinkSync(file)
     })

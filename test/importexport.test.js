@@ -33,7 +33,7 @@ var testFile = path.join(__dirname, 'resource/save-file-1.json')
 
 beforeAll(() => {
   env.setDevelopmentEnv()
-  var file = env.sqliteTestFile(89)
+  var file = env.sqliteTestFile('importexport')
   return dbApi
     .initDatabase(file)
     .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
@@ -45,7 +45,7 @@ beforeAll(() => {
 }, 5000)
 
 afterAll(() => {
-  var file = env.sqliteTestFile(89)
+  var file = env.sqliteTestFile('importexport')
   return dbApi.closeDatabase(db).then(() => {
     if (fs.existsSync(file)) fs.unlinkSync(file)
   })

@@ -28,7 +28,7 @@ const queryPackage = require('../src-electron/db/query-package.js')
 var db
 
 beforeAll(() => {
-  var file = env.sqliteTestFile(54)
+  var file = env.sqliteTestFile('genengine')
   return dbApi
     .initDatabase(file)
     .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
@@ -39,7 +39,7 @@ beforeAll(() => {
 }, 5000)
 
 afterAll(() => {
-  var file = env.sqliteTestFile(54)
+  var file = env.sqliteTestFile('genengine')
   return dbApi.closeDatabase(db).then(() => {
     if (fs.existsSync(file)) fs.unlinkSync(file)
   })
@@ -47,17 +47,13 @@ afterAll(() => {
 
 test('Basic gen template parsing', () =>
   genEngine
-    .loadGenTemplate({ path: args.genTemplateJsonFile, db: db })
+    .loadTemplates(db, args.genTemplateJsonFile)
     .then((context) => {
       expect(context.crc).not.toBeNull()
       expect(context.templateData).not.toBeNull()
       expect(context.templateData.name).toEqual('Test templates')
-      expect(context.templateData.version).toEqual('1.0')
+      expect(context.templateData.version).toEqual('test-v1')
       expect(context.templateData.templates.length).toBeGreaterThan(1)
-      return context
-    })
-    .then((context) => genEngine.recordTemplatesPackage(context))
-    .then((context) => {
       expect(context.packageId).not.toBeNull()
       return context
     })

@@ -41,22 +41,25 @@ function calculateCrc(context) {
  * @returns Promise that resolves with the session id for chaining.
  */
 function initializeSessionPackage(db, sessionId) {
-  return queryPackage
+  var promises = []
+
+  // 1. Associate a zclProperties file.
+  var zclPropertiesPromise = queryPackage
     .getPackagesByType(db, dbEnum.packageType.zclProperties)
     .then((rows) => {
       var packageId
       if (rows.length == 1) {
         packageId = rows[0].id
         env.logInfo(
-          `Single package found, using it for the session: ${packageId}`
+          `Single zcl.properties found, using it for the session: ${packageId}`
         )
       } else if (rows.length == 0) {
-        env.logError(`No package found for session.`)
+        env.logError(`No zcl.properties found for session.`)
         packageId = null
       } else {
         packageId = rows[0].id
         env.logWarning(
-          `Multiple toplevel packages found. Using the first one: ${packageId}`
+          `Multiple toplevel zcl.properties found. Using the first one: ${packageId}`
         )
       }
       if (packageId != null) {
@@ -67,6 +70,38 @@ function initializeSessionPackage(db, sessionId) {
         return sessionId
       }
     })
+  promises.push(zclPropertiesPromise)
+
+  // 2. Associate a gen template file
+  var genTemplateJsonPromise = queryPackage
+    .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
+    .then((rows) => {
+      var packageId
+      if (rows.length == 1) {
+        packageId = rows[0].id
+        env.logInfo(
+          `Single gen-templates.json found, using it for the session: ${packageId}`
+        )
+      } else if (rows.length == 0) {
+        env.logError(`No  gen-templates.json found for session.`)
+        packageId = null
+      } else {
+        packageId = rows[0].id
+        env.logWarning(
+          `Multiple toplevel  gen-templates.json found. Using the first one: ${packageId}`
+        )
+      }
+      if (packageId != null) {
+        return queryPackage
+          .insertSessionPackage(db, sessionId, packageId)
+          .then(() => sessionId)
+      } else {
+        return sessionId
+      }
+    })
+  promises.push(genTemplateJsonPromise)
+
+  return Promise.all(promises).then(() => sessionId)
 }
 
 exports.calculateCrc = calculateCrc
