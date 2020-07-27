@@ -88,6 +88,13 @@ function recordTemplatesPackage(context) {
     .then(() => context)
 }
 
+/**
+ * Main API function to load templates from a gen-template.json file.
+ *
+ * @param {*} db Database
+ * @param {*} genTemplatesJson Path to the JSON file
+ * @returns the loading context, contains: db, path, crc, packageId and templateData
+ */
 function loadTemplates(db, genTemplatesJson) {
   var context = {
     db: db,
@@ -99,8 +106,35 @@ function loadTemplates(db, genTemplatesJson) {
   )
 }
 
-function generate(db, packageId) {}
+/**
+ * Main API function to generate stuff.
+ *
+ * @param {*} db Database
+ * @param {*} packageId packageId
+ * @returns Promise that resolves into a generation result.
+ */
+function generate(db, sessionId, packageId) {
+  return queryPackage.getPackageByPackageId(db, packageId).then((pkg) => {
+    if (pkg == null) throw `Invalid packageId: ${packageId}`
+    if (pkg.type === dbEnum.packageType.genTemplatesJson) {
+      return {
+        success: true,
+        partial: false,
+      }
+      return true
+    } else if (pkg.type === dbEnum.packageType.genSingleTemplate) {
+      return {
+        success: true,
+        partial: true,
+      }
+      return true
+    } else {
+      throw `Invalid package type: ${pkg.type}`
+    }
+  })
+}
 
 exports.loadTemplates = loadTemplates
 exports.loadGenTemplate = loadGenTemplate
 exports.recordTemplatesPackage = recordTemplatesPackage
+exports.generate = generate

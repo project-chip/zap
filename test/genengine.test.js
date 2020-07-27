@@ -45,7 +45,7 @@ afterAll(() => {
   })
 })
 
-test('Basic gen template parsing', () =>
+test('Basic gen template parsing and generation', () =>
   genEngine
     .loadTemplates(db, args.genTemplateJsonFile)
     .then((context) => {
@@ -58,8 +58,20 @@ test('Basic gen template parsing', () =>
       return context
     })
     .then((context) =>
-      queryPackage.getPackageByParent(context.db, context.packageId)
+      queryPackage
+        .getPackageByParent(context.db, context.packageId)
+        .then((packages) => {
+          context.packages = packages
+          return context
+        })
     )
-    .then((packages) => {
-      expect(packages.length).toBe(10)
+    .then((context) => {
+      expect(context.packages.length).toBe(10)
+      return context
+    })
+    .then((context) => genEngine.generate(context.db, 0, context.packageId))
+    .then((genResult) => {
+      expect(genResult).not.toBeNull()
+      expect(genResult.partial).toBeFalsy()
+      expect(genResult.success).toBeTruthy()
     }))
