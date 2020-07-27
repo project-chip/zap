@@ -63,7 +63,7 @@ limitations under the License.
         </div>
       </div>
 
-      <div>
+      <div class="q-pb-sm">
         <q-tabs v-model="tab" dense active-color="blue" align="left">
           <q-tab name="attributes" label="Attributes" />
           <q-tab name="reporting" label="Reporting" />
@@ -71,7 +71,7 @@ limitations under the License.
         </q-tabs>
 
         <div class="col" v-show="tab == 'attributes'">
-          <ZclAttributeView />
+          <ZclAttributeNewView />
         </div>
         <div class="col" v-show="tab == 'commands'">
           <ZclCommandnewView />
