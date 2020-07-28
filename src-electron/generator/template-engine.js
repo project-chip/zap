@@ -32,10 +32,15 @@ const templateCompileOptions = {
 const precompiledTemplates = {}
 
 function produceCompiledTemplate(db, sessionId, singlePkg) {
-  return fsPromise.readFile(singlePkg.path, 'utf8').then((data) => {
-    initializeHelpers()
-    return handlebars.compile(data, templateCompileOptions)
-  })
+  initializeHelpers()
+  if (singlePkg.id in precompiledTemplates)
+    return Promise.resolve(precompiledTemplates[singlePkg.id])
+  else
+    return fsPromise.readFile(singlePkg.path, 'utf8').then((data) => {
+      var template = handlebars.compile(data, templateCompileOptions)
+      precompiledTemplates[singlePkg.id] = template
+      return template
+    })
 }
 
 /**

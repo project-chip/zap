@@ -109,3 +109,18 @@ test('Validate basic generation', () =>
       var simpleTest = genResult.content['simple-test.out']
       expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
     }))
+
+test('Validate basic generation one more time', () =>
+  genEngine
+    .generate(
+      templateContext.db,
+      templateContext.sessionId,
+      templateContext.packageId
+    )
+    .then((genResult) => {
+      expect(genResult).not.toBeNull()
+      expect(genResult.partial).toBeFalsy()
+      expect(genResult.content).not.toBeNull()
+      var simpleTest = genResult.content['simple-test.out']
+      expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
+    }))
