@@ -147,60 +147,31 @@ import * as RestApi from '../../src-shared/rest-api'
 
 export default {
   name: 'ZclEndpointTypeConfig',
-  mounted() {
-    this.$serverOn(RestApi.replyId.zclEndpointTypeResponse, (event, arg) => {
-      switch (arg.action) {
-        case RestApi.action.create:
-          this.$store.dispatch('zap/addEndpointType', {
-            id: arg.id,
-            name: arg.name,
-            deviceTypeRef: arg.deviceTypeRef,
-          })
-          break
-        case RestApi.action.delete:
-          if (arg.successful) {
-            this.$store.dispatch(`zap/removeEndpointType`, {
-              id: arg.id,
-            })
-          }
-          break
-        case RestApi.action.update:
-          if (arg.updatedKey === 'deviceTypeRef') {
-            this.$store.dispatch('zap/setDeviceTypeReference', {
-              endpointId: arg.endpointTypeId,
-              deviceTypeRef: arg.updatedValue,
-            })
-          }
-          break
-        default:
-          break
-      }
-    })
-  },
   methods: {
     showConfirmZclDeviceTypeChangeDialog(value) {
       this.desiredZclEndpointType = value
       this.confirmEptTypeUpdate = true
     },
     setZclDeviceType(value) {
-      this.$serverPost(`/endpointType/update`, {
+      let context = {
         action: RestApi.action.update,
         endpointTypeId: this.selectedEndpointType,
         updatedKey: 'deviceTypeRef',
         updatedValue: value,
-      })
+      }
+      this.$store.dispatch('zap/updateEndpointType', context)
     },
     addEndpointType(newEndpointType) {
       let name = newEndpointType.name
       let deviceTypeRef = newEndpointType.deviceTypeRef
-
-      this.$serverPost(`/endpointType`, {
+      let context = {
         action: RestApi.action.create,
         context: {
           name: name,
           deviceTypeRef: deviceTypeRef,
         },
-      })
+      }
+      this.$store.dispatch('zap/addEndpointType', context)
     },
     setSelectedEndpointType(id) {
       this.$store.dispatch('zap/updateSelectedEndpointType', {
@@ -209,12 +180,13 @@ export default {
       })
     },
     deleteEptType(selectedEndpointType) {
-      this.$serverPost(`/endpointType`, {
+      let context = {
         action: RestApi.action.delete,
         context: {
           id: selectedEndpointType,
         },
-      })
+      }
+      this.$store.dispatch(`zap/removeEndpointType`, context)
     },
   },
   computed: {

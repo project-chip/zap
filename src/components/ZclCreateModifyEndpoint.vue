@@ -154,38 +154,38 @@ export default {
     newEpt(newEndpoint) {
       let deviceTypeRef = newEndpoint.newDeviceTypeRef
 
-      this.$serverPost(`/endpointType`, {
-        action: RestApi.action.create,
-        context: {
-          name: 'Anonymous Endpoint Type',
-          deviceTypeRef: deviceTypeRef,
-        },
-      }).then((response) => {
-        let eptId = this.newEndpoint.newEndpointId
-        let nwkId = this.newEndpoint.newNetworkId
-        this.$serverPost(`/endpoint`, {
+      this.$store
+        .dispatch(`zap/addEndpointType`, {
           action: RestApi.action.create,
           context: {
-            eptId: eptId,
-            nwkId: nwkId,
-            endpointType: response.data.id,
+            name: 'Anonymous Endpoint Type',
+            deviceTypeRef: deviceTypeRef,
           },
         })
-      })
+        .then((response) => {
+          let eptId = this.newEndpoint.newEndpointId
+          let nwkId = this.newEndpoint.newNetworkId
+          this.$store.dispatch(`zap/addEndpoint`, {
+            action: RestApi.action.create,
+            context: {
+              eptId: eptId,
+              nwkId: nwkId,
+              endpointType: response.id,
+            },
+          })
+        })
     },
     editEpt(newEndpoint, endpointReference) {
       let endpointTypeReference = this.endpointType[this.endpointReference]
 
-      this.$serverPost(`/endpointType/update`, {
+      this.$store.dispatch('zap/updateEndpointType', {
         action: RestApi.action.update,
         endpointTypeId: endpointTypeReference,
         updatedKey: `deviceTypeRef`,
         updatedValue: newEndpoint.newDeviceTypeRef,
-      }).then((data) => {
-        console.log('Updated Endpoint Type')
       })
 
-      this.$serverPost('/endpoint', {
+      this.$store.dispatch('zap/updateEndpoint', {
         action: RestApi.action.update,
         context: {
           id: endpointReference,

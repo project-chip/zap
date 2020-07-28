@@ -135,7 +135,7 @@ export default {
       return '0x' + this.endpointId[endpointRef].toString(16).padStart(4, '0')
     },
     deleteEpt() {
-      this.$serverPost('/endpoint', {
+      this.$store.dispatch('zap/deleteEndpoint', {
         action: RestApi.action.delete,
         context: {
           id: this.endpointReference,
