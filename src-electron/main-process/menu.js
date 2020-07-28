@@ -26,6 +26,7 @@ const importJs = require('../importexport/import.js')
 const uiJs = require('./ui.js')
 const windowJs = require('./window.js')
 const preference = require('./preference.js')
+const generationEngine = require('../generator/generation-engine.js')
 
 var httpPort
 var handlebarTemplateDirectory = __dirname + '/../../test/gen-template'

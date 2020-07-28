@@ -186,7 +186,29 @@ function generate(db, sessionId, packageId) {
   })
 }
 
+/**
+ * Generate files and write them into the given directory.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageId
+ * @param {*} outputDirectory
+ * @returns a promise which will resolve when all the files are written.
+ */
+function generateAndWriteFiles(db, sessionId, packageId, outputDirectory) {
+  generate(db, sessionId, packageId).then((genResult) => {
+    var promises = []
+    for (const f in genResult.content) {
+      var content = genResult.content[f]
+      var fileName = path.join(outputDirectory, f)
+      promises.push(fsPromise.writeFile(fileName, content))
+    }
+    return Promise.all(promises)
+  })
+}
+
 exports.loadTemplates = loadTemplates
 exports.loadGenTemplate = loadGenTemplate
 exports.recordTemplatesPackage = recordTemplatesPackage
 exports.generate = generate
+exports.generateAndWriteFiles = generateAndWriteFiles
