@@ -56,7 +56,7 @@ function processResponse(method, url, response) {
  * @param {*} config
  * @returns Promise that resolves into a response.
  */
-function serverGet(url, config) {
+function serverGet(url, config = null) {
   if (log) console.log(`GET → : ${url}, ${config}`)
   return axios['get'](url, config)
     .then((response) => processResponse('GET', url, response))
