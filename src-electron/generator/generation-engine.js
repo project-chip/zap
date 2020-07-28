@@ -19,12 +19,13 @@
  * @module JS API: generator logic
  */
 
-const fs = require('fs')
+const fsPromise = require('fs').promises
 const path = require('path')
 const util = require('../util/util.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../db/db-enum.js')
 const env = require('../util/env.js')
+const templateEngine = require('./template-engine.js')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -33,13 +34,12 @@ const env = require('../util/env.js')
  * @returns context.templates, context.crc
  */
 function loadGenTemplate(context) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(context.path, (err, data) => {
-      if (err) reject(err)
+  return fsPromise
+    .readFile(context.path, 'utf8')
+    .then((data) => {
       context.data = data
-      resolve(context)
+      return context
     })
-  })
     .then((context) => util.calculateCrc(context))
     .then((context) => {
       context.templateData = JSON.parse(context.data)
@@ -74,13 +74,28 @@ function recordTemplatesPackage(context) {
           path.join(path.dirname(context.path), template.path)
         )
         promises.push(
-          queryPackage.insertPathCrc(
-            context.db,
-            templatePath,
-            null,
-            dbEnum.packageType.genSingleTemplate,
-            context.packageId
-          )
+          queryPackage
+            .getPackageByPathAndParent(
+              context.db,
+              templatePath,
+              context.packageId
+            )
+            .then((pkg) => {
+              if (pkg == null) {
+                // doesn't exist
+                return queryPackage.insertPathCrc(
+                  context.db,
+                  templatePath,
+                  null,
+                  dbEnum.packageType.genSingleTemplate,
+                  context.packageId,
+                  template.output
+                )
+              } else {
+                // Already exists
+                return 1
+              }
+            })
         )
       })
       return Promise.all(promises)
@@ -107,6 +122,46 @@ function loadTemplates(db, genTemplatesJson) {
 }
 
 /**
+ * Generates all the templates inside a toplevel package.
+ *
+ * @param {*} genResult
+ * @param {*} pkg
+ * @returns Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
+ */
+function generateAllTemplates(genResult, pkg) {
+  return queryPackage
+    .getPackageByParent(genResult.db, pkg.id)
+    .then((packages) => {
+      var promises = []
+      packages.forEach((singlePkg) => {
+        promises.push(generateSingleTemplate(genResult, singlePkg))
+      })
+      return Promise.all(promises)
+    })
+    .then(() => {
+      genResult.partial = false
+      return genResult
+    })
+}
+
+/**
+ * Function that generates a single package and adds it to the generation result.
+ *
+ * @param {*} genResult
+ * @param {*} pkg
+ * @returns promise that resolves with the genResult, with newly generated content added.
+ */
+function generateSingleTemplate(genResult, pkg) {
+  return templateEngine
+    .produceContent(genResult.db, genResult.sessionId, pkg)
+    .then((data) => {
+      genResult.content[pkg.version] = data
+      genResult.partial = true
+      return genResult
+    })
+}
+
+/**
  * Main API function to generate stuff.
  *
  * @param {*} db Database
@@ -116,18 +171,15 @@ function loadTemplates(db, genTemplatesJson) {
 function generate(db, sessionId, packageId) {
   return queryPackage.getPackageByPackageId(db, packageId).then((pkg) => {
     if (pkg == null) throw `Invalid packageId: ${packageId}`
+    var genResult = {
+      db: db,
+      sessionId: sessionId,
+      content: {},
+    }
     if (pkg.type === dbEnum.packageType.genTemplatesJson) {
-      return {
-        success: true,
-        partial: false,
-      }
-      return true
+      return generateAllTemplates(genResult, pkg)
     } else if (pkg.type === dbEnum.packageType.genSingleTemplate) {
-      return {
-        success: true,
-        partial: true,
-      }
-      return true
+      return generateSingleTemplate(genResult, pkg)
     } else {
       throw `Invalid package type: ${pkg.type}`
     }

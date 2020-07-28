@@ -178,11 +178,11 @@ function updateVersion(db, packageId, version) {
  * @param {*} crc CRC of the file.
  * @returns Promise of an insertion.
  */
-function insertPathCrc(db, path, crc, type, parentId = null) {
+function insertPathCrc(db, path, crc, type, parentId = null, version = null) {
   return dbApi.dbInsert(
     db,
-    'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF ) VALUES (?, ?, ?, ?)',
-    [path, crc, type, parentId]
+    'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION ) VALUES (?, ?, ?, ?, ?)',
+    [path, crc, type, parentId, version]
   )
 }
 /**

@@ -281,6 +281,7 @@ exports.getDefault = getDefault
 exports.getStrong = getStrong
 exports.getHexValue = getHexValue
 exports.getLargestStringInArray = getLargestStringInArray
+exports.largestStringInArray = getLargestStringInArray
 exports.getCamelCaseWithoutUnderscore = getCamelCaseWithoutUnderscore
 exports.isEitherCommandSource = isEitherCommandSource
 exports.isCommandManufactureSpecific = isCommandManufactureSpecific

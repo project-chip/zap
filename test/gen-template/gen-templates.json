@@ -3,54 +3,19 @@
   "version": "test-v1",
   "templates": [
     {
-      "path": "af-structs.handlebars",
-      "name": "Generated structs",
-      "output": "af-structs.h"
+      "path": "simple-test.handlebars",
+      "name": "Test template",
+      "output": "simple-test.out"
     },
     {
-      "path": "att-storage.handlebars",
-      "name": "Attribute storage",
-      "output": "att-storage.c"
+      "path": "zap-id.handlebars",
+      "name": "Various ZCL ids",
+      "output": "zap-id.h"
     },
     {
-      "path": "bitmaps.handlebars",
-      "name": "Generated bitmaps",
-      "output": "bitmaps.h"
-    },
-    {
-      "path": "callback-zcl.handlebars",
-      "name": "Generated callbacks",
-      "output": "callback-zcl.h"
-    },
-    {
-      "path": "client-command-macro-cluster.handlebars",
-      "name": "Generated cluster command macros",
-      "output": "client-command-macro-cluster.h"
-    },
-    {
-      "path": "client-command-macro-global.handlebars",
-      "name": "Generated global command macros",
-      "output": "client-command-macro-global.h"
-    },
-    {
-      "path": "cluster-id.handlebars",
-      "name": "Generated cluster ids",
-      "output": "cluster-id.h"
-    },
-    {
-      "path": "debug-printing-zcl.handlebars",
-      "name": "Generated debug printing code",
-      "output": "debug-printing.h"
-    },
-    {
-      "path": "enums.handlebars",
-      "name": "Generated enums",
-      "output": "enums.h"
-    },
-    {
-      "path": "print-cluster.handlebars",
-      "name": "Generated cluster names",
-      "output": "print-cluster.h"
+      "path": "zap-type.handlebars",
+      "name": "ZCL types",
+      "output": "zap-type.h"
     }
   ]
 }
