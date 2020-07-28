@@ -70,7 +70,7 @@ test('Validate package loading', () =>
       return templateContext
     })
     .then((context) => {
-      expect(context.packages.length).toBe(10)
+      expect(context.packages.length).toBe(11)
     }))
 
 test('Create session', () =>
@@ -105,5 +105,7 @@ test('Validate basic generation', () =>
     .then((genResult) => {
       expect(genResult).not.toBeNull()
       expect(genResult.partial).toBeFalsy()
-      expect(genResult.success).toBeTruthy()
+      expect(genResult.content).not.toBeNull()
+      var simpleTest = genResult.content['simple-test.out']
+      expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
     }))

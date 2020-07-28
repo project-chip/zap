@@ -3,6 +3,11 @@
   "version": "test-v1",
   "templates": [
     {
+      "path": "simple-test.handlebars",
+      "name": "Test template",
+      "output": "simple-test.out"
+    },
+    {
       "path": "af-structs.handlebars",
       "name": "Generated structs",
       "output": "af-structs.h"
