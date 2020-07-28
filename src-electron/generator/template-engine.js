@@ -59,11 +59,16 @@ function produceContent(db, sessionId, singlePkg) {
 
 function initializeHelpers() {
   if (helpersInitialized) return
-  var helpers = require('./helper-zcl.js')
-  for (const singleHelper in helpers) {
-    console.log(`Registering helper: ${singleHelper}`)
-    handlebars.registerHelper(singleHelper, helpers[singleHelper])
-  }
+
+  var includedHelpers = ['./helper-zcl.js', './helper-zap.js']
+
+  includedHelpers.forEach((element) => {
+    var helpers = require(element)
+    for (const singleHelper in helpers) {
+      handlebars.registerHelper(singleHelper, helpers[singleHelper])
+    }
+  })
+
   helpersInitialized = true
 }
 

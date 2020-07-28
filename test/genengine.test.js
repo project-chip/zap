@@ -28,8 +28,10 @@ const querySession = require('../src-electron/db/query-session.js')
 const utilJs = require('../src-electron/util/util.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const dbEnum = require('../src-electron/db/db-enum.js')
+const helperZap = require('../src-electron/generator/helper-zap.js')
 
 var db
+const templateCount = 3
 
 beforeAll(() => {
   var file = env.sqliteTestFile('genengine')
@@ -57,7 +59,7 @@ test('Basic gen template parsing and generation', () =>
     expect(context.templateData).not.toBeNull()
     expect(context.templateData.name).toEqual('Test templates')
     expect(context.templateData.version).toEqual('test-v1')
-    expect(context.templateData.templates.length).toBeGreaterThan(0)
+    expect(context.templateData.templates.length).toEqual(templateCount)
     expect(context.packageId).not.toBeNull()
     templateContext = context
   }))
@@ -70,7 +72,7 @@ test('Validate package loading', () =>
       return templateContext
     })
     .then((context) => {
-      expect(context.packages.length).toBe(1)
+      expect(context.packages.length).toBe(templateCount)
     }))
 
 test('Create session', () =>
@@ -123,4 +125,11 @@ test('Validate basic generation one more time', () =>
       expect(genResult.content).not.toBeNull()
       var simpleTest = genResult.content['simple-test.out']
       expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
+      expect(simpleTest.includes(helperZap.zap_header()))
+
+      var zclId = genResult.content['zap-id.h']
+      expect(zclId.startsWith(helperZap.zap_header()))
+
+      var zclId = genResult.content['zap-type.h']
+      expect(zclId.startsWith(helperZap.zap_header()))
     }))

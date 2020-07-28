@@ -6,6 +6,16 @@
       "path": "simple-test.handlebars",
       "name": "Test template",
       "output": "simple-test.out"
+    },
+    {
+      "path": "zap-id.handlebars",
+      "name": "Various ZCL ids",
+      "output": "zap-id.h"
+    },
+    {
+      "path": "zap-type.handlebars",
+      "name": "ZCL types",
+      "output": "zap-type.h"
     }
   ]
 }
