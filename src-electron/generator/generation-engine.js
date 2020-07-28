@@ -25,6 +25,7 @@ const util = require('../util/util.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../db/db-enum.js')
 const env = require('../util/env.js')
+const templateEngine = require('./template-engine.js')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -120,6 +121,13 @@ function loadTemplates(db, genTemplatesJson) {
   )
 }
 
+/**
+ * Generates all the templates inside a toplevel package.
+ *
+ * @param {*} genResult
+ * @param {*} pkg
+ * @returns Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
+ */
 function generateAllTemplates(genResult, pkg) {
   return queryPackage
     .getPackageByParent(genResult.db, pkg.id)
@@ -136,12 +144,21 @@ function generateAllTemplates(genResult, pkg) {
     })
 }
 
+/**
+ * Function that generates a single package and adds it to the generation result.
+ *
+ * @param {*} genResult
+ * @param {*} pkg
+ * @returns promise that resolves with the genResult, with newly generated content added.
+ */
 function generateSingleTemplate(genResult, pkg) {
-  return fsPromise.readFile(pkg.path, 'utf8').then((data) => {
-    genResult.content[pkg.version] = data
-    genResult.partial = true
-    return genResult
-  })
+  return templateEngine
+    .produceContent(genResult.db, genResult.sessionId, pkg)
+    .then((data) => {
+      genResult.content[pkg.version] = data
+      genResult.partial = true
+      return genResult
+    })
 }
 
 /**
