@@ -57,7 +57,7 @@ test('Basic gen template parsing and generation', () =>
     expect(context.templateData).not.toBeNull()
     expect(context.templateData.name).toEqual('Test templates')
     expect(context.templateData.version).toEqual('test-v1')
-    expect(context.templateData.templates.length).toBeGreaterThan(1)
+    expect(context.templateData.templates.length).toBeGreaterThan(0)
     expect(context.packageId).not.toBeNull()
     templateContext = context
   }))
@@ -70,7 +70,7 @@ test('Validate package loading', () =>
       return templateContext
     })
     .then((context) => {
-      expect(context.packages.length).toBe(11)
+      expect(context.packages.length).toBe(1)
     }))
 
 test('Create session', () =>

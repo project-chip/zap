@@ -20,6 +20,23 @@
  */
 
 const fsPromise = require('fs').promises
+const handlebars = require('handlebars')
+const env = require('../util/env.js')
+
+var helpersInitialized = true
+
+const templateCompileOptions = {
+  noEscape: true,
+}
+
+const precompiledTemplates = {}
+
+function produceCompiledTemplate(db, sessionId, singlePkg) {
+  return fsPromise.readFile(singlePkg.path, 'utf8').then((data) => {
+    initializeHelpers()
+    return handlebars.compile(data, templateCompileOptions)
+  })
+}
 
 /**
  * Given db connection, session and a single template package, produce the output.
@@ -30,7 +47,19 @@ const fsPromise = require('fs').promises
  * @returns Promise that resolves with the 'utf8' string that contains the generated content.
  */
 function produceContent(db, sessionId, singlePkg) {
-  return fsPromise.readFile(singlePkg.path, 'utf8')
+  return produceCompiledTemplate(db, sessionId, singlePkg).then((template) =>
+    template({})
+  )
+}
+
+function initializeHelpers() {
+  if (helpersInitialized) return
+  var helpers = require('./helper-zcl.js')
+  for (const singleHelper in helpers) {
+    console.log(`Registering helper: ${singleHelper}`)
+    handlebars.registerHelper(singleHelper, helpers[singleHelper])
+  }
+  helpersInitialized = true
 }
 
 exports.produceContent = produceContent
