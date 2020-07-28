@@ -34,7 +34,7 @@ const env = require('../util/env.js')
  */
 function loadGenTemplate(context) {
   return fsPromise
-    .readFile(context.path)
+    .readFile(context.path, 'utf8')
     .then((data) => {
       context.data = data
       return context
