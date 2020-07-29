@@ -78,47 +78,6 @@ describe('Session specific tests', () => {
   })
 
   test(
-    'Test command line generation using api used for command line generation',
-    () => {
-      return attachToDb(db)
-        .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
-        .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
-        .then((ctx) =>
-          menuJs.setHandlebarTemplateDirForCli('./test/gen-template/')
-        )
-        .then((handlebarTemplateDir) =>
-          menuJs.generateCodeViaCli('./generation-test/')
-        )
-        .then((res) => {
-          return new Promise((resolve, reject) => {
-            let i = 0
-            for (i = 0; i < res.length; i++) {
-              expect(res[i]).toBeDefined()
-            }
-            let size = Object.keys(res).length
-            resolve(size)
-          })
-        })
-        .then((size) => {
-          return new Promise((resolve, reject) => {
-            expect(size).toBe(8)
-            resolve(size)
-          })
-        })
-        .then(() => fsExtra.remove('./generation-test'))
-        .catch((error) => console.log(error))
-    },
-    timeout
-  )
-
-  function attachToDb(db) {
-    return new Promise((resolve, reject) => {
-      env.setMainDatabase(db)
-      resolve(db)
-    })
-  }
-
-  test(
     'test that there is generation data in the enums.h preview file. Index 1',
     () => {
       return axios.get(`${baseUrl}/preview/enums/1`).then((response) => {

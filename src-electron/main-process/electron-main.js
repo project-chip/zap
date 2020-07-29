@@ -96,49 +96,6 @@ function startNormal(uiEnabled, showUrl, uiMode) {
       throw err
     })
 }
-/**
- *
- *
- * @param {*} generationDir
- * @param {*} handlebarTemplateDir
- */
-function applyGenerationSettings(
-  generationDir,
-  handlebarTemplateDir,
-  zclPropertiesFilePath
-) {
-  env.logInfo('Start Generation...')
-  return dbApi
-    .initDatabase(env.sqliteFile())
-    .then((db) => attachToDb(db))
-    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
-    .then((db) =>
-      zclLoader.loadZcl(
-        db,
-        zclPropertiesFilePath ? zclPropertiesFilePath : args.zclPropertiesFile
-      )
-    )
-    .then((ctx) =>
-      setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir)
-    )
-    .then((res) => app.quit())
-}
-/**
- *
- *
- * @param {*} generationDir
- * @param {*} handlebarTemplateDir
- * @returns Returns a promise of a generation
- */
-function setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) {
-  if (handlebarTemplateDir) {
-    return menuJs
-      .setHandlebarTemplateDirForCli(handlebarTemplateDir)
-      .then((handlebarTemplateDir) => menuJs.generateCodeViaCli(generationDir))
-  } else {
-    return menuJs.generateCodeViaCli(generationDir)
-  }
-}
 
 function startSdkGeneration(
   generationDir,
@@ -193,11 +150,7 @@ if (app != null) {
     if (argv._.includes('selfCheck')) {
       startSelfCheck()
     } else if (argv._.includes('generate')) {
-      // generate can have:
-      // - Generation Directory (-output)
-      // - Handlebar Template Directory (-template)
-      // - Xml Data directory (-xml)
-      applyGenerationSettings(argv.output, argv.template, argv.zclProperties)
+      console.log('Generation currently disabled....')
     } else if (argv._.includes('sdkGen')) {
       startSdkGeneration(argv.output, argv.template, argv.zclProperties)
     } else {

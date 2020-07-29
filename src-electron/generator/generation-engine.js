@@ -155,6 +155,7 @@ function generateSingleTemplate(genResult, pkg) {
   return templateEngine
     .produceContent(genResult.db, genResult.sessionId, pkg)
     .then((data) => {
+      env.logInfo(`Adding content for : ${pkg.version} => ${data}`)
       genResult.content[pkg.version] = data
       genResult.partial = true
       return genResult
@@ -177,6 +178,7 @@ function generate(db, sessionId, packageId) {
       content: {},
     }
     if (pkg.type === dbEnum.packageType.genTemplatesJson) {
+      env.logInfo(`Generate from top-level JSON file: ${pkg.path}`)
       return generateAllTemplates(genResult, pkg)
     } else if (pkg.type === dbEnum.packageType.genSingleTemplate) {
       return generateSingleTemplate(genResult, pkg)
@@ -186,7 +188,30 @@ function generate(db, sessionId, packageId) {
   })
 }
 
+/**
+ * Generate files and write them into the given directory.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageId
+ * @param {*} outputDirectory
+ * @returns a promise which will resolve when all the files are written.
+ */
+function generateAndWriteFiles(db, sessionId, packageId, outputDirectory) {
+  generate(db, sessionId, packageId).then((genResult) => {
+    var promises = []
+    for (const f in genResult.content) {
+      var content = genResult.content[f]
+      var fileName = path.join(outputDirectory, f)
+      env.logInfo(`Preparing to write file: ${fileName}`)
+      promises.push(fsPromise.writeFile(fileName, content))
+    }
+    return Promise.all(promises)
+  })
+}
+
 exports.loadTemplates = loadTemplates
 exports.loadGenTemplate = loadGenTemplate
 exports.recordTemplatesPackage = recordTemplatesPackage
 exports.generate = generate
+exports.generateAndWriteFiles = generateAndWriteFiles
