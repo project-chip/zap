@@ -350,7 +350,6 @@ export default {
           align: 'left',
           sortable: true,
         },
-
         {
           name: 'clientServer',
           label: 'Client/Server',
@@ -361,11 +360,9 @@ export default {
         {
           name: 'mfgID',
           align: 'left',
-
           field: 'mfgID',
           sortable: true,
         },
-
         {
           name: 'singleton',
           align: 'left',
