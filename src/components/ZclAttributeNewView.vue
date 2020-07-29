@@ -13,15 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+<!-- TODO 
+  needs to be connected to the new UI .vue file 
+  connect Storage Option column to a real list
+  make sure Required column is the correct list
+  add action to edit button
+-->
 <template>
   <div v-show="attributeData.length > 0">
     <q-table
-      title="Attributes"
       :data.sync="attributeData"
       :columns="columns"
-      row-key="name"
+      row-key="<b>name</b>"
       dense
-      wrap-cells
+      flat
       binary-state-sort
       :pagination.sync="pagination"
     >
@@ -58,12 +63,14 @@ limitations under the License.
           <q-td key="attrName" :props="props" auto-width>{{
             props.row.label
           }}</q-td>
+          <q-td key="required" :props="props" auto-width></q-td>
           <q-td key="clientServer" :props="props" auto-width>{{
             props.row.side
           }}</q-td>
           <q-td key="mfgID" :props="props" auto-width>{{
             props.row.manufacturerCode
           }}</q-td>
+          <q-td key="stgOpt" :props="props" auto-width></q-td>
           <q-td key="singleton" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
@@ -141,7 +148,7 @@ limitations under the License.
 import * as Util from '../util/util'
 import * as RestApi from '../../src-shared/rest-api'
 export default {
-  name: 'ZclAttributeView',
+  name: 'ZclAttributeNewView',
   methods: {
     handleAttributeSelection(list, listType, attributeData, clusterId) {
       // We determine the ID that we need to toggle within the list.
@@ -343,7 +350,13 @@ export default {
           align: 'left',
           sortable: true,
         },
-        // TODO add required
+        {
+          name: 'required',
+          label: 'Required',
+          field: 'required',
+          align: 'left',
+          sortable: true,
+        },
         {
           name: 'clientServer',
           label: 'Client/Server',
@@ -354,11 +367,17 @@ export default {
         {
           name: 'mfgID',
           align: 'left',
-          label: 'Manufacturing ID',
+          label: 'Mfg Code',
           field: 'mfgID',
           sortable: true,
         },
-        // TODO add storage options: combine glash and external?
+        {
+          name: 'stgOpt',
+          label: 'Storage Option',
+          field: 'stgOpt',
+          align: 'left',
+          sortable: true,
+        },
         {
           name: 'singleton',
           align: 'left',
