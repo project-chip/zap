@@ -71,7 +71,7 @@ limitations under the License.
         </q-tabs>
 
         <div class="col" v-show="tab == 'attributes'">
-          <ZclAttributeNewView />
+          <ZclAttributeView />
         </div>
         <div class="col" v-show="tab == 'commands'">
           <ZclCommandnewView />
@@ -98,6 +98,7 @@ export default {
         return this.$store.state.zap.clustersView.selected[0]
       },
     },
+
     selectedEndpointId: {
       get() {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
