@@ -306,21 +306,6 @@ function generateInDir(browserWindow) {
  *
  *
  * @export
- * @param {*} generationDir
- */
-function generateCodeViaCli(generationDir) {
-  return staticGenerator.writeGeneratedFiles(
-    generationOptionsFile,
-    env.mainDatabase(),
-    generationDir,
-    handlebarTemplateDirectory
-  )
-}
-
-/**
- *
- *
- * @export
  * @param {*} handlebarTemplateDir
  */
 function setHandlebarTemplateDirForCli(handlebarTemplateDir) {
@@ -426,6 +411,5 @@ function initMenu(port) {
   Menu.setApplicationMenu(menu)
 }
 
-exports.generateCodeViaCli = generateCodeViaCli
 exports.setHandlebarTemplateDirForCli = setHandlebarTemplateDirForCli
 exports.initMenu = initMenu
