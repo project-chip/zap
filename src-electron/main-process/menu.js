@@ -27,6 +27,8 @@ const uiJs = require('./ui.js')
 const windowJs = require('./window.js')
 const preference = require('./preference.js')
 const generationEngine = require('../generator/generation-engine.js')
+const queryPackage = require('../db/query-package.js')
+const dbEnum = require('../db/db-enum.js')
 
 var httpPort
 var handlebarTemplateDirectory = __dirname + '/../../test/gen-template'
@@ -236,25 +238,66 @@ function generateInDir(browserWindow) {
     })
     .then((result) => {
       if (!result.canceled) {
-        return Promise.resolve(result.filePaths[0])
+        return Promise.resolve({ path: result.filePaths[0] })
       } else {
-        return Promise.resolve(null)
+        return Promise.resolve({})
       }
     })
-    .then((filePath) => {
-      if (filePath != null) {
-        staticGenerator.writeGeneratedFiles(
-          generationOptionsFile,
-          env.mainDatabase(),
-          filePath,
-          handlebarTemplateDirectory
-        )
-        dialog.showMessageBox(browserWindow, {
-          title: 'Generation',
-          message: `Generation Output: ${filePath}`,
-          buttons: ['Ok'],
+    .then((context) => {
+      if (!('path' in context)) return context
+
+      return querySession
+        .getSessionInfoFromWindowId(env.mainDatabase(), browserWindow.id)
+        .then((session) => {
+          env.logInfo(`Generating for session ${session.sessionId}`)
+          context.sessionId = session.sessionId
+          return context
         })
-      }
+    })
+    .then((context) => {
+      context.packageIds = []
+      if (!('sessionId' in context)) return context
+
+      env.logInfo(
+        `Collecting session packages for session ${context.sessionId}`
+      )
+      return queryPackage
+        .getSessionPackagesByType(
+          env.mainDatabase(),
+          context.sessionId,
+          dbEnum.packageType.genTemplatesJson
+        )
+        .then((pkgs) => {
+          pkgs.forEach((pkg) => {
+            env.logInfo(`Package ${pkg.id}, type: ${pkg.type}`)
+            context.packageIds.push(pkg.id)
+          })
+          return context
+        })
+    })
+    .then((context) => {
+      var promises = []
+      context.packageIds.forEach((pkgId) => {
+        env.logInfo(
+          `Setting up generation for session ${context.sessionId} and package ${pkgId}`
+        )
+        promises.push(
+          generationEngine.generateAndWriteFiles(
+            env.mainDatabase(),
+            context.sessionId,
+            pkgId,
+            context.path
+          )
+        )
+      })
+      return Promise.all(promises).then(() => context)
+    })
+    .then((context) => {
+      dialog.showMessageBox(browserWindow, {
+        title: 'Generation',
+        message: `Generation Output: ${context.path}`,
+        buttons: ['Ok'],
+      })
     })
     .catch((err) => uiJs.showErrorMessage('Save file', err))
 }

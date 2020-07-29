@@ -155,6 +155,7 @@ function generateSingleTemplate(genResult, pkg) {
   return templateEngine
     .produceContent(genResult.db, genResult.sessionId, pkg)
     .then((data) => {
+      env.logInfo(`Adding content for : ${pkg.version} => ${data}`)
       genResult.content[pkg.version] = data
       genResult.partial = true
       return genResult
@@ -177,6 +178,7 @@ function generate(db, sessionId, packageId) {
       content: {},
     }
     if (pkg.type === dbEnum.packageType.genTemplatesJson) {
+      env.logInfo(`Generate from top-level JSON file: ${pkg.path}`)
       return generateAllTemplates(genResult, pkg)
     } else if (pkg.type === dbEnum.packageType.genSingleTemplate) {
       return generateSingleTemplate(genResult, pkg)
@@ -201,6 +203,7 @@ function generateAndWriteFiles(db, sessionId, packageId, outputDirectory) {
     for (const f in genResult.content) {
       var content = genResult.content[f]
       var fileName = path.join(outputDirectory, f)
+      env.logInfo(`Preparing to write file: ${fileName}`)
       promises.push(fsPromise.writeFile(fileName, content))
     }
     return Promise.all(promises)

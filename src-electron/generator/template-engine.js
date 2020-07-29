@@ -23,7 +23,7 @@ const fsPromise = require('fs').promises
 const handlebars = require('handlebars')
 const env = require('../util/env.js')
 
-var helpersInitialized = true
+var helpersInitialized = false
 
 const templateCompileOptions = {
   noEscape: true,

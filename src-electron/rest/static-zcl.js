@@ -231,7 +231,7 @@ function registerStaticZclApi(db, app) {
 
     var replyId = id === 'all' ? itemList : singleItem
     queryPackage
-      .getSessionPackages(db, sessionId)
+      .getSessionPackageIds(db, sessionId)
       .then((packageIdArray) => {
         return parseForZclData(db, entity, id, packageIdArray)
       })

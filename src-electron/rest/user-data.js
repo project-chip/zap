@@ -378,8 +378,8 @@ function registerSessionApi(db, app) {
   app.get(`${restApi.uri.option}/:option`, (request, response) => {
     var sessionId = request.session.zapSessionId
     const { option } = request.params
-    queryPackage.getSessionPackages(db, sessionId).then((packages) => {
-      var p = packages.map((packageId) => {
+    queryPackage.getSessionPackageIds(db, sessionId).then((packageIds) => {
+      var p = packageIds.map((packageId) => {
         return queryPackage.selectAllOptionsValues(db, packageId, option)
       })
       Promise.all(p)
