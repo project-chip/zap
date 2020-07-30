@@ -89,7 +89,7 @@ test('handlebars: using functions inside the passed input', () => {
   expect(output).toEqual('Got example text, returned EXAMPLE TEXT')
 })
 
-test('handlebars: using helper to populate the context', function () {
+test('handlebars: using helper to populate the context', () => {
   var template = handlebars.compile('{{#each custom_list}}{{value}}{{/each}}')
   var output = template({
     custom_list: () => {
@@ -101,4 +101,14 @@ test('handlebars: using helper to populate the context', function () {
     },
   })
   expect(output).toEqual('0123456789')
+})
+
+test('handlebars: helper this processing', () => {
+  handlebars.registerHelper('inc', function () {
+    this.data++
+    return this.data
+  })
+  var template = handlebars.compile('{{inc}}{{inc}}{{inc}}{{inc}}{{inc}}')
+  var output = template({ data: 0 })
+  expect(output).toEqual('12345')
 })

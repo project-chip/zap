@@ -14,3 +14,9 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+const queryZcl = require('../db/query-zcl.js')
+
+function zcl_enums(options) {}
+
+exports.zcl_enums = zcl_enums
