@@ -132,6 +132,8 @@ test('Validate more complex generation', () =>
       expect(simpleTest.includes(`SessionId: ${genResult.sessionId}`))
 
       var zclId = genResult.content['zcl-test.out']
+      //expect(zclId).toEqual('random placeholder')
+
       expect(
         zclId.includes('// label=>ZllStatus caption=>Enum of type ENUM8')
       ).toBeTruthy()
@@ -139,6 +141,9 @@ test('Validate more complex generation', () =>
         zclId.includes(
           '// label=>MeteringBlockEnumerations caption=>Enum of type ENUM8'
         )
+      ).toBeTruthy()
+      expect(
+        zclId.includes('// struct: ReadReportingConfigurationAttributeRecord')
       ).toBeTruthy()
     }))
 

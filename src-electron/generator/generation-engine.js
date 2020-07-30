@@ -169,7 +169,7 @@ function generateSingleTemplate(genResult, pkg) {
  * Main API function to generate stuff.
  *
  * @param {*} db Database
- * @param {*} packageId packageId
+ * @param {*} packageId packageId Template package id
  * @returns Promise that resolves into a generation result.
  */
 function generate(db, sessionId, packageId, generateOnly = null) {

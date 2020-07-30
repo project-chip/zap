@@ -16,10 +16,33 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const queryPackage = require('../db/query-package.js')
+const dbEnum = require('../db/db-enum.js')
+
+function ensurePackageId(context) {
+  if ('packageId' in context) {
+    return Promise.resolve(context.packageId)
+  } else {
+    return queryPackage
+      .getSessionPackagesByType(
+        context.db,
+        context.sessionId,
+        dbEnum.packageType.zclProperties
+      )
+      .then((pkgs) => {
+        if (pkgs.length == 0) {
+          return null
+        } else {
+          context.packageId = pkgs[0].id
+          return pkgs[0].id
+        }
+      })
+  }
+}
 
 function zcl_enums(options) {
-  return queryZcl
-    .selectAllEnums(this.db)
+  return ensurePackageId(this)
+    .then((packageId) => queryZcl.selectAllEnums(this.db, packageId))
     .then((ens) => {
       var promises = []
       ens.forEach((element) => {
@@ -37,4 +60,25 @@ function zcl_enums(options) {
     })
 }
 
+function zcl_structs(options) {
+  return ensurePackageId(this)
+    .then((packageId) => queryZcl.selectAllStructs(this.db, packageId))
+    .then((st) => {
+      var promises = []
+      st.forEach((element) => {
+        var block = options.fn(element)
+        promises.push(block)
+      })
+      return Promise.all(promises)
+    })
+    .then((blocks) => {
+      var ret = ''
+      blocks.forEach((b) => {
+        ret = ret.concat(b)
+      })
+      return ret
+    })
+}
+
 exports.zcl_enums = zcl_enums
+exports.zcl_structs = zcl_structs
