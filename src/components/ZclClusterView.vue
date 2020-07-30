@@ -56,9 +56,9 @@ limitations under the License.
             label="Enable Command Discovery"
           ></q-toggle>
           <q-btn round flat icon="info" size="md" color="grey">
-            <q-tooltip
-              >An explanation of toggling Enable Command Discovery</q-tooltip
-            >
+            <q-tooltip>
+              An explanation of toggling Enable Command Discovery
+            </q-tooltip>
           </q-btn>
         </div>
       </div>
