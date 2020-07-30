@@ -76,3 +76,29 @@ test('handlebars: if helper', () => {
   output = template({ flag: false })
   expect(output).toEqual('No flag!')
 })
+
+test('handlebars: using functions inside the passed input', () => {
+  var template = handlebars.compile('{{fn}}')
+  var output = template({
+    fn: () => {
+      var text = 'example text'
+      var uc = text.toUpperCase()
+      return `Got ${text}, returned ${uc}`
+    },
+  })
+  expect(output).toEqual('Got example text, returned EXAMPLE TEXT')
+})
+
+test('handlebars: using helper to populate the context', function () {
+  var template = handlebars.compile('{{#each custom_list}}{{value}}{{/each}}')
+  var output = template({
+    custom_list: () => {
+      var list = []
+      for (var i = 0; i < 10; i++) {
+        list.push({ value: i })
+      }
+      return list
+    },
+  })
+  expect(output).toEqual('0123456789')
+})
