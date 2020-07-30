@@ -21,9 +21,6 @@
  * @module REST API: generation functions
  */
 
-const env = require('../util/env.js')
-const staticGenerator = require('../generator/static-generator.js')
-const restApi = require('../../src-shared/rest-api.js')
 const generationEngine = require('../generator/generation-engine.js')
 
 /**
