@@ -112,3 +112,19 @@ test('handlebars: helper this processing', () => {
   var output = template({ data: 0 })
   expect(output).toEqual('12345')
 })
+
+test('handlebars: iterator', () => {
+  handlebars.registerHelper('it', function (options) {
+    var ret = this.prefix
+    var context = this
+    for (var x = 0; x < 10; x++) {
+      context.thing = x
+      ret = ret + options.fn(context)
+    }
+    ret = ret + this.postfix
+    return ret
+  })
+  var template = handlebars.compile('{{#it}}{{thing}}{{/it}}')
+  var output = template({ prefix: 'PRE:', postfix: ':ERP' })
+  expect(output).toEqual('PRE:0123456789:ERP')
+})

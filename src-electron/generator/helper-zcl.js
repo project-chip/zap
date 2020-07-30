@@ -17,6 +17,14 @@
 
 const queryZcl = require('../db/query-zcl.js')
 
-function zcl_enums(options) {}
+function zcl_enums(options) {
+  var ret = ''
+  queryZcl.selectAllEnums(this.db).then((ens) => {
+    ens.forEach((element) => {
+      ret = ret.concat(options.fn(element))
+    })
+  })
+  return ret
+}
 
 exports.zcl_enums = zcl_enums
