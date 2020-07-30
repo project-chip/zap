@@ -24,7 +24,7 @@ const path = require('path')
 
 function executeCmd(ctx, cmd, args) {
   return new Promise((resolve, reject) => {
-    console.log(`🚀 Executing: ${cmd}`)
+    console.log(`🚀 Executing: ${cmd} ${args}`)
     var c = spawn(cmd, args)
     c.on('exit', (code) => {
       if (code == 0) resolve(ctx)
