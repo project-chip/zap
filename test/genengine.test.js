@@ -129,6 +129,7 @@ test('Validate basic generation one more time', () =>
       var simpleTest = genResult.content['simple-test.out']
       expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
       expect(simpleTest.includes(helperZap.zap_header()))
+      expect(simpleTest.includes(`SessionId: ${genResult.sessionId}`))
 
       var zclId = genResult.content['zap-id.h']
       expect(zclId.startsWith(helperZap.zap_header()))

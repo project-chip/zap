@@ -52,7 +52,12 @@ function produceCompiledTemplate(singlePkg) {
  * @returns Promise that resolves with the 'utf8' string that contains the generated content.
  */
 function produceContent(db, sessionId, singlePkg) {
-  return produceCompiledTemplate(singlePkg).then((template) => template({}))
+  return produceCompiledTemplate(singlePkg).then((template) =>
+    template({
+      db: db,
+      sessionId: sessionId,
+    })
+  )
 }
 
 function initializeHelpers() {
