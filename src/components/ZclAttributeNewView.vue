@@ -33,7 +33,7 @@ limitations under the License.
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td key="included" :props="props" auto-width>
-            <q-checkbox
+            <q-toggle
               class="q-mt-xs"
               v-model="selection"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
