@@ -34,7 +34,7 @@ const {
 } = require('../src-electron/db/query-impexp.js')
 
 var db
-const templateCount = 3
+const templateCount = 4
 
 beforeAll(() => {
   var file = env.sqliteTestFile('genengine')
@@ -115,7 +115,7 @@ test('Validate basic generation', () =>
       expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
     }))
 
-test('Validate basic generation one more time', () =>
+test('Validate more complex generation', () =>
   genEngine
     .generate(
       templateContext.db,
@@ -131,11 +131,15 @@ test('Validate basic generation one more time', () =>
       expect(simpleTest.includes(helperZap.zap_header()))
       expect(simpleTest.includes(`SessionId: ${genResult.sessionId}`))
 
-      var zclId = genResult.content['zap-id.h']
-      expect(zclId.startsWith(helperZap.zap_header()))
-
-      var zclId = genResult.content['zap-type.h']
-      expect(zclId.startsWith(helperZap.zap_header()))
+      var zclId = genResult.content['zcl-test.out']
+      expect(
+        zclId.includes('// label=>ZllStatus caption=>Enum of type ENUM8')
+      ).toBeTruthy()
+      expect(
+        zclId.includes(
+          '// label=>MeteringBlockEnumerations caption=>Enum of type ENUM8'
+        )
+      ).toBeTruthy()
     }))
 
 test('Test content indexer - simple', () =>

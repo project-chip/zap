@@ -8,6 +8,11 @@
       "output": "simple-test.out"
     },
     {
+      "path": "zcl-test.handlebars",
+      "name": "Test ZCL template",
+      "output": "zcl-test.out"
+    },
+    {
       "path": "zap-id.handlebars",
       "name": "Various ZCL ids",
       "output": "zap-id.h"

@@ -20,7 +20,8 @@
  */
 
 const fsPromise = require('fs').promises
-const handlebars = require('handlebars')
+const promisedHandlebars = require('promised-handlebars')
+const handlebars = promisedHandlebars(require('handlebars'))
 const env = require('../util/env.js')
 
 var helpersInitialized = false

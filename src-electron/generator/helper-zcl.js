@@ -18,13 +18,23 @@
 const queryZcl = require('../db/query-zcl.js')
 
 function zcl_enums(options) {
-  var ret = ''
-  queryZcl.selectAllEnums(this.db).then((ens) => {
-    ens.forEach((element) => {
-      ret = ret.concat(options.fn(element))
+  return queryZcl
+    .selectAllEnums(this.db)
+    .then((ens) => {
+      var promises = []
+      ens.forEach((element) => {
+        var block = options.fn(element)
+        promises.push(block)
+      })
+      return Promise.all(promises)
     })
-  })
-  return ret
+    .then((blocks) => {
+      var ret = ''
+      blocks.forEach((b) => {
+        ret = ret.concat(b)
+      })
+      return ret
+    })
 }
 
 exports.zcl_enums = zcl_enums
