@@ -112,7 +112,7 @@ function getPackagesByType(db, type) {
       'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE TYPE = ?',
       [type]
     )
-    .then((rows) => rows.map((row) => dbMapping.map.package(row)))
+    .then((rows) => rows.map(dbMapping.map.package))
 }
 
 /**
@@ -178,11 +178,11 @@ function updateVersion(db, packageId, version) {
  * @param {*} crc CRC of the file.
  * @returns Promise of an insertion.
  */
-function insertPathCrc(db, path, crc, type, parentId = null) {
+function insertPathCrc(db, path, crc, type, parentId = null, version = null) {
   return dbApi.dbInsert(
     db,
-    'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF ) VALUES (?, ?, ?, ?)',
-    [path, crc, type, parentId]
+    'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION ) VALUES (?, ?, ?, ?, ?)',
+    [path, crc, type, parentId, version]
   )
 }
 /**
@@ -195,13 +195,13 @@ function insertPathCrc(db, path, crc, type, parentId = null) {
  * @param {*} [parentId=null]
  * @returns Promise of an insert or update.
  */
-function registerTopLevelPackage(db, path, crc, type) {
+function registerTopLevelPackage(db, path, crc, type, version = null) {
   return getPackageByPathAndType(db, path, type).then((row) => {
     if (row == null) {
       return dbApi.dbInsert(
         db,
-        'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF ) VALUES (?,?,?,?)',
-        [path, crc, type, null]
+        'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION ) VALUES (?,?,?,?,?)',
+        [path, crc, type, null, version]
       )
     } else {
       return Promise.resolve(row.id)
@@ -243,12 +243,41 @@ function insertSessionPackage(db, sessionId, packageId) {
 }
 
 /**
+ * Returns session packages of a given type.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageType
+ * @returns Promise that resolves into array of retrieve packages.
+ */
+function getSessionPackagesByType(db, sessionId, packageType) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  PACKAGE.PACKAGE_ID,
+  PACKAGE.PATH,
+  PACKAGE.TYPE,
+  PACKAGE.CRC,
+  PACKAGE.VERSION
+FROM PACKAGE
+INNER JOIN SESSION_PACKAGE
+  ON PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF
+WHERE SESSION_PACKAGE.SESSION_REF = ? 
+  AND PACKAGE.TYPE = ?`,
+      [sessionId, packageType]
+    )
+    .then((rows) => rows.map(dbMapping.map.package))
+}
+
+/**
  * Returns the session package IDs.
  * @param {*} db
  * @param {*} sessionId
  * @returns The promise that resolves into an array of package IDs.
  */
-function getSessionPackages(db, sessionId) {
+function getSessionPackageIds(db, sessionId) {
   return dbApi
     .dbAll(
       db,
@@ -285,7 +314,7 @@ function callPackageSpecificFunctionOverSessionPackages(
     return [accumulated, currentValue].flat(1)
   }
 ) {
-  return getSessionPackages(db, sessionId)
+  return getSessionPackageIds(db, sessionId)
     .then((packageIdArray) =>
       packageIdArray.map((packageId) =>
         queryFunction.apply(
@@ -353,9 +382,10 @@ exports.updatePathCrc = updatePathCrc
 exports.registerTopLevelPackage = registerTopLevelPackage
 exports.updateVersion = updateVersion
 exports.insertSessionPackage = insertSessionPackage
-exports.getSessionPackages = getSessionPackages
+exports.getSessionPackageIds = getSessionPackageIds
 exports.callPackageSpecificFunctionOverSessionPackages = callPackageSpecificFunctionOverSessionPackages
 exports.getPackageIdByPathAndTypeAndVersion = getPackageIdByPathAndTypeAndVersion
 exports.insertOptionsKeyValues = insertOptionsKeyValues
 exports.selectAllOptionsValues = selectAllOptionsValues
 exports.getPackageByParent = getPackageByParent
+exports.getSessionPackagesByType = getSessionPackagesByType

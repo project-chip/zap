@@ -32,6 +32,7 @@ const admin = require('../rest/admin.js')
 const generation = require('../rest/generation.js')
 const staticZcl = require('../rest/static-zcl.js')
 const userData = require('../rest/user-data.js')
+const uc_integration = require('../rest/uc-component.js')
 const util = require('../util/util.js')
 
 var httpServer = null
@@ -87,6 +88,7 @@ function initHttpServer(db, port) {
     userData.registerSessionApi(db, app)
     generation.registerGenerationApi(db, app)
     admin.registerAdminApi(db, app)
+    uc_integration.registerUcComponentApi(db, app)
 
     app.use(express.static(env.httpStaticContent))
 

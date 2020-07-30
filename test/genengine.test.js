@@ -24,11 +24,17 @@ const env = require('../src-electron/util/env.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const fs = require('fs')
 const queryPackage = require('../src-electron/db/query-package.js')
+const querySession = require('../src-electron/db/query-session.js')
+const utilJs = require('../src-electron/util/util.js')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
+const dbEnum = require('../src-electron/db/db-enum.js')
+const helperZap = require('../src-electron/generator/helper-zap.js')
 
 var db
+const templateCount = 3
 
 beforeAll(() => {
-  var file = env.sqliteTestFile(54)
+  var file = env.sqliteTestFile('genengine')
   return dbApi
     .initDatabase(file)
     .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
@@ -39,31 +45,91 @@ beforeAll(() => {
 }, 5000)
 
 afterAll(() => {
-  var file = env.sqliteTestFile(54)
+  var file = env.sqliteTestFile('genengine')
   return dbApi.closeDatabase(db).then(() => {
     if (fs.existsSync(file)) fs.unlinkSync(file)
   })
 })
 
-test('Basic gen template parsing', () =>
-  genEngine
-    .loadGenTemplate({ path: args.genTemplateJsonFile, db: db })
-    .then((context) => {
-      expect(context.crc).not.toBeNull()
-      expect(context.templateData).not.toBeNull()
-      expect(context.templateData.name).toEqual('Test templates')
-      expect(context.templateData.version).toEqual('1.0')
-      expect(context.templateData.templates.length).toBeGreaterThan(1)
-      return context
+var templateContext
+
+test('Basic gen template parsing and generation', () =>
+  genEngine.loadTemplates(db, args.genTemplateJsonFile).then((context) => {
+    expect(context.crc).not.toBeNull()
+    expect(context.templateData).not.toBeNull()
+    expect(context.templateData.name).toEqual('Test templates')
+    expect(context.templateData.version).toEqual('test-v1')
+    expect(context.templateData.templates.length).toEqual(templateCount)
+    expect(context.packageId).not.toBeNull()
+    templateContext = context
+  }))
+
+test('Validate package loading', () =>
+  queryPackage
+    .getPackageByParent(templateContext.db, templateContext.packageId)
+    .then((packages) => {
+      templateContext.packages = packages
+      return templateContext
     })
-    .then((context) => genEngine.recordTemplatesPackage(context))
     .then((context) => {
-      expect(context.packageId).not.toBeNull()
-      return context
-    })
-    .then((context) =>
-      queryPackage.getPackageByParent(context.db, context.packageId)
+      expect(context.packages.length).toBe(templateCount)
+    }))
+
+test('Create session', () =>
+  querySession.createBlankSession(db).then((sessionId) => {
+    expect(sessionId).not.toBeNull()
+    templateContext.sessionId = sessionId
+  }))
+
+test(
+  'Load ZCL stuff',
+  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
+  5000
+)
+
+test('Initialize session packages', () =>
+  utilJs
+    .initializeSessionPackage(templateContext.db, templateContext.sessionId)
+    .then((sessionId) =>
+      queryPackage.getSessionPackageIds(templateContext.db, sessionId)
     )
     .then((packages) => {
-      expect(packages.length).toBe(10)
+      expect(packages.length).toBe(2)
+    }))
+
+test('Validate basic generation', () =>
+  genEngine
+    .generate(
+      templateContext.db,
+      templateContext.sessionId,
+      templateContext.packageId
+    )
+    .then((genResult) => {
+      expect(genResult).not.toBeNull()
+      expect(genResult.partial).toBeFalsy()
+      expect(genResult.content).not.toBeNull()
+      var simpleTest = genResult.content['simple-test.out']
+      expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
+    }))
+
+test('Validate basic generation one more time', () =>
+  genEngine
+    .generate(
+      templateContext.db,
+      templateContext.sessionId,
+      templateContext.packageId
+    )
+    .then((genResult) => {
+      expect(genResult).not.toBeNull()
+      expect(genResult.partial).toBeFalsy()
+      expect(genResult.content).not.toBeNull()
+      var simpleTest = genResult.content['simple-test.out']
+      expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
+      expect(simpleTest.includes(helperZap.zap_header()))
+
+      var zclId = genResult.content['zap-id.h']
+      expect(zclId.startsWith(helperZap.zap_header()))
+
+      var zclId = genResult.content['zap-type.h']
+      expect(zclId.startsWith(helperZap.zap_header()))
     }))

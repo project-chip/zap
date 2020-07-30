@@ -20,12 +20,14 @@ const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const queryGeneric = require('../db/query-generic.js')
 const querySession = require('../db/query-session.js')
-const staticGenerator = require('../generator/static-generator.js')
 const exportJs = require('../importexport/export.js')
 const importJs = require('../importexport/import.js')
-const { showErrorMessage } = require('./ui.js')
+const uiJs = require('./ui.js')
 const windowJs = require('./window.js')
 const preference = require('./preference.js')
+const generationEngine = require('../generator/generation-engine.js')
+const queryPackage = require('../db/query-package.js')
+const dbEnum = require('../db/db-enum.js')
 
 var httpPort
 var handlebarTemplateDirectory = __dirname + '/../../test/gen-template'
@@ -81,7 +83,7 @@ const template = [
                 buttons: ['Dismiss'],
               })
             })
-            .catch((err) => showErrorMessage('Session info', err))
+            .catch((err) => uiJs.showErrorMessage('Session info', err))
         },
       },
       {
@@ -153,7 +155,7 @@ function doOpen(menuItem, browserWindow, event) {
         fileOpen(env.mainDatabase(), browserWindow.id, result.filePaths)
       }
     })
-    .catch((err) => showErrorMessage('Open file', err))
+    .catch((err) => uiJs.showErrorMessage('Open file', err))
 }
 
 /**
@@ -217,7 +219,7 @@ function doSaveAs(menuItem, browserWindow, event) {
         })
       }
     })
-    .catch((err) => showErrorMessage('Save file', err))
+    .catch((err) => uiJs.showErrorMessage('Save file', err))
 }
 
 /**
@@ -235,42 +237,68 @@ function generateInDir(browserWindow) {
     })
     .then((result) => {
       if (!result.canceled) {
-        return Promise.resolve(result.filePaths[0])
+        return Promise.resolve({ path: result.filePaths[0] })
       } else {
-        return Promise.resolve(null)
+        return Promise.resolve({})
       }
     })
-    .then((filePath) => {
-      if (filePath != null) {
-        staticGenerator.writeGeneratedFiles(
-          generationOptionsFile,
-          env.mainDatabase(),
-          filePath,
-          handlebarTemplateDirectory
-        )
-        dialog.showMessageBox(browserWindow, {
-          title: 'Generation',
-          message: `Generation Output: ${filePath}`,
-          buttons: ['Ok'],
-        })
-      }
-    })
-    .catch((err) => showErrorMessage('Save file', err))
-}
+    .then((context) => {
+      if (!('path' in context)) return context
 
-/**
- *
- *
- * @export
- * @param {*} generationDir
- */
-function generateCodeViaCli(generationDir) {
-  return staticGenerator.writeGeneratedFiles(
-    generationOptionsFile,
-    env.mainDatabase(),
-    generationDir,
-    handlebarTemplateDirectory
-  )
+      return querySession
+        .getSessionInfoFromWindowId(env.mainDatabase(), browserWindow.id)
+        .then((session) => {
+          env.logInfo(`Generating for session ${session.sessionId}`)
+          context.sessionId = session.sessionId
+          return context
+        })
+    })
+    .then((context) => {
+      context.packageIds = []
+      if (!('sessionId' in context)) return context
+
+      env.logInfo(
+        `Collecting session packages for session ${context.sessionId}`
+      )
+      return queryPackage
+        .getSessionPackagesByType(
+          env.mainDatabase(),
+          context.sessionId,
+          dbEnum.packageType.genTemplatesJson
+        )
+        .then((pkgs) => {
+          pkgs.forEach((pkg) => {
+            env.logInfo(`Package ${pkg.id}, type: ${pkg.type}`)
+            context.packageIds.push(pkg.id)
+          })
+          return context
+        })
+    })
+    .then((context) => {
+      var promises = []
+      context.packageIds.forEach((pkgId) => {
+        env.logInfo(
+          `Setting up generation for session ${context.sessionId} and package ${pkgId}`
+        )
+        promises.push(
+          generationEngine.generateAndWriteFiles(
+            env.mainDatabase(),
+            context.sessionId,
+            pkgId,
+            context.path
+          )
+        )
+      })
+      return Promise.all(promises).then(() => context)
+    })
+    .then((context) => {
+      dialog.showMessageBox(browserWindow, {
+        title: 'Generation',
+        message: `Generation Output: ${context.path}`,
+        buttons: ['Ok'],
+      })
+    })
+    .catch((err) => uiJs.showErrorMessage('Save file', err))
 }
 
 /**
@@ -314,7 +342,7 @@ function setHandlebarTemplateDirectory(browserWindow) {
         })
       }
     })
-    .catch((err) => showErrorMessage('Save file', err))
+    .catch((err) => uiJs.showErrorMessage('Save file', err))
 }
 
 /**
@@ -334,7 +362,7 @@ function fileSave(db, winId, filePath) {
         .then(() => row)
     })
     .then((row) => exportJs.exportDataIntoFile(db, row.sessionId, filePath))
-    .catch((err) => showErrorMessage('File save', err))
+    .catch((err) => uiJs.showErrorMessage('File save', err))
 }
 
 /**
@@ -366,7 +394,7 @@ function readAndProcessFile(db, filePath) {
       return true
     })
     .catch((err) => {
-      showErrorMessage(filePath, err)
+      uiJs.showErrorMessage(filePath, err)
     })
 }
 
@@ -382,6 +410,5 @@ function initMenu(port) {
   Menu.setApplicationMenu(menu)
 }
 
-exports.generateCodeViaCli = generateCodeViaCli
 exports.setHandlebarTemplateDirForCli = setHandlebarTemplateDirForCli
 exports.initMenu = initMenu

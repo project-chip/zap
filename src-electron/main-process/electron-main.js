@@ -15,19 +15,18 @@
  *    limitations under the License.
  */
 
-const fs = require('fs')
 const { app } = require('electron')
+const fs = require('fs')
+
 const dbApi = require('../db/db-api.js')
 const sdkGen = require('../sdk-gen/sdk-gen.js')
 const args = require('./args.js')
 const env = require('../util/env.js')
-const {
-  generateCodeViaCli,
-  setHandlebarTemplateDirForCli,
-} = require('./menu.js')
+const menuJs = require('./menu.js')
 const zclLoader = require('../zcl/zcl-loader.js')
-const { initializeElectronUi, windowCreateIfNotThere } = require('./window.js')
+const windowJs = require('./window.js')
 const httpServer = require('../server/http-server.js')
+const generatorEngine = require('../generator/generation-engine.js')
 
 env.logInitLogFile()
 
@@ -52,6 +51,9 @@ function startSelfCheck() {
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then((ctx) =>
+      generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
+    )
     .then((ctx) => {
       console.log('Self-check done!')
       app.quit()
@@ -68,10 +70,15 @@ function startNormal(uiEnabled, showUrl, uiMode) {
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then((ctx) =>
+      generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
+    )
     .then((ctx) => httpServer.initHttpServer(ctx.db, args.httpPort))
     .then(() => {
       if (uiEnabled) {
-        initializeElectronUi(httpServer.httpServerPort(), { uiMode: uiMode })
+        windowJs.initializeElectronUi(httpServer.httpServerPort(), {
+          uiMode: uiMode,
+        })
       } else {
         if (app.dock) {
           app.dock.hide()
@@ -88,49 +95,6 @@ function startNormal(uiEnabled, showUrl, uiMode) {
       env.logError(err)
       throw err
     })
-}
-/**
- *
- *
- * @param {*} generationDir
- * @param {*} handlebarTemplateDir
- */
-function applyGenerationSettings(
-  generationDir,
-  handlebarTemplateDir,
-  zclPropertiesFilePath
-) {
-  env.logInfo('Start Generation...')
-  return dbApi
-    .initDatabase(env.sqliteFile())
-    .then((db) => attachToDb(db))
-    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
-    .then((db) =>
-      zclLoader.loadZcl(
-        db,
-        zclPropertiesFilePath ? zclPropertiesFilePath : args.zclPropertiesFile
-      )
-    )
-    .then((ctx) =>
-      setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir)
-    )
-    .then((res) => app.quit())
-}
-/**
- *
- *
- * @param {*} generationDir
- * @param {*} handlebarTemplateDir
- * @returns Returns a promise of a generation
- */
-function setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) {
-  if (handlebarTemplateDir) {
-    return setHandlebarTemplateDirForCli(
-      handlebarTemplateDir
-    ).then((handlebarTemplateDir) => generateCodeViaCli(generationDir))
-  } else {
-    return generateCodeViaCli(generationDir)
-  }
 }
 
 function startSdkGeneration(
@@ -186,11 +150,7 @@ if (app != null) {
     if (argv._.includes('selfCheck')) {
       startSelfCheck()
     } else if (argv._.includes('generate')) {
-      // generate can have:
-      // - Generation Directory (-output)
-      // - Handlebar Template Directory (-template)
-      // - Xml Data directory (-xml)
-      applyGenerationSettings(argv.output, argv.template, argv.zclProperties)
+      console.log('Generation currently disabled....')
     } else if (argv._.includes('sdkGen')) {
       startSdkGeneration(argv.output, argv.template, argv.zclProperties)
     } else {
@@ -206,7 +166,7 @@ if (app != null) {
 
   app.on('activate', () => {
     env.logInfo('Activate...')
-    windowCreateIfNotThere(args.httpPort)
+    windowJs.windowCreateIfNotThere(args.httpPort)
   })
 
   app.on('quit', () => {

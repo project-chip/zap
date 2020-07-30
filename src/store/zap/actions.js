@@ -148,6 +148,20 @@ export function updateSelectedEndpoint(context, endpoint) {
   context.commit('updateSelectedEndpoint', endpoint)
 }
 
+export function updateEndpointType(context, endpointType) {
+  Vue.prototype
+    .$serverPost(`/endpointType/update`, endpointType)
+    .then((data) => {
+      let arg = data.data
+      if (arg.updatedKey === 'deviceTypeRef') {
+        setDeviceTypeReference(context, {
+          endpointId: arg.endpointTypeId,
+          deviceTypeRef: arg.updatedValue,
+        })
+      }
+    })
+}
+
 export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
   Vue.prototype
     .$serverGet(
@@ -209,12 +223,31 @@ export function addEndpoint(context, newEndpointContext) {
   })
 }
 
-export function addEndpointType(context, endpointType) {
-  context.commit('addEndpointType', endpointType)
+export function addEndpointType(context, endpointTypeData) {
+  return new Promise((resolve, reject) => {
+    Vue.prototype
+      .$serverPost(`/endpointType`, endpointTypeData)
+      .then((endpointTypeResponse) => {
+        let arg = endpointTypeResponse.data
+        context.commit('addEndpointType', {
+          id: arg.id,
+          name: arg.name,
+          deviceTypeRef: arg.deviceTypeRef,
+        })
+        return resolve(endpointTypeResponse.data)
+      })
+  })
 }
 
-export function removeEndpointType(context, endpointType) {
-  context.commit('removeEndpointType', endpointType)
+export function removeEndpointType(context, endpointTypeData) {
+  Vue.prototype.$serverPose('endpointType', endpointTypeData).then((data) => {
+    let arg = data.data
+    if (arg.successful) {
+      context.commit('removeEndpointType', {
+        id: arg.id,
+      })
+    }
+  })
 }
 
 export function updateEndpoint(context, endpoint) {
@@ -465,4 +498,8 @@ export function setSelectedGenericOption(context, optionData) {
 
 export function setDefaultUiMode(context, uiMode) {
   context.commit(`setDefaultUiMode`, uiMode)
+}
+
+export function setStudioConfigPath(context, filePath) {
+  context.commit('setStudioConfigPath', filePath)
 }

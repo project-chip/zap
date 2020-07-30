@@ -43,7 +43,7 @@ var axiosInstance = null
 
 beforeAll(() => {
   env.setDevelopmentEnv()
-  var file = env.sqliteTestFile(2)
+  var file = env.sqliteTestFile('server')
   axiosInstance = axios.create({ baseURL: baseUrl })
   return dbApi
     .initDatabase(file)
@@ -60,7 +60,7 @@ afterAll(() =>
     .shutdownHttpServer()
     .then(() => dbApi.closeDatabase(db))
     .then(() => {
-      var file = env.sqliteTestFile(2)
+      var file = env.sqliteTestFile('server')
       env.logInfo(`Removing test database: ${file}`)
       if (fs.existsSync(file)) fs.unlinkSync(file)
     })

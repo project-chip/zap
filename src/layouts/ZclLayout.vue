@@ -62,6 +62,9 @@ limitations under the License.
               <q-expansion-item expand-separator label="SQL Query Test" caption>
                 <sql-query />
               </q-expansion-item>
+              <q-expansion-item expand-separator label="UC Components" caption>
+                <UcComponentSetup />
+              </q-expansion-item>
             </q-tab-panel>
             <q-tab-panel :name="restApi.uiMode.OLD">
               <ZclClusterLayout />
@@ -225,6 +228,7 @@ limitations under the License.
 </template>
 
 <script>
+import UcComponentSetup from '../components/UcComponentSetup.vue'
 import ZclApplicationSetup from '../components/ZclApplicationSetup.vue'
 import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclClusterLayout from './ZclClusterLayout.vue'
@@ -280,6 +284,7 @@ export default {
     },
   },
   components: {
+    UcComponentSetup,
     ZclApplicationSetup,
     ZclInformationSetup,
     ZclClusterLayout,

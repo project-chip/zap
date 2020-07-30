@@ -19,11 +19,13 @@
  * @module JS API: generator logic
  */
 
-const fs = require('fs')
+const fsPromise = require('fs').promises
 const path = require('path')
 const util = require('../util/util.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../db/db-enum.js')
+const env = require('../util/env.js')
+const templateEngine = require('./template-engine.js')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -32,13 +34,12 @@ const dbEnum = require('../db/db-enum.js')
  * @returns context.templates, context.crc
  */
 function loadGenTemplate(context) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(context.path, (err, data) => {
-      if (err) reject(err)
+  return fsPromise
+    .readFile(context.path, 'utf8')
+    .then((data) => {
       context.data = data
-      resolve(context)
+      return context
     })
-  })
     .then((context) => util.calculateCrc(context))
     .then((context) => {
       context.templateData = JSON.parse(context.data)
@@ -58,7 +59,8 @@ function recordTemplatesPackage(context) {
       context.db,
       context.path,
       context.crc,
-      dbEnum.packageType.genTemplatesJson
+      dbEnum.packageType.genTemplatesJson,
+      context.templateData.version
     )
     .then((packageId) => {
       context.packageId = packageId
@@ -66,16 +68,34 @@ function recordTemplatesPackage(context) {
     })
     .then((context) => {
       var promises = []
+      env.logInfo(`Loading ${context.templateData.templates.length} templates.`)
       context.templateData.templates.forEach((template) => {
-        var templatePath = path.join(path.dirname(context.path), template.path)
+        var templatePath = path.resolve(
+          path.join(path.dirname(context.path), template.path)
+        )
         promises.push(
-          queryPackage.insertPathCrc(
-            context.db,
-            templatePath,
-            null,
-            dbEnum.packageType.genSingleTemplate,
-            context.packageId
-          )
+          queryPackage
+            .getPackageByPathAndParent(
+              context.db,
+              templatePath,
+              context.packageId
+            )
+            .then((pkg) => {
+              if (pkg == null) {
+                // doesn't exist
+                return queryPackage.insertPathCrc(
+                  context.db,
+                  templatePath,
+                  null,
+                  dbEnum.packageType.genSingleTemplate,
+                  context.packageId,
+                  template.output
+                )
+              } else {
+                // Already exists
+                return 1
+              }
+            })
         )
       })
       return Promise.all(promises)
@@ -83,5 +103,115 @@ function recordTemplatesPackage(context) {
     .then(() => context)
 }
 
+/**
+ * Main API function to load templates from a gen-template.json file.
+ *
+ * @param {*} db Database
+ * @param {*} genTemplatesJson Path to the JSON file
+ * @returns the loading context, contains: db, path, crc, packageId and templateData
+ */
+function loadTemplates(db, genTemplatesJson) {
+  var context = {
+    db: db,
+    path: path.resolve(genTemplatesJson),
+  }
+  env.logInfo(`Loading generation templates from: ${genTemplatesJson}`)
+  return loadGenTemplate(context).then((context) =>
+    recordTemplatesPackage(context)
+  )
+}
+
+/**
+ * Generates all the templates inside a toplevel package.
+ *
+ * @param {*} genResult
+ * @param {*} pkg
+ * @returns Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
+ */
+function generateAllTemplates(genResult, pkg) {
+  return queryPackage
+    .getPackageByParent(genResult.db, pkg.id)
+    .then((packages) => {
+      var promises = []
+      packages.forEach((singlePkg) => {
+        promises.push(generateSingleTemplate(genResult, singlePkg))
+      })
+      return Promise.all(promises)
+    })
+    .then(() => {
+      genResult.partial = false
+      return genResult
+    })
+}
+
+/**
+ * Function that generates a single package and adds it to the generation result.
+ *
+ * @param {*} genResult
+ * @param {*} pkg
+ * @returns promise that resolves with the genResult, with newly generated content added.
+ */
+function generateSingleTemplate(genResult, pkg) {
+  return templateEngine
+    .produceContent(genResult.db, genResult.sessionId, pkg)
+    .then((data) => {
+      env.logInfo(`Adding content for : ${pkg.version} => ${data}`)
+      genResult.content[pkg.version] = data
+      genResult.partial = true
+      return genResult
+    })
+}
+
+/**
+ * Main API function to generate stuff.
+ *
+ * @param {*} db Database
+ * @param {*} packageId packageId
+ * @returns Promise that resolves into a generation result.
+ */
+function generate(db, sessionId, packageId) {
+  return queryPackage.getPackageByPackageId(db, packageId).then((pkg) => {
+    if (pkg == null) throw `Invalid packageId: ${packageId}`
+    var genResult = {
+      db: db,
+      sessionId: sessionId,
+      content: {},
+    }
+    if (pkg.type === dbEnum.packageType.genTemplatesJson) {
+      env.logInfo(`Generate from top-level JSON file: ${pkg.path}`)
+      return generateAllTemplates(genResult, pkg)
+    } else if (pkg.type === dbEnum.packageType.genSingleTemplate) {
+      return generateSingleTemplate(genResult, pkg)
+    } else {
+      throw `Invalid package type: ${pkg.type}`
+    }
+  })
+}
+
+/**
+ * Generate files and write them into the given directory.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageId
+ * @param {*} outputDirectory
+ * @returns a promise which will resolve when all the files are written.
+ */
+function generateAndWriteFiles(db, sessionId, packageId, outputDirectory) {
+  generate(db, sessionId, packageId).then((genResult) => {
+    var promises = []
+    for (const f in genResult.content) {
+      var content = genResult.content[f]
+      var fileName = path.join(outputDirectory, f)
+      env.logInfo(`Preparing to write file: ${fileName}`)
+      promises.push(fsPromise.writeFile(fileName, content))
+    }
+    return Promise.all(promises)
+  })
+}
+
+exports.loadTemplates = loadTemplates
 exports.loadGenTemplate = loadGenTemplate
 exports.recordTemplatesPackage = recordTemplatesPackage
+exports.generate = generate
+exports.generateAndWriteFiles = generateAndWriteFiles

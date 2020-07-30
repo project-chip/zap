@@ -34,12 +34,11 @@ const port = 9074
 const baseUrl = `http://localhost:${port}`
 var packageId
 var sessionId
-var file = env.sqliteTestFile(3)
 const timeout = 5000
 
 beforeAll(() => {
   env.setDevelopmentEnv()
-  file = env.sqliteTestFile(3)
+  var file = env.sqliteTestFile('generation')
   return dbApi
     .initDatabase(file)
     .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
@@ -55,7 +54,7 @@ afterAll(() => {
     .shutdownHttpServer()
     .then(() => dbApi.closeDatabase(db))
     .then(() => {
-      var file = env.sqliteTestFile(3)
+      var file = env.sqliteTestFile('generation')
       env.logInfo(`Removing test database: ${file}`)
       if (fs.existsSync(file)) fs.unlinkSync(file)
     })
@@ -77,47 +76,6 @@ describe('Session specific tests', () => {
   test('http server initialization', () => {
     return httpServer.initHttpServer(db, port)
   })
-
-  test(
-    'Test command line generation using api used for command line generation',
-    () => {
-      return attachToDb(db)
-        .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
-        .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
-        .then((ctx) =>
-          menuJs.setHandlebarTemplateDirForCli('./test/gen-template/')
-        )
-        .then((handlebarTemplateDir) =>
-          menuJs.generateCodeViaCli('./generation-test/')
-        )
-        .then((res) => {
-          return new Promise((resolve, reject) => {
-            let i = 0
-            for (i = 0; i < res.length; i++) {
-              expect(res[i]).toBeDefined()
-            }
-            let size = Object.keys(res).length
-            resolve(size)
-          })
-        })
-        .then((size) => {
-          return new Promise((resolve, reject) => {
-            expect(size).toBe(8)
-            resolve(size)
-          })
-        })
-        .then(() => fsExtra.remove('./generation-test'))
-        .catch((error) => console.log(error))
-    },
-    timeout
-  )
-
-  function attachToDb(db) {
-    return new Promise((resolve, reject) => {
-      env.setMainDatabase(db)
-      resolve(db)
-    })
-  }
 
   test(
     'test that there is generation data in the enums.h preview file. Index 1',
