@@ -29,6 +29,9 @@ const utilJs = require('../src-electron/util/util.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const dbEnum = require('../src-electron/db/db-enum.js')
 const helperZap = require('../src-electron/generator/helper-zap.js')
+const {
+  exportClustersFromEndpointType,
+} = require('../src-electron/db/query-impexp.js')
 
 var db
 const templateCount = 3
@@ -133,3 +136,31 @@ test('Validate basic generation one more time', () =>
       var zclId = genResult.content['zap-type.h']
       expect(zclId.startsWith(helperZap.zap_header()))
     }))
+
+test('Test content indexer - simple', () =>
+  genEngine.contentIndexer('Short example').then((preview) => {
+    expect(preview['1']).toBe('Short example\n')
+  }))
+
+test('Test content indexer - line by line', () =>
+  genEngine
+    .contentIndexer('Short example\nwith three\nlines of text', 1)
+    .then((preview) => {
+      expect(preview['1']).toBe('Short example\n')
+      expect(preview['2']).toBe('with three\n')
+      expect(preview['3']).toBe('lines of text\n')
+    }))
+
+test('Test content indexer - blocks', () => {
+  var content = ''
+  var i = 0
+  for (i = 0; i < 1000; i++) {
+    content = content.concat(`line ${i}\n`)
+  }
+  return genEngine.contentIndexer(content, 50).then((preview) => {
+    expect(preview['1'].startsWith('line 0')).toBeTruthy()
+    expect(preview['2'].startsWith('line 50')).toBeTruthy()
+    expect(preview['3'].startsWith('line 100')).toBeTruthy()
+    expect(preview['20'].startsWith('line 950')).toBeTruthy()
+  })
+})

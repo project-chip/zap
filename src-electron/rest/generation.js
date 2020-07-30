@@ -24,6 +24,7 @@
 const env = require('../util/env.js')
 const staticGenerator = require('../generator/static-generator.js')
 const restApi = require('../../src-shared/rest-api.js')
+const generationEngine = require('../generator/generation-engine.js')
 
 /**
  *
@@ -34,55 +35,32 @@ const restApi = require('../../src-shared/rest-api.js')
  */
 function registerGenerationApi(db, app) {
   app.get('/preview/:name/:index', (request, response) => {
-    staticGenerator.createGeneratedFileMap(db).then((map) => {
-      if (map[request.params.name]) {
-        map[request.params.name].then((result) => {
-          if (request.params.index in result) {
-            response.json({
-              replyId: 'preview',
-              result: result[request.params.index],
-              size: Object.keys(result).length,
-            })
-          } else {
-            response.json('No Generation Result for this file')
-          }
-        })
-      } else {
-        response.json('No Generation Result for this file')
-      }
-    })
+    var sessionId = request.session.zapSessionId
+    generationEngine
+      .generateSingleFileForPreview(db, sessionId, request.params.name)
+      .then((previewObject) => {
+        if (request.params.index in previewObject) {
+          return response.json({
+            replyId: 'preview',
+            result: previewObject[request.params.index],
+            size: Object.keys(previewObject).length,
+          })
+        } else {
+          return response.json({
+            replyId: 'preview',
+          })
+        }
+      })
   })
 
   app.get('/preview/:name', (request, response) => {
-    staticGenerator.createGeneratedFileMap(db).then((map) => {
-      if (map[request.params.name]) {
-        map[request.params.name].then((result) => {
-          result.replyId = 'preview'
-          return response.json(result)
-        })
-      } else {
-        response.json('No Generation Result for this file')
-      }
-    })
-  })
-
-  // Return generatedCodeMap in JSON
-  // e.g. {
-  //       "cluster-id" : "...",
-  //       "enums" : "..."
-  //      }
-  app.get(restApi.uri.generate, (request, response) => {
-    staticGenerator.createGeneratedFileMap(db).then((map) => {
-      // making sure all generation promises are resolved before handling the get request
-      Promise.all(Object.values(map)).then((values) => {
-        let merged = Object.keys(map).reduce(
-          (obj, key, index) => ({ ...obj, [key]: values[index] }),
-          {}
-        )
-        merged.replyId = 'generate'
-        response.json(merged)
+    var sessionId = request.session.zapSessionId
+    generationEngine
+      .generateSingleFileForPreview(db, sessionId, request.params.name)
+      .then((previewObject) => {
+        previewObject.replyId = 'preview'
+        return response.json(previewObject)
       })
-    })
   })
 }
 
