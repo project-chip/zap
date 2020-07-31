@@ -158,6 +158,11 @@ function zcl_attributes(options) {
     .then((atts) => collectBlocks(atts, options.fn, this))
 }
 
+// WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
+//
+// Note: these exports are public API. Templates that might have been created in the past and are
+// available in the wild might depend on these names.
+// If you rename the functions, you need to still maintain old exports list.
 exports.zcl_enums = zcl_enums
 exports.zcl_structs = zcl_structs
 exports.zcl_clusters = zcl_clusters
