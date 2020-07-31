@@ -55,7 +55,7 @@ function mainDatabase() {
 
 // Returns an app directory. It creates it, if it doesn't exist
 function appDirectory() {
-  var appDir = path.join(os.homedir(), '.silabs', 'zap')
+  var appDir = path.join(os.homedir(), '.zap')
 
   if (!fs.existsSync(appDir)) {
     fs.mkdirSync(appDir, { recursive: true }, (err) => {

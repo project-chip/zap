@@ -126,15 +126,19 @@ function loadTemplates(db, genTemplatesJson) {
  *
  * @param {*} genResult
  * @param {*} pkg
+ * @param {*} generateOnly if NULL then generate all templates, else only generate template whose out file name matches this.
  * @returns Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
  */
-function generateAllTemplates(genResult, pkg) {
+function generateAllTemplates(genResult, pkg, generateOnly = null) {
   return queryPackage
     .getPackageByParent(genResult.db, pkg.id)
     .then((packages) => {
       var promises = []
       packages.forEach((singlePkg) => {
-        promises.push(generateSingleTemplate(genResult, singlePkg))
+        if (generateOnly == null)
+          promises.push(generateSingleTemplate(genResult, singlePkg))
+        else if (generateOnly == singlePkg.version)
+          promises.push(generateSingleTemplate(genResult, singlePkg))
       })
       return Promise.all(promises)
     })
@@ -155,7 +159,6 @@ function generateSingleTemplate(genResult, pkg) {
   return templateEngine
     .produceContent(genResult.db, genResult.sessionId, pkg)
     .then((data) => {
-      env.logInfo(`Adding content for : ${pkg.version} => ${data}`)
       genResult.content[pkg.version] = data
       genResult.partial = true
       return genResult
@@ -166,10 +169,10 @@ function generateSingleTemplate(genResult, pkg) {
  * Main API function to generate stuff.
  *
  * @param {*} db Database
- * @param {*} packageId packageId
+ * @param {*} packageId packageId Template package id
  * @returns Promise that resolves into a generation result.
  */
-function generate(db, sessionId, packageId) {
+function generate(db, sessionId, packageId, generateOnly = null) {
   return queryPackage.getPackageByPackageId(db, packageId).then((pkg) => {
     if (pkg == null) throw `Invalid packageId: ${packageId}`
     var genResult = {
@@ -178,8 +181,7 @@ function generate(db, sessionId, packageId) {
       content: {},
     }
     if (pkg.type === dbEnum.packageType.genTemplatesJson) {
-      env.logInfo(`Generate from top-level JSON file: ${pkg.path}`)
-      return generateAllTemplates(genResult, pkg)
+      return generateAllTemplates(genResult, pkg, generateOnly)
     } else if (pkg.type === dbEnum.packageType.genSingleTemplate) {
       return generateSingleTemplate(genResult, pkg)
     } else {
@@ -210,8 +212,70 @@ function generateAndWriteFiles(db, sessionId, packageId, outputDirectory) {
   })
 }
 
+/**
+ * This function takes a string, and resolves a preview object out of it.
+ *
+ * @param {*} content String to form into preview.
+ */
+function contentIndexer(content, linesPerIndex = 2000) {
+  var index = 0
+  var indexedResult = {}
+  var code = content.split(/\n/)
+  var loc = code.length
+
+  if (content == null || content.length == 0) {
+    return Promise.resolve(indexedResult)
+  }
+
+  // Indexing the generation result for faster preview pane generation
+  for (let i = 0; i < loc; i++) {
+    if (i % linesPerIndex === 0) {
+      index++
+      indexedResult[index] = ''
+    }
+    indexedResult[index] = indexedResult[index].concat(code[i]).concat('\n')
+  }
+  return Promise.resolve(indexedResult)
+}
+
+/**
+ * Generates a single file and feeds it back for preview.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} fileName
+ * @returns promise that resolves into a preview object.
+ */
+function generateSingleFileForPreview(db, sessionId, outFileName) {
+  return queryPackage
+    .getSessionPackagesByType(
+      db,
+      sessionId,
+      dbEnum.packageType.genTemplatesJson
+    )
+    .then((pkgs) => {
+      var promises = []
+      pkgs.forEach((pkg) => {
+        promises.push(generate(db, sessionId, pkg.id, outFileName))
+      })
+      return Promise.all(promises)
+    })
+    .then((genResultArrays) => {
+      var content = ''
+      genResultArrays.forEach((gr) => {
+        if (outFileName in gr.content) {
+          content = gr.content[outFileName]
+        }
+      })
+      return content
+    })
+    .then((content) => contentIndexer(content))
+}
+
 exports.loadTemplates = loadTemplates
 exports.loadGenTemplate = loadGenTemplate
 exports.recordTemplatesPackage = recordTemplatesPackage
 exports.generate = generate
 exports.generateAndWriteFiles = generateAndWriteFiles
+exports.generateSingleFileForPreview = generateSingleFileForPreview
+exports.contentIndexer = contentIndexer

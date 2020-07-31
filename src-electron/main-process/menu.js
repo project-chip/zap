@@ -31,8 +31,6 @@ const dbEnum = require('../db/db-enum.js')
 
 var httpPort
 var handlebarTemplateDirectory = __dirname + '/../../test/gen-template'
-var generationOptionsFile =
-  handlebarTemplateDirectory + '/generation-options.json'
 
 const template = [
   {
@@ -302,21 +300,6 @@ function generateInDir(browserWindow) {
 }
 
 /**
- *
- *
- * @export
- * @param {*} handlebarTemplateDir
- */
-function setHandlebarTemplateDirForCli(handlebarTemplateDir) {
-  return new Promise((resolve, reject) => {
-    handlebarTemplateDirectory = handlebarTemplateDir
-    generationOptionsFile =
-      handlebarTemplateDirectory + '/generation-options.json'
-    resolve(handlebarTemplateDir)
-  })
-}
-
-/**
  * This function gets the directory where user wants the output and calls
  * generateCode function which generates the code in the user selected output.
  *
@@ -410,5 +393,4 @@ function initMenu(port) {
   Menu.setApplicationMenu(menu)
 }
 
-exports.setHandlebarTemplateDirForCli = setHandlebarTemplateDirForCli
 exports.initMenu = initMenu

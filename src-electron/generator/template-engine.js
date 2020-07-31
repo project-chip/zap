@@ -20,7 +20,8 @@
  */
 
 const fsPromise = require('fs').promises
-const handlebars = require('handlebars')
+const promisedHandlebars = require('promised-handlebars')
+const handlebars = promisedHandlebars(require('handlebars'))
 const env = require('../util/env.js')
 
 var helpersInitialized = false
@@ -31,7 +32,7 @@ const templateCompileOptions = {
 
 const precompiledTemplates = {}
 
-function produceCompiledTemplate(db, sessionId, singlePkg) {
+function produceCompiledTemplate(singlePkg) {
   initializeHelpers()
   if (singlePkg.id in precompiledTemplates)
     return Promise.resolve(precompiledTemplates[singlePkg.id])
@@ -52,8 +53,13 @@ function produceCompiledTemplate(db, sessionId, singlePkg) {
  * @returns Promise that resolves with the 'utf8' string that contains the generated content.
  */
 function produceContent(db, sessionId, singlePkg) {
-  return produceCompiledTemplate(db, sessionId, singlePkg).then((template) =>
-    template({})
+  return produceCompiledTemplate(singlePkg).then((template) =>
+    template({
+      global: {
+        db: db,
+        sessionId: sessionId,
+      },
+    })
   )
 }
 

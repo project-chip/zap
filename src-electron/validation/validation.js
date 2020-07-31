@@ -58,15 +58,13 @@ function validateEndpoint(db, endpointId) {
 }
 
 function validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef) {
-  return dbApi
-    .dbAll(
+  return queryConfig
+    .getCountOfEndpointsWithGivenEndpointIdentifier(
       db,
-      'SELECT ENDPOINT_IDENTIFIER FROM ENDPOINT WHERE ENDPOINT_IDENTIFIER = ? AND SESSION_REF = ?',
-      [endpointIdentifier, sessionRef]
+      endpointIdentifier,
+      sessionRef
     )
-    .then((data) => {
-      return data.length <= 1
-    })
+    .then((count) => count.length <= 1)
 }
 
 function validateSpecificAttribute(endpointAttribute, attribute) {

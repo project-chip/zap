@@ -52,6 +52,7 @@
     "node-gyp": "^7.0.0",
     "node-pre-gyp": "^0.15.0",
     "pino": "^6.3.2",
+    "promised-handlebars": "^2.0.1",
     "properties": "^1.2.1",
     "quasar": "^1.12.11",
     "sqlite3": "^4.2.0",

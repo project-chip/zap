@@ -28,6 +28,7 @@ const menuJs = require('../src-electron/main-process/menu.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/main-process/args.js')
 const httpServer = require('../src-electron/server/http-server.js')
+const generationEngine = require('../src-electron/generator/generation-engine.js')
 
 var db
 const port = 9074
@@ -73,146 +74,20 @@ describe('Session specific tests', () => {
     timeout
   )
 
+  test('And load the templates.', () =>
+    generationEngine.loadTemplates(db, args.genTemplateJsonFile))
+
   test('http server initialization', () => {
     return httpServer.initHttpServer(db, port)
   })
 
   test(
-    'test that there is generation data in the enums.h preview file. Index 1',
-    () => {
-      return axios.get(`${baseUrl}/preview/enums/1`).then((response) => {
-        expect(response.data['result']).toMatch(
-          /EMBER_ZCL_11073_CONNECT_REQUEST_CONNECT_CONTROL_PREEMPTIBLE = 0x01/
-        )
-      })
-    },
-    timeout
-  )
-
-  test(
-    'test that there is generation data in the enums.h preview file. Index 2',
-    () => {
-      return axios.get(`${baseUrl}/preview/enums/2`).then((response) => {
-        expect(response.data['result']).toMatch(
-          /\#define EMBER_AF_ALARM_MASK_GENERAL_HW_FAULT \(0x1\)/
-        )
-      })
-    },
-    timeout
-  )
-
-  test(
-    'test that there is generation data in the cluster-id.h file',
-    () => {
-      return axios.get(`${baseUrl}/preview/cluster-id/1`).then((response) => {
-        expect(response.data['result']).toMatch(
-          /\#define ZCL_BASIC_CLUSTER_ID 0x0000/
-        )
-      })
-    },
-    timeout
-  )
-
-  test(
-    'test that there is generation data in the print-cluster.h file',
+    'test that there is generation data in the simple-test.out preview file. Index 1',
     () => {
       return axios
-        .get(`${baseUrl}/preview/print-cluster/1`)
+        .get(`${baseUrl}/preview/simple-test.out/1`)
         .then((response) => {
-          expect(response.data['result']).toMatch(
-            /\#if defined(ZCL_USING_BASIC_CLUSTER_SERVER) || defined(ZCL_USING_BASIC_CLUSTER_CLIENT)/
-          )
-        })
-    },
-    timeout
-  )
-
-  test(
-    'test that there is generation data in the af-structs.h file',
-    () => {
-      return axios.get(`${baseUrl}/preview/af-structs/1`).then((response) => {
-        expect(response.data['result']).toMatch(
-          /typedef struct _IasAceZoneStatusResult {/
-        )
-        expect(response.data['result']).toMatch(/            uint8_t zoneId;/)
-      })
-    },
-    timeout
-  )
-
-  test(
-    'test that there is generation data in the att-storage.h file',
-    () => {
-      return axios.get(`${baseUrl}/preview/att-storage/1`).then((response) => {
-        expect(response.data['result']).toMatch(
-          /\#define ATTRIBUTE_MASK_WRITABLE \(0x01\)/
-        )
-      })
-    },
-    timeout
-  )
-
-  test(
-    'test that there is generation data in the debug-printing-zcl.h file',
-    () => {
-      return axios
-        .get(`${baseUrl}/preview/debug-printing-zcl/1`)
-        .then((response) => {
-          expect(response.data['result']).toMatch(
-            /\#if defined\(EMBER_AF_PRINT_ENABLE\) && defined\(EMBER_AF_PRINT_BASIC_CLUSTER\)/
-          )
-          expect(response.data['result']).toMatch(
-            /    \#define emberAfBasicClusterPrint\(...\) emberAfPrint\(EMBER_AF_PRINT_BASIC_CLUSTER, __VA_ARGS__\)/
-          )
-        })
-    },
-    timeout
-  )
-
-  test(
-    'test that there is generation data in the callback-zcl.h file',
-    () => {
-      return axios.get(`${baseUrl}/preview/callback-zcl/1`).then((response) => {
-        expect(response.data['result']).toMatch(
-          /void emberAfBasicClusterClientAttributeChangedCallback\(uint8_t endpoint,/
-        )
-        expect(response.data['result']).toMatch(
-          /                                                       EmberAfAttributeId attributeId\);/
-        )
-        expect(response.data['result']).toMatch(
-          /void emberAfIdentifyClusterIdentifyQueryResponseCallback\(/
-        )
-        expect(response.data['result']).toMatch(
-          /                uint16_t timeout/
-        )
-      })
-    },
-    timeout
-  )
-
-  test(
-    'test that there is generation data in the client-command-macro.h file, index 4',
-    () => {
-      return axios
-        .get(`${baseUrl}/preview/client-command-macro/4`)
-        .then((response) => {
-          expect(response.data['result']).toMatch(
-            /      \#define emberAfFillCommandIso7816ProtocolTunnelClusterServerToClientTransferApdu\(/
-          )
-          expect(response.data['result']).toMatch(/        apdu\) \\/)
-          expect(response.data['result']).toMatch(
-            /emberAfFillExternalBuffer\(\(ZCL_CLUSTER_SPECIFIC_COMMAND \\/
-          )
-          expect(response.data['result']).toMatch(
-            /                    ZCL_ISO7816_PROTOCOL_TUNNEL_CLUSTER_ID, \\/
-          )
-          expect(response.data['result']).toMatch(
-            /                    ZCL_TRANSFER_APDU_COMMAND_ID, \\/
-          )
-          expect(response.data['result']).toMatch(/                    "s", \\/)
-          expect(response.data['result']).toMatch(
-            /                                    apdu\);/
-          )
+          expect(response.data['result']).toMatch('Test template file.')
         })
     },
     timeout
@@ -222,7 +97,7 @@ describe('Session specific tests', () => {
     'No generation test, incorrect file name',
     () => {
       return axios.get(`${baseUrl}/preview/no-file`).then((response) => {
-        expect(response.data).toMatch(/No Generation Result for this file/)
+        expect(response.data['result']).toBeUndefined()
       })
     },
     timeout
@@ -232,17 +107,7 @@ describe('Session specific tests', () => {
     'No generation test, incorrect file name and incorrect index',
     () => {
       return axios.get(`${baseUrl}/preview/no-file/1`).then((response) => {
-        expect(response.data).toMatch(/No Generation Result for this file/)
-      })
-    },
-    timeout
-  )
-
-  test(
-    'No generation test, with wrong index correct file name',
-    () => {
-      return axios.get(`${baseUrl}/preview/cluster-id/2`).then((response) => {
-        expect(response.data).toMatch(/No Generation Result for this file/)
+        expect(response.data['result']).toBeUndefined()
       })
     },
     timeout

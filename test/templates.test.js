@@ -76,3 +76,55 @@ test('handlebars: if helper', () => {
   output = template({ flag: false })
   expect(output).toEqual('No flag!')
 })
+
+test('handlebars: using functions inside the passed input', () => {
+  var template = handlebars.compile('{{fn}}')
+  var output = template({
+    fn: () => {
+      var text = 'example text'
+      var uc = text.toUpperCase()
+      return `Got ${text}, returned ${uc}`
+    },
+  })
+  expect(output).toEqual('Got example text, returned EXAMPLE TEXT')
+})
+
+test('handlebars: using helper to populate the context', () => {
+  var template = handlebars.compile('{{#each custom_list}}{{value}}{{/each}}')
+  var output = template({
+    custom_list: () => {
+      var list = []
+      for (var i = 0; i < 10; i++) {
+        list.push({ value: i })
+      }
+      return list
+    },
+  })
+  expect(output).toEqual('0123456789')
+})
+
+test('handlebars: helper this processing', () => {
+  handlebars.registerHelper('inc', function () {
+    this.data++
+    return this.data
+  })
+  var template = handlebars.compile('{{inc}}{{inc}}{{inc}}{{inc}}{{inc}}')
+  var output = template({ data: 0 })
+  expect(output).toEqual('12345')
+})
+
+test('handlebars: iterator', () => {
+  handlebars.registerHelper('it', function (options) {
+    var ret = this.prefix
+    var context = this
+    for (var x = 0; x < 10; x++) {
+      context.thing = x
+      ret = ret + options.fn(context)
+    }
+    ret = ret + this.postfix
+    return ret
+  })
+  var template = handlebars.compile('{{#it}}{{thing}}{{/it}}')
+  var output = template({ prefix: 'PRE:', postfix: ':ERP' })
+  expect(output).toEqual('PRE:0123456789:ERP')
+})
