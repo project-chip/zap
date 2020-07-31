@@ -93,7 +93,7 @@ function initHttpServer(db, port) {
     app.use(express.static(env.httpStaticContent))
 
     httpServer = app.listen(port, () => {
-      env.logInfo(`HTTP server created on port: ` + httpServerPort())
+      env.logHttpServerUrl(httpServerPort())
       resolve(app)
     })
 
@@ -101,7 +101,7 @@ function initHttpServer(db, port) {
       env.logInfo(`HTTP server port ` + port + ` is busy.`)
       if (err.errno === 'EADDRINUSE') {
         httpServer = app.listen(0, () => {
-          env.logInfo(`HTTP server created on port: ` + httpServerPort())
+          env.logHttpServerUrl(httpServerPort())
           resolve(app)
         })
       } else {
