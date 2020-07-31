@@ -62,7 +62,7 @@ function processCommandLineArguments(argv) {
       type: 'string',
       default: exports.zclPropertiesFile,
     })
-    .option('gentemplateJson', {
+    .option('genTemplateJson', {
       desc: 'gen-template.json file to read in.',
       alias: 'gen',
       type: 'string',
@@ -113,7 +113,7 @@ function processCommandLineArguments(argv) {
   exports.httpPort = ret.httpPort
   exports.studioPort = ret.studioPort
   exports.uiMode = ret.uiMode
-  exports.genTemplateJsonFile = ret.gentemplateJson
+  exports.genTemplateJsonFile = ret.genTemplateJson
   exports.noServer = ret.noServer
   return ret
 }

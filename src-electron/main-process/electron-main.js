@@ -26,6 +26,7 @@ const zclLoader = require('../zcl/zcl-loader.js')
 const windowJs = require('./window.js')
 const httpServer = require('../server/http-server.js')
 const generatorEngine = require('../generator/generation-engine.js')
+const { query } = require('express')
 
 env.logInitLogFile()
 
@@ -103,6 +104,28 @@ function startNormal(uiEnabled, showUrl, uiMode) {
     })
 }
 
+function startGeneration(output, genTemplateJsonFile, zclProperties) {
+  console.log(
+    `🤖 Generating: 
+    👉 into: ${output}
+    👉 using templates: ${genTemplateJsonFile}
+    👉 using zcl data: ${zclProperties}
+`
+  )
+  return dbApi
+    .initDatabase(env.sqliteFile())
+    .then((db) => attachToDb(db))
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+    .then((db) => zclLoader.loadZcl(db, zclProperties))
+    .then((ctx) => generatorEngine.loadTemplates(ctx.db, genTemplateJsonFile))
+    .then((ctx) => {
+      // Now create session and we can generate
+    })
+    .then(() => {
+      app.quit()
+    })
+}
+
 function startSdkGeneration(
   generationDir,
   handlebarTemplateDir,
@@ -156,7 +179,7 @@ if (app != null) {
     if (argv._.includes('selfCheck')) {
       startSelfCheck()
     } else if (argv._.includes('generate')) {
-      console.log('Generation currently disabled....')
+      startGeneration(argv.output, argv.genTemplateJson, argv.zclProperties)
     } else if (argv._.includes('sdkGen')) {
       startSdkGeneration(argv.output, argv.template, argv.zclProperties)
     } else {

@@ -16,6 +16,7 @@
  */
 
 const { spawn } = require('child_process')
+const yargs = require('yargs')
 
 function executeCmd(ctx, cmd, args) {
   return new Promise((resolve, reject) => {
@@ -30,7 +31,7 @@ function executeCmd(ctx, cmd, args) {
       }
     })
     c.stdout.on('data', (data) => {
-      process.stdout.write('➤ ' + data)
+      process.stdout.write(data)
     })
     c.stderr.on('data', (data) => {
       process.stderr.write('⇝ ' + data)
@@ -38,11 +39,42 @@ function executeCmd(ctx, cmd, args) {
   })
 }
 
+var arg = yargs
+  .option('zclProperties', {
+    desc: 'Specifies zcl.properties file to be used.',
+    alias: 'z',
+    type: 'string',
+    demandOption: true,
+  })
+  .option('out', {
+    desc: 'Output directory where the generated files will go.',
+    alias: 'o',
+    type: 'string',
+    demandOption: true,
+  })
+  .option('generationTemplate', {
+    desc: 'Specifies gen-template.json file to be used.',
+    alias: 'g',
+    type: 'string',
+    demandOption: true,
+  })
+  .demandOption(
+    ['zclProperties', 'out', 'generationTemplate'],
+    'Please provide required options!'
+  )
+  .help().argv
+
 var ctx = {}
 executeCmd(ctx, 'electron', [
-  'src-electron/main-process/electron-main.dev.js',
+  'src-electron/main-process/electron-main.js',
   '--noUi',
   '--noServer',
+  '--zclProperties',
+  arg.zclProperties,
+  '--genTemplateJson',
+  arg.generationTemplate,
+  '--output',
+  arg.out,
   'generate',
 ])
   .then(() => {
