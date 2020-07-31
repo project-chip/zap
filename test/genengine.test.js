@@ -35,6 +35,7 @@ const {
 
 var db
 const templateCount = 4
+var genTimeout = 2000
 
 beforeAll(() => {
   var file = env.sqliteTestFile('genengine')
@@ -100,72 +101,90 @@ test('Initialize session packages', () =>
       expect(packages.length).toBe(2)
     }))
 
-test('Validate basic generation', () =>
-  genEngine
-    .generate(
-      templateContext.db,
-      templateContext.sessionId,
-      templateContext.packageId
-    )
-    .then((genResult) => {
-      expect(genResult).not.toBeNull()
-      expect(genResult.partial).toBeFalsy()
-      expect(genResult.content).not.toBeNull()
-      var simpleTest = genResult.content['simple-test.out']
-      expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
-    }))
+test(
+  'Validate basic generation',
+  () =>
+    genEngine
+      .generate(
+        templateContext.db,
+        templateContext.sessionId,
+        templateContext.packageId
+      )
+      .then((genResult) => {
+        expect(genResult).not.toBeNull()
+        expect(genResult.partial).toBeFalsy()
+        expect(genResult.content).not.toBeNull()
+        var simpleTest = genResult.content['simple-test.out']
+        expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
+      }),
+  genTimeout
+)
 
-test('Validate more complex generation', () =>
-  genEngine
-    .generate(
-      templateContext.db,
-      templateContext.sessionId,
-      templateContext.packageId
-    )
-    .then((genResult) => {
-      expect(genResult).not.toBeNull()
-      expect(genResult.partial).toBeFalsy()
-      expect(genResult.content).not.toBeNull()
-      var simpleTest = genResult.content['simple-test.out']
-      expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
-      expect(simpleTest.includes(helperZap.zap_header()))
-      expect(simpleTest.includes(`SessionId: ${genResult.sessionId}`))
+test(
+  'Validate more complex generation',
+  () =>
+    genEngine
+      .generate(
+        templateContext.db,
+        templateContext.sessionId,
+        templateContext.packageId
+      )
+      .then((genResult) => {
+        expect(genResult).not.toBeNull()
+        expect(genResult.partial).toBeFalsy()
+        expect(genResult.content).not.toBeNull()
+        var simpleTest = genResult.content['simple-test.out']
+        expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
+        expect(simpleTest.includes(helperZap.zap_header()))
+        expect(simpleTest.includes(`SessionId: ${genResult.sessionId}`))
 
-      var zclId = genResult.content['zcl-test.out']
-      //expect(zclId).toEqual('random placeholder')
-      expect(
-        zclId.includes('// label=>ZllStatus caption=>Enum of type ENUM8')
-      ).toBeTruthy()
-      expect(
-        zclId.includes(
-          '// label=>MeteringBlockEnumerations caption=>Enum of type ENUM8'
-        )
-      ).toBeTruthy()
-      expect(
-        zclId.includes('// struct: ReadReportingConfigurationAttributeRecord')
-      ).toBeTruthy()
-      expect(zclId.includes('cluster: 0x0700 Price')).toBeTruthy()
-      expect(zclId.includes('cmd: 0x0A GetUserStatusResponse')).toBeTruthy()
-      expect(zclId.includes('att: 0x0002 gps communication mode')).toBeTruthy()
-    }))
+        var zclId = genResult.content['zcl-test.out']
+        //expect(zclId).toEqual('random placeholder')
+        expect(
+          zclId.includes('// label=>ZllStatus caption=>Enum of type ENUM8')
+        ).toBeTruthy()
+        expect(
+          zclId.includes(
+            '// label=>MeteringBlockEnumerations caption=>Enum of type ENUM8'
+          )
+        ).toBeTruthy()
+        expect(
+          zclId.includes('// struct: ReadReportingConfigurationAttributeRecord')
+        ).toBeTruthy()
+        expect(zclId.includes('cluster: 0x0700 Price')).toBeTruthy()
+        expect(zclId.includes('cmd: 0x0A GetUserStatusResponse')).toBeTruthy()
+        expect(
+          zclId.includes('att: 0x0002 gps communication mode')
+        ).toBeTruthy()
+      }),
+  genTimeout
+)
 
-test('Validate zap-id generation', () =>
-  genEngine
-    .generate(
-      templateContext.db,
-      templateContext.sessionId,
-      templateContext.packageId
-    )
-    .then((genResult) => {
-      expect(genResult).not.toBeNull()
-      expect(genResult.partial).toBeFalsy()
-      expect(genResult.content).not.toBeNull()
+test(
+  'Validate zap-id generation',
+  () =>
+    genEngine
+      .generate(
+        templateContext.db,
+        templateContext.sessionId,
+        templateContext.packageId
+      )
+      .then((genResult) => {
+        expect(genResult).not.toBeNull()
+        expect(genResult.partial).toBeFalsy()
+        expect(genResult.content).not.toBeNull()
 
-      var zapId = genResult.content['zap-id.h']
-      //expect(zapId).toEqual('random placeholder')
+        var zapId = genResult.content['zap-id.h']
+        //expect(zapId).toEqual('random placeholder')
 
-      expect(zapId.includes('// Definitions for cluster: Basic')).toBeTruthy()
-    }))
+        expect(zapId.includes('// Definitions for cluster: Basic')).toBeTruthy()
+        expect(
+          zapId.includes('cmd: GetProfileInfoResponseCommand')
+        ).toBeTruthy()
+        expect(zapId.includes('att: number of resets')).toBeTruthy()
+      }),
+  genTimeout
+)
 
 test('Test content indexer - simple', () =>
   genEngine.contentIndexer('Short example').then((preview) => {

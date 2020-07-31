@@ -118,7 +118,18 @@ function zcl_clusters(options) {
  */
 function zcl_commands(options) {
   return ensurePackageId(this)
-    .then((packageId) => queryZcl.selectAllCommands(this.global.db, packageId))
+    .then((packageId) => {
+      if ('id' in this) {
+        // We're functioning inside a nested context with an id, so we will only query for this cluster.
+        return queryZcl.selectCommandsByClusterId(
+          this.global.db,
+          this.id,
+          packageId
+        )
+      } else {
+        return queryZcl.selectAllCommands(this.global.db, packageId)
+      }
+    })
     .then((cmds) => collectBlocks(cmds, options.fn, this))
 }
 
@@ -134,7 +145,7 @@ function zcl_attributes(options) {
   return ensurePackageId(this)
     .then((packageId) => {
       if ('id' in this) {
-        // We're functioning inside a nested context with an id, so we will only query for attributes inside this cluster.
+        // We're functioning inside a nested context with an id, so we will only query for this cluster.
         return queryZcl.selectAttributesByClusterId(
           this.global.db,
           this.id,
