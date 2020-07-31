@@ -26,6 +26,7 @@ exports.genTemplateJsonFile = './test/gen-template/gen-templates.json'
 exports.httpPort = 9070
 exports.studioPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE
+exports.noServer = false
 
 /**
  * Process the command line arguments and resets the state in this file
@@ -79,6 +80,11 @@ function processCommandLineArguments(argv) {
     .option('noUi', {
       desc: "Don't show the main window when starting.",
     })
+    .options('noServer', {
+      desc:
+        "Don't run the http server. You should probably also specify -noUi with this.",
+      default: exports.noServer,
+    })
     .option('showUrl', {
       desc: 'Print out the URL that an external browser should use.',
     })
@@ -108,7 +114,7 @@ function processCommandLineArguments(argv) {
   exports.studioPort = ret.studioPort
   exports.uiMode = ret.uiMode
   exports.genTemplateJsonFile = ret.gentemplateJson
-
+  exports.noServer = ret.noServer
   return ret
 }
 

@@ -22,7 +22,6 @@ const dbApi = require('../db/db-api.js')
 const sdkGen = require('../sdk-gen/sdk-gen.js')
 const args = require('./args.js')
 const env = require('../util/env.js')
-const menuJs = require('./menu.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const windowJs = require('./window.js')
 const httpServer = require('../server/http-server.js')
@@ -73,7 +72,11 @@ function startNormal(uiEnabled, showUrl, uiMode) {
     .then((ctx) =>
       generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
     )
-    .then((ctx) => httpServer.initHttpServer(ctx.db, args.httpPort))
+    .then((ctx) => {
+      if (!args.noServer)
+        return httpServer.initHttpServer(ctx.db, args.httpPort)
+      else return true
+    })
     .then(() => {
       if (uiEnabled) {
         windowJs.initializeElectronUi(httpServer.httpServerPort(), {
@@ -83,13 +86,16 @@ function startNormal(uiEnabled, showUrl, uiMode) {
         if (app.dock) {
           app.dock.hide()
         }
-        if (showUrl) {
+        if (showUrl && !args.noServer) {
           // NOTE: this is parsed/used by Studio as the default landing page.
           console.log(
             `url: http://localhost:${httpServer.httpServerPort()}/index.html`
           )
         }
       }
+    })
+    .then(() => {
+      if (args.noServer) app.quit()
     })
     .catch((err) => {
       env.logError(err)
