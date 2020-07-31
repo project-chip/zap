@@ -69,24 +69,68 @@ function collectBlocks(resultArray, fn) {
   })
 }
 
+/**
+ * Block helper iterating over all enums.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
 function zcl_enums(options) {
   return ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllEnums(this.db, packageId))
     .then((ens) => collectBlocks(ens, options.fn))
 }
 
+/**
+ * Block helper iterating over all structs.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
 function zcl_structs(options) {
   return ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllStructs(this.db, packageId))
     .then((st) => collectBlocks(st, options.fn))
 }
 
+/**
+ * Block helper iterating over all clusters.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
 function zcl_clusters(options) {
   return ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllClusters(this.db, packageId))
     .then((cl) => collectBlocks(cl, options.fn))
 }
 
+/**
+ * Block helper iterating over all commands.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_commands(options) {
+  return ensurePackageId(this)
+    .then((packageId) => queryZcl.selectAllCommands(this.db, packageId))
+    .then((cmds) => collectBlocks(cmds, options.fn))
+}
+
+/**
+ * Block helper iterating over all attributes.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_attributes(options) {
+  return ensurePackageId(this)
+    .then((packageId) => queryZcl.selectAllAttributes(this.db, packageId))
+    .then((atts) => collectBlocks(atts, options.fn))
+}
+
 exports.zcl_enums = zcl_enums
 exports.zcl_structs = zcl_structs
 exports.zcl_clusters = zcl_clusters
+exports.zcl_commands = zcl_commands
+exports.zcl_attributes = zcl_attributes

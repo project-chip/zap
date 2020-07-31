@@ -145,6 +145,8 @@ test('Validate more complex generation', () =>
         zclId.includes('// struct: ReadReportingConfigurationAttributeRecord')
       ).toBeTruthy()
       expect(zclId.includes('cluster: 0x0700 Price')).toBeTruthy()
+      expect(zclId.includes('cmd: 0x0A GetUserStatusResponse')).toBeTruthy()
+      expect(zclId.includes('att: 0x0002 gps communication mode')).toBeTruthy()
     }))
 
 test('Test content indexer - simple', () =>
