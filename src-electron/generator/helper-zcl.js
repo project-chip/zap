@@ -80,5 +80,26 @@ function zcl_structs(options) {
     })
 }
 
+function zcl_clusters(options) {
+  return ensurePackageId(this)
+    .then((packageId) => queryZcl.selectAllClusters(this.db, packageId))
+    .then((cl) => {
+      var promises = []
+      cl.forEach((element) => {
+        var block = options.fn(element)
+        promises.push(block)
+      })
+      return Promise.all(promises)
+    })
+    .then((blocks) => {
+      var ret = ''
+      blocks.forEach((b) => {
+        ret = ret.concat(b)
+      })
+      return ret
+    })
+}
+
 exports.zcl_enums = zcl_enums
 exports.zcl_structs = zcl_structs
+exports.zcl_clusters = zcl_clusters

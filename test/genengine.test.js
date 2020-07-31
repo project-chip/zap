@@ -133,7 +133,6 @@ test('Validate more complex generation', () =>
 
       var zclId = genResult.content['zcl-test.out']
       //expect(zclId).toEqual('random placeholder')
-
       expect(
         zclId.includes('// label=>ZllStatus caption=>Enum of type ENUM8')
       ).toBeTruthy()
@@ -145,6 +144,7 @@ test('Validate more complex generation', () =>
       expect(
         zclId.includes('// struct: ReadReportingConfigurationAttributeRecord')
       ).toBeTruthy()
+      expect(zclId.includes('cluster: 0x0700 Price')).toBeTruthy()
     }))
 
 test('Test content indexer - simple', () =>
