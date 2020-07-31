@@ -112,6 +112,9 @@ function zcl_clusters(options) {
 
 /**
  * Block helper iterating over all commands.
+ * There are two modes of this helper:
+ *   when used in a global context, it iterates over ALL commands in the database.
+ *   when used inside a `zcl_cluster` block helper, it iterates only over the commands for that cluster.
  *
  * @param {*} options
  * @returns Promise of content.
@@ -135,6 +138,9 @@ function zcl_commands(options) {
 
 /**
  * Block helper iterating over all attributes.
+ * There are two modes of this helper:
+ *   when used in a global context, it iterates over ALL attributes in the database.
+ *   when used inside a `zcl_cluster` block helper, it iterates only over the attributes for that cluster.
  *
  * @param {*} options
  * @returns Promise of content.

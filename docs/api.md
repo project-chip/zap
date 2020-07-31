@@ -30,6 +30,8 @@
 </dd>
 <dt><a href="#module_JS API_ generator logic">JS API: generator logic</a></dt>
 <dd></dd>
+<dt><a href="#module_JS API_ generator logic">JS API: generator logic</a></dt>
+<dd></dd>
 <dt><a href="#module_REST API_ admin functions">REST API: admin functions</a></dt>
 <dd><p>This module provides the REST API to the admin functions.</p>
 </dd>
@@ -38,6 +40,9 @@
 </dd>
 <dt><a href="#module_REST API_ static zcl functions">REST API: static zcl functions</a></dt>
 <dd><p>This module provides the REST API to the static zcl queries.</p>
+</dd>
+<dt><a href="#module_REST API_ generation functions">REST API: generation functions</a></dt>
+<dd><p>This module provides the REST API to the generation.</p>
 </dd>
 <dt><a href="#module_REST API_ user data">REST API: user data</a></dt>
 <dd><p>This module provides the REST API to the user specific data.</p>
@@ -62,7 +67,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.</p>
 </dd>
-<dt><a href="#yargs">yargs</a></dt>
+<dt><a href="#queryZcl">queryZcl</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -74,7 +79,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.</p>
 </dd>
-<dt><a href="#fs">fs</a></dt>
+<dt><a href="#yargs">yargs</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -155,6 +160,46 @@ things were successful or not.</p>
 ## Functions
 
 <dl>
+<dt><a href="#zap_header">zap_header()</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#ensurePackageId">ensurePackageId(context)</a> ⇒</dt>
+<dd><p>Returns the promise that resolves with the ZCL properties package id.</p>
+</dd>
+<dt><a href="#collectBlocks">collectBlocks(resultArray, fn, context)</a> ⇒</dt>
+<dd><p>Helpful function that collects the individual blocks by using elements of an array as a context,
+executing promises for each, and collecting them into the outgoing string.</p>
+</dd>
+<dt><a href="#zcl_enums">zcl_enums(options)</a> ⇒</dt>
+<dd><p>Block helper iterating over all enums.</p>
+</dd>
+<dt><a href="#zcl_structs">zcl_structs(options)</a> ⇒</dt>
+<dd><p>Block helper iterating over all structs.</p>
+</dd>
+<dt><a href="#zcl_clusters">zcl_clusters(options)</a> ⇒</dt>
+<dd><p>Block helper iterating over all clusters.</p>
+</dd>
+<dt><a href="#zcl_commands">zcl_commands(options)</a> ⇒</dt>
+<dd><p>Block helper iterating over all commands.
+There are two modes of this helper:
+  when used in a global context, it iterates over ALL commands in the database.
+  when used inside a <code>zcl_cluster</code> block helper, it iterates only over the commands for that cluster.</p>
+</dd>
+<dt><a href="#zcl_attributes">zcl_attributes(options)</a> ⇒</dt>
+<dd><p>Block helper iterating over all attributes.
+There are two modes of this helper:
+  when used in a global context, it iterates over ALL attributes in the database.
+  when used inside a <code>zcl_cluster</code> block helper, it iterates only over the attributes for that cluster.</p>
+</dd>
 <dt><a href="#exportSessionKeyValues">exportSessionKeyValues(db, sessionId)</a> ⇒</dt>
 <dd><p>Resolves to an array of objects that contain &#39;key&#39; and &#39;value&#39;</p>
 </dd>
@@ -191,10 +236,6 @@ with the succesfull writing into the database.</p>
 <dd><p>Process the command line arguments and resets the state in this file
 to the specified values.</p>
 </dd>
-<dt><a href="#applyGenerationSettings">applyGenerationSettings(generationDir, handlebarTemplateDir)</a></dt>
-<dd></dd>
-<dt><a href="#setGenerationDirAndTemplateDir">setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir)</a> ⇒</dt>
-<dd></dd>
 <dt><a href="#doOpen">doOpen(menuItem, browserWindow, event)</a></dt>
 <dd><p>Perform a file-&gt;open operation.</p>
 </dd>
@@ -209,10 +250,6 @@ to the specified values.</p>
 calls generateCode function which generates the code in the user selected
 output.</p>
 </dd>
-<dt><a href="#generateCodeViaCli">generateCodeViaCli(generationDir)</a></dt>
-<dd></dd>
-<dt><a href="#setHandlebarTemplateDirForCli">setHandlebarTemplateDirForCli(handlebarTemplateDir)</a></dt>
-<dd></dd>
 <dt><a href="#setHandlebarTemplateDirectory">setHandlebarTemplateDirectory(browserWindow)</a></dt>
 <dd><p>This function gets the directory where user wants the output and calls
 generateCode function which generates the code in the user selected output.</p>
@@ -842,172 +879,314 @@ Inserts bitmaps into the database. Data is an array of objects that must contain
 ## JS API: generator logic
 
 - [JS API: generator logic](#module*JS API* generator logic)
-  - [~mapDatabase(db)](#module*JS API* generator logic..mapDatabase) ⇒
-  - [~resolveTemplateDirectory(map, handlebarTemplateDirectory)](#module*JS API* generator logic..resolveTemplateDirectory) ⇒
-  - [~compileTemplate(map, templateFiles)](#module*JS API* generator logic..compileTemplate) ⇒
-  - [~infoFromDb(map, dbRowTypeArray)](#module*JS API* generator logic..infoFromDb) ⇒
-  - [~groupInfoIntoDbRow(map, groupByParams)](#module*JS API* generator logic..groupInfoIntoDbRow) ⇒
-  - [~resolveHelper(map, helperFunctions)](#module*JS API* generator logic..resolveHelper) ⇒
-  - [~generateDataToPreview(map, databaseRowToHandlebarTemplateFileMap)](#module*JS API* generator logic..generateDataToPreview) ⇒
-  - [~generateDataToFile(map, outputFileName, databaseRowToHandlebarTemplateFileMap)](#module*JS API* generator logic..generateDataToFile) ⇒
-  - [~getGenerationProperties(filePath)](#module*JS API* generator logic..getGenerationProperties) ⇒
-  - [~generateCode(db)](#module*JS API* generator logic..generateCode)
+  - [~loadGenTemplate()](#module*JS API* generator logic..loadGenTemplate) ⇒
+  - [~recordTemplatesPackage(context)](#module*JS API* generator logic..recordTemplatesPackage) ⇒
+  - [~loadTemplates(db, genTemplatesJson)](#module*JS API* generator logic..loadTemplates) ⇒
+  - [~generateAllTemplates(genResult, pkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
+  - [~generateSingleTemplate(genResult, pkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
+  - [~generate(db, packageId)](#module*JS API* generator logic..generate) ⇒
+  - [~generateAndWriteFiles(db, sessionId, packageId, outputDirectory)](#module*JS API* generator logic..generateAndWriteFiles) ⇒
+  - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
+  - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
+  - [~produceContent(db, sessionId, singlePkg)](#module*JS API* generator logic..produceContent) ⇒
 
-<a name="module_JS API_ generator logic..mapDatabase"></a>
+<a name="module_JS API_ generator logic..loadGenTemplate"></a>
 
-### JS API: generator logic~mapDatabase(db) ⇒
+### JS API: generator logic~loadGenTemplate() ⇒
 
-Resolve is listed on the map containing the database.
-
-**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: A promise with resolve listed on the map
-
-| Param | Type                | Description |
-| ----- | ------------------- | ----------- |
-| db    | <code>Object</code> | database    |
-
-<a name="module_JS API_ generator logic..resolveTemplateDirectory"></a>
-
-### JS API: generator logic~resolveTemplateDirectory(map, handlebarTemplateDirectory) ⇒
-
-Resolve the handlebar template directory to be able to use the correct
-handlebar templates for generation/preview.
+Given a path, it will read generation template object into memory.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: A promise with resolve listed on a map which has the handlebar
-directory.
+**Returns**: context.templates, context.crc
 
-| Param                      | Type                | Description                       |
-| -------------------------- | ------------------- | --------------------------------- |
-| map                        | <code>Object</code> | HashMap                           |
-| handlebarTemplateDirectory | <code>string</code> | Handlebar template directory path |
+| Param        | Type            |
+| ------------ | --------------- |
+| context.path | <code>\*</code> |
 
-<a name="module_JS API_ generator logic..compileTemplate"></a>
+<a name="module_JS API_ generator logic..recordTemplatesPackage"></a>
 
-### JS API: generator logic~compileTemplate(map, templateFiles) ⇒
+### JS API: generator logic~recordTemplatesPackage(context) ⇒
 
-Resolve the compiled handlebar templates for use.
+Given a loading context, it records the package into the packages table and adds the packageId field into the resolved context.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: A promise with resolve listed on a map which has the compiled
-templates.
+**Returns**: promise that resolves with the same context passed in, except packageId added to it
 
-| Param         | Type                              | Description                             |
-| ------------- | --------------------------------- | --------------------------------------- |
-| map           | <code>Object</code>               | Map for database and template directory |
-| templateFiles | <code>Array.&lt;string&gt;</code> | Array of handlebar template files       |
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
 
-<a name="module_JS API_ generator logic..infoFromDb"></a>
+<a name="module_JS API_ generator logic..loadTemplates"></a>
 
-### JS API: generator logic~infoFromDb(map, dbRowTypeArray) ⇒
+### JS API: generator logic~loadTemplates(db, genTemplatesJson) ⇒
 
-The database information is retrieved by calling database query
-functions. Then a resolve is listed on the map containing database, compiled
-template and database row information so that they can be passed on to more
-promises.
+Main API function to load templates from a gen-template.json file.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: A promise with resolve listed on a map which has the database rows.
+**Returns**: the loading context, contains: db, path, crc, packageId and templateData
 
-| Param          | Type                              | Description                                                           |
-| -------------- | --------------------------------- | --------------------------------------------------------------------- |
-| map            | <code>Object</code>               | Map for database, template directory and compiled templates           |
-| dbRowTypeArray | <code>Array.&lt;string&gt;</code> | Array of strings with each string representing a type of database row |
+| Param            | Type            | Description           |
+| ---------------- | --------------- | --------------------- |
+| db               | <code>\*</code> | Database              |
+| genTemplatesJson | <code>\*</code> | Path to the JSON file |
 
-<a name="module_JS API_ generator logic..groupInfoIntoDbRow"></a>
+<a name="module_JS API_ generator logic..generateAllTemplates"></a>
 
-### JS API: generator logic~groupInfoIntoDbRow(map, groupByParams) ⇒
+### JS API: generator logic~generateAllTemplates(genResult, pkg, generateOnly) ⇒
 
-Additional information attached to each database row. Essentially a way
-to group by content.
-
-**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: A promise with resolve listed on a map which has the database,
-compiled templates and database rows along with additional grouped by
-content.
-
-| Param                     | Type                | Description                                                                                           |
-| ------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------- |
-| map                       | <code>Object</code> | Map containing database, compiled templates, database and database rows for different database types. |
-| groupByParams             | <code>Object</code> | Object to group information by                                                                        |
-| groupByParams.subItemName | <code>string</code> |                                                                                                       |
-| groupByParams.foreignKey  | <code>string</code> |                                                                                                       |
-| groupByParams.primaryKey  | <code>string</code> |                                                                                                       |
-| groupByParams.dbType      | <code>string</code> |                                                                                                       |
-
-<a name="module_JS API_ generator logic..resolveHelper"></a>
-
-### JS API: generator logic~resolveHelper(map, helperFunctions) ⇒
-
-Resolve the helper functions to be used in later promises.
+Generates all the templates inside a toplevel package.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: A promise with resolve listed on a map which has the helper
-functions.
+**Returns**: Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
 
-| Param           | Type                | Description                                      |
-| --------------- | ------------------- | ------------------------------------------------ |
-| map             | <code>Object</code> |                                                  |
-| helperFunctions | <code>Object</code> | Map for handlebar helper name to helper function |
+| Param        | Type            | Default       | Description                                                                                        |
+| ------------ | --------------- | ------------- | -------------------------------------------------------------------------------------------------- |
+| genResult    | <code>\*</code> |               |                                                                                                    |
+| pkg          | <code>\*</code> |               |                                                                                                    |
+| generateOnly | <code>\*</code> | <code></code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
 
-<a name="module_JS API_ generator logic..generateDataToPreview"></a>
+<a name="module_JS API_ generator logic..generateSingleTemplate"></a>
 
-### JS API: generator logic~generateDataToPreview(map, databaseRowToHandlebarTemplateFileMap) ⇒
+### JS API: generator logic~generateSingleTemplate(genResult, pkg) ⇒
 
-The database information is used to show the generation output to a preview
-pane using the compiled handlebar templates.
-
-**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: A promise with resolve listed on the data which can be seen in the
-preview pane.
-
-| Param                                               | Type                              | Description                                                     |
-| --------------------------------------------------- | --------------------------------- | --------------------------------------------------------------- |
-| map                                                 | <code>Object</code>               |                                                                 |
-| databaseRowToHandlebarTemplateFileMap               | <code>Array.&lt;Object&gt;</code> | Map linking the database row type with handlebar template file. |
-| databaseRowToHandlebarTemplateFileMap.dbRowType     | <code>string</code>               | Database row type                                               |
-| databaseRowToHandlebarTemplateFileMap.hTemplateFile | <code>string</code>               | Handlebar template file                                         |
-
-<a name="module_JS API_ generator logic..generateDataToFile"></a>
-
-### JS API: generator logic~generateDataToFile(map, outputFileName, databaseRowToHandlebarTemplateFileMap) ⇒
-
-The database information is used to write the generation output to a file
-using the compiled handlebar templates.
+Function that generates a single package and adds it to the generation result.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: A new promise resolve listed on the data which is generated.
+**Returns**: promise that resolves with the genResult, with newly generated content added.
 
-| Param                                               | Type                              | Description                                                     |
-| --------------------------------------------------- | --------------------------------- | --------------------------------------------------------------- |
-| map                                                 | <code>Object</code>               |                                                                 |
-| outputFileName                                      | <code>string</code>               | The generation file name                                        |
-| databaseRowToHandlebarTemplateFileMap               | <code>Array.&lt;Object&gt;</code> | Map linking the database row type with handlebar template file. |
-| databaseRowToHandlebarTemplateFileMap.dbRowType     | <code>string</code>               | Database row type                                               |
-| databaseRowToHandlebarTemplateFileMap.hTemplateFile | <code>string</code>               | Handlebar template file                                         |
+| Param     | Type            |
+| --------- | --------------- |
+| genResult | <code>\*</code> |
+| pkg       | <code>\*</code> |
 
-<a name="module_JS API_ generator logic..getGenerationProperties"></a>
+<a name="module_JS API_ generator logic..generate"></a>
 
-### JS API: generator logic~getGenerationProperties(filePath) ⇒
+### JS API: generator logic~generate(db, packageId) ⇒
+
+Main API function to generate stuff.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: A promise with the generation options
+**Returns**: Promise that resolves into a generation result.
 
-| Param    | Type            |
-| -------- | --------------- |
-| filePath | <code>\*</code> |
+| Param     | Type            | Description                   |
+| --------- | --------------- | ----------------------------- |
+| db        | <code>\*</code> | Database                      |
+| packageId | <code>\*</code> | packageId Template package id |
 
-<a name="module_JS API_ generator logic..generateCode"></a>
+<a name="module_JS API_ generator logic..generateAndWriteFiles"></a>
 
-### JS API: generator logic~generateCode(db)
+### JS API: generator logic~generateAndWriteFiles(db, sessionId, packageId, outputDirectory) ⇒
 
-This function generates the code into the user defined directory using promises
+Generate files and write them into the given directory.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: a promise which will resolve when all the files are written.
+
+| Param           | Type            |
+| --------------- | --------------- |
+| db              | <code>\*</code> |
+| sessionId       | <code>\*</code> |
+| packageId       | <code>\*</code> |
+| outputDirectory | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..contentIndexer"></a>
+
+### JS API: generator logic~contentIndexer(content)
+
+This function takes a string, and resolves a preview object out of it.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
 
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
+| Param   | Type            | Description                  |
+| ------- | --------------- | ---------------------------- |
+| content | <code>\*</code> | String to form into preview. |
+
+<a name="module_JS API_ generator logic..generateSingleFileForPreview"></a>
+
+### JS API: generator logic~generateSingleFileForPreview(db, sessionId, fileName) ⇒
+
+Generates a single file and feeds it back for preview.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: promise that resolves into a preview object.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+| fileName  | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..produceContent"></a>
+
+### JS API: generator logic~produceContent(db, sessionId, singlePkg) ⇒
+
+Given db connection, session and a single template package, produce the output.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: Promise that resolves with the 'utf8' string that contains the generated content.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+| singlePkg | <code>\*</code> |
+
+<a name="module_JS API_ generator logic"></a>
+
+## JS API: generator logic
+
+- [JS API: generator logic](#module*JS API* generator logic)
+  - [~loadGenTemplate()](#module*JS API* generator logic..loadGenTemplate) ⇒
+  - [~recordTemplatesPackage(context)](#module*JS API* generator logic..recordTemplatesPackage) ⇒
+  - [~loadTemplates(db, genTemplatesJson)](#module*JS API* generator logic..loadTemplates) ⇒
+  - [~generateAllTemplates(genResult, pkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
+  - [~generateSingleTemplate(genResult, pkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
+  - [~generate(db, packageId)](#module*JS API* generator logic..generate) ⇒
+  - [~generateAndWriteFiles(db, sessionId, packageId, outputDirectory)](#module*JS API* generator logic..generateAndWriteFiles) ⇒
+  - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
+  - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
+  - [~produceContent(db, sessionId, singlePkg)](#module*JS API* generator logic..produceContent) ⇒
+
+<a name="module_JS API_ generator logic..loadGenTemplate"></a>
+
+### JS API: generator logic~loadGenTemplate() ⇒
+
+Given a path, it will read generation template object into memory.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: context.templates, context.crc
+
+| Param        | Type            |
+| ------------ | --------------- |
+| context.path | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..recordTemplatesPackage"></a>
+
+### JS API: generator logic~recordTemplatesPackage(context) ⇒
+
+Given a loading context, it records the package into the packages table and adds the packageId field into the resolved context.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: promise that resolves with the same context passed in, except packageId added to it
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..loadTemplates"></a>
+
+### JS API: generator logic~loadTemplates(db, genTemplatesJson) ⇒
+
+Main API function to load templates from a gen-template.json file.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: the loading context, contains: db, path, crc, packageId and templateData
+
+| Param            | Type            | Description           |
+| ---------------- | --------------- | --------------------- |
+| db               | <code>\*</code> | Database              |
+| genTemplatesJson | <code>\*</code> | Path to the JSON file |
+
+<a name="module_JS API_ generator logic..generateAllTemplates"></a>
+
+### JS API: generator logic~generateAllTemplates(genResult, pkg, generateOnly) ⇒
+
+Generates all the templates inside a toplevel package.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
+
+| Param        | Type            | Default       | Description                                                                                        |
+| ------------ | --------------- | ------------- | -------------------------------------------------------------------------------------------------- |
+| genResult    | <code>\*</code> |               |                                                                                                    |
+| pkg          | <code>\*</code> |               |                                                                                                    |
+| generateOnly | <code>\*</code> | <code></code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
+
+<a name="module_JS API_ generator logic..generateSingleTemplate"></a>
+
+### JS API: generator logic~generateSingleTemplate(genResult, pkg) ⇒
+
+Function that generates a single package and adds it to the generation result.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: promise that resolves with the genResult, with newly generated content added.
+
+| Param     | Type            |
+| --------- | --------------- |
+| genResult | <code>\*</code> |
+| pkg       | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..generate"></a>
+
+### JS API: generator logic~generate(db, packageId) ⇒
+
+Main API function to generate stuff.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: Promise that resolves into a generation result.
+
+| Param     | Type            | Description                   |
+| --------- | --------------- | ----------------------------- |
+| db        | <code>\*</code> | Database                      |
+| packageId | <code>\*</code> | packageId Template package id |
+
+<a name="module_JS API_ generator logic..generateAndWriteFiles"></a>
+
+### JS API: generator logic~generateAndWriteFiles(db, sessionId, packageId, outputDirectory) ⇒
+
+Generate files and write them into the given directory.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: a promise which will resolve when all the files are written.
+
+| Param           | Type            |
+| --------------- | --------------- |
+| db              | <code>\*</code> |
+| sessionId       | <code>\*</code> |
+| packageId       | <code>\*</code> |
+| outputDirectory | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..contentIndexer"></a>
+
+### JS API: generator logic~contentIndexer(content)
+
+This function takes a string, and resolves a preview object out of it.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param   | Type            | Description                  |
+| ------- | --------------- | ---------------------------- |
+| content | <code>\*</code> | String to form into preview. |
+
+<a name="module_JS API_ generator logic..generateSingleFileForPreview"></a>
+
+### JS API: generator logic~generateSingleFileForPreview(db, sessionId, fileName) ⇒
+
+Generates a single file and feeds it back for preview.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: promise that resolves into a preview object.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+| fileName  | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..produceContent"></a>
+
+### JS API: generator logic~produceContent(db, sessionId, singlePkg) ⇒
+
+Given db connection, session and a single template package, produce the output.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: Promise that resolves with the 'utf8' string that contains the generated content.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+| singlePkg | <code>\*</code> |
 
 <a name="module_REST API_ admin functions"></a>
 
@@ -1049,9 +1228,24 @@ Response JSON:
 
 This module provides the REST API to the generation.
 
+- [REST API: generation functions](#module*REST API* generation functions)
+  - [~registerGenerationApi(db, app)](#module*REST API* generation functions..registerGenerationApi)
+  - [~registerUcComponentApi(db, app)](#module*REST API* generation functions..registerUcComponentApi)
+
 <a name="module_REST API_ generation functions..registerGenerationApi"></a>
 
 ### REST API: generation functions~registerGenerationApi(db, app)
+
+**Kind**: inner method of [<code>REST API: generation functions</code>](#module*REST API* generation functions)
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+| app   | <code>\*</code> |
+
+<a name="module_REST API_ generation functions..registerUcComponentApi"></a>
+
+### REST API: generation functions~registerUcComponentApi(db, app)
 
 **Kind**: inner method of [<code>REST API: generation functions</code>](#module*REST API* generation functions)
 
@@ -1077,6 +1271,38 @@ API: /zcl/:entity/:id
 | Param | Type            | Description       |
 | ----- | --------------- | ----------------- |
 | app   | <code>\*</code> | Express instance. |
+
+<a name="module_REST API_ generation functions"></a>
+
+## REST API: generation functions
+
+This module provides the REST API to the generation.
+
+- [REST API: generation functions](#module*REST API* generation functions)
+  - [~registerGenerationApi(db, app)](#module*REST API* generation functions..registerGenerationApi)
+  - [~registerUcComponentApi(db, app)](#module*REST API* generation functions..registerUcComponentApi)
+
+<a name="module_REST API_ generation functions..registerGenerationApi"></a>
+
+### REST API: generation functions~registerGenerationApi(db, app)
+
+**Kind**: inner method of [<code>REST API: generation functions</code>](#module*REST API* generation functions)
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+| app   | <code>\*</code> |
+
+<a name="module_REST API_ generation functions..registerUcComponentApi"></a>
+
+### REST API: generation functions~registerUcComponentApi(db, app)
+
+**Kind**: inner method of [<code>REST API: generation functions</code>](#module*REST API* generation functions)
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+| app   | <code>\*</code> |
 
 <a name="module_REST API_ user data"></a>
 
@@ -1145,9 +1371,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
-<a name="yargs"></a>
+<a name="queryZcl"></a>
 
-## yargs
+## queryZcl
 
 Copyright (c) 2020 Silicon Labs
 
@@ -1164,9 +1390,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
-<a name="fs"></a>
+<a name="yargs"></a>
 
-## fs
+## yargs
 
 Copyright (c) 2020 Silicon Labs
 
@@ -1286,6 +1512,125 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
+<a name="zap_header"></a>
+
+## zap_header()
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global function  
+<a name="ensurePackageId"></a>
+
+## ensurePackageId(context) ⇒
+
+Returns the promise that resolves with the ZCL properties package id.
+
+**Kind**: global function  
+**Returns**: promise that resolves with the package id.
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
+<a name="collectBlocks"></a>
+
+## collectBlocks(resultArray, fn, context) ⇒
+
+Helpful function that collects the individual blocks by using elements of an array as a context,
+executing promises for each, and collecting them into the outgoing string.
+
+**Kind**: global function  
+**Returns**: Promise that resolves with a content string.
+
+| Param       | Type            | Description                              |
+| ----------- | --------------- | ---------------------------------------- |
+| resultArray | <code>\*</code> |                                          |
+| fn          | <code>\*</code> |                                          |
+| context     | <code>\*</code> | The context from within this was called. |
+
+<a name="zcl_enums"></a>
+
+## zcl_enums(options) ⇒
+
+Block helper iterating over all enums.
+
+**Kind**: global function  
+**Returns**: Promise of content.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="zcl_structs"></a>
+
+## zcl_structs(options) ⇒
+
+Block helper iterating over all structs.
+
+**Kind**: global function  
+**Returns**: Promise of content.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="zcl_clusters"></a>
+
+## zcl_clusters(options) ⇒
+
+Block helper iterating over all clusters.
+
+**Kind**: global function  
+**Returns**: Promise of content.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="zcl_commands"></a>
+
+## zcl_commands(options) ⇒
+
+Block helper iterating over all commands.
+There are two modes of this helper:
+when used in a global context, it iterates over ALL commands in the database.
+when used inside a `zcl_cluster` block helper, it iterates only over the commands for that cluster.
+
+**Kind**: global function  
+**Returns**: Promise of content.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="zcl_attributes"></a>
+
+## zcl_attributes(options) ⇒
+
+Block helper iterating over all attributes.
+There are two modes of this helper:
+when used in a global context, it iterates over ALL attributes in the database.
+when used inside a `zcl_cluster` block helper, it iterates only over the attributes for that cluster.
+
+**Kind**: global function  
+**Returns**: Promise of content.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
 <a name="exportSessionKeyValues"></a>
 
 ## exportSessionKeyValues(db, sessionId) ⇒
@@ -1441,29 +1786,6 @@ to the specified values.
 | ----- | --------------- |
 | argv  | <code>\*</code> |
 
-<a name="applyGenerationSettings"></a>
-
-## applyGenerationSettings(generationDir, handlebarTemplateDir)
-
-**Kind**: global function
-
-| Param                | Type            |
-| -------------------- | --------------- |
-| generationDir        | <code>\*</code> |
-| handlebarTemplateDir | <code>\*</code> |
-
-<a name="setGenerationDirAndTemplateDir"></a>
-
-## setGenerationDirAndTemplateDir(generationDir, handlebarTemplateDir) ⇒
-
-**Kind**: global function  
-**Returns**: Returns a promise of a generation
-
-| Param                | Type            |
-| -------------------- | --------------- |
-| generationDir        | <code>\*</code> |
-| handlebarTemplateDir | <code>\*</code> |
-
 <a name="doOpen"></a>
 
 ## doOpen(menuItem, browserWindow, event)
@@ -1519,26 +1841,6 @@ output.
 | Param         | Type            |
 | ------------- | --------------- |
 | browserWindow | <code>\*</code> |
-
-<a name="generateCodeViaCli"></a>
-
-## generateCodeViaCli(generationDir)
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| generationDir | <code>\*</code> |
-
-<a name="setHandlebarTemplateDirForCli"></a>
-
-## setHandlebarTemplateDirForCli(handlebarTemplateDir)
-
-**Kind**: global function
-
-| Param                | Type            |
-| -------------------- | --------------- |
-| handlebarTemplateDir | <code>\*</code> |
 
 <a name="setHandlebarTemplateDirectory"></a>
 
