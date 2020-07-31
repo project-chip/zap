@@ -58,7 +58,11 @@ function ensurePackageId(context) {
 function collectBlocks(resultArray, fn, context) {
   var promises = []
   resultArray.forEach((element) => {
-    var block = fn(element)
+    var newContext = {
+      global: context.global,
+      ...element,
+    }
+    var block = fn(newContext)
     promises.push(block)
   })
   return Promise.all(promises).then((blocks) => {
@@ -128,9 +132,18 @@ function zcl_attributes(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
   return ensurePackageId(this)
-    .then((packageId) =>
-      queryZcl.selectAllAttributes(this.global.db, packageId)
-    )
+    .then((packageId) => {
+      if ('id' in this) {
+        // We're functioning inside a nested context with an id, so we will only query for attributes inside this cluster.
+        return queryZcl.selectAttributesByClusterId(
+          this.global.db,
+          this.id,
+          packageId
+        )
+      } else {
+        return queryZcl.selectAllAttributes(this.global.db, packageId)
+      }
+    })
     .then((atts) => collectBlocks(atts, options.fn, this))
 }
 

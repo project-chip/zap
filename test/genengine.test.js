@@ -162,9 +162,9 @@ test('Validate zap-id generation', () =>
       expect(genResult.content).not.toBeNull()
 
       var zapId = genResult.content['zap-id.h']
-      expect(zapId.includes('// Definitions for cluster: Basic')).toBeTruthy()
-
       //expect(zapId).toEqual('random placeholder')
+
+      expect(zapId.includes('// Definitions for cluster: Basic')).toBeTruthy()
     }))
 
 test('Test content indexer - simple', () =>
