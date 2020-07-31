@@ -55,8 +55,10 @@ function produceCompiledTemplate(singlePkg) {
 function produceContent(db, sessionId, singlePkg) {
   return produceCompiledTemplate(singlePkg).then((template) =>
     template({
-      db: db,
-      sessionId: sessionId,
+      global: {
+        db: db,
+        sessionId: sessionId,
+      },
     })
   )
 }

@@ -26,20 +26,20 @@ const dbEnum = require('../db/db-enum.js')
  * @returns promise that resolves with the package id.
  */
 function ensurePackageId(context) {
-  if ('packageId' in context) {
-    return Promise.resolve(context.packageId)
+  if ('packageId' in context.global) {
+    return Promise.resolve(context.global.packageId)
   } else {
     return queryPackage
       .getSessionPackagesByType(
-        context.db,
-        context.sessionId,
+        context.global.db,
+        context.global.sessionId,
         dbEnum.packageType.zclProperties
       )
       .then((pkgs) => {
         if (pkgs.length == 0) {
           return null
         } else {
-          context.packageId = pkgs[0].id
+          context.global.packageId = pkgs[0].id
           return pkgs[0].id
         }
       })
@@ -78,7 +78,7 @@ function collectBlocks(resultArray, fn, context) {
  */
 function zcl_enums(options) {
   return ensurePackageId(this)
-    .then((packageId) => queryZcl.selectAllEnums(this.db, packageId))
+    .then((packageId) => queryZcl.selectAllEnums(this.global.db, packageId))
     .then((ens) => collectBlocks(ens, options.fn, this))
 }
 
@@ -90,7 +90,7 @@ function zcl_enums(options) {
  */
 function zcl_structs(options) {
   return ensurePackageId(this)
-    .then((packageId) => queryZcl.selectAllStructs(this.db, packageId))
+    .then((packageId) => queryZcl.selectAllStructs(this.global.db, packageId))
     .then((st) => collectBlocks(st, options.fn, this))
 }
 
@@ -102,7 +102,7 @@ function zcl_structs(options) {
  */
 function zcl_clusters(options) {
   return ensurePackageId(this)
-    .then((packageId) => queryZcl.selectAllClusters(this.db, packageId))
+    .then((packageId) => queryZcl.selectAllClusters(this.global.db, packageId))
     .then((cl) => collectBlocks(cl, options.fn, this))
 }
 
@@ -114,7 +114,7 @@ function zcl_clusters(options) {
  */
 function zcl_commands(options) {
   return ensurePackageId(this)
-    .then((packageId) => queryZcl.selectAllCommands(this.db, packageId))
+    .then((packageId) => queryZcl.selectAllCommands(this.global.db, packageId))
     .then((cmds) => collectBlocks(cmds, options.fn, this))
 }
 
@@ -128,7 +128,9 @@ function zcl_attributes(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
   return ensurePackageId(this)
-    .then((packageId) => queryZcl.selectAllAttributes(this.db, packageId))
+    .then((packageId) =>
+      queryZcl.selectAllAttributes(this.global.db, packageId)
+    )
     .then((atts) => collectBlocks(atts, options.fn, this))
 }
 
