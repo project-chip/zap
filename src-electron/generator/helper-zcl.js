@@ -52,9 +52,10 @@ function ensurePackageId(context) {
  *
  * @param {*} resultArray
  * @param {*} fn
+ * @param {*} context The context from within this was called.
  * @returns Promise that resolves with a content string.
  */
-function collectBlocks(resultArray, fn) {
+function collectBlocks(resultArray, fn, context) {
   var promises = []
   resultArray.forEach((element) => {
     var block = fn(element)
@@ -78,7 +79,7 @@ function collectBlocks(resultArray, fn) {
 function zcl_enums(options) {
   return ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllEnums(this.db, packageId))
-    .then((ens) => collectBlocks(ens, options.fn))
+    .then((ens) => collectBlocks(ens, options.fn, this))
 }
 
 /**
@@ -90,7 +91,7 @@ function zcl_enums(options) {
 function zcl_structs(options) {
   return ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllStructs(this.db, packageId))
-    .then((st) => collectBlocks(st, options.fn))
+    .then((st) => collectBlocks(st, options.fn, this))
 }
 
 /**
@@ -102,7 +103,7 @@ function zcl_structs(options) {
 function zcl_clusters(options) {
   return ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllClusters(this.db, packageId))
-    .then((cl) => collectBlocks(cl, options.fn))
+    .then((cl) => collectBlocks(cl, options.fn, this))
 }
 
 /**
@@ -114,7 +115,7 @@ function zcl_clusters(options) {
 function zcl_commands(options) {
   return ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllCommands(this.db, packageId))
-    .then((cmds) => collectBlocks(cmds, options.fn))
+    .then((cmds) => collectBlocks(cmds, options.fn, this))
 }
 
 /**
@@ -124,9 +125,11 @@ function zcl_commands(options) {
  * @returns Promise of content.
  */
 function zcl_attributes(options) {
+  // If used at the toplevel, 'this' is the toplevel context object.
+  // when used at the cluster level, 'this' is a cluster
   return ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllAttributes(this.db, packageId))
-    .then((atts) => collectBlocks(atts, options.fn))
+    .then((atts) => collectBlocks(atts, options.fn, this))
 }
 
 exports.zcl_enums = zcl_enums

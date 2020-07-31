@@ -1,1 +1,19 @@
 {{zap_header}}
+
+#ifndef __ZAP_GEN_ID__
+
+{{#zcl_clusters}}
+// Definitions for cluster: {{label}}
+#define {{label}} {{code}}
+
+// - attributes for cluster: {{label}}
+{{!--
+{{#zcl_attributes}}
+att
+{{/zcl_attributes}}
+--}}
+// - commands for cluster: {{label}}
+
+{{/zcl_clusters}}
+
+#endif // __ZAP_GEN_ID__

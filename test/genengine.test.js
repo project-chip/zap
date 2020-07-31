@@ -149,6 +149,24 @@ test('Validate more complex generation', () =>
       expect(zclId.includes('att: 0x0002 gps communication mode')).toBeTruthy()
     }))
 
+test('Validate zap-id generation', () =>
+  genEngine
+    .generate(
+      templateContext.db,
+      templateContext.sessionId,
+      templateContext.packageId
+    )
+    .then((genResult) => {
+      expect(genResult).not.toBeNull()
+      expect(genResult.partial).toBeFalsy()
+      expect(genResult.content).not.toBeNull()
+
+      var zapId = genResult.content['zap-id.h']
+      expect(zapId.includes('// Definitions for cluster: Basic')).toBeTruthy()
+
+      //expect(zapId).toEqual('random placeholder')
+    }))
+
 test('Test content indexer - simple', () =>
   genEngine.contentIndexer('Short example').then((preview) => {
     expect(preview['1']).toBe('Short example\n')
