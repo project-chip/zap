@@ -21,7 +21,6 @@
  *  modify this file, but it can be used to extend your development
  *  environment.
  */
-require('../util/env.js').logInitStdout()
 
 // Install `electron-debug` with `devtron`
 require('electron-debug')({ showDevTools: false })
