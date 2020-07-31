@@ -19,6 +19,12 @@ const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../db/db-enum.js')
 
+/**
+ * Returns the promise that resolves with the ZCL properties package id.
+ *
+ * @param {*} context
+ * @returns promise that resolves with the package id.
+ */
 function ensurePackageId(context) {
   if ('packageId' in context) {
     return Promise.resolve(context.packageId)
@@ -40,64 +46,45 @@ function ensurePackageId(context) {
   }
 }
 
+/**
+ * Helpful function that collects the individual blocks by using elements of an array as a context,
+ * executing promises for each, and collecting them into the outgoing string.
+ *
+ * @param {*} resultArray
+ * @param {*} fn
+ * @returns Promise that resolves with a content string.
+ */
+function collectBlocks(resultArray, fn) {
+  var promises = []
+  resultArray.forEach((element) => {
+    var block = fn(element)
+    promises.push(block)
+  })
+  return Promise.all(promises).then((blocks) => {
+    var ret = ''
+    blocks.forEach((b) => {
+      ret = ret.concat(b)
+    })
+    return ret
+  })
+}
+
 function zcl_enums(options) {
   return ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllEnums(this.db, packageId))
-    .then((ens) => {
-      var promises = []
-      ens.forEach((element) => {
-        var block = options.fn(element)
-        promises.push(block)
-      })
-      return Promise.all(promises)
-    })
-    .then((blocks) => {
-      var ret = ''
-      blocks.forEach((b) => {
-        ret = ret.concat(b)
-      })
-      return ret
-    })
+    .then((ens) => collectBlocks(ens, options.fn))
 }
 
 function zcl_structs(options) {
   return ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllStructs(this.db, packageId))
-    .then((st) => {
-      var promises = []
-      st.forEach((element) => {
-        var block = options.fn(element)
-        promises.push(block)
-      })
-      return Promise.all(promises)
-    })
-    .then((blocks) => {
-      var ret = ''
-      blocks.forEach((b) => {
-        ret = ret.concat(b)
-      })
-      return ret
-    })
+    .then((st) => collectBlocks(st, options.fn))
 }
 
 function zcl_clusters(options) {
   return ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllClusters(this.db, packageId))
-    .then((cl) => {
-      var promises = []
-      cl.forEach((element) => {
-        var block = options.fn(element)
-        promises.push(block)
-      })
-      return Promise.all(promises)
-    })
-    .then((blocks) => {
-      var ret = ''
-      blocks.forEach((b) => {
-        ret = ret.concat(b)
-      })
-      return ret
-    })
+    .then((cl) => collectBlocks(cl, options.fn))
 }
 
 exports.zcl_enums = zcl_enums

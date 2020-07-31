@@ -392,6 +392,28 @@ function updateEndpoint(db, sessionId, endpointId, changesArray) {
   )
 }
 
+/**
+ * Returns the number of endpoints with a given endpoint_identifier and sessionid.
+ * Used for validation
+ *
+ * @param {*} endpointIdentifier
+ * @param {*} sessionId
+ * @returns Promise that resolves into a count.
+ */
+function getCountOfEndpointsWithGivenEndpointIdentifier(
+  db,
+  endpointIdentifier,
+  sessionId
+) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT COUNT(ENDPOINT_IDENTIFIER) FROM ENDPOINT WHERE ENDPOINT_IDENTIFIER = ? AND SESSION_REF = ?',
+      [endpointIdentifier, sessionId]
+    )
+    .then((x) => x['COUNT(ENDPOINT_IDENTIFIER)'])
+}
+
 function getAllEndpoints(db, sessionId) {
   return dbApi
     .dbAll(
@@ -958,3 +980,4 @@ exports.getOrInsertDefaultEndpointTypeCluster = getOrInsertDefaultEndpointTypeCl
 exports.getEndpointTypeAttributes = getEndpointTypeAttributes
 exports.getEndpointTypeCommands = getEndpointTypeCommands
 exports.getAllEndpoints = getAllEndpoints
+exports.getCountOfEndpointsWithGivenEndpointIdentifier = getCountOfEndpointsWithGivenEndpointIdentifier
