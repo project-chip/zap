@@ -48,8 +48,10 @@ function attachToDb(db) {
 function startSelfCheck() {
   env.logInitStdout()
   console.log('Starting self-check')
+  var dbFile = env.sqliteFile('self-check')
+  if (fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   dbApi
-    .initDatabase(env.sqliteFile())
+    .initDatabase(dbFile)
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
