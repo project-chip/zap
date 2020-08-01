@@ -82,6 +82,16 @@ pipeline
                 }
             }
 	    }
+        stage('Test blank generation')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'npm run gen'
+                }
+            }
+        }
         stage('Zap application build')
         {
             steps

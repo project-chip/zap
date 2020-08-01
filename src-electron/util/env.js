@@ -53,6 +53,13 @@ function mainDatabase() {
   return dbInstance
 }
 
+function resolveMainDatabase(db) {
+  return new Promise((resolve, reject) => {
+    setMainDatabase(db)
+    resolve(db)
+  })
+}
+
 // Returns an app directory. It creates it, if it doesn't exist
 function appDirectory() {
   var appDir = path.join(os.homedir(), '.zap')
@@ -77,8 +84,8 @@ function schemaFile() {
   return p
 }
 
-function sqliteFile() {
-  return path.join(appDirectory(), 'zap.sqlite')
+function sqliteFile(filename = 'zap') {
+  return path.join(appDirectory(), `${filename}.sqlite`)
 }
 
 function sqliteTestFile(id) {
@@ -140,3 +147,4 @@ exports.logWarning = logWarning
 exports.logSql = logSql
 exports.httpStaticContent = httpStaticContent
 exports.zapVersion = zapVersion
+exports.resolveMainDatabase = resolveMainDatabase

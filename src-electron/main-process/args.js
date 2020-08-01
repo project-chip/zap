@@ -26,6 +26,8 @@ exports.genTemplateJsonFile = './test/gen-template/gen-templates.json'
 exports.httpPort = 9070
 exports.studioPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE
+exports.noServer = false
+exports.zapFile = null
 
 /**
  * Process the command line arguments and resets the state in this file
@@ -55,13 +57,19 @@ function processCommandLineArguments(argv) {
       desc: "Port used for integration with Studio's UC Jetty server",
       type: 'number',
     })
+    .option('zapFile', {
+      desc: 'input .zap file to read in.',
+      alias: 'zap',
+      type: 'string',
+      default: exports.zapFile,
+    })
     .option('zclProperties', {
       desc: 'zcl.properties file to read in.',
       alias: 'zcl',
       type: 'string',
       default: exports.zclPropertiesFile,
     })
-    .option('gentemplateJson', {
+    .option('genTemplateJson', {
       desc: 'gen-template.json file to read in.',
       alias: 'gen',
       type: 'string',
@@ -78,6 +86,11 @@ function processCommandLineArguments(argv) {
     })
     .option('noUi', {
       desc: "Don't show the main window when starting.",
+    })
+    .options('noServer', {
+      desc:
+        "Don't run the http server. You should probably also specify -noUi with this.",
+      default: exports.noServer,
     })
     .option('showUrl', {
       desc: 'Print out the URL that an external browser should use.',
@@ -107,8 +120,9 @@ function processCommandLineArguments(argv) {
   exports.httpPort = ret.httpPort
   exports.studioPort = ret.studioPort
   exports.uiMode = ret.uiMode
-  exports.genTemplateJsonFile = ret.gentemplateJson
-
+  exports.genTemplateJsonFile = ret.genTemplateJson
+  exports.noServer = ret.noServer
+  exports.zapFile = ret.zapFile
   return ret
 }
 
