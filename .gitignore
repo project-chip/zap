@@ -53,3 +53,6 @@ sonar-project.properties
 
 # Temporary place for handlebars stuff.
 src-electron/handlebars/out/
+
+# Temporary place for generation
+tmp/

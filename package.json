@@ -33,7 +33,8 @@
     "apidoc": "jsdoc2md src-shared/**/*.js src-electron/**/*.js > docs/api.md",
     "format-code": "pretty-quick",
     "pretty-quick": "pretty-quick",
-    "self-check": "electron src-electron/main-process/electron-main.js selfCheck"
+    "self-check": "electron src-electron/main-process/electron-main.js selfCheck",
+    "gen": "node src-script/zap-generate.js -z ./test/zcl/zcl-test.properties -g ./test/gen-template/gen-templates.json -o ./tmp"
   },
   "dependencies": {
     "@quasar/extras": "^1.9.3",

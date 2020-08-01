@@ -17,6 +17,7 @@
 
 const { spawn } = require('child_process')
 const yargs = require('yargs')
+const fs = require('fs')
 
 function executeCmd(ctx, cmd, args) {
   return new Promise((resolve, reject) => {
@@ -65,6 +66,12 @@ var arg = yargs
   .help().argv
 
 var ctx = {}
+
+if (!fs.existsSync(arg.out)) {
+  console.log(`✅ Creating directory: ${arg.out}`)
+  fs.mkdirSync(arg.out)
+}
+
 executeCmd(ctx, 'electron', [
   'src-electron/main-process/electron-main.js',
   '--noUi',

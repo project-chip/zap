@@ -27,6 +27,8 @@ const windowJs = require('./window.js')
 const httpServer = require('../server/http-server.js')
 const generatorEngine = require('../generator/generation-engine.js')
 const { query } = require('express')
+const querySession = require('../db/query-session.js')
+const util = require('../util/util.js')
 
 env.logInitLogFile()
 
@@ -106,22 +108,37 @@ function startNormal(uiEnabled, showUrl, uiMode) {
 
 function startGeneration(output, genTemplateJsonFile, zclProperties) {
   console.log(
-    `🤖 Generating: 
+    `🤖 Generation information: 
     👉 into: ${output}
     👉 using templates: ${genTemplateJsonFile}
-    👉 using zcl data: ${zclProperties}
-`
+    👉 using zcl data: ${zclProperties}`
   )
+  var dbFile = env.sqliteTestFile('generate')
+  var packageId
   return dbApi
-    .initDatabase(env.sqliteFile())
+    .initDatabase(dbFile)
     .then((db) => attachToDb(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => zclLoader.loadZcl(db, zclProperties))
     .then((ctx) => generatorEngine.loadTemplates(ctx.db, genTemplateJsonFile))
     .then((ctx) => {
-      // Now create session and we can generate
+      packageId = ctx.packageId
+      return querySession.createBlankSession(env.mainDatabase())
     })
+    .then((sessionId) =>
+      util.initializeSessionPackage(env.mainDatabase(), sessionId)
+    )
+    .then((sessionId) =>
+      generatorEngine.generateAndWriteFiles(
+        env.mainDatabase(),
+        sessionId,
+        packageId,
+        output,
+        true
+      )
+    )
     .then(() => {
+      fs.unlinkSync(dbFile)
       app.quit()
     })
 }

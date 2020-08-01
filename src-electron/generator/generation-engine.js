@@ -199,12 +199,20 @@ function generate(db, sessionId, packageId, generateOnly = null) {
  * @param {*} outputDirectory
  * @returns a promise which will resolve when all the files are written.
  */
-function generateAndWriteFiles(db, sessionId, packageId, outputDirectory) {
-  generate(db, sessionId, packageId).then((genResult) => {
+function generateAndWriteFiles(
+  db,
+  sessionId,
+  packageId,
+  outputDirectory,
+  output = false
+) {
+  return generate(db, sessionId, packageId).then((genResult) => {
+    if (output) console.log('🤖 Generating files:')
     var promises = []
     for (const f in genResult.content) {
       var content = genResult.content[f]
       var fileName = path.join(outputDirectory, f)
+      if (output) console.log(`    ✍  ${fileName}`)
       env.logInfo(`Preparing to write file: ${fileName}`)
       promises.push(fsPromise.writeFile(fileName, content))
     }
