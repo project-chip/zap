@@ -32,32 +32,6 @@ const util = require('../util/util.js')
 // This file contains various startup modes.
 
 /**
- * Start up application in self-check mode.
- */
-function startSelfCheck() {
-  env.logInitStdout()
-  console.log('Starting self-check')
-  var dbFile = env.sqliteFile('self-check')
-  if (fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
-  dbApi
-    .initDatabase(dbFile)
-    .then((db) => env.resolveMainDatabase(db))
-    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
-    .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
-    .then((ctx) =>
-      generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
-    )
-    .then((ctx) => {
-      console.log('Self-check done!')
-      app.quit()
-    })
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
-}
-
-/**
  * Start up application in a normal mode.
  *
  * @param {*} uiEnabled
@@ -97,6 +71,40 @@ function startNormal(uiEnabled, showUrl, uiMode) {
     })
     .then(() => {
       if (args.noServer) app.quit()
+    })
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+}
+
+/**
+ * Start up application in self-check mode.
+ */
+function startSelfCheck(options = { log: true }) {
+  env.logInitStdout()
+  if (options.log) console.log('🤖 Starting self-check')
+  var dbFile = env.sqliteFile('self-check')
+  if (fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
+  dbApi
+    .initDatabase(dbFile)
+    .then((db) => {
+      if (options.log) console.log('    👉 database initialized')
+      return env.resolveMainDatabase(db)
+    })
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+    .then((db) => {
+      if (options.log) console.log('    👉 schema initialized')
+      return zclLoader.loadZcl(db, args.zclPropertiesFile)
+    })
+    .then((ctx) => {
+      if (options.log) console.log('    👉 zcl data loaded')
+      return generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
+    })
+    .then((ctx) => {
+      if (options.log) console.log('    👉 generation templates loaded')
+      if (options.log) console.log('😎 Self-check done!')
+      app.quit()
     })
     .catch((err) => {
       env.logError(err)
@@ -180,8 +188,8 @@ function startGeneration(
  */
 function startSdkGeneration(
   generationDir,
-  handlebarTemplateDir,
-  zclPropertiesFilePath
+  zclPropertiesFilePath,
+  options = { quit: true }
 ) {
   env.logInfo('Start SDK generation...')
   return dbApi
@@ -198,10 +206,11 @@ function startSdkGeneration(
       sdkGen.runSdkGeneration({
         db: ctx.db,
         generationDir: generationDir,
-        templateDir: handlebarTemplateDir,
       })
     )
-    .then((res) => app.quit())
+    .then((res) => {
+      if (options.quit) app.quit()
+    })
     .catch((err) => {
       env.logError(err)
       throw err
