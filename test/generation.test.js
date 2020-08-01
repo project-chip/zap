@@ -19,12 +19,10 @@
  */
 
 const fs = require('fs')
-const fsExtra = require('fs-extra')
 const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const env = require('../src-electron/util/env.js')
-const menuJs = require('../src-electron/main-process/menu.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/main-process/args.js')
 const httpServer = require('../src-electron/server/http-server.js')
