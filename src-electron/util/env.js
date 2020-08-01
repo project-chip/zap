@@ -77,8 +77,8 @@ function schemaFile() {
   return p
 }
 
-function sqliteFile() {
-  return path.join(appDirectory(), 'zap.sqlite')
+function sqliteFile(filename = 'zap') {
+  return path.join(appDirectory(), `${filename}.sqlite`)
 }
 
 function sqliteTestFile(id) {

@@ -60,6 +60,12 @@ var arg = yargs
     type: 'string',
     demandOption: true,
   })
+  .option('in', {
+    desc: 'Input .zap file from which to read configuration.',
+    alias: 'i',
+    type: 'string',
+    demandOption: false,
+  })
   .demandOption(
     ['zclProperties', 'out', 'generationTemplate'],
     'Please provide required options!'
@@ -73,8 +79,9 @@ if (!fs.existsSync(arg.out)) {
   fs.mkdirSync(arg.out)
 }
 
-executeCmd(ctx, 'electron', [
+var cli = [
   'src-electron/main-process/electron-main.js',
+  'generate',
   '--noUi',
   '--noServer',
   '--zclProperties',
@@ -83,8 +90,13 @@ executeCmd(ctx, 'electron', [
   arg.generationTemplate,
   '--output',
   arg.out,
-  'generate',
-])
+]
+if (arg.in != null) {
+  cli.push('--zapFile')
+  cli.push(arg.in)
+}
+
+executeCmd(ctx, 'electron', cli)
   .then(() => {
     console.log('😎 All done.')
     process.exit(0)

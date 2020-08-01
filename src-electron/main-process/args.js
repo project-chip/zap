@@ -27,6 +27,7 @@ exports.httpPort = 9070
 exports.studioPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE
 exports.noServer = false
+exports.zapFile = null
 
 /**
  * Process the command line arguments and resets the state in this file
@@ -55,6 +56,12 @@ function processCommandLineArguments(argv) {
     .option('studioPort', {
       desc: "Port used for integration with Studio's UC Jetty server",
       type: 'number',
+    })
+    .option('zapFile', {
+      desc: 'input .zap file to read in.',
+      alias: 'zap',
+      type: 'string',
+      default: exports.zapFile,
     })
     .option('zclProperties', {
       desc: 'zcl.properties file to read in.',
@@ -115,6 +122,7 @@ function processCommandLineArguments(argv) {
   exports.uiMode = ret.uiMode
   exports.genTemplateJsonFile = ret.genTemplateJson
   exports.noServer = ret.noServer
+  exports.zapFile = ret.zapFile
   return ret
 }
 

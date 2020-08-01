@@ -106,14 +106,25 @@ function startNormal(uiEnabled, showUrl, uiMode) {
     })
 }
 
-function startGeneration(output, genTemplateJsonFile, zclProperties) {
+function startGeneration(
+  output,
+  genTemplateJsonFile,
+  zclProperties,
+  zapFile = null
+) {
   console.log(
     `🤖 Generation information: 
     👉 into: ${output}
     👉 using templates: ${genTemplateJsonFile}
     👉 using zcl data: ${zclProperties}`
   )
-  var dbFile = env.sqliteTestFile('generate')
+  if (zapFile != null) {
+    console.log(`    👉 using input file: ${zapFile}`)
+  } else {
+    console.log(`    👉 using empty configuration`)
+  }
+  var dbFile = env.sqliteFile('generate')
+  if (fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   var packageId
   return dbApi
     .initDatabase(dbFile)
@@ -138,7 +149,6 @@ function startGeneration(output, genTemplateJsonFile, zclProperties) {
       )
     )
     .then(() => {
-      fs.unlinkSync(dbFile)
       app.quit()
     })
 }
@@ -196,7 +206,12 @@ if (app != null) {
     if (argv._.includes('selfCheck')) {
       startSelfCheck()
     } else if (argv._.includes('generate')) {
-      startGeneration(argv.output, argv.genTemplateJson, argv.zclProperties)
+      startGeneration(
+        argv.output,
+        argv.genTemplateJson,
+        argv.zclProperties,
+        argv.zapFile
+      )
     } else if (argv._.includes('sdkGen')) {
       startSdkGeneration(argv.output, argv.template, argv.zclProperties)
     } else {
