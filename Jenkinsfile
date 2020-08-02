@@ -66,7 +66,7 @@ pipeline
             {
                 script 
                 {
-                    sh 'rm -rf ~/.silabs/zap'
+                    sh 'rm -rf ~/.zap'
                     sh 'npm run test'
                 }
             }
@@ -77,7 +77,7 @@ pipeline
             {
                 script
                 {
-                    sh 'rm -rf ~/.silabs/zap'
+                    sh 'rm -rf ~/.zap'
                     sh 'npm run self-check'
                 }
             }
