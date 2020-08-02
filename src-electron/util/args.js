@@ -17,7 +17,7 @@
 
 const yargs = require('yargs')
 
-const env = require('../util/env.js')
+const env = require('./env.js')
 const restApi = require(`../../src-shared/rest-api.js`)
 
 // TODO how to handle relative pathing for things like properties file.

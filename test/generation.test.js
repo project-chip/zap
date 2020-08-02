@@ -24,7 +24,7 @@ const dbApi = require('../src-electron/db/db-api.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const env = require('../src-electron/util/env.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const args = require('../src-electron/main-process/args.js')
+const args = require('../src-electron/util/args.js')
 const httpServer = require('../src-electron/server/http-server.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 

@@ -20,7 +20,7 @@ const fs = require('fs')
 
 const dbApi = require('../db/db-api.js')
 const sdkGen = require('../sdk-gen/sdk-gen.js')
-const args = require('./args.js')
+const args = require('../util/args.js')
 const env = require('../util/env.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const windowJs = require('./window.js')
@@ -128,6 +128,7 @@ function startGeneration(
   zapFile = null,
   options = {
     quit: true,
+    cleanDb: true,
     log: true,
   }
 ) {
@@ -144,7 +145,7 @@ function startGeneration(
     if (options.log) console.log(`    👉 using empty configuration`)
   }
   var dbFile = env.sqliteFile('generate')
-  if (fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
+  if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   var packageId
   return dbApi
     .initDatabase(dbFile)
@@ -189,11 +190,16 @@ function startGeneration(
 function startSdkGeneration(
   generationDir,
   zclPropertiesFilePath,
-  options = { quit: true }
+  options = {
+    quit: true,
+    cleanDb: true,
+  }
 ) {
   env.logInfo('Start SDK generation...')
+  var dbFile = env.sqliteFile('sdk-regen')
+  if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   return dbApi
-    .initDatabase(env.sqliteFile())
+    .initDatabase(dbFile)
     .then((db) => env.resolveMainDatabase(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) =>

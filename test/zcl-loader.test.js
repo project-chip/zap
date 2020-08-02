@@ -25,7 +25,7 @@ const queryZcl = require('../src-electron/db/query-zcl.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const args = require('../src-electron/main-process/args.js')
+const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 
 test('test opening and closing the database', () => {

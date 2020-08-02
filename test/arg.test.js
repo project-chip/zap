@@ -19,7 +19,7 @@
  */
 
 const yargs = require('yargs')
-const args = require('../src-electron/main-process/args.js')
+const args = require('../src-electron/util/args.js')
 
 test('Test basic command line processing', () => {
   var a = args.processCommandLineArguments([

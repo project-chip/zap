@@ -18,7 +18,7 @@
 const { app } = require('electron')
 
 const dbApi = require('../db/db-api.js')
-const args = require('./args.js')
+const args = require('../util/args.js')
 const env = require('../util/env.js')
 const windowJs = require('./window.js')
 const startup = require('./startup.js')

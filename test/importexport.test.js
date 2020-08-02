@@ -25,7 +25,7 @@ const dbEnum = require('../src-electron/db/db-enum.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const env = require('../src-electron/util/env.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const args = require('../src-electron/main-process/args.js')
+const args = require('../src-electron/util/args.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 
 var db
