@@ -33,7 +33,7 @@ test('Test logging', () => {
   env.logError('Error log test.')
 })
 
-test('Main database', () => {
-  env.setMainDatabase('stalin')
-  expect(env.mainDatabase()).toBe('stalin')
-})
+test('Main database', () =>
+  env.resolveMainDatabase('stalin').then((db) => {
+    expect(env.mainDatabase()).toBe('stalin')
+  }))
