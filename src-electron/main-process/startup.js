@@ -81,12 +81,12 @@ function startNormal(uiEnabled, showUrl, uiMode) {
 /**
  * Start up application in self-check mode.
  */
-function startSelfCheck(options = { log: true }) {
+function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
   env.logInitStdout()
   if (options.log) console.log('🤖 Starting self-check')
   var dbFile = env.sqliteFile('self-check')
-  if (fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
-  dbApi
+  if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
+  return dbApi
     .initDatabase(dbFile)
     .then((db) => {
       if (options.log) console.log('    👉 database initialized')
@@ -104,7 +104,7 @@ function startSelfCheck(options = { log: true }) {
     .then((ctx) => {
       if (options.log) console.log('    👉 generation templates loaded')
       if (options.log) console.log('😎 Self-check done!')
-      app.quit()
+      if (options.quit) app.quit()
     })
     .catch((err) => {
       env.logError(err)
