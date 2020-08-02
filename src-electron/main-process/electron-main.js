@@ -69,9 +69,11 @@ if (app != null) {
   })
 
   app.on('quit', () => {
-    dbApi
-      .closeDatabase(env.mainDatabase())
-      .then(() => env.logInfo('Database closed, shutting down.'))
+    if (env.mainDatabase() != null) {
+      dbApi
+        .closeDatabase(env.mainDatabase())
+        .then(() => env.logInfo('Database closed, shutting down.'))
+    }
   })
 }
 

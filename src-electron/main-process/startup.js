@@ -85,12 +85,15 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
   env.logInitStdout()
   if (options.log) console.log('🤖 Starting self-check')
   var dbFile = env.sqliteFile('self-check')
-  if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
+  if (options.cleanDb && fs.existsSync(dbFile)) {
+    if (options.log) console.log('    👉 remove old database file')
+    fs.unlinkSync(dbFile)
+  }
   return dbApi
     .initDatabase(dbFile)
     .then((db) => {
-      if (options.log) console.log('    👉 database initialized')
-      return env.resolveMainDatabase(db)
+      if (options.log) console.log('    👉 new database initialized')
+      return db
     })
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => {
@@ -147,22 +150,24 @@ function startGeneration(
   var dbFile = env.sqliteFile('generate')
   if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   var packageId
+  var mainDb
   return dbApi
     .initDatabase(dbFile)
-    .then((db) => env.resolveMainDatabase(db))
+    .then((db) => {
+      mainDb = db
+      return db
+    })
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => zclLoader.loadZcl(db, zclProperties))
     .then((ctx) => generatorEngine.loadTemplates(ctx.db, genTemplateJsonFile))
     .then((ctx) => {
       packageId = ctx.packageId
-      return querySession.createBlankSession(env.mainDatabase())
+      return querySession.createBlankSession(mainDb)
     })
-    .then((sessionId) =>
-      util.initializeSessionPackage(env.mainDatabase(), sessionId)
-    )
+    .then((sessionId) => util.initializeSessionPackage(mainDb, sessionId))
     .then((sessionId) =>
       generatorEngine.generateAndWriteFiles(
-        env.mainDatabase(),
+        mainDb,
         sessionId,
         packageId,
         output,
@@ -200,7 +205,6 @@ function startSdkGeneration(
   if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   return dbApi
     .initDatabase(dbFile)
-    .then((db) => env.resolveMainDatabase(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) =>
       zclLoader.loadZcl(
