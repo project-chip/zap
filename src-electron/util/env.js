@@ -45,17 +45,13 @@ function setProductionEnv() {
   httpStaticContent = path.join('.').replace(/\\/g, '\\\\')
 }
 
-function setMainDatabase(db) {
-  dbInstance = db
-}
-
 function mainDatabase() {
   return dbInstance
 }
 
 function resolveMainDatabase(db) {
   return new Promise((resolve, reject) => {
-    setMainDatabase(db)
+    dbInstance = db
     resolve(db)
   })
 }
@@ -132,8 +128,6 @@ function logSql(msg) {
 
 exports.setDevelopmentEnv = setDevelopmentEnv
 exports.setProductionEnv = setProductionEnv
-exports.setMainDatabase = setMainDatabase
-exports.mainDatabase = mainDatabase
 exports.appDirectory = appDirectory
 exports.iconsDirectory = iconsDirectory
 exports.schemaFile = schemaFile
@@ -148,3 +142,4 @@ exports.logSql = logSql
 exports.httpStaticContent = httpStaticContent
 exports.zapVersion = zapVersion
 exports.resolveMainDatabase = resolveMainDatabase
+exports.mainDatabase = mainDatabase
