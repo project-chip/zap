@@ -23,7 +23,7 @@
 
 const env = require('../util/env.js')
 const restApi = require('../../src-shared/rest-api.js')
-const args = require('../main-process/args.js')
+const args = require('../util/args.js')
 const axios = require('axios')
 
 const replyId = 'uc-tree'

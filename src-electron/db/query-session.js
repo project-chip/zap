@@ -191,7 +191,7 @@ function createBlankSession(db) {
   return dbApi.dbInsert(
     db,
     'INSERT INTO SESSION (SESSION_KEY, SESSION_WINID, CREATION_TIME, DIRTY) VALUES (?,?,?,?)',
-    ['', '', Date.now(), 0]
+    [`${Math.random()}`, '', Date.now(), 0]
   )
 }
 

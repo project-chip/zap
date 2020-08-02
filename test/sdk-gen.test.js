@@ -26,7 +26,7 @@ const queryZcl = require('../src-electron/db/query-zcl.js')
 const sdkGen = require('../src-electron/sdk-gen/sdk-gen.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const env = require('../src-electron/util/env.js')
-const args = require('../src-electron/main-process/args.js')
+const args = require('../src-electron/util/args.js')
 
 describe('SDK gen tests', () => {
   var db

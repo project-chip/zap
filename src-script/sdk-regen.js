@@ -20,7 +20,7 @@ const dbApi = require('../src-electron/db/db-api.js')
 const env = require('../src-electron/util/env.js')
 const sdkGen = require('../src-electron/sdk-gen/sdk-gen.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const { zclPropertiesFile } = require('../src-electron/main-process/args.js')
+const { zclPropertiesFile } = require('../src-electron/util/args.js')
 
 env.setDevelopmentEnv()
 var file = env.sqliteTestFile(42)

@@ -20,7 +20,7 @@ const fs = require('fs')
 
 const dbApi = require('../db/db-api.js')
 const sdkGen = require('../sdk-gen/sdk-gen.js')
-const args = require('./args.js')
+const args = require('../util/args.js')
 const env = require('../util/env.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const windowJs = require('./window.js')

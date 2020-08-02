@@ -21,7 +21,7 @@ const path = require('path')
 const fs = require('fs')
 const startup = require('../src-electron/main-process/startup.js')
 const env = require('../src-electron/util/env.js')
-const args = require('../src-electron/main-process/args.js')
+const args = require('../src-electron/util/args.js')
 
 test('startup: start generation', () => {
   var testGenDir = path.join(env.appDirectory(), 'test-gen')
