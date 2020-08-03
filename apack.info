@@ -9,33 +9,34 @@ id=zclConfigurator
 # Trigger file extension. No period.
 uc.triggerExtension=zap
 
-executable(node) {
-  exe=node
+executable(zap) {
+  engine=node
+  exe=src-script/zap-start.js
 }
 
 function(run) {
   zclProperties.description=Location for ZCL XML file
-  cmd=$(node) src-script/zap-start.js --zclProperties ${zclProperties}
+  cmd=$(zap) --zclProperties ${zclProperties}
 }
 
 function(zapHelp) {
-  cmd=$(node) src-script/zap-start.js --help
+  cmd=$(zap) --help
 }
 
 function(zapSelfcheck) {
-  cmd=$(node) src-script/zap-start.js selfCheck
+  cmd=$(zap) selfCheck
 }
 
 function(zapServer) {
   httpPort.description=Port used for HTTP server
   zclProperties.description=Location for ZCL XML file
   output.description=Output directory for project generation
-  cmd=$(node) src-script/zap-start.js --httpPort ${port} --noUi --showUrl --zclProperties ${zclProperties} --output ${output}
+  cmd=$(zap) --httpPort ${port} --noUi --showUrl --zclProperties ${zclProperties} --output ${output}
 }
 
 function(zapFull) {
   zclProperties.description=Location for ZCL XML file
-  cmd=$(node) src-script/zap-start.js --showUrl --zclProperties ${zclProperties}
+  cmd=$(zap) --showUrl --zclProperties ${zclProperties}
 }
 
 option(auto-regen) {
