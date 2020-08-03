@@ -21,7 +21,6 @@ const hashOptions = {}
 const spaDir = 'dist/spa'
 const fs = require('fs')
 const path = require('path')
-const { add } = require('lodash')
 
 function executeCmd(ctx, cmd, args) {
   return new Promise((resolve, reject) => {
