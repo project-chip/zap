@@ -118,6 +118,9 @@ pipeline
             {
                 script 
                 {
+                    sh 'cp -f apack.info.dist ./dist/electron/zap-linux-x64/'
+                    sh 'cp -f apack.info.dist ./dist/electron/zap-darwin-x64/'
+                    sh 'cp -f apack.info.dist ./dist/electron/zap-win32-x64/'
                     zip archive: true, dir: './dist/electron/zap-linux-x64', glob: '', zipFile: 'zap-linux-x64.zip'
                     zip archive: true, dir: './dist/electron/zap-darwin-x64', glob: '', zipFile: 'zap-darwin-x64.zip'
                     zip archive: true, dir: './dist/electron/zap-win32-x64', glob: '', zipFile: 'zap-win32-x64.zip'
