@@ -21,6 +21,7 @@ const hashOptions = {}
 const spaDir = 'dist/spa'
 const fs = require('fs')
 const path = require('path')
+const { add } = require('lodash')
 
 function executeCmd(ctx, cmd, args) {
   return new Promise((resolve, reject) => {
@@ -93,11 +94,11 @@ hashElement('src', hashOptions)
         }
       })
   )
-  .then((ctx) =>
-    executeCmd(ctx, 'electron', [
-      'src-electron/main-process/electron-main.dev.js',
-    ])
-  )
+  .then((ctx) => {
+    var cmdArgs = ['src-electron/main-process/electron-main.dev.js']
+    cmdArgs.push(...process.argv.slice(2))
+    return executeCmd(ctx, 'electron', cmdArgs)
+  })
   .then(() => {
     console.log('😎 All done.')
   })
