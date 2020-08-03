@@ -28,10 +28,9 @@ function(zapSelfcheck) {
 }
 
 function(zapServer) {
-  httpPort.description=Port used for HTTP server
   zclProperties.description=Location for ZCL XML file
   output.description=Output directory for project generation
-  cmd=$(zap) --httpPort ${port} --noUi --showUrl --zclProperties ${zclProperties} --output ${output}
+  cmd=$(zap) --noUi --showUrl --zclProperties ${zclProperties} --output ${output}
 }
 
 function(zapFull) {
@@ -44,13 +43,6 @@ option(auto-regen) {
   description=Automatically regenerate when configuration file is saved.
   type=boolean
   default=false
-}
-
-option(port) {
-  name=Port used for HTTP server
-  description=Default port used for the ZAP HTTP server
-  type=integer
-  default=9070
 }
 
 option(zclProperties) {
