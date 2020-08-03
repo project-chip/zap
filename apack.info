@@ -2,7 +2,7 @@
 #
 label=Zigbee Advanced platform
 path=.
-requiredFeatureLevel=apack.core:4
+requiredFeatureLevel=apack.core:7
 
 id=zclConfigurator
 
