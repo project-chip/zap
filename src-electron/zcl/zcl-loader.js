@@ -739,6 +739,7 @@ function parseManufacturerData(db, ctx) {
 }
 
 function parseOptions(db, ctx) {
+  if (!ctx.options) return Promise.resolve(ctx)
   let promises = Object.keys(ctx.options).map((optionKey) => {
     let optionValues = ctx.options[optionKey]
       .split(',')
