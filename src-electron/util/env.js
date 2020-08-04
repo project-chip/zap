@@ -109,7 +109,7 @@ function logHttpServerUrl(port, studioPort) {
   logInfo('HTTP server created: ' + baseUrl() + port)
 
   if (studioPort) {
-    logInfo('Studio integration server port: ' + baseUrl() + studioPort)
+    logInfo('Studio integration server: ' + baseUrl() + studioPort)
   }
 
   fs.writeFileSync(urlLogFile(), baseUrl() + port, function (err) {
