@@ -44,7 +44,9 @@ function selectAllEnums(db, packageId = null) {
 }
 
 function selectAllEnumItemsById(db, id) {
-  return dbApi.dbAll(db, 'SELECT NAME FROM ENUM_ITEM WHERE ENUM_REF=?', [id])
+  return dbApi
+    .dbAll(db, 'SELECT NAME, VALUE FROM ENUM_ITEM WHERE ENUM_REF=?', [id])
+    .then((rows) => rows.map(dbMapping.map.enumItem))
 }
 
 function selectAllEnumItems(db, packageId = null) {

@@ -220,6 +220,7 @@ function zcl_attributes_server(options) {
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
 exports.zcl_enums = zcl_enums
+exports.zcl_enum_items = zcl_enum_items
 exports.zcl_structs = zcl_structs
 exports.zcl_clusters = zcl_clusters
 exports.zcl_commands = zcl_commands

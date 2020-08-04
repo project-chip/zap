@@ -1,9 +1,12 @@
 {{zap_header}}
 
 // All ZCL enums
-
 {{#zcl_enums}}
-typedef enum {
 
-} {{label}};
+// Enum for {{label}}
+typedef enum {
+{{#zcl_enum_items}}
+  ZCL_{{asMacro parent.label}}_{{asMacro label}} {{value}},
+{{/zcl_enum_items}}
+} {{asType label}};
 {{/zcl_enums}}

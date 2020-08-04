@@ -29,6 +29,10 @@ function asHex(value) {
   }
 }
 
+function asType(value) {
+  return value.replace(/ /g, '')
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -36,3 +40,4 @@ function asHex(value) {
 // If you rename the functions, you need to still maintain old exports list.
 exports.asMacro = asMacro
 exports.asHex = asHex
+exports.asType = asType
