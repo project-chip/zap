@@ -49,7 +49,11 @@ function startNormal(uiEnabled, showUrl, uiMode) {
     )
     .then((ctx) => {
       if (!args.noServer)
-        return httpServer.initHttpServer(ctx.db, args.httpPort)
+        return httpServer.initHttpServer(
+          ctx.db,
+          args.httpPort,
+          args.studioHttpPort
+        )
       else return true
     })
     .then(() => {

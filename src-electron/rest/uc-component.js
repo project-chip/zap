@@ -28,7 +28,7 @@ const axios = require('axios')
 
 const replyId = 'uc-tree'
 
-const studioServerUrl = `http://localhost:` + args.studioPort
+const studioServerUrl = `http://localhost:` + args.studioHttpPort
 const op_tree = '/rest/clic/components/all/project/'
 const op_add = '/rest/clic/component/add/project/'
 const op_remove = '/rest/clic/component/remove/project/'
@@ -41,9 +41,9 @@ const op_remove = '/rest/clic/component/remove/project/'
  * @param {*} app
  */
 function registerUcComponentApi(db, app) {
-  // app.get('/uc/info', (req, res) => {})
-
   app.get('/uc/tree', (req, res) => {
+    let name = studioProjectName(req.query.studioProject)
+    env.logInfo(`StudioUC(${name}): Get project info`)
     axios
       .get(studioServerUrl + op_tree + req.query.studioProject)
       .then(function (response) {
@@ -59,6 +59,10 @@ function registerUcComponentApi(db, app) {
   })
 
   app.get('/uc/add', (req, res) => {
+    let name = studioProjectName(req.query.studioProject)
+    env.logInfo(
+      `StudioUC(${name}): Enabling component ${req.query.componentId}`
+    )
     axios
       .post(studioServerUrl + op_add + req.query.studioProject, {
         componentId: req.query.componentId,
@@ -70,6 +74,10 @@ function registerUcComponentApi(db, app) {
   })
 
   app.get('/uc/remove', (req, res) => {
+    let name = studioProjectName(req.query.studioProject)
+    env.logInfo(
+      `StudioUC(${name}): Disabling component ${req.query.componentId}`
+    )
     axios
       .post(studioServerUrl + op_remove + req.query.studioProject, {
         componentId: req.query.componentId,
@@ -79,6 +87,10 @@ function registerUcComponentApi(db, app) {
         res.send(err.response.data)
       })
   })
+}
+
+function studioProjectName(studioProject) {
+  return studioProject.substr(studioProject.lastIndexOf('_2F') + 3)
 }
 
 exports.registerUcComponentApi = registerUcComponentApi

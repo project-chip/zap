@@ -105,8 +105,12 @@ function logInitStdout() {
   }
 }
 
-function logHttpServerUrl(port) {
-  logInfo(`HTTP server created: ` + baseUrl() + port)
+function logHttpServerUrl(port, studioPort) {
+  logInfo('HTTP server created: ' + baseUrl() + port)
+
+  if (studioPort) {
+    logInfo('Studio integration server port: ' + baseUrl() + studioPort)
+  }
 
   fs.writeFileSync(urlLogFile(), baseUrl() + port, function (err) {
     if (err) {
