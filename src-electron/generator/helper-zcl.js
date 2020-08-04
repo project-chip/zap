@@ -88,6 +88,16 @@ function zcl_enums(options) {
 }
 
 /**
+ * Iterates over enum items. Valid only inside zcl_enums.
+ * @param {*} options
+ */
+function zcl_enum_items(options) {
+  return queryZcl
+    .selectAllEnumItemsById(this.global.db, this.id)
+    .then((items) => collectBlocks(items, options.fn, this))
+}
+
+/**
  * Block helper iterating over all structs.
  *function macroList(options)
 
