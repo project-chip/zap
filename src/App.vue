@@ -38,8 +38,8 @@ export default {
       this.$store.dispatch('zap/setDefaultUiMode', query[`uiMode`])
     }
 
-    if (query['studioConfigPath']) {
-      this.$store.dispatch('zap/setStudioConfigPath', query['studioConfigPath'])
+    if (query['studioProject']) {
+      this.$store.dispatch('zap/setStudioConfigPath', query['studioProject'])
     }
   },
 }

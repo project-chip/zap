@@ -78,7 +78,7 @@ export default {
 
     this.$serverGet('/uc/tree', {
       params: {
-        studioConfigPath: this.$store.state.zap.studioConfigPath,
+        studioProject: this.$store.state.zap.studioProject,
       },
     })
   },
@@ -99,7 +99,7 @@ export default {
         this.$serverGet('/uc/add', {
           params: {
             componentId: id,
-            studioConfigPath: this.$store.state.zap.studioConfigPath,
+            studioProject: this.$store.state.zap.studioProject,
           },
         })
       }, this)
@@ -110,7 +110,7 @@ export default {
         this.$serverGet('/uc/remove', {
           params: {
             componentId: id,
-            studioConfigPath: this.$store.state.zap.studioConfigPath,
+            studioProject: this.$store.state.zap.studioProject,
           },
         })
       }, this)
