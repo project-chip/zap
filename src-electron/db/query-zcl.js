@@ -1334,6 +1334,21 @@ function insertAtomics(db, packageId, data) {
 }
 
 /**
+ * Retrieves all atomic types under a given package Id.
+ * @param {*} db
+ * @param {*} packageId
+ */
+function selectAllAtomics(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? ORDER BY ATOMIC_IDENTIFIER',
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.atomic))
+}
+
+/**
  * Inserts bitmaps into the database. Data is an array of objects that must contain: name, type
  *
  * @export
@@ -1423,3 +1438,4 @@ exports.insertEnums = insertEnums
 exports.insertBitmaps = insertBitmaps
 exports.selectEndpointType = selectEndpointType
 exports.insertAtomics = insertAtomics
+exports.selectAllAtomics = selectAllAtomics

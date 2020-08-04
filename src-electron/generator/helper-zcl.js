@@ -214,6 +214,18 @@ function zcl_attributes_server(options) {
     .then((atts) => collectBlocks(atts, options.fn, this))
 }
 
+/**
+ * Block helper iterating over all atomic types.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_atomics(options) {
+  return ensurePackageId(this)
+    .then((packageId) => queryZcl.selectAllAtomics(this.global.db, packageId))
+    .then((ats) => collectBlocks(ats, options.fn, this))
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -227,3 +239,4 @@ exports.zcl_commands = zcl_commands
 exports.zcl_attributes = zcl_attributes
 exports.zcl_attributes_client = zcl_attributes_client
 exports.zcl_attributes_server = zcl_attributes_server
+exports.zcl_atomics = zcl_atomics

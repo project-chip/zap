@@ -154,6 +154,16 @@ exports.map = {
     }
   },
 
+  atomic: (x) => {
+    if (x == null) return undefined
+    return {
+      atomicId: x.ATOMIC_IDENTIFIER,
+      name: x.NAME,
+      description: x.DESCRIPTION,
+      size: x.ATOMIC_SIZE,
+    }
+  },
+
   bitmap: (x) => {
     if (x == null) return undefined
     return {

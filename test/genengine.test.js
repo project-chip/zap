@@ -189,6 +189,13 @@ test(
         expect(
           zapId.includes('#define ZCL_NUMBER_OF_RESETS_ATTRIBUTE_ID (0x0000)')
         ).toBeTruthy()
+
+        var zapTypes = genResult.content['zap-type.h']
+        expect(
+          zapTypes.includes(
+            'ZCL_INT16U_ATTRIBUTE_TYPE = 0x21, // Unsigned 16-bit integer'
+          )
+        ).toBeTruthy()
       }),
   genTimeout
 )

@@ -1,6 +1,12 @@
 {{zap_header}}
 
-// All ZCL enums
+// ZCL attribute types
+enum {
+{{#zcl_atomics}}
+  ZCL_{{asMacro name}}_ATTRIBUTE_TYPE = {{asHex atomicId}}, // {{description}}
+{{/zcl_atomics}}
+};
+// ZCL enums
 {{#zcl_enums}}
 
 // Enum for {{label}}
