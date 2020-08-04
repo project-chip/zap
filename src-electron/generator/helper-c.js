@@ -15,21 +15,24 @@
  *    limitations under the License.
  */
 
-/**
- * This module provides mappings between database columns and JS keys.
- *
- * @module DB API: DB types and enums.
- */
-exports.packageType = {
-  zclProperties: 'zcl-properties',
-  zclXml: 'zcl-xml-child',
-  zclXmlStandalone: 'zcl-xml-standalone',
-  sqlSchema: 'sql-schema',
-  genTemplatesJson: 'gen-templates-json',
-  genSingleTemplate: 'gen-template',
+function asMacro(label) {
+  return label.toUpperCase().replace(/ /g, '_')
 }
 
-exports.side = {
-  client: 'client',
-  server: 'server',
+function asHex(value) {
+  var ret = value.trim()
+  if (ret.startsWith('0x') || ret.startsWith('0X')) {
+    return `0x${value.slice(2)}`
+  } else {
+    var val = parseInt(value)
+    return `0x${val.toString(16)}`
+  }
 }
+
+// WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
+//
+// Note: these exports are public API. Templates that might have been created in the past and are
+// available in the wild might depend on these names.
+// If you rename the functions, you need to still maintain old exports list.
+exports.asMacro = asMacro
+exports.asHex = asHex

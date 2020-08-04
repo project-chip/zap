@@ -1,21 +1,28 @@
 {{zap_header}}
 
 #ifndef __ZAP_GEN_ID__
-
 {{#zcl_clusters}}
+
+
 // Definitions for cluster: {{label}}
-#define {{label}} {{code}}
+#define ZCL_{{asMacro label}}_CLUSTER_ID ({{asHex code}})
 
-// - attributes for cluster: {{label}}
-{{#zcl_attributes}}
-att: {{label}}
-{{/zcl_attributes}}
+// Client attributes for cluster: {{label}}
+{{#zcl_attributes_client}}
+#define ZCL_{{asMacro label}}_ATTRIBUTE_ID ({{asHex code}})
+{{/zcl_attributes_client}}
 
-// - commands for cluster: {{label}}
+// Server attributes for cluster: {{label}}
+{{#zcl_attributes_server}}
+#define ZCL_{{asMacro label}}_ATTRIBUTE_ID ({{asHex code}})
+{{/zcl_attributes_server}}
+
+// Commands for cluster: {{label}}
 {{#zcl_commands}}
-cmd: {{label}}
+#define ZCL_{{asMacro label}}_COMMAND_ID ({{asHex code}})
 {{/zcl_commands}}
 
+// End of cluster: {{label}}
 {{/zcl_clusters}}
 
 #endif // __ZAP_GEN_ID__

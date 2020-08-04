@@ -179,9 +179,16 @@ test(
 
         expect(zapId.includes('// Definitions for cluster: Basic')).toBeTruthy()
         expect(
-          zapId.includes('cmd: GetProfileInfoResponseCommand')
+          zapId.includes('#define ZCL_GETPROFILERESPONSE_COMMAND_ID (0x00)')
         ).toBeTruthy()
-        expect(zapId.includes('att: number of resets')).toBeTruthy()
+        expect(
+          zapId.includes(
+            '// Client attributes for cluster: Fluoride Concentration Measurement'
+          )
+        ).toBeTruthy()
+        expect(
+          zapId.includes('#define ZCL_NUMBER_OF_RESETS_ATTRIBUTE_ID (0x0000)')
+        ).toBeTruthy()
       }),
   genTimeout
 )

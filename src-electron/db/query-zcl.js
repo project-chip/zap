@@ -289,6 +289,37 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
+function selectAttributesByClusterIdAndSide(db, clusterId, packageId, side) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  ATTRIBUTE_ID, 
+  CLUSTER_REF, 
+  CODE, 
+  MANUFACTURER_CODE, 
+  NAME, 
+  TYPE, 
+  SIDE, 
+  DEFINE, 
+  MIN, 
+  MAX, 
+  IS_WRITABLE, 
+  DEFAULT_VALUE, 
+  IS_OPTIONAL, 
+  IS_REPORTABLE 
+FROM ATTRIBUTE 
+WHERE 
+  SIDE = ?
+  AND (CLUSTER_REF = ? OR CLUSTER_REF IS NULL) 
+  ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''} 
+ORDER BY CODE`,
+      packageId != null ? [side, clusterId, packageId] : [side, clusterId]
+    )
+    .then((rows) => rows.map(dbMapping.map.attribute))
+}
+
 function selectAttributesByClusterCodeAndManufacturerCode(
   db,
   clusterCode,
@@ -381,6 +412,35 @@ FROM ATTRIBUTE
    ${packageId != null ? 'WHERE PACKAGE_REF = ? ' : ''}
 ORDER BY CODE`,
       packageId != null ? [packageId] : []
+    )
+    .then((rows) => rows.map(dbMapping.map.attribute))
+}
+
+function selectAllAttributesBySide(db, side, packageId = null) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  ATTRIBUTE_ID, 
+  CLUSTER_REF, 
+  CODE, 
+  MANUFACTURER_CODE, 
+  NAME, 
+  TYPE, 
+  SIDE, 
+  DEFINE, 
+  MIN, 
+  MAX, 
+  IS_WRITABLE, 
+  DEFAULT_VALUE, 
+  IS_OPTIONAL, 
+  IS_REPORTABLE 
+FROM ATTRIBUTE 
+   WHERE SIDE = ?
+   ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
+ORDER BY CODE`,
+      packageId != null ? [side, packageId] : [side]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
@@ -1308,10 +1368,12 @@ exports.selectAllClusters = selectAllClusters
 exports.selectClusterById = selectClusterById
 exports.selectAllDeviceTypes = selectAllDeviceTypes
 exports.selectDeviceTypeById = selectDeviceTypeById
+exports.selectAttributesByClusterIdAndSide = selectAttributesByClusterIdAndSide
 exports.selectAttributesByClusterId = selectAttributesByClusterId
 exports.selectAttributesByClusterCodeAndManufacturerCode = selectAttributesByClusterCodeAndManufacturerCode
 exports.selectAttributeById = selectAttributeById
 exports.selectAllAttributes = selectAllAttributes
+exports.selectAllAttributesBySide = selectAllAttributesBySide
 exports.selectCommandById = selectCommandById
 exports.selectCommandsByClusterId = selectCommandsByClusterId
 exports.selectAllCommands = selectAllCommands
