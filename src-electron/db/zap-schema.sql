@@ -36,22 +36,19 @@ CREATE TABLE "PACKAGE" (
   "VERSION" text,
   foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
-
-
 /*
  OPTIONS table contains generic 'options' that are encoded from within each packages. 
-*/
+ */
 DROP TABLE IF EXISTS "OPTIONS";
 CREATE TABLE "OPTIONS" (
-  "OPTION_ID" integer primary key autoincrement, 
+  "OPTION_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
   "OPTION_CATEGORY" text,
   "OPTION_CODE" text,
-  "OPTION_LABEL" text, 
+  "OPTION_LABEL" text,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
   UNIQUE(PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
 );
-
 /*
  *  $$$$$$\    $$\                $$\     $$\                       $$\            $$\               
  * $$  __$$\   $$ |               $$ |    \__|                      $$ |           $$ |              
@@ -125,6 +122,19 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   "IS_OPTIONAL" integer,
   "IS_REPORTABLE" integer,
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+);
+/*
+ ATOMIC table contains the atomic types loaded from packages
+ */
+DROP TABLE IF EXISTS "ATOMIC";
+CREATE TABLE IF NOT EXISTS "ATOMIC" (
+  "ATOMIC_ID" integer primary key autoincrement,
+  "PACKAGE_REF" integer,
+  "NAME" text,
+  "DESCRIPTION" text,
+  "ATOMIC_IDENTIFIER" integer,
+  "ATOMIC_SIZE" integer,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*
