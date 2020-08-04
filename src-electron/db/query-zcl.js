@@ -1317,6 +1317,23 @@ function insertEnums(db, packageId, data) {
 }
 
 /**
+ * Insert atomics into the database.
+ * Data is an array of objects that must contains: name, id, description.
+ * Object might also contain 'size', but possibly not.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+function insertAtomics(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO ATOMIC (PACKAGE_REF, NAME, DESCRIPTION, ATOMIC_IDENTIFIER, ATOMIC_SIZE) VALUES (?, ?, ?, ?, ?)',
+    data.map((at) => [packageId, at.name, at.description, at.id, at.size])
+  )
+}
+
+/**
  * Inserts bitmaps into the database. Data is an array of objects that must contain: name, type
  *
  * @export
@@ -1405,3 +1422,4 @@ exports.insertStructs = insertStructs
 exports.insertEnums = insertEnums
 exports.insertBitmaps = insertBitmaps
 exports.selectEndpointType = selectEndpointType
+exports.insertAtomics = insertAtomics

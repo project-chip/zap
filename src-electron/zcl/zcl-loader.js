@@ -189,6 +189,38 @@ function processBitmaps(db, filePath, packageId, data) {
 }
 
 /**
+ * Prepare atomic to db insertion.
+ *
+ * @param {*} a
+ */
+function prepareAtomic(a) {
+  return {
+    name: a.$.name,
+    id: a.$.id,
+    size: a.$.size,
+    description: a.$.description,
+  }
+}
+/**
+ * Processes atomic types for DB insertion.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns Promise of inserted bitmaps
+ */
+function processAtomics(db, filePath, packageId, data) {
+  var types = data[0].type
+  env.logInfo(`${filePath}, ${packageId}: ${types.length} atomic types.`)
+  return queryZcl.insertAtomics(
+    db,
+    packageId,
+    types.map((x) => prepareAtomic(x))
+  )
+}
+
+/**
  * Prepare XML cluster for insertion into the database.
  * This method can also prepare clusterExtensions.
  *
@@ -498,6 +530,10 @@ function processParsedZclData(db, argument) {
     var immediatePromises = []
     var laterPromises = []
     if ('configurator' in data) {
+      if ('atomic' in data.configurator)
+        immediatePromises.push(
+          processAtomics(db, filePath, packageId, data.configurator.atomic)
+        )
       if ('bitmap' in data.configurator)
         immediatePromises.push(
           processBitmaps(db, filePath, packageId, data.configurator.bitmap)
