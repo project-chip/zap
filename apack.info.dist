@@ -1,7 +1,7 @@
 # Adapter pack file for Studio.
 #
 label=Zigbee Advanced platform
-path=.
+path=.,dist/electron/zap-linux-x64/
 requiredFeatureLevel=apack.core:7
 
 id=zclConfigurator
@@ -9,9 +9,12 @@ id=zclConfigurator
 # Trigger file extension. No period.
 uc.triggerExtension=zap
 
-executable(zap) {
-  engine=node
-  exe=src-script/zap-start.js
+executable(zap:linux.x86_64) {
+  exe=zap
+}
+
+executable(zap:macosx.x86_64) {
+  exe=dist/electron/zap-darwin-x64/zap.app/Contents/MacOS/zap
 }
 
 function(run) {
@@ -24,13 +27,14 @@ function(zapHelp) {
 }
 
 function(zapSelfcheck) {
-  cmd=$(zap) selfCheck
+  cmd=$(zap) --selfCheck
 }
 
 function(zapServer) {
+  httpPort.description=Port used for HTTP server
   zclProperties.description=Location for ZCL XML file
   output.description=Output directory for project generation
-  cmd=$(zap) --noUi --showUrl --zclProperties ${zclProperties} --output ${output}
+  cmd=$(zap) --httpPort ${port} --noUi --showUrl --zclProperties ${zclProperties} --output ${output}
 }
 
 function(zapFull) {
@@ -43,6 +47,13 @@ option(auto-regen) {
   description=Automatically regenerate when configuration file is saved.
   type=boolean
   default=false
+}
+
+option(port) {
+  name=Port used for HTTP server
+  description=Default port used for the ZAP HTTP server
+  type=integer
+  default=9070
 }
 
 option(zclProperties) {

@@ -24,7 +24,7 @@ const restApi = require(`../../src-shared/rest-api.js`)
 exports.zclPropertiesFile = './test/zcl/zcl-test.properties'
 exports.genTemplateJsonFile = './test/gen-template/gen-templates.json'
 exports.httpPort = 9070
-exports.studioPort = 9000
+exports.studioHttpPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE
 exports.noServer = false
 exports.zapFile = null
@@ -53,7 +53,7 @@ function processCommandLineArguments(argv) {
       type: 'number',
       default: exports.httpPort,
     })
-    .option('studioPort', {
+    .option('studioHttpPort', {
       desc: "Port used for integration with Studio's UC Jetty server",
       type: 'number',
     })
@@ -80,9 +80,6 @@ function processCommandLineArguments(argv) {
       alias: 'ui',
       type: 'string',
       default: exports.uiMode,
-    })
-    .option('studio', {
-      desc: "Enable Studio integration ( 'studioPort' must be specified. )",
     })
     .option('noUi', {
       desc: "Don't show the main window when starting.",
@@ -118,7 +115,7 @@ function processCommandLineArguments(argv) {
 
   exports.zclPropertiesFile = ret.zclProperties
   exports.httpPort = ret.httpPort
-  exports.studioPort = ret.studioPort
+  exports.studioHttpPort = ret.studioHttpPort
   exports.uiMode = ret.uiMode
   exports.genTemplateJsonFile = ret.genTemplateJson
   exports.noServer = ret.noServer

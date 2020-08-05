@@ -46,7 +46,7 @@ var httpServer = null
  * @param {*} port Port for the HTTP server.
  * @returns A promise that resolves with an express app.
  */
-function initHttpServer(db, port) {
+function initHttpServer(db, port, studioPort) {
   return new Promise((resolve, reject) => {
     const app = express()
     app.use(bodyParser.urlencoded({ extended: true }))
@@ -93,7 +93,7 @@ function initHttpServer(db, port) {
     app.use(express.static(env.httpStaticContent))
 
     httpServer = app.listen(port, () => {
-      env.logInfo(`HTTP server created on port: ` + httpServerPort())
+      env.logHttpServerUrl(httpServerPort(), studioPort)
       resolve(app)
     })
 
@@ -101,7 +101,7 @@ function initHttpServer(db, port) {
       env.logInfo(`HTTP server port ` + port + ` is busy.`)
       if (err.errno === 'EADDRINUSE') {
         httpServer = app.listen(0, () => {
-          env.logInfo(`HTTP server created on port: ` + httpServerPort())
+          env.logHttpServerUrl(httpServerPort(), studioPort)
           resolve(app)
         })
       } else {

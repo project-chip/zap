@@ -28,3 +28,8 @@ exports.packageType = {
   genTemplatesJson: 'gen-templates-json',
   genSingleTemplate: 'gen-template',
 }
+
+exports.side = {
+  client: 'client',
+  server: 'server',
+}

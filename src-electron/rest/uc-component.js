@@ -28,8 +28,7 @@ const axios = require('axios')
 
 const replyId = 'uc-tree'
 
-// const baseUrl = `http://localhost:${args.studioPort}`
-const baseUrl = `http://localhost:` + args.studioPort
+const studioServerUrl = `http://localhost:` + args.studioHttpPort
 const op_tree = '/rest/clic/components/all/project/'
 const op_add = '/rest/clic/component/add/project/'
 const op_remove = '/rest/clic/component/remove/project/'
@@ -42,11 +41,11 @@ const op_remove = '/rest/clic/component/remove/project/'
  * @param {*} app
  */
 function registerUcComponentApi(db, app) {
-  // app.get('/uc/info', (req, res) => {})
-
   app.get('/uc/tree', (req, res) => {
+    let name = studioProjectName(req.query.studioProject)
+    env.logInfo(`StudioUC(${name}): Get project info`)
     axios
-      .get(baseUrl + op_tree + req.query.studioConfigPath)
+      .get(studioServerUrl + op_tree + req.query.studioProject)
       .then(function (response) {
         let r = {
           replyId: replyId,
@@ -60,8 +59,12 @@ function registerUcComponentApi(db, app) {
   })
 
   app.get('/uc/add', (req, res) => {
+    let name = studioProjectName(req.query.studioProject)
+    env.logInfo(
+      `StudioUC(${name}): Enabling component ${req.query.componentId}`
+    )
     axios
-      .post(baseUrl + op_add + req.query.studioConfigPath, {
+      .post(studioServerUrl + op_add + req.query.studioProject, {
         componentId: req.query.componentId,
       })
       .then((r) => res.send(r.data))
@@ -71,8 +74,12 @@ function registerUcComponentApi(db, app) {
   })
 
   app.get('/uc/remove', (req, res) => {
+    let name = studioProjectName(req.query.studioProject)
+    env.logInfo(
+      `StudioUC(${name}): Disabling component ${req.query.componentId}`
+    )
     axios
-      .post(baseUrl + op_remove + req.query.studioConfigPath, {
+      .post(studioServerUrl + op_remove + req.query.studioProject, {
         componentId: req.query.componentId,
       })
       .then((r) => res.send(r.data))
@@ -80,6 +87,10 @@ function registerUcComponentApi(db, app) {
         res.send(err.response.data)
       })
   })
+}
+
+function studioProjectName(studioProject) {
+  return studioProject.substr(studioProject.lastIndexOf('_2F') + 3)
 }
 
 exports.registerUcComponentApi = registerUcComponentApi

@@ -66,7 +66,7 @@ function produceContent(db, sessionId, singlePkg) {
 function initializeHelpers() {
   if (helpersInitialized) return
 
-  var includedHelpers = ['./helper-zcl.js', './helper-zap.js']
+  var includedHelpers = ['./helper-zcl.js', './helper-zap.js', './helper-c.js']
 
   includedHelpers.forEach((element) => {
     var helpers = require(element)

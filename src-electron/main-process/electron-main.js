@@ -22,8 +22,13 @@ const args = require('../util/args.js')
 const env = require('../util/env.js')
 const windowJs = require('./window.js')
 const startup = require('./startup.js')
+const argv = require('yargs').argv
 
-env.logInitLogFile()
+if (argv.logToStdout) {
+  env.logInitStdout()
+} else {
+  env.logInitLogFile()
+}
 
 if (process.env.DEV) {
   env.setDevelopmentEnv()

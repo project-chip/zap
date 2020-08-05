@@ -48,4 +48,4 @@ test('startup: start sdk regen', () => {
 
 test('startup: self-check', () => {
   return startup.startSelfCheck({ log: false, quit: false })
-})
+}, 5000)

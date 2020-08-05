@@ -43,9 +43,12 @@ limitations under the License.
         </q-toolbar>
         <ZclGeneralOptionsBar />
       </q-header>
+      <!-- Not using mobile mode, so breakpoint is set at 0 -->
       <q-drawer
         v-model="leftDrawerOpen"
         bordered
+        :behavior="desktop"
+        :breakpoint="0"
         :mini="!leftDrawerOpen || miniState"
       >
         <zcl-endpoint-manager />

@@ -20,6 +20,8 @@ const os = require('os')
 const fs = require('fs')
 const pino = require('pino')
 const { version } = require('../../package.json')
+const zapBaseUrl = 'http://localhost:'
+const zapUrlLog = 'zap.url'
 
 // Basic environment tie-ins
 var pino_logger = pino({
@@ -92,11 +94,33 @@ function zapVersion() {
   return version
 }
 
+function baseUrl() {
+  return zapBaseUrl
+}
+
 function logInitStdout() {
   if (!explicit_logger_set) {
     pino_logger = pino()
     explicit_logger_set = true
   }
+}
+
+function logHttpServerUrl(port, studioPort) {
+  logInfo('HTTP server created: ' + baseUrl() + port)
+
+  if (studioPort) {
+    logInfo('Studio integration server: ' + baseUrl() + studioPort)
+  }
+
+  fs.writeFileSync(urlLogFile(), baseUrl() + port, function (err) {
+    if (err) {
+      logError('Unable to log HTTP Server URL to ' + urlLogFile())
+    }
+  })
+}
+
+function urlLogFile(id) {
+  return path.join(appDirectory(), zapUrlLog)
 }
 
 function logInitLogFile() {
@@ -143,3 +167,6 @@ exports.httpStaticContent = httpStaticContent
 exports.zapVersion = zapVersion
 exports.resolveMainDatabase = resolveMainDatabase
 exports.mainDatabase = mainDatabase
+exports.logHttpServerUrl = logHttpServerUrl
+exports.urlLogFile = urlLogFile
+exports.baseUrl = baseUrl

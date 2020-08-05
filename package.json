@@ -26,7 +26,7 @@
     "zcl-format": "zcl/script/format",
     "headlessServer": "quasar dev -m electron -- --httpPort 8081 --noUI --xmlRoot=./zcl/zcl-studio.properties",
     "browser": "quasar dev",
-    "zap": "node src-script/zap-start.js",
+    "zap": "node src-script/zap-start.js --logToStdout",
     "backend": "electron src-electron/main-process/electron-main.js",
     "build-spa": "quasar build",
     "doc": "jsdoc src-electron src-shared -r -d ./generated-html/",

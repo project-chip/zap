@@ -60,6 +60,7 @@ function collectBlocks(resultArray, fn, context) {
   resultArray.forEach((element) => {
     var newContext = {
       global: context.global,
+      parent: context,
       ...element,
     }
     var block = fn(newContext)
@@ -87,8 +88,19 @@ function zcl_enums(options) {
 }
 
 /**
+ * Iterates over enum items. Valid only inside zcl_enums.
+ * @param {*} options
+ */
+function zcl_enum_items(options) {
+  return queryZcl
+    .selectAllEnumItemsById(this.global.db, this.id)
+    .then((items) => collectBlocks(items, options.fn, this))
+}
+
+/**
  * Block helper iterating over all structs.
- *
+ *function macroList(options)
+
  * @param {*} options
  * @returns Promise of content.
  */
@@ -136,15 +148,6 @@ function zcl_commands(options) {
     .then((cmds) => collectBlocks(cmds, options.fn, this))
 }
 
-/**
- * Block helper iterating over all attributes.
- * There are two modes of this helper:
- *   when used in a global context, it iterates over ALL attributes in the database.
- *   when used inside a `zcl_cluster` block helper, it iterates only over the attributes for that cluster.
- *
- * @param {*} options
- * @returns Promise of content.
- */
 function zcl_attributes(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
@@ -164,13 +167,76 @@ function zcl_attributes(options) {
     .then((atts) => collectBlocks(atts, options.fn, this))
 }
 
+function zcl_attributes_client(options) {
+  // If used at the toplevel, 'this' is the toplevel context object.
+  // when used at the cluster level, 'this' is a cluster
+  return ensurePackageId(this)
+    .then((packageId) => {
+      if ('id' in this) {
+        return queryZcl.selectAttributesByClusterIdAndSide(
+          this.global.db,
+          this.id,
+          packageId,
+          dbEnum.side.client
+        )
+      } else {
+        return queryZcl.selectAllAttributesBySide(
+          this.global.db,
+          dbEnum.side.client,
+          packageId
+        )
+      }
+    })
+    .then((atts) => collectBlocks(atts, options.fn, this))
+}
+
+function zcl_attributes_server(options) {
+  // If used at the toplevel, 'this' is the toplevel context object.
+  // when used at the cluster level, 'this' is a cluster
+  return ensurePackageId(this)
+    .then((packageId) => {
+      if ('id' in this) {
+        // We're functioning inside a nested context with an id, so we will only query for this cluster.
+        return queryZcl.selectAttributesByClusterIdAndSide(
+          this.global.db,
+          this.id,
+          packageId,
+          dbEnum.side.server
+        )
+      } else {
+        return queryZcl.selectAllAttributesBySide(
+          this.global.db,
+          dbEnum.side.server,
+          packageId
+        )
+      }
+    })
+    .then((atts) => collectBlocks(atts, options.fn, this))
+}
+
+/**
+ * Block helper iterating over all atomic types.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_atomics(options) {
+  return ensurePackageId(this)
+    .then((packageId) => queryZcl.selectAllAtomics(this.global.db, packageId))
+    .then((ats) => collectBlocks(ats, options.fn, this))
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
 exports.zcl_enums = zcl_enums
+exports.zcl_enum_items = zcl_enum_items
 exports.zcl_structs = zcl_structs
 exports.zcl_clusters = zcl_clusters
 exports.zcl_commands = zcl_commands
 exports.zcl_attributes = zcl_attributes
+exports.zcl_attributes_client = zcl_attributes_client
+exports.zcl_attributes_server = zcl_attributes_server
+exports.zcl_atomics = zcl_atomics

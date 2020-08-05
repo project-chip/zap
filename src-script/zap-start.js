@@ -24,7 +24,7 @@ const path = require('path')
 
 function executeCmd(ctx, cmd, args) {
   return new Promise((resolve, reject) => {
-    console.log(`🚀 Executing: ${cmd}`)
+    console.log(`🚀 Executing: ${cmd} ${args}`)
     var c = spawn(cmd, args)
     c.on('exit', (code) => {
       if (code == 0) resolve(ctx)
@@ -93,11 +93,11 @@ hashElement('src', hashOptions)
         }
       })
   )
-  .then((ctx) =>
-    executeCmd(ctx, 'electron', [
-      'src-electron/main-process/electron-main.dev.js',
-    ])
-  )
+  .then((ctx) => {
+    var cmdArgs = ['src-electron/main-process/electron-main.dev.js']
+    cmdArgs.push(...process.argv.slice(2))
+    return executeCmd(ctx, 'electron', cmdArgs)
+  })
   .then(() => {
     console.log('😎 All done.')
   })

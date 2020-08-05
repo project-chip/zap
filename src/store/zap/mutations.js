@@ -303,5 +303,5 @@ export function setDefaultUiMode(state, uiMode) {
 }
 
 export function setStudioConfigPath(state, filePath) {
-  state.studioConfigPath = filePath
+  state.studioProject = filePath
 }
