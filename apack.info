@@ -20,7 +20,7 @@ executable(zap_regen) {
 }
 
 function(uc_generate) {
-  cmd=$(zap_regen) --out ${generationOutput} --zclProperties test/zcl/zcl-test.properties --generationTemplate test/gen-template/gen-templates.json
+  cmd=$(zap_regen) --out ${generationOutput} --zclProperties ${sdkRoot}/app/zcl/zcl-studio.properties --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json
 }
 
 function(run) {
