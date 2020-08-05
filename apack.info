@@ -14,6 +14,15 @@ executable(zap) {
   exe=src-script/zap-start.js
 }
 
+executable(zap_regen) {
+  engine=node
+  exe=src-script/zap-generate.js
+}
+
+function(uc_generate) {
+  cmd=$(zap_regen) --out ${generationOutput} --zclProperties test/zcl/zcl-test.properties --generationTemplate test/gen-template/gen-templates.json
+}
+
 function(run) {
   zclProperties.description=Location for ZCL XML file
   cmd=$(zap) --zclProperties ${zclProperties}
