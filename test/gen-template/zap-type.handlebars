@@ -3,16 +3,26 @@
 // ZCL attribute types
 enum {
 {{#zcl_atomics}}
-  ZCL_{{asMacro name}}_ATTRIBUTE_TYPE = {{asHex atomicId}}, // {{description}}
+{{ident}}ZCL_{{asMacro name}}_ATTRIBUTE_TYPE = {{asHex atomicId}}, // {{description}}
 {{/zcl_atomics}}
 };
+
+// ZCL attribute sizes
+enum {
+{{#zcl_atomics}}
+{{#if size}}
+{{ident}}ZCL_{{asMacro name}}_ATTRIBUTE_SIZE = {{size}}, // {{description}}
+{{/if}}
+{{/zcl_atomics}}
+};
+
 // ZCL enums
 {{#zcl_enums}}
 
 // Enum for {{label}}
 typedef enum {
 {{#zcl_enum_items}}
-  ZCL_{{asMacro parent.label}}_{{asMacro label}} {{value}},
+{{ident}}ZCL_{{asMacro parent.label}}_{{asMacro label}} {{value}},
 {{/zcl_enum_items}}
 } {{asType label}};
 {{/zcl_enums}}
