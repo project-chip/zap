@@ -151,27 +151,30 @@ function logSql(msg) {
 }
 
 // Returns true if major or minor component of versions is different.
-function isMatchingVersion(version1, version2) {
-  var v1 = version1.split('.')
-  var v2 = version2.split('.')
+function isMatchingVersion(versionsArray, providedVersion) {
+  var ret = false
+  var v2 = providedVersion.split('.')
+  versionsArray.forEach((element) => {
+    var v1 = element.split('.')
+    if (v1.length != 3 || v2.length != 3) return
 
-  if (v1.length != 3 || v2.length != 3) return false
-  if (v1[0] != v2[0] || v1[1] != v2[1]) return false
+    if (v1[0] == v2[0] && v1[1] == v2[1]) ret = true
+  })
 
-  return true
+  return ret
 }
 
 // Returns true if major/minor versions of node and electron are matching.
 // If versions are not matching, it  prints out a warhing and returns false.
 function versionsCheck() {
-  var expectedNodeVersion = 'v12.18.x'
-  var expectedElectronVersion = '9.1.x'
+  var expectedNodeVersion = ['v12.18.x', 'v12.17.x', 'v12.16.x']
+  var expectedElectronVersion = ['9.1.x']
   var nodeVersion = process.version
   var electronVersion = process.versions.electron
   var ret = true
   if (!isMatchingVersion(expectedNodeVersion, nodeVersion)) {
     ret = false
-    console.log(`Expected node version: ${expectedNodeVersion}`)
+    console.log(`Expected node versions: ${expectedNodeVersion}`)
     console.log(`Provided node version: ${nodeVersion}`)
     console.log(
       'WARNING: you are using different node version than recommended.'
