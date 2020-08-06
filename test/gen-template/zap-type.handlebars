@@ -17,6 +17,7 @@ enum {
 };
 
 // ZCL enums
+
 {{#zcl_enums}}
 
 // Enum for {{label}}
@@ -26,3 +27,15 @@ typedef enum {
 {{/zcl_enum_items}}
 } {{asType label}};
 {{/zcl_enums}}
+
+// ZCL Structs
+
+{{#zcl_structs}}
+
+// Struct for {{label}}
+typedef struct _{{asType label}} {
+{{#zcl_struct_items}}
+{{ident}}{{asType type}} {{asSymbol label}};
+{{/zcl_struct_items}}
+} {{asType label}};
+{{/zcl_structs}}

@@ -111,6 +111,18 @@ function zcl_structs(options) {
 }
 
 /**
+ * Block helper iterating over all struct items. Valid only inside zcl_structs.
+
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_struct_items(options) {
+  return queryZcl
+    .selectAllStructItemsById(this.global.db, this.id)
+    .then((st) => collectBlocks(st, options.fn, this))
+}
+
+/**
  * Block helper iterating over all clusters.
  *
  * @param {*} options
@@ -234,6 +246,7 @@ function zcl_atomics(options) {
 exports.zcl_enums = zcl_enums
 exports.zcl_enum_items = zcl_enum_items
 exports.zcl_structs = zcl_structs
+exports.zcl_struct_items = zcl_struct_items
 exports.zcl_clusters = zcl_clusters
 exports.zcl_commands = zcl_commands
 exports.zcl_attributes = zcl_attributes

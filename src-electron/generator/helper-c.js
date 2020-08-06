@@ -33,6 +33,10 @@ function asType(value) {
   return value.replace(/ /g, '')
 }
 
+function asSymbol(value) {
+  return value
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -41,3 +45,4 @@ function asType(value) {
 exports.asMacro = asMacro
 exports.asHex = asHex
 exports.asType = asType
+exports.asSymbol = asSymbol
