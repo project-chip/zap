@@ -26,6 +26,7 @@ env.setDevelopmentEnv()
 var file = env.sqliteTestFile(42)
 var db
 
+console.log(`version: ${process.version}`)
 function usage() {
   console.log(`Usage: node ${process.argv[1]} <DIRECTORY>
 

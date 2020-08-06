@@ -150,6 +150,47 @@ function logSql(msg) {
   return pino_logger.debug(msg)
 }
 
+// Returns true if major or minor component of versions is different.
+function isMatchingVersion(version1, version2) {
+  var v1 = version1.split('.')
+  var v2 = version2.split('.')
+
+  if (v1.length != 3 || v2.length != 3) return false
+  if (v1[0] != v2[0] || v1[1] != v2[1]) return false
+
+  return true
+}
+
+// Returns true if major/minor versions of node and electron are matching.
+// If versions are not matching, it  prints out a warhing and returns false.
+function versionsCheck() {
+  var expectedNodeVersion = 'v12.18.x'
+  var expectedElectronVersion = '9.1.x'
+  var nodeVersion = process.version
+  var electronVersion = process.versions.electron
+  var ret = true
+  if (!isMatchingVersion(expectedNodeVersion, nodeVersion)) {
+    ret = false
+    console.log(`Expected node version: ${expectedNodeVersion}`)
+    console.log(`Provided node version: ${nodeVersion}`)
+    console.log(
+      'WARNING: you are using different node version than recommended.'
+    )
+  }
+  if (
+    electronVersion != null &&
+    !isMatchingVersion(expectedElectronVersion, electronVersion)
+  ) {
+    ret = false
+    console.log(`Expected electron version: ${expectedElectronVersion}`)
+    console.log(`Provided electron version: ${electronVersion}`)
+    console.log(
+      'WARNING: you are using different electron version that recommended.'
+    )
+  }
+  return ret
+}
+
 exports.setDevelopmentEnv = setDevelopmentEnv
 exports.setProductionEnv = setProductionEnv
 exports.appDirectory = appDirectory
@@ -170,3 +211,4 @@ exports.mainDatabase = mainDatabase
 exports.logHttpServerUrl = logHttpServerUrl
 exports.urlLogFile = urlLogFile
 exports.baseUrl = baseUrl
+exports.versionsCheck = versionsCheck
