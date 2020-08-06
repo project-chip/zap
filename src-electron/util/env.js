@@ -167,7 +167,13 @@ function isMatchingVersion(versionsArray, providedVersion) {
 // Returns true if major/minor versions of node and electron are matching.
 // If versions are not matching, it  prints out a warhing and returns false.
 function versionsCheck() {
-  var expectedNodeVersion = ['v12.18.x', 'v12.17.x', 'v12.16.x']
+  var expectedNodeVersion = [
+    'v12.18.x',
+    'v12.17.x',
+    'v12.16.x',
+    'v12.15.x',
+    'v12.14.x',
+  ]
   var expectedElectronVersion = ['9.1.x']
   var nodeVersion = process.version
   var electronVersion = process.versions.electron
