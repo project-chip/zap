@@ -31,8 +31,8 @@ const generationEngine = require('../src-electron/generator/generation-engine.js
 const querySession = require('../src-electron/db/query-session.js')
 
 var db
-var testFile1 = path.join(__dirname, 'resource/save-file-1.json')
-var testFile2 = path.join(__dirname, 'resource/save-file-2.json')
+var testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
+var testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
 
 beforeAll(() => {
   env.setDevelopmentEnv()

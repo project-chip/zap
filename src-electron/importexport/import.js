@@ -217,9 +217,9 @@ function readDataFromFile(filePath) {
  * with the succesfull writing into the database.
  *
  * @export
- * @param {*} sessionId
+ * @param {*} db
  * @param {*} state
- * @returns a promise that resolves with the sucessful writing
+ * @returns a promise that resolves into a sessionId that was created.
  */
 function writeStateToDatabase(db, state) {
   return dbApi
@@ -274,5 +274,4 @@ function importDataFromFile(db, filePath) {
 }
 // exports
 exports.readDataFromFile = readDataFromFile
-exports.writeStateToDatabase = writeStateToDatabase
 exports.importDataFromFile = importDataFromFile
