@@ -28,6 +28,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
+const querySession = require('../src-electron/db/query-session.js')
 
 var db
 var testFile1 = path.join(__dirname, 'resource/save-file-1.json')
@@ -109,6 +110,10 @@ test('Test file 1 import', () => {
       expect(commandCount).toBe(7)
       expect(attributeCount).toBe(21)
     })
+    .then(() => {
+      // Clear the session
+      querySession.deleteSession(db, sid)
+    })
 })
 
 test('Test file 2 import', () => {
@@ -117,13 +122,13 @@ test('Test file 2 import', () => {
     .importDataFromFile(db, testFile2)
     .then((sessionId) => (sid = sessionId))
     .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE'))
-    .then((x) => expect(x).toBe(2))
+    .then((x) => expect(x).toBe(1))
     .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER'))
-    .then((x) => expect(x).toBe(30))
+    .then((x) => expect(x).toBe(19))
     .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND'))
-    .then((x) => expect(x).toBe(31))
+    .then((x) => expect(x).toBe(24))
     .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE'))
-    .then((x) => expect(x).toBe(49))
+    .then((x) => expect(x).toBe(28))
     .then(() => exportJs.createStateFromDatabase(db, sid))
     .then((state) => {
       var commandCount = 0
