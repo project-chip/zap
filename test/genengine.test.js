@@ -27,14 +27,10 @@ const queryPackage = require('../src-electron/db/query-package.js')
 const querySession = require('../src-electron/db/query-session.js')
 const utilJs = require('../src-electron/util/util.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const dbEnum = require('../src-electron/db/db-enum.js')
 const helperZap = require('../src-electron/generator/helper-zap.js')
-const {
-  exportClustersFromEndpointType,
-} = require('../src-electron/db/query-impexp.js')
 
 var db
-const templateCount = 4
+const templateCount = 9
 var genTimeout = 2000
 
 beforeAll(() => {
