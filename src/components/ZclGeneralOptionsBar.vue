@@ -22,16 +22,21 @@ limitations under the License.
       </div>
       <div class="q-pr-xl">
         <q-select
-          :options="manufacturerCodesOptions"
+          use-input
+          hide-selected
+          fill-input
+          input-debounce="0"
+          :options="mfgOptions"
           :option-label="
             (item) =>
-              item === null
+              item.optionLabel == NULL || item.optionCode == NULL
                 ? 'NULL'
                 : item.optionLabel + ' (' + item.optionCode + ')'
           "
           @input="handleOptionChange('manufacturerCodes', $event)"
           v-model="selectedManufacturerCode"
-          style="width: 200px;"
+          @filter="filterMfgCode"
+          style="width: 250px;"
           outlined
           dense
         />
@@ -81,22 +86,47 @@ export default {
     },
     selectedManufacturerCode: {
       get() {
-        return this.$store.state.zap.genericOptions['manufacturerCodes'].find(
-          (o) =>
-            o.optionCode ===
-            this.$store.state.zap.selectedGenericOptions['manufacturerCodes']
-        )
+        return this.$store.state.zap.genericOptions['manufacturerCodes'] == null
+          ? ''
+          : this.$store.state.zap.genericOptions['manufacturerCodes'].find(
+              (o) =>
+                o.optionCode ===
+                this.$store.state.zap.selectedGenericOptions[
+                  'manufacturerCodes'
+                ]
+            )
       },
     },
   },
   data() {
-    return {}
+    return {
+      mfgOptions: this.manufacturerCodesOptions,
+    }
   },
   methods: {
     handleOptionChange(option, value) {
       this.$store.dispatch('zap/setSelectedGenericOption', {
         option: option,
         value: value,
+      })
+    },
+
+    getMfgLabel(item) {
+      return item.optionLabel + ' (' + item.optionCode + ')'
+    },
+    filterMfgCode(val, update) {
+      if (val === '') {
+        update(() => {
+          this.mfgOptions = this.manufacturerCodesOptions
+        })
+        return
+      }
+
+      update(() => {
+        const needle = val.toLowerCase()
+        this.mfgOptions = this.manufacturerCodesOptions.filter((v) => {
+          return this.getMfgLabel(v).toLowerCase().indexOf(needle) > -1
+        })
       })
     },
   },

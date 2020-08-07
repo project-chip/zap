@@ -28,6 +28,7 @@ const httpServer = require('../server/http-server.js')
 const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
+const importJs = require('../importexport/import.js')
 
 // This file contains various startup modes.
 
@@ -166,7 +167,12 @@ function startGeneration(
     .then((ctx) => generatorEngine.loadTemplates(ctx.db, genTemplateJsonFile))
     .then((ctx) => {
       packageId = ctx.packageId
-      return querySession.createBlankSession(mainDb)
+      if (zapFile == null) {
+        return querySession.createBlankSession(mainDb)
+      } else {
+        // we load the zap file.
+        return importJs.importDataFromFile(mainDb, zapFile)
+      }
     })
     .then((sessionId) => util.initializeSessionPackage(mainDb, sessionId))
     .then((sessionId) =>

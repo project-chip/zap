@@ -22,6 +22,8 @@ const spaDir = 'dist/spa'
 const fs = require('fs')
 const path = require('path')
 
+console.log(`node version: ${process.version}`)
+
 function executeCmd(ctx, cmd, args) {
   return new Promise((resolve, reject) => {
     console.log(`🚀 Executing: ${cmd} ${args}`)

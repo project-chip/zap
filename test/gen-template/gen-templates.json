@@ -21,6 +21,31 @@
       "path": "zap-type.handlebars",
       "name": "ZCL types",
       "output": "zap-type.h"
+    },
+    {
+      "path": "zap-cli.handlebars",
+      "name": "ZCL command-line contribution",
+      "output": "zap-cli.h"
+    },
+    {
+      "path": "zap-command-parser.handlebars",
+      "name": "ZCL command parsers",
+      "output": "zap-command-parser.h"
+    },
+    {
+      "path": "zap-command.handlebars",
+      "name": "ZCL command APIs",
+      "output": "zap-command.h"
+    },
+    {
+      "path": "zap-config.handlebars",
+      "name": "ZCL endpoint configuration",
+      "output": "zap-config.h"
+    },
+    {
+      "path": "zap-print.handlebars",
+      "name": "ZCL human readable strings",
+      "output": "zap-print.h"
     }
   ]
 }

@@ -34,7 +34,7 @@
     "format-code": "pretty-quick",
     "pretty-quick": "pretty-quick",
     "self-check": "electron src-electron/main-process/electron-main.js selfCheck",
-    "gen": "node src-script/zap-generate.js -z ./test/zcl/zcl-test.properties -g ./test/gen-template/gen-templates.json -o ./tmp"
+    "gen": "node src-script/zap-generate.js -z ./test/zcl/zcl-test.properties -g ./test/gen-template/gen-templates.json -i ./test/resource/save-file-test-regen.zap -o ./tmp"
   },
   "dependencies": {
     "@quasar/extras": "^1.9.3",

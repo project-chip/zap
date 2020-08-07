@@ -176,22 +176,14 @@ function selectStructById(db, id, packageId = null) {
     .then(dbMapping.map.struct)
 }
 
-function selectAllStructItems(db, packageId = null) {
+function selectAllStructItemsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, TYPE, STRUCT_REF FROM STRUCT_ITEM  ' +
-        (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
-        'ORDER BY STRUCT_REF',
-      packageId != null ? [packageId] : []
+      'SELECT NAME, TYPE, STRUCT_REF FROM STRUCT_ITEM WHERE STRUCT_REF = ?',
+      [id]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))
-}
-
-function selectStructItemById(db, id) {
-  return dbApi.dbAll(db, 'SELECT NAME FROM STRUCT_ITEM WHERE STRUCT_REF = ?', [
-    id,
-  ])
 }
 
 /**
@@ -1396,8 +1388,7 @@ exports.selectAllDomains = selectAllDomains
 exports.selectDomainById = selectDomainById
 exports.selectAllStructs = selectAllStructs
 exports.selectStructById = selectStructById
-exports.selectAllStructItems = selectAllStructItems
-exports.selectStructItemById = selectStructItemById
+exports.selectAllStructItemsById = selectAllStructItemsById
 exports.selectAllClusters = selectAllClusters
 exports.selectClusterById = selectClusterById
 exports.selectAllDeviceTypes = selectAllDeviceTypes

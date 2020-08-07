@@ -27,9 +27,12 @@ const env = require('../src-electron/util/env.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
+const generationEngine = require('../src-electron/generator/generation-engine.js')
+const querySession = require('../src-electron/db/query-session.js')
 
 var db
-var testFile = path.join(__dirname, 'resource/save-file-1.json')
+var testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
+var testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
 
 beforeAll(() => {
   env.setDevelopmentEnv()
@@ -56,18 +59,35 @@ test(
   () => zclLoader.loadZcl(db, args.zclPropertiesFile),
   5000
 )
-test('Test file existence', () => {
-  return importJs.readDataFromFile(testFile).then((state) => {
+
+test('Basic gen template parsing and generation', () =>
+  generationEngine
+    .loadTemplates(db, args.genTemplateJsonFile)
+    .then((context) => {
+      expect(context.crc).not.toBeNull()
+      expect(context.templateData).not.toBeNull()
+    }))
+
+test('Test file 1 existence', () => {
+  return importJs.readDataFromFile(testFile1).then((state) => {
     expect(state).not.toBe(null)
     expect(state.creator).toBe('zap')
     expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
   })
 })
 
-test('Test file import', () => {
+test('Test file 2 existence', () => {
+  return importJs.readDataFromFile(testFile1).then((state) => {
+    expect(state).not.toBe(null)
+    expect(state.creator).toBe('zap')
+    expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
+  })
+})
+
+test('Test file 1 import', () => {
   var sid
   return importJs
-    .importDataFromFile(db, testFile)
+    .importDataFromFile(db, testFile1)
     .then((sessionId) => (sid = sessionId))
     .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE'))
     .then((x) => expect(x).toBe(1))
@@ -89,5 +109,37 @@ test('Test file import', () => {
       })
       expect(commandCount).toBe(7)
       expect(attributeCount).toBe(21)
+    })
+    .then(() => {
+      // Clear the session
+      querySession.deleteSession(db, sid)
+    })
+})
+
+test('Test file 2 import', () => {
+  var sid
+  return importJs
+    .importDataFromFile(db, testFile2)
+    .then((sessionId) => (sid = sessionId))
+    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE'))
+    .then((x) => expect(x).toBe(1))
+    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER'))
+    .then((x) => expect(x).toBe(19))
+    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND'))
+    .then((x) => expect(x).toBe(24))
+    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE'))
+    .then((x) => expect(x).toBe(28))
+    .then(() => exportJs.createStateFromDatabase(db, sid))
+    .then((state) => {
+      var commandCount = 0
+      var attributeCount = 0
+      expect(state.endpointTypes.length).toBe(1)
+      expect(state.endpointTypes[0].clusters.length).toBe(19)
+      state.endpointTypes[0].clusters.forEach((c) => {
+        commandCount += c.commands.length
+        attributeCount += c.attributes.length
+      })
+      expect(commandCount).toBe(24)
+      expect(attributeCount).toBe(28)
     })
 })

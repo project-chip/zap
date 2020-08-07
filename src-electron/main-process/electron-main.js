@@ -24,6 +24,8 @@ const windowJs = require('./window.js')
 const startup = require('./startup.js')
 const argv = require('yargs').argv
 
+env.versionsCheck()
+
 if (argv.logToStdout) {
   env.logInitStdout()
 } else {
