@@ -1,1 +1,9 @@
 {{zap_header}}
+
+{{#user_endpoint_types}}
+// Endpoint: {{endpointTypeId}}, {{name}} / Device Type: {{deviceTypeName}}, {{deviceTypeCode}}
+
+{{#user_clusters}}
+// Cluster: {{code}} / {{name}} ({{side}}) / {{mfgCode}}
+{{/user_clusters}}
+{{/user_endpoint_types}}
