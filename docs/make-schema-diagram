@@ -13,7 +13,7 @@
 SC_HOME=~/schemacrawler-16.4.1-distribution/
 SC_BIN=${SC_HOME}/_schemacrawler/schemacrawler.sh
 
-SQLITE=~/.silabs/zap/zap.sqlite
+SQLITE=~/.zap/zap.sqlite
 SVG=zap-schema.svg
 
 echo "Creating schema diagram to ${SVG} from database at ${SQLITE} ..."
