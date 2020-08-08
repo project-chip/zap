@@ -34,4 +34,4 @@ This software is licensed under [Apache 2.0 license](LICENSE.txt).
 - [Coding standard](docs/coding_standard.md)
 - [API](docs/api.md)
 - [Release notes](docs/releasenotes.md)
-- [FAQ](docs/faq.md
+- [FAQ](docs/faq.md)
