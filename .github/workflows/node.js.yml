@@ -23,11 +23,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: sudo apt-get install libpixman-1-dev
-      - run: sudo apt-get install libcairo-dev
-      - run: sudo apt-get install libsdl-pango-dev
-      - run: sudo apt-get install libjpeg-dev
-      - run: sudo apt-get install libgif-dev
+      - run: sudo apt-get update
+      - run: sudo apt-get install --fix-missing libpixman-1-dev
+      - run: sudo apt-get install --fix-missing libcairo-dev
+      - run: sudo apt-get install --fix-missing libsdl-pango-dev
+      - run: sudo apt-get install --fix-missing libjpeg-dev
+      - run: sudo apt-get install --fix-missing libgif-dev
       - run: npm ci
       - run: npm run build --if-present
       - run: npm test
