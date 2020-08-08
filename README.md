@@ -28,6 +28,7 @@ This software is licensed under [Apache 2.0 license](LICENSE.txt).
 
 - [Design](docs/design.md)
 - [Instructions](docs/instructions.md)
+- [Template tutorial](docs/template-tutorial.md)
 - [Coding standard](docs/coding_standard.md)
 - [API](docs/api.md)
 - [Release notes](docs/releasenotes.md)

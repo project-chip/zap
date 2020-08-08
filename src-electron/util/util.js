@@ -15,6 +15,10 @@
  *    limitations under the License.
  */
 
+/**
+ * @module JS API: random utilities
+ */
+
 const env = require('./env.js')
 const crc = require('crc')
 const queryPackage = require('../db/query-package.js')

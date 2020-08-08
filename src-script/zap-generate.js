@@ -16,7 +16,6 @@
  *    limitations under the License.
  */
 
-const { spawn } = require('child_process')
 const yargs = require('yargs')
 const fs = require('fs')
 const scriptUtil = require('./script-util.js')

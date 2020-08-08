@@ -15,11 +15,17 @@
  *    limitations under the License.
  */
 
+/**
+ * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+ *
+ * @module Templating API: user-data specific helpers
+ */
 const templateUtil = require('./template-util.js')
 const queryImpexp = require('../db/query-impexp.js')
 /**
  * Creates block iterator helper over the endpoint types.
  *
+ * @tutorial template-tutorial
  * @param {*} options
  */
 function user_endpoint_types(options) {
@@ -31,6 +37,7 @@ function user_endpoint_types(options) {
 }
 /**
  * Creates cluster iterator over the endpoint types.
+ * This works ony inside user_endpoint_types.
  *
  * @param {*} options
  */
@@ -42,6 +49,44 @@ function user_clusters(options) {
     )
 }
 
+/**
+ * Creates endpoint type cluster attribute iterator. This works only
+ * inside user_clusters.
+ *
+ * @param {*} options
+ * @returns Promise of the resolved blocks iterating over cluster attributes.
+ */
+function user_cluster_attributes(options) {
+  return queryImpexp
+    .exportAttributesFromEndpointTypeCluster(
+      this.global.db,
+      this.parent.endpointTypeId,
+      this.endpointClusterId
+    )
+    .then((endpointAttributes) =>
+      templateUtil.collectBlocks(endpointAttributes, options.fn, this)
+    )
+}
+
+/**
+ * Creates endpoint type cluster command iterator. This works only inside
+ * user_clusters.
+ *
+ * @param {*} options
+ * @returns Promise of the resolved blocks iterating over cluster commands.
+ */
+function user_cluster_commands(options) {
+  return queryImpexp
+    .exportCommandsFromEndpointTypeCluster(
+      this.global.db,
+      this.parent.endpointTypeId,
+      this.endpointClusterId
+    )
+    .then((endpointAttributes) =>
+      templateUtil.collectBlocks(endpointAttributes, options.fn, this)
+    )
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -49,3 +94,5 @@ function user_clusters(options) {
 // If you rename the functions, you need to still maintain old exports list.
 exports.user_endpoint_types = user_endpoint_types
 exports.user_clusters = user_clusters
+exports.user_cluster_attributes = user_cluster_attributes
+exports.user_cluster_commands = user_cluster_commands

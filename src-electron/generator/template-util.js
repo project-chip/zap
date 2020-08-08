@@ -15,6 +15,9 @@
  *    limitations under the License.
  */
 
+const queryPackage = require('../db/query-package.js')
+const dbEnum = require('../db/db-enum.js')
+
 /**
  * @module JS API: generator logic
  */
@@ -48,4 +51,32 @@ function collectBlocks(resultArray, fn, context) {
   })
 }
 
+/**
+ * Returns the promise that resolves with the ZCL properties package id.
+ *
+ * @param {*} context
+ * @returns promise that resolves with the package id.
+ */
+function ensurePackageId(context) {
+  if ('packageId' in context.global) {
+    return Promise.resolve(context.global.packageId)
+  } else {
+    return queryPackage
+      .getSessionPackagesByType(
+        context.global.db,
+        context.global.sessionId,
+        dbEnum.packageType.zclProperties
+      )
+      .then((pkgs) => {
+        if (pkgs.length == 0) {
+          return null
+        } else {
+          context.global.packageId = pkgs[0].id
+          return pkgs[0].id
+        }
+      })
+  }
+}
+
 exports.collectBlocks = collectBlocks
+exports.ensurePackageId = ensurePackageId

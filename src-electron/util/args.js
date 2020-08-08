@@ -110,9 +110,6 @@ function processCommandLineArguments(argv) {
     .parse(argv)
 
   // Now populate exported variables with this.
-  env.logInfo('Command line arguments:')
-  env.logInfo(ret)
-
   exports.zclPropertiesFile = ret.zclProperties
   exports.httpPort = ret.httpPort
   exports.studioHttpPort = ret.studioHttpPort
