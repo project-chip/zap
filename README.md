@@ -2,6 +2,8 @@
 
 # ZCL Advanced Platform
 
+![Node.js CI](https://github.com/project-chip/zap/workflows/Node.js%20CI/badge.svg)
+
 ## Quick instructions
 
 This is a node.js application. In order to run it, you need to have [npm](https://www.npmjs.com/) installed. The best way is to simply download latest install of [node](https://nodejs.org/en/download/) and you will get npm. If you have an older version of node installed on your workstation, it may give you trouble, particularly if it's very old. So make sure you have decently recent (v12.16 or later as of 2020) version of node available. Run `node --version` to check what version is picked up.
