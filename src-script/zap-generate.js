@@ -16,30 +16,9 @@
  *    limitations under the License.
  */
 
-const { spawn } = require('child_process')
 const yargs = require('yargs')
 const fs = require('fs')
-
-function executeCmd(ctx, cmd, args) {
-  return new Promise((resolve, reject) => {
-    console.log(`🚀 Executing: ${cmd}`)
-    var c = spawn(cmd, args)
-    c.on('exit', (code) => {
-      if (code == 0) {
-        resolve(ctx)
-      } else {
-        console.log(`👎 Program ${cmd} exited with error code: ${code}`)
-        reject(code)
-      }
-    })
-    c.stdout.on('data', (data) => {
-      process.stdout.write(data)
-    })
-    c.stderr.on('data', (data) => {
-      process.stderr.write('⇝ ' + data)
-    })
-  })
-}
+const scriptUtil = require('./script-util.js')
 
 var arg = yargs
   .option('zclProperties', {
@@ -96,7 +75,8 @@ if (arg.in != null) {
   cli.push(arg.in)
 }
 
-executeCmd(ctx, 'electron', cli)
+scriptUtil
+  .executeCmd(ctx, 'electron', cli)
   .then(() => {
     console.log('😎 All done.')
     process.exit(0)

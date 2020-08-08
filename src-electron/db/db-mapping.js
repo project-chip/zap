@@ -228,6 +228,7 @@ exports.map = {
   endpoint: (x) => {
     if (x == null) return undefined
     return {
+      id: x.ENDPOINT_ID,
       endpointRef: x.ENDPOINT_ID,
       sessionRef: x.SESSION_REF,
       endpointId: x.ENDPOINT_IDENTIFIER,
@@ -239,6 +240,7 @@ exports.map = {
   endpointType: (x) => {
     if (x == null) return undefined
     return {
+      id: x.ENDPOINT_TYPE_ID,
       endpointTypeId: x.ENDPOINT_TYPE_ID,
       sessionRef: x.SESSION_REF,
       name: x.NAME,

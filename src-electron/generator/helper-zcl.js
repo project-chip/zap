@@ -16,64 +16,14 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
-const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../db/db-enum.js')
+const templateUtil = require('./template-util.js')
 
 /**
- * Returns the promise that resolves with the ZCL properties package id.
+ * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
  *
- * @param {*} context
- * @returns promise that resolves with the package id.
+ * @module Templating API: static zcl helpers
  */
-function ensurePackageId(context) {
-  if ('packageId' in context.global) {
-    return Promise.resolve(context.global.packageId)
-  } else {
-    return queryPackage
-      .getSessionPackagesByType(
-        context.global.db,
-        context.global.sessionId,
-        dbEnum.packageType.zclProperties
-      )
-      .then((pkgs) => {
-        if (pkgs.length == 0) {
-          return null
-        } else {
-          context.global.packageId = pkgs[0].id
-          return pkgs[0].id
-        }
-      })
-  }
-}
-
-/**
- * Helpful function that collects the individual blocks by using elements of an array as a context,
- * executing promises for each, and collecting them into the outgoing string.
- *
- * @param {*} resultArray
- * @param {*} fn
- * @param {*} context The context from within this was called.
- * @returns Promise that resolves with a content string.
- */
-function collectBlocks(resultArray, fn, context) {
-  var promises = []
-  resultArray.forEach((element) => {
-    var newContext = {
-      global: context.global,
-      parent: context,
-      ...element,
-    }
-    var block = fn(newContext)
-    promises.push(block)
-  })
-  return Promise.all(promises).then((blocks) => {
-    var ret = ''
-    blocks.forEach((b) => {
-      ret = ret.concat(b)
-    })
-    return ret
-  })
-}
 
 /**
  * Block helper iterating over all enums.
@@ -82,9 +32,10 @@ function collectBlocks(resultArray, fn, context) {
  * @returns Promise of content.
  */
 function zcl_enums(options) {
-  return ensurePackageId(this)
+  return templateUtil
+    .ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllEnums(this.global.db, packageId))
-    .then((ens) => collectBlocks(ens, options.fn, this))
+    .then((ens) => templateUtil.collectBlocks(ens, options.fn, this))
 }
 
 /**
@@ -94,7 +45,7 @@ function zcl_enums(options) {
 function zcl_enum_items(options) {
   return queryZcl
     .selectAllEnumItemsById(this.global.db, this.id)
-    .then((items) => collectBlocks(items, options.fn, this))
+    .then((items) => templateUtil.collectBlocks(items, options.fn, this))
 }
 
 /**
@@ -105,9 +56,10 @@ function zcl_enum_items(options) {
  * @returns Promise of content.
  */
 function zcl_structs(options) {
-  return ensurePackageId(this)
+  return templateUtil
+    .ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllStructs(this.global.db, packageId))
-    .then((st) => collectBlocks(st, options.fn, this))
+    .then((st) => templateUtil.collectBlocks(st, options.fn, this))
 }
 
 /**
@@ -119,7 +71,7 @@ function zcl_structs(options) {
 function zcl_struct_items(options) {
   return queryZcl
     .selectAllStructItemsById(this.global.db, this.id)
-    .then((st) => collectBlocks(st, options.fn, this))
+    .then((st) => templateUtil.collectBlocks(st, options.fn, this))
 }
 
 /**
@@ -129,9 +81,10 @@ function zcl_struct_items(options) {
  * @returns Promise of content.
  */
 function zcl_clusters(options) {
-  return ensurePackageId(this)
+  return templateUtil
+    .ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllClusters(this.global.db, packageId))
-    .then((cl) => collectBlocks(cl, options.fn, this))
+    .then((cl) => templateUtil.collectBlocks(cl, options.fn, this))
 }
 
 /**
@@ -144,7 +97,8 @@ function zcl_clusters(options) {
  * @returns Promise of content.
  */
 function zcl_commands(options) {
-  return ensurePackageId(this)
+  return templateUtil
+    .ensurePackageId(this)
     .then((packageId) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
@@ -157,13 +111,22 @@ function zcl_commands(options) {
         return queryZcl.selectAllCommands(this.global.db, packageId)
       }
     })
-    .then((cmds) => collectBlocks(cmds, options.fn, this))
+    .then((cmds) => templateUtil.collectBlocks(cmds, options.fn, this))
 }
 
+/**
+ * Iterator over the attributes. If it is used at toplevel, if iterates over all the attributes
+ * in the database. If used within zcl_cluster context, it iterates over all the attributes
+ * that belong to that cluster.
+ *
+ * @param {*} options
+ * @returns Promise of attribute iteration.
+ */
 function zcl_attributes(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
-  return ensurePackageId(this)
+  return templateUtil
+    .ensurePackageId(this)
     .then((packageId) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
@@ -176,13 +139,22 @@ function zcl_attributes(options) {
         return queryZcl.selectAllAttributes(this.global.db, packageId)
       }
     })
-    .then((atts) => collectBlocks(atts, options.fn, this))
+    .then((atts) => templateUtil.collectBlocks(atts, options.fn, this))
 }
 
+/**
+ * Iterator over the client attributes. If it is used at toplevel, if iterates over all the client attributes
+ * in the database. If used within zcl_cluster context, it iterates over all the client attributes
+ * that belong to that cluster.
+ *
+ * @param {*} options
+ * @returns Promise of attribute iteration.
+ */
 function zcl_attributes_client(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
-  return ensurePackageId(this)
+  return templateUtil
+    .ensurePackageId(this)
     .then((packageId) => {
       if ('id' in this) {
         return queryZcl.selectAttributesByClusterIdAndSide(
@@ -199,13 +171,22 @@ function zcl_attributes_client(options) {
         )
       }
     })
-    .then((atts) => collectBlocks(atts, options.fn, this))
+    .then((atts) => templateUtil.collectBlocks(atts, options.fn, this))
 }
 
+/**
+ * Iterator over the server attributes. If it is used at toplevel, if iterates over all the server attributes
+ * in the database. If used within zcl_cluster context, it iterates over all the server attributes
+ * that belong to that cluster.
+ *
+ * @param {*} options
+ * @returns Promise of attribute iteration.
+ */
 function zcl_attributes_server(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
-  return ensurePackageId(this)
+  return templateUtil
+    .ensurePackageId(this)
     .then((packageId) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
@@ -223,7 +204,7 @@ function zcl_attributes_server(options) {
         )
       }
     })
-    .then((atts) => collectBlocks(atts, options.fn, this))
+    .then((atts) => templateUtil.collectBlocks(atts, options.fn, this))
 }
 
 /**
@@ -233,9 +214,10 @@ function zcl_attributes_server(options) {
  * @returns Promise of content.
  */
 function zcl_atomics(options) {
-  return ensurePackageId(this)
+  return templateUtil
+    .ensurePackageId(this)
     .then((packageId) => queryZcl.selectAllAtomics(this.global.db, packageId))
-    .then((ats) => collectBlocks(ats, options.fn, this))
+    .then((ats) => templateUtil.collectBlocks(ats, options.fn, this))
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!

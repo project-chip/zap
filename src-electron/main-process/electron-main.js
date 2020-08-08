@@ -40,9 +40,8 @@ if (process.env.DEV) {
 
 // Registration of all app listeners, the main lifecycle of the application
 if (app != null) {
-  app.on('ready', () => {
+  app.whenReady().then(() => {
     var argv = args.processCommandLineArguments(process.argv)
-    env.logInfo(argv)
 
     if (argv.clearDb != null) {
       startup.clearDatabaseFile()

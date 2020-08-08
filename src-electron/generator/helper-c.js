@@ -15,10 +15,30 @@
  *    limitations under the License.
  */
 
+/**
+ * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+ *
+ * @module Templating API: C formatting helpers
+ */
+
+/**
+ * Formats label as a C macro.
+ *
+ * @param {*} label
+ * @returns Label formatted as C macro.
+ */
 function asMacro(label) {
   return label.toUpperCase().replace(/ /g, '_')
 }
 
+/**
+ * Formats label as a C hex constant.
+ * If value starts as 0x or 0X it is already treated as hex,
+ * otherwise it is assumed decimal and converted to hex.
+ *
+ * @param {*} label
+ * @returns Label formatted as C hex constant.
+ */
 function asHex(value) {
   var ret = value.trim()
   if (ret.startsWith('0x') || ret.startsWith('0X')) {
@@ -29,10 +49,22 @@ function asHex(value) {
   }
 }
 
+/**
+ * Formats label as a C type.
+ *
+ * @param {*} label
+ * @returns Label formatted as C type.
+ */
 function asType(value) {
   return value.replace(/ /g, '')
 }
 
+/**
+ * Formats label as a C symbol.
+ *
+ * @param {*} label
+ * @returns Label formatted as C symbol.
+ */
 function asSymbol(value) {
   return value
 }

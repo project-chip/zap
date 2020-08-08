@@ -22,22 +22,25 @@
  *  environment.
  */
 
+const env = require('../util/env.js')
+
 // Install `electron-debug` with `devtron`
 require('electron-debug')({ showDevTools: false })
 
 // Install `vue-devtools`
-require('electron').app.on('ready', () => {
-  let installExtension = require('electron-devtools-installer')
-  installExtension
-    .default(installExtension.VUEJS_DEVTOOLS)
-    .then(() => {})
-    .catch((err) => {
-      require('../util/env.js').logError(
-        'Unable to install `vue-devtools`: \n',
-        err
-      )
-    })
-})
+require('electron')
+  .app.whenReady()
+  .then(() => {
+    let installExtension = require('electron-devtools-installer')
+    installExtension
+      .default(installExtension.VUEJS_DEVTOOLS)
+      .then(() => {
+        env.logInfo('Installation of `vue-tools` succesful.')
+      })
+      .catch((err) => {
+        env.logError('Unable to install `vue-devtools`: \n', err)
+      })
+  })
 
 // Require `main` process to boot app
 require('./electron-main.js')

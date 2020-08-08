@@ -15,34 +15,14 @@
  *    limitations under the License.
  */
 
-const { spawn } = require('child_process')
 const { hashElement } = require('folder-hash')
 const hashOptions = {}
 const spaDir = 'dist/spa'
 const fs = require('fs')
 const path = require('path')
+const scriptUtil = require('./script-util.js')
 
 console.log(`node version: ${process.version}`)
-
-function executeCmd(ctx, cmd, args) {
-  return new Promise((resolve, reject) => {
-    console.log(`🚀 Executing: ${cmd} ${args}`)
-    var c = spawn(cmd, args)
-    c.on('exit', (code) => {
-      if (code == 0) resolve(ctx)
-      else {
-        console.log(`👎 Program ${cmd} exited with error code: ${code}`)
-        reject()
-      }
-    })
-    c.stdout.on('data', (data) => {
-      process.stdout.write('➤ ' + data)
-    })
-    c.stderr.on('data', (data) => {
-      process.stderr.write('⇝ ' + data)
-    })
-  })
-}
 
 var fileName = path.join(spaDir, 'hash.json')
 
@@ -78,7 +58,7 @@ hashElement('src', hashOptions)
       })
   )
   .then((ctx) => {
-    if (ctx.needsRebuild) return executeCmd(ctx, 'quasar', ['build'])
+    if (ctx.needsRebuild) return scriptUtil.executeCmd(ctx, 'quasar', ['build'])
     else return Promise.resolve(ctx)
   })
   .then(
@@ -98,7 +78,7 @@ hashElement('src', hashOptions)
   .then((ctx) => {
     var cmdArgs = ['src-electron/main-process/electron-main.dev.js']
     cmdArgs.push(...process.argv.slice(2))
-    return executeCmd(ctx, 'electron', cmdArgs)
+    return scriptUtil.executeCmd(ctx, 'electron', cmdArgs)
   })
   .then(() => {
     console.log('😎 All done.')
