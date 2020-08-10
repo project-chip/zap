@@ -204,7 +204,8 @@ SELECT
   MANUFACTURER_CODE, 
   NAME, 
   DESCRIPTION, 
-  DEFINE 
+  DEFINE,
+  DOMAIN_NAME
 FROM CLUSTER 
   ${packageId != null ? 'WHERE PACKAGE_REF = ? ' : ''} 
 ORDER BY CODE`,
@@ -217,7 +218,7 @@ function selectClusterById(db, id, packageId = null) {
   return dbApi
     .dbGet(
       db,
-      'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE FROM CLUSTER WHERE CLUSTER_ID = ?  ' +
+      'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME FROM CLUSTER WHERE CLUSTER_ID = ?  ' +
         (packageId != null ? 'AND PACKAGE_REF = ? ' : ''),
       packageId != null ? [id, packageId] : [id]
     )
@@ -958,7 +959,7 @@ function insertClusters(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
-      'INSERT INTO CLUSTER (PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO CLUSTER (PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME) VALUES (?, ?, ?, ?, ?, ?, ?)',
       data.map((cluster) => {
         return [
           packageId,
@@ -967,6 +968,7 @@ function insertClusters(db, packageId, data) {
           cluster.name,
           cluster.description,
           cluster.define,
+          cluster.domain,
         ]
       })
     )

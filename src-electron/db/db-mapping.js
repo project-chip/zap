@@ -58,6 +58,7 @@ exports.map = {
       label: x.NAME,
       caption: x.DESCRIPTION,
       define: x.DEFINE,
+      domainName: x.DOMAIN_NAME,
     }
   },
 

@@ -241,6 +241,7 @@ function prepareCluster(cluster, isExtension = false) {
     ret.name = cluster.name[0]
     ret.description = cluster.description[0]
     ret.define = cluster.define[0]
+    ret.domain = cluster.domain[0]
     if ('$' in cluster) ret.manufacturerCode = cluster['$'].manufacturerCode
   }
 
