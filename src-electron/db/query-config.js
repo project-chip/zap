@@ -974,6 +974,51 @@ function getEndpointTypeCommands(db, endpointTypeId) {
       })
     )
 }
+
+/**
+ * Retrieves all the attribute data for the session.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ */
+function getAllSessionAttributes(db, sessionId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  A.NAME, 
+  A.CODE AS ATTRIBUTE_CODE,
+  C.CODE AS CLUSTER_CODE
+FROM 
+  ENDPOINT_TYPE_ATTRIBUTE AS ETA
+JOIN 
+  ENDPOINT_TYPE_CLUSTER AS ETC ON ETA.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
+JOIN
+  CLUSTER AS C ON ETC.CLUSTER_REF = C.CLUSTER_ID
+JOIN 
+  ATTRIBUTE AS A ON ETA.ATTRIBUTE_REF = A.ATTRIBUTE_ID
+JOIN
+  ENDPOINT_TYPE AS ET ON ETA.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
+WHERE
+  ET.SESSION_REF = ?
+ORDER BY
+  CLUSTER_CODE, ATTRIBUTE_CODE
+  `,
+      [sessionId]
+    )
+    .then((rows) =>
+      rows.map((row) => {
+        console.log(row)
+        return {
+          name: row.NAME,
+          attributeCode: row.ATTRIBUTE_CODE,
+          clusterCode: row.CLUSTER_CODE,
+        }
+      })
+    )
+}
+
 // exports
 exports.updateKeyValue = updateKeyValue
 exports.getSessionKeyValue = getSessionKeyValue
@@ -999,3 +1044,4 @@ exports.getEndpointTypeCommands = getEndpointTypeCommands
 exports.getAllEndpoints = getAllEndpoints
 exports.getCountOfEndpointsWithGivenEndpointIdentifier = getCountOfEndpointsWithGivenEndpointIdentifier
 exports.getEndpointTypeCount = getEndpointTypeCount
+exports.getAllSessionAttributes = getAllSessionAttributes

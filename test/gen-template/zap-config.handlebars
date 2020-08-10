@@ -3,11 +3,15 @@
 #define FIXED_ENPOINT_COUNT ({{user_endpoint_type_count}})
 
 #define GENERATED_DEFAULTS {
-
+{{#user_all_attributes}}
+// default: {{clusterCode}} / {{attributeCode}} / {{name}}
+{{/user_all_attributes}}
 }
 
 #define GENERATED_MIN_MAX_DEFAULTS {
-
+{{#user_all_attributes}}
+// default: {{clusterCode}} / {{attributeCode}} / {{name}}
+{{/user_all_attributes}}
 }
 
 {{#user_endpoint_types}}

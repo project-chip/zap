@@ -93,6 +93,18 @@ function user_endpoint_type_count() {
   return queryConfig.getEndpointTypeCount(this.global.db, this.global.sessionId)
 }
 
+/**
+ * Iterates over all attributes required by the user configuration.
+ *
+ * @param {*} options
+ * @return Promise of the resolved blocks iterating over cluster commands.
+ */
+function user_all_attributes(options) {
+  return queryConfig
+    .getAllSessionAttributes(this.global.db, this.global.sessionId)
+    .then((atts) => templateUtil.collectBlocks(atts, options.fn, this))
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -103,3 +115,4 @@ exports.user_clusters = user_clusters
 exports.user_cluster_attributes = user_cluster_attributes
 exports.user_cluster_commands = user_cluster_commands
 exports.user_endpoint_type_count = user_endpoint_type_count
+exports.user_all_attributes = user_all_attributes
