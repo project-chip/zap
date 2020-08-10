@@ -74,7 +74,17 @@ function asSymbol(value) {
 
 // Formats the default value into an attribute of a given length
 function formatValue(value, length, isSigned) {
-  return value
+  var out = ''
+  if (length < 0) {
+    out = out.concat(value.length())
+    for (var i = 0; i < value.length; i++) {
+      var ch = value.charAt(i)
+      out = out.concat(",'").concat(ch).concat("'")
+    }
+  } else {
+    out = out.concat(value)
+  }
+  return out
 }
 
 /**
