@@ -782,6 +782,23 @@ function insertEndpointTypes(db, sessionId, endpoints) {
 }
 
 /**
+ * Resolves into the number of endpoint types for session.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise that resolves into a count.
+ */
+function getEndpointTypeCount(db, sessionId) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT COUNT(ENDPOINT_TYPE_ID) FROM ENDPOINT_TYPE WHERE SESSION_REF = ?',
+      [sessionId]
+    )
+    .then((x) => x['COUNT(ENDPOINT_TYPE_ID)'])
+}
+
+/**
  * Extracts raw endpoint types rows.
  *
  * @export
@@ -981,3 +998,4 @@ exports.getEndpointTypeAttributes = getEndpointTypeAttributes
 exports.getEndpointTypeCommands = getEndpointTypeCommands
 exports.getAllEndpoints = getAllEndpoints
 exports.getCountOfEndpointsWithGivenEndpointIdentifier = getCountOfEndpointsWithGivenEndpointIdentifier
+exports.getEndpointTypeCount = getEndpointTypeCount
