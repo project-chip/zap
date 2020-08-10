@@ -989,7 +989,19 @@ function getAllSessionAttributes(db, sessionId) {
 SELECT 
   A.NAME, 
   A.CODE AS ATTRIBUTE_CODE,
-  C.CODE AS CLUSTER_CODE
+  C.CODE AS CLUSTER_CODE,
+  ETA.DEFAULT_VALUE,
+  ETA.EXTERNAL,
+  ETA.FLASH,
+  ETA.SINGLETON,
+  ETA.BOUNDED,
+  A.SIDE,
+  A.MIN,
+  A.MAX,
+  ETA.INCLUDED_REPORTABLE,
+  ETA.MIN_INTERVAL,
+  ETA.MAX_INTERVAL,
+  ETA.REPORTABLE_CHANGE
 FROM 
   ENDPOINT_TYPE_ATTRIBUTE AS ETA
 JOIN 
@@ -1001,7 +1013,7 @@ JOIN
 JOIN
   ENDPOINT_TYPE AS ET ON ETA.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
 WHERE
-  ET.SESSION_REF = ?
+  ET.SESSION_REF = ? AND ETA.INCLUDED = 1
 ORDER BY
   CLUSTER_CODE, ATTRIBUTE_CODE
   `,
@@ -1009,11 +1021,24 @@ ORDER BY
     )
     .then((rows) =>
       rows.map((row) => {
-        console.log(row)
         return {
           name: row.NAME,
           attributeCode: row.ATTRIBUTE_CODE,
           clusterCode: row.CLUSTER_CODE,
+          defaultValue: row.DEFAULT_VALUE,
+          isExternal: row.EXTERNAL,
+          isFlash: row.FLASH,
+          isSingleton: row.SINGLETON,
+          isBounded: row.BOUNDED,
+          side: row.SIDE,
+          min: row.MIN,
+          max: row.MAX,
+          reportable: {
+            included: row.INCLUDED_REPORTABLE,
+            minInterval: row.MIN_INTERVAL,
+            maxInterval: row.MAX_INTERVAL,
+            change: row.REPORTABLE_CHANGE,
+          },
         }
       })
     )
