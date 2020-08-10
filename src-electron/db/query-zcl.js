@@ -1341,6 +1341,26 @@ function selectAllAtomics(db, packageId) {
 }
 
 /**
+ * Retrieves the size from atomic type.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} type
+ */
+function getAtomicSizeFromType(db, packageId, type) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
+      [packageId, type]
+    )
+    .then((row) => {
+      if (row == null) return -1
+      else return row.ATOMIC_SIZE
+    })
+}
+
+/**
  * Inserts bitmaps into the database. Data is an array of objects that must contain: name, type
  *
  * @export
@@ -1430,3 +1450,4 @@ exports.insertBitmaps = insertBitmaps
 exports.selectEndpointType = selectEndpointType
 exports.insertAtomics = insertAtomics
 exports.selectAllAtomics = selectAllAtomics
+exports.getAtomicSizeFromType = getAtomicSizeFromType

@@ -275,7 +275,7 @@ function prepareCluster(cluster, isExtension = false) {
         code: attribute.$.code,
         manufacturerCode: attribute.$.manufacturerCode,
         name: attribute._,
-        type: attribute.$.type,
+        type: attribute.$.type.toLowerCase(),
         side: attribute.$.side,
         define: attribute.$.define,
         min: attribute.$.min,

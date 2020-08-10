@@ -4,7 +4,8 @@
 
 #define GENERATED_DEFAULTS {
 {{#user_all_attributes}}
-// default: {{clusterCode}} / {{attributeCode}} / {{name}} // {{defaultValue}}
+// {{name}} : {{clusterCode}}/{{attributeCode}} / {{type}}
+def: {{asBytes defaultValue type}}
 {{/user_all_attributes}}
 }
 
