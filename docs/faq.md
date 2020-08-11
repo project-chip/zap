@@ -26,12 +26,17 @@ Occasionally upgrading your `npm` also makes a difference:
 
 **A:** There are some native dependencies that you have to satisfy to compile non-prebuilt node binaries for some combination of platforms and versions. Npm on the cloud is constantly updating the list of provided binaries, so it's possible that you will pick them up just fine, but if you don't, this is the list, for example, of things that have to be installed on Fedora Linux to rebuild everything correctly during `npm install` phase:
 
+Using `dnf` on Fedora Core:
+
 ```
-sudo dnf install pixman-devel
-sudo dnf install cairo-devel
-sudo dnf install pango-devel
-sudo dnf install libjpeg-devel
-sudo dnf install giflib-devel
+dnf install pixman-devel cairo-devel pango-devel libjpeg-devel giflib-devel
+```
+
+Using `apt-get` on Ubuntu:
+
+```
+apt-get update
+apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev
 ```
 
 ---

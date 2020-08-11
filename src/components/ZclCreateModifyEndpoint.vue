@@ -173,6 +173,10 @@ export default {
               endpointType: response.id,
             },
           })
+          this.$store.dispatch('zap/updateSelectedEndpointType', {
+            endpointType: response.id,
+            deviceTypeRef: this.endpointDeviceTypeRef[eptId],
+          })
         })
     },
     editEpt(newEndpoint, endpointReference) {
@@ -194,6 +198,10 @@ export default {
             { updatedKey: 'networkId', value: newEndpoint.newNetworkId },
           ],
         },
+      })
+      this.$store.dispatch('zap/updateSelectedEndpointType', {
+        endpointType: endpointReference,
+        deviceTypeRef: this.endpointDeviceTypeRef[endpointReference],
       })
     },
   },

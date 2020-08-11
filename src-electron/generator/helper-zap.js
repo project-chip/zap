@@ -35,8 +35,12 @@ function zap_header() {
  *
  * @returns whitespace that is the identation.
  */
-function ident() {
-  return '  '
+function ident(cnt) {
+  if (Number.isInteger(cnt)) {
+    return '  '.repeat(cnt)
+  } else {
+    return '  '
+  }
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!

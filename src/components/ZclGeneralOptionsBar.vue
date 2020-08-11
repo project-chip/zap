@@ -36,7 +36,6 @@ limitations under the License.
           @input="handleOptionChange('manufacturerCodes', $event)"
           v-model="selectedManufacturerCode"
           @filter="filterMfgCode"
-          style="width: 250px;"
           outlined
           dense
         />

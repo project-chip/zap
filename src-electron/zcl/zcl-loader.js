@@ -241,6 +241,7 @@ function prepareCluster(cluster, isExtension = false) {
     ret.name = cluster.name[0]
     ret.description = cluster.description[0]
     ret.define = cluster.define[0]
+    ret.domain = cluster.domain[0]
     if ('$' in cluster) ret.manufacturerCode = cluster['$'].manufacturerCode
   }
 
@@ -275,7 +276,7 @@ function prepareCluster(cluster, isExtension = false) {
         code: attribute.$.code,
         manufacturerCode: attribute.$.manufacturerCode,
         name: attribute._,
-        type: attribute.$.type,
+        type: attribute.$.type.toLowerCase(),
         side: attribute.$.side,
         define: attribute.$.define,
         min: attribute.$.min,

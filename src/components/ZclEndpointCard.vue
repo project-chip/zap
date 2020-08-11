@@ -102,6 +102,7 @@ limitations under the License.
             color="primary"
             icon="settings"
             size="sm"
+            @click="setSelectedEndpointType()"
           />
         </div>
       </q-card-actions>
@@ -140,6 +141,12 @@ export default {
         context: {
           id: this.endpointReference,
         },
+      })
+    },
+    setSelectedEndpointType() {
+      this.$store.dispatch('zap/updateSelectedEndpointType', {
+        endpointType: this.endpointReference,
+        deviceTypeRef: this.endpointDeviceTypeRef[this.endpointReference],
       })
     },
   },

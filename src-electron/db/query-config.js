@@ -782,6 +782,23 @@ function insertEndpointTypes(db, sessionId, endpoints) {
 }
 
 /**
+ * Resolves into the number of endpoint types for session.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise that resolves into a count.
+ */
+function getEndpointTypeCount(db, sessionId) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT COUNT(ENDPOINT_TYPE_ID) FROM ENDPOINT_TYPE WHERE SESSION_REF = ?',
+      [sessionId]
+    )
+    .then((x) => x['COUNT(ENDPOINT_TYPE_ID)'])
+}
+
+/**
  * Extracts raw endpoint types rows.
  *
  * @export
@@ -957,6 +974,78 @@ function getEndpointTypeCommands(db, endpointTypeId) {
       })
     )
 }
+
+/**
+ * Retrieves all the attribute data for the session.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ */
+function getAllSessionAttributes(db, sessionId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  A.NAME, 
+  A.CODE AS ATTRIBUTE_CODE,
+  C.CODE AS CLUSTER_CODE,
+  ETA.DEFAULT_VALUE,
+  ETA.EXTERNAL,
+  ETA.FLASH,
+  ETA.SINGLETON,
+  ETA.BOUNDED,
+  A.TYPE,
+  A.SIDE,
+  A.MIN,
+  A.MAX,
+  ETA.INCLUDED_REPORTABLE,
+  ETA.MIN_INTERVAL,
+  ETA.MAX_INTERVAL,
+  ETA.REPORTABLE_CHANGE
+FROM 
+  ENDPOINT_TYPE_ATTRIBUTE AS ETA
+JOIN 
+  ENDPOINT_TYPE_CLUSTER AS ETC ON ETA.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
+JOIN
+  CLUSTER AS C ON ETC.CLUSTER_REF = C.CLUSTER_ID
+JOIN 
+  ATTRIBUTE AS A ON ETA.ATTRIBUTE_REF = A.ATTRIBUTE_ID
+JOIN
+  ENDPOINT_TYPE AS ET ON ETA.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
+WHERE
+  ET.SESSION_REF = ? AND ETA.INCLUDED = 1
+ORDER BY
+  CLUSTER_CODE, ATTRIBUTE_CODE
+  `,
+      [sessionId]
+    )
+    .then((rows) =>
+      rows.map((row) => {
+        return {
+          name: row.NAME,
+          attributeCode: row.ATTRIBUTE_CODE,
+          clusterCode: row.CLUSTER_CODE,
+          defaultValue: row.DEFAULT_VALUE,
+          isExternal: row.EXTERNAL,
+          isFlash: row.FLASH,
+          isSingleton: row.SINGLETON,
+          isBounded: row.BOUNDED,
+          type: row.TYPE,
+          side: row.SIDE,
+          min: row.MIN,
+          max: row.MAX,
+          reportable: {
+            included: row.INCLUDED_REPORTABLE,
+            minInterval: row.MIN_INTERVAL,
+            maxInterval: row.MAX_INTERVAL,
+            change: row.REPORTABLE_CHANGE,
+          },
+        }
+      })
+    )
+}
+
 // exports
 exports.updateKeyValue = updateKeyValue
 exports.getSessionKeyValue = getSessionKeyValue
@@ -981,3 +1070,5 @@ exports.getEndpointTypeAttributes = getEndpointTypeAttributes
 exports.getEndpointTypeCommands = getEndpointTypeCommands
 exports.getAllEndpoints = getAllEndpoints
 exports.getCountOfEndpointsWithGivenEndpointIdentifier = getCountOfEndpointsWithGivenEndpointIdentifier
+exports.getEndpointTypeCount = getEndpointTypeCount
+exports.getAllSessionAttributes = getAllSessionAttributes

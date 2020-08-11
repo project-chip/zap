@@ -15,6 +15,9 @@
  *    limitations under the License.
  */
 
+const queryZcl = require('../db/query-zcl.js')
+const templateUtil = require('./template-util.js')
+
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
  *
@@ -69,6 +72,49 @@ function asSymbol(value) {
   return value
 }
 
+// Formats the default value into an attribute of a given length
+function formatValue(value, length, isSigned) {
+  var out = ''
+  if (length < 0) {
+    out = out.concat(value.length())
+    for (var i = 0; i < value.length; i++) {
+      var ch = value.charAt(i)
+      out = out.concat(",'").concat(ch).concat("'")
+    }
+  } else {
+    out = out.concat(value)
+  }
+  return out
+}
+
+/**
+ * Given a default value of attribute, this method converts it into bytes
+ *
+ * @param {*} value
+ */
+function asBytes(value, type) {
+  if (type == null) {
+    return Promise.resolve(value)
+  } else {
+    return templateUtil
+      .ensurePackageId(this)
+      .then((packageId) =>
+        queryZcl.getAtomicSizeFromType(this.global.db, packageId, type)
+      )
+      .then((x) => {
+        if (x == -1) {
+          return value
+        } else {
+          return formatValue(
+            value,
+            x,
+            type.startsWith('int') && type.endsWith('u')
+          )
+        }
+      })
+  }
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -78,3 +124,4 @@ exports.asMacro = asMacro
 exports.asHex = asHex
 exports.asType = asType
 exports.asSymbol = asSymbol
+exports.asBytes = asBytes

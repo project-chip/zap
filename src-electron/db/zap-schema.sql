@@ -66,6 +66,7 @@ DROP TABLE IF EXISTS "CLUSTER";
 CREATE TABLE IF NOT EXISTS "CLUSTER" (
   "CLUSTER_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
+  "DOMAIN_NAME" text,
   "CODE" text,
   "MANUFACTURER_CODE" text,
   "NAME" text,

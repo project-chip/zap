@@ -53,7 +53,9 @@ limitations under the License.
       >
         <zcl-endpoint-manager />
       </q-drawer>
-      <q-page-container> </q-page-container>
+      <q-page-container>
+        <zcl-cluster-manager />
+      </q-page-container>
     </q-layout>
   </div>
 </template>
@@ -62,6 +64,7 @@ limitations under the License.
 import { matClose } from '@quasar/extras/material-icons'
 import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
 import ZclEndpointManager from '../components/ZclEndpointManager.vue'
+import ZclClusterManager from '../components/ZclClusterManager.vue'
 
 export default {
   name: 'ZclConfiguratorLayout',
@@ -91,6 +94,7 @@ export default {
   components: {
     ZclGeneralOptionsBar,
     ZclEndpointManager,
+    ZclClusterManager,
   },
 }
 </script>
