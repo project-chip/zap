@@ -1,7 +1,5 @@
 # Frequently Asked Questions
 
----
-
 **Q: I get an error "sqlite3_node" not found or something like that.**
 
 **A:** You need to rebuild your native sqlite3 bindings.
@@ -24,20 +22,24 @@ Occasionally upgrading your `npm` also makes a difference:
 
 **Q: I get an error during `node install`, something related to `node-gyp` and missing local libraries, like `pixman`, etc.**
 
-**A:** There are some native dependencies that you have to satisfy to compile non-prebuilt node binaries for some combination of platforms and versions. Npm on the cloud is constantly updating the list of provided binaries, so it's possible that you will pick them up just fine, but if you don't, this is the list, for example, of things that have to be installed on Fedora Linux to rebuild everything correctly during `npm install` phase:
+**A:** There are some native dependencies that you have to satisfy to compile non-prebuilt node binaries for some combination of platforms and versions. Npm on the cloud is constantly updating the list of provided binaries, so it's possible that you will pick them up just fine, but if you don't, these are instructions for different platforms:
 
-Using `dnf` on Fedora Core:
+- Fedora Core with `dnf`:
 
 ```
 dnf install pixman-devel cairo-devel pango-devel libjpeg-devel giflib-devel
 ```
 
-Using `apt-get` on Ubuntu:
+- Ubuntu with `apt-get`:
 
 ```
 apt-get update
 apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev
 ```
+
+- OSX on a Mac: TBD.
+
+- Windows: see next FAQ entry: "How to make this work on Windows?".
 
 ---
 
@@ -81,8 +83,6 @@ If jpeglib.h not found try:
    for
    const { spawn } = require('cross-spawn')
 6. Run npm run zap
-
----
 
 References:
 
