@@ -24,7 +24,7 @@ limitations under the License.
           </q-toolbar-title>
         </q-toolbar>
       </div>
-      <div class="row bar">
+      <div class="row bar align=left;">
         <q-btn
           class="col-6 left"
           align="left"
@@ -71,6 +71,13 @@ limitations under the License.
           </template>
         </q-input>
       </div>
+      <q-list>
+        <div v-for="domain in domains" :key="domain">
+          <q-expansion-item :label="domain" icon="play_arrow">
+            This is the {{ domain }} clusters
+          </q-expansion-item>
+        </div>
+      </q-list>
     </q-card>
   </div>
 </template>
@@ -91,6 +98,13 @@ export default {
     endpointType: {
       get() {
         return this.$store.state.zap.endpointView.endpointType
+      },
+    },
+    domains: {
+      get() {
+        return [
+          ...new Set(this.$store.state.zap.clusters.map((a) => a.domainName)),
+        ]
       },
     },
   },
