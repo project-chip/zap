@@ -54,9 +54,13 @@ limitations under the License.
             />
           </q-td>
           <q-td key="configure" :props="props">
-            <q-icon
-              name="settings"
+            <q-btn
+              flat
               :color="isClusterEnabled(props.row.id) ? 'primary' : 'grey'"
+              dense
+              :disable="!isClusterEnabled(props.row.id)"
+              icon="settings"
+              to="/cluster"
             />
           </q-td>
         </q-tr>

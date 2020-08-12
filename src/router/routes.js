@@ -24,6 +24,10 @@ const routes = [
     ],
   },
   {
+    path: '/cluster',
+    component: () => import('layouts/ZclClusterLayout.vue'),
+  },
+  {
     path: '/preference',
     component: () => import('pages/Preference.vue'),
   },

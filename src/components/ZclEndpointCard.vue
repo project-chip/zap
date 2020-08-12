@@ -145,12 +145,6 @@ export default {
           },
         })
         .then(() => {
-          console.log('asdfa')
-          console.log(endpointReference)
-          console.log('asdfasdf')
-          console.log(this.endpointType)
-          console.log('asdfasdfdd')
-          console.log(this.endpointType[endpointReference])
           let context = {
             action: RestApi.action.delete,
             context: {
