@@ -115,23 +115,29 @@ export function updateSelectedCommands(context, selectionContext) {
 }
 
 export function updateSelectedServers(context, selectionContext) {
-  context.commit('updateInclusionList', selectionContext)
-  Vue.prototype.$serverPost(`/cluster`, {
-    endpointTypeId: selectionContext.endpointTypeId,
-    id: selectionContext.id,
-    side: 'server',
-    flag: selectionContext.added,
-  })
+  Vue.prototype
+    .$serverPost(`/cluster`, {
+      endpointTypeId: selectionContext.endpointTypeId,
+      id: selectionContext.id,
+      side: 'server',
+      flag: selectionContext.added,
+    })
+    .then(() => {
+      context.commit('updateInclusionList', selectionContext)
+    })
 }
 
 export function updateSelectedClients(context, selectionContext) {
-  context.commit('updateInclusionList', selectionContext)
-  Vue.prototype.$serverPost(`/cluster`, {
-    endpointTypeId: selectionContext.endpointTypeId,
-    id: selectionContext.id,
-    side: 'client',
-    flag: selectionContext.added,
-  })
+  Vue.prototype
+    .$serverPost(`/cluster`, {
+      endpointTypeId: selectionContext.endpointTypeId,
+      id: selectionContext.id,
+      side: 'client',
+      flag: selectionContext.added,
+    })
+    .then(() => {
+      context.commit('updateInclusionList', selectionContext)
+    })
 }
 
 export function initializeDefaultEndpoints(context, defaultEndpoints) {

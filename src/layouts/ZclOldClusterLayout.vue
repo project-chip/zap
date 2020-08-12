@@ -50,9 +50,7 @@ export default {
     ZclClusterDetails,
   },
   data() {
-    return {
-      splitterModel: 50,
-    }
+    return {}
   },
 }
 </script>

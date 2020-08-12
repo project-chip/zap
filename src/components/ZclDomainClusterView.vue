@@ -21,7 +21,7 @@ limitations under the License.
       :columns="columns"
       :rows-per-page-options="[0]"
       hide-pagination
-      row-key="code"
+      row-key="id"
       flat
       square
       bordered
@@ -128,21 +128,23 @@ export default {
       let clientSelected = event.client
       let serverSelected = event.server
 
-      this.$store.dispatch('zap/updateSelectedClients', {
-        endpointTypeId: this.selectedEndpointTypeId,
-        id: id,
-        added: clientSelected,
-        listType: 'selectedClients',
-        view: 'clustersView',
-      })
-
-      this.$store.dispatch('zap/updateSelectedServers', {
-        endpointTypeId: this.selectedEndpointTypeId,
-        id: id,
-        added: serverSelected,
-        listType: 'selectedServers',
-        view: 'clustersView',
-      })
+      this.$store
+        .dispatch('zap/updateSelectedClients', {
+          endpointTypeId: this.selectedEndpointTypeId,
+          id: id,
+          added: clientSelected,
+          listType: 'selectedClients',
+          view: 'clustersView',
+        })
+        .then(() =>
+          this.$store.dispatch('zap/updateSelectedServers', {
+            endpointTypeId: this.selectedEndpointTypeId,
+            id: id,
+            added: serverSelected,
+            listType: 'selectedServers',
+            view: 'clustersView',
+          })
+        )
     },
   },
   data() {
@@ -156,7 +158,7 @@ export default {
       columns: [
         {
           name: 'label',
-          requiried: true,
+          required: true,
           label: 'Cluster',
           align: 'left',
           field: (row) => row.label,
@@ -164,7 +166,7 @@ export default {
         },
         {
           name: 'requiredCluster',
-          requiried: true,
+          required: true,
           label: 'Required Cluster',
           align: 'center',
           field: (row) => this.isClusterRequired(row.id),
@@ -172,7 +174,7 @@ export default {
         },
         {
           name: 'clusterId',
-          requiried: false,
+          required: false,
           label: 'Cluster Id',
           align: 'left',
           field: (row) => row.code,
@@ -180,7 +182,7 @@ export default {
         },
         {
           name: 'manufacturerId',
-          requiried: false,
+          required: false,
           label: 'Manufacturer ID',
           align: 'left',
           field: (row) => (row.manufacturerCode ? row.manufacturerCode : '---'),
@@ -188,7 +190,7 @@ export default {
         },
         {
           name: 'options',
-          requiried: false,
+          required: false,
           label: 'Options',
           align: 'left',
           field: (row) => 'test',
