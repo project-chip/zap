@@ -23,6 +23,8 @@ const { version } = require('../../package.json')
 const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
 
+const featureLevel = 1
+
 // Basic environment tie-ins
 var pino_logger = pino({
   nameL: 'zap',
@@ -221,3 +223,4 @@ exports.logHttpServerUrl = logHttpServerUrl
 exports.urlLogFile = urlLogFile
 exports.baseUrl = baseUrl
 exports.versionsCheck = versionsCheck
+exports.featureLevel = featureLevel

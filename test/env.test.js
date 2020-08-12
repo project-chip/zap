@@ -41,3 +41,7 @@ test('Main database', () =>
 test('Versions check', () => {
   expect(env.versionsCheck()).toBeTruthy()
 })
+
+test('Feature level', () => {
+  expect(env.featureLevel).toBeGreaterThan(0)
+})
