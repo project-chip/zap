@@ -51,7 +51,8 @@ limitations under the License.
           <div>
             <q-select
               outlined
-              v-model="test"
+              v-model="filter"
+              :options="filterOptions"
               bg-color="white"
               dense
               class="col-2"
@@ -65,6 +66,7 @@ limitations under the License.
           bg-color="white"
           class="col-4"
           placeholder="Search Clusters"
+          v-model="filterString"
         >
           <template v-slot:prepend>
             <q-icon name="search" />
@@ -73,8 +75,15 @@ limitations under the License.
       </div>
       <q-list>
         <div v-for="domainName in domainNames" :key="domainName">
-          <q-expansion-item :label="domainName" icon="play_arrow">
-            <zcl-domain-cluster-view :domainName="domainName" />
+          <q-expansion-item
+            :label="domainName"
+            icon="play_arrow"
+            v-show="clusterDomains(domainName).length > 0"
+          >
+            <zcl-domain-cluster-view
+              :domainName="domainName"
+              :clusters="clusterDomains(domainName)"
+            />
           </q-expansion-item>
         </div>
       </q-list>
@@ -86,6 +95,7 @@ import ZclDomainClusterView from './ZclDomainClusterView.vue'
 
 export default {
   name: 'ZclClusterManager',
+  props: ['endpointTypeReference'],
   computed: {
     selectedEndpointId: {
       get() {
@@ -114,10 +124,39 @@ export default {
         return this.$store.state.zap.clusters
       },
     },
+    relevantClusters: {
+      get() {
+        return this.clusters
+          .filter((cluster) =>
+            this.filterString == ''
+              ? true
+              : cluster.label
+                  .toLowerCase()
+                  .includes(this.filterString.toLowerCase())
+          )
+          .filter((cluster) => {
+            return this.filter == 'Only Enabled'
+              ? this.isClusterEnabled(cluster.id)
+              : true
+          })
+      },
+    },
+    selectionClients: {
+      get() {
+        return this.$store.state.zap.clustersView.selectedClients
+      },
+      set(val) {},
+    },
+    selectionServers: {
+      get() {
+        return this.$store.state.zap.clustersView.selectedServers
+      },
+      set(val) {},
+    },
   },
   methods: {
     clusterDomains(domainName) {
-      return this.clusters
+      return this.relevantClusters
         .filter((a) => {
           return a.domainName == domainName
         })
@@ -125,10 +164,18 @@ export default {
           return a.code > b.code
         })
     },
+    isClusterEnabled(clusterReference) {
+      return (
+        this.selectionClients.includes(clusterReference) ||
+        this.selectionServers.includes(clusterReference)
+      )
+    },
   },
   data() {
     return {
-      test: 'All Clusters',
+      filter: 'All Clusters',
+      filterOptions: ['All Clusters', 'Only Enabled'],
+      filterString: '',
     }
   },
   components: {

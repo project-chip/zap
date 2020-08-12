@@ -17,7 +17,7 @@ limitations under the License.
 <template>
   <div>
     <q-table
-      :data="clusterDomains(domainName)"
+      :data="clusters"
       :columns="columns"
       :rows-per-page-options="[0]"
       hide-pagination
@@ -67,13 +67,8 @@ limitations under the License.
 <script>
 export default {
   name: 'ZclDomainClusterView',
-  props: ['domainName'],
+  props: ['domainName', 'clusters'],
   computed: {
-    clusters: {
-      get() {
-        return this.$store.state.zap.clusters
-      },
-    },
     recommendedClients: {
       get() {
         return this.$store.state.zap.clustersView.recommendedClients
@@ -103,15 +98,6 @@ export default {
     },
   },
   methods: {
-    clusterDomains(domainName) {
-      return this.clusters
-        .filter((a) => {
-          return a.domainName == domainName
-        })
-        .sort(function (b, a) {
-          return a.code > b.code
-        })
-    },
     isClusterRequired(id) {
       let clientRequired = this.recommendedClients.includes(id)
       let serverRequired = this.recommendedServers.includes(id)
@@ -166,7 +152,7 @@ export default {
       columns: [
         {
           name: 'label',
-          requried: true,
+          requiried: true,
           label: 'Cluster',
           align: 'left',
           field: (row) => row.label,
@@ -174,7 +160,7 @@ export default {
         },
         {
           name: 'requiredCluster',
-          requried: true,
+          requiried: true,
           label: 'Required Cluster',
           align: 'center',
           field: (row) => this.isClusterRequired(row.id),
@@ -182,7 +168,7 @@ export default {
         },
         {
           name: 'clusterId',
-          requried: false,
+          requiried: false,
           label: 'Cluster Id',
           align: 'left',
           field: (row) => row.code,
@@ -190,7 +176,7 @@ export default {
         },
         {
           name: 'manufacturerId',
-          requried: false,
+          requiried: false,
           label: 'Manufacturer ID',
           align: 'left',
           field: (row) => (row.manufacturerCode ? row.manufacturerCode : '---'),
@@ -198,7 +184,7 @@ export default {
         },
         {
           name: 'options',
-          requried: false,
+          requiried: false,
           label: 'Options',
           align: 'left',
           field: (row) => 'test',
