@@ -41,25 +41,29 @@ if (process.env.DEV) {
 // Registration of all app listeners, the main lifecycle of the application
 if (app != null) {
   app.whenReady().then(() => {
-    var argv = args.processCommandLineArguments(process.argv)
+    try {
+      var argv = args.processCommandLineArguments(process.argv)
 
-    if (argv.clearDb != null) {
-      startup.clearDatabaseFile()
-    }
+      if (argv.clearDb != null) {
+        startup.clearDatabaseFile()
+      }
 
-    if (argv._.includes('selfCheck')) {
-      startup.startSelfCheck()
-    } else if (argv._.includes('generate')) {
-      startup.startGeneration(
-        argv.output,
-        argv.genTemplateJson,
-        argv.zclProperties,
-        argv.zapFile
-      )
-    } else if (argv._.includes('sdkGen')) {
-      startup.startSdkGeneration(argv.output, argv.zclProperties)
-    } else {
-      startup.startNormal(!argv.noUi, argv.showUrl, argv.uiMode)
+      if (argv._.includes('selfCheck')) {
+        startup.startSelfCheck()
+      } else if (argv._.includes('generate')) {
+        startup.startGeneration(
+          argv.output,
+          argv.genTemplateJson,
+          argv.zclProperties,
+          argv.zapFile
+        )
+      } else if (argv._.includes('sdkGen')) {
+        startup.startSdkGeneration(argv.output, argv.zclProperties)
+      } else {
+        startup.startNormal(!argv.noUi, argv.showUrl, argv.uiMode)
+      }
+    } catch (err) {
+      app.exit(1)
     }
   })
 

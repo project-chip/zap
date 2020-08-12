@@ -26,7 +26,7 @@ function executeCmd(ctx, cmd, args) {
       if (code == 0) resolve(ctx)
       else {
         console.log(`👎 Program ${cmd} exited with error code: ${code}`)
-        reject()
+        reject(code)
       }
     })
     c.stdout.on('data', (data) => {
