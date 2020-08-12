@@ -17,6 +17,7 @@
 
 const { app } = require('electron')
 const fs = require('fs')
+const path = require('path')
 
 const dbApi = require('../db/db-api.js')
 const sdkGen = require('../sdk-gen/sdk-gen.js')
@@ -148,7 +149,38 @@ function startGeneration(
     👉 using zcl data: ${zclProperties}`
     )
   if (zapFile != null) {
-    if (options.log) console.log(`    👉 using input file: ${zapFile}`)
+    if (fs.existsSync(zapFile)) {
+      var stat = fs.statSync(zapFile)
+      if (stat.isDirectory()) {
+        if (options.log) console.log(`    👉 using input directory: ${zapFile}`)
+        var dirents = fs.readdirSync(zapFile, { withFileTypes: true })
+        var usedFile = []
+        dirents.forEach((element) => {
+          if (element.name.endsWith('.zap') || element.name.endsWith('.ZAP')) {
+            usedFile.push(path.join(zapFile, element.name))
+          }
+        })
+        if (usedFile.length == 0) {
+          if (options.log)
+            console.log(`    👎 no zap files found in directory: ${zapFile}`)
+          throw `👎 no zap files found in directory: ${zapFile}`
+        } else if (usedFile.length > 1) {
+          if (options.log)
+            console.log(
+              `    👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
+            )
+          throw `👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
+        } else {
+          zapFile = usedFile
+          if (options.log) console.log(`    👉 using input file: ${zapFile}`)
+        }
+      } else {
+        if (options.log) console.log(`    👉 using input file: ${zapFile}`)
+      }
+    } else {
+      if (options.log) console.log(`    👎 file not found: ${zapFile}`)
+      throw `👎 file not found: ${zapFile}`
+    }
   } else {
     if (options.log) console.log(`    👉 using empty configuration`)
   }
