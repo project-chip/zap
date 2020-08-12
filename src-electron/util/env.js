@@ -23,6 +23,15 @@ const { version } = require('../../package.json')
 const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
 
+// Feature level:
+//    please increase this with care. Increasing this number means that
+//    when you save a.zap file, anyone with an older feature level will
+//    NOT BE ABLE to read it in. So use this only in cases of real
+//    file compatibility issues, where you are ok with forcing everyone
+//    else to upgrade.
+//    Do note, that zap should still ALWAYS be able to read in older
+//    files, so this only affects forward compatibility, not backwards compatibility.
+//
 const featureLevel = 1
 
 // Basic environment tie-ins
