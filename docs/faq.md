@@ -37,7 +37,16 @@ apt-get update
 apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev
 ```
 
-- OSX on a Mac: TBD.
+- OSX on a Mac:
+
+```
+Using Homebrew install the following:
+- pixman
+- cairo
+- pango
+- libjpeg
+for example: brew install pixman
+```
 
 - Windows: see next FAQ entry: "How to make this work on Windows?".
 
