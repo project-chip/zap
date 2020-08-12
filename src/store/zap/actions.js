@@ -240,7 +240,7 @@ export function addEndpointType(context, endpointTypeData) {
 }
 
 export function removeEndpointType(context, endpointTypeData) {
-  Vue.prototype.$serverPose('endpointType', endpointTypeData).then((data) => {
+  Vue.prototype.$serverPost('endpointType', endpointTypeData).then((data) => {
     let arg = data.data
     if (arg.successful) {
       context.commit('removeEndpointType', {
