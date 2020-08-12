@@ -15,30 +15,31 @@ limitations under the License.
 -->
 <template>
   <div>
-    <q-page padding>
-      <div class="row q-py-none">
-        <q-btn
-          flat
-          dense
-          color="primary"
-          size="xs"
+    <div class="row q-py-md">
+      <q-breadcrumbs>
+        <!-- this needs to be updated depending on how the pages will work -->
+        <q-breadcrumbs-el
           icon="keyboard_arrow_left"
-        />
-        <q-breadcrumbs>
-          <!-- this needs to be updated depending on how the pages will work -->
-          <q-breadcrumbs-el label="Endpoint x0001" to="/"></q-breadcrumbs-el>
-          <q-breadcrumbs-el label="General Clusters" to="/"></q-breadcrumbs-el>
-          <q-breadcrumbs-el to="/">{{ item.label }}</q-breadcrumbs-el>
-        </q-breadcrumbs>
-      </div>
+          label="Endpoint x0001"
+          to="/"
+        ></q-breadcrumbs-el>
+        <q-breadcrumbs-el
+          :label="clusters[selectedCluster].domainName"
+          to="/"
+        ></q-breadcrumbs-el>
+        <q-breadcrumbs-el to="/">{{
+          clusters[selectedCluster].label
+        }}</q-breadcrumbs-el>
+      </q-breadcrumbs>
+    </div>
 
-      <h2 class="q-py-sm">
-        <b>{{ item.label }}</b>
-      </h2>
+    <h2 class="q-py-sm">
+      {{ clusters[selectedCluster].label }}
+    </h2>
 
-      <div class="row q-py-none">
-        <div class="col">
-          <p v-if="selectionServer && selectionClient">
+    <div class="row q-py-none">
+      <div class="col">
+        <!-- <p v-if="selectionServer && selectionClient">
             Cluster ID: 0x000{{ item.id }}, Enabled for <b>Server</b> and
             <b>Client</b>
           </p>
@@ -48,39 +49,38 @@ limitations under the License.
           <p v-else-if="selectionServer && ~selectionClient">
             Cluster ID: 0x000{{ item.id }}, Enable for <b>Server</b>
           </p>
-          <p v-else>Cluster ID: 0x000{{ item.id }}, Disabled for <b>all</b></p>
-        </div>
-        <div>
-          <q-toggle
+          <p v-else>Cluster ID: 0x000{{ item.id }}, Disabled for <b>all</b></p> -->
+      </div>
+      <div>
+        <!-- <q-toggle
             v-model="clusters.commandDiscovery"
             label="Enable Command Discovery"
-          ></q-toggle>
-          <q-btn round flat icon="info" size="md" color="grey">
-            <q-tooltip>
-              An explanation of toggling Enable Command Discovery
-            </q-tooltip>
-          </q-btn>
-        </div>
+          ></q-toggle> -->
+        <q-btn round flat icon="info" size="md" color="grey">
+          <q-tooltip>
+            An explanation of toggling Enable Command Discovery
+          </q-tooltip>
+        </q-btn>
       </div>
+    </div>
 
-      <div class="q-pb-sm">
-        <q-tabs v-model="tab" dense active-color="blue" align="left">
-          <q-tab name="attributes" label="Attributes" />
-          <q-tab name="reporting" label="Reporting" />
-          <q-tab name="commands" label="Commands" />
-        </q-tabs>
+    <div class="q-pb-sm">
+      <q-tabs v-model="tab" dense active-color="blue" align="left">
+        <q-tab name="attributes" label="Attributes" />
+        <q-tab name="reporting" label="Reporting" />
+        <q-tab name="commands" label="Commands" />
+      </q-tabs>
 
-        <div class="col" v-show="tab == 'attributes'">
-          <ZclAttributeView />
-        </div>
-        <div class="col" v-show="tab == 'commands'">
-          <ZclCommandnewView />
-        </div>
-        <div class="col" v-show="tab == 'reporting'">
-          <ZclReportingView />
-        </div>
+      <div class="col" v-show="tab == 'attributes'">
+        <!-- <ZclAttributeView /> -->
       </div>
-    </q-page>
+      <div class="col" v-show="tab == 'commands'">
+        <!-- <ZclCommandnewView /> -->
+      </div>
+      <div class="col" v-show="tab == 'reporting'">
+        <!-- <ZclReportingView /> -->
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -93,12 +93,16 @@ export default {
   name: 'ZclClusterView',
   onMounted() {},
   computed: {
-    item: {
+    selectedCluster: {
       get() {
         return this.$store.state.zap.clustersView.selected[0]
       },
     },
-
+    clusters: {
+      get() {
+        return this.$store.state.zap.clusters
+      },
+    },
     selectedEndpointId: {
       get() {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
@@ -120,21 +124,10 @@ export default {
 
   data() {
     return {
-      clusters: {
-        locationBreadcrums: [
-          'Endpoint x0001',
-          'General Clusters',
-          'Configure On/Off',
-        ],
-      },
       tab: 'attributes',
     }
   },
 
-  components: {
-    ZclAttributeView,
-    ZclCommandnewView,
-    ZclReportingView,
-  },
+  components: {},
 }
 </script>
