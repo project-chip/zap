@@ -17,6 +17,7 @@
 
 const queryZcl = require('../db/query-zcl.js')
 const templateUtil = require('./template-util.js')
+const bin = require('../util/bin.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -73,7 +74,7 @@ function asSymbol(value) {
 }
 
 // Formats the default value into an attribute of a given length
-function formatValue(value, length, isSigned) {
+function formatValue(value, length, type) {
   var out = ''
   if (length < 0) {
     out = out.concat(value.length())
@@ -82,7 +83,30 @@ function formatValue(value, length, isSigned) {
       out = out.concat(",'").concat(ch).concat("'")
     }
   } else {
-    out = out.concat(value)
+    if (type.startsWith('int')) {
+      var val = 0
+      if (value.startsWith('0x') || value.startsWith('0X')) {
+        val = parseInt(value.slice(2), 16)
+      } else {
+        val = parseInt(value)
+      }
+      if (Number.isNaN(val)) {
+        val = 0
+      }
+      switch (length) {
+        case 1:
+          out = out.concat(bin.hexToCBytes(bin.int8ToHex(val)))
+          break
+        case 2:
+          out = out.concat(bin.hexToCBytes(bin.int16ToHex(val)))
+          break
+        case 4:
+          out = out.concat(bin.hexToCBytes(bin.int32ToHex(val)))
+          break
+      }
+    } else {
+      out = out.concat(value)
+    }
   }
   return out
 }
@@ -105,11 +129,7 @@ function asBytes(value, type) {
         if (x == -1) {
           return value
         } else {
-          return formatValue(
-            value,
-            x,
-            type.startsWith('int') && type.endsWith('u')
-          )
+          return formatValue(value, x, type)
         }
       })
   }
