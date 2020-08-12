@@ -171,7 +171,7 @@ function startGeneration(
             )
           throw `👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
         } else {
-          zapFile = usedFile
+          zapFile = usedFile[0]
           if (options.log) console.log(`    👉 using input file: ${zapFile}`)
         }
       } else {
