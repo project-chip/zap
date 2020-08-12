@@ -175,7 +175,7 @@ export default {
           })
           this.$store.dispatch('zap/updateSelectedEndpointType', {
             endpointType: response.id,
-            deviceTypeRef: this.endpointDeviceTypeRef[eptId],
+            deviceTypeRef: this.endpointDeviceTypeRef[response.id],
           })
         })
     },

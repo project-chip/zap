@@ -20,7 +20,7 @@ limitations under the License.
       <div class="row">
         <q-toolbar>
           <q-toolbar-title style="font-weight: bolder;">
-            Endpoint 0x{{ this.endpointId[this.selectedEndpointId] }} Clusters
+            Endpoint x{{ this.endpointId[this.selectedEndpointId] }} Clusters
           </q-toolbar-title>
         </q-toolbar>
       </div>
@@ -72,9 +72,9 @@ limitations under the License.
         </q-input>
       </div>
       <q-list>
-        <div v-for="domain in domains" :key="domain">
-          <q-expansion-item :label="domain" icon="play_arrow">
-            This is the {{ domain }} clusters
+        <div v-for="domainName in domainNames" :key="domainName">
+          <q-expansion-item :label="domainName" icon="play_arrow">
+            <zcl-domain-cluster-view :domainName="domainName" />
           </q-expansion-item>
         </div>
       </q-list>
@@ -82,6 +82,8 @@ limitations under the License.
   </div>
 </template>
 <script>
+import ZclDomainClusterView from './ZclDomainClusterView.vue'
+
 export default {
   name: 'ZclClusterManager',
   computed: {
@@ -100,19 +102,37 @@ export default {
         return this.$store.state.zap.endpointView.endpointType
       },
     },
-    domains: {
+    domainNames: {
       get() {
         return [
           ...new Set(this.$store.state.zap.clusters.map((a) => a.domainName)),
         ]
       },
     },
+    clusters: {
+      get() {
+        return this.$store.state.zap.clusters
+      },
+    },
   },
-  methods: {},
+  methods: {
+    clusterDomains(domainName) {
+      return this.clusters
+        .filter((a) => {
+          return a.domainName == domainName
+        })
+        .sort(function (b, a) {
+          return a.code > b.code
+        })
+    },
+  },
   data() {
     return {
       test: 'All Clusters',
     }
+  },
+  components: {
+    ZclDomainClusterView,
   },
 }
 </script>
