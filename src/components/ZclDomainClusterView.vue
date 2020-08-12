@@ -45,14 +45,19 @@ limitations under the License.
           </q-td>
           <q-td key="options" :props="props">
             <q-select
-              v-model="test"
+              :v-model="getClusterEnabledStatus(props.row.id)"
+              :display-value="`${getClusterEnabledStatus(props.row.id)}`"
+              :options="clusterSelectionOptions"
               dense
               outlined
-              :options="clusterSelectionOptions"
+              @input="handleClusterSelection(props.row.id, $event)"
             />
           </q-td>
           <q-td key="configure" :props="props">
-            <q-icon name="settings" color="primary" />
+            <q-icon
+              name="settings"
+              :color="isClusterEnabled(props.row.id) ? 'primary' : 'grey'"
+            />
           </q-td>
         </q-tr>
       </template>
@@ -79,6 +84,23 @@ export default {
         return this.$store.state.zap.clustersView.recommendedServers
       },
     },
+    selectionClients: {
+      get() {
+        return this.$store.state.zap.clustersView.selectedClients
+      },
+      set(val) {},
+    },
+    selectionServers: {
+      get() {
+        return this.$store.state.zap.clustersView.selectedServers
+      },
+      set(val) {},
+    },
+    selectedEndpointTypeId: {
+      get() {
+        return this.$store.state.zap.endpointTypeView.selectedEndpointType
+      },
+    },
   },
   methods: {
     clusterDomains(domainName) {
@@ -98,11 +120,49 @@ export default {
       if (serverRequired) return 'Server'
       return ''
     },
+    isClusterEnabled(id) {
+      return (
+        this.selectionClients.includes(id) || this.selectionServers.includes(id)
+      )
+    },
+    getClusterEnabledStatus(id) {
+      let hasClient = this.selectionClients.includes(id)
+      let hasServer = this.selectionServers.includes(id)
+      if (hasClient && hasServer) return 'Client & Server'
+      if (hasClient) return 'Client'
+      if (hasServer) return 'Server'
+      return '---'
+    },
+
+    handleClusterSelection(id, event) {
+      let clientSelected = event.client
+      let serverSelected = event.server
+
+      this.$store.dispatch('zap/updateSelectedClients', {
+        endpointTypeId: this.selectedEndpointTypeId,
+        id: id,
+        added: clientSelected,
+        listType: 'selectedClients',
+        view: 'clustersView',
+      })
+
+      this.$store.dispatch('zap/updateSelectedServers', {
+        endpointTypeId: this.selectedEndpointTypeId,
+        id: id,
+        added: serverSelected,
+        listType: 'selectedServers',
+        view: 'clustersView',
+      })
+    },
   },
   data() {
     return {
-      test: [],
-      clusterSelectionOptions: ['--', 'Client', 'Server', 'Client & Server'],
+      clusterSelectionOptions: [
+        { label: '---', client: false, server: false },
+        { label: 'Client', client: true, server: false },
+        { label: 'Server', client: false, server: true },
+        { label: 'Client & Server', client: true, server: true },
+      ],
       columns: [
         {
           name: 'label',
