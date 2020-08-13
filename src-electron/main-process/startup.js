@@ -213,7 +213,10 @@ function startGeneration(
         sessionId,
         packageId,
         output,
-        options.log
+        {
+          log: options.log,
+          backup: true,
+        }
       )
     )
     .then(() => {

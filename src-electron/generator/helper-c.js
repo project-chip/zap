@@ -32,7 +32,9 @@ const bin = require('../util/bin.js')
  * @returns Label formatted as C macro.
  */
 function asMacro(label) {
-  return label.toUpperCase().replace(/ /g, '_')
+  var l = label.toUpperCase().replace(/ /g, '_')
+  l = l.replace(/[:/]/g, '_')
+  return l
 }
 
 /**

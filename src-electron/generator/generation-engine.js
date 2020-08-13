@@ -18,8 +18,8 @@
 /**
  * @module JS API: generator logic
  */
-
-const fsPromise = require('fs').promises
+const fs = require('fs')
+const fsPromise = fs.promises
 const path = require('path')
 const util = require('../util/util.js')
 const queryPackage = require('../db/query-package.js')
@@ -190,6 +190,17 @@ function generate(db, sessionId, packageId, generateOnly = null) {
   })
 }
 
+function writeFile(fileName, content, doBackup) {
+  if (doBackup && fs.existsSync(fileName)) {
+    var backupName = fileName.concat('~')
+    fsPromise
+      .rename(fileName, backupName)
+      .then(() => fsPromise.writeFile(fileName, content))
+  } else {
+    return fsPromise.writeFile(fileName, content)
+  }
+}
+
 /**
  * Generate files and write them into the given directory.
  *
@@ -204,17 +215,20 @@ function generateAndWriteFiles(
   sessionId,
   packageId,
   outputDirectory,
-  output = false
+  options = {
+    log: false,
+    backup: false,
+  }
 ) {
   return generate(db, sessionId, packageId).then((genResult) => {
-    if (output) console.log('🤖 Generating files:')
+    if (options.log) console.log('🤖 Generating files:')
     var promises = []
     for (const f in genResult.content) {
       var content = genResult.content[f]
       var fileName = path.join(outputDirectory, f)
-      if (output) console.log(`    ✍  ${fileName}`)
+      if (options.log) console.log(`    ✍  ${fileName}`)
       env.logInfo(`Preparing to write file: ${fileName}`)
-      promises.push(fsPromise.writeFile(fileName, content))
+      promises.push(writeFile(fileName, content, options.backup))
     }
     return Promise.all(promises)
   })
