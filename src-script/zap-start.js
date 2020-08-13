@@ -27,6 +27,9 @@ console.log(`node version: ${process.version}`)
 
 var fileName = path.join(spaDir, 'hash.json')
 
+//workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
+process.env.PATH = process.env.PATH + ':/usr/local/bin/'
+
 hashElement('src', hashOptions)
   .then((currentHash) => {
     console.log(`🔍 Current  hash: ${currentHash.hash}`)
