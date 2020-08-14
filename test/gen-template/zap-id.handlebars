@@ -4,7 +4,7 @@
 
 // Global, non-cluster-specific things
 {{#zcl_global_commands}}
-#define ZCL_{{asMacro label}}_COMMAND_ID ({{asHex code}})
+#define ZCL_{{asDelimitedMacro label}}_COMMAND_ID ({{asHex code}})
 {{/zcl_global_commands}}
 
 {{#zcl_clusters}}

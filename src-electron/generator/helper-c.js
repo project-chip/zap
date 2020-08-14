@@ -26,7 +26,8 @@ const bin = require('../util/bin.js')
  */
 
 /**
- * Formats label as a C macro.
+ * Formats label as a C macro. This method performs a very simply substition
+ * of illegal characters, such as ' ', ':' and such into a '_' character.
  *
  * @param {*} label
  * @returns Label formatted as C macro.
@@ -37,6 +38,31 @@ function asMacro(label) {
   l = l.replace('___', '_')
   l = l.replace('__', '_')
   return l
+}
+
+/**
+ * Takes a label, and delimits is on camelcasing.
+ * For example:
+ *    VerySimpleLabel will turn into VERY_SIMPLE_LABEL
+ * @param {*} label
+ */
+function asDelimitedMacro(label) {
+  var ret = ''
+  if (label == null) return ret
+
+  for (var i = 0; i < label.length; i++) {
+    var ch = label.charAt(i)
+    var upch = ch.toUpperCase()
+    if (ch == upch) {
+      // uppercase
+      if (i != 0) ret = ret.concat('_')
+      ret = ret.concat(ch.toUpperCase())
+    } else {
+      // lowercase
+      ret = ret.concat(upch)
+    }
+  }
+  return ret
 }
 
 /**
@@ -149,3 +175,4 @@ exports.asHex = asHex
 exports.asType = asType
 exports.asSymbol = asSymbol
 exports.asBytes = asBytes
+exports.asDelimitedMacro = asDelimitedMacro
