@@ -33,7 +33,9 @@ const bin = require('../util/bin.js')
  */
 function asMacro(label) {
   var l = label.toUpperCase().replace(/ /g, '_')
-  l = l.replace(/[:/]/g, '_')
+  l = l.replace(/[:/-]/g, '_')
+  l = l.replace('___', '_')
+  l = l.replace('__', '_')
   return l
 }
 
