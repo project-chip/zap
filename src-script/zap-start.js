@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 
+const { spawn } = require('cross-spawn')
 const { hashElement } = require('folder-hash')
 const hashOptions = {}
 const spaDir = 'dist/spa'
@@ -25,6 +26,9 @@ const scriptUtil = require('./script-util.js')
 console.log(`node version: ${process.version}`)
 
 var fileName = path.join(spaDir, 'hash.json')
+
+//workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
+process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 
 hashElement('src', hashOptions)
   .then((currentHash) => {

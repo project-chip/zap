@@ -20,11 +20,11 @@ limitations under the License.
       <div class="row">
         <q-toolbar>
           <q-toolbar-title style="font-weight: bolder;">
-            Endpoint 0x{{ this.endpointId[this.selectedEndpointId] }} Clusters
+            Endpoint x{{ this.endpointId[this.selectedEndpointId] }} Clusters
           </q-toolbar-title>
         </q-toolbar>
       </div>
-      <div class="row bar">
+      <div class="row bar align=left;">
         <q-btn
           class="col-6 left"
           align="left"
@@ -51,7 +51,8 @@ limitations under the License.
           <div>
             <q-select
               outlined
-              v-model="test"
+              v-model="filter"
+              :options="filterOptions"
               bg-color="white"
               dense
               class="col-2"
@@ -65,18 +66,35 @@ limitations under the License.
           bg-color="white"
           class="col-4"
           placeholder="Search Clusters"
+          v-model="filterString"
         >
           <template v-slot:prepend>
             <q-icon name="search" />
           </template>
         </q-input>
       </div>
+      <q-list>
+        <div v-for="domainName in domainNames" :key="domainName">
+          <div v-show="clusterDomains(domainName).length > 0">
+            <q-expansion-item :label="domainName" icon="play_arrow">
+              <zcl-domain-cluster-view
+                :domainName="domainName"
+                :clusters="clusterDomains(domainName)"
+              />
+            </q-expansion-item>
+            <q-separator />
+          </div>
+        </div>
+      </q-list>
     </q-card>
   </div>
 </template>
 <script>
+import ZclDomainClusterView from './ZclDomainClusterView.vue'
+
 export default {
   name: 'ZclClusterManager',
+  props: ['endpointTypeReference'],
   computed: {
     selectedEndpointId: {
       get() {
@@ -93,12 +111,74 @@ export default {
         return this.$store.state.zap.endpointView.endpointType
       },
     },
+    domainNames: {
+      get() {
+        return [
+          ...new Set(this.$store.state.zap.clusters.map((a) => a.domainName)),
+        ]
+      },
+    },
+    clusters: {
+      get() {
+        return this.$store.state.zap.clusters
+      },
+    },
+    relevantClusters: {
+      get() {
+        return this.clusters
+          .filter((cluster) =>
+            this.filterString == ''
+              ? true
+              : cluster.label
+                  .toLowerCase()
+                  .includes(this.filterString.toLowerCase())
+          )
+          .filter((cluster) => {
+            return this.filter == 'Only Enabled'
+              ? this.isClusterEnabled(cluster.id)
+              : true
+          })
+      },
+    },
+    selectionClients: {
+      get() {
+        return this.$store.state.zap.clustersView.selectedClients
+      },
+      set(val) {},
+    },
+    selectionServers: {
+      get() {
+        return this.$store.state.zap.clustersView.selectedServers
+      },
+      set(val) {},
+    },
   },
-  methods: {},
+  methods: {
+    clusterDomains(domainName) {
+      return this.relevantClusters
+        .filter((a) => {
+          return a.domainName == domainName
+        })
+        .sort(function (b, a) {
+          return a.code > b.code
+        })
+    },
+    isClusterEnabled(clusterReference) {
+      return (
+        this.selectionClients.includes(clusterReference) ||
+        this.selectionServers.includes(clusterReference)
+      )
+    },
+  },
   data() {
     return {
-      test: 'All Clusters',
+      filter: 'All Clusters',
+      filterOptions: ['All Clusters', 'Only Enabled'],
+      filterString: '',
     }
+  },
+  components: {
+    ZclDomainClusterView,
   },
 }
 </script>

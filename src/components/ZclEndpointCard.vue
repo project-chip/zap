@@ -136,12 +136,23 @@ export default {
       return '0x' + this.endpointId[endpointRef].toString(16).padStart(4, '0')
     },
     deleteEpt() {
-      this.$store.dispatch('zap/deleteEndpoint', {
-        action: RestApi.action.delete,
-        context: {
-          id: this.endpointReference,
-        },
-      })
+      let endpointReference = this.endpointReference
+      this.$store
+        .dispatch('zap/deleteEndpoint', {
+          action: RestApi.action.delete,
+          context: {
+            id: endpointReference,
+          },
+        })
+        .then(() => {
+          let context = {
+            action: RestApi.action.delete,
+            context: {
+              id: this.endpointType[endpointReference],
+            },
+          }
+          this.$store.dispatch('zap/removeEndpointType', context)
+        })
     },
     setSelectedEndpointType() {
       this.$store.dispatch('zap/updateSelectedEndpointType', {

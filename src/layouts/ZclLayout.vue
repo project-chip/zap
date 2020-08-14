@@ -67,7 +67,7 @@ limitations under the License.
               </q-expansion-item>
             </q-tab-panel>
             <q-tab-panel :name="restApi.uiMode.OLD">
-              <ZclClusterLayout />
+              <ZclOldClusterLayout />
             </q-tab-panel>
             <q-tab-panel :name="restApi.uiMode.ZIGBEE">
               <zcl-configurator-layout />
@@ -231,7 +231,7 @@ limitations under the License.
 import UcComponentSetup from '../components/UcComponentSetup.vue'
 import ZclApplicationSetup from '../components/ZclApplicationSetup.vue'
 import ZclInformationSetup from '../components/ZclInformationSetup.vue'
-import ZclClusterLayout from './ZclClusterLayout.vue'
+import ZclOldClusterLayout from './ZclOldClusterLayout.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
 const restApi = require(`../../src-shared/rest-api.js`)
@@ -252,16 +252,6 @@ export default {
         })
         .catch((err) => console.log('Server Get:' + err))
     },
-
-    setThemeMode(bodyElement) {
-      const theme = bodyElement.getAttribute('data-theme')
-      if (theme === 'com.silabs.ss.platform.theme.dark') {
-        this.$q.dark.set(true)
-      } else {
-        this.$q.dark.set(false)
-      }
-    },
-
     onScroll(info) {
       this.scrollInfo = info
       const scrollArea = this.$refs.generationScroll
@@ -287,7 +277,7 @@ export default {
     UcComponentSetup,
     ZclApplicationSetup,
     ZclInformationSetup,
-    ZclClusterLayout,
+    ZclOldClusterLayout,
     ZclConfiguratorLayout,
     SqlQuery,
   },
@@ -310,47 +300,6 @@ export default {
       maxIndex: 0,
     }
   },
-  mounted() {
-    this.zclDialogTitle = 'ZCL tab!'
-    this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
-    this.zclDialogFlag = false
-    var html = document.documentElement
-    this.setThemeMode(html)
-    new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (
-          mutation.type === 'attributes' &&
-          mutation.attributeName === 'data-theme'
-        ) {
-          this.setThemeMode(html)
-        }
-      })
-    }).observe(html, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
-      subtree: false,
-    })
-    this.$store.dispatch('zap/loadInitialData')
-    this.$store.dispatch('zap/loadOptions', {
-      key: 'defaultResponsePolicy',
-      type: 'string',
-    })
-    this.$store.dispatch('zap/loadOptions', {
-      key: 'manufacturerCodes',
-      type: 'object',
-    })
-    this.$serverOn('zcl-item-list', (event, arg) => {
-      if (arg.type === 'cluster') {
-        this.$store.dispatch('zap/updateClusters', arg.data)
-      }
-    })
-    this.$serverGet('/zcl/cluster/all')
-    this.$serverOn('zcl-item-list', (event, arg) => {
-      if (arg.type === 'device_type') {
-        this.$store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
-      }
-    })
-    this.$serverGet('/zcl/deviceType/all')
-  },
+  mounted() {},
 }
 </script>

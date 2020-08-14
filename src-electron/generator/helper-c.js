@@ -17,6 +17,7 @@
 
 const queryZcl = require('../db/query-zcl.js')
 const templateUtil = require('./template-util.js')
+const bin = require('../util/bin.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -25,13 +26,43 @@ const templateUtil = require('./template-util.js')
  */
 
 /**
- * Formats label as a C macro.
+ * Formats label as a C macro. This method performs a very simply substition
+ * of illegal characters, such as ' ', ':' and such into a '_' character.
  *
  * @param {*} label
  * @returns Label formatted as C macro.
  */
 function asMacro(label) {
-  return label.toUpperCase().replace(/ /g, '_')
+  var l = label.toUpperCase().replace(/ /g, '_')
+  l = l.replace(/[:/-]/g, '_')
+  l = l.replace('___', '_')
+  l = l.replace('__', '_')
+  return l
+}
+
+/**
+ * Takes a label, and delimits is on camelcasing.
+ * For example:
+ *    VerySimpleLabel will turn into VERY_SIMPLE_LABEL
+ * @param {*} label
+ */
+function asDelimitedMacro(label) {
+  var ret = ''
+  if (label == null) return ret
+
+  for (var i = 0; i < label.length; i++) {
+    var ch = label.charAt(i)
+    var upch = ch.toUpperCase()
+    if (ch == upch) {
+      // uppercase
+      if (i != 0) ret = ret.concat('_')
+      ret = ret.concat(ch.toUpperCase())
+    } else {
+      // lowercase
+      ret = ret.concat(upch)
+    }
+  }
+  return ret
 }
 
 /**
@@ -73,7 +104,7 @@ function asSymbol(value) {
 }
 
 // Formats the default value into an attribute of a given length
-function formatValue(value, length, isSigned) {
+function formatValue(value, length, type) {
   var out = ''
   if (length < 0) {
     out = out.concat(value.length())
@@ -82,7 +113,30 @@ function formatValue(value, length, isSigned) {
       out = out.concat(",'").concat(ch).concat("'")
     }
   } else {
-    out = out.concat(value)
+    if (type.startsWith('int')) {
+      var val = 0
+      if (value.startsWith('0x') || value.startsWith('0X')) {
+        val = parseInt(value.slice(2), 16)
+      } else {
+        val = parseInt(value)
+      }
+      if (Number.isNaN(val)) {
+        val = 0
+      }
+      switch (length) {
+        case 1:
+          out = out.concat(bin.hexToCBytes(bin.int8ToHex(val)))
+          break
+        case 2:
+          out = out.concat(bin.hexToCBytes(bin.int16ToHex(val)))
+          break
+        case 4:
+          out = out.concat(bin.hexToCBytes(bin.int32ToHex(val)))
+          break
+      }
+    } else {
+      out = out.concat(value)
+    }
   }
   return out
 }
@@ -105,11 +159,7 @@ function asBytes(value, type) {
         if (x == -1) {
           return value
         } else {
-          return formatValue(
-            value,
-            x,
-            type.startsWith('int') && type.endsWith('u')
-          )
+          return formatValue(value, x, type)
         }
       })
   }
@@ -125,3 +175,4 @@ exports.asHex = asHex
 exports.asType = asType
 exports.asSymbol = asSymbol
 exports.asBytes = asBytes
+exports.asDelimitedMacro = asDelimitedMacro

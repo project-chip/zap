@@ -207,7 +207,16 @@ function readDataFromFile(filePath) {
     fs.readFile(filePath, (err, data) => {
       if (err) reject(err)
       let state = JSON.parse(data)
-      resolve(state)
+      if (!('featureLevel' in state)) {
+        state.featureLevel = 0
+      }
+      if (state.featureLevel > env.featureLevel) {
+        reject(
+          `File requires feature level ${state.featureLevel}, we only have ${env.featureLevel}. Please upgrade your zap!`
+        )
+      } else {
+        resolve(state)
+      }
     })
   })
 }

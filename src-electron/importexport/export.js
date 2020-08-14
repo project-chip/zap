@@ -164,6 +164,7 @@ function createStateFromDatabase(db, sessionId) {
   return new Promise((resolve, reject) => {
     var state = {
       writeTime: new Date().toString(),
+      featureLevel: env.featureLevel,
       creator: 'zap',
     }
     var promises = []

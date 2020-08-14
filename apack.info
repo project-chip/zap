@@ -3,6 +3,7 @@
 label=Zigbee Advanced platform
 path=.
 requiredFeatureLevel=apack.core:7
+featureLevel=1
 
 id=zclConfigurator
 
@@ -20,7 +21,7 @@ executable(zap_regen) {
 }
 
 function(uc_generate) {
-  cmd=$(zap_regen) --out ${generationOutput} --zclProperties ${sdkRoot}/app/zcl/zcl-studio.properties --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json
+  cmd=$(zap_regen) --out ${generationOutput} --zclProperties ${sdkRoot}/app/zcl/zcl-studio.properties --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}
 }
 
 function(run) {

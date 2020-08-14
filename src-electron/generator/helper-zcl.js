@@ -115,6 +115,21 @@ function zcl_commands(options) {
 }
 
 /**
+ * Helper to iterate over all global commands.
+ *
+ * @param {*} options
+ * @returns Promise of global command iteration.
+ */
+function zcl_global_commands(options) {
+  return templateUtil
+    .ensurePackageId(this)
+    .then((packageId) =>
+      queryZcl.selectAllGlobalCommands(this.global.db, packageId)
+    )
+    .then((cmds) => templateUtil.collectBlocks(cmds, options.fn, this))
+}
+
+/**
  * Iterator over the attributes. If it is used at toplevel, if iterates over all the attributes
  * in the database. If used within zcl_cluster context, it iterates over all the attributes
  * that belong to that cluster.
@@ -235,3 +250,4 @@ exports.zcl_attributes = zcl_attributes
 exports.zcl_attributes_client = zcl_attributes_client
 exports.zcl_attributes_server = zcl_attributes_server
 exports.zcl_atomics = zcl_atomics
+exports.zcl_global_commands = zcl_global_commands

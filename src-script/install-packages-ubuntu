@@ -1,0 +1,5 @@
+#!/bin/bash
+#
+# Packages you have to install on Fedora to get source build to compile via npm install.
+#
+apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev

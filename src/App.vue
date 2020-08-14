@@ -24,6 +24,16 @@ limitations under the License.
 import restApi from '../src-shared/rest-api.js'
 export default {
   name: 'App',
+  methods: {
+    setThemeMode(bodyElement) {
+      const theme = bodyElement.getAttribute('data-theme')
+      if (theme === 'com.silabs.ss.platform.theme.dark') {
+        this.$q.dark.set(true)
+      } else {
+        this.$q.dark.set(false)
+      }
+    },
+  },
   mounted() {
     // Parse the query string into the front end.
     const querystring = require('querystring')
@@ -41,6 +51,47 @@ export default {
     if (query['studioProject']) {
       this.$store.dispatch('zap/setStudioConfigPath', query['studioProject'])
     }
+
+    this.zclDialogTitle = 'ZCL tab!'
+    this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
+    this.zclDialogFlag = false
+    var html = document.documentElement
+    this.setThemeMode(html)
+    new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'data-theme'
+        ) {
+          this.setThemeMode(html)
+        }
+      })
+    }).observe(html, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+      subtree: false,
+    })
+    this.$store.dispatch('zap/loadInitialData')
+    this.$store.dispatch('zap/loadOptions', {
+      key: 'defaultResponsePolicy',
+      type: 'string',
+    })
+    this.$store.dispatch('zap/loadOptions', {
+      key: 'manufacturerCodes',
+      type: 'object',
+    })
+    this.$serverOn('zcl-item-list', (event, arg) => {
+      if (arg.type === 'cluster') {
+        this.$store.dispatch('zap/updateClusters', arg.data)
+      }
+    })
+    this.$serverGet('/zcl/cluster/all')
+    this.$serverOn('zcl-item-list', (event, arg) => {
+      if (arg.type === 'device_type') {
+        this.$store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
+      }
+    })
+    this.$serverGet('/zcl/deviceType/all')
   },
 }
 </script>
