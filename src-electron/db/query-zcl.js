@@ -498,7 +498,18 @@ function selectAllGlobalCommands(db, packageId = null) {
   return dbApi
     .dbAll(
       db,
-      `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE CLUSTER_REF IS NULL ` +
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL
+FROM COMMAND
+WHERE CLUSTER_REF IS NULL ` +
         (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
         `ORDER BY CODE`,
       packageId != null ? [packageId] : []

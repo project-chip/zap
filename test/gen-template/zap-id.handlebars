@@ -1,8 +1,13 @@
 {{zap_header}}
 
 #ifndef __ZAP_GEN_ID__
-{{#zcl_clusters}}
 
+// Global, non-cluster-specific things
+{{#zcl_global_commands}}
+#define ZCL_{{asMacro label}}_COMMAND_ID ({{asHex code}})
+{{/zcl_global_commands}}
+
+{{#zcl_clusters}}
 
 // Definitions for cluster: {{label}}
 #define ZCL_{{asMacro label}}_CLUSTER_ID ({{asHex code}})
