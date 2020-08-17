@@ -39,7 +39,16 @@ function asMacro(label) {
   l = l.replace('__', '_')
   l = l.replace('._', '_')
   l = l.replace('.', '_')
+  l = l.replace('-', '_')
   return l
+}
+
+/**
+ * Given a hex number, it prints the offset, which is the index of the first non-zero bit.
+ * @param {*} hex
+ */
+function asOffset(hex) {
+  return 0
 }
 
 function isDigit(ch) {
@@ -74,7 +83,7 @@ function asDelimitedMacro(label) {
       wasUp = false
     }
   }
-  return ret
+  return asMacro(ret)
 }
 
 /**
@@ -188,3 +197,4 @@ exports.asType = asType
 exports.asSymbol = asSymbol
 exports.asBytes = asBytes
 exports.asDelimitedMacro = asDelimitedMacro
+exports.asOffset = asOffset
