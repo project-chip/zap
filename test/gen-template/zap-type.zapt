@@ -33,13 +33,9 @@ typedef enum {
 // ZCL bitmaps
 
 {{#zcl_bitmaps}}
-
-// Enum for {{label}}
-typedef enum {
 {{#zcl_bitmap_items}}
-{{ident}}EMBER_ZCL_{{asDelimitedMacro parent.label}}_{{asDelimitedMacro label}} = {{mask}},
+#define EMBER_AF_{{asDelimitedMacro parent.label}}_{{asDelimitedMacro label}} ({{mask}})
 {{/zcl_bitmap_items}}
-} EmberAf{{asType label}};
 {{/zcl_bitmaps}}
 
 /* COMMENT ALL THIS OUT TEMPORARILY
