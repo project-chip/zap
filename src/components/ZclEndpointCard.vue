@@ -156,7 +156,7 @@ export default {
     },
     setSelectedEndpointType() {
       this.$store.dispatch('zap/updateSelectedEndpointType', {
-        endpointType: this.endpointReference,
+        endpointType: this.endpointType[this.endpointReference],
         deviceTypeRef: this.endpointDeviceTypeRef[this.endpointReference],
       })
     },

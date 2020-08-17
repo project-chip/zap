@@ -16,46 +16,38 @@ limitations under the License.
 <template>
   <div>
     <div class="row q-py-md">
-      <q-breadcrumbs>
-        <!-- this needs to be updated depending on how the pages will work -->
-        <q-breadcrumbs-el
-          icon="keyboard_arrow_left"
-          label="Endpoint x0001"
-          to="/"
-        ></q-breadcrumbs-el>
-        <q-breadcrumbs-el
-          :label="clusters[selectedCluster].domainName"
-          to="/"
-        ></q-breadcrumbs-el>
-        <q-breadcrumbs-el to="/">{{
-          clusters[selectedCluster].label
-        }}</q-breadcrumbs-el>
-      </q-breadcrumbs>
+      <b>
+        <q-breadcrumbs>
+          <!-- this needs to be updated depending on how the pages will work -->
+          <q-breadcrumbs-el icon="keyboard_arrow_left" to="/">
+            Endpoint x{{ this.endpointId[this.selectedEndpointId] }}
+          </q-breadcrumbs-el>
+          <q-breadcrumbs-el to="/">
+            {{ clusters[selectedCluster].domainName }}
+          </q-breadcrumbs-el>
+          <q-breadcrumbs-el to="/">{{
+            clusters[selectedCluster].label
+          }}</q-breadcrumbs-el>
+        </q-breadcrumbs>
+      </b>
     </div>
 
-    <h2 class="q-py-sm">
-      {{ clusters[selectedCluster].label }}
-    </h2>
-
+    <h5 style="margin: 10px 0 0px;">
+      <b>
+        {{ clusters[selectedCluster].label }}
+      </b>
+    </h5>
     <div class="row q-py-none">
       <div class="col">
-        <!-- <p v-if="selectionServer && selectionClient">
-            Cluster ID: 0x000{{ item.id }}, Enabled for <b>Server</b> and
-            <b>Client</b>
-          </p>
-          <p v-else-if="~selectionServer && selectionClient">
-            Cluster ID: 0x000{{ item.id }}, Enabled for <b>Client</b>
-          </p>
-          <p v-else-if="selectionServer && ~selectionClient">
-            Cluster ID: 0x000{{ item.id }}, Enable for <b>Server</b>
-          </p>
-          <p v-else>Cluster ID: 0x000{{ item.id }}, Disabled for <b>all</b></p> -->
+        Cluster ID: {{ clusters[selectedCluster].code }}, Enabled for
+        <b> {{ enabledMessage }} </b>
       </div>
       <div>
-        <!-- <q-toggle
-            v-model="clusters.commandDiscovery"
-            label="Enable Command Discovery"
-          ></q-toggle> -->
+        <q-toggle
+          v-model="commandDiscoverySetting"
+          label="Enable Command Discovery"
+          @input="handleOptionChange('commandDiscovery', $event)"
+        ></q-toggle>
         <q-btn round flat icon="info" size="md" color="grey">
           <q-tooltip>
             An explanation of toggling Enable Command Discovery
@@ -93,6 +85,16 @@ export default {
   name: 'ZclClusterView',
   onMounted() {},
   computed: {
+    selectedEndpointId: {
+      get() {
+        return this.$store.state.zap.endpointTypeView.selectedEndpointType
+      },
+    },
+    endpointId: {
+      get() {
+        return this.$store.state.zap.endpointView.endpointId
+      },
+    },
     selectedCluster: {
       get() {
         return this.$store.state.zap.clustersView.selected[0]
@@ -101,11 +103,6 @@ export default {
     clusters: {
       get() {
         return this.$store.state.zap.clusters
-      },
-    },
-    selectedEndpointId: {
-      get() {
-        return this.$store.state.zap.endpointTypeView.selectedEndpointType
       },
     },
     selectionClient: {
@@ -120,8 +117,34 @@ export default {
       },
       set(val) {},
     },
+    enabledMessage: {
+      get() {
+        if (
+          this.selectionClient.includes(this.selectedCluster) &&
+          this.selectionServer.includes(this.selectedCluster)
+        )
+          return ' Client & Server'
+        if (this.selectionServer.includes(this.selectedCluster))
+          return ' Server'
+        if (this.selectionClient.includes(this.selectedCluster))
+          return ' Client'
+        return ' none'
+      },
+    },
+    commandDiscoverySetting: {
+      get() {
+        return this.$store.state.zap.selectedGenericOptions['commandDiscovery']
+      },
+    },
   },
-
+  methods: {
+    handleOptionChange(option, value) {
+      this.$store.dispatch('zap/setSelectedGenericKey', {
+        option: option,
+        value: value,
+      })
+    },
+  },
   data() {
     return {
       tab: 'attributes',
