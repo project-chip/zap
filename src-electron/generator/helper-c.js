@@ -37,6 +37,8 @@ function asMacro(label) {
   l = l.replace(/[:/-]/g, '_')
   l = l.replace('___', '_')
   l = l.replace('__', '_')
+  l = l.replace('._', '_')
+  l = l.replace('.', '_')
   return l
 }
 

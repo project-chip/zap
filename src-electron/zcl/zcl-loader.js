@@ -78,24 +78,37 @@ function collectData(ctx) {
         env.logError(`Could not read file: ${ctx.propertiesFile}`)
         reject(err)
       } else {
-        // We create our specific fileReader context
-        var fileLocation = path.join(
-          path.dirname(ctx.propertiesFile),
-          zclProps.xmlRoot
-        )
-
-        //ZCL Xml Files.
-        var zclFiles = zclProps.xmlFile
+        var fileLocations = zclProps.xmlRoot
           .split(',')
-          .map((data) => path.join(fileLocation, data.trim()))
-          .map((data) => path.resolve(data))
+          .map((p) => path.join(path.dirname(ctx.propertiesFile), p))
+        var zclFiles = []
+
+        // Iterate over all XML files in the properties file, and check
+        // if they exist in one or the other directory listed in xmlRoot
+        zclProps.xmlFile.split(',').forEach((f) => {
+          for (var i = 0; i < fileLocations.length; i++) {
+            var zclFile = path.resolve(fileLocations[i], f.trim())
+            if (fs.existsSync(zclFile)) {
+              zclFiles.push(zclFile)
+              break
+            }
+          }
+        })
+
         ctx.zclFiles = zclFiles
 
         // Manufacturers XML file.
         if (zclProps.manufacturersXml) {
-          ctx.manufacturersXml = path.resolve(
-            path.join(fileLocation, zclProps.manufacturersXml.trim())
-          )
+          for (var i = 0; i < fileLocations.length; i++) {
+            var manufacturerXml = path.resolve(
+              fileLocations[i],
+              zclProps.manufacturersXml.trim()
+            )
+            if (fs.existsSync(manufacturerXml)) {
+              ctx.manufacturersXml = manufacturerXml
+              break
+            }
+          }
         }
 
         // Default Reponse Policy Options
