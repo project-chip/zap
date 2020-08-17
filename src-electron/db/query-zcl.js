@@ -92,6 +92,12 @@ function selectAllBitmaps(db, packageId = null) {
     .then((rows) => rows.map(dbMapping.map.bitmap))
 }
 
+function selectAllBitmapFieldsById(db, id) {
+  return dbApi
+    .dbAll(db, 'SELECT NAME, MASK FROM BITMAP_FIELD WHERE BITMAP_REF=?', [id])
+    .then((rows) => rows.map(dbMapping.map.bitmapField))
+}
+
 function selectAllBitmapFields(db, packageId = null) {
   return dbApi
     .dbAll(
@@ -1464,3 +1470,4 @@ exports.selectEndpointType = selectEndpointType
 exports.insertAtomics = insertAtomics
 exports.selectAllAtomics = selectAllAtomics
 exports.getAtomicSizeFromType = getAtomicSizeFromType
+exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById

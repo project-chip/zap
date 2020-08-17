@@ -26,6 +26,29 @@ const templateUtil = require('./template-util.js')
  */
 
 /**
+ * Block helper iterating over all bitmaps.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_bitmaps(options) {
+  return templateUtil
+    .ensurePackageId(this)
+    .then((packageId) => queryZcl.selectAllBitmaps(this.global.db, packageId))
+    .then((ens) => templateUtil.collectBlocks(ens, options.fn, this))
+}
+
+/**
+ * Iterates over enum items. Valid only inside zcl_enums.
+ * @param {*} options
+ */
+function zcl_bitmap_items(options) {
+  return queryZcl
+    .selectAllBitmapFieldsById(this.global.db, this.id)
+    .then((items) => templateUtil.collectBlocks(items, options.fn, this))
+}
+
+/**
  * Block helper iterating over all enums.
  *
  * @param {*} options
@@ -240,6 +263,8 @@ function zcl_atomics(options) {
 // Note: these exports are public API. Templates that might have been created in the past and are
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
+exports.zcl_bitmaps = zcl_bitmaps
+exports.zcl_bitmap_items = zcl_bitmap_items
 exports.zcl_enums = zcl_enums
 exports.zcl_enum_items = zcl_enum_items
 exports.zcl_structs = zcl_structs

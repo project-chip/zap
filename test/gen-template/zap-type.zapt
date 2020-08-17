@@ -1,5 +1,7 @@
 {{zap_header}}
 
+#ifndef __ZAP_GEN_TYPE__
+
 // ZCL attribute types
 enum {
 {{#zcl_atomics}}
@@ -28,6 +30,18 @@ typedef enum {
 } EmberAf{{asType label}};
 {{/zcl_enums}}
 
+// ZCL bitmaps
+
+{{#zcl_bitmaps}}
+
+// Enum for {{label}}
+typedef enum {
+{{#zcl_bitmap_items}}
+{{ident}}EMBER_ZCL_{{asDelimitedMacro parent.label}}_{{asDelimitedMacro label}} = {{mask}},
+{{/zcl_bitmap_items}}
+} EmberAf{{asType label}};
+{{/zcl_bitmaps}}
+
 /* COMMENT ALL THIS OUT TEMPORARILY
 
 // ZCL Structs
@@ -43,3 +57,5 @@ typedef struct _{{asType label}} {
 {{/zcl_structs}}
 
 */
+
+#endif
