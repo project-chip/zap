@@ -8,13 +8,13 @@ enum {
 };
 
 // ZCL attribute sizes
-enum {
+#define ZAP_GENERATED_ATTRIBUTE_SIZES { \
 {{#zcl_atomics}}
 {{#if size}}
-{{ident}}ZCL_{{asMacro name}}_ATTRIBUTE_SIZE = {{size}}, // {{description}}
+{{ident}}ZCL_{{asMacro name}}_ATTRIBUTE_TYPE, {{size}}, \
 {{/if}}
 {{/zcl_atomics}}
-};
+}
 
 // ZCL enums
 
@@ -23,10 +23,12 @@ enum {
 // Enum for {{label}}
 typedef enum {
 {{#zcl_enum_items}}
-{{ident}}ZCL_{{asMacro parent.label}}_{{asMacro label}} {{value}},
+{{ident}}EMBER_ZCL_{{asDelimitedMacro parent.label}}_{{asDelimitedMacro label}} = {{value}},
 {{/zcl_enum_items}}
-} {{asType label}};
+} EmberAf{{asType label}};
 {{/zcl_enums}}
+
+/* COMMENT ALL THIS OUT TEMPORARILY
 
 // ZCL Structs
 
@@ -39,3 +41,5 @@ typedef struct _{{asType label}} {
 {{/zcl_struct_items}}
 } {{asType label}};
 {{/zcl_structs}}
+
+*/

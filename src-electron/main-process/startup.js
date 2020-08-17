@@ -215,7 +215,7 @@ function startGeneration(
         output,
         {
           log: options.log,
-          backup: true,
+          backup: false,
         }
       )
     )

@@ -42,6 +42,10 @@ function asMacro(label) {
   return l
 }
 
+function isDigit(ch) {
+  return ch >= '0' && ch <= '9'
+}
+
 /**
  * Takes a label, and delimits is on camelcasing.
  * For example:
@@ -52,16 +56,22 @@ function asDelimitedMacro(label) {
   var ret = ''
   if (label == null) return ret
 
+  var wasUp = false
   for (var i = 0; i < label.length; i++) {
     var ch = label.charAt(i)
     var upch = ch.toUpperCase()
-    if (ch == upch) {
+    if (ch == '_') {
+      ret = ret.concat('_')
+      wasUp = true
+    } else if (ch == upch) {
       // uppercase
-      if (i != 0) ret = ret.concat('_')
-      ret = ret.concat(ch.toUpperCase())
+      if (i != 0 && !wasUp) ret = ret.concat('_')
+      ret = ret.concat(upch)
+      wasUp = true
     } else {
       // lowercase
       ret = ret.concat(upch)
+      wasUp = false
     }
   }
   return ret

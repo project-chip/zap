@@ -18,6 +18,7 @@
  * @jest-environment node
  */
 const handlebars = require('handlebars')
+const helperC = require('../src-electron/generator/helper-c.js')
 
 test('handlebars: simple test', () => {
   var template = handlebars.compile('{{a}} {{b}} {{c}}!')
@@ -127,4 +128,11 @@ test('handlebars: iterator', () => {
   var template = handlebars.compile('{{#it}}{{thing}}{{/it}}')
   var output = template({ prefix: 'PRE:', postfix: ':ERP' })
   expect(output).toEqual('PRE:0123456789:ERP')
+})
+
+test('delimeter macros', () => {
+  expect(helperC.asDelimitedMacro('VerySimple')).toEqual('VERY_SIMPLE')
+  expect(helperC.asDelimitedMacro('Very_simple')).toEqual('VERY_SIMPLE')
+  expect(helperC.asDelimitedMacro('Very_Simple')).toEqual('VERY_SIMPLE')
+  expect(helperC.asDelimitedMacro('Very_123_Simple')).toEqual('VERY_123_SIMPLE')
 })
