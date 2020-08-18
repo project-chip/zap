@@ -23,10 +23,10 @@ limitations under the License.
             Endpoint x{{ this.endpointId[this.selectedEndpointId] }}
           </q-breadcrumbs-el>
           <q-breadcrumbs-el to="/">
-            {{ clusters[selectedCluster].domainName }}
+            {{ clusters[selectedClusterId].domainName }}
           </q-breadcrumbs-el>
           <q-breadcrumbs-el to="/">{{
-            clusters[selectedCluster].label
+            clusters[selectedClusterId].label
           }}</q-breadcrumbs-el>
         </q-breadcrumbs>
       </b>
@@ -34,12 +34,12 @@ limitations under the License.
 
     <h5 style="margin: 10px 0 0px;">
       <b>
-        {{ clusters[selectedCluster].label }}
+        {{ clusters[selectedClusterId].label }}
       </b>
     </h5>
     <div class="row q-py-none">
       <div class="col">
-        Cluster ID: {{ clusters[selectedCluster].code }}, Enabled for
+        Cluster ID: {{ clusters[selectedClusterId].code }}, Enabled for
         <b> {{ enabledMessage }} </b>
       </div>
       <div>
@@ -77,13 +77,11 @@ limitations under the License.
 </template>
 <script>
 import ZclAttributeView from './ZclAttributeView.vue'
-import ZclCommandnewView from './ZclCommandnewView.vue'
 import ZclClusterInfo from './ZclClusterInfo.vue'
 import ZclReportingView from './ZclReportingView.vue'
 
 export default {
   name: 'ZclClusterView',
-  onMounted() {},
   computed: {
     selectedEndpointId: {
       get() {
@@ -97,7 +95,12 @@ export default {
     },
     selectedCluster: {
       get() {
-        return this.$store.state.zap.clustersView.selected[0]
+        return this.$store.state.zap.clustersView.selected[0] || {}
+      },
+    },
+    selectedClusterId: {
+      get() {
+        return this.selectedCluster.id
       },
     },
     clusters: {
@@ -120,13 +123,13 @@ export default {
     enabledMessage: {
       get() {
         if (
-          this.selectionClient.includes(this.selectedCluster) &&
-          this.selectionServer.includes(this.selectedCluster)
+          this.selectionClient.includes(this.selectedClusterId) &&
+          this.selectionServer.includes(this.selectedClusterId)
         )
           return ' Client & Server'
-        if (this.selectionServer.includes(this.selectedCluster))
+        if (this.selectionServer.includes(this.selectedClusterId))
           return ' Server'
-        if (this.selectionClient.includes(this.selectedCluster))
+        if (this.selectionClient.includes(this.selectedClusterId))
           return ' Client'
         return ' none'
       },
