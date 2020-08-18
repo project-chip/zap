@@ -95,27 +95,7 @@ import * as Util from '../util/util.js'
 import * as RestApi from '../../src-shared/rest-api'
 
 export default {
-  name: 'ZclCommandnewView',
-  mounted() {
-    this.$serverOn('zcl-item', (event, arg) => {
-      if (arg.type === 'endpointTypeCommands') {
-        this.$store.dispatch('zap/setCommandStateLists', arg.data)
-      }
-      if (arg.type === 'deviceTypeCommands') {
-        this.$store.dispatch('zap/setRequiredCommands', arg.data)
-      }
-    })
-    this.$serverOn(RestApi.replyId.singleCommandState, (event, arg) => {
-      if (arg.action === 'boolean') {
-        this.$store.dispatch('zap/updateSelectedCommands', {
-          id: this.hashCommandIdClusterId(arg.id, arg.clusterRef),
-          added: arg.added,
-          listType: arg.listType,
-          view: 'commandView',
-        })
-      }
-    })
-  },
+  name: 'ZclCommandManager',
   computed: {
     commandData: {
       get() {

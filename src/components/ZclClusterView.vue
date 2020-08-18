@@ -59,24 +59,27 @@ limitations under the License.
     <div class="q-pb-sm">
       <q-tabs v-model="tab" dense active-color="blue" align="left">
         <q-tab name="attributes" label="Attributes" />
-        <q-tab name="reporting" label="Reporting" />
+        <q-tab name="reporting" label="Attribute Reporting" />
         <q-tab name="commands" label="Commands" />
       </q-tabs>
 
-      <div class="col" v-show="tab == 'attributes'">
-        <!-- <ZclAttributeView /> -->
-      </div>
-      <div class="col" v-show="tab == 'commands'">
-        <!-- <ZclCommandnewView /> -->
-      </div>
-      <div class="col" v-show="tab == 'reporting'">
-        <!-- <ZclReportingView /> -->
+      <div v-show="Object.keys(selectedCluster).length > 0">
+        <div class="col" v-show="tab == 'attributes'">
+          <ZclAttributeManager />
+        </div>
+        <div class="col" v-show="tab == 'commands'">
+          <ZclCommandManager />
+        </div>
+        <div class="col" v-show="tab == 'reporting'">
+          <!-- <ZclReportingView /> -->
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import ZclAttributeView from './ZclAttributeView.vue'
+import ZclAttributeManager from './ZclAttributeManager.vue'
+import ZclCommandManager from './ZclCommandManager.vue'
 import ZclClusterInfo from './ZclClusterInfo.vue'
 import ZclReportingView from './ZclReportingView.vue'
 
@@ -154,6 +157,6 @@ export default {
     }
   },
 
-  components: {},
+  components: { ZclCommandManager, ZclAttributeManager },
 }
 </script>
