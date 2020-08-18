@@ -199,7 +199,7 @@ limitations under the License.
   <bitmap name="WarningInfo" type="BITMAP8">
     <field name="mode" mask="0xf0"/>
     <field name="strobe" mask="0x0c"/>
-    <field name="siren Level" mask="0x03"/>
+    <field name="sirenLevel" mask="0x03"/>
   </bitmap>
   <bitmap name="SquawkInfo" type="BITMAP8">
     <field name="mode" mask="0xf0"/>
@@ -794,7 +794,7 @@ limitations under the License.
     <item name="Magnetic" value="0x01"/>
     <item name="Mortise" value="0x02"/>
     <item name="Rim" value="0x03"/>
-    <item name="Latch Bolt" value="0x04"/>
+    <item name="LatchBolt" value="0x04"/>
     <item name="Cylindrical" value="0x05"/>
     <item name="Tubular" value="0x06"/>
     <item name="Interconnected" value="0x07"/>
