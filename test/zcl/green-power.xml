@@ -295,6 +295,11 @@ limitations under the License.
     <field name="OnGpProxyCommissioningModeExit" mask="0x08" introducedIn="gp-1.0-09-5499-24"/>
   </bitmap>
   <!-- GpResponse types. -->
+  <bitmap name="GpResponseOption" type="BITMAP8">
+    <field name="ApplicationId" mask="0x07" introducedIn="gp-1.0-09-5499-24"/>
+    <field name="TransmitOnEndPointMatch" mask="0x08" introducedIn="gp-1.0-16-02607-23"/>
+    <field name="Reserved" mask="0xF0" introducedIn="gp-1.0-16-02607-23"/>
+  </bitmap>
   <bitmap name="GpResponseTempMasterTxChannel" type="BITMAP8">
     <field name="TransmitChannel" mask="0x0F" introducedIn="gp-1.0-09-5499-24"/>
     <field name="Reserved" mask="0xF0" introducedIn="gp-1.0-09-5499-24"/>
@@ -374,11 +379,6 @@ limitations under the License.
     <field name="OperationalChannel" mask="0x0F"/>
     <field name="Basic" mask="0x10"/>
     <field name="Reserved" mask="0xE0"/>
-  </bitmap>
-  <bitmap name="GpResponseOption" type="BITMAP8">
-    <field name="Mask" mask="0x0F"/>
-    <field name="TransmitOnEndPointMatch" mask="0x08"/>
-    <field name="Reserved" mask="0xF0"/>
   </bitmap>
   <enum name="GpGpdf" type="ENUM8">
     <item name="Identify" value="0x00" introducedIn="gp-1.0-09-5499-24"/>
