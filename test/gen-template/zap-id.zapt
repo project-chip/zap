@@ -25,7 +25,7 @@
 
 // Commands for cluster: {{label}}
 {{#zcl_commands}}
-#define ZCL_{{asMacro label}}_COMMAND_ID ({{asHex code}})
+#define ZCL_{{asDelimitedMacro label}}_COMMAND_ID ({{asHex code}})
 {{/zcl_commands}}
 
 // End of cluster: {{label}}
