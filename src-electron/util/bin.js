@@ -91,6 +91,15 @@ function hexToCBytes(value) {
 }
 
 /**
+ * Getting a binary string ("0001101010010") it returns the number of zero bits at the end.
+ * @param {*} binary
+ */
+function bitOffset(binary) {
+  var lastIndex = binary.lastIndexOf('1')
+  return binary.length - lastIndex - 1
+}
+
+/**
  * Convert a hex number to a binary. Hex has to be in a format
  * as obtained by intToHex methods above: no '0x' prefix and upper-case
  * letters, as in "12AB".
@@ -98,9 +107,14 @@ function hexToCBytes(value) {
  * @param {*} hex
  */
 function hexToBinary(hex) {
+  var cleansedHex = hex
+  if (cleansedHex.startsWith('0x') || cleansedHex.startsWith('0X'))
+    cleansedHex = cleansedHex.slice(2)
+  cleansedHex = cleansedHex.toUpperCase()
+
   var out = ''
-  for (var i = 0; i < hex.length; i++) {
-    switch (hex[i]) {
+  for (var i = 0; i < cleansedHex.length; i++) {
+    switch (cleansedHex[i]) {
       case '0':
         out = out.concat('0000')
         break
@@ -160,3 +174,4 @@ exports.int8ToHex = int8ToHex
 exports.stringToHex = stringToHex
 exports.hexToCBytes = hexToCBytes
 exports.hexToBinary = hexToBinary
+exports.bitOffset = bitOffset

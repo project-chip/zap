@@ -48,7 +48,7 @@ function asMacro(label) {
  * @param {*} hex
  */
 function asOffset(hex) {
-  return 0
+  return bin.bitOffset(bin.hexToBinary(hex))
 }
 
 function isDigit(ch) {

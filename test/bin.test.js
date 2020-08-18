@@ -55,4 +55,17 @@ test('Hex to binary', () => {
   var hex = bin.int32ToHex(1234)
   expect(hex).toBe('000004D2')
   expect(bin.hexToBinary(hex)).toBe('00000000000000000000010011010010')
+  expect(bin.hexToBinary('0xABCD')).toBe('1010101111001101')
+  expect(bin.hexToBinary('0XABCD')).toBe('1010101111001101')
+  expect(bin.hexToBinary('AbCd')).toBe('1010101111001101')
+  expect(bin.hexToBinary('abcd')).toBe('1010101111001101')
+  expect(bin.hexToBinary('ABCD')).toBe('1010101111001101')
+  expect(bin.hexToBinary('AB CD')).toBe('1010101111001101')
+})
+
+test('Bit offset', () => {
+  expect(bin.bitOffset('010')).toBe(1)
+  expect(bin.bitOffset('011')).toBe(0)
+  expect(bin.bitOffset(bin.hexToBinary(bin.int8ToHex(2)))).toBe(1)
+  expect(bin.bitOffset(bin.hexToBinary(bin.int8ToHex(4)))).toBe(2)
 })
