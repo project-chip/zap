@@ -18,10 +18,7 @@
 const queryZcl = require('../db/query-zcl.js')
 const templateUtil = require('./template-util.js')
 const bin = require('../util/bin.js')
-
-function asAtomicTypeName(name) {
-  return `ZclAtomic_${name}`
-}
+const { exportClustersFromEndpointType } = require('../db/query-impexp.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -112,6 +109,46 @@ function asHex(value) {
 }
 
 /**
+ * Returns the default atomic C type for a given atomic from
+ * the database. These values are used unless there is an
+ * override in template package json file. (Not yet fully
+ * implemented, but the plan is for template pkg to be able
+ * to override these.)
+ *
+ * @param {*} atomic
+ */
+function defaultAtomicType(atomic) {
+  if (atomic.name.startsWith('int')) {
+    var signed
+    if (atomic.name.endsWith('s')) signed = true
+    else signed = false
+
+    return `${signed ? '' : 'u'}int${atomic.size * 8}_t`
+  } else if (atomic.name.startsWith('enum')) {
+    return `uint${atomic.name.slice(4)}_t`
+  } else if (atomic.name.startsWith('bitmap')) {
+    return `uint${atomic.name.slice(6)}_t`
+  } else {
+    switch (atomic.name) {
+      case 'utc_time':
+      case 'date':
+        return 'uint32_t'
+      case 'attribute_id':
+        return 'uint16_t'
+      case 'no_data':
+      case 'octet_string':
+      case 'char_string':
+      case 'ieee_address':
+        return 'uint8_t *'
+      case 'boolean':
+        return 'uint8_t'
+      default:
+        return atomic.name
+    }
+  }
+}
+
+/**
  * Converts the actual zcl type into an underlying usable C type.
  * @param {*} value
  */
@@ -125,7 +162,7 @@ function asUnderlyingType(value) {
       if (atomic == null) {
         return `EmberAf${value}`
       } else {
-        return asAtomicTypeName(atomic.name)
+        return defaultAtomicType(atomic)
       }
     })
 }
@@ -225,4 +262,3 @@ exports.asBytes = asBytes
 exports.asDelimitedMacro = asDelimitedMacro
 exports.asOffset = asOffset
 exports.asUnderlyingType = asUnderlyingType
-exports.asAtomicTypeName = asAtomicTypeName

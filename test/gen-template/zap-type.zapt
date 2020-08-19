@@ -19,11 +19,6 @@ enum {
 {{/zcl_atomics}}
 }
 
-// ZCL attomic typedefs
-{{#zcl_atomics}}
-typedef uint8_t {{asAtomicTypeName name}};
-{{/zcl_atomics}}
-
 // ZCL enums
 
 {{#zcl_enums}}
