@@ -110,7 +110,7 @@ function selectAllBitmapFields(db, packageId = null) {
     .then((rows) => rows.map(dbMapping.map.bitmapField))
 }
 
-function selectBitmapByName(db, name, packageId) {
+function selectBitmapByName(db, packageId, name) {
   return dbApi
     .dbGet(
       db,
