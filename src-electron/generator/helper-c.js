@@ -109,6 +109,12 @@ function asHex(value) {
   }
 }
 
+function cleanseUints(uint) {
+  if (uint == 'uint24_t') return 'uint32_t'
+  if (uint == 'uint48_t') return 'uint8_t *'
+  return uint
+}
+
 /**
  * Returns the default atomic C type for a given atomic from
  * the database. These values are used unless there is an
@@ -127,13 +133,12 @@ function defaultAtomicType(atomic) {
     var ret = `${signed ? '' : 'u'}int${atomic.size * 8}_t`
 
     // few exceptions
-    if (ret == 'uint24_t') ret = 'uint32_t'
-
+    ret = cleanseUints(ret)
     return ret
   } else if (atomic.name.startsWith('enum') || atomic.name.startsWith('data')) {
-    return `uint${atomic.name.slice(4)}_t`
+    return cleanseUints(`uint${atomic.name.slice(4)}_t`)
   } else if (atomic.name.startsWith('bitmap')) {
-    return `uint${atomic.name.slice(6)}_t`
+    return cleanseUints(`uint${atomic.name.slice(6)}_t`)
   } else {
     switch (atomic.name) {
       case 'utc_time':
