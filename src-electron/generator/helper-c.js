@@ -72,6 +72,9 @@ function asDelimitedMacro(label) {
     if (ch == '_') {
       ret = ret.concat('_')
       wasUp = true
+    } else if (isDigit(ch)) {
+      ret = ret.concat(ch)
+      wasUp = false
     } else if (ch == upch) {
       // uppercase
       if (i != 0 && !wasUp) ret = ret.concat('_')

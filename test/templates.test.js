@@ -135,4 +135,5 @@ test('delimeter macros', () => {
   expect(helperC.asDelimitedMacro('Very_simple')).toEqual('VERY_SIMPLE')
   expect(helperC.asDelimitedMacro('Very_Simple')).toEqual('VERY_SIMPLE')
   expect(helperC.asDelimitedMacro('Very_123_Simple')).toEqual('VERY_123_SIMPLE')
+  expect(helperC.asDelimitedMacro('MfrDefGpdCmd0')).toEqual('MFR_DEF_GPD_CMD0')
 })
