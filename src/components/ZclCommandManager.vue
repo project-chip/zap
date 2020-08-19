@@ -79,10 +79,10 @@ limitations under the License.
             props.row.label
           }}</q-td>
           <q-td key="required" :props="props" auto-width>
-            <!-- TODO add required  -->
+            <!-- TODO -->
           </q-td>
           <q-td key="mfgId" :props="props" auto-width>{{
-            props.row.manufacturerCode
+            props.row.manufacturerCode ? props.row.manufacturerCode : '-'
           }}</q-td>
         </q-tr>
       </template>
@@ -153,8 +153,7 @@ export default {
       } else {
         addedValue = false
       }
-
-      this.$serverPost(`/command/update`, {
+      let editContext = {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointId,
         id: commandData.id,
@@ -162,7 +161,8 @@ export default {
         listType: listType,
         clusterRef: clusterId,
         commandSide: commandData.source,
-      })
+      }
+      this.$store.dispatch('zap/updateSelectedCommands', editContext)
     },
     handleColorSelection(selectedList, recommendedList, command, clusterId) {
       let relevantClusterList =
