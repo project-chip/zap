@@ -123,7 +123,12 @@ function defaultAtomicType(atomic) {
     if (atomic.name.endsWith('s')) signed = true
     else signed = false
 
-    return `${signed ? '' : 'u'}int${atomic.size * 8}_t`
+    var ret = `${signed ? '' : 'u'}int${atomic.size * 8}_t`
+
+    // few exceptions
+    if (ret == 'uint24_t') ret = 'uint32_t'
+
+    return ret
   } else if (atomic.name.startsWith('enum') || atomic.name.startsWith('data')) {
     return `uint${atomic.name.slice(4)}_t`
   } else if (atomic.name.startsWith('bitmap')) {
@@ -159,6 +164,12 @@ function asUnderlyingType(value) {
     .then((packageId) =>
       queryZcl.selectAtomicType(this.global.db, packageId, value)
     )
+    .then((atomic) => {
+      if (atomic == null) {
+        // try to retrieve the atomic as a bitmap.
+      }
+      return atomic
+    })
     .then((atomic) => {
       if (atomic == null) {
         return `EmberAf${value}`

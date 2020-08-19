@@ -110,6 +110,16 @@ function selectAllBitmapFields(db, packageId = null) {
     .then((rows) => rows.map(dbMapping.map.bitmapField))
 }
 
+function selectBitmapByName(db, name, packageId) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE NAME = ? AND PACKAGE_REF = ? ',
+      [name, packageId]
+    )
+    .then(dbMapping.map.bitmap)
+}
+
 function selectBitmapById(db, id, packageId = null) {
   return dbApi
     .dbGet(
@@ -1489,3 +1499,4 @@ exports.selectAllAtomics = selectAllAtomics
 exports.getAtomicSizeFromType = getAtomicSizeFromType
 exports.selectAtomicType = selectAtomicType
 exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById
+exports.selectBitmapByName = selectBitmapByName
