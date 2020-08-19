@@ -124,7 +124,7 @@ function defaultAtomicType(atomic) {
     else signed = false
 
     return `${signed ? '' : 'u'}int${atomic.size * 8}_t`
-  } else if (atomic.name.startsWith('enum')) {
+  } else if (atomic.name.startsWith('enum') || atomic.name.startsWith('data')) {
     return `uint${atomic.name.slice(4)}_t`
   } else if (atomic.name.startsWith('bitmap')) {
     return `uint${atomic.name.slice(6)}_t`
@@ -134,6 +134,7 @@ function defaultAtomicType(atomic) {
       case 'date':
         return 'uint32_t'
       case 'attribute_id':
+      case 'cluster_id':
         return 'uint16_t'
       case 'no_data':
       case 'octet_string':
@@ -143,7 +144,7 @@ function defaultAtomicType(atomic) {
       case 'boolean':
         return 'uint8_t'
       default:
-        return atomic.name
+        return `/* TYPE WARNING: ${atomic.name} defaults to */ uint8_t * `
     }
   }
 }
