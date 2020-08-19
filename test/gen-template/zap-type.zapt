@@ -19,6 +19,11 @@ enum {
 {{/zcl_atomics}}
 }
 
+// ZCL attomic typedefs
+{{#zcl_atomics}}
+typedef uint8_t {{asAtomicTypeName name}};
+{{/zcl_atomics}}
+
 // ZCL enums
 
 {{#zcl_enums}}
@@ -40,8 +45,6 @@ typedef enum {
 {{/zcl_bitmap_items}}
 {{/zcl_bitmaps}}
 
-/* COMMENT ALL THIS OUT TEMPORARILY
-
 // ZCL Structs
 
 {{#zcl_structs}}
@@ -49,11 +52,9 @@ typedef enum {
 // Struct for {{label}}
 typedef struct _{{asType label}} {
 {{#zcl_struct_items}}
-{{ident}}{{asType type}} {{asSymbol label}};
+{{ident}}{{asUnderlyingType type}} {{asSymbol label}};
 {{/zcl_struct_items}}
 } {{asType label}};
 {{/zcl_structs}}
-
-*/
 
 #endif

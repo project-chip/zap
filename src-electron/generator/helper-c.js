@@ -19,6 +19,10 @@ const queryZcl = require('../db/query-zcl.js')
 const templateUtil = require('./template-util.js')
 const bin = require('../util/bin.js')
 
+function asAtomicTypeName(name) {
+  return `ZclAtomic_${name}`
+}
+
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
  *
@@ -105,6 +109,25 @@ function asHex(value) {
     var val = parseInt(value)
     return `0x${val.toString(16)}`
   }
+}
+
+/**
+ * Converts the actual zcl type into an underlying usable C type.
+ * @param {*} value
+ */
+function asUnderlyingType(value) {
+  return templateUtil
+    .ensurePackageId(this)
+    .then((packageId) =>
+      queryZcl.selectAtomicType(this.global.db, packageId, value)
+    )
+    .then((atomic) => {
+      if (atomic == null) {
+        return `EmberAf${value}`
+      } else {
+        return asAtomicTypeName(atomic.name)
+      }
+    })
 }
 
 /**
@@ -201,3 +224,5 @@ exports.asSymbol = asSymbol
 exports.asBytes = asBytes
 exports.asDelimitedMacro = asDelimitedMacro
 exports.asOffset = asOffset
+exports.asUnderlyingType = asUnderlyingType
+exports.asAtomicTypeName = asAtomicTypeName

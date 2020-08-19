@@ -1345,6 +1345,23 @@ function insertAtomics(db, packageId, data) {
 }
 
 /**
+ * Locates atomic type based on a type name.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} typeName
+ */
+function selectAtomicType(db, packageId, typeName) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
+      [packageId, typeName.toLowerCase()]
+    )
+    .then(dbMapping.map.atomic)
+}
+
+/**
  * Retrieves all atomic types under a given package Id.
  * @param {*} db
  * @param {*} packageId
@@ -1470,4 +1487,5 @@ exports.selectEndpointType = selectEndpointType
 exports.insertAtomics = insertAtomics
 exports.selectAllAtomics = selectAllAtomics
 exports.getAtomicSizeFromType = getAtomicSizeFromType
+exports.selectAtomicType = selectAtomicType
 exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById
