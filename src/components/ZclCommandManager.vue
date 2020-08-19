@@ -24,8 +24,20 @@ limitations under the License.
       binary-state-sort
       :pagination.sync="pagination"
     >
+      <template v-slot:header="props">
+        <q-tr :props="props">
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+            style="background: #eeeeee;"
+          >
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
       <template v-slot:body="props">
-        <q-tr :props="props" light>
+        <q-tr :props="props" style="">
           <q-td key="out" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
@@ -211,6 +223,7 @@ export default {
           field: 'out',
           align: 'left',
           sortable: true,
+          style: 'width:1%',
         },
         {
           name: 'in',
@@ -218,6 +231,7 @@ export default {
           field: 'in',
           align: 'left',
           sortable: true,
+          style: 'width:1%',
         },
         {
           name: 'direction',
@@ -225,6 +239,7 @@ export default {
           field: 'direction',
           align: 'left',
           sortable: true,
+          style: 'width:1%',
         },
         {
           name: 'commandId',
@@ -232,6 +247,7 @@ export default {
           label: 'ID',
           field: 'commandId',
           sortable: true,
+          style: 'width:1%',
         },
         {
           name: 'commandName',
@@ -239,6 +255,7 @@ export default {
           label: 'Command',
           field: 'commandName',
           sortable: true,
+          style: 'width:20%',
         },
         {
           name: 'required',
@@ -246,6 +263,7 @@ export default {
           label: 'Required',
           field: 'required',
           sortable: true,
+          style: 'width:10%',
         },
         {
           name: 'mfgId',
@@ -253,9 +271,19 @@ export default {
           label: 'Manufacturing Id',
           field: 'mfgId',
           sortable: true,
+          style: 'width:10%',
         },
       ],
     }
   },
 }
 </script>
+
+<style scoped>
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+th {
+  background-color: #dddddd;
+}
+</style>

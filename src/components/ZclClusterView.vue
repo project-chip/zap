@@ -23,10 +23,10 @@ limitations under the License.
             Endpoint x{{ this.endpointId[this.selectedEndpointId] }}
           </q-breadcrumbs-el>
           <q-breadcrumbs-el to="/">
-            {{ clusters[selectedClusterId].domainName }}
+            {{ selectedCluster.domainName }}
           </q-breadcrumbs-el>
           <q-breadcrumbs-el to="/">{{
-            clusters[selectedClusterId].label
+            selectedCluster.label
           }}</q-breadcrumbs-el>
         </q-breadcrumbs>
       </b>
@@ -34,12 +34,12 @@ limitations under the License.
 
     <h5 style="margin: 10px 0 0px;">
       <b>
-        {{ clusters[selectedClusterId].label }}
+        {{ selectedCluster.label }}
       </b>
     </h5>
     <div class="row q-py-none">
       <div class="col">
-        Cluster ID: {{ clusters[selectedClusterId].code }}, Enabled for
+        Cluster ID: {{ selectedCluster.code }}, Enabled for
         <b> {{ enabledMessage }} </b>
       </div>
       <div>
@@ -50,7 +50,7 @@ limitations under the License.
         ></q-toggle>
         <q-btn round flat icon="info" size="md" color="grey">
           <q-tooltip>
-            An explanation of toggling Enable Command Discovery
+            Enable Command Discovery for your project
           </q-tooltip>
         </q-btn>
       </div>
@@ -63,6 +63,7 @@ limitations under the License.
         <q-tab name="commands" label="Commands" />
       </q-tabs>
 
+      <q-separator />
       <div v-show="Object.keys(selectedCluster).length > 0">
         <div class="col" v-show="tab == 'attributes'">
           <ZclAttributeManager />
@@ -104,11 +105,6 @@ export default {
     selectedClusterId: {
       get() {
         return this.selectedCluster.id
-      },
-    },
-    clusters: {
-      get() {
-        return this.$store.state.zap.clusters
       },
     },
     selectionClient: {
