@@ -175,7 +175,7 @@ test(
 
         expect(zapId.includes('// Definitions for cluster: Basic')).toBeTruthy()
         expect(
-          zapId.includes('#define ZCL_GETPROFILERESPONSE_COMMAND_ID (0x00)')
+          zapId.includes('#define ZCL_GET_PROFILE_RESPONSE_COMMAND_ID (0x00)')
         ).toBeTruthy()
         expect(
           zapId.includes(

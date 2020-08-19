@@ -1,6 +1,7 @@
 {{zap_header}}
 
 #ifndef __ZAP_GEN_ID__
+#define __ZAP_GEN_ID__
 
 // Global, non-cluster-specific things
 {{#zcl_global_commands}}
@@ -10,7 +11,7 @@
 {{#zcl_clusters}}
 
 // Definitions for cluster: {{label}}
-#define ZCL_{{asMacro label}}_CLUSTER_ID ({{asHex code}})
+#define ZCL_{{define}}_ID ({{asHex code}})
 
 // Client attributes for cluster: {{label}}
 {{#zcl_attributes_client}}
@@ -24,7 +25,7 @@
 
 // Commands for cluster: {{label}}
 {{#zcl_commands}}
-#define ZCL_{{asMacro label}}_COMMAND_ID ({{asHex code}})
+#define ZCL_{{asDelimitedMacro label}}_COMMAND_ID ({{asHex code}})
 {{/zcl_commands}}
 
 // End of cluster: {{label}}

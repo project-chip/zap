@@ -170,7 +170,7 @@ exports.map = {
     return {
       id: x.BITMAP_ID,
       label: x.NAME,
-      caption: `Bitmap of type ${x.TYPE}`,
+      type: x.TYPE,
     }
   },
 

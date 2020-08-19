@@ -92,6 +92,12 @@ function selectAllBitmaps(db, packageId = null) {
     .then((rows) => rows.map(dbMapping.map.bitmap))
 }
 
+function selectAllBitmapFieldsById(db, id) {
+  return dbApi
+    .dbAll(db, 'SELECT NAME, MASK FROM BITMAP_FIELD WHERE BITMAP_REF=?', [id])
+    .then((rows) => rows.map(dbMapping.map.bitmapField))
+}
+
 function selectAllBitmapFields(db, packageId = null) {
   return dbApi
     .dbAll(
@@ -102,6 +108,16 @@ function selectAllBitmapFields(db, packageId = null) {
       packageId != null ? [packageId] : []
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
+}
+
+function selectBitmapByName(db, packageId, name) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE NAME = ? AND PACKAGE_REF = ? ',
+      [name, packageId]
+    )
+    .then(dbMapping.map.bitmap)
 }
 
 function selectBitmapById(db, id, packageId = null) {
@@ -1339,6 +1355,23 @@ function insertAtomics(db, packageId, data) {
 }
 
 /**
+ * Locates atomic type based on a type name.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} typeName
+ */
+function selectAtomicType(db, packageId, typeName) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
+      [packageId, typeName.toLowerCase()]
+    )
+    .then(dbMapping.map.atomic)
+}
+
+/**
  * Retrieves all atomic types under a given package Id.
  * @param {*} db
  * @param {*} packageId
@@ -1464,3 +1497,6 @@ exports.selectEndpointType = selectEndpointType
 exports.insertAtomics = insertAtomics
 exports.selectAllAtomics = selectAllAtomics
 exports.getAtomicSizeFromType = getAtomicSizeFromType
+exports.selectAtomicType = selectAtomicType
+exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById
+exports.selectBitmapByName = selectBitmapByName

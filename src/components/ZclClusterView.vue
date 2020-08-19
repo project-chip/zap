@@ -16,49 +16,41 @@ limitations under the License.
 <template>
   <div>
     <div class="row q-py-md">
-      <q-breadcrumbs>
-        <!-- this needs to be updated depending on how the pages will work -->
-        <q-breadcrumbs-el
-          icon="keyboard_arrow_left"
-          label="Endpoint x0001"
-          to="/"
-        ></q-breadcrumbs-el>
-        <q-breadcrumbs-el
-          :label="clusters[selectedCluster].domainName"
-          to="/"
-        ></q-breadcrumbs-el>
-        <q-breadcrumbs-el to="/">{{
-          clusters[selectedCluster].label
-        }}</q-breadcrumbs-el>
-      </q-breadcrumbs>
+      <b>
+        <q-breadcrumbs>
+          <!-- this needs to be updated depending on how the pages will work -->
+          <q-breadcrumbs-el icon="keyboard_arrow_left" to="/">
+            Endpoint x{{ this.endpointId[this.selectedEndpointId] }}
+          </q-breadcrumbs-el>
+          <q-breadcrumbs-el to="/">
+            {{ selectedCluster.domainName }}
+          </q-breadcrumbs-el>
+          <q-breadcrumbs-el to="/">{{
+            selectedCluster.label
+          }}</q-breadcrumbs-el>
+        </q-breadcrumbs>
+      </b>
     </div>
 
-    <h2 class="q-py-sm">
-      {{ clusters[selectedCluster].label }}
-    </h2>
-
+    <h5 style="margin: 10px 0 0px;">
+      <b>
+        {{ selectedCluster.label }}
+      </b>
+    </h5>
     <div class="row q-py-none">
       <div class="col">
-        <!-- <p v-if="selectionServer && selectionClient">
-            Cluster ID: 0x000{{ item.id }}, Enabled for <b>Server</b> and
-            <b>Client</b>
-          </p>
-          <p v-else-if="~selectionServer && selectionClient">
-            Cluster ID: 0x000{{ item.id }}, Enabled for <b>Client</b>
-          </p>
-          <p v-else-if="selectionServer && ~selectionClient">
-            Cluster ID: 0x000{{ item.id }}, Enable for <b>Server</b>
-          </p>
-          <p v-else>Cluster ID: 0x000{{ item.id }}, Disabled for <b>all</b></p> -->
+        Cluster ID: {{ selectedCluster.code }}, Enabled for
+        <b> {{ enabledMessage }} </b>
       </div>
       <div>
-        <!-- <q-toggle
-            v-model="clusters.commandDiscovery"
-            label="Enable Command Discovery"
-          ></q-toggle> -->
+        <q-toggle
+          v-model="commandDiscoverySetting"
+          label="Enable Command Discovery"
+          @input="handleOptionChange('commandDiscovery', $event)"
+        ></q-toggle>
         <q-btn round flat icon="info" size="md" color="grey">
           <q-tooltip>
-            An explanation of toggling Enable Command Discovery
+            Enable Command Discovery for your project
           </q-tooltip>
         </q-btn>
       </div>
@@ -67,45 +59,52 @@ limitations under the License.
     <div class="q-pb-sm">
       <q-tabs v-model="tab" dense active-color="blue" align="left">
         <q-tab name="attributes" label="Attributes" />
-        <q-tab name="reporting" label="Reporting" />
+        <q-tab name="reporting" label="Attribute Reporting" />
         <q-tab name="commands" label="Commands" />
       </q-tabs>
 
-      <div class="col" v-show="tab == 'attributes'">
-        <!-- <ZclAttributeView /> -->
-      </div>
-      <div class="col" v-show="tab == 'commands'">
-        <!-- <ZclCommandnewView /> -->
-      </div>
-      <div class="col" v-show="tab == 'reporting'">
-        <!-- <ZclReportingView /> -->
+      <q-separator />
+      <div v-show="Object.keys(selectedCluster).length > 0">
+        <div class="col" v-show="tab == 'attributes'">
+          <ZclAttributeManager />
+        </div>
+        <div class="col" v-show="tab == 'commands'">
+          <ZclCommandManager />
+        </div>
+        <div class="col" v-show="tab == 'reporting'">
+          <!-- <ZclReportingView /> -->
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import ZclAttributeView from './ZclAttributeView.vue'
-import ZclCommandnewView from './ZclCommandnewView.vue'
+import ZclAttributeManager from './ZclAttributeManager.vue'
+import ZclCommandManager from './ZclCommandManager.vue'
 import ZclClusterInfo from './ZclClusterInfo.vue'
 import ZclReportingView from './ZclReportingView.vue'
 
 export default {
   name: 'ZclClusterView',
-  onMounted() {},
   computed: {
-    selectedCluster: {
-      get() {
-        return this.$store.state.zap.clustersView.selected[0]
-      },
-    },
-    clusters: {
-      get() {
-        return this.$store.state.zap.clusters
-      },
-    },
     selectedEndpointId: {
       get() {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
+      },
+    },
+    endpointId: {
+      get() {
+        return this.$store.state.zap.endpointView.endpointId
+      },
+    },
+    selectedCluster: {
+      get() {
+        return this.$store.state.zap.clustersView.selected[0] || {}
+      },
+    },
+    selectedClusterId: {
+      get() {
+        return this.selectedCluster.id
       },
     },
     selectionClient: {
@@ -120,14 +119,40 @@ export default {
       },
       set(val) {},
     },
+    enabledMessage: {
+      get() {
+        if (
+          this.selectionClient.includes(this.selectedClusterId) &&
+          this.selectionServer.includes(this.selectedClusterId)
+        )
+          return ' Client & Server'
+        if (this.selectionServer.includes(this.selectedClusterId))
+          return ' Server'
+        if (this.selectionClient.includes(this.selectedClusterId))
+          return ' Client'
+        return ' none'
+      },
+    },
+    commandDiscoverySetting: {
+      get() {
+        return this.$store.state.zap.selectedGenericOptions['commandDiscovery']
+      },
+    },
   },
-
+  methods: {
+    handleOptionChange(option, value) {
+      this.$store.dispatch('zap/setSelectedGenericKey', {
+        option: option,
+        value: value,
+      })
+    },
+  },
   data() {
     return {
       tab: 'attributes',
     }
   },
 
-  components: {},
+  components: { ZclCommandManager, ZclAttributeManager },
 }
 </script>

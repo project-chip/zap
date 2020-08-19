@@ -264,8 +264,8 @@ limitations under the License.
   </bitmap>
   <!-- GpDeviceId types. -->
   <enum name="GpDeviceId" type="ENUM8">
-    <item name="GpSimpleGenericeOneStateSwitch" value="0x00" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpSimpleGenericeTwoStateSwitch" value="0x00" introducedIn="gp-1.0-09-5499-24"/>
+    <item name="GpSimpleGenericOneStateSwitch" value="0x00" introducedIn="gp-1.0-09-5499-24"/>
+    <item name="GpSimpleGenericTwoStateSwitch" value="0x00" introducedIn="gp-1.0-09-5499-24"/>
     <item name="GpOnOffSwitch" value="0x08" introducedIn="gp-1.0-09-5499-24"/>
     <item name="GpLevelControlSwitch" value="0x10" introducedIn="gp-1.0-09-5499-24"/>
     <item name="GpSimpleSensor" value="0x18" introducedIn="gp-1.0-09-5499-24"/>
@@ -320,24 +320,6 @@ limitations under the License.
     <field name="securityKeyType" mask="0x1C"/>
     <field name="reserved" mask="0xE0"/>
   </bitmap>
-  <!-- GpDeviceId types. -->
-  <enum name="GpDeviceId" type="ENUM8">
-    <item name="GpSimpleGenericeOneStateSwitch" value="0x00" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpSimpleGenericeTwoStateSwitch" value="0x00" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpOnOffSwitch" value="0x08" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpLevelControlSwitch" value="0x10" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpSimpleSensor" value="0x18" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpAdvancedGenericOneStateSwitch" value="0x18" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpAdvancedGenericTwoStateSwitch" value="0x18" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpColorDimmerSwitch" value="0x18" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpLightSensor" value="0x18" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpOccpancySensor" value="0x18" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpDoorLockController" value="0x18" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpTemperatureSensor" value="0x18" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpPressureSensor" value="0x18" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpFlowSensor" value="0x18" introducedIn="gp-1.0-09-5499-24"/>
-    <item name="GpIndoorEnvironmentSnesor" value="0x18" introducedIn="gp-1.0-09-5499-24"/>
-  </enum>
   <bitmap name="GpTranslationTableResponseOption" type="BITMAP8">
     <field name="ApplicationId" mask="0x07" introducedIn="gp-1.0-09-5499-24"/>
     <field name="AdditionalInformationBlockPresent" mask="0x08" introducedIn="gp-1.0-09-5499-24"/>
@@ -397,11 +379,6 @@ limitations under the License.
     <field name="OperationalChannel" mask="0x0F"/>
     <field name="Basic" mask="0x10"/>
     <field name="Reserved" mask="0xE0"/>
-  </bitmap>
-  <bitmap name="GpResponseOption" type="BITMAP8">
-    <field name="Mask" mask="0x0F"/>
-    <field name="TransmitOnEndPointMatch" mask="0x08"/>
-    <field name="Reserved" mask="0xF0"/>
   </bitmap>
   <enum name="GpGpdf" type="ENUM8">
     <item name="Identify" value="0x00" introducedIn="gp-1.0-09-5499-24"/>

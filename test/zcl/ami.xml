@@ -3725,7 +3725,7 @@ limitations under the License.
     <item name="high" value="0x08"/>
     <item name="critical" value="0x0C"/>
   </enum>
-  <enum name="MessagingControlEnhancedConfirmation " type="ENUM8">
+  <enum name="MessagingControlEnhancedConfirmation" type="ENUM8">
     <item name="notRequired" value="0x00"/>
     <item name="required" value="0x20"/>
   </enum>

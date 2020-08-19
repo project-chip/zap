@@ -29,7 +29,7 @@ function int8ToHex(value, littleEndian = false) {
   var bb = new byteBuffer(1, littleEndian, byteBuffer.DEFAULT_NOASSERT)
   bb.writeInt8(value)
   bb.flip()
-  return bb.toHex()
+  return bb.toHex().toUpperCase()
 }
 
 /**
@@ -42,7 +42,7 @@ function int16ToHex(value, littleEndian = false) {
   var bb = new byteBuffer(2, littleEndian, byteBuffer.DEFAULT_NOASSERT)
   bb.writeInt16(value)
   bb.flip()
-  return bb.toHex()
+  return bb.toHex().toUpperCase()
 }
 
 /**
@@ -55,7 +55,7 @@ function int32ToHex(value, littleEndian = false) {
   var bb = new byteBuffer(4, littleEndian, byteBuffer.DEFAULT_NOASSERT)
   bb.writeInt32(value)
   bb.flip()
-  return bb.toHex()
+  return bb.toHex().toUpperCase()
 }
 
 /**
@@ -68,7 +68,7 @@ function stringToHex(value) {
   var bb = new byteBuffer(value.length, false, byteBuffer.DEFAULT_NOASSERT)
   bb.writeCString(value)
   bb.flip()
-  return bb.toHex()
+  return bb.toHex().toUpperCase()
 }
 
 /**
@@ -90,8 +90,88 @@ function hexToCBytes(value) {
   return out
 }
 
+/**
+ * Getting a binary string ("0001101010010") it returns the number of zero bits at the end.
+ * @param {*} binary
+ */
+function bitOffset(binary) {
+  var lastIndex = binary.lastIndexOf('1')
+  return binary.length - lastIndex - 1
+}
+
+/**
+ * Convert a hex number to a binary. Hex has to be in a format
+ * as obtained by intToHex methods above: no '0x' prefix and upper-case
+ * letters, as in "12AB".
+ *
+ * @param {*} hex
+ */
+function hexToBinary(hex) {
+  var cleansedHex = hex
+  if (cleansedHex.startsWith('0x') || cleansedHex.startsWith('0X'))
+    cleansedHex = cleansedHex.slice(2)
+  cleansedHex = cleansedHex.toUpperCase()
+
+  var out = ''
+  for (var i = 0; i < cleansedHex.length; i++) {
+    switch (cleansedHex[i]) {
+      case '0':
+        out = out.concat('0000')
+        break
+      case '1':
+        out = out.concat('0001')
+        break
+      case '2':
+        out = out.concat('0010')
+        break
+      case '3':
+        out = out.concat('0011')
+        break
+      case '4':
+        out = out.concat('0100')
+        break
+      case '5':
+        out = out.concat('0101')
+        break
+      case '6':
+        out = out.concat('0110')
+        break
+      case '7':
+        out = out.concat('0111')
+        break
+      case '8':
+        out = out.concat('1000')
+        break
+      case '9':
+        out = out.concat('1001')
+        break
+      case 'A':
+        out = out.concat('1010')
+        break
+      case 'B':
+        out = out.concat('1011')
+        break
+      case 'C':
+        out = out.concat('1100')
+        break
+      case 'D':
+        out = out.concat('1101')
+        break
+      case 'E':
+        out = out.concat('1110')
+        break
+      case 'F':
+        out = out.concat('1111')
+        break
+    }
+  }
+  return out
+}
+
 exports.int32ToHex = int32ToHex
 exports.int16ToHex = int16ToHex
 exports.int8ToHex = int8ToHex
 exports.stringToHex = stringToHex
 exports.hexToCBytes = hexToCBytes
+exports.hexToBinary = hexToBinary
+exports.bitOffset = bitOffset

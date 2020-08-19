@@ -216,15 +216,18 @@ export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
 }
 
 export function addEndpoint(context, newEndpointContext) {
-  Vue.prototype.$serverPost(`/endpoint`, newEndpointContext).then((data) => {
-    let arg = data.data
-    context.commit('addEndpoint', {
-      id: arg.id,
-      eptId: arg.eptId,
-      endpointType: arg.endpointType,
-      network: arg.nwkId,
-      endpointIdValidationIssues: arg.validationIssues.endpointId,
-      networkIdValidationIssues: arg.validationIssues.networkId,
+  return new Promise((resolve, reject) => {
+    Vue.prototype.$serverPost(`/endpoint`, newEndpointContext).then((data) => {
+      let arg = data.data
+      context.commit('addEndpoint', {
+        id: arg.id,
+        eptId: arg.eptId,
+        endpointType: arg.endpointType,
+        network: arg.nwkId,
+        endpointIdValidationIssues: arg.validationIssues.endpointId,
+        networkIdValidationIssues: arg.validationIssues.networkId,
+      })
+      return resolve(data.data)
     })
   })
 }
@@ -488,6 +491,17 @@ export function loadOptions(context, option) {
         type: option.type,
       }
       context.commit('setOptions', optionsData)
+    })
+}
+
+export function setSelectedGenericKey(context, data) {
+  Vue.prototype
+    .$serverPost(restApi.uri.saveSessionKeyValue, {
+      key: data.option,
+      value: data.value,
+    })
+    .then((response) => {
+      context.commit('setSelectedGenericOption', response.data)
     })
 }
 

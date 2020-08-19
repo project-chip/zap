@@ -148,7 +148,7 @@ limitations under the License.
 import * as Util from '../util/util'
 import * as RestApi from '../../src-shared/rest-api'
 export default {
-  name: 'ZclAttributeNewView',
+  name: 'ZclAttributeManager',
   methods: {
     handleAttributeSelection(list, listType, attributeData, clusterId) {
       // We determine the ID that we need to toggle within the list.

@@ -18,6 +18,8 @@
 const queryZcl = require('../db/query-zcl.js')
 const templateUtil = require('./template-util.js')
 const bin = require('../util/bin.js')
+const { exportClustersFromEndpointType } = require('../db/query-impexp.js')
+const { query } = require('express')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -37,7 +39,22 @@ function asMacro(label) {
   l = l.replace(/[:/-]/g, '_')
   l = l.replace('___', '_')
   l = l.replace('__', '_')
+  l = l.replace('._', '_')
+  l = l.replace('.', '_')
+  l = l.replace('-', '_')
   return l
+}
+
+/**
+ * Given a hex number, it prints the offset, which is the index of the first non-zero bit.
+ * @param {*} hex
+ */
+function asOffset(hex) {
+  return bin.bitOffset(bin.hexToBinary(hex))
+}
+
+function isDigit(ch) {
+  return ch >= '0' && ch <= '9'
 }
 
 /**
@@ -50,19 +67,28 @@ function asDelimitedMacro(label) {
   var ret = ''
   if (label == null) return ret
 
+  var wasUp = false
   for (var i = 0; i < label.length; i++) {
     var ch = label.charAt(i)
     var upch = ch.toUpperCase()
-    if (ch == upch) {
+    if (ch == '_') {
+      ret = ret.concat('_')
+      wasUp = true
+    } else if (isDigit(ch)) {
+      ret = ret.concat(ch)
+      wasUp = false
+    } else if (ch == upch) {
       // uppercase
-      if (i != 0) ret = ret.concat('_')
-      ret = ret.concat(ch.toUpperCase())
+      if (i != 0 && !wasUp) ret = ret.concat('_')
+      ret = ret.concat(upch)
+      wasUp = true
     } else {
       // lowercase
       ret = ret.concat(upch)
+      wasUp = false
     }
   }
-  return ret
+  return asMacro(ret)
 }
 
 /**
@@ -81,6 +107,96 @@ function asHex(value) {
     var val = parseInt(value)
     return `0x${val.toString(16)}`
   }
+}
+
+function cleanseUints(uint) {
+  if (uint == 'uint24_t') return 'uint32_t'
+  if (uint == 'uint48_t') return 'uint8_t *'
+  return uint
+}
+
+/**
+ * Returns the default atomic C type for a given atomic from
+ * the database. These values are used unless there is an
+ * override in template package json file. (Not yet fully
+ * implemented, but the plan is for template pkg to be able
+ * to override these.)
+ *
+ * @param {*} atomic
+ */
+function defaultAtomicType(atomic) {
+  if (atomic.name.startsWith('int')) {
+    var signed
+    if (atomic.name.endsWith('s')) signed = true
+    else signed = false
+
+    var ret = `${signed ? '' : 'u'}int${atomic.size * 8}_t`
+
+    // few exceptions
+    ret = cleanseUints(ret)
+    return ret
+  } else if (atomic.name.startsWith('enum') || atomic.name.startsWith('data')) {
+    return cleanseUints(`uint${atomic.name.slice(4)}_t`)
+  } else if (atomic.name.startsWith('bitmap')) {
+    return cleanseUints(`uint${atomic.name.slice(6)}_t`)
+  } else {
+    switch (atomic.name) {
+      case 'utc_time':
+      case 'date':
+        return 'uint32_t'
+      case 'attribute_id':
+      case 'cluster_id':
+        return 'uint16_t'
+      case 'no_data':
+      case 'octet_string':
+      case 'char_string':
+      case 'ieee_address':
+        return 'uint8_t *'
+      case 'boolean':
+        return 'uint8_t'
+      default:
+        return `/* TYPE WARNING: ${atomic.name} defaults to */ uint8_t * `
+    }
+  }
+}
+
+/**
+ * Converts the actual zcl type into an underlying usable C type.
+ * @param {*} value
+ */
+function asUnderlyingType(value) {
+  return templateUtil
+    .ensurePackageId(this)
+    .then((packageId) =>
+      queryZcl.selectAtomicType(this.global.db, packageId, value)
+    )
+    .then((atomic) => {
+      if (atomic == null) {
+        return queryZcl
+          .selectBitmapByName(this.global.db, this.global.packageId, value)
+          .then((bitmap) => {
+            if (bitmap == null) {
+              return atomic
+            } else {
+              return queryZcl.selectAtomicType(
+                this.global.db,
+                this.global.packageId,
+                bitmap.type
+              )
+            }
+          })
+      } else {
+        // Just pass it through
+        return atomic
+      }
+    })
+    .then((atomic) => {
+      if (atomic == null) {
+        return `EmberAf${value}`
+      } else {
+        return defaultAtomicType(atomic)
+      }
+    })
 }
 
 /**
@@ -176,3 +292,5 @@ exports.asType = asType
 exports.asSymbol = asSymbol
 exports.asBytes = asBytes
 exports.asDelimitedMacro = asDelimitedMacro
+exports.asOffset = asOffset
+exports.asUnderlyingType = asUnderlyingType

@@ -60,7 +60,7 @@ limitations under the License.
               dense
               :disable="!isClusterEnabled(props.row.id)"
               icon="settings"
-              @click="selectCluster(props.row.id)"
+              @click="selectCluster(props.row)"
               to="/cluster"
             />
           </q-td>
@@ -147,8 +147,8 @@ export default {
           })
         )
     },
-    selectCluster(id) {
-      this.$store.dispatch('zap/updateSelectedCluster', id)
+    selectCluster(cluster) {
+      this.$store.dispatch('zap/updateSelectedCluster', cluster)
     },
   },
   data() {
