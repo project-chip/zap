@@ -123,7 +123,7 @@
   "build": {
     "appId": "zap.id",
     "mac": {
-      "category": "zap.category"
+      "category": "public.app-category.developer-tools"
     },
     "directories": {
       "buildResources": "resource-build",
