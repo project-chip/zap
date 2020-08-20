@@ -179,6 +179,7 @@ export default {
                 endpointType: this.endpointType[res.id],
                 deviceTypeRef: this.endpointDeviceTypeRef[res.id],
               })
+              this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
             })
         })
     },
@@ -206,6 +207,7 @@ export default {
         endpointType: endpointReference,
         deviceTypeRef: this.endpointDeviceTypeRef[endpointReference],
       })
+      this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
     },
   },
 }

@@ -93,9 +93,15 @@ limitations under the License.
           <q-td key="required" :props="props" auto-width>
             <!-- TODO -->
           </q-td>
-          <q-td key="mfgId" :props="props" auto-width>{{
-            props.row.manufacturerCode ? props.row.manufacturerCode : '-'
-          }}</q-td>
+          <q-td key="mfgId" :props="props" auto-width
+            >{{
+              selectedCluster.manufacturerCode
+                ? selectedCluster.manufacturerCode
+                : props.row.manufacturerCode
+                ? props.row.manufacturerCode
+                : '-'
+            }}
+          </q-td>
         </q-tr>
       </template>
     </q-table>

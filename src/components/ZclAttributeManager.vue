@@ -68,7 +68,11 @@ limitations under the License.
             props.row.side
           }}</q-td>
           <q-td key="mfgID" :props="props" auto-width>{{
-            props.row.manufacturerCode
+            selectedCluster.manufacturerCode
+              ? selectedCluster.manufacturerCode
+              : props.row.manufacturerCode
+              ? props.row.manufacturerCode
+              : '-'
           }}</q-td>
           <q-td key="stgOpt" :props="props" auto-width></q-td>
           <q-td key="singleton" :props="props" auto-width>
