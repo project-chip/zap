@@ -1,54 +1,31 @@
 # Frequently Asked Questions
 
-**Q: I get an error "sqlite3_node" not found or something like that.**
+**Q: How to make this work on Mac/Linux?**
 
-**A:** You need to rebuild your native sqlite3 bindings.
+**A:**
 
-To fix this in most cases, run:
+`npm install` is used to download all required dependency packages.
 
-- `npm install`
-- `./node_modules/.bin/electron-rebuild -w sqlite3 -p`
+If you see errors related to `node-gyp` and missing local libraries, like `pixman`, etc, it means there are missing native dependencies to satisfy to compile non-prebuilt node binaries for some combination of platforms and versions. Npm on the cloud is constantly updating the list of provided binaries, so it's possible that you will pick them up just fine, but if you don't, these are instructions for different platforms:
 
-If it still doesn't get fixed, do:
+- **OSX on a Mac** with Homebrew `brew`:
 
-- `rm -rf node_modules`
-  and then try again the above commands.
+```
+brew install pkg-config cairo pango libpng jpeg giflib librsvg
+```
 
-Occasionally upgrading your `npm` also makes a difference:
-
-- `npm install -g npm`
-
----
-
-**Q: I get an error during `node install`, something related to `node-gyp` and missing local libraries, like `pixman`, etc.**
-
-**A:** There are some native dependencies that you have to satisfy to compile non-prebuilt node binaries for some combination of platforms and versions. Npm on the cloud is constantly updating the list of provided binaries, so it's possible that you will pick them up just fine, but if you don't, these are instructions for different platforms:
-
-- Fedora Core with `dnf`:
+- **Fedora Core** with `dnf`:
 
 ```
 dnf install pixman-devel cairo-devel pango-devel libjpeg-devel giflib-devel
 ```
 
-- Ubuntu with `apt-get`:
+- **Ubuntu** with `apt-get`:
 
 ```
 apt-get update
 apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev
 ```
-
-- OSX on a Mac:
-
-```
-Using Homebrew install the following:
-- pixman
-- cairo
-- pango
-- libjpeg
-for example: brew install pixman
-```
-
-- Windows: see next FAQ entry: "How to make this work on Windows?".
 
 ---
 
@@ -60,7 +37,9 @@ Make sure its always up to date and there are no changes that haven't been commi
 
 You must use Chocolately to make Zap work on Windows. Make sure to download the pkgconfiglite package
 
-- choco install pkgconfiglite
+```
+choco install pkgconfiglite
+```
 
 If you have issues with cairo, for exaple if you get an error about cairo.h': No such file or directory
 
@@ -98,6 +77,26 @@ References:
 - https://github.com/fabricjs/fabric.js/issues/3611
 - https://github.com/benjamind/delarre.docpad/blob/master/src/documents/posts/installing-node-canvas-for-windows.html.md
 - https://chocolatey.org/packages/libjpeg-turbo#dependencies
+
+---
+
+**Q: I get an error "sqlite3_node" not found or something like that.**
+
+**A:** You need to rebuild your native sqlite3 bindings.
+
+To fix this in most cases, run:
+
+- `npm install`
+- `./node_modules/.bin/electron-rebuild -w sqlite3 -p`
+
+If it still doesn't get fixed, do:
+
+- `rm -rf node_modules`
+  and then try again the above commands.
+
+Occasionally upgrading your `npm` also makes a difference:
+
+- `npm install -g npm`
 
 ---
 
