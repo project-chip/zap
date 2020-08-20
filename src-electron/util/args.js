@@ -17,7 +17,6 @@
 
 const yargs = require('yargs')
 
-const env = require('./env.js')
 const restApi = require(`../../src-shared/rest-api.js`)
 
 // TODO how to handle relative pathing for things like properties file.
@@ -106,7 +105,7 @@ function processCommandLineArguments(argv) {
       type: 'string',
     })
     .usage('Usage: $0 <command> [options]')
-    .help()
+    .help('?')
     .parse(argv)
 
   // Now populate exported variables with this.

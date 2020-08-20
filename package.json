@@ -40,7 +40,8 @@
     "bin-linux": "./dist/electron/zap-linux-x64/zap --zcl ~/git/zap/test/zcl/zcl-test.properties --genTemplateJson ~/git/zap/test/gen-template/gen-templates.json",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "runpack": "./dist/linux-unpacked/zap --zclProperties test/zcl/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json"
+    "runpack": "./dist/linux-unpacked/zap --zclProperties test/zcl/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json",
+    "runpackcheck": "./dist/linux-unpacked/zap selfCheck --zclProperties test/zcl/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json"
   },
   "dependencies": {
     "@quasar/extras": "^1.9.3",
