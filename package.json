@@ -55,7 +55,7 @@
     "node-abi": "^2.18.0",
     "node-gyp": "^7.0.0",
     "node-pre-gyp": "^0.15.0",
-    "pino": "^6.5.0",
+    "pino": "^6.5.1",
     "promised-handlebars": "^2.0.1",
     "properties": "^1.2.1",
     "quasar": "^1.12.13",
@@ -91,7 +91,7 @@
     "jsdoc": "^3.6.5",
     "jsdoc-to-markdown": "^6.0.1",
     "license-checker": "^25.0.1",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.20",
     "prettier": "2.0.5",
     "pretty-quick": "^2.0.1"
   },
