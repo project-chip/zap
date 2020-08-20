@@ -46,11 +46,11 @@ var pino_logger = pino({
 
 var explicit_logger_set = false
 var dbInstance
-var httpStaticContent = path.join(__dirname, '../../dist/spa')
+var httpStaticContent = path.join(__dirname, '../../spa')
 
 function setDevelopmentEnv() {
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
-  httpStaticContent = path.join(__dirname, '../../dist/spa')
+  httpStaticContent = path.join(__dirname, '../../spa')
 }
 
 function setProductionEnv() {
