@@ -62,7 +62,6 @@ limitations under the License.
               :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
-              :color="'primary'"
               @input="
                 handleCommandSelection(
                   selectionIn,
