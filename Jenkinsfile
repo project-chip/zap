@@ -98,7 +98,7 @@ pipeline
             {
                 script 
                 {
-                    sh 'npm run electron-build'
+                    sh 'npm run pack'
                 }
             }
         }
@@ -118,14 +118,8 @@ pipeline
             {
                 script 
                 {
-                    sh 'cp -f apack.info.dist ./dist/electron/zap-linux-x64/apack.info'
-                    sh 'cp -f apack.info.dist ./dist/electron/zap-darwin-x64/apack.info'
-                    sh 'cp -f apack.info.dist ./dist/electron/zap-win32-x64/apack.info'
-                    zip archive: true, dir: './dist/electron/zap-linux-x64', glob: '', zipFile: 'zap-linux-x64.zip'
-                    zip archive: true, dir: './dist/electron/zap-darwin-x64', glob: '', zipFile: 'zap-darwin-x64.zip'
-                    zip archive: true, dir: './dist/electron/zap-win32-x64', glob: '', zipFile: 'zap-win32-x64.zip'
-                    //zip archive: true, dir: './dist/electron/zap-linux-ia32', glob: '', zipFile: 'zap-linux-ia32.zip'
-                    //zip archive: true, dir: './dist/electron/zap-win32-ia32', glob: '', zipFile: 'zap-win32-ia32.zip'
+                    sh 'cp -f apack.info.dist ./dist/linux-unpacked/apack.info'
+                    zip archive: true, dir: './dist/linux-unpacked', glob: '', zipFile: 'zap-linux-x64.zip'
                     archiveArtifacts artifacts:'generated-html/**', fingerprint: true
                 }
             }

@@ -18,7 +18,7 @@
 const { spawn } = require('cross-spawn')
 const { hashElement } = require('folder-hash')
 const hashOptions = {}
-const spaDir = 'dist/spa'
+const spaDir = 'spa'
 const fs = require('fs')
 const path = require('path')
 const scriptUtil = require('./script-util.js')

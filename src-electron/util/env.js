@@ -46,11 +46,11 @@ var pino_logger = pino({
 
 var explicit_logger_set = false
 var dbInstance
-var httpStaticContent = path.join(__dirname, '../../dist/spa')
+var httpStaticContent = path.join(__dirname, '../../spa')
 
 function setDevelopmentEnv() {
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
-  httpStaticContent = path.join(__dirname, '../../dist/spa')
+  httpStaticContent = path.join(__dirname, '../../spa')
 }
 
 function setProductionEnv() {
@@ -185,7 +185,7 @@ function versionsCheck() {
     'v12.15.x',
     'v12.14.x',
   ]
-  var expectedElectronVersion = ['9.1.x']
+  var expectedElectronVersion = ['9.2.x']
   var nodeVersion = process.version
   var electronVersion = process.versions.electron
   var ret = true

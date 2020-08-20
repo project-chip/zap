@@ -7,11 +7,10 @@
   "capacitorId": "",
   "author": "Timotej Ecimovic <timotej.ecimovic@silabs.com>",
   "private": true,
+  "main": "src-electron/main-process/electron-main.js",
   "scripts": {
     "lic": "node src-script/license-check.js --production",
     "lint": "eslint --ext .js,.vue src",
-    "electron-dev": "quasar dev -m electron",
-    "electron-build": "quasar build -m electron",
     "electron-build-dmg": "node src-script/build-dmg.js",
     "test": "jest --updateSnapshot",
     "test:unit": "jest --updateSnapshot",
@@ -19,13 +18,9 @@
     "test:unit:coverage": "jest --coverage",
     "test:unit:watch": "jest --watch",
     "test:unit:watchAll": "jest --watchAll",
-    "serve:test:coverage": "quasar serve test/jest/coverage/lcov-report/ --port 8788",
-    "concurrently:dev:jest": "concurrently \"quasar dev\" \"jest --watch\"",
     "postinstall": "electron-builder install-app-deps",
     "zcl-validate": "zcl/script/validate",
     "zcl-format": "zcl/script/format",
-    "headlessServer": "quasar dev -m electron -- --httpPort 8081 --noUI --xmlRoot=./zcl/zcl-studio.properties",
-    "browser": "quasar dev",
     "zap": "node src-script/zap-start.js --logToStdout",
     "backend": "electron src-electron/main-process/electron-main.js",
     "build-spa": "quasar build",
@@ -36,7 +31,13 @@
     "pretty-quick": "pretty-quick",
     "self-check": "electron src-electron/main-process/electron-main.js selfCheck",
     "gen": "node src-script/zap-generate.js -z ./test/zcl/zcl-test.properties -g ./test/gen-template/gen-templates.json -i ./test/resource/save-file-test-regen.zap -o ./tmp",
-    "bin-linux": "./dist/electron/zap-linux-x64/zap --zcl ~/git/zap/test/zcl/zcl-test.properties --genTemplateJson ~/git/zap/test/gen-template/gen-templates.json"
+    "bin-linux": "./dist/electron/zap-linux-x64/zap --zcl ~/git/zap/test/zcl/zcl-test.properties --genTemplateJson ~/git/zap/test/gen-template/gen-templates.json",
+    "pack": "quasar build && electron-builder --dir",
+    "dist": "electron-builder",
+    "linuxpack-ui": "./dist/linux-unpacked/zap --zclProperties test/zcl/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json",
+    "linuxpack-check": "./dist/linux-unpacked/zap selfCheck --zclProperties test/zcl/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json",
+    "linuxpack-gen": "./dist/linux-unpacked/zap generate --noUi --noServer --zclProperties test/zcl/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json --output tmp",
+    "linuxpack-help": "./dist/linux-unpacked/zap -?"
   },
   "dependencies": {
     "@quasar/extras": "^1.9.3",
@@ -48,14 +49,11 @@
     "core-js": "^3.6.5",
     "corejs": "^1.0.0",
     "crc": "^3.8.0",
-    "electron-builder": "^22.8.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "handlebars": "^4.7.6",
     "jest": "^26.2.2",
-    "node-abi": "^2.18.0",
-    "node-gyp": "^7.0.0",
-    "node-pre-gyp": "^0.15.0",
-    "pino": "^6.5.0",
+    "pino": "^6.5.1",
     "promised-handlebars": "^2.0.1",
     "properties": "^1.2.1",
     "quasar": "^1.12.13",
@@ -74,11 +72,12 @@
     "@vue/eslint-config-standard": "^5.1.2",
     "babel-eslint": "^10.1.0",
     "devtron": "^1.4.0",
-    "electron": "^9.1.2",
+    "electron": "^9.2.1",
+    "electron-builder": "^22.8.0",
     "electron-debug": "^3.1.0",
     "electron-devtools-installer": "^3.1.1",
     "electron-installer-dmg": "^3.0.0",
-    "electron-packager": "^14.2.1",
+    "electron-packager": "^15.0.0",
     "electron-rebuild": "^1.11.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.11.0",
@@ -91,7 +90,10 @@
     "jsdoc": "^3.6.5",
     "jsdoc-to-markdown": "^6.0.1",
     "license-checker": "^25.0.1",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.20",
+    "node-abi": "^2.18.0",
+    "node-gyp": "^7.0.0",
+    "node-pre-gyp": "^0.15.0",
     "prettier": "2.0.5",
     "pretty-quick": "^2.0.1"
   },
@@ -111,5 +113,34 @@
   "prettier": {
     "semi": false,
     "singleQuote": true
+  },
+  "build": {
+    "appId": "zap.id",
+    "mac": {
+      "category": "public.app-category.developer-tools"
+    },
+    "directories": {
+      "buildResources": "resource-build",
+      "output": "dist"
+    },
+    "buildDependenciesFromSource": true,
+    "nodeGypRebuild": false,
+    "npmRebuild": true,
+    "files": [
+      "**/*",
+      "!test/**/*",
+      "!tmp/**/*",
+      "!**/node_modules/*/{CHANGES.md,History.md,CONTRIBUTING.md,CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+    ]
   }
 }

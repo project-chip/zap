@@ -56,3 +56,4 @@ src-electron/handlebars/out/
 
 # Temporary place for generation
 tmp/
+spa/
