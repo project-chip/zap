@@ -44,7 +44,8 @@ if (app != null) {
     try {
       var argv = args.processCommandLineArguments(process.argv)
 
-      if (argv.clearDb != null) {
+      // For now delete the DB file. There is some weird constraint we run into.
+      if (true || argv.clearDb != null) {
         startup.clearDatabaseFile()
       }
 
