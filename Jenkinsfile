@@ -92,7 +92,7 @@ pipeline
                 }
             }
         }
-        stage('Zap application distribution build: Linux')
+        stage('Linux distribution artifacts')
         {
             steps
             {
@@ -102,7 +102,7 @@ pipeline
                 }
             }
         }
-        stage('Zap application distribution build: Mac')
+        stage('Mac distribution artifacts')
         {
             steps
             {
@@ -112,7 +112,7 @@ pipeline
                 }
             }
         }
-        stage('Zap application distribution build: Windows')
+        stage('Windows distribution artifacts')
         {
             steps
             {
