@@ -92,13 +92,33 @@ pipeline
                 }
             }
         }
-        stage('Zap application distribution build')
+        stage('Zap application distribution build: Linux')
         {
             steps
             {
                 script 
                 {
-                    sh 'npm run dist-all || true'
+                    sh 'npm run dist-linux'
+                }
+            }
+        }
+        stage('Zap application distribution build: Mac')
+        {
+            steps
+            {
+                script 
+                {
+                    sh 'npm run dist-mac || true'
+                }
+            }
+        }
+        stage('Zap application distribution build: Windows')
+        {
+            steps
+            {
+                script 
+                {
+                    sh 'npm run dist-win || true'
                 }
             }
         }
