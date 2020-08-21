@@ -86,11 +86,7 @@ function iconsDirectory() {
 }
 
 function schemaFile() {
-  var p = path.join(__dirname, '../db/zap-schema.sql')
-  if (!fs.existsSync(p)) p = path.join(__dirname, '../zap-schema.sql')
-  if (!fs.existsSync(p))
-    throw new Error('Could not locate zap-schema.sql file.')
-  return p
+  return path.join(__dirname, '../db/zap-schema.sql')
 }
 
 function sqliteFile(filename = 'zap') {
