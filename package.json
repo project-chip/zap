@@ -144,7 +144,8 @@
       "!generated-html/**/*",
       "!docs/**/*",
       "!.github/**/*",
-      "!src/**/*"
+      "!src/**/*",
+      "!**/node_modules/sqlite3/build/Release/**/*"
     ]
   }
 }
