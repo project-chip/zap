@@ -124,7 +124,6 @@
         "snap",
         "AppImage",
         "deb",
-        "rpm",
         "tar.xz"
       ]
     },
