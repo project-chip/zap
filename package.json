@@ -7,6 +7,7 @@
   "capacitorId": "",
   "author": "Timotej Ecimovic <timotej.ecimovic@silabs.com>",
   "private": true,
+  "homepage": "https://github.com/project-chip/zap",
   "main": "src-electron/main-process/electron-main.js",
   "scripts": {
     "lic": "node src-script/license-check.js --production",
@@ -30,17 +31,15 @@
     "format-code": "pretty-quick",
     "pretty-quick": "pretty-quick",
     "self-check": "electron src-electron/main-process/electron-main.js selfCheck",
-    "gen": "node src-script/zap-generate.js -z ./test/zcl/zcl-test.properties -g ./test/gen-template/gen-templates.json -i ./test/resource/save-file-test-regen.zap -o ./tmp",
-    "bin-linux": "./dist/electron/zap-linux-x64/zap --zcl ~/git/zap/test/zcl/zcl-test.properties --genTemplateJson ~/git/zap/test/gen-template/gen-templates.json",
+    "gen": "node src-script/zap-generate.js -z ./zcl-builtin/zcl-test.properties -g ./test/gen-template/gen-templates.json -i ./test/resource/save-file-test-regen.zap -o ./tmp",
     "pack": "quasar build && electron-builder --dir",
     "dist": "electron-builder",
-    "linuxpack-ui": "./dist/linux-unpacked/zap --zclProperties test/zcl/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json",
-    "linuxpack-check": "./dist/linux-unpacked/zap selfCheck --zclProperties test/zcl/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json",
-    "linuxpack-gen": "./dist/linux-unpacked/zap generate --noUi --noServer --zclProperties test/zcl/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json --output tmp",
+    "linuxpack-ui": "./dist/linux-unpacked/zap --zclProperties zcl-builtin/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json",
+    "linuxpack-check": "./dist/linux-unpacked/zap selfCheck --zclProperties zcl-builtin/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json",
+    "linuxpack-gen": "./dist/linux-unpacked/zap generate --noUi --noServer --zclProperties zcl-builtin/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json --output tmp",
     "linuxpack-help": "./dist/linux-unpacked/zap -?"
   },
   "dependencies": {
-    "@quasar/extras": "^1.9.3",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "bufferutil": "^4.0.1",
@@ -52,11 +51,9 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "handlebars": "^4.7.6",
-    "jest": "^26.2.2",
     "pino": "^6.5.1",
     "promised-handlebars": "^2.0.1",
     "properties": "^1.2.1",
-    "quasar": "^1.12.13",
     "sqlite3": "^4.2.0",
     "utf-8-validate": "^5.0.2",
     "xml2js": "^0.4.23",
@@ -67,6 +64,7 @@
     "@babel/plugin-transform-regenerator": "^7.10.4",
     "@babel/runtime-corejs2": "^7.11.0",
     "@quasar/app": "^2.0.6",
+    "@quasar/extras": "^1.9.3",
     "@quasar/quasar-app-extension-testing": "^1.0.0",
     "@quasar/quasar-app-extension-testing-unit-jest": "^1.1.0-beta.3",
     "@vue/eslint-config-standard": "^5.1.2",
@@ -87,6 +85,7 @@
     "file-loader": "^6.0.0",
     "folder-hash": "^3.3.2",
     "husky": "^4.2.5",
+    "jest": "^26.2.2",
     "jsdoc": "^3.6.5",
     "jsdoc-to-markdown": "^6.0.1",
     "license-checker": "^25.0.1",
@@ -95,7 +94,8 @@
     "node-gyp": "^7.0.0",
     "node-pre-gyp": "^0.15.0",
     "prettier": "2.0.5",
-    "pretty-quick": "^2.0.1"
+    "pretty-quick": "^2.0.1",
+    "quasar": "^1.12.13"
   },
   "engines": {
     "node": ">= 8.9.0",
@@ -119,6 +119,15 @@
     "mac": {
       "category": "public.app-category.developer-tools"
     },
+    "linux": {
+      "target": [
+        "snap",
+        "AppImage",
+        "deb",
+        "rpm",
+        "tar.xz"
+      ]
+    },
     "directories": {
       "buildResources": "resource-build",
       "output": "dist"
@@ -130,7 +139,7 @@
       "**/*",
       "!test/**/*",
       "!tmp/**/*",
-      "!**/node_modules/*/{CHANGES.md,History.md,CONTRIBUTING.md,CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{CHANGES.md,History.md,CONTRIBUTING.md,CHANGELOG.md,README.md,README.md~,HISTORY.md,README,readme.md,readme}",
       "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
       "!**/node_modules/*.d.ts",
       "!**/node_modules/.bin",
@@ -140,7 +149,15 @@
       "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
       "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
       "!**/{appveyor.yml,.travis.yml,circle.yml}",
-      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}",
+      "!generated-html/**/*",
+      "!docs/**/*",
+      "!.github/**/*",
+      "!src/**/*",
+      "!**/node_modules/sqlite3/build/Release/**/*",
+      "!quasar*",
+      "!test.*",
+      "!src-script/**/*"
     ]
   }
 }

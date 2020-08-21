@@ -88,6 +88,7 @@ function initHttpServer(db, port, studioPort) {
     admin.registerAdminApi(db, app)
     uc_integration.registerUcComponentApi(db, app)
 
+    env.logInfo(`HTTP static content location: ${env.httpStaticContent}`)
     app.use(express.static(env.httpStaticContent))
 
     httpServer = app.listen(port, () => {

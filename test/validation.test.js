@@ -63,7 +63,7 @@ test('isValidNumberString Functions', () => {
   expect(Validation.isValidFloat('5')).toBeTruthy()
   expect(!Validation.isValidFloat('5.6....')).toBeTruthy()
   expect(Validation.isValidFloat('.0001')).toBeTruthy()
-})
+}, 5000)
 
 test('extractValue Functions', () => {
   //Integer
@@ -73,7 +73,7 @@ test('extractValue Functions', () => {
   //float
   expect(Validation.extractFloatValue('0.53') == 0.53).toBeTruthy()
   expect(Validation.extractFloatValue('.53') == 0.53).toBeTruthy()
-})
+}, 5000)
 
 test('Test int bounds', () => {
   //Integer
@@ -88,7 +88,7 @@ test('Test int bounds', () => {
   expect(Validation.checkBoundsFloat(35.0, 25, 50.0))
   expect(!Validation.checkBoundsFloat(351.0, 25, 50.0))
   expect(!Validation.checkBoundsFloat(351.0, 355, 5650.0))
-})
+}, 5000)
 
 test('Validate types', () => {
   expect(Validation.isStringType('CHAR_STRING'))
@@ -101,7 +101,7 @@ test('Validate types', () => {
   expect(Validation.isFloatType('FLOAT_SINGLE'))
   expect(Validation.isFloatType('FLOAT_DOUBLE'))
   expect(!Validation.isFloatType('LONG_OCTET_STRING'))
-})
+}, 5000)
 
 test(
   'Integer Test',
@@ -295,10 +295,14 @@ describe('Validate endpoint for duplicate endpointIds', () => {
         return Promise.resolve()
       })
   }, 10000)
-  test('Test endpoint for duplicates', () =>
-    Validation.validateEndpoint(db, eptId)
-      .then((data) => Validation.validateNoDuplicateEndpoints(db, eptId, sid))
-      .then((hasNoDuplicates) => {
-        expect(hasNoDuplicates).toBeFalsy()
-      }))
+  test(
+    'Test endpoint for duplicates',
+    () =>
+      Validation.validateEndpoint(db, eptId)
+        .then((data) => Validation.validateNoDuplicateEndpoints(db, eptId, sid))
+        .then((hasNoDuplicates) => {
+          expect(hasNoDuplicates).toBeFalsy()
+        }),
+    5000
+  )
 })
