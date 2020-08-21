@@ -98,7 +98,7 @@ pipeline
             {
                 script 
                 {
-                    sh 'npm run dist'
+                    sh 'npm run dist-all'
                 }
             }
         }
