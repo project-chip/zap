@@ -120,7 +120,7 @@ pipeline
                 {
                     sh 'cp -f apack.info.dist ./dist/linux-unpacked/apack.info'
                     zip archive: true, dir: './dist/linux-unpacked', glob: '', zipFile: 'zap-linux-x64.zip'
-                    archiveArtifacts artifacts:'generated-html/**', fingerprint: true
+                    // archiveArtifacts artifacts:'generated-html/**', fingerprint: true
                 }
             }
         }
