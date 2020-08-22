@@ -22,11 +22,6 @@ process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 
 scriptUtil
   .rebuildSpaIfNeeded()
-  .then((ctx) => {
-    var cmdArgs = ['src-electron/main-process/electron-main.dev.js']
-    cmdArgs.push(...process.argv.slice(2))
-    return scriptUtil.executeCmd(ctx, 'electron', cmdArgs)
-  })
   .then(() => {
     console.log('😎 All done.')
   })

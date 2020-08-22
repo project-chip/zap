@@ -14,7 +14,14 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-const { spawn } = require('child_process')
+const { spawn } = require('cross-spawn')
+const folderHash = require('folder-hash')
+const hashOptions = {}
+const spaDir = 'spa'
+const fs = require('fs')
+const path = require('path')
+const scriptUtil = require('./script-util.js')
+const spaHashFileName = path.join(spaDir, 'hash.json')
 
 // Utilities shared by scripts.
 
@@ -37,5 +44,71 @@ function executeCmd(ctx, cmd, args) {
     })
   })
 }
+/**
+ * Resolves into a context object.
+ * Check for context.needsRebuild
+ *
+ * @returns
+ */
+function rebuildSpaIfNeeded() {
+  return folderHash
+    .hashElement('src', hashOptions)
+    .then((currentHash) => {
+      console.log(`🔍 Current  hash: ${currentHash.hash}`)
+      return {
+        currentHash: currentHash,
+      }
+    })
+    .then(
+      (ctx) =>
+        new Promise((resolve, reject) => {
+          fs.readFile(spaHashFileName, (err, data) => {
+            var oldHash = null
+            if (err) {
+              console.log(`👎 Error reading old hash file: ${spaHashFileName}`)
+              ctx.needsRebuild = true
+            } else {
+              oldHash = JSON.parse(data)
+              console.log(`🔍 Previous hash: ${oldHash.hash}`)
+              ctx.needsRebuild = oldHash.hash != ctx.currentHash.hash
+            }
+            if (ctx.needsRebuild) {
+              console.log(
+                `🐝 Front-end code changed, so we need to rebuild SPA.`
+              )
+            } else {
+              console.log(
+                `👍 There were no changes to front-end code, so we don't have to rebuild the SPA.`
+              )
+            }
+            resolve(ctx)
+          })
+        })
+    )
+    .then((ctx) => {
+      if (ctx.needsRebuild)
+        return scriptUtil.executeCmd(ctx, 'quasar', ['build'])
+      else return Promise.resolve(ctx)
+    })
+    .then(
+      (ctx) =>
+        new Promise((resolve, reject) => {
+          if (ctx.needsRebuild) {
+            console.log('✍ Writing out new hash file.')
+            fs.writeFile(
+              spaHashFileName,
+              JSON.stringify(ctx.currentHash),
+              (err) => {
+                if (err) reject(err)
+                else resolve(ctx)
+              }
+            )
+          } else {
+            resolve(ctx)
+          }
+        })
+    )
+}
 
 exports.executeCmd = executeCmd
+exports.rebuildSpaIfNeeded = rebuildSpaIfNeeded
