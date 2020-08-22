@@ -115,10 +115,17 @@ function loadTemplates(db, genTemplatesJson) {
     db: db,
     path: path.resolve(genTemplatesJson),
   }
-  env.logInfo(`Loading generation templates from: ${genTemplatesJson}`)
-  return loadGenTemplate(context).then((context) =>
-    recordTemplatesPackage(context)
-  )
+  return fsPromise
+    .access(context.path, fs.constants.R_OK)
+    .then(() => {
+      env.logInfo(`Loading generation templates from: ${context.path}`)
+      return loadGenTemplate(context)
+    })
+    .then((context) => recordTemplatesPackage(context))
+    .catch(() => {
+      env.logInfo(`Can not read templates from: ${context.path}`)
+      return context
+    })
 }
 
 /**
@@ -295,8 +302,6 @@ function generateSingleFileForPreview(db, sessionId, outFileName) {
 }
 
 exports.loadTemplates = loadTemplates
-exports.loadGenTemplate = loadGenTemplate
-exports.recordTemplatesPackage = recordTemplatesPackage
 exports.generate = generate
 exports.generateAndWriteFiles = generateAndWriteFiles
 exports.generateSingleFileForPreview = generateSingleFileForPreview

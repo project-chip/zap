@@ -779,11 +779,11 @@ function parseOptions(db, ctx) {
  * @returns a Promise that resolves with the db.
  */
 function loadZcl(db, propertiesFile) {
-  env.logInfo(`Loading zcl file: ${propertiesFile}`)
   var ctx = {
     propertiesFile: path.resolve(propertiesFile),
     db: db,
   }
+  env.logInfo(`Loading zcl file: ${ctx.propertiesFile}`)
   return dbApi
     .dbBeginTransaction(db)
     .then(() => readPropertiesFile(ctx))

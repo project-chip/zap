@@ -92,13 +92,33 @@ pipeline
                 }
             }
         }
-        stage('Zap application build')
+        stage('Linux distribution artifacts')
         {
             steps
             {
                 script 
                 {
-                    sh 'npm run electron-build'
+                    sh 'npm run dist-linux'
+                }
+            }
+        }
+        stage('Mac distribution artifacts')
+        {
+            steps
+            {
+                script 
+                {
+                    sh 'npm run dist-mac || true'
+                }
+            }
+        }
+        stage('Windows distribution artifacts')
+        {
+            steps
+            {
+                script 
+                {
+                    sh 'npm run dist-win || true'
                 }
             }
         }
@@ -118,15 +138,7 @@ pipeline
             {
                 script 
                 {
-                    sh 'cp -f apack.info.dist ./dist/electron/zap-linux-x64/apack.info'
-                    sh 'cp -f apack.info.dist ./dist/electron/zap-darwin-x64/apack.info'
-                    sh 'cp -f apack.info.dist ./dist/electron/zap-win32-x64/apack.info'
-                    zip archive: true, dir: './dist/electron/zap-linux-x64', glob: '', zipFile: 'zap-linux-x64.zip'
-                    zip archive: true, dir: './dist/electron/zap-darwin-x64', glob: '', zipFile: 'zap-darwin-x64.zip'
-                    zip archive: true, dir: './dist/electron/zap-win32-x64', glob: '', zipFile: 'zap-win32-x64.zip'
-                    //zip archive: true, dir: './dist/electron/zap-linux-ia32', glob: '', zipFile: 'zap-linux-ia32.zip'
-                    //zip archive: true, dir: './dist/electron/zap-win32-ia32', glob: '', zipFile: 'zap-win32-ia32.zip'
-                    archiveArtifacts artifacts:'generated-html/**', fingerprint: true
+                    archiveArtifacts artifacts:'dist/zap*', fingerprint: true
                 }
             }
         }

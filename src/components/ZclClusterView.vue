@@ -89,7 +89,7 @@ export default {
   computed: {
     selectedEndpointId: {
       get() {
-        return this.$store.state.zap.endpointTypeView.selectedEndpointType
+        return this.$store.state.zap.endpointView.selectedEndpoint
       },
     },
     endpointId: {

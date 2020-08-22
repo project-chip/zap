@@ -45,14 +45,6 @@ limitations under the License.
               :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
-              :color="
-                handleColorSelection(
-                  selectionOut,
-                  requiredCommands,
-                  props.row,
-                  selectedCluster.id
-                )
-              "
               @input="
                 handleCommandSelection(
                   selectionOut,
@@ -70,7 +62,6 @@ limitations under the License.
               :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
-              :color="'primary'"
               @input="
                 handleCommandSelection(
                   selectionIn,
@@ -91,11 +82,17 @@ limitations under the License.
             props.row.label
           }}</q-td>
           <q-td key="required" :props="props" auto-width>
-            <!-- TODO -->
+            {{ isCommandRequired(props.row) ? 'Yes' : '' }}
           </q-td>
-          <q-td key="mfgId" :props="props" auto-width>{{
-            props.row.manufacturerCode ? props.row.manufacturerCode : '-'
-          }}</q-td>
+          <q-td key="mfgId" :props="props" auto-width
+            >{{
+              selectedCluster.manufacturerCode
+                ? selectedCluster.manufacturerCode
+                : props.row.manufacturerCode
+                ? props.row.manufacturerCode
+                : '-'
+            }}
+          </q-td>
         </q-tr>
       </template>
     </q-table>
@@ -176,36 +173,8 @@ export default {
       }
       this.$store.dispatch('zap/updateSelectedCommands', editContext)
     },
-    handleColorSelection(selectedList, recommendedList, command, clusterId) {
-      let relevantClusterList =
-        command.source === 'client'
-          ? this.selectionClusterClient
-          : this.selectionClusterServer
-
-      let isClusterIncluded = relevantClusterList.includes(clusterId)
-      let isCommandRecommended =
-        recommendedList.includes(command.id) || !command.isOptional
-      let isCommandIncluded = selectedList.includes(
-        this.hashCommandIdClusterId(command.id, clusterId)
-      )
-
-      if (isCommandRecommended && isCommandIncluded && isClusterIncluded) {
-        return 'green'
-      } else if (
-        isCommandRecommended &&
-        !isCommandIncluded &&
-        isClusterIncluded
-      ) {
-        return 'red'
-      } else if (
-        isCommandRecommended &&
-        isCommandIncluded &&
-        !isClusterIncluded
-      ) {
-        return 'orange'
-      } else {
-        return 'primary'
-      }
+    isCommandRequired(command) {
+      return this.requiredCommands.includes(command.id) || !command.isOptional
     },
     hashCommandIdClusterId(commandId, clusterId) {
       return Util.cantorPair(commandId, clusterId)

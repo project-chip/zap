@@ -65,12 +65,15 @@ limitations under the License.
           }}</q-td>
           <q-td key="required" :props="props" auto-width></q-td>
           <q-td key="clientServer" :props="props" auto-width>{{
-            props.row.side
+            props.row.side === 'client' ? 'Client' : 'Server'
           }}</q-td>
           <q-td key="mfgID" :props="props" auto-width>{{
-            props.row.manufacturerCode
+            selectedCluster.manufacturerCode
+              ? selectedCluster.manufacturerCode
+              : props.row.manufacturerCode
+              ? props.row.manufacturerCode
+              : '-'
           }}</q-td>
-          <q-td key="stgOpt" :props="props" auto-width></q-td>
           <q-td key="singleton" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
@@ -103,7 +106,9 @@ limitations under the License.
               "
             />
           </q-td>
-          <q-td key="type" :props="props" auto-width>{{ props.row.type }}</q-td>
+          <q-td key="type" :props="props" auto-width>{{
+            props.row.type ? props.row.type.toUpperCase() : 'UNKNOWN'
+          }}</q-td>
           <q-td key="default" :props="props" auto-width>
             <q-input
               dense
@@ -359,6 +364,7 @@ export default {
         },
         {
           name: 'mfgID',
+          label: 'Mfg Code',
           align: 'left',
           field: 'mfgID',
           sortable: true,

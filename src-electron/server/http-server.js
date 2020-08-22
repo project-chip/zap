@@ -26,8 +26,6 @@ const express = require('express')
 const session = require('express-session')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
-const queryPackage = require('../db/query-package.js')
-const dbEnum = require('../db/db-enum.js')
 const admin = require('../rest/admin.js')
 const generation = require('../rest/generation.js')
 const staticZcl = require('../rest/static-zcl.js')
@@ -90,6 +88,7 @@ function initHttpServer(db, port, studioPort) {
     admin.registerAdminApi(db, app)
     uc_integration.registerUcComponentApi(db, app)
 
+    env.logInfo(`HTTP static content location: ${env.httpStaticContent}`)
     app.use(express.static(env.httpStaticContent))
 
     httpServer = app.listen(port, () => {

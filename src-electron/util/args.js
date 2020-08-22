@@ -16,12 +16,14 @@
  */
 
 const yargs = require('yargs')
-
-const env = require('./env.js')
+const path = require('path')
 const restApi = require(`../../src-shared/rest-api.js`)
 
 // TODO how to handle relative pathing for things like properties file.
-exports.zclPropertiesFile = './test/zcl/zcl-test.properties'
+exports.zclPropertiesFile = path.join(
+  __dirname,
+  '../../zcl-builtin/zcl-test.properties'
+)
 exports.genTemplateJsonFile = './test/gen-template/gen-templates.json'
 exports.httpPort = 9070
 exports.studioHttpPort = 9000
@@ -106,7 +108,7 @@ function processCommandLineArguments(argv) {
       type: 'string',
     })
     .usage('Usage: $0 <command> [options]')
-    .help()
+    .help('?')
     .parse(argv)
 
   // Now populate exported variables with this.
