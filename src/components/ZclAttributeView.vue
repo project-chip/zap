@@ -67,7 +67,7 @@ limitations under the License.
             props.row.manufacturerCode
           }}</q-td>
 
-          <q-td key="flash" :props="props" auto-width>
+          <q-td key="singleton" :props="props" auto-width>
             <q-checkbox
               dark
               class="q-mt-xs"
