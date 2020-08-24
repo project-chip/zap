@@ -38,3 +38,9 @@ exports.side = {
   client: 'client',
   server: 'server',
 }
+
+exports.storageOption = {
+  ram: 'ram',
+  flash: 'flash',
+  external: 'external',
+}

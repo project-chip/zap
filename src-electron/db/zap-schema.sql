@@ -365,6 +365,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
   "INCLUDED" integer default false,
   "EXTERNAL" integer default false,
   "FLASH" integer default false,
+  "STORAGE_OPTION" text,
   "SINGLETON" integer default false,
   "BOUNDED" integer default false,
   "DEFAULT_VALUE" text,

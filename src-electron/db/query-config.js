@@ -22,6 +22,7 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
+const dbEnum = require('./db-enum.js')
 const queryZcl = require('./query-zcl.js')
 
 /**
@@ -164,8 +165,8 @@ function insertOrUpdateAttributeState(
             `
 INSERT 
 INTO ENDPOINT_TYPE_ATTRIBUTE 
-  ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE ) 
-SELECT ?, ?, ?, ? 
+  ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE, STORAGE_OPTION) 
+SELECT ?, ?, ?, ?, ?
 WHERE ( 
   ( SELECT COUNT(1) FROM ENDPOINT_TYPE_ATTRIBUTE 
     WHERE ENDPOINT_TYPE_REF = ? 
@@ -177,6 +178,7 @@ WHERE (
               cluster.endpointTypeClusterId,
               attributeId,
               staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
+              dbEnum.storageOption.ram,
               endpointTypeId,
               cluster.endpointTypeClusterId,
               attributeId,
@@ -924,6 +926,7 @@ SELECT
   ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF, 
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID, 
   ENDPOINT_TYPE_ATTRIBUTE.INCLUDED, 
+  ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION,
   ENDPOINT_TYPE_ATTRIBUTE.EXTERNAL, 
   ENDPOINT_TYPE_ATTRIBUTE.FLASH, 
   ENDPOINT_TYPE_ATTRIBUTE.SINGLETON, 
@@ -939,6 +942,7 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ENDPOINT_TYPE_ATTRIBUTE.E
         return {
           attributeId: row.ATTRIBUTE_REF,
           isIncluded: row.INCLUDED,
+          storageOption: row.STORAGE_OPTION,
           isExternal: row.EXTERNAL,
           isFlash: row.FLASH,
           isSingleton: row.SINGLETON,
@@ -991,6 +995,7 @@ SELECT
   A.CODE AS ATTRIBUTE_CODE,
   C.CODE AS CLUSTER_CODE,
   ETA.DEFAULT_VALUE,
+  ETA.STORAGE_OPTION,
   ETA.EXTERNAL,
   ETA.FLASH,
   ETA.SINGLETON,
@@ -1027,6 +1032,7 @@ ORDER BY
           attributeCode: row.ATTRIBUTE_CODE,
           clusterCode: row.CLUSTER_CODE,
           defaultValue: row.DEFAULT_VALUE,
+          storageOption: row.STORAGE_OPTION,
           isExternal: row.EXTERNAL,
           isFlash: row.FLASH,
           isSingleton: row.SINGLETON,
