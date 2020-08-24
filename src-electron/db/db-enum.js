@@ -31,6 +31,7 @@ exports.packageType = {
 
 exports.packageOptionCategory = {
   manufacturerCodes: 'manufacturerCodes',
+  typeMap: 'typeMap',
 }
 
 exports.side = {
