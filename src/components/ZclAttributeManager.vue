@@ -40,7 +40,7 @@ limitations under the License.
               indeterminate-value="false"
               keep-color
               @input="
-                handleAttributeSelection(
+                toggleAttributeSelection(
                   selection,
                   'selectedAttributes',
                   props.row,
@@ -74,16 +74,19 @@ limitations under the License.
           <q-td key="singleton" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
-              v-model="selectionSingleton"
+              :value="
+                !editableAttributes[props.row.id]
+                  ? selectionSingleton
+                  : edittedData['singleton']
+              "
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               :disable="!editableAttributes[props.row.id]"
               :dimmed="!editableAttributes[props.row.id]"
               @input="
-                handleAttributeSelection(
-                  selectionSingleton,
-                  'selectedSingleton',
-                  props.row,
+                handleLocalSelection(
+                  edittedData['singleton'],
+                  props.row.id,
                   selectedCluster.id
                 )
               "
@@ -92,16 +95,19 @@ limitations under the License.
           <q-td key="bounded" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
-              v-model="selectionBounded"
+              :value="
+                !editableAttributes[props.row.id]
+                  ? selectionBounded
+                  : edittedData['bounded']
+              "
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               :disable="!editableAttributes[props.row.id]"
               :dimmed="!editableAttributes[props.row.id]"
               @input="
-                handleAttributeSelection(
-                  selectionBounded,
-                  'selectedBounded',
-                  props.row,
+                handleLocalSelection(
+                  edittedData['bounded'],
+                  props.row.id,
                   selectedCluster.id
                 )
               "
@@ -117,10 +123,14 @@ limitations under the License.
               :borderless="!editableAttributes[props.row.id]"
               :outlined="editableAttributes[props.row.id]"
               :disable="!editableAttributes[props.row.id]"
-              v-model="
-                selectionDefault[
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                ]
+              :value="
+                !editableAttributes[props.row.id]
+                  ? selectionDefault[
+                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                    ]
+                  : edittedData['selectionDefault'][
+                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                    ]
               "
               :error="
                 !isDefaultValueValid(
@@ -133,12 +143,10 @@ limitations under the License.
                 )
               "
               @input="
-                handleAttributeDefaultChange(
-                  selectionDefault[
-                    hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                  ],
-                  props.row,
-                  selectedCluster.id
+                handleLocalDefaultChange(
+                  $event,
+                  edittedData['selectionDefault'],
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 )
               "
             />
@@ -157,14 +165,14 @@ limitations under the License.
               @click="resetAttribute(props.row.id)"
             />
             <q-btn
-              dense
+              densex
               flat
               :icon="editableAttributes[props.row.id] ? 'done' : 'create'"
               color="blue"
               @click="
                 editableAttributes[props.row.id]
-                  ? commitEdittedAttribute(props.row.id)
-                  : setEditableAttribute(props.row.id)
+                  ? commitEdittedAttribute(props.row, selectedCluster.id)
+                  : setEditableAttribute(props.row.id, selectedCluster.id)
               "
             />
           </q-td>
@@ -180,7 +188,20 @@ import * as RestApi from '../../src-shared/rest-api'
 export default {
   name: 'ZclAttributeManager',
   methods: {
-    handleAttributeSelection(list, listType, attributeData, clusterId) {
+    handleLocalSelection(list, attributeDataId, clusterId) {
+      let hash = this.hashAttributeIdClusterId(attributeDataId, clusterId)
+      var indexOfValue = list.indexOf(hash)
+      var addedValue = false
+      if (indexOfValue === -1) {
+        list.push(hash)
+      } else {
+        list.splice(indexOfValue, 1)
+      }
+    },
+    handleLocalDefaultChange(value, list, hash) {
+      list[hash] = value
+    },
+    toggleAttributeSelection(list, listType, attributeData, clusterId, enable) {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base ZCL attribute and cluster data.
       var indexOfValue = list.indexOf(
@@ -204,6 +225,18 @@ export default {
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
+    setAttributeSelection(listType, attributeData, clusterId, enable) {
+      let editContext = {
+        action: 'boolean',
+        endpointTypeId: this.selectedEndpointId,
+        id: attributeData.id,
+        value: enable,
+        listType: listType,
+        clusterRef: clusterId,
+        attributeSide: attributeData.side,
+      }
+      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+    },
 
     handleAttributeDefaultChange(newValue, attributeData, clusterId) {
       let editContext = {
@@ -217,6 +250,7 @@ export default {
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
+
     isAttributeRequired(attribute) {
       return this.requiredAttributes.includes(attribute.id)
     },
@@ -238,21 +272,85 @@ export default {
     hashAttributeIdClusterId(attributeId, clusterId) {
       return Util.cantorPair(attributeId, clusterId)
     },
-    setEditableAttribute(attributeId) {
+
+    initializeBooleanEditableList(
+      originatingList,
+      editableList,
+      attrClusterHash
+    ) {
+      if (originatingList.includes(attrClusterHash)) {
+        if (!editableList.includes(attrClusterHash)) {
+          editableList.push(attrClusterHash)
+        }
+      } else {
+        if (editableList.includes(attrClusterHash)) {
+          let index = editableList.indexOf(attrClusterHash)
+          editableList.splice(index, 1)
+        }
+      }
+    },
+
+    initializeTextEditableList(originatingList, editableList, attrClusterHash) {
+      let data = originatingList[attrClusterHash]
+      editableList[attrClusterHash] = data
+    },
+
+    setEditableAttribute(attributeId, selectedClusterId) {
+      let attrClusterHash = this.hashAttributeIdClusterId(
+        attributeId,
+        selectedClusterId
+      )
+      this.initializeBooleanEditableList(
+        this.selectionBounded,
+        this.edittedData['bounded'],
+        attrClusterHash
+      )
+      this.initializeBooleanEditableList(
+        this.selectionSingleton,
+        this.edittedData['singleton'],
+        attrClusterHash
+      )
+
+      this.initializeTextEditableList(
+        this.selectionDefault,
+        this.edittedData['selectionDefault'],
+        attrClusterHash
+      )
+
       this.$store.dispatch('zap/setAttributeEditting', {
         attributeId: attributeId,
         editState: true,
       })
     },
+
     resetAttribute(attributeId) {
       this.$store.dispatch('zap/setAttributeEditting', {
         attributeId: attributeId,
         editState: false,
       })
     },
-    commitEdittedAttribute(attributeId) {
+
+    commitEdittedAttribute(attributeData, clusterId) {
+      let hash = this.hashAttributeIdClusterId(attributeData.id, clusterId)
+      this.handleAttributeDefaultChange(
+        this.edittedData['selectionDefault'][hash],
+        attributeData,
+        clusterId
+      )
+      this.setAttributeSelection(
+        'selectedSingleton',
+        attributeData,
+        clusterId,
+        this.edittedData['singleton'].includes(hash)
+      )
+      this.setAttributeSelection(
+        'selectedBounded',
+        attributeData,
+        clusterId,
+        this.edittedData['bounded'].includes(hash)
+      )
       this.$store.dispatch('zap/setAttributeEditting', {
-        attributeId: attributeId,
+        attributeId: attributeData.id,
         editState: false,
       })
     },
@@ -315,16 +413,6 @@ export default {
           .map((attribute) => attribute.id)
       },
     },
-    selectionClusterClient: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedClients
-      },
-    },
-    selectionClusterServer: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedServers
-      },
-    },
     defaultValueValidation: {
       get() {
         return this.$store.state.zap.attributeView.defaultValueValidationIssues
@@ -343,6 +431,11 @@ export default {
   },
   data() {
     return {
+      edittedData: {
+        bounded: [],
+        singleton: [],
+        selectionDefault: {},
+      },
       pagination: {
         rowsPerPage: 0,
       },
