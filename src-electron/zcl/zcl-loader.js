@@ -741,7 +741,7 @@ function parseManufacturerData(db, ctx) {
         queryPackage.insertOptionsKeyValues(
           db,
           ctx.packageId,
-          'manufacturerCodes',
+          dbEnum.packageOptionCategory.manufacturerCodes,
           manufacturerMap.result.map.mapping.map((data) => {
             let mfgPair = data['$']
             return { code: mfgPair['code'], label: mfgPair['translation'] }

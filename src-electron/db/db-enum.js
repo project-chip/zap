@@ -29,6 +29,10 @@ exports.packageType = {
   genSingleTemplate: 'gen-template',
 }
 
+exports.packageOptionCategory = {
+  manufacturerCodes: 'manufacturerCodes',
+}
+
 exports.side = {
   client: 'client',
   server: 'server',
