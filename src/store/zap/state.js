@@ -53,8 +53,6 @@ export default function () {
     attributeView: {
       selectedAttributes: [],
       editableAttributes: {},
-      selectedExternal: [],
-      selectedFlash: [],
       selectedSingleton: [],
       selectedBounded: [],
       defaultValues: {},

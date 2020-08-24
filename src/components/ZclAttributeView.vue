@@ -67,41 +67,6 @@ limitations under the License.
             props.row.manufacturerCode
           }}</q-td>
 
-          <q-td key="external" :props="props" auto-width>
-            <q-checkbox
-              dark
-              class="q-mt-xs"
-              v-model="selectionExternal"
-              :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
-              indeterminate-value="false"
-              @input="
-                handleAttributeSelection(
-                  selectionExternal,
-                  'selectedExternal',
-                  props.row,
-                  selectedCluster.id
-                )
-              "
-            />
-          </q-td>
-
-          <q-td key="flash" :props="props" auto-width>
-            <q-checkbox
-              dark
-              class="q-mt-xs"
-              v-model="selectionFlash"
-              :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
-              indeterminate-value="false"
-              @input="
-                handleAttributeSelection(
-                  selectionFlash,
-                  'selectedFlash',
-                  props.row,
-                  selectedCluster.id
-                )
-              "
-            />
-          </q-td>
           <q-td key="flash" :props="props" auto-width>
             <q-checkbox
               dark
@@ -287,16 +252,6 @@ export default {
         return this.$store.state.zap.attributeView.selectedAttributes
       },
     },
-    selectionExternal: {
-      get() {
-        return this.$store.state.zap.attributeView.selectedExternal
-      },
-    },
-    selectionFlash: {
-      get() {
-        return this.$store.state.zap.attributeView.selectedFlash
-      },
-    },
     selectionSingleton: {
       get() {
         return this.$store.state.zap.attributeView.selectedSingleton
@@ -393,20 +348,6 @@ export default {
           align: 'left',
           label: 'Manufacturing ID',
           field: 'mfgID',
-          sortable: true,
-        },
-        {
-          name: 'external',
-          align: 'left',
-          label: 'External',
-          field: 'external',
-          sortable: true,
-        },
-        {
-          name: 'flash',
-          align: 'left',
-          label: 'Flash',
-          field: 'flash',
           sortable: true,
         },
         {

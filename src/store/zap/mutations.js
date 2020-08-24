@@ -221,8 +221,6 @@ export function resetAttributeDefaults(state) {
 
 export function setAttributeLists(state, data) {
   state.attributeView.selectedAttributes = data.included
-  state.attributeView.selectedExternal = data.external
-  state.attributeView.selectedFlash = data.flash
   state.attributeView.selectedSingleton = data.singleton
   state.attributeView.selectedBounded = data.bounded
   state.attributeView.selectedReporting = data.includedReportable

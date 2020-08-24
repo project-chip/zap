@@ -363,8 +363,6 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
   "ENDPOINT_TYPE_CLUSTER_REF" integer,
   "ATTRIBUTE_REF" integer,
   "INCLUDED" integer default false,
-  "EXTERNAL" integer default false,
-  "FLASH" integer default false,
   "STORAGE_OPTION" text,
   "SINGLETON" integer default false,
   "BOUNDED" integer default false,

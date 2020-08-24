@@ -370,16 +370,6 @@ export default {
         return this.$store.state.zap.attributeView.selectedAttributes
       },
     },
-    selectionExternal: {
-      get() {
-        return this.$store.state.zap.attributeView.selectedExternal
-      },
-    },
-    selectionFlash: {
-      get() {
-        return this.$store.state.zap.attributeView.selectedFlash
-      },
-    },
     selectionSingleton: {
       get() {
         return this.$store.state.zap.attributeView.selectedSingleton

@@ -352,8 +352,6 @@ export function setClusterList(context, selectionContext) {
 
 export function setAttributeStateLists(context, selectionContext) {
   var includedAttributes = []
-  var externalAttributes = []
-  var flashAttributes = []
   var singletonAttributes = []
   var boundedAttributes = []
   var defaultValue = {}
@@ -369,8 +367,6 @@ export function setAttributeStateLists(context, selectionContext) {
       record.clusterRef
     )
     if (record.included === 1) includedAttributes.push(resolvedReference)
-    if (record.external === 1) externalAttributes.push(resolvedReference)
-    if (record.flash === 1) flashAttributes.push(resolvedReference)
     if (record.singleton === 1) singletonAttributes.push(resolvedReference)
     if (record.bounded === 1) boundedAttributes.push(resolvedReference)
     if (record.includedReportable === 1)
@@ -382,8 +378,6 @@ export function setAttributeStateLists(context, selectionContext) {
   })
   context.commit(`setAttributeLists`, {
     included: includedAttributes,
-    external: externalAttributes,
-    flash: flashAttributes,
     singleton: singletonAttributes,
     bounded: boundedAttributes,
     defaultValue: defaultValue,
