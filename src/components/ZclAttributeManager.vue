@@ -128,7 +128,7 @@ limitations under the License.
                   ? selectionDefault[
                       hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                     ]
-                  : edittedData['selectionDefault'][
+                  : editableDefaults[
                       hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                     ]
               "
@@ -145,7 +145,7 @@ limitations under the License.
               @input="
                 handleLocalDefaultChange(
                   $event,
-                  edittedData['selectionDefault'],
+                  editableDefaults,
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 )
               "
@@ -185,6 +185,8 @@ limitations under the License.
 <script>
 import * as Util from '../util/util'
 import * as RestApi from '../../src-shared/rest-api'
+import Vue from 'vue'
+
 export default {
   name: 'ZclAttributeManager',
   methods: {
@@ -199,7 +201,8 @@ export default {
       }
     },
     handleLocalDefaultChange(value, list, hash) {
-      list[hash] = value
+      Vue.set(list, hash, value)
+      this.editableDefaults = Object.assign({}, this.editableDefaults)
     },
     toggleAttributeSelection(list, listType, attributeData, clusterId, enable) {
       // We determine the ID that we need to toggle within the list.
@@ -313,7 +316,7 @@ export default {
 
       this.initializeTextEditableList(
         this.selectionDefault,
-        this.edittedData['selectionDefault'],
+        this.editableDefaults,
         attrClusterHash
       )
 
@@ -333,7 +336,7 @@ export default {
     commitEdittedAttribute(attributeData, clusterId) {
       let hash = this.hashAttributeIdClusterId(attributeData.id, clusterId)
       this.handleAttributeDefaultChange(
-        this.edittedData['selectionDefault'][hash],
+        this.editableDefaults[hash],
         attributeData,
         clusterId
       )
@@ -434,8 +437,8 @@ export default {
       edittedData: {
         bounded: [],
         singleton: [],
-        selectionDefault: {},
       },
+      editableDefaults: {},
       pagination: {
         rowsPerPage: 0,
       },
@@ -535,7 +538,5 @@ tr:nth-child(even) {
 }
 th {
   background-color: #dddddd;
-}
-btn {
 }
 </style>
