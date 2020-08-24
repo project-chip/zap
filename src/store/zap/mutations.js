@@ -308,3 +308,11 @@ export function setDefaultUiMode(state, uiMode) {
 export function setStudioConfigPath(state, filePath) {
   state.studioProject = filePath
 }
+
+export function setAttributeEditting(state, context) {
+  Vue.set(
+    state.attributeView.editableAttributes,
+    context.attributeId,
+    context.editState
+  )
+}

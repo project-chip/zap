@@ -523,3 +523,7 @@ export function setDefaultUiMode(context, uiMode) {
 export function setStudioConfigPath(context, filePath) {
   context.commit('setStudioConfigPath', filePath)
 }
+
+export function setAttributeEditting(context, editContext) {
+  context.commit('setAttributeEditting', editContext)
+}

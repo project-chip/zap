@@ -39,14 +39,6 @@ limitations under the License.
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
-              :color="
-                handleColorSelection(
-                  selection,
-                  requiredAttributes,
-                  props.row,
-                  selectedCluster.id
-                )
-              "
               @input="
                 handleAttributeSelection(
                   selection,
@@ -63,7 +55,9 @@ limitations under the License.
           <q-td key="attrName" :props="props" auto-width>{{
             props.row.label
           }}</q-td>
-          <q-td key="required" :props="props" auto-width></q-td>
+          <q-td key="required" :props="props" auto-width>
+            {{ isAttributeRequired(props.row) ? 'Yes' : '' }}
+          </q-td>
           <q-td key="clientServer" :props="props" auto-width>{{
             props.row.side === 'client' ? 'Client' : 'Server'
           }}</q-td>
@@ -72,14 +66,19 @@ limitations under the License.
               ? selectedCluster.manufacturerCode
               : props.row.manufacturerCode
               ? props.row.manufacturerCode
-              : '-'
+              : ''
           }}</q-td>
+          <q-td key="storageOption" :props="props" auto-width>
+            RAM -> TODO
+          </q-td>
           <q-td key="singleton" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
               v-model="selectionSingleton"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
+              :disable="!editableAttributes[props.row.id]"
+              :dimmed="!editableAttributes[props.row.id]"
               @input="
                 handleAttributeSelection(
                   selectionSingleton,
@@ -96,6 +95,8 @@ limitations under the License.
               v-model="selectionBounded"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
+              :disable="!editableAttributes[props.row.id]"
+              :dimmed="!editableAttributes[props.row.id]"
               @input="
                 handleAttributeSelection(
                   selectionBounded,
@@ -113,6 +114,9 @@ limitations under the License.
             <q-input
               dense
               bottom-slots
+              :borderless="!editableAttributes[props.row.id]"
+              :outlined="editableAttributes[props.row.id]"
+              :disable="!editableAttributes[props.row.id]"
               v-model="
                 selectionDefault[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
@@ -140,8 +144,29 @@ limitations under the License.
             />
           </q-td>
           <q-td key="edit" :props="props" auto-width>
-            <!-- TODO add action to edit button -->
-            <q-btn flat icon="create" color="blue" />
+            <q-btn
+              dense
+              flat
+              icon="close"
+              color="blue"
+              :style="{
+                visibility: editableAttributes[props.row.id]
+                  ? 'visible'
+                  : 'hidden',
+              }"
+              @click="resetAttribute(props.row.id)"
+            />
+            <q-btn
+              dense
+              flat
+              :icon="editableAttributes[props.row.id] ? 'done' : 'create'"
+              color="blue"
+              @click="
+                editableAttributes[props.row.id]
+                  ? commitEdittedAttribute(props.row.id)
+                  : setEditableAttribute(props.row.id)
+              "
+            />
           </q-td>
         </q-tr>
       </template>
@@ -192,44 +217,9 @@ export default {
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
-    handleColorSelection(
-      selectedList,
-      recommendedList,
-      attributeData,
-      clusterId
-    ) {
-      var resolvedId = this.hashAttributeIdClusterId(
-        attributeData.id,
-        clusterId
-      )
-      let relevantAttributeList =
-        attributeData.side === 'client'
-          ? this.selectionClusterClient
-          : this.selectionClusterServer
-
-      let isClusterIncluded = relevantAttributeList.includes(clusterId)
-      let isAttributeRecommended = recommendedList.includes(attributeData.id)
-      let isAttributeSelected = selectedList.includes(resolvedId)
-
-      if (isClusterIncluded && isAttributeRecommended && isAttributeSelected) {
-        return 'green'
-      } else if (
-        isClusterIncluded &&
-        isAttributeRecommended &&
-        !isAttributeSelected
-      ) {
-        return 'red'
-      } else if (
-        !isClusterIncluded &&
-        isAttributeRecommended &&
-        isAttributeSelected
-      ) {
-        return 'orange'
-      } else {
-        return 'primary'
-      }
+    isAttributeRequired(attribute) {
+      return this.requiredAttributes.includes(attribute.id)
     },
-
     isDefaultValueValid(id) {
       return this.defaultValueValidation[id] != null
         ? this.defaultValueValidation[id].length === 0
@@ -247,6 +237,24 @@ export default {
     },
     hashAttributeIdClusterId(attributeId, clusterId) {
       return Util.cantorPair(attributeId, clusterId)
+    },
+    setEditableAttribute(attributeId) {
+      this.$store.dispatch('zap/setAttributeEditting', {
+        attributeId: attributeId,
+        editState: true,
+      })
+    },
+    resetAttribute(attributeId) {
+      this.$store.dispatch('zap/setAttributeEditting', {
+        attributeId: attributeId,
+        editState: false,
+      })
+    },
+    commitEdittedAttribute(attributeId) {
+      this.$store.dispatch('zap/setAttributeEditting', {
+        attributeId: attributeId,
+        editState: false,
+      })
     },
   },
 
@@ -327,6 +335,11 @@ export default {
         return this.$store.state.zap.clustersView.selected[0] || {}
       },
     },
+    editableAttributes: {
+      get() {
+        return this.$store.state.zap.attributeView.editableAttributes
+      },
+    },
   },
   data() {
     return {
@@ -356,6 +369,13 @@ export default {
           sortable: true,
         },
         {
+          name: 'required',
+          label: 'Required',
+          field: 'required',
+          align: 'left',
+          sortable: true,
+        },
+        {
           name: 'clientServer',
           label: 'Client/Server',
           field: 'clientServer',
@@ -367,6 +387,13 @@ export default {
           label: 'Mfg Code',
           align: 'left',
           field: 'mfgID',
+          sortable: true,
+        },
+        {
+          name: 'storageOption',
+          label: 'Storage Option',
+          align: 'left',
+          field: 'storageOption',
           sortable: true,
         },
         {
@@ -402,10 +429,20 @@ export default {
           align: 'left',
           label: 'Edit',
           field: 'edit',
-          sortable: true,
         },
       ],
     }
   },
 }
 </script>
+
+<style scoped>
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+th {
+  background-color: #dddddd;
+}
+btn {
+}
+</style>
