@@ -65,14 +65,6 @@ function registerSessionApi(db, app) {
         booleanParam = 'INCLUDED'
         paramType = 'bool'
         break
-      case 'selectedExternal':
-        booleanParam = 'EXTERNAL'
-        paramType = 'bool'
-        break
-      case 'selectedFlash':
-        booleanParam = 'FLASH'
-        paramType = 'bool'
-        break
       case 'selectedSingleton':
         booleanParam = 'SINGLETON'
         paramType = 'bool'

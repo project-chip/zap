@@ -288,8 +288,6 @@ function exportAttributesFromEndpointTypeCluster(
       mfgCode: x.MANUFACTURER_CODE,
       included: x.INCLUDED,
       storageOption: x.STORAGE_OPTION,
-      external: x.EXTERNAL,
-      flash: x.FLASH,
       singleton: x.SINGLETON,
       bounded: x.BOUNDED,
       defaultValue: x.DEFAULT_VALUE,
@@ -309,8 +307,6 @@ SELECT
   ATTRIBUTE.MANUFACTURER_CODE,
   ENDPOINT_TYPE_ATTRIBUTE.INCLUDED,
   ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION,
-  ENDPOINT_TYPE_ATTRIBUTE.EXTERNAL,
-  ENDPOINT_TYPE_ATTRIBUTE.FLASH,
   ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
   ENDPOINT_TYPE_ATTRIBUTE.BOUNDED,
   ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE,
@@ -351,8 +347,6 @@ function importAttributeForEndpointType(
   arg.push(
     attribute.included,
     attribute.storageOption,
-    attribute.external,
-    attribute.flash,
     attribute.singleton,
     attribute.bounded,
     attribute.defaultValue,
@@ -370,8 +364,6 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE
   ATTRIBUTE_REF,
   INCLUDED,
   STORAGE_OPTION,
-  EXTERNAL,
-  FLASH,
   SINGLETON,
   BOUNDED,
   DEFAULT_VALUE,
@@ -389,7 +381,7 @@ VALUES
         ? 'MANUFACTURER_CODE IS NULL'
         : 'MANUFACTURER_CODE = ?'
     }),
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `,
     arg
   )
