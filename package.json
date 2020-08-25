@@ -117,7 +117,8 @@
   "build": {
     "appId": "zap.id",
     "mac": {
-      "category": "public.app-category.developer-tools"
+      "category": "public.app-category.developer-tools",
+      "target": "zip"
     },
     "linux": {
       "target": [
