@@ -56,6 +56,7 @@ export default function () {
       selectedSingleton: [],
       selectedBounded: [],
       defaultValues: {},
+      storageOption: {},
       // These are based off of the selected ZCL Endpoint Device Type
       recommendedAttributes: [],
       defaultValueValidationIssues: {},

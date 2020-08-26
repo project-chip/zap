@@ -58,37 +58,39 @@ function registerSessionApi(db, app) {
       clusterRef,
       attributeSide,
     } = request.body
-    var booleanParam = ''
+    var param = ''
     var paramType = ''
     switch (listType) {
       case 'selectedAttributes':
-        booleanParam = 'INCLUDED'
+        param = 'INCLUDED'
         paramType = 'bool'
         break
       case 'selectedSingleton':
-        booleanParam = 'SINGLETON'
+        param = 'SINGLETON'
         paramType = 'bool'
         break
       case 'selectedBounded':
-        booleanParam = 'BOUNDED'
+        param = 'BOUNDED'
         paramType = 'bool'
         break
       case 'defaultValue':
-        booleanParam = 'DEFAULT_VALUE'
+        param = 'DEFAULT_VALUE'
         paramType = 'text'
         break
       case 'selectedReporting':
-        booleanParam = 'INCLUDED_REPORTABLE'
+        param = 'INCLUDED_REPORTABLE'
         break
       case 'reportingMin':
-        booleanParam = 'MIN_INTERVAL'
+        param = 'MIN_INTERVAL'
         break
       case 'reportingMax':
-        booleanParam = 'MAX_INTERVAL'
+        param = 'MAX_INTERVAL'
         break
       case 'reportableChange':
-        booleanParam = 'REPORTABLE_CHANGE'
+        param = 'REPORTABLE_CHANGE'
         break
+      case 'storageOption':
+        param = 'STORAGE_OPTION'
       default:
         break
     }
@@ -99,7 +101,7 @@ function registerSessionApi(db, app) {
         clusterRef,
         attributeSide,
         id,
-        [{ key: booleanParam, value: value, type: paramType }]
+        [{ key: param, value: value, type: paramType }]
       )
       .then((row) => {
         return validation

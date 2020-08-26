@@ -206,6 +206,7 @@ export function resetAttributeDefaults(state) {
   state.attributeView.reportingMin = {}
   state.attributeView.reportingMin = {}
   state.attributeView.reportableChange = {}
+  state.attributeView.storageOption = {}
 
   state.attributes.forEach((attribute) => {
     Vue.set(
@@ -213,6 +214,7 @@ export function resetAttributeDefaults(state) {
       attribute.id,
       attribute.defaultValue
     )
+    Vue.set(state.attributeView.storageOption, attribute.id, 'ram')
     Vue.set(state.attributeView.reportingMin, attribute.id, 0)
     Vue.set(state.attributeView.reportingMax, attribute.id, 65344)
     Vue.set(state.attributeView.reportableChange, attribute.id, 0)
@@ -229,6 +231,12 @@ export function setAttributeLists(state, data) {
   Object.entries(data.defaultValue).forEach(([attributeRef, defaultVal]) => {
     Vue.set(state.attributeView.defaultValues, attributeRef, defaultVal)
   })
+  Object.entries(data.storageOption).forEach(
+    ([attributeRef, storageOption]) => {
+      Vue.set(state.attributeView.storageOption, attributeRef, storageOption)
+    }
+  )
+
   Object.entries(data.minInterval).forEach(([attributeRef, defaultVal]) => {
     Vue.set(state.attributeView.reportingMin, attributeRef, defaultVal)
   })

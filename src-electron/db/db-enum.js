@@ -40,7 +40,7 @@ exports.side = {
 }
 
 exports.storageOption = {
-  ram: 'ram',
-  flash: 'flash',
-  external: 'external',
+  ram: 'RAM',
+  flash: 'Flash',
+  external: 'External',
 }

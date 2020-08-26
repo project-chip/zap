@@ -69,7 +69,20 @@ limitations under the License.
               : ''
           }}</q-td>
           <q-td key="storageOption" :props="props" auto-width>
-            RAM -> TODO
+            <q-select
+              v-model="
+                selectionStorageOption[
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                ]
+              "
+              class="col"
+              :options="storageOptions"
+              dense
+              bottom-slots
+              :borderless="!editableAttributes[props.row.id]"
+              :outlined="editableAttributes[props.row.id]"
+              :disable="!editableAttributes[props.row.id]"
+            />
           </q-td>
           <q-td key="singleton" :props="props" auto-width>
             <q-checkbox
@@ -385,6 +398,11 @@ export default {
         return this.$store.state.zap.attributeView.defaultValues
       },
     },
+    selectionStorageOption: {
+      get() {
+        return this.$store.state.zap.attributeView.storageOption
+      },
+    },
     selectedEndpointId: {
       get() {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
@@ -424,6 +442,7 @@ export default {
   },
   data() {
     return {
+      storageOptions: ['RAM', 'Flash', 'External'],
       edittedData: {
         bounded: [],
         singleton: [],

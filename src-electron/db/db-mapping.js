@@ -266,7 +266,7 @@ exports.map = {
       clusterRef: x.CLUSTER_REF,
       attributeRef: x.ATTRIBUTE_REF,
       included: x.INCLUDED,
-      storageOption: x.storageOption,
+      storageOption: x.STORAGE_OPTION,
       singleton: x.SINGLETON,
       bounded: x.BOUNDED,
       defaultValue: x.DEFAULT_VALUE,

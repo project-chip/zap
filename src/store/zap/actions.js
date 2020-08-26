@@ -355,6 +355,7 @@ export function setAttributeStateLists(context, selectionContext) {
   var singletonAttributes = []
   var boundedAttributes = []
   var defaultValue = {}
+  var storageOption = {}
 
   var includedReportableAttributes = []
   var min = {}
@@ -372,6 +373,7 @@ export function setAttributeStateLists(context, selectionContext) {
     if (record.includedReportable === 1)
       includedReportableAttributes.push(resolvedReference)
     defaultValue[resolvedReference] = record.defaultValue
+    storageOption[resolvedReference] = record.storageOption
     min[resolvedReference] = record.minInterval
     max[resolvedReference] = record.maxInterval
     change[resolvedReference] = record.reportableChange
@@ -381,6 +383,7 @@ export function setAttributeStateLists(context, selectionContext) {
     singleton: singletonAttributes,
     bounded: boundedAttributes,
     defaultValue: defaultValue,
+    storageOption: storageOption,
     includedReportable: includedReportableAttributes,
     minInterval: min,
     maxInterval: max,
