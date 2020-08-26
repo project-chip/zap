@@ -264,7 +264,7 @@ export default {
     },
     selectionDefault: {
       get() {
-        return this.$store.state.zap.attributeView.defaultValues
+        return this.$store.state.zap.attributeView.defaultValue
       },
     },
     selectedEndpointId: {

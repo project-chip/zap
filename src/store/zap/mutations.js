@@ -34,9 +34,9 @@ export function updateSelectedEndpoint(state, endpoint) {
 
 export function updateAttributes(state, attributes) {
   attributes.forEach((attribute) => {
-    if (state.attributeView.defaultValues[attribute.id] === undefined) {
+    if (state.attributeView.defaultValue[attribute.id] === undefined) {
       Vue.set(
-        state.attributeView.defaultValues,
+        state.attributeView.defaultValue,
         attribute.id,
         attribute.defaultValue
       )
@@ -130,7 +130,7 @@ export function addEndpointType(state, endpointType) {
 
 export function updateAttributeDefaults(state, selectionContext) {
   Vue.set(
-    state.attributeView.defaultValues,
+    state.attributeView[selectionContext.listType],
     selectionContext.id,
     selectionContext.newDefaultValue
   )
@@ -202,7 +202,7 @@ export function setClusterList(state, data) {
 }
 
 export function resetAttributeDefaults(state) {
-  state.attributeView.defaultValues = {}
+  state.attributeView.defaultValue = {}
   state.attributeView.reportingMin = {}
   state.attributeView.reportingMin = {}
   state.attributeView.reportableChange = {}
@@ -210,7 +210,7 @@ export function resetAttributeDefaults(state) {
 
   state.attributes.forEach((attribute) => {
     Vue.set(
-      state.attributeView.defaultValues,
+      state.attributeView.defaultValue,
       attribute.id,
       attribute.defaultValue
     )
@@ -229,7 +229,7 @@ export function setAttributeLists(state, data) {
 
   resetAttributeDefaults(state)
   Object.entries(data.defaultValue).forEach(([attributeRef, defaultVal]) => {
-    Vue.set(state.attributeView.defaultValues, attributeRef, defaultVal)
+    Vue.set(state.attributeView.defaultValue, attributeRef, defaultVal)
   })
   Object.entries(data.storageOption).forEach(
     ([attributeRef, storageOption]) => {

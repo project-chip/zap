@@ -72,7 +72,7 @@ limitations under the License.
           <ZclCommandManager />
         </div>
         <div class="col" v-show="tab == 'reporting'">
-          <!-- <ZclReportingView /> -->
+          <ZclAttributeReportingManager />
         </div>
       </div>
     </div>
@@ -80,6 +80,7 @@ limitations under the License.
 </template>
 <script>
 import ZclAttributeManager from './ZclAttributeManager.vue'
+import ZclAttributeReportingManager from './ZclAttributeReportingManager.vue'
 import ZclCommandManager from './ZclCommandManager.vue'
 import ZclClusterInfo from './ZclClusterInfo.vue'
 import ZclReportingView from './ZclReportingView.vue'
@@ -153,6 +154,10 @@ export default {
     }
   },
 
-  components: { ZclCommandManager, ZclAttributeManager },
+  components: {
+    ZclCommandManager,
+    ZclAttributeManager,
+    ZclAttributeReportingManager,
+  },
 }
 </script>

@@ -88,14 +88,11 @@ export function updateSelectedAttribute(context, selectionContext) {
         context.commit('updateAttributeDefaults', {
           id: Util.cantorPair(arg.id, arg.clusterRef),
           newDefaultValue: arg.added,
+          listType: arg.listType,
           defaultValueValidationIssues: arg.validationIssues.defaultValue,
         })
       }
     })
-}
-
-export function updateReportingAttributeDefaults(context, selectionContext) {
-  context.commit('updateReportingAttributeDefaults', selectionContext)
 }
 
 export function updateSelectedCommands(context, selectionContext) {
