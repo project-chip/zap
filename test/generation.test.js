@@ -80,6 +80,18 @@ describe('Session specific tests', () => {
   })
 
   test(
+    'test retrieval of all preview template files',
+    () => {
+      return axios.get(`${baseUrl}/preview/`).then((response) => {
+        for (i = 0; i < response.data['length']; i++) {
+          expect(response.data[i]['version']).toBeDefined()
+        }
+      })
+    },
+    timeout
+  )
+
+  test(
     'test that there is generation data in the simple-test.out preview file. Index 1',
     () => {
       return axios

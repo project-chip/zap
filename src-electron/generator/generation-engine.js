@@ -142,6 +142,7 @@ function generateAllTemplates(genResult, pkg, generateOnly = null) {
     .then((packages) => {
       var promises = []
       packages.forEach((singlePkg) => {
+        env.logInfo(singlePkg)
         if (generateOnly == null)
           promises.push(generateSingleTemplate(genResult, singlePkg))
         else if (generateOnly == singlePkg.version)

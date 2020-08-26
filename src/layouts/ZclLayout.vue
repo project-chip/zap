@@ -34,7 +34,13 @@ limitations under the License.
           <q-tab :name="restApi.uiMode.ZIGBEE" label="Reformed UI" />
         </q-tabs>
         <q-space />
-        <q-btn flat @click="drawerRight = !drawerRight" dense label="Preview" />
+        <q-btn
+          flat
+          @click="drawerRight = !drawerRight"
+          dense
+          label="Preview"
+          v-on:click="getGeneratedFiles"
+        />
       </q-toolbar>
       <q-layout
         view="hHh Lpr lff"
@@ -91,115 +97,18 @@ limitations under the License.
               >
                 <q-list>
                   <q-item
+                    v-for="file in generationFiles"
+                    :key="file"
                     clickable
                     v-close-popup
                     @click="
-                      generationButtonText = 'cluster-id.h'
-                      getGeneratedFile('cluster-id')
-                    "
-                    key="status"
-                    :label="generationButtonText"
-                  >
-                    <q-item-section>
-                      <q-item-label>cluster-id.h</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-item
-                    clickable
-                    v-close-popup
-                    @click="
-                      generationButtonText = 'enums.h'
-                      getGeneratedFile('enums')
+                      generationButtonText = file.version
+                      getGeneratedFile(file.version)
                     "
                     :label="generationButtonText"
                   >
                     <q-item-section>
-                      <q-item-label>enums.h</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-item
-                    clickable
-                    v-close-popup
-                    @click="
-                      generationButtonText = 'print-cluster.h'
-                      getGeneratedFile('print-cluster')
-                    "
-                    :label="generationButtonText"
-                  >
-                    <q-item-section>
-                      <q-item-label>print-cluster.h</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-item
-                    clickable
-                    v-close-popup
-                    @click="
-                      generationButtonText = 'af-structs.h'
-                      getGeneratedFile('af-structs')
-                    "
-                    :label="generationButtonText"
-                  >
-                    <q-item-section>
-                      <q-item-label>af-structs.h</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-item
-                    clickable
-                    v-close-popup
-                    @click="
-                      generationButtonText = 'att-storage.h'
-                      getGeneratedFile('att-storage')
-                    "
-                    :label="generationButtonText"
-                  >
-                    <q-item-section>
-                      <q-item-label>att-storage.h</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-item
-                    clickable
-                    v-close-popup
-                    @click="
-                      generationButtonText = 'debug-printing-zcl.h'
-                      getGeneratedFile('debug-printing-zcl')
-                    "
-                    :label="generationButtonText"
-                  >
-                    <q-item-section>
-                      <q-item-label>debug-printing-zcl.h</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-item
-                    clickable
-                    v-close-popup
-                    @click="
-                      generationButtonText = 'callback-zcl.h'
-                      getGeneratedFile('callback-zcl')
-                    "
-                    :label="generationButtonText"
-                  >
-                    <q-item-section>
-                      <q-item-label>callback-zcl.h</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-item
-                    clickable
-                    v-close-popup
-                    @click="
-                      generationButtonText = 'client-command-macro.h'
-                      getGeneratedFile('client-command-macro')
-                    "
-                    :label="generationButtonText"
-                  >
-                    <q-item-section>
-                      <q-item-label>client-command-macro.h</q-item-label>
+                      <q-item-label>{{ file.version }}</q-item-label>
                     </q-item-section>
                   </q-item>
                 </q-list>
@@ -241,6 +150,11 @@ const { getScrollHeight } = scroll
 export default {
   name: 'ZclLayout',
   methods: {
+    getGeneratedFiles() {
+      this.$serverGet('/preview/').then((result) => {
+        this.generationFiles = result.data
+      })
+    },
     getGeneratedFile(fileName, index = 1) {
       this.$serverGet('/preview/' + fileName + '/' + index)
         .then((result) => {
@@ -289,6 +203,7 @@ export default {
       zclDialogTitle: '',
       zclDialogText: '',
       drawerRight: false,
+      generationFiles: '',
       generationData: 'Generated Data',
       generationButtonText: 'Select File',
       currentFile: '',
