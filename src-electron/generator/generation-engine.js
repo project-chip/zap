@@ -210,6 +210,24 @@ function writeFile(fileName, content, doBackup) {
 }
 
 /**
+ * Returns a promise that resolves into a content that should be written out to gen result file.
+ *
+ * @param {*} genResult
+ */
+function generateGenerationContent(genResult) {
+  var out = {
+    writeTime: new Date().toString(),
+    featureLevel: env.featureLevel,
+    creator: 'zap',
+    content: [],
+  }
+  for (const f in genResult.content) {
+    out.content.push(f)
+  }
+  return Promise.resolve(JSON.stringify(out))
+}
+
+/**
  * Generate files and write them into the given directory.
  *
  * @param {*} db
@@ -238,6 +256,16 @@ function generateAndWriteFiles(
       env.logInfo(`Preparing to write file: ${fileName}`)
       promises.push(writeFile(fileName, content, options.backup))
     }
+    promises.push(
+      generateGenerationContent(genResult).then((content) =>
+        writeFile(
+          path.join(outputDirectory, 'genResult.json'),
+          content,
+          options.backup
+        )
+      )
+    )
+
     return Promise.all(promises)
   })
 }
