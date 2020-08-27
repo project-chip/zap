@@ -14,7 +14,7 @@ executable(zap:linux.x86_64) {
 }
 
 executable(zap:macosx.x86_64) {
-  exe=dist/electron/zap-darwin-x64/zap.app/Contents/MacOS/zap
+  exe=zap.app/Contents/MacOS/zap
 }
 
 function(run) {
@@ -23,7 +23,7 @@ function(run) {
 }
 
 function(zapHelp) {
-  cmd=$(zap) --help
+  cmd=$(zap) -?
 }
 
 function(zapSelfcheck) {

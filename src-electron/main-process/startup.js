@@ -70,7 +70,7 @@ function startNormal(uiEnabled, showUrl, uiMode) {
         if (showUrl && !args.noServer) {
           // NOTE: this is parsed/used by Studio as the default landing page.
           console.log(
-            `url: http://localhost:${httpServer.httpServerPort()}/index.html`
+            `ZAP Server started at: http://localhost:${httpServer.httpServerPort()}`
           )
         }
       }
