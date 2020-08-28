@@ -9,6 +9,10 @@ id=zclConfigurator
 # Trigger file extension. No period.
 uc.triggerExtension=zap
 
+executable(em3xx_load:win32.x86_64) {
+  exe=zap.exe
+}
+
 executable(zap:linux.x86_64) {
   exe=zap
 }

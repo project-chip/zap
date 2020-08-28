@@ -118,7 +118,8 @@ pipeline
             {
                 script 
                 {
-                    sh 'npm run dist-win || true'
+                    sh 'npm run dist-win'
+                    sh 'npm run apack:win'
                 }
             }
         }
