@@ -56,7 +56,7 @@
     "pino": "^6.5.1",
     "promised-handlebars": "^2.0.1",
     "properties": "^1.2.1",
-    "sqlite3": "^4.2.0",
+    "sqlite3": "^5.0.0",
     "utf-8-validate": "^5.0.2",
     "xml2js": "^0.4.23",
     "yaml": "^1.10.0",
@@ -131,11 +131,15 @@
         "tar.xz"
       ]
     },
+    "win": {
+      "target": [
+        "portable"
+      ]
+    },
     "directories": {
       "buildResources": "resource-build",
       "output": "dist"
     },
-    "buildDependenciesFromSource": true,
     "nodeGypRebuild": false,
     "npmRebuild": true,
     "files": [
