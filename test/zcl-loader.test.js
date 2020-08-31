@@ -20,7 +20,7 @@
 
 const sq = require('sqlite3')
 const dbApi = require('../src-electron/db/db-api.js')
-const dbEnum = require('../src-electron/db/db-enum.js')
+const dbEnum = require('../src-shared/db-enum.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')

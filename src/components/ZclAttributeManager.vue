@@ -198,6 +198,7 @@ limitations under the License.
 <script>
 import * as Util from '../util/util'
 import * as RestApi from '../../src-shared/rest-api'
+import * as DbEnum from '../../src-shared/db-enum'
 import Vue from 'vue'
 
 export default {
@@ -440,10 +441,14 @@ export default {
         return this.$store.state.zap.attributeView.editableAttributes
       },
     },
+    storageOptions: {
+      get() {
+        return Object.values(DbEnum.storageOption)
+      },
+    },
   },
   data() {
     return {
-      storageOptions: ['RAM', 'Flash', 'External'],
       edittedData: {
         bounded: [],
         singleton: [],

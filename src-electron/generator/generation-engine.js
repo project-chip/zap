@@ -23,7 +23,7 @@ const fsPromise = fs.promises
 const path = require('path')
 const util = require('../util/util.js')
 const queryPackage = require('../db/query-package.js')
-const dbEnum = require('../db/db-enum.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const templateEngine = require('./template-engine.js')
 
