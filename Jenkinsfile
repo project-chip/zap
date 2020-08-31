@@ -109,8 +109,8 @@ pipeline
             {
                 script 
                 {
-                    sh 'npm run dist-mac || true'
-                    sh 'npm run apack:mac || true'
+                    sh 'npm run dist-mac'
+                    sh 'npm run apack:mac'
                 }
             }
         }
