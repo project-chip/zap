@@ -67,7 +67,7 @@
   "devDependencies": {
     "@babel/plugin-transform-regenerator": "^7.10.4",
     "@babel/runtime-corejs2": "^7.11.0",
-    "@quasar/app": "^2.0.6",
+    "@quasar/app": "^2.0.8",
     "@quasar/extras": "^1.9.3",
     "@quasar/quasar-app-extension-testing": "^1.0.0",
     "@quasar/quasar-app-extension-testing-unit-jest": "^1.1.0-beta.3",
