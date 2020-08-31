@@ -36,7 +36,7 @@ const featureLevel = 1
 
 // Basic environment tie-ins
 var pino_logger = pino({
-  nameL: 'zap',
+  name: 'zap',
   level: process.env.ZAP_LOGLEVEL || 'warn', // This sets the default log level. If you set this, to say `sql`, then you will get SQL queries.
   customLevels: {
     sql: 25,
