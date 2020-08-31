@@ -70,10 +70,14 @@ limitations under the License.
           }}</q-td>
           <q-td key="storageOption" :props="props" auto-width>
             <q-select
-              v-model="
-                selectionStorageOption[
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                ]
+              :value="
+                !editableAttributes[props.row.id]
+                  ? selectionStorageOption[
+                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                    ]
+                  : editableStorage[
+                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                    ]
               "
               class="col"
               :options="storageOptions"
@@ -82,6 +86,13 @@ limitations under the License.
               :borderless="!editableAttributes[props.row.id]"
               :outlined="editableAttributes[props.row.id]"
               :disable="!editableAttributes[props.row.id]"
+              @input="
+                handleLocalStorageChange(
+                  $event,
+                  editableStorage,
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                )
+              "
             />
           </q-td>
           <q-td key="singleton" :props="props" auto-width>
@@ -218,6 +229,11 @@ export default {
       Vue.set(list, hash, value)
       this.editableDefaults = Object.assign({}, this.editableDefaults)
     },
+    handleLocalStorageChange(value, list, hash) {
+      Vue.set(list, hash, value)
+      this.editableStorage = Object.assign({}, this.editableStorage)
+    },
+
     toggleAttributeSelection(list, listType, attributeData, clusterId, enable) {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base ZCL attribute and cluster data.
@@ -254,7 +270,6 @@ export default {
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
-
     handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
       let editContext = {
         action: 'text',
@@ -334,6 +349,12 @@ export default {
         attrClusterHash
       )
 
+      this.initializeTextEditableList(
+        this.selectionStorageOption,
+        this.editableStorage,
+        attrClusterHash
+      )
+
       this.$store.dispatch('zap/setAttributeEditting', {
         attributeId: attributeId,
         editState: true,
@@ -355,6 +376,14 @@ export default {
         attributeData,
         clusterId
       )
+      console.log(this.editableStorage[hash])
+      this.handleAttributeDefaultChange(
+        this.editableStorage[hash],
+        'storageOption',
+        attributeData,
+        clusterId
+      )
+
       this.setAttributeSelection(
         'selectedSingleton',
         attributeData,
@@ -454,6 +483,7 @@ export default {
         singleton: [],
       },
       editableDefaults: {},
+      editableStorage: {},
       pagination: {
         rowsPerPage: 0,
       },

@@ -91,6 +91,7 @@ function registerSessionApi(db, app) {
         break
       case 'storageOption':
         param = 'STORAGE_OPTION'
+        paramType = 'text'
       default:
         break
     }
