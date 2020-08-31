@@ -76,7 +76,7 @@ limitations under the License.
       <q-list>
         <div v-for="domainName in domainNames" :key="domainName">
           <div v-show="clusterDomains(domainName).length > 0">
-            <q-expansion-item :label="domainName" icon="play_arrow">
+            <q-expansion-item switch-toggle-side :label="domainName">
               <zcl-domain-cluster-view
                 :domainName="domainName"
                 :clusters="clusterDomains(domainName)"
