@@ -105,18 +105,25 @@ function recordTemplatesPackage(context) {
       if (context.templateData.options != null) {
         for (const category in context.templateData.options) {
           var data = context.templateData.options[category]
-          var codeLabelArray = []
-          for (const code in data) {
-            codeLabelArray.push({ code: code, label: data[code] })
-          }
-          promises.push(
-            queryPackage.insertOptionsKeyValues(
-              context.db,
-              context.packageId,
-              category,
-              codeLabelArray
+
+          if (typeof data === 'string' || data instanceof String) {
+            // Data is a string, so we will treat it as a relative path to the JSON file.
+            // TBD
+          } else {
+            // Treat this data as an object.
+            var codeLabelArray = []
+            for (const code in data) {
+              codeLabelArray.push({ code: code, label: data[code] })
+            }
+            promises.push(
+              queryPackage.insertOptionsKeyValues(
+                context.db,
+                context.packageId,
+                category,
+                codeLabelArray
+              )
             )
-          )
+          }
         }
       }
 

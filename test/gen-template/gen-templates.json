@@ -8,7 +8,8 @@
       "code3": "label3",
       "code4": "label4",
       "code5": "label5"
-    }
+    },
+    "externalOption": "externalOptions.json"
   },
   "templates": [
     {
