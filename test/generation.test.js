@@ -31,8 +31,6 @@ const generationEngine = require('../src-electron/generator/generation-engine.js
 var db
 const port = 9074
 const baseUrl = `http://localhost:${port}`
-var packageId
-var sessionId
 const timeout = 5000
 
 beforeAll(() => {
