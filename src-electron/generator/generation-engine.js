@@ -26,7 +26,6 @@ const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const templateEngine = require('./template-engine.js')
-const { V4MAPPED } = require('dns')
 
 /**
  * Given a path, it will read generation template object into memory.
