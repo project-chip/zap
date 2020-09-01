@@ -72,8 +72,11 @@ describe('Session specific tests', () => {
     timeout
   )
 
-  test('And load the templates.', () =>
-    generationEngine.loadTemplates(db, args.genTemplateJsonFile))
+  test(
+    'And load the templates.',
+    () => generationEngine.loadTemplates(db, args.genTemplateJsonFile),
+    3000
+  )
 
   test('http server initialization', () => {
     return httpServer.initHttpServer(db, port)
