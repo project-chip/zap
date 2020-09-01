@@ -108,7 +108,28 @@ function recordTemplatesPackage(context) {
 
           if (typeof data === 'string' || data instanceof String) {
             // Data is a string, so we will treat it as a relative path to the JSON file.
-            // TBD
+            var externalPath = path.resolve(
+              path.join(path.dirname(context.path), data)
+            )
+            var promise = fsPromise
+              .readFile(externalPath, 'utf8')
+              .then((content) => JSON.parse(content))
+              .then((data) => {
+                var codeLabelArray = []
+                for (const code in data) {
+                  codeLabelArray.push({ code: code, label: data[code] })
+                }
+                return codeLabelArray
+              })
+              .then((codeLabeArray) =>
+                queryPackage.insertOptionsKeyValues(
+                  context.db,
+                  context.packageId,
+                  category,
+                  codeLabeArray
+                )
+              )
+            promises.push(promise)
           } else {
             // Treat this data as an object.
             var codeLabelArray = []
