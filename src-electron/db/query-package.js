@@ -337,10 +337,15 @@ function callPackageSpecificFunctionOverSessionPackages(
  *
  * @param {*} db
  * @param {*} packageId - Package Reference
- * @param {*} optionName - The name of the option.
- * @param {*} optionValues - The array of values associated with this option.
+ * @param {*} optionCategory - The name of the option.
+ * @param {*} optionCodeLabels - The array of values associated with this option.
  */
-function insertOptionsKeyValues(db, packageId, optionKey, optionValues) {
+function insertOptionsKeyValues(
+  db,
+  packageId,
+  optionCategory,
+  optionCodeLabels
+) {
   return dbApi.dbMultiInsert(
     db,
     `INSERT INTO OPTIONS 
@@ -350,8 +355,8 @@ function insertOptionsKeyValues(db, packageId, optionKey, optionValues) {
        ON CONFLICT
         (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
        DO UPDATE SET OPTION_CATEGORY = OPTION_CATEGORY`,
-    optionValues.map((optionValue) => {
-      return [packageId, optionKey, optionValue.code, optionValue.label]
+    optionCodeLabels.map((optionValue) => {
+      return [packageId, optionCategory, optionValue.code, optionValue.label]
     })
   )
 }

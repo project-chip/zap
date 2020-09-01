@@ -26,6 +26,7 @@ const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const templateEngine = require('./template-engine.js')
+const { V4MAPPED } = require('dns')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -69,6 +70,8 @@ function recordTemplatesPackage(context) {
     .then((context) => {
       var promises = []
       env.logInfo(`Loading ${context.templateData.templates.length} templates.`)
+
+      // Add templates queries to the list of promises
       context.templateData.templates.forEach((template) => {
         var templatePath = path.resolve(
           path.join(path.dirname(context.path), template.path)
@@ -98,6 +101,26 @@ function recordTemplatesPackage(context) {
             })
         )
       })
+
+      // Add options to the list of promises
+      if (context.templateData.options != null) {
+        for (const category in context.templateData.options) {
+          var data = context.templateData.options[category]
+          var codeLabelArray = []
+          for (const code in data) {
+            codeLabelArray.push({ code: code, label: data[code] })
+          }
+          promises.push(
+            queryPackage.insertOptionsKeyValues(
+              context.db,
+              context.packageId,
+              category,
+              codeLabelArray
+            )
+          )
+        }
+      }
+
       return Promise.all(promises)
     })
     .then(() => context)
