@@ -28,7 +28,7 @@ const replyId = 'uc-tree'
 const http = require('http-status-codes')
 
 /**
- * Register server side REST API for front-end to interact with Studio components
+ * Register server side REST API for front-end to interact with Studio components.
  *
  * @export
  * @param {*} db
