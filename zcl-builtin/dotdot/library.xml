@@ -457,7 +457,7 @@ applicable to this document can be found in the LICENSE.md file.
   <xi:include href="WindSpeedMeasurement.xml" parse="xml" />
   <xi:include href="ColorControl.xml" parse="xml" />
   <xi:include href="BallastConfiguration.xml" parse="xml" />
-  <xi:include href="PumpConfigurationandControl.xml" parse="xml" />
+  <xi:include href="PumpConfigurationAndControl.xml" parse="xml" />
   <xi:include href="Thermostat.xml" parse="xml" />
   <xi:include href="FanControl.xml" parse="xml" />
   <xi:include href="DehumidificationControl.xml" parse="xml" />
