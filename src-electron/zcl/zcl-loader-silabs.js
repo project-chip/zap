@@ -24,7 +24,7 @@ const queryPackage = require('../db/query-package.js')
 const queryZcl = require('../db/query-zcl.js')
 const env = require('../util/env.js')
 const util = require('../util/util.js')
-const dbEnum = require('../db/db-enum.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 const fsp = fs.promises
 const zclLoader = require('./zcl-loader.js')
 

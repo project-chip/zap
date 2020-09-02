@@ -22,7 +22,7 @@ const restApi = require(`../../src-shared/rest-api.js`)
 // TODO how to handle relative pathing for things like properties file.
 exports.zclPropertiesFile = path.join(
   __dirname,
-  '../../zcl-builtin/zcl-test.properties'
+  '../../zcl-builtin/silabs/zcl-test.properties'
 )
 exports.genTemplateJsonFile = './test/gen-template/gen-templates.json'
 exports.httpPort = 9070
