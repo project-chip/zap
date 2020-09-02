@@ -95,7 +95,7 @@
     "license-checker": "^25.0.1",
     "lodash": "^4.17.20",
     "node-abi": "^2.18.0",
-    "node-gyp": "^7.0.0",
+    "node-gyp": "^7.1.0",
     "node-pre-gyp": "^0.15.0",
     "prettier": "2.0.5",
     "pretty-quick": "^2.0.1",
