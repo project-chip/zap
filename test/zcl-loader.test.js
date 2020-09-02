@@ -40,12 +40,12 @@ test('test database schema loading in memory', () => {
     .then((db) => dbApi.closeDatabase(db))
 })
 
-test('test zcl data loading in memory', () => {
+test('test Silabs zcl data loading in memory', () => {
   var db = new sq.Database(':memory:')
   var packageId
   return dbApi
     .loadSchema(db, env.schemaFile(), env.zapVersion())
-    .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile)) // Maybe: ../../../zcl/zcl-studio.properties
+    .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
     .then((ctx) => {
       packageId = ctx.packageId
       return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
@@ -127,4 +127,98 @@ test('test zcl data loading in memory', () => {
     .finally(() => {
       dbApi.closeDatabase(db)
     })
+}, 5000) // Give this test 5 secs to resolve
+
+test('test Dotdot zcl data loading in memory', () => {
+  var db = new sq.Database(':memory:')
+  var packageId
+  args.zclPropertiesFile = '../zcl-xml/dotdot/library.xml'
+  return (
+    dbApi
+      .loadSchema(db, env.schemaFile(), env.zapVersion())
+      .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
+      .then((ctx) => {
+        packageId = ctx.packageId
+        return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
+      })
+      .then((package) => expect(package.version).toEqual('1.0'))
+      .then(() =>
+        queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
+      )
+      .then((rows) => expect(rows.length).toEqual(1))
+      .then(() => queryZcl.selectAllClusters(db))
+      .then((x) => env.logInfo(`DB cluster count = ${x.length}`))
+      /*
+    .then(() => queryZcl.selectAllDomains(db))
+    .then((x) => expect(x.length).toEqual(20))
+    .then(() => queryZcl.selectAllEnums(db))
+    .then((x) => expect(x.length).toEqual(205))
+    .then(() => queryZcl.selectAllStructs(db))
+    .then((x) => expect(x.length).toEqual(50))
+    .then(() => queryZcl.selectAllBitmaps(db))
+    .then((x) => expect(x.length).toEqual(120))
+    .then(() => queryZcl.selectAllDeviceTypes(db))
+    .then((x) => expect(x.length).toEqual(152))
+    .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
+    .then((x) => expect(x).toEqual(1668))
+    .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
+    .then((x) => expect(x).toEqual(560))
+    .then(() => queryGeneric.selectCountFrom(db, 'ENUM_ITEM'))
+    .then((x) => expect(x).toEqual(1537))
+    .then(() => queryGeneric.selectCountFrom(db, 'ATTRIBUTE'))
+    .then((x) => expect(x).toEqual(3416))
+    .then(() => queryGeneric.selectCountFrom(db, 'BITMAP_FIELD'))
+    .then((x) => expect(x).toEqual(721))
+    .then(() => queryGeneric.selectCountFrom(db, 'STRUCT_ITEM'))
+    .then((x) => expect(x).toEqual(154))
+    .then(() =>
+      dbApi.dbAll(
+        db,
+        'SELECT MANUFACTURER_CODE FROM CLUSTER WHERE MANUFACTURER_CODE NOT NULL',
+        []
+      )
+    )
+    .then((x) => expect(x.length).toEqual(2))
+    .then(() =>
+      dbApi.dbAll(
+        db,
+        'SELECT MANUFACTURER_CODE FROM COMMAND WHERE MANUFACTURER_CODE NOT NULL',
+        []
+      )
+    )
+    .then((x) => expect(x.length).toEqual(5))
+    .then(() =>
+      dbApi.dbAll(
+        db,
+        'SELECT MANUFACTURER_CODE FROM ATTRIBUTE WHERE MANUFACTURER_CODE NOT NULL',
+        []
+      )
+    )
+    .then((x) => expect(x.length).toEqual(4))
+    .then(() =>
+      dbApi.dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', [
+        ['0x0000'],
+        ['0x0006'],
+      ])
+    )
+    .then((rows) => {
+      expect(rows.length).toBe(2)
+      expect(rows[0]).not.toBeUndefined()
+      expect(rows[1]).not.toBeUndefined()
+      expect(rows[0].CLUSTER_ID).not.toBeUndefined()
+      expect(rows[1].CLUSTER_ID).not.toBeUndefined()
+    })
+    .then(() =>
+      queryPackage.selectAllOptionsValues(
+        db,
+        packageId,
+        'defaultResponsePolicy'
+      )
+    )
+    .then((rows) => expect(rows.length).toBe(3)) 
+    */
+      .finally(() => {
+        dbApi.closeDatabase(db)
+      })
+  )
 }, 5000) // Give this test 5 secs to resolve
