@@ -132,7 +132,7 @@ test('test Silabs zcl data loading in memory', () => {
 test('test Dotdot zcl data loading in memory', () => {
   var db = new sq.Database(':memory:')
   var packageId
-  args.zclPropertiesFile = '../zcl-xml/dotdot/library.xml'
+  args.zclPropertiesFile = './zcl-builtin/dotdot/library.xml'
   return (
     dbApi
       .loadSchema(db, env.schemaFile(), env.zapVersion())
@@ -148,7 +148,7 @@ test('test Dotdot zcl data loading in memory', () => {
       .then((rows) => expect(rows.length).toEqual(1))
       .then(() => queryZcl.selectAllClusters(db))
       .then((x) => env.logInfo(`DB cluster count = ${x.length}`))
-      /*
+      /* Keep this around temporarily to see the kinds of things that are being tested
     .then(() => queryZcl.selectAllDomains(db))
     .then((x) => expect(x.length).toEqual(20))
     .then(() => queryZcl.selectAllEnums(db))
