@@ -34,6 +34,9 @@
     "dist-linux": "electron-builder -l",
     "dist-win": "electron-builder -w",
     "dist-mac": "electron-builder -m",
+    "apack:win": "cp apack.info.dist dist/win-unpacked/apack.info && cd dist/win-unpacked && zip -r ../zap_apack_win * && cd -",
+    "apack:mac": "cp apack.info.dist dist/mac/apack.info && cd dist/mac && zip -r ../zap_apack_mac * && cd -",
+    "apack:linux": "cp apack.info.dist dist/linux-unpacked/apack.info && cd dist/linux-unpacked && zip -r ../zap_apack_linux *",
     "linuxpack-ui": "./dist/linux-unpacked/zap --zclProperties zcl-builtin/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json",
     "linuxpack-check": "./dist/linux-unpacked/zap selfCheck --zclProperties zcl-builtin/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json",
     "linuxpack-gen": "./dist/linux-unpacked/zap generate --noUi --noServer --zclProperties zcl-builtin/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json --output tmp",
@@ -51,10 +54,11 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "handlebars": "^4.7.6",
+    "http-status-codes": "^2.1.2",
     "pino": "^6.5.1",
     "promised-handlebars": "^2.0.1",
     "properties": "^1.2.1",
-    "sqlite3": "^4.2.0",
+    "sqlite3": "^5.0.0",
     "utf-8-validate": "^5.0.2",
     "xml2js": "^0.4.23",
     "yaml": "^1.10.0",
@@ -63,7 +67,7 @@
   "devDependencies": {
     "@babel/plugin-transform-regenerator": "^7.10.4",
     "@babel/runtime-corejs2": "^7.11.0",
-    "@quasar/app": "^2.0.6",
+    "@quasar/app": "^2.0.8",
     "@quasar/extras": "^1.9.3",
     "@quasar/quasar-app-extension-testing": "^1.0.0",
     "@quasar/quasar-app-extension-testing-unit-jest": "^1.1.0-beta.3",
@@ -117,7 +121,8 @@
   "build": {
     "appId": "zap.id",
     "mac": {
-      "category": "public.app-category.developer-tools"
+      "category": "public.app-category.developer-tools",
+      "target": "zip"
     },
     "linux": {
       "target": [
@@ -128,11 +133,15 @@
         "tar.xz"
       ]
     },
+    "win": {
+      "target": [
+        "portable"
+      ]
+    },
     "directories": {
       "buildResources": "resource-build",
       "output": "dist"
     },
-    "buildDependenciesFromSource": true,
     "nodeGypRebuild": false,
     "npmRebuild": true,
     "files": [

@@ -23,9 +23,10 @@ const fsPromise = fs.promises
 const path = require('path')
 const util = require('../util/util.js')
 const queryPackage = require('../db/query-package.js')
-const dbEnum = require('../db/db-enum.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const templateEngine = require('./template-engine.js')
+const dbApi = require('../db/db-api.js')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -69,6 +70,8 @@ function recordTemplatesPackage(context) {
     .then((context) => {
       var promises = []
       env.logInfo(`Loading ${context.templateData.templates.length} templates.`)
+
+      // Add templates queries to the list of promises
       context.templateData.templates.forEach((template) => {
         var templatePath = path.resolve(
           path.join(path.dirname(context.path), template.path)
@@ -98,6 +101,54 @@ function recordTemplatesPackage(context) {
             })
         )
       })
+
+      // Add options to the list of promises
+      if (context.templateData.options != null) {
+        for (const category in context.templateData.options) {
+          var data = context.templateData.options[category]
+
+          if (typeof data === 'string' || data instanceof String) {
+            // Data is a string, so we will treat it as a relative path to the JSON file.
+            var externalPath = path.resolve(
+              path.join(path.dirname(context.path), data)
+            )
+            var promise = fsPromise
+              .readFile(externalPath, 'utf8')
+              .then((content) => JSON.parse(content))
+              .then((data) => {
+                var codeLabelArray = []
+                for (const code in data) {
+                  codeLabelArray.push({ code: code, label: data[code] })
+                }
+                return codeLabelArray
+              })
+              .then((codeLabeArray) =>
+                queryPackage.insertOptionsKeyValues(
+                  context.db,
+                  context.packageId,
+                  category,
+                  codeLabeArray
+                )
+              )
+            promises.push(promise)
+          } else {
+            // Treat this data as an object.
+            var codeLabelArray = []
+            for (const code in data) {
+              codeLabelArray.push({ code: code, label: data[code] })
+            }
+            promises.push(
+              queryPackage.insertOptionsKeyValues(
+                context.db,
+                context.packageId,
+                category,
+                codeLabelArray
+              )
+            )
+          }
+        }
+      }
+
       return Promise.all(promises)
     })
     .then(() => context)
@@ -115,13 +166,18 @@ function loadTemplates(db, genTemplatesJson) {
     db: db,
     path: path.resolve(genTemplatesJson),
   }
-  return fsPromise
-    .access(context.path, fs.constants.R_OK)
+  return dbApi
+    .dbBeginTransaction(db)
+    .then(() => fsPromise.access(context.path, fs.constants.R_OK))
     .then(() => {
       env.logInfo(`Loading generation templates from: ${context.path}`)
       return loadGenTemplate(context)
     })
     .then((context) => recordTemplatesPackage(context))
+    .then((context) => {
+      dbApi.dbCommit(db)
+      return context
+    })
     .catch(() => {
       env.logInfo(`Can not read templates from: ${context.path}`)
       return context
@@ -142,6 +198,7 @@ function generateAllTemplates(genResult, pkg, generateOnly = null) {
     .then((packages) => {
       var promises = []
       packages.forEach((singlePkg) => {
+        env.logInfo(singlePkg)
         if (generateOnly == null)
           promises.push(generateSingleTemplate(genResult, singlePkg))
         else if (generateOnly == singlePkg.version)
@@ -209,6 +266,24 @@ function writeFile(fileName, content, doBackup) {
 }
 
 /**
+ * Returns a promise that resolves into a content that should be written out to gen result file.
+ *
+ * @param {*} genResult
+ */
+function generateGenerationContent(genResult) {
+  var out = {
+    writeTime: new Date().toString(),
+    featureLevel: env.featureLevel,
+    creator: 'zap',
+    content: [],
+  }
+  for (const f in genResult.content) {
+    out.content.push(f)
+  }
+  return Promise.resolve(JSON.stringify(out))
+}
+
+/**
  * Generate files and write them into the given directory.
  *
  * @param {*} db
@@ -237,6 +312,16 @@ function generateAndWriteFiles(
       env.logInfo(`Preparing to write file: ${fileName}`)
       promises.push(writeFile(fileName, content, options.backup))
     }
+    promises.push(
+      generateGenerationContent(genResult).then((content) =>
+        writeFile(
+          path.join(outputDirectory, 'genResult.json'),
+          content,
+          options.backup
+        )
+      )
+    )
+
     return Promise.all(promises)
   })
 }

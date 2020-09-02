@@ -99,6 +99,7 @@ pipeline
                 script 
                 {
                     sh 'npm run dist-linux'
+                    sh 'npm run apack:linux'
                 }
             }
         }
@@ -108,7 +109,8 @@ pipeline
             {
                 script 
                 {
-                    sh 'npm run dist-mac || true'
+                    sh 'npm run dist-mac'
+                    sh 'npm run apack:mac'
                 }
             }
         }
@@ -118,7 +120,8 @@ pipeline
             {
                 script 
                 {
-                    sh 'npm run dist-win || true'
+                    sh 'npm run dist-win'
+                    sh 'npm run apack:win'
                 }
             }
         }

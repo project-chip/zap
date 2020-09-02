@@ -26,7 +26,7 @@ const querySession = require('../db/query-session.js')
 const queryPackage = require('../db/query-package.js')
 const queryImpexp = require('../db/query-impexp.js')
 const dbApi = require('../db/db-api.js')
-const dbEnum = require('../db/db-enum.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Resolves with a promise that imports session key values.

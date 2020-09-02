@@ -1,6 +1,17 @@
 {
   "name": "Test templates",
   "version": "test-v1",
+  "options": {
+    "testOption": {
+      "code1": "label1",
+      "code2": "label2",
+      "code3": "label3",
+      "code4": "label4",
+      "code5": "label5"
+    },
+    "externalOption": "externalOptions.json",
+    "cli": "cli.json"
+  },
   "templates": [
     {
       "path": "simple-test.zapt",

@@ -25,7 +25,7 @@ const sqlite = require('sqlite3')
 const fs = require('fs')
 const env = require('../util/env.js')
 const util = require('../util/util.js')
-const dbEnum = require('./db-enum.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Returns a promise to begin a transaction

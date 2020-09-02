@@ -38,23 +38,6 @@ limitations under the License.
       </template>
       <template v-slot:body="props">
         <q-tr :props="props" style="">
-          <q-td key="out" :props="props" auto-width>
-            <q-checkbox
-              class="q-mt-xs"
-              v-model="selectionOut"
-              :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
-              indeterminate-value="false"
-              keep-color
-              @input="
-                handleCommandSelection(
-                  selectionOut,
-                  'selectedOut',
-                  props.row,
-                  selectedCluster.id
-                )
-              "
-            />
-          </q-td>
           <q-td key="in" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
@@ -66,6 +49,23 @@ limitations under the License.
                 handleCommandSelection(
                   selectionIn,
                   'selectedIn',
+                  props.row,
+                  selectedCluster.id
+                )
+              "
+            />
+          </q-td>
+          <q-td key="out" :props="props" auto-width>
+            <q-checkbox
+              class="q-mt-xs"
+              v-model="selectionOut"
+              :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
+              indeterminate-value="false"
+              keep-color
+              @input="
+                handleCommandSelection(
+                  selectionOut,
+                  'selectedOut',
                   props.row,
                   selectedCluster.id
                 )
@@ -187,17 +187,17 @@ export default {
       },
       columns: [
         {
-          name: 'out',
-          label: 'Out',
-          field: 'out',
+          name: 'in',
+          label: 'In',
+          field: 'in',
           align: 'left',
           sortable: true,
           style: 'width:1%',
         },
         {
-          name: 'in',
-          label: 'In',
-          field: 'in',
+          name: 'out',
+          label: 'Out',
+          field: 'out',
           align: 'left',
           sortable: true,
           style: 'width:1%',

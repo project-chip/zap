@@ -29,7 +29,7 @@ const queryPackage = require('../src-electron/db/query-package.js')
 const querySession = require('../src-electron/db/query-session.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const exportJs = require('../src-electron/importexport/export.js')
-const dbEnum = require('../src-electron/db/db-enum.js')
+const dbEnum = require('../src-shared/db-enum.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 
 /*

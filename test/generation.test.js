@@ -31,8 +31,6 @@ const generationEngine = require('../src-electron/generator/generation-engine.js
 var db
 const port = 9074
 const baseUrl = `http://localhost:${port}`
-var packageId
-var sessionId
 const timeout = 5000
 
 beforeAll(() => {
@@ -72,12 +70,27 @@ describe('Session specific tests', () => {
     timeout
   )
 
-  test('And load the templates.', () =>
-    generationEngine.loadTemplates(db, args.genTemplateJsonFile))
+  test(
+    'And load the templates.',
+    () => generationEngine.loadTemplates(db, args.genTemplateJsonFile),
+    3000
+  )
 
   test('http server initialization', () => {
     return httpServer.initHttpServer(db, port)
   })
+
+  test(
+    'test retrieval of all preview template files',
+    () => {
+      return axios.get(`${baseUrl}/preview/`).then((response) => {
+        for (i = 0; i < response.data['length']; i++) {
+          expect(response.data[i]['version']).toBeDefined()
+        }
+      })
+    },
+    timeout
+  )
 
   test(
     'test that there is generation data in the simple-test.out preview file. Index 1',

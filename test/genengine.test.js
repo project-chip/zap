@@ -53,16 +53,20 @@ afterAll(() => {
 
 var templateContext
 
-test('Basic gen template parsing and generation', () =>
-  genEngine.loadTemplates(db, args.genTemplateJsonFile).then((context) => {
-    expect(context.crc).not.toBeNull()
-    expect(context.templateData).not.toBeNull()
-    expect(context.templateData.name).toEqual('Test templates')
-    expect(context.templateData.version).toEqual('test-v1')
-    expect(context.templateData.templates.length).toEqual(templateCount)
-    expect(context.packageId).not.toBeNull()
-    templateContext = context
-  }))
+test(
+  'Basic gen template parsing and generation',
+  () =>
+    genEngine.loadTemplates(db, args.genTemplateJsonFile).then((context) => {
+      expect(context.crc).not.toBeNull()
+      expect(context.templateData).not.toBeNull()
+      expect(context.templateData.name).toEqual('Test templates')
+      expect(context.templateData.version).toEqual('test-v1')
+      expect(context.templateData.templates.length).toEqual(templateCount)
+      expect(context.packageId).not.toBeNull()
+      templateContext = context
+    }),
+  3000
+)
 
 test('Validate package loading', () =>
   queryPackage
@@ -157,7 +161,7 @@ test(
 )
 
 test(
-  'Validate zap-id generation',
+  'Validate specific file generation',
   () =>
     genEngine
       .generate(
@@ -191,6 +195,11 @@ test(
           zapTypes.includes(
             'ZCL_INT16U_ATTRIBUTE_TYPE = 0x21, // Unsigned 16-bit integer'
           )
+        ).toBeTruthy()
+
+        var zapCli = genResult.content['zap-cli.h']
+        expect(
+          zapCli.includes('DisplayProtectedMessage => zcl msg disp-protd')
         ).toBeTruthy()
       }),
   genTimeout

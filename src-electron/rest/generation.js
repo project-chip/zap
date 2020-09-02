@@ -22,6 +22,8 @@
  */
 
 const generationEngine = require('../generator/generation-engine.js')
+const queryPackage = require('../db/query-package.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  *
@@ -56,6 +58,16 @@ function registerGenerationApi(db, app) {
       .generateSingleFileForPreview(db, sessionId, request.params.name)
       .then((previewObject) => {
         previewObject.replyId = 'preview'
+        return response.json(previewObject)
+      })
+  })
+
+  app.get('/preview/', (request, response) => {
+    var sessionId = request.session.zapSessionId
+    queryPackage
+      .getPackagesByType(db, dbEnum.packageType.genSingleTemplate)
+      .then((previewObject) => {
+        previewObject.replyId = 'preview-gentemplates'
         return response.json(previewObject)
       })
   })

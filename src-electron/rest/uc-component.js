@@ -22,19 +22,13 @@
  */
 
 const env = require('../util/env.js')
-const restApi = require('../../src-shared/rest-api.js')
-const args = require('../util/args.js')
 const axios = require('axios')
-
+const studio = require('./studio-integration.js')
 const replyId = 'uc-tree'
-
-const studioServerUrl = `http://localhost:` + args.studioHttpPort
-const op_tree = '/rest/clic/components/all/project/'
-const op_add = '/rest/clic/component/add/project/'
-const op_remove = '/rest/clic/component/remove/project/'
+const http = require('http-status-codes')
 
 /**
- *
+ * Register server side REST API for front-end to interact with Studio components
  *
  * @export
  * @param {*} db
@@ -42,55 +36,73 @@ const op_remove = '/rest/clic/component/remove/project/'
  */
 function registerUcComponentApi(db, app) {
   app.get('/uc/tree', (req, res) => {
-    let name = studioProjectName(req.query.studioProject)
-    env.logInfo(`StudioUC(${name}): Get project info`)
-    axios
-      .get(studioServerUrl + op_tree + req.query.studioProject)
-      .then(function (response) {
-        let r = {
-          replyId: replyId,
-          data: response.data,
-        }
-        res.send(r)
-      })
-      .catch(function (err) {
-        res.send(err.response.data)
-      })
+    let name = studio.projectName(req.query.studioProject)
+    if (name) {
+      env.logInfo(`StudioUC(${name}): Get project info`)
+      studio
+        .getProjectInfo(req.query.studioProject)
+        .then(function (response) {
+          env.logInfo(`StudioUC(${name}): RESP: ${response.status}`)
+          let r = {
+            replyId: replyId,
+            data: response.data,
+          }
+          res.send(r)
+        })
+        .catch(function (err) {
+          env.logInfo(`StudioUC(${name}): ERR: ${err}`)
+          handleError(err, res)
+        })
+    } else {
+      env.logInfo(
+        `StudioUC(${name}): Get project info: missing "studioProject=" query string`
+      )
+    }
   })
 
   app.get('/uc/add', (req, res) => {
-    let name = studioProjectName(req.query.studioProject)
+    let name = studio.projectName(req.query.studioProject)
     env.logInfo(
-      `StudioUC(${name}): Enabling component ${req.query.componentId}`
+      `StudioUC(${name}): Enabling component "${req.query.componentId}"`
     )
-    axios
-      .post(studioServerUrl + op_add + req.query.studioProject, {
-        componentId: req.query.componentId,
+    studio
+      .addComponent(req.query.studioProject, req.query.componentId)
+      .then((r) => {
+        if (r.status == http.StatusCodes.OK) {
+          env.logInfo(
+            `StudioUC(${name}): Component "${req.query.componentId}" removed.`
+          )
+        }
+        return res.send(r.data)
       })
-      .then((r) => res.send(r.data))
-      .catch(function (err) {
-        res.send(err.response.data)
-      })
+      .catch((err) => handleError(err, res))
   })
 
   app.get('/uc/remove', (req, res) => {
-    let name = studioProjectName(req.query.studioProject)
+    let name = studio.projectName(req.query.studioProject)
     env.logInfo(
-      `StudioUC(${name}): Disabling component ${req.query.componentId}`
+      `StudioUC(${name}): Disabling component "${req.query.componentId}"`
     )
-    axios
-      .post(studioServerUrl + op_remove + req.query.studioProject, {
-        componentId: req.query.componentId,
+    studio
+      .removeComponent(req.query.studioProject, req.query.componentId)
+      .then((r) => {
+        if (r.status == http.StatusCodes.OK) {
+          env.logInfo(
+            `StudioUC(${name}): Component "${req.query.componentId}" removed.`
+          )
+        }
+        return res.send(r.data)
       })
-      .then((r) => res.send(r.data))
-      .catch(function (err) {
-        res.send(err.response.data)
-      })
+      .catch((err) => handleError(err, res))
   })
 }
 
-function studioProjectName(studioProject) {
-  return studioProject.substr(studioProject.lastIndexOf('_2F') + 3)
+function handleError(err, res) {
+  if (err.response) {
+    res.send(err.response.data)
+  } else {
+    res.send(err.message)
+  }
 }
 
 exports.registerUcComponentApi = registerUcComponentApi

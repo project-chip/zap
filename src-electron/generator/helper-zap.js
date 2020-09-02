@@ -15,6 +15,9 @@
  *    limitations under the License.
  */
 
+const templateUtil = require('./template-util.js')
+const queryPackage = require('../db/query-package.js')
+
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
  *
@@ -43,6 +46,25 @@ function ident(cnt) {
   }
 }
 
+/**
+ * Block helper that iterates over the package options of a given category.
+ *
+ * @param {*} category
+ * @param {*} options
+ */
+function template_options(options) {
+  return templateUtil
+    .ensureTemplatePackageId(this)
+    .then((packageId) =>
+      queryPackage.selectAllOptionsValues(
+        this.global.db,
+        packageId,
+        options.hash.category
+      )
+    )
+    .then((ens) => templateUtil.collectBlocks(ens, options.fn, this))
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -50,3 +72,4 @@ function ident(cnt) {
 // If you rename the functions, you need to still maintain old exports list.
 exports.zap_header = zap_header
 exports.ident = ident
+exports.template_options = template_options

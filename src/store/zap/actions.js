@@ -88,14 +88,11 @@ export function updateSelectedAttribute(context, selectionContext) {
         context.commit('updateAttributeDefaults', {
           id: Util.cantorPair(arg.id, arg.clusterRef),
           newDefaultValue: arg.added,
+          listType: arg.listType,
           defaultValueValidationIssues: arg.validationIssues.defaultValue,
         })
       }
     })
-}
-
-export function updateReportingAttributeDefaults(context, selectionContext) {
-  context.commit('updateReportingAttributeDefaults', selectionContext)
 }
 
 export function updateSelectedCommands(context, selectionContext) {
@@ -352,11 +349,10 @@ export function setClusterList(context, selectionContext) {
 
 export function setAttributeStateLists(context, selectionContext) {
   var includedAttributes = []
-  var externalAttributes = []
-  var flashAttributes = []
   var singletonAttributes = []
   var boundedAttributes = []
   var defaultValue = {}
+  var storageOption = {}
 
   var includedReportableAttributes = []
   var min = {}
@@ -369,24 +365,22 @@ export function setAttributeStateLists(context, selectionContext) {
       record.clusterRef
     )
     if (record.included === 1) includedAttributes.push(resolvedReference)
-    if (record.external === 1) externalAttributes.push(resolvedReference)
-    if (record.flash === 1) flashAttributes.push(resolvedReference)
     if (record.singleton === 1) singletonAttributes.push(resolvedReference)
     if (record.bounded === 1) boundedAttributes.push(resolvedReference)
     if (record.includedReportable === 1)
       includedReportableAttributes.push(resolvedReference)
     defaultValue[resolvedReference] = record.defaultValue
+    storageOption[resolvedReference] = record.storageOption
     min[resolvedReference] = record.minInterval
     max[resolvedReference] = record.maxInterval
     change[resolvedReference] = record.reportableChange
   })
   context.commit(`setAttributeLists`, {
     included: includedAttributes,
-    external: externalAttributes,
-    flash: flashAttributes,
     singleton: singletonAttributes,
     bounded: boundedAttributes,
     defaultValue: defaultValue,
+    storageOption: storageOption,
     includedReportable: includedReportableAttributes,
     minInterval: min,
     maxInterval: max,
@@ -522,4 +516,8 @@ export function setDefaultUiMode(context, uiMode) {
 
 export function setStudioConfigPath(context, filePath) {
   context.commit('setStudioConfigPath', filePath)
+}
+
+export function setAttributeEditting(context, editContext) {
+  context.commit('setAttributeEditting', editContext)
 }

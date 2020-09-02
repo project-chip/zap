@@ -22,7 +22,7 @@
 const env = require('./env.js')
 const crc = require('crc')
 const queryPackage = require('../db/query-package.js')
-const dbEnum = require('../db/db-enum.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
  *

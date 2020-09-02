@@ -29,7 +29,18 @@ exports.packageType = {
   genSingleTemplate: 'gen-template',
 }
 
+exports.packageOptionCategory = {
+  manufacturerCodes: 'manufacturerCodes',
+  typeMap: 'typeMap',
+}
+
 exports.side = {
   client: 'client',
   server: 'server',
+}
+
+exports.storageOption = {
+  ram: 'RAM',
+  flash: 'Flash',
+  external: 'External',
 }

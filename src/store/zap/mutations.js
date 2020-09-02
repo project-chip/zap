@@ -34,9 +34,9 @@ export function updateSelectedEndpoint(state, endpoint) {
 
 export function updateAttributes(state, attributes) {
   attributes.forEach((attribute) => {
-    if (state.attributeView.defaultValues[attribute.id] === undefined) {
+    if (state.attributeView.defaultValue[attribute.id] === undefined) {
       Vue.set(
-        state.attributeView.defaultValues,
+        state.attributeView.defaultValue,
         attribute.id,
         attribute.defaultValue
       )
@@ -130,7 +130,7 @@ export function addEndpointType(state, endpointType) {
 
 export function updateAttributeDefaults(state, selectionContext) {
   Vue.set(
-    state.attributeView.defaultValues,
+    state.attributeView[selectionContext.listType],
     selectionContext.id,
     selectionContext.newDefaultValue
   )
@@ -202,17 +202,19 @@ export function setClusterList(state, data) {
 }
 
 export function resetAttributeDefaults(state) {
-  state.attributeView.defaultValues = {}
+  state.attributeView.defaultValue = {}
   state.attributeView.reportingMin = {}
   state.attributeView.reportingMin = {}
   state.attributeView.reportableChange = {}
+  state.attributeView.storageOption = {}
 
   state.attributes.forEach((attribute) => {
     Vue.set(
-      state.attributeView.defaultValues,
+      state.attributeView.defaultValue,
       attribute.id,
       attribute.defaultValue
     )
+    Vue.set(state.attributeView.storageOption, attribute.id, 'ram')
     Vue.set(state.attributeView.reportingMin, attribute.id, 0)
     Vue.set(state.attributeView.reportingMax, attribute.id, 65344)
     Vue.set(state.attributeView.reportableChange, attribute.id, 0)
@@ -221,16 +223,20 @@ export function resetAttributeDefaults(state) {
 
 export function setAttributeLists(state, data) {
   state.attributeView.selectedAttributes = data.included
-  state.attributeView.selectedExternal = data.external
-  state.attributeView.selectedFlash = data.flash
   state.attributeView.selectedSingleton = data.singleton
   state.attributeView.selectedBounded = data.bounded
   state.attributeView.selectedReporting = data.includedReportable
 
   resetAttributeDefaults(state)
   Object.entries(data.defaultValue).forEach(([attributeRef, defaultVal]) => {
-    Vue.set(state.attributeView.defaultValues, attributeRef, defaultVal)
+    Vue.set(state.attributeView.defaultValue, attributeRef, defaultVal)
   })
+  Object.entries(data.storageOption).forEach(
+    ([attributeRef, storageOption]) => {
+      Vue.set(state.attributeView.storageOption, attributeRef, storageOption)
+    }
+  )
+
   Object.entries(data.minInterval).forEach(([attributeRef, defaultVal]) => {
     Vue.set(state.attributeView.reportingMin, attributeRef, defaultVal)
   })
@@ -307,4 +313,12 @@ export function setDefaultUiMode(state, uiMode) {
 
 export function setStudioConfigPath(state, filePath) {
   state.studioProject = filePath
+}
+
+export function setAttributeEditting(state, context) {
+  Vue.set(
+    state.attributeView.editableAttributes,
+    context.attributeId,
+    context.editState
+  )
 }

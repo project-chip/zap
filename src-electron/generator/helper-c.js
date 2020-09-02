@@ -166,7 +166,7 @@ function defaultAtomicType(atomic) {
  */
 function asUnderlyingType(value) {
   return templateUtil
-    .ensurePackageId(this)
+    .ensureZclPackageId(this)
     .then((packageId) =>
       queryZcl.selectAtomicType(this.global.db, packageId, value)
     )
@@ -267,7 +267,7 @@ function asBytes(value, type) {
     return Promise.resolve(value)
   } else {
     return templateUtil
-      .ensurePackageId(this)
+      .ensureZclPackageId(this)
       .then((packageId) =>
         queryZcl.getAtomicSizeFromType(this.global.db, packageId, type)
       )
