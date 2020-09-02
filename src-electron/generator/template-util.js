@@ -57,9 +57,9 @@ function collectBlocks(resultArray, fn, context) {
  * @param {*} context
  * @returns promise that resolves with the package id.
  */
-function ensurePackageId(context) {
-  if ('packageId' in context.global) {
-    return Promise.resolve(context.global.packageId)
+function ensureZclPackageId(context) {
+  if ('zclPackageId' in context.global) {
+    return Promise.resolve(context.global.zclPackageId)
   } else {
     return queryPackage
       .getSessionPackagesByType(
@@ -71,7 +71,34 @@ function ensurePackageId(context) {
         if (pkgs.length == 0) {
           return null
         } else {
-          context.global.packageId = pkgs[0].id
+          context.global.zclPackageId = pkgs[0].id
+          return pkgs[0].id
+        }
+      })
+  }
+}
+
+/**
+ * Returns the promise that resolves with the ZCL properties package id.
+ *
+ * @param {*} context
+ * @returns promise that resolves with the package id.
+ */
+function ensureTemplatePackageId(context) {
+  if ('templatePackageId' in context.global) {
+    return Promise.resolve(context.global.templatePackageId)
+  } else {
+    return queryPackage
+      .getSessionPackagesByType(
+        context.global.db,
+        context.global.sessionId,
+        dbEnum.packageType.genTemplatesJson
+      )
+      .then((pkgs) => {
+        if (pkgs.length == 0) {
+          return null
+        } else {
+          context.global.templatePackageId = pkgs[0].id
           return pkgs[0].id
         }
       })
@@ -79,4 +106,5 @@ function ensurePackageId(context) {
 }
 
 exports.collectBlocks = collectBlocks
-exports.ensurePackageId = ensurePackageId
+exports.ensureZclPackageId = ensureZclPackageId
+exports.ensureTemplatePackageId = ensureTemplatePackageId

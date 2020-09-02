@@ -26,6 +26,7 @@ const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const templateEngine = require('./template-engine.js')
+const dbApi = require('../db/db-api.js')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -165,13 +166,18 @@ function loadTemplates(db, genTemplatesJson) {
     db: db,
     path: path.resolve(genTemplatesJson),
   }
-  return fsPromise
-    .access(context.path, fs.constants.R_OK)
+  return dbApi
+    .dbBeginTransaction(db)
+    .then(() => fsPromise.access(context.path, fs.constants.R_OK))
     .then(() => {
       env.logInfo(`Loading generation templates from: ${context.path}`)
       return loadGenTemplate(context)
     })
     .then((context) => recordTemplatesPackage(context))
+    .then((context) => {
+      dbApi.dbCommit(db)
+      return context
+    })
     .catch(() => {
       env.logInfo(`Can not read templates from: ${context.path}`)
       return context
