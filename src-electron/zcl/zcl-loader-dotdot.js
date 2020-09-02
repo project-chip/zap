@@ -88,6 +88,13 @@ function prepareCluster(cluster, isExtension = false) {
     ret.domain = cluster.classification[0].$.role
     ret.manufacturerCode = '' // no manufacturer code in dotdot zcl
   }
+  var sides = [cluster.server, cluster.client]
+  ret.commands = []
+  ret.attributes = []
+  sides.forEach((side) => {
+    if (side) {
+    }
+  })
   /*
   if ('command' in cluster) {
     ret.commands = []

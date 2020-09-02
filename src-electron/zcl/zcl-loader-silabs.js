@@ -665,7 +665,6 @@ function qualifyZclFile(db, info, parentPackageId) {
  */
 function parseZclFiles(db, ctx) {
   env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
-  var individualPromises = []
   return Promise.all(
     ctx.zclFiles.map((individualFile) => {
       return readZclFile(individualFile)

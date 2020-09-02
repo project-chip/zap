@@ -50,7 +50,7 @@ test('test Silabs zcl data loading in memory', () => {
       packageId = ctx.packageId
       return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
     })
-    .then((package) => expect(package.version).toEqual('ZCL Test Data'))
+    .then((p) => expect(p.version).toEqual('ZCL Test Data'))
     .then(() =>
       queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
     )
