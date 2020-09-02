@@ -113,8 +113,9 @@ test('Replace query', () =>
     )
     .then((result) => expect(result.VALUE).toBe('13')))
 
-test('Simple cluster addition.', () =>
-  queryPackage
+test('Simple cluster addition.', () => {
+  let rowid = null
+  return queryPackage
     .insertPathCrc(db, 'test', 1)
     .then((rowid) =>
       queryZcl.insertClusters(db, rowid, [
@@ -127,36 +128,28 @@ test('Simple cluster addition.', () =>
       ])
     )
     .then((rowids) => queryZcl.selectAllClusters(db))
-    .then(
-      (rows) =>
-        new Promise((resolve, reject) => {
-          expect(rows.length).toBe(1)
-          let rowid = rows[0].id
-          expect(rows[0].code).toBe('0x1234')
-          expect(rows[0].label).toBe('Test')
-          resolve(rowid)
-        })
-    )
+    .then((rows) => {
+      expect(rows.length).toBe(1)
+      rowid = rows[0].id
+      expect(rows[0].code).toBe('0x1234')
+      expect(rows[0].label).toBe('Test')
+      return rowid
+    })
     .then((rowid) => queryZcl.selectClusterById(db, rowid))
-    .then(
-      (row) =>
-        new Promise((resolve, reject) => {
-          expect(row.code).toBe('0x1234')
-          expect(row.label).toBe('Test')
-          resolve(row.id)
-        })
-    )
-    .then((rowid) =>
-      queryZcl
-        .selectAttributesByClusterId(db, rowid)
-        .then((rows) => {
-          expect(rows.length).toBe(0)
-        })
-        .then(() => queryZcl.selectCommandsByClusterId(db, rowid))
-        .then((rows) => {
-          expect(rows.length).toBe(0)
-        })
-    ))
+    .then((row) => {
+      expect(row.code).toBe('0x1234')
+      expect(row.label).toBe('Test')
+      return row.id
+    })
+    .then(() => queryZcl.selectAttributesByClusterId(db, rowid))
+    .then((rows) => {
+      expect(rows.length).toBe(0)
+    })
+    .then(() => queryZcl.selectCommandsByClusterId(db, rowid))
+    .then((rows) => {
+      expect(rows.length).toBe(0)
+    })
+})
 
 test(
   'Now actually load the static data.',
@@ -322,6 +315,7 @@ describe('Session specific queries', () => {
       expect(data).toBe(0)
     }))
 })
+
 describe('Endpoint Type Config Queries', () => {
   beforeAll(() =>
     querySession.ensureZapSessionId(db, 'SESSION', 666).then((id) => {
@@ -347,7 +341,6 @@ describe('Endpoint Type Config Queries', () => {
       expect(typeof zllOnOffLightDevice).toBe('object')
       return Promise.resolve()
     }))
-
   test('Insert Endpoint Type', () =>
     queryConfig
       .insertEndpointType(db, sid, 'testEndpointType', haOnOffDeviceType.id)
@@ -365,28 +358,25 @@ describe('Endpoint Type Config Queries', () => {
       .getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
       .then((clusters) => {
         expect(clusters.length).toBe(6)
-        return Promise.resolve()
       })
       .then(() =>
-        queryConfig
-          .insertOrReplaceClusterState(
-            db,
-            endpointTypeIdOnOff,
-            7,
-            'CLIENT',
-            true
-          )
-          .then((rowId) => {
-            expect(typeof rowId).toBe('number')
-          })
-          .then(() =>
-            queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
-          )
-          .then((clusters) => {
-            expect(clusters.length).toBe(7)
-            return Promise.resolve()
-          })
-      ))
+        queryConfig.insertOrReplaceClusterState(
+          db,
+          endpointTypeIdOnOff,
+          7,
+          'CLIENT',
+          true
+        )
+      )
+      .then((rowId) => {
+        expect(typeof rowId).toBe('number')
+      })
+      .then(() =>
+        queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
+      )
+      .then((clusters) => {
+        expect(clusters.length).toBe(7)
+      }))
 
   test('Test get all attribute states', () =>
     queryConfig
@@ -424,17 +414,21 @@ describe('Endpoint Type Config Queries', () => {
         return Promise.resolve()
       }))
 
-  test('Test inserting and retrieving options', () =>
-    queryPackage.insertPathCrc(db, 'junk', 123).then((pkgId) => {
-      queryPackage
-        .insertOptionsKeyValues(db, pkgId, 'test', ['1', '2', '3'])
-        .then(() => {
-          return queryPackage
-            .selectAllOptionsValues(db, pkgId, 'test')
-            .then((data) => {
-              expect(data.length).toBe(3)
-              return Promise.resolve()
-            })
-        })
-    }))
+  test('Test inserting and retrieving options', () => {
+    var pkgId = null
+    return queryPackage
+      .insertPathCrc(db, 'junk', 123)
+      .then((p) => {
+        pkgId = p
+        return queryPackage.insertOptionsKeyValues(db, pkgId, 'test', [
+          '1',
+          '2',
+          '3',
+        ])
+      })
+      .then(() => queryPackage.selectAllOptionsValues(db, pkgId, 'test'))
+      .then((data) => {
+        expect(data.length).toBe(3)
+      })
+  })
 })

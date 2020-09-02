@@ -237,7 +237,7 @@ function updatePathCrc(db, path, crc, parentId) {
 function insertSessionPackage(db, sessionId, packageId) {
   return dbApi.dbInsert(
     db,
-    'INSERT INTO SESSION_PACKAGE (SESSION_REF, PACKAGE_REF) VALUES (?,?)',
+    'INSERT OR REPLACE INTO SESSION_PACKAGE (SESSION_REF, PACKAGE_REF) VALUES (?,?)',
     [sessionId, packageId]
   )
 }

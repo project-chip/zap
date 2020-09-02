@@ -66,6 +66,7 @@ function initializeSessionPackage(db, sessionId) {
           `Multiple toplevel zcl.properties found. Using the first one: ${packageId}`
         )
       }
+
       if (packageId != null) {
         return queryPackage
           .insertSessionPackage(db, sessionId, packageId)
