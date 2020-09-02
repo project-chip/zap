@@ -4,6 +4,7 @@ const zclLoader = require('./zcl-loader')
 const dbApi = require('../db/db-api.js')
 const fs = require('fs')
 const xml2js = require('xml2js')
+const queryZcl = require('../db/query-zcl.js')
 
 /**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
@@ -92,7 +93,21 @@ function prepareCluster(cluster, isExtension = false) {
   ret.commands = []
   ret.attributes = []
   sides.forEach((side) => {
-    if (side) {
+    if (!(side === undefined)) {
+      var commands = side[0].commands
+      if (!(commands === undefined)) {
+        commands.forEach((command) => {
+          var cmd = {
+            code: command.command[0].$.id,
+            manufacturerCode: '', //no manuf code for dotdot zcl
+            name: command.command[0].$.name,
+            description: '', // no description for dotdot zcl
+            source: side,
+            isOptional: 'true', // optionality of commands is not defined in dotdot zcl
+          }
+          ret.commands.push(cmd)
+        })
+      }
     }
   })
   /*
@@ -153,15 +168,15 @@ function prepareCluster(cluster, isExtension = false) {
  */
 function loadZclData(db, ctx) {
   env.logInfo(
-    `Starting to load Dotdot ZCL data in to DB for: ${ctx.propertiesFile}`
+    `Starting to load Dotdot ZCL data in to DB for: ${ctx.propertiesFile}, clusters length=${ctx.zclClusters.length}`
   )
-  return new Promise((resolve, reject) => {
-    ctx.zclClusters.forEach((cluster) => {
-      env.logInfo(`loading cluster: ${cluster.$.name}`)
-      var c = prepareCluster(cluster, false)
-    })
-    resolve(ctx)
+  cs = []
+  ctx.zclClusters.forEach((cluster) => {
+    env.logInfo(`loading cluster: ${cluster.$.name}`)
+    var c = prepareCluster(cluster, false)
+    cs.push(c)
   })
+  return queryZcl.insertClusters(db, ctx.packageId, cs)
 }
 
 /**

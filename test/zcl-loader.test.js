@@ -141,13 +141,13 @@ test('test Dotdot zcl data loading in memory', () => {
         packageId = ctx.packageId
         return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
       })
-      .then((package) => expect(package.version).toEqual('1.0'))
+      .then((p) => expect(p.version).toEqual('1.0'))
       .then(() =>
         queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
       )
       .then((rows) => expect(rows.length).toEqual(1))
       .then(() => queryZcl.selectAllClusters(db))
-      .then((x) => env.logInfo(`DB cluster count = ${x.length}`))
+      .then((x) => expect(x.length).toEqual(41))
       /* Keep this around temporarily to see the kinds of things that are being tested
     .then(() => queryZcl.selectAllDomains(db))
     .then((x) => expect(x.length).toEqual(20))
