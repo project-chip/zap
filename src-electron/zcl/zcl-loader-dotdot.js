@@ -89,71 +89,69 @@ function prepareCluster(cluster, isExtension = false) {
     ret.domain = cluster.classification[0].$.role
     ret.manufacturerCode = '' // no manufacturer code in dotdot zcl
   }
-  var sides = [cluster.server, cluster.client]
+  var sides = [
+    { name: 'server', value: cluster.server },
+    { name: 'client', value: cluster.client },
+  ]
   ret.commands = []
   ret.attributes = []
   sides.forEach((side) => {
-    if (!(side === undefined)) {
-      var commands = side[0].commands
-      if (!(commands === undefined)) {
-        commands.forEach((command) => {
-          var cmd = {
-            code: command.command[0].$.id,
-            manufacturerCode: '', //no manuf code for dotdot zcl
-            name: command.command[0].$.name,
-            description: '', // no description for dotdot zcl
-            source: side,
-            isOptional: 'true', // optionality of commands is not defined in dotdot zcl
+    if (!(side.value === undefined)) {
+      if ('attributes' in side.value[0]) {
+        side.value[0].attributes.forEach((attributes) => {
+          for (i = 0; i < attributes.attribute.length; i++) {
+            let a = attributes.attribute[i]
+            env.logInfo(`Recording Attribute ${side.name} ${a.$.name}`)
+            ret.attributes.push({
+              code: a.$.id,
+              manufacturerCode: '', // no manuf code in dotdot xml
+              name: a.$.name,
+              type: a.$.type.toLowerCase(),
+              side: side.name,
+              define: a.$.define,
+              min: a.$.min,
+              max: a.$.max,
+              isWritable: a.$.writable == 'true',
+              defaultValue: a.$.default,
+              isOptional: 'true', // optionality not listed in dotdot xml
+              isReportable: 'true', // reportability not listed in dotdot xml
+            })
           }
-          ret.commands.push(cmd)
+        })
+      }
+      if ('commands' in side.value[0]) {
+        side.value[0].commands.forEach((commands) => {
+          for (i = 0; i < commands.command.length; i++) {
+            let c = commands.command[i]
+            env.logInfo(`Recording Command ${side.name} ${c.$.name}`)
+            var cmd = {
+              code: c.$.id,
+              manufacturerCode: '', //no manuf code for dotdot zcl
+              name: c.$.name,
+              description: '', // no description for dotdot zcl
+              source: side.name,
+              isOptional: 'true', // optionality of commands is not defined in dotdot zcl
+            }
+            if ('fields' in c) {
+              cmd.args = []
+              c.fields.forEach((fields) => {
+                for (j = 0; j < fields.field.length; j++) {
+                  let f = fields.field[j]
+                  env.logInfo(`Recording Field ${f.$.name}`)
+                  cmd.args.push({
+                    name: f.$.name,
+                    type: f.$.type,
+                    isArray: 0, //no indication of array type in dotdot zcl
+                  })
+                }
+              })
+            }
+            ret.commands.push(cmd)
+          }
         })
       }
     }
   })
-  /*
-  if ('command' in cluster) {
-    ret.commands = []
-    cluster.command.forEach((command) => {
-      var cmd = {
-        code: command.$.code,
-        manufacturerCode: command.$.manufacturerCode,
-        name: command.$.name,
-        description: command.description[0],
-        source: command.$.source,
-        isOptional: command.$.optional == 'true',
-      }
-      if ('arg' in command) {
-        cmd.args = []
-        command.arg.forEach((arg) => {
-          cmd.args.push({
-            name: arg.$.name,
-            type: arg.$.type,
-            isArray: arg.$.array == 'true' ? 1 : 0,
-          })
-        })
-      }
-      ret.commands.push(cmd)
-    })
-  }
-  if ('attribute' in cluster) {
-    ret.attributes = []
-    cluster.attribute.forEach((attribute) => {
-      ret.attributes.push({
-        code: attribute.$.code,
-        manufacturerCode: attribute.$.manufacturerCode,
-        name: attribute._,
-        type: attribute.$.type.toLowerCase(),
-        side: attribute.$.side,
-        define: attribute.$.define,
-        min: attribute.$.min,
-        max: attribute.$.max,
-        isWritable: attribute.$.writable == 'true',
-        defaultValue: attribute.$.default,
-        isOptional: attribute.$.optional == 'true',
-        isReportable: attribute.$.reportable == 'true',
-      })
-    })
-  } */
   return ret
 }
 

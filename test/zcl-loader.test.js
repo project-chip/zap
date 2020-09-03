@@ -139,15 +139,21 @@ test('test Dotdot zcl data loading in memory', () => {
       .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
       .then((ctx) => {
         packageId = ctx.packageId
-        return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
+        return queryPackage.getPackageByPackageId(ctx.db, packageId)
       })
       .then((p) => expect(p.version).toEqual('1.0'))
       .then(() =>
         queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
       )
       .then((rows) => expect(rows.length).toEqual(1))
-      .then(() => queryZcl.selectAllClusters(db))
+      .then(() => queryZcl.selectAllClusters(db, packageId))
       .then((x) => expect(x.length).toEqual(41))
+      .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
+      .then((x) => expect(x).toEqual(612)) // seems low
+      .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
+      .then((x) => expect(x).toEqual(215)) // seems low
+      .then(() => queryGeneric.selectCountFrom(db, 'ATTRIBUTE'))
+      .then((x) => expect(x).toEqual(626)) // seems low
       /* Keep this around temporarily to see the kinds of things that are being tested
     .then(() => queryZcl.selectAllDomains(db))
     .then((x) => expect(x.length).toEqual(20))
