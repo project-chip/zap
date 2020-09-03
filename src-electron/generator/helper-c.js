@@ -173,14 +173,14 @@ function asUnderlyingType(value) {
     .then((atomic) => {
       if (atomic == null) {
         return queryZcl
-          .selectBitmapByName(this.global.db, this.global.packageId, value)
+          .selectBitmapByName(this.global.db, this.global.zclPackageId, value)
           .then((bitmap) => {
             if (bitmap == null) {
               return atomic
             } else {
               return queryZcl.selectAtomicType(
                 this.global.db,
-                this.global.packageId,
+                this.global.zclPackageId,
                 bitmap.type
               )
             }
