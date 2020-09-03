@@ -48,7 +48,6 @@ function processCommandLineArguments(argv) {
       })
     })
     .command('selfCheck', 'Perform the self-check of the application.')
-    .command('sdkGen', 'Perform the SDK component generation.')
     .option('httpPort', {
       desc: 'Port used for the HTTP server',
       alias: 'p',

@@ -20,7 +20,6 @@ const fs = require('fs')
 const path = require('path')
 
 const dbApi = require('../db/db-api.js')
-const sdkGen = require('../sdk-gen/sdk-gen.js')
 const args = require('../util/args.js')
 const env = require('../util/env.js')
 const zclLoader = require('../zcl/zcl-loader.js')
@@ -229,50 +228,6 @@ function startGeneration(
 }
 
 /**
- * Performs the headless SDK regen process.
- * (Deprecated. At this point, we're not really doing SDK regen.)
- *
- * @param {*} generationDir
- * @param {*} handlebarTemplateDir
- * @param {*} zclPropertiesFilePath
- * @returns Nothing, triggers the app.quit()
- */
-function startSdkGeneration(
-  generationDir,
-  zclPropertiesFilePath,
-  options = {
-    quit: true,
-    cleanDb: true,
-  }
-) {
-  env.logInfo('Start SDK generation...')
-  var dbFile = env.sqliteFile('sdk-regen')
-  if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
-  return dbApi
-    .initDatabase(dbFile)
-    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
-    .then((db) =>
-      zclLoader.loadZcl(
-        db,
-        zclPropertiesFilePath ? zclPropertiesFilePath : args.zclPropertiesFile
-      )
-    )
-    .then((ctx) =>
-      sdkGen.runSdkGeneration({
-        db: ctx.db,
-        generationDir: generationDir,
-      })
-    )
-    .then((res) => {
-      if (options.quit) app.quit()
-    })
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
-}
-
-/**
  * Moves the main database file into a backup location.
  */
 function clearDatabaseFile() {
@@ -292,6 +247,5 @@ function clearDatabaseFile() {
 
 exports.startGeneration = startGeneration
 exports.startNormal = startNormal
-exports.startSdkGeneration = startSdkGeneration
 exports.startSelfCheck = startSelfCheck
 exports.clearDatabaseFile = clearDatabaseFile
