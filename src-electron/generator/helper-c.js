@@ -18,8 +18,6 @@
 const queryZcl = require('../db/query-zcl.js')
 const templateUtil = require('./template-util.js')
 const bin = require('../util/bin.js')
-const { exportClustersFromEndpointType } = require('../db/query-impexp.js')
-const { query } = require('express')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
