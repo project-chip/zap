@@ -31,7 +31,7 @@ const helperZap = require('../src-electron/generator/helper-zap.js')
 
 var db
 const templateCount = 9
-var genTimeout = 2000
+var genTimeout = 3000
 
 beforeAll(() => {
   var file = env.sqliteTestFile('genengine')

@@ -58,13 +58,71 @@ function parseZclFiles(db, ctx) {
           ctx.zclClusters.push(result['zcl:cluster'])
         } else if (result['zcl:global']) {
           var global = result['zcl:global']
-          ctx.zclGlobalAttributes = global.attributes.attribute
-          ctx.zclGlobalCommands = global.commands.command
+          ctx.zclGlobalAttributes = global.attributes[0].attribute
+          ctx.zclGlobalCommands = global.commands[0].command
         }
       })
     })
     resolve(ctx)
   })
+}
+
+function prepareAttributes(attributes, side) {
+  ret = []
+  atts = attributes.attribute === undefined ? attributes : attributes.attribute
+  for (i = 0; i < atts.length; i++) {
+    let a = atts[i]
+    env.logInfo(`Recording Attribute ${side.name} ${a.$.name}`)
+    ret.push({
+      code: a.$.id,
+      manufacturerCode: '', // no manuf code in dotdot xml
+      name: a.$.name,
+      type: a.$.type.toLowerCase(),
+      side: side,
+      define: a.$.define,
+      min: a.$.min,
+      max: a.$.max,
+      isWritable: a.$.writable == 'true',
+      defaultValue: a.$.default,
+      isOptional: 'true', // optionality not listed in dotdot xml
+      isReportable: 'true', // reportability not listed in dotdot xml
+    })
+  }
+  return ret
+}
+
+function prepareCommands(commands, side) {
+  ret = []
+  cmds = commands.command === undefined ? commands : commands.command
+  for (i = 0; i < cmds.length; i++) {
+    let c = cmds[i]
+    env.logInfo(`Recording Command ${side.name} ${c.$.name}`)
+    var pcmd = {
+      code: c.$.id,
+      manufacturerCode: '', //no manuf code for dotdot zcl
+      name: c.$.name,
+      description: '', // no description for dotdot zcl
+      source: side,
+      isOptional: 'true', // optionality of commands is not defined in dotdot zcl
+    }
+    if ('fields' in c) {
+      pcmd.args = []
+      c.fields.forEach((fields) => {
+        fds = fields.field === undefined ? fields : fields.field
+        for (j = 0; j < fds.length; j++) {
+          let f = fds[j]
+          env.logInfo(`Recording Field ${f.$.name}`)
+          pcmd.args.push({
+            name: f.$.name,
+            type: f.$.type,
+            isArray: 0, //no indication of array type in dotdot zcl
+          })
+        }
+      })
+    }
+    ret.push(pcmd)
+  }
+  return ret
 }
 
 /**
@@ -88,6 +146,7 @@ function prepareCluster(cluster, isExtension = false) {
     ret.define = '' // no define in dotdot zcl
     ret.domain = cluster.classification[0].$.role
     ret.manufacturerCode = '' // no manufacturer code in dotdot zcl
+    ret.revision = cluster.$.revision // revision present in dotdot zcl
   }
   var sides = [
     { name: 'server', value: cluster.server },
@@ -99,55 +158,16 @@ function prepareCluster(cluster, isExtension = false) {
     if (!(side.value === undefined)) {
       if ('attributes' in side.value[0]) {
         side.value[0].attributes.forEach((attributes) => {
-          for (i = 0; i < attributes.attribute.length; i++) {
-            let a = attributes.attribute[i]
-            env.logInfo(`Recording Attribute ${side.name} ${a.$.name}`)
-            ret.attributes.push({
-              code: a.$.id,
-              manufacturerCode: '', // no manuf code in dotdot xml
-              name: a.$.name,
-              type: a.$.type.toLowerCase(),
-              side: side.name,
-              define: a.$.define,
-              min: a.$.min,
-              max: a.$.max,
-              isWritable: a.$.writable == 'true',
-              defaultValue: a.$.default,
-              isOptional: 'true', // optionality not listed in dotdot xml
-              isReportable: 'true', // reportability not listed in dotdot xml
-            })
-          }
+          ret.attributes = ret.attributes.concat(
+            prepareAttributes(attributes, side.name)
+          )
         })
       }
       if ('commands' in side.value[0]) {
         side.value[0].commands.forEach((commands) => {
-          for (i = 0; i < commands.command.length; i++) {
-            let c = commands.command[i]
-            env.logInfo(`Recording Command ${side.name} ${c.$.name}`)
-            var cmd = {
-              code: c.$.id,
-              manufacturerCode: '', //no manuf code for dotdot zcl
-              name: c.$.name,
-              description: '', // no description for dotdot zcl
-              source: side.name,
-              isOptional: 'true', // optionality of commands is not defined in dotdot zcl
-            }
-            if ('fields' in c) {
-              cmd.args = []
-              c.fields.forEach((fields) => {
-                for (j = 0; j < fields.field.length; j++) {
-                  let f = fields.field[j]
-                  env.logInfo(`Recording Field ${f.$.name}`)
-                  cmd.args.push({
-                    name: f.$.name,
-                    type: f.$.type,
-                    isArray: 0, //no indication of array type in dotdot zcl
-                  })
-                }
-              })
-            }
-            ret.commands.push(cmd)
-          }
+          ret.commands = ret.commands.concat(
+            prepareCommands(commands, side.name)
+          )
         })
       }
     }
@@ -174,7 +194,15 @@ function loadZclData(db, ctx) {
     var c = prepareCluster(cluster, false)
     cs.push(c)
   })
-  return queryZcl.insertClusters(db, ctx.packageId, cs)
+  let gs = [
+    {
+      attributes: prepareAttributes(ctx.zclGlobalAttributes, ''),
+      commands: prepareCommands(ctx.zclGlobalCommands, ''),
+    },
+  ]
+  return queryZcl
+    .insertClusters(db, ctx.packageId, cs)
+    .then(() => queryZcl.insertGlobals(db, ctx.packageId, gs))
 }
 
 /**
