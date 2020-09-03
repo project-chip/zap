@@ -67,12 +67,19 @@ function parseZclFiles(db, ctx) {
   })
 }
 
+/**
+ * Prepare XML attributes for entry into the DB
+ *
+ * @param {*} attributes an array of attributes
+ * @param {*} side the side the attribute is on either "client" or "server"
+ * @returns Array containing all data from XML ready to be inserted into the DB.
+ */
 function prepareAttributes(attributes, side) {
   ret = []
   atts = attributes.attribute === undefined ? attributes : attributes.attribute
   for (i = 0; i < atts.length; i++) {
     let a = atts[i]
-    env.logInfo(`Recording Attribute ${side.name} ${a.$.name}`)
+    env.logInfo(`Preparing attribute ${side} ${a.$.name}`)
     ret.push({
       code: a.$.id,
       manufacturerCode: '', // no manuf code in dotdot xml
@@ -91,12 +98,19 @@ function prepareAttributes(attributes, side) {
   return ret
 }
 
+/**
+ * Prepare XML commands for entry into the DB
+ *
+ * @param {*} commands an array of commands
+ * @param {*} side the side the command is on either "client" or "server"
+ * @returns Array containing all data from XML ready to be inserted in to the DB.
+ */
 function prepareCommands(commands, side) {
   ret = []
   cmds = commands.command === undefined ? commands : commands.command
   for (i = 0; i < cmds.length; i++) {
     let c = cmds[i]
-    env.logInfo(`Recording Command ${side.name} ${c.$.name}`)
+    env.logInfo(`Preparing command ${side} ${c.$.name}`)
     var pcmd = {
       code: c.$.id,
       manufacturerCode: '', //no manuf code for dotdot zcl
@@ -111,7 +125,7 @@ function prepareCommands(commands, side) {
         fds = fields.field === undefined ? fields : fields.field
         for (j = 0; j < fds.length; j++) {
           let f = fds[j]
-          env.logInfo(`Recording Field ${f.$.name}`)
+          env.logInfo(`Preparing field ${f.$.name}`)
           pcmd.args.push({
             name: f.$.name,
             type: f.$.type,
@@ -130,9 +144,11 @@ function prepareCommands(commands, side) {
  * This method can also prepare clusterExtensions.
  *
  * @param {*} cluster
+ * @param {*} isExtension if this is an extension or not (there are none in dotdot xml)
+ * @param {*} types types object into which cluster can put types it might have
  * @returns Object containing all data from XML.
  */
-function prepareCluster(cluster, isExtension = false) {
+function prepareCluster(cluster, isExtension = false, types) {
   var ret = {
     isExtension: isExtension,
   }
@@ -172,7 +188,68 @@ function prepareCluster(cluster, isExtension = false) {
       }
     }
   })
+  // give the cluster a chance to populate types
+  if ('type:type' in cluster) {
+    prepareTypes(cluster['type:type'], types)
+  }
   return ret
+}
+
+function prepareAtomic(type) {
+  return {
+    name: type.$.short,
+    id: type.$.id,
+    size: '', // size not defined in dotdot xml
+    description: type.$.name,
+  }
+}
+function prepareBitmap(type) {
+  var ret = { name: type.$.short, type: type.bitmap[0].element[0].$.type }
+  if ('bitmap' in type) {
+    ret.fields = []
+    type.bitmap[0].element.map((e) => {
+      ret.fields.push({
+        name: e.$.name,
+        mask: e.$.mask,
+      })
+    })
+  }
+  return ret
+}
+function prepareEnum(type) {
+  var ret = { name: type.$.short, type: type.$.inheritsFrom }
+  if ('restriction' in type) {
+    ret.items = []
+    type.restriction[0]['type:enumeration'].map((e) => {
+      ret.items.push({
+        name: e.$.name,
+        value: e.$.value,
+      })
+    })
+  }
+  return ret
+}
+
+/**
+ *
+ * Parses xml types into the types object for insertion into the DB
+ *
+ * @param {*} zclTypes an array of xml types
+ * @param {*} types an object which includes arrays for enums, bitmaps etc...
+ */
+function prepareTypes(zclTypes, types) {
+  zclTypes.map((type) => {
+    if ('bitmap' in type) {
+      types.bitmaps.push(prepareBitmap(type))
+    } else if (
+      'restriction' in type &&
+      'type:enumeration' in type.restriction[0]
+    ) {
+      types.enums.push(prepareEnum(type))
+    } else {
+      types.atomics.push(prepareAtomic(type))
+    } // TODO: structs?
+  })
 }
 
 /**
@@ -188,10 +265,12 @@ function loadZclData(db, ctx) {
   env.logInfo(
     `Starting to load Dotdot ZCL data in to DB for: ${ctx.propertiesFile}, clusters length=${ctx.zclClusters.length}`
   )
+  let types = { atomics: [], enums: [], bitmaps: [], structs: [] }
+  prepareTypes(ctx.zclTypes, types)
   cs = []
   ctx.zclClusters.forEach((cluster) => {
     env.logInfo(`loading cluster: ${cluster.$.name}`)
-    var c = prepareCluster(cluster, false)
+    var c = prepareCluster(cluster, false, types)
     cs.push(c)
   })
   let gs = [
@@ -203,6 +282,10 @@ function loadZclData(db, ctx) {
   return queryZcl
     .insertClusters(db, ctx.packageId, cs)
     .then(() => queryZcl.insertGlobals(db, ctx.packageId, gs))
+    .then(() => queryZcl.insertAtomics(db, ctx.packageId, types.atomics))
+    .then(() => queryZcl.insertEnums(db, ctx.packageId, types.enums))
+    .then(() => queryZcl.insertBitmaps(db, ctx.packageId, types.bitmaps))
+    .then(() => queryZcl.insertStructs(db, ctx.packageId, types.structs))
 }
 
 /**
