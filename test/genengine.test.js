@@ -196,6 +196,7 @@ test(
             'ZCL_INT16U_ATTRIBUTE_TYPE = 0x21, // Unsigned 16-bit integer'
           )
         ).toBeTruthy()
+        expect(zapTypes.includes('uint32_t snapshotCause')).toBeTruthy()
 
         var zapCli = genResult.content['zap-cli.h']
         expect(
