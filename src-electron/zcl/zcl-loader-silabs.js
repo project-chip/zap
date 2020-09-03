@@ -62,7 +62,6 @@ function collectData(ctx) {
         })
 
         ctx.zclFiles = zclFiles
-
         // Manufacturers XML file.
         if (zclProps.manufacturersXml) {
           for (var i = 0; i < fileLocations.length; i++) {
@@ -77,9 +76,14 @@ function collectData(ctx) {
           }
         }
 
-        // Default Reponse Policy Options
+        // General options
+        // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
         if (zclProps.options) {
           ctx.options = zclProps.options
+        }
+        // Defaults. Note that the keys should be the categories that are listed for OPTIONS, and the value should be the OPTION_CODE
+        if (zclProps.defaults) {
+          ctx.defaults = zclProps.defaults
         }
 
         ctx.version = zclProps.version
@@ -704,13 +708,21 @@ function parseManufacturerData(db, ctx) {
 
 function parseOptions(db, ctx) {
   if (!ctx.options) return Promise.resolve(ctx)
-  let promises = Object.keys(ctx.options).map((optionKey) => {
-    let optionValues = ctx.options[optionKey]
+  var promises = []
+  promises.push(parseTextOptions(db, ctx.packageId, ctx.options.text))
+  promises.push(parseBoolOptions(db, ctx.packageId, ctx.options.bool))
+  return Promise.all(promises).then(() => ctx)
+}
+
+function parseTextOptions(db, pkgRef, textOptions) {
+  if (!textOptions) return Promise.resolve(ctx)
+  let promises = Object.keys(textOptions).map((optionKey) => {
+    let optionValues = textOptions[optionKey]
       .split(',')
       .map((optionValue) => optionValue.trim())
     return queryPackage.insertOptionsKeyValues(
       db,
-      ctx.packageId,
+      pkgRef,
       optionKey,
       optionValues.map((optionValue) => {
         return { code: optionValue.toLowerCase(), label: optionValue }
@@ -718,6 +730,75 @@ function parseOptions(db, ctx) {
     )
   })
   return Promise.all(promises)
+}
+
+function parseBoolOptions(db, pkgRef, booleanCategories) {
+  if (!booleanCategories) return Promise.resolve(ctx)
+  let options = booleanCategories
+    .split(',')
+    .map((optionValue) => optionValue.trim())
+  var promises = []
+  options.forEach((optionCategory) => {
+    promises.push(
+      queryPackage.insertOptionsKeyValues(db, pkgRef, optionCategory, [
+        { code: 1, label: 'True' },
+        { code: 0, label: 'False' },
+      ])
+    )
+  })
+  return Promise.resolve(promises)
+}
+
+function parseDefaults(db, ctx) {
+  if (!ctx.defaults) return Promise.resolve(ctx)
+  var promises = []
+  promises.push(parseTextDefaults(db, ctx.packageId, ctx.defaults.text))
+  promises.push(parseBoolDefaults(db, ctx.packageId, ctx.defaults.bool))
+  return Promise.resolve(ctx)
+}
+
+function parseTextDefaults(db, pkgRef, textDefaults) {
+  if (!textDefaults) return Promise.resolve()
+  let promises = Object.keys(textDefaults).forEach((optionCategory) => {
+    queryPackage
+      .selectSpecificOptionValue(
+        db,
+        pkgRef,
+        optionCategory,
+        textDefaults[optionCategory]
+      )
+      .then((specificValue) => {
+        return queryPackage.insertDefaultOptionValue(
+          db,
+          pkgRef,
+          optionCategory,
+          specificValue[0].id
+        )
+      })
+  })
+  return Promise.resolve(promises)
+}
+
+function parseBoolDefaults(db, pkgRef, booleanCategories) {
+  if (!booleanCategories) return Promise.resolve()
+  let promises = Object.keys(booleanCategories).forEach((optionCategory) => {
+    queryPackage
+      .selectSpecificOptionValue(
+        db,
+        pkgRef,
+        optionCategory,
+        booleanCategories[optionCategory] ? 1 : 0
+      )
+      .then((specificValue) => {
+        return queryPackage.insertDefaultOptionValue(
+          db,
+          pkgRef,
+          optionCategory,
+          specificValue[0].id
+        )
+      })
+  })
+  return Promise.resolve(promises)
 }
 
 /**
@@ -739,6 +820,7 @@ function loadSilabsZcl(db, ctx) {
     .then((ctx) => parseZclFiles(db, ctx))
     .then((ctx) => parseManufacturerData(db, ctx))
     .then((ctx) => parseOptions(db, ctx))
+    .then((ctx) => parseDefaults(db, ctx))
     .then(() => dbApi.dbCommit(db))
     .then(() => ctx)
 }

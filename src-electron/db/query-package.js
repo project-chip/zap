@@ -377,6 +377,26 @@ function selectAllOptionsValues(db, packageId, optionCategory) {
     .then((rows) => rows.map(dbMapping.map.options))
 }
 
+function selectSpecificOptionValue(db, packageId, optionCategory, optionValue) {
+  return selectAllOptionsValues(db, packageId, optionCategory).then(
+    (options) => {
+      return Promise.resolve(
+        options.filter((e) => {
+          return e.optionCode == optionValue
+        })
+      )
+    }
+  )
+}
+
+function insertDefaultOptionValue(db, packageId, optionCategory, optionRef) {
+  return dbApi.dbInsert(
+    db,
+    'INSERT INTO OPTION_DEFAULTS ( PACKAGE_REF, OPTION_CATEGORY, OPTION_REF) VALUES (?, ?, ?)',
+    [packageId, optionCategory, optionRef]
+  )
+}
+
 // exports
 exports.getPackageByPathAndParent = getPackageByPathAndParent
 exports.getPackageByPackageId = getPackageByPackageId
@@ -392,5 +412,7 @@ exports.callPackageSpecificFunctionOverSessionPackages = callPackageSpecificFunc
 exports.getPackageIdByPathAndTypeAndVersion = getPackageIdByPathAndTypeAndVersion
 exports.insertOptionsKeyValues = insertOptionsKeyValues
 exports.selectAllOptionsValues = selectAllOptionsValues
+exports.selectSpecificOptionValue = selectSpecificOptionValue
+exports.insertDefaultOptionValue = insertDefaultOptionValue
 exports.getPackageByParent = getPackageByParent
 exports.getSessionPackagesByType = getSessionPackagesByType
