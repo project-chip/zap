@@ -230,6 +230,32 @@ function prepareEnum(type) {
   return ret
 }
 
+/*
+<type:type short="IasaceZoneStatusRecord" name="IasaceZoneStatusRecord" id="FF">
+    <restriction>
+      <type:sequence>
+        <field name="ZoneID" type="uint8" />
+        <field name="ZoneStatus" type="IasZoneStatus" />
+      </type:sequence>
+    </restriction>
+  </type:type>
+*/
+function prepareStruct(type) {
+  var ret = { name: type.$.short }
+  if ('restriction' in type) {
+    ret.items = []
+    type.restriction[0]['type:sequence'].map((sequence) => {
+      sequence.field.map((field) => {
+        ret.items.push({
+          name: field.$.name,
+          type: field.$.type,
+        })
+      })
+    })
+  }
+  return ret
+}
+
 /**
  *
  * Parses xml types into the types object for insertion into the DB
@@ -246,9 +272,14 @@ function prepareTypes(zclTypes, types) {
       'type:enumeration' in type.restriction[0]
     ) {
       types.enums.push(prepareEnum(type))
+    } else if (
+      'restriction' in type &&
+      'type:sequence' in type.restriction[0]
+    ) {
+      types.structs.push(prepareStruct(type))
     } else {
       types.atomics.push(prepareAtomic(type))
-    } // TODO: structs?
+    }
   })
 }
 
