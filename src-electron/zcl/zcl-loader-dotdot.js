@@ -58,6 +58,7 @@ function parseZclFiles(db, ctx) {
           ctx.zclClusters.push(result['zcl:cluster'])
         } else if (result['zcl:global']) {
           var global = result['zcl:global']
+          ctx.zclGlobalTypes = global['type:type']
           ctx.zclGlobalAttributes = global.attributes[0].attribute
           ctx.zclGlobalCommands = global.commands[0].command
         }
@@ -298,6 +299,7 @@ function loadZclData(db, ctx) {
   )
   let types = { atomics: [], enums: [], bitmaps: [], structs: [] }
   prepareTypes(ctx.zclTypes, types)
+  prepareTypes(ctx.zclGlobalTypes, types)
   cs = []
   ctx.zclClusters.forEach((cluster) => {
     env.logInfo(`loading cluster: ${cluster.$.name}`)

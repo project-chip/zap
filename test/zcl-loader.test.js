@@ -159,9 +159,13 @@ test('test Dotdot zcl data loading in memory', () => {
       .then(() => queryZcl.selectAllBitmaps(db, packageId))
       .then((x) => expect(x.length).toEqual(11)) //seems low
       .then(() => queryZcl.selectAllEnums(db, packageId))
-      .then((x) => expect(x.length).toEqual(28)) //seems low
+      .then((x) => expect(x.length).toEqual(29)) //seems low
+      .then(() => queryGeneric.selectCountFrom(db, 'ENUM_ITEM'))
+      .then((x) => expect(x).toEqual(215))
       .then(() => queryZcl.selectAllStructs(db, packageId))
-      .then((x) => expect(x.length).toEqual(6)) //seems low
+      .then((x) => expect(x.length).toEqual(20)) //seems low
+      .then(() => queryGeneric.selectCountFrom(db, 'STRUCT_ITEM'))
+      .then((x) => expect(x).toEqual(63))
       /* Keep this around temporarily to see the kinds of things that are being tested
     .then(() => queryZcl.selectAllDomains(db))
     .then((x) => expect(x.length).toEqual(20))
