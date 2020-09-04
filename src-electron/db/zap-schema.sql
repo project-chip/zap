@@ -49,6 +49,19 @@ CREATE TABLE "OPTIONS" (
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
   UNIQUE(PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
 );
+/* 
+ OPTIONS_DEFAULTS table contains a link to a specified 'default value' for an options
+ */
+DROP TABLE IF EXISTS "OPTION_DEFAULTS";
+CREATE TABLE "OPTION_DEFAULTS" (
+  "OPTION_DEFAULT_ID" integer primary key autoincrement,
+  "PACKAGE_REF" integer,
+  "OPTION_CATEGORY" text,
+  "OPTION_REF" integer,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
+  foreign key (OPTION_REF) references OPTIONS(OPTION_ID) on delete cascade,
+  UNIQUE(PACKAGE_REF, OPTION_CATEGORY)
+);
 /*
  *  $$$$$$\    $$\                $$\     $$\                       $$\            $$\               
  * $$  __$$\   $$ |               $$ |    \__|                      $$ |           $$ |              

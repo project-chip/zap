@@ -21,8 +21,8 @@ const fs = require('fs')
 const scriptUtil = require('./script-util.js')
 
 var arg = yargs
-  .option('zclProperties', {
-    desc: 'Specifies zcl.properties file to be used.',
+  .option('zcl', {
+    desc: 'Specifies zcl metafile file to be used.',
     alias: 'z',
     type: 'string',
     demandOption: true,
@@ -46,7 +46,7 @@ var arg = yargs
     demandOption: false,
   })
   .demandOption(
-    ['zclProperties', 'out', 'generationTemplate'],
+    ['zcl', 'out', 'generationTemplate'],
     'Please provide required options!'
   )
   .help().argv
@@ -63,8 +63,8 @@ var cli = [
   'generate',
   '--noUi',
   '--noServer',
-  '--zclProperties',
-  arg.zclProperties,
+  '--zcl',
+  arg.zcl,
   '--genTemplateJson',
   arg.generationTemplate,
   '--output',

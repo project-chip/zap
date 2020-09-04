@@ -18,8 +18,6 @@
 const queryZcl = require('../db/query-zcl.js')
 const templateUtil = require('./template-util.js')
 const bin = require('../util/bin.js')
-const { exportClustersFromEndpointType } = require('../db/query-impexp.js')
-const { query } = require('express')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -173,14 +171,14 @@ function asUnderlyingType(value) {
     .then((atomic) => {
       if (atomic == null) {
         return queryZcl
-          .selectBitmapByName(this.global.db, this.global.packageId, value)
+          .selectBitmapByName(this.global.db, this.global.zclPackageId, value)
           .then((bitmap) => {
             if (bitmap == null) {
               return atomic
             } else {
               return queryZcl.selectAtomicType(
                 this.global.db,
-                this.global.packageId,
+                this.global.zclPackageId,
                 bitmap.type
               )
             }

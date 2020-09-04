@@ -22,9 +22,8 @@
 const fsPromise = require('fs').promises
 const promisedHandlebars = require('promised-handlebars')
 const handlebars = promisedHandlebars(require('handlebars'))
-const env = require('../util/env.js')
 
-var helpersInitialized = false
+var globalHelpersInitialized = false
 
 const templateCompileOptions = {
   noEscape: true,
@@ -33,7 +32,7 @@ const templateCompileOptions = {
 const precompiledTemplates = {}
 
 function produceCompiledTemplate(singlePkg) {
-  initializeHelpers()
+  initializeGlobalHelpers()
   if (singlePkg.id in precompiledTemplates)
     return Promise.resolve(precompiledTemplates[singlePkg.id])
   else
@@ -63,8 +62,8 @@ function produceContent(db, sessionId, singlePkg) {
   )
 }
 
-function initializeHelpers() {
-  if (helpersInitialized) return
+function initializeGlobalHelpers() {
+  if (globalHelpersInitialized) return
 
   var includedHelpers = [
     './helper-zcl.js',
@@ -80,7 +79,7 @@ function initializeHelpers() {
     }
   })
 
-  helpersInitialized = true
+  globalHelpersInitialized = true
 }
 
 exports.produceContent = produceContent

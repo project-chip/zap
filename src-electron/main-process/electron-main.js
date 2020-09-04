@@ -58,8 +58,6 @@ if (app != null) {
           argv.zclProperties,
           argv.zapFile
         )
-      } else if (argv._.includes('sdkGen')) {
-        startup.startSdkGeneration(argv.output, argv.zclProperties)
       } else {
         startup.startNormal(!argv.noUi, argv.showUrl, argv.uiMode)
       }

@@ -38,14 +38,6 @@ test('startup: start generation', () => {
   )
 }, 5000)
 
-test('startup: start sdk regen', () => {
-  var testGenDir = path.join(env.appDirectory(), 'test-sdkgen')
-  if (!fs.existsSync(testGenDir)) fs.mkdirSync(testGenDir)
-  return startup.startSdkGeneration(testGenDir, args.zclPropertiesFile, {
-    quit: false,
-  })
-}, 5000)
-
 test('startup: self-check', () => {
   return startup.startSelfCheck({ log: false, quit: false })
 }, 5000)

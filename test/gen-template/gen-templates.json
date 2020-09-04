@@ -12,6 +12,7 @@
     "externalOption": "externalOptions.json",
     "cli": "cli.json"
   },
+  "helpers": ["addon-helper.js"],
   "templates": [
     {
       "path": "simple-test.zapt",
