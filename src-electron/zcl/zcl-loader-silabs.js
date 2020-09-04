@@ -29,12 +29,21 @@ const fsp = fs.promises
 const zclLoader = require('./zcl-loader.js')
 
 /**
+ * Promises to read the JSON file and resolve all the data.
+ * @param {*} ctx  Context containing information about the file
+ * @returns Promise of resolved file.
+ */
+function collectDataFromJsonFile(ctx) {
+  return Promise.resolve(ctx)
+}
+
+/**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
  *
  * @param {*} ctx Context which contains information about the propertiesFiles and data
  * @returns Promise of resolved files.
  */
-function collectData(ctx) {
+function collectDataFromPropertiesFile(ctx) {
   return new Promise((resolve, reject) => {
     env.logInfo(`Collecting ZCL files from: ${ctx.metadataFile}`)
 
@@ -819,13 +828,19 @@ function parseBoolDefaults(db, pkgRef, booleanCategories) {
  * @param {*} ctx The context of loading.
  * @returns a Promise that resolves with the db.
  */
-function loadSilabsZcl(db, ctx) {
+function loadSilabsZcl(db, ctx, isJson = false) {
   env.logInfo(`Loading Silabs zcl file: ${ctx.metadataFile}`)
   return dbApi
     .dbBeginTransaction(db)
-    .then(() => zclLoader.readPropertiesFile(ctx))
+    .then(() => zclLoader.readMetadataFile(ctx))
     .then((ctx) => zclLoader.recordToplevelPackage(db, ctx))
-    .then((ctx) => collectData(ctx))
+    .then((ctx) => {
+      if (isJson) {
+        return collectDataFromJsonFile(ctx)
+      } else {
+        return collectDataFromPropertiesFile(ctx)
+      }
+    })
     .then((ctx) => zclLoader.recordVersion(ctx))
     .then((ctx) => parseZclFiles(db, ctx))
     .then((ctx) => parseManufacturerData(db, ctx))

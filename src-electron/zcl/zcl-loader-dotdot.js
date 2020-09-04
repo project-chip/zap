@@ -300,7 +300,7 @@ function loadDotdotZcl(db, ctx) {
   env.logInfo(`Loading Dotdot zcl file: ${ctx.metadataFile}`)
   return dbApi
     .dbBeginTransaction(db)
-    .then(() => zclLoader.readPropertiesFile(ctx))
+    .then(() => zclLoader.readMetadataFile(ctx))
     .then((ctx) => zclLoader.recordToplevelPackage(db, ctx))
     .then((ctx) => collectData(ctx))
     .then((ctx) => zclLoader.recordVersion(ctx))

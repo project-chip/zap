@@ -29,7 +29,7 @@ const dLoad = require('./zcl-loader-dotdot')
  * @param {*} ctx
  * @returns Promise to populate data, filePath and crc into the context.
  */
-function readPropertiesFile(ctx) {
+function readMetadataFile(ctx) {
   return fsp
     .readFile(ctx.metadataFile, { encoding: 'utf-8' })
     .then((data) => {
@@ -91,13 +91,15 @@ function loadZcl(db, metadataFile) {
   if (ext == '.xml') {
     return dLoad.loadDotdotZcl(db, ctx)
   } else if (ext == '.properties') {
-    return sLoad.loadSilabsZcl(db, ctx)
+    return sLoad.loadSilabsZcl(db, ctx, false)
+  } else if (ext == '.json') {
+    return sLoad.loadSilabsZcl(db, ctx, true)
   } else {
     return Promise.reject('unknown properties file type')
   }
 }
 
 exports.loadZcl = loadZcl
-exports.readPropertiesFile = readPropertiesFile
+exports.readMetadataFile = readMetadataFile
 exports.recordToplevelPackage = recordToplevelPackage
 exports.recordVersion = recordVersion
