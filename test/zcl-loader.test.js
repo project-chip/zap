@@ -27,6 +27,7 @@ const queryGeneric = require('../src-electron/db/query-generic.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
+const { query } = require('express')
 
 test('test opening and closing the database', () => {
   var db = new sq.Database(':memory:')
@@ -124,6 +125,35 @@ test('test Silabs zcl data loading in memory', () => {
       )
     )
     .then((rows) => expect(rows.length).toBe(3))
+    .then(() =>
+      dbApi.dbAll(
+        db,
+        'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(*)>1)',
+        []
+      )
+    )
+    .then((x) => {
+      x.forEach((c) => {
+        env.logWarning(
+          `Found Non Unique Bitmap in Silabs XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
+        )
+      })
+    })
+
+    .then(() =>
+      dbApi.dbAll(
+        db,
+        'SELECT NAME, TYPE, PACKAGE_REF FROM ENUM WHERE NAME IN (SELECT NAME FROM ENUM GROUP BY NAME HAVING COUNT(*)>1)',
+        []
+      )
+    )
+    .then((x) => {
+      x.forEach((c) => {
+        env.logWarning(
+          `Found Non Unique Enum in Silabs XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
+        )
+      })
+    })
     .finally(() => {
       dbApi.closeDatabase(db)
     })
@@ -132,109 +162,155 @@ test('test Silabs zcl data loading in memory', () => {
 test('test Dotdot zcl data loading in memory', () => {
   var db = new sq.Database(':memory:')
   var packageId
-  args.zclPropertiesFile = './zcl-builtin/dotdot/library.xml'
+  dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
+  return dbApi
+    .loadSchema(db, env.schemaFile(), env.zapVersion())
+    .then((db) => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
+    .then((ctx) => {
+      packageId = ctx.packageId
+      return queryPackage.getPackageByPackageId(ctx.db, packageId)
+    })
+    .then((p) => expect(p.version).toEqual('1.0'))
+    .then(() =>
+      queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
+    )
+    .then((rows) => expect(rows.length).toEqual(1))
+    .then(() => queryZcl.selectAllClusters(db, packageId))
+    .then((x) => expect(x.length).toEqual(41))
+    .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
+    .then((x) => expect(x).toEqual(644)) // seems low
+    .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
+    .then((x) => expect(x).toEqual(238)) // seems low
+    .then(() => queryGeneric.selectCountFrom(db, 'ATTRIBUTE'))
+    .then((x) => expect(x).toEqual(628)) // seems low
+    .then(() => queryZcl.selectAllAtomics(db, packageId))
+    .then((x) => expect(x.length).toEqual(69)) //seems low
+    .then(() => queryZcl.selectAllBitmaps(db, packageId))
+    .then((x) => expect(x.length).toEqual(50)) //seems low
+    .then(() => queryZcl.selectAllEnums(db, packageId))
+    .then((x) => expect(x.length).toEqual(79)) //seems low
+    .then(() => queryGeneric.selectCountFrom(db, 'ENUM_ITEM'))
+    .then((x) => expect(x).toEqual(534))
+    .then(() => queryZcl.selectAllStructs(db, packageId))
+    .then((x) => expect(x.length).toEqual(20)) //seems low
+    .then(() => queryGeneric.selectCountFrom(db, 'STRUCT_ITEM'))
+    .then((x) => expect(x).toEqual(63))
+
+    .then(() =>
+      dbApi.dbAll(
+        db,
+        'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(*)>1)',
+        []
+      )
+    )
+    .then((x) => {
+      x.forEach((c) => {
+        env.logWarning(
+          `Found Non Unique Bitmap in Dotdot XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
+        )
+      })
+    })
+
+    .then(() =>
+      dbApi.dbAll(
+        db,
+        'SELECT NAME, TYPE, PACKAGE_REF FROM ENUM WHERE NAME IN (SELECT NAME FROM ENUM GROUP BY NAME HAVING COUNT(*)>1)',
+        []
+      )
+    )
+    .then((x) => {
+      x.forEach((c) => {
+        env.logWarning(
+          `Found Non Unique Enum in Dotdot XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
+        )
+      })
+    })
+
+    .finally(() => {
+      dbApi.closeDatabase(db)
+    })
+}, 5000) // Give this test 5 secs to resolve
+
+test('test Dotdot and Silabs zcl data loading in memory', () => {
+  var db = new sq.Database(':memory:')
+  var packageIdSilabs
+  var packageIdDotdot
+  var dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
   return (
     dbApi
       .loadSchema(db, env.schemaFile(), env.zapVersion())
-      .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
+
+      //Load the Silabs ZCL XML into the DB
+      .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile)) //default silabs
       .then((ctx) => {
-        packageId = ctx.packageId
-        return queryPackage.getPackageByPackageId(ctx.db, packageId)
+        packageIdSilabs = ctx.packageId
+        return queryPackage.getPackageByPackageId(ctx.db, packageIdSilabs)
+      })
+      .then((p) => expect(p.version).toEqual('ZCL Test Data'))
+      .then(() =>
+        queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
+      )
+      .then((rows) => expect(rows.length).toEqual(1))
+
+      //Load the Dotdot ZCL XML into the DB
+      .then(() => zclLoader.loadZcl(db, dotDotZclPropertiesFile)) //default silabs
+      .then((ctx) => {
+        packageIdDotdot = ctx.packageId
+        return queryPackage.getPackageByPackageId(ctx.db, packageIdDotdot)
       })
       .then((p) => expect(p.version).toEqual('1.0'))
       .then(() =>
         queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
       )
-      .then((rows) => expect(rows.length).toEqual(1))
-      .then(() => queryZcl.selectAllClusters(db, packageId))
-      .then((x) => expect(x.length).toEqual(41))
-      .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
-      .then((x) => expect(x).toEqual(644)) // seems low
-      .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
-      .then((x) => expect(x).toEqual(238)) // seems low
-      .then(() => queryGeneric.selectCountFrom(db, 'ATTRIBUTE'))
-      .then((x) => expect(x).toEqual(628)) // seems low
-      .then(() => queryZcl.selectAllAtomics(db, packageId))
-      .then((x) => expect(x.length).toEqual(69)) //seems low
-      .then(() => queryZcl.selectAllBitmaps(db, packageId))
-      .then((x) => expect(x.length).toEqual(11)) //seems low
-      .then(() => queryZcl.selectAllEnums(db, packageId))
-      .then((x) => expect(x.length).toEqual(29)) //seems low
-      .then(() => queryGeneric.selectCountFrom(db, 'ENUM_ITEM'))
-      .then((x) => expect(x).toEqual(215))
-      .then(() => queryZcl.selectAllStructs(db, packageId))
-      .then((x) => expect(x.length).toEqual(20)) //seems low
-      .then(() => queryGeneric.selectCountFrom(db, 'STRUCT_ITEM'))
-      .then((x) => expect(x).toEqual(63))
-      /* Keep this around temporarily to see the kinds of things that are being tested
-    .then(() => queryZcl.selectAllDomains(db))
-    .then((x) => expect(x.length).toEqual(20))
-    .then(() => queryZcl.selectAllEnums(db))
-    .then((x) => expect(x.length).toEqual(205))
-    .then(() => queryZcl.selectAllStructs(db))
-    .then((x) => expect(x.length).toEqual(50))
-    .then(() => queryZcl.selectAllBitmaps(db))
-    .then((x) => expect(x.length).toEqual(120))
-    .then(() => queryZcl.selectAllDeviceTypes(db))
-    .then((x) => expect(x.length).toEqual(152))
-    .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
-    .then((x) => expect(x).toEqual(1668))
-    .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
-    .then((x) => expect(x).toEqual(560))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENUM_ITEM'))
-    .then((x) => expect(x).toEqual(1537))
-    .then(() => queryGeneric.selectCountFrom(db, 'ATTRIBUTE'))
-    .then((x) => expect(x).toEqual(3416))
-    .then(() => queryGeneric.selectCountFrom(db, 'BITMAP_FIELD'))
-    .then((x) => expect(x).toEqual(721))
-    .then(() => queryGeneric.selectCountFrom(db, 'STRUCT_ITEM'))
-    .then((x) => expect(x).toEqual(154))
-    .then(() =>
-      dbApi.dbAll(
-        db,
-        'SELECT MANUFACTURER_CODE FROM CLUSTER WHERE MANUFACTURER_CODE NOT NULL',
-        []
+      .then((rows) => expect(rows.length).toEqual(2))
+
+      //Run some queries on the DB
+      .then(() =>
+        dbApi.dbAll(
+          db,
+          'SELECT NAME, CODE, PACKAGE_REF FROM CLUSTER WHERE CODE IN (SELECT CODE FROM CLUSTER GROUP BY CODE HAVING COUNT(CODE)=1)',
+          []
+        )
       )
-    )
-    .then((x) => expect(x.length).toEqual(2))
-    .then(() =>
-      dbApi.dbAll(
-        db,
-        'SELECT MANUFACTURER_CODE FROM COMMAND WHERE MANUFACTURER_CODE NOT NULL',
-        []
+      .then((x) => {
+        //env.logWarning(`FOUND ${x.length} UNIQUE ENTRIES`)
+        x.forEach((c) => {
+          env.logInfo(
+            `Found Unique Cluster: ${c.CODE} ${c.NAME} ${c.PACKAGE_REF}`
+          )
+        })
+      })
+
+      .then(() =>
+        dbApi.dbAll(
+          db,
+          'SELECT NAME, ATOMIC_IDENTIFIER, PACKAGE_REF FROM ATOMIC WHERE ATOMIC_IDENTIFIER IN (SELECT ATOMIC_IDENTIFIER FROM ATOMIC GROUP BY ATOMIC_IDENTIFIER HAVING COUNT(ATOMIC_IDENTIFIER)=1)',
+          []
+        )
       )
-    )
-    .then((x) => expect(x.length).toEqual(5))
-    .then(() =>
-      dbApi.dbAll(
-        db,
-        'SELECT MANUFACTURER_CODE FROM ATTRIBUTE WHERE MANUFACTURER_CODE NOT NULL',
-        []
+      .then((x) => {
+        x.forEach((c) => {
+          env.logInfo(
+            `Found Unique Atomic: ${c.ATOMIC_IDENTIFIER} ${c.NAME} ${c.PACKAGE_REF}`
+          )
+        })
+      })
+
+      .then(() =>
+        dbApi.dbAll(
+          db,
+          'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(NAME)=1)',
+          []
+        )
       )
-    )
-    .then((x) => expect(x.length).toEqual(4))
-    .then(() =>
-      dbApi.dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', [
-        ['0x0000'],
-        ['0x0006'],
-      ])
-    )
-    .then((rows) => {
-      expect(rows.length).toBe(2)
-      expect(rows[0]).not.toBeUndefined()
-      expect(rows[1]).not.toBeUndefined()
-      expect(rows[0].CLUSTER_ID).not.toBeUndefined()
-      expect(rows[1].CLUSTER_ID).not.toBeUndefined()
-    })
-    .then(() =>
-      queryPackage.selectAllOptionsValues(
-        db,
-        packageId,
-        'defaultResponsePolicy'
-      )
-    )
-    .then((rows) => expect(rows.length).toBe(3)) 
-    */
+      .then((x) => {
+        x.forEach((c) => {
+          env.logInfo(
+            `Found Unique Bitmap: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
+          )
+        })
+      })
+
       .finally(() => {
         dbApi.closeDatabase(db)
       })
