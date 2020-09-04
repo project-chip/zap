@@ -9,13 +9,13 @@ const queryZcl = require('../db/query-zcl.js')
 /**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
  *
- * @param {*} ctx Context which contains information about the propertiesFiles and data
+ * @param {*} ctx Context which contains information about the metadataFiles and data
  * @returns Promise of resolved files.
  */
 function collectData(ctx) {
   return new Promise((resolve, reject) => {
-    env.logInfo(`Collecting ZCL files from: ${ctx.propertiesFile}`)
-    let xml_string = fs.readFileSync(ctx.propertiesFile, 'utf8')
+    env.logInfo(`Collecting ZCL files from: ${ctx.metadataFile}`)
+    let xml_string = fs.readFileSync(ctx.metadataFile, 'utf8')
     var zclLib = new Array()
     xml2js.parseString(xml_string, function (err, result) {
       if (err) {
@@ -47,7 +47,7 @@ function parseZclFiles(db, ctx) {
     ctx.zclFiles.forEach((file) => {
       env.logInfo(`Starting to parse Dotdot ZCL file: ${file.$.href}`)
       let xml_string = fs.readFileSync(
-        path.dirname(ctx.propertiesFile) + '/' + file.$.href,
+        path.dirname(ctx.metadataFile) + '/' + file.$.href,
         'utf8'
       )
       xml2js.parseString(xml_string, function (err, result) {
@@ -263,7 +263,7 @@ function prepareTypes(zclTypes, types) {
  */
 function loadZclData(db, ctx) {
   env.logInfo(
-    `Starting to load Dotdot ZCL data in to DB for: ${ctx.propertiesFile}, clusters length=${ctx.zclClusters.length}`
+    `Starting to load Dotdot ZCL data in to DB for: ${ctx.metadataFile}, clusters length=${ctx.zclClusters.length}`
   )
   let types = { atomics: [], enums: [], bitmaps: [], structs: [] }
   prepareTypes(ctx.zclTypes, types)
@@ -293,11 +293,11 @@ function loadZclData(db, ctx) {
  *
  * @export
  * @param {*} db
- * @param {*} propertiesFile
+ * @param {*} ctx Context of loading.
  * @returns a Promise that resolves with the db.
  */
 function loadDotdotZcl(db, ctx) {
-  env.logInfo(`Loading Dotdot zcl file: ${ctx.propertiesFile}`)
+  env.logInfo(`Loading Dotdot zcl file: ${ctx.metadataFile}`)
   return dbApi
     .dbBeginTransaction(db)
     .then(() => zclLoader.readPropertiesFile(ctx))

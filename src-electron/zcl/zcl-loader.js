@@ -31,10 +31,10 @@ const dLoad = require('./zcl-loader-dotdot')
  */
 function readPropertiesFile(ctx) {
   return fsp
-    .readFile(ctx.propertiesFile, { encoding: 'utf-8' })
+    .readFile(ctx.metadataFile, { encoding: 'utf-8' })
     .then((data) => {
       ctx.data = data
-      ctx.filePath = ctx.propertiesFile
+      ctx.filePath = ctx.metadataFile
       return Promise.resolve(ctx)
     })
     .then((ctx) => util.calculateCrc(ctx))
@@ -49,7 +49,7 @@ function recordToplevelPackage(db, ctx) {
   return queryPackage
     .registerTopLevelPackage(
       db,
-      ctx.propertiesFile,
+      ctx.metadataFile,
       ctx.crc,
       dbEnum.packageType.zclProperties
     )
@@ -79,15 +79,15 @@ function recordVersion(ctx) {
  *
  * @export
  * @param {*} db
- * @param {*} propertiesFile
+ * @param {*} metadataFile
  * @returns a Promise that resolves with the db.
  */
-function loadZcl(db, propertiesFile) {
+function loadZcl(db, metadataFile) {
   var ctx = {
-    propertiesFile: path.resolve(propertiesFile),
+    metadataFile: path.resolve(metadataFile),
     db: db,
   }
-  var ext = path.extname(propertiesFile)
+  var ext = path.extname(metadataFile)
   if (ext == '.xml') {
     return dLoad.loadDotdotZcl(db, ctx)
   } else if (ext == '.properties') {

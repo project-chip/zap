@@ -1,0 +1,34 @@
+{
+  "version": "ZCL Test Data",
+  "xmlRoot": ".",
+  "xmlFile": [
+    "types.xml",
+    "general.xml",
+    "ha.xml",
+    "ha-devices.xml",
+    "cba.xml",
+    "cba-devices.xml",
+    "ota.xml",
+    "ami.xml",
+    "ami-devices.xml",
+    "zll.xml",
+    "zll-devices.xml",
+    "ta.xml",
+    "ta-devices.xml",
+    "hc.xml",
+    "hc-devices.xml",
+    "green-power.xml",
+    "green-power-devices.xml",
+    "sample-extensions.xml"
+  ],
+  "manufacturersXml": "manufacturers.xml",
+  "options": {
+    "defaultResponsePolicy": ["Always", "Conditional", "Never"],
+    "commandDiscovery": "boolean"
+  },
+  "defaults": {
+    "manufacturerCodes": "0x1002",
+    "defaultResponsePolicy": "always",
+    "commandDiscovery": "true"
+  }
+}

@@ -27,7 +27,6 @@ const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const fsp = fs.promises
 const zclLoader = require('./zcl-loader.js')
-const { showCompletionScript } = require('yargs')
 
 /**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
@@ -37,17 +36,17 @@ const { showCompletionScript } = require('yargs')
  */
 function collectData(ctx) {
   return new Promise((resolve, reject) => {
-    env.logInfo(`Collecting ZCL files from: ${ctx.propertiesFile}`)
+    env.logInfo(`Collecting ZCL files from: ${ctx.metadataFile}`)
 
     properties.parse(ctx.data, { namespaces: true }, (err, zclProps) => {
       env.logInfo(`Parsed the file...`)
       if (err) {
-        env.logError(`Could not read file: ${ctx.propertiesFile}`)
+        env.logError(`Could not read file: ${ctx.metadataFile}`)
         reject(err)
       } else {
         var fileLocations = zclProps.xmlRoot
           .split(',')
-          .map((p) => path.join(path.dirname(ctx.propertiesFile), p))
+          .map((p) => path.join(path.dirname(ctx.metadataFile), p))
         var zclFiles = []
 
         // Iterate over all XML files in the properties file, and check
@@ -817,11 +816,11 @@ function parseBoolDefaults(db, pkgRef, booleanCategories) {
  *
  * @export
  * @param {*} db
- * @param {*} propertiesFile
+ * @param {*} ctx The context of loading.
  * @returns a Promise that resolves with the db.
  */
 function loadSilabsZcl(db, ctx) {
-  env.logInfo(`Loading Silabs zcl file: ${ctx.propertiesFile}`)
+  env.logInfo(`Loading Silabs zcl file: ${ctx.metadataFile}`)
   return dbApi
     .dbBeginTransaction(db)
     .then(() => zclLoader.readPropertiesFile(ctx))
