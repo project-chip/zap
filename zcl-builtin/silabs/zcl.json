@@ -23,12 +23,18 @@
   ],
   "manufacturersXml": "manufacturers.xml",
   "options": {
-    "defaultResponsePolicy": ["Always", "Conditional", "Never"],
-    "commandDiscovery": "boolean"
+    "text": {
+      "defaultResponsePolicy": ["Always", "Conditional", "Never"]
+    },
+    "bool": ["commandDiscovery"]
   },
   "defaults": {
-    "manufacturerCodes": "0x1002",
-    "defaultResponsePolicy": "always",
-    "commandDiscovery": "true"
+    "text": {
+      "manufacturerCodes": "0x1002",
+      "defaultResponsePolicy": "always"
+    },
+    "bool": {
+      "commandDiscovery": true
+    }
   }
 }

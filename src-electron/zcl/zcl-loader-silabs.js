@@ -34,7 +34,59 @@ const zclLoader = require('./zcl-loader.js')
  * @returns Promise of resolved file.
  */
 function collectDataFromJsonFile(ctx) {
-  return Promise.resolve(ctx)
+  env.logInfo(`Collecting ZCL files from JSON file: ${ctx.metadataFile}`)
+  return new Promise((resolve, reject) => {
+    var obj = JSON.parse(ctx.data)
+
+    var fileLocations
+    if (Array.isArray(obj.xmlRoot)) {
+      fileLocations = obj.xmlRoot.map((p) =>
+        path.join(path.dirname(ctx.metadataFile), p)
+      )
+    } else {
+      fileLocations = [path.join(path.dirname(ctx.metadataFile), obj.xmlRoot)]
+    }
+    var zclFiles = []
+    obj.xmlFile.forEach((f) => {
+      for (var i = 0; i < fileLocations.length; i++) {
+        var zclFile = path.resolve(fileLocations[i], f.trim())
+        if (fs.existsSync(zclFile)) {
+          zclFiles.push(zclFile)
+          break
+        }
+      }
+    })
+
+    ctx.zclFiles = zclFiles
+
+    // Manufacturers XML file.
+    if (obj.manufacturersXml) {
+      for (var i = 0; i < fileLocations.length; i++) {
+        var manufacturerXml = path.resolve(
+          fileLocations[i],
+          obj.manufacturersXml.trim()
+        )
+        if (fs.existsSync(manufacturerXml)) {
+          ctx.manufacturersXml = manufacturerXml
+          break
+        }
+      }
+    }
+
+    // General options
+    // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
+    if (obj.options) {
+      ctx.options = obj.options
+    }
+    // Defaults. Note that the keys should be the categories that are listed for OPTIONS, and the value should be the OPTION_CODE
+    if (obj.defaults) {
+      ctx.defaults = obj.defaults
+    }
+
+    ctx.version = obj.version
+    env.logInfo(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
+    resolve(ctx)
+  })
 }
 
 /**
@@ -45,10 +97,11 @@ function collectDataFromJsonFile(ctx) {
  */
 function collectDataFromPropertiesFile(ctx) {
   return new Promise((resolve, reject) => {
-    env.logInfo(`Collecting ZCL files from: ${ctx.metadataFile}`)
+    env.logInfo(
+      `Collecting ZCL files from properties file: ${ctx.metadataFile}`
+    )
 
     properties.parse(ctx.data, { namespaces: true }, (err, zclProps) => {
-      env.logInfo(`Parsed the file...`)
       if (err) {
         env.logError(`Could not read file: ${ctx.metadataFile}`)
         reject(err)
@@ -724,11 +777,15 @@ function parseOptions(db, ctx) {
 }
 
 function parseTextOptions(db, pkgRef, textOptions) {
-  if (!textOptions) return Promise.resolve(ctx)
+  if (!textOptions) return Promise.resolve()
   let promises = Object.keys(textOptions).map((optionKey) => {
-    let optionValues = textOptions[optionKey]
-      .split(',')
-      .map((optionValue) => optionValue.trim())
+    var val = textOptions[optionKey]
+    var optionValues
+    if (Array.isArray(val)) {
+      optionValues = val
+    } else {
+      optionValues = val.split(',').map((opt) => opt.trim())
+    }
     return queryPackage.insertOptionsKeyValues(
       db,
       pkgRef,
@@ -742,10 +799,15 @@ function parseTextOptions(db, pkgRef, textOptions) {
 }
 
 function parseBoolOptions(db, pkgRef, booleanCategories) {
-  if (!booleanCategories) return Promise.resolve(ctx)
-  let options = booleanCategories
-    .split(',')
-    .map((optionValue) => optionValue.trim())
+  if (!booleanCategories) return Promise.resolve()
+  let options
+  if (Array.isArray(booleanCategories)) {
+    options = booleanCategories
+  } else {
+    options = booleanCategories
+      .split(',')
+      .map((optionValue) => optionValue.trim())
+  }
   var promises = []
   options.forEach((optionCategory) => {
     promises.push(
@@ -772,8 +834,6 @@ function parseTextDefaults(db, pkgRef, textDefaults) {
   let promises = []
   Object.keys(textDefaults).forEach((optionCategory) => {
     var txt = textDefaults[optionCategory]
-    if (txt.startsWith('"') && txt.endsWith('"'))
-      txt = txt.slice(1, txt.length - 1)
     promises.push(
       queryPackage
         .selectSpecificOptionValue(db, pkgRef, optionCategory, txt)
