@@ -767,14 +767,14 @@ function parseTextDefaults(db, pkgRef, textDefaults) {
         optionCategory,
         textDefaults[optionCategory]
       )
-      .then((specificValue) => {
-        return queryPackage.insertDefaultOptionValue(
+      .then((specificValue) =>
+        queryPackage.insertDefaultOptionValue(
           db,
           pkgRef,
           optionCategory,
           specificValue[0].id
         )
-      })
+      )
   })
   return Promise.resolve(promises)
 }

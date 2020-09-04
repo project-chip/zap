@@ -130,7 +130,7 @@ function getPackageByPackageId(db, packageId) {
       'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PACKAGE_ID = ?',
       [packageId]
     )
-    .then((row) => dbMapping.map.package(row))
+    .then(dbMapping.map.package)
 }
 
 /**
@@ -362,10 +362,11 @@ function insertOptionsKeyValues(
 }
 
 /**
- * This function returns all options assocaited with a specific key.
+ * This function returns all options associated with a specific category.
  * @param {*} db
  * @param {*} packageId
- * @param {*} optionKey
+ * @param {*} optionCategory
+ * @returns promise to return option that matches arguments.
  */
 function selectAllOptionsValues(db, packageId, optionCategory) {
   return dbApi
@@ -377,18 +378,34 @@ function selectAllOptionsValues(db, packageId, optionCategory) {
     .then((rows) => rows.map(dbMapping.map.options))
 }
 
-function selectSpecificOptionValue(db, packageId, optionCategory, optionValue) {
-  return selectAllOptionsValues(db, packageId, optionCategory).then(
-    (options) => {
-      return Promise.resolve(
-        options.filter((e) => {
-          return e.optionCode == optionValue
-        })
-      )
-    }
-  )
+/**
+ *
+ * This function returns option associated with a specific category and code.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} optionCategory
+ * @param {*} optionCode
+ * @returns promise to return option that matches arguments.
+ */
+function selectSpecificOptionValue(db, packageId, optionCategory, optionCode) {
+  return dbApi
+    .dbGet(
+      db,
+      `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM OPTIONS WHERE PACKAGE_REF = ? AND OPTION_CATEGORY = ? AND OPTION_CODE = ?`,
+      [packageId, optionCategory, optionCode]
+    )
+    .then(dbMapping.map.options)
 }
 
+/**
+ * Returns a promise of an insertion of option value.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} optionCategory
+ * @param {*} optionRef
+ * @returns promise to insert option value
+ */
 function insertDefaultOptionValue(db, packageId, optionCategory, optionRef) {
   return dbApi.dbInsert(
     db,
