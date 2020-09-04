@@ -3,3 +3,5 @@ Test template file.
 Header:{{zap_header}}
 
 SessionId: {{sessionId}}
+
+Addon: {{test_addon_helper}}

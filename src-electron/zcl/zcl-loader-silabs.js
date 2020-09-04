@@ -27,6 +27,7 @@ const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const fsp = fs.promises
 const zclLoader = require('./zcl-loader.js')
+const { showCompletionScript } = require('yargs')
 
 /**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
@@ -759,44 +760,54 @@ function parseDefaults(db, ctx) {
 
 function parseTextDefaults(db, pkgRef, textDefaults) {
   if (!textDefaults) return Promise.resolve()
-  let promises = Object.keys(textDefaults).forEach((optionCategory) => {
-    queryPackage
-      .selectSpecificOptionValue(
-        db,
-        pkgRef,
-        optionCategory,
-        textDefaults[optionCategory]
-      )
-      .then((specificValue) =>
-        queryPackage.insertDefaultOptionValue(
-          db,
-          pkgRef,
-          optionCategory,
-          specificValue[0].id
-        )
-      )
+
+  let promises = []
+  Object.keys(textDefaults).forEach((optionCategory) => {
+    var txt = textDefaults[optionCategory]
+    if (txt.startsWith('"') && txt.endsWith('"'))
+      txt = txt.slice(1, txt.length - 1)
+    promises.push(
+      queryPackage
+        .selectSpecificOptionValue(db, pkgRef, optionCategory, txt)
+        .then((specificValue) => {
+          if (specificValue == null) {
+            throw `Default value for: ${optionCategory}/${textDefaults[optionCategory]} does not match an option.`
+          } else {
+            return queryPackage.insertDefaultOptionValue(
+              db,
+              pkgRef,
+              optionCategory,
+              specificValue.id
+            )
+          }
+        })
+    )
   })
   return Promise.resolve(promises)
 }
 
 function parseBoolDefaults(db, pkgRef, booleanCategories) {
   if (!booleanCategories) return Promise.resolve()
-  let promises = Object.keys(booleanCategories).forEach((optionCategory) => {
-    queryPackage
-      .selectSpecificOptionValue(
-        db,
-        pkgRef,
-        optionCategory,
-        booleanCategories[optionCategory] ? 1 : 0
-      )
-      .then((specificValue) => {
-        return queryPackage.insertDefaultOptionValue(
+
+  let promises = []
+  Object.keys(booleanCategories).forEach((optionCategory) => {
+    promises.push(
+      queryPackage
+        .selectSpecificOptionValue(
           db,
           pkgRef,
           optionCategory,
-          specificValue[0].id
+          booleanCategories[optionCategory] ? 1 : 0
         )
-      })
+        .then((specificValue) =>
+          queryPackage.insertDefaultOptionValue(
+            db,
+            pkgRef,
+            optionCategory,
+            specificValue.id
+          )
+        )
+    )
   })
   return Promise.resolve(promises)
 }
