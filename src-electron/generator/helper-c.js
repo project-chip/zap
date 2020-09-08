@@ -40,6 +40,8 @@ function asMacro(label) {
   l = l.replace('._', '_')
   l = l.replace('.', '_')
   l = l.replace('-', '_')
+  l = l.startsWith('_') ? l.substring(1) : l
+  l = l.endsWith('_') ? l.substring(0, l.length - 1) : l
   return l
 }
 
@@ -64,7 +66,9 @@ function isDigit(ch) {
 function asDelimitedMacro(label) {
   var ret = ''
   if (label == null) return ret
-
+  label = label.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+    return '_' + y
+  })
   var wasUp = false
   for (var i = 0; i < label.length; i++) {
     var ch = label.charAt(i)
@@ -204,7 +208,7 @@ function asUnderlyingType(value) {
  * @returns Label formatted as C type.
  */
 function asType(value) {
-  return value.replace(/ /g, '')
+  return value.replace(/[ |-]/g, '')
 }
 
 /**
@@ -284,7 +288,6 @@ function asBytes(value, type) {
 // Note: these exports are public API. Templates that might have been created in the past and are
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
-exports.asMacro = asMacro
 exports.asHex = asHex
 exports.asType = asType
 exports.asSymbol = asSymbol

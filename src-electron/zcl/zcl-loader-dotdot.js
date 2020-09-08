@@ -109,17 +109,17 @@ function prepareAttributes(attributes, side, types, cluster = null) {
     env.logInfo(`Preparing attribute ${side} ${a.$.name}`)
     ret.push({
       code: normalizeHexValue(a.$.id),
-      manufacturerCode: '', // TODO: no manuf code in dotdot xml
+      //manufacturerCode: '', // TODO: no manuf code in dotdot xml
       name: a.$.name,
       type: a.$.type.toLowerCase(),
       side: side,
-      define: a.$.define,
+      define: a.$.name,
       min: normalizeHexValue(a.$.min),
       max: normalizeHexValue(a.$.max),
       isWritable: a.$.writable == 'true',
       defaultValue: normalizeHexValue(a.$.default),
-      isOptional: 'true', // TODO: optionality not listed in dotdot xml
-      isReportable: 'true', // TODO: reportability not listed in dotdot xml
+      //isOptional: 'true', // TODO: optionality not listed in dotdot xml
+      //isReportable: 'true', // TODO: reportability not listed in dotdot xml
     })
     // TODO: Attributes have types and they may not be unique so we prepend the cluster name
     prepareAttributeType(a, types, cluster)
@@ -142,11 +142,11 @@ function prepareCommands(commands, side) {
     env.logInfo(`Preparing command ${side} ${c.$.name}`)
     var pcmd = {
       code: normalizeHexValue(c.$.id),
-      manufacturerCode: '', //TODO: no manuf code for dotdot xml
+      //manufacturerCode: '', //TODO: no manuf code for dotdot xml
       name: c.$.name,
-      description: '', // TODO: no description for dotdot xml
+      //description: '', // TODO: no description for dotdot xml
       source: side,
-      isOptional: 'true', // TODO: optionality of commands is not defined in dotdot xml
+      //isOptional: 'true', // TODO: optionality of commands is not defined in dotdot xml
     }
     if ('fields' in c) {
       pcmd.args = []
@@ -158,7 +158,7 @@ function prepareCommands(commands, side) {
           pcmd.args.push({
             name: f.$.name,
             type: f.$.type,
-            isArray: 0, //TODO: no indication of array type in dotdot xml
+            //isArray: 0, //TODO: no indication of array type in dotdot xml
           })
         }
       })
@@ -187,10 +187,10 @@ function prepareCluster(cluster, isExtension = false, types) {
   } else {
     ret.code = normalizeHexValue(cluster.$.id)
     ret.name = cluster.$.name
-    ret.description = '' // TODO: no description in dotdot zcl
-    ret.define = '' // TODO: no define in dotdot zcl
+    //ret.description = '' // TODO: no description in dotdot zcl
+    ret.define = cluster.$.name // TODO: no define in dotdot zcl
     ret.domain = cluster.classification[0].$.role
-    ret.manufacturerCode = '' // TODO: no manufacturer code in dotdot zcl
+    //ret.manufacturerCode = '' // TODO: no manufacturer code in dotdot zcl
     ret.revision = cluster.$.revision // TODO: revision present in dotdot zcl
   }
   var sides = [
@@ -235,7 +235,7 @@ function prepareAtomic(type) {
   return {
     name: type.$.short,
     id: normalizeHexValue(type.$.id),
-    size: '', // TODO: size not defined in dotdot xml
+    //size: '', // TODO: size not defined in dotdot xml
     description: type.$.name,
   }
 }
@@ -254,7 +254,7 @@ function prepareBitmap(type, fromAttribute = false, cluster = null) {
     ret = {
       //TODO: Bitmaps from cluster attributes may not be unique by name so we prepend the cluster
       //      name to the bitmap name (as we do in the Silabs xml)
-      name: cluster ? cluster.$.name + '-' + type.$.name : type.$.name,
+      name: cluster ? cluster.$.name + type.$.name : type.$.name,
       type: type.$.type,
     }
   } else {
@@ -265,7 +265,7 @@ function prepareBitmap(type, fromAttribute = false, cluster = null) {
     type.bitmap[0].element.map((e) => {
       ret.fields.push({
         name: e.$.name,
-        mask: e.$.mask,
+        mask: normalizeHexValue(e.$.mask),
       })
     })
   }
@@ -285,7 +285,7 @@ function prepareEnum(type, fromAttribute = false, cluster = null) {
     ret = {
       // TODO: Enums from cluster attributes may not be unique by name so we prepend the cluster
       //       name to the enum name (as we do in the Silabs xml)
-      name: cluster ? cluster.$.name + '-' + type.$.name : type.$.name,
+      name: cluster ? cluster.$.name + type.$.name : type.$.name,
       type: type.$.type,
     }
   } else {
@@ -296,7 +296,7 @@ function prepareEnum(type, fromAttribute = false, cluster = null) {
     type.restriction[0]['type:enumeration'].map((e) => {
       ret.items.push({
         name: e.$.name,
-        value: e.$.value,
+        value: normalizeHexValue(e.$.value),
       })
     })
   }
