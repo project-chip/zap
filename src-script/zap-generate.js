@@ -53,11 +53,6 @@ var arg = yargs
 
 var ctx = {}
 
-if (!fs.existsSync(arg.out)) {
-  console.log(`✅ Creating directory: ${arg.out}`)
-  fs.mkdirSync(arg.out)
-}
-
 var cli = [
   'src-electron/main-process/electron-main.js',
   'generate',

@@ -303,6 +303,12 @@ function generateAndWriteFiles(
   }
 ) {
   return generate(db, sessionId, packageId).then((genResult) => {
+    if (!fs.existsSync(outputDirectory)) {
+      if (options.log) {
+        console.log(`✅ Creating directory: ${outputDirectory}`)
+      }
+      fs.mkdirSync(outputDirectory, { recursive: true })
+    }
     if (options.log) console.log('🤖 Generating files:')
     var promises = []
     for (const f in genResult.content) {
