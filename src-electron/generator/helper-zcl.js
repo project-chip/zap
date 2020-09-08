@@ -258,6 +258,39 @@ function zcl_atomics(options) {
     .then((ats) => templateUtil.collectBlocks(ats, options.fn, this))
 }
 
+/**
+ *
+ *
+ * Given: N/A
+ * @returns the length of largest cluster name in a list of clusters
+ */
+function zcl_cluster_largest_label_length() {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) => queryZcl.selectAllClusters(this.global.db, packageId))
+    .then((cl) => largestLabelLength(cl))
+}
+
+/**
+ *
+ *
+ * @param {*} An Array
+ * @returns the length of largest object name in an array. Helper for
+ * zcl_cluster_largest_label_length
+ */
+function largestLabelLength(arr) {
+  var lengthOfLargestString = 0,
+    i = 0,
+    stringLength = 0
+  for (i = 0; i < arr.length; i++) {
+    stringLength = arr[i].label.length
+    if (stringLength > lengthOfLargestString) {
+      lengthOfLargestString = stringLength
+    }
+  }
+  return lengthOfLargestString
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -276,3 +309,4 @@ exports.zcl_attributes_client = zcl_attributes_client
 exports.zcl_attributes_server = zcl_attributes_server
 exports.zcl_atomics = zcl_atomics
 exports.zcl_global_commands = zcl_global_commands
+exports.zcl_cluster_largest_label_length = zcl_cluster_largest_label_length
