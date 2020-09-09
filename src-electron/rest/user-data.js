@@ -389,6 +389,19 @@ function registerSessionApi(db, app) {
         })
     })
   })
+
+  app.get(`${restApi.uri.getAllSessionKeyValues}`, (request, response) => {
+    var sessionId = request.session.zapSessionId
+    queryConfig
+      .getAllSessionKeyValues(db, sessionId)
+      .then((sessionKeyValues) => {
+        response.json({
+          data: sessionKeyValues,
+          replyId: 'sessionKeyValues',
+        })
+        return response.status(restApi.httpCode.ok).send()
+      })
+  })
 }
 
 exports.registerSessionApi = registerSessionApi

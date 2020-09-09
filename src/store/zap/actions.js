@@ -473,7 +473,7 @@ export function loadInitialData(context, data) {
 }
 
 /**
- * This action loads the option from the backend
+ * This action loads the option from the backend, including any defaults that may exist.
  */
 export function loadOptions(context, option) {
   Vue.prototype
@@ -507,6 +507,14 @@ export function setSelectedGenericOption(context, optionData) {
     })
     .then((response) => {
       context.commit('setSelectedGenericOption', response.data)
+    })
+}
+
+export function loadSessionKeyValues(context) {
+  Vue.prototype
+    .$serverGet(`${restApi.uri.getAllSessionKeyValues}`)
+    .then((response) => {
+      context.commit('loadSessionKeyValues', response.data)
     })
 }
 

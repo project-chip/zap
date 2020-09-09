@@ -80,6 +80,8 @@ export default {
       key: 'manufacturerCodes',
       type: 'object',
     })
+    this.$store.dispatch('zap/loadSessionKeyValues')
+
     this.$serverOn('zcl-item-list', (event, arg) => {
       if (arg.type === 'cluster') {
         this.$store.dispatch('zap/updateClusters', arg.data)

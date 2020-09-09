@@ -42,6 +42,15 @@ exports.map = {
       optionLabel: x.OPTION_LABEL,
     }
   },
+  optionDefaults: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.OPTION_DEFAULT_ID,
+      packageRef: x.PACKAGE_REF,
+      optionCategory: x.OPTION_CATEGORY,
+      optionRef: x.OPTION_REF,
+    }
+  },
   trackedFile: (x) => {
     if (x == null) return undefined
     return {

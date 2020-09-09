@@ -307,6 +307,12 @@ export function setSelectedGenericOption(state, keyValue) {
   Vue.set(state.selectedGenericOptions, keyValue.key, keyValue.value)
 }
 
+export function loadSessionKeyValues(state, sessionKeyValues) {
+  sessionKeyValues.data.map((keyValue) => {
+    Vue.set(state.selectedGenericOptions, keyValue.key, keyValue.value)
+  })
+}
+
 export function setDefaultUiMode(state, uiMode) {
   Vue.set(state.calledArgs, `defaultUiMode`, uiMode)
 }

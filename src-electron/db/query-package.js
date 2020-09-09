@@ -398,6 +398,21 @@ function selectSpecificOptionValue(db, packageId, optionCategory, optionCode) {
 }
 
 /**
+ * This function returns a specific option value given an option reference.
+ * @param {*} db
+ * @param {*} optionDefaultId
+ */
+function selectOptionValueByOptionDefaultId(db, optionDefaultId) {
+  return dbApi
+    .dbGet(
+      db,
+      `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM OPTIONS WHERE OPTION_ID = ?`,
+      [optionDefaultId]
+    )
+    .then(dbMapping.map.options)
+}
+
+/**
  * Returns a promise of an insertion of option value.
  *
  * @param {*} db
@@ -412,6 +427,21 @@ function insertDefaultOptionValue(db, packageId, optionCategory, optionRef) {
     'INSERT INTO OPTION_DEFAULTS ( PACKAGE_REF, OPTION_CATEGORY, OPTION_REF) VALUES (?, ?, ?)',
     [packageId, optionCategory, optionRef]
   )
+}
+
+/**
+ * Returns a rpomise for all option values.
+ * @param {*} db
+ * @param {*} packageId
+ */
+function selectAllDefaultOptions(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `SELECT OPTION_DEFAULT_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_REF FROM OPTION_DEFAULTS WHERE PACKAGE_REF = ?`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.optionDefaults))
 }
 
 // exports
@@ -433,3 +463,5 @@ exports.selectSpecificOptionValue = selectSpecificOptionValue
 exports.insertDefaultOptionValue = insertDefaultOptionValue
 exports.getPackageByParent = getPackageByParent
 exports.getSessionPackagesByType = getSessionPackagesByType
+exports.selectAllDefaultOptions = selectAllDefaultOptions
+exports.selectOptionValueByOptionDefaultId = selectOptionValueByOptionDefaultId
