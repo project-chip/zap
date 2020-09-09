@@ -23,7 +23,7 @@ executable(zap:macosx.x86_64) {
 }
 
 function(uc_generate) {
-  cmd=$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.properties --generationTemplateJson ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json
+  cmd=$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.properties --generationTemplateJson ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}
 }
 
 function(run) {
