@@ -23,7 +23,7 @@ executable(zap:macosx.x86_64) {
 }
 
 function(uc_generate) {
-  cmd=$(zap_regen) --out ${generationOutput} --zclProperties ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.properties --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}
+  cmd=$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.properties --generationTemplateJson ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json
 }
 
 function(run) {
@@ -43,7 +43,7 @@ function(zapServer) {
   httpPort.description=Port used for HTTP server
   zclProperties.description=Location for ZCL XML file
   output.description=Output directory for project generation
-  cmd=$(zap) --noUi --showUrl --zclProperties ${zclProperties} --output ${output}
+  cmd=$(zap) --noUi --showUrl --zclProperties ${zclProperties} -o ${output}
 }
 
 function(zapFull) {
