@@ -76,7 +76,12 @@ limitations under the License.
       <q-list>
         <div v-for="domainName in domainNames" :key="domainName">
           <div v-show="clusterDomains(domainName).length > 0">
-            <q-expansion-item switch-toggle-side :label="domainName">
+            <q-expansion-item
+              switch-toggle-side
+              :label="domainName"
+              @input="setOpenDomain(domainName, $event)"
+              :value="openDomains[domainName]"
+            >
               <zcl-domain-cluster-view
                 :domainName="domainName"
                 :clusters="clusterDomains(domainName)"
@@ -116,6 +121,11 @@ export default {
         return [
           ...new Set(this.$store.state.zap.clusters.map((a) => a.domainName)),
         ]
+      },
+    },
+    openDomains: {
+      get() {
+        return this.$store.state.zap.clusterManager.openDomains
       },
     },
     clusters: {
@@ -168,6 +178,12 @@ export default {
         this.selectionClients.includes(clusterReference) ||
         this.selectionServers.includes(clusterReference)
       )
+    },
+    setOpenDomain(domainName, event) {
+      this.$store.dispatch('zap/setOpenDomain', {
+        domainName: domainName,
+        value: event,
+      })
     },
   },
   data() {

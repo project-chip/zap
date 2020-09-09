@@ -529,3 +529,7 @@ export function setStudioConfigPath(context, filePath) {
 export function setAttributeEditting(context, editContext) {
   context.commit('setAttributeEditting', editContext)
 }
+
+export function setOpenDomain(context, state) {
+  context.commit('setOpenDomain', state)
+}

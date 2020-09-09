@@ -328,3 +328,7 @@ export function setAttributeEditting(state, context) {
     context.editState
   )
 }
+
+export function setOpenDomain(state, context) {
+  Vue.set(state.clusterManager.openDomains, context.domainName, context.value)
+}

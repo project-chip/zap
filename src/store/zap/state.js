@@ -29,6 +29,9 @@ export default function () {
     endpoints: [],
     genericOptions: {},
     selectedGenericOptions: {},
+    clusterManager: {
+      openDomains: {},
+    },
     endpointView: {
       selectedEndpoint: [],
       endpointId: {},
