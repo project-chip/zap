@@ -430,6 +430,7 @@ applicable to this document can be found in the LICENSE.md file.
   </type:type>
 
   <xi:include href="global.xml" parse="xml" />
+  <xi:include href="device.xml" parse="xml" />
   <xi:include href="Basic.xml" parse="xml" />
   <xi:include href="PowerConfiguration.xml" parse="xml" />
   <xi:include href="DeviceTemperatureConfiguration.xml" parse="xml" />

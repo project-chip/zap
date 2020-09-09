@@ -61,6 +61,9 @@ function parseZclFiles(db, ctx) {
           ctx.zclGlobalTypes = global['type:type']
           ctx.zclGlobalAttributes = global.attributes[0].attribute
           ctx.zclGlobalCommands = global.commands[0].command
+        } else if (result['zcl:device']) {
+          var deviceTypes = result['zcl:device']
+          ctx.zclDeviceTypes = deviceTypes['deviceType']
         } else {
           //TODO: What to do with "derived clusters", we skip them here but we should probably
           //      extend the DB schema to allow this since we don't really handle it
@@ -373,6 +376,49 @@ function prepareAttributeType(attribute, types, cluster) {
 }
 
 /**
+ * Preparation step for the device types.
+ *
+ * @param {*} deviceType
+ * @returns an object containing the prepared device types.
+ */
+function prepareDeviceType(deviceType) {
+  var ret = {
+    code: deviceType.deviceId[0]['_'],
+    //profileId: deviceType.profileId[0]['_'], //There is no profileId in Dotdot device descriptions
+    name: deviceType.name[0],
+    description: deviceType.typeName[0],
+  }
+  if ('clusters' in deviceType) {
+    ret.clusters = []
+    deviceType.clusters.forEach((cluster) => {
+      if ('include' in cluster) {
+        cluster.include.forEach((include) => {
+          var attributes = []
+          var commands = []
+          if ('requireAttribute' in include) {
+            attributes = include.requireAttribute
+          }
+          if ('requireCommand' in include) {
+            commands = include.requireCommand
+          }
+          ret.clusters.push({
+            client: 'true' == include.$.client,
+            server: 'true' == include.$.server,
+            clientLocked: 'true' == include.$.clientLocked,
+            serverLocked: 'true' == include.$.serverLocked,
+            clusterName:
+              include.$.cluster != undefined ? include.$.cluster : include._,
+            requiredAttributes: attributes,
+            requiredCommands: commands,
+          })
+        })
+      }
+    })
+  }
+  return ret
+}
+
+/**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
  * that will be resolved when all the XML files are done, or rejected if at least one fails.
@@ -400,8 +446,15 @@ function loadZclData(db, ctx) {
       commands: prepareCommands(ctx.zclGlobalCommands, ''),
     },
   ]
+  ds = []
+  ctx.zclDeviceTypes.forEach((deviceType) => {
+    env.logInfo(`loading device: ${deviceType.typeName._}`)
+    var d = prepareDeviceType(deviceType)
+    ds.push(d)
+  })
   return queryZcl
     .insertClusters(db, ctx.packageId, cs)
+    .then(() => queryZcl.insertDeviceTypes(db, ctx.packageId, ds))
     .then(() => queryZcl.insertGlobals(db, ctx.packageId, gs))
     .then(() => queryZcl.insertAtomics(db, ctx.packageId, types.atomics))
     .then(() => queryZcl.insertEnums(db, ctx.packageId, types.enums))
@@ -427,6 +480,7 @@ function loadDotdotZcl(db, ctx) {
     .then((ctx) => zclLoader.recordVersion(ctx))
     .then((ctx) => parseZclFiles(db, ctx))
     .then((ctx) => loadZclData(db, ctx))
+    .then(() => zclLoader.processZclPostLoading(db))
     .then(() => dbApi.dbCommit(db))
     .then(() => ctx)
 }

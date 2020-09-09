@@ -177,6 +177,8 @@ test('test Dotdot zcl data loading in memory', () => {
     .then((rows) => expect(rows.length).toEqual(1))
     .then(() => queryZcl.selectAllClusters(db, packageId))
     .then((x) => expect(x.length).toEqual(41))
+    .then(() => queryZcl.selectAllDeviceTypes(db, packageId))
+    .then((x) => expect(x.length).toEqual(54))
     .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
     .then((x) => expect(x).toEqual(644)) // seems low
     .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
@@ -196,18 +198,20 @@ test('test Dotdot zcl data loading in memory', () => {
     .then(() => queryGeneric.selectCountFrom(db, 'STRUCT_ITEM'))
     .then((x) => expect(x).toEqual(63))
 
-    .then(() =>
-      dbApi.dbAll(
-        db,
-        'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(*)>1)',
-        []
-      )
-    )
+    .then(() => queryZcl.selectAllDeviceTypes(db, packageId))
     .then((x) => {
-      x.forEach((c) => {
-        env.logWarning(
-          `Found Non Unique Bitmap in Dotdot XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
-        )
+      x.forEach((d) => {
+        queryZcl
+          .selectDeviceTypeClustersByDeviceTypeRef(db, d.id)
+          .then((dc) => {
+            dc.forEach((dcr) => {
+              if (!dcr.clusterRef) {
+                env.logInfo(
+                  `for ${d.caption} failed to match dcr ${dcr.clusterName}`
+                )
+              }
+            })
+          })
       })
     })
 
