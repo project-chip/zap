@@ -58,6 +58,7 @@ export function updateZclDeviceTypes(context, deviceTypes) {
       profileId: deviceType.profileId,
       label: deviceType.label,
       description: deviceType.caption,
+      domain: deviceType.domain,
     }
   })
 

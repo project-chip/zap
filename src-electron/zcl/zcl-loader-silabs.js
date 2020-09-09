@@ -506,6 +506,7 @@ function prepareDeviceType(deviceType) {
   var ret = {
     code: deviceType.deviceId[0]['_'],
     profileId: deviceType.profileId[0]['_'],
+    domain: deviceType.domain[0],
     name: deviceType.name[0],
     description: deviceType.typeName[0],
   }

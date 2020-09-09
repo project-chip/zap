@@ -199,6 +199,7 @@ exports.map = {
       id: x.DEVICE_TYPE_ID,
       code: x.CODE,
       profileId: x.PROFILE_ID,
+      domain: x.DOMAIN,
       label: x.NAME,
       caption: x.DESCRIPTION,
     }
