@@ -82,7 +82,6 @@ limitations under the License.
               class="col"
               :options="storageOptions"
               dense
-              bottom-slots
               :borderless="!editableAttributes[props.row.id]"
               :outlined="editableAttributes[props.row.id]"
               :disable="!editableAttributes[props.row.id]"
@@ -144,6 +143,7 @@ limitations under the License.
             <q-input
               dense
               bottom-slots
+              hide-bottom-space
               :borderless="!editableAttributes[props.row.id]"
               :outlined="editableAttributes[props.row.id]"
               :disable="!editableAttributes[props.row.id]"
@@ -189,7 +189,7 @@ limitations under the License.
               @click="resetAttribute(props.row.id)"
             />
             <q-btn
-              densex
+              dense
               flat
               :icon="editableAttributes[props.row.id] ? 'done' : 'create'"
               color="blue"

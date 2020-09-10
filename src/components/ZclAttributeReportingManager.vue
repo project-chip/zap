@@ -135,7 +135,7 @@ limitations under the License.
               @click="resetAttribute(props.row.id)"
             />
             <q-btn
-              densex
+              dense
               flat
               :icon="editableAttributes[props.row.id] ? 'done' : 'create'"
               color="blue"
