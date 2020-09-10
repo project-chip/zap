@@ -332,3 +332,11 @@ export function setAttributeEditting(state, context) {
 export function setOpenDomain(state, context) {
   Vue.set(state.clusterManager.openDomains, context.domainName, context.value)
 }
+
+export function setFilter(state, filter) {
+  state.clusterManager.filter = filter
+}
+
+export function setFilterString(state, filterString) {
+  state.clusterManager.filterString = filterString
+}

@@ -31,6 +31,9 @@ export default function () {
     selectedGenericOptions: {},
     clusterManager: {
       openDomains: {},
+      filter: 'All Clusters',
+      filterOptions: ['All Clusters', 'Only Enabled'],
+      filterString: '',
     },
     endpointView: {
       selectedEndpoint: [],

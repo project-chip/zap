@@ -51,11 +51,12 @@ limitations under the License.
           <div>
             <q-select
               outlined
-              v-model="filter"
+              :value="filter"
               :options="filterOptions"
               bg-color="white"
               dense
               class="col-2"
+              @input="changeFilter($event)"
             />
           </div>
         </div>
@@ -66,7 +67,8 @@ limitations under the License.
           bg-color="white"
           class="col-4"
           placeholder="Search Clusters"
-          v-model="filterString"
+          @input="changeFilterString($event)"
+          :value="filterString"
         >
           <template v-slot:prepend>
             <q-icon name="search" />
@@ -162,6 +164,21 @@ export default {
       },
       set(val) {},
     },
+    filterOptions: {
+      get() {
+        return this.$store.state.zap.clusterManager.filterOptions
+      },
+    },
+    filter: {
+      get() {
+        return this.$store.state.zap.clusterManager.filter
+      },
+    },
+    filterString: {
+      get() {
+        return this.$store.state.zap.clusterManager.filterString
+      },
+    },
   },
   methods: {
     clusterDomains(domainName) {
@@ -192,14 +209,12 @@ export default {
         this.filterString != ''
       )
     },
-  },
-  data() {
-    return {
-      filterActive: false,
-      filter: 'All Clusters',
-      filterOptions: ['All Clusters', 'Only Enabled'],
-      filterString: '',
-    }
+    changeFilter(filter) {
+      this.$store.dispatch('zap/setFilter', filter)
+    },
+    changeFilterString(filterString) {
+      this.$store.dispatch('zap/setFilterString', filterString)
+    },
   },
   components: {
     ZclDomainClusterView,
