@@ -38,6 +38,10 @@ exports.side = {
   client: 'client',
   server: 'server',
 }
+exports.source = {
+  client: 'client',
+  server: 'server',
+}
 
 exports.storageOption = {
   ram: 'RAM',

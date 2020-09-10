@@ -208,6 +208,7 @@ exports.map = {
   deviceTypeCluster: (x) => {
     if (x == null) return undefined
     return {
+      id: x.DEVICE_TYPE_CLUSTER_ID,
       deviceTypeRef: x.DEVICE_TYPE_REF,
       clusterRef: x.CLUSTER_REF,
       clusterName: x.CLUSTER_NAME,

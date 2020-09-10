@@ -683,6 +683,29 @@ ORDER BY CLUSTER_REF`,
     .then((rows) => rows.map(dbMapping.map.deviceTypeCluster))
 }
 
+function selectDeviceTypeClusterByDeviceTypeClusterId(db, deviceTypeClusterId) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT 
+  DEVICE_TYPE_CLUSTER_ID, 
+  DEVICE_TYPE_REF, 
+  CLUSTER_REF, 
+  CLUSTER_NAME, 
+  INCLUDE_CLIENT, 
+  INCLUDE_SERVER, 
+  LOCK_CLIENT, 
+  LOCK_SERVER 
+FROM 
+  DEVICE_TYPE_CLUSTER 
+WHERE 
+  DEVICE_TYPE_CLUSTER_ID = ?`,
+      [deviceTypeClusterId]
+    )
+    .then(dbMapping.map.deviceTypeCluster)
+}
+
 function selectDeviceTypeAttributesByDeviceTypeClusterRef(
   db,
   deviceTypeClusterRef
@@ -1481,6 +1504,7 @@ exports.selectEndpointTypeAttributesByEndpointId = selectEndpointTypeAttributesB
 exports.selectEndpointTypeAttribute = selectEndpointTypeAttribute
 exports.selectEndpointTypeCommandsByEndpointId = selectEndpointTypeCommandsByEndpointId
 exports.selectDeviceTypeClustersByDeviceTypeRef = selectDeviceTypeClustersByDeviceTypeRef
+exports.selectDeviceTypeClusterByDeviceTypeClusterId = selectDeviceTypeClusterByDeviceTypeClusterId
 exports.selectDeviceTypeAttributesByDeviceTypeClusterRef = selectDeviceTypeAttributesByDeviceTypeClusterRef
 exports.selectDeviceTypeCommandsByDeviceTypeClusterRef = selectDeviceTypeCommandsByDeviceTypeClusterRef
 exports.selectDeviceTypeAttributesByDeviceTypeRef = selectDeviceTypeAttributesByDeviceTypeRef
