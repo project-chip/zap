@@ -80,7 +80,7 @@ limitations under the License.
               switch-toggle-side
               :label="domainName"
               @input="setOpenDomain(domainName, $event)"
-              :value="openDomains[domainName]"
+              :value="getDomainOpenState(domainName)"
             >
               <zcl-domain-cluster-view
                 :domainName="domainName"
@@ -185,9 +185,17 @@ export default {
         value: event,
       })
     },
+    getDomainOpenState(domainName) {
+      return (
+        this.openDomains[domainName] ||
+        this.filter == 'Only Enabled' ||
+        this.filterString != ''
+      )
+    },
   },
   data() {
     return {
+      filterActive: false,
       filter: 'All Clusters',
       filterOptions: ['All Clusters', 'Only Enabled'],
       filterString: '',
