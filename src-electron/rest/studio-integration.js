@@ -24,14 +24,14 @@ const axios = require('axios')
 const args = require('../util/args.js')
 const env = require('../util/env.js')
 
-const url = `http://localhost:` + args.studioHttpPort
+const localhost = 'http://localhost:'
 const op_tree = '/rest/clic/components/all/project/'
 const op_add = '/rest/clic/component/add/project/'
 const op_remove = '/rest/clic/component/remove/project/'
 
 function getProjectInfo(project) {
   let name = projectName(project)
-  let path = url + op_tree + project
+  let path = localhost + args.studioHttpPort + op_tree + project
   env.logInfo(`StudioUC(${name}): GET: ${path}`)
   return axios.get(path)
 }
@@ -45,7 +45,7 @@ function removeComponent(project, componentId) {
 }
 
 function component(project, componentId, operation) {
-  return axios.post(url + operation + project, {
+  return axios.post(localhost + args.studioHttpPort + operation + project, {
     componentId: componentId,
   })
 }

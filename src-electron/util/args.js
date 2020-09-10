@@ -57,6 +57,7 @@ function processCommandLineArguments(argv) {
     .option('studioHttpPort', {
       desc: "Port used for integration with Studio's UC Jetty server",
       type: 'number',
+      default: exports.studioHttpPort,
     })
     .option('zapFile', {
       desc: 'input .zap file to read in.',

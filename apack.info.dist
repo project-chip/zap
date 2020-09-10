@@ -43,7 +43,7 @@ function(zapServer) {
   httpPort.description=Port used for HTTP server
   zclProperties.description=Location for ZCL XML file
   output.description=Output directory for project generation
-  cmd=$(zap) --noUi --showUrl --zclProperties ${zclProperties} -o ${output}
+  cmd=$(zap) --noUi --showUrl --zclProperties ${zclProperties} -o ${output} --studioHttpPort ${studioHttpPort}
 }
 
 function(zapFull) {
