@@ -57,29 +57,29 @@ test('test Silabs zcl data loading in memory', () => {
     )
     .then((rows) => expect(rows.length).toEqual(1))
     .then(() => queryZcl.selectAllClusters(db))
-    .then((x) => expect(x.length).toEqual(106))
+    .then((x) => expect(x.length).toEqual(109))
     .then(() => queryZcl.selectAllDomains(db))
-    .then((x) => expect(x.length).toEqual(20))
+    .then((x) => expect(x.length).toEqual(22))
     .then(() => queryZcl.selectAllEnums(db))
-    .then((x) => expect(x.length).toEqual(205))
+    .then((x) => expect(x.length).toEqual(207))
     .then(() => queryZcl.selectAllStructs(db))
-    .then((x) => expect(x.length).toEqual(50))
+    .then((x) => expect(x.length).toEqual(52))
     .then(() => queryZcl.selectAllBitmaps(db))
     .then((x) => expect(x.length).toEqual(120))
     .then(() => queryZcl.selectAllDeviceTypes(db))
-    .then((x) => expect(x.length).toEqual(152))
+    .then((x) => expect(x.length).toEqual(174))
     .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
-    .then((x) => expect(x).toEqual(1668))
+    .then((x) => expect(x).toEqual(1737))
     .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
-    .then((x) => expect(x).toEqual(560))
+    .then((x) => expect(x).toEqual(611))
     .then(() => queryGeneric.selectCountFrom(db, 'ENUM_ITEM'))
-    .then((x) => expect(x).toEqual(1537))
+    .then((x) => expect(x).toEqual(1552))
     .then(() => queryGeneric.selectCountFrom(db, 'ATTRIBUTE'))
-    .then((x) => expect(x).toEqual(3416))
+    .then((x) => expect(x).toEqual(3438))
     .then(() => queryGeneric.selectCountFrom(db, 'BITMAP_FIELD'))
     .then((x) => expect(x).toEqual(721))
     .then(() => queryGeneric.selectCountFrom(db, 'STRUCT_ITEM'))
-    .then((x) => expect(x).toEqual(154))
+    .then((x) => expect(x).toEqual(159))
     .then(() =>
       dbApi.dbAll(
         db,
@@ -87,7 +87,7 @@ test('test Silabs zcl data loading in memory', () => {
         []
       )
     )
-    .then((x) => expect(x.length).toEqual(2))
+    .then((x) => expect(x.length).toEqual(5))
     .then(() =>
       dbApi.dbAll(
         db,

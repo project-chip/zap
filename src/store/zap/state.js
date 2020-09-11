@@ -77,6 +77,6 @@ export default function () {
       // These are based off of the selected ZCL Endpoint Device Type
       requiredCommands: [],
     },
-    calledArgs: { defaultUiMode: restApi.uiMode.OLD },
+    calledArgs: { defaultUiMode: restApi.uiMode.ZIGBEE },
   }
 }

@@ -29,6 +29,7 @@ limitations under the License.
       flat
       binary-state-sort
       :pagination.sync="pagination"
+      :sort-method="customAttributeSort"
     >
       <template v-slot:body="props">
         <q-tr :props="props">
@@ -401,6 +402,32 @@ export default {
         editState: false,
       })
     },
+    customAttributeSort(rows, sortBy, descending) {
+      const data = [...rows]
+
+      if (sortBy) {
+        data.sort((a, b) => {
+          const x = descending ? b : a
+          const y = descending ? a : b
+
+          if (sortBy === 'attrName') {
+            return x[sortBy] > y[sortBy] ? 1 : x[sortBy] < y[sortBy] ? -1 : 0
+          } else if (sortBy === 'attrID' || sortBy === 'mfgId') {
+            if (x['manufacturerCode'] == y['manufacturerCode']) {
+              return x['code'] > y['code'] ? 1 : x['code'] < y['code'] ? -1 : 0
+            } else {
+              return x['manufacturerCode'] > y['manufacturerCode']
+                ? 1
+                : x['manufacturerCode'] < y['manufacturerCode']
+                ? -1
+                : 0
+            }
+          }
+        })
+      }
+
+      return data
+    },
   },
 
   computed: {
@@ -486,6 +513,7 @@ export default {
       editableStorage: {},
       pagination: {
         rowsPerPage: 0,
+        sortBy: 'attrID',
       },
       columns: [
         {
@@ -493,7 +521,6 @@ export default {
           label: 'On/Off',
           field: 'included',
           align: 'left',
-          sortable: true,
         },
         {
           name: 'attrID',
@@ -514,14 +541,12 @@ export default {
           label: 'Required',
           field: 'required',
           align: 'left',
-          sortable: true,
         },
         {
           name: 'clientServer',
           label: 'Client/Server',
           field: 'clientServer',
           align: 'left',
-          sortable: true,
         },
         {
           name: 'mfgID',
@@ -535,35 +560,30 @@ export default {
           label: 'Storage Option',
           align: 'left',
           field: 'storageOption',
-          sortable: true,
         },
         {
           name: 'singleton',
           align: 'left',
           label: 'Singleton',
           field: 'singleton',
-          sortable: true,
         },
         {
           name: 'bounded',
           align: 'left',
           label: 'Bounded',
           field: 'bounded',
-          sortable: true,
         },
         {
           name: 'type',
           align: 'left',
           label: 'Type',
           field: 'type',
-          sortable: true,
         },
         {
           name: 'default',
           align: 'left',
           label: 'Default',
           field: 'default',
-          sortable: true,
         },
         {
           name: 'edit',

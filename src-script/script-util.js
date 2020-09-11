@@ -22,6 +22,7 @@ const fs = require('fs')
 const path = require('path')
 const scriptUtil = require('./script-util.js')
 const spaHashFileName = path.join(spaDir, 'hash.json')
+process.env.PATH = process.env.PATH + ':./node_modules/.bin/'
 
 // Utilities shared by scripts.
 
