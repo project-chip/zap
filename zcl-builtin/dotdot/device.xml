@@ -711,28 +711,28 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0100</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
       </include>
       <include cluster="Groups" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>GROUP_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddGroup</requireCommand>
         <requireCommand>ViewGroup</requireCommand>
         <requireCommand>GetGroupMembership</requireCommand>
@@ -741,11 +741,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>AddGroupIfIdentifying</requireCommand>
       </include>
       <include cluster="Scenes" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>SCENE_COUNT</requireAttribute>
-        <requireAttribute>CURRENT_SCENE</requireAttribute>
-        <requireAttribute>CURRENT_GROUP</requireAttribute>
-        <requireAttribute>SCENE_VALID</requireAttribute>
-        <requireAttribute>SCENE_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>SceneCount</requireAttribute>
+        <requireAttribute>CurrentScene</requireAttribute>
+        <requireAttribute>CurrentGroup</requireAttribute>
+        <requireAttribute>SceneValid</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddScene</requireCommand>
         <requireCommand>ViewScene</requireCommand>
         <requireCommand>RemoveScene</requireCommand>
@@ -758,11 +758,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>CopyScene</requireCommand>
       </include>
       <include cluster="OnOff" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>ON_OFF</requireAttribute>
-        <requireAttribute>GLOBAL_SCENE_CONTROL</requireAttribute>
-        <requireAttribute>ON_TIME</requireAttribute>
-        <requireAttribute>OFF_WAIT_TIME</requireAttribute>
-        <requireAttribute>START_UP_ON_OFF</requireAttribute>
+        <requireAttribute>OnOff</requireAttribute>
+        <requireAttribute>GlobalSceneControl</requireAttribute>
+        <requireAttribute>OnTime</requireAttribute>
+        <requireAttribute>OffWaitTime</requireAttribute>
+        <requireAttribute>StartUpOnOff</requireAttribute>
         <requireCommand>Off</requireCommand>
         <requireCommand>On</requireCommand>
         <requireCommand>Toggle</requireCommand>
@@ -801,28 +801,28 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0101</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
       </include>
       <include cluster="Groups" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>GROUP_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddGroup</requireCommand>
         <requireCommand>ViewGroup</requireCommand>
         <requireCommand>GetGroupMembership</requireCommand>
@@ -831,11 +831,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>AddGroupIfIdentifying</requireCommand>
       </include>
       <include cluster="Scenes" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>SCENE_COUNT</requireAttribute>
-        <requireAttribute>CURRENT_SCENE</requireAttribute>
-        <requireAttribute>CURRENT_GROUP</requireAttribute>
-        <requireAttribute>SCENE_VALID</requireAttribute>
-        <requireAttribute>SCENE_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>SceneCount</requireAttribute>
+        <requireAttribute>CurrentScene</requireAttribute>
+        <requireAttribute>CurrentGroup</requireAttribute>
+        <requireAttribute>SceneValid</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddScene</requireCommand>
         <requireCommand>ViewScene</requireCommand>
         <requireCommand>RemoveScene</requireCommand>
@@ -848,11 +848,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>CopyScene</requireCommand>
       </include>
       <include cluster="OnOff" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>ON_OFF</requireAttribute>
-        <requireAttribute>GLOBAL_SCENE_CONTROL</requireAttribute>
-        <requireAttribute>ON_TIME</requireAttribute>
-        <requireAttribute>OFF_WAIT_TIME</requireAttribute>
-        <requireAttribute>START_UP_ON_OFF</requireAttribute>
+        <requireAttribute>OnOff</requireAttribute>
+        <requireAttribute>GlobalSceneControl</requireAttribute>
+        <requireAttribute>OnTime</requireAttribute>
+        <requireAttribute>OffWaitTime</requireAttribute>
+        <requireAttribute>StartUpOnOff</requireAttribute>
         <requireCommand>Off</requireCommand>
         <requireCommand>On</requireCommand>
         <requireCommand>Toggle</requireCommand>
@@ -861,10 +861,10 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>OnWithTimedOff</requireCommand>
       </include>
       <include cluster="Level" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>CURRENT_LEVEL</requireAttribute>
-        <requireAttribute>OPTIONS</requireAttribute>
-        <requireAttribute>LEVEL_CONTROL_REMAINING_TIME</requireAttribute>
-        <requireAttribute>START_UP_CURRENT_LEVEL</requireAttribute>
+        <requireAttribute>CurrentLevel</requireAttribute>
+        <requireAttribute>Options</requireAttribute>
+        <requireAttribute>RemainingTime</requireAttribute>
+        <requireAttribute>StartUpCurrentLevel</requireAttribute>
         <requireCommand>MoveToLevel</requireCommand>
         <requireCommand>Move</requireCommand>
         <requireCommand>Step</requireCommand>
@@ -904,28 +904,28 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0102</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
       </include>
       <include cluster="Groups" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>GROUP_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddGroup</requireCommand>
         <requireCommand>ViewGroup</requireCommand>
         <requireCommand>GetGroupMembership</requireCommand>
@@ -934,11 +934,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>AddGroupIfIdentifying</requireCommand>
       </include>
       <include cluster="Scenes" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>SCENE_COUNT</requireAttribute>
-        <requireAttribute>CURRENT_SCENE</requireAttribute>
-        <requireAttribute>CURRENT_GROUP</requireAttribute>
-        <requireAttribute>SCENE_VALID</requireAttribute>
-        <requireAttribute>SCENE_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>SceneCount</requireAttribute>
+        <requireAttribute>CurrentScene</requireAttribute>
+        <requireAttribute>CurrentGroup</requireAttribute>
+        <requireAttribute>SceneValid</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddScene</requireCommand>
         <requireCommand>ViewScene</requireCommand>
         <requireCommand>RemoveScene</requireCommand>
@@ -951,11 +951,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>CopyScene</requireCommand>
       </include>
       <include cluster="OnOff" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>ON_OFF</requireAttribute>
-        <requireAttribute>GLOBAL_SCENE_CONTROL</requireAttribute>
-        <requireAttribute>ON_TIME</requireAttribute>
-        <requireAttribute>OFF_WAIT_TIME</requireAttribute>
-        <requireAttribute>START_UP_ON_OFF</requireAttribute>
+        <requireAttribute>OnOff</requireAttribute>
+        <requireAttribute>GlobalSceneControl</requireAttribute>
+        <requireAttribute>OnTime</requireAttribute>
+        <requireAttribute>OffWaitTime</requireAttribute>
+        <requireAttribute>StartUpOnOff</requireAttribute>
         <requireCommand>Off</requireCommand>
         <requireCommand>On</requireCommand>
         <requireCommand>Toggle</requireCommand>
@@ -964,10 +964,10 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>OnWithTimedOff</requireCommand>
       </include>
       <include cluster="Level" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>CURRENT_LEVEL</requireAttribute>
-        <requireAttribute>OPTIONS</requireAttribute>
-        <requireAttribute>LEVEL_CONTROL_REMAINING_TIME</requireAttribute>
-        <requireAttribute>START_UP_CURRENT_LEVEL</requireAttribute>
+        <requireAttribute>CurrentLevel</requireAttribute>
+        <requireAttribute>Options</requireAttribute>
+        <requireAttribute>RemainingTime</requireAttribute>
+        <requireAttribute>StartUpCurrentLevel</requireAttribute>
         <requireCommand>MoveToLevel</requireCommand>
         <requireCommand>Move</requireCommand>
         <requireCommand>Step</requireCommand>
@@ -978,40 +978,40 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>StopWithOnOff</requireCommand>
       </include>
       <include cluster="ColorControl" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>COLOR_CONTROL_CURRENT_HUE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_CURRENT_SATURATION</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_REMAINING_TIME</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_CURRENT_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_CURRENT_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_MODE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_OPTIONS</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_NUMBER_OF_PRIMARIES</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_1_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_1_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_1_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_2_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_2_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_2_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_3_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_3_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_3_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_4_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_4_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_4_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_5_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_5_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_5_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_6_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_6_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_6_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_ENHANCED_CURRENT_HUE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_ENHANCED_COLOR_MODE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_LOOP_ACTIVE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_LOOP_DIRECTION</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_LOOP_TIME</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_LOOP_START_ENHANCED_HUE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_LOOP_STORED_ENHANCED_HUE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_CAPABILITIES</requireAttribute>
+        <requireAttribute>CurrentHue</requireAttribute>
+        <requireAttribute>CurrentSaturation</requireAttribute>
+        <requireAttribute>RemainingTime</requireAttribute>
+        <requireAttribute>CurrentX</requireAttribute>
+        <requireAttribute>CurrentY</requireAttribute>
+        <requireAttribute>ColorMode</requireAttribute>
+        <requireAttribute>Options</requireAttribute>
+        <requireAttribute>NumberOfPrimaries</requireAttribute>
+        <requireAttribute>Primary1X</requireAttribute>
+        <requireAttribute>Primary1Y</requireAttribute>
+        <requireAttribute>Primary1Intensity</requireAttribute>
+        <requireAttribute>Primary2X</requireAttribute>
+        <requireAttribute>Primary2Y</requireAttribute>
+        <requireAttribute>Primary2Intensity</requireAttribute>
+        <requireAttribute>Primary3X</requireAttribute>
+        <requireAttribute>Primary3Y</requireAttribute>
+        <requireAttribute>Primary3Intensity</requireAttribute>
+        <requireAttribute>Primary4X</requireAttribute>
+        <requireAttribute>Primary4Y</requireAttribute>
+        <requireAttribute>Primary4Intensity</requireAttribute>
+        <requireAttribute>Primary5X</requireAttribute>
+        <requireAttribute>Primary5Y</requireAttribute>
+        <requireAttribute>Primary5Intensity</requireAttribute>
+        <requireAttribute>Primary6X</requireAttribute>
+        <requireAttribute>Primary6Y</requireAttribute>
+        <requireAttribute>Primary6Intensity</requireAttribute>
+        <requireAttribute>EnhancedCurrentHue</requireAttribute>
+        <requireAttribute>EnhancedColorMode</requireAttribute>
+        <requireAttribute>ColorLoopActive</requireAttribute>
+        <requireAttribute>ColorLoopDirection</requireAttribute>
+        <requireAttribute>ColorLoopTime</requireAttribute>
+        <requireAttribute>ColorLoopStartEnhancedHue</requireAttribute>
+        <requireAttribute>ColorLoopStoredEnhancedHue</requireAttribute>
+        <requireAttribute>ColorCapabilities</requireAttribute>
         <requireCommand>MoveToHue</requireCommand>
         <requireCommand>MoveHue</requireCommand>
         <requireCommand>StepHue</requireCommand>
@@ -1059,22 +1059,22 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0103</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="true" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
@@ -1097,22 +1097,22 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0104</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="true" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
@@ -1137,22 +1137,22 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0105</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="true" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
@@ -1179,30 +1179,30 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0106</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="true" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
       </include>
       <include cluster="IlluminanceMeasurement" client="false" server="true" clientLocked="false" serverLocked="true">
-        <requireAttribute>ILLUM_MEASURED_VALUE</requireAttribute>
-        <requireAttribute>ILLUM_MIN_MEASURED_VALUE</requireAttribute>
-        <requireAttribute>ILLUM_MAX_MEASURED_VALUE</requireAttribute>
+        <requireAttribute>MeasuredValue</requireAttribute>
+        <requireAttribute>MinMeasuredValue</requireAttribute>
+        <requireAttribute>MaxMeasuredValue</requireAttribute>
       </include>
       <include cluster="Groups" client="true" server="false" clientLocked="false" serverLocked="true">
       </include>
@@ -1216,29 +1216,29 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0107</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="true" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
       </include>
       <include cluster="OccupancySensing" client="false" server="true" clientLocked="false" serverLocked="true">
-        <requireAttribute>OCCUPANCY</requireAttribute>
-        <requireAttribute>OCCUPANCY_SENSOR_TYPE</requireAttribute>
+        <requireAttribute>Occupancy</requireAttribute>
+        <requireAttribute>OccupancySensorType</requireAttribute>
       </include>
       <include cluster="Groups" client="true" server="false" clientLocked="false" serverLocked="true">
       </include>
@@ -1252,33 +1252,33 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0108</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="PowerConfiguration" client="false" server="true" clientLocked="true" serverLocked="true">
       </include>
       <include cluster="DeviceTemperatureConfiguration" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>CURRENT_TEMPERATURE</requireAttribute>
+        <requireAttribute>CurrentTemperature</requireAttribute>
       </include>
       <include cluster="Identify" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
       </include>
       <include cluster="Groups" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>GROUP_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddGroup</requireCommand>
         <requireCommand>ViewGroup</requireCommand>
         <requireCommand>GetGroupMembership</requireCommand>
@@ -1287,11 +1287,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>AddGroupIfIdentifying</requireCommand>
       </include>
       <include cluster="Scenes" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>SCENE_COUNT</requireAttribute>
-        <requireAttribute>CURRENT_SCENE</requireAttribute>
-        <requireAttribute>CURRENT_GROUP</requireAttribute>
-        <requireAttribute>SCENE_VALID</requireAttribute>
-        <requireAttribute>SCENE_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>SceneCount</requireAttribute>
+        <requireAttribute>CurrentScene</requireAttribute>
+        <requireAttribute>CurrentGroup</requireAttribute>
+        <requireAttribute>SceneValid</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddScene</requireCommand>
         <requireCommand>ViewScene</requireCommand>
         <requireCommand>RemoveScene</requireCommand>
@@ -1304,11 +1304,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>CopyScene</requireCommand>
       </include>
       <include cluster="OnOff" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>ON_OFF</requireAttribute>
-        <requireAttribute>GLOBAL_SCENE_CONTROL</requireAttribute>
-        <requireAttribute>ON_TIME</requireAttribute>
-        <requireAttribute>OFF_WAIT_TIME</requireAttribute>
-        <requireAttribute>START_UP_ON_OFF</requireAttribute>
+        <requireAttribute>OnOff</requireAttribute>
+        <requireAttribute>GlobalSceneControl</requireAttribute>
+        <requireAttribute>OnTime</requireAttribute>
+        <requireAttribute>OffWaitTime</requireAttribute>
+        <requireAttribute>StartUpOnOff</requireAttribute>
         <requireCommand>Off</requireCommand>
         <requireCommand>On</requireCommand>
         <requireCommand>Toggle</requireCommand>
@@ -1317,13 +1317,13 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>OnWithTimedOff</requireCommand>
       </include>
       <include cluster="BallastConfiguration" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>BALLAST_STATUS</requireAttribute>
+        <requireAttribute>BallastStatus</requireAttribute>
       </include>
       <include cluster="Level" client="false" server="true" clientLocked="true" serverLocked="false">
-        <requireAttribute>CURRENT_LEVEL</requireAttribute>
-        <requireAttribute>OPTIONS</requireAttribute>
-        <requireAttribute>LEVEL_CONTROL_REMAINING_TIME</requireAttribute>
-        <requireAttribute>START_UP_CURRENT_LEVEL</requireAttribute>
+        <requireAttribute>CurrentLevel</requireAttribute>
+        <requireAttribute>Options</requireAttribute>
+        <requireAttribute>RemainingTime</requireAttribute>
+        <requireAttribute>StartUpCurrentLevel</requireAttribute>
         <requireCommand>MoveToLevel</requireCommand>
         <requireCommand>Move</requireCommand>
         <requireCommand>Step</requireCommand>
@@ -1369,33 +1369,33 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0109</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="PowerConfiguration" client="false" server="true" clientLocked="true" serverLocked="true">
       </include>
       <include cluster="DeviceTemperatureConfiguration" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>CURRENT_TEMPERATURE</requireAttribute>
+        <requireAttribute>CurrentTemperature</requireAttribute>
       </include>
       <include cluster="Identify" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
       </include>
       <include cluster="Groups" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>GROUP_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddGroup</requireCommand>
         <requireCommand>ViewGroup</requireCommand>
         <requireCommand>GetGroupMembership</requireCommand>
@@ -1404,11 +1404,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>AddGroupIfIdentifying</requireCommand>
       </include>
       <include cluster="Scenes" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>SCENE_COUNT</requireAttribute>
-        <requireAttribute>CURRENT_SCENE</requireAttribute>
-        <requireAttribute>CURRENT_GROUP</requireAttribute>
-        <requireAttribute>SCENE_VALID</requireAttribute>
-        <requireAttribute>SCENE_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>SceneCount</requireAttribute>
+        <requireAttribute>CurrentScene</requireAttribute>
+        <requireAttribute>CurrentGroup</requireAttribute>
+        <requireAttribute>SceneValid</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddScene</requireCommand>
         <requireCommand>ViewScene</requireCommand>
         <requireCommand>RemoveScene</requireCommand>
@@ -1421,11 +1421,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>CopyScene</requireCommand>
       </include>
       <include cluster="OnOff" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>ON_OFF</requireAttribute>
-        <requireAttribute>GLOBAL_SCENE_CONTROL</requireAttribute>
-        <requireAttribute>ON_TIME</requireAttribute>
-        <requireAttribute>OFF_WAIT_TIME</requireAttribute>
-        <requireAttribute>START_UP_ON_OFF</requireAttribute>
+        <requireAttribute>OnOff</requireAttribute>
+        <requireAttribute>GlobalSceneControl</requireAttribute>
+        <requireAttribute>OnTime</requireAttribute>
+        <requireAttribute>OffWaitTime</requireAttribute>
+        <requireAttribute>StartUpOnOff</requireAttribute>
         <requireCommand>Off</requireCommand>
         <requireCommand>On</requireCommand>
         <requireCommand>Toggle</requireCommand>
@@ -1434,13 +1434,13 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>OnWithTimedOff</requireCommand>
       </include>
       <include cluster="BallastConfiguration" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>BALLAST_STATUS</requireAttribute>
+        <requireAttribute>BallastStatus</requireAttribute>
       </include>
       <include cluster="Level" client="false" server="true" clientLocked="false" serverLocked="true">
-        <requireAttribute>CURRENT_LEVEL</requireAttribute>
-        <requireAttribute>OPTIONS</requireAttribute>
-        <requireAttribute>LEVEL_CONTROL_REMAINING_TIME</requireAttribute>
-        <requireAttribute>START_UP_CURRENT_LEVEL</requireAttribute>
+        <requireAttribute>CurrentLevel</requireAttribute>
+        <requireAttribute>Options</requireAttribute>
+        <requireAttribute>RemainingTime</requireAttribute>
+        <requireAttribute>StartUpCurrentLevel</requireAttribute>
         <requireCommand>MoveToLevel</requireCommand>
         <requireCommand>Move</requireCommand>
         <requireCommand>Step</requireCommand>
@@ -1486,28 +1486,28 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x010A</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
       </include>
       <include cluster="Groups" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>GROUP_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddGroup</requireCommand>
         <requireCommand>ViewGroup</requireCommand>
         <requireCommand>GetGroupMembership</requireCommand>
@@ -1516,11 +1516,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>AddGroupIfIdentifying</requireCommand>
       </include>
       <include cluster="Scenes" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>SCENE_COUNT</requireAttribute>
-        <requireAttribute>CURRENT_SCENE</requireAttribute>
-        <requireAttribute>CURRENT_GROUP</requireAttribute>
-        <requireAttribute>SCENE_VALID</requireAttribute>
-        <requireAttribute>SCENE_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>SceneCount</requireAttribute>
+        <requireAttribute>CurrentScene</requireAttribute>
+        <requireAttribute>CurrentGroup</requireAttribute>
+        <requireAttribute>SceneValid</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddScene</requireCommand>
         <requireCommand>ViewScene</requireCommand>
         <requireCommand>RemoveScene</requireCommand>
@@ -1533,11 +1533,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>CopyScene</requireCommand>
       </include>
       <include cluster="OnOff" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>ON_OFF</requireAttribute>
-        <requireAttribute>GLOBAL_SCENE_CONTROL</requireAttribute>
-        <requireAttribute>ON_TIME</requireAttribute>
-        <requireAttribute>OFF_WAIT_TIME</requireAttribute>
-        <requireAttribute>START_UP_ON_OFF</requireAttribute>
+        <requireAttribute>OnOff</requireAttribute>
+        <requireAttribute>GlobalSceneControl</requireAttribute>
+        <requireAttribute>OnTime</requireAttribute>
+        <requireAttribute>OffWaitTime</requireAttribute>
+        <requireAttribute>StartUpOnOff</requireAttribute>
         <requireCommand>Off</requireCommand>
         <requireCommand>On</requireCommand>
         <requireCommand>Toggle</requireCommand>
@@ -1546,10 +1546,10 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>OnWithTimedOff</requireCommand>
       </include>
       <include cluster="Level" client="false" server="true" clientLocked="true" serverLocked="false">
-        <requireAttribute>CURRENT_LEVEL</requireAttribute>
-        <requireAttribute>OPTIONS</requireAttribute>
-        <requireAttribute>LEVEL_CONTROL_REMAINING_TIME</requireAttribute>
-        <requireAttribute>START_UP_CURRENT_LEVEL</requireAttribute>
+        <requireAttribute>CurrentLevel</requireAttribute>
+        <requireAttribute>Options</requireAttribute>
+        <requireAttribute>RemainingTime</requireAttribute>
+        <requireAttribute>StartUpCurrentLevel</requireAttribute>
         <requireCommand>MoveToLevel</requireCommand>
         <requireCommand>Move</requireCommand>
         <requireCommand>Step</requireCommand>
@@ -1569,28 +1569,28 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x010B</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
       </include>
       <include cluster="Groups" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>GROUP_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddGroup</requireCommand>
         <requireCommand>ViewGroup</requireCommand>
         <requireCommand>GetGroupMembership</requireCommand>
@@ -1599,11 +1599,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>AddGroupIfIdentifying</requireCommand>
       </include>
       <include cluster="Scenes" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>SCENE_COUNT</requireAttribute>
-        <requireAttribute>CURRENT_SCENE</requireAttribute>
-        <requireAttribute>CURRENT_GROUP</requireAttribute>
-        <requireAttribute>SCENE_VALID</requireAttribute>
-        <requireAttribute>SCENE_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>SceneCount</requireAttribute>
+        <requireAttribute>CurrentScene</requireAttribute>
+        <requireAttribute>CurrentGroup</requireAttribute>
+        <requireAttribute>SceneValid</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddScene</requireCommand>
         <requireCommand>ViewScene</requireCommand>
         <requireCommand>RemoveScene</requireCommand>
@@ -1616,11 +1616,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>CopyScene</requireCommand>
       </include>
       <include cluster="OnOff" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>ON_OFF</requireAttribute>
-        <requireAttribute>GLOBAL_SCENE_CONTROL</requireAttribute>
-        <requireAttribute>ON_TIME</requireAttribute>
-        <requireAttribute>OFF_WAIT_TIME</requireAttribute>
-        <requireAttribute>START_UP_ON_OFF</requireAttribute>
+        <requireAttribute>OnOff</requireAttribute>
+        <requireAttribute>GlobalSceneControl</requireAttribute>
+        <requireAttribute>OnTime</requireAttribute>
+        <requireAttribute>OffWaitTime</requireAttribute>
+        <requireAttribute>StartUpOnOff</requireAttribute>
         <requireCommand>Off</requireCommand>
         <requireCommand>On</requireCommand>
         <requireCommand>Toggle</requireCommand>
@@ -1629,10 +1629,10 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>OnWithTimedOff</requireCommand>
       </include>
       <include cluster="Level" client="false" server="true" clientLocked="false" serverLocked="true">
-        <requireAttribute>CURRENT_LEVEL</requireAttribute>
-        <requireAttribute>OPTIONS</requireAttribute>
-        <requireAttribute>LEVEL_CONTROL_REMAINING_TIME</requireAttribute>
-        <requireAttribute>START_UP_CURRENT_LEVEL</requireAttribute>
+        <requireAttribute>CurrentLevel</requireAttribute>
+        <requireAttribute>Options</requireAttribute>
+        <requireAttribute>RemainingTime</requireAttribute>
+        <requireAttribute>StartUpCurrentLevel</requireAttribute>
         <requireCommand>MoveToLevel</requireCommand>
         <requireCommand>Move</requireCommand>
         <requireCommand>Step</requireCommand>
@@ -1652,28 +1652,28 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x010C</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
       </include>
       <include cluster="Groups" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>GROUP_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddGroup</requireCommand>
         <requireCommand>ViewGroup</requireCommand>
         <requireCommand>GetGroupMembership</requireCommand>
@@ -1682,11 +1682,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>AddGroupIfIdentifying</requireCommand>
       </include>
       <include cluster="Scenes" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>SCENE_COUNT</requireAttribute>
-        <requireAttribute>CURRENT_SCENE</requireAttribute>
-        <requireAttribute>CURRENT_GROUP</requireAttribute>
-        <requireAttribute>SCENE_VALID</requireAttribute>
-        <requireAttribute>SCENE_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>SceneCount</requireAttribute>
+        <requireAttribute>CurrentScene</requireAttribute>
+        <requireAttribute>CurrentGroup</requireAttribute>
+        <requireAttribute>SceneValid</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddScene</requireCommand>
         <requireCommand>ViewScene</requireCommand>
         <requireCommand>RemoveScene</requireCommand>
@@ -1699,11 +1699,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>CopyScene</requireCommand>
       </include>
       <include cluster="OnOff" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>ON_OFF</requireAttribute>
-        <requireAttribute>GLOBAL_SCENE_CONTROL</requireAttribute>
-        <requireAttribute>ON_TIME</requireAttribute>
-        <requireAttribute>OFF_WAIT_TIME</requireAttribute>
-        <requireAttribute>START_UP_ON_OFF</requireAttribute>
+        <requireAttribute>OnOff</requireAttribute>
+        <requireAttribute>GlobalSceneControl</requireAttribute>
+        <requireAttribute>OnTime</requireAttribute>
+        <requireAttribute>OffWaitTime</requireAttribute>
+        <requireAttribute>StartUpOnOff</requireAttribute>
         <requireCommand>Off</requireCommand>
         <requireCommand>On</requireCommand>
         <requireCommand>Toggle</requireCommand>
@@ -1712,10 +1712,10 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>OnWithTimedOff</requireCommand>
       </include>
       <include cluster="Level" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>CURRENT_LEVEL</requireAttribute>
-        <requireAttribute>OPTIONS</requireAttribute>
-        <requireAttribute>LEVEL_CONTROL_REMAINING_TIME</requireAttribute>
-        <requireAttribute>START_UP_CURRENT_LEVEL</requireAttribute>
+        <requireAttribute>CurrentLevel</requireAttribute>
+        <requireAttribute>Options</requireAttribute>
+        <requireAttribute>RemainingTime</requireAttribute>
+        <requireAttribute>StartUpCurrentLevel</requireAttribute>
         <requireCommand>MoveToLevel</requireCommand>
         <requireCommand>Move</requireCommand>
         <requireCommand>Step</requireCommand>
@@ -1726,35 +1726,35 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>StopWithOnOff</requireCommand>
       </include>
       <include cluster="ColorControl" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>COLOR_CONTROL_REMAINING_TIME</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_TEMPERATURE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_MODE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_OPTIONS</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_NUMBER_OF_PRIMARIES</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_1_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_1_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_1_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_2_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_2_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_2_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_3_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_3_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_3_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_4_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_4_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_4_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_5_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_5_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_5_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_6_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_6_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_6_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_ENHANCED_CURRENT_HUE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_CAPABILITIES</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_TEMP_PHYSICAL_MIN</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_TEMP_PHYSICAL_MAX</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_TEMPERATURE_LEVEL_MIN_MIREDS</requireAttribute>
-        <requireAttribute>START_UP_COLOR_TEMPERATURE_MIREDS</requireAttribute>
+        <requireAttribute>RemainingTime</requireAttribute>
+        <requireAttribute>ColorTemperatureMireds</requireAttribute>
+        <requireAttribute>ColorMode</requireAttribute>
+        <requireAttribute>Options</requireAttribute>
+        <requireAttribute>NumberOfPrimaries</requireAttribute>
+        <requireAttribute>Primary1X</requireAttribute>
+        <requireAttribute>Primary1Y</requireAttribute>
+        <requireAttribute>Primary1Intensity</requireAttribute>
+        <requireAttribute>Primary2X</requireAttribute>
+        <requireAttribute>Primary2Y</requireAttribute>
+        <requireAttribute>Primary2Intensity</requireAttribute>
+        <requireAttribute>Primary3X</requireAttribute>
+        <requireAttribute>Primary3Y</requireAttribute>
+        <requireAttribute>Primary3Intensity</requireAttribute>
+        <requireAttribute>Primary4X</requireAttribute>
+        <requireAttribute>Primary4Y</requireAttribute>
+        <requireAttribute>Primary4Intensity</requireAttribute>
+        <requireAttribute>Primary5X</requireAttribute>
+        <requireAttribute>Primary5Y</requireAttribute>
+        <requireAttribute>Primary5Intensity</requireAttribute>
+        <requireAttribute>Primary6X</requireAttribute>
+        <requireAttribute>Primary6Y</requireAttribute>
+        <requireAttribute>Primary6Intensity</requireAttribute>
+        <requireAttribute>EnhancedCurrentHue</requireAttribute>
+        <requireAttribute>ColorCapabilities</requireAttribute>
+        <requireAttribute>ColorTempPhysicalMinMireds</requireAttribute>
+        <requireAttribute>ColorTempPhysicalMaxMireds</requireAttribute>
+        <requireAttribute>CoupleColorTempToLevelMinMireds</requireAttribute>
+        <requireAttribute>StartUpColorTemperatureMireds</requireAttribute>
         <requireCommand>MoveToHue</requireCommand>
         <requireCommand>MoveHue</requireCommand>
         <requireCommand>StepHue</requireCommand>
@@ -1804,28 +1804,28 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x010D</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
       </include>
       <include cluster="Groups" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>GROUP_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddGroup</requireCommand>
         <requireCommand>ViewGroup</requireCommand>
         <requireCommand>GetGroupMembership</requireCommand>
@@ -1834,11 +1834,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>AddGroupIfIdentifying</requireCommand>
       </include>
       <include cluster="Scenes" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>SCENE_COUNT</requireAttribute>
-        <requireAttribute>CURRENT_SCENE</requireAttribute>
-        <requireAttribute>CURRENT_GROUP</requireAttribute>
-        <requireAttribute>SCENE_VALID</requireAttribute>
-        <requireAttribute>SCENE_NAME_SUPPORT</requireAttribute>
+        <requireAttribute>SceneCount</requireAttribute>
+        <requireAttribute>CurrentScene</requireAttribute>
+        <requireAttribute>CurrentGroup</requireAttribute>
+        <requireAttribute>SceneValid</requireAttribute>
+        <requireAttribute>NameSupport</requireAttribute>
         <requireCommand>AddScene</requireCommand>
         <requireCommand>ViewScene</requireCommand>
         <requireCommand>RemoveScene</requireCommand>
@@ -1851,11 +1851,11 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>CopyScene</requireCommand>
       </include>
       <include cluster="OnOff" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>ON_OFF</requireAttribute>
-        <requireAttribute>GLOBAL_SCENE_CONTROL</requireAttribute>
-        <requireAttribute>ON_TIME</requireAttribute>
-        <requireAttribute>OFF_WAIT_TIME</requireAttribute>
-        <requireAttribute>START_UP_ON_OFF</requireAttribute>
+        <requireAttribute>OnOff</requireAttribute>
+        <requireAttribute>GlobalSceneControl</requireAttribute>
+        <requireAttribute>OnTime</requireAttribute>
+        <requireAttribute>OffWaitTime</requireAttribute>
+        <requireAttribute>StartUpOnOff</requireAttribute>
         <requireCommand>Off</requireCommand>
         <requireCommand>On</requireCommand>
         <requireCommand>Toggle</requireCommand>
@@ -1864,10 +1864,10 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>OnWithTimedOff</requireCommand>
       </include>
       <include cluster="Level" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>CURRENT_LEVEL</requireAttribute>
-        <requireAttribute>OPTIONS</requireAttribute>
-        <requireAttribute>LEVEL_CONTROL_REMAINING_TIME</requireAttribute>
-        <requireAttribute>START_UP_CURRENT_LEVEL</requireAttribute>
+        <requireAttribute>CurrentLevel</requireAttribute>
+        <requireAttribute>Options</requireAttribute>
+        <requireAttribute>RemainingTime</requireAttribute>
+        <requireAttribute>StartUpCurrentLevel</requireAttribute>
         <requireCommand>MoveToLevel</requireCommand>
         <requireCommand>Move</requireCommand>
         <requireCommand>Step</requireCommand>
@@ -1878,45 +1878,45 @@ applicable to this document can be found in the LICENSE.md file.
         <requireCommand>StopWithOnOff</requireCommand>
       </include>
       <include cluster="ColorControl" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>COLOR_CONTROL_CURRENT_HUE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_CURRENT_SATURATION</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_REMAINING_TIME</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_CURRENT_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_CURRENT_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_TEMPERATURE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_MODE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_OPTIONS</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_NUMBER_OF_PRIMARIES</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_1_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_1_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_1_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_2_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_2_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_2_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_3_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_3_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_3_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_4_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_4_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_4_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_5_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_5_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_5_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_6_X</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_6_Y</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_PRIMARY_6_INTENSITY</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_ENHANCED_CURRENT_HUE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_ENHANCED_COLOR_MODE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_LOOP_ACTIVE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_LOOP_DIRECTION</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_LOOP_TIME</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_LOOP_START_ENHANCED_HUE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_LOOP_STORED_ENHANCED_HUE</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_CAPABILITIES</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_TEMP_PHYSICAL_MIN</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_COLOR_TEMP_PHYSICAL_MAX</requireAttribute>
-        <requireAttribute>COLOR_CONTROL_TEMPERATURE_LEVEL_MIN_MIREDS</requireAttribute>
-        <requireAttribute>START_UP_COLOR_TEMPERATURE_MIREDS</requireAttribute>
+        <requireAttribute>CurrentHue</requireAttribute>
+        <requireAttribute>CurrentSaturation</requireAttribute>
+        <requireAttribute>RemainingTime</requireAttribute>
+        <requireAttribute>CurrentX</requireAttribute>
+        <requireAttribute>CurrentY</requireAttribute>
+        <requireAttribute>ColorTemperatureMireds</requireAttribute>
+        <requireAttribute>ColorMode</requireAttribute>
+        <requireAttribute>Options</requireAttribute>
+        <requireAttribute>NumberOfPrimaries</requireAttribute>
+        <requireAttribute>Primary1X</requireAttribute>
+        <requireAttribute>Primary1Y</requireAttribute>
+        <requireAttribute>Primary1Intensity</requireAttribute>
+        <requireAttribute>Primary2X</requireAttribute>
+        <requireAttribute>Primary2Y</requireAttribute>
+        <requireAttribute>Primary2Intensity</requireAttribute>
+        <requireAttribute>Primary3X</requireAttribute>
+        <requireAttribute>Primary3Y</requireAttribute>
+        <requireAttribute>Primary3Intensity</requireAttribute>
+        <requireAttribute>Primary4X</requireAttribute>
+        <requireAttribute>Primary4Y</requireAttribute>
+        <requireAttribute>Primary4Intensity</requireAttribute>
+        <requireAttribute>Primary5X</requireAttribute>
+        <requireAttribute>Primary5Y</requireAttribute>
+        <requireAttribute>Primary5Intensity</requireAttribute>
+        <requireAttribute>Primary6X</requireAttribute>
+        <requireAttribute>Primary6Y</requireAttribute>
+        <requireAttribute>Primary6Intensity</requireAttribute>
+        <requireAttribute>EnhancedCurrentHue</requireAttribute>
+        <requireAttribute>EnhancedColorMode</requireAttribute>
+        <requireAttribute>ColorLoopActive</requireAttribute>
+        <requireAttribute>ColorLoopDirection</requireAttribute>
+        <requireAttribute>ColorLoopTime</requireAttribute>
+        <requireAttribute>ColorLoopStartEnhancedHue</requireAttribute>
+        <requireAttribute>ColorLoopStoredEnhancedHue</requireAttribute>
+        <requireAttribute>ColorCapabilities</requireAttribute>
+        <requireAttribute>ColorTempPhysicalMinMireds</requireAttribute>
+        <requireAttribute>ColorTempPhysicalMaxMireds</requireAttribute>
+        <requireAttribute>CoupleColorTempToLevelMinMireds</requireAttribute>
+        <requireAttribute>StartUpColorTemperatureMireds</requireAttribute>
         <requireCommand>MoveToHue</requireCommand>
         <requireCommand>MoveHue</requireCommand>
         <requireCommand>StepHue</requireCommand>
@@ -1966,29 +1966,29 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x010E</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="true" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
       </include>
       <include cluster="IlluminanceLevelSensing" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>LEVEL_STATUS</requireAttribute>
-        <requireAttribute>ILLUMINANCE_TARGET_LEVEL</requireAttribute>
+        <requireAttribute>LevelStatus</requireAttribute>
+        <requireAttribute>IlluminanceTargetLevel</requireAttribute>
       </include>
       <include cluster="Groups" client="true" server="false" clientLocked="false" serverLocked="true">
       </include>
@@ -2002,22 +2002,22 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0800</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="true" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
@@ -2059,22 +2059,22 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0810</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="true" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
@@ -2118,22 +2118,22 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0820</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="true" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
@@ -2173,22 +2173,22 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0830</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="true" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
@@ -2230,22 +2230,22 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0840</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="true" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>
@@ -2295,22 +2295,22 @@ applicable to this document can be found in the LICENSE.md file.
     <deviceId revision="1" editable="false">0x0850</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>VERSION</requireAttribute>
-        <requireAttribute>APPLICATION_VERSION</requireAttribute>
-        <requireAttribute>STACK_VERSION</requireAttribute>
-        <requireAttribute>HW_VERSION</requireAttribute>
-        <requireAttribute>MANUFACTURER_NAME</requireAttribute>
-        <requireAttribute>MODEL_IDENTIFIER</requireAttribute>
-        <requireAttribute>DATE_CODE</requireAttribute>
-        <requireAttribute>POWER_SOURCE</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_CLASS</requireAttribute>
-        <requireAttribute>GENERIC_DEVICE_TYPE</requireAttribute>
-        <requireAttribute>PRODUCT_CODE</requireAttribute>
-        <requireAttribute>PRODUCT_URL</requireAttribute>
-        <requireAttribute>SW_BUILD_ID</requireAttribute>
+        <requireAttribute>ZCLVersion</requireAttribute>
+        <requireAttribute>ApplicationVersion</requireAttribute>
+        <requireAttribute>StackVersion</requireAttribute>
+        <requireAttribute>HWVersion</requireAttribute>
+        <requireAttribute>ManufacturerName</requireAttribute>
+        <requireAttribute>ModelIdentifier</requireAttribute>
+        <requireAttribute>DateCode</requireAttribute>
+        <requireAttribute>PowerSource</requireAttribute>
+        <requireAttribute>GenericDevice-Class</requireAttribute>
+        <requireAttribute>GenericDevice-Type</requireAttribute>
+        <requireAttribute>ProductCode</requireAttribute>
+        <requireAttribute>ProductURL</requireAttribute>
+        <requireAttribute>SWBuildID</requireAttribute>
       </include>
       <include cluster="Identify" client="true" server="true" clientLocked="true" serverLocked="true">
-        <requireAttribute>IDENTIFY_TIME</requireAttribute>
+        <requireAttribute>IdentifyTime</requireAttribute>
         <requireCommand>Identify</requireCommand>
         <requireCommand>IdentifyQuery</requireCommand>
         <requireCommand>TriggerEffect</requireCommand>

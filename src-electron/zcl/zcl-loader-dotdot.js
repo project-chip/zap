@@ -384,7 +384,8 @@ function prepareAttributeType(attribute, types, cluster) {
 function prepareDeviceType(deviceType) {
   var ret = {
     code: deviceType.deviceId[0]['_'],
-    //profileId: deviceType.profileId[0]['_'], //There is no profileId in Dotdot device descriptions
+    profileId: '0x0104', //There is no profileId in Dotdot device descriptions
+    domain: 'Dotdot', //There is no domain in Dotdot device descriptions
     name: deviceType.name[0],
     description: deviceType.typeName[0],
   }
@@ -448,7 +449,7 @@ function loadZclData(db, ctx) {
   ]
   ds = []
   ctx.zclDeviceTypes.forEach((deviceType) => {
-    env.logInfo(`loading device: ${deviceType.typeName._}`)
+    env.logInfo(`loading device: ${deviceType.typeName[0]}`)
     var d = prepareDeviceType(deviceType)
     ds.push(d)
   })

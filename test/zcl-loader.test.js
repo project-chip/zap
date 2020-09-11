@@ -163,76 +163,96 @@ test('test Dotdot zcl data loading in memory', () => {
   var db = new sq.Database(':memory:')
   var packageId
   dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
-  return dbApi
-    .loadSchema(db, env.schemaFile(), env.zapVersion())
-    .then((db) => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
-    .then((ctx) => {
-      packageId = ctx.packageId
-      return queryPackage.getPackageByPackageId(ctx.db, packageId)
-    })
-    .then((p) => expect(p.version).toEqual('1.0'))
-    .then(() =>
-      queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
-    )
-    .then((rows) => expect(rows.length).toEqual(1))
-    .then(() => queryZcl.selectAllClusters(db, packageId))
-    .then((x) => expect(x.length).toEqual(41))
-    .then(() => queryZcl.selectAllDeviceTypes(db, packageId))
-    .then((x) => expect(x.length).toEqual(54))
-    .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
-    .then((x) => expect(x).toEqual(644)) // seems low
-    .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
-    .then((x) => expect(x).toEqual(238)) // seems low
-    .then(() => queryGeneric.selectCountFrom(db, 'ATTRIBUTE'))
-    .then((x) => expect(x).toEqual(628)) // seems low
-    .then(() => queryZcl.selectAllAtomics(db, packageId))
-    .then((x) => expect(x.length).toEqual(69)) //seems low
-    .then(() => queryZcl.selectAllBitmaps(db, packageId))
-    .then((x) => expect(x.length).toEqual(50)) //seems low
-    .then(() => queryZcl.selectAllEnums(db, packageId))
-    .then((x) => expect(x.length).toEqual(79)) //seems low
-    .then(() => queryGeneric.selectCountFrom(db, 'ENUM_ITEM'))
-    .then((x) => expect(x).toEqual(534))
-    .then(() => queryZcl.selectAllStructs(db, packageId))
-    .then((x) => expect(x.length).toEqual(20)) //seems low
-    .then(() => queryGeneric.selectCountFrom(db, 'STRUCT_ITEM'))
-    .then((x) => expect(x).toEqual(63))
-
-    .then(() => queryZcl.selectAllDeviceTypes(db, packageId))
-    .then((x) => {
-      x.forEach((d) => {
-        queryZcl
-          .selectDeviceTypeClustersByDeviceTypeRef(db, d.id)
-          .then((dc) => {
-            dc.forEach((dcr) => {
-              if (!dcr.clusterRef) {
-                env.logInfo(
-                  `for ${d.caption} failed to match dcr ${dcr.clusterName}`
-                )
-              }
-            })
-          })
+  return (
+    dbApi
+      .loadSchema(db, env.schemaFile(), env.zapVersion())
+      .then((db) => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
+      .then((ctx) => {
+        packageId = ctx.packageId
+        return queryPackage.getPackageByPackageId(ctx.db, packageId)
       })
-    })
-
-    .then(() =>
-      dbApi.dbAll(
-        db,
-        'SELECT NAME, TYPE, PACKAGE_REF FROM ENUM WHERE NAME IN (SELECT NAME FROM ENUM GROUP BY NAME HAVING COUNT(*)>1)',
-        []
+      .then((p) => expect(p.version).toEqual('1.0'))
+      .then(() =>
+        queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
       )
-    )
-    .then((x) => {
-      x.forEach((c) => {
-        env.logWarning(
-          `Found Non Unique Enum in Dotdot XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
-        )
-      })
-    })
+      .then((rows) => expect(rows.length).toEqual(1))
+      .then(() => queryZcl.selectAllClusters(db, packageId))
+      .then((x) => expect(x.length).toEqual(41))
+      .then(() => queryZcl.selectAllDeviceTypes(db, packageId))
+      .then((x) => expect(x.length).toEqual(54))
+      .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
+      .then((x) => expect(x).toEqual(644)) // seems low
+      .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
+      .then((x) => expect(x).toEqual(238)) // seems low
+      .then(() => queryGeneric.selectCountFrom(db, 'ATTRIBUTE'))
+      .then((x) => expect(x).toEqual(628)) // seems low
+      .then(() => queryZcl.selectAllAtomics(db, packageId))
+      .then((x) => expect(x.length).toEqual(69)) //seems low
+      .then(() => queryZcl.selectAllBitmaps(db, packageId))
+      .then((x) => expect(x.length).toEqual(50)) //seems low
+      .then(() => queryZcl.selectAllEnums(db, packageId))
+      .then((x) => expect(x.length).toEqual(79)) //seems low
+      .then(() => queryGeneric.selectCountFrom(db, 'ENUM_ITEM'))
+      .then((x) => expect(x).toEqual(534))
+      .then(() => queryZcl.selectAllStructs(db, packageId))
+      .then((x) => expect(x.length).toEqual(20)) //seems low
+      .then(() => queryGeneric.selectCountFrom(db, 'STRUCT_ITEM'))
+      .then((x) => expect(x).toEqual(63))
 
-    .finally(() => {
-      dbApi.closeDatabase(db)
-    })
+      //Do some checking on the device type metadata
+      .then(() => queryZcl.selectAllDeviceTypes(db, packageId))
+      .then((x) => {
+        x.forEach((d) => {
+          queryZcl
+            .selectDeviceTypeClustersByDeviceTypeRef(db, d.id)
+            .then((dc) => {
+              dc.forEach((dcr) => {
+                if (!dcr.clusterRef) {
+                  env.logInfo(
+                    `for ${d.caption} failed to match dcr ${dcr.clusterName}`
+                  )
+                } else {
+                  queryZcl
+                    .selectDeviceTypeAttributesByDeviceTypeRef(
+                      db,
+                      dcr.deviceTypeRef
+                    )
+                    .then((dcas) => {
+                      if (dcas.length > 0) {
+                        dcas.forEach((dca) => {
+                          if (!dca.attributeRef) {
+                            env.logInfo(
+                              `attributeRef for ${dca.attributeName} is NULL`
+                            )
+                          }
+                        })
+                      }
+                    })
+                }
+              })
+            })
+        })
+      })
+
+      .then(() =>
+        dbApi.dbAll(
+          db,
+          'SELECT NAME, TYPE, PACKAGE_REF FROM ENUM WHERE NAME IN (SELECT NAME FROM ENUM GROUP BY NAME HAVING COUNT(*)>1)',
+          []
+        )
+      )
+      .then((x) => {
+        x.forEach((c) => {
+          env.logWarning(
+            `Found Non Unique Enum in Dotdot XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
+          )
+        })
+      })
+
+      .finally(() => {
+        dbApi.closeDatabase(db)
+      })
+  )
 }, 5000) // Give this test 5 secs to resolve
 
 test('test Dotdot and Silabs zcl data loading in memory', () => {
