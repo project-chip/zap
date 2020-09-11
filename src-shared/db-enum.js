@@ -45,6 +45,6 @@ exports.source = {
 
 exports.storageOption = {
   ram: 'RAM',
-  flash: 'Flash',
+  nvm: 'NVM',
   external: 'External',
 }
