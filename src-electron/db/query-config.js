@@ -44,6 +44,24 @@ function updateKeyValue(db, sessionId, key, value) {
 }
 
 /**
+ * Promises to insert a key/value pair in SESSION_KEY_VALUE table. Ignore if value already exists.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} key
+ * @param {*} value
+ * @returns A promise of creating or updating a row, resolves with the rowid of a new row.
+ */
+function insertKeyValue(db, sessionId, key, value) {
+  return dbApi.dbInsert(
+    db,
+    'INSERT OR IGNORE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
+    [sessionId, key, value]
+  )
+}
+
+/**
  * Retrieves a value of a single session key.
  *
  * @param {*} db
@@ -1072,6 +1090,7 @@ ORDER BY
 
 // exports
 exports.updateKeyValue = updateKeyValue
+exports.insertKeyValue = insertKeyValue
 exports.getSessionKeyValue = getSessionKeyValue
 exports.getAllSessionKeyValues = getAllSessionKeyValues
 exports.insertOrReplaceClusterState = insertOrReplaceClusterState

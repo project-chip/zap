@@ -123,7 +123,7 @@ function initializeSessionPackage(db, sessionId) {
                       optionDefault.optionRef
                     )
                     .then((option) => {
-                      return queryConfig.updateKeyValue(
+                      return queryConfig.insertKeyValue(
                         db,
                         sessionId,
                         option.optionCategory,

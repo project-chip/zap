@@ -293,6 +293,12 @@ export function initializeEndpointTypes(state, endpointTypes) {
   })
 }
 
+export function initializeSessionKeyValues(state, sessionKeyValues) {
+  sessionKeyValues.forEach((skv) => {
+    setSelectedGenericOption(state, skv)
+  })
+}
+
 export function setOptions(state, data) {
   Vue.set(state.genericOptions, data.option, [
     ...new Set(

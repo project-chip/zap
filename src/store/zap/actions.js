@@ -470,6 +470,13 @@ export function loadInitialData(context, data) {
     if ('endpointTypes' in initialState) {
       context.commit('initializeEndpointTypes', initialState.endpointTypes)
     }
+
+    if ('sessionKeyValues' in initialState) {
+      context.commit(
+        'initializeSessionKeyValues',
+        initialState.sessionKeyValues
+      )
+    }
   })
 }
 

@@ -361,6 +361,13 @@ function registerSessionApi(db, app) {
     })
     statePopulators.push(endpoints)
 
+    var sessionKeyValues = queryConfig
+      .getAllSessionKeyValues(db, sessionId)
+      .then((rows) => {
+        state['sessionKeyValues'] = rows
+      })
+    statePopulators.push(sessionKeyValues)
+
     Promise.all(statePopulators).then(() => {
       response.json({
         replyId: restApi.replyId.initialState,
