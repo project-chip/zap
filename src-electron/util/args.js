@@ -24,7 +24,7 @@ exports.zclPropertiesFile = path.join(
   __dirname,
   '../../zcl-builtin/silabs/zcl.json'
 )
-exports.genTemplateJsonFile = './test/gen-template/gen-templates.json'
+exports.genTemplateJsonFile = './test/gen-template/zigbee/gen-templates.json'
 exports.httpPort = 9070
 exports.studioHttpPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE

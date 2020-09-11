@@ -28,7 +28,7 @@
     "format-code": "pretty-quick",
     "pretty-quick": "pretty-quick",
     "self-check": "electron src-electron/main-process/electron-main.js selfCheck",
-    "gen": "node src-script/zap-generate.js -z ./zcl-builtin/silabs/zcl-test.properties -g ./test/gen-template/gen-templates.json -i ./test/resource/save-file-test-regen.zap -o ./tmp",
+    "gen": "node src-script/zap-generate.js -z ./zcl-builtin/silabs/zcl-test.properties -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/save-file-test-regen.zap -o ./tmp",
     "pack": "node src-script/build-spa.js && electron-builder --dir",
     "dist": "electron-builder",
     "dist-all": "electron-builder -mwl",
@@ -38,9 +38,9 @@
     "apack:win": "cp apack.info.dist dist/win-unpacked/apack.info && cd dist/win-unpacked && zip -r ../zap_apack_win * && cd -",
     "apack:mac": "cp apack.info.dist dist/mac/apack.info && cd dist/mac && zip -r ../zap_apack_mac * && cd -",
     "apack:linux": "cp apack.info.dist dist/linux-unpacked/apack.info && cd dist/linux-unpacked && zip -r ../zap_apack_linux *",
-    "linuxpack-ui": "./dist/linux-unpacked/zap --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json",
-    "linuxpack-check": "./dist/linux-unpacked/zap selfCheck --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json",
-    "linuxpack-gen": "./dist/linux-unpacked/zap generate --noUi --noServer --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/gen-templates.json --output tmp",
+    "linuxpack-ui": "./dist/linux-unpacked/zap --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json",
+    "linuxpack-check": "./dist/linux-unpacked/zap selfCheck --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json",
+    "linuxpack-gen": "./dist/linux-unpacked/zap generate --noUi --noServer --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json --output tmp",
     "linuxpack-help": "./dist/linux-unpacked/zap -?"
   },
   "dependencies": {

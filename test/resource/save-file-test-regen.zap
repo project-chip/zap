@@ -14,7 +14,7 @@
       "type": "zcl-properties"
     },
     {
-      "path": "/home/timotej/git/zap/test/gen-template/gen-templates.json",
+      "path": "/home/timotej/git/zap/test/gen-template/zigbee/gen-templates.json",
       "version": "test-v1",
       "type": "gen-templates-json"
     }
