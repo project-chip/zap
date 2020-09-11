@@ -45,7 +45,6 @@ const uri = {
 
 const uiMode = {
   ZIGBEE: `zigbee`,
-  OLD: `old`,
 }
 
 const httpCode = {

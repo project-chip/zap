@@ -78,7 +78,7 @@ function processCommandLineArguments(argv) {
       default: exports.genTemplateJsonFile,
     })
     .option('uiMode', {
-      desc: 'Mode of the UI to begin in. Options are: ZIGBEE, OLD',
+      desc: 'Mode of the UI to begin in. Options are: ZIGBEE',
       alias: 'ui',
       type: 'string',
       default: exports.uiMode,

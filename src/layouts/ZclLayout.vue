@@ -30,8 +30,7 @@ limitations under the License.
       <q-toolbar class="shadow-2">
         <q-tabs flat v-model="tab">
           <q-tab name="general" label="General" />
-          <q-tab :name="restApi.uiMode.OLD" label="ZCL Clusters" />
-          <q-tab :name="restApi.uiMode.ZIGBEE" label="Reformed UI" />
+          <q-tab :name="restApi.uiMode.ZIGBEE" label="ZCL" />
         </q-tabs>
         <q-space />
         <q-btn
@@ -71,9 +70,6 @@ limitations under the License.
               <q-expansion-item expand-separator label="UC Components" caption>
                 <UcComponentSetup />
               </q-expansion-item>
-            </q-tab-panel>
-            <q-tab-panel :name="restApi.uiMode.OLD">
-              <ZclOldClusterLayout />
             </q-tab-panel>
             <q-tab-panel :name="restApi.uiMode.ZIGBEE">
               <zcl-configurator-layout />
@@ -191,7 +187,6 @@ export default {
     UcComponentSetup,
     ZclApplicationSetup,
     ZclInformationSetup,
-    ZclOldClusterLayout,
     ZclConfiguratorLayout,
     SqlQuery,
   },
