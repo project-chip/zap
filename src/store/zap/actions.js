@@ -219,9 +219,9 @@ export function addEndpoint(context, newEndpointContext) {
       let arg = data.data
       context.commit('addEndpoint', {
         id: arg.id,
-        eptId: arg.eptId,
-        endpointType: arg.endpointType,
-        network: arg.nwkId,
+        endpointId: arg.eptId,
+        endpointTypeRef: arg.endpointType,
+        networkId: arg.nwkId,
         endpointIdValidationIssues: arg.validationIssues.endpointId,
         networkIdValidationIssues: arg.validationIssues.networkId,
       })

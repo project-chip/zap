@@ -849,15 +849,7 @@ function getAllEndpointTypes(db, sessionId) {
       'SELECT ENDPOINT_TYPE_ID, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE SESSION_REF = ? ORDER BY NAME',
       [sessionId]
     )
-    .then((rows) =>
-      rows.map((row) => {
-        return {
-          endpointTypeId: row.ENDPOINT_TYPE_ID,
-          name: row.NAME,
-          deviceTypeId: row.DEVICE_TYPE_REF,
-        }
-      })
-    )
+    .then((rows) => rows.map(dbMapping.map.endpointType))
 }
 
 /**

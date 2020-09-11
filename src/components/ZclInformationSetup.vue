@@ -24,6 +24,8 @@ limitations under the License.
       label="Information about the application"
       :min-rows="3"
     />
+
+    {{ this.state.zap }}
   </div>
 </template>
 
@@ -37,6 +39,11 @@ export default {
       },
       set(val) {
         this.$store.dispatch('zap/updateInformationText', val)
+      },
+    },
+    state: {
+      get() {
+        return this.$store.state
       },
     },
   },
