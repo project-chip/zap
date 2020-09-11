@@ -26,7 +26,7 @@ limitations under the License.
     >
       <template v-slot:body="props">
         <q-tr :props="props">
-          <q-td key="included" :props="props" auto-width>
+          <q-td key="enabled" :props="props" auto-width>
             <q-toggle
               class="q-mt-xs"
               v-model="selectedReporting"
@@ -309,7 +309,20 @@ export default {
   computed: {
     attributeData: {
       get() {
-        return this.$store.state.zap.attributes
+        return this.$store.state.zap.attributes.filter((attribute) => {
+          if (
+            this.$store.state.zap.attributeView.selectedAttributes.includes(
+              this.hashAttributeIdClusterId(
+                attribute.id,
+                this.selectedCluster.id
+              )
+            )
+          ) {
+            return true
+          } else {
+            return false
+          }
+        })
       },
     },
     selectionDefault: {
@@ -368,9 +381,9 @@ export default {
       },
       columns: [
         {
-          name: 'included',
-          label: 'Included',
-          field: 'included',
+          name: 'enabled',
+          label: 'Enabled',
+          field: 'enabled',
           align: 'left',
           sortable: true,
         },
