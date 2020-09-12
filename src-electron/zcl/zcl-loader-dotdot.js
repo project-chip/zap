@@ -5,6 +5,8 @@ const dbApi = require('../db/db-api.js')
 const fs = require('fs')
 const xml2js = require('xml2js')
 const queryZcl = require('../db/query-zcl.js')
+const queryPackage = require('../db/query-package.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
@@ -64,6 +66,9 @@ function parseZclFiles(db, ctx) {
         } else if (result['zcl:device']) {
           var deviceTypes = result['zcl:device']
           ctx.zclDeviceTypes = deviceTypes['deviceType']
+        } else if (result['map']) {
+          var manufacturers = result['map']
+          ctx.zclManufacturers = manufacturers['mapping']
         } else {
           //TODO: What to do with "derived clusters", we skip them here but we should probably
           //      extend the DB schema to allow this since we don't really handle it
@@ -337,6 +342,7 @@ function prepareStruct(type) {
  * @param {*} types an object which includes arrays for enums, bitmaps etc...
  */
 function prepareTypes(zclTypes, types) {
+  if (zclTypes == undefined) return
   zclTypes.map((type) => {
     if ('bitmap' in type) {
       types.bitmaps.push(prepareBitmap(type))
@@ -455,6 +461,17 @@ function loadZclData(db, ctx) {
   })
   return queryZcl
     .insertClusters(db, ctx.packageId, cs)
+    .then(() =>
+      queryPackage.insertOptionsKeyValues(
+        db,
+        ctx.packageId,
+        dbEnum.packageOptionCategory.manufacturerCodes,
+        ctx.zclManufacturers.map((data) => {
+          let mfgPair = data['$']
+          return { code: mfgPair['code'], label: mfgPair['translation'] }
+        })
+      )
+    )
     .then(() => queryZcl.insertDeviceTypes(db, ctx.packageId, ds))
     .then(() => queryZcl.insertGlobals(db, ctx.packageId, gs))
     .then(() => queryZcl.insertAtomics(db, ctx.packageId, types.atomics))
