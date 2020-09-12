@@ -121,7 +121,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
       max: normalizeHexValue(a.$.max),
       isWritable: a.$.writable == 'true',
       defaultValue: normalizeHexValue(a.$.default),
-      //isOptional: 'true', // TODO: optionality not listed in dotdot xml
+      isOptional: !(a.$.required == 'true'),
       //isReportable: 'true', // TODO: reportability not listed in dotdot xml
     })
     // TODO: Attributes have types and they may not be unique so we prepend the cluster name
@@ -149,7 +149,7 @@ function prepareCommands(commands, side) {
       name: c.$.name,
       //description: '', // TODO: no description for dotdot xml
       source: side,
-      //isOptional: 'true', // TODO: optionality of commands is not defined in dotdot xml
+      isOptional: !(c.$.required == 'true'),
     }
     if ('fields' in c) {
       pcmd.args = []
