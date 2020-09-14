@@ -265,7 +265,7 @@ VALUES
    ?,
    ?)`,
     cluster.mfgCode == null
-      ? [endpointTypeId, packageId, cluster.code, cluster.side, 1]
+      ? [endpointTypeId, packageId, cluster.code, cluster.side, cluster.enabled]
       : [
           endpointTypeId,
           packageId,
@@ -350,7 +350,13 @@ function importAttributeForEndpointType(
   endpointClusterId,
   attribute
 ) {
-  var arg = [endpointTypeId, endpointClusterId, attribute.code, packageId]
+  var arg = [
+    endpointTypeId,
+    endpointClusterId,
+    attribute.code,
+    packageId,
+    endpointClusterId,
+  ]
   if (attribute.mfgCode != null) arg.push(attribute.mfgCode)
   arg.push(
     attribute.included,
@@ -381,9 +387,11 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE
   REPORTABLE_CHANGE )
 VALUES
 ( ?, ?,
-  ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE
-    WHERE CODE = ?
-    AND PACKAGE_REF = ?
+  ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE, ENDPOINT_TYPE_CLUSTER
+    WHERE ATTRIBUTE.CODE = ?
+    AND ATTRIBUTE.PACKAGE_REF = ?
+    AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
+    AND ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = ATTRIBUTE.CLUSTER_REF
     AND ${
       attribute.mfgCode == null
         ? 'MANUFACTURER_CODE IS NULL'

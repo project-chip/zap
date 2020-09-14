@@ -182,7 +182,6 @@ function importEndpointTypes(
                   )
                   .then((endpointClusterId) => {
                     var ps = []
-
                     if ('commands' in cluster)
                       cluster.commands.forEach((command) => {
                         ps.push(
