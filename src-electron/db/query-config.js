@@ -44,6 +44,24 @@ function updateKeyValue(db, sessionId, key, value) {
 }
 
 /**
+ * Promises to insert a key/value pair in SESSION_KEY_VALUE table. Ignore if value already exists.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} key
+ * @param {*} value
+ * @returns A promise of creating or updating a row, resolves with the rowid of a new row.
+ */
+function insertKeyValue(db, sessionId, key, value) {
+  return dbApi.dbInsert(
+    db,
+    'INSERT OR IGNORE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
+    [sessionId, key, value]
+  )
+}
+
+/**
  * Retrieves a value of a single session key.
  *
  * @param {*} db
@@ -540,13 +558,12 @@ function updateEndpointType(
 function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
   return dbApi
     .dbBeginTransaction(db)
-    .then((data) => {
+    .then(() =>
+      queryZcl.selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef)
+    )
+    .then((clusters) => {
       var promises = []
-      var clusterPromise = resolveDefaultClusters(
-        db,
-        endpointTypeId,
-        deviceTypeRef
-      )
+      var clusterPromise = resolveDefaultClusters(db, endpointTypeId, clusters)
       promises.push(
         resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef)
       )
@@ -576,47 +593,43 @@ function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
     })
 }
 
-function resolveDefaultClusters(db, endpointTypeId, deviceTypeRef) {
-  return queryZcl
-    .selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef)
-    .then((clusters) => {
-      return Promise.all(
-        clusters.map((cluster) => {
-          var clientServerPromise = []
-          if (cluster.includeClient) {
-            clientServerPromise.push(
-              new Promise((resolve, reject) =>
-                insertOrReplaceClusterState(
-                  db,
-                  endpointTypeId,
-                  cluster.clusterRef,
-                  'client',
-                  true
-                ).then((data) => {
-                  resolve({ clusterRef: cluster.clusterRef, side: 'client' })
-                })
-              )
-            )
-          }
-          if (cluster.includeServer) {
-            clientServerPromise.push(
-              new Promise((resolve, reject) =>
-                insertOrReplaceClusterState(
-                  db,
-                  endpointTypeId,
-                  cluster.clusterRef,
-                  'server',
-                  true
-                ).then((data) => {
-                  resolve({ clusterRef: cluster.clusterRef, side: 'server' })
-                })
-              )
-            )
-          }
-          return Promise.all(clientServerPromise)
-        })
-      )
+function resolveDefaultClusters(db, endpointTypeId, clusters) {
+  return Promise.all(
+    clusters.map((cluster) => {
+      var clientServerPromise = []
+      if (cluster.includeClient) {
+        clientServerPromise.push(
+          new Promise((resolve, reject) =>
+            insertOrReplaceClusterState(
+              db,
+              endpointTypeId,
+              cluster.clusterRef,
+              'client',
+              true
+            ).then((data) => {
+              resolve({ clusterRef: cluster.clusterRef, side: 'client' })
+            })
+          )
+        )
+      }
+      if (cluster.includeServer) {
+        clientServerPromise.push(
+          new Promise((resolve, reject) =>
+            insertOrReplaceClusterState(
+              db,
+              endpointTypeId,
+              cluster.clusterRef,
+              'server',
+              true
+            ).then((data) => {
+              resolve({ clusterRef: cluster.clusterRef, side: 'server' })
+            })
+          )
+        )
+      }
+      return Promise.all(clientServerPromise)
     })
+  )
 }
 
 function resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef) {
@@ -663,27 +676,59 @@ function resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef) {
     .then((commands) => {
       return Promise.all(
         commands.map((deviceCommand) => {
-          if (deviceCommand.commandRef != null) {
-            return queryZcl
-              .selectCommandById(db, deviceCommand.commandRef)
-              .then((command) => {
-                if (command != null) {
-                  return insertOrUpdateCommandState(
-                    db,
-                    endpointTypeId,
-                    command.clusterRef,
-                    command.source,
-                    deviceCommand.commandRef,
-                    true,
-                    'OUTGOING'
-                  )
-                }
-              })
-          } else {
-            return new Promise((resolve, reject) => {
-              return resolve()
+          return queryZcl
+            .selectDeviceTypeClusterByDeviceTypeClusterId(
+              db,
+              deviceCommand.deviceTypeClusterRef
+            )
+            .then((deviceTypeCluster) => {
+              if (deviceCommand.commandRef != null) {
+                return queryZcl
+                  .selectCommandById(db, deviceCommand.commandRef)
+                  .then((command) => {
+                    if (command != null) {
+                      var promises = []
+                      if (deviceTypeCluster.includeClient == 1) {
+                        promises.push(
+                          insertOrUpdateCommandState(
+                            db,
+                            endpointTypeId,
+                            command.clusterRef,
+                            command.source,
+                            deviceCommand.commandRef,
+                            true,
+                            command.source == dbEnum.source.client
+                              ? 'OUTGOING'
+                              : 'INCOMING'
+                          )
+                        )
+                      }
+                      if (deviceTypeCluster.includeServer == 1) {
+                        promises.push(
+                          insertOrUpdateCommandState(
+                            db,
+                            endpointTypeId,
+                            command.clusterRef,
+                            command.source,
+                            deviceCommand.commandRef,
+                            true,
+                            command.source == dbEnum.source.server
+                              ? 'OUTGOING'
+                              : 'INCOMING'
+                          )
+                        )
+                      }
+                      return Promise.all(promises)
+                    } else {
+                      return Promise.resolve()
+                    }
+                  })
+              } else {
+                return new Promise((resolve, reject) => {
+                  return resolve()
+                })
+              }
             })
-          }
         })
       )
     })
@@ -698,6 +743,13 @@ function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
           return Promise.all(
             commands.map((command) => {
               if (!command.isOptional) {
+                let direction =
+                  (cluster.side == dbEnum.side.client &&
+                    command.source == dbEnum.source.client) ||
+                  (cluster.side == dbEnum.side.server &&
+                    command.source == dbEnum.source.server)
+                    ? 'OUTGOING'
+                    : 'INCOMING'
                 return insertOrUpdateCommandState(
                   db,
                   endpointTypeId,
@@ -705,7 +757,7 @@ function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
                   command.source,
                   command.id,
                   true,
-                  'OUTGOING'
+                  direction
                 )
               } else {
                 return new Promise((resolve, reject) => {
@@ -815,15 +867,7 @@ function getAllEndpointTypes(db, sessionId) {
       'SELECT ENDPOINT_TYPE_ID, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE SESSION_REF = ? ORDER BY NAME',
       [sessionId]
     )
-    .then((rows) =>
-      rows.map((row) => {
-        return {
-          endpointTypeId: row.ENDPOINT_TYPE_ID,
-          name: row.NAME,
-          deviceTypeId: row.DEVICE_TYPE_REF,
-        }
-      })
-    )
+    .then((rows) => rows.map(dbMapping.map.endpointType))
 }
 
 /**
@@ -1046,6 +1090,7 @@ ORDER BY
 
 // exports
 exports.updateKeyValue = updateKeyValue
+exports.insertKeyValue = insertKeyValue
 exports.getSessionKeyValue = getSessionKeyValue
 exports.getAllSessionKeyValues = getAllSessionKeyValues
 exports.insertOrReplaceClusterState = insertOrReplaceClusterState

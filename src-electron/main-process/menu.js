@@ -373,7 +373,10 @@ function readAndProcessFile(db, filePath) {
   importJs
     .importDataFromFile(env.mainDatabase(), filePath)
     .then((sessionId) => {
-      windowJs.windowCreate(httpPort, filePath, sessionId)
+      windowJs.windowCreate(httpPort, {
+        filePath: filePath,
+        sessionId: sessionId,
+      })
       return true
     })
     .catch((err) => {

@@ -23,6 +23,8 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const fsp = fs.promises
 const sLoad = require('./zcl-loader-silabs')
 const dLoad = require('./zcl-loader-dotdot')
+const queryZcl = require('../db/query-zcl.js')
+
 /**
  * Reads the properties file into ctx.data and also calculates crc into ctx.crc
  *
@@ -99,7 +101,23 @@ function loadZcl(db, metadataFile) {
   }
 }
 
+/**
+ * Promises to perform a post loading step.
+ *
+ * @param {*} db
+ * @returns Promise to deal with the post-loading cleanup.
+ */
+function processZclPostLoading(db) {
+  return queryZcl
+    .updateClusterReferencesForDeviceTypeClusters(db)
+    .then((res) =>
+      queryZcl.updateAttributeReferencesForDeviceTypeReferences(db)
+    )
+    .then((res) => queryZcl.updateCommandReferencesForDeviceTypeReferences(db))
+}
+
 exports.loadZcl = loadZcl
 exports.readMetadataFile = readMetadataFile
 exports.recordToplevelPackage = recordToplevelPackage
 exports.recordVersion = recordVersion
+exports.processZclPostLoading = processZclPostLoading

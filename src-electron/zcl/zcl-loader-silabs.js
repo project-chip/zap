@@ -506,6 +506,7 @@ function prepareDeviceType(deviceType) {
   var ret = {
     code: deviceType.deviceId[0]['_'],
     profileId: deviceType.profileId[0]['_'],
+    domain: deviceType.domain[0],
     name: deviceType.name[0],
     description: deviceType.typeName[0],
   }
@@ -642,21 +643,6 @@ function resolveLaterPromises(laterPromises) {
 }
 
 /**
- * Promises to perform a post loading step.
- *
- * @param {*} db
- * @returns Promise to deal with the post-loading cleanup.
- */
-function processZclPostLoading(db) {
-  return queryZcl
-    .updateClusterReferencesForDeviceTypeClusters(db)
-    .then((res) =>
-      queryZcl.updateAttributeReferencesForDeviceTypeReferences(db)
-    )
-    .then((res) => queryZcl.updateCommandReferencesForDeviceTypeReferences(db))
-}
-
-/**
  * Promises to qualify whether zcl file needs to be reloaded.
  * If yes, the it will resolve with {filePath, data, packageId}
  * If not, then it will resolve with {error}
@@ -745,7 +731,7 @@ function parseZclFiles(db, ctx) {
         .catch((err) => env.logError(err))
     })
   )
-    .then(() => processZclPostLoading(db))
+    .then(() => zclLoader.processZclPostLoading(db))
     .then(() => ctx)
 }
 

@@ -24,7 +24,7 @@ exports.zclPropertiesFile = path.join(
   __dirname,
   '../../zcl-builtin/silabs/zcl.json'
 )
-exports.genTemplateJsonFile = './test/gen-template/gen-templates.json'
+exports.genTemplateJsonFile = './test/gen-template/zigbee/gen-templates.json'
 exports.httpPort = 9070
 exports.studioHttpPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE
@@ -57,6 +57,7 @@ function processCommandLineArguments(argv) {
     .option('studioHttpPort', {
       desc: "Port used for integration with Studio's UC Jetty server",
       type: 'number',
+      default: exports.studioHttpPort,
     })
     .option('zapFile', {
       desc: 'input .zap file to read in.',
@@ -77,7 +78,7 @@ function processCommandLineArguments(argv) {
       default: exports.genTemplateJsonFile,
     })
     .option('uiMode', {
-      desc: 'Mode of the UI to begin in. Options are: ZIGBEE, OLD',
+      desc: 'Mode of the UI to begin in. Options are: ZIGBEE',
       alias: 'ui',
       type: 'string',
       default: exports.uiMode,

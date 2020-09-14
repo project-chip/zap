@@ -16,7 +16,7 @@ limitations under the License.
 
 <template>
   <div>
-    <q-card>
+    <q-card :bordered="isSelectedEndpoint">
       <div class="vertical-align:middle q-pa-md">
         <b>Endpoint - &nbsp; {{ getFormattedEndpointId(endpointReference) }}</b>
       </div>
@@ -168,6 +168,11 @@ export default {
         return this.$store.state.zap.endpointView.endpointId
       },
     },
+    selectedEndpoint: {
+      get() {
+        return this.$store.state.zap.endpointView.selectedEndpoint[0]
+      },
+    },
     endpointType: {
       get() {
         return this.$store.state.zap.endpointView.endpointType
@@ -200,6 +205,20 @@ export default {
         })
       },
     },
+    isSelectedEndpoint: {
+      get() {
+        return (
+          this.$store.state.zap.endpointView.selectedEndpoint ==
+          this.endpointReference
+        )
+      },
+    },
   },
 }
 </script>
+
+<style scoped lang="sass">
+.q-card
+  border-width: 8px;
+  border-color: $primary;
+</style>

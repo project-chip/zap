@@ -230,6 +230,7 @@ DROP TABLE IF EXISTS "DEVICE_TYPE";
 CREATE TABLE IF NOT EXISTS "DEVICE_TYPE" (
   "DEVICE_TYPE_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
+  "DOMAIN" text,
   "CODE" integer,
   "PROFILE_ID" integer,
   "NAME" text,

@@ -44,7 +44,7 @@ limitations under the License.
       </div>
       <div>
         <q-toggle
-          v-model="commandDiscoverySetting"
+          :value="commandDiscoverySetting == 1 ? true : false"
           label="Enable Command Discovery"
           @input="handleOptionChange('commandDiscovery', $event)"
         ></q-toggle>
@@ -142,6 +142,7 @@ export default {
   },
   methods: {
     handleOptionChange(option, value) {
+      console.log(this.commandDiscoverySetting)
       this.$store.dispatch('zap/setSelectedGenericKey', {
         option: option,
         value: value,

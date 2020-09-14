@@ -11,16 +11,16 @@
 {{#zcl_clusters}}
 
 // Definitions for cluster: {{label}}
-#define ZCL_{{define}}_ID ({{asHex code}})
+#define ZCL_{{asDelimitedMacro define}}_ID ({{asHex code}})
 
 // Client attributes for cluster: {{label}}
 {{#zcl_attributes_client}}
-#define ZCL_{{define}}_ATTRIBUTE_ID ({{asHex code}})
+#define ZCL_{{asDelimitedMacro define}}_ATTRIBUTE_ID ({{asHex code}})
 {{/zcl_attributes_client}}
 
 // Server attributes for cluster: {{label}}
 {{#zcl_attributes_server}}
-#define ZCL_{{define}}_ATTRIBUTE_ID ({{asHex code}})
+#define ZCL_{{asDelimitedMacro define}}_ATTRIBUTE_ID ({{asHex code}})
 {{/zcl_attributes_server}}
 
 // Commands for cluster: {{label}}

@@ -1,7 +1,7 @@
 # Adapter pack file for Studio.
 #
 label=Zigbee Advanced platform
-path=.,node_modules/.bin/
+path=.,node_modules/.bin/,ZAP.app/Contents/MacOS
 requiredFeatureLevel=apack.core:7
 featureLevel=1
 
@@ -40,7 +40,7 @@ function(zapSelfcheck) {
 function(zapServer) {
   zclProperties.description=Location for ZCL XML file
   output.description=Output directory for project generation
-  cmd=$(zap) --noUi --showUrl --zclProperties ${zclProperties} --output ${output}
+  cmd=$(zap) --noUi --showUrl --zclProperties ${zclProperties} --output ${output} --studioHttpPort ${studioHttpPort}
 }
 
 function(zapFull) {

@@ -281,11 +281,15 @@ describe('Session specific queries', () => {
       .then((state) => {
         expect(state.creator).toBe('zap')
         expect(state.writeTime).toBeTruthy()
-        expect(state.keyValuePairs.length).toBe(2)
-        expect(state.keyValuePairs[0].key).toBe('key1')
-        expect(state.keyValuePairs[0].value).toBe('value2')
-        expect(state.keyValuePairs[1].key).toBe('testKey')
-        expect(state.keyValuePairs[1].value).toBe('testValue')
+        expect(state.keyValuePairs.length).toBe(5)
+        expect(state.keyValuePairs[0].key).toBe('commandDiscovery')
+        expect(state.keyValuePairs[0].value).toBe('1')
+        expect(state.keyValuePairs[1].key).toBe('defaultResponsePolicy')
+        expect(state.keyValuePairs[1].value).toBe('always')
+        expect(state.keyValuePairs[2].key).toBe('key1')
+        expect(state.keyValuePairs[2].value).toBe('value2')
+        expect(state.keyValuePairs[4].key).toBe('testKey')
+        expect(state.keyValuePairs[4].value).toBe('testValue')
         expect(state.endpointTypes.length).toBe(1)
         expect(state.endpointTypes[0].name).toBe('Test endpoint')
         expect(state.endpointTypes[0].clusters.length).toBe(0)
@@ -353,30 +357,34 @@ describe('Endpoint Type Config Queries', () => {
         expect(endpointType.name).toBe('testEndpointType')
       }))
 
-  test('Test get all cluster states', () =>
-    queryConfig
-      .getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
-      .then((clusters) => {
-        expect(clusters.length).toBe(6)
-      })
-      .then(() =>
-        queryConfig.insertOrReplaceClusterState(
-          db,
-          endpointTypeIdOnOff,
-          7,
-          'CLIENT',
-          true
+  test(
+    'Test get all cluster states',
+    () =>
+      queryConfig
+        .getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
+        .then((clusters) => {
+          expect(clusters.length).toBe(6)
+        })
+        .then(() =>
+          queryConfig.insertOrReplaceClusterState(
+            db,
+            endpointTypeIdOnOff,
+            7,
+            'CLIENT',
+            true
+          )
         )
-      )
-      .then((rowId) => {
-        expect(typeof rowId).toBe('number')
-      })
-      .then(() =>
-        queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
-      )
-      .then((clusters) => {
-        expect(clusters.length).toBe(7)
-      }))
+        .then((rowId) => {
+          expect(typeof rowId).toBe('number')
+        })
+        .then(() =>
+          queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
+        )
+        .then((clusters) => {
+          expect(clusters.length).toBe(7)
+        }),
+    3000
+  )
 
   test('Test get all attribute states', () =>
     queryConfig

@@ -51,11 +51,12 @@ limitations under the License.
           <div>
             <q-select
               outlined
-              v-model="filter"
+              :value="filter"
               :options="filterOptions"
               bg-color="white"
               dense
               class="col-2"
+              @input="changeFilter($event)"
             />
           </div>
         </div>
@@ -66,7 +67,8 @@ limitations under the License.
           bg-color="white"
           class="col-4"
           placeholder="Search Clusters"
-          v-model="filterString"
+          @input="changeFilterString($event)"
+          :value="filterString"
         >
           <template v-slot:prepend>
             <q-icon name="search" />
@@ -76,7 +78,12 @@ limitations under the License.
       <q-list>
         <div v-for="domainName in domainNames" :key="domainName">
           <div v-show="clusterDomains(domainName).length > 0">
-            <q-expansion-item switch-toggle-side :label="domainName">
+            <q-expansion-item
+              switch-toggle-side
+              :label="domainName"
+              @input="setOpenDomain(domainName, $event)"
+              :value="getDomainOpenState(domainName)"
+            >
               <zcl-domain-cluster-view
                 :domainName="domainName"
                 :clusters="clusterDomains(domainName)"
@@ -118,6 +125,11 @@ export default {
         ]
       },
     },
+    openDomains: {
+      get() {
+        return this.$store.state.zap.clusterManager.openDomains
+      },
+    },
     clusters: {
       get() {
         return this.$store.state.zap.clusters
@@ -152,6 +164,21 @@ export default {
       },
       set(val) {},
     },
+    filterOptions: {
+      get() {
+        return this.$store.state.zap.clusterManager.filterOptions
+      },
+    },
+    filter: {
+      get() {
+        return this.$store.state.zap.clusterManager.filter
+      },
+    },
+    filterString: {
+      get() {
+        return this.$store.state.zap.clusterManager.filterString
+      },
+    },
   },
   methods: {
     clusterDomains(domainName) {
@@ -169,13 +196,25 @@ export default {
         this.selectionServers.includes(clusterReference)
       )
     },
-  },
-  data() {
-    return {
-      filter: 'All Clusters',
-      filterOptions: ['All Clusters', 'Only Enabled'],
-      filterString: '',
-    }
+    setOpenDomain(domainName, event) {
+      this.$store.dispatch('zap/setOpenDomain', {
+        domainName: domainName,
+        value: event,
+      })
+    },
+    getDomainOpenState(domainName) {
+      return (
+        this.openDomains[domainName] ||
+        this.filter == 'Only Enabled' ||
+        this.filterString != ''
+      )
+    },
+    changeFilter(filter) {
+      this.$store.dispatch('zap/setFilter', filter)
+    },
+    changeFilterString(filterString) {
+      this.$store.dispatch('zap/setFilterString', filterString)
+    },
   },
   components: {
     ZclDomainClusterView,

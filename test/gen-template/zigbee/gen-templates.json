@@ -1,0 +1,63 @@
+{
+  "name": "Test templates",
+  "version": "test-v1",
+  "options": {
+    "testOption": {
+      "code1": "label1",
+      "code2": "label2",
+      "code3": "label3",
+      "code4": "label4",
+      "code5": "label5"
+    },
+    "externalOption": "externalOptions.json",
+    "cli": "cli.json"
+  },
+  "helpers": ["addon-helper.js"],
+  "templates": [
+    {
+      "path": "simple-test.zapt",
+      "name": "Test template",
+      "output": "simple-test.out"
+    },
+    {
+      "path": "zcl-test.zapt",
+      "name": "Test ZCL template",
+      "output": "zcl-test.out"
+    },
+    {
+      "path": "zap-id.zapt",
+      "name": "Various ZCL ids",
+      "output": "zap-id.h"
+    },
+    {
+      "path": "zap-type.zapt",
+      "name": "ZCL types",
+      "output": "zap-type.h"
+    },
+    {
+      "path": "zap-cli.zapt",
+      "name": "ZCL command-line contribution",
+      "output": "zap-cli.h"
+    },
+    {
+      "path": "zap-command-parser.zapt",
+      "name": "ZCL command parsers",
+      "output": "zap-command-parser.h"
+    },
+    {
+      "path": "zap-command.zapt",
+      "name": "ZCL command APIs",
+      "output": "zap-command.h"
+    },
+    {
+      "path": "zap-config.zapt",
+      "name": "ZCL endpoint configuration",
+      "output": "zap-config.h"
+    },
+    {
+      "path": "zap-print.zapt",
+      "name": "ZCL human readable strings",
+      "output": "zap-print.h"
+    }
+  ]
+}

@@ -42,6 +42,15 @@ exports.map = {
       optionLabel: x.OPTION_LABEL,
     }
   },
+  optionDefaults: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.OPTION_DEFAULT_ID,
+      packageRef: x.PACKAGE_REF,
+      optionCategory: x.OPTION_CATEGORY,
+      optionRef: x.OPTION_REF,
+    }
+  },
   trackedFile: (x) => {
     if (x == null) return undefined
     return {
@@ -190,6 +199,7 @@ exports.map = {
       id: x.DEVICE_TYPE_ID,
       code: x.CODE,
       profileId: x.PROFILE_ID,
+      domain: x.DOMAIN,
       label: x.NAME,
       caption: x.DESCRIPTION,
     }
@@ -198,6 +208,7 @@ exports.map = {
   deviceTypeCluster: (x) => {
     if (x == null) return undefined
     return {
+      id: x.DEVICE_TYPE_CLUSTER_ID,
       deviceTypeRef: x.DEVICE_TYPE_REF,
       clusterRef: x.CLUSTER_REF,
       clusterName: x.CLUSTER_NAME,

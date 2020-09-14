@@ -252,7 +252,7 @@ function selectAllDeviceTypes(db, packageId = null) {
   return dbApi
     .dbAll(
       db,
-      'SELECT DEVICE_TYPE_ID, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE ' +
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE ' +
         (packageId != null ? 'WHERE PACKAGE_REF = ? ' : '') +
         'ORDER BY CODE',
       packageId != null ? [packageId] : []
@@ -264,7 +264,7 @@ function selectDeviceTypeById(db, id, packageId = null) {
   return dbApi
     .dbGet(
       db,
-      'SELECT DEVICE_TYPE_ID, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ? ' +
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ? ' +
         (packageId != null ? 'AND PACKAGE_REF = ? ' : ''),
       packageId != null ? [id, packageId] : [id]
     )
@@ -683,6 +683,29 @@ ORDER BY CLUSTER_REF`,
     .then((rows) => rows.map(dbMapping.map.deviceTypeCluster))
 }
 
+function selectDeviceTypeClusterByDeviceTypeClusterId(db, deviceTypeClusterId) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT 
+  DEVICE_TYPE_CLUSTER_ID, 
+  DEVICE_TYPE_REF, 
+  CLUSTER_REF, 
+  CLUSTER_NAME, 
+  INCLUDE_CLIENT, 
+  INCLUDE_SERVER, 
+  LOCK_CLIENT, 
+  LOCK_SERVER 
+FROM 
+  DEVICE_TYPE_CLUSTER 
+WHERE 
+  DEVICE_TYPE_CLUSTER_ID = ?`,
+      [deviceTypeClusterId]
+    )
+    .then(dbMapping.map.deviceTypeCluster)
+}
+
 function selectDeviceTypeAttributesByDeviceTypeClusterRef(
   db,
   deviceTypeClusterRef
@@ -1086,9 +1109,16 @@ function insertDeviceTypes(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
-      'INSERT INTO DEVICE_TYPE (PACKAGE_REF, CODE, PROFILE_ID, NAME, DESCRIPTION) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO DEVICE_TYPE (PACKAGE_REF, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION) VALUES (?, ?, ?, ?, ?, ?)',
       data.map((dt) => {
-        return [packageId, dt.code, dt.profileId, dt.name, dt.description]
+        return [
+          packageId,
+          dt.domain,
+          dt.code,
+          dt.profileId,
+          dt.name,
+          dt.description,
+        ]
       })
     )
     .then((lastIdsArray) => {
@@ -1474,6 +1504,7 @@ exports.selectEndpointTypeAttributesByEndpointId = selectEndpointTypeAttributesB
 exports.selectEndpointTypeAttribute = selectEndpointTypeAttribute
 exports.selectEndpointTypeCommandsByEndpointId = selectEndpointTypeCommandsByEndpointId
 exports.selectDeviceTypeClustersByDeviceTypeRef = selectDeviceTypeClustersByDeviceTypeRef
+exports.selectDeviceTypeClusterByDeviceTypeClusterId = selectDeviceTypeClusterByDeviceTypeClusterId
 exports.selectDeviceTypeAttributesByDeviceTypeClusterRef = selectDeviceTypeAttributesByDeviceTypeClusterRef
 exports.selectDeviceTypeCommandsByDeviceTypeClusterRef = selectDeviceTypeCommandsByDeviceTypeClusterRef
 exports.selectDeviceTypeAttributesByDeviceTypeRef = selectDeviceTypeAttributesByDeviceTypeRef

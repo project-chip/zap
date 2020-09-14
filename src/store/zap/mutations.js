@@ -57,25 +57,29 @@ export function updateAttributes(state, attributes) {
 export function initializeDefaultEndpoints(state, defaultEndpoints) {
   defaultEndpoints.forEach((endpoint) => {
     if (state.endpointView.endpointId[endpoint.id] === undefined) {
-      Vue.set(state.endpointView.endpointId, endpoint.id, endpoint.eptId)
+      Vue.set(state.endpointView.endpointId, endpoint.id, endpoint.endpointId)
     }
     if (state.endpointView.endpointType[endpoint.id] === undefined) {
       Vue.set(
         state.endpointView.endpointType,
         endpoint.id,
-        endpoint.endpointType
+        endpoint.endpointTypeRef
       )
     }
     if (state.endpointView.networkId[endpoint.id] === undefined) {
-      Vue.set(state.endpointView.networkId, endpoint.id, endpoint.network)
+      Vue.set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
     }
   })
 }
 
 export function addEndpoint(state, endpoint) {
-  Vue.set(state.endpointView.endpointId, endpoint.id, endpoint.eptId)
-  Vue.set(state.endpointView.endpointType, endpoint.id, endpoint.endpointType)
-  Vue.set(state.endpointView.networkId, endpoint.id, endpoint.network)
+  Vue.set(state.endpointView.endpointId, endpoint.id, endpoint.endpointId)
+  Vue.set(
+    state.endpointView.endpointType,
+    endpoint.id,
+    endpoint.endpointTypeRef
+  )
+  Vue.set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
   Vue.set(
     state.endpointView.endpointIdValidationIssues,
     endpoint.id,
@@ -279,13 +283,19 @@ export function setMiniState(state, data) {
 
 export function initializeEndpoints(state, endpoints) {
   endpoints.forEach((e) => {
-    Vue.set(state.endpointView.endpointId, e.endpointRef, e.endpointId)
+    addEndpoint(state, e)
   })
 }
 
 export function initializeEndpointTypes(state, endpointTypes) {
   endpointTypes.forEach((et) => {
-    Vue.set(state.endpointTypeView.name, et.id, et.name)
+    addEndpointType(state, et)
+  })
+}
+
+export function initializeSessionKeyValues(state, sessionKeyValues) {
+  sessionKeyValues.forEach((skv) => {
+    setSelectedGenericOption(state, skv)
   })
 }
 
@@ -307,6 +317,12 @@ export function setSelectedGenericOption(state, keyValue) {
   Vue.set(state.selectedGenericOptions, keyValue.key, keyValue.value)
 }
 
+export function loadSessionKeyValues(state, sessionKeyValues) {
+  sessionKeyValues.data.map((keyValue) => {
+    Vue.set(state.selectedGenericOptions, keyValue.key, keyValue.value)
+  })
+}
+
 export function setDefaultUiMode(state, uiMode) {
   Vue.set(state.calledArgs, `defaultUiMode`, uiMode)
 }
@@ -321,4 +337,16 @@ export function setAttributeEditting(state, context) {
     context.attributeId,
     context.editState
   )
+}
+
+export function setOpenDomain(state, context) {
+  Vue.set(state.clusterManager.openDomains, context.domainName, context.value)
+}
+
+export function setFilter(state, filter) {
+  state.clusterManager.filter = filter
+}
+
+export function setFilterString(state, filterString) {
+  state.clusterManager.filterString = filterString
 }

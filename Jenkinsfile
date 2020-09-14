@@ -16,7 +16,7 @@ pipeline
                 }
             }
         }
-        stage('Npm install')
+        stage('Npm ci')
         {
             steps
             {
@@ -25,7 +25,7 @@ pipeline
                     sh 'uname -a'
                     sh 'npm --version'
                     sh 'node --version'
-                    sh 'npm install'
+                    sh 'npm ci'
                     sh 'npm list || true'
                 }
             }

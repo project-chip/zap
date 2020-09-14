@@ -39,15 +39,35 @@ limitations under the License.
           </q-field>
           <q-field label="Device Type" stack-label>
             <q-select
-              v-model="newEndpoint.newDeviceTypeRef"
               outlined
               class="col"
               :options="zclDeviceTypeOptions"
-              :option-label="
-                (item) =>
-                  item === null ? '' : zclDeviceTypes[item].description
+              :value="
+                newEndpoint.newDeviceTypeRef == null
+                  ? ''
+                  : zclDeviceTypes[newEndpoint.newDeviceTypeRef].description
               "
-            />
+            >
+              <template v-slot:option="option">
+                <q-expansion-item expand-separator :label="option.opt.label">
+                  <template v-for="child in option.opt.children">
+                    <q-item
+                      :key="child.label"
+                      clickable
+                      v-ripple
+                      v-close-popup
+                      @click="newEndpoint.newDeviceTypeRef = child.label.value"
+                    >
+                      <q-item-section>
+                        <q-item-label class="q-ml-md">{{
+                          child.label.label
+                        }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-expansion-item>
+              </template>
+            </q-select>
           </q-field>
 
           <div class="q-gutter-md row">
@@ -112,9 +132,39 @@ export default {
     zclDeviceTypeOptions: {
       get() {
         var dt = this.$store.state.zap.zclDeviceTypes
-        return Object.keys(dt).sort((a, b) => {
+        let keys = Object.keys(dt).sort((a, b) => {
           return dt[a].description.localeCompare(dt[b].description)
         })
+        let deviceTypesByDomain = keys.reduce(function (
+          accumulator,
+          currentValue
+        ) {
+          if (accumulator[dt[currentValue].domain] == null) {
+            accumulator[dt[currentValue].domain] = []
+          }
+          accumulator[dt[currentValue].domain].push({
+            label: dt[currentValue].description,
+            value: currentValue,
+          })
+          return accumulator
+        },
+        {})
+
+        let reshapedOptions = Object.keys(deviceTypesByDomain)
+          .sort((a, b) => {
+            return a.localeCompare(b)
+          })
+          .map((domain) => {
+            return {
+              label: domain,
+              children: deviceTypesByDomain[domain].map((dtLabel) => {
+                return {
+                  label: dtLabel,
+                }
+              }),
+            }
+          })
+        return reshapedOptions
       },
     },
     zclDeviceTypes: {

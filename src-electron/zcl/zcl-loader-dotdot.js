@@ -5,6 +5,8 @@ const dbApi = require('../db/db-api.js')
 const fs = require('fs')
 const xml2js = require('xml2js')
 const queryZcl = require('../db/query-zcl.js')
+const queryPackage = require('../db/query-package.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
@@ -58,13 +60,46 @@ function parseZclFiles(db, ctx) {
           ctx.zclClusters.push(result['zcl:cluster'])
         } else if (result['zcl:global']) {
           var global = result['zcl:global']
+          ctx.zclGlobalTypes = global['type:type']
           ctx.zclGlobalAttributes = global.attributes[0].attribute
           ctx.zclGlobalCommands = global.commands[0].command
+        } else if (result['zcl:device']) {
+          var deviceTypes = result['zcl:device']
+          ctx.zclDeviceTypes = deviceTypes['deviceType']
+        } else if (result['map']) {
+          var manufacturers = result['map']
+          ctx.zclManufacturers = manufacturers['mapping']
+        } else {
+          //TODO: What to do with "derived clusters", we skip them here but we should probably
+          //      extend the DB schema to allow this since we don't really handle it
+          env.logInfo(
+            `Didn't find anything relevant, Skipping file ${file.$.href}`
+          )
         }
       })
     })
     resolve(ctx)
   })
+}
+
+/**
+ * The Dotdot ZCL XML doesn't use the 0x prefix, but it's a nice thing to have and Silabs xml
+ * does use this so this helper function normalizes the use of hex
+ *
+ * TODO: Is this the right thing to do?
+ *
+ * @param {*} value the string value to be normalized
+ * @returns Either the normalized hex string (with the 0x prefix) or the original
+ */
+function normalizeHexValue(value) {
+  let ret = value
+  try {
+    parseInt(value, 16) //check if this is a hex value
+    if (!value.includes('0x')) {
+      ret = '0x' + value.toUpperCase()
+    }
+  } catch (error) {}
+  return ret
 }
 
 /**
@@ -74,26 +109,28 @@ function parseZclFiles(db, ctx) {
  * @param {*} side the side the attribute is on either "client" or "server"
  * @returns Array containing all data from XML ready to be inserted into the DB.
  */
-function prepareAttributes(attributes, side) {
+function prepareAttributes(attributes, side, types, cluster = null) {
   ret = []
   atts = attributes.attribute === undefined ? attributes : attributes.attribute
   for (i = 0; i < atts.length; i++) {
     let a = atts[i]
     env.logInfo(`Preparing attribute ${side} ${a.$.name}`)
     ret.push({
-      code: a.$.id,
-      manufacturerCode: '', // no manuf code in dotdot xml
+      code: normalizeHexValue(a.$.id),
+      //manufacturerCode: '', // TODO: no manuf code in dotdot xml
       name: a.$.name,
       type: a.$.type.toLowerCase(),
       side: side,
-      define: a.$.define,
-      min: a.$.min,
-      max: a.$.max,
+      define: a.$.name,
+      min: normalizeHexValue(a.$.min),
+      max: normalizeHexValue(a.$.max),
       isWritable: a.$.writable == 'true',
-      defaultValue: a.$.default,
-      isOptional: 'true', // optionality not listed in dotdot xml
-      isReportable: 'true', // reportability not listed in dotdot xml
+      defaultValue: normalizeHexValue(a.$.default),
+      isOptional: !(a.$.required == 'true'),
+      //isReportable: 'true', // TODO: reportability not listed in dotdot xml
     })
+    // TODO: Attributes have types and they may not be unique so we prepend the cluster name
+    prepareAttributeType(a, types, cluster)
   }
   return ret
 }
@@ -112,12 +149,12 @@ function prepareCommands(commands, side) {
     let c = cmds[i]
     env.logInfo(`Preparing command ${side} ${c.$.name}`)
     var pcmd = {
-      code: c.$.id,
-      manufacturerCode: '', //no manuf code for dotdot zcl
+      code: normalizeHexValue(c.$.id),
+      //manufacturerCode: '', //TODO: no manuf code for dotdot xml
       name: c.$.name,
-      description: '', // no description for dotdot zcl
+      //description: '', // TODO: no description for dotdot xml
       source: side,
-      isOptional: 'true', // optionality of commands is not defined in dotdot zcl
+      isOptional: !(c.$.required == 'true'),
     }
     if ('fields' in c) {
       pcmd.args = []
@@ -129,7 +166,7 @@ function prepareCommands(commands, side) {
           pcmd.args.push({
             name: f.$.name,
             type: f.$.type,
-            isArray: 0, //no indication of array type in dotdot zcl
+            //isArray: 0, //TODO: no indication of array type in dotdot xml
           })
         }
       })
@@ -154,15 +191,15 @@ function prepareCluster(cluster, isExtension = false, types) {
   }
 
   if (isExtension) {
-    // no current handling of extensions in the dotdot zcl
+    // TODO: no current handling of extensions in the dotdot zcl
   } else {
-    ret.code = cluster.$.id
+    ret.code = normalizeHexValue(cluster.$.id)
     ret.name = cluster.$.name
-    ret.description = '' // no description in dotdot zcl
-    ret.define = '' // no define in dotdot zcl
+    //ret.description = '' // TODO: no description in dotdot zcl
+    ret.define = cluster.$.name // TODO: no define in dotdot zcl
     ret.domain = cluster.classification[0].$.role
-    ret.manufacturerCode = '' // no manufacturer code in dotdot zcl
-    ret.revision = cluster.$.revision // revision present in dotdot zcl
+    //ret.manufacturerCode = '' // TODO: no manufacturer code in dotdot zcl
+    ret.revision = cluster.$.revision // TODO: revision present in dotdot zcl
   }
   var sides = [
     { name: 'server', value: cluster.server },
@@ -175,7 +212,7 @@ function prepareCluster(cluster, isExtension = false, types) {
       if ('attributes' in side.value[0]) {
         side.value[0].attributes.forEach((attributes) => {
           ret.attributes = ret.attributes.concat(
-            prepareAttributes(attributes, side.name)
+            prepareAttributes(attributes, side.name, types, cluster)
           )
         })
       }
@@ -195,35 +232,102 @@ function prepareCluster(cluster, isExtension = false, types) {
   return ret
 }
 
+/**
+ *
+ * Parses xml type into the atomic object for insertion into the DB
+ *
+ * @param {*} type an xml object which conforms to the atomic format in the dotdot xml
+ * @returns object ready for insertion into the DB
+ */
 function prepareAtomic(type) {
   return {
     name: type.$.short,
-    id: type.$.id,
-    size: '', // size not defined in dotdot xml
+    id: normalizeHexValue(type.$.id),
+    //size: '', // TODO: size not defined in dotdot xml
     description: type.$.name,
   }
 }
-function prepareBitmap(type) {
-  var ret = { name: type.$.short, type: type.bitmap[0].element[0].$.type }
+
+/**
+ *
+ * Parses xml type into the bitmap object for insertion into the DB
+ *
+ * @param {*} type an xml object which conforms to the bitmap format in the dotdot xml
+ * @param {*} fromAttribute a boolean indicating if this is coming from an attribute or not
+ * @returns object ready for insertion into the DB
+ */
+function prepareBitmap(type, fromAttribute = false, cluster = null) {
+  var ret
+  if (fromAttribute) {
+    ret = {
+      //TODO: Bitmaps from cluster attributes may not be unique by name so we prepend the cluster
+      //      name to the bitmap name (as we do in the Silabs xml)
+      name: cluster ? cluster.$.name + type.$.name : type.$.name,
+      type: type.$.type,
+    }
+  } else {
+    ret = { name: type.$.short, type: type.bitmap[0].element[0].$.type }
+  }
   if ('bitmap' in type) {
     ret.fields = []
     type.bitmap[0].element.map((e) => {
       ret.fields.push({
         name: e.$.name,
-        mask: e.$.mask,
+        mask: normalizeHexValue(e.$.mask),
       })
     })
   }
   return ret
 }
-function prepareEnum(type) {
-  var ret = { name: type.$.short, type: type.$.inheritsFrom }
+
+/**
+ *
+ * Parses xml type into the enum object for insertion into the DB
+ *
+ * @param {*} type an xml object which conforms to the enum format in the dotdot xml
+ * @returns object ready for insertion into the DB
+ */
+function prepareEnum(type, fromAttribute = false, cluster = null) {
+  var ret
+  if (fromAttribute) {
+    ret = {
+      // TODO: Enums from cluster attributes may not be unique by name so we prepend the cluster
+      //       name to the enum name (as we do in the Silabs xml)
+      name: cluster ? cluster.$.name + type.$.name : type.$.name,
+      type: type.$.type,
+    }
+  } else {
+    ret = { name: type.$.short, type: type.$.inheritsFrom }
+  }
   if ('restriction' in type) {
     ret.items = []
     type.restriction[0]['type:enumeration'].map((e) => {
       ret.items.push({
         name: e.$.name,
-        value: e.$.value,
+        value: normalizeHexValue(e.$.value),
+      })
+    })
+  }
+  return ret
+}
+
+/**
+ *
+ * Parses xml type into the struct object for insertion into the DB
+ *
+ * @param {*} type an xml object which conforms to the struct format in the dotdot xml
+ * @returns object ready for insertion into the DB
+ */
+function prepareStruct(type) {
+  var ret = { name: type.$.short }
+  if ('restriction' in type) {
+    ret.items = []
+    type.restriction[0]['type:sequence'].map((sequence) => {
+      sequence.field.map((field) => {
+        ret.items.push({
+          name: field.$.name,
+          type: field.$.type,
+        })
       })
     })
   }
@@ -238,6 +342,7 @@ function prepareEnum(type) {
  * @param {*} types an object which includes arrays for enums, bitmaps etc...
  */
 function prepareTypes(zclTypes, types) {
+  if (zclTypes == undefined) return
   zclTypes.map((type) => {
     if ('bitmap' in type) {
       types.bitmaps.push(prepareBitmap(type))
@@ -246,10 +351,78 @@ function prepareTypes(zclTypes, types) {
       'type:enumeration' in type.restriction[0]
     ) {
       types.enums.push(prepareEnum(type))
+    } else if (
+      'restriction' in type &&
+      'type:sequence' in type.restriction[0]
+    ) {
+      types.structs.push(prepareStruct(type))
     } else {
       types.atomics.push(prepareAtomic(type))
-    } // TODO: structs?
+    }
   })
+}
+
+/**
+ *
+ * Parses xml types into the types object for insertion into the DB
+ *
+ * @param {*} attribute an attribute with the type in it
+ * @param {*} types an object which includes arrays for enums, bitmaps etc...
+ * @param {*} cluster the cluster that the attribute belongs to (used presently for uniqueness of the type name)
+ */
+function prepareAttributeType(attribute, types, cluster) {
+  if ('bitmap' in attribute) {
+    types.bitmaps.push(prepareBitmap(attribute, true, cluster))
+  } else if (
+    'restriction' in attribute &&
+    'type:enumeration' in attribute.restriction[0]
+  ) {
+    types.enums.push(prepareEnum(attribute, true, cluster))
+  }
+}
+
+/**
+ * Preparation step for the device types.
+ *
+ * @param {*} deviceType
+ * @returns an object containing the prepared device types.
+ */
+function prepareDeviceType(deviceType) {
+  var ret = {
+    code: deviceType.deviceId[0]['_'],
+    profileId: '0x0104', //There is no profileId in Dotdot device descriptions
+    domain: 'Dotdot', //There is no domain in Dotdot device descriptions
+    name: deviceType.name[0],
+    description: deviceType.typeName[0],
+  }
+  if ('clusters' in deviceType) {
+    ret.clusters = []
+    deviceType.clusters.forEach((cluster) => {
+      if ('include' in cluster) {
+        cluster.include.forEach((include) => {
+          var attributes = []
+          var commands = []
+          if ('requireAttribute' in include) {
+            attributes = include.requireAttribute
+          }
+          if ('requireCommand' in include) {
+            commands = include.requireCommand
+          }
+          ret.clusters.push({
+            client: 'true' == include.$.client,
+            server: 'true' == include.$.server,
+            clientLocked: 'true' == include.$.clientLocked,
+            serverLocked: 'true' == include.$.serverLocked,
+            clusterName:
+              include.$.cluster != undefined ? include.$.cluster : include._,
+            requiredAttributes: attributes,
+            requiredCommands: commands,
+          })
+        })
+      }
+    })
+  }
+  return ret
 }
 
 /**
@@ -267,6 +440,7 @@ function loadZclData(db, ctx) {
   )
   let types = { atomics: [], enums: [], bitmaps: [], structs: [] }
   prepareTypes(ctx.zclTypes, types)
+  prepareTypes(ctx.zclGlobalTypes, types)
   cs = []
   ctx.zclClusters.forEach((cluster) => {
     env.logInfo(`loading cluster: ${cluster.$.name}`)
@@ -275,12 +449,30 @@ function loadZclData(db, ctx) {
   })
   let gs = [
     {
-      attributes: prepareAttributes(ctx.zclGlobalAttributes, ''),
+      attributes: prepareAttributes(ctx.zclGlobalAttributes, '', types),
       commands: prepareCommands(ctx.zclGlobalCommands, ''),
     },
   ]
+  ds = []
+  ctx.zclDeviceTypes.forEach((deviceType) => {
+    env.logInfo(`loading device: ${deviceType.typeName[0]}`)
+    var d = prepareDeviceType(deviceType)
+    ds.push(d)
+  })
   return queryZcl
     .insertClusters(db, ctx.packageId, cs)
+    .then(() =>
+      queryPackage.insertOptionsKeyValues(
+        db,
+        ctx.packageId,
+        dbEnum.packageOptionCategory.manufacturerCodes,
+        ctx.zclManufacturers.map((data) => {
+          let mfgPair = data['$']
+          return { code: mfgPair['code'], label: mfgPair['translation'] }
+        })
+      )
+    )
+    .then(() => queryZcl.insertDeviceTypes(db, ctx.packageId, ds))
     .then(() => queryZcl.insertGlobals(db, ctx.packageId, gs))
     .then(() => queryZcl.insertAtomics(db, ctx.packageId, types.atomics))
     .then(() => queryZcl.insertEnums(db, ctx.packageId, types.enums))
@@ -306,6 +498,7 @@ function loadDotdotZcl(db, ctx) {
     .then((ctx) => zclLoader.recordVersion(ctx))
     .then((ctx) => parseZclFiles(db, ctx))
     .then((ctx) => loadZclData(db, ctx))
+    .then(() => zclLoader.processZclPostLoading(db))
     .then(() => dbApi.dbCommit(db))
     .then(() => ctx)
 }

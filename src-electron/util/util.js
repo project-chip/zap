@@ -22,7 +22,9 @@
 const env = require('./env.js')
 const crc = require('crc')
 const queryPackage = require('../db/query-package.js')
+const queryConfig = require(`../db/query-config.js`)
 const dbEnum = require('../../src-shared/db-enum.js')
+const { query } = require('express')
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
  *
@@ -106,7 +108,36 @@ function initializeSessionPackage(db, sessionId) {
     })
   promises.push(genTemplateJsonPromise)
 
-  return Promise.all(promises).then(() => sessionId)
+  return Promise.all(promises)
+    .then(() =>
+      queryPackage.getSessionPackageIds(db, sessionId).then((packageIds) => {
+        var p = packageIds.map((packageId) => {
+          return queryPackage
+            .selectAllDefaultOptions(db, packageId)
+            .then((optionDefaultsArray) => {
+              return Promise.all(
+                optionDefaultsArray.map((optionDefault) => {
+                  return queryPackage
+                    .selectOptionValueByOptionDefaultId(
+                      db,
+                      optionDefault.optionRef
+                    )
+                    .then((option) => {
+                      return queryConfig.insertKeyValue(
+                        db,
+                        sessionId,
+                        option.optionCategory,
+                        option.optionCode
+                      )
+                    })
+                })
+              )
+            })
+        })
+        return Promise.all(p)
+      })
+    )
+    .then(() => sessionId)
 }
 
 exports.calculateCrc = calculateCrc

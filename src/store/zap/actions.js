@@ -58,6 +58,7 @@ export function updateZclDeviceTypes(context, deviceTypes) {
       profileId: deviceType.profileId,
       label: deviceType.label,
       description: deviceType.caption,
+      domain: deviceType.domain,
     }
   })
 
@@ -218,9 +219,9 @@ export function addEndpoint(context, newEndpointContext) {
       let arg = data.data
       context.commit('addEndpoint', {
         id: arg.id,
-        eptId: arg.eptId,
-        endpointType: arg.endpointType,
-        network: arg.nwkId,
+        endpointId: arg.eptId,
+        endpointTypeRef: arg.endpointType,
+        networkId: arg.nwkId,
         endpointIdValidationIssues: arg.validationIssues.endpointId,
         networkIdValidationIssues: arg.validationIssues.networkId,
       })
@@ -469,11 +470,18 @@ export function loadInitialData(context, data) {
     if ('endpointTypes' in initialState) {
       context.commit('initializeEndpointTypes', initialState.endpointTypes)
     }
+
+    if ('sessionKeyValues' in initialState) {
+      context.commit(
+        'initializeSessionKeyValues',
+        initialState.sessionKeyValues
+      )
+    }
   })
 }
 
 /**
- * This action loads the option from the backend
+ * This action loads the option from the backend, including any defaults that may exist.
  */
 export function loadOptions(context, option) {
   Vue.prototype
@@ -510,6 +518,14 @@ export function setSelectedGenericOption(context, optionData) {
     })
 }
 
+export function loadSessionKeyValues(context) {
+  Vue.prototype
+    .$serverGet(`${restApi.uri.getAllSessionKeyValues}`)
+    .then((response) => {
+      context.commit('loadSessionKeyValues', response.data)
+    })
+}
+
 export function setDefaultUiMode(context, uiMode) {
   context.commit(`setDefaultUiMode`, uiMode)
 }
@@ -520,4 +536,16 @@ export function setStudioConfigPath(context, filePath) {
 
 export function setAttributeEditting(context, editContext) {
   context.commit('setAttributeEditting', editContext)
+}
+
+export function setOpenDomain(context, state) {
+  context.commit('setOpenDomain', state)
+}
+
+export function setFilter(context, filter) {
+  context.commit('setFilter', filter)
+}
+
+export function setFilterString(context, filterString) {
+  context.commit('setFilterString', filterString)
 }

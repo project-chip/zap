@@ -29,6 +29,12 @@ export default function () {
     endpoints: [],
     genericOptions: {},
     selectedGenericOptions: {},
+    clusterManager: {
+      openDomains: {},
+      filter: 'All Clusters',
+      filterOptions: ['All Clusters', 'Only Enabled'],
+      filterString: '',
+    },
     endpointView: {
       selectedEndpoint: [],
       endpointId: {},
@@ -71,6 +77,6 @@ export default function () {
       // These are based off of the selected ZCL Endpoint Device Type
       requiredCommands: [],
     },
-    calledArgs: { defaultUiMode: restApi.uiMode.OLD },
+    calledArgs: { defaultUiMode: restApi.uiMode.ZIGBEE },
   }
 }

@@ -34,6 +34,7 @@ const action = {
 
 const uri = {
   saveSessionKeyValue: '/save',
+  getAllSessionKeyValues: '/allKeyValues',
   sql: '/sql',
   generate: '/generate',
   endpoint: '/endpoint',
@@ -44,7 +45,6 @@ const uri = {
 
 const uiMode = {
   ZIGBEE: `zigbee`,
-  OLD: `old`,
 }
 
 const httpCode = {

@@ -361,6 +361,13 @@ function registerSessionApi(db, app) {
     })
     statePopulators.push(endpoints)
 
+    var sessionKeyValues = queryConfig
+      .getAllSessionKeyValues(db, sessionId)
+      .then((rows) => {
+        state['sessionKeyValues'] = rows
+      })
+    statePopulators.push(sessionKeyValues)
+
     Promise.all(statePopulators).then(() => {
       response.json({
         replyId: restApi.replyId.initialState,
@@ -388,6 +395,19 @@ function registerSessionApi(db, app) {
           return response.status(restApi.httpCode.ok).send()
         })
     })
+  })
+
+  app.get(`${restApi.uri.getAllSessionKeyValues}`, (request, response) => {
+    var sessionId = request.session.zapSessionId
+    queryConfig
+      .getAllSessionKeyValues(db, sessionId)
+      .then((sessionKeyValues) => {
+        response.json({
+          data: sessionKeyValues,
+          replyId: 'sessionKeyValues',
+        })
+        return response.status(restApi.httpCode.ok).send()
+      })
   })
 }
 

@@ -1,0 +1,5 @@
+{{zap_header}}
+
+{{#template_options category="cli"}}
+{{optionCode}} => {{optionLabel}}
+{{/template_options}}
