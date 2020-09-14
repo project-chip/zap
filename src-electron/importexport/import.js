@@ -131,18 +131,44 @@ function importEndpoints(db, sessionId, endpoints) {
   return Promise.all(allQueries)
 }
 
-function importEndpointTypes(db, sessionId, packageId, endpointTypes) {
+function importEndpointTypes(
+  db,
+  sessionId,
+  packageId,
+  endpointTypes,
+  endpoints
+) {
   var allQueries = []
+  var sortedEndpoints = {}
+  if (endpoints != null) {
+    endpoints.forEach((ep) => {
+      let eptIndex = ep.endpointTypeIndex
+      if (sortedEndpoints[eptIndex] == null) sortedEndpoints[eptIndex] = []
+      sortedEndpoints[eptIndex].push(ep)
+    })
+  }
+
   if (endpointTypes != null) {
     env.logInfo(`Loading ${endpointTypes.length} endpoint types`)
-    endpointTypes.forEach((et) => {
+    endpointTypes.forEach((et, index) => {
       allQueries.push(
         queryImpexp
           .importEndpointType(db, sessionId, packageId, et)
           .then((endpointId) => {
             // Now we need to import commands, attributes and clusters.
             var promises = []
-
+            if (sortedEndpoints[index]) {
+              sortedEndpoints[index].forEach((endpoint) => {
+                promises.push(
+                  queryImpexp.importEndpoint(
+                    db,
+                    sessionId,
+                    endpoint,
+                    endpointId
+                  )
+                )
+              })
+            }
             // et.clusters
             et.clusters.forEach((cluster) => {
               // code, mfgCode, side
@@ -186,7 +212,6 @@ function importEndpointTypes(db, sessionId, packageId, endpointTypes) {
                   })
               )
             })
-
             return Promise.all(promises)
           })
       )
@@ -251,15 +276,13 @@ function writeStateToDatabase(db, state) {
             db,
             data.sessionId,
             data.packageId,
-            state.endpointTypes
+            state.endpointTypes,
+            state.endpoints
           )
         )
       }
 
       if ('endpoints' in state) {
-        promisesStage2.push(
-          importEndpoints(db, data.sessionId, state.endpoints)
-        )
       }
       return Promise.all(promisesStage1)
         .then(() => Promise.all(promisesStage2))

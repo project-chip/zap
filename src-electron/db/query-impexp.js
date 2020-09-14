@@ -28,8 +28,9 @@ const env = require('../util/env.js')
  * @param {} db
  * @param {*} sessionId
  * @param {*} endpoint
+ * @param {*} endpointTypeRef
  */
-function importEndpoint(db, sessionId, endpoint) {
+function importEndpoint(db, sessionId, endpoint, endpointTypeRef) {
   return dbApi.dbInsert(
     db,
     `
@@ -41,7 +42,7 @@ INSERT INTO ENDPOINT (
   NETWORK_IDENTIFIER
 ) VALUES (
   ?,
-  (SELECT ENDPOINT_TYPE_ID FROM ENDPOINT_TYPE WHERE NAME = ? AND SESSION_REF = ?),
+  ?,
   ?,
   ?,
   ?
@@ -49,8 +50,7 @@ INSERT INTO ENDPOINT (
   `,
     [
       sessionId,
-      endpoint.endpointTypeName,
-      sessionId,
+      endpointTypeRef,
       endpoint.profileId,
       endpoint.endpointId,
       endpoint.networkId,
@@ -64,10 +64,17 @@ INSERT INTO ENDPOINT (
  * @param {*} db
  * @param {*} sessionId
  */
-function exportEndpoints(db, sessionId) {
+function exportEndpoints(db, sessionId, endpointTypes) {
+  var endpointTypeIndex = (endpointTypes, endpointTypeRef) => {
+    return endpointTypes.findIndex(
+      (value) => value.endpointTypeId == endpointTypeRef
+    )
+  }
+
   var mapFunction = (x) => {
     return {
       endpointTypeName: x.NAME,
+      endpointTypeIndex: endpointTypeIndex(endpointTypes, x.ENDPOINT_TYPE_REF),
       profileId: x.PROFILE,
       endpointId: x.ENDPOINT_IDENTIFIER,
       networkId: x.NETWORK_IDENTIFIER,
@@ -79,6 +86,7 @@ function exportEndpoints(db, sessionId) {
       `
 SELECT
   ENDPOINT_TYPE.NAME,
+  ENDPOINT.ENDPOINT_TYPE_REF,
   ENDPOINT.PROFILE,
   ENDPOINT.ENDPOINT_IDENTIFIER,
   ENDPOINT.NETWORK_IDENTIFIER
