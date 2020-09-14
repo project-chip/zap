@@ -172,16 +172,14 @@ function createStateFromDatabase(db, sessionId) {
     env.logInfo(`Exporting data for session: ${sessionId}`)
     // Deal with the key/value table
     var getKeyValues = exportSessionKeyValues(db, sessionId).then((data) => {
-      state.keyValuePairs = data
       env.logInfo(`Retrieved session keys: ${data.length}`)
-      return data
+      return { key: 'keyValuePairs', data: data }
     })
     promises.push(getKeyValues)
 
     var getSessionPackages = exportSessionPackages(db, sessionId).then(
       (data) => {
-        state.package = data
-        return data
+        return { key: 'package', data: data }
       }
     )
     promises.push(getSessionPackages)
@@ -189,21 +187,24 @@ function createStateFromDatabase(db, sessionId) {
     var getAllEndpointTypes = exportEndpointTypes(db, sessionId).then(
       (data) => {
         env.logInfo(`Retrieved endpoint types: ${data.length}`)
-        state.endpointTypes = data
-        return data
+        return { key: 'endpointTypes', data: data }
       }
     )
     promises.push(getAllEndpointTypes)
 
     var getAllEndpoints = exportEndpoints(db, sessionId).then((data) => {
       env.logInfo(`Retrieve endpoints: ${data.length}`)
-      state.endpoints = data
-      return data
+      return { key: 'endpoints', data: data }
     })
     promises.push(getAllEndpoints)
 
     return Promise.all(promises)
-      .then(() => resolve(state))
+      .then((data) => {
+        data.forEach((keyDataPair) => {
+          state[keyDataPair.key] = keyDataPair.data
+        })
+        resolve(state)
+      })
       .catch((err) => reject(err))
   })
 }
