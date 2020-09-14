@@ -357,30 +357,34 @@ describe('Endpoint Type Config Queries', () => {
         expect(endpointType.name).toBe('testEndpointType')
       }))
 
-  test('Test get all cluster states', () =>
-    queryConfig
-      .getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
-      .then((clusters) => {
-        expect(clusters.length).toBe(6)
-      })
-      .then(() =>
-        queryConfig.insertOrReplaceClusterState(
-          db,
-          endpointTypeIdOnOff,
-          7,
-          'CLIENT',
-          true
+  test(
+    'Test get all cluster states',
+    () =>
+      queryConfig
+        .getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
+        .then((clusters) => {
+          expect(clusters.length).toBe(6)
+        })
+        .then(() =>
+          queryConfig.insertOrReplaceClusterState(
+            db,
+            endpointTypeIdOnOff,
+            7,
+            'CLIENT',
+            true
+          )
         )
-      )
-      .then((rowId) => {
-        expect(typeof rowId).toBe('number')
-      })
-      .then(() =>
-        queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
-      )
-      .then((clusters) => {
-        expect(clusters.length).toBe(7)
-      }))
+        .then((rowId) => {
+          expect(typeof rowId).toBe('number')
+        })
+        .then(() =>
+          queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
+        )
+        .then((clusters) => {
+          expect(clusters.length).toBe(7)
+        }),
+    3000
+  )
 
   test('Test get all attribute states', () =>
     queryConfig
