@@ -94,7 +94,7 @@ function processCommandLineArguments(argv) {
     })
     .options('genResultFile', {
       desc: 'If this option is present, then generate the result file.',
-      dedault: exports.genResultFile,
+      default: exports.genResultFile,
     })
     .option('showUrl', {
       desc: 'Print out the URL that an external browser should use.',
