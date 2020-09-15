@@ -28,7 +28,7 @@
     "format-code": "pretty-quick",
     "pretty-quick": "pretty-quick",
     "self-check": "electron src-electron/main-process/electron-main.js selfCheck",
-    "gen": "node src-script/zap-generate.js -z ./zcl-builtin/silabs/zcl-test.properties -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/save-file-test-regen.zap -o ./tmp",
+    "gen": "node src-script/zap-generate.js -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/save-file-test-regen.zap -o ./tmp",
     "pack": "node src-script/build-spa.js && electron-builder --dir",
     "dist": "electron-builder",
     "dist-all": "electron-builder -mwl",
