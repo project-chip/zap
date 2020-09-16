@@ -36,7 +36,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -61,7 +61,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -76,7 +76,7 @@
             },
             {
               "name": "ZCL version",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "included": 1,
               "external": 1,
@@ -91,7 +91,7 @@
             },
             {
               "name": "application version",
-              "code": "0x0001",
+              "code": 1,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -106,7 +106,7 @@
             },
             {
               "name": "stack version",
-              "code": "0x0002",
+              "code": 2,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -121,7 +121,7 @@
             },
             {
               "name": "hardware version",
-              "code": "0x0003",
+              "code": 3,
               "mfgCode": null,
               "included": 1,
               "external": 1,
@@ -136,7 +136,7 @@
             },
             {
               "name": "manufacturer name",
-              "code": "0x0004",
+              "code": 4,
               "mfgCode": null,
               "included": 1,
               "external": 1,
@@ -151,7 +151,7 @@
             },
             {
               "name": "model identifier",
-              "code": "0x0005",
+              "code": 5,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -166,7 +166,7 @@
             },
             {
               "name": "date code",
-              "code": "0x0006",
+              "code": 6,
               "mfgCode": null,
               "included": 1,
               "external": 1,
@@ -181,7 +181,7 @@
             },
             {
               "name": "power source",
-              "code": "0x0007",
+              "code": 7,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -239,7 +239,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -272,7 +272,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -330,7 +330,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -345,7 +345,7 @@
             },
             {
               "name": "utility enrollment group",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -360,7 +360,7 @@
             },
             {
               "name": "start randomization minutes",
-              "code": "0x0001",
+              "code": 1,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -375,7 +375,7 @@
             },
             {
               "name": "duration randomization minutes",
-              "code": "0x0002",
+              "code": 2,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -390,7 +390,7 @@
             },
             {
               "name": "device class value",
-              "code": "0x0003",
+              "code": 3,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -437,7 +437,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -532,7 +532,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -572,7 +572,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -597,7 +597,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -622,7 +622,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -637,7 +637,7 @@
             },
             {
               "name": "time",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -652,7 +652,7 @@
             },
             {
               "name": "time status",
-              "code": "0x0001",
+              "code": 1,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -699,7 +699,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -714,7 +714,7 @@
             },
             {
               "name": "key establishment suite (client)",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -778,7 +778,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -793,7 +793,7 @@
             },
             {
               "name": "key establishment suite (server)",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "included": 1,
               "external": 0,

@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   "ATTRIBUTE_ID" integer primary key autoincrement,
   "CLUSTER_REF" integer,
   "PACKAGE_REF" integer,
-  "CODE" text,
+  "CODE" integer,
   "MANUFACTURER_CODE" text,
   "NAME" text,
   "TYPE" text,

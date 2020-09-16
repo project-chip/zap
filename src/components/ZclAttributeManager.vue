@@ -51,7 +51,7 @@ limitations under the License.
             />
           </q-td>
           <q-td key="attrID" :props="props" auto-width>{{
-            props.row.code
+            asHex(props.row.code, 4)
           }}</q-td>
           <q-td key="attrName" :props="props" auto-width>{{
             props.row.label
@@ -234,7 +234,9 @@ export default {
       Vue.set(list, hash, value)
       this.editableStorage = Object.assign({}, this.editableStorage)
     },
-
+    asHex(value, padding) {
+      return Util.asHex(value, padding)
+    },
     toggleAttributeSelection(list, listType, attributeData, clusterId, enable) {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base ZCL attribute and cluster data.

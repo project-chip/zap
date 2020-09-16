@@ -38,7 +38,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -62,7 +62,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -76,7 +76,7 @@
             },
             {
               "name": "ZCL version",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -90,7 +90,7 @@
             },
             {
               "name": "power source",
-              "code": "0x0007",
+              "code": 7,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -122,7 +122,7 @@
           "attributes": [
             {
               "name": "mains voltage",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -136,7 +136,7 @@
             },
             {
               "name": "mains frequency",
-              "code": "0x0001",
+              "code": 1,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -150,7 +150,7 @@
             },
             {
               "name": "mains alarm mask",
-              "code": "0x0010",
+              "code": 16,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -164,7 +164,7 @@
             },
             {
               "name": "mains voltage min threshold",
-              "code": "0x0011",
+              "code": 17,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -178,7 +178,7 @@
             },
             {
               "name": "mains voltage max threshold",
-              "code": "0x0012",
+              "code": 18,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -211,7 +211,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -266,7 +266,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -280,7 +280,7 @@
             },
             {
               "name": "node description",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -294,7 +294,7 @@
             },
             {
               "name": "delivery enable",
-              "code": "0x0001",
+              "code": 1,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -308,7 +308,7 @@
             },
             {
               "name": "enable secure configuration",
-              "code": "0x0003",
+              "code": 3,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -349,7 +349,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -389,7 +389,7 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -403,7 +403,7 @@
             },
             {
               "name": "user id",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -417,7 +417,7 @@
             },
             {
               "name": "service id",
-              "code": "0x0010",
+              "code": 16,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -431,7 +431,7 @@
             },
             {
               "name": "service provider id",
-              "code": "0x0011",
+              "code": 17,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -445,7 +445,7 @@
             },
             {
               "name": "session interval",
-              "code": "0x0012",
+              "code": 18,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
@@ -459,7 +459,7 @@
             },
             {
               "name": "timestamp",
-              "code": "0x0020",
+              "code": 32,
               "mfgCode": null,
               "external": 0,
               "flash": 0,
