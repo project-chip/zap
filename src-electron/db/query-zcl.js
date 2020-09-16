@@ -812,7 +812,7 @@ function insertGlobals(db, packageId, data) {
         ...commands.map((command) => [
           lastId,
           packageId,
-          command.code,
+          parseInt(command.code, 16),
           command.name,
           command.description,
           command.source,
@@ -921,7 +921,7 @@ function insertClusterExtensions(db, packageId, data) {
               ...commands.map((command) => [
                 lastId,
                 packageId,
-                command.code,
+                parseInt(command.code, 16),
                 command.manufacturerCode,
                 command.name,
                 command.description,
@@ -1034,7 +1034,7 @@ function insertClusters(db, packageId, data) {
             ...commands.map((command) => [
               lastId,
               packageId,
-              command.code,
+              parseInt(command.code, 16),
               command.name,
               command.description,
               command.source,

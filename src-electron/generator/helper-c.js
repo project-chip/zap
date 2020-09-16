@@ -105,10 +105,10 @@ function asHex(rawValue, padding) {
   let value = rawValue.toString()
   var ret = value.trim()
   if (ret.startsWith('0x') || ret.startsWith('0X')) {
-    return `0x${value.slice(2)}`
+    return `0x${value.slice(2).toUpperCase()}`
   } else {
     var val = parseInt(value)
-    return `0x${val.toString(16).padStart(padding, '0')}`
+    return `0x${val.toString(16).padStart(padding, '0').toUpperCase()}`
   }
 }
 

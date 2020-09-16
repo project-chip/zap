@@ -29,7 +29,7 @@
           "commands": [
             {
               "name": "ResetToFactoryDefaults",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 1,
               "outgoing": 1
@@ -227,14 +227,14 @@
           "commands": [
             {
               "name": "RequestInformation",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "PushInformationResponse",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -250,14 +250,14 @@
           "commands": [
             {
               "name": "RequestInformationResponse",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "PushInformation",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -373,14 +373,14 @@
           "commands": [
             {
               "name": "CheckBillStatus",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "SendBillRecord",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1

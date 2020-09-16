@@ -223,14 +223,14 @@
           "commands": [
             {
               "name": "GetCurrentPrice",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "PriceAcknowledgement",
-              "code": "0x02",
+              "code": 2,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -263,7 +263,7 @@
           "commands": [
             {
               "name": "PublishPrice",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -314,14 +314,14 @@
           "commands": [
             {
               "name": "ReportEventStatus",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "GetScheduledEvents",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -414,21 +414,21 @@
           "commands": [
             {
               "name": "LoadControlEvent",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "CancelLoadControlEvent",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "CancelAllLoadControlEvents",
-              "code": "0x02",
+              "code": 2,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -461,28 +461,28 @@
           "commands": [
             {
               "name": "Identify",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 1,
               "outgoing": 1
             },
             {
               "name": "IdentifyQuery",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 1,
               "outgoing": 1
             },
             {
               "name": "EZModeInvoke",
-              "code": "0x02",
+              "code": 2,
               "mfgCode": null,
               "incoming": 1,
               "outgoing": 1
             },
             {
               "name": "UpdateCommissionState",
-              "code": "0x03",
+              "code": 3,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -499,7 +499,7 @@
           "commands": [
             {
               "name": "IdentifyQueryResponse",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -516,14 +516,14 @@
           "commands": [
             {
               "name": "GetLastMessage",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "MessageConfirmation",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -556,14 +556,14 @@
           "commands": [
             {
               "name": "DisplayMessage",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "CancelMessage",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -676,21 +676,21 @@
           "commands": [
             {
               "name": "InitiateKeyEstablishmentRequest",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "EphemeralDataRequest",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "ConfirmKeyDataRequest",
-              "code": "0x02",
+              "code": 2,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -738,7 +738,7 @@
           "commands": [
             {
               "name": "TerminateKeyEstablishment",
-              "code": "0x03",
+              "code": 3,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -755,21 +755,21 @@
           "commands": [
             {
               "name": "InitiateKeyEstablishmentResponse",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "EphemeralDataResponse",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "ConfirmKeyDataResponse",
-              "code": "0x02",
+              "code": 2,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
