@@ -39,7 +39,7 @@ limitations under the License.
     </h5>
     <div class="row q-py-none">
       <div class="col">
-        Cluster ID: {{ selectedCluster.code }}, Enabled for
+        Cluster ID: {{ asHex(selectedCluster.code, 4) }}, Enabled for
         <b> {{ enabledMessage }} </b>
       </div>
       <div>
@@ -84,6 +84,7 @@ import ZclAttributeReportingManager from './ZclAttributeReportingManager.vue'
 import ZclCommandManager from './ZclCommandManager.vue'
 import ZclClusterInfo from './ZclClusterInfo.vue'
 import ZclReportingView from './ZclReportingView.vue'
+import * as Util from '../util/util'
 
 export default {
   name: 'ZclClusterView',
@@ -147,6 +148,9 @@ export default {
         option: option,
         value: value,
       })
+    },
+    asHex(value, padding) {
+      return Util.asHex(value, padding)
     },
   },
   data() {

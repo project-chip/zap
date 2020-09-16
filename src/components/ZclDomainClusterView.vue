@@ -36,7 +36,7 @@ limitations under the License.
             {{ isClusterRequired(props.row.id) }}
           </q-td>
           <q-td key="clusterId" :props="props">
-            {{ props.row.code }}
+            {{ asHex(props.row.code, 4) }}
           </q-td>
           <q-td key="manufacturerId" :props="props">
             {{
@@ -70,6 +70,8 @@ limitations under the License.
   </div>
 </template>
 <script>
+import * as Util from '../util/util'
+
 export default {
   name: 'ZclDomainClusterView',
   props: ['domainName', 'clusters'],
@@ -110,6 +112,9 @@ export default {
       if (clientRequired) return 'Client'
       if (serverRequired) return 'Server'
       return ''
+    },
+    asHex(value, padding) {
+      return Util.asHex(value, padding)
     },
     isClusterEnabled(id) {
       return (

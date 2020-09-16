@@ -232,6 +232,7 @@ limitations under the License.
 
 <script>
 import * as RestApi from '../../src-shared/rest-api'
+import * as Util from '../util/util'
 export default {
   name: 'ZclEndpointConfig',
   computed: {
@@ -414,7 +415,7 @@ export default {
       }
     },
     getFormattedEndpointId(endpointRef) {
-      return '0x' + this.endpointId[endpointRef].toString(16).padStart(4, '0')
+      return Util.asHex(this.endpointId[endpointRef])
     },
     handleEndpointChange(id, changeId, value) {
       let editContext = {
