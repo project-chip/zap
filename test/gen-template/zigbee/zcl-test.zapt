@@ -11,16 +11,16 @@
 
 /******************/
 {{#zcl_clusters}}
-// cluster: {{code}} {{label}}
+// cluster: {{asHex code 4}} {{label}}
 // {{description}}
 {{/zcl_clusters}}
 
 /******************/
 {{#zcl_commands}}
-// cmd: {{code}} {{label}}
+// cmd: {{asHex code 2}} {{label}}
 {{/zcl_commands}}
 
 /******************/
 {{#zcl_attributes}}
-// att: {{code}} {{label}}
+// att: {{asHex code 4}} {{label}}
 {{/zcl_attributes}}

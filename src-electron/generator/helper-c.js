@@ -101,13 +101,14 @@ function asDelimitedMacro(label) {
  * @param {*} label
  * @returns Label formatted as C hex constant.
  */
-function asHex(value) {
+function asHex(rawValue, padding) {
+  let value = rawValue.toString()
   var ret = value.trim()
   if (ret.startsWith('0x') || ret.startsWith('0X')) {
     return `0x${value.slice(2)}`
   } else {
     var val = parseInt(value)
-    return `0x${val.toString(16)}`
+    return `0x${val.toString(16).padStart(padding, '0')}`
   }
 }
 

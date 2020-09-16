@@ -106,8 +106,8 @@ test('test Silabs zcl data loading in memory', () => {
     .then((x) => expect(x.length).toEqual(4))
     .then(() =>
       dbApi.dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', [
-        ['0x0000'],
-        ['0x0006'],
+        [0],
+        [6],
       ])
     )
     .then((rows) => {

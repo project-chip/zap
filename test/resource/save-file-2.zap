@@ -28,7 +28,7 @@
       "clusters": [
         {
           "name": "Basic",
-          "code": "0x0000",
+          "code": 0,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
@@ -53,7 +53,7 @@
         },
         {
           "name": "Basic",
-          "code": "0x0000",
+          "code": 0,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -198,7 +198,7 @@
         },
         {
           "name": "Power Configuration",
-          "code": "0x0001",
+          "code": 1,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
@@ -207,7 +207,7 @@
         },
         {
           "name": "Power Configuration",
-          "code": "0x0001",
+          "code": 1,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -216,7 +216,7 @@
         },
         {
           "name": "Price",
-          "code": "0x0700",
+          "code": 1792,
           "mfgCode": null,
           "side": "client",
           "enabled": 0,
@@ -256,7 +256,7 @@
         },
         {
           "name": "Price",
-          "code": "0x0700",
+          "code": 1792,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -289,7 +289,7 @@
         },
         {
           "name": "Device Temperature Configuration",
-          "code": "0x0002",
+          "code": 2,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
@@ -298,7 +298,7 @@
         },
         {
           "name": "Device Temperature Configuration",
-          "code": "0x0002",
+          "code": 2,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -307,7 +307,7 @@
         },
         {
           "name": "Demand Response and Load Control",
-          "code": "0x0701",
+          "code": 1793,
           "mfgCode": null,
           "side": "client",
           "enabled": 0,
@@ -407,7 +407,7 @@
         },
         {
           "name": "Demand Response and Load Control",
-          "code": "0x0701",
+          "code": 1793,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -454,7 +454,7 @@
         },
         {
           "name": "Identify",
-          "code": "0x0003",
+          "code": 3,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
@@ -492,7 +492,7 @@
         },
         {
           "name": "Identify",
-          "code": "0x0003",
+          "code": 3,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -509,7 +509,7 @@
         },
         {
           "name": "Messaging",
-          "code": "0x0703",
+          "code": 1795,
           "mfgCode": null,
           "side": "client",
           "enabled": 0,
@@ -549,7 +549,7 @@
         },
         {
           "name": "Messaging",
-          "code": "0x0703",
+          "code": 1795,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -589,7 +589,7 @@
         },
         {
           "name": "Time",
-          "code": "0x000A",
+          "code": 10,
           "mfgCode": null,
           "side": "client",
           "enabled": 0,
@@ -614,7 +614,7 @@
         },
         {
           "name": "Time",
-          "code": "0x000A",
+          "code": 10,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -669,7 +669,7 @@
         },
         {
           "name": "Key Establishment",
-          "code": "0x0800",
+          "code": 2048,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
@@ -731,7 +731,7 @@
         },
         {
           "name": "Key Establishment",
-          "code": "0x0800",
+          "code": 2048,
           "mfgCode": null,
           "side": "either",
           "enabled": 0,
@@ -748,7 +748,7 @@
         },
         {
           "name": "Key Establishment",
-          "code": "0x0800",
+          "code": 2048,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,

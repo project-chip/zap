@@ -22,7 +22,7 @@
       "clusters": [
         {
           "name": "Basic",
-          "code": "0x0000",
+          "code": 0,
           "mfgCode": null,
           "side": "client",
           "enabled": 0,
@@ -54,7 +54,7 @@
         },
         {
           "name": "Basic",
-          "code": "0x0000",
+          "code": 0,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -106,7 +106,7 @@
         },
         {
           "name": "Power Configuration",
-          "code": "0x0001",
+          "code": 1,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
@@ -115,7 +115,7 @@
         },
         {
           "name": "Power Configuration",
-          "code": "0x0001",
+          "code": 1,
           "mfgCode": null,
           "side": "server",
           "enabled": 0,
@@ -195,7 +195,7 @@
         },
         {
           "name": "Device Temperature Configuration",
-          "code": "0x0002",
+          "code": 2,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -204,7 +204,7 @@
         },
         {
           "name": "Information",
-          "code": "0x0900",
+          "code": 2304,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
@@ -243,7 +243,7 @@
         },
         {
           "name": "Information",
-          "code": "0x0900",
+          "code": 2304,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -324,7 +324,7 @@
         },
         {
           "name": "Identify",
-          "code": "0x0003",
+          "code": 3,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
@@ -333,7 +333,7 @@
         },
         {
           "name": "Groups",
-          "code": "0x0004",
+          "code": 4,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -342,7 +342,7 @@
         },
         {
           "name": "Billing",
-          "code": "0x0A02",
+          "code": 2562,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
@@ -366,7 +366,7 @@
         },
         {
           "name": "Billing",
-          "code": "0x0A02",
+          "code": 2562,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,

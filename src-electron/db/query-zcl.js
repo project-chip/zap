@@ -903,7 +903,7 @@ function insertClusterExtensions(db, packageId, data) {
     .dbMultiSelect(
       db,
       'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?',
-      data.map((cluster) => [cluster.code])
+      data.map((cluster) => [parseInt(cluster.code, 16)])
     )
     .then((rows) => {
       var commandsToLoad = []
@@ -1011,7 +1011,7 @@ function insertClusters(db, packageId, data) {
       data.map((cluster) => {
         return [
           packageId,
-          cluster.code,
+          parseInt(cluster.code, 16),
           cluster.manufacturerCode,
           cluster.name,
           cluster.description,
