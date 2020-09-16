@@ -76,7 +76,7 @@ limitations under the License.
             props.row.source === 'client' ? 'C ➞ S' : 'S ➞ C'
           }}</q-td>
           <q-td key="commandId" :props="props" auto-width>{{
-            props.row.code
+            asHex(props.row.code, 2)
           }}</q-td>
           <q-td key="commandName" :props="props" auto-width>{{
             props.row.label
@@ -178,6 +178,9 @@ export default {
     },
     hashCommandIdClusterId(commandId, clusterId) {
       return Util.cantorPair(commandId, clusterId)
+    },
+    asHex(value, padding) {
+      return Util.asHex(value, padding)
     },
   },
   data() {
