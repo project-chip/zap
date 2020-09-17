@@ -34,7 +34,7 @@ function user_endpoint_types(options) {
   return queryImpexp
     .exportEndpointTypes(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
-      templateUtil.collectBlocks(endpointTypes, options.fn, this)
+      templateUtil.collectBlocks(endpointTypes, options, this)
     )
 }
 /**
@@ -47,7 +47,7 @@ function user_clusters(options) {
   return queryImpexp
     .exportClustersFromEndpointType(this.global.db, this.endpointTypeId)
     .then((endpointClusters) =>
-      templateUtil.collectBlocks(endpointClusters, options.fn, this)
+      templateUtil.collectBlocks(endpointClusters, options, this)
     )
 }
 
@@ -66,7 +66,7 @@ function user_cluster_attributes(options) {
       this.endpointClusterId
     )
     .then((endpointAttributes) =>
-      templateUtil.collectBlocks(endpointAttributes, options.fn, this)
+      templateUtil.collectBlocks(endpointAttributes, options, this)
     )
 }
 
@@ -85,7 +85,7 @@ function user_cluster_commands(options) {
       this.endpointClusterId
     )
     .then((endpointAttributes) =>
-      templateUtil.collectBlocks(endpointAttributes, options.fn, this)
+      templateUtil.collectBlocks(endpointAttributes, options, this)
     )
 }
 
@@ -102,7 +102,7 @@ function user_endpoint_type_count() {
 function user_all_attributes(options) {
   return queryConfig
     .getAllSessionAttributes(this.global.db, this.global.sessionId)
-    .then((atts) => templateUtil.collectBlocks(atts, options.fn, this))
+    .then((atts) => templateUtil.collectBlocks(atts, options, this))
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!

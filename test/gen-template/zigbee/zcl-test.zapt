@@ -1,9 +1,10 @@
 /******************/
 {{#zcl_enums}}
 // {{index}}/{{count}}: label=>{{label}} caption=>{{caption}}
+{{else}}
+Last count: {{last_count}}
 {{/zcl_enums}}
 
-Last count: {{last_count}}
 
 /******************/
 {{#zcl_structs}}

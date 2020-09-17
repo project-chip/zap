@@ -27,11 +27,11 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * executing promises for each, and collecting them into the outgoing string.
  *
  * @param {*} resultArray
- * @param {*} fn
+ * @param {*} options Options passed from a block helper.
  * @param {*} context The context from within this was called.
  * @returns Promise that resolves with a content string.
  */
-function collectBlocks(resultArray, fn, context) {
+function collectBlocks(resultArray, options, context) {
   var promises = []
   var index = 0
 
@@ -45,7 +45,7 @@ function collectBlocks(resultArray, fn, context) {
       count: resultArray.length,
       ...element,
     }
-    var block = fn(newContext)
+    var block = options.fn(newContext)
     promises.push(block)
   })
   return Promise.all(promises).then((blocks) => {

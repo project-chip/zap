@@ -62,7 +62,7 @@ function template_options(options) {
         options.hash.category
       )
     )
-    .then((ens) => templateUtil.collectBlocks(ens, options.fn, this))
+    .then((ens) => templateUtil.collectBlocks(ens, options, this))
 }
 
 /**

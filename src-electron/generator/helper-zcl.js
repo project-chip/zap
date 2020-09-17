@@ -35,7 +35,7 @@ function zcl_bitmaps(options) {
   return templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllBitmaps(this.global.db, packageId))
-    .then((ens) => templateUtil.collectBlocks(ens, options.fn, this))
+    .then((ens) => templateUtil.collectBlocks(ens, options, this))
 }
 
 /**
@@ -45,7 +45,7 @@ function zcl_bitmaps(options) {
 function zcl_bitmap_items(options) {
   return queryZcl
     .selectAllBitmapFieldsById(this.global.db, this.id)
-    .then((items) => templateUtil.collectBlocks(items, options.fn, this))
+    .then((items) => templateUtil.collectBlocks(items, options, this))
 }
 
 /**
@@ -58,7 +58,7 @@ function zcl_enums(options) {
   return templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllEnums(this.global.db, packageId))
-    .then((ens) => templateUtil.collectBlocks(ens, options.fn, this))
+    .then((ens) => templateUtil.collectBlocks(ens, options, this))
 }
 
 /**
@@ -68,7 +68,7 @@ function zcl_enums(options) {
 function zcl_enum_items(options) {
   return queryZcl
     .selectAllEnumItemsById(this.global.db, this.id)
-    .then((items) => templateUtil.collectBlocks(items, options.fn, this))
+    .then((items) => templateUtil.collectBlocks(items, options, this))
 }
 
 /**
@@ -82,7 +82,7 @@ function zcl_structs(options) {
   return templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllStructs(this.global.db, packageId))
-    .then((st) => templateUtil.collectBlocks(st, options.fn, this))
+    .then((st) => templateUtil.collectBlocks(st, options, this))
 }
 
 /**
@@ -94,7 +94,7 @@ function zcl_structs(options) {
 function zcl_struct_items(options) {
   return queryZcl
     .selectAllStructItemsById(this.global.db, this.id)
-    .then((st) => templateUtil.collectBlocks(st, options.fn, this))
+    .then((st) => templateUtil.collectBlocks(st, options, this))
 }
 
 /**
@@ -107,7 +107,7 @@ function zcl_clusters(options) {
   return templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllClusters(this.global.db, packageId))
-    .then((cl) => templateUtil.collectBlocks(cl, options.fn, this))
+    .then((cl) => templateUtil.collectBlocks(cl, options, this))
 }
 
 /**
@@ -134,7 +134,7 @@ function zcl_commands(options) {
         return queryZcl.selectAllCommands(this.global.db, packageId)
       }
     })
-    .then((cmds) => templateUtil.collectBlocks(cmds, options.fn, this))
+    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
 }
 
 /**
@@ -149,7 +149,7 @@ function zcl_global_commands(options) {
     .then((packageId) =>
       queryZcl.selectAllGlobalCommands(this.global.db, packageId)
     )
-    .then((cmds) => templateUtil.collectBlocks(cmds, options.fn, this))
+    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
 }
 
 /**
@@ -177,7 +177,7 @@ function zcl_attributes(options) {
         return queryZcl.selectAllAttributes(this.global.db, packageId)
       }
     })
-    .then((atts) => templateUtil.collectBlocks(atts, options.fn, this))
+    .then((atts) => templateUtil.collectBlocks(atts, options, this))
 }
 
 /**
@@ -209,7 +209,7 @@ function zcl_attributes_client(options) {
         )
       }
     })
-    .then((atts) => templateUtil.collectBlocks(atts, options.fn, this))
+    .then((atts) => templateUtil.collectBlocks(atts, options, this))
 }
 
 /**
@@ -242,7 +242,7 @@ function zcl_attributes_server(options) {
         )
       }
     })
-    .then((atts) => templateUtil.collectBlocks(atts, options.fn, this))
+    .then((atts) => templateUtil.collectBlocks(atts, options, this))
 }
 
 /**
@@ -255,7 +255,7 @@ function zcl_atomics(options) {
   return templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllAtomics(this.global.db, packageId))
-    .then((ats) => templateUtil.collectBlocks(ats, options.fn, this))
+    .then((ats) => templateUtil.collectBlocks(ats, options, this))
 }
 
 /**
