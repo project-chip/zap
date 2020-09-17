@@ -1,6 +1,6 @@
 /******************/
 {{#zcl_enums}}
-// label=>{{label}} caption=>{{caption}}
+// {{index}}/{{count}}: label=>{{label}} caption=>{{caption}}
 {{/zcl_enums}}
 
 /******************/

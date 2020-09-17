@@ -33,10 +33,13 @@ const dbEnum = require('../../src-shared/db-enum.js')
  */
 function collectBlocks(resultArray, fn, context) {
   var promises = []
+  var index = 0
   resultArray.forEach((element) => {
     var newContext = {
       global: context.global,
       parent: context,
+      index: index++,
+      count: resultArray.length,
       ...element,
     }
     var block = fn(newContext)
