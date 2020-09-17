@@ -145,6 +145,7 @@ test(
             '// 206/207: label=>ZllStatus caption=>Enum of type ENUM8'
           )
         ).toBeTruthy()
+        expect(zclId.includes('Label count: 207')).toBeTruthy()
         expect(
           zclId.includes(
             '// 128/207: label=>MeteringBlockEnumerations caption=>Enum of type ENUM8'

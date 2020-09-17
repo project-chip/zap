@@ -2,7 +2,7 @@
 {{#zcl_enums}}
 // {{index}}/{{count}}: label=>{{label}} caption=>{{caption}}
 {{else}}
-Last count: {{last_count}}
+Label count: {{last_count}}
 {{/zcl_enums}}
 
 

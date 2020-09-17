@@ -72,7 +72,7 @@ function template_options(options) {
  * @returns count
  */
 function last_count() {
-  return this.global.lastCount
+  return this.totalCount
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!

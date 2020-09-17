@@ -35,8 +35,6 @@ function collectBlocks(resultArray, options, context) {
   var promises = []
   var index = 0
 
-  context.global.lastCount = resultArray.length
-
   resultArray.forEach((element) => {
     var newContext = {
       global: context.global,
@@ -48,6 +46,15 @@ function collectBlocks(resultArray, options, context) {
     var block = options.fn(newContext)
     promises.push(block)
   })
+
+  promises.push(
+    options.inverse({
+      global: context.global,
+      parent: context,
+      totalCount: resultArray.length,
+    })
+  )
+
   return Promise.all(promises).then((blocks) => {
     var ret = ''
     blocks.forEach((b) => {
