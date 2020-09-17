@@ -3,6 +3,8 @@
 // {{index}}/{{count}}: label=>{{label}} caption=>{{caption}}
 {{/zcl_enums}}
 
+Last count: {{last_count}}
+
 /******************/
 {{#zcl_structs}}
 // struct: {{label}}

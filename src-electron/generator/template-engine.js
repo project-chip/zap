@@ -57,6 +57,7 @@ function produceContent(db, sessionId, singlePkg) {
       global: {
         db: db,
         sessionId: sessionId,
+        lastCount: 0,
       },
     })
   )

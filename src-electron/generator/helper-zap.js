@@ -65,6 +65,16 @@ function template_options(options) {
     .then((ens) => templateUtil.collectBlocks(ens, options.fn, this))
 }
 
+/**
+ * Returns the last count of any iterator block that preceded this location in the templates
+ *
+ * @param {*} options
+ * @returns count
+ */
+function last_count() {
+  return this.global.lastCount
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -73,3 +83,4 @@ function template_options(options) {
 exports.zap_header = zap_header
 exports.ident = ident
 exports.template_options = template_options
+exports.last_count = last_count
