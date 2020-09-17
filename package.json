@@ -44,7 +44,7 @@
     "linuxpack-help": "./dist/linux-unpacked/zap -?"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.20.0",
     "body-parser": "^1.19.0",
     "bufferutil": "^4.0.1",
     "bytebuffer": "^5.0.1",
@@ -52,6 +52,9 @@
     "core-js": "^3.6.5",
     "corejs": "^1.0.0",
     "crc": "^3.8.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "handlebars": "^4.7.6",
@@ -63,7 +66,7 @@
     "utf-8-validate": "^5.0.2",
     "xml2js": "^0.4.23",
     "yaml": "^1.10.0",
-    "yargs": "^15.4.1"
+    "yargs": "^16.0.3"
   },
   "devDependencies": {
     "@babel/plugin-transform-regenerator": "^7.10.4",
@@ -98,8 +101,8 @@
     "node-abi": "^2.19.1",
     "node-gyp": "^7.1.0",
     "node-pre-gyp": "^0.15.0",
-    "prettier": "2.0.5",
-    "pretty-quick": "^2.0.2",
+    "prettier": "^2.1.2",
+    "pretty-quick": "^3.0.2",
     "quasar": "^1.14.0"
   },
   "engines": {
