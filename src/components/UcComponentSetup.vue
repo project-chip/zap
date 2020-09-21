@@ -30,6 +30,7 @@ limitations under the License.
 
 <script>
 import { QToggle } from 'quasar'
+const restApi = require('../../src-shared/rest-api.js')
 
 export default {
   name: 'UcComponentSetup',
@@ -56,8 +57,7 @@ export default {
   },
 
   mounted() {
-    console.log('uc tree')
-    this.$serverOn('uc-tree', (event, arg) => {
+    this.$serverOn(restApi.uc.componentTreeReply, (event, arg) => {
       arg.data.forEach((ele) => this.testData.push(ele))
 
       // computed selected Nodes
@@ -76,7 +76,7 @@ export default {
       this.uc.last_ticked = this.uc.ticked
     })
 
-    this.$serverGet('/uc/tree', {
+    this.$serverGet(restApi.uc.componentTree, {
       params: {
         studioProject: this.$store.state.zap.studioProject,
       },
@@ -96,7 +96,7 @@ export default {
       console.log('Enable: ' + enabledItems)
       enabledItems.forEach(function (item) {
         let id = item.substr(item.lastIndexOf('-') + 1)
-        this.$serverGet('/uc/add', {
+        this.$serverGet(restApi.uc.componentAdd, {
           params: {
             componentId: id,
             studioProject: this.$store.state.zap.studioProject,
@@ -107,7 +107,7 @@ export default {
       console.log('Disable: ' + disabledItems)
       disabledItems.forEach(function (item) {
         let id = item.substr(item.lastIndexOf('-') + 1)
-        this.$serverGet('/uc/remove', {
+        this.$serverGet(restApi.uc.componentRemove, {
           params: {
             componentId: id,
             studioProject: this.$store.state.zap.studioProject,

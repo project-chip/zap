@@ -56,8 +56,19 @@ const httpCode = {
   },
 }
 
+const uc = {
+  // command id
+  componentTree: '/uc/component/tree',
+  componentAdd: '/uc/component/add',
+  componentRemove: '/uc/component/remove',
+
+  // response/reply id
+  componentTreeReply: 'tree_reply',
+}
+
 exports.replyId = replyId
 exports.action = action
 exports.uri = uri
 exports.httpCode = httpCode
 exports.uiMode = uiMode
+exports.uc = uc
