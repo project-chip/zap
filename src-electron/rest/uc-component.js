@@ -24,7 +24,6 @@
 const env = require('../util/env.js')
 const axios = require('axios')
 const studio = require('./studio-integration.js')
-const replyId = 'uc-tree'
 const http = require('http-status-codes')
 const restApi = require('../../src-shared/rest-api.js')
 
