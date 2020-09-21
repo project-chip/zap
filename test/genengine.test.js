@@ -159,6 +159,12 @@ test(
         expect(
           zclId.includes('att: 0x0002 gps communication mode')
         ).toBeTruthy()
+        expect(
+          zclId.includes('First item\n// struct: BlockThreshold')
+        ).toBeTruthy()
+        expect(
+          zclId.includes('// struct: WwahClusterStatusToUseTC\nLast item')
+        ).toBeTruthy()
       }),
   genTimeout
 )

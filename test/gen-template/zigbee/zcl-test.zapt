@@ -8,7 +8,13 @@ Label count: {{last_count}}
 
 /******************/
 {{#zcl_structs}}
+{{#first}}
+First item
+{{/first}}
 // struct: {{label}}
+{{#last}}
+Last item
+{{/last}}
 {{/zcl_structs}}
 
 
