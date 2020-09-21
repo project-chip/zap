@@ -30,6 +30,7 @@ exports.studioHttpPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE
 exports.noServer = false
 exports.zapFile = null
+exports.genResultFile = false
 
 /**
  * Process the command line arguments and resets the state in this file
@@ -91,6 +92,10 @@ function processCommandLineArguments(argv) {
         "Don't run the http server. You should probably also specify -noUi with this.",
       default: exports.noServer,
     })
+    .options('genResultFile', {
+      desc: 'If this option is present, then generate the result file.',
+      default: exports.genResultFile,
+    })
     .option('showUrl', {
       desc: 'Print out the URL that an external browser should use.',
     })
@@ -119,6 +124,7 @@ function processCommandLineArguments(argv) {
   exports.genTemplateJsonFile = ret.genTemplateJson
   exports.noServer = ret.noServer
   exports.zapFile = ret.zapFile
+  exports.genResultFile = ret.genResultFile
   return ret
 }
 

@@ -300,6 +300,7 @@ function generateAndWriteFiles(
   options = {
     log: false,
     backup: false,
+    genResultFile: false,
   }
 ) {
   return generate(db, sessionId, packageId).then((genResult) => {
@@ -319,13 +320,17 @@ function generateAndWriteFiles(
       promises.push(writeFile(fileName, content, options.backup))
     }
     promises.push(
-      generateGenerationContent(genResult).then((content) =>
-        writeFile(
-          path.join(outputDirectory, 'genResult.json'),
-          content,
-          options.backup
-        )
-      )
+      generateGenerationContent(genResult).then((content) => {
+        if (options.genResultFile) {
+          return writeFile(
+            path.join(outputDirectory, 'genResult.json'),
+            content,
+            options.backup
+          )
+        } else {
+          return
+        }
+      })
     )
 
     return Promise.all(promises)

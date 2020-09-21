@@ -44,8 +44,8 @@ function exportSessionKeyValues(db, sessionId) {
  * @param {*} sessionId
  * @returns Promise to retrieve all endpoints.
  */
-function exportEndpoints(db, sessionId) {
-  return queryImpExp.exportEndpoints(db, sessionId)
+function exportEndpoints(db, sessionId, endpointTypes) {
+  return queryImpExp.exportEndpoints(db, sessionId, endpointTypes)
 }
 
 /**
@@ -57,57 +57,65 @@ function exportEndpoints(db, sessionId) {
  * @returns Promise to retrieve all endpoint types.
  */
 function exportEndpointTypes(db, sessionId) {
-  return queryImpExp.exportEndpointTypes(db, sessionId).then((endpoints) => {
-    var promises = []
-    endpoints.forEach((endpoint) => {
-      // Add in the clusters.
-      promises.push(
-        queryImpExp
-          .exportClustersFromEndpointType(db, endpoint.endpointTypeId)
-          .then((data) => {
-            endpoint.clusters = data
+  return queryImpExp
+    .exportEndpointTypes(db, sessionId)
+    .then((endpointTypes) => {
+      var promises = []
+      endpointTypes.forEach((endpointType) => {
+        // Add in the clusters.
+        promises.push(
+          queryImpExp
+            .exportClustersFromEndpointType(db, endpointType.endpointTypeId)
+            .then((data) => {
+              endpointType.clusters = data
 
-            var ps = []
-            data.forEach((endpointCluster) => {
-              var endpointClusterId = endpointCluster.endpointClusterId
-              delete endpointCluster.endpointClusterId
-              ps.push(
-                queryImpExp
-                  .exportCommandsFromEndpointTypeCluster(
-                    db,
-                    endpoint.endpointTypeId,
-                    endpointClusterId
-                  )
-                  .then((commands) => {
-                    endpointCluster.commands = commands
-                    return commands
-                  })
-              )
+              var ps = []
+              data.forEach((endpointCluster) => {
+                var endpointClusterId = endpointCluster.endpointClusterId
+                delete endpointCluster.endpointClusterId
+                ps.push(
+                  queryImpExp
+                    .exportCommandsFromEndpointTypeCluster(
+                      db,
+                      endpointType.endpointTypeId,
+                      endpointClusterId
+                    )
+                    .then((commands) => {
+                      endpointCluster.commands = commands
+                      return commands
+                    })
+                )
 
-              ps.push(
-                queryImpExp
-                  .exportAttributesFromEndpointTypeCluster(
-                    db,
-                    endpoint.endpointTypeId,
-                    endpointClusterId
-                  )
-                  .then((attributes) => {
-                    endpointCluster.attributes = attributes
-                    return attributes
-                  })
-              )
+                ps.push(
+                  queryImpExp
+                    .exportAttributesFromEndpointTypeCluster(
+                      db,
+                      endpointType.endpointTypeId,
+                      endpointClusterId
+                    )
+                    .then((attributes) => {
+                      endpointCluster.attributes = attributes
+                      return attributes
+                    })
+                )
+              })
+              return Promise.all(ps)
             })
-            return Promise.all(ps)
-          })
-      )
-    })
-    return Promise.all(promises).then(() => {
-      endpoints.forEach((ep) => {
-        delete ep.endpointTypeId
+        )
       })
-      return endpoints
+
+      return Promise.all(promises)
+        .then(() => exportEndpoints(db, sessionId, endpointTypes))
+        .then((endpoints) => {
+          return Promise.resolve(endpoints)
+        })
+        .then((endpoints) => {
+          endpointTypes.forEach((ep) => {
+            delete ep.endpointTypeId
+          })
+          return { endpointTypes: endpointTypes, endpoints: endpoints }
+        })
     })
-  })
 }
 
 /**
@@ -172,38 +180,38 @@ function createStateFromDatabase(db, sessionId) {
     env.logInfo(`Exporting data for session: ${sessionId}`)
     // Deal with the key/value table
     var getKeyValues = exportSessionKeyValues(db, sessionId).then((data) => {
-      state.keyValuePairs = data
       env.logInfo(`Retrieved session keys: ${data.length}`)
-      return data
+      return { key: 'keyValuePairs', data: data }
     })
     promises.push(getKeyValues)
 
     var getSessionPackages = exportSessionPackages(db, sessionId).then(
       (data) => {
-        state.package = data
-        return data
+        return { key: 'package', data: data }
       }
     )
     promises.push(getSessionPackages)
 
-    var getAllEndpointTypes = exportEndpointTypes(db, sessionId).then(
-      (data) => {
-        env.logInfo(`Retrieved endpoint types: ${data.length}`)
-        state.endpointTypes = data
-        return data
-      }
-    )
-    promises.push(getAllEndpointTypes)
-
-    var getAllEndpoints = exportEndpoints(db, sessionId).then((data) => {
-      env.logInfo(`Retrieve endpoints: ${data.length}`)
-      state.endpoints = data
-      return data
+    var getAllEndpointTypes = exportEndpointTypes(db, sessionId)
+    var parseEndpointTypes = getAllEndpointTypes.then((data) => {
+      env.logInfo(`Retrieved endpoint types: ${data.endpointTypes.length}`)
+      return { key: 'endpointTypes', data: data.endpointTypes }
     })
-    promises.push(getAllEndpoints)
+    var parseEndpoints = getAllEndpointTypes.then((data) => {
+      env.logInfo(`Retrieve endpoints: ${data.endpoints.length}`)
+      return { key: 'endpoints', data: data.endpoints }
+    })
+
+    promises.push(parseEndpointTypes)
+    promises.push(parseEndpoints)
 
     return Promise.all(promises)
-      .then(() => resolve(state))
+      .then((data) => {
+        data.forEach((keyDataPair) => {
+          state[keyDataPair.key] = keyDataPair.data
+        })
+        resolve(state)
+      })
       .catch((err) => reject(err))
   })
 }

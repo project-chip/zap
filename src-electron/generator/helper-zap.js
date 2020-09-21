@@ -62,7 +62,17 @@ function template_options(options) {
         options.hash.category
       )
     )
-    .then((ens) => templateUtil.collectBlocks(ens, options.fn, this))
+    .then((ens) => templateUtil.collectBlocks(ens, options, this))
+}
+
+/**
+ * Returns the last count of any iterator block that preceded this location in the templates
+ *
+ * @param {*} options
+ * @returns count
+ */
+function last_count() {
+  return this.totalCount
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -73,3 +83,4 @@ function template_options(options) {
 exports.zap_header = zap_header
 exports.ident = ident
 exports.template_options = template_options
+exports.last_count = last_count

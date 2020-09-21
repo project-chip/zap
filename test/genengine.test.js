@@ -141,11 +141,14 @@ test(
         var zclId = genResult.content['zcl-test.out']
         //expect(zclId).toEqual('random placeholder')
         expect(
-          zclId.includes('// label=>ZllStatus caption=>Enum of type ENUM8')
+          zclId.includes(
+            '// 206/207: label=>ZllStatus caption=>Enum of type ENUM8'
+          )
         ).toBeTruthy()
+        expect(zclId.includes('Label count: 207')).toBeTruthy()
         expect(
           zclId.includes(
-            '// label=>MeteringBlockEnumerations caption=>Enum of type ENUM8'
+            '// 128/207: label=>MeteringBlockEnumerations caption=>Enum of type ENUM8'
           )
         ).toBeTruthy()
         expect(

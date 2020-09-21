@@ -107,10 +107,10 @@ test(
   'Integer Test',
   () =>
     queryZcl
-      .selectAttributesByClusterCodeAndManufacturerCode(db, '0x0003', null)
+      .selectAttributesByClusterCodeAndManufacturerCode(db, 3, null)
       .then((attribute) => {
         var attribute = attribute.filter((e) => {
-          return e.code === '0x0000'
+          return e.code === 0
         })[0]
 
         //Test Constraints

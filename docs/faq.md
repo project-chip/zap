@@ -8,23 +8,41 @@
 
 If you see errors related to `node-gyp` and missing local libraries, like `pixman`, etc, it means there are missing native dependencies to satisfy to compile non-prebuilt node binaries for some combination of platforms and versions. Npm on the cloud is constantly updating the list of provided binaries, so it's possible that you will pick them up just fine, but if you don't, these are instructions for different platforms:
 
-- **OSX on a Mac** with Homebrew `brew`:
-
-```
-brew install pkg-config cairo pango libpng jpeg giflib librsvg
-```
-
-- **Fedora Core** with `dnf`:
+**Fedora Core** with `dnf`:
 
 ```
 dnf install pixman-devel cairo-devel pango-devel libjpeg-devel giflib-devel
 ```
 
-- **Ubuntu** with `apt-get`:
+or run script:
+
+```
+src-script/install-packages-fedora
+```
+
+**Ubuntu** with `apt-get`:
 
 ```
 apt-get update
 apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev
+```
+
+or run script:
+
+```
+src-script/install-packages-ubuntu
+```
+
+**OSX on a Mac** with Homebrew `brew`:
+
+```
+brew install pkg-config cairo pango libpng jpeg giflib librsvg
+```
+
+or run script:
+
+```
+src-script/install-packages-osx
 ```
 
 ---

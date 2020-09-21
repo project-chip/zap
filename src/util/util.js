@@ -22,3 +22,7 @@
 export function cantorPair(x, y) {
   return ((x + y) * (x + y + 1)) / 2 + y
 }
+
+export function asHex(value, padding) {
+  return '0x' + value.toString(16).padStart(padding, '0').toUpperCase()
+}
