@@ -65,7 +65,7 @@ For example:
 ```
 {{#zcl_clusters}}
 {{#first}}
-This content is output only once, at the beginning,b for the first cluster.
+This content is output only once, at the beginning, for the first cluster.
 {{/first}}
 This content is output for EVERY cluster.
 {{#last}}

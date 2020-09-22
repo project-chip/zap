@@ -1476,7 +1476,6 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~zap_header()](#module*Templating API* toplevel utility helpers..zap_header) ⇒
   - [~ident()](#module*Templating API* toplevel utility helpers..ident) ⇒
   - [~template_options(category, options)](#module*Templating API* toplevel utility helpers..template_options)
-  - [~last_count(options)](#module*Templating API* toplevel utility helpers..last_count) ⇒
   - [~first(options)](#module*Templating API* toplevel utility helpers..first) ⇒
   - [~last(options)](#module*Templating API* toplevel utility helpers..last) ⇒
 
@@ -1508,19 +1507,6 @@ Block helper that iterates over the package options of a given category.
 | -------- | --------------- |
 | category | <code>\*</code> |
 | options  | <code>\*</code> |
-
-<a name="module_Templating API_ toplevel utility helpers..last_count"></a>
-
-### Templating API: toplevel utility helpers~last_count(options) ⇒
-
-Returns the last count of any iterator block that preceded this location in the templates
-
-**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)  
-**Returns**: count
-
-| Param   | Type            |
-| ------- | --------------- |
-| options | <code>\*</code> |
 
 <a name="module_Templating API_ toplevel utility helpers..first"></a>
 
