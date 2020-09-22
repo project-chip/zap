@@ -178,20 +178,11 @@ function parseZclFile(argument) {
   if (!('data' in argument)) {
     return Promise.resolve(argument)
   } else {
-    var p = new Promise((resolve, reject) => {
-      // ... otherwise, we promise to parse this.
-      xml2js.parseString(argument.data, (err, result) => {
-        if (err) {
-          env.logError(`Failed to parse ${argument.filePath}: ${err}`)
-          reject(err)
-        } else {
-          argument.result = result
-          delete argument.data
-          resolve(argument)
-        }
-      })
+    return xml2js.parseStringPromise(argument.data).then((result) => {
+      argument.result = result
+      delete argument.data
+      return argument
     })
-    return p
   }
 }
 
