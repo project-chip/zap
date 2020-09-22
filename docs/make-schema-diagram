@@ -18,6 +18,11 @@ SVG=zap-schema.svg
 
 echo "Creating schema diagram to ${SVG} from database at ${SQLITE} ..."
 
+if [ ! -s ${SQLITE} ]; then
+  echo ""
+  echo "Can't locate ${SQLITE} file. Database file is required to read schema from."
+  exit
+fi
 
 # Generate the dot file using the schemacrawler
 ${SC_BIN} --server sqlite --database=${SQLITE} --command=schema --info-level=standard --output-format=scdot --output-file=zap-schema.dot
