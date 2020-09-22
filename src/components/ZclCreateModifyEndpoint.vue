@@ -49,7 +49,11 @@ limitations under the License.
               "
             >
               <template v-slot:option="option">
-                <q-expansion-item expand-separator :label="option.opt.label">
+                <q-expansion-item
+                  expand-separator
+                  :label="option.opt.label"
+                  :default-opened="option.opt.children.length > 45"
+                >
                   <template v-for="child in option.opt.children">
                     <q-item
                       :key="child.label"
