@@ -66,16 +66,6 @@ function template_options(options) {
 }
 
 /**
- * Returns the last count of any iterator block that preceded this location in the templates
- *
- * @param {*} options
- * @returns count
- */
-function last_count() {
-  return this.totalCount
-}
-
-/**
  * Inside an iterator, this helper allows you to specify the content that will be output only
  * during the first element.
  *
@@ -113,6 +103,5 @@ function last(options) {
 exports.zap_header = zap_header
 exports.ident = ident
 exports.template_options = template_options
-exports.last_count = last_count
 exports.last = last
 exports.first = first
