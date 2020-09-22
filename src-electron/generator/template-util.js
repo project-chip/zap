@@ -47,13 +47,15 @@ function collectBlocks(resultArray, options, context) {
     promises.push(block)
   })
 
-  promises.push(
-    options.inverse({
-      global: context.global,
-      parent: context,
-      totalCount: resultArray.length,
-    })
-  )
+  // The else block gets executed if the list is empty.
+  if (resultArray.length == 0) {
+    promises.push(
+      options.inverse({
+        global: context.global,
+        parent: context,
+      })
+    )
+  }
 
   return Promise.all(promises).then((blocks) => {
     var ret = ''

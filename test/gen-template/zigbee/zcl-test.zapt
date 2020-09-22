@@ -1,14 +1,23 @@
 /******************/
 {{#zcl_enums}}
 // {{index}}/{{count}}: label=>{{label}} caption=>{{caption}}
+{{#last}}
+Label count: {{count}}
+{{/last}}
 {{else}}
-Label count: {{last_count}}
+This is output only if there are no enums.
 {{/zcl_enums}}
 
 
 /******************/
 {{#zcl_structs}}
+{{#first}}
+First item
+{{/first}}
 // struct: {{label}}
+{{#last}}
+Last item
+{{/last}}
 {{/zcl_structs}}
 
 

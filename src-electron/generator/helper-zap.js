@@ -66,13 +66,51 @@ function template_options(options) {
 }
 
 /**
- * Returns the last count of any iterator block that preceded this location in the templates
+ * Inside an iterator, this helper allows you to specify the content that will be output only
+ * during the first element.
  *
  * @param {*} options
- * @returns count
+ * @returns content, if it's the first element inside an operator, empty otherwise.
  */
-function last_count() {
-  return this.totalCount
+function first(options) {
+  if (this.index != null && this.count != null && this.index == 0) {
+    return options.fn(this)
+  }
+}
+
+/**
+ * Inside an iterator, this helper allows you to specify the content that will be output only
+ * during the last element.
+ *
+ * @param {*} options
+ * @returns content, if it's the last element inside an operator, empty otherwise.
+ */
+function last(options) {
+  if (
+    this.index != null &&
+    this.count != null &&
+    this.index == this.count - 1
+  ) {
+    return options.fn(this)
+  }
+}
+
+/**
+ * Inside an iterator, this helper allows you to specify the content that will be output only
+ * during the non-first and no-last element.
+ *
+ * @param {*} options
+ * @returns content, if it's the middle element inside an operator, empty otherwise.
+ */
+function middle(options) {
+  if (
+    this.index != null &&
+    this.count != null &&
+    this.index != 0 &&
+    this.index != this.count - 1
+  ) {
+    return options.fn(this)
+  }
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -83,4 +121,6 @@ function last_count() {
 exports.zap_header = zap_header
 exports.ident = ident
 exports.template_options = template_options
-exports.last_count = last_count
+exports.last = last
+exports.first = first
+exports.middle = middle

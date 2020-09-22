@@ -3,6 +3,7 @@ const path = require('path')
 const zclLoader = require('./zcl-loader')
 const dbApi = require('../db/db-api.js')
 const fs = require('fs')
+const fsp = fs.promises
 const xml2js = require('xml2js')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
@@ -15,21 +16,17 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @returns Promise of resolved files.
  */
 function collectData(ctx) {
-  return new Promise((resolve, reject) => {
-    env.logInfo(`Collecting ZCL files from: ${ctx.metadataFile}`)
-    let xml_string = fs.readFileSync(ctx.metadataFile, 'utf8')
-    var zclLib = new Array()
-    xml2js.parseString(xml_string, function (err, result) {
-      if (err) {
-        reject(err)
-      }
+  env.logInfo(`Collecting ZCL files from: ${ctx.metadataFile}`)
+  return fsp
+    .readFile(ctx.metadataFile, 'utf8')
+    .then((xml_string) => xml2js.parseStringPromise(xml_string))
+    .then((result) => {
+      var zclLib = result['zcl:library']
       ctx.version = '1.0'
-      zclLib = result['zcl:library']
+      ctx.zclTypes = zclLib['type:type']
+      ctx.zclFiles = zclLib['xi:include']
+      return ctx
     })
-    ctx.zclTypes = zclLib['type:type']
-    ctx.zclFiles = zclLib['xi:include']
-    resolve(ctx)
-  })
 }
 
 /**
@@ -42,20 +39,17 @@ function collectData(ctx) {
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
 function parseZclFiles(db, ctx) {
-  return new Promise((resolve, reject) => {
-    ctx.zclClusters = new Array()
-    ctx.zclGlobalAttributes = new Array()
-    ctx.zclGlobalCommands = new Array()
-    ctx.zclFiles.forEach((file) => {
-      env.logInfo(`Starting to parse Dotdot ZCL file: ${file.$.href}`)
-      let xml_string = fs.readFileSync(
-        path.dirname(ctx.metadataFile) + '/' + file.$.href,
-        'utf8'
-      )
-      xml2js.parseString(xml_string, function (err, result) {
-        if (err) {
-          reject(err)
-        }
+  var perFilePromise = []
+
+  ctx.zclClusters = []
+  ctx.zclGlobalAttributes = []
+  ctx.zclGlobalCommands = []
+  ctx.zclFiles.forEach((file) => {
+    env.logInfo(`Starting to parse Dotdot ZCL file: ${file.$.href}`)
+    var p = fsp
+      .readFile(path.dirname(ctx.metadataFile) + '/' + file.$.href, 'utf8')
+      .then((xml_string) => xml2js.parseStringPromise(xml_string))
+      .then((result) => {
         if (result['zcl:cluster']) {
           ctx.zclClusters.push(result['zcl:cluster'])
         } else if (result['zcl:global']) {
@@ -77,9 +71,10 @@ function parseZclFiles(db, ctx) {
           )
         }
       })
-    })
-    resolve(ctx)
+    perFilePromise.push(p)
   })
+
+  return Promise.all(perFilePromise).then(() => ctx)
 }
 
 /**

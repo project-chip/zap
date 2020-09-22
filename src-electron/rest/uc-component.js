@@ -26,6 +26,7 @@ const axios = require('axios')
 const studio = require('./studio-integration.js')
 const replyId = 'uc-tree'
 const http = require('http-status-codes')
+const restApi = require('../../src-shared/rest-api.js')
 
 /**
  * Register server side REST API for front-end to interact with Studio components.
@@ -35,7 +36,7 @@ const http = require('http-status-codes')
  * @param {*} app
  */
 function registerUcComponentApi(db, app) {
-  app.get('/uc/tree', (req, res) => {
+  app.get(restApi.uc.componentTree, (req, res) => {
     let name = studio.projectName(req.query.studioProject)
     if (name) {
       env.logInfo(`StudioUC(${name}): Get project info`)
@@ -44,7 +45,7 @@ function registerUcComponentApi(db, app) {
         .then(function (response) {
           env.logInfo(`StudioUC(${name}): RESP: ${response.status}`)
           let r = {
-            replyId: replyId,
+            replyId: restApi.uc.componentTreeReply,
             data: response.data,
           }
           res.send(r)
@@ -60,7 +61,7 @@ function registerUcComponentApi(db, app) {
     }
   })
 
-  app.get('/uc/add', (req, res) => {
+  app.get(restApi.uc.componentAdd, (req, res) => {
     let name = studio.projectName(req.query.studioProject)
     env.logInfo(
       `StudioUC(${name}): Enabling component "${req.query.componentId}"`
@@ -78,7 +79,7 @@ function registerUcComponentApi(db, app) {
       .catch((err) => handleError(err, res))
   })
 
-  app.get('/uc/remove', (req, res) => {
+  app.get(restApi.uc.componentRemove, (req, res) => {
     let name = studio.projectName(req.query.studioProject)
     env.logInfo(
       `StudioUC(${name}): Disabling component "${req.query.componentId}"`

@@ -1050,7 +1050,7 @@ Inserts bitmaps into the database. Data is an array of objects that must contain
   - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
   - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
   - [~produceContent(db, sessionId, singlePkg)](#module*JS API* generator logic..produceContent) ⇒
-  - [~collectBlocks(resultArray, fn, context)](#module*JS API* generator logic..collectBlocks) ⇒
+  - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
   - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
 
@@ -1209,7 +1209,7 @@ Given db connection, session and a single template package, produce the output.
 
 <a name="module_JS API_ generator logic..collectBlocks"></a>
 
-### JS API: generator logic~collectBlocks(resultArray, fn, context) ⇒
+### JS API: generator logic~collectBlocks(resultArray, options, context) ⇒
 
 Helpful function that collects the individual blocks by using elements of an array as a context,
 executing promises for each, and collecting them into the outgoing string.
@@ -1220,7 +1220,7 @@ executing promises for each, and collecting them into the outgoing string.
 | Param       | Type            | Description                              |
 | ----------- | --------------- | ---------------------------------------- |
 | resultArray | <code>\*</code> |                                          |
-| fn          | <code>\*</code> |                                          |
+| options     | <code>\*</code> | Options passed from a block helper.      |
 | context     | <code>\*</code> | The context from within this was called. |
 
 <a name="module_JS API_ generator logic..ensureZclPackageId"></a>
@@ -1476,6 +1476,8 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~zap_header()](#module*Templating API* toplevel utility helpers..zap_header) ⇒
   - [~ident()](#module*Templating API* toplevel utility helpers..ident) ⇒
   - [~template_options(category, options)](#module*Templating API* toplevel utility helpers..template_options)
+  - [~first(options)](#module*Templating API* toplevel utility helpers..first) ⇒
+  - [~last(options)](#module*Templating API* toplevel utility helpers..last) ⇒
 
 <a name="module_Templating API_ toplevel utility helpers..zap_header"></a>
 
@@ -1505,6 +1507,34 @@ Block helper that iterates over the package options of a given category.
 | -------- | --------------- |
 | category | <code>\*</code> |
 | options  | <code>\*</code> |
+
+<a name="module_Templating API_ toplevel utility helpers..first"></a>
+
+### Templating API: toplevel utility helpers~first(options) ⇒
+
+Inside an iterator, this helper allows you to specify the content that will be output only
+during the first element.
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)  
+**Returns**: content, if it's the first element inside an operator, empty otherwise.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ toplevel utility helpers..last"></a>
+
+### Templating API: toplevel utility helpers~last(options) ⇒
+
+Inside an iterator, this helper allows you to specify the content that will be output only
+during the last element.
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)  
+**Returns**: content, if it's the last element inside an operator, empty otherwise.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
 
 <a name="module_Templating API_ static zcl helpers"></a>
 
@@ -1742,7 +1772,7 @@ zcl_cluster_largest_label_length
   - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
   - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
   - [~produceContent(db, sessionId, singlePkg)](#module*JS API* generator logic..produceContent) ⇒
-  - [~collectBlocks(resultArray, fn, context)](#module*JS API* generator logic..collectBlocks) ⇒
+  - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
   - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
 
@@ -1901,7 +1931,7 @@ Given db connection, session and a single template package, produce the output.
 
 <a name="module_JS API_ generator logic..collectBlocks"></a>
 
-### JS API: generator logic~collectBlocks(resultArray, fn, context) ⇒
+### JS API: generator logic~collectBlocks(resultArray, options, context) ⇒
 
 Helpful function that collects the individual blocks by using elements of an array as a context,
 executing promises for each, and collecting them into the outgoing string.
@@ -1912,7 +1942,7 @@ executing promises for each, and collecting them into the outgoing string.
 | Param       | Type            | Description                              |
 | ----------- | --------------- | ---------------------------------------- |
 | resultArray | <code>\*</code> |                                          |
-| fn          | <code>\*</code> |                                          |
+| options     | <code>\*</code> | Options passed from a block helper.      |
 | context     | <code>\*</code> | The context from within this was called. |
 
 <a name="module_JS API_ generator logic..ensureZclPackageId"></a>
@@ -1957,7 +1987,7 @@ Returns the promise that resolves with the ZCL properties package id.
   - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
   - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
   - [~produceContent(db, sessionId, singlePkg)](#module*JS API* generator logic..produceContent) ⇒
-  - [~collectBlocks(resultArray, fn, context)](#module*JS API* generator logic..collectBlocks) ⇒
+  - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
   - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
 
@@ -2116,7 +2146,7 @@ Given db connection, session and a single template package, produce the output.
 
 <a name="module_JS API_ generator logic..collectBlocks"></a>
 
-### JS API: generator logic~collectBlocks(resultArray, fn, context) ⇒
+### JS API: generator logic~collectBlocks(resultArray, options, context) ⇒
 
 Helpful function that collects the individual blocks by using elements of an array as a context,
 executing promises for each, and collecting them into the outgoing string.
@@ -2127,7 +2157,7 @@ executing promises for each, and collecting them into the outgoing string.
 | Param       | Type            | Description                              |
 | ----------- | --------------- | ---------------------------------------- |
 | resultArray | <code>\*</code> |                                          |
-| fn          | <code>\*</code> |                                          |
+| options     | <code>\*</code> | Options passed from a block helper.      |
 | context     | <code>\*</code> | The context from within this was called. |
 
 <a name="module_JS API_ generator logic..ensureZclPackageId"></a>

@@ -24,11 +24,6 @@ function(uc_generate) {
   cmd=$(zap_regen) --out ${generationOutput} --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}
 }
 
-function(run) {
-  zclProperties.description=Location for ZCL XML file
-  cmd=$(zap) --zclProperties ${zclProperties}
-}
-
 function(zapHelp) {
   cmd=$(zap) --help
 }
@@ -38,28 +33,12 @@ function(zapSelfcheck) {
 }
 
 function(zapServer) {
-  zclProperties.description=Location for ZCL XML file
   output.description=Output directory for project generation
-  cmd=$(zap) --noUi --showUrl --zclProperties ${zclProperties} --output ${output} --studioHttpPort ${studioHttpPort}
+  cmd=$(zap) --noUi --showUrl --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --output ${output} --studioHttpPort ${studioHttpPort}
 }
 
 function(zapFull) {
-  zclProperties.description=Location for ZCL XML file
-  cmd=$(zap) --showUrl --zclProperties ${zclProperties}
-}
-
-option(auto-regen) {
-  name=Automatic regeneration
-  description=Automatically regenerate when configuration file is saved.
-  type=boolean
-  default=false
-}
-
-option(zclProperties) {
-  name=Path to ZCL xml properties file
-  description=Path to ZCL xml properties file (relative to the stack)
-  type=string
-  default=./app/zcl/zcl-studio.properties
+  cmd=$(zap) --showUrl --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json
 }
 
 option(output) {
