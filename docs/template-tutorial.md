@@ -58,6 +58,7 @@ All of the iterators in ZAP (for example `{{#zcl_clusters}} ... {{/zcl_clusters}
 
 - inner `{{#first}} ... {{/first}}` block: the content inside this block is only output during the FIRST iteration of the block.
 - inner `{{#last}} ... {{/last}}` block: the content inside this block is only output during the LAST iteration of the block.
+- inner `{{#middle}} ... {{/middle}}` block: the content inside this block is only output if this is neither the first nor the last element.
 - use of `{{else}}` which makes the following block appear only if the iterator is empty.
 
 For example:
@@ -68,6 +69,9 @@ For example:
 This content is output only once, at the beginning, for the first cluster.
 {{/first}}
 This content is output for EVERY cluster.
+{{#middle}}
+This content is output for all clusters but the first and the last.
+{{/middle}}
 {{#last}}
 This content is output only once, at the end, for the last cluster.
 {{/last}}

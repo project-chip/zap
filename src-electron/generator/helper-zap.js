@@ -95,6 +95,24 @@ function last(options) {
   }
 }
 
+/**
+ * Inside an iterator, this helper allows you to specify the content that will be output only
+ * during the non-first and no-last element.
+ *
+ * @param {*} options
+ * @returns content, if it's the middle element inside an operator, empty otherwise.
+ */
+function middle(options) {
+  if (
+    this.index != null &&
+    this.count != null &&
+    this.index != 0 &&
+    this.index != this.count - 1
+  ) {
+    return options.fn(this)
+  }
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -105,3 +123,4 @@ exports.ident = ident
 exports.template_options = template_options
 exports.last = last
 exports.first = first
+exports.middle = middle
