@@ -39,20 +39,17 @@ function collectData(ctx) {
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
 function parseZclFiles(db, ctx) {
-  return new Promise((resolve, reject) => {
-    ctx.zclClusters = []
-    ctx.zclGlobalAttributes = []
-    ctx.zclGlobalCommands = []
-    ctx.zclFiles.forEach((file) => {
-      env.logInfo(`Starting to parse Dotdot ZCL file: ${file.$.href}`)
-      let xml_string = fs.readFileSync(
-        path.dirname(ctx.metadataFile) + '/' + file.$.href,
-        'utf8'
-      )
-      xml2js.parseString(xml_string, function (err, result) {
-        if (err) {
-          reject(err)
-        }
+  var perFilePromise = []
+
+  ctx.zclClusters = []
+  ctx.zclGlobalAttributes = []
+  ctx.zclGlobalCommands = []
+  ctx.zclFiles.forEach((file) => {
+    env.logInfo(`Starting to parse Dotdot ZCL file: ${file.$.href}`)
+    var p = fsp
+      .readFile(path.dirname(ctx.metadataFile) + '/' + file.$.href, 'utf8')
+      .then((xml_string) => xml2js.parseStringPromise(xml_string))
+      .then((result) => {
         if (result['zcl:cluster']) {
           ctx.zclClusters.push(result['zcl:cluster'])
         } else if (result['zcl:global']) {
@@ -74,9 +71,10 @@ function parseZclFiles(db, ctx) {
           )
         }
       })
-    })
-    resolve(ctx)
+    perFilePromise.push(p)
   })
+
+  return Promise.all(perFilePromise).then(() => ctx)
 }
 
 /**
