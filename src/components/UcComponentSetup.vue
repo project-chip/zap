@@ -57,7 +57,7 @@ export default {
   },
 
   mounted() {
-    this.$serverOn(restApi.uc.componentTreeReply, (event, arg) => {
+    this.$serverOn(restApi.uc.componentTreeResponse, (event, arg) => {
       arg.data.forEach((ele) => this.testData.push(ele))
 
       // computed selected Nodes

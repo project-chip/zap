@@ -63,7 +63,21 @@ const uc = {
   componentRemove: '/uc/component/remove',
 
   // response/reply id
-  componentTreeReply: 'tree_reply',
+  componentTreeResponse: 'treeResponse',
+}
+
+const ide = {
+  // request
+  open: '/file/open',
+  close: '/file/close',
+  save: '/file/save',
+  saveAs: '/file/saveAs',
+  rename: '/file/rename',
+  move: '/file/move',
+  isDirty: '/file/isDirty',
+
+  // response
+  openResponse: 'openResponse',
 }
 
 exports.replyId = replyId
@@ -72,3 +86,4 @@ exports.uri = uri
 exports.httpCode = httpCode
 exports.uiMode = uiMode
 exports.uc = uc
+exports.ide = ide

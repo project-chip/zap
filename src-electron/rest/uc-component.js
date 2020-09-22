@@ -44,7 +44,7 @@ function registerUcComponentApi(db, app) {
         .then(function (response) {
           env.logInfo(`StudioUC(${name}): RESP: ${response.status}`)
           let r = {
-            replyId: restApi.uc.componentTreeReply,
+            replyId: restApi.uc.componentTreeResponse,
             data: response.data,
           }
           res.send(r)
