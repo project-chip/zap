@@ -39,7 +39,7 @@ const importJs = require('../importexport/import.js')
  * @param {*} showUrl
  * @param {*} uiMode
  */
-function startNormal(uiEnabled, showUrl, uiMode) {
+function startNormal(uiEnabled, showUrl, uiMode, embeddedMode) {
   dbApi
     .initDatabaseAndLoadSchema(
       env.sqliteFile(),
@@ -64,6 +64,7 @@ function startNormal(uiEnabled, showUrl, uiMode) {
       if (uiEnabled) {
         windowJs.initializeElectronUi(httpServer.httpServerPort(), {
           uiMode: uiMode,
+          embeddedMode: embeddedMode,
         })
       } else {
         if (app.dock) {

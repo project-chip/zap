@@ -59,7 +59,12 @@ if (app != null) {
           argv.zapFile
         )
       } else {
-        startup.startNormal(!argv.noUi, argv.showUrl, argv.uiMode)
+        startup.startNormal(
+          !argv.noUi,
+          argv.showUrl,
+          argv.uiMode,
+          argv.embeddedMode
+        )
       }
     } catch (err) {
       app.exit(1)

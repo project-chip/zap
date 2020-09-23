@@ -530,6 +530,10 @@ export function setDefaultUiMode(context, uiMode) {
   context.commit(`setDefaultUiMode`, uiMode)
 }
 
+export function setEmbeddedMode(context, embeddedMode) {
+  context.commit('setEmbeddedMode', embeddedMode)
+}
+
 export function setStudioConfigPath(context, filePath) {
   context.commit('setStudioConfigPath', filePath)
 }

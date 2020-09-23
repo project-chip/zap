@@ -51,6 +51,7 @@ limitations under the License.
               <template v-slot:option="option">
                 <q-expansion-item
                   expand-separator
+                  switch-toggle-side
                   :label="option.opt.label"
                   :default-opened="option.opt.children.length > 45"
                 >
