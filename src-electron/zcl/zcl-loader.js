@@ -57,7 +57,7 @@ function recordToplevelPackage(db, ctx) {
     )
     .then((id) => {
       ctx.packageId = id
-      return Promise.resolve(ctx)
+      return ctx
     })
 }
 
