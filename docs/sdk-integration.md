@@ -47,3 +47,25 @@ If the aggregation metafile is using `library.xml` type, then the XML files prov
 Generation templates and extensions are provided by the SDK. They are the input to the zap tool, that controls generation and tailors zap tool specifically to a given SDK, by providing the correct details of implementation that zap cares about.
 
 Neither templates and extensions are mandatory. Zap tool can operate without them, simply as an editor of zap files, however there will be little use of the tool, if you can't generate useful output.
+
+Entry point to zap reading the generation templates from the SDK is a file typically called `gen-templates.json`. This file provides ability of the SDK to configure zap to do the generation work it requires.
+
+The file is a JSON-formatted JS object, with the following structure:
+|Key|Value type|Value meaning|
+|---|----------|-----------|------|
+|name|String|Name of the template, will be shown in UI for selection|
+|version|String|Version of the template, will be shown in the UI for selection|
+|options|JS object, containing keys that can map to further key/value maps|This is a mechanism how to add additional category/key/value triplets to the package options. If the SDK wants to provide an additional generic categorized key/value properties, then you can provide an object here. Top-level keys map to either an Object itself, or a String, which will be interpreted as a path to a JSON serialized object. Objects should contain Strings as values of the elements. This data is loaded into the OPTIONS table. Toplevel key is used as OPTION*CATEGORY column, intermediate key is used as OPTION_CODE column, and the final String value of the sub-key is used as OPTION_LABEL column. These can be accessed from templates via `template_options` iterator, so you can iterate over a given category. They can also be access by the UI in certain cases.
+|templates|Array of JS objects containing keys: \_path*, _name_, _output_|Lists the individual files. Path should be relative against the location of the `gen-template.json` itself, output is the name of the generated file, and name is a human readable name that might show in the UI.|
+|helpers|Array of strings, representing relative paths.|This mechanism is how the SDK can create their own helpers in JavaScript, should that be needed. It is vastly prefered to stick to provided helpers. If you need additional helper it is also prefered to reach to ZAP developers to have your required feature added. This will ensure backwards compatibility and proper future-proofing and so on. However, as a last resort, you can add your own helpers using this mechanism. The files listed will be treated as node.js modules, and any exported symbol will be registered as a helper.|
+
+Following sections describe to the details specific use for certain more complex areas of the `gen-template.json`.
+
+### Templates key: options
+
+Options are loaded into the database, keyed to the given generation package. While you can always used them in templates via the `template_options` key, certain keys have special meanings.
+Following is the list of special meanings:
+
+| Category          | Meaning                                                                                                                |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| manufacturerCodes | This category backs a code/label map of valid manufacturer codes. They can be used in UI when selecting manufacturers. |
