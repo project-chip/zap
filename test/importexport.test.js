@@ -33,6 +33,9 @@ const querySession = require('../src-electron/db/query-session.js')
 var db
 var testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
 var testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
+// Due to future plans to rework how we handle global attributes,
+// we introduce this flag to bypass those attributes when testing import/export.
+let bypassGlobalAttributes = true
 
 beforeAll(() => {
   env.setDevelopmentEnv()
@@ -108,7 +111,8 @@ test('Test file 1 import', () => {
         attributeCount += c.attributes.length
       })
       expect(commandCount).toBe(7)
-      expect(attributeCount).toBe(21)
+      // This flag exists for this test due to planned global attribute rework.
+      expect(attributeCount).toBe(bypassGlobalAttributes ? 15 : 21)
     })
     .then(() => {
       // Clear the session
@@ -140,6 +144,7 @@ test('Test file 2 import', () => {
         attributeCount += c.attributes.length
       })
       expect(commandCount).toBe(24)
-      expect(attributeCount).toBe(28)
+      // This flag exists for this test due to planned global attribute rework.
+      expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
     })
 })
