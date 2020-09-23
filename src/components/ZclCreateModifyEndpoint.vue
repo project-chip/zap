@@ -92,7 +92,7 @@ limitations under the License.
       <q-card-actions>
         <q-btn label="Cancel" v-close-popup class="col" />
         <q-btn
-          :label="endpointReference ? 'Edit' : 'Create'"
+          :label="endpointReference ? 'Save' : 'Create'"
           color="primary"
           v-close-popup
           class="col"
