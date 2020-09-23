@@ -188,7 +188,7 @@ test('test Dotdot zcl data loading in memory', () => {
       .then(() => queryZcl.selectAllClusters(db, packageId))
       .then((x) => expect(x.length).toEqual(41))
       .then(() => queryZcl.selectAllDeviceTypes(db, packageId))
-      .then((x) => expect(x.length).toEqual(54))
+      .then((x) => expect(x.length).toEqual(108))
       .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
       .then((x) => expect(x).toEqual(644)) // seems low
       .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
@@ -352,4 +352,4 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
         dbApi.closeDatabase(db)
       })
   )
-}, 5000) // Give this test 5 secs to resolve
+}, 10000) // Give this test 10 secs to resolve
