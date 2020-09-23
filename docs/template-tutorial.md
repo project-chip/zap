@@ -8,6 +8,10 @@ Zap is using [handlebars](https://handlebarsjs.com/) package for templating, so 
 
 Apart from stock handlebars functionality, zap provides a series of [handlebar helpers](https://handlebarsjs.com/guide/block-helpers.html) which make creation of ZCL specific templates easier.
 
+Templates are typically named `*.zapt`, but that's a convention only, the files can be named anything. They should be listed in a `gen-template.json` file, as described in [SDK integration document](sdk-integration.md).
+
+This document does not deal with the `gen-template.json` file itself, but only with the structure and format of individual `*.zapt` templates.
+
 ## Simple example
 
 ```
