@@ -46,7 +46,7 @@ if (app != null) {
 
       // For now delete the DB file. There is some weird constraint we run into.
       if (argv.clearDb != null) {
-        startup.clearDatabaseFile()
+        startup.clearDatabaseFile(env.sqliteFile())
       }
 
       if (argv._.includes('selfCheck')) {

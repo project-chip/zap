@@ -284,6 +284,25 @@ function closeDatabase(database) {
 exports.closeDatabase = closeDatabase
 
 /**
+ * Create in-memory database.
+ *
+ *  @returns Promise that resolve with the Db.
+ */
+function initRamDatabase() {
+  return new Promise((resolve, reject) => {
+    var db = new sqlite.Database(':memory:', (err) => {
+      if (err) {
+        reject(err)
+      } else {
+        env.logSql(`Connected to the RAM database.`)
+        resolve(db)
+      }
+    })
+  })
+}
+exports.initRamDatabase = initRamDatabase
+
+/**
  * Returns a promise to initialize a database.
  *
  * @export
@@ -294,7 +313,7 @@ function initDatabase(sqlitePath) {
   return new Promise((resolve, reject) => {
     var db = new sqlite.Database(sqlitePath, (err) => {
       if (err) {
-        return reject(err)
+        reject(err)
       } else {
         env.logSql(`Connected to the database at: ${sqlitePath}`)
         resolve(db)
@@ -333,11 +352,13 @@ function determineIfSchemaShouldLoad(db, context) {
         } else {
           context.mustLoad = row.CRC != context.crc
         }
+        context.hasSchema = true
         resolve(context)
       })
       .catch((err) => {
         // Fall through, do nothing
         context.mustLoad = true
+        context.hasSchema = false
         resolve(context)
       })
   })
@@ -364,7 +385,7 @@ function updateCurrentSchemaCrc(db, context) {
  * @param {*} appVersion
  * @returns A promise that resolves with the same db that got passed in, or rejects with an error.
  */
-function loadSchema(db, schemaPath, appVersion) {
+function loadSchema(db, schemaPath, appVersion, sqliteFile = null) {
   return new Promise((resolve, reject) => {
     fs.readFile(schemaPath, 'utf8', (err, data) => {
       if (err) return reject(err)
@@ -373,6 +394,25 @@ function loadSchema(db, schemaPath, appVersion) {
   })
     .then((data) => util.calculateCrc({ filePath: schemaPath, data: data }))
     .then((context) => determineIfSchemaShouldLoad(db, context))
+    .then((context) => {
+      if (context.mustLoad && context.hasSchema)
+        return closeDatabase(db).then(() => context)
+      else return context
+    })
+    .then((context) => {
+      if (context.mustLoad && context.hasSchema) {
+        if (sqliteFile != null) util.createBackupFile(sqliteFile)
+        var p
+        if (sqliteFile == null) p = initRamDatabase()
+        else p = initDatabase(sqliteFile)
+        return p.then((d) => {
+          db = d
+          return context
+        })
+      } else {
+        return context
+      }
+    })
     .then(
       (context) =>
         new Promise((resolve, reject) => {
@@ -402,3 +442,18 @@ function loadSchema(db, schemaPath, appVersion) {
     .then((rowid) => Promise.resolve(db))
 }
 exports.loadSchema = loadSchema
+
+/**
+ * Init database and load the schema.
+ *
+ * @param {*} sqliteFile
+ * @param {*} schemaFile
+ * @param {*} zapVersion
+ * @returns Promise that resolves into the database object.
+ */
+function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
+  return initDatabase(sqliteFile).then((db) =>
+    loadSchema(db, schemaFile, zapVersion, sqliteFile)
+  )
+}
+exports.initDatabaseAndLoadSchema = initDatabaseAndLoadSchema

@@ -33,23 +33,16 @@ const zclPropertiesFile = path.join(
   '../zcl-builtin/silabs/zcl-test.properties'
 )
 
-test('test opening and closing the database', () => {
-  var db = new sq.Database(':memory:')
-  return dbApi.closeDatabase(db)
-})
-
-test('test database schema loading in memory', () => {
-  var db = new sq.Database(':memory:')
-  return dbApi
-    .loadSchema(db, env.schemaFile(), env.zapVersion())
-    .then((db) => dbApi.closeDatabase(db))
-})
-
 test('test Silabs zcl data loading in memory', () => {
-  var db = new sq.Database(':memory:')
+  var db
   var packageId
   return dbApi
-    .loadSchema(db, env.schemaFile(), env.zapVersion())
+    .initRamDatabase()
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+    .then((d) => {
+      db = d
+      return db
+    })
     .then((db) => zclLoader.loadZcl(db, zclPropertiesFile))
     .then((ctx) => {
       packageId = ctx.packageId

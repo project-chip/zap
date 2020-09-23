@@ -30,22 +30,26 @@ const env = require('../src-electron/util/env.js')
 const { query } = require('express')
 
 test('test opening and closing the database', () => {
-  var db = new sq.Database(':memory:')
-  return dbApi.closeDatabase(db)
+  return dbApi.initRamDatabase().then((db) => dbApi.closeDatabase(db))
 })
 
 test('test database schema loading in memory', () => {
-  var db = new sq.Database(':memory:')
   return dbApi
-    .loadSchema(db, env.schemaFile(), env.zapVersion())
+    .initRamDatabase()
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => dbApi.closeDatabase(db))
 })
 
 test('test Silabs zcl data loading in memory', () => {
-  var db = new sq.Database(':memory:')
+  var db
   var packageId
   return dbApi
-    .loadSchema(db, env.schemaFile(), env.zapVersion())
+    .initRamDatabase()
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+    .then((d) => {
+      db = d
+      return db
+    })
     .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
     .then((ctx) => {
       packageId = ctx.packageId
@@ -160,12 +164,17 @@ test('test Silabs zcl data loading in memory', () => {
 }, 5000) // Give this test 5 secs to resolve
 
 test('test Dotdot zcl data loading in memory', () => {
-  var db = new sq.Database(':memory:')
+  var db
   var packageId
   dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
   return (
     dbApi
-      .loadSchema(db, env.schemaFile(), env.zapVersion())
+      .initRamDatabase()
+      .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+      .then((d) => {
+        db = d
+        return db
+      })
       .then((db) => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
       .then((ctx) => {
         packageId = ctx.packageId
@@ -262,8 +271,12 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
   var dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
   return (
     dbApi
-      .loadSchema(db, env.schemaFile(), env.zapVersion())
-
+      .initRamDatabase()
+      .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+      .then((d) => {
+        db = d
+        return db
+      })
       //Load the Silabs ZCL XML into the DB
       .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile)) //default silabs
       .then((ctx) => {

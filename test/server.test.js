@@ -46,8 +46,7 @@ beforeAll(() => {
   var file = env.sqliteTestFile('server')
   axiosInstance = axios.create({ baseURL: baseUrl })
   return dbApi
-    .initDatabase(file)
-    .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
+    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
       db = d
       env.logInfo(`Test database initialized: ${file}.`)

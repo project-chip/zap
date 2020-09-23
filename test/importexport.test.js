@@ -38,8 +38,7 @@ beforeAll(() => {
   env.setDevelopmentEnv()
   var file = env.sqliteTestFile('importexport')
   return dbApi
-    .initDatabase(file)
-    .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
+    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
       db = d
       env.logInfo(`Test database initialized: ${file}.`)

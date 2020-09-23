@@ -32,12 +32,6 @@ const importJs = require('../importexport/import.js')
 
 // This file contains various startup modes.
 
-function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
-  return dbApi
-    .initDatabase(sqliteFile)
-    .then((db) => dbApi.loadSchema(db, schemaFile, zapVersion))
-}
-
 /**
  * Start up application in a normal mode.
  *
@@ -46,11 +40,12 @@ function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
  * @param {*} uiMode
  */
 function startNormal(uiEnabled, showUrl, uiMode) {
-  initDatabaseAndLoadSchema(
-    env.sqliteFile(),
-    env.schemaFile(),
-    env.zapVersion()
-  )
+  dbApi
+    .initDatabaseAndLoadSchema(
+      env.sqliteFile(),
+      env.schemaFile(),
+      env.zapVersion()
+    )
     .then((db) => env.resolveMainDatabase(db))
     .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
     .then((ctx) =>
@@ -102,7 +97,8 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
     if (options.log) console.log('    👉 remove old database file')
     fs.unlinkSync(dbFile)
   }
-  return initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
+  return dbApi
+    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
     .then((db) => {
       if (options.log) console.log('    👉 database and schema initialized')
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
@@ -189,7 +185,8 @@ function startGeneration(
   if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   var packageId
   var mainDb
-  return initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
+  return dbApi
+    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
     .then((db) => {
       mainDb = db
       return db
@@ -227,23 +224,13 @@ function startGeneration(
       throw err
     })
 }
-
 /**
- * Moves the main database file into a backup location.
+ * Move database file out of the way into the backup location.
+ *
+ * @param {*} path
  */
-function clearDatabaseFile() {
-  var path = env.sqliteFile()
-  var pathBak = path + '~'
-  if (fs.existsSync(path)) {
-    if (fs.existsSync(pathBak)) {
-      env.logWarning(`Deleting old backup file: ${pathBak}`)
-      fs.unlinkSync(pathBak)
-    }
-    env.logWarning(
-      `Database restart requested, moving file: ${path} to ${pathBak}`
-    )
-    fs.renameSync(path, pathBak)
-  }
+function clearDatabaseFile(path) {
+  util.createBackupFile(path)
 }
 
 exports.startGeneration = startGeneration
