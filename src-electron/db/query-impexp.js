@@ -463,7 +463,6 @@ function importCommandForEndpointType(
   endpointClusterId,
   command
 ) {
-  console.log(command)
   var arg = [
     endpointTypeId,
     endpointClusterId,
@@ -474,8 +473,6 @@ function importCommandForEndpointType(
   ]
   if (command.mfgCode != null) arg.push(command.mfgCode)
   arg.push(command.incoming, command.outgoing)
-  console.log(command)
-  console.log(arg)
   return dbApi.dbInsert(
     db,
     `
