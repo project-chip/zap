@@ -42,8 +42,8 @@ const importJs = require('../importexport/import.js')
 function startNormal(uiEnabled, showUrl, uiMode) {
   dbApi
     .initDatabase(env.sqliteFile())
-    .then((db) => env.resolveMainDatabase(db))
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+    .then((db) => env.resolveMainDatabase(db))
     .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
     .then((ctx) =>
       generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
@@ -96,13 +96,9 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
   }
   return dbApi
     .initDatabase(dbFile)
-    .then((db) => {
-      if (options.log) console.log('    👉 new database initialized')
-      return db
-    })
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => {
-      if (options.log) console.log('    👉 schema initialized')
+      if (options.log) console.log('    👉 database and schema initialized')
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
     })
     .then((ctx) => {
@@ -189,11 +185,11 @@ function startGeneration(
   var mainDb
   return dbApi
     .initDatabase(dbFile)
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => {
       mainDb = db
       return db
     })
-    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => zclLoader.loadZcl(db, zclProperties))
     .then((ctx) => generatorEngine.loadTemplates(ctx.db, genTemplateJsonFile))
     .then((ctx) => {
