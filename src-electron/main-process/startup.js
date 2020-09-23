@@ -32,6 +32,12 @@ const importJs = require('../importexport/import.js')
 
 // This file contains various startup modes.
 
+function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
+  return dbApi
+    .initDatabase(sqliteFile)
+    .then((db) => dbApi.loadSchema(db, schemaFile, zapVersion))
+}
+
 /**
  * Start up application in a normal mode.
  *
@@ -40,9 +46,11 @@ const importJs = require('../importexport/import.js')
  * @param {*} uiMode
  */
 function startNormal(uiEnabled, showUrl, uiMode) {
-  dbApi
-    .initDatabase(env.sqliteFile())
-    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+  initDatabaseAndLoadSchema(
+    env.sqliteFile(),
+    env.schemaFile(),
+    env.zapVersion()
+  )
     .then((db) => env.resolveMainDatabase(db))
     .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
     .then((ctx) =>
@@ -94,9 +102,7 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
     if (options.log) console.log('    👉 remove old database file')
     fs.unlinkSync(dbFile)
   }
-  return dbApi
-    .initDatabase(dbFile)
-    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+  return initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
     .then((db) => {
       if (options.log) console.log('    👉 database and schema initialized')
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
@@ -183,9 +189,7 @@ function startGeneration(
   if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   var packageId
   var mainDb
-  return dbApi
-    .initDatabase(dbFile)
-    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+  return initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
     .then((db) => {
       mainDb = db
       return db

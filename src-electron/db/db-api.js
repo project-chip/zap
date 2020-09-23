@@ -394,7 +394,10 @@ function loadSchema(db, schemaPath, appVersion) {
           }
         })
     )
-    .then((context) => updateCurrentSchemaCrc(db, context))
+    .then((context) => {
+      if (context.mustLoad) return updateCurrentSchemaCrc(db, context)
+      else return context
+    })
     .then((context) => insertOrReplaceSetting(db, 'APP', 'VERSION', appVersion))
     .then((rowid) => Promise.resolve(db))
 }
