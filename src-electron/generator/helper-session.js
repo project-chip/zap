@@ -23,6 +23,7 @@
 const templateUtil = require('./template-util.js')
 const queryImpexp = require('../db/query-impexp.js')
 const queryConfig = require('../db/query-config.js')
+const queryZcl = require('../db/query-zcl.js')
 
 /**
  * Creates block iterator helper over the endpoint types.
@@ -105,6 +106,89 @@ function user_all_attributes(options) {
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
 }
 
+/**
+ * Creates endpoint type cluster command iterator. This fetches all
+ * commands which have been enabled on added endpoints
+ *
+ * @param {*} options
+ * @returns Promise of the resolved blocks iterating over cluster commands.
+ */
+function all_user_cluster_commands(options) {
+  return queryImpexp
+    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      queryZcl.exportCommandDetailsFromAllEndpointTypesAndClusters(
+        this.global.db,
+        endpointsAndClusters
+      )
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, this)
+    )
+}
+
+/**
+ * Creates cluster command iterator for all endpoints.
+ *
+ * @param {*} options
+ * @returns Promise of the resolved blocks iterating over cluster commands.
+ */
+function all_user_clusters(options) {
+  return queryImpexp
+    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportAllClustersDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((clusters) => templateUtil.collectBlocks(clusters, options, this))
+}
+
+/**
+ * Get the count of the number of clusters commands with cli for a cluster.
+ * This is used under a cluster block helper
+ */
+function user_cluster_command_count_with_cli() {
+  return queryImpexp
+    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryImpexp.exportCliCommandCountFromEndpointTypeCluster(
+        this.global.db,
+        endpointTypes,
+        this.endpointClusterId
+      )
+    )
+}
+
+/**
+ * Creates endpoint type cluster command iterator. This works only inside
+ * cluster block helpers.
+ *
+ * @param {*} options
+ * @returns Promise of the resolved blocks iterating over cluster commands.
+ */
+function user_cluster_commands_all_endpoints(options) {
+  return queryImpexp
+    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportCommandDetailsFromAllEndpointTypeCluster(
+        this.global.db,
+        endpointTypes,
+        this.endpointClusterId
+      )
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, this)
+    )
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -116,3 +200,7 @@ exports.user_cluster_attributes = user_cluster_attributes
 exports.user_cluster_commands = user_cluster_commands
 exports.user_endpoint_type_count = user_endpoint_type_count
 exports.user_all_attributes = user_all_attributes
+exports.all_user_cluster_commands = all_user_cluster_commands
+exports.all_user_clusters = all_user_clusters
+exports.user_cluster_command_count_with_cli = user_cluster_command_count_with_cli
+exports.user_cluster_commands_all_endpoints = user_cluster_commands_all_endpoints

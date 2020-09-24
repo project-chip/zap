@@ -291,6 +291,47 @@ function largestLabelLength(arr) {
   return lengthOfLargestString
 }
 
+/**
+ * Helper to extract the number of command arguments in a command
+ *
+ * @param {*} commandId
+ * @returns Number of command arguments as an integer
+ */
+function zcl_command_arguments_count(commandId) {
+  return templateUtil.ensureZclPackageId(this).then((packageId) => {
+    var res = queryZcl.selectCommandArgumentsCountByCommandId(
+      this.global.db,
+      commandId,
+      packageId
+    )
+    return res
+  })
+}
+
+/**
+ * Block helper iterating over command arguments within a command
+ *
+ * @param {*} options
+ * @returns Promise of command argument iteration.
+ */
+function zcl_command_arguments(options) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) => {
+      if ('id' in this) {
+        // We're functioning inside a nested context with an id, so we will only query for this cluster.
+        return queryZcl.selectCommandArgumentsByCommandId(
+          this.global.db,
+          this.id,
+          packageId
+        )
+      } else {
+        return queryZcl.selectAllCommandArguments(this.global.db)
+      }
+    })
+    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -310,3 +351,5 @@ exports.zcl_attributes_server = zcl_attributes_server
 exports.zcl_atomics = zcl_atomics
 exports.zcl_global_commands = zcl_global_commands
 exports.zcl_cluster_largest_label_length = zcl_cluster_largest_label_length
+exports.zcl_command_arguments_count = zcl_command_arguments_count
+exports.zcl_command_arguments = zcl_command_arguments

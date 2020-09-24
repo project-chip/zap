@@ -1470,6 +1470,230 @@ function insertBitmaps(db, packageId, data) {
     })
 }
 
+/**
+ * Exports clusters and endpoint ids
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the data that contains cluster
+ * and endpoint id references
+ */
+function exportClustersAndEndpointDetailsFromEndpointTypes(db, endpointTypes) {
+  endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  var mapFunction = (x) => {
+    return {
+      endpointId: x.ENDPOINT_TYPE_REF,
+      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+    }
+  }
+
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF,
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+FROM CLUSTER
+INNER JOIN ENDPOINT_TYPE_CLUSTER
+ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})`
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * Returns a promise of data for commands inside an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the command data.
+ */
+function exportCommandDetailsFromAllEndpointTypesAndClusters(
+  db,
+  endpointsAndClusters
+) {
+  endpointTypeIds = endpointsAndClusters.map((ep) => ep.endpointId).toString()
+  endpointClusterIds = endpointsAndClusters
+    .map((ep) => ep.endpointClusterId)
+    .toString()
+  var mapFunction = (x) => {
+    return {
+      id: x.COMMAND_ID,
+      name: x.NAME,
+      code: x.CODE,
+      mfgCode: x.MANUFACTURER_CODE,
+      incoming: x.INCOMING,
+      outgoing: x.OUTGOING,
+      description: x.DESCRIPTION,
+      clusterSide: x.SIDE,
+      clusterName: x.CLUSTER_NAME,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    COMMAND.COMMAND_ID,
+    COMMAND.NAME,
+    COMMAND.CODE,
+    COMMAND.MANUFACTURER_CODE,
+    ENDPOINT_TYPE_COMMAND.INCOMING,
+    ENDPOINT_TYPE_COMMAND.OUTGOING,
+    COMMAND.DESCRIPTION,
+    ENDPOINT_TYPE_CLUSTER.SIDE,
+    CLUSTER.NAME AS CLUSTER_NAME
+  FROM COMMAND
+  INNER JOIN ENDPOINT_TYPE_COMMAND
+  ON COMMAND.COMMAND_ID = ENDPOINT_TYPE_COMMAND.COMMAND_REF
+  INNER JOIN ENDPOINT_TYPE_CLUSTER
+  ON ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  INNER JOIN CLUSTER
+  ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds}) AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
+  GROUP BY COMMAND.NAME
+        `
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * Get the number of command arguments for a command
+ *
+ * @param {*} db
+ * @param {*} commandId
+ * @param {*} [packageId=null]
+ * @returns A promise with number of command arguments for a command
+ */
+function selectCommandArgumentsCountByCommandId(
+  db,
+  commandId,
+  packageId = null
+) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT COUNT(*) AS count  
+FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
+      [commandId]
+    )
+    .then((res) => res[0].count)
+}
+
+/**
+ * Extract the command arguments for a command
+ *
+ * @param {*} db
+ * @param {*} commandId
+ * @param {*} [packageId=null]
+ * @returns A promise with command arguments for a command
+ */
+function selectCommandArgumentsByCommandId(db, commandId, packageId = null) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  COMMAND_REF, 
+  NAME, 
+  TYPE, 
+  IS_ARRAY  
+FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
+      [commandId]
+    )
+    .then((rows) => rows.map(dbMapping.map.commandArgument))
+}
+
+/**
+ * Exports clusters to an externalized form.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the data that should go into the external form.
+ */
+function exportAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
+  endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  var mapFunction = (x) => {
+    return {
+      id: x.CLUSTER_ID,
+      name: x.NAME,
+      code: x.CODE,
+      mfgCode: x.MANUFACTURER_CODE,
+      side: x.SIDE,
+      enabled: x.ENABLED,
+      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+    }
+  }
+
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  CLUSTER.CLUSTER_ID,
+  CLUSTER.CODE, 
+  CLUSTER.MANUFACTURER_CODE,
+  CLUSTER.NAME,
+  ENDPOINT_TYPE_CLUSTER.SIDE,
+  ENDPOINT_TYPE_CLUSTER.ENABLED,
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+FROM CLUSTER
+INNER JOIN ENDPOINT_TYPE_CLUSTER
+ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+GROUP BY NAME, SIDE`
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * Returns a promise of data for commands inside all existing endpoint types.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the command data.
+ */
+function exportCommandDetailsFromAllEndpointTypeCluster(
+  db,
+  endpointTypes,
+  endpointClusterId
+) {
+  endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  var mapFunction = (x) => {
+    return {
+      id: x.COMMAND_ID,
+      name: x.NAME,
+      code: x.CODE,
+      mfgCode: x.MANUFACTURER_CODE,
+      incoming: x.INCOMING,
+      outgoing: x.OUTGOING,
+      description: x.DESCRIPTION,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    COMMAND.COMMAND_ID,
+    COMMAND.NAME,
+    COMMAND.CODE,
+    COMMAND.MANUFACTURER_CODE,
+    ENDPOINT_TYPE_COMMAND.INCOMING,
+    ENDPOINT_TYPE_COMMAND.OUTGOING,
+    COMMAND.DESCRIPTION
+  FROM COMMAND
+  INNER JOIN ENDPOINT_TYPE_COMMAND
+  ON COMMAND.COMMAND_ID = ENDPOINT_TYPE_COMMAND.COMMAND_REF
+  WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds}) AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ?
+        `,
+      [endpointClusterId]
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
 // exports
 exports.selectAllEnums = selectAllEnums
 exports.selectAllEnumItemsById = selectAllEnumItemsById
@@ -1529,3 +1753,9 @@ exports.getAtomicSizeFromType = getAtomicSizeFromType
 exports.selectAtomicType = selectAtomicType
 exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById
 exports.selectBitmapByName = selectBitmapByName
+exports.exportClustersAndEndpointDetailsFromEndpointTypes = exportClustersAndEndpointDetailsFromEndpointTypes
+exports.exportCommandDetailsFromAllEndpointTypesAndClusters = exportCommandDetailsFromAllEndpointTypesAndClusters
+exports.selectCommandArgumentsCountByCommandId = selectCommandArgumentsCountByCommandId
+exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
+exports.exportAllClustersDetailsFromEndpointTypes = exportAllClustersDetailsFromEndpointTypes
+exports.exportCommandDetailsFromAllEndpointTypeCluster = exportCommandDetailsFromAllEndpointTypeCluster

@@ -284,6 +284,77 @@ function asBytes(value, type) {
   }
 }
 
+/**
+ * Given a string convert it into a camelCased string
+ *
+ * @param {*} str
+ * @returns a spaced out string in lowercase
+ */
+function asCamelCased(label) {
+  str = label.split(/ |-/)
+  res = ''
+  for (let i = 0; i < str.length; i++) {
+    if (i == 0) {
+      res += str[i].charAt(0).toLowerCase() + str[i].substring(1)
+      continue
+    }
+    res += str[i].charAt(0).toUpperCase() + str[i].substring(1)
+  }
+  return res
+}
+
+/**
+ * returns a string after converting ':' and '-' into '_'
+ * @param {*} label
+ */
+function cleanseLabel(label) {
+  l = label
+  l = l.replace(/[:/-]/g, '_').toLowerCase()
+  return l
+}
+
+/**
+ * Given a camel case string, convert it into one with underscore and lowercase
+ *
+ * @param {*} str
+ * @returns String in lowercase with underscores
+ */
+function asUnderscoreLowercase(str) {
+  label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+    return '_' + y
+  })
+  if (label.startsWith('_')) {
+    label = label.substring(1)
+  }
+  return label.toLowerCase()
+}
+
+/**
+ * Given a camel case string convert it into one with space and lowercase
+ *
+ * @param {*} str
+ * @returns a spaced out string in lowercase
+ */
+function asSpacedLowercase(str) {
+  str = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+    return ' ' + y
+  })
+  return str.toLowerCase()
+}
+
+/**
+ * Given a camel case string convert it into one with underscore and uppercase
+ *
+ * @param {*} str
+ * @returns String in uppercase with underscores
+ */
+function asUnderscoreUppercase(str) {
+  str = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+    return '_' + y
+  })
+  return str.toUpperCase()
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -296,3 +367,8 @@ exports.asBytes = asBytes
 exports.asDelimitedMacro = asDelimitedMacro
 exports.asOffset = asOffset
 exports.asUnderlyingType = asUnderlyingType
+exports.asCamelCased = asCamelCased
+exports.cleanseLabel = cleanseLabel
+exports.asUnderscoreLowercase = asUnderscoreLowercase
+exports.asSpacedLowercase = asSpacedLowercase
+exports.asUnderscoreUppercase = asUnderscoreUppercase

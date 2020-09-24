@@ -504,6 +504,67 @@ VALUES
   )
 }
 
+/**
+ * Extracts endpoint type ids.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into rows in the database table.
+ */
+function exportendPointTypeIds(db, sessionId) {
+  var mapFunction = (x) => {
+    return {
+      endpointTypeId: x.ENDPOINT_TYPE_ID,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+FROM 
+  ENDPOINT_TYPE 
+LEFT JOIN
+  DEVICE_TYPE
+ON 
+  ENDPOINT_TYPE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+WHERE ENDPOINT_TYPE.SESSION_REF = ? ORDER BY ENDPOINT_TYPE.NAME`,
+      [sessionId]
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * Returns the count of the number of cluster commands with cli for a cluster
+ * @param {*} db
+ * @param {*} endpointTypes
+ * @param {*} endpointClusterId
+ */
+function exportCliCommandCountFromEndpointTypeCluster(
+  db,
+  endpointTypes,
+  endpointClusterId
+) {
+  endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT COUNT(*) as count
+  FROM COMMAND
+  INNER JOIN ENDPOINT_TYPE_COMMAND
+  ON COMMAND.COMMAND_ID = ENDPOINT_TYPE_COMMAND.COMMAND_REF
+  INNER JOIN OPTIONS
+  ON OPTIONS.OPTION_CODE = COMMAND.NAME
+  WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds}) AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ?
+        `,
+      [endpointClusterId]
+    )
+    .then((res) => res[0].count)
+}
+
 exports.exportEndpointTypes = exportEndpointTypes
 exports.importEndpointType = importEndpointType
 
@@ -520,3 +581,5 @@ exports.importCommandForEndpointType = importCommandForEndpointType
 
 exports.exportEndpoints = exportEndpoints
 exports.importEndpoint = importEndpoint
+exports.exportendPointTypeIds = exportendPointTypeIds
+exports.exportCliCommandCountFromEndpointTypeCluster = exportCliCommandCountFromEndpointTypeCluster
