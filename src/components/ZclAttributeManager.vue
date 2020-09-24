@@ -20,10 +20,7 @@ limitations under the License.
   add action to edit button
 -->
 <template>
-  <div
-    v-show="attributeData.length > 0"
-    style="overflow: hidden; height: 100%;"
-  >
+  <div v-show="attributeData.length > 0">
     <q-table
       class="my-sticky-header-table"
       :data.sync="attributeData"
@@ -607,7 +604,7 @@ export default {
 <style lang="sass">
 .my-sticky-header-table
   /* height or max-height is important */
-  height: 75vh
+  height: 77vh  //TODO: how to properly use the parents view height
 
   .q-table__top,
   .q-table__bottom,
@@ -620,6 +617,9 @@ export default {
     z-index: 1
   thead tr:first-child th
     top: 0
+
+  tr:nth-child(even)
+    background-color: #dddddd
 
   /* this is when the loading indicator appears */
   &.q-table--loading thead tr:last-child th
