@@ -18,7 +18,6 @@
  * @jest-environment node
  */
 
-const sq = require('sqlite3')
 const dbApi = require('../src-electron/db/db-api.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
@@ -27,7 +26,6 @@ const queryGeneric = require('../src-electron/db/query-generic.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
-const { query } = require('express')
 
 test('test opening and closing the database', () => {
   return dbApi.initRamDatabase().then((db) => dbApi.closeDatabase(db))
@@ -265,7 +263,7 @@ test('test Dotdot zcl data loading in memory', () => {
 }, 5000) // Give this test 5 secs to resolve
 
 test('test Dotdot and Silabs zcl data loading in memory', () => {
-  var db = new sq.Database(':memory:')
+  var db
   var packageIdSilabs
   var packageIdDotdot
   var dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
