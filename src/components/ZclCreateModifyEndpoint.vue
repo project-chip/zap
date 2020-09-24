@@ -51,6 +51,7 @@ limitations under the License.
               <template v-slot:option="option">
                 <q-expansion-item
                   expand-separator
+                  switch-toggle-side
                   :label="option.opt.label"
                   :default-opened="option.opt.children.length > 45"
                 >
@@ -92,7 +93,7 @@ limitations under the License.
       <q-card-actions>
         <q-btn label="Cancel" v-close-popup class="col" />
         <q-btn
-          :label="endpointReference ? 'Edit' : 'Create'"
+          :label="endpointReference ? 'Save' : 'Create'"
           color="primary"
           v-close-popup
           class="col"

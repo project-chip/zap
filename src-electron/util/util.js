@@ -19,6 +19,7 @@
  * @module JS API: random utilities
  */
 
+const fs = require('fs')
 const env = require('./env.js')
 const crc = require('crc')
 const queryPackage = require('../db/query-package.js')
@@ -140,5 +141,23 @@ function initializeSessionPackage(db, sessionId) {
     .then(() => sessionId)
 }
 
+/**
+ * Move database file out of the way into the backup location.
+ *
+ * @param {*} path
+ */
+function createBackupFile(path) {
+  var pathBak = path + '~'
+  if (fs.existsSync(path)) {
+    if (fs.existsSync(pathBak)) {
+      env.logWarning(`Deleting old backup file: ${pathBak}`)
+      fs.unlinkSync(pathBak)
+    }
+    env.logWarning(`Creating backup file: ${path} to ${pathBak}`)
+    fs.renameSync(path, pathBak)
+  }
+}
+
+exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage

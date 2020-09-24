@@ -59,7 +59,13 @@ function parseZclFiles(db, ctx) {
           ctx.zclGlobalCommands = global.commands[0].command
         } else if (result['zcl:device']) {
           var deviceTypes = result['zcl:device']
-          ctx.zclDeviceTypes = deviceTypes['deviceType']
+          if (ctx.zclDeviceTypes === undefined) {
+            ctx.zclDeviceTypes = deviceTypes['deviceType']
+          } else {
+            ctx.zclDeviceTypes = ctx.zclDeviceTypes.concat(
+              deviceTypes['deviceType']
+            )
+          }
         } else if (result['map']) {
           var manufacturers = result['map']
           ctx.zclManufacturers = manufacturers['mapping']
@@ -385,8 +391,8 @@ function prepareAttributeType(attribute, types, cluster) {
 function prepareDeviceType(deviceType) {
   var ret = {
     code: deviceType.deviceId[0]['_'],
-    profileId: '0x0104', //There is no profileId in Dotdot device descriptions
-    domain: 'Dotdot', //There is no domain in Dotdot device descriptions
+    profileId: '0x0000', //There is no profileId in Dotdot device descriptions
+    domain: deviceType.domain[0],
     name: deviceType.name[0],
     description: deviceType.typeName[0],
   }

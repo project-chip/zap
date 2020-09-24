@@ -265,7 +265,7 @@ VALUES
    ?,
    ?)`,
     cluster.mfgCode == null
-      ? [endpointTypeId, packageId, cluster.code, cluster.side, 1]
+      ? [endpointTypeId, packageId, cluster.code, cluster.side, cluster.enabled]
       : [
           endpointTypeId,
           packageId,
@@ -350,7 +350,13 @@ function importAttributeForEndpointType(
   endpointClusterId,
   attribute
 ) {
-  var arg = [endpointTypeId, endpointClusterId, attribute.code, packageId]
+  var arg = [
+    endpointTypeId,
+    endpointClusterId,
+    attribute.code,
+    packageId,
+    endpointClusterId,
+  ]
   if (attribute.mfgCode != null) arg.push(attribute.mfgCode)
   arg.push(
     attribute.included,
@@ -381,9 +387,11 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE
   REPORTABLE_CHANGE )
 VALUES
 ( ?, ?,
-  ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE
-    WHERE CODE = ?
-    AND PACKAGE_REF = ?
+  ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE, ENDPOINT_TYPE_CLUSTER
+    WHERE ATTRIBUTE.CODE = ?
+    AND ATTRIBUTE.PACKAGE_REF = ? 
+    AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
+    AND ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = ATTRIBUTE.CLUSTER_REF
     AND ${
       attribute.mfgCode == null
         ? 'MANUFACTURER_CODE IS NULL'
@@ -412,6 +420,7 @@ function exportCommandsFromEndpointTypeCluster(
       name: x.NAME,
       code: x.CODE,
       mfgCode: x.MANUFACTURER_CODE,
+      source: x.SOURCE,
       incoming: x.INCOMING,
       outgoing: x.OUTGOING,
     }
@@ -424,6 +433,7 @@ function exportCommandsFromEndpointTypeCluster(
     COMMAND.NAME,
     COMMAND.CODE,
     COMMAND.MANUFACTURER_CODE,
+    COMMAND.SOURCE,
     ENDPOINT_TYPE_COMMAND.INCOMING,
     ENDPOINT_TYPE_COMMAND.OUTGOING
   FROM COMMAND
@@ -453,7 +463,14 @@ function importCommandForEndpointType(
   endpointClusterId,
   command
 ) {
-  var arg = [endpointTypeId, endpointClusterId, command.code, packageId]
+  var arg = [
+    endpointTypeId,
+    endpointClusterId,
+    command.code,
+    command.source,
+    packageId,
+    endpointClusterId,
+  ]
   if (command.mfgCode != null) arg.push(command.mfgCode)
   arg.push(command.incoming, command.outgoing)
   return dbApi.dbInsert(
@@ -467,10 +484,13 @@ INSERT INTO ENDPOINT_TYPE_COMMAND
   OUTGOING )
 VALUES
   ( ?, ?,
-    ( SELECT COMMAND_ID 
-      FROM COMMAND WHERE 
-        CODE = ? 
-        AND PACKAGE_REF = ?
+    ( SELECT COMMAND_ID
+      FROM COMMAND, ENDPOINT_TYPE_CLUSTER WHERE 
+        COMMAND.CODE = ? 
+        AND COMMAND.SOURCE = ?
+        AND COMMAND.PACKAGE_REF = ?
+        AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
+        AND COMMAND.CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
         AND ${
           command.mfgCode == null
             ? 'MANUFACTURER_CODE IS NULL'

@@ -21,6 +21,7 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
 const tray = require('./tray.js')
+const { embeddedMode } = require('../util/args.js')
 
 function initializeElectronUi(port, arguments) {
   let w = windowCreate(port, arguments)
@@ -36,10 +37,16 @@ function windowCreateIfNotThere(port) {
 
 let windowCounter = 0
 
-function createQueryString(winId, sessionId = null, uiMode = null) {
+function createQueryString(
+  winId,
+  sessionId = null,
+  uiMode = null,
+  embeddedMode = null
+) {
   var queryString = `?winId=${winId}`
   if (sessionId) queryString += `&sessionId=${sessionId}`
   if (uiMode) queryString += `&uiMode=${uiMode}`
+  if (embeddedMode) queryString += `&embeddedMode=${embeddedMode}`
   return queryString
 }
 
@@ -74,7 +81,8 @@ function windowCreate(port, arguments = {}) {
   let queryString = createQueryString(
     w.id,
     arguments.sessionId,
-    arguments.uiMode
+    arguments.uiMode,
+    arguments.embeddedMode
   )
 
   w.loadURL(`http://localhost:${port}/index.html` + queryString)

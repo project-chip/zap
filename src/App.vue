@@ -48,6 +48,10 @@ export default {
       this.$store.dispatch('zap/setDefaultUiMode', query[`uiMode`])
     }
 
+    if (query[`embeddedMode`]) {
+      this.$store.dispatch('zap/setEmbeddedMode', query[`embeddedMode`])
+    }
+
     if (query['studioProject']) {
       this.$store.dispatch('zap/setStudioConfigPath', query['studioProject'])
     }

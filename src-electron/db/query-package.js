@@ -354,7 +354,7 @@ function insertOptionsKeyValues(
         (?, ?, ?, ?)
        ON CONFLICT
         (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
-       DO UPDATE SET OPTION_CATEGORY = OPTION_CATEGORY`,
+       DO NOTHING`,
     optionCodeLabels.map((optionValue) => {
       return [packageId, optionCategory, optionValue.code, optionValue.label]
     })
@@ -424,7 +424,7 @@ function selectOptionValueByOptionDefaultId(db, optionDefaultId) {
 function insertDefaultOptionValue(db, packageId, optionCategory, optionRef) {
   return dbApi.dbInsert(
     db,
-    'INSERT INTO OPTION_DEFAULTS ( PACKAGE_REF, OPTION_CATEGORY, OPTION_REF) VALUES (?, ?, ?)',
+    'INSERT INTO OPTION_DEFAULTS ( PACKAGE_REF, OPTION_CATEGORY, OPTION_REF) VALUES (?, ?, ?) ON CONFLICT DO NOTHING',
     [packageId, optionCategory, optionRef]
   )
 }

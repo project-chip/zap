@@ -30,6 +30,7 @@
             {
               "name": "ResetToFactoryDefaults",
               "code": 0,
+              "source": "client",
               "mfgCode": null,
               "incoming": 1,
               "outgoing": 1
@@ -229,6 +230,7 @@
               "name": "RequestInformation",
               "code": 0,
               "mfgCode": null,
+              "source": "client",
               "incoming": 0,
               "outgoing": 1
             },
@@ -236,6 +238,7 @@
               "name": "PushInformationResponse",
               "code": 1,
               "mfgCode": null,
+              "source": "client",
               "incoming": 0,
               "outgoing": 1
             }
@@ -252,6 +255,7 @@
               "name": "RequestInformationResponse",
               "code": 0,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             },
@@ -259,6 +263,7 @@
               "name": "PushInformation",
               "code": 1,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             }
@@ -375,6 +380,7 @@
               "name": "CheckBillStatus",
               "code": 0,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             },
@@ -382,6 +388,7 @@
               "name": "SendBillRecord",
               "code": 1,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             }

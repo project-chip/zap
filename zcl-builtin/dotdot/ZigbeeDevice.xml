@@ -12,9 +12,10 @@ applicable to this document can be found in the LICENSE.md file.
 	xmlns:type="http://zigbee.org/zcl/types" 
 	xmlns:zcl="http://zigbee.org/zcl/clusters"
 	xsi:schemaLocation="http://zigbee.org/zcl/clusters cluster.xsd http://zigbee.org/zcl/types type.xsd">
-
+  <domain>ZigbeePro</domain>
   <deviceType>
     <name>onoffswitch</name>
+    <domain>ZigbeePro</domain>
     <typeName>On/Off Switch</typeName>
     <deviceId revision="1" editable="false">0x0000</deviceId>
     <clusters lockOthers="true">
@@ -27,6 +28,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>levelcontrolswitch</name>
+    <domain>ZigbeePro</domain>
     <typeName>Level Control Switch</typeName>
     <deviceId revision="1" editable="false">0x0001</deviceId>
     <clusters lockOthers="true">
@@ -41,6 +43,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>onnoffoutput</name>
+    <domain>ZigbeePro</domain>
     <typeName>On/Off Output</typeName>
     <deviceId revision="1" editable="false">0x0002</deviceId>
     <clusters lockOthers="true">
@@ -53,6 +56,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>levelcontrollableoutput</name>
+    <domain>ZigbeePro</domain>
     <typeName>Level Controllable Output</typeName>
     <deviceId revision="1" editable="false">0x0003</deviceId>
     <clusters lockOthers="true">
@@ -66,6 +70,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>sceneselector</name>
+    <domain>ZigbeePro</domain>
     <typeName>Scene Selector</typeName>
     <deviceId revision="1" editable="false">0x0004</deviceId>
     <revision>1</revision>
@@ -86,6 +91,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>configurationtool</name>
+    <domain>ZigbeePro</domain>
     <typeName>Configuration Tool</typeName>
     <deviceId revision="1" editable="false">0x0005</deviceId>
     <clusters lockOthers="true">
@@ -113,6 +119,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>remotecontrol</name>
+    <domain>ZigbeePro</domain>
     <typeName>Remote Control</typeName>
     <deviceId revision="1" editable="false">0x0006</deviceId>
     <clusters lockOthers="true">
@@ -145,6 +152,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>combinedinterface</name>
+    <domain>ZigbeePro</domain>
     <typeName>Combined Interface</typeName>
     <deviceId revision="1" editable="false">0x0007</deviceId>
     <clusters lockOthers="true">
@@ -177,6 +185,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>rangeextender</name>
+    <domain>ZigbeePro</domain>
     <typeName>Range Extender</typeName>
     <deviceId revision="1" editable="false">0x0008</deviceId>
     <clusters lockOthers="true">
@@ -194,6 +203,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>mainspoweroutlet</name>
+    <domain>ZigbeePro</domain>
     <typeName>Mains Power Outlet</typeName>
     <deviceId revision="1" editable="false">0x0009</deviceId>
     <clusters lockOthers="true">
@@ -214,6 +224,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>doorlock</name>
+    <domain>ZigbeePro</domain>
     <typeName>DoorLock</typeName>
     <deviceId revision="1" editable="false">0x000A</deviceId>
     <clusters lockOthers="true">
@@ -234,6 +245,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>doorlockcontroller</name>
+    <domain>ZigbeePro</domain>
     <typeName>DoorLock Controller</typeName>
     <deviceId revision="1" editable="false">0x000B</deviceId>
     <clusters lockOthers="true">
@@ -255,6 +267,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>simplesensor</name>
+    <domain>ZigbeePro</domain>
     <typeName>Simple Sensor</typeName>
     <deviceId revision="1" editable="false">0x000C</deviceId>
     <clusters lockOthers="true">
@@ -273,6 +286,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>consumptionawarenessdevice</name>
+    <domain>ZigbeePro</domain>
     <typeName>Consumption Awareness Device</typeName>
     <deviceId revision="1" editable="false">0x000D</deviceId>
     <clusters lockOthers="true">
@@ -291,6 +305,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>homegateway</name>
+    <domain>ZigbeePro</domain>
     <typeName>Home Gateway</typeName>
     <deviceId revision="1" editable="false">0x0050</deviceId>
     <clusters lockOthers="true">
@@ -316,6 +331,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>smartplug</name>
+    <domain>ZigbeePro</domain>
     <typeName>Smart Plug</typeName>
     <deviceId revision="1" editable="false">0x0051</deviceId>
     <clusters lockOthers="true">
@@ -338,6 +354,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>whitegoods</name>
+    <domain>ZigbeePro</domain>
     <typeName>White Goods</typeName>
     <deviceId revision="1" editable="false">0x0052</deviceId>
     <clusters lockOthers="true">
@@ -364,6 +381,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>meterinterface</name>
+    <domain>ZigbeePro</domain>
     <typeName>Meter Interface</typeName>
     <deviceId revision="1" editable="false">0x0053</deviceId>
     <clusters lockOthers="true">
@@ -385,6 +403,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>shade</name>
+    <domain>ZigbeePro</domain>
     <typeName>Shade</typeName>
     <deviceId revision="1" editable="false">0x0200</deviceId>
     <clusters lockOthers="true">
@@ -407,6 +426,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>shadecontroller</name>
+    <domain>ZigbeePro</domain>
     <typeName>Shade Controller</typeName>
     <deviceId revision="1" editable="false">0x0201</deviceId>
     <clusters lockOthers="true">
@@ -429,6 +449,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>windowcovering</name>
+    <domain>ZigbeePro</domain>
     <typeName>WindowCovering</typeName>
     <deviceId revision="1" editable="false">0x0202</deviceId>
     <clusters lockOthers="true">
@@ -449,6 +470,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>windowcoveringcontroller</name>
+    <domain>ZigbeePro</domain>
     <typeName>WindowCovering Controller</typeName>
     <deviceId revision="1" editable="false">0x0203</deviceId>
     <clusters lockOthers="true">
@@ -469,6 +491,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>heatingcoolingunit</name>
+    <domain>ZigbeePro</domain>
     <typeName>Heating Cooling Unit</typeName>
     <deviceId revision="1" editable="false">0x0300</deviceId>
     <clusters lockOthers="true">
@@ -491,6 +514,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>thermostat</name>
+    <domain>ZigbeePro</domain>
     <typeName>Thermostat</typeName>
     <deviceId revision="1" editable="false">0x0301</deviceId>
     <clusters lockOthers="true">
@@ -516,6 +540,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>tempsensor</name>
+    <domain>ZigbeePro</domain>
     <typeName>Temperature Sensor</typeName>
     <deviceId revision="1" editable="false">0x0302</deviceId>
     <clusters lockOthers="true">
@@ -535,6 +560,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>pump</name>
+    <domain>ZigbeePro</domain>
     <typeName>Pump</typeName>
     <deviceId revision="1" editable="false">0x0303</deviceId>
     <clusters lockOthers="true">
@@ -560,6 +586,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>pumpcontroller</name>
+    <domain>ZigbeePro</domain>
     <typeName>Pump Controller</typeName>
     <deviceId revision="1" editable="false">0x0304</deviceId>
     <clusters lockOthers="true">
@@ -585,6 +612,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>pressuresensor</name>
+    <domain>ZigbeePro</domain>
     <typeName>Pressure Sensor</typeName>
     <deviceId revision="1" editable="false">0x0305</deviceId>
     <clusters lockOthers="true">
@@ -604,6 +632,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>flowsensor</name>
+    <domain>ZigbeePro</domain>
     <typeName>Flow Sensor</typeName>
     <deviceId revision="1" editable="false">0x0306</deviceId>
     <clusters lockOthers="true">
@@ -623,6 +652,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>iascie</name>
+    <domain>ZigbeePro</domain>
     <typeName>IAS Control and Indication Equipment</typeName>
     <deviceId revision="1" editable="false">0x0400</deviceId>
     <clusters lockOthers="true">
@@ -645,6 +675,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>iasace</name>
+    <domain>ZigbeePro</domain>
     <typeName>IAS Ancillary Control Equipment</typeName>
     <deviceId revision="1" editable="false">0x0401</deviceId>
     <clusters lockOthers="true">
@@ -664,6 +695,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>iaszone</name>
+    <domain>ZigbeePro</domain>
     <typeName>IASZone</typeName>
     <deviceId revision="1" editable="false">0x0402</deviceId>
     <clusters lockOthers="true">
@@ -682,6 +714,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>iasW</name>
+    <domain>ZigbeePro</domain>
     <typeName>IAS Warning</typeName>
     <deviceId revision="1" editable="false">0x0403</deviceId>
     <clusters lockOthers="true">
@@ -704,10 +737,8 @@ applicable to this document can be found in the LICENSE.md file.
 
 <deviceType>
     <name>onofflight</name>
-    
+    <domain>ZigbeePro</domain>
     <typeName>On/Off Light</typeName>
-    
-    
     <deviceId revision="1" editable="false">0x0100</deviceId>
     <clusters lockOthers="true">
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true">
@@ -797,6 +828,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>dimmablelight</name>
+    <domain>ZigbeePro</domain>
     <typeName>Dimmable Light</typeName>
     <deviceId revision="1" editable="false">0x0101</deviceId>
     <clusters lockOthers="true">
@@ -900,6 +932,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>colordimmablelight</name>
+    <domain>ZigbeePro</domain>
     <typeName>Color Dimmable Light</typeName>
     <deviceId revision="1" editable="false">0x0102</deviceId>
     <clusters lockOthers="true">
@@ -1055,6 +1088,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>onofflightswitch</name>
+    <domain>ZigbeePro</domain>
     <typeName>On/Off Light Switch</typeName>
     <deviceId revision="1" editable="false">0x0103</deviceId>
     <clusters lockOthers="true">
@@ -1093,6 +1127,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>dimmerswitch</name>
+    <domain>ZigbeePro</domain>
     <typeName>Dimmer Switch</typeName>
     <deviceId revision="1" editable="false">0x0104</deviceId>
     <clusters lockOthers="true">
@@ -1133,6 +1168,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>colordimmerswitch</name>
+    <domain>ZigbeePro</domain>
     <typeName>Color Dimmer Switch</typeName>
     <deviceId revision="1" editable="false">0x0105</deviceId>
     <clusters lockOthers="true">
@@ -1175,6 +1211,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>lightsensor</name>
+    <domain>ZigbeePro</domain>
     <typeName>Light Sensor</typeName>
     <deviceId revision="1" editable="false">0x0106</deviceId>
     <clusters lockOthers="true">
@@ -1212,6 +1249,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>occupancysensor</name>
+    <domain>ZigbeePro</domain>
     <typeName>Occupancy Sensor</typeName>
     <deviceId revision="1" editable="false">0x0107</deviceId>
     <clusters lockOthers="true">
@@ -1248,6 +1286,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>onoffballast</name>
+    <domain>ZigbeePro</domain>
     <typeName>On/Off Ballast</typeName>
     <deviceId revision="1" editable="false">0x0108</deviceId>
     <clusters lockOthers="true">
@@ -1365,6 +1404,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>dimmableballast</name>
+    <domain>ZigbeePro</domain>
     <typeName>Dimmable Ballast</typeName>
     <deviceId revision="1" editable="false">0x0109</deviceId>
     <clusters lockOthers="true">
@@ -1482,6 +1522,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>onoffpluginunit</name>
+    <domain>ZigbeePro</domain>
     <typeName>On/Off Plug-in Unit</typeName>
     <deviceId revision="1" editable="false">0x010A</deviceId>
     <clusters lockOthers="true">
@@ -1565,6 +1606,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>dimmablepluginunit</name>
+    <domain>ZigbeePro</domain>
     <typeName>Dimmable Plug-in Unit</typeName>
     <deviceId revision="1" editable="false">0x010B</deviceId>
     <clusters lockOthers="true">
@@ -1648,6 +1690,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>colortemperaturelight</name>
+    <domain>ZigbeePro</domain>
     <typeName>Color Temperature Light</typeName>
     <deviceId revision="1" editable="false">0x010C</deviceId>
     <clusters lockOthers="true">
@@ -1800,6 +1843,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>extendedcolorlight</name>
+    <domain>ZigbeePro</domain>
     <typeName>Extended Color Light</typeName>
     <deviceId revision="1" editable="false">0x010D</deviceId>
     <clusters lockOthers="true">
@@ -1962,6 +2006,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>lightlevelsensor</name>
+    <domain>ZigbeePro</domain>
     <typeName>Light Level Sensor</typeName>
     <deviceId revision="1" editable="false">0x010E</deviceId>
     <clusters lockOthers="true">
@@ -1998,6 +2043,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>colorcontroller</name>
+    <domain>ZigbeePro</domain>
     <typeName>ColorController</typeName>
     <deviceId revision="1" editable="false">0x0800</deviceId>
     <clusters lockOthers="true">
@@ -2055,6 +2101,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>colorscenecontroller</name>
+    <domain>ZigbeePro</domain>
     <typeName>Color Scene Controller</typeName>
     <deviceId revision="1" editable="false">0x0810</deviceId>
     <clusters lockOthers="true">
@@ -2114,6 +2161,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>noncolorcontroller</name>
+    <domain>ZigbeePro</domain>
     <typeName>Non ColorController</typeName>
     <deviceId revision="1" editable="false">0x0820</deviceId>
     <clusters lockOthers="true">
@@ -2169,6 +2217,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>noncolorscenecontroller</name>
+    <domain>ZigbeePro</domain>
     <typeName>Non Color Scene Controller</typeName>
     <deviceId revision="1" editable="false">0x0830</deviceId>
     <clusters lockOthers="true">
@@ -2226,6 +2275,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>controlbridge</name>
+    <domain>ZigbeePro</domain>
     <typeName>Control Bridge</typeName>
     <deviceId revision="1" editable="false">0x0840</deviceId>
     <clusters lockOthers="true">
@@ -2291,6 +2341,7 @@ applicable to this document can be found in the LICENSE.md file.
   </deviceType>
   <deviceType>
     <name>onoffsensor</name>
+    <domain>ZigbeePro</domain>
     <typeName>On/off Sensor</typeName>
     <deviceId revision="1" editable="false">0x0850</deviceId>
     <clusters lockOthers="true">

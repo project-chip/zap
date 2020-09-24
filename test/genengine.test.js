@@ -36,8 +36,7 @@ var genTimeout = 3000
 beforeAll(() => {
   var file = env.sqliteTestFile('genengine')
   return dbApi
-    .initDatabase(file)
-    .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
+    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
       db = d
       env.logInfo('DB initialized.')

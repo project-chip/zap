@@ -45,8 +45,7 @@ var sid
 beforeAll(() => {
   var file = env.sqliteTestFile('query')
   return dbApi
-    .initDatabase(file)
-    .then((d) => dbApi.loadSchema(d, env.schemaFile(), env.zapVersion()))
+    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
       db = d
       env.logInfo('DB initialized.')

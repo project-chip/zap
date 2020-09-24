@@ -1,6 +1,6 @@
 # Zigbee Advanced Platform (ZAP)
 
-The ZAP project delivers a ZCL configuration via an "advanced configurator" and a generator platform.
+ZAP is an application that provides generation and configuration ability for the end-user ZCL application.
 
 - [Zigbee Advanced Platform (ZAP)](#zigbee-advanced-platform-zap)
 
@@ -39,10 +39,11 @@ In this scenario, the zap application is used standalone. It provides a `zap` ex
 
 ### Command line regeneration
 
-The command-line case features the same `zap` executable, however it will support command line options, such as `zap -generate <input>` which will cause the application to run in a headless mode, and generate all the data out of the configuration without showing the UI.
-This will make the application well suited for integration into continuous integration tools, such as a build system like Jenkins.
+The command-line case features the same `zap` executable, however it will support command line options, which will cause the application to run in a headless mode, and generate all the data out of the configuration without showing the UI.
 
-The zap tool is specifically design to support such a use case, as history shows that integration into CI process is critical for adoption of the tools into a wider ecosystem.
+This will make the application well suited for integration into continuous integration tools, such as Jenkins or similar.
+
+History shows that integration into CI process is critical for adoption of the tools into a wider ecosystem.
 
 ### Integration with IDE
 
@@ -64,12 +65,13 @@ The integration with IDE has 2 parts:
 
 ### Principles
 
-The ZAP architecture follows the standard guidelines for modern application development using node.js for backend and web technologies for frontend.
+The ZAP architecture follows the standard guidelines for modern application development using node.js for backend and web technologies for frontend, using the well-known and widely adopted electron platform.
+
 The state of the application is stored in the back-end SQL database (initialy a [SQLite](https://www.sqlite.org/index.html) file on a desktop PC).
 
-All the frontend is developed using the [quasar framework](https://quasar.dev/), which is one of the primer front-end frameworks developed on top of the [Vue.JS platform](https://vuejs.org/).
+All the frontend is developed using the [quasar framework](https://quasar.dev/), which is one of the most popular front-end frameworks developed on top of the [Vue.JS platform](https://vuejs.org/).
 
-Between the front-end and the back-end is the REST API, which allows for an reasonable separation between the two.
+Between the front-end and the back-end is the REST API, which allows for a clean separation between the two.
 
 The architectural design allows for the front-end user interface to be executed in any browser. The browser can be:
 
@@ -78,50 +80,45 @@ The architectural design allows for the front-end user interface to be executed 
 - other browser environment, such as [jxbrowser](https://www.teamdev.com/jxbrowser), which is a java-based wrapper around chromium engine, used by some IDEs to embed web-based UIs into its native environment.
 - any other browser environment that supports modern JS and is generally compatible with current standards
 
+This approach makes ZAP well suited for a possible future use as a cloud-based service, however the initial use case remains a standalone desktop application.
+
 ### Architecture diagram
 
 ![Architecture diagram](zap-architecture.png)
 
 ## Front end
 
-Front-end of the "Zap" platform centers around the UI that replaces the current ZCL tab inside SimplicityStudio's AppBuilder. The following are the architectural guidelines:
+Front-end of the "Zap" platform centers around the UI that provides all the functionality required by users to configure their ZCL application. The following are the architectural guidelines:
 
 - The UI is written using standard HTML5 technologies, using Vue.JS and Quasar as an agreed-on UI framework.
-- The UI backing data are the ZCL XML files for static meta-data (shipped by SDK) and the customer-owned "zcl.config" file where customer data is saved (JSON)
-- The UI must not be tied to either electron or jxbrowser APIs, and should be usable in a plain chrome browser environment, to ensure portability at the JS level,
-- The UI uses a common API that ties it to jxbrowser/electron/plain-browser environments via separate JS API layers for each environment, as described in "UI technologies for Wireless Tools"
-- The front-end can exist as external resources, as far as Studio is considered. It is based on loading a single toplevel HTML file (or external URL) and resolving relative URLs thereon, therefore the jxbrowser environment should be able to load it from the SDK if required, with minimal bridging access mechanism for file access.
-- The development environment for the the UI does not require the eclipse IDE, you can natively develop this using any standard webtech IDEs, such as vscode, atom, etc., so the entry point is much more light weight. This is very important, since in case of inexperienced developers, such environment has a much lower learning curve and allows for a much quicker contribution for resources well versed with webtech, but not with the eclipse/SWT development environment.
-- The initial custom-facing release requires that the Zap UI runs inside jxbrowser, as an eclipse editor inside full-blown legacy Simplicity Studio environment
-- additionally, the same UI will also be available for developers for use from command line via a simple "zclconfig <file>" command line execution, which will launch a simple electron-based app showing the exact same UI. User will be able to edit file, save changes and then proceed via command-line UC/UP generation/build process as defined by the UC/UP project.
+- Metadata that provides the static information for the UI (cluster, attributes, commands and other ZCL entities) is fed from the static files which can be either Silicon Labs XML files, or Zigbee owned XML files.
+- The UI backing data are the `*.zap` files where customer data is saved using JSON format.
+- The UI must not be tied to either electron or jxbrowser APIs, and should be usable in a plain chrome browser environment, to ensure portability at the UI level,
+- The UI uses a common API that ties it to jxbrowser/electron/plain-browser environments via separate JS API layers for each environment, called the "renderer API". This is how native browser "shell" is tied with the JS application inside the chromium DOM.
+- The development environment for the the UI does not require any specific IDE, you can natively develop this using any standard webtech IDEs, such as vscode, atom, etc.
+- Depending on the integration into some existing IDEs, zap UI may show visually embedded inside another IDE.
+- Same UI will also be available for developers for use from command line via a simple "zap <file>" command line execution, which will launch a simple electron-based app showing the fill UI. User will be able to edit file, save changes and then proceed developing the rest of the application using SDK specific tooling.
 
 ## Generator and backend
 
 The Zap back-end is a node.js application. The general design guidelines for the back-end logic are:
 
-- fully embrace and make use of the asynchronous node.js callback model, thus ensuring least-blocking and maximum-performing infrastructure.
+- fully embrace and make use of the asynchronous node.js callback model, thus ensuring least-blocking and maximum-performing infrastructure. Use of JS `promises` is a chosen pattern to follow asynchronicity.
 - use npm as a package manager.
-- During the development process, decide on the packaging model and how we distribute node runtime to the final environment.
+- distribution is done via an installer for different native platforms, but specific IDEs or ecosystems are free to embedd zap distribution as part of their own installation process.
 - Provide unit testing infrastructure, and a CI build that reacts on the code modifications automatically.
 
 Generator is closely tied to the changes in the embedded layers, but here we list mostly integration requirements:
 
 - Input to generator are:
 
-  - ZCL XML files
-  - generation template files
-  - custom owned zcl.config file.
-  - custom generation template files
+  - ZCL metadata files (either Silicon Labs XML, or Zigbee XML)
+  - generation template files with other SDK customizations
+  - custom owned `*.zap` file.
 
-- Output from generator are generated .c/.h files that the embedded code requires and a series of "generation instructions" that are the contributions to the Universal Configurator / Unified Platforom (UC/UP) project model (such as: headers defined, additional C/H files included, etc, etc.).
+- Output from generator are generated files that the embedded code requires and any other possible build files or others, as required by the SDK that the generation is targetting.
 
-- Generator will be packaged as a Simplicity Studio adapter pack, which ensures that it can be executed both from command-line without any studio present, as well as from full-blown Studio or whatever subset of Studio UC command-line ends up being.
-
-- A format of the output "generation instructions" yaml file (as described here: Advanced Configurator Generation Layer integration) will have to be agreed on with the Studio team.
-
-- For faster generation, in environments where an intermediate yaml file is NOT required, as both driver and driven processes are within the same process in memory, the generator could use a provided interface to populate generation instructions, instead of an intermediate yaml file.
-
-- Generator is not tied to the front-end in any way. We could, as a convenience, add a "preview mode" in the front-end UI, just to see what will generate, but the intent is to keep these decoupled and editing of the zcl.config file in a an editor is a separate process from generating content.
+- Generator is not tied to the front-end in any way. We could, as a convenience, add a "preview mode" in the front-end UI, just to see what will generate, but the intent is to keep these decoupled and editing of the `*.zap` file in a an editor is a separate process from generating content.
 
 ## Database schema
 
@@ -134,61 +131,15 @@ Following are the rules for the database schema:
 - Columns with the `_ID` postfix, are the primary key columns and should be declared as such in the schema.
 - Columns with the `_REF` postfix, are the foreign key columns, and should be constrained as such in the schema.
 - We should support `cascade delete` mechanism for tables with foreign keys.
-- All the primary keys are considered NON PERMANENT. What this means, is that between two runs of the application, there is no guarantee that these rows will survive, since the application always needs ability to start from a state where there is no database, and it will create one on the fly. This rule implies, that any exports (such as the configuration file saved to a local filesystem) _MUST NOT_ contain any references to the specific primary key values.
+- All the primary keys are considered NON PERMANENT. What this means, is that between two runs of the application, there is no guarantee that these rows will survive, since the application always needs ability to start from a state where there is no database, and it will create one on the fly. This rule implies, that any exports (such as the configuration file saved to a local filesystem) _MUST NOT_ contain any references to the specific primary key values. The only time this might change, is if one day zap becomes a cloud-based service.
 
 ### Schema diagram
 
-Following picture shows the schema diagram. Note that the root information for the schema itself, is the [SQL script that creates the schema](src-electron/db/zap-schema.sql).
+Following picture shows the schema diagram. Note that the root information for the schema itself, is the [SQL script that creates the schema](src-electron/db/zap-schema.sql) and the picture is generated out of the schema.
 
 ![SQL schema diagram](zap-schema.svg)
 
 _Developer note_: If there are any changes to the SQL script, the picture should be regenerated via the `docs/make-schema-diagram` script.
-
-## Embedded code
-
-### Database
-
-We need to develop a common database layer that will be used across both Thread, CHIP and Zigbee or any other underlying platform. We should investigate both current options and come up with the best solution for both.
-
-The database needs to support:
-
-- **singleton attributes**: the attributes that have same value across multiple endpoints.
-- **flash-saved attributes**: the attributes whose value is saved to flash for persistence across resets.
-- **external attributes**: the attributes whose value is not stored anywhere, but whenever the code queries them, the value is received or stored via a customer callback.
-- **manufacturer-specific attributes and commands**: schema needs to make sure all manufacturer specific data has place in the tables
-- **external APIs**: that might allow other data tokens to be stored into this database for any purpose customers might come up with
-
-The database design should be ZCL-independent, but should be developed as just-a-database, useful for storing anything. ZCL is a special case that uses this database. It should build into a library that should also compile on POSIX and be fully unit-testable on a Linux box.
-It is also possible to reuse an existing embedded database for this purpose.
-
-The access to the database should be done with a well defined API, so the rest of the ZCL application layer should be able to the transplanted from one to another databse. In a case of a desktop-application (for unit testing, for example), and use on Android devices, using sqlite database might make a lot of sense.
-The APIs should be cleanly separated, so that migrating application layer from embedded database onto a sqlite file should be possible.
-
-### Metalayer
-
-The metalayer is the struct/spec layer that was created for Thread. In zigbee, there is no concept of a "command struct". Commands are parsed from a packet payload and then passed around as long list of function arguments, which is unwieldy and confusing. For Thread, Richard created a layer where each command from XML files, is generated into a struct that will be populated by the code and the spec which is a chunk of metadata used to populate the struct. Once the struct is created, a pointer to this data is passed around the functions as a single pointer, which is much more handy. We should create a single metalayer, probably copying the Thread model, and then retrofit Zigbee code with it.
-
-Zigbee metalayer should be a library, built and fully unit-testable on a Linux environment.
-
-### Zap API
-
-Zap implements the clusters in a form of "plugins". Each cluster server or client implementation will typically be a separate plugin.
-In order for these plugins to me interchangeably used on top of any transport layer or underlying stack implementation, the code in them is NOT allowed to use any underlying stack or RTOS APIs.
-They are only allowed to use the Zap API, which will be defined for this purpose.
-
-There will be multiple actual implementations of Zap API:
-
-- **mock implementation**: pure stubs, do nothing, just allows a compile to succeed without any underlying layers.
-- **Silabs Zigbee implementation**: implementation that binds the zap library with the Silicon Labs Zigbee Pro stack.
-- **Posix implementation**: POSIX based C code implementation, used in enhanced unit tests and simulation runs.
-- **CHIP implementation**: Implementation of the API on top of CHIP OpenWeave stack.
-
-Zap API will provide functions in roughly following categories:
-
-- **network abstraction layer**: abstractions for basic interaction with sending and receiving packets
-- **payload codecs**: abstractions for encoding and decoding payload into the ZCL structures.
-- **OS abstraction layer**: abstractions for any kind of RTOS or lower level services, such as event management, memory allocation, etc., required by the plugin code.
-- **DB abstraction layer**: abstractions to access embedded attribute database for storage of ZCL attributes or other tokens.
 
 ## Versioning and backwards compatibility
 
@@ -200,28 +151,30 @@ The tool rules that deal with multiple ZCL data pack versions are as follows...
 
 Zap tools follows the following strict rules of backwards compatibility:
 
-- Each version of the tool, can read the `zcl.config` files created by itself, or by any older version of zap tool.
-- It might not be able to read `zcl.config` file saved by future versions of the zap tool.
-- Each version of the tool, writes out only its own versions of the zcl.config files. This means that any time you read in a config file, and save it back out, it means it gets upgraded to the latest format.
-- Each version of the tool, can generate artifacts for its own version, or any older version of the SDK. The information about which generation variant is required, is saved in the zcl.config file.
+- Each version of the tool, can read the `*.zap` files created by itself, or by any older version of zap tool.
+- It might not be able to read `*.zap` file saved by future versions of the zap tool, but there are no guarantees of future compatibility.
+- Each version of the tool, writes out only its own versions of the `*.zap` files. This means that any time you read in a config file, and save it back out, it means it gets upgraded to the latest format.
+- Each version of the tool, can generate artifacts for any current or older templates. `*.zap` file will contain information about which templates should be used for generation, but it would be possible to use the same `*.zap` file to change the template information to be used with different sets of template. This way, the same ZCL configuration can easily be moved between different SDKs.
 
 Consequences of these rules:
 
 - Once you have an upgraded version of the zap tool in your desktop environment, you should never downgrade.
 - If you have mutiple versions of the zap tool in your desktop environment, you should always execute the latest, and can safely delete all earlier versions.
 
-### Dealing with the generation variant
+In short, except in cases of real bugs in the zap codebase, you should _always_ use the latest version.
 
-Zap tool supports multiple variants of generation. Different versions of the SDK might require different variant. Variants are identified by an increasing integer number, starting with zero.
+### Dealing with different templates
 
-- A desired variant of generation is recorded in the zcl.config file.
-  Generation logic inside Zap tool is separated per-variant, so that each variant generator is isolated in a separate javascript module.
-- An initial variant is populated from the initial template of zcl.config file, that is copied into your project from the selection of the zcl component.
-- Technically, users can always change the variant inside zcl.config file. But the user interface should not allow them to do that easily, since changing a variant makes no sense within a same ZCL data pack.
-- Upgrading the zcl.config file from one SDK to another, where a generation variant has increased, will result in the variant inside zcl.config file being upgraded.
-- As each version of zap tool, supports current and all older variants, you can always generate older variant projects from latest version of the tool.
+Zap tool supports external templates for generation. The templates are part of the SDK that zap is working with, and when zap application is started, the location of the top-level template metafile (`gen-templates.json`) should be passed to zap as a command line argument. There will also be a UI option to switch to a different template package.
 
-### Dealing with the XML files
+Different versions of the SDK might provide different templates. They are identified by an increasing integer number, starting with zero, called the template versions.
+
+- A desired template version for generation is recorded in the `*.zap` file.
+- An initial version is populated from the initial template, that is copied into your project from the SDK that you are using.
+- Technically, users can always change the variant inside `*.zap` file. - Migrating the `*.zap` file from one SDK to another, where a template version is different, will result in the variant inside `*.zap` file being changed.
+- As each version of zap tool, supports current and all older variants, you can always generate older projects from latest version of the tool.
+
+### Dealing with the XML ZCL meta-files
 
 Zap tool needs to be able to read in and parse the XML files from all installed locations on demand, and hash them internally per SDK.
 
@@ -231,15 +184,14 @@ When zap tool is asked to serve UI, or generate, it will require information whi
 
 Following rules apply:
 
-- There is ALWAYS only one copy of the zap tool running. There is never a valid reason, nor should be allowed, to execute two versions of the zap tool in any normal flow. Zap tool will create a taskbar icon which will be an interface for the user to interact with the tool globally, without the context of the specific zcl.config file.
-- If the currently running version of the zap tool encounters a generation variant that is higher than the one it supports, or zcl.config file in a format higher than is supports it shows an error and prompts to upgrade the tool.
-- When a zap tool opens a zcl.config file, it will create a "session" for this zcl.config file. In case of UI, there will be a cookie on a browser side identifying the session. This way, you can open multiple browser windows against the same zap tool back-end to edit multiple files.
+- There is ALWAYS only one copy of the zap tool running. There is never a valid reason, nor should be allowed, to execute two versions of the zap tool in any normal flow. Zap tool will create a taskbar icon which will be an interface for the user to interact with the tool globally, without the context of the specific `*.zap` file.
+- If the currently running version of the zap tool encounters a generation variant that is higher than the one it supports, or `*.zap` file in a format higher than is supports it shows an error and prompts to upgrade the tool.
+- When a zap tool opens a `*.zap` file, it will create a "session" for this `*.zap` file. In case of UI, there will be a cookie on a browser side identifying the session. This way, you can open multiple browser windows against the same zap tool back-end to edit multiple files.
   Each "session" will know the following information:
-  - the user data that it is processing (the in-memory or in-database equivalent of the zcl.config file).
-  - the static SDK data (ZCL XML files) that match this user data, which is provided from the cache of all loaded XML files as described in the previous chapter.
-  - Sessions may be persisted and/or removed from in-memory representation due to inactivity. Final specific implementation TBD.
+  - the user data that it is processing (the in-database equivalent of the `*.zap` file).
+  - Sessions may be persisted and/or removed from in-database representation due to inactivity. Final specific implementation TBD.
 
-Zap tool will be versioned with 2 tokens of information. These versions will be seen via a --version command line argument and they will be saved into the zcl.config file. The two tokens are:
+Zap tool will be versioned with 2 tokens of information. These versions will be seen via a --version command line argument and they will be saved into the `*.zap` file. The two tokens are:
 
 - The git commit # of the built version of tool.
 - A date of this git commit in a human readable form.
@@ -263,4 +215,4 @@ Besides the markdown, there is also a process to generate HTML documentation out
 
 ## Testing
 
-Unit testing was an extremely important for ZCL embedded apps, therefore the scope of existing unit tests needs to be maintained. Exact design TBD.
+`Jest` JS package is provided for unit testing of the zap codebase. There is a configured coverage requirement, that will trip the CI if not met.

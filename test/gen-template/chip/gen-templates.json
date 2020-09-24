@@ -40,9 +40,9 @@
       "output": "zap-cli.h"
     },
     {
-      "path": "zap-command-parser.zapt",
-      "name": "ZCL command parsers",
-      "output": "zap-command-parser.h"
+      "path": "call-command-handler.zapt",
+      "name": "ZCL Call Command Handler",
+      "output": "call-command-handler.h"
     },
     {
       "path": "zap-command.zapt",

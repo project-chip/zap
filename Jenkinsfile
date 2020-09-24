@@ -66,7 +66,7 @@ pipeline
             {
                 script 
                 {
-                    sh 'rm -rf ~/.zap'
+                    // Temporarily comment this out: sh 'rm -rf ~/.zap'
                     sh 'npm run test'
                 }
             }

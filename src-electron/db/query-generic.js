@@ -32,8 +32,8 @@ const dbApi = require('./db-api.js')
  */
 function selectCountFrom(db, table) {
   return dbApi
-    .dbGet(db, `SELECT COUNT(*) FROM ${table}`)
-    .then((x) => x['COUNT(*)'])
+    .dbGet(db, `SELECT COUNT(*) AS COUNT FROM ${table}`)
+    .then((x) => x.COUNT)
 }
 
 /**

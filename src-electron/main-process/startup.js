@@ -39,11 +39,14 @@ const importJs = require('../importexport/import.js')
  * @param {*} showUrl
  * @param {*} uiMode
  */
-function startNormal(uiEnabled, showUrl, uiMode) {
+function startNormal(uiEnabled, showUrl, uiMode, embeddedMode) {
   dbApi
-    .initDatabase(env.sqliteFile())
+    .initDatabaseAndLoadSchema(
+      env.sqliteFile(),
+      env.schemaFile(),
+      env.zapVersion()
+    )
     .then((db) => env.resolveMainDatabase(db))
-    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
     .then((ctx) =>
       generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
@@ -61,6 +64,7 @@ function startNormal(uiEnabled, showUrl, uiMode) {
       if (uiEnabled) {
         windowJs.initializeElectronUi(httpServer.httpServerPort(), {
           uiMode: uiMode,
+          embeddedMode: embeddedMode,
         })
       } else {
         if (app.dock) {
@@ -95,14 +99,9 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
     fs.unlinkSync(dbFile)
   }
   return dbApi
-    .initDatabase(dbFile)
+    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
     .then((db) => {
-      if (options.log) console.log('    👉 new database initialized')
-      return db
-    })
-    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
-    .then((db) => {
-      if (options.log) console.log('    👉 schema initialized')
+      if (options.log) console.log('    👉 database and schema initialized')
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
     })
     .then((ctx) => {
@@ -188,12 +187,11 @@ function startGeneration(
   var packageId
   var mainDb
   return dbApi
-    .initDatabase(dbFile)
+    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
     .then((db) => {
       mainDb = db
       return db
     })
-    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
     .then((db) => zclLoader.loadZcl(db, zclProperties))
     .then((ctx) => generatorEngine.loadTemplates(ctx.db, genTemplateJsonFile))
     .then((ctx) => {
@@ -227,23 +225,13 @@ function startGeneration(
       throw err
     })
 }
-
 /**
- * Moves the main database file into a backup location.
+ * Move database file out of the way into the backup location.
+ *
+ * @param {*} path
  */
-function clearDatabaseFile() {
-  var path = env.sqliteFile()
-  var pathBak = path + '~'
-  if (fs.existsSync(path)) {
-    if (fs.existsSync(pathBak)) {
-      env.logWarning(`Deleting old backup file: ${pathBak}`)
-      fs.unlinkSync(pathBak)
-    }
-    env.logWarning(
-      `Database restart requested, moving file: ${path} to ${pathBak}`
-    )
-    fs.renameSync(path, pathBak)
-  }
+function clearDatabaseFile(path) {
+  util.createBackupFile(path)
 }
 
 exports.startGeneration = startGeneration

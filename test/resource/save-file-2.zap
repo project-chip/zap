@@ -225,6 +225,7 @@
               "name": "GetCurrentPrice",
               "code": 0,
               "mfgCode": null,
+              "source": "client",
               "incoming": 0,
               "outgoing": 1
             },
@@ -232,6 +233,7 @@
               "name": "PriceAcknowledgement",
               "code": 2,
               "mfgCode": null,
+              "source": "client",
               "incoming": 0,
               "outgoing": 1
             }
@@ -265,6 +267,7 @@
               "name": "PublishPrice",
               "code": 0,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             }
@@ -316,6 +319,7 @@
               "name": "ReportEventStatus",
               "code": 0,
               "mfgCode": null,
+              "source": "client",
               "incoming": 0,
               "outgoing": 1
             },
@@ -323,6 +327,7 @@
               "name": "GetScheduledEvents",
               "code": 1,
               "mfgCode": null,
+              "source": "client",
               "incoming": 0,
               "outgoing": 1
             }
@@ -416,6 +421,7 @@
               "name": "LoadControlEvent",
               "code": 0,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             },
@@ -423,6 +429,7 @@
               "name": "CancelLoadControlEvent",
               "code": 1,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             },
@@ -430,6 +437,7 @@
               "name": "CancelAllLoadControlEvents",
               "code": 2,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             }
@@ -463,6 +471,7 @@
               "name": "Identify",
               "code": 0,
               "mfgCode": null,
+              "source": "client",
               "incoming": 1,
               "outgoing": 1
             },
@@ -470,6 +479,7 @@
               "name": "IdentifyQuery",
               "code": 1,
               "mfgCode": null,
+              "source": "client",
               "incoming": 1,
               "outgoing": 1
             },
@@ -477,6 +487,7 @@
               "name": "EZModeInvoke",
               "code": 2,
               "mfgCode": null,
+              "source": "client",
               "incoming": 1,
               "outgoing": 1
             },
@@ -484,6 +495,7 @@
               "name": "UpdateCommissionState",
               "code": 3,
               "mfgCode": null,
+              "source": "client",
               "incoming": 0,
               "outgoing": 1
             }
@@ -501,6 +513,7 @@
               "name": "IdentifyQueryResponse",
               "code": 0,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             }
@@ -518,6 +531,7 @@
               "name": "GetLastMessage",
               "code": 0,
               "mfgCode": null,
+              "source": "client",
               "incoming": 0,
               "outgoing": 1
             },
@@ -525,6 +539,7 @@
               "name": "MessageConfirmation",
               "code": 1,
               "mfgCode": null,
+              "source": "client",
               "incoming": 0,
               "outgoing": 1
             }
@@ -558,6 +573,7 @@
               "name": "DisplayMessage",
               "code": 0,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             },
@@ -565,6 +581,7 @@
               "name": "CancelMessage",
               "code": 1,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             }
@@ -678,6 +695,7 @@
               "name": "InitiateKeyEstablishmentRequest",
               "code": 0,
               "mfgCode": null,
+              "source": "client",
               "incoming": 0,
               "outgoing": 1
             },
@@ -685,6 +703,7 @@
               "name": "EphemeralDataRequest",
               "code": 1,
               "mfgCode": null,
+              "source": "client",
               "incoming": 0,
               "outgoing": 1
             },
@@ -692,6 +711,7 @@
               "name": "ConfirmKeyDataRequest",
               "code": 2,
               "mfgCode": null,
+              "source": "client",
               "incoming": 0,
               "outgoing": 1
             }
@@ -740,6 +760,7 @@
               "name": "TerminateKeyEstablishment",
               "code": 3,
               "mfgCode": null,
+              "source": "either",
               "incoming": 0,
               "outgoing": 1
             }
@@ -757,6 +778,7 @@
               "name": "InitiateKeyEstablishmentResponse",
               "code": 0,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             },
@@ -764,6 +786,7 @@
               "name": "EphemeralDataResponse",
               "code": 1,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             },
@@ -771,6 +794,7 @@
               "name": "ConfirmKeyDataResponse",
               "code": 2,
               "mfgCode": null,
+              "source": "server",
               "incoming": 0,
               "outgoing": 1
             }

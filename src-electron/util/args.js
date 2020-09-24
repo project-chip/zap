@@ -28,6 +28,7 @@ exports.genTemplateJsonFile = './test/gen-template/zigbee/gen-templates.json'
 exports.httpPort = 9070
 exports.studioHttpPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE
+exports.embeddedMode = false
 exports.noServer = false
 exports.zapFile = null
 exports.genResultFile = false
@@ -84,6 +85,13 @@ function processCommandLineArguments(argv) {
       type: 'string',
       default: exports.uiMode,
     })
+    .option('embeddedMode', {
+      desc:
+        'Boolean for when you want to embed purely the ZCL parts of the ZAP tool',
+      alias: 'embed',
+      type: 'boolean',
+      default: exports.embeddedMode,
+    })
     .option('noUi', {
       desc: "Don't show the main window when starting.",
     })
@@ -122,6 +130,7 @@ function processCommandLineArguments(argv) {
   exports.studioHttpPort = ret.studioHttpPort
   exports.uiMode = ret.uiMode
   exports.genTemplateJsonFile = ret.genTemplateJson
+  exports.embeddedMode = ret.embeddedMode
   exports.noServer = ret.noServer
   exports.zapFile = ret.zapFile
   exports.genResultFile = ret.genResultFile

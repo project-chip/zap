@@ -33,23 +33,16 @@ const zclPropertiesFile = path.join(
   '../zcl-builtin/silabs/zcl-test.properties'
 )
 
-test('test opening and closing the database', () => {
-  var db = new sq.Database(':memory:')
-  return dbApi.closeDatabase(db)
-})
-
-test('test database schema loading in memory', () => {
-  var db = new sq.Database(':memory:')
-  return dbApi
-    .loadSchema(db, env.schemaFile(), env.zapVersion())
-    .then((db) => dbApi.closeDatabase(db))
-})
-
 test('test Silabs zcl data loading in memory', () => {
-  var db = new sq.Database(':memory:')
+  var db
   var packageId
   return dbApi
-    .loadSchema(db, env.schemaFile(), env.zapVersion())
+    .initRamDatabase()
+    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
+    .then((d) => {
+      db = d
+      return db
+    })
     .then((db) => zclLoader.loadZcl(db, zclPropertiesFile))
     .then((ctx) => {
       packageId = ctx.packageId
@@ -60,17 +53,17 @@ test('test Silabs zcl data loading in memory', () => {
       queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
     )
     .then((rows) => expect(rows.length).toEqual(1))
-    .then(() => queryZcl.selectAllClusters(db))
+    .then(() => queryZcl.selectAllClusters(db, packageId))
     .then((x) => expect(x.length).toEqual(106))
-    .then(() => queryZcl.selectAllDomains(db))
+    .then(() => queryZcl.selectAllDomains(db, packageId))
     .then((x) => expect(x.length).toEqual(20))
-    .then(() => queryZcl.selectAllEnums(db))
+    .then(() => queryZcl.selectAllEnums(db, packageId))
     .then((x) => expect(x.length).toEqual(205))
-    .then(() => queryZcl.selectAllStructs(db))
+    .then(() => queryZcl.selectAllStructs(db, packageId))
     .then((x) => expect(x.length).toEqual(50))
-    .then(() => queryZcl.selectAllBitmaps(db))
+    .then(() => queryZcl.selectAllBitmaps(db, packageId))
     .then((x) => expect(x.length).toEqual(120))
-    .then(() => queryZcl.selectAllDeviceTypes(db))
+    .then(() => queryZcl.selectAllDeviceTypes(db, packageId))
     .then((x) => expect(x.length).toEqual(152))
     .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
     .then((x) => expect(x).toEqual(1668))
