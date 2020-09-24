@@ -514,7 +514,7 @@ export default {
       editableDefaults: {},
       editableStorage: {},
       pagination: {
-        rowsPerPage: 0,
+        rowsPerPage: 50,
         sortBy: 'attrID',
       },
       columns: [
