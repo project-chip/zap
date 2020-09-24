@@ -56,12 +56,13 @@ The file is a JSON-formatted JS object, with the following structure:
 |name|String|Name of the template, will be shown in UI for selection|
 |version|String|Version of the template, will be shown in the UI for selection|
 |options|JS object, containing keys that can map to further key/value maps|This is a mechanism how to add additional category/key/value triplets to the package options. If the SDK wants to provide an additional generic categorized key/value properties, then you can provide an object here. Top-level keys map to either an Object itself, or a String, which will be interpreted as a path to a JSON serialized object. Objects should contain Strings as values of the elements. This data is loaded into the OPTIONS table. Toplevel key is used as OPTION*CATEGORY column, intermediate key is used as OPTION_CODE column, and the final String value of the sub-key is used as OPTION_LABEL column. These can be accessed from templates via `template_options` iterator, so you can iterate over a given category. They can also be access by the UI in certain cases.
+|zcl|Object, keyed by ZCL entitites, containing arrays of ZCL modifications.|This is a mechanism how SDK can attach custom configurable data points to the ZCL entities. This could be used, for example, to configure special SDK-specific per-cluster properties, how to associate cluster with SDK directories for generation of build files, or any similar SDK customization that is based on ZCL entities.
 |templates|Array of JS objects containing keys: \_path*, _name_, _output_|Lists the individual files. Path should be relative against the location of the `gen-template.json` itself, output is the name of the generated file, and name is a human readable name that might show in the UI.|
 |helpers|Array of strings, representing relative paths.|This mechanism is how the SDK can create their own helpers in JavaScript, should that be needed. It is vastly prefered to stick to provided helpers. If you need additional helper it is also prefered to reach to ZAP developers to have your required feature added. This will ensure backwards compatibility and proper future-proofing and so on. However, as a last resort, you can add your own helpers using this mechanism. The files listed will be treated as node.js modules, and any exported symbol will be registered as a helper.|
 
 Following sections describe to the details specific use for certain more complex areas of the `gen-template.json`.
 
-### Templates key: options
+## Templates key: options
 
 Options are loaded into the database, keyed to the given generation package. While you can always used them in templates via the `template_options` key, certain keys have special meanings.
 Following is the list of special meanings:
@@ -69,3 +70,59 @@ Following is the list of special meanings:
 | Category          | Meaning                                                                                                                |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | manufacturerCodes | This category backs a code/label map of valid manufacturer codes. They can be used in UI when selecting manufacturers. |
+
+## Template key: zcl
+
+ZCL customization are provided in a form of entity-based customization records. Let's learn by example:
+
+```
+{
+  "zcl": {
+    "cluster": {
+      "toggleLedOnAttributeChange": {
+        "type": "boolean",
+        "configurability": "editable",
+        "label": "Cluster will toggle LED when one of its attributes is changed.",
+        "globalDefault": "false"
+      },
+      "sdkPath": {
+        "type": "path",
+        "configurability": "hidden",
+        "defaults": "clusterPaths.json"
+      }
+    },
+    "command": {
+      "lcdMessage": {
+        "type": "text",
+        "configurability": "editable",
+        "label": "LCD message to display when command received.",
+        "defaults": [
+          {
+            "clusterCode": 0x0003,
+            "commandCode": 0x00,
+            "source": "client",
+            "value": "Identifying!"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+This example shows two configuration, provided by the SDK. It adds the following functionality:
+
+- it adds to each cluster a new of property, called `toggleLedOnAttributeChange`. That property is of a type boolean and can be editable by end user. It is set to `false` by default. When ZAP UI will show the configuration of a cluster, it will show additional checkbox, labeled "Cluster will toggle LED when one of its attributes is changed." End user will have ability to turn that on or off, and that value will be recorded in the `*.zap` file. The recorded value will also be available in generation templates, so that the SDK developer can inject proper generation of the code for the handling of this custom property.
+- it adds a new property of type `path` to each cluster, called "sdkPath". It's configurability is `hidden` which means that UI will not show this property. However, generation templates will have access to it. Default values are not stored directly here, but in an external file called `clusterPaths.json`, as specified by the key `"defaults": "clusterPaths.json"`. This can, for example, be used when you are using templates to generate a build file or some other compile-time artifact that needs to know directories or filenames of the cluster implementation code.
+- it adds a property `lcdMessage` to each ZCL command. The SDK implementation could (as an example), show the given messages on the LCD that the device has built-in. Configurability is `editable`, which means that UI will show a text field for end-users to configure this value. Global defaults is missing, so it is `null`, but there is a provided default value for the ZCL `Identify` command, and it is configured so that it shows a text `Identifying!` on the LCD screen.
+
+Obviously, all of the custom properties need to have an actual implementation on the SDK backing them up, zap is just a mechanism for configuring them, and passing them through to the generation templates, and neither knows, nor assumes what a real meaning of these properties may be.
+
+Following are descriptions of some keys that you can configure:
+
+| Key                                       | Possible Values                                       | Description                                                                                                                                                                                                                                         |
+| ----------------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| top-level key under `zcl`                 | `cluster`<br>`command`<br>`attribute`<br>`deviceType` | Specifies what kind of ZCL entity this customization applies to.                                                                                                                                                                                    |
+| `type` key under individual customization | `boolean`<br>`integer`<br>`text`<br>`path`            | Specifies what type this particular customization option is. This mostly affects UI.                                                                                                                                                                |
+| `globalDefault`                           | anything                                              | Specifies the default value for all entities, except the ones defined in the `defaults` array.                                                                                                                                                      |
+| `configurability`                         | `hidden`<br>`visible`<br>`editable`                   | Specifies how zap UI will treat this value. If it's `hidden` it will not show it at all, if it's `visible` it will be shown, but users won't be able to change it, and if it's `editable`, then users can provide their own values for each entity. |
