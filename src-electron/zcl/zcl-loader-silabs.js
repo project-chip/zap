@@ -709,8 +709,8 @@ function qualifyZclFile(db, info, parentPackageId) {
 function parseZclFiles(db, ctx) {
   env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   return Promise.all(
-    ctx.zclFiles.map((individualFile) => {
-      return readZclFile(individualFile)
+    ctx.zclFiles.map((individualFile) =>
+      readZclFile(individualFile)
         .then((data) =>
           util.calculateCrc({ filePath: individualFile, data: data })
         )
@@ -720,7 +720,7 @@ function parseZclFiles(db, ctx) {
         .then((result) => resolveLaterPromises(result))
         .then(() => ctx)
         .catch((err) => env.logError(err))
-    })
+    )
   )
     .then(() => zclLoader.processZclPostLoading(db))
     .then(() => ctx)
