@@ -27,6 +27,8 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 
+const loadTwice = false
+
 test('test that consecutive loading of metafiles properly avoids duplication', () => {
   var dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
   var db
@@ -49,6 +51,10 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     })
     .then((p) => expect(p.version).toEqual('ZCL Test Data'))
     .then(() => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
+    .then((ctx) => {
+      if (loadTwice) return zclLoader.loadZcl(db, dotDotZclPropertiesFile)
+      else return ctx
+    })
     .then((ctx) => {
       dotdotPackageId = ctx.packageId
       expect(dotdotPackageId).not.toEqual(jsonPackageId)

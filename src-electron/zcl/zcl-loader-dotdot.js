@@ -18,10 +18,14 @@ const util = require('../util/util.js')
  */
 function collectDataFromLibraryXml(ctx) {
   env.logInfo(`Collecting ZCL files from: ${ctx.metadataFile}`)
-  return fsp
-    .readFile(ctx.metadataFile, 'utf8')
-    .then((xml_string) => xml2js.parseStringPromise(xml_string))
-    .then((result) => {
+  return zclLoader
+    .readZclFile(ctx.metadataFile)
+    .then((data) =>
+      util.calculateCrc({ filePath: ctx.metadataFile, data: data })
+    )
+    .then((data) => zclLoader.parseZclFile(data))
+    .then((data) => {
+      var result = data.result
       var zclLib = result['zcl:library']
       ctx.version = '1.0'
       ctx.zclTypes = zclLib['type:type']
