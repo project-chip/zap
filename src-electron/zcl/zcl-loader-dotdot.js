@@ -28,10 +28,10 @@ function collectDataFromLibraryXml(ctx) {
       var result = data.result
       var zclLib = result['zcl:library']
       ctx.version = '1.0'
-      ctx.zclTypes = zclLib['type:type']
       ctx.zclFiles = zclLib['xi:include'].map((f) =>
         path.join(path.dirname(ctx.metadataFile), f.$.href)
       )
+      ctx.zclFiles.push(ctx.metadataFile)
       return ctx
     })
 }
@@ -76,6 +76,9 @@ function parseZclFiles(db, ctx) {
           ctx.zclGlobalTypes = global['type:type']
           ctx.zclGlobalAttributes = global.attributes[0].attribute
           ctx.zclGlobalCommands = global.commands[0].command
+        } else if (result['zcl:library']) {
+          var global = result['zcl:library']
+          ctx.zclTypes = global['type:type']
         } else if (result['zcl:device']) {
           var deviceTypes = result['zcl:device']
           if (ctx.zclDeviceTypes === undefined) {

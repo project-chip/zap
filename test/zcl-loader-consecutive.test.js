@@ -27,8 +27,6 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 
-const loadTwice = false
-
 test('test that consecutive loading of metafiles properly avoids duplication', () => {
   var dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
   var db
@@ -51,10 +49,7 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     })
     .then((p) => expect(p.version).toEqual('ZCL Test Data'))
     .then(() => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
-    .then((ctx) => {
-      if (loadTwice) return zclLoader.loadZcl(db, dotDotZclPropertiesFile)
-      else return ctx
-    })
+    .then(() => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
     .then((ctx) => {
       dotdotPackageId = ctx.packageId
       expect(dotdotPackageId).not.toEqual(jsonPackageId)
@@ -83,14 +78,14 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     .then((x) => expect(x.length).toEqual(41))
     .then(() => queryZcl.selectAllDeviceTypes(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(108))
-    .then(() => queryZcl.selectAllAtomics(db, dotdotPackageId))
-    .then((x) => expect(x.length).toEqual(69)) //seems low
     .then(() => queryZcl.selectAllBitmaps(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(50)) //seems low
     .then(() => queryZcl.selectAllEnums(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(79)) //seems low
     .then(() => queryZcl.selectAllStructs(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(20)) //seems low
+    .then(() => queryZcl.selectAllAtomics(db, dotdotPackageId))
+    .then((x) => expect(x.length).toEqual(69)) //seems low
     .then(() =>
       dbApi.dbAll(
         db,
