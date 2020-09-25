@@ -157,17 +157,6 @@ function collectDataFromPropertiesFile(ctx) {
 }
 
 /**
- * Promises to read a file and resolve with the content
- *
- * @param {*} file
- * @returns promise that resolves as readFile
- */
-function readZclFile(file) {
-  env.logInfo(`Reading individual file: ${file}`)
-  return fsp.readFile(file)
-}
-
-/**
  * Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
  *
  * @param {*} argument
@@ -710,7 +699,8 @@ function parseZclFiles(db, ctx) {
   env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   return Promise.all(
     ctx.zclFiles.map((individualFile) =>
-      readZclFile(individualFile)
+      zclLoader
+        .readZclFile(individualFile)
         .then((data) =>
           util.calculateCrc({ filePath: individualFile, data: data })
         )
@@ -728,7 +718,8 @@ function parseZclFiles(db, ctx) {
 
 function parseManufacturerData(db, ctx) {
   if (!ctx.manufacturersXml) return Promise.resolve(ctx)
-  return readZclFile(ctx.manufacturersXml)
+  return zclLoader
+    .readZclFile(ctx.manufacturersXml)
     .then((data) =>
       parseZclFile({ data: data }).then((manufacturerMap) =>
         queryPackage.insertOptionsKeyValues(

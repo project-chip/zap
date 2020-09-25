@@ -15,7 +15,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} ctx Context which contains information about the metadataFiles and data
  * @returns Promise of resolved files.
  */
-function collectData(ctx) {
+function collectDataFromLibraryXml(ctx) {
   env.logInfo(`Collecting ZCL files from: ${ctx.metadataFile}`)
   return fsp
     .readFile(ctx.metadataFile, 'utf8')
@@ -24,7 +24,9 @@ function collectData(ctx) {
       var zclLib = result['zcl:library']
       ctx.version = '1.0'
       ctx.zclTypes = zclLib['type:type']
-      ctx.zclFiles = zclLib['xi:include']
+      ctx.zclFiles = zclLib['xi:include'].map((f) =>
+        path.join(path.dirname(ctx.metadataFile), f.$.href)
+      )
       return ctx
     })
 }
@@ -45,9 +47,9 @@ function parseZclFiles(db, ctx) {
   ctx.zclGlobalAttributes = []
   ctx.zclGlobalCommands = []
   ctx.zclFiles.forEach((file) => {
-    env.logInfo(`Starting to parse Dotdot ZCL file: ${file.$.href}`)
-    var p = fsp
-      .readFile(path.dirname(ctx.metadataFile) + '/' + file.$.href, 'utf8')
+    env.logInfo(`Starting to parse Dotdot ZCL file: ${file}`)
+    var p = zclLoader
+      .readZclFile(file)
       .then((xml_string) => xml2js.parseStringPromise(xml_string))
       .then((result) => {
         if (result['zcl:cluster']) {
@@ -72,9 +74,7 @@ function parseZclFiles(db, ctx) {
         } else {
           //TODO: What to do with "derived clusters", we skip them here but we should probably
           //      extend the DB schema to allow this since we don't really handle it
-          env.logInfo(
-            `Didn't find anything relevant, Skipping file ${file.$.href}`
-          )
+          env.logInfo(`Didn't find anything relevant, Skipping file ${file}`)
         }
       })
     perFilePromise.push(p)
@@ -495,7 +495,7 @@ function loadDotdotZcl(db, ctx) {
     .dbBeginTransaction(db)
     .then(() => zclLoader.readMetadataFile(ctx))
     .then((ctx) => zclLoader.recordToplevelPackage(db, ctx))
-    .then((ctx) => collectData(ctx))
+    .then((ctx) => collectDataFromLibraryXml(ctx))
     .then((ctx) => zclLoader.recordVersion(ctx))
     .then((ctx) => parseZclFiles(db, ctx))
     .then((ctx) => loadZclData(db, ctx))

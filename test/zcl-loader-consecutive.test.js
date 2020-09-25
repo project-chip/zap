@@ -49,7 +49,6 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     })
     .then((p) => expect(p.version).toEqual('ZCL Test Data'))
     .then(() => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
-    .then(() => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
     .then((ctx) => {
       dotdotPackageId = ctx.packageId
       expect(dotdotPackageId).not.toEqual(jsonPackageId)

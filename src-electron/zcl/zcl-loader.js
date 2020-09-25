@@ -24,6 +24,7 @@ const fsp = fs.promises
 const sLoad = require('./zcl-loader-silabs')
 const dLoad = require('./zcl-loader-dotdot')
 const queryZcl = require('../db/query-zcl.js')
+const env = require('../util/env.js')
 
 /**
  * Reads the properties file into ctx.data and also calculates crc into ctx.crc
@@ -116,8 +117,20 @@ function processZclPostLoading(db) {
     .then((res) => queryZcl.updateCommandReferencesForDeviceTypeReferences(db))
 }
 
+/**
+ * Promises to read a file and resolve with the content
+ *
+ * @param {*} file
+ * @returns promise that resolves as readFile
+ */
+function readZclFile(file) {
+  env.logInfo(`Reading individual file: ${file}`)
+  return fsp.readFile(file)
+}
+
 exports.loadZcl = loadZcl
 exports.readMetadataFile = readMetadataFile
 exports.recordToplevelPackage = recordToplevelPackage
 exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading
+exports.readZclFile = readZclFile
