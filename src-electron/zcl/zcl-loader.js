@@ -25,6 +25,7 @@ const sLoad = require('./zcl-loader-silabs')
 const dLoad = require('./zcl-loader-dotdot')
 const queryZcl = require('../db/query-zcl.js')
 const env = require('../util/env.js')
+const xml2js = require('xml2js')
 
 /**
  * Reads the properties file into ctx.data and also calculates crc into ctx.crc
@@ -192,6 +193,25 @@ function readZclFile(file) {
   return fsp.readFile(file)
 }
 
+/**
+ * Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
+ *
+ * @param {*} argument
+ * @returns promise that resolves with the array [filePath,result,packageId,msg]
+ */
+function parseZclFile(argument) {
+  // No data, we skip this.
+  if (!('data' in argument)) {
+    return Promise.resolve(argument)
+  } else {
+    return xml2js.parseStringPromise(argument.data).then((result) => {
+      argument.result = result
+      delete argument.data
+      return argument
+    })
+  }
+}
+
 exports.loadZcl = loadZcl
 exports.readMetadataFile = readMetadataFile
 exports.recordToplevelPackage = recordToplevelPackage
@@ -199,3 +219,4 @@ exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading
 exports.readZclFile = readZclFile
 exports.qualifyZclFile = qualifyZclFile
+exports.parseZclFile = parseZclFile

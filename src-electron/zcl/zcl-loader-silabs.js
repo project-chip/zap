@@ -18,14 +18,12 @@
 const fs = require('fs')
 const path = require('path')
 const properties = require('properties')
-const xml2js = require('xml2js')
 const dbApi = require('../db/db-api.js')
 const queryPackage = require('../db/query-package.js')
 const queryZcl = require('../db/query-zcl.js')
 const env = require('../util/env.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const fsp = fs.promises
 const zclLoader = require('./zcl-loader.js')
 
 /**
@@ -154,25 +152,6 @@ function collectDataFromPropertiesFile(ctx) {
       }
     })
   })
-}
-
-/**
- * Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
- *
- * @param {*} argument
- * @returns promise that resolves with the array [filePath,result,packageId,msg]
- */
-function parseZclFile(argument) {
-  // No data, we skip this.
-  if (!('data' in argument)) {
-    return Promise.resolve(argument)
-  } else {
-    return xml2js.parseStringPromise(argument.data).then((result) => {
-      argument.result = result
-      delete argument.data
-      return argument
-    })
-  }
 }
 
 /**
@@ -634,14 +613,12 @@ function resolveLaterPromises(laterPromises) {
 function parseZclFiles(db, ctx) {
   env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   return Promise.all(
-    ctx.zclFiles.map((individualFile) =>
+    ctx.zclFiles.map((file) =>
       zclLoader
-        .readZclFile(individualFile)
-        .then((data) =>
-          util.calculateCrc({ filePath: individualFile, data: data })
-        )
+        .readZclFile(file)
+        .then((data) => util.calculateCrc({ filePath: file, data: data }))
         .then((data) => zclLoader.qualifyZclFile(db, data, ctx.packageId))
-        .then((result) => parseZclFile(result))
+        .then((result) => zclLoader.parseZclFile(result))
         .then((result) => processParsedZclData(db, result))
         .then((result) => resolveLaterPromises(result))
         .then(() => ctx)
@@ -657,7 +634,7 @@ function parseManufacturerData(db, ctx) {
   return zclLoader
     .readZclFile(ctx.manufacturersXml)
     .then((data) =>
-      parseZclFile({ data: data }).then((manufacturerMap) =>
+      zclLoader.parseZclFile({ data: data }).then((manufacturerMap) =>
         queryPackage.insertOptionsKeyValues(
           db,
           ctx.packageId,

@@ -71,6 +71,8 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     .then((x) => expect(x.length).toEqual(120))
     .then(() => queryZcl.selectAllDeviceTypes(db, jsonPackageId))
     .then((x) => expect(x.length).toEqual(174))
+    .then(() => queryZcl.selectAllAtomics(db, jsonPackageId))
+    .then((x) => expect(x.length).toEqual(56))
     .then(() => queryZcl.selectAllClusters(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(41))
     .then(() => queryZcl.selectAllDeviceTypes(db, dotdotPackageId))

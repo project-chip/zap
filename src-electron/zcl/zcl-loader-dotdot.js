@@ -32,6 +32,7 @@ function collectDataFromLibraryXml(ctx) {
     })
 }
 
+function processParsedZclData(db, argument) {}
 /**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
@@ -47,13 +48,23 @@ function parseZclFiles(db, ctx) {
   ctx.zclClusters = []
   ctx.zclGlobalAttributes = []
   ctx.zclGlobalCommands = []
+  ctx.zclDeviceTypes = []
+  ctx.zclManufacturers = []
+
   ctx.zclFiles.forEach((file) => {
     env.logInfo(`Starting to parse Dotdot ZCL file: ${file}`)
     var p = zclLoader
       .readZclFile(file)
       .then((data) => util.calculateCrc({ filePath: file, data: data }))
-      .then((data) => xml2js.parseStringPromise(data.data))
-      .then((result) => {
+      .then((data) => zclLoader.qualifyZclFile(db, data, ctx.packageId))
+      .then((result) => zclLoader.parseZclFile(result))
+      .then((r) => {
+        var result = r.result
+
+        if (result == null) {
+          return Promise.resolve([])
+        }
+
         if (result['zcl:cluster']) {
           ctx.zclClusters.push(result['zcl:cluster'])
         } else if (result['zcl:global']) {
