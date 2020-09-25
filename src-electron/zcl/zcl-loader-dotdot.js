@@ -8,6 +8,7 @@ const xml2js = require('xml2js')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const util = require('../util/util.js')
 
 /**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
@@ -50,7 +51,8 @@ function parseZclFiles(db, ctx) {
     env.logInfo(`Starting to parse Dotdot ZCL file: ${file}`)
     var p = zclLoader
       .readZclFile(file)
-      .then((xml_string) => xml2js.parseStringPromise(xml_string))
+      .then((data) => util.calculateCrc({ filePath: file, data: data }))
+      .then((data) => xml2js.parseStringPromise(data.data))
       .then((result) => {
         if (result['zcl:cluster']) {
           ctx.zclClusters.push(result['zcl:cluster'])

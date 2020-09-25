@@ -623,70 +623,6 @@ function resolveLaterPromises(laterPromises) {
 }
 
 /**
- * Promises to qualify whether zcl file needs to be reloaded.
- * If yes, the it will resolve with {filePath, data, packageId}
- * If not, then it will resolve with {error}
- *
- * @param {*} db
- * @param {*} info
- * @param {*} parentPackageId
- * @returns Promise that resolves int he object of data.
- */
-function qualifyZclFile(db, info, parentPackageId) {
-  return new Promise((resolve, reject) => {
-    var filePath = info.filePath
-    var data = info.data
-    var actualCrc = info.crc
-    queryPackage
-      .getPackageByPathAndParent(db, filePath, parentPackageId)
-      .then((pkg) => {
-        if (pkg == null) {
-          // This is executed if there is no CRC in the database.
-          env.logInfo(`No CRC in the database for file ${filePath}, parsing.`)
-          return queryPackage
-            .insertPathCrc(
-              db,
-              filePath,
-              actualCrc,
-              dbEnum.packageType.zclXml,
-              parentPackageId
-            )
-            .then((packageId) => {
-              resolve({
-                filePath: filePath,
-                data: data,
-                packageId: parentPackageId,
-              })
-            })
-        } else {
-          // This is executed if CRC is found in the database.
-          if (pkg.crc == actualCrc) {
-            env.logInfo(
-              `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
-            )
-            resolve({
-              error: `${pkg.path} skipped`,
-            })
-          } else {
-            env.logInfo(
-              `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
-            )
-            return queryPackage
-              .updatePathCrc(db, filePath, actualCrc, parentPackageId)
-              .then(() => {
-                resolve({
-                  filePath: filePath,
-                  data: data,
-                  packageId: parentPackageId,
-                })
-              })
-          }
-        }
-      })
-  })
-}
-
-/**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
  * that will be resolved when all the XML files are done, or rejected if at least one fails.
@@ -704,7 +640,7 @@ function parseZclFiles(db, ctx) {
         .then((data) =>
           util.calculateCrc({ filePath: individualFile, data: data })
         )
-        .then((data) => qualifyZclFile(db, data, ctx.packageId))
+        .then((data) => zclLoader.qualifyZclFile(db, data, ctx.packageId))
         .then((result) => parseZclFile(result))
         .then((result) => processParsedZclData(db, result))
         .then((result) => resolveLaterPromises(result))

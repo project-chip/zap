@@ -103,6 +103,70 @@ function loadZcl(db, metadataFile) {
 }
 
 /**
+ * Promises to qualify whether zcl file needs to be reloaded.
+ * If yes, the it will resolve with {filePath, data, packageId}
+ * If not, then it will resolve with {error}
+ *
+ * @param {*} db
+ * @param {*} info
+ * @param {*} parentPackageId
+ * @returns Promise that resolves int he object of data.
+ */
+function qualifyZclFile(db, info, parentPackageId) {
+  return new Promise((resolve, reject) => {
+    var filePath = info.filePath
+    var data = info.data
+    var actualCrc = info.crc
+    queryPackage
+      .getPackageByPathAndParent(db, filePath, parentPackageId)
+      .then((pkg) => {
+        if (pkg == null) {
+          // This is executed if there is no CRC in the database.
+          env.logInfo(`No CRC in the database for file ${filePath}, parsing.`)
+          return queryPackage
+            .insertPathCrc(
+              db,
+              filePath,
+              actualCrc,
+              dbEnum.packageType.zclXml,
+              parentPackageId
+            )
+            .then((packageId) => {
+              resolve({
+                filePath: filePath,
+                data: data,
+                packageId: parentPackageId,
+              })
+            })
+        } else {
+          // This is executed if CRC is found in the database.
+          if (pkg.crc == actualCrc) {
+            env.logInfo(
+              `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
+            )
+            resolve({
+              error: `${pkg.path} skipped`,
+            })
+          } else {
+            env.logInfo(
+              `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
+            )
+            return queryPackage
+              .updatePathCrc(db, filePath, actualCrc, parentPackageId)
+              .then(() => {
+                resolve({
+                  filePath: filePath,
+                  data: data,
+                  packageId: parentPackageId,
+                })
+              })
+          }
+        }
+      })
+  })
+}
+
+/**
  * Promises to perform a post loading step.
  *
  * @param {*} db
@@ -134,3 +198,4 @@ exports.recordToplevelPackage = recordToplevelPackage
 exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading
 exports.readZclFile = readZclFile
+exports.qualifyZclFile = qualifyZclFile
