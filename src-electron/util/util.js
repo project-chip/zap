@@ -22,9 +22,11 @@
 const fs = require('fs')
 const env = require('./env.js')
 const crc = require('crc')
+const path = require('path')
 const queryPackage = require('../db/query-package.js')
 const queryConfig = require(`../db/query-config.js`)
 const dbEnum = require('../../src-shared/db-enum.js')
+const args = require('./args.js')
 const { query } = require('express')
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
@@ -64,9 +66,13 @@ function initializeSessionPackage(db, sessionId) {
         env.logError(`No zcl.properties found for session.`)
         packageId = null
       } else {
-        packageId = rows[0].id
+        rows.forEach((p) => {
+          if (path.resolve(args.zclPropertiesFile) === p.path) {
+            packageId = p.id
+          }
+        })
         env.logWarning(
-          `Multiple toplevel zcl.properties found. Using the first one: ${packageId}`
+          `Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
         )
       }
 
@@ -94,9 +100,13 @@ function initializeSessionPackage(db, sessionId) {
         env.logError(`No  gen-templates.json found for session.`)
         packageId = null
       } else {
-        packageId = rows[0].id
+        rows.forEach((p) => {
+          if (path.resolve(args.genTemplateJsonFile) === p.path) {
+            packageId = p.id
+          }
+        })
         env.logWarning(
-          `Multiple toplevel  gen-templates.json found. Using the first one: ${packageId}`
+          `Multiple toplevel  gen-templates.json found. Using the one from args: ${packageId}`
         )
       }
       if (packageId != null) {
