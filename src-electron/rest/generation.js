@@ -64,12 +64,10 @@ function registerGenerationApi(db, app) {
 
   app.get('/preview/', (request, response) => {
     var sessionId = request.session.zapSessionId
-    queryPackage
-      .getPackagesByType(db, dbEnum.packageType.genSingleTemplate)
-      .then((previewObject) => {
-        previewObject.replyId = 'preview-gentemplates'
-        return response.json(previewObject)
-      })
+    queryPackage.getSessionGenTemplates(db, sessionId).then((previewObject) => {
+      previewObject.replyId = 'preview-gentemplates'
+      return response.json(previewObject)
+    })
   })
 }
 

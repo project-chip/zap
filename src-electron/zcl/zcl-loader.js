@@ -24,6 +24,8 @@ const fsp = fs.promises
 const sLoad = require('./zcl-loader-silabs')
 const dLoad = require('./zcl-loader-dotdot')
 const queryZcl = require('../db/query-zcl.js')
+const env = require('../util/env.js')
+const xml2js = require('xml2js')
 
 /**
  * Reads the properties file into ctx.data and also calculates crc into ctx.crc
@@ -102,6 +104,70 @@ function loadZcl(db, metadataFile) {
 }
 
 /**
+ * Promises to qualify whether zcl file needs to be reloaded.
+ * If yes, the it will resolve with {filePath, data, packageId}
+ * If not, then it will resolve with {error}
+ *
+ * @param {*} db
+ * @param {*} info
+ * @param {*} parentPackageId
+ * @returns Promise that resolves int he object of data.
+ */
+function qualifyZclFile(db, info, parentPackageId) {
+  return new Promise((resolve, reject) => {
+    var filePath = info.filePath
+    var data = info.data
+    var actualCrc = info.crc
+    queryPackage
+      .getPackageByPathAndParent(db, filePath, parentPackageId)
+      .then((pkg) => {
+        if (pkg == null) {
+          // This is executed if there is no CRC in the database.
+          env.logInfo(`No CRC in the database for file ${filePath}, parsing.`)
+          return queryPackage
+            .insertPathCrc(
+              db,
+              filePath,
+              actualCrc,
+              dbEnum.packageType.zclXml,
+              parentPackageId
+            )
+            .then((packageId) => {
+              resolve({
+                filePath: filePath,
+                data: data,
+                packageId: parentPackageId,
+              })
+            })
+        } else {
+          // This is executed if CRC is found in the database.
+          if (pkg.crc == actualCrc) {
+            env.logInfo(
+              `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
+            )
+            resolve({
+              error: `${pkg.path} skipped`,
+            })
+          } else {
+            env.logInfo(
+              `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
+            )
+            return queryPackage
+              .updatePathCrc(db, filePath, actualCrc, parentPackageId)
+              .then(() => {
+                resolve({
+                  filePath: filePath,
+                  data: data,
+                  packageId: parentPackageId,
+                })
+              })
+          }
+        }
+      })
+  })
+}
+
+/**
  * Promises to perform a post loading step.
  *
  * @param {*} db
@@ -116,8 +182,41 @@ function processZclPostLoading(db) {
     .then((res) => queryZcl.updateCommandReferencesForDeviceTypeReferences(db))
 }
 
+/**
+ * Promises to read a file and resolve with the content
+ *
+ * @param {*} file
+ * @returns promise that resolves as readFile
+ */
+function readZclFile(file) {
+  env.logInfo(`Reading individual file: ${file}`)
+  return fsp.readFile(file)
+}
+
+/**
+ * Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
+ *
+ * @param {*} argument
+ * @returns promise that resolves with the array [filePath,result,packageId,msg]
+ */
+function parseZclFile(argument) {
+  // No data, we skip this.
+  if (!('data' in argument)) {
+    return Promise.resolve(argument)
+  } else {
+    return xml2js.parseStringPromise(argument.data).then((result) => {
+      argument.result = result
+      delete argument.data
+      return argument
+    })
+  }
+}
+
 exports.loadZcl = loadZcl
 exports.readMetadataFile = readMetadataFile
 exports.recordToplevelPackage = recordToplevelPackage
 exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading
+exports.readZclFile = readZclFile
+exports.qualifyZclFile = qualifyZclFile
+exports.parseZclFile = parseZclFile

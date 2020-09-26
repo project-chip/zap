@@ -113,6 +113,58 @@ function middle(options) {
   }
 }
 
+/**
+ * This fetches a promise which returns template options if provided
+ *
+ * @param {*} options
+ * @param {*} key
+ */
+function template_option_with_code(options, key) {
+  return templateUtil
+    .ensureTemplatePackageId(this)
+    .then((packageId) =>
+      queryPackage.selectSpecificOptionValue(
+        this.global.db,
+        packageId,
+        options,
+        key
+      )
+    )
+}
+
+/**
+ * This returns a boolean if the 2 strings are same
+ *
+ * @param {*} string_a
+ * @param {*} string_b
+ */
+function isEqual(string_a, string_b) {
+  return string_a.trim() === string_b.trim()
+}
+
+/**
+ * Remove leading and trailing spaces from a string
+ *
+ * @param {*} str
+ * @returns A string with no leading and trailing spaces
+ */
+function trim_string(str) {
+  var result = str.trim()
+  return result
+}
+
+/**
+ * Split the string based on spaces and return the last word
+ * @param {*} str
+ */
+function asLastWord(str) {
+  var strings = str.trim().split(' ')
+  if (strings.length > 0) {
+    return strings[strings.length - 1]
+  }
+  return str.trim()
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -124,3 +176,7 @@ exports.template_options = template_options
 exports.last = last
 exports.first = first
 exports.middle = middle
+exports.template_option_with_code = template_option_with_code
+exports.isEqual = isEqual
+exports.trim_string = trim_string
+exports.asLastWord = asLastWord

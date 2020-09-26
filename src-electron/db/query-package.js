@@ -22,6 +22,7 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Checks if the package with a given path exists and executes appropriate action.
@@ -272,6 +273,38 @@ WHERE SESSION_PACKAGE.SESSION_REF = ?
 }
 
 /**
+ * Returns session generation template packages.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise that resolves into array of retrieve packages.
+ */
+function getSessionGenTemplates(db, sessionId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+      SELECT 
+      PACKAGE.PACKAGE_ID,
+      PACKAGE.PATH,
+      PACKAGE.TYPE,
+      PACKAGE.CRC,
+      PACKAGE.VERSION
+    FROM PACKAGE
+    WHERE PACKAGE.PARENT_PACKAGE_REF = 
+    (SELECT 
+      PACKAGE.PACKAGE_ID
+    FROM PACKAGE
+    INNER JOIN SESSION_PACKAGE
+      ON PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF
+    WHERE SESSION_PACKAGE.SESSION_REF = ? 
+      AND PACKAGE.TYPE = ?)`,
+      [sessionId, dbEnum.packageType.genTemplatesJson]
+    )
+    .then((rows) => rows.map(dbMapping.map.package))
+}
+
+/**
  * Returns the session package IDs.
  * @param {*} db
  * @param {*} sessionId
@@ -463,5 +496,6 @@ exports.selectSpecificOptionValue = selectSpecificOptionValue
 exports.insertDefaultOptionValue = insertDefaultOptionValue
 exports.getPackageByParent = getPackageByParent
 exports.getSessionPackagesByType = getSessionPackagesByType
+exports.getSessionGenTemplates = getSessionGenTemplates
 exports.selectAllDefaultOptions = selectAllDefaultOptions
 exports.selectOptionValueByOptionDefaultId = selectOptionValueByOptionDefaultId

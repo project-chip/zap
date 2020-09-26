@@ -37,7 +37,7 @@
     {
       "path": "zap-cli.zapt",
       "name": "ZCL command-line contribution",
-      "output": "zap-cli.h"
+      "output": "zap-cli.c"
     },
     {
       "path": "zap-command-parser.zapt",

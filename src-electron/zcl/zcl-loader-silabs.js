@@ -18,14 +18,12 @@
 const fs = require('fs')
 const path = require('path')
 const properties = require('properties')
-const xml2js = require('xml2js')
 const dbApi = require('../db/db-api.js')
 const queryPackage = require('../db/query-package.js')
 const queryZcl = require('../db/query-zcl.js')
 const env = require('../util/env.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const fsp = fs.promises
 const zclLoader = require('./zcl-loader.js')
 
 /**
@@ -154,36 +152,6 @@ function collectDataFromPropertiesFile(ctx) {
       }
     })
   })
-}
-
-/**
- * Promises to read a file and resolve with the content
- *
- * @param {*} file
- * @returns promise that resolves as readFile
- */
-function readZclFile(file) {
-  env.logInfo(`Reading individual file: ${file}`)
-  return fsp.readFile(file)
-}
-
-/**
- * Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
- *
- * @param {*} argument
- * @returns promise that resolves with the array [filePath,result,packageId,msg]
- */
-function parseZclFile(argument) {
-  // No data, we skip this.
-  if (!('data' in argument)) {
-    return Promise.resolve(argument)
-  } else {
-    return xml2js.parseStringPromise(argument.data).then((result) => {
-      argument.result = result
-      delete argument.data
-      return argument
-    })
-  }
 }
 
 /**
@@ -634,70 +602,6 @@ function resolveLaterPromises(laterPromises) {
 }
 
 /**
- * Promises to qualify whether zcl file needs to be reloaded.
- * If yes, the it will resolve with {filePath, data, packageId}
- * If not, then it will resolve with {error}
- *
- * @param {*} db
- * @param {*} info
- * @param {*} parentPackageId
- * @returns Promise that resolves int he object of data.
- */
-function qualifyZclFile(db, info, parentPackageId) {
-  return new Promise((resolve, reject) => {
-    var filePath = info.filePath
-    var data = info.data
-    var actualCrc = info.crc
-    queryPackage
-      .getPackageByPathAndParent(db, filePath, parentPackageId)
-      .then((pkg) => {
-        if (pkg == null) {
-          // This is executed if there is no CRC in the database.
-          env.logInfo(`No CRC in the database for file ${filePath}, parsing.`)
-          return queryPackage
-            .insertPathCrc(
-              db,
-              filePath,
-              actualCrc,
-              dbEnum.packageType.zclXml,
-              parentPackageId
-            )
-            .then((packageId) => {
-              resolve({
-                filePath: filePath,
-                data: data,
-                packageId: parentPackageId,
-              })
-            })
-        } else {
-          // This is executed if CRC is found in the database.
-          if (pkg.crc == actualCrc) {
-            env.logInfo(
-              `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
-            )
-            resolve({
-              error: `${pkg.path} skipped`,
-            })
-          } else {
-            env.logInfo(
-              `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
-            )
-            return queryPackage
-              .updatePathCrc(db, filePath, actualCrc, parentPackageId)
-              .then(() => {
-                resolve({
-                  filePath: filePath,
-                  data: data,
-                  packageId: parentPackageId,
-                })
-              })
-          }
-        }
-      })
-  })
-}
-
-/**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
  * that will be resolved when all the XML files are done, or rejected if at least one fails.
@@ -709,18 +613,17 @@ function qualifyZclFile(db, info, parentPackageId) {
 function parseZclFiles(db, ctx) {
   env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   return Promise.all(
-    ctx.zclFiles.map((individualFile) => {
-      return readZclFile(individualFile)
-        .then((data) =>
-          util.calculateCrc({ filePath: individualFile, data: data })
-        )
-        .then((data) => qualifyZclFile(db, data, ctx.packageId))
-        .then((result) => parseZclFile(result))
+    ctx.zclFiles.map((file) =>
+      zclLoader
+        .readZclFile(file)
+        .then((data) => util.calculateCrc({ filePath: file, data: data }))
+        .then((data) => zclLoader.qualifyZclFile(db, data, ctx.packageId))
+        .then((result) => zclLoader.parseZclFile(result))
         .then((result) => processParsedZclData(db, result))
         .then((result) => resolveLaterPromises(result))
         .then(() => ctx)
         .catch((err) => env.logError(err))
-    })
+    )
   )
     .then(() => zclLoader.processZclPostLoading(db))
     .then(() => ctx)
@@ -728,9 +631,10 @@ function parseZclFiles(db, ctx) {
 
 function parseManufacturerData(db, ctx) {
   if (!ctx.manufacturersXml) return Promise.resolve(ctx)
-  return readZclFile(ctx.manufacturersXml)
+  return zclLoader
+    .readZclFile(ctx.manufacturersXml)
     .then((data) =>
-      parseZclFile({ data: data }).then((manufacturerMap) =>
+      zclLoader.parseZclFile({ data: data }).then((manufacturerMap) =>
         queryPackage.insertOptionsKeyValues(
           db,
           ctx.packageId,

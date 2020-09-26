@@ -22,6 +22,8 @@ const fs = require('fs')
 const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
+const queryPackage = require('../src-electron/db/query-package.js')
+const dbEnum = require('../src-shared/db-enum.js')
 const env = require('../src-electron/util/env.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
@@ -79,13 +81,47 @@ describe('Session specific tests', () => {
     return httpServer.initHttpServer(db, port)
   })
 
+  var templateCount = 0
   test(
     'test retrieval of all preview template files',
     () => {
       return axios.get(`${baseUrl}/preview/`).then((response) => {
+        templateCount = response.data['length']
         for (i = 0; i < response.data['length']; i++) {
           expect(response.data[i]['version']).toBeDefined()
         }
+      })
+    },
+    timeout
+  )
+
+  test(
+    'Load a second set of templates.',
+    () =>
+      generationEngine.loadTemplates(
+        db,
+        './test/gen-template/chip/gen-templates.json'
+      ),
+    3000
+  )
+
+  // Make sure all templates are loaded
+  test(
+    'Make sure second set of templates are loaded.',
+    () =>
+      queryPackage
+        .getPackagesByType(db, dbEnum.packageType.genSingleTemplate)
+        .then((pkgs) => {
+          expect(templateCount).toBeLessThan(pkgs.length)
+        }),
+    3000
+  )
+
+  test(
+    'test retrieval of all preview template files make sure they are session aware',
+    () => {
+      return axios.get(`${baseUrl}/preview/`).then((response) => {
+        expect(templateCount).toEqual(response.data['length'])
       })
     },
     timeout

@@ -16,10 +16,12 @@ limitations under the License.
 <template>
   <div v-show="commandData.length > 0">
     <q-table
+      class="my-sticky-header-table"
       :data="commandData"
       :columns="columns"
       row-key="<b>name</b>"
       dense
+      virtual-scroll
       flat
       binary-state-sort
       :pagination.sync="pagination"
@@ -250,12 +252,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-tr:nth-child(even) {
-  background-color: #dddddd;
-}
-th {
-  background-color: #dddddd;
-}
-</style>

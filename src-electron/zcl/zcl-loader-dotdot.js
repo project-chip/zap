@@ -8,6 +8,7 @@ const xml2js = require('xml2js')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const util = require('../util/util.js')
 
 /**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
@@ -15,20 +16,27 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} ctx Context which contains information about the metadataFiles and data
  * @returns Promise of resolved files.
  */
-function collectData(ctx) {
+function collectDataFromLibraryXml(ctx) {
   env.logInfo(`Collecting ZCL files from: ${ctx.metadataFile}`)
-  return fsp
-    .readFile(ctx.metadataFile, 'utf8')
-    .then((xml_string) => xml2js.parseStringPromise(xml_string))
-    .then((result) => {
+  return zclLoader
+    .readZclFile(ctx.metadataFile)
+    .then((data) =>
+      util.calculateCrc({ filePath: ctx.metadataFile, data: data })
+    )
+    .then((data) => zclLoader.parseZclFile(data))
+    .then((data) => {
+      var result = data.result
       var zclLib = result['zcl:library']
       ctx.version = '1.0'
-      ctx.zclTypes = zclLib['type:type']
-      ctx.zclFiles = zclLib['xi:include']
+      ctx.zclFiles = zclLib['xi:include'].map((f) =>
+        path.join(path.dirname(ctx.metadataFile), f.$.href)
+      )
+      ctx.zclFiles.push(ctx.metadataFile)
       return ctx
     })
 }
 
+function processParsedZclData(db, argument) {}
 /**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
@@ -44,12 +52,23 @@ function parseZclFiles(db, ctx) {
   ctx.zclClusters = []
   ctx.zclGlobalAttributes = []
   ctx.zclGlobalCommands = []
+  ctx.zclDeviceTypes = []
+  ctx.zclManufacturers = []
+
   ctx.zclFiles.forEach((file) => {
-    env.logInfo(`Starting to parse Dotdot ZCL file: ${file.$.href}`)
-    var p = fsp
-      .readFile(path.dirname(ctx.metadataFile) + '/' + file.$.href, 'utf8')
-      .then((xml_string) => xml2js.parseStringPromise(xml_string))
-      .then((result) => {
+    env.logInfo(`Starting to parse Dotdot ZCL file: ${file}`)
+    var p = zclLoader
+      .readZclFile(file)
+      .then((data) => util.calculateCrc({ filePath: file, data: data }))
+      .then((data) => zclLoader.qualifyZclFile(db, data, ctx.packageId))
+      .then((result) => zclLoader.parseZclFile(result))
+      .then((r) => {
+        var result = r.result
+
+        if (result == null) {
+          return Promise.resolve([])
+        }
+
         if (result['zcl:cluster']) {
           ctx.zclClusters.push(result['zcl:cluster'])
         } else if (result['zcl:global']) {
@@ -57,6 +76,9 @@ function parseZclFiles(db, ctx) {
           ctx.zclGlobalTypes = global['type:type']
           ctx.zclGlobalAttributes = global.attributes[0].attribute
           ctx.zclGlobalCommands = global.commands[0].command
+        } else if (result['zcl:library']) {
+          var global = result['zcl:library']
+          ctx.zclTypes = global['type:type']
         } else if (result['zcl:device']) {
           var deviceTypes = result['zcl:device']
           if (ctx.zclDeviceTypes === undefined) {
@@ -72,9 +94,7 @@ function parseZclFiles(db, ctx) {
         } else {
           //TODO: What to do with "derived clusters", we skip them here but we should probably
           //      extend the DB schema to allow this since we don't really handle it
-          env.logInfo(
-            `Didn't find anything relevant, Skipping file ${file.$.href}`
-          )
+          env.logInfo(`Didn't find anything relevant, Skipping file ${file}`)
         }
       })
     perFilePromise.push(p)
@@ -495,7 +515,7 @@ function loadDotdotZcl(db, ctx) {
     .dbBeginTransaction(db)
     .then(() => zclLoader.readMetadataFile(ctx))
     .then((ctx) => zclLoader.recordToplevelPackage(db, ctx))
-    .then((ctx) => collectData(ctx))
+    .then((ctx) => collectDataFromLibraryXml(ctx))
     .then((ctx) => zclLoader.recordVersion(ctx))
     .then((ctx) => parseZclFiles(db, ctx))
     .then((ctx) => loadZclData(db, ctx))

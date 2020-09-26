@@ -18,6 +18,7 @@
  * @jest-environment node
  */
 
+const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine.js')
 const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
@@ -28,10 +29,12 @@ const querySession = require('../src-electron/db/query-session.js')
 const utilJs = require('../src-electron/util/util.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const helperZap = require('../src-electron/generator/helper-zap.js')
+const importJs = require('../src-electron/importexport/import.js')
 
 var db
 const templateCount = 9
 var genTimeout = 3000
+var testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 
 beforeAll(() => {
   var file = env.sqliteTestFile('genengine')
@@ -206,10 +209,32 @@ test(
         ).toBeTruthy()
         expect(zapTypes.includes('uint32_t snapshotCause')).toBeTruthy()
 
-        var zapCli = genResult.content['zap-cli.h']
-        expect(
-          zapCli.includes('DisplayProtectedMessage => zcl msg disp-protd')
-        ).toBeTruthy()
+        var zapCli = genResult.content['zap-cli.c']
+        expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
+      }),
+  genTimeout
+)
+
+test(
+  'Test file import and generation',
+  () =>
+    importJs
+      .importDataFromFile(db, testFile)
+      .then((sessionId) =>
+        genEngine.generate(db, sessionId, templateContext.packageId)
+      )
+      .then((genResult) => {
+        expect(genResult).not.toBeNull()
+        expect(genResult.partial).toBeFalsy()
+        expect(genResult.content).not.toBeNull()
+
+        var zapCli = genResult.content['zap-cli.c']
+        expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
+        //expect(zapCli.includes('void zclIdentifyIdCommand(sl_cli_command_arg_t *arguments);')).toBeTruthy()
+        //expect(zapCli.includes('SL_CLI_COMMAND(zclIdentifyIdCommand,')).toBeTruthy()
+        //expect(zapCli.includes('{ "id", &cli_cmd_zcl_identify_client_cluster_identify, false },')).toBeTruthy()
+        //expect(zapCli.includes('SL_CLI_COMMAND_GROUP(zcl_identify_client_cluster_command_table, "ZCL identify client cluster commands");')).toBeTruthy()
+        //expect(zapCli.includes('{ "identify", &cli_cmd_identify_client_group, false },')).toBeTruthy()
       }),
   genTimeout
 )
