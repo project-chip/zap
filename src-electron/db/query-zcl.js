@@ -992,6 +992,18 @@ function insertClusterExtensions(db, packageId, data) {
 }
 
 /**
+ * Inserts global attribute defaults into the database.
+ *
+ * @param {*} db
+ * @param {*} packagaId
+ * @param {*} data array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value
+ * @returns Promise of data insertion.
+ */
+function insertGlobalAttributeDefault(db, packagaId, data) {
+  return Promise.resolve()
+}
+
+/**
  * Inserts clusters into the database.
  *
  * @export
@@ -1758,3 +1770,4 @@ exports.selectCommandArgumentsCountByCommandId = selectCommandArgumentsCountByCo
 exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
 exports.exportAllClustersDetailsFromEndpointTypes = exportAllClustersDetailsFromEndpointTypes
 exports.exportCommandDetailsFromAllEndpointTypeCluster = exportCommandDetailsFromAllEndpointTypeCluster
+exports.insertGlobalAttributeDefault = insertGlobalAttributeDefault

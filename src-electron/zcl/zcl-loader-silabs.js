@@ -225,6 +225,31 @@ function processAtomics(db, filePath, packageId, data) {
 }
 
 /**
+ * Prepares global attribute data.
+ *
+ * @param {*} cluster
+ * @returns Object containing the data from XML.
+ */
+function prepareClusterGlobalAttribute(cluster) {
+  var ret = {}
+
+  ret.code = cluster.code[0]
+  if ('$' in cluster) ret.manufacturerCode = cluster['$'].manufacturerCode
+
+  if ('globalAttribute' in cluster) {
+    ret.globalAttribute = []
+    cluster.globalAttribute.forEach((ga) => {
+      ret.globalAttribute.push({
+        side: ga.side,
+        code: ga.code,
+        value: ga.value,
+      })
+    })
+  }
+  return ret
+}
+
+/**
  * Prepare XML cluster for insertion into the database.
  * This method can also prepare clusterExtensions.
  *
@@ -292,11 +317,6 @@ function prepareCluster(cluster, isExtension = false) {
       })
     })
   }
-  if ('globalAttribute' in cluster) {
-    cluster.globalAttribute.forEach((ga) => {
-      //console.log(ga)
-    })
-  }
   return ret
 }
 
@@ -315,6 +335,26 @@ function processClusters(db, filePath, packageId, data) {
     db,
     packageId,
     data.map((x) => prepareCluster(x))
+  )
+}
+
+/**
+ * Processes global attributes for insertion into the database.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns Promise of inserted data.
+ */
+function processClusterGlobalAttributes(db, filePath, packageId, data) {
+  env.logInfo(
+    `${filePath}, ${packageId}: ${data.length} cluster global attributes.`
+  )
+  return queryZcl.insertGlobalAttributeDefault(
+    db,
+    packageId,
+    data.map((x) => prepareClusterGlobalAttribute(x))
   )
 }
 
@@ -541,31 +581,45 @@ function processParsedZclData(db, argument) {
     var immediatePromises = []
     var laterPromises = []
     if ('configurator' in data) {
-      if ('atomic' in data.configurator)
+      if ('atomic' in data.configurator) {
         immediatePromises.push(
           processAtomics(db, filePath, packageId, data.configurator.atomic)
         )
-      if ('bitmap' in data.configurator)
+      }
+      if ('bitmap' in data.configurator) {
         immediatePromises.push(
           processBitmaps(db, filePath, packageId, data.configurator.bitmap)
         )
-      if ('cluster' in data.configurator)
+      }
+      if ('cluster' in data.configurator) {
         immediatePromises.push(
           processClusters(db, filePath, packageId, data.configurator.cluster)
         )
-      if ('domain' in data.configurator)
+        laterPromises.push(() =>
+          processClusterGlobalAttributes(
+            db,
+            filePath,
+            packageId,
+            data.configurator.cluster
+          )
+        )
+      }
+      if ('domain' in data.configurator) {
         immediatePromises.push(
           processDomains(db, filePath, packageId, data.configurator.domain)
         )
-      if ('enum' in data.configurator)
+      }
+      if ('enum' in data.configurator) {
         immediatePromises.push(
           processEnums(db, filePath, packageId, data.configurator.enum)
         )
-      if ('struct' in data.configurator)
+      }
+      if ('struct' in data.configurator) {
         immediatePromises.push(
           processStructs(db, filePath, packageId, data.configurator.struct)
         )
-      if ('deviceType' in data.configurator)
+      }
+      if ('deviceType' in data.configurator) {
         immediatePromises.push(
           processDeviceTypes(
             db,
@@ -574,11 +628,13 @@ function processParsedZclData(db, argument) {
             data.configurator.deviceType
           )
         )
-      if ('global' in data.configurator)
+      }
+      if ('global' in data.configurator) {
         immediatePromises.push(
           processGlobals(db, filePath, packageId, data.configurator.global)
         )
-      if ('clusterExtension' in data.configurator)
+      }
+      if ('clusterExtension' in data.configurator) {
         laterPromises.push(() =>
           processClusterExtensions(
             db,
@@ -587,6 +643,7 @@ function processParsedZclData(db, argument) {
             data.configurator.clusterExtension
           )
         )
+      }
     }
     // This thing resolves the immediate promises and then resolves itself with passing the later promises down the chain.
     return Promise.all(immediatePromises).then(() => laterPromises)
