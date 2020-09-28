@@ -22,56 +22,56 @@ export default function createApi() {
   return {
     prefix: 'zap',
     description: 'Zap Renderer API',
-    callbacks: [
+    functions: [
       {
         id: 'open',
         description: 'Open file...',
-        callback: (path) => {
+        function: (path) => {
           ide.open(path)
         },
       },
       {
         id: 'save',
         description: 'Save file...',
-        callback: () => alert('save!'),
+        function: () => alert('save!'),
       },
       {
         id: 'saveAs',
         description: 'Save As file...',
-        callback: () => alert('save!'),
+        function: () => alert('save!'),
       },
       {
         id: 'refresh',
         description: 'Refresh file...',
-        callback: () => alert('refresh!'),
+        function: () => alert('refresh!'),
       },
       {
         id: 'rename',
         description: 'Rename file...',
-        callback: () => alert('rename!'),
+        function: () => alert('rename!'),
       },
       {
         id: 'isDirty',
         description:
           'Returns whether editor content should be saved when the editor is closed...',
-        callback: () => alert('rename!'),
+        function: () => alert('rename!'),
       },
 
       // Misc operation that might not be supported.
       {
         id: 'move',
         description: 'Move file...',
-        callback: () => alert('Move!'),
+        function: () => alert('Move!'),
       },
       {
         id: 'import',
         description: 'Import file...',
-        callback: () => alert('import!'),
+        function: () => alert('import!'),
       },
       {
         id: 'export',
         description: 'Export file...',
-        callback: () => alert('export!'),
+        function: () => alert('export!'),
       },
     ],
   }
