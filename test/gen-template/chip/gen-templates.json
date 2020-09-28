@@ -40,14 +40,19 @@
       "output": "zap-cli.c"
     },
     {
+      "path": "cluster-id.zapt",
+      "name": "ZCL Clusters IDs",
+      "output": "cluster-id.h"
+    },
+    {
+      "path": "command-id.zapt",
+      "name": "ZCL Commands IDs",
+      "output": "command-id.h"
+    },
+    {
       "path": "call-command-handler.zapt",
       "name": "ZCL Call Command Handler",
       "output": "call-command-handler.h"
-    },
-    {
-      "path": "zap-command.zapt",
-      "name": "ZCL command APIs",
-      "output": "zap-command.h"
     },
     {
       "path": "zap-config.zapt",
