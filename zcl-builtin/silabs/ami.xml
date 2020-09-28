@@ -460,6 +460,7 @@ limitations under the License.
     <define>PRICE_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="2"/>
     <!-- Price Cluster Server - Attributes -->
     <!-- Price Cluster Server - Tier Label (Delivered) Attribute Set -->
     <attribute side="server" code="0x0000" define="TIER1_PRICE_LABEL" type="OCTET_STRING" length="12" writable="true" default="Tier 1" optional="true">tier 1 price label</attribute>
@@ -1896,6 +1897,7 @@ limitations under the License.
     <define>DEMAND_RESPONSE_LOAD_CONTROL_CLUSTER</define>
     <client init="false" tick="false">true</client>
     <server init="false" tick="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="2"/>
     <!-- Demand Response and Load Control Cluster Server - Attributes -->
     <!-- Demand Response and Load Control Cluster Client - Attributes -->
     <attribute side="client" code="0x0000" define="UTILITY_ENROLLMENT_GROUP" type="INT8U" min="0x00" max="0xFF" writable="true" default="0x00" optional="false">utility enrollment group</attribute>
@@ -2553,6 +2555,7 @@ limitations under the License.
     <define>SIMPLE_METERING_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="2"/>
     <!-- Metering Cluster Server - Attributes -->
     <!-- Metering Cluster Server - Reading Information Attribute Set -->
     <attribute side="server" code="0x0000" define="CURRENT_SUMMATION_DELIVERED" type="INT48U" min="0x000000000000" max="0xFFFFFFFFFFFF" writable="false" optional="false">current summation delivered</attribute>
@@ -3749,6 +3752,7 @@ limitations under the License.
     <define>MESSAGING_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="2"/>
     <!-- Messaging Cluster Server - Attributes -->
     <!-- Messaging Cluster Client - Attributes -->
     <!-- Messaging Cluster Server - Commands -->
@@ -3818,6 +3822,8 @@ limitations under the License.
     <item name="SML" value="0x04"/>
     <item name="ClimateTalk" value="0x05"/>
     <item name="GB_HRGP" value="0x06"/>
+    <item name="IP_V4" value="0x07"/>
+    <item name="IP_V6" value="0x08"/>
     <item name="Test" value="0xC7"/>
   </enum>
   <enum name="TunnelingTransferDataStatus" type="ENUM8">
@@ -3845,6 +3851,7 @@ limitations under the License.
     <define>TUNNELING_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="2"/>
     <!-- Tunneling Cluster Server - Attributes -->
     <attribute side="server" code="0x0000" define="CLOSE_TUNNEL_TIMEOUT" type="INT16U" min="0x0001" max="0xFFFF" writable="false" default="0xFFFF" optional="false">close tunnel timeout</attribute>
     <!-- Tunneling Cluster Client - Attributes -->
@@ -5641,6 +5648,7 @@ limitations under the License.
     <define>KEY_ESTABLISHMENT_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="2"/>
     <!-- Key Establishment Server - Attributes -->
     <attribute side="server" code="0x0000" define="KEY_ESTABLISHMENT_SUITE_SERVER" type="ENUM16" min="0x0000" max="0xFFFF" writable="false" default="0x0000" optional="false">key establishment suite (server)</attribute>
     <!-- Key Establishment Client - Attributes -->

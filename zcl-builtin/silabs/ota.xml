@@ -26,6 +26,7 @@ limitations under the License.
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
     <generateCmdHandlers>false</generateCmdHandlers>
+    <globalAttribute side="either" code="0xFFFD" value="4"/>
     <attribute side="client" type="IEEE_ADDRESS" code="0x0000" writable="false" optional="false" default="0xffffffffffffffff" define="UPGRADE_SERVER_ID">OTA Upgrade Server ID</attribute>
     <!-- Although the File Offset attribute is optional, it is mandatory for our implementation of the OTA client plugin. -->
     <attribute side="client" type="INT32U" code="0x0001" writable="false" optional="false" default="0xffffffff" define="FILE_OFFSET">Offset (address) into the file</attribute>
