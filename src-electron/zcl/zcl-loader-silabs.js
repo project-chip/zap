@@ -292,6 +292,11 @@ function prepareCluster(cluster, isExtension = false) {
       })
     })
   }
+  if ('globalAttribute' in cluster) {
+    cluster.globalAttribute.forEach((ga) => {
+      //console.log(ga)
+    })
+  }
   return ret
 }
 

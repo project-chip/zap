@@ -805,12 +805,11 @@ function insertGlobals(db, packageId, data) {
   var argsToLoad = []
   var i
   for (i = 0; i < data.length; i++) {
-    var lastId = null
     if ('commands' in data[i]) {
       var commands = data[i].commands
       commandsToLoad.push(
         ...commands.map((command) => [
-          lastId,
+          null, // clusterId
           packageId,
           parseInt(command.code, 16),
           command.name,
@@ -825,7 +824,7 @@ function insertGlobals(db, packageId, data) {
       var attributes = data[i].attributes
       attributesToLoad.push(
         ...attributes.map((attribute) => [
-          lastId,
+          null, // clusterId
           packageId,
           parseInt(attribute.code, 16),
           attribute.name,
