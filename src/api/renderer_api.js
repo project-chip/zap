@@ -18,6 +18,11 @@
 const ide = require('./ide-api-request.js')
 
 // The purpose of this file is to provide the API for jxbrowser
+//
+// NOTE: If a callback applies (e.g. when a function returns a value),
+//       the javascript code will invoke the Java function name "${id}Callback"
+//       e.g. for function "open", "openCallback" is invoked.
+
 export default function createApi() {
   return {
     prefix: 'zap',
@@ -26,9 +31,7 @@ export default function createApi() {
       {
         id: 'open',
         description: 'Open file...',
-        function: (path) => {
-          ide.open(path)
-        },
+        function: (path) => ide.open(path),
       },
       {
         id: 'save',

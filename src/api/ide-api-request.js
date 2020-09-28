@@ -16,20 +16,16 @@
  */
 
 const axios = require('axios')
+const restApi = require('../../src-shared/rest-api.js')
 
 function open(zap_file) {
-  alert('opening ' + path)
   // Make a request for a user with a given ID
-  axios
-    .get(`/ide/open?file=${path}`)
-    .then(function (response) {
-      // handle success
-      console.log(response)
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error)
-    })
+  if (zap_file) {
+    axios
+      .get(`${restApi.ide.open}?project=${zap_file}`)
+      .then((res) => window.openCallback(res))
+      .catch((err) => window.openCallback(err))
+  }
 }
 
 exports.open = open
