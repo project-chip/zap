@@ -234,7 +234,7 @@ function prepareClusterGlobalAttribute(cluster) {
   if ('globalAttribute' in cluster) {
     var ret = {}
 
-    ret.code = cluster.code[0]
+    ret.code = parseInt(cluster.code[0], 16)
     if ('$' in cluster) {
       var mfgCode = cluster['$'].manufacturerCode
       if (mfgCode != null) ret.manufacturerCode = mfgCode
@@ -244,7 +244,7 @@ function prepareClusterGlobalAttribute(cluster) {
     cluster.globalAttribute.forEach((ga) => {
       ret.globalAttribute.push({
         side: ga.side,
-        code: ga.code,
+        code: parseInt(ga.code),
         value: ga.value,
       })
     })
@@ -268,10 +268,10 @@ function prepareCluster(cluster, isExtension = false) {
 
   if (isExtension) {
     if ('$' in cluster && 'code' in cluster.$) {
-      ret.code = cluster.$.code
+      ret.code = parseInt(cluster.$.code)
     }
   } else {
-    ret.code = cluster.code[0]
+    ret.code = parseInt(cluster.code[0])
     ret.name = cluster.name[0]
     ret.description = cluster.description[0]
     ret.define = cluster.define[0]
@@ -283,7 +283,7 @@ function prepareCluster(cluster, isExtension = false) {
     ret.commands = []
     cluster.command.forEach((command) => {
       var cmd = {
-        code: command.$.code,
+        code: parseInt(command.$.code),
         manufacturerCode: command.$.manufacturerCode,
         name: command.$.name,
         description: command.description[0],
@@ -307,7 +307,7 @@ function prepareCluster(cluster, isExtension = false) {
     ret.attributes = []
     cluster.attribute.forEach((attribute) => {
       ret.attributes.push({
-        code: attribute.$.code,
+        code: parseInt(attribute.$.code),
         manufacturerCode: attribute.$.manufacturerCode,
         name: attribute._,
         type: attribute.$.type.toLowerCase(),

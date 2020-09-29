@@ -811,7 +811,7 @@ function insertGlobals(db, packageId, data) {
         ...commands.map((command) => [
           null, // clusterId
           packageId,
-          parseInt(command.code, 16),
+          command.code,
           command.name,
           command.description,
           command.source,
@@ -826,7 +826,7 @@ function insertGlobals(db, packageId, data) {
         ...attributes.map((attribute) => [
           null, // clusterId
           packageId,
-          parseInt(attribute.code, 16),
+          attribute.code,
           attribute.name,
           attribute.type,
           attribute.side,
@@ -902,7 +902,7 @@ function insertClusterExtensions(db, packageId, data) {
     .dbMultiSelect(
       db,
       'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?',
-      data.map((cluster) => [parseInt(cluster.code, 16)])
+      data.map((cluster) => [cluster.code])
     )
     .then((rows) => {
       var commandsToLoad = []
@@ -920,7 +920,7 @@ function insertClusterExtensions(db, packageId, data) {
               ...commands.map((command) => [
                 lastId,
                 packageId,
-                parseInt(command.code, 16),
+                command.code,
                 command.manufacturerCode,
                 command.name,
                 command.description,
@@ -936,7 +936,7 @@ function insertClusterExtensions(db, packageId, data) {
               ...attributes.map((attribute) => [
                 lastId,
                 packageId,
-                parseInt(attribute.code, 16),
+                attribute.code,
                 attribute.manufacturerCode,
                 attribute.name,
                 attribute.type,
@@ -1024,7 +1024,7 @@ function insertClusters(db, packageId, data) {
       data.map((cluster) => {
         return [
           packageId,
-          parseInt(cluster.code, 16),
+          cluster.code,
           cluster.manufacturerCode,
           cluster.name,
           cluster.description,
@@ -1047,7 +1047,7 @@ function insertClusters(db, packageId, data) {
             ...commands.map((command) => [
               lastId,
               packageId,
-              parseInt(command.code, 16),
+              command.code,
               command.name,
               command.description,
               command.source,
@@ -1062,7 +1062,7 @@ function insertClusters(db, packageId, data) {
             ...attributes.map((attribute) => [
               lastId,
               packageId,
-              parseInt(attribute.code, 16),
+              attribute.code,
               attribute.name,
               attribute.type,
               attribute.side,
