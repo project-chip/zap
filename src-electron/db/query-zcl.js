@@ -1001,7 +1001,7 @@ function insertClusterExtensions(db, packageId, data) {
  */
 function insertGlobalAttributeDefault(db, packageId, data) {
   //console.log(`Insert global attribute default:`)
-  //console.log(data)
+  //data.forEach((x) => console.log(x))
   return Promise.resolve()
 }
 

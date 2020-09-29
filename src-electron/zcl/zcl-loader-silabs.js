@@ -243,9 +243,9 @@ function prepareClusterGlobalAttribute(cluster) {
     ret.globalAttribute = []
     cluster.globalAttribute.forEach((ga) => {
       ret.globalAttribute.push({
-        side: ga.side,
-        code: parseInt(ga.code),
-        value: ga.value,
+        side: ga.$.side,
+        code: parseInt(ga.$.code),
+        value: ga.$.value,
       })
     })
     return ret
