@@ -137,8 +137,13 @@ test(
         expect(genResult.content).not.toBeNull()
         var simpleTest = genResult.content['simple-test.out']
         expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
-        expect(simpleTest.includes(helperZap.zap_header()))
-        expect(simpleTest.includes(`SessionId: ${genResult.sessionId}`))
+        expect(simpleTest.includes(helperZap.zap_header())).toBeTruthy()
+        expect(
+          simpleTest.includes(`SessionId: ${genResult.sessionId}`)
+        ).toBeTruthy()
+        expect(
+          simpleTest.includes('Addon: This is example of test addon helper')
+        ) //.toBeTruthy()
 
         var zclId = genResult.content['zcl-test.out']
         //expect(zclId).toEqual('random placeholder')
