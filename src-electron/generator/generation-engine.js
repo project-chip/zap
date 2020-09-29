@@ -149,6 +149,24 @@ function recordTemplatesPackage(context) {
         }
       }
 
+      // Deal with helpers
+      if (context.templateData.helpers != null) {
+        context.templateData.helpers.forEach((helper) => {
+          var helperPath = path.join(path.dirname(context.path), helper)
+          console.log(`Helper: ${helperPath}`)
+          promises.push(
+            queryPackage.insertPathCrc(
+              context.db,
+              helperPath,
+              null,
+              dbEnum.packageType.genHelper,
+              context.packageId,
+              null
+            )
+          )
+        })
+      }
+
       return Promise.all(promises)
     })
     .then(() => context)

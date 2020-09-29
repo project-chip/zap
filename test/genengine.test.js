@@ -78,7 +78,7 @@ test('Validate package loading', () =>
       return templateContext
     })
     .then((context) => {
-      expect(context.packages.length).toBe(templateCount)
+      expect(context.packages.length).toBe(templateCount + 1) // Plus one for helper
     }))
 
 test('Create session', () =>
