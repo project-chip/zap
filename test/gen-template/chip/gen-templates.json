@@ -40,6 +40,16 @@
       "output": "zap-cli.c"
     },
     {
+      "path": "attribute-id.zapt",
+      "name": "ZCL attribute IDs",
+      "output": "attribute-id.h"
+    },
+    {
+      "path": "attribute-type.zapt",
+      "name": "ZCL attribute types",
+      "output": "attribute-type.h"
+    },
+    {
       "path": "cluster-id.zapt",
       "name": "ZCL Clusters IDs",
       "output": "cluster-id.h"
@@ -53,6 +63,11 @@
       "path": "call-command-handler.zapt",
       "name": "ZCL Call Command Handler",
       "output": "call-command-handler.h"
+    },
+    {
+      "path": "enums.zapt",
+      "name": "ZCL enums definition",
+      "output": "enums.h"
     },
     {
       "path": "zap-config.zapt",
