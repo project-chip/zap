@@ -999,7 +999,9 @@ function insertClusterExtensions(db, packageId, data) {
  * @param {*} data array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value
  * @returns Promise of data insertion.
  */
-function insertGlobalAttributeDefault(db, packagaId, data) {
+function insertGlobalAttributeDefault(db, packageId, data) {
+  //console.log(`Insert global attribute default:`)
+  //console.log(data)
   return Promise.resolve()
 }
 

@@ -231,12 +231,15 @@ function processAtomics(db, filePath, packageId, data) {
  * @returns Object containing the data from XML.
  */
 function prepareClusterGlobalAttribute(cluster) {
-  var ret = {}
-
-  ret.code = cluster.code[0]
-  if ('$' in cluster) ret.manufacturerCode = cluster['$'].manufacturerCode
-
   if ('globalAttribute' in cluster) {
+    var ret = {}
+
+    ret.code = cluster.code[0]
+    if ('$' in cluster) {
+      var mfgCode = cluster['$'].manufacturerCode
+      if (mfgCode != null) ret.manufacturerCode = mfgCode
+    }
+
     ret.globalAttribute = []
     cluster.globalAttribute.forEach((ga) => {
       ret.globalAttribute.push({
@@ -245,8 +248,10 @@ function prepareClusterGlobalAttribute(cluster) {
         value: ga.value,
       })
     })
+    return ret
+  } else {
+    return null
   }
-  return ret
 }
 
 /**
@@ -351,11 +356,16 @@ function processClusterGlobalAttributes(db, filePath, packageId, data) {
   env.logInfo(
     `${filePath}, ${packageId}: ${data.length} cluster global attributes.`
   )
-  return queryZcl.insertGlobalAttributeDefault(
-    db,
-    packageId,
-    data.map((x) => prepareClusterGlobalAttribute(x))
-  )
+  var objs = []
+  data.forEach((x) => {
+    var p = prepareClusterGlobalAttribute(x)
+    if (p != null) objs.push(p)
+  })
+  if (objs.length > 0) {
+    return queryZcl.insertGlobalAttributeDefault(db, packageId, objs)
+  } else {
+    return null
+  }
 }
 
 /**
@@ -595,14 +605,13 @@ function processParsedZclData(db, argument) {
         immediatePromises.push(
           processClusters(db, filePath, packageId, data.configurator.cluster)
         )
-        laterPromises.push(() =>
-          processClusterGlobalAttributes(
-            db,
-            filePath,
-            packageId,
-            data.configurator.cluster
-          )
+        var p = processClusterGlobalAttributes(
+          db,
+          filePath,
+          packageId,
+          data.configurator.cluster
         )
+        if (p != null) laterPromises.push(() => p)
       }
       if ('domain' in data.configurator) {
         immediatePromises.push(
