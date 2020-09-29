@@ -143,7 +143,7 @@ test(
         ).toBeTruthy()
         expect(
           simpleTest.includes('Addon: This is example of test addon helper')
-        ) //.toBeTruthy()
+        ).toBeTruthy()
 
         var zclId = genResult.content['zcl-test.out']
         //expect(zclId).toEqual('random placeholder')

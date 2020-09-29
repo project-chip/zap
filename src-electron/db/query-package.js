@@ -117,6 +117,23 @@ function getPackagesByType(db, type) {
 }
 
 /**
+ * Returns packages of a given type and parent.
+ *
+ * @param {*} db
+ * @param {*} type
+ * @returns A promise that resolves into the rows array of packages.
+ */
+function getPackagesByParentAndType(db, parentId, type) {
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE TYPE = ? AND PARENT_PACKAGE_REF = ?',
+      [type, parentId]
+    )
+    .then((rows) => rows.map(dbMapping.map.package))
+}
+
+/**
  * Checks if the package with a given path exists and executes appropriate action.
  * Returns the promise that resolves the the package or null if nothing was found.
  *
@@ -481,6 +498,9 @@ function selectAllDefaultOptions(db, packageId) {
 exports.getPackageByPathAndParent = getPackageByPathAndParent
 exports.getPackageByPackageId = getPackageByPackageId
 exports.getPackagesByType = getPackagesByType
+exports.getPackageByParent = getPackageByParent
+exports.getPackageIdByPathAndTypeAndVersion = getPackageIdByPathAndTypeAndVersion
+
 exports.getPathCrc = getPathCrc
 exports.insertPathCrc = insertPathCrc
 exports.updatePathCrc = updatePathCrc
@@ -489,13 +509,12 @@ exports.updateVersion = updateVersion
 exports.insertSessionPackage = insertSessionPackage
 exports.getSessionPackageIds = getSessionPackageIds
 exports.callPackageSpecificFunctionOverSessionPackages = callPackageSpecificFunctionOverSessionPackages
-exports.getPackageIdByPathAndTypeAndVersion = getPackageIdByPathAndTypeAndVersion
 exports.insertOptionsKeyValues = insertOptionsKeyValues
 exports.selectAllOptionsValues = selectAllOptionsValues
 exports.selectSpecificOptionValue = selectSpecificOptionValue
 exports.insertDefaultOptionValue = insertDefaultOptionValue
-exports.getPackageByParent = getPackageByParent
 exports.getSessionPackagesByType = getSessionPackagesByType
 exports.getSessionGenTemplates = getSessionGenTemplates
 exports.selectAllDefaultOptions = selectAllDefaultOptions
 exports.selectOptionValueByOptionDefaultId = selectOptionValueByOptionDefaultId
+exports.getPackagesByParentAndType = getPackagesByParentAndType

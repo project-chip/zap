@@ -153,7 +153,6 @@ function recordTemplatesPackage(context) {
       if (context.templateData.helpers != null) {
         context.templateData.helpers.forEach((helper) => {
           var helperPath = path.join(path.dirname(context.path), helper)
-          console.log(`Helper: ${helperPath}`)
           promises.push(
             queryPackage.insertPathCrc(
               context.db,
@@ -214,15 +213,25 @@ function generateAllTemplates(genResult, pkg, generateOnly = null) {
   return queryPackage
     .getPackageByParent(genResult.db, pkg.id)
     .then((packages) => {
-      var promises = []
+      var generationPromises = []
+      var helperPromises = []
       packages.forEach((singlePkg) => {
-        env.logInfo(singlePkg)
-        if (generateOnly == null)
-          promises.push(generateSingleTemplate(genResult, singlePkg))
-        else if (generateOnly == singlePkg.version)
-          promises.push(generateSingleTemplate(genResult, singlePkg))
+        if (singlePkg.type == dbEnum.packageType.genSingleTemplate) {
+          if (generateOnly == null)
+            generationPromises.push(
+              generateSingleTemplate(genResult, singlePkg)
+            )
+          else if (generateOnly == singlePkg.version)
+            generationPromises.push(
+              generateSingleTemplate(genResult, singlePkg)
+            )
+        } else if (singlePkg.type == dbEnum.packageType.genHelper) {
+          helperPromises.push(templateEngine.loadHelper(singlePkg.path))
+        }
       })
-      return Promise.all(promises)
+      return Promise.all(helperPromises).then(() =>
+        Promise.all(generationPromises)
+      )
     })
     .then(() => {
       genResult.partial = false

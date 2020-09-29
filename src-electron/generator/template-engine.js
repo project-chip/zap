@@ -62,6 +62,13 @@ function produceContent(db, sessionId, singlePkg) {
   )
 }
 
+function loadHelper(path) {
+  var helpers = require(path)
+  for (const singleHelper in helpers) {
+    handlebars.registerHelper(singleHelper, helpers[singleHelper])
+  }
+}
+
 function initializeGlobalHelpers() {
   if (globalHelpersInitialized) return
 
@@ -73,13 +80,11 @@ function initializeGlobalHelpers() {
   ]
 
   includedHelpers.forEach((element) => {
-    var helpers = require(element)
-    for (const singleHelper in helpers) {
-      handlebars.registerHelper(singleHelper, helpers[singleHelper])
-    }
+    loadHelper(element)
   })
 
   globalHelpersInitialized = true
 }
 
 exports.produceContent = produceContent
+exports.loadHelper = loadHelper
