@@ -119,7 +119,7 @@ test('Simple cluster addition.', () => {
     .then((rowid) =>
       queryZcl.insertClusters(db, rowid, [
         {
-          code: '0x1234',
+          code: 0x1234,
           name: 'Test',
           description: 'Test cluster',
           define: 'TEST',

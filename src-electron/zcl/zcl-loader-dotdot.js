@@ -137,7 +137,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
     let a = atts[i]
     env.logInfo(`Preparing attribute ${side} ${a.$.name}`)
     ret.push({
-      code: normalizeHexValue(a.$.id),
+      code: parseInt(normalizeHexValue(a.$.id)),
       //manufacturerCode: '', // TODO: no manuf code in dotdot xml
       name: a.$.name,
       type: a.$.type.toLowerCase(),
@@ -170,7 +170,7 @@ function prepareCommands(commands, side) {
     let c = cmds[i]
     env.logInfo(`Preparing command ${side} ${c.$.name}`)
     var pcmd = {
-      code: normalizeHexValue(c.$.id),
+      code: parseInt(normalizeHexValue(c.$.id)),
       //manufacturerCode: '', //TODO: no manuf code for dotdot xml
       name: c.$.name,
       //description: '', // TODO: no description for dotdot xml
@@ -214,7 +214,7 @@ function prepareCluster(cluster, isExtension = false, types) {
   if (isExtension) {
     // TODO: no current handling of extensions in the dotdot zcl
   } else {
-    ret.code = normalizeHexValue(cluster.$.id)
+    ret.code = parseInt(normalizeHexValue(cluster.$.id))
     ret.name = cluster.$.name
     //ret.description = '' // TODO: no description in dotdot zcl
     ret.define = cluster.$.name // TODO: no define in dotdot zcl
