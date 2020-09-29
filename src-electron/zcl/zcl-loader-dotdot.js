@@ -468,9 +468,17 @@ function loadZclData(db, ctx) {
     var c = prepareCluster(cluster, false, types)
     cs.push(c)
   })
+  // Global attributes don't have a side listed, so they have to be looped through once for each side
+  gas = []
+  ctx.zclGlobalAttributes.forEach((a) => {
+    var pa = prepareAttributes([a], 'server', types)
+    gas = gas.concat(pa)
+    pa = prepareAttributes([a], 'client', types)
+    gas = gas.concat(pa)
+  })
   let gs = [
     {
-      attributes: prepareAttributes(ctx.zclGlobalAttributes, '', types),
+      attributes: gas,
       commands: prepareCommands(ctx.zclGlobalCommands, ''),
     },
   ]
