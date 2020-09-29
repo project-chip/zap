@@ -20,8 +20,10 @@ const restApi = require('../../src-shared/rest-api.js')
 const dbApi = require('../db/db-api.js')
 const env = require('../util/env.js')
 const importJs = require('../importexport/import.js')
+const exportJs = require('../importexport/export.js')
 const path = require('path')
 const http = require('http-status-codes')
+const queryConfig = require('../db/query-config.js')
 
 function registerIdeIntegrationApi(db, app) {
   app.get(restApi.ide.open, (req, res) => {
@@ -29,19 +31,51 @@ function registerIdeIntegrationApi(db, app) {
       let name = path.posix.basename(req.query.project)
       let zapFile = req.query.project
 
-      env.logInfo(`StudioUC(${name}): Opening/Loading project`)
+      env.logInfo(`Studio: Opening/Loading project(${name})`)
       importJs
         .importDataFromFile(env.mainDatabase(), zapFile)
         .then((sessionId) => {
-          env.logInfo(`Loaded project(${name}), sessionId(${sessionId})`)
+          env.logInfo(
+            `Studio: Loaded project(${name}), sessionId(${sessionId})`
+          )
           res.send({ sessionId: sessionId })
+          return sessionId
         })
+        .then((sessionId) =>
+          queryConfig.updateKeyValue(db, sessionId, 'filePath', zapFile)
+        )
         .catch(function (err) {
-          env.logInfo(`Failed to load project at ${zapFile}`)
+          env.logInfo(`Studio: Failed to load project(${zapFile})`)
         })
     } else {
       res.status(http.StatusCodes.BAD_REQUEST).send({
         error: 'Opening/Loading project: Missing "project" query string',
+      })
+    }
+  })
+
+  app.get(restApi.ide.save, (req, res) => {
+    if (req.query.sessionId) {
+      let sessionId = req.query.sessionId
+      env.logInfo(`Studio: Saving project: sessionId: ${sessionId}`)
+      queryConfig
+        .getSessionKeyValue(env.mainDatabase(), sessionId, 'filePath')
+        .then((filePath) => {
+          let name = path.posix.basename(filePath)
+          env.logInfo(`Studio: Saving project(${name})`)
+          return exportJs.exportDataIntoFile(
+            env.mainDatabase(),
+            sessionId,
+            filePath
+          )
+        })
+        .then((filepath) => {
+          res.send({ filePath: filepath })
+        })
+    } else {
+      env.logInfo(`Studio: Saving project: Invalid sessionId ${sessionId}`)
+      res.status(http.StatusCodes.BAD_REQUEST).send({
+        error: 'Saving project: Missing "sessionId" query string',
       })
     }
   })

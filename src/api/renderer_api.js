@@ -36,7 +36,7 @@ export default function createApi() {
       {
         id: 'save',
         description: 'Save file...',
-        function: () => alert('save!'),
+        function: (sessionId) => ide.save(sessionId),
       },
       {
         id: 'saveAs',
