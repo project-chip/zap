@@ -602,13 +602,14 @@ function processParsedZclData(db, argument) {
         immediatePromises.push(
           processClusters(db, filePath, packageId, data.configurator.cluster)
         )
-        var p = processClusterGlobalAttributes(
-          db,
-          filePath,
-          packageId,
-          data.configurator.cluster
+        laterPromises.push(() =>
+          processClusterGlobalAttributes(
+            db,
+            filePath,
+            packageId,
+            data.configurator.cluster
+          )
         )
-        if (p != null) laterPromises.push(() => p)
       }
       if ('domain' in data.configurator) {
         immediatePromises.push(
@@ -657,19 +658,6 @@ function processParsedZclData(db, argument) {
 }
 
 /**
- * Resolve later promises.
- * This function resolves the later promises associated with processParsedZclData.
- * @param {*} laterPromises
- */
-function resolveLaterPromises(laterPromises) {
-  var p = []
-  laterPromises.flat(1).forEach((promises) => {
-    p.push(promises())
-  })
-  return Promise.all(p)
-}
-
-/**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
  * that will be resolved when all the XML files are done, or rejected if at least one fails.
@@ -679,6 +667,7 @@ function resolveLaterPromises(laterPromises) {
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
 function parseZclFiles(db, ctx) {
+  ctx.laterPromises = []
   env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   return Promise.all(
     ctx.zclFiles.map((file) =>
@@ -688,11 +677,15 @@ function parseZclFiles(db, ctx) {
         .then((data) => zclLoader.qualifyZclFile(db, data, ctx.packageId))
         .then((result) => zclLoader.parseZclFile(result))
         .then((result) => processParsedZclData(db, result))
-        .then((result) => resolveLaterPromises(result))
-        .then(() => ctx)
+        .then((laterPromises) => {
+          laterPromises.flat(1).forEach((p) => ctx.laterPromises.push(p))
+          return ctx
+        })
         .catch((err) => env.logError(err))
     )
   )
+    .then(() => ctx.laterPromises.map((promise) => promise()))
+    .then((promiseArray) => Promise.all(promiseArray))
     .then(() => zclLoader.processZclPostLoading(db))
     .then(() => ctx)
 }
