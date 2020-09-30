@@ -1038,16 +1038,6 @@ function insertGlobalAttributeDefault(db, packageId, data) {
         ])
       }
     })
-    var args = d.globalAttribute.map((ga) => [
-      packageId,
-      d.code,
-      d.manufacturerCode,
-      packageId,
-      ga.code,
-      ga.side,
-      ga.manufacturerCode,
-      ga.value,
-    ])
     var p = dbApi.dbMultiInsert(
       db,
       `
