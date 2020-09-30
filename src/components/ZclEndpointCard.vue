@@ -28,12 +28,8 @@ limitations under the License.
           </div>
           <div class="col-md-6">
             {{
-              (deviceTypes[
-                endpointDeviceTypeRef[endpointType[endpointReference]]
-              ]
-                ? deviceTypes[
-                    endpointDeviceTypeRef[endpointType[endpointReference]]
-                  ].description
+              (deviceType
+                ? deviceType.description + ' (' + deviceType.code + ')'
                 : ''
               ).padStart(4, '0')
             }}
@@ -68,9 +64,7 @@ limitations under the License.
           <div class="col-md-6">
             <b>Version</b>
           </div>
-          <div class="col-md-6">
-            1
-          </div>
+          <div class="col-md-6">1</div>
         </q-item>
       </q-list>
       <q-card-actions class="q-gutter-xs">
@@ -171,6 +165,13 @@ export default {
     selectedEndpoint: {
       get() {
         return this.$store.state.zap.endpointView.selectedEndpoint[0]
+      },
+    },
+    deviceType: {
+      get() {
+        return this.deviceTypes[
+          this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
+        ]
       },
     },
     endpointType: {

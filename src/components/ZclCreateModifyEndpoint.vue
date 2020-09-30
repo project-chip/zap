@@ -45,7 +45,10 @@ limitations under the License.
               :value="
                 newEndpoint.newDeviceTypeRef == null
                   ? ''
-                  : zclDeviceTypes[newEndpoint.newDeviceTypeRef].description
+                  : zclDeviceTypes[newEndpoint.newDeviceTypeRef].description +
+                    ' (' +
+                    zclDeviceTypes[newEndpoint.newDeviceTypeRef].code +
+                    ')'
               "
             >
               <template v-slot:option="option">
@@ -148,7 +151,8 @@ export default {
             accumulator[dt[currentValue].domain] = []
           }
           accumulator[dt[currentValue].domain].push({
-            label: dt[currentValue].description,
+            label:
+              dt[currentValue].description + ' (' + dt[currentValue].code + ')',
             value: currentValue,
           })
           return accumulator
