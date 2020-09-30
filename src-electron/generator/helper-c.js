@@ -290,12 +290,16 @@ function asBytes(value, type) {
  * @param {*} str
  * @returns a spaced out string in lowercase
  */
-function asCamelCased(label) {
+function asCamelCased(label, firstUpper = false) {
   str = label.split(/ |-/)
   res = ''
   for (let i = 0; i < str.length; i++) {
     if (i == 0) {
-      res += str[i].charAt(0).toLowerCase() + str[i].substring(1)
+      if (firstUpper) {
+        res += str[i].charAt(0).toUpperCase() + str[i].substring(1)
+      } else {
+        res += str[i].charAt(0).toLowerCase() + str[i].substring(1)
+      }
       continue
     }
     res += str[i].charAt(0).toUpperCase() + str[i].substring(1)

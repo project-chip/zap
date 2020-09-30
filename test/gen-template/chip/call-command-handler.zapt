@@ -1,1 +1,11 @@
 {{zap_header}}
+
+{{chip_header}}
+{{silabs_header}}
+
+#ifndef CALL_COMMAND_HANDLER
+#define CALL_COMMAND_HANDLER
+
+#include "af-types.h"
+
+#endif //CALL_COMMAND_HANDLER
