@@ -23,7 +23,7 @@
 const Env = require('../util/env.js')
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
-
+const dbEnum = require('../../src-shared/db-enum.js')
 /**
  * Retrieves all the enums in the database.
  *
@@ -1000,9 +1000,69 @@ function insertClusterExtensions(db, packageId, data) {
  * @returns Promise of data insertion.
  */
 function insertGlobalAttributeDefault(db, packageId, data) {
-  //console.log(`Insert global attribute default:`)
-  //data.forEach((x) => console.log(x))
-  return Promise.resolve()
+  var individualClusterPromise = []
+  data.forEach((d) => {
+    var args = []
+    d.globalAttribute.forEach((ga) => {
+      if (ga.side == 'either') {
+        args.push([
+          packageId,
+          d.code,
+          d.manufacturerCode,
+          packageId,
+          ga.code,
+          dbEnum.side.client,
+          ga.manufacturerCode,
+          ga.value,
+        ])
+        args.push([
+          packageId,
+          d.code,
+          d.manufacturerCode,
+          packageId,
+          ga.code,
+          dbEnum.side.server,
+          ga.manufacturerCode,
+          ga.value,
+        ])
+      } else {
+        args.push([
+          packageId,
+          d.code,
+          d.manufacturerCode,
+          packageId,
+          ga.code,
+          ga.side,
+          ga.manufacturerCode,
+          ga.value,
+        ])
+      }
+    })
+    var args = d.globalAttribute.map((ga) => [
+      packageId,
+      d.code,
+      d.manufacturerCode,
+      packageId,
+      ga.code,
+      ga.side,
+      ga.manufacturerCode,
+      ga.value,
+    ])
+    var p = dbApi.dbMultiInsert(
+      db,
+      `
+  INSERT INTO GLOBAL_ATTRIBUTE_DEFAULT (
+    CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE
+  ) VALUES ( 
+    ( SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? AND ( MANUFACTURER_CODE IS NULL OR MANUFACTURER_CODE = ? ) ), 
+    ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE PACKAGE_REF = ? AND CODE = ? AND SIDE = ? AND ( MANUFACTURER_CODE IS NULL OR MANUFACTURER_CODE = ? ) ), 
+    ?)
+    `,
+      args
+    )
+    individualClusterPromise.push(p)
+  })
+  return Promise.all(individualClusterPromise)
 }
 
 /**

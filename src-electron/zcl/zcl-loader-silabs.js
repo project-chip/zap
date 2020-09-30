@@ -243,8 +243,8 @@ function prepareClusterGlobalAttribute(cluster) {
     ret.globalAttribute = []
     cluster.globalAttribute.forEach((ga) => {
       ret.globalAttribute.push({
-        side: ga.$.side,
         code: parseInt(ga.$.code),
+        side: ga.$.side,
         value: ga.$.value,
       })
     })
@@ -353,9 +353,6 @@ function processClusters(db, filePath, packageId, data) {
  * @returns Promise of inserted data.
  */
 function processClusterGlobalAttributes(db, filePath, packageId, data) {
-  env.logInfo(
-    `${filePath}, ${packageId}: ${data.length} cluster global attributes.`
-  )
   var objs = []
   data.forEach((x) => {
     var p = prepareClusterGlobalAttribute(x)
