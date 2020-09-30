@@ -1008,34 +1008,21 @@ function insertGlobalAttributeDefault(db, packageId, data) {
         args.push([
           packageId,
           d.code,
-          d.manufacturerCode,
           packageId,
           ga.code,
           dbEnum.side.client,
-          ga.manufacturerCode,
           ga.value,
         ])
         args.push([
           packageId,
           d.code,
-          d.manufacturerCode,
           packageId,
           ga.code,
           dbEnum.side.server,
-          ga.manufacturerCode,
           ga.value,
         ])
       } else {
-        args.push([
-          packageId,
-          d.code,
-          d.manufacturerCode,
-          packageId,
-          ga.code,
-          ga.side,
-          ga.manufacturerCode,
-          ga.value,
-        ])
+        args.push([packageId, d.code, packageId, ga.code, ga.side, ga.value])
       }
     })
     var p = dbApi.dbMultiInsert(
@@ -1044,8 +1031,8 @@ function insertGlobalAttributeDefault(db, packageId, data) {
   INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_DEFAULT (
     CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE
   ) VALUES ( 
-    ( SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? AND ( MANUFACTURER_CODE IS NULL OR MANUFACTURER_CODE = ? ) ), 
-    ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE PACKAGE_REF = ? AND CODE = ? AND SIDE = ? AND ( MANUFACTURER_CODE IS NULL OR MANUFACTURER_CODE = ? ) ), 
+    ( SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? ), 
+    ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE PACKAGE_REF = ? AND CODE = ? AND SIDE = ? ), 
     ?) 
     `,
       args
