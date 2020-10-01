@@ -119,6 +119,7 @@ function exportEndpointTypes(db, sessionId) {
       name: x.NAME,
       deviceTypeName: x.DEVICE_TYPE_NAME,
       deviceTypeCode: x.DEVICE_TYPE_CODE,
+      deviceTypeProfileId: x.DEVICE_TYPE_PROFILE_ID,
     }
   }
   return dbApi
@@ -130,6 +131,7 @@ SELECT
   ENDPOINT_TYPE.NAME,
   ENDPOINT_TYPE.DEVICE_TYPE_REF,
   DEVICE_TYPE.CODE AS DEVICE_TYPE_CODE,
+  DEVICE_TYPE.PROFILE_ID as DEVICE_TYPE_PROFILE_ID,
   DEVICE_TYPE.NAME AS DEVICE_TYPE_NAME
 FROM
   ENDPOINT_TYPE
@@ -153,7 +155,7 @@ WHERE ENDPOINT_TYPE.SESSION_REF = ? ORDER BY ENDPOINT_TYPE.NAME`,
  * @returns Promise of endpoint insertion.
  */
 function importEndpointType(db, sessionId, packageId, endpointType) {
-  // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', 'clusters', 'commands', 'attributes'
+  // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', `deviceTypeProfileId`, 'clusters', 'commands', 'attributes'
   return dbApi.dbInsert(
     db,
     `
@@ -164,9 +166,15 @@ INSERT INTO ENDPOINT_TYPE (
 ) VALUES(
   ?,
   ?,
-  (SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PACKAGE_REF = ?)
+  (SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND PACKAGE_REF = ?)
 )`,
-    [sessionId, endpointType.name, endpointType.deviceTypeCode, packageId]
+    [
+      sessionId,
+      endpointType.name,
+      endpointType.deviceTypeCode,
+      endpointType.deviceTypeProfileId,
+      packageId,
+    ]
   )
 }
 
