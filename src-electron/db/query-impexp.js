@@ -90,7 +90,7 @@ SELECT
   ENDPOINT.PROFILE,
   ENDPOINT.ENDPOINT_IDENTIFIER,
   ENDPOINT.NETWORK_IDENTIFIER
-FROM 
+FROM
   ENDPOINT
 LEFT JOIN
   ENDPOINT_TYPE
@@ -119,23 +119,25 @@ function exportEndpointTypes(db, sessionId) {
       name: x.NAME,
       deviceTypeName: x.DEVICE_TYPE_NAME,
       deviceTypeCode: x.DEVICE_TYPE_CODE,
+      deviceTypeProfileId: x.DEVICE_TYPE_PROFILE_ID,
     }
   }
   return dbApi
     .dbAll(
       db,
       `
-SELECT 
-  ENDPOINT_TYPE.ENDPOINT_TYPE_ID, 
-  ENDPOINT_TYPE.NAME, 
+SELECT
+  ENDPOINT_TYPE.ENDPOINT_TYPE_ID,
+  ENDPOINT_TYPE.NAME,
   ENDPOINT_TYPE.DEVICE_TYPE_REF,
   DEVICE_TYPE.CODE AS DEVICE_TYPE_CODE,
+  DEVICE_TYPE.PROFILE_ID as DEVICE_TYPE_PROFILE_ID,
   DEVICE_TYPE.NAME AS DEVICE_TYPE_NAME
-FROM 
-  ENDPOINT_TYPE 
+FROM
+  ENDPOINT_TYPE
 LEFT JOIN
   DEVICE_TYPE
-ON 
+ON
   ENDPOINT_TYPE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
 WHERE ENDPOINT_TYPE.SESSION_REF = ? ORDER BY ENDPOINT_TYPE.NAME`,
       [sessionId]
@@ -153,20 +155,26 @@ WHERE ENDPOINT_TYPE.SESSION_REF = ? ORDER BY ENDPOINT_TYPE.NAME`,
  * @returns Promise of endpoint insertion.
  */
 function importEndpointType(db, sessionId, packageId, endpointType) {
-  // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', 'clusters', 'commands', 'attributes'
+  // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', `deviceTypeProfileId`, 'clusters', 'commands', 'attributes'
   return dbApi.dbInsert(
     db,
     `
 INSERT INTO ENDPOINT_TYPE (
-  SESSION_REF, 
-  NAME, 
+  SESSION_REF,
+  NAME,
   DEVICE_TYPE_REF
 ) VALUES(
-  ?, 
-  ?, 
-  (SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PACKAGE_REF = ?)
+  ?,
+  ?,
+  (SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND PACKAGE_REF = ?)
 )`,
-    [sessionId, endpointType.name, endpointType.deviceTypeCode, packageId]
+    [
+      sessionId,
+      endpointType.name,
+      endpointType.deviceTypeCode,
+      endpointType.deviceTypeProfileId,
+      packageId,
+    ]
   )
 }
 
@@ -189,7 +197,7 @@ function exportPackagesFromSession(db, sessionId) {
     .dbAll(
       db,
       `
-SELECT 
+SELECT
   PACKAGE.PATH,
   PACKAGE.VERSION,
   PACKAGE.TYPE
@@ -215,6 +223,7 @@ function exportClustersFromEndpointType(db, endpointTypeId) {
       name: x.NAME,
       code: x.CODE,
       mfgCode: x.MANUFACTURER_CODE,
+      define: x.DEFINE,
       side: x.SIDE,
       enabled: x.ENABLED,
       endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
@@ -225,10 +234,11 @@ function exportClustersFromEndpointType(db, endpointTypeId) {
     .dbAll(
       db,
       `
-SELECT 
-  CLUSTER.CODE, 
+SELECT
+  CLUSTER.CODE,
   CLUSTER.MANUFACTURER_CODE,
   CLUSTER.NAME,
+  CLUSTER.DEFINE,
   ENDPOINT_TYPE_CLUSTER.SIDE,
   ENDPOINT_TYPE_CLUSTER.ENABLED,
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
@@ -253,10 +263,10 @@ function importClusterForEndpointType(db, packageId, endpointTypeId, cluster) {
   return dbApi.dbInsert(
     db,
     `
-INSERT INTO ENDPOINT_TYPE_CLUSTER 
-  (ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED) 
+INSERT INTO ENDPOINT_TYPE_CLUSTER
+  (ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED)
 VALUES
-  (?, 
+  (?,
    (SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? AND ${
      cluster.mfgCode == null
        ? 'MANUFACTURER_CODE IS NULL'
@@ -389,7 +399,7 @@ VALUES
 ( ?, ?,
   ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE, ENDPOINT_TYPE_CLUSTER
     WHERE ATTRIBUTE.CODE = ?
-    AND ATTRIBUTE.PACKAGE_REF = ? 
+    AND ATTRIBUTE.PACKAGE_REF = ?
     AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
     AND ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = ATTRIBUTE.CLUSTER_REF
     AND ${
@@ -479,14 +489,14 @@ function importCommandForEndpointType(
 INSERT INTO ENDPOINT_TYPE_COMMAND
 ( ENDPOINT_TYPE_REF,
   ENDPOINT_TYPE_CLUSTER_REF,
-  COMMAND_REF, 
+  COMMAND_REF,
   INCOMING,
   OUTGOING )
 VALUES
   ( ?, ?,
     ( SELECT COMMAND_ID
-      FROM COMMAND, ENDPOINT_TYPE_CLUSTER WHERE 
-        COMMAND.CODE = ? 
+      FROM COMMAND, ENDPOINT_TYPE_CLUSTER WHERE
+        COMMAND.CODE = ?
         AND COMMAND.SOURCE = ?
         AND COMMAND.PACKAGE_REF = ?
         AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
@@ -522,13 +532,13 @@ function exportendPointTypeIds(db, sessionId) {
     .dbAll(
       db,
       `
-SELECT 
+SELECT
   ENDPOINT_TYPE.ENDPOINT_TYPE_ID
-FROM 
-  ENDPOINT_TYPE 
+FROM
+  ENDPOINT_TYPE
 LEFT JOIN
   DEVICE_TYPE
-ON 
+ON
   ENDPOINT_TYPE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
 WHERE ENDPOINT_TYPE.SESSION_REF = ? ORDER BY ENDPOINT_TYPE.NAME`,
       [sessionId]

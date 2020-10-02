@@ -23,7 +23,7 @@
 const Env = require('../util/env.js')
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
-
+const dbEnum = require('../../src-shared/db-enum.js')
 /**
  * Retrieves all the enums in the database.
  *
@@ -214,16 +214,16 @@ function selectAllClusters(db, packageId = null) {
     .dbAll(
       db,
       `
-SELECT 
-  CLUSTER_ID, 
-  CODE, 
-  MANUFACTURER_CODE, 
-  NAME, 
-  DESCRIPTION, 
+SELECT
+  CLUSTER_ID,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
   DEFINE,
   DOMAIN_NAME
-FROM CLUSTER 
-  ${packageId != null ? 'WHERE PACKAGE_REF = ? ' : ''} 
+FROM CLUSTER
+  ${packageId != null ? 'WHERE PACKAGE_REF = ? ' : ''}
 ORDER BY CODE`,
       packageId != null ? [packageId] : []
     )
@@ -276,24 +276,24 @@ function selectAttributesByClusterId(db, clusterId, packageId = null) {
     .dbAll(
       db,
       `
-SELECT 
-  ATTRIBUTE_ID, 
-  CLUSTER_REF, 
-  CODE, 
-  MANUFACTURER_CODE, 
-  NAME, 
-  TYPE, 
-  SIDE, 
-  DEFINE, 
-  MIN, 
-  MAX, 
-  IS_WRITABLE, 
-  DEFAULT_VALUE, 
-  IS_OPTIONAL, 
-  IS_REPORTABLE 
-FROM ATTRIBUTE 
-WHERE (CLUSTER_REF = ? OR CLUSTER_REF IS NULL) 
-  ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''} 
+SELECT
+  ATTRIBUTE_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  TYPE,
+  SIDE,
+  DEFINE,
+  MIN,
+  MAX,
+  IS_WRITABLE,
+  DEFAULT_VALUE,
+  IS_OPTIONAL,
+  IS_REPORTABLE
+FROM ATTRIBUTE
+WHERE (CLUSTER_REF = ? OR CLUSTER_REF IS NULL)
+  ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
 ORDER BY CODE`,
       packageId != null ? [clusterId, packageId] : [clusterId]
     )
@@ -305,26 +305,26 @@ function selectAttributesByClusterIdAndSide(db, clusterId, packageId, side) {
     .dbAll(
       db,
       `
-SELECT 
-  ATTRIBUTE_ID, 
-  CLUSTER_REF, 
-  CODE, 
-  MANUFACTURER_CODE, 
-  NAME, 
-  TYPE, 
-  SIDE, 
-  DEFINE, 
-  MIN, 
-  MAX, 
-  IS_WRITABLE, 
-  DEFAULT_VALUE, 
-  IS_OPTIONAL, 
-  IS_REPORTABLE 
-FROM ATTRIBUTE 
-WHERE 
+SELECT
+  ATTRIBUTE_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  TYPE,
+  SIDE,
+  DEFINE,
+  MIN,
+  MAX,
+  IS_WRITABLE,
+  DEFAULT_VALUE,
+  IS_OPTIONAL,
+  IS_REPORTABLE
+FROM ATTRIBUTE
+WHERE
   SIDE = ?
-  AND (CLUSTER_REF = ? OR CLUSTER_REF IS NULL) 
-  ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''} 
+  AND (CLUSTER_REF = ? OR CLUSTER_REF IS NULL)
+  ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
 ORDER BY CODE`,
       packageId != null ? [side, clusterId, packageId] : [side, clusterId]
     )
@@ -355,16 +355,16 @@ SELECT
   ATTRIBUTE.MANUFACTURER_CODE,
   ATTRIBUTE.NAME,
   ATTRIBUTE.TYPE,
-  ATTRIBUTE.SIDE, 
-  ATTRIBUTE.DEFINE, 
-  ATTRIBUTE.MIN, 
-  ATTRIBUTE.MAX, 
-  ATTRIBUTE.IS_WRITABLE, 
-  ATTRIBUTE.DEFAULT_VALUE, 
+  ATTRIBUTE.SIDE,
+  ATTRIBUTE.DEFINE,
+  ATTRIBUTE.MIN,
+  ATTRIBUTE.MAX,
+  ATTRIBUTE.IS_WRITABLE,
+  ATTRIBUTE.DEFAULT_VALUE,
   ATTRIBUTE.IS_OPTIONAL,
   ATTRIBUTE.IS_REPORTABLE
 FROM ATTRIBUTE, CLUSTER
-WHERE CLUSTER.CODE = ? 
+WHERE CLUSTER.CODE = ?
   AND CLUSTER.CLUSTER_ID = ATTRIBUTE.CLUSTER_REF
   ${manufacturerString}`,
       [clusterCode]
@@ -377,22 +377,22 @@ function selectAttributeById(db, id) {
     .dbGet(
       db,
       `
-SELECT 
-  ATTRIBUTE_ID, 
-  CLUSTER_REF, 
-  CODE, 
-  MANUFACTURER_CODE, 
-  NAME, 
-  TYPE, 
-  SIDE, 
-  DEFINE, 
-  MIN, 
-  MAX, 
-  IS_WRITABLE, 
-  DEFAULT_VALUE, 
-  IS_OPTIONAL, 
-  IS_REPORTABLE 
-FROM ATTRIBUTE 
+SELECT
+  ATTRIBUTE_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  TYPE,
+  SIDE,
+  DEFINE,
+  MIN,
+  MAX,
+  IS_WRITABLE,
+  DEFAULT_VALUE,
+  IS_OPTIONAL,
+  IS_REPORTABLE
+FROM ATTRIBUTE
 WHERE ATTRIBUTE_ID = ?`,
       [id]
     )
@@ -404,22 +404,22 @@ function selectAllAttributes(db, packageId = null) {
     .dbAll(
       db,
       `
-SELECT 
-  ATTRIBUTE_ID, 
-  CLUSTER_REF, 
-  CODE, 
-  MANUFACTURER_CODE, 
-  NAME, 
-  TYPE, 
-  SIDE, 
-  DEFINE, 
-  MIN, 
-  MAX, 
-  IS_WRITABLE, 
-  DEFAULT_VALUE, 
-  IS_OPTIONAL, 
-  IS_REPORTABLE 
-FROM ATTRIBUTE 
+SELECT
+  ATTRIBUTE_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  TYPE,
+  SIDE,
+  DEFINE,
+  MIN,
+  MAX,
+  IS_WRITABLE,
+  DEFAULT_VALUE,
+  IS_OPTIONAL,
+  IS_REPORTABLE
+FROM ATTRIBUTE
    ${packageId != null ? 'WHERE PACKAGE_REF = ? ' : ''}
 ORDER BY CODE`,
       packageId != null ? [packageId] : []
@@ -432,22 +432,22 @@ function selectAllAttributesBySide(db, side, packageId = null) {
     .dbAll(
       db,
       `
-SELECT 
-  ATTRIBUTE_ID, 
-  CLUSTER_REF, 
-  CODE, 
-  MANUFACTURER_CODE, 
-  NAME, 
-  TYPE, 
-  SIDE, 
-  DEFINE, 
-  MIN, 
-  MAX, 
-  IS_WRITABLE, 
-  DEFAULT_VALUE, 
-  IS_OPTIONAL, 
-  IS_REPORTABLE 
-FROM ATTRIBUTE 
+SELECT
+  ATTRIBUTE_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  TYPE,
+  SIDE,
+  DEFINE,
+  MIN,
+  MAX,
+  IS_WRITABLE,
+  DEFAULT_VALUE,
+  IS_OPTIONAL,
+  IS_REPORTABLE
+FROM ATTRIBUTE
    WHERE SIDE = ?
    ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
 ORDER BY CODE`,
@@ -471,16 +471,16 @@ function selectCommandsByClusterId(db, clusterId, packageId = null) {
     .dbAll(
       db,
       `
-SELECT 
-  COMMAND_ID, 
-  CLUSTER_REF, 
-  CODE, 
-  MANUFACTURER_CODE, 
-  NAME, 
-  DESCRIPTION, 
-  SOURCE, 
-  IS_OPTIONAL 
-FROM COMMAND WHERE CLUSTER_REF = ? 
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL
+FROM COMMAND WHERE CLUSTER_REF = ?
   ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
 ORDER BY CODE`,
       packageId != null ? [clusterId, packageId] : [clusterId]
@@ -493,16 +493,16 @@ function selectAllCommands(db, packageId = null) {
     .dbAll(
       db,
       `
-SELECT 
-  COMMAND_ID, 
-  CLUSTER_REF, 
-  CODE, 
-  MANUFACTURER_CODE, 
-  NAME, 
-  DESCRIPTION, 
-  SOURCE, 
-  IS_OPTIONAL 
-FROM COMMAND 
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL
+FROM COMMAND
   ${packageId != null ? 'WHERE PACKAGE_REF = ? ' : ''}
 ORDER BY CODE`,
       packageId != null ? [packageId] : []
@@ -580,24 +580,24 @@ function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
     .dbAll(
       db,
       `
-SELECT 
-  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF, 
-  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF, 
-  ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF, 
+SELECT
+  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF,
+  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF,
+  ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF,
   ENDPOINT_TYPE_ATTRIBUTE.INCLUDED,
   ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION,
-  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON, 
-  ENDPOINT_TYPE_ATTRIBUTE.BOUNDED, 
-  ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE, 
-  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED_REPORTABLE, 
-  ENDPOINT_TYPE_ATTRIBUTE.MIN_INTERVAL, 
-  ENDPOINT_TYPE_ATTRIBUTE.MAX_INTERVAL, 
+  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
+  ENDPOINT_TYPE_ATTRIBUTE.BOUNDED,
+  ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE,
+  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED_REPORTABLE,
+  ENDPOINT_TYPE_ATTRIBUTE.MIN_INTERVAL,
+  ENDPOINT_TYPE_ATTRIBUTE.MAX_INTERVAL,
   ENDPOINT_TYPE_ATTRIBUTE.REPORTABLE_CHANGE
-FROM 
-  ENDPOINT_TYPE_ATTRIBUTE, ENDPOINT_TYPE_CLUSTER 
-WHERE 
-  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ? 
-  AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID 
+FROM
+  ENDPOINT_TYPE_ATTRIBUTE, ENDPOINT_TYPE_CLUSTER
+WHERE
+  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?
+  AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
 ORDER BY ATTRIBUTE_REF`,
       [endpointTypeId]
     )
@@ -616,21 +616,21 @@ function selectEndpointTypeAttribute(
     .dbGet(
       db,
       `
-SELECT 
-  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF, 
-  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF, 
-  ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF, 
+SELECT
+  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF,
+  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF,
+  ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF,
   ENDPOINT_TYPE_ATTRIBUTE.INCLUDED,
   ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION,
-  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON, 
-  ENDPOINT_TYPE_ATTRIBUTE.BOUNDED, 
-  ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE 
-FROM 
-  ENDPOINT_TYPE_ATTRIBUTE, ENDPOINT_TYPE_CLUSTER 
-WHERE 
-  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ? 
-  AND ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ? 
-  AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID 
+  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
+  ENDPOINT_TYPE_ATTRIBUTE.BOUNDED,
+  ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE
+FROM
+  ENDPOINT_TYPE_ATTRIBUTE, ENDPOINT_TYPE_CLUSTER
+WHERE
+  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?
+  AND ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ?
+  AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
   AND ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = ?`,
       [endpointTypeId, attributeRef, clusterRef]
     )
@@ -642,17 +642,17 @@ function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
     .dbAll(
       db,
       `
-SELECT 
-  ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF, 
-  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF, 
-  ENDPOINT_TYPE_COMMAND.COMMAND_REF, 
-  ENDPOINT_TYPE_COMMAND.INCOMING, 
-  ENDPOINT_TYPE_COMMAND.OUTGOING 
-FROM 
-  ENDPOINT_TYPE_COMMAND, ENDPOINT_TYPE_CLUSTER  
-WHERE 
-  ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ? 
-  AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID 
+SELECT
+  ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF,
+  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF,
+  ENDPOINT_TYPE_COMMAND.COMMAND_REF,
+  ENDPOINT_TYPE_COMMAND.INCOMING,
+  ENDPOINT_TYPE_COMMAND.OUTGOING
+FROM
+  ENDPOINT_TYPE_COMMAND, ENDPOINT_TYPE_CLUSTER
+WHERE
+  ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ?
+  AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
 ORDER BY COMMAND_REF`,
       [endpointTypeId]
     )
@@ -664,19 +664,19 @@ function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
     .dbAll(
       db,
       `
-SELECT 
-  DEVICE_TYPE_CLUSTER_ID, 
-  DEVICE_TYPE_REF, 
-  CLUSTER_REF, 
-  CLUSTER_NAME, 
-  INCLUDE_CLIENT, 
-  INCLUDE_SERVER, 
-  LOCK_CLIENT, 
-  LOCK_SERVER 
-FROM 
-  DEVICE_TYPE_CLUSTER 
-WHERE 
-  DEVICE_TYPE_REF = ? 
+SELECT
+  DEVICE_TYPE_CLUSTER_ID,
+  DEVICE_TYPE_REF,
+  CLUSTER_REF,
+  CLUSTER_NAME,
+  INCLUDE_CLIENT,
+  INCLUDE_SERVER,
+  LOCK_CLIENT,
+  LOCK_SERVER
+FROM
+  DEVICE_TYPE_CLUSTER
+WHERE
+  DEVICE_TYPE_REF = ?
 ORDER BY CLUSTER_REF`,
       [deviceTypeRef]
     )
@@ -688,18 +688,18 @@ function selectDeviceTypeClusterByDeviceTypeClusterId(db, deviceTypeClusterId) {
     .dbGet(
       db,
       `
-SELECT 
-  DEVICE_TYPE_CLUSTER_ID, 
-  DEVICE_TYPE_REF, 
-  CLUSTER_REF, 
-  CLUSTER_NAME, 
-  INCLUDE_CLIENT, 
-  INCLUDE_SERVER, 
-  LOCK_CLIENT, 
-  LOCK_SERVER 
-FROM 
-  DEVICE_TYPE_CLUSTER 
-WHERE 
+SELECT
+  DEVICE_TYPE_CLUSTER_ID,
+  DEVICE_TYPE_REF,
+  CLUSTER_REF,
+  CLUSTER_NAME,
+  INCLUDE_CLIENT,
+  INCLUDE_SERVER,
+  LOCK_CLIENT,
+  LOCK_SERVER
+FROM
+  DEVICE_TYPE_CLUSTER
+WHERE
   DEVICE_TYPE_CLUSTER_ID = ?`,
       [deviceTypeClusterId]
     )
@@ -713,14 +713,14 @@ function selectDeviceTypeAttributesByDeviceTypeClusterRef(
   return dbApi.dbAll(
     db,
     `
-SELECT 
-  DEVICE_TYPE_CLUSTER_REF, 
-  ATTRIBUTE_REF, 
-  ATTRIBUTE_NAME 
-FROM 
-  DEVICE_TYPE_ATTRIBUTE 
-WHERE 
-  DEVICE_TYPE_CLUSTER_REF = ? 
+SELECT
+  DEVICE_TYPE_CLUSTER_REF,
+  ATTRIBUTE_REF,
+  ATTRIBUTE_NAME
+FROM
+  DEVICE_TYPE_ATTRIBUTE
+WHERE
+  DEVICE_TYPE_CLUSTER_REF = ?
 ORDER BY ATTRIBUTE_REF`,
     [deviceTypeClusterRef]
   )
@@ -733,14 +733,14 @@ function selectDeviceTypeCommandsByDeviceTypeClusterRef(
   return dbApi.dbAll(
     db,
     `
-SELECT 
-  DEVICE_TYPE_CLUSTER_REF, 
-  COMMAND_REF, 
-  COMMAND_NAME 
-FROM 
-  DEVICE_TYPE_COMMAND 
-WHERE 
-  DEVICE_TYPE_CLUSTER_REF = ? 
+SELECT
+  DEVICE_TYPE_CLUSTER_REF,
+  COMMAND_REF,
+  COMMAND_NAME
+FROM
+  DEVICE_TYPE_COMMAND
+WHERE
+  DEVICE_TYPE_CLUSTER_REF = ?
 ORDER BY COMMAND_REF`,
     [deviceTypeClusterRef]
   )
@@ -751,16 +751,16 @@ function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
     .dbAll(
       db,
       `
-SELECT 
-  DEVICE_TYPE_CLUSTER.CLUSTER_REF, 
-  DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF, 
-  DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF, 
-  DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_NAME 
-FROM 
-  DEVICE_TYPE_ATTRIBUTE, 
-  DEVICE_TYPE_CLUSTER 
-WHERE 
-  DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ? 
+SELECT
+  DEVICE_TYPE_CLUSTER.CLUSTER_REF,
+  DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF,
+  DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF,
+  DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_NAME
+FROM
+  DEVICE_TYPE_ATTRIBUTE,
+  DEVICE_TYPE_CLUSTER
+WHERE
+  DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ?
   AND DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF`,
       [deviceTypeRef]
     )
@@ -772,16 +772,16 @@ function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
     .dbAll(
       db,
       `
-SELECT 
-  DEVICE_TYPE_CLUSTER.CLUSTER_REF, 
-  DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF, 
-  DEVICE_TYPE_COMMAND.COMMAND_REF, 
-  DEVICE_TYPE_COMMAND.COMMAND_NAME 
-FROM 
-  DEVICE_TYPE_COMMAND, 
-  DEVICE_TYPE_CLUSTER 
-WHERE 
-  DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ? 
+SELECT
+  DEVICE_TYPE_CLUSTER.CLUSTER_REF,
+  DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF,
+  DEVICE_TYPE_COMMAND.COMMAND_REF,
+  DEVICE_TYPE_COMMAND.COMMAND_NAME
+FROM
+  DEVICE_TYPE_COMMAND,
+  DEVICE_TYPE_CLUSTER
+WHERE
+  DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ?
   AND DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF`,
       [deviceTypeRef]
     )
@@ -805,14 +805,13 @@ function insertGlobals(db, packageId, data) {
   var argsToLoad = []
   var i
   for (i = 0; i < data.length; i++) {
-    var lastId = null
     if ('commands' in data[i]) {
       var commands = data[i].commands
       commandsToLoad.push(
         ...commands.map((command) => [
-          lastId,
+          null, // clusterId
           packageId,
-          parseInt(command.code, 16),
+          command.code,
           command.name,
           command.description,
           command.source,
@@ -825,9 +824,9 @@ function insertGlobals(db, packageId, data) {
       var attributes = data[i].attributes
       attributesToLoad.push(
         ...attributes.map((attribute) => [
-          lastId,
+          null, // clusterId
           packageId,
-          parseInt(attribute.code, 16),
+          attribute.code,
           attribute.name,
           attribute.type,
           attribute.side,
@@ -868,21 +867,21 @@ function insertGlobals(db, packageId, data) {
   var pAttribute = dbApi.dbMultiInsert(
     db,
     `
-INSERT INTO ATTRIBUTE 
-  ( CLUSTER_REF, 
-    PACKAGE_REF, 
-    CODE, 
-    NAME, 
-    TYPE, 
-    SIDE, 
-    DEFINE, 
-    MIN, 
-    MAX, 
-    IS_WRITABLE, 
-    DEFAULT_VALUE, 
-    IS_OPTIONAL, 
-    IS_REPORTABLE) 
-VALUES 
+INSERT INTO ATTRIBUTE
+  ( CLUSTER_REF,
+    PACKAGE_REF,
+    CODE,
+    NAME,
+    TYPE,
+    SIDE,
+    DEFINE,
+    MIN,
+    MAX,
+    IS_WRITABLE,
+    DEFAULT_VALUE,
+    IS_OPTIONAL,
+    IS_REPORTABLE)
+VALUES
   (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     attributesToLoad
   )
@@ -903,7 +902,7 @@ function insertClusterExtensions(db, packageId, data) {
     .dbMultiSelect(
       db,
       'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?',
-      data.map((cluster) => [parseInt(cluster.code, 16)])
+      data.map((cluster) => [cluster.code])
     )
     .then((rows) => {
       var commandsToLoad = []
@@ -921,7 +920,7 @@ function insertClusterExtensions(db, packageId, data) {
               ...commands.map((command) => [
                 lastId,
                 packageId,
-                parseInt(command.code, 16),
+                command.code,
                 command.manufacturerCode,
                 command.name,
                 command.description,
@@ -937,7 +936,7 @@ function insertClusterExtensions(db, packageId, data) {
               ...attributes.map((attribute) => [
                 lastId,
                 packageId,
-                parseInt(attribute.code, 16),
+                attribute.code,
                 attribute.manufacturerCode,
                 attribute.name,
                 attribute.type,
@@ -993,6 +992,57 @@ function insertClusterExtensions(db, packageId, data) {
 }
 
 /**
+ * Inserts global attribute defaults into the database.
+ *
+ * @param {*} db
+ * @param {*} packagaId
+ * @param {*} data array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value
+ * @returns Promise of data insertion.
+ */
+function insertGlobalAttributeDefault(db, packageId, data) {
+  var individualClusterPromise = []
+  data.forEach((d) => {
+    var args = []
+    d.globalAttribute.forEach((ga) => {
+      if (ga.side == 'either') {
+        args.push([
+          packageId,
+          d.code,
+          packageId,
+          ga.code,
+          dbEnum.side.client,
+          ga.value,
+        ])
+        args.push([
+          packageId,
+          d.code,
+          packageId,
+          ga.code,
+          dbEnum.side.server,
+          ga.value,
+        ])
+      } else {
+        args.push([packageId, d.code, packageId, ga.code, ga.side, ga.value])
+      }
+    })
+    var p = dbApi.dbMultiInsert(
+      db,
+      `
+  INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_DEFAULT (
+    CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE
+  ) VALUES ( 
+    ( SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? ), 
+    ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE PACKAGE_REF = ? AND CODE = ? AND SIDE = ? ), 
+    ?) 
+    `,
+      args
+    )
+    individualClusterPromise.push(p)
+  })
+  return Promise.all(individualClusterPromise)
+}
+
+/**
  * Inserts clusters into the database.
  *
  * @export
@@ -1011,7 +1061,7 @@ function insertClusters(db, packageId, data) {
       data.map((cluster) => {
         return [
           packageId,
-          parseInt(cluster.code, 16),
+          cluster.code,
           cluster.manufacturerCode,
           cluster.name,
           cluster.description,
@@ -1034,7 +1084,7 @@ function insertClusters(db, packageId, data) {
             ...commands.map((command) => [
               lastId,
               packageId,
-              parseInt(command.code, 16),
+              command.code,
               command.name,
               command.description,
               command.source,
@@ -1049,7 +1099,7 @@ function insertClusters(db, packageId, data) {
             ...attributes.map((attribute) => [
               lastId,
               packageId,
-              parseInt(attribute.code, 16),
+              attribute.code,
               attribute.name,
               attribute.type,
               attribute.side,
@@ -1216,14 +1266,14 @@ function updateClusterReferencesForDeviceTypeClusters(db) {
   return dbApi.dbUpdate(
     db,
     `
-UPDATE 
-  DEVICE_TYPE_CLUSTER 
-SET 
-  CLUSTER_REF = 
-  ( SELECT 
-      CLUSTER.CLUSTER_ID 
-    FROM 
-      CLUSTER 
+UPDATE
+  DEVICE_TYPE_CLUSTER
+SET
+  CLUSTER_REF =
+  ( SELECT
+      CLUSTER.CLUSTER_ID
+    FROM
+      CLUSTER
     WHERE lower(CLUSTER.NAME) = lower(DEVICE_TYPE_CLUSTER.CLUSTER_NAME)
   )`,
     []
@@ -1234,14 +1284,14 @@ function updateAttributeReferencesForDeviceTypeReferences(db) {
   return dbApi.dbUpdate(
     db,
     `
-UPDATE 
-  DEVICE_TYPE_ATTRIBUTE 
-SET 
-  ATTRIBUTE_REF = 
-  ( SELECT 
-      ATTRIBUTE.ATTRIBUTE_ID 
-    FROM 
-      ATTRIBUTE 
+UPDATE
+  DEVICE_TYPE_ATTRIBUTE
+SET
+  ATTRIBUTE_REF =
+  ( SELECT
+      ATTRIBUTE.ATTRIBUTE_ID
+    FROM
+      ATTRIBUTE
     WHERE upper(ATTRIBUTE.DEFINE) = upper(DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_NAME)
   )`,
     []
@@ -1252,14 +1302,14 @@ function updateCommandReferencesForDeviceTypeReferences(db) {
   return dbApi.dbUpdate(
     db,
     `
-UPDATE 
-  DEVICE_TYPE_COMMAND 
-SET 
-  COMMAND_REF = 
-  ( SELECT 
-      COMMAND.COMMAND_ID 
-    FROM 
-      COMMAND 
+UPDATE
+  DEVICE_TYPE_COMMAND
+SET
+  COMMAND_REF =
+  ( SELECT
+      COMMAND.COMMAND_ID
+    FROM
+      COMMAND
     WHERE upper(COMMAND.NAME) = upper(DEVICE_TYPE_COMMAND.COMMAND_NAME)
   )`,
     []
@@ -1491,7 +1541,7 @@ function exportClustersAndEndpointDetailsFromEndpointTypes(db, endpointTypes) {
     .dbAll(
       db,
       `
-SELECT 
+SELECT
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF,
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
 FROM CLUSTER
@@ -1575,7 +1625,7 @@ function selectCommandArgumentsCountByCommandId(
     .dbAll(
       db,
       `
-SELECT COUNT(*) AS count  
+SELECT COUNT(*) AS count
 FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
       [commandId]
     )
@@ -1595,11 +1645,11 @@ function selectCommandArgumentsByCommandId(db, commandId, packageId = null) {
     .dbAll(
       db,
       `
-SELECT 
-  COMMAND_REF, 
-  NAME, 
-  TYPE, 
-  IS_ARRAY  
+SELECT
+  COMMAND_REF,
+  NAME,
+  TYPE,
+  IS_ARRAY
 FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
       [commandId]
     )
@@ -1620,6 +1670,7 @@ function exportAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
       id: x.CLUSTER_ID,
       name: x.NAME,
       code: x.CODE,
+      define: x.DEFINE,
       mfgCode: x.MANUFACTURER_CODE,
       side: x.SIDE,
       enabled: x.ENABLED,
@@ -1631,11 +1682,12 @@ function exportAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
     .dbAll(
       db,
       `
-SELECT 
+SELECT
   CLUSTER.CLUSTER_ID,
-  CLUSTER.CODE, 
+  CLUSTER.CODE,
   CLUSTER.MANUFACTURER_CODE,
   CLUSTER.NAME,
+  CLUSTER.DEFINE,
   ENDPOINT_TYPE_CLUSTER.SIDE,
   ENDPOINT_TYPE_CLUSTER.ENABLED,
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
@@ -1643,6 +1695,7 @@ FROM CLUSTER
 INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
 WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT ""
 GROUP BY NAME, SIDE`
     )
     .then((rows) => rows.map(mapFunction))
@@ -1759,3 +1812,4 @@ exports.selectCommandArgumentsCountByCommandId = selectCommandArgumentsCountByCo
 exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
 exports.exportAllClustersDetailsFromEndpointTypes = exportAllClustersDetailsFromEndpointTypes
 exports.exportCommandDetailsFromAllEndpointTypeCluster = exportCommandDetailsFromAllEndpointTypeCluster
+exports.insertGlobalAttributeDefault = insertGlobalAttributeDefault

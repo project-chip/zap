@@ -2,6 +2,6 @@ Test template file.
 
 Header:{{zap_header}}
 
-SessionId: {{sessionId}}
+SessionId: {{global.sessionId}}
 
 Addon: {{test_addon_helper}}

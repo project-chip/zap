@@ -31,6 +31,7 @@ const generation = require('../rest/generation.js')
 const staticZcl = require('../rest/static-zcl.js')
 const userData = require('../rest/user-data.js')
 const uc_integration = require('../rest/uc-component.js')
+const ide = require('../rest/ide-api-handler.js')
 const util = require('../util/util.js')
 
 var httpServer = null
@@ -87,6 +88,7 @@ function initHttpServer(db, port, studioPort) {
     generation.registerGenerationApi(db, app)
     admin.registerAdminApi(db, app)
     uc_integration.registerUcComponentApi(db, app)
+    ide.registerIdeIntegrationApi(db, app)
 
     env.logInfo(`HTTP static content location: ${env.httpStaticContent}`)
     app.use(express.static(env.httpStaticContent))

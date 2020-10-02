@@ -24,7 +24,6 @@
 const env = require('../util/env.js')
 const axios = require('axios')
 const studio = require('./studio-integration.js')
-const replyId = 'uc-tree'
 const http = require('http-status-codes')
 const restApi = require('../../src-shared/rest-api.js')
 
@@ -45,7 +44,7 @@ function registerUcComponentApi(db, app) {
         .then(function (response) {
           env.logInfo(`StudioUC(${name}): RESP: ${response.status}`)
           let r = {
-            replyId: restApi.uc.componentTreeReply,
+            replyId: restApi.uc.componentTreeResponse,
             data: response.data,
           }
           res.send(r)

@@ -27,6 +27,7 @@ exports.packageType = {
   sqlSchema: 'sql-schema',
   genTemplatesJson: 'gen-templates-json',
   genSingleTemplate: 'gen-template',
+  genHelper: 'gen-helper',
 }
 
 exports.packageOptionCategory = {

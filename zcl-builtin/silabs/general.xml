@@ -15,7 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <configurator>
-  <domain name="General" spec="zcl-7.0-07-5123-07" certifiable="true">
+  <domain name="General" spec="zcl-8.0-07-5123-08" certifiable="true">
+    <older spec="zcl-7.0-07-5123-07" certifiable="true"/>
     <older spec="zcl6-errata-14-0129-15"/>
     <older spec="zcl-6.0-15-02017-001"/>
     <older spec="zcl-1.0-07-5123-03"/>
@@ -174,7 +175,8 @@ limitations under the License.
     <define>BASIC_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
-    <attribute side="server" code="0x0000" define="VERSION" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x03" optional="false">ZCL version</attribute>
+    <globalAttribute side="either" code="0xFFFD" value="3"/>
+    <attribute side="server" code="0x0000" define="VERSION" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x08" optional="false">ZCL version</attribute>
     <!-- ZCL_VERSION -->
     <attribute side="server" code="0x0001" define="APPLICATION_VERSION" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x00" optional="true">application version</attribute>
     <attribute side="server" code="0x0002" define="STACK_VERSION" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x00" optional="true">stack version</attribute>
@@ -204,6 +206,7 @@ limitations under the License.
     <define>POWER_CONFIG_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="2"/>
     <attribute side="server" code="0x0000" define="MAINS_VOLTAGE" type="INT16U" min="0x0000" max="0xFFFF" writable="false" optional="true">mains voltage</attribute>
     <attribute side="server" code="0x0001" define="MAINS_FREQUENCY" type="INT8U" min="0x00" max="0xFF" writable="false" optional="true">mains frequency</attribute>
     <attribute side="server" code="0x0010" define="MAINS_ALARM_MASK" type="BITMAP8" min="0x00" max="0x03" writable="true" default="0x00" optional="true">mains alarm mask</attribute>
@@ -226,7 +229,7 @@ limitations under the License.
     <attribute side="server" code="0x003b" define="BATTERY_PERCENTAGE_THRESHOLD_1" type="INT8U" min="0x00" max="0xFF" writable="true" default="0x00" optional="true" introducedIn="ha-1.2-05-3520-29">battery percentage threshold 1</attribute>
     <attribute side="server" code="0x003c" define="BATTERY_PERCENTAGE_THRESHOLD_2" type="INT8U" min="0x00" max="0xFF" writable="true" default="0x00" optional="true" introducedIn="ha-1.2-05-3520-29">battery percentage threshold 2</attribute>
     <attribute side="server" code="0x003d" define="BATTERY_PERCENTAGE_THRESHOLD_3" type="INT8U" min="0x00" max="0xFF" writable="true" default="0x00" optional="true" introducedIn="ha-1.2-05-3520-29">battery percentage threshold 3</attribute>
-    <attribute side="server" code="0x003e" define="BATTERY_ALARM_STATE" type="BITMAP32" min="0x00000000" max="0xFFFFFFFF" writable="false" default="0x00000000" optional="true" introducedIn="ha-1.2-05-3520-29">battery alarm state</attribute>
+    <attribute side="server" code="0x003e" define="BATTERY_ALARM_STATE" type="BITMAP32" min="0x00000000" max="0xFFFFFFFF" writable="false" reportable="true" default="0x00000000" optional="true" introducedIn="ha-1.2-05-3520-29">battery alarm state</attribute>
     <attribute side="server" code="0x0040" define="BATTERY_2_VOLTAGE" type="INT8U" min="0x00" max="0xFF" writable="false" optional="true" introducedIn="ha-1.2-05-3520-29">battery 2 voltage</attribute>
     <attribute side="server" code="0x0041" define="BATTERY_2_PERCENTAGE_REMAINING" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x00" optional="true" introducedIn="ha-1.2-05-3520-29">battery 2 percentage remaining</attribute>
     <attribute side="server" code="0x0050" define="BATTERY_2_MANUFACTURER" type="CHAR_STRING" length="16" writable="true" default="" optional="true" introducedIn="ha-1.2-05-3520-29">battery 2 manufacturer</attribute>
@@ -288,6 +291,7 @@ limitations under the License.
     <define>IDENTIFY_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="2"/>
     <attribute side="server" code="0x0000" define="IDENTIFY_TIME" type="INT16U" min="0x0000" max="0xFFFF" writable="true" default="0x0000" optional="false">identify time</attribute>
     <attribute side="server" code="0x0001" define="COMMISSION_STATE" type="BITMAP8" min="0x00" max="0xFF" writable="false" default="0x00" optional="true">commission state</attribute>
     <command source="client" code="0x00" name="Identify" optional="false" cli="zcl identify id">
@@ -329,6 +333,7 @@ limitations under the License.
     <define>GROUPS_CLUSTER</define>
     <client init="false" tick="false">true</client>
     <server init="false" tick="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="3"/>
     <attribute side="server" code="0x0000" define="GROUP_NAME_SUPPORT" type="BITMAP8" min="0x00" max="0x80" writable="false" optional="false">name support</attribute>
     <!-- NAME_SUPPORT -->
     <command source="client" code="0x00" name="AddGroup" optional="false" cli="zcl groups add">
@@ -408,6 +413,7 @@ limitations under the License.
     <define>SCENES_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="3"/>
     <attribute side="server" code="0x0000" define="SCENE_COUNT" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x00" optional="false">scene count</attribute>
     <attribute side="server" code="0x0001" define="CURRENT_SCENE" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x00" optional="false">current scene</attribute>
     <attribute side="server" code="0x0002" define="CURRENT_GROUP" type="INT16U" min="0x0000" max="0xFFF7" writable="false" default="0x0000" optional="false">current group</attribute>
@@ -527,6 +533,7 @@ limitations under the License.
     <define>ON_OFF_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="2"/>
     <attribute side="server" code="0x0000" define="ON_OFF" type="BOOLEAN" min="0x00" max="0x01" writable="false" reportable="true" default="0x00" optional="false">on/off</attribute>
     <attribute side="server" code="0x4003" define="START_UP_ON_OFF" type="ENUM8" min="0x00" max="0xFF" writable="true" optional="true" introducedIn="l&amp;o-1.0-15-0014-04">start up on off</attribute>
     <command source="client" code="0x00" name="Off" optional="false" cli="zcl on-off off">
@@ -564,6 +571,7 @@ limitations under the License.
     <define>LEVEL_CONTROL_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="3"/>
     <attribute side="server" code="0x0000" define="CURRENT_LEVEL" type="INT8U" min="0x00" max="0xFF" writable="false" reportable="true" default="0x00" optional="false">current level</attribute>
     <attribute side="server" code="0x0001" define="LEVEL_CONTROL_REMAINING_TIME" type="INT16U" min="0x0000" max="0xFFFF" writable="false" default="0x0000" optional="true">remaining time</attribute>
     <!-- REMAINING_TIME -->
@@ -693,6 +701,7 @@ limitations under the License.
     <define>TIME_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="2"/>
     <attribute side="server" code="0x0000" define="TIME" type="UTC_TIME" min="0x00000000" max="0xFFFFFFFE" writable="true" optional="false">time</attribute>
     <attribute side="server" code="0x0001" define="TIME_STATUS" type="BITMAP8" min="0x00" max="0x0F" writable="true" default="0x00" optional="false">time status</attribute>
     <attribute side="server" code="0x0002" define="TIME_ZONE" type="INT32S" min="0xFFFEAE80" max="0x00015180" writable="true" default="0x00000000" optional="true">time zone</attribute>
@@ -890,6 +899,7 @@ limitations under the License.
     <define>COMMISSIONING_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <globalAttribute side="either" code="0xFFFD" value="2"/>
     <attribute side="server" code="0x0000" define="SHORT_ADDRESS" type="INT16U" min="0x0000" max="0xFFF7" writable="true" default="0xFFFF" optional="false">short address</attribute>
     <attribute side="server" code="0x0001" define="EXTENDED_PAN_ID" type="IEEE_ADDRESS" min="0x0000000000000000" max="0xFFFFFFFFFFFFFFFE" writable="true" default="0xFFFFFFFFFFFFFFFF" optional="false">extended pan id</attribute>
     <attribute side="server" code="0x0002" define="PAN_ID" type="INT16U" min="0x0000" max="0xFFFF" writable="true" default="0xFFFF" optional="false">pan id</attribute>

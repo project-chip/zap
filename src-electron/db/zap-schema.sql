@@ -139,6 +139,17 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*
+ GLOBAL_ATTRIBUTE_DEFAULT table contains default values of attributes per cluster.
+ */
+DROP TABLE IF EXISTS "GLOBAL_ATTRIBUTE_DEFAULT";
+CREATE TABLE IF NOT EXISTS "GLOBAL_ATTRIBUTE_DEFAULT" (
+  "CLUSTER_REF" integer NOT NULL,
+  "ATTRIBUTE_REF" integer NOT NULL,
+  "DEFAULT_VALUE" text,
+  foreign key(CLUSTER_REF) references CLUSTER(CLUSTER_ID),
+  foreign key(ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID)
+);
+/*
  ATOMIC table contains the atomic types loaded from packages
  */
 DROP TABLE IF EXISTS "ATOMIC";

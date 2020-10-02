@@ -225,6 +225,36 @@ function processAtomics(db, filePath, packageId, data) {
 }
 
 /**
+ * Prepares global attribute data.
+ *
+ * @param {*} cluster
+ * @returns Object containing the data from XML.
+ */
+function prepareClusterGlobalAttribute(cluster) {
+  if ('globalAttribute' in cluster) {
+    var ret = {}
+
+    ret.code = parseInt(cluster.code[0], 16)
+    if ('$' in cluster) {
+      var mfgCode = cluster['$'].manufacturerCode
+      if (mfgCode != null) ret.manufacturerCode = mfgCode
+    }
+
+    ret.globalAttribute = []
+    cluster.globalAttribute.forEach((ga) => {
+      ret.globalAttribute.push({
+        code: parseInt(ga.$.code),
+        side: ga.$.side,
+        value: ga.$.value,
+      })
+    })
+    return ret
+  } else {
+    return null
+  }
+}
+
+/**
  * Prepare XML cluster for insertion into the database.
  * This method can also prepare clusterExtensions.
  *
@@ -238,10 +268,10 @@ function prepareCluster(cluster, isExtension = false) {
 
   if (isExtension) {
     if ('$' in cluster && 'code' in cluster.$) {
-      ret.code = cluster.$.code
+      ret.code = parseInt(cluster.$.code)
     }
   } else {
-    ret.code = cluster.code[0]
+    ret.code = parseInt(cluster.code[0])
     ret.name = cluster.name[0]
     ret.description = cluster.description[0]
     ret.define = cluster.define[0]
@@ -253,7 +283,7 @@ function prepareCluster(cluster, isExtension = false) {
     ret.commands = []
     cluster.command.forEach((command) => {
       var cmd = {
-        code: command.$.code,
+        code: parseInt(command.$.code),
         manufacturerCode: command.$.manufacturerCode,
         name: command.$.name,
         description: command.description[0],
@@ -277,7 +307,7 @@ function prepareCluster(cluster, isExtension = false) {
     ret.attributes = []
     cluster.attribute.forEach((attribute) => {
       ret.attributes.push({
-        code: attribute.$.code,
+        code: parseInt(attribute.$.code),
         manufacturerCode: attribute.$.manufacturerCode,
         name: attribute._,
         type: attribute.$.type.toLowerCase(),
@@ -311,6 +341,28 @@ function processClusters(db, filePath, packageId, data) {
     packageId,
     data.map((x) => prepareCluster(x))
   )
+}
+
+/**
+ * Processes global attributes for insertion into the database.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns Promise of inserted data.
+ */
+function processClusterGlobalAttributes(db, filePath, packageId, data) {
+  var objs = []
+  data.forEach((x) => {
+    var p = prepareClusterGlobalAttribute(x)
+    if (p != null) objs.push(p)
+  })
+  if (objs.length > 0) {
+    return queryZcl.insertGlobalAttributeDefault(db, packageId, objs)
+  } else {
+    return null
+  }
 }
 
 /**
@@ -536,31 +588,45 @@ function processParsedZclData(db, argument) {
     var immediatePromises = []
     var laterPromises = []
     if ('configurator' in data) {
-      if ('atomic' in data.configurator)
+      if ('atomic' in data.configurator) {
         immediatePromises.push(
           processAtomics(db, filePath, packageId, data.configurator.atomic)
         )
-      if ('bitmap' in data.configurator)
+      }
+      if ('bitmap' in data.configurator) {
         immediatePromises.push(
           processBitmaps(db, filePath, packageId, data.configurator.bitmap)
         )
-      if ('cluster' in data.configurator)
+      }
+      if ('cluster' in data.configurator) {
         immediatePromises.push(
           processClusters(db, filePath, packageId, data.configurator.cluster)
         )
-      if ('domain' in data.configurator)
+        laterPromises.push(() =>
+          processClusterGlobalAttributes(
+            db,
+            filePath,
+            packageId,
+            data.configurator.cluster
+          )
+        )
+      }
+      if ('domain' in data.configurator) {
         immediatePromises.push(
           processDomains(db, filePath, packageId, data.configurator.domain)
         )
-      if ('enum' in data.configurator)
+      }
+      if ('enum' in data.configurator) {
         immediatePromises.push(
           processEnums(db, filePath, packageId, data.configurator.enum)
         )
-      if ('struct' in data.configurator)
+      }
+      if ('struct' in data.configurator) {
         immediatePromises.push(
           processStructs(db, filePath, packageId, data.configurator.struct)
         )
-      if ('deviceType' in data.configurator)
+      }
+      if ('deviceType' in data.configurator) {
         immediatePromises.push(
           processDeviceTypes(
             db,
@@ -569,11 +635,13 @@ function processParsedZclData(db, argument) {
             data.configurator.deviceType
           )
         )
-      if ('global' in data.configurator)
+      }
+      if ('global' in data.configurator) {
         immediatePromises.push(
           processGlobals(db, filePath, packageId, data.configurator.global)
         )
-      if ('clusterExtension' in data.configurator)
+      }
+      if ('clusterExtension' in data.configurator) {
         laterPromises.push(() =>
           processClusterExtensions(
             db,
@@ -582,23 +650,11 @@ function processParsedZclData(db, argument) {
             data.configurator.clusterExtension
           )
         )
+      }
     }
     // This thing resolves the immediate promises and then resolves itself with passing the later promises down the chain.
     return Promise.all(immediatePromises).then(() => laterPromises)
   }
-}
-
-/**
- * Resolve later promises.
- * This function resolves the later promises associated with processParsedZclData.
- * @param {*} laterPromises
- */
-function resolveLaterPromises(laterPromises) {
-  var p = []
-  laterPromises.flat(1).forEach((promises) => {
-    p.push(promises())
-  })
-  return Promise.all(p)
 }
 
 /**
@@ -611,6 +667,7 @@ function resolveLaterPromises(laterPromises) {
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
 function parseZclFiles(db, ctx) {
+  ctx.laterPromises = []
   env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   return Promise.all(
     ctx.zclFiles.map((file) =>
@@ -620,11 +677,15 @@ function parseZclFiles(db, ctx) {
         .then((data) => zclLoader.qualifyZclFile(db, data, ctx.packageId))
         .then((result) => zclLoader.parseZclFile(result))
         .then((result) => processParsedZclData(db, result))
-        .then((result) => resolveLaterPromises(result))
-        .then(() => ctx)
+        .then((laterPromises) => {
+          laterPromises.flat(1).forEach((p) => ctx.laterPromises.push(p))
+          return ctx
+        })
         .catch((err) => env.logError(err))
     )
   )
+    .then(() => ctx.laterPromises.map((promise) => promise()))
+    .then((promiseArray) => Promise.all(promiseArray))
     .then(() => zclLoader.processZclPostLoading(db))
     .then(() => ctx)
 }
