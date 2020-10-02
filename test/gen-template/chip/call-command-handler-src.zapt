@@ -11,7 +11,7 @@
 #include "util.h"
 
 {{#all_user_clusters}}
-EmberAfStatus emberAf{{define}}{{asCamelCased side true}}CommandParse(EmberAfClusterCommand * cmd);
+EmberAfStatus emberAf{{define}}{{asCamelCased side false}}CommandParse(EmberAfClusterCommand * cmd);
 {{/all_user_clusters}}
 
 
@@ -48,7 +48,7 @@ EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)
         {{#all_user_clusters}}
         {{#if (isClient side) }}
         case ZCL_{{asDelimitedMacro define}}_CLUSTER_ID :
-            result = emberAf{{define}}{{asCamelCased side true}}CommandParse(cmd);
+            result = emberAf{{define}}{{asCamelCased side false}}CommandParse(cmd);
             break;
         {{/if}}
         {{/all_user_clusters}}
@@ -65,7 +65,7 @@ EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)
         {{#all_user_clusters}}
         {{#unless (isClient  side) }}
         case ZCL_{{asDelimitedMacro define}}_CLUSTER_ID :
-            result = emberAf{{define}}{{asCamelCased side true}}CommandParse(cmd);
+            result = emberAf{{define}}{{asCamelCased side false}}CommandParse(cmd);
             break;
         {{/unless}}
         {{/all_user_clusters}}
@@ -81,7 +81,7 @@ EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)
 // Cluster specific command parsing
 
 {{#all_user_clusters}}
-EmberAfStatus emberAf{{define}}{{asCamelCased side true}}CommandParse(EmberAfClusterCommand * cmd)
+EmberAfStatus emberAf{{define}}{{asCamelCased side false}}CommandParse(EmberAfClusterCommand * cmd)
 {
     bool wasHandled = false;
     if (!cmd->mfgSpecific)
@@ -94,7 +94,7 @@ EmberAfStatus emberAf{{define}}{{asCamelCased side true}}CommandParse(EmberAfClu
         {{#if (isStrEqual clusterName parent.name)}}
         case ZCL_{{asDelimitedMacro name}}_COMMAND_ID: {
             // Command is fixed length: 0
-            wasHandled = emberAf{{asCamelCased parent.name true}}{{asCamelCased name true}}Callback();
+            wasHandled = emberAf{{asCamelCased parent.name false}}Cluster{{asCamelCased name false}}Callback();
             break;
         }
         {{/if}}
