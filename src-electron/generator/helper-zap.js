@@ -165,6 +165,24 @@ function asLastWord(str) {
   return str.trim()
 }
 
+/**
+ * Iteration block.
+ */
+function iterate(options) {
+  var hash = options.hash
+  var ret = ''
+  for (var i = 0; i < hash.count; i++) {
+    var newContext = {
+      global: this.global,
+      parent: this,
+      index: i,
+      count: hash.count,
+    }
+    ret = ret.concat(options.fn(newContext))
+  }
+  return ret
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -180,3 +198,4 @@ exports.template_option_with_code = template_option_with_code
 exports.isEqual = isEqual
 exports.trim_string = trim_string
 exports.asLastWord = asLastWord
+exports.iterate = iterate

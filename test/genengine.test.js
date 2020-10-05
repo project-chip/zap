@@ -32,7 +32,7 @@ const helperZap = require('../src-electron/generator/helper-zap.js')
 const importJs = require('../src-electron/importexport/import.js')
 
 var db
-const templateCount = 9
+const templateCount = 10
 var genTimeout = 3000
 var testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 
@@ -172,6 +172,9 @@ test(
         expect(
           zclId.includes('// struct: WwahClusterStatusToUseTC\nLast item')
         ).toBeTruthy()
+
+        var accumulator = genResult.content['accumulator.out']
+        expect(accumulator.includes('Iteration: 19 out of 20')).toBeTruthy()
       }),
   genTimeout
 )
