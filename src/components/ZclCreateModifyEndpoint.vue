@@ -41,40 +41,22 @@ limitations under the License.
             <q-select
               outlined
               class="col"
-              :options="zclDeviceTypeOptions"
-              :value="
-                newEndpoint.newDeviceTypeRef == null
-                  ? ''
-                  : zclDeviceTypes[newEndpoint.newDeviceTypeRef].description +
-                    ' (' +
-                    zclDeviceTypes[newEndpoint.newDeviceTypeRef].code +
-                    ')'
+              use-input
+              hide-selected
+              fill-input
+              :options="deviceTypeOptions"
+              v-model="newEndpoint.newDeviceTypeRef"
+              :option-label="
+                (item) =>
+                  item == null
+                    ? ''
+                    : zclDeviceTypes[item].description +
+                      ' (' +
+                      zclDeviceTypes[item].code +
+                      ')'
               "
+              @filter="filterDeviceTypes"
             >
-              <template v-slot:option="option">
-                <q-expansion-item
-                  expand-separator
-                  switch-toggle-side
-                  :label="option.opt.label"
-                  :default-opened="option.opt.children.length > 45"
-                >
-                  <template v-for="child in option.opt.children">
-                    <q-item
-                      :key="child.label"
-                      clickable
-                      v-ripple
-                      v-close-popup
-                      @click="newEndpoint.newDeviceTypeRef = child.label.value"
-                    >
-                      <q-item-section>
-                        <q-item-label class="q-ml-md">{{
-                          child.label.label
-                        }}</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                  </template>
-                </q-expansion-item>
-              </template>
             </q-select>
           </q-field>
 
@@ -128,6 +110,7 @@ export default {
   },
   data() {
     return {
+      deviceTypeOptions: this.zclDeviceTypeOptions,
       newEndpoint: {
         newEndpointId: '0001',
         newNetworkId: 'Primary',
@@ -143,37 +126,7 @@ export default {
         let keys = Object.keys(dt).sort((a, b) => {
           return dt[a].description.localeCompare(dt[b].description)
         })
-        let deviceTypesByDomain = keys.reduce(function (
-          accumulator,
-          currentValue
-        ) {
-          if (accumulator[dt[currentValue].domain] == null) {
-            accumulator[dt[currentValue].domain] = []
-          }
-          accumulator[dt[currentValue].domain].push({
-            label:
-              dt[currentValue].description + ' (' + dt[currentValue].code + ')',
-            value: currentValue,
-          })
-          return accumulator
-        },
-        {})
-
-        let reshapedOptions = Object.keys(deviceTypesByDomain)
-          .sort((a, b) => {
-            return a.localeCompare(b)
-          })
-          .map((domain) => {
-            return {
-              label: domain,
-              children: deviceTypesByDomain[domain].map((dtLabel) => {
-                return {
-                  label: dtLabel,
-                }
-              }),
-            }
-          })
-        return reshapedOptions
+        return keys
       },
     },
     zclDeviceTypes: {
@@ -267,6 +220,21 @@ export default {
         deviceTypeRef: this.endpointDeviceTypeRef[endpointReference],
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
+    },
+
+    filterDeviceTypes(val, update) {
+      if (val === '') {
+        update(() => {
+          this.deviceTypeOptions = this.zclDeviceTypeOptions
+        })
+      }
+      update(() => {
+        let dt = this.$store.state.zap.zclDeviceTypes
+        const needle = val.toLowerCase()
+        this.deviceTypeOptions = this.zclDeviceTypeOptions.filter((v) => {
+          return dt[v].description.toLowerCase().indexOf(needle) > -1
+        })
+      })
     },
   },
 }

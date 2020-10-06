@@ -25,6 +25,11 @@
       "output": "zcl-test.out"
     },
     {
+      "path": "accumulator.zapt",
+      "name": "Test accumulator template",
+      "output": "accumulator.out"
+    },
+    {
       "path": "zap-id.zapt",
       "name": "Various ZCL ids",
       "output": "zap-id.h"

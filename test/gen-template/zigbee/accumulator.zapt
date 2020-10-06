@@ -1,0 +1,5 @@
+This template tests the accumulator logic.
+
+{{#iterate count="20"}}
+Iteration: {{index}} out of {{count}}
+{{/iterate}}

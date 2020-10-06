@@ -308,15 +308,22 @@ function getSessionGenTemplates(db, sessionId) {
       PACKAGE.CRC,
       PACKAGE.VERSION
     FROM PACKAGE
-    WHERE PACKAGE.PARENT_PACKAGE_REF = 
+    WHERE 
+    PACKAGE.TYPE = ? AND
+    PACKAGE.PARENT_PACKAGE_REF = 
     (SELECT 
       PACKAGE.PACKAGE_ID
     FROM PACKAGE
     INNER JOIN SESSION_PACKAGE
       ON PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF
     WHERE SESSION_PACKAGE.SESSION_REF = ? 
-      AND PACKAGE.TYPE = ?)`,
-      [sessionId, dbEnum.packageType.genTemplatesJson]
+      AND PACKAGE.TYPE = ?)
+      ORDER BY PACKAGE.PATH ASC`,
+      [
+        dbEnum.packageType.genSingleTemplate,
+        sessionId,
+        dbEnum.packageType.genTemplatesJson,
+      ]
     )
     .then((rows) => rows.map(dbMapping.map.package))
 }
