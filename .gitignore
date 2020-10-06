@@ -49,7 +49,6 @@ test.log
 
 # Sonarqube stuff
 .scannerwork
-sonar-project.properties
 test-report.xml
 
 # Temporary place for handlebars stuff.
