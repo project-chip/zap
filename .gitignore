@@ -15,6 +15,7 @@ docs/zap-schema.dot
 #this repo. 
 test/jest/coverage
 test/jest/__tests__/data/zap.sqlite
+test/.zap
 
 # Cordova related directories and files
 /src-cordova/node_modules

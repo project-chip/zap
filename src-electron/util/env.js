@@ -93,8 +93,14 @@ function sqliteFile(filename = 'zap') {
   return path.join(appDirectory(), `${filename}.sqlite`)
 }
 
-function sqliteTestFile(id) {
-  return path.join(appDirectory(), `test-${id}.sqlite`)
+function sqliteTestFile(id, deleteExistingFile = true) {
+  var dir = path.join(__dirname, '../../test/.zap')
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir)
+  }
+  var fileName = path.join(dir, `test-${id}.sqlite`)
+  if (deleteExistingFile && fs.existsSync(fileName)) fs.unlinkSync(fileName)
+  return fileName
 }
 
 function zapVersion() {

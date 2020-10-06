@@ -53,10 +53,7 @@ beforeAll(() => {
 }, 5000)
 
 afterAll(() => {
-  var file = env.sqliteTestFile('query')
-  return dbApi.closeDatabase(db).then(() => {
-    if (fs.existsSync(file)) fs.unlinkSync(file)
-  })
+  return dbApi.closeDatabase(db)
 })
 
 test('Path CRC queries.', () => {

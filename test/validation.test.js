@@ -42,10 +42,7 @@ beforeAll(() => {
 }, 5000)
 
 afterAll(() => {
-  var file = env.sqliteTestFile('validation')
-  return dbApi.closeDatabase(db).then(() => {
-    if (fs.existsSync(file)) fs.unlinkSync(file)
-  })
+  return dbApi.closeDatabase(db)
 })
 
 test('Load the static data.', () => {
