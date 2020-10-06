@@ -23,8 +23,8 @@ const menu = require('./menu.js')
 const tray = require('./tray.js')
 const { embeddedMode } = require('../util/args.js')
 
-function initializeElectronUi(port, arguments) {
-  let w = windowCreate(port, arguments)
+function initializeElectronUi(port, args) {
+  let w = windowCreate(port, args)
   menu.initMenu(port)
   tray.initTray(port)
 }
@@ -61,7 +61,7 @@ function createQueryString(
  * @param {*} [sessionId=null]
  * @returns BrowserWindow that got created
  */
-function windowCreate(port, arguments = {}) {
+function windowCreate(port, args = {}) {
   let newSession = session.fromPartition(`zap-${windowCounter++}`)
   let w = new BrowserWindow({
     width: 1600,
@@ -69,8 +69,7 @@ function windowCreate(port, arguments = {}) {
     resizable: true,
     center: true,
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
-    title:
-      arguments.filePath == null ? 'New Configuration' : arguments.filePath,
+    title: args.filePath == null ? 'New Configuration' : args.filePath,
     useContentSize: true,
     webPreferences: {
       nodeIntegration: false,
@@ -80,9 +79,9 @@ function windowCreate(port, arguments = {}) {
 
   let queryString = createQueryString(
     w.id,
-    arguments.sessionId,
-    arguments.uiMode,
-    arguments.embeddedMode
+    args.sessionId,
+    args.uiMode,
+    args.embeddedMode
   )
 
   w.loadURL(`http://localhost:${port}/index.html` + queryString)

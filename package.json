@@ -94,6 +94,7 @@
     "folder-hash": "^3.3.3",
     "husky": "^4.3.0",
     "jest": "^26.4.2",
+    "jest-sonar-reporter": "^2.0.0",
     "jsdoc": "^3.6.6",
     "jsdoc-to-markdown": "^6.0.1",
     "license-checker": "^25.0.1",

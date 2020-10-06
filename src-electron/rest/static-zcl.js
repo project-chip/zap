@@ -153,7 +153,7 @@ function parseForZclData(db, path, id, packageIdArray) {
       ).then((x) => {
         return { data: x, title: `Struct: ${id}`, type: 'struct' }
       })
-      breaks
+      break
     case 'deviceType':
       return reduceAndConcatenateZclEntity(
         db,

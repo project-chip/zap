@@ -316,11 +316,11 @@ export function updateSelectedEndpointType(
       .then((data) => {
         setRequiredCommands(context, data.data.data)
       })
+    context.commit(
+      'updateSelectedEndpointType',
+      endpointTypeDeviceTypeRefPair.endpointType
+    )
   }
-  context.commit(
-    'updateSelectedEndpointType',
-    endpointTypeDeviceTypeRefPair.endpointType
-  )
 }
 
 export function deleteEndpoint(context, endpoint) {

@@ -16,7 +16,7 @@ limitations under the License.
 <template>
   <div>
     <div class="row q-py-md">
-      <b>
+      <strong>
         <q-breadcrumbs>
           <!-- this needs to be updated depending on how the pages will work -->
           <q-breadcrumbs-el icon="keyboard_arrow_left" to="/">
@@ -29,18 +29,18 @@ limitations under the License.
             selectedCluster.label
           }}</q-breadcrumbs-el>
         </q-breadcrumbs>
-      </b>
+      </strong>
     </div>
 
-    <h5 style="margin: 10px 0 0px;">
-      <b>
+    <h5 style="margin: 10px 0 0px">
+      <strong>
         {{ selectedCluster.label }}
-      </b>
+      </strong>
     </h5>
     <div class="row q-py-none">
       <div class="col">
         Cluster ID: {{ asHex(selectedCluster.code, 4) }}, Enabled for
-        <b> {{ enabledMessage }} </b>
+        <strong> {{ enabledMessage }} </strong>
       </div>
       <div>
         <q-toggle
@@ -49,9 +49,7 @@ limitations under the License.
           @input="handleOptionChange('commandDiscovery', $event)"
         ></q-toggle>
         <q-btn round flat icon="info" size="md" color="grey">
-          <q-tooltip>
-            Enable Command Discovery for your project
-          </q-tooltip>
+          <q-tooltip> Enable Command Discovery for your project </q-tooltip>
         </q-btn>
       </div>
     </div>
