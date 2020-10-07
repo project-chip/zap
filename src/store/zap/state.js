@@ -23,6 +23,7 @@ export default function () {
     miniState: false,
     informationText: 'Use this as a placeholder for information.',
     clusters: [],
+    domains: [],
     attributes: [],
     commands: [],
     zclDeviceTypes: {},
@@ -31,8 +32,29 @@ export default function () {
     selectedGenericOptions: {},
     clusterManager: {
       openDomains: {},
-      filter: 'All Clusters',
-      filterOptions: ['All Clusters', 'Only Enabled'],
+      filter: {
+        label: 'N/A',
+        filterFn: (domain, currentOpenDomains, context) =>
+          currentOpenDomains[domain],
+      },
+      filterOptions: [
+        {
+          label: 'All Clusters',
+          filterFn: (domain, currentOpenDomains, context) => true,
+        },
+        {
+          label: 'Only Enabled',
+          filterFn: (domain, currentOpenDomains, context) => {
+            return context.enabledClusters
+              .map((a) => a.domainName)
+              .includes(domain)
+          },
+        },
+        {
+          label: 'Close All',
+          filterFn: (domain, currentOpenDomains, context) => false,
+        },
+      ],
       filterString: '',
     },
     endpointView: {

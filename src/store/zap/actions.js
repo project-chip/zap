@@ -546,10 +546,14 @@ export function setOpenDomain(context, state) {
   context.commit('setOpenDomain', state)
 }
 
-export function setFilter(context, filter) {
-  context.commit('setFilter', filter)
+export function setDomainFilter(context, filterEnabledClusterPair) {
+  context.commit('setDomainFilter', filterEnabledClusterPair)
 }
 
 export function setFilterString(context, filterString) {
   context.commit('setFilterString', filterString)
+}
+
+export function resetFilters(context) {
+  context.commit('resetFilters')
 }

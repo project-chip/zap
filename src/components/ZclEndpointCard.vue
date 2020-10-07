@@ -157,6 +157,7 @@ export default {
         deviceTypeRef: this.endpointDeviceTypeRef[this.endpointReference],
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
+      this.$store.dispatch('zap/resetFilters')
     },
   },
   computed: {
