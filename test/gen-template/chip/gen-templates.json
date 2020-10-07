@@ -15,11 +15,6 @@
   "helpers": ["helper-chip.js"],
   "templates": [
     {
-      "path": "af-gen-event.zapt",
-      "name": "ZCL af-gen-event header",
-      "output": "af-gen-event.h"
-    },
-    {
       "path": "af-structs.zapt",
       "name": "ZCL af-structs header",
       "output": "af-structs.h"
@@ -35,39 +30,9 @@
       "output": "attribute-id.h"
     },
     {
-      "path": "attribute-size.zapt",
-      "name": "ZCL attribute-size header",
-      "output": "attribute-size.h"
-    },
-    {
       "path": "attribute-type.zapt",
       "name": "ZCL attribute-type header",
       "output": "attribute-type.h"
-    },
-    {
-      "path": "call-command-handler-src.zapt",
-      "name": "ZCL call-command-handler source",
-      "output": "call-command-handler.c"
-    },
-    {
-      "path": "call-command-handler.zapt",
-      "name": "ZCL call-command-handler header",
-      "output": "call-command-handler.h"
-    },
-    {
-      "path": "callback-stub-src.zapt",
-      "name": "ZCL callback-stub source",
-      "output": "callback-stub.c"
-    },
-    {
-      "path": "callback.zapt",
-      "name": "ZCL callback header",
-      "output": "callback.h"
-    },
-    {
-      "path": "client-command-macro.zapt",
-      "name": "ZCL client-command-macro header",
-      "output": "client-command-macro.h"
     },
     {
       "path": "cluster-id.zapt",
@@ -80,49 +45,9 @@
       "output": "command-id.h"
     },
     {
-      "path": "debug-printing-test.zapt",
-      "name": "ZCL debug-printing-test header",
-      "output": "debug-printing-test.h"
-    },
-    {
-      "path": "debug-printing.zapt",
-      "name": "ZCL debug-printing header",
-      "output": "debug-printing.h"
-    },
-    {
-      "path": "endpoint_config.zapt",
-      "name": "ZCL endpoint_config header",
-      "output": "endpoint_config.h"
-    },
-    {
       "path": "enums.zapt",
       "name": "ZCL enums header",
       "output": "enums.h"
-    },
-    {
-      "path": "gen_config.zapt",
-      "name": "ZCL gen_config header",
-      "output": "gen_config.h"
-    },
-    {
-      "path": "gen_tokens.zapt",
-      "name": "ZCL gen_tokens header",
-      "output": "gen_tokens.h"
-    },
-    {
-      "path": "print-cluster.zapt",
-      "name": "ZCL print-cluster header",
-      "output": "print-cluster.h"
-    },
-    {
-      "path": "znet-bookkeeping-src.zapt",
-      "name": "ZCL znet-bookkeeping source",
-      "output": "znet-bookkeeping.c"
-    },
-    {
-      "path": "znet-bookkeeping.zapt",
-      "name": "ZCL znet-bookkeeping header",
-      "output": "znet-bookkeeping.h"
     }
   ]
 }

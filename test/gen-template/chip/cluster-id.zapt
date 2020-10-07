@@ -4,7 +4,7 @@
 {{#zcl_clusters}}
 
 // Definitions for cluster: {{label}}
-#define ZCL_{{asDelimitedMacro define}}_CLUSTER_ID ({{asHex code 4}})
+#define ZCL_{{asDelimitedMacro define}}_ID ({{asHex code 4}})
 
 {{/zcl_clusters}}
 

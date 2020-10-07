@@ -21,7 +21,7 @@
     "test:unit:watchAll": "jest --watchAll",
     "postinstall": "electron-builder install-app-deps",
     "zap": "node src-script/zap-start.js --logToStdout",
-    "zapc": "node src-script/zap-start.js --logToStdout --zcl ./zcl-builtin/dotdot/library.xml --gen ./test/gen-template/chip/gen-templates.json",
+    "zapc": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/chip/gen-templates.json",
     "build-spa": "node src-script/build-spa.js",
     "doc": "jsdoc src-electron src-shared -r -u docs -d ./generated-html/ README.md",
     "apidoc": "jsdoc2md src-shared/**/*.js src-electron/**/*.js > docs/api.md",
