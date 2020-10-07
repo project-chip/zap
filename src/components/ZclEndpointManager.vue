@@ -32,7 +32,7 @@ limitations under the License.
       <q-space />
       <q-btn
         text-color="primary"
-        icon="fast_rewind"
+        :icon="miniState ? 'fast_forward' : 'fast_rewind'"
         flat
         :ripple="false"
         :unelevated="false"
