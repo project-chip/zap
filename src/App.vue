@@ -48,7 +48,7 @@ export default {
       this.$store.dispatch('zap/setDefaultUiMode', query[`uiMode`])
     }
 
-    if (query[`embeddedMode`]) {
+    if (`embeddedMode` in query) {
       this.$store.dispatch('zap/setEmbeddedMode', query[`embeddedMode`])
     }
 
