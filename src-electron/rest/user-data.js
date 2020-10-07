@@ -369,11 +369,10 @@ function registerSessionApi(db, app) {
     statePopulators.push(sessionKeyValues)
 
     Promise.all(statePopulators).then(() => {
-      response.json({
+      return response.status(restApi.httpCode.ok).json({
         replyId: restApi.replyId.initialState,
         state: state,
       })
-      return response.status(restApi.httpCode.ok).send()
     })
   })
 
@@ -387,12 +386,11 @@ function registerSessionApi(db, app) {
       Promise.all(p)
         .then((data) => data.flat(1))
         .then((data) => {
-          response.json({
+          return response.status(restApi.httpCode.ok).json({
             data: data,
             option: option,
             replyId: 'option',
           })
-          return response.status(restApi.httpCode.ok).send()
         })
     })
   })
@@ -402,11 +400,10 @@ function registerSessionApi(db, app) {
     queryConfig
       .getAllSessionKeyValues(db, sessionId)
       .then((sessionKeyValues) => {
-        response.json({
+        return response.status(restApi.httpCode.ok).json({
           data: sessionKeyValues,
           replyId: 'sessionKeyValues',
         })
-        return response.status(restApi.httpCode.ok).send()
       })
   })
 }
