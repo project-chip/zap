@@ -168,6 +168,14 @@ function createBackupFile(path) {
   }
 }
 
+function getSessionKeyFromSessionCookie(cookieValue) {
+  let ret = cookieValue
+  if (ret.startsWith('s%3A')) ret = ret.substring(4)
+  if (ret.includes('.')) ret = ret.split('.')[0]
+  return ret
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
+exports.getSessionKeyFromSessionCookie = getSessionKeyFromSessionCookie

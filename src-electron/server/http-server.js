@@ -61,6 +61,9 @@ function initHttpServer(db, port, studioPort) {
     // this is a generic logging stuff
     app.use((req, res, next) => {
       if (req.session.zapSessionId) {
+        env.logInfo(
+          `SessionKey: ${req.session.id}, Cookie: ${req.session.cookie.name}=${req.session.cookie.value}`
+        )
         next()
       } else {
         let windowId = null

@@ -17,6 +17,7 @@
 
 const { dialog, Menu } = require('electron')
 const env = require('../util/env.js')
+const util = require('../util/util.js')
 const queryConfig = require('../db/query-config.js')
 const queryGeneric = require('../db/query-generic.js')
 const querySession = require('../db/query-session.js')
@@ -76,6 +77,12 @@ const template = [
                 cookieText = cookieText.concat(
                   `   ${cookie.name}=${cookie.value}\n`
                 )
+                if (cookie.name == 'connect.sid') {
+                  let parsedCookie = util.getSessionKeyFromSessionCookie(
+                    cookie.value
+                  )
+                  cookieText = cookieText.concat(`   parsed: ${parsedCookie}`)
+                }
               })
             })
             .then(() =>
