@@ -113,34 +113,6 @@ function getWindowDirtyFlagWithCallback(db, windowId, fn) {
  * @param {*} windowId
  * @returns A promise that resolves into an object containing sessionId, sessionKey and creationTime.
  */
-function getSessionInfoFromWindowId(db, windowId) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION WHERE SESSION_WINID = ?',
-      [windowId]
-    )
-    .then((row) => {
-      if (row == null) {
-        reject()
-      } else {
-        return {
-          sessionId: row.SESSION_ID,
-          sessionKey: row.SESSION_KEY,
-          creationTime: row.CREATION_TIME,
-        }
-      }
-    })
-}
-
-/**
- * Resolves into a session id, obtained from window id.
- *
- * @export
- * @param {*} db
- * @param {*} windowId
- * @returns A promise that resolves into an object containing sessionId, sessionKey and creationTime.
- */
 function getSessionInfoFromSessionKey(db, sessionKey) {
   return dbApi
     .dbGet(
@@ -242,7 +214,6 @@ exports.getAllSessions = getAllSessions
 exports.setSessionClean = setSessionClean
 exports.getSessionDirtyFlag = getSessionDirtyFlag
 exports.getWindowDirtyFlagWithCallback = getWindowDirtyFlagWithCallback
-exports.getSessionInfoFromWindowId = getSessionInfoFromWindowId
 exports.getSessionInfoFromSessionKey = getSessionInfoFromSessionKey
 exports.ensureZapSessionId = ensureZapSessionId
 exports.createBlankSession = createBlankSession

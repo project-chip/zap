@@ -171,7 +171,7 @@ describe('Session specific queries', () => {
       .then((ids) => expect(ids.length).toBe(2))) // One for zclpropertie and one for gen template
 
   test('Test some attribute queries.', () =>
-    querySession.getSessionInfoFromWindowId(db, 666).then((data) => {
+    querySession.getSessionInfoFromSessionKey(db, 'SESSION').then((data) => {
       expect(data.sessionId).toBe(sid)
     }))
 
@@ -195,7 +195,7 @@ describe('Session specific queries', () => {
   test('Make sure session is dirty', () => {
     var sid
     return querySession
-      .getSessionInfoFromWindowId(db, 666)
+      .getSessionInfoFromSessionKey(db, 'SESSION')
       .then((data) => {
         sid = data.sessionId
         return querySession.getSessionDirtyFlag(db, sid)
@@ -214,7 +214,7 @@ describe('Session specific queries', () => {
     var sid
     var endpointTypeId
     return querySession
-      .getSessionInfoFromWindowId(db, 666)
+      .getSessionInfoFromSessionKey(db, 'SESSION')
       .then((data) => {
         sid = data.sessionId
         return querySession.getSessionDirtyFlag(db, sid)
@@ -249,7 +249,7 @@ describe('Session specific queries', () => {
   test('Test key values', () => {
     var sid
     return querySession
-      .getSessionInfoFromWindowId(db, 666)
+      .getSessionInfoFromSessionKey(db, 'SESSION')
       .then((data) => {
         sid = data.sessionId
         return queryConfig.updateKeyValue(db, sid, 'testKey', 'testValue')
@@ -264,7 +264,7 @@ describe('Session specific queries', () => {
     var sid
     var endpointTypeId
     return querySession
-      .getSessionInfoFromWindowId(db, 666)
+      .getSessionInfoFromSessionKey(db, 'SESSION')
       .then((data) => {
         sid = data.sessionId
         return queryConfig.insertEndpointType(db, sid, 'Test endpoint')

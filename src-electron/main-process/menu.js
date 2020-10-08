@@ -68,21 +68,24 @@ const template = [
       {
         label: 'Session Information...',
         click(menuItem, browserWindow, event) {
-          let winId = browserWindow.id
           let cookieText = ''
           util
             .getSessionKeyFromBrowserWindow(browserWindow)
             .then((sessionKey) => {
               console.log(`Got session key: ${sessionKey}`)
               cookieText = sessionKey
+              return sessionKey
             })
-            .then(() =>
-              querySession.getSessionInfoFromWindowId(env.mainDatabase(), winId)
+            .then((sessionKey) =>
+              querySession.getSessionInfoFromSessionKey(
+                env.mainDatabase(),
+                sessionKey
+              )
             )
             .then((row) => {
               dialog.showMessageBox(browserWindow, {
                 title: 'Information',
-                message: `Window id: ${winId}\nZap session id: ${
+                message: `Zap session id: ${
                   row.sessionId
                 }\nWinID Session key: ${row.sessionKey}\nTime: ${new Date(
                   row.creationTime
@@ -159,7 +162,7 @@ function doOpen(menuItem, browserWindow, event) {
     })
     .then((result) => {
       if (!result.canceled) {
-        fileOpen(env.mainDatabase(), browserWindow.id, result.filePaths)
+        fileOpen(env.mainDatabase(), result.filePaths)
       }
     })
     .catch((err) => uiJs.showErrorMessage('Open file', err))
@@ -173,8 +176,11 @@ function doOpen(menuItem, browserWindow, event) {
  * @param {*} event
  */
 function doSave(menuItem, browserWindow, event) {
-  querySession
-    .getSessionInfoFromWindowId(env.mainDatabase(), browserWindow.id)
+  util
+    .getSessionKeyFromBrowserWindow(browserWindow)
+    .then((sessionKey) =>
+      querySession.getSessionInfoFromSessionKey(env.mainDatabase(), sessionKey)
+    )
     .then((row) =>
       queryConfig.getSessionKeyValue(
         env.mainDatabase(),
@@ -186,7 +192,7 @@ function doSave(menuItem, browserWindow, event) {
       if (filePath == null) {
         doSaveAs(menuItem, browserWindow, event)
       } else {
-        return fileSave(env.mainDatabase(), browserWindow.id, filePath)
+        return fileSave(env.mainDatabase(), browserWindow, filePath)
       }
     })
 }
@@ -210,7 +216,7 @@ function doSaveAs(menuItem, browserWindow, event) {
     })
     .then((result) => {
       if (!result.canceled) {
-        return fileSave(env.mainDatabase(), browserWindow.id, result.filePath)
+        return fileSave(env.mainDatabase(), browserWindow, result.filePath)
       } else {
         return null
       }
@@ -252,8 +258,14 @@ function generateInDir(browserWindow) {
     .then((context) => {
       if (!('path' in context)) return context
 
-      return querySession
-        .getSessionInfoFromWindowId(env.mainDatabase(), browserWindow.id)
+      return util
+        .getSessionKeyFromBrowserWindow(browserWindow)
+        .then((sessionKey) =>
+          querySession.getSessionInfoFromSessionKey(
+            env.mainDatabase(),
+            sessionKey
+          )
+        )
         .then((session) => {
           env.logInfo(`Generating for session ${session.sessionId}`)
           context.sessionId = session.sessionId
@@ -341,13 +353,16 @@ function setHandlebarTemplateDirectory(browserWindow) {
  * perform the save.
  *
  * @param {*} db
- * @param {*} winId
+ * @param {*} browserWindow
  * @param {*} filePath
  * @returns Promise of saving.
  */
-function fileSave(db, winId, filePath) {
-  return querySession
-    .getSessionInfoFromWindowId(db, winId)
+function fileSave(db, browserWindow, filePath) {
+  util
+    .getSessionKeyFromBrowserWindow(browserWindow)
+    .then((sessionKey) =>
+      querySession.getSessionInfoFromSessionKey(db, sessionKey)
+    )
     .then((row) => {
       return queryConfig
         .updateKeyValue(db, row.sessionId, 'filePath', filePath)
@@ -361,10 +376,9 @@ function fileSave(db, winId, filePath) {
  * Perform the do open action, possibly reading in multiple files.
  *
  * @param {*} db
- * @param {*} winId
  * @param {*} filePaths
  */
-function fileOpen(db, winId, filePaths) {
+function fileOpen(db, filePaths) {
   filePaths.forEach((filePath, index) => {
     readAndProcessFile(db, filePath)
   })

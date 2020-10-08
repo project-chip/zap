@@ -191,5 +191,4 @@ function getSessionKeyFromBrowserWindow(browserWindow) {
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
-exports.getSessionKeyFromSessionCookie = getSessionKeyFromSessionCookie
 exports.getSessionKeyFromBrowserWindow = getSessionKeyFromBrowserWindow
