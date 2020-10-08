@@ -11,7 +11,7 @@
 #include "util.h"
 
 {{#all_user_clusters}}
-EmberAfStatus emberAf{{define}}{{asCamelCased side false}}CommandParse(EmberAfClusterCommand * cmd);
+EmberAfStatus emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}CommandParse(EmberAfClusterCommand * cmd);
 {{/all_user_clusters}}
 
 
@@ -47,8 +47,8 @@ EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)
         {
         {{#all_user_clusters}}
         {{#if (isClient side) }}
-        case ZCL_{{asDelimitedMacro define}}_CLUSTER_ID :
-            result = emberAf{{define}}{{asCamelCased side false}}CommandParse(cmd);
+        case ZCL_{{asDelimitedMacro define}}_ID :
+            result = emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}CommandParse(cmd);
             break;
         {{/if}}
         {{/all_user_clusters}}
@@ -64,8 +64,8 @@ EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)
         {
         {{#all_user_clusters}}
         {{#unless (isClient  side) }}
-        case ZCL_{{asDelimitedMacro define}}_CLUSTER_ID :
-            result = emberAf{{define}}{{asCamelCased side false}}CommandParse(cmd);
+        case ZCL_{{asDelimitedMacro define}}_ID :
+            result = emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}CommandParse(cmd);
             break;
         {{/unless}}
         {{/all_user_clusters}}
@@ -81,9 +81,10 @@ EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)
 // Cluster specific command parsing
 
 {{#all_user_clusters}}
-EmberAfStatus emberAf{{define}}{{asCamelCased side false}}CommandParse(EmberAfClusterCommand * cmd)
+EmberAfStatus emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}CommandParse(EmberAfClusterCommand * cmd)
 {
     bool wasHandled = false;
+    uint32_t argOffset = 0;
     if (!cmd->mfgSpecific)
     {
         switch (cmd->commandId)
@@ -93,8 +94,19 @@ EmberAfStatus emberAf{{define}}{{asCamelCased side false}}CommandParse(EmberAfCl
         {{#if (isStrEqual clusterSide parent.side)}}
         {{#if (isStrEqual clusterName parent.name)}}
         case ZCL_{{asDelimitedMacro name}}_COMMAND_ID: {
-            // Command is fixed length: 0
+            argOffset = 0;
+            {{#if (zcl_command_arguments_count this.id)}}
+            {{#zcl_command_arguments}}
+            {{asUnderlyingType type}} * {{asSymbol label}} = ({{asUnderlyingType type}} *)(cmd->buffer + argOffset);
+            {{#unless (isLastElement index count)}}
+            argOffset+= sizeof({{asUnderlyingType type}});
+            {{/unless}}
+            {{/zcl_command_arguments}}
+
+            wasHandled = emberAf{{asCamelCased parent.name false}}Cluster{{asCamelCased name false}}Callback({{#zcl_command_arguments}} *{{asSymbol label}}{{#unless (isLastElement index count)}}, {{/unless}}{{/zcl_command_arguments}});
+            {{else}}
             wasHandled = emberAf{{asCamelCased parent.name false}}Cluster{{asCamelCased name false}}Callback();
+            {{/if}}
             break;
         }
         {{/if}}

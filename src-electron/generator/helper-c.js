@@ -303,7 +303,7 @@ function asBytes(value, type) {
  * @returns a spaced out string in lowercase
  */
 function asCamelCased(label, firstLower = true) {
-  var str = label.split(/ |-/)
+  var str = label.split(/ |-|\//)
   var res = ''
   for (let i = 0; i < str.length; i++) {
     if (i == 0) {
