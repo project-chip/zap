@@ -158,7 +158,7 @@ test('Now load the generation data.', () =>
 describe('Session specific queries', () => {
   beforeAll(() =>
     querySession
-      .ensureZapSessionId(db, 'SESSION', 666)
+      .ensureZapSessionId(db, 'SESSION')
       .then((id) => util.initializeSessionPackage(db, id))
       .then((id) => {
         sid = id
@@ -317,7 +317,7 @@ describe('Session specific queries', () => {
 
 describe('Endpoint Type Config Queries', () => {
   beforeAll(() =>
-    querySession.ensureZapSessionId(db, 'SESSION', 666).then((id) => {
+    querySession.ensureZapSessionId(db, 'SESSION').then((id) => {
       sid = id
     })
   )

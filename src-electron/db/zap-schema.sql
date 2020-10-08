@@ -306,7 +306,6 @@ DROP TABLE IF EXISTS "SESSION";
 CREATE TABLE IF NOT EXISTS "SESSION" (
   "SESSION_ID" integer primary key autoincrement,
   "SESSION_KEY" text,
-  "SESSION_WINID" text,
   "CREATION_TIME" integer,
   "DIRTY" integer default 1,
   UNIQUE(SESSION_KEY)

@@ -63,12 +63,10 @@ function initHttpServer(db, port, studioPort) {
       if (req.session.zapSessionId) {
         next()
       } else {
-        let windowId = null
         let sessionId = null
-        if ('winId' in req.query) windowId = req.query.winId
         if ('sessionId' in req.query) sessionId = req.query.sessionId
         querySession
-          .ensureZapSessionId(db, req.session.id, windowId, sessionId)
+          .ensureZapSessionId(db, req.session.id, sessionId)
           .then((sessionId) => util.initializeSessionPackage(db, sessionId))
           .then((sessionId) => {
             req.session.zapSessionId = sessionId

@@ -252,7 +252,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
     return zclLoader
       .loadZcl(db, args.zclPropertiesFile)
       .then((ctx) =>
-        querySession.ensureZapSessionId(db, 'SESSION', 666).then((id) => {
+        querySession.ensureZapSessionId(db, 'SESSION').then((id) => {
           sid = id
         })
       )
