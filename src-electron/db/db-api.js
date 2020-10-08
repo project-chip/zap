@@ -210,17 +210,17 @@ function dbMultiSelect(db, sql, arrayOfArrays) {
     var statement = db.prepare(sql, function (err) {
       if (err) reject(err)
       for (const singleArray of arrayOfArrays) {
-        statement.get(singleArray, (err, row) => {
-          if (err) {
-            reject(err)
+        statement.get(singleArray, (err2, row) => {
+          if (err2) {
+            reject(err2)
           } else {
             rows.push(row)
           }
         })
       }
-      statement.finalize((err) => {
-        if (err) {
-          reject(err)
+      statement.finalize((err3) => {
+        if (err3) {
+          reject(err3)
         } else {
           resolve(rows)
         }
@@ -249,13 +249,13 @@ function dbMultiInsert(db, sql, arrayOfArrays) {
     var statement = db.prepare(sql, function (err) {
       if (err) reject(err)
       for (const singleArray of arrayOfArrays) {
-        statement.run(singleArray, (err) => {
-          if (err) reject(err)
+        statement.run(singleArray, (err2) => {
+          if (err2) reject(err2)
           lastIds.push(this.lastID)
         })
       }
-      statement.finalize((err) => {
-        if (err) reject(err)
+      statement.finalize((err3) => {
+        if (err3) reject(err3)
         resolve(lastIds)
       })
     })

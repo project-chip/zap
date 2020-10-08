@@ -572,13 +572,13 @@ function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
       )
       promises.push(
         clusterPromise.then((data) => {
-          var clusters = data.flat()
+          var allClusters = data.flat()
           var dataPromises = new Promise((resolve, reject) => {
             promises.push(
-              resolveDefaultAttributes(db, endpointTypeId, clusters)
+              resolveDefaultAttributes(db, endpointTypeId, allClusters)
             )
             promises.push(
-              resolveNonOptionalCommands(db, endpointTypeId, clusters)
+              resolveNonOptionalCommands(db, endpointTypeId, allClusters)
             )
             resolve()
           })
