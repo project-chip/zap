@@ -68,8 +68,19 @@ const template = [
         label: 'Session Information...',
         click(menuItem, browserWindow, event) {
           let winId = browserWindow.id
-          querySession
-            .getSessionInfoFromWindowId(env.mainDatabase(), winId)
+          let cookieText = ''
+          browserWindow.webContents.session.cookies
+            .get({})
+            .then((cookies) => {
+              cookies.forEach((cookie) => {
+                cookieText = cookieText.concat(
+                  `   ${cookie.name}=${cookie.value}\n`
+                )
+              })
+            })
+            .then(() =>
+              querySession.getSessionInfoFromWindowId(env.mainDatabase(), winId)
+            )
             .then((row) => {
               dialog.showMessageBox(browserWindow, {
                 title: 'Information',
@@ -77,7 +88,7 @@ const template = [
                   row.sessionId
                 }\nSession key: ${row.sessionKey}\nTime: ${new Date(
                   row.creationTime
-                )}`,
+                )}\nWeb contents session cookies:\n${cookieText}`,
                 buttons: ['Dismiss'],
               })
             })

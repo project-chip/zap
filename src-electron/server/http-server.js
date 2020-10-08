@@ -67,7 +67,9 @@ function initHttpServer(db, port, studioPort) {
         let sessionId = null
         if ('winId' in req.query) windowId = req.query.winId
         if ('sessionId' in req.query) sessionId = req.query.sessionId
-
+        env.logInfo(
+          `Session creation: WinID: ${windowId}, SessionKey: ${req.session.id}, SessionId: ${sessionId}, Cookie: ${req.session.cookie.name}=${req.session.cookie.value}`
+        )
         querySession
           .ensureZapSessionId(db, req.session.id, windowId, sessionId)
           .then((sessionId) => util.initializeSessionPackage(db, sessionId))
