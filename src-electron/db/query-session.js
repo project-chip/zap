@@ -91,15 +91,19 @@ function getSessionDirtyFlag(db, sessionId) {
  * @param {*} windowId
  * @param {*} fn
  */
-function getWindowDirtyFlagWithCallback(db, windowId, fn) {
+function getSessionDirtyFlagWithCallback(db, sessionKey, fn) {
   db.get(
-    'SELECT DIRTY FROM SESSION WHERE SESSION_WINID = ?',
-    [windowId],
+    'SELECT DIRTY FROM SESSION WHERE SESSION_KEY = ?',
+    [sessionKey],
     (err, row) => {
       if (err) {
         fn(false)
       } else {
-        fn(row.DIRTY)
+        if (row == null) {
+          fn(false)
+        } else {
+          fn(row.DIRTY)
+        }
       }
     }
   )
@@ -213,7 +217,7 @@ function deleteSession(db, sessionId) {
 exports.getAllSessions = getAllSessions
 exports.setSessionClean = setSessionClean
 exports.getSessionDirtyFlag = getSessionDirtyFlag
-exports.getWindowDirtyFlagWithCallback = getWindowDirtyFlagWithCallback
+exports.getSessionDirtyFlagWithCallback = getSessionDirtyFlagWithCallback
 exports.getSessionInfoFromSessionKey = getSessionInfoFromSessionKey
 exports.ensureZapSessionId = ensureZapSessionId
 exports.createBlankSession = createBlankSession

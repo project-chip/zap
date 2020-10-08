@@ -21,6 +21,7 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
 const tray = require('./tray.js')
+const util = require('../util/util.js')
 const { embeddedMode } = require('../util/args.js')
 
 function initializeElectronUi(port, args) {
@@ -108,26 +109,28 @@ function windowCreate(port, args = {}) {
 
   w.on('close', (e) => {
     e.preventDefault()
-    querySession.getWindowDirtyFlagWithCallback(
-      env.mainDatabase(),
-      w.id,
-      (dirty) => {
-        if (dirty) {
-          const result = dialog.showMessageBoxSync(w, {
-            type: 'warning',
-            title: 'Unsaved changes?',
-            message:
-              'Your changes will be lost if you do not save them into the file.',
-            buttons: ['Quit Anyway', 'Cancel'],
-            defaultId: 0,
-            cancelId: 1,
-          })
+    util.getSessionKeyFromBrowserWindow(w).then((sessionKey) =>
+      querySession.getSessionDirtyFlagWithCallback(
+        env.mainDatabase(),
+        sessionKey,
+        (dirty) => {
+          if (dirty) {
+            const result = dialog.showMessageBoxSync(w, {
+              type: 'warning',
+              title: 'Unsaved changes?',
+              message:
+                'Your changes will be lost if you do not save them into the file.',
+              buttons: ['Quit Anyway', 'Cancel'],
+              defaultId: 0,
+              cancelId: 1,
+            })
 
-          if (result === 0) w.destroy()
-        } else {
-          w.destroy()
+            if (result === 0) w.destroy()
+          } else {
+            w.destroy()
+          }
         }
-      }
+      )
     )
   }) // EO close
 
