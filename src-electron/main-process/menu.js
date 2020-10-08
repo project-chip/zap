@@ -70,20 +70,11 @@ const template = [
         click(menuItem, browserWindow, event) {
           let winId = browserWindow.id
           let cookieText = ''
-          browserWindow.webContents.session.cookies
-            .get({})
-            .then((cookies) => {
-              cookies.forEach((cookie) => {
-                cookieText = cookieText.concat(
-                  `   ${cookie.name}=${cookie.value}\n`
-                )
-                if (cookie.name == 'connect.sid') {
-                  let parsedCookie = util.getSessionKeyFromSessionCookie(
-                    cookie.value
-                  )
-                  cookieText = cookieText.concat(`   parsed: ${parsedCookie}`)
-                }
-              })
+          util
+            .getSessionKeyFromBrowserWindow(browserWindow)
+            .then((sessionKey) => {
+              console.log(`Got session key: ${sessionKey}`)
+              cookieText = sessionKey
             })
             .then(() =>
               querySession.getSessionInfoFromWindowId(env.mainDatabase(), winId)
@@ -93,9 +84,9 @@ const template = [
                 title: 'Information',
                 message: `Window id: ${winId}\nZap session id: ${
                   row.sessionId
-                }\nSession key: ${row.sessionKey}\nTime: ${new Date(
+                }\nWinID Session key: ${row.sessionKey}\nTime: ${new Date(
                   row.creationTime
-                )}\nWeb contents session cookies:\n${cookieText}`,
+                )}\nCookie session key: ${cookieText}`,
                 buttons: ['Dismiss'],
               })
             })

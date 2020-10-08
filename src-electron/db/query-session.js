@@ -134,6 +134,34 @@ function getSessionInfoFromWindowId(db, windowId) {
 }
 
 /**
+ * Resolves into a session id, obtained from window id.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} windowId
+ * @returns A promise that resolves into an object containing sessionId, sessionKey and creationTime.
+ */
+function getSessionInfoFromSessionKey(db, sessionKey) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION WHERE SESSION_KEY = ?',
+      [sessionKey]
+    )
+    .then((row) => {
+      if (row == null) {
+        reject()
+      } else {
+        return {
+          sessionId: row.SESSION_ID,
+          sessionKey: row.SESSION_KEY,
+          creationTime: row.CREATION_TIME,
+        }
+      }
+    })
+}
+
+/**
  * Returns a promise that will resolve into a sessionID created from a query.
  *
  * This method has essetially two different use cases:
@@ -215,6 +243,7 @@ exports.setSessionClean = setSessionClean
 exports.getSessionDirtyFlag = getSessionDirtyFlag
 exports.getWindowDirtyFlagWithCallback = getWindowDirtyFlagWithCallback
 exports.getSessionInfoFromWindowId = getSessionInfoFromWindowId
+exports.getSessionInfoFromSessionKey = getSessionInfoFromSessionKey
 exports.ensureZapSessionId = ensureZapSessionId
 exports.createBlankSession = createBlankSession
 exports.deleteSession = deleteSession

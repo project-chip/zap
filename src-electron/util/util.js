@@ -175,7 +175,21 @@ function getSessionKeyFromSessionCookie(cookieValue) {
   return ret
 }
 
+/**
+ * Returns a promise that resolves into the session key.
+ * @param {*} browserWindow
+ */
+function getSessionKeyFromBrowserWindow(browserWindow) {
+  return browserWindow.webContents.session.cookies
+    .get({ name: 'connect.sid' })
+    .then((cookies) => {
+      if (cookies.length == 0) throw 'Could not find session key'
+      else return getSessionKeyFromSessionCookie(cookies[0].value)
+    })
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
 exports.getSessionKeyFromSessionCookie = getSessionKeyFromSessionCookie
+exports.getSessionKeyFromBrowserWindow = getSessionKeyFromBrowserWindow
