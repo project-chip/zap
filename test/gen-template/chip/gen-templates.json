@@ -15,34 +15,39 @@
   "helpers": ["helper-chip.js"],
   "templates": [
     {
-      "path": "call-command-handler.zapt",
-      "name": "Call Command Handler header",
-      "output": "call-command-handler.h"
+      "path": "af-structs.zapt",
+      "name": "ZCL af-structs header",
+      "output": "af-structs.h"
     },
     {
-      "path": "call-command-handler-src.zapt",
-      "name": "Call Command Handler source",
-      "output": "call-command-handler.c"
+      "path": "att-storage.zapt",
+      "name": "ZCL att-storage header",
+      "output": "att-storage.h"
     },
     {
       "path": "attribute-id.zapt",
-      "name": "ZCL attribute IDs",
+      "name": "ZCL attribute-id header",
       "output": "attribute-id.h"
     },
     {
       "path": "attribute-type.zapt",
-      "name": "ZCL attribute types",
+      "name": "ZCL attribute-type header",
       "output": "attribute-type.h"
     },
     {
       "path": "cluster-id.zapt",
-      "name": "ZCL cluster-id",
+      "name": "ZCL cluster-id header",
       "output": "cluster-id.h"
     },
     {
       "path": "command-id.zapt",
-      "name": "ZCL Command ID define",
+      "name": "ZCL command-id header",
       "output": "command-id.h"
+    },
+    {
+      "path": "enums.zapt",
+      "name": "ZCL enums header",
+      "output": "enums.h"
     }
   ]
 }

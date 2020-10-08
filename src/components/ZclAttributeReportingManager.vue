@@ -311,20 +311,26 @@ export default {
   computed: {
     attributeData: {
       get() {
-        return this.$store.state.zap.attributes.filter((attribute) => {
-          if (
-            this.$store.state.zap.attributeView.selectedAttributes.includes(
-              this.hashAttributeIdClusterId(
-                attribute.id,
-                this.selectedCluster.id
+        return this.$store.state.zap.attributes
+          .filter((attribute) => {
+            if (
+              this.$store.state.zap.attributeView.selectedAttributes.includes(
+                this.hashAttributeIdClusterId(
+                  attribute.id,
+                  this.selectedCluster.id
+                )
               )
-            )
-          ) {
-            return true
-          } else {
-            return false
-          }
-        })
+            ) {
+              return true
+            } else {
+              return false
+            }
+          })
+          .filter((a) => {
+            let relevantList =
+              a.side === 'client' ? this.selectionClient : this.selectionServer
+            return relevantList.includes(this.selectedClusterId)
+          })
       },
     },
     selectionDefault: {
@@ -366,6 +372,23 @@ export default {
       get() {
         return this.$store.state.zap.clustersView.selected[0] || {}
       },
+    },
+    selectedClusterId: {
+      get() {
+        return this.selectedCluster.id
+      },
+    },
+    selectionClient: {
+      get() {
+        return this.$store.state.zap.clustersView.selectedClients
+      },
+      set(val) {},
+    },
+    selectionServer: {
+      get() {
+        return this.$store.state.zap.clustersView.selectedServers
+      },
+      set(val) {},
     },
     editableAttributes: {
       get() {

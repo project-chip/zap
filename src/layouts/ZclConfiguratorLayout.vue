@@ -24,9 +24,7 @@ limitations under the License.
         class="shadow-2 zclConfiguratorLayoutHeader"
       >
         <q-toolbar bordered class="shadow-2 zclConfiguratorLayoutHeader">
-          <q-toolbar-title>
-            Zigbee Clusters Configurator
-          </q-toolbar-title>
+          <q-toolbar-title> Zigbee Clusters Configurator </q-toolbar-title>
           <q-space />
 
           <!-- TODO add a link to said manual here/manage the implementation of manual. -->
@@ -101,7 +99,7 @@ export default {
 
 <style lang="scss">
 .zclConfiguratorLayoutHeader {
-  border: 1dp white;
+  border: 1px white;
   background: white;
   color: black;
   vertical-align: middle;

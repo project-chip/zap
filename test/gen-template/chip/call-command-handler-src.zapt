@@ -27,7 +27,7 @@ static EmberAfStatus status(bool wasHandled, bool clusterExists, bool mfgSpecifi
     }
     else if (clusterExists)
     {
-        return EMBER_ZCL_STATUS_UNSUP_CLUSTER_COMMAND;
+        return EMBER_ZCL_STATUS_UNSUP_COMMAND;
     }
     else
     {

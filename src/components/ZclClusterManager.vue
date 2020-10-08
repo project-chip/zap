@@ -19,7 +19,7 @@ limitations under the License.
     <q-card flat square>
       <div class="row">
         <q-toolbar>
-          <q-toolbar-title style="font-weight: bolder;">
+          <q-toolbar-title style="font-weight: bolder">
             Endpoint x{{ this.endpointId[this.selectedEndpointId] }} Clusters
           </q-toolbar-title>
         </q-toolbar>
@@ -56,7 +56,7 @@ limitations under the License.
               bg-color="white"
               dense
               class="col-2"
-              @input="changeFilter($event)"
+              @input="changeDomainFilter($event)"
             />
           </div>
         </div>
@@ -120,9 +120,7 @@ export default {
     },
     domainNames: {
       get() {
-        return [
-          ...new Set(this.$store.state.zap.clusters.map((a) => a.domainName)),
-        ]
+        return this.$store.state.zap.domains
       },
     },
     openDomains: {
@@ -137,19 +135,20 @@ export default {
     },
     relevantClusters: {
       get() {
-        return this.clusters
-          .filter((cluster) =>
-            this.filterString == ''
-              ? true
-              : cluster.label
-                  .toLowerCase()
-                  .includes(this.filterString.toLowerCase())
-          )
-          .filter((cluster) => {
-            return this.filter == 'Only Enabled'
-              ? this.isClusterEnabled(cluster.id)
-              : true
-          })
+        return this.clusters.filter((cluster) =>
+          this.filterString == ''
+            ? true
+            : cluster.label
+                .toLowerCase()
+                .includes(this.filterString.toLowerCase())
+        )
+      },
+    },
+    enabledClusters: {
+      get() {
+        return this.relevantClusters.filter((cluster) => {
+          return this.isClusterEnabled(cluster.id)
+        })
       },
     },
     selectionClients: {
@@ -203,14 +202,13 @@ export default {
       })
     },
     getDomainOpenState(domainName) {
-      return (
-        this.openDomains[domainName] ||
-        this.filter == 'Only Enabled' ||
-        this.filterString != ''
-      )
+      return this.openDomains[domainName] || this.filterString != ''
     },
-    changeFilter(filter) {
-      this.$store.dispatch('zap/setFilter', filter)
+    changeDomainFilter(filter) {
+      this.$store.dispatch('zap/setDomainFilter', {
+        filter: filter,
+        enabledClusters: this.enabledClusters,
+      })
     },
     changeFilterString(filterString) {
       this.$store.dispatch('zap/setFilterString', filterString)

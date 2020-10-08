@@ -22,6 +22,7 @@ export function updateInformationText(state, text) {
 
 export function updateClusters(state, clusters) {
   state.clusters = clusters
+  state.domains = [...new Set(state.clusters.map((a) => a.domainName))]
 }
 
 export function updateSelectedCluster(state, cluster) {
@@ -347,10 +348,28 @@ export function setOpenDomain(state, context) {
   Vue.set(state.clusterManager.openDomains, context.domainName, context.value)
 }
 
-export function setFilter(state, filter) {
+export function setDomainFilter(state, filterEnabledClusterPair) {
+  let filter = filterEnabledClusterPair.filter
   state.clusterManager.filter = filter
+  state.domains.map((domainName) => {
+    setOpenDomain(state, {
+      domainName: domainName,
+      value: filter.filterFn(domainName, state.clusterManager.openDomains, {
+        enabledClusters: filterEnabledClusterPair.enabledClusters,
+      }),
+    })
+  })
 }
 
 export function setFilterString(state, filterString) {
   state.clusterManager.filterString = filterString
+}
+
+export function resetFilters(state) {
+  state.clusterManager.filter = {
+    label: 'N/A',
+    filterFn: (domain, currentOpenDomains, context) =>
+      currentOpenDomains[domain],
+  }
+  state.clusterManager.openDomains = {}
 }

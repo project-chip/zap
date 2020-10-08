@@ -14,6 +14,7 @@ module.exports = {
   coverageDirectory: '<rootDir>/test/jest/coverage',
   collectCoverageFrom: [
     '<rootDir>/src-electron/**/*.js',
+    '<rootDir>/src-shared/**/*.js',
     // Enable these once the UI testing is available
     //"<rootDir>/src/**/*.vue",
     //"<rootDir>/src/**/*.js",
@@ -56,4 +57,5 @@ module.exports = {
   },
   transformIgnorePatterns: ['<rootDir>/node_modules/(?!quasar/lang)'],
   snapshotSerializers: ['<rootDir>/node_modules/jest-serializer-vue'],
+  testResultsProcessor: 'jest-sonar-reporter',
 }

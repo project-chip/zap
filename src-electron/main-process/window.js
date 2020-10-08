@@ -21,10 +21,11 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
 const tray = require('./tray.js')
+const util = require('../util/util.js')
 const { embeddedMode } = require('../util/args.js')
 
-function initializeElectronUi(port, arguments) {
-  let w = windowCreate(port, arguments)
+function initializeElectronUi(port, args) {
+  let w = windowCreate(port, args)
   menu.initMenu(port)
   tray.initTray(port)
 }
@@ -38,15 +39,32 @@ function windowCreateIfNotThere(port) {
 let windowCounter = 0
 
 function createQueryString(
-  winId,
   sessionId = null,
   uiMode = null,
   embeddedMode = null
 ) {
-  var queryString = `?winId=${winId}`
-  if (sessionId) queryString += `&sessionId=${sessionId}`
-  if (uiMode) queryString += `&uiMode=${uiMode}`
-  if (embeddedMode) queryString += `&embeddedMode=${embeddedMode}`
+  var queryString = ''
+  if (sessionId) {
+    if (queryString.length == 0) {
+      queryString = `?sessionId=${sessionId}`
+    } else {
+      queryString += `&sessionId=${sessionId}`
+    }
+  }
+  if (uiMode) {
+    if (queryString.length == 0) {
+      queryString = `?uiMode=${uiMode}`
+    } else {
+      queryString += `&uiMode=${uiMode}`
+    }
+  }
+  if (embeddedMode) {
+    if (queryString.length == 0) {
+      queryString = `?embeddedMode=${embeddedMode}`
+    } else {
+      queryString += `&embeddedMode=${embeddedMode}`
+    }
+  }
   return queryString
 }
 
@@ -61,7 +79,7 @@ function createQueryString(
  * @param {*} [sessionId=null]
  * @returns BrowserWindow that got created
  */
-function windowCreate(port, arguments = {}) {
+function windowCreate(port, args = {}) {
   let newSession = session.fromPartition(`zap-${windowCounter++}`)
   let w = new BrowserWindow({
     width: 1600,
@@ -69,8 +87,7 @@ function windowCreate(port, arguments = {}) {
     resizable: true,
     center: true,
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
-    title:
-      arguments.filePath == null ? 'New Configuration' : arguments.filePath,
+    title: args.filePath == null ? 'New Configuration' : args.filePath,
     useContentSize: true,
     webPreferences: {
       nodeIntegration: false,
@@ -79,10 +96,9 @@ function windowCreate(port, arguments = {}) {
   })
 
   let queryString = createQueryString(
-    w.id,
-    arguments.sessionId,
-    arguments.uiMode,
-    arguments.embeddedMode
+    args.sessionId,
+    args.uiMode,
+    args.embeddedMode
   )
 
   w.loadURL(`http://localhost:${port}/index.html` + queryString)
@@ -93,26 +109,28 @@ function windowCreate(port, arguments = {}) {
 
   w.on('close', (e) => {
     e.preventDefault()
-    querySession.getWindowDirtyFlagWithCallback(
-      env.mainDatabase(),
-      w.id,
-      (dirty) => {
-        if (dirty) {
-          const result = dialog.showMessageBoxSync(w, {
-            type: 'warning',
-            title: 'Unsaved changes?',
-            message:
-              'Your changes will be lost if you do not save them into the file.',
-            buttons: ['Quit Anyway', 'Cancel'],
-            defaultId: 0,
-            cancelId: 1,
-          })
+    util.getSessionKeyFromBrowserWindow(w).then((sessionKey) =>
+      querySession.getSessionDirtyFlagWithCallback(
+        env.mainDatabase(),
+        sessionKey,
+        (dirty) => {
+          if (dirty) {
+            const result = dialog.showMessageBoxSync(w, {
+              type: 'warning',
+              title: 'Unsaved changes?',
+              message:
+                'Your changes will be lost if you do not save them into the file.',
+              buttons: ['Quit Anyway', 'Cancel'],
+              defaultId: 0,
+              cancelId: 1,
+            })
 
-          if (result === 0) w.destroy()
-        } else {
-          w.destroy()
+            if (result === 0) w.destroy()
+          } else {
+            w.destroy()
+          }
         }
-      }
+      )
     )
   }) // EO close
 

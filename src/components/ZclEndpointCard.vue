@@ -18,13 +18,16 @@ limitations under the License.
   <div>
     <q-card :bordered="isSelectedEndpoint">
       <div class="vertical-align:middle q-pa-md">
-        <b>Endpoint - &nbsp; {{ getFormattedEndpointId(endpointReference) }}</b>
+        <strong
+          >Endpoint - &nbsp;
+          {{ getFormattedEndpointId(endpointReference) }}</strong
+        >
       </div>
       <q-list dense bordered>
         <br />
         <q-item class="row">
           <div class="col-md-6">
-            <b>Device Type</b>
+            <strong>Device Type</strong>
           </div>
           <div class="col-md-6">
             {{
@@ -37,7 +40,7 @@ limitations under the License.
         </q-item>
         <q-item class="row">
           <div class="col-md-6">
-            <b>Network</b>
+            <strong>Network</strong>
           </div>
           <div class="col-md-6">
             {{ networkId[endpointReference] }}
@@ -45,7 +48,7 @@ limitations under the License.
         </q-item>
         <q-item class="row">
           <div class="col-md-6">
-            <b>Profile ID</b>
+            <strong>Profile ID</strong>
           </div>
           <div class="col-md-6">
             {{
@@ -62,7 +65,7 @@ limitations under the License.
         </q-item>
         <q-item class="row">
           <div class="col-md-6">
-            <b>Version</b>
+            <strong>Version</strong>
           </div>
           <div class="col-md-6">1</div>
         </q-item>
@@ -154,6 +157,7 @@ export default {
         deviceTypeRef: this.endpointDeviceTypeRef[this.endpointReference],
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
+      this.$store.dispatch('zap/resetFilters')
     },
   },
   computed: {

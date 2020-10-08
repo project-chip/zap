@@ -47,10 +47,7 @@ beforeAll(() => {
 }, 5000)
 
 afterAll(() => {
-  var file = env.sqliteTestFile('genengine')
-  return dbApi.closeDatabase(db).then(() => {
-    if (fs.existsSync(file)) fs.unlinkSync(file)
-  })
+  return dbApi.closeDatabase(db)
 })
 
 var templateContext

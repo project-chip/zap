@@ -55,14 +55,7 @@ beforeAll(() => {
 }, 5000)
 
 afterAll(() =>
-  httpServer
-    .shutdownHttpServer()
-    .then(() => dbApi.closeDatabase(db))
-    .then(() => {
-      var file = env.sqliteTestFile('server')
-      env.logInfo(`Removing test database: ${file}`)
-      if (fs.existsSync(file)) fs.unlinkSync(file)
-    })
+  httpServer.shutdownHttpServer().then(() => dbApi.closeDatabase(db))
 )
 
 describe('Session specific tests', () => {

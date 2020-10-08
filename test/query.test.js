@@ -53,10 +53,7 @@ beforeAll(() => {
 }, 5000)
 
 afterAll(() => {
-  var file = env.sqliteTestFile('query')
-  return dbApi.closeDatabase(db).then(() => {
-    if (fs.existsSync(file)) fs.unlinkSync(file)
-  })
+  return dbApi.closeDatabase(db)
 })
 
 test('Path CRC queries.', () => {
@@ -161,7 +158,7 @@ test('Now load the generation data.', () =>
 describe('Session specific queries', () => {
   beforeAll(() =>
     querySession
-      .ensureZapSessionId(db, 'SESSION', 666)
+      .ensureZapSessionId(db, 'SESSION')
       .then((id) => util.initializeSessionPackage(db, id))
       .then((id) => {
         sid = id
@@ -174,7 +171,7 @@ describe('Session specific queries', () => {
       .then((ids) => expect(ids.length).toBe(2))) // One for zclpropertie and one for gen template
 
   test('Test some attribute queries.', () =>
-    querySession.getSessionInfoFromWindowId(db, 666).then((data) => {
+    querySession.getSessionInfoFromSessionKey(db, 'SESSION').then((data) => {
       expect(data.sessionId).toBe(sid)
     }))
 
@@ -198,7 +195,7 @@ describe('Session specific queries', () => {
   test('Make sure session is dirty', () => {
     var sid
     return querySession
-      .getSessionInfoFromWindowId(db, 666)
+      .getSessionInfoFromSessionKey(db, 'SESSION')
       .then((data) => {
         sid = data.sessionId
         return querySession.getSessionDirtyFlag(db, sid)
@@ -217,7 +214,7 @@ describe('Session specific queries', () => {
     var sid
     var endpointTypeId
     return querySession
-      .getSessionInfoFromWindowId(db, 666)
+      .getSessionInfoFromSessionKey(db, 'SESSION')
       .then((data) => {
         sid = data.sessionId
         return querySession.getSessionDirtyFlag(db, sid)
@@ -252,7 +249,7 @@ describe('Session specific queries', () => {
   test('Test key values', () => {
     var sid
     return querySession
-      .getSessionInfoFromWindowId(db, 666)
+      .getSessionInfoFromSessionKey(db, 'SESSION')
       .then((data) => {
         sid = data.sessionId
         return queryConfig.updateKeyValue(db, sid, 'testKey', 'testValue')
@@ -267,7 +264,7 @@ describe('Session specific queries', () => {
     var sid
     var endpointTypeId
     return querySession
-      .getSessionInfoFromWindowId(db, 666)
+      .getSessionInfoFromSessionKey(db, 'SESSION')
       .then((data) => {
         sid = data.sessionId
         return queryConfig.insertEndpointType(db, sid, 'Test endpoint')
@@ -320,7 +317,7 @@ describe('Session specific queries', () => {
 
 describe('Endpoint Type Config Queries', () => {
   beforeAll(() =>
-    querySession.ensureZapSessionId(db, 'SESSION', 666).then((id) => {
+    querySession.ensureZapSessionId(db, 'SESSION').then((id) => {
       sid = id
     })
   )

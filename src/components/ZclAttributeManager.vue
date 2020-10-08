@@ -20,10 +20,10 @@ limitations under the License.
   add action to edit button
 -->
 <template>
-  <div v-show="attributeData.length > 0">
+  <div v-show="relevantAttributeData.length > 0">
     <q-table
       class="my-sticky-header-table"
-      :data.sync="attributeData"
+      :data.sync="relevantAttributeData"
       :columns="columns"
       row-key="<b>name</b>"
       dense
@@ -435,9 +435,13 @@ export default {
   },
 
   computed: {
-    attributeData: {
+    relevantAttributeData: {
       get() {
-        return this.$store.state.zap.attributes
+        return this.$store.state.zap.attributes.filter((a) => {
+          let relevantList =
+            a.side === 'client' ? this.selectionClient : this.selectionServer
+          return relevantList.includes(this.selectedClusterId)
+        })
       },
     },
     selection: {
@@ -477,7 +481,7 @@ export default {
     },
     requiredAttributes: {
       get() {
-        return this.attributeData
+        return this.relevantAttributeData
           .filter(
             (attribute) =>
               !attribute.isOptional ||
@@ -495,6 +499,23 @@ export default {
       get() {
         return this.$store.state.zap.clustersView.selected[0] || {}
       },
+    },
+    selectedClusterId: {
+      get() {
+        return this.selectedCluster.id
+      },
+    },
+    selectionClient: {
+      get() {
+        return this.$store.state.zap.clustersView.selectedClients
+      },
+      set(val) {},
+    },
+    selectionServer: {
+      get() {
+        return this.$store.state.zap.clustersView.selectedServers
+      },
+      set(val) {},
     },
     editableAttributes: {
       get() {

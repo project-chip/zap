@@ -42,10 +42,7 @@ beforeAll(() => {
 }, 5000)
 
 afterAll(() => {
-  var file = env.sqliteTestFile('validation')
-  return dbApi.closeDatabase(db).then(() => {
-    if (fs.existsSync(file)) fs.unlinkSync(file)
-  })
+  return dbApi.closeDatabase(db)
 })
 
 test('Load the static data.', () => {
@@ -255,7 +252,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
     return zclLoader
       .loadZcl(db, args.zclPropertiesFile)
       .then((ctx) =>
-        querySession.ensureZapSessionId(db, 'SESSION', 666).then((id) => {
+        querySession.ensureZapSessionId(db, 'SESSION').then((id) => {
           sid = id
         })
       )

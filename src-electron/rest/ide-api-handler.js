@@ -45,12 +45,12 @@ function registerIdeIntegrationApi(db, app) {
           queryConfig.updateKeyValue(db, sessionId, 'filePath', zapFile)
         )
         .catch(function (err) {
-          env.logInfo(`Studio: Failed to load project(${zapFile})`)
+          env.logError(`Studio: Failed to load project(${zapFile})`)
         })
     } else {
-      res.status(http.StatusCodes.BAD_REQUEST).send({
-        error: 'Opening/Loading project: Missing "project" query string',
-      })
+      let msg = 'Opening/Loading project: Missing "project" query string'
+      env.logWarning(msg)
+      res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
     }
   })
 
@@ -61,19 +61,26 @@ function registerIdeIntegrationApi(db, app) {
       queryConfig
         .getSessionKeyValue(env.mainDatabase(), sessionId, 'filePath')
         .then((filePath) => {
-          let name = path.posix.basename(filePath)
-          env.logInfo(`Studio: Saving project(${name})`)
-          return exportJs.exportDataIntoFile(
-            env.mainDatabase(),
-            sessionId,
-            filePath
-          )
+          if (filePath) {
+            let name = path.posix.basename(filePath)
+            env.logInfo(`Studio: Saving project(${name})`)
+            return exportJs.exportDataIntoFile(
+              env.mainDatabase(),
+              sessionId,
+              filePath
+            )
+          } else {
+            env.logWarning(
+              `Studio: Unable to save project due to invalid file path`
+            )
+            return ''
+          }
         })
         .then((filepath) => {
           res.send({ filePath: filepath })
         })
     } else {
-      env.logInfo(`Studio: Saving project: Invalid sessionId ${sessionId}`)
+      env.logWarning(`Studio: Saving project: Invalid sessionId ${sessionId}`)
       res.status(http.StatusCodes.BAD_REQUEST).send({
         error: 'Saving project: Missing "sessionId" query string',
       })

@@ -168,6 +168,27 @@ function createBackupFile(path) {
   }
 }
 
+function getSessionKeyFromSessionCookie(cookieValue) {
+  let ret = cookieValue
+  if (ret.startsWith('s%3A')) ret = ret.substring(4)
+  if (ret.includes('.')) ret = ret.split('.')[0]
+  return ret
+}
+
+/**
+ * Returns a promise that resolves into the session key.
+ * @param {*} browserWindow
+ */
+function getSessionKeyFromBrowserWindow(browserWindow) {
+  return browserWindow.webContents.session.cookies
+    .get({ name: 'connect.sid' })
+    .then((cookies) => {
+      if (cookies.length == 0) throw 'Could not find session key'
+      else return getSessionKeyFromSessionCookie(cookies[0].value)
+    })
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
+exports.getSessionKeyFromBrowserWindow = getSessionKeyFromBrowserWindow

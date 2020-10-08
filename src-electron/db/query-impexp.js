@@ -557,7 +557,7 @@ function exportCliCommandCountFromEndpointTypeCluster(
   endpointTypes,
   endpointClusterId
 ) {
-  endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   return dbApi
     .dbAll(
       db,
