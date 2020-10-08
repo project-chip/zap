@@ -1529,7 +1529,7 @@ function insertBitmaps(db, packageId, data) {
  * and endpoint id references
  */
 function exportClustersAndEndpointDetailsFromEndpointTypes(db, endpointTypes) {
-  endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  var endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   var mapFunction = (x) => {
     return {
       endpointId: x.ENDPOINT_TYPE_REF,
@@ -1563,8 +1563,10 @@ function exportCommandDetailsFromAllEndpointTypesAndClusters(
   db,
   endpointsAndClusters
 ) {
-  endpointTypeIds = endpointsAndClusters.map((ep) => ep.endpointId).toString()
-  endpointClusterIds = endpointsAndClusters
+  var endpointTypeIds = endpointsAndClusters
+    .map((ep) => ep.endpointId)
+    .toString()
+  var endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
     .toString()
   var mapFunction = (x) => {
@@ -1664,7 +1666,7 @@ FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
  * @returns Promise that resolves with the data that should go into the external form.
  */
 function exportAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
-  endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  var endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   var mapFunction = (x) => {
     return {
       id: x.CLUSTER_ID,
@@ -1713,7 +1715,7 @@ function exportCommandDetailsFromAllEndpointTypeCluster(
   endpointTypes,
   endpointClusterId
 ) {
-  endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  var endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   var mapFunction = (x) => {
     return {
       id: x.COMMAND_ID,

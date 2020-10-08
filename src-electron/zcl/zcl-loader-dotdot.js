@@ -2,9 +2,6 @@ const env = require('../util/env.js')
 const path = require('path')
 const zclLoader = require('./zcl-loader')
 const dbApi = require('../db/db-api.js')
-const fs = require('fs')
-const fsp = fs.promises
-const xml2js = require('xml2js')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -131,8 +128,9 @@ function normalizeHexValue(value) {
  * @returns Array containing all data from XML ready to be inserted into the DB.
  */
 function prepareAttributes(attributes, side, types, cluster = null) {
-  ret = []
-  atts = attributes.attribute === undefined ? attributes : attributes.attribute
+  var ret = []
+  var atts =
+    attributes.attribute === undefined ? attributes : attributes.attribute
   for (i = 0; i < atts.length; i++) {
     let a = atts[i]
     env.logInfo(`Preparing attribute ${side} ${a.$.name}`)
@@ -164,8 +162,8 @@ function prepareAttributes(attributes, side, types, cluster = null) {
  * @returns Array containing all data from XML ready to be inserted in to the DB.
  */
 function prepareCommands(commands, side) {
-  ret = []
-  cmds = commands.command === undefined ? commands : commands.command
+  var ret = []
+  var cmds = commands.command === undefined ? commands : commands.command
   for (i = 0; i < cmds.length; i++) {
     let c = cmds[i]
     env.logInfo(`Preparing command ${side} ${c.$.name}`)
@@ -462,27 +460,27 @@ function loadZclData(db, ctx) {
   let types = { atomics: [], enums: [], bitmaps: [], structs: [] }
   prepareTypes(ctx.zclTypes, types)
   prepareTypes(ctx.zclGlobalTypes, types)
-  cs = []
+  var cs = []
   ctx.zclClusters.forEach((cluster) => {
     env.logInfo(`loading cluster: ${cluster.$.name}`)
     var c = prepareCluster(cluster, false, types)
     cs.push(c)
   })
   // Global attributes don't have a side listed, so they have to be looped through once for each side
-  gas = []
+  var gas = []
   ctx.zclGlobalAttributes.forEach((a) => {
     var pa = prepareAttributes([a], 'server', types)
     gas = gas.concat(pa)
     pa = prepareAttributes([a], 'client', types)
     gas = gas.concat(pa)
   })
-  let gs = [
+  var gs = [
     {
       attributes: gas,
       commands: prepareCommands(ctx.zclGlobalCommands, ''),
     },
   ]
-  ds = []
+  var ds = []
   ctx.zclDeviceTypes.forEach((deviceType) => {
     env.logInfo(`loading device: ${deviceType.typeName[0]}`)
     var d = prepareDeviceType(deviceType)

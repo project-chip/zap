@@ -291,8 +291,8 @@ function asBytes(value, type) {
  * @returns a spaced out string in lowercase
  */
 function asCamelCased(label, firstLower = true) {
-  str = label.split(/ |-/)
-  res = ''
+  var str = label.split(/ |-/)
+  var res = ''
   for (let i = 0; i < str.length; i++) {
     if (i == 0) {
       if (firstLower) {
@@ -312,7 +312,7 @@ function asCamelCased(label, firstLower = true) {
  * @param {*} label
  */
 function cleanseLabel(label) {
-  l = label
+  var l = label
   l = l.replace(/[:/-]/g, '_').toLowerCase()
   return l
 }
@@ -324,7 +324,7 @@ function cleanseLabel(label) {
  * @returns String in lowercase with underscores
  */
 function asUnderscoreLowercase(str) {
-  label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+  var label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return '_' + y
   })
   if (label.startsWith('_')) {
@@ -340,7 +340,7 @@ function asUnderscoreLowercase(str) {
  * @returns a spaced out string in lowercase
  */
 function asSpacedLowercase(str) {
-  str = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+  var str = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return ' ' + y
   })
   return str.toLowerCase()
@@ -353,7 +353,7 @@ function asSpacedLowercase(str) {
  * @returns String in uppercase with underscores
  */
 function asUnderscoreUppercase(str) {
-  str = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+  var str = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return '_' + y
   })
   return str.toUpperCase()
