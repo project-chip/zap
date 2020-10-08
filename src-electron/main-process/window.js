@@ -38,15 +38,32 @@ function windowCreateIfNotThere(port) {
 let windowCounter = 0
 
 function createQueryString(
-  winId,
   sessionId = null,
   uiMode = null,
   embeddedMode = null
 ) {
-  var queryString = `?winId=${winId}`
-  if (sessionId) queryString += `&sessionId=${sessionId}`
-  if (uiMode) queryString += `&uiMode=${uiMode}`
-  if (embeddedMode) queryString += `&embeddedMode=${embeddedMode}`
+  var queryString = ''
+  if (sessionId) {
+    if (queryString.length == 0) {
+      queryString = `?sessionId=${sessionId}`
+    } else {
+      queryString += `&sessionId=${sessionId}`
+    }
+  }
+  if (uiMode) {
+    if (queryString.length == 0) {
+      queryString = `?uiMode=${uiMode}`
+    } else {
+      queryString += `&uiMode=${uiMode}`
+    }
+  }
+  if (embeddedMode) {
+    if (queryString.length == 0) {
+      queryString = `?embeddedMode=${embeddedMode}`
+    } else {
+      queryString += `&embeddedMode=${embeddedMode}`
+    }
+  }
   return queryString
 }
 
@@ -78,7 +95,6 @@ function windowCreate(port, args = {}) {
   })
 
   let queryString = createQueryString(
-    w.id,
     args.sessionId,
     args.uiMode,
     args.embeddedMode

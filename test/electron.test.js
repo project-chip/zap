@@ -26,11 +26,11 @@ test('Make sure electron main process loads', () => {
 })
 
 test('Test constructing queries for the window', () => {
-  var query = window.createQueryString('blah', 1, 'tuna')
+  var query = window.createQueryString(1, 'tuna')
   console.log(query)
-  expect(query).toBe(`?winId=blah&sessionId=1&uiMode=tuna`)
-  query = window.createQueryString('ba')
-  expect(query).toBe(`?winId=ba`)
+  expect(query).toBe(`?sessionId=1&uiMode=tuna`)
+  query = window.createQueryString()
+  expect(query).toBe(``)
 })
 
 require('../src-electron/main-process/preference.js')
