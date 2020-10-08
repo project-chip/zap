@@ -61,18 +61,12 @@ function initHttpServer(db, port, studioPort) {
     // this is a generic logging stuff
     app.use((req, res, next) => {
       if (req.session.zapSessionId) {
-        env.logInfo(
-          `SessionKey: ${req.session.id}, Cookie: ${req.session.cookie.name}=${req.session.cookie.value}`
-        )
         next()
       } else {
         let windowId = null
         let sessionId = null
         if ('winId' in req.query) windowId = req.query.winId
         if ('sessionId' in req.query) sessionId = req.query.sessionId
-        env.logInfo(
-          `Session creation: WinID: ${windowId}, SessionKey: ${req.session.id}, SessionId: ${sessionId}, Cookie: ${req.session.cookie.name}=${req.session.cookie.value}`
-        )
         querySession
           .ensureZapSessionId(db, req.session.id, windowId, sessionId)
           .then((sessionId) => util.initializeSessionPackage(db, sessionId))
