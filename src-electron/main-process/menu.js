@@ -31,7 +31,6 @@ const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
 var httpPort
-var handlebarTemplateDirectory = __dirname + '/../../test/gen-template'
 
 const template = [
   {
@@ -338,10 +337,9 @@ function setHandlebarTemplateDirectory(browserWindow) {
     })
     .then((filePath) => {
       if (filePath != null) {
-        handlebarTemplateDirectory = filePath
         dialog.showMessageBox(browserWindow, {
           title: 'Handlebar Templates',
-          message: `Handlebar Template Directory: meimportnuItem${filePath}`,
+          message: `Handlebar Template Directory: ${filePath}`,
           buttons: ['Ok'],
         })
       }
