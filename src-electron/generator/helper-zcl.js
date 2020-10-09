@@ -332,6 +332,49 @@ function zcl_command_arguments(options) {
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
 }
 
+/**
+ * Helper that checks if an enum by this name exists
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function isEnum(enum_name) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectEnumByName(this.global.db, enum_name, packageId)
+    )
+    .then((enums) => (enums ? 1 : 0))
+}
+
+/**
+ * Helper that checks if an enum by this name exists
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function isStruct(struct_name) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectStructByName(this.global.db, struct_name, packageId)
+    )
+    .then((st) => (st ? 1 : 0))
+}
+
+function isBitmap(bitmap_name) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectBitmapByName(this.global.db, packageId, bitmap_name)
+    )
+    .then((st) => (st ? 1 : 0))
+}
+
+function isClient(side) {
+  return 0 == side.localeCompare('client')
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -353,3 +396,7 @@ exports.zcl_global_commands = zcl_global_commands
 exports.zcl_cluster_largest_label_length = zcl_cluster_largest_label_length
 exports.zcl_command_arguments_count = zcl_command_arguments_count
 exports.zcl_command_arguments = zcl_command_arguments
+exports.isEnum = isEnum
+exports.isStruct = isStruct
+exports.isBitmap = isBitmap
+exports.isClient = isClient

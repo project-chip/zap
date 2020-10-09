@@ -73,6 +73,18 @@ function selectEnumById(db, id, packageId = null) {
     .then(dbMapping.map.enum)
 }
 
+function selectEnumByName(db, name, packageId = null) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE NAME = ? ' +
+        (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
+        'ORDER BY NAME',
+      packageId != null ? [name, packageId] : [name]
+    )
+    .then(dbMapping.map.enum)
+}
+
 /**
  * Retrieves all the bitmaps in the database.
  *
@@ -188,6 +200,18 @@ function selectStructById(db, id, packageId = null) {
         (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
         'ORDER BY NAME',
       packageId != null ? [id, packageId] : [id]
+    )
+    .then(dbMapping.map.struct)
+}
+
+function selectStructByName(db, name, packageId = null) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT STRUCT_ID, NAME FROM STRUCT WHERE NAME = ? ' +
+        (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
+        'ORDER BY NAME',
+      packageId != null ? [name, packageId] : [name]
     )
     .then(dbMapping.map.struct)
 }
@@ -1574,6 +1598,7 @@ function exportCommandDetailsFromAllEndpointTypesAndClusters(
       id: x.COMMAND_ID,
       name: x.NAME,
       code: x.CODE,
+      commandSource: x.SOURCE,
       mfgCode: x.MANUFACTURER_CODE,
       incoming: x.INCOMING,
       outgoing: x.OUTGOING,
@@ -1590,6 +1615,7 @@ function exportCommandDetailsFromAllEndpointTypesAndClusters(
     COMMAND.COMMAND_ID,
     COMMAND.NAME,
     COMMAND.CODE,
+    COMMAND.SOURCE,
     COMMAND.MANUFACTURER_CODE,
     ENDPOINT_TYPE_COMMAND.INCOMING,
     ENDPOINT_TYPE_COMMAND.OUTGOING,
@@ -1815,3 +1841,5 @@ exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
 exports.exportAllClustersDetailsFromEndpointTypes = exportAllClustersDetailsFromEndpointTypes
 exports.exportCommandDetailsFromAllEndpointTypeCluster = exportCommandDetailsFromAllEndpointTypeCluster
 exports.insertGlobalAttributeDefault = insertGlobalAttributeDefault
+exports.selectEnumByName = selectEnumByName
+exports.selectStructByName = selectStructByName

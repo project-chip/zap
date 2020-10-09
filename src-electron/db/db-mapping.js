@@ -131,6 +131,7 @@ exports.map = {
     return {
       id: x.ENUM_ID,
       label: x.NAME,
+      type: x.TYPE,
       caption: `Enum of type ${x.TYPE}`,
     }
   },

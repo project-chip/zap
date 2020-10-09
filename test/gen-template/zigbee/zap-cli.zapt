@@ -7,16 +7,17 @@
 #include "sl_cli_arguments.h"
 #include "sl_cli.h"
 #include "debug_print.h"
+#include "zap-type.h"
+#include "zap-id.h"
 
-#define ZCL_CLUSTER_SPECIFIC_COMMAND          BIT(0)
+#define ZCL_CLUSTER_SPECIFIC_COMMAND          (1U << (0))
+#define ZCL_FRAME_CONTROL_SERVER_TO_CLIENT    (1U << (3))
 #define ZCL_FRAME_CONTROL_CLIENT_TO_SERVER    0
-#define ZCL_IDENTIFY_CLUSTER_ID                                            0x0003
-#define ZCL_ON_OFF_CLUSTER_ID                                              0x0006
-#define ZCL_IDENTIFY_COMMAND_ID 0x00 // Ver.: always
-#define ZCL_IDENTIFY_QUERY_COMMAND_ID 0x01 // Ver.: always
-#define ZCL_OFF_COMMAND_ID 0x00 // Ver.: always
-#define ZCL_ON_COMMAND_ID 0x01 // Ver.: always
-#define ZCL_TOGGLE_COMMAND_ID 0x02 // Ver.: always
+extern void zclSimpleCommandUC(uint8_t frameControl,
+                        uint16_t clusterId,
+                        uint8_t commandId,
+                        sl_cli_command_arg_t *arguments,
+                        char **argumentTypes);
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +53,15 @@ static const sl_cli_command_info_t cli_cmd_zcl_{{cleanseLabel ../clusterName}}_{
               {{/if}}
               {
                 {{#zcl_command_arguments}}
-                  SL_CLI_ARG_{{asUnderscoreUppercase type}},
+                  {{#if (isEnum type)}}
+                  {{dataTypeForEnum type}},
+                  {{else if (isStruct type)}}
+                  SL_CLI_ARG_HEX,
+                  {{else if (isBitmap type)}}
+                  {{dataTypeForBitmap type}},
+                  {{else}}
+                  {{asCliType type}},
+                  {{/if}}
                 {{/zcl_command_arguments}}
                   SL_CLI_ARG_END,
               });
@@ -108,6 +117,33 @@ const sl_cli_command_entry_t sl_cli_zcl_command_table[] = {
 };
 
 
+{{#all_user_cluster_commands}}
+      {{#if (template_option_with_code "cli" this.name)}}
+        {{#template_options category="cli"}}
+          {{#if (isEqual this.optionCode ../name)}}
+void {{asCamelCased this.optionLabel}}Command(sl_cli_command_arg_t *arguments) {
+          {{/if}}
+        {{/template_options}}
+  char *argumentTypes[{{zcl_command_arguments_count this.id}}+1] =  { {{#zcl_command_arguments}}
+                              {{#if (isEnum type)}}
+                              {{dataTypeForEnum type}},
+                              {{else if (isStruct type)}}
+                              SL_CLI_ARG_HEX,
+                              {{else if (isBitmap type)}}
+                              {{dataTypeForBitmap type}},
+                              {{else}}
+                              {{asCliType type}},
+                              {{/if}}
+                            {{/zcl_command_arguments}} };
+  zclSimpleCommandUC(ZCL_CLUSTER_SPECIFIC_COMMAND | {{#if (isClient commandSource)}}ZCL_FRAME_CONTROL_CLIENT_TO_SERVER{{else}}ZCL_FRAME_CONTROL_SERVER_TO_CLIENT{{/if}},  \
+                   ZCL_{{asUnderscoreUppercase clusterName}}_CLUSTER_ID,                                                       \
+                   {{code}},
+                   arguments,
+                   argumentTypes);
+}
+          
+      {{/if}}
+{{/all_user_cluster_commands}}
 #ifdef __cplusplus
 }
 #endif
