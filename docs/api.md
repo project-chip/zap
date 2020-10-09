@@ -52,6 +52,9 @@
 <dt><a href="#module_REST API_ generation functions">REST API: generation functions</a></dt>
 <dd><p>This module provides the REST API to the generation.</p>
 </dd>
+<dt><a href="#module_External IDE interface.">External IDE interface.</a></dt>
+<dd><p>This module provides the interface to an extenal IDE: Simplicity Studio.</p>
+</dd>
 <dt><a href="#module_REST API_ static zcl functions">REST API: static zcl functions</a></dt>
 <dd><p>This module provides the REST API to the static zcl queries.</p>
 </dd>
@@ -259,10 +262,10 @@ output.</p>
 <dd><p>This function gets the directory where user wants the output and calls
 generateCode function which generates the code in the user selected output.</p>
 </dd>
-<dt><a href="#fileSave">fileSave(db, winId, filePath)</a> ⇒</dt>
+<dt><a href="#fileSave">fileSave(db, browserWindow, filePath)</a> ⇒</dt>
 <dd><p>perform the save.</p>
 </dd>
-<dt><a href="#fileOpen">fileOpen(db, winId, filePaths)</a></dt>
+<dt><a href="#fileOpen">fileOpen(db, filePaths)</a></dt>
 <dd><p>Perform the do open action, possibly reading in multiple files.</p>
 </dd>
 <dt><a href="#readAndProcessFile">readAndProcessFile(db, filePath)</a></dt>
@@ -284,8 +287,8 @@ a new window if all is good.</p>
 <dt><a href="#startGeneration">startGeneration(output, genTemplateJsonFile, zclProperties, [zapFile])</a> ⇒</dt>
 <dd><p>Performs headless regeneration for given parameters.</p>
 </dd>
-<dt><a href="#clearDatabaseFile">clearDatabaseFile()</a></dt>
-<dd><p>Moves the main database file into a backup location.</p>
+<dt><a href="#clearDatabaseFile">clearDatabaseFile(path)</a></dt>
+<dd><p>Move database file out of the way into the backup location.</p>
 </dd>
 <dt><a href="#windowCreate">windowCreate(port, [filePath], [sessionId])</a> ⇒</dt>
 <dd><p>Create a window, possibly with a given file path and with a desire to attach to a given sessionId</p>
@@ -320,7 +323,7 @@ converts it into a C constant array, such as
 as obtained by intToHex methods above: no &#39;0x&#39; prefix and upper-case
 letters, as in &quot;12AB&quot;.</p>
 </dd>
-<dt><a href="#collectData">collectData(ctx)</a> ⇒</dt>
+<dt><a href="#collectDataFromLibraryXml">collectDataFromLibraryXml(ctx)</a> ⇒</dt>
 <dd><p>Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.</p>
 </dd>
 <dt><a href="#parseZclFiles">parseZclFiles(db, ctx)</a> ⇒</dt>
@@ -382,20 +385,25 @@ that will be resolved when all the XML files are done, or rejected if at least o
 <dt><a href="#loadZcl">loadZcl(db, metadataFile)</a> ⇒</dt>
 <dd><p>Toplevel function that loads the zcl file and passes it off to the correct zcl loader.</p>
 </dd>
+<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
+<dd><p>Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}</p>
+</dd>
 <dt><a href="#processZclPostLoading">processZclPostLoading(db)</a> ⇒</dt>
 <dd><p>Promises to perform a post loading step.</p>
-</dd>
-<dt><a href="#collectDataFromJsonFile">collectDataFromJsonFile(ctx)</a> ⇒</dt>
-<dd><p>Promises to read the JSON file and resolve all the data.</p>
-</dd>
-<dt><a href="#collectDataFromPropertiesFile">collectDataFromPropertiesFile(ctx)</a> ⇒</dt>
-<dd><p>Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.</p>
 </dd>
 <dt><a href="#readZclFile">readZclFile(file)</a> ⇒</dt>
 <dd><p>Promises to read a file and resolve with the content</p>
 </dd>
 <dt><a href="#parseZclFile">parseZclFile(argument)</a> ⇒</dt>
 <dd><p>Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }</p>
+</dd>
+<dt><a href="#collectDataFromJsonFile">collectDataFromJsonFile(ctx)</a> ⇒</dt>
+<dd><p>Promises to read the JSON file and resolve all the data.</p>
+</dd>
+<dt><a href="#collectDataFromPropertiesFile">collectDataFromPropertiesFile(ctx)</a> ⇒</dt>
+<dd><p>Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.</p>
 </dd>
 <dt><a href="#prepareBitmap">prepareBitmap(bm)</a> ⇒</dt>
 <dd><p>Prepare bitmap for database insertion.</p>
@@ -409,12 +417,18 @@ that will be resolved when all the XML files are done, or rejected if at least o
 <dt><a href="#processAtomics">processAtomics(db, filePath, packageId, data)</a> ⇒</dt>
 <dd><p>Processes atomic types for DB insertion.</p>
 </dd>
+<dt><a href="#prepareClusterGlobalAttribute">prepareClusterGlobalAttribute(cluster)</a> ⇒</dt>
+<dd><p>Prepares global attribute data.</p>
+</dd>
 <dt><a href="#prepareCluster">prepareCluster(cluster)</a> ⇒</dt>
 <dd><p>Prepare XML cluster for insertion into the database.
 This method can also prepare clusterExtensions.</p>
 </dd>
 <dt><a href="#processClusters">processClusters(db, filePath, packageId, data)</a> ⇒</dt>
 <dd><p>Process clusters for insertion into the database.</p>
+</dd>
+<dt><a href="#processClusterGlobalAttributes">processClusterGlobalAttributes(db, filePath, packageId, data)</a> ⇒</dt>
+<dd><p>Processes global attributes for insertion into the database.</p>
 </dd>
 <dt><a href="#processClusterExtensions">processClusterExtensions(db, filePath, packageId, data)</a> ⇒</dt>
 <dd><p>Cluster Extension contains attributes and commands in a same way as regular cluster,
@@ -452,15 +466,6 @@ attributes and commands in a same way as cluster or clusterExtension</p>
 <dd><p>After XML parser is done with the barebones parsing, this function
 branches the individual toplevel tags.</p>
 </dd>
-<dt><a href="#resolveLaterPromises">resolveLaterPromises(laterPromises)</a></dt>
-<dd><p>Resolve later promises.
-This function resolves the later promises associated with processParsedZclData.</p>
-</dd>
-<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
-<dd><p>Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}</p>
-</dd>
 <dt><a href="#parseZclFiles">parseZclFiles(db, ctx)</a> ⇒</dt>
 <dd><p>Promises to iterate over all the XML files and returns an aggregate promise
 that will be resolved when all the XML files are done, or rejected if at least one fails.</p>
@@ -493,9 +498,11 @@ This module provides generic DB functions for performing SQL queries.
   - [~dbMultiSelect(db, sql, arrayOfArrays)](#module*JS API* low level database access..dbMultiSelect)
   - [~dbMultiInsert(db, sql, arrayOfArrays)](#module*JS API* low level database access..dbMultiInsert) ⇒
   - [~closeDatabase(database)](#module*JS API* low level database access..closeDatabase) ⇒
+  - [~initRamDatabase()](#module*JS API* low level database access..initRamDatabase) ⇒
   - [~initDatabase(sqlitePath)](#module*JS API* low level database access..initDatabase) ⇒
   - [~insertOrReplaceSetting(db, version)](#module*JS API* low level database access..insertOrReplaceSetting) ⇒
   - [~loadSchema(db, schemaPath, appVersion)](#module*JS API* low level database access..loadSchema) ⇒
+  - [~initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion)](#module*JS API* low level database access..initDatabaseAndLoadSchema) ⇒
 
 <a name="module_JS API_ low level database access..dbBeginTransaction"></a>
 
@@ -643,6 +650,14 @@ Rejects with an error if closing fails.
 | -------- | --------------- |
 | database | <code>\*</code> |
 
+<a name="module_JS API_ low level database access..initRamDatabase"></a>
+
+### JS API: low level database access~initRamDatabase() ⇒
+
+Create in-memory database.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Returns**: Promise that resolve with the Db.  
 <a name="module_JS API_ low level database access..initDatabase"></a>
 
 ### JS API: low level database access~initDatabase(sqlitePath) ⇒
@@ -684,6 +699,21 @@ Returns a promise to load schema into a blank database, and inserts a version to
 | db         | <code>\*</code> |
 | schemaPath | <code>\*</code> |
 | appVersion | <code>\*</code> |
+
+<a name="module_JS API_ low level database access..initDatabaseAndLoadSchema"></a>
+
+### JS API: low level database access~initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) ⇒
+
+Init database and load the schema.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Returns**: Promise that resolves into the database object.
+
+| Param      | Type            |
+| ---------- | --------------- |
+| sqliteFile | <code>\*</code> |
+| schemaFile | <code>\*</code> |
+| zapVersion | <code>\*</code> |
 
 <a name="module_DB API_ DB mappings between columns and JS object keys."></a>
 
@@ -736,6 +766,7 @@ This module provides queries for ZCL static queries.
   - [~selectAllDeviceTypes(db)](#module*DB API* zcl database access..selectAllDeviceTypes) ⇒
   - [~insertGlobals(db, packageId, data)](#module*DB API* zcl database access..insertGlobals) ⇒
   - [~insertClusterExtensions(db, packageId, data)](#module*DB API* zcl database access..insertClusterExtensions) ⇒
+  - [~insertGlobalAttributeDefault(db, packagaId, data)](#module*DB API* zcl database access..insertGlobalAttributeDefault) ⇒
   - [~insertClusters(db, packageId, data)](#module*DB API* zcl database access..insertClusters) ⇒
   - [~insertDeviceTypes(db, packageId, data)](#module*DB API* zcl database access..insertDeviceTypes) ⇒
   - [~insertDeviceTypeAttributes(db, dtClusterRefDataPairs)](#module*DB API* zcl database access..insertDeviceTypeAttributes)
@@ -748,6 +779,12 @@ This module provides queries for ZCL static queries.
   - [~selectAllAtomics(db, packageId)](#module*DB API* zcl database access..selectAllAtomics)
   - [~getAtomicSizeFromType(db, packageId, type)](#module*DB API* zcl database access..getAtomicSizeFromType)
   - [~insertBitmaps(db, packageId, data)](#module*DB API* zcl database access..insertBitmaps) ⇒
+  - [~exportClustersAndEndpointDetailsFromEndpointTypes(db, endpointTypeId)](#module*DB API* zcl database access..exportClustersAndEndpointDetailsFromEndpointTypes) ⇒
+  - [~exportCommandDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId)](#module*DB API* zcl database access..exportCommandDetailsFromAllEndpointTypesAndClusters) ⇒
+  - [~selectCommandArgumentsCountByCommandId(db, commandId, [packageId])](#module*DB API* zcl database access..selectCommandArgumentsCountByCommandId) ⇒
+  - [~selectCommandArgumentsByCommandId(db, commandId, [packageId])](#module*DB API* zcl database access..selectCommandArgumentsByCommandId) ⇒
+  - [~exportAllClustersDetailsFromEndpointTypes(db, endpointTypeId)](#module*DB API* zcl database access..exportAllClustersDetailsFromEndpointTypes) ⇒
+  - [~exportCommandDetailsFromAllEndpointTypeCluster(db, endpointTypeId)](#module*DB API* zcl database access..exportCommandDetailsFromAllEndpointTypeCluster) ⇒
 
 <a name="module_DB API_ zcl database access..selectAllEnums"></a>
 
@@ -856,6 +893,21 @@ Inserts cluster extensions into the database.
 | db        | <code>\*</code> |
 | packageId | <code>\*</code> |
 | data      | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..insertGlobalAttributeDefault"></a>
+
+### DB API: zcl database access~insertGlobalAttributeDefault(db, packagaId, data) ⇒
+
+Inserts global attribute defaults into the database.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise of data insertion.
+
+| Param     | Type            | Description                                                                                                               |
+| --------- | --------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| db        | <code>\*</code> |                                                                                                                           |
+| packagaId | <code>\*</code> |                                                                                                                           |
+| data      | <code>\*</code> | array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value |
 
 <a name="module_DB API_ zcl database access..insertClusters"></a>
 
@@ -1033,6 +1085,93 @@ Inserts bitmaps into the database. Data is an array of objects that must contain
 | db        | <code>\*</code> |                                               |
 | packageId | <code>\*</code> |                                               |
 | data      | <code>\*</code> | Array of object containing 'name' and 'type'. |
+
+<a name="module_DB API_ zcl database access..exportClustersAndEndpointDetailsFromEndpointTypes"></a>
+
+### DB API: zcl database access~exportClustersAndEndpointDetailsFromEndpointTypes(db, endpointTypeId) ⇒
+
+Exports clusters and endpoint ids
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the data that contains cluster
+and endpoint id references
+
+| Param          | Type            |
+| -------------- | --------------- |
+| db             | <code>\*</code> |
+| endpointTypeId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..exportCommandDetailsFromAllEndpointTypesAndClusters"></a>
+
+### DB API: zcl database access~exportCommandDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId) ⇒
+
+Returns a promise of data for commands inside an endpoint type.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the command data.
+
+| Param          | Type            |
+| -------------- | --------------- |
+| db             | <code>\*</code> |
+| endpointTypeId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectCommandArgumentsCountByCommandId"></a>
+
+### DB API: zcl database access~selectCommandArgumentsCountByCommandId(db, commandId, [packageId]) ⇒
+
+Get the number of command arguments for a command
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: A promise with number of command arguments for a command
+
+| Param       | Type            | Default       |
+| ----------- | --------------- | ------------- |
+| db          | <code>\*</code> |               |
+| commandId   | <code>\*</code> |               |
+| [packageId] | <code>\*</code> | <code></code> |
+
+<a name="module_DB API_ zcl database access..selectCommandArgumentsByCommandId"></a>
+
+### DB API: zcl database access~selectCommandArgumentsByCommandId(db, commandId, [packageId]) ⇒
+
+Extract the command arguments for a command
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: A promise with command arguments for a command
+
+| Param       | Type            | Default       |
+| ----------- | --------------- | ------------- |
+| db          | <code>\*</code> |               |
+| commandId   | <code>\*</code> |               |
+| [packageId] | <code>\*</code> | <code></code> |
+
+<a name="module_DB API_ zcl database access..exportAllClustersDetailsFromEndpointTypes"></a>
+
+### DB API: zcl database access~exportAllClustersDetailsFromEndpointTypes(db, endpointTypeId) ⇒
+
+Exports clusters to an externalized form.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the data that should go into the external form.
+
+| Param          | Type            |
+| -------------- | --------------- |
+| db             | <code>\*</code> |
+| endpointTypeId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..exportCommandDetailsFromAllEndpointTypeCluster"></a>
+
+### DB API: zcl database access~exportCommandDetailsFromAllEndpointTypeCluster(db, endpointTypeId) ⇒
+
+Returns a promise of data for commands inside all existing endpoint types.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the command data.
+
+| Param          | Type            |
+| -------------- | --------------- |
+| db             | <code>\*</code> |
+| endpointTypeId | <code>\*</code> |
 
 <a name="module_JS API_ generator logic"></a>
 
@@ -1265,6 +1404,11 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~asType(label)](#module*Templating API* C formatting helpers..asType) ⇒
   - [~asSymbol(label)](#module*Templating API* C formatting helpers..asSymbol) ⇒
   - [~asBytes(value)](#module*Templating API* C formatting helpers..asBytes)
+  - [~asCamelCased(str)](#module*Templating API* C formatting helpers..asCamelCased) ⇒
+  - [~cleanseLabel(label)](#module*Templating API* C formatting helpers..cleanseLabel)
+  - [~asUnderscoreLowercase(str)](#module*Templating API* C formatting helpers..asUnderscoreLowercase) ⇒
+  - [~asSpacedLowercase(str)](#module*Templating API* C formatting helpers..asSpacedLowercase) ⇒
+  - [~asUnderscoreUppercase(str)](#module*Templating API* C formatting helpers..asUnderscoreUppercase) ⇒
 
 <a name="module_Templating API_ C formatting helpers..asMacro"></a>
 
@@ -1387,6 +1531,70 @@ Given a default value of attribute, this method converts it into bytes
 | ----- | --------------- |
 | value | <code>\*</code> |
 
+<a name="module_Templating API_ C formatting helpers..asCamelCased"></a>
+
+### Templating API: C formatting helpers~asCamelCased(str) ⇒
+
+Given a string convert it into a camelCased string
+
+**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
+**Returns**: a spaced out string in lowercase
+
+| Param | Type            |
+| ----- | --------------- |
+| str   | <code>\*</code> |
+
+<a name="module_Templating API_ C formatting helpers..cleanseLabel"></a>
+
+### Templating API: C formatting helpers~cleanseLabel(label)
+
+returns a string after converting ':' and '-' into '\_'
+
+**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)
+
+| Param | Type            |
+| ----- | --------------- |
+| label | <code>\*</code> |
+
+<a name="module_Templating API_ C formatting helpers..asUnderscoreLowercase"></a>
+
+### Templating API: C formatting helpers~asUnderscoreLowercase(str) ⇒
+
+Given a camel case string, convert it into one with underscore and lowercase
+
+**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
+**Returns**: String in lowercase with underscores
+
+| Param | Type            |
+| ----- | --------------- |
+| str   | <code>\*</code> |
+
+<a name="module_Templating API_ C formatting helpers..asSpacedLowercase"></a>
+
+### Templating API: C formatting helpers~asSpacedLowercase(str) ⇒
+
+Given a camel case string convert it into one with space and lowercase
+
+**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
+**Returns**: a spaced out string in lowercase
+
+| Param | Type            |
+| ----- | --------------- |
+| str   | <code>\*</code> |
+
+<a name="module_Templating API_ C formatting helpers..asUnderscoreUppercase"></a>
+
+### Templating API: C formatting helpers~asUnderscoreUppercase(str) ⇒
+
+Given a camel case string convert it into one with underscore and uppercase
+
+**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
+**Returns**: String in uppercase with underscores
+
+| Param | Type            |
+| ----- | --------------- |
+| str   | <code>\*</code> |
+
 <a name="module_Templating API_ user-data specific helpers"></a>
 
 ## Templating API: user-data specific helpers
@@ -1399,6 +1607,10 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~user_cluster_attributes(options)](#module*Templating API* user-data specific helpers..user_cluster_attributes) ⇒
   - [~user_cluster_commands(options)](#module*Templating API* user-data specific helpers..user_cluster_commands) ⇒
   - [~user_all_attributes(options)](#module*Templating API* user-data specific helpers..user_all_attributes) ⇒
+  - [~all_user_cluster_commands(options)](#module*Templating API* user-data specific helpers..all_user_cluster_commands) ⇒
+  - [~all_user_clusters(options)](#module*Templating API* user-data specific helpers..all_user_clusters) ⇒
+  - [~user_cluster_command_count_with_cli()](#module*Templating API* user-data specific helpers..user_cluster_command_count_with_cli)
+  - [~user_cluster_commands_all_endpoints(options)](#module*Templating API* user-data specific helpers..user_cluster_commands_all_endpoints) ⇒
 
 <a name="module_Templating API_ user-data specific helpers..user_endpoint_types"></a>
 
@@ -1466,6 +1678,55 @@ Iterates over all attributes required by the user configuration.
 | ------- | --------------- |
 | options | <code>\*</code> |
 
+<a name="module_Templating API_ user-data specific helpers..all_user_cluster_commands"></a>
+
+### Templating API: user-data specific helpers~all_user_cluster_commands(options) ⇒
+
+Creates endpoint type cluster command iterator. This fetches all
+commands which have been enabled on added endpoints
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: Promise of the resolved blocks iterating over cluster commands.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ user-data specific helpers..all_user_clusters"></a>
+
+### Templating API: user-data specific helpers~all_user_clusters(options) ⇒
+
+Creates cluster command iterator for all endpoints.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: Promise of the resolved blocks iterating over cluster commands.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ user-data specific helpers..user_cluster_command_count_with_cli"></a>
+
+### Templating API: user-data specific helpers~user_cluster_command_count_with_cli()
+
+Get the count of the number of clusters commands with cli for a cluster.
+This is used under a cluster block helper
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+<a name="module_Templating API_ user-data specific helpers..user_cluster_commands_all_endpoints"></a>
+
+### Templating API: user-data specific helpers~user_cluster_commands_all_endpoints(options) ⇒
+
+Creates endpoint type cluster command iterator. This works only inside
+cluster block helpers.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: Promise of the resolved blocks iterating over cluster commands.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
 <a name="module_Templating API_ toplevel utility helpers"></a>
 
 ## Templating API: toplevel utility helpers
@@ -1478,6 +1739,12 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~template_options(category, options)](#module*Templating API* toplevel utility helpers..template_options)
   - [~first(options)](#module*Templating API* toplevel utility helpers..first) ⇒
   - [~last(options)](#module*Templating API* toplevel utility helpers..last) ⇒
+  - [~middle(options)](#module*Templating API* toplevel utility helpers..middle) ⇒
+  - [~template_option_with_code(options, key)](#module*Templating API* toplevel utility helpers..template_option_with_code)
+  - [~isEqual(string_a, string_b)](#module*Templating API* toplevel utility helpers..isEqual)
+  - [~trim_string(str)](#module*Templating API* toplevel utility helpers..trim_string) ⇒
+  - [~asLastWord(str)](#module*Templating API* toplevel utility helpers..asLastWord)
+  - [~iterate()](#module*Templating API* toplevel utility helpers..iterate)
 
 <a name="module_Templating API_ toplevel utility helpers..zap_header"></a>
 
@@ -1536,6 +1803,78 @@ during the last element.
 | ------- | --------------- |
 | options | <code>\*</code> |
 
+<a name="module_Templating API_ toplevel utility helpers..middle"></a>
+
+### Templating API: toplevel utility helpers~middle(options) ⇒
+
+Inside an iterator, this helper allows you to specify the content that will be output only
+during the non-first and no-last element.
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)  
+**Returns**: content, if it's the middle element inside an operator, empty otherwise.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ toplevel utility helpers..template_option_with_code"></a>
+
+### Templating API: toplevel utility helpers~template_option_with_code(options, key)
+
+This fetches a promise which returns template options if provided
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+| key     | <code>\*</code> |
+
+<a name="module_Templating API_ toplevel utility helpers..isEqual"></a>
+
+### Templating API: toplevel utility helpers~isEqual(string_a, string_b)
+
+This returns a boolean if the 2 strings are same
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)
+
+| Param    | Type            |
+| -------- | --------------- |
+| string_a | <code>\*</code> |
+| string_b | <code>\*</code> |
+
+<a name="module_Templating API_ toplevel utility helpers..trim_string"></a>
+
+### Templating API: toplevel utility helpers~trim_string(str) ⇒
+
+Remove leading and trailing spaces from a string
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)  
+**Returns**: A string with no leading and trailing spaces
+
+| Param | Type            |
+| ----- | --------------- |
+| str   | <code>\*</code> |
+
+<a name="module_Templating API_ toplevel utility helpers..asLastWord"></a>
+
+### Templating API: toplevel utility helpers~asLastWord(str)
+
+Split the string based on spaces and return the last word
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)
+
+| Param | Type            |
+| ----- | --------------- |
+| str   | <code>\*</code> |
+
+<a name="module_Templating API_ toplevel utility helpers..iterate"></a>
+
+### Templating API: toplevel utility helpers~iterate()
+
+Iteration block.
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)  
 <a name="module_Templating API_ static zcl helpers"></a>
 
 ## Templating API: static zcl helpers
@@ -1558,6 +1897,8 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~zcl_atomics(options)](#module*Templating API* static zcl helpers..zcl_atomics) ⇒
   - [~zcl_cluster_largest_label_length()](#module*Templating API* static zcl helpers..zcl_cluster_largest_label_length) ⇒
   - [~largestLabelLength(An)](#module*Templating API* static zcl helpers..largestLabelLength) ⇒
+  - [~zcl_command_arguments_count(commandId)](#module*Templating API* static zcl helpers..zcl_command_arguments_count) ⇒
+  - [~zcl_command_arguments(options)](#module*Templating API* static zcl helpers..zcl_command_arguments) ⇒
 
 <a name="module_Templating API_ static zcl helpers..zcl_bitmaps"></a>
 
@@ -1755,6 +2096,32 @@ zcl_cluster_largest_label_length
 | Param | Type            | Description |
 | ----- | --------------- | ----------- |
 | An    | <code>\*</code> | Array       |
+
+<a name="module_Templating API_ static zcl helpers..zcl_command_arguments_count"></a>
+
+### Templating API: static zcl helpers~zcl_command_arguments_count(commandId) ⇒
+
+Helper to extract the number of command arguments in a command
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: Number of command arguments as an integer
+
+| Param     | Type            |
+| --------- | --------------- |
+| commandId | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..zcl_command_arguments"></a>
+
+### Templating API: static zcl helpers~zcl_command_arguments(options) ⇒
+
+Block helper iterating over command arguments within a command
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: Promise of command argument iteration.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
 
 <a name="module_JS API_ generator logic"></a>
 
@@ -2254,6 +2621,12 @@ Register server side REST API for front-end to interact with Studio components.
 | db    | <code>\*</code> |
 | app   | <code>\*</code> |
 
+<a name="module_External IDE interface."></a>
+
+## External IDE interface.
+
+This module provides the interface to an extenal IDE: Simplicity Studio.
+
 <a name="module_REST API_ static zcl functions"></a>
 
 ## REST API: static zcl functions
@@ -2361,6 +2734,8 @@ Port http server is listening on.
 - [JS API: random utilities](#module*JS API* random utilities)
   - [~calculateCrc(context)](#module*JS API* random utilities..calculateCrc) ⇒
   - [~initializeSessionPackage(db, sessionId)](#module*JS API* random utilities..initializeSessionPackage) ⇒
+  - [~createBackupFile(path)](#module*JS API* random utilities..createBackupFile)
+  - [~getSessionKeyFromBrowserWindow(browserWindow)](#module*JS API* random utilities..getSessionKeyFromBrowserWindow)
 
 <a name="module_JS API_ random utilities..calculateCrc"></a>
 
@@ -2388,6 +2763,30 @@ This function assigns a proper package ID to the session.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_JS API_ random utilities..createBackupFile"></a>
+
+### JS API: random utilities~createBackupFile(path)
+
+Move database file out of the way into the backup location.
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)
+
+| Param | Type            |
+| ----- | --------------- |
+| path  | <code>\*</code> |
+
+<a name="module_JS API_ random utilities..getSessionKeyFromBrowserWindow"></a>
+
+### JS API: random utilities~getSessionKeyFromBrowserWindow(browserWindow)
+
+Returns a promise that resolves into the session key.
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)
+
+| Param         | Type            |
+| ------------- | --------------- |
+| browserWindow | <code>\*</code> |
 
 <a name="replyId"></a>
 
@@ -2816,22 +3215,22 @@ generateCode function which generates the code in the user selected output.
 
 <a name="fileSave"></a>
 
-## fileSave(db, winId, filePath) ⇒
+## fileSave(db, browserWindow, filePath) ⇒
 
 perform the save.
 
 **Kind**: global function  
 **Returns**: Promise of saving.
 
-| Param    | Type            |
-| -------- | --------------- |
-| db       | <code>\*</code> |
-| winId    | <code>\*</code> |
-| filePath | <code>\*</code> |
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| browserWindow | <code>\*</code> |
+| filePath      | <code>\*</code> |
 
 <a name="fileOpen"></a>
 
-## fileOpen(db, winId, filePaths)
+## fileOpen(db, filePaths)
 
 Perform the do open action, possibly reading in multiple files.
 
@@ -2840,7 +3239,6 @@ Perform the do open action, possibly reading in multiple files.
 | Param     | Type            |
 | --------- | --------------- |
 | db        | <code>\*</code> |
-| winId     | <code>\*</code> |
 | filePaths | <code>\*</code> |
 
 <a name="readAndProcessFile"></a>
@@ -2920,11 +3318,16 @@ Performs headless regeneration for given parameters.
 
 <a name="clearDatabaseFile"></a>
 
-## clearDatabaseFile()
+## clearDatabaseFile(path)
 
-Moves the main database file into a backup location.
+Move database file out of the way into the backup location.
 
-**Kind**: global function  
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| path  | <code>\*</code> |
+
 <a name="windowCreate"></a>
 
 ## windowCreate(port, [filePath], [sessionId]) ⇒
@@ -3049,9 +3452,9 @@ letters, as in "12AB".
 | ----- | --------------- |
 | hex   | <code>\*</code> |
 
-<a name="collectData"></a>
+<a name="collectDataFromLibraryXml"></a>
 
-## collectData(ctx) ⇒
+## collectDataFromLibraryXml(ctx) ⇒
 
 Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
 
@@ -3311,6 +3714,23 @@ Toplevel function that loads the zcl file and passes it off to the correct zcl l
 | db           | <code>\*</code> |
 | metadataFile | <code>\*</code> |
 
+<a name="qualifyZclFile"></a>
+
+## qualifyZclFile(db, info, parentPackageId) ⇒
+
+Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}
+
+**Kind**: global function  
+**Returns**: Promise that resolves int he object of data.
+
+| Param           | Type            |
+| --------------- | --------------- |
+| db              | <code>\*</code> |
+| info            | <code>\*</code> |
+| parentPackageId | <code>\*</code> |
+
 <a name="processZclPostLoading"></a>
 
 ## processZclPostLoading(db) ⇒
@@ -3323,32 +3743,6 @@ Promises to perform a post loading step.
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
-
-<a name="collectDataFromJsonFile"></a>
-
-## collectDataFromJsonFile(ctx) ⇒
-
-Promises to read the JSON file and resolve all the data.
-
-**Kind**: global function  
-**Returns**: Promise of resolved file.
-
-| Param | Type            | Description                                   |
-| ----- | --------------- | --------------------------------------------- |
-| ctx   | <code>\*</code> | Context containing information about the file |
-
-<a name="collectDataFromPropertiesFile"></a>
-
-## collectDataFromPropertiesFile(ctx) ⇒
-
-Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
-
-**Kind**: global function  
-**Returns**: Promise of resolved files.
-
-| Param | Type            | Description                                                           |
-| ----- | --------------- | --------------------------------------------------------------------- |
-| ctx   | <code>\*</code> | Context which contains information about the propertiesFiles and data |
 
 <a name="readZclFile"></a>
 
@@ -3375,6 +3769,32 @@ Promises to parse the ZCL file, expecting object of { filePath, data, packageId,
 | Param    | Type            |
 | -------- | --------------- |
 | argument | <code>\*</code> |
+
+<a name="collectDataFromJsonFile"></a>
+
+## collectDataFromJsonFile(ctx) ⇒
+
+Promises to read the JSON file and resolve all the data.
+
+**Kind**: global function  
+**Returns**: Promise of resolved file.
+
+| Param | Type            | Description                                   |
+| ----- | --------------- | --------------------------------------------- |
+| ctx   | <code>\*</code> | Context containing information about the file |
+
+<a name="collectDataFromPropertiesFile"></a>
+
+## collectDataFromPropertiesFile(ctx) ⇒
+
+Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
+
+**Kind**: global function  
+**Returns**: Promise of resolved files.
+
+| Param | Type            | Description                                                           |
+| ----- | --------------- | --------------------------------------------------------------------- |
+| ctx   | <code>\*</code> | Context which contains information about the propertiesFiles and data |
 
 <a name="prepareBitmap"></a>
 
@@ -3433,6 +3853,19 @@ Processes atomic types for DB insertion.
 | packageId | <code>\*</code> |
 | data      | <code>\*</code> |
 
+<a name="prepareClusterGlobalAttribute"></a>
+
+## prepareClusterGlobalAttribute(cluster) ⇒
+
+Prepares global attribute data.
+
+**Kind**: global function  
+**Returns**: Object containing the data from XML.
+
+| Param   | Type            |
+| ------- | --------------- |
+| cluster | <code>\*</code> |
+
 <a name="prepareCluster"></a>
 
 ## prepareCluster(cluster) ⇒
@@ -3455,6 +3888,22 @@ Process clusters for insertion into the database.
 
 **Kind**: global function  
 **Returns**: Promise of cluster insertion.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| filePath  | <code>\*</code> |
+| packageId | <code>\*</code> |
+| data      | <code>\*</code> |
+
+<a name="processClusterGlobalAttributes"></a>
+
+## processClusterGlobalAttributes(db, filePath, packageId, data) ⇒
+
+Processes global attributes for insertion into the database.
+
+**Kind**: global function  
+**Returns**: Promise of inserted data.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -3627,36 +4076,6 @@ branches the individual toplevel tags.
 | -------- | --------------- |
 | db       | <code>\*</code> |
 | argument | <code>\*</code> |
-
-<a name="resolveLaterPromises"></a>
-
-## resolveLaterPromises(laterPromises)
-
-Resolve later promises.
-This function resolves the later promises associated with processParsedZclData.
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| laterPromises | <code>\*</code> |
-
-<a name="qualifyZclFile"></a>
-
-## qualifyZclFile(db, info, parentPackageId) ⇒
-
-Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}
-
-**Kind**: global function  
-**Returns**: Promise that resolves int he object of data.
-
-| Param           | Type            |
-| --------------- | --------------- |
-| db              | <code>\*</code> |
-| info            | <code>\*</code> |
-| parentPackageId | <code>\*</code> |
 
 <a name="parseZclFiles"></a>
 
