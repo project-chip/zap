@@ -24,5 +24,6 @@ export function cantorPair(x, y) {
 }
 
 export function asHex(value, padding) {
+  if (value == null) return ''
   return '0x' + value.toString(16).padStart(padding, '0').toUpperCase()
 }
