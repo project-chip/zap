@@ -18,6 +18,40 @@
  * @jest-environment jsdom
  */
 
+import {
+  Quasar,
+  QBtn,
+  QFile,
+  QSplitter,
+  QSpace,
+  QPageContainer,
+  QDrawer,
+  QToolbar,
+  QToolbarTitle,
+  QHeader,
+  QTable,
+  QLayout,
+  QInput,
+  QToggle,
+  QCardSection,
+  QCard,
+  QTabs,
+  QTab,
+  QForm,
+  QSelect,
+  QSeparator,
+  QList,
+  QBreadcrumbs,
+  QBreadcrumbsEl,
+  QTooltip,
+  QField,
+  QCardActions,
+  QDialog,
+  QItem,
+  ClosePopup,
+} from 'quasar'
+import Vue from 'vue'
+
 import { shallowMount } from '@vue/test-utils'
 import ZapStore from '../src/store/index.js'
 
@@ -52,6 +86,42 @@ import PreferenceGeneration from '../src/pages/PreferenceGeneration.vue'
 import PreferenceUser from '../src/pages/PreferenceUser.vue'
 import PreferenceZcl from '../src/pages/PreferenceZcl.vue'
 import ZclSettings from '../src/pages/ZclSettings.vue'
+
+Vue.use(Quasar, {
+  components: {
+    QBtn,
+    QFile,
+    QSplitter,
+    QSpace,
+    QPageContainer,
+    QDrawer,
+    QToolbar,
+    QToolbarTitle,
+    QHeader,
+    QTable,
+    QLayout,
+    QInput,
+    QToggle,
+    QCardSection,
+    QCard,
+    QTabs,
+    QTab,
+    QForm,
+    QSelect,
+    QSeparator,
+    QList,
+    QBreadcrumbs,
+    QBreadcrumbsEl,
+    QTooltip,
+    QField,
+    QCardActions,
+    QDialog,
+    QItem,
+  },
+  directives: {
+    ClosePopup,
+  },
+})
 
 test('ZclApplicationSetup', () => {
   const wrapper = shallowMount(ZclApplicationSetup, { store: ZapStore() })
