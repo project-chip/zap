@@ -40,15 +40,13 @@ limitations under the License.
           dense
         />
       </div>
-      <div class="q-pr-lg vertical-align:middle">
-        Default Response Policy
-      </div>
+      <div class="q-pr-lg vertical-align:middle">Default Response Policy</div>
       <q-select
         :options="defaultResponsePolicyOptions"
         v-model="selectedDefaultResponsePolicy"
         :option-label="(item) => (item === null ? 'NULL' : item.optionLabel)"
         @input="handleOptionChange('defaultResponsePolicy', $event)"
-        style="width: 150px;"
+        style="width: 150px"
         outlined
         dense
       />
@@ -72,22 +70,26 @@ export default {
     },
     selectedDefaultResponsePolicy: {
       get() {
-        return this.$store.state.zap.genericOptions[
-          'defaultResponsePolicy'
-        ].find(
-          (o) =>
-            o.optionCode ===
-            this.$store.state.zap.selectedGenericOptions[
-              'defaultResponsePolicy'
-            ]
-        )
+        var drp = this.$store.state.zap.genericOptions['defaultResponsePolicy']
+        if (drp == null) {
+          return ''
+        } else {
+          return drp.find(
+            (o) =>
+              o.optionCode ===
+              this.$store.state.zap.selectedGenericOptions[
+                'defaultResponsePolicy'
+              ]
+          )
+        }
       },
     },
     selectedManufacturerCode: {
       get() {
-        return this.$store.state.zap.genericOptions['manufacturerCodes'] == null
+        var mc = this.$store.state.zap.genericOptions['manufacturerCodes']
+        return mc == null
           ? ''
-          : this.$store.state.zap.genericOptions['manufacturerCodes'].find(
+          : mc.find(
               (o) =>
                 o.optionCode ===
                 this.$store.state.zap.selectedGenericOptions[
