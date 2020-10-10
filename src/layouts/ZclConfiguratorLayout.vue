@@ -59,7 +59,6 @@ limitations under the License.
 </template>
 
 <script>
-import { matClose } from '@quasar/extras/material-icons'
 import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
 import ZclEndpointManager from '../components/ZclEndpointManager.vue'
 import ZclClusterManager from '../components/ZclClusterManager.vue'
@@ -86,9 +85,7 @@ export default {
   data() {
     return {}
   },
-  created() {
-    this.matClose = matClose
-  },
+  created() {},
   components: {
     ZclGeneralOptionsBar,
     ZclEndpointManager,

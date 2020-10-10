@@ -42,6 +42,16 @@ import ZclEndpointTypeConfig from '../src/components/ZclEndpointTypeConfig.vue'
 import ZclGeneralOptionsBar from '../src/components/ZclGeneralOptionsBar.vue'
 import ZclInformationSetup from '../src/components/ZclInformationSetup.vue'
 import ZclReportingView from '../src/components/ZclReportingView.vue'
+import ZclClusterLayout from '../src/layouts/ZclClusterLayout.vue'
+import ZclConfiguratorLayout from '../src/layouts/ZclConfiguratorLayout.vue'
+import ZclLayout from '../src/layouts/ZclLayout.vue'
+import ZclOldClusterLayout from '../src/layouts/ZclOldClusterLayout.vue'
+import Error404 from '../src/pages/Error404.vue'
+import Preference from '../src/pages/Preference.vue'
+import PreferenceGeneration from '../src/pages/PreferenceGeneration.vue'
+import PreferenceUser from '../src/pages/PreferenceUser.vue'
+import PreferenceZcl from '../src/pages/PreferenceZcl.vue'
+import ZclSettings from '../src/pages/ZclSettings.vue'
 
 test('ZclApplicationSetup', () => {
   const wrapper = shallowMount(ZclApplicationSetup, { store: ZapStore() })
@@ -132,4 +142,46 @@ test('ZclInformationSetup', () => {
 test('ZclReportingView', () => {
   const wrapper = shallowMount(ZclReportingView, { store: ZapStore() })
   expect(wrapper.html().length).toBeGreaterThan(100)
+})
+test('ZclClusterLayout', () => {
+  const wrapper = shallowMount(ZclClusterLayout, { store: ZapStore() })
+  expect(wrapper.html().length).toBeGreaterThan(90)
+})
+test('ZclConfiguratorLayout', () => {
+  const wrapper = shallowMount(ZclConfiguratorLayout, { store: ZapStore() })
+  expect(wrapper.html().length).toBeGreaterThan(100)
+})
+/*
+test('ZclLayout', () => {
+  const wrapper = shallowMount(ZclLayout, { store: ZapStore() })
+  expect(wrapper.html().length).toBeGreaterThan(100)
+})
+*/
+test('ZclOldClusterLayout', () => {
+  const wrapper = shallowMount(ZclOldClusterLayout, { store: ZapStore() })
+  expect(wrapper.html().length).toBeGreaterThan(100)
+})
+test('Error404', () => {
+  const wrapper = shallowMount(Error404, { store: ZapStore() })
+  expect(wrapper.html().length).toBeGreaterThan(50)
+})
+test('Preference', () => {
+  const wrapper = shallowMount(Preference, { store: ZapStore() })
+  expect(wrapper.html().length).toBeGreaterThan(50)
+})
+test('PreferenceGeneration', () => {
+  const wrapper = shallowMount(PreferenceGeneration, { store: ZapStore() })
+  expect(wrapper.html().length).toBeGreaterThan(50)
+})
+test('PreferenceUser', () => {
+  const wrapper = shallowMount(PreferenceUser, { store: ZapStore() })
+  expect(wrapper.html().length).toBeGreaterThan(50)
+})
+test('PreferenceZcl', () => {
+  const wrapper = shallowMount(PreferenceZcl, { store: ZapStore() })
+  expect(wrapper.html().length).toBeGreaterThan(50)
+})
+test('ZclSettings', () => {
+  const wrapper = shallowMount(ZclSettings, { store: ZapStore() })
+  expect(wrapper.html().length).toBeGreaterThan(50)
 })
