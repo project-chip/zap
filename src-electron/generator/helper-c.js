@@ -312,7 +312,10 @@ function asCamelCased(label, firstLower = true) {
  * @param {*} label
  */
 function cleanseLabel(label) {
-  var l = label
+  l = label.trim()
+  l = l.replace(' ', '_')
+  l = l.replace(' ', '_')
+  l = l.replace(/__+/g, '_')
   l = l.replace(/[:/-]/g, '_').toLowerCase()
   return l
 }
@@ -353,10 +356,56 @@ function asSpacedLowercase(str) {
  * @returns String in uppercase with underscores
  */
 function asUnderscoreUppercase(str) {
-  var str = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+  label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return '_' + y
   })
-  return str.toUpperCase()
+  label = cleanseLabel(label)
+  if (label.startsWith('_')) {
+    label = label.substring(1)
+  }
+  return label.toUpperCase()
+}
+
+function asUCCli(str) {
+  str = str.trim()
+  if (str.toLowerCase().endsWith('u')) {
+    str = str.substring(0, str.length - 1)
+    str = 'u' + str
+  } else if (
+    str.toLowerCase().startsWith('int') &&
+    str.toLowerCase().endsWith('s')
+  ) {
+    str = str.substring(0, str.length - 1)
+  } else if (str.toLowerCase().endsWith('char_string')) {
+    str = 'string'
+  } else if (str.toLowerCase().startsWith('bitmap')) {
+    str = str.toLowerCase().replace('bitmap', 'uint')
+  } else if (str.toLowerCase().startsWith('enum')) {
+    str = str.toLowerCase().replace('enum', 'uint')
+  } else {
+    console.log('Something wrong')
+    console.log(str)
+    return str
+  }
+  return 'SL_CLI_ARG_' + str.toUpperCase()
+}
+
+function dataTypeForBitmap(bitmap_name) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectBitmapByName(this.global.db, packageId, bitmap_name)
+    )
+    .then((bm) => asUCCli(bm.type))
+}
+
+function dataTypeForEnum(enum_name) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectEnumByName(this.global.db, enum_name, packageId)
+    )
+    .then((e) => asUCCli(e.type))
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -376,3 +425,6 @@ exports.cleanseLabel = cleanseLabel
 exports.asUnderscoreLowercase = asUnderscoreLowercase
 exports.asSpacedLowercase = asSpacedLowercase
 exports.asUnderscoreUppercase = asUnderscoreUppercase
+exports.asUCCli = asUCCli
+exports.dataTypeForBitmap = dataTypeForBitmap
+exports.dataTypeForEnum = dataTypeForEnum

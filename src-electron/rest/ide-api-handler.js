@@ -15,9 +15,13 @@
  *    limitations under the License.
  */
 
-const axios = require('axios')
+/**
+ * This module provides the interface to an extenal IDE: Simplicity Studio.
+ *
+ * @module External IDE interface.
+ */
+
 const restApi = require('../../src-shared/rest-api.js')
-const dbApi = require('../db/db-api.js')
 const env = require('../util/env.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')

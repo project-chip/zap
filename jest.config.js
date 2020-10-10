@@ -16,9 +16,9 @@ module.exports = {
     '<rootDir>/src-electron/**/*.js',
     '<rootDir>/src-shared/**/*.js',
     // Enable these once the UI testing is available
-    //"<rootDir>/src/**/*.vue",
-    //"<rootDir>/src/**/*.js",
-    //"<rootDir>/src/**/*.jsx",
+    '<rootDir>/src/**/*.vue',
+    '<rootDir>/src/**/*.js',
+    '<rootDir>/src/**/*.jsx',
   ],
   coverageThreshold: {
     global: {
@@ -26,10 +26,10 @@ module.exports = {
       // We need to settle on much higher number, so we will slowly
       // be inching this upward, as we add more unit tests.
       // DO NOT EVER DECREASE THESE NUMBERS, PLEASE, UNLESS FOR A GOOD REASON.
-      statements: 75,
-      branches: 55,
-      functions: 75,
-      lines: 75,
+      statements: 55,
+      branches: 45,
+      functions: 50,
+      lines: 55,
     },
   },
   testMatch: ['<rootDir>/test/*.test.js'],

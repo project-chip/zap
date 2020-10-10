@@ -26,6 +26,7 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev
       - run: npm ci
+      - run: npm rebuild canvas --update-binary
       - run: npm run build-spa
       - run: npm run test
       - run: npm run self-check

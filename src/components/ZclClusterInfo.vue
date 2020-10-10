@@ -15,8 +15,8 @@ limitations under the License.
 -->
 <template>
   <div v-show="item">
-    <div>Cluster: {{ item.label }}</div>
-    <div>Description: {{ item.caption }}</div>
+    <div>Cluster: {{ item == null ? '' : item.label }}</div>
+    <div>Description: {{ item == null ? '' : item.caption }}</div>
   </div>
 </template>
 

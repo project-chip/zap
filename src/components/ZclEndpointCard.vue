@@ -130,7 +130,11 @@ export default {
   },
   methods: {
     getFormattedEndpointId(endpointRef) {
-      return '0x' + this.endpointId[endpointRef].toString(16).padStart(4, '0')
+      if (endpointRef in this.endpointId) {
+        return '0x' + this.endpointId[endpointRef].toString(16).padStart(4, '0')
+      } else {
+        return ''
+      }
     },
     deleteEpt() {
       let endpointReference = this.endpointReference

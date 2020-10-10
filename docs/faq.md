@@ -129,3 +129,7 @@ Occasionally upgrading your `npm` also makes a difference:
 **A:** If you VSCode in your path enter the `zap` repo and type `code .`, this will open ZAP in VSCode. To run ZAP in debug mode simply select the ZAP workspace and click on the `Run` icon on the left hand toolbar. You will have a couple of options to choose from in order to run ZAP, choose `Node.js Debug Terminal`. This will open a terminal window from which you can enter `npm run zap`, this will attach the debugger and run ZAP as you would normally from the command line. Congratulations, you should now see ZAP running in the debugger, you can set breakpoints in VSCode as you would in any other IDE.
 
 ---
+
+**Q: UI unit test fails with some errors around canvas not build for the right version of node. What do I do?**
+
+**A:** Run: `npm rebuild canvas --update-binary`
