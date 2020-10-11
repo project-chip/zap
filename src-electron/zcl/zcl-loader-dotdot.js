@@ -181,7 +181,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
 function prepareCommands(commands, side) {
   var ret = []
   var cmds = commands.command === undefined ? commands : commands.command
-  for (i = 0; i < cmds.length; i++) {
+  for (var i = 0; i < cmds.length; i++) {
     let c = cmds[i]
     env.logInfo(`Preparing command ${side} ${c.$.name}`)
     var pcmd = {
