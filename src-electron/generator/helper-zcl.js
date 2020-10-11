@@ -278,17 +278,8 @@ function zcl_cluster_largest_label_length() {
  * @returns the length of largest object name in an array. Helper for
  * zcl_cluster_largest_label_length
  */
-function largestLabelLength(arr) {
-  var lengthOfLargestString = 0,
-    i = 0,
-    stringLength = 0
-  for (i = 0; i < arr.length; i++) {
-    stringLength = arr[i].label.length
-    if (stringLength > lengthOfLargestString) {
-      lengthOfLargestString = stringLength
-    }
-  }
-  return lengthOfLargestString
+function largestLabelLength(arrayOfClusters) {
+  return Math.max(...arrayOfClusters.map((cl) => cl.label.length))
 }
 
 /**

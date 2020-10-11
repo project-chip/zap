@@ -872,13 +872,13 @@ function insertGlobals(db, packageId, data) {
       commandsToLoad
     )
     .then((lids) => {
-      var i
-      for (i = 0; i < lids.length; i++) {
-        var lastId = lids[i]
-        var args = argsForCommands[i]
+      var j
+      for (j = 0; j < lids.length; j++) {
+        var lastCmdId = lids[j]
+        var args = argsForCommands[j]
         if (args != undefined && args != null) {
           argsToLoad.push(
-            ...args.map((arg) => [lastId, arg.name, arg.type, arg.isArray])
+            ...args.map((arg) => [lastCmdId, arg.name, arg.type, arg.isArray])
           )
         }
       }
@@ -990,10 +990,10 @@ function insertClusterExtensions(db, packageId, data) {
           commandsToLoad
         )
         .then((lids) => {
-          var i
-          for (i = 0; i < lids.length; i++) {
-            var lastId = lids[i]
-            var args = argsForCommands[i]
+          var j
+          for (j = 0; j < lids.length; j++) {
+            var lastId = lids[j]
+            var args = argsForCommands[j]
             if (args != undefined && args != null) {
               argsToLoad.push(
                 ...args.map((arg) => [lastId, arg.name, arg.type, arg.isArray])
@@ -1145,13 +1145,18 @@ function insertClusters(db, packageId, data) {
           commandsToLoad
         )
         .then((lids) => {
-          var i
-          for (i = 0; i < lids.length; i++) {
-            var lastId = lids[i]
-            var args = argsForCommands[i]
+          var j
+          for (j = 0; j < lids.length; j++) {
+            var lastCmdId = lids[j]
+            var args = argsForCommands[j]
             if (args != undefined && args != null) {
               argsToLoad.push(
-                ...args.map((arg) => [lastId, arg.name, arg.type, arg.isArray])
+                ...args.map((arg) => [
+                  lastCmdId,
+                  arg.name,
+                  arg.type,
+                  arg.isArray,
+                ])
               )
             }
           }

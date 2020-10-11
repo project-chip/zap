@@ -92,6 +92,7 @@ function registerSessionApi(db, app) {
       case 'storageOption':
         param = 'STORAGE_OPTION'
         paramType = 'text'
+        break
       default:
         break
     }
@@ -326,6 +327,7 @@ function registerSessionApi(db, app) {
         break
       case 'name':
         param = 'NAME'
+        break
       default:
         break
     }
