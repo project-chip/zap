@@ -252,10 +252,13 @@ function zcl_attributes_server(options) {
  * @returns Promise of content.
  */
 function zcl_atomics(options) {
-  return templateUtil
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllAtomics(this.global.db, packageId))
     .then((ats) => templateUtil.collectBlocks(ats, options, this))
+  var syncPromise = templateUtil.makeSynchronizablePromise(promise)
+  this.global.promises.push(syncPromise)
+  return syncPromise
 }
 
 /**

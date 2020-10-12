@@ -23,6 +23,44 @@ const dbEnum = require('../../src-shared/db-enum.js')
  */
 
 /**
+ * All promises used by the templates should be synchronizable.
+ * @param {*} promise
+ */
+function makeSynchronizablePromise(promise) {
+  if (promise.isResolved) return promise
+
+  // Set initial state
+  var isPending = true
+  var isRejected = false
+  var isResolved = false
+
+  // Observe the promise, saving the fulfillment in a closure scope.
+  var synchronizablePromise = promise.then(
+    function (resolutionValue) {
+      isResolved = true
+      isPending = false
+      return resolutionValue
+    },
+    function (rejectionError) {
+      isRejected = true
+      isPending = false
+      throw rejectionError
+    }
+  )
+
+  synchronizablePromise.isResolved = function () {
+    return isResolved
+  }
+  synchronizablePromise.isPending = function () {
+    return isPending
+  }
+  synchronizablePromise.isRejected = function () {
+    return isRejected
+  }
+  return synchronizablePromise
+}
+
+/**
  * Helpful function that collects the individual blocks by using elements of an array as a context,
  * executing promises for each, and collecting them into the outgoing string.
  *
@@ -123,3 +161,4 @@ function ensureTemplatePackageId(context) {
 exports.collectBlocks = collectBlocks
 exports.ensureZclPackageId = ensureZclPackageId
 exports.ensureTemplatePackageId = ensureTemplatePackageId
+exports.makeSynchronizablePromise = makeSynchronizablePromise
