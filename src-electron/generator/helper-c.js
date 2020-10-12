@@ -18,6 +18,7 @@
 const queryZcl = require('../db/query-zcl.js')
 const templateUtil = require('./template-util.js')
 const bin = require('../util/bin.js')
+const { logInfo } = require('../util/env.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -312,7 +313,7 @@ function asCamelCased(label, firstLower = true) {
  * @param {*} label
  */
 function cleanseLabel(label) {
-  var l = label.trim()
+  l = label.trim()
   l = l.replace(' ', '_')
   l = l.replace(' ', '_')
   l = l.replace(/__+/g, '_')
@@ -343,10 +344,10 @@ function asUnderscoreLowercase(str) {
  * @returns a spaced out string in lowercase
  */
 function asSpacedLowercase(str) {
-  var ret = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+  var res = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return ' ' + y
   })
-  return ret.toLowerCase()
+  return res.toLowerCase()
 }
 
 /**
@@ -356,7 +357,7 @@ function asSpacedLowercase(str) {
  * @returns String in uppercase with underscores
  */
 function asUnderscoreUppercase(str) {
-  var label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+  label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return '_' + y
   })
   label = cleanseLabel(label)
@@ -366,7 +367,7 @@ function asUnderscoreUppercase(str) {
   return label.toUpperCase()
 }
 
-function asUCCli(str) {
+function asCliType(str) {
   str = str.trim()
   if (str.toLowerCase().endsWith('u')) {
     str = str.substring(0, str.length - 1)
@@ -383,8 +384,7 @@ function asUCCli(str) {
   } else if (str.toLowerCase().startsWith('enum')) {
     str = str.toLowerCase().replace('enum', 'uint')
   } else {
-    console.log('Something wrong')
-    console.log(str)
+    logInfo('Cli type not found: ' + str)
     return str
   }
   return 'SL_CLI_ARG_' + str.toUpperCase()
@@ -396,7 +396,7 @@ function dataTypeForBitmap(bitmap_name) {
     .then((packageId) =>
       queryZcl.selectBitmapByName(this.global.db, packageId, bitmap_name)
     )
-    .then((bm) => asUCCli(bm.type))
+    .then((bm) => asCliType(bm.type))
 }
 
 function dataTypeForEnum(enum_name) {
@@ -405,7 +405,7 @@ function dataTypeForEnum(enum_name) {
     .then((packageId) =>
       queryZcl.selectEnumByName(this.global.db, enum_name, packageId)
     )
-    .then((e) => asUCCli(e.type))
+    .then((e) => asCliType(e.type))
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -425,6 +425,6 @@ exports.cleanseLabel = cleanseLabel
 exports.asUnderscoreLowercase = asUnderscoreLowercase
 exports.asSpacedLowercase = asSpacedLowercase
 exports.asUnderscoreUppercase = asUnderscoreUppercase
-exports.asUCCli = asUCCli
+exports.asCliType = asCliType
 exports.dataTypeForBitmap = dataTypeForBitmap
 exports.dataTypeForEnum = dataTypeForEnum
