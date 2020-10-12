@@ -132,4 +132,17 @@ Occasionally upgrading your `npm` also makes a difference:
 
 **Q: UI unit test fails with some errors around canvas not build for the right version of node. What do I do?**
 
-**A:** Run: `npm rebuild canvas --update-binary`
+**A:** If you see error like:
+
+```
+ FAIL  test/ui.test.js
+  ● Test suite failed to run
+    The module 'canvas.node'
+    was compiled against a different Node.js version using
+    NODE_MODULE_VERSION 80. This version of Node.js requires
+    NODE_MODULE_VERSION 72. Please try re-compiling or re-installing
+    the module (for instance, using `npm rebuild` or `npm install`).
+      at Object.<anonymous> (node_modules/canvas/lib/bindings.js:3:18)
+```
+
+then run: `npm rebuild canvas --update-binary`
