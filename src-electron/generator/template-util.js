@@ -158,7 +158,25 @@ function ensureTemplatePackageId(context) {
   }
 }
 
+/**
+ * Every helper that returns a promise, should
+ * not return the promise directly. So instead of
+ * returning the promise directly, it should return:
+ *    return templatePromise(this.global, promise)
+ *
+ * This will ensure that after tag works as expected.
+ *
+ * @param {*} global
+ * @param {*} promise
+ */
+function templatePromise(global, promise) {
+  var syncPromise = makeSynchronizablePromise(promise)
+  global.promises.push(syncPromise)
+  return syncPromise
+}
+
 exports.collectBlocks = collectBlocks
 exports.ensureZclPackageId = ensureZclPackageId
 exports.ensureTemplatePackageId = ensureTemplatePackageId
 exports.makeSynchronizablePromise = makeSynchronizablePromise
+exports.templatePromise = templatePromise
