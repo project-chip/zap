@@ -123,7 +123,7 @@ function user_all_attributes(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function all_user_cluster_commands(options) {
-  return queryImpexp
+  var promise = queryImpexp
     .exportendPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
@@ -140,6 +140,8 @@ function all_user_cluster_commands(options) {
     .then((endpointCommands) =>
       templateUtil.collectBlocks(endpointCommands, options, this)
     )
+  return promise
+  //return templateUtil.templatePromise(this.global, promise)
 }
 
 /**

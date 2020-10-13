@@ -27,14 +27,15 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} promise
  */
 function makeSynchronizablePromise(promise) {
+  // If promise is already synchronizable, just return it.
   if (promise.isResolved) return promise
 
-  // Set initial state
+  // Set initial state of flags
   var isPending = true
   var isRejected = false
   var isResolved = false
 
-  // Observe the promise, saving the fulfillment in a closure scope.
+  // Resolve the promise, observing its rejection or resolution.
   var synchronizablePromise = promise.then(
     function (resolutionValue) {
       isResolved = true
@@ -48,6 +49,7 @@ function makeSynchronizablePromise(promise) {
     }
   )
 
+  // Inject check functions.
   synchronizablePromise.isResolved = function () {
     return isResolved
   }
