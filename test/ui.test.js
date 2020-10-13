@@ -62,7 +62,6 @@ import ZclClusterManager from '../src/components/ZclClusterManager.vue'
 import ZclClusterView from '../src/components/ZclClusterView.vue'
 import ZclCommandManager from '../src/components/ZclCommandManager.vue'
 import ZclCreateModifyEndpoint from '../src/components/ZclCreateModifyEndpoint.vue'
-import ZclCustomSetup from '../src/components/ZclCustomSetup.vue'
 import ZclDomainClusterView from '../src/components/ZclDomainClusterView.vue'
 import ZclEndpointCard from '../src/components/ZclEndpointCard.vue'
 import ZclEndpointManager from '../src/components/ZclEndpointManager.vue'
@@ -144,10 +143,6 @@ test('ZclCommandManager', () => {
 test('ZclCreateModifyEndpoint', () => {
   const wrapper = shallowMount(ZclCreateModifyEndpoint, { store: ZapStore() })
   expect(wrapper.html().length).toBeGreaterThan(100)
-})
-test('ZclCustomSetup', () => {
-  const wrapper = shallowMount(ZclCustomSetup, { store: ZapStore() })
-  expect(wrapper.html().length).toBeGreaterThan(50)
 })
 test('ZclDomainClusterView', () => {
   const wrapper = shallowMount(ZclDomainClusterView, { store: ZapStore() })
