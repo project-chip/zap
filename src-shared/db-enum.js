@@ -49,3 +49,11 @@ exports.storageOption = {
   nvm: 'NVM',
   external: 'External',
 }
+
+exports.zclType = {
+  struct: 'struct',
+  enum: 'enum',
+  bitmap: 'bitmap',
+  atomic: 'atomic',
+  unknown: 'unknown',
+}

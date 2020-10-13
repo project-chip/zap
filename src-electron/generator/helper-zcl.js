@@ -19,6 +19,7 @@ const queryZcl = require('../db/query-zcl.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
 const { template } = require('handlebars')
+const helperC = require('./helper-c.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -386,6 +387,29 @@ function isClient(side) {
   return 0 == side.localeCompare('client')
 }
 
+function zcl_command_argument_data_type(typeName, options) {
+  var promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.determineType(this.global.db, typeName, packageId)
+    )
+    .then((type) => {
+      switch (type) {
+        case dbEnum.zclType.bitmap:
+          return helperC.dataTypeForBitmap(typeName)
+        case dbEnum.zclType.enum:
+          return helperC.dataTypeForEnum(typeName)
+        case dbEnum.zclType.struct:
+          return options.hash.struct
+        case dbEnum.zclType.atomic:
+        case dbEnum.zclType.unknown:
+        default:
+          return helperC.asCliType(type)
+      }
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -407,6 +431,7 @@ exports.zcl_global_commands = zcl_global_commands
 exports.zcl_cluster_largest_label_length = zcl_cluster_largest_label_length
 exports.zcl_command_arguments_count = zcl_command_arguments_count
 exports.zcl_command_arguments = zcl_command_arguments
+exports.zcl_command_argument_data_type = zcl_command_argument_data_type
 exports.isEnum = isEnum
 exports.isStruct = isStruct
 exports.isBitmap = isBitmap
