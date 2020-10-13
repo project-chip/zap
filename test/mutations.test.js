@@ -66,14 +66,33 @@ test('addEndpoint', () => {
   let endpoints = { id: 0, endpointId: 1, endpointTypeRef: 'foo' }
   let state = ZapState()
   mutations.addEndpoint(state, endpoints)
-  expect(state.endpointView.endpointType[0]).toEqual(endpoints.endpointTypeRef)
+  expect(state.endpointView.endpointType[0]).toEqual('foo')
 })
 
 test('updateEndpoint', () => {
-  let context = { id: 0, endpointId: 1, endpointIdValidationIssues: 'foo' }
+  let endpoints = { id: 0, endpointId: 1, endpointTypeRef: 'foo' }
   let state = ZapState()
-  mutations.addEndpoint(state, context)
-  expect(state.endpointView.endpointIdValidationIssues[0]).toEqual(
-    context.endpointIdValidationIssues
-  )
+  mutations.addEndpoint(state, endpoints)
+  let context = {
+    id: 0,
+    changes: [{ updatedKey: 'endpointType', value: 'bar' }],
+  }
+  mutations.updateEndpoint(state, context)
+  expect(state.endpointView['endpointType'][0]).toEqual('bar')
+})
+
+test('initializeDefaultEndpointTypes', () => {
+  let endpointTypes = [
+    { id: 0, endpointId: 1, name: 'foo', deviceTypeRef: 'bar' },
+  ]
+  let state = ZapState()
+  mutations.initializeDefaultEndpointsTypes(state, endpointTypes)
+  expect(state.endpointTypeView.name[0]).toEqual(endpointTypes[0].name)
+})
+
+test('addEndpointType', () => {
+  let endpointType = { id: 0, endpointId: 1, name: 'foo' }
+  let state = ZapState()
+  mutations.addEndpointType(state, endpointType)
+  expect(state.endpointTypeView.name[0]).toEqual('foo')
 })
