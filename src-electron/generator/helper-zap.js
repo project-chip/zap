@@ -183,6 +183,91 @@ function iterate(options) {
   return ret
 }
 
+function addToAccumulator(accumulator, value) {
+  if (!('accumulators' in this.global)) {
+    this.global.accumulators = {}
+  }
+  if (!(accumulator in this.global.accumulators)) {
+    this.global.accumulators[accumulator] = {
+      value: [],
+      sum: [],
+      currentSum: 0,
+    }
+  }
+  this.global.accumulators[accumulator].value.push(value)
+  var lastSum = this.global.accumulators[accumulator].currentSum
+  var newSum
+  if (value != null) {
+    newSum = lastSum + value
+  } else {
+    newSum = lastSum
+  }
+  this.global.accumulators[accumulator].sum.push(newSum)
+  this.global.accumulators[accumulator].currentSum = newSum
+}
+
+function iterateAccumulator(options) {
+  var hash = options.hash
+  if (!('accumulators' in this.global)) {
+    return ''
+  }
+  var accumulator = this.global.accumulators[hash.accumulator]
+  var ret = ''
+  if (accumulator != null) {
+    for (var i = 0; i < accumulator.value.length; i++) {
+      var newContext = {
+        global: this.global,
+        parent: this,
+        index: i,
+        count: accumulator.value.length,
+        sum: accumulator.sum[i],
+        value: accumulator.value[i],
+      }
+      ret = ret.concat(options.fn(newContext))
+    }
+  }
+  return ret
+}
+
+function waitForSynchronousPromise(pollInterval, promise, resolve, reject) {
+  if (promise.isResolved()) {
+    resolve()
+  } else if (promise.isRejected()) {
+    reject()
+  } else {
+    setTimeout(
+      () => waitForSynchronousPromise(pollInterval, promise, resolve, reject),
+      pollInterval
+    )
+  }
+}
+
+function promiseToResolveAllPreviousPromises(globalPromises) {
+  if (globalPromises.length == 0) {
+    return Promise.resolve()
+  } else {
+    var promises = []
+    globalPromises.forEach((promise) => {
+      promises.push(
+        new Promise((resolve, reject) => {
+          waitForSynchronousPromise(100, promise, resolve, reject)
+        })
+      )
+    })
+    return Promise.all(promises).then(() => Promise.resolve())
+  }
+}
+
+function after(options) {
+  return promiseToResolveAllPreviousPromises(this.global.promises).then(() => {
+    var newContext = {
+      global: this.global,
+      parent: this,
+    }
+    return options.fn(newContext)
+  })
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -199,3 +284,6 @@ exports.isEqual = isEqual
 exports.trim_string = trim_string
 exports.asLastWord = asLastWord
 exports.iterate = iterate
+exports.addToAccumulator = addToAccumulator
+exports.iterateAccumulator = iterateAccumulator
+exports.after = after

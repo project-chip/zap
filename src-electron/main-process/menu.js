@@ -207,7 +207,12 @@ function doSaveAs(menuItem, browserWindow, event) {
   queryGeneric
     .selectFileLocation(env.mainDatabase(), 'save')
     .then((filePath) => {
-      var opts = {}
+      var opts = {
+        filters: [
+          { name: 'ZAP Config', extensions: ['zap'] },
+          { name: 'All Files', extensions: ['*'] },
+        ],
+      }
       if (filePath != null) {
         opts.defaultPath = filePath
       }

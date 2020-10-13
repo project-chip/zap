@@ -172,6 +172,9 @@ test(
 
         var accumulator = genResult.content['accumulator.out']
         expect(accumulator.includes('Iteration: 19 out of 20')).toBeTruthy()
+        expect(accumulator.includes('Cumulative size: 16 / 206')).toBeTruthy()
+        expect(accumulator.includes('Cumulative size: 8 / 109')).toBeTruthy()
+        expect(accumulator.includes('Cumulative size: 0 / 206')).toBeTruthy()
       }),
   genTimeout
 )

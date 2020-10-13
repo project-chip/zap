@@ -65,10 +65,8 @@ INSERT INTO ENDPOINT (
  * @param {*} sessionId
  */
 function exportEndpoints(db, sessionId, endpointTypes) {
-  var endpointTypeIndex = (endpointTypes, endpointTypeRef) => {
-    return endpointTypes.findIndex(
-      (value) => value.endpointTypeId == endpointTypeRef
-    )
+  var endpointTypeIndex = (epts, endpointTypeRef) => {
+    return epts.findIndex((value) => value.endpointTypeId == endpointTypeRef)
   }
 
   var mapFunction = (x) => {

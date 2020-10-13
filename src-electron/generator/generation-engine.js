@@ -41,10 +41,10 @@ function loadGenTemplate(context) {
       context.data = data
       return context
     })
-    .then((context) => util.calculateCrc(context))
-    .then((context) => {
+    .then((ctx) => util.calculateCrc(ctx))
+    .then((ctx) => {
       context.templateData = JSON.parse(context.data)
-      return context
+      return ctx
     })
 }
 
@@ -122,12 +122,12 @@ function recordTemplatesPackage(context) {
                 }
                 return codeLabelArray
               })
-              .then((codeLabeArray) =>
+              .then((codeLabels) =>
                 queryPackage.insertOptionsKeyValues(
                   context.db,
                   context.packageId,
                   category,
-                  codeLabeArray
+                  codeLabels
                 )
               )
             promises.push(promise)
@@ -190,10 +190,10 @@ function loadTemplates(db, genTemplatesJson) {
       env.logInfo(`Loading generation templates from: ${context.path}`)
       return loadGenTemplate(context)
     })
-    .then((context) => recordTemplatesPackage(context))
-    .then((context) => {
+    .then((ctx) => recordTemplatesPackage(ctx))
+    .then((ctx) => {
       dbApi.dbCommit(db)
-      return context
+      return ctx
     })
     .catch(() => {
       env.logInfo(`Can not read templates from: ${context.path}`)
@@ -217,14 +217,11 @@ function generateAllTemplates(genResult, pkg, generateOnly = null) {
       var helperPromises = []
       packages.forEach((singlePkg) => {
         if (singlePkg.type == dbEnum.packageType.genSingleTemplate) {
-          if (generateOnly == null)
+          if (generateOnly == null || generateOnly == singlePkg.version) {
             generationPromises.push(
               generateSingleTemplate(genResult, singlePkg)
             )
-          else if (generateOnly == singlePkg.version)
-            generationPromises.push(
-              generateSingleTemplate(genResult, singlePkg)
-            )
+          }
         } else if (singlePkg.type == dbEnum.packageType.genHelper) {
           helperPromises.push(templateEngine.loadHelper(singlePkg.path))
         }
@@ -347,11 +344,11 @@ function generateAndWriteFiles(
       promises.push(writeFile(fileName, content, options.backup))
     }
     promises.push(
-      generateGenerationContent(genResult).then((content) => {
+      generateGenerationContent(genResult).then((generatedContent) => {
         if (options.genResultFile) {
           return writeFile(
             path.join(outputDirectory, 'genResult.json'),
-            content,
+            generatedContent,
             options.backup
           )
         } else {

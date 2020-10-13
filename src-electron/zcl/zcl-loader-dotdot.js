@@ -148,7 +148,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
   var ret = []
   var atts =
     attributes.attribute === undefined ? attributes : attributes.attribute
-  for (i = 0; i < atts.length; i++) {
+  for (var i = 0; i < atts.length; i++) {
     let a = atts[i]
     env.logInfo(`Preparing attribute ${side} ${a.$.name}`)
     ret.push({
@@ -181,7 +181,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
 function prepareCommands(commands, side) {
   var ret = []
   var cmds = commands.command === undefined ? commands : commands.command
-  for (i = 0; i < cmds.length; i++) {
+  for (var i = 0; i < cmds.length; i++) {
     let c = cmds[i]
     env.logInfo(`Preparing command ${side} ${c.$.name}`)
     var pcmd = {
@@ -195,8 +195,8 @@ function prepareCommands(commands, side) {
     if ('fields' in c) {
       pcmd.args = []
       c.fields.forEach((fields) => {
-        fds = fields.field === undefined ? fields : fields.field
-        for (j = 0; j < fds.length; j++) {
+        var fds = fields.field === undefined ? fields : fields.field
+        for (var j = 0; j < fds.length; j++) {
           let f = fds[j]
           env.logInfo(`Preparing field ${f.$.name}`)
           pcmd.args.push({
