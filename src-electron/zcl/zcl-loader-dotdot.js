@@ -545,6 +545,10 @@ function loadDotdotZcl(db, ctx) {
     .then(() => zclLoader.processZclPostLoading(db))
     .then(() => dbApi.dbCommit(db))
     .then(() => ctx)
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
 }
 
 exports.loadDotdotZcl = loadDotdotZcl
