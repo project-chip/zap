@@ -80,8 +80,6 @@ limitations under the License.
 import ZclAttributeManager from './ZclAttributeManager.vue'
 import ZclAttributeReportingManager from './ZclAttributeReportingManager.vue'
 import ZclCommandManager from './ZclCommandManager.vue'
-import ZclClusterInfo from './ZclClusterInfo.vue'
-import ZclReportingView from './ZclReportingView.vue'
 import * as Util from '../util/util'
 
 export default {
