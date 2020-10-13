@@ -396,7 +396,13 @@ function dataTypeForBitmap(bitmap_name) {
     .then((packageId) =>
       queryZcl.selectBitmapByName(this.global.db, packageId, bitmap_name)
     )
-    .then((bm) => asCliType(bm.type))
+    .then((bm) => {
+      if (bm == null) {
+        return `!!Invalid bitmap: ${bitmap_name}`
+      } else {
+        return asCliType(bm.type)
+      }
+    })
 }
 
 function dataTypeForEnum(enum_name) {
@@ -405,7 +411,13 @@ function dataTypeForEnum(enum_name) {
     .then((packageId) =>
       queryZcl.selectEnumByName(this.global.db, enum_name, packageId)
     )
-    .then((e) => asCliType(e.type))
+    .then((e) => {
+      if (e == null) {
+        return `!!Invalid enum: ${enum_name}`
+      } else {
+        return asCliType(e.type)
+      }
+    })
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
