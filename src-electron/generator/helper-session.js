@@ -32,11 +32,12 @@ const queryZcl = require('../db/query-zcl.js')
  * @param {*} options
  */
 function user_endpoint_types(options) {
-  return queryImpexp
+  var promise = queryImpexp
     .exportEndpointTypes(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       templateUtil.collectBlocks(endpointTypes, options, this)
     )
+  return templateUtil.templatePromise(this.global, promise)
 }
 /**
  * Creates cluster iterator over the endpoint types.
@@ -45,11 +46,12 @@ function user_endpoint_types(options) {
  * @param {*} options
  */
 function user_clusters(options) {
-  return queryImpexp
+  var promise = queryImpexp
     .exportClustersFromEndpointType(this.global.db, this.endpointTypeId)
     .then((endpointClusters) =>
       templateUtil.collectBlocks(endpointClusters, options, this)
     )
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -60,7 +62,7 @@ function user_clusters(options) {
  * @returns Promise of the resolved blocks iterating over cluster attributes.
  */
 function user_cluster_attributes(options) {
-  return queryImpexp
+  var promise = queryImpexp
     .exportAttributesFromEndpointTypeCluster(
       this.global.db,
       this.parent.endpointTypeId,
@@ -69,6 +71,7 @@ function user_cluster_attributes(options) {
     .then((endpointAttributes) =>
       templateUtil.collectBlocks(endpointAttributes, options, this)
     )
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -79,7 +82,7 @@ function user_cluster_attributes(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function user_cluster_commands(options) {
-  return queryImpexp
+  var promise = queryImpexp
     .exportCommandsFromEndpointTypeCluster(
       this.global.db,
       this.parent.endpointTypeId,
@@ -88,10 +91,15 @@ function user_cluster_commands(options) {
     .then((endpointAttributes) =>
       templateUtil.collectBlocks(endpointAttributes, options, this)
     )
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 function user_endpoint_type_count() {
-  return queryConfig.getEndpointTypeCount(this.global.db, this.global.sessionId)
+  var promise = queryConfig.getEndpointTypeCount(
+    this.global.db,
+    this.global.sessionId
+  )
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -101,9 +109,10 @@ function user_endpoint_type_count() {
  * @return Promise of the resolved blocks iterating over cluster commands.
  */
 function user_all_attributes(options) {
-  return queryConfig
+  var promise = queryConfig
     .getAllSessionAttributes(this.global.db, this.global.sessionId)
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
