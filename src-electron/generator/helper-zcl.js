@@ -387,6 +387,12 @@ function isClient(side) {
   return 0 == side.localeCompare('client')
 }
 
+/**
+ * Helper that deals with the type of the argument.
+ *
+ * @param {*} typeName
+ * @param {*} options
+ */
 function zcl_command_argument_data_type(typeName, options) {
   var promise = templateUtil
     .ensureZclPackageId(this)
