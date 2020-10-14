@@ -257,8 +257,8 @@ export function setAttributeLists(state, data) {
 }
 
 export function setCommandLists(state, data) {
-  state.commandView.selectedIn = data.incoming
-  state.commandView.selectedOut = data.outgoing
+  Vue.set(state.commandView, 'selectedIn', data.incoming)
+  Vue.set(state.commandView, 'selectedOut', data.outgoing)
 }
 
 export function setRecommendedClusterList(state, data) {

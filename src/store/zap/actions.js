@@ -269,6 +269,19 @@ export function updateEndpoint(context, endpoint) {
   })
 }
 
+export function refreshEndpointTypeCluster(context, endpointType) {
+  Vue.prototype
+    .$serverGet(`/zcl/endpointTypeAttributes/${endpointType}`)
+    .then((data) => {
+      setAttributeStateLists(context, data.data.data || [])
+    })
+  Vue.prototype
+    .$serverGet(`/zcl/endpointTypeCommands/${endpointType}`)
+    .then((data) => {
+      setCommandStateLists(context, data.data.data || [])
+    })
+}
+
 export function updateSelectedEndpointType(
   context,
   endpointTypeDeviceTypeRefPair

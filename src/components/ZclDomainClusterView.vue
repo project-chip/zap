@@ -151,6 +151,12 @@ export default {
             view: 'clustersView',
           })
         )
+        .then(() =>
+          this.$store.dispatch(
+            'zap/refreshEndpointTypeCluster',
+            this.selectedEndpointTypeId
+          )
+        )
     },
     selectCluster(cluster) {
       this.$store.dispatch('zap/updateSelectedCluster', cluster)

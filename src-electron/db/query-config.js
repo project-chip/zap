@@ -150,6 +150,50 @@ DO UPDATE SET ENABLED = ?`,
 }
 
 /**
+ * Promise to get a cluster's state.
+ * This mnust return undefined/null for if the cluster state has not been used before for the endpointType
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} clusterRef
+ * @param {*} side
+ */
+function getClusterState(db, endpointTypeId, clusterRef, side) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+    SELECT 
+      ENDPOINT_TYPE_CLUSTER_ID, 
+      ENDPOINT_TYPE_REF, 
+      CLUSTER_REF, 
+      SIDE, 
+      ENABLED
+    FROM ENDPOINT_TYPE_CLUSTER 
+    WHERE 
+      ENDPOINT_TYPE_REF = ? AND
+      CLUSTER_REF = ? AND
+      SIDE = ?
+    `,
+      [endpointTypeId, clusterRef, side]
+    )
+    .then(dbMapping.map.endpointTypeCluster)
+}
+
+/**
+ * Promise that resolves after inserting the defaults associated with the clusterside to the database.
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} clusterRef
+ * @param {*} side
+ */
+function insertClusterDefaults(db, endpointTypeId, cluster) {
+  var promises = []
+  promises.push(resolveDefaultAttributes(db, endpointTypeId, [cluster]))
+  promises.push(resolveNonOptionalCommands(db, endpointTypeId, [cluster]))
+  return Promise.all(promises)
+}
+
+/**
  * Promise to update the attribute state.
  * If the attribute entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
  * Afterwards, update entry.
@@ -1094,6 +1138,7 @@ exports.insertKeyValue = insertKeyValue
 exports.getSessionKeyValue = getSessionKeyValue
 exports.getAllSessionKeyValues = getAllSessionKeyValues
 exports.insertOrReplaceClusterState = insertOrReplaceClusterState
+exports.getClusterState = getClusterState
 exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState
 exports.insertOrUpdateCommandState = insertOrUpdateCommandState
 exports.getAllEndpointTypeClusterState = getAllEndpointTypeClusterState
@@ -1115,3 +1160,4 @@ exports.getAllEndpoints = getAllEndpoints
 exports.getCountOfEndpointsWithGivenEndpointIdentifier = getCountOfEndpointsWithGivenEndpointIdentifier
 exports.getEndpointTypeCount = getEndpointTypeCount
 exports.getAllSessionAttributes = getAllSessionAttributes
+exports.insertClusterDefaults = insertClusterDefaults
