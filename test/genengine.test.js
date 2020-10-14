@@ -32,7 +32,7 @@ const helperZap = require('../src-electron/generator/helper-zap.js')
 const importJs = require('../src-electron/importexport/import.js')
 
 var db
-const templateCount = 10
+const templateCount = 11
 var genTimeout = 3000
 var testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 
@@ -176,6 +176,9 @@ test(
         expect(accumulator.includes('Cumulative size: 16 / 206')).toBeTruthy()
         expect(accumulator.includes('Cumulative size: 8 / 109')).toBeTruthy()
         expect(accumulator.includes('Cumulative size: 0 / 206')).toBeTruthy()
+
+        var atomics = genResult.content['atomics.out']
+        expect(atomics.includes('C type: bacnet_type_t')).toBeTruthy()
       }),
   genTimeout
 )

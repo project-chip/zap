@@ -66,6 +66,11 @@
       "path": "zap-print.zapt",
       "name": "ZCL human readable strings",
       "output": "zap-print.h"
+    },
+    {
+      "path": "atomics.zapt",
+      "name": "ZCL Atomics",
+      "output": "atomics.out"
     }
   ]
 }
