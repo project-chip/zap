@@ -452,4 +452,3 @@ exports.asUnderscoreUppercase = asUnderscoreUppercase
 exports.asCliType = asCliType
 exports.dataTypeForBitmap = dataTypeForBitmap
 exports.dataTypeForEnum = dataTypeForEnum
-exports.atomicType = atomicType
