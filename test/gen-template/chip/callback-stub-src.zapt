@@ -94,19 +94,19 @@ bool emberAfAttributeWriteAccessCallback(uint8_t endpoint, EmberAfClusterId clus
 */
 
 {{#if (zcl_command_arguments_count this.id)}}
-__weak bool emberAf{{asCamelCased parent.name false}}Cluster{{asCamelCased name false}}Callback({{#zcl_command_arguments}} {{asUnderlyingType type}} {{asSymbol label}}{{#unless (isLastElement index count)}}, {{/unless}}{{/zcl_command_arguments}})
+bool __attribute__((weak))  emberAf{{asCamelCased parent.name false}}Cluster{{asCamelCased name false}}Callback({{#zcl_command_arguments}} {{asUnderlyingType type}} {{asSymbol label}}{{#unless (isLastElement index count)}}, {{/unless}}{{/zcl_command_arguments}})
 {
     // To prevent warning
     {{#zcl_command_arguments}}
-    {{asSymbol label}};
+    (void) {{asSymbol label}};
     {{/zcl_command_arguments}}
 
-    return true;
+    return false;
 }
 {{else}}
-__weak bool emberAf{{asCamelCased parent.name false}}Cluster{{asCamelCased name false}}Callback(void)
+bool __attribute__((weak))  emberAf{{asCamelCased parent.name false}}Cluster{{asCamelCased name false}}Callback(void)
 {
-    return true;
+    return false;
 }
 {{/if}}
 

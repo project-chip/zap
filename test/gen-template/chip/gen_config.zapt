@@ -1,2 +1,5 @@
 {{chip_header}}
 {{silabs_header}}
+
+// User options for plugin Binding Table Library
+#define EMBER_BINDING_TABLE_SIZE 10
