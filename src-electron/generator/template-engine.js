@@ -64,6 +64,7 @@ function produceContent(
         sessionId: sessionId,
         promises: [],
         genTemplatePackageId: genTemplateJsonPackageId,
+        overridable: require('./overridable.js'),
       },
     })
   )

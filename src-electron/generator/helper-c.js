@@ -20,7 +20,6 @@ const queryPackage = require('../db/query-package.js')
 const templateUtil = require('./template-util.js')
 const bin = require('../util/bin.js')
 const env = require('../util/env.js')
-const overridable = require('./overridable.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -158,7 +157,10 @@ function asUnderlyingType(value) {
           )
           .then((opt) => {
             if (opt == null)
-              return overridable.atomicType(atomic.name, atomic.size)
+              return this.global.overridable.atomicType(
+                atomic.name,
+                atomic.size
+              )
             else return opt.optionLabel
           })
       }
