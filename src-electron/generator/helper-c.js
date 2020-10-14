@@ -19,7 +19,8 @@ const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 const templateUtil = require('./template-util.js')
 const bin = require('../util/bin.js')
-const { logInfo } = require('../util/env.js')
+const env = require('../util/env.js')
+const overridable = require('./overridable.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -114,58 +115,6 @@ function asHex(rawValue, padding) {
   }
 }
 
-function cleanseUints(uint) {
-  if (uint == 'uint24_t') return 'uint32_t'
-  if (uint == 'uint48_t') return 'uint8_t *'
-  return uint
-}
-
-/**
- * Returns the default atomic C type for a given atomic from
- * the database. These values are used unless there is an
- * override in template package json file. (Not yet fully
- * implemented, but the plan is for template pkg to be able
- * to override these.)
- *
- * @param {*} name The name of the atomic.
- * @param {*} size Size of the atomic, if present. If type is of variable size, then this may be null.
- */
-function atomicType(name, size) {
-  if (name.startsWith('int')) {
-    var signed
-    if (name.endsWith('s')) signed = true
-    else signed = false
-
-    var ret = `${signed ? '' : 'u'}int${size * 8}_t`
-
-    // few exceptions
-    ret = cleanseUints(ret)
-    return ret
-  } else if (name.startsWith('enum') || name.startsWith('data')) {
-    return cleanseUints(`uint${name.slice(4)}_t`)
-  } else if (name.startsWith('bitmap')) {
-    return cleanseUints(`uint${name.slice(6)}_t`)
-  } else {
-    switch (name) {
-      case 'utc_time':
-      case 'date':
-        return 'uint32_t'
-      case 'attribute_id':
-      case 'cluster_id':
-        return 'uint16_t'
-      case 'no_data':
-      case 'octet_string':
-      case 'char_string':
-      case 'ieee_address':
-        return 'uint8_t *'
-      case 'boolean':
-        return 'uint8_t'
-      default:
-        return `/* TYPE WARNING: ${name} defaults to */ uint8_t * `
-    }
-  }
-}
-
 /**
  * Converts the actual zcl type into an underlying usable C type.
  * @param {*} value
@@ -208,7 +157,8 @@ function asUnderlyingType(value) {
             atomic.name
           )
           .then((opt) => {
-            if (opt == null) return atomicType(atomic.name, atomic.size)
+            if (opt == null)
+              return overridable.atomicType(atomic.name, atomic.size)
             else return opt.optionLabel
           })
       }
@@ -396,7 +346,7 @@ function asCliType(str) {
   } else if (str.toLowerCase().startsWith('enum')) {
     str = str.toLowerCase().replace('enum', 'uint')
   } else {
-    logInfo('Cli type not found: ' + str)
+    env.logInfo('Cli type not found: ' + str)
     return str
   }
   return 'SL_CLI_ARG_' + str.toUpperCase()
