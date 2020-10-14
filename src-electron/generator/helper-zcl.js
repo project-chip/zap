@@ -20,6 +20,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
 const { template } = require('handlebars')
 const helperC = require('./helper-c.js')
+const env = require('../util/env.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -342,78 +343,108 @@ function zcl_command_arguments(options) {
 }
 
 /**
- * Helper that checks if an enum by this name exists
- *
- * @param {*} options
- * @returns Promise of content.
- */
-function isEnum(enum_name) {
-  var promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryZcl.selectEnumByName(this.global.db, enum_name, packageId)
-    )
-    .then((enums) => (enums ? 1 : 0))
-  return templateUtil.templatePromise(this.global, promise)
-}
-
-/**
- * Helper that checks if an enum by this name exists
- *
- * @param {*} options
- * @returns Promise of content.
- */
-function isStruct(struct_name) {
-  var promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryZcl.selectStructByName(this.global.db, struct_name, packageId)
-    )
-    .then((st) => (st ? 1 : 0))
-  return templateUtil.templatePromise(this.global, promise)
-}
-
-function isBitmap(bitmap_name) {
-  var promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryZcl.selectBitmapByName(this.global.db, packageId, bitmap_name)
-    )
-    .then((st) => (st ? 1 : 0))
-  return templateUtil.templatePromise(this.global, promise)
-}
-
-function isClient(side) {
-  return 0 == side.localeCompare('client')
-}
-
-/**
  * Helper that deals with the type of the argument.
  *
  * @param {*} typeName
  * @param {*} options
  */
-function zcl_command_argument_data_type(typeName, options) {
+function zcl_command_argument_data_type(type, options) {
   var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
-      queryZcl.determineType(this.global.db, typeName, packageId)
+      Promise.all([
+        isEnum(this.global.db, type, packageId),
+        isStruct(this.global.db, type, packageId),
+        isBitmap(this.global.db, type, packageId),
+      ])
+        .then(
+          (res) =>
+            new Promise((resolve, reject) => {
+              for (i = 0; i < res.length; i++) {
+                if (res[i] != 'unknown') {
+                  resolve(res[i])
+                  return
+                }
+              }
+              resolve(dbEnum.zclType.unknown)
+            })
+        )
+        .then((resType) => {
+          switch (resType) {
+            case dbEnum.zclType.bitmap:
+              return helperC.dataTypeForBitmap(type)
+            case dbEnum.zclType.enum:
+              return helperC.dataTypeForEnum(type)
+            case dbEnum.zclType.struct:
+              return options.hash.struct
+            case dbEnum.zclType.atomic:
+            case dbEnum.zclType.unknown:
+            default:
+              return helperC.asCliType(type)
+          }
+        })
+        .catch((err) => {
+          env.logError(err)
+          throw err
+        })
     )
-    .then((type) => {
-      switch (type) {
-        case dbEnum.zclType.bitmap:
-          return helperC.dataTypeForBitmap(typeName)
-        case dbEnum.zclType.enum:
-          return helperC.dataTypeForEnum(typeName)
-        case dbEnum.zclType.struct:
-          return options.hash.struct
-        case dbEnum.zclType.atomic:
-        case dbEnum.zclType.unknown:
-        default:
-          return helperC.asCliType(type)
-      }
+    .catch((err) => {
+      env.logError(err)
+      throw err
     })
   return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Local function that checks if an enum by the name exists
+ *
+ * @param {*} db
+ * @param {*} enum_name
+ * @param {*} packageId
+ * @returns Promise of content.
+ */
+function isEnum(db, enum_name, packageId) {
+  return queryZcl
+    .selectEnumByName(db, enum_name, packageId)
+    .then((enums) => (enums ? dbEnum.zclType.enum : dbEnum.zclType.unknown))
+}
+
+/**
+ * Local function that checks if an enum by the name exists
+ *
+ * @param {*} db
+ * @param {*} struct_name
+ * @param {*} packageId
+ * @returns Promise of content.
+ */
+function isStruct(db, struct_name, packageId) {
+  return queryZcl
+    .selectStructByName(db, struct_name, packageId)
+    .then((st) => (st ? dbEnum.zclType.struct : dbEnum.zclType.unknown))
+}
+
+/**
+ * Local function that checks if a bitmap by the name exists
+ *
+ * @param {*} db
+ * @param {*} bitmap_name
+ * @param {*} packageId
+ * @returns Promise of content.
+ */
+function isBitmap(db, bitmap_name, packageId) {
+  return queryZcl
+    .selectBitmapByName(db, packageId, bitmap_name)
+    .then((st) => (st ? dbEnum.zclType.bitmap : dbEnum.zclType.unknown))
+}
+
+/**
+ * Checks if the side is client or not
+ *
+ * @param {*} side
+ * @returns boolean
+ */
+function isClient(side) {
+  return 0 == side.localeCompare('client')
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -438,7 +469,4 @@ exports.zcl_cluster_largest_label_length = zcl_cluster_largest_label_length
 exports.zcl_command_arguments_count = zcl_command_arguments_count
 exports.zcl_command_arguments = zcl_command_arguments
 exports.zcl_command_argument_data_type = zcl_command_argument_data_type
-exports.isEnum = isEnum
-exports.isStruct = isStruct
-exports.isBitmap = isBitmap
 exports.isClient = isClient
