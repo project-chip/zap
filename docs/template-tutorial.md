@@ -85,6 +85,17 @@ This content is output ONLY if there are no clusters at all.
 
 ```
 
+## Global context
+
+Whichever helpers get executed they all contain `global` inside their context that will always contain:
+
+- `db`: connection to the database being used
+- `sessionId`: session id for the user data being used
+- `genTemplatePackageId`: toplevel package id for gen-template.json file, used for querying options and other
+- `zclPackageId`: populated after you call `templateUtil.ensureZclPackageId()` the first time, used for querying the ZCL static data.
+
+Whenever a context switches, the switch will preserve this `global` object inside the context for helpers to access.
+
 ## Helper API
 
 Helper API is listed in the generated JSDoc documentation under "Template API modules". There are many helpers that can be used for all kind of different cases of ZCL generation.

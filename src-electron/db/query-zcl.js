@@ -1473,7 +1473,7 @@ function selectAtomicType(db, packageId, typeName) {
     .dbGet(
       db,
       'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
-      [packageId, typeName.toLowerCase()]
+      [packageId, typeName == null ? typeName : typeName.toLowerCase()]
     )
     .then(dbMapping.map.atomic)
 }

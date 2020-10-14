@@ -31,14 +31,14 @@ const templateCompileOptions = {
 
 const precompiledTemplates = {}
 
-function produceCompiledTemplate(singlePkg) {
+function produceCompiledTemplate(singleTemplatePkg) {
   initializeGlobalHelpers()
-  if (singlePkg.id in precompiledTemplates)
-    return Promise.resolve(precompiledTemplates[singlePkg.id])
+  if (singleTemplatePkg.id in precompiledTemplates)
+    return Promise.resolve(precompiledTemplates[singleTemplatePkg.id])
   else
-    return fsPromise.readFile(singlePkg.path, 'utf8').then((data) => {
+    return fsPromise.readFile(singleTemplatePkg.path, 'utf8').then((data) => {
       var template = handlebars.compile(data, templateCompileOptions)
-      precompiledTemplates[singlePkg.id] = template
+      precompiledTemplates[singleTemplatePkg.id] = template
       return template
     })
 }
@@ -51,13 +51,19 @@ function produceCompiledTemplate(singlePkg) {
  * @param {*} singlePkg
  * @returns Promise that resolves with the 'utf8' string that contains the generated content.
  */
-function produceContent(db, sessionId, singlePkg) {
-  return produceCompiledTemplate(singlePkg).then((template) =>
+function produceContent(
+  db,
+  sessionId,
+  singleTemplatePkg,
+  genTemplateJsonPackageId
+) {
+  return produceCompiledTemplate(singleTemplatePkg).then((template) =>
     template({
       global: {
         db: db,
         sessionId: sessionId,
         promises: [],
+        genTemplatePackageId: genTemplateJsonPackageId,
       },
     })
   )

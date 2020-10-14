@@ -115,6 +115,7 @@ test(
         expect(genResult.content).not.toBeNull()
         var simpleTest = genResult.content['simple-test.out']
         expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
+        expect(simpleTest.includes('Strange type: bacnet_type_t')).toBeTruthy()
       }),
   genTimeout
 )

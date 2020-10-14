@@ -71,9 +71,10 @@ The following sections describe the details specific for use in certain more com
 Options are loaded into the database, keyed to the given generation package. While you can always use them in templates via the `template_options` key, certain keys have special meanings.
 The following is the list of special meanings:
 
-| Category          | Meaning                                                                                                                |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| manufacturerCodes | This category backs a code/label map of valid manufacturer codes. They can be used in UI when selecting manufacturers. |
+| Category          | Meaning                                                                                                                                                                                                     |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| manufacturerCodes | This category backs a code/label map of valid manufacturer codes. They can be used in UI when selecting manufacturers.                                                                                      |
+| types             | This category backs a code/label map of type mappings. For a code, you can use any of the atomic or other ZCL types, and label is an override for a generator, detemining what type it shuld translate into |
 
 ## Template key: zcl
 

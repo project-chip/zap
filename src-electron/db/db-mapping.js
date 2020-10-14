@@ -30,6 +30,7 @@ exports.map = {
       crc: x.CRC,
       type: x.TYPE,
       version: x.VERSION,
+      parentId: x.PARENT_PACKAGE_REF,
     }
   },
   options: (x) => {

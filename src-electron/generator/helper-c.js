@@ -16,6 +16,7 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const queryPackage = require('../db/query-package.js')
 const templateUtil = require('./template-util.js')
 const bin = require('../util/bin.js')
 const { logInfo } = require('../util/env.js')
@@ -196,9 +197,19 @@ function asUnderlyingType(value) {
     })
     .then((atomic) => {
       if (atomic == null) {
-        return `EmberAf${value}`
+        return `/* TYPE WARNING: not a valid atomic type: ${value} */ ${value}`
       } else {
-        return defaultAtomicType(atomic)
+        return queryPackage
+          .selectSpecificOptionValue(
+            this.global.db,
+            this.global.genTemplatePackageId,
+            'types',
+            atomic.name
+          )
+          .then((opt) => {
+            if (opt == null) return defaultAtomicType(atomic)
+            else return opt.optionLabel
+          })
       }
     })
 }

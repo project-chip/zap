@@ -10,7 +10,10 @@
       "code5": "label5"
     },
     "externalOption": "externalOptions.json",
-    "cli": "cli.json"
+    "cli": "cli.json",
+    "types": {
+      "bacnet_oid": "bacnet_type_t"
+    }
   },
   "helpers": ["addon-helper.js"],
   "templates": [
