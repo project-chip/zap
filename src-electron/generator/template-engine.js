@@ -64,12 +64,26 @@ function produceContent(
         sessionId: sessionId,
         promises: [],
         genTemplatePackageId: genTemplateJsonPackageId,
-        overridable: require('./overridable.js'),
+        overridable: loadOverridable(genTemplateJsonPackageId),
       },
     })
   )
 }
 
+/**
+ * This function is responsible to load the overridable function container.
+ *
+ * @param {*} genTemplatePackageId
+ */
+function loadOverridable(genTemplatePackageId) {
+  return require('./overridable.js')
+}
+
+/**
+ * Function that loads the helpers.
+ *
+ * @param {*} path
+ */
 function loadHelper(path) {
   var helpers = require(path)
   for (const singleHelper in helpers) {
@@ -77,6 +91,9 @@ function loadHelper(path) {
   }
 }
 
+/**
+ * Global helper initialization
+ */
 function initializeGlobalHelpers() {
   if (globalHelpersInitialized) return
 
