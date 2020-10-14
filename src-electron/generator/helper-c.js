@@ -127,25 +127,26 @@ function cleanseUints(uint) {
  * implemented, but the plan is for template pkg to be able
  * to override these.)
  *
- * @param {*} atomic
+ * @param {*} name The name of the atomic.
+ * @param {*} size Size of the atomic, if present. If type is of variable size, then this may be null.
  */
-function defaultAtomicType(atomic) {
-  if (atomic.name.startsWith('int')) {
+function atomicType(name, size) {
+  if (name.startsWith('int')) {
     var signed
-    if (atomic.name.endsWith('s')) signed = true
+    if (name.endsWith('s')) signed = true
     else signed = false
 
-    var ret = `${signed ? '' : 'u'}int${atomic.size * 8}_t`
+    var ret = `${signed ? '' : 'u'}int${size * 8}_t`
 
     // few exceptions
     ret = cleanseUints(ret)
     return ret
-  } else if (atomic.name.startsWith('enum') || atomic.name.startsWith('data')) {
-    return cleanseUints(`uint${atomic.name.slice(4)}_t`)
-  } else if (atomic.name.startsWith('bitmap')) {
-    return cleanseUints(`uint${atomic.name.slice(6)}_t`)
+  } else if (name.startsWith('enum') || name.startsWith('data')) {
+    return cleanseUints(`uint${name.slice(4)}_t`)
+  } else if (name.startsWith('bitmap')) {
+    return cleanseUints(`uint${name.slice(6)}_t`)
   } else {
-    switch (atomic.name) {
+    switch (name) {
       case 'utc_time':
       case 'date':
         return 'uint32_t'
@@ -160,7 +161,7 @@ function defaultAtomicType(atomic) {
       case 'boolean':
         return 'uint8_t'
       default:
-        return `/* TYPE WARNING: ${atomic.name} defaults to */ uint8_t * `
+        return `/* TYPE WARNING: ${name} defaults to */ uint8_t * `
     }
   }
 }
@@ -207,7 +208,7 @@ function asUnderlyingType(value) {
             atomic.name
           )
           .then((opt) => {
-            if (opt == null) return defaultAtomicType(atomic)
+            if (opt == null) return atomicType(atomic.name, atomic.size)
             else return opt.optionLabel
           })
       }
@@ -451,3 +452,4 @@ exports.asUnderscoreUppercase = asUnderscoreUppercase
 exports.asCliType = asCliType
 exports.dataTypeForBitmap = dataTypeForBitmap
 exports.dataTypeForEnum = dataTypeForEnum
+exports.atomicType = atomicType
