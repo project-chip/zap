@@ -352,34 +352,38 @@ function asCliType(str) {
   return 'SL_CLI_ARG_' + str.toUpperCase()
 }
 
-function dataTypeForBitmap(bitmap_name) {
-  return templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryZcl.selectBitmapByName(this.global.db, packageId, bitmap_name)
-    )
-    .then((bm) => {
-      if (bm == null) {
-        return `!!Invalid bitmap: ${bitmap_name}`
-      } else {
-        return asCliType(bm.type)
-      }
-    })
+/**
+ * Returns the type of bitmap
+ *
+ * @param {*} db
+ * @param {*} bitmap_name
+ * @param {*} packageId
+ */
+function dataTypeForBitmap(db, bitmap_name, packageId) {
+  return queryZcl.selectBitmapByName(db, packageId, bitmap_name).then((bm) => {
+    if (bm == null) {
+      return `!!Invalid bitmap: ${bitmap_name}`
+    } else {
+      return asCliType(bm.type)
+    }
+  })
 }
 
-function dataTypeForEnum(enum_name) {
-  return templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryZcl.selectEnumByName(this.global.db, enum_name, packageId)
-    )
-    .then((e) => {
-      if (e == null) {
-        return `!!Invalid enum: ${enum_name}`
-      } else {
-        return asCliType(e.type)
-      }
-    })
+/**
+ * Returns the type of enum
+ *
+ * @param {*} db
+ * @param {*} enum_name
+ * @param {*} packageId
+ */
+function dataTypeForEnum(db, enum_name, packageId) {
+  return queryZcl.selectEnumByName(db, enum_name, packageId).then((e) => {
+    if (e == null) {
+      return `!!Invalid enum: ${enum_name}`
+    } else {
+      return asCliType(e.type)
+    }
+  })
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!

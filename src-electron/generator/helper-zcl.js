@@ -372,9 +372,9 @@ function zcl_command_argument_data_type(type, options) {
         .then((resType) => {
           switch (resType) {
             case dbEnum.zclType.bitmap:
-              return helperC.dataTypeForBitmap(type)
+              return helperC.dataTypeForBitmap(this.global.db, type, packageId)
             case dbEnum.zclType.enum:
-              return helperC.dataTypeForEnum(type)
+              return helperC.dataTypeForEnum(this.global.db, type, packageId)
             case dbEnum.zclType.struct:
               return options.hash.struct
             case dbEnum.zclType.atomic:
