@@ -184,7 +184,8 @@ function prepareAttributes(attributes, side, types, cluster = null) {
       isWritable: a.$.writable == 'true',
       defaultValue: normalizeHexValue(a.$.default),
       isOptional: !(a.$.required == 'true'),
-      //isReportable: 'true', // TODO: reportability not listed in dotdot xml
+      isReportable:
+        a.$.reportRequired === undefined ? 'false' : a.$.reportRequired,
     })
     // TODO: Attributes have types and they may not be unique so we prepend the cluster name
     prepareAttributeType(a, types, cluster)
@@ -413,8 +414,12 @@ function prepareTypes(zclTypes, types) {
       'type:sequence' in type.restriction[0]
     ) {
       types.structs.push(prepareStruct(type))
-    } else {
+    } else if (type.$.inheritsFrom === undefined) {
       types.atomics.push(prepareAtomic(type))
+    } else {
+      // TODO: Need to handle sub-atomic types, these are types that impose restrictions
+      //       and inherit from an atomic type but are not a struct, bitmap or enum
+      env.logInfo(`*** WARNING *** DROPPING TYPE: ${type.$.name}`)
     }
   })
 }
