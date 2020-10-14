@@ -85,7 +85,7 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     .then(() => queryZcl.selectAllStructs(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(20)) //seems low
     .then(() => queryZcl.selectAllAtomics(db, dotdotPackageId))
-    .then((x) => expect(x.length).toEqual(69)) //seems low
+    .then((x) => expect(x.length).toEqual(56)) //This is the correct number of atomics from the ZCL8 ch. 2.6
     .then(() =>
       dbApi.dbAll(
         db,
