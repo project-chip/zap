@@ -112,8 +112,10 @@ function processCommandLineArguments(argv) {
       type: 'string',
     })
     .usage('Usage: $0 <command> [options]')
-    .help('h')
-    .alias('h', 'help')
+    .help()
+    .alias({
+      help: ['h', '?'],
+    })
     .epilogue('For more information, see https://github.com/project-chip/zap')
     .wrap(null)
     .parse(argv)

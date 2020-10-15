@@ -22,15 +22,8 @@ const args = require('../util/args.js')
 const env = require('../util/env.js')
 const windowJs = require('./window.js')
 const startup = require('./startup.js')
-const argv = require('yargs').argv
 
 env.versionsCheck()
-
-if (argv.logToStdout) {
-  env.logInitStdout()
-} else {
-  env.logInitLogFile()
-}
 
 if (process.env.DEV) {
   env.setDevelopmentEnv()
@@ -43,6 +36,12 @@ if (app != null) {
   app.whenReady().then(() => {
     try {
       var argv = args.processCommandLineArguments(process.argv)
+
+      if (argv.logToStdout) {
+        env.logInitStdout()
+      } else {
+        env.logInitLogFile()
+      }
 
       // For now delete the DB file. There is some weird constraint we run into.
       if (argv.clearDb != null) {
