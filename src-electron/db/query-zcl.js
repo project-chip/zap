@@ -265,13 +265,12 @@ function selectAllDeviceTypes(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.deviceType))
 }
 
-function selectDeviceTypeById(db, id, packageId = null) {
+function selectDeviceTypeById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ? ' +
-        (packageId != null ? 'AND PACKAGE_REF = ? ' : ''),
-      packageId != null ? [id, packageId] : [id]
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ? AND PACKAGE_REF = ? ',
+      [id, packageId]
     )
     .then(dbMapping.map.deviceType)
 }
