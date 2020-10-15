@@ -850,6 +850,10 @@ function loadSilabsZcl(db, ctx, isJson = false) {
     .then((ctx) => parseDefaults(db, ctx))
     .then(() => dbApi.dbCommit(db))
     .then(() => ctx)
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
 }
 
 exports.loadSilabsZcl = loadSilabsZcl

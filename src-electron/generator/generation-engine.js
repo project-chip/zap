@@ -166,6 +166,24 @@ function recordTemplatesPackage(context) {
         })
       }
 
+      // Deal with overrides
+      if (context.templateData.override != null) {
+        var overridePath = path.join(
+          path.dirname(context.path),
+          context.templateData.override
+        )
+        promises.push(
+          queryPackage.insertPathCrc(
+            context.db,
+            overridePath,
+            null,
+            dbEnum.packageType.genOverride,
+            context.packageId,
+            null
+          )
+        )
+      }
+
       return Promise.all(promises)
     })
     .then(() => context)
@@ -205,25 +223,50 @@ function loadTemplates(db, genTemplatesJson) {
  * Generates all the templates inside a toplevel package.
  *
  * @param {*} genResult
- * @param {*} pkg
+ * @param {*} genTemplateJsonPkg Package that points to genTemplate.json file
  * @param {*} generateOnly if NULL then generate all templates, else only generate template whose out file name matches this.
  * @returns Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
  */
-function generateAllTemplates(genResult, pkg, generateOnly = null) {
+function generateAllTemplates(
+  genResult,
+  genTemplateJsonPkg,
+  generateOnly = null
+) {
   return queryPackage
-    .getPackageByParent(genResult.db, pkg.id)
+    .getPackageByParent(genResult.db, genTemplateJsonPkg.id)
     .then((packages) => {
       var generationPromises = []
       var helperPromises = []
+      var overridePath = null
+
+      // First extract overridePath if one exists, as we need to
+      // pass it to the generation.
+      packages.forEach((singlePkg) => {
+        if (singlePkg.type == dbEnum.packageType.genOverride) {
+          overridePath = singlePkg.path
+        }
+      })
+
+      // Next load the helpers
+      packages.forEach((singlePkg) => {
+        if (singlePkg.type == dbEnum.packageType.genHelper) {
+          helperPromises.push(templateEngine.loadHelper(singlePkg.path))
+        }
+      })
+
+      // And finally go over the actual templates.
       packages.forEach((singlePkg) => {
         if (singlePkg.type == dbEnum.packageType.genSingleTemplate) {
           if (generateOnly == null || generateOnly == singlePkg.version) {
             generationPromises.push(
-              generateSingleTemplate(genResult, singlePkg)
+              generateSingleTemplate(
+                genResult,
+                singlePkg,
+                genTemplateJsonPkg.id,
+                overridePath
+              )
             )
           }
-        } else if (singlePkg.type == dbEnum.packageType.genHelper) {
-          helperPromises.push(templateEngine.loadHelper(singlePkg.path))
         }
       })
       return Promise.all(helperPromises).then(() =>
@@ -240,14 +283,25 @@ function generateAllTemplates(genResult, pkg, generateOnly = null) {
  * Function that generates a single package and adds it to the generation result.
  *
  * @param {*} genResult
- * @param {*} pkg
+ * @param {*} singleTemplatePkg Single template package.
  * @returns promise that resolves with the genResult, with newly generated content added.
  */
-function generateSingleTemplate(genResult, pkg) {
+function generateSingleTemplate(
+  genResult,
+  singleTemplatePkg,
+  genTemplateJsonPackageId,
+  overridePath
+) {
   return templateEngine
-    .produceContent(genResult.db, genResult.sessionId, pkg)
+    .produceContent(
+      genResult.db,
+      genResult.sessionId,
+      singleTemplatePkg,
+      genTemplateJsonPackageId,
+      overridePath
+    )
     .then((data) => {
-      genResult.content[pkg.version] = data
+      genResult.content[singleTemplatePkg.version] = data
       genResult.partial = true
       return genResult
     })
@@ -257,7 +311,7 @@ function generateSingleTemplate(genResult, pkg) {
  * Main API function to generate stuff.
  *
  * @param {*} db Database
- * @param {*} packageId packageId Template package id
+ * @param {*} packageId packageId Template package id. It can be either single template or gen template json.
  * @returns Promise that resolves into a generation result.
  */
 function generate(db, sessionId, packageId, generateOnly = null) {
@@ -270,8 +324,6 @@ function generate(db, sessionId, packageId, generateOnly = null) {
     }
     if (pkg.type === dbEnum.packageType.genTemplatesJson) {
       return generateAllTemplates(genResult, pkg, generateOnly)
-    } else if (pkg.type === dbEnum.packageType.genSingleTemplate) {
-      return generateSingleTemplate(genResult, pkg)
     } else {
       throw `Invalid package type: ${pkg.type}`
     }
@@ -422,7 +474,7 @@ function generateSingleFileForPreview(db, sessionId, outFileName) {
 }
 
 exports.loadTemplates = loadTemplates
-exports.generate = generate
 exports.generateAndWriteFiles = generateAndWriteFiles
 exports.generateSingleFileForPreview = generateSingleFileForPreview
 exports.contentIndexer = contentIndexer
+exports.generate = generate

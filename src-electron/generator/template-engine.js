@@ -31,14 +31,14 @@ const templateCompileOptions = {
 
 const precompiledTemplates = {}
 
-function produceCompiledTemplate(singlePkg) {
+function produceCompiledTemplate(singleTemplatePkg) {
   initializeGlobalHelpers()
-  if (singlePkg.id in precompiledTemplates)
-    return Promise.resolve(precompiledTemplates[singlePkg.id])
+  if (singleTemplatePkg.id in precompiledTemplates)
+    return Promise.resolve(precompiledTemplates[singleTemplatePkg.id])
   else
-    return fsPromise.readFile(singlePkg.path, 'utf8').then((data) => {
+    return fsPromise.readFile(singleTemplatePkg.path, 'utf8').then((data) => {
       var template = handlebars.compile(data, templateCompileOptions)
-      precompiledTemplates[singlePkg.id] = template
+      precompiledTemplates[singleTemplatePkg.id] = template
       return template
     })
 }
@@ -49,20 +49,74 @@ function produceCompiledTemplate(singlePkg) {
  * @param {*} db
  * @param {*} sessionId
  * @param {*} singlePkg
+ * @param {*} overridePath: if passed, it provides a path to the override file that can override the overridable.js
  * @returns Promise that resolves with the 'utf8' string that contains the generated content.
  */
-function produceContent(db, sessionId, singlePkg) {
-  return produceCompiledTemplate(singlePkg).then((template) =>
+function produceContent(
+  db,
+  sessionId,
+  singleTemplatePkg,
+  genTemplateJsonPackageId,
+  overridePath = null
+) {
+  return produceCompiledTemplate(singleTemplatePkg).then((template) =>
     template({
       global: {
         db: db,
         sessionId: sessionId,
         promises: [],
+        genTemplatePackageId: genTemplateJsonPackageId,
+        overridable: loadOverridable(overridePath),
       },
     })
   )
 }
 
+/**
+ * This function attemps to call override function, but if override function
+ * throws an exception, it calls the original function.
+ *
+ * @param {*} originalFn
+ * @param {*} overrideFn
+ * @returns result from override function, unless it throws an exception, in which case return result from original function.
+ */
+function wrapOverridable(originalFn, overrideFn) {
+  return function () {
+    try {
+      return overrideFn.apply(this, arguments)
+    } catch {
+      return originalFn.apply(this, arguments)
+    }
+  }
+}
+
+/**
+ * This function is responsible to load the overridable function container.
+ *
+ * @param {*} genTemplatePackageId
+ */
+function loadOverridable(overridePath) {
+  var originals = require('./overridable.js')
+  if (overridePath == null) {
+    return originals
+  } else {
+    var overrides = require(overridePath)
+    for (name in overrides) {
+      if (name in originals) {
+        originals[name] = wrapOverridable(originals[name], overrides[name])
+      } else {
+        originals[name] = overrides[name]
+      }
+    }
+    return originals
+  }
+}
+
+/**
+ * Function that loads the helpers.
+ *
+ * @param {*} path
+ */
 function loadHelper(path) {
   var helpers = require(path)
   for (const singleHelper in helpers) {
@@ -70,6 +124,9 @@ function loadHelper(path) {
   }
 }
 
+/**
+ * Global helper initialization
+ */
 function initializeGlobalHelpers() {
   if (globalHelpersInitialized) return
 

@@ -32,7 +32,7 @@ const helperZap = require('../src-electron/generator/helper-zap.js')
 const importJs = require('../src-electron/importexport/import.js')
 
 var db
-const templateCount = 10
+const templateCount = 11
 var genTimeout = 3000
 var testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 
@@ -75,7 +75,7 @@ test('Validate package loading', () =>
       return templateContext
     })
     .then((context) => {
-      expect(context.packages.length).toBe(templateCount + 1) // Plus one for helper
+      expect(context.packages.length).toBe(templateCount + 2) // One for helper and one for overridable
     }))
 
 test('Create session', () =>
@@ -115,6 +115,7 @@ test(
         expect(genResult.content).not.toBeNull()
         var simpleTest = genResult.content['simple-test.out']
         expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
+        expect(simpleTest.includes('Strange type: bacnet_type_t')).toBeTruthy()
       }),
   genTimeout
 )
@@ -175,6 +176,13 @@ test(
         expect(accumulator.includes('Cumulative size: 16 / 206')).toBeTruthy()
         expect(accumulator.includes('Cumulative size: 8 / 109')).toBeTruthy()
         expect(accumulator.includes('Cumulative size: 0 / 206')).toBeTruthy()
+
+        var atomics = genResult.content['atomics.out']
+        expect(atomics.includes('C type: bacnet_type_t')).toBeTruthy()
+        // Now check for the override
+        expect(
+          atomics.includes('C type: security_key_type_override')
+        ).toBeTruthy()
       }),
   genTimeout
 )

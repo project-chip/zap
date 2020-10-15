@@ -35,6 +35,26 @@
       "output": "attribute-type.h"
     },
     {
+      "path": "call-command-handler-src.zapt",
+      "name": "ZCL call-command-handler source",
+      "output": "call-command-handler.c"
+    },
+    {
+      "path": "call-command-handler.zapt",
+      "name": "ZCL call-command-handler header",
+      "output": "call-command-handler.h"
+    },
+    {
+      "path": "callback-stub-src.zapt",
+      "name": "ZCL callback-stub source",
+      "output": "callback-stub.c"
+    },
+    {
+      "path": "callback.zapt",
+      "name": "ZCL callback header",
+      "output": "callback.h"
+    },
+    {
       "path": "cluster-id.zapt",
       "name": "ZCL cluster-id header",
       "output": "cluster-id.h"
@@ -48,6 +68,16 @@
       "path": "enums.zapt",
       "name": "ZCL enums header",
       "output": "enums.h"
+    },
+    {
+      "path": "gen_tokens.zapt",
+      "name": "ZCL gen_tokens header",
+      "output": "gen_tokens.h"
+    },
+    {
+      "path": "print-cluster.zapt",
+      "name": "ZCL print-cluster header",
+      "output": "print-cluster.h"
     }
   ]
 }

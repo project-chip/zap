@@ -153,7 +153,14 @@ export default {
         )
     },
     selectCluster(cluster) {
-      this.$store.dispatch('zap/updateSelectedCluster', cluster)
+      this.$store
+        .dispatch('zap/updateSelectedCluster', cluster)
+        .then(
+          this.$store.dispatch(
+            'zap/refreshEndpointTypeCluster',
+            this.selectedEndpointTypeId
+          )
+        )
     },
   },
   data() {

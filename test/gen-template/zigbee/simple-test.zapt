@@ -5,3 +5,5 @@ Header:{{zap_header}}
 SessionId: {{global.sessionId}}
 
 Addon: {{test_addon_helper}}
+
+Strange type: {{asUnderlyingType "bacnet_oid"}}

@@ -145,7 +145,7 @@ function getPackageByPackageId(db, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PACKAGE_ID = ?',
+      'SELECT PACKAGE_ID, PARENT_PACKAGE_REF, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PACKAGE_ID = ?',
       [packageId]
     )
     .then(dbMapping.map.package)

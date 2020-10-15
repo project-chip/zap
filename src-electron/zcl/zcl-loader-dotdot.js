@@ -138,6 +138,27 @@ function normalizeHexValue(value) {
 }
 
 /**
+ * The Dotdot ZCL XML doesn't have a length but it is embedded in the short name,
+ * we can scrape the value to get the size
+ *
+ * TODO: Is this the right thing to do?
+ *
+ * @param {*} value the string value to be scraped
+ * @returns size in bytes or 0 if the # of bytes could not be determined
+ */
+function getNumBytesFromShortName(value) {
+  let ret = 0
+  try {
+    let sn = value.replace(/[^0-9\.]+/g, '')
+    if (sn.length > 0) {
+      let n = parseInt(sn)
+      ret = n / 8
+    }
+  } catch (error) {}
+  return ret
+}
+
+/**
  * Prepare XML attributes for entry into the DB
  *
  * @param {*} attributes an array of attributes
@@ -163,7 +184,8 @@ function prepareAttributes(attributes, side, types, cluster = null) {
       isWritable: a.$.writable == 'true',
       defaultValue: normalizeHexValue(a.$.default),
       isOptional: !(a.$.required == 'true'),
-      //isReportable: 'true', // TODO: reportability not listed in dotdot xml
+      isReportable:
+        a.$.reportRequired === undefined ? 'false' : a.$.reportRequired,
     })
     // TODO: Attributes have types and they may not be unique so we prepend the cluster name
     prepareAttributeType(a, types, cluster)
@@ -279,7 +301,7 @@ function prepareAtomic(type) {
   return {
     name: type.$.short,
     id: normalizeHexValue(type.$.id),
-    //size: '', // TODO: size not defined in dotdot xml
+    size: getNumBytesFromShortName(type.$.short),
     description: type.$.name,
   }
 }
@@ -392,8 +414,12 @@ function prepareTypes(zclTypes, types) {
       'type:sequence' in type.restriction[0]
     ) {
       types.structs.push(prepareStruct(type))
-    } else {
+    } else if (type.$.inheritsFrom === undefined) {
       types.atomics.push(prepareAtomic(type))
+    } else {
+      // TODO: Need to handle sub-atomic types, these are types that impose restrictions
+      //       and inherit from an atomic type but are not a struct, bitmap or enum
+      env.logInfo(`*** WARNING *** DROPPING TYPE: ${type.$.name}`)
     }
   })
 }
@@ -545,6 +571,10 @@ function loadDotdotZcl(db, ctx) {
     .then(() => zclLoader.processZclPostLoading(db))
     .then(() => dbApi.dbCommit(db))
     .then(() => ctx)
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
 }
 
 exports.loadDotdotZcl = loadDotdotZcl

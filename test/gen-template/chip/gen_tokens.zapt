@@ -1,2 +1,30 @@
 {{chip_header}}
 {{silabs_header}}
+
+
+// This file contains the tokens for attributes stored in flash
+
+// Identifier tags for tokens
+
+// Types for the tokens
+#ifdef DEFINETYPES
+#endif // DEFINETYPES
+
+// Actual token definitions
+#ifdef DEFINETOKENS
+#endif // DEFINETOKENS
+
+// Macro snippet that loads all the attributes from tokens
+#define GENERATED_TOKEN_LOADER(endpoint)                                                                                           \
+    do                                                                                                                             \
+    {                                                                                                                              \
+        /* TODO : Add macro in ZAP*/                                                                                                 \
+    } while (false)
+
+// Macro snippet that saves the attribute to token
+#define GENERATED_TOKEN_SAVER                                                                                                      \
+    do                                                                                                                             \
+    {                                                                                                                              \
+        /* TODO : Add macro in ZAP*/                                                                                                 \
+    } while (false)
+

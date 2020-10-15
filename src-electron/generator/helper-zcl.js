@@ -18,6 +18,9 @@
 const queryZcl = require('../db/query-zcl.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
+const { template } = require('handlebars')
+const helperC = require('./helper-c.js')
+const env = require('../util/env.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -32,10 +35,11 @@ const templateUtil = require('./template-util.js')
  * @returns Promise of content.
  */
 function zcl_bitmaps(options) {
-  return templateUtil
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllBitmaps(this.global.db, packageId))
     .then((ens) => templateUtil.collectBlocks(ens, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -43,9 +47,10 @@ function zcl_bitmaps(options) {
  * @param {*} options
  */
 function zcl_bitmap_items(options) {
-  return queryZcl
+  var promise = queryZcl
     .selectAllBitmapFieldsById(this.global.db, this.id)
     .then((items) => templateUtil.collectBlocks(items, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -55,10 +60,11 @@ function zcl_bitmap_items(options) {
  * @returns Promise of content.
  */
 function zcl_enums(options) {
-  return templateUtil
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllEnums(this.global.db, packageId))
     .then((ens) => templateUtil.collectBlocks(ens, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -66,9 +72,10 @@ function zcl_enums(options) {
  * @param {*} options
  */
 function zcl_enum_items(options) {
-  return queryZcl
+  var promise = queryZcl
     .selectAllEnumItemsById(this.global.db, this.id)
     .then((items) => templateUtil.collectBlocks(items, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -79,10 +86,11 @@ function zcl_enum_items(options) {
  * @returns Promise of content.
  */
 function zcl_structs(options) {
-  return templateUtil
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllStructs(this.global.db, packageId))
     .then((st) => templateUtil.collectBlocks(st, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -92,9 +100,10 @@ function zcl_structs(options) {
  * @returns Promise of content.
  */
 function zcl_struct_items(options) {
-  return queryZcl
+  var promise = queryZcl
     .selectAllStructItemsById(this.global.db, this.id)
     .then((st) => templateUtil.collectBlocks(st, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -104,10 +113,11 @@ function zcl_struct_items(options) {
  * @returns Promise of content.
  */
 function zcl_clusters(options) {
-  return templateUtil
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllClusters(this.global.db, packageId))
     .then((cl) => templateUtil.collectBlocks(cl, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -120,7 +130,7 @@ function zcl_clusters(options) {
  * @returns Promise of content.
  */
 function zcl_commands(options) {
-  return templateUtil
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
       if ('id' in this) {
@@ -135,6 +145,7 @@ function zcl_commands(options) {
       }
     })
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -144,12 +155,13 @@ function zcl_commands(options) {
  * @returns Promise of global command iteration.
  */
 function zcl_global_commands(options) {
-  return templateUtil
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
       queryZcl.selectAllGlobalCommands(this.global.db, packageId)
     )
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -163,7 +175,7 @@ function zcl_global_commands(options) {
 function zcl_attributes(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
-  return templateUtil
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
       if ('id' in this) {
@@ -178,6 +190,7 @@ function zcl_attributes(options) {
       }
     })
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -191,7 +204,7 @@ function zcl_attributes(options) {
 function zcl_attributes_client(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
-  return templateUtil
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
       if ('id' in this) {
@@ -210,6 +223,7 @@ function zcl_attributes_client(options) {
       }
     })
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -223,7 +237,7 @@ function zcl_attributes_client(options) {
 function zcl_attributes_server(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
-  return templateUtil
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
       if ('id' in this) {
@@ -243,6 +257,7 @@ function zcl_attributes_server(options) {
       }
     })
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -266,10 +281,11 @@ function zcl_atomics(options) {
  * @returns the length of largest cluster name in a list of clusters
  */
 function zcl_cluster_largest_label_length() {
-  return templateUtil
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllClusters(this.global.db, packageId))
     .then((cl) => largestLabelLength(cl))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -290,7 +306,7 @@ function largestLabelLength(arrayOfClusters) {
  * @returns Number of command arguments as an integer
  */
 function zcl_command_arguments_count(commandId) {
-  return templateUtil.ensureZclPackageId(this).then((packageId) => {
+  var promise = templateUtil.ensureZclPackageId(this).then((packageId) => {
     var res = queryZcl.selectCommandArgumentsCountByCommandId(
       this.global.db,
       commandId,
@@ -298,6 +314,7 @@ function zcl_command_arguments_count(commandId) {
     )
     return res
   })
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
@@ -307,7 +324,7 @@ function zcl_command_arguments_count(commandId) {
  * @returns Promise of command argument iteration.
  */
 function zcl_command_arguments(options) {
-  return templateUtil
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
       if ('id' in this) {
@@ -322,47 +339,110 @@ function zcl_command_arguments(options) {
       }
     })
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
- * Helper that checks if an enum by this name exists
+ * Helper that deals with the type of the argument.
  *
+ * @param {*} typeName
  * @param {*} options
- * @returns Promise of content.
  */
-function isEnum(enum_name) {
-  return templateUtil
+function zcl_command_argument_data_type(type, options) {
+  var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
-      queryZcl.selectEnumByName(this.global.db, enum_name, packageId)
+      Promise.all([
+        isEnum(this.global.db, type, packageId),
+        isStruct(this.global.db, type, packageId),
+        isBitmap(this.global.db, type, packageId),
+      ])
+        .then(
+          (res) =>
+            new Promise((resolve, reject) => {
+              for (i = 0; i < res.length; i++) {
+                if (res[i] != 'unknown') {
+                  resolve(res[i])
+                  return
+                }
+              }
+              resolve(dbEnum.zclType.unknown)
+            })
+        )
+        .then((resType) => {
+          switch (resType) {
+            case dbEnum.zclType.bitmap:
+              return helperC.dataTypeForBitmap(this.global.db, type, packageId)
+            case dbEnum.zclType.enum:
+              return helperC.dataTypeForEnum(this.global.db, type, packageId)
+            case dbEnum.zclType.struct:
+              return options.hash.struct
+            case dbEnum.zclType.atomic:
+            case dbEnum.zclType.unknown:
+            default:
+              return helperC.asCliType(type)
+          }
+        })
+        .catch((err) => {
+          env.logError(err)
+          throw err
+        })
     )
-    .then((enums) => (enums ? 1 : 0))
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+  return templateUtil.templatePromise(this.global, promise)
 }
 
 /**
- * Helper that checks if an enum by this name exists
+ * Local function that checks if an enum by the name exists
  *
- * @param {*} options
+ * @param {*} db
+ * @param {*} enum_name
+ * @param {*} packageId
  * @returns Promise of content.
  */
-function isStruct(struct_name) {
-  return templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryZcl.selectStructByName(this.global.db, struct_name, packageId)
-    )
-    .then((st) => (st ? 1 : 0))
+function isEnum(db, enum_name, packageId) {
+  return queryZcl
+    .selectEnumByName(db, enum_name, packageId)
+    .then((enums) => (enums ? dbEnum.zclType.enum : dbEnum.zclType.unknown))
 }
 
-function isBitmap(bitmap_name) {
-  return templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryZcl.selectBitmapByName(this.global.db, packageId, bitmap_name)
-    )
-    .then((st) => (st ? 1 : 0))
+/**
+ * Local function that checks if an enum by the name exists
+ *
+ * @param {*} db
+ * @param {*} struct_name
+ * @param {*} packageId
+ * @returns Promise of content.
+ */
+function isStruct(db, struct_name, packageId) {
+  return queryZcl
+    .selectStructByName(db, struct_name, packageId)
+    .then((st) => (st ? dbEnum.zclType.struct : dbEnum.zclType.unknown))
 }
 
+/**
+ * Local function that checks if a bitmap by the name exists
+ *
+ * @param {*} db
+ * @param {*} bitmap_name
+ * @param {*} packageId
+ * @returns Promise of content.
+ */
+function isBitmap(db, bitmap_name, packageId) {
+  return queryZcl
+    .selectBitmapByName(db, packageId, bitmap_name)
+    .then((st) => (st ? dbEnum.zclType.bitmap : dbEnum.zclType.unknown))
+}
+
+/**
+ * Checks if the side is client or not
+ *
+ * @param {*} side
+ * @returns boolean
+ */
 function isClient(side) {
   return 0 == side.localeCompare('client')
 }
@@ -388,7 +468,5 @@ exports.zcl_global_commands = zcl_global_commands
 exports.zcl_cluster_largest_label_length = zcl_cluster_largest_label_length
 exports.zcl_command_arguments_count = zcl_command_arguments_count
 exports.zcl_command_arguments = zcl_command_arguments
-exports.isEnum = isEnum
-exports.isStruct = isStruct
-exports.isBitmap = isBitmap
+exports.zcl_command_argument_data_type = zcl_command_argument_data_type
 exports.isClient = isClient

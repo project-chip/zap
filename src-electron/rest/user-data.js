@@ -31,21 +31,40 @@ const restApi = require('../../src-shared/rest-api.js')
 function registerSessionApi(db, app) {
   app.post('/cluster', (request, response) => {
     var { id, side, flag, endpointTypeId } = request.body
+
     queryConfig
-      .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
-      .then(() =>
-        response
-          .json({
-            replyId: restApi.replyId.zclEndpointTypeClusterSelectionResponse,
-            endpointTypeId: endpointTypeId,
-            id: id,
-            side: side,
-            flag: flag,
+      .getClusterState(db, endpointTypeId, id, side)
+      .then((clusterState) => {
+        return clusterState == null ? true : false
+      })
+      .then((insertDefaults) => {
+        return queryConfig
+          .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
+          .then(() => {
+            if (insertDefaults) {
+              return queryConfig.insertClusterDefaults(db, endpointTypeId, {
+                clusterRef: id,
+                side: side,
+              })
+            } else {
+              return Promise.resolve()
+            }
           })
-          .status(restApi.httpCode.ok)
-          .send()
-      )
-      .catch((err) => response.status(restApi.httpCode.badRequest).send())
+          .then(() =>
+            response
+              .json({
+                replyId:
+                  restApi.replyId.zclEndpointTypeClusterSelectionResponse,
+                endpointTypeId: endpointTypeId,
+                id: id,
+                side: side,
+                flag: flag,
+              })
+              .status(restApi.httpCode.ok)
+              .send()
+          )
+          .catch((err) => response.status(restApi.httpCode.badRequest).send())
+      })
   })
 
   app.post('/attribute/update', (request, response) => {

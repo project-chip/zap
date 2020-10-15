@@ -10,8 +10,12 @@
       "code5": "label5"
     },
     "externalOption": "externalOptions.json",
-    "cli": "cli.json"
+    "cli": "cli.json",
+    "types": {
+      "bacnet_oid": "bacnet_type_t"
+    }
   },
+  "override": "addon-override.js",
   "helpers": ["addon-helper.js"],
   "templates": [
     {
@@ -63,6 +67,11 @@
       "path": "zap-print.zapt",
       "name": "ZCL human readable strings",
       "output": "zap-print.h"
+    },
+    {
+      "path": "atomics.zapt",
+      "name": "ZCL Atomics",
+      "output": "atomics.out"
     }
   ]
 }

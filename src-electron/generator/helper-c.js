@@ -16,9 +16,10 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const queryPackage = require('../db/query-package.js')
 const templateUtil = require('./template-util.js')
 const bin = require('../util/bin.js')
-const { logInfo } = require('../util/env.js')
+const env = require('../util/env.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -113,57 +114,6 @@ function asHex(rawValue, padding) {
   }
 }
 
-function cleanseUints(uint) {
-  if (uint == 'uint24_t') return 'uint32_t'
-  if (uint == 'uint48_t') return 'uint8_t *'
-  return uint
-}
-
-/**
- * Returns the default atomic C type for a given atomic from
- * the database. These values are used unless there is an
- * override in template package json file. (Not yet fully
- * implemented, but the plan is for template pkg to be able
- * to override these.)
- *
- * @param {*} atomic
- */
-function defaultAtomicType(atomic) {
-  if (atomic.name.startsWith('int')) {
-    var signed
-    if (atomic.name.endsWith('s')) signed = true
-    else signed = false
-
-    var ret = `${signed ? '' : 'u'}int${atomic.size * 8}_t`
-
-    // few exceptions
-    ret = cleanseUints(ret)
-    return ret
-  } else if (atomic.name.startsWith('enum') || atomic.name.startsWith('data')) {
-    return cleanseUints(`uint${atomic.name.slice(4)}_t`)
-  } else if (atomic.name.startsWith('bitmap')) {
-    return cleanseUints(`uint${atomic.name.slice(6)}_t`)
-  } else {
-    switch (atomic.name) {
-      case 'utc_time':
-      case 'date':
-        return 'uint32_t'
-      case 'attribute_id':
-      case 'cluster_id':
-        return 'uint16_t'
-      case 'no_data':
-      case 'octet_string':
-      case 'char_string':
-      case 'ieee_address':
-        return 'uint8_t *'
-      case 'boolean':
-        return 'uint8_t'
-      default:
-        return `/* TYPE WARNING: ${atomic.name} defaults to */ uint8_t * `
-    }
-  }
-}
-
 /**
  * Converts the actual zcl type into an underlying usable C type.
  * @param {*} value
@@ -196,9 +146,19 @@ function asUnderlyingType(value) {
     })
     .then((atomic) => {
       if (atomic == null) {
-        return `EmberAf${value}`
+        return `/* TYPE WARNING: not a valid atomic type: ${value} */ ${value}`
       } else {
-        return defaultAtomicType(atomic)
+        return queryPackage
+          .selectSpecificOptionValue(
+            this.global.db,
+            this.global.genTemplatePackageId,
+            'types',
+            atomic.name
+          )
+          .then((opt) => {
+            if (opt == null) return this.global.overridable.atomicType(atomic)
+            else return opt.optionLabel
+          })
       }
     })
 }
@@ -292,7 +252,7 @@ function asBytes(value, type) {
  * @returns a spaced out string in lowercase
  */
 function asCamelCased(label, firstLower = true) {
-  var str = label.split(/ |-/)
+  var str = label.split(/ |-|\//)
   var res = ''
   for (let i = 0; i < str.length; i++) {
     if (i == 0) {
@@ -384,28 +344,44 @@ function asCliType(str) {
   } else if (str.toLowerCase().startsWith('enum')) {
     str = str.toLowerCase().replace('enum', 'uint')
   } else {
-    logInfo('Cli type not found: ' + str)
+    env.logInfo('Cli type not found: ' + str)
     return str
   }
   return 'SL_CLI_ARG_' + str.toUpperCase()
 }
 
-function dataTypeForBitmap(bitmap_name) {
-  return templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryZcl.selectBitmapByName(this.global.db, packageId, bitmap_name)
-    )
-    .then((bm) => asCliType(bm.type))
+/**
+ * Returns the type of bitmap
+ *
+ * @param {*} db
+ * @param {*} bitmap_name
+ * @param {*} packageId
+ */
+function dataTypeForBitmap(db, bitmap_name, packageId) {
+  return queryZcl.selectBitmapByName(db, packageId, bitmap_name).then((bm) => {
+    if (bm == null) {
+      return `!!Invalid bitmap: ${bitmap_name}`
+    } else {
+      return asCliType(bm.type)
+    }
+  })
 }
 
-function dataTypeForEnum(enum_name) {
-  return templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryZcl.selectEnumByName(this.global.db, enum_name, packageId)
-    )
-    .then((e) => asCliType(e.type))
+/**
+ * Returns the type of enum
+ *
+ * @param {*} db
+ * @param {*} enum_name
+ * @param {*} packageId
+ */
+function dataTypeForEnum(db, enum_name, packageId) {
+  return queryZcl.selectEnumByName(db, enum_name, packageId).then((e) => {
+    if (e == null) {
+      return `!!Invalid enum: ${enum_name}`
+    } else {
+      return asCliType(e.type)
+    }
+  })
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!

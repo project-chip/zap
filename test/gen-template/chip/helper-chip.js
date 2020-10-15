@@ -79,6 +79,10 @@ function isStrEqual(str1, str2) {
   return 0 == str1.localeCompare(str2)
 }
 
+function isLastElement(index, count) {
+  return index == count - 1
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -88,3 +92,4 @@ exports.chip_header = chip_header
 exports.silabs_header = silabs_header
 exports.isClient = isClient
 exports.isStrEqual = isStrEqual
+exports.isLastElement = isLastElement

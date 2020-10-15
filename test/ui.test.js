@@ -58,28 +58,17 @@ import ZapStore from '../src/store/index.js'
 import ZclApplicationSetup from '../src/components/ZclApplicationSetup.vue'
 import ZclAttributeManager from '../src/components/ZclAttributeManager.vue'
 import ZclAttributeReportingManager from '../src/components/ZclAttributeReportingManager.vue'
-import ZclAttributeView from '../src/components/ZclAttributeView.vue'
-import ZclClusterDetail from '../src/components/ZclClusterDetail.vue'
-import ZclClusterInfo from '../src/components/ZclClusterInfo.vue'
-import ZclClusterList from '../src/components/ZclClusterList.vue'
 import ZclClusterManager from '../src/components/ZclClusterManager.vue'
 import ZclClusterView from '../src/components/ZclClusterView.vue'
 import ZclCommandManager from '../src/components/ZclCommandManager.vue'
-import ZclCommandView from '../src/components/ZclCommandView.vue'
 import ZclCreateModifyEndpoint from '../src/components/ZclCreateModifyEndpoint.vue'
-import ZclCustomSetup from '../src/components/ZclCustomSetup.vue'
 import ZclDomainClusterView from '../src/components/ZclDomainClusterView.vue'
 import ZclEndpointCard from '../src/components/ZclEndpointCard.vue'
-import ZclEndpointConfig from '../src/components/ZclEndpointConfig.vue'
 import ZclEndpointManager from '../src/components/ZclEndpointManager.vue'
-import ZclEndpointTypeConfig from '../src/components/ZclEndpointTypeConfig.vue'
 import ZclGeneralOptionsBar from '../src/components/ZclGeneralOptionsBar.vue'
 import ZclInformationSetup from '../src/components/ZclInformationSetup.vue'
-import ZclReportingView from '../src/components/ZclReportingView.vue'
 import ZclClusterLayout from '../src/layouts/ZclClusterLayout.vue'
 import ZclConfiguratorLayout from '../src/layouts/ZclConfiguratorLayout.vue'
-import ZclLayout from '../src/layouts/ZclLayout.vue'
-import ZclOldClusterLayout from '../src/layouts/ZclOldClusterLayout.vue'
 import Error404 from '../src/pages/Error404.vue'
 import Preference from '../src/pages/Preference.vue'
 import PreferenceGeneration from '../src/pages/PreferenceGeneration.vue'
@@ -139,28 +128,10 @@ test('ZclAttributeReportingManager', () => {
   expect(ZclAttributeReportingManager.data()).not.toBe(null)
   expect(wrapper.html().length).toBeGreaterThan(100)
 })
-test('ZclAttributeView', () => {
-  const wrapper = shallowMount(ZclAttributeView, { store: ZapStore() })
-  expect(wrapper.html().length).toBeGreaterThan(100)
-})
-test('ZclClusterDetail', () => {
-  const wrapper = shallowMount(ZclClusterDetail, { store: ZapStore() })
-  expect(wrapper.html().length).toBeGreaterThan(100)
-})
-test('ZclClusterInfo', () => {
-  const wrapper = shallowMount(ZclClusterInfo, { store: ZapStore() })
-  expect(wrapper.html().length).toBeGreaterThan(50)
-})
-test('ZclClusterList', () => {
-  const wrapper = shallowMount(ZclClusterList, { store: ZapStore() })
-  expect(wrapper.html().length).toBeGreaterThan(100)
-})
-
 test('ZclClusterManager', () => {
   const wrapper = shallowMount(ZclClusterManager, { store: ZapStore() })
   expect(wrapper.html().length).toBeGreaterThan(100)
 })
-
 test('ZclClusterView', () => {
   const wrapper = shallowMount(ZclClusterView, { store: ZapStore() })
   expect(wrapper.html().includes('Endpoint')).toBe(true)
@@ -169,17 +140,9 @@ test('ZclCommandManager', () => {
   const wrapper = shallowMount(ZclCommandManager, { store: ZapStore() })
   expect(wrapper.html().length).toBeGreaterThan(100)
 })
-test('ZclCommandView', () => {
-  const wrapper = shallowMount(ZclCommandView, { store: ZapStore() })
-  expect(wrapper.html().length).toBeGreaterThan(100)
-})
 test('ZclCreateModifyEndpoint', () => {
   const wrapper = shallowMount(ZclCreateModifyEndpoint, { store: ZapStore() })
   expect(wrapper.html().length).toBeGreaterThan(100)
-})
-test('ZclCustomSetup', () => {
-  const wrapper = shallowMount(ZclCustomSetup, { store: ZapStore() })
-  expect(wrapper.html().length).toBeGreaterThan(50)
 })
 test('ZclDomainClusterView', () => {
   const wrapper = shallowMount(ZclDomainClusterView, { store: ZapStore() })
@@ -189,16 +152,8 @@ test('ZclEndpointCard', () => {
   const wrapper = shallowMount(ZclEndpointCard, { store: ZapStore() })
   expect(wrapper.html().length).toBeGreaterThan(100)
 })
-test('ZclEndpointConfig', () => {
-  const wrapper = shallowMount(ZclEndpointConfig, { store: ZapStore() })
-  expect(wrapper.html().length).toBeGreaterThan(100)
-})
 test('ZclEndpointManager', () => {
   const wrapper = shallowMount(ZclEndpointManager, { store: ZapStore() })
-  expect(wrapper.html().length).toBeGreaterThan(100)
-})
-test('ZclEndpointTypeConfig', () => {
-  const wrapper = shallowMount(ZclEndpointTypeConfig, { store: ZapStore() })
   expect(wrapper.html().length).toBeGreaterThan(100)
 })
 test('ZclGeneralOptionsBar', () => {
@@ -209,26 +164,12 @@ test('ZclInformationSetup', () => {
   const wrapper = shallowMount(ZclInformationSetup, { store: ZapStore() })
   expect(wrapper.html().length).toBeGreaterThan(100)
 })
-test('ZclReportingView', () => {
-  const wrapper = shallowMount(ZclReportingView, { store: ZapStore() })
-  expect(wrapper.html().length).toBeGreaterThan(100)
-})
 test('ZclClusterLayout', () => {
   const wrapper = shallowMount(ZclClusterLayout, { store: ZapStore() })
   expect(wrapper.html().length).toBeGreaterThan(90)
 })
 test('ZclConfiguratorLayout', () => {
   const wrapper = shallowMount(ZclConfiguratorLayout, { store: ZapStore() })
-  expect(wrapper.html().length).toBeGreaterThan(100)
-})
-/*
-test('ZclLayout', () => {
-  const wrapper = shallowMount(ZclLayout, { store: ZapStore() })
-  expect(wrapper.html().length).toBeGreaterThan(100)
-})
-*/
-test('ZclOldClusterLayout', () => {
-  const wrapper = shallowMount(ZclOldClusterLayout, { store: ZapStore() })
   expect(wrapper.html().length).toBeGreaterThan(100)
 })
 test('Error404', () => {

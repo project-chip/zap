@@ -1473,7 +1473,23 @@ function selectAtomicType(db, packageId, typeName) {
     .dbGet(
       db,
       'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
-      [packageId, typeName.toLowerCase()]
+      [packageId, typeName == null ? typeName : typeName.toLowerCase()]
+    )
+    .then(dbMapping.map.atomic)
+}
+
+/**
+ * Retrieve the atomic by name, returning promise that resolves into an atomic, or null.
+ * @param {*} db
+ * @param {*} name
+ * @param {*} packageId
+ */
+function selectAtomicByName(db, name, packageId) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
+      [packageId, name]
     )
     .then(dbMapping.map.atomic)
 }
@@ -1690,6 +1706,62 @@ FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
 }
 
 /**
+ * Returns a promise that resolves into one of the zclType enum
+ * values.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} type
+ */
+function determineType(db, type, packageId) {
+  return selectStructByName(db, type, packageId)
+    .then((struct) => {
+      if (struct == null) {
+        return null
+      } else {
+        return dbEnum.zclType.struct
+      }
+    })
+    .then((zclType) => {
+      if (zclType != null) {
+        return zclType
+      } else {
+        return selectEnumByName(db, type, packageId).then((theEnum) => {
+          if (theEnum == null) return null
+          else return dbEnum.zclType.enum
+        })
+      }
+    })
+    .then((zclType) => {
+      if (zclType != null) {
+        return zclType
+      } else {
+        return selectBitmapByName(db, type, packageId).then((theBitmap) => {
+          if (theBitmap == null) return null
+          else return dbEnum.zclType.bitmap
+        })
+      }
+    })
+    .then((zclType) => {
+      if (zclType != null) {
+        return zclType
+      } else {
+        return selectAtomicByName(db, type, packageId).then((atomic) => {
+          if (atomic == null) return null
+          else return dbEnum.zclType.atomic
+        })
+      }
+    })
+    .then((zclType) => {
+      if (zclType != null) {
+        return zclType
+      } else {
+        return dbEnum.zclType.unknown
+      }
+    })
+}
+
+/**
  * Exports clusters to an externalized form.
  *
  * @param {*} db
@@ -1790,6 +1862,7 @@ exports.selectAllBitmapFields = selectAllBitmapFields
 exports.selectBitmapById = selectBitmapById
 exports.selectAllDomains = selectAllDomains
 exports.selectDomainById = selectDomainById
+exports.selectAtomicByName = selectAtomicByName
 exports.selectAllStructs = selectAllStructs
 exports.selectStructById = selectStructById
 exports.selectAllStructItemsById = selectAllStructItemsById
@@ -1848,3 +1921,4 @@ exports.exportCommandDetailsFromAllEndpointTypeCluster = exportCommandDetailsFro
 exports.insertGlobalAttributeDefault = insertGlobalAttributeDefault
 exports.selectEnumByName = selectEnumByName
 exports.selectStructByName = selectStructByName
+exports.determineType = determineType

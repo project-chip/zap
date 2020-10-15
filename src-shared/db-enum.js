@@ -28,6 +28,7 @@ exports.packageType = {
   genTemplatesJson: 'gen-templates-json',
   genSingleTemplate: 'gen-template',
   genHelper: 'gen-helper',
+  genOverride: 'gen-override',
 }
 
 exports.packageOptionCategory = {
@@ -48,4 +49,12 @@ exports.storageOption = {
   ram: 'RAM',
   nvm: 'NVM',
   external: 'External',
+}
+
+exports.zclType = {
+  struct: 'struct',
+  enum: 'enum',
+  bitmap: 'bitmap',
+  atomic: 'atomic',
+  unknown: 'unknown',
 }

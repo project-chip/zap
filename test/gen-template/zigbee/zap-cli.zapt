@@ -53,15 +53,7 @@ static const sl_cli_command_info_t cli_cmd_zcl_{{cleanseLabel ../clusterName}}_{
               {{/if}}
               {
                 {{#zcl_command_arguments}}
-                  {{#if (isEnum type)}}
-                  {{dataTypeForEnum type}},
-                  {{else if (isStruct type)}}
-                  SL_CLI_ARG_HEX,
-                  {{else if (isBitmap type)}}
-                  {{dataTypeForBitmap type}},
-                  {{else}}
-                  {{asCliType type}},
-                  {{/if}}
+                  {{zcl_command_argument_data_type type struct="SL_CLI_ARG_HEX"}},
                 {{/zcl_command_arguments}}
                   SL_CLI_ARG_END,
               });
@@ -125,15 +117,7 @@ void {{asCamelCased this.optionLabel}}Command(sl_cli_command_arg_t *arguments) {
           {{/if}}
         {{/template_options}}
   char *argumentTypes[{{zcl_command_arguments_count this.id}}+1] =  { {{#zcl_command_arguments}}
-                              {{#if (isEnum type)}}
-                              {{dataTypeForEnum type}},
-                              {{else if (isStruct type)}}
-                              SL_CLI_ARG_HEX,
-                              {{else if (isBitmap type)}}
-                              {{dataTypeForBitmap type}},
-                              {{else}}
-                              {{asCliType type}},
-                              {{/if}}
+                   {{zcl_command_argument_data_type type struct="SL_CLI_ARG_HEX"}},
                             {{/zcl_command_arguments}} };
   zclSimpleCommandUC(ZCL_CLUSTER_SPECIFIC_COMMAND | {{#if (isClient commandSource)}}ZCL_FRAME_CONTROL_CLIENT_TO_SERVER{{else}}ZCL_FRAME_CONTROL_SERVER_TO_CLIENT{{/if}},  \
                    ZCL_{{asUnderscoreUppercase clusterName}}_CLUSTER_ID,                                                       \

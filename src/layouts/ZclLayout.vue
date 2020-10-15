@@ -139,7 +139,6 @@ limitations under the License.
 import UcComponentSetup from '../components/UcComponentSetup.vue'
 import ZclApplicationSetup from '../components/ZclApplicationSetup.vue'
 import ZclInformationSetup from '../components/ZclInformationSetup.vue'
-import ZclOldClusterLayout from './ZclOldClusterLayout.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
 const restApi = require(`../../src-shared/rest-api.js`)
