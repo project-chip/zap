@@ -29,6 +29,17 @@ function cleanseUints(uint) {
 }
 
 /**
+ * Returns the name of a fall-through non-atomic type.
+ * This method will be used unless the override is
+ * providing a different implementation.
+ *
+ * @param {*} arg
+ */
+function nonAtomicType(arg = { name: 'unknown' }) {
+  return `EmberAf${arg.name}`
+}
+
+/**
  * Returns the default atomic C type for a given atomic from
  * the database. These values are used unless there is an
  * override in template package json file. (Not yet fully
@@ -81,3 +92,4 @@ function atomicType(arg = { name: 'unknown', size: 0 }) {
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
 exports.atomicType = atomicType
+exports.nonAtomicType = nonAtomicType
