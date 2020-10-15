@@ -42,7 +42,6 @@ exports.genResultFile = false
  * @returns parsed argv object
  */
 function processCommandLineArguments(argv) {
-  console.log('YARG!!!')
   var ret = yargs
     .command('generate', 'Generate ZCL artifacts.')
     .command('selfCheck', 'Perform the self-check of the application.')
