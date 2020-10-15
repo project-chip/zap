@@ -492,7 +492,7 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllCommands(db, packageId = null) {
+function selectAllCommands(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -507,9 +507,9 @@ SELECT
   SOURCE,
   IS_OPTIONAL
 FROM COMMAND
-  ${packageId != null ? 'WHERE PACKAGE_REF = ? ' : ''}
+  WHERE PACKAGE_REF = ?
 ORDER BY CODE`,
-      packageId != null ? [packageId] : []
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
