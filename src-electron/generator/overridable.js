@@ -35,10 +35,11 @@ function cleanseUints(uint) {
  * implemented, but the plan is for template pkg to be able
  * to override these.)
  *
- * @param {*} name The name of the atomic.
- * @param {*} size Size of the atomic, if present. If type is of variable size, then this may be null.
+ * @param {*} arg Object containing name and size
  */
-function atomicType(name, size) {
+function atomicType(arg = { name: 'unknown', size: 0 }) {
+  var name = arg.name
+  var size = arg.size
   if (name.startsWith('int')) {
     var signed
     if (name.endsWith('s')) signed = true

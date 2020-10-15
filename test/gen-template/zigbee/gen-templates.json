@@ -15,6 +15,7 @@
       "bacnet_oid": "bacnet_type_t"
     }
   },
+  "override": "addon-override.js",
   "helpers": ["addon-helper.js"],
   "templates": [
     {

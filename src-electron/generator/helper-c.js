@@ -156,11 +156,7 @@ function asUnderlyingType(value) {
             atomic.name
           )
           .then((opt) => {
-            if (opt == null)
-              return this.global.overridable.atomicType(
-                atomic.name,
-                atomic.size
-              )
+            if (opt == null) return this.global.overridable.atomicType(atomic)
             else return opt.optionLabel
           })
       }

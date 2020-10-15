@@ -49,13 +49,15 @@ function produceCompiledTemplate(singleTemplatePkg) {
  * @param {*} db
  * @param {*} sessionId
  * @param {*} singlePkg
+ * @param {*} overridePath: if passed, it provides a path to the override file that can override the overridable.js
  * @returns Promise that resolves with the 'utf8' string that contains the generated content.
  */
 function produceContent(
   db,
   sessionId,
   singleTemplatePkg,
-  genTemplateJsonPackageId
+  genTemplateJsonPackageId,
+  overridePath = null
 ) {
   return produceCompiledTemplate(singleTemplatePkg).then((template) =>
     template({
@@ -64,10 +66,28 @@ function produceContent(
         sessionId: sessionId,
         promises: [],
         genTemplatePackageId: genTemplateJsonPackageId,
-        overridable: loadOverridable(genTemplateJsonPackageId),
+        overridable: loadOverridable(overridePath),
       },
     })
   )
+}
+
+/**
+ * This function attemps to call override function, but if override function
+ * throws an exception, it calls the original function.
+ *
+ * @param {*} originalFn
+ * @param {*} overrideFn
+ * @returns result from override function, unless it throws an exception, in which case return result from original function.
+ */
+function wrapOverridable(originalFn, overrideFn) {
+  return function () {
+    try {
+      return overrideFn.apply(this, arguments)
+    } catch {
+      return originalFn.apply(this, arguments)
+    }
+  }
 }
 
 /**
@@ -75,8 +95,21 @@ function produceContent(
  *
  * @param {*} genTemplatePackageId
  */
-function loadOverridable(genTemplatePackageId) {
-  return require('./overridable.js')
+function loadOverridable(overridePath) {
+  var originals = require('./overridable.js')
+  if (overridePath == null) {
+    return originals
+  } else {
+    var overrides = require(overridePath)
+    for (name in overrides) {
+      if (name in originals) {
+        originals[name] = wrapOverridable(originals[name], overrides[name])
+      } else {
+        originals[name] = overrides[name]
+      }
+    }
+    return originals
+  }
 }
 
 /**

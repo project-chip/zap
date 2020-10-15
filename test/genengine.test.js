@@ -75,7 +75,7 @@ test('Validate package loading', () =>
       return templateContext
     })
     .then((context) => {
-      expect(context.packages.length).toBe(templateCount + 1) // Plus one for helper
+      expect(context.packages.length).toBe(templateCount + 2) // One for helper and one for overridable
     }))
 
 test('Create session', () =>
@@ -179,6 +179,10 @@ test(
 
         var atomics = genResult.content['atomics.out']
         expect(atomics.includes('C type: bacnet_type_t')).toBeTruthy()
+        // Now check for the override
+        expect(
+          atomics.includes('C type: security_key_type_override')
+        ).toBeTruthy()
       }),
   genTimeout
 )
