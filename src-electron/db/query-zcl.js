@@ -470,7 +470,15 @@ function selectCommandById(db, id) {
     .then(dbMapping.map.command)
 }
 
-function selectCommandsByClusterId(db, clusterId, packageId = null) {
+/**
+ * Retrieves commands for a given cluster Id.
+ * This method DOES NOT retrieve global commands, since those have a cluster_ref = null
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @returns promise of an array of command rows, which represent per-cluster commands, excluding global commands.
+ */
+function selectCommandsByClusterId(db, clusterId) {
   return dbApi
     .dbAll(
       db,
@@ -485,9 +493,8 @@ SELECT
   SOURCE,
   IS_OPTIONAL
 FROM COMMAND WHERE CLUSTER_REF = ?
-  ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
 ORDER BY CODE`,
-      packageId != null ? [clusterId, packageId] : [clusterId]
+      [clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
