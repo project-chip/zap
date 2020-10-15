@@ -431,7 +431,7 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-function selectAllAttributesBySide(db, side, packageId = null) {
+function selectAllAttributesBySide(db, side, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -453,9 +453,9 @@ SELECT
   IS_REPORTABLE
 FROM ATTRIBUTE
    WHERE SIDE = ?
-   ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
+   AND PACKAGE_REF = ? 
 ORDER BY CODE`,
-      packageId != null ? [side, packageId] : [side]
+      [side, packageId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
