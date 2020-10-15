@@ -1,16 +1,16 @@
 pipeline
 {
     agent { label 'Zap-Build' }
-    
+
     options { buildDiscarder(logRotator(artifactNumToKeepStr: '10')) }
-  
+
     stages
     {
         stage('Git setup')
         {
             steps
             {
-                script 
+                script
                 {
                     checkout scm
                 }
@@ -20,7 +20,7 @@ pipeline
         {
             steps
             {
-                script 
+                script
                 {
                     sh 'uname -a'
                     sh 'npm --version'
@@ -35,7 +35,7 @@ pipeline
         {
             steps
             {
-                script 
+                script
                 {
                     sh 'npm run lic'
                 }
@@ -45,7 +45,7 @@ pipeline
         {
             steps
             {
-                script 
+                script
                 {
                     sh 'npm outdated || true'
                 }
@@ -55,7 +55,7 @@ pipeline
         {
             steps
             {
-                script 
+                script
                 {
                     sh 'npm run build-spa'
                 }
@@ -65,7 +65,7 @@ pipeline
         {
             steps
             {
-                script 
+                script
                 {
                     // Temporarily comment this out: sh 'rm -rf ~/.zap'
                     sh 'npm run test'
@@ -73,7 +73,7 @@ pipeline
             }
         }
 	    stage('Self check')
-	    {   
+	    {
             steps
             {
                 script
@@ -93,11 +93,22 @@ pipeline
                 }
             }
         }
+        stage('Test CHIP generation')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'npm run genchip'
+                    sh 'python ./test/resource/chip/compare.py'
+                }
+            }
+        }
         stage('Linux distribution artifacts')
         {
             steps
             {
-                script 
+                script
                 {
                     sh 'npm run dist-linux'
                     sh 'npm run apack:linux'
@@ -108,7 +119,7 @@ pipeline
         {
             steps
             {
-                script 
+                script
                 {
                     sh 'npm run dist-mac'
                     sh 'npm run apack:mac'
@@ -119,7 +130,7 @@ pipeline
         {
             steps
             {
-                script 
+                script
                 {
                     sh 'npm run dist-win'
                     sh 'npm run apack:win'
@@ -140,7 +151,7 @@ pipeline
         {
             steps
             {
-                script 
+                script
                 {
                     archiveArtifacts artifacts:'dist/zap*', fingerprint: true
                 }
@@ -157,8 +168,8 @@ pipeline
             }
         }
     }
-    post { 
-        always { 
+    /*post {
+        always {
             script
             {
                 def committers = emailextrecipients([[$class: 'CulpritsRecipientProvider'],
@@ -180,5 +191,5 @@ pipeline
             }
             cleanWs()
         }
-    }
+    }*/
 }
