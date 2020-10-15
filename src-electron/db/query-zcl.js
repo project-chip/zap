@@ -514,7 +514,7 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllGlobalCommands(db, packageId = null) {
+function selectAllGlobalCommands(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -529,22 +529,31 @@ SELECT
   SOURCE,
   IS_OPTIONAL
 FROM COMMAND
-WHERE CLUSTER_REF IS NULL ` +
-        (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
-        `ORDER BY CODE`,
-      packageId != null ? [packageId] : []
+WHERE CLUSTER_REF IS NULL AND PACKAGE_REF = ? 
+ORDER BY CODE`,
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllClusterCommands(db, packageId = null) {
+function selectAllClusterCommands(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE CLUSTER_REF IS NOT NULL ` +
-        +(packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
-        `ORDER BY CODE`,
-      packageId != null ? [packageId] : []
+      `
+SELECT 
+  COMMAND_ID, 
+  CLUSTER_REF, 
+  CODE, 
+  MANUFACTURER_CODE, 
+  NAME, 
+  DESCRIPTION, 
+  SOURCE, 
+  IS_OPTIONAL 
+FROM COMMAND 
+WHERE CLUSTER_REF IS NOT NULL AND PACKAGE_REF = ? 
+ORDER BY CODE`,
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
