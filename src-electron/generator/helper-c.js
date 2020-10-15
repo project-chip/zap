@@ -146,7 +146,7 @@ function asUnderlyingType(value) {
     })
     .then((atomic) => {
       if (atomic == null) {
-        return `/* TYPE WARNING: not a valid atomic type: ${value} */ ${value}`
+        return `EmberAf${value}`
       } else {
         return queryPackage
           .selectSpecificOptionValue(

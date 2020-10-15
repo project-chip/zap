@@ -21,6 +21,7 @@
     "test:unit:watchAll": "jest --watchAll",
     "postinstall": "electron-builder install-app-deps",
     "zap": "node src-script/zap-start.js --logToStdout",
+    "zaphelp": "node src-script/zap-start.js -h",
     "zapc": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/chip/gen-templates.json",
     "zap-dotdot": "node src-script/zap-start.js --logToStdout --zcl ./zcl-builtin/dotdot/library.xml",
     "build-spa": "node src-script/build-spa.js",

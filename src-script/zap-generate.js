@@ -49,7 +49,8 @@ var arg = yargs
     ['zcl', 'out', 'generationTemplate'],
     'Please provide required options!'
   )
-  .help().argv
+  .help()
+  .wrap(null).argv
 
 var ctx = {}
 
@@ -60,13 +61,13 @@ var cli = [
   '--noServer',
   '--zcl',
   arg.zcl,
-  '--genTemplateJson',
+  '--generationTemplate',
   arg.generationTemplate,
-  '--output',
+  '--out',
   arg.out,
 ]
 if (arg.in != null) {
-  cli.push('--zapFile')
+  cli.push('--in')
   cli.push(arg.in)
 }
 

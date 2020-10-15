@@ -42,13 +42,9 @@ exports.genResultFile = false
  * @returns parsed argv object
  */
 function processCommandLineArguments(argv) {
+  console.log('YARG!!!')
   var ret = yargs
-    .command('generate', 'Generate ZCL artifacts.', (yargs) => {
-      yargs.positional('outputDir', {
-        alias: 'o',
-        description: 'Output directory for generated files.',
-      })
-    })
+    .command('generate', 'Generate ZCL artifacts.')
     .command('selfCheck', 'Perform the self-check of the application.')
     .option('httpPort', {
       desc: 'Port used for the HTTP server',
@@ -63,19 +59,19 @@ function processCommandLineArguments(argv) {
     })
     .option('zapFile', {
       desc: 'input .zap file to read in.',
-      alias: 'zap',
+      alias: ['zap', 'in', 'i'],
       type: 'string',
       default: exports.zapFile,
     })
     .option('zclProperties', {
       desc: 'zcl.properties file to read in.',
-      alias: 'zcl',
+      alias: ['zcl', 'z'],
       type: 'string',
       default: exports.zclPropertiesFile,
     })
-    .option('genTemplateJson', {
+    .option('generationTemplate', {
       desc: 'gen-template.json file to read in.',
-      alias: 'gen',
+      alias: ['gen', 'g'],
       type: 'string',
       default: exports.genTemplateJsonFile,
     })
@@ -109,11 +105,7 @@ function processCommandLineArguments(argv) {
     })
     .option('output', {
       desc: 'Specifying the output directory for generation',
-      alias: 'o',
-      type: 'string',
-    })
-    .option('template', {
-      desc: 'Specifying the handlebar template directory for generation',
+      alias: ['out', 'o'],
       type: 'string',
     })
     .option('clearDb', {
@@ -121,7 +113,10 @@ function processCommandLineArguments(argv) {
       type: 'string',
     })
     .usage('Usage: $0 <command> [options]')
-    .help('?')
+    .help('h')
+    .alias('h', 'help')
+    .epilogue('For more information, see https://github.com/project-chip/zap')
+    .wrap(null)
     .parse(argv)
 
   // Now populate exported variables with this.
@@ -129,7 +124,7 @@ function processCommandLineArguments(argv) {
   exports.httpPort = ret.httpPort
   exports.studioHttpPort = ret.studioHttpPort
   exports.uiMode = ret.uiMode
-  exports.genTemplateJsonFile = ret.genTemplateJson
+  exports.genTemplateJsonFile = ret.generationTemplate
   exports.embeddedMode = ret.embeddedMode
   exports.noServer = ret.noServer
   exports.zapFile = ret.zapFile

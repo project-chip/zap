@@ -54,7 +54,7 @@ if (app != null) {
       } else if (argv._.includes('generate')) {
         startup.startGeneration(
           argv.output,
-          argv.genTemplateJson,
+          argv.generationTemplate,
           argv.zclProperties,
           argv.zapFile
         )
