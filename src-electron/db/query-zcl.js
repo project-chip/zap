@@ -403,7 +403,7 @@ WHERE ATTRIBUTE_ID = ?`,
     .then(dbMapping.map.attribute)
 }
 
-function selectAllAttributes(db, packageId = null) {
+function selectAllAttributes(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -424,9 +424,9 @@ SELECT
   IS_OPTIONAL,
   IS_REPORTABLE
 FROM ATTRIBUTE
-   ${packageId != null ? 'WHERE PACKAGE_REF = ? ' : ''}
+  WHERE PACKAGE_REF = ?
 ORDER BY CODE`,
-      packageId != null ? [packageId] : []
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
