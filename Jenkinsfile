@@ -168,7 +168,7 @@ pipeline
             }
         }
     }
-    /*post {
+    post {
         always {
             script
             {
@@ -191,5 +191,5 @@ pipeline
             }
             cleanWs()
         }
-    }*/
+    }
 }
