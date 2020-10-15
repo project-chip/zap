@@ -23,7 +23,7 @@ executable(zap:macosx.x86_64) {
 }
 
 function(uc_generate) {
-  cmd=$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.properties --genTemplateJson ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}
+  cmd=$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json --genTemplateJson ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}
 }
 
 function(zapHelp) {
@@ -35,11 +35,11 @@ function(zapSelfcheck) {
 }
 
 function(zapServer) {
-  cmd=$(zap) --noUi --showUrl --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.properties --genTemplateJson ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json -o ${output} --studioHttpPort ${studioHttpPort}
+  cmd=$(zap) --noUi --showUrl --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json --genTemplateJson ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json -o ${output} --studioHttpPort ${studioHttpPort}
 }
 
 function(zapFull) {
-  cmd=$(zap) --showUrl --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.properties
+  cmd=$(zap) --showUrl --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json
 }
 
 option(output) {
