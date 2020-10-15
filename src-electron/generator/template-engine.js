@@ -97,18 +97,19 @@ function wrapOverridable(originalFn, overrideFn) {
  */
 function loadOverridable(overridePath) {
   var originals = require('./overridable.js')
+  var shallowCopy = Object.assign({}, originals)
   if (overridePath == null) {
-    return originals
+    return shallowCopy
   } else {
     var overrides = require(overridePath)
     for (name in overrides) {
-      if (name in originals) {
-        originals[name] = wrapOverridable(originals[name], overrides[name])
+      if (name in shallowCopy) {
+        shallowCopy[name] = wrapOverridable(shallowCopy[name], overrides[name])
       } else {
-        originals[name] = overrides[name]
+        shallowCopy[name] = overrides[name]
       }
     }
-    return originals
+    return shallowCopy
   }
 }
 
