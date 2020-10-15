@@ -248,16 +248,18 @@ describe('Validate endpoint for duplicate endpointIds', () => {
   var endpointTypeIdOnOff
   var endpointTypeReference
   var eptId
+  var pkgId
   beforeAll(() => {
     return zclLoader
       .loadZcl(db, args.zclPropertiesFile)
-      .then((ctx) =>
+      .then((ctx) => {
+        pkgId = ctx.packageId
         querySession.ensureZapSessionId(db, 'SESSION').then((id) => {
           sid = id
         })
-      )
+      })
       .then(() =>
-        queryZcl.selectAllDeviceTypes(db).then((rows) => {
+        queryZcl.selectAllDeviceTypes(db, pkgId).then((rows) => {
           let haOnOffDeviceTypeArray = rows.filter(
             (data) => data.label === 'HA-onoff'
           )
