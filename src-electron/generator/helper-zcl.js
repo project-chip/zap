@@ -335,7 +335,7 @@ function zcl_command_arguments(options) {
           packageId
         )
       } else {
-        return queryZcl.selectAllCommandArguments(this.global.db)
+        return queryZcl.selectAllCommandArguments(this.global.db, packageId)
       }
     })
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))

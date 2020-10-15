@@ -549,12 +549,22 @@ function selectAllClusterCommands(db, packageId = null) {
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllCommandArguments(db) {
+function selectAllCommandArguments(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      `SELECT COMMAND_REF, NAME, TYPE, IS_ARRAY FROM COMMAND_ARG ORDER BY COMMAND_REF`,
-      []
+      `
+SELECT 
+  COMMAND_ARG.COMMAND_REF, 
+  COMMAND_ARG.NAME, 
+  COMMAND_ARG.TYPE, 
+  COMMAND_ARG.IS_ARRAY 
+FROM COMMAND_ARG, COMMAND 
+WHERE 
+  COMMAND_ARG.COMMAND_REF = COMMAND.COMMAND_ID
+  AND COMMAND.PACKAGE_REF = ?
+ORDER BY COMMAND_REF, ORDINAL`,
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.commandArgument))
 }
@@ -1181,9 +1191,7 @@ function insertDeviceTypes(db, packageId, data) {
       })
     )
     .then((lastIdsArray) => {
-      var i
-      var itemsToLoad = []
-      for (i = 0; i < lastIdsArray.length; i++) {
+      for (var i = 0; i < lastIdsArray.length; i++) {
         if ('clusters' in data[i]) {
           var lastId = lastIdsArray[i]
           var clusters = data[i].clusters
@@ -1645,11 +1653,7 @@ function exportCommandDetailsFromAllEndpointTypesAndClusters(
  * @param {*} [packageId=null]
  * @returns A promise with number of command arguments for a command
  */
-function selectCommandArgumentsCountByCommandId(
-  db,
-  commandId,
-  packageId = null
-) {
+function selectCommandArgumentsCountByCommandId(db, commandId) {
   return dbApi
     .dbAll(
       db,
@@ -1669,7 +1673,7 @@ FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
  * @param {*} [packageId=null]
  * @returns A promise with command arguments for a command
  */
-function selectCommandArgumentsByCommandId(db, commandId, packageId = null) {
+function selectCommandArgumentsByCommandId(db, commandId) {
   return dbApi
     .dbAll(
       db,
