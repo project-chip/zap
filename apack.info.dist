@@ -27,11 +27,11 @@ function(uc_generate) {
 }
 
 function(zapHelp) {
-  cmd=$(zap) -?
+  cmd=$(zap) --help
 }
 
 function(zapSelfcheck) {
-  cmd=$(zap) --selfCheck
+  cmd=$(zap) selfCheck
 }
 
 function(zapServer) {
