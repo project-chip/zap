@@ -164,14 +164,12 @@ function prepareBitmap(bm) {
   var ret = { name: bm.$.name, type: bm.$.type }
   if ('field' in bm) {
     ret.fields = []
-    var ordinal = 0
-    bm.field.forEach((field) => {
+    bm.field.forEach((field, index) => {
       ret.fields.push({
         name: field.$.name,
         mask: field.$.mask,
-        ordinal: ordinal,
+        ordinal: index,
       })
-      ordinal++
     })
   }
   return ret
@@ -295,15 +293,13 @@ function prepareCluster(cluster, isExtension = false) {
       }
       if ('arg' in command) {
         cmd.args = []
-        var ordinal = 0
-        command.arg.forEach((arg) => {
+        command.arg.forEach((arg, index) => {
           cmd.args.push({
             name: arg.$.name,
             type: arg.$.type,
             isArray: arg.$.array == 'true' ? 1 : 0,
-            ordinal: ordinal,
+            ordinal: index,
           })
-          ordinal++
         })
       }
       ret.commands.push(cmd)
@@ -447,14 +443,12 @@ function prepareStruct(struct) {
   var ret = { name: struct.$.name }
   if ('item' in struct) {
     ret.items = []
-    var ordinal = 0
-    struct.item.forEach((item) => {
+    struct.item.forEach((item, index) => {
       ret.items.push({
         name: item.$.name,
         type: item.$.type,
-        ordinal: ordinal,
+        ordinal: index,
       })
-      ordinal++
     })
   }
   return ret
@@ -488,14 +482,12 @@ function prepareEnum(en) {
   var ret = { name: en.$.name, type: en.$.type }
   if ('item' in en) {
     ret.items = []
-    var ordinal = 0
-    en.item.forEach((item) => {
+    en.item.forEach((item, index) => {
       ret.items.push({
         name: item.$.name,
         value: item.$.value,
-        ordinal: ordinal,
+        ordinal: index,
       })
-      ordinal++
     })
   }
   return ret

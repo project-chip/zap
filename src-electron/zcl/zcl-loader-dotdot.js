@@ -329,10 +329,11 @@ function prepareBitmap(type, fromAttribute = false, cluster = null) {
   }
   if ('bitmap' in type) {
     ret.fields = []
-    type.bitmap[0].element.map((e) => {
+    type.bitmap[0].element.map((e, index) => {
       ret.fields.push({
         name: e.$.name,
         mask: normalizeHexValue(e.$.mask),
+        ordinal: index,
       })
     })
   }
@@ -360,10 +361,11 @@ function prepareEnum(type, fromAttribute = false, cluster = null) {
   }
   if ('restriction' in type) {
     ret.items = []
-    type.restriction[0]['type:enumeration'].map((e) => {
+    type.restriction[0]['type:enumeration'].map((e, index) => {
       ret.items.push({
         name: e.$.name,
         value: normalizeHexValue(e.$.value),
+        ordinal: index,
       })
     })
   }
@@ -382,10 +384,11 @@ function prepareStruct(type) {
   if ('restriction' in type) {
     ret.items = []
     type.restriction[0]['type:sequence'].map((sequence) => {
-      sequence.field.map((field) => {
+      sequence.field.map((field, index) => {
         ret.items.push({
           name: field.$.name,
           type: field.$.type,
+          ordinal: index,
         })
       })
     })
