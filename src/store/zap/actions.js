@@ -215,18 +215,20 @@ export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
 
 export function addEndpoint(context, newEndpointContext) {
   return new Promise((resolve, reject) => {
-    Vue.prototype.$serverPost(`/endpoint`, newEndpointContext).then((data) => {
-      let arg = data.data
-      context.commit('addEndpoint', {
-        id: arg.id,
-        endpointId: arg.eptId,
-        endpointTypeRef: arg.endpointType,
-        networkId: arg.nwkId,
-        endpointIdValidationIssues: arg.validationIssues.endpointId,
-        networkIdValidationIssues: arg.validationIssues.networkId,
+    Vue.prototype
+      .$serverPost(restApi.uri.endpoint, newEndpointContext)
+      .then((data) => {
+        let arg = data.data
+        context.commit('addEndpoint', {
+          id: arg.id,
+          endpointId: arg.eptId,
+          endpointTypeRef: arg.endpointType,
+          networkId: arg.nwkId,
+          endpointIdValidationIssues: arg.validationIssues.endpointId,
+          networkIdValidationIssues: arg.validationIssues.networkId,
+        })
+        return resolve(data.data)
       })
-      return resolve(data.data)
-    })
   })
 }
 
@@ -337,7 +339,7 @@ export function updateSelectedEndpointType(
 }
 
 export function deleteEndpoint(context, endpoint) {
-  Vue.prototype.$serverPost('/endpoint', endpoint).then((data) => {
+  Vue.prototype.$serverPost(restApi.uri.endpoint, endpoint).then((data) => {
     let arg = data.data
     context.commit('deleteEndpoint', { id: arg.id })
   })

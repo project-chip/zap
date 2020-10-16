@@ -261,7 +261,6 @@ function registerSessionApi(db, app) {
               break
             case restApi.updateKey.networkId:
               changeParam = 'NETWORK_IDENTIFIER'
-              paramType = 'text'
               break
           }
           return { key: changeParam, value: data.value, type: paramType }
