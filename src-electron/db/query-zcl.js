@@ -1411,13 +1411,13 @@ function insertStructs(db, packageId, data) {
           var lastId = lastIdsArray[i]
           var items = data[i].items
           itemsToLoad.push(
-            ...items.map((item) => [lastId, item.name, item.type])
+            ...items.map((item) => [lastId, item.name, item.type, item.ordinal])
           )
         }
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE) VALUES (?,?,?)',
+        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, ORDINAL) VALUES (?,?,?, ?)',
         itemsToLoad
       )
     })
@@ -1449,13 +1449,18 @@ function insertEnums(db, packageId, data) {
           var lastId = lastIdsArray[i]
           var items = data[i].items
           itemsToLoad.push(
-            ...items.map((item) => [lastId, item.name, item.value])
+            ...items.map((item) => [
+              lastId,
+              item.name,
+              item.value,
+              item.ordinal,
+            ])
           )
         }
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE) VALUES (?, ?, ?)',
+        'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE, ORDINAL) VALUES (?, ?, ?, ?)',
         itemsToLoad
       )
     })
@@ -1570,13 +1575,18 @@ function insertBitmaps(db, packageId, data) {
           var lastId = lastIdsArray[i]
           var fields = data[i].fields
           fieldsToLoad.push(
-            ...fields.map((field) => [lastId, field.name, field.mask])
+            ...fields.map((field) => [
+              lastId,
+              field.name,
+              field.mask,
+              field.ordinal,
+            ])
           )
         }
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK) VALUES (?, ?, ?)',
+        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, ORDINAL) VALUES (?, ?, ?, ?)',
         fieldsToLoad
       )
     })
