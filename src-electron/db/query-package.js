@@ -345,51 +345,6 @@ function getSessionPackageIds(db, sessionId) {
 }
 
 /**
- * This function is a wrapper function that executes a desired function and argument over the various packageIds
- * that exist in the session.
- *
- * The signature of queryFunction should be the following
- * (db, arg1, arg2, ... argN, packageId)
- *
- * extraArgumentsArray should only contain [arg1, arg2, ... argN].
- * You must NOT pass in packageId or db into this argument array. This function handles that.
- *
- *
- *
- * @param {*} db
- * @param {*} sessionId
- * @param {*} queryFunction that returns a promise for an array.
- * @param {*} extraArgumentsArray
- * @returns A promise that resolves to a one-depth flattened array of whatever the queryFunction returns.
- */
-function callPackageSpecificFunctionOverSessionPackages(
-  db,
-  sessionId,
-  queryFunction,
-  extraArgumentsArray,
-  mergeFunction = (accumulated, currentValue) => {
-    return [accumulated, currentValue].flat(1)
-  }
-) {
-  return getSessionPackageIds(db, sessionId)
-    .then((packageIdArray) =>
-      packageIdArray.map((packageId) =>
-        queryFunction.apply(
-          null,
-          [db].concat(extraArgumentsArray).concat(packageId)
-        )
-      )
-    )
-    .then((arrayOfQueryPromises) => {
-      return Promise.resolve(
-        Promise.all(arrayOfQueryPromises).then((dataArray) =>
-          dataArray.reduce(mergeFunction, [])
-        )
-      )
-    })
-}
-
-/**
  * This function inserts an option and its values into the DB.
  *
  * @param {*} db
@@ -515,7 +470,6 @@ exports.registerTopLevelPackage = registerTopLevelPackage
 exports.updateVersion = updateVersion
 exports.insertSessionPackage = insertSessionPackage
 exports.getSessionPackageIds = getSessionPackageIds
-exports.callPackageSpecificFunctionOverSessionPackages = callPackageSpecificFunctionOverSessionPackages
 exports.insertOptionsKeyValues = insertOptionsKeyValues
 exports.selectAllOptionsValues = selectAllOptionsValues
 exports.selectSpecificOptionValue = selectSpecificOptionValue

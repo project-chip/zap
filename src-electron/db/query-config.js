@@ -651,7 +651,10 @@ function resolveDefaultClusters(db, endpointTypeId, clusters) {
               'client',
               true
             ).then((data) => {
-              resolve({ clusterRef: cluster.clusterRef, side: 'client' })
+              resolve({
+                clusterRef: cluster.clusterRef,
+                side: dbEnum.side.client,
+              })
             })
           )
         )
@@ -666,7 +669,10 @@ function resolveDefaultClusters(db, endpointTypeId, clusters) {
               'server',
               true
             ).then((data) => {
-              resolve({ clusterRef: cluster.clusterRef, side: 'server' })
+              resolve({
+                clusterRef: cluster.clusterRef,
+                side: dbEnum.side.server,
+              })
             })
           )
         )
