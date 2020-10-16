@@ -34,15 +34,13 @@ import restApi from '../../src-shared/rest-api.js'
 export default {
   methods: {
     hitEnter() {
-      this.$serverPost(restApi.uri.sql, { sql: this.text })
+      this.$serverPost(restApi.uri.sql, { sql: this.text }).then((response) => {
+        this.count = response.data.length
+        this.items = response.data
+      })
     },
   },
-  mounted() {
-    this.$serverOn(restApi.replyId.sqlResult, (event, arg) => {
-      this.items = arg.result
-      this.count = arg.result.length
-    })
-  },
+  mounted() {},
   data() {
     return {
       text: '',

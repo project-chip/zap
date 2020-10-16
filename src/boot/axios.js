@@ -51,6 +51,7 @@ function processResponse(method, url, response) {
 
 /**
  * Issues a GET to the server and returns a promise that resolves into a response.
+ * GET is idempotent and does not change the state on the server.
  *
  * @param {*} url
  * @param {*} config
@@ -66,6 +67,11 @@ function serverGet(url, config = null) {
 /**
  * Issues a POST to the server and returns a promise that resolves into a response.
  *
+ * Remember: POST is not idempotent. POST should not be used to update
+ * a resource or create a resource.
+ *
+ * Think of POST as a way to "post a message to the posting board".
+ *
  * @param {*} url
  * @param {*} data
  * @returns Promise that resolves into a response.
@@ -79,6 +85,10 @@ function serverPost(url, data) {
 
 /**
  * Issues a PUT to the server and returns a promise that resolves into a response.
+ *
+ * Remember: PUT is a way to update a resource or create a new resource
+ * at a given URI. It is idempotent, so consecutive PUTs with same data
+ * do not cause consecutive entries.
  *
  * @param {*} url
  * @param {*} data
@@ -105,6 +115,19 @@ function serverDelete(url) {
 }
 
 /**
+ * Issues a PATCH to the server and returns a promise that resolves into a response.
+ *
+ * @param {*} url
+ * @returns Promise that resolves into a response.
+ */
+function serverPatch(url, data) {
+  if (log) console.log(`PATCH → : ${url}, ${data}`)
+  return axios['patch'](url, data)
+    .then((response) => processResponse('PATCH', url, response))
+    .catch((error) => console.log(error))
+}
+
+/**
  * Registers a listener to the given event.
  *
  * @param {*} channel
@@ -118,5 +141,6 @@ function serverOn(channel, listener) {
 Vue.prototype.$serverGet = serverGet
 Vue.prototype.$serverPost = serverPost
 Vue.prototype.$serverPut = serverPut
+Vue.prototype.$serverPatch = serverPatch
 Vue.prototype.$serverDelete = serverDelete
 Vue.prototype.$serverOn = serverOn

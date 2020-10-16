@@ -235,7 +235,7 @@ export function addEndpoint(context, newEndpointContext) {
 export function addEndpointType(context, endpointTypeData) {
   return new Promise((resolve, reject) => {
     Vue.prototype
-      .$serverPost(`/endpointType`, endpointTypeData)
+      .$serverPost(restApi.uri.endpointType, endpointTypeData)
       .then((endpointTypeResponse) => {
         let arg = endpointTypeResponse.data
         context.commit('addEndpointType', {
@@ -249,18 +249,20 @@ export function addEndpointType(context, endpointTypeData) {
 }
 
 export function removeEndpointType(context, endpointTypeData) {
-  Vue.prototype.$serverPost('endpointType', endpointTypeData).then((data) => {
-    let arg = data.data
-    if (arg.successful) {
-      context.commit('removeEndpointType', {
-        id: arg.id,
-      })
-    }
-  })
+  Vue.prototype
+    .$serverPost(restApi.uri.endpointType, endpointTypeData)
+    .then((data) => {
+      let arg = data.data
+      if (arg.successful) {
+        context.commit('removeEndpointType', {
+          id: arg.id,
+        })
+      }
+    })
 }
 
 export function updateEndpoint(context, endpoint) {
-  Vue.prototype.$serverPost('/endpoint', endpoint).then((data) => {
+  Vue.prototype.$serverPost(restApi.uri.endpoint, endpoint).then((data) => {
     let arg = data.data
     context.commit('updateEndpoint', {
       id: arg.endpointId,
