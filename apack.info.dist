@@ -35,16 +35,9 @@ function(zapSelfcheck) {
 }
 
 function(zapServer) {
-  cmd=$(zap) --noUi --showUrl --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json --genTemplateJson ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json -o ${output} --studioHttpPort ${studioHttpPort}
+  cmd=$(zap) --noUi --showUrl --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json --genTemplateJson ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --studioHttpPort ${studioHttpPort}
 }
 
 function(zapFull) {
   cmd=$(zap) --showUrl --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json
-}
-
-option(output) {
-  name=Output directory for project generation
-  description=Directory where the generated files will be written to.
-  type=string
-  default=./
 }
