@@ -80,6 +80,14 @@ const ide = {
   openResponse: 'openResponse',
 }
 
+const updateKey = {
+  deviceTypeRef: 'deviceTypeRef',
+  endpointId: 'endpointId',
+  endpointType: 'endpointType',
+  networkId: 'networkId',
+  name: 'name',
+}
+
 exports.replyId = replyId
 exports.action = action
 exports.uri = uri
@@ -87,3 +95,4 @@ exports.httpCode = httpCode
 exports.uiMode = uiMode
 exports.uc = uc
 exports.ide = ide
+exports.updateKey = updateKey

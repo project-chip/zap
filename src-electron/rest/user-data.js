@@ -257,13 +257,13 @@ function registerSessionApi(db, app) {
           var changeParam = ''
           var paramType = ''
           switch (data.updatedKey) {
-            case 'endpointId':
+            case restApi.updateKey.endpointId:
               changeParam = 'ENDPOINT_IDENTIFIER'
               break
-            case 'endpointType':
+            case restApi.updateKey.endpointType:
               changeParam = 'ENDPOINT_TYPE_REF'
               break
-            case 'networkId':
+            case restApi.updateKey.networkId:
               changeParam = 'NETWORK_IDENTIFIER'
               paramType = 'text'
               break
@@ -341,10 +341,10 @@ function registerSessionApi(db, app) {
 
     var param = ''
     switch (updatedKey) {
-      case 'deviceTypeRef':
+      case restApi.updateKey.deviceTypeRef:
         param = 'DEVICE_TYPE_REF'
         break
-      case 'name':
+      case restApi.updateKey.name:
         param = 'NAME'
         break
       default:
