@@ -153,14 +153,14 @@ function registerSessionApi(db, app) {
       clusterRef,
       commandSide,
     } = request.body
-    var booleanParam = ''
+    var isIncoming = null
 
     switch (listType) {
       case 'selectedIn':
-        booleanParam = 'INCOMING'
+        isIncoming = true
         break
       case 'selectedOut':
-        booleanParam = 'OUTGOING'
+        isIncoming = false
         break
       default:
         break
@@ -173,7 +173,7 @@ function registerSessionApi(db, app) {
         commandSide,
         id,
         value,
-        booleanParam
+        isIncoming
       )
       .then(() => {
         response.json({
