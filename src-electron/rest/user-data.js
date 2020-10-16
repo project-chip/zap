@@ -28,7 +28,7 @@ const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 function registerSessionApi(db, app) {
-  app.post('/cluster', (request, response) => {
+  app.post(restApi.uri.cluster, (request, response) => {
     var { id, side, flag, endpointTypeId } = request.body
 
     queryConfig
@@ -66,7 +66,7 @@ function registerSessionApi(db, app) {
       })
   })
 
-  app.post('/attribute/update', (request, response) => {
+  app.post(restApi.uri.attributeUpdate, (request, response) => {
     var {
       action,
       endpointTypeId,
@@ -139,7 +139,7 @@ function registerSessionApi(db, app) {
       })
   })
 
-  app.post('/command/update', (request, response) => {
+  app.post(restApi.uri.commandUpdate, (request, response) => {
     var {
       action,
       endpointTypeId,
@@ -331,7 +331,7 @@ function registerSessionApi(db, app) {
     }
   })
 
-  app.post('/endpointType/update', (request, response) => {
+  app.post(restApi.uri.endpointTypeUpdate, (request, response) => {
     var { action, endpointTypeId, updatedKey, updatedValue } = request.body
     var sessionId = request.session.zapSessionId
 
@@ -412,7 +412,7 @@ function registerSessionApi(db, app) {
     })
   })
 
-  app.get(`${restApi.uri.getAllSessionKeyValues}`, (request, response) => {
+  app.get(restApi.uri.getAllSessionKeyValues, (request, response) => {
     var sessionId = request.session.zapSessionId
     queryConfig
       .getAllSessionKeyValues(db, sessionId)

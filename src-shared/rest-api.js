@@ -41,6 +41,10 @@ const uri = {
   endpointType: '/endpointType',
   initialState: '/initialState',
   option: '/option',
+  commandUpdate: '/command/update',
+  endpointTypeUpdate: '/endpointType/update',
+  cluster: '/cluster',
+  attributeUpdate: '/attribute/update',
 }
 
 const uiMode = {
