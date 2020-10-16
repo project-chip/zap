@@ -25,7 +25,6 @@ const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
-const httpServer = require('../server/http-server.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 function registerSessionApi(db, app) {
@@ -82,15 +81,12 @@ function registerSessionApi(db, app) {
     switch (listType) {
       case 'selectedAttributes':
         param = 'INCLUDED'
-        paramType = 'bool'
         break
       case 'selectedSingleton':
         param = 'SINGLETON'
-        paramType = 'bool'
         break
       case 'selectedBounded':
         param = 'BOUNDED'
-        paramType = 'bool'
         break
       case 'defaultValue':
         param = 'DEFAULT_VALUE'

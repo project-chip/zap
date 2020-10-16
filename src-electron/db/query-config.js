@@ -264,22 +264,16 @@ function getAllParamValuePairArrayClauses(paramValuePairArray) {
     return (
       currentString +
       (index == 0 ? '' : ',') +
-      paramValuePairIntoSqlClause(paramValuePair) +
+      paramValuePair.key +
+      ' = ' +
+      (paramValuePair.value == ''
+        ? false
+        : paramValuePair.type == 'text'
+        ? "'" + paramValuePair.value + "'"
+        : paramValuePair.value) +
       ' '
     )
   }, '')
-}
-
-function paramValuePairIntoSqlClause(paramValuePair) {
-  return (
-    paramValuePair.key +
-    ' = ' +
-    (paramValuePair.value == ''
-      ? false
-      : paramValuePair.type == 'text'
-      ? "'" + paramValuePair.value + "'"
-      : paramValuePair.value)
-  )
 }
 
 /**
@@ -700,11 +694,10 @@ function resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef) {
                     attribute.side,
                     deviceAttribute.attributeRef,
                     [
-                      { key: 'INCLUDED', value: true, type: 'bool' },
+                      { key: 'INCLUDED', value: true },
                       {
                         key: 'INCLUDED_REPORTABLE',
                         value: deviceAttribute.isReportable == true,
-                        type: 'bool',
                       },
                     ]
                   ),

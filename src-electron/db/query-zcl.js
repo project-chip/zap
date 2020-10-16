@@ -884,13 +884,19 @@ function insertGlobals(db, packageId, data) {
         var args = argsForCommands[j]
         if (args != undefined && args != null) {
           argsToLoad.push(
-            ...args.map((arg) => [lastCmdId, arg.name, arg.type, arg.isArray])
+            ...args.map((arg) => [
+              lastCmdId,
+              arg.name,
+              arg.type,
+              arg.isArray,
+              arg.ordinal,
+            ])
           )
         }
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY) VALUES (?,?,?,?)',
+        'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, ORDINAL) VALUES (?,?,?,?, ?)',
         argsToLoad
       )
     })
@@ -1002,13 +1008,19 @@ function insertClusterExtensions(db, packageId, data) {
             var args = argsForCommands[j]
             if (args != undefined && args != null) {
               argsToLoad.push(
-                ...args.map((arg) => [lastId, arg.name, arg.type, arg.isArray])
+                ...args.map((arg) => [
+                  lastId,
+                  arg.name,
+                  arg.type,
+                  arg.isArray,
+                  arg.ordinal,
+                ])
               )
             }
           }
           return dbApi.dbMultiInsert(
             db,
-            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY) VALUES (?,?,?,?)',
+            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, ORDINAL) VALUES (?,?,?,?, ?)',
             argsToLoad
           )
         })
@@ -1162,13 +1174,14 @@ function insertClusters(db, packageId, data) {
                   arg.name,
                   arg.type,
                   arg.isArray,
+                  arg.ordinal,
                 ])
               )
             }
           }
           return dbApi.dbMultiInsert(
             db,
-            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY) VALUES (?,?,?,?)',
+            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, ORDINAL) VALUES (?,?,?,?, ?)',
             argsToLoad
           )
         })

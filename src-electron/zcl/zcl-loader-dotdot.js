@@ -224,6 +224,7 @@ function prepareCommands(commands, side) {
           pcmd.args.push({
             name: f.$.name,
             type: f.$.type,
+            ordinal: j,
             //isArray: 0, //TODO: no indication of array type in dotdot xml
           })
         }
