@@ -29,6 +29,12 @@ const path = require('path')
 const http = require('http-status-codes')
 const queryConfig = require('../db/query-config.js')
 
+/**
+ * HTTP GET: IDE open
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpGetIdeOpen(db) {
   return (req, res) => {
     if (req.query.project) {
@@ -59,6 +65,12 @@ function httpGetIdeOpen(db) {
   }
 }
 
+/**
+ * HTTP GET: IDE save
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpGetIdeSave(db) {
   return (req, res) => {
     if (req.query.sessionId) {

@@ -22,7 +22,7 @@
  */
 
 const env = require('../util/env.js')
-const studio = require('./studio-integration.js')
+const studio = require('../ide-integration/studio-integration.js')
 const http = require('http-status-codes')
 const restApi = require('../../src-shared/rest-api.js')
 

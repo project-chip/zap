@@ -92,6 +92,12 @@ function httpPostSaveSessionKeyValue(db) {
   }
 }
 
+/**
+ * HTTP POST: cluster
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpPostCluster(db) {
   return (request, response) => {
     var { id, side, flag, endpointTypeId } = request.body
@@ -132,6 +138,12 @@ function httpPostCluster(db) {
   }
 }
 
+/**
+ * HTTP POST attribute update
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpPostAttributeUpdate(db) {
   return (request, response) => {
     var {
@@ -207,6 +219,12 @@ function httpPostAttributeUpdate(db) {
   }
 }
 
+/**
+ * HTTP POST: command update
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpPostCommandUpdate(db) {
   return (request, response) => {
     var {
@@ -336,7 +354,12 @@ function httpPostEndpoint(db) {
     }
   }
 }
-
+/**
+ * HTTP GET: initial state
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpGetInitialState(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
@@ -371,6 +394,12 @@ function httpGetInitialState(db) {
   }
 }
 
+/**
+ * HTTP POST endpoint type
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpPostEndpointType(db) {
   return (request, response) => {
     var { action, context } = request.body
@@ -415,6 +444,12 @@ function httpPostEndpointType(db) {
   }
 }
 
+/**
+ * HTTP POST: endpoint type update
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpPostEndpointTypeUpdate(db) {
   return (request, response) => {
     var { action, endpointTypeId, updatedKey, updatedValue } = request.body
@@ -447,6 +482,12 @@ function httpPostEndpointTypeUpdate(db) {
   }
 }
 
+/**
+ * HTTP GET: option
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpGetOption(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId

@@ -25,6 +25,12 @@ const generationEngine = require('../generator/generation-engine.js')
 const queryPackage = require('../db/query-package.js')
 const restApi = require('../../src-shared/rest-api.js')
 
+/**
+ * HTTP GET: preview single file with index.
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpGetPreviewNameIndex(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
@@ -46,6 +52,12 @@ function httpGetPreviewNameIndex(db) {
   }
 }
 
+/**
+ * HTTP GET: Preview a single file.
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpGetPreviewName(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
@@ -58,6 +70,12 @@ function httpGetPreviewName(db) {
   }
 }
 
+/**
+ * HTTP GET: total preview object.
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpGetPreview(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId

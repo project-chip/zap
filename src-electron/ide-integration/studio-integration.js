@@ -16,7 +16,7 @@
  */
 
 /**
- * This module provides the API to Studio's Jetty server.
+ * This module provides the APIs to Silabs Simplicity Studio's Jetty server.
  *
  */
 

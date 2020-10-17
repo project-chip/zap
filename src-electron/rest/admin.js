@@ -43,6 +43,7 @@ const restApi = require('../../src-shared/rest-api.js')
  * @export
  * @param {*} db
  * @param {*} app
+ * @returns callback for the express uri registration
  */
 function httpPostSql(db) {
   return (request, response) => {
