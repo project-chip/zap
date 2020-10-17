@@ -27,39 +27,12 @@ const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
 
-exports.post = [
-  {
-    uri: restApi.uri.cluster,
-    callback: httpPostCluster,
-  },
-  {
-    uri: restApi.uri.attributeUpdate,
-    callback: httpPostAttributeUpdate,
-  },
-  {
-    uri: restApi.uri.commandUpdate,
-    callback: httpPostCommandUpdate,
-  },
-  {
-    uri: restApi.uri.saveSessionKeyValue,
-    callback: httpPostSaveSessionKeyValue,
-  },
-]
-
-exports.get = [
-  {
-    uri: restApi.uri.getAllSessionKeyValues,
-    callback: httpGetSessionKeyValues,
-  },
-]
-
-exports.delete = [
-  {
-    uri: restApi.uri.endpoint,
-    callback: httpDeleteEndpoint,
-  },
-]
-
+/**
+ * HTTP GET: session key values
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpGetSessionKeyValues(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
@@ -74,6 +47,12 @@ function httpGetSessionKeyValues(db) {
   }
 }
 
+/**
+ * HTTP DELETE: endpoint
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpDeleteEndpoint(db) {
   return (request, response) => {
     var id = request.query.id
@@ -87,6 +66,12 @@ function httpDeleteEndpoint(db) {
   }
 }
 
+/**
+ * HTTP POST: save session key value
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpPostSaveSessionKeyValue(db) {
   return (request, response) => {
     var { key, value } = request.body
@@ -271,8 +256,14 @@ function httpPostCommandUpdate(db) {
   }
 }
 
-function registerSessionApi(db, app) {
-  app.post(restApi.uri.endpoint, (request, response) => {
+/**
+ * HTTP POST: endpoint
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpPostEndpoint(db) {
+  return (request, response) => {
     var { action, context } = request.body
     var sessionIdexport = request.session.zapSessionId
     switch (action) {
@@ -343,9 +334,45 @@ function registerSessionApi(db, app) {
       default:
         break
     }
-  })
+  }
+}
 
-  app.post(restApi.uri.endpointType, (request, response) => {
+function httpGetInitialState(db) {
+  return (request, response) => {
+    var sessionId = request.session.zapSessionId
+    var state = {}
+
+    var statePopulators = []
+    var endpointTypes = queryConfig
+      .getAllEndpointTypes(db, sessionId)
+      .then((rows) => {
+        state['endpointTypes'] = rows
+      })
+    statePopulators.push(endpointTypes)
+
+    var endpoints = queryConfig.getAllEndpoints(db, sessionId).then((rows) => {
+      state['endpoints'] = rows
+    })
+    statePopulators.push(endpoints)
+
+    var sessionKeyValues = queryConfig
+      .getAllSessionKeyValues(db, sessionId)
+      .then((rows) => {
+        state['sessionKeyValues'] = rows
+      })
+    statePopulators.push(sessionKeyValues)
+
+    Promise.all(statePopulators).then(() => {
+      return response.status(restApi.httpCode.ok).json({
+        replyId: restApi.replyId.initialState,
+        state: state,
+      })
+    })
+  }
+}
+
+function httpPostEndpointType(db) {
+  return (request, response) => {
     var { action, context } = request.body
     var sessionId = request.session.zapSessionId
     switch (action) {
@@ -385,9 +412,11 @@ function registerSessionApi(db, app) {
       default:
         break
     }
-  })
+  }
+}
 
-  app.post(restApi.uri.endpointTypeUpdate, (request, response) => {
+function httpPostEndpointTypeUpdate(db) {
+  return (request, response) => {
     var { action, endpointTypeId, updatedKey, updatedValue } = request.body
     var sessionId = request.session.zapSessionId
 
@@ -415,41 +444,11 @@ function registerSessionApi(db, app) {
         })
         return response.status(restApi.httpCode.ok).send()
       })
-  })
+  }
+}
 
-  app.get(restApi.uri.initialState, (request, response) => {
-    var sessionId = request.session.zapSessionId
-    var state = {}
-
-    var statePopulators = []
-    var endpointTypes = queryConfig
-      .getAllEndpointTypes(db, sessionId)
-      .then((rows) => {
-        state['endpointTypes'] = rows
-      })
-    statePopulators.push(endpointTypes)
-
-    var endpoints = queryConfig.getAllEndpoints(db, sessionId).then((rows) => {
-      state['endpoints'] = rows
-    })
-    statePopulators.push(endpoints)
-
-    var sessionKeyValues = queryConfig
-      .getAllSessionKeyValues(db, sessionId)
-      .then((rows) => {
-        state['sessionKeyValues'] = rows
-      })
-    statePopulators.push(sessionKeyValues)
-
-    Promise.all(statePopulators).then(() => {
-      return response.status(restApi.httpCode.ok).json({
-        replyId: restApi.replyId.initialState,
-        state: state,
-      })
-    })
-  })
-
-  app.get(`${restApi.uri.option}/:option`, (request, response) => {
+function httpGetOption(db) {
+  return (request, response) => {
     var sessionId = request.session.zapSessionId
     const { option } = request.params
     queryPackage.getSessionPackageIds(db, sessionId).then((packageIds) => {
@@ -466,7 +465,58 @@ function registerSessionApi(db, app) {
           })
         })
     })
-  })
+  }
 }
 
-exports.registerSessionApi = registerSessionApi
+exports.post = [
+  {
+    uri: restApi.uri.cluster,
+    callback: httpPostCluster,
+  },
+  {
+    uri: restApi.uri.attributeUpdate,
+    callback: httpPostAttributeUpdate,
+  },
+  {
+    uri: restApi.uri.commandUpdate,
+    callback: httpPostCommandUpdate,
+  },
+  {
+    uri: restApi.uri.saveSessionKeyValue,
+    callback: httpPostSaveSessionKeyValue,
+  },
+  {
+    uri: restApi.uri.endpoint,
+    callback: httpPostEndpoint,
+  },
+  {
+    uri: restApi.uri.endpointType,
+    callback: httpPostEndpointType,
+  },
+  {
+    uri: restApi.uri.endpointTypeUpdate,
+    callback: httpPostEndpointTypeUpdate,
+  },
+]
+
+exports.get = [
+  {
+    uri: restApi.uri.getAllSessionKeyValues,
+    callback: httpGetSessionKeyValues,
+  },
+  {
+    uri: restApi.uri.initialState,
+    callback: httpGetInitialState,
+  },
+  {
+    uri: `${restApi.uri.option}/:option`,
+    callback: httpGetOption,
+  },
+]
+
+exports.delete = [
+  {
+    uri: restApi.uri.endpoint,
+    callback: httpDeleteEndpoint,
+  },
+]

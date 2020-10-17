@@ -28,8 +28,6 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 
-const userData = require('../rest/user-data.js')
-
 const restApiModules = [
   '../rest/admin.js',
   '../rest/static-zcl.js',
@@ -58,6 +56,20 @@ function registerRestApi(filename, db, app) {
       app.post(uri, callback(db))
     })
 
+  if (module.put != null)
+    module.put.forEach((singlePut) => {
+      var uri = singlePut.uri
+      var callback = singlePut.callback
+      app.put(uri, callback(db))
+    })
+
+  if (module.patch != null)
+    module.patch.forEach((singlePatch) => {
+      var uri = singlePatch.uri
+      var callback = singlePatch.callback
+      app.patch(uri, callback(db))
+    })
+
   if (module.get != null)
     module.get.forEach((singleGet) => {
       var uri = singleGet.uri
@@ -75,7 +87,6 @@ function registerRestApi(filename, db, app) {
 
 function registerAllRestModules(db, app) {
   restApiModules.forEach((module) => registerRestApi(module, db, app))
-  userData.registerSessionApi(db, app)
 }
 
 /**
