@@ -21,11 +21,8 @@
  * @module REST API: static zcl functions
  */
 
-const httpServer = require('../server/http-server.js')
-
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
-const dbMapping = require('../db/db-mapping.js')
 
 const itemList = 'zcl-item-list'
 const singleItem = 'zcl-item'
@@ -224,8 +221,9 @@ function parseForZclData(db, path, id, packageIdArray) {
  * @export
  * @param {*} app Express instance.
  */
-function registerStaticZclApi(db, app) {
-  app.get('/zcl/:entity/:id', (request, response) => {
+
+function httpGetZclEntity(db) {
+  return (request, response) => {
     const { id, entity } = request.params
     var sessionId = request.session.zapSessionId
 
@@ -239,7 +237,12 @@ function registerStaticZclApi(db, app) {
         finalData.replyId = replyId
         response.status(restApi.httpCode.ok).json(finalData)
       })
-  })
+  }
 }
 
-exports.registerStaticZclApi = registerStaticZclApi
+exports.get = [
+  {
+    uri: '/zcl/:entity/:id',
+    callback: httpGetZclEntity,
+  },
+]

@@ -30,7 +30,6 @@ const util = require('../util/util.js')
 
 const generation = require('../rest/generation.js')
 const ideApiHandler = require('../rest/ide-api-handler.js')
-const staticZcl = require('../rest/static-zcl.js')
 const ucComponent = require('../rest/uc-component.js')
 const userData = require('../rest/user-data.js')
 
@@ -64,7 +63,7 @@ function registerRestApi(filename, db, app) {
 
 function registerAllRestModules(db, app) {
   registerRestApi('../rest/admin.js', db, app)
-  staticZcl.registerStaticZclApi(db, app)
+  registerRestApi('../rest/static-zcl.js', db, app)
   userData.registerSessionApi(db, app)
   generation.registerGenerationApi(db, app)
   ucComponent.registerUcComponentApi(db, app)

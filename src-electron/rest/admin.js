@@ -44,7 +44,7 @@ const restApi = require('../../src-shared/rest-api.js')
  * @param {*} db
  * @param {*} app
  */
-function postSql(db) {
+function httpPostSql(db) {
   return (request, response) => {
     var sql = request.body.sql
     if (sql) {
@@ -66,6 +66,6 @@ function postSql(db) {
 exports.post = [
   {
     uri: restApi.uri.sql,
-    callback: postSql,
+    callback: httpPostSql,
   },
 ]
