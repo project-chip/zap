@@ -181,6 +181,7 @@ function isMatchingVersion(versionsArray, providedVersion) {
 // If versions are not matching, it  prints out a warhing and returns false.
 function versionsCheck() {
   var expectedNodeVersion = [
+    'v12.19.x',
     'v12.18.x',
     'v12.17.x',
     'v12.16.x',
