@@ -39,6 +39,7 @@ yarn-error.log*
 # Random test file that I keep using for the JSON output.
 test.json
 test.log
+test.zap
 
 # Editor directories and files
 .idea

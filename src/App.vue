@@ -16,6 +16,7 @@ limitations under the License.
 
 <template>
   <div id="q-app">
+    <q-ajax-bar />
     <router-view />
   </div>
 </template>
