@@ -23,16 +23,10 @@
 
 const generationEngine = require('../generator/generation-engine.js')
 const queryPackage = require('../db/query-package.js')
+const restApi = require('../../src-shared/rest-api.js')
 
-/**
- *
- *
- * @export
- * @param {*} db
- * @param {*} app
- */
-function registerGenerationApi(db, app) {
-  app.get('/preview/:name/:index', (request, response) => {
+function httpGetPreviewNameIndex(db) {
+  return (request, response) => {
     var sessionId = request.session.zapSessionId
     generationEngine
       .generateSingleFileForPreview(db, sessionId, request.params.name)
@@ -49,9 +43,11 @@ function registerGenerationApi(db, app) {
           })
         }
       })
-  })
+  }
+}
 
-  app.get('/preview/:name', (request, response) => {
+function httpGetPreviewName(db) {
+  return (request, response) => {
     var sessionId = request.session.zapSessionId
     generationEngine
       .generateSingleFileForPreview(db, sessionId, request.params.name)
@@ -59,15 +55,30 @@ function registerGenerationApi(db, app) {
         previewObject.replyId = 'preview'
         return response.json(previewObject)
       })
-  })
+  }
+}
 
-  app.get('/preview/', (request, response) => {
+function httpGetPreview(db) {
+  return (request, response) => {
     var sessionId = request.session.zapSessionId
     queryPackage.getSessionGenTemplates(db, sessionId).then((previewObject) => {
       previewObject.replyId = 'preview-gentemplates'
       return response.json(previewObject)
     })
-  })
+  }
 }
 
-exports.registerGenerationApi = registerGenerationApi
+exports.get = [
+  {
+    uri: restApi.uri.previewNameIndex,
+    callback: httpGetPreviewNameIndex,
+  },
+  {
+    uri: restApi.uri.previewName,
+    callback: httpGetPreviewName,
+  },
+  {
+    uri: restApi.uri.preview,
+    callback: httpGetPreview,
+  },
+]

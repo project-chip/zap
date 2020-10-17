@@ -28,11 +28,15 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 
-const generation = require('../rest/generation.js')
-const ideApiHandler = require('../rest/ide-api-handler.js')
 const ucComponent = require('../rest/uc-component.js')
 const userData = require('../rest/user-data.js')
 
+const restApiModules = [
+  '../rest/admin.js',
+  '../rest/static-zcl.js',
+  '../rest/generation.js',
+  '../rest/ide-api-handler.js',
+]
 var httpServer = null
 
 /**
@@ -62,12 +66,9 @@ function registerRestApi(filename, db, app) {
 }
 
 function registerAllRestModules(db, app) {
-  registerRestApi('../rest/admin.js', db, app)
-  registerRestApi('../rest/static-zcl.js', db, app)
+  restApiModules.forEach((module) => registerRestApi(module, db, app))
   userData.registerSessionApi(db, app)
-  generation.registerGenerationApi(db, app)
   ucComponent.registerUcComponentApi(db, app)
-  ideApiHandler.registerIdeIntegrationApi(db, app)
 }
 
 /**

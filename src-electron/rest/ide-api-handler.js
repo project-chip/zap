@@ -29,8 +29,8 @@ const path = require('path')
 const http = require('http-status-codes')
 const queryConfig = require('../db/query-config.js')
 
-function registerIdeIntegrationApi(db, app) {
-  app.get(restApi.ide.open, (req, res) => {
+function httpGetIdeOpen(db) {
+  return (req, res) => {
     if (req.query.project) {
       let name = path.posix.basename(req.query.project)
       let zapFile = req.query.project
@@ -56,9 +56,11 @@ function registerIdeIntegrationApi(db, app) {
       env.logWarning(msg)
       res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
     }
-  })
+  }
+}
 
-  app.get(restApi.ide.save, (req, res) => {
+function httpGetIdeSave(db) {
+  return (req, res) => {
     if (req.query.sessionId) {
       let sessionId = req.query.sessionId
       env.logInfo(`Studio: Saving project: sessionId: ${sessionId}`)
@@ -89,7 +91,16 @@ function registerIdeIntegrationApi(db, app) {
         error: 'Saving project: Missing "sessionId" query string',
       })
     }
-  })
+  }
 }
 
-exports.registerIdeIntegrationApi = registerIdeIntegrationApi
+exports.get = [
+  {
+    uri: restApi.id.open,
+    callback: httpGetIdeOpen,
+  },
+  {
+    uri: restApi.ide.save,
+    callback: httpGetIdeSave,
+  },
+]

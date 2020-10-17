@@ -45,6 +45,9 @@ const uri = {
   endpointTypeUpdate: '/endpointType/update',
   cluster: '/cluster',
   attributeUpdate: '/attribute/update',
+  preview: '/preview/',
+  previewName: '/preview/:name',
+  previewNameIndex: '/preview/:name/:index',
 }
 
 const uiMode = {
