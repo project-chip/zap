@@ -36,6 +36,7 @@ const restApiModules = [
   '../rest/generation.js',
   '../rest/ide-api-handler.js',
   '../rest/uc-component.js',
+  '../rest/user-data.js',
 ]
 var httpServer = null
 
@@ -62,6 +63,13 @@ function registerRestApi(filename, db, app) {
       var uri = singleGet.uri
       var callback = singleGet.callback
       app.get(uri, callback(db))
+    })
+
+  if (module.delete != null)
+    module.delete.forEach((singleDelete) => {
+      var uri = singleDelete.uri
+      var callback = singleDelete.callback
+      app.delete(uri, callback(db))
     })
 }
 

@@ -27,8 +27,88 @@ const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
 
-function registerSessionApi(db, app) {
-  app.post(restApi.uri.cluster, (request, response) => {
+exports.post = [
+  {
+    uri: restApi.uri.cluster,
+    callback: httpPostCluster,
+  },
+  {
+    uri: restApi.uri.attributeUpdate,
+    callback: httpPostAttributeUpdate,
+  },
+  {
+    uri: restApi.uri.commandUpdate,
+    callback: httpPostCommandUpdate,
+  },
+  {
+    uri: restApi.uri.saveSessionKeyValue,
+    callback: httpPostSaveSessionKeyValue,
+  },
+]
+
+exports.get = [
+  {
+    uri: restApi.uri.getAllSessionKeyValues,
+    callback: httpGetSessionKeyValues,
+  },
+]
+
+exports.delete = [
+  {
+    uri: restApi.uri.endpoint,
+    callback: httpDeleteEndpoint,
+  },
+]
+
+function httpGetSessionKeyValues(db) {
+  return (request, response) => {
+    var sessionId = request.session.zapSessionId
+    queryConfig
+      .getAllSessionKeyValues(db, sessionId)
+      .then((sessionKeyValues) => {
+        return response.status(restApi.httpCode.ok).json({
+          data: sessionKeyValues,
+          replyId: 'sessionKeyValues',
+        })
+      })
+  }
+}
+
+function httpDeleteEndpoint(db) {
+  return (request, response) => {
+    var id = request.query.id
+    queryConfig.deleteEndpoint(db, id).then((removed) => {
+      response.json({
+        successful: removed > 0,
+        id: id,
+      })
+      return response.status(restApi.httpCode.ok).send()
+    })
+  }
+}
+
+function httpPostSaveSessionKeyValue(db) {
+  return (request, response) => {
+    var { key, value } = request.body
+    var sessionId = request.session.zapSessionId
+    env.logInfo(`[${sessionId}]: Saving: ${key} => ${value}`)
+    queryConfig
+      .updateKeyValue(db, sessionId, key, value)
+      .then(() => {
+        response.json({
+          key: key,
+          value: value,
+        })
+        response.status(restApi.httpCode.ok).send()
+      })
+      .catch((err) => {
+        throw err
+      })
+  }
+}
+
+function httpPostCluster(db) {
+  return (request, response) => {
     var { id, side, flag, endpointTypeId } = request.body
 
     queryConfig
@@ -64,9 +144,11 @@ function registerSessionApi(db, app) {
           )
           .catch((err) => response.status(restApi.httpCode.badRequest).send())
       })
-  })
+  }
+}
 
-  app.post(restApi.uri.attributeUpdate, (request, response) => {
+function httpPostAttributeUpdate(db) {
+  return (request, response) => {
     var {
       action,
       endpointTypeId,
@@ -137,9 +219,11 @@ function registerSessionApi(db, app) {
             return response.status(restApi.httpCode.ok).send()
           })
       })
-  })
+  }
+}
 
-  app.post(restApi.uri.commandUpdate, (request, response) => {
+function httpPostCommandUpdate(db) {
+  return (request, response) => {
     var {
       action,
       endpointTypeId,
@@ -184,37 +268,10 @@ function registerSessionApi(db, app) {
         })
         return response.status(restApi.httpCode.ok).send()
       })
-  })
+  }
+}
 
-  app.post(restApi.uri.saveSessionKeyValue, (request, response) => {
-    var { key, value } = request.body
-    var sessionId = request.session.zapSessionId
-    env.logInfo(`[${sessionId}]: Saving: ${key} => ${value}`)
-    queryConfig
-      .updateKeyValue(db, sessionId, key, value)
-      .then(() => {
-        response.json({
-          key: key,
-          value: value,
-        })
-        response.status(restApi.httpCode.ok).send()
-      })
-      .catch((err) => {
-        throw err
-      })
-  })
-
-  app.delete(restApi.uri.endpoint, (request, response) => {
-    var id = request.query.id
-    queryConfig.deleteEndpoint(db, id).then((removed) => {
-      response.json({
-        successful: removed > 0,
-        id: id,
-      })
-      return response.status(restApi.httpCode.ok).send()
-    })
-  })
-
+function registerSessionApi(db, app) {
   app.post(restApi.uri.endpoint, (request, response) => {
     var { action, context } = request.body
     var sessionIdexport = request.session.zapSessionId
@@ -409,18 +466,6 @@ function registerSessionApi(db, app) {
           })
         })
     })
-  })
-
-  app.get(restApi.uri.getAllSessionKeyValues, (request, response) => {
-    var sessionId = request.session.zapSessionId
-    queryConfig
-      .getAllSessionKeyValues(db, sessionId)
-      .then((sessionKeyValues) => {
-        return response.status(restApi.httpCode.ok).json({
-          data: sessionKeyValues,
-          replyId: 'sessionKeyValues',
-        })
-      })
   })
 }
 
