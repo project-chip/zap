@@ -23,7 +23,6 @@
 
 const generationEngine = require('../generator/generation-engine.js')
 const queryPackage = require('../db/query-package.js')
-const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  *

@@ -26,15 +26,50 @@ const express = require('express')
 const session = require('express-session')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
-const admin = require('../rest/admin.js')
-const generation = require('../rest/generation.js')
-const staticZcl = require('../rest/static-zcl.js')
-const userData = require('../rest/user-data.js')
-const uc_integration = require('../rest/uc-component.js')
-const ide = require('../rest/ide-api-handler.js')
 const util = require('../util/util.js')
 
+const generation = require('../rest/generation.js')
+const ideApiHandler = require('../rest/ide-api-handler.js')
+const staticZcl = require('../rest/static-zcl.js')
+const ucComponent = require('../rest/uc-component.js')
+const userData = require('../rest/user-data.js')
+
 var httpServer = null
+
+/**
+ * This function is used to register a rest module, which exports
+ * get/post/etc. arrays.
+ *
+ * @param {*} filename
+ * @param {*} db
+ * @param {*} app
+ */
+function registerRestApi(filename, db, app) {
+  var module = require(filename)
+
+  if (module.post != null)
+    module.post.forEach((singlePost) => {
+      var uri = singlePost.uri
+      var callback = singlePost.callback
+      app.post(uri, callback(db))
+    })
+
+  if (module.get != null)
+    module.get.forEach((singleGet) => {
+      var uri = singleGet.uri
+      var callback = singleGet.callback
+      app.get(uri, callback(db))
+    })
+}
+
+function registerAllRestModules(db, app) {
+  registerRestApi('../rest/admin.js', db, app)
+  staticZcl.registerStaticZclApi(db, app)
+  userData.registerSessionApi(db, app)
+  generation.registerGenerationApi(db, app)
+  ucComponent.registerUcComponentApi(db, app)
+  ideApiHandler.registerIdeIntegrationApi(db, app)
+}
 
 /**
  * Promises to initialize the http server on a given port
@@ -79,14 +114,10 @@ function initHttpServer(db, port, studioPort) {
       }
     })
 
-    // Simple get for an entity, id can be all or specific id
-    staticZcl.registerStaticZclApi(db, app)
-    userData.registerSessionApi(db, app)
-    generation.registerGenerationApi(db, app)
-    admin.registerAdminApi(db, app)
-    uc_integration.registerUcComponentApi(db, app)
-    ide.registerIdeIntegrationApi(db, app)
+    // REST modules
+    registerAllRestModules(db, app)
 
+    // Static content
     env.logInfo(`HTTP static content location: ${env.httpStaticContent}`)
     app.use(express.static(env.httpStaticContent))
 
