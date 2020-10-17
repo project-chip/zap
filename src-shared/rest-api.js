@@ -33,6 +33,7 @@ const action = {
 }
 
 const uri = {
+  zclEntity: '/zcl/:entity/:id',
   saveSessionKeyValue: '/save',
   getAllSessionKeyValues: '/allKeyValues',
   sql: '/sql',

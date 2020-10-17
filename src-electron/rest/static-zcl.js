@@ -242,7 +242,7 @@ function httpGetZclEntity(db) {
 
 exports.get = [
   {
-    uri: '/zcl/:entity/:id',
+    uri: restApi.uri.zclEntity,
     callback: httpGetZclEntity,
   },
 ]
