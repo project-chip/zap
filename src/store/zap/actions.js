@@ -340,11 +340,13 @@ export function updateSelectedEndpointType(
   }
 }
 
-export function deleteEndpoint(context, endpoint) {
-  Vue.prototype.$serverPost(restApi.uri.endpoint, endpoint).then((data) => {
-    let arg = data.data
-    context.commit('deleteEndpoint', { id: arg.id })
-  })
+export function deleteEndpoint(context, endpointId) {
+  Vue.prototype
+    .$serverDelete(restApi.uri.endpoint, { params: { id: endpointId } })
+    .then((response) => {
+      let arg = response.data
+      context.commit('deleteEndpoint', { id: arg.id })
+    })
 }
 
 export function setClusterList(context, selectionContext) {

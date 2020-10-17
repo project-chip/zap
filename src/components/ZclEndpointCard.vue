@@ -138,22 +138,15 @@ export default {
     },
     deleteEpt() {
       let endpointReference = this.endpointReference
-      this.$store
-        .dispatch('zap/deleteEndpoint', {
+      this.$store.dispatch('zap/deleteEndpoint', endpointReference).then(() => {
+        let context = {
           action: RestApi.action.delete,
           context: {
-            id: endpointReference,
+            id: this.endpointType[endpointReference],
           },
-        })
-        .then(() => {
-          let context = {
-            action: RestApi.action.delete,
-            context: {
-              id: this.endpointType[endpointReference],
-            },
-          }
-          this.$store.dispatch('zap/removeEndpointType', context)
-        })
+        }
+        this.$store.dispatch('zap/removeEndpointType', context)
+      })
     },
     setSelectedEndpointType() {
       this.$store.dispatch('zap/updateSelectedEndpointType', {
@@ -228,6 +221,6 @@ export default {
 
 <style scoped lang="sass">
 .q-card
-  border-width: 8px;
-  border-color: $primary;
+  border-width: 8px
+  border-color: $primary
 </style>

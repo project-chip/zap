@@ -204,6 +204,17 @@ function registerSessionApi(db, app) {
       })
   })
 
+  app.delete(restApi.uri.endpoint, (request, response) => {
+    var id = request.query.id
+    queryConfig.deleteEndpoint(db, id).then((removed) => {
+      response.json({
+        successful: removed > 0,
+        id: id,
+      })
+      return response.status(restApi.httpCode.ok).send()
+    })
+  })
+
   app.post(restApi.uri.endpoint, (request, response) => {
     var { action, context } = request.body
     var sessionIdexport = request.session.zapSessionId
@@ -236,17 +247,6 @@ function registerSessionApi(db, app) {
           .catch((err) => {
             return response.status(restApi.httpCode.badRequest).send()
           })
-        break
-      case restApi.action.delete:
-        queryConfig.deleteEndpoint(db, context.id).then((removed) => {
-          response.json({
-            action: action,
-            successful: removed > 0,
-            id: context.id,
-            replyId: restApi.replyId.zclEndpointResponse,
-          })
-          return response.status(restApi.httpCode.ok).send()
-        })
         break
       case restApi.action.update:
         let changes = context.changes.map((data) => {
