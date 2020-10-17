@@ -28,7 +28,6 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 
-const ucComponent = require('../rest/uc-component.js')
 const userData = require('../rest/user-data.js')
 
 const restApiModules = [
@@ -36,6 +35,7 @@ const restApiModules = [
   '../rest/static-zcl.js',
   '../rest/generation.js',
   '../rest/ide-api-handler.js',
+  '../rest/uc-component.js',
 ]
 var httpServer = null
 
@@ -68,7 +68,6 @@ function registerRestApi(filename, db, app) {
 function registerAllRestModules(db, app) {
   restApiModules.forEach((module) => registerRestApi(module, db, app))
   userData.registerSessionApi(db, app)
-  ucComponent.registerUcComponentApi(db, app)
 }
 
 /**
