@@ -57,8 +57,12 @@ export default {
   },
 
   mounted() {
-    this.$serverOn(restApi.uc.componentTreeResponse, (event, arg) => {
-      arg.data.forEach((ele) => this.testData.push(ele))
+    this.$serverGet(restApi.uc.componentTree, {
+      params: {
+        studioProject: this.$store.state.zap.studioProject,
+      },
+    }).then((response) => {
+      response.data.forEach((ele) => this.testData.push(ele))
 
       // computed selected Nodes
       let selected = []
@@ -74,12 +78,6 @@ export default {
       selected.forEach((e) => this.uc.ticked.push(e))
 
       this.uc.last_ticked = this.uc.ticked
-    })
-
-    this.$serverGet(restApi.uc.componentTree, {
-      params: {
-        studioProject: this.$store.state.zap.studioProject,
-      },
     })
   },
 

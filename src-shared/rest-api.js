@@ -65,9 +65,6 @@ const uc = {
   componentTree: '/uc/component/tree',
   componentAdd: '/uc/component/add',
   componentRemove: '/uc/component/remove',
-
-  // response/reply id
-  componentTreeResponse: 'treeResponse',
 }
 
 const ide = {

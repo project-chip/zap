@@ -17,12 +17,10 @@
 
 import Vue from 'vue'
 import axios from 'axios'
-import events from 'events'
 
 import restApi from '../../src-shared/rest-api.js'
 
 Vue.prototype.$axios = axios({ withCredentials: true })
-var eventEmitter = new events.EventEmitter()
 
 // You can set this to false to not log all the roundtrips
 const log = true
@@ -41,11 +39,6 @@ function processResponse(method, url, response) {
   if (!restApi.httpCode.isSuccess(response.status)) {
     throw response
   }
-  eventEmitter.emit(
-    response.data['replyId'],
-    response.data['replyId'],
-    response.data
-  )
   return response
 }
 
@@ -127,20 +120,9 @@ function serverPatch(url, data) {
     .catch((error) => console.log(error))
 }
 
-/**
- * Registers a listener to the given event.
- *
- * @param {*} channel
- * @param {*} listener
- */
-function serverOn(channel, listener) {
-  eventEmitter.on(channel, listener)
-}
-
 // Now tie these functions to vue instance
 Vue.prototype.$serverGet = serverGet
 Vue.prototype.$serverPost = serverPost
 Vue.prototype.$serverPut = serverPut
 Vue.prototype.$serverPatch = serverPatch
 Vue.prototype.$serverDelete = serverDelete
-Vue.prototype.$serverOn = serverOn
