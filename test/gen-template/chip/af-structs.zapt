@@ -5,6 +5,7 @@
 #ifndef SILABS_EMBER_AF_STRUCTS
 #define SILABS_EMBER_AF_STRUCTS
 
+#include <stdint.h>
 #include "enums.h"
 
 {{#zcl_structs}}

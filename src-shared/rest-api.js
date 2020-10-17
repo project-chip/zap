@@ -41,6 +41,10 @@ const uri = {
   endpointType: '/endpointType',
   initialState: '/initialState',
   option: '/option',
+  commandUpdate: '/command/update',
+  endpointTypeUpdate: '/endpointType/update',
+  cluster: '/cluster',
+  attributeUpdate: '/attribute/update',
 }
 
 const uiMode = {
@@ -61,9 +65,6 @@ const uc = {
   componentTree: '/uc/component/tree',
   componentAdd: '/uc/component/add',
   componentRemove: '/uc/component/remove',
-
-  // response/reply id
-  componentTreeResponse: 'treeResponse',
 }
 
 const ide = {
@@ -80,6 +81,14 @@ const ide = {
   openResponse: 'openResponse',
 }
 
+const updateKey = {
+  deviceTypeRef: 'deviceTypeRef',
+  endpointId: 'endpointId',
+  endpointType: 'endpointType',
+  networkId: 'networkId',
+  name: 'name',
+}
+
 exports.replyId = replyId
 exports.action = action
 exports.uri = uri
@@ -87,3 +96,4 @@ exports.httpCode = httpCode
 exports.uiMode = uiMode
 exports.uc = uc
 exports.ide = ide
+exports.updateKey = updateKey

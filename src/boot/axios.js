@@ -17,12 +17,10 @@
 
 import Vue from 'vue'
 import axios from 'axios'
-import events from 'events'
 
 import restApi from '../../src-shared/rest-api.js'
 
 Vue.prototype.$axios = axios({ withCredentials: true })
-var eventEmitter = new events.EventEmitter()
 
 // You can set this to false to not log all the roundtrips
 const log = true
@@ -41,16 +39,12 @@ function processResponse(method, url, response) {
   if (!restApi.httpCode.isSuccess(response.status)) {
     throw response
   }
-  eventEmitter.emit(
-    response.data['replyId'],
-    response.data['replyId'],
-    response.data
-  )
   return response
 }
 
 /**
  * Issues a GET to the server and returns a promise that resolves into a response.
+ * GET is idempotent and does not change the state on the server.
  *
  * @param {*} url
  * @param {*} config
@@ -66,6 +60,11 @@ function serverGet(url, config = null) {
 /**
  * Issues a POST to the server and returns a promise that resolves into a response.
  *
+ * Remember: POST is not idempotent. POST should not be used to update
+ * a resource or create a resource.
+ *
+ * Think of POST as a way to "post a message to the posting board".
+ *
  * @param {*} url
  * @param {*} data
  * @returns Promise that resolves into a response.
@@ -79,6 +78,10 @@ function serverPost(url, data) {
 
 /**
  * Issues a PUT to the server and returns a promise that resolves into a response.
+ *
+ * Remember: PUT is a way to update a resource or create a new resource
+ * at a given URI. It is idempotent, so consecutive PUTs with same data
+ * do not cause consecutive entries.
  *
  * @param {*} url
  * @param {*} data
@@ -105,18 +108,21 @@ function serverDelete(url) {
 }
 
 /**
- * Registers a listener to the given event.
+ * Issues a PATCH to the server and returns a promise that resolves into a response.
  *
- * @param {*} channel
- * @param {*} listener
+ * @param {*} url
+ * @returns Promise that resolves into a response.
  */
-function serverOn(channel, listener) {
-  eventEmitter.on(channel, listener)
+function serverPatch(url, data) {
+  if (log) console.log(`PATCH → : ${url}, ${data}`)
+  return axios['patch'](url, data)
+    .then((response) => processResponse('PATCH', url, response))
+    .catch((error) => console.log(error))
 }
 
 // Now tie these functions to vue instance
 Vue.prototype.$serverGet = serverGet
 Vue.prototype.$serverPost = serverPost
 Vue.prototype.$serverPut = serverPut
+Vue.prototype.$serverPatch = serverPatch
 Vue.prototype.$serverDelete = serverDelete
-Vue.prototype.$serverOn = serverOn

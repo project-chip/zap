@@ -41,15 +41,11 @@ function registerUcComponentApi(db, app) {
       env.logInfo(`StudioUC(${name}): Get project info`)
       studio
         .getProjectInfo(req.query.studioProject)
-        .then(function (response) {
-          env.logInfo(`StudioUC(${name}): RESP: ${response.status}`)
-          let r = {
-            replyId: restApi.uc.componentTreeResponse,
-            data: response.data,
-          }
-          res.send(r)
+        .then((r) => {
+          env.logInfo(`StudioUC(${name}): RESP: ${r.status}`)
+          res.send(r.data)
         })
-        .catch(function (err) {
+        .catch((err) => {
           env.logInfo(`StudioUC(${name}): ERR: ${err}`)
           handleError(err, res)
         })
@@ -57,6 +53,7 @@ function registerUcComponentApi(db, app) {
       env.logInfo(
         `StudioUC(${name}): Get project info: missing "studioProject=" query string`
       )
+      res.send([])
     }
   })
 

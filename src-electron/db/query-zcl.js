@@ -31,56 +31,52 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} db
  * @returns Promise that resolves with the rows of enums.
  */
-function selectAllEnums(db, packageId = null) {
+function selectAllEnums(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT ENUM_ID, NAME, TYPE FROM ENUM  ' +
-        (packageId != null ? 'WHERE PACKAGE_REF = ? ' : '') +
-        'ORDER BY NAME',
-      packageId != null ? [packageId] : []
+      'SELECT ENUM_ID, NAME, TYPE FROM ENUM  WHERE PACKAGE_REF = ? ORDER BY NAME',
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.enum))
 }
 
 function selectAllEnumItemsById(db, id) {
   return dbApi
-    .dbAll(db, 'SELECT NAME, VALUE FROM ENUM_ITEM WHERE ENUM_REF=?', [id])
-    .then((rows) => rows.map(dbMapping.map.enumItem))
-}
-
-function selectAllEnumItems(db, packageId = null) {
-  return dbApi
     .dbAll(
       db,
-      'SELECT NAME, VALUE, ENUM_REF FROM ENUM_ITEM ' +
-        (packageId != null ? 'WHERE PACKAGE_REF = ? ' : '') +
-        'ORDER BY ENUM_REF',
-      packageId != null ? [packageId] : []
+      'SELECT NAME, VALUE FROM ENUM_ITEM WHERE ENUM_REF = ? ORDER BY ORDINAL',
+      [id]
     )
     .then((rows) => rows.map(dbMapping.map.enumItem))
 }
 
-function selectEnumById(db, id, packageId = null) {
+function selectAllEnumItems(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT NAME, VALUE, ENUM_REF FROM ENUM_ITEM WHERE PACKAGE_REF = ? ORDER BY ENUM_REF, ORDINAL',
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.enumItem))
+}
+
+function selectEnumById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE ENUM_ID = ? ' +
-        (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
-        'ORDER BY NAME',
-      packageId != null ? [id, packageId] : [id]
+      'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE ENUM_ID = ? AND PACKAGE_REF = ? ORDER BY NAME',
+      [id, packageId]
     )
     .then(dbMapping.map.enum)
 }
 
-function selectEnumByName(db, name, packageId = null) {
+function selectEnumByName(db, name, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE NAME = ? ' +
-        (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
-        'ORDER BY NAME',
-      packageId != null ? [name, packageId] : [name]
+      'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE NAME = ? AND PACKAGE_REF = ? ORDER BY NAME',
+      [name, packageId]
     )
     .then(dbMapping.map.enum)
 }
@@ -92,32 +88,32 @@ function selectEnumByName(db, name, packageId = null) {
  * @param {*} db
  * @returns Promise that resolves with the rows of bitmaps.
  */
-function selectAllBitmaps(db, packageId = null) {
+function selectAllBitmaps(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP ' +
-        (packageId != null ? `WHERE PACKAGE_REF = ? ` : ``) +
-        'ORDER BY NAME',
-      packageId != null ? [packageId] : []
+      'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE PACKAGE_REF = ? ORDER BY NAME',
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmap))
 }
 
 function selectAllBitmapFieldsById(db, id) {
   return dbApi
-    .dbAll(db, 'SELECT NAME, MASK FROM BITMAP_FIELD WHERE BITMAP_REF=?', [id])
+    .dbAll(
+      db,
+      'SELECT NAME, MASK FROM BITMAP_FIELD WHERE BITMAP_REF=? ORDER BY ORDINAL',
+      [id]
+    )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
 }
 
-function selectAllBitmapFields(db, packageId = null) {
+function selectAllBitmapFields(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, MASK, BITMAP_REF FROM BITMAP_FIELD  ' +
-        (packageId != null ? 'WHERE PACKAGE_REF = ? ' : '') +
-        'ORDER BY NAME',
-      packageId != null ? [packageId] : []
+      'SELECT NAME, MASK, BITMAP_REF FROM BITMAP_FIELD  WHERE PACKAGE_REF = ? ORDER BY BITMAP_REF, ORDINAL',
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
 }
@@ -132,14 +128,12 @@ function selectBitmapByName(db, packageId, name) {
     .then(dbMapping.map.bitmap)
 }
 
-function selectBitmapById(db, id, packageId = null) {
+function selectBitmapById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE BITMAP_ID = ? ' +
-        (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
-        'ORDER BY NAME',
-      packageId != null ? [id, packageId] : [id]
+      'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE BITMAP_ID = ? AND PACKAGE_REF = ? ORDER BY NAME',
+      [id, packageId]
     )
     .then(dbMapping.map.bitmap)
 }
@@ -151,24 +145,20 @@ function selectBitmapById(db, id, packageId = null) {
  * @param {*} db
  * @returns Promise that resolves with the rows of domains.
  */
-function selectAllDomains(db, packageId = null) {
+function selectAllDomains(db, packageId) {
   return dbApi.dbAll(
     db,
-    'SELECT DOMAIN_ID, NAME FROM DOMAIN ' +
-      (packageId != null ? `WHERE PACKAGE_REF = ? ` : ``) +
-      'ORDER BY NAME',
-    packageId != null ? [packageId] : []
+    'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE PACKAGE_REF = ? ORDER BY NAME',
+    [packageId]
   )
 }
 
-function selectDomainById(db, id, packageId = null) {
+function selectDomainById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE DOMAIN_ID = ?' +
-        (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
-        'ORDER BY NAME',
-      packageId != null ? [id, packageId] : [id]
+      'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE DOMAIN_ID = ?AND PACKAGE_REF = ? ORDER BY NAME',
+      [id, packageId]
     )
     .then(dbMapping.map.domain)
 }
@@ -180,38 +170,32 @@ function selectDomainById(db, id, packageId = null) {
  * @param {*} db
  * @returns Promise that resolves with the rows of structs.
  */
-function selectAllStructs(db, packageId = null) {
+function selectAllStructs(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT STRUCT_ID, NAME FROM STRUCT ' +
-        (packageId != null ? 'WHERE PACKAGE_REF = ? ' : '') +
-        'ORDER BY NAME',
-      packageId != null ? [packageId] : []
+      'SELECT STRUCT_ID, NAME FROM STRUCT WHERE PACKAGE_REF = ? ORDER BY NAME',
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.struct))
 }
 
-function selectStructById(db, id, packageId = null) {
+function selectStructById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ? ' +
-        (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
-        'ORDER BY NAME',
-      packageId != null ? [id, packageId] : [id]
+      'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ? AND PACKAGE_REF = ? ORDER BY NAME',
+      [id, packageId]
     )
     .then(dbMapping.map.struct)
 }
 
-function selectStructByName(db, name, packageId = null) {
+function selectStructByName(db, name, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT STRUCT_ID, NAME FROM STRUCT WHERE NAME = ? ' +
-        (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
-        'ORDER BY NAME',
-      packageId != null ? [name, packageId] : [name]
+      'SELECT STRUCT_ID, NAME FROM STRUCT WHERE NAME = ? AND PACKAGE_REF = ? ORDER BY NAME',
+      [name, packageId]
     )
     .then(dbMapping.map.struct)
 }
@@ -220,7 +204,7 @@ function selectAllStructItemsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, TYPE, STRUCT_REF FROM STRUCT_ITEM WHERE STRUCT_REF = ?',
+      'SELECT NAME, TYPE, STRUCT_REF FROM STRUCT_ITEM WHERE STRUCT_REF = ? ORDER BY ORDINAL',
       [id]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))
@@ -233,7 +217,7 @@ function selectAllStructItemsById(db, id) {
  * @param {*} db
  * @returns Promise that resolves with the rows of clusters.
  */
-function selectAllClusters(db, packageId = null) {
+function selectAllClusters(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -247,20 +231,19 @@ SELECT
   DEFINE,
   DOMAIN_NAME
 FROM CLUSTER
-  ${packageId != null ? 'WHERE PACKAGE_REF = ? ' : ''}
+  WHERE PACKAGE_REF = ?
 ORDER BY CODE`,
-      packageId != null ? [packageId] : []
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
 
-function selectClusterById(db, id, packageId = null) {
+function selectClusterById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME FROM CLUSTER WHERE CLUSTER_ID = ?  ' +
-        (packageId != null ? 'AND PACKAGE_REF = ? ' : ''),
-      packageId != null ? [id, packageId] : [id]
+      'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME FROM CLUSTER WHERE CLUSTER_ID = ?  AND PACKAGE_REF = ?',
+      [id, packageId]
     )
     .then(dbMapping.map.cluster)
 }
@@ -272,25 +255,22 @@ function selectClusterById(db, id, packageId = null) {
  * @param {*} db
  * @returns Promise that resolves with the rows of device types.
  */
-function selectAllDeviceTypes(db, packageId = null) {
+function selectAllDeviceTypes(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE ' +
-        (packageId != null ? 'WHERE PACKAGE_REF = ? ' : '') +
-        'ORDER BY CODE',
-      packageId != null ? [packageId] : []
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE PACKAGE_REF = ? ORDER BY CODE',
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.deviceType))
 }
 
-function selectDeviceTypeById(db, id, packageId = null) {
+function selectDeviceTypeById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ? ' +
-        (packageId != null ? 'AND PACKAGE_REF = ? ' : ''),
-      packageId != null ? [id, packageId] : [id]
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ? AND PACKAGE_REF = ? ',
+      [id, packageId]
     )
     .then(dbMapping.map.deviceType)
 }
@@ -423,7 +403,7 @@ WHERE ATTRIBUTE_ID = ?`,
     .then(dbMapping.map.attribute)
 }
 
-function selectAllAttributes(db, packageId = null) {
+function selectAllAttributes(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -444,14 +424,14 @@ SELECT
   IS_OPTIONAL,
   IS_REPORTABLE
 FROM ATTRIBUTE
-   ${packageId != null ? 'WHERE PACKAGE_REF = ? ' : ''}
+  WHERE PACKAGE_REF = ?
 ORDER BY CODE`,
-      packageId != null ? [packageId] : []
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-function selectAllAttributesBySide(db, side, packageId = null) {
+function selectAllAttributesBySide(db, side, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -473,9 +453,9 @@ SELECT
   IS_REPORTABLE
 FROM ATTRIBUTE
    WHERE SIDE = ?
-   ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
+   AND PACKAGE_REF = ? 
 ORDER BY CODE`,
-      packageId != null ? [side, packageId] : [side]
+      [side, packageId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
@@ -490,7 +470,15 @@ function selectCommandById(db, id) {
     .then(dbMapping.map.command)
 }
 
-function selectCommandsByClusterId(db, clusterId, packageId = null) {
+/**
+ * Retrieves commands for a given cluster Id.
+ * This method DOES NOT retrieve global commands, since those have a cluster_ref = null
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @returns promise of an array of command rows, which represent per-cluster commands, excluding global commands.
+ */
+function selectCommandsByClusterId(db, clusterId) {
   return dbApi
     .dbAll(
       db,
@@ -505,14 +493,13 @@ SELECT
   SOURCE,
   IS_OPTIONAL
 FROM COMMAND WHERE CLUSTER_REF = ?
-  ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
 ORDER BY CODE`,
-      packageId != null ? [clusterId, packageId] : [clusterId]
+      [clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllCommands(db, packageId = null) {
+function selectAllCommands(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -527,14 +514,14 @@ SELECT
   SOURCE,
   IS_OPTIONAL
 FROM COMMAND
-  ${packageId != null ? 'WHERE PACKAGE_REF = ? ' : ''}
+  WHERE PACKAGE_REF = ?
 ORDER BY CODE`,
-      packageId != null ? [packageId] : []
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllGlobalCommands(db, packageId = null) {
+function selectAllGlobalCommands(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -549,32 +536,51 @@ SELECT
   SOURCE,
   IS_OPTIONAL
 FROM COMMAND
-WHERE CLUSTER_REF IS NULL ` +
-        (packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
-        `ORDER BY CODE`,
-      packageId != null ? [packageId] : []
+WHERE CLUSTER_REF IS NULL AND PACKAGE_REF = ? 
+ORDER BY CODE`,
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllClusterCommands(db, packageId = null) {
+function selectAllClusterCommands(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE CLUSTER_REF IS NOT NULL ` +
-        +(packageId != null ? 'AND PACKAGE_REF = ? ' : '') +
-        `ORDER BY CODE`,
-      packageId != null ? [packageId] : []
+      `
+SELECT 
+  COMMAND_ID, 
+  CLUSTER_REF, 
+  CODE, 
+  MANUFACTURER_CODE, 
+  NAME, 
+  DESCRIPTION, 
+  SOURCE, 
+  IS_OPTIONAL 
+FROM COMMAND 
+WHERE CLUSTER_REF IS NOT NULL AND PACKAGE_REF = ? 
+ORDER BY CODE`,
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllCommandArguments(db) {
+function selectAllCommandArguments(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      `SELECT COMMAND_REF, NAME, TYPE, IS_ARRAY FROM COMMAND_ARG ORDER BY COMMAND_REF`,
-      []
+      `
+SELECT 
+  COMMAND_ARG.COMMAND_REF, 
+  COMMAND_ARG.NAME, 
+  COMMAND_ARG.TYPE, 
+  COMMAND_ARG.IS_ARRAY 
+FROM COMMAND_ARG, COMMAND 
+WHERE 
+  COMMAND_ARG.COMMAND_REF = COMMAND.COMMAND_ID
+  AND COMMAND.PACKAGE_REF = ?
+ORDER BY COMMAND_REF, ORDINAL`,
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.commandArgument))
 }
@@ -878,13 +884,19 @@ function insertGlobals(db, packageId, data) {
         var args = argsForCommands[j]
         if (args != undefined && args != null) {
           argsToLoad.push(
-            ...args.map((arg) => [lastCmdId, arg.name, arg.type, arg.isArray])
+            ...args.map((arg) => [
+              lastCmdId,
+              arg.name,
+              arg.type,
+              arg.isArray,
+              arg.ordinal,
+            ])
           )
         }
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY) VALUES (?,?,?,?)',
+        'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, ORDINAL) VALUES (?,?,?,?, ?)',
         argsToLoad
       )
     })
@@ -996,13 +1008,19 @@ function insertClusterExtensions(db, packageId, data) {
             var args = argsForCommands[j]
             if (args != undefined && args != null) {
               argsToLoad.push(
-                ...args.map((arg) => [lastId, arg.name, arg.type, arg.isArray])
+                ...args.map((arg) => [
+                  lastId,
+                  arg.name,
+                  arg.type,
+                  arg.isArray,
+                  arg.ordinal,
+                ])
               )
             }
           }
           return dbApi.dbMultiInsert(
             db,
-            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY) VALUES (?,?,?,?)',
+            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, ORDINAL) VALUES (?,?,?,?, ?)',
             argsToLoad
           )
         })
@@ -1156,13 +1174,14 @@ function insertClusters(db, packageId, data) {
                   arg.name,
                   arg.type,
                   arg.isArray,
+                  arg.ordinal,
                 ])
               )
             }
           }
           return dbApi.dbMultiInsert(
             db,
-            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY) VALUES (?,?,?,?)',
+            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, ORDINAL) VALUES (?,?,?,?, ?)',
             argsToLoad
           )
         })
@@ -1201,9 +1220,7 @@ function insertDeviceTypes(db, packageId, data) {
       })
     )
     .then((lastIdsArray) => {
-      var i
-      var itemsToLoad = []
-      for (i = 0; i < lastIdsArray.length; i++) {
+      for (var i = 0; i < lastIdsArray.length; i++) {
         if ('clusters' in data[i]) {
           var lastId = lastIdsArray[i]
           var clusters = data[i].clusters
@@ -1394,13 +1411,13 @@ function insertStructs(db, packageId, data) {
           var lastId = lastIdsArray[i]
           var items = data[i].items
           itemsToLoad.push(
-            ...items.map((item) => [lastId, item.name, item.type])
+            ...items.map((item) => [lastId, item.name, item.type, item.ordinal])
           )
         }
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE) VALUES (?,?,?)',
+        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, ORDINAL) VALUES (?,?,?, ?)',
         itemsToLoad
       )
     })
@@ -1432,13 +1449,18 @@ function insertEnums(db, packageId, data) {
           var lastId = lastIdsArray[i]
           var items = data[i].items
           itemsToLoad.push(
-            ...items.map((item) => [lastId, item.name, item.value])
+            ...items.map((item) => [
+              lastId,
+              item.name,
+              item.value,
+              item.ordinal,
+            ])
           )
         }
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE) VALUES (?, ?, ?)',
+        'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE, ORDINAL) VALUES (?, ?, ?, ?)',
         itemsToLoad
       )
     })
@@ -1553,13 +1575,18 @@ function insertBitmaps(db, packageId, data) {
           var lastId = lastIdsArray[i]
           var fields = data[i].fields
           fieldsToLoad.push(
-            ...fields.map((field) => [lastId, field.name, field.mask])
+            ...fields.map((field) => [
+              lastId,
+              field.name,
+              field.mask,
+              field.ordinal,
+            ])
           )
         }
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK) VALUES (?, ?, ?)',
+        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, ORDINAL) VALUES (?, ?, ?, ?)',
         fieldsToLoad
       )
     })
@@ -1665,11 +1692,7 @@ function exportCommandDetailsFromAllEndpointTypesAndClusters(
  * @param {*} [packageId=null]
  * @returns A promise with number of command arguments for a command
  */
-function selectCommandArgumentsCountByCommandId(
-  db,
-  commandId,
-  packageId = null
-) {
+function selectCommandArgumentsCountByCommandId(db, commandId) {
   return dbApi
     .dbAll(
       db,
@@ -1689,7 +1712,7 @@ FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
  * @param {*} [packageId=null]
  * @returns A promise with command arguments for a command
  */
-function selectCommandArgumentsByCommandId(db, commandId, packageId = null) {
+function selectCommandArgumentsByCommandId(db, commandId) {
   return dbApi
     .dbAll(
       db,
@@ -1699,7 +1722,8 @@ SELECT
   NAME,
   TYPE,
   IS_ARRAY
-FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
+FROM COMMAND_ARG WHERE COMMAND_REF = ? 
+ORDER BY ORDINAL`,
       [commandId]
     )
     .then((rows) => rows.map(dbMapping.map.commandArgument))

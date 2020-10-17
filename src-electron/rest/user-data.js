@@ -25,11 +25,10 @@ const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
-const httpServer = require('../server/http-server.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 function registerSessionApi(db, app) {
-  app.post('/cluster', (request, response) => {
+  app.post(restApi.uri.cluster, (request, response) => {
     var { id, side, flag, endpointTypeId } = request.body
 
     queryConfig
@@ -67,7 +66,7 @@ function registerSessionApi(db, app) {
       })
   })
 
-  app.post('/attribute/update', (request, response) => {
+  app.post(restApi.uri.attributeUpdate, (request, response) => {
     var {
       action,
       endpointTypeId,
@@ -82,15 +81,12 @@ function registerSessionApi(db, app) {
     switch (listType) {
       case 'selectedAttributes':
         param = 'INCLUDED'
-        paramType = 'bool'
         break
       case 'selectedSingleton':
         param = 'SINGLETON'
-        paramType = 'bool'
         break
       case 'selectedBounded':
         param = 'BOUNDED'
-        paramType = 'bool'
         break
       case 'defaultValue':
         param = 'DEFAULT_VALUE'
@@ -143,7 +139,7 @@ function registerSessionApi(db, app) {
       })
   })
 
-  app.post('/command/update', (request, response) => {
+  app.post(restApi.uri.commandUpdate, (request, response) => {
     var {
       action,
       endpointTypeId,
@@ -153,14 +149,14 @@ function registerSessionApi(db, app) {
       clusterRef,
       commandSide,
     } = request.body
-    var booleanParam = ''
+    var isIncoming = null
 
     switch (listType) {
       case 'selectedIn':
-        booleanParam = 'INCOMING'
+        isIncoming = true
         break
       case 'selectedOut':
-        booleanParam = 'OUTGOING'
+        isIncoming = false
         break
       default:
         break
@@ -173,7 +169,7 @@ function registerSessionApi(db, app) {
         commandSide,
         id,
         value,
-        booleanParam
+        isIncoming
       )
       .then(() => {
         response.json({
@@ -257,15 +253,14 @@ function registerSessionApi(db, app) {
           var changeParam = ''
           var paramType = ''
           switch (data.updatedKey) {
-            case 'endpointId':
+            case restApi.updateKey.endpointId:
               changeParam = 'ENDPOINT_IDENTIFIER'
               break
-            case 'endpointType':
+            case restApi.updateKey.endpointType:
               changeParam = 'ENDPOINT_TYPE_REF'
               break
-            case 'networkId':
+            case restApi.updateKey.networkId:
               changeParam = 'NETWORK_IDENTIFIER'
-              paramType = 'text'
               break
           }
           return { key: changeParam, value: data.value, type: paramType }
@@ -335,16 +330,16 @@ function registerSessionApi(db, app) {
     }
   })
 
-  app.post('/endpointType/update', (request, response) => {
+  app.post(restApi.uri.endpointTypeUpdate, (request, response) => {
     var { action, endpointTypeId, updatedKey, updatedValue } = request.body
     var sessionId = request.session.zapSessionId
 
     var param = ''
     switch (updatedKey) {
-      case 'deviceTypeRef':
+      case restApi.updateKey.deviceTypeRef:
         param = 'DEVICE_TYPE_REF'
         break
-      case 'name':
+      case restApi.updateKey.name:
         param = 'NAME'
         break
       default:
@@ -416,7 +411,7 @@ function registerSessionApi(db, app) {
     })
   })
 
-  app.get(`${restApi.uri.getAllSessionKeyValues}`, (request, response) => {
+  app.get(restApi.uri.getAllSessionKeyValues, (request, response) => {
     var sessionId = request.session.zapSessionId
     queryConfig
       .getAllSessionKeyValues(db, sessionId)

@@ -264,22 +264,16 @@ function getAllParamValuePairArrayClauses(paramValuePairArray) {
     return (
       currentString +
       (index == 0 ? '' : ',') +
-      paramValuePairIntoSqlClause(paramValuePair) +
+      paramValuePair.key +
+      ' = ' +
+      (paramValuePair.value == ''
+        ? false
+        : paramValuePair.type == 'text'
+        ? "'" + paramValuePair.value + "'"
+        : paramValuePair.value) +
       ' '
     )
   }, '')
-}
-
-function paramValuePairIntoSqlClause(paramValuePair) {
-  return (
-    paramValuePair.key +
-    ' = ' +
-    (paramValuePair.value == ''
-      ? false
-      : paramValuePair.type == 'text'
-      ? "'" + paramValuePair.value + "'"
-      : paramValuePair.value)
-  )
 }
 
 /**
@@ -302,7 +296,7 @@ function insertOrUpdateCommandState(
   side,
   id,
   value,
-  param
+  isIncoming
 ) {
   return getOrInsertDefaultEndpointTypeCluster(
     db,
@@ -337,7 +331,7 @@ WHERE ( ( SELECT COUNT(1)
         dbApi.dbUpdate(
           db,
           'UPDATE ENDPOINT_TYPE_COMMAND SET ' +
-            param +
+            (isIncoming ? 'INCOMING' : 'OUTGOING') +
             ' = ? WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND COMMAND_REF = ? ',
           [value, endpointTypeId, cluster.endpointTypeClusterId, id]
         )
@@ -648,10 +642,13 @@ function resolveDefaultClusters(db, endpointTypeId, clusters) {
               db,
               endpointTypeId,
               cluster.clusterRef,
-              'client',
+              dbEnum.side.client,
               true
             ).then((data) => {
-              resolve({ clusterRef: cluster.clusterRef, side: 'client' })
+              resolve({
+                clusterRef: cluster.clusterRef,
+                side: dbEnum.side.client,
+              })
             })
           )
         )
@@ -663,10 +660,13 @@ function resolveDefaultClusters(db, endpointTypeId, clusters) {
               db,
               endpointTypeId,
               cluster.clusterRef,
-              'server',
+              dbEnum.side.server,
               true
             ).then((data) => {
-              resolve({ clusterRef: cluster.clusterRef, side: 'server' })
+              resolve({
+                clusterRef: cluster.clusterRef,
+                side: dbEnum.side.server,
+              })
             })
           )
         )
@@ -694,11 +694,10 @@ function resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef) {
                     attribute.side,
                     deviceAttribute.attributeRef,
                     [
-                      { key: 'INCLUDED', value: true, type: 'bool' },
+                      { key: 'INCLUDED', value: true },
                       {
                         key: 'INCLUDED_REPORTABLE',
                         value: deviceAttribute.isReportable == true,
-                        type: 'bool',
                       },
                     ]
                   ),
@@ -741,9 +740,7 @@ function resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef) {
                             command.source,
                             deviceCommand.commandRef,
                             true,
-                            command.source == dbEnum.source.client
-                              ? 'OUTGOING'
-                              : 'INCOMING'
+                            command.source != dbEnum.source.client
                           )
                         )
                       }
@@ -756,9 +753,7 @@ function resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef) {
                             command.source,
                             deviceCommand.commandRef,
                             true,
-                            command.source == dbEnum.source.server
-                              ? 'OUTGOING'
-                              : 'INCOMING'
+                            command.source != dbEnum.source.server
                           )
                         )
                       }
@@ -787,13 +782,11 @@ function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
           return Promise.all(
             commands.map((command) => {
               if (!command.isOptional) {
-                let direction =
+                let isOutgoing =
                   (cluster.side == dbEnum.side.client &&
                     command.source == dbEnum.source.client) ||
                   (cluster.side == dbEnum.side.server &&
                     command.source == dbEnum.source.server)
-                    ? 'OUTGOING'
-                    : 'INCOMING'
                 return insertOrUpdateCommandState(
                   db,
                   endpointTypeId,
@@ -801,7 +794,7 @@ function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
                   command.source,
                   command.id,
                   true,
-                  direction
+                  !isOutgoing
                 )
               } else {
                 return new Promise((resolve, reject) => {
@@ -1149,7 +1142,6 @@ exports.selectEndpoint = selectEndpoint
 exports.insertEndpointType = insertEndpointType
 exports.deleteEndpointType = deleteEndpointType
 exports.updateEndpointType = updateEndpointType
-exports.setEndpointDefaults = setEndpointDefaults
 exports.insertEndpointTypes = insertEndpointTypes
 exports.getAllEndpointTypes = getAllEndpointTypes
 exports.getEndpointTypeClusters = getEndpointTypeClusters

@@ -41,6 +41,7 @@ const generationEngine = require('../src-electron/generator/generation-engine.js
 
 var db
 var sid
+var pkgId
 
 beforeAll(() => {
   var file = env.sqliteTestFile('query')
@@ -110,11 +111,13 @@ test('Replace query', () =>
     .then((result) => expect(result.VALUE).toBe('13')))
 
 test('Simple cluster addition.', () => {
+  let pkgId = null
   let rowid = null
   return queryPackage
     .insertPathCrc(db, 'test', 1)
-    .then((rowid) =>
-      queryZcl.insertClusters(db, rowid, [
+    .then((rowid) => {
+      pkgId = rowid
+      return queryZcl.insertClusters(db, rowid, [
         {
           code: 0x1234,
           name: 'Test',
@@ -122,25 +125,25 @@ test('Simple cluster addition.', () => {
           define: 'TEST',
         },
       ])
-    )
-    .then((rowids) => queryZcl.selectAllClusters(db))
+    })
+    .then((rowids) => queryZcl.selectAllClusters(db, pkgId))
     .then((rows) => {
       expect(rows.length).toBe(1)
       rowid = rows[0].id
       expect(rows[0].code).toBe(4660), expect(rows[0].label).toBe('Test')
       return rowid
     })
-    .then((rowid) => queryZcl.selectClusterById(db, rowid))
+    .then((rowid) => queryZcl.selectClusterById(db, rowid, pkgId))
     .then((row) => {
       expect(row.code).toBe(4660)
       expect(row.label).toBe('Test')
       return row.id
     })
-    .then(() => queryZcl.selectAttributesByClusterId(db, rowid))
+    .then(() => queryZcl.selectAttributesByClusterId(db, rowid, pkgId))
     .then((rows) => {
       expect(rows.length).toBe(0)
     })
-    .then(() => queryZcl.selectCommandsByClusterId(db, rowid))
+    .then(() => queryZcl.selectCommandsByClusterId(db, rowid, pkgId))
     .then((rows) => {
       expect(rows.length).toBe(0)
     })
@@ -317,15 +320,27 @@ describe('Session specific queries', () => {
 
 describe('Endpoint Type Config Queries', () => {
   beforeAll(() =>
-    querySession.ensureZapSessionId(db, 'SESSION').then((id) => {
-      sid = id
-    })
+    querySession
+      .ensureZapSessionId(db, 'SESSION')
+      .then((id) => {
+        sid = id
+      })
+      .then(() =>
+        queryPackage.getSessionPackagesByType(
+          db,
+          sid,
+          dbEnum.packageType.zclProperties
+        )
+      )
+      .then((packages) => {
+        pkgId = packages[0].id
+      })
   )
   var endpointTypeIdOnOff
   var haOnOffDeviceType, zllOnOffLightDevice
 
   test('Insert EndpointType and test various states', () =>
-    queryZcl.selectAllDeviceTypes(db).then((rows) => {
+    queryZcl.selectAllDeviceTypes(db, pkgId).then((rows) => {
       let haOnOffDeviceTypeArray = rows.filter(
         (data) => data.label === 'HA-onoff'
       )

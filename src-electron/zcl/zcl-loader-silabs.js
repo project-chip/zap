@@ -164,10 +164,11 @@ function prepareBitmap(bm) {
   var ret = { name: bm.$.name, type: bm.$.type }
   if ('field' in bm) {
     ret.fields = []
-    bm.field.forEach((field) => {
+    bm.field.forEach((field, index) => {
       ret.fields.push({
         name: field.$.name,
         mask: field.$.mask,
+        ordinal: index,
       })
     })
   }
@@ -292,11 +293,12 @@ function prepareCluster(cluster, isExtension = false) {
       }
       if ('arg' in command) {
         cmd.args = []
-        command.arg.forEach((arg) => {
+        command.arg.forEach((arg, index) => {
           cmd.args.push({
             name: arg.$.name,
             type: arg.$.type,
             isArray: arg.$.array == 'true' ? 1 : 0,
+            ordinal: index,
           })
         })
       }
@@ -441,10 +443,11 @@ function prepareStruct(struct) {
   var ret = { name: struct.$.name }
   if ('item' in struct) {
     ret.items = []
-    struct.item.forEach((item) => {
+    struct.item.forEach((item, index) => {
       ret.items.push({
         name: item.$.name,
         type: item.$.type,
+        ordinal: index,
       })
     })
   }
@@ -479,10 +482,11 @@ function prepareEnum(en) {
   var ret = { name: en.$.name, type: en.$.type }
   if ('item' in en) {
     ret.items = []
-    en.item.forEach((item) => {
+    en.item.forEach((item, index) => {
       ret.items.push({
         name: item.$.name,
         value: item.$.value,
+        ordinal: index,
       })
     })
   }

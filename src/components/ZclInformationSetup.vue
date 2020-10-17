@@ -24,8 +24,6 @@ limitations under the License.
       label="Information about the application"
       :min-rows="3"
     />
-
-    {{ this.state.zap }}
   </div>
 </template>
 
@@ -46,18 +44,6 @@ export default {
         return this.$store.state
       },
     },
-  },
-  updated() {
-    console.log('INFO updated')
-  },
-  created() {
-    console.log('INFO created')
-  },
-  mounted() {
-    console.log('INFO mounted')
-  },
-  destroyed() {
-    console.log('INFO destroyed')
   },
 }
 </script>

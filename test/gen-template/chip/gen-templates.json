@@ -65,14 +65,19 @@
       "output": "command-id.h"
     },
     {
+      "path": "endpoint_config.zapt",
+      "name": "ZCL endpoint_config header",
+      "output": "endpoint_config.h"
+    },
+    {
       "path": "enums.zapt",
       "name": "ZCL enums header",
       "output": "enums.h"
     },
     {
-      "path": "gen_tokens.zapt",
-      "name": "ZCL gen_tokens header",
-      "output": "gen_tokens.h"
+      "path": "gen_config.zapt",
+      "name": "ZCL gen_config header",
+      "output": "gen_config.h"
     },
     {
       "path": "print-cluster.zapt",

@@ -16,6 +16,7 @@ limitations under the License.
 
 <template>
   <div id="q-app">
+    <q-ajax-bar />
     <router-view />
   </div>
 </template>
@@ -86,18 +87,18 @@ export default {
     })
     this.$store.dispatch('zap/loadSessionKeyValues')
 
-    this.$serverOn('zcl-item-list', (event, arg) => {
+    this.$serverGet('/zcl/cluster/all').then((response) => {
+      var arg = response.data
       if (arg.type === 'cluster') {
         this.$store.dispatch('zap/updateClusters', arg.data)
       }
     })
-    this.$serverGet('/zcl/cluster/all')
-    this.$serverOn('zcl-item-list', (event, arg) => {
+    this.$serverGet('/zcl/deviceType/all').then((response) => {
+      var arg = response.data
       if (arg.type === 'device_type') {
         this.$store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
       }
     })
-    this.$serverGet('/zcl/deviceType/all')
   },
 }
 </script>

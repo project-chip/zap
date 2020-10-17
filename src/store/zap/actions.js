@@ -75,7 +75,7 @@ export function selectConfiguration(context, configurationName) {
 
 export function updateSelectedAttribute(context, selectionContext) {
   Vue.prototype
-    .$serverPost(`/attribute/update`, selectionContext)
+    .$serverPost(restApi.uri.attributeUpdate, selectionContext)
     .then((data) => {
       let arg = data.data
       if (arg.action === 'boolean') {
@@ -98,7 +98,7 @@ export function updateSelectedAttribute(context, selectionContext) {
 
 export function updateSelectedCommands(context, selectionContext) {
   Vue.prototype
-    .$serverPost(`/command/update`, selectionContext)
+    .$serverPost(restApi.uri.commandUpdate, selectionContext)
     .then((data) => {
       let arg = data.data
       if (arg.action === 'boolean') {
@@ -114,7 +114,7 @@ export function updateSelectedCommands(context, selectionContext) {
 
 export function updateSelectedServers(context, selectionContext) {
   Vue.prototype
-    .$serverPost(`/cluster`, {
+    .$serverPost(restApi.uri.cluster, {
       endpointTypeId: selectionContext.endpointTypeId,
       id: selectionContext.id,
       side: 'server',
@@ -127,7 +127,7 @@ export function updateSelectedServers(context, selectionContext) {
 
 export function updateSelectedClients(context, selectionContext) {
   Vue.prototype
-    .$serverPost(`/cluster`, {
+    .$serverPost(restApi.uri.cluster, {
       endpointTypeId: selectionContext.endpointTypeId,
       id: selectionContext.id,
       side: 'client',
@@ -154,7 +154,7 @@ export function updateSelectedEndpoint(context, endpoint) {
 
 export function updateEndpointType(context, endpointType) {
   Vue.prototype
-    .$serverPost(`/endpointType/update`, endpointType)
+    .$serverPost(restApi.uri.endpointTypeUpdate, endpointType)
     .then((data) => {
       let arg = data.data
       if (arg.updatedKey === 'deviceTypeRef') {
@@ -215,25 +215,27 @@ export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
 
 export function addEndpoint(context, newEndpointContext) {
   return new Promise((resolve, reject) => {
-    Vue.prototype.$serverPost(`/endpoint`, newEndpointContext).then((data) => {
-      let arg = data.data
-      context.commit('addEndpoint', {
-        id: arg.id,
-        endpointId: arg.eptId,
-        endpointTypeRef: arg.endpointType,
-        networkId: arg.nwkId,
-        endpointIdValidationIssues: arg.validationIssues.endpointId,
-        networkIdValidationIssues: arg.validationIssues.networkId,
+    Vue.prototype
+      .$serverPost(restApi.uri.endpoint, newEndpointContext)
+      .then((data) => {
+        let arg = data.data
+        context.commit('addEndpoint', {
+          id: arg.id,
+          endpointId: arg.eptId,
+          endpointTypeRef: arg.endpointType,
+          networkId: arg.nwkId,
+          endpointIdValidationIssues: arg.validationIssues.endpointId,
+          networkIdValidationIssues: arg.validationIssues.networkId,
+        })
+        return resolve(data.data)
       })
-      return resolve(data.data)
-    })
   })
 }
 
 export function addEndpointType(context, endpointTypeData) {
   return new Promise((resolve, reject) => {
     Vue.prototype
-      .$serverPost(`/endpointType`, endpointTypeData)
+      .$serverPost(restApi.uri.endpointType, endpointTypeData)
       .then((endpointTypeResponse) => {
         let arg = endpointTypeResponse.data
         context.commit('addEndpointType', {
@@ -247,18 +249,20 @@ export function addEndpointType(context, endpointTypeData) {
 }
 
 export function removeEndpointType(context, endpointTypeData) {
-  Vue.prototype.$serverPost('endpointType', endpointTypeData).then((data) => {
-    let arg = data.data
-    if (arg.successful) {
-      context.commit('removeEndpointType', {
-        id: arg.id,
-      })
-    }
-  })
+  Vue.prototype
+    .$serverPost(restApi.uri.endpointType, endpointTypeData)
+    .then((data) => {
+      let arg = data.data
+      if (arg.successful) {
+        context.commit('removeEndpointType', {
+          id: arg.id,
+        })
+      }
+    })
 }
 
 export function updateEndpoint(context, endpoint) {
-  Vue.prototype.$serverPost('/endpoint', endpoint).then((data) => {
+  Vue.prototype.$serverPost(restApi.uri.endpoint, endpoint).then((data) => {
     let arg = data.data
     context.commit('updateEndpoint', {
       id: arg.endpointId,
@@ -337,7 +341,7 @@ export function updateSelectedEndpointType(
 }
 
 export function deleteEndpoint(context, endpoint) {
-  Vue.prototype.$serverPost('/endpoint', endpoint).then((data) => {
+  Vue.prototype.$serverPost(restApi.uri.endpoint, endpoint).then((data) => {
     let arg = data.data
     context.commit('deleteEndpoint', { id: arg.id })
   })

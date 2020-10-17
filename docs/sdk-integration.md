@@ -86,9 +86,10 @@ The function provided as an override will be executed FIRST, if it returns a val
 
 There are specific overridable functions that can be overriden and the following table lists them.
 
-| Function     | Arguments                                | Functionality                                                                                                                                                                                                                                             |
-| ------------ | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| atomicType() | object containing keys `name` and `size` | Function returns the native type, that represents a given atomic type. Default version provided by the zap tool lists the mappings as are used by the Silicon Labs Gecko SDK, but an SDK developer can override this by providing this override function. |
+| Function        | Arguments                                | Functionality                                                                                                                                                                                                                                             |
+| --------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| atomicType()    | object containing keys `name` and `size` | Function returns the native type, that represents a given atomic type. Default version provided by the zap tool lists the mappings as are used by the Silicon Labs Gecko SDK, but an SDK developer can override this by providing this override function. |
+| nonAtomicType() | object containing key `name`             | Function returns the native type, that represents a type passed to any of the type functions that doesn't resolve into atomic or any other ZCL types (bitmaps, enums, etc.)                                                                               |
 
 ## Template key: zcl
 

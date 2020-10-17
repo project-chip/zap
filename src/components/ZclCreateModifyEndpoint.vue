@@ -201,7 +201,7 @@ export default {
       this.$store.dispatch('zap/updateEndpointType', {
         action: RestApi.action.update,
         endpointTypeId: endpointTypeReference,
-        updatedKey: `deviceTypeRef`,
+        updatedKey: RestApi.updateKey.deviceTypeRef,
         updatedValue: newEndpoint.newDeviceTypeRef,
       })
 
@@ -210,8 +210,14 @@ export default {
         context: {
           id: endpointReference,
           changes: [
-            { updatedKey: 'endpointId', value: newEndpoint.newEndpointId },
-            { updatedKey: 'networkId', value: newEndpoint.newNetworkId },
+            {
+              updatedKey: RestApi.updateKey.endpointId,
+              value: newEndpoint.newEndpointId,
+            },
+            {
+              updatedKey: RestApi.updateKey.networkId,
+              value: newEndpoint.newNetworkId,
+            },
           ],
         },
       })
