@@ -233,38 +233,32 @@ export function addEndpoint(context, newEndpointContext) {
 }
 
 export function addEndpointType(context, endpointTypeData) {
-  return new Promise((resolve, reject) => {
-    Vue.prototype
-      .$serverPost(restApi.uri.endpointType, endpointTypeData)
-      .then((endpointTypeResponse) => {
-        let arg = endpointTypeResponse.data
-        context.commit('addEndpointType', {
-          id: arg.id,
-          name: arg.name,
-          deviceTypeRef: arg.deviceTypeRef,
-        })
-        return resolve(endpointTypeResponse.data)
+  return Vue.prototype
+    .$serverPost(restApi.uri.endpointType, endpointTypeData)
+    .then((res) => {
+      context.commit('addEndpointType', {
+        id: res.data.id,
+        name: res.data.name,
+        deviceTypeRef: res.data.deviceTypeRef,
       })
-  })
+    })
 }
 
 export function deleteEndpoint(context, endpointId) {
   Vue.prototype
     .$serverDelete(restApi.uri.endpoint, { params: { id: endpointId } })
     .then((response) => {
-      let arg = response.data
-      context.commit('deleteEndpoint', { id: arg.id })
+      context.commit('deleteEndpoint', { id: response.data.id })
     })
 }
 
-export function removeEndpointType(context, endpointTypeData) {
+export function deleteEndpointType(context, endpointTypeId) {
   Vue.prototype
-    .$serverPost(restApi.uri.endpointType, endpointTypeData)
+    .$serverDelete(restApi.uri.endpointType, { params: { id: endpointTypeId } })
     .then((response) => {
-      let arg = response.data
-      if (arg.successful) {
+      if (response.data.successful) {
         context.commit('removeEndpointType', {
-          id: arg.id,
+          id: response.data.id,
         })
       }
     })

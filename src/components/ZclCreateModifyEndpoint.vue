@@ -168,15 +168,12 @@ export default {
 
       this.$store
         .dispatch(`zap/addEndpointType`, {
-          action: RestApi.action.create,
-          context: {
-            name: 'Anonymous Endpoint Type',
-            deviceTypeRef: deviceTypeRef,
-          },
+          name: 'Anonymous Endpoint Type',
+          deviceTypeRef: deviceTypeRef,
         })
         .then((response) => {
-          let eptId = this.newEndpoint.newEndpointId
-          let nwkId = this.newEndpoint.newNetworkId
+          let eptId = newEndpoint.newEndpointId
+          let nwkId = newEndpoint.newNetworkId
           this.$store
             .dispatch(`zap/addEndpoint`, {
               action: RestApi.action.create,

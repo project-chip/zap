@@ -64,6 +64,25 @@ function httpDeleteEndpoint(db) {
 }
 
 /**
+ * HTTP DELETE: endpoint type
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpDeleteEndpointType(db) {
+  return (request, response) => {
+    var id = request.query.id
+    queryConfig.deleteEndpointType(db, id).then((removed) => {
+      response.json({
+        successful: removed > 0,
+        id: id,
+      })
+      return response.status(restApi.httpCode.ok).send()
+    })
+  }
+}
+
+/**
  * HTTP POST: save session key value
  *
  * @param {*} db
@@ -399,45 +418,18 @@ function httpGetInitialState(db) {
  */
 function httpPostEndpointType(db) {
   return (request, response) => {
-    var { action, context } = request.body
+    var { name, deviceTypeRef } = request.body
     var sessionId = request.session.zapSessionId
-    switch (action) {
-      case restApi.action.create:
-        queryConfig
-          .insertEndpointType(
-            db,
-            sessionId,
-            context.name,
-            context.deviceTypeRef
-          )
-          .then((newId) => {
-            response.json({
-              action: action,
-              id: newId,
-              name: context.name,
-              deviceTypeRef: context.deviceTypeRef,
-              replyId: restApi.replyId.zclEndpointTypeResponse,
-            })
-            return response.status(restApi.httpCode.ok).send()
-          })
-          .catch((err) => {
-            return response.status(restApi.httpCode.badRequest).send()
-          })
-        break
-      case restApi.action.delete:
-        queryConfig.deleteEndpointType(db, context.id).then((removed) => {
-          response.json({
-            action: action,
-            successful: removed > 0,
-            id: context.id,
-            replyId: restApi.replyId.zclEndpointTypeResponse,
-          })
-          return response.status(restApi.httpCode.ok).send()
+    queryConfig
+      .insertEndpointType(db, sessionId, name, deviceTypeRef)
+      .then((newId) =>
+        response.json({
+          id: newId,
+          name: name,
+          deviceTypeRef: deviceTypeRef,
         })
-        break
-      default:
-        break
-    }
+      )
+      .catch((err) => response.status(restApi.httpCode.badRequest).send())
   }
 }
 
@@ -556,5 +548,9 @@ exports.delete = [
   {
     uri: restApi.uri.endpoint,
     callback: httpDeleteEndpoint,
+  },
+  {
+    uri: restApi.uri.endpointType,
+    callback: httpDeleteEndpointType,
   },
 ]
