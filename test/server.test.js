@@ -214,8 +214,6 @@ describe('Admin tests', () => {
       .then((response) => {
         expect(response).not.toBeNull()
         expect(response.data.result).not.toBeNull()
-        expect(response.data.result.endpoints).not.toBeNull()
-        expect(response.data.result.endpointTypes).not.toBeNull()
-        expect(response.data.replyId).toBe('sql-result')
+        expect(response.data.result.length).toBeGreaterThan(1)
       }))
 })
