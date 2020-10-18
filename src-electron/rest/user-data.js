@@ -38,12 +38,9 @@ function httpGetSessionKeyValues(db) {
     var sessionId = request.session.zapSessionId
     queryConfig
       .getAllSessionKeyValues(db, sessionId)
-      .then((sessionKeyValues) => {
-        return response.status(restApi.httpCode.ok).json({
-          data: sessionKeyValues,
-          replyId: 'sessionKeyValues',
-        })
-      })
+      .then((sessionKeyValues) =>
+        response.status(restApi.httpCode.ok).json(sessionKeyValues)
+      )
   }
 }
 
@@ -199,8 +196,8 @@ function httpPostAttributeUpdate(db) {
         id,
         [{ key: param, value: value, type: paramType }]
       )
-      .then((row) => {
-        return validation
+      .then((row) =>
+        validation
           .validateAttribute(db, endpointTypeId, id, clusterRef)
           .then((validationData) => {
             response.json({
@@ -215,7 +212,7 @@ function httpPostAttributeUpdate(db) {
             })
             return response.status(restApi.httpCode.ok).send()
           })
-      })
+      )
   }
 }
 
@@ -369,19 +366,19 @@ function httpGetInitialState(db) {
     var endpointTypes = queryConfig
       .getAllEndpointTypes(db, sessionId)
       .then((rows) => {
-        state['endpointTypes'] = rows
+        state.endpointTypes = rows
       })
     statePopulators.push(endpointTypes)
 
     var endpoints = queryConfig.getAllEndpoints(db, sessionId).then((rows) => {
-      state['endpoints'] = rows
+      state.endpoints = rows
     })
     statePopulators.push(endpoints)
 
     var sessionKeyValues = queryConfig
       .getAllSessionKeyValues(db, sessionId)
       .then((rows) => {
-        state['sessionKeyValues'] = rows
+        state.sessionKeyValues = rows
       })
     statePopulators.push(sessionKeyValues)
 

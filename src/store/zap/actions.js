@@ -539,7 +539,7 @@ export function setSelectedGenericOption(context, optionData) {
 
 export function loadSessionKeyValues(context) {
   Vue.prototype
-    .$serverGet(`${restApi.uri.getAllSessionKeyValues}`)
+    .$serverGet(restApi.uri.getAllSessionKeyValues)
     .then((response) => {
       context.commit('loadSessionKeyValues', response.data)
     })

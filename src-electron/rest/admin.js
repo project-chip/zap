@@ -49,16 +49,13 @@ function httpPostSql(db) {
   return (request, response) => {
     var sql = request.body.sql
     if (sql) {
-      var replyObject = { replyId: restApi.replyId.sqlResult }
       dbApi
         .dbAll(db, sql, [])
         .then((rows) => {
-          replyObject.result = rows
-          response.json(replyObject)
+          response.json({ result: rows })
         })
         .catch((err) => {
-          replyObject.result = [`ERROR: ${err.name}, ${err.message}`]
-          response.json(replyObject)
+          response.json({ error: err })
         })
     }
   }

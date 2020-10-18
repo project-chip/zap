@@ -319,7 +319,7 @@ export function setSelectedGenericOption(state, keyValue) {
 }
 
 export function loadSessionKeyValues(state, sessionKeyValues) {
-  sessionKeyValues.data.map((keyValue) => {
+  sessionKeyValues.map((keyValue) => {
     Vue.set(state.selectedGenericOptions, keyValue.key, keyValue.value)
   })
 }
