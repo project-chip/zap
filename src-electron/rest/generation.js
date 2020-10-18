@@ -39,14 +39,11 @@ function httpGetPreviewNameIndex(db) {
       .then((previewObject) => {
         if (request.params.index in previewObject) {
           return response.json({
-            replyId: 'preview',
             result: previewObject[request.params.index],
             size: Object.keys(previewObject).length,
           })
         } else {
-          return response.json({
-            replyId: 'preview',
-          })
+          return response.json({})
         }
       })
   }
@@ -64,7 +61,6 @@ function httpGetPreviewName(db) {
     generationEngine
       .generateSingleFileForPreview(db, sessionId, request.params.name)
       .then((previewObject) => {
-        previewObject.replyId = 'preview'
         return response.json(previewObject)
       })
   }
@@ -80,7 +76,6 @@ function httpGetPreview(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
     queryPackage.getSessionGenTemplates(db, sessionId).then((previewObject) => {
-      previewObject.replyId = 'preview-gentemplates'
       return response.json(previewObject)
     })
   }
