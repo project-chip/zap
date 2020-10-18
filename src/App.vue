@@ -89,15 +89,11 @@ export default {
 
     this.$serverGet('/zcl/cluster/all').then((response) => {
       var arg = response.data
-      if (arg.type === 'cluster') {
-        this.$store.dispatch('zap/updateClusters', arg.data)
-      }
+      this.$store.dispatch('zap/updateClusters', arg.data)
     })
     this.$serverGet('/zcl/deviceType/all').then((response) => {
       var arg = response.data
-      if (arg.type === 'device_type') {
-        this.$store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
-      }
+      this.$store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
     })
   },
 }

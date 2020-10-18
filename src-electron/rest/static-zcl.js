@@ -106,7 +106,6 @@ function parseForZclData(db, path, id, packageIdArray) {
           data: data.clusterData,
           attributeData: data.attributeData,
           commandData: data.commandData,
-          title: `Cluster: ${id}`,
           type: 'cluster',
         }
       })
@@ -118,7 +117,7 @@ function parseForZclData(db, path, id, packageIdArray) {
         packageIdArray,
         zclEntityQuery(queryZcl.selectAllDomains, queryZcl.selectDomainById)
       ).then((data) => {
-        return { data: data, title: `Domain: ${id}`, type: 'domain' }
+        return { data: data, type: 'domain' }
       })
       break
     case 'bitmap':
@@ -128,7 +127,7 @@ function parseForZclData(db, path, id, packageIdArray) {
         packageIdArray,
         zclEntityQuery(queryZcl.selectAllBitmaps, queryZcl.selectBitmapById)
       ).then((x) => {
-        return { data: x, title: `Bitmap: ${id}`, type: 'bitmap' }
+        return { data: x, type: 'bitmap' }
       })
       break
     case 'enum':
@@ -138,7 +137,7 @@ function parseForZclData(db, path, id, packageIdArray) {
         packageIdArray,
         zclEntityQuery(queryZcl.selectAllEnums, queryZcl.selectEnumById)
       ).then((x) => {
-        return { data: x, title: `Enum: ${id}`, type: 'enum' }
+        return { data: x, type: 'enum' }
       })
       break
     case 'struct':
@@ -148,7 +147,7 @@ function parseForZclData(db, path, id, packageIdArray) {
         packageIdArray,
         zclEntityQuery(queryZcl.selectAllStructs, queryZcl.selectStructById)
       ).then((x) => {
-        return { data: x, title: `Struct: ${id}`, type: 'struct' }
+        return { data: x, type: 'struct' }
       })
       break
     case 'deviceType':
@@ -161,11 +160,7 @@ function parseForZclData(db, path, id, packageIdArray) {
           queryZcl.selectDeviceTypeById
         )
       ).then((x) => {
-        return {
-          data: x,
-          title: `Device type: ${id}`,
-          type: 'device_type',
-        }
+        return { data: x, type: 'device_type' }
       })
       break
     case 'endpointTypeClusters':
@@ -230,9 +225,7 @@ function httpGetZclEntity(db) {
     var replyId = id === 'all' ? itemList : singleItem
     queryPackage
       .getSessionPackageIds(db, sessionId)
-      .then((packageIdArray) => {
-        return parseForZclData(db, entity, id, packageIdArray)
-      })
+      .then((packageIdArray) => parseForZclData(db, entity, id, packageIdArray))
       .then((finalData) => {
         finalData.replyId = replyId
         response.status(restApi.httpCode.ok).json(finalData)

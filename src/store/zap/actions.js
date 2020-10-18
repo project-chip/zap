@@ -248,11 +248,20 @@ export function addEndpointType(context, endpointTypeData) {
   })
 }
 
+export function deleteEndpoint(context, endpointId) {
+  Vue.prototype
+    .$serverDelete(restApi.uri.endpoint, { params: { id: endpointId } })
+    .then((response) => {
+      let arg = response.data
+      context.commit('deleteEndpoint', { id: arg.id })
+    })
+}
+
 export function removeEndpointType(context, endpointTypeData) {
   Vue.prototype
     .$serverPost(restApi.uri.endpointType, endpointTypeData)
-    .then((data) => {
-      let arg = data.data
+    .then((response) => {
+      let arg = response.data
       if (arg.successful) {
         context.commit('removeEndpointType', {
           id: arg.id,
@@ -338,15 +347,6 @@ export function updateSelectedEndpointType(
       endpointTypeDeviceTypeRefPair.endpointType
     )
   }
-}
-
-export function deleteEndpoint(context, endpointId) {
-  Vue.prototype
-    .$serverDelete(restApi.uri.endpoint, { params: { id: endpointId } })
-    .then((response) => {
-      let arg = response.data
-      context.commit('deleteEndpoint', { id: arg.id })
-    })
 }
 
 export function setClusterList(context, selectionContext) {
