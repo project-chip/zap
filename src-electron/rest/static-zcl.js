@@ -222,12 +222,10 @@ function httpGetZclEntity(db) {
     const { id, entity } = request.params
     var sessionId = request.session.zapSessionId
 
-    var replyId = id === 'all' ? itemList : singleItem
     queryPackage
       .getSessionPackageIds(db, sessionId)
       .then((packageIdArray) => parseForZclData(db, entity, id, packageIdArray))
       .then((finalData) => {
-        finalData.replyId = replyId
         response.status(restApi.httpCode.ok).json(finalData)
       })
   }
