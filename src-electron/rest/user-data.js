@@ -420,10 +420,10 @@ function httpPatchEndpointType(db) {
 function httpGetOption(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
-    const { option } = request.params
+    const { category } = request.params
     queryPackage.getSessionPackageIds(db, sessionId).then((packageIds) => {
       var p = packageIds.map((packageId) => {
-        return queryPackage.selectAllOptionsValues(db, packageId, option)
+        return queryPackage.selectAllOptionsValues(db, packageId, category)
       })
       Promise.all(p)
         .then((data) => data.flat(1))
@@ -482,7 +482,7 @@ exports.get = [
     callback: httpGetInitialState,
   },
   {
-    uri: `${restApi.uri.option}/:option`,
+    uri: `${restApi.uri.option}/:category`,
     callback: httpGetOption,
   },
 ]
