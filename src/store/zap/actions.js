@@ -154,7 +154,7 @@ export function updateSelectedEndpoint(context, endpoint) {
 
 export function updateEndpointType(context, endpointType) {
   Vue.prototype
-    .$serverPost(restApi.uri.endpointTypeUpdate, endpointType)
+    .$serverPatch(restApi.uri.endpointType, endpointType)
     .then((data) => {
       let arg = data.data
       if (arg.updatedKey === 'deviceTypeRef') {

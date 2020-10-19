@@ -349,7 +349,6 @@ function httpPatchEndpoint(db) {
           .validateEndpoint(db, context.id)
           .then((validationData) => {
             response.json({
-              action: restApi.action.update,
               endpointId: context.id,
               changes: context.changes,
               validationIssues: validationData,
@@ -425,9 +424,9 @@ function httpPostEndpointType(db) {
  * @param {*} db
  * @returns callback for the express uri registration
  */
-function httpPostEndpointTypeUpdate(db) {
+function httpPatchEndpointType(db) {
   return (request, response) => {
-    var { action, endpointTypeId, updatedKey, updatedValue } = request.body
+    var { endpointTypeId, updatedKey, updatedValue } = request.body
     var sessionId = request.session.zapSessionId
 
     var param = ''
@@ -446,7 +445,6 @@ function httpPostEndpointTypeUpdate(db) {
       .updateEndpointType(db, sessionId, endpointTypeId, param, updatedValue)
       .then(() => {
         response.json({
-          action: action,
           endpointTypeId: endpointTypeId,
           updatedKey: updatedKey,
           updatedValue: updatedValue,
@@ -465,7 +463,6 @@ function httpPostEndpointTypeUpdate(db) {
 function httpGetOption(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
-    const { option } = request.params
     queryPackage.getSessionPackageIds(db, sessionId).then((packageIds) => {
       var p = packageIds.map((packageId) => {
         return queryPackage.selectAllOptionsValues(db, packageId, option)
@@ -507,16 +504,16 @@ exports.post = [
     uri: restApi.uri.endpointType,
     callback: httpPostEndpointType,
   },
-  {
-    uri: restApi.uri.endpointTypeUpdate,
-    callback: httpPostEndpointTypeUpdate,
-  },
 ]
 
 exports.patch = [
   {
     uri: restApi.uri.endpoint,
     callback: httpPatchEndpoint,
+  },
+  {
+    uri: restApi.uri.endpointType,
+    callback: httpPatchEndpointType,
   },
 ]
 

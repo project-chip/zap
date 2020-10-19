@@ -15,29 +15,22 @@
  *    limitations under the License.
  */
 
-const action = {
-  update: 'u',
-  create: 'c',
-  delete: 'd',
-}
-
 const uri = {
   zclEntity: '/zcl/:entity/:id',
   saveSessionKeyValue: '/save',
   getAllSessionKeyValues: '/allKeyValues',
-  sql: '/sql',
   generate: '/generate',
   endpoint: '/endpoint',
   endpointType: '/endpointType',
   initialState: '/initialState',
   option: '/option',
   commandUpdate: '/command/update',
-  endpointTypeUpdate: '/endpointType/update',
   cluster: '/cluster',
   attributeUpdate: '/attribute/update',
   preview: '/preview/',
   previewName: '/preview/:name',
   previewNameIndex: '/preview/:name/:index',
+  sql: '/sql',
 }
 
 const uiMode = {
@@ -82,7 +75,6 @@ const updateKey = {
   name: 'name',
 }
 
-exports.action = action
 exports.uri = uri
 exports.httpCode = httpCode
 exports.uiMode = uiMode

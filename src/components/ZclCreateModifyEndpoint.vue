@@ -180,7 +180,6 @@ export default {
       let endpointTypeReference = this.endpointType[this.endpointReference]
 
       this.$store.dispatch('zap/updateEndpointType', {
-        action: RestApi.action.update,
         endpointTypeId: endpointTypeReference,
         updatedKey: RestApi.updateKey.deviceTypeRef,
         updatedValue: newEndpoint.newDeviceTypeRef,
