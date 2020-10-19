@@ -731,9 +731,9 @@ function resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef) {
                     attribute.side,
                     deviceAttribute.attributeRef,
                     [
-                      { key: 'INCLUDED', value: true },
+                      { key: restApi.updateKey.attributeSelected, value: true },
                       {
-                        key: 'INCLUDED_REPORTABLE',
+                        key: restApi.updateKey.attributeReporting,
                         value: deviceAttribute.isReportable == true,
                       },
                     ]
@@ -876,8 +876,12 @@ function resolveNonOptionalAndReportableAttributes(
     attributes.map((attribute) => {
       var settings = []
       if (attribute.isReportable)
-        settings.push({ key: 'INCLUDED_REPORTABLE', value: true })
-      if (!attribute.isOptional) settings.push({ key: 'INCLUDED', value: true })
+        settings.push({
+          key: restApi.updateKey.attributeReporting,
+          value: true,
+        })
+      if (!attribute.isOptional)
+        settings.push({ key: restApi.updateKey.attributeSelected, value: true })
       if (settings.length > 0) {
         return insertOrUpdateAttributeState(
           db,
