@@ -170,7 +170,9 @@ export default {
             .then((res) => {
               this.$store.dispatch('zap/updateSelectedEndpointType', {
                 endpointType: this.endpointType[res.id],
-                deviceTypeRef: this.endpointDeviceTypeRef[res.id],
+                deviceTypeRef: this.endpointDeviceTypeRef[
+                  this.endpointType[res.id]
+                ],
               })
               this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
             })
@@ -202,7 +204,9 @@ export default {
       })
       this.$store.dispatch('zap/updateSelectedEndpointType', {
         endpointType: endpointReference,
-        deviceTypeRef: this.endpointDeviceTypeRef[endpointReference],
+        deviceTypeRef: this.endpointDeviceTypeRef[
+          this.endpointType[this.endpointReference]
+        ],
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
     },
