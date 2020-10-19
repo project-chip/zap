@@ -169,36 +169,26 @@ function httpPostAttributeUpdate(db) {
       clusterRef,
       attributeSide,
     } = request.body
-    var param = ''
     var paramType = ''
     switch (listType) {
       case restApi.updateKey.attributeSelected:
-        param = 'INCLUDED'
         break
       case restApi.updateKey.attributeSingleton:
-        param = 'SINGLETON'
         break
       case restApi.updateKey.attributeBounded:
-        param = 'BOUNDED'
         break
       case restApi.updateKey.attributeDefault:
-        param = 'DEFAULT_VALUE'
         paramType = 'text'
         break
       case restApi.updateKey.attributeReporting:
-        param = 'INCLUDED_REPORTABLE'
         break
       case restApi.updateKey.attributeReportMin:
-        param = 'MIN_INTERVAL'
         break
       case restApi.updateKey.attributeReportMax:
-        param = 'MAX_INTERVAL'
         break
       case restApi.updateKey.attributeReportChange:
-        param = 'REPORTABLE_CHANGE'
         break
       case restApi.updateKey.attributeStorage:
-        param = 'STORAGE_OPTION'
         paramType = 'text'
         break
       default:
@@ -211,7 +201,7 @@ function httpPostAttributeUpdate(db) {
         clusterRef,
         attributeSide,
         id,
-        [{ key: param, value: value, type: paramType }]
+        [{ key: listType, value: value, type: paramType }]
       )
       .then((row) =>
         validation

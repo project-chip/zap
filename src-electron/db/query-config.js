@@ -271,6 +271,26 @@ function convertRestKeyToDbColumn(key) {
       return 'DEVICE_TYPE_REF'
     case restApi.updateKey.name:
       return 'NAME'
+    case restApi.updateKey.attributeSelected:
+      return 'INCLUDED'
+    case restApi.updateKey.attributeSingleton:
+      return 'SINGLETON'
+    case restApi.updateKey.attributeBounded:
+      return 'BOUNDED'
+    case restApi.updateKey.attributeDefault:
+      return 'DEFAULT_VALUE'
+    case restApi.updateKey.attributeReporting:
+      return 'INCLUDED_REPORTABLE'
+    case restApi.updateKey.attributeReportMin:
+      return 'MIN_INTERVAL'
+    case restApi.updateKey.attributeReportMax:
+      return 'MAX_INTERVAL'
+    case restApi.updateKey.attributeReportChange:
+      return 'REPORTABLE_CHANGE'
+    case restApi.updateKey.attributeStorage:
+      return 'STORAGE_OPTION'
+      'text'
+      break
   }
   throw `Invalid rest update key: ${key}`
 }
