@@ -73,6 +73,15 @@ const updateKey = {
   endpointType: 'endpointType',
   networkId: 'networkId',
   name: 'name',
+  attributeSelected: 'selectedAttributes',
+  attributeSingleton: 'selectedSingleton',
+  attributeBounded: 'selectedBounded',
+  attributeDefault: 'defaultValue',
+  attributeReporting: 'selectedReporting',
+  attributeReportMin: 'reportingMin',
+  attributeReportMax: 'reportingMax',
+  attributeReportChange: 'reportableChange',
+  attributeStorage: 'storageOption',
 }
 
 exports.uri = uri

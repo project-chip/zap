@@ -172,32 +172,32 @@ function httpPostAttributeUpdate(db) {
     var param = ''
     var paramType = ''
     switch (listType) {
-      case 'selectedAttributes':
+      case restApi.updateKey.attributeSelected:
         param = 'INCLUDED'
         break
-      case 'selectedSingleton':
+      case restApi.updateKey.attributeSingleton:
         param = 'SINGLETON'
         break
-      case 'selectedBounded':
+      case restApi.updateKey.attributeBounded:
         param = 'BOUNDED'
         break
-      case 'defaultValue':
+      case restApi.updateKey.attributeDefault:
         param = 'DEFAULT_VALUE'
         paramType = 'text'
         break
-      case 'selectedReporting':
+      case restApi.updateKey.attributeReporting:
         param = 'INCLUDED_REPORTABLE'
         break
-      case 'reportingMin':
+      case restApi.updateKey.attributeReportMin:
         param = 'MIN_INTERVAL'
         break
-      case 'reportingMax':
+      case restApi.updateKey.attributeReportMax:
         param = 'MAX_INTERVAL'
         break
-      case 'reportableChange':
+      case restApi.updateKey.attributeReportChange:
         param = 'REPORTABLE_CHANGE'
         break
-      case 'storageOption':
+      case restApi.updateKey.attributeStorage:
         param = 'STORAGE_OPTION'
         paramType = 'text'
         break
@@ -326,20 +326,8 @@ function httpPatchEndpoint(db) {
     var { context } = request.body
     var sessionIdexport = request.session.zapSessionId
     let changes = context.changes.map((data) => {
-      var changeParam = ''
       var paramType = ''
-      switch (data.updatedKey) {
-        case restApi.updateKey.endpointId:
-          changeParam = 'ENDPOINT_IDENTIFIER'
-          break
-        case restApi.updateKey.endpointType:
-          changeParam = 'ENDPOINT_TYPE_REF'
-          break
-        case restApi.updateKey.networkId:
-          changeParam = 'NETWORK_IDENTIFIER'
-          break
-      }
-      return { key: changeParam, value: data.value, type: paramType }
+      return { key: data.updatedKey, value: data.value, type: paramType }
     })
 
     queryConfig
@@ -429,20 +417,14 @@ function httpPatchEndpointType(db) {
     var { endpointTypeId, updatedKey, updatedValue } = request.body
     var sessionId = request.session.zapSessionId
 
-    var param = ''
-    switch (updatedKey) {
-      case restApi.updateKey.deviceTypeRef:
-        param = 'DEVICE_TYPE_REF'
-        break
-      case restApi.updateKey.name:
-        param = 'NAME'
-        break
-      default:
-        break
-    }
-
     queryConfig
-      .updateEndpointType(db, sessionId, endpointTypeId, param, updatedValue)
+      .updateEndpointType(
+        db,
+        sessionId,
+        endpointTypeId,
+        updatedKey,
+        updatedValue
+      )
       .then(() => {
         response.json({
           endpointTypeId: endpointTypeId,

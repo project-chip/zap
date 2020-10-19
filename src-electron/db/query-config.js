@@ -24,7 +24,7 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
-
+const restApi = require('../../src-shared/rest-api.js')
 /**
  * Promises to update or insert a key/value pair in SESSION_KEY_VALUE table.
  *
@@ -259,12 +259,28 @@ WHERE (
   })
 }
 
+function convertRestKeyToDbColumn(key) {
+  switch (key) {
+    case restApi.updateKey.endpointId:
+      return 'ENDPOINT_IDENTIFIER'
+    case restApi.updateKey.endpointType:
+      return 'ENDPOINT_TYPE_REF'
+    case restApi.updateKey.networkId:
+      return 'NETWORK_IDENTIFIER'
+    case restApi.updateKey.deviceTypeRef:
+      return 'DEVICE_TYPE_REF'
+    case restApi.updateKey.name:
+      return 'NAME'
+  }
+  throw `Invalid rest update key: ${key}`
+}
+
 function getAllParamValuePairArrayClauses(paramValuePairArray) {
   return paramValuePairArray.reduce((currentString, paramValuePair, index) => {
     return (
       currentString +
       (index == 0 ? '' : ',') +
-      paramValuePair.key +
+      convertRestKeyToDbColumn(paramValuePair.key) +
       ' = ' +
       (paramValuePair.value == ''
         ? false
@@ -564,9 +580,10 @@ function updateEndpointType(
   db,
   sessionId,
   endpointTypeId,
-  param,
+  updateKey,
   updatedValue
 ) {
+  var param = convertRestKeyToDbColumn(updateKey)
   return dbApi
     .dbUpdate(
       db,

@@ -45,7 +45,7 @@ limitations under the License.
               @input="
                 toggleAttributeSelection(
                   selection,
-                  'selectedAttributes',
+                  RestApi.updateKey.attributeSelected,
                   props.row,
                   selectedCluster.id
                 )

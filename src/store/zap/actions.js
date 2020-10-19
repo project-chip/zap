@@ -76,8 +76,8 @@ export function selectConfiguration(context, configurationName) {
 export function updateSelectedAttribute(context, selectionContext) {
   Vue.prototype
     .$serverPost(restApi.uri.attributeUpdate, selectionContext)
-    .then((data) => {
-      let arg = data.data
+    .then((res) => {
+      let arg = res.data
       if (arg.action === 'boolean') {
         context.commit('updateInclusionList', {
           id: Util.cantorPair(arg.id, arg.clusterRef),
