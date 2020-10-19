@@ -22,20 +22,12 @@
  */
 
 const env = require('../util/env.js')
-const axios = require('axios')
-const studio = require('./studio-integration.js')
+const studio = require('../ide-integration/studio-integration.js')
 const http = require('http-status-codes')
 const restApi = require('../../src-shared/rest-api.js')
 
-/**
- * Register server side REST API for front-end to interact with Studio components.
- *
- * @export
- * @param {*} db
- * @param {*} app
- */
-function registerUcComponentApi(db, app) {
-  app.get(restApi.uc.componentTree, (req, res) => {
+function httpGetComponentTree(db) {
+  return (req, res) => {
     let name = studio.projectName(req.query.studioProject)
     if (name) {
       env.logInfo(`StudioUC(${name}): Get project info`)
@@ -55,9 +47,10 @@ function registerUcComponentApi(db, app) {
       )
       res.send([])
     }
-  })
-
-  app.get(restApi.uc.componentAdd, (req, res) => {
+  }
+}
+function httpGetComponentAdd(db) {
+  return (req, res) => {
     let name = studio.projectName(req.query.studioProject)
     env.logInfo(
       `StudioUC(${name}): Enabling component "${req.query.componentId}"`
@@ -73,9 +66,10 @@ function registerUcComponentApi(db, app) {
         return res.send(r.data)
       })
       .catch((err) => handleError(err, res))
-  })
-
-  app.get(restApi.uc.componentRemove, (req, res) => {
+  }
+}
+function httpGetComponentRemove(db) {
+  return (req, res) => {
     let name = studio.projectName(req.query.studioProject)
     env.logInfo(
       `StudioUC(${name}): Disabling component "${req.query.componentId}"`
@@ -91,7 +85,7 @@ function registerUcComponentApi(db, app) {
         return res.send(r.data)
       })
       .catch((err) => handleError(err, res))
-  })
+  }
 }
 
 function handleError(err, res) {
@@ -102,4 +96,17 @@ function handleError(err, res) {
   }
 }
 
-exports.registerUcComponentApi = registerUcComponentApi
+exports.get = [
+  {
+    uri: restApi.uc.componentTree,
+    callback: httpGetComponentTree,
+  },
+  {
+    uri: restApi.uc.componentAdd,
+    callback: httpGetComponentAdd,
+  },
+  {
+    uri: restApi.uc.componentRemove,
+    callback: httpGetComponentRemove,
+  },
+]

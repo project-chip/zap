@@ -42,6 +42,9 @@
 <dt><a href="#module_Templating API_ static zcl helpers">Templating API: static zcl helpers</a></dt>
 <dd><p>This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}</p>
 </dd>
+<dt><a href="#module_Templating API_ Overridable functions.">Templating API: Overridable functions.</a></dt>
+<dd><p>This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}</p>
+</dd>
 <dt><a href="#module_JS API_ generator logic">JS API: generator logic</a></dt>
 <dd></dd>
 <dt><a href="#module_JS API_ generator logic">JS API: generator logic</a></dt>
@@ -182,6 +185,18 @@
 <dt><a href="#queryZcl">queryZcl</a></dt>
 <dd><p>This module provides the APIs for validating inputs to the database, and returning flags indicating if
 things were successful or not.</p>
+</dd>
+<dt><a href="#env">env</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
 </dd>
 <dt><a href="#fs">fs</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
@@ -333,6 +348,11 @@ that will be resolved when all the XML files are done, or rejected if at least o
 <dt><a href="#normalizeHexValue">normalizeHexValue(value)</a> ⇒</dt>
 <dd><p>The Dotdot ZCL XML doesn&#39;t use the 0x prefix, but it&#39;s a nice thing to have and Silabs xml
 does use this so this helper function normalizes the use of hex</p>
+<p>TODO: Is this the right thing to do?</p>
+</dd>
+<dt><a href="#getNumBytesFromShortName">getNumBytesFromShortName(value)</a> ⇒</dt>
+<dd><p>The Dotdot ZCL XML doesn&#39;t have a length but it is embedded in the short name,
+we can scrape the value to get the size</p>
 <p>TODO: Is this the right thing to do?</p>
 </dd>
 <dt><a href="#prepareAttributes">prepareAttributes(attributes, side)</a> ⇒</dt>
@@ -764,6 +784,7 @@ This module provides queries for ZCL static queries.
   - [~selectAllStructs(db)](#module*DB API* zcl database access..selectAllStructs) ⇒
   - [~selectAllClusters(db)](#module*DB API* zcl database access..selectAllClusters) ⇒
   - [~selectAllDeviceTypes(db)](#module*DB API* zcl database access..selectAllDeviceTypes) ⇒
+  - [~selectCommandsByClusterId(db, clusterId)](#module*DB API* zcl database access..selectCommandsByClusterId) ⇒
   - [~insertGlobals(db, packageId, data)](#module*DB API* zcl database access..insertGlobals) ⇒
   - [~insertClusterExtensions(db, packageId, data)](#module*DB API* zcl database access..insertClusterExtensions) ⇒
   - [~insertGlobalAttributeDefault(db, packagaId, data)](#module*DB API* zcl database access..insertGlobalAttributeDefault) ⇒
@@ -776,6 +797,7 @@ This module provides queries for ZCL static queries.
   - [~insertEnums(db, packageId, data)](#module*DB API* zcl database access..insertEnums) ⇒
   - [~insertAtomics(db, packageId, data)](#module*DB API* zcl database access..insertAtomics)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
+  - [~selectAtomicByName(db, name, packageId)](#module*DB API* zcl database access..selectAtomicByName)
   - [~selectAllAtomics(db, packageId)](#module*DB API* zcl database access..selectAllAtomics)
   - [~getAtomicSizeFromType(db, packageId, type)](#module*DB API* zcl database access..getAtomicSizeFromType)
   - [~insertBitmaps(db, packageId, data)](#module*DB API* zcl database access..insertBitmaps) ⇒
@@ -783,6 +805,7 @@ This module provides queries for ZCL static queries.
   - [~exportCommandDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId)](#module*DB API* zcl database access..exportCommandDetailsFromAllEndpointTypesAndClusters) ⇒
   - [~selectCommandArgumentsCountByCommandId(db, commandId, [packageId])](#module*DB API* zcl database access..selectCommandArgumentsCountByCommandId) ⇒
   - [~selectCommandArgumentsByCommandId(db, commandId, [packageId])](#module*DB API* zcl database access..selectCommandArgumentsByCommandId) ⇒
+  - [~determineType(db, packageId, type)](#module*DB API* zcl database access..determineType)
   - [~exportAllClustersDetailsFromEndpointTypes(db, endpointTypeId)](#module*DB API* zcl database access..exportAllClustersDetailsFromEndpointTypes) ⇒
   - [~exportCommandDetailsFromAllEndpointTypeCluster(db, endpointTypeId)](#module*DB API* zcl database access..exportCommandDetailsFromAllEndpointTypeCluster) ⇒
 
@@ -863,6 +886,21 @@ Retrieves all the device types in the database.
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectCommandsByClusterId"></a>
+
+### DB API: zcl database access~selectCommandsByClusterId(db, clusterId) ⇒
+
+Retrieves commands for a given cluster Id.
+This method DOES NOT retrieve global commands, since those have a cluster_ref = null
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: promise of an array of command rows, which represent per-cluster commands, excluding global commands.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| clusterId | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..insertGlobals"></a>
 
@@ -1044,6 +1082,20 @@ Locates atomic type based on a type name.
 | packageId | <code>\*</code> |
 | typeName  | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..selectAtomicByName"></a>
+
+### DB API: zcl database access~selectAtomicByName(db, name, packageId)
+
+Retrieve the atomic by name, returning promise that resolves into an atomic, or null.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| name      | <code>\*</code> |
+| packageId | <code>\*</code> |
+
 <a name="module_DB API_ zcl database access..selectAllAtomics"></a>
 
 ### DB API: zcl database access~selectAllAtomics(db, packageId)
@@ -1145,6 +1197,21 @@ Extract the command arguments for a command
 | commandId   | <code>\*</code> |               |
 | [packageId] | <code>\*</code> | <code></code> |
 
+<a name="module_DB API_ zcl database access..determineType"></a>
+
+### DB API: zcl database access~determineType(db, packageId, type)
+
+Returns a promise that resolves into one of the zclType enum
+values.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
+| type      | <code>\*</code> |
+
 <a name="module_DB API_ zcl database access..exportAllClustersDetailsFromEndpointTypes"></a>
 
 ### DB API: zcl database access~exportAllClustersDetailsFromEndpointTypes(db, endpointTypeId) ⇒
@@ -1181,17 +1248,23 @@ Returns a promise of data for commands inside all existing endpoint types.
   - [~loadGenTemplate()](#module*JS API* generator logic..loadGenTemplate) ⇒
   - [~recordTemplatesPackage(context)](#module*JS API* generator logic..recordTemplatesPackage) ⇒
   - [~loadTemplates(db, genTemplatesJson)](#module*JS API* generator logic..loadTemplates) ⇒
-  - [~generateAllTemplates(genResult, pkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
-  - [~generateSingleTemplate(genResult, pkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
+  - [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
+  - [~generateSingleTemplate(genResult, singleTemplatePkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
   - [~generate(db, packageId)](#module*JS API* generator logic..generate) ⇒
   - [~generateGenerationContent(genResult)](#module*JS API* generator logic..generateGenerationContent)
   - [~generateAndWriteFiles(db, sessionId, packageId, outputDirectory)](#module*JS API* generator logic..generateAndWriteFiles) ⇒
   - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
   - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
-  - [~produceContent(db, sessionId, singlePkg)](#module*JS API* generator logic..produceContent) ⇒
+  - [~produceContent(db, sessionId, singlePkg, overridePath:)](#module*JS API* generator logic..produceContent) ⇒
+  - [~wrapOverridable(originalFn, overrideFn)](#module*JS API* generator logic..wrapOverridable) ⇒
+  - [~loadOverridable(genTemplatePackageId)](#module*JS API* generator logic..loadOverridable)
+  - [~loadHelper(path)](#module*JS API* generator logic..loadHelper)
+  - [~initializeGlobalHelpers()](#module*JS API* generator logic..initializeGlobalHelpers)
+  - [~makeSynchronizablePromise(promise)](#module*JS API* generator logic..makeSynchronizablePromise)
   - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
   - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
+  - [~templatePromise(global, promise)](#module*JS API* generator logic..templatePromise)
 
 <a name="module_JS API_ generator logic..loadGenTemplate"></a>
 
@@ -1235,32 +1308,32 @@ Main API function to load templates from a gen-template.json file.
 
 <a name="module_JS API_ generator logic..generateAllTemplates"></a>
 
-### JS API: generator logic~generateAllTemplates(genResult, pkg, generateOnly) ⇒
+### JS API: generator logic~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly) ⇒
 
 Generates all the templates inside a toplevel package.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
 
-| Param        | Type            | Default       | Description                                                                                        |
-| ------------ | --------------- | ------------- | -------------------------------------------------------------------------------------------------- |
-| genResult    | <code>\*</code> |               |                                                                                                    |
-| pkg          | <code>\*</code> |               |                                                                                                    |
-| generateOnly | <code>\*</code> | <code></code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
+| Param              | Type            | Default       | Description                                                                                        |
+| ------------------ | --------------- | ------------- | -------------------------------------------------------------------------------------------------- |
+| genResult          | <code>\*</code> |               |                                                                                                    |
+| genTemplateJsonPkg | <code>\*</code> |               | Package that points to genTemplate.json file                                                       |
+| generateOnly       | <code>\*</code> | <code></code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
 
 <a name="module_JS API_ generator logic..generateSingleTemplate"></a>
 
-### JS API: generator logic~generateSingleTemplate(genResult, pkg) ⇒
+### JS API: generator logic~generateSingleTemplate(genResult, singleTemplatePkg) ⇒
 
 Function that generates a single package and adds it to the generation result.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: promise that resolves with the genResult, with newly generated content added.
 
-| Param     | Type            |
-| --------- | --------------- |
-| genResult | <code>\*</code> |
-| pkg       | <code>\*</code> |
+| Param             | Type            | Description              |
+| ----------------- | --------------- | ------------------------ |
+| genResult         | <code>\*</code> |                          |
+| singleTemplatePkg | <code>\*</code> | Single template package. |
 
 <a name="module_JS API_ generator logic..generate"></a>
 
@@ -1271,10 +1344,10 @@ Main API function to generate stuff.
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: Promise that resolves into a generation result.
 
-| Param     | Type            | Description                   |
-| --------- | --------------- | ----------------------------- |
-| db        | <code>\*</code> | Database                      |
-| packageId | <code>\*</code> | packageId Template package id |
+| Param     | Type            | Description                                                                           |
+| --------- | --------------- | ------------------------------------------------------------------------------------- |
+| db        | <code>\*</code> | Database                                                                              |
+| packageId | <code>\*</code> | packageId Template package id. It can be either single template or gen template json. |
 
 <a name="module_JS API_ generator logic..generateGenerationContent"></a>
 
@@ -1333,18 +1406,77 @@ Generates a single file and feeds it back for preview.
 
 <a name="module_JS API_ generator logic..produceContent"></a>
 
-### JS API: generator logic~produceContent(db, sessionId, singlePkg) ⇒
+### JS API: generator logic~produceContent(db, sessionId, singlePkg, overridePath:) ⇒
 
 Given db connection, session and a single template package, produce the output.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: Promise that resolves with the 'utf8' string that contains the generated content.
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
-| singlePkg | <code>\*</code> |
+| Param         | Type            | Description                                                                             |
+| ------------- | --------------- | --------------------------------------------------------------------------------------- |
+| db            | <code>\*</code> |                                                                                         |
+| sessionId     | <code>\*</code> |                                                                                         |
+| singlePkg     | <code>\*</code> |                                                                                         |
+| overridePath: | <code>\*</code> | if passed, it provides a path to the override file that can override the overridable.js |
+
+<a name="module_JS API_ generator logic..wrapOverridable"></a>
+
+### JS API: generator logic~wrapOverridable(originalFn, overrideFn) ⇒
+
+This function attemps to call override function, but if override function
+throws an exception, it calls the original function.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: result from override function, unless it throws an exception, in which case return result from original function.
+
+| Param      | Type            |
+| ---------- | --------------- |
+| originalFn | <code>\*</code> |
+| overrideFn | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..loadOverridable"></a>
+
+### JS API: generator logic~loadOverridable(genTemplatePackageId)
+
+This function is responsible to load the overridable function container.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param                | Type            |
+| -------------------- | --------------- |
+| genTemplatePackageId | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..loadHelper"></a>
+
+### JS API: generator logic~loadHelper(path)
+
+Function that loads the helpers.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param | Type            |
+| ----- | --------------- |
+| path  | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..initializeGlobalHelpers"></a>
+
+### JS API: generator logic~initializeGlobalHelpers()
+
+Global helper initialization
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+<a name="module_JS API_ generator logic..makeSynchronizablePromise"></a>
+
+### JS API: generator logic~makeSynchronizablePromise(promise)
+
+All promises used by the templates should be synchronizable.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param   | Type            |
+| ------- | --------------- |
+| promise | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..collectBlocks"></a>
 
@@ -1388,6 +1520,24 @@ Returns the promise that resolves with the ZCL properties package id.
 | ------- | --------------- |
 | context | <code>\*</code> |
 
+<a name="module_JS API_ generator logic..templatePromise"></a>
+
+### JS API: generator logic~templatePromise(global, promise)
+
+Every helper that returns a promise, should
+not return the promise directly. So instead of
+returning the promise directly, it should return:
+return templatePromise(this.global, promise)
+
+This will ensure that after tag works as expected.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param   | Type            |
+| ------- | --------------- |
+| global  | <code>\*</code> |
+| promise | <code>\*</code> |
+
 <a name="module_Templating API_ C formatting helpers"></a>
 
 ## Templating API: C formatting helpers
@@ -1399,7 +1549,6 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~asOffset(hex)](#module*Templating API* C formatting helpers..asOffset)
   - [~asDelimitedMacro(label)](#module*Templating API* C formatting helpers..asDelimitedMacro)
   - [~asHex(label)](#module*Templating API* C formatting helpers..asHex) ⇒
-  - [~defaultAtomicType(atomic)](#module*Templating API* C formatting helpers..defaultAtomicType)
   - [~asUnderlyingType(value)](#module*Templating API* C formatting helpers..asUnderlyingType)
   - [~asType(label)](#module*Templating API* C formatting helpers..asType) ⇒
   - [~asSymbol(label)](#module*Templating API* C formatting helpers..asSymbol) ⇒
@@ -1409,6 +1558,8 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~asUnderscoreLowercase(str)](#module*Templating API* C formatting helpers..asUnderscoreLowercase) ⇒
   - [~asSpacedLowercase(str)](#module*Templating API* C formatting helpers..asSpacedLowercase) ⇒
   - [~asUnderscoreUppercase(str)](#module*Templating API* C formatting helpers..asUnderscoreUppercase) ⇒
+  - [~dataTypeForBitmap(db, bitmap_name, packageId)](#module*Templating API* C formatting helpers..dataTypeForBitmap)
+  - [~dataTypeForEnum(db, enum_name, packageId)](#module*Templating API* C formatting helpers..dataTypeForEnum)
 
 <a name="module_Templating API_ C formatting helpers..asMacro"></a>
 
@@ -1464,22 +1615,6 @@ otherwise it is assumed decimal and converted to hex.
 | Param | Type            |
 | ----- | --------------- |
 | label | <code>\*</code> |
-
-<a name="module_Templating API_ C formatting helpers..defaultAtomicType"></a>
-
-### Templating API: C formatting helpers~defaultAtomicType(atomic)
-
-Returns the default atomic C type for a given atomic from
-the database. These values are used unless there is an
-override in template package json file. (Not yet fully
-implemented, but the plan is for template pkg to be able
-to override these.)
-
-**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)
-
-| Param  | Type            |
-| ------ | --------------- |
-| atomic | <code>\*</code> |
 
 <a name="module_Templating API_ C formatting helpers..asUnderlyingType"></a>
 
@@ -1594,6 +1729,34 @@ Given a camel case string convert it into one with underscore and uppercase
 | Param | Type            |
 | ----- | --------------- |
 | str   | <code>\*</code> |
+
+<a name="module_Templating API_ C formatting helpers..dataTypeForBitmap"></a>
+
+### Templating API: C formatting helpers~dataTypeForBitmap(db, bitmap_name, packageId)
+
+Returns the type of bitmap
+
+**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)
+
+| Param       | Type            |
+| ----------- | --------------- |
+| db          | <code>\*</code> |
+| bitmap_name | <code>\*</code> |
+| packageId   | <code>\*</code> |
+
+<a name="module_Templating API_ C formatting helpers..dataTypeForEnum"></a>
+
+### Templating API: C formatting helpers~dataTypeForEnum(db, enum_name, packageId)
+
+Returns the type of enum
+
+**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| enum_name | <code>\*</code> |
+| packageId | <code>\*</code> |
 
 <a name="module_Templating API_ user-data specific helpers"></a>
 
@@ -1899,6 +2062,11 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~largestLabelLength(An)](#module*Templating API* static zcl helpers..largestLabelLength) ⇒
   - [~zcl_command_arguments_count(commandId)](#module*Templating API* static zcl helpers..zcl_command_arguments_count) ⇒
   - [~zcl_command_arguments(options)](#module*Templating API* static zcl helpers..zcl_command_arguments) ⇒
+  - [~zcl_command_argument_data_type(typeName, options)](#module*Templating API* static zcl helpers..zcl_command_argument_data_type)
+  - [~isEnum(db, enum_name, packageId)](#module*Templating API* static zcl helpers..isEnum) ⇒
+  - [~isStruct(db, struct_name, packageId)](#module*Templating API* static zcl helpers..isStruct) ⇒
+  - [~isBitmap(db, bitmap_name, packageId)](#module*Templating API* static zcl helpers..isBitmap) ⇒
+  - [~isClient(side)](#module*Templating API* static zcl helpers..isClient) ⇒
 
 <a name="module_Templating API_ static zcl helpers..zcl_bitmaps"></a>
 
@@ -2123,6 +2291,83 @@ Block helper iterating over command arguments within a command
 | ------- | --------------- |
 | options | <code>\*</code> |
 
+<a name="module_Templating API_ static zcl helpers..zcl_command_argument_data_type"></a>
+
+### Templating API: static zcl helpers~zcl_command_argument_data_type(typeName, options)
+
+Helper that deals with the type of the argument.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)
+
+| Param    | Type            |
+| -------- | --------------- |
+| typeName | <code>\*</code> |
+| options  | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..isEnum"></a>
+
+### Templating API: static zcl helpers~isEnum(db, enum_name, packageId) ⇒
+
+Local function that checks if an enum by the name exists
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: Promise of content.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| enum_name | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..isStruct"></a>
+
+### Templating API: static zcl helpers~isStruct(db, struct_name, packageId) ⇒
+
+Local function that checks if an enum by the name exists
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: Promise of content.
+
+| Param       | Type            |
+| ----------- | --------------- |
+| db          | <code>\*</code> |
+| struct_name | <code>\*</code> |
+| packageId   | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..isBitmap"></a>
+
+### Templating API: static zcl helpers~isBitmap(db, bitmap_name, packageId) ⇒
+
+Local function that checks if a bitmap by the name exists
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: Promise of content.
+
+| Param       | Type            |
+| ----------- | --------------- |
+| db          | <code>\*</code> |
+| bitmap_name | <code>\*</code> |
+| packageId   | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..isClient"></a>
+
+### Templating API: static zcl helpers~isClient(side) ⇒
+
+Checks if the side is client or not
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: boolean
+
+| Param | Type            |
+| ----- | --------------- |
+| side  | <code>\*</code> |
+
+<a name="module_Templating API_ Overridable functions."></a>
+
+## Templating API: Overridable functions.
+
+This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+
 <a name="module_JS API_ generator logic"></a>
 
 ## JS API: generator logic
@@ -2131,17 +2376,23 @@ Block helper iterating over command arguments within a command
   - [~loadGenTemplate()](#module*JS API* generator logic..loadGenTemplate) ⇒
   - [~recordTemplatesPackage(context)](#module*JS API* generator logic..recordTemplatesPackage) ⇒
   - [~loadTemplates(db, genTemplatesJson)](#module*JS API* generator logic..loadTemplates) ⇒
-  - [~generateAllTemplates(genResult, pkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
-  - [~generateSingleTemplate(genResult, pkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
+  - [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
+  - [~generateSingleTemplate(genResult, singleTemplatePkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
   - [~generate(db, packageId)](#module*JS API* generator logic..generate) ⇒
   - [~generateGenerationContent(genResult)](#module*JS API* generator logic..generateGenerationContent)
   - [~generateAndWriteFiles(db, sessionId, packageId, outputDirectory)](#module*JS API* generator logic..generateAndWriteFiles) ⇒
   - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
   - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
-  - [~produceContent(db, sessionId, singlePkg)](#module*JS API* generator logic..produceContent) ⇒
+  - [~produceContent(db, sessionId, singlePkg, overridePath:)](#module*JS API* generator logic..produceContent) ⇒
+  - [~wrapOverridable(originalFn, overrideFn)](#module*JS API* generator logic..wrapOverridable) ⇒
+  - [~loadOverridable(genTemplatePackageId)](#module*JS API* generator logic..loadOverridable)
+  - [~loadHelper(path)](#module*JS API* generator logic..loadHelper)
+  - [~initializeGlobalHelpers()](#module*JS API* generator logic..initializeGlobalHelpers)
+  - [~makeSynchronizablePromise(promise)](#module*JS API* generator logic..makeSynchronizablePromise)
   - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
   - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
+  - [~templatePromise(global, promise)](#module*JS API* generator logic..templatePromise)
 
 <a name="module_JS API_ generator logic..loadGenTemplate"></a>
 
@@ -2185,32 +2436,32 @@ Main API function to load templates from a gen-template.json file.
 
 <a name="module_JS API_ generator logic..generateAllTemplates"></a>
 
-### JS API: generator logic~generateAllTemplates(genResult, pkg, generateOnly) ⇒
+### JS API: generator logic~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly) ⇒
 
 Generates all the templates inside a toplevel package.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
 
-| Param        | Type            | Default       | Description                                                                                        |
-| ------------ | --------------- | ------------- | -------------------------------------------------------------------------------------------------- |
-| genResult    | <code>\*</code> |               |                                                                                                    |
-| pkg          | <code>\*</code> |               |                                                                                                    |
-| generateOnly | <code>\*</code> | <code></code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
+| Param              | Type            | Default       | Description                                                                                        |
+| ------------------ | --------------- | ------------- | -------------------------------------------------------------------------------------------------- |
+| genResult          | <code>\*</code> |               |                                                                                                    |
+| genTemplateJsonPkg | <code>\*</code> |               | Package that points to genTemplate.json file                                                       |
+| generateOnly       | <code>\*</code> | <code></code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
 
 <a name="module_JS API_ generator logic..generateSingleTemplate"></a>
 
-### JS API: generator logic~generateSingleTemplate(genResult, pkg) ⇒
+### JS API: generator logic~generateSingleTemplate(genResult, singleTemplatePkg) ⇒
 
 Function that generates a single package and adds it to the generation result.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: promise that resolves with the genResult, with newly generated content added.
 
-| Param     | Type            |
-| --------- | --------------- |
-| genResult | <code>\*</code> |
-| pkg       | <code>\*</code> |
+| Param             | Type            | Description              |
+| ----------------- | --------------- | ------------------------ |
+| genResult         | <code>\*</code> |                          |
+| singleTemplatePkg | <code>\*</code> | Single template package. |
 
 <a name="module_JS API_ generator logic..generate"></a>
 
@@ -2221,10 +2472,10 @@ Main API function to generate stuff.
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: Promise that resolves into a generation result.
 
-| Param     | Type            | Description                   |
-| --------- | --------------- | ----------------------------- |
-| db        | <code>\*</code> | Database                      |
-| packageId | <code>\*</code> | packageId Template package id |
+| Param     | Type            | Description                                                                           |
+| --------- | --------------- | ------------------------------------------------------------------------------------- |
+| db        | <code>\*</code> | Database                                                                              |
+| packageId | <code>\*</code> | packageId Template package id. It can be either single template or gen template json. |
 
 <a name="module_JS API_ generator logic..generateGenerationContent"></a>
 
@@ -2283,18 +2534,77 @@ Generates a single file and feeds it back for preview.
 
 <a name="module_JS API_ generator logic..produceContent"></a>
 
-### JS API: generator logic~produceContent(db, sessionId, singlePkg) ⇒
+### JS API: generator logic~produceContent(db, sessionId, singlePkg, overridePath:) ⇒
 
 Given db connection, session and a single template package, produce the output.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: Promise that resolves with the 'utf8' string that contains the generated content.
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
-| singlePkg | <code>\*</code> |
+| Param         | Type            | Description                                                                             |
+| ------------- | --------------- | --------------------------------------------------------------------------------------- |
+| db            | <code>\*</code> |                                                                                         |
+| sessionId     | <code>\*</code> |                                                                                         |
+| singlePkg     | <code>\*</code> |                                                                                         |
+| overridePath: | <code>\*</code> | if passed, it provides a path to the override file that can override the overridable.js |
+
+<a name="module_JS API_ generator logic..wrapOverridable"></a>
+
+### JS API: generator logic~wrapOverridable(originalFn, overrideFn) ⇒
+
+This function attemps to call override function, but if override function
+throws an exception, it calls the original function.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: result from override function, unless it throws an exception, in which case return result from original function.
+
+| Param      | Type            |
+| ---------- | --------------- |
+| originalFn | <code>\*</code> |
+| overrideFn | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..loadOverridable"></a>
+
+### JS API: generator logic~loadOverridable(genTemplatePackageId)
+
+This function is responsible to load the overridable function container.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param                | Type            |
+| -------------------- | --------------- |
+| genTemplatePackageId | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..loadHelper"></a>
+
+### JS API: generator logic~loadHelper(path)
+
+Function that loads the helpers.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param | Type            |
+| ----- | --------------- |
+| path  | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..initializeGlobalHelpers"></a>
+
+### JS API: generator logic~initializeGlobalHelpers()
+
+Global helper initialization
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+<a name="module_JS API_ generator logic..makeSynchronizablePromise"></a>
+
+### JS API: generator logic~makeSynchronizablePromise(promise)
+
+All promises used by the templates should be synchronizable.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param   | Type            |
+| ------- | --------------- |
+| promise | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..collectBlocks"></a>
 
@@ -2338,6 +2648,24 @@ Returns the promise that resolves with the ZCL properties package id.
 | ------- | --------------- |
 | context | <code>\*</code> |
 
+<a name="module_JS API_ generator logic..templatePromise"></a>
+
+### JS API: generator logic~templatePromise(global, promise)
+
+Every helper that returns a promise, should
+not return the promise directly. So instead of
+returning the promise directly, it should return:
+return templatePromise(this.global, promise)
+
+This will ensure that after tag works as expected.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param   | Type            |
+| ------- | --------------- |
+| global  | <code>\*</code> |
+| promise | <code>\*</code> |
+
 <a name="module_JS API_ generator logic"></a>
 
 ## JS API: generator logic
@@ -2346,17 +2674,23 @@ Returns the promise that resolves with the ZCL properties package id.
   - [~loadGenTemplate()](#module*JS API* generator logic..loadGenTemplate) ⇒
   - [~recordTemplatesPackage(context)](#module*JS API* generator logic..recordTemplatesPackage) ⇒
   - [~loadTemplates(db, genTemplatesJson)](#module*JS API* generator logic..loadTemplates) ⇒
-  - [~generateAllTemplates(genResult, pkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
-  - [~generateSingleTemplate(genResult, pkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
+  - [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
+  - [~generateSingleTemplate(genResult, singleTemplatePkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
   - [~generate(db, packageId)](#module*JS API* generator logic..generate) ⇒
   - [~generateGenerationContent(genResult)](#module*JS API* generator logic..generateGenerationContent)
   - [~generateAndWriteFiles(db, sessionId, packageId, outputDirectory)](#module*JS API* generator logic..generateAndWriteFiles) ⇒
   - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
   - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
-  - [~produceContent(db, sessionId, singlePkg)](#module*JS API* generator logic..produceContent) ⇒
+  - [~produceContent(db, sessionId, singlePkg, overridePath:)](#module*JS API* generator logic..produceContent) ⇒
+  - [~wrapOverridable(originalFn, overrideFn)](#module*JS API* generator logic..wrapOverridable) ⇒
+  - [~loadOverridable(genTemplatePackageId)](#module*JS API* generator logic..loadOverridable)
+  - [~loadHelper(path)](#module*JS API* generator logic..loadHelper)
+  - [~initializeGlobalHelpers()](#module*JS API* generator logic..initializeGlobalHelpers)
+  - [~makeSynchronizablePromise(promise)](#module*JS API* generator logic..makeSynchronizablePromise)
   - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
   - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
+  - [~templatePromise(global, promise)](#module*JS API* generator logic..templatePromise)
 
 <a name="module_JS API_ generator logic..loadGenTemplate"></a>
 
@@ -2400,32 +2734,32 @@ Main API function to load templates from a gen-template.json file.
 
 <a name="module_JS API_ generator logic..generateAllTemplates"></a>
 
-### JS API: generator logic~generateAllTemplates(genResult, pkg, generateOnly) ⇒
+### JS API: generator logic~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly) ⇒
 
 Generates all the templates inside a toplevel package.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
 
-| Param        | Type            | Default       | Description                                                                                        |
-| ------------ | --------------- | ------------- | -------------------------------------------------------------------------------------------------- |
-| genResult    | <code>\*</code> |               |                                                                                                    |
-| pkg          | <code>\*</code> |               |                                                                                                    |
-| generateOnly | <code>\*</code> | <code></code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
+| Param              | Type            | Default       | Description                                                                                        |
+| ------------------ | --------------- | ------------- | -------------------------------------------------------------------------------------------------- |
+| genResult          | <code>\*</code> |               |                                                                                                    |
+| genTemplateJsonPkg | <code>\*</code> |               | Package that points to genTemplate.json file                                                       |
+| generateOnly       | <code>\*</code> | <code></code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
 
 <a name="module_JS API_ generator logic..generateSingleTemplate"></a>
 
-### JS API: generator logic~generateSingleTemplate(genResult, pkg) ⇒
+### JS API: generator logic~generateSingleTemplate(genResult, singleTemplatePkg) ⇒
 
 Function that generates a single package and adds it to the generation result.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: promise that resolves with the genResult, with newly generated content added.
 
-| Param     | Type            |
-| --------- | --------------- |
-| genResult | <code>\*</code> |
-| pkg       | <code>\*</code> |
+| Param             | Type            | Description              |
+| ----------------- | --------------- | ------------------------ |
+| genResult         | <code>\*</code> |                          |
+| singleTemplatePkg | <code>\*</code> | Single template package. |
 
 <a name="module_JS API_ generator logic..generate"></a>
 
@@ -2436,10 +2770,10 @@ Main API function to generate stuff.
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: Promise that resolves into a generation result.
 
-| Param     | Type            | Description                   |
-| --------- | --------------- | ----------------------------- |
-| db        | <code>\*</code> | Database                      |
-| packageId | <code>\*</code> | packageId Template package id |
+| Param     | Type            | Description                                                                           |
+| --------- | --------------- | ------------------------------------------------------------------------------------- |
+| db        | <code>\*</code> | Database                                                                              |
+| packageId | <code>\*</code> | packageId Template package id. It can be either single template or gen template json. |
 
 <a name="module_JS API_ generator logic..generateGenerationContent"></a>
 
@@ -2498,18 +2832,77 @@ Generates a single file and feeds it back for preview.
 
 <a name="module_JS API_ generator logic..produceContent"></a>
 
-### JS API: generator logic~produceContent(db, sessionId, singlePkg) ⇒
+### JS API: generator logic~produceContent(db, sessionId, singlePkg, overridePath:) ⇒
 
 Given db connection, session and a single template package, produce the output.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: Promise that resolves with the 'utf8' string that contains the generated content.
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
-| singlePkg | <code>\*</code> |
+| Param         | Type            | Description                                                                             |
+| ------------- | --------------- | --------------------------------------------------------------------------------------- |
+| db            | <code>\*</code> |                                                                                         |
+| sessionId     | <code>\*</code> |                                                                                         |
+| singlePkg     | <code>\*</code> |                                                                                         |
+| overridePath: | <code>\*</code> | if passed, it provides a path to the override file that can override the overridable.js |
+
+<a name="module_JS API_ generator logic..wrapOverridable"></a>
+
+### JS API: generator logic~wrapOverridable(originalFn, overrideFn) ⇒
+
+This function attemps to call override function, but if override function
+throws an exception, it calls the original function.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: result from override function, unless it throws an exception, in which case return result from original function.
+
+| Param      | Type            |
+| ---------- | --------------- |
+| originalFn | <code>\*</code> |
+| overrideFn | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..loadOverridable"></a>
+
+### JS API: generator logic~loadOverridable(genTemplatePackageId)
+
+This function is responsible to load the overridable function container.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param                | Type            |
+| -------------------- | --------------- |
+| genTemplatePackageId | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..loadHelper"></a>
+
+### JS API: generator logic~loadHelper(path)
+
+Function that loads the helpers.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param | Type            |
+| ----- | --------------- |
+| path  | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..initializeGlobalHelpers"></a>
+
+### JS API: generator logic~initializeGlobalHelpers()
+
+Global helper initialization
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+<a name="module_JS API_ generator logic..makeSynchronizablePromise"></a>
+
+### JS API: generator logic~makeSynchronizablePromise(promise)
+
+All promises used by the templates should be synchronizable.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param   | Type            |
+| ------- | --------------- |
+| promise | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..collectBlocks"></a>
 
@@ -2552,6 +2945,24 @@ Returns the promise that resolves with the ZCL properties package id.
 | Param   | Type            |
 | ------- | --------------- |
 | context | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..templatePromise"></a>
+
+### JS API: generator logic~templatePromise(global, promise)
+
+Every helper that returns a promise, should
+not return the promise directly. So instead of
+returning the promise directly, it should return:
+return templatePromise(this.global, promise)
+
+This will ensure that after tag works as expected.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param   | Type            |
+| ------- | --------------- |
+| global  | <code>\*</code> |
+| promise | <code>\*</code> |
 
 <a name="module_REST API_ admin functions"></a>
 
@@ -2559,11 +2970,11 @@ Returns the promise that resolves with the ZCL properties package id.
 
 This module provides the REST API to the admin functions.
 
-<a name="module_REST API_ admin functions..registerAdminApi"></a>
+<a name="module_REST API_ admin functions..postSql"></a>
 
-### REST API: admin functions~registerAdminApi(db, app)
+### REST API: admin functions~postSql(db, app)
 
-API: /post/sql
+API: /sql
 Request JSON:
 
 <pre>
@@ -2692,9 +3103,25 @@ This module provides the REST API to the user specific data.
 This module provides the HTTP server functionality.
 
 - [JS API: http server](#module*JS API* http server)
+  - [~registerRestApi(filename, db, app)](#module*JS API* http server..registerRestApi)
   - [~initHttpServer(db, port)](#module*JS API* http server..initHttpServer) ⇒
   - [~shutdownHttpServer()](#module*JS API* http server..shutdownHttpServer) ⇒
   - [~httpServerPort()](#module*JS API* http server..httpServerPort) ⇒
+
+<a name="module_JS API_ http server..registerRestApi"></a>
+
+### JS API: http server~registerRestApi(filename, db, app)
+
+This function is used to register a rest module, which exports
+get/post/etc. arrays.
+
+**Kind**: inner method of [<code>JS API: http server</code>](#module*JS API* http server)
+
+| Param    | Type            |
+| -------- | --------------- |
+| filename | <code>\*</code> |
+| db       | <code>\*</code> |
+| app      | <code>\*</code> |
 
 <a name="module_JS API_ http server..initHttpServer"></a>
 
@@ -2963,6 +3390,25 @@ limitations under the License.
 
 This module provides the APIs for validating inputs to the database, and returning flags indicating if
 things were successful or not.
+
+**Kind**: global constant  
+<a name="env"></a>
+
+## env
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 **Kind**: global constant  
 <a name="fs"></a>
@@ -3495,6 +3941,22 @@ TODO: Is this the right thing to do?
 | Param | Type            | Description                       |
 | ----- | --------------- | --------------------------------- |
 | value | <code>\*</code> | the string value to be normalized |
+
+<a name="getNumBytesFromShortName"></a>
+
+## getNumBytesFromShortName(value) ⇒
+
+The Dotdot ZCL XML doesn't have a length but it is embedded in the short name,
+we can scrape the value to get the size
+
+TODO: Is this the right thing to do?
+
+**Kind**: global function  
+**Returns**: size in bytes or 0 if the # of bytes could not be determined
+
+| Param | Type            | Description                    |
+| ----- | --------------- | ------------------------------ |
+| value | <code>\*</code> | the string value to be scraped |
 
 <a name="prepareAttributes"></a>
 

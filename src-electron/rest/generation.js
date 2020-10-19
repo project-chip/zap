@@ -23,52 +23,75 @@
 
 const generationEngine = require('../generator/generation-engine.js')
 const queryPackage = require('../db/query-package.js')
-const dbEnum = require('../../src-shared/db-enum.js')
+const restApi = require('../../src-shared/rest-api.js')
 
 /**
+ * HTTP GET: preview single file with index.
  *
- *
- * @export
  * @param {*} db
- * @param {*} app
+ * @returns callback for the express uri registration
  */
-function registerGenerationApi(db, app) {
-  app.get('/preview/:name/:index', (request, response) => {
+function httpGetPreviewNameIndex(db) {
+  return (request, response) => {
     var sessionId = request.session.zapSessionId
     generationEngine
       .generateSingleFileForPreview(db, sessionId, request.params.name)
       .then((previewObject) => {
         if (request.params.index in previewObject) {
           return response.json({
-            replyId: 'preview',
             result: previewObject[request.params.index],
             size: Object.keys(previewObject).length,
           })
         } else {
-          return response.json({
-            replyId: 'preview',
-          })
+          return response.json({})
         }
       })
-  })
+  }
+}
 
-  app.get('/preview/:name', (request, response) => {
+/**
+ * HTTP GET: Preview a single file.
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetPreviewName(db) {
+  return (request, response) => {
     var sessionId = request.session.zapSessionId
     generationEngine
       .generateSingleFileForPreview(db, sessionId, request.params.name)
       .then((previewObject) => {
-        previewObject.replyId = 'preview'
         return response.json(previewObject)
       })
-  })
-
-  app.get('/preview/', (request, response) => {
-    var sessionId = request.session.zapSessionId
-    queryPackage.getSessionGenTemplates(db, sessionId).then((previewObject) => {
-      previewObject.replyId = 'preview-gentemplates'
-      return response.json(previewObject)
-    })
-  })
+  }
 }
 
-exports.registerGenerationApi = registerGenerationApi
+/**
+ * HTTP GET: total preview object.
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetPreview(db) {
+  return (request, response) => {
+    var sessionId = request.session.zapSessionId
+    queryPackage.getSessionGenTemplates(db, sessionId).then((previewObject) => {
+      return response.json(previewObject)
+    })
+  }
+}
+
+exports.get = [
+  {
+    uri: restApi.uri.previewNameIndex,
+    callback: httpGetPreviewNameIndex,
+  },
+  {
+    uri: restApi.uri.previewName,
+    callback: httpGetPreviewName,
+  },
+  {
+    uri: restApi.uri.preview,
+    callback: httpGetPreview,
+  },
+]

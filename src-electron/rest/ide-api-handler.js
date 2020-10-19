@@ -29,15 +29,21 @@ const path = require('path')
 const http = require('http-status-codes')
 const queryConfig = require('../db/query-config.js')
 
-function registerIdeIntegrationApi(db, app) {
-  app.get(restApi.ide.open, (req, res) => {
+/**
+ * HTTP GET: IDE open
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetIdeOpen(db) {
+  return (req, res) => {
     if (req.query.project) {
       let name = path.posix.basename(req.query.project)
       let zapFile = req.query.project
 
       env.logInfo(`Studio: Opening/Loading project(${name})`)
       importJs
-        .importDataFromFile(env.mainDatabase(), zapFile)
+        .importDataFromFile(db, zapFile)
         .then((sessionId) => {
           env.logInfo(
             `Studio: Loaded project(${name}), sessionId(${sessionId})`
@@ -56,23 +62,27 @@ function registerIdeIntegrationApi(db, app) {
       env.logWarning(msg)
       res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
     }
-  })
+  }
+}
 
-  app.get(restApi.ide.save, (req, res) => {
+/**
+ * HTTP GET: IDE save
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetIdeSave(db) {
+  return (req, res) => {
     if (req.query.sessionId) {
       let sessionId = req.query.sessionId
       env.logInfo(`Studio: Saving project: sessionId: ${sessionId}`)
       queryConfig
-        .getSessionKeyValue(env.mainDatabase(), sessionId, 'filePath')
+        .getSessionKeyValue(db, sessionId, 'filePath')
         .then((filePath) => {
           if (filePath) {
             let name = path.posix.basename(filePath)
             env.logInfo(`Studio: Saving project(${name})`)
-            return exportJs.exportDataIntoFile(
-              env.mainDatabase(),
-              sessionId,
-              filePath
-            )
+            return exportJs.exportDataIntoFile(db, sessionId, filePath)
           } else {
             env.logWarning(
               `Studio: Unable to save project due to invalid file path`
@@ -89,7 +99,16 @@ function registerIdeIntegrationApi(db, app) {
         error: 'Saving project: Missing "sessionId" query string',
       })
     }
-  })
+  }
 }
 
-exports.registerIdeIntegrationApi = registerIdeIntegrationApi
+exports.get = [
+  {
+    uri: restApi.ide.open,
+    callback: httpGetIdeOpen,
+  },
+  {
+    uri: restApi.ide.save,
+    callback: httpGetIdeSave,
+  },
+]

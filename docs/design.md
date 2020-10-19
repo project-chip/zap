@@ -99,6 +99,19 @@ Front-end of the "Zap" platform centers around the UI that provides all the func
 - Depending on the integration into some existing IDEs, zap UI may show visually embedded inside another IDE.
 - Same UI will also be available for developers for use from command line via a simple "zap <file>" command line execution, which will launch a simple electron-based app showing the fill UI. User will be able to edit file, save changes and then proceed developing the rest of the application using SDK specific tooling.
 
+## REST API layer
+
+Front-end and back-end are connected via a REST API, exposed via an http server on the back-end. REST API follows the standard principles of implementing REST APIs using the HTTP protocol.
+
+The HTTP methods are strictly observed:
+|HTTP Method|Purpose|
+|-----------|-------|
+|GET |Used to retrieve the data, state on the server doesn't change.|
+|POST |Used to post a new entity or post additional data to existing entity. State on server changes, method is NOT idempotent.|
+|PUT |Used to put a new entity into the database. State on server changes, method IS idempotent.|
+|DELETE |Used to delete an entity in the database. State on server changes.|
+|PATCH |Used to modify just a part of an entity, a single column in the database.|
+
 ## Generator and backend
 
 The Zap back-end is a node.js application. The general design guidelines for the back-end logic are:

@@ -26,15 +26,68 @@ const express = require('express')
 const session = require('express-session')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
-const admin = require('../rest/admin.js')
-const generation = require('../rest/generation.js')
-const staticZcl = require('../rest/static-zcl.js')
-const userData = require('../rest/user-data.js')
-const uc_integration = require('../rest/uc-component.js')
-const ide = require('../rest/ide-api-handler.js')
 const util = require('../util/util.js')
 
+const restApiModules = [
+  '../rest/admin.js',
+  '../rest/static-zcl.js',
+  '../rest/generation.js',
+  '../rest/ide-api-handler.js',
+  '../rest/uc-component.js',
+  '../rest/user-data.js',
+]
 var httpServer = null
+
+/**
+ * This function is used to register a rest module, which exports
+ * get/post/etc. arrays.
+ *
+ * @param {*} filename
+ * @param {*} db
+ * @param {*} app
+ */
+function registerRestApi(filename, db, app) {
+  var module = require(filename)
+
+  if (module.post != null)
+    module.post.forEach((singlePost) => {
+      var uri = singlePost.uri
+      var callback = singlePost.callback
+      app.post(uri, callback(db))
+    })
+
+  if (module.put != null)
+    module.put.forEach((singlePut) => {
+      var uri = singlePut.uri
+      var callback = singlePut.callback
+      app.put(uri, callback(db))
+    })
+
+  if (module.patch != null)
+    module.patch.forEach((singlePatch) => {
+      var uri = singlePatch.uri
+      var callback = singlePatch.callback
+      app.patch(uri, callback(db))
+    })
+
+  if (module.get != null)
+    module.get.forEach((singleGet) => {
+      var uri = singleGet.uri
+      var callback = singleGet.callback
+      app.get(uri, callback(db))
+    })
+
+  if (module.delete != null)
+    module.delete.forEach((singleDelete) => {
+      var uri = singleDelete.uri
+      var callback = singleDelete.callback
+      app.delete(uri, callback(db))
+    })
+}
+
+function registerAllRestModules(db, app) {
+  restApiModules.forEach((module) => registerRestApi(module, db, app))
+}
 
 /**
  * Promises to initialize the http server on a given port
@@ -79,14 +132,10 @@ function initHttpServer(db, port, studioPort) {
       }
     })
 
-    // Simple get for an entity, id can be all or specific id
-    staticZcl.registerStaticZclApi(db, app)
-    userData.registerSessionApi(db, app)
-    generation.registerGenerationApi(db, app)
-    admin.registerAdminApi(db, app)
-    uc_integration.registerUcComponentApi(db, app)
-    ide.registerIdeIntegrationApi(db, app)
+    // REST modules
+    registerAllRestModules(db, app)
 
+    // Static content
     env.logInfo(`HTTP static content location: ${env.httpStaticContent}`)
     app.use(express.static(env.httpStaticContent))
 

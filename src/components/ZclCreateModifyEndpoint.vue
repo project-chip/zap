@@ -95,10 +95,12 @@ limitations under the License.
 
 <script>
 import * as RestApi from '../../src-shared/rest-api'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclCreateModifyEndpoint',
   props: ['endpointReference'],
+  mixins: [CommonMixin],
   mounted() {
     if (this.endpointReference != null) {
       this.newEndpoint.newEndpointId = this.endpointId[this.endpointReference]
@@ -113,7 +115,7 @@ export default {
       deviceTypeOptions: this.zclDeviceTypeOptions,
       newEndpoint: {
         newEndpointId: '0001',
-        newNetworkId: 'Primary',
+        newNetworkId: 1,
         newDeviceTypeRef: null,
         newVersion: 1,
       },
@@ -129,26 +131,11 @@ export default {
         return keys
       },
     },
-    zclDeviceTypes: {
-      get() {
-        return this.$store.state.zap.zclDeviceTypes
-      },
-    },
     zclProfileId: {
       get() {
         return this.newEndpoint.newDeviceTypeRef
           ? this.zclDeviceTypes[this.newEndpoint.newDeviceTypeRef].profileId
           : ''
-      },
-    },
-    endpointId: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointId
-      },
-    },
-    endpointType: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointType
       },
     },
     networkId: {
@@ -168,23 +155,17 @@ export default {
 
       this.$store
         .dispatch(`zap/addEndpointType`, {
-          action: RestApi.action.create,
-          context: {
-            name: 'Anonymous Endpoint Type',
-            deviceTypeRef: deviceTypeRef,
-          },
+          name: 'Anonymous Endpoint Type',
+          deviceTypeRef: deviceTypeRef,
         })
         .then((response) => {
           let eptId = this.newEndpoint.newEndpointId
           let nwkId = this.newEndpoint.newNetworkId
           this.$store
             .dispatch(`zap/addEndpoint`, {
-              action: RestApi.action.create,
-              context: {
-                eptId: eptId,
-                nwkId: nwkId,
-                endpointType: response.id,
-              },
+              endpointId: eptId,
+              networkId: nwkId,
+              endpointType: response.id,
             })
             .then((res) => {
               this.$store.dispatch('zap/updateSelectedEndpointType', {
@@ -199,14 +180,12 @@ export default {
       let endpointTypeReference = this.endpointType[this.endpointReference]
 
       this.$store.dispatch('zap/updateEndpointType', {
-        action: RestApi.action.update,
         endpointTypeId: endpointTypeReference,
         updatedKey: RestApi.updateKey.deviceTypeRef,
         updatedValue: newEndpoint.newDeviceTypeRef,
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
-        action: RestApi.action.update,
         context: {
           id: endpointReference,
           changes: [

@@ -81,52 +81,22 @@ import ZclAttributeManager from './ZclAttributeManager.vue'
 import ZclAttributeReportingManager from './ZclAttributeReportingManager.vue'
 import ZclCommandManager from './ZclCommandManager.vue'
 import * as Util from '../util/util'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclClusterView',
+  mixins: [CommonMixin],
   computed: {
-    selectedEndpointId: {
-      get() {
-        return this.$store.state.zap.endpointView.selectedEndpoint
-      },
-    },
-    endpointId: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointId
-      },
-    },
-    selectedCluster: {
-      get() {
-        return this.$store.state.zap.clustersView.selected[0] || {}
-      },
-    },
-    selectedClusterId: {
-      get() {
-        return this.selectedCluster.id
-      },
-    },
-    selectionClient: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedClients
-      },
-      set(val) {},
-    },
-    selectionServer: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedServers
-      },
-      set(val) {},
-    },
     enabledMessage: {
       get() {
         if (
-          this.selectionClient.includes(this.selectedClusterId) &&
-          this.selectionServer.includes(this.selectedClusterId)
+          this.selectionClients.includes(this.selectedClusterId) &&
+          this.selectionServers.includes(this.selectedClusterId)
         )
           return ' Client & Server'
-        if (this.selectionServer.includes(this.selectedClusterId))
+        if (this.selectionServers.includes(this.selectedClusterId))
           return ' Server'
-        if (this.selectionClient.includes(this.selectedClusterId))
+        if (this.selectionClients.includes(this.selectedClusterId))
           return ' Client'
         return ' none'
       },
@@ -144,9 +114,6 @@ export default {
         option: option,
         value: value,
       })
-    },
-    asHex(value, padding) {
-      return Util.asHex(value, padding)
     },
   },
   data() {

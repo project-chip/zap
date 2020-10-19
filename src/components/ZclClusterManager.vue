@@ -15,12 +15,13 @@ limitations under the License.
 -->
 
 <template>
-  <div v-show="selectedEndpointId.length != 0">
+  <div v-show="selectedEndpointTypeId.length != 0">
     <q-card flat square>
       <div class="row">
         <q-toolbar>
           <q-toolbar-title style="font-weight: bolder">
-            Endpoint x{{ this.endpointId[this.selectedEndpointId] }} Clusters
+            Endpoint x{{ this.endpointId[this.selectedEndpointTypeId] }}
+            Clusters
           </q-toolbar-title>
         </q-toolbar>
       </div>
@@ -98,26 +99,13 @@ limitations under the License.
 </template>
 <script>
 import ZclDomainClusterView from './ZclDomainClusterView.vue'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclClusterManager',
   props: ['endpointTypeReference'],
+  mixins: [CommonMixin],
   computed: {
-    selectedEndpointId: {
-      get() {
-        return this.$store.state.zap.endpointTypeView.selectedEndpointType
-      },
-    },
-    endpointId: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointId
-      },
-    },
-    endpointType: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointType
-      },
-    },
     domainNames: {
       get() {
         return this.$store.state.zap.domains
@@ -150,18 +138,6 @@ export default {
           return this.isClusterEnabled(cluster.id)
         })
       },
-    },
-    selectionClients: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedClients
-      },
-      set(val) {},
-    },
-    selectionServers: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedServers
-      },
-      set(val) {},
     },
     filterOptions: {
       get() {

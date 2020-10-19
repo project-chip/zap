@@ -15,36 +15,22 @@
  *    limitations under the License.
  */
 
-const replyId = {
-  zclEndpointTypeResponse: 'zcl-endpointType-response',
-  zclEndpointResponse: 'zcl-endpoint-response',
-  zclEndpointTypeClusterSelectionResponse:
-    'zcl-endpointType-cluster-selection-response',
-  singleAttributeState: 'singleAttributeState',
-  singleCommandState: 'singleCommandState',
-  sqlResult: 'sql-result',
-  initialState: 'initial-state',
-}
-
-const action = {
-  update: 'u',
-  create: 'c',
-  delete: 'd',
-}
-
 const uri = {
+  zclEntity: '/zcl/:entity/:id',
   saveSessionKeyValue: '/save',
   getAllSessionKeyValues: '/allKeyValues',
-  sql: '/sql',
   generate: '/generate',
   endpoint: '/endpoint',
   endpointType: '/endpointType',
   initialState: '/initialState',
   option: '/option',
   commandUpdate: '/command/update',
-  endpointTypeUpdate: '/endpointType/update',
   cluster: '/cluster',
   attributeUpdate: '/attribute/update',
+  preview: '/preview/',
+  previewName: '/preview/:name',
+  previewNameIndex: '/preview/:name/:index',
+  sql: '/sql',
 }
 
 const uiMode = {
@@ -87,10 +73,17 @@ const updateKey = {
   endpointType: 'endpointType',
   networkId: 'networkId',
   name: 'name',
+  attributeSelected: 'selectedAttributes',
+  attributeSingleton: 'selectedSingleton',
+  attributeBounded: 'selectedBounded',
+  attributeDefault: 'defaultValue',
+  attributeReporting: 'selectedReporting',
+  attributeReportMin: 'reportingMin',
+  attributeReportMax: 'reportingMax',
+  attributeReportChange: 'reportableChange',
+  attributeStorage: 'storageOption',
 }
 
-exports.replyId = replyId
-exports.action = action
 exports.uri = uri
 exports.httpCode = httpCode
 exports.uiMode = uiMode

@@ -32,7 +32,7 @@ limitations under the License.
             v-for="col in props.cols"
             :key="col.name"
             :props="props"
-            style="background: #eeeeee;"
+            style="background: #eeeeee"
           >
             {{ col.label }}
           </q-th>
@@ -104,9 +104,11 @@ limitations under the License.
 <script>
 import * as Util from '../util/util.js'
 import * as RestApi from '../../src-shared/rest-api'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclCommandManager',
+  mixins: [CommonMixin],
   computed: {
     commandData: {
       get() {
@@ -123,29 +125,9 @@ export default {
         return this.$store.state.zap.commandView.selectedOut
       },
     },
-    selectedEndpointId: {
-      get() {
-        return this.$store.state.zap.endpointTypeView.selectedEndpointType
-      },
-    },
     requiredCommands: {
       get() {
         return this.$store.state.zap.commandView.requiredCommands
-      },
-    },
-    selectionClusterClient: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedClients
-      },
-    },
-    selectionClusterServer: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedServers
-      },
-    },
-    selectedCluster: {
-      get() {
-        return this.$store.state.zap.clustersView.selected[0] || {}
       },
     },
   },
@@ -166,7 +148,7 @@ export default {
       }
       let editContext = {
         action: 'boolean',
-        endpointTypeId: this.selectedEndpointId,
+        endpointTypeId: this.selectedEndpointTypeId,
         id: commandData.id,
         value: addedValue,
         listType: listType,
@@ -180,9 +162,6 @@ export default {
     },
     hashCommandIdClusterId(commandId, clusterId) {
       return Util.cantorPair(commandId, clusterId)
-    },
-    asHex(value, padding) {
-      return Util.asHex(value, padding)
     },
   },
   data() {

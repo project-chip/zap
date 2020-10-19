@@ -58,6 +58,19 @@ function serverGet(url, config = null) {
 }
 
 /**
+ * Issues a DELETE to the server and returns a promise that resolves into a response.
+ *
+ * @param {*} url
+ * @returns Promise that resolves into a response.
+ */
+function serverDelete(url, config = null) {
+  if (log) console.log(`DELETE → : ${url}, ${config}`)
+  return axios['delete'](url, config)
+    .then((response) => processResponse('DELETE', url, response))
+    .catch((error) => console.log(error))
+}
+
+/**
  * Issues a POST to the server and returns a promise that resolves into a response.
  *
  * Remember: POST is not idempotent. POST should not be used to update
@@ -91,19 +104,6 @@ function serverPut(url, data) {
   if (log) console.log(`PUT → : ${url}, ${data}`)
   return axios['put'](url, data)
     .then((response) => processResponse('PUT', url, response))
-    .catch((error) => console.log(error))
-}
-
-/**
- * Issues a DELETE to the server and returns a promise that resolves into a response.
- *
- * @param {*} url
- * @returns Promise that resolves into a response.
- */
-function serverDelete(url) {
-  if (log) console.log(`DELETE → : ${url}`)
-  return axios['delete'](url)
-    .then((response) => processResponse('DELETE', url, response))
     .catch((error) => console.log(error))
 }
 

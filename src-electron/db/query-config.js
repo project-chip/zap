@@ -24,7 +24,7 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
-
+const restApi = require('../../src-shared/rest-api.js')
 /**
  * Promises to update or insert a key/value pair in SESSION_KEY_VALUE table.
  *
@@ -259,12 +259,46 @@ WHERE (
   })
 }
 
+function convertRestKeyToDbColumn(key) {
+  switch (key) {
+    case restApi.updateKey.endpointId:
+      return 'ENDPOINT_IDENTIFIER'
+    case restApi.updateKey.endpointType:
+      return 'ENDPOINT_TYPE_REF'
+    case restApi.updateKey.networkId:
+      return 'NETWORK_IDENTIFIER'
+    case restApi.updateKey.deviceTypeRef:
+      return 'DEVICE_TYPE_REF'
+    case restApi.updateKey.name:
+      return 'NAME'
+    case restApi.updateKey.attributeSelected:
+      return 'INCLUDED'
+    case restApi.updateKey.attributeSingleton:
+      return 'SINGLETON'
+    case restApi.updateKey.attributeBounded:
+      return 'BOUNDED'
+    case restApi.updateKey.attributeDefault:
+      return 'DEFAULT_VALUE'
+    case restApi.updateKey.attributeReporting:
+      return 'INCLUDED_REPORTABLE'
+    case restApi.updateKey.attributeReportMin:
+      return 'MIN_INTERVAL'
+    case restApi.updateKey.attributeReportMax:
+      return 'MAX_INTERVAL'
+    case restApi.updateKey.attributeReportChange:
+      return 'REPORTABLE_CHANGE'
+    case restApi.updateKey.attributeStorage:
+      return 'STORAGE_OPTION'
+  }
+  throw `Invalid rest update key: ${key}`
+}
+
 function getAllParamValuePairArrayClauses(paramValuePairArray) {
   return paramValuePairArray.reduce((currentString, paramValuePair, index) => {
     return (
       currentString +
       (index == 0 ? '' : ',') +
-      paramValuePair.key +
+      convertRestKeyToDbColumn(paramValuePair.key) +
       ' = ' +
       (paramValuePair.value == ''
         ? false
@@ -564,9 +598,10 @@ function updateEndpointType(
   db,
   sessionId,
   endpointTypeId,
-  param,
+  updateKey,
   updatedValue
 ) {
+  var param = convertRestKeyToDbColumn(updateKey)
   return dbApi
     .dbUpdate(
       db,
@@ -694,9 +729,9 @@ function resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef) {
                     attribute.side,
                     deviceAttribute.attributeRef,
                     [
-                      { key: 'INCLUDED', value: true },
+                      { key: restApi.updateKey.attributeSelected, value: true },
                       {
-                        key: 'INCLUDED_REPORTABLE',
+                        key: restApi.updateKey.attributeReporting,
                         value: deviceAttribute.isReportable == true,
                       },
                     ]
@@ -839,8 +874,12 @@ function resolveNonOptionalAndReportableAttributes(
     attributes.map((attribute) => {
       var settings = []
       if (attribute.isReportable)
-        settings.push({ key: 'INCLUDED_REPORTABLE', value: true })
-      if (!attribute.isOptional) settings.push({ key: 'INCLUDED', value: true })
+        settings.push({
+          key: restApi.updateKey.attributeReporting,
+          value: true,
+        })
+      if (!attribute.isOptional)
+        settings.push({ key: restApi.updateKey.attributeSelected, value: true })
       if (settings.length > 0) {
         return insertOrUpdateAttributeState(
           db,

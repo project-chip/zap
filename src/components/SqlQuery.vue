@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div class="q-pa-md bg-grey-10 text-white">
-    <q-input dark outlined v-model="text" label="Outlined" @change="hitEnter" />
-    <p>Count: {{ count }}</p>
-    <q-list dark bordered separator>
+  <div class="q-pa-md">
+    <q-input outlined v-model="text" label="Outlined" @change="hitEnter" />
+    <p>{{ resultSummary }}</p>
+    <q-list bordered separator>
       <div v-for="(item, index) in items" v-bind:key="index" class="row">
         <q-item>{{ item }}</q-item>
       </div>
@@ -35,8 +35,16 @@ export default {
   methods: {
     hitEnter() {
       this.$serverPost(restApi.uri.sql, { sql: this.text }).then((response) => {
-        this.count = response.data.length
-        this.items = response.data
+        var result = response.data.result
+        var error = response.data.error
+        if (result) {
+          this.resultSummary = `${result.length} rows retrieved.`
+          this.items = result
+        }
+        if (error) {
+          this.resultSummary = `ERROR!`
+          this.items = [error]
+        }
       })
     },
   },
@@ -44,7 +52,7 @@ export default {
   data() {
     return {
       text: '',
-      count: 0,
+      resultSummary: '',
       items: '',
     }
   },

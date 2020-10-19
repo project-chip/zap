@@ -25,7 +25,7 @@ const restApi = require('../../src-shared/rest-api.js')
  */
 
 /**
- * API: /post/sql
+ * API: /sql
  * Request JSON:
  * <pre>
  *   {
@@ -43,23 +43,27 @@ const restApi = require('../../src-shared/rest-api.js')
  * @export
  * @param {*} db
  * @param {*} app
+ * @returns callback for the express uri registration
  */
-function registerAdminApi(db, app) {
-  app.post(restApi.uri.sql, (request, response) => {
+function httpPostSql(db) {
+  return (request, response) => {
     var sql = request.body.sql
     if (sql) {
-      var replyObject = { replyId: restApi.replyId.sqlResult }
       dbApi
         .dbAll(db, sql, [])
         .then((rows) => {
-          replyObject.result = rows
-          response.json(replyObject)
+          response.json({ result: rows })
         })
         .catch((err) => {
-          replyObject.result = [`ERROR: ${err.name}, ${err.message}`]
-          response.json(replyObject)
+          response.json({ error: err })
         })
     }
-  })
+  }
 }
-exports.registerAdminApi = registerAdminApi
+
+exports.post = [
+  {
+    uri: restApi.uri.sql,
+    callback: httpPostSql,
+  },
+]

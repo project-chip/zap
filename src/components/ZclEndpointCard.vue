@@ -52,10 +52,10 @@ limitations under the License.
           </div>
           <div class="col-md-6">
             {{
-              (deviceTypes[
+              (zclDeviceTypes[
                 endpointDeviceTypeRef[endpointType[endpointReference]]
               ]
-                ? deviceTypes[
+                ? zclDeviceTypes[
                     endpointDeviceTypeRef[endpointType[endpointReference]]
                   ].profileId.toString(16)
                 : ''
@@ -118,10 +118,12 @@ limitations under the License.
 <script>
 import * as RestApi from '../../src-shared/rest-api'
 import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclEndpointCard',
   props: ['endpointReference'],
+  mixins: [CommonMixin],
   components: { ZclCreateModifyEndpoint },
   data() {
     return {
@@ -138,22 +140,12 @@ export default {
     },
     deleteEpt() {
       let endpointReference = this.endpointReference
-      this.$store
-        .dispatch('zap/deleteEndpoint', {
-          action: RestApi.action.delete,
-          context: {
-            id: endpointReference,
-          },
-        })
-        .then(() => {
-          let context = {
-            action: RestApi.action.delete,
-            context: {
-              id: this.endpointType[endpointReference],
-            },
-          }
-          this.$store.dispatch('zap/removeEndpointType', context)
-        })
+      this.$store.dispatch('zap/deleteEndpoint', endpointReference).then(() => {
+        this.$store.dispatch(
+          'zap/deleteEndpointType',
+          this.endpointType[endpointReference]
+        )
+      })
     },
     setSelectedEndpointType() {
       this.$store.dispatch('zap/updateSelectedEndpointType', {
@@ -165,26 +157,11 @@ export default {
     },
   },
   computed: {
-    endpointId: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointId
-      },
-    },
-    selectedEndpoint: {
-      get() {
-        return this.$store.state.zap.endpointView.selectedEndpoint[0]
-      },
-    },
     deviceType: {
       get() {
-        return this.deviceTypes[
+        return this.zclDeviceTypes[
           this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
         ]
-      },
-    },
-    endpointType: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointType
       },
     },
     networkId: {
@@ -195,11 +172,6 @@ export default {
     endpointTypeName: {
       get() {
         return this.$store.state.zap.endpointTypeView.name
-      },
-    },
-    deviceTypes: {
-      get() {
-        return this.$store.state.zap.zclDeviceTypes
       },
     },
     endpointDeviceTypeRef: {
@@ -216,10 +188,7 @@ export default {
     },
     isSelectedEndpoint: {
       get() {
-        return (
-          this.$store.state.zap.endpointView.selectedEndpoint ==
-          this.endpointReference
-        )
+        return this.selectedEndpointId == this.endpointReference
       },
     },
   },
@@ -228,6 +197,6 @@ export default {
 
 <style scoped lang="sass">
 .q-card
-  border-width: 8px;
-  border-color: $primary;
+  border-width: 8px
+  border-color: $primary
 </style>

@@ -199,11 +199,13 @@ describe('Session specific tests', () => {
       }))
 })
 
-describe('Init state test', () => {
+describe('Miscelaneous REST API tests', () => {
   test('test initial state', () =>
     axiosInstance.get(restApi.uri.initialState).then((response) => {
-      expect(response.data.replyId).toBe(restApi.replyId.initialState)
-      expect(response.data.state).not.toBeNull()
+      expect(response.data).not.toBeNull()
+      expect('endpoints' in response.data).toBeTruthy()
+      expect('endpointTypes' in response.data).toBeTruthy()
+      expect('sessionKeyValues' in response.data).toBeTruthy()
     }))
 })
 
@@ -214,8 +216,6 @@ describe('Admin tests', () => {
       .then((response) => {
         expect(response).not.toBeNull()
         expect(response.data.result).not.toBeNull()
-        expect(response.data.result.endpoints).not.toBeNull()
-        expect(response.data.result.endpointTypes).not.toBeNull()
-        expect(response.data.replyId).toBe('sql-result')
+        expect(response.data.result.length).toBeGreaterThan(1)
       }))
 })
