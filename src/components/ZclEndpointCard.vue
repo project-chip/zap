@@ -52,10 +52,10 @@ limitations under the License.
           </div>
           <div class="col-md-6">
             {{
-              (deviceTypes[
+              (zclDeviceTypes[
                 endpointDeviceTypeRef[endpointType[endpointReference]]
               ]
-                ? deviceTypes[
+                ? zclDeviceTypes[
                     endpointDeviceTypeRef[endpointType[endpointReference]]
                   ].profileId.toString(16)
                 : ''
@@ -118,12 +118,12 @@ limitations under the License.
 <script>
 import * as RestApi from '../../src-shared/rest-api'
 import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
-import CommonComputed from '../util/common-computed'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclEndpointCard',
   props: ['endpointReference'],
-  mixins: [CommonComputed],
+  mixins: [CommonMixin],
   components: { ZclCreateModifyEndpoint },
   data() {
     return {
@@ -157,21 +157,11 @@ export default {
     },
   },
   computed: {
-    endpointId: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointId
-      },
-    },
     deviceType: {
       get() {
-        return this.deviceTypes[
+        return this.zclDeviceTypes[
           this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
         ]
-      },
-    },
-    endpointType: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointType
       },
     },
     networkId: {
@@ -182,11 +172,6 @@ export default {
     endpointTypeName: {
       get() {
         return this.$store.state.zap.endpointTypeView.name
-      },
-    },
-    deviceTypes: {
-      get() {
-        return this.$store.state.zap.zclDeviceTypes
       },
     },
     endpointDeviceTypeRef: {

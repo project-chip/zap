@@ -71,12 +71,12 @@ limitations under the License.
 </template>
 <script>
 import * as Util from '../util/util'
-import CommonComputed from '../util/common-computed'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclDomainClusterView',
   props: ['domainName', 'clusters'],
-  mixins: [CommonComputed],
+  mixins: [CommonMixin],
   computed: {
     recommendedClients: {
       get() {
@@ -88,18 +88,6 @@ export default {
         return this.$store.state.zap.clustersView.recommendedServers
       },
     },
-    selectionClients: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedClients
-      },
-      set(val) {},
-    },
-    selectionServers: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedServers
-      },
-      set(val) {},
-    },
   },
   methods: {
     isClusterRequired(id) {
@@ -109,9 +97,6 @@ export default {
       if (clientRequired) return 'Client'
       if (serverRequired) return 'Server'
       return ''
-    },
-    asHex(value, padding) {
-      return Util.asHex(value, padding)
     },
     isClusterEnabled(id) {
       return (

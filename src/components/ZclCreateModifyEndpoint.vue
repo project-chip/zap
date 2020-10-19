@@ -95,11 +95,12 @@ limitations under the License.
 
 <script>
 import * as RestApi from '../../src-shared/rest-api'
-import CommonComputed from '../util/common-computed'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclCreateModifyEndpoint',
   props: ['endpointReference'],
+  mixins: [CommonMixin],
   mounted() {
     if (this.endpointReference != null) {
       this.newEndpoint.newEndpointId = this.endpointId[this.endpointReference]
@@ -130,26 +131,11 @@ export default {
         return keys
       },
     },
-    zclDeviceTypes: {
-      get() {
-        return this.$store.state.zap.zclDeviceTypes
-      },
-    },
     zclProfileId: {
       get() {
         return this.newEndpoint.newDeviceTypeRef
           ? this.zclDeviceTypes[this.newEndpoint.newDeviceTypeRef].profileId
           : ''
-      },
-    },
-    endpointId: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointId
-      },
-    },
-    endpointType: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointType
       },
     },
     networkId: {

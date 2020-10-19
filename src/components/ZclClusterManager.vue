@@ -20,9 +20,7 @@ limitations under the License.
       <div class="row">
         <q-toolbar>
           <q-toolbar-title style="font-weight: bolder">
-            Endpoint x{{
-              this.endpointId[this.selectedEndpointTypeId]
-            }}
+            Endpoint x{{ this.endpointId[this.selectedEndpointTypeId] }}
             Clusters
           </q-toolbar-title>
         </q-toolbar>
@@ -101,23 +99,13 @@ limitations under the License.
 </template>
 <script>
 import ZclDomainClusterView from './ZclDomainClusterView.vue'
-import CommonComputed from '../util/common-computed'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclClusterManager',
   props: ['endpointTypeReference'],
-  mixins: [CommonComputed],
+  mixins: [CommonMixin],
   computed: {
-    endpointId: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointId
-      },
-    },
-    endpointType: {
-      get() {
-        return this.$store.state.zap.endpointView.endpointType
-      },
-    },
     domainNames: {
       get() {
         return this.$store.state.zap.domains
@@ -150,18 +138,6 @@ export default {
           return this.isClusterEnabled(cluster.id)
         })
       },
-    },
-    selectionClients: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedClients
-      },
-      set(val) {},
-    },
-    selectionServers: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedServers
-      },
-      set(val) {},
     },
     filterOptions: {
       get() {

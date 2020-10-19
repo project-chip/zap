@@ -214,11 +214,11 @@ import * as Util from '../util/util'
 import * as RestApi from '../../src-shared/rest-api'
 import * as DbEnum from '../../src-shared/db-enum'
 import Vue from 'vue'
-import CommonComputed from '../util/common-computed'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclAttributeManager',
-  mixins: [CommonComputed],
+  mixins: [CommonMixin],
   methods: {
     handleLocalSelection(list, attributeDataId, clusterId) {
       let hash = this.hashAttributeIdClusterId(attributeDataId, clusterId)
@@ -237,9 +237,6 @@ export default {
     handleLocalStorageChange(value, list, hash) {
       Vue.set(list, hash, value)
       this.editableStorage = Object.assign({}, this.editableStorage)
-    },
-    asHex(value, padding) {
-      return Util.asHex(value, padding)
     },
     toggleAttributeSelection(list, listType, attributeData, clusterId, enable) {
       // We determine the ID that we need to toggle within the list.
@@ -441,7 +438,7 @@ export default {
       get() {
         return this.$store.state.zap.attributes.filter((a) => {
           let relevantList =
-            a.side === 'client' ? this.selectionClient : this.selectionServer
+            a.side === 'client' ? this.selectionClients : this.selectionServers
           return relevantList.includes(this.selectedClusterId)
         })
       },
@@ -491,28 +488,6 @@ export default {
       get() {
         return this.$store.state.zap.attributeView.defaultValueValidationIssues
       },
-    },
-    selectedCluster: {
-      get() {
-        return this.$store.state.zap.clustersView.selected[0] || {}
-      },
-    },
-    selectedClusterId: {
-      get() {
-        return this.selectedCluster.id
-      },
-    },
-    selectionClient: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedClients
-      },
-      set(val) {},
-    },
-    selectionServer: {
-      get() {
-        return this.$store.state.zap.clustersView.selectedServers
-      },
-      set(val) {},
     },
     editableAttributes: {
       get() {
