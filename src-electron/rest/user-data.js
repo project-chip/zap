@@ -445,6 +445,7 @@ function httpPatchEndpointType(db) {
 function httpGetOption(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
+    const { option } = request.params
     queryPackage.getSessionPackageIds(db, sessionId).then((packageIds) => {
       var p = packageIds.map((packageId) => {
         return queryPackage.selectAllOptionsValues(db, packageId, option)
