@@ -118,10 +118,12 @@ limitations under the License.
 <script>
 import * as RestApi from '../../src-shared/rest-api'
 import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
+import CommonComputed from '../util/common-computed'
 
 export default {
   name: 'ZclEndpointCard',
   props: ['endpointReference'],
+  mixins: [CommonComputed],
   components: { ZclCreateModifyEndpoint },
   data() {
     return {
@@ -158,11 +160,6 @@ export default {
     endpointId: {
       get() {
         return this.$store.state.zap.endpointView.endpointId
-      },
-    },
-    selectedEndpoint: {
-      get() {
-        return this.$store.state.zap.endpointView.selectedEndpoint[0]
       },
     },
     deviceType: {
@@ -206,10 +203,7 @@ export default {
     },
     isSelectedEndpoint: {
       get() {
-        return (
-          this.$store.state.zap.endpointView.selectedEndpoint ==
-          this.endpointReference
-        )
+        return this.selectedEndpointId == this.endpointReference
       },
     },
   },

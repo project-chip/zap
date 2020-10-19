@@ -95,6 +95,7 @@ limitations under the License.
 
 <script>
 import * as RestApi from '../../src-shared/rest-api'
+import CommonComputed from '../util/common-computed'
 
 export default {
   name: 'ZclCreateModifyEndpoint',
@@ -113,7 +114,7 @@ export default {
       deviceTypeOptions: this.zclDeviceTypeOptions,
       newEndpoint: {
         newEndpointId: '0001',
-        newNetworkId: 'Primary',
+        newNetworkId: 1,
         newDeviceTypeRef: null,
         newVersion: 1,
       },

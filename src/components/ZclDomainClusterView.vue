@@ -71,10 +71,12 @@ limitations under the License.
 </template>
 <script>
 import * as Util from '../util/util'
+import CommonComputed from '../util/common-computed'
 
 export default {
   name: 'ZclDomainClusterView',
   props: ['domainName', 'clusters'],
+  mixins: [CommonComputed],
   computed: {
     recommendedClients: {
       get() {
@@ -97,11 +99,6 @@ export default {
         return this.$store.state.zap.clustersView.selectedServers
       },
       set(val) {},
-    },
-    selectedEndpointTypeId: {
-      get() {
-        return this.$store.state.zap.endpointTypeView.selectedEndpointType
-      },
     },
   },
   methods: {

@@ -159,8 +159,10 @@ import * as Util from '../util/util'
 import * as RestApi from '../../src-shared/rest-api'
 import Vue from 'vue'
 
+import CommonComputed from '../util/common-computed'
 export default {
   name: 'ZclAttributeReportingManager',
+  mixins: [CommonComputed],
   methods: {
     handleLocalSelection(list, attributeDataId, clusterId) {
       let hash = this.hashAttributeIdClusterId(attributeDataId, clusterId)
@@ -191,7 +193,7 @@ export default {
 
       let editContext = {
         action: 'boolean',
-        endpointTypeId: this.selectedEndpointId,
+        endpointTypeId: this.selectedEndpointTypeId,
         id: attributeData.id,
         value: addedValue,
         listType: listType,
@@ -203,7 +205,7 @@ export default {
     setAttributeSelection(listType, attributeData, clusterId, enable) {
       let editContext = {
         action: 'boolean',
-        endpointTypeId: this.selectedEndpointId,
+        endpointTypeId: this.selectedEndpointTypeId,
         id: attributeData.id,
         value: enable,
         listType: listType,
@@ -215,7 +217,7 @@ export default {
     handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
       let editContext = {
         action: 'text',
-        endpointTypeId: this.selectedEndpointId,
+        endpointTypeId: this.selectedEndpointTypeId,
         id: attributeData.id,
         value: newValue,
         listType: listType,
@@ -356,11 +358,6 @@ export default {
     selectionReportableChange: {
       get() {
         return this.$store.state.zap.attributeView.reportableChange
-      },
-    },
-    selectedEndpointId: {
-      get() {
-        return this.$store.state.zap.endpointTypeView.selectedEndpointType
       },
     },
     defaultValueValidation: {

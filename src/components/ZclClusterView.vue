@@ -81,15 +81,12 @@ import ZclAttributeManager from './ZclAttributeManager.vue'
 import ZclAttributeReportingManager from './ZclAttributeReportingManager.vue'
 import ZclCommandManager from './ZclCommandManager.vue'
 import * as Util from '../util/util'
+import CommonComputed from '../util/common-computed'
 
 export default {
   name: 'ZclClusterView',
+  mixins: [CommonComputed],
   computed: {
-    selectedEndpointId: {
-      get() {
-        return this.$store.state.zap.endpointView.selectedEndpoint
-      },
-    },
     endpointId: {
       get() {
         return this.$store.state.zap.endpointView.endpointId

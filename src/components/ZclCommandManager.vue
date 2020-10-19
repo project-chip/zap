@@ -32,7 +32,7 @@ limitations under the License.
             v-for="col in props.cols"
             :key="col.name"
             :props="props"
-            style="background: #eeeeee;"
+            style="background: #eeeeee"
           >
             {{ col.label }}
           </q-th>
@@ -105,8 +105,11 @@ limitations under the License.
 import * as Util from '../util/util.js'
 import * as RestApi from '../../src-shared/rest-api'
 
+import CommonComputed from '../util/common-computed'
+
 export default {
   name: 'ZclCommandManager',
+  mixins: [CommonComputed],
   computed: {
     commandData: {
       get() {
@@ -121,11 +124,6 @@ export default {
     selectionOut: {
       get() {
         return this.$store.state.zap.commandView.selectedOut
-      },
-    },
-    selectedEndpointId: {
-      get() {
-        return this.$store.state.zap.endpointTypeView.selectedEndpointType
       },
     },
     requiredCommands: {
@@ -166,7 +164,7 @@ export default {
       }
       let editContext = {
         action: 'boolean',
-        endpointTypeId: this.selectedEndpointId,
+        endpointTypeId: this.selectedEndpointTypeId,
         id: commandData.id,
         value: addedValue,
         listType: listType,

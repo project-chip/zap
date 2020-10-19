@@ -15,12 +15,15 @@ limitations under the License.
 -->
 
 <template>
-  <div v-show="selectedEndpointId.length != 0">
+  <div v-show="selectedEndpointTypeId.length != 0">
     <q-card flat square>
       <div class="row">
         <q-toolbar>
           <q-toolbar-title style="font-weight: bolder">
-            Endpoint x{{ this.endpointId[this.selectedEndpointId] }} Clusters
+            Endpoint x{{
+              this.endpointId[this.selectedEndpointTypeId]
+            }}
+            Clusters
           </q-toolbar-title>
         </q-toolbar>
       </div>
@@ -98,16 +101,13 @@ limitations under the License.
 </template>
 <script>
 import ZclDomainClusterView from './ZclDomainClusterView.vue'
+import CommonComputed from '../util/common-computed'
 
 export default {
   name: 'ZclClusterManager',
   props: ['endpointTypeReference'],
+  mixins: [CommonComputed],
   computed: {
-    selectedEndpointId: {
-      get() {
-        return this.$store.state.zap.endpointTypeView.selectedEndpointType
-      },
-    },
     endpointId: {
       get() {
         return this.$store.state.zap.endpointView.endpointId
