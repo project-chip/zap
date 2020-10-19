@@ -498,10 +498,10 @@ export function loadInitialData(context, data) {
 export function loadOptions(context, option) {
   Vue.prototype
     .$serverGet(`${restApi.uri.option}/${option.key}`)
-    .then((data) => {
+    .then((response) => {
       let optionsData = {
-        data: data.data.data,
-        option: data.data.option,
+        data: response.data,
+        option: option.key,
         type: option.type,
       }
       context.commit('setOptions', optionsData)

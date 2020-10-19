@@ -199,7 +199,7 @@ describe('Session specific tests', () => {
       }))
 })
 
-describe('Init state test', () => {
+describe('Miscelaneous REST API tests', () => {
   test('test initial state', () =>
     axiosInstance.get(restApi.uri.initialState).then((response) => {
       expect(response.data).not.toBeNull()

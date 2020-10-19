@@ -169,29 +169,14 @@ function httpPostAttributeUpdate(db) {
       clusterRef,
       attributeSide,
     } = request.body
-    var paramType = ''
+    var paramType
     switch (listType) {
-      case restApi.updateKey.attributeSelected:
-        break
-      case restApi.updateKey.attributeSingleton:
-        break
-      case restApi.updateKey.attributeBounded:
-        break
+      case restApi.updateKey.attributeStorage:
       case restApi.updateKey.attributeDefault:
         paramType = 'text'
         break
-      case restApi.updateKey.attributeReporting:
-        break
-      case restApi.updateKey.attributeReportMin:
-        break
-      case restApi.updateKey.attributeReportMax:
-        break
-      case restApi.updateKey.attributeReportChange:
-        break
-      case restApi.updateKey.attributeStorage:
-        paramType = 'text'
-        break
       default:
+        paramType = ''
         break
     }
     queryConfig
@@ -443,10 +428,7 @@ function httpGetOption(db) {
       Promise.all(p)
         .then((data) => data.flat(1))
         .then((data) => {
-          return response.status(restApi.httpCode.ok).json({
-            data: data,
-            option: option,
-          })
+          return response.status(restApi.httpCode.ok).json(data)
         })
     })
   }

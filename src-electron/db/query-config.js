@@ -289,8 +289,6 @@ function convertRestKeyToDbColumn(key) {
       return 'REPORTABLE_CHANGE'
     case restApi.updateKey.attributeStorage:
       return 'STORAGE_OPTION'
-      'text'
-      break
   }
   throw `Invalid rest update key: ${key}`
 }
