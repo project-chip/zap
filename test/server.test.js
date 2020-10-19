@@ -202,8 +202,10 @@ describe('Session specific tests', () => {
 describe('Init state test', () => {
   test('test initial state', () =>
     axiosInstance.get(restApi.uri.initialState).then((response) => {
-      expect(response.data.replyId).toBe(restApi.replyId.initialState)
-      expect(response.data.state).not.toBeNull()
+      expect(response.data).not.toBeNull()
+      expect('endpoints' in response.data).toBeTruthy()
+      expect('endpointTypes' in response.data).toBeTruthy()
+      expect('sessionKeyValues' in response.data).toBeTruthy()
     }))
 })
 

@@ -15,17 +15,6 @@
  *    limitations under the License.
  */
 
-const replyId = {
-  zclEndpointTypeResponse: 'zcl-endpointType-response',
-  zclEndpointResponse: 'zcl-endpoint-response',
-  zclEndpointTypeClusterSelectionResponse:
-    'zcl-endpointType-cluster-selection-response',
-  singleAttributeState: 'singleAttributeState',
-  singleCommandState: 'singleCommandState',
-  sqlResult: 'sql-result',
-  initialState: 'initial-state',
-}
-
 const action = {
   update: 'u',
   create: 'c',
@@ -93,7 +82,6 @@ const updateKey = {
   name: 'name',
 }
 
-exports.replyId = replyId
 exports.action = action
 exports.uri = uri
 exports.httpCode = httpCode

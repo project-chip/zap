@@ -139,8 +139,6 @@ function httpPostCluster(db) {
           .then(() =>
             response
               .json({
-                replyId:
-                  restApi.replyId.zclEndpointTypeClusterSelectionResponse,
                 endpointTypeId: endpointTypeId,
                 id: id,
                 side: side,
@@ -227,7 +225,6 @@ function httpPostAttributeUpdate(db) {
               added: value,
               listType: listType,
               validationIssues: validationData,
-              replyId: restApi.replyId.singleAttributeState,
             })
             return response.status(restApi.httpCode.ok).send()
           })
@@ -283,7 +280,6 @@ function httpPostCommandUpdate(db) {
           listType: listType,
           side: commandSide,
           clusterRef: clusterRef,
-          replyId: restApi.replyId.singleCommandState,
         })
         return response.status(restApi.httpCode.ok).send()
       })
@@ -356,7 +352,6 @@ function httpPatchEndpoint(db) {
               action: restApi.action.update,
               endpointId: context.id,
               changes: context.changes,
-              replyId: restApi.replyId.zclEndpointResponse,
               validationIssues: validationData,
             })
             return response.status(restApi.httpCode.ok).send()
@@ -396,10 +391,7 @@ function httpGetInitialState(db) {
     statePopulators.push(sessionKeyValues)
 
     Promise.all(statePopulators).then(() => {
-      return response.status(restApi.httpCode.ok).json({
-        replyId: restApi.replyId.initialState,
-        state: state,
-      })
+      return response.status(restApi.httpCode.ok).json(state)
     })
   }
 }
@@ -458,7 +450,6 @@ function httpPostEndpointTypeUpdate(db) {
           endpointTypeId: endpointTypeId,
           updatedKey: updatedKey,
           updatedValue: updatedValue,
-          replyId: restApi.replyId.zclEndpointTypeResponse,
         })
         return response.status(restApi.httpCode.ok).send()
       })
@@ -485,7 +476,6 @@ function httpGetOption(db) {
           return response.status(restApi.httpCode.ok).json({
             data: data,
             option: option,
-            replyId: 'option',
           })
         })
     })

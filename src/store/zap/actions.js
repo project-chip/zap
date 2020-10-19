@@ -474,7 +474,7 @@ export function setMiniState(context, data) {
  */
 export function loadInitialData(context, data) {
   Vue.prototype.$serverGet(restApi.uri.initialState).then((response) => {
-    var initialState = response.data.state
+    var initialState = response.data
     if ('endpoints' in initialState) {
       context.commit('initializeEndpoints', initialState.endpoints)
     }
