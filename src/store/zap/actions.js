@@ -213,23 +213,33 @@ export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
   context.commit('setDeviceTypeReference', endpointIdDeviceTypeRefPair)
 }
 
-export function addEndpoint(context, newEndpointContext) {
-  return new Promise((resolve, reject) => {
-    Vue.prototype
-      .$serverPost(restApi.uri.endpoint, newEndpointContext)
-      .then((res) => {
-        let arg = res.data
-        context.commit('addEndpoint', {
-          id: arg.id,
-          endpointId: arg.eptId,
-          endpointTypeRef: arg.endpointType,
-          networkId: arg.nwkId,
-          endpointIdValidationIssues: arg.validationIssues.endpointId,
-          networkIdValidationIssues: arg.validationIssues.networkId,
-        })
-        return resolve(arg)
-      })
+export function updateEndpoint(context, endpoint) {
+  Vue.prototype.$serverPatch(restApi.uri.endpoint, endpoint).then((res) => {
+    let arg = res.data
+    context.commit('updateEndpoint', {
+      id: arg.endpointId,
+      changes: arg.changes,
+      endpointIdValidationIssues: arg.validationIssues.endpointId,
+      networkIdValidationIssues: arg.validationIssues.networkId,
+    })
   })
+}
+
+export function addEndpoint(context, newEndpointContext) {
+  return Vue.prototype
+    .$serverPost(restApi.uri.endpoint, newEndpointContext)
+    .then((res) => {
+      let arg = res.data
+      context.commit('addEndpoint', {
+        id: arg.id,
+        endpointId: arg.endpointId,
+        endpointTypeRef: arg.endpointType,
+        networkId: arg.networkId,
+        endpointIdValidationIssues: arg.validationIssues.endpointId,
+        networkIdValidationIssues: arg.validationIssues.networkId,
+      })
+      return arg
+    })
 }
 
 export function addEndpointType(context, endpointTypeData) {
@@ -241,6 +251,7 @@ export function addEndpointType(context, endpointTypeData) {
         name: res.data.name,
         deviceTypeRef: res.data.deviceTypeRef,
       })
+      return res.data
     })
 }
 
@@ -262,18 +273,6 @@ export function deleteEndpointType(context, endpointTypeId) {
         })
       }
     })
-}
-
-export function updateEndpoint(context, endpoint) {
-  Vue.prototype.$serverPost(restApi.uri.endpoint, endpoint).then((res) => {
-    let arg = res.data
-    context.commit('updateEndpoint', {
-      id: arg.endpointId,
-      changes: arg.changes,
-      endpointIdValidationIssues: arg.validationIssues.endpointId,
-      networkIdValidationIssues: arg.validationIssues.networkId,
-    })
-  })
 }
 
 export function refreshEndpointTypeCluster(context, endpointType) {

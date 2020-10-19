@@ -51,7 +51,7 @@ function validateEndpoint(db, endpointId) {
         if (!noDuplicates) {
           currentIssues.endpointId.push('Duplicate EndpointIds Exist')
         }
-        return Promise.resolve(currentIssues)
+        return currentIssues
       })
     })
   })

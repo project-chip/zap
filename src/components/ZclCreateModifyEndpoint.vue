@@ -172,16 +172,13 @@ export default {
           deviceTypeRef: deviceTypeRef,
         })
         .then((response) => {
-          let eptId = newEndpoint.newEndpointId
-          let nwkId = newEndpoint.newNetworkId
+          let eptId = this.newEndpoint.newEndpointId
+          let nwkId = this.newEndpoint.newNetworkId
           this.$store
             .dispatch(`zap/addEndpoint`, {
-              action: RestApi.action.create,
-              context: {
-                eptId: eptId,
-                nwkId: nwkId,
-                endpointType: response.id,
-              },
+              endpointId: eptId,
+              networkId: nwkId,
+              endpointType: response.id,
             })
             .then((res) => {
               this.$store.dispatch('zap/updateSelectedEndpointType', {
@@ -203,7 +200,6 @@ export default {
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
-        action: RestApi.action.update,
         context: {
           id: endpointReference,
           changes: [

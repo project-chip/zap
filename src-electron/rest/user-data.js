@@ -298,76 +298,70 @@ function httpPostCommandUpdate(db) {
  */
 function httpPostEndpoint(db) {
   return (request, response) => {
-    var { action, context } = request.body
+    var { endpointId, networkId, endpointType } = request.body
     var sessionIdexport = request.session.zapSessionId
-    switch (action) {
-      case restApi.action.create:
-        queryConfig
-          .insertEndpoint(
-            db,
-            sessionIdexport,
-            context.eptId,
-            context.endpointType,
-            context.nwkId
-          )
-          .then((newId) => {
-            return validation
-              .validateEndpoint(db, newId)
-              .then((validationData) => {
-                response.json({
-                  action: action,
-                  id: newId,
-                  eptId: context.eptId,
-                  endpointType: context.endpointType,
-                  nwkId: context.nwkId,
-                  replyId: restApi.replyId.zclEndpointResponse,
-                  validationIssues: validationData,
-                })
-                return response.status(restApi.httpCode.ok).send()
-              })
+    queryConfig
+      .insertEndpoint(db, sessionIdexport, endpointId, endpointType, networkId)
+      .then((newId) =>
+        validation.validateEndpoint(db, newId).then((validationData) => {
+          response.json({
+            id: newId,
+            endpointId: endpointId,
+            endpointType: endpointType,
+            networkId: networkId,
+            validationIssues: validationData,
           })
-          .catch((err) => {
-            return response.status(restApi.httpCode.badRequest).send()
-          })
-        break
-      case restApi.action.update:
-        let changes = context.changes.map((data) => {
-          var changeParam = ''
-          var paramType = ''
-          switch (data.updatedKey) {
-            case restApi.updateKey.endpointId:
-              changeParam = 'ENDPOINT_IDENTIFIER'
-              break
-            case restApi.updateKey.endpointType:
-              changeParam = 'ENDPOINT_TYPE_REF'
-              break
-            case restApi.updateKey.networkId:
-              changeParam = 'NETWORK_IDENTIFIER'
-              break
-          }
-          return { key: changeParam, value: data.value, type: paramType }
         })
+      )
+      .catch((err) => {
+        return response.status(restApi.httpCode.badRequest).send()
+      })
+  }
+}
 
-        queryConfig
-          .updateEndpoint(db, sessionIdexport, context.id, changes)
-          .then((data) => {
-            return validation
-              .validateEndpoint(db, context.id)
-              .then((validationData) => {
-                response.json({
-                  action: restApi.action.update,
-                  endpointId: context.id,
-                  changes: context.changes,
-                  replyId: restApi.replyId.zclEndpointResponse,
-                  validationIssues: validationData,
-                })
-                return response.status(restApi.httpCode.ok).send()
-              })
+/**
+ * HTTP POST: endpoint
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpPatchEndpoint(db) {
+  return (request, response) => {
+    var { context } = request.body
+    var sessionIdexport = request.session.zapSessionId
+    let changes = context.changes.map((data) => {
+      var changeParam = ''
+      var paramType = ''
+      switch (data.updatedKey) {
+        case restApi.updateKey.endpointId:
+          changeParam = 'ENDPOINT_IDENTIFIER'
+          break
+        case restApi.updateKey.endpointType:
+          changeParam = 'ENDPOINT_TYPE_REF'
+          break
+        case restApi.updateKey.networkId:
+          changeParam = 'NETWORK_IDENTIFIER'
+          break
+      }
+      return { key: changeParam, value: data.value, type: paramType }
+    })
+
+    queryConfig
+      .updateEndpoint(db, sessionIdexport, context.id, changes)
+      .then((data) => {
+        return validation
+          .validateEndpoint(db, context.id)
+          .then((validationData) => {
+            response.json({
+              action: restApi.action.update,
+              endpointId: context.id,
+              changes: context.changes,
+              replyId: restApi.replyId.zclEndpointResponse,
+              validationIssues: validationData,
+            })
+            return response.status(restApi.httpCode.ok).send()
           })
-        break
-      default:
-        break
-    }
+      })
   }
 }
 /**
@@ -526,6 +520,13 @@ exports.post = [
   {
     uri: restApi.uri.endpointTypeUpdate,
     callback: httpPostEndpointTypeUpdate,
+  },
+]
+
+exports.patch = [
+  {
+    uri: restApi.uri.endpoint,
+    callback: httpPatchEndpoint,
   },
 ]
 
