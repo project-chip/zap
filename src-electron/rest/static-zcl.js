@@ -211,9 +211,7 @@ function httpGetZclEntity(db) {
     queryPackage
       .getSessionZclPackageIds(db, sessionId)
       .then((packageIdArray) => parseForZclData(db, entity, id, packageIdArray))
-      .then((finalData) => {
-        response.status(restApi.httpCode.ok).json(finalData)
-      })
+      .then((resultData) => response.json(resultData))
   }
 }
 

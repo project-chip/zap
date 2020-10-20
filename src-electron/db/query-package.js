@@ -339,11 +339,17 @@ function getSessionZclPackageIds(db, sessionId) {
     .dbAll(
       db,
       `
-SELECT SP.PACKAGE_REF
-FROM SESSION_PACKAGE AS SP
-INNER JOIN PACKAGE AS P
-ON SP.PACKAGE_REF = P.PACKAGE_ID
-WHERE SP.SESSION_REF = ? AND P.TYPE IN ${inList}`,
+SELECT 
+  SP.PACKAGE_REF
+FROM 
+  SESSION_PACKAGE AS SP
+INNER JOIN 
+  PACKAGE AS P
+ON 
+  SP.PACKAGE_REF = P.PACKAGE_ID
+WHERE
+  SP.SESSION_REF = ? AND P.TYPE IN ${inList}
+`,
       [sessionId]
     )
     .then((rows) => rows.map((r) => r.PACKAGE_REF))
