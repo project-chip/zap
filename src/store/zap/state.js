@@ -34,22 +34,22 @@ export default function () {
       openDomains: {},
       filter: {
         label: 'No Filter',
-        filterFn: (domain, currentOpenDomains, context) =>
+        domainFilterFn: (domain, currentOpenDomains, context) =>
           currentOpenDomains[domain],
       },
       filterOptions: [
         {
           label: 'No Filter',
-          filterFn: (domain, currentOpenDomains, context) =>
+          domainFilterFn: (domain, currentOpenDomains, context) =>
             currentOpenDomains[domain],
         },
         {
           label: 'All Clusters',
-          filterFn: (domain, currentOpenDomains, context) => true,
+          domainFilterFn: (domain, currentOpenDomains, context) => true,
         },
         {
           label: 'Only Enabled',
-          filterFn: (domain, currentOpenDomains, context) => {
+          domainFilterFn: (domain, currentOpenDomains, context) => {
             return context.enabledClusters
               .map((a) => a.domainName)
               .includes(domain)
@@ -57,7 +57,7 @@ export default function () {
         },
         {
           label: 'Close All',
-          filterFn: (domain, currentOpenDomains, context) => false,
+          domainFilterFn: (domain, currentOpenDomains, context) => false,
         },
       ],
       filterString: '',

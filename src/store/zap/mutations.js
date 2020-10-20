@@ -354,9 +354,13 @@ export function setDomainFilter(state, filterEnabledClusterPair) {
   state.domains.map((domainName) => {
     setOpenDomain(state, {
       domainName: domainName,
-      value: filter.filterFn(domainName, state.clusterManager.openDomains, {
-        enabledClusters: filterEnabledClusterPair.enabledClusters,
-      }),
+      value: filter.domainFilterFn(
+        domainName,
+        state.clusterManager.openDomains,
+        {
+          enabledClusters: filterEnabledClusterPair.enabledClusters,
+        }
+      ),
     })
   })
 }
@@ -367,8 +371,8 @@ export function setFilterString(state, filterString) {
 
 export function resetFilters(state) {
   state.clusterManager.filter = {
-    label: 'N/A',
-    filterFn: (domain, currentOpenDomains, context) =>
+    label: 'No filter',
+    domainFilterFn: (domain, currentOpenDomains, context) =>
       currentOpenDomains[domain],
   }
   state.clusterManager.openDomains = {}
