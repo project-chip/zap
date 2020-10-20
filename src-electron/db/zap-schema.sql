@@ -141,6 +141,13 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
 );
 /*
  GLOBAL_ATTRIBUTE_DEFAULT table contains default values of attributes per cluster.
+ Note that for the regular attribute defaults are already provided in DEFAULT_VALUE
+ column in ATTRIBUTE table. The only place where this is needed is for the global
+ attributes, which have CLUSTER_REF set to null in attribute table, so you need
+ a per-cluster space for different default values.
+ 
+ If a certain cluster/attribute combination does not exist in this table, the value
+ should be table from ATTRIBUTE table directly.
  */
 DROP TABLE IF EXISTS "GLOBAL_ATTRIBUTE_DEFAULT";
 CREATE TABLE IF NOT EXISTS "GLOBAL_ATTRIBUTE_DEFAULT" (
