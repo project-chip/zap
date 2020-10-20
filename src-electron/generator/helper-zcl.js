@@ -18,7 +18,6 @@
 const queryZcl = require('../db/query-zcl.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
-const { template } = require('handlebars')
 const helperC = require('./helper-c.js')
 const env = require('../util/env.js')
 
