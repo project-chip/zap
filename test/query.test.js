@@ -443,44 +443,44 @@ describe('Endpoint Type Config Queries', () => {
           })
       )
   })
-})
 
-test('Insert Endpoint Test', () =>
-  queryConfig
-    .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9)
-    .then((rowId) => {
-      return queryConfig.selectEndpoint(db, rowId)
-    })
-    .then((endpoint) => {
-      expect(endpoint.endpointId).toBe(4)
-      expect(endpoint.profileId).toBe('0x0104')
-      expect(endpoint.networkId).toBe(9)
-      expect(endpoint.endpointTypeRef).toBe(endpointTypeIdOnOff)
-    }))
+  test('Insert Endpoint Test', () =>
+    queryConfig
+      .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9)
+      .then((rowId) => {
+        return queryConfig.selectEndpoint(db, rowId)
+      })
+      .then((endpoint) => {
+        expect(endpoint.endpointId).toBe(4)
+        expect(endpoint.profileId).toBe('0x0104')
+        expect(endpoint.networkId).toBe(9)
+        expect(endpoint.endpointTypeRef).toBe(endpointTypeIdOnOff)
+      }))
 
-test('Delete Endpoint Type', () =>
-  queryConfig
-    .deleteEndpointType(db, endpointTypeIdOnOff)
-    .then(queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
-    .then((clusters) => {
-      expect(clusters.length).toBe(undefined)
-      return Promise.resolve()
-    }))
+  test('Delete Endpoint Type', () =>
+    queryConfig
+      .deleteEndpointType(db, endpointTypeIdOnOff)
+      .then(queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
+      .then((clusters) => {
+        expect(clusters.length).toBe(undefined)
+        return Promise.resolve()
+      }))
 
-test('Test inserting and retrieving options', () => {
-  var pkgId = null
-  return queryPackage
-    .insertPathCrc(db, 'junk', 123)
-    .then((p) => {
-      pkgId = p
-      return queryPackage.insertOptionsKeyValues(db, pkgId, 'test', [
-        '1',
-        '2',
-        '3',
-      ])
-    })
-    .then(() => queryPackage.selectAllOptionsValues(db, pkgId, 'test'))
-    .then((data) => {
-      expect(data.length).toBe(3)
-    })
+  test('Test inserting and retrieving options', () => {
+    var pkgId = null
+    return queryPackage
+      .insertPathCrc(db, 'junk', 123)
+      .then((p) => {
+        pkgId = p
+        return queryPackage.insertOptionsKeyValues(db, pkgId, 'test', [
+          '1',
+          '2',
+          '3',
+        ])
+      })
+      .then(() => queryPackage.selectAllOptionsValues(db, pkgId, 'test'))
+      .then((data) => {
+        expect(data.length).toBe(3)
+      })
+  })
 })
