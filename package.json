@@ -63,14 +63,14 @@
     "express-session": "^1.17.1",
     "handlebars": "^4.7.6",
     "http-status-codes": "^2.1.4",
-    "pino": "^6.6.1",
+    "pino": "^6.7.0",
     "promised-handlebars": "^2.0.1",
     "properties": "^1.2.1",
     "sqlite3": "^5.0.0",
     "utf-8-validate": "^5.0.2",
     "xml2js": "^0.4.23",
     "yaml": "^1.10.0",
-    "yargs": "^16.0.3"
+    "yargs": "^16.1.0"
   },
   "devDependencies": {
     "@babel/plugin-transform-regenerator": "^7.10.4",
