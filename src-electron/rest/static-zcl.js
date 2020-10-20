@@ -209,7 +209,7 @@ function httpGetZclEntity(db) {
     var sessionId = request.session.zapSessionId
 
     queryPackage
-      .getSessionPackageIds(db, sessionId)
+      .getSessionZclPackageIds(db, sessionId)
       .then((packageIdArray) => parseForZclData(db, entity, id, packageIdArray))
       .then((finalData) => {
         response.status(restApi.httpCode.ok).json(finalData)
