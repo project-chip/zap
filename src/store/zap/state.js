@@ -33,11 +33,16 @@ export default function () {
     clusterManager: {
       openDomains: {},
       filter: {
-        label: 'N/A',
+        label: 'No Filter',
         filterFn: (domain, currentOpenDomains, context) =>
           currentOpenDomains[domain],
       },
       filterOptions: [
+        {
+          label: 'No Filter',
+          filterFn: (domain, currentOpenDomains, context) =>
+            currentOpenDomains[domain],
+        },
         {
           label: 'All Clusters',
           filterFn: (domain, currentOpenDomains, context) => true,
