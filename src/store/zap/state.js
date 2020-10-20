@@ -54,6 +54,13 @@ export default function () {
               .map((a) => a.domainName)
               .includes(domain)
           },
+          clusterFilterFn: (cluster, context) => {
+            return (
+              context.enabledClusters.find((a) => {
+                return cluster.id == a.id
+              }) != undefined
+            )
+          },
         },
         {
           label: 'Close All',

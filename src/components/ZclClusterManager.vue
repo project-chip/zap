@@ -161,6 +161,13 @@ export default {
         .filter((a) => {
           return a.domainName == domainName
         })
+        .filter((a) => {
+          return typeof this.filter.clusterFilterFn === 'function'
+            ? this.filter.clusterFilterFn(a, {
+                enabledClusters: this.enabledClusters,
+              })
+            : true
+        })
         .sort(function (b, a) {
           return a.code > b.code
         })
