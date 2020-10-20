@@ -342,6 +342,7 @@ describe('Endpoint Type Config Queries', () => {
       })
   )
   var endpointTypeIdOnOff
+  var levelControlCluster
   var haOnOffDeviceType, zllOnOffLightDevice
 
   test('Insert EndpointType and test various states', () =>
@@ -380,15 +381,19 @@ describe('Endpoint Type Config Queries', () => {
         .then((clusters) => {
           expect(clusters.length).toBe(6)
         })
-        .then(() =>
-          queryConfig.insertOrReplaceClusterState(
+        .then(() => queryZcl.selectAllClusters(db, pkgId))
+        .then((allClusters) => {
+          levelControlCluster = allClusters.find((a) => {
+            return a.code == 8
+          })
+          return queryConfig.insertOrReplaceClusterState(
             db,
             endpointTypeIdOnOff,
-            7,
+            levelControlCluster.id,
             'CLIENT',
             true
           )
-        )
+        })
         .then((rowId) => {
           expect(typeof rowId).toBe('number')
         })
@@ -415,43 +420,67 @@ describe('Endpoint Type Config Queries', () => {
         expect(commands.length).toBe(6)
       }))
 
-  test('Insert Endpoint Test', () =>
-    queryConfig
-      .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9)
-      .then((rowId) => {
-        return queryConfig.selectEndpoint(db, rowId)
-      })
-      .then((endpoint) => {
-        expect(endpoint.endpointId).toBe(4)
-        expect(endpoint.profileId).toBe('0x0104')
-        expect(endpoint.networkId).toBe(9)
-        expect(endpoint.endpointTypeRef).toBe(endpointTypeIdOnOff)
-      }))
-
-  test('Delete Endpoint Type', () =>
-    queryConfig
-      .deleteEndpointType(db, endpointTypeIdOnOff)
-      .then(queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
-      .then((clusters) => {
-        expect(clusters.length).toBe(undefined)
-        return Promise.resolve()
-      }))
-
-  test('Test inserting and retrieving options', () => {
-    var pkgId = null
-    return queryPackage
-      .insertPathCrc(db, 'junk', 123)
-      .then((p) => {
-        pkgId = p
-        return queryPackage.insertOptionsKeyValues(db, pkgId, 'test', [
-          '1',
-          '2',
-          '3',
-        ])
-      })
-      .then(() => queryPackage.selectAllOptionsValues(db, pkgId, 'test'))
-      .then((data) => {
-        expect(data.length).toBe(3)
-      })
+  test('Set additional attributes and commands when cluster state is inserted', () => {
+    return queryConfig
+      .insertOrReplaceClusterState(
+        db,
+        endpointTypeIdOnOff,
+        levelControlCluster.id,
+        'CLIENT',
+        true
+      )
+      .then(() =>
+        queryConfig.insertClusterDefaults(db, endpointTypeIdOnOff, {
+          clusterRef: levelControlCluster.id,
+          side: 'CLIENT',
+        })
+      )
+      .then(() =>
+        queryConfig
+          .getEndpointTypeAttributes(db, endpointTypeIdOnOff)
+          .then((attributes) => {
+            expect(attributes.length).toBe(13)
+          })
+      )
   })
+})
+
+test('Insert Endpoint Test', () =>
+  queryConfig
+    .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9)
+    .then((rowId) => {
+      return queryConfig.selectEndpoint(db, rowId)
+    })
+    .then((endpoint) => {
+      expect(endpoint.endpointId).toBe(4)
+      expect(endpoint.profileId).toBe('0x0104')
+      expect(endpoint.networkId).toBe(9)
+      expect(endpoint.endpointTypeRef).toBe(endpointTypeIdOnOff)
+    }))
+
+test('Delete Endpoint Type', () =>
+  queryConfig
+    .deleteEndpointType(db, endpointTypeIdOnOff)
+    .then(queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
+    .then((clusters) => {
+      expect(clusters.length).toBe(undefined)
+      return Promise.resolve()
+    }))
+
+test('Test inserting and retrieving options', () => {
+  var pkgId = null
+  return queryPackage
+    .insertPathCrc(db, 'junk', 123)
+    .then((p) => {
+      pkgId = p
+      return queryPackage.insertOptionsKeyValues(db, pkgId, 'test', [
+        '1',
+        '2',
+        '3',
+      ])
+    })
+    .then(() => queryPackage.selectAllOptionsValues(db, pkgId, 'test'))
+    .then((data) => {
+      expect(data.length).toBe(3)
+    })
 })
