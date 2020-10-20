@@ -35,10 +35,10 @@ export function updateClusters(context, clusters) {
 }
 
 export function updateSelectedCluster(context, cluster) {
-  Vue.prototype.$serverGet(`/zcl/cluster/${cluster.id}`).then((data) => {
+  Vue.prototype.$serverGet(`/zcl/cluster/${cluster.id}`).then((res) => {
     context.commit('updateSelectedCluster', [cluster])
-    updateAttributes(context, data.data.attributeData || [])
-    updateCommands(context, data.data.commandData || [])
+    updateAttributes(context, res.data.attributeData || [])
+    updateCommands(context, res.data.commandData || [])
   })
 }
 
@@ -99,8 +99,8 @@ export function updateSelectedAttribute(context, selectionContext) {
 export function updateSelectedCommands(context, selectionContext) {
   Vue.prototype
     .$serverPost(restApi.uri.commandUpdate, selectionContext)
-    .then((data) => {
-      let arg = data.data
+    .then((res) => {
+      let arg = res.data
       if (arg.action === 'boolean') {
         context.commit('updateInclusionList', {
           id: Util.cantorPair(arg.id, arg.clusterRef),
@@ -155,8 +155,8 @@ export function updateSelectedEndpoint(context, endpoint) {
 export function updateEndpointType(context, endpointType) {
   Vue.prototype
     .$serverPatch(restApi.uri.endpointType, endpointType)
-    .then((data) => {
-      let arg = data.data
+    .then((res) => {
+      let arg = res.data
       if (arg.updatedKey === 'deviceTypeRef') {
         setDeviceTypeReference(context, {
           endpointId: arg.endpointTypeId,

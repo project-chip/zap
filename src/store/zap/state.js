@@ -21,7 +21,7 @@ export default function () {
     studioProject: '',
     leftDrawerOpenState: true,
     miniState: false,
-    informationText: 'Use this as a placeholder for information.',
+    informationText: '',
     clusters: [],
     domains: [],
     attributes: [],
@@ -99,6 +99,9 @@ export default function () {
       // These are based off of the selected ZCL Endpoint Device Type
       requiredCommands: [],
     },
-    calledArgs: { defaultUiMode: restApi.uiMode.ZIGBEE, embeddedMode: false },
+    calledArgs: {
+      defaultUiMode: restApi.uiMode.ZIGBEE,
+      embeddedMode: false,
+    },
   }
 }

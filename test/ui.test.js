@@ -55,7 +55,6 @@ import Vue from 'vue'
 import { shallowMount } from '@vue/test-utils'
 import ZapStore from '../src/store/index.js'
 
-import ZclApplicationSetup from '../src/components/ZclApplicationSetup.vue'
 import ZclAttributeManager from '../src/components/ZclAttributeManager.vue'
 import ZclAttributeReportingManager from '../src/components/ZclAttributeReportingManager.vue'
 import ZclClusterManager from '../src/components/ZclClusterManager.vue'
@@ -110,11 +109,6 @@ Vue.use(Quasar, {
   directives: {
     ClosePopup,
   },
-})
-
-test('ZclApplicationSetup', () => {
-  const wrapper = shallowMount(ZclApplicationSetup, { store: ZapStore() })
-  expect(wrapper.html().includes('application setup')).toBe(true)
 })
 
 test('ZclAttributeManager', () => {
