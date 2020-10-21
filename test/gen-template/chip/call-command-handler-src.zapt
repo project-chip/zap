@@ -11,7 +11,9 @@
 #include "util.h"
 
 {{#all_user_clusters}}
+{{#if (isEnable enabled)}}
 EmberAfStatus emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}CommandParse(EmberAfClusterCommand * cmd);
+{{/if}}
 {{/all_user_clusters}}
 
 
@@ -46,10 +48,12 @@ EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)
         switch (cmd->apsFrame->clusterId)
         {
         {{#all_user_clusters}}
+        {{#if (isEnable enabled)}}
         {{#if (isClient side) }}
         case ZCL_{{asDelimitedMacro define}}_ID :
             result = emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}CommandParse(cmd);
             break;
+        {{/if}}
         {{/if}}
         {{/all_user_clusters}}
         default:
@@ -63,11 +67,13 @@ EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)
         switch (cmd->apsFrame->clusterId)
         {
         {{#all_user_clusters}}
+        {{#if (isEnable enabled)}}
         {{#unless (isClient  side) }}
         case ZCL_{{asDelimitedMacro define}}_ID :
             result = emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}CommandParse(cmd);
             break;
         {{/unless}}
+        {{/if}}
         {{/all_user_clusters}}
 
         default:
@@ -81,21 +87,22 @@ EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)
 // Cluster specific command parsing
 
 {{#all_user_clusters}}
+{{#if (isEnable enabled)}}
 EmberAfStatus emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}CommandParse(EmberAfClusterCommand * cmd)
 {
     bool wasHandled = false;
-    uint32_t argOffset = 0;
+
     if (!cmd->mfgSpecific)
     {
         switch (cmd->commandId)
         {
 
         {{#all_user_cluster_commands}}
-        {{#if (isStrEqual clusterSide parent.side)}}
         {{#if (isStrEqual clusterName parent.name)}}
+        {{#if (isCommandAvailable parent.side incoming outcoming)}}
         case ZCL_{{asDelimitedMacro name}}_COMMAND_ID: {
-            argOffset = 0;
             {{#if (zcl_command_arguments_count this.id)}}
+            uint32_t argOffset = 0;
             {{#zcl_command_arguments}}
             {{asUnderlyingType type}} * {{asSymbol label}} = ({{asUnderlyingType type}} *)(cmd->buffer + argOffset);
             {{#unless (isLastElement index count)}}
@@ -120,5 +127,5 @@ EmberAfStatus emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false
     }
     return status(wasHandled, true, cmd->mfgSpecific);
 }
-
+{{/if}}
 {{/all_user_clusters}}
