@@ -150,7 +150,9 @@ export default {
     setSelectedEndpointType() {
       this.$store.dispatch('zap/updateSelectedEndpointType', {
         endpointType: this.endpointType[this.endpointReference],
-        deviceTypeRef: this.endpointDeviceTypeRef[this.endpointReference],
+        deviceTypeRef: this.endpointDeviceTypeRef[
+          this.endpointType[this.endpointReference]
+        ],
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
       this.$store.dispatch('zap/resetFilters')

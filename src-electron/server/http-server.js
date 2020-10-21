@@ -34,6 +34,7 @@ const restApiModules = [
   '../rest/generation.js',
   '../rest/ide-api-handler.js',
   '../rest/uc-component.js',
+  '../rest/endpoint.js',
   '../rest/user-data.js',
 ]
 var httpServer = null

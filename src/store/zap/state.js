@@ -21,7 +21,7 @@ export default function () {
     studioProject: '',
     leftDrawerOpenState: true,
     miniState: false,
-    informationText: 'Use this as a placeholder for information.',
+    informationText: '',
     clusters: [],
     domains: [],
     attributes: [],
@@ -33,26 +33,38 @@ export default function () {
     clusterManager: {
       openDomains: {},
       filter: {
-        label: 'N/A',
-        filterFn: (domain, currentOpenDomains, context) =>
+        label: 'No Filter',
+        domainFilterFn: (domain, currentOpenDomains, context) =>
           currentOpenDomains[domain],
       },
       filterOptions: [
         {
+          label: 'No Filter',
+          domainFilterFn: (domain, currentOpenDomains, context) =>
+            currentOpenDomains[domain],
+        },
+        {
           label: 'All Clusters',
-          filterFn: (domain, currentOpenDomains, context) => true,
+          domainFilterFn: (domain, currentOpenDomains, context) => true,
         },
         {
           label: 'Only Enabled',
-          filterFn: (domain, currentOpenDomains, context) => {
+          domainFilterFn: (domain, currentOpenDomains, context) => {
             return context.enabledClusters
               .map((a) => a.domainName)
               .includes(domain)
           },
+          clusterFilterFn: (cluster, context) => {
+            return (
+              context.enabledClusters.find((a) => {
+                return cluster.id == a.id
+              }) != undefined
+            )
+          },
         },
         {
           label: 'Close All',
-          filterFn: (domain, currentOpenDomains, context) => false,
+          domainFilterFn: (domain, currentOpenDomains, context) => false,
         },
       ],
       filterString: '',
@@ -99,6 +111,9 @@ export default function () {
       // These are based off of the selected ZCL Endpoint Device Type
       requiredCommands: [],
     },
-    calledArgs: { defaultUiMode: restApi.uiMode.ZIGBEE, embeddedMode: false },
+    calledArgs: {
+      defaultUiMode: restApi.uiMode.ZIGBEE,
+      embeddedMode: false,
+    },
   }
 }

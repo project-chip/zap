@@ -24,8 +24,6 @@
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 
-const itemList = 'zcl-item-list'
-const singleItem = 'zcl-item'
 const restApi = require('../../src-shared/rest-api.js')
 
 // This function builds a function that has the following skeleton.
@@ -91,8 +89,8 @@ function reduceAndConcatenateZclEntity(
   )
 }
 
-function parseForZclData(db, path, id, packageIdArray) {
-  switch (path) {
+function parseForZclData(db, entity, id, packageIdArray) {
+  switch (entity) {
     case 'cluster':
       return reduceAndConcatenateZclEntity(
         db,
@@ -109,7 +107,6 @@ function parseForZclData(db, path, id, packageIdArray) {
           type: 'cluster',
         }
       })
-      break
     case 'domain':
       return reduceAndConcatenateZclEntity(
         db,
@@ -119,7 +116,6 @@ function parseForZclData(db, path, id, packageIdArray) {
       ).then((data) => {
         return { data: data, type: 'domain' }
       })
-      break
     case 'bitmap':
       return reduceAndConcatenateZclEntity(
         db,
@@ -129,7 +125,6 @@ function parseForZclData(db, path, id, packageIdArray) {
       ).then((x) => {
         return { data: x, type: 'bitmap' }
       })
-      break
     case 'enum':
       return reduceAndConcatenateZclEntity(
         db,
@@ -139,7 +134,6 @@ function parseForZclData(db, path, id, packageIdArray) {
       ).then((x) => {
         return { data: x, type: 'enum' }
       })
-      break
     case 'struct':
       return reduceAndConcatenateZclEntity(
         db,
@@ -149,7 +143,6 @@ function parseForZclData(db, path, id, packageIdArray) {
       ).then((x) => {
         return { data: x, type: 'struct' }
       })
-      break
     case 'deviceType':
       return reduceAndConcatenateZclEntity(
         db,
@@ -162,49 +155,42 @@ function parseForZclData(db, path, id, packageIdArray) {
       ).then((x) => {
         return { data: x, type: 'device_type' }
       })
-      break
     case 'endpointTypeClusters':
       return queryZcl
         .selectEndpointTypeClustersByEndpointTypeId(db, id)
         .then((x) => {
           return { data: x, type: `endpointTypeClusters` }
         })
-      break
     case 'endpointTypeAttributes':
       return queryZcl
         .selectEndpointTypeAttributesByEndpointId(db, id)
         .then((x) => {
           return { data: x, type: `endpointTypeAttributes` }
         })
-      break
     case 'endpointTypeCommands':
       return queryZcl
         .selectEndpointTypeCommandsByEndpointId(db, id)
         .then((x) => {
           return { data: x, type: `endpointTypeCommands` }
         })
-      break
     case `endpointTypeDeviceTypeClusters`:
       return queryZcl
         .selectDeviceTypeClustersByDeviceTypeRef(db, id)
         .then((x) => {
           return { data: x, type: `deviceTypeClusters` }
         })
-      break
     case `endpointTypeDeviceTypeAttributes`:
       return queryZcl
         .selectDeviceTypeAttributesByDeviceTypeRef(db, id)
         .then((x) => {
           return { data: x, type: `deviceTypeAttributes` }
         })
-      break
     case `endpointTypeDeviceTypeCommands`:
       return queryZcl
         .selectDeviceTypeCommandsByDeviceTypeRef(db, id)
         .then((x) => {
           return { data: x, type: `deviceTypeCommands` }
         })
-      break
     default:
       return { type: 'Unknown' }
   }
@@ -223,11 +209,9 @@ function httpGetZclEntity(db) {
     var sessionId = request.session.zapSessionId
 
     queryPackage
-      .getSessionPackageIds(db, sessionId)
+      .getSessionZclPackageIds(db, sessionId)
       .then((packageIdArray) => parseForZclData(db, entity, id, packageIdArray))
-      .then((finalData) => {
-        response.status(restApi.httpCode.ok).json(finalData)
-      })
+      .then((resultData) => response.json(resultData))
   }
 }
 

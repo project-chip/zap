@@ -329,6 +329,33 @@ function getSessionGenTemplates(db, sessionId) {
 }
 
 /**
+ * Resolves into an array of IDs that are the packageIds that all the ZCL queries should resolve into.
+ * @param {*} db
+ * @param {*} sessionId
+ */
+function getSessionZclPackageIds(db, sessionId) {
+  var inList = `('${dbEnum.packageType.zclProperties}', '${dbEnum.packageType.zclXmlStandalone}')`
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  SP.PACKAGE_REF
+FROM 
+  SESSION_PACKAGE AS SP
+INNER JOIN 
+  PACKAGE AS P
+ON 
+  SP.PACKAGE_REF = P.PACKAGE_ID
+WHERE
+  SP.SESSION_REF = ? AND P.TYPE IN ${inList}
+`,
+      [sessionId]
+    )
+    .then((rows) => rows.map((r) => r.PACKAGE_REF))
+}
+
+/**
  * Returns the session package IDs.
  * @param {*} db
  * @param {*} sessionId
@@ -479,3 +506,4 @@ exports.getSessionGenTemplates = getSessionGenTemplates
 exports.selectAllDefaultOptions = selectAllDefaultOptions
 exports.selectOptionValueByOptionDefaultId = selectOptionValueByOptionDefaultId
 exports.getPackagesByParentAndType = getPackagesByParentAndType
+exports.getSessionZclPackageIds = getSessionZclPackageIds

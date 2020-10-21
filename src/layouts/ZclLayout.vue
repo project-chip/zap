@@ -55,13 +55,6 @@ limitations under the License.
             <q-tab-panel name="general">
               <q-expansion-item
                 expand-separator
-                label="Application Configuration"
-                caption
-              >
-                <ZclApplicationSetup />
-              </q-expansion-item>
-              <q-expansion-item
-                expand-separator
                 label="Information Configuration"
                 caption
               >
@@ -137,7 +130,6 @@ limitations under the License.
 
 <script>
 import UcComponentSetup from '../components/UcComponentSetup.vue'
-import ZclApplicationSetup from '../components/ZclApplicationSetup.vue'
 import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
@@ -149,12 +141,12 @@ export default {
   name: 'ZclLayout',
   methods: {
     getGeneratedFiles() {
-      this.$serverGet('/preview/').then((result) => {
+      this.$serverGet(restApi.uri.preview).then((result) => {
         this.generationFiles = result.data
       })
     },
     getGeneratedFile(fileName, index = 1) {
-      this.$serverGet('/preview/' + fileName + '/' + index)
+      this.$serverGet(restApi.uri.preview + fileName + '/' + index)
         .then((result) => {
           this.generationData = result.data['result']
           this.maxIndex = result.data['size']
@@ -177,7 +169,9 @@ export default {
         this.maxIndex > this.index
       ) {
         this.index = this.index + 1
-        this.$serverGet('/preview/' + this.currentFile + '/' + this.index)
+        this.$serverGet(
+          restApi.uri.preview + this.currentFile + '/' + this.index
+        )
           .then((result) => {
             this.generationData = this.generationData + result.data['result']
           })
@@ -187,7 +181,6 @@ export default {
   },
   components: {
     UcComponentSetup,
-    ZclApplicationSetup,
     ZclInformationSetup,
     ZclConfiguratorLayout,
     SqlQuery,

@@ -173,6 +173,11 @@ describe('Session specific queries', () => {
       .getSessionPackageIds(db, sid)
       .then((ids) => expect(ids.length).toBe(2))) // One for zclpropertie and one for gen template
 
+  test('Test that ZCL package id for session is preset.', () =>
+    queryPackage
+      .getSessionZclPackageIds(db, sid)
+      .then((ids) => expect(ids.length).toBe(1))) // One for zclpropertie
+
   test('Test some attribute queries.', () =>
     querySession.getSessionInfoFromSessionKey(db, 'SESSION').then((data) => {
       expect(data.sessionId).toBe(sid)
@@ -337,6 +342,7 @@ describe('Endpoint Type Config Queries', () => {
       })
   )
   var endpointTypeIdOnOff
+  var levelControlCluster
   var haOnOffDeviceType, zllOnOffLightDevice
 
   test('Insert EndpointType and test various states', () =>
@@ -375,15 +381,19 @@ describe('Endpoint Type Config Queries', () => {
         .then((clusters) => {
           expect(clusters.length).toBe(6)
         })
-        .then(() =>
-          queryConfig.insertOrReplaceClusterState(
+        .then(() => queryZcl.selectAllClusters(db, pkgId))
+        .then((allClusters) => {
+          levelControlCluster = allClusters.find((a) => {
+            return a.code == 8
+          })
+          return queryConfig.insertOrReplaceClusterState(
             db,
             endpointTypeIdOnOff,
-            7,
+            levelControlCluster.id,
             'CLIENT',
             true
           )
-        )
+        })
         .then((rowId) => {
           expect(typeof rowId).toBe('number')
         })
@@ -409,6 +419,30 @@ describe('Endpoint Type Config Queries', () => {
       .then((commands) => {
         expect(commands.length).toBe(6)
       }))
+
+  test('Set additional attributes and commands when cluster state is inserted', () => {
+    return queryConfig
+      .insertOrReplaceClusterState(
+        db,
+        endpointTypeIdOnOff,
+        levelControlCluster.id,
+        'CLIENT',
+        true
+      )
+      .then(() =>
+        queryConfig.insertClusterDefaults(db, endpointTypeIdOnOff, {
+          clusterRef: levelControlCluster.id,
+          side: 'CLIENT',
+        })
+      )
+      .then(() =>
+        queryConfig
+          .getEndpointTypeAttributes(db, endpointTypeIdOnOff)
+          .then((attributes) => {
+            expect(attributes.length).toBe(13)
+          })
+      )
+  })
 
   test('Insert Endpoint Test', () =>
     queryConfig
