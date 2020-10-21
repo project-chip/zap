@@ -28,7 +28,7 @@
       "clusters": [
         {
           "name": "Basic",
-          "code": "0x0000",
+          "code": 0,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
@@ -36,14 +36,14 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0001",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -53,7 +53,7 @@
         },
         {
           "name": "Basic",
-          "code": "0x0000",
+          "code": 0,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -61,14 +61,14 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0001",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -76,14 +76,14 @@
             },
             {
               "name": "ZCL version",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "included": 1,
               "external": 1,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x03",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -91,14 +91,14 @@
             },
             {
               "name": "application version",
-              "code": "0x0001",
+              "code": 1,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 1,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x00",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -106,14 +106,14 @@
             },
             {
               "name": "stack version",
-              "code": "0x0002",
+              "code": 2,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 1,
               "bounded": 0,
-              "defaultValue": "0x00",
+              "defaultValue": 0,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -121,14 +121,14 @@
             },
             {
               "name": "hardware version",
-              "code": "0x0003",
+              "code": 3,
               "mfgCode": null,
               "included": 1,
               "external": 1,
               "flash": 1,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x00",
+              "defaultValue": 0,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -136,7 +136,7 @@
             },
             {
               "name": "manufacturer name",
-              "code": "0x0004",
+              "code": 4,
               "mfgCode": null,
               "included": 1,
               "external": 1,
@@ -151,7 +151,7 @@
             },
             {
               "name": "model identifier",
-              "code": "0x0005",
+              "code": 5,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -166,7 +166,7 @@
             },
             {
               "name": "date code",
-              "code": "0x0006",
+              "code": 6,
               "mfgCode": null,
               "included": 1,
               "external": 1,
@@ -181,14 +181,14 @@
             },
             {
               "name": "power source",
-              "code": "0x0007",
+              "code": 7,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x00",
+              "defaultValue": 0,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -198,7 +198,7 @@
         },
         {
           "name": "Power Configuration",
-          "code": "0x0001",
+          "code": 1,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
@@ -207,7 +207,7 @@
         },
         {
           "name": "Power Configuration",
-          "code": "0x0001",
+          "code": 1,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -216,21 +216,21 @@
         },
         {
           "name": "Price",
-          "code": "0x0700",
+          "code": 1792,
           "mfgCode": null,
           "side": "client",
           "enabled": 0,
           "commands": [
             {
               "name": "GetCurrentPrice",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "PriceAcknowledgement",
-              "code": "0x02",
+              "code": 2,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -239,14 +239,14 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0001",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -256,14 +256,14 @@
         },
         {
           "name": "Price",
-          "code": "0x0700",
+          "code": 1792,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
           "commands": [
             {
               "name": "PublishPrice",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -272,14 +272,14 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0001",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -289,7 +289,7 @@
         },
         {
           "name": "Device Temperature Configuration",
-          "code": "0x0002",
+          "code": 2,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
@@ -298,7 +298,7 @@
         },
         {
           "name": "Device Temperature Configuration",
-          "code": "0x0002",
+          "code": 2,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -314,14 +314,14 @@
           "commands": [
             {
               "name": "ReportEventStatus",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "GetScheduledEvents",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -330,14 +330,14 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0001",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -345,14 +345,14 @@
             },
             {
               "name": "utility enrollment group",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x00",
+              "defaultValue": 0,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -360,7 +360,7 @@
             },
             {
               "name": "start randomization minutes",
-              "code": "0x0001",
+              "code": 1,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -375,14 +375,14 @@
             },
             {
               "name": "duration randomization minutes",
-              "code": "0x0002",
+              "code": 2,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x00",
+              "defaultValue": 0,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -390,7 +390,7 @@
             },
             {
               "name": "device class value",
-              "code": "0x0003",
+              "code": 3,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -414,21 +414,21 @@
           "commands": [
             {
               "name": "LoadControlEvent",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "CancelLoadControlEvent",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "CancelAllLoadControlEvents",
-              "code": "0x02",
+              "code": 2,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -437,14 +437,14 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0001",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -454,35 +454,35 @@
         },
         {
           "name": "Identify",
-          "code": "0x0003",
+          "code": 3,
           "mfgCode": null,
           "side": "client",
           "enabled": 1,
           "commands": [
             {
               "name": "Identify",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 1,
               "outgoing": 1
             },
             {
               "name": "IdentifyQuery",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 1,
               "outgoing": 1
             },
             {
               "name": "EZModeInvoke",
-              "code": "0x02",
+              "code": 2,
               "mfgCode": null,
               "incoming": 1,
               "outgoing": 1
             },
             {
               "name": "UpdateCommissionState",
-              "code": "0x03",
+              "code": 3,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -492,14 +492,14 @@
         },
         {
           "name": "Identify",
-          "code": "0x0003",
+          "code": 3,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
           "commands": [
             {
               "name": "IdentifyQueryResponse",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -516,14 +516,14 @@
           "commands": [
             {
               "name": "GetLastMessage",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "MessageConfirmation",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -532,14 +532,14 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0001",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -556,14 +556,14 @@
           "commands": [
             {
               "name": "DisplayMessage",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "CancelMessage",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -572,14 +572,14 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0001",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -589,7 +589,7 @@
         },
         {
           "name": "Time",
-          "code": "0x000A",
+          "code": 10,
           "mfgCode": null,
           "side": "client",
           "enabled": 0,
@@ -597,14 +597,14 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0001",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -614,7 +614,7 @@
         },
         {
           "name": "Time",
-          "code": "0x000A",
+          "code": 10,
           "mfgCode": null,
           "side": "server",
           "enabled": 1,
@@ -622,14 +622,14 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0001",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -637,7 +637,7 @@
             },
             {
               "name": "time",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "included": 1,
               "external": 0,
@@ -652,14 +652,14 @@
             },
             {
               "name": "time status",
-              "code": "0x0001",
+              "code": 1,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x00",
+              "defaultValue": 0,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -676,21 +676,21 @@
           "commands": [
             {
               "name": "InitiateKeyEstablishmentRequest",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "EphemeralDataRequest",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "ConfirmKeyDataRequest",
-              "code": "0x02",
+              "code": 2,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -699,14 +699,14 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0001",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -714,14 +714,14 @@
             },
             {
               "name": "key establishment suite (client)",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0000",
+              "defaultValue": 0,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -755,21 +755,21 @@
           "commands": [
             {
               "name": "InitiateKeyEstablishmentResponse",
-              "code": "0x00",
+              "code": 0,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "EphemeralDataResponse",
-              "code": "0x01",
+              "code": 1,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
             },
             {
               "name": "ConfirmKeyDataResponse",
-              "code": "0x02",
+              "code": 2,
               "mfgCode": null,
               "incoming": 0,
               "outgoing": 1
@@ -778,14 +778,14 @@
           "attributes": [
             {
               "name": "cluster revision",
-              "code": "0xFFFD",
+              "code": 65533,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0001",
+              "defaultValue": 1,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -793,14 +793,14 @@
             },
             {
               "name": "key establishment suite (server)",
-              "code": "0x0000",
+              "code": 0,
               "mfgCode": null,
               "included": 1,
               "external": 0,
               "flash": 0,
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0000",
+              "defaultValue": 0,
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
