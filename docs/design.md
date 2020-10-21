@@ -84,7 +84,7 @@ This approach makes ZAP well suited for a possible future use as a cloud-based s
 
 ### Architecture diagram
 
-![Architecture diagram](zap-architecture.png)
+![Architecture diagram](zap-architecture-simple.png)
 
 ## Front end
 
