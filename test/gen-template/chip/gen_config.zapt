@@ -3,3 +3,7 @@
 
 // User options for plugin Binding Table Library
 #define EMBER_BINDING_TABLE_SIZE 10
+
+/**** Network Section ****/
+#define EMBER_SUPPORTED_NETWORKS (1)
+

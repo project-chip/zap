@@ -7,12 +7,21 @@
 #include "af-structs.h"
 #include "af-types.h"
 
+// Cluster Init Functions
+{{#all_user_clusters}}
+{{#if (isEnable enabled)}}
+void emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}InitCallback(uint8_t endpoint);
+{{/if}}
+{{/all_user_clusters}}
+
+
 // CLuster Commands Callback
 
 {{#all_user_clusters}}
+{{#if (isEnable enabled)}}
 {{#all_user_cluster_commands}}
-{{#if (isStrEqual clusterSide parent.side)}}
 {{#if (isStrEqual clusterName parent.name)}}
+{{#if (isCommandAvailable parent.side incoming outcoming)}}
 /**
 * @brief {{parent.name}} Cluster {{name}} Command callback
 {{#if (zcl_command_arguments_count this.id)}}
@@ -32,6 +41,7 @@ bool emberAf{{asCamelCased parent.name false}}Cluster{{asCamelCased name false}}
 {{/if}}
 {{/if}}
 {{/all_user_cluster_commands}}
+{{/if}}
 {{/all_user_clusters}}
 
 #endif //ZCL_CALLBACK_HEADER

@@ -3,10 +3,23 @@
 
 #include "callback.h"
 
+// Cluster Init Functions
 {{#all_user_clusters}}
+{{#if (isEnable enabled)}}
+void __attribute__((weak)) emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}InitCallback(uint8_t endpoint)
+{
+    // To prevent warning
+    (void) endpoint;
+}
+{{/if}}
+{{/all_user_clusters}}
+
+
+{{#all_user_clusters}}
+{{#if (isEnable enabled)}}
 {{#all_user_cluster_commands}}
-{{#if (isStrEqual clusterSide parent.side)}}
 {{#if (isStrEqual clusterName parent.name)}}
+{{#if (isCommandAvailable parent.side incoming outcoming)}}
 /**
 * @brief {{parent.name}} Cluster {{name}} Command callback
 {{#if (zcl_command_arguments_count this.id)}}
@@ -36,4 +49,5 @@ bool __attribute__((weak))  emberAf{{asCamelCased parent.name false}}Cluster{{as
 {{/if}}
 {{/if}}
 {{/all_user_cluster_commands}}
+{{/if}}
 {{/all_user_clusters}}
