@@ -45,7 +45,6 @@ limitations under the License.
               @input="
                 toggleAttributeSelection(
                   selection,
-                  RestApi.updateKey.attributeSelected,
                   props.row,
                   selectedCluster.id
                 )
@@ -238,7 +237,7 @@ export default {
       Vue.set(list, hash, value)
       this.editableStorage = Object.assign({}, this.editableStorage)
     },
-    toggleAttributeSelection(list, listType, attributeData, clusterId, enable) {
+    toggleAttributeSelection(list, attributeData, clusterId) {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base ZCL attribute and cluster data.
       var indexOfValue = list.indexOf(
@@ -256,7 +255,7 @@ export default {
         endpointTypeId: this.selectedEndpointTypeId,
         id: attributeData.id,
         value: addedValue,
-        listType: listType,
+        listType: RestApi.updateKey.attributeSelected,
         clusterRef: clusterId,
         attributeSide: attributeData.side,
       }
