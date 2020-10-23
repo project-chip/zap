@@ -7,6 +7,17 @@
 #include "af-structs.h"
 #include "af-types.h"
 
+/** @brief Cluster Init
+ *
+ * This function is called when a specific cluster is initialized. It gives the
+ * application an opportunity to take care of cluster initialization procedures.
+ * It is called exactly once for each endpoint where cluster is present.
+ *
+ * @param endpoint   Ver.: always
+ * @param clusterId   Ver.: always
+ */
+void emberAfClusterInitCallback(uint8_t endpoint, EmberAfClusterId clusterId);
+
 // Cluster Init Functions
 {{#all_user_clusters}}
 {{#if (isEnable enabled)}}

@@ -2,8 +2,27 @@
 {{silabs_header}}
 
 #include "callback.h"
+#include "cluster-id.h"
 
 // Cluster Init Functions
+void emberAfClusterInitCallback(uint8_t endpoint, EmberAfClusterId clusterId)
+{
+    switch (clusterId)
+    {
+    {{#all_user_clusters}}
+    {{#if (isEnable enabled)}}
+    case ZCL_{{asDelimitedMacro define}}_ID :
+        emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}InitCallback(endpoint);
+        break;
+    {{/if}}
+    {{/all_user_clusters}}
+
+    default:
+        // Unrecognized cluster ID
+        break;
+    }
+}
+
 {{#all_user_clusters}}
 {{#if (isEnable enabled)}}
 void __attribute__((weak)) emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}InitCallback(uint8_t endpoint)
@@ -14,6 +33,7 @@ void __attribute__((weak)) emberAf{{asCamelCased name false}}Cluster{{asCamelCas
 {{/if}}
 {{/all_user_clusters}}
 
+// Cluster Command callback
 
 {{#all_user_clusters}}
 {{#if (isEnable enabled)}}
