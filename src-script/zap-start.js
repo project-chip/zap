@@ -22,7 +22,8 @@ const scriptUtil = require('./script-util.js')
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 
 scriptUtil
-  .rebuildSpaIfNeeded()
+  .stampVersion()
+  .then(() => scriptUtil.rebuildSpaIfNeeded())
   .then((ctx) => {
     var cmdArgs = ['src-electron/main-process/electron-main.dev.js']
     cmdArgs.push(...process.argv.slice(2))

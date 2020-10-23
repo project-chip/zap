@@ -19,6 +19,7 @@ const folderHash = require('folder-hash')
 const hashOptions = {}
 const spaDir = 'spa'
 const fs = require('fs')
+const fsp = fs.promises
 const path = require('path')
 const scriptUtil = require('./script-util.js')
 const spaHashFileName = path.join(spaDir, 'hash.json')
@@ -43,8 +44,33 @@ function executeCmd(ctx, cmd, args) {
     c.stderr.on('data', (data) => {
       process.stderr.write('⇝ ' + data)
     })
+    c.on('error', (err) => {
+      reject(err)
+    })
   })
 }
+
+function getStdout(onError, cmd, args) {
+  return new Promise((resolve, reject) => {
+    console.log(`🚀 Executing: ${cmd} ${args.join(' ')}`)
+    var c = spawn(cmd, args)
+    var str = ''
+    c.on('exit', (code) => {
+      if (code == 0) resolve(str)
+      else {
+        console.log(`👎 Program ${cmd} exited with error code: ${code}`)
+        reject(code)
+      }
+    })
+    c.stdout.on('data', (data) => {
+      str = str.concat(data)
+    })
+    c.on('error', (err) => {
+      resolve(onError)
+    })
+  })
+}
+
 /**
  * Resolves into a context object.
  * Check for context.needsRebuild
@@ -111,5 +137,25 @@ function rebuildSpaIfNeeded() {
     )
 }
 
+// git log -1 --format="{\"hash\": \"%H\",\"date\": \"%cI\"}" > .version.json
+function stampVersion() {
+  return getStdout('{"hash": null,"date": null}', 'git', [
+    'log',
+    '-1',
+    '--format={"hash": "%H","timestamp": %ct}',
+  ])
+    .then((out) => {
+      var version = JSON.parse(out)
+      var d = new Date(version.timestamp * 1000) // git gives seconds, Date needs milliseconds
+      version.date = d
+      var versionFile = path.join(__dirname, '../.version.json')
+      return fsp.writeFile(versionFile, JSON.stringify(version))
+    })
+    .catch((err) => {
+      console.log(`Error retrieving version: ${err}`)
+    })
+}
+
 exports.executeCmd = executeCmd
 exports.rebuildSpaIfNeeded = rebuildSpaIfNeeded
+exports.stampVersion = stampVersion

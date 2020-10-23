@@ -34,6 +34,7 @@
     "gen2": "node src-script/zap-generate.js -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/generation-test-file-1.zap -o ./tmp",
     "genchip": "node src-script/zap-generate.js -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/chip/gen-test.json -i ./test/resource/chip/chip_test.zap -o ./tmp",
     "pack": "node src-script/build-spa.js && electron-builder --dir",
+    "stamp": "git log -1 --format=\"{\"hash\": \"%H\",\"date\": \"%cI\"}\" > .version.json",
     "dist": "electron-builder",
     "dist-all": "electron-builder -mwl",
     "dist-linux": "electron-builder -l",
