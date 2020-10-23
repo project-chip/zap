@@ -243,11 +243,24 @@ function prepareClusterGlobalAttribute(cluster) {
 
     ret.globalAttribute = []
     cluster.globalAttribute.forEach((ga) => {
-      ret.globalAttribute.push({
-        code: parseInt(ga.$.code),
-        side: ga.$.side,
-        value: ga.$.value,
-      })
+      if (ga.$.side == dbEnum.side.either) {
+        ret.globalAttribute.push({
+          code: parseInt(ga.$.code),
+          side: dbEnum.side.client,
+          value: ga.$.value,
+        })
+        ret.globalAttribute.push({
+          code: parseInt(ga.$.code),
+          side: dbEnum.side.server,
+          value: ga.$.value,
+        })
+      } else {
+        ret.globalAttribute.push({
+          code: parseInt(ga.$.code),
+          side: ga.$.side,
+          value: ga.$.value,
+        })
+      }
     })
     return ret
   } else {
