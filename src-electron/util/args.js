@@ -18,6 +18,7 @@
 const yargs = require('yargs')
 const path = require('path')
 const restApi = require(`../../src-shared/rest-api.js`)
+const env = require('./env.js')
 
 // TODO how to handle relative pathing for things like properties file.
 exports.zclPropertiesFile = path.join(
@@ -42,6 +43,7 @@ exports.genResultFile = false
  * @returns parsed argv object
  */
 function processCommandLineArguments(argv) {
+  var zapVersion = env.zapVersion()
   var ret = yargs
     .command('generate', 'Generate ZCL artifacts.')
     .command('selfCheck', 'Perform the self-check of the application.')
@@ -112,6 +114,9 @@ function processCommandLineArguments(argv) {
       type: 'string',
     })
     .usage('Usage: $0 <command> [options]')
+    .version(
+      `Version: ${zapVersion.version}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
+    )
     .help()
     .alias({
       help: ['h', '?'],
