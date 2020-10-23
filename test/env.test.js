@@ -45,3 +45,11 @@ test('Versions check', () => {
 test('Feature level', () => {
   expect(env.featureLevel).toBeGreaterThan(0)
 })
+
+test('Version', () => {
+  var v = env.zapVersion()
+  expect('version' in v).toBeTruthy()
+  expect('hash' in v).toBeTruthy()
+  expect('timestamp' in v).toBeTruthy()
+  expect('date' in v).toBeTruthy()
+})

@@ -382,10 +382,10 @@ function updateCurrentSchemaCrc(db, context) {
  * @export
  * @param {*} db
  * @param {*} schemaPath
- * @param {*} appVersion
+ * @param {*} zapVersion
  * @returns A promise that resolves with the same db that got passed in, or rejects with an error.
  */
-function loadSchema(db, schemaPath, appVersion, sqliteFile = null) {
+function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   return new Promise((resolve, reject) => {
     fs.readFile(schemaPath, 'utf8', (err, data) => {
       if (err) return reject(err)
@@ -438,7 +438,19 @@ function loadSchema(db, schemaPath, appVersion, sqliteFile = null) {
       if (context.mustLoad) return updateCurrentSchemaCrc(db, context)
       else return context
     })
-    .then((context) => insertOrReplaceSetting(db, 'APP', 'VERSION', appVersion))
+    .then((context) =>
+      insertOrReplaceSetting(db, 'APP', 'VERSION', zapVersion.version)
+    )
+    .then(() => {
+      if ('hash' in zapVersion) {
+        return insertOrReplaceSetting(db, 'APP', 'HASH', zapVersion.hash)
+      }
+    })
+    .then(() => {
+      if ('date' in zapVersion) {
+        return insertOrReplaceSetting(db, 'APP', 'DATE', zapVersion.date)
+      }
+    })
     .then((rowid) => Promise.resolve(db))
 }
 exports.loadSchema = loadSchema
