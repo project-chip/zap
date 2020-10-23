@@ -123,7 +123,7 @@ sl_cli_command_group_t sl_cli_zcl_command_group =
 void {{asCamelCased this.optionLabel}}Command(sl_cli_command_arg_t *arguments) {
           {{/if}}
         {{/template_options}}
-  char *argumentTypes[{{zcl_command_arguments_count this.id}}+1] =  { {{#zcl_command_arguments}}
+  char *argumentTypes[{{addOne (zcl_command_arguments_count this.id)}}] =  { {{#zcl_command_arguments}}
                    {{zcl_command_argument_data_type type struct="SL_CLI_ARG_HEX"}},
                             {{/zcl_command_arguments}} };
   sli_zigbee_zcl_simple_command(ZCL_CLUSTER_SPECIFIC_COMMAND | {{#if (isClient commandSource)}}ZCL_FRAME_CONTROL_CLIENT_TO_SERVER{{else}}ZCL_FRAME_CONTROL_SERVER_TO_CLIENT{{/if}},  \

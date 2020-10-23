@@ -385,6 +385,14 @@ function dataTypeForEnum(db, enum_name, packageId) {
   })
 }
 
+/**
+ * Returns the number by adding 1 to it.
+ * @param {*} number
+ */
+function addOne(number) {
+  return number + 1
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -405,3 +413,4 @@ exports.asUnderscoreUppercase = asUnderscoreUppercase
 exports.asCliType = asCliType
 exports.dataTypeForBitmap = dataTypeForBitmap
 exports.dataTypeForEnum = dataTypeForEnum
+exports.addOne = addOne
