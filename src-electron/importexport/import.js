@@ -235,9 +235,11 @@ function readDataFromFile(filePath) {
       if (!('featureLevel' in state)) {
         state.featureLevel = 0
       }
-      if (state.featureLevel > env.featureLevel) {
+      if (state.featureLevel > env.zapVersion().featureLevel) {
         reject(
-          `File requires feature level ${state.featureLevel}, we only have ${env.featureLevel}. Please upgrade your zap!`
+          `File requires feature level ${state.featureLevel}, we only have ${
+            env.zapVersion().featureLevel
+          }. Please upgrade your zap!`
         )
       } else {
         resolve(state)

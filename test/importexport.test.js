@@ -100,7 +100,7 @@ test('Test file 1 import', () => {
     .then((state) => {
       var commandCount = 0
       var attributeCount = 0
-      expect(state.featureLevel).toBe(env.featureLevel)
+      expect(state.featureLevel).toBe(env.zapVersion().featureLevel)
       expect(state.endpointTypes.length).toBe(1)
       expect(state.endpointTypes[0].clusters.length).toBe(11)
       state.endpointTypes[0].clusters.forEach((c) => {

@@ -43,7 +43,7 @@ test('Versions check', () => {
 })
 
 test('Feature level', () => {
-  expect(env.featureLevel).toBeGreaterThan(0)
+  expect(env.zapVersion().featureLevel).toBeGreaterThan(0)
 })
 
 test('Version', () => {

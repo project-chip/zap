@@ -115,7 +115,7 @@ function processCommandLineArguments(argv) {
     })
     .usage('Usage: $0 <command> [options]')
     .version(
-      `Version: ${zapVersion.version}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
+      `Version: ${zapVersion.version}\nFeature level: ${zapVersion.featureLevel}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
     )
     .help()
     .alias({

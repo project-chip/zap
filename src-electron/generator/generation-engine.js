@@ -349,7 +349,7 @@ function writeFile(fileName, content, doBackup) {
 function generateGenerationContent(genResult) {
   var out = {
     writeTime: new Date().toString(),
-    featureLevel: env.featureLevel,
+    featureLevel: env.zapVersion().featureLevel,
     creator: 'zap',
     content: [],
   }
