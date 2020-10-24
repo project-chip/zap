@@ -988,11 +988,11 @@ function insertClusterExtensions(db, packageId, data) {
       var attributesToLoad = []
       var argsForCommands = []
       var argsToLoad = []
-      var i
+      var i, lastId
       for (i = 0; i < rows.length; i++) {
         var row = rows[i]
         if (row != null) {
-          var lastId = row.CLUSTER_ID
+          lastId = row.CLUSTER_ID
           if ('commands' in data[i]) {
             var commands = data[i].commands
             commandsToLoad.push(
@@ -1047,7 +1047,7 @@ function insertClusterExtensions(db, packageId, data) {
         .then((lids) => {
           var j
           for (j = 0; j < lids.length; j++) {
-            var lastId = lids[j]
+            lastId = lids[j]
             var args = argsForCommands[j]
             if (args != undefined && args != null) {
               argsToLoad.push(

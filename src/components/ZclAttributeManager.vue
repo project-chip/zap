@@ -222,7 +222,6 @@ export default {
     handleLocalSelection(list, attributeDataId, clusterId) {
       let hash = this.hashAttributeIdClusterId(attributeDataId, clusterId)
       var indexOfValue = list.indexOf(hash)
-      var addedValue = false
       if (indexOfValue === -1) {
         list.push(hash)
       } else {
