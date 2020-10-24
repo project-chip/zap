@@ -274,7 +274,7 @@ function asCamelCased(label, firstLower = true) {
  * @param {*} label
  */
 function cleanseLabel(label) {
-  l = label.trim()
+  var l = label.trim()
   l = l.replace(' ', '_')
   l = l.replace(' ', '_')
   l = l.replace(/__+/g, '_')
@@ -318,7 +318,7 @@ function asSpacedLowercase(str) {
  * @returns String in uppercase with underscores
  */
 function asUnderscoreUppercase(str) {
-  label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+  var label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return '_' + y
   })
   label = cleanseLabel(label)

@@ -39,7 +39,7 @@ limitations under the License.
         </q-tr>
       </template>
       <template v-slot:body="props">
-        <q-tr :props="props" style="">
+        <q-tr :props="props">
           <q-td key="in" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
@@ -140,7 +140,7 @@ export default {
         this.hashCommandIdClusterId(commandData.id, clusterId)
       )
 
-      var addedValue = false
+      var addedValue
       if (indexOfValue === -1) {
         addedValue = true
       } else {

@@ -243,7 +243,7 @@ export default {
       var indexOfValue = list.indexOf(
         this.hashAttributeIdClusterId(attributeData.id, clusterId)
       )
-      var addedValue = false
+      var addedValue
       if (indexOfValue === -1) {
         addedValue = true
       } else {
