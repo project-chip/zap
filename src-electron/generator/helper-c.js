@@ -274,7 +274,7 @@ function asCamelCased(label, firstLower = true) {
  * @param {*} label
  */
 function cleanseLabel(label) {
-  l = label.trim()
+  var l = label.trim()
   l = l.replace(' ', '_')
   l = l.replace(' ', '_')
   l = l.replace(/__+/g, '_')
@@ -318,7 +318,7 @@ function asSpacedLowercase(str) {
  * @returns String in uppercase with underscores
  */
 function asUnderscoreUppercase(str) {
-  label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+  var label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return '_' + y
   })
   label = cleanseLabel(label)
@@ -385,6 +385,14 @@ function dataTypeForEnum(db, enum_name, packageId) {
   })
 }
 
+/**
+ * Returns the number by adding 1 to it.
+ * @param {*} number
+ */
+function addOne(number) {
+  return number + 1
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -405,3 +413,4 @@ exports.asUnderscoreUppercase = asUnderscoreUppercase
 exports.asCliType = asCliType
 exports.dataTypeForBitmap = dataTypeForBitmap
 exports.dataTypeForEnum = dataTypeForEnum
+exports.addOne = addOne

@@ -80,7 +80,6 @@ limitations under the License.
 import ZclAttributeManager from './ZclAttributeManager.vue'
 import ZclAttributeReportingManager from './ZclAttributeReportingManager.vue'
 import ZclCommandManager from './ZclCommandManager.vue'
-import * as Util from '../util/util'
 import CommonMixin from '../util/common-mixin'
 
 export default {

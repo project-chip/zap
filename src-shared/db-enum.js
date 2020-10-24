@@ -39,6 +39,7 @@ exports.packageOptionCategory = {
 exports.side = {
   client: 'client',
   server: 'server',
+  either: 'either',
 }
 exports.source = {
   client: 'client',

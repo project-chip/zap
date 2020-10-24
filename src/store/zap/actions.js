@@ -422,14 +422,10 @@ export function setCommandStateLists(context, selectionContext) {
 export function setRecommendedClusterList(context, data) {
   var recommendedClients = []
   var recommendedServers = []
-  var notRecommendedClients = []
-  var notRecommendedServers = []
 
   data.forEach((record) => {
     if (record.includeClient) recommendedClients.push(record.clusterRef)
-    else notRecommendedClients.push(record.clusterRef)
     if (record.includeServer) recommendedServers.push(record.clusterRef)
-    else notRecommendedServers.push(record.clusterRef)
   })
   context.commit(`setRecommendedClusterList`, {
     recommendedClients: recommendedClients,

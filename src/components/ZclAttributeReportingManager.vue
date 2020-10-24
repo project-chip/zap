@@ -167,7 +167,6 @@ export default {
     handleLocalSelection(list, attributeDataId, clusterId) {
       let hash = this.hashAttributeIdClusterId(attributeDataId, clusterId)
       var indexOfValue = list.indexOf(hash)
-      var addedValue = false
       if (indexOfValue === -1) {
         list.push(hash)
       } else {
@@ -184,7 +183,7 @@ export default {
       var indexOfValue = list.indexOf(
         this.hashAttributeIdClusterId(attributeData.id, clusterId)
       )
-      var addedValue = false
+      var addedValue
       if (indexOfValue === -1) {
         addedValue = true
       } else {
@@ -315,18 +314,12 @@ export default {
       get() {
         return this.$store.state.zap.attributes
           .filter((attribute) => {
-            if (
-              this.$store.state.zap.attributeView.selectedAttributes.includes(
-                this.hashAttributeIdClusterId(
-                  attribute.id,
-                  this.selectedCluster.id
-                )
+            return this.$store.state.zap.attributeView.selectedAttributes.includes(
+              this.hashAttributeIdClusterId(
+                attribute.id,
+                this.selectedCluster.id
               )
-            ) {
-              return true
-            } else {
-              return false
-            }
+            )
           })
           .filter((a) => {
             let relevantList =

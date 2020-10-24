@@ -17,7 +17,6 @@
  */
 
 const yargs = require('yargs')
-const fs = require('fs')
 const scriptUtil = require('./script-util.js')
 
 var arg = yargs
@@ -72,7 +71,8 @@ if (arg.in != null) {
 }
 
 scriptUtil
-  .executeCmd(ctx, 'electron', cli)
+  .stampVersion()
+  .then(() => scriptUtil.executeCmd(ctx, 'electron', cli))
   .then(() => {
     console.log('😎 All done.')
     process.exit(0)

@@ -230,8 +230,8 @@ function startGeneration(
  *
  * @param {*} path
  */
-function clearDatabaseFile(path) {
-  util.createBackupFile(path)
+function clearDatabaseFile(dbPath) {
+  util.createBackupFile(dbPath)
 }
 
 exports.startGeneration = startGeneration

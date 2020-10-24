@@ -22,7 +22,6 @@ const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
 const tray = require('./tray.js')
 const util = require('../util/util.js')
-const { embeddedMode } = require('../util/args.js')
 
 function initializeElectronUi(port, args) {
   let w = windowCreate(port, args)

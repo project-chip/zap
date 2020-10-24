@@ -27,7 +27,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 
 var db
-const port = 9073
+const port = 9074
 const baseUrl = `http://localhost:${port}`
 var axiosInstance = null
 

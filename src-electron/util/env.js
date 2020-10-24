@@ -19,7 +19,6 @@ const path = require('path')
 const os = require('os')
 const fs = require('fs')
 const pino = require('pino')
-const { version } = require('../../package.json')
 const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
 
@@ -47,6 +46,7 @@ var pino_logger = pino({
 var explicit_logger_set = false
 var dbInstance
 var httpStaticContent = path.join(__dirname, '../../spa')
+var versionObject = null
 
 function setDevelopmentEnv() {
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
@@ -104,7 +104,27 @@ function sqliteTestFile(id, deleteExistingFile = true) {
 }
 
 function zapVersion() {
-  return version
+  if (versionObject == null) {
+    versionObject = {
+      featureLevel: featureLevel,
+    }
+    try {
+      var { version } = require('../../package.json')
+      versionObject.version = version
+    } catch {
+      logError('Could not retrieve version from package.json')
+    }
+
+    try {
+      var ver = require('../../.version.json')
+      versionObject.hash = ver.hash
+      versionObject.timestamp = ver.timestamp
+      versionObject.date = ver.date
+    } catch {
+      logError('Could not retrieve version from .version.json')
+    }
+  }
+  return versionObject
 }
 
 function baseUrl() {

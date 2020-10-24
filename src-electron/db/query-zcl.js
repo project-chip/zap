@@ -402,6 +402,49 @@ WHERE ATTRIBUTE_ID = ?`,
     )
     .then(dbMapping.map.attribute)
 }
+/**
+ * This function should be used when you want to get attributes, while also resolving against any global data that may be overridden by a particular cluster.
+ * @param {*} db
+ * @param {*} attributeId
+ * @param {*} clusterRef
+ */
+function selectAttributeByAttributeIdAndClusterRef(
+  db,
+  attributeId,
+  clusterRef
+) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  ATTRIBUTE.ATTRIBUTE_ID,
+  ATTRIBUTE.CLUSTER_REF,
+  ATTRIBUTE.CODE,
+  ATTRIBUTE.MANUFACTURER_CODE,
+  ATTRIBUTE.NAME,
+  ATTRIBUTE.TYPE,
+  ATTRIBUTE.SIDE,
+  ATTRIBUTE.DEFINE,
+  ATTRIBUTE.MIN,
+  ATTRIBUTE.MAX,
+  ATTRIBUTE.IS_WRITABLE,
+  CASE WHEN ATTRIBUTE.CLUSTER_REF NOT NULL THEN ATTRIBUTE.DEFAULT_VALUE 
+       ELSE 
+          CASE 
+            WHEN EXISTS(SELECT DEFAULT_VALUE FROM GLOBAL_ATTRIBUTE_DEFAULT WHERE GLOBAL_ATTRIBUTE_DEFAULT.CLUSTER_REF = ? AND GLOBAL_ATTRIBUTE_DEFAULT.ATTRIBUTE_REF = ATTRIBUTE_ID) 
+              THEN (SELECT DEFAULT_VALUE FROM GLOBAL_ATTRIBUTE_DEFAULT WHERE GLOBAL_ATTRIBUTE_DEFAULT.CLUSTER_REF = ? AND GLOBAL_ATTRIBUTE_DEFAULT.ATTRIBUTE_REF = ATTRIBUTE_ID)
+            ELSE ATTRIBUTE.DEFAULT_VALUE
+          END
+       END AS DEFAULT_VALUE,
+  ATTRIBUTE.IS_OPTIONAL,
+  ATTRIBUTE.IS_REPORTABLE
+FROM ATTRIBUTE, GLOBAL_ATTRIBUTE_DEFAULT
+WHERE ATTRIBUTE_ID = ?`,
+      [clusterRef, clusterRef, attributeId]
+    )
+    .then(dbMapping.map.attribute)
+}
 
 function selectAllAttributes(db, packageId) {
   return dbApi
@@ -945,11 +988,11 @@ function insertClusterExtensions(db, packageId, data) {
       var attributesToLoad = []
       var argsForCommands = []
       var argsToLoad = []
-      var i
+      var i, lastId
       for (i = 0; i < rows.length; i++) {
         var row = rows[i]
         if (row != null) {
-          var lastId = row.CLUSTER_ID
+          lastId = row.CLUSTER_ID
           if ('commands' in data[i]) {
             var commands = data[i].commands
             commandsToLoad.push(
@@ -1004,7 +1047,7 @@ function insertClusterExtensions(db, packageId, data) {
         .then((lids) => {
           var j
           for (j = 0; j < lids.length; j++) {
-            var lastId = lids[j]
+            lastId = lids[j]
             var args = argsForCommands[j]
             if (args != undefined && args != null) {
               argsToLoad.push(
@@ -1898,6 +1941,7 @@ exports.selectAttributesByClusterIdAndSide = selectAttributesByClusterIdAndSide
 exports.selectAttributesByClusterId = selectAttributesByClusterId
 exports.selectAttributesByClusterCodeAndManufacturerCode = selectAttributesByClusterCodeAndManufacturerCode
 exports.selectAttributeById = selectAttributeById
+exports.selectAttributeByAttributeIdAndClusterRef = selectAttributeByAttributeIdAndClusterRef
 exports.selectAllAttributes = selectAllAttributes
 exports.selectAllAttributesBySide = selectAllAttributesBySide
 exports.selectCommandById = selectCommandById

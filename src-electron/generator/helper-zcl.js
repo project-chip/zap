@@ -359,7 +359,7 @@ function zcl_command_argument_data_type(type, options) {
         .then(
           (res) =>
             new Promise((resolve, reject) => {
-              for (i = 0; i < res.length; i++) {
+              for (var i = 0; i < res.length; i++) {
                 if (res[i] != 'unknown') {
                   resolve(res[i])
                   return

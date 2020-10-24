@@ -31,6 +31,16 @@ pipeline
                 }
             }
         }
+        stage('Version stamp')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'npm run version-stamp'
+                }
+            }
+        }
         stage('License check')
         {
             steps

@@ -219,7 +219,7 @@ function insertOrUpdateAttributeState(
     side
   ).then((cluster) => {
     return queryZcl
-      .selectAttributeById(db, attributeId)
+      .selectAttributeByAttributeIdAndClusterRef(db, attributeId, clusterRef)
       .then((staticAttribute) => {
         return dbApi
           .dbInsert(

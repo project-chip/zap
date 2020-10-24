@@ -22,7 +22,6 @@ limitations under the License.
 </template>
 
 <script>
-import restApi from '../src-shared/rest-api.js'
 export default {
   name: 'App',
   methods: {

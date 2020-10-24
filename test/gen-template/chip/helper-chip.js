@@ -75,12 +75,29 @@ function isClient(side) {
   return 0 == side.localeCompare('client')
 }
 
+function isServer(side) {
+  return 0 == side.localeCompare('server')
+}
+
 function isStrEqual(str1, str2) {
   return 0 == str1.localeCompare(str2)
 }
 
 function isLastElement(index, count) {
   return index == count - 1
+}
+
+function isEnable(enable) {
+  return 1 == enable
+}
+
+function isCommandAvailable(clusterSide, incoming, outcoming) {
+  if (isClient(clusterSide) && outcoming) {
+    return true
+  } else if (isServer(clusterSide) && incoming) {
+    return true
+  }
+  return false
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -91,5 +108,8 @@ function isLastElement(index, count) {
 exports.chip_header = chip_header
 exports.silabs_header = silabs_header
 exports.isClient = isClient
+exports.isServer = isServer
 exports.isStrEqual = isStrEqual
 exports.isLastElement = isLastElement
+exports.isEnable = isEnable
+exports.isCommandAvailable = isCommandAvailable
