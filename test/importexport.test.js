@@ -119,8 +119,9 @@ test('Test file 1 import', () => {
 
 test('Test file 2 import', () => {
   var sid
-  return importJs
-    .importDataFromFile(db, testFile2)
+  return querySession
+    .createBlankSession(db)
+    .then((sessionId) => importJs.importDataFromFile(db, testFile2, sessionId))
     .then((sessionId) => (sid = sessionId))
     .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE'))
     .then((x) => expect(x).toBe(1))

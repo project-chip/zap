@@ -254,12 +254,21 @@ function readDataFromFile(filePath) {
  * @export
  * @param {*} db
  * @param {*} state
+ * @param {*} existingSessionId If null, then new session will get
+ *              created, otherwise it loads the data into an
+ *              existing session. Previous session data is not deleted.
  * @returns a promise that resolves into a sessionId that was created.
  */
-function writeStateToDatabase(db, state) {
+function writeStateToDatabase(db, state, existingSessionId = null) {
   return dbApi
     .dbBeginTransaction(db)
-    .then(() => querySession.createBlankSession(db))
+    .then(() => {
+      if (existingSessionId == null) {
+        return querySession.createBlankSession(db)
+      } else {
+        return existingSessionId
+      }
+    })
     .then((sessionId) => importPackages(db, sessionId, state.package))
     .then((data) => {
       // data: { sessionId, packageId, otherIds}
@@ -300,9 +309,9 @@ function writeStateToDatabase(db, state) {
  * @param {*} filePath
  * @returns a promise that resolves with the session Id of the written data.
  */
-function importDataFromFile(db, filePath) {
+function importDataFromFile(db, filePath, sessionId = null) {
   return readDataFromFile(filePath).then((state) =>
-    writeStateToDatabase(db, state)
+    writeStateToDatabase(db, state, sessionId)
   )
 }
 // exports
