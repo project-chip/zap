@@ -54,7 +54,8 @@ function processCommandLineArguments(argv) {
       default: exports.httpPort,
     })
     .option('studioHttpPort', {
-      desc: "Port used for integration with Studio's UC Jetty server",
+      desc:
+        "Port used for integration with Silicon Labs Simplicity Studio's internal HTTP server",
       type: 'number',
       default: exports.studioHttpPort,
     })
