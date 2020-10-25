@@ -60,6 +60,27 @@ function loadGenTemplate(context) {
     })
 }
 
+function recordPackageIfNonexistent(db, path, parentId, packageType, version) {
+  return queryPackage
+    .getPackageByPathAndParent(db, path, parentId)
+    .then((pkg) => {
+      if (pkg == null) {
+        // doesn't exist
+        return queryPackage.insertPathCrc(
+          db,
+          path,
+          null,
+          packageType,
+          parentId,
+          version
+        )
+      } else {
+        // Already exists
+        return pkg.id
+      }
+    })
+}
+
 /**
  * Given a loading context, it records the package into the packages table and adds the packageId field into the resolved context.
  *
@@ -89,28 +110,13 @@ function recordTemplatesPackage(context) {
           path.join(path.dirname(context.path), template.path)
         )
         promises.push(
-          queryPackage
-            .getPackageByPathAndParent(
-              context.db,
-              templatePath,
-              context.packageId
-            )
-            .then((pkg) => {
-              if (pkg == null) {
-                // doesn't exist
-                return queryPackage.insertPathCrc(
-                  context.db,
-                  templatePath,
-                  null,
-                  dbEnum.packageType.genSingleTemplate,
-                  context.packageId,
-                  template.output
-                )
-              } else {
-                // Already exists
-                return 1
-              }
-            })
+          recordPackageIfNonexistent(
+            context.db,
+            templatePath,
+            context.packageId,
+            dbEnum.packageType.genSingleTemplate,
+            template.output
+          )
         )
       })
 
@@ -166,12 +172,11 @@ function recordTemplatesPackage(context) {
         context.templateData.helpers.forEach((helper) => {
           var helperPath = path.join(path.dirname(context.path), helper)
           promises.push(
-            queryPackage.insertPathCrc(
+            recordPackageIfNonexistent(
               context.db,
               helperPath,
-              null,
-              dbEnum.packageType.genHelper,
               context.packageId,
+              dbEnum.packageType.genHelper,
               null
             )
           )
@@ -185,12 +190,11 @@ function recordTemplatesPackage(context) {
           context.templateData.override
         )
         promises.push(
-          queryPackage.insertPathCrc(
+          recordPackageIfNonexistent(
             context.db,
             overridePath,
-            null,
-            dbEnum.packageType.genOverride,
             context.packageId,
+            dbEnum.packageType.genOverride,
             null
           )
         )
