@@ -206,13 +206,24 @@ function recordTemplatesPackage(context) {
  *
  * @param {*} db Database
  * @param {*} genTemplatesJson Path to the JSON file
- * @returns the loading context, contains: db, path, crc, packageId and templateData
+ * @returns the loading context, contains: db, path, crc, packageId and templateData, or error
  */
 function loadTemplates(db, genTemplatesJson) {
   var context = {
     db: db,
-    path: path.resolve(genTemplatesJson),
   }
+  if (genTemplatesJson == null) {
+    context.error = 'No templates file specified.'
+    return Promise.resolve(context)
+  }
+
+  var file = path.resolve(genTemplatesJson)
+  if (!fs.existsSync(file)) {
+    context.error = `Can't locate templates file: ${file}`
+    return Promise.resolve(context)
+  }
+
+  context.path = file
   return dbApi
     .dbBeginTransaction(db)
     .then(() => fsPromise.access(context.path, fs.constants.R_OK))

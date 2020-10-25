@@ -25,7 +25,7 @@ exports.zclPropertiesFile = path.join(
   __dirname,
   '../../zcl-builtin/silabs/zcl.json'
 )
-exports.genTemplateJsonFile = './test/gen-template/zigbee/gen-templates.json'
+exports.genTemplateJsonFile = null // No default. You need to pass this.
 exports.httpPort = 9070
 exports.studioHttpPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE
@@ -71,7 +71,7 @@ function processCommandLineArguments(argv) {
       default: exports.zclPropertiesFile,
     })
     .option('generationTemplate', {
-      desc: 'gen-template.json file to read in.',
+      desc: 'generation template metafile (gen-template.json) to read in.',
       alias: ['gen', 'g'],
       type: 'string',
       default: exports.genTemplateJsonFile,

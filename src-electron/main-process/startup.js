@@ -52,6 +52,12 @@ function startNormal(uiEnabled, showUrl, uiMode, embeddedMode) {
       generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
     )
     .then((ctx) => {
+      if (ctx.error) {
+        env.logWarning(ctx.error)
+      }
+      return ctx
+    })
+    .then((ctx) => {
       if (!args.noServer)
         return httpServer.initHttpServer(
           ctx.db,
@@ -109,7 +115,13 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
       return generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
     })
     .then((ctx) => {
-      if (options.log) console.log('    👉 generation templates loaded')
+      if (options.log) {
+        if (ctx.error) {
+          console.log(`    ⚠️  ${ctx.error}`)
+        } else {
+          console.log('    👉 generation templates loaded')
+        }
+      }
       if (options.log) console.log('😎 Self-check done!')
       if (options.quit) app.quit()
     })
@@ -194,6 +206,13 @@ function startGeneration(
     })
     .then((db) => zclLoader.loadZcl(db, zclProperties))
     .then((ctx) => generatorEngine.loadTemplates(ctx.db, genTemplateJsonFile))
+    .then((ctx) => {
+      if (ctx.error) {
+        throw ctx.error
+      } else {
+        return ctx
+      }
+    })
     .then((ctx) => {
       packageId = ctx.packageId
       if (zapFile == null) {

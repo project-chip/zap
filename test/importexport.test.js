@@ -29,6 +29,7 @@ const args = require('../src-electron/util/args.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const querySession = require('../src-electron/db/query-session.js')
+const testUtil = require('./test-util.js')
 
 var db
 var testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
@@ -61,7 +62,7 @@ test(
 
 test('Basic gen template parsing and generation', () =>
   generationEngine
-    .loadTemplates(db, args.genTemplateJsonFile)
+    .loadTemplates(db, testUtil.testZigbeeGenerationTemplates)
     .then((context) => {
       expect(context.crc).not.toBeNull()
       expect(context.templateData).not.toBeNull()

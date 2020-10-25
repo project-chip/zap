@@ -29,11 +29,12 @@ const utilJs = require('../src-electron/util/util.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const helperZap = require('../src-electron/generator/helper-zap.js')
 const importJs = require('../src-electron/importexport/import.js')
+const testUtil = require('./test-util.js')
 
 var db
 const templateCount = 11
-var genTimeout = 3000
-var testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
+const genTimeout = 3000
+const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 
 beforeAll(() => {
   var file = env.sqliteTestFile('genengine')
@@ -54,15 +55,17 @@ var templateContext
 test(
   'Basic gen template parsing and generation',
   () =>
-    genEngine.loadTemplates(db, args.genTemplateJsonFile).then((context) => {
-      expect(context.crc).not.toBeNull()
-      expect(context.templateData).not.toBeNull()
-      expect(context.templateData.name).toEqual('Test templates')
-      expect(context.templateData.version).toEqual('test-v1')
-      expect(context.templateData.templates.length).toEqual(templateCount)
-      expect(context.packageId).not.toBeNull()
-      templateContext = context
-    }),
+    genEngine
+      .loadTemplates(db, testUtil.testZigbeeGenerationTemplates)
+      .then((context) => {
+        expect(context.crc).not.toBeNull()
+        expect(context.templateData).not.toBeNull()
+        expect(context.templateData.name).toEqual('Test templates')
+        expect(context.templateData.version).toEqual('test-v1')
+        expect(context.templateData.templates.length).toEqual(templateCount)
+        expect(context.packageId).not.toBeNull()
+        templateContext = context
+      }),
   3000
 )
 

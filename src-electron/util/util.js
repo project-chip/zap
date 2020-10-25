@@ -93,20 +93,30 @@ function initializeSessionPackage(db, sessionId) {
       if (rows.length == 1) {
         packageId = rows[0].id
         env.logInfo(
-          `Single gen-templates.json found, using it for the session: ${packageId}`
+          `Single generation template metafile found, using it for the session: ${packageId}`
         )
       } else if (rows.length == 0) {
-        env.logError(`No  gen-templates.json found for session.`)
+        env.logError(`No generation template metafile found for session.`)
         packageId = null
       } else {
         rows.forEach((p) => {
-          if (path.resolve(args.genTemplateJsonFile) === p.path) {
+          if (
+            args.genTemplateJsonFile != null &&
+            path.resolve(args.genTemplateJsonFile) === p.path
+          ) {
             packageId = p.id
           }
         })
-        env.logWarning(
-          `Multiple toplevel  gen-templates.json found. Using the one from args: ${packageId}`
-        )
+        if (packageId != null) {
+          env.logWarning(
+            `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
+          )
+        } else {
+          packageId = rows[0].id
+          env.logWarning(
+            `Multiple toplevel generation template metafiles found. Using the first one.`
+          )
+        }
       }
       if (packageId != null) {
         return queryPackage

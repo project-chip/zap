@@ -22,13 +22,14 @@ const fs = require('fs')
 const startup = require('../src-electron/main-process/startup.js')
 const env = require('../src-electron/util/env.js')
 const args = require('../src-electron/util/args.js')
+const testUtil = require('./test-util.js')
 
 test('startup: start generation', () => {
   var testGenDir = path.join(path.join(__dirname, '.zap/'), 'test-gen')
   if (!fs.existsSync(testGenDir)) fs.mkdirSync(testGenDir)
   return startup.startGeneration(
     testGenDir,
-    args.genTemplateJsonFile,
+    testUtil.testZigbeeGenerationTemplates,
     args.zclPropertiesFile,
     null,
     {
