@@ -21,6 +21,7 @@
  */
 const fs = require('fs')
 const env = require('../util/env.js')
+const util = require('../util/util.js')
 const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
 const queryPackage = require('../db/query-package.js')
@@ -235,14 +236,12 @@ function readDataFromFile(filePath) {
       if (!('featureLevel' in state)) {
         state.featureLevel = 0
       }
-      if (state.featureLevel > env.zapVersion().featureLevel) {
-        reject(
-          `File requires feature level ${state.featureLevel}, we only have ${
-            env.zapVersion().featureLevel
-          }. Please upgrade your zap!`
-        )
-      } else {
+      var status = util.matchFeatureLevel(state.featureLevel)
+
+      if (status.match) {
         resolve(state)
+      } else {
+        reject(status.message)
       }
     })
   })

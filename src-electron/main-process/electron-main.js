@@ -33,8 +33,9 @@ if (process.env.DEV) {
 
 // Registration of all app listeners, the main lifecycle of the application
 if (app != null) {
-  app.whenReady().then(() => {
-    try {
+  app
+    .whenReady()
+    .then(() => {
       var argv = args.processCommandLineArguments(process.argv)
 
       if (argv.logToStdout) {
@@ -49,26 +50,27 @@ if (app != null) {
       }
 
       if (argv._.includes('selfCheck')) {
-        startup.startSelfCheck()
+        return startup.startSelfCheck()
       } else if (argv._.includes('generate')) {
-        startup.startGeneration(
+        return startup.startGeneration(
           argv.output,
           argv.generationTemplate,
           argv.zclProperties,
           argv.zapFile
         )
       } else {
-        startup.startNormal(
+        return startup.startNormal(
           !argv.noUi,
           argv.showUrl,
           argv.uiMode,
           argv.embeddedMode
         )
       }
-    } catch (err) {
-      app.exit(1)
-    }
-  })
+    })
+    .catch((err) => {
+      console.log(err)
+      app.quit(1)
+    })
 
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

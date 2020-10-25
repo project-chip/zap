@@ -46,6 +46,18 @@ function loadGenTemplate(context) {
       context.templateData = JSON.parse(context.data)
       return ctx
     })
+    .then((ctx) => {
+      var requiredFeatureLevel = 0
+      if ('requiredFeatureLevel' in context.templateData) {
+        requiredFeatureLevel = context.templateData.requiredFeatureLevel
+      }
+      var status = util.matchFeatureLevel(requiredFeatureLevel)
+      if (status.match) {
+        return ctx
+      } else {
+        throw status.message
+      }
+    })
 }
 
 /**
@@ -209,13 +221,12 @@ function loadTemplates(db, genTemplatesJson) {
       return loadGenTemplate(context)
     })
     .then((ctx) => recordTemplatesPackage(ctx))
-    .then((ctx) => {
-      dbApi.dbCommit(db)
-      return ctx
-    })
-    .catch(() => {
+    .catch((err) => {
       env.logInfo(`Can not read templates from: ${context.path}`)
-      return context
+      throw err
+    })
+    .finally(() => {
+      dbApi.dbCommit(db)
     })
 }
 
@@ -330,7 +341,15 @@ function generate(db, sessionId, packageId, generateOnly = null) {
   })
 }
 
-function writeFile(fileName, content, doBackup) {
+/**
+ * Promise to write out a file, optionally creating a backup.
+ *
+ * @param {*} fileName
+ * @param {*} content
+ * @param {*} doBackup
+ * @returns promise of a written file.
+ */
+function writeFileWithBackup(fileName, content, doBackup) {
   if (doBackup && fs.existsSync(fileName)) {
     var backupName = fileName.concat('~')
     fsPromise
@@ -393,12 +412,12 @@ function generateAndWriteFiles(
       var fileName = path.join(outputDirectory, f)
       if (options.log) console.log(`    ✍  ${fileName}`)
       env.logInfo(`Preparing to write file: ${fileName}`)
-      promises.push(writeFile(fileName, content, options.backup))
+      promises.push(writeFileWithBackup(fileName, content, options.backup))
     }
     promises.push(
       generateGenerationContent(genResult).then((generatedContent) => {
         if (options.genResultFile) {
-          return writeFile(
+          return writeFileWithBackup(
             path.join(outputDirectory, 'genResult.json'),
             generatedContent,
             options.backup

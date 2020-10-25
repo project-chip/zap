@@ -40,7 +40,7 @@ const importJs = require('../importexport/import.js')
  * @param {*} uiMode
  */
 function startNormal(uiEnabled, showUrl, uiMode, embeddedMode) {
-  dbApi
+  return dbApi
     .initDatabaseAndLoadSchema(
       env.sqliteFile(),
       env.schemaFile(),

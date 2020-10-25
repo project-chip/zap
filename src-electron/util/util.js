@@ -187,7 +187,27 @@ function getSessionKeyFromBrowserWindow(browserWindow) {
     })
 }
 
+/**
+ * Returns an object that contains:
+ *    match: true or false if featureLevel is matched or not.
+ *    message: in case of missmatch, the message shown to user.
+ * @param {*} featureLevel
+ */
+function matchFeatureLevel(featureLevel) {
+  if (featureLevel > env.zapVersion().featureLevel) {
+    return {
+      match: false,
+      message: `File requires feature level ${featureLevel}, we only have ${
+        env.zapVersion().featureLevel
+      }. Please upgrade your zap!`,
+    }
+  } else {
+    return { match: true }
+  }
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
 exports.getSessionKeyFromBrowserWindow = getSessionKeyFromBrowserWindow
+exports.matchFeatureLevel = matchFeatureLevel
