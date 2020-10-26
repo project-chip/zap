@@ -177,11 +177,24 @@ function createBackupFile(filePath) {
   }
 }
 
-function getSessionKeyFromSessionCookie(cookieValue) {
+function getSessionKeyFromCookie(cookieValue) {
   let ret = cookieValue
   if (ret.startsWith('s%3A')) ret = ret.substring(4)
   if (ret.includes('.')) ret = ret.split('.')[0]
   return ret
+}
+
+/**
+ * Returns the session key
+ * @param {*} browserCookie object
+ */
+function getSessionKeyFromBrowserCookie(browserCookie) {
+  let sid = browserCookie['connect.sid']
+  if (sid) {
+    return getSessionKeyFromCookie(sid)
+  } else {
+    return null
+  }
 }
 
 /**
@@ -193,7 +206,7 @@ function getSessionKeyFromBrowserWindow(browserWindow) {
     .get({ name: 'connect.sid' })
     .then((cookies) => {
       if (cookies.length == 0) throw 'Could not find session key'
-      else return getSessionKeyFromSessionCookie(cookies[0].value)
+      else return getSessionKeyFromCookie(cookies[0].value)
     })
 }
 
@@ -220,4 +233,5 @@ exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
 exports.getSessionKeyFromBrowserWindow = getSessionKeyFromBrowserWindow
+exports.getSessionKeyFromBrowserCookie = getSessionKeyFromBrowserCookie
 exports.matchFeatureLevel = matchFeatureLevel
