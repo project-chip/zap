@@ -116,7 +116,6 @@ limitations under the License.
 </template>
 
 <script>
-import * as RestApi from '../../src-shared/rest-api'
 import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
 import CommonMixin from '../util/common-mixin'
 

@@ -29,7 +29,6 @@ limitations under the License.
 </template>
 
 <script>
-import { QToggle } from 'quasar'
 const restApi = require('../../src-shared/rest-api.js')
 
 export default {

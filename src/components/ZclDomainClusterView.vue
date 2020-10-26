@@ -70,7 +70,6 @@ limitations under the License.
   </div>
 </template>
 <script>
-import * as Util from '../util/util'
 import CommonMixin from '../util/common-mixin'
 
 export default {
