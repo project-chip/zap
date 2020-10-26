@@ -32,8 +32,7 @@ const generationEngine = require('../src-electron/generator/generation-engine.js
 const testUtil = require('./test-util.js')
 
 var db
-const port = 9074
-const baseUrl = `http://localhost:${port}`
+const { port, baseUrl } = testUtil.testServer()
 const timeout = 5000
 
 beforeAll(() => {

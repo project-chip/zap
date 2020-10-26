@@ -32,10 +32,10 @@ const env = require('../src-electron/util/env.js')
 const exportJs = require('../src-electron/importexport/export.js')
 const importJs = require('../src-electron/importexport/import.js')
 const restApi = require('../src-shared/rest-api.js')
+const testUtil = require('./test-util.js')
 
 var db
-const port = 9073
-const baseUrl = `http://localhost:${port}`
+const { port, baseUrl } = testUtil.testServer()
 var packageId
 var sessionId, secondSessionId
 var sessionCookie = null

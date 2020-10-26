@@ -25,13 +25,13 @@ const env = require('../src-electron/util/env.js')
 const restApi = require('../src-shared/rest-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
+const testUtil = require('./test-util.js')
 
 var db
-const port = 9075
-const baseUrl = `http://localhost:${port}`
 var axiosInstance = null
 
 beforeAll(() => {
+  const { port, baseUrl } = testUtil.testServer()
   env.setDevelopmentEnv()
   var file = env.sqliteTestFile('server-zcl')
   axiosInstance = axios.create({ baseURL: baseUrl })

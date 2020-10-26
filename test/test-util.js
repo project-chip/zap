@@ -16,8 +16,20 @@
  *
  */
 
+var testPort = 9073
+
+function testServer() {
+  var ret = {
+    port: testPort,
+    baseUrl: `http://localhost:${testPort++}`,
+  }
+  return ret
+}
+
 exports.testZigbeeGenerationTemplates =
   './test/gen-template/zigbee/gen-templates.json'
 
 exports.testChipGenerationTemplates =
   './test/gen-template/chip/gen-templates.json'
+
+exports.testServer = testServer
