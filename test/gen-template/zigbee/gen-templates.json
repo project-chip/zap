@@ -65,6 +65,11 @@
       "output": "zap-config.h"
     },
     {
+      "path": "zap-reporting.zapt",
+      "name": "ZCL reporting configuration",
+      "output": "zap-reporting.h"
+    },
+    {
       "path": "zap-print.zapt",
       "name": "ZCL human readable strings",
       "output": "zap-print.h"
