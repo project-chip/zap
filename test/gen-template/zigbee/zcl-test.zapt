@@ -36,3 +36,19 @@ Last item
 {{#zcl_attributes}}
 // att: {{asHex code 4}} {{label}}
 {{/zcl_attributes}}
+
+
+/******************/
+{{#user_endpoint_types}}
+// Endpoint: {{endpointTypeId}}, {{name}} / Device Type: {{deviceTypeName}}, {{deviceTypeCode}}
+
+{{#user_clusters}}
+// Cluster: {{code}} / {{name}} ({{side}}) / {{mfgCode}}
+{{#user_cluster_attributes}}
+// - attribute: {{code}} / {{name}}
+{{/user_cluster_attributes}}
+{{#user_cluster_commands}}
+// - command: {{code}} / {{name}}
+{{/user_cluster_commands}}
+{{/user_clusters}}
+{{/user_endpoint_types}}
