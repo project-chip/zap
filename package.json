@@ -55,6 +55,7 @@
     "bufferutil": "^4.0.1",
     "bytebuffer": "^5.0.1",
     "canvas": "^2.6.1",
+    "cookie-parser": "^1.4.5",
     "core-js": "^3.6.5",
     "corejs": "^1.0.0",
     "crc": "^3.8.0",
