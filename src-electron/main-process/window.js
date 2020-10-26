@@ -24,7 +24,7 @@ const tray = require('./tray.js')
 const util = require('../util/util.js')
 
 function initializeElectronUi(port, args) {
-  let w = windowCreate(port, args)
+  windowCreate(port, args)
   menu.initMenu(port)
   tray.initTray(port)
 }

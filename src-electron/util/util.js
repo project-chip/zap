@@ -163,17 +163,17 @@ function initializeSessionPackage(db, sessionId) {
 /**
  * Move database file out of the way into the backup location.
  *
- * @param {*} path
+ * @param {*} filePath
  */
-function createBackupFile(path) {
-  var pathBak = path + '~'
-  if (fs.existsSync(path)) {
+function createBackupFile(filePath) {
+  var pathBak = filePath + '~'
+  if (fs.existsSync(filePath)) {
     if (fs.existsSync(pathBak)) {
       env.logWarning(`Deleting old backup file: ${pathBak}`)
       fs.unlinkSync(pathBak)
     }
-    env.logWarning(`Creating backup file: ${path} to ${pathBak}`)
-    fs.renameSync(path, pathBak)
+    env.logWarning(`Creating backup file: ${filePath} to ${pathBak}`)
+    fs.renameSync(filePath, pathBak)
   }
 }
 
