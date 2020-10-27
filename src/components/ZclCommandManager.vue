@@ -103,7 +103,6 @@ limitations under the License.
 
 <script>
 import * as Util from '../util/util.js'
-import * as RestApi from '../../src-shared/rest-api'
 import CommonMixin from '../util/common-mixin'
 
 export default {

@@ -28,10 +28,15 @@ test('updateInformationText', () => {
 })
 
 test('updateClusters', () => {
-  let clusters = ['foo', 'bar']
+  let clusters = [
+    { name: 'foo', domainName: 'bar' },
+    { name: 'bar', domainName: 'bar' },
+  ]
+  let domains = ['bar']
   let state = ZapState()
   mutations.updateClusters(state, clusters)
   expect(state.clusters).toEqual(clusters)
+  expect(state.domains).toEqual(domains)
 })
 
 test('updateSelectedCluster', () => {
@@ -39,6 +44,23 @@ test('updateSelectedCluster', () => {
   let state = ZapState()
   mutations.updateSelectedCluster(state, cluster)
   expect(state.clustersView.selected).toEqual(cluster)
+})
+
+test('updateAttributeDefaults', () => {
+  let selectionContext = {
+    id: 0,
+    listType: 'defaultValue',
+    newDefaultValue: 'foo',
+    defaultValueValidationIssues: [],
+  }
+  let state = ZapState()
+  mutations.updateAttributeDefaults(state, selectionContext)
+  expect(state.attributeView.defaultValue[selectionContext.id]).toEqual(
+    selectionContext.newDefaultValue
+  )
+  expect(
+    state.attributeView.defaultValueValidationIssues[selectionContext.id]
+  ).toEqual(selectionContext.defaultValueValidationIssues)
 })
 
 test('updateSelectedEndpoint', () => {
@@ -53,6 +75,21 @@ test('updateAttributes', () => {
   let state = ZapState()
   mutations.updateAttributes(state, attributes)
   expect(state.attributes).toEqual(attributes)
+})
+
+test('updateCommands', () => {
+  let commands = ['foo', 'bar']
+  let state = ZapState()
+  mutations.updateCommands(state, commands)
+  expect(state.commands).toEqual(commands)
+})
+
+test('setCommandLists', () => {
+  let data = { incoming: [1, 2, 3], outgoing: [4, 5, 6] }
+  let state = ZapState()
+  mutations.setCommandLists(state, data)
+  expect(state.commandView.selectedIn).toEqual(data.incoming)
+  expect(state.commandView.selectedOut).toEqual(data.outgoing)
 })
 
 test('initializeDefaultEndpoints', () => {

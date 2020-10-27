@@ -93,20 +93,30 @@ function initializeSessionPackage(db, sessionId) {
       if (rows.length == 1) {
         packageId = rows[0].id
         env.logInfo(
-          `Single gen-templates.json found, using it for the session: ${packageId}`
+          `Single generation template metafile found, using it for the session: ${packageId}`
         )
       } else if (rows.length == 0) {
-        env.logError(`No  gen-templates.json found for session.`)
+        env.logError(`No generation template metafile found for session.`)
         packageId = null
       } else {
         rows.forEach((p) => {
-          if (path.resolve(args.genTemplateJsonFile) === p.path) {
+          if (
+            args.genTemplateJsonFile != null &&
+            path.resolve(args.genTemplateJsonFile) === p.path
+          ) {
             packageId = p.id
           }
         })
-        env.logWarning(
-          `Multiple toplevel  gen-templates.json found. Using the one from args: ${packageId}`
-        )
+        if (packageId != null) {
+          env.logWarning(
+            `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
+          )
+        } else {
+          packageId = rows[0].id
+          env.logWarning(
+            `Multiple toplevel generation template metafiles found. Using the first one.`
+          )
+        }
       }
       if (packageId != null) {
         return queryPackage
@@ -153,25 +163,38 @@ function initializeSessionPackage(db, sessionId) {
 /**
  * Move database file out of the way into the backup location.
  *
- * @param {*} path
+ * @param {*} filePath
  */
-function createBackupFile(path) {
-  var pathBak = path + '~'
-  if (fs.existsSync(path)) {
+function createBackupFile(filePath) {
+  var pathBak = filePath + '~'
+  if (fs.existsSync(filePath)) {
     if (fs.existsSync(pathBak)) {
       env.logWarning(`Deleting old backup file: ${pathBak}`)
       fs.unlinkSync(pathBak)
     }
-    env.logWarning(`Creating backup file: ${path} to ${pathBak}`)
-    fs.renameSync(path, pathBak)
+    env.logWarning(`Creating backup file: ${filePath} to ${pathBak}`)
+    fs.renameSync(filePath, pathBak)
   }
 }
 
-function getSessionKeyFromSessionCookie(cookieValue) {
+function getSessionKeyFromCookie(cookieValue) {
   let ret = cookieValue
   if (ret.startsWith('s%3A')) ret = ret.substring(4)
   if (ret.includes('.')) ret = ret.split('.')[0]
   return ret
+}
+
+/**
+ * Returns the session key
+ * @param {*} browserCookie object
+ */
+function getSessionKeyFromBrowserCookie(browserCookie) {
+  let sid = browserCookie['connect.sid']
+  if (sid) {
+    return getSessionKeyFromCookie(sid)
+  } else {
+    return null
+  }
 }
 
 /**
@@ -183,11 +206,32 @@ function getSessionKeyFromBrowserWindow(browserWindow) {
     .get({ name: 'connect.sid' })
     .then((cookies) => {
       if (cookies.length == 0) throw 'Could not find session key'
-      else return getSessionKeyFromSessionCookie(cookies[0].value)
+      else return getSessionKeyFromCookie(cookies[0].value)
     })
+}
+
+/**
+ * Returns an object that contains:
+ *    match: true or false if featureLevel is matched or not.
+ *    message: in case of missmatch, the message shown to user.
+ * @param {*} featureLevel
+ */
+function matchFeatureLevel(featureLevel) {
+  if (featureLevel > env.zapVersion().featureLevel) {
+    return {
+      match: false,
+      message: `File requires feature level ${featureLevel}, we only have ${
+        env.zapVersion().featureLevel
+      }. Please upgrade your zap!`,
+    }
+  } else {
+    return { match: true }
+  }
 }
 
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
 exports.getSessionKeyFromBrowserWindow = getSessionKeyFromBrowserWindow
+exports.getSessionKeyFromBrowserCookie = getSessionKeyFromBrowserCookie
+exports.matchFeatureLevel = matchFeatureLevel

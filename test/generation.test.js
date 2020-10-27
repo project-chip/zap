@@ -29,10 +29,10 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const httpServer = require('../src-electron/server/http-server.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
+const testUtil = require('./test-util.js')
 
 var db
-const port = 9074
-const baseUrl = `http://localhost:${port}`
+const { port, baseUrl } = testUtil.testServer(__filename)
 const timeout = 5000
 
 beforeAll(() => {
@@ -66,7 +66,11 @@ describe('Session specific tests', () => {
 
   test(
     'And load the templates.',
-    () => generationEngine.loadTemplates(db, args.genTemplateJsonFile),
+    () =>
+      generationEngine.loadTemplates(
+        db,
+        testUtil.testZigbeeGenerationTemplates
+      ),
     3000
   )
 
@@ -91,10 +95,7 @@ describe('Session specific tests', () => {
   test(
     'Load a second set of templates.',
     () =>
-      generationEngine.loadTemplates(
-        db,
-        './test/gen-template/chip/gen-templates.json'
-      ),
+      generationEngine.loadTemplates(db, testUtil.testChipGenerationTemplates),
     3000
   )
 

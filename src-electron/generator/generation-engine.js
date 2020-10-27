@@ -46,6 +46,39 @@ function loadGenTemplate(context) {
       context.templateData = JSON.parse(context.data)
       return ctx
     })
+    .then((ctx) => {
+      var requiredFeatureLevel = 0
+      if ('requiredFeatureLevel' in context.templateData) {
+        requiredFeatureLevel = context.templateData.requiredFeatureLevel
+      }
+      var status = util.matchFeatureLevel(requiredFeatureLevel)
+      if (status.match) {
+        return ctx
+      } else {
+        throw status.message
+      }
+    })
+}
+
+function recordPackageIfNonexistent(db, path, parentId, packageType, version) {
+  return queryPackage
+    .getPackageByPathAndParent(db, path, parentId)
+    .then((pkg) => {
+      if (pkg == null) {
+        // doesn't exist
+        return queryPackage.insertPathCrc(
+          db,
+          path,
+          null,
+          packageType,
+          parentId,
+          version
+        )
+      } else {
+        // Already exists
+        return pkg.id
+      }
+    })
 }
 
 /**
@@ -77,28 +110,13 @@ function recordTemplatesPackage(context) {
           path.join(path.dirname(context.path), template.path)
         )
         promises.push(
-          queryPackage
-            .getPackageByPathAndParent(
-              context.db,
-              templatePath,
-              context.packageId
-            )
-            .then((pkg) => {
-              if (pkg == null) {
-                // doesn't exist
-                return queryPackage.insertPathCrc(
-                  context.db,
-                  templatePath,
-                  null,
-                  dbEnum.packageType.genSingleTemplate,
-                  context.packageId,
-                  template.output
-                )
-              } else {
-                // Already exists
-                return 1
-              }
-            })
+          recordPackageIfNonexistent(
+            context.db,
+            templatePath,
+            context.packageId,
+            dbEnum.packageType.genSingleTemplate,
+            template.output
+          )
         )
       })
 
@@ -154,12 +172,11 @@ function recordTemplatesPackage(context) {
         context.templateData.helpers.forEach((helper) => {
           var helperPath = path.join(path.dirname(context.path), helper)
           promises.push(
-            queryPackage.insertPathCrc(
+            recordPackageIfNonexistent(
               context.db,
               helperPath,
-              null,
-              dbEnum.packageType.genHelper,
               context.packageId,
+              dbEnum.packageType.genHelper,
               null
             )
           )
@@ -173,12 +190,11 @@ function recordTemplatesPackage(context) {
           context.templateData.override
         )
         promises.push(
-          queryPackage.insertPathCrc(
+          recordPackageIfNonexistent(
             context.db,
             overridePath,
-            null,
-            dbEnum.packageType.genOverride,
             context.packageId,
+            dbEnum.packageType.genOverride,
             null
           )
         )
@@ -194,13 +210,24 @@ function recordTemplatesPackage(context) {
  *
  * @param {*} db Database
  * @param {*} genTemplatesJson Path to the JSON file
- * @returns the loading context, contains: db, path, crc, packageId and templateData
+ * @returns the loading context, contains: db, path, crc, packageId and templateData, or error
  */
 function loadTemplates(db, genTemplatesJson) {
   var context = {
     db: db,
-    path: path.resolve(genTemplatesJson),
   }
+  if (genTemplatesJson == null) {
+    context.error = 'No templates file specified.'
+    return Promise.resolve(context)
+  }
+
+  var file = path.resolve(genTemplatesJson)
+  if (!fs.existsSync(file)) {
+    context.error = `Can't locate templates file: ${file}`
+    return Promise.resolve(context)
+  }
+
+  context.path = file
   return dbApi
     .dbBeginTransaction(db)
     .then(() => fsPromise.access(context.path, fs.constants.R_OK))
@@ -209,13 +236,12 @@ function loadTemplates(db, genTemplatesJson) {
       return loadGenTemplate(context)
     })
     .then((ctx) => recordTemplatesPackage(ctx))
-    .then((ctx) => {
-      dbApi.dbCommit(db)
-      return ctx
-    })
-    .catch(() => {
+    .catch((err) => {
       env.logInfo(`Can not read templates from: ${context.path}`)
-      return context
+      throw err
+    })
+    .finally(() => {
+      dbApi.dbCommit(db)
     })
 }
 
@@ -330,7 +356,15 @@ function generate(db, sessionId, packageId, generateOnly = null) {
   })
 }
 
-function writeFile(fileName, content, doBackup) {
+/**
+ * Promise to write out a file, optionally creating a backup.
+ *
+ * @param {*} fileName
+ * @param {*} content
+ * @param {*} doBackup
+ * @returns promise of a written file.
+ */
+function writeFileWithBackup(fileName, content, doBackup) {
   if (doBackup && fs.existsSync(fileName)) {
     var backupName = fileName.concat('~')
     fsPromise
@@ -349,7 +383,7 @@ function writeFile(fileName, content, doBackup) {
 function generateGenerationContent(genResult) {
   var out = {
     writeTime: new Date().toString(),
-    featureLevel: env.featureLevel,
+    featureLevel: env.zapVersion().featureLevel,
     creator: 'zap',
     content: [],
   }
@@ -393,12 +427,12 @@ function generateAndWriteFiles(
       var fileName = path.join(outputDirectory, f)
       if (options.log) console.log(`    ✍  ${fileName}`)
       env.logInfo(`Preparing to write file: ${fileName}`)
-      promises.push(writeFile(fileName, content, options.backup))
+      promises.push(writeFileWithBackup(fileName, content, options.backup))
     }
     promises.push(
       generateGenerationContent(genResult).then((generatedContent) => {
         if (options.genResultFile) {
-          return writeFile(
+          return writeFileWithBackup(
             path.join(outputDirectory, 'genResult.json'),
             generatedContent,
             options.backup

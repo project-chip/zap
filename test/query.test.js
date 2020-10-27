@@ -31,6 +31,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const exportJs = require('../src-electron/importexport/export.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
+const testUtil = require('./test-util.js')
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -156,7 +157,7 @@ test(
 )
 
 test('Now load the generation data.', () =>
-  generationEngine.loadTemplates(db, args.genTemplateJsonFile))
+  generationEngine.loadTemplates(db, testUtil.testZigbeeGenerationTemplates))
 
 describe('Session specific queries', () => {
   beforeAll(() =>

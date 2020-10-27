@@ -1,6 +1,7 @@
 {
   "name": "Test templates",
   "version": "test-v1",
+  "requiredFeatureLevel": 1,
   "options": {
     "testOption": {
       "code1": "label1",
@@ -62,6 +63,11 @@
       "path": "zap-config.zapt",
       "name": "ZCL endpoint configuration",
       "output": "zap-config.h"
+    },
+    {
+      "path": "zap-reporting.zapt",
+      "name": "ZCL reporting configuration",
+      "output": "zap-reporting.h"
     },
     {
       "path": "zap-print.zapt",

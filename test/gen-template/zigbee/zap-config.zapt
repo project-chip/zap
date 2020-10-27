@@ -1,30 +1,109 @@
 {{zap_header}}
 
-#define FIXED_ENPOINT_COUNT ({{user_endpoint_type_count}})
+#ifndef SILABS_AF_ENDPOINT_CONFIG
+#define SILABS_AF_ENDPOINT_CONFIG 1
 
-#define GENERATED_DEFAULTS {
-{{#user_all_attributes}}
-// {{name}} : {{clusterCode}}/{{attributeCode}} / {{type}}
-def: {{asBytes defaultValue type}}
-{{/user_all_attributes}}
+{{#endpoint_config}}
+
+
+// Default values for the attributes longer than a pointer,
+// in a form of a binary blob
+// Separate block is generated for big-endian and little-endian cases.
+#if BIGENDIAN_CPU
+#define GENERATED_DEFAULTS { \
+{{endpoint_attribute_long_storage endian="big"}}
+}
+#else // !BIGENDIAN_CPU
+#define GENERATED_DEFAULTS { \
+{{endpoint_attribute_long_storage endian="little"}}
+}
+#endif // BIGENDIAN_CPU
+
+// This is an array of EmberAfAttributeMinMaxValue structures.
+#define GENERATED_MIN_MAX_DEFAULTS { \
+{{endpoint_attribute_min_max_storage}}
 }
 
-#define GENERATED_MIN_MAX_DEFAULTS {
-{{#user_all_attributes}}
-// default: {{clusterCode}} / {{attributeCode}} / {{name}}
-{{/user_all_attributes}}
+// This is an array of EmberAfAttributeMetadata structures.
+#define GENERATED_ATTRIBUTES { \
+{{endpoint_attribute_list}}
 }
 
-{{#user_endpoint_types}}
-// Endpoint: {{endpointTypeId}}, {{name}} / Device Type: {{deviceTypeName}}, {{deviceTypeCode}}
+// This is an array of EmberAfCluster structures.
+#define GENERATED_CLUSTERS { \
+{{endpoint_cluster_list}}
+}
 
-{{#user_clusters}}
-// Cluster: {{code}} / {{name}} ({{side}}) / {{mfgCode}}
-{{#user_cluster_attributes}}
-// - attribute: {{code}} / {{name}}
-{{/user_cluster_attributes}}
-{{#user_cluster_commands}}
-// - command: {{code}} / {{name}}
-{{/user_cluster_commands}}
-{{/user_clusters}}
-{{/user_endpoint_types}}
+// This is an array of EmberAfEndpointType structures.
+#define GENERATED_ENDPOINT_TYPES { \
+{{endpoint_types_list}}
+}
+
+
+
+// This is an array of EmberAfManufacturerCodeEntry structures for clusters.
+#define GENERATED_CLUSTER_MANUFACTURER_CODES { \
+{{endpoint_cluster_manufacturer_codes}}
+}
+#define GENERATED_CLUSTER_MANUFACTURER_CODE_COUNT ({{endpoint_cluster_manufacturer_code_count}})
+
+// This is an array of EmberAfManufacturerCodeEntry structures for attributes.
+#define GENERATED_ATTRIBUTE_MANUFACTURER_CODES { \
+{{endpoint_attribute_manufacturer_codes}}
+}
+#define GENERATED_ATTRIBUTE_MANUFACTURER_CODE_COUNT ({{endpoint_attribute_manufacturer_code_count}})
+
+// Largest attribute size is needed for various buffers
+#define ATTRIBUTE_LARGEST ({{endpoint_largest_attribute_size}})
+
+// Total size of singleton attributes
+#define ATTRIBUTE_SINGLETONS_SIZE ({{endpoint_singletons_size}})
+
+// Total size of attribute storage
+#define ATTRIBUTE_MAX_SIZE ({{endpoint_total_storage_size}})
+
+// Number of fixed endpoints
+#define FIXED_ENPOINT_COUNT ({{endpoint_count}})
+
+// Array of endpoints that are supported, the data inside
+// the array is the endpoint number.
+#define FIXED_ENDPOINT_ARRAY {{endpoint_fixed_endpoint_array}}
+
+// Array of profile ids
+#define FIXED_PROFILE_IDS { {{endpoint_fixed_profile_id_array}} }
+
+// Array of device ids
+#define FIXED_DEVICE_IDS { {{endpoint_fixed_device_id_array}} }
+
+// Array of device versions
+#define FIXED_DEVICE_VERSIONS { {{endpoint_fixed_device_version_array}} }
+
+// Array of endpoint types supported on each endpoint
+#define FIXED_ENDPOINT_TYPES { {{endpoint_fixed_endpoint_type_array}} }
+
+// Array of networks supported on each endpoint
+#define FIXED_NETWORKS { {{endpoint_fixed_network_array}} }
+
+
+// Array of EmberAfCommandMetadata structs.
+#define GENERATED_COMMANDS { \
+{{endpoint_commands}}
+}
+
+#define EMBER_AF_GENERATED_COMMAND_COUNT ({{endpoint_command_count}})
+
+// Array of EmberAfManufacturerCodeEntry structures for commands.
+#define GENERATED_COMMAND_MANUFACTURER_CODES { \
+{{endpoint_command_manufacturer_codes}}
+}
+#define GENERATED_COMMAND_MANUFACTURER_CODE_COUNT ({{endpoint_command_manufacturer_code_count}})
+
+// Array of EmberAfPluginReportingEntry structures.
+#define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS { \
+{{endpoint_reporting_config_defaults}}
+}
+#define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS_TABLE_SIZE ({{endpoint_reporting_config_default_count}})
+
+{{/endpoint_config}}
+
+#endif // SILABS_AF_ENDPOINT_CONFIG

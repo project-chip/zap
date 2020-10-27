@@ -29,6 +29,7 @@ const args = require('../src-electron/util/args.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const querySession = require('../src-electron/db/query-session.js')
+const testUtil = require('./test-util.js')
 
 var db
 var testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
@@ -61,7 +62,7 @@ test(
 
 test('Basic gen template parsing and generation', () =>
   generationEngine
-    .loadTemplates(db, args.genTemplateJsonFile)
+    .loadTemplates(db, testUtil.testZigbeeGenerationTemplates)
     .then((context) => {
       expect(context.crc).not.toBeNull()
       expect(context.templateData).not.toBeNull()
@@ -100,7 +101,7 @@ test('Test file 1 import', () => {
     .then((state) => {
       var commandCount = 0
       var attributeCount = 0
-      expect(state.featureLevel).toBe(env.featureLevel)
+      expect(state.featureLevel).toBe(env.zapVersion().featureLevel)
       expect(state.endpointTypes.length).toBe(1)
       expect(state.endpointTypes[0].clusters.length).toBe(11)
       state.endpointTypes[0].clusters.forEach((c) => {
@@ -119,8 +120,9 @@ test('Test file 1 import', () => {
 
 test('Test file 2 import', () => {
   var sid
-  return importJs
-    .importDataFromFile(db, testFile2)
+  return querySession
+    .createBlankSession(db)
+    .then((sessionId) => importJs.importDataFromFile(db, testFile2, sessionId))
     .then((sessionId) => (sid = sessionId))
     .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE'))
     .then((x) => expect(x).toBe(1))

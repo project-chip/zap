@@ -22,17 +22,6 @@ const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
 
-// Feature level:
-//    please increase this with care. Increasing this number means that
-//    when you save a.zap file, anyone with an older feature level will
-//    NOT BE ABLE to read it in. So use this only in cases of real
-//    file compatibility issues, where you are ok with forcing everyone
-//    else to upgrade.
-//    Do note, that zap should still ALWAYS be able to read in older
-//    files, so this only affects forward compatibility, not backwards compatibility.
-//
-const featureLevel = 1
-
 // Basic environment tie-ins
 var pino_logger = pino({
   name: 'zap',
@@ -103,16 +92,22 @@ function sqliteTestFile(id, deleteExistingFile = true) {
   return fileName
 }
 
+/**
+ * Returns the zap version.
+ *
+ * @returns zap version, which is an object that contains 'featureLevel', 'hash', 'timestamp' and 'date'
+ */
 function zapVersion() {
   if (versionObject == null) {
-    versionObject = {
-      featureLevel: featureLevel,
-    }
+    versionObject = {}
     try {
-      var { version } = require('../../package.json')
-      versionObject.version = version
-    } catch {
+      var p = require('../../package.json')
+      versionObject.version = p.version
+      versionObject.featureLevel = p.featureLevel
+    } catch (err) {
       logError('Could not retrieve version from package.json')
+      versionObject.featureLevel = 0
+      versionObject.version = '0.0.0'
     }
 
     try {
@@ -255,4 +250,3 @@ exports.logHttpServerUrl = logHttpServerUrl
 exports.urlLogFile = urlLogFile
 exports.baseUrl = baseUrl
 exports.versionsCheck = versionsCheck
-exports.featureLevel = featureLevel

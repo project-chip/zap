@@ -25,7 +25,7 @@ exports.zclPropertiesFile = path.join(
   __dirname,
   '../../zcl-builtin/silabs/zcl.json'
 )
-exports.genTemplateJsonFile = './test/gen-template/zigbee/gen-templates.json'
+exports.genTemplateJsonFile = null // No default. You need to pass this.
 exports.httpPort = 9070
 exports.studioHttpPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE
@@ -54,7 +54,8 @@ function processCommandLineArguments(argv) {
       default: exports.httpPort,
     })
     .option('studioHttpPort', {
-      desc: "Port used for integration with Studio's UC Jetty server",
+      desc:
+        "Port used for integration with Silicon Labs Simplicity Studio's internal HTTP server",
       type: 'number',
       default: exports.studioHttpPort,
     })
@@ -71,7 +72,7 @@ function processCommandLineArguments(argv) {
       default: exports.zclPropertiesFile,
     })
     .option('generationTemplate', {
-      desc: 'gen-template.json file to read in.',
+      desc: 'generation template metafile (gen-template.json) to read in.',
       alias: ['gen', 'g'],
       type: 'string',
       default: exports.genTemplateJsonFile,
@@ -115,7 +116,7 @@ function processCommandLineArguments(argv) {
     })
     .usage('Usage: $0 <command> [options]')
     .version(
-      `Version: ${zapVersion.version}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
+      `Version: ${zapVersion.version}\nFeature level: ${zapVersion.featureLevel}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
     )
     .help()
     .alias({

@@ -19,6 +19,7 @@
  */
 
 const env = require('../src-electron/util/env.js')
+const util = require('../src-electron/util/util.js')
 
 test('Test environment', () => {
   expect(env.appDirectory().length).toBeGreaterThan(10)
@@ -43,7 +44,7 @@ test('Versions check', () => {
 })
 
 test('Feature level', () => {
-  expect(env.featureLevel).toBeGreaterThan(0)
+  expect(env.zapVersion().featureLevel).toBeGreaterThan(0)
 })
 
 test('Version', () => {
@@ -52,4 +53,12 @@ test('Version', () => {
   expect('hash' in v).toBeTruthy()
   expect('timestamp' in v).toBeTruthy()
   expect('date' in v).toBeTruthy()
+})
+
+test('Feature level match', () => {
+  var x = util.matchFeatureLevel(0)
+  expect(x.match).toBeTruthy()
+  x = util.matchFeatureLevel(99999)
+  expect(x.match).toBeFalsy()
+  expect(x.message).not.toBeNull()
 })

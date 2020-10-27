@@ -99,6 +99,25 @@ function bitOffset(binary) {
   return binary.length - lastIndex - 1
 }
 
+const hexDigits = {
+  0: '0000',
+  1: '0001',
+  2: '0010',
+  3: '0011',
+  4: '0100',
+  5: '0101',
+  6: '0110',
+  7: '0111',
+  8: '1000',
+  9: '1001',
+  A: '1010',
+  B: '1011',
+  C: '1100',
+  D: '1101',
+  E: '1110',
+  F: '1111',
+}
+
 /**
  * Convert a hex number to a binary. Hex has to be in a format
  * as obtained by intToHex methods above: no '0x' prefix and upper-case
@@ -114,56 +133,8 @@ function hexToBinary(hex) {
 
   var out = ''
   for (var i = 0; i < cleansedHex.length; i++) {
-    switch (cleansedHex[i]) {
-      case '0':
-        out = out.concat('0000')
-        break
-      case '1':
-        out = out.concat('0001')
-        break
-      case '2':
-        out = out.concat('0010')
-        break
-      case '3':
-        out = out.concat('0011')
-        break
-      case '4':
-        out = out.concat('0100')
-        break
-      case '5':
-        out = out.concat('0101')
-        break
-      case '6':
-        out = out.concat('0110')
-        break
-      case '7':
-        out = out.concat('0111')
-        break
-      case '8':
-        out = out.concat('1000')
-        break
-      case '9':
-        out = out.concat('1001')
-        break
-      case 'A':
-        out = out.concat('1010')
-        break
-      case 'B':
-        out = out.concat('1011')
-        break
-      case 'C':
-        out = out.concat('1100')
-        break
-      case 'D':
-        out = out.concat('1101')
-        break
-      case 'E':
-        out = out.concat('1110')
-        break
-      case 'F':
-        out = out.concat('1111')
-        break
-    }
+    var str = hexDigits[cleansedHex[i]]
+    if (str != null) out = out.concat(str)
   }
   return out
 }

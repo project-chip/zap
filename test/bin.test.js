@@ -49,6 +49,8 @@ test('String hex conversions', () => {
   expect(bin.hexToCBytes(xS)).toEqual(
     '0x61, 0x62, 0x63, 0x64, 0x41, 0x42, 0x43, 0x44, 0x00'
   )
+  expect(bin.stringToHex('')).toEqual('00')
+  expect(bin.hexToCBytes('00')).toEqual('0x00')
 })
 
 test('Hex to binary', () => {

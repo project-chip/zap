@@ -21,6 +21,7 @@
  */
 const fs = require('fs')
 const env = require('../util/env.js')
+const util = require('../util/util.js')
 const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
 const queryPackage = require('../db/query-package.js')
@@ -235,12 +236,12 @@ function readDataFromFile(filePath) {
       if (!('featureLevel' in state)) {
         state.featureLevel = 0
       }
-      if (state.featureLevel > env.featureLevel) {
-        reject(
-          `File requires feature level ${state.featureLevel}, we only have ${env.featureLevel}. Please upgrade your zap!`
-        )
-      } else {
+      var status = util.matchFeatureLevel(state.featureLevel)
+
+      if (status.match) {
         resolve(state)
+      } else {
+        reject(status.message)
       }
     })
   })
@@ -253,12 +254,21 @@ function readDataFromFile(filePath) {
  * @export
  * @param {*} db
  * @param {*} state
+ * @param {*} existingSessionId If null, then new session will get
+ *              created, otherwise it loads the data into an
+ *              existing session. Previous session data is not deleted.
  * @returns a promise that resolves into a sessionId that was created.
  */
-function writeStateToDatabase(db, state) {
+function writeStateToDatabase(db, state, existingSessionId = null) {
   return dbApi
     .dbBeginTransaction(db)
-    .then(() => querySession.createBlankSession(db))
+    .then(() => {
+      if (existingSessionId == null) {
+        return querySession.createBlankSession(db)
+      } else {
+        return existingSessionId
+      }
+    })
     .then((sessionId) => importPackages(db, sessionId, state.package))
     .then((data) => {
       // data: { sessionId, packageId, otherIds}
@@ -299,9 +309,9 @@ function writeStateToDatabase(db, state) {
  * @param {*} filePath
  * @returns a promise that resolves with the session Id of the written data.
  */
-function importDataFromFile(db, filePath) {
+function importDataFromFile(db, filePath, sessionId = null) {
   return readDataFromFile(filePath).then((state) =>
-    writeStateToDatabase(db, state)
+    writeStateToDatabase(db, state, sessionId)
   )
 }
 // exports

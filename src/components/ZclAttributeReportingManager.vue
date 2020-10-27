@@ -156,7 +156,6 @@ limitations under the License.
 
 <script>
 import * as Util from '../util/util'
-import * as RestApi from '../../src-shared/rest-api'
 import Vue from 'vue'
 
 import CommonMixin from '../util/common-mixin'
