@@ -113,7 +113,7 @@ function endpoint_fixed_endpoint_array(options) {
   // Creates array of endpointId fields on endpoints
   var epIds = []
   this.endpoints.forEach((ep) => {
-    epIds.push(ep.endpointId)
+    epIds.push('0x' + bin.int16ToHex(ep.endpointId))
   })
   return '{ ' + epIds.join(', ') + ' }'
 }
