@@ -19,20 +19,38 @@ const templateUtil = require('./template-util')
 const queryConfig = require('../db/query-config.js')
 const bin = require('../util/bin')
 
-function endpoint_attribute_min_max_storage(options) {
-  var ret = '// TODO: ' + options.name + '\n'
-  this.attributes.forEach((at) => {
-    ret = ret.concat(`min max: ${at.name} \n`)
-  })
-  return ret
-}
-
 function endpoint_type_count(options) {
   return this.endpointTypes.length
 }
 
 function endpoint_count(options) {
   return this.endpoints.length
+}
+
+function endpoint_fixed_endpoint_array(options) {
+  // Creates array of endpointId fields on endpoints
+  var epIds = []
+  this.endpoints.forEach((ep) => {
+    epIds.push('0x' + bin.int16ToHex(ep.endpointId))
+  })
+  return '{ ' + epIds.join(', ') + ' }'
+}
+
+function endpoint_fixed_profile_id_array(options) {
+  // Creates array of endpointId fields on endpoints
+  var profileIds = []
+  this.endpoints.forEach((ep) => {
+    profileIds.push('0x' + bin.int16ToHex(ep.profileId))
+  })
+  return '{ ' + profileIds.join(', ') + ' }'
+}
+
+function endpoint_attribute_min_max_storage(options) {
+  var ret = '// TODO: ' + options.name + '\n'
+  this.attributes.forEach((at) => {
+    ret = ret.concat(`min max: ${at.name} \n`)
+  })
+  return ret
 }
 
 function endpoint_attribute_long_storage(options) {
@@ -109,15 +127,6 @@ function endpoint_total_storage_size(options) {
   return ret
 }
 
-function endpoint_fixed_endpoint_array(options) {
-  // Creates array of endpointId fields on endpoints
-  var epIds = []
-  this.endpoints.forEach((ep) => {
-    epIds.push('0x' + bin.int16ToHex(ep.endpointId))
-  })
-  return '{ ' + epIds.join(', ') + ' }'
-}
-
 function endpoint_fixed_endpoint_type_array(options) {
   var ret = '// TODO: ' + options.name
   return ret
@@ -129,11 +138,6 @@ function endpoint_fixed_device_id_array(options) {
 }
 
 function endpoint_fixed_device_version_array(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
-}
-
-function endpoint_fixed_profile_id_array(options) {
   var ret = '// TODO: ' + options.name
   return ret
 }
