@@ -35,7 +35,7 @@ const restApi = require('../src-shared/rest-api.js')
 const testUtil = require('./test-util.js')
 
 var db
-const { port, baseUrl } = testUtil.testServer()
+const { port, baseUrl } = testUtil.testServer(__filename)
 var packageId
 var sessionId, secondSessionId
 var sessionCookie = null

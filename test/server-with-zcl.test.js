@@ -31,7 +31,7 @@ var db
 var axiosInstance = null
 
 beforeAll(() => {
-  const { port, baseUrl } = testUtil.testServer()
+  const { port, baseUrl } = testUtil.testServer(__filename)
   env.setDevelopmentEnv()
   var file = env.sqliteTestFile('server-zcl')
   axiosInstance = axios.create({ baseURL: baseUrl })

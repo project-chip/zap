@@ -32,7 +32,7 @@ const generationEngine = require('../src-electron/generator/generation-engine.js
 const testUtil = require('./test-util.js')
 
 var db
-const { port, baseUrl } = testUtil.testServer()
+const { port, baseUrl } = testUtil.testServer(__filename)
 const timeout = 5000
 
 beforeAll(() => {

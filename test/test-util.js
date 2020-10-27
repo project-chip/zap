@@ -16,9 +16,17 @@
  *
  */
 
-var testPort = 9073
-
-function testServer() {
+function testServer(fileName) {
+  var testPort
+  if (fileName.includes('server-bare.test')) {
+    testPort = 9073
+  } else if (fileName.includes('server-with-zcl.test')) {
+    testPort = 9074
+  } else if (fileName.includes('generation.test')) {
+    testPort = 9075
+  } else {
+    throw `You must manually assign a port for the given test file: ${fileName}`
+  }
   var ret = {
     port: testPort,
     baseUrl: `http://localhost:${testPort++}`,
