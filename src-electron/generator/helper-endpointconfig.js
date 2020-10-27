@@ -32,6 +32,10 @@ function endpoint_type_count(options) {
   return ret
 }
 
+function endpoint_count(options) {
+  return this.endpoints.length
+}
+
 function endpoint_attribute_long_storage(options) {
   var littleEndian = true
   if (options.hash.endian == 'big') {
@@ -167,13 +171,20 @@ function endpoint_config(options) {
     global: this.global,
     parent: this,
   }
+  var db = this.global.db
+  var sessionId = this.global.sessionId
   var promise = queryConfig
-    .getAllSessionAttributes(this.global.db, this.global.sessionId)
+    .getAllEndpoints(db, sessionId)
+    .then((endpoints) => {
+      newContext.endpoints = endpoints
+    })
+    .then(() =>
+      queryConfig.getAllSessionAttributes(this.global.db, this.global.sessionId)
+    )
     .then((atts) => {
       newContext.attributes = atts // TODO: Put attributes into the context
-      return newContext
     })
-    .then((context) => options.fn(context))
+    .then(() => options.fn(newContext))
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -203,3 +214,4 @@ exports.endpoint_commands = endpoint_commands
 exports.endpoint_command_count = endpoint_command_count
 exports.endpoint_reporting_config_defaults = endpoint_reporting_config_defaults
 exports.endpoint_reporting_config_default_count = endpoint_reporting_config_default_count
+exports.endpoint_count = endpoint_count

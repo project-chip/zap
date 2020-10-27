@@ -5,8 +5,6 @@
 
 {{#endpoint_config}}
 
-#define FIXED_ENPOINT_COUNT ({{endpoint_type_count}})
-
 
 // Default values for the attributes longer than a pointer,
 // in a form of a binary blob
@@ -64,6 +62,9 @@
 // Total size of attribute storage
 #define ATTRIBUTE_MAX_SIZE ({{endpoint_total_storage_size}})
 
+// Number of fixed endpoints
+#define FIXED_ENPOINT_COUNT ({{endpoint_count}})
+
 // Array of endpoints that are supported
 #define FIXED_ENDPOINT_ARRAY { {{endpoint_fixed_endpoint_array}} }
 
@@ -84,7 +85,7 @@
 
 
 // Array of EmberAfCommandMetadata structs.
-#define GENERATED_COMMANDS { \ 
+#define GENERATED_COMMANDS { \
 {{endpoint_commands}}
 }
 
