@@ -29,12 +29,10 @@ function open(zap_file) {
 }
 
 function save(sessionId) {
-  if (sessionId) {
-    axios
-      .get(`${restApi.ide.save}?sessionId=${sessionId}`)
-      .then((res) => window.saveCallback(res))
-      .then((err) => window.saveCallback(err))
-  }
+  axios
+    .get(`${restApi.ide.save}`)
+    .then((res) => window.saveCallback(res))
+    .then((err) => window.saveCallback(err))
 }
 
 exports.open = open

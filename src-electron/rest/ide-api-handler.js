@@ -75,32 +75,25 @@ function httpGetIdeOpen(db) {
  */
 function httpGetIdeSave(db) {
   return (req, res) => {
-    if (req.query.sessionId) {
-      let sessionId = req.query.sessionId
-      env.logInfo(`Studio: Saving project: sessionId: ${sessionId}`)
-      queryConfig
-        .getSessionKeyValue(db, sessionId, 'filePath')
-        .then((filePath) => {
-          if (filePath) {
-            let name = path.posix.basename(filePath)
-            env.logInfo(`Studio: Saving project(${name})`)
-            return exportJs.exportDataIntoFile(db, sessionId, filePath)
-          } else {
-            env.logWarning(
-              `Studio: Unable to save project due to invalid file path`
-            )
-            return ''
-          }
-        })
-        .then((filepath) => {
-          res.send({ filePath: filepath })
-        })
-    } else {
-      env.logWarning(`Studio: Saving project: Invalid sessionId ${sessionId}`)
-      res.status(http.StatusCodes.BAD_REQUEST).send({
-        error: 'Saving project: Missing "sessionId" query string',
+    env.logInfo(`Saving project: sessionId(${req.session.zapSessionId})`)
+    queryConfig
+      .getSessionKeyValue(db, req.session.zapSessionId, 'filePath')
+      .then((filePath) =>
+        exportJs.exportDataIntoFile(db, req.session.zapSessionId, filePath)
+      )
+      .then((filePath) => {
+        let projectName = path.posix.basename(filePath)
+        env.logInfo(`Saving project: project(${projectName})`)
+        res.status(http.StatusCodes.OK).send({ filePath: filePath })
       })
-    }
+      .catch((err) => {
+        let msg = `Unable to save project with sessionId(${req.session.zapSessionId})`
+        env.logError(msg)
+        env.logError(err)
+        res.status(http.StatusCodes.BAD_REQUEST).send({
+          error: msg,
+        })
+      })
   }
 }
 
