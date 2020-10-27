@@ -136,6 +136,7 @@ function initializeGlobalHelpers() {
     './helper-zap.js',
     './helper-c.js',
     './helper-session.js',
+    './helper-endpointconfig.js',
   ]
 
   includedHelpers.forEach((element) => {

@@ -194,29 +194,25 @@ function formatValue(value, length, type) {
       out = out.concat(",'").concat(ch).concat("'")
     }
   } else {
-    if (type.startsWith('int')) {
-      var val = 0
-      if (value.startsWith('0x') || value.startsWith('0X')) {
-        val = parseInt(value.slice(2), 16)
-      } else {
-        val = parseInt(value)
-      }
-      if (Number.isNaN(val)) {
-        val = 0
-      }
-      switch (length) {
-        case 1:
-          out = out.concat(bin.hexToCBytes(bin.int8ToHex(val)))
-          break
-        case 2:
-          out = out.concat(bin.hexToCBytes(bin.int16ToHex(val)))
-          break
-        case 4:
-          out = out.concat(bin.hexToCBytes(bin.int32ToHex(val)))
-          break
-      }
+    var val = 0
+    if (value.startsWith('0x') || value.startsWith('0X')) {
+      val = parseInt(value.slice(2), 16)
     } else {
-      out = out.concat(value)
+      val = parseInt(value)
+    }
+    if (Number.isNaN(val)) {
+      val = 0
+    }
+    switch (length) {
+      case 1:
+        out = out.concat(bin.hexToCBytes(bin.int8ToHex(val)))
+        break
+      case 2:
+        out = out.concat(bin.hexToCBytes(bin.int16ToHex(val)))
+        break
+      case 4:
+        out = out.concat(bin.hexToCBytes(bin.int32ToHex(val)))
+        break
     }
   }
   return out
@@ -237,8 +233,12 @@ function asBytes(value, type) {
         queryZcl.getAtomicSizeFromType(this.global.db, packageId, type)
       )
       .then((x) => {
-        if (x == -1) {
-          return value
+        if (x == null) {
+          if (value == null) {
+            return '0x00'
+          } else {
+            return bin.hexToCBytes(bin.stringToHex(value))
+          }
         } else {
           return formatValue(value, x, type)
         }
