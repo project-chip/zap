@@ -42,20 +42,22 @@ function httpGetIdeOpen(db) {
       let zapFile = req.query.project
 
       env.logInfo(`Studio: Opening/Loading project(${name})`)
+
       importJs
-        .importDataFromFile(db, zapFile)
+        .importDataFromFile(db, zapFile, req.session.zapSessionId)
         .then((sessionId) => {
+          let response = { sessionId: sessionId, sessionKey: req.session.id }
           env.logInfo(
-            `Studio: Loaded project(${name}), sessionId(${sessionId})`
+            `Studio: Loaded project(${name}), ${JSON.stringify(response)}`
           )
-          res.send({ sessionId: sessionId })
-          return sessionId
-        })
-        .then((sessionId) =>
           queryConfig.updateKeyValue(db, sessionId, 'filePath', zapFile)
-        )
+          res.send(response)
+        })
         .catch(function (err) {
-          env.logError(`Studio: Failed to load project(${zapFile})`)
+          let msg = `Studio: Failed to load project(${zapFile})`
+          env.logError(msg)
+          res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
+          env.logError(err)
         })
     } else {
       let msg = 'Opening/Loading project: Missing "project" query string'
