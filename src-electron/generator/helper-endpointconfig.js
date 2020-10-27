@@ -28,8 +28,7 @@ function endpoint_attribute_min_max_storage(options) {
 }
 
 function endpoint_type_count(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
+  return this.endpointTypes.length
 }
 
 function endpoint_count(options) {
@@ -111,8 +110,12 @@ function endpoint_total_storage_size(options) {
 }
 
 function endpoint_fixed_endpoint_array(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
+  // Creates array of endpointId fields on endpoints
+  var epIds = []
+  this.endpoints.forEach((ep) => {
+    epIds.push(ep.endpointId)
+  })
+  return '{ ' + epIds.join(', ') + ' }'
 }
 
 function endpoint_fixed_endpoint_type_array(options) {
@@ -177,6 +180,10 @@ function endpoint_config(options) {
     .getAllEndpoints(db, sessionId)
     .then((endpoints) => {
       newContext.endpoints = endpoints
+    })
+    .then(() => queryConfig.getAllEndpointTypes(db, sessionId))
+    .then((endpointTypes) => {
+      newContext.endpointTypes = endpointTypes
     })
     .then(() =>
       queryConfig.getAllSessionAttributes(this.global.db, this.global.sessionId)

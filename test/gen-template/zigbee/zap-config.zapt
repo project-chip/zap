@@ -65,8 +65,9 @@
 // Number of fixed endpoints
 #define FIXED_ENPOINT_COUNT ({{endpoint_count}})
 
-// Array of endpoints that are supported
-#define FIXED_ENDPOINT_ARRAY { {{endpoint_fixed_endpoint_array}} }
+// Array of endpoints that are supported, the data inside
+// the array is the endpoint number.
+#define FIXED_ENDPOINT_ARRAY {{endpoint_fixed_endpoint_array}}
 
 // Array of profile ids
 #define FIXED_PROFILE_IDS { {{endpoint_fixed_profile_id_array}} }
