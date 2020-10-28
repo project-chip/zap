@@ -90,6 +90,10 @@ test(
             '#define FIXED_ENDPOINT_ARRAY { 0x0029, 0x002A, 0x002B }'
           )
         ).toBeTruthy()
+        expect(epc.includes('#define FIXED_NETWORKS { 1, 1, 2 }')).toBeTruthy()
+        expect(
+          epc.includes('#define FIXED_PROFILE_IDS { 0x0107, 0x0104, 0x0104 }')
+        ).toBeTruthy()
       }),
   genTimeout
 )

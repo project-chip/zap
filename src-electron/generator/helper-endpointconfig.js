@@ -19,16 +19,31 @@ const templateUtil = require('./template-util')
 const queryConfig = require('../db/query-config.js')
 const bin = require('../util/bin')
 
+/**
+ * Returns number of endpoint types.
+ *
+ * @param {*} options
+ * @returns number of endpoint types
+ */
 function endpoint_type_count(options) {
   return this.endpointTypes.length
 }
-
+/**
+ * Returns number of endpoints.
+ *
+ * @param {*} options
+ * @returns number of endpoints
+ */
 function endpoint_count(options) {
   return this.endpoints.length
 }
-
+/**
+ * Creates array of endpointId fields on endpoints
+ *
+ * @param {*} options
+ * @returns C array including the { } brackets
+ */
 function endpoint_fixed_endpoint_array(options) {
-  // Creates array of endpointId fields on endpoints
   var epIds = []
   this.endpoints.forEach((ep) => {
     epIds.push('0x' + bin.int16ToHex(ep.endpointId))
@@ -36,14 +51,35 @@ function endpoint_fixed_endpoint_array(options) {
   return '{ ' + epIds.join(', ') + ' }'
 }
 
+/**
+ * Creates array of profileId fields on endpoints
+ *
+ * @param {*} options
+ * @returns C array including the { } brackets
+ */
 function endpoint_fixed_profile_id_array(options) {
-  // Creates array of endpointId fields on endpoints
   var profileIds = []
   this.endpoints.forEach((ep) => {
     profileIds.push('0x' + bin.int16ToHex(parseInt(ep.profileId)))
   })
   return '{ ' + profileIds.join(', ') + ' }'
 }
+
+/**
+ * Creates array of networkId fields on endpoints
+ *
+ * @param {*} options
+ * @returns C array including the { } brackets
+ */
+function endpoint_fixed_network_array(options) {
+  var networkIds = []
+  this.endpoints.forEach((ep) => {
+    networkIds.push(ep.networkId)
+  })
+  return '{ ' + networkIds.join(', ') + ' }'
+}
+
+////////////////////////////////////////////////////////////////
 
 function endpoint_attribute_min_max_storage(options) {
   var ret = '// TODO: ' + options.name + '\n'
@@ -138,11 +174,6 @@ function endpoint_fixed_device_id_array(options) {
 }
 
 function endpoint_fixed_device_version_array(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
-}
-
-function endpoint_fixed_network_array(options) {
   var ret = '// TODO: ' + options.name
   return ret
 }
