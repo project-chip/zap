@@ -20,7 +20,11 @@ limitations under the License.
       <div class="row">
         <q-toolbar>
           <q-toolbar-title style="font-weight: bolder">
-            Endpoint x{{ this.endpointId[this.selectedEndpointId] }}
+            Endpoint 0x{{
+              this.endpointId[this.selectedEndpointId]
+                .toString()
+                .padStart(4, '0')
+            }}
             Clusters
           </q-toolbar-title>
         </q-toolbar>

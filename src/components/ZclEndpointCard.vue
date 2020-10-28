@@ -16,11 +16,10 @@ limitations under the License.
 
 <template>
   <div>
-    <q-card :bordered="isSelectedEndpoint">
+    <q-card :bordered="isSelectedEndpoint" @click="setSelectedEndpointType()">
       <div class="vertical-align:middle q-pa-md">
         <strong
-          >Endpoint - &nbsp;
-          {{ getFormattedEndpointId(endpointReference) }}</strong
+          >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
         >
       </div>
       <q-list dense bordered>
@@ -198,6 +197,6 @@ export default {
 
 <style scoped lang="sass">
 .q-card
-  border-width: 8px
+  border-width: 1px
   border-color: $primary
 </style>

@@ -32,6 +32,23 @@ export default {
         return this.$store.state.zap.endpointView.selectedEndpoint
       },
     },
+    endpointIdSorted: {
+      get() {
+        // return sorted endpoint (by endpoint id value, in ascending order) for display
+        // parseInt is used as endpoint id value can be int or strings
+        // NOTE: a Map is returned to maintain the order of the keys.
+        //       coversion to an Object will reshuffle the entries.
+        const endpointIds = new Map(
+          Object.entries(this.$store.state.zap.endpointView.endpointId)
+        )
+
+        return new Map(
+          [...endpointIds.entries()].sort((a, b) => {
+            return parseInt(a[1], 16) - parseInt(b[1], 16)
+          })
+        )
+      },
+    },
     endpointId: {
       get() {
         return this.$store.state.zap.endpointView.endpointId
