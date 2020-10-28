@@ -40,7 +40,7 @@ function endpoint_fixed_profile_id_array(options) {
   // Creates array of endpointId fields on endpoints
   var profileIds = []
   this.endpoints.forEach((ep) => {
-    profileIds.push('0x' + bin.int16ToHex(ep.profileId))
+    profileIds.push('0x' + bin.int16ToHex(parseInt(ep.profileId)))
   })
   return '{ ' + profileIds.join(', ') + ' }'
 }
