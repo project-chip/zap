@@ -72,7 +72,7 @@ test(
 )
 
 test(
-  'Test file import and generation',
+  'Test file import and endpoint config generation',
   () =>
     importJs
       .importDataFromFile(db, testFile)

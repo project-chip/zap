@@ -137,6 +137,13 @@ function endpoint_cluster_list(options) {
 
 function endpoint_types_list(options) {
   var ret = '// TODO: ' + options.name + '\n'
+  this.endpointTypes.forEach((ep) => {
+    ep.clusters.forEach((c) => {
+      ret = ret.concat(
+        `// EP ${ep.id}, cluster ${c.clusterRef}. enabled ${c.enabled} \n`
+      )
+    })
+  })
   return ret
 }
 
@@ -246,7 +253,27 @@ function endpoint_config(options) {
       return Promise.all(endpointTypePromises)
     })
     .then((endpointTypes) => {
+      var promises = []
       newContext.endpointTypes = endpointTypes
+      endpointTypes.forEach((ept) => {
+        var id = ept.id
+        promises.push(
+          queryConfig.getEndpointTypeAttributes(db, id).then((attributes) => {
+            ept.attributes = attributes
+          })
+        )
+        promises.push(
+          queryConfig.getEndpointTypeClusters(db, id).then((clusters) => {
+            ept.clusters = clusters
+          })
+        )
+        promises.push(
+          queryConfig.getEndpointTypeCommands(db, id).then((commands) => {
+            ept.commands = commands
+          })
+        )
+      })
+      return Promise.all(promises)
     })
     .then(() =>
       queryConfig.getAllSessionAttributes(this.global.db, this.global.sessionId)
