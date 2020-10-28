@@ -20,12 +20,8 @@ limitations under the License.
       <div class="row">
         <q-toolbar>
           <q-toolbar-title style="font-weight: bolder">
-            Endpoint 0x{{
-              this.endpointId[this.selectedEndpointId]
-                .toString()
-                .padStart(4, '0')
-            }}
-            Clusters
+            Endpoint
+            {{ asHex(this.endpointId[this.selectedEndpointId], 4) }} Clusters
           </q-toolbar-title>
         </q-toolbar>
       </div>

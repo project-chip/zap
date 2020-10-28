@@ -133,11 +133,7 @@ export default {
   },
   methods: {
     getFormattedEndpointId(endpointRef) {
-      if (endpointRef in this.endpointId) {
-        return '0x' + this.endpointId[endpointRef].toString(16).padStart(4, '0')
-      } else {
-        return ''
-      }
+      return this.asHex(this.endpointId[endpointRef], 4)
     },
     deleteEpt() {
       let endpointReference = this.endpointReference
