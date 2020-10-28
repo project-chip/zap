@@ -94,6 +94,9 @@ test(
         expect(
           epc.includes('#define FIXED_PROFILE_IDS { 0x0107, 0x0104, 0x0104 }')
         ).toBeTruthy()
+        expect(
+          epc.includes('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
+        ).toBeTruthy()
       }),
   genTimeout
 )

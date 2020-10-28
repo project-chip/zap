@@ -948,6 +948,24 @@ function getAllEndpointTypes(db, sessionId) {
 }
 
 /**
+ * Extracts endpoint type row.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns promise that resolves into rows in the database table.
+ */
+function getEndpointType(db, endpointTypeId) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT ENDPOINT_TYPE_ID, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?',
+      [endpointTypeId]
+    )
+    .then(dbMapping.map.endpointType)
+}
+
+/**
  * Extracts clusters from the endpoint_type_cluster table.
  *
  * @export
@@ -1193,3 +1211,4 @@ exports.getCountOfEndpointsWithGivenEndpointIdentifier = getCountOfEndpointsWith
 exports.getEndpointTypeCount = getEndpointTypeCount
 exports.getAllSessionAttributes = getAllSessionAttributes
 exports.insertClusterDefaults = insertClusterDefaults
+exports.getEndpointType = getEndpointType

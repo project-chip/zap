@@ -79,6 +79,28 @@ function endpoint_fixed_network_array(options) {
   return '{ ' + networkIds.join(', ') + ' }'
 }
 
+/**
+ * Each element of an array contains an index into the
+ * endpoint type array, for the appropriate endpoint.
+ *
+ * @param {*} options
+ * @returns C array of indexes, one for each endpoint.
+ */
+function endpoint_fixed_endpoint_type_array(options) {
+  var indexes = []
+  for (var i = 0; i < this.endpoints.length; i++) {
+    var epType = this.endpoints[i].endpointTypeRef
+    var index = -1
+    for (var j = 0; j < this.endpointTypes.length; j++) {
+      if (epType == this.endpointTypes[j].id) {
+        index = j
+      }
+    }
+    indexes.push(index)
+  }
+  return '{ ' + indexes.join(', ') + ' }'
+}
+
 ////////////////////////////////////////////////////////////////
 
 function endpoint_attribute_min_max_storage(options) {
@@ -163,11 +185,6 @@ function endpoint_total_storage_size(options) {
   return ret
 }
 
-function endpoint_fixed_endpoint_type_array(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
-}
-
 function endpoint_fixed_device_id_array(options) {
   var ret = '// TODO: ' + options.name
   return ret
@@ -215,8 +232,19 @@ function endpoint_config(options) {
     .getAllEndpoints(db, sessionId)
     .then((endpoints) => {
       newContext.endpoints = endpoints
+      var endpointTypeIds = []
+      endpoints.forEach((ep) => {
+        endpointTypeIds.push(ep.endpointTypeRef)
+      })
+      return endpointTypeIds
     })
-    .then(() => queryConfig.getAllEndpointTypes(db, sessionId))
+    .then((endpointTypeIds) => {
+      var endpointTypePromises = []
+      endpointTypeIds.forEach((eptId) => {
+        endpointTypePromises.push(queryConfig.getEndpointType(db, eptId))
+      })
+      return Promise.all(endpointTypePromises)
+    })
     .then((endpointTypes) => {
       newContext.endpointTypes = endpointTypes
     })
