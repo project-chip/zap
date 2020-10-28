@@ -27,6 +27,11 @@ export default {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
       },
     },
+    endpointDeviceTypeRef: {
+      get() {
+        return this.$store.state.zap.endpointTypeView.deviceTypeRef
+      },
+    },
     selectedEndpointId: {
       get() {
         return this.$store.state.zap.endpointView.selectedEndpoint
@@ -90,6 +95,16 @@ export default {
   methods: {
     asHex(value, padding) {
       return Util.asHex(value, padding)
+    },
+    setSelectedEndpointType(endpointReference) {
+      this.$store.dispatch('zap/updateSelectedEndpointType', {
+        endpointType: this.endpointType[endpointReference],
+        deviceTypeRef: this.endpointDeviceTypeRef[
+          this.endpointType[endpointReference]
+        ],
+      })
+      this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
+      this.$store.dispatch('zap/resetFilters')
     },
   },
 }

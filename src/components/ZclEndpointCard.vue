@@ -16,7 +16,10 @@ limitations under the License.
 
 <template>
   <div>
-    <q-card :bordered="isSelectedEndpoint" @click="setSelectedEndpointType()">
+    <q-card
+      :bordered="isSelectedEndpoint"
+      @click="setSelectedEndpointType(endpointReference)"
+    >
       <div class="vertical-align:middle q-pa-md">
         <strong
           >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
@@ -98,7 +101,7 @@ limitations under the License.
             color="primary"
             icon="settings"
             size="sm"
-            @click="setSelectedEndpointType()"
+            @click="setSelectedEndpointType(endpointReference)"
           />
         </div>
       </q-card-actions>
@@ -144,16 +147,6 @@ export default {
           this.endpointType[endpointReference]
         )
       })
-    },
-    setSelectedEndpointType() {
-      this.$store.dispatch('zap/updateSelectedEndpointType', {
-        endpointType: this.endpointType[this.endpointReference],
-        deviceTypeRef: this.endpointDeviceTypeRef[
-          this.endpointType[this.endpointReference]
-        ],
-      })
-      this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
-      this.$store.dispatch('zap/resetFilters')
     },
   },
   computed: {
