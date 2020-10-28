@@ -89,7 +89,7 @@ function endpoint_attribute_min_max_storage(options) {
   return ret
 }
 
-function endpoint_attribute_long_storage(options) {
+function endpoint_attribute_long_defaults(options) {
   var littleEndian = true
   if (options.hash.endian == 'big') {
     littleEndian = false
@@ -230,7 +230,7 @@ function endpoint_config(options) {
   return templateUtil.templatePromise(this.global, promise)
 }
 
-exports.endpoint_attribute_long_storage = endpoint_attribute_long_storage
+exports.endpoint_attribute_long_defaults = endpoint_attribute_long_defaults
 exports.endpoint_config = endpoint_config
 exports.endpoint_attribute_min_max_storage = endpoint_attribute_min_max_storage
 exports.endpoint_attribute_list = endpoint_attribute_list

@@ -11,11 +11,11 @@
 // Separate block is generated for big-endian and little-endian cases.
 #if BIGENDIAN_CPU
 #define GENERATED_DEFAULTS { \
-{{endpoint_attribute_long_storage endian="big"}}
+{{endpoint_attribute_long_defaults endian="big"}}
 }
 #else // !BIGENDIAN_CPU
 #define GENERATED_DEFAULTS { \
-{{endpoint_attribute_long_storage endian="little"}}
+{{endpoint_attribute_long_defaults endian="little"}}
 }
 #endif // BIGENDIAN_CPU
 
