@@ -20,6 +20,7 @@ const queryPackage = require('../db/query-package.js')
 const templateUtil = require('./template-util.js')
 const bin = require('../util/bin.js')
 const env = require('../util/env.js')
+const types = require('../util/types.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -229,9 +230,7 @@ function asBytes(value, type) {
   } else {
     return templateUtil
       .ensureZclPackageId(this)
-      .then((packageId) =>
-        queryZcl.getAtomicSizeFromType(this.global.db, packageId, type)
-      )
+      .then((packageId) => types.typeSize(this.global.db, packageId, type))
       .then((x) => {
         if (x == null) {
           if (value == null) {

@@ -18,7 +18,8 @@
 const templateUtil = require('./template-util')
 const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
-const bin = require('../util/bin')
+const bin = require('../util/bin.js')
+const types = require('../util/types.js')
 
 /**
  * Returns number of endpoint types.
@@ -129,7 +130,9 @@ function endpoint_attribute_long_defaults(options) {
 function endpoint_attribute_list(options) {
   var ret = '{ \\ \n'
   this.attributeList.forEach((at) => {
-    ret = ret.concat(`  { ${at} } \\\n`)
+    ret = ret.concat(
+      `  { ${at.id}, ${at.type}, ${at.size}, ${at.mask}, ${at.defaultValue} } \\\n`
+    )
   })
   ret = ret.concat('}\n')
   return ret
@@ -238,16 +241,36 @@ function endpoint_reporting_config_default_count(options) {
  */
 function collectAttributes(endpointTypes) {
   var attributeList = []
+  var longDefaults = []
+  var longDefaultsIndex = 0
   endpointTypes.forEach((ept) => {
     ept.attributes.forEach((a) => {
-      if (a.isIncluded) attributeList.push(a.attributeId)
+      if (a.attribute == null) return
+      var defaultValue = 0
+      if (a.typeSize > 2) {
+        // We will need to generate the GENERATED_DEFAULTS
+        defaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
+        longDefaults.push(a)
+        longDefaultsIndex += a.typeSize
+      }
+      attributeList.push({
+        id: a.attribute.code, // attribute code
+        type: `ZAP_TYPE(${a.attribute.type.toUpperCase()})`, // type
+        size: a.typeSize, // size
+        mask: [], // array of special properties
+        defaultValue: defaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
+      })
     })
   })
-  return Promise.resolve(attributeList)
+  return Promise.resolve({
+    attributeList: attributeList,
+    longDefaults: longDefaults,
+  })
 }
 
 /**
- * Starts the endpoint configuration block.
+ * Starts the endpoint configuration block.,
+ * longDefaults: longDefaults
  *
  * @param {*} options
  * @returns a promise of a rendered block
@@ -259,8 +282,9 @@ function endpoint_config(options) {
   }
   var db = this.global.db
   var sessionId = this.global.sessionId
-  var promise = queryConfig
-    .getAllEndpoints(db, sessionId)
+  var promise = templateUtil
+    .ensureZclPackageId(newContext)
+    .then(() => queryConfig.getAllEndpoints(db, sessionId))
     .then((endpoints) => {
       newContext.endpoints = endpoints
       var endpointTypeIds = []
@@ -288,11 +312,23 @@ function endpoint_config(options) {
             .then((attributes) => {
               var ps = []
               attributes.forEach((at) => {
-                ps.push(
-                  queryZcl
-                    .selectAttributeById(db, at.attributeId)
-                    .then((a) => (at.attribute = a))
-                )
+                if (at.isIncluded) {
+                  ps.push(
+                    queryZcl
+                      .selectAttributeById(db, at.attributeId)
+                      .then((a) => (at.attribute = a))
+                      .then((a) => {
+                        if (a)
+                          return types.typeSize(
+                            db,
+                            newContext.global.zclPackageId,
+                            a.type
+                          )
+                        else return null
+                      })
+                      .then((size) => (at.typeSize = size))
+                  )
+                }
               })
               return Promise.all(ps)
             })
@@ -311,8 +347,9 @@ function endpoint_config(options) {
       return Promise.all(promises).then(() => endpointTypes)
     })
     .then((endpointTypes) => collectAttributes(endpointTypes))
-    .then((attributeList) => {
-      newContext.attributeList = attributeList
+    .then((collection) => {
+      newContext.attributeList = collection.attributeList
+      newContext.longDefaults = collection.longDefaults
     })
     .then(() =>
       queryConfig.getAllSessionAttributes(this.global.db, this.global.sessionId)

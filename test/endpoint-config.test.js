@@ -33,7 +33,7 @@ const genTimeout = 3000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 
 beforeAll(() => {
-  var file = env.sqliteTestFile('genengine')
+  var file = env.sqliteTestFile('endpointconfig')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {

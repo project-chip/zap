@@ -1593,7 +1593,7 @@ function getAtomicSizeFromType(db, packageId, type) {
       [packageId, type]
     )
     .then((row) => {
-      if (row == null) return -1
+      if (row == null) return null
       else return row.ATOMIC_SIZE
     })
 }

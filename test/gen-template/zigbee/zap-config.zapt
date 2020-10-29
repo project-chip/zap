@@ -24,8 +24,13 @@
 {{endpoint_attribute_min_max_storage}}
 }
 
+#define ZAP_TYPE(type) ZCL_##type##_ATTRIBUTE_TYPE
+#define ZAP_LONG_DEFAULTS_INDEX(index) (&generatedDefaults[index])
+
 // This is an array of EmberAfAttributeMetadata structures.
-#define GENERATED_ATTRIBUTES {{endpoint_attribute_list}}
+#define GENERATED_ATTRIBUTES {{ endpoint_attribute_list }}
+
+#undef ZAP_TYPE
 
 // This is an array of EmberAfCluster structures.
 #define GENERATED_CLUSTERS {{endpoint_cluster_list}}
