@@ -170,7 +170,7 @@ function checkBoundsFloat(defaultValue, min, max) {
 
 // This function checks to see if
 function isStringType(type) {
-  switch (type) {
+  switch (type.toUpperCase()) {
     case 'CHAR_STRING':
     case 'OCTET_STRING':
     case 'LONG_CHAR_STRING':
