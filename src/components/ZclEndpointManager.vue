@@ -66,13 +66,6 @@ export default {
   name: 'ZclEndpointManager',
   components: { ZclEndpointCard, ZclCreateModifyEndpoint },
   mixins: [CommonMixin],
-  mounted() {
-    this.$nextTick(function () {
-      if (this.endpointIdSorted.size) {
-        this.setSelectedEndpointType(this.endpointIdSorted.keys().next().value)
-      }
-    })
-  },
   computed: {
     leftDrawerOpen: {
       get() {
@@ -92,6 +85,12 @@ export default {
     },
     endpoints: {
       get() {
+        // initialize ZclClusterManager with first endpoint info.
+        if (this.endpointIdSorted.size) {
+          this.setSelectedEndpointType(
+            this.endpointIdSorted.keys().next().value
+          )
+        }
         return Array.from(this.endpointIdSorted.keys()).map((id) => ({
           id: id,
         }))
