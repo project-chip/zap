@@ -1698,6 +1698,7 @@ function exportCommandDetailsFromAllEndpointTypesAndClusters(
       description: x.DESCRIPTION,
       clusterSide: x.SIDE,
       clusterName: x.CLUSTER_NAME,
+      isClusterEnabled: x.ENABLED,
     }
   }
   return dbApi
@@ -1714,7 +1715,8 @@ function exportCommandDetailsFromAllEndpointTypesAndClusters(
     ENDPOINT_TYPE_COMMAND.OUTGOING,
     COMMAND.DESCRIPTION,
     ENDPOINT_TYPE_CLUSTER.SIDE,
-    CLUSTER.NAME AS CLUSTER_NAME
+    CLUSTER.NAME AS CLUSTER_NAME,
+    ENDPOINT_TYPE_CLUSTER.ENABLED
   FROM COMMAND
   INNER JOIN ENDPOINT_TYPE_COMMAND
   ON COMMAND.COMMAND_ID = ENDPOINT_TYPE_COMMAND.COMMAND_REF

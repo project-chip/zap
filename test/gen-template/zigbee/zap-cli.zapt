@@ -26,6 +26,7 @@ extern "C" {
 
 // Provide function declarations
   {{#all_user_cluster_commands}}
+    {{#if this.isClusterEnabled}}
       {{#if (template_option_with_code "cli" this.name)}}
         {{#template_options category="cli"}}
           {{#if (isEqual this.optionCode ../name)}}
@@ -33,6 +34,7 @@ void {{asCamelCased this.optionLabel}}Command(sl_cli_command_arg_t *arguments);
           {{/if}}
         {{/template_options}}
       {{/if}}
+    {{/if}}
   {{/all_user_cluster_commands}}
 
 
