@@ -17,6 +17,7 @@
 
 const templateUtil = require('./template-util')
 const queryConfig = require('../db/query-config.js')
+const queryZcl = require('../db/query-zcl.js')
 const bin = require('../util/bin')
 
 /**
@@ -126,7 +127,7 @@ function endpoint_attribute_long_defaults(options) {
 }
 
 function endpoint_attribute_list(options) {
-  var ret = '{ \\\n'
+  var ret = '{ \\ \n'
   this.attributeList.forEach((at) => {
     ret = ret.concat(`  { ${at} } \\\n`)
   })
@@ -281,9 +282,20 @@ function endpoint_config(options) {
       endpointTypes.forEach((ept) => {
         var id = ept.id
         promises.push(
-          queryConfig.getEndpointTypeAttributes(db, id).then((attributes) => {
-            ept.attributes = attributes
-          })
+          queryConfig
+            .getEndpointTypeAttributes(db, id)
+            .then((attributes) => (ept.attributes = attributes))
+            .then((attributes) => {
+              var ps = []
+              attributes.forEach((at) => {
+                ps.push(
+                  queryZcl
+                    .selectAttributeById(db, at.attributeId)
+                    .then((a) => (at.attribute = a))
+                )
+              })
+              return Promise.all(ps)
+            })
         )
         promises.push(
           queryConfig.getEndpointTypeClusters(db, id).then((clusters) => {

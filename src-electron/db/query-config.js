@@ -1081,7 +1081,7 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ENDPOINT_TYPE_ATTRIBUTE.E
           isIncluded: row.INCLUDED,
           storageOption: row.STORAGE_OPTION,
           isSingleton: row.SINGLETON,
-          isBounder: row.BOUNDED,
+          isBounded: row.BOUNDED,
           defaultValue: row.DEFAULT_VALUE,
         }
       })

@@ -1191,6 +1191,8 @@ function insertClusters(db, packageId, data) {
               attribute.define,
               attribute.min,
               attribute.max,
+              attribute.minLength,
+              attribute.maxLength,
               attribute.isWritable,
               attribute.defaultValue,
               attribute.isOptional,
@@ -1230,7 +1232,7 @@ function insertClusters(db, packageId, data) {
         })
       var pAttribute = dbApi.dbMultiInsert(
         db,
-        'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         attributesToLoad
       )
       return Promise.all([pCommand, pAttribute])
