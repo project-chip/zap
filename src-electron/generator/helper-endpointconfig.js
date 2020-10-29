@@ -126,12 +126,19 @@ function endpoint_attribute_long_defaults(options) {
 }
 
 function endpoint_attribute_list(options) {
-  var ret = '// TODO: ' + options.name + '\n'
+  var ret = '{ \\\n'
+  this.attributeList.forEach((at) => {
+    ret = ret.concat(`  { ${at} } \\\n`)
+  })
+  ret = ret.concat('}\n')
   return ret
 }
 
 function endpoint_cluster_list(options) {
   var ret = '// TODO: ' + options.name + '\n'
+  this.endpointTypes.forEach((ept) => {
+    ept.clusters.forEach((c) => {})
+  })
   return ret
 }
 
@@ -223,6 +230,22 @@ function endpoint_reporting_config_default_count(options) {
 }
 
 /**
+ * Attribute collection works like this:
+ *    1.) Go over all the clusters that exist.
+ *    2.) If client is included on at least one endpoint add client atts.
+ *    3.) If server is included on at least one endpoint add server atts.
+ */
+function collectAttributes(endpointTypes) {
+  var attributeList = []
+  endpointTypes.forEach((ept) => {
+    ept.attributes.forEach((a) => {
+      if (a.isIncluded) attributeList.push(a.attributeId)
+    })
+  })
+  return Promise.resolve(attributeList)
+}
+
+/**
  * Starts the endpoint configuration block.
  *
  * @param {*} options
@@ -264,7 +287,7 @@ function endpoint_config(options) {
         )
         promises.push(
           queryConfig.getEndpointTypeClusters(db, id).then((clusters) => {
-            ept.clusters = clusters
+            ept.clusters = clusters.filter((c) => c.enabled)
           })
         )
         promises.push(
@@ -273,7 +296,11 @@ function endpoint_config(options) {
           })
         )
       })
-      return Promise.all(promises)
+      return Promise.all(promises).then(() => endpointTypes)
+    })
+    .then((endpointTypes) => collectAttributes(endpointTypes))
+    .then((attributeList) => {
+      newContext.attributeList = attributeList
     })
     .then(() =>
       queryConfig.getAllSessionAttributes(this.global.db, this.global.sessionId)

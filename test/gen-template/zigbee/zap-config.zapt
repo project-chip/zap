@@ -25,14 +25,10 @@
 }
 
 // This is an array of EmberAfAttributeMetadata structures.
-#define GENERATED_ATTRIBUTES { \
-{{endpoint_attribute_list}}
-}
+#define GENERATED_ATTRIBUTES {{endpoint_attribute_list}}
 
 // This is an array of EmberAfCluster structures.
-#define GENERATED_CLUSTERS { \
-{{endpoint_cluster_list}}
-}
+#define GENERATED_CLUSTERS {{endpoint_cluster_list}}
 
 // This is an array of EmberAfEndpointType structures.
 #define GENERATED_ENDPOINT_TYPES { \
