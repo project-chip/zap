@@ -181,6 +181,8 @@ function prepareAttributes(attributes, side, types, cluster = null) {
       define: a.$.name,
       min: normalizeHexValue(a.$.min),
       max: normalizeHexValue(a.$.max),
+      minLength: 0,
+      maxLength: null,
       isWritable: a.$.writable == 'true',
       defaultValue: normalizeHexValue(a.$.default),
       isOptional: !(a.$.required == 'true'),
