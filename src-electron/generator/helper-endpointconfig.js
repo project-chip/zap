@@ -319,7 +319,9 @@ function collectAttributes(endpointTypes) {
         attributeCount: 0,
         mask: 0,
         functions: 'NULL',
-        comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.cluster.name}`,
+        comment: `Endpoint: ${ept.endpointId}, Cluster: ${
+          c.cluster == null ? 'unknown' : c.cluster.name
+        }`,
       }
       clusterList.push(cluster)
       clusterIndex++
