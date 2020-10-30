@@ -319,7 +319,7 @@ function collectAttributes(endpointTypes) {
         attributeCount: 0,
         mask: 0,
         functions: 'NULL',
-        comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.clusterRef}`,
+        comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.cluster.name}`,
       }
       clusterList.push(cluster)
       clusterIndex++
@@ -485,9 +485,22 @@ function endpoint_config(options) {
             .then((commands) => (ept.commands = commands))
         )
         promises.push(
-          queryConfig.getEndpointTypeClusters(db, id).then((clusters) => {
-            ept.clusters = clusters.filter((c) => c.enabled)
-          })
+          queryConfig
+            .getEndpointTypeClusters(db, id)
+            .then(
+              (clusters) => (ept.clusters = clusters.filter((c) => c.enabled))
+            )
+            .then((enabledClusters) => {
+              var ps = []
+              enabledClusters.forEach((cluster) => {
+                ps.push(
+                  queryZcl
+                    .selectClusterById(db, cluster.clusterRef)
+                    .then((c) => (cluster.cluster = c))
+                )
+              })
+              return Promise.all(ps)
+            })
         )
         promises.push(
           queryConfig.getEndpointTypeCommands(db, id).then((commands) => {
