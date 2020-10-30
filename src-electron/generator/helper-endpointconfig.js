@@ -146,6 +146,18 @@ function endpoint_cluster_manufacturer_code_count(options) {
   return this.clusterMfgCodes.length
 }
 
+function endpoint_largest_attribute_size(options) {
+  return this.largestAttribute
+}
+
+function endpoint_singletons_size(options) {
+  return this.singletonsSize
+}
+
+function endpoint_total_storage_size(options) {
+  return this.totalAttributeSize
+}
+
 ////////////////////////////////////////////////////////////////
 
 function endpoint_attribute_min_max_storage(options) {
@@ -200,21 +212,6 @@ function endpoint_types_list(options) {
   return ret
 }
 
-function endpoint_largest_attribute_size(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
-}
-
-function endpoint_singletons_size(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
-}
-
-function endpoint_total_storage_size(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
-}
-
 function endpoint_fixed_device_id_array(options) {
   var ret = '// TODO: ' + options.name
   return ret
@@ -258,6 +255,10 @@ function collectAttributes(endpointTypes) {
   var attributeList = []
   var longDefaults = []
   var longDefaultsIndex = 0
+  var largestAttribute = 0
+  var singletonsSize = 0
+  var totalAttributeSize = 0
+
   endpointTypes.forEach((ept) => {
     ept.attributes.forEach((a) => {
       if (a.attribute == null) return
@@ -268,6 +269,13 @@ function collectAttributes(endpointTypes) {
         longDefaults.push(a)
         longDefaultsIndex += a.typeSize
       }
+      if (a.typeSize > largestAttribute) {
+        largestAttribute = a.typeSize
+      }
+      if (a.isSingleton) {
+        singletonsSize += a.typeSize
+      }
+      totalAttributeSize += a.typeSize
       attributeList.push({
         id: a.attribute.code, // attribute code
         type: `ZAP_TYPE(${a.attribute.type.toUpperCase()})`, // type
@@ -283,6 +291,9 @@ function collectAttributes(endpointTypes) {
     clusterMfgCodes: clusterMfgCodes,
     commandMfgCodes: commandMfgCodes,
     attributeMfgCodes: attributeMfgCodes,
+    largestAttribute: largestAttribute,
+    singletonsSize: singletonsSize,
+    totalAttributeSize: totalAttributeSize,
   })
 }
 
