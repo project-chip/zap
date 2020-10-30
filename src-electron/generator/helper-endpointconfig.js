@@ -103,6 +103,49 @@ function endpoint_fixed_endpoint_type_array(options) {
   return '{ ' + indexes.join(', ') + ' }'
 }
 
+function createMfgCodes(codeIndexPairs) {
+  var ret = '{ \\ \n'
+  if (codeIndexPairs.length == 0) {
+    ret = ret.concat('  { 0x00, 0x00 } \\\n')
+  } else {
+    codeIndexPairs.forEach((c) => {
+      ret = ret.concat(`  { ${c.index}, ${c.mfgCode} }\\\n`)
+    })
+  }
+  return ret.concat('}\n')
+}
+
+/**
+ * Generates array of { index , mfgCode } pairs, matching
+ * the indexes in attribute table.
+ *
+ * @param {*} options
+ * @returns manufacturer code array
+ */
+function endpoint_attribute_manufacturer_codes(options) {
+  return createMfgCodes(this.attributeMfgCodes)
+}
+
+function endpoint_attribute_manufacturer_code_count(options) {
+  return this.attributeMfgCodes.length
+}
+
+function endpoint_command_manufacturer_codes(options) {
+  return createMfgCodes(this.commandMfgCodes)
+}
+
+function endpoint_command_manufacturer_code_count(options) {
+  return this.commandMfgCodes.length
+}
+
+function endpoint_cluster_manufacturer_codes(options) {
+  return createMfgCodes(this.clusterMfgCodes)
+}
+
+function endpoint_cluster_manufacturer_code_count(options) {
+  return this.clusterMfgCodes.length
+}
+
 ////////////////////////////////////////////////////////////////
 
 function endpoint_attribute_min_max_storage(options) {
@@ -134,8 +177,7 @@ function endpoint_attribute_list(options) {
       `  { ${at.id}, ${at.type}, ${at.size}, ${at.mask}, ${at.defaultValue} } \\\n`
     )
   })
-  ret = ret.concat('}\n')
-  return ret
+  return ret.concat('}\n')
 }
 
 function endpoint_cluster_list(options) {
@@ -155,43 +197,6 @@ function endpoint_types_list(options) {
       )
     })
   })
-  return ret
-}
-
-function endpoint_cluster_manufacturer_codes(options) {
-  var ret = '// TODO: ' + options.name + '\n'
-  return ret
-}
-
-function endpoint_cluster_manufacturer_code_count(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
-}
-
-/**
- * Generates array of { index , mfgCode } pairs, matching
- * the indexes in attribute table.
- *
- * @param {*} options
- * @returns manufacturer code array
- */
-function endpoint_attribute_manufacturer_codes(options) {
-  var ret = '// TODO: ' + options.name + '\n'
-  return ret
-}
-
-function endpoint_attribute_manufacturer_code_count(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
-}
-
-function endpoint_command_manufacturer_codes(options) {
-  var ret = '// TODO: ' + options.name + '\n'
-  return ret
-}
-
-function endpoint_command_manufacturer_code_count(options) {
-  var ret = '// TODO: ' + options.name
   return ret
 }
 
