@@ -158,6 +158,10 @@ function endpoint_total_storage_size(options) {
   return this.totalAttributeSize
 }
 
+function endpoint_command_count(options) {
+  return this.commandList.length
+}
+
 function endpoint_types_list(options) {
   var ret = '{ \\ \n'
   this.endpointList.forEach((ep) => {
@@ -173,6 +177,26 @@ function endpoint_cluster_list(options) {
   this.clusterList.forEach((c) => {
     ret = ret.concat(
       `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.mask}, ${c.functions} } /* ${c.comment} */ \\\n`
+    )
+  })
+  return ret.concat('}\n')
+}
+
+function endpoint_command_list(options) {
+  var ret = '{ \\ \n'
+  this.commandList.forEach((cmd) => {
+    ret = ret.concat(
+      `  { ${cmd.clusterId}, ${cmd.commandId}, ${cmd.mask} } \\\n`
+    )
+  })
+  return ret.concat('}\n')
+}
+
+function endpoint_attribute_list(options) {
+  var ret = '{ \\ \n'
+  this.attributeList.forEach((at) => {
+    ret = ret.concat(
+      `  { ${at.id}, ${at.type}, ${at.size}, ${at.mask}, ${at.defaultValue} } \\\n`
     )
   })
   return ret.concat('}\n')
@@ -202,32 +226,12 @@ function endpoint_attribute_long_defaults(options) {
   return ret
 }
 
-function endpoint_attribute_list(options) {
-  var ret = '{ \\ \n'
-  this.attributeList.forEach((at) => {
-    ret = ret.concat(
-      `  { ${at.id}, ${at.type}, ${at.size}, ${at.mask}, ${at.defaultValue} } \\\n`
-    )
-  })
-  return ret.concat('}\n')
-}
-
 function endpoint_fixed_device_id_array(options) {
   var ret = '// TODO: ' + options.name
   return ret
 }
 
 function endpoint_fixed_device_version_array(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
-}
-
-function endpoint_commands(options) {
-  var ret = '// TODO: ' + options.name + '\n'
-  return ret
-}
-
-function endpoint_command_count(options) {
   var ret = '// TODO: ' + options.name
   return ret
 }
@@ -253,6 +257,7 @@ function collectAttributes(endpointTypes) {
   var clusterMfgCodes = [] // Array of { index, mfgCode } objects
   var attributeMfgCodes = [] // Array of { index, mfgCode } objects
   var attributeList = []
+  var commandList = []
   var endpointList = [] // Array of { clusterIndex, clusterCount, attributeSize }
   var clusterList = []
   var longDefaults = []
@@ -287,6 +292,16 @@ function collectAttributes(endpointTypes) {
     })
     endpoint.clusterCount = clusterCount
 
+    // Go over the commands
+    ept.commands.forEach((cmd) => {
+      var cmd = {
+        clusterId: 0,
+        commandId: cmd.id,
+        mask: 0,
+      }
+      commandList.push(cmd)
+    })
+
     // Go over all the attributes in the endpoint and add them to the list.
     ept.attributes.forEach((a) => {
       if (a.attribute == null) return
@@ -317,6 +332,7 @@ function collectAttributes(endpointTypes) {
     endpointList: endpointList,
     clusterList: clusterList,
     attributeList: attributeList,
+    commandList: commandList,
     longDefaults: longDefaults,
     clusterMfgCodes: clusterMfgCodes,
     commandMfgCodes: commandMfgCodes,
@@ -393,6 +409,11 @@ function endpoint_config(options) {
             })
         )
         promises.push(
+          queryConfig
+            .getEndpointTypeCommands(db, id)
+            .then((commands) => (ept.commands = commands))
+        )
+        promises.push(
           queryConfig.getEndpointTypeClusters(db, id).then((clusters) => {
             ept.clusters = clusters.filter((c) => c.enabled)
           })
@@ -441,7 +462,7 @@ exports.endpoint_fixed_device_id_array = endpoint_fixed_device_id_array
 exports.endpoint_fixed_device_version_array = endpoint_fixed_device_version_array
 exports.endpoint_fixed_profile_id_array = endpoint_fixed_profile_id_array
 exports.endpoint_fixed_network_array = endpoint_fixed_network_array
-exports.endpoint_commands = endpoint_commands
+exports.endpoint_command_list = endpoint_command_list
 exports.endpoint_command_count = endpoint_command_count
 exports.endpoint_reporting_config_defaults = endpoint_reporting_config_defaults
 exports.endpoint_reporting_config_default_count = endpoint_reporting_config_default_count

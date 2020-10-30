@@ -76,29 +76,20 @@
 
 
 // Array of EmberAfCommandMetadata structs.
-#define GENERATED_COMMANDS { \
-{{endpoint_commands}}
-}
-
 #define EMBER_AF_GENERATED_COMMAND_COUNT ({{endpoint_command_count}})
+#define GENERATED_COMMANDS {{endpoint_command_list}}
 
 // Array of EmberAfManufacturerCodeEntry structures for commands.
-#define GENERATED_COMMAND_MANUFACTURER_CODES { \
-{{endpoint_command_manufacturer_codes}}
-}
 #define GENERATED_COMMAND_MANUFACTURER_CODE_COUNT ({{endpoint_command_manufacturer_code_count}})
+#define GENERATED_COMMAND_MANUFACTURER_CODES {{endpoint_command_manufacturer_codes}}
 
 // This is an array of EmberAfManufacturerCodeEntry structures for clusters.
-#define GENERATED_CLUSTER_MANUFACTURER_CODES { \
-{{endpoint_cluster_manufacturer_codes}}
-}
 #define GENERATED_CLUSTER_MANUFACTURER_CODE_COUNT ({{endpoint_cluster_manufacturer_code_count}})
+#define GENERATED_CLUSTER_MANUFACTURER_CODES {{endpoint_cluster_manufacturer_codes}}
 
 // This is an array of EmberAfManufacturerCodeEntry structures for attributes.
-#define GENERATED_ATTRIBUTE_MANUFACTURER_CODES { \
-{{endpoint_attribute_manufacturer_codes}}
-}
 #define GENERATED_ATTRIBUTE_MANUFACTURER_CODE_COUNT ({{endpoint_attribute_manufacturer_code_count}})
+#define GENERATED_ATTRIBUTE_MANUFACTURER_CODES {{endpoint_attribute_manufacturer_codes}}
 
 // Array of EmberAfPluginReportingEntry structures.
 #define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS { \
