@@ -182,7 +182,7 @@ function endpoint_command_list(options) {
   var ret = '{ \\ \n'
   this.commandList.forEach((cmd) => {
     ret = ret.concat(
-      `  { ${cmd.clusterId}, ${cmd.commandId}, ${cmd.mask} } \\\n`
+      `  { ${cmd.clusterId}, ${cmd.commandId}, ${cmd.mask} } /* ${cmd.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
@@ -192,7 +192,7 @@ function endpoint_attribute_list(options) {
   var ret = '{ \\ \n'
   this.attributeList.forEach((at) => {
     ret = ret.concat(
-      `  { ${at.id}, ${at.type}, ${at.size}, ${at.mask}, ${at.defaultValue} } \\\n`
+      `  { ${at.id}, ${at.type}, ${at.size}, ${at.mask}, ${at.defaultValue} } /* ${at.comment} */  \\\n`
     )
   })
   return ret.concat('}\n')
@@ -259,14 +259,15 @@ function collectAttributes(endpointTypes) {
   var attributeList = []
   var commandList = []
   var endpointList = [] // Array of { clusterIndex, clusterCount, attributeSize }
-  var clusterList = []
-  var longDefaults = []
+  var clusterList = [] // Array of { clusterId, attributeIndex, attributeCount, mask, functions, comment }
+  var longDefaults = [] // Array of strings representing bytes
   var longDefaultsIndex = 0
   var largestAttribute = 0
   var singletonsSize = 0
   var totalAttributeSize = 0
   var clusterIndex = 0
-  var deviceList = []
+  var deviceList = [] // Array of { deviceId, deviceVersion }
+  var mimMaxList = []
 
   endpointTypes.forEach((ept) => {
     var endpoint = {
@@ -306,6 +307,7 @@ function collectAttributes(endpointTypes) {
         clusterId: 0,
         commandId: cmd.id,
         mask: 0,
+        comment: 'Command',
       }
       commandList.push(cmd)
     })
@@ -333,6 +335,7 @@ function collectAttributes(endpointTypes) {
         size: a.typeSize, // size
         mask: [], // array of special properties
         defaultValue: defaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
+        comment: `${a.attribute.label}`,
       })
     })
   })
