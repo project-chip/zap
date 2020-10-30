@@ -168,6 +168,13 @@ function endpoint_cluster_manufacturer_code_count(options) {
   return ret
 }
 
+/**
+ * Generates array of { index , mfgCode } pairs, matching
+ * the indexes in attribute table.
+ *
+ * @param {*} options
+ * @returns manufacturer code array
+ */
 function endpoint_attribute_manufacturer_codes(options) {
   var ret = '// TODO: ' + options.name + '\n'
   return ret
@@ -240,6 +247,9 @@ function endpoint_reporting_config_default_count(options) {
  *    3.) If server is included on at least one endpoint add server atts.
  */
 function collectAttributes(endpointTypes) {
+  var commandMfgCodes = [] // Array of { index, mfgCode } objects
+  var clusterMfgCodes = [] // Array of { index, mfgCode } objects
+  var attributeMfgCodes = [] // Array of { index, mfgCode } objects
   var attributeList = []
   var longDefaults = []
   var longDefaultsIndex = 0
@@ -265,6 +275,9 @@ function collectAttributes(endpointTypes) {
   return Promise.resolve({
     attributeList: attributeList,
     longDefaults: longDefaults,
+    clusterMfgCodes: clusterMfgCodes,
+    commandMfgCodes: commandMfgCodes,
+    attributeMfgCodes: attributeMfgCodes,
   })
 }
 
@@ -348,8 +361,7 @@ function endpoint_config(options) {
     })
     .then((endpointTypes) => collectAttributes(endpointTypes))
     .then((collection) => {
-      newContext.attributeList = collection.attributeList
-      newContext.longDefaults = collection.longDefaults
+      Object.assign(newContext, collection)
     })
     .then(() =>
       queryConfig.getAllSessionAttributes(this.global.db, this.global.sessionId)

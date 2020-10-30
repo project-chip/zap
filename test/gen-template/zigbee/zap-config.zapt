@@ -24,13 +24,14 @@
 {{endpoint_attribute_min_max_storage}}
 }
 
-#define ZAP_TYPE(type) ZCL_##type##_ATTRIBUTE_TYPE
+#define ZAP_TYPE(type) ZCL_ ## type ## _ATTRIBUTE_TYPE
 #define ZAP_LONG_DEFAULTS_INDEX(index) (&generatedDefaults[index])
 
 // This is an array of EmberAfAttributeMetadata structures.
 #define GENERATED_ATTRIBUTES {{ endpoint_attribute_list }}
 
 #undef ZAP_TYPE
+#undef ZAP_LONG_DEFAULTS_INDEX
 
 // This is an array of EmberAfCluster structures.
 #define GENERATED_CLUSTERS {{endpoint_cluster_list}}
@@ -42,17 +43,6 @@
 
 
 
-// This is an array of EmberAfManufacturerCodeEntry structures for clusters.
-#define GENERATED_CLUSTER_MANUFACTURER_CODES { \
-{{endpoint_cluster_manufacturer_codes}}
-}
-#define GENERATED_CLUSTER_MANUFACTURER_CODE_COUNT ({{endpoint_cluster_manufacturer_code_count}})
-
-// This is an array of EmberAfManufacturerCodeEntry structures for attributes.
-#define GENERATED_ATTRIBUTE_MANUFACTURER_CODES { \
-{{endpoint_attribute_manufacturer_codes}}
-}
-#define GENERATED_ATTRIBUTE_MANUFACTURER_CODE_COUNT ({{endpoint_attribute_manufacturer_code_count}})
 
 // Largest attribute size is needed for various buffers
 #define ATTRIBUTE_LARGEST ({{endpoint_largest_attribute_size}})
@@ -98,6 +88,18 @@
 {{endpoint_command_manufacturer_codes}}
 }
 #define GENERATED_COMMAND_MANUFACTURER_CODE_COUNT ({{endpoint_command_manufacturer_code_count}})
+
+// This is an array of EmberAfManufacturerCodeEntry structures for clusters.
+#define GENERATED_CLUSTER_MANUFACTURER_CODES { \
+{{endpoint_cluster_manufacturer_codes}}
+}
+#define GENERATED_CLUSTER_MANUFACTURER_CODE_COUNT ({{endpoint_cluster_manufacturer_code_count}})
+
+// This is an array of EmberAfManufacturerCodeEntry structures for attributes.
+#define GENERATED_ATTRIBUTE_MANUFACTURER_CODES { \
+{{endpoint_attribute_manufacturer_codes}}
+}
+#define GENERATED_ATTRIBUTE_MANUFACTURER_CODE_COUNT ({{endpoint_attribute_manufacturer_code_count}})
 
 // Array of EmberAfPluginReportingEntry structures.
 #define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS { \
