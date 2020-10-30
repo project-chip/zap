@@ -10,13 +10,10 @@
 // in a form of a binary blob
 // Separate block is generated for big-endian and little-endian cases.
 #if BIGENDIAN_CPU
-#define GENERATED_DEFAULTS { \
-{{endpoint_attribute_long_defaults endian="big"}}
-}
+#define GENERATED_DEFAULTS {{endpoint_attribute_long_defaults endian="big"}}
+
 #else // !BIGENDIAN_CPU
-#define GENERATED_DEFAULTS { \
-{{endpoint_attribute_long_defaults endian="little"}}
-}
+#define GENERATED_DEFAULTS {{endpoint_attribute_long_defaults endian="little"}}
 #endif // BIGENDIAN_CPU
 
 #define ZAP_TYPE(type) ZCL_ ## type ## _ATTRIBUTE_TYPE
@@ -93,10 +90,10 @@
 #define GENERATED_ATTRIBUTE_MANUFACTURER_CODES {{endpoint_attribute_manufacturer_codes}}
 
 // Array of EmberAfPluginReportingEntry structures.
-#define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS { \
-{{endpoint_reporting_config_defaults}}
-}
+#define ZAP_REPORT_DIRECTION(x) EMBER_ZCL_REPORTING_DIRECTION_##x
 #define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS_TABLE_SIZE ({{endpoint_reporting_config_default_count}})
+#define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS {{endpoint_reporting_config_defaults}}
+#undef ZAP_REPORT_DIRECTION
 
 {{/endpoint_config}}
 

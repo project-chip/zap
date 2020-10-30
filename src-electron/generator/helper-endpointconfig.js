@@ -234,30 +234,40 @@ function endpoint_attribute_min_max_list(options) {
   return ret.concat('}\n')
 }
 
-////////////////////////////////////////////////////////////////
+function endpoint_reporting_config_defaults(options) {
+  var ret = '{ \\ \n'
+  this.reportList.forEach((r) => {
+    ret = ret.concat(
+      `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${r.mask}, ${r.mfgCode}, ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} } /* ${r.comment} */ \\\n`
+    )
+  })
+  return ret.concat('}\n')
+}
+
+function endpoint_reporting_config_default_count(options) {
+  return this.reportList.length
+}
 
 function endpoint_attribute_long_defaults(options) {
   var littleEndian = true
   if (options.hash.endian == 'big') {
     littleEndian = false
   }
-  var ret = '// TODO: ' + options.name + '\n'
-  this.attributes.forEach((at) => {
-    var def = at.defaultValue
-    var cBytes = bin.hexToCBytes(def)
-    ret = ret.concat(`${cBytes} \n`)
+  var ret = '{ \\ \n'
+  this.longDefaultsList.forEach((ld) => {
+    var def
+    if (def == null) {
+      def = '0x00, '.repeat(ld.size)
+    } else {
+      def = bin.hexToCBytes(ld.value)
+    }
+    ret = ret.concat(
+      `  ${def}  /* ${ld.comment}, ${
+        littleEndian ? 'little-endian' : 'big-endian'
+      } */ \\\n`
+    )
   })
-  return ret
-}
-
-function endpoint_reporting_config_defaults(options) {
-  var ret = '// TODO: ' + options.name + '\n'
-  return ret
-}
-
-function endpoint_reporting_config_default_count(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
+  return ret.concat('}\n')
 }
 
 /**
@@ -282,6 +292,8 @@ function collectAttributes(endpointTypes) {
   var clusterIndex = 0
   var deviceList = [] // Array of { deviceId, deviceVersion }
   var minMaxList = [] // Array of { default, min, max }
+  var reportList = []
+  var longDefaultsList = []
 
   endpointTypes.forEach((ept) => {
     var endpoint = {
@@ -329,12 +341,18 @@ function collectAttributes(endpointTypes) {
     // Go over all the attributes in the endpoint and add them to the list.
     ept.attributes.forEach((a) => {
       if (a.attribute == null) return
-      var defaultValue = 0
+      var attributeDefaultValue = 0
       if (a.typeSize > 2) {
         // We will need to generate the GENERATED_DEFAULTS
-        defaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
+        attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
         longDefaults.push(a)
         longDefaultsIndex += a.typeSize
+        var longDef = {
+          value: a.attribute.defaultValue,
+          size: a.typeSize,
+          comment: `Default for attribute ${a.attribute.label}`,
+        }
+        longDefaultsList.push(longDef)
       }
       if (a.isBounded) {
         var minMax = {
@@ -344,6 +362,20 @@ function collectAttributes(endpointTypes) {
           comment: `Attribute: ${a.attribute.label}`,
         }
         minMaxList.push(minMax)
+      }
+      if (a.isReportable) {
+        var rpt = {
+          direction: 'REPORTED', // or 'RECEIVED'
+          endpoint: 0,
+          clusterId: 1,
+          attributeId: 2,
+          mask: 12,
+          mfgCode: 0,
+          minOrSource: 44,
+          maxOrEndpoint: 34,
+          reportableChangeOrTimeout: 0,
+        }
+        reportList.push(rpt)
       }
       if (a.typeSize > largestAttribute) {
         largestAttribute = a.typeSize
@@ -357,7 +389,7 @@ function collectAttributes(endpointTypes) {
         type: `ZAP_TYPE(${a.attribute.type.toUpperCase()})`, // type
         size: a.typeSize, // size
         mask: [], // array of special properties
-        defaultValue: defaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
+        defaultValue: attributeDefaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
         comment: `${a.attribute.label}`,
       }
       attributeList.push(attr)
@@ -377,6 +409,8 @@ function collectAttributes(endpointTypes) {
     totalAttributeSize: totalAttributeSize,
     deviceList: deviceList,
     minMaxList: minMaxList,
+    reportList: reportList,
+    longDefaultsList: longDefaultsList,
   })
 }
 
