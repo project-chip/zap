@@ -168,6 +168,10 @@ function endpoint_types_list(options) {
   return ret.concat('}\n')
 }
 
+function endpoint_cluster_count(options) {
+  return this.clusterList.length
+}
+
 function endpoint_cluster_list(options) {
   var ret = '{ \\ \n'
   this.clusterList.forEach((c) => {
@@ -186,6 +190,10 @@ function endpoint_command_list(options) {
     )
   })
   return ret.concat('}\n')
+}
+
+function endpoint_attribute_count(options) {
+  return this.attributeList.length
 }
 
 function endpoint_attribute_list(options) {
@@ -212,15 +220,21 @@ function endpoint_fixed_device_version_array(options) {
   )
 }
 
-////////////////////////////////////////////////////////////////
-
-function endpoint_attribute_min_max_storage(options) {
-  var ret = '// TODO: ' + options.name + '\n'
-  this.attributes.forEach((at) => {
-    ret = ret.concat(`min max: ${at.name} \n`)
-  })
-  return ret
+function endpoint_attribute_min_max_count(options) {
+  return this.minMaxList.length
 }
+
+function endpoint_attribute_min_max_list(options) {
+  var ret = '{ \\ \n'
+  this.minMaxList.forEach((mm) => {
+    ret = ret.concat(
+      `  { ${mm.default}, ${mm.min}, ${mm.max} } /* ${mm.comment} */ \\\n`
+    )
+  })
+  return ret.concat('}\n')
+}
+
+////////////////////////////////////////////////////////////////
 
 function endpoint_attribute_long_defaults(options) {
   var littleEndian = true
@@ -267,7 +281,7 @@ function collectAttributes(endpointTypes) {
   var totalAttributeSize = 0
   var clusterIndex = 0
   var deviceList = [] // Array of { deviceId, deviceVersion }
-  var mimMaxList = []
+  var minMaxList = [] // Array of { default, min, max }
 
   endpointTypes.forEach((ept) => {
     var endpoint = {
@@ -322,6 +336,15 @@ function collectAttributes(endpointTypes) {
         longDefaults.push(a)
         longDefaultsIndex += a.typeSize
       }
+      if (a.isBounded) {
+        var minMax = {
+          default: '0',
+          min: '0',
+          max: '10',
+          comment: `Attribute: ${a.attribute.label}`,
+        }
+        minMaxList.push(minMax)
+      }
       if (a.typeSize > largestAttribute) {
         largestAttribute = a.typeSize
       }
@@ -329,14 +352,15 @@ function collectAttributes(endpointTypes) {
         singletonsSize += a.typeSize
       }
       totalAttributeSize += a.typeSize
-      attributeList.push({
+      var attr = {
         id: a.attribute.code, // attribute code
         type: `ZAP_TYPE(${a.attribute.type.toUpperCase()})`, // type
         size: a.typeSize, // size
         mask: [], // array of special properties
         defaultValue: defaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
         comment: `${a.attribute.label}`,
-      })
+      }
+      attributeList.push(attr)
     })
   })
   return Promise.resolve({
@@ -352,6 +376,7 @@ function collectAttributes(endpointTypes) {
     singletonsSize: singletonsSize,
     totalAttributeSize: totalAttributeSize,
     deviceList: deviceList,
+    minMaxList: minMaxList,
   })
 }
 
@@ -454,9 +479,12 @@ function endpoint_config(options) {
 
 exports.endpoint_attribute_long_defaults = endpoint_attribute_long_defaults
 exports.endpoint_config = endpoint_config
-exports.endpoint_attribute_min_max_storage = endpoint_attribute_min_max_storage
+exports.endpoint_attribute_min_max_list = endpoint_attribute_min_max_list
+exports.endpoint_attribute_min_max_count = endpoint_attribute_min_max_count
 exports.endpoint_attribute_list = endpoint_attribute_list
+exports.endpoint_attribute_count = endpoint_attribute_count
 exports.endpoint_cluster_list = endpoint_cluster_list
+exports.endpoint_cluster_count = endpoint_cluster_count
 exports.endpoint_types_list = endpoint_types_list
 exports.endpoint_type_count = endpoint_type_count
 exports.endpoint_cluster_manufacturer_codes = endpoint_cluster_manufacturer_codes
