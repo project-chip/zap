@@ -74,11 +74,7 @@ function endpoint_fixed_profile_id_array(options) {
  * @returns C array including the { } brackets
  */
 function endpoint_fixed_network_array(options) {
-  var networkIds = []
-  this.endpoints.forEach((ep) => {
-    networkIds.push(ep.networkId)
-  })
-  return '{ ' + networkIds.join(', ') + ' }'
+  return '{ ' + this.endpoints.map((ep) => ep.networkId).join(', ') + ' }'
 }
 
 /**
@@ -202,6 +198,20 @@ function endpoint_attribute_list(options) {
   return ret.concat('}\n')
 }
 
+function endpoint_fixed_device_id_array(options) {
+  return (
+    '{ ' + this.deviceList.map((device) => device.deviceId).join(', ') + ' }'
+  )
+}
+
+function endpoint_fixed_device_version_array(options) {
+  return (
+    '{ ' +
+    this.deviceList.map((device) => device.deviceVersion).join(', ') +
+    ' }'
+  )
+}
+
 ////////////////////////////////////////////////////////////////
 
 function endpoint_attribute_min_max_storage(options) {
@@ -223,16 +233,6 @@ function endpoint_attribute_long_defaults(options) {
     var cBytes = bin.hexToCBytes(def)
     ret = ret.concat(`${cBytes} \n`)
   })
-  return ret
-}
-
-function endpoint_fixed_device_id_array(options) {
-  var ret = '// TODO: ' + options.name
-  return ret
-}
-
-function endpoint_fixed_device_version_array(options) {
-  var ret = '// TODO: ' + options.name
   return ret
 }
 
@@ -266,6 +266,7 @@ function collectAttributes(endpointTypes) {
   var singletonsSize = 0
   var totalAttributeSize = 0
   var clusterIndex = 0
+  var deviceList = []
 
   endpointTypes.forEach((ept) => {
     var endpoint = {
@@ -273,6 +274,13 @@ function collectAttributes(endpointTypes) {
       clusterCount: 0,
       attributeSize: 0,
     }
+
+    var device = {
+      deviceId: 0,
+      deviceVersion: 1,
+    }
+
+    deviceList.push(device)
     endpointList.push(endpoint)
 
     var clusterCount = 0
@@ -340,6 +348,7 @@ function collectAttributes(endpointTypes) {
     largestAttribute: largestAttribute,
     singletonsSize: singletonsSize,
     totalAttributeSize: totalAttributeSize,
+    deviceList: deviceList,
   })
 }
 
