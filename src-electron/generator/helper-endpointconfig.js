@@ -292,8 +292,8 @@ function collectAttributes(endpointTypes) {
   var clusterIndex = 0
   var deviceList = [] // Array of { deviceId, deviceVersion }
   var minMaxList = [] // Array of { default, min, max }
-  var reportList = []
-  var longDefaultsList = []
+  var reportList = [] // Array of { direction, endpoint, clusterId, attributeId, mask, mfgCode, minOrSource, maxOrEndpoint, reportableChangeOrTimeout }
+  var longDefaultsList = [] // Array if { value, size. comment }
 
   endpointTypes.forEach((ept) => {
     var endpoint = {
