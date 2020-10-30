@@ -168,6 +168,16 @@ function endpoint_types_list(options) {
   return ret.concat('}\n')
 }
 
+function endpoint_cluster_list(options) {
+  var ret = '{ \\ \n'
+  this.clusterList.forEach((c) => {
+    ret = ret.concat(
+      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.mask}, ${c.functions} } /* ${c.comment} */ \\\n`
+    )
+  })
+  return ret.concat('}\n')
+}
+
 ////////////////////////////////////////////////////////////////
 
 function endpoint_attribute_min_max_storage(options) {
@@ -200,14 +210,6 @@ function endpoint_attribute_list(options) {
     )
   })
   return ret.concat('}\n')
-}
-
-function endpoint_cluster_list(options) {
-  var ret = '// TODO: ' + options.name + '\n'
-  this.endpointTypes.forEach((ept) => {
-    ept.clusters.forEach((c) => {})
-  })
-  return ret
 }
 
 function endpoint_fixed_device_id_array(options) {
@@ -268,6 +270,24 @@ function collectAttributes(endpointTypes) {
     }
     endpointList.push(endpoint)
 
+    var clusterCount = 0
+    // Go over all the clusters in the endpoint and add them to the list.
+    ept.clusters.forEach((c) => {
+      var cluster = {
+        clusterId: 0,
+        attributeIndex: 0,
+        attributeCount: 0,
+        mask: 0,
+        functions: 'NULL',
+        comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.clusterRef}`,
+      }
+      clusterList.push(cluster)
+      clusterIndex++
+      clusterCount++
+    })
+    endpoint.clusterCount = clusterCount
+
+    // Go over all the attributes in the endpoint and add them to the list.
     ept.attributes.forEach((a) => {
       if (a.attribute == null) return
       var defaultValue = 0
