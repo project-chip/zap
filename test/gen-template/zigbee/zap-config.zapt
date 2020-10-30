@@ -36,12 +36,11 @@
 // This is an array of EmberAfCluster structures.
 #define GENERATED_CLUSTERS {{endpoint_cluster_list}}
 
+#define ZAP_CLUSTER_INDEX(index) (&generatedClusters[index])
 // This is an array of EmberAfEndpointType structures.
-#define GENERATED_ENDPOINT_TYPES { \
-{{endpoint_types_list}}
-}
+#define GENERATED_ENDPOINT_TYPES {{endpoint_types_list}}
 
-
+#undef ZAP_CLUSTER_INDEX
 
 
 // Largest attribute size is needed for various buffers

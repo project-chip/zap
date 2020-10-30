@@ -158,6 +158,16 @@ function endpoint_total_storage_size(options) {
   return this.totalAttributeSize
 }
 
+function endpoint_types_list(options) {
+  var ret = '{ \\ \n'
+  this.endpointList.forEach((ep) => {
+    ret = ret.concat(
+      `  { ZAP_CLUSTER_INDEX(${ep.clusterIndex}), ${ep.clusterCount}, ${ep.attributeSize} } \\\n`
+    )
+  })
+  return ret.concat('}\n')
+}
+
 ////////////////////////////////////////////////////////////////
 
 function endpoint_attribute_min_max_storage(options) {
@@ -196,18 +206,6 @@ function endpoint_cluster_list(options) {
   var ret = '// TODO: ' + options.name + '\n'
   this.endpointTypes.forEach((ept) => {
     ept.clusters.forEach((c) => {})
-  })
-  return ret
-}
-
-function endpoint_types_list(options) {
-  var ret = '// TODO: ' + options.name + '\n'
-  this.endpointTypes.forEach((ep) => {
-    ep.clusters.forEach((c) => {
-      ret = ret.concat(
-        `// EP ${ep.id}, cluster ${c.clusterRef}. enabled ${c.enabled} \n`
-      )
-    })
   })
   return ret
 }
@@ -253,13 +251,23 @@ function collectAttributes(endpointTypes) {
   var clusterMfgCodes = [] // Array of { index, mfgCode } objects
   var attributeMfgCodes = [] // Array of { index, mfgCode } objects
   var attributeList = []
+  var endpointList = [] // Array of { clusterIndex, clusterCount, attributeSize }
+  var clusterList = []
   var longDefaults = []
   var longDefaultsIndex = 0
   var largestAttribute = 0
   var singletonsSize = 0
   var totalAttributeSize = 0
+  var clusterIndex = 0
 
   endpointTypes.forEach((ept) => {
+    var endpoint = {
+      clusterIndex: clusterIndex,
+      clusterCount: 0,
+      attributeSize: 0,
+    }
+    endpointList.push(endpoint)
+
     ept.attributes.forEach((a) => {
       if (a.attribute == null) return
       var defaultValue = 0
@@ -286,6 +294,8 @@ function collectAttributes(endpointTypes) {
     })
   })
   return Promise.resolve({
+    endpointList: endpointList,
+    clusterList: clusterList,
     attributeList: attributeList,
     longDefaults: longDefaults,
     clusterMfgCodes: clusterMfgCodes,
