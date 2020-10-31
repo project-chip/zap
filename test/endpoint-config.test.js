@@ -26,11 +26,14 @@ const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
+const queryEndpoint = require('../src-electron/db/query-endpoint.js')
+const queryConfig = require('../src-electron/db/query-config.js')
 
 var db
 const templateCount = 12
 const genTimeout = 3000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
+var sessionId
 
 beforeAll(() => {
   var file = env.sqliteTestFile('endpointconfig')
@@ -71,14 +74,38 @@ test(
   5000
 )
 
+test('Test file import', () =>
+  importJs.importDataFromFile(db, testFile).then((s) => {
+    sessionId = s
+    expect(s).not.toBeNull()
+  }))
+
+test('Test endpoint config queries', () =>
+  queryEndpoint
+    .queryEndpointTypes(db, sessionId)
+    .then((epts) => {
+      expect(epts.length).toBe(3)
+      return epts
+    })
+    .then((epts) => {
+      var ps = []
+      epts.forEach((ept) => {
+        ps.push(queryEndpoint.queryEndpointClusters(db, ept.id))
+      })
+      return Promise.all(ps)
+    })
+    .then((clusterArray) => {
+      expect(clusterArray.length).toBe(3)
+      expect(clusterArray[0].length).toBe(28)
+      expect(clusterArray[1].length).toBe(5)
+      expect(clusterArray[2].length).toBe(7)
+    }))
+
 test(
-  'Test file import and endpoint config generation',
+  'Test endpoint config generation',
   () =>
-    importJs
-      .importDataFromFile(db, testFile)
-      .then((sessionId) =>
-        genEngine.generate(db, sessionId, templateContext.packageId)
-      )
+    genEngine
+      .generate(db, sessionId, templateContext.packageId)
       .then((genResult) => {
         expect(genResult).not.toBeNull()
         expect(genResult.partial).toBeFalsy()
