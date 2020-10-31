@@ -28,6 +28,9 @@ function queryEndpointClusters(db, endpointTypeId) {
       db,
       `
 SELECT
+  C.CLUSTER_ID,   
+  EC.ENDPOINT_TYPE_CLUSTER_ID,
+  EC.ENDPOINT_TYPE_REF,
   C.CODE,
   C.NAME,
   EC.SIDE
@@ -47,7 +50,10 @@ ORDER BY C.CODE
     .then((rows) =>
       rows.map((row) => {
         return {
-          id: row['CODE'],
+          clusterId: row['CLUSTER_ID'],
+          endpointTypeId: row['ENDPOINT_TYPE_REF'],
+          endpointTypeClusterId: row['ENDPOINT_TYPE_CLUSTER_ID'],
+          code: row['CODE'],
           name: row['NAME'],
           side: row['SIDE'],
         }
@@ -55,5 +61,55 @@ ORDER BY C.CODE
     )
 }
 
+function queryEndpointClusterAttributes(db, clusterId, endpointTypeId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  A.CODE,
+  A.NAME,
+  A.SIDE,
+  EA.STORAGE_OPTION,
+  EA.SINGLETON,
+  EA.BOUNDED,
+  EA.DEFAULT_VALUE,
+  EA.INCLUDED_REPORTABLE,
+  EA.MIN_INTERVAL,
+  EA.MAX_INTERVAL,
+  EA.REPORTABLE_CHANGE
+FROM
+  ATTRIBUTE AS A
+LEFT JOIN
+  ENDPOINT_TYPE_ATTRIBUTE AS EA
+ON
+  A.ATTRIBUTE_ID = EA.ATTRIBUTE_REF
+WHERE
+  A.CLUSTER_REF = ?
+  AND EA.ENDPOINT_TYPE_REF = ?
+    `,
+      [clusterId, endpointTypeId]
+    )
+    .then((rows) =>
+      rows.map((row) => {
+        return {
+          clusterId: clusterId,
+          attributeCode: row['CODE'],
+          name: row['NAME'],
+          side: row['SIDE'],
+          storage: row['STORAGE_OPTION'],
+          isSingleton: row['SINGLETON'],
+          isBound: row['BOUNDED'],
+          defaultValue: row['DEFAULT_VALUE'],
+          includedReportable: row['INCLUDED_REPORTABLE'],
+          minInterval: row['MIN_INTERVAL'],
+          maxInterval: row['MAX_INTERVAL'],
+          reportableChange: row['REPORTABLE_CHANGE'],
+        }
+      })
+    )
+}
+
 exports.queryEndpointClusters = queryEndpointClusters
 exports.queryEndpointTypes = queryEndpointTypes
+exports.queryEndpointClusterAttributes = queryEndpointClusterAttributes
