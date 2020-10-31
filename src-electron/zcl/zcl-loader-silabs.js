@@ -330,6 +330,8 @@ function prepareCluster(cluster, isExtension = false) {
         define: attribute.$.define,
         min: attribute.$.min,
         max: attribute.$.max,
+        minLength: 0,
+        maxLength: attribute.$.length ? attribute.$.length : null,
         isWritable: attribute.$.writable == 'true',
         defaultValue: attribute.$.default,
         isOptional: attribute.$.optional == 'true',

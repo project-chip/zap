@@ -60,9 +60,12 @@ limitations under the License.
 <script>
 import ZclEndpointCard from './ZclEndpointCard.vue'
 import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
+import CommonMixin from '../util/common-mixin'
+
 export default {
   name: 'ZclEndpointManager',
   components: { ZclEndpointCard, ZclCreateModifyEndpoint },
+  mixins: [CommonMixin],
   computed: {
     leftDrawerOpen: {
       get() {
@@ -82,13 +85,15 @@ export default {
     },
     endpoints: {
       get() {
-        return Object.keys(this.$store.state.zap.endpointView.endpointId).map(
-          (endpointId) => {
-            return {
-              id: endpointId,
-            }
-          }
-        )
+        // initialize ZclClusterManager with first endpoint info.
+        if (this.endpointIdSorted.size) {
+          this.setSelectedEndpointType(
+            this.endpointIdSorted.keys().next().value
+          )
+        }
+        return Array.from(this.endpointIdSorted.keys()).map((id) => ({
+          id: id,
+        }))
       },
     },
   },

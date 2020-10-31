@@ -16,11 +16,13 @@ limitations under the License.
 
 <template>
   <div>
-    <q-card :bordered="isSelectedEndpoint">
+    <q-card
+      :bordered="isSelectedEndpoint"
+      @click="setSelectedEndpointType(endpointReference)"
+    >
       <div class="vertical-align:middle q-pa-md">
         <strong
-          >Endpoint - &nbsp;
-          {{ getFormattedEndpointId(endpointReference) }}</strong
+          >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
         >
       </div>
       <q-list dense bordered>
@@ -99,7 +101,7 @@ limitations under the License.
             color="primary"
             icon="settings"
             size="sm"
-            @click="setSelectedEndpointType()"
+            @click="setSelectedEndpointType(endpointReference)"
           />
         </div>
       </q-card-actions>
@@ -131,11 +133,7 @@ export default {
   },
   methods: {
     getFormattedEndpointId(endpointRef) {
-      if (endpointRef in this.endpointId) {
-        return '0x' + this.endpointId[endpointRef].toString(16).padStart(4, '0')
-      } else {
-        return ''
-      }
+      return this.asHex(this.endpointId[endpointRef], 4)
     },
     deleteEpt() {
       let endpointReference = this.endpointReference
@@ -145,16 +143,6 @@ export default {
           this.endpointType[endpointReference]
         )
       })
-    },
-    setSelectedEndpointType() {
-      this.$store.dispatch('zap/updateSelectedEndpointType', {
-        endpointType: this.endpointType[this.endpointReference],
-        deviceTypeRef: this.endpointDeviceTypeRef[
-          this.endpointType[this.endpointReference]
-        ],
-      })
-      this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
-      this.$store.dispatch('zap/resetFilters')
     },
   },
   computed: {
@@ -198,6 +186,6 @@ export default {
 
 <style scoped lang="sass">
 .q-card
-  border-width: 8px
+  border-width: 1px
   border-color: $primary
 </style>

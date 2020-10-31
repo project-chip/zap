@@ -88,6 +88,8 @@ test('Test int bounds', () => {
 
 test('Validate types', () => {
   expect(Validation.isStringType('CHAR_STRING'))
+
+  expect(Validation.isStringType('char_string'))
   expect(Validation.isStringType('OCTET_STRING'))
   expect(Validation.isStringType('LONG_CHAR_STRING'))
   expect(Validation.isStringType('LONG_OCTET_STRING'))

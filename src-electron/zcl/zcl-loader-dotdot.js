@@ -172,7 +172,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
   for (var i = 0; i < atts.length; i++) {
     let a = atts[i]
     env.logInfo(`Preparing attribute ${side} ${a.$.name}`)
-    ret.push({
+    var attributeData = {
       code: parseInt(normalizeHexValue(a.$.id)),
       //manufacturerCode: '', // TODO: no manuf code in dotdot xml
       name: a.$.name,
@@ -181,12 +181,23 @@ function prepareAttributes(attributes, side, types, cluster = null) {
       define: a.$.name,
       min: normalizeHexValue(a.$.min),
       max: normalizeHexValue(a.$.max),
+      minLength: 0,
+      maxLength: null,
       isWritable: a.$.writable == 'true',
       defaultValue: normalizeHexValue(a.$.default),
       isOptional: !(a.$.required == 'true'),
       isReportable:
         a.$.reportRequired === undefined ? 'false' : a.$.reportRequired,
-    })
+    }
+    if (a.restriction) {
+      if (a.restriction[0]['type:minLength'] != null) {
+        a.minLength = a.restriction[0]['type:minLength'][0].$.value
+      }
+      if (a.restriction[0]['type:maxLength'] != null) {
+        a.maxLength = a.restriction[0]['type:maxLength'][0].$.value
+      }
+    }
+    ret.push(attributeData)
     // TODO: Attributes have types and they may not be unique so we prepend the cluster name
     prepareAttributeType(a, types, cluster)
   }

@@ -27,9 +27,31 @@ export default {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType
       },
     },
+    endpointDeviceTypeRef: {
+      get() {
+        return this.$store.state.zap.endpointTypeView.deviceTypeRef
+      },
+    },
     selectedEndpointId: {
       get() {
         return this.$store.state.zap.endpointView.selectedEndpoint
+      },
+    },
+    endpointIdSorted: {
+      get() {
+        // return sorted endpoint (by endpoint id value, in ascending order) for display
+        // parseInt is used as endpoint id value can be int or strings
+        // NOTE: a Map is returned to maintain the order of the keys.
+        //       coversion to an Object will reshuffle the entries.
+        const endpointIds = new Map(
+          Object.entries(this.$store.state.zap.endpointView.endpointId)
+        )
+
+        return new Map(
+          [...endpointIds.entries()].sort((a, b) => {
+            return parseInt(a[1], 16) - parseInt(b[1], 16)
+          })
+        )
       },
     },
     endpointId: {
@@ -73,6 +95,16 @@ export default {
   methods: {
     asHex(value, padding) {
       return Util.asHex(value, padding)
+    },
+    setSelectedEndpointType(endpointReference) {
+      this.$store.dispatch('zap/updateSelectedEndpointType', {
+        endpointType: this.endpointType[endpointReference],
+        deviceTypeRef: this.endpointDeviceTypeRef[
+          this.endpointType[endpointReference]
+        ],
+      })
+      this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
+      this.$store.dispatch('zap/resetFilters')
     },
   },
 }

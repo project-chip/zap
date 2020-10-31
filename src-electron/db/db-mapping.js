@@ -85,6 +85,8 @@ exports.map = {
       define: x.DEFINE,
       min: x.MIN,
       max: x.MAX,
+      minLength: x.MIN_LENGTH,
+      maxLength: x.MAX_LENGTH,
       isWritable: x.IS_WRITABLE,
       defaultValue: x.DEFAULT_VALUE,
       isOptional: x.IS_OPTIONAL,

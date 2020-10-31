@@ -15,25 +15,22 @@
  *    limitations under the License.
  */
 
-const axios = require('axios')
-const restApi = require('../../src-shared/rest-api.js')
+const queryZcl = require('../db/query-zcl')
 
-function open(zap_file) {
-  // Make a request for a user with a given ID
-  if (zap_file) {
-    axios
-      .get(`${restApi.ide.open}?project=${zap_file}`)
-      .then((res) => window.openCallback(res))
-      .catch((err) => window.openCallback(err))
-  }
+/**
+ * @module JS API: type related utilities
+ */
+
+/**
+ * This function resolves with the size of a given type.
+ * -1 means that this size is variable.
+ *
+ * @param {*} db
+ * @param {*} zclPackageId
+ * @param {*} type
+ */
+function typeSize(db, zclPackageId, type) {
+  return queryZcl.getAtomicSizeFromType(db, zclPackageId, type)
 }
 
-function save(sessionId) {
-  axios
-    .get(`${restApi.ide.save}`)
-    .then((res) => window.saveCallback(res))
-    .then((err) => window.saveCallback(err))
-}
-
-exports.open = open
-exports.save = save
+exports.typeSize = typeSize

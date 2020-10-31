@@ -42,20 +42,22 @@ function httpGetIdeOpen(db) {
       let zapFile = req.query.project
 
       env.logInfo(`Studio: Opening/Loading project(${name})`)
+
       importJs
-        .importDataFromFile(db, zapFile)
+        .importDataFromFile(db, zapFile, req.session.zapSessionId)
         .then((sessionId) => {
+          let response = { sessionId: sessionId, sessionKey: req.session.id }
           env.logInfo(
-            `Studio: Loaded project(${name}), sessionId(${sessionId})`
+            `Studio: Loaded project(${name}), ${JSON.stringify(response)}`
           )
-          res.send({ sessionId: sessionId })
-          return sessionId
-        })
-        .then((sessionId) =>
           queryConfig.updateKeyValue(db, sessionId, 'filePath', zapFile)
-        )
+          res.send(response)
+        })
         .catch(function (err) {
-          env.logError(`Studio: Failed to load project(${zapFile})`)
+          let msg = `Studio: Failed to load project(${zapFile})`
+          env.logError(msg)
+          res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
+          env.logError(err)
         })
     } else {
       let msg = 'Opening/Loading project: Missing "project" query string'
@@ -73,32 +75,25 @@ function httpGetIdeOpen(db) {
  */
 function httpGetIdeSave(db) {
   return (req, res) => {
-    if (req.query.sessionId) {
-      let sessionId = req.query.sessionId
-      env.logInfo(`Studio: Saving project: sessionId: ${sessionId}`)
-      queryConfig
-        .getSessionKeyValue(db, sessionId, 'filePath')
-        .then((filePath) => {
-          if (filePath) {
-            let name = path.posix.basename(filePath)
-            env.logInfo(`Studio: Saving project(${name})`)
-            return exportJs.exportDataIntoFile(db, sessionId, filePath)
-          } else {
-            env.logWarning(
-              `Studio: Unable to save project due to invalid file path`
-            )
-            return ''
-          }
-        })
-        .then((filepath) => {
-          res.send({ filePath: filepath })
-        })
-    } else {
-      env.logWarning(`Studio: Saving project: Invalid sessionId ${sessionId}`)
-      res.status(http.StatusCodes.BAD_REQUEST).send({
-        error: 'Saving project: Missing "sessionId" query string',
+    env.logInfo(`Saving project: sessionId(${req.session.zapSessionId})`)
+    queryConfig
+      .getSessionKeyValue(db, req.session.zapSessionId, 'filePath')
+      .then((filePath) =>
+        exportJs.exportDataIntoFile(db, req.session.zapSessionId, filePath)
+      )
+      .then((filePath) => {
+        let projectName = path.posix.basename(filePath)
+        env.logInfo(`Saving project: project(${projectName})`)
+        res.status(http.StatusCodes.OK).send({ filePath: filePath })
       })
-    }
+      .catch((err) => {
+        let msg = `Unable to save project with sessionId(${req.session.zapSessionId})`
+        env.logError(msg)
+        env.logError(err)
+        res.status(http.StatusCodes.BAD_REQUEST).send({
+          error: msg,
+        })
+      })
   }
 }
 

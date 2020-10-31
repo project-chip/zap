@@ -132,6 +132,8 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   "DEFINE" text,
   "MIN" text,
   "MAX" text,
+  "MIN_LENGTH" integer,
+  "MAX_LENGTH" integer,
   "IS_WRITABLE" integer,
   "DEFAULT_VALUE" text,
   "IS_OPTIONAL" integer,

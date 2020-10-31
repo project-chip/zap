@@ -26,14 +26,17 @@ const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
+const queryEndpoint = require('../src-electron/db/query-endpoint.js')
+const queryConfig = require('../src-electron/db/query-config.js')
 
 var db
 const templateCount = 12
 const genTimeout = 3000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
+var sessionId
 
 beforeAll(() => {
-  var file = env.sqliteTestFile('genengine')
+  var file = env.sqliteTestFile('endpointconfig')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
@@ -71,14 +74,38 @@ test(
   5000
 )
 
+test('Test file import', () =>
+  importJs.importDataFromFile(db, testFile).then((s) => {
+    sessionId = s
+    expect(s).not.toBeNull()
+  }))
+
+test('Test endpoint config queries', () =>
+  queryEndpoint
+    .queryEndpointTypes(db, sessionId)
+    .then((epts) => {
+      expect(epts.length).toBe(3)
+      return epts
+    })
+    .then((epts) => {
+      var ps = []
+      epts.forEach((ept) => {
+        ps.push(queryEndpoint.queryEndpointClusters(db, ept.id))
+      })
+      return Promise.all(ps)
+    })
+    .then((clusterArray) => {
+      expect(clusterArray.length).toBe(3)
+      expect(clusterArray[0].length).toBe(28)
+      expect(clusterArray[1].length).toBe(5)
+      expect(clusterArray[2].length).toBe(7)
+    }))
+
 test(
-  'Test file import and generation',
+  'Test endpoint config generation',
   () =>
-    importJs
-      .importDataFromFile(db, testFile)
-      .then((sessionId) =>
-        genEngine.generate(db, sessionId, templateContext.packageId)
-      )
+    genEngine
+      .generate(db, sessionId, templateContext.packageId)
       .then((genResult) => {
         expect(genResult).not.toBeNull()
         expect(genResult.partial).toBeFalsy()
@@ -89,6 +116,13 @@ test(
           epc.includes(
             '#define FIXED_ENDPOINT_ARRAY { 0x0029, 0x002A, 0x002B }'
           )
+        ).toBeTruthy()
+        expect(epc.includes('#define FIXED_NETWORKS { 1, 1, 2 }')).toBeTruthy()
+        expect(
+          epc.includes('#define FIXED_PROFILE_IDS { 0x0107, 0x0104, 0x0104 }')
+        ).toBeTruthy()
+        expect(
+          epc.includes('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
         ).toBeTruthy()
       }),
   genTimeout
