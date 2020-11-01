@@ -33,3 +33,13 @@ jobs:
       - run: npm run self-check
       - run: npm run gen
       - run: export GH_TOKEN=${{ secrets.GITHUB_TOKEN}} && npm run dist-linux
+      - name: Archive .rpm file
+        uses: actions/upload-artifact@v2
+        with:
+          name: zap
+          path: dist/zap*.rpm
+      - name: Archive .deb file
+        uses: actions/upload-artifact@v2
+        with:
+          name: zap
+          path: dist/zap*.deb
