@@ -36,10 +36,10 @@ jobs:
       - name: Archive .rpm file
         uses: actions/upload-artifact@v2
         with:
-          name: zap
+          name: zap-linux-rpm
           path: dist/zap*.rpm
       - name: Archive .deb file
         uses: actions/upload-artifact@v2
         with:
-          name: zap
+          name: zap-linux-deb
           path: dist/zap*.deb
