@@ -133,19 +133,15 @@ function startAnalyze(
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
     })
     .then((d) => {
-      var ps = []
-      paths.forEach((path) => {
-        ps.push(
-          importJs
-            .importDataFromFile(db, path)
-            .then((sessionId) => util.sessionReport(db, sessionId))
-            .then((report) => {
-              if (options.log) console.log(`🤖 File: ${path}\n`)
-              if (options.log) console.log(report)
-            })
-        )
-      })
-      return Promise.all(ps)
+      return util.executePromisesSequentially(paths, (path) =>
+        importJs
+          .importDataFromFile(db, path)
+          .then((sessionId) => util.sessionReport(db, sessionId))
+          .then((report) => {
+            if (options.log) console.log(`🤖 File: ${path}\n`)
+            if (options.log) console.log(report)
+          })
+      )
     })
     .then(() => {
       if (options.log) console.log('😎 Analysis done!')
