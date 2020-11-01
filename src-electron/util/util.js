@@ -24,6 +24,7 @@ const env = require('./env.js')
 const crc = require('crc')
 const path = require('path')
 const queryPackage = require('../db/query-package.js')
+const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require(`../db/query-config.js`)
 const dbEnum = require('../../src-shared/db-enum.js')
 const args = require('./args.js')
@@ -229,9 +230,56 @@ function matchFeatureLevel(featureLevel) {
   }
 }
 
+function sessionReport(db, sessionId) {
+  return queryEndpoint.queryEndpointTypes(db, sessionId).then((epts) => {
+    var ps = []
+    epts.forEach((ept) => {
+      ps.push(
+        queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
+          var s = `Endpoint: ${ept.name} \n`
+          var ps2 = []
+          clusters.forEach((c) => {
+            ps2.push(
+              queryEndpoint
+                .queryEndpointClusterAttributes(db, c.clusterId, ept.id)
+                .then((attrs) => {
+                  var rpt = `  - cluster: ${c.name} (${c.side})\n`
+                  attrs.forEach((at) => {
+                    rpt = rpt.concat(`    - attribute: ${at.name}\n`)
+                  })
+                  return rpt
+                })
+            )
+          })
+          return Promise.all(ps2)
+            .then((rpts) => rpts.join(''))
+            .then((r) => s.concat(r))
+        })
+      )
+    })
+    return Promise.all(ps).then((results) => results.join('\n'))
+  })
+}
+
+/**
+ * If you have an array of arguments, and a function that creates
+ * a promise out of each of those arguments, this function
+ * executes them sequentially, one by one.
+ *
+ * @param {*} arrayOfData
+ * @param {*} promiseCreator
+ */
+function executePromisesSequentially(arrayOfData, promiseCreator) {
+  return arrayOfData.reduce((prev, nextData) => {
+    return prev.then(() => promiseCreator(nextData))
+  }, Promise.resolve())
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
 exports.getSessionKeyFromBrowserWindow = getSessionKeyFromBrowserWindow
 exports.getSessionKeyFromBrowserCookie = getSessionKeyFromBrowserCookie
 exports.matchFeatureLevel = matchFeatureLevel
+exports.sessionReport = sessionReport
+exports.executePromisesSequentially = executePromisesSequentially

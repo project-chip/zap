@@ -22,7 +22,7 @@ executable(zap_regen) {
 }
 
 function(uc_generate) {
-  cmd=$(zap_regen) --out ${generationOutput} --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}
+  cmd=$(zap_regen) --out ${generationOutput} --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json ${contentFolder}
 }
 
 function(zapHelp) {

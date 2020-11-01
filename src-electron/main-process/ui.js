@@ -16,6 +16,9 @@
  */
 const { dialog } = require('electron')
 
+const importJs = require('../importexport/import.js')
+const windowJs = require('./window.js')
+const env = require('../util/env.js')
 /*
  * Created Date: Tuesday, March 10th 2020, 4:22:57 pm
  * Author: Timotej Ecimovic
@@ -34,4 +37,44 @@ function showErrorMessage(title, err) {
   dialog.showErrorBox(title, msg)
 }
 
+/**
+ * Process a single file, parsing it in as JSON and then possibly opening
+ * a new window if all is good.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} httpPort Server port for the URL that will be constructed.
+ */
+function readAndOpenFile(db, filePath, httpPort) {
+  env.logInfo(`Read and open: ${filePath}`)
+  return importJs
+    .importDataFromFile(env.mainDatabase(), filePath)
+    .then((sessionId) => {
+      windowJs.windowCreate(httpPort, {
+        filePath: filePath,
+        sessionId: sessionId,
+      })
+      return true
+    })
+    .catch((err) => {
+      showErrorMessage(filePath, err)
+    })
+}
+
+/**
+ * Creates a new window with a blank configuration.
+ *
+ * @param {*} httpPort
+ * @param {*} uiMode
+ * @param {*} embeddedMode
+ */
+function openNewConfiguration(httpPort, uiMode, embeddedMode) {
+  windowJs.windowCreate(httpPort, {
+    uiMode: uiMode,
+    embeddedMode: embeddedMode,
+  })
+}
+
 exports.showErrorMessage = showErrorMessage
+exports.readAndOpenFile = readAndOpenFile
+exports.openNewConfiguration = openNewConfiguration

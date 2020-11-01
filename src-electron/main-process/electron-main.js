@@ -51,19 +51,26 @@ if (app != null) {
 
       if (argv._.includes('selfCheck')) {
         return startup.startSelfCheck()
+      } else if (argv._.includes('analyze')) {
+        if (argv.zapFiles.length < 1)
+          throw 'You need to specify at least one zap file.'
+        return startup.startAnalyze(argv.zapFiles)
       } else if (argv._.includes('generate')) {
+        if (argv.zapFiles.length > 1)
+          throw 'You can only generate one file at a time.'
         return startup.startGeneration(
           argv.output,
           argv.generationTemplate,
           argv.zclProperties,
-          argv.zapFile
+          argv.zapFiles[0]
         )
       } else {
         return startup.startNormal(
           !argv.noUi,
           argv.showUrl,
           argv.uiMode,
-          argv.embeddedMode
+          argv.embeddedMode,
+          argv.zapFiles
         )
       }
     })

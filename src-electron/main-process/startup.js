@@ -29,6 +29,8 @@ const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
+const queryEndpoint = require('../db/query-endpoint.js')
+const uiJs = require('./ui.js')
 
 // This file contains various startup modes.
 
@@ -38,8 +40,9 @@ const importJs = require('../importexport/import.js')
  * @param {*} uiEnabled
  * @param {*} showUrl
  * @param {*} uiMode
+ * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
-function startNormal(uiEnabled, showUrl, uiMode, embeddedMode) {
+function startNormal(uiEnabled, showUrl, uiMode, embeddedMode, zapFiles) {
   return dbApi
     .initDatabaseAndLoadSchema(
       env.sqliteFile(),
@@ -68,10 +71,22 @@ function startNormal(uiEnabled, showUrl, uiMode, embeddedMode) {
     })
     .then(() => {
       if (uiEnabled) {
-        windowJs.initializeElectronUi(httpServer.httpServerPort(), {
-          uiMode: uiMode,
-          embeddedMode: embeddedMode,
-        })
+        windowJs.initializeElectronUi(httpServer.httpServerPort())
+        if (zapFiles.length == 0) {
+          uiJs.openNewConfiguration(
+            httpServer.httpServerPort(),
+            uiMode,
+            embeddedMode
+          )
+        } else {
+          return util.executePromisesSequentially(zapFiles, (f) =>
+            uiJs.readAndOpenFile(
+              env.mainDatabase(),
+              f,
+              httpServer.httpServerPort()
+            )
+          )
+        }
       } else {
         if (app.dock) {
           app.dock.hide()
@@ -90,6 +105,47 @@ function startNormal(uiEnabled, showUrl, uiMode, embeddedMode) {
     .catch((err) => {
       env.logError(err)
       throw err
+    })
+}
+
+/**
+ * Perform file analysis.
+ *
+ * @param {*} paths List of paths to analyze
+ * @param {boolean} [options={ log: true, quit: true }]
+ */
+function startAnalyze(
+  paths,
+  options = { log: true, quit: true, cleanDb: true }
+) {
+  var dbFile = env.sqliteFile('analysis')
+  if (options.log) console.log(`🤖 Starting analysis: ${paths}`)
+  if (options.cleanDb && fs.existsSync(dbFile)) {
+    if (options.log) console.log('    👉 remove old database file')
+    fs.unlinkSync(dbFile)
+  }
+  var db
+  return dbApi
+    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
+    .then((d) => {
+      db = d
+      if (options.log) console.log('    👉 database and schema initialized')
+      return zclLoader.loadZcl(db, args.zclPropertiesFile)
+    })
+    .then((d) => {
+      return util.executePromisesSequentially(paths, (path) =>
+        importJs
+          .importDataFromFile(db, path)
+          .then((sessionId) => util.sessionReport(db, sessionId))
+          .then((report) => {
+            if (options.log) console.log(`🤖 File: ${path}\n`)
+            if (options.log) console.log(report)
+          })
+      )
+    })
+    .then(() => {
+      if (options.log) console.log('😎 Analysis done!')
+      if (options.quit) app.quit()
     })
 }
 
@@ -257,3 +313,4 @@ exports.startGeneration = startGeneration
 exports.startNormal = startNormal
 exports.startSelfCheck = startSelfCheck
 exports.clearDatabaseFile = clearDatabaseFile
+exports.startAnalyze = startAnalyze

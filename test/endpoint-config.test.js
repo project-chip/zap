@@ -99,6 +99,32 @@ test('Test endpoint config queries', () =>
       expect(clusterArray[0].length).toBe(28)
       expect(clusterArray[1].length).toBe(5)
       expect(clusterArray[2].length).toBe(7)
+      var ps = []
+      clusterArray.forEach((clusters) => {
+        clusters.forEach((cluster) => {
+          ps.push(
+            queryEndpoint.queryEndpointClusterAttributes(
+              db,
+              cluster.clusterId,
+              cluster.endpointTypeId
+            )
+          )
+        })
+      })
+      return Promise.all(ps)
+    })
+    .then((attributeLists) => {
+      expect(attributeLists.length).toBe(40)
+      var sums = {}
+      attributeLists.forEach((al) => {
+        var l = al.length
+        if (sums[l]) {
+          sums[l]++
+        } else {
+          sums[l] = 1
+        }
+      })
+      expect(sums[0]).toBe(3)
     }))
 
 test(

@@ -62,3 +62,19 @@ test('Feature level match', () => {
   expect(x.match).toBeFalsy()
   expect(x.message).not.toBeNull()
 })
+
+var array = []
+test('Sequential promise resolution', () => {
+  var args = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  var fn = (arg) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        array.push(arg)
+        resolve()
+      }, 50 - 3 * arg)
+    })
+  }
+  return util.executePromisesSequentially(args, fn).then(() => {
+    expect(array).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+  })
+})
