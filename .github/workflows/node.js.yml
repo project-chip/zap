@@ -32,4 +32,4 @@ jobs:
       - run: npm run test
       - run: npm run self-check
       - run: npm run gen
-      - run: export GH_TOKEN=6154170f8ba4209889d35991e96acb1902801011 && npm run dist-linux
+      - run: export GH_TOKEN=${{ secrets.GITHUB_TOKEN}} && npm run dist-linux
