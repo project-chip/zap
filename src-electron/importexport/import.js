@@ -84,7 +84,9 @@ function importSinglePackage(db, sessionId, pkg) {
               packageType: pkg.type,
             }
           }
-          throw `None of the packages found match the required package: ${pkg.path}`
+          if (pkg.type != dbEnum.packageType.genTemplatesJson)
+            throw `None of the packages found match the required package: ${pkg.path}`
+          else return null
         })
       }
     })
@@ -98,6 +100,7 @@ function convertPackageResult(sessionId, data) {
     otherIds: [],
   }
   data.forEach((obj) => {
+    if (obj == null) return null
     if (obj.packageType == dbEnum.packageType.zclProperties) {
       ret.packageId = obj.packageId
     } else {

@@ -51,6 +51,8 @@ if (app != null) {
 
       if (argv._.includes('selfCheck')) {
         return startup.startSelfCheck()
+      } else if (argv._.includes('analyze')) {
+        return startup.startAnalyze(argv.zapFile)
       } else if (argv._.includes('generate')) {
         return startup.startGeneration(
           argv.output,

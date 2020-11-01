@@ -47,6 +47,7 @@ function processCommandLineArguments(argv) {
   var ret = yargs
     .command('generate', 'Generate ZCL artifacts.')
     .command('selfCheck', 'Perform the self-check of the application.')
+    .command('analyze', 'Analyze the zap file without doing anything.')
     .option('httpPort', {
       desc: 'Port used for the HTTP server',
       alias: 'p',

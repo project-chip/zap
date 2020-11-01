@@ -29,6 +29,7 @@ const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
+const queryEndpoint = require('../db/query-endpoint.js')
 
 // This file contains various startup modes.
 
@@ -90,6 +91,41 @@ function startNormal(uiEnabled, showUrl, uiMode, embeddedMode) {
     .catch((err) => {
       env.logError(err)
       throw err
+    })
+}
+
+/**
+ * Perform file analysis.
+ *
+ * @param {*} path
+ * @param {boolean} [options={ log: true, quit: true }]
+ */
+function startAnalyze(
+  path,
+  options = { log: true, quit: true, cleanDb: true }
+) {
+  var dbFile = env.sqliteFile('analysis')
+  if (options.log) console.log(`🤖 Starting analysis: ${path}`)
+  if (options.cleanDb && fs.existsSync(dbFile)) {
+    if (options.log) console.log('    👉 remove old database file')
+    fs.unlinkSync(dbFile)
+  }
+  var db
+  return dbApi
+    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
+    .then((d) => {
+      db = d
+      if (options.log) console.log('    👉 database and schema initialized')
+      return zclLoader.loadZcl(db, args.zclPropertiesFile)
+    })
+    .then((d) => importJs.importDataFromFile(db, path))
+    .then((sessionId) => util.sessionReport(db, sessionId))
+    .then((report) => {
+      if (options.log) console.log(report)
+    })
+    .then(() => {
+      if (options.log) console.log('😎 Analysis done!')
+      if (options.quit) app.quit()
     })
 }
 
@@ -257,3 +293,4 @@ exports.startGeneration = startGeneration
 exports.startNormal = startNormal
 exports.startSelfCheck = startSelfCheck
 exports.clearDatabaseFile = clearDatabaseFile
+exports.startAnalyze = startAnalyze

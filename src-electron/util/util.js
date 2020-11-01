@@ -24,6 +24,7 @@ const env = require('./env.js')
 const crc = require('crc')
 const path = require('path')
 const queryPackage = require('../db/query-package.js')
+const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require(`../db/query-config.js`)
 const dbEnum = require('../../src-shared/db-enum.js')
 const args = require('./args.js')
@@ -229,9 +230,28 @@ function matchFeatureLevel(featureLevel) {
   }
 }
 
+function sessionReport(db, sessionId) {
+  return queryEndpoint.queryEndpointTypes(db, sessionId).then((epts) => {
+    var ps = []
+    epts.forEach((ept) => {
+      ps.push(
+        queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
+          var s = `Endpoint: ${ept.name} \n`
+          clusters.forEach((c) => {
+            s = s.concat(`  - cluster: ${c.name} (${c.side})\n`)
+          })
+          return s
+        })
+      )
+    })
+    return Promise.all(ps).then((results) => results.join('\n'))
+  })
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
 exports.getSessionKeyFromBrowserWindow = getSessionKeyFromBrowserWindow
 exports.getSessionKeyFromBrowserCookie = getSessionKeyFromBrowserCookie
 exports.matchFeatureLevel = matchFeatureLevel
+exports.sessionReport = sessionReport
