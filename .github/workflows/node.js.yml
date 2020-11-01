@@ -32,3 +32,4 @@ jobs:
       - run: npm run test
       - run: npm run self-check
       - run: npm run gen
+      - run: npm run dist-linux
