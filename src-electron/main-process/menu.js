@@ -22,9 +22,7 @@ const queryConfig = require('../db/query-config.js')
 const queryGeneric = require('../db/query-generic.js')
 const querySession = require('../db/query-session.js')
 const exportJs = require('../importexport/export.js')
-const importJs = require('../importexport/import.js')
 const uiJs = require('./ui.js')
-const windowJs = require('./window.js')
 const preference = require('./preference.js')
 const generationEngine = require('../generator/generation-engine.js')
 const queryPackage = require('../db/query-package.js')
@@ -383,31 +381,8 @@ function fileSave(db, browserWindow, filePath) {
  */
 function fileOpen(db, filePaths) {
   filePaths.forEach((filePath, index) => {
-    readAndProcessFile(db, filePath)
+    uiJs.readAndOpenFile(db, filePath, httpPort)
   })
-}
-
-/**
- * Process a single file, parsing it in as JSON and then possibly opening
- * a new window if all is good.
- *
- * @param {*} db
- * @param {*} filePath
- */
-function readAndProcessFile(db, filePath) {
-  env.logInfo(`Read and process: ${filePath}`)
-  importJs
-    .importDataFromFile(env.mainDatabase(), filePath)
-    .then((sessionId) => {
-      windowJs.windowCreate(httpPort, {
-        filePath: filePath,
-        sessionId: sessionId,
-      })
-      return true
-    })
-    .catch((err) => {
-      uiJs.showErrorMessage(filePath, err)
-    })
 }
 
 /**

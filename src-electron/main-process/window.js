@@ -23,8 +23,7 @@ const menu = require('./menu.js')
 const tray = require('./tray.js')
 const util = require('../util/util.js')
 
-function initializeElectronUi(port, args) {
-  windowCreate(port, args)
+function initializeElectronUi(port) {
   menu.initMenu(port)
   tray.initTray(port)
 }
@@ -83,6 +82,8 @@ function windowCreate(port, args = {}) {
   let w = new BrowserWindow({
     width: 1600,
     height: 800,
+    x: 50 + windowCounter * 20,
+    y: 50 + windowCounter * 20,
     resizable: true,
     center: true,
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),

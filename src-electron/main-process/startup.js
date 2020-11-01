@@ -30,6 +30,7 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const queryEndpoint = require('../db/query-endpoint.js')
+const uiJs = require('./ui.js')
 
 // This file contains various startup modes.
 
@@ -39,8 +40,9 @@ const queryEndpoint = require('../db/query-endpoint.js')
  * @param {*} uiEnabled
  * @param {*} showUrl
  * @param {*} uiMode
+ * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
-function startNormal(uiEnabled, showUrl, uiMode, embeddedMode) {
+function startNormal(uiEnabled, showUrl, uiMode, embeddedMode, zapFiles) {
   return dbApi
     .initDatabaseAndLoadSchema(
       env.sqliteFile(),
@@ -69,10 +71,25 @@ function startNormal(uiEnabled, showUrl, uiMode, embeddedMode) {
     })
     .then(() => {
       if (uiEnabled) {
-        windowJs.initializeElectronUi(httpServer.httpServerPort(), {
-          uiMode: uiMode,
-          embeddedMode: embeddedMode,
-        })
+        windowJs.initializeElectronUi(httpServer.httpServerPort())
+        if (zapFiles.length == 0) {
+          uiJs.openNewConfiguration(
+            httpServer.httpServerPort(),
+            uiMode,
+            embeddedMode
+          )
+        } else {
+          // This executes all the promises sequentially
+          zapFiles.reduce((prev, nextFile) => {
+            return prev.then(() => {
+              return uiJs.readAndOpenFile(
+                env.mainDatabase(),
+                nextFile,
+                httpServer.httpServerPort()
+              )
+            })
+          }, Promise.resolve())
+        }
       } else {
         if (app.dock) {
           app.dock.hide()
@@ -97,15 +114,15 @@ function startNormal(uiEnabled, showUrl, uiMode, embeddedMode) {
 /**
  * Perform file analysis.
  *
- * @param {*} path
+ * @param {*} paths List of paths to analyze
  * @param {boolean} [options={ log: true, quit: true }]
  */
 function startAnalyze(
-  path,
+  paths,
   options = { log: true, quit: true, cleanDb: true }
 ) {
   var dbFile = env.sqliteFile('analysis')
-  if (options.log) console.log(`🤖 Starting analysis: ${path}`)
+  if (options.log) console.log(`🤖 Starting analysis: ${paths}`)
   if (options.cleanDb && fs.existsSync(dbFile)) {
     if (options.log) console.log('    👉 remove old database file')
     fs.unlinkSync(dbFile)
@@ -118,10 +135,20 @@ function startAnalyze(
       if (options.log) console.log('    👉 database and schema initialized')
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
     })
-    .then((d) => importJs.importDataFromFile(db, path))
-    .then((sessionId) => util.sessionReport(db, sessionId))
-    .then((report) => {
-      if (options.log) console.log(report)
+    .then((d) => {
+      var ps = []
+      paths.forEach((path) => {
+        ps.push(
+          importJs
+            .importDataFromFile(db, path)
+            .then((sessionId) => util.sessionReport(db, sessionId))
+            .then((report) => {
+              if (options.log) console.log(`🤖 File: ${path}\n`)
+              if (options.log) console.log(report)
+            })
+        )
+      })
+      return Promise.all(ps)
     })
     .then(() => {
       if (options.log) console.log('😎 Analysis done!')

@@ -31,7 +31,7 @@ exports.studioHttpPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE
 exports.embeddedMode = false
 exports.noServer = false
-exports.zapFile = null
+exports.zapFiles = []
 exports.genResultFile = false
 
 /**
@@ -44,10 +44,16 @@ exports.genResultFile = false
  */
 function processCommandLineArguments(argv) {
   var zapVersion = env.zapVersion()
-  var ret = yargs
-    .command('generate', 'Generate ZCL artifacts.')
-    .command('selfCheck', 'Perform the self-check of the application.')
-    .command('analyze', 'Analyze the zap file without doing anything.')
+  var commands = {
+    generate: 'Generate ZCL artifacts.',
+    selfCheck: 'Perform the self-check of the application.',
+    analyze: 'Analyze the zap file without doing anything.',
+  }
+  var y = yargs
+  for (const cmd in commands) {
+    y.command(cmd, commands[cmd])
+  }
+  var ret = y
     .option('httpPort', {
       desc: 'Port used for the HTTP server',
       alias: 'p',
@@ -61,7 +67,8 @@ function processCommandLineArguments(argv) {
       default: exports.studioHttpPort,
     })
     .option('zapFile', {
-      desc: 'input .zap file to read in.',
+      desc:
+        'input .zap file to read in. You can also specify them without an option, directly.',
       alias: ['zap', 'in', 'i'],
       type: 'string',
       default: exports.zapFile,
@@ -115,7 +122,7 @@ function processCommandLineArguments(argv) {
       desc: 'Clear out the database and start with a new file.',
       type: 'string',
     })
-    .usage('Usage: $0 <command> [options]')
+    .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${zapVersion.featureLevel}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
     )
@@ -127,6 +134,16 @@ function processCommandLineArguments(argv) {
     .wrap(null)
     .parse(argv)
 
+  // Collect files that are passed as loose arguments
+  var allFiles = ret._.filter((arg, index) => {
+    if (index == 0) return false
+    if (arg.endsWith('.js')) return false
+    if (arg in commands) return false
+    return true
+  })
+  if (ret.zapFile != null) allFiles.push(ret.zapFile)
+  ret.zapFiles = allFiles
+
   // Now populate exported variables with this.
   exports.zclPropertiesFile = ret.zclProperties
   exports.httpPort = ret.httpPort
@@ -135,8 +152,8 @@ function processCommandLineArguments(argv) {
   exports.genTemplateJsonFile = ret.generationTemplate
   exports.embeddedMode = ret.embeddedMode
   exports.noServer = ret.noServer
-  exports.zapFile = ret.zapFile
   exports.genResultFile = ret.genResultFile
+  exports.zapFiles = allFiles
   return ret
 }
 

@@ -237,10 +237,23 @@ function sessionReport(db, sessionId) {
       ps.push(
         queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
           var s = `Endpoint: ${ept.name} \n`
+          var ps2 = []
           clusters.forEach((c) => {
-            s = s.concat(`  - cluster: ${c.name} (${c.side})\n`)
+            ps2.push(
+              queryEndpoint
+                .queryEndpointClusterAttributes(db, c.clusterId, ept.id)
+                .then((attrs) => {
+                  var rpt = `  - cluster: ${c.name} (${c.side})\n`
+                  attrs.forEach((at) => {
+                    rpt = rpt.concat(`    - attribute: ${at.name}\n`)
+                  })
+                  return rpt
+                })
+            )
           })
-          return s
+          return Promise.all(ps2)
+            .then((rpts) => rpts.join(''))
+            .then((r) => s.concat(r))
         })
       )
     })
