@@ -261,6 +261,20 @@ function sessionReport(db, sessionId) {
   })
 }
 
+/**
+ * If you have an array of arguments, and a function that creates
+ * a promise out of each of those arguments, this function
+ * executes them sequentially, one by one.
+ *
+ * @param {*} arrayOfData
+ * @param {*} promiseCreator
+ */
+function executePromisesSequentially(arrayOfData, promiseCreator) {
+  return arrayOfData.reduce((prev, nextData) => {
+    return prev.then(() => promiseCreator(nextData))
+  }, Promise.resolve())
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
@@ -268,3 +282,4 @@ exports.getSessionKeyFromBrowserWindow = getSessionKeyFromBrowserWindow
 exports.getSessionKeyFromBrowserCookie = getSessionKeyFromBrowserCookie
 exports.matchFeatureLevel = matchFeatureLevel
 exports.sessionReport = sessionReport
+exports.executePromisesSequentially = executePromisesSequentially

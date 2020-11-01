@@ -79,16 +79,13 @@ function startNormal(uiEnabled, showUrl, uiMode, embeddedMode, zapFiles) {
             embeddedMode
           )
         } else {
-          // This executes all the promises sequentially
-          zapFiles.reduce((prev, nextFile) => {
-            return prev.then(() => {
-              return uiJs.readAndOpenFile(
-                env.mainDatabase(),
-                nextFile,
-                httpServer.httpServerPort()
-              )
-            })
-          }, Promise.resolve())
+          return util.executePromisesSequentially(zapFiles, (f) =>
+            uiJs.readAndOpenFile(
+              env.mainDatabase(),
+              f,
+              httpServer.httpServerPort()
+            )
+          )
         }
       } else {
         if (app.dock) {
