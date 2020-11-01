@@ -39,6 +39,7 @@
     "dist": "electron-builder",
     "dist-all": "electron-builder -mwl",
     "dist-linux": "electron-builder -l",
+    "publish-linux": "electron-builder -l -p always",
     "dist-win": "electron-builder -w",
     "dist-mac": "electron-builder -m",
     "apack:win": "cp apack.info.dist dist/win-unpacked/apack.info && cd dist/win-unpacked && zip -r ../zap_apack_win * && cd -",
