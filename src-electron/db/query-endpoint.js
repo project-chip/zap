@@ -1,3 +1,4 @@
+const { int8ToHex } = require('../util/bin.js')
 /**
  *
  *    Copyright (c) 2020 Silicon Labs
@@ -17,6 +18,11 @@
 
 const dbApi = require('./db-api.js')
 const queryConfig = require('./query-config.js')
+const bin = require('../util/bin.js')
+
+function queryEndpoints(db, sessionId) {
+  return queryConfig.getAllEndpoints(db, sessionId)
+}
 
 function queryEndpointTypes(db, sessionId) {
   return queryConfig.getAllEndpointTypes(db, sessionId)
@@ -53,6 +59,7 @@ ORDER BY C.CODE
           clusterId: row['CLUSTER_ID'],
           endpointTypeId: row['ENDPOINT_TYPE_REF'],
           endpointTypeClusterId: row['ENDPOINT_TYPE_CLUSTER_ID'],
+          hexCode: bin.int16ToHex(row['CODE']),
           code: row['CODE'],
           name: row['NAME'],
           side: row['SIDE'],
@@ -61,7 +68,7 @@ ORDER BY C.CODE
     )
 }
 
-function queryEndpointClusterAttributes(db, clusterId, endpointTypeId) {
+function queryEndpointClusterAttributes(db, clusterId, side, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -86,15 +93,17 @@ ON
   A.ATTRIBUTE_ID = EA.ATTRIBUTE_REF
 WHERE
   A.CLUSTER_REF = ?
+  AND A.SIDE = ?
   AND EA.ENDPOINT_TYPE_REF = ?
     `,
-      [clusterId, endpointTypeId]
+      [clusterId, side, endpointTypeId]
     )
     .then((rows) =>
       rows.map((row) => {
         return {
           clusterId: clusterId,
-          attributeCode: row['CODE'],
+          code: row['CODE'],
+          hexCode: bin.int16ToHex(row['CODE']),
           name: row['NAME'],
           side: row['SIDE'],
           storage: row['STORAGE_OPTION'],
@@ -110,6 +119,39 @@ WHERE
     )
 }
 
+function queryEndpointClusterCommands(db, clusterId, endpointTypeId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  C.NAME,
+  C.CODE
+FROM 
+  COMMAND AS C
+LEFT JOIN
+  ENDPOINT_TYPE_COMMAND AS EC
+ON
+  C.COMMAND_ID = EC.COMMAND_REF
+WHERE
+  C.CLUSTER_REF = ?
+  AND EC.ENDPOINT_TYPE_REF = ?
+  `,
+      [clusterId, endpointTypeId]
+    )
+    .then((rows) =>
+      rows.map((row) => {
+        return {
+          name: row['NAME'],
+          code: row['CODE'],
+          hexCode: bin.int8ToHex(row['CODE']),
+        }
+      })
+    )
+}
+
+exports.queryEndpoints = queryEndpoints
 exports.queryEndpointClusters = queryEndpointClusters
 exports.queryEndpointTypes = queryEndpointTypes
 exports.queryEndpointClusterAttributes = queryEndpointClusterAttributes
+exports.queryEndpointClusterCommands = queryEndpointClusterCommands

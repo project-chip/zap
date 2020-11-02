@@ -239,13 +239,29 @@ function sessionReport(db, sessionId) {
           var s = `Endpoint: ${ept.name} \n`
           var ps2 = []
           clusters.forEach((c) => {
+            var rpt = `  - 0x${c.hexCode}: cluster: ${c.name} (${c.side})\n`
             ps2.push(
               queryEndpoint
-                .queryEndpointClusterAttributes(db, c.clusterId, ept.id)
+                .queryEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
                 .then((attrs) => {
-                  var rpt = `  - cluster: ${c.name} (${c.side})\n`
                   attrs.forEach((at) => {
-                    rpt = rpt.concat(`    - attribute: ${at.name}\n`)
+                    rpt = rpt.concat(
+                      `    - 0x${at.hexCode}: attribute: ${at.name}\n`
+                    )
+                  })
+                })
+                .then(() =>
+                  queryEndpoint.queryEndpointClusterCommands(
+                    db,
+                    c.clusterId,
+                    ept.id
+                  )
+                )
+                .then((cmds) => {
+                  cmds.forEach((cmd) => {
+                    rpt = rpt.concat(
+                      `    - 0x${cmd.hexCode}: command: ${cmd.name}\n`
+                    )
                   })
                   return rpt
                 })

@@ -99,11 +99,20 @@ test('Test endpoint config queries', () =>
       expect(clusterArray[0].length).toBe(28)
       expect(clusterArray[1].length).toBe(5)
       expect(clusterArray[2].length).toBe(7)
-      var ps = []
+      var promiseAttributes = []
+      var promiseCommands = []
       clusterArray.forEach((clusters) => {
         clusters.forEach((cluster) => {
-          ps.push(
+          promiseAttributes.push(
             queryEndpoint.queryEndpointClusterAttributes(
+              db,
+              cluster.clusterId,
+              cluster.side,
+              cluster.endpointTypeId
+            )
+          )
+          promiseCommands.push(
+            queryEndpoint.queryEndpointClusterCommands(
               db,
               cluster.clusterId,
               cluster.endpointTypeId
@@ -111,20 +120,38 @@ test('Test endpoint config queries', () =>
           )
         })
       })
-      return Promise.all(ps)
+      return Promise.all([
+        Promise.all(promiseAttributes),
+        Promise.all(promiseCommands),
+      ])
     })
-    .then((attributeLists) => {
+    .then((twoLists) => {
+      var attributeLists = twoLists[0]
+      var commandLists = twoLists[1]
       expect(attributeLists.length).toBe(40)
-      var sums = {}
+      expect(commandLists.length).toBe(40)
+
+      var atSums = {}
       attributeLists.forEach((al) => {
         var l = al.length
-        if (sums[l]) {
-          sums[l]++
+        if (atSums[l]) {
+          atSums[l]++
         } else {
-          sums[l] = 1
+          atSums[l] = 1
         }
       })
-      expect(sums[0]).toBe(3)
+      expect(atSums[0]).toBe(18)
+
+      var cmdSums = {}
+      commandLists.forEach((cl) => {
+        var l = cl.length
+        if (cmdSums[l]) {
+          cmdSums[l]++
+        } else {
+          cmdSums[l] = 1
+        }
+      })
+      expect(cmdSums[0]).toBe(15)
     }))
 
 test(
