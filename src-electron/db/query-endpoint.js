@@ -16,18 +16,55 @@ const { int8ToHex } = require('../util/bin.js')
  *    limitations under the License.
  */
 
+/**
+ * This module provides queries for endpoint configuration.
+ *
+ * @module DB API: endpoint configuration queries against the database.
+ */
 const dbApi = require('./db-api.js')
 const queryConfig = require('./query-config.js')
 const bin = require('../util/bin.js')
 
+/**
+ * Returns promise of all endpoints.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into endpoints rows
+ */
 function queryEndpoints(db, sessionId) {
   return queryConfig.getAllEndpoints(db, sessionId)
 }
 
+/**
+ * Returns endpoint types.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into endpoint types rows
+ */
 function queryEndpointTypes(db, sessionId) {
   return queryConfig.getAllEndpointTypes(db, sessionId)
 }
 
+/**
+ * Returns endpoint type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns promise that resolves into endpoint type
+ */
+function queryEndpointType(db, endpointTypeId) {
+  return queryConfig.getEndpointType(db, endpointTypeId)
+}
+
+/**
+ * Retrieves clusters on an endpoint.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns promise that resolves into endpoint clusters.
+ */
 function queryEndpointClusters(db, endpointTypeId) {
   return dbApi
     .dbAll(
@@ -68,6 +105,15 @@ ORDER BY C.CODE
     )
 }
 
+/**
+ * Retrieves endpoint cluster attributes
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @param {*} side
+ * @param {*} endpointTypeId
+ * @returns promise that resolves into endpoint cluster attributes
+ */
 function queryEndpointClusterAttributes(db, clusterId, side, endpointTypeId) {
   return dbApi
     .dbAll(
@@ -119,6 +165,14 @@ WHERE
     )
 }
 
+/**
+ * Retrieves endpoint cluster commands.
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @param {*} endpointTypeId
+ * @returns promise that resolves into endpoint cluster commands
+ */
 function queryEndpointClusterCommands(db, clusterId, endpointTypeId) {
   return dbApi
     .dbAll(
@@ -153,5 +207,6 @@ WHERE
 exports.queryEndpoints = queryEndpoints
 exports.queryEndpointClusters = queryEndpointClusters
 exports.queryEndpointTypes = queryEndpointTypes
+exports.queryEndpointType = queryEndpointType
 exports.queryEndpointClusterAttributes = queryEndpointClusterAttributes
 exports.queryEndpointClusterCommands = queryEndpointClusterCommands

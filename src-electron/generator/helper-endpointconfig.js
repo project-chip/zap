@@ -445,7 +445,7 @@ function endpoint_config(options) {
     .then((endpointTypeIds) => {
       var endpointTypePromises = []
       endpointTypeIds.forEach((eptId) => {
-        endpointTypePromises.push(queryConfig.getEndpointType(db, eptId))
+        endpointTypePromises.push(queryEndpoint.queryEndpointType(db, eptId))
       })
       return Promise.all(endpointTypePromises)
     })
