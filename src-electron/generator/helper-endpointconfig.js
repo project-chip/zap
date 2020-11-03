@@ -21,7 +21,7 @@ const queryEndpoint = require('../db/query-endpoint.js')
 const queryZcl = require('../db/query-zcl.js')
 const bin = require('../util/bin.js')
 const types = require('../util/types.js')
-
+const dbEnum = require('../../src-shared/db-enum.js')
 /**
  * Returns number of endpoint types.
  *
@@ -327,76 +327,75 @@ function collectAttributes(endpointTypes) {
       clusterList.push(cluster)
       clusterIndex++
       clusterCount++
+
+      // Go over all the attributes in the endpoint and add them to the list.
+      c.attributes.forEach((a) => {
+        if (a.attribute == null) return
+        var attributeDefaultValue = 0
+        if (a.typeSize > 2) {
+          // We will need to generate the GENERATED_DEFAULTS
+          attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
+          longDefaults.push(a)
+          longDefaultsIndex += a.typeSize
+          var longDef = {
+            value: a.attribute.defaultValue,
+            size: a.typeSize,
+            comment: `Default for attribute ${a.attribute.label}`,
+          }
+          longDefaultsList.push(longDef)
+        }
+        if (a.isBounded) {
+          var minMax = {
+            default: '0',
+            min: '0',
+            max: '10',
+            comment: `Attribute: ${a.attribute.label}`,
+          }
+          minMaxList.push(minMax)
+        }
+        if (a.isReportable) {
+          var rpt = {
+            direction: 'REPORTED', // or 'RECEIVED'
+            endpoint: 0,
+            clusterId: 1,
+            attributeId: 2,
+            mask: 12,
+            mfgCode: 0,
+            minOrSource: 44,
+            maxOrEndpoint: 34,
+            reportableChangeOrTimeout: 0,
+          }
+          reportList.push(rpt)
+        }
+        if (a.typeSize > largestAttribute) {
+          largestAttribute = a.typeSize
+        }
+        if (a.isSingleton) {
+          singletonsSize += a.typeSize
+        }
+        totalAttributeSize += a.typeSize
+        var attr = {
+          id: a.attribute.code, // attribute code
+          type: `ZAP_TYPE(${a.attribute.type.toUpperCase()})`, // type
+          size: a.typeSize, // size
+          mask: [], // array of special properties
+          defaultValue: attributeDefaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
+          comment: `${a.attribute.label}`,
+        }
+        attributeList.push(attr)
+      })
+      // Go over the commands
+      c.commands.forEach((cmd) => {
+        var cmd = {
+          clusterId: 0,
+          commandId: cmd.id,
+          mask: 0,
+          comment: 'Command',
+        }
+        commandList.push(cmd)
+      })
     })
     endpoint.clusterCount = clusterCount
-
-    // Go over the commands
-    ept.commands.forEach((cmd) => {
-      var cmd = {
-        clusterId: 0,
-        commandId: cmd.id,
-        mask: 0,
-        comment: 'Command',
-      }
-      commandList.push(cmd)
-    })
-
-    // Go over all the attributes in the endpoint and add them to the list.
-    ept.attributes.forEach((a) => {
-      if (a.attribute == null) return
-      var attributeDefaultValue = 0
-      if (a.typeSize > 2) {
-        // We will need to generate the GENERATED_DEFAULTS
-        attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
-        longDefaults.push(a)
-        longDefaultsIndex += a.typeSize
-        var longDef = {
-          value: a.attribute.defaultValue,
-          size: a.typeSize,
-          comment: `Default for attribute ${a.attribute.label}`,
-        }
-        longDefaultsList.push(longDef)
-      }
-      if (a.isBounded) {
-        var minMax = {
-          default: '0',
-          min: '0',
-          max: '10',
-          comment: `Attribute: ${a.attribute.label}`,
-        }
-        minMaxList.push(minMax)
-      }
-      if (a.isReportable) {
-        var rpt = {
-          direction: 'REPORTED', // or 'RECEIVED'
-          endpoint: 0,
-          clusterId: 1,
-          attributeId: 2,
-          mask: 12,
-          mfgCode: 0,
-          minOrSource: 44,
-          maxOrEndpoint: 34,
-          reportableChangeOrTimeout: 0,
-        }
-        reportList.push(rpt)
-      }
-      if (a.typeSize > largestAttribute) {
-        largestAttribute = a.typeSize
-      }
-      if (a.isSingleton) {
-        singletonsSize += a.typeSize
-      }
-      totalAttributeSize += a.typeSize
-      var attr = {
-        id: a.attribute.code, // attribute code
-        type: `ZAP_TYPE(${a.attribute.type.toUpperCase()})`, // type
-        size: a.typeSize, // size
-        mask: [], // array of special properties
-        defaultValue: attributeDefaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
-        comment: `${a.attribute.label}`,
-      }
-      attributeList.push(attr)
-    })
   })
   return Promise.resolve({
     endpointList: endpointList,
@@ -453,61 +452,32 @@ function endpoint_config(options) {
       var promises = []
       newContext.endpointTypes = endpointTypes
       endpointTypes.forEach((ept) => {
-        var id = ept.id
         promises.push(
-          queryConfig
-            .getEndpointTypeAttributes(db, id)
-            .then((attributes) => (ept.attributes = attributes))
-            .then((attributes) => {
-              var ps = []
-              attributes.forEach((at) => {
-                if (at.isIncluded) {
-                  ps.push(
-                    queryZcl
-                      .selectAttributeById(db, at.attributeId)
-                      .then((a) => (at.attribute = a))
-                      .then((a) => {
-                        if (a)
-                          return types.typeSize(
-                            db,
-                            newContext.global.zclPackageId,
-                            a.type
-                          )
-                        else return null
-                      })
-                      .then((size) => (at.typeSize = size))
+          queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
+            ept.clusters = clusters // Put 'clusters' into endpoint
+            var ps = []
+            clusters.forEach((cl) => {
+              ps.push(
+                queryEndpoint
+                  .queryEndpointClusterAttributes(
+                    db,
+                    cl.clusterId,
+                    dbEnum.side.client,
+                    ept.id
                   )
-                }
-              })
-              return Promise.all(ps)
+                  .then((attributes) => {
+                    cl.attributes = attributes
+                  })
+              )
+              ps.push(
+                queryEndpoint
+                  .queryEndpointClusterCommands(db, cl.clusterId, ept.id)
+                  .then((commands) => {
+                    cl.commands = commands
+                  })
+              )
             })
-        )
-        promises.push(
-          queryConfig
-            .getEndpointTypeCommands(db, id)
-            .then((commands) => (ept.commands = commands))
-        )
-        promises.push(
-          queryConfig
-            .getEndpointTypeClusters(db, id)
-            .then(
-              (clusters) => (ept.clusters = clusters.filter((c) => c.enabled))
-            )
-            .then((enabledClusters) => {
-              var ps = []
-              enabledClusters.forEach((cluster) => {
-                ps.push(
-                  queryZcl
-                    .selectClusterById(db, cluster.clusterRef)
-                    .then((c) => (cluster.cluster = c))
-                )
-              })
-              return Promise.all(ps)
-            })
-        )
-        promises.push(
-          queryConfig.getEndpointTypeCommands(db, id).then((commands) => {
-            ept.commands = commands
+            return Promise.all(ps)
           })
         )
       })
@@ -516,12 +486,6 @@ function endpoint_config(options) {
     .then((endpointTypes) => collectAttributes(endpointTypes))
     .then((collection) => {
       Object.assign(newContext, collection)
-    })
-    .then(() =>
-      queryConfig.getAllSessionAttributes(this.global.db, this.global.sessionId)
-    )
-    .then((atts) => {
-      newContext.attributes = atts // TODO: Put attributes into the context
     })
     .then(() => options.fn(newContext))
   return templateUtil.templatePromise(this.global, promise)
