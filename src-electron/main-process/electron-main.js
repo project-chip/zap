@@ -76,7 +76,7 @@ if (app != null) {
     })
     .catch((err) => {
       console.log(err)
-      app.quit(1)
+      app.exit(1)
     })
 
   app.on('window-all-closed', () => {
