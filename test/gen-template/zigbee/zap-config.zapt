@@ -76,8 +76,10 @@
 
 
 // Array of EmberAfCommandMetadata structs.
+#define ZAP_COMMAND_MASK(mask) COMMAND_MASK_ ## mask
 #define EMBER_AF_GENERATED_COMMAND_COUNT ({{endpoint_command_count}})
 #define GENERATED_COMMANDS {{endpoint_command_list}}
+#undef ZAP_COMMAND_MASK
 
 // Array of EmberAfManufacturerCodeEntry structures for commands.
 #define GENERATED_COMMAND_MANUFACTURER_CODE_COUNT ({{endpoint_command_manufacturer_code_count}})

@@ -182,7 +182,9 @@ function queryEndpointClusterCommands(db, clusterId, endpointTypeId) {
       `
 SELECT
   C.NAME,
-  C.CODE
+  C.CODE,
+  EC.INCOMING,
+  EC.OUTGOING
 FROM 
   COMMAND AS C
 LEFT JOIN
@@ -200,6 +202,8 @@ WHERE
         return {
           name: row['NAME'],
           code: row['CODE'],
+          isIncoming: row['INCOMING'],
+          isOutgoing: row['OUTGOING'],
           hexCode: '0x' + bin.int8ToHex(row['CODE']),
         }
       })

@@ -186,8 +186,16 @@ function endpoint_cluster_list(options) {
 function endpoint_command_list(options) {
   var ret = '{ \\ \n'
   this.commandList.forEach((cmd) => {
+    var mask = ''
+    if (cmd.mask.length == 0) {
+      mask = '0'
+    } else {
+      mask = cmd.mask
+        .map((m) => `ZAP_COMMAND_MASK(${m.toUpperCase()})`)
+        .join(' | ')
+    }
     ret = ret.concat(
-      `  { ${cmd.clusterId}, ${cmd.commandId}, ${cmd.mask} } /* ${cmd.comment} */ \\\n`
+      `  { ${cmd.clusterId}, ${cmd.commandId}, ${mask} } /* ${cmd.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
@@ -394,10 +402,13 @@ function collectAttributes(endpointTypes) {
       })
       // Go over the commands
       c.commands.forEach((cmd) => {
+        var mask = []
+        if (cmd.isIncoming) mask.push('incoming')
+        if (cmd.isOutgoing) mask.push('outgoing')
         var cmd = {
           clusterId: c.hexCode,
           commandId: cmd.hexCode,
-          mask: 0,
+          mask: mask,
           comment: `${c.name} (${c.side}): ${cmd.name}`,
         }
         commandList.push(cmd)
