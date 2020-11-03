@@ -395,10 +395,10 @@ function collectAttributes(endpointTypes) {
       // Go over the commands
       c.commands.forEach((cmd) => {
         var cmd = {
-          clusterId: 0,
-          commandId: cmd.id,
+          clusterId: c.hexCode,
+          commandId: cmd.hexCode,
           mask: 0,
-          comment: 'Command',
+          comment: `${c.name} (${c.side}): ${cmd.name}`,
         }
         commandList.push(cmd)
       })
