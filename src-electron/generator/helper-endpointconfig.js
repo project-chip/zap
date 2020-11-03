@@ -303,6 +303,7 @@ function collectAttributes(endpointTypes) {
   var clusterList = [] // Array of { clusterId, attributeIndex, attributeCount, mask, functions, comment }
   var longDefaults = [] // Array of strings representing bytes
   var longDefaultsIndex = 0
+  var minMaxIndex = 0
   var largestAttribute = 0
   var singletonsSize = 0
   var totalAttributeSize = 0
@@ -344,18 +345,18 @@ function collectAttributes(endpointTypes) {
 
       // Go over all the attributes in the endpoint and add them to the list.
       c.attributes.forEach((a) => {
-        var attributeDefaultValue = 0
+        var attributeDefaultValue = a.defaultValue
         if (a.typeSize > 2) {
           // We will need to generate the GENERATED_DEFAULTS
-          attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           longDefaults.push(a)
-          longDefaultsIndex += a.typeSize
           var longDef = {
             value: a.defaultValue,
             size: a.typeSize,
             comment: `Default for attribute ${a.name}`,
           }
+          attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           longDefaultsList.push(longDef)
+          longDefaultsIndex += a.typeSize
         }
         if (a.isBound) {
           var minMax = {
@@ -364,7 +365,9 @@ function collectAttributes(endpointTypes) {
             max: '10',
             comment: `Attribute: ${a.name}`,
           }
+          attributeDefaultValue = `ZAP_MIN_MAX_DEFAULTS_INDEX(${minMaxIndex})`
           minMaxList.push(minMax)
+          minMaxIndex++
         }
         if (a.includedReportable) {
           var rpt = {

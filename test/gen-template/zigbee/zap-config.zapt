@@ -17,7 +17,8 @@
 #endif // BIGENDIAN_CPU
 
 #define ZAP_TYPE(type) ZCL_ ## type ## _ATTRIBUTE_TYPE
-#define ZAP_LONG_DEFAULTS_INDEX(index) (&generatedDefaults[index])
+#define ZAP_LONG_DEFAULTS_INDEX(index) {(uint8_t*)(&generatedDefaults[index])}
+#define ZAP_MIN_MAX_DEFAULTS_INDEX(index) {(uint8_t*)(&minMaxDefault[index])}
 
 // This is an array of EmberAfAttributeMinMaxValue structures.
 #define GENERATED_MIN_MAX_DEFAULT_COUNT {{endpoint_attribute_min_max_count}}
@@ -31,6 +32,7 @@
 
 #undef ZAP_TYPE
 #undef ZAP_LONG_DEFAULTS_INDEX
+#undef ZAP_MIN_MAX_DEFAULTS_INDEX
 
 // This is an array of EmberAfCluster structures.
 #define GENERATED_CLUSTER_COUNT {{endpoint_cluster_count}}
