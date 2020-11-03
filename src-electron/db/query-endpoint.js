@@ -96,7 +96,7 @@ ORDER BY C.CODE
           clusterId: row['CLUSTER_ID'],
           endpointTypeId: row['ENDPOINT_TYPE_REF'],
           endpointTypeClusterId: row['ENDPOINT_TYPE_CLUSTER_ID'],
-          hexCode: bin.int16ToHex(row['CODE']),
+          hexCode: '0x' + bin.int16ToHex(row['CODE']),
           code: row['CODE'],
           name: row['NAME'],
           side: row['SIDE'],
@@ -123,6 +123,7 @@ SELECT
   A.CODE,
   A.NAME,
   A.SIDE,
+  A.TYPE,
   EA.STORAGE_OPTION,
   EA.SINGLETON,
   EA.BOUNDED,
@@ -149,9 +150,10 @@ WHERE
         return {
           clusterId: clusterId,
           code: row['CODE'],
-          hexCode: bin.int16ToHex(row['CODE']),
+          hexCode: '0x' + bin.int16ToHex(row['CODE']),
           name: row['NAME'],
           side: row['SIDE'],
+          type: row['TYPE'],
           storage: row['STORAGE_OPTION'],
           isSingleton: row['SINGLETON'],
           isBound: row['BOUNDED'],
@@ -198,7 +200,7 @@ WHERE
         return {
           name: row['NAME'],
           code: row['CODE'],
-          hexCode: bin.int8ToHex(row['CODE']),
+          hexCode: '0x' + bin.int8ToHex(row['CODE']),
         }
       })
     )

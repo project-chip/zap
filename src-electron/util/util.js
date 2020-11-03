@@ -230,6 +230,13 @@ function matchFeatureLevel(featureLevel) {
   }
 }
 
+/**
+ * Produces a text dump of a session data for human consumption.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into a text report for the session.
+ */
 function sessionReport(db, sessionId) {
   return queryEndpoint.queryEndpointTypes(db, sessionId).then((epts) => {
     var ps = []
@@ -239,14 +246,14 @@ function sessionReport(db, sessionId) {
           var s = `Endpoint: ${ept.name} \n`
           var ps2 = []
           clusters.forEach((c) => {
-            var rpt = `  - 0x${c.hexCode}: cluster: ${c.name} (${c.side})\n`
+            var rpt = `  - ${c.hexCode}: cluster: ${c.name} (${c.side})\n`
             ps2.push(
               queryEndpoint
                 .queryEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
                 .then((attrs) => {
                   attrs.forEach((at) => {
                     rpt = rpt.concat(
-                      `    - 0x${at.hexCode}: attribute: ${at.name}\n`
+                      `    - ${at.hexCode}: attribute: ${at.name} [${at.type}]\n`
                     )
                   })
                 })
@@ -260,7 +267,7 @@ function sessionReport(db, sessionId) {
                 .then((cmds) => {
                   cmds.forEach((cmd) => {
                     rpt = rpt.concat(
-                      `    - 0x${cmd.hexCode}: command: ${cmd.name}\n`
+                      `    - ${cmd.hexCode}: command: ${cmd.name}\n`
                     )
                   })
                   return rpt

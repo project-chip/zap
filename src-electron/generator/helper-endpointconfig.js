@@ -200,8 +200,16 @@ function endpoint_attribute_count(options) {
 function endpoint_attribute_list(options) {
   var ret = '{ \\ \n'
   this.attributeList.forEach((at) => {
+    var mask = ''
+    if (at.mask.length == 0) {
+      mask = '0'
+    } else {
+      mask = at.mask
+        .map((m) => `ZAP_ATTRIBUTE_MASK(${m.toUpperCase()})`)
+        .join(' | ')
+    }
     ret = ret.concat(
-      `  { ${at.id}, ${at.type}, ${at.size}, ${at.mask}, ${at.defaultValue} } /* ${at.comment} */  \\\n`
+      `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, ${at.defaultValue} } /* ${at.comment} */  \\\n`
     )
   })
   return ret.concat('}\n')
@@ -299,7 +307,7 @@ function collectAttributes(endpointTypes) {
   endpointTypes.forEach((ept) => {
     var endpoint = {
       clusterIndex: clusterIndex,
-      clusterCount: 0,
+      clusterCount: ept.clusters.length,
       attributeSize: 0,
     }
 
@@ -311,26 +319,23 @@ function collectAttributes(endpointTypes) {
     deviceList.push(device)
     endpointList.push(endpoint)
 
-    var clusterCount = 0
     // Go over all the clusters in the endpoint and add them to the list.
+    var attributeIndex = 0
     ept.clusters.forEach((c) => {
       var cluster = {
-        clusterId: 0,
-        attributeIndex: 0,
-        attributeCount: 0,
+        clusterId: c.hexCode,
+        attributeIndex: attributeIndex,
+        attributeCount: c.attributes.length,
         mask: 0,
         functions: 'NULL',
-        comment: `Endpoint: ${ept.endpointId}, Cluster: ${
-          c.cluster == null ? 'unknown' : c.cluster.name
-        }`,
+        comment: `Endpoint: ${ept.id}, Cluster: ${c.name} (${c.side})`,
       }
       clusterList.push(cluster)
       clusterIndex++
-      clusterCount++
+      attributeIndex += c.attributes.length
 
       // Go over all the attributes in the endpoint and add them to the list.
       c.attributes.forEach((a) => {
-        if (a.attribute == null) return
         var attributeDefaultValue = 0
         if (a.typeSize > 2) {
           // We will need to generate the GENERATED_DEFAULTS
@@ -338,32 +343,32 @@ function collectAttributes(endpointTypes) {
           longDefaults.push(a)
           longDefaultsIndex += a.typeSize
           var longDef = {
-            value: a.attribute.defaultValue,
+            value: a.defaultValue,
             size: a.typeSize,
-            comment: `Default for attribute ${a.attribute.label}`,
+            comment: `Default for attribute ${a.name}`,
           }
           longDefaultsList.push(longDef)
         }
-        if (a.isBounded) {
+        if (a.isBound) {
           var minMax = {
             default: '0',
             min: '0',
             max: '10',
-            comment: `Attribute: ${a.attribute.label}`,
+            comment: `Attribute: ${a.name}`,
           }
           minMaxList.push(minMax)
         }
-        if (a.isReportable) {
+        if (a.includedReportable) {
           var rpt = {
             direction: 'REPORTED', // or 'RECEIVED'
             endpoint: 0,
-            clusterId: 1,
-            attributeId: 2,
+            clusterId: c.hexCode,
+            attributeId: a.hexCode,
             mask: 12,
             mfgCode: 0,
-            minOrSource: 44,
-            maxOrEndpoint: 34,
-            reportableChangeOrTimeout: 0,
+            minOrSource: a.minInterval,
+            maxOrEndpoint: a.maxInterval,
+            reportableChangeOrTimeout: a.reportableChange,
           }
           reportList.push(rpt)
         }
@@ -374,13 +379,16 @@ function collectAttributes(endpointTypes) {
           singletonsSize += a.typeSize
         }
         totalAttributeSize += a.typeSize
+        var mask = []
+        if (a.side == dbEnum.side.client) mask.push('client')
+        if (a.isSingleton) mask.push('singleton')
         var attr = {
-          id: a.attribute.code, // attribute code
-          type: `ZAP_TYPE(${a.attribute.type.toUpperCase()})`, // type
+          id: a.hexCode, // attribute code
+          type: `ZAP_TYPE(${a.type.toUpperCase()})`, // type
           size: a.typeSize, // size
-          mask: [], // array of special properties
+          mask: mask, // array of special properties
           defaultValue: attributeDefaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
-          comment: `${a.attribute.label}`,
+          comment: `${c.name} (${c.side}): ${a.name}`,
         }
         attributeList.push(attr)
       })
@@ -395,7 +403,6 @@ function collectAttributes(endpointTypes) {
         commandList.push(cmd)
       })
     })
-    endpoint.clusterCount = clusterCount
   })
   return Promise.resolve({
     endpointList: endpointList,
@@ -462,7 +469,7 @@ function endpoint_config(options) {
                   .queryEndpointClusterAttributes(
                     db,
                     cl.clusterId,
-                    dbEnum.side.client,
+                    cl.side,
                     ept.id
                   )
                   .then((attributes) => {

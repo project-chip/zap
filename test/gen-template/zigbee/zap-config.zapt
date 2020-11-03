@@ -23,9 +23,11 @@
 #define GENERATED_MIN_MAX_DEFAULT_COUNT {{endpoint_attribute_min_max_count}}
 #define GENERATED_MIN_MAX_DEFAULTS {{endpoint_attribute_min_max_list}}
 
+#define ZAP_ATTRIBUTE_MASK(mask) ATTRIBUTE_MASK_ ## mask
 // This is an array of EmberAfAttributeMetadata structures.
 #define GENERATED_ATTRIBUTE_COUNT {{endpoint_attribute_count}}
 #define GENERATED_ATTRIBUTES {{ endpoint_attribute_list }}
+#endif ZAP_ATTRIBUTE_MASK
 
 #undef ZAP_TYPE
 #undef ZAP_LONG_DEFAULTS_INDEX
