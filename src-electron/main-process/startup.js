@@ -250,6 +250,8 @@ function startGeneration(
   } else {
     if (options.log) console.log(`    👉 using empty configuration`)
   }
+  if (options.log)
+    console.log(`    👉 zap version: ${env.zapVersionAsString()}`)
   var dbFile = env.sqliteFile('generate')
   if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   var packageId
