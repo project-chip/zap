@@ -209,7 +209,7 @@ function startGeneration(
 ) {
   if (options.log)
     console.log(
-      `🤖 Generation information: 
+      `🤖 ZAP generation information: 
     👉 into: ${output}
     👉 using templates: ${genTemplateJsonFile}
     👉 using zcl data: ${zclProperties}`
