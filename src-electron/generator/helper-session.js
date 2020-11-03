@@ -103,6 +103,23 @@ function user_endpoint_type_count() {
 }
 
 /**
+ * Retrieve the number of endpoints which possess the specified
+ * cluster type
+ *
+ * @param {*} clusterTypeId
+ * @return Promise of the number of endpoint
+ */
+function user_endpoint_count_by_cluster(clusterTypeId, side) {
+  var promise = queryConfig.getEndpointTypeCountByCluster(
+    this.global.db,
+    this.global.sessionId,
+    clusterTypeId,
+    side
+  )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Iterates over all attributes required by the user configuration.
  *
  * @param {*} options
@@ -163,6 +180,25 @@ function all_user_clusters(options) {
 }
 
 /**
+ * Creates cluster command iterator for all endpoints whitout any duplicates
+ * cause by cluster side
+ *
+ * @param {*} options
+ * @returns Promise of the resolved blocks iterating over cluster commands.
+ */
+function all_user_clusters_names(options) {
+  return queryImpexp
+    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportAllClustersNamesFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((clusters) => templateUtil.collectBlocks(clusters, options, this))
+}
+
+/**
  * Get the count of the number of clusters commands with cli for a cluster.
  * This is used under a cluster block helper
  */
@@ -210,8 +246,10 @@ exports.user_clusters = user_clusters
 exports.user_cluster_attributes = user_cluster_attributes
 exports.user_cluster_commands = user_cluster_commands
 exports.user_endpoint_type_count = user_endpoint_type_count
+exports.user_endpoint_count_by_cluster = user_endpoint_count_by_cluster
 exports.user_all_attributes = user_all_attributes
 exports.all_user_cluster_commands = all_user_cluster_commands
 exports.all_user_clusters = all_user_clusters
+exports.all_user_clusters_names = all_user_clusters_names
 exports.user_cluster_command_count_with_cli = user_cluster_command_count_with_cli
 exports.user_cluster_commands_all_endpoints = user_cluster_commands_all_endpoints

@@ -431,10 +431,10 @@ SELECT
   ATTRIBUTE.MIN,
   ATTRIBUTE.MAX,
   ATTRIBUTE.IS_WRITABLE,
-  CASE WHEN ATTRIBUTE.CLUSTER_REF NOT NULL THEN ATTRIBUTE.DEFAULT_VALUE 
-       ELSE 
-          CASE 
-            WHEN EXISTS(SELECT DEFAULT_VALUE FROM GLOBAL_ATTRIBUTE_DEFAULT WHERE GLOBAL_ATTRIBUTE_DEFAULT.CLUSTER_REF = ? AND GLOBAL_ATTRIBUTE_DEFAULT.ATTRIBUTE_REF = ATTRIBUTE_ID) 
+  CASE WHEN ATTRIBUTE.CLUSTER_REF NOT NULL THEN ATTRIBUTE.DEFAULT_VALUE
+       ELSE
+          CASE
+            WHEN EXISTS(SELECT DEFAULT_VALUE FROM GLOBAL_ATTRIBUTE_DEFAULT WHERE GLOBAL_ATTRIBUTE_DEFAULT.CLUSTER_REF = ? AND GLOBAL_ATTRIBUTE_DEFAULT.ATTRIBUTE_REF = ATTRIBUTE_ID)
               THEN (SELECT DEFAULT_VALUE FROM GLOBAL_ATTRIBUTE_DEFAULT WHERE GLOBAL_ATTRIBUTE_DEFAULT.CLUSTER_REF = ? AND GLOBAL_ATTRIBUTE_DEFAULT.ATTRIBUTE_REF = ATTRIBUTE_ID)
             ELSE ATTRIBUTE.DEFAULT_VALUE
           END
@@ -498,7 +498,7 @@ SELECT
   IS_REPORTABLE
 FROM ATTRIBUTE
    WHERE SIDE = ?
-   AND PACKAGE_REF = ? 
+   AND PACKAGE_REF = ?
 ORDER BY CODE`,
       [side, packageId]
     )
@@ -581,7 +581,7 @@ SELECT
   SOURCE,
   IS_OPTIONAL
 FROM COMMAND
-WHERE CLUSTER_REF IS NULL AND PACKAGE_REF = ? 
+WHERE CLUSTER_REF IS NULL AND PACKAGE_REF = ?
 ORDER BY CODE`,
       [packageId]
     )
@@ -593,17 +593,17 @@ function selectAllClusterCommands(db, packageId) {
     .dbAll(
       db,
       `
-SELECT 
-  COMMAND_ID, 
-  CLUSTER_REF, 
-  CODE, 
-  MANUFACTURER_CODE, 
-  NAME, 
-  DESCRIPTION, 
-  SOURCE, 
-  IS_OPTIONAL 
-FROM COMMAND 
-WHERE CLUSTER_REF IS NOT NULL AND PACKAGE_REF = ? 
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL
+FROM COMMAND
+WHERE CLUSTER_REF IS NOT NULL AND PACKAGE_REF = ?
 ORDER BY CODE`,
       [packageId]
     )
@@ -615,13 +615,13 @@ function selectAllCommandArguments(db, packageId) {
     .dbAll(
       db,
       `
-SELECT 
-  COMMAND_ARG.COMMAND_REF, 
-  COMMAND_ARG.NAME, 
-  COMMAND_ARG.TYPE, 
-  COMMAND_ARG.IS_ARRAY 
-FROM COMMAND_ARG, COMMAND 
-WHERE 
+SELECT
+  COMMAND_ARG.COMMAND_REF,
+  COMMAND_ARG.NAME,
+  COMMAND_ARG.TYPE,
+  COMMAND_ARG.IS_ARRAY
+FROM COMMAND_ARG, COMMAND
+WHERE
   COMMAND_ARG.COMMAND_REF = COMMAND.COMMAND_ID
   AND COMMAND.PACKAGE_REF = ?
 ORDER BY COMMAND_REF, ORDINAL`,
@@ -1117,10 +1117,10 @@ function insertGlobalAttributeDefault(db, packageId, data) {
       `
   INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_DEFAULT (
     CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE
-  ) VALUES ( 
-    ( SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? ), 
-    ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE PACKAGE_REF = ? AND CODE = ? AND SIDE = ? ), 
-    ?) 
+  ) VALUES (
+    ( SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? ),
+    ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE PACKAGE_REF = ? AND CODE = ? AND SIDE = ? ),
+    ?)
     `,
       args
     )
@@ -1771,7 +1771,7 @@ SELECT
   NAME,
   TYPE,
   IS_ARRAY
-FROM COMMAND_ARG WHERE COMMAND_REF = ? 
+FROM COMMAND_ARG WHERE COMMAND_REF = ?
 ORDER BY ORDINAL`,
       [commandId]
     )
@@ -1875,6 +1875,49 @@ ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
 WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
 AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
 GROUP BY NAME, SIDE`
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * Exports clusters to an externalized form without duplicates caused by side.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the data that should go into the external form.
+ */
+function exportAllClustersNamesFromEndpointTypes(db, endpointTypes) {
+  var endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  var mapFunction = (x) => {
+    return {
+      id: x.CLUSTER_ID,
+      name: x.NAME,
+      code: x.CODE,
+      define: x.DEFINE,
+      mfgCode: x.MANUFACTURER_CODE,
+      enabled: x.ENABLED,
+      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  CLUSTER.CLUSTER_ID,
+  CLUSTER.CODE,
+  CLUSTER.MANUFACTURER_CODE,
+  CLUSTER.NAME,
+  CLUSTER.DEFINE,
+  ENDPOINT_TYPE_CLUSTER.SIDE,
+  ENDPOINT_TYPE_CLUSTER.ENABLED,
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+FROM CLUSTER
+INNER JOIN ENDPOINT_TYPE_CLUSTER
+ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+GROUP BY NAME`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -1991,6 +2034,7 @@ exports.exportCommandDetailsFromAllEndpointTypesAndClusters = exportCommandDetai
 exports.selectCommandArgumentsCountByCommandId = selectCommandArgumentsCountByCommandId
 exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
 exports.exportAllClustersDetailsFromEndpointTypes = exportAllClustersDetailsFromEndpointTypes
+exports.exportAllClustersNamesFromEndpointTypes = exportAllClustersNamesFromEndpointTypes
 exports.exportCommandDetailsFromAllEndpointTypeCluster = exportCommandDetailsFromAllEndpointTypeCluster
 exports.insertGlobalAttributeDefault = insertGlobalAttributeDefault
 exports.selectEnumByName = selectEnumByName
