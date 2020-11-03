@@ -435,6 +435,29 @@ function collectAttributes(endpointTypes) {
 }
 
 /**
+ * This function goes over all the attributes and populates sizes.
+ *
+ * @param {*} endpointTypes
+ * @returns promise that resolves with the passed endpointTypes, after populating the attribute type sizes.
+ *
+ */
+function collectAttributeSizes(db, zclPackageId, endpointTypes) {
+  var ps = []
+  endpointTypes.forEach((ept) => {
+    ept.clusters.forEach((cl) => {
+      cl.attributes.forEach((at) => {
+        ps.push(
+          types.typeSize(db, zclPackageId, at.type).then((size) => {
+            at.typeSize = size
+          })
+        )
+      })
+    })
+  })
+  return Promise.all(ps).then(() => endpointTypes)
+}
+
+/**
  * Starts the endpoint configuration block.,
  * longDefaults: longDefaults
  *
@@ -501,6 +524,9 @@ function endpoint_config(options) {
       })
       return Promise.all(promises).then(() => endpointTypes)
     })
+    .then((endpointTypes) =>
+      collectAttributeSizes(db, this.global.zclPackageId, endpointTypes)
+    )
     .then((endpointTypes) => collectAttributes(endpointTypes))
     .then((collection) => {
       Object.assign(newContext, collection)
