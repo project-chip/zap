@@ -108,4 +108,14 @@ describe('Environment Tests', () => {
       })
     }, 5000)
   }, 5000)
+
+  test('Test Session Key Cookies', () => {
+    let testCookie = { 'connect.sid': 's%3Atest.abra' }
+    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('test')
+    expect(util.getSessionKeyFromBrowserCookie({})).toBeNull()
+    testCookie['connect.sid'] = 'tester.abra'
+    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('tester')
+    testCookie['connect.sid'] = 's%3Aabra'
+    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('abra')
+  })
 })
