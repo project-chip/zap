@@ -133,3 +133,14 @@ test('addEndpointType', () => {
   mutations.addEndpointType(state, endpointType)
   expect(state.endpointTypeView.name[0]).toEqual('foo')
 })
+
+test('Reset domain filter', () => {
+  let state = ZapState()
+  state.clusterManager.filter.label = 'blah'
+  state.clusterManager.openDomains = { foo: 1, bar: 2, tuna: 3 }
+  expect(Object.keys(state.clusterManager.openDomains).length).toEqual(3)
+  expect(state.clusterManager.filter.label).toEqual('blah')
+  mutations.resetFilters(state)
+  expect(state.clusterManager.filter.label).toEqual('No filter')
+  expect(Object.keys(state.clusterManager.openDomains).length).toBe(0)
+})

@@ -20,61 +20,92 @@
 
 const env = require('../src-electron/util/env.js')
 const util = require('../src-electron/util/util.js')
+const fs = require('fs')
 
-test('Test environment', () => {
-  expect(env.appDirectory().length).toBeGreaterThan(10)
-  expect(env.sqliteFile().length).toBeGreaterThan(10)
-  expect(env.iconsDirectory().length).toBeGreaterThan(10)
-})
+describe('Environment Tests', () => {
+  let filePath = 'foobarBackupTestFile.txt'
+  let backupPath = filePath + '~'
 
-test('Test logging', () => {
-  env.logSql('Sql log test.')
-  env.logInfo('Info log test.')
-  env.logWarning('Warn log test.')
-  env.logError('Error log test.')
-})
+  beforeAll(() => {})
 
-test('Main database', () =>
-  env.resolveMainDatabase('stalin').then((db) => {
-    expect(env.mainDatabase()).toBe('stalin')
-  }))
-
-test('Versions check', () => {
-  expect(env.versionsCheck()).toBeTruthy()
-})
-
-test('Feature level', () => {
-  expect(env.zapVersion().featureLevel).toBeGreaterThan(0)
-})
-
-test('Version', () => {
-  var v = env.zapVersion()
-  expect('version' in v).toBeTruthy()
-  expect('hash' in v).toBeTruthy()
-  expect('timestamp' in v).toBeTruthy()
-  expect('date' in v).toBeTruthy()
-})
-
-test('Feature level match', () => {
-  var x = util.matchFeatureLevel(0)
-  expect(x.match).toBeTruthy()
-  x = util.matchFeatureLevel(99999)
-  expect(x.match).toBeFalsy()
-  expect(x.message).not.toBeNull()
-})
-
-var array = []
-test('Sequential promise resolution', () => {
-  var args = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-  var fn = (arg) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        array.push(arg)
-        resolve()
-      }, 50 - 3 * arg)
-    })
-  }
-  return util.executePromisesSequentially(args, fn).then(() => {
-    expect(array).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+  afterAll(() => {
+    fs.unlinkSync(backupPath)
   })
+
+  test('Test environment', () => {
+    expect(env.appDirectory().length).toBeGreaterThan(10)
+    expect(env.sqliteFile().length).toBeGreaterThan(10)
+    expect(env.iconsDirectory().length).toBeGreaterThan(10)
+  })
+
+  test('Test logging', () => {
+    env.logSql('Sql log test.')
+    env.logInfo('Info log test.')
+    env.logWarning('Warn log test.')
+    env.logError('Error log test.')
+  })
+
+  test('Main database', () =>
+    env.resolveMainDatabase('stalin').then((db) => {
+      expect(env.mainDatabase()).toBe('stalin')
+    }))
+
+  test('Versions check', () => {
+    expect(env.versionsCheck()).toBeTruthy()
+  })
+
+  test('Feature level', () => {
+    expect(env.zapVersion().featureLevel).toBeGreaterThan(0)
+  })
+
+  test('Version', () => {
+    var v = env.zapVersion()
+    expect('version' in v).toBeTruthy()
+    expect('hash' in v).toBeTruthy()
+    expect('timestamp' in v).toBeTruthy()
+    expect('date' in v).toBeTruthy()
+  })
+
+  test('Feature level match', () => {
+    var x = util.matchFeatureLevel(0)
+    expect(x.match).toBeTruthy()
+    x = util.matchFeatureLevel(99999)
+    expect(x.match).toBeFalsy()
+    expect(x.message).not.toBeNull()
+  })
+
+  var array = []
+  test('Sequential promise resolution', () => {
+    var args = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    var fn = (arg) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          array.push(arg)
+          resolve()
+        }, 50 - 3 * arg)
+      })
+    }
+    return util.executePromisesSequentially(args, fn).then(() => {
+      expect(array).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    })
+  })
+
+  test('Create backup file', () => {
+    return new Promise((resolve, reject) => {
+      expect(fs.existsSync(backupPath)).toBeFalsy()
+      fs.writeFile(filePath, 'foo', (err) => {
+        util.createBackupFile(filePath)
+        expect(fs.existsSync(backupPath)).toBeTruthy()
+        expect(
+          fs.readFileSync(backupPath, { encoding: 'utf8', flag: 'r' })
+        ).toEqual('foo')
+        fs.writeFileSync(filePath, 'bar')
+        util.createBackupFile(filePath)
+        expect(
+          fs.readFileSync(backupPath, { encoding: 'utf8', flag: 'r' })
+        ).toEqual('bar')
+        resolve()
+      })
+    }, 5000)
+  }, 5000)
 })
