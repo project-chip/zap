@@ -215,7 +215,7 @@ function startGeneration(
     👉 using zcl data: ${zclProperties}`
     )
   var zapFile = null
-  if (zapFiles.length > 0) {
+  if (zapFiles != null && zapFiles.length > 0) {
     zapFile = zapFiles[0]
     if (zapFiles.length > 1 && options.log)
       console.log(`    ⚠️  Multiple files passed. Using only first one.`)
