@@ -26,7 +26,7 @@ const testUtil = require('./test-util.js')
 
 test('startup: start generation', () => {
   var testGenDir = path.join(path.join(__dirname, '.zap/'), 'test-gen')
-  if (!fs.existsSync(testGenDir)) fs.mkdirSync(testGenDir)
+  if (!fs.existsSync(testGenDir)) fs.mkdirSync(testGenDir, { recursive: true })
   return startup.startGeneration(
     testGenDir,
     testUtil.testZigbeeGenerationTemplates,
