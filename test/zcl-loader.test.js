@@ -26,6 +26,7 @@ const queryGeneric = require('../src-electron/db/query-generic.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
+const types = require('../src-electron/util/types.js')
 
 test('test opening and closing the database', () => {
   return dbApi.initRamDatabase().then((db) => dbApi.closeDatabase(db))
@@ -143,7 +144,15 @@ test('test Silabs zcl data loading in memory', () => {
         )
       })
     })
-
+    .then(() => queryZcl.selectAllAttributes(db, packageId))
+    .then((attributes) => {
+      expect(attributes.length).toBeGreaterThan(40)
+      var ps = []
+      attributes.forEach((a) => {
+        ps.push(types.typeSizeAttribute(db, packageId, a))
+      })
+      return Promise.all(ps)
+    })
     .then(() =>
       dbApi.dbAll(
         db,

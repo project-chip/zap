@@ -450,17 +450,12 @@ function collectAttributeSizes(db, zclPackageId, endpointTypes) {
     ept.clusters.forEach((cl) => {
       cl.attributes.forEach((at) => {
         ps.push(
-          types.typeSize(db, zclPackageId, at.type).then((size) => {
-            if (size) {
-              at.typeSize = size
-            } else if (at.maxLength) {
-              at.typeSize = at.maxLength
-            } else if (at.defaultValue) {
-              at.typeSize = at.defaultValue.length + 1
-            } else {
-              at.typeSize = 'ERROR: UNKNOWN SIZE'
-            }
-          })
+          types.typeSizeAttribute(
+            db,
+            zclPackageId,
+            at,
+            `ERROR: ${at.label}, invalid size`
+          )
         )
       })
     })
