@@ -55,7 +55,12 @@ function selectAllEnumItems(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, VALUE, ENUM_REF FROM ENUM_ITEM WHERE PACKAGE_REF = ? ORDER BY ENUM_REF, ORDINAL',
+      `SELECT ENUM_ITEM.NAME, 
+              ENUM_ITEM.VALUE, 
+              ENUM_ITEM.ENUM_REF 
+       FROM ENUM_ITEM, ENUM 
+       WHERE ENUM.PACKAGE_REF = ? AND ENUM.ENUM_ID = ENUM_ITEM.ENUM_REF 
+       ORDER BY ENUM_ITEM.ENUM_REF, ENUM_ITEM.ORDINAL`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.enumItem))
