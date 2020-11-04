@@ -56,13 +56,11 @@ if (app != null) {
           throw 'You need to specify at least one zap file.'
         return startup.startAnalyze(argv.zapFiles)
       } else if (argv._.includes('generate')) {
-        if (argv.zapFiles.length > 1)
-          throw 'You can only generate one file at a time.'
         return startup.startGeneration(
           argv.output,
           argv.generationTemplate,
           argv.zclProperties,
-          argv.zapFiles[0]
+          argv.zapFiles
         )
       } else {
         return startup.startNormal(
