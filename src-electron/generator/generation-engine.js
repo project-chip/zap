@@ -199,6 +199,22 @@ function recordTemplatesPackage(context) {
           )
         )
       }
+      // Deal with partials
+      if (context.templateData.partials != null) {
+        context.templateData.partials.forEach((partial) => {
+          var partialPath = path.join(path.dirname(context.path), partial.path)
+          promises.push(
+            queryPackage.insertPathCrc(
+              context.db,
+              partialPath,
+              null,
+              dbEnum.packageType.genPartial,
+              context.packageId,
+              partial.name
+            )
+          )
+        })
+      }
 
       return Promise.all(promises)
     })
@@ -261,8 +277,9 @@ function generateAllTemplates(
   return queryPackage
     .getPackageByParent(genResult.db, genTemplateJsonPkg.id)
     .then((packages) => {
-      var generationPromises = []
+      var generationTemplates = []
       var helperPromises = []
+      var partialPromises = []
       var overridePath = null
 
       // First extract overridePath if one exists, as we need to
@@ -273,6 +290,15 @@ function generateAllTemplates(
         }
       })
 
+      // Next load the partials
+      packages.forEach((singlePkg) => {
+        if (singlePkg.type == dbEnum.packageType.genPartial) {
+          partialPromises.push(
+            templateEngine.loadPartial(singlePkg.version, singlePkg.path)
+          )
+        }
+      })
+
       // Next load the helpers
       packages.forEach((singlePkg) => {
         if (singlePkg.type == dbEnum.packageType.genHelper) {
@@ -280,23 +306,29 @@ function generateAllTemplates(
         }
       })
 
-      // And finally go over the actual templates.
+      // Next prepare the templates
       packages.forEach((singlePkg) => {
         if (singlePkg.type == dbEnum.packageType.genSingleTemplate) {
           if (generateOnly == null || generateOnly == singlePkg.version) {
-            generationPromises.push(
+            generationTemplates.push(singlePkg)
+          }
+        }
+      })
+
+      // And finally go over the actual templates.
+      return Promise.all(helperPromises).then(() =>
+        Promise.all(partialPromises).then(() => {
+          return Promise.all(
+            generationTemplates.map((pkg) =>
               generateSingleTemplate(
                 genResult,
-                singlePkg,
+                pkg,
                 genTemplateJsonPkg.id,
                 overridePath
               )
             )
-          }
-        }
-      })
-      return Promise.all(helperPromises).then(() =>
-        Promise.all(generationPromises)
+          )
+        })
       )
     })
     .then(() => {
