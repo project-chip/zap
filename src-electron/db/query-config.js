@@ -1212,6 +1212,7 @@ exports.getClusterState = getClusterState
 exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState
 exports.insertOrUpdateCommandState = insertOrUpdateCommandState
 exports.getAllEndpointTypeClusterState = getAllEndpointTypeClusterState
+exports.convertRestKeyToDbColumn = convertRestKeyToDbColumn
 exports.insertEndpoint = insertEndpoint
 exports.deleteEndpoint = deleteEndpoint
 exports.updateEndpoint = updateEndpoint
