@@ -27,13 +27,15 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 const queryEndpoint = require('../src-electron/db/query-endpoint.js')
-const queryConfig = require('../src-electron/db/query-config.js')
+const types = require('../src-electron/util/types.js')
 
 var db
 const templateCount = 12
 const genTimeout = 3000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 var sessionId
+var templateContext
+var zclContext
 
 beforeAll(() => {
   var file = env.sqliteTestFile('endpointconfig')
@@ -48,8 +50,6 @@ beforeAll(() => {
 afterAll(() => {
   return dbApi.closeDatabase(db)
 })
-
-var templateContext
 
 test(
   'Basic gen template parsing and generation',
@@ -70,7 +70,10 @@ test(
 
 test(
   'Load ZCL stuff',
-  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
+  () =>
+    zclLoader.loadZcl(db, args.zclPropertiesFile).then((context) => {
+      zclContext = context
+    }),
   5000
 )
 
@@ -154,6 +157,11 @@ test('Test endpoint config queries', () =>
       expect(cmdSums[0]).toBe(15)
     }))
 
+test('Some intermediate queries', () =>
+  types.typeSize(db, zclContext.packageId, 'bitmap8').then((size) => {
+    expect(size).toBe(1)
+  }))
+
 test(
   'Test endpoint config generation',
   () =>
@@ -165,6 +173,7 @@ test(
         expect(genResult.content).not.toBeNull()
 
         var epc = genResult.content['zap-config.h']
+        var epcLines = epc.split(/\r?\n/)
         expect(
           epc.includes(
             '#define FIXED_ENDPOINT_ARRAY { 0x0029, 0x002A, 0x002B }'
@@ -177,6 +186,15 @@ test(
         expect(
           epc.includes('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
         ).toBeTruthy()
+        expect(epcLines.length).toBeGreaterThan(100)
+        var cnt = 0
+        epcLines.forEach((line) => {
+          if (line.includes('ZAP_TYPE(')) {
+            expect(line.includes('undefined')).toBeFalsy()
+            cnt++
+          }
+        })
+        expect(cnt).toBe(103)
       }),
   genTimeout
 )
