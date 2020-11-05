@@ -459,6 +459,20 @@ describe('Endpoint Type Config Queries', () => {
         expect(endpoint.endpointTypeRef).toBe(endpointTypeIdOnOff)
       }))
 
+  test('Test session report', () =>
+    util.sessionReport(db, sid).then((report) => {
+      expect(report.includes('Endpoint: Test endpoint')).toBeTruthy()
+      expect(report.includes('0x0000: cluster: Basic (server)')).toBeTruthy()
+      expect(
+        report.includes('0x0000: attribute: ZCL version [int8u]')
+      ).toBeTruthy()
+      expect(
+        report.includes('0x0007: attribute: power source [enum8]')
+      ).toBeTruthy()
+      expect(report.includes('0x0006: cluster: On/off (client)')).toBeTruthy()
+      expect(report.includes('0x0030: cluster: On/off')).toBeFalsy()
+    }))
+
   test('Delete Endpoint Type', () =>
     queryConfig
       .deleteEndpointType(db, endpointTypeIdOnOff)
