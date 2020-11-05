@@ -59,3 +59,7 @@ exports.zclType = {
   atomic: 'atomic',
   unknown: 'unknown',
 }
+
+exports.fileLocationCategory = {
+  save: 'save',
+}

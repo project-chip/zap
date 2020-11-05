@@ -147,7 +147,7 @@ const template = [
  */
 function doOpen(menuItem, browserWindow, event) {
   queryGeneric
-    .selectFileLocation(env.mainDatabase(), 'save')
+    .selectFileLocation(env.mainDatabase(), dbEnum.fileLocationCategory.save)
     .then((filePath) => {
       var opts = {
         properties: ['openFile', 'multiSelections'],
@@ -203,7 +203,7 @@ function doSave(menuItem, browserWindow, event) {
  */
 function doSaveAs(menuItem, browserWindow, event) {
   queryGeneric
-    .selectFileLocation(env.mainDatabase(), 'save')
+    .selectFileLocation(env.mainDatabase(), dbEnum.fileLocationCategory.save)
     .then((filePath) => {
       var opts = {
         filters: [
@@ -225,7 +225,11 @@ function doSaveAs(menuItem, browserWindow, event) {
     })
     .then((filePath) => {
       if (filePath != null) {
-        queryGeneric.insertFileLocation(env.mainDatabase(), filePath, 'save')
+        queryGeneric.insertFileLocation(
+          env.mainDatabase(),
+          filePath,
+          dbEnum.fileLocationCategory.save
+        )
         browserWindow.setTitle(filePath)
         dialog.showMessageBox(browserWindow, {
           title: 'Save',
