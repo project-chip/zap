@@ -242,6 +242,13 @@ function readDataFromFile(filePath) {
       var status = util.matchFeatureLevel(state.featureLevel)
 
       if (status.match) {
+        if (!'keyValuePairs' in state) {
+          state.keyValuePairs = []
+        }
+        state.keyValuePairs.push({
+          key: dbEnum.sessionKey.filePath,
+          value: filePath,
+        })
         resolve(state)
       } else {
         reject(status.message)

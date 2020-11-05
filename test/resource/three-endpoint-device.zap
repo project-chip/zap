@@ -1,6 +1,6 @@
 {
-  "writeTime": "Tue Nov 03 2020 10:33:04 GMT-0400 (Atlantic Standard Time)",
-  "featureLevel": 1,
+  "writeTime": "Thu Nov 05 2020 09:14:58 GMT-0400 (Atlantic Standard Time)",
+  "featureLevel": 2,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -12,10 +12,6 @@
       "value": "always"
     },
     {
-      "key": "filePath",
-      "value": "/home/timotej/git/zap/test/resource/three-endpoint-device.zap"
-    },
-    {
       "key": "manufacturerCodes",
       "value": "0x1002"
     }
@@ -25,11 +21,6 @@
       "path": "/home/timotej/git/zap/zcl-builtin/silabs/zcl.json",
       "version": "ZCL Test Data",
       "type": "zcl-properties"
-    },
-    {
-      "path": "/home/timotej/git/zap/test/gen-template/zigbee/gen-templates.json",
-      "version": "test-v1",
-      "type": "gen-templates-json"
     }
   ],
   "endpointTypes": [
@@ -310,6 +301,210 @@
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0x00",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            }
+          ]
+        },
+        {
+          "name": "Green Power",
+          "code": 33,
+          "mfgCode": null,
+          "define": "GREEN_POWER_CLUSTER",
+          "side": "client",
+          "enabled": 0,
+          "commands": [],
+          "attributes": [
+            {
+              "name": "gp link key",
+              "code": 34,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x5a6967426565416c6c69616e63653039",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "gpp max proxy table entries",
+              "code": 16,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x14",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "proxy table",
+              "code": 17,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "gpp functionality",
+              "code": 22,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x09AC2F",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "gpp active functionality",
+              "code": 23,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0xFFFFFF",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            }
+          ]
+        },
+        {
+          "name": "Green Power",
+          "code": 33,
+          "mfgCode": null,
+          "define": "GREEN_POWER_CLUSTER",
+          "side": "server",
+          "enabled": 1,
+          "commands": [],
+          "attributes": [
+            {
+              "name": "gps max sink table entries",
+              "code": 0,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x05",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "sink table",
+              "code": 1,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "27 bytes long default value",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "gps communication mode",
+              "code": 2,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x01",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "gps commissioning exit mode",
+              "code": 3,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x02",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "gps security level",
+              "code": 5,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x01",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "gps functionality",
+              "code": 6,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "gps active functionality",
+              "code": 7,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0xFFFFFF",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "gp link key",
+              "code": 34,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x5a6967426565416c6c69616e63653039",
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -937,210 +1132,6 @@
           ]
         },
         {
-          "name": "Green Power",
-          "code": 33,
-          "mfgCode": null,
-          "define": "GREEN_POWER_CLUSTER",
-          "side": "client",
-          "enabled": 0,
-          "commands": [],
-          "attributes": [
-            {
-              "name": "gp link key",
-              "code": 34,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x5a6967426565416c6c69616e63653039",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "gpp max proxy table entries",
-              "code": 16,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x14",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "proxy table",
-              "code": 17,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "gpp functionality",
-              "code": 22,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x09AC2F",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "gpp active functionality",
-              "code": 23,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0xFFFFFF",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            }
-          ]
-        },
-        {
-          "name": "Green Power",
-          "code": 33,
-          "mfgCode": null,
-          "define": "GREEN_POWER_CLUSTER",
-          "side": "server",
-          "enabled": 1,
-          "commands": [],
-          "attributes": [
-            {
-              "name": "gps max sink table entries",
-              "code": 0,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x05",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "sink table",
-              "code": 1,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "27 bytes long default value",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "gps communication mode",
-              "code": 2,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x01",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "gps commissioning exit mode",
-              "code": 3,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x02",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "gps security level",
-              "code": 5,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x01",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "gps functionality",
-              "code": 6,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "gps active functionality",
-              "code": 7,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0xFFFFFF",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "gp link key",
-              "code": 34,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x5a6967426565416c6c69616e63653039",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            }
-          ]
-        },
-        {
           "name": "Configuration Cluster",
           "code": 64513,
           "mfgCode": "0x1002",
@@ -1273,7 +1264,6 @@
           "define": "ISO7816_PROTOCOL_TUNNEL_CLUSTER",
           "side": "client",
           "enabled": 1,
-          "attributes": [],
           "commands": [
             {
               "name": "InsertSmartCard",
@@ -1291,7 +1281,8 @@
               "incoming": 1,
               "outgoing": 1
             }
-          ]
+          ],
+          "attributes": []
         },
         {
           "name": "ISO 7816 Protocol Tunnel",
@@ -1338,13 +1329,47 @@
           ]
         },
         {
+          "name": "Device Temperature Configuration",
+          "code": 2,
+          "mfgCode": null,
+          "define": "DEVICE_TEMP_CLUSTER",
+          "side": "client",
+          "enabled": 1,
+          "commands": [],
+          "attributes": []
+        },
+        {
+          "name": "Device Temperature Configuration",
+          "code": 2,
+          "mfgCode": null,
+          "define": "DEVICE_TEMP_CLUSTER",
+          "side": "server",
+          "enabled": 0,
+          "commands": [],
+          "attributes": [
+            {
+              "name": "current temperature",
+              "code": 0,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            }
+          ]
+        },
+        {
           "name": "Information",
           "code": 2304,
           "mfgCode": null,
           "define": "INFORMATION_CLUSTER",
           "side": "client",
           "enabled": 1,
-          "attributes": [],
           "commands": [
             {
               "name": "RequestInformation",
@@ -1362,7 +1387,8 @@
               "incoming": 1,
               "outgoing": 1
             }
-          ]
+          ],
+          "attributes": []
         },
         {
           "name": "Information",
@@ -1435,26 +1461,108 @@
           ]
         },
         {
-          "name": "Device Temperature Configuration",
-          "code": 2,
+          "name": "Groups",
+          "code": 4,
           "mfgCode": null,
-          "define": "DEVICE_TEMP_CLUSTER",
+          "define": "GROUPS_CLUSTER",
           "side": "client",
           "enabled": 1,
-          "commands": [],
+          "commands": [
+            {
+              "name": "AddGroup",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 1
+            },
+            {
+              "name": "ViewGroup",
+              "code": 1,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 1
+            },
+            {
+              "name": "GetGroupMembership",
+              "code": 2,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 1
+            },
+            {
+              "name": "RemoveGroup",
+              "code": 3,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 1
+            },
+            {
+              "name": "RemoveAllGroups",
+              "code": 4,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 1
+            },
+            {
+              "name": "AddGroupIfIdentifying",
+              "code": 5,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 1
+            }
+          ],
           "attributes": []
         },
         {
-          "name": "Device Temperature Configuration",
-          "code": 2,
+          "name": "Groups",
+          "code": 4,
           "mfgCode": null,
-          "define": "DEVICE_TEMP_CLUSTER",
+          "define": "GROUPS_CLUSTER",
           "side": "server",
-          "enabled": 0,
-          "commands": [],
+          "enabled": 1,
+          "commands": [
+            {
+              "name": "AddGroupResponse",
+              "code": 0,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 1,
+              "outgoing": 1
+            },
+            {
+              "name": "ViewGroupResponse",
+              "code": 1,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 1,
+              "outgoing": 1
+            },
+            {
+              "name": "GetGroupMembershipResponse",
+              "code": 2,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 1,
+              "outgoing": 1
+            },
+            {
+              "name": "RemoveGroupResponse",
+              "code": 3,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 1,
+              "outgoing": 1
+            }
+          ],
           "attributes": [
             {
-              "name": "current temperature",
+              "name": "name support",
               "code": 0,
               "mfgCode": null,
               "included": 1,
@@ -1847,123 +1955,6 @@
           ]
         },
         {
-          "name": "Groups",
-          "code": 4,
-          "mfgCode": null,
-          "define": "GROUPS_CLUSTER",
-          "side": "client",
-          "enabled": 1,
-          "commands": [
-            {
-              "name": "AddGroup",
-              "code": 0,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 1
-            },
-            {
-              "name": "ViewGroup",
-              "code": 1,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 1
-            },
-            {
-              "name": "GetGroupMembership",
-              "code": 2,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 1
-            },
-            {
-              "name": "RemoveGroup",
-              "code": 3,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 1
-            },
-            {
-              "name": "RemoveAllGroups",
-              "code": 4,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 1
-            },
-            {
-              "name": "AddGroupIfIdentifying",
-              "code": 5,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 1
-            }
-          ],
-          "attributes": []
-        },
-        {
-          "name": "Groups",
-          "code": 4,
-          "mfgCode": null,
-          "define": "GROUPS_CLUSTER",
-          "side": "server",
-          "enabled": 1,
-          "commands": [
-            {
-              "name": "AddGroupResponse",
-              "code": 0,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 1,
-              "outgoing": 1
-            },
-            {
-              "name": "ViewGroupResponse",
-              "code": 1,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 1,
-              "outgoing": 1
-            },
-            {
-              "name": "GetGroupMembershipResponse",
-              "code": 2,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 1,
-              "outgoing": 1
-            },
-            {
-              "name": "RemoveGroupResponse",
-              "code": 3,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 1,
-              "outgoing": 1
-            }
-          ],
-          "attributes": [
-            {
-              "name": "name support",
-              "code": 0,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            }
-          ]
-        },
-        {
           "name": "Scenes",
           "code": 5,
           "mfgCode": null,
@@ -2161,117 +2152,6 @@
           ]
         },
         {
-          "name": "Voice over ZigBee",
-          "code": 2308,
-          "mfgCode": null,
-          "define": "VOICE_OVER_ZIGBEE_CLUSTER",
-          "side": "client",
-          "enabled": 1,
-          "commands": [
-            {
-              "name": "EstablishmentRequest",
-              "code": 0,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 1
-            },
-            {
-              "name": "VoiceTransmission",
-              "code": 1,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 1
-            }
-          ],
-          "attributes": []
-        },
-        {
-          "name": "Voice over ZigBee",
-          "code": 2308,
-          "mfgCode": null,
-          "define": "VOICE_OVER_ZIGBEE_CLUSTER",
-          "side": "server",
-          "enabled": 0,
-          "commands": [
-            {
-              "name": "EstablishmentResponse",
-              "code": 0,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 1,
-              "outgoing": 1
-            },
-            {
-              "name": "VoiceTransmissionResponse",
-              "code": 1,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 1,
-              "outgoing": 1
-            }
-          ],
-          "attributes": [
-            {
-              "name": "codec type",
-              "code": 0,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "sampling frequency",
-              "code": 1,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "codec rate",
-              "code": 2,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "establishment timeout",
-              "code": 3,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            }
-          ]
-        },
-        {
           "name": "On/off",
           "code": 6,
           "mfgCode": null,
@@ -2338,6 +2218,7 @@
           "define": "COLOR_CONTROL_CLUSTER",
           "side": "client",
           "enabled": 0,
+          "attributes": [],
           "commands": [
             {
               "name": "MoveToColor",
@@ -2363,8 +2244,7 @@
               "incoming": 1,
               "outgoing": 1
             }
-          ],
-          "attributes": []
+          ]
         },
         {
           "name": "Color Control",
@@ -2476,6 +2356,117 @@
             {
               "name": "start up color temperature mireds",
               "code": 16400,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            }
+          ]
+        },
+        {
+          "name": "Voice over ZigBee",
+          "code": 2308,
+          "mfgCode": null,
+          "define": "VOICE_OVER_ZIGBEE_CLUSTER",
+          "side": "client",
+          "enabled": 1,
+          "commands": [
+            {
+              "name": "EstablishmentRequest",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 1
+            },
+            {
+              "name": "VoiceTransmission",
+              "code": 1,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 1
+            }
+          ],
+          "attributes": []
+        },
+        {
+          "name": "Voice over ZigBee",
+          "code": 2308,
+          "mfgCode": null,
+          "define": "VOICE_OVER_ZIGBEE_CLUSTER",
+          "side": "server",
+          "enabled": 0,
+          "commands": [
+            {
+              "name": "EstablishmentResponse",
+              "code": 0,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 1,
+              "outgoing": 1
+            },
+            {
+              "name": "VoiceTransmissionResponse",
+              "code": 1,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 1,
+              "outgoing": 1
+            }
+          ],
+          "attributes": [
+            {
+              "name": "codec type",
+              "code": 0,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "sampling frequency",
+              "code": 1,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "codec rate",
+              "code": 2,
+              "mfgCode": null,
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "establishment timeout",
+              "code": 3,
               "mfgCode": null,
               "included": 1,
               "storageOption": "RAM",
