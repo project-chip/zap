@@ -19,7 +19,9 @@
  * This file provides the functionality that reads the ZAP data from a database
  * and exports it into a file.
  */
+const os = require('os')
 const fs = require('fs')
+const path = require('path')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const queryConfig = require('../db/query-config.js')
@@ -125,8 +127,26 @@ function exportEndpointTypes(db, sessionId) {
  * @param {*} db
  * @param {*} sessionId
  */
-function exportSessionPackages(db, sessionId) {
-  return queryImpExp.exportPackagesFromSession(db, sessionId)
+function exportSessionPackages(db, sessionId, zapFileLocation) {
+  return queryImpExp.exportPackagesFromSession(db, sessionId).then((packages) =>
+    packages.map((p) => {
+      var pathRelativity = dbEnum.pathRelativity.relativeToUserHome
+      var relativePath = path.relative(os.homedir(), p.path)
+      if (zapFileLocation != null) {
+        var rel = path.relative(zapFileLocation, p.path)
+        if (rel.length > 0) {
+          relativePath = rel
+          pathRelativity = dbEnum.pathRelativity.relativeToZap
+        }
+      }
+      return {
+        pathRelativity: pathRelativity,
+        path: relativePath,
+        version: p.version,
+        type: p.type,
+      }
+    })
+  )
 }
 
 /**
@@ -181,21 +201,29 @@ function createStateFromDatabase(db, sessionId) {
 
     env.logInfo(`Exporting data for session: ${sessionId}`)
     // Deal with the key/value table
-    var getKeyValues = exportSessionKeyValues(db, sessionId).then((data) => {
-      env.logInfo(`Retrieved session keys: ${data.length}`)
-      var storedKeyValuePairs = data.filter(
-        (x) => !excludedKeys.includes(x.key)
-      )
-      return { key: 'keyValuePairs', data: storedKeyValuePairs }
-    })
+    var getKeyValues = exportSessionKeyValues(db, sessionId)
+      .then((data) => {
+        env.logInfo(`Retrieved session keys: ${data.length}`)
+        var zapFilePath = null
+        var storedKeyValuePairs = data.filter(
+          (x) => !excludedKeys.includes(x.key)
+        )
+        var x = data.filter((x) => x.key == dbEnum.sessionKey.filePath)
+        if (x.length > 0) zapFilePath = x[0].value
+        return {
+          key: 'keyValuePairs',
+          data: storedKeyValuePairs,
+          zapFilePath: zapFilePath,
+        }
+      })
+      .then((data) => {
+        return exportSessionPackages(db, sessionId, data.zapFilePath).then(
+          (d) => {
+            return [data, { key: 'package', data: d }]
+          }
+        )
+      })
     promises.push(getKeyValues)
-
-    var getSessionPackages = exportSessionPackages(db, sessionId).then(
-      (data) => {
-        return { key: 'package', data: data }
-      }
-    )
-    promises.push(getSessionPackages)
 
     var getAllEndpointTypes = exportEndpointTypes(db, sessionId)
     var parseEndpointTypes = getAllEndpointTypes.then((data) => {
@@ -212,7 +240,7 @@ function createStateFromDatabase(db, sessionId) {
 
     return Promise.all(promises)
       .then((data) => {
-        data.forEach((keyDataPair) => {
+        data.flat().forEach((keyDataPair) => {
           state[keyDataPair.key] = keyDataPair.data
         })
         resolve(state)

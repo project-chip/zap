@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 
+const path = require('path')
 const { dialog, Menu } = require('electron')
 const env = require('../util/env.js')
 const util = require('../util/util.js')
@@ -370,7 +371,12 @@ function fileSave(db, browserWindow, filePath) {
     )
     .then((row) => {
       return queryConfig
-        .updateKeyValue(db, row.sessionId, dbEnum.sessionKey.filePath, filePath)
+        .updateKeyValue(
+          db,
+          row.sessionId,
+          dbEnum.sessionKey.filePath,
+          path.resolve(filePath)
+        )
         .then(() => row)
     })
     .then((row) => exportJs.exportDataIntoFile(db, row.sessionId, filePath))

@@ -67,3 +67,9 @@ exports.fileLocationCategory = {
 exports.sessionKey = {
   filePath: 'filePath',
 }
+
+exports.pathRelativity = {
+  relativeToZap: 'relativeToZap',
+  relativeToUserHome: 'relativeToHome',
+  absolute: 'absolute',
+}
