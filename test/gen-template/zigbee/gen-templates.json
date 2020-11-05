@@ -1,7 +1,7 @@
 {
   "name": "Test templates",
   "version": "test-v1",
-  "requiredFeatureLevel": 1,
+  "requiredFeatureLevel": 2,
   "options": {
     "testOption": {
       "code1": "label1",

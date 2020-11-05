@@ -91,6 +91,14 @@ function sqliteTestFile(id, deleteExistingFile = true) {
   if (deleteExistingFile && fs.existsSync(fileName)) fs.unlinkSync(fileName)
   return fileName
 }
+/**
+ * Returns a version as a single on-line string.
+ *
+ */
+function zapVersionAsString() {
+  var vo = zapVersion()
+  return `ver. ${vo.version}, featureLevel ${vo.featureLevel}, commit: ${vo.hash} from ${vo.date}`
+}
 
 /**
  * Returns the zap version.
@@ -244,6 +252,7 @@ exports.logWarning = logWarning
 exports.logSql = logSql
 exports.httpStaticContent = httpStaticContent
 exports.zapVersion = zapVersion
+exports.zapVersionAsString = zapVersionAsString
 exports.resolveMainDatabase = resolveMainDatabase
 exports.mainDatabase = mainDatabase
 exports.logHttpServerUrl = logHttpServerUrl

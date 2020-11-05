@@ -230,6 +230,13 @@ function matchFeatureLevel(featureLevel) {
   }
 }
 
+/**
+ * Produces a text dump of a session data for human consumption.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into a text report for the session.
+ */
 function sessionReport(db, sessionId) {
   return queryEndpoint.queryEndpointTypes(db, sessionId).then((epts) => {
     var ps = []
@@ -239,13 +246,29 @@ function sessionReport(db, sessionId) {
           var s = `Endpoint: ${ept.name} \n`
           var ps2 = []
           clusters.forEach((c) => {
+            var rpt = `  - ${c.hexCode}: cluster: ${c.name} (${c.side})\n`
             ps2.push(
               queryEndpoint
-                .queryEndpointClusterAttributes(db, c.clusterId, ept.id)
+                .queryEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
                 .then((attrs) => {
-                  var rpt = `  - cluster: ${c.name} (${c.side})\n`
                   attrs.forEach((at) => {
-                    rpt = rpt.concat(`    - attribute: ${at.name}\n`)
+                    rpt = rpt.concat(
+                      `    - ${at.hexCode}: attribute: ${at.name} [${at.type}]\n`
+                    )
+                  })
+                })
+                .then(() =>
+                  queryEndpoint.queryEndpointClusterCommands(
+                    db,
+                    c.clusterId,
+                    ept.id
+                  )
+                )
+                .then((cmds) => {
+                  cmds.forEach((cmd) => {
+                    rpt = rpt.concat(
+                      `    - ${cmd.hexCode}: command: ${cmd.name}\n`
+                    )
                   })
                   return rpt
                 })

@@ -27,13 +27,15 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 const queryEndpoint = require('../src-electron/db/query-endpoint.js')
-const queryConfig = require('../src-electron/db/query-config.js')
+const types = require('../src-electron/util/types.js')
 
 var db
 const templateCount = 12
 const genTimeout = 3000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 var sessionId
+var templateContext
+var zclContext
 
 beforeAll(() => {
   var file = env.sqliteTestFile('endpointconfig')
@@ -48,8 +50,6 @@ beforeAll(() => {
 afterAll(() => {
   return dbApi.closeDatabase(db)
 })
-
-var templateContext
 
 test(
   'Basic gen template parsing and generation',
@@ -70,7 +70,10 @@ test(
 
 test(
   'Load ZCL stuff',
-  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
+  () =>
+    zclLoader.loadZcl(db, args.zclPropertiesFile).then((context) => {
+      zclContext = context
+    }),
   5000
 )
 
@@ -99,11 +102,20 @@ test('Test endpoint config queries', () =>
       expect(clusterArray[0].length).toBe(28)
       expect(clusterArray[1].length).toBe(5)
       expect(clusterArray[2].length).toBe(7)
-      var ps = []
+      var promiseAttributes = []
+      var promiseCommands = []
       clusterArray.forEach((clusters) => {
         clusters.forEach((cluster) => {
-          ps.push(
+          promiseAttributes.push(
             queryEndpoint.queryEndpointClusterAttributes(
+              db,
+              cluster.clusterId,
+              cluster.side,
+              cluster.endpointTypeId
+            )
+          )
+          promiseCommands.push(
+            queryEndpoint.queryEndpointClusterCommands(
               db,
               cluster.clusterId,
               cluster.endpointTypeId
@@ -111,21 +123,44 @@ test('Test endpoint config queries', () =>
           )
         })
       })
-      return Promise.all(ps)
+      return Promise.all([
+        Promise.all(promiseAttributes),
+        Promise.all(promiseCommands),
+      ])
     })
-    .then((attributeLists) => {
+    .then((twoLists) => {
+      var attributeLists = twoLists[0]
+      var commandLists = twoLists[1]
       expect(attributeLists.length).toBe(40)
-      var sums = {}
+      expect(commandLists.length).toBe(40)
+
+      var atSums = {}
       attributeLists.forEach((al) => {
         var l = al.length
-        if (sums[l]) {
-          sums[l]++
+        if (atSums[l]) {
+          atSums[l]++
         } else {
-          sums[l] = 1
+          atSums[l] = 1
         }
       })
-      expect(sums[0]).toBe(3)
+      expect(atSums[0]).toBe(18)
+
+      var cmdSums = {}
+      commandLists.forEach((cl) => {
+        var l = cl.length
+        if (cmdSums[l]) {
+          cmdSums[l]++
+        } else {
+          cmdSums[l] = 1
+        }
+      })
+      expect(cmdSums[0]).toBe(15)
     }))
+
+test('Some intermediate queries', () =>
+  types.typeSize(db, zclContext.packageId, 'bitmap8').then((size) => {
+    expect(size).toBe(1)
+  }))
 
 test(
   'Test endpoint config generation',
@@ -138,6 +173,7 @@ test(
         expect(genResult.content).not.toBeNull()
 
         var epc = genResult.content['zap-config.h']
+        var epcLines = epc.split(/\r?\n/)
         expect(
           epc.includes(
             '#define FIXED_ENDPOINT_ARRAY { 0x0029, 0x002A, 0x002B }'
@@ -150,6 +186,15 @@ test(
         expect(
           epc.includes('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
         ).toBeTruthy()
+        expect(epcLines.length).toBeGreaterThan(100)
+        var cnt = 0
+        epcLines.forEach((line) => {
+          if (line.includes('ZAP_TYPE(')) {
+            expect(line.includes('undefined')).toBeFalsy()
+            cnt++
+          }
+        })
+        expect(cnt).toBe(103)
       }),
   genTimeout
 )

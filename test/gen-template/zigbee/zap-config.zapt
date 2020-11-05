@@ -17,18 +17,22 @@
 #endif // BIGENDIAN_CPU
 
 #define ZAP_TYPE(type) ZCL_ ## type ## _ATTRIBUTE_TYPE
-#define ZAP_LONG_DEFAULTS_INDEX(index) (&generatedDefaults[index])
+#define ZAP_LONG_DEFAULTS_INDEX(index) {(uint8_t*)(&generatedDefaults[index])}
+#define ZAP_MIN_MAX_DEFAULTS_INDEX(index) {(uint8_t*)(&minMaxDefault[index])}
 
 // This is an array of EmberAfAttributeMinMaxValue structures.
 #define GENERATED_MIN_MAX_DEFAULT_COUNT {{endpoint_attribute_min_max_count}}
 #define GENERATED_MIN_MAX_DEFAULTS {{endpoint_attribute_min_max_list}}
 
+#define ZAP_ATTRIBUTE_MASK(mask) ATTRIBUTE_MASK_ ## mask
 // This is an array of EmberAfAttributeMetadata structures.
 #define GENERATED_ATTRIBUTE_COUNT {{endpoint_attribute_count}}
 #define GENERATED_ATTRIBUTES {{ endpoint_attribute_list }}
+#endif ZAP_ATTRIBUTE_MASK
 
 #undef ZAP_TYPE
 #undef ZAP_LONG_DEFAULTS_INDEX
+#undef ZAP_MIN_MAX_DEFAULTS_INDEX
 
 // This is an array of EmberAfCluster structures.
 #define GENERATED_CLUSTER_COUNT {{endpoint_cluster_count}}
@@ -74,8 +78,10 @@
 
 
 // Array of EmberAfCommandMetadata structs.
+#define ZAP_COMMAND_MASK(mask) COMMAND_MASK_ ## mask
 #define EMBER_AF_GENERATED_COMMAND_COUNT ({{endpoint_command_count}})
 #define GENERATED_COMMANDS {{endpoint_command_list}}
+#undef ZAP_COMMAND_MASK
 
 // Array of EmberAfManufacturerCodeEntry structures for commands.
 #define GENERATED_COMMAND_MANUFACTURER_CODE_COUNT ({{endpoint_command_manufacturer_code_count}})

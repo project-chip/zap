@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-const queryZcl = require('../db/query-zcl')
+const queryZcl = require('../db/query-zcl.js')
 
 /**
  * @module JS API: type related utilities
@@ -33,4 +33,23 @@ function typeSize(db, zclPackageId, type) {
   return queryZcl.getAtomicSizeFromType(db, zclPackageId, type)
 }
 
+function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
+  return typeSize(db, zclPackageId, at.type).then((size) => {
+    if (size) {
+      return size
+    } else if (at.maxLength != null) {
+      return at.maxLength
+    } else if (at.defaultValue) {
+      return at.defaultValue.length + 1
+    } else {
+      if (defaultValue != null) {
+        return defaultValue
+      } else {
+        throw `ERROR: Unknown size for attribute: ${at.label} / ${at.code}`
+      }
+    }
+  })
+}
+
 exports.typeSize = typeSize
+exports.typeSizeAttribute = typeSizeAttribute

@@ -137,13 +137,13 @@ function insertOrReplaceClusterState(
   return dbApi.dbInsert(
     db,
     `
-INSERT 
-INTO ENDPOINT_TYPE_CLUSTER 
-  ( ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED ) 
-VALUES 
-  ( ?, ?, ?, ?) 
-ON CONFLICT 
-  (ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE) 
+INSERT
+INTO ENDPOINT_TYPE_CLUSTER
+  ( ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED )
+VALUES
+  ( ?, ?, ?, ?)
+ON CONFLICT
+  (ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE)
 DO UPDATE SET ENABLED = ?`,
     [endpointTypeId, clusterRef, side, enabled, enabled]
   )
@@ -162,14 +162,14 @@ function getClusterState(db, endpointTypeId, clusterRef, side) {
     .dbGet(
       db,
       `
-    SELECT 
-      ENDPOINT_TYPE_CLUSTER_ID, 
-      ENDPOINT_TYPE_REF, 
-      CLUSTER_REF, 
-      SIDE, 
+    SELECT
+      ENDPOINT_TYPE_CLUSTER_ID,
+      ENDPOINT_TYPE_REF,
+      CLUSTER_REF,
+      SIDE,
       ENABLED
-    FROM ENDPOINT_TYPE_CLUSTER 
-    WHERE 
+    FROM ENDPOINT_TYPE_CLUSTER
+    WHERE
       ENDPOINT_TYPE_REF = ? AND
       CLUSTER_REF = ? AND
       SIDE = ?
@@ -225,15 +225,15 @@ function insertOrUpdateAttributeState(
           .dbInsert(
             db,
             `
-INSERT 
-INTO ENDPOINT_TYPE_ATTRIBUTE 
-  ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE, STORAGE_OPTION) 
+INSERT
+INTO ENDPOINT_TYPE_ATTRIBUTE
+  ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE, STORAGE_OPTION)
 SELECT ?, ?, ?, ?, ?
-WHERE ( 
-  ( SELECT COUNT(1) FROM ENDPOINT_TYPE_ATTRIBUTE 
-    WHERE ENDPOINT_TYPE_REF = ? 
-      AND ENDPOINT_TYPE_CLUSTER_REF = ? 
-      AND ATTRIBUTE_REF = ? ) 
+WHERE (
+  ( SELECT COUNT(1) FROM ENDPOINT_TYPE_ATTRIBUTE
+    WHERE ENDPOINT_TYPE_REF = ?
+      AND ENDPOINT_TYPE_CLUSTER_REF = ?
+      AND ATTRIBUTE_REF = ? )
     == 0)`,
             [
               endpointTypeId,
@@ -342,15 +342,15 @@ function insertOrUpdateCommandState(
       .dbInsert(
         db,
         `
-INSERT 
-INTO ENDPOINT_TYPE_COMMAND 
-  ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, COMMAND_REF ) 
-SELECT ?, ?, ? 
-WHERE ( ( SELECT COUNT(1) 
-          FROM ENDPOINT_TYPE_COMMAND 
-          WHERE ENDPOINT_TYPE_REF = ? 
-            AND ENDPOINT_TYPE_CLUSTER_REF = ? 
-            AND COMMAND_REF = ? ) 
+INSERT
+INTO ENDPOINT_TYPE_COMMAND
+  ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, COMMAND_REF )
+SELECT ?, ?, ?
+WHERE ( ( SELECT COUNT(1)
+          FROM ENDPOINT_TYPE_COMMAND
+          WHERE ENDPOINT_TYPE_REF = ?
+            AND ENDPOINT_TYPE_CLUSTER_REF = ?
+            AND COMMAND_REF = ? )
         == 0)`,
         [
           endpointTypeId,
@@ -386,17 +386,17 @@ function getAllEndpointTypeClusterState(db, endpointTypeId) {
     .dbAll(
       db,
       `
-SELECT 
-  CLUSTER.NAME, 
-  CLUSTER.CODE, 
-  CLUSTER.MANUFACTURER_CODE, 
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID, 
-  ENDPOINT_TYPE_CLUSTER.SIDE, 
-  ENDPOINT_TYPE_CLUSTER.ENABLED 
-FROM 
-  ENDPOINT_TYPE_CLUSTER 
-INNER JOIN CLUSTER 
-ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID 
+SELECT
+  CLUSTER.NAME,
+  CLUSTER.CODE,
+  CLUSTER.MANUFACTURER_CODE,
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
+  ENDPOINT_TYPE_CLUSTER.SIDE,
+  ENDPOINT_TYPE_CLUSTER.ENABLED
+FROM
+  ENDPOINT_TYPE_CLUSTER
+INNER JOIN CLUSTER
+ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
 WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?`,
       [endpointTypeId]
     )
@@ -445,12 +445,12 @@ function insertEndpoint(
   return dbApi.dbInsert(
     db,
     `
-INSERT OR REPLACE 
-INTO ENDPOINT ( SESSION_REF, ENDPOINT_IDENTIFIER, ENDPOINT_TYPE_REF, NETWORK_IDENTIFIER, PROFILE) 
-VALUES ( ?, ?, ?, ?, 
-         ( SELECT DEVICE_TYPE.PROFILE_ID 
-           FROM DEVICE_TYPE, ENDPOINT_TYPE 
-           WHERE ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ? 
+INSERT OR REPLACE
+INTO ENDPOINT ( SESSION_REF, ENDPOINT_IDENTIFIER, ENDPOINT_TYPE_REF, NETWORK_IDENTIFIER, PROFILE)
+VALUES ( ?, ?, ?, ?,
+         ( SELECT DEVICE_TYPE.PROFILE_ID
+           FROM DEVICE_TYPE, ENDPOINT_TYPE
+           WHERE ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ?
              AND ENDPOINT_TYPE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID ) )`,
     [
       sessionId,
@@ -532,14 +532,14 @@ function selectEndpoint(db, endpointRef) {
     .dbGet(
       db,
       `
-SELECT 
-  ENDPOINT_ID, 
-  SESSION_REF, 
-  ENDPOINT_IDENTIFIER, 
-  ENDPOINT_TYPE_REF, 
-  PROFILE, 
-  NETWORK_IDENTIFIER 
-FROM ENDPOINT 
+SELECT
+  ENDPOINT_ID,
+  SESSION_REF,
+  ENDPOINT_IDENTIFIER,
+  ENDPOINT_TYPE_REF,
+  PROFILE,
+  NETWORK_IDENTIFIER
+FROM ENDPOINT
 WHERE ENDPOINT_ID = ?`,
       [endpointRef]
     )
@@ -930,6 +930,25 @@ function getEndpointTypeCount(db, sessionId) {
 }
 
 /**
+ * Resolves into the number of endpoint types for session.
+ * by cluster ID
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise that resolves into a count.
+ */
+function getEndpointTypeCountByCluster(db, sessionId, endpointClusterId, side) {
+  return dbApi
+    .dbGet(
+      db,
+      `SELECT COUNT(ENDPOINT_TYPE_ID) FROM ENDPOINT_TYPE WHERE SESSION_REF = ? AND ENDPOINT_TYPE_ID IN
+      (SELECT ENDPOINT_TYPE_REF FROM ENDPOINT_TYPE_CLUSTER WHERE CLUSTER_REF = ? AND SIDE = ? AND ENABLED = 1) `,
+      [sessionId, endpointClusterId, side]
+    )
+    .then((x) => x['COUNT(ENDPOINT_TYPE_ID)'])
+}
+
+/**
  * Extracts raw endpoint types rows.
  *
  * @export
@@ -977,13 +996,13 @@ function getEndpointTypeClusters(db, endpointTypeId) {
     .dbAll(
       db,
       `
-SELECT 
-  ENDPOINT_TYPE_CLUSTER_ID, 
-  ENDPOINT_TYPE_REF, 
-  CLUSTER_REF, 
-  SIDE, 
+SELECT
+  ENDPOINT_TYPE_CLUSTER_ID,
+  ENDPOINT_TYPE_REF,
+  CLUSTER_REF,
+  SIDE,
   ENABLED
-FROM ENDPOINT_TYPE_CLUSTER 
+FROM ENDPOINT_TYPE_CLUSTER
 WHERE ENDPOINT_TYPE_REF = ?`,
       [endpointTypeId]
     )
@@ -1008,12 +1027,12 @@ function getOrInsertDefaultEndpointTypeCluster(
     .dbInsert(
       db,
       `
-INSERT INTO ENDPOINT_TYPE_CLUSTER (ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED) 
-SELECT ?, ?, ?, ? 
+INSERT INTO ENDPOINT_TYPE_CLUSTER (ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED)
+SELECT ?, ?, ?, ?
 WHERE  (
-  ( SELECT COUNT(1) FROM ENDPOINT_TYPE_CLUSTER 
-    WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ? 
-      AND ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = ?  
+  ( SELECT COUNT(1) FROM ENDPOINT_TYPE_CLUSTER
+    WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?
+      AND ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = ?
       AND ENDPOINT_TYPE_CLUSTER.SIDE = ?) == 0 )`,
       [
         endpointTypeId,
@@ -1030,15 +1049,15 @@ WHERE  (
         .dbGet(
           db,
           `
-SELECT 
-  ENDPOINT_TYPE_CLUSTER_ID, 
-  ENDPOINT_TYPE_REF, 
-  CLUSTER_REF, 
-  SIDE, 
-  ENABLED 
-FROM ENDPOINT_TYPE_CLUSTER 
-WHERE ENDPOINT_TYPE_REF = ? 
-  AND CLUSTER_REF = ? 
+SELECT
+  ENDPOINT_TYPE_CLUSTER_ID,
+  ENDPOINT_TYPE_REF,
+  CLUSTER_REF,
+  SIDE,
+  ENABLED
+FROM ENDPOINT_TYPE_CLUSTER
+WHERE ENDPOINT_TYPE_REF = ?
+  AND CLUSTER_REF = ?
   AND SIDE = ?`,
           [endpointTypeId, clusterRef, side]
         )
@@ -1061,16 +1080,16 @@ function getEndpointTypeAttributes(db, endpointTypeId) {
     .dbAll(
       db,
       `
-SELECT 
-  ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF, 
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID, 
-  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED, 
+SELECT
+  ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF,
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
+  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED,
   ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION,
-  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON, 
-  ENDPOINT_TYPE_ATTRIBUTE.BOUNDED, 
-  ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE 
-FROM ENDPOINT_TYPE_ATTRIBUTE, ENDPOINT_TYPE_CLUSTER 
-WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF 
+  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
+  ENDPOINT_TYPE_ATTRIBUTE.BOUNDED,
+  ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE
+FROM ENDPOINT_TYPE_ATTRIBUTE, ENDPOINT_TYPE_CLUSTER
+WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF
   AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?`,
       [endpointTypeId]
     )
@@ -1125,8 +1144,8 @@ function getAllSessionAttributes(db, sessionId) {
     .dbAll(
       db,
       `
-SELECT 
-  A.NAME, 
+SELECT
+  A.NAME,
   A.CODE AS ATTRIBUTE_CODE,
   C.CODE AS CLUSTER_CODE,
   ETA.DEFAULT_VALUE,
@@ -1141,13 +1160,13 @@ SELECT
   ETA.MIN_INTERVAL,
   ETA.MAX_INTERVAL,
   ETA.REPORTABLE_CHANGE
-FROM 
+FROM
   ENDPOINT_TYPE_ATTRIBUTE AS ETA
-JOIN 
+JOIN
   ENDPOINT_TYPE_CLUSTER AS ETC ON ETA.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
 JOIN
   CLUSTER AS C ON ETC.CLUSTER_REF = C.CLUSTER_ID
-JOIN 
+JOIN
   ATTRIBUTE AS A ON ETA.ATTRIBUTE_REF = A.ATTRIBUTE_ID
 JOIN
   ENDPOINT_TYPE AS ET ON ETA.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
@@ -1193,6 +1212,7 @@ exports.getClusterState = getClusterState
 exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState
 exports.insertOrUpdateCommandState = insertOrUpdateCommandState
 exports.getAllEndpointTypeClusterState = getAllEndpointTypeClusterState
+exports.convertRestKeyToDbColumn = convertRestKeyToDbColumn
 exports.insertEndpoint = insertEndpoint
 exports.deleteEndpoint = deleteEndpoint
 exports.updateEndpoint = updateEndpoint
@@ -1209,6 +1229,7 @@ exports.getEndpointTypeCommands = getEndpointTypeCommands
 exports.getAllEndpoints = getAllEndpoints
 exports.getCountOfEndpointsWithGivenEndpointIdentifier = getCountOfEndpointsWithGivenEndpointIdentifier
 exports.getEndpointTypeCount = getEndpointTypeCount
+exports.getEndpointTypeCountByCluster = getEndpointTypeCountByCluster
 exports.getAllSessionAttributes = getAllSessionAttributes
 exports.insertClusterDefaults = insertClusterDefaults
 exports.getEndpointType = getEndpointType

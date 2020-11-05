@@ -66,6 +66,8 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     .then((x) => expect(x.length).toEqual(22))
     .then(() => queryZcl.selectAllEnums(db, jsonPackageId))
     .then((x) => expect(x.length).toEqual(207))
+    .then(() => queryZcl.selectAllEnumItems(db, jsonPackageId))
+    .then((x) => expect(x.length).toEqual(1549))
     .then(() => queryZcl.selectAllStructs(db, jsonPackageId))
     .then((x) => expect(x.length).toEqual(52))
     .then(() => queryZcl.selectAllBitmaps(db, jsonPackageId))
@@ -82,6 +84,8 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     .then((x) => expect(x.length).toEqual(50)) //seems low
     .then(() => queryZcl.selectAllEnums(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(80)) //seems low
+    .then(() => queryZcl.selectAllEnumItems(db, dotdotPackageId))
+    .then((x) => expect(x.length).toEqual(536))
     .then(() => queryZcl.selectAllStructs(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(20)) //seems low
     .then(() => queryZcl.selectAllAtomics(db, dotdotPackageId))

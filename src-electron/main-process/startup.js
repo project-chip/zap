@@ -200,7 +200,7 @@ function startGeneration(
   output,
   genTemplateJsonFile,
   zclProperties,
-  zapFile = null,
+  zapFiles = [],
   options = {
     quit: true,
     cleanDb: true,
@@ -209,11 +209,17 @@ function startGeneration(
 ) {
   if (options.log)
     console.log(
-      `🤖 Generation information: 
+      `🤖 ZAP generation information: 
     👉 into: ${output}
     👉 using templates: ${genTemplateJsonFile}
     👉 using zcl data: ${zclProperties}`
     )
+  var zapFile = null
+  if (zapFiles != null && zapFiles.length > 0) {
+    zapFile = zapFiles[0]
+    if (zapFiles.length > 1 && options.log)
+      console.log(`    ⚠️  Multiple files passed. Using only first one.`)
+  }
   if (zapFile != null) {
     if (fs.existsSync(zapFile)) {
       var stat = fs.statSync(zapFile)
@@ -250,6 +256,8 @@ function startGeneration(
   } else {
     if (options.log) console.log(`    👉 using empty configuration`)
   }
+  if (options.log)
+    console.log(`    👉 zap version: ${env.zapVersionAsString()}`)
   var dbFile = env.sqliteFile('generate')
   if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   var packageId

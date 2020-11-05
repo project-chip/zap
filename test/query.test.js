@@ -32,6 +32,7 @@ const exportJs = require('../src-electron/importexport/export.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const testUtil = require('./test-util.js')
+const restApi = require('../src-shared/rest-api.js')
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -484,4 +485,51 @@ describe('Endpoint Type Config Queries', () => {
         expect(data.length).toBe(3)
       })
   })
+})
+
+test('Test Rest Key to DB Column Test', () => {
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.endpointId)
+  ).toEqual('ENDPOINT_IDENTIFIER')
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.endpointType)
+  ).toEqual('ENDPOINT_TYPE_REF')
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.networkId)
+  ).toEqual('NETWORK_IDENTIFIER')
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.deviceTypeRef)
+  ).toEqual('DEVICE_TYPE_REF')
+  expect(queryConfig.convertRestKeyToDbColumn(restApi.updateKey.name)).toEqual(
+    'NAME'
+  )
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeSelected)
+  ).toEqual('INCLUDED')
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeSingleton)
+  ).toEqual('SINGLETON')
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeBounded)
+  ).toEqual('BOUNDED')
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeDefault)
+  ).toEqual('DEFAULT_VALUE')
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeReporting)
+  ).toEqual('INCLUDED_REPORTABLE')
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeReportMin)
+  ).toEqual('MIN_INTERVAL')
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeReportMax)
+  ).toEqual('MAX_INTERVAL')
+  expect(
+    queryConfig.convertRestKeyToDbColumn(
+      restApi.updateKey.attributeReportChange
+    )
+  ).toEqual('REPORTABLE_CHANGE')
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeStorage)
+  ).toEqual('STORAGE_OPTION')
 })

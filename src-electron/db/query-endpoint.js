@@ -1,3 +1,4 @@
+const { int8ToHex } = require('../util/bin.js')
 /**
  *
  *    Copyright (c) 2020 Silicon Labs
@@ -15,13 +16,55 @@
  *    limitations under the License.
  */
 
+/**
+ * This module provides queries for endpoint configuration.
+ *
+ * @module DB API: endpoint configuration queries against the database.
+ */
 const dbApi = require('./db-api.js')
 const queryConfig = require('./query-config.js')
+const bin = require('../util/bin.js')
 
+/**
+ * Returns promise of all endpoints.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into endpoints rows
+ */
+function queryEndpoints(db, sessionId) {
+  return queryConfig.getAllEndpoints(db, sessionId)
+}
+
+/**
+ * Returns endpoint types.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into endpoint types rows
+ */
 function queryEndpointTypes(db, sessionId) {
   return queryConfig.getAllEndpointTypes(db, sessionId)
 }
 
+/**
+ * Returns endpoint type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns promise that resolves into endpoint type
+ */
+function queryEndpointType(db, endpointTypeId) {
+  return queryConfig.getEndpointType(db, endpointTypeId)
+}
+
+/**
+ * Retrieves clusters on an endpoint.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns promise that resolves into endpoint clusters.
+ */
 function queryEndpointClusters(db, endpointTypeId) {
   return dbApi
     .dbAll(
@@ -53,6 +96,7 @@ ORDER BY C.CODE
           clusterId: row['CLUSTER_ID'],
           endpointTypeId: row['ENDPOINT_TYPE_REF'],
           endpointTypeClusterId: row['ENDPOINT_TYPE_CLUSTER_ID'],
+          hexCode: '0x' + bin.int16ToHex(row['CODE']),
           code: row['CODE'],
           name: row['NAME'],
           side: row['SIDE'],
@@ -61,7 +105,16 @@ ORDER BY C.CODE
     )
 }
 
-function queryEndpointClusterAttributes(db, clusterId, endpointTypeId) {
+/**
+ * Retrieves endpoint cluster attributes
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @param {*} side
+ * @param {*} endpointTypeId
+ * @returns promise that resolves into endpoint cluster attributes
+ */
+function queryEndpointClusterAttributes(db, clusterId, side, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -70,6 +123,9 @@ SELECT
   A.CODE,
   A.NAME,
   A.SIDE,
+  A.TYPE,
+  A.MIN_LENGTH,
+  A.MAX_LENGTH,
   EA.STORAGE_OPTION,
   EA.SINGLETON,
   EA.BOUNDED,
@@ -86,17 +142,22 @@ ON
   A.ATTRIBUTE_ID = EA.ATTRIBUTE_REF
 WHERE
   A.CLUSTER_REF = ?
+  AND A.SIDE = ?
   AND EA.ENDPOINT_TYPE_REF = ?
     `,
-      [clusterId, endpointTypeId]
+      [clusterId, side, endpointTypeId]
     )
     .then((rows) =>
       rows.map((row) => {
         return {
           clusterId: clusterId,
-          attributeCode: row['CODE'],
+          code: row['CODE'],
+          hexCode: '0x' + bin.int16ToHex(row['CODE']),
           name: row['NAME'],
           side: row['SIDE'],
+          type: row['TYPE'],
+          minLength: row['MIN_LENGTH'],
+          maxLength: row['MAX_LENGTH'],
           storage: row['STORAGE_OPTION'],
           isSingleton: row['SINGLETON'],
           isBound: row['BOUNDED'],
@@ -110,6 +171,52 @@ WHERE
     )
 }
 
+/**
+ * Retrieves endpoint cluster commands.
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @param {*} endpointTypeId
+ * @returns promise that resolves into endpoint cluster commands
+ */
+function queryEndpointClusterCommands(db, clusterId, endpointTypeId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  C.NAME,
+  C.CODE,
+  EC.INCOMING,
+  EC.OUTGOING
+FROM 
+  COMMAND AS C
+LEFT JOIN
+  ENDPOINT_TYPE_COMMAND AS EC
+ON
+  C.COMMAND_ID = EC.COMMAND_REF
+WHERE
+  C.CLUSTER_REF = ?
+  AND EC.ENDPOINT_TYPE_REF = ?
+  `,
+      [clusterId, endpointTypeId]
+    )
+    .then((rows) =>
+      rows.map((row) => {
+        return {
+          name: row['NAME'],
+          code: row['CODE'],
+          isIncoming: row['INCOMING'],
+          isOutgoing: row['OUTGOING'],
+          hexCode: '0x' + bin.int8ToHex(row['CODE']),
+        }
+      })
+    )
+}
+
+exports.queryEndpoints = queryEndpoints
 exports.queryEndpointClusters = queryEndpointClusters
 exports.queryEndpointTypes = queryEndpointTypes
+exports.queryEndpointType = queryEndpointType
 exports.queryEndpointClusterAttributes = queryEndpointClusterAttributes
+exports.queryEndpointClusterCommands = queryEndpointClusterCommands
