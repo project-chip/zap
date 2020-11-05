@@ -471,6 +471,7 @@ describe('Endpoint Type Config Queries', () => {
       ).toBeTruthy()
       expect(report.includes('0x0006: cluster: On/off (client)')).toBeTruthy()
       expect(report.includes('0x0030: cluster: On/off')).toBeFalsy()
+      expect(report.includes('0x00: command: MoveToLevel')).toBeTruthy()
     }))
 
   test('Delete Endpoint Type', () =>
