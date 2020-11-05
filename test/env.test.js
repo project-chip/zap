@@ -21,8 +21,11 @@
 const env = require('../src-electron/util/env.js')
 const util = require('../src-electron/util/util.js')
 const fs = require('fs')
+const os = require('os')
+const dbEnum = require('../src-shared/db-enum.js')
+const path = require('path')
 
-describe('Environment Tests', () => {
+describe('Util Tests', () => {
   let filePath = 'foobarBackupTestFile.txt'
   let backupPath = filePath + '~'
 
@@ -32,6 +35,67 @@ describe('Environment Tests', () => {
     fs.unlinkSync(backupPath)
   })
 
+  test('Relative paths', () => {
+    var f = util.createAbsolutePath(
+      'file',
+      dbEnum.pathRelativity.relativeToUserHome
+    )
+    expect(path.resolve(f)).toBe(path.resolve(path.join(os.homedir(), 'file')))
+  })
+  test('Feature level match', () => {
+    var x = util.matchFeatureLevel(0)
+    expect(x.match).toBeTruthy()
+    x = util.matchFeatureLevel(99999)
+    expect(x.match).toBeFalsy()
+    expect(x.message).not.toBeNull()
+  })
+  test('Create backup file', () => {
+    return new Promise((resolve, reject) => {
+      expect(fs.existsSync(backupPath)).toBeFalsy()
+      fs.writeFile(filePath, 'foo', (err) => {
+        util.createBackupFile(filePath)
+        expect(fs.existsSync(backupPath)).toBeTruthy()
+        expect(
+          fs.readFileSync(backupPath, { encoding: 'utf8', flag: 'r' })
+        ).toEqual('foo')
+        fs.writeFileSync(filePath, 'bar')
+        util.createBackupFile(filePath)
+        expect(
+          fs.readFileSync(backupPath, { encoding: 'utf8', flag: 'r' })
+        ).toEqual('bar')
+        resolve()
+      })
+    }, 5000)
+  }, 5000)
+
+  test('Test Session Key Cookies', () => {
+    let testCookie = { 'connect.sid': 's%3Atest.abra' }
+    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('test')
+    expect(util.getSessionKeyFromBrowserCookie({})).toBeNull()
+    testCookie['connect.sid'] = 'tester.abra'
+    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('tester')
+    testCookie['connect.sid'] = 's%3Aabra'
+    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('abra')
+  })
+
+  var array = []
+  test('Sequential promise resolution', () => {
+    var args = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    var fn = (arg) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          array.push(arg)
+          resolve()
+        }, 50 - 3 * arg)
+      })
+    }
+    return util.executePromisesSequentially(args, fn).then(() => {
+      expect(array).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    })
+  })
+})
+
+describe('Environment Tests', () => {
   test('Test environment', () => {
     expect(env.appDirectory().length).toBeGreaterThan(10)
     expect(env.sqliteFile().length).toBeGreaterThan(10)
@@ -64,58 +128,5 @@ describe('Environment Tests', () => {
     expect('hash' in v).toBeTruthy()
     expect('timestamp' in v).toBeTruthy()
     expect('date' in v).toBeTruthy()
-  })
-
-  test('Feature level match', () => {
-    var x = util.matchFeatureLevel(0)
-    expect(x.match).toBeTruthy()
-    x = util.matchFeatureLevel(99999)
-    expect(x.match).toBeFalsy()
-    expect(x.message).not.toBeNull()
-  })
-
-  var array = []
-  test('Sequential promise resolution', () => {
-    var args = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    var fn = (arg) => {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          array.push(arg)
-          resolve()
-        }, 50 - 3 * arg)
-      })
-    }
-    return util.executePromisesSequentially(args, fn).then(() => {
-      expect(array).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    })
-  })
-
-  test('Create backup file', () => {
-    return new Promise((resolve, reject) => {
-      expect(fs.existsSync(backupPath)).toBeFalsy()
-      fs.writeFile(filePath, 'foo', (err) => {
-        util.createBackupFile(filePath)
-        expect(fs.existsSync(backupPath)).toBeTruthy()
-        expect(
-          fs.readFileSync(backupPath, { encoding: 'utf8', flag: 'r' })
-        ).toEqual('foo')
-        fs.writeFileSync(filePath, 'bar')
-        util.createBackupFile(filePath)
-        expect(
-          fs.readFileSync(backupPath, { encoding: 'utf8', flag: 'r' })
-        ).toEqual('bar')
-        resolve()
-      })
-    }, 5000)
-  }, 5000)
-
-  test('Test Session Key Cookies', () => {
-    let testCookie = { 'connect.sid': 's%3Atest.abra' }
-    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('test')
-    expect(util.getSessionKeyFromBrowserCookie({})).toBeNull()
-    testCookie['connect.sid'] = 'tester.abra'
-    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('tester')
-    testCookie['connect.sid'] = 's%3Aabra'
-    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('abra')
   })
 })

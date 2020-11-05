@@ -58,17 +58,7 @@ function importSessionKeyValues(db, sessionId, keyValuePairs) {
 function importSinglePackage(db, sessionId, pkg, zapFilePath) {
   var absPath = pkg.path
   if ('pathRelativity' in pkg) {
-    switch (pkg.pathRelativity) {
-      case dbEnum.pathRelativity.absolute:
-        absPath = pkg.path
-        break
-      case dbEnum.pathRelativity.relativeToUserHome:
-        absPath = path.join(os.homedir(), pkg.path)
-        break
-      case dbEnum.pathRelativity.relativeToZap:
-        absPath = path.join(path.dirname(zapFilePath), pkg.path)
-        break
-    }
+    absPath = util.createAbsolutePath(pkg.path, pkg.pathRelativity, zapFilePath)
   }
   return queryPackage
     .getPackageIdByPathAndTypeAndVersion(db, absPath, pkg.type, pkg.version)
