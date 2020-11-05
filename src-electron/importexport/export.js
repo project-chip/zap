@@ -24,6 +24,7 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const queryConfig = require('../db/query-config.js')
 const queryImpExp = require('../db/query-impexp.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Resolves to an array of objects that contain 'key' and 'value'
@@ -176,12 +177,16 @@ function createStateFromDatabase(db, sessionId) {
       creator: 'zap',
     }
     var promises = []
+    var excludedKeys = [dbEnum.sessionKey.filePath]
 
     env.logInfo(`Exporting data for session: ${sessionId}`)
     // Deal with the key/value table
     var getKeyValues = exportSessionKeyValues(db, sessionId).then((data) => {
       env.logInfo(`Retrieved session keys: ${data.length}`)
-      return { key: 'keyValuePairs', data: data }
+      var storedKeyValuePairs = data.filter(
+        (x) => !excludedKeys.includes(x.key)
+      )
+      return { key: 'keyValuePairs', data: storedKeyValuePairs }
     })
     promises.push(getKeyValues)
 

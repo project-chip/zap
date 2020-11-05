@@ -182,7 +182,7 @@ function doSave(menuItem, browserWindow, event) {
       queryConfig.getSessionKeyValue(
         env.mainDatabase(),
         row.sessionId,
-        'filePath'
+        dbEnum.sessionKey.filePath
       )
     )
     .then((filePath) => {
@@ -370,7 +370,7 @@ function fileSave(db, browserWindow, filePath) {
     )
     .then((row) => {
       return queryConfig
-        .updateKeyValue(db, row.sessionId, 'filePath', filePath)
+        .updateKeyValue(db, row.sessionId, dbEnum.sessionKey.filePath, filePath)
         .then(() => row)
     })
     .then((row) => exportJs.exportDataIntoFile(db, row.sessionId, filePath))

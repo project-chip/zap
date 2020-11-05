@@ -63,3 +63,7 @@ exports.zclType = {
 exports.fileLocationCategory = {
   save: 'save',
 }
+
+exports.sessionKey = {
+  filePath: 'filePath',
+}
