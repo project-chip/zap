@@ -1,5 +1,5 @@
 {
-  "writeTime": "Thu Nov 05 2020 10:07:28 GMT-0400 (Atlantic Standard Time)",
+  "writeTime": "Thu Nov 05 2020 12:21:00 GMT-0400 (Atlantic Standard Time)",
   "featureLevel": 2,
   "creator": "zap",
   "keyValuePairs": [
@@ -54,6 +54,7 @@
           "define": "BASIC_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [],
           "attributes": [
             {
               "name": "ZCL version",
@@ -83,8 +84,7 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "Power Configuration",
@@ -152,7 +152,6 @@
           "define": "DEVICE_TEMP_CLUSTER",
           "side": "server",
           "enabled": 0,
-          "commands": [],
           "attributes": [
             {
               "name": "current temperature",
@@ -168,7 +167,8 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ]
+          ],
+          "commands": []
         },
         {
           "name": "Groups",
@@ -926,6 +926,7 @@
           "define": "SHADE_CONFIG_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [],
           "attributes": [
             {
               "name": "status",
@@ -969,8 +970,7 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "Door Lock",
@@ -1594,6 +1594,7 @@
           "define": "BALLAST_CONFIGURATION_CLUSTER",
           "side": "server",
           "enabled": 0,
+          "commands": [],
           "attributes": [
             {
               "name": "ballast status",
@@ -1609,8 +1610,7 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "ISO 7816 Protocol Tunnel",
@@ -2431,7 +2431,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "",
+              "defaultValue": "Very long user id",
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -2502,8 +2502,8 @@
           "define": "METER_IDENTIFICATION_CLUSTER",
           "side": "client",
           "enabled": 1,
-          "attributes": [],
-          "commands": []
+          "commands": [],
+          "attributes": []
         },
         {
           "name": "Meter Identification",
@@ -2512,6 +2512,7 @@
           "define": "METER_IDENTIFICATION_CLUSTER",
           "side": "server",
           "enabled": 0,
+          "commands": [],
           "attributes": [
             {
               "name": "company name",
@@ -2597,8 +2598,7 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "Electrical Measurement",
@@ -3507,7 +3507,6 @@
           "define": "BASIC_CLUSTER",
           "side": "server",
           "enabled": 1,
-          "commands": [],
           "attributes": [
             {
               "name": "ZCL version",
@@ -3621,7 +3620,8 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ]
+          ],
+          "commands": []
         },
         {
           "name": "Identify",
@@ -3630,6 +3630,7 @@
           "define": "IDENTIFY_CLUSTER",
           "side": "client",
           "enabled": 1,
+          "attributes": [],
           "commands": [
             {
               "name": "Identify",
@@ -3647,8 +3648,7 @@
               "incoming": 1,
               "outgoing": 1
             }
-          ],
-          "attributes": []
+          ]
         },
         {
           "name": "Identify",
@@ -3869,6 +3869,7 @@
           "define": "BASIC_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [],
           "attributes": [
             {
               "name": "ZCL version",
@@ -3912,8 +3913,7 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "Identify",
@@ -3922,7 +3922,6 @@
           "define": "IDENTIFY_CLUSTER",
           "side": "client",
           "enabled": 1,
-          "attributes": [],
           "commands": [
             {
               "name": "Identify",
@@ -3940,7 +3939,8 @@
               "incoming": 1,
               "outgoing": 1
             }
-          ]
+          ],
+          "attributes": []
         },
         {
           "name": "Identify",

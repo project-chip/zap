@@ -272,9 +272,11 @@ function endpoint_attribute_long_defaults(options) {
   }
   var ret = '{ \\ \n'
   this.longDefaultsList.forEach((ld) => {
-    var def
-    if (def == null) {
+    var def = ld.value
+    if (def == null || def.length == 0) {
       def = '0x00, '.repeat(ld.size)
+    } else if (isNaN(ld.value)) {
+      def = bin.hexToCBytes(bin.stringToHex(ld.value))
     } else {
       def = bin.hexToCBytes(ld.value)
     }
@@ -352,7 +354,7 @@ function collectAttributes(endpointTypes) {
           var longDef = {
             value: a.defaultValue,
             size: a.typeSize,
-            comment: `Default for attribute ${a.name}`,
+            comment: `Default for cluster: "${c.name}", attribute: "${a.name}". side: ${a.side}`,
           }
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           longDefaultsList.push(longDef)

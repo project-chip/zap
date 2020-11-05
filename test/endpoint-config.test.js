@@ -28,6 +28,7 @@ const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const types = require('../src-electron/util/types.js')
+const bin = require('../src-electron/util/bin.js')
 
 var db
 const templateCount = 12
@@ -179,6 +180,9 @@ test(
             '#define FIXED_ENDPOINT_ARRAY { 0x0029, 0x002A, 0x002B }'
           )
         ).toBeTruthy()
+        expect(
+          epc.includes(bin.hexToCBytes(bin.stringToHex('Very long user id')))
+        )
         expect(epc.includes('#define FIXED_NETWORKS { 1, 1, 2 }')).toBeTruthy()
         expect(
           epc.includes('#define FIXED_PROFILE_IDS { 0x0107, 0x0104, 0x0104 }')
