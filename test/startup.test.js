@@ -37,7 +37,7 @@ test('startup: start generation', () => {
       log: false,
     }
   )
-}, 5000)
+}, 10000)
 
 test('startup: self-check', () => {
   return startup.startSelfCheck({ log: false, quit: false })

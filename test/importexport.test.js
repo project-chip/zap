@@ -36,7 +36,7 @@ var testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
 var testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
-let bypassGlobalAttributes = true
+let bypassGlobalAttributes = false
 
 beforeAll(() => {
   env.setDevelopmentEnv()
