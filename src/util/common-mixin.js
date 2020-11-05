@@ -104,7 +104,6 @@ export default {
         ],
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
-      this.$store.dispatch('zap/resetFilters')
     },
   },
 }
