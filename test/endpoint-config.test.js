@@ -181,6 +181,11 @@ test(
           )
         ).toBeTruthy()
         expect(
+          epc.includes(
+            "17, 'V', 'e', 'r', 'y', ' ', 'l', 'o', 'n', 'g', ' ', 'u', 's', 'e', 'r', ' ', 'i', 'd', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,"
+          )
+        ).toBeTruthy()
+        expect(
           epc.includes(bin.hexToCBytes(bin.stringToHex('Very long user id')))
         )
         expect(epc.includes('#define FIXED_NETWORKS { 1, 1, 2 }')).toBeTruthy()

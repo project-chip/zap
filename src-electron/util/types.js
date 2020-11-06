@@ -64,10 +64,12 @@ function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
 
 /**
  * If the type is more than 2 bytes long, then this method creates
+ * the default byte array.
  *
  * @param {*} size
  * @param {*} type
  * @param {*} value
+ * @returns string which is a C-formatted byte array.
  */
 function longTypeDefaultValue(size, type, value) {
   if (value == null || value.length == 0) {
@@ -75,9 +77,9 @@ function longTypeDefaultValue(size, type, value) {
   } else if (isNaN(value)) {
     console.log(type)
     if (isOneBytePrefixedString(type)) {
-      return bin.stringToOneByteLengthPrefixCBytes(value)
+      return bin.stringToOneByteLengthPrefixCBytes(value, size)
     } else if (isTwoBytePrefixedString(type)) {
-      return bin.stringToTwoByteLengthPrefixCBytes(value)
+      return bin.stringToTwoByteLengthPrefixCBytes(value, size)
     } else {
       return bin.hexToCBytes(bin.stringToHex(value))
     }
