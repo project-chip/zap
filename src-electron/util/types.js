@@ -16,6 +16,7 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const bin = require('./bin.js')
 
 /**
  * @module JS API: type related utilities
@@ -33,6 +34,16 @@ function typeSize(db, zclPackageId, type) {
   return queryZcl.getAtomicSizeFromType(db, zclPackageId, type)
 }
 
+/**
+ * Returns the size of a real attribute, taking type size and defaults
+ * into consideration, so that strings are properly sized.
+ *
+ * @param {*} db
+ * @param {*} zclPackageId
+ * @param {*} at
+ * @param {*} [defaultValue=null]
+ * @returns Promise that resolves into the size of the attribute.
+ */
 function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
   return typeSize(db, zclPackageId, at.type).then((size) => {
     if (size) {
@@ -51,5 +62,23 @@ function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
   })
 }
 
+/**
+ * If the type is more than 2 bytes long, then this method creates
+ *
+ * @param {*} size
+ * @param {*} type
+ * @param {*} value
+ */
+function longTypeDefaultValue(size, type, value) {
+  if (value == null || value.length == 0) {
+    return '0x00, '.repeat(size)
+  } else if (isNaN(value)) {
+    return bin.hexToCBytes(bin.stringToHex(value))
+  } else {
+    return bin.hexToCBytes(value)
+  }
+}
+
 exports.typeSize = typeSize
 exports.typeSizeAttribute = typeSizeAttribute
+exports.longTypeDefaultValue = longTypeDefaultValue
