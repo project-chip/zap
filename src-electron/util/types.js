@@ -73,10 +73,25 @@ function longTypeDefaultValue(size, type, value) {
   if (value == null || value.length == 0) {
     return '0x00, '.repeat(size)
   } else if (isNaN(value)) {
-    return bin.hexToCBytes(bin.stringToHex(value))
+    console.log(type)
+    if (isOneBytePrefixedString(type)) {
+      return bin.stringToOneByteLengthPrefixCBytes(value)
+    } else if (isTwoBytePrefixedString(type)) {
+      return bin.stringToTwoByteLengthPrefixCBytes(value)
+    } else {
+      return bin.hexToCBytes(bin.stringToHex(value))
+    }
   } else {
     return bin.hexToCBytes(value)
   }
+}
+
+function isOneBytePrefixedString(type) {
+  return type == 'char_string' || type == 'octet_string'
+}
+
+function isTwoBytePrefixedString(type) {
+  return type == 'long_char_string' || type == 'long_octet_string'
 }
 
 exports.typeSize = typeSize

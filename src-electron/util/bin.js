@@ -139,6 +139,49 @@ function hexToBinary(hex) {
   return out
 }
 
+/**
+ * Returns string as C bytes, prefixed with one-byte length.
+ * If maxLength is greater than length of value, then
+ * the resulting array is padded with 0x00.
+ *
+ * @param {*} value
+ */
+function stringToOneByteLengthPrefixCBytes(value, maxLength) {
+  var len = value.length
+  var ret = `${len}, `
+  for (var i = 0; i < len; i++) {
+    ret = ret.concat(`'${value[i]}', `)
+  }
+  if (maxLength > len) {
+    for (var i = 0; i < maxLength - len; i++) {
+      ret = ret.concat('0x00, ')
+    }
+  }
+  return ret
+}
+
+/**
+ * Returns string as C bytes, prefixed with two-byte length
+ * If maxLength is greater than length of value, then
+ * the resulting array is padded with 0x00.
+ *
+ * @param {*} value
+ */
+function stringToTwoByteLengthPrefixCBytes(value, maxLength) {
+  var len = value.length
+  var ret = `${(len >> 8) & 0xff}, `
+  ret = ret.concat(`${len & 0xff}, `)
+  for (var i = 0; i < len; i++) {
+    ret = ret.concat(`'${value[i]}', `)
+  }
+  if (maxLength > len) {
+    for (var i = 0; i < maxLength - len; i++) {
+      ret = ret.concat('0x00, ')
+    }
+  }
+  return ret
+}
+
 exports.int32ToHex = int32ToHex
 exports.int16ToHex = int16ToHex
 exports.int8ToHex = int8ToHex
@@ -146,3 +189,5 @@ exports.stringToHex = stringToHex
 exports.hexToCBytes = hexToCBytes
 exports.hexToBinary = hexToBinary
 exports.bitOffset = bitOffset
+exports.stringToOneByteLengthPrefixCBytes = stringToOneByteLengthPrefixCBytes
+exports.stringToTwoByteLengthPrefixCBytes = stringToTwoByteLengthPrefixCBytes
