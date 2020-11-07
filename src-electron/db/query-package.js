@@ -469,7 +469,7 @@ function insertDefaultOptionValue(db, packageId, optionCategory, optionRef) {
 }
 
 /**
- * Returns a rpomise for all option values.
+ * Returns a promise for all option values.
  * @param {*} db
  * @param {*} packageId
  */

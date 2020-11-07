@@ -16,6 +16,7 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const bin = require('./bin.js')
 
 /**
  * @module JS API: type related utilities
@@ -33,6 +34,16 @@ function typeSize(db, zclPackageId, type) {
   return queryZcl.getAtomicSizeFromType(db, zclPackageId, type)
 }
 
+/**
+ * Returns the size of a real attribute, taking type size and defaults
+ * into consideration, so that strings are properly sized.
+ *
+ * @param {*} db
+ * @param {*} zclPackageId
+ * @param {*} at
+ * @param {*} [defaultValue=null]
+ * @returns Promise that resolves into the size of the attribute.
+ */
 function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
   return typeSize(db, zclPackageId, at.type).then((size) => {
     if (size) {
@@ -51,5 +62,42 @@ function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
   })
 }
 
+/**
+ * If the type is more than 2 bytes long, then this method creates
+ * the default byte array.
+ *
+ * @param {*} size Size of bytes generated.
+ * @param {*} type Type of the object.
+ * @param {*} value Default value.
+ * @returns string which is a C-formatted byte array.
+ */
+function longTypeDefaultValue(size, type, value) {
+  var v
+  if (value == null || value.length == 0) {
+    v = '0x00, '.repeat(size)
+  } else if (isNaN(value)) {
+    console.log(type)
+    if (isOneBytePrefixedString(type)) {
+      v = bin.stringToOneByteLengthPrefixCBytes(value, size)
+    } else if (isTwoBytePrefixedString(type)) {
+      v = bin.stringToTwoByteLengthPrefixCBytes(value, size)
+    } else {
+      v = bin.hexToCBytes(bin.stringToHex(value))
+    }
+  } else {
+    v = bin.hexToCBytes(value)
+  }
+  return v
+}
+
+function isOneBytePrefixedString(type) {
+  return type == 'char_string' || type == 'octet_string'
+}
+
+function isTwoBytePrefixedString(type) {
+  return type == 'long_char_string' || type == 'long_octet_string'
+}
+
 exports.typeSize = typeSize
 exports.typeSizeAttribute = typeSizeAttribute
+exports.longTypeDefaultValue = longTypeDefaultValue

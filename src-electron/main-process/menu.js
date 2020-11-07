@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 
+const path = require('path')
 const { dialog, Menu } = require('electron')
 const env = require('../util/env.js')
 const util = require('../util/util.js')
@@ -147,7 +148,7 @@ const template = [
  */
 function doOpen(menuItem, browserWindow, event) {
   queryGeneric
-    .selectFileLocation(env.mainDatabase(), 'save')
+    .selectFileLocation(env.mainDatabase(), dbEnum.fileLocationCategory.save)
     .then((filePath) => {
       var opts = {
         properties: ['openFile', 'multiSelections'],
@@ -182,7 +183,7 @@ function doSave(menuItem, browserWindow, event) {
       queryConfig.getSessionKeyValue(
         env.mainDatabase(),
         row.sessionId,
-        'filePath'
+        dbEnum.sessionKey.filePath
       )
     )
     .then((filePath) => {
@@ -203,7 +204,7 @@ function doSave(menuItem, browserWindow, event) {
  */
 function doSaveAs(menuItem, browserWindow, event) {
   queryGeneric
-    .selectFileLocation(env.mainDatabase(), 'save')
+    .selectFileLocation(env.mainDatabase(), dbEnum.fileLocationCategory.save)
     .then((filePath) => {
       var opts = {
         filters: [
@@ -225,7 +226,11 @@ function doSaveAs(menuItem, browserWindow, event) {
     })
     .then((filePath) => {
       if (filePath != null) {
-        queryGeneric.insertFileLocation(env.mainDatabase(), filePath, 'save')
+        queryGeneric.insertFileLocation(
+          env.mainDatabase(),
+          filePath,
+          dbEnum.fileLocationCategory.save
+        )
         browserWindow.setTitle(filePath)
         dialog.showMessageBox(browserWindow, {
           title: 'Save',
@@ -366,7 +371,12 @@ function fileSave(db, browserWindow, filePath) {
     )
     .then((row) => {
       return queryConfig
-        .updateKeyValue(db, row.sessionId, 'filePath', filePath)
+        .updateKeyValue(
+          db,
+          row.sessionId,
+          dbEnum.sessionKey.filePath,
+          path.resolve(filePath)
+        )
         .then(() => row)
     })
     .then((row) => exportJs.exportDataIntoFile(db, row.sessionId, filePath))

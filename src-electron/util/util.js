@@ -19,6 +19,7 @@
  * @module JS API: random utilities
  */
 
+const os = require('os')
 const fs = require('fs')
 const env = require('./env.js')
 const crc = require('crc')
@@ -298,6 +299,24 @@ function executePromisesSequentially(arrayOfData, promiseCreator) {
   }, Promise.resolve())
 }
 
+/**
+ * This function creates absolute path out of relative path and its relativity
+ * @param {*} relativePath
+ * @param {*} relativity
+ * @param {*} zapFilePath
+ */
+function createAbsolutePath(relativePath, relativity, zapFilePath) {
+  switch (relativity) {
+    case dbEnum.pathRelativity.absolute:
+      return relativePath
+    case dbEnum.pathRelativity.relativeToUserHome:
+      return path.join(os.homedir(), relativePath)
+    case dbEnum.pathRelativity.relativeToZap:
+      return path.join(path.dirname(zapFilePath), relativePath)
+  }
+  return relativePath
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
@@ -306,3 +325,4 @@ exports.getSessionKeyFromBrowserCookie = getSessionKeyFromBrowserCookie
 exports.matchFeatureLevel = matchFeatureLevel
 exports.sessionReport = sessionReport
 exports.executePromisesSequentially = executePromisesSequentially
+exports.createAbsolutePath = createAbsolutePath

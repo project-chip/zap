@@ -28,7 +28,7 @@ const exportJs = require('../importexport/export.js')
 const path = require('path')
 const http = require('http-status-codes')
 const queryConfig = require('../db/query-config.js')
-
+const dbEnum = require('../../src-shared/db-enum.js')
 /**
  * HTTP GET: IDE open
  *
@@ -50,7 +50,12 @@ function httpGetIdeOpen(db) {
           env.logInfo(
             `Studio: Loaded project(${name}), ${JSON.stringify(response)}`
           )
-          queryConfig.updateKeyValue(db, sessionId, 'filePath', zapFile)
+          queryConfig.updateKeyValue(
+            db,
+            sessionId,
+            dbEnum.sessionKey.filePath,
+            zapFile
+          )
           res.send(response)
         })
         .catch(function (err) {
@@ -77,7 +82,11 @@ function httpGetIdeSave(db) {
   return (req, res) => {
     env.logInfo(`Saving project: sessionId(${req.session.zapSessionId})`)
     queryConfig
-      .getSessionKeyValue(db, req.session.zapSessionId, 'filePath')
+      .getSessionKeyValue(
+        db,
+        req.session.zapSessionId,
+        dbEnum.sessionKey.filePath
+      )
       .then((filePath) =>
         exportJs.exportDataIntoFile(db, req.session.zapSessionId, filePath)
       )

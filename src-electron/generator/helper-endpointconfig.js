@@ -16,9 +16,7 @@
  */
 
 const templateUtil = require('./template-util')
-const queryConfig = require('../db/query-config.js')
 const queryEndpoint = require('../db/query-endpoint.js')
-const queryZcl = require('../db/query-zcl.js')
 const bin = require('../util/bin.js')
 const types = require('../util/types.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -272,14 +270,8 @@ function endpoint_attribute_long_defaults(options) {
   }
   var ret = '{ \\ \n'
   this.longDefaultsList.forEach((ld) => {
-    var def
-    if (def == null) {
-      def = '0x00, '.repeat(ld.size)
-    } else {
-      def = bin.hexToCBytes(ld.value)
-    }
     ret = ret.concat(
-      `  ${def}  /* ${ld.comment}, ${
+      `  ${ld.value}  /* ${ld.comment}, ${
         littleEndian ? 'little-endian' : 'big-endian'
       } */ \\\n`
     )
@@ -349,10 +341,15 @@ function collectAttributes(endpointTypes) {
         if (a.typeSize > 2) {
           // We will need to generate the GENERATED_DEFAULTS
           longDefaults.push(a)
+          var def = types.longTypeDefaultValue(
+            a.typeSize,
+            a.type,
+            a.defaultValue
+          )
           var longDef = {
-            value: a.defaultValue,
+            value: def,
             size: a.typeSize,
-            comment: `Default for attribute ${a.name}`,
+            comment: `Default for cluster: "${c.name}", attribute: "${a.name}". side: ${a.side}`,
           }
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           longDefaultsList.push(longDef)

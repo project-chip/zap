@@ -71,3 +71,17 @@ test('Bit offset', () => {
   expect(bin.bitOffset(bin.hexToBinary(bin.int8ToHex(2)))).toBe(1)
   expect(bin.bitOffset(bin.hexToBinary(bin.int8ToHex(4)))).toBe(2)
 })
+
+test('ZCL strings', () => {
+  var r = bin.stringToOneByteLengthPrefixCBytes('Test string')
+  expect(r).toBe("11, 'T', 'e', 's', 't', ' ', 's', 't', 'r', 'i', 'n', 'g', ")
+  r = bin.stringToTwoByteLengthPrefixCBytes('Test string')
+  expect(r).toContain(
+    "0, 11, 'T', 'e', 's', 't', ' ', 's', 't', 'r', 'i', 'n', 'g',"
+  )
+  r = bin.stringToTwoByteLengthPrefixCBytes('x'.repeat(300))
+  expect(r).toContain(
+    "1, 44, 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x',"
+  )
+  console.log(r)
+})

@@ -19,6 +19,8 @@
  * This file provides the functionality that reads the ZAP data from a JSON file
  * and imports it into a database.
  */
+const path = require('path')
+const os = require('os')
 const fs = require('fs')
 const env = require('../util/env.js')
 const util = require('../util/util.js')
@@ -50,10 +52,16 @@ function importSessionKeyValues(db, sessionId, keyValuePairs) {
   return Promise.all(allQueries).then(() => sessionId)
 }
 
-// Resolves into a { packageId:, packageType:} object, pkg has `path`, `version`, `type`.
-function importSinglePackage(db, sessionId, pkg) {
+// Resolves into a { packageId:, packageType:}
+// object, pkg has`path`, `version`, `type`. It can ALSO have pathRelativity. If pathRelativity is missing
+// path is considered absolute.
+function importSinglePackage(db, sessionId, pkg, zapFilePath) {
+  var absPath = pkg.path
+  if ('pathRelativity' in pkg) {
+    absPath = util.createAbsolutePath(pkg.path, pkg.pathRelativity, zapFilePath)
+  }
   return queryPackage
-    .getPackageIdByPathAndTypeAndVersion(db, pkg.path, pkg.type, pkg.version)
+    .getPackageIdByPathAndTypeAndVersion(db, absPath, pkg.type, pkg.version)
     .then((pkgId) => {
       if (pkgId != null) {
         return {
@@ -111,12 +119,12 @@ function convertPackageResult(sessionId, data) {
 }
 
 // Returns a promise that resolves into an object containing: packageId and otherIds
-function importPackages(db, sessionId, packages) {
+function importPackages(db, sessionId, packages, zapFilePath) {
   var allQueries = []
   if (packages != null) {
     env.logInfo(`Loading ${packages.length} packages`)
     packages.forEach((p) => {
-      allQueries.push(importSinglePackage(db, sessionId, p))
+      allQueries.push(importSinglePackage(db, sessionId, p, zapFilePath))
     })
   }
   return Promise.all(allQueries).then((data) => {
@@ -242,6 +250,14 @@ function readDataFromFile(filePath) {
       var status = util.matchFeatureLevel(state.featureLevel)
 
       if (status.match) {
+        if (!'keyValuePairs' in state) {
+          state.keyValuePairs = []
+        }
+        state.filePath = filePath
+        state.keyValuePairs.push({
+          key: dbEnum.sessionKey.filePath,
+          value: filePath,
+        })
         resolve(state)
       } else {
         reject(status.message)
@@ -272,7 +288,9 @@ function writeStateToDatabase(db, state, existingSessionId = null) {
         return existingSessionId
       }
     })
-    .then((sessionId) => importPackages(db, sessionId, state.package))
+    .then((sessionId) =>
+      importPackages(db, sessionId, state.package, state.filePath)
+    )
     .then((data) => {
       // data: { sessionId, packageId, otherIds}
       var promisesStage1 = [] // Stage 1 is endpoint types

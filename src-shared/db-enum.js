@@ -59,3 +59,17 @@ exports.zclType = {
   atomic: 'atomic',
   unknown: 'unknown',
 }
+
+exports.fileLocationCategory = {
+  save: 'save',
+}
+
+exports.sessionKey = {
+  filePath: 'filePath',
+}
+
+exports.pathRelativity = {
+  relativeToZap: 'relativeToZap',
+  relativeToUserHome: 'relativeToHome',
+  absolute: 'absolute',
+}
