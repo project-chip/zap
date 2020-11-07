@@ -398,7 +398,11 @@ function collectAttributes(endpointTypes) {
         }
         totalAttributeSize += a.typeSize
         var mask = []
-        if (a.side == dbEnum.side.client) mask.push('client')
+        if (a.side == dbEnum.side.client) {
+          mask.push('client')
+        } else {
+          mask.push('server')
+        }
         if (a.isSingleton) mask.push('singleton')
         var attr = {
           id: a.hexCode, // attribute code
