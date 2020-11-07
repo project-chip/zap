@@ -186,6 +186,11 @@ test(
           )
         ).toBeTruthy()
         expect(
+          epc.includes(
+            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x0101, 0x002A, ZAP_CLUSTER_MASK(SERVER), 0x0000, 0, 65344, 0 } /* Reporting for cluster: "Door Lock", attribute: "enable inside status led". side: server */'
+          )
+        ).toBeTruthy()
+        expect(
           epc.includes(bin.hexToCBytes(bin.stringToHex('Very long user id')))
         )
         expect(epc.includes('#define FIXED_NETWORKS { 1, 1, 2 }')).toBeTruthy()

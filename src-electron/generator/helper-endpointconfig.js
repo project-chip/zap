@@ -383,10 +383,14 @@ function collectAttributes(endpointTypes) {
             clusterId: c.hexCode,
             attributeId: a.hexCode,
             mask: rptMask,
-            mfgCode: a.manufacturerCode,
+            mfgCode:
+              a.manufacturerCode == null
+                ? '0x0000'
+                : '0x' + bin.int16ToHex(a.manufacturerCode),
             minOrSource: a.minInterval,
             maxOrEndpoint: a.maxInterval,
             reportableChangeOrTimeout: a.reportableChange,
+            comment: `Reporting for cluster: "${c.name}", attribute: "${a.name}". side: ${a.side}`,
           }
           reportList.push(rpt)
         }
