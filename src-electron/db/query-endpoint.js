@@ -1,4 +1,3 @@
-const { int8ToHex } = require('../util/bin.js')
 /**
  *
  *    Copyright (c) 2020 Silicon Labs
@@ -126,6 +125,8 @@ SELECT
   A.TYPE,
   A.MIN_LENGTH,
   A.MAX_LENGTH,
+  A.MIN,
+  A.MAX,
   EA.STORAGE_OPTION,
   EA.SINGLETON,
   EA.BOUNDED,
@@ -158,6 +159,8 @@ WHERE
           type: row['TYPE'],
           minLength: row['MIN_LENGTH'],
           maxLength: row['MAX_LENGTH'],
+          min: row['MIN'],
+          max: row['MAX'],
           storage: row['STORAGE_OPTION'],
           isSingleton: row['SINGLETON'],
           isBound: row['BOUNDED'],

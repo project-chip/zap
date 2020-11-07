@@ -366,9 +366,9 @@ function collectAttributes(endpointTypes) {
         }
         if (a.isBound) {
           var minMax = {
-            default: '0',
-            min: '0',
-            max: '10',
+            default: a.defaultValue,
+            min: a.min,
+            max: a.max,
             comment: `Attribute: ${a.name}`,
           }
           attributeDefaultValue = `ZAP_MIN_MAX_DEFAULTS_INDEX(${minMaxIndex})`
