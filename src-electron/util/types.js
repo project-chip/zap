@@ -76,7 +76,6 @@ function longTypeDefaultValue(size, type, value) {
   if (value == null || value.length == 0) {
     v = '0x00, '.repeat(size)
   } else if (isNaN(value)) {
-    console.log(type)
     if (isOneBytePrefixedString(type)) {
       v = bin.stringToOneByteLengthPrefixCBytes(value, size)
     } else if (isTwoBytePrefixedString(type)) {
