@@ -379,11 +379,11 @@ function collectAttributes(endpointTypes) {
         if (a.includedReportable) {
           var rpt = {
             direction: 'REPORTED', // or 'RECEIVED'
-            endpoint: 0,
+            endpoint: '0x' + bin.int16ToHex(ept.endpointId),
             clusterId: c.hexCode,
             attributeId: a.hexCode,
             mask: rptMask,
-            mfgCode: 0,
+            mfgCode: a.manufacturerCode,
             minOrSource: a.minInterval,
             maxOrEndpoint: a.maxInterval,
             reportableChangeOrTimeout: a.reportableChange,
@@ -499,14 +499,24 @@ function endpoint_config(options) {
       newContext.endpoints = endpoints
       var endpointTypeIds = []
       endpoints.forEach((ep) => {
-        endpointTypeIds.push(ep.endpointTypeRef)
+        endpointTypeIds.push({
+          endpointTypeId: ep.endpointTypeRef,
+          endpointIdentifier: ep.endpointId,
+        })
       })
       return endpointTypeIds
     })
     .then((endpointTypeIds) => {
       var endpointTypePromises = []
       endpointTypeIds.forEach((eptId) => {
-        endpointTypePromises.push(queryEndpoint.queryEndpointType(db, eptId))
+        endpointTypePromises.push(
+          queryEndpoint
+            .queryEndpointType(db, eptId.endpointTypeId)
+            .then((ept) => {
+              ept.endpointId = eptId.endpointIdentifier
+              return ept
+            })
+        )
       })
       return Promise.all(endpointTypePromises)
     })

@@ -127,6 +127,7 @@ SELECT
   A.MAX_LENGTH,
   A.MIN,
   A.MAX,
+  A.MANUFACTURER_CODE,
   EA.STORAGE_OPTION,
   EA.SINGLETON,
   EA.BOUNDED,
@@ -153,6 +154,7 @@ WHERE
         return {
           clusterId: clusterId,
           code: row['CODE'],
+          manufacturerCode: row['MANUFACTURER_CODE'],
           hexCode: '0x' + bin.int16ToHex(row['CODE']),
           name: row['NAME'],
           side: row['SIDE'],

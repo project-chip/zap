@@ -83,5 +83,4 @@ test('ZCL strings', () => {
   expect(r).toContain(
     "1, 44, 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x',"
   )
-  console.log(r)
 })
