@@ -251,9 +251,18 @@ function endpoint_attribute_min_max_list(options) {
 
 function endpoint_reporting_config_defaults(options) {
   var ret = '{ \\ \n'
+
   this.reportList.forEach((r) => {
+    var mask = ''
+    if (r.mask.length == 0) {
+      mask = '0'
+    } else {
+      mask = r.mask
+        .map((m) => `ZAP_CLUSTER_MASK(${m.toUpperCase()})`)
+        .join(' | ')
+    }
     ret = ret.concat(
-      `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${r.mask}, ${r.mfgCode}, ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} } /* ${r.comment} */ \\\n`
+      `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} } /* ${r.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
@@ -366,13 +375,14 @@ function collectAttributes(endpointTypes) {
           minMaxList.push(minMax)
           minMaxIndex++
         }
+        var rptMask = [c.side]
         if (a.includedReportable) {
           var rpt = {
             direction: 'REPORTED', // or 'RECEIVED'
             endpoint: 0,
             clusterId: c.hexCode,
             attributeId: a.hexCode,
-            mask: 12,
+            mask: rptMask,
             mfgCode: 0,
             minOrSource: a.minInterval,
             maxOrEndpoint: a.maxInterval,

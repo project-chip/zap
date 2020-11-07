@@ -39,6 +39,7 @@
 #define GENERATED_CLUSTERS {{endpoint_cluster_list}}
 
 #define ZAP_CLUSTER_INDEX(index) (&generatedClusters[index])
+#define ZAP_CLUSTER_MASK(mask) CLUSTER_MASK_ ## mask
 // This is an array of EmberAfEndpointType structures.
 #define GENERATED_ENDPOINT_TYPES {{endpoint_types_list}}
 
@@ -100,6 +101,8 @@
 #define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS_TABLE_SIZE ({{endpoint_reporting_config_default_count}})
 #define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS {{endpoint_reporting_config_defaults}}
 #undef ZAP_REPORT_DIRECTION
+
+#undef ZCP_CLUSTER_MASK
 
 {{/endpoint_config}}
 
