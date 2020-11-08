@@ -421,8 +421,22 @@ function collectAttributes(endpointTypes) {
       // Go over the commands
       c.commands.forEach((cmd) => {
         var mask = []
-        if (cmd.isIncoming) mask.push('incoming')
-        if (cmd.isOutgoing) mask.push('outgoing')
+        if (cmd.isOptional) {
+          if (cmd.isIncoming) {
+            if (c.side == dbEnum.side.server) mask.push('incoming_server')
+            else mask.push('incoming_client')
+          }
+          if (cmd.isOutgoing) {
+            if (c.side == dbEnum.side.server) mask.push('outgoing_server')
+            else mask.push('outgoing_client')
+          }
+        } else {
+          if (cmd.source == dbEnum.source.client) {
+            mask.push('incoming_server')
+          } else {
+            mask.push('incoming_client')
+          }
+        }
         var cmd = {
           clId: c.code, // for sorting
           cmId: cmd.code, // for sorting
