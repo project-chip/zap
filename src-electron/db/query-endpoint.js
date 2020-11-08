@@ -192,6 +192,9 @@ function queryEndpointClusterCommands(db, clusterId, endpointTypeId) {
 SELECT
   C.NAME,
   C.CODE,
+  C.SOURCE,
+  C.MANUFACTURER_CODE,
+  C.IS_OPTIONAL,
   EC.INCOMING,
   EC.OUTGOING
 FROM 
@@ -203,6 +206,7 @@ ON
 WHERE
   C.CLUSTER_REF = ?
   AND EC.ENDPOINT_TYPE_REF = ?
+ORDER BY C.CODE
   `,
       [clusterId, endpointTypeId]
     )
@@ -211,6 +215,9 @@ WHERE
         return {
           name: row['NAME'],
           code: row['CODE'],
+          manufacturerCode: row['MANUFACTURER_CODE'],
+          isOptional: row['IS_OPTIONAL'],
+          source: row['SOURCE'],
           isIncoming: row['INCOMING'],
           isOutgoing: row['OUTGOING'],
           hexCode: '0x' + bin.int8ToHex(row['CODE']),

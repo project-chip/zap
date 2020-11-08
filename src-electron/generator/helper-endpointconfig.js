@@ -424,6 +424,8 @@ function collectAttributes(endpointTypes) {
         if (cmd.isIncoming) mask.push('incoming')
         if (cmd.isOutgoing) mask.push('outgoing')
         var cmd = {
+          clId: c.code, // for sorting
+          cmId: cmd.code, // for sorting
           clusterId: c.hexCode,
           commandId: cmd.hexCode,
           mask: mask,
@@ -433,6 +435,20 @@ function collectAttributes(endpointTypes) {
       })
     })
   })
+
+  // Sort command list by clusterId / commandId
+  commandList.sort((a, b) => {
+    if (a.clId != b.clId) {
+      return a.clId - b.clId
+    } else if (a.cmId != b.cmId) {
+      return a.cmId - b.cmId
+    } else {
+      if (a.comment < b.comment) return -1
+      else if (a.comment > b.comment) return 1
+      else return 0
+    }
+  })
+
   return Promise.resolve({
     endpointList: endpointList,
     clusterList: clusterList,
