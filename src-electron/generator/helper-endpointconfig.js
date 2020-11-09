@@ -251,9 +251,18 @@ function endpoint_attribute_min_max_list(options) {
 
 function endpoint_reporting_config_defaults(options) {
   var ret = '{ \\ \n'
+
   this.reportList.forEach((r) => {
+    var mask = ''
+    if (r.mask.length == 0) {
+      mask = '0'
+    } else {
+      mask = r.mask
+        .map((m) => `ZAP_CLUSTER_MASK(${m.toUpperCase()})`)
+        .join(' | ')
+    }
     ret = ret.concat(
-      `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${r.mask}, ${r.mfgCode}, ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} } /* ${r.comment} */ \\\n`
+      `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} } /* ${r.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
@@ -357,26 +366,31 @@ function collectAttributes(endpointTypes) {
         }
         if (a.isBound) {
           var minMax = {
-            default: '0',
-            min: '0',
-            max: '10',
+            default: a.defaultValue,
+            min: a.min,
+            max: a.max,
             comment: `Attribute: ${a.name}`,
           }
           attributeDefaultValue = `ZAP_MIN_MAX_DEFAULTS_INDEX(${minMaxIndex})`
           minMaxList.push(minMax)
           minMaxIndex++
         }
+        var rptMask = [c.side]
         if (a.includedReportable) {
           var rpt = {
             direction: 'REPORTED', // or 'RECEIVED'
-            endpoint: 0,
+            endpoint: '0x' + bin.int16ToHex(ept.endpointId),
             clusterId: c.hexCode,
             attributeId: a.hexCode,
-            mask: 12,
-            mfgCode: 0,
+            mask: rptMask,
+            mfgCode:
+              a.manufacturerCode == null
+                ? '0x0000'
+                : '0x' + bin.int16ToHex(a.manufacturerCode),
             minOrSource: a.minInterval,
             maxOrEndpoint: a.maxInterval,
             reportableChangeOrTimeout: a.reportableChange,
+            comment: `Reporting for cluster: "${c.name}", attribute: "${a.name}". side: ${a.side}`,
           }
           reportList.push(rpt)
         }
@@ -388,7 +402,11 @@ function collectAttributes(endpointTypes) {
         }
         totalAttributeSize += a.typeSize
         var mask = []
-        if (a.side == dbEnum.side.client) mask.push('client')
+        if (a.side == dbEnum.side.client) {
+          mask.push('client')
+        } else {
+          mask.push('server')
+        }
         if (a.isSingleton) mask.push('singleton')
         var attr = {
           id: a.hexCode, // attribute code
@@ -403,9 +421,25 @@ function collectAttributes(endpointTypes) {
       // Go over the commands
       c.commands.forEach((cmd) => {
         var mask = []
-        if (cmd.isIncoming) mask.push('incoming')
-        if (cmd.isOutgoing) mask.push('outgoing')
+        if (cmd.isOptional) {
+          if (cmd.isIncoming) {
+            if (c.side == dbEnum.side.server) mask.push('incoming_server')
+            else mask.push('incoming_client')
+          }
+          if (cmd.isOutgoing) {
+            if (c.side == dbEnum.side.server) mask.push('outgoing_server')
+            else mask.push('outgoing_client')
+          }
+        } else {
+          if (cmd.source == dbEnum.source.client) {
+            mask.push('incoming_server')
+          } else {
+            mask.push('incoming_client')
+          }
+        }
         var cmd = {
+          clId: c.code, // for sorting
+          cmId: cmd.code, // for sorting
           clusterId: c.hexCode,
           commandId: cmd.hexCode,
           mask: mask,
@@ -415,6 +449,20 @@ function collectAttributes(endpointTypes) {
       })
     })
   })
+
+  // Sort command list by clusterId / commandId
+  commandList.sort((a, b) => {
+    if (a.clId != b.clId) {
+      return a.clId - b.clId
+    } else if (a.cmId != b.cmId) {
+      return a.cmId - b.cmId
+    } else {
+      if (a.comment < b.comment) return -1
+      else if (a.comment > b.comment) return 1
+      else return 0
+    }
+  })
+
   return Promise.resolve({
     endpointList: endpointList,
     clusterList: clusterList,
@@ -485,14 +533,24 @@ function endpoint_config(options) {
       newContext.endpoints = endpoints
       var endpointTypeIds = []
       endpoints.forEach((ep) => {
-        endpointTypeIds.push(ep.endpointTypeRef)
+        endpointTypeIds.push({
+          endpointTypeId: ep.endpointTypeRef,
+          endpointIdentifier: ep.endpointId,
+        })
       })
       return endpointTypeIds
     })
     .then((endpointTypeIds) => {
       var endpointTypePromises = []
       endpointTypeIds.forEach((eptId) => {
-        endpointTypePromises.push(queryEndpoint.queryEndpointType(db, eptId))
+        endpointTypePromises.push(
+          queryEndpoint
+            .queryEndpointType(db, eptId.endpointTypeId)
+            .then((ept) => {
+              ept.endpointId = eptId.endpointIdentifier
+              return ept
+            })
+        )
       })
       return Promise.all(endpointTypePromises)
     })

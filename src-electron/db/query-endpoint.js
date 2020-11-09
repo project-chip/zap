@@ -1,4 +1,3 @@
-const { int8ToHex } = require('../util/bin.js')
 /**
  *
  *    Copyright (c) 2020 Silicon Labs
@@ -126,6 +125,9 @@ SELECT
   A.TYPE,
   A.MIN_LENGTH,
   A.MAX_LENGTH,
+  A.MIN,
+  A.MAX,
+  A.MANUFACTURER_CODE,
   EA.STORAGE_OPTION,
   EA.SINGLETON,
   EA.BOUNDED,
@@ -152,12 +154,15 @@ WHERE
         return {
           clusterId: clusterId,
           code: row['CODE'],
+          manufacturerCode: row['MANUFACTURER_CODE'],
           hexCode: '0x' + bin.int16ToHex(row['CODE']),
           name: row['NAME'],
           side: row['SIDE'],
           type: row['TYPE'],
           minLength: row['MIN_LENGTH'],
           maxLength: row['MAX_LENGTH'],
+          min: row['MIN'],
+          max: row['MAX'],
           storage: row['STORAGE_OPTION'],
           isSingleton: row['SINGLETON'],
           isBound: row['BOUNDED'],
@@ -187,6 +192,9 @@ function queryEndpointClusterCommands(db, clusterId, endpointTypeId) {
 SELECT
   C.NAME,
   C.CODE,
+  C.SOURCE,
+  C.MANUFACTURER_CODE,
+  C.IS_OPTIONAL,
   EC.INCOMING,
   EC.OUTGOING
 FROM 
@@ -198,6 +206,7 @@ ON
 WHERE
   C.CLUSTER_REF = ?
   AND EC.ENDPOINT_TYPE_REF = ?
+ORDER BY C.CODE
   `,
       [clusterId, endpointTypeId]
     )
@@ -206,6 +215,9 @@ WHERE
         return {
           name: row['NAME'],
           code: row['CODE'],
+          manufacturerCode: row['MANUFACTURER_CODE'],
+          isOptional: row['IS_OPTIONAL'],
+          source: row['SOURCE'],
           isIncoming: row['INCOMING'],
           isOutgoing: row['OUTGOING'],
           hexCode: '0x' + bin.int8ToHex(row['CODE']),
