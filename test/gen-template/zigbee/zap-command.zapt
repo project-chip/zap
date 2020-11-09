@@ -15,10 +15,19 @@
 
 {{#zcl_command_tree}}
 
-{{asHex clusterCode 4}} {{clusterName}} => {{asHex code 2}} {{label}}
+/** @brief Command description for {{label}}
+*
+* Command: {{label}}
 {{#zcl_command_arguments}}
-- {{name}} / {{type}} / {{isArray}}
+* @param {{name}} {{type}} {{isArray}}
 {{/zcl_command_arguments}}
+*/
+#define emberAfFillCommand{{clientMacroName}}({{toggle isGlobal 'clusterId,' ''}} \
+{{#zcl_command_arguments}}
+  {{name}}, \
+{{/zcl_command_arguments}}
+) \
+  emberAfFillExternalBuffer()
 {{/zcl_command_tree}}
 
 /** @} END addtogroup */

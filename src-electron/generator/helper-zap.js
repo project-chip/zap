@@ -142,6 +142,10 @@ function isEqual(string_a, string_b) {
   return string_a.trim() === string_b.trim()
 }
 
+function toggle(condition, trueResult, falseResult) {
+  return condition ? trueResult : falseResult
+}
+
 /**
  * Remove leading and trailing spaces from a string
  *
@@ -287,3 +291,4 @@ exports.iterate = iterate
 exports.addToAccumulator = addToAccumulator
 exports.iterateAccumulator = iterateAccumulator
 exports.after = after
+exports.toggle = toggle

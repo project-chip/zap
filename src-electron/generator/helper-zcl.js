@@ -20,7 +20,6 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
 const helperC = require('./helper-c.js')
 const env = require('../util/env.js')
-const { command } = require('yargs')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -188,6 +187,21 @@ function zcl_command_tree(options) {
         if (newCommand) {
           el.commandArgs = []
           el.commandArgs.push(arg)
+          var n = ''
+          if (el.clusterCode == null) {
+            n = n.concat('Global')
+          }
+          if (el.source == dbEnum.source.client) {
+            n = n.concat('ClientToServer')
+          } else {
+            n = n.concat('ServerToClient')
+          }
+          if (el.clusterName != null) {
+            n = n.concat(el.clusterName)
+          }
+          n = n.concat(el.name)
+          el.clientMacroName = n
+          el.isGlobal = el.clusterCode == null
           reducedCommands.push(el)
         } else {
           lastCommand.commandArgs.push(arg)

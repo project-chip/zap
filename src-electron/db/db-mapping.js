@@ -102,6 +102,7 @@ exports.map = {
       code: x.CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
       label: x.NAME,
+      name: x.NAME,
       description: x.DESCRIPTION,
       source: x.SOURCE,
       isOptional: x.IS_OPTIONAL,
