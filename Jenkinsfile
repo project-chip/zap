@@ -31,34 +31,37 @@ pipeline
                 }
             }
         }
-        stage('Version stamp')
-        {
-            steps
+        stage('Initial checks') {
+            parallel {
+                stage('Version stamp')        {
+                    steps
             {
-                script
+                        script
                 {
-                    sh 'npm run version-stamp'
+                            sh 'npm run version-stamp'
                 }
             }
         }
-        stage('License check')
+                stage('License check')
         {
-            steps
+                    steps
             {
-                script
+                        script
                 {
-                    sh 'npm run lic'
+                            sh 'npm run lic'
                 }
             }
         }
-        stage('Outdated packages report')
+                stage('Outdated packages report')
         {
-            steps
+                    steps
             {
-                script
+                        script
                 {
-                    sh 'npm outdated || true'
+                            sh 'npm outdated || true'
                 }
+            }
+        }
             }
         }
         stage('Build SPA layout for unit tests')
@@ -82,8 +85,8 @@ pipeline
                 }
             }
         }
-	    stage('Self check')
-	    {
+        stage('Self check')
+        {
             steps
             {
                 script
@@ -92,7 +95,7 @@ pipeline
                     sh 'npm run self-check'
                 }
             }
-	    }
+        }
         stage('Test blank generation')
         {
             steps
@@ -147,8 +150,8 @@ pipeline
                 }
             }
         }
-	    stage('Generate HTML documentation')
-	    {
+        stage('Generate HTML documentation')
+        {
             steps
             {
                 script
@@ -156,7 +159,7 @@ pipeline
                     sh 'npm run doc'
                 }
             }
-	    }
+        }
         stage('Artifact creation')
         {
             steps
@@ -173,7 +176,7 @@ pipeline
             {
                 script
                 {
-                    currentBuild.result = "SUCCESS"
+                    currentBuild.result = 'SUCCESS'
                 }
             }
         }
@@ -185,17 +188,16 @@ pipeline
                 def committers = emailextrecipients([[$class: 'CulpritsRecipientProvider'],
                                                     [$class: 'DevelopersRecipientProvider']])
 
-                jobName = "${currentBuild.fullDisplayName}".replace("%2","/")
-                if(currentBuild.result != "SUCCESS")
-                {
-                    slackMessage=":zap_failure: FAILED: <${env.RUN_DISPLAY_URL}|"+jobName + ">, changes by: " + committers
-                    slackColor='#FF0000'
+                jobName = "${currentBuild.fullDisplayName}".replace('%2', '/')
+                if (currentBuild.result != 'SUCCESS') {
+                    slackMessage = ":zap_failure: FAILED: <${env.RUN_DISPLAY_URL}|" + jobName + '>, changes by: ' + committers
+                    slackColor = '#FF0000'
                     slackSend (color: slackColor, channel: '#zap', message: slackMessage)
                 }
                 else
                 {
-                    slackMessage=":zap_success: SUCCESS: <${env.RUN_DISPLAY_URL}|"+jobName + ">, changes by: " + committers
-                    slackColor='good'
+                    slackMessage = ":zap_success: SUCCESS: <${env.RUN_DISPLAY_URL}|" + jobName + '>, changes by: ' + committers
+                    slackColor = 'good'
                     slackSend (color: slackColor, channel: '#zap', message: slackMessage)
                 }
             }
