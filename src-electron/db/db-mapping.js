@@ -182,6 +182,7 @@ exports.map = {
       name: x.NAME,
       description: x.DESCRIPTION,
       size: x.ATOMIC_SIZE,
+      discrete: x.DISCETE,
     }
   },
 

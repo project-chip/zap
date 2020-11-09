@@ -1579,8 +1579,15 @@ function insertEnums(db, packageId, data) {
 function insertAtomics(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO ATOMIC (PACKAGE_REF, NAME, DESCRIPTION, ATOMIC_IDENTIFIER, ATOMIC_SIZE) VALUES (?, ?, ?, ?, ?)',
-    data.map((at) => [packageId, at.name, at.description, at.id, at.size])
+    'INSERT INTO ATOMIC (PACKAGE_REF, NAME, DESCRIPTION, ATOMIC_IDENTIFIER, ATOMIC_SIZE, DISCRETE) VALUES (?, ?, ?, ?, ?, ?)',
+    data.map((at) => [
+      packageId,
+      at.name,
+      at.description,
+      at.id,
+      at.size,
+      at.discrete,
+    ])
   )
 }
 
@@ -1595,7 +1602,7 @@ function selectAtomicType(db, packageId, typeName) {
   return dbApi
     .dbGet(
       db,
-      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
+      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE, DISCRETE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
       [packageId, typeName == null ? typeName : typeName.toLowerCase()]
     )
     .then(dbMapping.map.atomic)
@@ -1611,7 +1618,7 @@ function selectAtomicByName(db, name, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
+      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE, DISCRETE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
       [packageId, name]
     )
     .then(dbMapping.map.atomic)
@@ -1626,7 +1633,7 @@ function selectAllAtomics(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? ORDER BY ATOMIC_IDENTIFIER',
+      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE, DISCRETE FROM ATOMIC WHERE PACKAGE_REF = ? ORDER BY ATOMIC_IDENTIFIER',
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.atomic))

@@ -204,6 +204,7 @@ function prepareAtomic(a) {
     id: a.$.id,
     size: a.$.size,
     description: a.$.description,
+    discrete: a.$.discrete == 'true' ? true : false,
   }
 }
 /**
