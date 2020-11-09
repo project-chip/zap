@@ -27,7 +27,15 @@
   {{name}}, \
 {{/zcl_command_arguments}}
 ) \
-  emberAfFillExternalBuffer()
+  emberAfFillExternalBuffer( \
+    mask, \
+    {{toggle isGlobal 'clusterId, ' ''}} \
+    ZCL_{{asDelimitedMacro label}}_COMMAND_ID, \
+    "{{argsstring}}", \
+{{#zcl_command_arguments}}
+  {{name}}{{#not_last}},{{/not_last}} \
+{{/zcl_command_arguments}}
+  );
 {{/zcl_command_tree}}
 
 /** @} END addtogroup */

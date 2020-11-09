@@ -185,6 +185,7 @@ function zcl_command_tree(options) {
           isArray: el.argIsArray,
         }
         if (newCommand) {
+          el.argsstring = 'b'
           el.commandArgs = []
           el.commandArgs.push(arg)
           var n = ''
@@ -205,6 +206,7 @@ function zcl_command_tree(options) {
           reducedCommands.push(el)
         } else {
           lastCommand.commandArgs.push(arg)
+          lastCommand.argsstring = lastCommand.argsstring.concat('b')
         }
       })
       return reducedCommands
