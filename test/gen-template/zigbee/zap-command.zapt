@@ -24,7 +24,7 @@
 */
 #define emberAfFillCommand{{clientMacroName}}({{toggle isGlobal 'clusterId,' ''}} \
 {{#zcl_command_arguments}}
-  {{name}}, \
+  {{name}}{{#not_last}},{{/not_last}} \
 {{/zcl_command_arguments}}
 ) \
   emberAfFillExternalBuffer( \
