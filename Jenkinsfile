@@ -35,33 +35,43 @@ pipeline
             parallel {
                 stage('Version stamp')        {
                     steps
-            {
-                        script
-                {
-                            sh 'npm run version-stamp'
+                    {
+                                script
+                        {
+                                    sh 'npm run version-stamp'
+                        }
+                    }
                 }
-            }
-        }
                 stage('License check')
-        {
-                    steps
-            {
-                        script
                 {
+                    steps
+                    {
+                        script
+                        {
                             sh 'npm run lic'
+                        }
+                    }
                 }
-            }
-        }
                 stage('Outdated packages report')
-        {
-                    steps
-            {
-                        script
                 {
+                    steps
+                    {
+                        script
+                        {
                             sh 'npm outdated || true'
+                        }
+                    }
                 }
             }
         }
+        stage('Generate HTML documentation')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'npm run doc'
+                }
             }
         }
         stage('Build SPA layout for unit tests')
@@ -147,16 +157,6 @@ pipeline
                 {
                     sh 'npm run dist-win'
                     sh 'npm run apack:win'
-                }
-            }
-        }
-        stage('Generate HTML documentation')
-        {
-            steps
-            {
-                script
-                {
-                    sh 'npm run doc'
                 }
             }
         }
