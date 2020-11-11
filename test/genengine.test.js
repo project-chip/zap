@@ -185,6 +185,14 @@ test(
         expect(
           atomics.includes('C type: security_key_type_override')
         ).toBeTruthy()
+
+        var zapCommand = genResult.content['zap-command.h']
+        expect(zapCommand).not.toBeNull()
+        expect(
+          zapCommand.includes(
+            '#define emberAfFillCommandGlobalServerToClientReadAttributesResponse(clusterId,'
+          )
+        ).toBeTruthy()
       }),
   genTimeout
 )

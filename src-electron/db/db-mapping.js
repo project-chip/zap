@@ -102,9 +102,15 @@ exports.map = {
       code: x.CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
       label: x.NAME,
+      name: x.NAME,
       description: x.DESCRIPTION,
       source: x.SOURCE,
       isOptional: x.IS_OPTIONAL,
+      clusterCode: x.CLUSTER_CODE,
+      clusterName: x.CLUSTER_NAME,
+      argName: x.ARG_NAME,
+      argType: x.ARG_TYPE,
+      argIsArray: x.ARG_IS_ARRAY,
     }
   },
 
@@ -113,6 +119,7 @@ exports.map = {
     return {
       commandRef: x.COMMAND_REF,
       label: x.NAME,
+      name: x.NAME,
       type: x.TYPE,
       code: x.CODE,
       isArray: x.IS_ARRAY,
@@ -175,6 +182,7 @@ exports.map = {
       name: x.NAME,
       description: x.DESCRIPTION,
       size: x.ATOMIC_SIZE,
+      discrete: x.DISCETE,
     }
   },
 

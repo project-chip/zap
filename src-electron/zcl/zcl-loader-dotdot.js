@@ -315,6 +315,7 @@ function prepareAtomic(type) {
     id: normalizeHexValue(type.$.id),
     size: getNumBytesFromShortName(type.$.short),
     description: type.$.name,
+    discrete: type.$.discrete == 'true' ? true : false,
   }
 }
 

@@ -96,6 +96,23 @@ function last(options) {
 }
 
 /**
+ * Inside an iterator. the block is output only if this is NOT the last item.
+ * Useful for wrapping commas in the list of arguments and such.
+ *
+ * @param {*} optionms
+ * @returns content, if it's not the last element inside a block, empty otherwise.
+ */
+function not_last(options) {
+  if (
+    this.index != null &&
+    this.count != null &&
+    this.index != this.count - 1
+  ) {
+    return options.fn(this)
+  }
+}
+
+/**
  * Inside an iterator, this helper allows you to specify the content that will be output only
  * during the non-first and no-last element.
  *
@@ -140,6 +157,10 @@ function template_option_with_code(options, key) {
  */
 function isEqual(string_a, string_b) {
   return string_a.trim() === string_b.trim()
+}
+
+function toggle(condition, trueResult, falseResult) {
+  return condition ? trueResult : falseResult
 }
 
 /**
@@ -277,6 +298,7 @@ exports.zap_header = zap_header
 exports.ident = ident
 exports.template_options = template_options
 exports.last = last
+exports.not_last = not_last
 exports.first = first
 exports.middle = middle
 exports.template_option_with_code = template_option_with_code
@@ -287,3 +309,4 @@ exports.iterate = iterate
 exports.addToAccumulator = addToAccumulator
 exports.iterateAccumulator = iterateAccumulator
 exports.after = after
+exports.toggle = toggle

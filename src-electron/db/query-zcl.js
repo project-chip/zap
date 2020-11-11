@@ -550,6 +550,51 @@ ORDER BY CODE`,
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
+/**
+ * This method returns all commands, joined with their
+ * respective arguments and clusters, so it's a long query.
+ * If you are just looking for a quick query across all commands
+ * use the selectAllCommands query.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @returns promise that resolves into a list of all commands and arguments.
+ */
+function selectCommandTree(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  CMD.COMMAND_ID,
+  CMD.CLUSTER_REF,
+  CMD.CODE,
+  CMD.MANUFACTURER_CODE,
+  CMD.NAME,
+  CMD.DESCRIPTION,
+  CMD.SOURCE,
+  CMD.IS_OPTIONAL,
+  CL.CODE AS CLUSTER_CODE,
+  CL.NAME AS CLUSTER_NAME,
+  CA.NAME AS ARG_NAME,
+  CA.TYPE AS ARG_TYPE,
+  CA.IS_ARRAY AS ARG_IS_ARRAY
+FROM 
+  COMMAND AS CMD
+LEFT JOIN
+  CLUSTER AS CL
+ON
+  CMD.CLUSTER_REF = CL.CLUSTER_ID
+JOIN 
+  COMMAND_ARG AS CA
+ON
+  CMD.COMMAND_ID = CA.COMMAND_REF
+WHERE CMD.PACKAGE_REF = ?
+ORDER BY CL.CODE, CMD.CODE, CA.ORDINAL`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
 
 function selectAllCommands(db, packageId) {
   return dbApi
@@ -1534,8 +1579,15 @@ function insertEnums(db, packageId, data) {
 function insertAtomics(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO ATOMIC (PACKAGE_REF, NAME, DESCRIPTION, ATOMIC_IDENTIFIER, ATOMIC_SIZE) VALUES (?, ?, ?, ?, ?)',
-    data.map((at) => [packageId, at.name, at.description, at.id, at.size])
+    'INSERT INTO ATOMIC (PACKAGE_REF, NAME, DESCRIPTION, ATOMIC_IDENTIFIER, ATOMIC_SIZE, DISCRETE) VALUES (?, ?, ?, ?, ?, ?)',
+    data.map((at) => [
+      packageId,
+      at.name,
+      at.description,
+      at.id,
+      at.size,
+      at.discrete,
+    ])
   )
 }
 
@@ -1550,7 +1602,7 @@ function selectAtomicType(db, packageId, typeName) {
   return dbApi
     .dbGet(
       db,
-      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
+      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE, DISCRETE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
       [packageId, typeName == null ? typeName : typeName.toLowerCase()]
     )
     .then(dbMapping.map.atomic)
@@ -1566,7 +1618,7 @@ function selectAtomicByName(db, name, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
+      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE, DISCRETE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
       [packageId, name]
     )
     .then(dbMapping.map.atomic)
@@ -1581,7 +1633,7 @@ function selectAllAtomics(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? ORDER BY ATOMIC_IDENTIFIER',
+      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE, DISCRETE FROM ATOMIC WHERE PACKAGE_REF = ? ORDER BY ATOMIC_IDENTIFIER',
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.atomic))
@@ -2049,3 +2101,4 @@ exports.insertGlobalAttributeDefault = insertGlobalAttributeDefault
 exports.selectEnumByName = selectEnumByName
 exports.selectStructByName = selectStructByName
 exports.determineType = determineType
+exports.selectCommandTree = selectCommandTree

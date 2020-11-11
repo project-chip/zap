@@ -148,6 +148,74 @@ function zcl_commands(options) {
 }
 
 /**
+ * Block helper iterating over all commands, including their arguments and clusters.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_command_tree(options) {
+  var promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) => {
+      return queryZcl.selectCommandTree(this.global.db, packageId)
+    })
+    .then((cmds) => {
+      // Now reduce the array by collecting together arguments.
+      var reducedCommands = []
+      cmds.forEach((el) => {
+        var newCommand
+        var lastCommand
+        if (reducedCommands.length == 0) {
+          newCommand = true
+        } else {
+          lastCommand = reducedCommands[reducedCommands.length - 1]
+          if (
+            el.code == lastCommand.code &&
+            el.clusterCode == lastCommand.clusterCode
+          ) {
+            newCommand = false
+          } else {
+            newCommand = true
+          }
+        }
+
+        var arg = {
+          name: el.argName,
+          type: el.argType,
+          isArray: el.argIsArray,
+        }
+        if (newCommand) {
+          el.argsstring = 'b'
+          el.commandArgs = []
+          el.commandArgs.push(arg)
+          var n = ''
+          if (el.clusterCode == null) {
+            n = n.concat('Global')
+          }
+          if (el.source == dbEnum.source.client) {
+            n = n.concat('ClientToServer')
+          } else {
+            n = n.concat('ServerToClient')
+          }
+          if (el.clusterName != null) {
+            n = n.concat(el.clusterName)
+          }
+          n = n.concat(el.name)
+          el.clientMacroName = n
+          el.isGlobal = el.clusterCode == null
+          reducedCommands.push(el)
+        } else {
+          lastCommand.commandArgs.push(arg)
+          lastCommand.argsstring = lastCommand.argsstring.concat('b')
+        }
+      })
+      return reducedCommands
+    })
+    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Helper to iterate over all global commands.
  *
  * @param {*} options
@@ -318,14 +386,20 @@ function zcl_command_arguments_count(commandId) {
 
 /**
  * Block helper iterating over command arguments within a command
+ * or a command tree.
  *
  * @param {*} options
  * @returns Promise of command argument iteration.
  */
 function zcl_command_arguments(options) {
-  var promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
+  var commandArgs = this.commandArgs
+  var p
+
+  // When we are coming from commant_tree, then
+  // the commandArgs are already present and there is no need
+  // to do additional queries.
+  if (commandArgs == null) {
+    p = templateUtil.ensureZclPackageId(this).then((packageId) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
         return queryZcl.selectCommandArgumentsByCommandId(
@@ -337,7 +411,13 @@ function zcl_command_arguments(options) {
         return queryZcl.selectAllCommandArguments(this.global.db, packageId)
       }
     })
-    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  } else {
+    p = Promise.resolve(commandArgs)
+  }
+
+  var promise = p.then((args) =>
+    templateUtil.collectBlocks(args, options, this)
+  )
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -459,6 +539,7 @@ exports.zcl_structs = zcl_structs
 exports.zcl_struct_items = zcl_struct_items
 exports.zcl_clusters = zcl_clusters
 exports.zcl_commands = zcl_commands
+exports.zcl_command_tree = zcl_command_tree
 exports.zcl_attributes = zcl_attributes
 exports.zcl_attributes_client = zcl_attributes_client
 exports.zcl_attributes_server = zcl_attributes_server

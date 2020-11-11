@@ -170,6 +170,7 @@ CREATE TABLE IF NOT EXISTS "ATOMIC" (
   "DESCRIPTION" text,
   "ATOMIC_IDENTIFIER" integer,
   "ATOMIC_SIZE" integer,
+  "DISCRETE" integer default false,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*

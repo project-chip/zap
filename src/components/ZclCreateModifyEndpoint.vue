@@ -103,7 +103,9 @@ export default {
   mixins: [CommonMixin],
   mounted() {
     if (this.endpointReference != null) {
-      this.newEndpoint.newEndpointId = this.endpointId[this.endpointReference]
+      this.newEndpoint.newEndpointId = this.endpointId[
+        this.endpointReference
+      ].toString(16)
       this.newEndpoint.newNetworkId = this.networkId[this.endpointReference]
       this.newEndpoint.newDeviceTypeRef = this.endpointDeviceTypeRef[
         this.endpointType[this.endpointReference]
@@ -159,7 +161,7 @@ export default {
           deviceTypeRef: deviceTypeRef,
         })
         .then((response) => {
-          let eptId = this.newEndpoint.newEndpointId
+          let eptId = parseInt(this.newEndpoint.newEndpointId, 16)
           let nwkId = this.newEndpoint.newNetworkId
           this.$store
             .dispatch(`zap/addEndpoint`, {
@@ -193,7 +195,7 @@ export default {
           changes: [
             {
               updatedKey: RestApi.updateKey.endpointId,
-              value: newEndpoint.newEndpointId,
+              value: parseInt(newEndpoint.newEndpointId, 16),
             },
             {
               updatedKey: RestApi.updateKey.networkId,
