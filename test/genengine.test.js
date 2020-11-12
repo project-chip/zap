@@ -190,7 +190,7 @@ test(
         expect(zapCommand).not.toBeNull()
         expect(
           zapCommand.includes(
-            '#define emberAfFillCommandGlobalServerToClientReadAttributesResponse(clusterId,'
+            '#define emberAfFillCommandGlobalReadAttributesResponse(clusterId,'
           )
         ).toBeTruthy()
       }),
