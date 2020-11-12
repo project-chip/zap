@@ -29,6 +29,13 @@ limitations under the License.
     >
       <template v-slot:body="props">
         <q-tr :props="props">
+          <q-td key="status" :props="props" class="q-px-none">
+            <q-icon
+              name="warning"
+              class="text-red"
+              style="font-size: 1.5rem"
+            ></q-icon>
+          </q-td>
           <q-td key="label" :props="props" auto-width>
             {{ props.row.label }}
           </q-td>
@@ -170,12 +177,20 @@ export default {
       ],
       columns: [
         {
+          name: 'status',
+          required: true,
+          label: '',
+          align: 'left',
+          field: (row) => row.code,
+          style: 'width:2%',
+        },
+        {
           name: 'label',
           required: true,
           label: 'Cluster',
           align: 'left',
           field: (row) => row.label,
-          style: 'width:30%',
+          style: 'width:28%',
         },
         {
           name: 'requiredCluster',
