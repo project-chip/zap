@@ -186,21 +186,24 @@ function zcl_command_tree(options) {
           hasLength: el.argIsArray,
           nameLength: el.argName.concat('Len'),
         }
+        if (el.argIsArray) {
+          arg.formatChar = 'b'
+        } else {
+          arg.formatChar = 'u'
+        }
         if (newCommand) {
-          el.argsstring = 'b'
+          el.argsstring = arg.formatChar
           el.commandArgs = []
           el.commandArgs.push(arg)
           var n = ''
           if (el.clusterCode == null) {
             n = n.concat('Global')
-          }
-          if (el.source == dbEnum.source.client) {
-            n = n.concat('ClientToServer')
           } else {
-            n = n.concat('ServerToClient')
+            n = n.concat(el.clusterName + 'Cluster')
           }
-          if (el.clusterName != null) {
-            n = n.concat(el.clusterName)
+          if (el.source == dbEnum.source.either) {
+            // We will need to create two here.
+            n = n.concat('ClientToServer')
           }
           n = n.concat(el.name)
           el.clientMacroName = n
@@ -208,7 +211,7 @@ function zcl_command_tree(options) {
           reducedCommands.push(el)
         } else {
           lastCommand.commandArgs.push(arg)
-          lastCommand.argsstring = lastCommand.argsstring.concat('b')
+          lastCommand.argsstring = lastCommand.argsstring.concat(arg.formatChar)
         }
       })
       return reducedCommands
