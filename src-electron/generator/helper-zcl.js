@@ -183,6 +183,8 @@ function zcl_command_tree(options) {
           name: el.argName,
           type: el.argType,
           isArray: el.argIsArray,
+          hasLength: el.argIsArray,
+          nameLength: el.argName.concat('Len'),
         }
         if (newCommand) {
           el.argsstring = 'b'
