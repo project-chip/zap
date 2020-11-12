@@ -100,3 +100,5 @@ function isTwoBytePrefixedString(type) {
 exports.typeSize = typeSize
 exports.typeSizeAttribute = typeSizeAttribute
 exports.longTypeDefaultValue = longTypeDefaultValue
+exports.isOneBytePrefixedString = isOneBytePrefixedString
+exports.isTwoBytePrefixedString = isTwoBytePrefixedString
