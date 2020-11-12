@@ -20,6 +20,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
 const helperC = require('./helper-c.js')
 const env = require('../util/env.js')
+const types = require('../util/types.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -188,6 +189,10 @@ function zcl_command_tree(options) {
         }
         if (el.argIsArray) {
           arg.formatChar = 'b'
+        } else if (types.isOneBytePrefixedString(el.argType)) {
+          arg.formatChar = 's'
+        } else if (types.isTwoBytePrefixedString(el.argType)) {
+          arg.formatChar = 'l'
         } else {
           arg.formatChar = 'u'
         }
