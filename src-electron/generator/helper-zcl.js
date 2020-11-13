@@ -536,6 +536,45 @@ function isClient(side) {
   return 0 == side.localeCompare('client')
 }
 
+/**
+ * Checks if the side is server or not
+ *
+ * @param {*} side
+ * @returns boolean
+ */
+function isServer(side) {
+  return 0 == side.localeCompare('server')
+}
+
+function isStrEqual(str1, str2) {
+  return 0 == str1.localeCompare(str2)
+}
+
+function isLastElement(index, count) {
+  return index == count - 1
+}
+
+function isFirstElement(index, count) {
+  return index == count - 1
+}
+
+function isEnabled(enable) {
+  return 1 == enable
+}
+
+function isCommandAvailable(clusterSide, incoming, outgoing, source, name) {
+  if (0 == clusterSide.localeCompare(source)) {
+    return false
+  }
+
+  if (isClient(clusterSide) && outgoing) {
+    return true
+  } else if (isServer(clusterSide) && incoming) {
+    return true
+  }
+  return false
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -560,3 +599,9 @@ exports.zcl_command_arguments_count = zcl_command_arguments_count
 exports.zcl_command_arguments = zcl_command_arguments
 exports.zcl_command_argument_data_type = zcl_command_argument_data_type
 exports.isClient = isClient
+exports.isServer = isServer
+exports.isStrEqual = isStrEqual
+exports.isLastElement = isLastElement
+exports.isFirstElement = isFirstElement
+exports.isEnabled = isEnabled
+exports.isCommandAvailable = isCommandAvailable

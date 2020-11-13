@@ -237,6 +237,14 @@ test(
 
         var zapCli = genResult.content['zap-cli.c']
         expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
+
+        var zapCommandParser = genResult.content['zap-command-parser.c']
+        expect(zapCommandParser).not.toBeNull()
+        expect(
+          zapCommandParser.includes(
+            'EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)'
+          )
+        ).toBeTruthy()
       }),
   genTimeout
 )

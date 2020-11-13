@@ -17,6 +17,7 @@
 
 const queryZcl = require('../db/query-zcl.js')
 const bin = require('./bin.js')
+const env = require('./env.js')
 
 /**
  * @module JS API: type related utilities
