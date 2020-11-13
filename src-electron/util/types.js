@@ -89,10 +89,50 @@ function longTypeDefaultValue(size, type, value) {
   return v
 }
 
+/**
+ * Conversion to a CLI type. THis is here temporarily until we come up
+ * with a proper type engine.
+ *
+ * @param {*} str
+ * @returns converted type
+ */
+function convertToCliType(str) {
+  str = str.trim()
+  if (str.toLowerCase().endsWith('u')) {
+    str = str.substring(0, str.length - 1)
+    str = 'u' + str
+  } else if (
+    str.toLowerCase().startsWith('int') &&
+    str.toLowerCase().endsWith('s')
+  ) {
+    str = str.substring(0, str.length - 1)
+  } else if (str.toLowerCase().endsWith('char_string')) {
+    str = 'string'
+  } else if (str.toLowerCase().startsWith('bitmap')) {
+    str = str.toLowerCase().replace('bitmap', 'uint')
+  } else if (str.toLowerCase().startsWith('enum')) {
+    str = str.toLowerCase().replace('enum', 'uint')
+  } else {
+    env.logInfo('Cli type not found: ' + str)
+  }
+  return str
+}
+
+/**
+ * Checks if type is a one-byte lengh string.
+ *
+ * @param {*} type
+ * @returns true if the said type is a string prefixed by one byte length
+ */
 function isOneBytePrefixedString(type) {
   return type == 'char_string' || type == 'octet_string'
 }
-
+/**
+ * Checks if type is a two-byte lengh string.
+ *
+ * @param {*} type
+ * @returns true if the said type is a string prefixed by two byte length
+ */
 function isTwoBytePrefixedString(type) {
   return type == 'long_char_string' || type == 'long_octet_string'
 }
@@ -102,3 +142,4 @@ exports.typeSizeAttribute = typeSizeAttribute
 exports.longTypeDefaultValue = longTypeDefaultValue
 exports.isOneBytePrefixedString = isOneBytePrefixedString
 exports.isTwoBytePrefixedString = isTwoBytePrefixedString
+exports.convertToCliType = convertToCliType
