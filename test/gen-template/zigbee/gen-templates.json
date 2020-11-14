@@ -52,7 +52,7 @@
     {
       "path": "zap-command-parser.zapt",
       "name": "ZCL command parsers",
-      "output": "zap-command-parser.h"
+      "output": "zap-command-parser.c"
     },
     {
       "path": "zap-command.zapt",

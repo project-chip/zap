@@ -20,6 +20,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
 const helperC = require('./helper-c.js')
 const env = require('../util/env.js')
+const types = require('../util/types.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -183,22 +184,31 @@ function zcl_command_tree(options) {
           name: el.argName,
           type: el.argType,
           isArray: el.argIsArray,
+          hasLength: el.argIsArray,
+          nameLength: el.argName.concat('Len'),
+        }
+        if (el.argIsArray) {
+          arg.formatChar = 'b'
+        } else if (types.isOneBytePrefixedString(el.argType)) {
+          arg.formatChar = 's'
+        } else if (types.isTwoBytePrefixedString(el.argType)) {
+          arg.formatChar = 'l'
+        } else {
+          arg.formatChar = 'u'
         }
         if (newCommand) {
-          el.argsstring = 'b'
+          el.argsstring = arg.formatChar
           el.commandArgs = []
           el.commandArgs.push(arg)
           var n = ''
           if (el.clusterCode == null) {
             n = n.concat('Global')
-          }
-          if (el.source == dbEnum.source.client) {
-            n = n.concat('ClientToServer')
           } else {
-            n = n.concat('ServerToClient')
+            n = n.concat(el.clusterName + 'Cluster')
           }
-          if (el.clusterName != null) {
-            n = n.concat(el.clusterName)
+          if (el.source == dbEnum.source.either) {
+            // We will need to create two here.
+            n = n.concat('ClientToServer')
           }
           n = n.concat(el.name)
           el.clientMacroName = n
@@ -206,7 +216,7 @@ function zcl_command_tree(options) {
           reducedCommands.push(el)
         } else {
           lastCommand.commandArgs.push(arg)
-          lastCommand.argsstring = lastCommand.argsstring.concat('b')
+          lastCommand.argsstring = lastCommand.argsstring.concat(arg.formatChar)
         }
       })
       return reducedCommands
@@ -526,6 +536,45 @@ function isClient(side) {
   return 0 == side.localeCompare('client')
 }
 
+/**
+ * Checks if the side is server or not
+ *
+ * @param {*} side
+ * @returns boolean
+ */
+function isServer(side) {
+  return 0 == side.localeCompare('server')
+}
+
+function isStrEqual(str1, str2) {
+  return 0 == str1.localeCompare(str2)
+}
+
+function isLastElement(index, count) {
+  return index == count - 1
+}
+
+function isFirstElement(index, count) {
+  return index == count - 1
+}
+
+function isEnabled(enable) {
+  return 1 == enable
+}
+
+function isCommandAvailable(clusterSide, incoming, outgoing, source, name) {
+  if (0 == clusterSide.localeCompare(source)) {
+    return false
+  }
+
+  if (isClient(clusterSide) && outgoing) {
+    return true
+  } else if (isServer(clusterSide) && incoming) {
+    return true
+  }
+  return false
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -550,3 +599,9 @@ exports.zcl_command_arguments_count = zcl_command_arguments_count
 exports.zcl_command_arguments = zcl_command_arguments
 exports.zcl_command_argument_data_type = zcl_command_argument_data_type
 exports.isClient = isClient
+exports.isServer = isServer
+exports.isStrEqual = isStrEqual
+exports.isLastElement = isLastElement
+exports.isFirstElement = isFirstElement
+exports.isEnabled = isEnabled
+exports.isCommandAvailable = isCommandAvailable

@@ -43,6 +43,7 @@ This software is licensed under [Apache 2.0 license](LICENSE.txt).
 - [Design](docs/design.md)
 - [Template tutorial](docs/template-tutorial.md)
 - [SDK integration guideline](docs/sdk-integration.md)
+- [Custom ZCL entities design](docs/custom-zcl.md)
 - [Instructions](docs/instructions.md)
 - [Coding standard](docs/coding-standard.md)
 - [API](docs/api.md)

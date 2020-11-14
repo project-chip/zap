@@ -99,12 +99,12 @@ function endpoint_fixed_endpoint_type_array(options) {
 }
 
 function createMfgCodes(codeIndexPairs) {
-  var ret = '{ \\ \n'
+  var ret = '{ \\\n'
   if (codeIndexPairs.length == 0) {
     ret = ret.concat('  { 0x00, 0x00 } \\\n')
   } else {
     codeIndexPairs.forEach((c) => {
-      ret = ret.concat(`  { ${c.index}, ${c.mfgCode} }\\\n`)
+      ret = ret.concat(`  { ${c.index}, ${c.mfgCode} },\\\n`)
     })
   }
   return ret.concat('}\n')
@@ -158,7 +158,7 @@ function endpoint_command_count(options) {
 }
 
 function endpoint_types_list(options) {
-  var ret = '{ \\ \n'
+  var ret = '{ \\\n'
   this.endpointList.forEach((ep) => {
     ret = ret.concat(
       `  { ZAP_CLUSTER_INDEX(${ep.clusterIndex}), ${ep.clusterCount}, ${ep.attributeSize} } \\\n`
@@ -172,17 +172,17 @@ function endpoint_cluster_count(options) {
 }
 
 function endpoint_cluster_list(options) {
-  var ret = '{ \\ \n'
+  var ret = '{ \\\n'
   this.clusterList.forEach((c) => {
     ret = ret.concat(
-      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.mask}, ${c.functions} } /* ${c.comment} */ \\\n`
+      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.mask}, ${c.functions} }, /* ${c.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
 }
 
 function endpoint_command_list(options) {
-  var ret = '{ \\ \n'
+  var ret = '{ \\\n'
   this.commandList.forEach((cmd) => {
     var mask = ''
     if (cmd.mask.length == 0) {
@@ -193,7 +193,7 @@ function endpoint_command_list(options) {
         .join(' | ')
     }
     ret = ret.concat(
-      `  { ${cmd.clusterId}, ${cmd.commandId}, ${mask} } /* ${cmd.comment} */ \\\n`
+      `  { ${cmd.clusterId}, ${cmd.commandId}, ${mask} }, /* ${cmd.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
@@ -204,7 +204,7 @@ function endpoint_attribute_count(options) {
 }
 
 function endpoint_attribute_list(options) {
-  var ret = '{ \\ \n'
+  var ret = '{ \\\n'
   this.attributeList.forEach((at) => {
     var mask = ''
     if (at.mask.length == 0) {
@@ -215,7 +215,7 @@ function endpoint_attribute_list(options) {
         .join(' | ')
     }
     ret = ret.concat(
-      `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, ${at.defaultValue} } /* ${at.comment} */  \\\n`
+      `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, ${at.defaultValue} }, /* ${at.comment} */  \\\n`
     )
   })
   return ret.concat('}\n')
@@ -240,7 +240,7 @@ function endpoint_attribute_min_max_count(options) {
 }
 
 function endpoint_attribute_min_max_list(options) {
-  var ret = '{ \\ \n'
+  var ret = '{ \\\n'
   this.minMaxList.forEach((mm) => {
     ret = ret.concat(
       `  { ${mm.default}, ${mm.min}, ${mm.max} } /* ${mm.comment} */ \\\n`
@@ -250,8 +250,7 @@ function endpoint_attribute_min_max_list(options) {
 }
 
 function endpoint_reporting_config_defaults(options) {
-  var ret = '{ \\ \n'
-
+  var ret = '{ \\\n'
   this.reportList.forEach((r) => {
     var mask = ''
     if (r.mask.length == 0) {
@@ -262,7 +261,7 @@ function endpoint_reporting_config_defaults(options) {
         .join(' | ')
     }
     ret = ret.concat(
-      `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} } /* ${r.comment} */ \\\n`
+      `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }, /* ${r.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
@@ -277,7 +276,7 @@ function endpoint_attribute_long_defaults(options) {
   if (options.hash.endian == 'big') {
     littleEndian = false
   }
-  var ret = '{ \\ \n'
+  var ret = '{ \\\n'
   this.longDefaultsList.forEach((ld) => {
     ret = ret.concat(
       `  ${ld.value}  /* ${ld.comment}, ${

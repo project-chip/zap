@@ -327,27 +327,14 @@ function asUnderscoreUppercase(str) {
   return label.toUpperCase()
 }
 
+/**
+ * Returns the cli type representation.
+ *
+ * @param {*} str
+ * @returns the type as represented for CLI.
+ */
 function asCliType(str) {
-  str = str.trim()
-  if (str.toLowerCase().endsWith('u')) {
-    str = str.substring(0, str.length - 1)
-    str = 'u' + str
-  } else if (
-    str.toLowerCase().startsWith('int') &&
-    str.toLowerCase().endsWith('s')
-  ) {
-    str = str.substring(0, str.length - 1)
-  } else if (str.toLowerCase().endsWith('char_string')) {
-    str = 'string'
-  } else if (str.toLowerCase().startsWith('bitmap')) {
-    str = str.toLowerCase().replace('bitmap', 'uint')
-  } else if (str.toLowerCase().startsWith('enum')) {
-    str = str.toLowerCase().replace('enum', 'uint')
-  } else {
-    env.logInfo('Cli type not found: ' + str)
-    return str
-  }
-  return 'SL_CLI_ARG_' + str.toUpperCase()
+  return 'SL_CLI_ARG_' + types.convertToCliType(str).toUpperCase()
 }
 
 /**

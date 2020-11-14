@@ -28,7 +28,7 @@
 // This is an array of EmberAfAttributeMetadata structures.
 #define GENERATED_ATTRIBUTE_COUNT {{endpoint_attribute_count}}
 #define GENERATED_ATTRIBUTES {{ endpoint_attribute_list }}
-#endif ZAP_ATTRIBUTE_MASK
+#undef ZAP_ATTRIBUTE_MASK
 
 #undef ZAP_TYPE
 #undef ZAP_LONG_DEFAULTS_INDEX
@@ -56,7 +56,7 @@
 #define ATTRIBUTE_MAX_SIZE ({{endpoint_total_storage_size}})
 
 // Number of fixed endpoints
-#define FIXED_ENPOINT_COUNT ({{endpoint_count}})
+#define FIXED_ENDPOINT_COUNT ({{endpoint_count}})
 
 // Array of endpoints that are supported, the data inside
 // the array is the endpoint number.
@@ -97,12 +97,12 @@
 #define GENERATED_ATTRIBUTE_MANUFACTURER_CODES {{endpoint_attribute_manufacturer_codes}}
 
 // Array of EmberAfPluginReportingEntry structures.
-#define ZAP_REPORT_DIRECTION(x) EMBER_ZCL_REPORTING_DIRECTION_##x
+#define ZAP_REPORT_DIRECTION(x) EMBER_ZCL_REPORTING_DIRECTION_ ## x
 #define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS_TABLE_SIZE ({{endpoint_reporting_config_default_count}})
 #define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS {{endpoint_reporting_config_defaults}}
 #undef ZAP_REPORT_DIRECTION
 
-#undef ZCP_CLUSTER_MASK
+#undef ZAP_CLUSTER_MASK
 
 {{/endpoint_config}}
 
