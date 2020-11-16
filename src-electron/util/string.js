@@ -35,7 +35,7 @@ function toCamelCase(label, firstLower = true) {
     } else {
       res += str[i].charAt(0).toUpperCase()
     }
-    res += str[i].substring(1).toLowerCase()
+    res += str[i].substring(1)
   }
   return res
 }
