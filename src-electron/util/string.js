@@ -30,15 +30,12 @@ function toCamelCase(label, firstLower = true) {
   var str = label.split(/ |-|\//)
   var res = ''
   for (let i = 0; i < str.length; i++) {
-    if (i == 0) {
-      if (firstLower) {
-        res += str[i].charAt(0).toLowerCase() + str[i].substring(1)
-      } else {
-        res += str[i].charAt(0).toUpperCase() + str[i].substring(1)
-      }
-      continue
+    if (i == 0 && firstLower) {
+      res += str[i].charAt(0).toLowerCase()
+    } else {
+      res += str[i].charAt(0).toUpperCase()
     }
-    res += str[i].charAt(0).toUpperCase() + str[i].substring(1)
+    res += str[i].substring(1).toLowerCase()
   }
   return res
 }
@@ -104,8 +101,8 @@ function toCleanSymbol(label) {
   var l = label.trim()
   l = l.replace(' ', '_')
   l = l.replace(' ', '_')
-  l = l.replace(/__+/g, '_')
-  l = l.replace(/[:/-]/g, '_').toLowerCase()
+  l = l.replace(/[:/-]/g, '_')
+  l = l.replace(/__+/g, '_').toLowerCase()
   return l
 }
 
@@ -129,6 +126,10 @@ function toCleanMacro(label) {
   return l
 }
 
+/**
+ * Returns true if given character is a digit.
+ * @param {*} ch
+ */
 function isDigit(ch) {
   return ch >= '0' && ch <= '9'
 }
