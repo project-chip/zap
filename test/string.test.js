@@ -38,4 +38,5 @@ test('Camel case', () => {
     'SomeRandomString'
   )
   expect(string.toCamelCase('ZLL Commissioning')).toEqual('zLLCommissioning')
+  expect(string.toCamelCase('AddGroup')).toEqual('addGroup')
 })
