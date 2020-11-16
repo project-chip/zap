@@ -37,5 +37,5 @@ test('Camel case', () => {
   expect(string.toCamelCase('some random string', false)).toEqual(
     'SomeRandomString'
   )
-  expect(string.toCamelCase('ZLL Commissioning')).toEqual('zllCommissioning')
+  expect(string.toCamelCase('ZLL Commissioning')).toEqual('zLLCommissioning')
 })
