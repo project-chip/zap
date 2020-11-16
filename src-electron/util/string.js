@@ -35,7 +35,12 @@ function toCamelCase(label, firstLower = true) {
     } else {
       res += str[i].charAt(0).toUpperCase()
     }
-    res += str[i].substring(1)
+    // Acronyms, such as ZLL become lower-case.
+    if (str[i].length > 1 && str[i].toUpperCase() == str[i]) {
+      res += str[i].substring(1).toLowerCase()
+    } else {
+      res += str[i].substring(1)
+    }
   }
   return res
 }

@@ -37,6 +37,13 @@ test('Camel case', () => {
   expect(string.toCamelCase('some random string', false)).toEqual(
     'SomeRandomString'
   )
-  expect(string.toCamelCase('ZLL Commissioning')).toEqual('zLLCommissioning')
+  expect(string.toCamelCase('ZLL Commissioning')).toEqual('zllCommissioning')
   expect(string.toCamelCase('AddGroup')).toEqual('addGroup')
+  expect(string.toCamelCase('AddGroup', false)).toEqual('AddGroup')
+  expect(string.toCamelCase('long string with an ACRONYM inside')).toEqual(
+    'longStringWithAnAcronymInside'
+  )
+  expect(string.toCamelCase('longStringWithAnAcronymInside')).toEqual(
+    'longStringWithAnAcronymInside'
+  )
 })
