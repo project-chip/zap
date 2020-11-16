@@ -200,9 +200,26 @@ function recordTemplatesPackage(context) {
         )
       }
 
+      // Deal with zcl extensions
+      if (context.templateData.zcl != null) {
+        var zclExtension = context.templateData.zcl
+        promises.push(
+          loadZclExtensions(context.db, context.packageId, zclExtension)
+        )
+      }
       return Promise.all(promises)
     })
     .then(() => context)
+}
+
+/**
+ * Returns a promise that will load the zcl extensions.
+ *
+ * @param {*} zclExt
+ * @returns Promise of loading the zcl extensions.
+ */
+function loadZclExtensions(db, packageId, zclExt) {
+  return Promise.resolve(zclExt)
 }
 
 /**
