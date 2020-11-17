@@ -22,6 +22,30 @@ limitations under the License.
 </template>
 
 <script>
+import Vue from 'vue'
+
+function initLoad(store) {
+  store.dispatch('zap/loadInitialData')
+  store.dispatch('zap/loadOptions', {
+    key: 'defaultResponsePolicy',
+    type: 'string',
+  })
+  store.dispatch('zap/loadOptions', {
+    key: 'manufacturerCodes',
+    type: 'object',
+  })
+  store.dispatch('zap/loadSessionKeyValues')
+
+  Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
+    var arg = response.data
+    store.dispatch('zap/updateClusters', arg.data)
+  })
+  Vue.prototype.$serverGet('/zcl/deviceType/all').then((response) => {
+    var arg = response.data
+    store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
+  })
+}
+
 export default {
   name: 'App',
   methods: {
@@ -75,25 +99,7 @@ export default {
       attributeFilter: ['data-theme'],
       subtree: false,
     })
-    this.$store.dispatch('zap/loadInitialData')
-    this.$store.dispatch('zap/loadOptions', {
-      key: 'defaultResponsePolicy',
-      type: 'string',
-    })
-    this.$store.dispatch('zap/loadOptions', {
-      key: 'manufacturerCodes',
-      type: 'object',
-    })
-    this.$store.dispatch('zap/loadSessionKeyValues')
-
-    this.$serverGet('/zcl/cluster/all').then((response) => {
-      var arg = response.data
-      this.$store.dispatch('zap/updateClusters', arg.data)
-    })
-    this.$serverGet('/zcl/deviceType/all').then((response) => {
-      var arg = response.data
-      this.$store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
-    })
+    initLoad(this.$store)
   },
 }
 </script>
