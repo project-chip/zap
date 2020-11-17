@@ -16,6 +16,62 @@
       "bacnet_oid": "bacnet_type_t"
     }
   },
+  "zcl": {
+    "cluster": {
+      "testClusterExtension": {
+        "type": "text",
+        "configurability": "hidden",
+        "globalDefault": null,
+        "defaults": [
+          {
+            "clusterCode": "0x0000",
+            "value": "Extension to basic cluster"
+          }
+        ]
+      }
+    },
+    "command": {
+      "testCommandExtension": {
+        "type": "boolean",
+        "configurability": "hidden",
+        "globalDefault": false,
+        "defaults": [
+          {
+            "clusterCode": "0x0000",
+            "commandCode": "0x00",
+            "value": true
+          }
+        ]
+      }
+    },
+    "attribute": {
+      "testAttributeExtension": {
+        "type": "integer",
+        "configurability": "hidden",
+        "globalDefault": 0,
+        "defaults": [
+          {
+            "clusterCode": "0x0000",
+            "attributeCode": "0x0000",
+            "value": 42
+          }
+        ]
+      }
+    },
+    "deviceType": {
+      "testDeviceTypeExtension": {
+        "type": "path",
+        "configurability": "hidden",
+        "globalDefault": null,
+        "defaults": [
+          {
+            "device": "HA-remote",
+            "value": "path/to/remote.c"
+          }
+        ]
+      }
+    }
+  },
   "override": "addon-override.js",
   "helpers": ["addon-helper.js"],
   "templates": [

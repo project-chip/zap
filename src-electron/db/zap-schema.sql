@@ -37,10 +37,10 @@ CREATE TABLE "PACKAGE" (
   foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*
- OPTIONS table contains generic 'options' that are encoded from within each packages. 
+ PACKAGE_OPTION table contains generic 'options' that are encoded from within each packages. 
  */
-DROP TABLE IF EXISTS "OPTIONS";
-CREATE TABLE "OPTIONS" (
+DROP TABLE IF EXISTS "PACKAGE_OPTION";
+CREATE TABLE "PACKAGE_OPTION" (
   "OPTION_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
   "OPTION_CATEGORY" text,
@@ -50,17 +50,46 @@ CREATE TABLE "OPTIONS" (
   UNIQUE(PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
 );
 /* 
- OPTIONS_DEFAULTS table contains a link to a specified 'default value' for an options
+ PACKAGE_OPTION_DEFAULT table contains a link to a specified 'default value' for an options
  */
-DROP TABLE IF EXISTS "OPTION_DEFAULTS";
-CREATE TABLE "OPTION_DEFAULTS" (
+DROP TABLE IF EXISTS "PACKAGE_OPTION_DEFAULT";
+CREATE TABLE "PACKAGE_OPTION_DEFAULT" (
   "OPTION_DEFAULT_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
   "OPTION_CATEGORY" text,
   "OPTION_REF" integer,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
-  foreign key (OPTION_REF) references OPTIONS(OPTION_ID) on delete cascade,
+  foreign key (OPTION_REF) references PACKAGE_OPTION(OPTION_ID) on delete cascade,
   UNIQUE(PACKAGE_REF, OPTION_CATEGORY)
+);
+/*
+ PACKAGE EXTENSIONS table contains extensions of specific ZCL entities attached to the
+ gen template packages. See docs/sdk-extensions.md, the section about "Template key: zcl"
+ */
+DROP TABLE IF EXISTS "PACKAGE_EXTENSION";
+CREATE TABLE "PACKAGE_EXTENSION" (
+  "PACKAGE_EXTENSION_ID" integer primary key autoincrement,
+  "PACKAGE_REF" integer,
+  "ENTITY" text,
+  "PROPERTY" text,
+  "TYPE" text,
+  "CONFIGURABILITY" text,
+  "LABEL" text,
+  "GLOBAL_DEFAULT" text,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  UNIQUE(PACKAGE_REF, ENTITY, PROPERTY)
+);
+/*
+ PACKAGE_EXTENSION_DEFAULTS table contains default values for specific entities. Each row provides
+ default value for one item of a given entity, listed in PACKAGE_EXTENSION
+ */
+DROP TABLE IF EXISTS "PACKAGE_EXTENSION_DEFAULT";
+CREATE TABLE "PACKAGE_EXTENSION_DEFAULT" (
+  "PACKAGE_EXTENSION_REF" integer,
+  "ENTITY_CODE" text,
+  "PARENT_CODE" text,
+  "VALUE" text,
+  foreign key (PACKAGE_EXTENSION_REF) references PACKAGE_EXTENSION(PACKAGE_EXTENSION_ID)
 );
 /*
  *  $$$$$$\    $$\                $$\     $$\                       $$\            $$\               

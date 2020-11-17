@@ -387,7 +387,7 @@ function insertOptionsKeyValues(
 ) {
   return dbApi.dbMultiInsert(
     db,
-    `INSERT INTO OPTIONS 
+    `INSERT INTO PACKAGE_OPTION
         (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL) 
        VALUES 
         (?, ?, ?, ?)
@@ -411,7 +411,7 @@ function selectAllOptionsValues(db, packageId, optionCategory) {
   return dbApi
     .dbAll(
       db,
-      `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM OPTIONS WHERE PACKAGE_REF = ? AND OPTION_CATEGORY = ?`,
+      `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM PACKAGE_OPTION WHERE PACKAGE_REF = ? AND OPTION_CATEGORY = ?`,
       [packageId, optionCategory]
     )
     .then((rows) => rows.map(dbMapping.map.options))
@@ -430,7 +430,7 @@ function selectSpecificOptionValue(db, packageId, optionCategory, optionCode) {
   return dbApi
     .dbGet(
       db,
-      `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM OPTIONS WHERE PACKAGE_REF = ? AND OPTION_CATEGORY = ? AND OPTION_CODE = ?`,
+      `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM PACKAGE_OPTION WHERE PACKAGE_REF = ? AND OPTION_CATEGORY = ? AND OPTION_CODE = ?`,
       [packageId, optionCategory, optionCode]
     )
     .then(dbMapping.map.options)
@@ -445,7 +445,7 @@ function selectOptionValueByOptionDefaultId(db, optionDefaultId) {
   return dbApi
     .dbGet(
       db,
-      `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM OPTIONS WHERE OPTION_ID = ?`,
+      `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM PACKAGE_OPTION WHERE OPTION_ID = ?`,
       [optionDefaultId]
     )
     .then(dbMapping.map.options)
@@ -463,7 +463,7 @@ function selectOptionValueByOptionDefaultId(db, optionDefaultId) {
 function insertDefaultOptionValue(db, packageId, optionCategory, optionRef) {
   return dbApi.dbInsert(
     db,
-    'INSERT INTO OPTION_DEFAULTS ( PACKAGE_REF, OPTION_CATEGORY, OPTION_REF) VALUES (?, ?, ?) ON CONFLICT DO NOTHING',
+    'INSERT INTO PACKAGE_OPTION_DEFAULT ( PACKAGE_REF, OPTION_CATEGORY, OPTION_REF) VALUES (?, ?, ?) ON CONFLICT DO NOTHING',
     [packageId, optionCategory, optionRef]
   )
 }
@@ -477,7 +477,7 @@ function selectAllDefaultOptions(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      `SELECT OPTION_DEFAULT_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_REF FROM OPTION_DEFAULTS WHERE PACKAGE_REF = ?`,
+      `SELECT OPTION_DEFAULT_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_REF FROM PACKAGE_OPTION_DEFAULT WHERE PACKAGE_REF = ?`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.optionDefaults))

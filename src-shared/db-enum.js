@@ -74,3 +74,8 @@ exports.pathRelativity = {
   relativeToUserHome: 'relativeToHome',
   absolute: 'absolute',
 }
+
+exports.wsCategory = {
+  generic: 'generic',
+  init: 'init',
+}

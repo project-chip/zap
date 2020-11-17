@@ -70,7 +70,6 @@ const template = [
           util
             .getSessionKeyFromBrowserWindow(browserWindow)
             .then((sessionKey) => {
-              console.log(`Got session key: ${sessionKey}`)
               cookieText = sessionKey
               return sessionKey
             })

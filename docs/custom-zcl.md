@@ -1,29 +1,55 @@
-# Custom ZCL Entities
+# Custom ZCL Extensions
 
-- [Custom ZCL Entities](#custom-zcl-entities)
-  - [Adding custom ZCL entities](#adding-custom-zcl-entities)
-  - [Using custom ZCL entities](#using-custom-zcl-entities)
-  - [Saving information about custom ZCL entities](#saving-information-about-custom-zcl-entities)
-  - [Restoring information about custom ZCL entities](#restoring-information-about-custom-zcl-entities)
-  - [User interface functionality](#user-interface-functionality)
+- [Custom ZCL Extensions](#Custom-ZCL-Extensions)
+  - [Introduction](#Introduction)
+  - [Custom Entities Overiew](#Custom-Entities-Overiew)
+  - [Managing Custom Entities](#Managing-Custom-Entities)
+  - [Seamless Functionality](#Seamless-Functionality)
+  - [ZAP File Format](#ZAP-File-Format)
+  - [Restoring information about custom ZCL entities](#Restoring-information-about-custom-ZCL-entities)
+  - [User interface functionality](#User-interface-functionality)
 
-## Adding custom ZCL entities
+## Introduction
 
-Custom ZCL entities are added via loading in the XML file of the same format as are the main XML files for the main ZCL database.
+The ZCL data model provides for the ability to extend the standard library with custom ZCL entities.
 
-Upon loading, the loaded file gets its own package row in the package table, with its own package ID.
+This allows for different manufacturers and users to create their own specific functionality that interacts with the ZCL data model.
 
-Packages support custom "version" field. The version field should be used for custom loaded packages to identify them.
+e.g. if a user wants to provision additional functionality to the lighting cluster, then a custom extension of the lighting cluster is possible.
 
-Following are the lists of the ZCL entities that can be custom-loaded:
+Therefore, ZAP must provide a way for users to be able to add custom entities to the set of ZCL entities used within their projects.
 
-- custom clusters with its own cluster attributes and commands
-- custom extensions to existing clusters, adding attribute and commands
-- other? (TBD)
+##Custom Entities Overiew
 
-## Using custom ZCL entities
+At its core, we can divide these custom ZCL Entities into the following categories:
 
-Custom ZCL entities are used for user sessions. Each user session can use one or more package IDs and those package IDs can be either the main ZCL package, or one or more custom ZCL loaded packages.
+- Standard Cluster Extensions
+- Custom Clusters
+
+Both of these entities may be composed of attributes and commands, which themselves are composed of references to sub-entities such as enums, command_args, bitmaps, etc.
+
+In terms of file parsing, there is no difference between a file containing custom ZCL entities and a file that contains standard ZCL entities.
+
+A user may wish to interchange and use different sets of XMLs for different projects due to reasons of wanting to integrate an external vendor's/user's ZCL functionality for specific projects.
+
+Therefore, ZAP must have a way to manage these custom extensions on a per-project basis.
+
+## Managing Custom Entities
+
+The XML file format for custom ZCL extensions should still be the same format as the standard library.
+
+The way to differentiate different sets of ZCL entities in the ZAP database is via associating each of those entities with a specific package, where each package corresponds to either one or more XML files.
+
+The way we associate these packages with a specific project in the database is via the `SESSION_PACKAGE` table, which ties a package to a specific session.
+
+To support custom XMLs, `SESSION_PACKAGE` contains a key that specifies the optionality of a package with respect to a session. [More particularly, custom XMLs should be marked as optional, but the core standard XML content should be marked as non-optional]
+
+Question:
+
+1. Do we want to require that a custom extension can only rely on the main non-optional XML?
+2. If we have a situation where a custom extension can rely on other custom extensions, how do we want to maintain consistency when the prerequisite is deleted?
+
+## Seamless Functionality
 
 In order for the data to be used seamlessly, following needs to be assured:
 
@@ -34,21 +60,32 @@ Apart from making sure that the queries all consider custom package IDs when que
 
 ZAP could provide some validation though, since there are specific ZCL rules around what IDs the custom entities can take.
 
-## Saving information about custom ZCL entities
+## ZAP File Format
 
-When custom XML package is used for user configuration, `*.zap` file will carry that information inside it.
-Upon export from database, following information should be recorded:
+When custom XML package is used for user configuration, the `*.zap` file will carry that information inside it, inline with the `package` values.
 
-- version of custom XML file
-- path of custom XML file
+The so the description of this `package` key in the `*.zap` file would include:
+
+```
+{
+    pathRelativity: "Type of path relationship"
+    path: "Path relationship based on type of path relationship"
+    version: "Version of the XML"
+    type: "Type of ZCL package"
+    optionality: "Is this package the main/required package"
+    crc: "CRC for checking"
+  }
+```
+
+The CRC here is the CRC associated w/ the `PACKAGE` table, and is used when loading a `*.zap` file.
 
 ## Restoring information about custom ZCL entities
 
-When a `*.zap` file is loaded, that contains information about a custom XML file, following needs to be considered:
+When a `*.zap` file is loaded, that contains information about a custom XML file, the following process is handled:
 
-- using path or version the correct supporting package has to be located and loaded into the database if it hasn't yet been loaded
+- using path, version, and CRC the correct supporting package has to be located and loaded into the database if it hasn't yet been loaded
 - user has to be given choice what to do if required custom XML file is not found.
-- CRC handling should be used in a regular fashion to determine if file has changed or not.
+- if the CRC that was recorded in the `*.zap` file is different from the one located in the ZAP file, then the UI should throw a warning about the data being different than expected, with options to confirm or replace the file.
 
 ## User interface functionality
 
@@ -58,4 +95,4 @@ Following are the UI functions that will have to be performed by ZAP to support 
 - global UI support to unload custom XML file and delete the data about it from the database.
 - session-specific UI support to add or remove the use of a specific custom XML file for a given session.
 
-In addition and command-line argument to point to custom XML files should be supported when executing zap.
+In addition and command-line argument to point to custom XML files should be supported when executing zap. This UI was specified by a design firm.

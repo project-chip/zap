@@ -21,32 +21,13 @@ const templateUtil = require('./template-util.js')
 const bin = require('../util/bin.js')
 const env = require('../util/env.js')
 const types = require('../util/types.js')
+const string = require('../util/string.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
  *
  * @module Templating API: C formatting helpers
  */
-
-/**
- * Formats label as a C macro. This method performs a very simply substition
- * of illegal characters, such as ' ', ':' and such into a '_' character.
- *
- * @param {*} label
- * @returns Label formatted as C macro.
- */
-function asMacro(label) {
-  var l = label.toUpperCase().replace(/ /g, '_')
-  l = l.replace(/[:/-]/g, '_')
-  l = l.replace('___', '_')
-  l = l.replace('__', '_')
-  l = l.replace('._', '_')
-  l = l.replace('.', '_')
-  l = l.replace('-', '_')
-  l = l.startsWith('_') ? l.substring(1) : l
-  l = l.endsWith('_') ? l.substring(0, l.length - 1) : l
-  return l
-}
 
 /**
  * Given a hex number, it prints the offset, which is the index of the first non-zero bit.
@@ -56,10 +37,6 @@ function asOffset(hex) {
   return bin.bitOffset(bin.hexToBinary(hex))
 }
 
-function isDigit(ch) {
-  return ch >= '0' && ch <= '9'
-}
-
 /**
  * Takes a label, and delimits is on camelcasing.
  * For example:
@@ -67,33 +44,7 @@ function isDigit(ch) {
  * @param {*} label
  */
 function asDelimitedMacro(label) {
-  var ret = ''
-  if (label == null) return ret
-  label = label.replace(/\.?([A-Z][a-z])/g, function (x, y) {
-    return '_' + y
-  })
-  var wasUp = false
-  for (var i = 0; i < label.length; i++) {
-    var ch = label.charAt(i)
-    var upch = ch.toUpperCase()
-    if (ch == '_') {
-      ret = ret.concat('_')
-      wasUp = true
-    } else if (isDigit(ch)) {
-      ret = ret.concat(ch)
-      wasUp = false
-    } else if (ch == upch) {
-      // uppercase
-      if (i != 0 && !wasUp) ret = ret.concat('_')
-      ret = ret.concat(upch)
-      wasUp = true
-    } else {
-      // lowercase
-      ret = ret.concat(upch)
-      wasUp = false
-    }
-  }
-  return asMacro(ret)
+  return string.toSnakeCaseAllCaps(label)
 }
 
 /**
@@ -252,20 +203,7 @@ function asBytes(value, type) {
  * @returns a spaced out string in lowercase
  */
 function asCamelCased(label, firstLower = true) {
-  var str = label.split(/ |-|\//)
-  var res = ''
-  for (let i = 0; i < str.length; i++) {
-    if (i == 0) {
-      if (firstLower) {
-        res += str[i].charAt(0).toLowerCase() + str[i].substring(1)
-      } else {
-        res += str[i].charAt(0).toUpperCase() + str[i].substring(1)
-      }
-      continue
-    }
-    res += str[i].charAt(0).toUpperCase() + str[i].substring(1)
-  }
-  return res
+  return string.toCamelCase(label, firstLower)
 }
 
 /**
@@ -273,12 +211,7 @@ function asCamelCased(label, firstLower = true) {
  * @param {*} label
  */
 function cleanseLabel(label) {
-  var l = label.trim()
-  l = l.replace(' ', '_')
-  l = l.replace(' ', '_')
-  l = l.replace(/__+/g, '_')
-  l = l.replace(/[:/-]/g, '_').toLowerCase()
-  return l
+  return string.toCleanSymbol(label)
 }
 
 /**
@@ -288,13 +221,7 @@ function cleanseLabel(label) {
  * @returns String in lowercase with underscores
  */
 function asUnderscoreLowercase(str) {
-  var label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
-    return '_' + y
-  })
-  if (label.startsWith('_')) {
-    label = label.substring(1)
-  }
-  return label.toLowerCase()
+  return string.toUnderscoreLowercase(str)
 }
 
 /**
@@ -304,10 +231,7 @@ function asUnderscoreLowercase(str) {
  * @returns a spaced out string in lowercase
  */
 function asSpacedLowercase(str) {
-  var res = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
-    return ' ' + y
-  })
-  return res.toLowerCase()
+  return string.toSpacedLowercase(str)
 }
 
 /**

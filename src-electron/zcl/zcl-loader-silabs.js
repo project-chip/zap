@@ -76,7 +76,7 @@ function collectDataFromJsonFile(ctx) {
     if (obj.options) {
       ctx.options = obj.options
     }
-    // Defaults. Note that the keys should be the categories that are listed for OPTIONS, and the value should be the OPTION_CODE
+    // Defaults. Note that the keys should be the categories that are listed for PACKAGE_OPTION, and the value should be the OPTION_CODE
     if (obj.defaults) {
       ctx.defaults = obj.defaults
     }
@@ -141,7 +141,7 @@ function collectDataFromPropertiesFile(ctx) {
         if (zclProps.options) {
           ctx.options = zclProps.options
         }
-        // Defaults. Note that the keys should be the categories that are listed for OPTIONS, and the value should be the OPTION_CODE
+        // Defaults. Note that the keys should be the categories that are listed for PACKAGE_OPTION, and the value should be the OPTION_CODE
         if (zclProps.defaults) {
           ctx.defaults = zclProps.defaults
         }
