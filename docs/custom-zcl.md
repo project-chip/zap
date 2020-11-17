@@ -19,7 +19,7 @@ e.g. if a user wants to provision additional functionality to the lighting clust
 
 Therefore, ZAP must provide a way for users to be able to add custom entities to the set of ZCL entities used within their projects.
 
-##Custom Entities Overiew
+## Custom Entities Overiew
 
 At its core, we can divide these custom ZCL Entities into the following categories:
 
@@ -47,7 +47,7 @@ To support custom XMLs, `SESSION_PACKAGE` contains a key that specifies the opti
 Question:
 
 1. Do we want to require that a custom extension can only rely on the main non-optional XML?
-2. If we have a situation where a custom extension can rely on other custom extensions, how do we want to maintain consistency when the prerequisite is deleted?
+2. If we have a situation where a custom extension can rely on other custom extensions, how do we want to maintain consistency when the prerequisite is deleted? Do we also want to delete the additional files? How do we want to warn the user? Do we need to introduce priorities for loading when we have chained reliance?
 
 ## Seamless Functionality
 
@@ -58,7 +58,9 @@ In order for the data to be used seamlessly, following needs to be assured:
 
 Apart from making sure that the queries all consider custom package IDs when querying for its package IDs, there should be nothing else special happening with these packages, they are just regular ZCL entities.
 
-ZAP could provide some validation though, since there are specific ZCL rules around what IDs the custom entities can take.
+ZAP should provide some validation though, since there are specific ZCL rules around what IDs the custom entities can take. If there is a conflict between two XML files [possibly due to trying to overload], then ZAP should also point this out to the user, and ask/tell the user about what the desired resolution should be.
+
+Essentially, once these XMLs are loaded, the ZCL entities between custom and standard entities should be treated identically, as long as queries respect the session's list of packageIds.
 
 ## ZAP File Format
 
