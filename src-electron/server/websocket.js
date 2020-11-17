@@ -21,18 +21,30 @@
  * @module JS API: websocket server
  */
 const ws = require('ws')
+const events = require('events')
+
 const env = require('../util/env.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 var wsServer = null
 var wsSocket = null
+var eventEmitter = new events.EventEmitter()
+
+function processReceivedObject(obj) {
+  if ('category' in obj && 'payload' in obj) {
+    eventEmitter.emit(obj.category, obj.payload)
+  } else {
+    eventEmitter.emit(dbEnum.wsCategory.generic, obj)
+  }
+}
 
 function initializeWebSocket(httpServer) {
   wsServer = new ws.Server({ noServer: true })
   wsServer.on('connection', (socket) => {
     wsSocket = socket
     socket.on('message', (message) => {
-      exports.lastMessageReceived = message
-      socket.send(`Echo ${message}`)
+      var receivedObject = JSON.parse(message)
+      processReceivedObject(receivedObject)
     })
   })
 
@@ -41,16 +53,65 @@ function initializeWebSocket(httpServer) {
       wsServer.emit('connection', socket, request)
     })
   })
+
+  onWebSocket(dbEnum.wsCategory.init, (data) => {
+    console.log(`Init message received: ${data}`)
+    sendWebSocketData(
+      dbEnum.wsCategory.init,
+      'WebSocket initialized handshake response.'
+    )
+  })
 }
 
-function sendWebSocketMessage(msg) {
-  if (wsSocket != null) {
-    wsSocket.send(msg)
-  } else {
+function doSend(object) {
+  wsSocket.send(JSON.stringify(object))
+}
+
+/**
+ * Send websocket payload with a given category.
+ *
+ * @param {*} category
+ * @param {*} payload
+ */
+function sendWebSocketData(category, payload) {
+  if (wsSocket == null) {
     env.logError('Websocket not initialized, message not sent.')
+    return
   }
+  var obj = {
+    category: category,
+    payload: payload,
+  }
+  doSend(obj)
+}
+
+/**
+ * This can be used to send unstructured websocket message.
+ * On the receiving end, the event will contain category
+ * 'generic'.
+ *
+ * @param {*} msg
+ */
+function sendWebSocketMessage(msg) {
+  if (wsSocket == null) {
+    env.logError('Websocket not initialized, message not sent.')
+    return
+  }
+  doSend(msg)
+}
+
+/**
+ * If you wish to register to a specific category of websocket
+ * messages, you can use this function. Listener will be executed with
+ * a given data object.
+ *
+ * @param {*} category
+ * @param {*} listener
+ */
+function onWebSocket(category, listener) {
+  eventEmitter.on(category, listener)
 }
 
 exports.initializeWebSocket = initializeWebSocket
 exports.sendWebSocketMessage = sendWebSocketMessage
-exports.lastMessageReceived = null
+exports.sendWebSocketData = sendWebSocketData
