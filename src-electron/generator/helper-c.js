@@ -255,15 +255,20 @@ function asCamelCased(label, firstLower = true) {
   var str = label.split(/ |-|\//)
   var res = ''
   for (let i = 0; i < str.length; i++) {
+    var substr = str[i].substring(1)
+    // If the whole word is uppercase, convert it to lowercase first
+    if (substr == substr.toUpperCase()) {
+      substr = substr.toLowerCase()
+    }
     if (i == 0) {
       if (firstLower) {
-        res += str[i].charAt(0).toLowerCase() + str[i].substring(1)
+        res += str[i].charAt(0).toLowerCase() + substr
       } else {
-        res += str[i].charAt(0).toUpperCase() + str[i].substring(1)
+        res += str[i].charAt(0).toUpperCase() + substr
       }
       continue
     }
-    res += str[i].charAt(0).toUpperCase() + str[i].substring(1)
+    res += str[i].charAt(0).toUpperCase() + substr
   }
   return res
 }
