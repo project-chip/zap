@@ -29,6 +29,7 @@ exports.packageType = {
   genSingleTemplate: 'gen-template',
   genHelper: 'gen-helper',
   genOverride: 'gen-override',
+  genPartial: 'gen-partial',
 }
 
 exports.packageOptionCategory = {

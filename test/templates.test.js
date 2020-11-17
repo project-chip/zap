@@ -52,6 +52,13 @@ test('handlebars: each test', () => {
   expect(output).toEqual('Very simple test !')
 })
 
+test('handlebars: partials', () => {
+  handlebars.registerPartial('very_simple_test', 'Very simple test!')
+  var template = handlebars.compile('{{> very_simple_test}}')
+  var output = template()
+  expect(output).toEqual('Very simple test!')
+})
+
 test('handlebars: helper', () => {
   handlebars.registerHelper(
     'supreme_leader',
