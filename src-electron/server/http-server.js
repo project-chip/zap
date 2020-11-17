@@ -27,7 +27,7 @@ const session = require('express-session')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
-const webSocket = require('./websocket.js')
+const webSocket = require('./ws-server.js')
 
 const restApiModules = [
   '../rest/admin.js',
