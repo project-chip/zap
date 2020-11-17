@@ -235,7 +235,25 @@ function recordTemplatesPackage(context) {
  * @returns Promise of loading the zcl extensions.
  */
 function loadZclExtensions(db, packageId, zclExt) {
-  return Promise.resolve(zclExt)
+  var promises = []
+  for (const entity in zclExt) {
+    var entityExtension = zclExt[entity]
+    var propertyArray = []
+    for (const property in entityExtension) {
+      var prop = entityExtension[property]
+      propertyArray.push({
+        property: property,
+        type: prop.type,
+        configurability: prop.configurability,
+        label: prop.label,
+        globalDefault: prop.globalDefault,
+      })
+    }
+    promises.push(
+      queryPackage.insertPackageExtension(db, packageId, entity, propertyArray)
+    )
+  }
+  return Promise.all(promises)
 }
 
 /**

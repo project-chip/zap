@@ -483,6 +483,61 @@ function selectAllDefaultOptions(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.optionDefaults))
 }
 
+/**
+ * Returns a promise of insertion of package extension
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param propertyArray. Array of objects that contain property, type, configurability, label, globalDefault
+ */
+function insertPackageExtension(db, packageId, entity, propertyArray) {
+  return dbApi.dbMultiInsert(
+    db,
+    `
+INSERT INTO PACKAGE_EXTENSION 
+  (PACKAGE_REF, ENTITY, PROPERTY, TYPE, CONFIGURABILITY, LABEL, GLOBAL_DEFAULT) 
+VALUES 
+  (?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT DO NOTHING`,
+    propertyArray.map((p) => {
+      return [
+        packageId,
+        entity,
+        p.property,
+        p.type,
+        p.configurability,
+        p.label,
+        p.globalDefault,
+      ]
+    })
+  )
+}
+
+/**
+ * Select extensions for a given entity type for a package.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} entity
+ * @returns promise that resolve into an array of packageExtensions for a given entity
+ */
+function selectPackageExtension(db, packageId, entity) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  ENTITY, PROPERTY, TYPE, CONFIGURABILITY, LABEL, GLOBAL_DEFAULT
+FROM 
+  PACKAGE_EXTENSION
+WHERE
+  PACKAGE_REF = ?
+  AND ENTITY = ?`,
+      [packageId, entity]
+    )
+    .then((rows) => rows.map(dbMapping.map.packageExtension))
+}
+
 // exports
 exports.getPackageByPathAndParent = getPackageByPathAndParent
 exports.getPackageByPackageId = getPackageByPackageId
@@ -507,3 +562,5 @@ exports.selectAllDefaultOptions = selectAllDefaultOptions
 exports.selectOptionValueByOptionDefaultId = selectOptionValueByOptionDefaultId
 exports.getPackagesByParentAndType = getPackagesByParentAndType
 exports.getSessionZclPackageIds = getSessionZclPackageIds
+exports.insertPackageExtension = insertPackageExtension
+exports.selectPackageExtension = selectPackageExtension

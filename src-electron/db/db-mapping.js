@@ -310,6 +310,18 @@ exports.map = {
       outgoing: x.OUTGOING,
     }
   },
+
+  packageExtension: (x) => {
+    if (x == null) return undefined
+    return {
+      entity: x.ENTITY,
+      property: x.PROPERTY,
+      type: x.TYPE,
+      configurability: x.CONFIGURABILITY,
+      label: x.LABEL,
+      globalDefault: x.GLOBAL_DEFAULT,
+    }
+  },
 }
 
 exports.reverseMap = {
