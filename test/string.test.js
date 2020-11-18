@@ -47,3 +47,9 @@ test('Camel case', () => {
     'longStringWithAnAcronymInside'
   )
 })
+
+test('Kebab case', () => {
+  expect(string.toCleanSymbolAsKebabCase('Very Simple:Label')).toEqual(
+    'very-simple-label'
+  )
+})
