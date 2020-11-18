@@ -228,6 +228,14 @@ function asUnderscoreLowercase(str) {
 }
 
 /**
+ * returns a string after converting ':' and ' ' into '-'
+ * @param {*} label
+ */
+function cleanseLabelWithHyphen(label) {
+  return string.toCleanSymbolHyphen(label)
+}
+
+/**
  * Given a camel case string convert it into one with space and lowercase
  *
  * @param {*} str
@@ -327,3 +335,4 @@ exports.asCliType = asCliType
 exports.dataTypeForBitmap = dataTypeForBitmap
 exports.dataTypeForEnum = dataTypeForEnum
 exports.addOne = addOne
+exports.cleanseLabelWithHyphen = cleanseLabelWithHyphen

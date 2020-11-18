@@ -112,6 +112,19 @@ function toCleanSymbol(label) {
 }
 
 /**
+ * returns a string after converting ':' and '_' into '-'
+ * @param {*} label
+ */
+function toCleanSymbolHyphen(label) {
+  var l = label.trim()
+  l = l.replace('_', '-')
+  l = l.replace(' ', '-')
+  l = l.replace(/[:/_]/g, '-')
+  l = l.replace(/--+/g, '-').toLowerCase()
+  return l
+}
+
+/**
  * Formats label as a C macro. This method performs a very simply substition
  * of illegal characters, such as ' ', ':' and such into a '_' character.
  *
@@ -146,3 +159,4 @@ exports.toUnderscoreLowercase = toUnderscoreLowercase
 exports.toSpacedLowercase = toSpacedLowercase
 exports.toSnakeCaseAllCaps = toSnakeCaseAllCaps
 exports.isDigit = isDigit
+exports.toCleanSymbolHyphen = toCleanSymbolHyphen
