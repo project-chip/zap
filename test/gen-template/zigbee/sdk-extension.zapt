@@ -3,7 +3,7 @@
 
 ------------------- Clusters -------------------
 {{#zcl_clusters}}
-// cluster: {{asHex code 4}} {{label}}
+// cluster: {{asHex code 4}} {{label}}, text extension: '{{cluster_extension property="testClusterExtension"}}'
 {{/zcl_clusters}}
 
 ------------------- Commands -------------------

@@ -193,6 +193,24 @@ test(
             '#define emberAfFillCommandGlobalReadAttributesResponse(clusterId,'
           )
         ).toBeTruthy()
+
+        var sdkExtension = genResult.content['sdk-extension.out']
+        expect(
+          sdkExtension.includes(
+            "// cluster: 0x0000 Basic, text extension: 'Extension to basic cluster'"
+          )
+        ).toBeTruthy()
+        expect(
+          sdkExtension.includes(
+            "// cluster: 0x0002 Device Temperature Configuration, text extension: 'Extension to temperature config cluster'"
+          )
+        ).toBeTruthy()
+
+        expect(
+          sdkExtension.includes(
+            "// cluster: 0x0003 Identify, text extension: ''"
+          )
+        ).toBeTruthy()
       }),
   genTimeout
 )
