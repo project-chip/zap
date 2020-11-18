@@ -22,6 +22,7 @@ const bin = require('../util/bin.js')
 const env = require('../util/env.js')
 const types = require('../util/types.js')
 const string = require('../util/string.js')
+const _ = require('lodash')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -57,7 +58,7 @@ function asDelimitedMacro(label) {
  */
 function asHex(rawValue, padding, nullValue) {
   if (rawValue == null) {
-    if (nullValue != null) return nullValue
+    if (nullValue != null && _.isString(nullValue)) return nullValue
     else rawValue = 0
   }
   let value = rawValue.toString()

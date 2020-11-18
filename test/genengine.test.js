@@ -194,6 +194,13 @@ test(
           )
         ).toBeTruthy()
 
+        var zapPrint = genResult.content['zap-print.h']
+        expect(
+          zapPrint.includes(
+            '#define SILABS_PRINTCLUSTER_POWER_CONFIG_CLUSTER {ZCL_POWER_CONFIG_CLUSTER_ID, 0x0000, "Power Configuration" },'
+          )
+        ).toBeTruthy()
+
         var sdkExtension = genResult.content['sdk-extension.out']
         expect(
           sdkExtension.includes(
