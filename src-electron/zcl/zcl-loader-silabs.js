@@ -288,7 +288,7 @@ function prepareCluster(cluster, isExtension = false) {
   } else {
     ret.code = parseInt(cluster.code[0])
     ret.name = cluster.name[0]
-    ret.description = cluster.description[0]
+    ret.description = cluster.description[0].trim()
     ret.define = cluster.define[0]
     ret.domain = cluster.domain[0]
     if ('$' in cluster) ret.manufacturerCode = cluster['$'].manufacturerCode
@@ -301,7 +301,7 @@ function prepareCluster(cluster, isExtension = false) {
         code: parseInt(command.$.code),
         manufacturerCode: command.$.manufacturerCode,
         name: command.$.name,
-        description: command.description[0],
+        description: command.description[0].trim(),
         source: command.$.source,
         isOptional: command.$.optional == 'true',
       }

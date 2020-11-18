@@ -130,6 +130,14 @@ test('test Silabs zcl data loading in memory', () => {
       )
     )
     .then((rows) => expect(rows.length).toBe(3))
+    .then(() => queryZcl.selectCommandTree(db, packageId))
+    .then((commandTree) => {
+      var found = false
+      commandTree.forEach((c) => {
+        if (c.clusterCode == 0 && c.code == 0) found = true
+      })
+      expect(found).toBeTruthy()
+    })
     .then(() =>
       dbApi.dbAll(
         db,

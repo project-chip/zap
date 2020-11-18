@@ -196,26 +196,35 @@ function zcl_command_tree(options) {
           }
         }
 
-        var arg = {
-          name: el.argName,
-          type: el.argType,
-          isArray: el.argIsArray,
-          hasLength: el.argIsArray,
-          nameLength: el.argName.concat('Len'),
-        }
-        if (el.argIsArray) {
-          arg.formatChar = 'b'
-        } else if (types.isOneBytePrefixedString(el.argType)) {
-          arg.formatChar = 's'
-        } else if (types.isTwoBytePrefixedString(el.argType)) {
-          arg.formatChar = 'l'
+        var arg
+        if (el.argName == null) {
+          arg = null
         } else {
-          arg.formatChar = 'u'
+          arg = {
+            name: el.argName,
+            type: el.argType,
+            isArray: el.argIsArray,
+            hasLength: el.argIsArray,
+            nameLength: el.argName.concat('Len'),
+          }
+          if (el.argIsArray) {
+            arg.formatChar = 'b'
+          } else if (types.isOneBytePrefixedString(el.argType)) {
+            arg.formatChar = 's'
+          } else if (types.isTwoBytePrefixedString(el.argType)) {
+            arg.formatChar = 'l'
+          } else {
+            arg.formatChar = 'u'
+          }
         }
         if (newCommand) {
-          el.argsstring = arg.formatChar
           el.commandArgs = []
-          el.commandArgs.push(arg)
+          if (arg != null) {
+            el.commandArgs.push(arg)
+            el.argsstring = arg.formatChar
+          } else {
+            el.argsstring = ''
+          }
           var n = ''
           if (el.clusterCode == null) {
             n = n.concat('Global')
@@ -231,8 +240,12 @@ function zcl_command_tree(options) {
           el.isGlobal = el.clusterCode == null
           reducedCommands.push(el)
         } else {
-          lastCommand.commandArgs.push(arg)
-          lastCommand.argsstring = lastCommand.argsstring.concat(arg.formatChar)
+          if (arg != null) {
+            lastCommand.commandArgs.push(arg)
+            lastCommand.argsstring = lastCommand.argsstring.concat(
+              arg.formatChar
+            )
+          }
         }
       })
       return reducedCommands

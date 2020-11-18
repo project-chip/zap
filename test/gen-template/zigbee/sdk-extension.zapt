@@ -8,7 +8,7 @@
 
 ------------------- Commands -------------------
 {{#zcl_command_tree}}
-// command: {{asHex clusterCode 4}} / {{asHex code 2}} => {{label}}
+// command: {{asHex clusterCode 4 'null'}} / {{asHex code 2}} => {{label}}, test extension: '{{command_extension property="testCommandExtension"}}'
 {{/zcl_command_tree}}
 
 ------------------- Attributes -------------------

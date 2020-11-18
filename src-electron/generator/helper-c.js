@@ -55,8 +55,11 @@ function asDelimitedMacro(label) {
  * @param {*} label
  * @returns Label formatted as C hex constant.
  */
-function asHex(rawValue, padding) {
-  if (rawValue == null) rawValue = 0 // upgrade null to zero
+function asHex(rawValue, padding, nullValue) {
+  if (rawValue == null) {
+    if (nullValue != null) return nullValue
+    else rawValue = 0
+  }
   let value = rawValue.toString()
   var ret = value.trim()
   if (ret.startsWith('0x') || ret.startsWith('0X')) {
