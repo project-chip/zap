@@ -78,6 +78,7 @@ exports.map = {
       id: x.ATTRIBUTE_ID,
       clusterRef: x.CLUSTER_REF,
       code: x.CODE,
+      clusterCode: x.CLUSTER_CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
       label: x.NAME,
       type: x.TYPE,

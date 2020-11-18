@@ -107,6 +107,22 @@ function zcl_struct_items(options) {
 }
 
 /**
+ * Block helper iterating over all deviceTypes.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_device_types(options) {
+  var promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectAllDeviceTypes(this.global.db, packageId)
+    )
+    .then((cl) => templateUtil.collectBlocks(cl, options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Block helper iterating over all clusters.
  *
  * @param {*} options
@@ -587,6 +603,7 @@ exports.zcl_enum_items = zcl_enum_items
 exports.zcl_structs = zcl_structs
 exports.zcl_struct_items = zcl_struct_items
 exports.zcl_clusters = zcl_clusters
+exports.zcl_device_types = zcl_device_types
 exports.zcl_commands = zcl_commands
 exports.zcl_command_tree = zcl_command_tree
 exports.zcl_attributes = zcl_attributes

@@ -163,6 +163,11 @@
       "path": "atomics.zapt",
       "name": "ZCL Atomics",
       "output": "atomics.out"
+    },
+    {
+      "path": "sdk-extension.zapt",
+      "name": "SDK Extension",
+      "output": "sdk-extension.out"
     }
   ]
 }

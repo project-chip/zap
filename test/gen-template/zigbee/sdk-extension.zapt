@@ -1,0 +1,22 @@
+// This test template tests the functionality of SDK extensions helper, using the sdk extensions
+// data provided in the gen-template.json
+
+------------------- Clusters -------------------
+{{#zcl_clusters}}
+// cluster: {{asHex code 4}} {{label}}
+{{/zcl_clusters}}
+
+------------------- Commands -------------------
+{{#zcl_command_tree}}
+// command: {{asHex clusterCode 4}} / {{asHex code 2}} => {{label}}
+{{/zcl_command_tree}}
+
+------------------- Attributes -------------------
+{{#zcl_attributes}}
+// attribute: {{asHex clusterCode 4}} / {{asHex code 4}} => {{label}}
+{{/zcl_attributes}}
+
+------------------- Device types -------------------
+{{#zcl_device_types}}
+// device type: {{domain}} / {{asHex code 4}} => {{label}}
+{{/zcl_device_types}}
