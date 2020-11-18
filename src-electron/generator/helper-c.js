@@ -232,8 +232,8 @@ function asUnderscoreLowercase(str) {
  * returns a string after converting ':' and ' ' into '-'
  * @param {*} label
  */
-function cleanseLabelWithHyphen(label) {
-  return string.toCleanSymbolHyphen(label)
+function cleanseLabelAsKebabCase(label) {
+  return string.toCleanSymbolAsKebabCase(label)
 }
 
 /**
@@ -336,4 +336,4 @@ exports.asCliType = asCliType
 exports.dataTypeForBitmap = dataTypeForBitmap
 exports.dataTypeForEnum = dataTypeForEnum
 exports.addOne = addOne
-exports.cleanseLabelWithHyphen = cleanseLabelWithHyphen
+exports.cleanseLabelAsKebabCase = cleanseLabelAsKebabCase

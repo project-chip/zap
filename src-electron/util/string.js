@@ -115,7 +115,7 @@ function toCleanSymbol(label) {
  * returns a string after converting ':' and '_' into '-'
  * @param {*} label
  */
-function toCleanSymbolHyphen(label) {
+function toCleanSymbolAsKebabCase(label) {
   var l = label.trim()
   l = l.replace('_', '-')
   l = l.replace(' ', '-')
@@ -159,4 +159,4 @@ exports.toUnderscoreLowercase = toUnderscoreLowercase
 exports.toSpacedLowercase = toSpacedLowercase
 exports.toSnakeCaseAllCaps = toSnakeCaseAllCaps
 exports.isDigit = isDigit
-exports.toCleanSymbolHyphen = toCleanSymbolHyphen
+exports.toCleanSymbolAsKebabCase = toCleanSymbolAsKebabCase
