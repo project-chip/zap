@@ -489,8 +489,15 @@ function selectAllDefaultOptions(db, packageId) {
  * @param {*} db
  * @param {*} packageId
  * @param propertyArray. Array of objects that contain property, type, configurability, label, globalDefault
+ * @param defaultsArrayOfArrays For each item in propertyArray, it contains array of default rows, or null.
  */
-function insertPackageExtension(db, packageId, entity, propertyArray) {
+function insertPackageExtension(
+  db,
+  packageId,
+  entity,
+  propertyArray,
+  defaultsArrayOfArrays
+) {
   return dbApi.dbMultiInsert(
     db,
     `

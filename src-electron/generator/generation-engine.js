@@ -239,6 +239,7 @@ function loadZclExtensions(db, packageId, zclExt) {
   for (const entity in zclExt) {
     var entityExtension = zclExt[entity]
     var propertyArray = []
+    var defaultArrayOfArrays = []
     for (const property in entityExtension) {
       var prop = entityExtension[property]
       propertyArray.push({
@@ -248,9 +249,52 @@ function loadZclExtensions(db, packageId, zclExt) {
         label: prop.label,
         globalDefault: prop.globalDefault,
       })
+      if ('defaults' in prop) {
+        defaultArrayOfArrays.push(
+          prop.defaults.map((x) => {
+            switch (entity) {
+              case dbEnum.packageExtensionEntity.cluster:
+                return {
+                  entityCode: x.clusterCode,
+                  parentCode: null,
+                  value: x.value,
+                }
+              case dbEnum.packageExtensionEntity.command:
+                return {
+                  entityCode: x.commandCode,
+                  parentCode: x.clusterCode,
+                  value: x.value,
+                }
+              case dbEnum.packageExtensionEntity.attribute:
+                return {
+                  entityCode: x.attributeCode,
+                  parentCode: x.clusterCode,
+                  value: x.value,
+                }
+              case dbEnum.packageExtensionEntity.deviceType:
+                return {
+                  entityCode: x.device,
+                  parentCode: null,
+                  value: x.value,
+                }
+              default:
+                // We don't know how to process defaults otherwise
+                return null
+            }
+          })
+        )
+      } else {
+        defaultArrayOfArrays.push(null)
+      }
     }
     promises.push(
-      queryPackage.insertPackageExtension(db, packageId, entity, propertyArray)
+      queryPackage.insertPackageExtension(
+        db,
+        packageId,
+        entity,
+        propertyArray,
+        defaultArrayOfArrays
+      )
     )
   }
   return Promise.all(promises)

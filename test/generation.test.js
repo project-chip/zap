@@ -18,7 +18,6 @@
  * @jest-environment node
  */
 
-const fs = require('fs')
 const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
@@ -73,20 +72,32 @@ describe('Session specific tests', () => {
         expect(packageId).not.toBe(null)
         expect(db).not.toBe(null)
       })
-      .then(() => queryPackage.selectPackageExtension(db, packageId, 'cluster'))
+      .then(() =>
+        queryPackage.selectPackageExtension(
+          db,
+          packageId,
+          dbEnum.packageExtensionEntity.cluster
+        )
+      )
       .then((extensions) => {
         expect(extensions.length).toBe(1)
-        expect(extensions[0].entity).toBe('cluster')
+        expect(extensions[0].entity).toBe(dbEnum.packageExtensionEntity.cluster)
         expect(extensions[0].property).toBe('testClusterExtension')
         expect(extensions[0].type).toBe('text')
         expect(extensions[0].configurability).toBe('hidden')
         expect(extensions[0].label).toBe('Test cluster extension')
         expect(extensions[0].globalDefault).toBe(null)
       })
-      .then(() => queryPackage.selectPackageExtension(db, packageId, 'command'))
+      .then(() =>
+        queryPackage.selectPackageExtension(
+          db,
+          packageId,
+          dbEnum.packageExtensionEntity.command
+        )
+      )
       .then((extensions) => {
         expect(extensions.length).toBe(1)
-        expect(extensions[0].entity).toBe('command')
+        expect(extensions[0].entity).toBe(dbEnum.packageExtensionEntity.command)
         expect(extensions[0].property).toBe('testCommandExtension')
         expect(extensions[0].type).toBe('boolean')
         expect(extensions[0].configurability).toBe('hidden')
