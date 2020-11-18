@@ -322,6 +322,14 @@ exports.map = {
       globalDefault: x.GLOBAL_DEFAULT,
     }
   },
+  packageExtensionDefault: (x) => {
+    if (x == null) return undefined
+    return {
+      entityCode: x.ENTITY_CODE,
+      parentCode: x.PARENT_CODE,
+      value: x.VALUE,
+    }
+  },
 }
 
 exports.reverseMap = {

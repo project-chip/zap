@@ -55,11 +55,29 @@
       }
     },
     "attribute": {
-      "testAttributeExtension": {
+      "testAttributeExtension1": {
         "type": "integer",
         "configurability": "hidden",
         "globalDefault": 0,
-        "label": "Test attribute extension",
+        "label": "Test attribute extension 1",
+        "defaults": [
+          {
+            "clusterCode": "0x0000",
+            "attributeCode": "0x0000",
+            "value": 42
+          },
+          {
+            "clusterCode": "0x0000",
+            "attributeCode": "0x0001",
+            "value": 77
+          }
+        ]
+      },
+      "testAttributeExtension2": {
+        "type": "integer",
+        "configurability": "hidden",
+        "globalDefault": 1,
+        "label": "Test attribute extension 2",
         "defaults": [
           {
             "clusterCode": "0x0000",

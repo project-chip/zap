@@ -570,20 +570,58 @@ ON CONFLICT DO NOTHING`,
  * @returns promise that resolve into an array of packageExtensions for a given entity
  */
 function selectPackageExtension(db, packageId, entity) {
+  var acc = []
   return dbApi
     .dbAll(
       db,
       `
 SELECT
-  ENTITY, PROPERTY, TYPE, CONFIGURABILITY, LABEL, GLOBAL_DEFAULT
+  PE.ENTITY,
+  PE.PROPERTY,
+  PE.TYPE,
+  PE.CONFIGURABILITY,
+  PE.LABEL,
+  PE.GLOBAL_DEFAULT,
+  PED.ENTITY_CODE,
+  PED.PARENT_CODE,
+  PED.VALUE
 FROM 
-  PACKAGE_EXTENSION
+  PACKAGE_EXTENSION AS PE
+LEFT OUTER JOIN
+  PACKAGE_EXTENSION_DEFAULT AS PED
+ON
+  PE.PACKAGE_EXTENSION_ID = PED.PACKAGE_EXTENSION_REF
 WHERE
-  PACKAGE_REF = ?
-  AND ENTITY = ?`,
+  PE.PACKAGE_REF = ?
+  AND PE.ENTITY = ?
+ORDER BY
+  PE.PROPERTY, PED.PARENT_CODE, PED.ENTITY_CODE`,
       [packageId, entity]
     )
-    .then((rows) => rows.map(dbMapping.map.packageExtension))
+    .then((rows) =>
+      rows.reduce((a, x) => {
+        var newPropRequired
+        if (a.length == 0 || a[a.length - 1].property != x.PROPERTY) {
+          newPropRequired = true
+        } else {
+          newPropRequired = false
+        }
+
+        var prop
+        if (newPropRequired) {
+          prop = dbMapping.map.packageExtension(x)
+          prop.defaults = []
+          a.push(prop)
+        } else {
+          prop = a[a.length - 1]
+        }
+
+        if (x.ENTITY_CODE != null) {
+          prop.defaults.push(dbMapping.map.packageExtensionDefault(x))
+        }
+        return a
+      }, acc)
+    )
 }
 
 // exports

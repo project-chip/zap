@@ -87,6 +87,7 @@ describe('Session specific tests', () => {
         expect(extensions[0].configurability).toBe('hidden')
         expect(extensions[0].label).toBe('Test cluster extension')
         expect(extensions[0].globalDefault).toBe(null)
+        expect(extensions[0].defaults.length).toBe(3)
       })
       .then(() =>
         queryPackage.selectPackageExtension(
@@ -103,6 +104,34 @@ describe('Session specific tests', () => {
         expect(extensions[0].configurability).toBe('hidden')
         expect(extensions[0].label).toBe('Test command extension')
         expect(extensions[0].globalDefault).toBe('0')
+        expect(extensions[0].defaults.length).toBe(1)
+      })
+      .then(() =>
+        queryPackage.selectPackageExtension(
+          db,
+          packageId,
+          dbEnum.packageExtensionEntity.attribute
+        )
+      )
+      .then((extensions) => {
+        expect(extensions.length).toBe(2)
+        expect(extensions[0].entity).toBe(
+          dbEnum.packageExtensionEntity.attribute
+        )
+        expect(extensions[0].property).toBe('testAttributeExtension1')
+        expect(extensions[1].property).toBe('testAttributeExtension2')
+        expect(extensions[0].type).toBe('integer')
+        expect(extensions[0].configurability).toBe('hidden')
+        expect(extensions[0].label).toBe('Test attribute extension 1')
+        expect(extensions[1].label).toBe('Test attribute extension 2')
+        expect(extensions[0].globalDefault).toBe('0')
+        expect(extensions[1].globalDefault).toBe('1')
+        expect(extensions[0].defaults.length).toBe(2)
+        expect(extensions[1].defaults.length).toBe(1)
+        expect(extensions[0].defaults[0].value).toBe('42')
+        expect(extensions[0].defaults[0].parentCode).toBe('0x0000')
+        expect(extensions[0].defaults[0].entityCode).toBe('0x0000')
+        expect(extensions[0].defaults[1].entityCode).toBe('0x0001')
       })
   }, 3000)
 
