@@ -27,6 +27,14 @@
           {
             "clusterCode": "0x0000",
             "value": "Extension to basic cluster"
+          },
+          {
+            "clusterCode": "0x0001",
+            "value": "Extension to power cluster"
+          },
+          {
+            "clusterCode": "0x0002",
+            "value": "Extension to temperature config cluster"
           }
         ]
       }

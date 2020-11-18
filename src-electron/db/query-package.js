@@ -484,6 +484,30 @@ function selectAllDefaultOptions(db, packageId) {
 }
 
 /**
+ * Inserts an array of extension default values to a specific extension ID.
+ *
+ * @param {*} db
+ * @param {*} packageExtensionId
+ * @param {*} defaultArray Array containing objects with 'entityCode', 'parentCode', 'value'
+ * @returns Promise of insertion for defaults.
+ */
+function insertPackageExtensionDefault(db, packageExtensionId, defaultArray) {
+  return dbApi.dbMultiInsert(
+    db,
+    `
+INSERT INTO PACKAGE_EXTENSION_DEFAULT
+  (PACKAGE_EXTENSION_REF, ENTITY_CODE, PARENT_CODE, VALUE)
+VALUES
+  ( ?, ?, ?, ?)
+ON CONFLICT DO NOTHING
+    `,
+    defaultArray.map((d) => {
+      return [packageExtensionId, d.entityCode, d.parentCode, d.value]
+    })
+  )
+}
+
+/**
  * Returns a promise of insertion of package extension
  *
  * @param {*} db
@@ -498,26 +522,43 @@ function insertPackageExtension(
   propertyArray,
   defaultsArrayOfArrays
 ) {
-  return dbApi.dbMultiInsert(
-    db,
-    `
+  return dbApi
+    .dbMultiInsert(
+      db,
+      `
 INSERT INTO PACKAGE_EXTENSION 
   (PACKAGE_REF, ENTITY, PROPERTY, TYPE, CONFIGURABILITY, LABEL, GLOBAL_DEFAULT) 
 VALUES 
   (?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT DO NOTHING`,
-    propertyArray.map((p) => {
-      return [
-        packageId,
-        entity,
-        p.property,
-        p.type,
-        p.configurability,
-        p.label,
-        p.globalDefault,
-      ]
+      propertyArray.map((p) => {
+        return [
+          packageId,
+          entity,
+          p.property,
+          p.type,
+          p.configurability,
+          p.label,
+          p.globalDefault,
+        ]
+      })
+    )
+    .then((rowIds) => {
+      var promises = []
+      // now, for each rowId in this list, we populate corresponding defaults
+      if (rowIds.length == defaultsArrayOfArrays.length) {
+        for (var i = 0; i < rowIds.length; i++) {
+          var rowId = rowIds[i]
+          var defaultsArray = defaultsArrayOfArrays[i]
+          if (defaultsArray != null) {
+            promises.push(
+              insertPackageExtensionDefault(db, rowId, defaultsArray)
+            )
+          }
+        }
+      }
+      return Promise.all(promises)
     })
-  )
 }
 
 /**
