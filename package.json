@@ -44,7 +44,7 @@
     "dist-win": "electron-builder -w",
     "dist-mac": "electron-builder -m",
     "apack:win": "cp apack.info.dist dist/win-unpacked/apack.info && cd dist/win-unpacked && zip -r ../zap_apack_win * && cd -",
-    "apack:mac": "cp apack.info.dist dist/mac/apack.info && cd dist/mac && zip -r ../zap_apack_mac * && cd -",
+    "apack:mac": "cp apack.info.dist dist/mac/apack.info && cd dist/mac && zip -ry ../zap_apack_mac * && cd -",
     "apack:linux": "cp apack.info.dist dist/linux-unpacked/apack.info && cd dist/linux-unpacked && zip -r ../zap_apack_linux *",
     "linuxpack-ui": "./dist/linux-unpacked/zap --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json",
     "linuxpack-check": "./dist/linux-unpacked/zap selfCheck --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json",

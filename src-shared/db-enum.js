@@ -79,3 +79,10 @@ exports.wsCategory = {
   generic: 'generic',
   init: 'init',
 }
+
+exports.packageExtensionEntity = {
+  cluster: 'cluster',
+  command: 'command',
+  attribute: 'attribute',
+  deviceType: 'deviceType',
+}

@@ -22,6 +22,7 @@
         "type": "text",
         "configurability": "hidden",
         "globalDefault": null,
+        "label": "Test cluster extension",
         "defaults": [
           {
             "clusterCode": "0x0000",
@@ -35,6 +36,7 @@
         "type": "boolean",
         "configurability": "hidden",
         "globalDefault": false,
+        "label": "Test command extension",
         "defaults": [
           {
             "clusterCode": "0x0000",
@@ -49,6 +51,7 @@
         "type": "integer",
         "configurability": "hidden",
         "globalDefault": 0,
+        "label": "Test attribute extension",
         "defaults": [
           {
             "clusterCode": "0x0000",

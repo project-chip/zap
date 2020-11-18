@@ -18,7 +18,6 @@
  * @jest-environment node
  */
 
-const fs = require('fs')
 const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
@@ -64,15 +63,48 @@ describe('Session specific tests', () => {
     timeout
   )
 
-  test(
-    'And load the templates.',
-    () =>
-      generationEngine.loadTemplates(
-        db,
-        testUtil.testZigbeeGenerationTemplates
-      ),
-    3000
-  )
+  test('And load the templates.', () => {
+    var packageId
+    return generationEngine
+      .loadTemplates(db, testUtil.testZigbeeGenerationTemplates)
+      .then((context) => {
+        packageId = context.packageId
+        expect(packageId).not.toBe(null)
+        expect(db).not.toBe(null)
+      })
+      .then(() =>
+        queryPackage.selectPackageExtension(
+          db,
+          packageId,
+          dbEnum.packageExtensionEntity.cluster
+        )
+      )
+      .then((extensions) => {
+        expect(extensions.length).toBe(1)
+        expect(extensions[0].entity).toBe(dbEnum.packageExtensionEntity.cluster)
+        expect(extensions[0].property).toBe('testClusterExtension')
+        expect(extensions[0].type).toBe('text')
+        expect(extensions[0].configurability).toBe('hidden')
+        expect(extensions[0].label).toBe('Test cluster extension')
+        expect(extensions[0].globalDefault).toBe(null)
+      })
+      .then(() =>
+        queryPackage.selectPackageExtension(
+          db,
+          packageId,
+          dbEnum.packageExtensionEntity.command
+        )
+      )
+      .then((extensions) => {
+        expect(extensions.length).toBe(1)
+        expect(extensions[0].entity).toBe(dbEnum.packageExtensionEntity.command)
+        expect(extensions[0].property).toBe('testCommandExtension')
+        expect(extensions[0].type).toBe('boolean')
+        expect(extensions[0].configurability).toBe('hidden')
+        expect(extensions[0].label).toBe('Test command extension')
+        expect(extensions[0].globalDefault).toBe('0')
+      })
+  }, 3000)
 
   test('http server initialization', () => {
     return httpServer.initHttpServer(db, port)
