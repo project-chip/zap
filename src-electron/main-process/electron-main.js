@@ -52,12 +52,17 @@ function startUp(isElectron) {
       throw 'You need to specify at least one zap file.'
     return startup.startAnalyze(argv.zapFiles)
   } else if (argv._.includes('generate')) {
-    return startup.startGeneration(
-      argv.output,
-      argv.generationTemplate,
-      argv.zclProperties,
-      argv.zapFiles
-    )
+    return startup
+      .startGeneration(
+        argv.output,
+        argv.generationTemplate,
+        argv.zclProperties,
+        argv.zapFiles
+      )
+      .catch((code) => {
+        console.log(code)
+        process.exit(1)
+      })
   } else {
     if (isElectron) {
       return startup.startNormal(
