@@ -95,6 +95,10 @@ if (app != null) {
         .then(() => env.logInfo('Database closed, shutting down.'))
     }
   })
+} else {
+  console.log(
+    '⚠️  Electron app was not started. Did you execute this via "node" instead of "electron"?'
+  )
 }
 
 exports.loaded = true
