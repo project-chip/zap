@@ -148,6 +148,7 @@ function initializeGlobalHelpers() {
     './helper-c.js',
     './helper-session.js',
     './helper-endpointconfig.js',
+    './helper-sdkextension.js',
   ]
 
   includedHelpers.forEach((element) => {

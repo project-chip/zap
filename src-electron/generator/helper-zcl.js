@@ -107,6 +107,22 @@ function zcl_struct_items(options) {
 }
 
 /**
+ * Block helper iterating over all deviceTypes.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_device_types(options) {
+  var promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectAllDeviceTypes(this.global.db, packageId)
+    )
+    .then((cl) => templateUtil.collectBlocks(cl, options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Block helper iterating over all clusters.
  *
  * @param {*} options
@@ -180,26 +196,35 @@ function zcl_command_tree(options) {
           }
         }
 
-        var arg = {
-          name: el.argName,
-          type: el.argType,
-          isArray: el.argIsArray,
-          hasLength: el.argIsArray,
-          nameLength: el.argName.concat('Len'),
-        }
-        if (el.argIsArray) {
-          arg.formatChar = 'b'
-        } else if (types.isOneBytePrefixedString(el.argType)) {
-          arg.formatChar = 's'
-        } else if (types.isTwoBytePrefixedString(el.argType)) {
-          arg.formatChar = 'l'
+        var arg
+        if (el.argName == null) {
+          arg = null
         } else {
-          arg.formatChar = 'u'
+          arg = {
+            name: el.argName,
+            type: el.argType,
+            isArray: el.argIsArray,
+            hasLength: el.argIsArray,
+            nameLength: el.argName.concat('Len'),
+          }
+          if (el.argIsArray) {
+            arg.formatChar = 'b'
+          } else if (types.isOneBytePrefixedString(el.argType)) {
+            arg.formatChar = 's'
+          } else if (types.isTwoBytePrefixedString(el.argType)) {
+            arg.formatChar = 'l'
+          } else {
+            arg.formatChar = 'u'
+          }
         }
         if (newCommand) {
-          el.argsstring = arg.formatChar
           el.commandArgs = []
-          el.commandArgs.push(arg)
+          if (arg != null) {
+            el.commandArgs.push(arg)
+            el.argsstring = arg.formatChar
+          } else {
+            el.argsstring = ''
+          }
           var n = ''
           if (el.clusterCode == null) {
             n = n.concat('Global')
@@ -215,8 +240,12 @@ function zcl_command_tree(options) {
           el.isGlobal = el.clusterCode == null
           reducedCommands.push(el)
         } else {
-          lastCommand.commandArgs.push(arg)
-          lastCommand.argsstring = lastCommand.argsstring.concat(arg.formatChar)
+          if (arg != null) {
+            lastCommand.commandArgs.push(arg)
+            lastCommand.argsstring = lastCommand.argsstring.concat(
+              arg.formatChar
+            )
+          }
         }
       })
       return reducedCommands
@@ -587,6 +616,7 @@ exports.zcl_enum_items = zcl_enum_items
 exports.zcl_structs = zcl_structs
 exports.zcl_struct_items = zcl_struct_items
 exports.zcl_clusters = zcl_clusters
+exports.zcl_device_types = zcl_device_types
 exports.zcl_commands = zcl_commands
 exports.zcl_command_tree = zcl_command_tree
 exports.zcl_attributes = zcl_attributes

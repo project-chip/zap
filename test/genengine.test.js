@@ -32,7 +32,7 @@ const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 
 var db
-const templateCount = 12
+const templateCount = 13
 const genTimeout = 5000
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 
@@ -191,6 +191,31 @@ test(
         expect(
           zapCommand.includes(
             '#define emberAfFillCommandGlobalReadAttributesResponse(clusterId,'
+          )
+        ).toBeTruthy()
+
+        var zapPrint = genResult.content['zap-print.h']
+        expect(
+          zapPrint.includes(
+            '#define SILABS_PRINTCLUSTER_POWER_CONFIG_CLUSTER {ZCL_POWER_CONFIG_CLUSTER_ID, 0x0000, "Power Configuration" },'
+          )
+        ).toBeTruthy()
+
+        var sdkExtension = genResult.content['sdk-extension.out']
+        expect(
+          sdkExtension.includes(
+            "// cluster: 0x0000 Basic, text extension: 'Extension to basic cluster'"
+          )
+        ).toBeTruthy()
+        expect(
+          sdkExtension.includes(
+            "// cluster: 0x0002 Device Temperature Configuration, text extension: 'Extension to temperature config cluster'"
+          )
+        ).toBeTruthy()
+
+        expect(
+          sdkExtension.includes(
+            "// cluster: 0x0003 Identify, text extension: ''"
           )
         ).toBeTruthy()
       }),

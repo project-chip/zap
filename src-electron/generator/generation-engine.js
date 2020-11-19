@@ -27,6 +27,8 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
+const { genResultFile } = require('../util/args.js')
+const { option } = require('yargs')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -397,16 +399,15 @@ function generateAllTemplates(
       // And finally go over the actual templates.
       return Promise.all(helperPromises).then(() =>
         Promise.all(partialPromises).then(() => {
-          return Promise.all(
-            generationTemplates.map((pkg) =>
-              generateSingleTemplate(
-                genResult,
-                pkg,
-                genTemplateJsonPkg.id,
-                overridePath
-              )
+          var templates = generationTemplates.map((pkg) =>
+            generateSingleTemplate(
+              genResult,
+              pkg,
+              genTemplateJsonPkg.id,
+              overridePath
             )
           )
+          return Promise.all(templates)
         })
       )
     })
@@ -442,6 +443,10 @@ function generateSingleTemplate(
       genResult.partial = true
       return genResult
     })
+    .catch((err) => {
+      genResult.errors[singleTemplatePkg.version] = err
+      genResult.hasErrors = true
+    })
 }
 
 /**
@@ -458,6 +463,8 @@ function generate(db, sessionId, packageId, generateOnly = null) {
       db: db,
       sessionId: sessionId,
       content: {},
+      errors: {},
+      hasErrors: false,
     }
     if (pkg.type === dbEnum.packageType.genTemplatesJson) {
       return generateAllTemplates(genResult, pkg, generateOnly)
@@ -540,6 +547,14 @@ function generateAndWriteFiles(
       env.logInfo(`Preparing to write file: ${fileName}`)
       promises.push(writeFileWithBackup(fileName, content, options.backup))
     }
+    if (genResult.hasErrors) {
+      if (options.log) console.log('⚠️  Errors:')
+      for (const f in genResult.errors) {
+        var err = genResult.errors[f]
+        var fileName = path.join(outputDirectory, f)
+        if (options.log) console.log(`    👎  ${fileName}`)
+      }
+    }
     promises.push(
       generateGenerationContent(genResult).then((generatedContent) => {
         if (options.genResultFile) {
@@ -554,7 +569,7 @@ function generateAndWriteFiles(
       })
     )
 
-    return Promise.all(promises)
+    return Promise.all(promises).then(() => genResult)
   })
 }
 

@@ -22,6 +22,7 @@ const bin = require('../util/bin.js')
 const env = require('../util/env.js')
 const types = require('../util/types.js')
 const string = require('../util/string.js')
+const _ = require('lodash')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -55,8 +56,11 @@ function asDelimitedMacro(label) {
  * @param {*} label
  * @returns Label formatted as C hex constant.
  */
-function asHex(rawValue, padding) {
-  if (rawValue == null) rawValue = 0 // upgrade null to zero
+function asHex(rawValue, padding, nullValue) {
+  if (rawValue == null) {
+    if (nullValue != null && _.isString(nullValue)) return nullValue
+    else rawValue = 0
+  }
   let value = rawValue.toString()
   var ret = value.trim()
   if (ret.startsWith('0x') || ret.startsWith('0X')) {
@@ -225,6 +229,14 @@ function asUnderscoreLowercase(str) {
 }
 
 /**
+ * returns a string after converting ':' and ' ' into '-'
+ * @param {*} label
+ */
+function cleanseLabelAsKebabCase(label) {
+  return string.toCleanSymbolAsKebabCase(label)
+}
+
+/**
  * Given a camel case string convert it into one with space and lowercase
  *
  * @param {*} str
@@ -324,3 +336,4 @@ exports.asCliType = asCliType
 exports.dataTypeForBitmap = dataTypeForBitmap
 exports.dataTypeForEnum = dataTypeForEnum
 exports.addOne = addOne
+exports.cleanseLabelAsKebabCase = cleanseLabelAsKebabCase

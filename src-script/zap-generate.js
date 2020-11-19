@@ -72,7 +72,7 @@ if (arg.in != null) {
 
 scriptUtil
   .stampVersion()
-  .then(() => scriptUtil.executeCmd(ctx, 'electron', cli))
+  .then(() => scriptUtil.executeCmd(ctx, 'node', cli))
   .then(() => {
     console.log('😎 All done.')
     process.exit(0)

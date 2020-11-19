@@ -78,6 +78,7 @@ exports.map = {
       id: x.ATTRIBUTE_ID,
       clusterRef: x.CLUSTER_REF,
       code: x.CODE,
+      clusterCode: x.CLUSTER_CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
       label: x.NAME,
       type: x.TYPE,
@@ -320,6 +321,14 @@ exports.map = {
       configurability: x.CONFIGURABILITY,
       label: x.LABEL,
       globalDefault: x.GLOBAL_DEFAULT,
+    }
+  },
+  packageExtensionDefault: (x) => {
+    if (x == null) return undefined
+    return {
+      entityCode: x.ENTITY_CODE,
+      parentCode: x.PARENT_CODE,
+      value: x.VALUE,
     }
   },
 }

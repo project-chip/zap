@@ -31,7 +31,7 @@ const types = require('../src-electron/util/types.js')
 const bin = require('../src-electron/util/bin.js')
 
 var db
-const templateCount = 12
+const templateCount = 13
 const genTimeout = 3000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 var sessionId

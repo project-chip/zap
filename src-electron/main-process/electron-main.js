@@ -31,47 +31,53 @@ if (process.env.DEV) {
   env.setProductionEnv()
 }
 
+function startUp(isElectron) {
+  var argv = args.processCommandLineArguments(process.argv)
+
+  if (argv.logToStdout) {
+    env.logInitStdout()
+  } else {
+    env.logInitLogFile()
+  }
+
+  // For now delete the DB file. There is some weird constraint we run into.
+  if (argv.clearDb != null) {
+    startup.clearDatabaseFile(env.sqliteFile())
+  }
+
+  if (argv._.includes('selfCheck')) {
+    return startup.startSelfCheck()
+  } else if (argv._.includes('analyze')) {
+    if (argv.zapFiles.length < 1)
+      throw 'You need to specify at least one zap file.'
+    return startup.startAnalyze(argv.zapFiles)
+  } else if (argv._.includes('generate')) {
+    return startup.startGeneration(
+      argv.output,
+      argv.generationTemplate,
+      argv.zclProperties,
+      argv.zapFiles
+    )
+  } else {
+    if (isElectron) {
+      return startup.startNormal(
+        !argv.noUi,
+        argv.showUrl,
+        argv.uiMode,
+        argv.embeddedMode,
+        argv.zapFiles
+      )
+    } else {
+      console.log(`Can't start UI with node, must start with electron.`)
+    }
+  }
+}
+
 // Registration of all app listeners, the main lifecycle of the application
 if (app != null) {
   app
     .whenReady()
-    .then(() => {
-      var argv = args.processCommandLineArguments(process.argv)
-
-      if (argv.logToStdout) {
-        env.logInitStdout()
-      } else {
-        env.logInitLogFile()
-      }
-
-      // For now delete the DB file. There is some weird constraint we run into.
-      if (argv.clearDb != null) {
-        startup.clearDatabaseFile(env.sqliteFile())
-      }
-
-      if (argv._.includes('selfCheck')) {
-        return startup.startSelfCheck()
-      } else if (argv._.includes('analyze')) {
-        if (argv.zapFiles.length < 1)
-          throw 'You need to specify at least one zap file.'
-        return startup.startAnalyze(argv.zapFiles)
-      } else if (argv._.includes('generate')) {
-        return startup.startGeneration(
-          argv.output,
-          argv.generationTemplate,
-          argv.zclProperties,
-          argv.zapFiles
-        )
-      } else {
-        return startup.startNormal(
-          !argv.noUi,
-          argv.showUrl,
-          argv.uiMode,
-          argv.embeddedMode,
-          argv.zapFiles
-        )
-      }
-    })
+    .then(() => startUp(true))
     .catch((err) => {
       console.log(err)
       app.exit(1)
@@ -95,6 +101,8 @@ if (app != null) {
         .then(() => env.logInfo('Database closed, shutting down.'))
     }
   })
+} else {
+  startUp(false)
 }
 
 exports.loaded = true

@@ -300,8 +300,9 @@ function startGeneration(
         }
       )
     )
-    .then(() => {
-      if (options.quit) app.quit()
+    .then((genResult) => {
+      if (genResult.hasErrors) throw 'Generation failed.'
+      if (options.quit && app != null) app.quit()
     })
     .catch((err) => {
       env.logError(err)
