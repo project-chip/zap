@@ -100,7 +100,7 @@ function startNormal(uiEnabled, showUrl, uiMode, embeddedMode, zapFiles) {
       }
     })
     .then(() => {
-      if (args.noServer) app.quit()
+      if (args.noServer && app != null) app.quit()
     })
     .catch((err) => {
       env.logError(err)
@@ -145,7 +145,7 @@ function startAnalyze(
     })
     .then(() => {
       if (options.log) console.log('😎 Analysis done!')
-      if (options.quit) app.quit()
+      if (options.quit && app != null) app.quit()
     })
 }
 
@@ -179,7 +179,7 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
         }
       }
       if (options.log) console.log('😎 Self-check done!')
-      if (options.quit) app.quit()
+      if (options.quit && app != null) app.quit()
     })
     .catch((err) => {
       env.logError(err)
