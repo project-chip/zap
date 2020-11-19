@@ -30,7 +30,7 @@
     "apidoc": "jsdoc2md src-shared/**/*.js src-electron/**/*.js > docs/api.md",
     "format-code": "pretty-quick",
     "pretty-quick": "pretty-quick",
-    "self-check": "electron src-electron/main-process/electron-main.js selfCheck -g ./test/gen-template/zigbee/gen-templates.json",
+    "self-check": "node src-electron/main-process/electron-main.js selfCheck -g ./test/gen-template/zigbee/gen-templates.json",
     "version-stamp": "node src-script/zap-versionstamp.js",
     "gen": "node src-script/zap-generate.js -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/three-endpoint-device.zap -o ./tmp",
     "analyze": "node src-script/zap-start.js analyze -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json ./test/resource/three-endpoint-device.zap -o ./tmp",
