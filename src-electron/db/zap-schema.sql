@@ -143,6 +143,7 @@ CREATE TABLE IF NOT EXISTS "COMMAND_ARG" (
   "NAME" text,
   "TYPE" text,
   "IS_ARRAY" integer,
+  "PRESENT_IF" text,
   foreign key (COMMAND_REF) references COMMAND(COMMAND_ID)
 );
 /*
