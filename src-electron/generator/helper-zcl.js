@@ -21,6 +21,7 @@ const templateUtil = require('./template-util.js')
 const helperC = require('./helper-c.js')
 const env = require('../util/env.js')
 const types = require('../util/types.js')
+const queryPackage = require('../db/query-package.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -514,6 +515,113 @@ function zcl_command_argument_data_type(type, options) {
 }
 
 /**
+ * Helper that deals with the type of the argument.
+ *
+ * @param {*} typeName
+ * @param {*} options
+ */
+function asUnderlyingZCLType(type, options) {
+  var promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      Promise.all([
+        isEnum(this.global.db, type, packageId),
+        isStruct(this.global.db, type, packageId),
+        isBitmap(this.global.db, type, packageId),
+      ])
+        .then(
+          (res) =>
+            new Promise((resolve, reject) => {
+              for (var i = 0; i < res.length; i++) {
+                if (res[i] != 'unknown') {
+                  resolve(res[i])
+                  return
+                }
+              }
+              resolve(dbEnum.zclType.unknown)
+            })
+        )
+        .then((resType) => {
+          switch (resType) {
+            case dbEnum.zclType.bitmap:
+              if ('bitmap' in options.hash) {
+                return (
+                  `/* TYPE WARNING: ${type} defaults to */ ` +
+                  options.hash.bitmap
+                )
+              } else {
+                return queryZcl
+                  .selectBitmapByName(
+                    this.global.db,
+                    this.global.zclPackageId,
+                    type
+                  )
+                  .then((bitmap) => {
+                    return queryZcl.selectAtomicType(
+                      this.global.db,
+                      this.global.zclPackageId,
+                      bitmap.type
+                    )
+                  })
+                  .then((res) => {
+                    return this.global.overridable.atomicType(res)
+                  })
+              }
+            case dbEnum.zclType.enum:
+              if ('enum' in options.hash) {
+                return (
+                  `/* TYPE WARNING: ${type} defaults to */ ` + options.hash.enum
+                )
+              } else {
+                return queryZcl
+                  .selectEnumByName(
+                    this.global.db,
+                    type,
+                    this.global.zclPackageId
+                  )
+                  .then((enumRec) => {
+                    return queryZcl.selectAtomicType(
+                      this.global.db,
+                      this.global.zclPackageId,
+                      enumRec.type
+                    )
+                  })
+                  .then((res) => {
+                    return this.global.overridable.atomicType(res)
+                  })
+              }
+            case dbEnum.zclType.struct:
+              if ('struct' in options.hash) {
+                return (
+                  `/* TYPE WARNING: ${type} defaults to */ ` +
+                  options.hash.struct
+                )
+              } else {
+                return type
+              }
+            case dbEnum.zclType.atomic:
+            case dbEnum.zclType.unknown:
+            default:
+              return queryZcl
+                .selectAtomicType(this.global.db, packageId, type)
+                .then((atomic) => {
+                  return this.global.overridable.atomicType(atomic)
+                })
+          }
+        })
+        .catch((err) => {
+          env.logError(err)
+          throw err
+        })
+    )
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Local function that checks if an enum by the name exists
  *
  * @param {*} db
@@ -635,3 +743,4 @@ exports.isLastElement = isLastElement
 exports.isFirstElement = isFirstElement
 exports.isEnabled = isEnabled
 exports.isCommandAvailable = isCommandAvailable
+exports.asUnderlyingZCLType = asUnderlyingZCLType
