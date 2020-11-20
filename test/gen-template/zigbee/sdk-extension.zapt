@@ -13,7 +13,7 @@
 
 ------------------- Attributes -------------------
 {{#zcl_attributes}}
-// attribute: {{asHex clusterCode 4}} / {{asHex code 4}} => {{label}}
+// attribute: {{asHex clusterCode 4}} / {{asHex code 4}} => {{label}}, extensions: '{{attribute_extension property="testAttributeExtension1"}}', '{{attribute_extension property="testAttributeExtension2"}}'
 {{/zcl_attributes}}
 
 ------------------- Device types -------------------

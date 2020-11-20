@@ -212,7 +212,11 @@ test(
             "// cluster: 0x0002 Device Temperature Configuration, text extension: 'Extension to temperature config cluster'"
           )
         ).toBeTruthy()
-
+        expect(
+          sdkExtension.includes(
+            "// attribute: 0x0000 / 0x0000 => ZCL version, extensions: '42', '99'"
+          )
+        ).toBeTruthy()
         expect(
           sdkExtension.includes(
             "// cluster: 0x0003 Identify, text extension: ''"

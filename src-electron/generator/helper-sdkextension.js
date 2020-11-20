@@ -64,37 +64,30 @@ function cluster_extension(options) {
   }
 }
 
-/**
- * When inside a context that contains 'code' and parent 'code', this
- * helper will output the value of the command extension
- * specified by property="propName" attribute.
- *
- * @param {*} options
- * @returns Value of the command extension property.
- */
-function command_extension(options) {
-  var prop = options.hash.property
+function subentityExtension(context, prop, entityType) {
   if (prop == null) {
     return ''
   } else {
     return templateUtil
-      .ensureTemplatePackageId(this)
+      .ensureTemplatePackageId(context)
       .then((packageId) =>
         queryPackage.selectPackageExtension(
-          this.global.db,
+          context.global.db,
           packageId,
-          dbEnum.packageExtensionEntity.command
+          entityType
         )
       )
       .then((extensions) => {
         var f = extensions.filter((x) => x.property == prop)
         if (f.length == 0) {
-          console.log('nope')
           return ''
         } else {
           var val = null
           f[0].defaults.forEach((d) => {
-            if (d.entityCode == this.code && d.parentCode == this.clusterCode) {
+            if (
+              d.entityCode == context.code &&
+              d.parentCode == context.clusterCode
+            ) {
               val = d.value
             }
           })
@@ -106,7 +99,32 @@ function command_extension(options) {
   }
 }
 
-function attribute_extension(options) {}
+/**
+ * When inside a context that contains 'code' and parent 'code', this
+ * helper will output the value of the command extension
+ * specified by property="propName" attribute.
+ *
+ * @param {*} options
+ * @returns Value of the command extension property.
+ */
+function command_extension(options) {
+  var prop = options.hash.property
+  return subentityExtension(this, prop, dbEnum.packageExtensionEntity.command)
+}
+
+/**
+ * When inside a context that contains 'code' and parent 'code', this
+ * helper will output the value of the attribute extension
+ * specified by property="propName" attribute.
+ *
+ * @param {*} options
+ * @returns Value of the attribute extension property.
+ */
+function attribute_extension(options) {
+  var prop = options.hash.property
+  return subentityExtension(this, prop, dbEnum.packageExtensionEntity.attribute)
+}
+
 function device_type_extension(options) {}
 
 exports.cluster_extension = cluster_extension
