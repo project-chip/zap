@@ -41,11 +41,7 @@ function cluster_extension(options) {
     return templateUtil
       .ensureTemplatePackageId(this)
       .then((packageId) =>
-        queryPackage.selectPackageExtension(
-          this.global.db,
-          packageId,
-          dbEnum.packageExtensionEntity.cluster
-        )
+        templateUtil.ensureZclClusterSdkExtensions(this, packageId)
       )
       .then((extensions) => {
         var f = extensions.filter((x) => x.property == prop)
@@ -70,13 +66,18 @@ function subentityExtension(context, prop, entityType) {
   } else {
     return templateUtil
       .ensureTemplatePackageId(context)
-      .then((packageId) =>
-        queryPackage.selectPackageExtension(
-          context.global.db,
-          packageId,
-          entityType
-        )
-      )
+      .then((packageId) => {
+        if (entityType == dbEnum.packageExtensionEntity.attribute) {
+          return templateUtil.ensureZclAttributeSdkExtensions(
+            context,
+            packageId
+          )
+        } else if (entityType == dbEnum.packageExtensionEntity.command) {
+          return templateUtil.ensureZclCommandSdkExtensions(context, packageId)
+        } else {
+          throw `Invalid subentity: ${entityType}`
+        }
+      })
       .then((extensions) => {
         var f = extensions.filter((x) => x.property == prop)
         if (f.length == 0) {
