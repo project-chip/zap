@@ -515,6 +515,91 @@ function zcl_command_argument_data_type(type, options) {
 }
 
 /**
+ *
+ *
+ * @param {*} fromType
+ * @param {*} toType
+ * @returns The type warning message
+ */
+function defaultMessageForTypeConversion(fromType, toType) {
+  return `/* TYPE WARNING: ${fromType} defaults to */ ` + toType
+}
+
+/**
+ *
+ *
+ * @param {*} type
+ * @param {*} options
+ * @param {*} packageId
+ * @param {*} db
+ * @param {*} resolvedType
+ * @param {*} overridable
+ * @returns the data type associated with the resolvedType
+ */
+function dataTypeHelper(
+  type,
+  options,
+  packageId,
+  db,
+  resolvedType,
+  overridable
+) {
+  switch (resolvedType) {
+    case dbEnum.zclType.array:
+      if ('array' in options.hash) {
+        return defaultMessageForTypeConversion(
+          `${type} array`,
+          options.hash.array
+        )
+      } else {
+        return queryZcl
+          .selectAtomicType(db, packageId, dbEnum.zclType.array)
+          .then((atomic) => {
+            return overridable.atomicType(atomic)
+          })
+      }
+    case dbEnum.zclType.bitmap:
+      if ('bitmap' in options.hash) {
+        return defaultMessageForTypeConversion(`${type}`, options.hash.bitmap)
+      } else {
+        return queryZcl
+          .selectBitmapByName(db, packageId, type)
+          .then((bitmap) => {
+            return queryZcl.selectAtomicType(db, packageId, bitmap.type)
+          })
+          .then((res) => {
+            return overridable.atomicType(res)
+          })
+      }
+    case dbEnum.zclType.enum:
+      if ('enum' in options.hash) {
+        return defaultMessageForTypeConversion(`${type}`, options.hash.enum)
+      } else {
+        return queryZcl
+          .selectEnumByName(db, type, packageId)
+          .then((enumRec) => {
+            return queryZcl.selectAtomicType(db, packageId, enumRec.type)
+          })
+          .then((res) => {
+            return overridable.atomicType(res)
+          })
+      }
+    case dbEnum.zclType.struct:
+      if ('struct' in options.hash) {
+        return defaultMessageForTypeConversion(`${type}`, options.hash.struct)
+      } else {
+        return type
+      }
+    case dbEnum.zclType.atomic:
+    case dbEnum.zclType.unknown:
+    default:
+      return queryZcl.selectAtomicType(db, packageId, type).then((atomic) => {
+        return overridable.atomicType(atomic)
+      })
+  }
+}
+
+/**
  * Helper that deals with the type of the argument.
  *
  * @param {*} typeName
@@ -546,89 +631,14 @@ function asUnderlyingZclType(type, options) {
             })
         )
         .then((resType) => {
-          switch (resType) {
-            case dbEnum.zclType.array:
-              if ('array' in options.hash) {
-                return (
-                  `/* TYPE WARNING: ${type} array defaults to */ ` +
-                  options.hash.array
-                )
-              } else {
-                return queryZcl
-                  .selectAtomicType(
-                    this.global.db,
-                    packageId,
-                    dbEnum.zclType.array
-                  )
-                  .then((atomic) => {
-                    return this.global.overridable.atomicType(atomic)
-                  })
-              }
-            case dbEnum.zclType.bitmap:
-              if ('bitmap' in options.hash) {
-                return (
-                  `/* TYPE WARNING: ${type} defaults to */ ` +
-                  options.hash.bitmap
-                )
-              } else {
-                return queryZcl
-                  .selectBitmapByName(
-                    this.global.db,
-                    this.global.zclPackageId,
-                    type
-                  )
-                  .then((bitmap) => {
-                    return queryZcl.selectAtomicType(
-                      this.global.db,
-                      this.global.zclPackageId,
-                      bitmap.type
-                    )
-                  })
-                  .then((res) => {
-                    return this.global.overridable.atomicType(res)
-                  })
-              }
-            case dbEnum.zclType.enum:
-              if ('enum' in options.hash) {
-                return (
-                  `/* TYPE WARNING: ${type} defaults to */ ` + options.hash.enum
-                )
-              } else {
-                return queryZcl
-                  .selectEnumByName(
-                    this.global.db,
-                    type,
-                    this.global.zclPackageId
-                  )
-                  .then((enumRec) => {
-                    return queryZcl.selectAtomicType(
-                      this.global.db,
-                      this.global.zclPackageId,
-                      enumRec.type
-                    )
-                  })
-                  .then((res) => {
-                    return this.global.overridable.atomicType(res)
-                  })
-              }
-            case dbEnum.zclType.struct:
-              if ('struct' in options.hash) {
-                return (
-                  `/* TYPE WARNING: ${type} defaults to */ ` +
-                  options.hash.struct
-                )
-              } else {
-                return type
-              }
-            case dbEnum.zclType.atomic:
-            case dbEnum.zclType.unknown:
-            default:
-              return queryZcl
-                .selectAtomicType(this.global.db, packageId, type)
-                .then((atomic) => {
-                  return this.global.overridable.atomicType(atomic)
-                })
-          }
+          return dataTypeHelper(
+            type,
+            options,
+            packageId,
+            this.global.db,
+            resType,
+            this.global.overridable
+          )
         })
         .catch((err) => {
           env.logError(err)
