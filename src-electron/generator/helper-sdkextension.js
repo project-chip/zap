@@ -60,6 +60,42 @@ function cluster_extension(options) {
   }
 }
 
+/**
+ * When inside a context that contains 'code', this
+ * helper will output the value of the cluster extension
+ * specified by property="propName" attribute.
+ *
+ * @param {*} options
+ * @returns Value of the cluster extension property.
+ */
+function device_type_extension(options) {
+  var prop = options.hash.property
+  if (prop == null) {
+    return ''
+  } else {
+    return templateUtil
+      .ensureTemplatePackageId(this)
+      .then((packageId) =>
+        templateUtil.ensureZclDeviceTypeSdkExtensions(this, packageId)
+      )
+      .then((extensions) => {
+        var f = extensions.filter((x) => x.property == prop)
+        if (f.length == 0) {
+          return ''
+        } else {
+          var val = null
+          f[0].defaults.forEach((d) => {
+            if (d.entityCode == this.code) val = d.value
+            if (d.entityCode == this.label) val = d.value
+          })
+          if (val == null) val = f[0].globalDefault
+          if (val == null) val = ''
+          return val
+        }
+      })
+  }
+}
+
 function subentityExtension(context, prop, entityType) {
   if (prop == null) {
     return ''
@@ -125,8 +161,6 @@ function attribute_extension(options) {
   var prop = options.hash.property
   return subentityExtension(this, prop, dbEnum.packageExtensionEntity.attribute)
 }
-
-function device_type_extension(options) {}
 
 exports.cluster_extension = cluster_extension
 exports.command_extension = command_extension

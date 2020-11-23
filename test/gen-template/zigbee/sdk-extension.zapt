@@ -18,5 +18,5 @@
 
 ------------------- Device types -------------------
 {{#zcl_device_types}}
-// device type: {{domain}} / {{asHex code 4}} => {{label}}
+// device type: {{domain}} / {{asHex code 4}} => {{label}} // extension: '{{device_type_extension property="testDeviceTypeExtension"}}'
 {{/zcl_device_types}}

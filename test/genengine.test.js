@@ -222,6 +222,17 @@ test(
             "// cluster: 0x0003 Identify, text extension: ''"
           )
         ).toBeTruthy()
+        expect(
+          sdkExtension.includes(
+            "// command: 0x0000 / 0x00 => ResetToFactoryDefaults, test extension: '1'"
+          )
+        ).toBeTruthy()
+
+        expect(
+          sdkExtension.includes(
+            "// device type: HA / 0x0006 => HA-remote // extension: 'path/to/remote.c'"
+          )
+        ).toBeTruthy()
       }),
   genTimeout
 )

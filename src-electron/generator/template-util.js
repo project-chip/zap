@@ -186,6 +186,31 @@ function ensureZclClusterSdkExtensions(context, templatePackageId) {
 }
 
 /**
+ * Resolves with cached cluster extensions, but if they don't
+ * exist, it will populate them.
+ *
+ * @param {*} context
+ * @param {*} templatePackageId
+ * @returns promise that resolves with cluster extensions.
+ */
+function ensureZclDeviceTypeSdkExtensions(context, templatePackageId) {
+  if ('zclDeviceTypeExtension' in context.global) {
+    return Promise.resolve(context.global.zclDeviceTypeExtension)
+  } else {
+    return queryPackage
+      .selectPackageExtension(
+        context.global.db,
+        templatePackageId,
+        dbEnum.packageExtensionEntity.deviceType
+      )
+      .then((extensions) => {
+        context.global.zclDeviceTypeExtension = extensions
+        return extensions
+      })
+  }
+}
+
+/**
  * Resolves with cached attribute extensions, but if they don't
  * exist, it will populate them.
  *
@@ -258,5 +283,6 @@ exports.ensureTemplatePackageId = ensureTemplatePackageId
 exports.ensureZclClusterSdkExtensions = ensureZclClusterSdkExtensions
 exports.ensureZclAttributeSdkExtensions = ensureZclAttributeSdkExtensions
 exports.ensureZclCommandSdkExtensions = ensureZclCommandSdkExtensions
+exports.ensureZclDeviceTypeSdkExtensions = ensureZclDeviceTypeSdkExtensions
 exports.makeSynchronizablePromise = makeSynchronizablePromise
 exports.templatePromise = templatePromise
