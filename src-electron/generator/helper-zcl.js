@@ -525,6 +525,10 @@ function asUnderlyingZclType(type, options) {
     .ensureZclPackageId(this)
     .then((packageId) =>
       Promise.all([
+        new Promise((resolve, reject) => {
+          if ('isArray' in this && this.isArray) resolve(dbEnum.zclType.array)
+          else resolve(dbEnum.zclType.unknown)
+        }),
         isEnum(this.global.db, type, packageId),
         isStruct(this.global.db, type, packageId),
         isBitmap(this.global.db, type, packageId),
@@ -543,6 +547,23 @@ function asUnderlyingZclType(type, options) {
         )
         .then((resType) => {
           switch (resType) {
+            case dbEnum.zclType.array:
+              if ('array' in options.hash) {
+                return (
+                  `/* TYPE WARNING: ${type} array defaults to */ ` +
+                  options.hash.array
+                )
+              } else {
+                return queryZcl
+                  .selectAtomicType(
+                    this.global.db,
+                    packageId,
+                    dbEnum.zclType.array
+                  )
+                  .then((atomic) => {
+                    return this.global.overridable.atomicType(atomic)
+                  })
+              }
             case dbEnum.zclType.bitmap:
               if ('bitmap' in options.hash) {
                 return (
