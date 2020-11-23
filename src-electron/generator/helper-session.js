@@ -238,9 +238,11 @@ function user_cluster_commands_all_endpoints(options) {
 }
 
 /**
- *  * Creates endpoint type cluster command iterator. This works only inside
+ * Check if the cluster (name) has any enabled commands. This works only inside
  * cluster block helpers.
  *
+ * @param {*} name : Cluster name
+ * @param {*} side : Cluster side
  * @param {*} options
  * @returns True if cluster has enabled commands otherwise false
  */
