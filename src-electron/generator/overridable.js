@@ -80,6 +80,8 @@ function atomicType(arg = { name: 'unknown', size: 0 }) {
         return 'uint8_t *'
       case 'boolean':
         return 'uint8_t'
+      case 'array':
+        return `/* TYPE WARNING: ${name} array defaults to */ uint8_t * `
       default:
         return `/* TYPE WARNING: ${name} defaults to */ uint8_t * `
     }

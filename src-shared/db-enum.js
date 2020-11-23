@@ -59,6 +59,7 @@ exports.zclType = {
   bitmap: 'bitmap',
   atomic: 'atomic',
   unknown: 'unknown',
+  array: 'array',
 }
 
 exports.fileLocationCategory = {
