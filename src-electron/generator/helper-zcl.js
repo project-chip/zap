@@ -520,7 +520,7 @@ function zcl_command_argument_data_type(type, options) {
  * @param {*} typeName
  * @param {*} options
  */
-function asUnderlyingZCLType(type, options) {
+function asUnderlyingZclType(type, options) {
   var promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
@@ -743,4 +743,4 @@ exports.isLastElement = isLastElement
 exports.isFirstElement = isFirstElement
 exports.isEnabled = isEnabled
 exports.isCommandAvailable = isCommandAvailable
-exports.asUnderlyingZCLType = asUnderlyingZCLType
+exports.asUnderlyingZclType = asUnderlyingZclType
