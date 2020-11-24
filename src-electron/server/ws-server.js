@@ -31,7 +31,7 @@ var eventEmitter = new events.EventEmitter()
 
 // Set this to false to disable ticking
 const doTicks = true
-const tickDelayMs = 1000
+const tickDelayMs = 10000
 
 var wsServer = null
 
