@@ -29,7 +29,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 var eventEmitter = new events.EventEmitter()
 
 // Set this to false to disable ticking
-var doTicks = false
+var doTicks = true
 
 /**
  * Initialize a websocket, and register listeners to the
@@ -52,7 +52,7 @@ function initializeWebSocket(httpServer) {
 
     if (doTicks) {
       socket.tickCounter = 0
-      setInterval(() => sendTick(socket), 2000)
+      setInterval(() => sendTick(socket), 10000)
     }
   })
 
