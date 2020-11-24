@@ -60,9 +60,7 @@ function httpGetPreviewName(db) {
     var sessionId = request.session.zapSessionId
     generationEngine
       .generateSingleFileForPreview(db, sessionId, request.params.name)
-      .then((previewObject) => {
-        return response.json(previewObject)
-      })
+      .then((previewObject) => response.json(previewObject))
   }
 }
 
@@ -75,9 +73,9 @@ function httpGetPreviewName(db) {
 function httpGetPreview(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
-    queryPackage.getSessionGenTemplates(db, sessionId).then((previewObject) => {
-      return response.json(previewObject)
-    })
+    queryPackage
+      .getSessionGenTemplates(db, sessionId)
+      .then((previewObject) => response.json(previewObject))
   }
 }
 

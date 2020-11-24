@@ -33,6 +33,8 @@ var eventEmitter = new events.EventEmitter()
 const doTicks = true
 const tickDelayMs = 1000
 
+var wsServer = null
+
 /**
  * Initialize a websocket, and register listeners to the
  * websocket connection and the message receipt.
@@ -40,7 +42,7 @@ const tickDelayMs = 1000
  * @param {*} httpServer
  */
 function initializeWebSocket(httpServer) {
-  var wsServer = new ws.Server({ noServer: true })
+  wsServer = new ws.Server({ noServer: true, clientTracking: true })
   wsServer.on('connection', (socket, request) => {
     socket.sessionKey = util.getSessionKeyFromCookieValue(
       request.headers.cookie
@@ -81,6 +83,19 @@ function initializeWebSocket(httpServer) {
       'WebSocket initialized handshake response.'
     )
   })
+}
+
+/**
+ * Method that returns the websocket for a given session key.
+ *
+ * @param {*} sessionKey
+ */
+function clientSocket(sessionKey) {
+  if (wsServer == null) return null
+  wsServer.clients.forEach((socket) => {
+    if (socket.sessionKey == sessionKey) return socket
+  })
+  return null
 }
 
 function sendTick(socket) {
@@ -137,3 +152,4 @@ function onWebSocket(category, listener) {
 exports.initializeWebSocket = initializeWebSocket
 exports.sendWebSocketMessage = sendWebSocketMessage
 exports.sendWebSocketData = sendWebSocketData
+exports.clientSocket = clientSocket
