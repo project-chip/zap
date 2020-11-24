@@ -25,11 +25,13 @@ const events = require('events')
 
 const env = require('../util/env.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const util = require('../util/util.js')
 
 var eventEmitter = new events.EventEmitter()
 
 // Set this to false to disable ticking
-var doTicks = true
+const doTicks = true
+const tickDelayMs = 1000
 
 /**
  * Initialize a websocket, and register listeners to the
@@ -40,6 +42,9 @@ var doTicks = true
 function initializeWebSocket(httpServer) {
   var wsServer = new ws.Server({ noServer: true })
   wsServer.on('connection', (socket, request) => {
+    socket.sessionKey = util.getSessionKeyFromCookieValue(
+      request.headers.cookie
+    )
     socket.on('message', (message) => {
       // When we receive a message we emit it via the event emitter.
       var obj = JSON.parse(message)
@@ -50,9 +55,15 @@ function initializeWebSocket(httpServer) {
       }
     })
 
+    socket.on('close', () => {
+      if (doTicks) {
+        clearInterval(socket.tickInterval)
+      }
+    })
+
     if (doTicks) {
       socket.tickCounter = 0
-      setInterval(() => sendTick(socket), 10000)
+      socket.tickInterval = setInterval(() => sendTick(socket), tickDelayMs)
     }
   })
 
@@ -83,7 +94,7 @@ function sendTick(socket) {
  * @param {*} object
  */
 function doSend(socket, object) {
-  socket.send(JSON.stringify(object))
+  socket.send(JSON.stringify(object), {})
 }
 
 /**

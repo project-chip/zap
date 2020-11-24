@@ -179,8 +179,10 @@ function createBackupFile(filePath) {
   }
 }
 
-function getSessionKeyFromCookie(cookieValue) {
+function getSessionKeyFromCookieValue(cookieValue) {
   let ret = cookieValue
+  if (ret == null) return null
+  if (ret.startsWith('connect.sid=')) ret = ret.substring(12)
   if (ret.startsWith('s%3A')) ret = ret.substring(4)
   if (ret.includes('.')) ret = ret.split('.')[0]
   return ret
@@ -193,7 +195,7 @@ function getSessionKeyFromCookie(cookieValue) {
 function getSessionKeyFromBrowserCookie(browserCookie) {
   let sid = browserCookie['connect.sid']
   if (sid) {
-    return getSessionKeyFromCookie(sid)
+    return getSessionKeyFromCookieValue(sid)
   } else {
     return null
   }
@@ -208,7 +210,7 @@ function getSessionKeyFromBrowserWindow(browserWindow) {
     .get({ name: 'connect.sid' })
     .then((cookies) => {
       if (cookies.length == 0) throw 'Could not find session key'
-      else return getSessionKeyFromCookie(cookies[0].value)
+      else return getSessionKeyFromCookieValue(cookies[0].value)
     })
 }
 
@@ -322,6 +324,7 @@ exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
 exports.getSessionKeyFromBrowserWindow = getSessionKeyFromBrowserWindow
 exports.getSessionKeyFromBrowserCookie = getSessionKeyFromBrowserCookie
+exports.getSessionKeyFromCookieValue = getSessionKeyFromCookieValue
 exports.matchFeatureLevel = matchFeatureLevel
 exports.sessionReport = sessionReport
 exports.executePromisesSequentially = executePromisesSequentially
