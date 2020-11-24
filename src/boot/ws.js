@@ -59,7 +59,7 @@ function sendWebSocketData(category, payload) {
  */
 function sendWebSocketMessage(msg) {
   if (client == null) {
-    env.logError('Websocket not initialized, message not sent.')
+    console.log('Websocket not initialized, message not sent.')
     return
   }
   doSend(msg)
@@ -93,6 +93,10 @@ client.onmessage = (event) => {
 
 onWebSocket(dbEnum.wsCategory.init, (data) =>
   console.log(`Init message received: ${data}`)
+)
+
+onWebSocket(dbEnum.wsCategory.tick, (data) =>
+  console.log(`Tick received: ${data}`)
 )
 
 Vue.prototype.$sendWebSocketData = sendWebSocketData

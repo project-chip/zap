@@ -79,6 +79,7 @@ exports.pathRelativity = {
 exports.wsCategory = {
   generic: 'generic',
   init: 'init',
+  tick: 'tick',
 }
 
 exports.packageExtensionEntity = {
