@@ -25,6 +25,7 @@ const querySession = require('../db/query-session.js')
 const exportJs = require('../importexport/export.js')
 const uiJs = require('./ui.js')
 const preference = require('./preference.js')
+const about = require('./about.js')
 const generationEngine = require('../generator/generation-engine.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -36,15 +37,10 @@ const template = [
     role: 'fileMenu',
     submenu: [
       {
-        label: 'Generate Code',
+        label: 'New Configuration...',
+        accelerator: 'CmdOrCtrl+N',
         click(menuItem, browserWindow, event) {
-          generateInDir(browserWindow)
-        },
-      },
-      {
-        label: 'Handlebar Template Directory',
-        click(menuItem, browserWindow, event) {
-          setHandlebarTemplateDirectory(browserWindow)
+          newFile(menuItem, browserWindow, event)
         },
       },
       {
@@ -55,12 +51,31 @@ const template = [
         },
       },
       {
+        label: 'Save',
+        accelerator: 'CmdOrCtrl+S',
+        click(menuItem, browserWindow, event) {
+          doSave(menuItem, browserWindow, event)
+        },
+      },
+      {
+        label: 'Save As...',
+        click(menuItem, browserWindow, event) {
+          doSaveAs(menuItem, browserWindow, event)
+        },
+      },
+      {
         type: 'separator',
+      },
+      {
+        label: 'Generate Code',
+        click(menuItem, browserWindow, event) {
+          generateInDir(browserWindow)
+        },
       },
       {
         label: 'Preferences...',
         click(menuItem, browserWindow, event) {
-          preference.createOrShowWindow(httpPort)
+          preference.createOrShowPreferencesWindow(httpPort)
         },
       },
       {
@@ -94,19 +109,6 @@ const template = [
         },
       },
       {
-        label: 'Save',
-        accelerator: 'CmdOrCtrl+S',
-        click(menuItem, browserWindow, event) {
-          doSave(menuItem, browserWindow, event)
-        },
-      },
-      {
-        label: 'Save As...',
-        click(menuItem, browserWindow, event) {
-          doSaveAs(menuItem, browserWindow, event)
-        },
-      },
-      {
         type: 'separator',
       },
       {
@@ -133,11 +135,19 @@ const template = [
     label: 'Help',
     submenu: [
       {
-        role: 'about',
+        label: 'About',
+        click(menuItem, browserWindow, event) {
+          about.createOrShowAboutWindow(httpPort)
+        },
       },
     ],
   },
 ]
+
+function newFile(menuItem, browserWindow, event) {
+  uiJs.openNewConfiguration(httpPort, {})
+}
+
 /**
  * Perform a file->open operation.
  *
@@ -322,34 +332,6 @@ function generateInDir(browserWindow) {
         message: `Generation Output: ${context.path}`,
         buttons: ['Ok'],
       })
-    })
-    .catch((err) => uiJs.showErrorMessage('Save file', err))
-}
-
-/**
- * This function gets the directory where user wants the output and calls
- * generateCode function which generates the code in the user selected output.
- *
- * @param {*} browserWindow
- */
-function setHandlebarTemplateDirectory(browserWindow) {
-  dialog
-    .showOpenDialog({ properties: ['openDirectory'] })
-    .then((result) => {
-      if (!result.canceled) {
-        return Promise.resolve(result.filePaths[0])
-      } else {
-        return Promise.resolve(null)
-      }
-    })
-    .then((filePath) => {
-      if (filePath != null) {
-        dialog.showMessageBox(browserWindow, {
-          title: 'Handlebar Templates',
-          message: `Handlebar Template Directory: ${filePath}`,
-          buttons: ['Ok'],
-        })
-      }
     })
     .catch((err) => uiJs.showErrorMessage('Save file', err))
 }

@@ -21,13 +21,13 @@ const env = require('../util/env.js')
 
 let window = null
 
-function createPreferencesWindow(port) {
+function createAboutWindow(port) {
   window = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 880,
+    height: 525,
     resizable: true,
     center: true,
-    title: 'ZAP Preferences',
+    title: 'About',
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
     useContentSize: true,
     webPreferences: {
@@ -35,7 +35,7 @@ function createPreferencesWindow(port) {
     },
   })
   window.setMenu(null)
-  window.loadURL(`http://localhost:${port}/#/preference`)
+  window.loadURL(`http://localhost:${port}/#/about`)
   window.on('close', (e) => {
     window = null
   })
@@ -50,12 +50,12 @@ function createPreferencesWindow(port) {
  * @export
  * @param {*} port
  */
-function createOrShowPreferencesWindow(port) {
+function createOrShowAboutWindow(port) {
   if (window == null) {
-    createPreferencesWindow(port)
+    createAboutWindow(port)
   } else {
     window.show()
   }
 }
 
-exports.createOrShowPreferencesWindow = createOrShowPreferencesWindow
+exports.createOrShowAboutWindow = createOrShowAboutWindow
