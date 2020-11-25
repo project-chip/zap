@@ -23,6 +23,7 @@ limitations under the License.
 
 <script>
 import Vue from 'vue'
+import { QSpinnerGears } from 'quasar'
 
 function initLoad(store) {
   store.dispatch('zap/loadInitialData')
@@ -65,7 +66,11 @@ export default {
     },
   },
   mounted() {
-    this.$q.loading.show()
+    this.$q.loading.show({
+      spinner: QSpinnerGears,
+      spinnerColor: 'red-8',
+      spinnerSize: 300,
+    })
 
     // Parse the query string into the front end.
     const querystring = require('querystring')
