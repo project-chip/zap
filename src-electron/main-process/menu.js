@@ -75,7 +75,7 @@ const template = [
       {
         label: 'Preferences...',
         click(menuItem, browserWindow, event) {
-          preference.createOrShowPreferencesWindow(httpPort)
+          preference.createOrShowPreferencesWindow(browserWindow, httpPort)
         },
       },
       {
@@ -137,7 +137,7 @@ const template = [
       {
         label: 'About',
         click(menuItem, browserWindow, event) {
-          about.createOrShowAboutWindow(httpPort)
+          about.createOrShowAboutWindow(browserWindow, httpPort)
         },
       },
     ],

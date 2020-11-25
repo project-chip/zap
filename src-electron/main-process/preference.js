@@ -21,7 +21,13 @@ const env = require('../util/env.js')
 
 let window = null
 
-function createPreferencesWindow(port) {
+function createPreferencesWindow(parentWindow, port) {
+  var webPreferences = {
+    nodeIntegration: false,
+  }
+  if (parentWindow != null && 'webContents' in parentWindow) {
+    webPreferences.session = parentWindow.webContents.session
+  }
   window = new BrowserWindow({
     width: 800,
     height: 600,
@@ -30,9 +36,7 @@ function createPreferencesWindow(port) {
     title: 'ZAP Preferences',
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
     useContentSize: true,
-    webPreferences: {
-      nodeIntegration: false,
-    },
+    webPreferences: webPreferences,
   })
   window.setMenu(null)
   window.loadURL(`http://localhost:${port}/#/preference`)
@@ -50,9 +54,9 @@ function createPreferencesWindow(port) {
  * @export
  * @param {*} port
  */
-function createOrShowPreferencesWindow(port) {
+function createOrShowPreferencesWindow(parentWindow, port) {
   if (window == null) {
-    createPreferencesWindow(port)
+    createPreferencesWindow(parentWindow, port)
   } else {
     window.show()
   }

@@ -21,7 +21,13 @@ const env = require('../util/env.js')
 
 let window = null
 
-function createAboutWindow(port) {
+function createAboutWindow(parentWindow, port) {
+  var webPreferences = {
+    nodeIntegration: false,
+  }
+  if (parentWindow != null && 'webContents' in parentWindow) {
+    webPreferences.session = parentWindow.webContents.session
+  }
   window = new BrowserWindow({
     width: 880,
     height: 525,
@@ -30,9 +36,7 @@ function createAboutWindow(port) {
     title: 'About',
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
     useContentSize: true,
-    webPreferences: {
-      nodeIntegration: false,
-    },
+    webPreferences: webPreferences,
   })
   window.setMenu(null)
   window.loadURL(`http://localhost:${port}/#/about`)
@@ -50,9 +54,9 @@ function createAboutWindow(port) {
  * @export
  * @param {*} port
  */
-function createOrShowAboutWindow(port) {
+function createOrShowAboutWindow(parentWindow, port) {
   if (window == null) {
-    createAboutWindow(port)
+    createAboutWindow(parentWindow, port)
   } else {
     window.show()
   }
