@@ -42,7 +42,7 @@ const uiJs = require('./ui.js')
  * @param {*} uiMode
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
-function startNormal(uiEnabled, showUrl, uiMode, embeddedMode, zapFiles) {
+function startNormal(uiEnabled, showUrl, zapFiles, options) {
   return dbApi
     .initDatabaseAndLoadSchema(
       env.sqliteFile(),
@@ -73,11 +73,7 @@ function startNormal(uiEnabled, showUrl, uiMode, embeddedMode, zapFiles) {
       if (uiEnabled) {
         windowJs.initializeElectronUi(httpServer.httpServerPort())
         if (zapFiles.length == 0) {
-          uiJs.openNewConfiguration(
-            httpServer.httpServerPort(),
-            uiMode,
-            embeddedMode
-          )
+          uiJs.openNewConfiguration(httpServer.httpServerPort(), options)
         } else {
           return util.executePromisesSequentially(zapFiles, (f) =>
             uiJs.readAndOpenFile(

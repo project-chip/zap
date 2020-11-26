@@ -23,6 +23,7 @@ limitations under the License.
 
 <script>
 import Vue from 'vue'
+import { QSpinnerGears } from 'quasar'
 
 function initLoad(store) {
   store.dispatch('zap/loadInitialData')
@@ -36,14 +37,20 @@ function initLoad(store) {
   })
   store.dispatch('zap/loadSessionKeyValues')
 
-  Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
-    var arg = response.data
-    store.dispatch('zap/updateClusters', arg.data)
-  })
-  Vue.prototype.$serverGet('/zcl/deviceType/all').then((response) => {
-    var arg = response.data
-    store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
-  })
+  var promises = []
+  promises.push(
+    Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
+      var arg = response.data
+      store.dispatch('zap/updateClusters', arg.data)
+    })
+  )
+  promises.push(
+    Vue.prototype.$serverGet('/zcl/deviceType/all').then((response) => {
+      var arg = response.data
+      store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
+    })
+  )
+  return Promise.all(promises)
 }
 
 export default {
@@ -59,6 +66,12 @@ export default {
     },
   },
   mounted() {
+    this.$q.loading.show({
+      spinner: QSpinnerGears,
+      spinnerColor: 'red-8',
+      spinnerSize: 300,
+    })
+
     // Parse the query string into the front end.
     const querystring = require('querystring')
     let search = global.location.search
@@ -99,7 +112,9 @@ export default {
       attributeFilter: ['data-theme'],
       subtree: false,
     })
-    initLoad(this.$store)
+    initLoad(this.$store).then(() => {
+      this.$q.loading.hide()
+    })
   },
 }
 </script>

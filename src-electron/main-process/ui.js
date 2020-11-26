@@ -65,14 +65,10 @@ function readAndOpenFile(db, filePath, httpPort) {
  * Creates a new window with a blank configuration.
  *
  * @param {*} httpPort
- * @param {*} uiMode
- * @param {*} embeddedMode
+ * @param {*} options: uiMode, embeddedMode
  */
-function openNewConfiguration(httpPort, uiMode, embeddedMode) {
-  windowJs.windowCreate(httpPort, {
-    uiMode: uiMode,
-    embeddedMode: embeddedMode,
-  })
+function openNewConfiguration(httpPort, options) {
+  windowJs.windowCreate(httpPort, options)
 }
 
 exports.showErrorMessage = showErrorMessage

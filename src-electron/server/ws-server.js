@@ -25,27 +25,48 @@ const events = require('events')
 
 const env = require('../util/env.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const util = require('../util/util.js')
 
-var wsServer = null
-var wsSocket = null
 var eventEmitter = new events.EventEmitter()
 
-function processReceivedObject(obj) {
-  if ('category' in obj && 'payload' in obj) {
-    eventEmitter.emit(obj.category, obj.payload)
-  } else {
-    eventEmitter.emit(dbEnum.wsCategory.generic, obj)
-  }
-}
+// Set this to false to disable ticking
+const doTicks = true
+const tickDelayMs = 10000
 
+var wsServer = null
+
+/**
+ * Initialize a websocket, and register listeners to the
+ * websocket connection and the message receipt.
+ *
+ * @param {*} httpServer
+ */
 function initializeWebSocket(httpServer) {
-  wsServer = new ws.Server({ noServer: true })
-  wsServer.on('connection', (socket) => {
-    wsSocket = socket
+  wsServer = new ws.Server({ noServer: true, clientTracking: true })
+  wsServer.on('connection', (socket, request) => {
+    socket.sessionKey = util.getSessionKeyFromCookieValue(
+      request.headers.cookie
+    )
     socket.on('message', (message) => {
-      var receivedObject = JSON.parse(message)
-      processReceivedObject(receivedObject)
+      // When we receive a message we emit it via the event emitter.
+      var obj = JSON.parse(message)
+      if ('category' in obj && 'payload' in obj) {
+        eventEmitter.emit(obj.category, socket, obj.payload)
+      } else {
+        eventEmitter.emit(dbEnum.wsCategory.generic, socket, obj)
+      }
     })
+
+    socket.on('close', () => {
+      if (doTicks) {
+        clearInterval(socket.tickInterval)
+      }
+    })
+
+    if (doTicks) {
+      socket.tickCounter = 0
+      socket.tickInterval = setInterval(() => sendTick(socket), tickDelayMs)
+    }
   })
 
   httpServer.on('upgrade', (request, socket, head) => {
@@ -54,17 +75,41 @@ function initializeWebSocket(httpServer) {
     })
   })
 
-  onWebSocket(dbEnum.wsCategory.init, (data) => {
-    console.log(`Init message received: ${data}`)
+  onWebSocket(dbEnum.wsCategory.init, (socket, data) => {
+    env.logInfo(`Init message received: ${data}. Responding.`)
     sendWebSocketData(
+      socket,
       dbEnum.wsCategory.init,
       'WebSocket initialized handshake response.'
     )
   })
 }
 
-function doSend(object) {
-  wsSocket.send(JSON.stringify(object))
+/**
+ * Method that returns the websocket for a given session key.
+ *
+ * @param {*} sessionKey
+ */
+function clientSocket(sessionKey) {
+  if (wsServer == null) return null
+  wsServer.clients.forEach((socket) => {
+    if (socket.sessionKey == sessionKey) return socket
+  })
+  return null
+}
+
+function sendTick(socket) {
+  sendWebSocketData(socket, dbEnum.wsCategory.tick, socket.tickCounter++)
+}
+
+/**
+ * Bottom-most function that sends an object over a socket.
+ *
+ * @param {*} socket
+ * @param {*} object
+ */
+function doSend(socket, object) {
+  socket.send(JSON.stringify(object), {})
 }
 
 /**
@@ -73,16 +118,12 @@ function doSend(object) {
  * @param {*} category
  * @param {*} payload
  */
-function sendWebSocketData(category, payload) {
-  if (wsSocket == null) {
-    env.logError('Websocket not initialized, message not sent.')
-    return
-  }
+function sendWebSocketData(socket, category, payload) {
   var obj = {
     category: category,
     payload: payload,
   }
-  doSend(obj)
+  doSend(socket, obj)
 }
 
 /**
@@ -92,21 +133,17 @@ function sendWebSocketData(category, payload) {
  *
  * @param {*} msg
  */
-function sendWebSocketMessage(msg) {
-  if (wsSocket == null) {
-    env.logError('Websocket not initialized, message not sent.')
-    return
-  }
-  doSend(msg)
+function sendWebSocketMessage(socket, msg) {
+  doSend(socket, msg)
 }
 
 /**
  * If you wish to register to a specific category of websocket
  * messages, you can use this function. Listener will be executed with
- * a given data object.
+ * a given socket and data object.
  *
- * @param {*} category
- * @param {*} listener
+ * @param {*} category category of message.
+ * @param {*} listener function that receives socket, data.
  */
 function onWebSocket(category, listener) {
   eventEmitter.on(category, listener)
@@ -115,3 +152,4 @@ function onWebSocket(category, listener) {
 exports.initializeWebSocket = initializeWebSocket
 exports.sendWebSocketMessage = sendWebSocketMessage
 exports.sendWebSocketData = sendWebSocketData
+exports.clientSocket = clientSocket
