@@ -403,8 +403,6 @@ function collectAttributes(endpointTypes) {
         var mask = []
         if (a.side == dbEnum.side.client) {
           mask.push('client')
-        } else {
-          mask.push('server')
         }
         if (a.isSingleton) mask.push('singleton')
         var attr = {
