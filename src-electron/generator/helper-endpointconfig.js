@@ -161,7 +161,7 @@ function endpoint_types_list(options) {
   var ret = '{ \\\n'
   this.endpointList.forEach((ep) => {
     ret = ret.concat(
-      `  { ZAP_CLUSTER_INDEX(${ep.clusterIndex}), ${ep.clusterCount}, ${ep.attributeSize} } \\\n`
+      `  { ZAP_CLUSTER_INDEX(${ep.clusterIndex}), ${ep.clusterCount}, ${ep.attributeSize} }, \\\n`
     )
   })
   return ret.concat('}\n')
