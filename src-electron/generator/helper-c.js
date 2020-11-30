@@ -144,7 +144,7 @@ function asSymbol(value) {
 function formatValue(value, length, type) {
   var out = ''
   if (length < 0) {
-    out = out.concat(value.length())
+    out = out.concat(value.length)
     for (var i = 0; i < value.length; i++) {
       var ch = value.charAt(i)
       out = out.concat(",'").concat(ch).concat("'")
@@ -337,3 +337,4 @@ exports.dataTypeForBitmap = dataTypeForBitmap
 exports.dataTypeForEnum = dataTypeForEnum
 exports.addOne = addOne
 exports.cleanseLabelAsKebabCase = cleanseLabelAsKebabCase
+exports.formatValue = formatValue
