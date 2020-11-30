@@ -96,7 +96,6 @@ function longTypeDefaultValue(size, type, value) {
       }
     }
     v = bin.hexToCBytes(value)
-    console.log(`Default conversion: ${size} / ${type} / ${value} => ${v}`)
   }
   return v
 }
