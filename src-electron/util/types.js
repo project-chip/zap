@@ -95,7 +95,7 @@ function longTypeDefaultValue(size, type, value) {
         value = '0' + value
       }
     }
-    v = bin.hexToCBytes(value)
+    v = bin.hexToCBytes(value) + ', '
   }
   return v
 }
