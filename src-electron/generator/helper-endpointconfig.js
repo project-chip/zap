@@ -337,7 +337,7 @@ function collectAttributes(endpointTypes) {
         attributeCount: c.attributes.length,
         mask: 0,
         functions: 'NULL',
-        comment: `Endpoint: ${ept.id}, Cluster: ${c.name} (${c.side})`,
+        comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.name} (${c.side})`,
       }
       clusterList.push(cluster)
       clusterIndex++
