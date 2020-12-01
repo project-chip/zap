@@ -575,7 +575,10 @@ function generateAndWriteFiles(
         for (const f in genResult.errors) {
           var err = genResult.errors[f]
           var fileName = path.join(outputDirectory, f)
-          if (options.log) console.log(`    👎  ${fileName}`)
+          if (options.log) {
+            console.log(`    👎  ${fileName}`)
+            console.log(`    ==> ${err}`)
+          }
         }
       }
       promises.push(
