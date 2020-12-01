@@ -162,6 +162,7 @@ exports.map = {
     return {
       id: x.STRUCT_ID,
       label: x.NAME,
+      itemCnt: x.ITEM_COUNT,
       caption: `Struct, named ${x.NAME}`,
     }
   },

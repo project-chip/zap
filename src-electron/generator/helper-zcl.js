@@ -775,3 +775,6 @@ exports.isFirstElement = isFirstElement
 exports.isEnabled = isEnabled
 exports.isCommandAvailable = isCommandAvailable
 exports.asUnderlyingZclType = asUnderlyingZclType
+exports.isBitmap = isBitmap
+exports.isStruct = isStruct
+exports.isEnum = isEnum

@@ -85,7 +85,17 @@ function longTypeDefaultValue(size, type, value) {
       v = bin.hexToCBytes(bin.stringToHex(value))
     }
   } else {
-    v = bin.hexToCBytes(value)
+    // First strip off the 0x.
+    if (value.startsWith('0x') || value.startsWith('0X'))
+      value = value.substring(2)
+
+    // Now pad the zeroes to the required size
+    if (size > 0) {
+      while (value.length / 2 < size) {
+        value = '0' + value
+      }
+    }
+    v = bin.hexToCBytes(value) + ', '
   }
   return v
 }

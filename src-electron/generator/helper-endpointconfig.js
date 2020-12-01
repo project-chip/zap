@@ -161,7 +161,7 @@ function endpoint_types_list(options) {
   var ret = '{ \\\n'
   this.endpointList.forEach((ep) => {
     ret = ret.concat(
-      `  { ZAP_CLUSTER_INDEX(${ep.clusterIndex}), ${ep.clusterCount}, ${ep.attributeSize} } \\\n`
+      `  { ZAP_CLUSTER_INDEX(${ep.clusterIndex}), ${ep.clusterCount}, ${ep.attributeSize} }, \\\n`
     )
   })
   return ret.concat('}\n')
@@ -337,7 +337,7 @@ function collectAttributes(endpointTypes) {
         attributeCount: c.attributes.length,
         mask: 0,
         functions: 'NULL',
-        comment: `Endpoint: ${ept.id}, Cluster: ${c.name} (${c.side})`,
+        comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.name} (${c.side})`,
       }
       clusterList.push(cluster)
       clusterIndex++
@@ -403,8 +403,6 @@ function collectAttributes(endpointTypes) {
         var mask = []
         if (a.side == dbEnum.side.client) {
           mask.push('client')
-        } else {
-          mask.push('server')
         }
         if (a.isSingleton) mask.push('singleton')
         var attr = {

@@ -76,6 +76,16 @@ The following is the list of special meanings:
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | manufacturerCodes | This category backs a code/label map of valid manufacturer codes. They can be used in UI when selecting manufacturers.                                                                                      |
 | types             | This category backs a code/label map of type mappings. For a code, you can use any of the atomic or other ZCL types, and label is an override for a generator, detemining what type it shuld translate into |
+| generator         | This category contains generation specific options. See section bellow.                                                                                                                                     |
+
+### Generator options
+
+Following table lists generator options supported by the template generator category.
+
+| Key               | Value                                                                                                                                                                                                                                                                  |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| postProcessMulti  | a string, representing command to execute, with the list of generated files appended in a single command line. This would be typically used by zap to execute commands like `uncrustify`, or similar post-processing, which can take multiple file names as arguments. |
+| postProcessSingle | a string, representing a command to execute for each individual file appended in a single command line. This would be typically used by commands or scripts that clean up the generated files, and can only take one file name at a time as an argument.               |
 
 ## Template key: override
 
