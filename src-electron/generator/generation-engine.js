@@ -634,6 +634,8 @@ function generateAndWriteFiles(
               )
             }
           }
+          if (options.log && postProcessPromises.length > 0)
+            console.log('🤖 Executing post-processing actions:')
           return Promise.all(postProcessPromises).then(() => genResult)
         })
     })
