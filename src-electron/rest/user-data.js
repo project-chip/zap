@@ -271,9 +271,9 @@ function httpGetOption(db) {
     var sessionId = request.session.zapSessionId
     const { category } = request.params
     queryPackage.getSessionPackageIds(db, sessionId).then((packageIds) => {
-      var p = packageIds.map((packageId) => {
-        return queryPackage.selectAllOptionsValues(db, packageId, category)
-      })
+      var p = packageIds.map((packageId) =>
+        queryPackage.selectAllOptionsValues(db, packageId, category)
+      )
       Promise.all(p)
         .then((data) => data.flat(1))
         .then((data) => {

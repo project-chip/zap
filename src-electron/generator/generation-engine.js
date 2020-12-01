@@ -27,8 +27,6 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
-const { genResultFile } = require('../util/args.js')
-const { option } = require('yargs')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -456,7 +454,13 @@ function generateSingleTemplate(
  * @param {*} packageId packageId Template package id. It can be either single template or gen template json.
  * @returns Promise that resolves into a generation result.
  */
-function generate(db, sessionId, packageId, generateOnly = null) {
+function generate(
+  db,
+  sessionId,
+  packageId,
+  generateOnly = null,
+  templateGeneratorOptions = {}
+) {
   return queryPackage.getPackageByPackageId(db, packageId).then((pkg) => {
     if (pkg == null) throw `Invalid packageId: ${packageId}`
     var genResult = {
@@ -465,6 +469,8 @@ function generate(db, sessionId, packageId, generateOnly = null) {
       content: {},
       errors: {},
       hasErrors: false,
+      generatorOptions: templateGeneratorOptions,
+      templatePath: path.dirname(pkg.path),
     }
     if (pkg.type === dbEnum.packageType.genTemplatesJson) {
       return generateAllTemplates(genResult, pkg, generateOnly)
@@ -531,46 +537,100 @@ function generateAndWriteFiles(
     genResultFile: false,
   }
 ) {
-  return generate(db, sessionId, packageId).then((genResult) => {
-    if (!fs.existsSync(outputDirectory)) {
-      if (options.log) {
-        console.log(`✅ Creating directory: ${outputDirectory}`)
-      }
-      fs.mkdirSync(outputDirectory, { recursive: true })
-    }
-    if (options.log) console.log('🤖 Generating files:')
-    var promises = []
-    for (const f in genResult.content) {
-      var content = genResult.content[f]
-      var fileName = path.join(outputDirectory, f)
-      if (options.log) console.log(`    ✍  ${fileName}`)
-      env.logInfo(`Preparing to write file: ${fileName}`)
-      promises.push(writeFileWithBackup(fileName, content, options.backup))
-    }
-    if (genResult.hasErrors) {
-      if (options.log) console.log('⚠️  Errors:')
-      for (const f in genResult.errors) {
-        var err = genResult.errors[f]
-        var fileName = path.join(outputDirectory, f)
-        if (options.log) console.log(`    👎  ${fileName}`)
-      }
-    }
-    promises.push(
-      generateGenerationContent(genResult).then((generatedContent) => {
-        if (options.genResultFile) {
-          return writeFileWithBackup(
-            path.join(outputDirectory, 'genResult.json'),
-            generatedContent,
-            options.backup
-          )
-        } else {
-          return
-        }
-      })
+  return queryPackage
+    .selectAllOptionsValues(
+      db,
+      packageId,
+      dbEnum.packageOptionCategory.generator
     )
+    .then((genOptions) => {
+      // Reduce the long array from query into a single object
+      var templateGeneratorOptions = genOptions.reduce((acc, current) => {
+        acc[current.optionCode] = current.optionLabel
+        return acc
+      }, {})
+      return templateGeneratorOptions
+    })
+    .then((templateGeneratorOptions) =>
+      generate(db, sessionId, packageId, null, templateGeneratorOptions)
+    )
+    .then((genResult) => {
+      if (!fs.existsSync(outputDirectory)) {
+        if (options.log) {
+          console.log(`✅ Creating directory: ${outputDirectory}`)
+        }
+        fs.mkdirSync(outputDirectory, { recursive: true })
+      }
+      if (options.log) console.log('🤖 Generating files:')
+      var promises = []
+      for (const f in genResult.content) {
+        var content = genResult.content[f]
+        var fileName = path.join(outputDirectory, f)
+        if (options.log) console.log(`    ✍  ${fileName}`)
+        env.logInfo(`Preparing to write file: ${fileName}`)
+        promises.push(writeFileWithBackup(fileName, content, options.backup))
+      }
+      if (genResult.hasErrors) {
+        if (options.log) console.log('⚠️  Errors:')
+        for (const f in genResult.errors) {
+          var err = genResult.errors[f]
+          var fileName = path.join(outputDirectory, f)
+          if (options.log) console.log(`    👎  ${fileName}`)
+        }
+      }
+      promises.push(
+        generateGenerationContent(genResult).then((generatedContent) => {
+          if (options.genResultFile) {
+            return writeFileWithBackup(
+              path.join(outputDirectory, 'genResult.json'),
+              generatedContent,
+              options.backup
+            )
+          } else {
+            return
+          }
+        })
+      )
 
-    return Promise.all(promises).then(() => genResult)
-  })
+      return Promise.all(promises)
+        .then(() => genResult)
+        .then((genResult) => {
+          var postProcessPromises = []
+          if (
+            dbEnum.generatorOptions.postProcessMulti in
+            genResult.generatorOptions
+          ) {
+            var cmd =
+              genResult.generatorOptions[
+                dbEnum.generatorOptions.postProcessMulti
+              ]
+            for (const f in genResult.content) {
+              var fileName = path.join(outputDirectory, f)
+              cmd = cmd + ' ' + fileName
+            }
+            postProcessPromises.push(
+              util.executeExternalProgram(cmd, genResult.templatePath)
+            )
+          }
+          if (
+            dbEnum.generatorOptions.postProcessSingle in
+            genResult.generatorOptions
+          ) {
+            var cmd =
+              genResult.generatorOptions[
+                dbEnum.generatorOptions.postProcessSingle
+              ]
+            for (const f in genResult.content) {
+              var fileName = path.join(outputDirectory, f)
+              var singleCmd = cmd + ' ' + fileName
+              postProcessPromises.push(
+                util.executeExternalProgram(singleCmd, genResult.templatePath)
+              )
+            }
+          }
+          return Promise.all(postProcessPromises).then(() => genResult)
+        })
+    })
 }
 
 /**

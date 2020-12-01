@@ -35,6 +35,7 @@ exports.packageType = {
 exports.packageOptionCategory = {
   manufacturerCodes: 'manufacturerCodes',
   typeMap: 'typeMap',
+  generator: 'generator',
 }
 
 exports.side = {
@@ -87,4 +88,9 @@ exports.packageExtensionEntity = {
   command: 'command',
   attribute: 'attribute',
   deviceType: 'deviceType',
+}
+
+exports.generatorOptions = {
+  postProcessMulti: 'postProcessMulti',
+  postProcessSingle: 'postProcessSingle',
 }
