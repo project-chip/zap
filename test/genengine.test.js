@@ -33,7 +33,7 @@ const testUtil = require('./test-util.js')
 
 var db
 const templateCount = 13
-const genTimeout = 5000
+const genTimeout = 8000
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 
 beforeAll(() => {
