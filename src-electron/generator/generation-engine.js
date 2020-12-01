@@ -611,7 +611,7 @@ function generateAndWriteFiles(
               cmd = cmd + ' ' + fileName
             }
             postProcessPromises.push(
-              util.executeExternalProgram(cmd, genResult.templatePath)
+              util.executeExternalProgram(cmd, genResult.templatePath, false)
             )
           }
           if (
@@ -626,7 +626,11 @@ function generateAndWriteFiles(
               var fileName = path.join(outputDirectory, f)
               var singleCmd = cmd + ' ' + fileName
               postProcessPromises.push(
-                util.executeExternalProgram(singleCmd, genResult.templatePath)
+                util.executeExternalProgram(
+                  singleCmd,
+                  genResult.templatePath,
+                  false
+                )
               )
             }
           }
