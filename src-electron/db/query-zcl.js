@@ -1358,11 +1358,11 @@ function insertDeviceTypes(db, packageId, data) {
                   }
                 })
             })
-          )
-
-          zclIdsPromises.then((dtClusterRefDataPairs) => {
-            insertDeviceTypeAttributes(db, dtClusterRefDataPairs)
-            insertDeviceTypeCommands(db, dtClusterRefDataPairs)
+          ).then((dtClusterRefDataPairs) => {
+            var promises = []
+            promises.push(insertDeviceTypeAttributes(db, dtClusterRefDataPairs))
+            promises.push(insertDeviceTypeCommands(db, dtClusterRefDataPairs))
+            return Promise.all(promises)
           })
         }
       }
@@ -2083,8 +2083,6 @@ exports.insertGlobals = insertGlobals
 exports.insertClusterExtensions = insertClusterExtensions
 exports.insertClusters = insertClusters
 exports.insertDeviceTypes = insertDeviceTypes
-exports.insertDeviceTypeAttributes = insertDeviceTypeAttributes
-exports.insertDeviceTypeCommands = insertDeviceTypeCommands
 exports.updateClusterReferencesForDeviceTypeClusters = updateClusterReferencesForDeviceTypeClusters
 exports.updateAttributeReferencesForDeviceTypeReferences = updateAttributeReferencesForDeviceTypeReferences
 exports.updateCommandReferencesForDeviceTypeReferences = updateCommandReferencesForDeviceTypeReferences

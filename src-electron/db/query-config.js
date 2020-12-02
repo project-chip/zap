@@ -563,13 +563,11 @@ function insertEndpointType(db, sessionId, name, deviceTypeRef) {
       'INSERT OR REPLACE INTO ENDPOINT_TYPE ( SESSION_REF, NAME, DEVICE_TYPE_REF ) VALUES ( ?, ?, ?)',
       [sessionId, name, deviceTypeRef]
     )
-    .then((newEndpointId) => {
-      return setEndpointDefaults(db, newEndpointId, deviceTypeRef).then(
-        (newData) => {
-          return newEndpointId
-        }
+    .then((newEndpointId) =>
+      setEndpointDefaults(db, newEndpointId, deviceTypeRef).then(
+        () => newEndpointId
       )
-    })
+    )
 }
 
 /**
