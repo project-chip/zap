@@ -32,9 +32,35 @@ limitations under the License.
           <q-td key="status" :props="props" class="q-px-none">
             <q-icon
               name="warning"
-              class="text-red"
+              class="text-amber"
               style="font-size: 1.5rem"
+              @click="selectCluster(props.row)"
             ></q-icon>
+            <q-popup-edit
+              :cover="false"
+              :offset="[0, -54]"
+              v-model="uc_label"
+              content-class="bg-white text-black"
+              style="overflow-wrap: break-word; padding: 0px"
+            >
+              <div class="row items-center" items-center style="padding: 0px">
+                <q-icon
+                  name="warning"
+                  class="text-amber q-mr-sm"
+                  style="font-size: 1.5rem"
+                ></q-icon>
+                <div class="vertical-middle text-subtitle1">
+                  Clusters not installed
+                </div>
+              </div>
+              <div class="row no-wrap">
+                Install cluster in universal components<br />
+                to continue endpoint configuration.
+              </div>
+              <div class="row justify-end">
+                <q-btn unelevated text-color="primary">Install</q-btn>
+              </div>
+            </q-popup-edit>
           </q-td>
           <q-td key="label" :props="props" auto-width>
             {{ props.row.label }}
@@ -169,6 +195,7 @@ export default {
   },
   data() {
     return {
+      uc_label: 'uc label',
       clusterSelectionOptions: [
         { label: '---', client: false, server: false },
         { label: 'Client', client: true, server: false },
