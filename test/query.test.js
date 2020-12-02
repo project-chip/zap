@@ -424,6 +424,51 @@ describe('Endpoint Type Config Queries', () => {
       .then((commands) => {
         expect(commands.length).toBe(6)
       }))
+  test('Test Enpoint ID related query', () => {
+    let clusterRef = 0
+    let attributeRef = 0
+    let attributeDefaultValue = 0
+    return queryZcl
+      .selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeIdOnOff)
+      .then((x) => {
+        expect(x.length).toBe(7)
+        x.forEach((element) => {
+          if (element.side == 'server' && clusterRef == 0) {
+            clusterRef = element.clusterRef
+          }
+        })
+        expect(clusterRef == 0).toBeFalsy()
+      })
+      .then(() =>
+        queryZcl.selectEndpointTypeAttributesByEndpointId(
+          db,
+          endpointTypeIdOnOff
+        )
+      )
+      .then((x) => {
+        expect(x.length).toBe(10)
+        x.forEach((element) => {
+          if (element.clusterRef == clusterRef && attributeRef == 0) {
+            attributeRef = element.attributeRef
+            attributeDefaultValue = element.defaultValue
+          }
+        })
+        expect(attributeRef == 0).toBeFalsy()
+      })
+      .then(() =>
+        queryZcl.selectEndpointTypeAttribute(
+          db,
+          endpointTypeIdOnOff,
+          attributeRef,
+          clusterRef
+        )
+      )
+      .then((x) => expect(x.defaultValue).toBe(attributeDefaultValue))
+      .then(() =>
+        queryZcl.selectEndpointTypeCommandsByEndpointId(db, endpointTypeIdOnOff)
+      )
+      .then((x) => expect(x.length).toBe(6))
+  })
   test('Get all cluster names', () => {
     let expectedNames = ['Basic', 'Identify', 'Level Control', 'On/off']
     return queryImpexp.exportendPointTypeIds(db, sid).then((endpointTypes) =>
@@ -437,6 +482,7 @@ describe('Endpoint Type Config Queries', () => {
         })
     )
   })
+
   test('Set additional attributes and commands when cluster state is inserted', () => {
     return queryConfig
       .insertOrReplaceClusterState(
