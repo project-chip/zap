@@ -1418,6 +1418,13 @@ function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
   )
 }
 
+/**
+ * After loading up device type cluster table with the names,
+ * this method links the refererence to actual cluster reference.
+ *
+ * @param {*} db
+ * @returns promise of completion
+ */
 function updateClusterReferencesForDeviceTypeClusters(db) {
   return dbApi.dbUpdate(
     db,
@@ -1436,6 +1443,13 @@ SET
   )
 }
 
+/**
+ * After loading up device type attribute table with the names,
+ * this method links the refererence to actual attribute reference.
+ *
+ * @param {*} db
+ * @returns promise of completion
+ */
 function updateAttributeReferencesForDeviceTypeReferences(db) {
   return dbApi.dbUpdate(
     db,
@@ -1454,6 +1468,13 @@ SET
   )
 }
 
+/**
+ * After loading up device type command table with the names,
+ * this method links the refererence to actual command reference.
+ *
+ * @param {*} db
+ * @returns promise of completion
+ */
 function updateCommandReferencesForDeviceTypeReferences(db) {
   return dbApi.dbUpdate(
     db,
@@ -1470,6 +1491,23 @@ SET
   )`,
     []
   )
+}
+
+/**
+ * This method returns the promise of linking the device type clusters
+ * commands and attributes to the correct IDs in the cluster, attribute
+ * and command tables.
+ *
+ * Initial load only populates the names, so once everything is loaded,
+ * we have to link the foreign keys.
+ *
+ * @param {*} db
+ * @returns promise of completed linking
+ */
+function updateDeviceTypeEntityReferences(db) {
+  return updateClusterReferencesForDeviceTypeClusters(db)
+    .then((res) => updateAttributeReferencesForDeviceTypeReferences(db))
+    .then((res) => updateCommandReferencesForDeviceTypeReferences(db))
 }
 
 /**
@@ -2083,9 +2121,7 @@ exports.insertGlobals = insertGlobals
 exports.insertClusterExtensions = insertClusterExtensions
 exports.insertClusters = insertClusters
 exports.insertDeviceTypes = insertDeviceTypes
-exports.updateClusterReferencesForDeviceTypeClusters = updateClusterReferencesForDeviceTypeClusters
-exports.updateAttributeReferencesForDeviceTypeReferences = updateAttributeReferencesForDeviceTypeReferences
-exports.updateCommandReferencesForDeviceTypeReferences = updateCommandReferencesForDeviceTypeReferences
+exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 exports.insertDomains = insertDomains
 exports.insertStructs = insertStructs
 exports.insertEnums = insertEnums
