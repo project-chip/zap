@@ -33,6 +33,7 @@ const dbEnum = require('../src-shared/db-enum.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const testUtil = require('./test-util.js')
 const restApi = require('../src-shared/rest-api.js')
+const queryImpexp = require('../src-electron/db/query-impexp.js')
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -77,7 +78,9 @@ test('File location queries.', () =>
       queryGeneric.insertFileLocation(db, '/random/file/second/path', 'cat')
     )
     .then(() => queryGeneric.selectFileLocation(db, 'cat'))
-    .then((filePath) => expect(filePath).toBe('/random/file/second/path')))
+    .then((filePath) => expect(filePath).toBe('/random/file/second/path'))
+    .then(() => queryGeneric.selectFileLocation(db, 'errorTesting'))
+    .then((filePath) => expect(filePath).toBe('')))
 
 test('Replace query', () =>
   dbApi
@@ -421,7 +424,19 @@ describe('Endpoint Type Config Queries', () => {
       .then((commands) => {
         expect(commands.length).toBe(6)
       }))
-
+  test('Get all cluster names', () => {
+    let expectedNames = ['Basic', 'Identify', 'Level Control', 'On/off']
+    return queryImpexp.exportendPointTypeIds(db, sid).then((endpointTypes) =>
+      queryZcl
+        .exportAllClustersNamesFromEndpointTypes(db, endpointTypes)
+        .then((names) => {
+          expect(names.length).toBe(4)
+          names.forEach((element) => {
+            expect(expectedNames.includes(element.name)).toBeTruthy()
+          })
+        })
+    )
+  })
   test('Set additional attributes and commands when cluster state is inserted', () => {
     return queryConfig
       .insertOrReplaceClusterState(
@@ -547,4 +562,18 @@ test('Test Rest Key to DB Column Test', () => {
   expect(
     queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeStorage)
   ).toEqual('STORAGE_OPTION')
+})
+
+test('Test determineType', () => {
+  return queryZcl
+    .determineType(db, 'patate', pkgId)
+    .then((type) => expect(type).toEqual(dbEnum.zclType.unknown))
+    .then(() => queryZcl.determineType(db, 'Status', pkgId))
+    .then((type) => expect(type).toEqual(dbEnum.zclType.enum))
+    .then(() => queryZcl.determineType(db, 'Protocol', pkgId))
+    .then((type) => expect(type).toEqual(dbEnum.zclType.struct))
+    .then(() => queryZcl.determineType(db, 'CO2TrailingDigit', pkgId))
+    .then((type) => expect(type).toEqual(dbEnum.zclType.bitmap))
+    .then(() => queryZcl.determineType(db, 'int8u', pkgId))
+    .then((type) => expect(type).toEqual(dbEnum.zclType.atomic))
 })

@@ -55,11 +55,11 @@ function selectAllEnumItems(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      `SELECT ENUM_ITEM.NAME, 
-              ENUM_ITEM.VALUE, 
-              ENUM_ITEM.ENUM_REF 
-       FROM ENUM_ITEM, ENUM 
-       WHERE ENUM.PACKAGE_REF = ? AND ENUM.ENUM_ID = ENUM_ITEM.ENUM_REF 
+      `SELECT ENUM_ITEM.NAME,
+              ENUM_ITEM.VALUE,
+              ENUM_ITEM.ENUM_REF
+       FROM ENUM_ITEM, ENUM
+       WHERE ENUM.PACKAGE_REF = ? AND ENUM.ENUM_ID = ENUM_ITEM.ENUM_REF
        ORDER BY ENUM_ITEM.ENUM_REF, ENUM_ITEM.ORDINAL`,
       [packageId]
     )
@@ -476,15 +476,15 @@ SELECT
   A.IS_OPTIONAL,
   A.IS_REPORTABLE,
   C.CODE AS CLUSTER_CODE
-FROM 
+FROM
   ATTRIBUTE AS A
 LEFT JOIN
   CLUSTER AS C
 ON
   A.CLUSTER_REF = C.CLUSTER_ID
-WHERE 
+WHERE
   A.PACKAGE_REF = ?
-ORDER BY 
+ORDER BY
   C.CODE, A.CODE`,
       [packageId]
     )
@@ -587,13 +587,13 @@ SELECT
   CA.NAME AS ARG_NAME,
   CA.TYPE AS ARG_TYPE,
   CA.IS_ARRAY AS ARG_IS_ARRAY
-FROM 
+FROM
   COMMAND AS CMD
 LEFT JOIN
   CLUSTER AS CL
 ON
   CMD.CLUSTER_REF = CL.CLUSTER_ID
-LEFT JOIN 
+LEFT JOIN
   COMMAND_ARG AS CA
 ON
   CMD.COMMAND_ID = CA.COMMAND_REF
@@ -1917,7 +1917,7 @@ function determineType(db, type, packageId) {
       if (zclType != null) {
         return zclType
       } else {
-        return selectBitmapByName(db, type, packageId).then((theBitmap) => {
+        return selectBitmapByName(db, packageId, type).then((theBitmap) => {
           if (theBitmap == null) return null
           else return dbEnum.zclType.bitmap
         })
