@@ -1206,7 +1206,7 @@ function insertClusters(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
-      'INSERT INTO CLUSTER (PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO CLUSTER (PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME, IS_SINGLETON) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       data.map((cluster) => {
         return [
           packageId,
@@ -1216,6 +1216,7 @@ function insertClusters(db, packageId, data) {
           cluster.description,
           cluster.define,
           cluster.domain,
+          cluster.isSingleton,
         ]
       })
     )
