@@ -93,4 +93,6 @@ exports.packageExtensionEntity = {
 exports.generatorOptions = {
   postProcessMulti: 'postProcessMulti',
   postProcessSingle: 'postProcessSingle',
+  routeErrToOut: 'routeErrToOut',
+  postProcessConditionalFile: 'postProcessConditionalFile',
 }

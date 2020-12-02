@@ -596,49 +596,69 @@ function generateAndWriteFiles(
 
       return Promise.all(promises)
         .then(() => genResult)
-        .then((genResult) => {
-          var postProcessPromises = []
-          if (
-            dbEnum.generatorOptions.postProcessMulti in
-            genResult.generatorOptions
-          ) {
-            var cmd =
-              genResult.generatorOptions[
-                dbEnum.generatorOptions.postProcessMulti
-              ]
-            for (const f in genResult.content) {
-              var fileName = path.join(outputDirectory, f)
-              cmd = cmd + ' ' + fileName
-            }
-            postProcessPromises.push(
-              util.executeExternalProgram(cmd, genResult.templatePath, false)
-            )
-          }
-          if (
-            dbEnum.generatorOptions.postProcessSingle in
-            genResult.generatorOptions
-          ) {
-            var cmd =
-              genResult.generatorOptions[
-                dbEnum.generatorOptions.postProcessSingle
-              ]
-            for (const f in genResult.content) {
-              var fileName = path.join(outputDirectory, f)
-              var singleCmd = cmd + ' ' + fileName
-              postProcessPromises.push(
-                util.executeExternalProgram(
-                  singleCmd,
-                  genResult.templatePath,
-                  false
-                )
-              )
-            }
-          }
-          if (options.log && postProcessPromises.length > 0)
-            console.log('🤖 Executing post-processing actions:')
-          return Promise.all(postProcessPromises).then(() => genResult)
-        })
+        .then((genResult) =>
+          postProcessGeneratedFiles(outputDirectory, genResult, options.log)
+        )
     })
+}
+
+/**
+ * Executes post processing actions as defined by the gen-templates.json
+ *
+ * @param {*} outputDirectory
+ * @param {*} genResult
+ * @returns promise of a dealt-with post processing actions
+ */
+function postProcessGeneratedFiles(outputDirectory, genResult, log = true) {
+  var doExecute = true
+  var f =
+    genResult.generatorOptions[
+      dbEnum.generatorOptions.postProcessConditionalFile
+    ]
+  if (f != null) {
+    f = path.join(genResult.templatePath, f)
+    if (!fs.existsSync(f)) doExecute = false
+  }
+
+  // Now we deal with postProcessing
+  var postProcessPromises = []
+  if (
+    doExecute &&
+    dbEnum.generatorOptions.postProcessMulti in genResult.generatorOptions
+  ) {
+    var cmd =
+      genResult.generatorOptions[dbEnum.generatorOptions.postProcessMulti]
+    for (const f in genResult.content) {
+      var fileName = path.join(outputDirectory, f)
+      cmd = cmd + ' ' + fileName
+    }
+    postProcessPromises.push(
+      util.executeExternalProgram(cmd, genResult.templatePath, {
+        rejectOnFail: false,
+        routeErrToOut:
+          genResult.generatorOptions[dbEnum.generatorOptions.routeErrToOut],
+      })
+    )
+  }
+  if (
+    doExecute &&
+    dbEnum.generatorOptions.postProcessSingle in genResult.generatorOptions
+  ) {
+    var cmd =
+      genResult.generatorOptions[dbEnum.generatorOptions.postProcessSingle]
+    for (const f in genResult.content) {
+      var fileName = path.join(outputDirectory, f)
+      var singleCmd = cmd + ' ' + fileName
+      postProcessPromises.push(
+        util.executeExternalProgram(singleCmd, genResult.templatePath, {
+          rejectOnFail: false,
+        })
+      )
+    }
+  }
+  if (log && postProcessPromises.length > 0)
+    console.log('🤖 Executing post-processing actions:')
+  return Promise.all(postProcessPromises).then(() => genResult)
 }
 
 /**

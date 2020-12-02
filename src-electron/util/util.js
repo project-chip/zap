@@ -327,7 +327,14 @@ function createAbsolutePath(relativePath, relativity, zapFilePath) {
  *
  * @param {*} cmd
  */
-function executeExternalProgram(cmd, workingDirectory, rejectOnFail = true) {
+function executeExternalProgram(
+  cmd,
+  workingDirectory,
+  options = {
+    rejectOnFail: true,
+    routeErrToOut: false,
+  }
+) {
   return new Promise((resolve, reject) => {
     childProcess.exec(
       cmd,
@@ -335,11 +342,16 @@ function executeExternalProgram(cmd, workingDirectory, rejectOnFail = true) {
         cwd: workingDirectory,
       },
       (error, stdout, stderr) => {
-        if (error && rejectOnFail) {
+        console.log(`    ✍  ${cmd}`)
+        if (error && options.rejectOnFail) {
           reject(error)
         } else {
           console.log(stdout)
-          console.error(stderr)
+          if (options.routeErrToOut) {
+            console.log(stderr)
+          } else {
+            console.error(stderr)
+          }
           resolve()
         }
       }
