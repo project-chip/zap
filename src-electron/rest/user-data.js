@@ -82,9 +82,7 @@ function httpPostCluster(db) {
 
     queryConfig
       .getClusterState(db, endpointTypeId, id, side)
-      .then((clusterState) => {
-        return clusterState == null ? true : false
-      })
+      .then((clusterState) => (clusterState == null ? true : false))
       .then((insertDefaults) => {
         return queryConfig
           .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)

@@ -244,7 +244,15 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
 
-function selectClusterById(db, id, packageId) {
+/**
+ * Returns a promise that resolves into a cluster.
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @param {*} packageId
+ * @returns promise that resolves into a cluster object
+ */
+function selectClusterById(db, clusterId, packageId) {
   return dbApi
     .dbGet(
       db,
@@ -261,7 +269,7 @@ SELECT
 FROM CLUSTER
 WHERE CLUSTER_ID = ?
   AND PACKAGE_REF = ?`,
-      [id, packageId]
+      [clusterId, packageId]
     )
     .then(dbMapping.map.cluster)
 }
