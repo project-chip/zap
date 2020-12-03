@@ -175,7 +175,7 @@ function endpoint_cluster_list(options) {
   var ret = '{ \\\n'
   this.clusterList.forEach((c) => {
     ret = ret.concat(
-      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.mask}, ${c.functions} }, /* ${c.comment} */ \\\n`
+      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.attributeSize}, ${c.mask}, ${c.functions} }, /* ${c.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
@@ -300,13 +300,15 @@ function collectAttributes(endpointTypes) {
   var attributeList = []
   var commandList = []
   var endpointList = [] // Array of { clusterIndex, clusterCount, attributeSize }
-  var clusterList = [] // Array of { clusterId, attributeIndex, attributeCount, mask, functions, comment }
+  var clusterList = [] // Array of { clusterId, attributeIndex, attributeCount, attributeSize, mask, functions, comment }
   var longDefaults = [] // Array of strings representing bytes
   var longDefaultsIndex = 0
   var minMaxIndex = 0
   var largestAttribute = 0
   var singletonsSize = 0
   var totalAttributeSize = 0
+  var clusterAttributeSize = 0
+  var endpointAttributeSize = 0
   var clusterIndex = 0
   var deviceList = [] // Array of { deviceId, deviceVersion }
   var minMaxList = [] // Array of { default, min, max }
@@ -324,9 +326,8 @@ function collectAttributes(endpointTypes) {
       deviceId: 0,
       deviceVersion: 1,
     }
-
+    endpointAttributeSize = 0
     deviceList.push(device)
-    endpointList.push(endpoint)
 
     // Go over all the clusters in the endpoint and add them to the list.
     var attributeIndex = 0
@@ -335,11 +336,13 @@ function collectAttributes(endpointTypes) {
         clusterId: c.hexCode,
         attributeIndex: attributeIndex,
         attributeCount: c.attributes.length,
+        attributeSize: 0,
         mask: 0,
         functions: 'NULL',
         comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.name} (${c.side})`,
       }
-      clusterList.push(cluster)
+      clusterAttributeSize = 0
+
       clusterIndex++
       attributeIndex += c.attributes.length
 
@@ -399,6 +402,7 @@ function collectAttributes(endpointTypes) {
         if (a.isSingleton) {
           singletonsSize += a.typeSize
         }
+        clusterAttributeSize += a.typeSize
         totalAttributeSize += a.typeSize
         var mask = []
         if (a.side == dbEnum.side.client) {
@@ -444,7 +448,12 @@ function collectAttributes(endpointTypes) {
         }
         commandList.push(cmd)
       })
+      endpointAttributeSize += clusterAttributeSize
+      cluster.attributeSize = clusterAttributeSize
+      clusterList.push(cluster)
     })
+    endpoint.attributeSize = endpointAttributeSize
+    endpointList.push(endpoint)
   })
 
   // Sort command list by clusterId / commandId
