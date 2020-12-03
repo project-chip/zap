@@ -234,9 +234,10 @@ SELECT
   NAME,
   DESCRIPTION,
   DEFINE,
-  DOMAIN_NAME
+  DOMAIN_NAME,
+  IS_SINGLETON
 FROM CLUSTER
-  WHERE PACKAGE_REF = ?
+WHERE PACKAGE_REF = ?
 ORDER BY CODE`,
       [packageId]
     )
@@ -247,7 +248,19 @@ function selectClusterById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME FROM CLUSTER WHERE CLUSTER_ID = ?  AND PACKAGE_REF = ?',
+      `
+SELECT
+  CLUSTER_ID,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  DEFINE,
+  DOMAIN_NAME,
+  IS_SINGLETON
+FROM CLUSTER
+WHERE CLUSTER_ID = ?
+  AND PACKAGE_REF = ?`,
       [id, packageId]
     )
     .then(dbMapping.map.cluster)
