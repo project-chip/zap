@@ -32,7 +32,6 @@ const templateCompileOptions = {
 const precompiledTemplates = {}
 
 function produceCompiledTemplate(singleTemplatePkg) {
-  initializeGlobalHelpers()
   if (singleTemplatePkg.id in precompiledTemplates)
     return Promise.resolve(precompiledTemplates[singleTemplatePkg.id])
   else
@@ -161,3 +160,4 @@ function initializeGlobalHelpers() {
 exports.produceContent = produceContent
 exports.loadHelper = loadHelper
 exports.loadPartial = loadPartial
+exports.initializeGlobalHelpers = initializeGlobalHelpers

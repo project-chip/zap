@@ -378,7 +378,10 @@ function generateAllTemplates(
         }
       })
 
-      // Next load the helpers
+      // Initialize global helpers
+      templateEngine.initializeGlobalHelpers()
+
+      // Next load the addon helpers
       packages.forEach((singlePkg) => {
         if (singlePkg.type == dbEnum.packageType.genHelper) {
           helperPromises.push(templateEngine.loadHelper(singlePkg.path))
