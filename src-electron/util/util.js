@@ -24,11 +24,14 @@ const fs = require('fs')
 const env = require('./env.js')
 const crc = require('crc')
 const path = require('path')
+const childProcess = require('child_process')
 const queryPackage = require('../db/query-package.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require(`../db/query-config.js`)
 const dbEnum = require('../../src-shared/db-enum.js')
 const args = require('./args.js')
+const { O_DIRECTORY } = require('constants')
+
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
  *
@@ -179,8 +182,10 @@ function createBackupFile(filePath) {
   }
 }
 
-function getSessionKeyFromCookie(cookieValue) {
+function getSessionKeyFromCookieValue(cookieValue) {
   let ret = cookieValue
+  if (ret == null) return null
+  if (ret.startsWith('connect.sid=')) ret = ret.substring(12)
   if (ret.startsWith('s%3A')) ret = ret.substring(4)
   if (ret.includes('.')) ret = ret.split('.')[0]
   return ret
@@ -193,7 +198,7 @@ function getSessionKeyFromCookie(cookieValue) {
 function getSessionKeyFromBrowserCookie(browserCookie) {
   let sid = browserCookie['connect.sid']
   if (sid) {
-    return getSessionKeyFromCookie(sid)
+    return getSessionKeyFromCookieValue(sid)
   } else {
     return null
   }
@@ -208,7 +213,7 @@ function getSessionKeyFromBrowserWindow(browserWindow) {
     .get({ name: 'connect.sid' })
     .then((cookies) => {
       if (cookies.length == 0) throw 'Could not find session key'
-      else return getSessionKeyFromCookie(cookies[0].value)
+      else return getSessionKeyFromCookieValue(cookies[0].value)
     })
 }
 
@@ -317,12 +322,51 @@ function createAbsolutePath(relativePath, relativity, zapFilePath) {
   return relativePath
 }
 
+/**
+ * Returns a promise of an execution of an external program.
+ *
+ * @param {*} cmd
+ */
+function executeExternalProgram(
+  cmd,
+  workingDirectory,
+  options = {
+    rejectOnFail: true,
+    routeErrToOut: false,
+  }
+) {
+  return new Promise((resolve, reject) => {
+    childProcess.exec(
+      cmd,
+      {
+        cwd: workingDirectory,
+      },
+      (error, stdout, stderr) => {
+        console.log(`    ✍  ${cmd}`)
+        if (error && options.rejectOnFail) {
+          reject(error)
+        } else {
+          console.log(stdout)
+          if (options.routeErrToOut) {
+            console.log(stderr)
+          } else {
+            console.error(stderr)
+          }
+          resolve()
+        }
+      }
+    )
+  })
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
 exports.getSessionKeyFromBrowserWindow = getSessionKeyFromBrowserWindow
 exports.getSessionKeyFromBrowserCookie = getSessionKeyFromBrowserCookie
+exports.getSessionKeyFromCookieValue = getSessionKeyFromCookieValue
 exports.matchFeatureLevel = matchFeatureLevel
 exports.sessionReport = sessionReport
 exports.executePromisesSequentially = executePromisesSequentially
 exports.createAbsolutePath = createAbsolutePath
+exports.executeExternalProgram = executeExternalProgram

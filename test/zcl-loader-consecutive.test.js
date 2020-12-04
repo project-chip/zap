@@ -62,28 +62,51 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     .then((rows) => expect(rows.length).toEqual(2))
     .then(() => queryZcl.selectAllClusters(db, jsonPackageId))
     .then((x) => expect(x.length).toEqual(109))
+    .then(() => queryZcl.selectAllClusterCommands(db, jsonPackageId))
+    .then((x) => {
+      expect(x.length).toBe(588)
+      queryZcl
+        .selectCommandById(db, x[0].id)
+        .then((z) => expect(z.label).toBe(x[0].label))
+    })
+    .then(() => queryZcl.selectAllCommandArguments(db, jsonPackageId))
+    .then((x) => expect(x.length).toEqual(1737))
     .then(() => queryZcl.selectAllDomains(db, jsonPackageId))
-    .then((x) => expect(x.length).toEqual(22))
+    .then((x) => {
+      expect(x.length).toEqual(22)
+      queryZcl
+        .selectDomainById(db, x.id, jsonPackageId)
+        .then((z) => expect(z.name).toBe(x.name))
+    })
     .then(() => queryZcl.selectAllEnums(db, jsonPackageId))
     .then((x) => expect(x.length).toEqual(207))
+    .then(() => queryZcl.selectAllAttributesBySide(db, 'server', jsonPackageId))
+    .then((x) => expect(x.length).toBe(2962))
     .then(() => queryZcl.selectAllEnumItems(db, jsonPackageId))
     .then((x) => expect(x.length).toEqual(1549))
     .then(() => queryZcl.selectAllStructs(db, jsonPackageId))
     .then((x) => expect(x.length).toEqual(52))
     .then(() => queryZcl.selectAllBitmaps(db, jsonPackageId))
-    .then((x) => expect(x.length).toEqual(120))
     .then(() => queryZcl.selectAllDeviceTypes(db, jsonPackageId))
     .then((x) => expect(x.length).toEqual(174))
     .then(() => queryZcl.selectAllAtomics(db, jsonPackageId))
     .then((x) => expect(x.length).toEqual(56))
     .then(() => queryZcl.selectAllClusters(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(41))
+    .then(() => queryZcl.selectAllClusterCommands(db, dotdotPackageId))
+    .then((x) => expect(x.length).toBe(215)) //seems low
+    .then(() => queryZcl.selectAllCommandArguments(db, dotdotPackageId))
+    .then((x) => expect(x.length).toEqual(644))
     .then(() => queryZcl.selectAllDeviceTypes(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(108))
     .then(() => queryZcl.selectAllBitmaps(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(50)) //seems low
     .then(() => queryZcl.selectAllEnums(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(80)) //seems low
+    .then(() =>
+      queryZcl.selectAllAttributesBySide(db, 'server', dotdotPackageId)
+    )
+    .then((x) => expect(x.length).toBe(615)) //seems low
     .then(() => queryZcl.selectAllEnumItems(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(536))
     .then(() => queryZcl.selectAllStructs(db, dotdotPackageId))

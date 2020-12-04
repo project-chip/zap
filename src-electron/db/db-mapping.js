@@ -69,6 +69,7 @@ exports.map = {
       caption: x.DESCRIPTION,
       define: x.DEFINE,
       domainName: x.DOMAIN_NAME,
+      isSingleton: x.IS_SINGLETON,
     }
   },
 
@@ -164,6 +165,7 @@ exports.map = {
     return {
       id: x.STRUCT_ID,
       label: x.NAME,
+      itemCnt: x.ITEM_COUNT,
       caption: `Struct, named ${x.NAME}`,
     }
   },
@@ -185,7 +187,7 @@ exports.map = {
       name: x.NAME,
       description: x.DESCRIPTION,
       size: x.ATOMIC_SIZE,
-      discrete: x.DISCETE,
+      discrete: x.DISCRETE,
     }
   },
 

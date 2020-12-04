@@ -65,13 +65,10 @@ function startUp(isElectron) {
       })
   } else {
     if (isElectron) {
-      return startup.startNormal(
-        !argv.noUi,
-        argv.showUrl,
-        argv.uiMode,
-        argv.embeddedMode,
-        argv.zapFiles
-      )
+      return startup.startNormal(!argv.noUi, argv.showUrl, argv.zapFiles, {
+        uiMode: argv.uiMode,
+        embeddedMode: argv.embeddedMode,
+      })
     } else {
       console.log(`Can't start UI with node, must start with electron.`)
     }

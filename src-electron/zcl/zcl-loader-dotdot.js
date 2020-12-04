@@ -270,6 +270,7 @@ function prepareCluster(cluster, isExtension = false, types) {
     ret.domain = cluster.classification[0].$.role
     //ret.manufacturerCode = '' // TODO: no manufacturer code in dotdot zcl
     ret.revision = cluster.$.revision // TODO: revision present in dotdot zcl
+    ret.isSingleton = false // TODO: dotdot is not supporting singletons
   }
   var sides = [
     { name: 'server', value: cluster.server },

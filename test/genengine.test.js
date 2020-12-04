@@ -33,7 +33,7 @@ const testUtil = require('./test-util.js')
 
 var db
 const templateCount = 13
-const genTimeout = 5000
+const genTimeout = 8000
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 
 beforeAll(() => {
@@ -212,10 +212,25 @@ test(
             "// cluster: 0x0002 Device Temperature Configuration, text extension: 'Extension to temperature config cluster'"
           )
         ).toBeTruthy()
-
+        expect(
+          sdkExtension.includes(
+            "// attribute: 0x0000 / 0x0000 => ZCL version, extensions: '42', '99'"
+          )
+        ).toBeTruthy()
         expect(
           sdkExtension.includes(
             "// cluster: 0x0003 Identify, text extension: ''"
+          )
+        ).toBeTruthy()
+        expect(
+          sdkExtension.includes(
+            "// command: 0x0000 / 0x00 => ResetToFactoryDefaults, test extension: '1'"
+          )
+        ).toBeTruthy()
+
+        expect(
+          sdkExtension.includes(
+            "// device type: HA / 0x0006 => HA-remote // extension: 'path/to/remote.c'"
           )
         ).toBeTruthy()
       }),

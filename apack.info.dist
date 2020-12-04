@@ -23,6 +23,18 @@ executable(zap:macosx.x86_64) {
   exe=zap.app/Contents/MacOS/zap
 }
 
+function(ui:uc_cli) {
+  cmd=$(zap)
+}
+
+function(selfcheck:uc_cli) {
+  cmd=$(zap) selfCheck
+}
+
+function(version:uc_cli) {
+  cmd=$(zap) --version
+}
+
 function(uc_generate) {
   cmd=$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json ${contentFolder}
 }

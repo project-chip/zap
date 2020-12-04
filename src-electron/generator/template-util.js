@@ -161,6 +161,106 @@ function ensureTemplatePackageId(context) {
 }
 
 /**
+ * Resolves with cached cluster extensions, but if they don't
+ * exist, it will populate them.
+ *
+ * @param {*} context
+ * @param {*} templatePackageId
+ * @returns promise that resolves with cluster extensions.
+ */
+function ensureZclClusterSdkExtensions(context, templatePackageId) {
+  if ('zclClusterSdkExtension' in context.global) {
+    return Promise.resolve(context.global.zclClusterSdkExtension)
+  } else {
+    return queryPackage
+      .selectPackageExtension(
+        context.global.db,
+        templatePackageId,
+        dbEnum.packageExtensionEntity.cluster
+      )
+      .then((extensions) => {
+        context.global.zclClusterSdkExtension = extensions
+        return extensions
+      })
+  }
+}
+
+/**
+ * Resolves with cached cluster extensions, but if they don't
+ * exist, it will populate them.
+ *
+ * @param {*} context
+ * @param {*} templatePackageId
+ * @returns promise that resolves with cluster extensions.
+ */
+function ensureZclDeviceTypeSdkExtensions(context, templatePackageId) {
+  if ('zclDeviceTypeExtension' in context.global) {
+    return Promise.resolve(context.global.zclDeviceTypeExtension)
+  } else {
+    return queryPackage
+      .selectPackageExtension(
+        context.global.db,
+        templatePackageId,
+        dbEnum.packageExtensionEntity.deviceType
+      )
+      .then((extensions) => {
+        context.global.zclDeviceTypeExtension = extensions
+        return extensions
+      })
+  }
+}
+
+/**
+ * Resolves with cached attribute extensions, but if they don't
+ * exist, it will populate them.
+ *
+ * @param {*} context
+ * @param {*} templatePackageId
+ * @returns promise that resolves with attribute extensions.
+ */
+function ensureZclAttributeSdkExtensions(context, templatePackageId) {
+  if ('zclAttributeSdkExtension' in context.global) {
+    return Promise.resolve(context.global.zclAttributeSdkExtension)
+  } else {
+    return queryPackage
+      .selectPackageExtension(
+        context.global.db,
+        templatePackageId,
+        dbEnum.packageExtensionEntity.attribute
+      )
+      .then((extensions) => {
+        context.global.zclAttributeSdkExtension = extensions
+        return extensions
+      })
+  }
+}
+
+/**
+ * Resolves with cached command extensions, but if they don't
+ * exist, it will populate them.
+ *
+ * @param {*} context
+ * @param {*} templatePackageId
+ * @returns promise that resolves with command extensions.
+ */
+function ensureZclCommandSdkExtensions(context, templatePackageId) {
+  if ('zclCommandSdkExtension' in context.global) {
+    return Promise.resolve(context.global.zclCommandSdkExtension)
+  } else {
+    return queryPackage
+      .selectPackageExtension(
+        context.global.db,
+        templatePackageId,
+        dbEnum.packageExtensionEntity.command
+      )
+      .then((extensions) => {
+        context.global.zclCommandSdkExtension = extensions
+        return extensions
+      })
+  }
+}
+
+/**
  * Every helper that returns a promise, should
  * not return the promise directly. So instead of
  * returning the promise directly, it should return:
@@ -180,5 +280,9 @@ function templatePromise(global, promise) {
 exports.collectBlocks = collectBlocks
 exports.ensureZclPackageId = ensureZclPackageId
 exports.ensureTemplatePackageId = ensureTemplatePackageId
+exports.ensureZclClusterSdkExtensions = ensureZclClusterSdkExtensions
+exports.ensureZclAttributeSdkExtensions = ensureZclAttributeSdkExtensions
+exports.ensureZclCommandSdkExtensions = ensureZclCommandSdkExtensions
+exports.ensureZclDeviceTypeSdkExtensions = ensureZclDeviceTypeSdkExtensions
 exports.makeSynchronizablePromise = makeSynchronizablePromise
 exports.templatePromise = templatePromise

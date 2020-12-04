@@ -21,6 +21,7 @@ const templateUtil = require('./template-util.js')
 const helperC = require('./helper-c.js')
 const env = require('../util/env.js')
 const types = require('../util/types.js')
+const queryPackage = require('../db/query-package.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -514,6 +515,144 @@ function zcl_command_argument_data_type(type, options) {
 }
 
 /**
+ *
+ *
+ * @param {*} fromType
+ * @param {*} toType
+ * @returns The type warning message
+ */
+function defaultMessageForTypeConversion(fromType, toType) {
+  return `/* TYPE WARNING: ${fromType} defaults to */ ` + toType
+}
+
+/**
+ *
+ *
+ * @param {*} type
+ * @param {*} options
+ * @param {*} packageId
+ * @param {*} db
+ * @param {*} resolvedType
+ * @param {*} overridable
+ * @returns the data type associated with the resolvedType
+ */
+function dataTypeHelper(
+  type,
+  options,
+  packageId,
+  db,
+  resolvedType,
+  overridable
+) {
+  switch (resolvedType) {
+    case dbEnum.zclType.array:
+      if ('array' in options.hash) {
+        return defaultMessageForTypeConversion(
+          `${type} array`,
+          options.hash.array
+        )
+      } else {
+        return queryZcl
+          .selectAtomicType(db, packageId, dbEnum.zclType.array)
+          .then((atomic) => {
+            return overridable.atomicType(atomic)
+          })
+      }
+    case dbEnum.zclType.bitmap:
+      if ('bitmap' in options.hash) {
+        return defaultMessageForTypeConversion(`${type}`, options.hash.bitmap)
+      } else {
+        return queryZcl
+          .selectBitmapByName(db, packageId, type)
+          .then((bitmap) => {
+            return queryZcl.selectAtomicType(db, packageId, bitmap.type)
+          })
+          .then((res) => {
+            return overridable.atomicType(res)
+          })
+      }
+    case dbEnum.zclType.enum:
+      if ('enum' in options.hash) {
+        return defaultMessageForTypeConversion(`${type}`, options.hash.enum)
+      } else {
+        return queryZcl
+          .selectEnumByName(db, type, packageId)
+          .then((enumRec) => {
+            return queryZcl.selectAtomicType(db, packageId, enumRec.type)
+          })
+          .then((res) => {
+            return overridable.atomicType(res)
+          })
+      }
+    case dbEnum.zclType.struct:
+      if ('struct' in options.hash) {
+        return defaultMessageForTypeConversion(`${type}`, options.hash.struct)
+      } else {
+        return type
+      }
+    case dbEnum.zclType.atomic:
+    case dbEnum.zclType.unknown:
+    default:
+      return queryZcl.selectAtomicType(db, packageId, type).then((atomic) => {
+        return overridable.atomicType(atomic)
+      })
+  }
+}
+
+/**
+ * Helper that deals with the type of the argument.
+ *
+ * @param {*} typeName
+ * @param {*} options
+ */
+function asUnderlyingZclType(type, options) {
+  var promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      Promise.all([
+        new Promise((resolve, reject) => {
+          if ('isArray' in this && this.isArray) resolve(dbEnum.zclType.array)
+          else resolve(dbEnum.zclType.unknown)
+        }),
+        isEnum(this.global.db, type, packageId),
+        isStruct(this.global.db, type, packageId),
+        isBitmap(this.global.db, type, packageId),
+      ])
+        .then(
+          (res) =>
+            new Promise((resolve, reject) => {
+              for (var i = 0; i < res.length; i++) {
+                if (res[i] != 'unknown') {
+                  resolve(res[i])
+                  return
+                }
+              }
+              resolve(dbEnum.zclType.unknown)
+            })
+        )
+        .then((resType) => {
+          return dataTypeHelper(
+            type,
+            options,
+            packageId,
+            this.global.db,
+            resType,
+            this.global.overridable
+          )
+        })
+        .catch((err) => {
+          env.logError(err)
+          throw err
+        })
+    )
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Local function that checks if an enum by the name exists
  *
  * @param {*} db
@@ -635,3 +774,7 @@ exports.isLastElement = isLastElement
 exports.isFirstElement = isFirstElement
 exports.isEnabled = isEnabled
 exports.isCommandAvailable = isCommandAvailable
+exports.asUnderlyingZclType = asUnderlyingZclType
+exports.isBitmap = isBitmap
+exports.isStruct = isStruct
+exports.isEnum = isEnum

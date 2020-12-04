@@ -35,6 +35,7 @@ exports.packageType = {
 exports.packageOptionCategory = {
   manufacturerCodes: 'manufacturerCodes',
   typeMap: 'typeMap',
+  generator: 'generator',
 }
 
 exports.side = {
@@ -59,6 +60,7 @@ exports.zclType = {
   bitmap: 'bitmap',
   atomic: 'atomic',
   unknown: 'unknown',
+  array: 'array',
 }
 
 exports.fileLocationCategory = {
@@ -78,6 +80,7 @@ exports.pathRelativity = {
 exports.wsCategory = {
   generic: 'generic',
   init: 'init',
+  tick: 'tick',
 }
 
 exports.packageExtensionEntity = {
@@ -85,4 +88,11 @@ exports.packageExtensionEntity = {
   command: 'command',
   attribute: 'attribute',
   deviceType: 'deviceType',
+}
+
+exports.generatorOptions = {
+  postProcessMulti: 'postProcessMulti',
+  postProcessSingle: 'postProcessSingle',
+  routeErrToOut: 'routeErrToOut',
+  postProcessConditionalFile: 'postProcessConditionalFile',
 }

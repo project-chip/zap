@@ -66,7 +66,6 @@ var cli = [
   arg.out,
 ]
 if (arg.in != null) {
-  cli.push('--in')
   cli.push(arg.in)
 }
 

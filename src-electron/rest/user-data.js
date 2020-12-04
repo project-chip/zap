@@ -82,9 +82,7 @@ function httpPostCluster(db) {
 
     queryConfig
       .getClusterState(db, endpointTypeId, id, side)
-      .then((clusterState) => {
-        return clusterState == null ? true : false
-      })
+      .then((clusterState) => (clusterState == null ? true : false))
       .then((insertDefaults) => {
         return queryConfig
           .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
@@ -271,9 +269,9 @@ function httpGetOption(db) {
     var sessionId = request.session.zapSessionId
     const { category } = request.params
     queryPackage.getSessionPackageIds(db, sessionId).then((packageIds) => {
-      var p = packageIds.map((packageId) => {
-        return queryPackage.selectAllOptionsValues(db, packageId, category)
-      })
+      var p = packageIds.map((packageId) =>
+        queryPackage.selectAllOptionsValues(db, packageId, category)
+      )
       Promise.all(p)
         .then((data) => data.flat(1))
         .then((data) => {

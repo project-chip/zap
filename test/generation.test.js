@@ -32,7 +32,7 @@ const testUtil = require('./test-util.js')
 
 var db
 const { port, baseUrl } = testUtil.testServer(__filename)
-const timeout = 5000
+const timeout = 8000
 
 beforeAll(() => {
   env.setDevelopmentEnv()

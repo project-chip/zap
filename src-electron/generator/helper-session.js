@@ -24,6 +24,7 @@ const templateUtil = require('./template-util.js')
 const queryImpexp = require('../db/query-impexp.js')
 const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
+const helperZcl = require('./helper-zcl.js')
 
 /**
  * Creates block iterator helper over the endpoint types.
@@ -236,6 +237,56 @@ function user_cluster_commands_all_endpoints(options) {
     )
 }
 
+/**
+ * Check if the cluster (name) has any enabled commands. This works only inside
+ * cluster block helpers.
+ *
+ * @param {*} name : Cluster name
+ * @param {*} side : Cluster side
+ * @param {*} options
+ * @returns True if cluster has enabled commands otherwise false
+ */
+function user_cluster_has_enabled_command(name, side, options) {
+  return queryImpexp
+    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      queryZcl.exportCommandDetailsFromAllEndpointTypesAndClusters(
+        this.global.db,
+        endpointsAndClusters
+      )
+    )
+    .then((endpointCommands) => {
+      var cmdCount = 0
+      endpointCommands.forEach((command) => {
+        if (helperZcl.isStrEqual(name, command.clusterName)) {
+          if (
+            helperZcl.isCommandAvailable(
+              side,
+              command.incoming,
+              command.outgoing,
+              command.commandSource,
+              command.name
+            )
+          ) {
+            cmdCount++
+          }
+        }
+      })
+
+      if (cmdCount == 0) {
+        return false
+      } else {
+        return true
+      }
+    })
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -253,3 +304,4 @@ exports.all_user_clusters = all_user_clusters
 exports.all_user_clusters_names = all_user_clusters_names
 exports.user_cluster_command_count_with_cli = user_cluster_command_count_with_cli
 exports.user_cluster_commands_all_endpoints = user_cluster_commands_all_endpoints
+exports.user_cluster_has_enabled_command = user_cluster_has_enabled_command

@@ -114,6 +114,7 @@ CREATE TABLE IF NOT EXISTS "CLUSTER" (
   "NAME" text,
   "DESCRIPTION" text,
   "DEFINE" text,
+  "IS_SINGLETON" integer,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*

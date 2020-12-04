@@ -291,7 +291,13 @@ function prepareCluster(cluster, isExtension = false) {
     ret.description = cluster.description[0].trim()
     ret.define = cluster.define[0]
     ret.domain = cluster.domain[0]
-    if ('$' in cluster) ret.manufacturerCode = cluster['$'].manufacturerCode
+    ret.isSingleton = false
+    if ('$' in cluster) {
+      ret.manufacturerCode = cluster.$.manufacturerCode
+      if (cluster.$.singleton == 'true') {
+        ret.isSingleton = true
+      }
+    }
   }
 
   if ('command' in cluster) {
