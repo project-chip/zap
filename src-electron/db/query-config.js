@@ -1164,6 +1164,7 @@ SELECT
   A.SIDE,
   A.MIN,
   A.MAX,
+  A.IS_WRITABLE,
   ETA.INCLUDED_REPORTABLE,
   ETA.MIN_INTERVAL,
   ETA.MAX_INTERVAL,
@@ -1199,6 +1200,7 @@ ORDER BY
           side: row.SIDE,
           min: row.MIN,
           max: row.MAX,
+          writable: row.IS_WRITABLE,
           reportable: {
             included: row.INCLUDED_REPORTABLE,
             minInterval: row.MIN_INTERVAL,
