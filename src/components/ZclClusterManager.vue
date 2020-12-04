@@ -36,6 +36,7 @@ limitations under the License.
           :ripple="false"
           :unelevated="false"
           :outline="none"
+          to="/customZcl"
         />
         <div class="row">
           <div

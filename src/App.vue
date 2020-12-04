@@ -50,6 +50,7 @@ function initLoad(store) {
       store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
     })
   )
+  promises.push(store.dispatch(`zap/getProjectPackages`))
   return Promise.all(promises)
 }
 

@@ -138,6 +138,13 @@ export function updateSelectedClients(context, selectionContext) {
     })
 }
 
+export function getProjectPackages(context, selectionContext) {
+  Vue.prototype.$serverGet(restApi.uri.packages).then((res) => {
+    let data = res.data
+    context.commit('updateProjectPackages', data)
+  })
+}
+
 export function initializeDefaultEndpoints(context, defaultEndpoints) {
   context.commit('initializeDefaultEndpoints', defaultEndpoints)
 }

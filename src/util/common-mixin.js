@@ -91,6 +91,11 @@ export default {
         return this.$store.state.zap.zclDeviceTypes
       },
     },
+    packages: {
+      get() {
+        return this.$store.state.zap.packages
+      },
+    },
   },
   methods: {
     asHex(value, padding) {

@@ -377,3 +377,7 @@ export function resetFilters(state) {
   }
   state.clusterManager.openDomains = {}
 }
+
+export function updateProjectPackages(state, packages) {
+  state.packages = packages
+}
