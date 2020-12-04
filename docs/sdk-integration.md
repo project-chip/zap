@@ -82,10 +82,12 @@ The following is the list of special meanings:
 
 Following table lists generator options supported by the template generator category.
 
-| Key               | Value                                                                                                                                                                                                                                                                  |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| postProcessMulti  | a string, representing command to execute, with the list of generated files appended in a single command line. This would be typically used by zap to execute commands like `uncrustify`, or similar post-processing, which can take multiple file names as arguments. |
-| postProcessSingle | a string, representing a command to execute for each individual file appended in a single command line. This would be typically used by commands or scripts that clean up the generated files, and can only take one file name at a time as an argument.               |
+| Key                        | Value                                                                                                                                                                                                                                                                  |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| postProcessMulti           | a string, representing command to execute, with the list of generated files appended in a single command line. This would be typically used by zap to execute commands like `uncrustify`, or similar post-processing, which can take multiple file names as arguments. |
+| postProcessSingle          | a string, representing a command to execute for each individual file appended in a single command line. This would be typically used by commands or scripts that clean up the generated files, and can only take one file name at a time as an argument.               |
+| postProcessConditionalFile | a path, representing a file. If this file does not exist, then a specified post-process action will not get executed.                                                                                                                                                  |
+| routeErrToOut              | a boolean flag. If it's set to true, then any stderr from the post-process will be routed to stdout. This is due that a driving process sometimes has trouble dealing with both stdout and stderr, so this flag might help you preserve the logs.                      |
 
 ## Template key: override
 

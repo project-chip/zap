@@ -24,11 +24,14 @@ const fs = require('fs')
 const env = require('./env.js')
 const crc = require('crc')
 const path = require('path')
+const childProcess = require('child_process')
 const queryPackage = require('../db/query-package.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require(`../db/query-config.js`)
 const dbEnum = require('../../src-shared/db-enum.js')
 const args = require('./args.js')
+const { O_DIRECTORY } = require('constants')
+
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
  *
@@ -319,6 +322,43 @@ function createAbsolutePath(relativePath, relativity, zapFilePath) {
   return relativePath
 }
 
+/**
+ * Returns a promise of an execution of an external program.
+ *
+ * @param {*} cmd
+ */
+function executeExternalProgram(
+  cmd,
+  workingDirectory,
+  options = {
+    rejectOnFail: true,
+    routeErrToOut: false,
+  }
+) {
+  return new Promise((resolve, reject) => {
+    childProcess.exec(
+      cmd,
+      {
+        cwd: workingDirectory,
+      },
+      (error, stdout, stderr) => {
+        console.log(`    ✍  ${cmd}`)
+        if (error && options.rejectOnFail) {
+          reject(error)
+        } else {
+          console.log(stdout)
+          if (options.routeErrToOut) {
+            console.log(stderr)
+          } else {
+            console.error(stderr)
+          }
+          resolve()
+        }
+      }
+    )
+  })
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
@@ -329,3 +369,4 @@ exports.matchFeatureLevel = matchFeatureLevel
 exports.sessionReport = sessionReport
 exports.executePromisesSequentially = executePromisesSequentially
 exports.createAbsolutePath = createAbsolutePath
+exports.executeExternalProgram = executeExternalProgram

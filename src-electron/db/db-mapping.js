@@ -69,6 +69,7 @@ exports.map = {
       caption: x.DESCRIPTION,
       define: x.DEFINE,
       domainName: x.DOMAIN_NAME,
+      isSingleton: x.IS_SINGLETON,
     }
   },
 

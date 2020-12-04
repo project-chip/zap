@@ -55,11 +55,11 @@ function selectAllEnumItems(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      `SELECT ENUM_ITEM.NAME, 
-              ENUM_ITEM.VALUE, 
-              ENUM_ITEM.ENUM_REF 
-       FROM ENUM_ITEM, ENUM 
-       WHERE ENUM.PACKAGE_REF = ? AND ENUM.ENUM_ID = ENUM_ITEM.ENUM_REF 
+      `SELECT ENUM_ITEM.NAME,
+              ENUM_ITEM.VALUE,
+              ENUM_ITEM.ENUM_REF
+       FROM ENUM_ITEM, ENUM
+       WHERE ENUM.PACKAGE_REF = ? AND ENUM.ENUM_ID = ENUM_ITEM.ENUM_REF
        ORDER BY ENUM_ITEM.ENUM_REF, ENUM_ITEM.ORDINAL`,
       [packageId]
     )
@@ -234,21 +234,42 @@ SELECT
   NAME,
   DESCRIPTION,
   DEFINE,
-  DOMAIN_NAME
+  DOMAIN_NAME,
+  IS_SINGLETON
 FROM CLUSTER
-  WHERE PACKAGE_REF = ?
+WHERE PACKAGE_REF = ?
 ORDER BY CODE`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
 
-function selectClusterById(db, id, packageId) {
+/**
+ * Returns a promise that resolves into a cluster.
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @param {*} packageId
+ * @returns promise that resolves into a cluster object
+ */
+function selectClusterById(db, clusterId, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME FROM CLUSTER WHERE CLUSTER_ID = ?  AND PACKAGE_REF = ?',
-      [id, packageId]
+      `
+SELECT
+  CLUSTER_ID,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  DEFINE,
+  DOMAIN_NAME,
+  IS_SINGLETON
+FROM CLUSTER
+WHERE CLUSTER_ID = ?
+  AND PACKAGE_REF = ?`,
+      [clusterId, packageId]
     )
     .then(dbMapping.map.cluster)
 }
@@ -476,15 +497,15 @@ SELECT
   A.IS_OPTIONAL,
   A.IS_REPORTABLE,
   C.CODE AS CLUSTER_CODE
-FROM 
+FROM
   ATTRIBUTE AS A
 LEFT JOIN
   CLUSTER AS C
 ON
   A.CLUSTER_REF = C.CLUSTER_ID
-WHERE 
+WHERE
   A.PACKAGE_REF = ?
-ORDER BY 
+ORDER BY
   C.CODE, A.CODE`,
       [packageId]
     )
@@ -587,13 +608,13 @@ SELECT
   CA.NAME AS ARG_NAME,
   CA.TYPE AS ARG_TYPE,
   CA.IS_ARRAY AS ARG_IS_ARRAY
-FROM 
+FROM
   COMMAND AS CMD
 LEFT JOIN
   CLUSTER AS CL
 ON
   CMD.CLUSTER_REF = CL.CLUSTER_ID
-LEFT JOIN 
+LEFT JOIN
   COMMAND_ARG AS CA
 ON
   CMD.COMMAND_ID = CA.COMMAND_REF
@@ -1206,7 +1227,7 @@ function insertClusters(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
-      'INSERT INTO CLUSTER (PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO CLUSTER (PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME, IS_SINGLETON) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       data.map((cluster) => {
         return [
           packageId,
@@ -1216,6 +1237,7 @@ function insertClusters(db, packageId, data) {
           cluster.description,
           cluster.define,
           cluster.domain,
+          cluster.isSingleton,
         ]
       })
     )
@@ -1357,11 +1379,11 @@ function insertDeviceTypes(db, packageId, data) {
                   }
                 })
             })
-          )
-
-          zclIdsPromises.then((dtClusterRefDataPairs) => {
-            insertDeviceTypeAttributes(db, dtClusterRefDataPairs)
-            insertDeviceTypeCommands(db, dtClusterRefDataPairs)
+          ).then((dtClusterRefDataPairs) => {
+            var promises = []
+            promises.push(insertDeviceTypeAttributes(db, dtClusterRefDataPairs))
+            promises.push(insertDeviceTypeCommands(db, dtClusterRefDataPairs))
+            return Promise.all(promises)
           })
         }
       }
@@ -1417,6 +1439,13 @@ function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
   )
 }
 
+/**
+ * After loading up device type cluster table with the names,
+ * this method links the refererence to actual cluster reference.
+ *
+ * @param {*} db
+ * @returns promise of completion
+ */
 function updateClusterReferencesForDeviceTypeClusters(db) {
   return dbApi.dbUpdate(
     db,
@@ -1435,6 +1464,13 @@ SET
   )
 }
 
+/**
+ * After loading up device type attribute table with the names,
+ * this method links the refererence to actual attribute reference.
+ *
+ * @param {*} db
+ * @returns promise of completion
+ */
 function updateAttributeReferencesForDeviceTypeReferences(db) {
   return dbApi.dbUpdate(
     db,
@@ -1453,6 +1489,13 @@ SET
   )
 }
 
+/**
+ * After loading up device type command table with the names,
+ * this method links the refererence to actual command reference.
+ *
+ * @param {*} db
+ * @returns promise of completion
+ */
 function updateCommandReferencesForDeviceTypeReferences(db) {
   return dbApi.dbUpdate(
     db,
@@ -1469,6 +1512,23 @@ SET
   )`,
     []
   )
+}
+
+/**
+ * This method returns the promise of linking the device type clusters
+ * commands and attributes to the correct IDs in the cluster, attribute
+ * and command tables.
+ *
+ * Initial load only populates the names, so once everything is loaded,
+ * we have to link the foreign keys.
+ *
+ * @param {*} db
+ * @returns promise of completed linking
+ */
+function updateDeviceTypeEntityReferences(db) {
+  return updateClusterReferencesForDeviceTypeClusters(db)
+    .then((res) => updateAttributeReferencesForDeviceTypeReferences(db))
+    .then((res) => updateCommandReferencesForDeviceTypeReferences(db))
 }
 
 /**
@@ -1878,7 +1938,7 @@ function determineType(db, type, packageId) {
       if (zclType != null) {
         return zclType
       } else {
-        return selectBitmapByName(db, type, packageId).then((theBitmap) => {
+        return selectBitmapByName(db, packageId, type).then((theBitmap) => {
           if (theBitmap == null) return null
           else return dbEnum.zclType.bitmap
         })
@@ -2082,11 +2142,7 @@ exports.insertGlobals = insertGlobals
 exports.insertClusterExtensions = insertClusterExtensions
 exports.insertClusters = insertClusters
 exports.insertDeviceTypes = insertDeviceTypes
-exports.insertDeviceTypeAttributes = insertDeviceTypeAttributes
-exports.insertDeviceTypeCommands = insertDeviceTypeCommands
-exports.updateClusterReferencesForDeviceTypeClusters = updateClusterReferencesForDeviceTypeClusters
-exports.updateAttributeReferencesForDeviceTypeReferences = updateAttributeReferencesForDeviceTypeReferences
-exports.updateCommandReferencesForDeviceTypeReferences = updateCommandReferencesForDeviceTypeReferences
+exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 exports.insertDomains = insertDomains
 exports.insertStructs = insertStructs
 exports.insertEnums = insertEnums

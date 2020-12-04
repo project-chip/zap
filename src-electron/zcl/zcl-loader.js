@@ -174,12 +174,7 @@ function qualifyZclFile(db, info, parentPackageId) {
  * @returns Promise to deal with the post-loading cleanup.
  */
 function processZclPostLoading(db) {
-  return queryZcl
-    .updateClusterReferencesForDeviceTypeClusters(db)
-    .then((res) =>
-      queryZcl.updateAttributeReferencesForDeviceTypeReferences(db)
-    )
-    .then((res) => queryZcl.updateCommandReferencesForDeviceTypeReferences(db))
+  return queryZcl.updateDeviceTypeEntityReferences(db)
 }
 
 /**

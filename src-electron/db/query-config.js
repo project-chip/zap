@@ -151,7 +151,7 @@ DO UPDATE SET ENABLED = ?`,
 
 /**
  * Promise to get a cluster's state.
- * This mnust return undefined/null for if the cluster state has not been used before for the endpointType
+ * This must return undefined/null for if the cluster state has not been used before for the endpointType
  * @param {*} db
  * @param {*} endpointTypeId
  * @param {*} clusterRef
@@ -563,13 +563,11 @@ function insertEndpointType(db, sessionId, name, deviceTypeRef) {
       'INSERT OR REPLACE INTO ENDPOINT_TYPE ( SESSION_REF, NAME, DEVICE_TYPE_REF ) VALUES ( ?, ?, ?)',
       [sessionId, name, deviceTypeRef]
     )
-    .then((newEndpointId) => {
-      return setEndpointDefaults(db, newEndpointId, deviceTypeRef).then(
-        (newData) => {
-          return newEndpointId
-        }
+    .then((newEndpointId) =>
+      setEndpointDefaults(db, newEndpointId, deviceTypeRef).then(
+        () => newEndpointId
       )
-    })
+    )
 }
 
 /**
@@ -879,8 +877,18 @@ function resolveNonOptionalAndReportableAttributes(
           key: restApi.updateKey.attributeReporting,
           value: true,
         })
-      if (!attribute.isOptional)
-        settings.push({ key: restApi.updateKey.attributeSelected, value: true })
+      if (!attribute.isOptional) {
+        settings.push({
+          key: restApi.updateKey.attributeSelected,
+          value: true,
+        })
+      }
+      if (cluster.isSingleton) {
+        settings.push({
+          key: restApi.updateKey.attributeSingleton,
+          value: true,
+        })
+      }
       if (settings.length > 0) {
         return insertOrUpdateAttributeState(
           db,
