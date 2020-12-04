@@ -425,6 +425,44 @@ function zcl_command_arguments_count(commandId) {
 }
 
 /**
+ *
+ * @param {*} commandId
+ * @param {*} argument_return
+ * @param {*} no_argument_return
+ *
+ * If the command arguments for a command exist then returns argument_return
+ * else returns no_argument_return
+ * Example: {{ifCommandArgumentsExist [command-id] "," ""}}
+ * The above will return ',' if the command arguments for a command exist
+ * and will return nothing if the command arguments for a command do not exist.
+ *
+ */
+function ifCommandArgumentsExist(
+  commandId,
+  argument_return,
+  no_argument_return
+) {
+  var promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) => {
+      var res = queryZcl.selectCommandArgumentsCountByCommandId(
+        this.global.db,
+        commandId,
+        packageId
+      )
+      return res
+    })
+    .then((res) => {
+      if (res > 0) {
+        return argument_return
+      } else {
+        return no_argument_return
+      }
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Block helper iterating over command arguments within a command
  * or a command tree.
  *
@@ -516,13 +554,131 @@ function zcl_command_argument_data_type(type, options) {
 
 /**
  *
- *
  * @param {*} fromType
  * @param {*} toType
- * @returns The type warning message
+ * @param {*} noWarning
+ *
+ * Type warning message. If noWarning is set to true then the warning message
+ * will not be shown.
  */
-function defaultMessageForTypeConversion(fromType, toType) {
-  return `/* TYPE WARNING: ${fromType} defaults to */ ` + toType
+function defaultMessageForTypeConversion(fromType, toType, noWarning) {
+  if (!noWarning) {
+    return `/* TYPE WARNING: ${fromType} defaults to */ ` + toType
+  } else {
+    return toType
+  }
+}
+
+/**
+ *
+ * @param {*} res
+ * @param {*} options
+ * This function calculates the number of bytes in the data type and based on
+ * that returns the option specified in the template.
+ * for eg: Give that options is
+ * options.hash.array="b"
+ * options.hash.one_byte="u"
+ * options.hash.two_byte="v"
+ * options.hash.three_byte="x"
+ * options.hash.four_byte="w"
+ * options.hash.short_string="s"
+ * options.hash.long_string="l"
+ * options.hash.default="b"
+ *
+ * calculateBytes("char_string", options)
+ * will return 's'
+ */
+function calculateBytes(res, options) {
+  var numberPattern = /\d+/g
+  let num = res.match(numberPattern)
+  switch (num / 8) {
+    case 1:
+      return options.hash.one_byte
+    case 2:
+      return options.hash.two_byte
+    case 3:
+      return options.hash.three_byte
+    case 4:
+      return options.hash.four_byte
+    default:
+      if (res.includes('long') && res.includes('string')) {
+        return options.hash.long_string
+      } else if (!res.includes('long') && res.includes('string')) {
+        return options.hash.short_string
+      } else {
+        return options.hash.default
+      }
+  }
+}
+
+/**
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} type
+ * @param {*} options
+ * @param {*} overridable
+ * @param {*} resType
+ * Character associated to a zcl/c data type.
+ */
+function dataTypeCharacterFormatter(
+  db,
+  packageId,
+  type,
+  options,
+  overridable,
+  resType
+) {
+  switch (resType) {
+    case dbEnum.zclType.array:
+      return options.hash.array
+    case dbEnum.zclType.bitmap:
+      return queryZcl
+        .selectBitmapByName(db, packageId, type)
+        .then((bitmap) => {
+          return queryZcl.selectAtomicType(db, packageId, bitmap.type)
+        })
+        .then((res) => {
+          return overridable.atomicType(res)
+        })
+        .then((res) => {
+          return calculateBytes(res, options)
+        })
+    case dbEnum.zclType.enum:
+      return queryZcl
+        .selectEnumByName(db, type, packageId)
+        .then((enumRec) => {
+          return queryZcl.selectAtomicType(db, packageId, enumRec.type)
+        })
+        .then((res) => {
+          return overridable.atomicType(res)
+        })
+        .then((res) => {
+          return calculateBytes(res, options)
+        })
+    case dbEnum.zclType.struct:
+      return options.hash.struct
+    case dbEnum.zclType.atomic:
+    case dbEnum.zclType.unknown:
+    default:
+      return queryZcl
+        .selectAtomicType(db, packageId, type)
+        .then((atomic) => {
+          if (
+            atomic &&
+            (atomic.name == 'char_string' ||
+              atomic.name == 'octet_string' ||
+              atomic.name == 'long_octet_string' ||
+              atomic.name == 'long_char_string')
+          ) {
+            return atomic.name
+          }
+          return overridable.atomicType(atomic)
+        })
+        .then((res) => {
+          return calculateBytes(res, options)
+        })
+  }
 }
 
 /**
@@ -549,7 +705,8 @@ function dataTypeHelper(
       if ('array' in options.hash) {
         return defaultMessageForTypeConversion(
           `${type} array`,
-          options.hash.array
+          options.hash.array,
+          options.hash.no_warning
         )
       } else {
         return queryZcl
@@ -560,7 +717,11 @@ function dataTypeHelper(
       }
     case dbEnum.zclType.bitmap:
       if ('bitmap' in options.hash) {
-        return defaultMessageForTypeConversion(`${type}`, options.hash.bitmap)
+        return defaultMessageForTypeConversion(
+          `${type}`,
+          options.hash.bitmap,
+          options.hash.no_warning
+        )
       } else {
         return queryZcl
           .selectBitmapByName(db, packageId, type)
@@ -573,7 +734,11 @@ function dataTypeHelper(
       }
     case dbEnum.zclType.enum:
       if ('enum' in options.hash) {
-        return defaultMessageForTypeConversion(`${type}`, options.hash.enum)
+        return defaultMessageForTypeConversion(
+          `${type}`,
+          options.hash.enum,
+          options.hash.no_warning
+        )
       } else {
         return queryZcl
           .selectEnumByName(db, type, packageId)
@@ -586,7 +751,11 @@ function dataTypeHelper(
       }
     case dbEnum.zclType.struct:
       if ('struct' in options.hash) {
-        return defaultMessageForTypeConversion(`${type}`, options.hash.struct)
+        return defaultMessageForTypeConversion(
+          `${type}`,
+          options.hash.struct,
+          options.hash.no_warning
+        )
       } else {
         return type
       }
@@ -604,6 +773,16 @@ function dataTypeHelper(
  *
  * @param {*} typeName
  * @param {*} options
+ * Note: If the options has zclCharFormatter set to true then the function will
+ * return the character associated with the zcl data type and not the actual data type.
+ *
+ * example:
+ * {{asUnderlyingZclType [array type] array="b" one_byte="u" two_byte="v" three_byte="x"
+ *  four_byte="w" short_string="s" long_string="l" default="b"
+ *  zclCharFormatter="true"}}
+ *
+ * For the above if asUnderlyingZclType was given [array type] then the above
+ * will return 'b'
  */
 function asUnderlyingZclType(type, options) {
   var promise = templateUtil
@@ -631,14 +810,43 @@ function asUnderlyingZclType(type, options) {
             })
         )
         .then((resType) => {
-          return dataTypeHelper(
-            type,
-            options,
-            packageId,
-            this.global.db,
-            resType,
-            this.global.overridable
-          )
+          if (dbEnum.zclType.zclCharFormatter in options.hash) {
+            if (
+              'array' in options.hash &&
+              'one_byte' in options.hash &&
+              'two_byte' in options.hash &&
+              'three_byte' in options.hash &&
+              'four_byte' in options.hash &&
+              'short_string' in options.hash &&
+              'long_string' in options.hash &&
+              'default' in options.hash
+            ) {
+              return dataTypeCharacterFormatter(
+                this.global.db,
+                packageId,
+                type,
+                options,
+                this.global.overridable,
+                resType
+              )
+            } else {
+              throw new Error(
+                'array, one_byte, two_byte, three_byte, \
+               four_byte, short_string, long_string and default need \
+               to be defined as options as well when zclCharFormatter \
+               is set to true.'
+              )
+            }
+          } else {
+            return dataTypeHelper(
+              type,
+              options,
+              packageId,
+              this.global.db,
+              resType,
+              this.global.overridable
+            )
+          }
         })
         .catch((err) => {
           env.logError(err)
@@ -778,3 +986,4 @@ exports.asUnderlyingZclType = asUnderlyingZclType
 exports.isBitmap = isBitmap
 exports.isStruct = isStruct
 exports.isEnum = isEnum
+exports.ifCommandArgumentsExist = ifCommandArgumentsExist
