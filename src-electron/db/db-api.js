@@ -27,6 +27,8 @@ const env = require('../util/env.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
+var inTransaction = false
+
 /**
  * Returns a promise to begin a transaction
  *
@@ -42,12 +44,12 @@ function dbBeginTransaction(db) {
         reject(err)
       } else {
         env.logSql('Executed BEGIN TRANSACTION')
+        inTransaction = true
         resolve()
       }
     })
   })
 }
-exports.dbBeginTransaction = dbBeginTransaction
 
 /**
  * Returns a promise to execute a commit.
@@ -64,12 +66,34 @@ function dbCommit(db) {
         reject(err)
       } else {
         env.logSql('Executed COMMIT')
+        inTransaction = false
         resolve()
       }
     })
   })
 }
-exports.dbCommit = dbCommit
+
+/**
+ * Returns a promise to execute a rollback of a transaction.
+ *
+ * @export
+ * @param {*} db
+ * @returns A promise that resolves without an argument or rejects with an error from ROLLBACK query.
+ */
+function dbRollback(db) {
+  return new Promise((resolve, reject) => {
+    db.run('ROLLBACK', [], function (err) {
+      if (err) {
+        env.logError('Failed to ROLLBACK')
+        reject(err)
+      } else {
+        env.logSql('Executed ROLLBACK')
+        inTransaction = false
+        resolve()
+      }
+    })
+  })
+}
 
 /**
  * Returns a promise to execute a DELETE FROM query.
@@ -93,7 +117,6 @@ function dbRemove(db, query, args) {
     })
   })
 }
-exports.dbRemove = dbRemove
 
 /**
  * Returns a promise to execute an update query.
@@ -117,7 +140,6 @@ function dbUpdate(db, query, args) {
     })
   })
 }
-exports.dbUpdate = dbUpdate
 
 /**
  * Returns a promise to execute an insert query.
@@ -143,7 +165,6 @@ function dbInsert(db, query, args) {
     })
   })
 }
-exports.dbInsert = dbInsert
 
 /**
  * Returns a promise to execute a query to perform a select that returns all rows that match a query.
@@ -167,7 +188,6 @@ function dbAll(db, query, args) {
     })
   })
 }
-exports.dbAll = dbAll
 
 /**
  * Returns a promise to execute a query to perform a select that returns first row that matches a query.
@@ -191,7 +211,6 @@ function dbGet(db, query, args, reportError = true) {
     })
   })
 }
-exports.dbGet = dbGet
 
 /**
  * Returns a promise to perform a prepared statement, using data from array for SQL parameters.
@@ -228,7 +247,6 @@ function dbMultiSelect(db, sql, arrayOfArrays) {
     })
   })
 }
-exports.dbMultiSelect = dbMultiSelect
 
 /**
  * Returns a promise to perfom a prepared statement, using data from array for SQL parameters.
@@ -261,7 +279,6 @@ function dbMultiInsert(db, sql, arrayOfArrays) {
     })
   })
 }
-exports.dbMultiInsert = dbMultiInsert
 
 /**
  * Returns a promise that will resolve when the database in question is closed.
@@ -281,7 +298,6 @@ function closeDatabase(database) {
     })
   })
 }
-exports.closeDatabase = closeDatabase
 
 /**
  * Create in-memory database.
@@ -300,7 +316,6 @@ function initRamDatabase() {
     })
   })
 }
-exports.initRamDatabase = initRamDatabase
 
 /**
  * Returns a promise to initialize a database.
@@ -321,7 +336,6 @@ function initDatabase(sqlitePath) {
     })
   })
 }
-exports.initDatabase = initDatabase
 
 /**
  * Returns a promise to insert or replace a setting into the database.
@@ -438,7 +452,7 @@ function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
       if (context.mustLoad) return updateCurrentSchemaCrc(db, context)
       else return context
     })
-    .then((context) =>
+    .then(() =>
       insertOrReplaceSetting(db, 'APP', 'VERSION', zapVersion.version)
     )
     .then(() => {
@@ -451,9 +465,8 @@ function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
         return insertOrReplaceSetting(db, 'APP', 'DATE', zapVersion.date)
       }
     })
-    .then((rowid) => Promise.resolve(db))
+    .then(() => Promise.resolve(db))
 }
-exports.loadSchema = loadSchema
 
 /**
  * Init database and load the schema.
@@ -468,4 +481,19 @@ function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
     loadSchema(db, schemaFile, zapVersion, sqliteFile)
   )
 }
+
+exports.dbBeginTransaction = dbBeginTransaction
+exports.dbCommit = dbCommit
+exports.dbRollback = dbRollback
+exports.dbRemove = dbRemove
+exports.dbUpdate = dbUpdate
+exports.dbInsert = dbInsert
+exports.dbAll = dbAll
+exports.dbGet = dbGet
+exports.dbMultiSelect = dbMultiSelect
+exports.dbMultiInsert = dbMultiInsert
+exports.closeDatabase = closeDatabase
+exports.initRamDatabase = initRamDatabase
+exports.initDatabase = initDatabase
+exports.loadSchema = loadSchema
 exports.initDatabaseAndLoadSchema = initDatabaseAndLoadSchema
