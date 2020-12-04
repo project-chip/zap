@@ -576,7 +576,8 @@ function generateAndWriteFiles(
           var err = genResult.errors[f]
           var fileName = path.join(outputDirectory, f)
           if (options.log) {
-            console.log(`    👎  ${fileName}: ⛔ ${err}`)
+            console.log(`    👎  ${fileName}: ⛔ ${err}\nStack trace:\n`)
+            console.log(err)
           }
         }
       }
