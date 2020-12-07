@@ -27,7 +27,7 @@
  * @returns a spaced out string in lowercase
  */
 function toCamelCase(label, firstLower = true) {
-  var str = label.split(/ |-|\//)
+  var str = label.split(/ |_|-|\//)
   var res = ''
   for (let i = 0; i < str.length; i++) {
     if (i == 0 && firstLower) {
