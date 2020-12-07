@@ -134,8 +134,9 @@ function toCleanSymbolAsKebabCase(label) {
 function toCleanMacro(label) {
   var l = label.toUpperCase().replace(/ /g, '_')
   l = l.replace(/[:/-]/g, '_')
-  l = l.replace('___', '_')
-  l = l.replace('__', '_')
+  while (l.includes('__')) {
+    l = l.replace('__', '_')
+  }
   l = l.replace('._', '_')
   l = l.replace('.', '_')
   l = l.replace('-', '_')
