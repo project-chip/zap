@@ -432,12 +432,12 @@ function zcl_command_arguments_count(commandId) {
  *
  * If the command arguments for a command exist then returns argument_return
  * else returns no_argument_return
- * Example: {{ifCommandArgumentsExist [command-id] "," ""}}
+ * Example: {{if_command_arguments_exist [command-id] "," ""}}
  * The above will return ',' if the command arguments for a command exist
  * and will return nothing if the command arguments for a command do not exist.
  *
  */
-function ifCommandArgumentsExist(
+function if_command_arguments_exist(
   commandId,
   argument_return,
   no_argument_return
@@ -986,4 +986,4 @@ exports.asUnderlyingZclType = asUnderlyingZclType
 exports.isBitmap = isBitmap
 exports.isStruct = isStruct
 exports.isEnum = isEnum
-exports.ifCommandArgumentsExist = ifCommandArgumentsExist
+exports.if_command_arguments_exist = if_command_arguments_exist
