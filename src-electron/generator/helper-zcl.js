@@ -951,6 +951,37 @@ function isCommandAvailable(clusterSide, incoming, outgoing, source, name) {
   return false
 }
 
+/**
+ *
+ *
+ * @param {*} clusterId
+ * @param {*} manufacturer_specific_return
+ * @param {*} null_manufacturer_specific_return
+ * @returns manufacturer_specific_return if the cluster is manufacturer
+ * specific or returns null_manufacturer_specific_return if cluster is
+ * not manufacturer specific.
+ */
+function if_manufacturing_specific_cluster(
+  clusterId,
+  manufacturer_specific_return,
+  null_manufacturer_specific_return
+) {
+  var promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) => {
+      var res = queryZcl.selectClusterById(this.global.db, clusterId, packageId)
+      return res
+    })
+    .then((res) => {
+      if (res.manufacturerCode != null) {
+        return manufacturer_specific_return
+      } else {
+        return null_manufacturer_specific_return
+      }
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -987,3 +1018,4 @@ exports.isBitmap = isBitmap
 exports.isStruct = isStruct
 exports.isEnum = isEnum
 exports.if_command_arguments_exist = if_command_arguments_exist
+exports.if_manufacturing_specific_cluster = if_manufacturing_specific_cluster
