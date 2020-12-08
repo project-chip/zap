@@ -529,15 +529,19 @@ function zcl_command_argument_data_type(type, options) {
         .then((resType) => {
           switch (resType) {
             case dbEnum.zclType.bitmap:
-              return helperC.dataTypeForBitmap(this.global.db, type, packageId)
+              return helperC.data_type_for_bitmap(
+                this.global.db,
+                type,
+                packageId
+              )
             case dbEnum.zclType.enum:
-              return helperC.dataTypeForEnum(this.global.db, type, packageId)
+              return helperC.data_type_for_enum(this.global.db, type, packageId)
             case dbEnum.zclType.struct:
               return options.hash.struct
             case dbEnum.zclType.atomic:
             case dbEnum.zclType.unknown:
             default:
-              return helperC.asCliType(type)
+              return helperC.as_cli_type(type)
           }
         })
         .catch((err) => {

@@ -302,9 +302,11 @@ function deprecatedHelper(fn, explanation) {
   } else {
     msg = `Deprecated helper resolved into ${fn.name}. Please use the new helper directly.`
   }
-
   var f = function () {
-    env.logWarning(msg)
+    if (this.global.deprecationWarnings[fn.name] == null) {
+      this.global.deprecationWarnings[fn.name] = true
+      env.logWarning(`${this.global.templatePath} : ${msg}`)
+    }
     return fn.apply(this, arguments)
   }
   f.isDeprecated = true

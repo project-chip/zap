@@ -32,6 +32,12 @@ test('helper functions need to be snake_case without uppercase characters unless
   }
 })
 
+test('check that there is no overlapping duplicates', () => {
+  var helpers = templateEngine.allGlobalHelpers()
+  var dups = helpers.duplicates.join(', ')
+  expect(dups).toBe('')
+})
+
 test('compare APIs against the baseline', () => {
   var apiFromFile = JSON.parse(
     fs.readFileSync(path.join(__dirname, 'helper-api-baseline.json'))

@@ -70,8 +70,10 @@ function produceContent(
   return produceCompiledTemplate(singleTemplatePkg).then((template) =>
     template({
       global: {
+        deprecationWarnings: {},
         db: db,
         sessionId: sessionId,
+        templatePath: singleTemplatePkg.path,
         promises: [],
         genTemplatePackageId: genTemplateJsonPackageId,
         overridable: loadOverridable(overridePath),
@@ -158,6 +160,9 @@ function allGlobalHelpers() {
   includedHelpers.forEach((path) => {
     var h = require(path)
     for (const singleHelper in h) {
+      if (allHelpers.api[singleHelper] != null) {
+        allHelpers.duplicates.push(singleHelper)
+      }
       allHelpers.api[singleHelper] = h[singleHelper]
     }
   })
