@@ -17,7 +17,7 @@ limitations under the License.
   <q-card>
     <q-card-section>
       <q-tree
-        :nodes="testData"
+        :nodes="componentTree"
         node-key="id"
         tick-strategy="leaf"
         :ticked.sync="uc.ticked"
@@ -47,13 +47,9 @@ export default {
         last_ticked: [], // keep this to get checked/unchecked items.
         ticked: [],
         expanded: [],
-        a: 1,
-        tree: [],
       },
 
-      testData: [],
-
-      last_ticked: [],
+      componentTree: [],
     }
   },
 
@@ -63,11 +59,11 @@ export default {
         studioProject: this.$store.state.zap.studioProject,
       },
     }).then((response) => {
-      response.data.forEach((ele) => this.testData.push(ele))
+      response.data.forEach((ele) => this.componentTree.push(ele))
 
       // computed selected Nodes
       let selected = []
-      this.testData.filter(function f(e) {
+      this.componentTree.filter(function f(e) {
         if (e.children) {
           e.children.filter(f, this)
         }
