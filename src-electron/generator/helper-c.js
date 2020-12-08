@@ -315,26 +315,60 @@ function addOne(number) {
   return number + 1
 }
 
+const dep = templateUtil.deprecatedHelper
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
-exports.asHex = asHex
-exports.asType = asType
-exports.asSymbol = asSymbol
-exports.asBytes = asBytes
-exports.asDelimitedMacro = asDelimitedMacro
-exports.asOffset = asOffset
-exports.asUnderlyingType = asUnderlyingType
-exports.asCamelCased = asCamelCased
-exports.cleanseLabel = cleanseLabel
-exports.asUnderscoreLowercase = asUnderscoreLowercase
-exports.asSpacedLowercase = asSpacedLowercase
-exports.asUnderscoreUppercase = asUnderscoreUppercase
-exports.asCliType = asCliType
-exports.dataTypeForBitmap = dataTypeForBitmap
-exports.dataTypeForEnum = dataTypeForEnum
-exports.addOne = addOne
-exports.cleanseLabelAsKebabCase = cleanseLabelAsKebabCase
-exports.formatValue = formatValue
+exports.as_hex = asHex
+exports.asHex = dep(asHex, { to: 'as_hex' })
+exports.as_type = asType
+exports.asType = dep(asType, { to: 'as_type' })
+exports.as_symbol = asSymbol
+exports.asSymbol = dep(asSymbol, { to: 'as_symbol' })
+exports.as_bytes = asBytes
+exports.asBytes = dep(asBytes, { to: 'as_bytes' })
+exports.as_delimited_macro = asDelimitedMacro
+exports.asDelimitedMacro = dep(asDelimitedMacro, { to: 'as_delimited_macro' })
+exports.as_offset = asOffset
+exports.asOffset = dep(asOffset, { to: 'as_offset' })
+exports.as_underlying_type = asUnderlyingType
+exports.asUnderlyingType = dep(asUnderlyingType, { to: 'as_underlying_type' })
+exports.as_camel_cased = asCamelCased
+exports.asCamelCased = dep(asCamelCased, { to: 'as_camel_cased' })
+
+exports.cleanse_label = cleanseLabel
+exports.cleanseLabel = dep(cleanseLabel, { to: 'cleanse_label' })
+
+exports.as_underscore_lowercase = asUnderscoreLowercase
+exports.asUnderscoreLowercase = dep(asUnderscoreLowercase, {
+  to: 'as_underscore_lowercase',
+})
+exports.as_spaced_lowercase = asSpacedLowercase
+exports.asSpacedLowercase = dep(asSpacedLowercase, {
+  to: 'as_spaced_lowercase',
+})
+exports.as_underscore_uppercase = asUnderscoreUppercase
+exports.asUnderscoreUppercase = dep(asUnderscoreUppercase, {
+  to: 'as_underscore_uppercase',
+})
+exports.as_cli_type = asCliType
+exports.asCliType = dep(asCliType, { to: 'as_cli_type' })
+
+exports.data_type_for_bitmap = dataTypeForBitmap
+exports.dataTypeForBitmap = dep(dataTypeForBitmap, {
+  to: 'data_type_for_bitmap',
+})
+exports.data_type_for_enum = dataTypeForEnum
+exports.dataTypeForEnum = dep(dataTypeForEnum, { to: 'data_type_for_enum' })
+exports.add_one = addOne
+exports.addOne = dep(addOne, { to: 'add_one' })
+exports.cleanse_label_as_kebab_case = cleanseLabelAsKebabCase
+exports.cleanseLabelAsKebabCase = dep(
+  cleanseLabelAsKebabCase,
+  'cleanse_label_as_kebab_case'
+)
+exports.format_value = formatValue
+exports.formatValue = dep(formatValue, { to: 'format_value' })

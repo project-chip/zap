@@ -19,6 +19,7 @@
  */
 const handlebars = require('handlebars')
 const helperC = require('../src-electron/generator/helper-c.js')
+const templateEngine = require('../src-electron/generator/template-engine.js')
 
 test('handlebars: simple test', () => {
   var template = handlebars.compile('{{a}} {{b}} {{c}}!')
@@ -143,4 +144,14 @@ test('delimeter macros', () => {
   expect(helperC.asDelimitedMacro('Very_Simple')).toEqual('VERY_SIMPLE')
   expect(helperC.asDelimitedMacro('Very_123_Simple')).toEqual('VERY_123_SIMPLE')
   expect(helperC.asDelimitedMacro('MfrDefGpdCmd0')).toEqual('MFR_DEF_GPD_CMD0')
+})
+
+test('helper functions need to be snake_case without uppercase characters unless they are deprecated', () => {
+  var helpers = templateEngine.allGlobalHelpers()
+  expect(Object.keys(helpers).length).toBeGreaterThan(10)
+  for (const x in helpers) {
+    expect(helpers[x]).not.toBeNull()
+    var n = x
+    if (!helpers[x].isDeprecated) expect(n.toLowerCase()).toEqual(n)
+  }
 })

@@ -23,6 +23,15 @@ const fsPromise = require('fs').promises
 const promisedHandlebars = require('promised-handlebars')
 const handlebars = promisedHandlebars(require('handlebars'))
 
+const includedHelpers = [
+  './helper-zcl.js',
+  './helper-zap.js',
+  './helper-c.js',
+  './helper-session.js',
+  './helper-endpointconfig.js',
+  './helper-sdkextension.js',
+]
+
 var globalHelpersInitialized = false
 
 const templateCompileOptions = {
@@ -136,19 +145,27 @@ function loadHelper(path) {
 }
 
 /**
+ * Returns an object that contains all the helper functions, keyed
+ * by their name
+ *
+ * @returns Object containing all the helper functions.
+ */
+function allGlobalHelpers() {
+  var allHelpers = {}
+  includedHelpers.forEach((path) => {
+    var h = require(path)
+    for (const singleHelper in h) {
+      allHelpers[singleHelper] = h[singleHelper]
+    }
+  })
+  return allHelpers
+}
+
+/**
  * Global helper initialization
  */
 function initializeGlobalHelpers() {
   if (globalHelpersInitialized) return
-
-  var includedHelpers = [
-    './helper-zcl.js',
-    './helper-zap.js',
-    './helper-c.js',
-    './helper-session.js',
-    './helper-endpointconfig.js',
-    './helper-sdkextension.js',
-  ]
 
   includedHelpers.forEach((element) => {
     loadHelper(element)
@@ -161,3 +178,4 @@ exports.produceContent = produceContent
 exports.loadHelper = loadHelper
 exports.loadPartial = loadPartial
 exports.initializeGlobalHelpers = initializeGlobalHelpers
+exports.allGlobalHelpers = allGlobalHelpers

@@ -17,6 +17,8 @@
 
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const env = require('../util/env.js')
+const _ = require('lodash')
 
 /**
  * @module JS API: generator logic
@@ -276,6 +278,38 @@ function templatePromise(global, promise) {
   global.promises.push(syncPromise)
   return syncPromise
 }
+/**
+ * Function wrapper that can be used when a helper is deprecated.
+ *
+ * @param {*} fn
+ * @param {*} explanation can contain `text`, or `from`/`to`, or just be a string message itself.
+ * @returns a function that wraps the original function, with deprecation message.
+ */
+function deprecatedHelper(fn, explanation) {
+  var msg
+  if (explanation == null) {
+    msg = `Deprecated helper resolved into ${fn.name}. Please use the new helper directly.`
+  } else if (_.isString(explanation)) {
+    msg = explanation
+  } else if ('text' in explanation) {
+    msg = explanation.text
+  } else if ('from' in explanation && 'to' in explanation) {
+    msg = `Helper ${explanation.from} is deprecated. Use ${explanation.to} instead.`
+  } else if ('to' in explanation) {
+    msg = `Helper ${fn.name} is deprecated. Use ${explanation.to} instead.`
+  } else if ('from' in explanation) {
+    msg = `Helper ${explanation.from} is deprecated. Use ${fn.name} instead.`
+  } else {
+    msg = `Deprecated helper resolved into ${fn.name}. Please use the new helper directly.`
+  }
+
+  var f = function () {
+    env.logWarning(msg)
+    return fn.apply(this, arguments)
+  }
+  f.isDeprecated = true
+  return f
+}
 
 exports.collectBlocks = collectBlocks
 exports.ensureZclPackageId = ensureZclPackageId
@@ -286,3 +320,4 @@ exports.ensureZclCommandSdkExtensions = ensureZclCommandSdkExtensions
 exports.ensureZclDeviceTypeSdkExtensions = ensureZclDeviceTypeSdkExtensions
 exports.makeSynchronizablePromise = makeSynchronizablePromise
 exports.templatePromise = templatePromise
+exports.deprecatedHelper = deprecatedHelper

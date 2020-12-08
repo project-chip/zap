@@ -982,6 +982,8 @@ function if_manufacturing_specific_cluster(
   return templateUtil.templatePromise(this.global, promise)
 }
 
+const dep = templateUtil.deprecatedHelper
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -1006,16 +1008,47 @@ exports.zcl_cluster_largest_label_length = zcl_cluster_largest_label_length
 exports.zcl_command_arguments_count = zcl_command_arguments_count
 exports.zcl_command_arguments = zcl_command_arguments
 exports.zcl_command_argument_data_type = zcl_command_argument_data_type
-exports.isClient = isClient
-exports.isServer = isServer
-exports.isStrEqual = isStrEqual
-exports.isLastElement = isLastElement
-exports.isFirstElement = isFirstElement
-exports.isEnabled = isEnabled
-exports.isCommandAvailable = isCommandAvailable
-exports.asUnderlyingZclType = asUnderlyingZclType
-exports.isBitmap = isBitmap
-exports.isStruct = isStruct
-exports.isEnum = isEnum
+
+exports.is_client = isClient
+exports.isClient = dep(isClient, { to: 'is_client' })
+
+exports.is_server = isServer
+exports.isServer = dep(isServer, { to: 'is_server' })
+
+exports.is_str_equal = isStrEqual
+exports.isStrEqual = dep(isStrEqual, { to: 'str_equal' })
+
+exports.is_last_element = isLastElement
+exports.isLastElement = dep(isLastElement, {
+  to: 'is_last_element',
+})
+
+exports.is_first_element = isFirstElement
+exports.isFirstElement = dep(isFirstElement, {
+  to: 'is_first_element',
+})
+
+exports.is_enabled = isEnabled
+exports.isEnabled = dep(isEnabled, { to: 'is_enabled' })
+
+exports.is_command_available = isCommandAvailable
+exports.isCommandAvailable = dep(isCommandAvailable, {
+  to: 'is_command_available',
+})
+
+exports.as_underlying_zcl_type = asUnderlyingZclType
+exports.asUnderlyingZclType = dep(asUnderlyingZclType, {
+  to: 'as_underlying_zcl_type',
+})
+
+exports.is_bitmap = isBitmap
+exports.isBitmap = dep(isBitmap, { to: 'is_bitmap' })
+
+exports.is_struct = isStruct
+exports.isStruct = dep(isStruct, { to: 'is_struct' })
+
+exports.is_enum = isEnum
+exports.isEnum = dep(isEnum, { to: 'is_enum' })
+
 exports.if_command_arguments_exist = if_command_arguments_exist
 exports.if_manufacturing_specific_cluster = if_manufacturing_specific_cluster
