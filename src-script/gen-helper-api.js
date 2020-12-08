@@ -22,8 +22,13 @@ const fs = require('fs')
 var helpers = templateEngine.allGlobalHelpers()
 var ar = []
 
-for (const key in helpers) {
-  ar.push({ name: key, isDeprecated: helpers[key].isDeprecated })
+if (helpers.duplicates.length > 0) {
+  console.log(`API has duplicates: ${helpers.duplicates}`)
+  process.exit(1)
+}
+
+for (const key in helpers.api) {
+  ar.push({ name: key, isDeprecated: helpers.api[key].isDeprecated })
 }
 
 ar.sort((a, b) => a.name.localeCompare(b.name))

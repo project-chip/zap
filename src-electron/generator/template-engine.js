@@ -151,11 +151,14 @@ function loadHelper(path) {
  * @returns Object containing all the helper functions.
  */
 function allGlobalHelpers() {
-  var allHelpers = {}
+  var allHelpers = {
+    api: {}, // keyed functions
+    duplicates: [], // array of duplicates
+  }
   includedHelpers.forEach((path) => {
     var h = require(path)
     for (const singleHelper in h) {
-      allHelpers[singleHelper] = h[singleHelper]
+      allHelpers.api[singleHelper] = h[singleHelper]
     }
   })
   return allHelpers
