@@ -139,9 +139,13 @@ test('handlebars: iterator', () => {
 })
 
 test('delimeter macros', () => {
-  expect(helperC.asDelimitedMacro('VerySimple')).toEqual('VERY_SIMPLE')
-  expect(helperC.asDelimitedMacro('Very_simple')).toEqual('VERY_SIMPLE')
-  expect(helperC.asDelimitedMacro('Very_Simple')).toEqual('VERY_SIMPLE')
-  expect(helperC.asDelimitedMacro('Very_123_Simple')).toEqual('VERY_123_SIMPLE')
-  expect(helperC.asDelimitedMacro('MfrDefGpdCmd0')).toEqual('MFR_DEF_GPD_CMD0')
+  expect(helperC.as_delimited_macro('VerySimple')).toEqual('VERY_SIMPLE')
+  expect(helperC.as_delimited_macro('Very_simple')).toEqual('VERY_SIMPLE')
+  expect(helperC.as_delimited_macro('Very_Simple')).toEqual('VERY_SIMPLE')
+  expect(helperC.as_delimited_macro('Very_123_Simple')).toEqual(
+    'VERY_123_SIMPLE'
+  )
+  expect(helperC.as_delimited_macro('MfrDefGpdCmd0')).toEqual(
+    'MFR_DEF_GPD_CMD0'
+  )
 })
