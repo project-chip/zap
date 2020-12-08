@@ -16,6 +16,7 @@
  */
 
 import * as Util from './util'
+import * as RestApi from '../../src-shared/rest-api'
 
 /**
  * This module provides common computed properties used across various vue components
@@ -109,6 +110,53 @@ export default {
         ],
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
+    },
+    updateComponent(componentId, studioProject, addComponent) {
+      let op = RestApi.uc.componentAdd
+      if (addComponent) {
+        op = RestApi.uc.componentAdd
+      } else {
+        op = RestApi.uc.componentRemove
+      }
+
+      this.$serverGet(op, {
+        params: {
+          componentId: componentId,
+          studioProject: this.$store.state.zap.studioProject,
+        },
+      })
+        .then((res) => {
+          let msg = ''
+          let name = componentId.replace(/_/g, ' ')
+          if (op == RestApi.uc.componentAdd) {
+            msg +=
+              '<div><strong>Component was successfully added.</strong></div>'
+            msg += `<div>The <span style="text-transform: capitalize">${name}</span> was added.</div>`
+          } else {
+            msg +=
+              '<div><strong>Component was successfully removed.</strong></div>'
+            msg += `<div>The <span style="text-transform: capitalize">${name}</span> was removed.</div>`
+          }
+
+          console.log(msg)
+          this.$q.notify({
+            message: msg,
+            color: 'positive',
+            position: 'top',
+            html: true,
+          })
+        })
+        .catch((err) => {
+          this.$q.notify({
+            message:
+              'Unable to ' +
+              (op == RestApi.uc.componentAdd ? 'add' : 'remove') +
+              ' ' +
+              componentId,
+            color: 'negative',
+            position: 'top',
+          })
+        })
     },
   },
 }

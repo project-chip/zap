@@ -30,9 +30,11 @@ limitations under the License.
 
 <script>
 const restApi = require('../../src-shared/rest-api.js')
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'UcComponentSetup',
+  mixins: [CommonMixin],
 
   data() {
     return {
@@ -90,26 +92,14 @@ export default {
         (x) => !this.uc.ticked.includes(x)
       )
 
-      console.log('Enable: ' + enabledItems)
       enabledItems.forEach(function (item) {
         let id = item.substr(item.lastIndexOf('-') + 1)
-        this.$serverGet(restApi.uc.componentAdd, {
-          params: {
-            componentId: id,
-            studioProject: this.$store.state.zap.studioProject,
-          },
-        })
+        this.updateComponent(id, this.$store.state.zap.studioProject, true)
       }, this)
 
-      console.log('Disable: ' + disabledItems)
       disabledItems.forEach(function (item) {
         let id = item.substr(item.lastIndexOf('-') + 1)
-        this.$serverGet(restApi.uc.componentRemove, {
-          params: {
-            componentId: id,
-            studioProject: this.$store.state.zap.studioProject,
-          },
-        })
+        this.updateComponent(id, this.$store.state.zap.studioProject, false)
       }, this)
 
       this.uc.last_ticked = this.uc.ticked
