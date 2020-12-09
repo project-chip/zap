@@ -700,7 +700,14 @@ function parseZclFiles(db, ctx) {
       zclLoader
         .readZclFile(file)
         .then((data) => util.calculateCrc({ filePath: file, data: data }))
-        .then((data) => zclLoader.qualifyZclFile(db, data, ctx.packageId))
+        .then((data) =>
+          zclLoader.qualifyZclFile(
+            db,
+            data,
+            ctx.packageId,
+            dbEnum.packageType.zclXml
+          )
+        )
         .then((result) => zclLoader.parseZclFile(result))
         .then((result) => processParsedZclData(db, result))
         .then((laterPromises) => {
@@ -721,7 +728,14 @@ function loadIndividualSilabsFile(db, filePath) {
   return zclLoader
     .readZclFile(filePath)
     .then((data) => util.calculateCrc({ filePath: filePath, data: data }))
-    .then((data) => zclLoader.qualifyZclFile(db, data, null))
+    .then((data) =>
+      zclLoader.qualifyZclFile(
+        db,
+        data,
+        null,
+        dbEnum.packageType.zclXmlStandalone
+      )
+    )
     .then((result) => {
       pkgId = result.packageId
       return result

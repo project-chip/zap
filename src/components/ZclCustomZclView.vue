@@ -92,6 +92,7 @@ limitations under the License.
 </template>
 
 <script>
+import Vue from 'vue'
 import restApi from '../../src-shared/rest-api.js'
 import CommonMixin from '../util/common-mixin'
 
@@ -103,8 +104,11 @@ export default {
       return fileName.length > 0 ? fileName[0] : path
     },
     loadNewPackage(packageToLoad) {
-      console.log(packageToLoad)
       this.$store.dispatch('zap/addNewPackage', packageToLoad).then((x) => {
+        Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
+          var arg = response.data
+          this.$store.dispatch('zap/updateClusters', arg.data)
+        })
         this.uploadNewPackage = !this.uploadNewPackage
       })
     },

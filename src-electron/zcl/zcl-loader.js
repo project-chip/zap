@@ -122,7 +122,7 @@ function loadIndividualFile(db, filePath) {
  * @param {*} parentPackageId
  * @returns Promise that resolves int he object of data.
  */
-function qualifyZclFile(db, info, parentPackageId) {
+function qualifyZclFile(db, info, parentPackageId, packageType) {
   return new Promise((resolve, reject) => {
     var filePath = info.filePath
     var data = info.data
@@ -138,7 +138,7 @@ function qualifyZclFile(db, info, parentPackageId) {
               db,
               filePath,
               actualCrc,
-              dbEnum.packageType.zclXml,
+              packageType,
               parentPackageId
             )
             .then((packageId) => {

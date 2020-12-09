@@ -306,12 +306,16 @@ function httpPostAddNewPackage(db) {
     var sessionId = request.session.zapSessionId
     var { filePath } = request.body
     try {
-      zclLoader.loadIndividualFile(db, filePath).then((packageId) => {
-        return queryPackage
-          .insertSessionPackage(db, sessionId, packageId, false)
-          .then(() => sessionId)
-      })
-      return response.status(restApi.httpCode.ok).send()
+      zclLoader
+        .loadIndividualFile(db, filePath)
+        .then((packageId) => {
+          return queryPackage
+            .insertSessionPackage(db, sessionId, packageId, false)
+            .then(() => sessionId)
+        })
+        .then(() => {
+          return response.status(restApi.httpCode.ok).send()
+        })
     } catch (err) {
       console.log(err)
       return response.status(restApi.httpCode.badRequest).send()

@@ -74,7 +74,14 @@ function parseZclFiles(db, ctx) {
     var p = zclLoader
       .readZclFile(file)
       .then((data) => util.calculateCrc({ filePath: file, data: data }))
-      .then((data) => zclLoader.qualifyZclFile(db, data, ctx.packageId))
+      .then((data) =>
+        zclLoader.qualifyZclFile(
+          db,
+          data,
+          ctx.packageId,
+          dbEnum.packageType.zclXml
+        )
+      )
       .then((result) => zclLoader.parseZclFile(result))
       .then((r) => {
         var result = r.result
