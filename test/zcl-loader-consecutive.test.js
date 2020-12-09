@@ -100,7 +100,7 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     .then(() => queryZcl.selectAllDeviceTypes(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(108))
     .then(() => queryZcl.selectAllBitmaps(db, dotdotPackageId))
-    .then((x) => expect(x.length).toEqual(50)) //seems low
+    .then((x) => expect(x.length).toEqual(61)) //seems low
     .then(() => queryZcl.selectAllEnums(db, dotdotPackageId))
     .then((x) => expect(x.length).toEqual(80)) //seems low
     .then(() =>
