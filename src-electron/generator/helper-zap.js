@@ -170,6 +170,7 @@ function toggle(condition, trueResult, falseResult) {
  * @returns A string with no leading and trailing spaces
  */
 function trim_string(str) {
+  if (str == null) return null
   var result = str.trim()
   return result
 }
