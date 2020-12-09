@@ -26,6 +26,7 @@ const queryConfig = require('../db/query-config.js')
 const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
+const zclLoader = require('../zcl/zcl-loader.js')
 
 /**
  * HTTP GET: session key values
@@ -305,8 +306,14 @@ function httpPostAddNewPackage(db) {
     var sessionId = request.session.zapSessionId
     var { filePath } = request.body
     try {
+      zclLoader.loadIndividualFile(db, filePath).then((packageId) => {
+        return queryPackage
+          .insertSessionPackage(db, sessionId, packageId, false)
+          .then(() => sessionId)
+      })
       return response.status(restApi.httpCode.ok).send()
     } catch (err) {
+      console.log(err)
       return response.status(restApi.httpCode.badRequest).send()
     }
   }

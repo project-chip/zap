@@ -567,6 +567,12 @@ function loadZclData(db, ctx) {
     .then(() => queryZcl.insertStructs(db, ctx.packageId, types.structs))
 }
 
+function loadIndividualDotDotFile(db, filePath) {
+  return zclLoader.readZclFile(filePath).then((data) => {
+    console.log(data)
+  })
+}
+
 /**
  * Toplevel function that loads the xml library file and orchestrates the promise chain.
  *
@@ -595,3 +601,4 @@ function loadDotdotZcl(db, ctx) {
 }
 
 exports.loadDotdotZcl = loadDotdotZcl
+exports.loadIndividualDotDotFile = loadIndividualDotDotFile
