@@ -216,9 +216,10 @@ function prepareAttributes(attributes, side, types, cluster = null) {
  *
  * @param {*} commands an array of commands
  * @param {*} side the side the command is on either "client" or "server"
+ * @param {*} types contained for types, where bitmaps are going to be inserted.
  * @returns Array containing all data from XML ready to be inserted in to the DB.
  */
-function prepareCommands(commands, side) {
+function prepareCommands(commands, side, types) {
   var ret = []
   var cmds = commands.command === undefined ? commands : commands.command
   for (var i = 0; i < cmds.length; i++) {
@@ -238,10 +239,15 @@ function prepareCommands(commands, side) {
         var fds = fields.field === undefined ? fields : fields.field
         for (var j = 0; j < fds.length; j++) {
           let f = fds[j]
+          let type = f.$.type
           env.logInfo(`Preparing field ${f.$.name}`)
+          if (f.bitmap != null && f.bitmap.length > 0) {
+            type = `${c.$.name}${f.$.name}`
+            types.bitmaps.push(prepareBitmap(f, true, c.$.name))
+          }
           pcmd.args.push({
             name: f.$.name,
-            type: f.$.type,
+            type: type,
             ordinal: j,
             //isArray: 0, //TODO: no indication of array type in dotdot xml
           })
@@ -297,7 +303,7 @@ function prepareCluster(cluster, isExtension = false, types) {
       if ('commands' in side.value[0]) {
         side.value[0].commands.forEach((commands) => {
           ret.commands = ret.commands.concat(
-            prepareCommands(commands, side.name)
+            prepareCommands(commands, side.name, types)
           )
         })
       }
@@ -332,20 +338,23 @@ function prepareAtomic(type) {
  * Parses xml type into the bitmap object for insertion into the DB
  *
  * @param {*} type an xml object which conforms to the bitmap format in the dotdot xml
- * @param {*} fromAttribute a boolean indicating if this is coming from an attribute or not
+ * @param {*} isContained a boolean indicating if this is coming from a contained tag or not
  * @returns object ready for insertion into the DB
  */
-function prepareBitmap(type, fromAttribute = false, cluster = null) {
+function prepareBitmap(type, isContained = false, namePrefix = null) {
   var ret
-  if (fromAttribute) {
+  if (isContained) {
     ret = {
-      //TODO: Bitmaps from cluster attributes may not be unique by name so we prepend the cluster
+      //TODO: Bitmaps from clusterOrCommand attributes may not be unique by name so we prepend the clusterOrCommand
       //      name to the bitmap name (as we do in the Silabs xml)
-      name: cluster ? cluster.$.name + type.$.name : type.$.name,
+      name: namePrefix ? namePrefix + type.$.name : type.$.name,
       type: type.$.type,
     }
   } else {
-    ret = { name: type.$.short, type: type.bitmap[0].element[0].$.type }
+    ret = {
+      name: type.$.short,
+      type: type.bitmap[0].element[0].$.type,
+    }
   }
   if ('bitmap' in type) {
     ret.fields = []
@@ -458,7 +467,7 @@ function prepareTypes(zclTypes, types) {
  */
 function prepareAttributeType(attribute, types, cluster) {
   if ('bitmap' in attribute) {
-    types.bitmaps.push(prepareBitmap(attribute, true, cluster))
+    types.bitmaps.push(prepareBitmap(attribute, true, cluster.$.name))
   } else if (
     'restriction' in attribute &&
     'type:enumeration' in attribute.restriction[0]
@@ -544,7 +553,7 @@ function loadZclData(db, ctx) {
   var gs = [
     {
       attributes: gas,
-      commands: prepareCommands(ctx.zclGlobalCommands, ''),
+      commands: prepareCommands(ctx.zclGlobalCommands, '', types),
     },
   ]
   var ds = []
