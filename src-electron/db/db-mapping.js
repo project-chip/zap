@@ -335,6 +335,14 @@ exports.map = {
       value: x.VALUE,
     }
   },
+  sessionPackage: (x) => {
+    if (x == null) return undefined
+    return {
+      packageRef: x.PACKAGE_REF,
+      sessionRef: x.SESSION_REF,
+      required: x.REQUIRED,
+    }
+  },
 }
 
 exports.reverseMap = {

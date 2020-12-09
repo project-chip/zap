@@ -191,6 +191,7 @@ function exportPackagesFromSession(db, sessionId) {
       path: x.PATH,
       version: x.VERSION,
       type: x.TYPE,
+      required: x.REQUIRED,
     }
   }
   return dbApi
@@ -200,7 +201,8 @@ function exportPackagesFromSession(db, sessionId) {
 SELECT
   PACKAGE.PATH,
   PACKAGE.VERSION,
-  PACKAGE.TYPE
+  PACKAGE.TYPE,
+  SESSION_PACKAGE.REQUIRED
 FROM PACKAGE
 INNER JOIN SESSION_PACKAGE
 ON PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF

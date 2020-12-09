@@ -138,7 +138,7 @@ export function updateSelectedClients(context, selectionContext) {
     })
 }
 
-export function getProjectPackages(context, selectionContext) {
+export function getProjectPackages(context) {
   Vue.prototype.$serverGet(restApi.uri.packages).then((res) => {
     let data = res.data
     context.commit('updateProjectPackages', data)
@@ -538,6 +538,17 @@ export function loadSessionKeyValues(context) {
     .$serverGet(restApi.uri.getAllSessionKeyValues)
     .then((response) => {
       context.commit('loadSessionKeyValues', response.data)
+    })
+}
+
+export function addNewPackage(context, file) {
+  Vue.prototype
+    .$serverPost(restApi.uri.addNewPackage, {
+      filePath: file.path,
+    })
+    .then((response) => {
+      console.log(response)
+      getProjectPackages(context)
     })
 }
 

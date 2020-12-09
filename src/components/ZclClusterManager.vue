@@ -26,18 +26,6 @@ limitations under the License.
         </q-toolbar>
       </div>
       <div class="row bar align=left;">
-        <q-btn
-          class="col-6 left"
-          align="left"
-          text-color="primary"
-          icon="add"
-          label="Add Custom ZCL"
-          flat
-          :ripple="false"
-          :unelevated="false"
-          :outline="none"
-          to="/customZcl"
-        />
         <div class="row">
           <div
             style="

@@ -175,13 +175,13 @@ describe('Session specific queries', () => {
 
   test('Test that package id for session is preset.', () =>
     queryPackage
-      .getSessionPackageIds(db, sid)
+      .getSessionPackages(db, sid)
       .then((ids) => expect(ids.length).toBe(2))) // One for zclpropertie and one for gen template
 
   test('Test that ZCL package id for session is preset.', () =>
     queryPackage
-      .getSessionZclPackageIds(db, sid)
-      .then((ids) => expect(ids.length).toBe(1))) // One for zclpropertie
+      .getSessionZclPackages(db, sid)
+      .then((packages) => expect(packages.length).toBe(1))) // One for zclpropertie
 
   test('Test some attribute queries.', () =>
     querySession.getSessionInfoFromSessionKey(db, 'SESSION').then((data) => {

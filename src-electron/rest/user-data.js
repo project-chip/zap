@@ -268,9 +268,9 @@ function httpGetOption(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
     const { category } = request.params
-    queryPackage.getSessionPackageIds(db, sessionId).then((packageIds) => {
-      var p = packageIds.map((packageId) =>
-        queryPackage.selectAllOptionsValues(db, packageId, category)
+    queryPackage.getSessionPackages(db, sessionId).then((packages) => {
+      var p = packages.map((pkg) =>
+        queryPackage.selectAllOptionsValues(db, pkg.packageRef, category)
       )
       Promise.all(p)
         .then((data) => data.flat(1))
@@ -288,10 +288,27 @@ function httpGetPackages(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
     queryPackage
-      .getSessionPackagesBySessionId(db, sessionId)
-      .then((packages) => {
-        return response.status(restApi.httpCode.ok).json(packages)
+      .getPackageSessionPackagePairBySessionId(db, sessionId)
+      .then((packageSessionPackagePairs) => {
+        return response
+          .status(restApi.httpCode.ok)
+          .json(packageSessionPackagePairs)
       })
+  }
+}
+
+/**
+ * HTTP POST: Add new project package
+ */
+function httpPostAddNewPackage(db) {
+  return (request, response) => {
+    var sessionId = request.session.zapSessionId
+    var { filePath } = request.body
+    try {
+      return response.status(restApi.httpCode.ok).send()
+    } catch (err) {
+      return response.status(restApi.httpCode.badRequest).send()
+    }
   }
 }
 
@@ -311,6 +328,10 @@ exports.post = [
   {
     uri: restApi.uri.saveSessionKeyValue,
     callback: httpPostSaveSessionKeyValue,
+  },
+  {
+    uri: restApi.uri.addNewPackage,
+    callback: httpPostAddNewPackage,
   },
 ]
 

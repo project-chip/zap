@@ -82,7 +82,7 @@ function initializeSessionPackage(db, sessionId) {
 
       if (packageId != null) {
         return queryPackage
-          .insertSessionPackage(db, sessionId, packageId)
+          .insertSessionPackage(db, sessionId, packageId, true)
           .then(() => sessionId)
       } else {
         return sessionId
@@ -125,7 +125,7 @@ function initializeSessionPackage(db, sessionId) {
       }
       if (packageId != null) {
         return queryPackage
-          .insertSessionPackage(db, sessionId, packageId)
+          .insertSessionPackage(db, sessionId, packageId, true)
           .then(() => sessionId)
       } else {
         return sessionId
@@ -135,10 +135,10 @@ function initializeSessionPackage(db, sessionId) {
 
   return Promise.all(promises)
     .then(() =>
-      queryPackage.getSessionPackageIds(db, sessionId).then((packageIds) => {
-        var p = packageIds.map((packageId) => {
+      queryPackage.getSessionPackages(db, sessionId).then((packages) => {
+        var p = packages.map((pkg) => {
           return queryPackage
-            .selectAllDefaultOptions(db, packageId)
+            .selectAllDefaultOptions(db, pkg.packageRef)
             .then((optionDefaultsArray) => {
               return Promise.all(
                 optionDefaultsArray.map((optionDefault) => {

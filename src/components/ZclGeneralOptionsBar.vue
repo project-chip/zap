@@ -50,6 +50,19 @@ limitations under the License.
         outlined
         dense
       />
+
+      <q-btn
+        class="col-6 left"
+        align="left"
+        text-color="primary"
+        icon="add"
+        label="Add Custom ZCL"
+        flat
+        :ripple="false"
+        :unelevated="false"
+        :outline="none"
+        to="/customZcl"
+      />
     </q-toolbar>
   </div>
 </template>
