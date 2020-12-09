@@ -52,9 +52,10 @@ module.exports = function (ctx) {
       directives: [],
 
       // Quasar plugins
-      plugins: ['Loading'],
+      plugins: ['Loading', 'Notify'],
       config: {
         loading: {},
+        notify: {},
       },
     },
 

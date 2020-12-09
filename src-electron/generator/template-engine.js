@@ -23,6 +23,15 @@ const fsPromise = require('fs').promises
 const promisedHandlebars = require('promised-handlebars')
 const handlebars = promisedHandlebars(require('handlebars'))
 
+const includedHelpers = [
+  './helper-zcl.js',
+  './helper-zap.js',
+  './helper-c.js',
+  './helper-session.js',
+  './helper-endpointconfig.js',
+  './helper-sdkextension.js',
+]
+
 var globalHelpersInitialized = false
 
 const templateCompileOptions = {
@@ -32,7 +41,6 @@ const templateCompileOptions = {
 const precompiledTemplates = {}
 
 function produceCompiledTemplate(singleTemplatePkg) {
-  initializeGlobalHelpers()
   if (singleTemplatePkg.id in precompiledTemplates)
     return Promise.resolve(precompiledTemplates[singleTemplatePkg.id])
   else
@@ -62,8 +70,10 @@ function produceContent(
   return produceCompiledTemplate(singleTemplatePkg).then((template) =>
     template({
       global: {
+        deprecationWarnings: {},
         db: db,
         sessionId: sessionId,
+        templatePath: singleTemplatePkg.path,
         promises: [],
         genTemplatePackageId: genTemplateJsonPackageId,
         overridable: loadOverridable(overridePath),
@@ -137,19 +147,33 @@ function loadHelper(path) {
 }
 
 /**
+ * Returns an object that contains all the helper functions, keyed
+ * by their name
+ *
+ * @returns Object containing all the helper functions.
+ */
+function allGlobalHelpers() {
+  var allHelpers = {
+    api: {}, // keyed functions
+    duplicates: [], // array of duplicates
+  }
+  includedHelpers.forEach((path) => {
+    var h = require(path)
+    for (const singleHelper in h) {
+      if (allHelpers.api[singleHelper] != null) {
+        allHelpers.duplicates.push(singleHelper)
+      }
+      allHelpers.api[singleHelper] = h[singleHelper]
+    }
+  })
+  return allHelpers
+}
+
+/**
  * Global helper initialization
  */
 function initializeGlobalHelpers() {
   if (globalHelpersInitialized) return
-
-  var includedHelpers = [
-    './helper-zcl.js',
-    './helper-zap.js',
-    './helper-c.js',
-    './helper-session.js',
-    './helper-endpointconfig.js',
-    './helper-sdkextension.js',
-  ]
 
   includedHelpers.forEach((element) => {
     loadHelper(element)
@@ -161,3 +185,5 @@ function initializeGlobalHelpers() {
 exports.produceContent = produceContent
 exports.loadHelper = loadHelper
 exports.loadPartial = loadPartial
+exports.initializeGlobalHelpers = initializeGlobalHelpers
+exports.allGlobalHelpers = allGlobalHelpers

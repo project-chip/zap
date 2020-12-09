@@ -22,7 +22,6 @@ const args = require('../src-electron/util/args.js')
 const cHelper = require('../src-electron/generator/helper-c')
 const env = require('../src-electron/util/env.js')
 const dbApi = require('../src-electron/db/db-api.js')
-const templateUtil = require('../src-electron/generator/template-util')
 const genEngine = require('../src-electron/generator/generation-engine.js')
 const testUtil = require('./test-util.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
@@ -88,14 +87,14 @@ test(
  */
 
 test('Add one', () => {
-  expect(cHelper.addOne(52)).toEqual(53)
+  expect(cHelper.add_one(52)).toEqual(53)
 })
 
 test('dataTypeForEnum', () => {
   return cHelper
-    .dataTypeForEnum(db, 'patate', zclContext.packageId)
+    .data_type_for_enum(db, 'patate', zclContext.packageId)
     .then((result) => expect(result).toBe('!!Invalid enum: patate'))
-    .then(() => cHelper.dataTypeForEnum(db, 'Status', zclContext.packageId))
+    .then(() => cHelper.data_type_for_enum(db, 'Status', zclContext.packageId))
     .then((result) => expect(result).toBe('SL_CLI_ARG_UINT8'))
 })
 
@@ -122,7 +121,7 @@ test('Various String helper', () => {
 
 test('asBytes helper', () => {
   return (
-    cHelper.asBytes
+    cHelper.as_bytes
       .call(ctx, 'Garbage', null)
       .then((value) => expect(value).toBe('Garbage'))
       .then(() => cHelper.asBytes.call(ctx, '6', 'int8u'))

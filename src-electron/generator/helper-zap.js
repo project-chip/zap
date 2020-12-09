@@ -289,6 +289,8 @@ function after(options) {
   })
 }
 
+const dep = templateUtil.deprecatedHelper
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -302,11 +304,17 @@ exports.not_last = not_last
 exports.first = first
 exports.middle = middle
 exports.template_option_with_code = template_option_with_code
-exports.isEqual = isEqual
+exports.is_equal = isEqual
+exports.isEqual = dep(isEqual, { to: 'is_equal' })
 exports.trim_string = trim_string
-exports.asLastWord = asLastWord
+exports.as_last_word = asLastWord
+exports.asLastWord = dep(asLastWord, { to: 'as_last_word' })
 exports.iterate = iterate
-exports.addToAccumulator = addToAccumulator
-exports.iterateAccumulator = iterateAccumulator
+exports.add_to_accumulator = addToAccumulator
+exports.addToAccumulator = dep(addToAccumulator, { to: 'add_to_accumulator' })
+exports.iterate_accumulator = iterateAccumulator
+exports.iterateAccumulator = dep(iterateAccumulator, {
+  to: 'iterate_accumulator',
+})
 exports.after = after
 exports.toggle = toggle

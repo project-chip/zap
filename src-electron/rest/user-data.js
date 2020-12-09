@@ -281,6 +281,20 @@ function httpGetOption(db) {
   }
 }
 
+/**
+ * HTTP GET: Project packages
+ */
+function httpGetPackages(db) {
+  return (request, response) => {
+    var sessionId = request.session.zapSessionId
+    queryPackage
+      .getSessionPackagesBySessionId(db, sessionId)
+      .then((packages) => {
+        return response.status(restApi.httpCode.ok).json(packages)
+      })
+  }
+}
+
 exports.post = [
   {
     uri: restApi.uri.cluster,
@@ -312,5 +326,9 @@ exports.get = [
   {
     uri: `${restApi.uri.option}/:category`,
     callback: httpGetOption,
+  },
+  {
+    uri: restApi.uri.packages,
+    callback: httpGetPackages,
   },
 ]

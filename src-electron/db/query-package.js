@@ -372,6 +372,22 @@ function getSessionPackageIds(db, sessionId) {
 }
 
 /**
+ * Returns all packages associated w/ a given sessionId
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} sessionId
+ */
+function getSessionPackagesBySessionId(db, sessionId) {
+  return dbApi
+    .dbAll(
+      db,
+      `SELECT PACKAGE.PACKAGE_ID, PACKAGE.PATH, PACKAGE.TYPE, PACKAGE.CRC, PACKAGE.VERSION, PACKAGE.PARENT_PACKAGE_REF FROM PACKAGE, SESSION_PACKAGE WHERE PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF AND SESSION_PACKAGE.SESSION_REF = ?`,
+      [sessionId]
+    )
+    .then((rows) => rows.map(dbMapping.map.package))
+}
+
+/**
  * This function inserts an option and its values into the DB.
  *
  * @param {*} db
@@ -630,6 +646,7 @@ exports.getPackageByPackageId = getPackageByPackageId
 exports.getPackagesByType = getPackagesByType
 exports.getPackageByParent = getPackageByParent
 exports.getPackageIdByPathAndTypeAndVersion = getPackageIdByPathAndTypeAndVersion
+exports.getSessionPackagesBySessionId = getSessionPackagesBySessionId
 
 exports.getPathCrc = getPathCrc
 exports.insertPathCrc = insertPathCrc

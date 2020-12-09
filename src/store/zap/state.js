@@ -30,6 +30,7 @@ export default function () {
     endpoints: [],
     genericOptions: {},
     selectedGenericOptions: {},
+    projectPackages: [],
     clusterManager: {
       openDomains: {},
       filter: {

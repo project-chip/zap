@@ -17,7 +17,7 @@ limitations under the License.
   <q-card>
     <q-card-section>
       <q-tree
-        :nodes="testData"
+        :nodes="componentTree"
         node-key="id"
         tick-strategy="leaf"
         :ticked.sync="uc.ticked"
@@ -30,9 +30,11 @@ limitations under the License.
 
 <script>
 const restApi = require('../../src-shared/rest-api.js')
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'UcComponentSetup',
+  mixins: [CommonMixin],
 
   data() {
     return {
@@ -45,13 +47,9 @@ export default {
         last_ticked: [], // keep this to get checked/unchecked items.
         ticked: [],
         expanded: [],
-        a: 1,
-        tree: [],
       },
 
-      testData: [],
-
-      last_ticked: [],
+      componentTree: [],
     }
   },
 
@@ -61,11 +59,11 @@ export default {
         studioProject: this.$store.state.zap.studioProject,
       },
     }).then((response) => {
-      response.data.forEach((ele) => this.testData.push(ele))
+      response.data.forEach((ele) => this.componentTree.push(ele))
 
       // computed selected Nodes
       let selected = []
-      this.testData.filter(function f(e) {
+      this.componentTree.filter(function f(e) {
         if (e.children) {
           e.children.filter(f, this)
         }
@@ -90,26 +88,14 @@ export default {
         (x) => !this.uc.ticked.includes(x)
       )
 
-      console.log('Enable: ' + enabledItems)
       enabledItems.forEach(function (item) {
         let id = item.substr(item.lastIndexOf('-') + 1)
-        this.$serverGet(restApi.uc.componentAdd, {
-          params: {
-            componentId: id,
-            studioProject: this.$store.state.zap.studioProject,
-          },
-        })
+        this.updateComponent(id, this.$store.state.zap.studioProject, true)
       }, this)
 
-      console.log('Disable: ' + disabledItems)
       disabledItems.forEach(function (item) {
         let id = item.substr(item.lastIndexOf('-') + 1)
-        this.$serverGet(restApi.uc.componentRemove, {
-          params: {
-            componentId: id,
-            studioProject: this.$store.state.zap.studioProject,
-          },
-        })
+        this.updateComponent(id, this.$store.state.zap.studioProject, false)
       }, this)
 
       this.uc.last_ticked = this.uc.ticked

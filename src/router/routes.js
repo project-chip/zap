@@ -28,6 +28,10 @@ const routes = [
     component: () => import('components/ZclClusterView.vue'),
   },
   {
+    path: '/customZcl',
+    component: () => import('components/ZclCustomZclView.vue'),
+  },
+  {
     path: '/preference',
     component: () => import('pages/Preference.vue'),
   },

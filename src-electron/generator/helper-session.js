@@ -243,10 +243,9 @@ function user_cluster_commands_all_endpoints(options) {
  *
  * @param {*} name : Cluster name
  * @param {*} side : Cluster side
- * @param {*} options
  * @returns True if cluster has enabled commands otherwise false
  */
-function user_cluster_has_enabled_command(name, side, options) {
+function user_cluster_has_enabled_command(name, side) {
   return queryImpexp
     .exportendPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
