@@ -261,6 +261,19 @@ function insertSessionPackage(db, sessionId, packageId, required = false) {
 }
 
 /**
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageType
+ */
+function deleteSessionPackage(db, sessionId, packageId) {
+  return dbApi.dbRemove(
+    db,
+    `DELETE FROM SESSION_PACKAGE WHERE SESSION_REF = ? AND PACKAGE_REF = ?`,
+    [sessionId, packageId]
+  )
+}
+
+/**
  * Returns session packages of a given type.
  *
  * @param {*} db
@@ -691,3 +704,4 @@ exports.getPackagesByParentAndType = getPackagesByParentAndType
 exports.getSessionZclPackages = getSessionZclPackages
 exports.insertPackageExtension = insertPackageExtension
 exports.selectPackageExtension = selectPackageExtension
+exports.deleteSessionPackage = deleteSessionPackage

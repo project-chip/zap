@@ -58,7 +58,7 @@ limitations under the License.
                       label="Delete"
                       icon="delete"
                       flat
-                      @click.stop
+                      @click.stop="deletePackage(sessionPackage)"
                       :disable="sessionPackage.sessionPackage.required == 1"
                     />
                     <q-btn label="Relative to..." outlined @click.stop />
@@ -111,6 +111,16 @@ export default {
         })
         this.uploadNewPackage = !this.uploadNewPackage
       })
+    },
+    deletePackage(packageToDelete) {
+      this.$store
+        .dispatch('zap/deleteSessionPackage', packageToDelete.sessionPackage)
+        .then((x) => {
+          Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
+            var arg = response.data
+            this.$store.dispatch('zap/updateClusters', arg.data)
+          })
+        })
     },
   },
   mounted() {

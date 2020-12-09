@@ -33,6 +33,7 @@ const uri = {
   sql: '/sql',
   packages: `/packages`,
   addNewPackage: `/packages/add`,
+  sessionPackage: `/sessionPackage`,
 }
 
 const uiMode = {

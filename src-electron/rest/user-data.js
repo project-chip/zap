@@ -27,6 +27,7 @@ const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
 const zclLoader = require('../zcl/zcl-loader.js')
+const session = require('express-session')
 
 /**
  * HTTP GET: session key values
@@ -323,6 +324,22 @@ function httpPostAddNewPackage(db) {
   }
 }
 
+function httpDeleteSessionPackage(db) {
+  return (request, response) => {
+    let { sessionRef, packageRef } = request.query
+    queryPackage
+      .deleteSessionPackage(db, sessionRef, packageRef)
+      .then((removed) => {
+        response.json({
+          successful: removed > 0,
+          sessionRef: sessionRef,
+          packageRef: packageRef,
+        })
+        return response.status(restApi.httpCode.ok).send()
+      })
+  }
+}
+
 exports.post = [
   {
     uri: restApi.uri.cluster,
@@ -362,5 +379,12 @@ exports.get = [
   {
     uri: restApi.uri.packages,
     callback: httpGetPackages,
+  },
+]
+
+exports.delete = [
+  {
+    uri: restApi.uri.sessionPackage,
+    callback: httpDeleteSessionPackage,
   },
 ]

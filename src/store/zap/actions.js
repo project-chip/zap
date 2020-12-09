@@ -551,6 +551,14 @@ export function addNewPackage(context, file) {
     })
 }
 
+export function deleteSessionPackage(context, sessionPackage) {
+  return Vue.prototype
+    .$serverDelete(restApi.uri.sessionPackage, { params: sessionPackage })
+    .then((response) => {
+      return getProjectPackages(context)
+    })
+}
+
 export function setDefaultUiMode(context, uiMode) {
   context.commit(`setDefaultUiMode`, uiMode)
 }
