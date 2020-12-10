@@ -50,7 +50,19 @@ function collectDataFromLibraryXml(ctx) {
     })
 }
 
-function processParsedZclData(db, argument) {}
+// Random internal XML utility functions
+
+function tagContainsEnum(tag) {
+  return (
+    tag.restriction != null &&
+    tag.restriction.length > 0 &&
+    'type:enumeration' in tag.restriction[0]
+  )
+}
+
+function tagContainsBitmap(tag) {
+  return 'bitmap' in tag
+}
 /**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
@@ -242,13 +254,9 @@ function prepareCommands(commands, side, types) {
           let type = f.$.type
           if (f.bitmap != null && f.bitmap.length > 0) {
             type = `${c.$.name}${f.$.name}`
-            types.bitmaps.push(prepareBitmap(f, true, c.$.name))
+            types.bitmaps.push(prepareBitmap(types, f, true, c.$.name))
           }
-          if (
-            f.restriction != null &&
-            f.restriction.length > 0 &&
-            'type:enumeration' in f.restriction[0]
-          ) {
+          if (tagContainsEnum(f)) {
             type = `${c.$.name}${f.$.name}`
             types.enums.push(prepareEnum(f, true, c.$.name))
           }
@@ -348,7 +356,12 @@ function prepareAtomic(type) {
  * @param {*} isContained a boolean indicating if this is coming from a contained tag or not
  * @returns object ready for insertion into the DB
  */
-function prepareBitmap(type, isContained = false, namePrefix = null) {
+function prepareBitmap(
+  typeContainer,
+  type,
+  isContained = false,
+  namePrefix = null
+) {
   var ret
   if (isContained) {
     ret = {
@@ -363,7 +376,7 @@ function prepareBitmap(type, isContained = false, namePrefix = null) {
       type: type.bitmap[0].element[0].$.type,
     }
   }
-  if ('bitmap' in type) {
+  if (tagContainsBitmap(type)) {
     ret.fields = []
     type.bitmap[0].element.map((e, index) => {
       ret.fields.push({
@@ -371,6 +384,9 @@ function prepareBitmap(type, isContained = false, namePrefix = null) {
         mask: normalizeHexValue(e.$.mask),
         ordinal: index,
       })
+      if (tagContainsEnum(e)) {
+        typeContainer.enums.push(prepareEnum(e, true, e.$.name))
+      }
     })
   }
   return ret
@@ -445,12 +461,9 @@ function prepareStruct(type) {
 function prepareTypes(zclTypes, types) {
   if (zclTypes == undefined) return
   zclTypes.map((type) => {
-    if ('bitmap' in type) {
-      types.bitmaps.push(prepareBitmap(type))
-    } else if (
-      'restriction' in type &&
-      'type:enumeration' in type.restriction[0]
-    ) {
+    if (tagContainsBitmap(type)) {
+      types.bitmaps.push(prepareBitmap(types, type))
+    } else if (tagContainsEnum(type)) {
       types.enums.push(prepareEnum(type))
     } else if (
       'restriction' in type &&
@@ -476,12 +489,9 @@ function prepareTypes(zclTypes, types) {
  * @param {*} cluster the cluster that the attribute belongs to (used presently for uniqueness of the type name)
  */
 function prepareAttributeType(attribute, types, cluster) {
-  if ('bitmap' in attribute) {
-    types.bitmaps.push(prepareBitmap(attribute, true, cluster.$.name))
-  } else if (
-    'restriction' in attribute &&
-    'type:enumeration' in attribute.restriction[0]
-  ) {
+  if (tagContainsBitmap(attribute)) {
+    types.bitmaps.push(prepareBitmap(types, attribute, true, cluster.$.name))
+  } else if (tagContainsEnum(attribute)) {
     types.enums.push(
       prepareEnum(attribute, true, cluster == null ? null : cluster.$.name)
     )
