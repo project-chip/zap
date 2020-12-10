@@ -252,10 +252,23 @@ function updatePathCrc(db, path, crc, parentId) {
  * @param {*} packageId
  * @returns Promise of an insert.
  */
-function insertSessionPackage(db, sessionId, packageId) {
+function insertSessionPackage(db, sessionId, packageId, required = false) {
   return dbApi.dbInsert(
     db,
-    'INSERT OR REPLACE INTO SESSION_PACKAGE (SESSION_REF, PACKAGE_REF) VALUES (?,?)',
+    'INSERT OR REPLACE INTO SESSION_PACKAGE (SESSION_REF, PACKAGE_REF, REQUIRED) VALUES (?,?, ?)',
+    [sessionId, packageId, required]
+  )
+}
+
+/**
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageType
+ */
+function deleteSessionPackage(db, sessionId, packageId) {
+  return dbApi.dbRemove(
+    db,
+    `DELETE FROM SESSION_PACKAGE WHERE SESSION_REF = ? AND PACKAGE_REF = ?`,
     [sessionId, packageId]
   )
 }
@@ -333,14 +346,16 @@ function getSessionGenTemplates(db, sessionId) {
  * @param {*} db
  * @param {*} sessionId
  */
-function getSessionZclPackageIds(db, sessionId) {
+function getSessionZclPackages(db, sessionId) {
   var inList = `('${dbEnum.packageType.zclProperties}', '${dbEnum.packageType.zclXmlStandalone}')`
   return dbApi
     .dbAll(
       db,
       `
 SELECT 
-  SP.PACKAGE_REF
+  SP.PACKAGE_REF,
+  SP.SESSION_REF,
+  SP.REQUIRED
 FROM 
   SESSION_PACKAGE AS SP
 INNER JOIN 
@@ -352,7 +367,7 @@ WHERE
 `,
       [sessionId]
     )
-    .then((rows) => rows.map((r) => r.PACKAGE_REF))
+    .then((rows) => rows.map(dbMapping.map.sessionPackage))
 }
 
 /**
@@ -361,14 +376,14 @@ WHERE
  * @param {*} sessionId
  * @returns The promise that resolves into an array of package IDs.
  */
-function getSessionPackageIds(db, sessionId) {
+function getSessionPackages(db, sessionId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT PACKAGE_REF FROM SESSION_PACKAGE WHERE SESSION_REF = ?',
+      'SELECT PACKAGE_REF, SESSION_REF, REQUIRED FROM SESSION_PACKAGE WHERE SESSION_REF = ?',
       [sessionId]
     )
-    .then((rows) => rows.map((r) => r.PACKAGE_REF))
+    .then((rows) => rows.map(dbMapping.map.sessionPackage))
 }
 
 /**
@@ -377,14 +392,36 @@ function getSessionPackageIds(db, sessionId) {
  * @param {*} packageId
  * @param {*} sessionId
  */
-function getSessionPackagesBySessionId(db, sessionId) {
+function getPackageSessionPackagePairBySessionId(db, sessionId) {
   return dbApi
     .dbAll(
       db,
-      `SELECT PACKAGE.PACKAGE_ID, PACKAGE.PATH, PACKAGE.TYPE, PACKAGE.CRC, PACKAGE.VERSION, PACKAGE.PARENT_PACKAGE_REF FROM PACKAGE, SESSION_PACKAGE WHERE PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF AND SESSION_PACKAGE.SESSION_REF = ?`,
+      `SELECT 
+        PACKAGE.PACKAGE_ID, 
+        PACKAGE.PATH, 
+        PACKAGE.TYPE, 
+        PACKAGE.CRC, 
+        PACKAGE.VERSION, 
+        PACKAGE.PARENT_PACKAGE_REF,
+        SESSION_PACKAGE.PACKAGE_REF,
+        SESSION_PACKAGE.SESSION_REF,
+        SESSION_PACKAGE.REQUIRED
+       FROM 
+        PACKAGE, 
+        SESSION_PACKAGE 
+       WHERE 
+        PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF 
+        AND SESSION_PACKAGE.SESSION_REF = ?`,
       [sessionId]
     )
-    .then((rows) => rows.map(dbMapping.map.package))
+    .then((rows) =>
+      rows.map((x) => {
+        return {
+          pkg: dbMapping.map.package(x),
+          sessionPackage: dbMapping.map.sessionPackage(x),
+        }
+      })
+    )
 }
 
 /**
@@ -646,7 +683,7 @@ exports.getPackageByPackageId = getPackageByPackageId
 exports.getPackagesByType = getPackagesByType
 exports.getPackageByParent = getPackageByParent
 exports.getPackageIdByPathAndTypeAndVersion = getPackageIdByPathAndTypeAndVersion
-exports.getSessionPackagesBySessionId = getSessionPackagesBySessionId
+exports.getPackageSessionPackagePairBySessionId = getPackageSessionPackagePairBySessionId
 
 exports.getPathCrc = getPathCrc
 exports.insertPathCrc = insertPathCrc
@@ -654,7 +691,7 @@ exports.updatePathCrc = updatePathCrc
 exports.registerTopLevelPackage = registerTopLevelPackage
 exports.updateVersion = updateVersion
 exports.insertSessionPackage = insertSessionPackage
-exports.getSessionPackageIds = getSessionPackageIds
+exports.getSessionPackages = getSessionPackages
 exports.insertOptionsKeyValues = insertOptionsKeyValues
 exports.selectAllOptionsValues = selectAllOptionsValues
 exports.selectSpecificOptionValue = selectSpecificOptionValue
@@ -664,6 +701,7 @@ exports.getSessionGenTemplates = getSessionGenTemplates
 exports.selectAllDefaultOptions = selectAllDefaultOptions
 exports.selectOptionValueByOptionDefaultId = selectOptionValueByOptionDefaultId
 exports.getPackagesByParentAndType = getPackagesByParentAndType
-exports.getSessionZclPackageIds = getSessionZclPackageIds
+exports.getSessionZclPackages = getSessionZclPackages
 exports.insertPackageExtension = insertPackageExtension
 exports.selectPackageExtension = selectPackageExtension
+exports.deleteSessionPackage = deleteSessionPackage

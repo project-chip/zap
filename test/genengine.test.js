@@ -96,7 +96,7 @@ test('Initialize session packages', () =>
   utilJs
     .initializeSessionPackage(templateContext.db, templateContext.sessionId)
     .then((sessionId) =>
-      queryPackage.getSessionPackageIds(templateContext.db, sessionId)
+      queryPackage.getSessionPackages(templateContext.db, sessionId)
     )
     .then((packages) => {
       expect(packages.length).toBe(2)

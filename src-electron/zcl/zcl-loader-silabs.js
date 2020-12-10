@@ -608,7 +608,6 @@ function processParsedZclData(db, argument) {
   var filePath = argument.filePath
   var data = argument.result
   var packageId = argument.packageId
-
   if (!('result' in argument)) {
     return Promise.resolve([])
   } else {
@@ -701,7 +700,14 @@ function parseZclFiles(db, ctx) {
       zclLoader
         .readZclFile(file)
         .then((data) => util.calculateCrc({ filePath: file, data: data }))
-        .then((data) => zclLoader.qualifyZclFile(db, data, ctx.packageId))
+        .then((data) =>
+          zclLoader.qualifyZclFile(
+            db,
+            data,
+            ctx.packageId,
+            dbEnum.packageType.zclXml
+          )
+        )
         .then((result) => zclLoader.parseZclFile(result))
         .then((result) => processParsedZclData(db, result))
         .then((laterPromises) => {
@@ -715,6 +721,32 @@ function parseZclFiles(db, ctx) {
     .then((promiseArray) => Promise.all(promiseArray))
     .then(() => zclLoader.processZclPostLoading(db))
     .then(() => ctx)
+}
+
+function loadIndividualSilabsFile(db, filePath) {
+  var pkgId
+  return zclLoader
+    .readZclFile(filePath)
+    .then((data) => util.calculateCrc({ filePath: filePath, data: data }))
+    .then((data) =>
+      zclLoader.qualifyZclFile(
+        db,
+        data,
+        null,
+        dbEnum.packageType.zclXmlStandalone
+      )
+    )
+    .then((result) => {
+      pkgId = result.packageId
+      return result
+    })
+    .then((result) => zclLoader.parseZclFile(result))
+    .then((result) => processParsedZclData(db, result))
+    .then((laterPromises) =>
+      Promise.all(laterPromises.flat(1).map((promise) => promise()))
+    )
+    .then(() => zclLoader.processZclPostLoading(db))
+    .then(() => pkgId)
 }
 
 function parseManufacturerData(db, ctx) {
@@ -884,3 +916,4 @@ function loadSilabsZcl(db, ctx, isJson = false) {
 }
 
 exports.loadSilabsZcl = loadSilabsZcl
+exports.loadIndividualSilabsFile = loadIndividualSilabsFile

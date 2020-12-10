@@ -209,8 +209,15 @@ function httpGetZclEntity(db) {
     var sessionId = request.session.zapSessionId
 
     queryPackage
-      .getSessionZclPackageIds(db, sessionId)
-      .then((packageIdArray) => parseForZclData(db, entity, id, packageIdArray))
+      .getSessionZclPackages(db, sessionId)
+      .then((packageArray) => {
+        return parseForZclData(
+          db,
+          entity,
+          id,
+          packageArray.map((pkg) => pkg.packageRef)
+        )
+      })
       .then((resultData) => response.json(resultData))
   }
 }

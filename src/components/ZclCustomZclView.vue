@@ -20,7 +20,7 @@ limitations under the License.
         <q-breadcrumbs>
           <!-- this needs to be updated depending on how the pages will work -->
           <q-breadcrumbs-el icon="keyboard_arrow_left" to="/">
-            Endpoint x{{ this.endpointId[this.selectedEndpointId] }}
+            Main Configurator
           </q-breadcrumbs-el>
           <q-breadcrumbs-el to="/"> Add Custom ZCL </q-breadcrumbs-el>
         </q-breadcrumbs>
@@ -51,16 +51,25 @@ limitations under the License.
                 <template slot="header">
                   <q-toolbar>
                     <div>
-                      <b>{{ getFileName(sessionPackage.path) }}</b>
+                      <b>{{ getFileName(sessionPackage.pkg.path) }}</b>
                     </div>
                     <q-space />
-                    <q-btn label="Delete" icon="delete" flat @click.stop />
+                    <q-btn
+                      label="Delete"
+                      icon="delete"
+                      flat
+                      @click.stop="deletePackage(sessionPackage)"
+                      :disable="sessionPackage.sessionPackage.required == 1"
+                    />
                     <q-btn label="Relative to..." outlined @click.stop />
                   </q-toolbar>
                 </template>
-                Full File path: {{ sessionPackage.path }} <br />
-                Package Type: {{ sessionPackage.type }} <br />
-                Version: {{ sessionPackage.version }} <br />
+                Full File path: {{ sessionPackage.pkg.path }} <br />
+                Package Type: {{ sessionPackage.pkg.type }} <br />
+                Version: {{ sessionPackage.pkg.version }} <br />
+                Required:
+                {{ sessionPackage.sessionPackage.required ? 'True' : 'False' }}
+                <br />
               </q-expansion-item>
             </q-item-section>
           </q-item>
@@ -83,6 +92,7 @@ limitations under the License.
 </template>
 
 <script>
+import Vue from 'vue'
 import restApi from '../../src-shared/rest-api.js'
 import CommonMixin from '../util/common-mixin'
 
@@ -94,7 +104,23 @@ export default {
       return fileName.length > 0 ? fileName[0] : path
     },
     loadNewPackage(packageToLoad) {
-      console.log(packageToLoad)
+      this.$store.dispatch('zap/addNewPackage', packageToLoad).then((x) => {
+        Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
+          var arg = response.data
+          this.$store.dispatch('zap/updateClusters', arg.data)
+        })
+        this.uploadNewPackage = !this.uploadNewPackage
+      })
+    },
+    deletePackage(packageToDelete) {
+      this.$store
+        .dispatch('zap/deleteSessionPackage', packageToDelete.sessionPackage)
+        .then((x) => {
+          Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
+            var arg = response.data
+            this.$store.dispatch('zap/updateClusters', arg.data)
+          })
+        })
     },
   },
   mounted() {

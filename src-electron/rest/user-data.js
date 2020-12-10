@@ -26,6 +26,8 @@ const queryConfig = require('../db/query-config.js')
 const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
+const zclLoader = require('../zcl/zcl-loader.js')
+const session = require('express-session')
 
 /**
  * HTTP GET: session key values
@@ -268,9 +270,9 @@ function httpGetOption(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
     const { category } = request.params
-    queryPackage.getSessionPackageIds(db, sessionId).then((packageIds) => {
-      var p = packageIds.map((packageId) =>
-        queryPackage.selectAllOptionsValues(db, packageId, category)
+    queryPackage.getSessionPackages(db, sessionId).then((packages) => {
+      var p = packages.map((pkg) =>
+        queryPackage.selectAllOptionsValues(db, pkg.packageRef, category)
       )
       Promise.all(p)
         .then((data) => data.flat(1))
@@ -288,9 +290,52 @@ function httpGetPackages(db) {
   return (request, response) => {
     var sessionId = request.session.zapSessionId
     queryPackage
-      .getSessionPackagesBySessionId(db, sessionId)
-      .then((packages) => {
-        return response.status(restApi.httpCode.ok).json(packages)
+      .getPackageSessionPackagePairBySessionId(db, sessionId)
+      .then((packageSessionPackagePairs) => {
+        return response
+          .status(restApi.httpCode.ok)
+          .json(packageSessionPackagePairs)
+      })
+  }
+}
+
+/**
+ * HTTP POST: Add new project package
+ */
+function httpPostAddNewPackage(db) {
+  return (request, response) => {
+    var sessionId = request.session.zapSessionId
+    var { filePath } = request.body
+    try {
+      zclLoader
+        .loadIndividualFile(db, filePath)
+        .then((packageId) => {
+          return queryPackage
+            .insertSessionPackage(db, sessionId, packageId, false)
+            .then(() => sessionId)
+        })
+        .then(() => {
+          return response.status(restApi.httpCode.ok).send()
+        })
+    } catch (err) {
+      console.log(err)
+      return response.status(restApi.httpCode.badRequest).send()
+    }
+  }
+}
+
+function httpDeleteSessionPackage(db) {
+  return (request, response) => {
+    let { sessionRef, packageRef } = request.query
+    queryPackage
+      .deleteSessionPackage(db, sessionRef, packageRef)
+      .then((removed) => {
+        response.json({
+          successful: removed > 0,
+          sessionRef: sessionRef,
+          packageRef: packageRef,
+        })
+        return response.status(restApi.httpCode.ok).send()
       })
   }
 }
@@ -312,6 +357,10 @@ exports.post = [
     uri: restApi.uri.saveSessionKeyValue,
     callback: httpPostSaveSessionKeyValue,
   },
+  {
+    uri: restApi.uri.addNewPackage,
+    callback: httpPostAddNewPackage,
+  },
 ]
 
 exports.get = [
@@ -330,5 +379,12 @@ exports.get = [
   {
     uri: restApi.uri.packages,
     callback: httpGetPackages,
+  },
+]
+
+exports.delete = [
+  {
+    uri: restApi.uri.sessionPackage,
+    callback: httpDeleteSessionPackage,
   },
 ]

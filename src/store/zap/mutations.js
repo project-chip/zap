@@ -379,5 +379,5 @@ export function resetFilters(state) {
 }
 
 export function updateProjectPackages(state, packages) {
-  state.packages = packages
+  Vue.set(state, 'packages', packages)
 }

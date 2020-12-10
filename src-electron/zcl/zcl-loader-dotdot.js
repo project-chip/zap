@@ -50,7 +50,27 @@ function collectDataFromLibraryXml(ctx) {
     })
 }
 
-function processParsedZclData(db, argument) {}
+// Random internal XML utility functions
+
+function tagContainsEnum(tag) {
+  return (
+    tag.restriction != null &&
+    tag.restriction.length > 0 &&
+    'type:enumeration' in tag.restriction[0]
+  )
+}
+
+function tagContainsStruct(tag) {
+  return (
+    tag.restriction != null &&
+    tag.restriction.length > 0 &&
+    'type:sequence' in tag.restriction[0]
+  )
+}
+
+function tagContainsBitmap(tag) {
+  return 'bitmap' in tag
+}
 /**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
@@ -74,7 +94,14 @@ function parseZclFiles(db, ctx) {
     var p = zclLoader
       .readZclFile(file)
       .then((data) => util.calculateCrc({ filePath: file, data: data }))
-      .then((data) => zclLoader.qualifyZclFile(db, data, ctx.packageId))
+      .then((data) =>
+        zclLoader.qualifyZclFile(
+          db,
+          data,
+          ctx.packageId,
+          dbEnum.packageType.zclXml
+        )
+      )
       .then((result) => zclLoader.parseZclFile(result))
       .then((r) => {
         var result = r.result
@@ -209,9 +236,10 @@ function prepareAttributes(attributes, side, types, cluster = null) {
  *
  * @param {*} commands an array of commands
  * @param {*} side the side the command is on either "client" or "server"
+ * @param {*} types contained for types, where bitmaps are going to be inserted.
  * @returns Array containing all data from XML ready to be inserted in to the DB.
  */
-function prepareCommands(commands, side) {
+function prepareCommands(commands, side, types) {
   var ret = []
   var cmds = commands.command === undefined ? commands : commands.command
   for (var i = 0; i < cmds.length; i++) {
@@ -231,10 +259,18 @@ function prepareCommands(commands, side) {
         var fds = fields.field === undefined ? fields : fields.field
         for (var j = 0; j < fds.length; j++) {
           let f = fds[j]
-          env.logInfo(`Preparing field ${f.$.name}`)
+          let type = f.$.type
+          if (f.bitmap != null && f.bitmap.length > 0) {
+            type = `${c.$.name}${f.$.name}`
+            types.bitmaps.push(prepareBitmap(types, f, true, c.$.name))
+          }
+          if (tagContainsEnum(f)) {
+            type = `${c.$.name}${f.$.name}`
+            types.enums.push(prepareEnum(f, true, c.$.name))
+          }
           pcmd.args.push({
             name: f.$.name,
-            type: f.$.type,
+            type: type,
             ordinal: j,
             //isArray: 0, //TODO: no indication of array type in dotdot xml
           })
@@ -290,7 +326,7 @@ function prepareCluster(cluster, isExtension = false, types) {
       if ('commands' in side.value[0]) {
         side.value[0].commands.forEach((commands) => {
           ret.commands = ret.commands.concat(
-            prepareCommands(commands, side.name)
+            prepareCommands(commands, side.name, types)
           )
         })
       }
@@ -325,22 +361,30 @@ function prepareAtomic(type) {
  * Parses xml type into the bitmap object for insertion into the DB
  *
  * @param {*} type an xml object which conforms to the bitmap format in the dotdot xml
- * @param {*} fromAttribute a boolean indicating if this is coming from an attribute or not
+ * @param {*} isContained a boolean indicating if this is coming from a contained tag or not
  * @returns object ready for insertion into the DB
  */
-function prepareBitmap(type, fromAttribute = false, cluster = null) {
+function prepareBitmap(
+  typeContainer,
+  type,
+  isContained = false,
+  namePrefix = null
+) {
   var ret
-  if (fromAttribute) {
+  if (isContained) {
     ret = {
-      //TODO: Bitmaps from cluster attributes may not be unique by name so we prepend the cluster
+      //TODO: Bitmaps from clusterOrCommand attributes may not be unique by name so we prepend the clusterOrCommand
       //      name to the bitmap name (as we do in the Silabs xml)
-      name: cluster ? cluster.$.name + type.$.name : type.$.name,
+      name: namePrefix ? namePrefix + type.$.name : type.$.name,
       type: type.$.type,
     }
   } else {
-    ret = { name: type.$.short, type: type.bitmap[0].element[0].$.type }
+    ret = {
+      name: type.$.short,
+      type: type.bitmap[0].element[0].$.type,
+    }
   }
-  if ('bitmap' in type) {
+  if (tagContainsBitmap(type)) {
     ret.fields = []
     type.bitmap[0].element.map((e, index) => {
       ret.fields.push({
@@ -348,6 +392,9 @@ function prepareBitmap(type, fromAttribute = false, cluster = null) {
         mask: normalizeHexValue(e.$.mask),
         ordinal: index,
       })
+      if (tagContainsEnum(e)) {
+        typeContainer.enums.push(prepareEnum(e, true, e.$.name))
+      }
     })
   }
   return ret
@@ -360,17 +407,20 @@ function prepareBitmap(type, fromAttribute = false, cluster = null) {
  * @param {*} type an xml object which conforms to the enum format in the dotdot xml
  * @returns object ready for insertion into the DB
  */
-function prepareEnum(type, fromAttribute = false, cluster = null) {
+function prepareEnum(type, fromAttribute = false, namePrefix = null) {
   var ret
   if (fromAttribute) {
     ret = {
       // TODO: Enums from cluster attributes may not be unique by name so we prepend the cluster
       //       name to the enum name (as we do in the Silabs xml)
-      name: cluster ? cluster.$.name + type.$.name : type.$.name,
+      name: namePrefix ? namePrefix + type.$.name : type.$.name,
       type: type.$.type,
     }
   } else {
-    ret = { name: type.$.short, type: type.$.inheritsFrom }
+    ret = {
+      name: type.$.short,
+      type: type.$.inheritsFrom,
+    }
   }
   if ('restriction' in type) {
     ret.items = []
@@ -419,17 +469,11 @@ function prepareStruct(type) {
 function prepareTypes(zclTypes, types) {
   if (zclTypes == undefined) return
   zclTypes.map((type) => {
-    if ('bitmap' in type) {
-      types.bitmaps.push(prepareBitmap(type))
-    } else if (
-      'restriction' in type &&
-      'type:enumeration' in type.restriction[0]
-    ) {
+    if (tagContainsBitmap(type)) {
+      types.bitmaps.push(prepareBitmap(types, type))
+    } else if (tagContainsEnum(type)) {
       types.enums.push(prepareEnum(type))
-    } else if (
-      'restriction' in type &&
-      'type:sequence' in type.restriction[0]
-    ) {
+    } else if (tagContainsStruct(type)) {
       types.structs.push(prepareStruct(type))
     } else if (type.$.inheritsFrom === undefined) {
       types.atomics.push(prepareAtomic(type))
@@ -450,13 +494,12 @@ function prepareTypes(zclTypes, types) {
  * @param {*} cluster the cluster that the attribute belongs to (used presently for uniqueness of the type name)
  */
 function prepareAttributeType(attribute, types, cluster) {
-  if ('bitmap' in attribute) {
-    types.bitmaps.push(prepareBitmap(attribute, true, cluster))
-  } else if (
-    'restriction' in attribute &&
-    'type:enumeration' in attribute.restriction[0]
-  ) {
-    types.enums.push(prepareEnum(attribute, true, cluster))
+  if (tagContainsBitmap(attribute)) {
+    types.bitmaps.push(prepareBitmap(types, attribute, true, cluster.$.name))
+  } else if (tagContainsEnum(attribute)) {
+    types.enums.push(
+      prepareEnum(attribute, true, cluster == null ? null : cluster.$.name)
+    )
   }
 }
 
@@ -537,7 +580,7 @@ function loadZclData(db, ctx) {
   var gs = [
     {
       attributes: gas,
-      commands: prepareCommands(ctx.zclGlobalCommands, ''),
+      commands: prepareCommands(ctx.zclGlobalCommands, '', types),
     },
   ]
   var ds = []
@@ -565,6 +608,12 @@ function loadZclData(db, ctx) {
     .then(() => queryZcl.insertEnums(db, ctx.packageId, types.enums))
     .then(() => queryZcl.insertBitmaps(db, ctx.packageId, types.bitmaps))
     .then(() => queryZcl.insertStructs(db, ctx.packageId, types.structs))
+}
+
+function loadIndividualDotDotFile(db, filePath) {
+  return zclLoader.readZclFile(filePath).then((data) => {
+    console.log(data)
+  })
 }
 
 /**
@@ -595,3 +644,4 @@ function loadDotdotZcl(db, ctx) {
 }
 
 exports.loadDotdotZcl = loadDotdotZcl
+exports.loadIndividualDotDotFile = loadIndividualDotDotFile

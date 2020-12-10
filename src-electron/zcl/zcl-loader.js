@@ -103,6 +103,15 @@ function loadZcl(db, metadataFile) {
   }
 }
 
+function loadIndividualFile(db, filePath) {
+  var ext = path.extname(filePath)
+  if (ext == '.xml') {
+    return sLoad.loadIndividualSilabsFile(db, filePath)
+  } else {
+    return Promise.reject('Unknown extension file')
+  }
+}
+
 /**
  * Promises to qualify whether zcl file needs to be reloaded.
  * If yes, the it will resolve with {filePath, data, packageId}
@@ -113,7 +122,7 @@ function loadZcl(db, metadataFile) {
  * @param {*} parentPackageId
  * @returns Promise that resolves int he object of data.
  */
-function qualifyZclFile(db, info, parentPackageId) {
+function qualifyZclFile(db, info, parentPackageId, packageType) {
   return new Promise((resolve, reject) => {
     var filePath = info.filePath
     var data = info.data
@@ -129,14 +138,15 @@ function qualifyZclFile(db, info, parentPackageId) {
               db,
               filePath,
               actualCrc,
-              dbEnum.packageType.zclXml,
+              packageType,
               parentPackageId
             )
             .then((packageId) => {
               resolve({
                 filePath: filePath,
                 data: data,
-                packageId: parentPackageId,
+                packageId:
+                  parentPackageId == null ? packageId : parentPackageId,
               })
             })
         } else {
@@ -158,7 +168,8 @@ function qualifyZclFile(db, info, parentPackageId) {
                 resolve({
                   filePath: filePath,
                   data: data,
-                  packageId: parentPackageId,
+                  packageId:
+                    parentPackageId == null ? packageId : parentPackageId,
                 })
               })
           }
@@ -212,6 +223,7 @@ exports.readMetadataFile = readMetadataFile
 exports.recordToplevelPackage = recordToplevelPackage
 exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading
+exports.loadIndividualFile = loadIndividualFile
 exports.readZclFile = readZclFile
 exports.qualifyZclFile = qualifyZclFile
 exports.parseZclFile = parseZclFile

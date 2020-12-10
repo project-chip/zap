@@ -138,8 +138,8 @@ export function updateSelectedClients(context, selectionContext) {
     })
 }
 
-export function getProjectPackages(context, selectionContext) {
-  Vue.prototype.$serverGet(restApi.uri.packages).then((res) => {
+export function getProjectPackages(context) {
+  return Vue.prototype.$serverGet(restApi.uri.packages).then((res) => {
     let data = res.data
     context.commit('updateProjectPackages', data)
   })
@@ -538,6 +538,24 @@ export function loadSessionKeyValues(context) {
     .$serverGet(restApi.uri.getAllSessionKeyValues)
     .then((response) => {
       context.commit('loadSessionKeyValues', response.data)
+    })
+}
+
+export function addNewPackage(context, file) {
+  return Vue.prototype
+    .$serverPost(restApi.uri.addNewPackage, {
+      filePath: file.path,
+    })
+    .then((response) => {
+      return getProjectPackages(context)
+    })
+}
+
+export function deleteSessionPackage(context, sessionPackage) {
+  return Vue.prototype
+    .$serverDelete(restApi.uri.sessionPackage, { params: sessionPackage })
+    .then((response) => {
+      return getProjectPackages(context)
     })
 }
 
