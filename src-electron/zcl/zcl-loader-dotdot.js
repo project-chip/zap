@@ -244,8 +244,13 @@ function prepareCommands(commands, side, types) {
             type = `${c.$.name}${f.$.name}`
             types.bitmaps.push(prepareBitmap(f, true, c.$.name))
           }
-          if (f.restriction != null && f.restriction.length > 0) {
-            console.log(`Missed restriction for command: ${c.$.name}`) // TODO: Deal with the missing enum
+          if (
+            f.restriction != null &&
+            f.restriction.length > 0 &&
+            'type:enumeration' in f.restriction[0]
+          ) {
+            type = `${c.$.name}${f.$.name}`
+            types.enums.push(prepareEnum(f, true, c.$.name))
           }
           pcmd.args.push({
             name: f.$.name,
@@ -388,7 +393,10 @@ function prepareEnum(type, fromAttribute = false, namePrefix = null) {
       type: type.$.type,
     }
   } else {
-    ret = { name: type.$.short, type: type.$.inheritsFrom }
+    ret = {
+      name: type.$.short,
+      type: type.$.inheritsFrom,
+    }
   }
   if ('restriction' in type) {
     ret.items = []
@@ -474,7 +482,9 @@ function prepareAttributeType(attribute, types, cluster) {
     'restriction' in attribute &&
     'type:enumeration' in attribute.restriction[0]
   ) {
-    types.enums.push(prepareEnum(attribute, true, cluster.$.name))
+    types.enums.push(
+      prepareEnum(attribute, true, cluster == null ? null : cluster.$.name)
+    )
   }
 }
 
