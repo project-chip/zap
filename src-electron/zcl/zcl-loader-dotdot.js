@@ -240,10 +240,12 @@ function prepareCommands(commands, side, types) {
         for (var j = 0; j < fds.length; j++) {
           let f = fds[j]
           let type = f.$.type
-          env.logInfo(`Preparing field ${f.$.name}`)
           if (f.bitmap != null && f.bitmap.length > 0) {
             type = `${c.$.name}${f.$.name}`
             types.bitmaps.push(prepareBitmap(f, true, c.$.name))
+          }
+          if (f.restriction != null && f.restriction.length > 0) {
+            console.log(`Missed restriction for command: ${c.$.name}`) // TODO: Deal with the missing enum
           }
           pcmd.args.push({
             name: f.$.name,
@@ -376,13 +378,13 @@ function prepareBitmap(type, isContained = false, namePrefix = null) {
  * @param {*} type an xml object which conforms to the enum format in the dotdot xml
  * @returns object ready for insertion into the DB
  */
-function prepareEnum(type, fromAttribute = false, cluster = null) {
+function prepareEnum(type, fromAttribute = false, namePrefix = null) {
   var ret
   if (fromAttribute) {
     ret = {
       // TODO: Enums from cluster attributes may not be unique by name so we prepend the cluster
       //       name to the enum name (as we do in the Silabs xml)
-      name: cluster ? cluster.$.name + type.$.name : type.$.name,
+      name: namePrefix ? namePrefix + type.$.name : type.$.name,
       type: type.$.type,
     }
   } else {
@@ -472,7 +474,7 @@ function prepareAttributeType(attribute, types, cluster) {
     'restriction' in attribute &&
     'type:enumeration' in attribute.restriction[0]
   ) {
-    types.enums.push(prepareEnum(attribute, true, cluster))
+    types.enums.push(prepareEnum(attribute, true, cluster.$.name))
   }
 }
 
