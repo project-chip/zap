@@ -60,6 +60,14 @@ function tagContainsEnum(tag) {
   )
 }
 
+function tagContainsStruct(tag) {
+  return (
+    tag.restriction != null &&
+    tag.restriction.length > 0 &&
+    'type:sequence' in tag.restriction[0]
+  )
+}
+
 function tagContainsBitmap(tag) {
   return 'bitmap' in tag
 }
@@ -465,10 +473,7 @@ function prepareTypes(zclTypes, types) {
       types.bitmaps.push(prepareBitmap(types, type))
     } else if (tagContainsEnum(type)) {
       types.enums.push(prepareEnum(type))
-    } else if (
-      'restriction' in type &&
-      'type:sequence' in type.restriction[0]
-    ) {
+    } else if (tagContainsStruct(type)) {
       types.structs.push(prepareStruct(type))
     } else if (type.$.inheritsFrom === undefined) {
       types.atomics.push(prepareAtomic(type))
