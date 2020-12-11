@@ -129,12 +129,12 @@ function startAnalyze(
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
     })
     .then((d) => {
-      return util.executePromisesSequentially(paths, (path) =>
+      return util.executePromisesSequentially(paths, (singlePath) =>
         importJs
-          .importDataFromFile(db, path)
+          .importDataFromFile(db, singlePath)
           .then((sessionId) => util.sessionReport(db, sessionId))
           .then((report) => {
-            if (options.log) console.log(`🤖 File: ${path}\n`)
+            if (options.log) console.log(`🤖 File: ${singlePath}\n`)
             if (options.log) console.log(report)
           })
       )

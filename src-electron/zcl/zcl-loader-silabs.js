@@ -25,6 +25,7 @@ const env = require('../util/env.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const zclLoader = require('./zcl-loader.js')
+const _ = require('lodash')
 
 /**
  * Promises to read the JSON file and resolve all the data.
@@ -723,6 +724,13 @@ function parseZclFiles(db, ctx) {
     .then(() => ctx)
 }
 
+/**
+ * Parses a single file.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @returns Promise of a loaded file.
+ */
 function loadIndividualSilabsFile(db, filePath) {
   var pkgId
   return zclLoader
@@ -749,6 +757,13 @@ function loadIndividualSilabsFile(db, filePath) {
     .then(() => pkgId)
 }
 
+/**
+ * Parses the manufacturers xml.
+ *
+ * @param {*} db
+ * @param {*} ctx
+ * @returns Promise of a parsed manufacturers file.
+ */
 function parseManufacturerData(db, ctx) {
   if (!ctx.manufacturersXml) return Promise.resolve(ctx)
   return zclLoader
@@ -769,6 +784,13 @@ function parseManufacturerData(db, ctx) {
     .then(() => Promise.resolve(ctx))
 }
 
+/**
+ * Parses and loads the text and boolean options.
+ *
+ * @param {*} db
+ * @param {*} ctx
+ * @returns promise of parsed options
+ */
 function parseOptions(db, ctx) {
   if (!ctx.options) return Promise.resolve(ctx)
   var promises = []
@@ -777,6 +799,14 @@ function parseOptions(db, ctx) {
   return Promise.all(promises).then(() => ctx)
 }
 
+/**
+ * Parses the text options.
+ *
+ * @param {*} db
+ * @param {*} pkgRef
+ * @param {*} textOptions
+ * @returns Promise of a parsed text options.
+ */
 function parseTextOptions(db, pkgRef, textOptions) {
   if (!textOptions) return Promise.resolve()
   let promises = Object.keys(textOptions).map((optionKey) => {
@@ -818,15 +848,22 @@ function parseBoolOptions(db, pkgRef, booleanCategories) {
       ])
     )
   })
-  return Promise.resolve(promises)
+  return Promise.all(promises)
 }
 
+/**
+ * Parses the default values inside the options.
+ *
+ * @param {*} db
+ * @param {*} ctx
+ * @returns Promised of parsed text and bool defaults.
+ */
 function parseDefaults(db, ctx) {
   if (!ctx.defaults) return Promise.resolve(ctx)
   var promises = []
   promises.push(parseTextDefaults(db, ctx.packageId, ctx.defaults.text))
   promises.push(parseBoolDefaults(db, ctx.packageId, ctx.defaults.bool))
-  return Promise.resolve(ctx)
+  return Promise.all(promises).then(() => ctx)
 }
 
 function parseTextDefaults(db, pkgRef, textDefaults) {
@@ -839,8 +876,23 @@ function parseTextDefaults(db, pkgRef, textDefaults) {
       queryPackage
         .selectSpecificOptionValue(db, pkgRef, optionCategory, txt)
         .then((specificValue) => {
+          if (specificValue != null) return specificValue
+          if (_.isNumber(txt)) {
+            // Try to convert to hex.
+            var hex = '0x' + txt.toString(16)
+            return queryPackage.selectSpecificOptionValue(
+              db,
+              pkgRef,
+              optionCategory,
+              hex
+            )
+          } else {
+            return specificValue
+          }
+        })
+        .then((specificValue) => {
           if (specificValue == null) {
-            throw `Default value for: ${optionCategory}/${textDefaults[optionCategory]} does not match an option.`
+            throw `Default value for: ${optionCategory}/${txt} does not match an option.`
           } else {
             return queryPackage.insertDefaultOptionValue(
               db,
@@ -852,7 +904,7 @@ function parseTextDefaults(db, pkgRef, textDefaults) {
         })
     )
   })
-  return Promise.resolve(promises)
+  return Promise.all(promises)
 }
 
 function parseBoolDefaults(db, pkgRef, booleanCategories) {
@@ -878,7 +930,7 @@ function parseBoolDefaults(db, pkgRef, booleanCategories) {
         )
     )
   })
-  return Promise.resolve(promises)
+  return Promise.all(promises)
 }
 
 /**

@@ -60,15 +60,21 @@ function loadGenTemplate(context) {
     })
 }
 
-function recordPackageIfNonexistent(db, path, parentId, packageType, version) {
+function recordPackageIfNonexistent(
+  db,
+  packagePath,
+  parentId,
+  packageType,
+  version
+) {
   return queryPackage
-    .getPackageByPathAndParent(db, path, parentId)
+    .getPackageByPathAndParent(db, packagePath, parentId)
     .then((pkg) => {
       if (pkg == null) {
         // doesn't exist
         return queryPackage.insertPathCrc(
           db,
-          path,
+          packagePath,
           null,
           packageType,
           parentId,
@@ -98,9 +104,8 @@ function recordTemplatesPackage(context) {
     )
     .then((packageId) => {
       context.packageId = packageId
-      return context
     })
-    .then((context) => {
+    .then(() => {
       var promises = []
       env.logInfo(`Loading ${context.templateData.templates.length} templates.`)
 
@@ -133,12 +138,12 @@ function recordTemplatesPackage(context) {
             var promise = fsPromise
               .readFile(externalPath, 'utf8')
               .then((content) => JSON.parse(content))
-              .then((data) => {
-                var codeLabelArray = []
-                for (const code in data) {
-                  codeLabelArray.push({ code: code, label: data[code] })
+              .then((jsonData) => {
+                var codeLabels = []
+                for (const code in jsonData) {
+                  codeLabels.push({ code: code, label: jsonData[code] })
                 }
-                return codeLabelArray
+                return codeLabels
               })
               .then((codeLabels) =>
                 queryPackage.insertOptionsKeyValues(

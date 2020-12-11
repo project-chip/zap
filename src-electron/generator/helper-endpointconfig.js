@@ -438,7 +438,7 @@ function collectAttributes(endpointTypes) {
             mask.push('incoming_client')
           }
         }
-        var cmd = {
+        var command = {
           clId: c.code, // for sorting
           cmId: cmd.code, // for sorting
           clusterId: c.hexCode,
@@ -446,7 +446,7 @@ function collectAttributes(endpointTypes) {
           mask: mask,
           comment: `${c.name} (${c.side}): ${cmd.name}`,
         }
-        commandList.push(cmd)
+        commandList.push(command)
       })
       endpointAttributeSize += clusterAttributeSize
       cluster.attributeSize = clusterAttributeSize

@@ -18,7 +18,6 @@
  * @jest-environment node
  */
 
-const sq = require('sqlite3')
 const dbApi = require('../src-electron/db/db-api.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
