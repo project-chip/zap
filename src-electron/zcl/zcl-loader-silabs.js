@@ -156,12 +156,24 @@ function collectDataFromPropertiesFile(ctx) {
   })
 }
 
+/**
+ * Silabs XML does not carry types with bitmap fields, but dotdot does, so they are in the schema.
+ * Just to put some data in, we differentiate between "bool" and "enum" types here.
+ *
+ * @param {*} mask
+ * @returns bool or corresponding enum
+ */
 function maskToType(mask) {
   var n = parseInt(mask)
-  if (bin.bitCount(n) == 1) {
+  var bitCount = bit.bitCount(n)
+  if (bitCount <= 1) {
     return 'bool'
-  } else {
+  } else if (bitCount <= 8) {
     return 'enum8'
+  } else if (bitCount <= 16) {
+    return 'enum16'
+  } else {
+    return 'enum32'
   }
 }
 
