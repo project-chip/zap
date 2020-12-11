@@ -84,3 +84,12 @@ test('ZCL strings', () => {
     "1, 44, 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x',"
   )
 })
+
+test('Bit count', () => {
+  expect(bin.bitCount(1)).toBe(1)
+  expect(bin.bitCount(2)).toBe(1)
+  expect(bin.bitCount(3)).toBe(2)
+  expect(bin.bitCount(0x4000)).toBe(1)
+  expect(bin.bitCount(0x4210)).toBe(3)
+  expect(bin.bitCount(0xf0f0)).toBe(8)
+})

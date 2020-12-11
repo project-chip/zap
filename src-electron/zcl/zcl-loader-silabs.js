@@ -22,6 +22,7 @@ const dbApi = require('../db/db-api.js')
 const queryPackage = require('../db/query-package.js')
 const queryZcl = require('../db/query-zcl.js')
 const env = require('../util/env.js')
+const bin = require('../util/bin.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const zclLoader = require('./zcl-loader.js')
@@ -155,6 +156,15 @@ function collectDataFromPropertiesFile(ctx) {
   })
 }
 
+function maskToType(mask) {
+  var n = parseInt(mask)
+  if (bin.bitCount(n) == 1) {
+    return 'bool'
+  } else {
+    return 'enum8'
+  }
+}
+
 /**
  * Prepare bitmap for database insertion.
  *
@@ -169,7 +179,7 @@ function prepareBitmap(bm) {
       ret.fields.push({
         name: field.$.name,
         mask: field.$.mask,
-        type: '',
+        type: maskToType(field.$.mask),
         ordinal: index,
       })
     })
