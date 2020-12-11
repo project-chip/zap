@@ -393,7 +393,7 @@ function prepareBitmap(
         ordinal: index,
       })
       if (tagContainsEnum(e)) {
-        typeContainer.enums.push(prepareEnum(e, true, e.$.name))
+        typeContainer.enums.push(prepareEnum(e, true, type.$.name))
       }
     })
   }
