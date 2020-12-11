@@ -165,7 +165,7 @@ function collectDataFromPropertiesFile(ctx) {
  */
 function maskToType(mask) {
   var n = parseInt(mask)
-  var bitCount = bit.bitCount(n)
+  var bitCount = bin.bitCount(n)
   if (bitCount <= 1) {
     return 'bool'
   } else if (bitCount <= 8) {
