@@ -127,6 +127,16 @@ pipeline
                 }
             }
         }
+        stage('Test generation with dotdot XML')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'npm run gen3'
+                }
+            }
+        }
         stage('Linux distribution artifacts')
         {
             steps
