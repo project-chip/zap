@@ -390,6 +390,7 @@ function prepareBitmap(
       ret.fields.push({
         name: e.$.name,
         mask: normalizeHexValue(e.$.mask),
+        type: e.$.type,
         ordinal: index,
       })
       if (tagContainsEnum(e)) {

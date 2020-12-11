@@ -169,6 +169,7 @@ function prepareBitmap(bm) {
       ret.fields.push({
         name: field.$.name,
         mask: field.$.mask,
+        type: '',
         ordinal: index,
       })
     })

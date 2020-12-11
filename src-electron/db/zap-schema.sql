@@ -224,6 +224,7 @@ CREATE TABLE IF NOT EXISTS "BITMAP_FIELD" (
   "ORDINAL" integer,
   "NAME" text,
   "MASK" integer,
+  "TYPE" text,
   foreign key(BITMAP_REF) references BITMAP(BITMAP_ID)
 );
 /*

@@ -107,7 +107,7 @@ function selectAllBitmapFieldsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, MASK FROM BITMAP_FIELD WHERE BITMAP_REF=? ORDER BY ORDINAL',
+      'SELECT NAME, MASK, TYPE FROM BITMAP_FIELD WHERE BITMAP_REF = ? ORDER BY ORDINAL',
       [id]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
@@ -117,7 +117,7 @@ function selectAllBitmapFields(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, MASK, BITMAP_REF FROM BITMAP_FIELD  WHERE PACKAGE_REF = ? ORDER BY BITMAP_REF, ORDINAL',
+      'SELECT NAME, MASK, TYPE, BITMAP_REF FROM BITMAP_FIELD  WHERE PACKAGE_REF = ? ORDER BY BITMAP_REF, ORDINAL',
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
@@ -1760,6 +1760,7 @@ function insertBitmaps(db, packageId, data) {
               lastId,
               field.name,
               field.mask,
+              field.type,
               field.ordinal,
             ])
           )
@@ -1767,7 +1768,7 @@ function insertBitmaps(db, packageId, data) {
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, ORDINAL) VALUES (?, ?, ?, ?)',
+        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, TYPE, ORDINAL) VALUES (?, ?, ?, ?, ?)',
         fieldsToLoad
       )
     })
