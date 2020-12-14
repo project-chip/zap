@@ -19,8 +19,6 @@
  * This file provides the functionality that reads the ZAP data from a JSON file
  * and imports it into a database.
  */
-const path = require('path')
-const os = require('os')
 const fs = require('fs')
 const env = require('../util/env.js')
 const util = require('../util/util.js')
@@ -73,10 +71,10 @@ function importSinglePackage(db, sessionId, pkg, zapFilePath) {
           'Packages from the file did not match loaded packages making best bet.'
         )
         return queryPackage.getPackagesByType(db, pkg.type).then((packages) => {
-          packages.forEach((p) => {
-            if (p.version == pkg.version) {
+          packages.forEach((singleTypePackage) => {
+            if (singleTypePackage.version == pkg.version) {
               return {
-                packageId: p.id,
+                packageId: singleTypePackage.id,
                 packageType: pkg.type,
               }
             }
@@ -313,8 +311,10 @@ function writeStateToDatabase(db, state, existingSessionId = null) {
         )
       }
 
-      if ('endpoints' in state) {
-      }
+      // TODO: Why is there an empty block here?
+      //if ('endpoints' in state) {
+      //}
+
       return Promise.all(promisesStage1)
         .then(() => Promise.all(promisesStage2))
         .then(() => data.sessionId)

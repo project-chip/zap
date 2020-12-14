@@ -72,6 +72,18 @@ function stringToHex(value) {
 }
 
 /**
+ * Given a number, this function returns the number of bits set in the number
+ *
+ * @param {*} n
+ * @returns number of bits set.
+ */
+function bitCount(n) {
+  n = n - ((n >> 1) & 0x55555555)
+  n = (n & 0x33333333) + ((n >> 2) & 0x33333333)
+  return (((n + (n >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24
+}
+
+/**
  * Takes the raw hex string, such as `abcd` and
  * converts it into a C constant array, such as
  * `0xAB, 0xCD`.
@@ -191,3 +203,4 @@ exports.hexToBinary = hexToBinary
 exports.bitOffset = bitOffset
 exports.stringToOneByteLengthPrefixCBytes = stringToOneByteLengthPrefixCBytes
 exports.stringToTwoByteLengthPrefixCBytes = stringToTwoByteLengthPrefixCBytes
+exports.bitCount = bitCount

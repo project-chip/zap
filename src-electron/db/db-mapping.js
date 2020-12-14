@@ -205,6 +205,7 @@ exports.map = {
     return {
       label: x.NAME,
       mask: x.MASK,
+      type: x.TYPE,
       bitmapRef: x.BITMAP_REF,
       caption: `BitmapField, named ${x.NAME}`,
     }

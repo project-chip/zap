@@ -113,13 +113,13 @@ function parseZclFiles(db, ctx) {
         if (result['zcl:cluster']) {
           ctx.zclClusters.push(result['zcl:cluster'])
         } else if (result['zcl:global']) {
-          var global = result['zcl:global']
-          ctx.zclGlobalTypes = global['type:type']
-          ctx.zclGlobalAttributes = global.attributes[0].attribute
-          ctx.zclGlobalCommands = global.commands[0].command
+          var zclGlobal = result['zcl:global']
+          ctx.zclGlobalTypes = zclGlobal['type:type']
+          ctx.zclGlobalAttributes = zclGlobal.attributes[0].attribute
+          ctx.zclGlobalCommands = zclGlobal.commands[0].command
         } else if (result['zcl:library']) {
-          var global = result['zcl:library']
-          ctx.zclTypes = global['type:type']
+          var zclLibrary = result['zcl:library']
+          ctx.zclTypes = zclLibrary['type:type']
         } else if (result['zcl:device']) {
           var deviceTypes = result['zcl:device']
           if (ctx.zclDeviceTypes === undefined) {
@@ -212,7 +212,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
       maxLength: null,
       isWritable: a.$.writable == 'true',
       defaultValue: normalizeHexValue(a.$.default),
-      isOptional: !(a.$.required == 'true'),
+      isOptional: a.$.required != 'true',
       isReportable:
         a.$.reportRequired === undefined ? 'false' : a.$.reportRequired,
     }
@@ -251,7 +251,7 @@ function prepareCommands(commands, side, types) {
       name: c.$.name,
       //description: '', // TODO: no description for dotdot xml
       source: side,
-      isOptional: !(c.$.required == 'true'),
+      isOptional: c.$.required != 'true',
     }
     if ('fields' in c) {
       pcmd.args = []
@@ -291,7 +291,7 @@ function prepareCommands(commands, side, types) {
  * @param {*} types types object into which cluster can put types it might have
  * @returns Object containing all data from XML.
  */
-function prepareCluster(cluster, isExtension = false, types) {
+function prepareCluster(cluster, types, isExtension = false) {
   var ret = {
     isExtension: isExtension,
   }
@@ -315,7 +315,7 @@ function prepareCluster(cluster, isExtension = false, types) {
   ret.commands = []
   ret.attributes = []
   sides.forEach((side) => {
-    if (!(side.value === undefined)) {
+    if (side.value !== undefined) {
       if ('attributes' in side.value[0]) {
         side.value[0].attributes.forEach((attributes) => {
           ret.attributes = ret.attributes.concat(
@@ -390,10 +390,11 @@ function prepareBitmap(
       ret.fields.push({
         name: e.$.name,
         mask: normalizeHexValue(e.$.mask),
+        type: e.$.type,
         ordinal: index,
       })
       if (tagContainsEnum(e)) {
-        typeContainer.enums.push(prepareEnum(e, true, e.$.name))
+        typeContainer.enums.push(prepareEnum(e, true, type.$.name))
       }
     })
   }
@@ -566,7 +567,7 @@ function loadZclData(db, ctx) {
   var cs = []
   ctx.zclClusters.forEach((cluster) => {
     env.logInfo(`loading cluster: ${cluster.$.name}`)
-    var c = prepareCluster(cluster, false, types)
+    var c = prepareCluster(cluster, types)
     cs.push(c)
   })
   // Global attributes don't have a side listed, so they have to be looped through once for each side
@@ -629,11 +630,11 @@ function loadDotdotZcl(db, ctx) {
   return dbApi
     .dbBeginTransaction(db)
     .then(() => zclLoader.readMetadataFile(ctx))
-    .then((ctx) => zclLoader.recordToplevelPackage(db, ctx))
-    .then((ctx) => collectDataFromLibraryXml(ctx))
-    .then((ctx) => zclLoader.recordVersion(ctx))
-    .then((ctx) => parseZclFiles(db, ctx))
-    .then((ctx) => loadZclData(db, ctx))
+    .then((context) => zclLoader.recordToplevelPackage(db, context))
+    .then((context) => collectDataFromLibraryXml(context))
+    .then((context) => zclLoader.recordVersion(context))
+    .then((context) => parseZclFiles(db, context))
+    .then((context) => loadZclData(db, context))
     .then(() => zclLoader.processZclPostLoading(db))
     .then(() => dbApi.dbCommit(db))
     .then(() => ctx)
