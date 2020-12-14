@@ -215,7 +215,7 @@ function endpoint_attribute_list(options) {
         .join(' | ')
     }
     ret = ret.concat(
-      `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, ${at.defaultValue} }, /* ${at.comment} */  \\\n`
+      `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, { (uint8_t *) ${at.defaultValue} } }, /* ${at.comment} */  \\\n`
     )
   })
   return ret.concat('}\n')
@@ -261,7 +261,7 @@ function endpoint_reporting_config_defaults(options) {
         .join(' | ')
     }
     ret = ret.concat(
-      `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }, /* ${r.comment} */ \\\n`
+      `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, {{ ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }} }, /* ${r.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
