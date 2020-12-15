@@ -19,7 +19,7 @@
  * This file provides the functionality that reads the ZAP data from a JSON file
  * and imports it into a database.
  */
-const fs = require('fs')
+const fsp = require('fs').promises
 const env = require('../util/env.js')
 const util = require('../util/util.js')
 const queryConfig = require('../db/query-config.js')
@@ -28,6 +28,8 @@ const queryPackage = require('../db/query-package.js')
 const queryImpexp = require('../db/query-impexp.js')
 const dbApi = require('../db/db-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const importIsc = require('./import-isc.js')
+const importJson = require('./import-json.js')
 
 /**
  * Resolves with a promise that imports session key values.
@@ -231,40 +233,6 @@ function importEndpointTypes(
 }
 
 /**
- * Reads the data from the file and resolves with the state object if all is good.
- *
- * @export
- * @param {*} filePath
- * @returns Promise of file reading.
- */
-function readDataFromFile(filePath) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filePath, (err, data) => {
-      if (err) reject(err)
-      let state = JSON.parse(data)
-      if (!('featureLevel' in state)) {
-        state.featureLevel = 0
-      }
-      var status = util.matchFeatureLevel(state.featureLevel)
-
-      if (status.match) {
-        if (!'keyValuePairs' in state) {
-          state.keyValuePairs = []
-        }
-        state.filePath = filePath
-        state.keyValuePairs.push({
-          key: dbEnum.sessionKey.filePath,
-          value: filePath,
-        })
-        resolve(state)
-      } else {
-        reject(status.message)
-      }
-    })
-  })
-}
-
-/**
  * Given a state object, this method returns a promise that resolves
  * with the succesfull writing into the database.
  *
@@ -320,6 +288,26 @@ function writeStateToDatabase(db, state, existingSessionId = null) {
         .then(() => data.sessionId)
     })
     .finally(() => dbApi.dbCommit(db))
+}
+
+/**
+ * Reads the data from the file and resolves with the state object if all is good.
+ *
+ * @export
+ * @param {*} filePath
+ * @returns Promise of file reading.
+ */
+function readDataFromFile(filePath) {
+  return fsp.readFile(filePath).then((data) => {
+    var stringData = data.toString().trim()
+    if (stringData.startsWith('{')) {
+      return importJson.readJsonData(filePath, data)
+    } else if (stringData.startsWith('#ISD')) {
+      return importIsc.readIscData(filePath, data)
+    } else {
+      throw 'Invalid file format. Only .zap JSON files and ISC file format are supported.'
+    }
+  })
 }
 
 /**
