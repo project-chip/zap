@@ -14,7 +14,41 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+function parseZclAfv2Line(state, line) {
+  //console.log(`zclAfv2:${line}`)
+}
+
+function parseZclCustomizer(state, line) {
+  //console.log(`zclCustomizer:${line}`)
+}
+
 async function readIscData(filePath, data) {
+  const lines = data.toString().split(/\r?\n/)
+  var parser = null
+  var state = {}
+  lines.forEach((line) => {
+    if (line == '{setupId:zclAfv2') {
+      parser = parseZclAfv2Line
+      return
+    }
+    if (line == '{setupId:zclCustomizer') {
+      parser = parseZclCustomizer
+      return
+    }
+
+    if (line == '}') {
+      parser = null
+      return
+    }
+
+    if (parser != null) parser(state, line)
+  })
+  state.loader = iscDataLoader
+  return state
+}
+
+async function iscDataLoader(db, state, sessionId) {
   throw 'ISC not yet supported.'
 }
 
