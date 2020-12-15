@@ -95,6 +95,17 @@ pipeline
                 }
             }
         }
+        stage('Run Sonar Scan')
+        {
+            steps
+            {
+                script
+                {
+                    gitBranch = "${env.BRANCH_NAME}"
+                    sh '/home/buildengineer/tools/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=https://sonarqube.silabs.net/ -Dsonar.login=e48b8a949e2869afa974414c56b4dc7baeb146e3 -X -Dsonar.branch.name='+gitBranch
+                }
+            }
+        }
         stage('Self check')
         {
             steps
