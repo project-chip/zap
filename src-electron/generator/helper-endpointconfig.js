@@ -214,6 +214,10 @@ function endpoint_attribute_list(options) {
         .map((m) => `ZAP_ATTRIBUTE_MASK(${m.toUpperCase()})`)
         .join(' | ')
     }
+    // If no default value is found, default to 0
+    if (!at.defaultValue) {
+      at.defaultValue = '0'
+    }
     ret = ret.concat(
       `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, { (uint8_t *) ${at.defaultValue} } }, /* ${at.comment} */  \\\n`
     )
