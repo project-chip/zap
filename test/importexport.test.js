@@ -34,6 +34,8 @@ const testUtil = require('./test-util.js')
 var db
 var testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
 var testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
+var testFileIsc = path.join(__dirname, 'resource/test-light.isc')
+
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
 let bypassGlobalAttributes = false
@@ -146,4 +148,13 @@ test('Test file 2 import', () => {
       // This flag exists for this test due to planned global attribute rework.
       expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
     })
+})
+
+test('Test ISC import', async () => {
+  sid = await querySession.createBlankSession(db)
+  try {
+    await importJs.importDataFromFile(db, testFileIsc, sid)
+  } catch (err) {
+    expect(err.toString()).toEqual('ISC not yet supported.')
+  }
 })
