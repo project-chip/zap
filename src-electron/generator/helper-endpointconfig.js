@@ -174,8 +174,16 @@ function endpoint_cluster_count(options) {
 function endpoint_cluster_list(options) {
   var ret = '{ \\\n'
   this.clusterList.forEach((c) => {
+    var mask = ''
+    if (c.mask.length == 0) {
+      mask = '0'
+    } else {
+      mask = c.mask
+        .map((m) => `ZAP_CLUSTER_MASK(${m.toUpperCase()})`)
+        .join(' | ')
+    }
     ret = ret.concat(
-      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.attributeSize}, ${c.mask}, ${c.functions} }, /* ${c.comment} */ \\\n`
+      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.attributeSize}, ${mask}, ${c.functions} }, /* ${c.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
@@ -341,11 +349,12 @@ function collectAttributes(endpointTypes) {
         attributeIndex: attributeIndex,
         attributeCount: c.attributes.length,
         attributeSize: 0,
-        mask: 0,
+        mask: [],
         functions: 'NULL',
         comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.name} (${c.side})`,
       }
       clusterAttributeSize = 0
+      cluster.mask.push(c.side)
 
       clusterIndex++
       attributeIndex += c.attributes.length
