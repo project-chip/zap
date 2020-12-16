@@ -326,6 +326,7 @@ function collectAttributes(endpointTypes) {
   var minMaxList = [] // Array of { default, min, max }
   var reportList = [] // Array of { direction, endpoint, clusterId, attributeId, mask, mfgCode, minOrSource, maxOrEndpoint, reportableChangeOrTimeout }
   var longDefaultsList = [] // Array if { value, size. comment }
+  var attributeIndex = 0
 
   endpointTypes.forEach((ept) => {
     var endpoint = {
@@ -342,7 +343,7 @@ function collectAttributes(endpointTypes) {
     deviceList.push(device)
 
     // Go over all the clusters in the endpoint and add them to the list.
-    var attributeIndex = 0
+
     ept.clusters.forEach((c) => {
       var cluster = {
         clusterId: c.hexCode,
