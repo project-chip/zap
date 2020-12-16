@@ -413,6 +413,7 @@ function collectAttributes(endpointTypes) {
           mask.push('client')
         }
         if (a.isSingleton) mask.push('singleton')
+        if (a.isWritable) mask.push('writable')
         var attr = {
           id: a.hexCode, // attribute code
           type: `ZAP_TYPE(${a.type.toUpperCase()})`, // type
