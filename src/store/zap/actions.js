@@ -547,7 +547,13 @@ export function addNewPackage(context, file) {
       filePath: file.path,
     })
     .then((response) => {
-      return getProjectPackages(context)
+      if (response.data.isValid) {
+        return getProjectPackages(context).then((packages) => {
+          return { packages: packages, isValid: response.data.isValid }
+        })
+      } else {
+        return Promise.resolve({ isValid: false, err: response.data.err })
+      }
     })
 }
 

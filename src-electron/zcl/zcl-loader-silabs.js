@@ -48,30 +48,27 @@ function collectDataFromJsonFile(ctx) {
     }
     var zclFiles = []
     obj.xmlFile.forEach((f) => {
-      for (var i = 0; i < fileLocations.length; i++) {
-        var zclFile = path.resolve(fileLocations[i], f.trim())
-        if (fs.existsSync(zclFile)) {
-          zclFiles.push(zclFile)
-          break
-        }
-      }
+      mapOverFileLocations(fileLocations, f, (x) => {
+        zclFiles.push(x)
+      })
     })
 
     ctx.zclFiles = zclFiles
 
     // Manufacturers XML file.
-    if (obj.manufacturersXml) {
-      for (var i = 0; i < fileLocations.length; i++) {
-        var manufacturerXml = path.resolve(
-          fileLocations[i],
-          obj.manufacturersXml.trim()
-        )
-        if (fs.existsSync(manufacturerXml)) {
-          ctx.manufacturersXml = manufacturerXml
-          break
-        }
-      }
-    }
+    mapOverFileLocations(fileLocations, obj.manufacturersXml, (x) => {
+      ctx.manufacturersXml = x
+    })
+
+    // Zcl XSD file
+    mapOverFileLocations(fileLocations, obj.zclSchema, (x) => {
+      ctx.zclSchema = x
+    })
+
+    // Zcl Validation Script
+    mapOverFileLocations(fileLocations, obj.zclValidation, (x) => {
+      ctx.zclValidation = x
+    })
 
     // General options
     // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
@@ -87,6 +84,18 @@ function collectDataFromJsonFile(ctx) {
     env.logInfo(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
     resolve(ctx)
   })
+}
+
+function mapOverFileLocations(fileLocations, f, destinationResolver) {
+  if (f) {
+    for (var i = 0; i < fileLocations.length; i++) {
+      var resolvedFile = path.resolve(fileLocations[i], f.trim())
+      if (fs.existsSync(resolvedFile)) {
+        destinationResolver(resolvedFile)
+        break
+      }
+    }
+  }
 }
 
 /**
@@ -114,29 +123,26 @@ function collectDataFromPropertiesFile(ctx) {
         // Iterate over all XML files in the properties file, and check
         // if they exist in one or the other directory listed in xmlRoot
         zclProps.xmlFile.split(',').forEach((f) => {
-          for (var i = 0; i < fileLocations.length; i++) {
-            var zclFile = path.resolve(fileLocations[i], f.trim())
-            if (fs.existsSync(zclFile)) {
-              zclFiles.push(zclFile)
-              break
-            }
-          }
+          mapOverFileLocations(fileLocations, f, (x) => {
+            zclFiles.push(x)
+          })
         })
 
         ctx.zclFiles = zclFiles
         // Manufacturers XML file.
-        if (zclProps.manufacturersXml) {
-          for (var i = 0; i < fileLocations.length; i++) {
-            var manufacturerXml = path.resolve(
-              fileLocations[i],
-              zclProps.manufacturersXml.trim()
-            )
-            if (fs.existsSync(manufacturerXml)) {
-              ctx.manufacturersXml = manufacturerXml
-              break
-            }
-          }
-        }
+        mapOverFileLocations(fileLocations, zclProps.manufacturersXml, (x) => {
+          ctx.manufacturersXml = x
+        })
+
+        // Zcl XSD file
+        mapOverFileLocations(fileLocations, zclProps.zclSchema, (x) => {
+          ctx.zclSchema = x
+        })
+
+        // Zcl Validation Script
+        mapOverFileLocations(fileLocations, zclProps.zclValidation, (x) => {
+          ctx.zclValidation = x
+        })
 
         // General options
         // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
@@ -754,7 +760,7 @@ function parseZclFiles(db, ctx) {
  * @param {*} filePath
  * @returns Promise of a loaded file.
  */
-function loadIndividualSilabsFile(db, filePath) {
+function loadIndividualSilabsFile(db, filePath, boundValidator) {
   var pkgId
   return zclLoader
     .readZclFile(filePath)
@@ -771,13 +777,24 @@ function loadIndividualSilabsFile(db, filePath) {
       pkgId = result.packageId
       return result
     })
-    .then((result) => zclLoader.parseZclFile(result))
+    .then((result) => zclLoader.parseZclFile(result, boundValidator))
+    .then((result) => {
+      if (result.validation && result.validator.isValid == false) {
+        throw new Error('Validation Failed')
+      }
+      return result
+    })
     .then((result) => processParsedZclData(db, result))
     .then((laterPromises) =>
       Promise.all(laterPromises.flat(1).map((promise) => promise()))
     )
     .then(() => zclLoader.processZclPostLoading(db))
-    .then(() => pkgId)
+    .then(() => {
+      return { packageId: pkgId }
+    })
+    .catch((err) => {
+      return { err: err }
+    })
 }
 
 /**
@@ -804,6 +821,46 @@ function parseManufacturerData(db, ctx) {
         )
       )
     )
+    .then(() => Promise.resolve(ctx))
+}
+
+/**
+ * Parses the ZCL Schema
+ * @param {*} db
+ * @param {*} ctx
+ */
+function parseZclSchema(db, ctx) {
+  if (!ctx.zclSchema || !ctx.zclValidation) return Promise.resolve(ctx)
+  return zclLoader
+    .readZclFile(ctx.zclSchema)
+    .then((data) => util.calculateCrc({ filePath: ctx.zclSchema, data: data }))
+    .then((data) =>
+      zclLoader.qualifyZclFile(
+        db,
+        data,
+        ctx.packageId,
+        dbEnum.packageType.zclSchema
+      )
+    )
+    .then((result) => {
+      pkgId = result.packageId
+      return result
+    })
+    .then(() =>
+      zclLoader
+        .readZclFile(ctx.zclValidation)
+        .then((data) =>
+          util.calculateCrc({ filePath: ctx.zclValidation, data: data })
+        )
+    )
+    .then((data) => {
+      zclLoader.qualifyZclFile(
+        db,
+        data,
+        ctx.packageId,
+        dbEnum.packageType.zclValidation
+      )
+    })
     .then(() => Promise.resolve(ctx))
 }
 
@@ -982,6 +1039,7 @@ function loadSilabsZcl(db, ctx, isJson = false) {
     .then((ctx) => parseManufacturerData(db, ctx))
     .then((ctx) => parseOptions(db, ctx))
     .then((ctx) => parseDefaults(db, ctx))
+    .then((ctx) => parseZclSchema(db, ctx))
     .then(() => dbApi.dbCommit(db))
     .then(() => ctx)
     .catch((err) => {

@@ -25,8 +25,9 @@
     "wwah-silabs-devices.xml",
     "sample-extensions.xml"
   ],
-
+  "zclSchema": "./schema/zcl.xsd",
   "manufacturersXml": "../shared/manufacturers.xml",
+  "zclValidation": "./schema/zcl-validation.js",
   "options": {
     "text": {
       "defaultResponsePolicy": ["Always", "Conditional", "Never"]
