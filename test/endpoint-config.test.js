@@ -200,6 +200,9 @@ test(
         expect(
           epc.includes('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
         ).toBeTruthy()
+        expect(
+          epc.includes('#define GENERATED_DEFAULTS_COUNT (70)')
+        ).toBeTruthy()
         expect(epcLines.length).toBeGreaterThan(100)
         var cnt = 0
         epcLines.forEach((line) => {
