@@ -227,8 +227,8 @@ function insertOrUpdateAttributeState(
             `
 INSERT
 INTO ENDPOINT_TYPE_ATTRIBUTE
-  ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE, STORAGE_OPTION)
-SELECT ?, ?, ?, ?, ?
+  ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE, STORAGE_OPTION, SINGLETON)
+SELECT ?, ?, ?, ?, ?, (SELECT IS_SINGLETON FROM CLUSTER WHERE CLUSTER_ID = ?)
 WHERE (
   ( SELECT COUNT(1) FROM ENDPOINT_TYPE_ATTRIBUTE
     WHERE ENDPOINT_TYPE_REF = ?
@@ -241,6 +241,7 @@ WHERE (
               attributeId,
               staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
               dbEnum.storageOption.ram,
+              clusterRef,
               endpointTypeId,
               cluster.endpointTypeClusterId,
               attributeId,

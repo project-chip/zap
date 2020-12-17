@@ -174,8 +174,16 @@ function endpoint_cluster_count(options) {
 function endpoint_cluster_list(options) {
   var ret = '{ \\\n'
   this.clusterList.forEach((c) => {
+    var mask = ''
+    if (c.mask.length == 0) {
+      mask = '0'
+    } else {
+      mask = c.mask
+        .map((m) => `ZAP_CLUSTER_MASK(${m.toUpperCase()})`)
+        .join(' | ')
+    }
     ret = ret.concat(
-      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.attributeSize}, ${c.mask}, ${c.functions} }, /* ${c.comment} */ \\\n`
+      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.attributeSize}, ${mask}, ${c.functions} }, /* ${c.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
@@ -214,8 +222,12 @@ function endpoint_attribute_list(options) {
         .map((m) => `ZAP_ATTRIBUTE_MASK(${m.toUpperCase()})`)
         .join(' | ')
     }
+    // If no default value is found, default to 0
+    if (!at.defaultValue) {
+      at.defaultValue = '0'
+    }
     ret = ret.concat(
-      `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, ${at.defaultValue} }, /* ${at.comment} */  \\\n`
+      `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, { (uint8_t *) ${at.defaultValue} } }, /* ${at.comment} */  \\\n`
     )
   })
   return ret.concat('}\n')
@@ -261,7 +273,7 @@ function endpoint_reporting_config_defaults(options) {
         .join(' | ')
     }
     ret = ret.concat(
-      `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }, /* ${r.comment} */ \\\n`
+      `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, {{ ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }} }, /* ${r.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
@@ -314,6 +326,7 @@ function collectAttributes(endpointTypes) {
   var minMaxList = [] // Array of { default, min, max }
   var reportList = [] // Array of { direction, endpoint, clusterId, attributeId, mask, mfgCode, minOrSource, maxOrEndpoint, reportableChangeOrTimeout }
   var longDefaultsList = [] // Array if { value, size. comment }
+  var attributeIndex = 0
 
   endpointTypes.forEach((ept) => {
     var endpoint = {
@@ -330,18 +343,19 @@ function collectAttributes(endpointTypes) {
     deviceList.push(device)
 
     // Go over all the clusters in the endpoint and add them to the list.
-    var attributeIndex = 0
+
     ept.clusters.forEach((c) => {
       var cluster = {
         clusterId: c.hexCode,
         attributeIndex: attributeIndex,
         attributeCount: c.attributes.length,
         attributeSize: 0,
-        mask: 0,
+        mask: [],
         functions: 'NULL',
         comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.name} (${c.side})`,
       }
       clusterAttributeSize = 0
+      cluster.mask.push(c.side)
 
       clusterIndex++
       attributeIndex += c.attributes.length
@@ -409,6 +423,7 @@ function collectAttributes(endpointTypes) {
           mask.push('client')
         }
         if (a.isSingleton) mask.push('singleton')
+        if (a.isWritable) mask.push('writable')
         var attr = {
           id: a.hexCode, // attribute code
           type: `ZAP_TYPE(${a.type.toUpperCase()})`, // type

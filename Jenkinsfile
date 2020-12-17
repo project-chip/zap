@@ -95,6 +95,17 @@ pipeline
                 }
             }
         }
+        stage('Run Sonar Scan')
+        {
+            steps
+            {
+                script
+                {
+                    gitBranch = "${env.BRANCH_NAME}"
+                    sh '/home/buildengineer/tools/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=https://sonarqube.silabs.net/ -Dsonar.login=e48b8a949e2869afa974414c56b4dc7baeb146e3 -X -Dsonar.branch.name='+gitBranch
+                }
+            }
+        }
         stage('Self check')
         {
             steps
@@ -137,46 +148,84 @@ pipeline
                 }
             }
         }
-        stage('Linux distribution artifacts')
-        {
-            steps
-            {
-                script
+        stage('Building distribution artifacts') {
+            parallel {
+                stage('Building for Linux')
                 {
-                    sh 'npm run dist-linux'
-                    sh 'npm run apack:linux'
+                    steps
+                    {
+                        script
+                        {
+                            sh 'npm run dist-linux'
+                            sh 'npm run apack:linux'
+                        }
+                    }
                 }
-            }
-        }
-        stage('Mac distribution artifacts')
-        {
-            steps
-            {
-                script
+                stage('Building for Mac')
                 {
-                    sh 'npm run dist-mac'
-                    sh 'npm run apack:mac'
+                    agent {
+                        label "bgbuild-mac"
+                    }
+                    steps
+                    {
+                        script
+                        {
+                            withEnv(['PATH+LOCAL_BIN=/usr/local/bin'])
+                            {
+                              withCredentials([usernamePassword(credentialsId: 'buildengineer',
+                              usernameVariable: 'SL_USERNAME',
+                              passwordVariable: 'SL_PASSWORD')])
+                              {
+                                sh 'npm list || true'
+                                sh 'npm ci'
+                                sh 'npm rebuild canvas --update-binary || true'
+                                sh "security unlock-keychain -p ${SL_PASSWORD} login"
+                                sh 'npm run build-spa'
+                                sh 'npm run dist-mac'
+                                sh 'npm run apack:mac'
+                              }
+                            }
+                        }
+                    }
                 }
-            }
-        }
-        stage('Windows distribution artifacts')
-        {
-            steps
-            {
-                script
+                stage('Building for Windows')
                 {
-                    sh 'npm run dist-win'
-                    sh 'npm run apack:win'
+                    steps
+                    {
+                        script
+                        {
+                            sh 'npm run dist-win'
+                            sh 'npm run apack:win'
+                        }
+                    }
                 }
             }
         }
         stage('Artifact creation')
         {
-            steps
-            {
-                script
+            parallel {
+                stage('Creating artifact for Mac')
                 {
-                    archiveArtifacts artifacts:'dist/zap*', fingerprint: true
+                    agent {
+                        label "bgbuild-mac"
+                    }
+                    steps
+                    {
+                        script
+                        {
+                          archiveArtifacts artifacts:'dist/zap*', fingerprint: true
+                        }
+                    }
+                }
+                stage('Creating artifact for Windows / Linux')
+                {
+                    steps
+                    {
+                        script
+                        {
+                          archiveArtifacts artifacts:'dist/zap*', fingerprint: true
+                        }
+                    }
                 }
             }
         }

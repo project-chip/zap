@@ -70,7 +70,7 @@ function queryEndpointClusters(db, endpointTypeId) {
       db,
       `
 SELECT
-  C.CLUSTER_ID,   
+  C.CLUSTER_ID,
   EC.ENDPOINT_TYPE_CLUSTER_ID,
   EC.ENDPOINT_TYPE_REF,
   C.CODE,
@@ -82,7 +82,7 @@ LEFT JOIN
   ENDPOINT_TYPE_CLUSTER AS EC
 ON
   C.CLUSTER_ID = EC.CLUSTER_REF
-WHERE 
+WHERE
   EC.ENABLED = 1
   AND EC.ENDPOINT_TYPE_REF = ?
 ORDER BY C.CODE
@@ -128,6 +128,7 @@ SELECT
   A.MIN,
   A.MAX,
   A.MANUFACTURER_CODE,
+  A.IS_WRITABLE,
   EA.STORAGE_OPTION,
   EA.SINGLETON,
   EA.BOUNDED,
@@ -143,11 +144,14 @@ LEFT JOIN
 ON
   A.ATTRIBUTE_ID = EA.ATTRIBUTE_REF
 WHERE
-  A.CLUSTER_REF = ?
+  (A.CLUSTER_REF = ? OR A.CLUSTER_REF IS NULL)
   AND A.SIDE = ?
-  AND EA.ENDPOINT_TYPE_REF = ?
+  AND (EA.ENDPOINT_TYPE_REF = ? AND (EA.ENDPOINT_TYPE_CLUSTER_REF =
+    (SELECT ENDPOINT_TYPE_CLUSTER_ID
+     FROM ENDPOINT_TYPE_CLUSTER
+     WHERE CLUSTER_REF = ? AND side = ? AND ENDPOINT_TYPE_REF = ?)))
     `,
-      [clusterId, side, endpointTypeId]
+      [clusterId, side, endpointTypeId, clusterId, side, endpointTypeId]
     )
     .then((rows) =>
       rows.map((row) => {
@@ -166,6 +170,7 @@ WHERE
           storage: row['STORAGE_OPTION'],
           isSingleton: row['SINGLETON'],
           isBound: row['BOUNDED'],
+          isWritable: row['IS_WRITABLE'],
           defaultValue: row['DEFAULT_VALUE'],
           includedReportable: row['INCLUDED_REPORTABLE'],
           minInterval: row['MIN_INTERVAL'],
@@ -197,7 +202,7 @@ SELECT
   C.IS_OPTIONAL,
   EC.INCOMING,
   EC.OUTGOING
-FROM 
+FROM
   COMMAND AS C
 LEFT JOIN
   ENDPOINT_TYPE_COMMAND AS EC
