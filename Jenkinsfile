@@ -233,7 +233,24 @@ pipeline
                 }
             }
         }
-    }
+        stage('Run Adapter_Pack_ZAP_64 on JNKAUS-16.silabs.com')
+        {
+            steps
+            {
+                script
+                {
+                    triggerRemoteJob blockBuildUntilComplete: false, 
+                                     job: 'https://jnkaus016.silabs.com/job/Adapter_Pack_ZAP_64/', 
+                                     remoteJenkinsName: 'jnkaus016', 
+                                     shouldNotFailBuild: true, 
+                                     useCrumbCache: true, 
+                                     useJobInfoCache: true
+
+                }
+            }
+        }
+        
+            }
     post {
         always {
             script
