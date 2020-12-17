@@ -51,7 +51,9 @@ limitations under the License.
                 <template slot="header">
                   <q-toolbar>
                     <div>
-                      <b>{{ getFileName(sessionPackage.pkg.path) }}</b>
+                      <strong>{{
+                        getFileName(sessionPackage.pkg.path)
+                      }}</strong>
                     </div>
                     <q-space />
                     <q-btn
