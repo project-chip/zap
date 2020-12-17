@@ -235,6 +235,10 @@ pipeline
         }
         stage('Run Adapter_Pack_ZAP_64 on JNKAUS-16.silabs.com')
         {
+            when
+            {
+                branch 'silabs'
+            }
             steps
             {
                 script
