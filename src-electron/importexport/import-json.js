@@ -297,7 +297,7 @@ async function readJsonData(filePath, data) {
   var status = util.matchFeatureLevel(state.featureLevel)
 
   if (status.match) {
-    if (!'keyValuePairs' in state) {
+    if (!('keyValuePairs' in state)) {
       state.keyValuePairs = []
     }
     state.filePath = filePath
