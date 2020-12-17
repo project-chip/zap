@@ -150,12 +150,17 @@ pipeline
         }
         stage('Building distribution artifacts') {
             parallel {
-                stage('Building for Linux')
+                stage('Building for Windows / Linux')
                 {
                     steps
                     {
                         script
                         {
+                            sh 'echo "Building for Windows"'
+                            sh 'npm run dist-win'
+                            sh 'npm run apack:win'
+
+                            sh 'echo "Building for Linux"'
                             sh 'npm run dist-linux'
                             sh 'npm run apack:linux'
                         }
@@ -185,17 +190,6 @@ pipeline
                                 sh 'npm run apack:mac'
                               }
                             }
-                        }
-                    }
-                }
-                stage('Building for Windows')
-                {
-                    steps
-                    {
-                        script
-                        {
-                            sh 'npm run dist-win'
-                            sh 'npm run apack:win'
                         }
                     }
                 }
