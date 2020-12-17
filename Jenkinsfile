@@ -152,15 +152,6 @@ pipeline
             parallel {
                 stage('Building for Linux')
                 {
-                    agent
-                    {
-                      node
-                      {
-                        label 'Zap-Build'
-                        customWorkspace 'workspace_linux'
-                      }
-                    }
-
                     steps
                     {
                         script
@@ -199,15 +190,6 @@ pipeline
                 }
                 stage('Building for Windows')
                 {
-                    agent
-                    {
-                      node
-                      {
-                        label 'Zap-Build'
-                        customWorkspace 'workspace_windows'
-                      }
-                    }
-
                     steps
                     {
                         script
