@@ -17,25 +17,48 @@
 
 function parseZclAfv2Line(state, line) {
   if (line.startsWith('configuredEndpoint:')) {
+    if (!('endpoint' in state)) {
+      state.endpoint = []
+    }
     // configuredEndpoint:*ep:1,pi: -1,di:-1,dv:1,ept:Centralized,nwk:Primary
+    var tokens = line.substring('configuredEndpoint:'.length).split(',')
+    var endpoint = {}
+    tokens.forEach((tok) => {
+      if (tok.startsWith('ep:')) {
+        endpoint.endpoint = parseInt(tok.substring('ep:'.length))
+      } else if (tok.startsWith('*ep:')) {
+        endpoint.endpoint = parseInt(tok.substring('*ep:'.length))
+      } else if (tok.startsWith('pi:')) {
+        endpoint.profileId = parseInt(tok.substring('pi:'.length))
+      } else if (tok.startsWith('di:')) {
+        endpoint.deviceId = parseInt(tok.substring('di:'.length))
+      } else if (tok.startsWith('dv:')) {
+        endpoint.deviceVersion = parseInt(tok.substring('dv:'.length))
+      } else if (tok.startsWith('ept:')) {
+        endpoint.endpointType = tok.substring('ept:'.length)
+      } else if (tok.startsWith('nwk:')) {
+        endpoint.network = tok.substring('nwk:'.length)
+      }
+    })
+    state.endpoint.push(endpoint)
   } else if (line.startsWith('beginEndpointType:')) {
-    // Create a temporary state.endpoint
-    state.endpoint = {
+    // Create a temporary state.endpointType
+    state.endpointType = {
       typeName: line.substring('beginEndpointType:'.length),
     }
   } else if (line.startsWith('endEndpointType')) {
-    // Stick the endpoint into `state.endpoints[endpoint.typeName]'
-    if (!('endpoints' in state)) {
-      state.endpoints = {}
+    // Stick the endpoint into `state.endpointTypes[endpointType.typeName]'
+    if (!('endpointTypes' in state)) {
+      state.endpointTypes = {}
     }
-    state.endpoints[state.endpoint.typeName] = state.endpoint
-    delete state.endpoint
+    state.endpointTypes[state.endpointType.typeName] = state.endpointType
+    delete state.endpointType
   } else if (line.startsWith('device:')) {
-    state.endpoint.device = line.substring('device:'.length)
+    state.endpointType.device = line.substring('device:'.length)
   } else if (line.startsWith('deviceId:')) {
-    state.endpoint.deviceId = parseInt(line.substring('deviceId:'.length))
+    state.endpointType.deviceId = parseInt(line.substring('deviceId:'.length))
   } else if (line.startsWith('profileId:')) {
-    state.endpoint.profileId = parseInt(line.substring('profileId:'.length))
+    state.endpointType.profileId = parseInt(line.substring('profileId:'.length))
   }
 }
 
