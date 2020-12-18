@@ -69,7 +69,13 @@ function parseZclCustomizer(state, line) {
 async function readIscData(filePath, data) {
   const lines = data.toString().split(/\r?\n/)
   var parser = null
-  var state = {}
+  var state = {
+    filePath: filePath,
+    featureLevel: 0,
+    keyValuePairs: [],
+    loader: iscDataLoader,
+  }
+
   lines.forEach((line) => {
     if (line == '{setupId:zclAfv2') {
       parser = parseZclAfv2Line
@@ -87,7 +93,7 @@ async function readIscData(filePath, data) {
 
     if (parser != null) parser(state, line)
   })
-  state.loader = iscDataLoader
+
   return state
 }
 
