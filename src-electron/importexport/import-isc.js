@@ -16,7 +16,27 @@
  */
 
 function parseZclAfv2Line(state, line) {
-  //console.log(`zclAfv2:${line}`)
+  if (line.startsWith('configuredEndpoint:')) {
+    // configuredEndpoint:*ep:1,pi: -1,di:-1,dv:1,ept:Centralized,nwk:Primary
+  } else if (line.startsWith('beginEndpointType:')) {
+    // Create a temporary state.endpoint
+    state.endpoint = {
+      typeName: line.substring('beginEndpointType:'.length),
+    }
+  } else if (line.startsWith('endEndpointType')) {
+    // Stick the endpoint into `state.endpoints[endpoint.typeName]'
+    if (!('endpoints' in state)) {
+      state.endpoints = {}
+    }
+    state.endpoints[state.endpoint.typeName] = state.endpoint
+    delete state.endpoint
+  } else if (line.startsWith('device:')) {
+    state.endpoint.device = line.substring('device:'.length)
+  } else if (line.startsWith('deviceId:')) {
+    state.endpoint.deviceId = parseInt(line.substring('deviceId:'.length))
+  } else if (line.startsWith('profileId:')) {
+    state.endpoint.profileId = parseInt(line.substring('profileId:'.length))
+  }
 }
 
 function parseZclCustomizer(state, line) {

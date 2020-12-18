@@ -158,3 +158,9 @@ test('Test ISC import', async () => {
     expect(err.toString()).toEqual('ISC not yet supported.')
   }
 })
+
+test('Read ISD data from file', async () => {
+  var state = await importJs.readDataFromFile(testFileIsc)
+  expect(Object.keys(state.endpoints).length).toBe(4)
+  //console.log(state)
+})
