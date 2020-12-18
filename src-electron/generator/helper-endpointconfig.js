@@ -597,7 +597,8 @@ function endpoint_config(options) {
                     ept.id
                   )
                   .then((attributes) => {
-                    cl.attributes = attributes
+                    // Keep only the enabled attributes
+                    cl.attributes = attributes.filter((a) => a.isIncluded === 1)
                   })
               )
               ps.push(
