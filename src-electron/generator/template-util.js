@@ -287,6 +287,7 @@ function templatePromise(global, promise) {
  */
 function deprecatedHelper(fn, explanation) {
   var msg
+  var to = null
   if (explanation == null) {
     msg = `Deprecated helper resolved into ${fn.name}. Please use the new helper directly.`
   } else if (_.isString(explanation)) {
@@ -295,8 +296,10 @@ function deprecatedHelper(fn, explanation) {
     msg = explanation.text
   } else if ('from' in explanation && 'to' in explanation) {
     msg = `Helper ${explanation.from} is deprecated. Use ${explanation.to} instead.`
+    to = explanation.to
   } else if ('to' in explanation) {
     msg = `Helper ${fn.name} is deprecated. Use ${explanation.to} instead.`
+    to = explanation.to
   } else if ('from' in explanation) {
     msg = `Helper ${explanation.from} is deprecated. Use ${fn.name} instead.`
   } else {
@@ -314,6 +317,7 @@ function deprecatedHelper(fn, explanation) {
     return fn.apply(this, arguments)
   }
   f.isDeprecated = true
+  if (to != null) f.replacementHelper = to
   return f
 }
 

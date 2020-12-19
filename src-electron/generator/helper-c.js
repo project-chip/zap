@@ -366,9 +366,8 @@ exports.dataTypeForEnum = dep(dataTypeForEnum, { to: 'data_type_for_enum' })
 exports.add_one = addOne
 exports.addOne = dep(addOne, { to: 'add_one' })
 exports.cleanse_label_as_kebab_case = cleanseLabelAsKebabCase
-exports.cleanseLabelAsKebabCase = dep(
-  cleanseLabelAsKebabCase,
-  'cleanse_label_as_kebab_case'
-)
+exports.cleanseLabelAsKebabCase = dep(cleanseLabelAsKebabCase, {
+  to: 'cleanse_label_as_kebab_case',
+})
 exports.format_value = formatValue
 exports.formatValue = dep(formatValue, { to: 'format_value' })
