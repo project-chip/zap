@@ -99,7 +99,7 @@
     "electron-devtools-installer": "^3.1.1",
     "electron-installer-dmg": "^3.0.0",
     "electron-packager": "^15.2.0",
-    "electron-rebuild": "^1.11.0",
+    "electron-rebuild": "^2.3.4",
     "eslint": "^7.16.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-loader": "^4.0.2",
@@ -117,7 +117,7 @@
     "license-checker": "^25.0.1",
     "node-abi": "^2.19.3",
     "node-gyp": "^7.1.2",
-    "node-pre-gyp": "^0.15.0",
+    "node-pre-gyp": "^0.17.0",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
     "quasar": "^1.14.7"
