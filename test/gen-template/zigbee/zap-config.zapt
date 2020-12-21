@@ -9,6 +9,7 @@
 // Default values for the attributes longer than a pointer,
 // in a form of a binary blob
 // Separate block is generated for big-endian and little-endian cases.
+#define GENERATED_DEFAULTS_COUNT ({{endpoint_attribute_long_defaults_count}})
 #if BIGENDIAN_CPU
 #define GENERATED_DEFAULTS {{endpoint_attribute_long_defaults endian="big"}}
 

@@ -187,7 +187,7 @@ test(
         ).toBeTruthy()
         expect(
           epc.includes(
-            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x0101, 0x002A, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65344, 0 }} }, /* Reporting for cluster: "Door Lock", attribute: "enable inside status led". side: server */'
+            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x0101, 0x0000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65344, 0 }} }, /* Reporting for cluster: "Door Lock", attribute: "lock state". side: server */'
           )
         ).toBeTruthy()
         expect(
@@ -200,6 +200,9 @@ test(
         expect(
           epc.includes('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
         ).toBeTruthy()
+        expect(
+          epc.includes('#define GENERATED_DEFAULTS_COUNT (44)')
+        ).toBeTruthy()
         expect(epcLines.length).toBeGreaterThan(100)
         var cnt = 0
         epcLines.forEach((line) => {
@@ -208,7 +211,7 @@ test(
             cnt++
           }
         })
-        expect(cnt).toBe(101)
+        expect(cnt).toBe(73)
       }),
   genTimeout
 )

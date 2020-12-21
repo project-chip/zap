@@ -611,6 +611,12 @@ function loadZclData(db, ctx) {
     .then(() => queryZcl.insertStructs(db, ctx.packageId, types.structs))
 }
 
+/**
+ * TODO This is not supported at this time.
+ * @param {*} db
+ * @param {*} filePath
+ * @return {*} object w/ following: { packageId: pkgId } or { err: err }
+ */
 function loadIndividualDotDotFile(db, filePath) {
   return zclLoader.readZclFile(filePath).then((data) => {
     console.log(data)

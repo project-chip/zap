@@ -51,7 +51,9 @@ limitations under the License.
                 <template slot="header">
                   <q-toolbar>
                     <div>
-                      <b>{{ getFileName(sessionPackage.pkg.path) }}</b>
+                      <strong>{{
+                        getFileName(sessionPackage.pkg.path)
+                      }}</strong>
                     </div>
                     <q-space />
                     <q-btn
@@ -80,7 +82,11 @@ limitations under the License.
       <q-card>
         <q-card-section>
           Add new custom ZCL Package
-          <q-file v-model="packageToLoad" />
+          <q-file
+            v-model="packageToLoad"
+            :error-message="error"
+            :error="error != null"
+          />
           <q-card-actions>
             <q-btn label="Cancel" v-close-popup />
             <q-btn label="Add Package" @click="loadNewPackage(packageToLoad)" />
@@ -104,13 +110,20 @@ export default {
       return fileName.length > 0 ? fileName[0] : path
     },
     loadNewPackage(packageToLoad) {
-      this.$store.dispatch('zap/addNewPackage', packageToLoad).then((x) => {
-        Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
-          var arg = response.data
-          this.$store.dispatch('zap/updateClusters', arg.data)
+      this.$store
+        .dispatch('zap/addNewPackage', packageToLoad)
+        .then((packageStatus) => {
+          if (packageStatus.isValid) {
+            this.error = null
+            Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
+              var arg = response.data
+              this.$store.dispatch('zap/updateClusters', arg.data)
+            })
+            this.uploadNewPackage = !this.uploadNewPackage
+          } else {
+            this.error = packageStatus.err
+          }
         })
-        this.uploadNewPackage = !this.uploadNewPackage
-      })
     },
     deletePackage(packageToDelete) {
       this.$store
@@ -130,6 +143,7 @@ export default {
     return {
       uploadNewPackage: false,
       packageToLoad: '',
+      error: null,
     }
   },
 }

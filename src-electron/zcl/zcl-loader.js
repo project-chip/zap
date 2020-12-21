@@ -26,6 +26,11 @@ const dLoad = require('./zcl-loader-dotdot')
 const queryZcl = require('../db/query-zcl.js')
 const env = require('../util/env.js')
 const xml2js = require('xml2js')
+const _ = require('lodash')
+
+const defaultValidator = (zclData) => {
+  return []
+}
 
 /**
  * Reads the properties file into ctx.data and also calculates crc into ctx.crc
@@ -103,13 +108,85 @@ function loadZcl(db, metadataFile) {
   }
 }
 
-function loadIndividualFile(db, filePath) {
-  var ext = path.extname(filePath)
-  if (ext == '.xml') {
-    return sLoad.loadIndividualSilabsFile(db, filePath)
-  } else {
-    return Promise.reject('Unknown extension file')
-  }
+function loadIndividualFile(db, filePath, sessionId) {
+  return queryPackage
+    .getSessionPackagesByType(db, sessionId, dbEnum.packageType.zclProperties)
+    .then((zclPropertiesPackages) => {
+      if (zclPropertiesPackages.length == 0) {
+        env.logInfo(
+          `Unable to find a validator for project, skipping validator`
+        )
+        // Return an function that returns an empty array
+        return defaultValidator
+      }
+      return bindValidationScript(db, zclPropertiesPackages[0].id)
+    })
+    .then((validator) => {
+      var ext = path.extname(filePath)
+      if (ext == '.xml') {
+        return sLoad.loadIndividualSilabsFile(db, filePath, validator)
+      } else {
+        return Promise.reject('Unknown extension file')
+      }
+    })
+}
+
+/**
+ * This funciton creates a validator function with signatuee fn(stringToValidateOn)
+ * @param {*} db
+ * @param {*} basePackageId
+ */
+function bindValidationScript(db, basePackageId) {
+  return getSchemaAndValidationScript(db, basePackageId)
+    .then((data) => {
+      if (
+        !(dbEnum.packageType.zclSchema in data) ||
+        !(dbEnum.packageType.zclValidation in data)
+      ) {
+        return Promise.resolve(defaultValidator)
+      }
+      let zclSchema = data[dbEnum.packageType.zclSchema]
+      let zclValidation = data[dbEnum.packageType.zclValidation]
+      var module = require(zclValidation)
+      let validateZclFile = module.validateZclFile
+
+      return readZclFile(zclSchema).then((schemaFile) =>
+        validateZclFile.bind(null, schemaFile)
+      )
+    })
+    .catch((err) => {
+      return defaultValidator
+    })
+}
+/**
+ * Returns an object with zclSchema and zclValidation elements.
+ * @param {*} db
+ * @param {*} basePackageId
+ */
+function getSchemaAndValidationScript(db, basePackageId) {
+  var promises = []
+  promises.push(
+    queryPackage.getPackagesByParentAndType(
+      db,
+      basePackageId,
+      dbEnum.packageType.zclSchema
+    )
+  )
+  promises.push(
+    queryPackage.getPackagesByParentAndType(
+      db,
+      basePackageId,
+      dbEnum.packageType.zclValidation
+    )
+  )
+  return Promise.all(promises).then((data) =>
+    data.reduce((result, item) => {
+      if (item.length >= 1) {
+        result[item[0].type] = item[0].path
+      }
+      return result
+    }, {})
+  )
 }
 
 /**
@@ -203,13 +280,17 @@ function readZclFile(file) {
  * Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
  *
  * @param {*} argument
- * @returns promise that resolves with the array [filePath,result,packageId,msg]
+ * @param {*} validator validator is a function that takes in an buffer, and returns an array of errors. This can be optional
+ * @returns promise that resolves with the array [filePath,result,packageId,msg,data]
  */
-function parseZclFile(argument) {
+function parseZclFile(argument, validator = null) {
   // No data, we skip this.
   if (!('data' in argument)) {
     return Promise.resolve(argument)
   } else {
+    if (validator) {
+      argument.validation = validator(argument.data)
+    }
     return xml2js.parseStringPromise(argument.data).then((result) => {
       argument.result = result
       delete argument.data

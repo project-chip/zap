@@ -16,7 +16,50 @@
  */
 
 function parseZclAfv2Line(state, line) {
-  //console.log(`zclAfv2:${line}`)
+  if (line.startsWith('configuredEndpoint:')) {
+    if (!('endpoint' in state)) {
+      state.endpoint = []
+    }
+    // configuredEndpoint:*ep:1,pi: -1,di:-1,dv:1,ept:Centralized,nwk:Primary
+    var tokens = line.substring('configuredEndpoint:'.length).split(',')
+    var endpoint = {}
+    tokens.forEach((tok) => {
+      if (tok.startsWith('ep:')) {
+        endpoint.endpoint = parseInt(tok.substring('ep:'.length))
+      } else if (tok.startsWith('*ep:')) {
+        endpoint.endpoint = parseInt(tok.substring('*ep:'.length))
+      } else if (tok.startsWith('pi:')) {
+        endpoint.profileId = parseInt(tok.substring('pi:'.length))
+      } else if (tok.startsWith('di:')) {
+        endpoint.deviceId = parseInt(tok.substring('di:'.length))
+      } else if (tok.startsWith('dv:')) {
+        endpoint.deviceVersion = parseInt(tok.substring('dv:'.length))
+      } else if (tok.startsWith('ept:')) {
+        endpoint.endpointType = tok.substring('ept:'.length)
+      } else if (tok.startsWith('nwk:')) {
+        endpoint.network = tok.substring('nwk:'.length)
+      }
+    })
+    state.endpoint.push(endpoint)
+  } else if (line.startsWith('beginEndpointType:')) {
+    // Create a temporary state.endpointType
+    state.endpointType = {
+      typeName: line.substring('beginEndpointType:'.length),
+    }
+  } else if (line.startsWith('endEndpointType')) {
+    // Stick the endpoint into `state.endpointTypes[endpointType.typeName]'
+    if (!('endpointTypes' in state)) {
+      state.endpointTypes = {}
+    }
+    state.endpointTypes[state.endpointType.typeName] = state.endpointType
+    delete state.endpointType
+  } else if (line.startsWith('device:')) {
+    state.endpointType.device = line.substring('device:'.length)
+  } else if (line.startsWith('deviceId:')) {
+    state.endpointType.deviceId = parseInt(line.substring('deviceId:'.length))
+  } else if (line.startsWith('profileId:')) {
+    state.endpointType.profileId = parseInt(line.substring('profileId:'.length))
+  }
 }
 
 function parseZclCustomizer(state, line) {
@@ -26,7 +69,13 @@ function parseZclCustomizer(state, line) {
 async function readIscData(filePath, data) {
   const lines = data.toString().split(/\r?\n/)
   var parser = null
-  var state = {}
+  var state = {
+    filePath: filePath,
+    featureLevel: 0,
+    keyValuePairs: [],
+    loader: iscDataLoader,
+  }
+
   lines.forEach((line) => {
     if (line == '{setupId:zclAfv2') {
       parser = parseZclAfv2Line
@@ -44,7 +93,7 @@ async function readIscData(filePath, data) {
 
     if (parser != null) parser(state, line)
   })
-  state.loader = iscDataLoader
+
   return state
 }
 

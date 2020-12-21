@@ -308,14 +308,20 @@ function httpPostAddNewPackage(db) {
     var { filePath } = request.body
     try {
       zclLoader
-        .loadIndividualFile(db, filePath)
-        .then((packageId) => {
-          return queryPackage
-            .insertSessionPackage(db, sessionId, packageId, false)
-            .then(() => sessionId)
+        .loadIndividualFile(db, filePath, sessionId)
+        .then((data) => {
+          if (data.err) {
+            return Promise.resolve({ isValid: false, err: data.err.message })
+          } else {
+            return queryPackage
+              .insertSessionPackage(db, sessionId, data.packageId, false)
+              .then(() => {
+                return { isValid: true, sessionId: sessionId }
+              })
+          }
         })
-        .then(() => {
-          return response.status(restApi.httpCode.ok).send()
+        .then((status) => {
+          return response.status(restApi.httpCode.ok).json(status)
         })
     } catch (err) {
       console.log(err)

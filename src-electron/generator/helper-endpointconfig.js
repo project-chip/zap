@@ -283,6 +283,10 @@ function endpoint_reporting_config_default_count(options) {
   return this.reportList.length
 }
 
+function endpoint_attribute_long_defaults_count(options) {
+  return this.longDefaultsList.length
+}
+
 function endpoint_attribute_long_defaults(options) {
   var littleEndian = true
   if (options.hash.endian == 'big') {
@@ -593,7 +597,8 @@ function endpoint_config(options) {
                     ept.id
                   )
                   .then((attributes) => {
-                    cl.attributes = attributes
+                    // Keep only the enabled attributes
+                    cl.attributes = attributes.filter((a) => a.isIncluded === 1)
                   })
               )
               ps.push(
@@ -621,6 +626,7 @@ function endpoint_config(options) {
   return templateUtil.templatePromise(this.global, promise)
 }
 
+exports.endpoint_attribute_long_defaults_count = endpoint_attribute_long_defaults_count
 exports.endpoint_attribute_long_defaults = endpoint_attribute_long_defaults
 exports.endpoint_config = endpoint_config
 exports.endpoint_attribute_min_max_list = endpoint_attribute_min_max_list
