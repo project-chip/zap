@@ -16,6 +16,15 @@
  */
 
 /**
+ * Locates or adds an attribute, and returns it.
+ *
+ * @param {*} state
+ */
+function locateAttribute(state, at) {
+  return at
+}
+
+/**
  * Parrses attribute string in a form:
  *    cl:0xABCD, at:0xABCD, di: [client|server], mf:0xABCD
  *
@@ -127,21 +136,29 @@ function parseZclAfv2Line(state, line) {
   } else if (state.parseState == 'beginAttributeDefaults') {
     var arr = line.split('=>').map((x) => x.trim())
     var at = parseAttribute(arr[0], arr[1])
+    locateAttribute(state, at).defaultValue = at.value
   } else if (state.parseState == 'beginAttributeDefaultReportingConfig') {
     var arr = line.split('=>').map((x) => x.trim())
     var at = parseAttribute(arr[0], arr[1])
+    locateAttribute(state, at).reportingConfigValue = at.value
   } else if (state.parseState == 'EXTERNALLY_SAVED') {
     var at = parseAttribute(line.trim())
+    locateAttribute(state, at).externallySaved = true
   } else if (state.parseState == 'OPTIONAL') {
     var at = parseAttribute(line.trim())
+    locateAttribute(state, at).isOptional = true
   } else if (state.parseState == 'SINGLETON') {
     var at = parseAttribute(line.trim())
+    locateAttribute(state, at).isSingleton = true
   } else if (state.parseState == 'BOUNDED') {
     var at = parseAttribute(line.trim())
+    locateAttribute(state, at).bound = true
   } else if (state.parseState == 'SAVED_TO_FLASH') {
     var at = parseAttribute(line.trim())
+    locateAttribute(state, at).savedToFlash = true
   } else if (state.parseState == 'REPORTABLE') {
     var at = parseAttribute(line.trim())
+    locateAttribute(state, at).reportable = true
   }
 }
 
