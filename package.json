@@ -54,7 +54,7 @@
     "helper-api-baseline": "node src-script/gen-helper-api.js && pretty-quick"
   },
   "dependencies": {
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "bufferutil": "^4.0.2",
     "bytebuffer": "^5.0.1",
@@ -86,7 +86,7 @@
   "devDependencies": {
     "@babel/plugin-transform-regenerator": "^7.12.1",
     "@babel/runtime-corejs2": "^7.12.5",
-    "@quasar/app": "^2.1.12",
+    "@quasar/app": "^2.1.13",
     "@quasar/extras": "^1.9.12",
     "@quasar/quasar-app-extension-testing": "^1.0.3",
     "@quasar/quasar-app-extension-testing-unit-jest": "^2.1.0",
@@ -95,7 +95,7 @@
     "devtron": "^1.4.0",
     "electron": "9.3.3",
     "electron-builder": "^22.9.1",
-    "electron-debug": "^3.1.0",
+    "electron-debug": "^3.2.0",
     "electron-devtools-installer": "^3.1.1",
     "electron-installer-dmg": "^3.0.0",
     "electron-packager": "^15.2.0",
