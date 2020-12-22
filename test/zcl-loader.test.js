@@ -32,11 +32,10 @@ test('test opening and closing the database', () => {
   return dbApi.initRamDatabase().then((db) => dbApi.closeDatabase(db))
 })
 
-test('test database schema loading in memory', () => {
-  return dbApi
-    .initRamDatabase()
-    .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
-    .then((db) => dbApi.closeDatabase(db))
+test('test database schema loading in memory', async () => {
+  var db = await dbApi.initRamDatabase()
+  await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+  await dbApi.closeDatabase(db)
 })
 
 test('test Silabs zcl data loading in memory', () => {

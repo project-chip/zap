@@ -21,6 +21,7 @@
  * @param {*} state
  */
 function locateAttribute(state, at) {
+  state.attributeType.push(at)
   return at
 }
 
@@ -101,6 +102,22 @@ function parseZclAfv2Line(state, line) {
     state.endpointType.deviceId = parseInt(line.substring('deviceId:'.length))
   } else if (line.startsWith('profileId:')) {
     state.endpointType.profileId = parseInt(line.substring('profileId:'.length))
+  } else if (line.startsWith('overrideClientCluster:')) {
+    var idOnOff = line.substring('overrideClientCluster:'.length).split(',')
+    var override = {
+      clusterId: parseInt(idOnOff[0]),
+      isOverriden: idOnOff[1] == 'yes',
+      side: 'client',
+    }
+    state.clusterOverride.push(override)
+  } else if (line.startsWith('overrideServerCluster:')) {
+    var idOnOff = line.substring('overrideServerCluster:'.length).split(',')
+    var override = {
+      clusterId: parseInt(idOnOff[0]),
+      isOverriden: idOnOff[1] == 'yes',
+      side: 'server',
+    }
+    state.clusterOverride.push(override)
   } else if (line == 'beginAttributeDefaults') {
     state.parseState = line
   } else if (line == 'endAttributeDefaults') {
@@ -175,6 +192,9 @@ async function readIscData(filePath, data) {
     keyValuePairs: [],
     loader: iscDataLoader,
     parseState: 'init',
+    // These are not the same as with zap files
+    attributeType: [],
+    clusterOverride: [],
   }
 
   lines.forEach((line) => {
