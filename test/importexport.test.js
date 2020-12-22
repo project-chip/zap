@@ -164,4 +164,5 @@ test('Read ISD data from file', async () => {
   expect(Object.keys(state.endpointTypes).length).toBe(4)
   expect(Object.keys(state.endpoint).length).toBe(3)
   expect(state.endpoint[2].endpoint).toBe(242)
+  expect(state).not.toHaveProperty('parseState')
 })

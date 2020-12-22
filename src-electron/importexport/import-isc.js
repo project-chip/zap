@@ -59,22 +59,38 @@ function parseZclAfv2Line(state, line) {
     state.endpointType.deviceId = parseInt(line.substring('deviceId:'.length))
   } else if (line.startsWith('profileId:')) {
     state.endpointType.profileId = parseInt(line.substring('profileId:'.length))
-  } else if (line.equals('beginAttributeDefaults')) {
-  } else if (line.equals('endAttributeDefaults')) {
-  } else if (line.equals('beginAttributeDefaultReportingConfig')) {
-  } else if (line.equals('endAttributeDefaultReportingConfig')) {
-  } else if (line.equals('beginAttrList:EXTERNALLY_SAVED')) {
-  } else if (line.equals('endAttrList:EXTERNALLY_SAVED')) {
-  } else if (line.equals('beginAttrList:OPTIONAL')) {
-  } else if (line.equals('endAttrList:OPTIONAL')) {
-  } else if (line.equals('beginAttrList:SINGLETON')) {
-  } else if (line.equals('endAttrList:SINGLETON')) {
-  } else if (line.equals('beginAttrList:BOUNDED')) {
-  } else if (line.equals('endAttrList:BOUNDED')) {
-  } else if (line.equals('beginAttrList:SAVED_TO_FLASH')) {
-  } else if (line.equals('endAttrList:SAVED_TO_FLASH')) {
-  } else if (line.equals('beginAttrList:REPORTABLE')) {
-  } else if (line.equals('endAttrList:REPORTABLE')) {
+  } else if (line == 'beginAttributeDefaults') {
+    state.parseState = line
+  } else if (line == 'endAttributeDefaults') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttributeDefaultReportingConfig') {
+    state.parseState = line
+  } else if (line == 'endAttributeDefaultReportingConfig') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttrList:EXTERNALLY_SAVED') {
+    state.parseState = line
+  } else if (line == 'endAttrList:EXTERNALLY_SAVED') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttrList:OPTIONAL') {
+    state.parseState = line
+  } else if (line == 'endAttrList:OPTIONAL') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttrList:SINGLETON') {
+    state.parseState = line
+  } else if (line == 'endAttrList:SINGLETON') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttrList:BOUNDED') {
+    state.parseState = line
+  } else if (line == 'endAttrList:BOUNDED') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttrList:SAVED_TO_FLASH') {
+    state.parseState = line
+  } else if (line == 'endAttrList:SAVED_TO_FLASH') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttrList:REPORTABLE') {
+    state.parseState = line
+  } else if (line == 'endAttrList:REPORTABLE') {
+    state.parseState = 'zclAfv2'
   }
 }
 
@@ -90,26 +106,31 @@ async function readIscData(filePath, data) {
     featureLevel: 0,
     keyValuePairs: [],
     loader: iscDataLoader,
+    parseState: 'init',
   }
 
   lines.forEach((line) => {
     if (line == '{setupId:zclAfv2') {
       parser = parseZclAfv2Line
+      state.parseState = 'zclAfv2'
       return
     }
     if (line == '{setupId:zclCustomizer') {
       parser = parseZclCustomizer
+      state.parseState = 'zclCustomizer'
       return
     }
 
     if (line == '}') {
       parser = null
+      state.parseState = 'nonSetup'
       return
     }
 
     if (parser != null) parser(state, line)
   })
 
+  delete state.parseState
   return state
 }
 
