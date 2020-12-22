@@ -59,6 +59,22 @@ function parseZclAfv2Line(state, line) {
     state.endpointType.deviceId = parseInt(line.substring('deviceId:'.length))
   } else if (line.startsWith('profileId:')) {
     state.endpointType.profileId = parseInt(line.substring('profileId:'.length))
+  } else if (line.equals('beginAttributeDefaults')) {
+  } else if (line.equals('endAttributeDefaults')) {
+  } else if (line.equals('beginAttributeDefaultReportingConfig')) {
+  } else if (line.equals('endAttributeDefaultReportingConfig')) {
+  } else if (line.equals('beginAttrList:EXTERNALLY_SAVED')) {
+  } else if (line.equals('endAttrList:EXTERNALLY_SAVED')) {
+  } else if (line.equals('beginAttrList:OPTIONAL')) {
+  } else if (line.equals('endAttrList:OPTIONAL')) {
+  } else if (line.equals('beginAttrList:SINGLETON')) {
+  } else if (line.equals('endAttrList:SINGLETON')) {
+  } else if (line.equals('beginAttrList:BOUNDED')) {
+  } else if (line.equals('endAttrList:BOUNDED')) {
+  } else if (line.equals('beginAttrList:SAVED_TO_FLASH')) {
+  } else if (line.equals('endAttrList:SAVED_TO_FLASH')) {
+  } else if (line.equals('beginAttrList:REPORTABLE')) {
+  } else if (line.equals('endAttrList:REPORTABLE')) {
   }
 }
 
