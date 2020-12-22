@@ -15,6 +15,39 @@
  *    limitations under the License.
  */
 
+/**
+ * Parrses attribute string in a form:
+ *    cl:0xABCD, at:0xABCD, di: [client|server], mf:0xABCD
+ *
+ * @param {*} attributeString
+ * @param {*} [value=null]
+ */
+function parseAttribute(attributeString, value = null) {
+  var at = {}
+  attributeString
+    .split(',')
+    .map((x) => x.trim())
+    .forEach((el) => {
+      if (el.startsWith('cl:')) {
+        at.clusterId = parseInt(el.substring(3))
+      } else if (el.startsWith('at:')) {
+        at.attributeId = parseInt(el.substring(3))
+      } else if (el.startsWith('di:')) {
+        if (el.substring(3).trim() == 'client') {
+          at.isClient = true
+        } else {
+          at.isClient = false
+        }
+      } else if (el.startsWith('mf:')) {
+        at.mfgCode = parseInt(el.substring(3))
+      }
+    })
+  if (value != null) {
+    at.value = value
+  }
+  return at
+}
+
 function parseZclAfv2Line(state, line) {
   if (line.startsWith('configuredEndpoint:')) {
     if (!('endpoint' in state)) {
@@ -68,29 +101,47 @@ function parseZclAfv2Line(state, line) {
   } else if (line == 'endAttributeDefaultReportingConfig') {
     state.parseState = 'zclAfv2'
   } else if (line == 'beginAttrList:EXTERNALLY_SAVED') {
-    state.parseState = line
+    state.parseState = line.substring('beginAttrList:'.length)
   } else if (line == 'endAttrList:EXTERNALLY_SAVED') {
     state.parseState = 'zclAfv2'
   } else if (line == 'beginAttrList:OPTIONAL') {
-    state.parseState = line
+    state.parseState = line.substring('beginAttrList:'.length)
   } else if (line == 'endAttrList:OPTIONAL') {
     state.parseState = 'zclAfv2'
   } else if (line == 'beginAttrList:SINGLETON') {
-    state.parseState = line
+    state.parseState = line.substring('beginAttrList:'.length)
   } else if (line == 'endAttrList:SINGLETON') {
     state.parseState = 'zclAfv2'
   } else if (line == 'beginAttrList:BOUNDED') {
-    state.parseState = line
+    state.parseState = line.substring('beginAttrList:'.length)
   } else if (line == 'endAttrList:BOUNDED') {
     state.parseState = 'zclAfv2'
   } else if (line == 'beginAttrList:SAVED_TO_FLASH') {
-    state.parseState = line
+    state.parseState = line.substring('beginAttrList:'.length)
   } else if (line == 'endAttrList:SAVED_TO_FLASH') {
     state.parseState = 'zclAfv2'
   } else if (line == 'beginAttrList:REPORTABLE') {
-    state.parseState = line
+    state.parseState = line.substring('beginAttrList:'.length)
   } else if (line == 'endAttrList:REPORTABLE') {
     state.parseState = 'zclAfv2'
+  } else if (state.parseState == 'beginAttributeDefaults') {
+    var arr = line.split('=>').map((x) => x.trim())
+    var at = parseAttribute(arr[0], arr[1])
+  } else if (state.parseState == 'beginAttributeDefaultReportingConfig') {
+    var arr = line.split('=>').map((x) => x.trim())
+    var at = parseAttribute(arr[0], arr[1])
+  } else if (state.parseState == 'EXTERNALLY_SAVED') {
+    var at = parseAttribute(line.trim())
+  } else if (state.parseState == 'OPTIONAL') {
+    var at = parseAttribute(line.trim())
+  } else if (state.parseState == 'SINGLETON') {
+    var at = parseAttribute(line.trim())
+  } else if (state.parseState == 'BOUNDED') {
+    var at = parseAttribute(line.trim())
+  } else if (state.parseState == 'SAVED_TO_FLASH') {
+    var at = parseAttribute(line.trim())
+  } else if (state.parseState == 'REPORTABLE') {
+    var at = parseAttribute(line.trim())
   }
 }
 
