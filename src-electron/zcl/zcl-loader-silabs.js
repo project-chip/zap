@@ -37,6 +37,7 @@ function collectDataFromJsonFile(ctx) {
   env.logInfo(`Collecting ZCL files from JSON file: ${ctx.metadataFile}`)
   return new Promise((resolve, reject) => {
     var obj = JSON.parse(ctx.data)
+    var f
 
     var fileLocations
     if (Array.isArray(obj.xmlRoot)) {
@@ -47,28 +48,24 @@ function collectDataFromJsonFile(ctx) {
       fileLocations = [path.join(path.dirname(ctx.metadataFile), obj.xmlRoot)]
     }
     var zclFiles = []
-    obj.xmlFile.forEach((f) => {
-      mapOverFileLocations(fileLocations, f, (x) => {
-        zclFiles.push(x)
-      })
+    obj.xmlFile.forEach((xmlF) => {
+      f = util.locateRelativeFilePath(fileLocations, xmlF)
+      if (f != null) zclFiles.push(f)
     })
 
     ctx.zclFiles = zclFiles
 
     // Manufacturers XML file.
-    mapOverFileLocations(fileLocations, obj.manufacturersXml, (x) => {
-      ctx.manufacturersXml = x
-    })
+    f = util.locateRelativeFilePath(fileLocations, obj.manufacturersXml)
+    if (f != null) ctx.manufacturersXml = f
 
     // Zcl XSD file
-    mapOverFileLocations(fileLocations, obj.zclSchema, (x) => {
-      ctx.zclSchema = x
-    })
+    f = util.locateRelativeFilePath(fileLocations, obj.zclSchema)
+    if (f != null) ctx.zclSchema = f
 
     // Zcl Validation Script
-    mapOverFileLocations(fileLocations, obj.zclValidation, (x) => {
-      ctx.zclValidation = x
-    })
+    f = util.locateRelativeFilePath(fileLocations, obj.zclValidation)
+    if (f != null) ctx.zclValidation = f
 
     // General options
     // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
@@ -84,18 +81,6 @@ function collectDataFromJsonFile(ctx) {
     env.logInfo(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
     resolve(ctx)
   })
-}
-
-function mapOverFileLocations(fileLocations, f, destinationResolver) {
-  if (f) {
-    for (var i = 0; i < fileLocations.length; i++) {
-      var resolvedFile = path.resolve(fileLocations[i], f.trim())
-      if (fs.existsSync(resolvedFile)) {
-        destinationResolver(resolvedFile)
-        break
-      }
-    }
-  }
 }
 
 /**
@@ -119,30 +104,30 @@ function collectDataFromPropertiesFile(ctx) {
           .split(',')
           .map((p) => path.join(path.dirname(ctx.metadataFile), p))
         var zclFiles = []
+        var f
 
         // Iterate over all XML files in the properties file, and check
         // if they exist in one or the other directory listed in xmlRoot
         zclProps.xmlFile.split(',').forEach((f) => {
-          mapOverFileLocations(fileLocations, f, (x) => {
-            zclFiles.push(x)
-          })
+          f = util.locateRelativeFilePath(fileLocations, f)
+          if (f != null) zclFiles.push(f)
         })
 
         ctx.zclFiles = zclFiles
         // Manufacturers XML file.
-        mapOverFileLocations(fileLocations, zclProps.manufacturersXml, (x) => {
-          ctx.manufacturersXml = x
-        })
+        f = util.locateRelativeFilePath(
+          fileLocations,
+          zclProps.manufacturersXml
+        )
+        if (f != null) ctx.manufacturersXml = f
 
         // Zcl XSD file
-        mapOverFileLocations(fileLocations, zclProps.zclSchema, (x) => {
-          ctx.zclSchema = x
-        })
+        f = util.locateRelativeFilePath(fileLocations, zclProps.zclSchema)
+        if (f != null) ctx.zclSchema = f
 
         // Zcl Validation Script
-        mapOverFileLocations(fileLocations, zclProps.zclValidation, (x) => {
-          ctx.zclValidation = x
-        })
+        f = util.locateRelativeFilePath(fileLocations, zclProps.zclValidation)
+        if (f != null) ctx.zclValidation = f
 
         // General options
         // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
