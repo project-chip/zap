@@ -57,7 +57,16 @@ function delayBeginTransaction(db, resolve, reject) {
 }
 
 /**
- * Returns a promise to begin a transaction
+ * Returns a promise to begin a transaction. The beginning of the
+ * transaction will be delayed for up to 5 seconds, checking every
+ * 1/10th of a second of previous transaction is already finished.
+ *
+ * After 5 seconds, the code gives up and rejects the promise.
+ *
+ * This is to allow simultaneous calls to this function, even though
+ * SQLite does not allow for simultaneous transactions.
+ *
+ * So use transactions responsibly.
  *
  * @export
  * @param {*} db
