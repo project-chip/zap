@@ -50,6 +50,7 @@
   { "name": "endpoint_attribute_count" },
   { "name": "endpoint_attribute_list" },
   { "name": "endpoint_attribute_long_defaults" },
+  { "name": "endpoint_attribute_long_defaults_count" },
   { "name": "endpoint_attribute_manufacturer_code_count" },
   { "name": "endpoint_attribute_manufacturer_codes" },
   { "name": "endpoint_attribute_min_max_count" },
