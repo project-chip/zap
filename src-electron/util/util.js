@@ -323,6 +323,33 @@ function createAbsolutePath(relativePath, relativity, zapFilePath) {
 }
 
 /**
+ * This method takes an array of root locations and a relative path.
+ * It will attempt to locate an absolute file at the path, combining
+ * the root location and a relative path, until a file is found and returned.
+ *
+ * If none of the combined root locations and relative paths results
+ * in an actual file, null is returned.
+ *
+ * @param {*} rootFileLocations Array of root file locations, typically directories
+ * @param {*} relativeFilePath Relative path
+ * @returns A fully resolved path that exists, or null if none is available.
+ */
+function locateRelativeFilePath(rootFileLocations, relativeFilePath) {
+  if (relativeFilePath) {
+    for (var i = 0; i < rootFileLocations.length; i++) {
+      var resolvedFile = path.resolve(
+        rootFileLocations[i],
+        relativeFilePath.trim()
+      )
+      if (fs.existsSync(resolvedFile)) {
+        return resolvedFile
+      }
+    }
+  }
+  return null
+}
+
+/**
  * Returns a promise of an execution of an external program.
  *
  * @param {*} cmd
@@ -370,3 +397,4 @@ exports.sessionReport = sessionReport
 exports.executePromisesSequentially = executePromisesSequentially
 exports.createAbsolutePath = createAbsolutePath
 exports.executeExternalProgram = executeExternalProgram
+exports.locateRelativeFilePath = locateRelativeFilePath

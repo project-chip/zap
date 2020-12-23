@@ -27,6 +27,22 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 
+test('that that parallel loading of zcl and dotdot is possible', async () => {
+  var dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
+  var zclPropertiesFile = args.zclPropertiesFile
+
+  var db = await dbApi.initRamDatabase()
+  await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+
+  var promises = []
+  promises.push(zclLoader.loadZcl(db, zclPropertiesFile))
+  promises.push(zclLoader.loadZcl(db, dotDotZclPropertiesFile))
+
+  await Promise.all(promises)
+
+  await dbApi.closeDatabase(db)
+}, 10000)
+
 test('test that consecutive loading of metafiles properly avoids duplication', () => {
   var dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
   var db

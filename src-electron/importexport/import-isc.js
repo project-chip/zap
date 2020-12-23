@@ -15,6 +15,49 @@
  *    limitations under the License.
  */
 
+/**
+ * Locates or adds an attribute, and returns it.
+ *
+ * @param {*} state
+ */
+function locateAttribute(state, at) {
+  state.attributeType.push(at)
+  return at
+}
+
+/**
+ * Parrses attribute string in a form:
+ *    cl:0xABCD, at:0xABCD, di: [client|server], mf:0xABCD
+ *
+ * @param {*} attributeString
+ * @param {*} [value=null]
+ */
+function parseAttribute(attributeString, value = null) {
+  var at = {}
+  attributeString
+    .split(',')
+    .map((x) => x.trim())
+    .forEach((el) => {
+      if (el.startsWith('cl:')) {
+        at.clusterId = parseInt(el.substring(3))
+      } else if (el.startsWith('at:')) {
+        at.attributeId = parseInt(el.substring(3))
+      } else if (el.startsWith('di:')) {
+        if (el.substring(3).trim() == 'client') {
+          at.isClient = true
+        } else {
+          at.isClient = false
+        }
+      } else if (el.startsWith('mf:')) {
+        at.mfgCode = parseInt(el.substring(3))
+      }
+    })
+  if (value != null) {
+    at.value = value
+  }
+  return at
+}
+
 function parseZclAfv2Line(state, line) {
   if (line.startsWith('configuredEndpoint:')) {
     if (!('endpoint' in state)) {
@@ -59,6 +102,80 @@ function parseZclAfv2Line(state, line) {
     state.endpointType.deviceId = parseInt(line.substring('deviceId:'.length))
   } else if (line.startsWith('profileId:')) {
     state.endpointType.profileId = parseInt(line.substring('profileId:'.length))
+  } else if (line.startsWith('overrideClientCluster:')) {
+    var idOnOff = line.substring('overrideClientCluster:'.length).split(',')
+    var override = {
+      clusterId: parseInt(idOnOff[0]),
+      isOverriden: idOnOff[1] == 'yes',
+      side: 'client',
+    }
+    state.clusterOverride.push(override)
+  } else if (line.startsWith('overrideServerCluster:')) {
+    var idOnOff = line.substring('overrideServerCluster:'.length).split(',')
+    var override = {
+      clusterId: parseInt(idOnOff[0]),
+      isOverriden: idOnOff[1] == 'yes',
+      side: 'server',
+    }
+    state.clusterOverride.push(override)
+  } else if (line == 'beginAttributeDefaults') {
+    state.parseState = line
+  } else if (line == 'endAttributeDefaults') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttributeDefaultReportingConfig') {
+    state.parseState = line
+  } else if (line == 'endAttributeDefaultReportingConfig') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttrList:EXTERNALLY_SAVED') {
+    state.parseState = line.substring('beginAttrList:'.length)
+  } else if (line == 'endAttrList:EXTERNALLY_SAVED') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttrList:OPTIONAL') {
+    state.parseState = line.substring('beginAttrList:'.length)
+  } else if (line == 'endAttrList:OPTIONAL') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttrList:SINGLETON') {
+    state.parseState = line.substring('beginAttrList:'.length)
+  } else if (line == 'endAttrList:SINGLETON') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttrList:BOUNDED') {
+    state.parseState = line.substring('beginAttrList:'.length)
+  } else if (line == 'endAttrList:BOUNDED') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttrList:SAVED_TO_FLASH') {
+    state.parseState = line.substring('beginAttrList:'.length)
+  } else if (line == 'endAttrList:SAVED_TO_FLASH') {
+    state.parseState = 'zclAfv2'
+  } else if (line == 'beginAttrList:REPORTABLE') {
+    state.parseState = line.substring('beginAttrList:'.length)
+  } else if (line == 'endAttrList:REPORTABLE') {
+    state.parseState = 'zclAfv2'
+  } else if (state.parseState == 'beginAttributeDefaults') {
+    var arr = line.split('=>').map((x) => x.trim())
+    var at = parseAttribute(arr[0], arr[1])
+    locateAttribute(state, at).defaultValue = at.value
+  } else if (state.parseState == 'beginAttributeDefaultReportingConfig') {
+    var arr = line.split('=>').map((x) => x.trim())
+    var at = parseAttribute(arr[0], arr[1])
+    locateAttribute(state, at).reportingConfigValue = at.value
+  } else if (state.parseState == 'EXTERNALLY_SAVED') {
+    var at = parseAttribute(line.trim())
+    locateAttribute(state, at).externallySaved = true
+  } else if (state.parseState == 'OPTIONAL') {
+    var at = parseAttribute(line.trim())
+    locateAttribute(state, at).isOptional = true
+  } else if (state.parseState == 'SINGLETON') {
+    var at = parseAttribute(line.trim())
+    locateAttribute(state, at).isSingleton = true
+  } else if (state.parseState == 'BOUNDED') {
+    var at = parseAttribute(line.trim())
+    locateAttribute(state, at).bound = true
+  } else if (state.parseState == 'SAVED_TO_FLASH') {
+    var at = parseAttribute(line.trim())
+    locateAttribute(state, at).savedToFlash = true
+  } else if (state.parseState == 'REPORTABLE') {
+    var at = parseAttribute(line.trim())
+    locateAttribute(state, at).reportable = true
   }
 }
 
@@ -74,26 +191,34 @@ async function readIscData(filePath, data) {
     featureLevel: 0,
     keyValuePairs: [],
     loader: iscDataLoader,
+    parseState: 'init',
+    // These are not the same as with zap files
+    attributeType: [],
+    clusterOverride: [],
   }
 
   lines.forEach((line) => {
     if (line == '{setupId:zclAfv2') {
       parser = parseZclAfv2Line
+      state.parseState = 'zclAfv2'
       return
     }
     if (line == '{setupId:zclCustomizer') {
       parser = parseZclCustomizer
+      state.parseState = 'zclCustomizer'
       return
     }
 
     if (line == '}') {
       parser = null
+      state.parseState = 'nonSetup'
       return
     }
 
     if (parser != null) parser(state, line)
   })
 
+  delete state.parseState
   return state
 }
 

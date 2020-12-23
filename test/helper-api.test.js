@@ -52,6 +52,10 @@ test('compare APIs against the baseline', () => {
     if (apiFn == undefined) {
       errorMessage += `Helper ${fn} has been removed, breaking the API.\n`
     }
+    if (api.isDeprecated) {
+      if (!apiFn.isDeprecated)
+        errorMessage += `Helper ${fn} has been deprecated, but now it's not any more.\n`
+    }
   })
   expect(errorMessage).toEqual('')
 })

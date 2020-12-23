@@ -76,7 +76,7 @@ function getSessionDirtyFlag(db, sessionId) {
     .dbGet(db, 'SELECT DIRTY FROM SESSION WHERE SESSION_ID = ?', [sessionId])
     .then((row) => {
       if (row == null) {
-        reject()
+        return undefined
       } else {
         return row.DIRTY
       }

@@ -29,8 +29,44 @@ const dbEnum = require('../../src-shared/db-enum.js')
 
 var inTransaction = false
 
+function executeBeginTransaction(db, resolve, reject) {
+  db.run('BEGIN TRANSACTION', [], function (err) {
+    if (err) {
+      env.logError('Failed to BEGIN TRANSACTION')
+      reject(err)
+    } else {
+      env.logSql('Executed BEGIN TRANSACTION')
+      resolve()
+    }
+  })
+}
+
+function delayBeginTransaction(db, resolve, reject) {
+  var cnt = 0
+  var interval = setInterval(() => {
+    if (inTransaction) {
+      cnt++
+      if (cnt > 50) {
+        reject('Waited for 5s for transaction to relinquish, but it did not.')
+      }
+    } else {
+      clearInterval(interval)
+      executeBeginTransaction(db, resolve, reject)
+    }
+  }, 100)
+}
+
 /**
- * Returns a promise to begin a transaction
+ * Returns a promise to begin a transaction. The beginning of the
+ * transaction will be delayed for up to 5 seconds, checking every
+ * 1/10th of a second of previous transaction is already finished.
+ *
+ * After 5 seconds, the code gives up and rejects the promise.
+ *
+ * This is to allow simultaneous calls to this function, even though
+ * SQLite does not allow for simultaneous transactions.
+ *
+ * So use transactions responsibly.
  *
  * @export
  * @param {*} db
@@ -38,16 +74,12 @@ var inTransaction = false
  */
 function dbBeginTransaction(db) {
   return new Promise((resolve, reject) => {
-    db.run('BEGIN TRANSACTION', [], function (err) {
-      if (err) {
-        env.logError('Failed to BEGIN TRANSACTION')
-        reject(err)
-      } else {
-        env.logSql('Executed BEGIN TRANSACTION')
-        inTransaction = true
-        resolve()
-      }
-    })
+    if (inTransaction) {
+      delayBeginTransaction(db, resolve, reject)
+    } else {
+      inTransaction = true
+      executeBeginTransaction(db, resolve, reject)
+    }
   })
 }
 

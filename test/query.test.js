@@ -188,39 +188,25 @@ describe('Session specific queries', () => {
       expect(data.sessionId).toBe(sid)
     }))
 
-  test('Random key value queries', () =>
-    queryConfig
-      .updateKeyValue(db, sid, 'key1', 'value1')
-      .then(() => queryConfig.getSessionKeyValue(db, sid, 'key1'))
-      .then((value) => {
-        expect(value).toBe('value1')
-      })
-      .then(() => queryConfig.updateKeyValue(db, sid, 'key1', 'value2'))
-      .then(() => queryConfig.getSessionKeyValue(db, sid, 'key1'))
-      .then((value) => {
-        expect(value).toBe('value2')
-      })
-      .then(() => queryConfig.getSessionKeyValue(db, sid, 'nonexistent'))
-      .then((value) => {
-        expect(value).toBeUndefined()
-      }))
+  test('Random key value queries', async () => {
+    await queryConfig.updateKeyValue(db, sid, 'key1', 'value1')
+    var value = await queryConfig.getSessionKeyValue(db, sid, 'key1')
+    expect(value).toBe('value1')
+    await queryConfig.updateKeyValue(db, sid, 'key1', 'value2')
+    value = await queryConfig.getSessionKeyValue(db, sid, 'key1')
+    expect(value).toBe('value2')
+    value = await queryConfig.getSessionKeyValue(db, sid, 'nonexistent')
+    expect(value).toBeUndefined()
+  })
 
-  test('Make sure session is dirty', () => {
-    var sid
-    return querySession
-      .getSessionInfoFromSessionKey(db, 'SESSION')
-      .then((data) => {
-        sid = data.sessionId
-        return querySession.getSessionDirtyFlag(db, sid)
-      })
-      .then((result) => {
-        expect(result).toBeTruthy()
-      })
-      .then(() => querySession.setSessionClean(db, sid))
-      .then(() => querySession.getSessionDirtyFlag(db, sid))
-      .then((result) => {
-        expect(result).toBeFalsy()
-      })
+  test('Make sure session is dirty', async () => {
+    var data = await querySession.getSessionInfoFromSessionKey(db, 'SESSION')
+    var sid = data.sessionId
+    var result = await querySession.getSessionDirtyFlag(db, sid)
+    expect(result).toBeTruthy()
+    await querySession.setSessionClean(db, sid)
+    result = await querySession.getSessionDirtyFlag(db, sid)
+    expect(result).toBeFalsy()
   })
 
   test('Make sure triggers work', () => {

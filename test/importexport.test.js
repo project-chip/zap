@@ -62,62 +62,56 @@ test(
   5000
 )
 
-test('Basic gen template parsing and generation', () =>
-  generationEngine
-    .loadTemplates(db, testUtil.testZigbeeGenerationTemplates)
-    .then((context) => {
-      expect(context.crc).not.toBeNull()
-      expect(context.templateData).not.toBeNull()
-    }))
-
-test('Test file 1 existence', () => {
-  return importJs.readDataFromFile(testFile1).then((state) => {
-    expect(state).not.toBe(null)
-    expect(state.creator).toBe('zap')
-    expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
-  })
+test('Basic gen template parsing and generation', async () => {
+  var context = await generationEngine.loadTemplates(
+    db,
+    testUtil.testZigbeeGenerationTemplates
+  )
+  expect(context.crc).not.toBeNull()
+  expect(context.templateData).not.toBeNull()
 })
 
-test('Test file 2 existence', () => {
-  return importJs.readDataFromFile(testFile1).then((state) => {
-    expect(state).not.toBe(null)
-    expect(state.creator).toBe('zap')
-    expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
-  })
+test('Test file 1 existence', async () => {
+  var state = await importJs.readDataFromFile(testFile1)
+  expect(state).not.toBe(null)
+  expect(state.creator).toBe('zap')
+  expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
 })
 
-test('Test file 1 import', () => {
-  var sid
-  return importJs
-    .importDataFromFile(db, testFile1)
-    .then((sessionId) => (sid = sessionId))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE'))
-    .then((x) => expect(x).toBe(1))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER'))
-    .then((x) => expect(x).toBe(11))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND'))
-    .then((x) => expect(x).toBe(7))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE'))
-    .then((x) => expect(x).toBe(21))
-    .then(() => exportJs.createStateFromDatabase(db, sid))
-    .then((state) => {
-      var commandCount = 0
-      var attributeCount = 0
-      expect(state.featureLevel).toBe(env.zapVersion().featureLevel)
-      expect(state.endpointTypes.length).toBe(1)
-      expect(state.endpointTypes[0].clusters.length).toBe(11)
-      state.endpointTypes[0].clusters.forEach((c) => {
-        commandCount += c.commands.length
-        attributeCount += c.attributes.length
-      })
-      expect(commandCount).toBe(7)
-      // This flag exists for this test due to planned global attribute rework.
-      expect(attributeCount).toBe(bypassGlobalAttributes ? 15 : 21)
-    })
-    .then(() => {
-      // Clear the session
-      querySession.deleteSession(db, sid)
-    })
+test('Test file 2 existence', async () => {
+  var state = await importJs.readDataFromFile(testFile1)
+  expect(state).not.toBe(null)
+  expect(state.creator).toBe('zap')
+  expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
+})
+
+test('Test file 1 import', async () => {
+  var sid = await importJs.importDataFromFile(db, testFile1)
+
+  var x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE')
+  expect(x).toBe(1)
+  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
+  expect(x).toBe(11)
+  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
+  expect(x).toBe(7)
+  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
+  expect(x).toBe(21)
+
+  var state = await exportJs.createStateFromDatabase(db, sid)
+  var commandCount = 0
+  var attributeCount = 0
+  expect(state.featureLevel).toBe(env.zapVersion().featureLevel)
+  expect(state.endpointTypes.length).toBe(1)
+  expect(state.endpointTypes[0].clusters.length).toBe(11)
+  state.endpointTypes[0].clusters.forEach((c) => {
+    commandCount += c.commands.length
+    attributeCount += c.attributes.length
+  })
+  expect(commandCount).toBe(7)
+  // This flag exists for this test due to planned global attribute rework.
+  expect(attributeCount).toBe(bypassGlobalAttributes ? 15 : 21)
+
+  await querySession.deleteSession(db, sid)
 })
 
 test('Test file 2 import', () => {
@@ -164,4 +158,7 @@ test('Read ISD data from file', async () => {
   expect(Object.keys(state.endpointTypes).length).toBe(4)
   expect(Object.keys(state.endpoint).length).toBe(3)
   expect(state.endpoint[2].endpoint).toBe(242)
+  expect(state).not.toHaveProperty('parseState')
+  expect(state.clusterOverride.length).toBe(2)
+  expect(state.attributeType.length).toBe(10)
 })
