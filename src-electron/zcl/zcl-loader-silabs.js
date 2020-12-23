@@ -16,6 +16,7 @@
  */
 
 const fs = require('fs')
+const fsp = fs.promises
 const path = require('path')
 const properties = require('properties')
 const dbApi = require('../db/db-api.js')
@@ -712,8 +713,8 @@ function parseZclFiles(db, ctx) {
   env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   return Promise.all(
     ctx.zclFiles.map((file) =>
-      zclLoader
-        .readZclFile(file)
+      fsp
+        .readFile(file)
         .then((data) => util.calculateCrc({ filePath: file, data: data }))
         .then((data) =>
           zclLoader.qualifyZclFile(
@@ -739,50 +740,6 @@ function parseZclFiles(db, ctx) {
 }
 
 /**
- * Parses a single file.
- *
- * @param {*} db
- * @param {*} filePath
- * @returns Promise of a loaded file.
- */
-function loadIndividualSilabsFile(db, filePath, boundValidator) {
-  var pkgId
-  return zclLoader
-    .readZclFile(filePath)
-    .then((data) => util.calculateCrc({ filePath: filePath, data: data }))
-    .then((data) =>
-      zclLoader.qualifyZclFile(
-        db,
-        data,
-        null,
-        dbEnum.packageType.zclXmlStandalone
-      )
-    )
-    .then((result) => {
-      pkgId = result.packageId
-      return result
-    })
-    .then((result) => zclLoader.parseZclFile(result, boundValidator))
-    .then((result) => {
-      if (result.validation && result.validator.isValid == false) {
-        throw new Error('Validation Failed')
-      }
-      return result
-    })
-    .then((result) => processParsedZclData(db, result))
-    .then((laterPromises) =>
-      Promise.all(laterPromises.flat(1).map((promise) => promise()))
-    )
-    .then(() => zclLoader.processZclPostLoading(db))
-    .then(() => {
-      return { packageId: pkgId }
-    })
-    .catch((err) => {
-      return { err: err }
-    })
-}
-
-/**
  * Parses the manufacturers xml.
  *
  * @param {*} db
@@ -791,8 +748,8 @@ function loadIndividualSilabsFile(db, filePath, boundValidator) {
  */
 function parseManufacturerData(db, ctx) {
   if (!ctx.manufacturersXml) return Promise.resolve(ctx)
-  return zclLoader
-    .readZclFile(ctx.manufacturersXml)
+  return fsp
+    .readFile(ctx.manufacturersXml)
     .then((data) =>
       zclLoader.parseZclFile({ data: data }).then((manufacturerMap) =>
         queryPackage.insertOptionsKeyValues(
@@ -816,8 +773,8 @@ function parseManufacturerData(db, ctx) {
  */
 function parseZclSchema(db, ctx) {
   if (!ctx.zclSchema || !ctx.zclValidation) return Promise.resolve(ctx)
-  return zclLoader
-    .readZclFile(ctx.zclSchema)
+  return fsp
+    .readFile(ctx.zclSchema)
     .then((data) => util.calculateCrc({ filePath: ctx.zclSchema, data: data }))
     .then((data) =>
       zclLoader.qualifyZclFile(
@@ -832,8 +789,8 @@ function parseZclSchema(db, ctx) {
       return result
     })
     .then(() =>
-      zclLoader
-        .readZclFile(ctx.zclValidation)
+      fsp
+        .readFile(ctx.zclValidation)
         .then((data) =>
           util.calculateCrc({ filePath: ctx.zclValidation, data: data })
         )
@@ -894,6 +851,14 @@ function parseTextOptions(db, pkgRef, textOptions) {
   return Promise.all(promises)
 }
 
+/**
+ * Parses the boolean options.
+ *
+ * @param {*} db
+ * @param {*} pkgRef
+ * @param {*} booleanCategories
+ * @returns Promise of a parsed boolean options.
+ */
 function parseBoolOptions(db, pkgRef, booleanCategories) {
   if (!booleanCategories) return Promise.resolve()
   let options
@@ -999,7 +964,52 @@ function parseBoolDefaults(db, pkgRef, booleanCategories) {
 }
 
 /**
- * Toplevel function that loads the properties file and orchestrates the promise chain.
+ * Parses a single file.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @returns Promise of a loaded file.
+ */
+function loadIndividualSilabsFile(db, filePath, boundValidator) {
+  var pkgId
+  return fsp
+    .readFile(filePath)
+    .then((data) => util.calculateCrc({ filePath: filePath, data: data }))
+    .then((data) =>
+      zclLoader.qualifyZclFile(
+        db,
+        data,
+        null,
+        dbEnum.packageType.zclXmlStandalone
+      )
+    )
+    .then((result) => {
+      pkgId = result.packageId
+      return result
+    })
+    .then((result) => zclLoader.parseZclFile(result, boundValidator))
+    .then((result) => {
+      if (result.validation && result.validator.isValid == false) {
+        throw new Error('Validation Failed')
+      }
+      return result
+    })
+    .then((result) => processParsedZclData(db, result))
+    .then((laterPromises) =>
+      Promise.all(laterPromises.flat(1).map((promise) => promise()))
+    )
+    .then(() => zclLoader.processZclPostLoading(db))
+    .then(() => {
+      return { packageId: pkgId }
+    })
+    .catch((err) => {
+      return { err: err }
+    })
+}
+
+/**
+ * Toplevel function that loads the toplevel metafile
+ * and orchestrates the promise chain.
  *
  * @export
  * @param {*} db

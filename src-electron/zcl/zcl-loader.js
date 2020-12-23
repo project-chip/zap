@@ -75,8 +75,9 @@ function recordToplevelPackage(db, ctx) {
  * @param {*} ctx
  */
 function recordVersion(ctx) {
-  if (ctx.version == null) return Promise.resolve(ctx)
-  else {
+  if (ctx.version == null) {
+    return Promise.resolve(ctx)
+  } else {
     return queryPackage
       .updateVersion(ctx.db, ctx.packageId, ctx.version)
       .then(() => ctx)
@@ -266,17 +267,6 @@ function processZclPostLoading(db) {
 }
 
 /**
- * Promises to read a file and resolve with the content
- *
- * @param {*} file
- * @returns promise that resolves as readFile
- */
-function readZclFile(file) {
-  env.logInfo(`Reading individual file: ${file}`)
-  return fsp.readFile(file)
-}
-
-/**
  * Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
  *
  * @param {*} argument
@@ -305,6 +295,5 @@ exports.recordToplevelPackage = recordToplevelPackage
 exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading
 exports.loadIndividualFile = loadIndividualFile
-exports.readZclFile = readZclFile
 exports.qualifyZclFile = qualifyZclFile
 exports.parseZclFile = parseZclFile

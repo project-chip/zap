@@ -15,6 +15,8 @@
  *    limitations under the License.
  */
 
+const fs = require('fs')
+const fsp = fs.promises
 const env = require('../util/env.js')
 const path = require('path')
 const zclLoader = require('./zcl-loader')
@@ -32,8 +34,8 @@ const util = require('../util/util.js')
  */
 function collectDataFromLibraryXml(ctx) {
   env.logInfo(`Collecting ZCL files from: ${ctx.metadataFile}`)
-  return zclLoader
-    .readZclFile(ctx.metadataFile)
+  return fsp
+    .readFile(ctx.metadataFile)
     .then((data) =>
       util.calculateCrc({ filePath: ctx.metadataFile, data: data })
     )
@@ -91,8 +93,8 @@ function parseZclFiles(db, ctx) {
 
   ctx.zclFiles.forEach((file) => {
     env.logInfo(`Starting to parse Dotdot ZCL file: ${file}`)
-    var p = zclLoader
-      .readZclFile(file)
+    var p = fsp
+      .readFile(file)
       .then((data) => util.calculateCrc({ filePath: file, data: data }))
       .then((data) =>
         zclLoader.qualifyZclFile(
@@ -618,13 +620,14 @@ function loadZclData(db, ctx) {
  * @return {*} object w/ following: { packageId: pkgId } or { err: err }
  */
 function loadIndividualDotDotFile(db, filePath) {
-  return zclLoader.readZclFile(filePath).then((data) => {
+  return fsp.readFile(filePath).then((data) => {
     console.log(data)
   })
 }
 
 /**
- * Toplevel function that loads the xml library file and orchestrates the promise chain.
+ * Toplevel function that loads the xml library file
+ * and orchestrates the promise chain.
  *
  * @export
  * @param {*} db
