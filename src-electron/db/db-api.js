@@ -72,7 +72,7 @@ function delayBeginTransaction(db, resolve, reject) {
  * @param {*} db
  * @returns A promise that resolves without an argument and rejects with an error from BEGIN TRANSACTION query.
  */
-function dbBeginTransaction(db) {
+async function dbBeginTransaction(db) {
   return new Promise((resolve, reject) => {
     if (inTransaction) {
       delayBeginTransaction(db, resolve, reject)
@@ -90,7 +90,7 @@ function dbBeginTransaction(db) {
  * @param {*} db
  * @returns A promise that resolves without an argument or rejects with an error from COMMIT query.
  */
-function dbCommit(db) {
+async function dbCommit(db) {
   return new Promise((resolve, reject) => {
     db.run('COMMIT', [], function (err) {
       if (err) {
@@ -112,7 +112,7 @@ function dbCommit(db) {
  * @param {*} db
  * @returns A promise that resolves without an argument or rejects with an error from ROLLBACK query.
  */
-function dbRollback(db) {
+async function dbRollback(db) {
   return new Promise((resolve, reject) => {
     db.run('ROLLBACK', [], function (err) {
       if (err) {
@@ -136,7 +136,7 @@ function dbRollback(db) {
  * @param {*} args
  * @returns A promise that resolve with the number of delete rows, or rejects with an error from query.
  */
-function dbRemove(db, query, args) {
+async function dbRemove(db, query, args) {
   return new Promise((resolve, reject) => {
     db.run(query, args, function (err) {
       if (err) {
@@ -159,7 +159,7 @@ function dbRemove(db, query, args) {
  * @param {*} args
  * @returns A promise that resolves without an argument, or rejects with an error from the query.
  */
-function dbUpdate(db, query, args) {
+async function dbUpdate(db, query, args) {
   return new Promise((resolve, reject) => {
     db.run(query, args, function (err) {
       if (err) {
@@ -182,7 +182,7 @@ function dbUpdate(db, query, args) {
  * @param {*} args
  * @returns A promise that resolves with the rowid from the inserted row, or rejects with an error from the query.
  */
-function dbInsert(db, query, args) {
+async function dbInsert(db, query, args) {
   return new Promise((resolve, reject) => {
     db.run(query, args, function (err) {
       if (err) {
@@ -207,7 +207,7 @@ function dbInsert(db, query, args) {
  * @param {*} args
  * @returns A promise that resolves with the rows that got retrieved from the database, or rejects with an error from the query.
  */
-function dbAll(db, query, args) {
+async function dbAll(db, query, args) {
   return new Promise((resolve, reject) => {
     db.all(query, args, (err, rows) => {
       if (err) {
@@ -230,7 +230,7 @@ function dbAll(db, query, args) {
  * @param {*} args
  * @returns A promise that resolves with a single row that got retrieved from the database, or rejects with an error from the query.
  */
-function dbGet(db, query, args, reportError = true) {
+async function dbGet(db, query, args, reportError = true) {
   return new Promise((resolve, reject) => {
     db.get(query, args, (err, row) => {
       if (err) {
@@ -252,7 +252,7 @@ function dbGet(db, query, args, reportError = true) {
  * @param {*} sql
  * @param {*} arrayOfArrays
  */
-function dbMultiSelect(db, sql, arrayOfArrays) {
+async function dbMultiSelect(db, sql, arrayOfArrays) {
   return new Promise((resolve, reject) => {
     env.logSql(
       `Preparing statement: ${sql} to select ${arrayOfArrays.length} rows.`
@@ -290,7 +290,7 @@ function dbMultiSelect(db, sql, arrayOfArrays) {
  * @param {*} arrayOfArrays
  * @returns A promise that resolves with the array of rowids for the rows that got inserted, or rejects with an error from the query.
  */
-function dbMultiInsert(db, sql, arrayOfArrays) {
+async function dbMultiInsert(db, sql, arrayOfArrays) {
   return new Promise((resolve, reject) => {
     env.logSql(
       `Preparing statement: ${sql} to insert ${arrayOfArrays.length} records.`
@@ -320,7 +320,7 @@ function dbMultiInsert(db, sql, arrayOfArrays) {
  * @param {*} database
  * @returns A promise that resolves without an argument or rejects with error from the database closing.
  */
-function closeDatabase(database) {
+async function closeDatabase(database) {
   return new Promise((resolve, reject) => {
     env.logSql('About to close database.')
     database.close((err) => {
@@ -336,7 +336,7 @@ function closeDatabase(database) {
  *
  *  @returns Promise that resolve with the Db.
  */
-function initRamDatabase() {
+async function initRamDatabase() {
   return new Promise((resolve, reject) => {
     var db = new sqlite.Database(':memory:', (err) => {
       if (err) {
@@ -356,7 +356,7 @@ function initRamDatabase() {
  * @param {*} sqlitePath
  * @returns A promise that resolves with the database object that got created, or rejects with an error if something went wrong.
  */
-function initDatabase(sqlitePath) {
+async function initDatabase(sqlitePath) {
   return new Promise((resolve, reject) => {
     var db = new sqlite.Database(sqlitePath, (err) => {
       if (err) {
@@ -376,7 +376,7 @@ function initDatabase(sqlitePath) {
  * @param {*} version
  * @returns  A promise that resolves with a rowid of created setting row or rejects with error if something goes wrong.
  */
-function insertOrReplaceSetting(db, category, key, value) {
+async function insertOrReplaceSetting(db, category, key, value) {
   return dbInsert(
     db,
     'INSERT OR REPLACE INTO SETTING ( CATEGORY, KEY, VALUE ) VALUES ( ?, ?, ? )',
@@ -384,7 +384,7 @@ function insertOrReplaceSetting(db, category, key, value) {
   )
 }
 
-function determineIfSchemaShouldLoad(db, context) {
+async function determineIfSchemaShouldLoad(db, context) {
   return new Promise((resolve, reject) => {
     return dbGet(
       db,
@@ -410,7 +410,7 @@ function determineIfSchemaShouldLoad(db, context) {
   })
 }
 
-function updateCurrentSchemaCrc(db, context) {
+async function updateCurrentSchemaCrc(db, context) {
   return new Promise((resolve, reject) => {
     dbInsert(
       db,
@@ -431,7 +431,7 @@ function updateCurrentSchemaCrc(db, context) {
  * @param {*} zapVersion
  * @returns A promise that resolves with the same db that got passed in, or rejects with an error.
  */
-function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
+async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   return new Promise((resolve, reject) => {
     fs.readFile(schemaPath, 'utf8', (err, data) => {
       if (err) return reject(err)
@@ -508,7 +508,7 @@ function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
  * @param {*} zapVersion
  * @returns Promise that resolves into the database object.
  */
-function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
+async function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
   return initDatabase(sqliteFile).then((db) =>
     loadSchema(db, schemaFile, zapVersion, sqliteFile)
   )

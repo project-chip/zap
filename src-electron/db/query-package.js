@@ -32,7 +32,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} db
  * @param {*} path Path of a file to check.
  */
-function getPackageByPathAndParent(db, path, parentId) {
+async function getPackageByPathAndParent(db, path, parentId) {
   return dbApi
     .dbGet(
       db,
@@ -49,7 +49,7 @@ function getPackageByPathAndParent(db, path, parentId) {
  * @param {*} parentId
  * @returns promise that resolves into an array of packages.
  */
-function getPackageByParent(db, parentId) {
+async function getPackageByParent(db, parentId) {
   return dbApi
     .dbAll(
       db,
@@ -67,7 +67,7 @@ function getPackageByParent(db, parentId) {
  * @param {*} type
  * @returns Promise of a query.
  */
-function getPackageByPathAndType(db, path, type) {
+async function getPackageByPathAndType(db, path, type) {
   return dbApi
     .dbGet(
       db,
@@ -86,7 +86,7 @@ function getPackageByPathAndType(db, path, type) {
  * @param {*} version
  * @returns Promise of a query.
  */
-function getPackageIdByPathAndTypeAndVersion(db, path, type, version) {
+async function getPackageIdByPathAndTypeAndVersion(db, path, type, version) {
   return dbApi
     .dbGet(
       db,
@@ -106,7 +106,7 @@ function getPackageIdByPathAndTypeAndVersion(db, path, type, version) {
  * @param {*} type
  * @returns A promise that resolves into the rows array of packages.
  */
-function getPackagesByType(db, type) {
+async function getPackagesByType(db, type) {
   return dbApi
     .dbAll(
       db,
@@ -123,7 +123,7 @@ function getPackagesByType(db, type) {
  * @param {*} type
  * @returns A promise that resolves into the rows array of packages.
  */
-function getPackagesByParentAndType(db, parentId, type) {
+async function getPackagesByParentAndType(db, parentId, type) {
   return dbApi
     .dbAll(
       db,
@@ -141,7 +141,7 @@ function getPackagesByParentAndType(db, parentId, type) {
  * @param {*} db
  * @param {*} path Path of a file to check.
  */
-function getPackageByPackageId(db, packageId) {
+async function getPackageByPackageId(db, packageId) {
   return dbApi
     .dbGet(
       db,
@@ -159,7 +159,7 @@ function getPackageByPackageId(db, packageId) {
  * @param {*} path
  * @returns Promise resolving with a CRC or null.
  */
-function getPathCrc(db, path) {
+async function getPathCrc(db, path) {
   return dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', [path]).then(
     (row) =>
       new Promise((resolve, reject) => {
@@ -180,7 +180,7 @@ function getPathCrc(db, path) {
  * @param {*} version
  * @returns A promise of an updated version.
  */
-function updateVersion(db, packageId, version) {
+async function updateVersion(db, packageId, version) {
   return dbApi.dbUpdate(
     db,
     'UPDATE PACKAGE SET VERSION = ? WHERE PACKAGE_ID = ?',
@@ -196,7 +196,14 @@ function updateVersion(db, packageId, version) {
  * @param {*} crc CRC of the file.
  * @returns Promise of an insertion.
  */
-function insertPathCrc(db, path, crc, type, parentId = null, version = null) {
+async function insertPathCrc(
+  db,
+  path,
+  crc,
+  type,
+  parentId = null,
+  version = null
+) {
   return dbApi.dbInsert(
     db,
     'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION ) VALUES (?, ?, ?, ?, ?)',
@@ -213,7 +220,7 @@ function insertPathCrc(db, path, crc, type, parentId = null, version = null) {
  * @param {*} [parentId=null]
  * @returns Promise of an insert or update.
  */
-function registerTopLevelPackage(db, path, crc, type, version = null) {
+async function registerTopLevelPackage(db, path, crc, type, version = null) {
   return getPackageByPathAndType(db, path, type).then((row) => {
     if (row == null) {
       return dbApi.dbInsert(
@@ -236,7 +243,7 @@ function registerTopLevelPackage(db, path, crc, type, version = null) {
  * @param {*} crc
  * @returns Promise of an update.
  */
-function updatePathCrc(db, path, crc, parentId) {
+async function updatePathCrc(db, path, crc, parentId) {
   return dbApi.dbUpdate(
     db,
     'UPDATE PACKAGE SET CRC = ? WHERE PATH = ? AND PARENT_PACKAGE_REF = ?',
@@ -252,7 +259,12 @@ function updatePathCrc(db, path, crc, parentId) {
  * @param {*} packageId
  * @returns Promise of an insert.
  */
-function insertSessionPackage(db, sessionId, packageId, required = false) {
+async function insertSessionPackage(
+  db,
+  sessionId,
+  packageId,
+  required = false
+) {
   return dbApi.dbInsert(
     db,
     'INSERT OR REPLACE INTO SESSION_PACKAGE (SESSION_REF, PACKAGE_REF, REQUIRED) VALUES (?,?, ?)',
@@ -265,7 +277,7 @@ function insertSessionPackage(db, sessionId, packageId, required = false) {
  * @param {*} sessionId
  * @param {*} packageType
  */
-function deleteSessionPackage(db, sessionId, packageId) {
+async function deleteSessionPackage(db, sessionId, packageId) {
   return dbApi.dbRemove(
     db,
     `DELETE FROM SESSION_PACKAGE WHERE SESSION_REF = ? AND PACKAGE_REF = ?`,
@@ -281,7 +293,7 @@ function deleteSessionPackage(db, sessionId, packageId) {
  * @param {*} packageType
  * @returns Promise that resolves into array of retrieve packages.
  */
-function getSessionPackagesByType(db, sessionId, packageType) {
+async function getSessionPackagesByType(db, sessionId, packageType) {
   return dbApi
     .dbAll(
       db,
@@ -309,7 +321,7 @@ WHERE SESSION_PACKAGE.SESSION_REF = ?
  * @param {*} sessionId
  * @returns Promise that resolves into array of retrieve packages.
  */
-function getSessionGenTemplates(db, sessionId) {
+async function getSessionGenTemplates(db, sessionId) {
   return dbApi
     .dbAll(
       db,
@@ -346,7 +358,7 @@ function getSessionGenTemplates(db, sessionId) {
  * @param {*} db
  * @param {*} sessionId
  */
-function getSessionZclPackages(db, sessionId) {
+async function getSessionZclPackages(db, sessionId) {
   var inList = `('${dbEnum.packageType.zclProperties}', '${dbEnum.packageType.zclXmlStandalone}')`
   return dbApi
     .dbAll(
@@ -376,7 +388,7 @@ WHERE
  * @param {*} sessionId
  * @returns The promise that resolves into an array of package IDs.
  */
-function getSessionPackages(db, sessionId) {
+async function getSessionPackages(db, sessionId) {
   return dbApi
     .dbAll(
       db,
@@ -392,7 +404,7 @@ function getSessionPackages(db, sessionId) {
  * @param {*} packageId
  * @param {*} sessionId
  */
-function getPackageSessionPackagePairBySessionId(db, sessionId) {
+async function getPackageSessionPackagePairBySessionId(db, sessionId) {
   return dbApi
     .dbAll(
       db,
@@ -425,14 +437,14 @@ function getPackageSessionPackagePairBySessionId(db, sessionId) {
 }
 
 /**
- * This function inserts an option and its values into the DB.
+ * This async function inserts an option and its values into the DB.
  *
  * @param {*} db
  * @param {*} packageId - Package Reference
  * @param {*} optionCategory - The name of the option.
  * @param {*} optionCodeLabels - The array of values associated with this option.
  */
-function insertOptionsKeyValues(
+async function insertOptionsKeyValues(
   db,
   packageId,
   optionCategory,
@@ -454,13 +466,13 @@ function insertOptionsKeyValues(
 }
 
 /**
- * This function returns all options associated with a specific category.
+ * This async function returns all options associated with a specific category.
  * @param {*} db
  * @param {*} packageId
  * @param {*} optionCategory
  * @returns promise to return option that matches arguments.
  */
-function selectAllOptionsValues(db, packageId, optionCategory) {
+async function selectAllOptionsValues(db, packageId, optionCategory) {
   return dbApi
     .dbAll(
       db,
@@ -472,14 +484,19 @@ function selectAllOptionsValues(db, packageId, optionCategory) {
 
 /**
  *
- * This function returns option associated with a specific category and code.
+ * This async function returns option associated with a specific category and code.
  * @param {*} db
  * @param {*} packageId
  * @param {*} optionCategory
  * @param {*} optionCode
  * @returns promise to return option that matches arguments.
  */
-function selectSpecificOptionValue(db, packageId, optionCategory, optionCode) {
+async function selectSpecificOptionValue(
+  db,
+  packageId,
+  optionCategory,
+  optionCode
+) {
   return dbApi
     .dbGet(
       db,
@@ -490,11 +507,11 @@ function selectSpecificOptionValue(db, packageId, optionCategory, optionCode) {
 }
 
 /**
- * This function returns a specific option value given an option reference.
+ * This async function returns a specific option value given an option reference.
  * @param {*} db
  * @param {*} optionDefaultId
  */
-function selectOptionValueByOptionDefaultId(db, optionDefaultId) {
+async function selectOptionValueByOptionDefaultId(db, optionDefaultId) {
   return dbApi
     .dbGet(
       db,
@@ -513,7 +530,12 @@ function selectOptionValueByOptionDefaultId(db, optionDefaultId) {
  * @param {*} optionRef
  * @returns promise to insert option value
  */
-function insertDefaultOptionValue(db, packageId, optionCategory, optionRef) {
+async function insertDefaultOptionValue(
+  db,
+  packageId,
+  optionCategory,
+  optionRef
+) {
   return dbApi.dbInsert(
     db,
     'INSERT INTO PACKAGE_OPTION_DEFAULT ( PACKAGE_REF, OPTION_CATEGORY, OPTION_REF) VALUES (?, ?, ?) ON CONFLICT DO NOTHING',
@@ -526,7 +548,7 @@ function insertDefaultOptionValue(db, packageId, optionCategory, optionRef) {
  * @param {*} db
  * @param {*} packageId
  */
-function selectAllDefaultOptions(db, packageId) {
+async function selectAllDefaultOptions(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -544,7 +566,11 @@ function selectAllDefaultOptions(db, packageId) {
  * @param {*} defaultArray Array containing objects with 'entityCode', 'parentCode', 'value'
  * @returns Promise of insertion for defaults.
  */
-function insertPackageExtensionDefault(db, packageExtensionId, defaultArray) {
+async function insertPackageExtensionDefault(
+  db,
+  packageExtensionId,
+  defaultArray
+) {
   return dbApi.dbMultiInsert(
     db,
     `
@@ -568,7 +594,7 @@ ON CONFLICT DO NOTHING
  * @param propertyArray. Array of objects that contain property, type, configurability, label, globalDefault
  * @param defaultsArrayOfArrays For each item in propertyArray, it contains array of default rows, or null.
  */
-function insertPackageExtension(
+async function insertPackageExtension(
   db,
   packageId,
   entity,
@@ -622,7 +648,7 @@ ON CONFLICT DO NOTHING`,
  * @param {*} entity
  * @returns promise that resolve into an array of packageExtensions for a given entity
  */
-function selectPackageExtension(db, packageId, entity) {
+async function selectPackageExtension(db, packageId, entity) {
   var acc = []
   return dbApi
     .dbAll(

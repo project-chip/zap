@@ -158,7 +158,7 @@ function exportSessionPackages(db, sessionId, zapFileLocation) {
  * @param {*} filePath
  * @returns A promise that resolves with the path of the file written.
  */
-function exportDataIntoFile(db, sessionId, filePath) {
+async function exportDataIntoFile(db, sessionId, filePath) {
   env.logInfo(`Writing state from session ${sessionId} into file ${filePath}`)
   return createStateFromDatabase(db, sessionId)
     .then((state) => {
@@ -172,12 +172,8 @@ function exportDataIntoFile(db, sessionId, filePath) {
         })
       })
     })
-    .then(() => {
-      return querySession.setSessionClean(db, sessionId)
-    })
-    .then(() => {
-      return Promise.resolve(filePath)
-    })
+    .then(() => querySession.setSessionClean(db, sessionId))
+    .then(() => filePath)
 }
 
 /**

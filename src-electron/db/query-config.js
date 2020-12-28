@@ -143,7 +143,7 @@ DO UPDATE SET ENABLED = ?`,
  * @param {*} clusterRef
  * @param {*} side
  */
-function getClusterState(db, endpointTypeId, clusterRef, side) {
+async function getClusterState(db, endpointTypeId, clusterRef, side) {
   return dbApi
     .dbGet(
       db,

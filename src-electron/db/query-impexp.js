@@ -30,7 +30,7 @@ const env = require('../util/env.js')
  * @param {*} endpoint
  * @param {*} endpointTypeRef
  */
-function importEndpoint(db, sessionId, endpoint, endpointTypeRef) {
+async function importEndpoint(db, sessionId, endpoint, endpointTypeRef) {
   return dbApi.dbInsert(
     db,
     `
@@ -64,7 +64,7 @@ INSERT INTO ENDPOINT (
  * @param {*} db
  * @param {*} sessionId
  */
-function exportEndpoints(db, sessionId, endpointTypes) {
+async function exportEndpoints(db, sessionId, endpointTypes) {
   var endpointTypeIndex = (epts, endpointTypeRef) => {
     return epts.findIndex((value) => value.endpointTypeId == endpointTypeRef)
   }
@@ -111,7 +111,7 @@ ORDER BY ENDPOINT.ENDPOINT_IDENTIFIER
  * @param {*} sessionId
  * @returns promise that resolves into rows in the database table.
  */
-function exportEndpointTypes(db, sessionId) {
+async function exportEndpointTypes(db, sessionId) {
   var mapFunction = (x) => {
     return {
       endpointTypeId: x.ENDPOINT_TYPE_ID,
@@ -154,7 +154,7 @@ ORDER BY ENDPOINT_TYPE.NAME, DEVICE_TYPE_CODE, DEVICE_TYPE_PROFILE_ID`,
  * @param {*} endpointType
  * @returns Promise of endpoint insertion.
  */
-function importEndpointType(db, sessionId, packageId, endpointType) {
+async function importEndpointType(db, sessionId, packageId, endpointType) {
   // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', `deviceTypeProfileId`, 'clusters', 'commands', 'attributes'
   return dbApi.dbInsert(
     db,
@@ -185,7 +185,7 @@ INSERT INTO ENDPOINT_TYPE (
  * @param {*} sessionId
  * @returns Promise of a data that is listing all the packages in the session.
  */
-function exportPackagesFromSession(db, sessionId) {
+async function exportPackagesFromSession(db, sessionId) {
   var mapFunction = (x) => {
     return {
       path: x.PATH,
@@ -219,7 +219,7 @@ WHERE SESSION_PACKAGE.SESSION_REF = ?`,
  * @param {*} endpointTypeId
  * @returns Promise that resolves with the data that should go into the external form.
  */
-function exportClustersFromEndpointType(db, endpointTypeId) {
+async function exportClustersFromEndpointType(db, endpointTypeId) {
   var mapFunction = (x) => {
     return {
       name: x.NAME,
@@ -262,7 +262,12 @@ ORDER BY CLUSTER.CODE, CLUSTER.NAME`,
  * @param {*} cluster Object populated same way as export method leaves it.
  * @returns Promise of an imported cluster.
  */
-function importClusterForEndpointType(db, packageId, endpointTypeId, cluster) {
+async function importClusterForEndpointType(
+  db,
+  packageId,
+  endpointTypeId,
+  cluster
+) {
   return dbApi.dbInsert(
     db,
     `
@@ -297,7 +302,7 @@ VALUES
  * @param {*} endpointTypeId
  * @returns Promise that resolves with the attribute data.
  */
-function exportAttributesFromEndpointTypeCluster(
+async function exportAttributesFromEndpointTypeCluster(
   db,
   endpointTypeId,
   endpointClusterId
@@ -358,7 +363,7 @@ WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?
  * @param {*} attribute
  * @returns Promise of an attribute insertion.
  */
-function importAttributeForEndpointType(
+async function importAttributeForEndpointType(
   db,
   packageId,
   endpointTypeId,
@@ -428,7 +433,7 @@ VALUES
  * @param {*} endpointTypeId
  * @returns Promise that resolves with the command data.
  */
-function exportCommandsFromEndpointTypeCluster(
+async function exportCommandsFromEndpointTypeCluster(
   db,
   endpointTypeId,
   endpointClusterId
@@ -474,7 +479,7 @@ function exportCommandsFromEndpointTypeCluster(
  * @param {*} command
  * @returns Promise of a command insertion.
  */
-function importCommandForEndpointType(
+async function importCommandForEndpointType(
   db,
   packageId,
   endpointTypeId,
@@ -530,7 +535,7 @@ VALUES
  * @param {*} sessionId
  * @returns promise that resolves into rows in the database table.
  */
-function exportendPointTypeIds(db, sessionId) {
+async function exportendPointTypeIds(db, sessionId) {
   var mapFunction = (x) => {
     return {
       endpointTypeId: x.ENDPOINT_TYPE_ID,
@@ -560,7 +565,7 @@ WHERE ENDPOINT_TYPE.SESSION_REF = ? ORDER BY ENDPOINT_TYPE.NAME`,
  * @param {*} endpointTypes
  * @param {*} endpointClusterId
  */
-function exportCliCommandCountFromEndpointTypeCluster(
+async function exportCliCommandCountFromEndpointTypeCluster(
   db,
   endpointTypes,
   endpointClusterId
