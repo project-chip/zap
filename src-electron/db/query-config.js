@@ -220,11 +220,10 @@ function insertOrUpdateAttributeState(
   ).then((cluster) => {
     return queryZcl
       .selectAttributeByAttributeIdAndClusterRef(db, attributeId, clusterRef)
-      .then((staticAttribute) => {
-        return dbApi
-          .dbInsert(
-            db,
-            `
+      .then((staticAttribute) =>
+        dbApi.dbInsert(
+          db,
+          `
 INSERT
 INTO ENDPOINT_TYPE_ATTRIBUTE
   ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE, STORAGE_OPTION, SINGLETON)
@@ -235,27 +234,27 @@ WHERE (
       AND ENDPOINT_TYPE_CLUSTER_REF = ?
       AND ATTRIBUTE_REF = ? )
     == 0)`,
-            [
-              endpointTypeId,
-              cluster.endpointTypeClusterId,
-              attributeId,
-              staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
-              dbEnum.storageOption.ram,
-              clusterRef,
-              endpointTypeId,
-              cluster.endpointTypeClusterId,
-              attributeId,
-            ]
-          )
-          .then((promiseResult) => {
-            return dbApi.dbUpdate(
-              db,
-              'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
-                getAllParamValuePairArrayClauses(paramValuePairArray) +
-                'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?',
-              [endpointTypeId, cluster.endpointTypeClusterId, attributeId]
-            )
-          })
+          [
+            endpointTypeId,
+            cluster.endpointTypeClusterId,
+            attributeId,
+            staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
+            dbEnum.storageOption.ram,
+            clusterRef,
+            endpointTypeId,
+            cluster.endpointTypeClusterId,
+            attributeId,
+          ]
+        )
+      )
+      .then(() => {
+        return dbApi.dbUpdate(
+          db,
+          'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
+            getAllParamValuePairArrayClauses(paramValuePairArray) +
+            'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?',
+          [endpointTypeId, cluster.endpointTypeClusterId, attributeId]
+        )
       })
   })
 }
