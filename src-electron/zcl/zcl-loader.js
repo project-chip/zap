@@ -38,7 +38,7 @@ const defaultValidator = (zclData) => {
  * @param {*} ctx
  * @returns Promise to populate data, filePath and crc into the context.
  */
-function readMetadataFile(ctx) {
+async function readMetadataFile(ctx) {
   return fsp
     .readFile(ctx.metadataFile, { encoding: 'utf-8' })
     .then((data) => {
@@ -54,7 +54,7 @@ function readMetadataFile(ctx) {
  *
  * @param {*} ctx
  */
-function recordToplevelPackage(db, ctx) {
+async function recordToplevelPackage(db, ctx) {
   return queryPackage
     .registerTopLevelPackage(
       db,
@@ -74,14 +74,11 @@ function recordToplevelPackage(db, ctx) {
  * @param {*} db
  * @param {*} ctx
  */
-function recordVersion(ctx) {
-  if (ctx.version == null) {
-    return Promise.resolve(ctx)
-  } else {
-    return queryPackage
-      .updateVersion(ctx.db, ctx.packageId, ctx.version)
-      .then(() => ctx)
+async function recordVersion(ctx) {
+  if (ctx.version != null) {
+    await queryPackage.updateVersion(ctx.db, ctx.packageId, ctx.version)
   }
+  return ctx
 }
 
 /**
@@ -92,7 +89,7 @@ function recordVersion(ctx) {
  * @param {*} metadataFile
  * @returns a Promise that resolves with the db.
  */
-function loadZcl(db, metadataFile) {
+async function loadZcl(db, metadataFile) {
   var ctx = {
     metadataFile: path.resolve(metadataFile),
     db: db,
@@ -105,7 +102,7 @@ function loadZcl(db, metadataFile) {
   } else if (ext == '.json') {
     return sLoad.loadSilabsZcl(db, ctx, true)
   } else {
-    return Promise.reject('unknown properties file type')
+    throw 'unknown properties file type'
   }
 }
 

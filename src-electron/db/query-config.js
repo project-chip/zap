@@ -412,7 +412,7 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?`,
  * @param {*} networkIdentifier
  * @returns Promise to update endpoints.
  */
-function insertEndpoint(
+async function insertEndpoint(
   db,
   sessionId,
   endpointIdentifier,
@@ -447,11 +447,20 @@ VALUES ( ?, ?, ?, ?,
  * @param {*} id
  * @returns Promise to delete an endpoint that resolves with the number of rows that were deleted.
  */
-function deleteEndpoint(db, id) {
+async function deleteEndpoint(db, id) {
   return dbApi.dbRemove(db, 'DELETE FROM ENDPOINT WHERE ENDPOINT_ID = ?', [id])
 }
 
-function updateEndpoint(db, sessionId, endpointId, changesArray) {
+/**
+ * Returns a promise to update the endpoint
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} endpointId
+ * @param {*} changesArray
+ * @returns Promise to update the endpoint
+ */
+async function updateEndpoint(db, sessionId, endpointId, changesArray) {
   return dbApi.dbUpdate(
     db,
     `UPDATE ENDPOINT SET ` +
@@ -469,7 +478,7 @@ function updateEndpoint(db, sessionId, endpointId, changesArray) {
  * @param {*} sessionId
  * @returns Promise that resolves into a count.
  */
-function getCountOfEndpointsWithGivenEndpointIdentifier(
+async function getCountOfEndpointsWithGivenEndpointIdentifier(
   db,
   endpointIdentifier,
   sessionId
@@ -483,11 +492,17 @@ function getCountOfEndpointsWithGivenEndpointIdentifier(
     .then((x) => x['COUNT(ENDPOINT_IDENTIFIER)'])
 }
 
-function getAllEndpoints(db, sessionId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+/**
+ * Returns a promise resolving into all endpoints.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise resolving into all endpoints.
+ */
+async function getAllEndpoints(db, sessionId) {
+  var rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   ENDPOINT_ID,
   SESSION_REF,
@@ -499,12 +514,20 @@ FROM ENDPOINT
 WHERE SESSION_REF = ?
 ORDER BY ENDPOINT_IDENTIFIER
     `,
-      [sessionId]
-    )
-    .then((rows) => rows.map(dbMapping.map.endpoint))
+    [sessionId]
+  )
+  return rows.map(dbMapping.map.endpoint)
 }
 
-function selectEndpoint(db, endpointRef) {
+/**
+ * Returns a promise of a single endpoint.
+ * Mayb resolve into null if invalid reference.
+ *
+ * @param {*} db
+ * @param {*} endpointRef
+ * @returns Promise of an endpoint.
+ */
+async function selectEndpoint(db, endpointRef) {
   return dbApi
     .dbGet(
       db,
@@ -533,7 +556,7 @@ WHERE ENDPOINT_ID = ?`,
  * @param {*} deviceTypeRef
  * @returns Promise to update endpoints.
  */
-function insertEndpointType(db, sessionId, name, deviceTypeRef) {
+async function insertEndpointType(db, sessionId, name, deviceTypeRef) {
   return dbApi
     .dbInsert(
       db,
@@ -554,7 +577,7 @@ function insertEndpointType(db, sessionId, name, deviceTypeRef) {
  * @param {*} id
  */
 
-function deleteEndpointType(db, id) {
+async function deleteEndpointType(db, id) {
   return dbApi.dbRemove(
     db,
     'DELETE FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?',
@@ -570,7 +593,7 @@ function deleteEndpointType(db, id) {
  * @param {*} param
  * @param {*} updatedValue
  */
-function updateEndpointType(
+async function updateEndpointType(
   db,
   sessionId,
   endpointTypeId,
@@ -604,7 +627,7 @@ function updateEndpointType(
  * @param {*} db
  * @param {*} endpointTypeId
  */
-function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
+async function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
   return dbApi
     .dbBeginTransaction(db)
     .then(() =>
@@ -636,58 +659,77 @@ function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
       )
       return Promise.all(promises)
     })
-    .then((data) => dbApi.dbCommit(db))
     .catch((err) => {
       console.log(err)
     })
+    .finally((data) => dbApi.dbCommit(db))
 }
 
-function resolveDefaultClusters(db, endpointTypeId, clusters) {
-  return Promise.all(
-    clusters.map((cluster) => {
-      var clientServerPromise = []
-      if (cluster.includeClient) {
-        clientServerPromise.push(
-          new Promise((resolve, reject) =>
-            insertOrReplaceClusterState(
-              db,
-              endpointTypeId,
-              cluster.clusterRef,
-              dbEnum.side.client,
-              true
-            ).then((data) => {
-              resolve({
-                clusterRef: cluster.clusterRef,
-                side: dbEnum.side.client,
-              })
+/**
+ * Returns a promise of resolving default clusters.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} clusters
+ * @returns Promise of resolved default clusters.
+ */
+async function resolveDefaultClusters(db, endpointTypeId, clusters) {
+  var promises = clusters.map((cluster) => {
+    var clientServerPromise = []
+    if (cluster.includeClient) {
+      clientServerPromise.push(
+        new Promise((resolve, reject) =>
+          insertOrReplaceClusterState(
+            db,
+            endpointTypeId,
+            cluster.clusterRef,
+            dbEnum.side.client,
+            true
+          ).then((data) => {
+            resolve({
+              clusterRef: cluster.clusterRef,
+              side: dbEnum.side.client,
             })
-          )
+          })
         )
-      }
-      if (cluster.includeServer) {
-        clientServerPromise.push(
-          new Promise((resolve, reject) =>
-            insertOrReplaceClusterState(
-              db,
-              endpointTypeId,
-              cluster.clusterRef,
-              dbEnum.side.server,
-              true
-            ).then((data) => {
-              resolve({
-                clusterRef: cluster.clusterRef,
-                side: dbEnum.side.server,
-              })
+      )
+    }
+    if (cluster.includeServer) {
+      clientServerPromise.push(
+        new Promise((resolve, reject) =>
+          insertOrReplaceClusterState(
+            db,
+            endpointTypeId,
+            cluster.clusterRef,
+            dbEnum.side.server,
+            true
+          ).then((data) => {
+            resolve({
+              clusterRef: cluster.clusterRef,
+              side: dbEnum.side.server,
             })
-          )
+          })
         )
-      }
-      return Promise.all(clientServerPromise)
-    })
-  )
+      )
+    }
+    return Promise.all(clientServerPromise)
+  })
+  return Promise.all(promises)
 }
 
-function resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef) {
+/**
+ * Returns promise of default device type attributes.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} deviceTypeRef
+ * @returns promise of default device type attributes.
+ */
+async function resolveDefaultDeviceTypeAttributes(
+  db,
+  endpointTypeId,
+  deviceTypeRef
+) {
   return queryZcl
     .selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef)
     .then((deviceTypeAttributes) => {
@@ -724,7 +766,19 @@ function resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef) {
     })
 }
 
-function resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef) {
+/**
+ * Returns promise of default device type commands.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} deviceTypeRef
+ * @returns promise of default device type commands.
+ */
+async function resolveDefaultDeviceTypeCommands(
+  db,
+  endpointTypeId,
+  deviceTypeRef
+) {
   return queryZcl
     .selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef)
     .then((commands) => {
@@ -784,7 +838,7 @@ function resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef) {
     })
 }
 
-function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
+async function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
   return Promise.all(
     clusters.map((cluster) => {
       return queryZcl
@@ -819,7 +873,7 @@ function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
   )
 }
 
-function resolveDefaultAttributes(db, endpointTypeId, clusters) {
+async function resolveDefaultAttributes(db, endpointTypeId, clusters) {
   return Promise.all(
     clusters.map((cluster) => {
       return queryZcl
@@ -840,7 +894,7 @@ function resolveDefaultAttributes(db, endpointTypeId, clusters) {
   )
 }
 
-function resolveNonOptionalAndReportableAttributes(
+async function resolveNonOptionalAndReportableAttributes(
   db,
   endpointTypeId,
   attributes,
@@ -887,7 +941,7 @@ function resolveNonOptionalAndReportableAttributes(
  * @param {*} sessionId
  * @param {*} endpoints
  */
-function insertEndpointTypes(db, sessionId, endpoints) {
+async function insertEndpointTypes(db, sessionId, endpoints) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO ENDPOINT_TYPE (SESSION_REF, NAME, DEVICE_TYPE_REF) VALUES (?,?,?)',
@@ -904,14 +958,13 @@ function insertEndpointTypes(db, sessionId, endpoints) {
  * @param {*} sessionId
  * @returns Promise that resolves into a count.
  */
-function getEndpointTypeCount(db, sessionId) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT COUNT(ENDPOINT_TYPE_ID) FROM ENDPOINT_TYPE WHERE SESSION_REF = ?',
-      [sessionId]
-    )
-    .then((x) => x['COUNT(ENDPOINT_TYPE_ID)'])
+async function getEndpointTypeCount(db, sessionId) {
+  var x = await dbApi.dbGet(
+    db,
+    'SELECT COUNT(ENDPOINT_TYPE_ID) FROM ENDPOINT_TYPE WHERE SESSION_REF = ?',
+    [sessionId]
+  )
+  return x['COUNT(ENDPOINT_TYPE_ID)']
 }
 
 /**
@@ -922,15 +975,19 @@ function getEndpointTypeCount(db, sessionId) {
  * @param {*} sessionId
  * @returns Promise that resolves into a count.
  */
-function getEndpointTypeCountByCluster(db, sessionId, endpointClusterId, side) {
-  return dbApi
-    .dbGet(
-      db,
-      `SELECT COUNT(ENDPOINT_TYPE_ID) FROM ENDPOINT_TYPE WHERE SESSION_REF = ? AND ENDPOINT_TYPE_ID IN
+async function getEndpointTypeCountByCluster(
+  db,
+  sessionId,
+  endpointClusterId,
+  side
+) {
+  var x = await dbApi.dbGet(
+    db,
+    `SELECT COUNT(ENDPOINT_TYPE_ID) FROM ENDPOINT_TYPE WHERE SESSION_REF = ? AND ENDPOINT_TYPE_ID IN
       (SELECT ENDPOINT_TYPE_REF FROM ENDPOINT_TYPE_CLUSTER WHERE CLUSTER_REF = ? AND SIDE = ? AND ENABLED = 1) `,
-      [sessionId, endpointClusterId, side]
-    )
-    .then((x) => x['COUNT(ENDPOINT_TYPE_ID)'])
+    [sessionId, endpointClusterId, side]
+  )
+  return x['COUNT(ENDPOINT_TYPE_ID)']
 }
 
 /**
@@ -941,14 +998,13 @@ function getEndpointTypeCountByCluster(db, sessionId, endpointClusterId, side) {
  * @param {*} sessionId
  * @returns promise that resolves into rows in the database table.
  */
-function getAllEndpointTypes(db, sessionId) {
-  return dbApi
-    .dbAll(
-      db,
-      'SELECT ENDPOINT_TYPE_ID, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE SESSION_REF = ? ORDER BY NAME',
-      [sessionId]
-    )
-    .then((rows) => rows.map(dbMapping.map.endpointType))
+async function getAllEndpointTypes(db, sessionId) {
+  var rows = await dbApi.dbAll(
+    db,
+    'SELECT ENDPOINT_TYPE_ID, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE SESSION_REF = ? ORDER BY NAME',
+    [sessionId]
+  )
+  return rows.map(dbMapping.map.endpointType)
 }
 
 /**
@@ -959,7 +1015,7 @@ function getAllEndpointTypes(db, sessionId) {
  * @param {*} endpointTypeId
  * @returns promise that resolves into rows in the database table.
  */
-function getEndpointType(db, endpointTypeId) {
+async function getEndpointType(db, endpointTypeId) {
   return dbApi
     .dbGet(
       db,
@@ -976,11 +1032,10 @@ function getEndpointType(db, endpointTypeId) {
  * @param {*} endpointTypeId
  * @returns A promise that resolves into the rows.
  */
-function getEndpointTypeClusters(db, endpointTypeId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+async function getEndpointTypeClusters(db, endpointTypeId) {
+  var rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   ENDPOINT_TYPE_CLUSTER_ID,
   ENDPOINT_TYPE_REF,
@@ -989,9 +1044,9 @@ SELECT
   ENABLED
 FROM ENDPOINT_TYPE_CLUSTER
 WHERE ENDPOINT_TYPE_REF = ?`,
-      [endpointTypeId]
-    )
-    .then((rows) => rows.map(dbMapping.map.endpointTypeCluster))
+    [endpointTypeId]
+  )
+  return rows.map(dbMapping.map.endpointTypeCluster)
 }
 
 /**
@@ -1002,7 +1057,7 @@ WHERE ENDPOINT_TYPE_REF = ?`,
  * @param {*} side
  */
 
-function getOrInsertDefaultEndpointTypeCluster(
+async function getOrInsertDefaultEndpointTypeCluster(
   db,
   endpointTypeId,
   clusterRef,
@@ -1060,7 +1115,7 @@ WHERE ENDPOINT_TYPE_REF = ?
  * @param {*} endpointTypeId
  * @returns A promise that resolves into the rows.
  */
-function getEndpointTypeAttributes(db, endpointTypeId) {
+async function getEndpointTypeAttributes(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -1100,7 +1155,7 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ENDPOINT_TYPE_ATTRIBUTE.E
  * @param {*} endpointTypeId
  * @returns A promise that resolves into the rows.
  */
-function getEndpointTypeCommands(db, endpointTypeId) {
+async function getEndpointTypeCommands(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -1124,7 +1179,7 @@ function getEndpointTypeCommands(db, endpointTypeId) {
  * @param {*} db
  * @param {*} sessionId
  */
-function getAllSessionAttributes(db, sessionId) {
+async function getAllSessionAttributes(db, sessionId) {
   return dbApi
     .dbAll(
       db,
