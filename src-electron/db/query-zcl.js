@@ -1934,51 +1934,19 @@ ORDER BY ORDINAL`,
  * @param {*} type
  */
 async function determineType(db, type, packageId) {
-  return selectStructByName(db, type, packageId)
-    .then((struct) => {
-      if (struct == null) {
-        return null
-      } else {
-        return dbEnum.zclType.struct
-      }
-    })
-    .then((zclType) => {
-      if (zclType != null) {
-        return zclType
-      } else {
-        return selectEnumByName(db, type, packageId).then((theEnum) => {
-          if (theEnum == null) return null
-          else return dbEnum.zclType.enum
-        })
-      }
-    })
-    .then((zclType) => {
-      if (zclType != null) {
-        return zclType
-      } else {
-        return selectBitmapByName(db, packageId, type).then((theBitmap) => {
-          if (theBitmap == null) return null
-          else return dbEnum.zclType.bitmap
-        })
-      }
-    })
-    .then((zclType) => {
-      if (zclType != null) {
-        return zclType
-      } else {
-        return selectAtomicByName(db, type, packageId).then((atomic) => {
-          if (atomic == null) return null
-          else return dbEnum.zclType.atomic
-        })
-      }
-    })
-    .then((zclType) => {
-      if (zclType != null) {
-        return zclType
-      } else {
-        return dbEnum.zclType.unknown
-      }
-    })
+  var atomic = await selectAtomicByName(db, type, packageId)
+  if (atomic != null) return dbEnum.zclType.atomic
+
+  var theEnum = await selectEnumByName(db, type, packageId)
+  if (theEnum != null) return dbEnum.zclType.enum
+
+  var struct = await selectStructByName(db, type, packageId)
+  if (struct != null) return dbEnum.zclType.struct
+
+  var theBitmap = await selectBitmapByName(db, packageId, type)
+  if (theBitmap != null) return dbEnum.zclType.bitmap
+
+  return dbEnum.zclType.unknown
 }
 
 /**
