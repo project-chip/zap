@@ -35,7 +35,7 @@ const restApi = require('../../src-shared/rest-api.js')
  * @param {*} value
  * @returns A promise of creating or updating a row, resolves with the rowid of a new row.
  */
-function updateKeyValue(db, sessionId, key, value) {
+async function updateKeyValue(db, sessionId, key, value) {
   return dbApi.dbInsert(
     db,
     'INSERT OR REPLACE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
@@ -53,7 +53,7 @@ function updateKeyValue(db, sessionId, key, value) {
  * @param {*} value
  * @returns A promise of creating or updating a row, resolves with the rowid of a new row.
  */
-function insertKeyValue(db, sessionId, key, value) {
+async function insertKeyValue(db, sessionId, key, value) {
   return dbApi.dbInsert(
     db,
     'INSERT OR IGNORE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
@@ -68,20 +68,14 @@ function insertKeyValue(db, sessionId, key, value) {
  * @param {*} sessionId
  * @returns A promise that resolves with a value or with 'undefined' if none is found.
  */
-function getSessionKeyValue(db, sessionId, key) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? AND KEY = ?',
-      [sessionId, key]
-    )
-    .then(
-      (row) =>
-        new Promise((resolve, reject) => {
-          if (row == null) resolve(undefined)
-          else resolve(row.VALUE)
-        })
-    )
+async function getSessionKeyValue(db, sessionId, key) {
+  var row = await dbApi.dbGet(
+    db,
+    'SELECT VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? AND KEY = ?',
+    [sessionId, key]
+  )
+  if (row == null) return undefined
+  else return row.VALUE
 }
 
 /**
@@ -92,26 +86,18 @@ function getSessionKeyValue(db, sessionId, key) {
  * @param {*} sessionId
  * @returns Promise to retrieve all session key values.
  */
-function getAllSessionKeyValues(db, sessionId) {
-  return dbApi
-    .dbAll(
-      db,
-      'SELECT KEY, VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? ORDER BY KEY',
-      [sessionId]
-    )
-    .then(
-      (rows) =>
-        new Promise((resolve, reject) => {
-          resolve(
-            rows.map((row) => {
-              return {
-                key: row.KEY,
-                value: row.VALUE,
-              }
-            })
-          )
-        })
-    )
+async function getAllSessionKeyValues(db, sessionId) {
+  var rows = await dbApi.dbAll(
+    db,
+    'SELECT KEY, VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? ORDER BY KEY',
+    [sessionId]
+  )
+  return rows.map((row) => {
+    return {
+      key: row.KEY,
+      value: row.VALUE,
+    }
+  })
 }
 
 /**
@@ -127,7 +113,7 @@ function getAllSessionKeyValues(db, sessionId) {
  * @param {*} enabled
  * @returns Promise to update the cluster exclude/include state.
  */
-function insertOrReplaceClusterState(
+async function insertOrReplaceClusterState(
   db,
   endpointTypeId,
   clusterRef,
@@ -186,7 +172,7 @@ function getClusterState(db, endpointTypeId, clusterRef, side) {
  * @param {*} clusterRef
  * @param {*} side
  */
-function insertClusterDefaults(db, endpointTypeId, cluster) {
+async function insertClusterDefaults(db, endpointTypeId, cluster) {
   var promises = []
   promises.push(resolveDefaultAttributes(db, endpointTypeId, [cluster]))
   promises.push(resolveNonOptionalCommands(db, endpointTypeId, [cluster]))
@@ -204,7 +190,7 @@ function insertClusterDefaults(db, endpointTypeId, cluster) {
  * @param {*} attributeId
  * @param {*} paramValuePairArray An array of objects whose keys are [key, value]. Key is name of the column to be editted. Value is what the column should be set to. This does not handle empty arrays.
  */
-function insertOrUpdateAttributeState(
+async function insertOrUpdateAttributeState(
   db,
   endpointTypeId,
   clusterRef,
@@ -212,18 +198,22 @@ function insertOrUpdateAttributeState(
   attributeId,
   paramValuePairArray
 ) {
-  return getOrInsertDefaultEndpointTypeCluster(
+  var cluster = await getOrInsertDefaultEndpointTypeCluster(
     db,
     endpointTypeId,
     clusterRef,
     side
-  ).then((cluster) => {
-    return queryZcl
-      .selectAttributeByAttributeIdAndClusterRef(db, attributeId, clusterRef)
-      .then((staticAttribute) =>
-        dbApi.dbInsert(
-          db,
-          `
+  )
+
+  var staticAttribute = await queryZcl.selectAttributeByAttributeIdAndClusterRef(
+    db,
+    attributeId,
+    clusterRef
+  )
+  return dbApi
+    .dbInsert(
+      db,
+      `
 INSERT
 INTO ENDPOINT_TYPE_ATTRIBUTE
   ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE, STORAGE_OPTION, SINGLETON)
@@ -234,29 +224,27 @@ WHERE (
       AND ENDPOINT_TYPE_CLUSTER_REF = ?
       AND ATTRIBUTE_REF = ? )
     == 0)`,
-          [
-            endpointTypeId,
-            cluster.endpointTypeClusterId,
-            attributeId,
-            staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
-            dbEnum.storageOption.ram,
-            clusterRef,
-            endpointTypeId,
-            cluster.endpointTypeClusterId,
-            attributeId,
-          ]
-        )
+      [
+        endpointTypeId,
+        cluster.endpointTypeClusterId,
+        attributeId,
+        staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
+        dbEnum.storageOption.ram,
+        clusterRef,
+        endpointTypeId,
+        cluster.endpointTypeClusterId,
+        attributeId,
+      ]
+    )
+    .then(() =>
+      dbApi.dbUpdate(
+        db,
+        'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
+          getAllParamValuePairArrayClauses(paramValuePairArray) +
+          'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?',
+        [endpointTypeId, cluster.endpointTypeClusterId, attributeId]
       )
-      .then(() => {
-        return dbApi.dbUpdate(
-          db,
-          'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
-            getAllParamValuePairArrayClauses(paramValuePairArray) +
-            'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?',
-          [endpointTypeId, cluster.endpointTypeClusterId, attributeId]
-        )
-      })
-  })
+    )
 }
 
 function convertRestKeyToDbColumn(key) {
@@ -323,7 +311,7 @@ function getAllParamValuePairArrayClauses(paramValuePairArray) {
  * @param {*} value
  * @param {*} booleanParam
  */
-function insertOrUpdateCommandState(
+async function insertOrUpdateCommandState(
   db,
   endpointTypeId,
   clusterRef,
@@ -332,16 +320,16 @@ function insertOrUpdateCommandState(
   value,
   isIncoming
 ) {
-  return getOrInsertDefaultEndpointTypeCluster(
+  var cluster = await getOrInsertDefaultEndpointTypeCluster(
     db,
     endpointTypeId,
     clusterRef,
     side
-  ).then((cluster) => {
-    return dbApi
-      .dbInsert(
-        db,
-        `
+  )
+
+  await dbApi.dbInsert(
+    db,
+    `
 INSERT
 INTO ENDPOINT_TYPE_COMMAND
   ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, COMMAND_REF )
@@ -352,25 +340,22 @@ WHERE ( ( SELECT COUNT(1)
             AND ENDPOINT_TYPE_CLUSTER_REF = ?
             AND COMMAND_REF = ? )
         == 0)`,
-        [
-          endpointTypeId,
-          cluster.endpointTypeClusterId,
-          id,
-          endpointTypeId,
-          cluster.endpointTypeClusterId,
-          id,
-        ]
-      )
-      .then((promiseResult) =>
-        dbApi.dbUpdate(
-          db,
-          'UPDATE ENDPOINT_TYPE_COMMAND SET ' +
-            (isIncoming ? 'INCOMING' : 'OUTGOING') +
-            ' = ? WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND COMMAND_REF = ? ',
-          [value, endpointTypeId, cluster.endpointTypeClusterId, id]
-        )
-      )
-  })
+    [
+      endpointTypeId,
+      cluster.endpointTypeClusterId,
+      id,
+      endpointTypeId,
+      cluster.endpointTypeClusterId,
+      id,
+    ]
+  )
+  return dbApi.dbUpdate(
+    db,
+    'UPDATE ENDPOINT_TYPE_COMMAND SET ' +
+      (isIncoming ? 'INCOMING' : 'OUTGOING') +
+      ' = ? WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND COMMAND_REF = ? ',
+    [value, endpointTypeId, cluster.endpointTypeClusterId, id]
+  )
 }
 
 /**
@@ -381,11 +366,10 @@ WHERE ( ( SELECT COUNT(1)
  * @param {*} endpointTypeId
  * @returns Promise that resolves with cluster states.
  */
-function getAllEndpointTypeClusterState(db, endpointTypeId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+async function getAllEndpointTypeClusterState(db, endpointTypeId) {
+  var rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   CLUSTER.NAME,
   CLUSTER.CODE,
@@ -398,30 +382,23 @@ FROM
 INNER JOIN CLUSTER
 ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
 WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?`,
-      [endpointTypeId]
-    )
-    .then(
-      (rows) =>
-        new Promise((resolve, reject) => {
-          if (rows == null) {
-            resolve([])
-          } else {
-            var result = rows.map((row) => {
-              var obj = {
-                endpointTypeClusterId: row.ENDPOINT_TYPE_CLUSTER_ID,
-                clusterName: row.NAME,
-                clusterCode: row.CODE,
-                side: row.SIDE,
-                enabled: row.STATE == '1',
-              }
-              if (row.MANUFACTURER_CODE != null)
-                obj.manufacturerCode = row.MANUFACTURER_CODE
-              return obj
-            })
-            resolve(result)
-          }
-        })
-    )
+    [endpointTypeId]
+  )
+  if (rows == null) return []
+
+  var result = rows.map((row) => {
+    var obj = {
+      endpointTypeClusterId: row.ENDPOINT_TYPE_CLUSTER_ID,
+      clusterName: row.NAME,
+      clusterCode: row.CODE,
+      side: row.SIDE,
+      enabled: row.STATE == '1',
+    }
+    if (row.MANUFACTURER_CODE != null)
+      obj.manufacturerCode = row.MANUFACTURER_CODE
+    return obj
+  })
+  return result
 }
 
 /**
