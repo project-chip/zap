@@ -33,7 +33,9 @@ limitations under the License.
                 ? 'NULL'
                 : item.optionLabel + ' (' + item.optionCode + ')'
           "
-          @input="handleOptionChange('manufacturerCodes', $event)"
+          @input="
+            handleOptionChange(DbEnum.sessionOption.manufacturerCodes, $event)
+          "
           v-model="selectedManufacturerCode"
           @filter="filterMfgCode"
           outlined
@@ -45,7 +47,9 @@ limitations under the License.
         :options="defaultResponsePolicyOptions"
         v-model="selectedDefaultResponsePolicy"
         :option-label="(item) => (item === null ? 'NULL' : item.optionLabel)"
-        @input="handleOptionChange('defaultResponsePolicy', $event)"
+        @input="
+          handleOptionChange(DbEnum.sessionOption.defaultResponsePolicy, $event)
+        "
         style="width: 150px"
         outlined
         dense
@@ -68,22 +72,30 @@ limitations under the License.
 </template>
 
 <script>
+import * as DbEnum from '../../src-shared/db-enum'
+
 export default {
   name: 'ZclGeneralOptionsBar',
   computed: {
     defaultResponsePolicyOptions: {
       get() {
-        return this.$store.state.zap.genericOptions['defaultResponsePolicy']
+        return this.$store.state.zap.genericOptions[
+          DbEnum.sessionOption.defaultResponsePolicy
+        ]
       },
     },
     manufacturerCodesOptions: {
       get() {
-        return this.$store.state.zap.genericOptions['manufacturerCodes']
+        return this.$store.state.zap.genericOptions[
+          DbEnum.sessionOption.manufacturerCodes
+        ]
       },
     },
     selectedDefaultResponsePolicy: {
       get() {
-        var drp = this.$store.state.zap.genericOptions['defaultResponsePolicy']
+        var drp = this.$store.state.zap.genericOptions[
+          DbEnum.sessionOption.defaultResponsePolicy
+        ]
         if (drp == null) {
           return ''
         } else {
@@ -91,7 +103,7 @@ export default {
             (o) =>
               o.optionCode ===
               this.$store.state.zap.selectedGenericOptions[
-                'defaultResponsePolicy'
+                DbEnum.sessionOption.defaultResponsePolicy
               ]
           )
         }
@@ -99,14 +111,16 @@ export default {
     },
     selectedManufacturerCode: {
       get() {
-        var mc = this.$store.state.zap.genericOptions['manufacturerCodes']
+        var mc = this.$store.state.zap.genericOptions[
+          DbEnum.sessionOption.manufacturerCodes
+        ]
         return mc == null
           ? ''
           : mc.find(
               (o) =>
                 o.optionCode ===
                 this.$store.state.zap.selectedGenericOptions[
-                  'manufacturerCodes'
+                  DbEnum.sessionOption.manufacturerCodes
                 ]
             )
       },
@@ -119,9 +133,9 @@ export default {
   },
   methods: {
     handleOptionChange(option, value) {
-      this.$store.dispatch('zap/setSelectedGenericOption', {
-        option: option,
-        value: value,
+      this.$store.dispatch('zap/setSelectedGenericKey', {
+        key: option,
+        value: value.optionCode,
       })
     },
 

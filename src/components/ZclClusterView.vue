@@ -110,7 +110,7 @@ export default {
     handleOptionChange(option, value) {
       console.log(this.commandDiscoverySetting)
       this.$store.dispatch('zap/setSelectedGenericKey', {
-        option: option,
+        key: option,
         value: value,
       })
     },

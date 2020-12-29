@@ -170,7 +170,7 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
       queryPackage.selectAllOptionsValues(
         db,
         jsonPackageId,
-        'defaultResponsePolicy'
+        dbEnum.sessionOption.defaultResponsePolicy
       )
     )
     .then((rows) => expect(rows.length).toBe(3))

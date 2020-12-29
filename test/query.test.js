@@ -278,7 +278,9 @@ describe('Session specific queries', () => {
         expect(state.keyValuePairs.length).toBe(5)
         expect(state.keyValuePairs[0].key).toBe('commandDiscovery')
         expect(state.keyValuePairs[0].value).toBe('1')
-        expect(state.keyValuePairs[1].key).toBe('defaultResponsePolicy')
+        expect(state.keyValuePairs[1].key).toBe(
+          dbEnum.sessionOption.defaultResponsePolicy
+        )
         expect(state.keyValuePairs[1].value).toBe('always')
         expect(state.keyValuePairs[2].key).toBe('key1')
         expect(state.keyValuePairs[2].value).toBe('value2')

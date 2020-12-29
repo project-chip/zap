@@ -212,6 +212,13 @@ test(
           }
         })
         expect(cnt).toBe(73)
+
+        expect(
+          epc.includes('#define EMBER_AF_MANUFACTURER_CODE 0x1002')
+        ).toBeTruthy()
+        expect(
+          epc.includes('#define EMBER_AF_DEFAULT_RESPONSE_POLICY_ALWAYS')
+        ).toBeTruthy()
       }),
   genTimeout
 )
