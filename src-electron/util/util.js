@@ -30,7 +30,6 @@ const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require(`../db/query-config.js`)
 const dbEnum = require('../../src-shared/db-enum.js')
 const args = require('./args.js')
-const { O_DIRECTORY } = require('constants')
 
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
@@ -39,11 +38,8 @@ const { O_DIRECTORY } = require('constants')
  * @returns Promise that resolves with the same object, just adds the 'crc' key into it.
  */
 function calculateCrc(context) {
-  return new Promise((resolve, reject) => {
-    context.crc = crc.crc32(context.data)
-    env.logInfo(`For file: ${context.filePath}, got CRC: ${context.crc}`)
-    resolve(context)
-  })
+  context.crc = crc.crc32(context.data)
+  return context
 }
 
 /**

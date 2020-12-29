@@ -34,57 +34,50 @@ const dbApi = require('../db/db-api.js')
  * @param {*} context.path
  * @returns context.templates, context.crc
  */
-function loadGenTemplate(context) {
-  return fsPromise
-    .readFile(context.path, 'utf8')
-    .then((data) => {
-      context.data = data
-      return context
-    })
-    .then((ctx) => util.calculateCrc(ctx))
-    .then((ctx) => {
-      context.templateData = JSON.parse(context.data)
-      return ctx
-    })
-    .then((ctx) => {
-      var requiredFeatureLevel = 0
-      if ('requiredFeatureLevel' in context.templateData) {
-        requiredFeatureLevel = context.templateData.requiredFeatureLevel
-      }
-      var status = util.matchFeatureLevel(requiredFeatureLevel)
-      if (status.match) {
-        return ctx
-      } else {
-        throw status.message
-      }
-    })
+async function loadGenTemplate(context) {
+  context.data = await fsPromise.readFile(context.path, 'utf8')
+  await util.calculateCrc(context)
+  context.templateData = JSON.parse(context.data)
+
+  var requiredFeatureLevel = 0
+  if ('requiredFeatureLevel' in context.templateData) {
+    requiredFeatureLevel = context.templateData.requiredFeatureLevel
+  }
+  var status = util.matchFeatureLevel(requiredFeatureLevel)
+  if (status.match) {
+    return context
+  } else {
+    throw status.message
+  }
 }
 
-function recordPackageIfNonexistent(
+async function recordPackageIfNonexistent(
   db,
   packagePath,
   parentId,
   packageType,
   version
 ) {
-  return queryPackage
-    .getPackageByPathAndParent(db, packagePath, parentId)
-    .then((pkg) => {
-      if (pkg == null) {
-        // doesn't exist
-        return queryPackage.insertPathCrc(
-          db,
-          packagePath,
-          null,
-          packageType,
-          parentId,
-          version
-        )
-      } else {
-        // Already exists
-        return pkg.id
-      }
-    })
+  var pkg = await queryPackage.getPackageByPathAndParent(
+    db,
+    packagePath,
+    parentId
+  )
+
+  if (pkg == null) {
+    // doesn't exist
+    return queryPackage.insertPathCrc(
+      db,
+      packagePath,
+      null,
+      packageType,
+      parentId,
+      version
+    )
+  } else {
+    // Already exists
+    return pkg.id
+  }
 }
 
 /**
@@ -93,7 +86,7 @@ function recordPackageIfNonexistent(
  * @param {*} context
  * @returns promise that resolves with the same context passed in, except packageId added to it
  */
-function recordTemplatesPackage(context) {
+async function recordTemplatesPackage(context) {
   return queryPackage
     .registerTopLevelPackage(
       context.db,
@@ -239,7 +232,7 @@ function recordTemplatesPackage(context) {
  * @param {*} zclExt
  * @returns Promise of loading the zcl extensions.
  */
-function loadZclExtensions(db, packageId, zclExt) {
+async function loadZclExtensions(db, packageId, zclExt) {
   var promises = []
   for (const entity in zclExt) {
     var entityExtension = zclExt[entity]
@@ -306,13 +299,13 @@ function loadZclExtensions(db, packageId, zclExt) {
 }
 
 /**
- * Main API function to load templates from a gen-template.json file.
+ * Main API async function to load templates from a gen-template.json file.
  *
  * @param {*} db Database
  * @param {*} genTemplatesJson Path to the JSON file
  * @returns the loading context, contains: db, path, crc, packageId and templateData, or error
  */
-function loadTemplates(db, genTemplatesJson) {
+async function loadTemplates(db, genTemplatesJson) {
   var context = {
     db: db,
   }
@@ -353,7 +346,7 @@ function loadTemplates(db, genTemplatesJson) {
  * @param {*} generateOnly if NULL then generate all templates, else only generate template whose out file name matches this.
  * @returns Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
  */
-function generateAllTemplates(
+async function generateAllTemplates(
   genResult,
   genTemplateJsonPkg,
   generateOnly = null
@@ -430,7 +423,7 @@ function generateAllTemplates(
  * @param {*} singleTemplatePkg Single template package.
  * @returns promise that resolves with the genResult, with newly generated content added.
  */
-function generateSingleTemplate(
+async function generateSingleTemplate(
   genResult,
   singleTemplatePkg,
   genTemplateJsonPackageId,
@@ -456,13 +449,13 @@ function generateSingleTemplate(
 }
 
 /**
- * Main API function to generate stuff.
+ * Main API async function to generate stuff.
  *
  * @param {*} db Database
  * @param {*} packageId packageId Template package id. It can be either single template or gen template json.
  * @returns Promise that resolves into a generation result.
  */
-function generate(
+async function generate(
   db,
   sessionId,
   packageId,
@@ -496,7 +489,7 @@ function generate(
  * @param {*} doBackup
  * @returns promise of a written file.
  */
-function writeFileWithBackup(fileName, content, doBackup) {
+async function writeFileWithBackup(fileName, content, doBackup) {
   if (doBackup && fs.existsSync(fileName)) {
     var backupName = fileName.concat('~')
     fsPromise
@@ -512,7 +505,7 @@ function writeFileWithBackup(fileName, content, doBackup) {
  *
  * @param {*} genResult
  */
-function generateGenerationContent(genResult) {
+async function generateGenerationContent(genResult) {
   var out = {
     writeTime: new Date().toString(),
     featureLevel: env.zapVersion().featureLevel,
@@ -534,7 +527,7 @@ function generateGenerationContent(genResult) {
  * @param {*} outputDirectory
  * @returns a promise which will resolve when all the files are written.
  */
-function generateAndWriteFiles(
+async function generateAndWriteFiles(
   db,
   sessionId,
   packageId,
@@ -618,7 +611,11 @@ function generateAndWriteFiles(
  * @param {*} genResult
  * @returns promise of a dealt-with post processing actions
  */
-function postProcessGeneratedFiles(outputDirectory, genResult, log = true) {
+async function postProcessGeneratedFiles(
+  outputDirectory,
+  genResult,
+  log = true
+) {
   var doExecute = true
   var f =
     genResult.generatorOptions[
@@ -671,11 +668,11 @@ function postProcessGeneratedFiles(outputDirectory, genResult, log = true) {
 }
 
 /**
- * This function takes a string, and resolves a preview object out of it.
+ * This async function takes a string, and resolves a preview object out of it.
  *
  * @param {*} content String to form into preview.
  */
-function contentIndexer(content, linesPerIndex = 2000) {
+async function contentIndexer(content, linesPerIndex = 2000) {
   var index = 0
   var indexedResult = {}
   var code = content.split(/\n/)
@@ -704,7 +701,7 @@ function contentIndexer(content, linesPerIndex = 2000) {
  * @param {*} fileName
  * @returns promise that resolves into a preview object.
  */
-function generateSingleFileForPreview(db, sessionId, outFileName) {
+async function generateSingleFileForPreview(db, sessionId, outFileName) {
   return queryPackage
     .getSessionPackagesByType(
       db,

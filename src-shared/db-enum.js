@@ -99,3 +99,8 @@ exports.generatorOptions = {
   routeErrToOut: 'routeErrToOut',
   postProcessConditionalFile: 'postProcessConditionalFile',
 }
+
+exports.sessionOption = {
+  defaultResponsePolicy: 'defaultResponsePolicy',
+  manufacturerCodes: 'manufacturerCodes',
+}

@@ -30,17 +30,17 @@ const importJson = require('./import-json.js')
  * @param {*} filePath
  * @returns Promise of file reading.
  */
-function readDataFromFile(filePath) {
-  return fsp.readFile(filePath).then((data) => {
-    var stringData = data.toString().trim()
-    if (stringData.startsWith('{')) {
-      return importJson.readJsonData(filePath, data)
-    } else if (stringData.startsWith('#ISD')) {
-      return importIsc.readIscData(filePath, data)
-    } else {
-      throw 'Invalid file format. Only .zap JSON files and ISC file format are supported.'
-    }
-  })
+async function readDataFromFile(filePath) {
+  var data = await fsp.readFile(filePath)
+
+  var stringData = data.toString().trim()
+  if (stringData.startsWith('{')) {
+    return importJson.readJsonData(filePath, data)
+  } else if (stringData.startsWith('#ISD')) {
+    return importIsc.readIscData(filePath, data)
+  } else {
+    throw 'Invalid file format. Only .zap JSON files and ISC file format are supported.'
+  }
 }
 
 /**
@@ -51,10 +51,9 @@ function readDataFromFile(filePath) {
  * @param {*} filePath
  * @returns a promise that resolves with the session Id of the written data.
  */
-function importDataFromFile(db, filePath, sessionId = null) {
-  return readDataFromFile(filePath).then((state) =>
-    state.loader(db, state, sessionId)
-  )
+async function importDataFromFile(db, filePath, sessionId = null) {
+  var state = await readDataFromFile(filePath)
+  return state.loader(db, state, sessionId)
 }
 // exports
 exports.readDataFromFile = readDataFromFile

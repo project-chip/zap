@@ -511,23 +511,16 @@ export function loadOptions(context, option) {
     })
 }
 
+/**
+ * Posts a key/value pair
+ *
+ * @export
+ * @param {*} context
+ * @param {*} data Object containing 'key' and 'value'
+ */
 export function setSelectedGenericKey(context, data) {
   Vue.prototype
-    .$serverPost(restApi.uri.saveSessionKeyValue, {
-      key: data.option,
-      value: data.value,
-    })
-    .then((response) => {
-      context.commit('setSelectedGenericOption', response.data)
-    })
-}
-
-export function setSelectedGenericOption(context, optionData) {
-  Vue.prototype
-    .$serverPost(restApi.uri.saveSessionKeyValue, {
-      key: optionData.option,
-      value: optionData.value.optionCode,
-    })
+    .$serverPost(restApi.uri.saveSessionKeyValue, data)
     .then((response) => {
       context.commit('setSelectedGenericOption', response.data)
     })

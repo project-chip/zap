@@ -29,7 +29,7 @@ const dbApi = require('./db-api.js')
  * @param {*} db
  * @returns A promise of executing a query.
  */
-function getAllSessions(db) {
+async function getAllSessions(db) {
   return dbApi
     .dbAll(db, 'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION', [])
     .then((rows) => {
@@ -56,7 +56,7 @@ function getAllSessions(db) {
  * @param {*} sessionId
  * @returns A promise that resolves with the number of rows updated.
  */
-function setSessionClean(db, sessionId) {
+async function setSessionClean(db, sessionId) {
   return dbApi.dbUpdate(
     db,
     'UPDATE SESSION SET DIRTY = ? WHERE SESSION_ID = ?',
@@ -71,7 +71,7 @@ function setSessionClean(db, sessionId) {
  * @param {*} sessionId
  * @returns A promise that resolves into true or false, reflecting session dirty state.
  */
-function getSessionDirtyFlag(db, sessionId) {
+async function getSessionDirtyFlag(db, sessionId) {
   return dbApi
     .dbGet(db, 'SELECT DIRTY FROM SESSION WHERE SESSION_ID = ?', [sessionId])
     .then((row) => {
@@ -91,7 +91,7 @@ function getSessionDirtyFlag(db, sessionId) {
  * @param {*} windowId
  * @param {*} fn
  */
-function getSessionDirtyFlagWithCallback(db, sessionKey, fn) {
+async function getSessionDirtyFlagWithCallback(db, sessionKey, fn) {
   db.get(
     'SELECT DIRTY FROM SESSION WHERE SESSION_KEY = ?',
     [sessionKey],
@@ -117,7 +117,7 @@ function getSessionDirtyFlagWithCallback(db, sessionKey, fn) {
  * @param {*} sessionKey
  * @returns A promise that resolves into an object containing sessionId, sessionKey and creationTime.
  */
-function getSessionInfoFromSessionKey(db, sessionKey) {
+async function getSessionInfoFromSessionKey(db, sessionKey) {
   return dbApi
     .dbGet(
       db,
@@ -155,7 +155,7 @@ function getSessionInfoFromSessionKey(db, sessionKey) {
  * @param {*} sessionId If sessionId exists already, then it's passed in. If it doesn't then this is null.
  * @returns promise that resolves into a session id.
  */
-function ensureZapSessionId(db, sessionKey, sessionId = null) {
+async function ensureZapSessionId(db, sessionKey, sessionId = null) {
   if (sessionId == null) {
     // There is no sessionId from before, so we check if there is one mapped to sessionKey already
     return dbApi
@@ -190,7 +190,7 @@ function ensureZapSessionId(db, sessionKey, sessionId = null) {
  * @export
  * @param {*} db
  */
-function createBlankSession(db) {
+async function createBlankSession(db) {
   return dbApi.dbInsert(
     db,
     'INSERT INTO SESSION (SESSION_KEY, CREATION_TIME, DIRTY) VALUES (?,?,?)',
@@ -206,7 +206,7 @@ function createBlankSession(db) {
  * @param {*} sessionId
  * @returns A promise of a removal of session.
  */
-function deleteSession(db, sessionId) {
+async function deleteSession(db, sessionId) {
   return dbApi.dbRemove(db, 'DELETE FROM SESSION WHERE SESSION_ID = ?', [
     sessionId,
   ])

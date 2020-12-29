@@ -25,6 +25,7 @@ const queryImpexp = require('../db/query-impexp.js')
 const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
 const helperZcl = require('./helper-zcl.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Creates block iterator helper over the endpoint types.
@@ -286,6 +287,46 @@ function user_cluster_has_enabled_command(name, side) {
     })
 }
 
+/**
+ * Helper that resolves into a user session key value.
+ *
+ * @param {*} options
+ * @returns Promise of value of the session key or undefined.
+ */
+async function user_session_key(options) {
+  var key = options.hash.key
+  var value = await queryConfig.getSessionKeyValue(
+    this.global.db,
+    this.global.sessionId,
+    key
+  )
+  if (options.hash.toupper == 'true' && value != null)
+    return value.toUpperCase()
+  else return value
+}
+
+async function user_manufacturer_code(options) {
+  var value = await queryConfig.getSessionKeyValue(
+    this.global.db,
+    this.global.sessionId,
+    dbEnum.sessionOption.manufacturerCodes
+  )
+  if (options.hash.toupper == 'true' && value != null)
+    return value.toUpperCase()
+  else return value
+}
+
+async function user_default_response_policy(options) {
+  var value = await queryConfig.getSessionKeyValue(
+    this.global.db,
+    this.global.sessionId,
+    dbEnum.sessionOption.defaultResponsePolicy
+  )
+  if (options.hash.toupper == 'true' && value != null)
+    return value.toUpperCase()
+  else return value
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -304,3 +345,6 @@ exports.all_user_clusters_names = all_user_clusters_names
 exports.user_cluster_command_count_with_cli = user_cluster_command_count_with_cli
 exports.user_cluster_commands_all_endpoints = user_cluster_commands_all_endpoints
 exports.user_cluster_has_enabled_command = user_cluster_has_enabled_command
+exports.user_session_key = user_session_key
+exports.user_manufacturer_code = user_manufacturer_code
+exports.user_default_response_policy = user_default_response_policy

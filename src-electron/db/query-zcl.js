@@ -31,7 +31,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} db
  * @returns Promise that resolves with the rows of enums.
  */
-function selectAllEnums(db, packageId) {
+async function selectAllEnums(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -41,7 +41,7 @@ function selectAllEnums(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.enum))
 }
 
-function selectAllEnumItemsById(db, id) {
+async function selectAllEnumItemsById(db, id) {
   return dbApi
     .dbAll(
       db,
@@ -51,7 +51,7 @@ function selectAllEnumItemsById(db, id) {
     .then((rows) => rows.map(dbMapping.map.enumItem))
 }
 
-function selectAllEnumItems(db, packageId) {
+async function selectAllEnumItems(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -66,7 +66,7 @@ function selectAllEnumItems(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.enumItem))
 }
 
-function selectEnumById(db, id, packageId) {
+async function selectEnumById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
@@ -76,7 +76,7 @@ function selectEnumById(db, id, packageId) {
     .then(dbMapping.map.enum)
 }
 
-function selectEnumByName(db, name, packageId) {
+async function selectEnumByName(db, name, packageId) {
   return dbApi
     .dbGet(
       db,
@@ -93,7 +93,7 @@ function selectEnumByName(db, name, packageId) {
  * @param {*} db
  * @returns Promise that resolves with the rows of bitmaps.
  */
-function selectAllBitmaps(db, packageId) {
+async function selectAllBitmaps(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -103,7 +103,7 @@ function selectAllBitmaps(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.bitmap))
 }
 
-function selectAllBitmapFieldsById(db, id) {
+async function selectAllBitmapFieldsById(db, id) {
   return dbApi
     .dbAll(
       db,
@@ -113,7 +113,7 @@ function selectAllBitmapFieldsById(db, id) {
     .then((rows) => rows.map(dbMapping.map.bitmapField))
 }
 
-function selectAllBitmapFields(db, packageId) {
+async function selectAllBitmapFields(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -123,7 +123,7 @@ function selectAllBitmapFields(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.bitmapField))
 }
 
-function selectBitmapByName(db, packageId, name) {
+async function selectBitmapByName(db, packageId, name) {
   return dbApi
     .dbGet(
       db,
@@ -133,7 +133,7 @@ function selectBitmapByName(db, packageId, name) {
     .then(dbMapping.map.bitmap)
 }
 
-function selectBitmapById(db, id, packageId) {
+async function selectBitmapById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
@@ -150,7 +150,7 @@ function selectBitmapById(db, id, packageId) {
  * @param {*} db
  * @returns Promise that resolves with the rows of domains.
  */
-function selectAllDomains(db, packageId) {
+async function selectAllDomains(db, packageId) {
   return dbApi.dbAll(
     db,
     'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE PACKAGE_REF = ? ORDER BY NAME',
@@ -158,7 +158,7 @@ function selectAllDomains(db, packageId) {
   )
 }
 
-function selectDomainById(db, id, packageId) {
+async function selectDomainById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
@@ -175,7 +175,7 @@ function selectDomainById(db, id, packageId) {
  * @param {*} db
  * @returns Promise that resolves with the rows of structs.
  */
-function selectAllStructs(db, packageId) {
+async function selectAllStructs(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -185,7 +185,7 @@ function selectAllStructs(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.struct))
 }
 
-function selectStructById(db, id, packageId) {
+async function selectStructById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
@@ -195,7 +195,7 @@ function selectStructById(db, id, packageId) {
     .then(dbMapping.map.struct)
 }
 
-function selectStructByName(db, name, packageId) {
+async function selectStructByName(db, name, packageId) {
   return dbApi
     .dbGet(
       db,
@@ -205,7 +205,7 @@ function selectStructByName(db, name, packageId) {
     .then(dbMapping.map.struct)
 }
 
-function selectAllStructItemsById(db, id) {
+async function selectAllStructItemsById(db, id) {
   return dbApi
     .dbAll(
       db,
@@ -222,7 +222,7 @@ function selectAllStructItemsById(db, id) {
  * @param {*} db
  * @returns Promise that resolves with the rows of clusters.
  */
-function selectAllClusters(db, packageId) {
+async function selectAllClusters(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -252,7 +252,7 @@ ORDER BY CODE`,
  * @param {*} packageId
  * @returns promise that resolves into a cluster object
  */
-function selectClusterById(db, clusterId, packageId) {
+async function selectClusterById(db, clusterId, packageId) {
   return dbApi
     .dbGet(
       db,
@@ -281,7 +281,7 @@ WHERE CLUSTER_ID = ?
  * @param {*} db
  * @returns Promise that resolves with the rows of device types.
  */
-function selectAllDeviceTypes(db, packageId) {
+async function selectAllDeviceTypes(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -291,7 +291,7 @@ function selectAllDeviceTypes(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.deviceType))
 }
 
-function selectDeviceTypeById(db, id, packageId) {
+async function selectDeviceTypeById(db, id, packageId) {
   return dbApi
     .dbGet(
       db,
@@ -301,7 +301,7 @@ function selectDeviceTypeById(db, id, packageId) {
     .then(dbMapping.map.deviceType)
 }
 
-function selectAttributesByClusterId(db, clusterId, packageId = null) {
+async function selectAttributesByClusterId(db, clusterId, packageId = null) {
   return dbApi
     .dbAll(
       db,
@@ -330,7 +330,12 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-function selectAttributesByClusterIdAndSide(db, clusterId, packageId, side) {
+async function selectAttributesByClusterIdAndSide(
+  db,
+  clusterId,
+  packageId,
+  side
+) {
   return dbApi
     .dbAll(
       db,
@@ -361,7 +366,7 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-function selectAttributesByClusterCodeAndManufacturerCode(
+async function selectAttributesByClusterCodeAndManufacturerCode(
   db,
   clusterCode,
   manufacturerCode
@@ -402,7 +407,7 @@ WHERE CLUSTER.CODE = ?
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-function selectAttributeById(db, id) {
+async function selectAttributeById(db, id) {
   return dbApi
     .dbGet(
       db,
@@ -431,12 +436,12 @@ WHERE ATTRIBUTE_ID = ?`,
     .then(dbMapping.map.attribute)
 }
 /**
- * This function should be used when you want to get attributes, while also resolving against any global data that may be overridden by a particular cluster.
+ * This async function should be used when you want to get attributes, while also resolving against any global data that may be overridden by a particular cluster.
  * @param {*} db
  * @param {*} attributeId
  * @param {*} clusterRef
  */
-function selectAttributeByAttributeIdAndClusterRef(
+async function selectAttributeByAttributeIdAndClusterRef(
   db,
   attributeId,
   clusterRef
@@ -474,7 +479,7 @@ WHERE ATTRIBUTE_ID = ?`,
     .then(dbMapping.map.attribute)
 }
 
-function selectAllAttributes(db, packageId) {
+async function selectAllAttributes(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -512,7 +517,7 @@ ORDER BY
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-function selectAllAttributesBySide(db, side, packageId) {
+async function selectAllAttributesBySide(db, side, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -541,7 +546,7 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-function selectCommandById(db, id) {
+async function selectCommandById(db, id) {
   return dbApi
     .dbGet(
       db,
@@ -559,7 +564,7 @@ function selectCommandById(db, id) {
  * @param {*} clusterId
  * @returns promise of an array of command rows, which represent per-cluster commands, excluding global commands.
  */
-function selectCommandsByClusterId(db, clusterId) {
+async function selectCommandsByClusterId(db, clusterId) {
   return dbApi
     .dbAll(
       db,
@@ -589,7 +594,7 @@ ORDER BY CODE`,
  * @param {*} packageId
  * @returns promise that resolves into a list of all commands and arguments.
  */
-function selectCommandTree(db, packageId) {
+async function selectCommandTree(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -626,7 +631,7 @@ ORDER BY CL.CODE, CMD.CODE, CA.ORDINAL`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllCommands(db, packageId) {
+async function selectAllCommands(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -648,7 +653,7 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllGlobalCommands(db, packageId) {
+async function selectAllGlobalCommands(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -670,7 +675,7 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllClusterCommands(db, packageId) {
+async function selectAllClusterCommands(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -692,7 +697,7 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-function selectAllCommandArguments(db, packageId) {
+async function selectAllCommandArguments(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -713,7 +718,7 @@ ORDER BY COMMAND_REF, ORDINAL`,
     .then((rows) => rows.map(dbMapping.map.commandArgument))
 }
 
-function selectEndpointType(db, id) {
+async function selectEndpointType(db, id) {
   return dbApi
     .dbGet(
       db,
@@ -723,7 +728,7 @@ function selectEndpointType(db, id) {
     .then(dbMapping.map.endpointType)
 }
 
-function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
+async function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -733,7 +738,7 @@ function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
     .then((rows) => rows.map(dbMapping.map.endpointTypeCluster))
 }
 
-function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
+async function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -764,7 +769,7 @@ ORDER BY ATTRIBUTE_REF`,
     })
 }
 
-function selectEndpointTypeAttribute(
+async function selectEndpointTypeAttribute(
   db,
   endpointTypeId,
   attributeRef,
@@ -795,7 +800,7 @@ WHERE
     .then(dbMapping.map.endpointTypeAttribute)
 }
 
-function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
+async function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -817,7 +822,7 @@ ORDER BY COMMAND_REF`,
     .then((rows) => rows.map(dbMapping.map.endpointTypeCommand))
 }
 
-function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
+async function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
   return dbApi
     .dbAll(
       db,
@@ -841,7 +846,10 @@ ORDER BY CLUSTER_REF`,
     .then((rows) => rows.map(dbMapping.map.deviceTypeCluster))
 }
 
-function selectDeviceTypeClusterByDeviceTypeClusterId(db, deviceTypeClusterId) {
+async function selectDeviceTypeClusterByDeviceTypeClusterId(
+  db,
+  deviceTypeClusterId
+) {
   return dbApi
     .dbGet(
       db,
@@ -864,7 +872,7 @@ WHERE
     .then(dbMapping.map.deviceTypeCluster)
 }
 
-function selectDeviceTypeAttributesByDeviceTypeClusterRef(
+async function selectDeviceTypeAttributesByDeviceTypeClusterRef(
   db,
   deviceTypeClusterRef
 ) {
@@ -884,7 +892,7 @@ ORDER BY ATTRIBUTE_REF`,
   )
 }
 
-function selectDeviceTypeCommandsByDeviceTypeClusterRef(
+async function selectDeviceTypeCommandsByDeviceTypeClusterRef(
   db,
   deviceTypeClusterRef
 ) {
@@ -904,7 +912,7 @@ ORDER BY COMMAND_REF`,
   )
 }
 
-function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
+async function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
   return dbApi
     .dbAll(
       db,
@@ -925,7 +933,7 @@ WHERE
     .then((rows) => rows.map(dbMapping.map.deviceTypeAttribute))
 }
 
-function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
+async function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
   return dbApi
     .dbAll(
       db,
@@ -955,7 +963,7 @@ WHERE
  * @param {*} data
  * @returns Promise of globals insertion.
  */
-function insertGlobals(db, packageId, data) {
+async function insertGlobals(db, packageId, data) {
   Env.logInfo(`Insert globals: ${data.length}`)
   var commandsToLoad = []
   var attributesToLoad = []
@@ -1062,7 +1070,7 @@ VALUES
  * @param {*} data
  * @returns Promise of cluster extension insertion.
  */
-function insertClusterExtensions(db, packageId, data) {
+async function insertClusterExtensions(db, packageId, data) {
   return dbApi
     .dbMultiSelect(
       db,
@@ -1173,7 +1181,7 @@ function insertClusterExtensions(db, packageId, data) {
  * @param {*} data array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value
  * @returns Promise of data insertion.
  */
-function insertGlobalAttributeDefault(db, packageId, data) {
+async function insertGlobalAttributeDefault(db, packageId, data) {
   var individualClusterPromise = []
   data.forEach((d) => {
     var args = []
@@ -1225,7 +1233,7 @@ function insertGlobalAttributeDefault(db, packageId, data) {
  * @param {*} data an array of objects that must contain: code, name, description, define. It also contains commands: and attributes:
  * @returns Promise of cluster insertion.
  */
-function insertClusters(db, packageId, data) {
+async function insertClusters(db, packageId, data) {
   // If data is extension, we only have code there and we need to simply add commands and clusters.
   // But if it's not an extension, we need to insert the cluster and then run with
   return dbApi
@@ -1339,7 +1347,7 @@ function insertClusters(db, packageId, data) {
  * @param {*} data an array of objects that must contain: code, name, description
  * @returns Promise of an insertion of device types.
  */
-function insertDeviceTypes(db, packageId, data) {
+async function insertDeviceTypes(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
@@ -1402,7 +1410,7 @@ function insertDeviceTypes(db, packageId, data) {
  * @param {*} db
  * @param {*} dtClusterRefDataPairs
  */
-function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
+async function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
   var attributes = []
   dtClusterRefDataPairs.map((dtClusterRefDataPair) => {
     var dtClusterRef = dtClusterRefDataPair.dtClusterRef
@@ -1426,7 +1434,7 @@ function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
  * @param {*} db
  * @param {*} dtClusterRefDataPairs
  */
-function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
+async function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
   var commands = []
   dtClusterRefDataPairs.map((dtClusterRefDataPair) => {
     var dtClusterRef = dtClusterRefDataPair.dtClusterRef
@@ -1451,7 +1459,7 @@ function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
  * @param {*} db
  * @returns promise of completion
  */
-function updateClusterReferencesForDeviceTypeClusters(db) {
+async function updateClusterReferencesForDeviceTypeClusters(db) {
   return dbApi.dbUpdate(
     db,
     `
@@ -1476,7 +1484,7 @@ SET
  * @param {*} db
  * @returns promise of completion
  */
-function updateAttributeReferencesForDeviceTypeReferences(db) {
+async function updateAttributeReferencesForDeviceTypeReferences(db) {
   return dbApi.dbUpdate(
     db,
     `
@@ -1501,7 +1509,7 @@ SET
  * @param {*} db
  * @returns promise of completion
  */
-function updateCommandReferencesForDeviceTypeReferences(db) {
+async function updateCommandReferencesForDeviceTypeReferences(db) {
   return dbApi.dbUpdate(
     db,
     `
@@ -1530,7 +1538,7 @@ SET
  * @param {*} db
  * @returns promise of completed linking
  */
-function updateDeviceTypeEntityReferences(db) {
+async function updateDeviceTypeEntityReferences(db) {
   return updateClusterReferencesForDeviceTypeClusters(db)
     .then((res) => updateAttributeReferencesForDeviceTypeReferences(db))
     .then((res) => updateCommandReferencesForDeviceTypeReferences(db))
@@ -1547,7 +1555,7 @@ function updateDeviceTypeEntityReferences(db) {
  * @param {*} data
  * @returns A promise that resolves with an array of rowids of all inserted domains.
  */
-function insertDomains(db, packageId, data) {
+async function insertDomains(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO DOMAIN (PACKAGE_REF, NAME) VALUES (?, ?)',
@@ -1568,7 +1576,7 @@ function insertDomains(db, packageId, data) {
  * @param {*} data
  * @returns A promise that resolves with an array of struct item rowids.
  */
-function insertStructs(db, packageId, data) {
+async function insertStructs(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
@@ -1606,7 +1614,7 @@ function insertStructs(db, packageId, data) {
  * @param {*} data an array of objects that must contain: name, type
  * @returns A promise of enum insertion.
  */
-function insertEnums(db, packageId, data) {
+async function insertEnums(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
@@ -1649,7 +1657,7 @@ function insertEnums(db, packageId, data) {
  * @param {*} packageId
  * @param {*} data
  */
-function insertAtomics(db, packageId, data) {
+async function insertAtomics(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO ATOMIC (PACKAGE_REF, NAME, DESCRIPTION, ATOMIC_IDENTIFIER, ATOMIC_SIZE, DISCRETE) VALUES (?, ?, ?, ?, ?, ?)',
@@ -1671,7 +1679,7 @@ function insertAtomics(db, packageId, data) {
  * @param {*} packageId
  * @param {*} typeName
  */
-function selectAtomicType(db, packageId, typeName) {
+async function selectAtomicType(db, packageId, typeName) {
   return dbApi
     .dbGet(
       db,
@@ -1687,7 +1695,7 @@ function selectAtomicType(db, packageId, typeName) {
  * @param {*} name
  * @param {*} packageId
  */
-function selectAtomicByName(db, name, packageId) {
+async function selectAtomicByName(db, name, packageId) {
   return dbApi
     .dbGet(
       db,
@@ -1702,7 +1710,7 @@ function selectAtomicByName(db, name, packageId) {
  * @param {*} db
  * @param {*} packageId
  */
-function selectAllAtomics(db, packageId) {
+async function selectAllAtomics(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -1719,7 +1727,7 @@ function selectAllAtomics(db, packageId) {
  * @param {*} packageId
  * @param {*} type
  */
-function getAtomicSizeFromType(db, packageId, type) {
+async function getAtomicSizeFromType(db, packageId, type) {
   return dbApi
     .dbGet(
       db,
@@ -1741,7 +1749,7 @@ function getAtomicSizeFromType(db, packageId, type) {
  * @param {*} data Array of object containing 'name' and 'type'.
  * @returns A promise of bitmap insertions.
  */
-function insertBitmaps(db, packageId, data) {
+async function insertBitmaps(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
@@ -1782,7 +1790,10 @@ function insertBitmaps(db, packageId, data) {
  * @returns Promise that resolves with the data that contains cluster
  * and endpoint id references
  */
-function exportClustersAndEndpointDetailsFromEndpointTypes(db, endpointTypes) {
+async function exportClustersAndEndpointDetailsFromEndpointTypes(
+  db,
+  endpointTypes
+) {
   var endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   var mapFunction = (x) => {
     return {
@@ -1813,7 +1824,7 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})`
  * @param {*} endpointTypeId
  * @returns Promise that resolves with the command data.
  */
-function exportCommandDetailsFromAllEndpointTypesAndClusters(
+async function exportCommandDetailsFromAllEndpointTypesAndClusters(
   db,
   endpointsAndClusters
 ) {
@@ -1876,7 +1887,7 @@ function exportCommandDetailsFromAllEndpointTypesAndClusters(
  * @param {*} [packageId=null]
  * @returns A promise with number of command arguments for a command
  */
-function selectCommandArgumentsCountByCommandId(db, commandId) {
+async function selectCommandArgumentsCountByCommandId(db, commandId) {
   return dbApi
     .dbAll(
       db,
@@ -1896,7 +1907,7 @@ FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
  * @param {*} [packageId=null]
  * @returns A promise with command arguments for a command
  */
-function selectCommandArgumentsByCommandId(db, commandId) {
+async function selectCommandArgumentsByCommandId(db, commandId) {
   return dbApi
     .dbAll(
       db,
@@ -1922,52 +1933,20 @@ ORDER BY ORDINAL`,
  * @param {*} packageId
  * @param {*} type
  */
-function determineType(db, type, packageId) {
-  return selectStructByName(db, type, packageId)
-    .then((struct) => {
-      if (struct == null) {
-        return null
-      } else {
-        return dbEnum.zclType.struct
-      }
-    })
-    .then((zclType) => {
-      if (zclType != null) {
-        return zclType
-      } else {
-        return selectEnumByName(db, type, packageId).then((theEnum) => {
-          if (theEnum == null) return null
-          else return dbEnum.zclType.enum
-        })
-      }
-    })
-    .then((zclType) => {
-      if (zclType != null) {
-        return zclType
-      } else {
-        return selectBitmapByName(db, packageId, type).then((theBitmap) => {
-          if (theBitmap == null) return null
-          else return dbEnum.zclType.bitmap
-        })
-      }
-    })
-    .then((zclType) => {
-      if (zclType != null) {
-        return zclType
-      } else {
-        return selectAtomicByName(db, type, packageId).then((atomic) => {
-          if (atomic == null) return null
-          else return dbEnum.zclType.atomic
-        })
-      }
-    })
-    .then((zclType) => {
-      if (zclType != null) {
-        return zclType
-      } else {
-        return dbEnum.zclType.unknown
-      }
-    })
+async function determineType(db, type, packageId) {
+  var atomic = await selectAtomicByName(db, type, packageId)
+  if (atomic != null) return dbEnum.zclType.atomic
+
+  var theEnum = await selectEnumByName(db, type, packageId)
+  if (theEnum != null) return dbEnum.zclType.enum
+
+  var struct = await selectStructByName(db, type, packageId)
+  if (struct != null) return dbEnum.zclType.struct
+
+  var theBitmap = await selectBitmapByName(db, packageId, type)
+  if (theBitmap != null) return dbEnum.zclType.bitmap
+
+  return dbEnum.zclType.unknown
 }
 
 /**
@@ -1977,7 +1956,7 @@ function determineType(db, type, packageId) {
  * @param {*} endpointTypeId
  * @returns Promise that resolves with the data that should go into the external form.
  */
-function exportAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
+async function exportAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
   var endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   var mapFunction = (x) => {
     return {
@@ -2022,7 +2001,7 @@ GROUP BY NAME, SIDE`
  * @param {*} endpointTypeId
  * @returns Promise that resolves with the data that should go into the external form.
  */
-function exportAllClustersNamesFromEndpointTypes(db, endpointTypes) {
+async function exportAllClustersNamesFromEndpointTypes(db, endpointTypes) {
   var endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   var mapFunction = (x) => {
     return {
@@ -2065,7 +2044,7 @@ GROUP BY NAME`
  * @param {*} endpointTypeId
  * @returns Promise that resolves with the command data.
  */
-function exportCommandDetailsFromAllEndpointTypeCluster(
+async function exportCommandDetailsFromAllEndpointTypeCluster(
   db,
   endpointTypes,
   endpointClusterId

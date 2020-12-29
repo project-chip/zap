@@ -26,6 +26,7 @@ const _ = require('lodash')
 
 /**
  * All promises used by the templates should be synchronizable.
+ *
  * @param {*} promise
  */
 function makeSynchronizablePromise(promise) {
@@ -73,7 +74,7 @@ function makeSynchronizablePromise(promise) {
  * @param {*} context The context from within this was called.
  * @returns Promise that resolves with a content string.
  */
-function collectBlocks(resultArray, options, context) {
+async function collectBlocks(resultArray, options, context) {
   var promises = []
   var index = 0
 
@@ -114,7 +115,7 @@ function collectBlocks(resultArray, options, context) {
  * @param {*} context
  * @returns promise that resolves with the package id.
  */
-function ensureZclPackageId(context) {
+async function ensureZclPackageId(context) {
   if ('zclPackageId' in context.global) {
     return Promise.resolve(context.global.zclPackageId)
   } else {
@@ -141,7 +142,7 @@ function ensureZclPackageId(context) {
  * @param {*} context
  * @returns promise that resolves with the package id.
  */
-function ensureTemplatePackageId(context) {
+async function ensureTemplatePackageId(context) {
   if ('templatePackageId' in context.global) {
     return Promise.resolve(context.global.templatePackageId)
   } else {
@@ -170,7 +171,7 @@ function ensureTemplatePackageId(context) {
  * @param {*} templatePackageId
  * @returns promise that resolves with cluster extensions.
  */
-function ensureZclClusterSdkExtensions(context, templatePackageId) {
+async function ensureZclClusterSdkExtensions(context, templatePackageId) {
   if ('zclClusterSdkExtension' in context.global) {
     return Promise.resolve(context.global.zclClusterSdkExtension)
   } else {
@@ -195,7 +196,7 @@ function ensureZclClusterSdkExtensions(context, templatePackageId) {
  * @param {*} templatePackageId
  * @returns promise that resolves with cluster extensions.
  */
-function ensureZclDeviceTypeSdkExtensions(context, templatePackageId) {
+async function ensureZclDeviceTypeSdkExtensions(context, templatePackageId) {
   if ('zclDeviceTypeExtension' in context.global) {
     return Promise.resolve(context.global.zclDeviceTypeExtension)
   } else {
@@ -220,7 +221,7 @@ function ensureZclDeviceTypeSdkExtensions(context, templatePackageId) {
  * @param {*} templatePackageId
  * @returns promise that resolves with attribute extensions.
  */
-function ensureZclAttributeSdkExtensions(context, templatePackageId) {
+async function ensureZclAttributeSdkExtensions(context, templatePackageId) {
   if ('zclAttributeSdkExtension' in context.global) {
     return Promise.resolve(context.global.zclAttributeSdkExtension)
   } else {
@@ -245,7 +246,7 @@ function ensureZclAttributeSdkExtensions(context, templatePackageId) {
  * @param {*} templatePackageId
  * @returns promise that resolves with command extensions.
  */
-function ensureZclCommandSdkExtensions(context, templatePackageId) {
+async function ensureZclCommandSdkExtensions(context, templatePackageId) {
   if ('zclCommandSdkExtension' in context.global) {
     return Promise.resolve(context.global.zclCommandSdkExtension)
   } else {

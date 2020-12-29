@@ -29,7 +29,6 @@ const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
-const queryEndpoint = require('../db/query-endpoint.js')
 const uiJs = require('./ui.js')
 
 // This file contains various startup modes.

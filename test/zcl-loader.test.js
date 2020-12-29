@@ -125,7 +125,7 @@ test('test Silabs zcl data loading in memory', () => {
       queryPackage.selectAllOptionsValues(
         db,
         packageId,
-        'defaultResponsePolicy'
+        dbEnum.sessionOption.defaultResponsePolicy
       )
     )
     .then((rows) => expect(rows.length).toBe(3))

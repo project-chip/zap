@@ -31,7 +31,7 @@ const bin = require('../util/bin.js')
  * @param {*} sessionId
  * @returns promise that resolves into endpoints rows
  */
-function queryEndpoints(db, sessionId) {
+async function queryEndpoints(db, sessionId) {
   return queryConfig.getAllEndpoints(db, sessionId)
 }
 
@@ -42,7 +42,7 @@ function queryEndpoints(db, sessionId) {
  * @param {*} sessionId
  * @returns promise that resolves into endpoint types rows
  */
-function queryEndpointTypes(db, sessionId) {
+async function queryEndpointTypes(db, sessionId) {
   return queryConfig.getAllEndpointTypes(db, sessionId)
 }
 
@@ -53,7 +53,7 @@ function queryEndpointTypes(db, sessionId) {
  * @param {*} endpointTypeId
  * @returns promise that resolves into endpoint type
  */
-function queryEndpointType(db, endpointTypeId) {
+async function queryEndpointType(db, endpointTypeId) {
   return queryConfig.getEndpointType(db, endpointTypeId)
 }
 
@@ -64,7 +64,7 @@ function queryEndpointType(db, endpointTypeId) {
  * @param {*} endpointTypeId
  * @returns promise that resolves into endpoint clusters.
  */
-function queryEndpointClusters(db, endpointTypeId) {
+async function queryEndpointClusters(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
@@ -113,7 +113,12 @@ ORDER BY C.CODE
  * @param {*} endpointTypeId
  * @returns promise that resolves into endpoint cluster attributes
  */
-function queryEndpointClusterAttributes(db, clusterId, side, endpointTypeId) {
+async function queryEndpointClusterAttributes(
+  db,
+  clusterId,
+  side,
+  endpointTypeId
+) {
   return dbApi
     .dbAll(
       db,
@@ -191,7 +196,7 @@ WHERE
  * @param {*} endpointTypeId
  * @returns promise that resolves into endpoint cluster commands
  */
-function queryEndpointClusterCommands(db, clusterId, endpointTypeId) {
+async function queryEndpointClusterCommands(db, clusterId, endpointTypeId) {
   return dbApi
     .dbAll(
       db,

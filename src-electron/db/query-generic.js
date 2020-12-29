@@ -30,7 +30,7 @@ const dbApi = require('./db-api.js')
  * @param {*} table
  * @returns a promise that resolves into the count of the rows in the table.
  */
-function selectCountFrom(db, table) {
+async function selectCountFrom(db, table) {
   return dbApi
     .dbGet(db, `SELECT COUNT(*) AS COUNT FROM ${table}`)
     .then((x) => x.COUNT)
@@ -44,7 +44,7 @@ function selectCountFrom(db, table) {
  * @param {*} filePath
  * @param {*} category
  */
-function insertFileLocation(db, filePath, category) {
+async function insertFileLocation(db, filePath, category) {
   return dbApi.dbInsert(
     db,
     'INSERT OR REPLACE INTO FILE_LOCATION (CATEGORY, FILE_PATH, ACCESS_TIME) VALUES (?,?,?)',
@@ -59,18 +59,17 @@ function insertFileLocation(db, filePath, category) {
  * @param {*} db
  * @param {*} category
  */
-function selectFileLocation(db, category) {
-  return dbApi
-    .dbGet(db, 'SELECT FILE_PATH FROM FILE_LOCATION WHERE CATEGORY = ?', [
-      category,
-    ])
-    .then((row) => {
-      if (row == null) {
-        return ''
-      } else {
-        return row.FILE_PATH
-      }
-    })
+async function selectFileLocation(db, category) {
+  var row = await dbApi.dbGet(
+    db,
+    'SELECT FILE_PATH FROM FILE_LOCATION WHERE CATEGORY = ?',
+    [category]
+  )
+  if (row == null) {
+    return ''
+  } else {
+    return row.FILE_PATH
+  }
 }
 // exports
 exports.selectCountFrom = selectCountFrom
