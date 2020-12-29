@@ -36,7 +36,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} sessionId
  * @returns Promise to retrieve all session key values.
  */
-function exportSessionKeyValues(db, sessionId) {
+async function exportSessionKeyValues(db, sessionId) {
   return queryConfig.getAllSessionKeyValues(db, sessionId)
 }
 
@@ -47,7 +47,7 @@ function exportSessionKeyValues(db, sessionId) {
  * @param {*} sessionId
  * @returns Promise to retrieve all endpoints.
  */
-function exportEndpoints(db, sessionId, endpointTypes) {
+async function exportEndpoints(db, sessionId, endpointTypes) {
   return queryImpExp.exportEndpoints(db, sessionId, endpointTypes)
 }
 
@@ -59,7 +59,7 @@ function exportEndpoints(db, sessionId, endpointTypes) {
  * @param {*} sessionId
  * @returns Promise to retrieve all endpoint types.
  */
-function exportEndpointTypes(db, sessionId) {
+async function exportEndpointTypes(db, sessionId) {
   return queryImpExp
     .exportEndpointTypes(db, sessionId)
     .then((endpointTypes) => {
@@ -127,7 +127,7 @@ function exportEndpointTypes(db, sessionId) {
  * @param {*} db
  * @param {*} sessionId
  */
-function exportSessionPackages(db, sessionId, zapFileLocation) {
+async function exportSessionPackages(db, sessionId, zapFileLocation) {
   return queryImpExp.exportPackagesFromSession(db, sessionId).then((packages) =>
     packages.map((p) => {
       var pathRelativity = dbEnum.pathRelativity.relativeToUserHome
@@ -185,7 +185,7 @@ async function exportDataIntoFile(db, sessionId, filePath) {
  * @param {*} sessionId
  * @returns state object that needs to be saved into a file.
  */
-function createStateFromDatabase(db, sessionId) {
+async function createStateFromDatabase(db, sessionId) {
   return new Promise((resolve, reject) => {
     var state = {
       writeTime: new Date().toString(),

@@ -39,14 +39,10 @@ const defaultValidator = (zclData) => {
  * @returns Promise to populate data, filePath and crc into the context.
  */
 async function readMetadataFile(ctx) {
-  return fsp
-    .readFile(ctx.metadataFile, { encoding: 'utf-8' })
-    .then((data) => {
-      ctx.data = data
-      ctx.filePath = ctx.metadataFile
-      return Promise.resolve(ctx)
-    })
-    .then((ctx) => util.calculateCrc(ctx))
+  var data = await fsp.readFile(ctx.metadataFile, { encoding: 'utf-8' })
+  ctx.data = data
+  ctx.filePath = ctx.metadataFile
+  return util.calculateCrc(ctx)
 }
 
 /**
@@ -55,17 +51,14 @@ async function readMetadataFile(ctx) {
  * @param {*} ctx
  */
 async function recordToplevelPackage(db, ctx) {
-  return queryPackage
-    .registerTopLevelPackage(
-      db,
-      ctx.metadataFile,
-      ctx.crc,
-      dbEnum.packageType.zclProperties
-    )
-    .then((id) => {
-      ctx.packageId = id
-      return ctx
-    })
+  var id = await queryPackage.registerTopLevelPackage(
+    db,
+    ctx.metadataFile,
+    ctx.crc,
+    dbEnum.packageType.zclProperties
+  )
+  ctx.packageId = id
+  return ctx
 }
 
 /**
@@ -130,7 +123,8 @@ function loadIndividualFile(db, filePath, sessionId) {
 }
 
 /**
- * This funciton creates a validator function with signatuee fn(stringToValidateOn)
+ * This function creates a validator function with signatuee fn(stringToValidateOn)
+ *
  * @param {*} db
  * @param {*} basePackageId
  */
@@ -141,7 +135,7 @@ function bindValidationScript(db, basePackageId) {
         !(dbEnum.packageType.zclSchema in data) ||
         !(dbEnum.packageType.zclValidation in data)
       ) {
-        return Promise.resolve(defaultValidator)
+        return defaultValidator
       }
       let zclSchema = data[dbEnum.packageType.zclSchema]
       let zclValidation = data[dbEnum.packageType.zclValidation]
