@@ -313,8 +313,56 @@ function clearDatabaseFile(dbPath) {
   util.createBackupFile(dbPath)
 }
 
+/**
+ * Default startup method.
+ *
+ * @param {*} isElectron
+ */
+function startUp(isElectron) {
+  var argv = args.processCommandLineArguments(process.argv)
+
+  if (argv.logToStdout) {
+    env.logInitStdout()
+  } else {
+    env.logInitLogFile()
+  }
+
+  // For now delete the DB file. There is some weird constraint we run into.
+  if (argv.clearDb != null) {
+    clearDatabaseFile(env.sqliteFile())
+  }
+
+  if (argv._.includes('selfCheck')) {
+    return startSelfCheck()
+  } else if (argv._.includes('analyze')) {
+    if (argv.zapFiles.length < 1)
+      throw 'You need to specify at least one zap file.'
+    return startAnalyze(argv.zapFiles)
+  } else if (argv._.includes('generate')) {
+    return startGeneration(
+      argv.output,
+      argv.generationTemplate,
+      argv.zclProperties,
+      argv.zapFiles
+    ).catch((code) => {
+      console.log(code)
+      process.exit(1)
+    })
+  } else {
+    if (isElectron) {
+      return startNormal(!argv.noUi, argv.showUrl, argv.zapFiles, {
+        uiMode: argv.uiMode,
+        embeddedMode: argv.embeddedMode,
+      })
+    } else {
+      console.log(`Can't start UI with node, must start with electron.`)
+    }
+  }
+}
+
 exports.startGeneration = startGeneration
 exports.startNormal = startNormal
 exports.startSelfCheck = startSelfCheck
 exports.clearDatabaseFile = clearDatabaseFile
 exports.startAnalyze = startAnalyze
+exports.startUp = startUp

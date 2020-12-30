@@ -31,55 +31,13 @@ if (process.env.DEV) {
   env.setProductionEnv()
 }
 
-function startUp(isElectron) {
-  var argv = args.processCommandLineArguments(process.argv)
-
-  if (argv.logToStdout) {
-    env.logInitStdout()
-  } else {
-    env.logInitLogFile()
-  }
-
-  // For now delete the DB file. There is some weird constraint we run into.
-  if (argv.clearDb != null) {
-    startup.clearDatabaseFile(env.sqliteFile())
-  }
-
-  if (argv._.includes('selfCheck')) {
-    return startup.startSelfCheck()
-  } else if (argv._.includes('analyze')) {
-    if (argv.zapFiles.length < 1)
-      throw 'You need to specify at least one zap file.'
-    return startup.startAnalyze(argv.zapFiles)
-  } else if (argv._.includes('generate')) {
-    return startup
-      .startGeneration(
-        argv.output,
-        argv.generationTemplate,
-        argv.zclProperties,
-        argv.zapFiles
-      )
-      .catch((code) => {
-        console.log(code)
-        process.exit(1)
-      })
-  } else {
-    if (isElectron) {
-      return startup.startNormal(!argv.noUi, argv.showUrl, argv.zapFiles, {
-        uiMode: argv.uiMode,
-        embeddedMode: argv.embeddedMode,
-      })
-    } else {
-      console.log(`Can't start UI with node, must start with electron.`)
-    }
-  }
-}
-
-// Registration of all app listeners, the main lifecycle of the application
-if (app != null) {
+/**
+ * Hook up all the events for the electron app object.
+ */
+function hookAppEvents() {
   app
     .whenReady()
-    .then(() => startUp(true))
+    .then(() => startup.startUp(true))
     .catch((err) => {
       console.log(err)
       app.exit(1)
@@ -103,8 +61,28 @@ if (app != null) {
         .then(() => env.logInfo('Database closed, shutting down.'))
     }
   })
+
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    console.log(`New instance: ${commandLine}`)
+  })
+}
+
+// Main lifecycle of the application
+if (app != null) {
+  var isSingleInstance = app.requestSingleInstanceLock()
+
+  if (isSingleInstance) {
+    hookAppEvents()
+  } else {
+    // The 'second-instance' event on app was triggered, we need
+    // to quit.
+    console.log('🧐 Another copy of zap is running.')
+    app.quit()
+  }
 } else {
-  startUp(false)
+  // If the code is executed via 'node' and not via 'app', then this
+  // is where we end up.
+  startup.startUp(false)
 }
 
 exports.loaded = true
