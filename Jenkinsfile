@@ -28,6 +28,7 @@ pipeline
                     sh 'npm ci'
                     sh 'npm list || true'
                     sh 'npm rebuild canvas --update-binary || true'
+                    sh 'npm rebuild libxmljs --update-binary || true'
                 }
             }
         }
