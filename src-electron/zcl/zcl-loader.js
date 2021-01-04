@@ -142,11 +142,13 @@ function bindValidationScript(db, basePackageId) {
       var module = require(zclValidation)
       let validateZclFile = module.validateZclFile
 
-      return readZclFile(zclSchema).then((schemaFile) =>
-        validateZclFile.bind(null, schemaFile)
-      )
+      env.logInfo(`Reading individual file: ${zclSchema}`)
+      return fsp
+        .readFile(zclSchema)
+        .then((schemaFile) => validateZclFile.bind(null, schemaFile))
     })
     .catch((err) => {
+      env.logError(`Error loading package specific validator: ${err}`)
       return defaultValidator
     })
 }

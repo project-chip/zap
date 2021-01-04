@@ -989,7 +989,7 @@ function loadIndividualSilabsFile(db, filePath, boundValidator) {
     })
     .then((result) => zclLoader.parseZclFile(result, boundValidator))
     .then((result) => {
-      if (result.validation && result.validator.isValid == false) {
+      if (result.validation && result.validation.isValid == false) {
         throw new Error('Validation Failed')
       }
       return result
