@@ -75,6 +75,7 @@ SELECT
   EC.ENDPOINT_TYPE_REF,
   C.CODE,
   C.NAME,
+  C.MANUFACTURER_CODE,
   EC.SIDE
 FROM
   CLUSTER AS C
@@ -96,6 +97,7 @@ ORDER BY C.CODE
           endpointTypeId: row['ENDPOINT_TYPE_REF'],
           endpointTypeClusterId: row['ENDPOINT_TYPE_CLUSTER_ID'],
           hexCode: '0x' + bin.int16ToHex(row['CODE']),
+          manufacturerCode: row['MANUFACTURER_CODE'],
           code: row['CODE'],
           name: row['NAME'],
           side: row['SIDE'],

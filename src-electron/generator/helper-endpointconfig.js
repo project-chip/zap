@@ -437,6 +437,14 @@ function collectAttributes(endpointTypes) {
           comment: `${c.name} (${c.side}): ${a.name}`,
         }
         attributeList.push(attr)
+
+        if (a.manufacturerCode) {
+          let att = {
+            index: attributeList.indexOf(attr),
+            mfgCode: a.manufacturerCode,
+          }
+          attributeMfgCodes.push(att)
+        }
       })
       // Go over the commands
       c.commands.forEach((cmd) => {
@@ -460,6 +468,7 @@ function collectAttributes(endpointTypes) {
         let command = {
           clId: c.code, // for sorting
           cmId: cmd.code, // for sorting
+          manufacturerCode: cmd.manufacturerCode, // for post-sorting retrieval of mfg commands
           clusterId: c.hexCode,
           commandId: cmd.hexCode,
           mask: mask,
@@ -470,6 +479,14 @@ function collectAttributes(endpointTypes) {
       endpointAttributeSize += clusterAttributeSize
       cluster.attributeSize = clusterAttributeSize
       clusterList.push(cluster)
+
+      if (c.manufacturerCode) {
+        let clt = {
+          index: clusterList.indexOf(cluster),
+          mfgCode: c.manufacturerCode,
+        }
+        clusterMfgCodes.push(clt)
+      }
     })
     endpoint.attributeSize = endpointAttributeSize
     endpointList.push(endpoint)
@@ -485,6 +502,18 @@ function collectAttributes(endpointTypes) {
       if (a.comment < b.comment) return -1
       else if (a.comment > b.comment) return 1
       else return 0
+    }
+  })
+
+  // Retrieve manufacturer commands after the sorting
+  // since we need the actual index of the commands in the command list
+  commandList.forEach((cmd) => {
+    if (cmd.manufacturerCode) {
+      let mfgCmd = {
+        index: commandList.indexOf(cmd),
+        mfgCode: cmd.manufacturerCode,
+      }
+      commandMfgCodes.push(mfgCmd)
     }
   })
 
