@@ -17,18 +17,18 @@
 
 //Usage 'node ./license-check.js --production'
 
-var fs = require('fs')
-var path = require('path')
-var checker = require('../node_modules/license-checker/lib/index')
-var args = require('../node_modules/license-checker/lib/args').parse()
-var whiteList = fs
+let fs = require('fs')
+let path = require('path')
+let checker = require('../node_modules/license-checker/lib/index')
+let args = require('../node_modules/license-checker/lib/args').parse()
+let whiteList = fs
   .readFileSync(path.join(__dirname, 'license-whitelist.txt'))
   .toString()
   .split('\n')
-var fail = false
+let fail = false
 checker.init(args, function (err, json) {
   for (x in json) {
-    var license = json[x].licenses
+    let license = json[x].licenses
     if (!x.includes('zap@') && !whiteList.includes(license.toString())) {
       console.log(
         'New License Found for module: ' +

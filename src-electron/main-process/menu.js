@@ -30,7 +30,7 @@ const generationEngine = require('../generator/generation-engine.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
-var httpPort
+let httpPort
 
 const template = [
   {
@@ -159,7 +159,7 @@ function doOpen(menuItem, browserWindow, event) {
   queryGeneric
     .selectFileLocation(env.mainDatabase(), dbEnum.fileLocationCategory.save)
     .then((filePath) => {
-      var opts = {
+      let opts = {
         properties: ['openFile', 'multiSelections'],
       }
       if (filePath != null) {
@@ -215,7 +215,7 @@ function doSaveAs(menuItem, browserWindow, event) {
   queryGeneric
     .selectFileLocation(env.mainDatabase(), dbEnum.fileLocationCategory.save)
     .then((filePath) => {
-      var opts = {
+      let opts = {
         filters: [
           { name: 'ZAP Config', extensions: ['zap'] },
           { name: 'All Files', extensions: ['*'] },
@@ -310,7 +310,7 @@ function generateInDir(browserWindow) {
         })
     })
     .then((context) => {
-      var promises = []
+      let promises = []
       context.packageIds.forEach((pkgId) => {
         env.logInfo(
           `Setting up generation for session ${context.sessionId} and package ${pkgId}`

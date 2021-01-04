@@ -359,7 +359,7 @@ async function getSessionGenTemplates(db, sessionId) {
  * @param {*} sessionId
  */
 async function getSessionZclPackages(db, sessionId) {
-  var inList = `('${dbEnum.packageType.zclProperties}', '${dbEnum.packageType.zclXmlStandalone}')`
+  let inList = `('${dbEnum.packageType.zclProperties}', '${dbEnum.packageType.zclXmlStandalone}')`
   return dbApi
     .dbAll(
       db,
@@ -623,12 +623,12 @@ ON CONFLICT DO NOTHING`,
       })
     )
     .then((rowIds) => {
-      var promises = []
+      let promises = []
       // now, for each rowId in this list, we populate corresponding defaults
       if (rowIds.length == defaultsArrayOfArrays.length) {
-        for (var i = 0; i < rowIds.length; i++) {
-          var rowId = rowIds[i]
-          var defaultsArray = defaultsArrayOfArrays[i]
+        for (let i = 0; i < rowIds.length; i++) {
+          let rowId = rowIds[i]
+          let defaultsArray = defaultsArrayOfArrays[i]
           if (defaultsArray != null) {
             promises.push(
               insertPackageExtensionDefault(db, rowId, defaultsArray)
@@ -649,7 +649,7 @@ ON CONFLICT DO NOTHING`,
  * @returns promise that resolve into an array of packageExtensions for a given entity
  */
 async function selectPackageExtension(db, packageId, entity) {
-  var acc = []
+  let acc = []
   return dbApi
     .dbAll(
       db,
@@ -679,14 +679,14 @@ ORDER BY
     )
     .then((rows) =>
       rows.reduce((a, x) => {
-        var newPropRequired
+        let newPropRequired
         if (a.length == 0 || a[a.length - 1].property != x.PROPERTY) {
           newPropRequired = true
         } else {
           newPropRequired = false
         }
 
-        var prop
+        let prop
         if (newPropRequired) {
           prop = dbMapping.map.packageExtension(x)
           prop.defaults = []

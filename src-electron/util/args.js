@@ -43,17 +43,17 @@ exports.genResultFile = false
  * @returns parsed argv object
  */
 function processCommandLineArguments(argv) {
-  var zapVersion = env.zapVersion()
-  var commands = {
+  let zapVersion = env.zapVersion()
+  let commands = {
     generate: 'Generate ZCL artifacts.',
     selfCheck: 'Perform the self-check of the application.',
     analyze: 'Analyze the zap file without doing anything.',
   }
-  var y = yargs
+  let y = yargs
   for (const cmd in commands) {
     y.command(cmd, commands[cmd])
   }
-  var ret = y
+  let ret = y
     .option('httpPort', {
       desc: 'Port used for the HTTP server',
       alias: 'p',
@@ -135,7 +135,7 @@ function processCommandLineArguments(argv) {
     .parse(argv)
 
   // Collect files that are passed as loose arguments
-  var allFiles = ret._.filter((arg, index) => {
+  let allFiles = ret._.filter((arg, index) => {
     if (index == 0) return false
     if (arg.endsWith('.js')) return false
     if (arg in commands) return false

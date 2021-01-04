@@ -23,32 +23,32 @@ const fs = require('fs')
 const path = require('path')
 
 test('helper functions need to be snake_case without uppercase characters unless they are deprecated', () => {
-  var helpers = templateEngine.allGlobalHelpers()
+  let helpers = templateEngine.allGlobalHelpers()
   expect(Object.keys(helpers.api).length).toBeGreaterThan(10)
   for (const x in helpers.api) {
     expect(helpers.api[x]).not.toBeNull()
-    var n = x
+    let n = x
     if (!helpers.api[x].isDeprecated) expect(n.toLowerCase()).toEqual(n)
   }
 })
 
 test('check that there is no overlapping duplicates', () => {
-  var helpers = templateEngine.allGlobalHelpers()
-  var dups = helpers.duplicates.join(', ')
+  let helpers = templateEngine.allGlobalHelpers()
+  let dups = helpers.duplicates.join(', ')
   expect(dups).toBe('')
 })
 
 test('compare APIs against the baseline', () => {
-  var apiFromFile = JSON.parse(
+  let apiFromFile = JSON.parse(
     fs.readFileSync(path.join(__dirname, 'helper-api-baseline.json'))
   )
-  var helpers = templateEngine.allGlobalHelpers()
+  let helpers = templateEngine.allGlobalHelpers()
 
-  var errorMessage = ''
+  let errorMessage = ''
 
   apiFromFile.forEach((api) => {
-    var fn = api.name
-    var apiFn = helpers.api[fn]
+    let fn = api.name
+    let apiFn = helpers.api[fn]
     if (apiFn == undefined) {
       errorMessage += `Helper ${fn} has been removed, breaking the API.\n`
     }

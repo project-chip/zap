@@ -32,7 +32,7 @@ const restApi = require('../../src-shared/rest-api.js')
  */
 function httpDeleteEndpoint(db) {
   return (request, response) => {
-    var id = request.query.id
+    let id = request.query.id
     queryConfig.deleteEndpoint(db, id).then((removed) => {
       response.json({
         successful: removed > 0,
@@ -51,7 +51,7 @@ function httpDeleteEndpoint(db) {
  */
 function httpDeleteEndpointType(db) {
   return (request, response) => {
-    var id = request.query.id
+    let id = request.query.id
     queryConfig.deleteEndpointType(db, id).then((removed) => {
       response.json({
         successful: removed > 0,
@@ -70,8 +70,8 @@ function httpDeleteEndpointType(db) {
  */
 function httpPostEndpoint(db) {
   return (request, response) => {
-    var { endpointId, networkId, endpointType } = request.body
-    var sessionIdexport = request.session.zapSessionId
+    let { endpointId, networkId, endpointType } = request.body
+    let sessionIdexport = request.session.zapSessionId
     queryConfig
       .insertEndpoint(db, sessionIdexport, endpointId, endpointType, networkId)
       .then((newId) =>
@@ -99,10 +99,10 @@ function httpPostEndpoint(db) {
  */
 function httpPatchEndpoint(db) {
   return (request, response) => {
-    var { context } = request.body
-    var sessionIdexport = request.session.zapSessionId
+    let { context } = request.body
+    let sessionIdexport = request.session.zapSessionId
     let changes = context.changes.map((data) => {
-      var paramType = ''
+      let paramType = ''
       return { key: data.updatedKey, value: data.value, type: paramType }
     })
 
@@ -131,8 +131,8 @@ function httpPatchEndpoint(db) {
  */
 function httpPostEndpointType(db) {
   return (request, response) => {
-    var { name, deviceTypeRef } = request.body
-    var sessionId = request.session.zapSessionId
+    let { name, deviceTypeRef } = request.body
+    let sessionId = request.session.zapSessionId
     queryConfig
       .insertEndpointType(db, sessionId, name, deviceTypeRef)
       .then((newId) =>
@@ -154,8 +154,8 @@ function httpPostEndpointType(db) {
  */
 function httpPatchEndpointType(db) {
   return (request, response) => {
-    var { endpointTypeId, updatedKey, updatedValue } = request.body
-    var sessionId = request.session.zapSessionId
+    let { endpointTypeId, updatedKey, updatedValue } = request.body
+    let sessionId = request.session.zapSessionId
 
     queryConfig
       .updateEndpointType(

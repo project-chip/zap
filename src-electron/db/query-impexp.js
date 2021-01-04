@@ -65,11 +65,11 @@ INSERT INTO ENDPOINT (
  * @param {*} sessionId
  */
 async function exportEndpoints(db, sessionId, endpointTypes) {
-  var endpointTypeIndex = (epts, endpointTypeRef) => {
+  let endpointTypeIndex = (epts, endpointTypeRef) => {
     return epts.findIndex((value) => value.endpointTypeId == endpointTypeRef)
   }
 
-  var mapFunction = (x) => {
+  let mapFunction = (x) => {
     return {
       endpointTypeName: x.NAME,
       endpointTypeIndex: endpointTypeIndex(endpointTypes, x.ENDPOINT_TYPE_REF),
@@ -112,7 +112,7 @@ ORDER BY ENDPOINT.ENDPOINT_IDENTIFIER
  * @returns promise that resolves into rows in the database table.
  */
 async function exportEndpointTypes(db, sessionId) {
-  var mapFunction = (x) => {
+  let mapFunction = (x) => {
     return {
       endpointTypeId: x.ENDPOINT_TYPE_ID,
       name: x.NAME,
@@ -186,7 +186,7 @@ INSERT INTO ENDPOINT_TYPE (
  * @returns Promise of a data that is listing all the packages in the session.
  */
 async function exportPackagesFromSession(db, sessionId) {
-  var mapFunction = (x) => {
+  let mapFunction = (x) => {
     return {
       path: x.PATH,
       version: x.VERSION,
@@ -220,7 +220,7 @@ WHERE SESSION_PACKAGE.SESSION_REF = ?`,
  * @returns Promise that resolves with the data that should go into the external form.
  */
 async function exportClustersFromEndpointType(db, endpointTypeId) {
-  var mapFunction = (x) => {
+  let mapFunction = (x) => {
     return {
       name: x.NAME,
       code: x.CODE,
@@ -307,7 +307,7 @@ async function exportAttributesFromEndpointTypeCluster(
   endpointTypeId,
   endpointClusterId
 ) {
-  var mapFunction = (x) => {
+  let mapFunction = (x) => {
     return {
       name: x.NAME,
       code: x.CODE,
@@ -370,7 +370,7 @@ async function importAttributeForEndpointType(
   endpointClusterId,
   attribute
 ) {
-  var arg = [
+  let arg = [
     endpointTypeId,
     endpointClusterId,
     attribute.code,
@@ -438,7 +438,7 @@ async function exportCommandsFromEndpointTypeCluster(
   endpointTypeId,
   endpointClusterId
 ) {
-  var mapFunction = (x) => {
+  let mapFunction = (x) => {
     return {
       name: x.NAME,
       code: x.CODE,
@@ -486,7 +486,7 @@ async function importCommandForEndpointType(
   endpointClusterId,
   command
 ) {
-  var arg = [
+  let arg = [
     endpointTypeId,
     endpointClusterId,
     command.code,
@@ -536,7 +536,7 @@ VALUES
  * @returns promise that resolves into rows in the database table.
  */
 async function exportendPointTypeIds(db, sessionId) {
-  var mapFunction = (x) => {
+  let mapFunction = (x) => {
     return {
       endpointTypeId: x.ENDPOINT_TYPE_ID,
     }

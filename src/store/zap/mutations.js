@@ -163,14 +163,14 @@ export function selectConfiguration(state, configurationName) {
 }
 
 export function updateInclusionList(state, selectionContext) {
-  var inclusionList = state[selectionContext.view][selectionContext.listType]
+  let inclusionList = state[selectionContext.view][selectionContext.listType]
   if (selectionContext.added && !inclusionList.includes(selectionContext.id)) {
     inclusionList.push(selectionContext.id)
   } else if (
     !selectionContext.added &&
     inclusionList.includes(selectionContext.id)
   ) {
-    var elementIndex = inclusionList.indexOf(selectionContext.id)
+    let elementIndex = inclusionList.indexOf(selectionContext.id)
     inclusionList.splice(elementIndex, 1)
   }
   state[selectionContext.view][selectionContext.listType] = inclusionList

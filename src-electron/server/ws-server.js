@@ -27,13 +27,13 @@ const env = require('../util/env.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const util = require('../util/util.js')
 
-var eventEmitter = new events.EventEmitter()
+let eventEmitter = new events.EventEmitter()
 
 // Set this to false to disable ticking
 const doTicks = true
 const tickDelayMs = 10000
 
-var wsServer = null
+let wsServer = null
 
 /**
  * Initialize a websocket, and register listeners to the
@@ -49,7 +49,7 @@ function initializeWebSocket(httpServer) {
     )
     socket.on('message', (message) => {
       // When we receive a message we emit it via the event emitter.
-      var obj = JSON.parse(message)
+      let obj = JSON.parse(message)
       if ('category' in obj && 'payload' in obj) {
         eventEmitter.emit(obj.category, socket, obj.payload)
       } else {
@@ -119,7 +119,7 @@ function doSend(socket, object) {
  * @param {*} payload
  */
 function sendWebSocketData(socket, category, payload) {
-  var obj = {
+  let obj = {
     category: category,
     payload: payload,
   }

@@ -17,8 +17,8 @@
 
 //Usage 'node ./license-add.js
 
-var fs = require('fs')
-var path = require('path')
+let fs = require('fs')
+let path = require('path')
 
 const licenseJs = `/**
  *
@@ -80,9 +80,9 @@ limitations under the License.
 const directories = ['src', 'src-electron', 'test']
 
 async function processSingleFile(path) {
-  var isVue = path.endsWith('.vue')
-  var isJs = path.endsWith('.js')
-  var isTestJs = path.endsWith('.test.js')
+  let isVue = path.endsWith('.vue')
+  let isJs = path.endsWith('.js')
+  let isTestJs = path.endsWith('.test.js')
 
   if (!(isVue || isJs)) return
 
@@ -107,7 +107,7 @@ async function processSingleFile(path) {
     // Now check if we need to remove old license
     if (data.startsWith('// Copyright') || data.startsWith('<!-- Copyright')) {
       // We remove the firstline
-      var pos = data.indexOf('\n')
+      let pos = data.indexOf('\n')
       data = data.substr(pos + 1)
       console.log(`    - update: ${path}`)
     } else {
@@ -115,7 +115,7 @@ async function processSingleFile(path) {
     }
 
     // Now we write license and then data
-    var output = isJs ? (isTestJs ? licenseTestJs : licenseJs) : licenseXml
+    let output = isJs ? (isTestJs ? licenseTestJs : licenseJs) : licenseXml
     output = output.concat(data)
     fs.writeFile(path, output, (err) => {
       if (err) throw err
@@ -125,7 +125,7 @@ async function processSingleFile(path) {
 
 async function readDirent(level, currentDir, dirent) {
   if (dirent == null) return
-  var fullName = path.join(currentDir.path, dirent.name)
+  let fullName = path.join(currentDir.path, dirent.name)
   if (dirent.isFile()) {
     processSingleFile(fullName)
   } else if (dirent.isDirectory()) {

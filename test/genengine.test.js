@@ -31,13 +31,13 @@ const helperZap = require('../src-electron/generator/helper-zap.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 
-var db
+let db
 const templateCount = 13
 const genTimeout = 8000
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 
 beforeAll(() => {
-  var file = env.sqliteTestFile('genengine')
+  let file = env.sqliteTestFile('genengine')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
@@ -50,7 +50,7 @@ afterAll(() => {
   return dbApi.closeDatabase(db)
 })
 
-var templateContext
+let templateContext
 
 test(
   'Basic gen template parsing and generation',
@@ -115,7 +115,7 @@ test(
         expect(genResult).not.toBeNull()
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
-        var simpleTest = genResult.content['simple-test.out']
+        let simpleTest = genResult.content['simple-test.out']
         expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
         expect(simpleTest.includes('Strange type: bacnet_type_t')).toBeTruthy()
       }),
@@ -135,7 +135,7 @@ test(
         expect(genResult).not.toBeNull()
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
-        var simpleTest = genResult.content['simple-test.out']
+        let simpleTest = genResult.content['simple-test.out']
         expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
         expect(simpleTest.includes(helperZap.zap_header())).toBeTruthy()
         expect(
@@ -145,7 +145,7 @@ test(
           simpleTest.includes('Addon: This is example of test addon helper')
         ).toBeTruthy()
 
-        var zclId = genResult.content['zcl-test.out']
+        let zclId = genResult.content['zcl-test.out']
         //expect(zclId).toEqual('random placeholder')
         expect(
           zclId.includes(
@@ -173,20 +173,20 @@ test(
           zclId.includes('// struct: WwahClusterStatusToUseTC\nLast item')
         ).toBeTruthy()
 
-        var accumulator = genResult.content['accumulator.out']
+        let accumulator = genResult.content['accumulator.out']
         expect(accumulator.includes('Iteration: 19 out of 20')).toBeTruthy()
         expect(accumulator.includes('Cumulative size: 16 / 206')).toBeTruthy()
         expect(accumulator.includes('Cumulative size: 8 / 109')).toBeTruthy()
         expect(accumulator.includes('Cumulative size: 0 / 206')).toBeTruthy()
 
-        var atomics = genResult.content['atomics.out']
+        let atomics = genResult.content['atomics.out']
         expect(atomics.includes('C type: bacnet_type_t')).toBeTruthy()
         // Now check for the override
         expect(
           atomics.includes('C type: security_key_type_override')
         ).toBeTruthy()
 
-        var zapCommand = genResult.content['zap-command.h']
+        let zapCommand = genResult.content['zap-command.h']
         expect(zapCommand).not.toBeNull()
         expect(
           zapCommand.includes(
@@ -194,14 +194,14 @@ test(
           )
         ).toBeTruthy()
 
-        var zapPrint = genResult.content['zap-print.h']
+        let zapPrint = genResult.content['zap-print.h']
         expect(
           zapPrint.includes(
             '#define SILABS_PRINTCLUSTER_POWER_CONFIG_CLUSTER {ZCL_POWER_CONFIG_CLUSTER_ID, 0x0000, "Power Configuration" },'
           )
         ).toBeTruthy()
 
-        var sdkExtension = genResult.content['sdk-extension.out']
+        let sdkExtension = genResult.content['sdk-extension.out']
         expect(
           sdkExtension.includes(
             "// cluster: 0x0000 Basic, text extension: 'Extension to basic cluster'"
@@ -251,7 +251,7 @@ test(
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
 
-        var zapId = genResult.content['zap-id.h']
+        let zapId = genResult.content['zap-id.h']
         //expect(zapId).toEqual('random placeholder')
 
         expect(zapId.includes('// Definitions for cluster: Basic')).toBeTruthy()
@@ -267,7 +267,7 @@ test(
           zapId.includes('#define ZCL_NUMBER_OF_RESETS_ATTRIBUTE_ID (0x0000)')
         ).toBeTruthy()
 
-        var zapTypes = genResult.content['zap-type.h']
+        let zapTypes = genResult.content['zap-type.h']
         expect(
           zapTypes.includes(
             'ZCL_INT16U_ATTRIBUTE_TYPE = 0x21, // Unsigned 16-bit integer'
@@ -275,10 +275,10 @@ test(
         ).toBeTruthy()
         expect(zapTypes.includes('uint32_t snapshotCause')).toBeTruthy()
 
-        var zapCli = genResult.content['zap-cli.c']
+        let zapCli = genResult.content['zap-cli.c']
         expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
 
-        var zapCommandParser = genResult.content['zap-command-parser.c']
+        let zapCommandParser = genResult.content['zap-command-parser.c']
         expect(zapCommandParser).not.toBeNull()
         expect(
           zapCommandParser.includes(
@@ -302,7 +302,7 @@ test(
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
 
-        var zapCli = genResult.content['zap-cli.c']
+        let zapCli = genResult.content['zap-cli.c']
         expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
         //expect(zapCli.includes('void zclIdentifyIdCommand(sl_cli_command_arg_t *arguments);')).toBeTruthy()
         //expect(zapCli.includes('SL_CLI_COMMAND(zclIdentifyIdCommand,')).toBeTruthy()
@@ -328,8 +328,8 @@ test('Test content indexer - line by line', () =>
     }))
 
 test('Test content indexer - blocks', () => {
-  var content = ''
-  var i = 0
+  let content = ''
+  let i = 0
   for (i = 0; i < 1000; i++) {
     content = content.concat(`line ${i}\n`)
   }

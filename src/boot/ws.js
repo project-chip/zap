@@ -18,7 +18,7 @@ import Vue from 'vue'
 import Events from 'events'
 import dbEnum from '../../src-shared/db-enum.js'
 
-var eventEmitter = new Events.EventEmitter()
+let eventEmitter = new Events.EventEmitter()
 
 const client = new WebSocket(
   `ws://${window.location.hostname}:${window.location.port}/`
@@ -43,7 +43,7 @@ function sendWebSocketData(category, payload) {
     console.log('Websocket not initialized, message not sent.')
     return
   }
-  var obj = {
+  let obj = {
     category: category,
     payload: payload,
   }
@@ -87,7 +87,7 @@ function processReceivedObject(obj) {
 
 client.onopen = () => sendWebSocketInit()
 client.onmessage = (event) => {
-  var receivedObject = JSON.parse(event.data)
+  let receivedObject = JSON.parse(event.data)
   processReceivedObject(receivedObject)
 }
 

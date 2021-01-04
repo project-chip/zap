@@ -30,16 +30,16 @@ const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const types = require('../src-electron/util/types.js')
 const bin = require('../src-electron/util/bin.js')
 
-var db
+let db
 const templateCount = 13
 const genTimeout = 3000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
-var sessionId
-var templateContext
-var zclContext
+let sessionId
+let templateContext
+let zclContext
 
 beforeAll(() => {
-  var file = env.sqliteTestFile('endpointconfig')
+  let file = env.sqliteTestFile('endpointconfig')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
@@ -92,7 +92,7 @@ test('Test endpoint config queries', () =>
       return epts
     })
     .then((epts) => {
-      var ps = []
+      let ps = []
       epts.forEach((ept) => {
         ps.push(queryEndpoint.queryEndpointClusters(db, ept.id))
       })
@@ -103,8 +103,8 @@ test('Test endpoint config queries', () =>
       expect(clusterArray[0].length).toBe(28)
       expect(clusterArray[1].length).toBe(5)
       expect(clusterArray[2].length).toBe(7)
-      var promiseAttributes = []
-      var promiseCommands = []
+      let promiseAttributes = []
+      let promiseCommands = []
       clusterArray.forEach((clusters) => {
         clusters.forEach((cluster) => {
           promiseAttributes.push(
@@ -130,14 +130,14 @@ test('Test endpoint config queries', () =>
       ])
     })
     .then((twoLists) => {
-      var attributeLists = twoLists[0]
-      var commandLists = twoLists[1]
+      let attributeLists = twoLists[0]
+      let commandLists = twoLists[1]
       expect(attributeLists.length).toBe(40)
       expect(commandLists.length).toBe(40)
 
-      var atSums = {}
+      let atSums = {}
       attributeLists.forEach((al) => {
-        var l = al.length
+        let l = al.length
         if (atSums[l]) {
           atSums[l]++
         } else {
@@ -146,9 +146,9 @@ test('Test endpoint config queries', () =>
       })
       expect(atSums[0]).toBe(18)
 
-      var cmdSums = {}
+      let cmdSums = {}
       commandLists.forEach((cl) => {
-        var l = cl.length
+        let l = cl.length
         if (cmdSums[l]) {
           cmdSums[l]++
         } else {
@@ -173,8 +173,8 @@ test(
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
 
-        var epc = genResult.content['zap-config.h']
-        var epcLines = epc.split(/\r?\n/)
+        let epc = genResult.content['zap-config.h']
+        let epcLines = epc.split(/\r?\n/)
         expect(
           epc.includes(
             '#define FIXED_ENDPOINT_ARRAY { 0x0029, 0x002A, 0x002B }'
@@ -204,7 +204,7 @@ test(
           epc.includes('#define GENERATED_DEFAULTS_COUNT (44)')
         ).toBeTruthy()
         expect(epcLines.length).toBeGreaterThan(100)
-        var cnt = 0
+        let cnt = 0
         epcLines.forEach((line) => {
           if (line.includes('ZAP_TYPE(')) {
             expect(line.includes('undefined')).toBeFalsy()

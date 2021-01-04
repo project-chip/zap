@@ -93,7 +93,7 @@ export default {
     },
     selectedDefaultResponsePolicy: {
       get() {
-        var drp = this.$store.state.zap.genericOptions[
+        let drp = this.$store.state.zap.genericOptions[
           DbEnum.sessionOption.defaultResponsePolicy
         ]
         if (drp == null) {
@@ -111,7 +111,7 @@ export default {
     },
     selectedManufacturerCode: {
       get() {
-        var mc = this.$store.state.zap.genericOptions[
+        let mc = this.$store.state.zap.genericOptions[
           DbEnum.sessionOption.manufacturerCodes
         ]
         return mc == null

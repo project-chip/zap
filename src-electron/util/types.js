@@ -73,7 +73,7 @@ function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
  * @returns string which is a C-formatted byte array.
  */
 function longTypeDefaultValue(size, type, value) {
-  var v
+  let v
   if (value == null || value.length == 0) {
     v = '0x00, '.repeat(size)
   } else if (isNaN(value)) {

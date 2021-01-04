@@ -36,14 +36,14 @@ describe('Util Tests', () => {
   })
 
   test('Relative paths', () => {
-    var f = util.createAbsolutePath(
+    let f = util.createAbsolutePath(
       'file',
       dbEnum.pathRelativity.relativeToUserHome
     )
     expect(path.resolve(f)).toBe(path.resolve(path.join(os.homedir(), 'file')))
   })
   test('Feature level match', () => {
-    var x = util.matchFeatureLevel(0)
+    let x = util.matchFeatureLevel(0)
     expect(x.match).toBeTruthy()
     x = util.matchFeatureLevel(99999)
     expect(x.match).toBeFalsy()
@@ -78,10 +78,10 @@ describe('Util Tests', () => {
     expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('abra')
   })
 
-  var array = []
+  let array = []
   test('Sequential promise resolution', () => {
-    var args = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    var fn = (arg) => {
+    let args = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    let fn = (arg) => {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           array.push(arg)
@@ -123,7 +123,7 @@ describe('Environment Tests', () => {
   })
 
   test('Version', () => {
-    var v = env.zapVersion()
+    let v = env.zapVersion()
     expect('version' in v).toBeTruthy()
     expect('hash' in v).toBeTruthy()
     expect('timestamp' in v).toBeTruthy()

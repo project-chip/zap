@@ -47,7 +47,7 @@ const restApi = require('../../src-shared/rest-api.js')
  */
 function httpPostSql(db) {
   return (request, response) => {
-    var sql = request.body.sql
+    let sql = request.body.sql
     if (sql) {
       dbApi
         .dbAll(db, sql, [])

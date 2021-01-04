@@ -50,13 +50,13 @@ function calculateCrc(context) {
  * @returns Promise that resolves with the session id for chaining.
  */
 function initializeSessionPackage(db, sessionId) {
-  var promises = []
+  let promises = []
 
   // 1. Associate a zclProperties file.
-  var zclPropertiesPromise = queryPackage
+  let zclPropertiesPromise = queryPackage
     .getPackagesByType(db, dbEnum.packageType.zclProperties)
     .then((rows) => {
-      var packageId
+      let packageId
       if (rows.length == 1) {
         packageId = rows[0].id
         env.logInfo(
@@ -87,10 +87,10 @@ function initializeSessionPackage(db, sessionId) {
   promises.push(zclPropertiesPromise)
 
   // 2. Associate a gen template file
-  var genTemplateJsonPromise = queryPackage
+  let genTemplateJsonPromise = queryPackage
     .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
     .then((rows) => {
-      var packageId
+      let packageId
       if (rows.length == 1) {
         packageId = rows[0].id
         env.logInfo(
@@ -132,7 +132,7 @@ function initializeSessionPackage(db, sessionId) {
   return Promise.all(promises)
     .then(() =>
       queryPackage.getSessionPackages(db, sessionId).then((packages) => {
-        var p = packages.map((pkg) => {
+        let p = packages.map((pkg) => {
           return queryPackage
             .selectAllDefaultOptions(db, pkg.packageRef)
             .then((optionDefaultsArray) => {
@@ -167,7 +167,7 @@ function initializeSessionPackage(db, sessionId) {
  * @param {*} filePath
  */
 function createBackupFile(filePath) {
-  var pathBak = filePath + '~'
+  let pathBak = filePath + '~'
   if (fs.existsSync(filePath)) {
     if (fs.existsSync(pathBak)) {
       env.logWarning(`Deleting old backup file: ${pathBak}`)
@@ -241,14 +241,14 @@ function matchFeatureLevel(featureLevel) {
  */
 function sessionReport(db, sessionId) {
   return queryEndpoint.queryEndpointTypes(db, sessionId).then((epts) => {
-    var ps = []
+    let ps = []
     epts.forEach((ept) => {
       ps.push(
         queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
-          var s = `Endpoint: ${ept.name} \n`
-          var ps2 = []
+          let s = `Endpoint: ${ept.name} \n`
+          let ps2 = []
           clusters.forEach((c) => {
-            var rpt = `  - ${c.hexCode}: cluster: ${c.name} (${c.side})\n`
+            let rpt = `  - ${c.hexCode}: cluster: ${c.name} (${c.side})\n`
             ps2.push(
               queryEndpoint
                 .queryEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
@@ -332,8 +332,8 @@ function createAbsolutePath(relativePath, relativity, zapFilePath) {
  */
 function locateRelativeFilePath(rootFileLocations, relativeFilePath) {
   if (relativeFilePath) {
-    for (var i = 0; i < rootFileLocations.length; i++) {
-      var resolvedFile = path.resolve(
+    for (let i = 0; i < rootFileLocations.length; i++) {
+      let resolvedFile = path.resolve(
         rootFileLocations[i],
         relativeFilePath.trim()
       )

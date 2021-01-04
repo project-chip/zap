@@ -28,13 +28,13 @@ const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 
 test('that that parallel loading of zcl and dotdot is possible', async () => {
-  var dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
-  var zclPropertiesFile = args.zclPropertiesFile
+  let dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
+  let zclPropertiesFile = args.zclPropertiesFile
 
-  var db = await dbApi.initRamDatabase()
+  let db = await dbApi.initRamDatabase()
   await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
 
-  var promises = []
+  let promises = []
   promises.push(zclLoader.loadZcl(db, zclPropertiesFile))
   promises.push(zclLoader.loadZcl(db, dotDotZclPropertiesFile))
 
@@ -44,10 +44,10 @@ test('that that parallel loading of zcl and dotdot is possible', async () => {
 }, 10000)
 
 test('test that consecutive loading of metafiles properly avoids duplication', () => {
-  var dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
-  var db
-  var jsonPackageId
-  var dotdotPackageId
+  let dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
+  let db
+  let jsonPackageId
+  let dotdotPackageId
   return dbApi
     .initRamDatabase()
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))

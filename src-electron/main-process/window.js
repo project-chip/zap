@@ -41,7 +41,7 @@ function createQueryString(
   uiMode = null,
   embeddedMode = null
 ) {
-  var queryString = ''
+  let queryString = ''
   if (sessionId) {
     if (queryString.length == 0) {
       queryString = `?sessionId=${sessionId}`

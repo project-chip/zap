@@ -26,7 +26,7 @@ test('Make sure electron main process loads', () => {
 })
 
 test('Test constructing queries for the window', () => {
-  var query = window.createQueryString(1, 'someUiMode')
+  let query = window.createQueryString(1, 'someUiMode')
   expect(query).toBe(`?sessionId=1&uiMode=someUiMode`)
   query = window.createQueryString()
   expect(query).toBe(``)

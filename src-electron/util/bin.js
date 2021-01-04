@@ -17,7 +17,7 @@
 
 // Binary utilities to deal with hex numbers and such.
 
-var byteBuffer = require('bytebuffer')
+const byteBuffer = require('bytebuffer')
 
 /**
  * Takes an int8 value and turns it into a hex.
@@ -26,7 +26,7 @@ var byteBuffer = require('bytebuffer')
  * @returns hex string, 2 characters long without '0x'
  */
 function int8ToHex(value, littleEndian = false) {
-  var bb = new byteBuffer(1, littleEndian, byteBuffer.DEFAULT_NOASSERT)
+  let bb = new byteBuffer(1, littleEndian, byteBuffer.DEFAULT_NOASSERT)
   bb.writeInt8(value)
   bb.flip()
   return bb.toHex().toUpperCase()
@@ -39,7 +39,7 @@ function int8ToHex(value, littleEndian = false) {
  * @returns hex string, 4 characters long without '0x'
  */
 function int16ToHex(value, littleEndian = false) {
-  var bb = new byteBuffer(2, littleEndian, byteBuffer.DEFAULT_NOASSERT)
+  let bb = new byteBuffer(2, littleEndian, byteBuffer.DEFAULT_NOASSERT)
   bb.writeInt16(value)
   bb.flip()
   return bb.toHex().toUpperCase()
@@ -52,7 +52,7 @@ function int16ToHex(value, littleEndian = false) {
  * @returns hex string, 8 characters long without '0x'
  */
 function int32ToHex(value, littleEndian = false) {
-  var bb = new byteBuffer(4, littleEndian, byteBuffer.DEFAULT_NOASSERT)
+  let bb = new byteBuffer(4, littleEndian, byteBuffer.DEFAULT_NOASSERT)
   bb.writeInt32(value)
   bb.flip()
   return bb.toHex().toUpperCase()
@@ -65,7 +65,7 @@ function int32ToHex(value, littleEndian = false) {
  * @returns hex string, value.length * 2 + 2 characters long. It appends the terminating NULL, so 0x00 is at the end.
  */
 function stringToHex(value) {
-  var bb = new byteBuffer(value.length, false, byteBuffer.DEFAULT_NOASSERT)
+  let bb = new byteBuffer(value.length, false, byteBuffer.DEFAULT_NOASSERT)
   bb.writeCString(value)
   bb.flip()
   return bb.toHex().toUpperCase()
@@ -92,9 +92,9 @@ function bitCount(n) {
  * @returns C byte array
  */
 function hexToCBytes(value) {
-  var out = ''
-  var infix = ''
-  for (var i = 0; i < value.length; i += 2) {
+  let out = ''
+  let infix = ''
+  for (let i = 0; i < value.length; i += 2) {
     out += infix
     out += '0x'.concat(value.substring(i, i + 2).toUpperCase())
     infix = ', '
@@ -107,7 +107,7 @@ function hexToCBytes(value) {
  * @param {*} binary
  */
 function bitOffset(binary) {
-  var lastIndex = binary.lastIndexOf('1')
+  let lastIndex = binary.lastIndexOf('1')
   return binary.length - lastIndex - 1
 }
 
@@ -138,14 +138,14 @@ const hexDigits = {
  * @param {*} hex
  */
 function hexToBinary(hex) {
-  var cleansedHex = hex
+  let cleansedHex = hex
   if (cleansedHex.startsWith('0x') || cleansedHex.startsWith('0X'))
     cleansedHex = cleansedHex.slice(2)
   cleansedHex = cleansedHex.toUpperCase()
 
-  var out = ''
-  for (var i = 0; i < cleansedHex.length; i++) {
-    var str = hexDigits[cleansedHex[i]]
+  let out = ''
+  for (let i = 0; i < cleansedHex.length; i++) {
+    let str = hexDigits[cleansedHex[i]]
     if (str != null) out = out.concat(str)
   }
   return out
@@ -159,13 +159,13 @@ function hexToBinary(hex) {
  * @param {*} value
  */
 function stringToOneByteLengthPrefixCBytes(value, maxLength) {
-  var len = value.length
-  var ret = `${len}, `
-  for (var i = 0; i < len; i++) {
+  let len = value.length
+  let ret = `${len}, `
+  for (let i = 0; i < len; i++) {
     ret = ret.concat(`'${value[i]}', `)
   }
   if (maxLength > len) {
-    for (var i = 0; i < maxLength - len; i++) {
+    for (let i = 0; i < maxLength - len; i++) {
       ret = ret.concat('0x00, ')
     }
   }
@@ -180,14 +180,14 @@ function stringToOneByteLengthPrefixCBytes(value, maxLength) {
  * @param {*} value
  */
 function stringToTwoByteLengthPrefixCBytes(value, maxLength) {
-  var len = value.length
-  var ret = `${(len >> 8) & 0xff}, `
+  let len = value.length
+  let ret = `${(len >> 8) & 0xff}, `
   ret = ret.concat(`${len & 0xff}, `)
-  for (var i = 0; i < len; i++) {
+  for (let i = 0; i < len; i++) {
     ret = ret.concat(`'${value[i]}', `)
   }
   if (maxLength > len) {
-    for (var i = 0; i < maxLength - len; i++) {
+    for (let i = 0; i < maxLength - len; i++) {
       ret = ret.concat('0x00, ')
     }
   }

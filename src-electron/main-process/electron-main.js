@@ -69,7 +69,7 @@ function hookAppEvents() {
 
 // Main lifecycle of the application
 if (app != null) {
-  var isSingleInstance = app.requestSingleInstanceLock()
+  let isSingleInstance = app.requestSingleInstanceLock()
 
   if (isSingleInstance) {
     hookAppEvents()

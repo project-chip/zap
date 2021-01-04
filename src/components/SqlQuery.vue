@@ -35,8 +35,8 @@ export default {
   methods: {
     hitEnter() {
       this.$serverPost(restApi.uri.sql, { sql: this.text }).then((response) => {
-        var result = response.data.result
-        var error = response.data.error
+        let result = response.data.result
+        let error = response.data.error
         if (result) {
           this.resultSummary = `${result.length} rows retrieved.`
           this.items = result

@@ -95,6 +95,16 @@ pipeline
                 }
             }
         }
+        stage('ESLint execution')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'npm run lint'
+                }
+            }
+        }
         stage('Run Sonar Scan')
         {
             steps

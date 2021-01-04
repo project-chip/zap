@@ -60,7 +60,7 @@ async function insertFileLocation(db, filePath, category) {
  * @param {*} category
  */
 async function selectFileLocation(db, category) {
-  var row = await dbApi.dbGet(
+  let row = await dbApi.dbGet(
     db,
     'SELECT FILE_PATH FROM FILE_LOCATION WHERE CATEGORY = ?',
     [category]

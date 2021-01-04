@@ -27,11 +27,11 @@ const querySession = require('../src-electron/db/query-session.js')
 const util = require('../src-electron/util/util.js')
 const libxmljs = require('libxmljs')
 
-var db
-var sid
+let db
+let sid
 
 beforeAll(() => {
-  var file = env.sqliteTestFile('custom-validation')
+  let file = env.sqliteTestFile('custom-validation')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {

@@ -42,12 +42,12 @@ const queryImpexp = require('../src-electron/db/query-impexp.js')
  * Copyright (c) 2020 Silicon Labs
  */
 
-var db
-var sid
-var pkgId
+let db
+let sid
+let pkgId
 
 beforeAll(() => {
-  var file = env.sqliteTestFile('query')
+  let file = env.sqliteTestFile('query')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
@@ -61,8 +61,8 @@ afterAll(() => {
 })
 
 test('Path CRC queries.', () => {
-  var path = '/some/random/path'
-  var crc = 42
+  let path = '/some/random/path'
+  let crc = 42
   return queryPackage
     .insertPathCrc(db, path, crc)
     .then((rowid) => queryPackage.getPathCrc(db, path))
@@ -190,7 +190,7 @@ describe('Session specific queries', () => {
 
   test('Random key value queries', async () => {
     await queryConfig.updateKeyValue(db, sid, 'key1', 'value1')
-    var value = await queryConfig.getSessionKeyValue(db, sid, 'key1')
+    let value = await queryConfig.getSessionKeyValue(db, sid, 'key1')
     expect(value).toBe('value1')
     await queryConfig.updateKeyValue(db, sid, 'key1', 'value2')
     value = await queryConfig.getSessionKeyValue(db, sid, 'key1')
@@ -200,9 +200,9 @@ describe('Session specific queries', () => {
   })
 
   test('Make sure session is dirty', async () => {
-    var data = await querySession.getSessionInfoFromSessionKey(db, 'SESSION')
-    var sid = data.sessionId
-    var result = await querySession.getSessionDirtyFlag(db, sid)
+    let data = await querySession.getSessionInfoFromSessionKey(db, 'SESSION')
+    let sid = data.sessionId
+    let result = await querySession.getSessionDirtyFlag(db, sid)
     expect(result).toBeTruthy()
     await querySession.setSessionClean(db, sid)
     result = await querySession.getSessionDirtyFlag(db, sid)
@@ -210,8 +210,8 @@ describe('Session specific queries', () => {
   })
 
   test('Make sure triggers work', () => {
-    var sid
-    var endpointTypeId
+    let sid
+    let endpointTypeId
     return querySession
       .getSessionInfoFromSessionKey(db, 'SESSION')
       .then((data) => {
@@ -246,7 +246,7 @@ describe('Session specific queries', () => {
   }, 2000)
 
   test('Test key values', () => {
-    var sid
+    let sid
     return querySession
       .getSessionInfoFromSessionKey(db, 'SESSION')
       .then((data) => {
@@ -260,8 +260,8 @@ describe('Session specific queries', () => {
   })
 
   test('Test state creation', () => {
-    var sid
-    var endpointTypeId
+    let sid
+    let endpointTypeId
     return querySession
       .getSessionInfoFromSessionKey(db, 'SESSION')
       .then((data) => {
@@ -290,8 +290,8 @@ describe('Session specific queries', () => {
         expect(state.endpointTypes[0].name).toBe('Test endpoint')
         expect(state.endpointTypes[0].clusters.length).toBe(0)
         expect(state.package.length).toBe(2)
-        var zclIndex
-        var genIndex
+        let zclIndex
+        let genIndex
         if (state.package[0].type === dbEnum.packageType.zclProperties) {
           zclIndex = 0
           genIndex = 1
@@ -334,9 +334,9 @@ describe('Endpoint Type Config Queries', () => {
         pkgId = packages[0].id
       })
   )
-  var endpointTypeIdOnOff
-  var levelControlCluster
-  var haOnOffDeviceType, zllOnOffLightDevice
+  let endpointTypeIdOnOff
+  let levelControlCluster
+  let haOnOffDeviceType, zllOnOffLightDevice
 
   test('Insert EndpointType and test various states', () =>
     queryZcl.selectAllDeviceTypes(db, pkgId).then((rows) => {
@@ -533,7 +533,7 @@ describe('Endpoint Type Config Queries', () => {
       }))
 
   test('Test inserting and retrieving options', () => {
-    var pkgId = null
+    let pkgId = null
     return queryPackage
       .insertPathCrc(db, 'junk', 123)
       .then((p) => {

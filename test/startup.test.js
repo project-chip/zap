@@ -25,7 +25,7 @@ const args = require('../src-electron/util/args.js')
 const testUtil = require('./test-util.js')
 
 test('startup: start generation', () => {
-  var testGenDir = path.join(path.join(__dirname, '.zap/'), 'test-gen')
+  let testGenDir = path.join(path.join(__dirname, '.zap/'), 'test-gen')
   if (!fs.existsSync(testGenDir)) fs.mkdirSync(testGenDir, { recursive: true })
   return startup.startGeneration(
     testGenDir,

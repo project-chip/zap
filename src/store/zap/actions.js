@@ -350,8 +350,8 @@ export function updateSelectedEndpointType(
 }
 
 export function setClusterList(context, selectionContext) {
-  var enabledClients = []
-  var enabledServers = []
+  let enabledClients = []
+  let enabledServers = []
   selectionContext.forEach((record) => {
     if (record.enabled) {
       if (record.side === 'client') {
@@ -368,19 +368,19 @@ export function setClusterList(context, selectionContext) {
 }
 
 export function setAttributeStateLists(context, selectionContext) {
-  var includedAttributes = []
-  var singletonAttributes = []
-  var boundedAttributes = []
-  var defaultValue = {}
-  var storageOption = {}
+  let includedAttributes = []
+  let singletonAttributes = []
+  let boundedAttributes = []
+  let defaultValue = {}
+  let storageOption = {}
 
-  var includedReportableAttributes = []
-  var min = {}
-  var max = {}
-  var change = {}
+  let includedReportableAttributes = []
+  let min = {}
+  let max = {}
+  let change = {}
 
   selectionContext.forEach((record) => {
-    var resolvedReference = Util.cantorPair(
+    let resolvedReference = Util.cantorPair(
       record.attributeRef,
       record.clusterRef
     )
@@ -409,10 +409,10 @@ export function setAttributeStateLists(context, selectionContext) {
 }
 
 export function setCommandStateLists(context, selectionContext) {
-  var incoming = []
-  var outgoing = []
+  let incoming = []
+  let outgoing = []
   selectionContext.forEach((record) => {
-    var resolvedReference = Util.cantorPair(
+    let resolvedReference = Util.cantorPair(
       record.commandRef,
       record.clusterRef
     )
@@ -427,8 +427,8 @@ export function setCommandStateLists(context, selectionContext) {
 
 // TODO (?) This does not handle/highlight prohibited clusters. For now we just keep it in here
 export function setRecommendedClusterList(context, data) {
-  var recommendedClients = []
-  var recommendedServers = []
+  let recommendedClients = []
+  let recommendedServers = []
 
   data.forEach((record) => {
     if (record.includeClient) recommendedClients.push(record.clusterRef)
@@ -441,7 +441,7 @@ export function setRecommendedClusterList(context, data) {
 }
 
 export function setRequiredAttributes(context, data) {
-  var requiredAttributes = []
+  let requiredAttributes = []
   data.forEach((record) => {
     if (record.attributeRef) requiredAttributes.push(record.attributeRef)
   })
@@ -451,7 +451,7 @@ export function setRequiredAttributes(context, data) {
 }
 
 export function setRequiredCommands(context, data) {
-  var requiredCommands = []
+  let requiredCommands = []
   data.forEach((record) => {
     if (record.commandRef) requiredCommands.push(record.commandRef)
   })
@@ -477,7 +477,7 @@ export function setMiniState(context, data) {
  */
 export function loadInitialData(context, data) {
   Vue.prototype.$serverGet(restApi.uri.initialState).then((response) => {
-    var initialState = response.data
+    let initialState = response.data
     if ('endpoints' in initialState) {
       context.commit('initializeEndpoints', initialState.endpoints)
     }

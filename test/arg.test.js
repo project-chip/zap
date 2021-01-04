@@ -22,7 +22,7 @@ const yargs = require('yargs')
 const args = require('../src-electron/util/args.js')
 
 test('Test basic command line processing', () => {
-  var a = args.processCommandLineArguments([
+  let a = args.processCommandLineArguments([
     'node',
     'test.js',
     '--noUI',
@@ -41,7 +41,7 @@ test('Test basic command line processing', () => {
 })
 
 test('Verify how yargs works', () => {
-  var argv = yargs(['a', '--x', 1, 'b', '--y', 2, '--tst', 42]).parse()
+  let argv = yargs(['a', '--x', 1, 'b', '--y', 2, '--tst', 42]).parse()
   expect(argv._).toContain('a')
   expect(argv._).toContain('b')
   expect(argv.x).toBe(1)

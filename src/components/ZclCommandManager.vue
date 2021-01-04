@@ -135,11 +135,11 @@ export default {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base Command ID and cluster data.
 
-      var indexOfValue = list.indexOf(
+      let indexOfValue = list.indexOf(
         this.hashCommandIdClusterId(commandData.id, clusterId)
       )
 
-      var addedValue
+      let addedValue
       if (indexOfValue === -1) {
         addedValue = true
       } else {

@@ -33,8 +33,8 @@ const zclPropertiesFile = path.join(
 )
 
 test('test Silabs zcl data loading in memory', () => {
-  var db
-  var packageId
+  let db
+  let packageId
   return dbApi
     .initRamDatabase()
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))

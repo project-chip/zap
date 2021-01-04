@@ -81,7 +81,7 @@ function reduceAndConcatenateZclEntity(
   },
   defaultValue = []
 ) {
-  var dataArray = packageIdArray.map((packageId) =>
+  let dataArray = packageIdArray.map((packageId) =>
     zclQueryCallback(db, id, packageId)
   )
   return Promise.all(dataArray).then((x) =>
@@ -206,7 +206,7 @@ function parseForZclData(db, entity, id, packageIdArray) {
 function httpGetZclEntity(db) {
   return (request, response) => {
     const { id, entity } = request.params
-    var sessionId = request.session.zapSessionId
+    let sessionId = request.session.zapSessionId
 
     queryPackage
       .getSessionZclPackages(db, sessionId)

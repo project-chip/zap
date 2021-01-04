@@ -23,7 +23,7 @@ const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
 
 // Basic environment tie-ins
-var pino_logger = pino({
+let pino_logger = pino({
   name: 'zap',
   level: process.env.ZAP_LOGLEVEL || 'warn', // This sets the default log level. If you set this, to say `sql`, then you will get SQL queries.
   customLevels: {
@@ -32,10 +32,10 @@ var pino_logger = pino({
   },
 })
 
-var explicit_logger_set = false
-var dbInstance
-var httpStaticContent = path.join(__dirname, '../../spa')
-var versionObject = null
+let explicit_logger_set = false
+let dbInstance
+let httpStaticContent = path.join(__dirname, '../../spa')
+let versionObject = null
 
 function setDevelopmentEnv() {
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
@@ -60,7 +60,7 @@ function resolveMainDatabase(db) {
 
 // Returns an app directory. It creates it, if it doesn't exist
 function appDirectory() {
-  var appDir = path.join(os.homedir(), '.zap')
+  let appDir = path.join(os.homedir(), '.zap')
 
   if (!fs.existsSync(appDir)) {
     fs.mkdirSync(appDir, { recursive: true }, (err) => {
@@ -83,11 +83,11 @@ function sqliteFile(filename = 'zap') {
 }
 
 function sqliteTestFile(id, deleteExistingFile = true) {
-  var dir = path.join(__dirname, '../../test/.zap')
+  let dir = path.join(__dirname, '../../test/.zap')
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
   }
-  var fileName = path.join(dir, `test-${id}.sqlite`)
+  let fileName = path.join(dir, `test-${id}.sqlite`)
   if (deleteExistingFile && fs.existsSync(fileName)) fs.unlinkSync(fileName)
   return fileName
 }
@@ -96,7 +96,7 @@ function sqliteTestFile(id, deleteExistingFile = true) {
  *
  */
 function zapVersionAsString() {
-  var vo = zapVersion()
+  let vo = zapVersion()
   return `ver. ${vo.version}, featureLevel ${vo.featureLevel}, commit: ${vo.hash} from ${vo.date}`
 }
 
@@ -109,7 +109,7 @@ function zapVersion() {
   if (versionObject == null) {
     versionObject = {}
     try {
-      var p = require('../../package.json')
+      let p = require('../../package.json')
       versionObject.version = p.version
       versionObject.featureLevel = p.featureLevel
     } catch (err) {
@@ -119,7 +119,7 @@ function zapVersion() {
     }
 
     try {
-      var ver = require('../../.version.json')
+      let ver = require('../../.version.json')
       versionObject.hash = ver.hash
       versionObject.timestamp = ver.timestamp
       versionObject.date = ver.date
@@ -188,10 +188,10 @@ function logSql(msg) {
 
 // Returns true if major or minor component of versions is different.
 function isMatchingVersion(versionsArray, providedVersion) {
-  var ret = false
-  var v2 = providedVersion.split('.')
+  let ret = false
+  let v2 = providedVersion.split('.')
   versionsArray.forEach((element) => {
-    var v1 = element.split('.')
+    let v1 = element.split('.')
     if (v1.length != 3 || v2.length != 3) return
 
     if (v1[0] == v2[0] && v1[1] == v2[1]) ret = true
@@ -203,7 +203,7 @@ function isMatchingVersion(versionsArray, providedVersion) {
 // Returns true if major/minor versions of node and electron are matching.
 // If versions are not matching, it  prints out a warhing and returns false.
 function versionsCheck() {
-  var expectedNodeVersion = [
+  let expectedNodeVersion = [
     'v12.20.x',
     'v12.19.x',
     'v12.18.x',
@@ -212,10 +212,10 @@ function versionsCheck() {
     'v12.15.x',
     'v12.14.x',
   ]
-  var expectedElectronVersion = ['9.3.x']
-  var nodeVersion = process.version
-  var electronVersion = process.versions.electron
-  var ret = true
+  let expectedElectronVersion = ['9.3.x']
+  let nodeVersion = process.version
+  let electronVersion = process.versions.electron
+  let ret = true
   if (!isMatchingVersion(expectedNodeVersion, nodeVersion)) {
     ret = false
     console.log(`Expected node versions: ${expectedNodeVersion}`)

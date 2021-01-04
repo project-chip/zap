@@ -36,7 +36,7 @@ async function getAllSessions(db) {
       if (rows == null) {
         reject()
       } else {
-        var map = rows.map((row) => {
+        let map = rows.map((row) => {
           return {
             sessionId: row.SESSION_ID,
             sessionKey: row.SESSION_KEY,

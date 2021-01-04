@@ -30,7 +30,7 @@ process.env.PATH = process.env.PATH + ':./node_modules/.bin/'
 function executeCmd(ctx, cmd, args) {
   return new Promise((resolve, reject) => {
     console.log(`🚀 Executing: ${cmd} ${args.join(' ')}`)
-    var c = spawn(cmd, args)
+    let c = spawn(cmd, args)
     c.on('exit', (code) => {
       if (code == 0) resolve(ctx)
       else {
@@ -53,8 +53,8 @@ function executeCmd(ctx, cmd, args) {
 function getStdout(onError, cmd, args) {
   return new Promise((resolve, reject) => {
     console.log(`🚀 Executing: ${cmd} ${args.join(' ')}`)
-    var c = spawn(cmd, args)
-    var str = ''
+    let c = spawn(cmd, args)
+    let str = ''
     c.on('exit', (code) => {
       if (code == 0) resolve(str)
       else {
@@ -90,7 +90,7 @@ function rebuildSpaIfNeeded() {
       (ctx) =>
         new Promise((resolve, reject) => {
           fs.readFile(spaHashFileName, (err, data) => {
-            var oldHash = null
+            let oldHash = null
             if (err) {
               console.log(`👎 Error reading old hash file: ${spaHashFileName}`)
               ctx.needsRebuild = true
@@ -145,10 +145,10 @@ function stampVersion() {
     '--format={"hash": "%H","timestamp": %ct}',
   ])
     .then((out) => {
-      var version = JSON.parse(out)
-      var d = new Date(version.timestamp * 1000) // git gives seconds, Date needs milliseconds
+      let version = JSON.parse(out)
+      let d = new Date(version.timestamp * 1000) // git gives seconds, Date needs milliseconds
       version.date = d
-      var versionFile = path.join(__dirname, '../.version.json')
+      let versionFile = path.join(__dirname, '../.version.json')
       return fsp.writeFile(versionFile, JSON.stringify(version))
     })
     .catch((err) => {

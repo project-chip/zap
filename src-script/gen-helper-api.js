@@ -19,8 +19,8 @@
 const templateEngine = require('../src-electron/generator/template-engine.js')
 const fs = require('fs')
 
-var helpers = templateEngine.allGlobalHelpers()
-var ar = []
+let helpers = templateEngine.allGlobalHelpers()
+let ar = []
 
 if (helpers.duplicates.length > 0) {
   console.log(`API has duplicates: ${helpers.duplicates}`)
@@ -33,6 +33,6 @@ for (const key in helpers.api) {
 
 ar.sort((a, b) => a.name.localeCompare(b.name))
 
-var json = JSON.stringify(ar)
+let json = JSON.stringify(ar)
 
 fs.writeFileSync('test/helper-api-baseline.json', json)

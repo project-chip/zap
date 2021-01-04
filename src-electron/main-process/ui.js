@@ -28,7 +28,7 @@ const env = require('../util/env.js')
 
 // You can always use this to show an exception.
 function showErrorMessage(title, err) {
-  var msg
+  let msg
   if (err instanceof Error) {
     msg = err.toString() + '\n\nStack trace:\n' + err.stack
   } else {

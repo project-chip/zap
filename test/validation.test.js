@@ -28,11 +28,11 @@ const queryConfig = require('../src-electron/db/query-config.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const env = require('../src-electron/util/env.js')
 
-var db
-var sid
+let db
+let sid
 
 beforeAll(() => {
-  var file = env.sqliteTestFile('validation')
+  let file = env.sqliteTestFile('validation')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
@@ -107,12 +107,12 @@ test(
     queryZcl
       .selectAttributesByClusterCodeAndManufacturerCode(db, 3, null)
       .then((attribute) => {
-        var attribute = attribute.filter((e) => {
+        attribute = attribute.filter((e) => {
           return e.code === 0
         })[0]
 
         //Test Constraints
-        var minMax = Validation.getBoundsInteger(attribute)
+        let minMax = Validation.getBoundsInteger(attribute)
         expect(minMax.min == 0).toBeTruthy()
         expect(minMax.max === 0xffff).toBeTruthy()
       }),
@@ -120,11 +120,11 @@ test(
 )
 
 test('validate Attribute Test', () => {
-  var fakeEndpointAttribute = {
+  let fakeEndpointAttribute = {
     defaultValue: '30',
   }
 
-  var fakeAttribute = {
+  let fakeAttribute = {
     type: 'UINT16',
     min: '0x0010',
     max: '50',
@@ -153,13 +153,13 @@ test('validate Attribute Test', () => {
       .defaultValue.length == 0
   ).toBeFalsy()
 
-  var fakeAttribute = {
+  fakeAttribute = {
     type: 'FLOAT_SINGLE',
     min: '0.5',
     max: '2',
   }
 
-  var fakeEndpointAttribute = {
+  fakeEndpointAttribute = {
     defaultValue: '1.5',
   }
   expect(
@@ -167,14 +167,14 @@ test('validate Attribute Test', () => {
       .defaultValue.length == 0
   ).toBeTruthy()
   //Check out of bounds.
-  var fakeEndpointAttribute = {
+  fakeEndpointAttribute = {
     defaultValue: '4.5',
   }
   expect(
     Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
       .defaultValue.length == 0
   ).toBeFalsy()
-  var fakeEndpointAttribute = {
+  fakeEndpointAttribute = {
     defaultValue: '.25',
   }
   expect(
@@ -190,10 +190,10 @@ test('validate Attribute Test', () => {
   ).toBeFalsy()
 
   // Expect no issues with strings.
-  var fakeAttribute = {
+  fakeAttribute = {
     type: 'CHAR_STRING',
   }
-  var fakeEndpointAttribute = {
+  fakeEndpointAttribute = {
     defaultValue: '30adfadf',
   }
   expect(
@@ -204,7 +204,7 @@ test('validate Attribute Test', () => {
 
 test('validate endpoint test', () => {
   //Validate normal operation
-  var endpoint = {
+  let endpoint = {
     endpointId: '1',
     networkId: '0',
   }
@@ -216,7 +216,7 @@ test('validate endpoint test', () => {
   ).toBeTruthy()
 
   //Validate not a number
-  var endpoint = {
+  endpoint = {
     endpointId: 'blah',
     networkId: 'blah',
   }
@@ -228,7 +228,7 @@ test('validate endpoint test', () => {
   ).toBeFalsy()
 
   //Validate 0 not being valid Endpoint ID
-  var endpoint = {
+  endpoint = {
     endpointId: '0',
     networkId: 'blah',
   }
@@ -237,7 +237,7 @@ test('validate endpoint test', () => {
   ).toBeFalsy()
 
   //Validate out of bounds on endpointId
-  var endpoint = {
+  endpoint = {
     endpointId: '0xFFFFFFFF',
     networkId: 'blah',
   }
@@ -247,10 +247,10 @@ test('validate endpoint test', () => {
 }, 2000)
 
 describe('Validate endpoint for duplicate endpointIds', () => {
-  var endpointTypeIdOnOff
-  var endpointTypeReference
-  var eptId
-  var pkgId
+  let endpointTypeIdOnOff
+  let endpointTypeReference
+  let eptId
+  let pkgId
   beforeAll(() => {
     return zclLoader
       .loadZcl(db, args.zclPropertiesFile)

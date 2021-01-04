@@ -19,7 +19,7 @@
 const yargs = require('yargs')
 const scriptUtil = require('./script-util.js')
 
-var arg = yargs
+let arg = yargs
   .option('zcl', {
     desc: 'Specifies zcl metafile file to be used.',
     alias: 'z',
@@ -51,9 +51,9 @@ var arg = yargs
   .help()
   .wrap(null).argv
 
-var ctx = {}
+let ctx = {}
 
-var cli = [
+let cli = [
   'src-electron/main-process/electron-main.js',
   'generate',
   '--noUi',
