@@ -41,3 +41,6 @@ exports.testChipGenerationTemplates =
   './test/gen-template/chip/gen-templates.json'
 
 exports.testServer = testServer
+
+exports.testCustomXml = './test/resource/test-custom.xml'
+exports.badTestCustomXml = './test/resource/bad-test-custom.xml'

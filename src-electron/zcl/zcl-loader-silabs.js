@@ -1000,10 +1000,10 @@ function loadIndividualSilabsFile(db, filePath, boundValidator) {
     )
     .then(() => zclLoader.processZclPostLoading(db))
     .then(() => {
-      return { packageId: pkgId }
+      return { succeeded: true, packageId: pkgId }
     })
     .catch((err) => {
-      return { err: err }
+      return { succeeded: false, err: err }
     })
 }
 
