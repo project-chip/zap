@@ -33,7 +33,7 @@ function locateAttribute(state, at) {
  * @param {*} [value=null]
  */
 function parseAttribute(attributeString, value = null) {
-  var at = {}
+  let at = {}
   attributeString
     .split(',')
     .map((x) => x.trim())
@@ -64,8 +64,8 @@ function parseZclAfv2Line(state, line) {
       state.endpoint = []
     }
     // configuredEndpoint:*ep:1,pi: -1,di:-1,dv:1,ept:Centralized,nwk:Primary
-    var tokens = line.substring('configuredEndpoint:'.length).split(',')
-    var endpoint = {}
+    let tokens = line.substring('configuredEndpoint:'.length).split(',')
+    let endpoint = {}
     tokens.forEach((tok) => {
       if (tok.startsWith('ep:')) {
         endpoint.endpoint = parseInt(tok.substring('ep:'.length))
@@ -103,16 +103,16 @@ function parseZclAfv2Line(state, line) {
   } else if (line.startsWith('profileId:')) {
     state.endpointType.profileId = parseInt(line.substring('profileId:'.length))
   } else if (line.startsWith('overrideClientCluster:')) {
-    var idOnOff = line.substring('overrideClientCluster:'.length).split(',')
-    var override = {
+    let idOnOff = line.substring('overrideClientCluster:'.length).split(',')
+    let override = {
       clusterId: parseInt(idOnOff[0]),
       isOverriden: idOnOff[1] == 'yes',
       side: 'client',
     }
     state.clusterOverride.push(override)
   } else if (line.startsWith('overrideServerCluster:')) {
-    var idOnOff = line.substring('overrideServerCluster:'.length).split(',')
-    var override = {
+    let idOnOff = line.substring('overrideServerCluster:'.length).split(',')
+    let override = {
       clusterId: parseInt(idOnOff[0]),
       isOverriden: idOnOff[1] == 'yes',
       side: 'server',
@@ -151,30 +151,30 @@ function parseZclAfv2Line(state, line) {
   } else if (line == 'endAttrList:REPORTABLE') {
     state.parseState = 'zclAfv2'
   } else if (state.parseState == 'beginAttributeDefaults') {
-    var arr = line.split('=>').map((x) => x.trim())
-    var at = parseAttribute(arr[0], arr[1])
+    let arr = line.split('=>').map((x) => x.trim())
+    let at = parseAttribute(arr[0], arr[1])
     locateAttribute(state, at).defaultValue = at.value
   } else if (state.parseState == 'beginAttributeDefaultReportingConfig') {
-    var arr = line.split('=>').map((x) => x.trim())
-    var at = parseAttribute(arr[0], arr[1])
+    let arr = line.split('=>').map((x) => x.trim())
+    let at = parseAttribute(arr[0], arr[1])
     locateAttribute(state, at).reportingConfigValue = at.value
   } else if (state.parseState == 'EXTERNALLY_SAVED') {
-    var at = parseAttribute(line.trim())
+    let at = parseAttribute(line.trim())
     locateAttribute(state, at).externallySaved = true
   } else if (state.parseState == 'OPTIONAL') {
-    var at = parseAttribute(line.trim())
+    let at = parseAttribute(line.trim())
     locateAttribute(state, at).isOptional = true
   } else if (state.parseState == 'SINGLETON') {
-    var at = parseAttribute(line.trim())
+    let at = parseAttribute(line.trim())
     locateAttribute(state, at).isSingleton = true
   } else if (state.parseState == 'BOUNDED') {
-    var at = parseAttribute(line.trim())
+    let at = parseAttribute(line.trim())
     locateAttribute(state, at).bound = true
   } else if (state.parseState == 'SAVED_TO_FLASH') {
-    var at = parseAttribute(line.trim())
+    let at = parseAttribute(line.trim())
     locateAttribute(state, at).savedToFlash = true
   } else if (state.parseState == 'REPORTABLE') {
-    var at = parseAttribute(line.trim())
+    let at = parseAttribute(line.trim())
     locateAttribute(state, at).reportable = true
   }
 }
@@ -187,8 +187,8 @@ async function readIscData(filePath, data) {
   const lines = data.toString().split(/\r?\n/)
   const errorLines = []
 
-  var parser = null
-  var state = {
+  let parser = null
+  let state = {
     filePath: filePath,
     featureLevel: 0,
     keyValuePairs: [],

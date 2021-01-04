@@ -63,7 +63,7 @@ async function exportEndpointTypes(db, sessionId) {
   return queryImpExp
     .exportEndpointTypes(db, sessionId)
     .then((endpointTypes) => {
-      var promises = []
+      let promises = []
       endpointTypes.forEach((endpointType) => {
         // Add in the clusters.
         promises.push(
@@ -72,9 +72,9 @@ async function exportEndpointTypes(db, sessionId) {
             .then((data) => {
               endpointType.clusters = data
 
-              var ps = []
+              let ps = []
               data.forEach((endpointCluster) => {
-                var endpointClusterId = endpointCluster.endpointClusterId
+                let endpointClusterId = endpointCluster.endpointClusterId
                 delete endpointCluster.endpointClusterId
                 ps.push(
                   queryImpExp
@@ -130,10 +130,10 @@ async function exportEndpointTypes(db, sessionId) {
 async function exportSessionPackages(db, sessionId, zapFileLocation) {
   return queryImpExp.exportPackagesFromSession(db, sessionId).then((packages) =>
     packages.map((p) => {
-      var pathRelativity = dbEnum.pathRelativity.relativeToUserHome
-      var relativePath = path.relative(os.homedir(), p.path)
+      let pathRelativity = dbEnum.pathRelativity.relativeToUserHome
+      let relativePath = path.relative(os.homedir(), p.path)
       if (zapFileLocation != null) {
-        var rel = path.relative(zapFileLocation, p.path)
+        let rel = path.relative(zapFileLocation, p.path)
         if (rel.length > 0) {
           relativePath = rel
           pathRelativity = dbEnum.pathRelativity.relativeToZap
@@ -187,24 +187,24 @@ async function exportDataIntoFile(db, sessionId, filePath) {
  */
 async function createStateFromDatabase(db, sessionId) {
   return new Promise((resolve, reject) => {
-    var state = {
+    let state = {
       writeTime: new Date().toString(),
       featureLevel: env.zapVersion().featureLevel,
       creator: 'zap',
     }
-    var promises = []
-    var excludedKeys = [dbEnum.sessionKey.filePath]
+    let promises = []
+    let excludedKeys = [dbEnum.sessionKey.filePath]
 
     env.logInfo(`Exporting data for session: ${sessionId}`)
     // Deal with the key/value table
-    var getKeyValues = exportSessionKeyValues(db, sessionId)
+    let getKeyValues = exportSessionKeyValues(db, sessionId)
       .then((data) => {
         env.logInfo(`Retrieved session keys: ${data.length}`)
-        var zapFilePath = null
-        var storedKeyValuePairs = data.filter(
+        let zapFilePath = null
+        let storedKeyValuePairs = data.filter(
           (x) => !excludedKeys.includes(x.key)
         )
-        var x = data.filter((x) => x.key == dbEnum.sessionKey.filePath)
+        let x = data.filter((x) => x.key == dbEnum.sessionKey.filePath)
         if (x.length > 0) zapFilePath = x[0].value
         return {
           key: 'keyValuePairs',
@@ -221,12 +221,12 @@ async function createStateFromDatabase(db, sessionId) {
       })
     promises.push(getKeyValues)
 
-    var getAllEndpointTypes = exportEndpointTypes(db, sessionId)
-    var parseEndpointTypes = getAllEndpointTypes.then((data) => {
+    let getAllEndpointTypes = exportEndpointTypes(db, sessionId)
+    let parseEndpointTypes = getAllEndpointTypes.then((data) => {
       env.logInfo(`Retrieved endpoint types: ${data.endpointTypes.length}`)
       return { key: 'endpointTypes', data: data.endpointTypes }
     })
-    var parseEndpoints = getAllEndpointTypes.then((data) => {
+    let parseEndpoints = getAllEndpointTypes.then((data) => {
       env.logInfo(`Retrieve endpoints: ${data.endpoints.length}`)
       return { key: 'endpoints', data: data.endpoints }
     })
