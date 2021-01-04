@@ -114,34 +114,34 @@ test('Test file 1 import', async () => {
   await querySession.deleteSession(db, sid)
 })
 
-test('Test file 2 import', () => {
-  var sid
-  return querySession
-    .createBlankSession(db)
-    .then((sessionId) => importJs.importDataFromFile(db, testFile2, sessionId))
-    .then((sessionId) => (sid = sessionId))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE'))
-    .then((x) => expect(x).toBe(1))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER'))
-    .then((x) => expect(x).toBe(19))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND'))
-    .then((x) => expect(x).toBe(24))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE'))
-    .then((x) => expect(x).toBe(28))
-    .then(() => exportJs.createStateFromDatabase(db, sid))
-    .then((state) => {
-      var commandCount = 0
-      var attributeCount = 0
-      expect(state.endpointTypes.length).toBe(1)
-      expect(state.endpointTypes[0].clusters.length).toBe(19)
-      state.endpointTypes[0].clusters.forEach((c) => {
-        commandCount += c.commands.length
-        attributeCount += c.attributes.length
-      })
-      expect(commandCount).toBe(24)
-      // This flag exists for this test due to planned global attribute rework.
-      expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
-    })
+test('Test file 2 import', async () => {
+  var sid = await querySession.createBlankSession(db)
+  await importJs.importDataFromFile(db, testFile2, sid)
+
+  var x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE')
+  expect(x).toBe(1)
+
+  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
+  expect(x).toBe(19)
+
+  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
+  expect(x).toBe(24)
+
+  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
+  expect(x).toBe(28)
+
+  var state = await exportJs.createStateFromDatabase(db, sid)
+  var commandCount = 0
+  var attributeCount = 0
+  expect(state.endpointTypes.length).toBe(1)
+  expect(state.endpointTypes[0].clusters.length).toBe(19)
+  state.endpointTypes[0].clusters.forEach((c) => {
+    commandCount += c.commands.length
+    attributeCount += c.attributes.length
+  })
+  expect(commandCount).toBe(24)
+  // This flag exists for this test due to planned global attribute rework.
+  expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
 })
 
 test('Test ISC import', async () => {
