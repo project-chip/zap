@@ -1364,14 +1364,15 @@ async function insertDeviceTypes(db, packageId, data) {
       })
     )
     .then((lastIdsArray) => {
+      let zclIdsPromises = []
       for (let i = 0; i < lastIdsArray.length; i++) {
         if ('clusters' in data[i]) {
           let lastId = lastIdsArray[i]
           let clusters = data[i].clusters
           // This is an array that links the generated deviceTyepRef to the cluster via generating an array of arrays,
-          let zclIdsPromises = Promise.all(
-            clusters.map((cluster) => {
-              return dbApi
+          zclIdsPromises = Promise.all(
+            clusters.map((cluster) =>
+              dbApi
                 .dbInsert(
                   db,
                   'INSERT INTO DEVICE_TYPE_CLUSTER (DEVICE_TYPE_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER) VALUES (?,?,?,?,?,?)',
@@ -1391,7 +1392,7 @@ async function insertDeviceTypes(db, packageId, data) {
                     clusterData: cluster,
                   }
                 })
-            })
+            )
           ).then((dtClusterRefDataPairs) => {
             let promises = []
             promises.push(insertDeviceTypeAttributes(db, dtClusterRefDataPairs))
