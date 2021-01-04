@@ -185,6 +185,8 @@ function parseZclCustomizer(state, line) {
 
 async function readIscData(filePath, data) {
   const lines = data.toString().split(/\r?\n/)
+  const errorLines = []
+
   var parser = null
   var state = {
     filePath: filePath,
@@ -215,11 +217,21 @@ async function readIscData(filePath, data) {
       return
     }
 
-    if (parser != null) parser(state, line)
+    if (parser != null) {
+      try {
+        parser(state, line)
+      } catch (msg) {
+        errorLines.push(msg)
+      }
+    }
   })
 
   delete state.parseState
-  return state
+  if (errorLines.length > 0) {
+    throw 'Error while importing the file:\n  - ' + errorLines.join('\n  - ')
+  } else {
+    return state
+  }
 }
 
 async function iscDataLoader(db, state, sessionId) {
