@@ -45,7 +45,7 @@ function endpoint_count(options) {
  * @returns C array including the { } brackets
  */
 function endpoint_fixed_endpoint_array(options) {
-  var epIds = []
+  let epIds = []
   this.endpoints.forEach((ep) => {
     epIds.push('0x' + bin.int16ToHex(ep.endpointId))
   })
@@ -59,7 +59,7 @@ function endpoint_fixed_endpoint_array(options) {
  * @returns C array including the { } brackets
  */
 function endpoint_fixed_profile_id_array(options) {
-  var profileIds = []
+  let profileIds = []
   this.endpoints.forEach((ep) => {
     profileIds.push('0x' + bin.int16ToHex(parseInt(ep.profileId)))
   })
@@ -84,11 +84,11 @@ function endpoint_fixed_network_array(options) {
  * @returns C array of indexes, one for each endpoint.
  */
 function endpoint_fixed_endpoint_type_array(options) {
-  var indexes = []
-  for (var i = 0; i < this.endpoints.length; i++) {
-    var epType = this.endpoints[i].endpointTypeRef
-    var index = -1
-    for (var j = 0; j < this.endpointTypes.length; j++) {
+  let indexes = []
+  for (let i = 0; i < this.endpoints.length; i++) {
+    let epType = this.endpoints[i].endpointTypeRef
+    let index = -1
+    for (let j = 0; j < this.endpointTypes.length; j++) {
       if (epType == this.endpointTypes[j].id) {
         index = j
       }
@@ -99,7 +99,7 @@ function endpoint_fixed_endpoint_type_array(options) {
 }
 
 function createMfgCodes(codeIndexPairs) {
-  var ret = '{ \\\n'
+  let ret = '{ \\\n'
   if (codeIndexPairs.length == 0) {
     ret = ret.concat('  { 0x00, 0x00 } \\\n')
   } else {
@@ -158,7 +158,7 @@ function endpoint_command_count(options) {
 }
 
 function endpoint_types_list(options) {
-  var ret = '{ \\\n'
+  let ret = '{ \\\n'
   this.endpointList.forEach((ep) => {
     ret = ret.concat(
       `  { ZAP_CLUSTER_INDEX(${ep.clusterIndex}), ${ep.clusterCount}, ${ep.attributeSize} }, \\\n`
@@ -172,9 +172,9 @@ function endpoint_cluster_count(options) {
 }
 
 function endpoint_cluster_list(options) {
-  var ret = '{ \\\n'
+  let ret = '{ \\\n'
   this.clusterList.forEach((c) => {
-    var mask = ''
+    let mask = ''
     if (c.mask.length == 0) {
       mask = '0'
     } else {
@@ -190,9 +190,9 @@ function endpoint_cluster_list(options) {
 }
 
 function endpoint_command_list(options) {
-  var ret = '{ \\\n'
+  let ret = '{ \\\n'
   this.commandList.forEach((cmd) => {
-    var mask = ''
+    let mask = ''
     if (cmd.mask.length == 0) {
       mask = '0'
     } else {
@@ -212,9 +212,9 @@ function endpoint_attribute_count(options) {
 }
 
 function endpoint_attribute_list(options) {
-  var ret = '{ \\\n'
+  let ret = '{ \\\n'
   this.attributeList.forEach((at) => {
-    var mask = ''
+    let mask = ''
     if (at.mask.length == 0) {
       mask = '0'
     } else {
@@ -252,7 +252,7 @@ function endpoint_attribute_min_max_count(options) {
 }
 
 function endpoint_attribute_min_max_list(options) {
-  var ret = '{ \\\n'
+  let ret = '{ \\\n'
   this.minMaxList.forEach((mm) => {
     ret = ret.concat(
       `  { ${mm.default}, ${mm.min}, ${mm.max} } /* ${mm.comment} */ \\\n`
@@ -262,9 +262,9 @@ function endpoint_attribute_min_max_list(options) {
 }
 
 function endpoint_reporting_config_defaults(options) {
-  var ret = '{ \\\n'
+  let ret = '{ \\\n'
   this.reportList.forEach((r) => {
-    var mask = ''
+    let mask = ''
     if (r.mask.length == 0) {
       mask = '0'
     } else {
@@ -288,11 +288,11 @@ function endpoint_attribute_long_defaults_count(options) {
 }
 
 function endpoint_attribute_long_defaults(options) {
-  var littleEndian = true
+  let littleEndian = true
   if (options.hash.endian == 'big') {
     littleEndian = false
   }
-  var ret = '{ \\\n'
+  let ret = '{ \\\n'
   this.longDefaultsList.forEach((ld) => {
     ret = ret.concat(
       `  ${ld.value}  /* ${ld.comment}, ${
@@ -310,36 +310,36 @@ function endpoint_attribute_long_defaults(options) {
  *    3.) If server is included on at least one endpoint add server atts.
  */
 function collectAttributes(endpointTypes) {
-  var commandMfgCodes = [] // Array of { index, mfgCode } objects
-  var clusterMfgCodes = [] // Array of { index, mfgCode } objects
-  var attributeMfgCodes = [] // Array of { index, mfgCode } objects
-  var attributeList = []
-  var commandList = []
-  var endpointList = [] // Array of { clusterIndex, clusterCount, attributeSize }
-  var clusterList = [] // Array of { clusterId, attributeIndex, attributeCount, attributeSize, mask, functions, comment }
-  var longDefaults = [] // Array of strings representing bytes
-  var longDefaultsIndex = 0
-  var minMaxIndex = 0
-  var largestAttribute = 0
-  var singletonsSize = 0
-  var totalAttributeSize = 0
-  var clusterAttributeSize = 0
-  var endpointAttributeSize = 0
-  var clusterIndex = 0
-  var deviceList = [] // Array of { deviceId, deviceVersion }
-  var minMaxList = [] // Array of { default, min, max }
-  var reportList = [] // Array of { direction, endpoint, clusterId, attributeId, mask, mfgCode, minOrSource, maxOrEndpoint, reportableChangeOrTimeout }
-  var longDefaultsList = [] // Array if { value, size. comment }
-  var attributeIndex = 0
+  let commandMfgCodes = [] // Array of { index, mfgCode } objects
+  let clusterMfgCodes = [] // Array of { index, mfgCode } objects
+  let attributeMfgCodes = [] // Array of { index, mfgCode } objects
+  let attributeList = []
+  let commandList = []
+  let endpointList = [] // Array of { clusterIndex, clusterCount, attributeSize }
+  let clusterList = [] // Array of { clusterId, attributeIndex, attributeCount, attributeSize, mask, functions, comment }
+  let longDefaults = [] // Array of strings representing bytes
+  let longDefaultsIndex = 0
+  let minMaxIndex = 0
+  let largestAttribute = 0
+  let singletonsSize = 0
+  let totalAttributeSize = 0
+  let clusterAttributeSize = 0
+  let endpointAttributeSize = 0
+  let clusterIndex = 0
+  let deviceList = [] // Array of { deviceId, deviceVersion }
+  let minMaxList = [] // Array of { default, min, max }
+  let reportList = [] // Array of { direction, endpoint, clusterId, attributeId, mask, mfgCode, minOrSource, maxOrEndpoint, reportableChangeOrTimeout }
+  let longDefaultsList = [] // Array if { value, size. comment }
+  let attributeIndex = 0
 
   endpointTypes.forEach((ept) => {
-    var endpoint = {
+    let endpoint = {
       clusterIndex: clusterIndex,
       clusterCount: ept.clusters.length,
       attributeSize: 0,
     }
 
-    var device = {
+    let device = {
       deviceId: 0,
       deviceVersion: 1,
     }
@@ -349,7 +349,7 @@ function collectAttributes(endpointTypes) {
     // Go over all the clusters in the endpoint and add them to the list.
 
     ept.clusters.forEach((c) => {
-      var cluster = {
+      let cluster = {
         clusterId: c.hexCode,
         attributeIndex: attributeIndex,
         attributeCount: c.attributes.length,
@@ -366,16 +366,16 @@ function collectAttributes(endpointTypes) {
 
       // Go over all the attributes in the endpoint and add them to the list.
       c.attributes.forEach((a) => {
-        var attributeDefaultValue = a.defaultValue
+        let attributeDefaultValue = a.defaultValue
         if (a.typeSize > 2) {
           // We will need to generate the GENERATED_DEFAULTS
           longDefaults.push(a)
-          var def = types.longTypeDefaultValue(
+          let def = types.longTypeDefaultValue(
             a.typeSize,
             a.type,
             a.defaultValue
           )
-          var longDef = {
+          let longDef = {
             value: def,
             size: a.typeSize,
             comment: `Default for cluster: "${c.name}", attribute: "${a.name}". side: ${a.side}`,
@@ -385,7 +385,7 @@ function collectAttributes(endpointTypes) {
           longDefaultsIndex += a.typeSize
         }
         if (a.isBound) {
-          var minMax = {
+          let minMax = {
             default: a.defaultValue,
             min: a.min,
             max: a.max,
@@ -395,9 +395,9 @@ function collectAttributes(endpointTypes) {
           minMaxList.push(minMax)
           minMaxIndex++
         }
-        var rptMask = [c.side]
+        let rptMask = [c.side]
         if (a.includedReportable) {
-          var rpt = {
+          let rpt = {
             direction: 'REPORTED', // or 'RECEIVED'
             endpoint: '0x' + bin.int16ToHex(ept.endpointId),
             clusterId: c.hexCode,
@@ -422,13 +422,13 @@ function collectAttributes(endpointTypes) {
         }
         clusterAttributeSize += a.typeSize
         totalAttributeSize += a.typeSize
-        var mask = []
+        let mask = []
         if (a.side == dbEnum.side.client) {
           mask.push('client')
         }
         if (a.isSingleton) mask.push('singleton')
         if (a.isWritable) mask.push('writable')
-        var attr = {
+        let attr = {
           id: a.hexCode, // attribute code
           type: `ZAP_TYPE(${a.type.toUpperCase()})`, // type
           size: a.typeSize, // size
@@ -440,7 +440,7 @@ function collectAttributes(endpointTypes) {
       })
       // Go over the commands
       c.commands.forEach((cmd) => {
-        var mask = []
+        let mask = []
         if (cmd.isOptional) {
           if (cmd.isIncoming) {
             if (c.side == dbEnum.side.server) mask.push('incoming_server')
@@ -457,7 +457,7 @@ function collectAttributes(endpointTypes) {
             mask.push('incoming_client')
           }
         }
-        var command = {
+        let command = {
           clId: c.code, // for sorting
           cmId: cmd.code, // for sorting
           clusterId: c.hexCode,
@@ -515,7 +515,7 @@ function collectAttributes(endpointTypes) {
  *
  */
 function collectAttributeSizes(db, zclPackageId, endpointTypes) {
-  var ps = []
+  let ps = []
   endpointTypes.forEach((ept) => {
     ept.clusters.forEach((cl) => {
       cl.attributes.forEach((at) => {
@@ -545,18 +545,18 @@ function collectAttributeSizes(db, zclPackageId, endpointTypes) {
  * @returns a promise of a rendered block
  */
 function endpoint_config(options) {
-  var newContext = {
+  let newContext = {
     global: this.global,
     parent: this,
   }
-  var db = this.global.db
-  var sessionId = this.global.sessionId
-  var promise = templateUtil
+  let db = this.global.db
+  let sessionId = this.global.sessionId
+  let promise = templateUtil
     .ensureZclPackageId(newContext)
     .then(() => queryEndpoint.queryEndpoints(db, sessionId))
     .then((endpoints) => {
       newContext.endpoints = endpoints
-      var endpointTypeIds = []
+      let endpointTypeIds = []
       endpoints.forEach((ep) => {
         endpointTypeIds.push({
           endpointTypeId: ep.endpointTypeRef,
@@ -566,7 +566,7 @@ function endpoint_config(options) {
       return endpointTypeIds
     })
     .then((endpointTypeIds) => {
-      var endpointTypePromises = []
+      let endpointTypePromises = []
       endpointTypeIds.forEach((eptId) => {
         endpointTypePromises.push(
           queryEndpoint
@@ -580,13 +580,13 @@ function endpoint_config(options) {
       return Promise.all(endpointTypePromises)
     })
     .then((endpointTypes) => {
-      var promises = []
+      let promises = []
       newContext.endpointTypes = endpointTypes
       endpointTypes.forEach((ept) => {
         promises.push(
           queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
             ept.clusters = clusters // Put 'clusters' into endpoint
-            var ps = []
+            let ps = []
             clusters.forEach((cl) => {
               ps.push(
                 queryEndpoint

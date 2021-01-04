@@ -34,12 +34,12 @@ function makeSynchronizablePromise(promise) {
   if (promise.isResolved) return promise
 
   // Set initial state of flags
-  var isPending = true
-  var isRejected = false
-  var isResolved = false
+  let isPending = true
+  let isRejected = false
+  let isResolved = false
 
   // Resolve the promise, observing its rejection or resolution.
-  var synchronizablePromise = promise.then(
+  let synchronizablePromise = promise.then(
     function (resolutionValue) {
       isResolved = true
       isPending = false
@@ -75,18 +75,18 @@ function makeSynchronizablePromise(promise) {
  * @returns Promise that resolves with a content string.
  */
 async function collectBlocks(resultArray, options, context) {
-  var promises = []
-  var index = 0
+  let promises = []
+  let index = 0
 
   resultArray.forEach((element) => {
-    var newContext = {
+    let newContext = {
       global: context.global,
       parent: context,
       index: index++,
       count: resultArray.length,
       ...element,
     }
-    var block = options.fn(newContext)
+    let block = options.fn(newContext)
     promises.push(block)
   })
 
@@ -101,7 +101,7 @@ async function collectBlocks(resultArray, options, context) {
   }
 
   return Promise.all(promises).then((blocks) => {
-    var ret = ''
+    let ret = ''
     blocks.forEach((b) => {
       ret = ret.concat(b)
     })
@@ -275,7 +275,7 @@ async function ensureZclCommandSdkExtensions(context, templatePackageId) {
  * @param {*} promise
  */
 function templatePromise(global, promise) {
-  var syncPromise = makeSynchronizablePromise(promise)
+  let syncPromise = makeSynchronizablePromise(promise)
   global.promises.push(syncPromise)
   return syncPromise
 }
@@ -287,8 +287,8 @@ function templatePromise(global, promise) {
  * @returns a function that wraps the original function, with deprecation message.
  */
 function deprecatedHelper(fn, explanation) {
-  var msg
-  var to = null
+  let msg
+  let to = null
   if (explanation == null) {
     msg = `Deprecated helper resolved into ${fn.name}. Please use the new helper directly.`
   } else if (_.isString(explanation)) {
@@ -306,7 +306,7 @@ function deprecatedHelper(fn, explanation) {
   } else {
     msg = `Deprecated helper resolved into ${fn.name}. Please use the new helper directly.`
   }
-  var f = function () {
+  let f = function () {
     if (
       this.global != undefined &&
       this.global.deprecationWarnings != undefined &&

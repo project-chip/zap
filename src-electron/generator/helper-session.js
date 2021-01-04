@@ -34,7 +34,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} options
  */
 function user_endpoint_types(options) {
-  var promise = queryImpexp
+  let promise = queryImpexp
     .exportEndpointTypes(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       templateUtil.collectBlocks(endpointTypes, options, this)
@@ -48,7 +48,7 @@ function user_endpoint_types(options) {
  * @param {*} options
  */
 function user_clusters(options) {
-  var promise = queryImpexp
+  let promise = queryImpexp
     .exportClustersFromEndpointType(this.global.db, this.endpointTypeId)
     .then((endpointClusters) =>
       templateUtil.collectBlocks(endpointClusters, options, this)
@@ -64,7 +64,7 @@ function user_clusters(options) {
  * @returns Promise of the resolved blocks iterating over cluster attributes.
  */
 function user_cluster_attributes(options) {
-  var promise = queryImpexp
+  let promise = queryImpexp
     .exportAttributesFromEndpointTypeCluster(
       this.global.db,
       this.parent.endpointTypeId,
@@ -84,7 +84,7 @@ function user_cluster_attributes(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function user_cluster_commands(options) {
-  var promise = queryImpexp
+  let promise = queryImpexp
     .exportCommandsFromEndpointTypeCluster(
       this.global.db,
       this.parent.endpointTypeId,
@@ -97,7 +97,7 @@ function user_cluster_commands(options) {
 }
 
 function user_endpoint_type_count() {
-  var promise = queryConfig.getEndpointTypeCount(
+  let promise = queryConfig.getEndpointTypeCount(
     this.global.db,
     this.global.sessionId
   )
@@ -112,7 +112,7 @@ function user_endpoint_type_count() {
  * @return Promise of the number of endpoint
  */
 function user_endpoint_count_by_cluster(clusterTypeId, side) {
-  var promise = queryConfig.getEndpointTypeCountByCluster(
+  let promise = queryConfig.getEndpointTypeCountByCluster(
     this.global.db,
     this.global.sessionId,
     clusterTypeId,
@@ -128,7 +128,7 @@ function user_endpoint_count_by_cluster(clusterTypeId, side) {
  * @return Promise of the resolved blocks iterating over cluster commands.
  */
 function user_all_attributes(options) {
-  var promise = queryConfig
+  let promise = queryConfig
     .getAllSessionAttributes(this.global.db, this.global.sessionId)
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
   return templateUtil.templatePromise(this.global, promise)
@@ -142,7 +142,7 @@ function user_all_attributes(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function all_user_cluster_commands(options) {
-  var promise = queryImpexp
+  let promise = queryImpexp
     .exportendPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
@@ -262,7 +262,7 @@ function user_cluster_has_enabled_command(name, side) {
       )
     )
     .then((endpointCommands) => {
-      var cmdCount = 0
+      let cmdCount = 0
       endpointCommands.forEach((command) => {
         if (helperZcl.isStrEqual(name, command.clusterName)) {
           if (
@@ -294,8 +294,8 @@ function user_cluster_has_enabled_command(name, side) {
  * @returns Promise of value of the session key or undefined.
  */
 async function user_session_key(options) {
-  var key = options.hash.key
-  var value = await queryConfig.getSessionKeyValue(
+  let key = options.hash.key
+  let value = await queryConfig.getSessionKeyValue(
     this.global.db,
     this.global.sessionId,
     key
@@ -306,7 +306,7 @@ async function user_session_key(options) {
 }
 
 async function user_manufacturer_code(options) {
-  var value = await queryConfig.getSessionKeyValue(
+  let value = await queryConfig.getSessionKeyValue(
     this.global.db,
     this.global.sessionId,
     dbEnum.sessionOption.manufacturerCodes
@@ -317,7 +317,7 @@ async function user_manufacturer_code(options) {
 }
 
 async function user_default_response_policy(options) {
-  var value = await queryConfig.getSessionKeyValue(
+  let value = await queryConfig.getSessionKeyValue(
     this.global.db,
     this.global.sessionId,
     dbEnum.sessionOption.defaultResponsePolicy

@@ -62,11 +62,11 @@ function asHex(rawValue, padding, nullValue) {
     else rawValue = 0
   }
   let value = rawValue.toString()
-  var ret = value.trim()
+  let ret = value.trim()
   if (ret.startsWith('0x') || ret.startsWith('0X')) {
     return `0x${value.slice(2).toUpperCase()}`
   } else {
-    var val = parseInt(value)
+    let val = parseInt(value)
     return `0x${val.toString(16).padStart(padding, '0').toUpperCase()}`
   }
 }
@@ -142,15 +142,15 @@ function asSymbol(value) {
 
 // Formats the default value into an attribute of a given length
 function formatValue(value, length, type) {
-  var out = ''
+  let out = ''
   if (length < 0) {
     out = out.concat(value.length)
-    for (var i = 0; i < value.length; i++) {
-      var ch = value.charAt(i)
+    for (let i = 0; i < value.length; i++) {
+      let ch = value.charAt(i)
       out = out.concat(",'").concat(ch).concat("'")
     }
   } else {
-    var val = 0
+    let val = 0
     if (value.startsWith('0x') || value.startsWith('0X')) {
       val = parseInt(value.slice(2), 16)
     } else {
@@ -253,7 +253,7 @@ function asSpacedLowercase(str) {
  * @returns String in uppercase with underscores
  */
 function asUnderscoreUppercase(str) {
-  var label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+  let label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return '_' + y
   })
   label = cleanseLabel(label)

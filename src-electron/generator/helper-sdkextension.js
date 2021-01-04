@@ -34,7 +34,7 @@ const templateUtil = require('./template-util.js')
  * @returns Value of the cluster extension property.
  */
 function cluster_extension(options) {
-  var prop = options.hash.property
+  let prop = options.hash.property
   if (prop == null) {
     return ''
   } else {
@@ -44,11 +44,11 @@ function cluster_extension(options) {
         templateUtil.ensureZclClusterSdkExtensions(this, packageId)
       )
       .then((extensions) => {
-        var f = extensions.filter((x) => x.property == prop)
+        let f = extensions.filter((x) => x.property == prop)
         if (f.length == 0) {
           return ''
         } else {
-          var val = null
+          let val = null
           f[0].defaults.forEach((d) => {
             if (d.entityCode == this.code) val = d.value
           })
@@ -69,7 +69,7 @@ function cluster_extension(options) {
  * @returns Value of the cluster extension property.
  */
 function device_type_extension(options) {
-  var prop = options.hash.property
+  let prop = options.hash.property
   if (prop == null) {
     return ''
   } else {
@@ -79,11 +79,11 @@ function device_type_extension(options) {
         templateUtil.ensureZclDeviceTypeSdkExtensions(this, packageId)
       )
       .then((extensions) => {
-        var f = extensions.filter((x) => x.property == prop)
+        let f = extensions.filter((x) => x.property == prop)
         if (f.length == 0) {
           return ''
         } else {
-          var val = null
+          let val = null
           f[0].defaults.forEach((d) => {
             if (d.entityCode == this.code) val = d.value
             if (d.entityCode == this.label) val = d.value
@@ -115,11 +115,11 @@ function subentityExtension(context, prop, entityType) {
         }
       })
       .then((extensions) => {
-        var f = extensions.filter((x) => x.property == prop)
+        let f = extensions.filter((x) => x.property == prop)
         if (f.length == 0) {
           return ''
         } else {
-          var val = null
+          let val = null
           f[0].defaults.forEach((d) => {
             if (
               d.entityCode == context.code &&
@@ -145,7 +145,7 @@ function subentityExtension(context, prop, entityType) {
  * @returns Value of the command extension property.
  */
 function command_extension(options) {
-  var prop = options.hash.property
+  let prop = options.hash.property
   return subentityExtension(this, prop, dbEnum.packageExtensionEntity.command)
 }
 
@@ -158,7 +158,7 @@ function command_extension(options) {
  * @returns Value of the attribute extension property.
  */
 function attribute_extension(options) {
-  var prop = options.hash.property
+  let prop = options.hash.property
   return subentityExtension(this, prop, dbEnum.packageExtensionEntity.attribute)
 }
 
