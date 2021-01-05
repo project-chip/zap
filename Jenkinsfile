@@ -63,15 +63,15 @@ pipeline
                         }
                     }
                 }
-            }
-        }
-        stage('Generate HTML documentation')
-        {
-            steps
-            {
-                script
+                stage('Generate HTML documentation')
                 {
-                    sh 'npm run doc'
+                    steps
+                    {
+                        script
+                        {
+                            sh 'npm run doc'
+                        }
+                    }
                 }
             }
         }
@@ -85,6 +85,16 @@ pipeline
                 }
             }
         }
+        stage('ESLint execution')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'npm run lint'
+                }
+            }
+        }
         stage('Unit test execution')
         {
             steps
@@ -93,16 +103,6 @@ pipeline
                 {
                     // Temporarily comment this out: sh 'rm -rf ~/.zap'
                     sh 'npm run test'
-                }
-            }
-        }
-        stage('ESLint execution')
-        {
-            steps
-            {
-                script
-                {
-                    sh 'npm run lint'
                 }
             }
         }
