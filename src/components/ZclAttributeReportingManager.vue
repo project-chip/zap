@@ -165,7 +165,7 @@ export default {
   methods: {
     handleLocalSelection(list, attributeDataId, clusterId) {
       let hash = this.hashAttributeIdClusterId(attributeDataId, clusterId)
-      var indexOfValue = list.indexOf(hash)
+      let indexOfValue = list.indexOf(hash)
       if (indexOfValue === -1) {
         list.push(hash)
       } else {
@@ -179,10 +179,10 @@ export default {
     toggleAttributeSelection(list, listType, attributeData, clusterId, enable) {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base ZCL attribute and cluster data.
-      var indexOfValue = list.indexOf(
+      let indexOfValue = list.indexOf(
         this.hashAttributeIdClusterId(attributeData.id, clusterId)
       )
-      var addedValue
+      let addedValue
       if (indexOfValue === -1) {
         addedValue = true
       } else {

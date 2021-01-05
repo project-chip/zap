@@ -22,41 +22,41 @@ const helperC = require('../src-electron/generator/helper-c.js')
 const templateEngine = require('../src-electron/generator/template-engine.js')
 
 test('handlebars: simple test', () => {
-  var template = handlebars.compile('{{a}} {{b}} {{c}}!')
-  var output = template({ a: 'Very', b: 'simple', c: 'test' })
+  let template = handlebars.compile('{{a}} {{b}} {{c}}!')
+  let output = template({ a: 'Very', b: 'simple', c: 'test' })
   expect(output).toEqual('Very simple test!')
 })
 
 test('handlebars: comment test', () => {
-  var template = handlebars.compile(
+  let template = handlebars.compile(
     '{{!-- some random comment --}}{{a}} {{b}} {{c}}!'
   )
-  var output = template({ a: 'Very', b: 'simple', c: 'test' })
+  let output = template({ a: 'Very', b: 'simple', c: 'test' })
   expect(output).toEqual('Very simple test!')
 })
 
 test('handlebars: object test', () => {
-  var template = handlebars.compile('{{in.a}} {{in.b}} {{in.c}}!')
-  var output = template({ in: { a: 'Very', b: 'simple', c: 'test' } })
+  let template = handlebars.compile('{{in.a}} {{in.b}} {{in.c}}!')
+  let output = template({ in: { a: 'Very', b: 'simple', c: 'test' } })
   expect(output).toEqual('Very simple test!')
 })
 
 test('handlebars: with test', () => {
-  var template = handlebars.compile('{{#with in}}{{a}} {{b}} {{c}}!{{/with}}')
-  var output = template({ in: { a: 'Very', b: 'simple', c: 'test' } })
+  let template = handlebars.compile('{{#with in}}{{a}} {{b}} {{c}}!{{/with}}')
+  let output = template({ in: { a: 'Very', b: 'simple', c: 'test' } })
   expect(output).toEqual('Very simple test!')
 })
 
 test('handlebars: each test', () => {
-  var template = handlebars.compile('{{#each in}}{{this}} {{/each}}!')
-  var output = template({ in: ['Very', 'simple', 'test'] })
+  let template = handlebars.compile('{{#each in}}{{this}} {{/each}}!')
+  let output = template({ in: ['Very', 'simple', 'test'] })
   expect(output).toEqual('Very simple test !')
 })
 
 test('handlebars: partials', () => {
   handlebars.registerPartial('very_simple_test', 'Very simple test!')
-  var template = handlebars.compile('{{> very_simple_test}}')
-  var output = template()
+  let template = handlebars.compile('{{> very_simple_test}}')
+  let output = template()
   expect(output).toEqual('Very simple test!')
 })
 
@@ -65,10 +65,10 @@ test('handlebars: helper', () => {
     'supreme_leader',
     (name) => `His most evil excelency, Mr. ${name}`
   )
-  var template = handlebars.compile(
+  let template = handlebars.compile(
     '{{#each list_of_lunatics}}{{supreme_leader this}} {{/each}}'
   )
-  var output = template({
+  let output = template({
     list_of_lunatics: ['Stalin', 'Trotsky', 'Genghis Khan'],
   })
   expect(output).toEqual(
@@ -77,21 +77,21 @@ test('handlebars: helper', () => {
 })
 
 test('handlebars: if helper', () => {
-  var template = handlebars.compile(
+  let template = handlebars.compile(
     '{{#if flag}}Yes flag!{{else}}No flag!{{/if}}'
   )
-  var output = template({ flag: true })
+  let output = template({ flag: true })
   expect(output).toEqual('Yes flag!')
   output = template({ flag: false })
   expect(output).toEqual('No flag!')
 })
 
 test('handlebars: using functions inside the passed input', () => {
-  var template = handlebars.compile('{{fn}}')
-  var output = template({
+  let template = handlebars.compile('{{fn}}')
+  let output = template({
     fn: () => {
-      var text = 'example text'
-      var uc = text.toUpperCase()
+      let text = 'example text'
+      let uc = text.toUpperCase()
       return `Got ${text}, returned ${uc}`
     },
   })
@@ -99,11 +99,11 @@ test('handlebars: using functions inside the passed input', () => {
 })
 
 test('handlebars: using helper to populate the context', () => {
-  var template = handlebars.compile('{{#each custom_list}}{{value}}{{/each}}')
-  var output = template({
+  let template = handlebars.compile('{{#each custom_list}}{{value}}{{/each}}')
+  let output = template({
     custom_list: () => {
-      var list = []
-      for (var i = 0; i < 10; i++) {
+      let list = []
+      for (let i = 0; i < 10; i++) {
         list.push({ value: i })
       }
       return list
@@ -117,24 +117,24 @@ test('handlebars: helper this processing', () => {
     this.data++
     return this.data
   })
-  var template = handlebars.compile('{{inc}}{{inc}}{{inc}}{{inc}}{{inc}}')
-  var output = template({ data: 0 })
+  let template = handlebars.compile('{{inc}}{{inc}}{{inc}}{{inc}}{{inc}}')
+  let output = template({ data: 0 })
   expect(output).toEqual('12345')
 })
 
 test('handlebars: iterator', () => {
   handlebars.registerHelper('it', function (options) {
-    var ret = this.prefix
-    var context = this
-    for (var x = 0; x < 10; x++) {
+    let ret = this.prefix
+    let context = this
+    for (let x = 0; x < 10; x++) {
       context.thing = x
       ret = ret + options.fn(context)
     }
     ret = ret + this.postfix
     return ret
   })
-  var template = handlebars.compile('{{#it}}{{thing}}{{/it}}')
-  var output = template({ prefix: 'PRE:', postfix: ':ERP' })
+  let template = handlebars.compile('{{#it}}{{thing}}{{/it}}')
+  let output = template({ prefix: 'PRE:', postfix: ':ERP' })
   expect(output).toEqual('PRE:0123456789:ERP')
 })
 

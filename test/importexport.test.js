@@ -31,10 +31,10 @@ const generationEngine = require('../src-electron/generator/generation-engine.js
 const querySession = require('../src-electron/db/query-session.js')
 const testUtil = require('./test-util.js')
 
-var db
-var testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
-var testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
-var testFileIsc = path.join(__dirname, 'resource/test-light.isc')
+let db
+let testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
+let testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
+let testFileIsc = path.join(__dirname, 'resource/test-light.isc')
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
@@ -42,7 +42,7 @@ let bypassGlobalAttributes = false
 
 beforeAll(() => {
   env.setDevelopmentEnv()
-  var file = env.sqliteTestFile('importexport')
+  let file = env.sqliteTestFile('importexport')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
@@ -63,7 +63,7 @@ test(
 )
 
 test('Basic gen template parsing and generation', async () => {
-  var context = await generationEngine.loadTemplates(
+  let context = await generationEngine.loadTemplates(
     db,
     testUtil.testZigbeeGenerationTemplates
   )
@@ -72,23 +72,23 @@ test('Basic gen template parsing and generation', async () => {
 })
 
 test('Test file 1 existence', async () => {
-  var state = await importJs.readDataFromFile(testFile1)
+  let state = await importJs.readDataFromFile(testFile1)
   expect(state).not.toBe(null)
   expect(state.creator).toBe('zap')
   expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
 })
 
 test('Test file 2 existence', async () => {
-  var state = await importJs.readDataFromFile(testFile1)
+  let state = await importJs.readDataFromFile(testFile1)
   expect(state).not.toBe(null)
   expect(state.creator).toBe('zap')
   expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
 })
 
 test('Test file 1 import', async () => {
-  var sid = await importJs.importDataFromFile(db, testFile1)
+  let sid = await importJs.importDataFromFile(db, testFile1)
 
-  var x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE')
+  let x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE')
   expect(x).toBe(1)
   x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
   expect(x).toBe(11)
@@ -97,9 +97,9 @@ test('Test file 1 import', async () => {
   x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
   expect(x).toBe(21)
 
-  var state = await exportJs.createStateFromDatabase(db, sid)
-  var commandCount = 0
-  var attributeCount = 0
+  let state = await exportJs.createStateFromDatabase(db, sid)
+  let commandCount = 0
+  let attributeCount = 0
   expect(state.featureLevel).toBe(env.zapVersion().featureLevel)
   expect(state.endpointTypes.length).toBe(1)
   expect(state.endpointTypes[0].clusters.length).toBe(11)
@@ -114,34 +114,34 @@ test('Test file 1 import', async () => {
   await querySession.deleteSession(db, sid)
 })
 
-test('Test file 2 import', () => {
-  var sid
-  return querySession
-    .createBlankSession(db)
-    .then((sessionId) => importJs.importDataFromFile(db, testFile2, sessionId))
-    .then((sessionId) => (sid = sessionId))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE'))
-    .then((x) => expect(x).toBe(1))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER'))
-    .then((x) => expect(x).toBe(19))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND'))
-    .then((x) => expect(x).toBe(24))
-    .then(() => queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE'))
-    .then((x) => expect(x).toBe(28))
-    .then(() => exportJs.createStateFromDatabase(db, sid))
-    .then((state) => {
-      var commandCount = 0
-      var attributeCount = 0
-      expect(state.endpointTypes.length).toBe(1)
-      expect(state.endpointTypes[0].clusters.length).toBe(19)
-      state.endpointTypes[0].clusters.forEach((c) => {
-        commandCount += c.commands.length
-        attributeCount += c.attributes.length
-      })
-      expect(commandCount).toBe(24)
-      // This flag exists for this test due to planned global attribute rework.
-      expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
-    })
+test('Test file 2 import', async () => {
+  let sid = await querySession.createBlankSession(db)
+  await importJs.importDataFromFile(db, testFile2, sid)
+
+  let x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE')
+  expect(x).toBe(1)
+
+  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
+  expect(x).toBe(19)
+
+  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
+  expect(x).toBe(24)
+
+  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
+  expect(x).toBe(28)
+
+  let state = await exportJs.createStateFromDatabase(db, sid)
+  let commandCount = 0
+  let attributeCount = 0
+  expect(state.endpointTypes.length).toBe(1)
+  expect(state.endpointTypes[0].clusters.length).toBe(19)
+  state.endpointTypes[0].clusters.forEach((c) => {
+    commandCount += c.commands.length
+    attributeCount += c.attributes.length
+  })
+  expect(commandCount).toBe(24)
+  // This flag exists for this test due to planned global attribute rework.
+  expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
 })
 
 test('Test ISC import', async () => {
@@ -154,7 +154,7 @@ test('Test ISC import', async () => {
 })
 
 test('Read ISD data from file', async () => {
-  var state = await importJs.readDataFromFile(testFileIsc)
+  let state = await importJs.readDataFromFile(testFileIsc)
   expect(Object.keys(state.endpointTypes).length).toBe(4)
   expect(Object.keys(state.endpoint).length).toBe(3)
   expect(state.endpoint[2].endpoint).toBe(242)

@@ -7,6 +7,7 @@ module.exports = {
   },
 
   env: {
+    node: true,
     browser: true,
   },
 
@@ -16,6 +17,7 @@ module.exports = {
     'plugin:vue/essential',
     'prettier',
     'prettier/vue',
+    'eslint:recommended',
   ],
 
   // required to lint *.vue files
@@ -37,6 +39,7 @@ module.exports = {
     // allow paren-less arrow functions
     'arrow-parens': 'off',
     'one-var': 'off',
+    'no-var': 'error',
 
     'import/first': 'off',
     'import/named': 'error',
@@ -50,5 +53,9 @@ module.exports = {
 
     // allow debugger during development only
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+
+    // random rules added
+    'no-undef': 'off',
+    'no-unused-vars': 'off',
   },
 }

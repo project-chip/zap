@@ -28,6 +28,7 @@ pipeline
                     sh 'npm ci'
                     sh 'npm list || true'
                     sh 'npm rebuild canvas --update-binary || true'
+                    sh 'npm rebuild libxmljs --update-binary || true'
                 }
             }
         }
@@ -62,15 +63,15 @@ pipeline
                         }
                     }
                 }
-            }
-        }
-        stage('Generate HTML documentation')
-        {
-            steps
-            {
-                script
+                stage('Generate HTML documentation')
                 {
-                    sh 'npm run doc'
+                    steps
+                    {
+                        script
+                        {
+                            sh 'npm run doc'
+                        }
+                    }
                 }
             }
         }
@@ -81,6 +82,16 @@ pipeline
                 script
                 {
                     sh 'npm run build-spa'
+                }
+            }
+        }
+        stage('ESLint execution')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'npm run lint'
                 }
             }
         }

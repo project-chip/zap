@@ -37,10 +37,10 @@ const _ = require('lodash')
 function collectDataFromJsonFile(ctx) {
   env.logInfo(`Collecting ZCL files from JSON file: ${ctx.metadataFile}`)
   return new Promise((resolve, reject) => {
-    var obj = JSON.parse(ctx.data)
-    var f
+    let obj = JSON.parse(ctx.data)
+    let f
 
-    var fileLocations
+    let fileLocations
     if (Array.isArray(obj.xmlRoot)) {
       fileLocations = obj.xmlRoot.map((p) =>
         path.join(path.dirname(ctx.metadataFile), p)
@@ -48,7 +48,7 @@ function collectDataFromJsonFile(ctx) {
     } else {
       fileLocations = [path.join(path.dirname(ctx.metadataFile), obj.xmlRoot)]
     }
-    var zclFiles = []
+    let zclFiles = []
     obj.xmlFile.forEach((xmlF) => {
       f = util.locateRelativeFilePath(fileLocations, xmlF)
       if (f != null) zclFiles.push(f)
@@ -101,11 +101,11 @@ function collectDataFromPropertiesFile(ctx) {
         env.logError(`Could not read file: ${ctx.metadataFile}`)
         reject(err)
       } else {
-        var fileLocations = zclProps.xmlRoot
+        let fileLocations = zclProps.xmlRoot
           .split(',')
           .map((p) => path.join(path.dirname(ctx.metadataFile), p))
-        var zclFiles = []
-        var f
+        let zclFiles = []
+        let f
 
         // Iterate over all XML files in the properties file, and check
         // if they exist in one or the other directory listed in xmlRoot
@@ -156,8 +156,8 @@ function collectDataFromPropertiesFile(ctx) {
  * @returns bool or corresponding enum
  */
 function maskToType(mask) {
-  var n = parseInt(mask)
-  var bitCount = bin.bitCount(n)
+  let n = parseInt(mask)
+  let bitCount = bin.bitCount(n)
   if (bitCount <= 1) {
     return 'bool'
   } else if (bitCount <= 8) {
@@ -176,7 +176,7 @@ function maskToType(mask) {
  * @returns Object for insertion into the database
  */
 function prepareBitmap(bm) {
-  var ret = { name: bm.$.name, type: bm.$.type }
+  let ret = { name: bm.$.name, type: bm.$.type }
   if ('field' in bm) {
     ret.fields = []
     bm.field.forEach((field, index) => {
@@ -233,7 +233,7 @@ function prepareAtomic(a) {
  * @returns Promise of inserted bitmaps
  */
 function processAtomics(db, filePath, packageId, data) {
-  var types = data[0].type
+  let types = data[0].type
   env.logInfo(`${filePath}, ${packageId}: ${types.length} atomic types.`)
   return queryZcl.insertAtomics(
     db,
@@ -250,11 +250,11 @@ function processAtomics(db, filePath, packageId, data) {
  */
 function prepareClusterGlobalAttribute(cluster) {
   if ('globalAttribute' in cluster) {
-    var ret = {}
+    let ret = {}
 
     ret.code = parseInt(cluster.code[0], 16)
     if ('$' in cluster) {
-      var mfgCode = cluster['$'].manufacturerCode
+      let mfgCode = cluster['$'].manufacturerCode
       if (mfgCode != null) ret.manufacturerCode = mfgCode
     }
 
@@ -293,7 +293,7 @@ function prepareClusterGlobalAttribute(cluster) {
  * @returns Object containing all data from XML.
  */
 function prepareCluster(cluster, isExtension = false) {
-  var ret = {
+  let ret = {
     isExtension: isExtension,
   }
 
@@ -319,7 +319,7 @@ function prepareCluster(cluster, isExtension = false) {
   if ('command' in cluster) {
     ret.commands = []
     cluster.command.forEach((command) => {
-      var cmd = {
+      let cmd = {
         code: parseInt(command.$.code),
         manufacturerCode: command.$.manufacturerCode,
         name: command.$.name,
@@ -394,9 +394,9 @@ function processClusters(db, filePath, packageId, data) {
  * @returns Promise of inserted data.
  */
 function processClusterGlobalAttributes(db, filePath, packageId, data) {
-  var objs = []
+  let objs = []
   data.forEach((x) => {
-    var p = prepareClusterGlobalAttribute(x)
+    let p = prepareClusterGlobalAttribute(x)
     if (p != null) objs.push(p)
   })
   if (objs.length > 0) {
@@ -479,7 +479,7 @@ function processDomains(db, filePath, packageId, data) {
  * @returns Object ready to insert into the database.
  */
 function prepareStruct(struct) {
-  var ret = { name: struct.$.name }
+  let ret = { name: struct.$.name }
   if ('item' in struct) {
     ret.items = []
     struct.item.forEach((item, index) => {
@@ -518,7 +518,7 @@ function processStructs(db, filePath, packageId, data) {
  * @returns An object ready to go to the database.
  */
 function prepareEnum(en) {
-  var ret = { name: en.$.name, type: en.$.type }
+  let ret = { name: en.$.name, type: en.$.type }
   if ('item' in en) {
     ret.items = []
     en.item.forEach((item, index) => {
@@ -557,7 +557,7 @@ function processEnums(db, filePath, packageId, data) {
  * @returns an object containing the prepared device types.
  */
 function prepareDeviceType(deviceType) {
-  var ret = {
+  let ret = {
     code: deviceType.deviceId[0]['_'],
     profileId: deviceType.profileId[0]['_'],
     domain: deviceType.domain[0],
@@ -569,8 +569,8 @@ function prepareDeviceType(deviceType) {
     deviceType.clusters.forEach((cluster) => {
       if ('include' in cluster) {
         cluster.include.forEach((include) => {
-          var attributes = []
-          var commands = []
+          let attributes = []
+          let commands = []
           if ('requireAttribute' in include) {
             attributes = include.requireAttribute
           }
@@ -621,14 +621,14 @@ function processDeviceTypes(db, filePath, packageId, data) {
  * @returns promise that resolves when all the subtags are parsed.
  */
 function processParsedZclData(db, argument) {
-  var filePath = argument.filePath
-  var data = argument.result
-  var packageId = argument.packageId
+  let filePath = argument.filePath
+  let data = argument.result
+  let packageId = argument.packageId
   if (!('result' in argument)) {
     return Promise.resolve([])
   } else {
-    var immediatePromises = []
-    var laterPromises = []
+    let immediatePromises = []
+    let laterPromises = []
     if ('configurator' in data) {
       if ('atomic' in data.configurator) {
         immediatePromises.push(
@@ -815,7 +815,7 @@ function parseZclSchema(db, ctx) {
  */
 function parseOptions(db, ctx) {
   if (!ctx.options) return Promise.resolve(ctx)
-  var promises = []
+  let promises = []
   promises.push(parseTextOptions(db, ctx.packageId, ctx.options.text))
   promises.push(parseBoolOptions(db, ctx.packageId, ctx.options.bool))
   return Promise.all(promises).then(() => ctx)
@@ -832,8 +832,8 @@ function parseOptions(db, ctx) {
 function parseTextOptions(db, pkgRef, textOptions) {
   if (!textOptions) return Promise.resolve()
   let promises = Object.keys(textOptions).map((optionKey) => {
-    var val = textOptions[optionKey]
-    var optionValues
+    let val = textOptions[optionKey]
+    let optionValues
     if (Array.isArray(val)) {
       optionValues = val
     } else {
@@ -869,7 +869,7 @@ function parseBoolOptions(db, pkgRef, booleanCategories) {
       .split(',')
       .map((optionValue) => optionValue.trim())
   }
-  var promises = []
+  let promises = []
   options.forEach((optionCategory) => {
     promises.push(
       queryPackage.insertOptionsKeyValues(db, pkgRef, optionCategory, [
@@ -890,7 +890,7 @@ function parseBoolOptions(db, pkgRef, booleanCategories) {
  */
 function parseDefaults(db, ctx) {
   if (!ctx.defaults) return Promise.resolve(ctx)
-  var promises = []
+  let promises = []
   promises.push(parseTextDefaults(db, ctx.packageId, ctx.defaults.text))
   promises.push(parseBoolDefaults(db, ctx.packageId, ctx.defaults.bool))
   return Promise.all(promises).then(() => ctx)
@@ -901,7 +901,7 @@ function parseTextDefaults(db, pkgRef, textDefaults) {
 
   let promises = []
   Object.keys(textDefaults).forEach((optionCategory) => {
-    var txt = textDefaults[optionCategory]
+    let txt = textDefaults[optionCategory]
     promises.push(
       queryPackage
         .selectSpecificOptionValue(db, pkgRef, optionCategory, txt)
@@ -909,7 +909,7 @@ function parseTextDefaults(db, pkgRef, textDefaults) {
           if (specificValue != null) return specificValue
           if (_.isNumber(txt)) {
             // Try to convert to hex.
-            var hex = '0x' + txt.toString(16)
+            let hex = '0x' + txt.toString(16)
             return queryPackage.selectSpecificOptionValue(
               db,
               pkgRef,
@@ -971,7 +971,7 @@ function parseBoolDefaults(db, pkgRef, booleanCategories) {
  * @returns Promise of a loaded file.
  */
 function loadIndividualSilabsFile(db, filePath, boundValidator) {
-  var pkgId
+  let pkgId
   return fsp
     .readFile(filePath)
     .then((data) => util.calculateCrc({ filePath: filePath, data: data }))
@@ -989,7 +989,7 @@ function loadIndividualSilabsFile(db, filePath, boundValidator) {
     })
     .then((result) => zclLoader.parseZclFile(result, boundValidator))
     .then((result) => {
-      if (result.validation && result.validator.isValid == false) {
+      if (result.validation && result.validation.isValid == false) {
         throw new Error('Validation Failed')
       }
       return result
@@ -1000,10 +1000,10 @@ function loadIndividualSilabsFile(db, filePath, boundValidator) {
     )
     .then(() => zclLoader.processZclPostLoading(db))
     .then(() => {
-      return { packageId: pkgId }
+      return { succeeded: true, packageId: pkgId }
     })
     .catch((err) => {
-      return { err: err }
+      return { succeeded: false, err: err }
     })
 }
 

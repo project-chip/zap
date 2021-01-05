@@ -69,7 +69,7 @@ async function insertKeyValue(db, sessionId, key, value) {
  * @returns A promise that resolves with a value or with 'undefined' if none is found.
  */
 async function getSessionKeyValue(db, sessionId, key) {
-  var row = await dbApi.dbGet(
+  let row = await dbApi.dbGet(
     db,
     'SELECT VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? AND KEY = ?',
     [sessionId, key]
@@ -87,7 +87,7 @@ async function getSessionKeyValue(db, sessionId, key) {
  * @returns Promise to retrieve all session key values.
  */
 async function getAllSessionKeyValues(db, sessionId) {
-  var rows = await dbApi.dbAll(
+  let rows = await dbApi.dbAll(
     db,
     'SELECT KEY, VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? ORDER BY KEY',
     [sessionId]
@@ -173,7 +173,7 @@ async function getClusterState(db, endpointTypeId, clusterRef, side) {
  * @param {*} side
  */
 async function insertClusterDefaults(db, endpointTypeId, cluster) {
-  var promises = []
+  let promises = []
   promises.push(resolveDefaultAttributes(db, endpointTypeId, [cluster]))
   promises.push(resolveNonOptionalCommands(db, endpointTypeId, [cluster]))
   return Promise.all(promises)
@@ -198,14 +198,14 @@ async function insertOrUpdateAttributeState(
   attributeId,
   paramValuePairArray
 ) {
-  var cluster = await getOrInsertDefaultEndpointTypeCluster(
+  let cluster = await getOrInsertDefaultEndpointTypeCluster(
     db,
     endpointTypeId,
     clusterRef,
     side
   )
 
-  var staticAttribute = await queryZcl.selectAttributeByAttributeIdAndClusterRef(
+  let staticAttribute = await queryZcl.selectAttributeByAttributeIdAndClusterRef(
     db,
     attributeId,
     clusterRef
@@ -320,7 +320,7 @@ async function insertOrUpdateCommandState(
   value,
   isIncoming
 ) {
-  var cluster = await getOrInsertDefaultEndpointTypeCluster(
+  let cluster = await getOrInsertDefaultEndpointTypeCluster(
     db,
     endpointTypeId,
     clusterRef,
@@ -367,7 +367,7 @@ WHERE ( ( SELECT COUNT(1)
  * @returns Promise that resolves with cluster states.
  */
 async function getAllEndpointTypeClusterState(db, endpointTypeId) {
-  var rows = await dbApi.dbAll(
+  let rows = await dbApi.dbAll(
     db,
     `
 SELECT
@@ -386,8 +386,8 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?`,
   )
   if (rows == null) return []
 
-  var result = rows.map((row) => {
-    var obj = {
+  let result = rows.map((row) => {
+    let obj = {
       endpointTypeClusterId: row.ENDPOINT_TYPE_CLUSTER_ID,
       clusterName: row.NAME,
       clusterCode: row.CODE,
@@ -500,7 +500,7 @@ async function getCountOfEndpointsWithGivenEndpointIdentifier(
  * @returns Promise resolving into all endpoints.
  */
 async function getAllEndpoints(db, sessionId) {
-  var rows = await dbApi.dbAll(
+  let rows = await dbApi.dbAll(
     db,
     `
 SELECT
@@ -600,7 +600,7 @@ async function updateEndpointType(
   updateKey,
   updatedValue
 ) {
-  var param = convertRestKeyToDbColumn(updateKey)
+  let param = convertRestKeyToDbColumn(updateKey)
   return dbApi
     .dbUpdate(
       db,
@@ -634,8 +634,8 @@ async function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
       queryZcl.selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef)
     )
     .then((clusters) => {
-      var promises = []
-      var clusterPromise = resolveDefaultClusters(db, endpointTypeId, clusters)
+      let promises = []
+      let clusterPromise = resolveDefaultClusters(db, endpointTypeId, clusters)
       promises.push(
         resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef)
       )
@@ -644,8 +644,8 @@ async function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
       )
       promises.push(
         clusterPromise.then((data) => {
-          var allClusters = data.flat()
-          var dataPromises = new Promise((resolve, reject) => {
+          let allClusters = data.flat()
+          let dataPromises = new Promise((resolve, reject) => {
             promises.push(
               resolveDefaultAttributes(db, endpointTypeId, allClusters)
             )
@@ -674,8 +674,8 @@ async function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
  * @returns Promise of resolved default clusters.
  */
 async function resolveDefaultClusters(db, endpointTypeId, clusters) {
-  var promises = clusters.map((cluster) => {
-    var clientServerPromise = []
+  let promises = clusters.map((cluster) => {
+    let clientServerPromise = []
     if (cluster.includeClient) {
       clientServerPromise.push(
         new Promise((resolve, reject) =>
@@ -795,7 +795,7 @@ async function resolveDefaultDeviceTypeCommands(
                   .selectCommandById(db, deviceCommand.commandRef)
                   .then((command) => {
                     if (command != null) {
-                      var promises = []
+                      let promises = []
                       if (deviceTypeCluster.includeClient == 1) {
                         promises.push(
                           insertOrUpdateCommandState(
@@ -879,7 +879,7 @@ async function resolveDefaultAttributes(db, endpointTypeId, clusters) {
       return queryZcl
         .selectAttributesByClusterId(db, cluster.clusterRef)
         .then((attributes) => {
-          var promiseArray = []
+          let promiseArray = []
           promiseArray.push(
             resolveNonOptionalAndReportableAttributes(
               db,
@@ -902,7 +902,7 @@ async function resolveNonOptionalAndReportableAttributes(
 ) {
   return Promise.all(
     attributes.map((attribute) => {
-      var settings = []
+      let settings = []
       if (attribute.isReportable)
         settings.push({
           key: restApi.updateKey.attributeReporting,
@@ -959,7 +959,7 @@ async function insertEndpointTypes(db, sessionId, endpoints) {
  * @returns Promise that resolves into a count.
  */
 async function getEndpointTypeCount(db, sessionId) {
-  var x = await dbApi.dbGet(
+  let x = await dbApi.dbGet(
     db,
     'SELECT COUNT(ENDPOINT_TYPE_ID) FROM ENDPOINT_TYPE WHERE SESSION_REF = ?',
     [sessionId]
@@ -981,7 +981,7 @@ async function getEndpointTypeCountByCluster(
   endpointClusterId,
   side
 ) {
-  var x = await dbApi.dbGet(
+  let x = await dbApi.dbGet(
     db,
     `SELECT COUNT(ENDPOINT_TYPE_ID) FROM ENDPOINT_TYPE WHERE SESSION_REF = ? AND ENDPOINT_TYPE_ID IN
       (SELECT ENDPOINT_TYPE_REF FROM ENDPOINT_TYPE_CLUSTER WHERE CLUSTER_REF = ? AND SIDE = ? AND ENABLED = 1) `,
@@ -999,7 +999,7 @@ async function getEndpointTypeCountByCluster(
  * @returns promise that resolves into rows in the database table.
  */
 async function getAllEndpointTypes(db, sessionId) {
-  var rows = await dbApi.dbAll(
+  let rows = await dbApi.dbAll(
     db,
     'SELECT ENDPOINT_TYPE_ID, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE SESSION_REF = ? ORDER BY NAME',
     [sessionId]
@@ -1033,7 +1033,7 @@ async function getEndpointType(db, endpointTypeId) {
  * @returns A promise that resolves into the rows.
  */
 async function getEndpointTypeClusters(db, endpointTypeId) {
-  var rows = await dbApi.dbAll(
+  let rows = await dbApi.dbAll(
     db,
     `
 SELECT

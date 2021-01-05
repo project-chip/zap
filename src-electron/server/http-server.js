@@ -38,7 +38,7 @@ const restApiModules = [
   '../rest/endpoint.js',
   '../rest/user-data.js',
 ]
-var httpServer = null
+let httpServer = null
 
 /**
  * This function is used to register a rest module, which exports
@@ -49,40 +49,40 @@ var httpServer = null
  * @param {*} app
  */
 function registerRestApi(filename, db, app) {
-  var module = require(filename)
+  let module = require(filename)
 
   if (module.post != null)
     module.post.forEach((singlePost) => {
-      var uri = singlePost.uri
-      var callback = singlePost.callback
+      let uri = singlePost.uri
+      let callback = singlePost.callback
       app.post(uri, callback(db))
     })
 
   if (module.put != null)
     module.put.forEach((singlePut) => {
-      var uri = singlePut.uri
-      var callback = singlePut.callback
+      let uri = singlePut.uri
+      let callback = singlePut.callback
       app.put(uri, callback(db))
     })
 
   if (module.patch != null)
     module.patch.forEach((singlePatch) => {
-      var uri = singlePatch.uri
-      var callback = singlePatch.callback
+      let uri = singlePatch.uri
+      let callback = singlePatch.callback
       app.patch(uri, callback(db))
     })
 
   if (module.get != null)
     module.get.forEach((singleGet) => {
-      var uri = singleGet.uri
-      var callback = singleGet.callback
+      let uri = singleGet.uri
+      let callback = singleGet.callback
       app.get(uri, callback(db))
     })
 
   if (module.delete != null)
     module.delete.forEach((singleDelete) => {
-      var uri = singleDelete.uri
-      var callback = singleDelete.callback
+      let uri = singleDelete.uri
+      let callback = singleDelete.callback
       app.delete(uri, callback(db))
     })
 }
@@ -118,7 +118,7 @@ function initHttpServer(db, port, studioPort) {
       if (req.session.zapSessionId) {
         next()
       } else {
-        var knownSessionId = null
+        let knownSessionId = null
         if ('sessionId' in req.query) knownSessionId = req.query.sessionId
         querySession
           .ensureZapSessionId(db, req.session.id, knownSessionId)

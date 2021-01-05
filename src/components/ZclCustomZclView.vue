@@ -106,7 +106,7 @@ export default {
   mixins: [CommonMixin],
   methods: {
     getFileName(path) {
-      let fileName = path.match(/[^\/]+$/)
+      let fileName = path.match(/[^/]+$/)
       return fileName.length > 0 ? fileName[0] : path
     },
     loadNewPackage(packageToLoad) {
@@ -116,7 +116,7 @@ export default {
           if (packageStatus.isValid) {
             this.error = null
             Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
-              var arg = response.data
+              let arg = response.data
               this.$store.dispatch('zap/updateClusters', arg.data)
             })
             this.uploadNewPackage = !this.uploadNewPackage
@@ -130,7 +130,7 @@ export default {
         .dispatch('zap/deleteSessionPackage', packageToDelete.sessionPackage)
         .then((x) => {
           Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
-            var arg = response.data
+            let arg = response.data
             this.$store.dispatch('zap/updateClusters', arg.data)
           })
         })

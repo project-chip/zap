@@ -27,8 +27,8 @@
  * @returns a spaced out string in lowercase
  */
 function toCamelCase(label, firstLower = true) {
-  var str = label.split(/ |_|-|\//)
-  var res = ''
+  let str = label.split(/ |_|-|\//)
+  let res = ''
   for (let i = 0; i < str.length; i++) {
     if (i == 0 && firstLower) {
       res += str[i].charAt(0).toLowerCase()
@@ -45,18 +45,8 @@ function toCamelCase(label, firstLower = true) {
   return res
 }
 
-function toUnderscoreLowercase(str) {
-  var label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
-    return '_' + y
-  })
-  if (label.startsWith('_')) {
-    label = label.substring(1)
-  }
-  return label.toLowerCase()
-}
-
 function toSpacedLowercase(str) {
-  var res = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+  let res = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return ' ' + y
   })
   return res.toLowerCase()
@@ -69,15 +59,15 @@ function toSpacedLowercase(str) {
  * @param {*} label
  */
 function toSnakeCaseAllCaps(label) {
-  var ret = ''
+  let ret = ''
   if (label == null) return ret
   label = label.replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return '_' + y
   })
-  var wasUp = false
-  for (var i = 0; i < label.length; i++) {
-    var ch = label.charAt(i)
-    var upch = ch.toUpperCase()
+  let wasUp = false
+  for (let i = 0; i < label.length; i++) {
+    let ch = label.charAt(i)
+    let upch = ch.toUpperCase()
     if (ch == '_') {
       ret = ret.concat('_')
       wasUp = true
@@ -98,12 +88,16 @@ function toSnakeCaseAllCaps(label) {
   return toCleanMacro(ret)
 }
 
+function toSnakeCase(str) {
+  return toSnakeCaseAllCaps(str).toLowerCase()
+}
+
 /**
  * returns a string after converting ':' and '-' into '_'
  * @param {*} label
  */
 function toCleanSymbol(label) {
-  var l = label.trim()
+  let l = label.trim()
   l = l.replace(' ', '_')
   l = l.replace(' ', '_')
   l = l.replace(/[:/-]/g, '_')
@@ -116,7 +110,7 @@ function toCleanSymbol(label) {
  * @param {*} label
  */
 function toCleanSymbolAsKebabCase(label) {
-  var l = label.trim()
+  let l = label.trim()
   l = l.replace('_', '-')
   l = l.replace(' ', '-')
   l = l.replace(/[:/_]/g, '-')
@@ -132,7 +126,7 @@ function toCleanSymbolAsKebabCase(label) {
  * @returns Label formatted as C macro.
  */
 function toCleanMacro(label) {
-  var l = label.toUpperCase().replace(/ /g, '_')
+  let l = label.toUpperCase().replace(/ /g, '_')
   l = l.replace(/[:/-]/g, '_')
   while (l.includes('__')) {
     l = l.replace('__', '_')
@@ -156,7 +150,7 @@ function isDigit(ch) {
 exports.toCamelCase = toCamelCase
 exports.toCleanSymbol = toCleanSymbol
 exports.toCleanMacro = toCleanMacro
-exports.toUnderscoreLowercase = toUnderscoreLowercase
+exports.toSnakeCase = toSnakeCase
 exports.toSpacedLowercase = toSpacedLowercase
 exports.toSnakeCaseAllCaps = toSnakeCaseAllCaps
 exports.isDigit = isDigit

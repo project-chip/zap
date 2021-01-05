@@ -30,13 +30,13 @@ const httpServer = require('../src-electron/server/http-server.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const testUtil = require('./test-util.js')
 
-var db
+let db
 const { port, baseUrl } = testUtil.testServer(__filename)
 const timeout = 8000
 
 beforeAll(() => {
   env.setDevelopmentEnv()
-  var file = env.sqliteTestFile('generation')
+  let file = env.sqliteTestFile('generation')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
@@ -64,7 +64,7 @@ describe('Session specific tests', () => {
   )
 
   test('And load the templates.', () => {
-    var packageId
+    let packageId
     return generationEngine
       .loadTemplates(db, testUtil.testZigbeeGenerationTemplates)
       .then((context) => {
@@ -139,7 +139,7 @@ describe('Session specific tests', () => {
     return httpServer.initHttpServer(db, port)
   })
 
-  var templateCount = 0
+  let templateCount = 0
   test(
     'test retrieval of all preview template files',
     () => {

@@ -126,7 +126,7 @@ export default {
   computed: {
     zclDeviceTypeOptions: {
       get() {
-        var dt = this.$store.state.zap.zclDeviceTypes
+        let dt = this.$store.state.zap.zclDeviceTypes
         let keys = Object.keys(dt).sort((a, b) => {
           return dt[a].description.localeCompare(dt[b].description)
         })

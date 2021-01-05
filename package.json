@@ -12,7 +12,8 @@
   "main": "src-electron/main-process/electron-main.js",
   "scripts": {
     "lic": "node src-script/license-check.js --production",
-    "lint": "eslint --ext .js,.vue src",
+    "lint": "eslint --ext .js,.vue src src-electron src-shared src-script test",
+    "lintfix": "eslint --fix --ext .js,.vue src src-electron src-shared src-script test",
     "electron-build-dmg": "node src-script/build-dmg.js",
     "test": "node src-script/zap-versionstamp.js && jest --updateSnapshot",
     "test:unit": "jest --updateSnapshot",

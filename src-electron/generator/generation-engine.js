@@ -39,11 +39,11 @@ async function loadGenTemplate(context) {
   await util.calculateCrc(context)
   context.templateData = JSON.parse(context.data)
 
-  var requiredFeatureLevel = 0
+  let requiredFeatureLevel = 0
   if ('requiredFeatureLevel' in context.templateData) {
     requiredFeatureLevel = context.templateData.requiredFeatureLevel
   }
-  var status = util.matchFeatureLevel(requiredFeatureLevel)
+  let status = util.matchFeatureLevel(requiredFeatureLevel)
   if (status.match) {
     return context
   } else {
@@ -58,7 +58,7 @@ async function recordPackageIfNonexistent(
   packageType,
   version
 ) {
-  var pkg = await queryPackage.getPackageByPathAndParent(
+  let pkg = await queryPackage.getPackageByPathAndParent(
     db,
     packagePath,
     parentId
@@ -99,12 +99,12 @@ async function recordTemplatesPackage(context) {
       context.packageId = packageId
     })
     .then(() => {
-      var promises = []
+      let promises = []
       env.logInfo(`Loading ${context.templateData.templates.length} templates.`)
 
       // Add templates queries to the list of promises
       context.templateData.templates.forEach((template) => {
-        var templatePath = path.resolve(
+        let templatePath = path.resolve(
           path.join(path.dirname(context.path), template.path)
         )
         promises.push(
@@ -121,18 +121,18 @@ async function recordTemplatesPackage(context) {
       // Add options to the list of promises
       if (context.templateData.options != null) {
         for (const category in context.templateData.options) {
-          var data = context.templateData.options[category]
+          let data = context.templateData.options[category]
 
           if (typeof data === 'string' || data instanceof String) {
             // Data is a string, so we will treat it as a relative path to the JSON file.
-            var externalPath = path.resolve(
+            let externalPath = path.resolve(
               path.join(path.dirname(context.path), data)
             )
-            var promise = fsPromise
+            let promise = fsPromise
               .readFile(externalPath, 'utf8')
               .then((content) => JSON.parse(content))
               .then((jsonData) => {
-                var codeLabels = []
+                let codeLabels = []
                 for (const code in jsonData) {
                   codeLabels.push({ code: code, label: jsonData[code] })
                 }
@@ -149,7 +149,7 @@ async function recordTemplatesPackage(context) {
             promises.push(promise)
           } else {
             // Treat this data as an object.
-            var codeLabelArray = []
+            let codeLabelArray = []
             for (const code in data) {
               codeLabelArray.push({ code: code, label: data[code] })
             }
@@ -168,7 +168,7 @@ async function recordTemplatesPackage(context) {
       // Deal with helpers
       if (context.templateData.helpers != null) {
         context.templateData.helpers.forEach((helper) => {
-          var helperPath = path.join(path.dirname(context.path), helper)
+          let helperPath = path.join(path.dirname(context.path), helper)
           promises.push(
             recordPackageIfNonexistent(
               context.db,
@@ -183,7 +183,7 @@ async function recordTemplatesPackage(context) {
 
       // Deal with overrides
       if (context.templateData.override != null) {
-        var overridePath = path.join(
+        let overridePath = path.join(
           path.dirname(context.path),
           context.templateData.override
         )
@@ -200,7 +200,7 @@ async function recordTemplatesPackage(context) {
       // Deal with partials
       if (context.templateData.partials != null) {
         context.templateData.partials.forEach((partial) => {
-          var partialPath = path.join(path.dirname(context.path), partial.path)
+          let partialPath = path.join(path.dirname(context.path), partial.path)
           promises.push(
             queryPackage.insertPathCrc(
               context.db,
@@ -216,7 +216,7 @@ async function recordTemplatesPackage(context) {
 
       // Deal with zcl extensions
       if (context.templateData.zcl != null) {
-        var zclExtension = context.templateData.zcl
+        let zclExtension = context.templateData.zcl
         promises.push(
           loadZclExtensions(context.db, context.packageId, zclExtension)
         )
@@ -233,13 +233,13 @@ async function recordTemplatesPackage(context) {
  * @returns Promise of loading the zcl extensions.
  */
 async function loadZclExtensions(db, packageId, zclExt) {
-  var promises = []
+  let promises = []
   for (const entity in zclExt) {
-    var entityExtension = zclExt[entity]
-    var propertyArray = []
-    var defaultArrayOfArrays = []
+    let entityExtension = zclExt[entity]
+    let propertyArray = []
+    let defaultArrayOfArrays = []
     for (const property in entityExtension) {
-      var prop = entityExtension[property]
+      let prop = entityExtension[property]
       propertyArray.push({
         property: property,
         type: prop.type,
@@ -306,7 +306,7 @@ async function loadZclExtensions(db, packageId, zclExt) {
  * @returns the loading context, contains: db, path, crc, packageId and templateData, or error
  */
 async function loadTemplates(db, genTemplatesJson) {
-  var context = {
+  let context = {
     db: db,
   }
   if (genTemplatesJson == null) {
@@ -314,7 +314,7 @@ async function loadTemplates(db, genTemplatesJson) {
     return Promise.resolve(context)
   }
 
-  var file = path.resolve(genTemplatesJson)
+  let file = path.resolve(genTemplatesJson)
   if (!fs.existsSync(file)) {
     context.error = `Can't locate templates file: ${file}`
     return Promise.resolve(context)
@@ -354,10 +354,10 @@ async function generateAllTemplates(
   return queryPackage
     .getPackageByParent(genResult.db, genTemplateJsonPkg.id)
     .then((packages) => {
-      var generationTemplates = []
-      var helperPromises = []
-      var partialPromises = []
-      var overridePath = null
+      let generationTemplates = []
+      let helperPromises = []
+      let partialPromises = []
+      let overridePath = null
 
       // First extract overridePath if one exists, as we need to
       // pass it to the generation.
@@ -398,7 +398,7 @@ async function generateAllTemplates(
       // And finally go over the actual templates.
       return Promise.all(helperPromises).then(() =>
         Promise.all(partialPromises).then(() => {
-          var templates = generationTemplates.map((pkg) =>
+          let templates = generationTemplates.map((pkg) =>
             generateSingleTemplate(
               genResult,
               pkg,
@@ -464,7 +464,7 @@ async function generate(
 ) {
   return queryPackage.getPackageByPackageId(db, packageId).then((pkg) => {
     if (pkg == null) throw `Invalid packageId: ${packageId}`
-    var genResult = {
+    let genResult = {
       db: db,
       sessionId: sessionId,
       content: {},
@@ -491,7 +491,7 @@ async function generate(
  */
 async function writeFileWithBackup(fileName, content, doBackup) {
   if (doBackup && fs.existsSync(fileName)) {
-    var backupName = fileName.concat('~')
+    let backupName = fileName.concat('~')
     fsPromise
       .rename(fileName, backupName)
       .then(() => fsPromise.writeFile(fileName, content))
@@ -506,7 +506,7 @@ async function writeFileWithBackup(fileName, content, doBackup) {
  * @param {*} genResult
  */
 async function generateGenerationContent(genResult) {
-  var out = {
+  let out = {
     writeTime: new Date().toString(),
     featureLevel: env.zapVersion().featureLevel,
     creator: 'zap',
@@ -546,7 +546,7 @@ async function generateAndWriteFiles(
     )
     .then((genOptions) => {
       // Reduce the long array from query into a single object
-      var templateGeneratorOptions = genOptions.reduce((acc, current) => {
+      let templateGeneratorOptions = genOptions.reduce((acc, current) => {
         acc[current.optionCode] = current.optionLabel
         return acc
       }, {})
@@ -563,10 +563,10 @@ async function generateAndWriteFiles(
         fs.mkdirSync(outputDirectory, { recursive: true })
       }
       if (options.log) console.log('🤖 Generating files:')
-      var promises = []
+      let promises = []
       for (const f in genResult.content) {
-        var content = genResult.content[f]
-        var fileName = path.join(outputDirectory, f)
+        let content = genResult.content[f]
+        let fileName = path.join(outputDirectory, f)
         if (options.log) console.log(`    ✍  ${fileName}`)
         env.logInfo(`Preparing to write file: ${fileName}`)
         promises.push(writeFileWithBackup(fileName, content, options.backup))
@@ -574,8 +574,8 @@ async function generateAndWriteFiles(
       if (genResult.hasErrors) {
         if (options.log) console.log('⚠️  Errors:')
         for (const f in genResult.errors) {
-          var err = genResult.errors[f]
-          var fileName = path.join(outputDirectory, f)
+          let err = genResult.errors[f]
+          let fileName = path.join(outputDirectory, f)
           if (options.log) {
             console.log(`    👎  ${fileName}: ⛔ ${err}\nStack trace:\n`)
             console.log(err)
@@ -598,8 +598,8 @@ async function generateAndWriteFiles(
 
       return Promise.all(promises)
         .then(() => genResult)
-        .then((genResult) =>
-          postProcessGeneratedFiles(outputDirectory, genResult, options.log)
+        .then((gr) =>
+          postProcessGeneratedFiles(outputDirectory, gr, options.log)
         )
     })
 }
@@ -616,8 +616,8 @@ async function postProcessGeneratedFiles(
   genResult,
   log = true
 ) {
-  var doExecute = true
-  var f =
+  let doExecute = true
+  let f =
     genResult.generatorOptions[
       dbEnum.generatorOptions.postProcessConditionalFile
     ]
@@ -627,15 +627,15 @@ async function postProcessGeneratedFiles(
   }
 
   // Now we deal with postProcessing
-  var postProcessPromises = []
+  let postProcessPromises = []
   if (
     doExecute &&
     dbEnum.generatorOptions.postProcessMulti in genResult.generatorOptions
   ) {
-    var cmd =
+    let cmd =
       genResult.generatorOptions[dbEnum.generatorOptions.postProcessMulti]
     for (const f in genResult.content) {
-      var fileName = path.join(outputDirectory, f)
+      let fileName = path.join(outputDirectory, f)
       cmd = cmd + ' ' + fileName
     }
     postProcessPromises.push(
@@ -650,11 +650,11 @@ async function postProcessGeneratedFiles(
     doExecute &&
     dbEnum.generatorOptions.postProcessSingle in genResult.generatorOptions
   ) {
-    var cmd =
+    let cmd =
       genResult.generatorOptions[dbEnum.generatorOptions.postProcessSingle]
     for (const f in genResult.content) {
-      var fileName = path.join(outputDirectory, f)
-      var singleCmd = cmd + ' ' + fileName
+      let fileName = path.join(outputDirectory, f)
+      let singleCmd = cmd + ' ' + fileName
       postProcessPromises.push(
         util.executeExternalProgram(singleCmd, genResult.templatePath, {
           rejectOnFail: false,
@@ -673,10 +673,10 @@ async function postProcessGeneratedFiles(
  * @param {*} content String to form into preview.
  */
 async function contentIndexer(content, linesPerIndex = 2000) {
-  var index = 0
-  var indexedResult = {}
-  var code = content.split(/\n/)
-  var loc = code.length
+  let index = 0
+  let indexedResult = {}
+  let code = content.split(/\n/)
+  let loc = code.length
 
   if (content == null || content.length == 0) {
     return Promise.resolve(indexedResult)
@@ -709,14 +709,14 @@ async function generateSingleFileForPreview(db, sessionId, outFileName) {
       dbEnum.packageType.genTemplatesJson
     )
     .then((pkgs) => {
-      var promises = []
+      let promises = []
       pkgs.forEach((pkg) => {
         promises.push(generate(db, sessionId, pkg.id, outFileName))
       })
       return Promise.all(promises)
     })
     .then((genResultArrays) => {
-      var content = ''
+      let content = ''
       genResultArrays.forEach((gr) => {
         if (outFileName in gr.content) {
           content = gr.content[outFileName]

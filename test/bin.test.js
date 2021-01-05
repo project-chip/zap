@@ -21,19 +21,19 @@
 const bin = require('../src-electron/util/bin.js')
 
 test('32-bit hex conversions', () => {
-  var xN = 0x1234abcd
+  let xN = 0x1234abcd
   expect(bin.int32ToHex(xN)).toEqual('1234ABCD')
   expect(bin.int32ToHex(xN, true)).toEqual('CDAB3412')
 })
 
 test('16-bit hex conversions', () => {
-  var xN = 0xabcd
+  let xN = 0xabcd
   expect(bin.int16ToHex(xN)).toEqual('ABCD')
   expect(bin.int16ToHex(xN, true)).toEqual('CDAB')
 })
 
 test('8-bit hex conversions', () => {
-  var xN = 0xab
+  let xN = 0xab
   expect(bin.int8ToHex(xN)).toEqual('AB')
   expect(bin.int8ToHex(xN, true)).toEqual('AB')
 })
@@ -43,8 +43,8 @@ test('Hex to bytes conversions', () => {
 })
 
 test('String hex conversions', () => {
-  var xN = 'abcdABCD'
-  var xS = bin.stringToHex(xN)
+  let xN = 'abcdABCD'
+  let xS = bin.stringToHex(xN)
   expect(xS).toEqual('616263644142434400')
   expect(bin.hexToCBytes(xS)).toEqual(
     '0x61, 0x62, 0x63, 0x64, 0x41, 0x42, 0x43, 0x44, 0x00'
@@ -54,7 +54,7 @@ test('String hex conversions', () => {
 })
 
 test('Hex to binary', () => {
-  var hex = bin.int32ToHex(1234)
+  let hex = bin.int32ToHex(1234)
   expect(hex).toBe('000004D2')
   expect(bin.hexToBinary(hex)).toBe('00000000000000000000010011010010')
   expect(bin.hexToBinary('0xABCD')).toBe('1010101111001101')
@@ -73,7 +73,7 @@ test('Bit offset', () => {
 })
 
 test('ZCL strings', () => {
-  var r = bin.stringToOneByteLengthPrefixCBytes('Test string')
+  let r = bin.stringToOneByteLengthPrefixCBytes('Test string')
   expect(r).toBe("11, 'T', 'e', 's', 't', ' ', 's', 't', 'r', 'i', 'n', 'g', ")
   r = bin.stringToTwoByteLengthPrefixCBytes('Test string')
   expect(r).toContain(

@@ -49,14 +49,14 @@ function nonAtomicType(arg = { name: 'unknown' }) {
  * @param {*} arg Object containing name and size
  */
 function atomicType(arg = { name: 'unknown', size: 0 }) {
-  var name = arg.name
-  var size = arg.size
+  let name = arg.name
+  let size = arg.size
   if (name.startsWith('int')) {
-    var signed
+    let signed
     if (name.endsWith('s')) signed = true
     else signed = false
 
-    var ret = `${signed ? '' : 'u'}int${size * 8}_t`
+    let ret = `${signed ? '' : 'u'}int${size * 8}_t`
 
     // few exceptions
     ret = cleanseUints(ret)

@@ -17,7 +17,7 @@
  */
 
 function testServer(fileName) {
-  var testPort
+  let testPort
   if (fileName.includes('server-bare.test')) {
     testPort = 9073
   } else if (fileName.includes('server-with-zcl.test')) {
@@ -27,7 +27,7 @@ function testServer(fileName) {
   } else {
     throw `You must manually assign a port for the given test file: ${fileName}`
   }
-  var ret = {
+  let ret = {
     port: testPort,
     baseUrl: `http://localhost:${testPort++}`,
   }
@@ -41,3 +41,6 @@ exports.testChipGenerationTemplates =
   './test/gen-template/chip/gen-templates.json'
 
 exports.testServer = testServer
+
+exports.testCustomXml = './test/resource/test-custom.xml'
+exports.badTestCustomXml = './test/resource/bad-test-custom.xml'

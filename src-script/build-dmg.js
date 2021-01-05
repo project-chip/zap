@@ -15,8 +15,8 @@
  *    limitations under the License.
  */
 
-var createDMG = require('electron-installer-dmg')
-var opts = {
+let createDMG = require('electron-installer-dmg')
+let opts = {
   //debug: true,
   appPath: './dist/electron/zap-darwin-x64/zap.app',
   out: './dist/electron/zap-darwin-x64/',

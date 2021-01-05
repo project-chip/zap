@@ -28,14 +28,14 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const zclHelper = require('../src-electron/generator/helper-zcl.js')
 const dbEnum = require('../src-shared/db-enum.js')
 
-var db
+let db
 const templateCount = 13
-var zclContext
+let zclContext
 
-var ctx
+let ctx
 
 beforeAll(() => {
-  var file = env.sqliteTestFile('helpers')
+  let file = env.sqliteTestFile('helpers')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
@@ -71,7 +71,7 @@ test(
     zclLoader.loadZcl(db, args.zclPropertiesFile).then((context) => {
       zclContext = context
 
-      var globalCtx = {
+      let globalCtx = {
         db: zclContext.db,
         zclPackageId: zclContext.packageId,
       }

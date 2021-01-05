@@ -37,7 +37,7 @@ const session = require('express-session')
  */
 function httpGetSessionKeyValues(db) {
   return (request, response) => {
-    var sessionId = request.session.zapSessionId
+    let sessionId = request.session.zapSessionId
     queryConfig
       .getAllSessionKeyValues(db, sessionId)
       .then((sessionKeyValues) =>
@@ -54,8 +54,8 @@ function httpGetSessionKeyValues(db) {
  */
 function httpPostSaveSessionKeyValue(db) {
   return (request, response) => {
-    var { key, value } = request.body
-    var sessionId = request.session.zapSessionId
+    let { key, value } = request.body
+    let sessionId = request.session.zapSessionId
     env.logInfo(`[${sessionId}]: Saving: ${key} => ${value}`)
     queryConfig
       .updateKeyValue(db, sessionId, key, value)
@@ -80,7 +80,7 @@ function httpPostSaveSessionKeyValue(db) {
  */
 function httpPostCluster(db) {
   return (request, response) => {
-    var { id, side, flag, endpointTypeId } = request.body
+    let { id, side, flag, endpointTypeId } = request.body
 
     queryConfig
       .getClusterState(db, endpointTypeId, id, side)
@@ -122,7 +122,7 @@ function httpPostCluster(db) {
  */
 function httpPostAttributeUpdate(db) {
   return (request, response) => {
-    var {
+    let {
       action,
       endpointTypeId,
       id,
@@ -131,7 +131,7 @@ function httpPostAttributeUpdate(db) {
       clusterRef,
       attributeSide,
     } = request.body
-    var paramType
+    let paramType
     switch (listType) {
       case restApi.updateKey.attributeStorage:
       case restApi.updateKey.attributeDefault:
@@ -177,7 +177,7 @@ function httpPostAttributeUpdate(db) {
  */
 function httpPostCommandUpdate(db) {
   return (request, response) => {
-    var {
+    let {
       action,
       endpointTypeId,
       id,
@@ -186,7 +186,7 @@ function httpPostCommandUpdate(db) {
       clusterRef,
       commandSide,
     } = request.body
-    var isIncoming = null
+    let isIncoming = null
 
     switch (listType) {
       case 'selectedIn':
@@ -231,23 +231,23 @@ function httpPostCommandUpdate(db) {
  */
 function httpGetInitialState(db) {
   return (request, response) => {
-    var sessionId = request.session.zapSessionId
-    var state = {}
+    let sessionId = request.session.zapSessionId
+    let state = {}
 
-    var statePopulators = []
-    var endpointTypes = queryConfig
+    let statePopulators = []
+    let endpointTypes = queryConfig
       .getAllEndpointTypes(db, sessionId)
       .then((rows) => {
         state.endpointTypes = rows
       })
     statePopulators.push(endpointTypes)
 
-    var endpoints = queryConfig.getAllEndpoints(db, sessionId).then((rows) => {
+    let endpoints = queryConfig.getAllEndpoints(db, sessionId).then((rows) => {
       state.endpoints = rows
     })
     statePopulators.push(endpoints)
 
-    var sessionKeyValues = queryConfig
+    let sessionKeyValues = queryConfig
       .getAllSessionKeyValues(db, sessionId)
       .then((rows) => {
         state.sessionKeyValues = rows
@@ -268,10 +268,10 @@ function httpGetInitialState(db) {
  */
 function httpGetOption(db) {
   return (request, response) => {
-    var sessionId = request.session.zapSessionId
+    let sessionId = request.session.zapSessionId
     const { category } = request.params
     queryPackage.getSessionPackages(db, sessionId).then((packages) => {
-      var p = packages.map((pkg) =>
+      let p = packages.map((pkg) =>
         queryPackage.selectAllOptionsValues(db, pkg.packageRef, category)
       )
       Promise.all(p)
@@ -288,7 +288,7 @@ function httpGetOption(db) {
  */
 function httpGetPackages(db) {
   return (request, response) => {
-    var sessionId = request.session.zapSessionId
+    let sessionId = request.session.zapSessionId
     queryPackage
       .getPackageSessionPackagePairBySessionId(db, sessionId)
       .then((packageSessionPackagePairs) => {
@@ -304,8 +304,8 @@ function httpGetPackages(db) {
  */
 function httpPostAddNewPackage(db) {
   return (request, response) => {
-    var sessionId = request.session.zapSessionId
-    var { filePath } = request.body
+    let sessionId = request.session.zapSessionId
+    let { filePath } = request.body
     try {
       zclLoader
         .loadIndividualFile(db, filePath, sessionId)

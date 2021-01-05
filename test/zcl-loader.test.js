@@ -33,14 +33,14 @@ test('test opening and closing the database', () => {
 })
 
 test('test database schema loading in memory', async () => {
-  var db = await dbApi.initRamDatabase()
+  let db = await dbApi.initRamDatabase()
   await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
   await dbApi.closeDatabase(db)
 })
 
 test('test Silabs zcl data loading in memory', () => {
-  var db
-  var packageId
+  let db
+  let packageId
   return dbApi
     .initRamDatabase()
     .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
@@ -131,7 +131,7 @@ test('test Silabs zcl data loading in memory', () => {
     .then((rows) => expect(rows.length).toBe(3))
     .then(() => queryZcl.selectCommandTree(db, packageId))
     .then((commandTree) => {
-      var found = false
+      let found = false
       commandTree.forEach((c) => {
         if (c.clusterCode == 0 && c.code == 0) found = true
       })
@@ -154,7 +154,7 @@ test('test Silabs zcl data loading in memory', () => {
     .then(() => queryZcl.selectAllAttributes(db, packageId))
     .then((attributes) => {
       expect(attributes.length).toBeGreaterThan(40)
-      var ps = []
+      let ps = []
       attributes.forEach((a) => {
         ps.push(types.typeSizeAttribute(db, packageId, a))
       })
@@ -180,8 +180,8 @@ test('test Silabs zcl data loading in memory', () => {
 }, 5000) // Give this test 5 secs to resolve
 
 test('test Dotdot zcl data loading in memory', () => {
-  var db
-  var packageId
+  let db
+  let packageId
   dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
   return (
     dbApi
@@ -281,10 +281,10 @@ test('test Dotdot zcl data loading in memory', () => {
 }, 5000) // Give this test 5 secs to resolve
 
 test('test Dotdot and Silabs zcl data loading in memory', () => {
-  var db
-  var packageIdSilabs
-  var packageIdDotdot
-  var dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
+  let db
+  let packageIdSilabs
+  let packageIdDotdot
+  let dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
   return (
     dbApi
       .initRamDatabase()

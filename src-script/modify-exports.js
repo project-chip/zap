@@ -30,18 +30,18 @@ const readInterface = readline.createInterface({
   console: false,
 })
 
-var exports = []
+let exports = []
 
 readInterface.on('line', (line) => {
   if (!line.includes('export function ')) console.log(line)
   else {
     // we have an export, let's convert it
-    var bracketIndex = line.indexOf('(')
+    let bracketIndex = line.indexOf('(')
     if (bracketIndex == -1) {
       console.log(line)
     } else {
-      var postBracket = line.substring(bracketIndex)
-      var functionName = line.substring(0, bracketIndex).split(' ')[2]
+      let postBracket = line.substring(bracketIndex)
+      let functionName = line.substring(0, bracketIndex).split(' ')[2]
       console.log(`function ${functionName}${postBracket}`)
       exports.push(functionName)
     }

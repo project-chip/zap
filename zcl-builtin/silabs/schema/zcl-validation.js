@@ -23,7 +23,8 @@ function validateZclFile(validationSchemaBuffer, zclFileBuffer) {
   let xsdDoc = libxmljs.parseXml(validationSchemaBuffer.toString())
   let validationStatus = zclFile.validate(xsdDoc)
   let validationErrors = zclFile.validationErrors
-  return { isValid: validationStatus, errors: validationErrors }
+  let returnValue = { isValid: validationStatus, errors: validationErrors }
+  return returnValue
 }
 
 exports.validateZclFile = validateZclFile

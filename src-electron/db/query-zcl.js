@@ -371,7 +371,7 @@ async function selectAttributesByClusterCodeAndManufacturerCode(
   clusterCode,
   manufacturerCode
 ) {
-  var manufacturerString
+  let manufacturerString
   if (manufacturerCode == null) {
     manufacturerString = ' AND CLUSTER.MANUFACTURER_CODE IS NULL'
   } else {
@@ -965,14 +965,14 @@ WHERE
  */
 async function insertGlobals(db, packageId, data) {
   Env.logInfo(`Insert globals: ${data.length}`)
-  var commandsToLoad = []
-  var attributesToLoad = []
-  var argsForCommands = []
-  var argsToLoad = []
-  var i
+  let commandsToLoad = []
+  let attributesToLoad = []
+  let argsForCommands = []
+  let argsToLoad = []
+  let i
   for (i = 0; i < data.length; i++) {
     if ('commands' in data[i]) {
-      var commands = data[i].commands
+      let commands = data[i].commands
       commandsToLoad.push(
         ...commands.map((command) => [
           null, // clusterId
@@ -987,7 +987,7 @@ async function insertGlobals(db, packageId, data) {
       argsForCommands.push(...commands.map((command) => command.args))
     }
     if ('attributes' in data[i]) {
-      var attributes = data[i].attributes
+      let attributes = data[i].attributes
       attributesToLoad.push(
         ...attributes.map((attribute) => [
           null, // clusterId
@@ -1007,17 +1007,17 @@ async function insertGlobals(db, packageId, data) {
       )
     }
   }
-  var pCommand = dbApi
+  let pCommand = dbApi
     .dbMultiInsert(
       db,
       'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?)',
       commandsToLoad
     )
     .then((lids) => {
-      var j
+      let j
       for (j = 0; j < lids.length; j++) {
-        var lastCmdId = lids[j]
-        var args = argsForCommands[j]
+        let lastCmdId = lids[j]
+        let args = argsForCommands[j]
         if (args != undefined && args != null) {
           argsToLoad.push(
             ...args.map((arg) => [
@@ -1037,7 +1037,7 @@ async function insertGlobals(db, packageId, data) {
         argsToLoad
       )
     })
-  var pAttribute = dbApi.dbMultiInsert(
+  let pAttribute = dbApi.dbMultiInsert(
     db,
     `
 INSERT INTO ATTRIBUTE
@@ -1078,17 +1078,17 @@ async function insertClusterExtensions(db, packageId, data) {
       data.map((cluster) => [cluster.code])
     )
     .then((rows) => {
-      var commandsToLoad = []
-      var attributesToLoad = []
-      var argsForCommands = []
-      var argsToLoad = []
-      var i, lastId
+      let commandsToLoad = []
+      let attributesToLoad = []
+      let argsForCommands = []
+      let argsToLoad = []
+      let i, lastId
       for (i = 0; i < rows.length; i++) {
-        var row = rows[i]
+        let row = rows[i]
         if (row != null) {
           lastId = row.CLUSTER_ID
           if ('commands' in data[i]) {
-            var commands = data[i].commands
+            let commands = data[i].commands
             commandsToLoad.push(
               ...commands.map((command) => [
                 lastId,
@@ -1104,7 +1104,7 @@ async function insertClusterExtensions(db, packageId, data) {
             argsForCommands.push(...commands.map((command) => command.args))
           }
           if ('attributes' in data[i]) {
-            var attributes = data[i].attributes
+            let attributes = data[i].attributes
             attributesToLoad.push(
               ...attributes.map((attribute) => [
                 lastId,
@@ -1134,17 +1134,17 @@ async function insertClusterExtensions(db, packageId, data) {
           )
         }
       }
-      var pCommand = dbApi
+      let pCommand = dbApi
         .dbMultiInsert(
           db,
           'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?,?)',
           commandsToLoad
         )
         .then((lids) => {
-          var j
+          let j
           for (j = 0; j < lids.length; j++) {
             lastId = lids[j]
-            var args = argsForCommands[j]
+            let args = argsForCommands[j]
             if (args != undefined && args != null) {
               argsToLoad.push(
                 ...args.map((arg) => [
@@ -1164,7 +1164,7 @@ async function insertClusterExtensions(db, packageId, data) {
             argsToLoad
           )
         })
-      var pAttribute = dbApi.dbMultiInsert(
+      let pAttribute = dbApi.dbMultiInsert(
         db,
         'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         attributesToLoad
@@ -1182,9 +1182,9 @@ async function insertClusterExtensions(db, packageId, data) {
  * @returns Promise of data insertion.
  */
 async function insertGlobalAttributeDefault(db, packageId, data) {
-  var individualClusterPromise = []
+  let individualClusterPromise = []
   data.forEach((d) => {
-    var args = []
+    let args = []
     d.globalAttribute.forEach((ga) => {
       if (ga.side == 'either') {
         args.push([
@@ -1207,7 +1207,7 @@ async function insertGlobalAttributeDefault(db, packageId, data) {
         args.push([packageId, d.code, packageId, ga.code, ga.side, ga.value])
       }
     })
-    var p = dbApi.dbMultiInsert(
+    let p = dbApi.dbMultiInsert(
       db,
       `
   INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_DEFAULT (
@@ -1254,15 +1254,15 @@ async function insertClusters(db, packageId, data) {
       })
     )
     .then((lastIdsArray) => {
-      var commandsToLoad = []
-      var attributesToLoad = []
-      var argsForCommands = []
-      var argsToLoad = []
-      var i
+      let commandsToLoad = []
+      let attributesToLoad = []
+      let argsForCommands = []
+      let argsToLoad = []
+      let i
       for (i = 0; i < lastIdsArray.length; i++) {
-        var lastId = lastIdsArray[i]
+        let lastId = lastIdsArray[i]
         if ('commands' in data[i]) {
-          var commands = data[i].commands
+          let commands = data[i].commands
           commandsToLoad.push(
             ...commands.map((command) => [
               lastId,
@@ -1277,7 +1277,7 @@ async function insertClusters(db, packageId, data) {
           argsForCommands.push(...commands.map((command) => command.args))
         }
         if ('attributes' in data[i]) {
-          var attributes = data[i].attributes
+          let attributes = data[i].attributes
           attributesToLoad.push(
             ...attributes.map((attribute) => [
               lastId,
@@ -1299,17 +1299,17 @@ async function insertClusters(db, packageId, data) {
           )
         }
       }
-      var pCommand = dbApi
+      let pCommand = dbApi
         .dbMultiInsert(
           db,
           'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?)',
           commandsToLoad
         )
         .then((lids) => {
-          var j
+          let j
           for (j = 0; j < lids.length; j++) {
-            var lastCmdId = lids[j]
-            var args = argsForCommands[j]
+            let lastCmdId = lids[j]
+            let args = argsForCommands[j]
             if (args != undefined && args != null) {
               argsToLoad.push(
                 ...args.map((arg) => [
@@ -1329,7 +1329,7 @@ async function insertClusters(db, packageId, data) {
             argsToLoad
           )
         })
-      var pAttribute = dbApi.dbMultiInsert(
+      let pAttribute = dbApi.dbMultiInsert(
         db,
         'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         attributesToLoad
@@ -1364,14 +1364,15 @@ async function insertDeviceTypes(db, packageId, data) {
       })
     )
     .then((lastIdsArray) => {
-      for (var i = 0; i < lastIdsArray.length; i++) {
+      let zclIdsPromises = []
+      for (let i = 0; i < lastIdsArray.length; i++) {
         if ('clusters' in data[i]) {
-          var lastId = lastIdsArray[i]
-          var clusters = data[i].clusters
+          let lastId = lastIdsArray[i]
+          let clusters = data[i].clusters
           // This is an array that links the generated deviceTyepRef to the cluster via generating an array of arrays,
-          var zclIdsPromises = Promise.all(
-            clusters.map((cluster) => {
-              return dbApi
+          zclIdsPromises = Promise.all(
+            clusters.map((cluster) =>
+              dbApi
                 .dbInsert(
                   db,
                   'INSERT INTO DEVICE_TYPE_CLUSTER (DEVICE_TYPE_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER) VALUES (?,?,?,?,?,?)',
@@ -1391,9 +1392,9 @@ async function insertDeviceTypes(db, packageId, data) {
                     clusterData: cluster,
                   }
                 })
-            })
+            )
           ).then((dtClusterRefDataPairs) => {
-            var promises = []
+            let promises = []
             promises.push(insertDeviceTypeAttributes(db, dtClusterRefDataPairs))
             promises.push(insertDeviceTypeCommands(db, dtClusterRefDataPairs))
             return Promise.all(promises)
@@ -1411,10 +1412,10 @@ async function insertDeviceTypes(db, packageId, data) {
  * @param {*} dtClusterRefDataPairs
  */
 async function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
-  var attributes = []
+  let attributes = []
   dtClusterRefDataPairs.map((dtClusterRefDataPair) => {
-    var dtClusterRef = dtClusterRefDataPair.dtClusterRef
-    var clusterData = dtClusterRefDataPair.clusterData
+    let dtClusterRef = dtClusterRefDataPair.dtClusterRef
+    let clusterData = dtClusterRefDataPair.clusterData
     if ('requiredAttributes' in clusterData) {
       clusterData.requiredAttributes.forEach((attributeName) => {
         attributes.push([dtClusterRef, attributeName])
@@ -1435,10 +1436,10 @@ async function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
  * @param {*} dtClusterRefDataPairs
  */
 async function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
-  var commands = []
+  let commands = []
   dtClusterRefDataPairs.map((dtClusterRefDataPair) => {
-    var dtClusterRef = dtClusterRefDataPair.dtClusterRef
-    var clusterData = dtClusterRefDataPair.clusterData
+    let dtClusterRef = dtClusterRefDataPair.dtClusterRef
+    let clusterData = dtClusterRefDataPair.clusterData
     if ('requiredCommands' in clusterData) {
       clusterData.requiredCommands.forEach((commandName) => {
         commands.push([dtClusterRef, commandName])
@@ -1586,12 +1587,12 @@ async function insertStructs(db, packageId, data) {
       })
     )
     .then((lastIdsArray) => {
-      var i
-      var itemsToLoad = []
+      let i
+      let itemsToLoad = []
       for (i = 0; i < lastIdsArray.length; i++) {
         if ('items' in data[i]) {
-          var lastId = lastIdsArray[i]
-          var items = data[i].items
+          let lastId = lastIdsArray[i]
+          let items = data[i].items
           itemsToLoad.push(
             ...items.map((item) => [lastId, item.name, item.type, item.ordinal])
           )
@@ -1624,12 +1625,12 @@ async function insertEnums(db, packageId, data) {
       })
     )
     .then((lastIdsArray) => {
-      var i
-      var itemsToLoad = []
+      let i
+      let itemsToLoad = []
       for (i = 0; i < lastIdsArray.length; i++) {
         if ('items' in data[i]) {
-          var lastId = lastIdsArray[i]
-          var items = data[i].items
+          let lastId = lastIdsArray[i]
+          let items = data[i].items
           itemsToLoad.push(
             ...items.map((item) => [
               lastId,
@@ -1757,12 +1758,12 @@ async function insertBitmaps(db, packageId, data) {
       data.map((bm) => [packageId, bm.name, bm.type])
     )
     .then((lastIdsArray) => {
-      var i
-      var fieldsToLoad = []
+      let i
+      let fieldsToLoad = []
       for (i = 0; i < lastIdsArray.length; i++) {
         if ('fields' in data[i]) {
-          var lastId = lastIdsArray[i]
-          var fields = data[i].fields
+          let lastId = lastIdsArray[i]
+          let fields = data[i].fields
           fieldsToLoad.push(
             ...fields.map((field) => [
               lastId,
@@ -1794,8 +1795,8 @@ async function exportClustersAndEndpointDetailsFromEndpointTypes(
   db,
   endpointTypes
 ) {
-  var endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
-  var mapFunction = (x) => {
+  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  let mapFunction = (x) => {
     return {
       endpointId: x.ENDPOINT_TYPE_REF,
       endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
@@ -1828,13 +1829,13 @@ async function exportCommandDetailsFromAllEndpointTypesAndClusters(
   db,
   endpointsAndClusters
 ) {
-  var endpointTypeIds = endpointsAndClusters
+  let endpointTypeIds = endpointsAndClusters
     .map((ep) => ep.endpointId)
     .toString()
-  var endpointClusterIds = endpointsAndClusters
+  let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
     .toString()
-  var mapFunction = (x) => {
+  let mapFunction = (x) => {
     return {
       id: x.COMMAND_ID,
       name: x.NAME,
@@ -1934,16 +1935,16 @@ ORDER BY ORDINAL`,
  * @param {*} type
  */
 async function determineType(db, type, packageId) {
-  var atomic = await selectAtomicByName(db, type, packageId)
+  let atomic = await selectAtomicByName(db, type, packageId)
   if (atomic != null) return dbEnum.zclType.atomic
 
-  var theEnum = await selectEnumByName(db, type, packageId)
+  let theEnum = await selectEnumByName(db, type, packageId)
   if (theEnum != null) return dbEnum.zclType.enum
 
-  var struct = await selectStructByName(db, type, packageId)
+  let struct = await selectStructByName(db, type, packageId)
   if (struct != null) return dbEnum.zclType.struct
 
-  var theBitmap = await selectBitmapByName(db, packageId, type)
+  let theBitmap = await selectBitmapByName(db, packageId, type)
   if (theBitmap != null) return dbEnum.zclType.bitmap
 
   return dbEnum.zclType.unknown
@@ -1957,8 +1958,8 @@ async function determineType(db, type, packageId) {
  * @returns Promise that resolves with the data that should go into the external form.
  */
 async function exportAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
-  var endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
-  var mapFunction = (x) => {
+  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  let mapFunction = (x) => {
     return {
       id: x.CLUSTER_ID,
       name: x.NAME,
@@ -2002,8 +2003,8 @@ GROUP BY NAME, SIDE`
  * @returns Promise that resolves with the data that should go into the external form.
  */
 async function exportAllClustersNamesFromEndpointTypes(db, endpointTypes) {
-  var endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
-  var mapFunction = (x) => {
+  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  let mapFunction = (x) => {
     return {
       id: x.CLUSTER_ID,
       name: x.NAME,
@@ -2049,8 +2050,8 @@ async function exportCommandDetailsFromAllEndpointTypeCluster(
   endpointTypes,
   endpointClusterId
 ) {
-  var endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
-  var mapFunction = (x) => {
+  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  let mapFunction = (x) => {
     return {
       id: x.COMMAND_ID,
       name: x.NAME,

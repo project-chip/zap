@@ -30,6 +30,7 @@ test('Snake case', () => {
   expect(string.toSnakeCaseAllCaps('VerySimpleLabel')).toEqual(
     'VERY_SIMPLE_LABEL'
   )
+  expect(string.toSnakeCase('My-String')).toEqual('my_string')
 })
 
 test('Camel case', () => {

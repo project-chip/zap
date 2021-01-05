@@ -68,7 +68,7 @@ function validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef) {
 }
 
 function validateSpecificAttribute(endpointAttribute, attribute) {
-  var defaultAttributeIssues = []
+  let defaultAttributeIssues = []
   if (!isStringType(attribute.type)) {
     if (isFloatType(attribute.type)) {
       if (!isValidFloat(endpointAttribute.defaultValue))
@@ -87,8 +87,8 @@ function validateSpecificAttribute(endpointAttribute, attribute) {
 }
 
 function validateSpecificEndpoint(endpoint) {
-  var zclEndpointIdIssues = []
-  var zclNetworkIdIssues = []
+  let zclEndpointIdIssues = []
+  let zclNetworkIdIssues = []
   if (!isValidNumberString(endpoint.endpointId))
     zclEndpointIdIssues.push('EndpointId is invalid number string')
   if (
@@ -138,8 +138,8 @@ function getBoundsInteger(attribute) {
 }
 
 function checkAttributeBoundsInteger(attribute, endpointAttribute) {
-  var { min, max } = getBoundsInteger(attribute)
-  var defaultValue = extractIntegerValue(endpointAttribute.defaultValue)
+  let { min, max } = getBoundsInteger(attribute)
+  let defaultValue = extractIntegerValue(endpointAttribute.defaultValue)
   return checkBoundsInteger(defaultValue, min, max)
 }
 
@@ -150,8 +150,8 @@ function checkBoundsInteger(defaultValue, min, max) {
 }
 
 function checkAttributeBoundsFloat(attribute, endpointAttribute) {
-  var { min, max } = getBoundsFloat(attribute)
-  var defaultValue = extractFloatValue(endpointAttribute.defaultValue)
+  let { min, max } = getBoundsFloat(attribute)
+  let defaultValue = extractFloatValue(endpointAttribute.defaultValue)
   return checkBoundsFloat(defaultValue, min, max)
 }
 

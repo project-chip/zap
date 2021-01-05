@@ -31,9 +31,9 @@ const importJson = require('./import-json.js')
  * @returns Promise of file reading.
  */
 async function readDataFromFile(filePath) {
-  var data = await fsp.readFile(filePath)
+  let data = await fsp.readFile(filePath)
 
-  var stringData = data.toString().trim()
+  let stringData = data.toString().trim()
   if (stringData.startsWith('{')) {
     return importJson.readJsonData(filePath, data)
   } else if (stringData.startsWith('#ISD')) {
@@ -52,7 +52,7 @@ async function readDataFromFile(filePath) {
  * @returns a promise that resolves with the session Id of the written data.
  */
 async function importDataFromFile(db, filePath, sessionId = null) {
-  var state = await readDataFromFile(filePath)
+  let state = await readDataFromFile(filePath)
   return state.loader(db, state, sessionId)
 }
 // exports

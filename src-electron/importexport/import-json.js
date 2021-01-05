@@ -31,7 +31,7 @@ const queryImpexp = require('../db/query-impexp.js')
  * @param {*} keyValuePairs
  */
 function importSessionKeyValues(db, sessionId, keyValuePairs) {
-  var allQueries = []
+  let allQueries = []
   if (keyValuePairs != null) {
     env.logInfo(`Loading ${keyValuePairs.length} key value pairs.`)
     // Write key value pairs
@@ -48,7 +48,7 @@ function importSessionKeyValues(db, sessionId, keyValuePairs) {
 // object, pkg has`path`, `version`, `type`. It can ALSO have pathRelativity. If pathRelativity is missing
 // path is considered absolute.
 function importSinglePackage(db, sessionId, pkg, zapFilePath) {
-  var absPath = pkg.path
+  let absPath = pkg.path
   if ('pathRelativity' in pkg) {
     absPath = util.createAbsolutePath(pkg.path, pkg.pathRelativity, zapFilePath)
   }
@@ -75,7 +75,7 @@ function importSinglePackage(db, sessionId, pkg, zapFilePath) {
           })
 
           if (packages.length > 0) {
-            var p = packages[0]
+            let p = packages[0]
             env.logWarning(
               `Required package did not match the version. Using first found:${p.id}.`
             )
@@ -94,7 +94,7 @@ function importSinglePackage(db, sessionId, pkg, zapFilePath) {
 
 // Resolves an array of { packageId:, packageType:} objects into { packageId: id, otherIds: [] }
 function convertPackageResult(sessionId, data) {
-  var ret = {
+  let ret = {
     sessionId: sessionId,
     packageId: null,
     otherIds: [],
@@ -112,7 +112,7 @@ function convertPackageResult(sessionId, data) {
 
 // Returns a promise that resolves into an object containing: packageId and otherIds
 function importPackages(db, sessionId, packages, zapFilePath) {
-  var allQueries = []
+  let allQueries = []
   if (packages != null) {
     env.logInfo(`Loading ${packages.length} packages`)
     packages.forEach((p) => {
@@ -125,7 +125,7 @@ function importPackages(db, sessionId, packages, zapFilePath) {
 }
 
 function importEndpoints(db, sessionId, endpoints) {
-  var allQueries = []
+  let allQueries = []
   if (endpoints != null) {
     env.logInfo(`Loading ${endpoints.length} endpoints`)
     endpoints.forEach((endpoint) => {
@@ -142,8 +142,8 @@ function importEndpointTypes(
   endpointTypes,
   endpoints
 ) {
-  var allQueries = []
-  var sortedEndpoints = {}
+  let allQueries = []
+  let sortedEndpoints = {}
   if (endpoints != null) {
     endpoints.forEach((ep) => {
       let eptIndex = ep.endpointTypeIndex
@@ -160,7 +160,7 @@ function importEndpointTypes(
           .importEndpointType(db, sessionId, packageId, et)
           .then((endpointId) => {
             // Now we need to import commands, attributes and clusters.
-            var promises = []
+            let promises = []
             if (sortedEndpoints[index]) {
               sortedEndpoints[index].forEach((endpoint) => {
                 promises.push(
@@ -185,7 +185,7 @@ function importEndpointTypes(
                     cluster
                   )
                   .then((endpointClusterId) => {
-                    var ps = []
+                    let ps = []
 
                     if ('commands' in cluster)
                       cluster.commands.forEach((command) => {
@@ -251,8 +251,8 @@ function writeStateToDatabase(db, state, existingSessionId = null) {
     )
     .then((data) => {
       // data: { sessionId, packageId, otherIds}
-      var promisesStage1 = [] // Stage 1 is endpoint types
-      var promisesStage2 = [] // Stage 2 is endpoints, which require endpoint types to be loaded prior.
+      let promisesStage1 = [] // Stage 1 is endpoint types
+      let promisesStage2 = [] // Stage 2 is endpoints, which require endpoint types to be loaded prior.
       if ('keyValuePairs' in state) {
         promisesStage1.push(
           importSessionKeyValues(db, data.sessionId, state.keyValuePairs)
@@ -294,7 +294,7 @@ async function readJsonData(filePath, data) {
   if (!('featureLevel' in state)) {
     state.featureLevel = 0
   }
-  var status = util.matchFeatureLevel(state.featureLevel)
+  let status = util.matchFeatureLevel(state.featureLevel)
 
   if (status.match) {
     if (!('keyValuePairs' in state)) {

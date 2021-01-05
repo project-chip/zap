@@ -32,7 +32,7 @@ const includedHelpers = [
   './helper-sdkextension.js',
 ]
 
-var globalHelpersInitialized = false
+let globalHelpersInitialized = false
 
 const templateCompileOptions = {
   noEscape: true,
@@ -45,7 +45,7 @@ function produceCompiledTemplate(singleTemplatePkg) {
     return Promise.resolve(precompiledTemplates[singleTemplatePkg.id])
   else
     return fsPromise.readFile(singleTemplatePkg.path, 'utf8').then((data) => {
-      var template = handlebars.compile(data, templateCompileOptions)
+      let template = handlebars.compile(data, templateCompileOptions)
       precompiledTemplates[singleTemplatePkg.id] = template
       return template
     })
@@ -106,19 +106,19 @@ function wrapOverridable(originalFn, overrideFn) {
  * @param {*} genTemplatePackageId
  */
 function loadOverridable(overridePath) {
-  var originals = require('./overridable.js')
-  var shallowCopy = Object.assign({}, originals)
+  let originals = require('./overridable.js')
+  let shallowCopy = Object.assign({}, originals)
   if (overridePath == null) {
     return shallowCopy
   } else {
-    var overrides = require(overridePath)
-    for (name in overrides) {
+    let overrides = require(overridePath)
+    Object.keys(overrides).forEach((name) => {
       if (name in shallowCopy) {
         shallowCopy[name] = wrapOverridable(shallowCopy[name], overrides[name])
       } else {
         shallowCopy[name] = overrides[name]
       }
-    }
+    })
     return shallowCopy
   }
 }
@@ -140,7 +140,7 @@ function loadPartial(name, path) {
  * @param {*} path
  */
 function loadHelper(path) {
-  var helpers = require(path)
+  let helpers = require(path)
   for (const singleHelper in helpers) {
     handlebars.registerHelper(singleHelper, helpers[singleHelper])
   }
@@ -153,12 +153,12 @@ function loadHelper(path) {
  * @returns Object containing all the helper functions.
  */
 function allGlobalHelpers() {
-  var allHelpers = {
+  let allHelpers = {
     api: {}, // keyed functions
     duplicates: [], // array of duplicates
   }
   includedHelpers.forEach((path) => {
-    var h = require(path)
+    let h = require(path)
     for (const singleHelper in h) {
       if (allHelpers.api[singleHelper] != null) {
         allHelpers.duplicates.push(singleHelper)

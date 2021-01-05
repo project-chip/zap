@@ -113,13 +113,13 @@ function startAnalyze(
   paths,
   options = { log: true, quit: true, cleanDb: true }
 ) {
-  var dbFile = env.sqliteFile('analysis')
+  let dbFile = env.sqliteFile('analysis')
   if (options.log) console.log(`🤖 Starting analysis: ${paths}`)
   if (options.cleanDb && fs.existsSync(dbFile)) {
     if (options.log) console.log('    👉 remove old database file')
     fs.unlinkSync(dbFile)
   }
-  var db
+  let db
   return dbApi
     .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
     .then((d) => {
@@ -150,7 +150,7 @@ function startAnalyze(
 function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
   env.logInitStdout()
   if (options.log) console.log('🤖 Starting self-check')
-  var dbFile = env.sqliteFile('self-check')
+  let dbFile = env.sqliteFile('self-check')
   if (options.cleanDb && fs.existsSync(dbFile)) {
     if (options.log) console.log('    👉 remove old database file')
     fs.unlinkSync(dbFile)
@@ -209,7 +209,7 @@ function startGeneration(
     👉 using templates: ${genTemplateJsonFile}
     👉 using zcl data: ${zclProperties}`
     )
-  var zapFile = null
+  let zapFile = null
   if (zapFiles != null && zapFiles.length > 0) {
     zapFile = zapFiles[0]
     if (zapFiles.length > 1 && options.log)
@@ -217,11 +217,11 @@ function startGeneration(
   }
   if (zapFile != null) {
     if (fs.existsSync(zapFile)) {
-      var stat = fs.statSync(zapFile)
+      let stat = fs.statSync(zapFile)
       if (stat.isDirectory()) {
         if (options.log) console.log(`    👉 using input directory: ${zapFile}`)
-        var dirents = fs.readdirSync(zapFile, { withFileTypes: true })
-        var usedFile = []
+        let dirents = fs.readdirSync(zapFile, { withFileTypes: true })
+        let usedFile = []
         dirents.forEach((element) => {
           if (element.name.endsWith('.zap') || element.name.endsWith('.ZAP')) {
             usedFile.push(path.join(zapFile, element.name))
@@ -253,10 +253,10 @@ function startGeneration(
   }
   if (options.log)
     console.log(`    👉 zap version: ${env.zapVersionAsString()}`)
-  var dbFile = env.sqliteFile('generate')
+  let dbFile = env.sqliteFile('generate')
   if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
-  var packageId
-  var mainDb
+  let packageId
+  let mainDb
   return dbApi
     .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
     .then((db) => {
@@ -319,7 +319,7 @@ function clearDatabaseFile(dbPath) {
  * @param {*} isElectron
  */
 function startUp(isElectron) {
-  var argv = args.processCommandLineArguments(process.argv)
+  let argv = args.processCommandLineArguments(process.argv)
 
   if (argv.logToStdout) {
     env.logInitStdout()

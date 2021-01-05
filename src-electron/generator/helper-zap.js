@@ -171,8 +171,7 @@ function toggle(condition, trueResult, falseResult) {
  */
 function trim_string(str) {
   if (str == null) return null
-  var result = str.trim()
-  return result
+  return str.trim()
 }
 
 /**
@@ -180,7 +179,7 @@ function trim_string(str) {
  * @param {*} str
  */
 function asLastWord(str) {
-  var strings = str.trim().split(' ')
+  let strings = str.trim().split(' ')
   if (strings.length > 0) {
     return strings[strings.length - 1]
   }
@@ -191,10 +190,10 @@ function asLastWord(str) {
  * Iteration block.
  */
 function iterate(options) {
-  var hash = options.hash
-  var ret = ''
-  for (var i = 0; i < hash.count; i++) {
-    var newContext = {
+  let hash = options.hash
+  let ret = ''
+  for (let i = 0; i < hash.count; i++) {
+    let newContext = {
       global: this.global,
       parent: this,
       index: i,
@@ -217,8 +216,8 @@ function addToAccumulator(accumulator, value) {
     }
   }
   this.global.accumulators[accumulator].value.push(value)
-  var lastSum = this.global.accumulators[accumulator].currentSum
-  var newSum
+  let lastSum = this.global.accumulators[accumulator].currentSum
+  let newSum
   if (value != null) {
     newSum = lastSum + value
   } else {
@@ -229,15 +228,15 @@ function addToAccumulator(accumulator, value) {
 }
 
 function iterateAccumulator(options) {
-  var hash = options.hash
+  let hash = options.hash
   if (!('accumulators' in this.global)) {
     return ''
   }
-  var accumulator = this.global.accumulators[hash.accumulator]
-  var ret = ''
+  let accumulator = this.global.accumulators[hash.accumulator]
+  let ret = ''
   if (accumulator != null) {
-    for (var i = 0; i < accumulator.value.length; i++) {
-      var newContext = {
+    for (let i = 0; i < accumulator.value.length; i++) {
+      let newContext = {
         global: this.global,
         parent: this,
         index: i,
@@ -268,7 +267,7 @@ function promiseToResolveAllPreviousPromises(globalPromises) {
   if (globalPromises.length == 0) {
     return Promise.resolve()
   } else {
-    var promises = []
+    let promises = []
     globalPromises.forEach((promise) => {
       promises.push(
         new Promise((resolve, reject) => {
@@ -282,7 +281,7 @@ function promiseToResolveAllPreviousPromises(globalPromises) {
 
 function after(options) {
   return promiseToResolveAllPreviousPromises(this.global.promises).then(() => {
-    var newContext = {
+    let newContext = {
       global: this.global,
       parent: this,
     }

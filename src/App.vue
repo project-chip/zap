@@ -37,16 +37,16 @@ function initLoad(store) {
   })
   store.dispatch('zap/loadSessionKeyValues')
 
-  var promises = []
+  let promises = []
   promises.push(
     Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
-      var arg = response.data
+      let arg = response.data
       store.dispatch('zap/updateClusters', arg.data)
     })
   )
   promises.push(
     Vue.prototype.$serverGet('/zcl/deviceType/all').then((response) => {
-      var arg = response.data
+      let arg = response.data
       store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
     })
   )
@@ -97,7 +97,7 @@ export default {
     this.zclDialogTitle = 'ZCL tab!'
     this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
     this.zclDialogFlag = false
-    var html = document.documentElement
+    let html = document.documentElement
     this.setThemeMode(html)
     new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {

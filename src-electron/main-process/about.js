@@ -22,7 +22,7 @@ const env = require('../util/env.js')
 let window = null
 
 function createAboutWindow(parentWindow, port) {
-  var webPreferences = {
+  let webPreferences = {
     nodeIntegration: false,
   }
   if (parentWindow != null && 'webContents' in parentWindow) {

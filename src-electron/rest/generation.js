@@ -33,7 +33,7 @@ const restApi = require('../../src-shared/rest-api.js')
  */
 function httpGetPreviewNameIndex(db) {
   return (request, response) => {
-    var sessionId = request.session.zapSessionId
+    let sessionId = request.session.zapSessionId
     generationEngine
       .generateSingleFileForPreview(db, sessionId, request.params.name)
       .then((previewObject) => {
@@ -57,7 +57,7 @@ function httpGetPreviewNameIndex(db) {
  */
 function httpGetPreviewName(db) {
   return (request, response) => {
-    var sessionId = request.session.zapSessionId
+    let sessionId = request.session.zapSessionId
     generationEngine
       .generateSingleFileForPreview(db, sessionId, request.params.name)
       .then((previewObject) => response.json(previewObject))
@@ -72,7 +72,7 @@ function httpGetPreviewName(db) {
  */
 function httpGetPreview(db) {
   return (request, response) => {
-    var sessionId = request.session.zapSessionId
+    let sessionId = request.session.zapSessionId
     queryPackage
       .getSessionGenTemplates(db, sessionId)
       .then((previewObject) => response.json(previewObject))

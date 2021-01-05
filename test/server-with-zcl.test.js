@@ -27,13 +27,13 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const testUtil = require('./test-util.js')
 
-var db
-var axiosInstance = null
+let db
+let axiosInstance = null
 
 beforeAll(() => {
   const { port, baseUrl } = testUtil.testServer(__filename)
   env.setDevelopmentEnv()
-  var file = env.sqliteTestFile('server-zcl')
+  let file = env.sqliteTestFile('server-zcl')
   axiosInstance = axios.create({ baseURL: baseUrl })
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
@@ -52,7 +52,7 @@ afterAll(() =>
 
 test('get index.html', () =>
   axiosInstance.get('/index.html').then((response) => {
-    var sessionCookie = response.headers['set-cookie'][0]
+    let sessionCookie = response.headers['set-cookie'][0]
     axiosInstance.defaults.headers.Cookie = sessionCookie
     expect(
       response.data.includes(

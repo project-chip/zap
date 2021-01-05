@@ -41,8 +41,8 @@ function collectDataFromLibraryXml(ctx) {
     )
     .then((data) => zclLoader.parseZclFile(data))
     .then((data) => {
-      var result = data.result
-      var zclLib = result['zcl:library']
+      let result = data.result
+      let zclLib = result['zcl:library']
       ctx.version = '1.0'
       ctx.zclFiles = zclLib['xi:include'].map((f) =>
         path.join(path.dirname(ctx.metadataFile), f.$.href)
@@ -83,7 +83,7 @@ function tagContainsBitmap(tag) {
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
 function parseZclFiles(db, ctx) {
-  var perFilePromise = []
+  let perFilePromise = []
 
   ctx.zclClusters = []
   ctx.zclGlobalAttributes = []
@@ -93,7 +93,7 @@ function parseZclFiles(db, ctx) {
 
   ctx.zclFiles.forEach((file) => {
     env.logInfo(`Starting to parse Dotdot ZCL file: ${file}`)
-    var p = fsp
+    let p = fsp
       .readFile(file)
       .then((data) => util.calculateCrc({ filePath: file, data: data }))
       .then((data) =>
@@ -106,7 +106,7 @@ function parseZclFiles(db, ctx) {
       )
       .then((result) => zclLoader.parseZclFile(result))
       .then((r) => {
-        var result = r.result
+        let result = r.result
 
         if (result == null) {
           return Promise.resolve([])
@@ -115,15 +115,15 @@ function parseZclFiles(db, ctx) {
         if (result['zcl:cluster']) {
           ctx.zclClusters.push(result['zcl:cluster'])
         } else if (result['zcl:global']) {
-          var zclGlobal = result['zcl:global']
+          let zclGlobal = result['zcl:global']
           ctx.zclGlobalTypes = zclGlobal['type:type']
           ctx.zclGlobalAttributes = zclGlobal.attributes[0].attribute
           ctx.zclGlobalCommands = zclGlobal.commands[0].command
         } else if (result['zcl:library']) {
-          var zclLibrary = result['zcl:library']
+          let zclLibrary = result['zcl:library']
           ctx.zclTypes = zclLibrary['type:type']
         } else if (result['zcl:device']) {
-          var deviceTypes = result['zcl:device']
+          let deviceTypes = result['zcl:device']
           if (ctx.zclDeviceTypes === undefined) {
             ctx.zclDeviceTypes = deviceTypes['deviceType']
           } else {
@@ -132,7 +132,7 @@ function parseZclFiles(db, ctx) {
             )
           }
         } else if (result['map']) {
-          var manufacturers = result['map']
+          let manufacturers = result['map']
           ctx.zclManufacturers = manufacturers['mapping']
         } else {
           //TODO: What to do with "derived clusters", we skip them here but we should probably
@@ -162,7 +162,9 @@ function normalizeHexValue(value) {
     if (!value.includes('0x')) {
       ret = '0x' + value.toUpperCase()
     }
-  } catch (error) {}
+  } catch (error) {
+    ret = value
+  }
   return ret
 }
 
@@ -178,12 +180,14 @@ function normalizeHexValue(value) {
 function getNumBytesFromShortName(value) {
   let ret = 0
   try {
-    let sn = value.replace(/[^0-9\.]+/g, '')
+    let sn = value.replace(/[^0-9.]+/g, '')
     if (sn.length > 0) {
       let n = parseInt(sn)
       ret = n / 8
     }
-  } catch (error) {}
+  } catch (error) {
+    ret = value
+  }
   return ret
 }
 
@@ -195,13 +199,13 @@ function getNumBytesFromShortName(value) {
  * @returns Array containing all data from XML ready to be inserted into the DB.
  */
 function prepareAttributes(attributes, side, types, cluster = null) {
-  var ret = []
-  var atts =
+  let ret = []
+  let atts =
     attributes.attribute === undefined ? attributes : attributes.attribute
-  for (var i = 0; i < atts.length; i++) {
+  for (let i = 0; i < atts.length; i++) {
     let a = atts[i]
     env.logInfo(`Preparing attribute ${side} ${a.$.name}`)
-    var attributeData = {
+    let attributeData = {
       code: parseInt(normalizeHexValue(a.$.id)),
       //manufacturerCode: '', // TODO: no manuf code in dotdot xml
       name: a.$.name,
@@ -242,12 +246,12 @@ function prepareAttributes(attributes, side, types, cluster = null) {
  * @returns Array containing all data from XML ready to be inserted in to the DB.
  */
 function prepareCommands(commands, side, types) {
-  var ret = []
-  var cmds = commands.command === undefined ? commands : commands.command
-  for (var i = 0; i < cmds.length; i++) {
+  let ret = []
+  let cmds = commands.command === undefined ? commands : commands.command
+  for (let i = 0; i < cmds.length; i++) {
     let c = cmds[i]
     env.logInfo(`Preparing command ${side} ${c.$.name}`)
-    var pcmd = {
+    let pcmd = {
       code: parseInt(normalizeHexValue(c.$.id)),
       //manufacturerCode: '', //TODO: no manuf code for dotdot xml
       name: c.$.name,
@@ -258,8 +262,8 @@ function prepareCommands(commands, side, types) {
     if ('fields' in c) {
       pcmd.args = []
       c.fields.forEach((fields) => {
-        var fds = fields.field === undefined ? fields : fields.field
-        for (var j = 0; j < fds.length; j++) {
+        let fds = fields.field === undefined ? fields : fields.field
+        for (let j = 0; j < fds.length; j++) {
           let f = fds[j]
           let type = f.$.type
           if (f.bitmap != null && f.bitmap.length > 0) {
@@ -294,7 +298,7 @@ function prepareCommands(commands, side, types) {
  * @returns Object containing all data from XML.
  */
 function prepareCluster(cluster, types, isExtension = false) {
-  var ret = {
+  let ret = {
     isExtension: isExtension,
   }
 
@@ -310,7 +314,7 @@ function prepareCluster(cluster, types, isExtension = false) {
     ret.revision = cluster.$.revision // TODO: revision present in dotdot zcl
     ret.isSingleton = false // TODO: dotdot is not supporting singletons
   }
-  var sides = [
+  let sides = [
     { name: 'server', value: cluster.server },
     { name: 'client', value: cluster.client },
   ]
@@ -372,7 +376,7 @@ function prepareBitmap(
   isContained = false,
   namePrefix = null
 ) {
-  var ret
+  let ret
   if (isContained) {
     ret = {
       //TODO: Bitmaps from clusterOrCommand attributes may not be unique by name so we prepend the clusterOrCommand
@@ -411,7 +415,7 @@ function prepareBitmap(
  * @returns object ready for insertion into the DB
  */
 function prepareEnum(type, fromAttribute = false, namePrefix = null) {
-  var ret
+  let ret
   if (fromAttribute) {
     ret = {
       // TODO: Enums from cluster attributes may not be unique by name so we prepend the cluster
@@ -446,7 +450,7 @@ function prepareEnum(type, fromAttribute = false, namePrefix = null) {
  * @returns object ready for insertion into the DB
  */
 function prepareStruct(type) {
-  var ret = { name: type.$.short }
+  let ret = { name: type.$.short }
   if ('restriction' in type) {
     ret.items = []
     type.restriction[0]['type:sequence'].map((sequence) => {
@@ -513,7 +517,7 @@ function prepareAttributeType(attribute, types, cluster) {
  * @returns an object containing the prepared device types.
  */
 function prepareDeviceType(deviceType) {
-  var ret = {
+  let ret = {
     code: deviceType.deviceId[0]['_'],
     profileId: '0x0000', //There is no profileId in Dotdot device descriptions
     domain: deviceType.domain[0],
@@ -525,8 +529,8 @@ function prepareDeviceType(deviceType) {
     deviceType.clusters.forEach((cluster) => {
       if ('include' in cluster) {
         cluster.include.forEach((include) => {
-          var attributes = []
-          var commands = []
+          let attributes = []
+          let commands = []
           if ('requireAttribute' in include) {
             attributes = include.requireAttribute
           }
@@ -566,30 +570,30 @@ function loadZclData(db, ctx) {
   let types = { atomics: [], enums: [], bitmaps: [], structs: [] }
   prepareTypes(ctx.zclTypes, types)
   prepareTypes(ctx.zclGlobalTypes, types)
-  var cs = []
+  let cs = []
   ctx.zclClusters.forEach((cluster) => {
     env.logInfo(`loading cluster: ${cluster.$.name}`)
-    var c = prepareCluster(cluster, types)
+    let c = prepareCluster(cluster, types)
     cs.push(c)
   })
   // Global attributes don't have a side listed, so they have to be looped through once for each side
-  var gas = []
+  let gas = []
   ctx.zclGlobalAttributes.forEach((a) => {
-    var pa = prepareAttributes([a], 'server', types)
+    let pa = prepareAttributes([a], 'server', types)
     gas = gas.concat(pa)
     pa = prepareAttributes([a], 'client', types)
     gas = gas.concat(pa)
   })
-  var gs = [
+  let gs = [
     {
       attributes: gas,
       commands: prepareCommands(ctx.zclGlobalCommands, '', types),
     },
   ]
-  var ds = []
+  let ds = []
   ctx.zclDeviceTypes.forEach((deviceType) => {
     env.logInfo(`loading device: ${deviceType.typeName[0]}`)
-    var d = prepareDeviceType(deviceType)
+    let d = prepareDeviceType(deviceType)
     ds.push(d)
   })
   return queryZcl

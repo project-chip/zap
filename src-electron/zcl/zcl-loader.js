@@ -39,7 +39,7 @@ const defaultValidator = (zclData) => {
  * @returns Promise to populate data, filePath and crc into the context.
  */
 async function readMetadataFile(ctx) {
-  var data = await fsp.readFile(ctx.metadataFile, { encoding: 'utf-8' })
+  let data = await fsp.readFile(ctx.metadataFile, { encoding: 'utf-8' })
   ctx.data = data
   ctx.filePath = ctx.metadataFile
   return util.calculateCrc(ctx)
@@ -51,7 +51,7 @@ async function readMetadataFile(ctx) {
  * @param {*} ctx
  */
 async function recordToplevelPackage(db, ctx) {
-  var id = await queryPackage.registerTopLevelPackage(
+  let id = await queryPackage.registerTopLevelPackage(
     db,
     ctx.metadataFile,
     ctx.crc,
@@ -83,11 +83,11 @@ async function recordVersion(ctx) {
  * @returns a Promise that resolves with the db.
  */
 async function loadZcl(db, metadataFile) {
-  var ctx = {
+  let ctx = {
     metadataFile: path.resolve(metadataFile),
     db: db,
   }
-  var ext = path.extname(metadataFile)
+  let ext = path.extname(metadataFile)
   if (ext == '.xml') {
     return dLoad.loadDotdotZcl(db, ctx)
   } else if (ext == '.properties') {
@@ -113,7 +113,7 @@ function loadIndividualFile(db, filePath, sessionId) {
       return bindValidationScript(db, zclPropertiesPackages[0].id)
     })
     .then((validator) => {
-      var ext = path.extname(filePath)
+      let ext = path.extname(filePath)
       if (ext == '.xml') {
         return sLoad.loadIndividualSilabsFile(db, filePath, validator)
       } else {
@@ -139,14 +139,16 @@ function bindValidationScript(db, basePackageId) {
       }
       let zclSchema = data[dbEnum.packageType.zclSchema]
       let zclValidation = data[dbEnum.packageType.zclValidation]
-      var module = require(zclValidation)
+      let module = require(zclValidation)
       let validateZclFile = module.validateZclFile
 
-      return readZclFile(zclSchema).then((schemaFile) =>
-        validateZclFile.bind(null, schemaFile)
-      )
+      env.logInfo(`Reading individual file: ${zclSchema}`)
+      return fsp
+        .readFile(zclSchema)
+        .then((schemaFile) => validateZclFile.bind(null, schemaFile))
     })
     .catch((err) => {
+      env.logError(`Error loading package specific validator: ${err}`)
       return defaultValidator
     })
 }
@@ -156,7 +158,7 @@ function bindValidationScript(db, basePackageId) {
  * @param {*} basePackageId
  */
 function getSchemaAndValidationScript(db, basePackageId) {
-  var promises = []
+  let promises = []
   promises.push(
     queryPackage.getPackagesByParentAndType(
       db,
@@ -193,9 +195,9 @@ function getSchemaAndValidationScript(db, basePackageId) {
  */
 function qualifyZclFile(db, info, parentPackageId, packageType) {
   return new Promise((resolve, reject) => {
-    var filePath = info.filePath
-    var data = info.data
-    var actualCrc = info.crc
+    let filePath = info.filePath
+    let data = info.data
+    let actualCrc = info.crc
     queryPackage
       .getPackageByPathAndParent(db, filePath, parentPackageId)
       .then((pkg) => {

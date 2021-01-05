@@ -27,7 +27,7 @@ const env = require('../util/env.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
-var inTransaction = false
+let inTransaction = false
 
 function executeBeginTransaction(db, resolve, reject) {
   db.run('BEGIN TRANSACTION', [], function (err) {
@@ -42,8 +42,8 @@ function executeBeginTransaction(db, resolve, reject) {
 }
 
 function delayBeginTransaction(db, resolve, reject) {
-  var cnt = 0
-  var interval = setInterval(() => {
+  let cnt = 0
+  let interval = setInterval(() => {
     if (inTransaction) {
       cnt++
       if (cnt > 50) {
@@ -257,8 +257,8 @@ async function dbMultiSelect(db, sql, arrayOfArrays) {
     env.logSql(
       `Preparing statement: ${sql} to select ${arrayOfArrays.length} rows.`
     )
-    var rows = []
-    var statement = db.prepare(sql, function (err) {
+    let rows = []
+    let statement = db.prepare(sql, function (err) {
       if (err) reject(err)
       for (const singleArray of arrayOfArrays) {
         statement.get(singleArray, (err2, row) => {
@@ -295,8 +295,8 @@ async function dbMultiInsert(db, sql, arrayOfArrays) {
     env.logSql(
       `Preparing statement: ${sql} to insert ${arrayOfArrays.length} records.`
     )
-    var lastIds = []
-    var statement = db.prepare(sql, function (err) {
+    let lastIds = []
+    let statement = db.prepare(sql, function (err) {
       if (err) reject(err)
       for (const singleArray of arrayOfArrays) {
         statement.run(singleArray, (err2) => {
@@ -338,7 +338,7 @@ async function closeDatabase(database) {
  */
 async function initRamDatabase() {
   return new Promise((resolve, reject) => {
-    var db = new sqlite.Database(':memory:', (err) => {
+    let db = new sqlite.Database(':memory:', (err) => {
       if (err) {
         reject(err)
       } else {
@@ -358,7 +358,7 @@ async function initRamDatabase() {
  */
 async function initDatabase(sqlitePath) {
   return new Promise((resolve, reject) => {
-    var db = new sqlite.Database(sqlitePath, (err) => {
+    let db = new sqlite.Database(sqlitePath, (err) => {
       if (err) {
         reject(err)
       } else {
@@ -448,7 +448,7 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
     .then((context) => {
       if (context.mustLoad && context.hasSchema) {
         if (sqliteFile != null) util.createBackupFile(sqliteFile)
-        var p
+        let p
         if (sqliteFile == null) p = initRamDatabase()
         else p = initDatabase(sqliteFile)
         return p.then((d) => {

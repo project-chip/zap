@@ -34,16 +34,16 @@ const importJs = require('../src-electron/importexport/import.js')
 const restApi = require('../src-shared/rest-api.js')
 const testUtil = require('./test-util.js')
 
-var db
+let db
 const { port, baseUrl } = testUtil.testServer(__filename)
-var packageId
-var sessionId, secondSessionId
-var sessionCookie = null
-var axiosInstance = null
+let packageId
+let sessionId, secondSessionId
+let sessionCookie = null
+let axiosInstance = null
 
 beforeAll(() => {
   env.setDevelopmentEnv()
-  var file = env.sqliteTestFile('server')
+  let file = env.sqliteTestFile('server')
   axiosInstance = axios.create({ baseURL: baseUrl })
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
@@ -159,7 +159,7 @@ describe('Session specific tests', () => {
 
   // We save and then load, which creates a new session.
   test('save into a file and load from file', () => {
-    var f = path.join(env.appDirectory(), 'test-output.json')
+    let f = path.join(env.appDirectory(), 'test-output.json')
     if (fs.existsSync(f)) fs.unlinkSync(f)
     expect(fs.existsSync(f)).toBeFalsy()
     return exportJs

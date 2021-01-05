@@ -36,7 +36,7 @@ const queryPackage = require('../db/query-package.js')
  * @returns Promise of content.
  */
 function zcl_bitmaps(options) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllBitmaps(this.global.db, packageId))
     .then((ens) => templateUtil.collectBlocks(ens, options, this))
@@ -48,7 +48,7 @@ function zcl_bitmaps(options) {
  * @param {*} options
  */
 function zcl_bitmap_items(options) {
-  var promise = queryZcl
+  let promise = queryZcl
     .selectAllBitmapFieldsById(this.global.db, this.id)
     .then((items) => templateUtil.collectBlocks(items, options, this))
   return templateUtil.templatePromise(this.global, promise)
@@ -61,7 +61,7 @@ function zcl_bitmap_items(options) {
  * @returns Promise of content.
  */
 function zcl_enums(options) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllEnums(this.global.db, packageId))
     .then((ens) => templateUtil.collectBlocks(ens, options, this))
@@ -73,7 +73,7 @@ function zcl_enums(options) {
  * @param {*} options
  */
 function zcl_enum_items(options) {
-  var promise = queryZcl
+  let promise = queryZcl
     .selectAllEnumItemsById(this.global.db, this.id)
     .then((items) => templateUtil.collectBlocks(items, options, this))
   return templateUtil.templatePromise(this.global, promise)
@@ -87,7 +87,7 @@ function zcl_enum_items(options) {
  * @returns Promise of content.
  */
 function zcl_structs(options) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllStructs(this.global.db, packageId))
     .then((st) => templateUtil.collectBlocks(st, options, this))
@@ -101,7 +101,7 @@ function zcl_structs(options) {
  * @returns Promise of content.
  */
 function zcl_struct_items(options) {
-  var promise = queryZcl
+  let promise = queryZcl
     .selectAllStructItemsById(this.global.db, this.id)
     .then((st) => templateUtil.collectBlocks(st, options, this))
   return templateUtil.templatePromise(this.global, promise)
@@ -114,7 +114,7 @@ function zcl_struct_items(options) {
  * @returns Promise of content.
  */
 function zcl_device_types(options) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
       queryZcl.selectAllDeviceTypes(this.global.db, packageId)
@@ -130,7 +130,7 @@ function zcl_device_types(options) {
  * @returns Promise of content.
  */
 function zcl_clusters(options) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllClusters(this.global.db, packageId))
     .then((cl) => templateUtil.collectBlocks(cl, options, this))
@@ -147,7 +147,7 @@ function zcl_clusters(options) {
  * @returns Promise of content.
  */
 function zcl_commands(options) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
       if ('id' in this) {
@@ -172,17 +172,17 @@ function zcl_commands(options) {
  * @returns Promise of content.
  */
 function zcl_command_tree(options) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
       return queryZcl.selectCommandTree(this.global.db, packageId)
     })
     .then((cmds) => {
       // Now reduce the array by collecting together arguments.
-      var reducedCommands = []
+      let reducedCommands = []
       cmds.forEach((el) => {
-        var newCommand
-        var lastCommand
+        let newCommand
+        let lastCommand
         if (reducedCommands.length == 0) {
           newCommand = true
         } else {
@@ -197,7 +197,7 @@ function zcl_command_tree(options) {
           }
         }
 
-        var arg
+        let arg
         if (el.argName == null) {
           arg = null
         } else {
@@ -226,7 +226,7 @@ function zcl_command_tree(options) {
           } else {
             el.argsstring = ''
           }
-          var n = ''
+          let n = ''
           if (el.clusterCode == null) {
             n = n.concat('Global')
           } else {
@@ -262,7 +262,7 @@ function zcl_command_tree(options) {
  * @returns Promise of global command iteration.
  */
 function zcl_global_commands(options) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
       queryZcl.selectAllGlobalCommands(this.global.db, packageId)
@@ -282,7 +282,7 @@ function zcl_global_commands(options) {
 function zcl_attributes(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
       if ('id' in this) {
@@ -311,7 +311,7 @@ function zcl_attributes(options) {
 function zcl_attributes_client(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
       if ('id' in this) {
@@ -344,7 +344,7 @@ function zcl_attributes_client(options) {
 function zcl_attributes_server(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
       if ('id' in this) {
@@ -374,7 +374,7 @@ function zcl_attributes_server(options) {
  * @returns Promise of content.
  */
 function zcl_atomics(options) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllAtomics(this.global.db, packageId))
     .then((ats) => templateUtil.collectBlocks(ats, options, this))
@@ -388,7 +388,7 @@ function zcl_atomics(options) {
  * @returns the length of largest cluster name in a list of clusters
  */
 function zcl_cluster_largest_label_length() {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllClusters(this.global.db, packageId))
     .then((cl) => largestLabelLength(cl))
@@ -413,8 +413,8 @@ function largestLabelLength(arrayOfClusters) {
  * @returns Number of command arguments as an integer
  */
 function zcl_command_arguments_count(commandId) {
-  var promise = templateUtil.ensureZclPackageId(this).then((packageId) => {
-    var res = queryZcl.selectCommandArgumentsCountByCommandId(
+  let promise = templateUtil.ensureZclPackageId(this).then((packageId) => {
+    let res = queryZcl.selectCommandArgumentsCountByCommandId(
       this.global.db,
       commandId,
       packageId
@@ -442,10 +442,10 @@ function if_command_arguments_exist(
   argument_return,
   no_argument_return
 ) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
-      var res = queryZcl.selectCommandArgumentsCountByCommandId(
+      let res = queryZcl.selectCommandArgumentsCountByCommandId(
         this.global.db,
         commandId,
         packageId
@@ -470,8 +470,8 @@ function if_command_arguments_exist(
  * @returns Promise of command argument iteration.
  */
 function zcl_command_arguments(options) {
-  var commandArgs = this.commandArgs
-  var p
+  let commandArgs = this.commandArgs
+  let p
 
   // When we are coming from commant_tree, then
   // the commandArgs are already present and there is no need
@@ -493,7 +493,7 @@ function zcl_command_arguments(options) {
     p = Promise.resolve(commandArgs)
   }
 
-  var promise = p.then((args) =>
+  let promise = p.then((args) =>
     templateUtil.collectBlocks(args, options, this)
   )
   return templateUtil.templatePromise(this.global, promise)
@@ -506,7 +506,7 @@ function zcl_command_arguments(options) {
  * @param {*} options
  */
 function zcl_command_argument_data_type(type, options) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
       Promise.all([
@@ -517,7 +517,7 @@ function zcl_command_argument_data_type(type, options) {
         .then(
           (res) =>
             new Promise((resolve, reject) => {
-              for (var i = 0; i < res.length; i++) {
+              for (let i = 0; i < res.length; i++) {
                 if (res[i] != 'unknown') {
                   resolve(res[i])
                   return
@@ -593,7 +593,7 @@ function defaultMessageForTypeConversion(fromType, toType, noWarning) {
  * will return 's'
  */
 function calculateBytes(res, options) {
-  var numberPattern = /\d+/g
+  let numberPattern = /\d+/g
   let num = res.match(numberPattern)
   switch (num / 8) {
     case 1:
@@ -789,7 +789,7 @@ function dataTypeHelper(
  * will return 'b'
  */
 function asUnderlyingZclType(type, options) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
       Promise.all([
@@ -804,7 +804,7 @@ function asUnderlyingZclType(type, options) {
         .then(
           (res) =>
             new Promise((resolve, reject) => {
-              for (var i = 0; i < res.length; i++) {
+              for (let i = 0; i < res.length; i++) {
                 if (res[i] != 'unknown') {
                   resolve(res[i])
                   return
@@ -970,10 +970,10 @@ function if_manufacturing_specific_cluster(
   manufacturer_specific_return,
   null_manufacturer_specific_return
 ) {
-  var promise = templateUtil
+  let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
-      var res = queryZcl.selectClusterById(this.global.db, clusterId, packageId)
+      let res = queryZcl.selectClusterById(this.global.db, clusterId, packageId)
       return res
     })
     .then((res) => {
