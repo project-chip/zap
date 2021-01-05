@@ -45,16 +45,6 @@ function toCamelCase(label, firstLower = true) {
   return res
 }
 
-function toUnderscoreLowercase(str) {
-  let label = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
-    return '_' + y
-  })
-  if (label.startsWith('_')) {
-    label = label.substring(1)
-  }
-  return label.toLowerCase()
-}
-
 function toSpacedLowercase(str) {
   let res = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return ' ' + y
@@ -96,6 +86,10 @@ function toSnakeCaseAllCaps(label) {
     }
   }
   return toCleanMacro(ret)
+}
+
+function toSnakeCase(str) {
+  return toSnakeCaseAllCaps(str).toLowerCase()
 }
 
 /**
@@ -156,7 +150,7 @@ function isDigit(ch) {
 exports.toCamelCase = toCamelCase
 exports.toCleanSymbol = toCleanSymbol
 exports.toCleanMacro = toCleanMacro
-exports.toUnderscoreLowercase = toUnderscoreLowercase
+exports.toSnakeCase = toSnakeCase
 exports.toSpacedLowercase = toSpacedLowercase
 exports.toSnakeCaseAllCaps = toSnakeCaseAllCaps
 exports.isDigit = isDigit

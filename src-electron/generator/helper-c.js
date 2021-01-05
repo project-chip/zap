@@ -225,7 +225,7 @@ function cleanseLabel(label) {
  * @returns String in lowercase with underscores
  */
 function asUnderscoreLowercase(str) {
-  return string.toUnderscoreLowercase(str)
+  return string.toSnakeCase(str)
 }
 
 /**
@@ -342,6 +342,7 @@ exports.asCamelCased = dep(asCamelCased, { to: 'as_camel_cased' })
 exports.cleanse_label = cleanseLabel
 exports.cleanseLabel = dep(cleanseLabel, { to: 'cleanse_label' })
 
+exports.as_snake_case = asUnderscoreLowercase
 exports.as_underscore_lowercase = asUnderscoreLowercase
 exports.asUnderscoreLowercase = dep(asUnderscoreLowercase, {
   to: 'as_underscore_lowercase',
