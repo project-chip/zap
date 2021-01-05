@@ -27,6 +27,7 @@ const testUtil = require('./test-util.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const zclHelper = require('../src-electron/generator/helper-zcl.js')
 const dbEnum = require('../src-shared/db-enum.js')
+const zapHelper = require('../src-electron/generator/helper-zap.js')
 
 let db
 const templateCount = 13
@@ -175,4 +176,11 @@ test('Various small Helper', () => {
   zclHelper.isStruct(db, 'Protocol', zclContext.packageId).then((result) => {
     expect(result).toBe(dbEnum.zclType.struct)
   })
+})
+
+/*
+helper-zap.js
+*/
+test('Various small Helper', () => {
+  expect(zapHelper.is_lowercase_equal('A', 'a')).toBeTruthy()
 })
