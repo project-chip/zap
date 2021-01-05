@@ -106,7 +106,7 @@ export default {
   mixins: [CommonMixin],
   methods: {
     getFileName(path) {
-      let fileName = path.match(/[^\/]+$/)
+      let fileName = path.match(/[^/]+$/)
       return fileName.length > 0 ? fileName[0] : path
     },
     loadNewPackage(packageToLoad) {

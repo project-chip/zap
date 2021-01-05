@@ -162,7 +162,9 @@ function normalizeHexValue(value) {
     if (!value.includes('0x')) {
       ret = '0x' + value.toUpperCase()
     }
-  } catch (error) {}
+  } catch (error) {
+    ret = value
+  }
   return ret
 }
 
@@ -178,12 +180,14 @@ function normalizeHexValue(value) {
 function getNumBytesFromShortName(value) {
   let ret = 0
   try {
-    let sn = value.replace(/[^0-9\.]+/g, '')
+    let sn = value.replace(/[^0-9.]+/g, '')
     if (sn.length > 0) {
       let n = parseInt(sn)
       ret = n / 8
     }
-  } catch (error) {}
+  } catch (error) {
+    ret = value
+  }
   return ret
 }
 
