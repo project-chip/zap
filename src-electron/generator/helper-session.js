@@ -327,6 +327,27 @@ async function user_default_response_policy(options) {
   else return value
 }
 
+/*
+ * @param {*} endpointTypeId
+ * Returns the endpoint type identifier for an endpoint type
+ */
+function endpoint_type_identifier(endpointTypeId) {
+  return queryImpexp
+    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryImpexp
+        .exportEndpoints(this.global.db, this.global.sessionId, endpointTypes)
+        .then((endpoints) => {
+          let i = 0
+          for (i = 0; i < endpoints.length; i++) {
+            if (endpointTypeId == endpoints[i].endpointTypeRef) {
+              return endpoints[i].endpointId
+            }
+          }
+        })
+    )
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -348,3 +369,4 @@ exports.user_cluster_has_enabled_command = user_cluster_has_enabled_command
 exports.user_session_key = user_session_key
 exports.user_manufacturer_code = user_manufacturer_code
 exports.user_default_response_policy = user_default_response_policy
+exports.endpoint_type_identifier = endpoint_type_identifier

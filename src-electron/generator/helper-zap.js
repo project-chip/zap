@@ -159,6 +159,17 @@ function isEqual(string_a, string_b) {
   return string_a.trim() === string_b.trim()
 }
 
+/**
+ * This returns a boolean based on the 2 strings being equal or not given that both
+ * @param {*} string_a
+ * @param {*} string_b
+ */
+function is_lowercase_equal(string_a, string_b) {
+  str1 = string_a.toLowerCase().replace(/"/g, '').trim()
+  str2 = string_b.toLowerCase().replace(/"/g, '').trim()
+  return 0 == str1.localeCompare(str2)
+}
+
 function toggle(condition, trueResult, falseResult) {
   return condition ? trueResult : falseResult
 }
@@ -289,6 +300,14 @@ function after(options) {
   })
 }
 
+/**
+ * Given: A list of strings
+ * Returns a concatenated string with spaces between each string
+ */
+function concatenate() {
+  return Array.prototype.slice.call(arguments, 0, -1).join(' ')
+}
+
 const dep = templateUtil.deprecatedHelper
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -318,3 +337,5 @@ exports.iterateAccumulator = dep(iterateAccumulator, {
 })
 exports.after = after
 exports.toggle = toggle
+exports.concatenate = concatenate
+exports.is_lowercase_equal = is_lowercase_equal

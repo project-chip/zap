@@ -133,7 +133,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged && jsdoc src-electron src-shared -r -d ./generated-html/"
+      "pre-commit": "pretty-quick --staged && jsdoc src-electron src-shared -r -d ./generated-html/ && eslint --ext .js,.vue src src-electron src-shared src-script test"
     }
   },
   "prettier": {

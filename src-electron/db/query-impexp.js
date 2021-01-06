@@ -73,6 +73,7 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
     return {
       endpointTypeName: x.NAME,
       endpointTypeIndex: endpointTypeIndex(endpointTypes, x.ENDPOINT_TYPE_REF),
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
       profileId: x.PROFILE,
       endpointId: x.ENDPOINT_IDENTIFIER,
       networkId: x.NETWORK_IDENTIFIER,
