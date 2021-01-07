@@ -25,39 +25,6 @@ const queryConfig = require('./query-config.js')
 const bin = require('../util/bin.js')
 
 /**
- * Returns promise of all endpoints.
- *
- * @param {*} db
- * @param {*} sessionId
- * @returns promise that resolves into endpoints rows
- */
-async function queryEndpoints(db, sessionId) {
-  return queryConfig.getAllEndpoints(db, sessionId)
-}
-
-/**
- * Returns endpoint types.
- *
- * @param {*} db
- * @param {*} sessionId
- * @returns promise that resolves into endpoint types rows
- */
-async function queryEndpointTypes(db, sessionId) {
-  return queryConfig.getAllEndpointTypes(db, sessionId)
-}
-
-/**
- * Returns endpoint type.
- *
- * @param {*} db
- * @param {*} endpointTypeId
- * @returns promise that resolves into endpoint type
- */
-async function queryEndpointType(db, endpointTypeId) {
-  return queryConfig.getEndpointType(db, endpointTypeId)
-}
-
-/**
  * Retrieves clusters on an endpoint.
  *
  * @param {*} db
@@ -240,9 +207,9 @@ ORDER BY C.CODE
     )
 }
 
-exports.queryEndpoints = queryEndpoints
+exports.queryEndpoints = queryConfig.getAllEndpoints
 exports.queryEndpointClusters = queryEndpointClusters
-exports.queryEndpointTypes = queryEndpointTypes
-exports.queryEndpointType = queryEndpointType
+exports.queryEndpointTypes = queryConfig.getAllEndpointTypes
+exports.queryEndpointType = queryConfig.getEndpointType
 exports.queryEndpointClusterAttributes = queryEndpointClusterAttributes
 exports.queryEndpointClusterCommands = queryEndpointClusterCommands
