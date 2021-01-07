@@ -25,6 +25,7 @@ const dbMapping = require('./db-mapping.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
+
 /**
  * Promises to update or insert a key/value pair in SESSION_KEY_VALUE table.
  *
@@ -74,8 +75,11 @@ async function getSessionKeyValue(db, sessionId, key) {
     'SELECT VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? AND KEY = ?',
     [sessionId, key]
   )
-  if (row == null) return undefined
-  else return row.VALUE
+  if (row == null) {
+    return undefined
+  } else {
+    return row.VALUE
+  }
 }
 
 /**
@@ -210,6 +214,7 @@ async function insertOrUpdateAttributeState(
     attributeId,
     clusterRef
   )
+
   return dbApi
     .dbInsert(
       db,
@@ -572,13 +577,13 @@ async function deleteEndpointType(db, id) {
  * @returns Promise to update endpoints.
  */
 async function insertEndpointType(db, sessionId, name, deviceTypeRef) {
-  let newEndpointId = await dbApi.dbInsert(
+  let newEndpointTypeId = await dbApi.dbInsert(
     db,
     'INSERT OR REPLACE INTO ENDPOINT_TYPE ( SESSION_REF, NAME, DEVICE_TYPE_REF ) VALUES ( ?, ?, ?)',
     [sessionId, name, deviceTypeRef]
   )
-  await setEndpointDefaults(db, newEndpointId, deviceTypeRef)
-  return newEndpointId
+  await setEndpointDefaults(db, newEndpointTypeId, deviceTypeRef)
+  return newEndpointTypeId
 }
 
 /**
@@ -1241,15 +1246,19 @@ exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState
 exports.insertOrUpdateCommandState = insertOrUpdateCommandState
 exports.getAllEndpointTypeClusterState = getAllEndpointTypeClusterState
 exports.convertRestKeyToDbColumn = convertRestKeyToDbColumn
+
 exports.insertEndpoint = insertEndpoint
 exports.deleteEndpoint = deleteEndpoint
 exports.updateEndpoint = updateEndpoint
 exports.selectEndpoint = selectEndpoint
+
 exports.insertEndpointType = insertEndpointType
 exports.deleteEndpointType = deleteEndpointType
 exports.updateEndpointType = updateEndpointType
 exports.insertEndpointTypes = insertEndpointTypes
 exports.getAllEndpointTypes = getAllEndpointTypes
+exports.getEndpointType = getEndpointType
+
 exports.getEndpointTypeClusters = getEndpointTypeClusters
 exports.getOrInsertDefaultEndpointTypeCluster = getOrInsertDefaultEndpointTypeCluster
 exports.getEndpointTypeAttributes = getEndpointTypeAttributes
@@ -1260,4 +1269,3 @@ exports.getEndpointTypeCount = getEndpointTypeCount
 exports.getEndpointTypeCountByCluster = getEndpointTypeCountByCluster
 exports.getAllSessionAttributes = getAllSessionAttributes
 exports.insertClusterDefaults = insertClusterDefaults
-exports.getEndpointType = getEndpointType
