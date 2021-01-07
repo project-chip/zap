@@ -22,6 +22,8 @@
 const fsp = require('fs').promises
 const importIsc = require('./import-isc.js')
 const importJson = require('./import-json.js')
+const dbApi = require('../db/db-api.js')
+const querySession = require('../db/query-session.js')
 
 /**
  * Reads the data from the file and resolves with the state object if all is good.
@@ -53,7 +55,17 @@ async function readDataFromFile(filePath) {
  */
 async function importDataFromFile(db, filePath, sessionId = null) {
   let state = await readDataFromFile(filePath)
-  return state.loader(db, state, sessionId)
+  return dbApi
+    .dbBeginTransaction(db)
+    .then(() => {
+      if (sessionId == null) {
+        return querySession.createBlankSession(db)
+      } else {
+        return sessionId
+      }
+    })
+    .then((sessionId) => state.loader(db, state, sessionId))
+    .finally(() => dbApi.dbCommit(db))
 }
 // exports
 exports.readDataFromFile = readDataFromFile

@@ -231,25 +231,14 @@ function importEndpointTypes(
  * @export
  * @param {*} db
  * @param {*} state
- * @param {*} existingSessionId If null, then new session will get
+ * @param {*} sessionId If null, then new session will get
  *              created, otherwise it loads the data into an
  *              existing session. Previous session data is not deleted.
  * @returns a promise that resolves into a sessionId that was created.
  */
-function jsonDataLoader(db, state, existingSessionId = null) {
-  return dbApi
-    .dbBeginTransaction(db)
-    .then(() => {
-      if (existingSessionId == null) {
-        return querySession.createBlankSession(db)
-      } else {
-        return existingSessionId
-      }
-    })
-    .then((sessionId) =>
-      importPackages(db, sessionId, state.package, state.filePath)
-    )
-    .then((data) => {
+function jsonDataLoader(db, state, sessionId) {
+  return importPackages(db, sessionId, state.package, state.filePath).then(
+    (data) => {
       // data: { sessionId, packageId, otherIds}
       let promisesStage1 = [] // Stage 1 is endpoint types
       let promisesStage2 = [] // Stage 2 is endpoints, which require endpoint types to be loaded prior.
@@ -278,8 +267,8 @@ function jsonDataLoader(db, state, existingSessionId = null) {
       return Promise.all(promisesStage1)
         .then(() => Promise.all(promisesStage2))
         .then(() => data.sessionId)
-    })
-    .finally(() => dbApi.dbCommit(db))
+    }
+  )
 }
 
 /**
