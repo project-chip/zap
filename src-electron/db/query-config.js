@@ -547,30 +547,6 @@ WHERE ENDPOINT_ID = ?`,
 }
 
 /**
- * Promises to add an endpoint type.
- *
- * @export
- * @param {*} db
- * @param {*} sessionId
- * @param {*} name
- * @param {*} deviceTypeRef
- * @returns Promise to update endpoints.
- */
-async function insertEndpointType(db, sessionId, name, deviceTypeRef) {
-  return dbApi
-    .dbInsert(
-      db,
-      'INSERT OR REPLACE INTO ENDPOINT_TYPE ( SESSION_REF, NAME, DEVICE_TYPE_REF ) VALUES ( ?, ?, ?)',
-      [sessionId, name, deviceTypeRef]
-    )
-    .then((newEndpointId) =>
-      setEndpointDefaults(db, newEndpointId, deviceTypeRef).then(
-        () => newEndpointId
-      )
-    )
-}
-
-/**
  * Promise to delete an endpoint type.
  * @param {*} db
  * @param {*} sessionId
@@ -583,6 +559,26 @@ async function deleteEndpointType(db, id) {
     'DELETE FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?',
     [id]
   )
+}
+
+/**
+ * Promises to add an endpoint type.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} name
+ * @param {*} deviceTypeRef
+ * @returns Promise to update endpoints.
+ */
+async function insertEndpointType(db, sessionId, name, deviceTypeRef) {
+  let newEndpointId = await dbApi.dbInsert(
+    db,
+    'INSERT OR REPLACE INTO ENDPOINT_TYPE ( SESSION_REF, NAME, DEVICE_TYPE_REF ) VALUES ( ?, ?, ?)',
+    [sessionId, name, deviceTypeRef]
+  )
+  await setEndpointDefaults(db, newEndpointId, deviceTypeRef)
+  return newEndpointId
 }
 
 /**
@@ -601,25 +597,15 @@ async function updateEndpointType(
   updatedValue
 ) {
   let param = convertRestKeyToDbColumn(updateKey)
-  return dbApi
-    .dbUpdate(
-      db,
-      `UPDATE ENDPOINT_TYPE SET ${param} = ? WHERE ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?`,
-      [updatedValue, endpointTypeId, sessionId]
-    )
-    .then((newEndpointId) => {
-      if (param === 'DEVICE_TYPE_REF') {
-        return new Promise((resolve, reject) =>
-          setEndpointDefaults(db, endpointTypeId, updatedValue).then(
-            (newData) => {
-              resolve(newEndpointId)
-            }
-          )
-        )
-      } else {
-        return new Promise((resolve, reject) => resolve(newEndpointId))
-      }
-    })
+  let newEndpointId = await dbApi.dbUpdate(
+    db,
+    `UPDATE ENDPOINT_TYPE SET ${param} = ? WHERE ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?`,
+    [updatedValue, endpointTypeId, sessionId]
+  )
+  if (param === 'DEVICE_TYPE_REF') {
+    await setEndpointDefaults(db, endpointTypeId, updatedValue)
+  }
+  return newEndpointId
 }
 
 /**
