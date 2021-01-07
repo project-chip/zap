@@ -236,7 +236,7 @@ function importEndpointTypes(
  *              existing session. Previous session data is not deleted.
  * @returns a promise that resolves into a sessionId that was created.
  */
-function writeStateToDatabase(db, state, existingSessionId = null) {
+function jsonDataLoader(db, state, existingSessionId = null) {
   return dbApi
     .dbBeginTransaction(db)
     .then(() => {
@@ -305,7 +305,7 @@ async function readJsonData(filePath, data) {
       key: dbEnum.sessionKey.filePath,
       value: filePath,
     })
-    state.loader = writeStateToDatabase
+    state.loader = jsonDataLoader
     return state
   } else {
     throw status.message

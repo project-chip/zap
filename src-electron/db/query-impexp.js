@@ -172,8 +172,8 @@ INSERT INTO ENDPOINT_TYPE (
     [
       sessionId,
       endpointType.name,
-      endpointType.deviceTypeCode,
-      endpointType.deviceTypeProfileId,
+      parseInt(endpointType.deviceTypeCode),
+      parseInt(endpointType.deviceTypeProfileId),
       packageId,
     ]
   )
