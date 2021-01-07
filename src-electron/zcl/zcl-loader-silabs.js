@@ -558,8 +558,8 @@ function processEnums(db, filePath, packageId, data) {
  */
 function prepareDeviceType(deviceType) {
   let ret = {
-    code: deviceType.deviceId[0]['_'],
-    profileId: deviceType.profileId[0]['_'],
+    code: parseInt(deviceType.deviceId[0]['_']),
+    profileId: parseInt(deviceType.profileId[0]['_']),
     domain: deviceType.domain[0],
     name: deviceType.name[0],
     description: deviceType.typeName[0],

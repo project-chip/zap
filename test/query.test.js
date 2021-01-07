@@ -503,7 +503,7 @@ describe('Endpoint Type Config Queries', () => {
       })
       .then((endpoint) => {
         expect(endpoint.endpointId).toBe(4)
-        expect(endpoint.profileId).toBe('0x0104')
+        expect(endpoint.profileId).toBe(260)
         expect(endpoint.networkId).toBe(9)
         expect(endpoint.endpointTypeRef).toBe(endpointTypeIdOnOff)
       }))

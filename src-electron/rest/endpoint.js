@@ -85,9 +85,7 @@ function httpPostEndpoint(db) {
           })
         })
       )
-      .catch((err) => {
-        return response.status(restApi.httpCode.badRequest).send()
-      })
+      .catch((err) => response.status(restApi.httpCode.badRequest).send())
   }
 }
 

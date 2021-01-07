@@ -234,7 +234,21 @@ async function readIscData(filePath, data) {
   }
 }
 
+async function loadEndpointType(endpointType) {
+  let deviceType = endpointType.device
+  let deviceId = endpointType.deviceId
+
+  console.log(`Loading device type: ${deviceType} / ${deviceId}`)
+}
+
 async function iscDataLoader(db, state, sessionId) {
+  let endpointTypes = state.endpointTypes
+  let promises = []
+  for (let key in endpointTypes) {
+    promises.push(loadEndpointType(endpointTypes[key]))
+  }
+  await Promise.all(promises)
+
   throw 'ISC not yet supported.'
 }
 
