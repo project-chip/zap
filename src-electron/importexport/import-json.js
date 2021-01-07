@@ -16,8 +16,6 @@
  */
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const querySession = require('../db/query-session.js')
-const dbApi = require('../db/db-api.js')
 const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const queryPackage = require('../db/query-package.js')
@@ -30,7 +28,7 @@ const queryImpexp = require('../db/query-impexp.js')
  * @param {*} sessionId
  * @param {*} keyValuePairs
  */
-function importSessionKeyValues(db, sessionId, keyValuePairs) {
+async function importSessionKeyValues(db, sessionId, keyValuePairs) {
   let allQueries = []
   if (keyValuePairs != null) {
     env.logInfo(`Loading ${keyValuePairs.length} key value pairs.`)
@@ -47,7 +45,7 @@ function importSessionKeyValues(db, sessionId, keyValuePairs) {
 // Resolves into a { packageId:, packageType:}
 // object, pkg has`path`, `version`, `type`. It can ALSO have pathRelativity. If pathRelativity is missing
 // path is considered absolute.
-function importSinglePackage(db, sessionId, pkg, zapFilePath) {
+async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
   let absPath = pkg.path
   if ('pathRelativity' in pkg) {
     absPath = util.createAbsolutePath(pkg.path, pkg.pathRelativity, zapFilePath)
@@ -111,7 +109,7 @@ function convertPackageResult(sessionId, data) {
 }
 
 // Returns a promise that resolves into an object containing: packageId and otherIds
-function importPackages(db, sessionId, packages, zapFilePath) {
+async function importPackages(db, sessionId, packages, zapFilePath) {
   let allQueries = []
   if (packages != null) {
     env.logInfo(`Loading ${packages.length} packages`)
@@ -119,12 +117,12 @@ function importPackages(db, sessionId, packages, zapFilePath) {
       allQueries.push(importSinglePackage(db, sessionId, p, zapFilePath))
     })
   }
-  return Promise.all(allQueries).then((data) => {
-    return convertPackageResult(sessionId, data)
-  })
+  return Promise.all(allQueries).then((data) =>
+    convertPackageResult(sessionId, data)
+  )
 }
 
-function importEndpoints(db, sessionId, endpoints) {
+async function importEndpoints(db, sessionId, endpoints) {
   let allQueries = []
   if (endpoints != null) {
     env.logInfo(`Loading ${endpoints.length} endpoints`)
@@ -135,7 +133,7 @@ function importEndpoints(db, sessionId, endpoints) {
   return Promise.all(allQueries)
 }
 
-function importEndpointTypes(
+async function importEndpointTypes(
   db,
   sessionId,
   packageId,
@@ -236,7 +234,7 @@ function importEndpointTypes(
  *              existing session. Previous session data is not deleted.
  * @returns a promise that resolves into a sessionId that was created.
  */
-function jsonDataLoader(db, state, sessionId) {
+async function jsonDataLoader(db, state, sessionId) {
   return importPackages(db, sessionId, state.package, state.filePath).then(
     (data) => {
       // data: { sessionId, packageId, otherIds}
