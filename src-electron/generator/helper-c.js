@@ -34,8 +34,9 @@ const _ = require('lodash')
  * Given a hex number, it prints the offset, which is the index of the first non-zero bit.
  * @param {*} hex
  */
-function asOffset(hex) {
-  return bin.bitOffset(bin.hexToBinary(hex))
+function asOffset(number) {
+  let num = parseInt(number)
+  return bin.bitOffset(bin.hexToBinary(num.toString(16)))
 }
 
 /**

@@ -182,7 +182,7 @@ function prepareBitmap(bm) {
     bm.field.forEach((field, index) => {
       ret.fields.push({
         name: field.$.name,
-        mask: field.$.mask,
+        mask: parseInt(field.$.mask),
         type: maskToType(field.$.mask),
         ordinal: index,
       })
@@ -524,7 +524,7 @@ function prepareEnum(en) {
     en.item.forEach((item, index) => {
       ret.items.push({
         name: item.$.name,
-        value: item.$.value,
+        value: parseInt(item.$.value),
         ordinal: index,
       })
     })

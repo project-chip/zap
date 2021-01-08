@@ -434,7 +434,7 @@ function prepareEnum(type, fromAttribute = false, namePrefix = null) {
     type.restriction[0]['type:enumeration'].map((e, index) => {
       ret.items.push({
         name: e.$.name,
-        value: normalizeHexValue(e.$.value),
+        value: parseInt(normalizeHexValue(e.$.value)),
         ordinal: index,
       })
     })
