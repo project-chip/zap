@@ -217,7 +217,7 @@ function processBitmaps(db, filePath, packageId, data) {
 function prepareAtomic(a) {
   return {
     name: a.$.name,
-    id: a.$.id,
+    id: parseInt(a.$.id),
     size: a.$.size,
     description: a.$.description,
     discrete: a.$.discrete == 'true' ? true : false,

@@ -355,7 +355,7 @@ function prepareCluster(cluster, types, isExtension = false) {
 function prepareAtomic(type) {
   return {
     name: type.$.short,
-    id: normalizeHexValue(type.$.id),
+    id: parseInt(normalizeHexValue(type.$.id)),
     size: getNumBytesFromShortName(type.$.short),
     description: type.$.name,
     discrete: type.$.discrete == 'true' ? true : false,
