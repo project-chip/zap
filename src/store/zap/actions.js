@@ -113,16 +113,14 @@ export function updateSelectedCommands(context, selectionContext) {
 }
 
 export function updateSelectedComponent(context, payload) {
-  let { componentId, added } = payload
-  let op = added ? restApi.uc.componentAdd : restApi.uc.componentRemove
-  return Vue.prototype.$serverGet(op, { params: payload }).then((res) => {
-    return Promise.resolve({ res, componentId, added })
-  })
+  let op = payload.added ? restApi.uc.componentAdd : restApi.uc.componentRemove
+  return Vue.prototype.$serverPost(op, payload)
 }
 
 export function updateSelectedServers(context, selectionContext) {
   Vue.prototype
     .$serverPost(restApi.uri.cluster, {
+      clusterId: selectionContext.clusterId,
       endpointTypeId: selectionContext.endpointTypeId,
       id: selectionContext.id,
       side: 'server',
@@ -144,6 +142,8 @@ export function updateSelectedClients(context, selectionContext) {
     .then(() => {
       context.commit('updateInclusionList', selectionContext)
     })
+
+  // enable corresponding component for selected clusters
 }
 
 export function getProjectPackages(context) {

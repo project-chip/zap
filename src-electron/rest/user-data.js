@@ -22,12 +22,16 @@
  */
 
 const env = require('../util/env.js')
+const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
 const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
 const zclLoader = require('../zcl/zcl-loader.js')
+const sdkExt = require('../generator/helper-sdkextension.js')
 const session = require('express-session')
+const dbEnum = require('../../src-shared/db-enum.js')
+const ideIntegrationZcl = require('../ide-integration/zcl.js')
 
 /**
  * HTTP GET: session key values
@@ -113,13 +117,11 @@ function httpPostCluster(db) {
       })
   }
 }
-
 /**
  * HTTP POST attribute update
  *
  * @param {*} db
- * @returns callback for the express uri registration
- */
+ * @returns callback for the express uri registration */
 function httpPostAttributeUpdate(db) {
   return (request, response) => {
     let {

@@ -23,8 +23,10 @@
 
 const env = require('../util/env.js')
 const studio = require('../ide-integration/studio-integration.js')
+const zcl = require('../ide-integration/zcl.js')
 const http = require('http-status-codes')
 const restApi = require('../../src-shared/rest-api.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 function httpGetComponentTree(db) {
   return (req, res) => {
@@ -50,56 +52,77 @@ function httpGetComponentTree(db) {
   }
 }
 
-//  input:
-//    enabling component by specified 'componentId' or leveraging cluster to component mapping by
-//    specifying 'clusterId' and 'side'.
-//
-function httpGetComponentAdd(db) {
-  return (req, res) => {
-    let name = studio.projectName(req.query.studioProject)
-    let componentId = ''
+function updateComponent(db, request, response, add) {
+  let { componentId, studioProject, clusterId, side } = request.body
+  let studioProjectName = studio.projectName(studioProject)
+  let componentIds = []
 
-    if (req.query.componentId) {
-      componentId = req.query.componentId
-    } else {
-      // check for cluster / component mapping
-    }
-
-    env.logInfo(`StudioUC(${name}): Enabling component "${componentId}"`)
-    studio
-      .addComponent(req.query.studioProject, componentId)
-      .then((r) => {
-        if (r.status == http.StatusCodes.OK) {
-          env.logInfo(`StudioUC(${name}): Component "${componentId}" added.`)
-        }
-        return res.send(r.data)
-      })
-      .catch((err) => handleError(err, res))
+  // retrieve components to enable
+  if (componentId) {
+    componentIds.push(Promise.resolve(componentId))
+  } else if (clusterId) {
+    let ids = zcl
+      .getComponentIdsByCluster(
+        db,
+        request.session.zapSessionId,
+        clusterId,
+        side
+      )
+      .then((response) => Promise.resolve(response.id))
+    componentIds.push(ids)
   }
+
+  Promise.all(componentIds).then(function (results) {
+    let promises = []
+    let ids = []
+    let act = add ? 'Enabling' : 'Disabling'
+    let acted = add ? 'Added' : 'Removed'
+
+    // flatten arrays of results into list
+    results.forEach((x) => (ids = ids.concat(x)))
+
+    // reply empty result if no component to update.
+    if (ids.length == 0) {
+      return response.send({ componentIds: [], added: add })
+    } else {
+      // enabling all components
+      env.logInfo(`StudioUC(${studioProjectName}): ${act} components [${ids}]`)
+      if (add) {
+        promises = ids.map((id) => studio.addComponent(studioProject, id))
+      } else {
+        promises = ids.map((id) => studio.removeComponent(studioProject, id))
+      }
+
+      Promise.all(promises)
+        .then(function (responses) {
+          // reporting
+          let updatedComponentIds = []
+          responses.forEach(function (response, index) {
+            if (response.status == http.StatusCodes.OK) {
+              updatedComponentIds.push(ids[index])
+            }
+          })
+
+          return response.send({
+            componentIds: updatedComponentIds,
+            added: add,
+          })
+        })
+        .catch((err) => handleError(err, response))
+    }
+  })
+}
+/**
+ *  Enable components by 'componentId' or corresponding components specified, via 'defaults', by 'clusterId' / 'roles'
+ *
+ * @param {*} db
+ */
+function httpPostComponentAdd(db) {
+  return (request, response) => updateComponent(db, request, response, true)
 }
 
-function httpGetComponentRemove(db) {
-  return (req, res) => {
-    let name = studio.projectName(req.query.studioProject)
-    let componentId = ''
-
-    if (req.query.componentId) {
-      componentId = req.query.componentId
-    } else {
-      // check for cluster / component mapping
-    }
-
-    env.logInfo(`StudioUC(${name}): Disabling component "${componentId}"`)
-    studio
-      .removeComponent(req.query.studioProject, componentId)
-      .then((r) => {
-        if (r.status == http.StatusCodes.OK) {
-          env.logInfo(`StudioUC(${name}): Component "${componentId}" removed.`)
-        }
-        return res.send(r.data)
-      })
-      .catch((err) => handleError(err, res))
-  }
+function httpPostComponentRemove(db) {
+  return (request, response) => updateComponent(db, request, response, false)
 }
 
 function handleError(err, res) {
@@ -115,12 +138,15 @@ exports.get = [
     uri: restApi.uc.componentTree,
     callback: httpGetComponentTree,
   },
+]
+
+exports.post = [
   {
     uri: restApi.uc.componentAdd,
-    callback: httpGetComponentAdd,
+    callback: httpPostComponentAdd,
   },
   {
     uri: restApi.uc.componentRemove,
-    callback: httpGetComponentRemove,
+    callback: httpPostComponentRemove,
   },
 ]
