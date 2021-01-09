@@ -109,9 +109,12 @@ function collectDataFromPropertiesFile(ctx) {
 
         // Iterate over all XML files in the properties file, and check
         // if they exist in one or the other directory listed in xmlRoot
-        zclProps.xmlFile.split(',').forEach((f) => {
-          f = util.locateRelativeFilePath(fileLocations, f)
-          if (f != null) zclFiles.push(f)
+        zclProps.xmlFile.split(',').forEach((singleXmlFile) => {
+          let fullPath = util.locateRelativeFilePath(
+            fileLocations,
+            singleXmlFile
+          )
+          if (fullPath != null) zclFiles.push(fullPath)
         })
 
         ctx.zclFiles = zclFiles
@@ -1012,11 +1015,11 @@ function loadIndividualSilabsFile(db, filePath, boundValidator) {
  * @param {*} ctx The context of loading.
  * @returns a Promise that resolves with the db.
  */
-function loadSilabsZcl(db, ctx, isJson = false) {
-  env.logInfo(`Loading Silabs zcl file: ${ctx.metadataFile}`)
+function loadSilabsZcl(db, context, isJson = false) {
+  env.logInfo(`Loading Silabs zcl file: ${context.metadataFile}`)
   return dbApi
     .dbBeginTransaction(db)
-    .then(() => zclLoader.readMetadataFile(ctx))
+    .then(() => zclLoader.readMetadataFile(context))
     .then((ctx) => zclLoader.recordToplevelPackage(db, ctx))
     .then((ctx) => {
       if (isJson) {
@@ -1032,7 +1035,7 @@ function loadSilabsZcl(db, ctx, isJson = false) {
     .then((ctx) => parseDefaults(db, ctx))
     .then((ctx) => parseZclSchema(db, ctx))
     .then(() => dbApi.dbCommit(db))
-    .then(() => ctx)
+    .then(() => context)
     .catch((err) => {
       env.logError(err)
       throw err
