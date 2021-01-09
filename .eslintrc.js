@@ -40,6 +40,9 @@ module.exports = {
     'arrow-parens': 'off',
     'one-var': 'off',
     'no-var': 'error',
+    'no-implicit-globals': 'error',
+    'block-scoped-var': 'error',
+    'vars-on-top': 'error',
 
     'import/first': 'off',
     'import/named': 'error',

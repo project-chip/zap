@@ -784,10 +784,6 @@ function parseZclSchema(db, ctx) {
         dbEnum.packageType.zclSchema
       )
     )
-    .then((result) => {
-      pkgId = result.packageId
-      return result
-    })
     .then(() =>
       fsp
         .readFile(ctx.zclValidation)
