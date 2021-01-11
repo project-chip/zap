@@ -32,7 +32,7 @@ const util = require('../util/util.js')
  * @param {*} ctx Context which contains information about the metadataFiles and data
  * @returns Promise of resolved files.
  */
-function collectDataFromLibraryXml(ctx) {
+async function collectDataFromLibraryXml(ctx) {
   env.logInfo(`Collecting ZCL files from: ${ctx.metadataFile}`)
   return fsp
     .readFile(ctx.metadataFile)
@@ -82,7 +82,7 @@ function tagContainsBitmap(tag) {
  * @param {*} ctx
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
-function parseZclFiles(db, ctx) {
+async function parseZclFiles(db, ctx) {
   let perFilePromise = []
 
   ctx.zclClusters = []
@@ -563,7 +563,7 @@ function prepareDeviceType(deviceType) {
  * @param {*} ctx
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
-function loadZclData(db, ctx) {
+async function loadZclData(db, ctx) {
   env.logInfo(
     `Starting to load Dotdot ZCL data in to DB for: ${ctx.metadataFile}, clusters length=${ctx.zclClusters.length}`
   )
@@ -638,7 +638,7 @@ function loadIndividualDotDotFile(db, filePath) {
  * @param {*} ctx Context of loading.
  * @returns a Promise that resolves with the db.
  */
-function loadDotdotZcl(db, ctx) {
+async function loadDotdotZcl(db, ctx) {
   env.logInfo(`Loading Dotdot zcl file: ${ctx.metadataFile}`)
   return dbApi
     .dbBeginTransaction(db)

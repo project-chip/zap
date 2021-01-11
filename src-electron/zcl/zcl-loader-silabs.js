@@ -34,7 +34,7 @@ const _ = require('lodash')
  * @param {*} ctx  Context containing information about the file
  * @returns Promise of resolved file.
  */
-function collectDataFromJsonFile(ctx) {
+async function collectDataFromJsonFile(ctx) {
   env.logInfo(`Collecting ZCL files from JSON file: ${ctx.metadataFile}`)
   return new Promise((resolve, reject) => {
     let obj = JSON.parse(ctx.data)
@@ -90,7 +90,7 @@ function collectDataFromJsonFile(ctx) {
  * @param {*} ctx Context which contains information about the propertiesFiles and data
  * @returns Promise of resolved files.
  */
-function collectDataFromPropertiesFile(ctx) {
+async function collectDataFromPropertiesFile(ctx) {
   return new Promise((resolve, reject) => {
     env.logInfo(
       `Collecting ZCL files from properties file: ${ctx.metadataFile}`
@@ -203,7 +203,7 @@ function prepareBitmap(bm) {
  * @param {*} data
  * @returns Promise of inserted bitmaps
  */
-function processBitmaps(db, filePath, packageId, data) {
+async function processBitmaps(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} bitmaps.`)
   return queryZcl.insertBitmaps(
     db,
@@ -235,7 +235,7 @@ function prepareAtomic(a) {
  * @param {*} data
  * @returns Promise of inserted bitmaps
  */
-function processAtomics(db, filePath, packageId, data) {
+async function processAtomics(db, filePath, packageId, data) {
   let types = data[0].type
   env.logInfo(`${filePath}, ${packageId}: ${types.length} atomic types.`)
   return queryZcl.insertAtomics(
@@ -378,7 +378,7 @@ function prepareCluster(cluster, isExtension = false) {
  * @param {*} data
  * @returns Promise of cluster insertion.
  */
-function processClusters(db, filePath, packageId, data) {
+async function processClusters(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} clusters.`)
   return queryZcl.insertClusters(
     db,
@@ -419,7 +419,7 @@ function processClusterGlobalAttributes(db, filePath, packageId, data) {
  * @param {*} data
  * @returns promise to resolve the clusterExtension tags
  */
-function processClusterExtensions(db, filePath, packageId, data) {
+async function processClusterExtensions(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} cluster extensions.`)
   return queryZcl.insertClusterExtensions(
     db,
@@ -438,7 +438,7 @@ function processClusterExtensions(db, filePath, packageId, data) {
  * @param {*} data
  * @returns promise to resolve the globals
  */
-function processGlobals(db, filePath, packageId, data) {
+async function processGlobals(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} globals.`)
   return queryZcl.insertGlobals(
     db,
@@ -466,7 +466,7 @@ function prepareDomain(domain) {
  * @param {*} data
  * @returns Promise of database insertion of domains.
  */
-function processDomains(db, filePath, packageId, data) {
+async function processDomains(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} domains.`)
   return queryZcl.insertDomains(
     db,
@@ -505,7 +505,7 @@ function prepareStruct(struct) {
  * @param {*} data
  * @returns Promise of inserted structs.
  */
-function processStructs(db, filePath, packageId, data) {
+async function processStructs(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} structs.`)
   return queryZcl.insertStructs(
     db,
@@ -544,7 +544,7 @@ function prepareEnum(en) {
  * @param {*} data
  * @returns A promise of inserted enums.
  */
-function processEnums(db, filePath, packageId, data) {
+async function processEnums(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} enums.`)
   return queryZcl.insertEnums(
     db,
@@ -606,7 +606,7 @@ function prepareDeviceType(deviceType) {
  * @param {*} data
  * @returns Promise of a resolved device types.
  */
-function processDeviceTypes(db, filePath, packageId, data) {
+async function processDeviceTypes(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} deviceTypes.`)
   return queryZcl.insertDeviceTypes(
     db,
@@ -623,7 +623,7 @@ function processDeviceTypes(db, filePath, packageId, data) {
  * @param {*} argument
  * @returns promise that resolves when all the subtags are parsed.
  */
-function processParsedZclData(db, argument) {
+async function processParsedZclData(db, argument) {
   let filePath = argument.filePath
   let data = argument.result
   let packageId = argument.packageId
@@ -711,7 +711,7 @@ function processParsedZclData(db, argument) {
  * @param {*} ctx
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
-function parseZclFiles(db, ctx) {
+async function parseZclFiles(db, ctx) {
   ctx.laterPromises = []
   env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   return Promise.all(
@@ -749,7 +749,7 @@ function parseZclFiles(db, ctx) {
  * @param {*} ctx
  * @returns Promise of a parsed manufacturers file.
  */
-function parseManufacturerData(db, ctx) {
+async function parseManufacturerData(db, ctx) {
   if (!ctx.manufacturersXml) return Promise.resolve(ctx)
   return fsp
     .readFile(ctx.manufacturersXml)
@@ -766,7 +766,7 @@ function parseManufacturerData(db, ctx) {
         )
       )
     )
-    .then(() => Promise.resolve(ctx))
+    .then(() => ctx)
 }
 
 /**
@@ -774,7 +774,7 @@ function parseManufacturerData(db, ctx) {
  * @param {*} db
  * @param {*} ctx
  */
-function parseZclSchema(db, ctx) {
+async function parseZclSchema(db, ctx) {
   if (!ctx.zclSchema || !ctx.zclValidation) return Promise.resolve(ctx)
   return fsp
     .readFile(ctx.zclSchema)
@@ -812,7 +812,7 @@ function parseZclSchema(db, ctx) {
  * @param {*} ctx
  * @returns promise of parsed options
  */
-function parseOptions(db, ctx) {
+async function parseOptions(db, ctx) {
   if (!ctx.options) return Promise.resolve(ctx)
   let promises = []
   promises.push(parseTextOptions(db, ctx.packageId, ctx.options.text))
@@ -828,7 +828,7 @@ function parseOptions(db, ctx) {
  * @param {*} textOptions
  * @returns Promise of a parsed text options.
  */
-function parseTextOptions(db, pkgRef, textOptions) {
+async function parseTextOptions(db, pkgRef, textOptions) {
   if (!textOptions) return Promise.resolve()
   let promises = Object.keys(textOptions).map((optionKey) => {
     let val = textOptions[optionKey]
@@ -858,7 +858,7 @@ function parseTextOptions(db, pkgRef, textOptions) {
  * @param {*} booleanCategories
  * @returns Promise of a parsed boolean options.
  */
-function parseBoolOptions(db, pkgRef, booleanCategories) {
+async function parseBoolOptions(db, pkgRef, booleanCategories) {
   if (!booleanCategories) return Promise.resolve()
   let options
   if (Array.isArray(booleanCategories)) {
@@ -887,7 +887,7 @@ function parseBoolOptions(db, pkgRef, booleanCategories) {
  * @param {*} ctx
  * @returns Promised of parsed text and bool defaults.
  */
-function parseDefaults(db, ctx) {
+async function parseDefaults(db, ctx) {
   if (!ctx.defaults) return Promise.resolve(ctx)
   let promises = []
   promises.push(parseTextDefaults(db, ctx.packageId, ctx.defaults.text))
@@ -895,7 +895,7 @@ function parseDefaults(db, ctx) {
   return Promise.all(promises).then(() => ctx)
 }
 
-function parseTextDefaults(db, pkgRef, textDefaults) {
+async function parseTextDefaults(db, pkgRef, textDefaults) {
   if (!textDefaults) return Promise.resolve()
 
   let promises = []
@@ -936,7 +936,7 @@ function parseTextDefaults(db, pkgRef, textDefaults) {
   return Promise.all(promises)
 }
 
-function parseBoolDefaults(db, pkgRef, booleanCategories) {
+async function parseBoolDefaults(db, pkgRef, booleanCategories) {
   if (!booleanCategories) return Promise.resolve()
 
   let promises = []
@@ -969,7 +969,7 @@ function parseBoolDefaults(db, pkgRef, booleanCategories) {
  * @param {*} filePath
  * @returns Promise of a loaded file.
  */
-function loadIndividualSilabsFile(db, filePath, boundValidator) {
+async function loadIndividualSilabsFile(db, filePath, boundValidator) {
   let pkgId
   return fsp
     .readFile(filePath)
@@ -1015,7 +1015,7 @@ function loadIndividualSilabsFile(db, filePath, boundValidator) {
  * @param {*} ctx The context of loading.
  * @returns a Promise that resolves with the db.
  */
-function loadSilabsZcl(db, context, isJson = false) {
+async function loadSilabsZcl(db, context, isJson = false) {
   env.logInfo(`Loading Silabs zcl file: ${context.metadataFile}`)
   return dbApi
     .dbBeginTransaction(db)
