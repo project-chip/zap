@@ -355,7 +355,7 @@ function prepareCluster(cluster, types, isExtension = false) {
 function prepareAtomic(type) {
   return {
     name: type.$.short,
-    id: normalizeHexValue(type.$.id),
+    id: parseInt(normalizeHexValue(type.$.id)),
     size: getNumBytesFromShortName(type.$.short),
     description: type.$.name,
     discrete: type.$.discrete == 'true' ? true : false,
@@ -434,7 +434,7 @@ function prepareEnum(type, fromAttribute = false, namePrefix = null) {
     type.restriction[0]['type:enumeration'].map((e, index) => {
       ret.items.push({
         name: e.$.name,
-        value: normalizeHexValue(e.$.value),
+        value: parseInt(normalizeHexValue(e.$.value)),
         ordinal: index,
       })
     })

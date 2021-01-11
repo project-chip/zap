@@ -64,7 +64,7 @@ async function importDataFromFile(db, filePath, sessionId = null) {
         return sessionId
       }
     })
-    .then((sessionId) => state.loader(db, state, sessionId))
+    .then((sid) => state.loader(db, state, sid))
     .finally(() => dbApi.dbCommit(db))
 }
 // exports

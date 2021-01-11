@@ -165,8 +165,8 @@ function isEqual(string_a, string_b) {
  * @param {*} string_b
  */
 function is_lowercase_equal(string_a, string_b) {
-  str1 = string_a.toLowerCase().replace(/"/g, '').trim()
-  str2 = string_b.toLowerCase().replace(/"/g, '').trim()
+  let str1 = string_a.toLowerCase().replace(/"/g, '').trim()
+  let str2 = string_b.toLowerCase().replace(/"/g, '').trim()
   return 0 == str1.localeCompare(str2)
 }
 

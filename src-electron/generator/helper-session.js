@@ -338,8 +338,7 @@ function endpoint_type_identifier(endpointTypeId) {
       queryImpexp
         .exportEndpoints(this.global.db, this.global.sessionId, endpointTypes)
         .then((endpoints) => {
-          let i = 0
-          for (i = 0; i < endpoints.length; i++) {
+          for (let i = 0; i < endpoints.length; i++) {
             if (endpointTypeId == endpoints[i].endpointTypeRef) {
               return endpoints[i].endpointId
             }

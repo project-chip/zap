@@ -91,11 +91,12 @@ function initializeWebSocket(httpServer) {
  * @param {*} sessionKey
  */
 function clientSocket(sessionKey) {
+  let socketToReturn = null
   if (wsServer == null) return null
   wsServer.clients.forEach((socket) => {
-    if (socket.sessionKey == sessionKey) return socket
+    if (socket.sessionKey == sessionKey) socketToReturn = socket
   })
-  return null
+  return socketToReturn
 }
 
 function sendTick(socket) {
