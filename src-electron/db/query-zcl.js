@@ -1800,6 +1800,7 @@ async function exportClustersAndEndpointDetailsFromEndpointTypes(
     return {
       endpointId: x.ENDPOINT_TYPE_REF,
       endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+      endpointTypeClusterRef: x.CLUSTER_REF,
     }
   }
 
@@ -1809,7 +1810,8 @@ async function exportClustersAndEndpointDetailsFromEndpointTypes(
       `
 SELECT
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF,
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
+  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
 FROM CLUSTER
 INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
@@ -1874,6 +1876,59 @@ async function exportCommandDetailsFromAllEndpointTypesAndClusters(
   INNER JOIN CLUSTER
   ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
   WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds}) AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
+  GROUP BY COMMAND.NAME
+        `
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * Returns a promise of data for commands inside an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the command data.
+ */
+async function exportAllCommandDetailsFromEnabledClusters(
+  db,
+  endpointsAndClusters
+) {
+  let endpointTypeClusterRef = endpointsAndClusters
+    .map((ep) => ep.endpointTypeClusterRef)
+    .toString()
+  let mapFunction = (x) => {
+    return {
+      id: x.COMMAND_ID,
+      name: x.NAME,
+      code: x.CODE,
+      commandSource: x.SOURCE,
+      mfgCode: x.MANUFACTURER_CODE,
+      description: x.DESCRIPTION,
+      clusterSide: x.SIDE,
+      clusterName: x.CLUSTER_NAME,
+      isClusterEnabled: x.ENABLED,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    COMMAND.COMMAND_ID,
+    COMMAND.NAME,
+    COMMAND.CODE,
+    COMMAND.SOURCE,
+    COMMAND.MANUFACTURER_CODE,
+    COMMAND.DESCRIPTION,
+    ENDPOINT_TYPE_CLUSTER.SIDE,
+    CLUSTER.NAME AS CLUSTER_NAME,
+    ENDPOINT_TYPE_CLUSTER.ENABLED
+  FROM COMMAND
+  INNER JOIN CLUSTER
+  ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  INNER JOIN ENDPOINT_TYPE_CLUSTER
+  ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
   GROUP BY COMMAND.NAME
         `
     )
@@ -2153,3 +2208,4 @@ exports.selectEnumByName = selectEnumByName
 exports.selectStructByName = selectStructByName
 exports.determineType = determineType
 exports.selectCommandTree = selectCommandTree
+exports.exportAllCommandDetailsFromEnabledClusters = exportAllCommandDetailsFromEnabledClusters
