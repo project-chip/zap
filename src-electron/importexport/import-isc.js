@@ -18,6 +18,7 @@
 const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
+const util = require('../util/util.js')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -275,6 +276,7 @@ async function establishPackages(db, sessionId) {}
 
 /**
  * Function that actually loads the data out of a state object.
+ * Session at this point is blank, and has no packages.
  *
  * @param {*} db
  * @param {*} state
@@ -283,6 +285,8 @@ async function establishPackages(db, sessionId) {}
 async function iscDataLoader(db, state, sessionId) {
   let endpointTypes = state.endpointTypes
   let promises = []
+
+  let sessionPackage = await util.initializeSessionPackage(db, sessionId)
 
   for (let key in endpointTypes) {
     promises.push(loadEndpointType(db, sessionId, endpointTypes[key]))
