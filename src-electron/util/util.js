@@ -49,7 +49,7 @@ function calculateCrc(context) {
  * @param {*} sessionId
  * @returns Promise that resolves with the session id for chaining.
  */
-function initializeSessionPackage(db, sessionId) {
+async function initializeSessionPackage(db, sessionId) {
   let promises = []
 
   // 1. Associate a zclProperties file.

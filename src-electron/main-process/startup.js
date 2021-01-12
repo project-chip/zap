@@ -191,7 +191,7 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
  * @param {*} [zapFile=null] .zap file that contains application stater, or null if generating from clean state.
  * @returns Nothing, triggers app.quit()
  */
-function startGeneration(
+async function startGeneration(
   output,
   genTemplateJsonFile,
   zclProperties,
@@ -255,54 +255,38 @@ function startGeneration(
     console.log(`    👉 zap version: ${env.zapVersionAsString()}`)
   let dbFile = env.sqliteFile('generate')
   if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
-  let packageId
-  let mainDb
-  return dbApi
-    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
-    .then((db) => {
-      mainDb = db
-      return db
-    })
-    .then((db) => zclLoader.loadZcl(db, zclProperties))
-    .then((ctx) => generatorEngine.loadTemplates(ctx.db, genTemplateJsonFile))
-    .then((ctx) => {
-      if (ctx.error) {
-        throw ctx.error
-      } else {
-        return ctx
-      }
-    })
-    .then((ctx) => {
-      packageId = ctx.packageId
-      if (zapFile == null) {
-        return querySession.createBlankSession(mainDb)
-      } else {
-        // we load the zap file.
-        return importJs.importDataFromFile(mainDb, zapFile)
-      }
-    })
-    .then((sessionId) => util.initializeSessionPackage(mainDb, sessionId))
-    .then((sessionId) =>
-      generatorEngine.generateAndWriteFiles(
-        mainDb,
-        sessionId,
-        packageId,
-        output,
-        {
-          log: options.log,
-          backup: false,
-          genResultFile: args.genResultFile,
-        }
-      )
-    )
-    .then((genResult) => {
-      if (genResult.hasErrors) throw 'Generation failed.'
-      if (options.quit && app != null) app.quit()
-    })
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
+  let mainDb = await dbApi.initDatabaseAndLoadSchema(
+    dbFile,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+  let ctx = await zclLoader.loadZcl(mainDb, zclProperties)
+  ctx = await generatorEngine.loadTemplates(ctx.db, genTemplateJsonFile)
+  if (ctx.error) {
+    throw ctx.error
+  }
+  let packageId = ctx.packageId
+
+  let sessionId
+  if (zapFile == null) sessionId = await querySession.createBlankSession(mainDb)
+  else sessionId = await importJs.importDataFromFile(mainDb, zapFile)
+
+  await util.initializeSessionPackage(mainDb, sessionId)
+
+  let genResult = await generatorEngine.generateAndWriteFiles(
+    mainDb,
+    sessionId,
+    packageId,
+    output,
+    {
+      log: options.log,
+      backup: false,
+      genResultFile: args.genResultFile,
+    }
+  )
+
+  if (genResult.hasErrors) throw 'Generation failed.'
+  if (options.quit && app != null) app.quit()
 }
 /**
  * Move database file out of the way into the backup location.

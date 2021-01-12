@@ -92,15 +92,18 @@ test(
   5000
 )
 
-test('Initialize session packages', () =>
-  utilJs
-    .initializeSessionPackage(templateContext.db, templateContext.sessionId)
-    .then((sessionId) =>
-      queryPackage.getSessionPackages(templateContext.db, sessionId)
-    )
-    .then((packages) => {
-      expect(packages.length).toBe(2)
-    }))
+test('Initialize session packages', async () => {
+  let sessionId = await utilJs.initializeSessionPackage(
+    templateContext.db,
+    templateContext.sessionId
+  )
+
+  let packages = await queryPackage.getSessionPackages(
+    templateContext.db,
+    sessionId
+  )
+  expect(packages.length).toBe(2)
+})
 
 test(
   'Validate basic generation',
