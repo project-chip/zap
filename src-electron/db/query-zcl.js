@@ -2051,6 +2051,54 @@ GROUP BY NAME, SIDE`
 }
 
 /**
+ * Exports clusters to an externalized form irrespecive of side.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the data that should go into the external form.
+ */
+async function exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
+  db,
+  endpointTypes
+) {
+  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  let mapFunction = (x) => {
+    return {
+      id: x.CLUSTER_ID,
+      name: x.NAME,
+      code: x.CODE,
+      define: x.DEFINE,
+      mfgCode: x.MANUFACTURER_CODE,
+      side: x.SIDE,
+      enabled: x.ENABLED,
+      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+    }
+  }
+
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  CLUSTER.CLUSTER_ID,
+  CLUSTER.CODE,
+  CLUSTER.MANUFACTURER_CODE,
+  CLUSTER.NAME,
+  CLUSTER.DEFINE,
+  ENDPOINT_TYPE_CLUSTER.SIDE,
+  ENDPOINT_TYPE_CLUSTER.ENABLED,
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+FROM CLUSTER
+INNER JOIN ENDPOINT_TYPE_CLUSTER
+ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+GROUP BY NAME`
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
  * Exports clusters to an externalized form without duplicates caused by side.
  *
  * @param {*} db
@@ -2209,3 +2257,4 @@ exports.selectStructByName = selectStructByName
 exports.determineType = determineType
 exports.selectCommandTree = selectCommandTree
 exports.exportAllCommandDetailsFromEnabledClusters = exportAllCommandDetailsFromEnabledClusters
+exports.exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes = exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes

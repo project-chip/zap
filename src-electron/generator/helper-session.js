@@ -209,6 +209,24 @@ function all_user_clusters(options) {
 }
 
 /**
+ * Creates cluster command iterator for all endpoints.
+ *
+ * @param {*} options
+ * @returns Promise of the resolved blocks iterating over cluster commands.
+ */
+function all_user_clusters_irrespective_of_side(options) {
+  return queryImpexp
+    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((clusters) => templateUtil.collectBlocks(clusters, options, this))
+}
+
+/**
  * Creates cluster command iterator for all endpoints whitout any duplicates
  * cause by cluster side
  *
@@ -397,3 +415,4 @@ exports.user_manufacturer_code = user_manufacturer_code
 exports.user_default_response_policy = user_default_response_policy
 exports.endpoint_type_identifier = endpoint_type_identifier
 exports.all_commands_for_user_enabled_clusters = all_commands_for_user_enabled_clusters
+exports.all_user_clusters_irrespective_of_side = all_user_clusters_irrespective_of_side

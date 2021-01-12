@@ -98,8 +98,7 @@ function toSnakeCase(str) {
  */
 function toCleanSymbol(label) {
   let l = label.trim()
-  l = l.replace(' ', '_')
-  l = l.replace(' ', '_')
+  l = l.replace(/ /g, '_')
   l = l.replace(/[:/-]/g, '_')
   l = l.replace(/__+/g, '_').toLowerCase()
   return l
@@ -111,8 +110,7 @@ function toCleanSymbol(label) {
  */
 function toCleanSymbolAsKebabCase(label) {
   let l = label.trim()
-  l = l.replace('_', '-')
-  l = l.replace(' ', '-')
+  l = l.replace(/ /g, '-')
   l = l.replace(/[:/_]/g, '-')
   l = l.replace(/--+/g, '-').toLowerCase()
   return l
