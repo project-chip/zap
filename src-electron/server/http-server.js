@@ -122,9 +122,12 @@ async function initHttpServer(db, port, studioPort) {
         if ('sessionId' in req.query) knownSessionId = req.query.sessionId
         querySession
           .ensureZapSessionId(db, req.session.id, knownSessionId)
-          .then((sessionId) => util.initializeSessionPackage(db, sessionId))
           .then((sessionId) => {
             req.session.zapSessionId = sessionId
+            return sessionId
+          })
+          .then((sessionId) => util.initializeSessionPackage(db, sessionId))
+          .then((packages) => {
             next()
           })
           .catch((err) => {

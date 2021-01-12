@@ -93,15 +93,11 @@ test(
 )
 
 test('Initialize session packages', async () => {
-  let sessionId = await utilJs.initializeSessionPackage(
+  let packages = await utilJs.initializeSessionPackage(
     templateContext.db,
     templateContext.sessionId
   )
 
-  let packages = await queryPackage.getSessionPackages(
-    templateContext.db,
-    sessionId
-  )
   expect(packages.length).toBe(2)
 })
 
