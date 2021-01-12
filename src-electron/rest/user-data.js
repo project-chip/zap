@@ -276,9 +276,7 @@ function httpGetOption(db) {
       )
       Promise.all(p)
         .then((data) => data.flat(1))
-        .then((data) => {
-          return response.status(restApi.httpCode.ok).json(data)
-        })
+        .then((data) => response.status(restApi.httpCode.ok).json(data))
     })
   }
 }
@@ -291,11 +289,9 @@ function httpGetPackages(db) {
     let sessionId = request.session.zapSessionId
     queryPackage
       .getPackageSessionPackagePairBySessionId(db, sessionId)
-      .then((packageSessionPackagePairs) => {
-        return response
-          .status(restApi.httpCode.ok)
-          .json(packageSessionPackagePairs)
-      })
+      .then((packageSessionPackagePairs) =>
+        response.status(restApi.httpCode.ok).json(packageSessionPackagePairs)
+      )
   }
 }
 

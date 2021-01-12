@@ -260,9 +260,10 @@ async function readIscData(filePath, data) {
  *
  * @param {*} db
  * @param {*} sessionId
+ * @param {*} zclPackages Array of package IDs for zcl queries.
  * @param {*} endpointType
  */
-async function loadEndpointType(db, sessionId, endpointType) {
+async function loadEndpointType(db, sessionId, zclPackages, endpointType) {
   let deviceType = endpointType.device
   let deviceId = endpointType.deviceId
 
@@ -271,8 +272,6 @@ async function loadEndpointType(db, sessionId, endpointType) {
 
   console.log(`Loading device type: ${deviceType} / ${deviceId}`)
 }
-
-async function establishPackages(db, sessionId) {}
 
 /**
  * Function that actually loads the data out of a state object.
@@ -287,9 +286,17 @@ async function iscDataLoader(db, state, sessionId) {
   let promises = []
 
   let sessionPackage = await util.initializeSessionPackage(db, sessionId)
+  let zclPackages = await queryPackage.getSessionZclPackages(db, sessionId)
 
   for (let key in endpointTypes) {
-    promises.push(loadEndpointType(db, sessionId, endpointTypes[key]))
+    promises.push(
+      loadEndpointType(
+        db,
+        sessionId,
+        zclPackages.map((x) => x.packageRef),
+        endpointTypes[key]
+      )
+    )
   }
   await Promise.all(promises)
 
