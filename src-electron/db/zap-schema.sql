@@ -365,6 +365,7 @@ CREATE TABLE IF NOT EXISTS "SESSION_PACKAGE" (
   "SESSION_REF" integer,
   "PACKAGE_REF" integer,
   "REQUIRED" integer default false,
+  "ENABLED" integer default true,
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
   UNIQUE(SESSION_REF, PACKAGE_REF)

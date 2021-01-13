@@ -724,7 +724,8 @@ async function parseZclFiles(db, ctx) {
             db,
             data,
             ctx.packageId,
-            dbEnum.packageType.zclXml
+            dbEnum.packageType.zclXml,
+            false
           )
         )
         .then((result) => zclLoader.parseZclFile(result))
@@ -784,7 +785,8 @@ async function parseZclSchema(db, ctx) {
         db,
         data,
         ctx.packageId,
-        dbEnum.packageType.zclSchema
+        dbEnum.packageType.zclSchema,
+        false
       )
     )
     .then(() =>
@@ -799,7 +801,8 @@ async function parseZclSchema(db, ctx) {
         db,
         data,
         ctx.packageId,
-        dbEnum.packageType.zclValidation
+        dbEnum.packageType.zclValidation,
+        false
       )
     })
     .then(() => Promise.resolve(ctx))
@@ -979,7 +982,8 @@ async function loadIndividualSilabsFile(db, filePath, boundValidator) {
         db,
         data,
         null,
-        dbEnum.packageType.zclXmlStandalone
+        dbEnum.packageType.zclXmlStandalone,
+        true
       )
     )
     .then((result) => {
