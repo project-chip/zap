@@ -22,8 +22,7 @@
     "silabs.xml",
     "lo-devices.xml",
     "wwah-silabs.xml",
-    "wwah-silabs-devices.xml",
-    "sample-extensions.xml"
+    "wwah-silabs-devices.xml"
   ],
   "zclSchema": "./schema/zcl.xsd",
   "manufacturersXml": "../shared/manufacturers.xml",
