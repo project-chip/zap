@@ -30,6 +30,7 @@ const queryGeneric = require('../src-electron/db/query-generic.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const querySession = require('../src-electron/db/query-session.js')
 const testUtil = require('./test-util.js')
+const queryConfig = require('../src-electron/db/query-config.js')
 
 let db
 let testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
@@ -148,6 +149,12 @@ test('Test ISC import', async () => {
   sid = await querySession.createBlankSession(db)
   await importJs.importDataFromFile(db, testFileIsc, sid)
   expect(sid).not.toBeUndefined()
+  let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
+  expect(endpointTypes.length).toBe(4)
+  expect(endpointTypes[0].name).toBe('Centralized')
+  expect(endpointTypes[1].name).toBe('GreenPower')
+  expect(endpointTypes[2].name).toBe('Primary')
+  expect(endpointTypes[3].name).toBe('Touchlink')
 }, 5000)
 
 test('Read ISD data from file', async () => {

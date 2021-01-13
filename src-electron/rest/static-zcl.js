@@ -210,14 +210,14 @@ function httpGetZclEntity(db) {
 
     queryPackage
       .getSessionZclPackages(db, sessionId)
-      .then((packageArray) => {
-        return parseForZclData(
+      .then((packageArray) =>
+        parseForZclData(
           db,
           entity,
           id,
           packageArray.map((pkg) => pkg.packageRef)
         )
-      })
+      )
       .then((resultData) => response.json(resultData))
   }
 }

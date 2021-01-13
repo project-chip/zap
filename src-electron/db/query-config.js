@@ -1012,7 +1012,7 @@ async function getEndpointTypeCountByCluster(
 async function getAllEndpointTypes(db, sessionId) {
   let rows = await dbApi.dbAll(
     db,
-    'SELECT ENDPOINT_TYPE_ID, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE SESSION_REF = ? ORDER BY NAME',
+    'SELECT ENDPOINT_TYPE_ID, NAME, DEVICE_TYPE_REF, SESSION_REF FROM ENDPOINT_TYPE WHERE SESSION_REF = ? ORDER BY NAME',
     [sessionId]
   )
   return rows.map(dbMapping.map.endpointType)
