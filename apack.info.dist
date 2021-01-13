@@ -36,7 +36,7 @@ function(version:uc_cli) {
 }
 
 function(uc_generate) {
-  cmd=$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json ${contentFolder}
+  cmd=$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json ${contentFolder}
 }
 
 function(zapHelp) {
@@ -48,9 +48,9 @@ function(zapSelfcheck) {
 }
 
 function(zapServer) {
-  cmd=$(zap) --noUi --showUrl --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --studioHttpPort ${studioHttpPort}
+  cmd=$(zap) --noUi --showUrl --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --studioHttpPort ${studioHttpPort}
 }
 
 function(zapFull) {
-  cmd=$(zap) --showUrl --zcl ${sdkRoot}/protocol/zigbee/tool/appbuilder/zcl.json
+  cmd=$(zap) --showUrl --zcl ${sdkRoot}/app/zcl/zcl-zap.json
 }
