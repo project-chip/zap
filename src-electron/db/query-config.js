@@ -619,11 +619,8 @@ async function updateEndpointType(
  * @param {*} endpointTypeId
  */
 async function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
-  return dbApi
-    .dbBeginTransaction(db)
-    .then(() =>
-      queryZcl.selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef)
-    )
+  return queryZcl
+    .selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef)
     .then((clusters) => {
       let promises = []
       let clusterPromise = resolveDefaultClusters(db, endpointTypeId, clusters)
@@ -653,7 +650,6 @@ async function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
     .catch((err) => {
       console.log(err)
     })
-    .finally((data) => dbApi.dbCommit(db))
 }
 
 /**

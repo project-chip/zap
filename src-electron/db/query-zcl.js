@@ -301,6 +301,16 @@ async function selectDeviceTypeById(db, id, packageId) {
     .then(dbMapping.map.deviceType)
 }
 
+async function selectDeviceTypeByCodeAndName(db, packageId, code, name) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE CODE = ? AND NAME = ? AND PACKAGE_REF = ? ',
+      [code, name, packageId]
+    )
+    .then(dbMapping.map.deviceType)
+}
+
 async function selectAttributesByClusterId(db, clusterId, packageId = null) {
   return dbApi
     .dbAll(
@@ -2135,7 +2145,7 @@ FROM CLUSTER
 INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
 WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
-AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
 GROUP BY NAME`
     )
     .then((rows) => rows.map(mapFunction))
@@ -2205,6 +2215,7 @@ exports.selectAllClusters = selectAllClusters
 exports.selectClusterById = selectClusterById
 exports.selectAllDeviceTypes = selectAllDeviceTypes
 exports.selectDeviceTypeById = selectDeviceTypeById
+exports.selectDeviceTypeByCodeAndName = selectDeviceTypeByCodeAndName
 exports.selectAttributesByClusterIdAndSide = selectAttributesByClusterIdAndSide
 exports.selectAttributesByClusterId = selectAttributesByClusterId
 exports.selectAttributesByClusterCodeAndManufacturerCode = selectAttributesByClusterCodeAndManufacturerCode

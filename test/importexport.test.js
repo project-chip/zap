@@ -146,12 +146,9 @@ test('Test file 2 import', async () => {
 
 test('Test ISC import', async () => {
   sid = await querySession.createBlankSession(db)
-  try {
-    await importJs.importDataFromFile(db, testFileIsc, sid)
-  } catch (err) {
-    expect(err.toString()).toEqual('ISC not yet supported.')
-  }
-})
+  await importJs.importDataFromFile(db, testFileIsc, sid)
+  expect(sid).not.toBeUndefined()
+}, 5000)
 
 test('Read ISD data from file', async () => {
   let state = await importJs.readDataFromFile(testFileIsc)

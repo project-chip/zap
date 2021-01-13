@@ -19,6 +19,7 @@ const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 const util = require('../util/util.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -263,14 +264,25 @@ async function readIscData(filePath, data) {
  * @param {*} zclPackages Array of package IDs for zcl queries.
  * @param {*} endpointType
  */
-async function loadEndpointType(db, sessionId, zclPackages, endpointType) {
-  let deviceType = endpointType.device
-  let deviceId = endpointType.deviceId
+async function loadEndpointType(db, sessionId, packageId, endpointType) {
+  let deviceName = endpointType.device
+  let deviceCode = endpointType.deviceId
 
-  //queryZcl.selectDeviceTypeById(db)
-  //return queryConfig.insertEndpointType(db, sessionId)
+  let dev = await queryZcl.selectDeviceTypeByCodeAndName(
+    db,
+    packageId,
+    deviceCode,
+    deviceName
+  )
 
-  console.log(`Loading device type: ${deviceType} / ${deviceId}`)
+  if (dev == null) throw `Unknown device type: ${deviceName} / ${deviceCode}`
+  console.log('LOADING ENDPOINT TYPE: ' + endpointType.typeName)
+  return queryConfig.insertEndpointType(
+    db,
+    sessionId,
+    endpointType.typeName,
+    dev.id
+  )
 }
 
 /**
@@ -285,22 +297,26 @@ async function iscDataLoader(db, state, sessionId) {
   let endpointTypes = state.endpointTypes
   let promises = []
 
-  let sessionPackage = await util.initializeSessionPackage(db, sessionId)
-  let zclPackages = await queryPackage.getSessionZclPackages(db, sessionId)
+  await util.initializeSessionPackage(db, sessionId)
+  let zclPackages = await queryPackage.getSessionPackagesByType(
+    db,
+    sessionId,
+    dbEnum.packageType.zclProperties
+  )
+
+  if (zclPackages.length == 0) {
+    throw 'No zcl packages found for ISC import.'
+  }
+
+  let packageId = zclPackages[0].id
 
   for (let key in endpointTypes) {
     promises.push(
-      loadEndpointType(
-        db,
-        sessionId,
-        zclPackages.map((x) => x.packageRef),
-        endpointTypes[key]
-      )
+      loadEndpointType(db, sessionId, packageId, endpointTypes[key])
     )
   }
-  await Promise.all(promises)
-
-  throw 'ISC not yet supported.'
+  console.log('Done with log, waiting for promises.')
+  return Promise.all(promises).then(() => console.log('DONE!'))
 }
 
 exports.readIscData = readIscData
