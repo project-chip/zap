@@ -576,13 +576,19 @@ async function deleteEndpointType(db, id) {
  * @param {*} deviceTypeRef
  * @returns Promise to update endpoints.
  */
-async function insertEndpointType(db, sessionId, name, deviceTypeRef) {
+async function insertEndpointType(
+  db,
+  sessionId,
+  name,
+  deviceTypeRef,
+  doTransaction = true
+) {
   let newEndpointTypeId = await dbApi.dbInsert(
     db,
     'INSERT OR REPLACE INTO ENDPOINT_TYPE ( SESSION_REF, NAME, DEVICE_TYPE_REF ) VALUES ( ?, ?, ?)',
     [sessionId, name, deviceTypeRef]
   )
-  await setEndpointDefaults(db, newEndpointTypeId, deviceTypeRef)
+  await setEndpointDefaults(db, newEndpointTypeId, deviceTypeRef, doTransaction)
   return newEndpointTypeId
 }
 
@@ -618,9 +624,23 @@ async function updateEndpointType(
  * @param {*} db
  * @param {*} endpointTypeId
  */
-async function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
-  return queryZcl
-    .selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef)
+async function setEndpointDefaults(
+  db,
+  endpointTypeId,
+  deviceTypeRef,
+  doTransaction = true
+) {
+  let p
+  if (doTransaction) {
+    p = dbApi.dbBeginTransaction(db)
+  } else {
+    p = Promise.resolve()
+  }
+
+  return p
+    .then(() =>
+      queryZcl.selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef)
+    )
     .then((clusters) => {
       let promises = []
       let clusterPromise = resolveDefaultClusters(db, endpointTypeId, clusters)
@@ -649,6 +669,10 @@ async function setEndpointDefaults(db, endpointTypeId, deviceTypeRef) {
     })
     .catch((err) => {
       console.log(err)
+    })
+    .finally((data) => {
+      if (doTransaction) return dbApi.dbCommit(db)
+      else return Promise.resolve()
     })
 }
 

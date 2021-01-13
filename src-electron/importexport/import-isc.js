@@ -276,12 +276,12 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
   )
 
   if (dev == null) throw `Unknown device type: ${deviceName} / ${deviceCode}`
-  console.log('LOADING ENDPOINT TYPE: ' + endpointType.typeName)
   return queryConfig.insertEndpointType(
     db,
     sessionId,
     endpointType.typeName,
-    dev.id
+    dev.id,
+    false
   )
 }
 
@@ -315,8 +315,7 @@ async function iscDataLoader(db, state, sessionId) {
       loadEndpointType(db, sessionId, packageId, endpointTypes[key])
     )
   }
-  console.log('Done with log, waiting for promises.')
-  return Promise.all(promises).then(() => console.log('DONE!'))
+  return Promise.all(promises)
 }
 
 exports.readIscData = readIscData
