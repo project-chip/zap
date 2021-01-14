@@ -180,6 +180,18 @@
 <dt><a href="#axios">axios</a></dt>
 <dd><p>This module provides the APIs to Silabs Simplicity Studio&#39;s Jetty server.</p>
 </dd>
+<dt><a href="#queryConfig">queryConfig</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
 <dt><a href="#util">util</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -365,6 +377,23 @@ resolves with a state object that needs to be saved into a file.</p>
 <dd><p>Parrses attribute string in a form:
    cl:0xABCD, at:0xABCD, di: [client|server], mf:0xABCD</p>
 </dd>
+<dt><a href="#parseZclAfv2Line">parseZclAfv2Line(state, line)</a></dt>
+<dd><p>Logic that parses data out of an ISC file into a java object</p>
+</dd>
+<dt><a href="#parseZclCustomizer">parseZclCustomizer(state, line)</a></dt>
+<dd><p>Function that deals with the zcl customizer data inside the ISC file</p>
+</dd>
+<dt><a href="#readIscData">readIscData(filePath, data)</a> ⇒</dt>
+<dd><p>Toplevel parser that ignore anything except the two setups that are
+ZCL relevant.</p>
+</dd>
+<dt><a href="#loadEndpointType">loadEndpointType(db, sessionId, zclPackages, endpointType)</a></dt>
+<dd><p>Load individual endpoint types.</p>
+</dd>
+<dt><a href="#iscDataLoader">iscDataLoader(db, state, sessionId)</a></dt>
+<dd><p>Function that actually loads the data out of a state object.
+Session at this point is blank, and has no packages.</p>
+</dd>
 <dt><a href="#readDataFromFile">readDataFromFile(filePath)</a> ⇒</dt>
 <dd><p>Reads the data from the file and resolves with the state object if all is good.</p>
 </dd>
@@ -374,7 +403,7 @@ resolves with a state object that needs to be saved into a file.</p>
 <dt><a href="#importSessionKeyValues">importSessionKeyValues(db, sessionId, keyValuePairs)</a></dt>
 <dd><p>Resolves with a promise that imports session key values.</p>
 </dd>
-<dt><a href="#writeStateToDatabase">writeStateToDatabase(db, state, existingSessionId)</a> ⇒</dt>
+<dt><a href="#jsonDataLoader">jsonDataLoader(db, state, sessionId)</a> ⇒</dt>
 <dd><p>Given a state object, this method returns a promise that resolves
 with the succesfull writing into the database.</p>
 </dd>
@@ -383,6 +412,9 @@ with the succesfull writing into the database.</p>
 </dd>
 <dt><a href="#createOrShowAboutWindow">createOrShowAboutWindow(port)</a></dt>
 <dd><p>Call this function to create a new or show an existing preference window.</p>
+</dd>
+<dt><a href="#hookAppEvents">hookAppEvents()</a></dt>
+<dd><p>Hook up all the events for the electron app object.</p>
 </dd>
 <dt><a href="#doOpen">doOpen(menuItem, browserWindow, event)</a></dt>
 <dd><p>Perform a file-&gt;open operation.</p>
@@ -424,6 +456,9 @@ output.</p>
 </dd>
 <dt><a href="#clearDatabaseFile">clearDatabaseFile(path)</a></dt>
 <dd><p>Move database file out of the way into the backup location.</p>
+</dd>
+<dt><a href="#startUp">startUp(isElectron)</a></dt>
+<dd><p>Default startup method.</p>
 </dd>
 <dt><a href="#readAndOpenFile">readAndOpenFile(db, filePath, httpPort)</a></dt>
 <dd><p>Process a single file, parsing it in as JSON and then possibly opening
@@ -556,7 +591,7 @@ and orchestrates the promise chain.</p>
 <dd><p>Toplevel function that loads the zcl file and passes it off to the correct zcl loader.</p>
 </dd>
 <dt><a href="#bindValidationScript">bindValidationScript(db, basePackageId)</a></dt>
-<dd><p>This funciton creates a validator function with signatuee fn(stringToValidateOn)</p>
+<dd><p>This function creates a validator function with signatuee fn(stringToValidateOn)</p>
 </dd>
 <dt><a href="#getSchemaAndValidationScript">getSchemaAndValidationScript(db, basePackageId)</a></dt>
 <dd><p>Returns an object with zclSchema and zclValidation elements.</p>
@@ -1018,10 +1053,12 @@ This module provides queries for ZCL static queries.
   - [~insertBitmaps(db, packageId, data)](#module*DB API* zcl database access..insertBitmaps) ⇒
   - [~exportClustersAndEndpointDetailsFromEndpointTypes(db, endpointTypeId)](#module*DB API* zcl database access..exportClustersAndEndpointDetailsFromEndpointTypes) ⇒
   - [~exportCommandDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId)](#module*DB API* zcl database access..exportCommandDetailsFromAllEndpointTypesAndClusters) ⇒
+  - [~exportAllCommandDetailsFromEnabledClusters(db, endpointTypeId)](#module*DB API* zcl database access..exportAllCommandDetailsFromEnabledClusters) ⇒
   - [~selectCommandArgumentsCountByCommandId(db, commandId, [packageId])](#module*DB API* zcl database access..selectCommandArgumentsCountByCommandId) ⇒
   - [~selectCommandArgumentsByCommandId(db, commandId, [packageId])](#module*DB API* zcl database access..selectCommandArgumentsByCommandId) ⇒
   - [~determineType(db, packageId, type)](#module*DB API* zcl database access..determineType)
   - [~exportAllClustersDetailsFromEndpointTypes(db, endpointTypeId)](#module*DB API* zcl database access..exportAllClustersDetailsFromEndpointTypes) ⇒
+  - [~exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(db, endpointTypeId)](#module*DB API* zcl database access..exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes) ⇒
   - [~exportAllClustersNamesFromEndpointTypes(db, endpointTypeId)](#module*DB API* zcl database access..exportAllClustersNamesFromEndpointTypes) ⇒
   - [~exportCommandDetailsFromAllEndpointTypeCluster(db, endpointTypeId)](#module*DB API* zcl database access..exportCommandDetailsFromAllEndpointTypeCluster) ⇒
 
@@ -1489,6 +1526,20 @@ Returns a promise of data for commands inside an endpoint type.
 | db             | <code>\*</code> |
 | endpointTypeId | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..exportAllCommandDetailsFromEnabledClusters"></a>
+
+### DB API: zcl database access~exportAllCommandDetailsFromEnabledClusters(db, endpointTypeId) ⇒
+
+Returns a promise of data for commands inside an endpoint type.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the command data.
+
+| Param          | Type            |
+| -------------- | --------------- |
+| db             | <code>\*</code> |
+| endpointTypeId | <code>\*</code> |
+
 <a name="module_DB API_ zcl database access..selectCommandArgumentsCountByCommandId"></a>
 
 ### DB API: zcl database access~selectCommandArgumentsCountByCommandId(db, commandId, [packageId]) ⇒
@@ -1539,6 +1590,20 @@ values.
 ### DB API: zcl database access~exportAllClustersDetailsFromEndpointTypes(db, endpointTypeId) ⇒
 
 Exports clusters to an externalized form.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the data that should go into the external form.
+
+| Param          | Type            |
+| -------------- | --------------- |
+| db             | <code>\*</code> |
+| endpointTypeId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes"></a>
+
+### DB API: zcl database access~exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(db, endpointTypeId) ⇒
+
+Exports clusters to an externalized form irrespecive of side.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: Promise that resolves with the data that should go into the external form.
@@ -2653,11 +2718,14 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~user_endpoint_count_by_cluster(clusterTypeId)](#module*Templating API* user-data specific helpers..user_endpoint_count_by_cluster) ⇒
   - [~user_all_attributes(options)](#module*Templating API* user-data specific helpers..user_all_attributes) ⇒
   - [~all_user_cluster_commands(options)](#module*Templating API* user-data specific helpers..all_user_cluster_commands) ⇒
+  - [~all_commands_for_user_enabled_clusters(options)](#module*Templating API* user-data specific helpers..all_commands_for_user_enabled_clusters) ⇒
   - [~all_user_clusters(options)](#module*Templating API* user-data specific helpers..all_user_clusters) ⇒
+  - [~all_user_clusters_irrespective_of_side(options)](#module*Templating API* user-data specific helpers..all_user_clusters_irrespective_of_side) ⇒
   - [~all_user_clusters_names(options)](#module*Templating API* user-data specific helpers..all_user_clusters_names) ⇒
   - [~user_cluster_command_count_with_cli()](#module*Templating API* user-data specific helpers..user_cluster_command_count_with_cli)
   - [~user_cluster_commands_all_endpoints(options)](#module*Templating API* user-data specific helpers..user_cluster_commands_all_endpoints) ⇒
   - [~user_cluster_has_enabled_command(name, side)](#module*Templating API* user-data specific helpers..user_cluster_has_enabled_command) ⇒
+  - [~user_session_key(options)](#module*Templating API* user-data specific helpers..user_session_key) ⇒
 
 <a name="module_Templating API_ user-data specific helpers..user_endpoint_types"></a>
 
@@ -2753,9 +2821,36 @@ commands which have been enabled on added endpoints
 | ------- | --------------- |
 | options | <code>\*</code> |
 
+<a name="module_Templating API_ user-data specific helpers..all_commands_for_user_enabled_clusters"></a>
+
+### Templating API: user-data specific helpers~all_commands_for_user_enabled_clusters(options) ⇒
+
+Creates endpoint type cluster command iterator. This fetches all
+commands which have been enabled on added endpoints
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: Promise of the resolved blocks iterating over cluster commands.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
 <a name="module_Templating API_ user-data specific helpers..all_user_clusters"></a>
 
 ### Templating API: user-data specific helpers~all_user_clusters(options) ⇒
+
+Creates cluster command iterator for all endpoints.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: Promise of the resolved blocks iterating over cluster commands.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ user-data specific helpers..all_user_clusters_irrespective_of_side"></a>
+
+### Templating API: user-data specific helpers~all_user_clusters_irrespective_of_side(options) ⇒
 
 Creates cluster command iterator for all endpoints.
 
@@ -2817,6 +2912,19 @@ cluster block helpers.
 | name  | <code>\*</code> | : Cluster name |
 | side  | <code>\*</code> | : Cluster side |
 
+<a name="module_Templating API_ user-data specific helpers..user_session_key"></a>
+
+### Templating API: user-data specific helpers~user_session_key(options) ⇒
+
+Helper that resolves into a user session key value.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: Promise of value of the session key or undefined.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
 <a name="module_Templating API_ toplevel utility helpers"></a>
 
 ## Templating API: toplevel utility helpers
@@ -2833,9 +2941,11 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~middle(options)](#module*Templating API* toplevel utility helpers..middle) ⇒
   - [~template_option_with_code(options, key)](#module*Templating API* toplevel utility helpers..template_option_with_code)
   - [~isEqual(string_a, string_b)](#module*Templating API* toplevel utility helpers..isEqual)
+  - [~is_lowercase_equal(string_a, string_b)](#module*Templating API* toplevel utility helpers..is_lowercase_equal)
   - [~trim_string(str)](#module*Templating API* toplevel utility helpers..trim_string) ⇒
   - [~asLastWord(str)](#module*Templating API* toplevel utility helpers..asLastWord)
   - [~iterate()](#module*Templating API* toplevel utility helpers..iterate)
+  - [~concatenate()](#module*Templating API* toplevel utility helpers..concatenate)
 
 <a name="module_Templating API_ toplevel utility helpers..zap_header"></a>
 
@@ -2948,6 +3058,19 @@ This returns a boolean if the 2 strings are same
 | string_a | <code>\*</code> |
 | string_b | <code>\*</code> |
 
+<a name="module_Templating API_ toplevel utility helpers..is_lowercase_equal"></a>
+
+### Templating API: toplevel utility helpers~is_lowercase_equal(string_a, string_b)
+
+This returns a boolean based on the 2 strings being equal or not given that both
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)
+
+| Param    | Type            |
+| -------- | --------------- |
+| string_a | <code>\*</code> |
+| string_b | <code>\*</code> |
+
 <a name="module_Templating API_ toplevel utility helpers..trim_string"></a>
 
 ### Templating API: toplevel utility helpers~trim_string(str) ⇒
@@ -2978,6 +3101,14 @@ Split the string based on spaces and return the last word
 ### Templating API: toplevel utility helpers~iterate()
 
 Iteration block.
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)  
+<a name="module_Templating API_ toplevel utility helpers..concatenate"></a>
+
+### Templating API: toplevel utility helpers~concatenate()
+
+Given: A list of strings
+Returns a concatenated string with spaces between each string
 
 **Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)  
 <a name="module_Templating API_ static zcl helpers"></a>
@@ -5096,7 +5227,7 @@ Promises to calculate the CRC of the file, and resolve with an object { filePath
 This function assigns a proper package ID to the session.
 
 **Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
-**Returns**: Promise that resolves with the session id for chaining.
+**Returns**: Promise that resolves with the packages array.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -5365,6 +5496,25 @@ limitations under the License.
 ## axios
 
 This module provides the APIs to Silabs Simplicity Studio's Jetty server.
+
+**Kind**: global constant  
+<a name="queryConfig"></a>
+
+## queryConfig
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 **Kind**: global constant  
 <a name="util"></a>
@@ -5797,6 +5947,77 @@ cl:0xABCD, at:0xABCD, di: [client|server], mf:0xABCD
 | attributeString | <code>\*</code> |               |
 | [value]         | <code>\*</code> | <code></code> |
 
+<a name="parseZclAfv2Line"></a>
+
+## parseZclAfv2Line(state, line)
+
+Logic that parses data out of an ISC file into a java object
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| state | <code>\*</code> |
+| line  | <code>\*</code> |
+
+<a name="parseZclCustomizer"></a>
+
+## parseZclCustomizer(state, line)
+
+Function that deals with the zcl customizer data inside the ISC file
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| state | <code>\*</code> |
+| line  | <code>\*</code> |
+
+<a name="readIscData"></a>
+
+## readIscData(filePath, data) ⇒
+
+Toplevel parser that ignore anything except the two setups that are
+ZCL relevant.
+
+**Kind**: global function  
+**Returns**: promise of read ISC data
+
+| Param    | Type            |
+| -------- | --------------- |
+| filePath | <code>\*</code> |
+| data     | <code>\*</code> |
+
+<a name="loadEndpointType"></a>
+
+## loadEndpointType(db, sessionId, zclPackages, endpointType)
+
+Load individual endpoint types.
+
+**Kind**: global function
+
+| Param        | Type            | Description                           |
+| ------------ | --------------- | ------------------------------------- |
+| db           | <code>\*</code> |                                       |
+| sessionId    | <code>\*</code> |                                       |
+| zclPackages  | <code>\*</code> | Array of package IDs for zcl queries. |
+| endpointType | <code>\*</code> |                                       |
+
+<a name="iscDataLoader"></a>
+
+## iscDataLoader(db, state, sessionId)
+
+Function that actually loads the data out of a state object.
+Session at this point is blank, and has no packages.
+
+**Kind**: global function
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| state     | <code>\*</code> |
+| sessionId | <code>\*</code> |
+
 <a name="readDataFromFile"></a>
 
 ## readDataFromFile(filePath) ⇒
@@ -5838,9 +6059,9 @@ Resolves with a promise that imports session key values.
 | sessionId     | <code>\*</code> |
 | keyValuePairs | <code>\*</code> |
 
-<a name="writeStateToDatabase"></a>
+<a name="jsonDataLoader"></a>
 
-## writeStateToDatabase(db, state, existingSessionId) ⇒
+## jsonDataLoader(db, state, sessionId) ⇒
 
 Given a state object, this method returns a promise that resolves
 with the succesfull writing into the database.
@@ -5848,11 +6069,11 @@ with the succesfull writing into the database.
 **Kind**: global function  
 **Returns**: a promise that resolves into a sessionId that was created.
 
-| Param             | Type            | Default       | Description                                                                                                                             |
-| ----------------- | --------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| db                | <code>\*</code> |               |                                                                                                                                         |
-| state             | <code>\*</code> |               |                                                                                                                                         |
-| existingSessionId | <code>\*</code> | <code></code> | If null, then new session will get created, otherwise it loads the data into an existing session. Previous session data is not deleted. |
+| Param     | Type            | Description                                                                                                                             |
+| --------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| db        | <code>\*</code> |                                                                                                                                         |
+| state     | <code>\*</code> |                                                                                                                                         |
+| sessionId | <code>\*</code> | If null, then new session will get created, otherwise it loads the data into an existing session. Previous session data is not deleted. |
 
 <a name="readJsonData"></a>
 
@@ -5880,6 +6101,13 @@ Call this function to create a new or show an existing preference window.
 | ----- | --------------- |
 | port  | <code>\*</code> |
 
+<a name="hookAppEvents"></a>
+
+## hookAppEvents()
+
+Hook up all the events for the electron app object.
+
+**Kind**: global function  
 <a name="doOpen"></a>
 
 ## doOpen(menuItem, browserWindow, event)
@@ -6050,6 +6278,18 @@ Move database file out of the way into the backup location.
 | Param | Type            |
 | ----- | --------------- |
 | path  | <code>\*</code> |
+
+<a name="startUp"></a>
+
+## startUp(isElectron)
+
+Default startup method.
+
+**Kind**: global function
+
+| Param      | Type            |
+| ---------- | --------------- |
+| isElectron | <code>\*</code> |
 
 <a name="readAndOpenFile"></a>
 
@@ -6557,7 +6797,7 @@ Toplevel function that loads the zcl file and passes it off to the correct zcl l
 
 ## bindValidationScript(db, basePackageId)
 
-This funciton creates a validator function with signatuee fn(stringToValidateOn)
+This function creates a validator function with signatuee fn(stringToValidateOn)
 
 **Kind**: global function
 
