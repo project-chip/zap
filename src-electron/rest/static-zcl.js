@@ -43,7 +43,8 @@ function zclEntityQuery(selectAllFunction, selectByIdFunction) {
 function returnZclEntitiesForClusterId(db, clusterId, packageId) {
   return zclEntityQuery(queryZcl.selectAllClusters, queryZcl.selectClusterById)(
     db,
-    clusterId
+    clusterId,
+    packageId
   ).then((x) =>
     zclEntityQuery(
       queryZcl.selectAllAttributes,
