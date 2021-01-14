@@ -2,6 +2,7 @@
   "version": "ZCL Test Data",
   "xmlRoot": ".",
   "xmlFile": [
+    "chip.xml",
     "types.xml",
     "general.xml",
     "ha.xml",
@@ -30,9 +31,15 @@
   "zclValidation": "./schema/zcl-validation.js",
   "options": {
     "text": {
-      "defaultResponsePolicy": ["Always", "Conditional", "Never"]
+      "defaultResponsePolicy": [
+        "Always",
+        "Conditional",
+        "Never"
+      ]
     },
-    "bool": ["commandDiscovery"]
+    "bool": [
+      "commandDiscovery"
+    ]
   },
   "defaults": {
     "text": {
