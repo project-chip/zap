@@ -69,9 +69,17 @@ function hookAppEvents() {
 
 // Main lifecycle of the application
 if (app != null) {
-  let isSingleInstance = app.requestSingleInstanceLock()
+  let supportMultipleInstances = true
 
-  if (isSingleInstance) {
+  let gotLock
+
+  if (supportMultipleInstances) {
+    gotLock = true
+  } else {
+    gotLock = app.requestSingleInstanceLock()
+  }
+
+  if (gotLock) {
     hookAppEvents()
   } else {
     // The 'second-instance' event on app was triggered, we need

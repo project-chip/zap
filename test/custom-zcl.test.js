@@ -30,31 +30,25 @@ const libxmljs = require('libxmljs')
 let db
 let sid
 
-beforeAll(() => {
+beforeAll(async () => {
   let file = env.sqliteTestFile('custom-validation')
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-      env.logInfo('DB initialized.')
-    })
-    .then(() => {
-      return zclLoader.loadZcl(db, args.zclPropertiesFile)
-    })
-    .then(() => {
-      return querySession.ensureZapSessionId(db, 'SESSION').then((id) => {
-        sid = id
-      })
-    })
-    .then(() => util.initializeSessionPackage(db, sid))
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+  await zclLoader.loadZcl(db, args.zclPropertiesFile)
+  sid = await querySession.ensureZapSessionId(db, 'SESSION')
+  return util.initializeSessionPackage(db, sid)
 }, 5000)
 
-test('Test custom xml', () => {
-  return zclLoader
-    .loadIndividualFile(db, testUtil.testCustomXml, sid)
-    .then((result) => {
-      expect(result.succeeded).toBeTruthy()
-    })
+test('Test custom xml', async () => {
+  let result = await zclLoader.loadIndividualFile(
+    db,
+    testUtil.testCustomXml,
+    sid
+  )
+  expect(result.succeeded).toBeTruthy()
 }, 5000)
 
 test('Test bad custom xml', () => {

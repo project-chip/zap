@@ -100,7 +100,7 @@ function registerAllRestModules(db, app) {
  * @param {*} port Port for the HTTP server.
  * @returns A promise that resolves with an express app.
  */
-function initHttpServer(db, port, studioPort) {
+async function initHttpServer(db, port, studioPort) {
   return new Promise((resolve, reject) => {
     const app = express()
     app.use(bodyParser.urlencoded({ extended: true }))
@@ -122,9 +122,12 @@ function initHttpServer(db, port, studioPort) {
         if ('sessionId' in req.query) knownSessionId = req.query.sessionId
         querySession
           .ensureZapSessionId(db, req.session.id, knownSessionId)
-          .then((sessionId) => util.initializeSessionPackage(db, sessionId))
           .then((sessionId) => {
             req.session.zapSessionId = sessionId
+            return sessionId
+          })
+          .then((sessionId) => util.initializeSessionPackage(db, sessionId))
+          .then((packages) => {
             next()
           })
           .catch((err) => {

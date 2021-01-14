@@ -301,6 +301,16 @@ async function selectDeviceTypeById(db, id, packageId) {
     .then(dbMapping.map.deviceType)
 }
 
+async function selectDeviceTypeByCodeAndName(db, packageId, code, name) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE CODE = ? AND NAME = ? AND PACKAGE_REF = ? ',
+      [code, name, packageId]
+    )
+    .then(dbMapping.map.deviceType)
+}
+
 async function selectAttributesByClusterId(db, clusterId, packageId = null) {
   return dbApi
     .dbAll(
@@ -1800,6 +1810,7 @@ async function exportClustersAndEndpointDetailsFromEndpointTypes(
     return {
       endpointId: x.ENDPOINT_TYPE_REF,
       endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+      endpointTypeClusterRef: x.CLUSTER_REF,
     }
   }
 
@@ -1809,7 +1820,8 @@ async function exportClustersAndEndpointDetailsFromEndpointTypes(
       `
 SELECT
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF,
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
+  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
 FROM CLUSTER
 INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
@@ -1874,6 +1886,59 @@ async function exportCommandDetailsFromAllEndpointTypesAndClusters(
   INNER JOIN CLUSTER
   ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
   WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds}) AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
+  GROUP BY COMMAND.NAME
+        `
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * Returns a promise of data for commands inside an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the command data.
+ */
+async function exportAllCommandDetailsFromEnabledClusters(
+  db,
+  endpointsAndClusters
+) {
+  let endpointTypeClusterRef = endpointsAndClusters
+    .map((ep) => ep.endpointTypeClusterRef)
+    .toString()
+  let mapFunction = (x) => {
+    return {
+      id: x.COMMAND_ID,
+      name: x.NAME,
+      code: x.CODE,
+      commandSource: x.SOURCE,
+      mfgCode: x.MANUFACTURER_CODE,
+      description: x.DESCRIPTION,
+      clusterSide: x.SIDE,
+      clusterName: x.CLUSTER_NAME,
+      isClusterEnabled: x.ENABLED,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    COMMAND.COMMAND_ID,
+    COMMAND.NAME,
+    COMMAND.CODE,
+    COMMAND.SOURCE,
+    COMMAND.MANUFACTURER_CODE,
+    COMMAND.DESCRIPTION,
+    ENDPOINT_TYPE_CLUSTER.SIDE,
+    CLUSTER.NAME AS CLUSTER_NAME,
+    ENDPOINT_TYPE_CLUSTER.ENABLED
+  FROM COMMAND
+  INNER JOIN CLUSTER
+  ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  INNER JOIN ENDPOINT_TYPE_CLUSTER
+  ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
   GROUP BY COMMAND.NAME
         `
     )
@@ -1969,6 +2034,56 @@ async function exportAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
       side: x.SIDE,
       enabled: x.ENABLED,
       endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+      endpointCount: x['COUNT(*)'],
+    }
+  }
+
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  CLUSTER.CLUSTER_ID,
+  CLUSTER.CODE,
+  CLUSTER.MANUFACTURER_CODE,
+  CLUSTER.NAME,
+  CLUSTER.DEFINE,
+  ENDPOINT_TYPE_CLUSTER.SIDE,
+  ENDPOINT_TYPE_CLUSTER.ENABLED,
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
+  COUNT(*)
+FROM CLUSTER
+INNER JOIN ENDPOINT_TYPE_CLUSTER
+ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+GROUP BY NAME, SIDE`
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * Exports clusters to an externalized form irrespecive of side.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the data that should go into the external form.
+ */
+async function exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
+  db,
+  endpointTypes
+) {
+  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  let mapFunction = (x) => {
+    return {
+      id: x.CLUSTER_ID,
+      name: x.NAME,
+      code: x.CODE,
+      define: x.DEFINE,
+      mfgCode: x.MANUFACTURER_CODE,
+      side: x.SIDE,
+      enabled: x.ENABLED,
+      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
     }
   }
 
@@ -1990,7 +2105,7 @@ INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
 WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
 AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
-GROUP BY NAME, SIDE`
+GROUP BY NAME`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -2032,7 +2147,7 @@ FROM CLUSTER
 INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
 WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
-AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
 GROUP BY NAME`
     )
     .then((rows) => rows.map(mapFunction))
@@ -2102,6 +2217,7 @@ exports.selectAllClusters = selectAllClusters
 exports.selectClusterById = selectClusterById
 exports.selectAllDeviceTypes = selectAllDeviceTypes
 exports.selectDeviceTypeById = selectDeviceTypeById
+exports.selectDeviceTypeByCodeAndName = selectDeviceTypeByCodeAndName
 exports.selectAttributesByClusterIdAndSide = selectAttributesByClusterIdAndSide
 exports.selectAttributesByClusterId = selectAttributesByClusterId
 exports.selectAttributesByClusterCodeAndManufacturerCode = selectAttributesByClusterCodeAndManufacturerCode
@@ -2153,3 +2269,5 @@ exports.selectEnumByName = selectEnumByName
 exports.selectStructByName = selectStructByName
 exports.determineType = determineType
 exports.selectCommandTree = selectCommandTree
+exports.exportAllCommandDetailsFromEnabledClusters = exportAllCommandDetailsFromEnabledClusters
+exports.exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes = exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes

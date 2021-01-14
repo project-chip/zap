@@ -53,9 +53,9 @@ test('test Silabs zcl data loading in memory', () => {
     )
     .then((rows) => expect(rows.length).toEqual(1))
     .then(() => queryZcl.selectAllClusters(db, packageId))
-    .then((x) => expect(x.length).toEqual(106))
+    .then((x) => expect(x.length).toEqual(104))
     .then(() => queryZcl.selectAllDomains(db, packageId))
-    .then((x) => expect(x.length).toEqual(20))
+    .then((x) => expect(x.length).toEqual(19))
     .then(() => queryZcl.selectAllEnums(db, packageId))
     .then((x) => expect(x.length).toEqual(205))
     .then(() => queryZcl.selectAllStructs(db, packageId))
@@ -65,13 +65,13 @@ test('test Silabs zcl data loading in memory', () => {
     .then(() => queryZcl.selectAllDeviceTypes(db, packageId))
     .then((x) => expect(x.length).toEqual(152))
     .then(() => queryGeneric.selectCountFrom(db, 'COMMAND_ARG'))
-    .then((x) => expect(x).toEqual(1668))
+    .then((x) => expect(x).toEqual(1666))
     .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
-    .then((x) => expect(x).toEqual(560))
+    .then((x) => expect(x).toEqual(553))
     .then(() => queryGeneric.selectCountFrom(db, 'ENUM_ITEM'))
     .then((x) => expect(x).toEqual(1534))
     .then(() => queryGeneric.selectCountFrom(db, 'ATTRIBUTE'))
-    .then((x) => expect(x).toEqual(3416))
+    .then((x) => expect(x).toEqual(3408))
     .then(() => queryGeneric.selectCountFrom(db, 'BITMAP_FIELD'))
     .then((x) => expect(x).toEqual(721))
     .then(() => queryGeneric.selectCountFrom(db, 'STRUCT_ITEM'))
@@ -83,7 +83,7 @@ test('test Silabs zcl data loading in memory', () => {
         []
       )
     )
-    .then((x) => expect(x.length).toEqual(2))
+    .then((x) => expect(x.length).toEqual(0))
     .then(() =>
       dbApi.dbAll(
         db,
@@ -91,7 +91,7 @@ test('test Silabs zcl data loading in memory', () => {
         []
       )
     )
-    .then((x) => expect(x.length).toEqual(5))
+    .then((x) => expect(x.length).toEqual(0))
     .then(() =>
       dbApi.dbAll(
         db,
@@ -99,7 +99,7 @@ test('test Silabs zcl data loading in memory', () => {
         []
       )
     )
-    .then((x) => expect(x.length).toEqual(4))
+    .then((x) => expect(x.length).toEqual(0))
     .then(() =>
       dbApi.dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', [
         [0],

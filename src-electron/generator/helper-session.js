@@ -160,7 +160,34 @@ function all_user_cluster_commands(options) {
       templateUtil.collectBlocks(endpointCommands, options, this)
     )
   return promise
-  //return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Creates endpoint type cluster command iterator. This fetches all
+ * commands which have been enabled on added endpoints
+ *
+ * @param {*} options
+ * @returns Promise of the resolved blocks iterating over cluster commands.
+ */
+function all_commands_for_user_enabled_clusters(options) {
+  let promise = queryImpexp
+    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      queryZcl.exportAllCommandDetailsFromEnabledClusters(
+        this.global.db,
+        endpointsAndClusters
+      )
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, this)
+    )
+  return promise
 }
 
 /**
@@ -174,6 +201,24 @@ function all_user_clusters(options) {
     .exportendPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportAllClustersDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((clusters) => templateUtil.collectBlocks(clusters, options, this))
+}
+
+/**
+ * Creates cluster command iterator for all endpoints.
+ *
+ * @param {*} options
+ * @returns Promise of the resolved blocks iterating over cluster commands.
+ */
+function all_user_clusters_irrespective_of_side(options) {
+  return queryImpexp
+    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
         this.global.db,
         endpointTypes
       )
@@ -369,3 +414,5 @@ exports.user_session_key = user_session_key
 exports.user_manufacturer_code = user_manufacturer_code
 exports.user_default_response_policy = user_default_response_policy
 exports.endpoint_type_identifier = endpoint_type_identifier
+exports.all_commands_for_user_enabled_clusters = all_commands_for_user_enabled_clusters
+exports.all_user_clusters_irrespective_of_side = all_user_clusters_irrespective_of_side

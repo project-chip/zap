@@ -193,13 +193,13 @@ function getSchemaAndValidationScript(db, basePackageId) {
  * @param {*} parentPackageId
  * @returns Promise that resolves int he object of data.
  */
-function qualifyZclFile(db, info, parentPackageId, packageType) {
+function qualifyZclFile(db, info, parentPackageId, packageType, isCustom) {
   return new Promise((resolve, reject) => {
     let filePath = info.filePath
     let data = info.data
     let actualCrc = info.crc
     queryPackage
-      .getPackageByPathAndParent(db, filePath, parentPackageId)
+      .getPackageByPathAndParent(db, filePath, parentPackageId, isCustom)
       .then((pkg) => {
         if (pkg == null) {
           // This is executed if there is no CRC in the database.
@@ -228,6 +228,7 @@ function qualifyZclFile(db, info, parentPackageId, packageType) {
             )
             resolve({
               error: `${pkg.path} skipped`,
+              packageId: pkg.id,
             })
           } else {
             env.logInfo(

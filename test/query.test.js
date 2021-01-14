@@ -165,12 +165,10 @@ test('Now load the generation data.', () =>
 
 describe('Session specific queries', () => {
   beforeAll(() =>
-    querySession
-      .ensureZapSessionId(db, 'SESSION')
-      .then((id) => util.initializeSessionPackage(db, id))
-      .then((id) => {
-        sid = id
-      })
+    querySession.ensureZapSessionId(db, 'SESSION').then((id) => {
+      sid = id
+      return util.initializeSessionPackage(db, id)
+    })
   )
 
   test('Test that package id for session is preset.', () =>

@@ -47,9 +47,9 @@ function calculateCrc(context) {
  *
  * @param {*} db
  * @param {*} sessionId
- * @returns Promise that resolves with the session id for chaining.
+ * @returns Promise that resolves with the packages array.
  */
-function initializeSessionPackage(db, sessionId) {
+async function initializeSessionPackage(db, sessionId) {
   let promises = []
 
   // 1. Associate a zclProperties file.
@@ -75,13 +75,8 @@ function initializeSessionPackage(db, sessionId) {
           `Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
         )
       }
-
       if (packageId != null) {
-        return queryPackage
-          .insertSessionPackage(db, sessionId, packageId, true)
-          .then(() => sessionId)
-      } else {
-        return sessionId
+        return queryPackage.insertSessionPackage(db, sessionId, packageId, true)
       }
     })
   promises.push(zclPropertiesPromise)
@@ -120,45 +115,39 @@ function initializeSessionPackage(db, sessionId) {
         }
       }
       if (packageId != null) {
-        return queryPackage
-          .insertSessionPackage(db, sessionId, packageId, true)
-          .then(() => sessionId)
-      } else {
-        return sessionId
+        return queryPackage.insertSessionPackage(db, sessionId, packageId, true)
       }
     })
   promises.push(genTemplateJsonPromise)
 
   return Promise.all(promises)
-    .then(() =>
-      queryPackage.getSessionPackages(db, sessionId).then((packages) => {
-        let p = packages.map((pkg) => {
-          return queryPackage
-            .selectAllDefaultOptions(db, pkg.packageRef)
-            .then((optionDefaultsArray) => {
-              return Promise.all(
-                optionDefaultsArray.map((optionDefault) => {
-                  return queryPackage
-                    .selectOptionValueByOptionDefaultId(
+    .then(() => queryPackage.getSessionPackages(db, sessionId))
+    .then((packages) => {
+      let p = packages.map((pkg) =>
+        queryPackage
+          .selectAllDefaultOptions(db, pkg.packageRef)
+          .then((optionDefaultsArray) =>
+            Promise.all(
+              optionDefaultsArray.map((optionDefault) => {
+                return queryPackage
+                  .selectOptionValueByOptionDefaultId(
+                    db,
+                    optionDefault.optionRef
+                  )
+                  .then((option) => {
+                    return queryConfig.insertKeyValue(
                       db,
-                      optionDefault.optionRef
+                      sessionId,
+                      option.optionCategory,
+                      option.optionCode
                     )
-                    .then((option) => {
-                      return queryConfig.insertKeyValue(
-                        db,
-                        sessionId,
-                        option.optionCategory,
-                        option.optionCode
-                      )
-                    })
-                })
-              )
-            })
-        })
-        return Promise.all(p)
-      })
-    )
-    .then(() => sessionId)
+                  })
+              })
+            )
+          )
+      )
+      return Promise.all(p).then(() => packages)
+    })
 }
 
 /**

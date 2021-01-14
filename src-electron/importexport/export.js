@@ -29,29 +29,6 @@ const queryImpExp = require('../db/query-impexp.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
- * Resolves to an array of objects that contain 'key' and 'value'
- *
- * @export
- * @param {*} db
- * @param {*} sessionId
- * @returns Promise to retrieve all session key values.
- */
-async function exportSessionKeyValues(db, sessionId) {
-  return queryConfig.getAllSessionKeyValues(db, sessionId)
-}
-
-/**
- * Resolves to an array of endpoints.
- *
- * @param {*} db
- * @param {*} sessionId
- * @returns Promise to retrieve all endpoints.
- */
-async function exportEndpoints(db, sessionId, endpointTypes) {
-  return queryImpExp.exportEndpoints(db, sessionId, endpointTypes)
-}
-
-/**
  * Resolves to an array of endpoint types.
  *
  * @export
@@ -108,7 +85,7 @@ async function exportEndpointTypes(db, sessionId) {
       })
 
       return Promise.all(promises)
-        .then(() => exportEndpoints(db, sessionId, endpointTypes))
+        .then(() => queryImpExp.exportEndpoints(db, sessionId, endpointTypes))
         .then((endpoints) => {
           return Promise.resolve(endpoints)
         })
@@ -197,7 +174,8 @@ async function createStateFromDatabase(db, sessionId) {
 
     env.logInfo(`Exporting data for session: ${sessionId}`)
     // Deal with the key/value table
-    let getKeyValues = exportSessionKeyValues(db, sessionId)
+    let getKeyValues = queryConfig
+      .getAllSessionKeyValues(db, sessionId)
       .then((data) => {
         env.logInfo(`Retrieved session keys: ${data.length}`)
         let zapFilePath = null

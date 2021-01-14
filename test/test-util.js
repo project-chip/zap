@@ -44,3 +44,11 @@ exports.testServer = testServer
 
 exports.testCustomXml = './test/resource/test-custom.xml'
 exports.badTestCustomXml = './test/resource/bad-test-custom.xml'
+
+exports.totalClusterCount = 108
+exports.totalDomainCount = 22
+exports.totalCommandArgsCount = 1785
+exports.totalCommandCount = 623
+exports.totalAttributeCount = 3430
+exports.totalClusterCommandCount = 600
+exports.totalServerAttributeCount = 2954

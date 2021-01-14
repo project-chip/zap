@@ -104,4 +104,8 @@
 
 {{/endpoint_config}}
 
+{{#all_user_clusters}}
+#define EMBER_AF_{{define}}_{{as_delimited_macro side}}_ENDPOINT_COUNT ({{endpointCount}})
+{{/all_user_clusters}}
+
 #endif // SILABS_AF_ENDPOINT_CONFIG

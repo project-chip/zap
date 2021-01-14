@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+const queryConfig = require('../db/query-config.js')
+const queryZcl = require('../db/query-zcl.js')
+const queryPackage = require('../db/query-package.js')
+const util = require('../util/util.js')
+const dbEnum = require('../../src-shared/db-enum.js')
+
 /**
  * Locates or adds an attribute, and returns it.
  *
@@ -43,11 +49,7 @@ function parseAttribute(attributeString, value = null) {
       } else if (el.startsWith('at:')) {
         at.attributeId = parseInt(el.substring(3))
       } else if (el.startsWith('di:')) {
-        if (el.substring(3).trim() == 'client') {
-          at.isClient = true
-        } else {
-          at.isClient = false
-        }
+        at.isClient = el.substring(3).trim() == 'client'
       } else if (el.startsWith('mf:')) {
         at.mfgCode = parseInt(el.substring(3))
       }
@@ -58,6 +60,12 @@ function parseAttribute(attributeString, value = null) {
   return at
 }
 
+/**
+ * Logic that parses data out of an ISC file into a java object
+ *
+ * @param {*} state
+ * @param {*} line
+ */
 function parseZclAfv2Line(state, line) {
   if (line.startsWith('configuredEndpoint:')) {
     if (!('endpoint' in state)) {
@@ -179,10 +187,24 @@ function parseZclAfv2Line(state, line) {
   }
 }
 
+/**
+ * Function that deals with the zcl customizer data inside the ISC file
+ *
+ * @param {*} state
+ * @param {*} line
+ */
 function parseZclCustomizer(state, line) {
   //console.log(`zclCustomizer:${line}`)
 }
 
+/**
+ * Toplevel parser that ignore anything except the two setups that are
+ * ZCL relevant.
+ *
+ * @param {*} filePath
+ * @param {*} data
+ * @returns promise of read ISC data
+ */
 async function readIscData(filePath, data) {
   const lines = data.toString().split(/\r?\n/)
   const errorLines = []
@@ -234,22 +256,66 @@ async function readIscData(filePath, data) {
   }
 }
 
-async function loadEndpointType(endpointType) {
-  let deviceType = endpointType.device
-  let deviceId = endpointType.deviceId
+/**
+ * Load individual endpoint types.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} zclPackages Array of package IDs for zcl queries.
+ * @param {*} endpointType
+ */
+async function loadEndpointType(db, sessionId, packageId, endpointType) {
+  let deviceName = endpointType.device
+  let deviceCode = endpointType.deviceId
 
-  console.log(`Loading device type: ${deviceType} / ${deviceId}`)
+  let dev = await queryZcl.selectDeviceTypeByCodeAndName(
+    db,
+    packageId,
+    deviceCode,
+    deviceName
+  )
+
+  if (dev == null) throw `Unknown device type: ${deviceName} / ${deviceCode}`
+  return queryConfig.insertEndpointType(
+    db,
+    sessionId,
+    endpointType.typeName,
+    dev.id,
+    false
+  )
 }
 
+/**
+ * Function that actually loads the data out of a state object.
+ * Session at this point is blank, and has no packages.
+ *
+ * @param {*} db
+ * @param {*} state
+ * @param {*} sessionId
+ */
 async function iscDataLoader(db, state, sessionId) {
   let endpointTypes = state.endpointTypes
   let promises = []
-  for (let key in endpointTypes) {
-    promises.push(loadEndpointType(endpointTypes[key]))
-  }
-  await Promise.all(promises)
 
-  throw 'ISC not yet supported.'
+  await util.initializeSessionPackage(db, sessionId)
+  let zclPackages = await queryPackage.getSessionPackagesByType(
+    db,
+    sessionId,
+    dbEnum.packageType.zclProperties
+  )
+
+  if (zclPackages.length == 0) {
+    throw 'No zcl packages found for ISC import.'
+  }
+
+  let packageId = zclPackages[0].id
+
+  for (let key in endpointTypes) {
+    promises.push(
+      loadEndpointType(db, sessionId, packageId, endpointTypes[key])
+    )
+  }
+  return Promise.all(promises)
 }
 
 exports.readIscData = readIscData

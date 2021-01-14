@@ -26,6 +26,7 @@ const queryGeneric = require('../src-electron/db/query-generic.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
+const testUtil = require('./test-util.js')
 
 test('that that parallel loading of zcl and dotdot is possible', async () => {
   let dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
@@ -77,19 +78,19 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     )
     .then((rows) => expect(rows.length).toEqual(2))
     .then(() => queryZcl.selectAllClusters(db, jsonPackageId))
-    .then((x) => expect(x.length).toEqual(110))
+    .then((x) => expect(x.length).toEqual(testUtil.totalClusterCount))
     .then(() => queryZcl.selectAllClusterCommands(db, jsonPackageId))
     .then((x) => {
-      expect(x.length).toBe(607)
+      expect(x.length).toBe(testUtil.totalClusterCommandCount)
       queryZcl
         .selectCommandById(db, x[0].id)
         .then((z) => expect(z.label).toBe(x[0].label))
     })
     .then(() => queryZcl.selectAllCommandArguments(db, jsonPackageId))
-    .then((x) => expect(x.length).toEqual(1787))
+    .then((x) => expect(x.length).toEqual(testUtil.totalCommandArgsCount))
     .then(() => queryZcl.selectAllDomains(db, jsonPackageId))
     .then((x) => {
-      expect(x.length).toEqual(23)
+      expect(x.length).toEqual(testUtil.totalDomainCount)
       queryZcl
         .selectDomainById(db, x.id, jsonPackageId)
         .then((z) => expect(z.name).toBe(x.name))
@@ -97,7 +98,7 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     .then(() => queryZcl.selectAllEnums(db, jsonPackageId))
     .then((x) => expect(x.length).toEqual(208))
     .then(() => queryZcl.selectAllAttributesBySide(db, 'server', jsonPackageId))
-    .then((x) => expect(x.length).toBe(2962))
+    .then((x) => expect(x.length).toBe(testUtil.totalServerAttributeCount))
     .then(() => queryZcl.selectAllEnumItems(db, jsonPackageId))
     .then((x) => expect(x.length).toEqual(1569))
     .then(() => queryZcl.selectAllStructs(db, jsonPackageId))
@@ -136,7 +137,7 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
         []
       )
     )
-    .then((x) => expect(x.length).toEqual(5))
+    .then((x) => expect(x.length).toEqual(3))
     .then(() =>
       dbApi.dbAll(
         db,
@@ -144,7 +145,7 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
         []
       )
     )
-    .then((x) => expect(x.length).toEqual(5))
+    .then((x) => expect(x.length).toEqual(0))
     .then(() =>
       dbApi.dbAll(
         db,
@@ -152,7 +153,7 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
         []
       )
     )
-    .then((x) => expect(x.length).toEqual(4))
+    .then((x) => expect(x.length).toEqual(0))
     .then(() =>
       dbApi.dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', [
         [0],

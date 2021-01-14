@@ -32,12 +32,13 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} db
  * @param {*} path Path of a file to check.
  */
-async function getPackageByPathAndParent(db, path, parentId) {
+async function getPackageByPathAndParent(db, path, parentId, isCustom) {
   return dbApi
     .dbGet(
       db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ? AND PARENT_PACKAGE_REF = ?',
-      [path, parentId]
+      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ? AND ' +
+        (isCustom ? 'PARENT_PACKAGE_REF IS NULL' : '(PARENT_PACKAGE_REF = ?)'),
+      isCustom ? [path] : [path, parentId]
     )
     .then((row) => dbMapping.map.package(row))
 }
@@ -267,7 +268,7 @@ async function insertSessionPackage(
 ) {
   return dbApi.dbInsert(
     db,
-    'INSERT OR REPLACE INTO SESSION_PACKAGE (SESSION_REF, PACKAGE_REF, REQUIRED) VALUES (?,?, ?)',
+    'INSERT OR REPLACE INTO SESSION_PACKAGE (SESSION_REF, PACKAGE_REF, REQUIRED, ENABLED) VALUES (?,?,?,1)',
     [sessionId, packageId, required]
   )
 }
@@ -280,7 +281,7 @@ async function insertSessionPackage(
 async function deleteSessionPackage(db, sessionId, packageId) {
   return dbApi.dbRemove(
     db,
-    `DELETE FROM SESSION_PACKAGE WHERE SESSION_REF = ? AND PACKAGE_REF = ?`,
+    `UPDATE SESSION_PACKAGE SET ENABLED = 0 WHERE SESSION_REF = ? AND PACKAGE_REF = ?`,
     [sessionId, packageId]
   )
 }
@@ -308,7 +309,8 @@ FROM PACKAGE
 INNER JOIN SESSION_PACKAGE
   ON PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF
 WHERE SESSION_PACKAGE.SESSION_REF = ? 
-  AND PACKAGE.TYPE = ?`,
+  AND PACKAGE.TYPE = ? 
+  AND SESSION_PACKAGE.ENABLED = 1`,
       [sessionId, packageType]
     )
     .then((rows) => rows.map(dbMapping.map.package))
@@ -342,7 +344,8 @@ async function getSessionGenTemplates(db, sessionId) {
     INNER JOIN SESSION_PACKAGE
       ON PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF
     WHERE SESSION_PACKAGE.SESSION_REF = ? 
-      AND PACKAGE.TYPE = ?)
+      AND PACKAGE.TYPE = ?
+      AND SESSION_PACKAGE.ENABLED = 1)
       ORDER BY PACKAGE.PATH ASC`,
       [
         dbEnum.packageType.genSingleTemplate,
@@ -375,7 +378,7 @@ INNER JOIN
 ON 
   SP.PACKAGE_REF = P.PACKAGE_ID
 WHERE
-  SP.SESSION_REF = ? AND P.TYPE IN ${inList}
+  SP.SESSION_REF = ? AND SP.ENABLED = 1 AND P.TYPE IN ${inList}
 `,
       [sessionId]
     )
@@ -392,7 +395,7 @@ async function getSessionPackages(db, sessionId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT PACKAGE_REF, SESSION_REF, REQUIRED FROM SESSION_PACKAGE WHERE SESSION_REF = ?',
+      'SELECT PACKAGE_REF, SESSION_REF, REQUIRED FROM SESSION_PACKAGE WHERE SESSION_REF = ? AND ENABLED = 1',
       [sessionId]
     )
     .then((rows) => rows.map(dbMapping.map.sessionPackage))
@@ -423,7 +426,8 @@ async function getPackageSessionPackagePairBySessionId(db, sessionId) {
         SESSION_PACKAGE 
        WHERE 
         PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF 
-        AND SESSION_PACKAGE.SESSION_REF = ?`,
+        AND SESSION_PACKAGE.SESSION_REF = ?
+        AND SESSION_PACKAGE.ENABLED = 1`,
       [sessionId]
     )
     .then((rows) =>
