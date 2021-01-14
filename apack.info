@@ -13,11 +13,13 @@ uc.triggerExtension=zap
 
 executable(zap) {
   engine=node
+  optional=true
   exe=src-script/zap-start.js
 }
 
 executable(zap_regen) {
   engine=node
+  optional=true
   exe=src-script/zap-generate.js
 }
 
