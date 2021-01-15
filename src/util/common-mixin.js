@@ -111,7 +111,7 @@ export default {
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
     },
-    updateComponent(componentId, studioProject, addComponent) {
+    updateComponent(componentId, addComponent) {
       let op = RestApi.uc.componentAdd
       if (addComponent) {
         op = RestApi.uc.componentAdd

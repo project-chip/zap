@@ -90,12 +90,12 @@ export default {
 
       enabledItems.forEach(function (item) {
         let id = item.substr(item.lastIndexOf('-') + 1)
-        this.updateComponent(id, this.$store.state.zap.studioProject, true)
+        this.updateComponent(id, true)
       }, this)
 
       disabledItems.forEach(function (item) {
         let id = item.substr(item.lastIndexOf('-') + 1)
-        this.updateComponent(id, this.$store.state.zap.studioProject, false)
+        this.updateComponent(id, false)
       }, this)
 
       this.uc.last_ticked = this.uc.ticked
