@@ -49,38 +49,52 @@ function httpGetComponentTree(db) {
     }
   }
 }
+
+//  input:
+//    enabling component by specified 'componentId' or leveraging cluster to component mapping by
+//    specifying 'clusterId' and 'side'.
+//
 function httpGetComponentAdd(db) {
   return (req, res) => {
     let name = studio.projectName(req.query.studioProject)
-    env.logInfo(
-      `StudioUC(${name}): Enabling component "${req.query.componentId}"`
-    )
+    let componentId = ''
+
+    if (req.query.componentId) {
+      componentId = req.query.componentId
+    } else {
+      // check for cluster / component mapping
+    }
+
+    env.logInfo(`StudioUC(${name}): Enabling component "${componentId}"`)
     studio
-      .addComponent(req.query.studioProject, req.query.componentId)
+      .addComponent(req.query.studioProject, componentId)
       .then((r) => {
         if (r.status == http.StatusCodes.OK) {
-          env.logInfo(
-            `StudioUC(${name}): Component "${req.query.componentId}" removed.`
-          )
+          env.logInfo(`StudioUC(${name}): Component "${componentId}" added.`)
         }
         return res.send(r.data)
       })
       .catch((err) => handleError(err, res))
   }
 }
+
 function httpGetComponentRemove(db) {
   return (req, res) => {
     let name = studio.projectName(req.query.studioProject)
-    env.logInfo(
-      `StudioUC(${name}): Disabling component "${req.query.componentId}"`
-    )
+    let componentId = ''
+
+    if (req.query.componentId) {
+      componentId = req.query.componentId
+    } else {
+      // check for cluster / component mapping
+    }
+
+    env.logInfo(`StudioUC(${name}): Disabling component "${componentId}"`)
     studio
-      .removeComponent(req.query.studioProject, req.query.componentId)
+      .removeComponent(req.query.studioProject, componentId)
       .then((r) => {
         if (r.status == http.StatusCodes.OK) {
-          env.logInfo(
-            `StudioUC(${name}): Component "${req.query.componentId}" removed.`
-          )
+          env.logInfo(`StudioUC(${name}): Component "${componentId}" removed.`)
         }
         return res.send(r.data)
       })
