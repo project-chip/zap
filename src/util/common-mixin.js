@@ -112,10 +112,11 @@ export default {
     },
     updateComponent(params) {
       params['studioProject'] = this.$store.state.zap.studioProject
-      let { componentId, added } = params
       this.$store
         .dispatch('zap/updateSelectedComponent', params)
         .then((res) => {
+          let { componentId, added } = res
+
           let name = componentId.replace(/_/g, ' ')
           let actionText = added ? 'added' : 'removed'
           let msg = `<div><strong>Component was successfully ${actionText}.</strong></div>`
