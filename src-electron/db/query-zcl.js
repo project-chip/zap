@@ -252,7 +252,7 @@ ORDER BY CODE`,
  * @param {*} packageId
  * @returns promise that resolves into a cluster object
  */
-async function selectClusterById(db, clusterId, packageId) {
+async function selectClusterById(db, clusterId) {
   return dbApi
     .dbGet(
       db,
@@ -267,9 +267,8 @@ SELECT
   DOMAIN_NAME,
   IS_SINGLETON
 FROM CLUSTER
-WHERE CLUSTER_ID = ?
-  AND PACKAGE_REF = ?`,
-      [clusterId, packageId]
+WHERE CLUSTER_ID = ?`,
+      [clusterId]
     )
     .then(dbMapping.map.cluster)
 }

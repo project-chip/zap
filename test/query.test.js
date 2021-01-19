@@ -138,7 +138,7 @@ test('Simple cluster addition.', () => {
       expect(rows[0].code).toBe(4660), expect(rows[0].label).toBe('Test')
       return rowid
     })
-    .then((rowid) => queryZcl.selectClusterById(db, rowid, pkgId))
+    .then((rowid) => queryZcl.selectClusterById(db, rowid))
     .then((row) => {
       expect(row.code).toBe(4660)
       expect(row.label).toBe('Test')

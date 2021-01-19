@@ -112,6 +112,14 @@ export function updateSelectedCommands(context, selectionContext) {
     })
 }
 
+export function updateSelectedComponent(context, payload) {
+  let { componentId, added } = payload
+  let op = added ? restApi.uc.componentAdd : restApi.uc.componentRemove
+  return Vue.prototype.$serverGet(op, { params: payload }).then((res) => {
+    return Promise.resolve({ res, componentId, added })
+  })
+}
+
 export function updateSelectedServers(context, selectionContext) {
   Vue.prototype
     .$serverPost(restApi.uri.cluster, {

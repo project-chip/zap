@@ -16,7 +16,6 @@
  */
 
 import * as Util from './util'
-import * as RestApi from '../../src-shared/rest-api'
 
 /**
  * This module provides common computed properties used across various vue components
@@ -111,34 +110,18 @@ export default {
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
     },
-    updateComponent(componentId, studioProject, addComponent) {
-      let op = RestApi.uc.componentAdd
-      if (addComponent) {
-        op = RestApi.uc.componentAdd
-      } else {
-        op = RestApi.uc.componentRemove
-      }
-
-      this.$serverGet(op, {
-        params: {
-          componentId: componentId,
-          studioProject: this.$store.state.zap.studioProject,
-        },
-      })
+    updateComponent(params) {
+      params['studioProject'] = this.$store.state.zap.studioProject
+      this.$store
+        .dispatch('zap/updateSelectedComponent', params)
         .then((res) => {
-          let msg = ''
-          let name = componentId.replace(/_/g, ' ')
-          if (op == RestApi.uc.componentAdd) {
-            msg +=
-              '<div><strong>Component was successfully added.</strong></div>'
-            msg += `<div>The <span style="text-transform: capitalize">${name}</span> was added.</div>`
-          } else {
-            msg +=
-              '<div><strong>Component was successfully removed.</strong></div>'
-            msg += `<div>The <span style="text-transform: capitalize">${name}</span> was removed.</div>`
-          }
+          let { componentId, added } = res
 
-          console.log(msg)
+          let name = componentId.replace(/_/g, ' ')
+          let actionText = added ? 'added' : 'removed'
+          let msg = `<div><strong>Component was successfully ${actionText}.</strong></div>`
+          msg += `<div>The <span style="text-transform: capitalize">${name}</span> was ${actionText}.</div>`
+
           this.$q.notify({
             message: msg,
             color: 'positive',
@@ -147,12 +130,9 @@ export default {
           })
         })
         .catch((err) => {
+          let actionText = added ? 'add' : 'remove'
           this.$q.notify({
-            message:
-              'Unable to ' +
-              (op == RestApi.uc.componentAdd ? 'add' : 'remove') +
-              ' ' +
-              componentId,
+            message: `Unable to ${actionText} ${componentId}`,
             color: 'negative',
             position: 'top',
           })

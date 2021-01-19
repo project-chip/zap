@@ -1026,7 +1026,7 @@ This module provides queries for ZCL static queries.
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
   - [~selectAllStructs(db)](#module*DB API* zcl database access..selectAllStructs) ⇒
   - [~selectAllClusters(db)](#module*DB API* zcl database access..selectAllClusters) ⇒
-  - [~selectClusterById(db, clusterId, packageId)](#module*DB API* zcl database access..selectClusterById) ⇒
+  - [~selectClusterById(db, clusterId)](#module*DB API* zcl database access..selectClusterById) ⇒
   - [~selectAllDeviceTypes(db)](#module*DB API* zcl database access..selectAllDeviceTypes) ⇒
   - [~selectAttributeByAttributeIdAndClusterRef(db, attributeId, clusterRef)](#module*DB API* zcl database access..selectAttributeByAttributeIdAndClusterRef)
   - [~selectCommandsByClusterId(db, clusterId)](#module*DB API* zcl database access..selectCommandsByClusterId) ⇒
@@ -1129,7 +1129,7 @@ Retrieves all the clusters in the database.
 
 <a name="module_DB API_ zcl database access..selectClusterById"></a>
 
-### DB API: zcl database access~selectClusterById(db, clusterId, packageId) ⇒
+### DB API: zcl database access~selectClusterById(db, clusterId) ⇒
 
 Returns a promise that resolves into a cluster.
 
@@ -1140,7 +1140,6 @@ Returns a promise that resolves into a cluster.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | clusterId | <code>\*</code> |
-| packageId | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllDeviceTypes"></a>
 
