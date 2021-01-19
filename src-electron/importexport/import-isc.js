@@ -312,10 +312,42 @@ async function iscDataLoader(db, state, sessionId) {
 
   for (let key in endpointTypes) {
     promises.push(
-      loadEndpointType(db, sessionId, packageId, endpointTypes[key])
+      loadEndpointType(db, sessionId, packageId, endpointTypes[key]).then(
+        (newEndpointTypeId) => {
+          return {
+            endpointTypeId: newEndpointTypeId,
+            endpointType: endpointTypes[key],
+          }
+        }
+      )
     )
   }
-  return Promise.all(promises)
+  return Promise.all(promises).then((results) => {
+    // results is an array of "endpointTypeId"/"endpointType" objects.
+
+    let endpointInsertion = []
+    state.endpoint.forEach((ep) => {
+      // insert individual endpoint
+      let endpointTypeId = undefined
+      results.forEach((res) => {
+        if (res.endpointType.typeName == ep.endpointType) {
+          endpointTypeId = res.end
+        }
+      })
+      if (endpointTypeId != undefined) {
+        endpointInsertion.push(
+          queryConfig.insertEndpoint(
+            db,
+            sessionId,
+            ep.endpoint,
+            endpointTypeId,
+            ep.network
+          )
+        )
+      }
+    })
+    return Promise.all(endpointInsertion)
+  })
 }
 
 exports.readIscData = readIscData
