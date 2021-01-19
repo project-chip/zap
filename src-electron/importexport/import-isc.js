@@ -331,7 +331,7 @@ async function iscDataLoader(db, state, sessionId) {
       let endpointTypeId = undefined
       results.forEach((res) => {
         if (res.endpointType.typeName == ep.endpointType) {
-          endpointTypeId = res.end
+          endpointTypeId = res.endpointTypeId
         }
       })
       if (endpointTypeId != undefined) {

@@ -155,6 +155,8 @@ test('Test ISC import', async () => {
   expect(endpointTypes[1].name).toBe('GreenPower')
   expect(endpointTypes[2].name).toBe('Primary')
   expect(endpointTypes[3].name).toBe('Touchlink')
+  let endpoints = await queryConfig.getAllEndpoints(db, sid)
+  expect(endpoints.length).toBe(3)
 }, 5000)
 
 test('Read ISD data from file', async () => {
