@@ -947,12 +947,14 @@ function isCommandAvailable(clusterSide, incoming, outgoing, source, name) {
     return false
   }
 
-  if (isClient(clusterSide) && outgoing) {
+  if (
+    (isClient(clusterSide) && outgoing) ||
+    (isServer(clusterSide) && incoming)
+  ) {
     return true
-  } else if (isServer(clusterSide) && incoming) {
-    return true
+  } else {
+    return false
   }
-  return false
 }
 
 /**

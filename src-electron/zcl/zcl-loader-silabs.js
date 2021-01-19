@@ -760,8 +760,8 @@ async function parseManufacturerData(db, ctx) {
           db,
           ctx.packageId,
           dbEnum.packageOptionCategory.manufacturerCodes,
-          manufacturerMap.result.map.mapping.map((data) => {
-            let mfgPair = data['$']
+          manufacturerMap.result.map.mapping.map((datum) => {
+            let mfgPair = datum['$']
             return { code: mfgPair['code'], label: mfgPair['translation'] }
           })
         )

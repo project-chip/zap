@@ -18,6 +18,8 @@
 /**
  * @module JS API: generator logic
  */
+const _ = require('lodash')
+
 const fs = require('fs')
 const fsPromise = fs.promises
 const path = require('path')
@@ -123,7 +125,7 @@ async function recordTemplatesPackage(context) {
         for (const category in context.templateData.options) {
           let data = context.templateData.options[category]
 
-          if (typeof data === 'string' || data instanceof String) {
+          if (_.isString(data)) {
             // Data is a string, so we will treat it as a relative path to the JSON file.
             let externalPath = path.resolve(
               path.join(path.dirname(context.path), data)
@@ -634,8 +636,8 @@ async function postProcessGeneratedFiles(
   ) {
     let cmd =
       genResult.generatorOptions[dbEnum.generatorOptions.postProcessMulti]
-    for (const f in genResult.content) {
-      let fileName = path.join(outputDirectory, f)
+    for (const genFile in genResult.content) {
+      let fileName = path.join(outputDirectory, genFile)
       cmd = cmd + ' ' + fileName
     }
     postProcessPromises.push(
@@ -652,8 +654,8 @@ async function postProcessGeneratedFiles(
   ) {
     let cmd =
       genResult.generatorOptions[dbEnum.generatorOptions.postProcessSingle]
-    for (const f in genResult.content) {
-      let fileName = path.join(outputDirectory, f)
+    for (const genFile in genResult.content) {
+      let fileName = path.join(outputDirectory, genFile)
       let singleCmd = cmd + ' ' + fileName
       postProcessPromises.push(
         util.executeExternalProgram(singleCmd, genResult.templatePath, {
