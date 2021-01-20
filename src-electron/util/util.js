@@ -352,11 +352,18 @@ function executeExternalProgram(
       cmd,
       {
         cwd: workingDirectory,
+        windowsHide: true,
+        timeout: 10000,
       },
       (error, stdout, stderr) => {
         console.log(`    ✍  ${cmd}`)
-        if (error && options.rejectOnFail) {
-          reject(error)
+        if (error) {
+          if (options.rejectOnFail) {
+            reject(error)
+          } else {
+            console.log(error)
+            resolve()
+          }
         } else {
           console.log(stdout)
           if (options.routeErrToOut) {

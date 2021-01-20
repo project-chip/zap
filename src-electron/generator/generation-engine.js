@@ -618,12 +618,21 @@ async function postProcessGeneratedFiles(
   genResult,
   log = true
 ) {
+  console.log(genResult.generatorOptions)
   let doExecute = true
+  let isEnabledS = genResult.generatorOptions[dbEnum.generatorOptions.enabled]
   let f =
     genResult.generatorOptions[
       dbEnum.generatorOptions.postProcessConditionalFile
     ]
-  if (f != null) {
+
+  let isEnabled = true
+  if (isEnabledS == 'false' || isEnabledS == '0') isEnabled = false
+  if (!isEnabled) {
+    // If `enabled` is false, then we do nothing.
+    doExecute = false
+  } else if (f != null) {
+    // If `postProcessConditionalFile' doesn't exist, we also do nothing.
     f = path.join(genResult.templatePath, f)
     if (!fs.existsSync(f)) doExecute = false
   }

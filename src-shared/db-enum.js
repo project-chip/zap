@@ -98,6 +98,7 @@ exports.generatorOptions = {
   postProcessSingle: 'postProcessSingle',
   routeErrToOut: 'routeErrToOut',
   postProcessConditionalFile: 'postProcessConditionalFile',
+  enabled: 'enabled',
 }
 
 exports.sessionOption = {
