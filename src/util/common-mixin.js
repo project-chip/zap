@@ -122,10 +122,9 @@ export default {
               if (Array.isArray(componentIds) && componentIds) {
                 let action = added ? 'added' : 'removed'
                 let msg = `<div><strong>The following components were successfully ${action}.</strong></div>`
-                componentIds.forEach(function (id, index) {
-                  let name = id.replace(/_/g, ' ')
-                  msg += `<div>The <span style="text-transform: capitalize">${name}</span> was ${action}.</div>`
-                })
+                msg += `<div><span style="text-transform: capitalize"><ul>`
+                msg += componentIds.map((id) => `<li>${id.replace(/_/g, ' ')}</li>`).join(' ')
+                msg += `</ul></span></div>`
 
                 this.$q.notify({
                   message: msg,
