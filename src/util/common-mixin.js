@@ -112,37 +112,43 @@ export default {
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
     },
     updateComponent(params) {
-      params['studioProject'] = this.$store.state.zap.studioProject
-      this.$store
-        .dispatch('zap/updateSelectedComponent', params)
-        .then((res) => {
-          if (res.status == http.StatusCodes.OK) {
-            let { componentIds, added } = res.data
-            if (Array.isArray(componentIds) && componentIds) {
-              let action = added ? 'added' : 'removed'
-              let msg = `<div><strong>The following components were successfully ${action}.</strong></div>`
-              componentIds.forEach(function (id, index) {
-                let name = id.replace(/_/g, ' ')
-                msg += `<div>The <span style="text-transform: capitalize">${name}</span> was ${action}.</div>`
-              })
+      if (this.$store.state.zap.studioProject) {
+        params['studioProject'] = this.$store.state.zap.studioProject
+        this.$store
+          .dispatch('zap/updateSelectedComponent', params)
+          .then((res) => {
+            if (res.status == http.StatusCodes.OK) {
+              let { componentIds, added } = res.data
+              if (Array.isArray(componentIds) && componentIds) {
+                let action = added ? 'added' : 'removed'
+                let msg = `<div><strong>The following components were successfully ${action}.</strong></div>`
+                componentIds.forEach(function (id, index) {
+                  let name = id.replace(/_/g, ' ')
+                  msg += `<div>The <span style="text-transform: capitalize">${name}</span> was ${action}.</div>`
+                })
 
-              this.$q.notify({
-                message: msg,
-                color: 'positive',
-                position: 'top',
-                html: true,
-              })
+                this.$q.notify({
+                  message: msg,
+                  color: 'positive',
+                  position: 'top',
+                  html: true,
+                })
+              }
             }
-          }
-        })
-        .catch((err) => {
-          console.log('Error', err)
-          this.$q.notify({
-            message: `Unable to update following components: ${params.componentId}`,
-            color: 'negative',
-            position: 'top',
           })
-        })
+          .catch((err) => {
+            console.log('Error', err)
+            this.$q.notify({
+              message: `Unable to update following components: ${params.componentId}`,
+              color: 'negative',
+              position: 'top',
+            })
+          })
+      } else {
+        console.log(
+          'Unable to update selected component due to invalid "studioProject" path'
+        )
+      }
     },
   },
 }

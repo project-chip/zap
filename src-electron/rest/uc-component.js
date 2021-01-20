@@ -57,6 +57,10 @@ function updateComponent(db, request, response, add) {
   let studioProjectName = studio.projectName(studioProject)
   let componentIds = []
 
+  if (typeof studioProject === 'undefined') {
+    return response.send({ componentIds: [], added: add })
+  }
+
   // retrieve components to enable
   if (componentId) {
     componentIds.push(Promise.resolve(componentId))
