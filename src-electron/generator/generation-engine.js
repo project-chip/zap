@@ -618,7 +618,6 @@ async function postProcessGeneratedFiles(
   genResult,
   log = true
 ) {
-  console.log(genResult.generatorOptions)
   let doExecute = true
   let isEnabledS = genResult.generatorOptions[dbEnum.generatorOptions.enabled]
   let f =
