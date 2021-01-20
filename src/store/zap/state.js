@@ -114,7 +114,7 @@ export default function () {
     },
     calledArgs: {
       defaultUiMode: restApi.uiMode.ZIGBEE,
-      embeddedMode: false,
+      embeddedMode: true,
     },
   }
 }
