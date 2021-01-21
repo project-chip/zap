@@ -46,6 +46,14 @@ function ident(cnt) {
   }
 }
 
+function new_line(cnt) {
+  if (Number.isInteger(cnt)) {
+    return '\n'.repeat(cnt)
+  } else {
+    return '\n'
+  }
+}
+
 /**
  * Block helper that iterates over the package options of a given category.
  *
@@ -339,3 +347,4 @@ exports.after = after
 exports.toggle = toggle
 exports.concatenate = concatenate
 exports.is_lowercase_equal = is_lowercase_equal
+exports.new_line = new_line
