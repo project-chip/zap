@@ -160,6 +160,11 @@
       "output": "zap-print.h"
     },
     {
+      "path": "zap-tokens.zapt",
+      "name": "ZCL tokens",
+      "output": "zap-tokens.h"
+    },
+    {
       "path": "atomics.zapt",
       "name": "ZCL Atomics",
       "output": "atomics.out"

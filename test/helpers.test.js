@@ -30,7 +30,7 @@ const dbEnum = require('../src-shared/db-enum.js')
 const zapHelper = require('../src-electron/generator/helper-zap.js')
 
 let db
-const templateCount = 13
+const templateCount = 14
 let zclContext
 
 let ctx
