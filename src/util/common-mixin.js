@@ -111,6 +111,44 @@ export default {
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
     },
+
+    /**
+     * Update UI to reflect required components are NOT enabled!
+     *
+     * @param {*} actionSuccessful - true/false
+     * @param {*} componentIds - list of strings
+     */
+    notifyComponentStatus(actionSuccessful, componentIds) {
+      if (actionSuccessful) {
+        if (Array.isArray(componentIds) && componentIds.length) {
+          let action = actionSuccessful ? 'added' : 'removed'
+          let msg = `<div><strong>The following components were successfully ${action}.</strong></div>`
+          msg += `<div><span style="text-transform: capitalize"><ul>`
+          msg += componentIds
+            .map((id) => `<li>${id.replace(/_/g, ' ')}</li>`)
+            .join(' ')
+          msg += `</ul></span></div>`
+
+          this.$q.notify({
+            message: msg,
+            color: 'positive',
+            position: 'top',
+            html: true,
+          })
+        }
+      } else {
+        this.$q.notify({
+          message: `Unable to update following components: ${params.componentIds}`,
+          color: 'negative',
+          position: 'top',
+        })
+      }
+    },
+
+    /**
+     * Enable components by pinging backend, which pings Studio jetty server.
+     * @param {*} params
+     */
     updateComponent(params) {
       if (this.$store.state.zap.studioProject) {
         params['studioProject'] = this.$store.state.zap.studioProject
@@ -118,30 +156,12 @@ export default {
           .dispatch('zap/updateSelectedComponent', params)
           .then((res) => {
             if (res.status == http.StatusCodes.OK) {
-              let { componentIds, added } = res.data
-              if (Array.isArray(componentIds) && componentIds) {
-                let action = added ? 'added' : 'removed'
-                let msg = `<div><strong>The following components were successfully ${action}.</strong></div>`
-                msg += `<div><span style="text-transform: capitalize"><ul>`
-                msg += componentIds.map((id) => `<li>${id.replace(/_/g, ' ')}</li>`).join(' ')
-                msg += `</ul></span></div>`
-
-                this.$q.notify({
-                  message: msg,
-                  color: 'positive',
-                  position: 'top',
-                  html: true,
-                })
-              }
+              this.notifyComponentStatus(res.data.added, res.data.componentIds)
             }
           })
           .catch((err) => {
             console.log('Error', err)
-            this.$q.notify({
-              message: `Unable to update following components: ${params.componentId}`,
-              color: 'negative',
-              position: 'top',
-            })
+            this.notifyComponentStatus(false, componentIds)
           })
       } else {
         console.log(

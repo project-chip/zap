@@ -56,6 +56,8 @@ function updateComponent(db, request, response, add) {
   let { componentId, studioProject, clusterId, side } = request.body
   let studioProjectName = studio.projectName(studioProject)
   let componentIds = []
+  let act = add ? 'Enabling' : 'Disabling'
+  let acted = add ? 'Added' : 'Removed'
 
   if (typeof studioProject === 'undefined') {
     return response.send({ componentIds: [], added: add })
@@ -76,45 +78,50 @@ function updateComponent(db, request, response, add) {
     componentIds.push(ids)
   }
 
-  Promise.all(componentIds).then(function (results) {
-    let promises = []
-    let ids = []
-    let act = add ? 'Enabling' : 'Disabling'
-    let acted = add ? 'Added' : 'Removed'
-
-    // flatten arrays of results into list
-    results.forEach((x) => (ids = ids.concat(x)))
-
-    // reply empty result if no component to update.
-    if (ids.length == 0) {
-      return response.send({ componentIds: [], added: add })
-    } else {
-      // enabling all components
-      env.logInfo(`StudioUC(${studioProjectName}): ${act} components [${ids}]`)
-      if (add) {
-        promises = ids.map((id) => studio.addComponent(studioProject, id))
-      } else {
-        promises = ids.map((id) => studio.removeComponent(studioProject, id))
+  // enabling components via Studio
+  Promise.all(componentIds)
+    // flatten lists of list into a single list
+    .then((ids) => ids.reduce((list, ele) => list.concat(ele)))
+    // enabling components via Studio jetty server.
+    .then((ids) => {
+      promises = []
+      if (Object.keys(ids).length) {
+        if (add) {
+          promises = ids.map((id) => studio.addComponent(studioProject, id))
+        } else {
+          promises = ids.map((id) => studio.removeComponent(studioProject, id))
+        }
       }
-
-      Promise.all(promises)
-        .then(function (responses) {
-          // reporting
-          let updatedComponentIds = []
-          responses.forEach(function (response, index) {
-            if (response.status == http.StatusCodes.OK) {
-              updatedComponentIds.push(ids[index])
-            }
-          })
-
-          return response.send({
-            componentIds: updatedComponentIds,
-            added: add,
-          })
+      return Promise.resolve({ componentUpdate: Promise.all(promises), ids })
+    })
+    // gather results and reply
+    .then(function (o) {
+      o.componentUpdate.then((results) => {
+        let updatedComponentIds = []
+        results.forEach((response, index) => {
+          if (response.status == http.StatusCodes.OK) {
+            updatedComponentIds.push(o.ids[index])
+          }
         })
-        .catch((err) => handleError(err, response))
-    }
-  })
+        response.send({
+          componentIds: updatedComponentIds,
+          added: add,
+        })
+      })
+    })
+    .catch((err) => {
+      if (componentId) {
+        env.logInfo(
+          `StudioUC(${studioProjectName}): Failed to update component(${componentId})`
+        )
+      } else {
+        env.logInfo(
+          `StudioUC(${studioProjectName}): Failed to update components for cluster(${clusterId})`
+        )
+      }
+      env.logInfo(err.response)
+      return handleError(err, response)
+    })
 }
 /**
  *  Enable components by 'componentId' or corresponding components specified, via 'defaults', by 'clusterId' / 'roles'
