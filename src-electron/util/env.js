@@ -36,6 +36,7 @@ let explicit_logger_set = false
 let dbInstance
 let httpStaticContent = path.join(__dirname, '../../spa')
 let versionObject = null
+let applicationStateDirectory = null
 
 function setDevelopmentEnv() {
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
@@ -58,16 +59,39 @@ function resolveMainDatabase(db) {
   })
 }
 
-// Returns an app directory. It creates it, if it doesn't exist
-function appDirectory() {
-  let appDir = path.join(os.homedir(), '.zap')
-
+/**
+ * Set the state directory. This method is intended to be called
+ * only at the application startup, when CLI args are being parsed.
+ *
+ * @param {*} path Path relative to home directory. Typically '.zap'.
+ */
+function setAppDirectory(directoryPath) {
+  let appDir = path.join(os.homedir(), directoryPath)
   if (!fs.existsSync(appDir)) {
     fs.mkdirSync(appDir, { recursive: true }, (err) => {
       if (err) throw err
     })
   }
-  return appDir
+  applicationStateDirectory = appDir
+}
+
+/**
+ * Returns an app directory. It creates it, if it doesn't exist
+ *
+ * @returns state directory, which is guaranteed to be already existing
+ */
+function appDirectory() {
+  if (applicationStateDirectory == null) {
+    let appDir = path.join(os.homedir(), '.zap')
+    if (!fs.existsSync(appDir)) {
+      fs.mkdirSync(appDir, { recursive: true }, (err) => {
+        if (err) throw err
+      })
+    }
+    applicationStateDirectory = appDir
+    return appDir
+  }
+  return applicationStateDirectory
 }
 
 function iconsDirectory() {
@@ -194,16 +218,26 @@ function isMatchingVersion(versionsArray, providedVersion) {
     let v1 = element.split('.')
     if (v1.length != 3 || v2.length != 3) return
 
-    if (v1[0] == v2[0] && v1[1] == v2[1]) ret = true
+    if (v1[0] != 'x' && v1[0] != v2[0]) return
+    if (v1[1] != 'x' && v1[1] != v2[1]) return
+    if (v1[2] != 'x' && v1[2] != v2[2]) return
+
+    ret = true
   })
 
   return ret
 }
 
-// Returns true if major/minor versions of node and electron are matching.
-// If versions are not matching, it  prints out a warhing and returns false.
+/**
+ * Returns true if versions of node and electron are matching.
+ * If versions are not matching, it  prints out a warhing
+ * and returns false.
+ *
+ * @returns true or false, depending on match
+ */
 function versionsCheck() {
   let expectedNodeVersion = [
+    'v14.x.x',
     'v12.20.x',
     'v12.19.x',
     'v12.18.x',
@@ -260,3 +294,4 @@ exports.logHttpServerUrl = logHttpServerUrl
 exports.urlLogFile = urlLogFile
 exports.baseUrl = baseUrl
 exports.versionsCheck = versionsCheck
+exports.setAppDirectory = setAppDirectory
