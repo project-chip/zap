@@ -124,7 +124,7 @@ function processCommandLineArguments(argv) {
     })
     .option('stateDirectory', {
       desc: 'Sets the state directory, relative to user home directory.',
-      default: '.zap',
+      default: '~/.zap',
     })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(

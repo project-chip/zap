@@ -62,11 +62,17 @@ function resolveMainDatabase(db) {
 /**
  * Set the state directory. This method is intended to be called
  * only at the application startup, when CLI args are being parsed.
+ * This method honors '~/' being the first characters in its argument.
  *
- * @param {*} path Path relative to home directory. Typically '.zap'.
+ * @param {*} path Absolute path. Typically '~/.zap'.
  */
 function setAppDirectory(directoryPath) {
-  let appDir = path.join(os.homedir(), directoryPath)
+  let appDir = directoryPath
+  if (directoryPath.startsWith('~/')) {
+    appDir = path.join(os.homedir(), directoryPath.substring(2))
+  } else {
+    appDir = directoryPath
+  }
   if (!fs.existsSync(appDir)) {
     fs.mkdirSync(appDir, { recursive: true }, (err) => {
       if (err) throw err
