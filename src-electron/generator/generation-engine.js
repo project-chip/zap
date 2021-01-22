@@ -18,6 +18,8 @@
 /**
  * @module JS API: generator logic
  */
+const _ = require('lodash')
+
 const fs = require('fs')
 const fsPromise = fs.promises
 const path = require('path')
@@ -123,7 +125,7 @@ async function recordTemplatesPackage(context) {
         for (const category in context.templateData.options) {
           let data = context.templateData.options[category]
 
-          if (typeof data === 'string' || data instanceof String) {
+          if (_.isString(data)) {
             // Data is a string, so we will treat it as a relative path to the JSON file.
             let externalPath = path.resolve(
               path.join(path.dirname(context.path), data)
@@ -218,12 +220,49 @@ async function recordTemplatesPackage(context) {
       if (context.templateData.zcl != null) {
         let zclExtension = context.templateData.zcl
         promises.push(
-          loadZclExtensions(context.db, context.packageId, zclExtension)
+          loadZclExtensions(
+            context.db,
+            context.packageId,
+            zclExtension,
+            context.path
+          )
         )
       }
       return Promise.all(promises)
     })
     .then(() => context)
+}
+
+function decodePackageExtensionEntity(entityType, entity) {
+  switch (entityType) {
+    case dbEnum.packageExtensionEntity.cluster:
+      return {
+        entityCode: entity.clusterCode,
+        parentCode: null,
+        value: entity.value,
+      }
+    case dbEnum.packageExtensionEntity.command:
+      return {
+        entityCode: entity.commandCode,
+        parentCode: entity.clusterCode,
+        value: entity.value,
+      }
+    case dbEnum.packageExtensionEntity.attribute:
+      return {
+        entityCode: entity.attributeCode,
+        parentCode: entity.clusterCode,
+        value: entity.value,
+      }
+    case dbEnum.packageExtensionEntity.deviceType:
+      return {
+        entityCode: entity.device,
+        parentCode: null,
+        value: entity.value,
+      }
+    default:
+      // We don't know how to process defaults otherwise
+      return null
+  }
 }
 
 /**
@@ -232,7 +271,7 @@ async function recordTemplatesPackage(context) {
  * @param {*} zclExt
  * @returns Promise of loading the zcl extensions.
  */
-async function loadZclExtensions(db, packageId, zclExt) {
+async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
   let promises = []
   for (const entity in zclExt) {
     let entityExtension = zclExt[entity]
@@ -248,39 +287,39 @@ async function loadZclExtensions(db, packageId, zclExt) {
         globalDefault: prop.globalDefault,
       })
       if ('defaults' in prop) {
-        defaultArrayOfArrays.push(
-          prop.defaults.map((x) => {
-            switch (entity) {
-              case dbEnum.packageExtensionEntity.cluster:
-                return {
-                  entityCode: x.clusterCode,
-                  parentCode: null,
-                  value: x.value,
-                }
-              case dbEnum.packageExtensionEntity.command:
-                return {
-                  entityCode: x.commandCode,
-                  parentCode: x.clusterCode,
-                  value: x.value,
-                }
-              case dbEnum.packageExtensionEntity.attribute:
-                return {
-                  entityCode: x.attributeCode,
-                  parentCode: x.clusterCode,
-                  value: x.value,
-                }
-              case dbEnum.packageExtensionEntity.deviceType:
-                return {
-                  entityCode: x.device,
-                  parentCode: null,
-                  value: x.value,
-                }
-              default:
-                // We don't know how to process defaults otherwise
-                return null
+        if (
+          typeof prop.defaults === 'string' ||
+          prop.defaults instanceof String
+        ) {
+          // Data is a string, so we will treat it as a relative path to the JSON file.
+          let externalPath = path.resolve(
+            path.join(path.dirname(defaultsPath), prop.defaults)
+          )
+          let data = await fsPromise
+            .readFile(externalPath, 'utf8')
+            .then((content) => JSON.parse(content))
+            .catch((err) => {
+              env.logInfo(
+                `Invalid file! Failed to load defaults from: ${prop.defaults}`
+              )
+            })
+
+          if (data) {
+            if (!Array.isArray(data)) {
+              env.logInfo(
+                `Invalid file format! Failed to load defaults from: ${prop.defaults}`
+              )
+            } else {
+              defaultArrayOfArrays.push(
+                data.map((x) => decodePackageExtensionEntity(entity, x))
+              )
             }
-          })
-        )
+          }
+        } else {
+          defaultArrayOfArrays.push(
+            prop.defaults.map((x) => decodePackageExtensionEntity(entity, x))
+          )
+        }
       } else {
         defaultArrayOfArrays.push(null)
       }
@@ -617,11 +656,19 @@ async function postProcessGeneratedFiles(
   log = true
 ) {
   let doExecute = true
+  let isEnabledS = genResult.generatorOptions[dbEnum.generatorOptions.enabled]
   let f =
     genResult.generatorOptions[
       dbEnum.generatorOptions.postProcessConditionalFile
     ]
-  if (f != null) {
+
+  let isEnabled = true
+  if (isEnabledS == 'false' || isEnabledS == '0') isEnabled = false
+  if (!isEnabled) {
+    // If `enabled` is false, then we do nothing.
+    doExecute = false
+  } else if (f != null) {
+    // If `postProcessConditionalFile' doesn't exist, we also do nothing.
     f = path.join(genResult.templatePath, f)
     if (!fs.existsSync(f)) doExecute = false
   }
@@ -634,8 +681,8 @@ async function postProcessGeneratedFiles(
   ) {
     let cmd =
       genResult.generatorOptions[dbEnum.generatorOptions.postProcessMulti]
-    for (const f in genResult.content) {
-      let fileName = path.join(outputDirectory, f)
+    for (const genFile in genResult.content) {
+      let fileName = path.join(outputDirectory, genFile)
       cmd = cmd + ' ' + fileName
     }
     postProcessPromises.push(
@@ -652,8 +699,8 @@ async function postProcessGeneratedFiles(
   ) {
     let cmd =
       genResult.generatorOptions[dbEnum.generatorOptions.postProcessSingle]
-    for (const f in genResult.content) {
-      let fileName = path.join(outputDirectory, f)
+    for (const genFile in genResult.content) {
+      let fileName = path.join(outputDirectory, genFile)
       let singleCmd = cmd + ' ' + fileName
       postProcessPromises.push(
         util.executeExternalProgram(singleCmd, genResult.templatePath, {

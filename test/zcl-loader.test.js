@@ -178,7 +178,7 @@ test('test Silabs zcl data loading in memory', () => {
     .finally(() => {
       dbApi.closeDatabase(db)
     })
-}, 5000) // Give this test 5 secs to resolve
+}, 20000) // Give this test 20 secs to resolve
 
 test('test Dotdot zcl data loading in memory', () => {
   let db
@@ -369,4 +369,4 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
         dbApi.closeDatabase(db)
       })
   )
-}, 10000) // Give this test 10 secs to resolve
+}, 20000) // Give this test 20 secs to resolve

@@ -125,6 +125,7 @@ export default {
         })
         .then(() =>
           this.$store.dispatch('zap/updateSelectedServers', {
+            clusterId: this.selectedClusterId,
             endpointTypeId: this.selectedEndpointTypeId,
             id: id,
             added: serverSelected,
@@ -132,6 +133,21 @@ export default {
             view: 'clustersView',
           })
         )
+
+      // NOTE: only turn on components when cluster is selected.
+      let side = []
+      if (clientSelected) {
+        side.push('client')
+      }
+      if (serverSelected) {
+        side.push('server')
+      }
+
+      this.updateComponent({
+        clusterId: id,
+        side: side,
+        added: true,
+      })
     },
     selectCluster(cluster) {
       this.$store

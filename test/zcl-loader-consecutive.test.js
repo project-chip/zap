@@ -42,7 +42,7 @@ test('that that parallel loading of zcl and dotdot is possible', async () => {
   await Promise.all(promises)
 
   await dbApi.closeDatabase(db)
-}, 10000)
+}, 20000)
 
 test('test that consecutive loading of metafiles properly avoids duplication', () => {
   let dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'

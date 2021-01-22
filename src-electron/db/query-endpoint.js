@@ -103,6 +103,7 @@ SELECT
   A.MAX,
   A.MANUFACTURER_CODE,
   A.IS_WRITABLE,
+  A.DEFINE,
   EA.STORAGE_OPTION,
   EA.SINGLETON,
   EA.BOUNDED,
@@ -152,6 +153,7 @@ WHERE
           minInterval: row['MIN_INTERVAL'],
           maxInterval: row['MAX_INTERVAL'],
           reportableChange: row['REPORTABLE_CHANGE'],
+          define: row['DEFINE'],
         }
       })
     )

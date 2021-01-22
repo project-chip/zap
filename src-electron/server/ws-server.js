@@ -70,8 +70,8 @@ function initializeWebSocket(httpServer) {
   })
 
   httpServer.on('upgrade', (request, socket, head) => {
-    wsServer.handleUpgrade(request, socket, head, (socket) => {
-      wsServer.emit('connection', socket, request)
+    wsServer.handleUpgrade(request, socket, head, (s) => {
+      wsServer.emit('connection', s, request)
     })
   })
 

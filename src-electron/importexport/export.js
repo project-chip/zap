@@ -180,9 +180,9 @@ async function createStateFromDatabase(db, sessionId) {
         env.logInfo(`Retrieved session keys: ${data.length}`)
         let zapFilePath = null
         let storedKeyValuePairs = data.filter(
-          (x) => !excludedKeys.includes(x.key)
+          (datum) => !excludedKeys.includes(datum.key)
         )
-        let x = data.filter((x) => x.key == dbEnum.sessionKey.filePath)
+        let x = data.filter((datum) => datum.key == dbEnum.sessionKey.filePath)
         if (x.length > 0) zapFilePath = x[0].value
         return {
           key: 'keyValuePairs',

@@ -16,6 +16,7 @@
  */
 
 import * as Util from './util'
+const http = require('http-status-codes')
 
 /**
  * This module provides common computed properties used across various vue components
@@ -110,17 +111,23 @@ export default {
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
     },
-    updateComponent(params) {
-      params['studioProject'] = this.$store.state.zap.studioProject
-      this.$store
-        .dispatch('zap/updateSelectedComponent', params)
-        .then((res) => {
-          let { componentId, added } = res
 
-          let name = componentId.replace(/_/g, ' ')
-          let actionText = added ? 'added' : 'removed'
-          let msg = `<div><strong>Component was successfully ${actionText}.</strong></div>`
-          msg += `<div>The <span style="text-transform: capitalize">${name}</span> was ${actionText}.</div>`
+    /**
+     * Update UI to reflect required components are NOT enabled!
+     *
+     * @param {*} actionSuccessful - true/false
+     * @param {*} componentIds - list of strings
+     */
+    notifyComponentStatus(actionSuccessful, componentIds) {
+      if (actionSuccessful) {
+        if (Array.isArray(componentIds) && componentIds.length) {
+          let action = actionSuccessful ? 'added' : 'removed'
+          let msg = `<div><strong>The following components were successfully ${action}.</strong></div>`
+          msg += `<div><span style="text-transform: capitalize"><ul>`
+          msg += componentIds
+            .map((id) => `<li>${id.replace(/_/g, ' ')}</li>`)
+            .join(' ')
+          msg += `</ul></span></div>`
 
           this.$q.notify({
             message: msg,
@@ -128,15 +135,39 @@ export default {
             position: 'top',
             html: true,
           })
+        }
+      } else {
+        this.$q.notify({
+          message: `Unable to update following components: ${params.componentIds}`,
+          color: 'negative',
+          position: 'top',
         })
-        .catch((err) => {
-          let actionText = added ? 'add' : 'remove'
-          this.$q.notify({
-            message: `Unable to ${actionText} ${componentId}`,
-            color: 'negative',
-            position: 'top',
+      }
+    },
+
+    /**
+     * Enable components by pinging backend, which pings Studio jetty server.
+     * @param {*} params
+     */
+    updateComponent(params) {
+      if (this.$store.state.zap.studioProject) {
+        params['studioProject'] = this.$store.state.zap.studioProject
+        this.$store
+          .dispatch('zap/updateSelectedComponent', params)
+          .then((res) => {
+            if (res.status == http.StatusCodes.OK) {
+              this.notifyComponentStatus(res.data.added, res.data.componentIds)
+            }
           })
-        })
+          .catch((err) => {
+            console.log('Error', err)
+            this.notifyComponentStatus(false, componentIds)
+          })
+      } else {
+        console.log(
+          'Unable to update selected component due to invalid "studioProject" path'
+        )
+      }
     },
   },
 }

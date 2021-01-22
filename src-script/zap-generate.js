@@ -19,6 +19,8 @@
 const yargs = require('yargs')
 const scriptUtil = require('./script-util.js')
 
+let startTime = process.hrtime()
+
 let arg = yargs
   .option('zcl', {
     desc: 'Specifies zcl metafile file to be used.',
@@ -73,7 +75,10 @@ scriptUtil
   .stampVersion()
   .then(() => scriptUtil.executeCmd(ctx, 'node', cli))
   .then(() => {
-    console.log('😎 All done.')
+    let endTime = process.hrtime(startTime)
+    console.log(
+      `😎 All done: ${endTime[0]}s, ${Math.round(endTime[1] / 1000000)}ms.`
+    )
     process.exit(0)
   })
   .catch((code) => {

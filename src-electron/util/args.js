@@ -122,6 +122,10 @@ function processCommandLineArguments(argv) {
       desc: 'Clear out the database and start with a new file.',
       type: 'string',
     })
+    .option('stateDirectory', {
+      desc: 'Sets the state directory, relative to user home directory.',
+      default: '~/.zap',
+    })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${zapVersion.featureLevel}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
@@ -143,6 +147,8 @@ function processCommandLineArguments(argv) {
   })
   if (ret.zapFile != null) allFiles.push(ret.zapFile)
   ret.zapFiles = allFiles
+
+  env.setAppDirectory(ret.stateDirectory)
 
   // Now populate exported variables with this.
   exports.zclPropertiesFile = ret.zclProperties
