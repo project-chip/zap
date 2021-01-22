@@ -47,7 +47,7 @@ limitations under the License.
       <q-layout
         view="hHh Lpr lff"
         container
-        style="height: 85vh"
+        style="height: 95vh"
         class="shadow-2 rounded-borders"
       >
         <q-page-container>
