@@ -29,15 +29,6 @@ limitations under the License.
 
           <!-- TODO add a link to said manual here/manage the implementation of manual. -->
           <q-btn outline color="primary" label="View Manual" />
-          <!-- TODO add handler for closing. -->
-          <q-btn
-            color="primary"
-            flat
-            icon="close"
-            :ripple="false"
-            :unelevated="true"
-            :outline="none"
-          />
         </q-toolbar>
         <ZclGeneralOptionsBar />
       </q-header>
