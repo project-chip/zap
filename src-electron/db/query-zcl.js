@@ -216,6 +216,23 @@ async function selectAllStructItemsById(db, id) {
 }
 
 /**
+ *
+ *
+ * @param  db
+ * @param  name
+ * @returns the details of the struct items given the name of the struct
+ */
+async function selectAllStructItemsByStructName(db, name) {
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT STRUCT_ITEM.NAME, STRUCT_ITEM.TYPE, STRUCT_ITEM.STRUCT_REF FROM STRUCT_ITEM INNER JOIN STRUCT ON STRUCT.STRUCT_ID = STRUCT_ITEM.STRUCT_REF WHERE STRUCT.NAME = ? ORDER BY ORDINAL',
+      [name]
+    )
+    .then((rows) => rows.map(dbMapping.map.structItem))
+}
+
+/**
  * Retrieves all the clusters in the database.
  *
  * @export
@@ -2212,6 +2229,7 @@ exports.selectAtomicByName = selectAtomicByName
 exports.selectAllStructs = selectAllStructs
 exports.selectStructById = selectStructById
 exports.selectAllStructItemsById = selectAllStructItemsById
+exports.selectAllStructItemsByStructName = selectAllStructItemsByStructName
 exports.selectAllClusters = selectAllClusters
 exports.selectClusterById = selectClusterById
 exports.selectAllDeviceTypes = selectAllDeviceTypes

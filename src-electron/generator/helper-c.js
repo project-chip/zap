@@ -23,6 +23,7 @@ const env = require('../util/env.js')
 const types = require('../util/types.js')
 const string = require('../util/string.js')
 const _ = require('lodash')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -267,11 +268,42 @@ function asUnderscoreUppercase(str) {
 /**
  * Returns the cli type representation.
  *
- * @param {*} str
+ * @param str
  * @returns the type as represented for CLI.
  */
 function asCliType(str) {
   return 'SL_CLI_ARG_' + types.convertToCliType(str).toUpperCase()
+}
+
+/**
+ *
+ * @param str
+ * @param optional
+ * @param isSigned
+ * Return the data type of zcl cli
+ */
+function as_zcl_cli_type(str, optional, isSigned) {
+  let zclType = ''
+  switch (str) {
+    case 1:
+      zclType = 'SL_CLI_ARG_' + (isSigned ? '' : 'U') + 'INT8'
+      break
+    case 2:
+      zclType = 'SL_CLI_ARG_' + (isSigned ? '' : 'U') + 'INT16'
+      break
+    case 3:
+    case 4:
+      zclType = 'SL_CLI_ARG_' + (isSigned ? '' : 'U') + 'INT32'
+      break
+    case dbEnum.zclType.string:
+    default:
+      zclType = 'SL_CLI_ARG_STRING'
+      break
+  }
+  if (optional) {
+    zclType += 'OPT'
+  }
+  return zclType
 }
 
 /**
@@ -373,3 +405,4 @@ exports.cleanseLabelAsKebabCase = dep(cleanseLabelAsKebabCase, {
 })
 exports.format_value = formatValue
 exports.formatValue = dep(formatValue, { to: 'format_value' })
+exports.as_zcl_cli_type = as_zcl_cli_type
