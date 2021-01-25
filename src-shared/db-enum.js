@@ -64,6 +64,7 @@ exports.zclType = {
   unknown: 'unknown',
   array: 'array',
   zclCharFormatter: 'zclCharFormatter',
+  string: 'string',
 }
 
 exports.fileLocationCategory = {
