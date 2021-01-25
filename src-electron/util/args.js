@@ -34,6 +34,15 @@ exports.noServer = false
 exports.zapFiles = []
 exports.genResultFile = false
 
+function environmentVariablesDescription() {
+  let vars = env.environment_variable
+  let desc = ''
+  Object.keys(vars).forEach((key) => {
+    desc = desc.concat(`  ${vars[key].name}: ${vars[key].description}\n`)
+  })
+  return desc
+}
+
 /**
  * Process the command line arguments and resets the state in this file
  * to the specified values.
@@ -134,7 +143,11 @@ function processCommandLineArguments(argv) {
     .alias({
       help: ['h', '?'],
     })
-    .epilogue('For more information, see https://github.com/project-chip/zap')
+    .epilogue(
+      `Environment variables:
+${environmentVariablesDescription()}
+For more information, see https://github.com/project-chip/zap`
+    )
     .wrap(null)
     .parse(argv)
 
