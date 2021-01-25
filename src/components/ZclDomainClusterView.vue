@@ -16,9 +16,11 @@ limitations under the License.
 
 <template>
   <div>
+    <!-- <q-btn label="hide calories" @click="toggleStatus" /> -->
     <q-table
       :data="clusters"
       :columns="columns"
+      :visible-columns="visibleColumns"
       :rows-per-page-options="[0]"
       hide-pagination
       row-key="id"
@@ -120,8 +122,25 @@ export default {
         return this.$store.state.zap.clustersView.recommendedServers
       },
     },
+    visibleColumns: function () {
+      let names = this.columns.map((x) => x.name)
+
+      // show/hide 'status' column depending on this.showStatus
+      let statusColumn = 'status'
+      let statusShown = names.indexOf(statusColumn) > -1
+      if (this.showStatus && !statusShown) {
+        names.push(statusColumn)
+      } else if (!this.showStatus && statusShown) {
+        let i = names.indexOf(statusColumn)
+        names.splice(i, 1)
+      }
+      return names
+    },
   },
   methods: {
+    toggleStatus: function () {
+      this.showStatus = !this.showStatus
+    },
     isClusterRequired(id) {
       let clientRequired = this.recommendedClients.includes(id)
       let serverRequired = this.recommendedServers.includes(id)
@@ -202,14 +221,15 @@ export default {
         { label: 'Server', client: false, server: true },
         { label: 'Client & Server', client: true, server: true },
       ],
+      showStatus: false,
       columns: [
         {
           name: 'status',
-          required: true,
+          required: false,
           label: '',
           align: 'left',
           field: (row) => row.code,
-          style: 'width:2%',
+          style: 'width: 100px;padding-left: 10px;padding-right: 0px;',
         },
         {
           name: 'label',
