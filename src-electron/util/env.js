@@ -25,7 +25,17 @@ const zapUrlLog = 'zap.url'
 let environment_variable = {
   logLevel: {
     name: 'ZAP_LOGLEVEL',
-    description: 'Sets the log level. Default: warn.',
+    description: 'Sets the log level. If unset, then default is: warn.',
+  },
+  uniqueStateDir: {
+    name: 'ZAP_TEMPSTATE',
+    description:
+      'If set to 1, then instead of .zap, a unique temporary state directory will be created.',
+  },
+  stateDir: {
+    name: 'ZAP_DIR',
+    description:
+      'Sets a state directory. Can be overriden by --stateDirectory option. If unset, default is: ~/.zap',
   },
 }
 
