@@ -312,7 +312,11 @@ function prepareCluster(cluster, isExtension = false) {
     ret.domain = cluster.domain[0]
     ret.isSingleton = false
     if ('$' in cluster) {
-      ret.manufacturerCode = cluster.$.manufacturerCode
+      if (cluster.$.manufacturerCode == null) {
+        ret.manufacturerCode = null
+      } else {
+        ret.manufacturerCode = parseInt(cluster.$.manufacturerCode)
+      }
       if (cluster.$.singleton == 'true') {
         ret.isSingleton = true
       }
@@ -329,6 +333,11 @@ function prepareCluster(cluster, isExtension = false) {
         description: command.description[0].trim(),
         source: command.$.source,
         isOptional: command.$.optional == 'true',
+      }
+      if (cmd.manufacturerCode == null) {
+        cmd.manufacturerCode = ret.manufacturerCode
+      } else {
+        cmd.manufacturerCode = parseInt(cmd.manufacturerCode)
       }
       if ('arg' in command) {
         cmd.args = []
@@ -348,7 +357,7 @@ function prepareCluster(cluster, isExtension = false) {
   if ('attribute' in cluster) {
     ret.attributes = []
     cluster.attribute.forEach((attribute) => {
-      ret.attributes.push({
+      let att = {
         code: parseInt(attribute.$.code),
         manufacturerCode: attribute.$.manufacturerCode,
         name: attribute._,
@@ -363,7 +372,14 @@ function prepareCluster(cluster, isExtension = false) {
         defaultValue: attribute.$.default,
         isOptional: attribute.$.optional == 'true',
         isReportable: attribute.$.reportable == 'true',
-      })
+      }
+      if (att.manufacturerCode == null) {
+        att.manufacturerCode = ret.manufacturerCode
+      } else {
+        att.manufacturerCode = parseInt(att.manufacturerCode)
+      }
+
+      ret.attributes.push(att)
     })
   }
   return ret

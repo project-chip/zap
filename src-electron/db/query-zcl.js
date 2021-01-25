@@ -1298,6 +1298,7 @@ async function insertClusters(db, packageId, data) {
               command.description,
               command.source,
               command.isOptional,
+              command.manufacturerCode,
             ])
           )
           argsForCommands.push(...commands.map((command) => command.args))
@@ -1321,6 +1322,7 @@ async function insertClusters(db, packageId, data) {
               attribute.defaultValue,
               attribute.isOptional,
               attribute.isReportable,
+              attribute.manufacturerCode,
             ])
           )
         }
@@ -1328,7 +1330,7 @@ async function insertClusters(db, packageId, data) {
       let pCommand = dbApi
         .dbMultiInsert(
           db,
-          'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?)',
+          'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL, MANUFACTURER_CODE) VALUES (?,?,?,?,?,?,?, ?)',
           commandsToLoad
         )
         .then((lids) => {
@@ -1357,7 +1359,25 @@ async function insertClusters(db, packageId, data) {
         })
       let pAttribute = dbApi.dbMultiInsert(
         db,
-        'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        `
+INSERT INTO ATTRIBUTE (
+  CLUSTER_REF, 
+  PACKAGE_REF, 
+  CODE, 
+  NAME, 
+  TYPE, 
+  SIDE, 
+  DEFINE, 
+  MIN, 
+  MAX, 
+  MIN_LENGTH, 
+  MAX_LENGTH, 
+  IS_WRITABLE, 
+  DEFAULT_VALUE, 
+  IS_OPTIONAL, 
+  IS_REPORTABLE, 
+  MANUFACTURER_CODE
+) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         attributesToLoad
       )
       return Promise.all([pCommand, pAttribute])
