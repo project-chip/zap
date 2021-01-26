@@ -84,7 +84,7 @@ function updateComponent(db, request, response, add) {
     .then((ids) => ids.reduce((list, ele) => list.concat(ele)))
     // enabling components via Studio jetty server.
     .then((ids) => {
-      promises = []
+      let promises = []
       if (Object.keys(ids).length) {
         if (add) {
           promises = ids.map((id) => studio.addComponent(studioProject, id))
