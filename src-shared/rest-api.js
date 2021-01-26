@@ -31,6 +31,7 @@ const uri = {
   previewName: '/preview/:name',
   previewNameIndex: '/preview/:name/:index',
   sql: '/sql',
+  version: '/version',
   packages: `/packages`,
   addNewPackage: `/packages/add`,
   sessionPackage: `/sessionPackage`,

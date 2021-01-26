@@ -150,7 +150,8 @@ function zapVersionAsString() {
 /**
  * Returns the zap version.
  *
- * @returns zap version, which is an object that contains 'featureLevel', 'hash', 'timestamp' and 'date'
+ * @returns zap version, which is an object that
+ * contains 'featureLevel', 'hash', 'timestamp' and 'date'
  */
 function zapVersion() {
   if (versionObject == null) {
