@@ -48,6 +48,9 @@ test('Test custom xml', async () => {
     testUtil.testCustomXml,
     sid
   )
+  if (!result.succeeded) {
+    console.log(`Test failure: ${result.err}`)
+  }
   expect(result.succeeded).toBeTruthy()
 }, 5000)
 

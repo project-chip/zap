@@ -216,6 +216,23 @@ async function selectAllStructItemsById(db, id) {
 }
 
 /**
+ *
+ *
+ * @param  db
+ * @param  name
+ * @returns the details of the struct items given the name of the struct
+ */
+async function selectAllStructItemsByStructName(db, name) {
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT STRUCT_ITEM.NAME, STRUCT_ITEM.TYPE, STRUCT_ITEM.STRUCT_REF FROM STRUCT_ITEM INNER JOIN STRUCT ON STRUCT.STRUCT_ID = STRUCT_ITEM.STRUCT_REF WHERE STRUCT.NAME = ? ORDER BY ORDINAL',
+      [name]
+    )
+    .then((rows) => rows.map(dbMapping.map.structItem))
+}
+
+/**
  * Retrieves all the clusters in the database.
  *
  * @export
@@ -1281,6 +1298,7 @@ async function insertClusters(db, packageId, data) {
               command.description,
               command.source,
               command.isOptional,
+              command.manufacturerCode,
             ])
           )
           argsForCommands.push(...commands.map((command) => command.args))
@@ -1304,6 +1322,7 @@ async function insertClusters(db, packageId, data) {
               attribute.defaultValue,
               attribute.isOptional,
               attribute.isReportable,
+              attribute.manufacturerCode,
             ])
           )
         }
@@ -1311,7 +1330,7 @@ async function insertClusters(db, packageId, data) {
       let pCommand = dbApi
         .dbMultiInsert(
           db,
-          'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?)',
+          'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL, MANUFACTURER_CODE) VALUES (?,?,?,?,?,?,?, ?)',
           commandsToLoad
         )
         .then((lids) => {
@@ -1340,7 +1359,25 @@ async function insertClusters(db, packageId, data) {
         })
       let pAttribute = dbApi.dbMultiInsert(
         db,
-        'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        `
+INSERT INTO ATTRIBUTE (
+  CLUSTER_REF, 
+  PACKAGE_REF, 
+  CODE, 
+  NAME, 
+  TYPE, 
+  SIDE, 
+  DEFINE, 
+  MIN, 
+  MAX, 
+  MIN_LENGTH, 
+  MAX_LENGTH, 
+  IS_WRITABLE, 
+  DEFAULT_VALUE, 
+  IS_OPTIONAL, 
+  IS_REPORTABLE, 
+  MANUFACTURER_CODE
+) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         attributesToLoad
       )
       return Promise.all([pCommand, pAttribute])
@@ -2212,6 +2249,7 @@ exports.selectAtomicByName = selectAtomicByName
 exports.selectAllStructs = selectAllStructs
 exports.selectStructById = selectStructById
 exports.selectAllStructItemsById = selectAllStructItemsById
+exports.selectAllStructItemsByStructName = selectAllStructItemsByStructName
 exports.selectAllClusters = selectAllClusters
 exports.selectClusterById = selectClusterById
 exports.selectAllDeviceTypes = selectAllDeviceTypes

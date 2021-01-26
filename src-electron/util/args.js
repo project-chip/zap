@@ -17,6 +17,8 @@
 
 const yargs = require('yargs')
 const path = require('path')
+const os = require('os')
+const fs = require('fs')
 const restApi = require(`../../src-shared/rest-api.js`)
 const env = require('./env.js')
 
@@ -33,6 +35,15 @@ exports.embeddedMode = false
 exports.noServer = false
 exports.zapFiles = []
 exports.genResultFile = false
+
+function environmentVariablesDescription() {
+  let vars = env.environment_variable
+  let desc = ''
+  Object.keys(vars).forEach((key) => {
+    desc = desc.concat(`  ${vars[key].name}: ${vars[key].description}\n`)
+  })
+  return desc
+}
 
 /**
  * Process the command line arguments and resets the state in this file
@@ -123,8 +134,13 @@ function processCommandLineArguments(argv) {
       type: 'string',
     })
     .option('stateDirectory', {
-      desc: 'Sets the state directory, relative to user home directory.',
-      default: '~/.zap',
+      desc: 'Sets the state directory.',
+      default: process.env[env.environment_variable.stateDir.name] || '~/.zap',
+    })
+    .option('tempState', {
+      desc: 'Use a unique temporary directory for state',
+      type: 'boolean',
+      default: process.env[env.environment_variable.uniqueStateDir.name] == '1',
     })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
@@ -134,7 +150,11 @@ function processCommandLineArguments(argv) {
     .alias({
       help: ['h', '?'],
     })
-    .epilogue('For more information, see https://github.com/project-chip/zap')
+    .epilogue(
+      `Environment variables:
+${environmentVariablesDescription()}
+For more information, see https://github.com/project-chip/zap`
+    )
     .wrap(null)
     .parse(argv)
 
@@ -148,7 +168,13 @@ function processCommandLineArguments(argv) {
   if (ret.zapFile != null) allFiles.push(ret.zapFile)
   ret.zapFiles = allFiles
 
-  env.setAppDirectory(ret.stateDirectory)
+  if (ret.tempState) {
+    let tempDir = fs.mkdtempSync(`${os.tmpdir()}${path.sep}zap.`)
+    console.log(`Using temporary state directory: ${tempDir}`)
+    env.setAppDirectory(tempDir)
+  } else {
+    env.setAppDirectory(ret.stateDirectory)
+  }
 
   // Now populate exported variables with this.
   exports.zclPropertiesFile = ret.zclProperties

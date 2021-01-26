@@ -100,7 +100,7 @@ test('test Silabs zcl data loading in memory', () => {
         []
       )
     )
-    .then((x) => expect(x.length).toEqual(0))
+    .then((x) => expect(x.length).toEqual(51))
     .then(() =>
       dbApi.dbAll(
         db,
@@ -108,7 +108,7 @@ test('test Silabs zcl data loading in memory', () => {
         []
       )
     )
-    .then((x) => expect(x.length).toEqual(0))
+    .then((x) => expect(x.length).toEqual(22))
     .then(() =>
       dbApi.dbMultiSelect(db, 'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?', [
         [0],

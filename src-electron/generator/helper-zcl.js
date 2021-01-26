@@ -557,6 +557,175 @@ function zcl_command_argument_data_type(type, options) {
 }
 
 /**
+ * Helper that deals with the type of the argument.
+ *
+ * @param {*} typeName
+ * @param {*} options
+ */
+function zcl_command_argument_type_to_cli_data_type(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      Promise.all([
+        new Promise((resolve, reject) => {
+          if ('isArray' in this && this.isArray) resolve(dbEnum.zclType.array)
+          else resolve(dbEnum.zclType.unknown)
+        }),
+        isEnum(this.global.db, type, packageId),
+        isStruct(this.global.db, type, packageId),
+        isBitmap(this.global.db, type, packageId),
+      ])
+        .then(
+          (res) =>
+            new Promise((resolve, reject) => {
+              for (let i = 0; i < res.length; i++) {
+                if (res[i] != 'unknown') {
+                  resolve(res[i])
+                  return
+                }
+              }
+              resolve(dbEnum.zclType.unknown)
+            })
+        )
+        .then((resType) => {
+          switch (resType) {
+            case dbEnum.zclType.array:
+              return queryZcl
+                .selectAtomicType(this.global.db, packageId, type)
+                .then((res) => {
+                  if (res) {
+                    return calculateBytes(
+                      res.name,
+                      options,
+                      this.global.db,
+                      packageId,
+                      false
+                    )
+                  } else {
+                    return calculateBytes(
+                      type,
+                      options,
+                      this.global.db,
+                      packageId,
+                      false
+                    )
+                  }
+                })
+                .then((size) => {
+                  if (size == undefined || size.isNaN) {
+                    return helperC.as_zcl_cli_type(
+                      dbEnum.zclType.string,
+                      true,
+                      false
+                    )
+                  } else {
+                    if (type && type.toLowerCase().endsWith('u')) {
+                      return helperC.as_zcl_cli_type(size, true, false)
+                    } else {
+                      return helperC.as_zcl_cli_type(size, true, true)
+                    }
+                  }
+                })
+            case dbEnum.zclType.bitmap:
+              return queryZcl
+                .selectBitmapByName(this.global.db, packageId, type)
+                .then((bitmap) => {
+                  return queryZcl.selectAtomicType(
+                    this.global.db,
+                    packageId,
+                    bitmap.type
+                  )
+                })
+                .then((res) => {
+                  return calculateBytes(
+                    res.name,
+                    options,
+                    this.global.db,
+                    packageId,
+                    false
+                  )
+                })
+                .then((size) => helperC.as_zcl_cli_type(size, false, false))
+            case dbEnum.zclType.enum:
+              return queryZcl
+                .selectEnumByName(this.global.db, type, packageId)
+                .then((enumRec) => {
+                  return queryZcl.selectAtomicType(
+                    this.global.db,
+                    packageId,
+                    enumRec.type
+                  )
+                })
+                .then((res) => {
+                  return calculateBytes(
+                    res.name,
+                    options,
+                    this.global.db,
+                    packageId,
+                    false
+                  )
+                })
+                .then((size) => helperC.as_zcl_cli_type(size, false, false))
+            case dbEnum.zclType.struct:
+            case dbEnum.zclType.atomic:
+            case dbEnum.zclType.unknown:
+            default:
+              return queryZcl
+                .selectAtomicType(this.global.db, packageId, type)
+                .then((res) => {
+                  if (res) {
+                    return calculateBytes(
+                      res.name,
+                      options,
+                      this.global.db,
+                      packageId,
+                      false
+                    )
+                  } else {
+                    return calculateBytes(
+                      type,
+                      options,
+                      this.global.db,
+                      packageId,
+                      false
+                    )
+                  }
+                })
+                .then((size) => {
+                  if (size == undefined || size.isNaN) {
+                    return helperC.as_zcl_cli_type(
+                      dbEnum.zclType.string,
+                      false,
+                      false
+                    )
+                  } else {
+                    if (
+                      type &&
+                      (type.toLowerCase().endsWith('u') ||
+                        type.toLowerCase().startsWith(dbEnum.zclType.enum) ||
+                        type.toLowerCase().startsWith(dbEnum.zclType.bitmap))
+                    ) {
+                      return helperC.as_zcl_cli_type(size, false, false)
+                    } else {
+                      return helperC.as_zcl_cli_type(size, false, true)
+                    }
+                  }
+                })
+          }
+        })
+        .catch((err) => {
+          env.logError('Unable to convert to zcl cli type: ' + err)
+          throw err
+        })
+    )
+    .catch((err) => {
+      env.logError('Unable to convert to zcl cli type: ' + err)
+      throw err
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  *
  * @param {*} fromType
  * @param {*} toType
@@ -579,7 +748,7 @@ function defaultMessageForTypeConversion(fromType, toType, noWarning) {
  * @param {*} options
  * This function calculates the number of bytes in the data type and based on
  * that returns the option specified in the template.
- * for eg: Give that options is
+ * for eg: Given that options are as follows:
  * options.hash.array="b"
  * options.hash.one_byte="u"
  * options.hash.two_byte="v"
@@ -592,26 +761,110 @@ function defaultMessageForTypeConversion(fromType, toType, noWarning) {
  * calculateBytes("char_string", options)
  * will return 's'
  */
-function calculateBytes(res, options) {
-  let numberPattern = /\d+/g
-  let num = res.match(numberPattern)
-  switch (num / 8) {
-    case 1:
-      return options.hash.one_byte
-    case 2:
-      return options.hash.two_byte
-    case 3:
-      return options.hash.three_byte
-    case 4:
-      return options.hash.four_byte
-    default:
-      if (res.includes('long') && res.includes('string')) {
-        return options.hash.long_string
-      } else if (!res.includes('long') && res.includes('string')) {
-        return options.hash.short_string
-      } else {
-        return options.hash.default
+function calculateBytes(res, options, db, packageId, isStructType) {
+  if (!isStructType) {
+    return types.typeSize(db, packageId, res.toLowerCase()).then((x) => {
+      switch (x) {
+        case 1:
+          return user_defined_output_or_default(options, 'one_byte', x)
+        case 2:
+          return user_defined_output_or_default(options, 'two_byte', x)
+        case 3:
+          return user_defined_output_or_default(options, 'three_byte', x)
+        case 4:
+          return user_defined_output_or_default(options, 'four_byte', x)
+        case 5:
+          return user_defined_output_or_default(options, 'five_byte', x)
+        case 6:
+          return user_defined_output_or_default(options, 'six_byte', x)
+        case 7:
+          return user_defined_output_or_default(options, 'seven_byte', x)
+        case 8:
+          return user_defined_output_or_default(options, 'eight_byte', x)
+        case 9:
+          return user_defined_output_or_default(options, 'nine_byte', x)
+        case 10:
+          return user_defined_output_or_default(options, 'ten_byte', x)
+        case 11:
+          return user_defined_output_or_default(options, 'eleven_byte', x)
+        case 12:
+          return user_defined_output_or_default(options, 'twelve_byte', x)
+        case 13:
+          return user_defined_output_or_default(options, 'thirteen_byte', x)
+        case 14:
+          return user_defined_output_or_default(options, 'fourteen_byte', x)
+        case 15:
+          return user_defined_output_or_default(options, 'fifteen_byte', x)
+        case 16:
+          return user_defined_output_or_default(options, 'sixteen_byte', x)
+        default:
+          if (
+            res != null &&
+            res.includes('long') &&
+            res.includes(dbEnum.zclType.string)
+          ) {
+            return user_defined_output_or_default(options, 'long_string', 'l')
+          } else if (
+            res != null &&
+            !res.includes('long') &&
+            res.includes(dbEnum.zclType.string)
+          ) {
+            return user_defined_output_or_default(options, 'short_string', 's')
+          } else {
+            return options.hash.default
+          }
       }
+    })
+  } else {
+    if ('struct' in options.hash) {
+      return options.hash.struct
+    } else {
+      return queryZcl
+        .selectAllStructItemsByStructName(db, res)
+        .then((items) => {
+          let promises = []
+          for (let itemCount = 0; itemCount < items.length; i++) {
+            promises.push(
+              dataTypeCharacterFormatter(
+                db,
+                packageId,
+                items[itemCount],
+                options,
+                null,
+                type,
+                false
+              )
+            )
+          }
+          return Promise.all(promises)
+        })
+        .then(
+          (res) =>
+            new Promise((resolve, reject) => {
+              let struct_size = 0
+              for (let i = 0; i < res.length; i++) {
+                struct_size += res[i]
+              }
+              resolve(struct_size)
+            })
+        )
+        .catch((err) => env.logError('Could not find size of struct: ' + err))
+    }
+  }
+}
+
+/**
+ *
+ * @param options
+ * @param optionsKey
+ * @param defaultValue
+ * Given the values determine to give the user defined value or the calculated value
+ */
+function user_defined_output_or_default(options, optionsKey, defaultValue) {
+  if (optionsKey in options.hash) {
+    return options.hash[optionsKey]
+  } else {
+    return defaultValue
   }
 }
 
@@ -621,21 +874,17 @@ function calculateBytes(res, options) {
  * @param {*} packageId
  * @param {*} type
  * @param {*} options
- * @param {*} overridable
  * @param {*} resType
  * Character associated to a zcl/c data type.
  */
-function dataTypeCharacterFormatter(
-  db,
-  packageId,
-  type,
-  options,
-  overridable,
-  resType
-) {
+function dataTypeCharacterFormatter(db, packageId, type, options, resType) {
   switch (resType) {
     case dbEnum.zclType.array:
-      return options.hash.array
+      if (dbEnum.zclType.array in options.hash) {
+        return options.hash.array
+      } else {
+        return 'b'
+      }
     case dbEnum.zclType.bitmap:
       return queryZcl
         .selectBitmapByName(db, packageId, type)
@@ -643,10 +892,7 @@ function dataTypeCharacterFormatter(
           return queryZcl.selectAtomicType(db, packageId, bitmap.type)
         })
         .then((res) => {
-          return overridable.atomicType(res)
-        })
-        .then((res) => {
-          return calculateBytes(res, options)
+          return calculateBytes(res.name, options, db, packageId, false)
         })
     case dbEnum.zclType.enum:
       return queryZcl
@@ -655,13 +901,14 @@ function dataTypeCharacterFormatter(
           return queryZcl.selectAtomicType(db, packageId, enumRec.type)
         })
         .then((res) => {
-          return overridable.atomicType(res)
-        })
-        .then((res) => {
-          return calculateBytes(res, options)
+          return calculateBytes(res.name, options, db, packageId, false)
         })
     case dbEnum.zclType.struct:
-      return options.hash.struct
+      if (dbEnum.zclType.struct in options.hash) {
+        return options.hash.struct
+      } else {
+        return calculateBytes(type, options, db, packageId, true)
+      }
     case dbEnum.zclType.atomic:
     case dbEnum.zclType.unknown:
     default:
@@ -677,10 +924,10 @@ function dataTypeCharacterFormatter(
           ) {
             return atomic.name
           }
-          return overridable.atomicType(atomic)
+          return type
         })
         .then((res) => {
-          return calculateBytes(res, options)
+          return calculateBytes(res, options, db, packageId, false)
         })
   }
 }
@@ -815,32 +1062,13 @@ function asUnderlyingZclType(type, options) {
         )
         .then((resType) => {
           if (dbEnum.zclType.zclCharFormatter in options.hash) {
-            if (
-              'array' in options.hash &&
-              'one_byte' in options.hash &&
-              'two_byte' in options.hash &&
-              'three_byte' in options.hash &&
-              'four_byte' in options.hash &&
-              'short_string' in options.hash &&
-              'long_string' in options.hash &&
-              'default' in options.hash
-            ) {
-              return dataTypeCharacterFormatter(
-                this.global.db,
-                packageId,
-                type,
-                options,
-                this.global.overridable,
-                resType
-              )
-            } else {
-              throw new Error(
-                'array, one_byte, two_byte, three_byte, \
-               four_byte, short_string, long_string and default need \
-               to be defined as options as well when zclCharFormatter \
-               is set to true.'
-              )
-            }
+            return dataTypeCharacterFormatter(
+              this.global.db,
+              packageId,
+              type,
+              options,
+              resType
+            )
           } else {
             return dataTypeHelper(
               type,
@@ -1058,3 +1286,4 @@ exports.isEnum = dep(isEnum, { to: 'is_enum' })
 
 exports.if_command_arguments_exist = if_command_arguments_exist
 exports.if_manufacturing_specific_cluster = if_manufacturing_specific_cluster
+exports.zcl_command_argument_type_to_cli_data_type = zcl_command_argument_type_to_cli_data_type

@@ -392,6 +392,26 @@ function endpoint_type_identifier(endpointTypeId) {
     )
 }
 
+/*
+ * @param {*} endpointTypeId
+ * Returns the index of the endpoint whose endpointTypeId is endpointTypeId
+ */
+function endpoint_type_index(endpointTypeId) {
+  return queryImpexp
+    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryImpexp
+        .exportEndpoints(this.global.db, this.global.sessionId, endpointTypes)
+        .then((endpoints) => {
+          for (let i = 0; i < endpoints.length; i++) {
+            if (endpointTypeId == endpoints[i].endpointTypeRef) {
+              return i
+            }
+          }
+        })
+    )
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -414,5 +434,6 @@ exports.user_session_key = user_session_key
 exports.user_manufacturer_code = user_manufacturer_code
 exports.user_default_response_policy = user_default_response_policy
 exports.endpoint_type_identifier = endpoint_type_identifier
+exports.endpoint_type_index = endpoint_type_index
 exports.all_commands_for_user_enabled_clusters = all_commands_for_user_enabled_clusters
 exports.all_user_clusters_irrespective_of_side = all_user_clusters_irrespective_of_side
