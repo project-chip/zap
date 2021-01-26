@@ -22,7 +22,7 @@ const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
 
-let environment_variable = {
+let environmentVariable = {
   logLevel: {
     name: 'ZAP_LOGLEVEL',
     description: 'Sets the log level. If unset, then default is: warn.',
@@ -42,7 +42,7 @@ let environment_variable = {
 // Basic environment tie-ins
 let pino_logger = pino({
   name: 'zap',
-  level: process.env[environment_variable.logLevel.name] || 'warn', // This sets the default log level. If you set this, to say `sql`, then you will get SQL queries.
+  level: process.env[environmentVariable.logLevel.name] || 'warn', // This sets the default log level. If you set this, to say `sql`, then you will get SQL queries.
   customLevels: {
     sql: 25,
     all: 1,
@@ -318,4 +318,4 @@ exports.urlLogFile = urlLogFile
 exports.baseUrl = baseUrl
 exports.versionsCheck = versionsCheck
 exports.setAppDirectory = setAppDirectory
-exports.environment_variable = environment_variable
+exports.environmentVariable = environmentVariable

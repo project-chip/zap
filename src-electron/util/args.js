@@ -37,7 +37,7 @@ exports.zapFiles = []
 exports.genResultFile = false
 
 function environmentVariablesDescription() {
-  let vars = env.environment_variable
+  let vars = env.environmentVariable
   let desc = ''
   Object.keys(vars).forEach((key) => {
     desc = desc.concat(`  ${vars[key].name}: ${vars[key].description}\n`)
@@ -135,12 +135,12 @@ function processCommandLineArguments(argv) {
     })
     .option('stateDirectory', {
       desc: 'Sets the state directory.',
-      default: process.env[env.environment_variable.stateDir.name] || '~/.zap',
+      default: process.env[env.environmentVariable.stateDir.name] || '~/.zap',
     })
     .option('tempState', {
       desc: 'Use a unique temporary directory for state',
       type: 'boolean',
-      default: process.env[env.environment_variable.uniqueStateDir.name] == '1',
+      default: process.env[env.environmentVariable.uniqueStateDir.name] == '1',
     })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
