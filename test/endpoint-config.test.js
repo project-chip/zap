@@ -203,6 +203,17 @@ test(
         expect(
           epc.includes('#define GENERATED_DEFAULTS_COUNT (44)')
         ).toBeTruthy()
+        expect(
+          epc.includes(
+            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0002, ZAP_CLUSTER_MASK(CLIENT) | ZAP_CLUSTER_MASK(TOKENIZE), 0x0000, {{ 2, 12, 4 }} }'
+          )
+        ).toBeTruthy()
+        expect(
+          epc.includes(
+            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0003, ZAP_CLUSTER_MASK(CLIENT) | ZAP_CLUSTER_MASK(EXTERNAL_STORAGE), 0x0000, {{ 3, 13, 6 }} }'
+          )
+        ).toBeTruthy()
+
         expect(epcLines.length).toBeGreaterThan(100)
         let cnt = 0
         epcLines.forEach((line) => {
