@@ -47,6 +47,12 @@ limitations under the License.
               :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
+              v-show="
+                (selectionServers.includes(selectedCluster.id) &&
+                  props.row.source == 'client') ||
+                (selectionClients.includes(selectedCluster.id) &&
+                  props.row.source == 'server')
+              "
               @input="
                 handleCommandSelection(
                   selectionIn,
@@ -62,6 +68,12 @@ limitations under the License.
               class="q-mt-xs"
               v-model="selectionOut"
               :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
+              v-show="
+                (selectionClients.includes(selectedCluster.id) &&
+                  props.row.source == 'client') ||
+                (selectionServers.includes(selectedCluster.id) &&
+                  props.row.source == 'server')
+              "
               indeterminate-value="false"
               keep-color
               @input="
@@ -134,7 +146,6 @@ export default {
     handleCommandSelection(list, listType, commandData, clusterId) {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base Command ID and cluster data.
-
       let indexOfValue = list.indexOf(
         this.hashCommandIdClusterId(commandData.id, clusterId)
       )
