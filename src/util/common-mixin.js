@@ -118,29 +118,24 @@ export default {
      * @param {*} actionSuccessful - true/false
      * @param {*} componentIds - list of strings
      */
-    notifyComponentStatus(actionSuccessful, componentIds) {
-      if (actionSuccessful) {
-        if (Array.isArray(componentIds) && componentIds.length) {
-          let action = actionSuccessful ? 'added' : 'removed'
-          let msg = `<div><strong>The following components were successfully ${action}.</strong></div>`
-          msg += `<div><span style="text-transform: capitalize"><ul>`
-          msg += componentIds
-            .map((id) => `<li>${id.replace(/_/g, ' ')}</li>`)
-            .join(' ')
-          msg += `</ul></span></div>`
+    notifyComponentStatus(executedAction, action, componentIds) {
+      if (Array.isArray(componentIds) && componentIds.length) {
+        let color = executedAction ? 'positive' : 'negative'
+        let verb = executedAction ? 'were' : "couldn't be"
 
-          this.$q.notify({
-            message: msg,
-            color: 'positive',
-            position: 'top',
-            html: true,
-          })
-        }
-      } else {
+        let msg = `<div><strong>The following components ${verb} ${action}.</strong></div>`
+        msg += `<div><span style="text-transform: capitalize"><ul>`
+        msg += componentIds
+          .map((id) => `<li>${id.replace(/_/g, ' ')}</li>`)
+          .join(' ')
+        msg += `</ul></span></div>`
+
+        // notify ui
         this.$q.notify({
-          message: `Unable to update following components: ${params.componentIds}`,
-          color: 'negative',
+          message: msg,
+          color,
           position: 'top',
+          html: true,
         })
       }
     },
@@ -155,13 +150,14 @@ export default {
         this.$store
           .dispatch('zap/updateSelectedComponent', params)
           .then((res) => {
-            if (res.status == http.StatusCodes.OK) {
-              this.notifyComponentStatus(res.data.added, res.data.componentIds)
+            if (
+              'status' in res.data &&
+              res.data.status == http.StatusCodes.BAD_REQUEST
+            ) {
+              this.notifyComponentStatus(false, 'added', res.data.componentIds)
+            } else if (res.status == http.StatusCodes.OK) {
+              this.notifyComponentStatus(true, 'added', res.data.componentIds)
             }
-          })
-          .catch((err) => {
-            console.log('Error', err)
-            this.notifyComponentStatus(false, componentIds)
           })
       } else {
         console.log(
