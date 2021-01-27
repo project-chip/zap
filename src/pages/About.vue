@@ -17,9 +17,37 @@ limitations under the License.
   <div>
     <q-img src="~assets/zap_splash.png">
       <div class="absolute-bottom text-subtitle1 text-center">
+        Version {{ version }} (fl {{ featureLevel }}, {{ date }}, #{{ hash }})
+        <br />
         &copy; 2020 by the authors. Released as open-source, under terms of
-        Apache 2.0 license.
+        Apache 2.0 license. {{ version }}
       </div>
     </q-img>
   </div>
 </template>
+<script>
+const restApi = require(`../../src-shared/rest-api.js`)
+
+export default {
+  name: 'About',
+  mounted() {
+    this.$serverGet(restApi.uri.version).then((result) => {
+      this.version = result.data.version
+      this.featureLevel = result.data.featureLevel
+      this.hash = result.data.hash.substring(0, 7)
+      this.timestamp = result.data.timestamp
+      let d = new Date(result.data.date)
+      this.date = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+    })
+  },
+  data() {
+    return {
+      version: '',
+      featureLevel: '',
+      hash: '',
+      timestamp: '',
+      date: '',
+    }
+  },
+}
+</script>
