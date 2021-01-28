@@ -114,6 +114,7 @@ exports.map = {
       argType: x.ARG_TYPE,
       argIsArray: x.ARG_IS_ARRAY,
       argPresentIf: x.ARG_PRESENT_IF,
+      argCountArg: x.ARG_COUNT_ARG,
     }
   },
 
@@ -127,6 +128,7 @@ exports.map = {
       code: x.CODE,
       isArray: x.IS_ARRAY,
       presentIf: x.PRESENT_IF,
+      countArg: x.COUNT_ARG,
       caption: `Command argument of type ${x.TYPE}`,
     }
   },

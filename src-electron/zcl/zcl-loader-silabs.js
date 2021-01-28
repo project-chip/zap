@@ -347,6 +347,7 @@ function prepareCluster(cluster, isExtension = false) {
             type: arg.$.type,
             isArray: arg.$.array == 'true' ? 1 : 0,
             presentIf: arg.$.presentIf,
+            countArg: arg.$.countArg,
             ordinal: index,
           })
         })

@@ -639,7 +639,8 @@ SELECT
   CA.NAME AS ARG_NAME,
   CA.TYPE AS ARG_TYPE,
   CA.IS_ARRAY AS ARG_IS_ARRAY,
-  CA.PRESENT_IF AS ARG_PRESENT_IF
+  CA.PRESENT_IF AS ARG_PRESENT_IF,
+  CA.COUNT_ARG AS ARG_COUNT_ARG
 FROM 
   COMMAND AS CMD
 LEFT JOIN
@@ -733,7 +734,8 @@ SELECT
   COMMAND_ARG.NAME,
   COMMAND_ARG.TYPE,
   COMMAND_ARG.IS_ARRAY,
-  COMMAND_ARG.PRESENT_IF
+  COMMAND_ARG.PRESENT_IF,
+  COMMAND_ARG.COUNT_ARG
 FROM COMMAND_ARG, COMMAND
 WHERE
   COMMAND_ARG.COMMAND_REF = COMMAND.COMMAND_ID
@@ -1052,6 +1054,7 @@ async function insertGlobals(db, packageId, data) {
               arg.type,
               arg.isArray,
               arg.presentIf,
+              arg.countArg,
               arg.ordinal,
             ])
           )
@@ -1059,7 +1062,7 @@ async function insertGlobals(db, packageId, data) {
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, PRESENT_IF, ORDINAL) VALUES (?,?,?,?,?,?)',
+        'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, PRESENT_IF, COUNT_ARG, ORDINAL) VALUES (?,?,?,?,?,?, ?)',
         argsToLoad
       )
     })
@@ -1179,6 +1182,7 @@ async function insertClusterExtensions(db, packageId, data) {
                   arg.type,
                   arg.isArray,
                   arg.presentIf,
+                  arg.countArg,
                   arg.ordinal,
                 ])
               )
@@ -1186,7 +1190,7 @@ async function insertClusterExtensions(db, packageId, data) {
           }
           return dbApi.dbMultiInsert(
             db,
-            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, PRESENT_IF, ORDINAL) VALUES (?,?,?,?,?,?)',
+            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, PRESENT_IF, COUNT_ARG, ORDINAL) VALUES (?,?,?,?,?,?,?)',
             argsToLoad
           )
         })
@@ -1346,6 +1350,7 @@ async function insertClusters(db, packageId, data) {
                   arg.type,
                   arg.isArray,
                   arg.presentIf,
+                  arg.countArg,
                   arg.ordinal,
                 ])
               )
@@ -1353,7 +1358,7 @@ async function insertClusters(db, packageId, data) {
           }
           return dbApi.dbMultiInsert(
             db,
-            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, PRESENT_IF, ORDINAL) VALUES (?,?,?,?,?,?)',
+            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, PRESENT_IF, COUNT_ARG, ORDINAL) VALUES (?,?,?,?,?,?,?)',
             argsToLoad
           )
         })
@@ -2019,7 +2024,8 @@ SELECT
   NAME,
   TYPE,
   IS_ARRAY,
-  PRESENT_IF
+  PRESENT_IF,
+  COUNT_ARG
 FROM COMMAND_ARG WHERE COMMAND_REF = ?
 ORDER BY ORDINAL`,
       [commandId]
