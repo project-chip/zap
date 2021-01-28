@@ -282,6 +282,7 @@ async function startGeneration(
       log: options.log,
       backup: false,
       genResultFile: args.genResultFile,
+      skipPostGeneration: args.skipPostGeneration,
     }
   )
 
