@@ -33,6 +33,7 @@ const exportJs = require('../src-electron/importexport/export.js')
 const importJs = require('../src-electron/importexport/import.js')
 const restApi = require('../src-shared/rest-api.js')
 const testUtil = require('./test-util.js')
+const _ = require('lodash')
 
 let db
 const { port, baseUrl } = testUtil.testServer(__filename)
@@ -218,4 +219,8 @@ describe('Admin tests', () => {
         expect(response.data.result).not.toBeNull()
         expect(response.data.result.length).toBeGreaterThan(1)
       }))
+  test('test version interface', () =>
+    axiosInstance.get('version').then((response) => {
+      expect(response.data).toEqual(env.zapVersion())
+    }))
 })

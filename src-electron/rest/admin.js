@@ -17,6 +17,7 @@
 
 const dbApi = require('../db/db-api.js')
 const restApi = require('../../src-shared/rest-api.js')
+const env = require('../util/env.js')
 
 /**
  * This module provides the REST API to the admin functions.
@@ -61,9 +62,39 @@ function httpPostSql(db) {
   }
 }
 
+/**
+ * API: /version
+ * Response JSON:
+ * <pre>
+ *   {
+ *     version: full version.
+ *     featureLevel: feature level.
+ *     hash: git hash code
+ *     timestamp: Unix time from the last commit in the repo.
+ *     date: Date of the last commit in the repo.
+ *   }
+ * </pre>
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration.
+ */
+function httpGetVersion(db) {
+  return (request, response) => {
+    let version = env.zapVersion()
+    response.json(version)
+  }
+}
+
 exports.post = [
   {
     uri: restApi.uri.sql,
     callback: httpPostSql,
+  },
+]
+
+exports.get = [
+  {
+    uri: restApi.uri.version,
+    callback: httpGetVersion,
   },
 ]

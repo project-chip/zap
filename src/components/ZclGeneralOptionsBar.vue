@@ -77,6 +77,11 @@ import * as DbEnum from '../../src-shared/db-enum'
 export default {
   name: 'ZclGeneralOptionsBar',
   computed: {
+    DbEnum: {
+      get() {
+        return DbEnum
+      },
+    },
     defaultResponsePolicyOptions: {
       get() {
         return this.$store.state.zap.genericOptions[

@@ -84,10 +84,20 @@ function updateComponent(db, request, response, add) {
     .then((ids) => ids.reduce((list, ele) => list.concat(ele)))
     // enabling components via Studio jetty server.
     .then((ids) => {
-      promises = []
+      let promises = []
       if (Object.keys(ids).length) {
         if (add) {
-          promises = ids.map((id) => studio.addComponent(studioProject, id))
+          promises = ids.map((id) => {
+            return studio.addComponent(studioProject, id).catch((err) => {
+              // enabling component failed.
+              let e = new Error(
+                `StudioUC(${studioProjectName}): Failed to add component(${ids})`
+              )
+              e.componentIds = ids
+              e.status = err.response.status
+              throw e
+            })
+          })
         } else {
           promises = ids.map((id) => studio.removeComponent(studioProject, id))
         }
@@ -96,10 +106,10 @@ function updateComponent(db, request, response, add) {
     })
     // gather results and reply
     .then(function (o) {
-      o.componentUpdate.then((results) => {
+      return o.componentUpdate.then((results) => {
         let updatedComponentIds = []
-        results.forEach((response, index) => {
-          if (response.status == http.StatusCodes.OK) {
+        results.forEach((res, index) => {
+          if (res.status == http.StatusCodes.OK) {
             updatedComponentIds.push(o.ids[index])
           }
         })
@@ -112,15 +122,14 @@ function updateComponent(db, request, response, add) {
     .catch((err) => {
       if (componentId) {
         env.logInfo(
-          `StudioUC(${studioProjectName}): Failed to update component(${componentId})`
+          `StudioUC(${studioProjectName}): Failed to update component(${err.componentIds})`
         )
       } else {
         env.logInfo(
           `StudioUC(${studioProjectName}): Failed to update components for cluster(${clusterId})`
         )
       }
-      env.logInfo(err.response)
-      return handleError(err, response)
+      response.send(err)
     })
 }
 /**

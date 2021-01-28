@@ -35,7 +35,12 @@ limitations under the License.
             />
           </q-field>
           <q-field label="Profile ID" stack-label>
-            <q-input outlined v-model="zclProfileId" disable class="col" />
+            <q-input
+              outlined
+              v-model="zclProfileIdString"
+              disable
+              class="col"
+            />
           </q-field>
           <q-field label="Device Type" stack-label>
             <q-select
@@ -52,7 +57,7 @@ limitations under the License.
                     ? ''
                     : zclDeviceTypes[item].description +
                       ' (' +
-                      zclDeviceTypes[item].code +
+                      asHex(zclDeviceTypes[item].code, 4) +
                       ')'
               "
               @filter="filterDeviceTypes"
@@ -133,10 +138,13 @@ export default {
         return keys
       },
     },
-    zclProfileId: {
+    zclProfileIdString: {
       get() {
         return this.newEndpoint.newDeviceTypeRef
-          ? this.zclDeviceTypes[this.newEndpoint.newDeviceTypeRef].profileId
+          ? this.asHex(
+              this.zclDeviceTypes[this.newEndpoint.newDeviceTypeRef].profileId,
+              4
+            )
           : ''
       },
     },

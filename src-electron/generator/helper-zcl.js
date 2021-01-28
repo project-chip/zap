@@ -830,9 +830,7 @@ function calculateBytes(res, options, db, packageId, isStructType) {
                 packageId,
                 items[itemCount],
                 options,
-                null,
-                type,
-                false
+                type
               )
             )
           }

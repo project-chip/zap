@@ -33,10 +33,12 @@ limitations under the License.
           </div>
           <div class="col-md-6">
             {{
-              (deviceType
-                ? deviceType.description + ' (' + deviceType.code + ')'
+              deviceType
+                ? deviceType.description +
+                  ' (' +
+                  asHex(deviceType.code, 4) +
+                  ')'
                 : ''
-              ).padStart(4, '0')
             }}
           </div>
         </q-item>
@@ -54,14 +56,16 @@ limitations under the License.
           </div>
           <div class="col-md-6">
             {{
-              (zclDeviceTypes[
+              zclDeviceTypes[
                 endpointDeviceTypeRef[endpointType[endpointReference]]
               ]
-                ? zclDeviceTypes[
-                    endpointDeviceTypeRef[endpointType[endpointReference]]
-                  ].profileId.toString(16)
+                ? asHex(
+                    zclDeviceTypes[
+                      endpointDeviceTypeRef[endpointType[endpointReference]]
+                    ].profileId,
+                    4
+                  )
                 : ''
-              ).padStart(4, '0')
             }}
           </div>
         </q-item>

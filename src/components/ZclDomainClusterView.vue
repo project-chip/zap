@@ -16,9 +16,11 @@ limitations under the License.
 
 <template>
   <div>
+    <!-- <q-btn label="hide calories" @click="toggleStatus" /> -->
     <q-table
       :data="clusters"
       :columns="columns"
+      :visible-columns="visibleColumns"
       :rows-per-page-options="[0]"
       hide-pagination
       row-key="id"
@@ -29,6 +31,39 @@ limitations under the License.
     >
       <template v-slot:body="props">
         <q-tr :props="props">
+          <q-td key="status" :props="props" class="q-px-none">
+            <q-icon
+              name="warning"
+              class="text-amber"
+              style="font-size: 1.5rem"
+              @click="selectCluster(props.row)"
+            ></q-icon>
+            <q-popup-edit
+              :cover="false"
+              :offset="[0, -54]"
+              v-model="uc_label"
+              content-class="bg-white text-black"
+              style="overflow-wrap: break-word; padding: 0px"
+            >
+              <div class="row items-center" items-center style="padding: 0px">
+                <q-icon
+                  name="warning"
+                  class="text-amber q-mr-sm"
+                  style="font-size: 1.5rem"
+                ></q-icon>
+                <div class="vertical-middle text-subtitle1">
+                  Clusters not installed
+                </div>
+              </div>
+              <div class="row no-wrap">
+                Install cluster in universal components<br />
+                to continue endpoint configuration.
+              </div>
+              <div class="row justify-end">
+                <q-btn unelevated text-color="primary">Install</q-btn>
+              </div>
+            </q-popup-edit>
+          </q-td>
           <q-td key="label" :props="props" auto-width>
             {{ props.row.label }}
           </q-td>
@@ -87,8 +122,25 @@ export default {
         return this.$store.state.zap.clustersView.recommendedServers
       },
     },
+    visibleColumns: function () {
+      let names = this.columns.map((x) => x.name)
+
+      // show/hide 'status' column depending on this.showStatus
+      let statusColumn = 'status'
+      let statusShown = names.indexOf(statusColumn) > -1
+      if (this.showStatus && !statusShown) {
+        names.push(statusColumn)
+      } else if (!this.showStatus && statusShown) {
+        let i = names.indexOf(statusColumn)
+        names.splice(i, 1)
+      }
+      return names
+    },
   },
   methods: {
+    toggleStatus: function () {
+      this.showStatus = !this.showStatus
+    },
     isClusterRequired(id) {
       let clientRequired = this.recommendedClients.includes(id)
       let serverRequired = this.recommendedServers.includes(id)
@@ -162,20 +214,30 @@ export default {
   },
   data() {
     return {
+      uc_label: 'uc label',
       clusterSelectionOptions: [
         { label: '---', client: false, server: false },
         { label: 'Client', client: true, server: false },
         { label: 'Server', client: false, server: true },
         { label: 'Client & Server', client: true, server: true },
       ],
+      showStatus: false,
       columns: [
+        {
+          name: 'status',
+          required: false,
+          label: '',
+          align: 'left',
+          field: (row) => row.code,
+          style: 'width: 100px;padding-left: 10px;padding-right: 0px;',
+        },
         {
           name: 'label',
           required: true,
           label: 'Cluster',
           align: 'left',
           field: (row) => row.label,
-          style: 'width:30%',
+          style: 'width:28%',
         },
         {
           name: 'requiredCluster',

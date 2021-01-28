@@ -24,7 +24,9 @@ limitations under the License.
         class="shadow-2 zclConfiguratorLayoutHeader"
       >
         <q-toolbar bordered class="shadow-2 zclConfiguratorLayoutHeader">
-          <q-toolbar-title> Zigbee Clusters Configurator </q-toolbar-title>
+          <q-toolbar-title v-on:click.ctrl="showVersion">
+            Zigbee Cluster Configurator
+          </q-toolbar-title>
           <q-space />
 
           <!-- TODO add a link to said manual here/manage the implementation of manual. -->
@@ -53,11 +55,24 @@ limitations under the License.
 import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
 import ZclEndpointManager from '../components/ZclEndpointManager.vue'
 import ZclClusterManager from '../components/ZclClusterManager.vue'
+const restApi = require(`../../src-shared/rest-api.js`)
 
 export default {
   name: 'ZclConfiguratorLayout',
 
-  methods: {},
+  methods: {
+    showVersion() {
+      this.$serverGet(restApi.uri.version).then((result) => {
+        let msg = `ZAP Version Information
+
+ - version: ${result.data.version}
+ - feature level: ${result.data.featureLevel}
+ - date of relese commit: ${result.data.date}
+ - hash of release commit: ${result.data.hash}`
+        alert(msg)
+      })
+    },
+  },
   computed: {
     leftDrawerOpen: {
       get() {
