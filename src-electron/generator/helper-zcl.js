@@ -743,9 +743,6 @@ function defaultMessageForTypeConversion(fromType, toType, noWarning) {
 }
 
 /**
- *
- * @param {*} res
- * @param {*} options
  * This function calculates the number of bytes in the data type and based on
  * that returns the option specified in the template.
  * for eg: Given that options are as follows:
@@ -760,6 +757,9 @@ function defaultMessageForTypeConversion(fromType, toType, noWarning) {
  *
  * calculateBytes("char_string", options)
  * will return 's'
+ *
+ * @param {*} res
+ * @param {*} options
  */
 function calculateBytes(res, options, db, packageId, isStructType) {
   if (!isStructType) {
@@ -836,15 +836,8 @@ function calculateBytes(res, options, db, packageId, isStructType) {
           }
           return Promise.all(promises)
         })
-        .then(
-          (res) =>
-            new Promise((resolve, reject) => {
-              let struct_size = 0
-              for (let i = 0; i < res.length; i++) {
-                struct_size += res[i]
-              }
-              resolve(struct_size)
-            })
+        .then((resolvedPromises) =>
+          resolvedPromises.reduce((acc, cur) => acc + cur, 0)
         )
         .catch((err) => env.logError('Could not find size of struct: ' + err))
     }

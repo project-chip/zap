@@ -60,7 +60,7 @@ limitations under the License.
 import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
 import ZclEndpointManager from '../components/ZclEndpointManager.vue'
 import ZclClusterManager from '../components/ZclClusterManager.vue'
-const restApi = require(`../../src-shared/rest-api.js`)
+const restApi = require('../../src-shared/rest-api.js')
 const commonUrl = require('../../src-shared/common-url.js')
 
 export default {
