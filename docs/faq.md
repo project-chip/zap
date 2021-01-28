@@ -118,6 +118,14 @@ Occasionally upgrading your `npm` also makes a difference:
 
 ---
 
+**Q: I get an error "The N-API version of this Node instance is 1. This module supports N-API version(s) 3. This Node instance cannot run this module."**
+
+**A:** You need to upgrade your node version.
+
+The solution for this is discussed in this Stack Overflow thread: https://stackoverflow.com/questions/60620327/the-n-api-version-of-this-node-instance-is-1-this-module-supports-n-api-version
+
+---
+
 **Q: My development PC doesn't work with zap for whatever reason. Can I use a docker container?**
 
 **A:** Yes you can. TBD.
