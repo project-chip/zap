@@ -30,7 +30,12 @@ limitations under the License.
           <q-space />
 
           <!-- TODO add a link to said manual here/manage the implementation of manual. -->
-          <q-btn outline color="primary" label="View Manual" />
+          <q-btn
+            outline
+            color="primary"
+            label="View Manual"
+            v-on:click="openDocumentation()"
+          />
         </q-toolbar>
         <ZclGeneralOptionsBar />
       </q-header>
@@ -56,11 +61,15 @@ import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
 import ZclEndpointManager from '../components/ZclEndpointManager.vue'
 import ZclClusterManager from '../components/ZclClusterManager.vue'
 const restApi = require(`../../src-shared/rest-api.js`)
+const commonUrl = require('../../src-shared/common-url.js')
 
 export default {
   name: 'ZclConfiguratorLayout',
 
   methods: {
+    openDocumentation() {
+      window.open(commonUrl.documentationUrl, '_blank')
+    },
     showVersion() {
       this.$serverGet(restApi.uri.version).then((result) => {
         let msg = `ZAP Version Information
