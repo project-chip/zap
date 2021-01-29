@@ -195,9 +195,9 @@ function tokens_context(options) {
   })
 
   // Fix endpoints and endpoint clusters
-  Object.entries(context.endpoints).forEach(([code, ep]) => {
-    Object.entries(ep.clusters).forEach(([code, cl]) => {
-      Object.entries(cl.nonSingletons).forEach(([code, attr]) => {
+  Object.entries(context.endpoints).forEach(([epCode, ep]) => {
+    Object.entries(ep.clusters).forEach(([clCode, cl]) => {
+      Object.entries(cl.nonSingletons).forEach(([attCode, attr]) => {
         if (attr.key in context.singletons) {
           // These non-singletons were overridden with singletons
           delete cl.nonSingletons[attr.key]

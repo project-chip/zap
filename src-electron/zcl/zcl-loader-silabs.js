@@ -342,13 +342,16 @@ function prepareCluster(cluster, isExtension = false) {
       if ('arg' in command) {
         cmd.args = []
         command.arg.forEach((arg, index) => {
-          cmd.args.push({
-            name: arg.$.name,
-            type: arg.$.type,
-            isArray: arg.$.array == 'true' ? 1 : 0,
-            presentIf: arg.$.presentIf,
-            ordinal: index,
-          })
+          // We are only includsing ones that are NOT removedIn
+          if (arg.$.removedIn == null)
+            cmd.args.push({
+              name: arg.$.name,
+              type: arg.$.type,
+              isArray: arg.$.array == 'true' ? 1 : 0,
+              presentIf: arg.$.presentIf,
+              countArg: arg.$.countArg,
+              ordinal: index,
+            })
         })
       }
       ret.commands.push(cmd)
@@ -378,8 +381,10 @@ function prepareCluster(cluster, isExtension = false) {
       } else {
         att.manufacturerCode = parseInt(att.manufacturerCode)
       }
-
-      ret.attributes.push(att)
+      // If attribute has removedIn, then it's not valid any more in LATEST spec.
+      if (attribute.$.removedIn == null) {
+        ret.attributes.push(att)
+      }
     })
   }
   return ret

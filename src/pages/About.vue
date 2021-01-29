@@ -34,10 +34,17 @@ export default {
     this.$serverGet(restApi.uri.version).then((result) => {
       this.version = result.data.version
       this.featureLevel = result.data.featureLevel
-      this.hash = result.data.hash.substring(0, 7)
-      this.timestamp = result.data.timestamp
-      let d = new Date(result.data.date)
-      this.date = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+      if ('hash' in result.data) {
+        this.hash = result.data.hash.substring(0, 7)
+      } else {
+        this.hash = 'Unknown hash'
+      }
+      if ('date' in result.data) {
+        let d = new Date(result.data.date)
+        this.date = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+      } else {
+        this.date = 'Unknown date'
+      }
     })
   },
   data() {
@@ -45,7 +52,6 @@ export default {
       version: '',
       featureLevel: '',
       hash: '',
-      timestamp: '',
       date: '',
     }
   },

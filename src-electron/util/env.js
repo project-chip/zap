@@ -37,6 +37,11 @@ let environmentVariable = {
     description:
       'Sets a state directory. Can be overriden by --stateDirectory option. If unset, default is: ~/.zap',
   },
+  skipPostGen: {
+    name: 'ZAP_SKIP_POST_GENERATION',
+    description:
+      'If there is a defined post-generation action for zap, you can set this to variable to 1 to skip it.',
+  },
 }
 
 // Basic environment tie-ins

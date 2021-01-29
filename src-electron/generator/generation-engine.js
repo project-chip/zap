@@ -29,6 +29,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
+const { groupEnd } = require('console')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -575,6 +576,7 @@ async function generateAndWriteFiles(
     log: false,
     backup: false,
     genResultFile: false,
+    skipPostGeneration: false,
   }
 ) {
   return queryPackage
@@ -637,9 +639,13 @@ async function generateAndWriteFiles(
 
       return Promise.all(promises)
         .then(() => genResult)
-        .then((gr) =>
-          postProcessGeneratedFiles(outputDirectory, gr, options.log)
-        )
+        .then((gr) => {
+          if (options.skipPostGeneration) {
+            return gr
+          } else {
+            return postProcessGeneratedFiles(outputDirectory, gr, options.log)
+          }
+        })
     })
 }
 

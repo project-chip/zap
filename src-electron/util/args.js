@@ -35,6 +35,7 @@ exports.embeddedMode = false
 exports.noServer = false
 exports.zapFiles = []
 exports.genResultFile = false
+exports.skipPostGeneration = false
 
 function environmentVariablesDescription() {
   let vars = env.environmentVariable
@@ -142,6 +143,12 @@ function processCommandLineArguments(argv) {
       type: 'boolean',
       default: process.env[env.environmentVariable.uniqueStateDir.name] == '1',
     })
+    .option('skipPostGeneration', {
+      desc:
+        'If there is a defined post-generation action for zap, you can set this to variable to 1 to skip it.',
+      type: 'boolean',
+      default: process.env[env.environmentVariable.skipPostGen.name] == '1',
+    })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${zapVersion.featureLevel}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
@@ -186,6 +193,7 @@ For more information, see https://github.com/project-chip/zap`
   exports.noServer = ret.noServer
   exports.genResultFile = ret.genResultFile
   exports.zapFiles = allFiles
+  exports.skipPostGeneration = ret.skipPostGeneration
   return ret
 }
 
