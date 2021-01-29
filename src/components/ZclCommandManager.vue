@@ -101,9 +101,9 @@ limitations under the License.
           <q-td key="mfgId" :props="props" auto-width
             >{{
               selectedCluster.manufacturerCode
-                ? selectedCluster.manufacturerCode
+                ? asHex(selectedCluster.manufacturerCode, 4)
                 : props.row.manufacturerCode
-                ? props.row.manufacturerCode
+                ? asHex(props.row.manufacturerCode, 4)
                 : '-'
             }}
           </q-td>
