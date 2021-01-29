@@ -168,6 +168,7 @@ For more information, see https://github.com/project-chip/zap`
   // Collect files that are passed as loose arguments
   let allFiles = ret._.filter((arg, index) => {
     if (index == 0) return false
+    if (typeof arg == 'number') return false
     if (arg.endsWith('.js')) return false
     if (arg in commands) return false
     return true

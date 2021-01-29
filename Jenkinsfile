@@ -113,7 +113,7 @@ pipeline
                 script
                 {
                     gitBranch = "${env.BRANCH_NAME}"
-                    sh '/home/buildengineer/tools/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=https://sonarqube.silabs.net/ -Dsonar.login=e48b8a949e2869afa974414c56b4dc7baeb146e3 -X -Dsonar.branch.name='+gitBranch
+                    sh '/home/buildengineer/tools/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=https://sonarqube.silabs.net/ -Dsonar.login=e48b8a949e2869afa974414c56b4dc7baeb146e3 -X -Dsonar.branch.name=' + gitBranch
                 }
             }
         }
@@ -161,6 +161,33 @@ pipeline
         }
         stage('Building distribution artifacts') {
             parallel {
+                stage('Building for Mac')
+                {
+                    agent { label 'bgbuild-mac' }
+                    steps
+                    {
+                        script
+                        {
+                            withEnv(['PATH+LOCAL_BIN=/usr/local/bin'])
+                            {
+                                withCredentials([usernamePassword(credentialsId: 'buildengineer',
+                              usernameVariable: 'SL_USERNAME',
+                              passwordVariable: 'SL_PASSWORD')])
+                              {
+                                    sh 'npm list || true'
+                                    sh 'npm ci'
+                                    sh 'npm rebuild canvas --update-binary || true'
+                                    sh "security unlock-keychain -p ${SL_PASSWORD} login"
+                                    sh 'npm run version-stamp'
+                                    sh 'npm run build-spa'
+                                    sh 'npm run dist-mac'
+                                    sh 'npm run apack:mac'
+                                    stash includes: 'dist/zap_apack_mac.zip', name: 'zap_apack_mac'
+                              }
+                            }
+                        }
+                    }
+                }
                 stage('Building for Windows / Linux')
                 {
                     steps
@@ -170,70 +197,121 @@ pipeline
                             sh 'echo "Building for Windows"'
                             sh 'npm run dist-win'
                             sh 'npm run apack:win'
+                            stash includes: 'dist/zap_apack_win.zip', name: 'zap_apack_win'
 
                             sh 'echo "Building for Linux"'
                             sh 'npm run dist-linux'
                             sh 'npm run apack:linux'
-                        }
-                    }
-                }
-                stage('Building for Mac')
-                {
-                    agent {
-                        label "bgbuild-mac"
-                    }
-                    steps
-                    {
-                        script
-                        {
-                            withEnv(['PATH+LOCAL_BIN=/usr/local/bin'])
-                            {
-                              withCredentials([usernamePassword(credentialsId: 'buildengineer',
-                              usernameVariable: 'SL_USERNAME',
-                              passwordVariable: 'SL_PASSWORD')])
-                              {
-                                sh 'npm list || true'
-                                sh 'npm ci'
-                                sh 'npm rebuild canvas --update-binary || true'
-                                sh "security unlock-keychain -p ${SL_PASSWORD} login"
-                                sh 'npm run build-spa'
-                                sh 'npm run dist-mac'
-                                sh 'npm run apack:mac'
-                              }
-                            }
+                            stash includes: 'dist/zap_apack_linux.zip', name: 'zap_apack_linux'
                         }
                     }
                 }
             }
         }
+
         stage('Artifact creation')
         {
             parallel {
-                stage('Creating artifact for Mac')
-                {
-                    agent {
-                        label "bgbuild-mac"
-                    }
-                    steps
-                    {
-                        script
-                        {
-                          archiveArtifacts artifacts:'dist/zap*', fingerprint: true
-                        }
-                    }
-                }
                 stage('Creating artifact for Windows / Linux')
                 {
                     steps
                     {
                         script
                         {
-                          archiveArtifacts artifacts:'dist/zap*', fingerprint: true
+                            archiveArtifacts artifacts:'dist/zap*', fingerprint: true
+                        }
+                    }
+                }
+
+                stage('Creating artifact for Mac')
+                {
+                    agent { label 'bgbuild-mac' }
+                    steps
+                    {
+                        script
+                        {
+                            archiveArtifacts artifacts:'dist/zap*', fingerprint: true
                         }
                     }
                 }
             }
         }
+
+        stage('Check version stamp inside binaries') {
+            parallel {
+                stage('Check version stamp for Windows')
+                {
+                    agent { label 'bgbuild-win' }
+                    steps
+                    {
+                        dir('test_apack_bin') {
+                            script
+                            {
+                                unstash 'zap_apack_win'
+                                unzip zipFile: 'dist/zap_apack_win.zip'
+                                String response = sh(script: "zap.exe --version", returnStdout: true).trim()
+                                echo response
+                                if ( response.indexOf("undefined") == -1) {
+                                    currentBuild.result = 'SUCCESS'
+                                } else {
+                                    error "Undefined version information"
+                                    currentBuild.result = 'FAILURE'
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Check version stamp for Mac')
+                {
+                    agent { label 'bgbuild-mac' }
+                    steps
+                    {
+                        // WORKAROUND: 
+                        // Skip testing zap within .zap since zip/unzip within Jenkins is unable to 
+                        // maintain the framework symlinks, referenced by ZAP
+                        script
+                        {
+                          // redirect stderr to file to avoid return statusCode failing the pipeline.
+                          // mac binaries would err with "Trace/BPT trap: 5".
+                          // depending on electron/electron-builder version, the error appear/disappear from time to time.
+                          String status = sh(script: "./dist/mac/zap.app/Contents/MacOS/zap --version 2&> output.txt", returnStatus: true)
+                          def output = readFile('output.txt').trim()
+                          echo output
+                          if ( output.indexOf("undefined") == -1) {
+                            currentBuild.result = 'SUCCESS'
+                          } else {
+                            error "Undefined version information"
+                            currentBuild.result = 'FAILURE'
+                          }
+                        }
+                    }
+                }
+
+                stage('Check version stamp for Linux')
+                {
+                    steps
+                    {
+                        dir('test_apack_bin') {
+                            script
+                            {
+                                unstash 'zap_apack_linux'
+                                unzip zipFile: 'dist/zap_apack_linux.zip'
+                                sh 'chmod 755 zap'
+                                String response = sh(script: "./zap --version", returnStdout: true).trim()
+                                echo response
+                                if ( response.indexOf("undefined") == -1) {
+                                    currentBuild.result = 'SUCCESS'
+                                } else {
+                                    error "Undefined version information"
+                                    currentBuild.result = 'FAILURE'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Build status resolution')
         {
             steps
@@ -254,18 +332,16 @@ pipeline
             {
                 script
                 {
-                    triggerRemoteJob blockBuildUntilComplete: false, 
-                                     job: 'https://jnkaus016.silabs.com/job/Adapter_Pack_ZAP_64/', 
-                                     remoteJenkinsName: 'jnkaus016', 
-                                     shouldNotFailBuild: true, 
-                                     useCrumbCache: true, 
+                    triggerRemoteJob blockBuildUntilComplete: false,
+                                     job: 'https://jnkaus016.silabs.com/job/Adapter_Pack_ZAP_64/',
+                                     remoteJenkinsName: 'jnkaus016',
+                                     shouldNotFailBuild: true,
+                                     useCrumbCache: true,
                                      useJobInfoCache: true
-
                 }
             }
         }
-        
-            }
+    }
     post {
         always {
             script
