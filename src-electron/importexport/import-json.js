@@ -50,44 +50,47 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
   if ('pathRelativity' in pkg) {
     absPath = util.createAbsolutePath(pkg.path, pkg.pathRelativity, zapFilePath)
   }
-  return queryPackage
-    .getPackageIdByPathAndTypeAndVersion(db, absPath, pkg.type, pkg.version)
-    .then((pkgId) => {
-      if (pkgId != null) {
+  let pkgId = await queryPackage.getPackageIdByPathAndTypeAndVersion(
+    db,
+    absPath,
+    pkg.type,
+    pkg.version
+  )
+
+  if (pkgId != null) {
+    return {
+      packageId: pkgId,
+      packageType: pkg.type,
+    }
+  } else {
+    env.logInfo(
+      'Packages from the file did not match loaded packages making best bet.'
+    )
+    let packages = await queryPackage.getPackagesByType(db, pkg.type)
+
+    packages.forEach((singleTypePackage) => {
+      if (singleTypePackage.version == pkg.version) {
         return {
-          packageId: pkgId,
+          packageId: singleTypePackage.id,
           packageType: pkg.type,
         }
-      } else {
-        env.logInfo(
-          'Packages from the file did not match loaded packages making best bet.'
-        )
-        return queryPackage.getPackagesByType(db, pkg.type).then((packages) => {
-          packages.forEach((singleTypePackage) => {
-            if (singleTypePackage.version == pkg.version) {
-              return {
-                packageId: singleTypePackage.id,
-                packageType: pkg.type,
-              }
-            }
-          })
-
-          if (packages.length > 0) {
-            let p = packages[0]
-            env.logWarning(
-              `Required package did not match the version. Using first found:${p.id}.`
-            )
-            return {
-              packageId: p.id,
-              packageType: pkg.type,
-            }
-          }
-          if (pkg.type != dbEnum.packageType.genTemplatesJson)
-            throw `None of the packages found match the required package: ${pkg.path}`
-          else return null
-        })
       }
     })
+
+    if (packages.length > 0) {
+      let p = packages[0]
+      env.logWarning(
+        `Required package did not match the version. Using first found:${p.id}.`
+      )
+      return {
+        packageId: p.id,
+        packageType: pkg.type,
+      }
+    }
+    if (pkg.type != dbEnum.packageType.genTemplatesJson)
+      throw `None of the packages found match the required package: ${pkg.path}`
+    else return null
+  }
 }
 
 // Resolves an array of { packageId:, packageType:} objects into { packageId: id, otherIds: [] }
