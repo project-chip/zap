@@ -27,7 +27,14 @@ process.env.PATH = process.env.PATH + ':./node_modules/.bin/'
 
 // Utilities shared by scripts.
 
-function executeCmd(ctx, cmd, args) {
+/**
+ * Execute a command and resolve with the context.
+ *
+ * @param {*} ctx
+ * @param {*} cmd
+ * @param {*} args
+ */
+async function executeCmd(ctx, cmd, args) {
   return new Promise((resolve, reject) => {
     console.log(`🚀 Executing: ${cmd} ${args.join(' ')}`)
     let c = spawn(cmd, args)
@@ -50,7 +57,14 @@ function executeCmd(ctx, cmd, args) {
   })
 }
 
-function getStdout(onError, cmd, args) {
+/**
+ * Executes a command with arguments and resolves with the stdout.
+ *
+ * @param {*} onError If there is an error with executable, resolve to this.
+ * @param {*} cmd Command to run.
+ * @param {*} args Arguments to pass.
+ */
+async function getStdout(onError, cmd, args) {
   return new Promise((resolve, reject) => {
     console.log(`🚀 Executing: ${cmd} ${args.join(' ')}`)
     let c = spawn(cmd, args)
@@ -77,11 +91,11 @@ function getStdout(onError, cmd, args) {
  *
  * @returns
  */
-function rebuildSpaIfNeeded() {
+async function rebuildSpaIfNeeded() {
   return folderHash
     .hashElement('src', hashOptions)
     .then((currentHash) => {
-      console.log(`🔍 Current  hash: ${currentHash.hash}`)
+      console.log(`🔍 Current hash: ${currentHash.hash}`)
       return {
         currentHash: currentHash,
       }
@@ -137,8 +151,12 @@ function rebuildSpaIfNeeded() {
     )
 }
 
-// git log -1 --format="{\"hash\": \"%H\",\"date\": \"%cI\"}" > .version.json
-function stampVersion() {
+/**
+ * Executes:
+ *   git log -1 --format="{\"hash\": \"%H\",\"date\": \"%cI\"}"
+ * ads the timestamp and saves it into .version.json
+ */
+async function stampVersion() {
   return getStdout('{"hash": null,"date": null}', 'git', [
     'log',
     '-1',
@@ -149,6 +167,7 @@ function stampVersion() {
       let d = new Date(version.timestamp * 1000) // git gives seconds, Date needs milliseconds
       version.date = d
       let versionFile = path.join(__dirname, '../.version.json')
+      console.log(`🔍 Git commit: ${version.hash} from ${version.date}`)
       return fsp.writeFile(versionFile, JSON.stringify(version))
     })
     .catch((err) => {
