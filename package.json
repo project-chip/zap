@@ -1,6 +1,6 @@
 {
   "name": "zap",
-  "version": "0.99.1",
+  "version": "0.99.2",
   "featureLevel": 8,
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",

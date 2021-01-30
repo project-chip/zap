@@ -65,9 +65,9 @@ limitations under the License.
           }}</q-td>
           <q-td key="mfgID" :props="props" auto-width>{{
             selectedCluster.manufacturerCode
-              ? selectedCluster.manufacturerCode
+              ? asHex(selectedCluster.manufacturerCode, 4)
               : props.row.manufacturerCode
-              ? props.row.manufacturerCode
+              ? asHex(props.row.manufacturerCode, 4)
               : ''
           }}</q-td>
           <q-td key="storageOption" :props="props" auto-width>

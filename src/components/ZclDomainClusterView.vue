@@ -75,7 +75,9 @@ limitations under the License.
           </q-td>
           <q-td key="manufacturerId" :props="props">
             {{
-              props.row.manufacturerCode ? props.row.manufacturerCode : '---'
+              props.row.manufacturerCode
+                ? asHex(props.row.manufacturerCode, 4)
+                : '---'
             }}
           </q-td>
           <q-td key="options" :props="props">

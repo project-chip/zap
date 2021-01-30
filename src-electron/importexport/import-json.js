@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+const fs = require('fs')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
@@ -50,44 +51,93 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
   if ('pathRelativity' in pkg) {
     absPath = util.createAbsolutePath(pkg.path, pkg.pathRelativity, zapFilePath)
   }
-  return queryPackage
-    .getPackageIdByPathAndTypeAndVersion(db, absPath, pkg.type, pkg.version)
-    .then((pkgId) => {
-      if (pkgId != null) {
-        return {
-          packageId: pkgId,
-          packageType: pkg.type,
-        }
-      } else {
-        env.logInfo(
-          'Packages from the file did not match loaded packages making best bet.'
-        )
-        return queryPackage.getPackagesByType(db, pkg.type).then((packages) => {
-          packages.forEach((singleTypePackage) => {
-            if (singleTypePackage.version == pkg.version) {
-              return {
-                packageId: singleTypePackage.id,
-                packageType: pkg.type,
-              }
-            }
-          })
+  let pkgId = await queryPackage.getPackageIdByPathAndTypeAndVersion(
+    db,
+    absPath,
+    pkg.type,
+    pkg.version
+  )
 
-          if (packages.length > 0) {
-            let p = packages[0]
-            env.logWarning(
-              `Required package did not match the version. Using first found:${p.id}.`
-            )
-            return {
-              packageId: p.id,
-              packageType: pkg.type,
-            }
-          }
-          if (pkg.type != dbEnum.packageType.genTemplatesJson)
-            throw `None of the packages found match the required package: ${pkg.path}`
-          else return null
-        })
-      }
-    })
+  if (pkgId != null) {
+    // Perfect match found, return it and be done.
+    return {
+      packageId: pkgId,
+      packageType: pkg.type,
+    }
+  }
+
+  // Now we have to perform the guessing logic.
+  env.logInfo(
+    'Packages from the file did not match loaded packages making best bet.'
+  )
+  let packages = await queryPackage.getPackagesByType(db, pkg.type)
+
+  // If there isn't any, then abort, but if there is only one, use it.
+  if (packages.length == 0) {
+    if (pkg.type == dbEnum.packageType.genTemplatesJson) {
+      // We don't throw exception for genTemplatesJson, we can survive without.
+      return null
+    } else {
+      throw `No packages of type ${pkg.type} found in the database.`
+    }
+  } else if (packages.length == 1) {
+    env.logInfo('Only one package of given type present. Using it.')
+    return {
+      packageId: packages[0].id,
+      packageType: pkg.type,
+    }
+  }
+
+  // Filter to just the ones that match the version
+  packages = packages.filter((p) => p.version == pkg.version)
+  // If there isn't any abort, if there is only one, use it.
+  if (packages.length == 0) {
+    if (pkg.type == dbEnum.packageType.genTemplatesJson) {
+      // We don't throw exception for genTemplatesJson, we can survive without.
+      return null
+    } else {
+      throw `No packages of type ${pkg.type} that match version ${pkg.version} found in the database.`
+    }
+  } else if (packages.length == 1) {
+    env.logInfo('Only one package of given type and version present. Using it.')
+    return {
+      packageId: packages[0].id,
+      packageType: pkg.type,
+    }
+  }
+
+  // We now know we have more than 1 matching package. Find best bet.
+  let existingPackages = packages.filter((p) => fs.existsSync(p.path))
+
+  if (existingPackages.length == 1) {
+    // Only one exists, use that one.
+    let p = existingPackages[0]
+    env.logWarning(`Using only package that exists:${p.id}.`)
+    return {
+      packageId: p.id,
+      packageType: pkg.type,
+    }
+  } else if (existingPackages.length > 1) {
+    // More than one exists. Use the first one.
+    let p = existingPackages[0]
+    env.logWarning(
+      `Using first package that exists out of ${existingPackages.length}: ${p.id}.`
+    )
+    return {
+      packageId: p.id,
+      packageType: pkg.type,
+    }
+  } else {
+    // None exists, so use the first one from 'packages'.
+    let p = packages[0]
+    env.logWarning(
+      `None of packages exist, so using first one overall: ${p.id}.`
+    )
+    return {
+      packageId: p.id,
+      packageType: pkg.type,
+    }
+  }
 }
 
 // Resolves an array of { packageId:, packageType:} objects into { packageId: id, otherIds: [] }
