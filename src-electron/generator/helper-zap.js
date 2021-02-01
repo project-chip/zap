@@ -54,6 +54,10 @@ function new_line(cnt) {
   }
 }
 
+function backslash() {
+  return '\\'
+}
+
 /**
  * Block helper that iterates over the package options of a given category.
  *
@@ -348,3 +352,4 @@ exports.toggle = toggle
 exports.concatenate = concatenate
 exports.is_lowercase_equal = is_lowercase_equal
 exports.new_line = new_line
+exports.backslash = backslash
