@@ -92,6 +92,19 @@ function first(options) {
 
 /**
  * Inside an iterator, this helper allows you to specify the content that will be output only
+ * if the element is not the first element.
+ *
+ * @param {*} options
+ * @returns content, if it's the first element inside an operator, empty otherwise.
+ */
+function not_first(options) {
+  if (this.index != null && this.count != null && this.index != 0) {
+    return options.fn(this)
+  }
+}
+
+/**
+ * Inside an iterator, this helper allows you to specify the content that will be output only
  * during the last element.
  *
  * @param {*} options
@@ -333,6 +346,7 @@ exports.template_options = template_options
 exports.last = last
 exports.not_last = not_last
 exports.first = first
+exports.not_first = not_first
 exports.middle = middle
 exports.template_option_with_code = template_option_with_code
 exports.is_equal = isEqual

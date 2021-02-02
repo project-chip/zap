@@ -463,6 +463,171 @@ function if_command_arguments_exist(
 }
 
 /**
+ *
+ * @param commandId
+ * @param fixedLengthReturn
+ * @param notFixedLengthReturn
+ * @param currentContext
+ * Returns fixedLengthReturn or notFixedLengthReturn based on whether the
+ * command is fixed length or not
+ */
+function if_command_arguments_have_fixed_length_with_current_context(
+  commandId,
+  fixedLengthReturn,
+  notFixedLengthReturn,
+  currentContext
+) {
+  return templateUtil
+    .ensureZclPackageId(currentContext)
+    .then((packageId) => {
+      let res = queryZcl.selectCommandArgumentsByCommandId(
+        currentContext.global.db,
+        commandId,
+        packageId
+      )
+      return res
+    })
+    .then(
+      (commandArgs) =>
+        new Promise((resolve, reject) => {
+          for (let argIndex = 0; argIndex < commandArgs.length; argIndex++) {
+            if (
+              commandArgs[argIndex].isArray ||
+              is_zcl_string(commandArgs[argIndex].type)
+            ) {
+              resolve(false)
+            }
+          }
+          resolve(true)
+        })
+    )
+    .then((fixedLength) => {
+      if (fixedLength) {
+        return fixedLengthReturn
+      } else {
+        return notFixedLengthReturn
+      }
+    })
+    .catch((err) => {
+      env.logError(
+        'Unable to determine if arguments are fixed length or not: ' + err
+      )
+    })
+}
+
+/**
+ *
+ * @param commandId
+ * @param fixedLengthReturn
+ * @param notFixedLengthReturn
+ * Returns fixedLengthReturn or notFixedLengthReturn based on whether the
+ * command is fixed length or not
+ */
+function if_command_arguments_have_fixed_length(
+  commandId,
+  fixedLengthReturn,
+  notFixedLengthReturn
+) {
+  return if_command_arguments_have_fixed_length_with_current_context(
+    commandId,
+    fixedLengthReturn,
+    notFixedLengthReturn,
+    this
+  )
+}
+
+/**
+ *
+ * @param type
+ * @param commandId
+ * @param appendString
+ * @param options
+ * Returns: Given the commandId and the type of one of its arguments, based on
+ * whether the command is fixed length or not either return nothing or return
+ * the underlying zcl type appended with the appendString.
+ */
+function as_underlying_zcl_type_if_command_is_not_fixed_length(
+  type,
+  commandId,
+  appendString,
+  options
+) {
+  let promise = if_command_arguments_have_fixed_length_with_current_context(
+    commandId,
+    true,
+    false,
+    this
+  )
+    .then((res) => {
+      if (res) {
+        return new Promise((resolve, reject) => resolve(''))
+      } else {
+        return templateUtil
+          .ensureZclPackageId(this)
+          .then((packageId) =>
+            asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+          )
+      }
+    })
+    .then((res) => (res ? res + appendString : res))
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ *
+ * @param commandId
+ * Returns the size of the command by calculating the sum total of the command arguments
+ * Note: This helper should be called on fixed length commands only. It should not be
+ * called with commands which do not have a fixed length.
+ */
+function command_arguments_total_length(commandId) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) => {
+      let res = queryZcl.selectCommandArgumentsByCommandId(
+        this.global.db,
+        commandId,
+        packageId
+      )
+      return res
+    })
+    .then((commandArgs) =>
+      new Promise((resolve, reject) => {
+        let argsLength = []
+        for (let argIndex = 0; argIndex < commandArgs.length; argIndex++) {
+          let argType = commandArgs[argIndex].type
+          let argOptions = {}
+          argOptions.hash = {}
+          argOptions.hash[dbEnum.zclType.zclCharFormatter] = true
+          let argLength = templateUtil
+            .ensureZclPackageId(this)
+            .then((packageId) =>
+              asUnderlyingZclTypeWithPackageId(
+                argType,
+                argOptions,
+                packageId,
+                this
+              )
+            )
+          argsLength.push(argLength)
+        }
+        resolve(argsLength)
+      }).then((argsLength) => {
+        return Promise.all(argsLength).then((lengths) =>
+          lengths.reduce((a, b) => a + b, 0)
+        )
+      })
+    )
+    .catch((err) =>
+      env.logError('Unable to get the length of the command arguments: ' + err)
+    )
+}
+
+/**
  * Block helper iterating over command arguments within a command
  * or a command tree.
  *
@@ -823,7 +988,7 @@ function calculateBytes(res, options, db, packageId, isStructType) {
         .selectAllStructItemsByStructName(db, res)
         .then((items) => {
           let promises = []
-          for (let itemCount = 0; itemCount < items.length; i++) {
+          for (let itemCount = 0; itemCount < items.length; ) {
             promises.push(
               dataTypeCharacterFormatter(
                 db,
@@ -839,7 +1004,10 @@ function calculateBytes(res, options, db, packageId, isStructType) {
         .then((resolvedPromises) =>
           resolvedPromises.reduce((acc, cur) => acc + cur, 0)
         )
-        .catch((err) => env.logError('Could not find size of struct: ' + err))
+        .catch((err) => {
+          env.logError('Could not find size of struct: ' + err)
+          return 0
+        })
     }
   }
 }
@@ -1011,12 +1179,81 @@ function dataTypeHelper(
 }
 
 /**
+ *
+ * @param type
+ * @param options
+ * @param packageId
+ * @param currentInstance
+ *
+ * Note: If the options has zclCharFormatter set to true then the function will
+ * return the user defined data associated with the zcl data type and not the
+ * actual data type. It can also be used to calculate the size of the data types
+ *
+ * This is a utility function which is called from other helper functions using ut current
+ * instance. See comments in asUnderlyingZclType for usage instructions.
+ */
+function asUnderlyingZclTypeWithPackageId(
+  type,
+  options,
+  packageId,
+  currentInstance
+) {
+  return Promise.all([
+    new Promise((resolve, reject) => {
+      if ('isArray' in currentInstance && currentInstance.isArray)
+        resolve(dbEnum.zclType.array)
+      else resolve(dbEnum.zclType.unknown)
+    }),
+    isEnum(currentInstance.global.db, type, packageId),
+    isStruct(currentInstance.global.db, type, packageId),
+    isBitmap(currentInstance.global.db, type, packageId),
+  ])
+    .then(
+      (res) =>
+        new Promise((resolve, reject) => {
+          for (let i = 0; i < res.length; i++) {
+            if (res[i] != 'unknown') {
+              resolve(res[i])
+              return
+            }
+          }
+          resolve(dbEnum.zclType.unknown)
+        })
+    )
+    .then((resType) => {
+      if (dbEnum.zclType.zclCharFormatter in options.hash) {
+        return dataTypeCharacterFormatter(
+          currentInstance.global.db,
+          packageId,
+          type,
+          options,
+          resType
+        )
+      } else {
+        return dataTypeHelper(
+          type,
+          options,
+          packageId,
+          currentInstance.global.db,
+          resType,
+          currentInstance.global.overridable
+        )
+      }
+    })
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+}
+
+/**
  * Helper that deals with the type of the argument.
  *
  * @param {*} typeName
  * @param {*} options
  * Note: If the options has zclCharFormatter set to true then the function will
- * return the character associated with the zcl data type and not the actual data type.
+ * return the user defined data associated with the zcl data type and not the
+ * actual data type.
  *
  * example:
  * {{asUnderlyingZclType [array type] array="b" one_byte="u" two_byte="v" three_byte="x"
@@ -1030,57 +1267,64 @@ function asUnderlyingZclType(type, options) {
   let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
-      Promise.all([
-        new Promise((resolve, reject) => {
-          if ('isArray' in this && this.isArray) resolve(dbEnum.zclType.array)
-          else resolve(dbEnum.zclType.unknown)
-        }),
-        isEnum(this.global.db, type, packageId),
-        isStruct(this.global.db, type, packageId),
-        isBitmap(this.global.db, type, packageId),
-      ])
-        .then(
-          (res) =>
-            new Promise((resolve, reject) => {
-              for (let i = 0; i < res.length; i++) {
-                if (res[i] != 'unknown') {
-                  resolve(res[i])
-                  return
-                }
-              }
-              resolve(dbEnum.zclType.unknown)
-            })
-        )
-        .then((resType) => {
-          if (dbEnum.zclType.zclCharFormatter in options.hash) {
-            return dataTypeCharacterFormatter(
-              this.global.db,
-              packageId,
-              type,
-              options,
-              resType
-            )
-          } else {
-            return dataTypeHelper(
-              type,
-              options,
-              packageId,
-              this.global.db,
-              resType,
-              this.global.overridable
-            )
-          }
-        })
-        .catch((err) => {
-          env.logError(err)
-          throw err
-        })
+      asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
     )
     .catch((err) => {
       env.logError(err)
       throw err
     })
   return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ *
+ * @param type
+ * @param options
+ * Returns the data mentioned in the helper options based on whether the type
+ * is short string, long string or not a string
+ * Example:
+ * {{zcl_string_type_return type short_string="short string output"
+ *                               long_string="short string output"
+ *                               default="Output when not a string")
+ *
+ */
+function zcl_string_type_return(type, options) {
+  if (
+    !(
+      'short_string' in options.hash &&
+      'long_string' in options.hash &&
+      'default' in options.hash
+    )
+  ) {
+    throw new Error('Specify all options for the helper')
+  }
+  switch (type.toUpperCase()) {
+    case 'CHAR_STRING':
+    case 'OCTET_STRING':
+      return options.hash.short_string
+    case 'LONG_CHAR_STRING':
+    case 'LONG_OCTET_STRING':
+      return options.hash.long_string
+    default:
+      return options.hash.default
+  }
+}
+
+/**
+ *
+ * @param type
+ * Return: true or false based on whether the type is a string or not.
+ */
+function is_zcl_string(type) {
+  switch (type.toUpperCase()) {
+    case 'CHAR_STRING':
+    case 'OCTET_STRING':
+    case 'LONG_CHAR_STRING':
+    case 'LONG_OCTET_STRING':
+      return true
+    default:
+      return false
+  }
 }
 
 /**
@@ -1166,14 +1410,9 @@ function isCommandAvailable(clusterSide, incoming, outgoing, source, name) {
     return false
   }
 
-  if (
-    (isClient(clusterSide) && outgoing) ||
-    (isServer(clusterSide) && incoming)
-  ) {
-    return true
-  } else {
-    return false
-  }
+  return (
+    (isClient(clusterSide) && outgoing) || (isServer(clusterSide) && incoming)
+  )
 }
 
 /**
@@ -1278,3 +1517,8 @@ exports.isEnum = dep(isEnum, { to: 'is_enum' })
 exports.if_command_arguments_exist = if_command_arguments_exist
 exports.if_manufacturing_specific_cluster = if_manufacturing_specific_cluster
 exports.zcl_command_argument_type_to_cli_data_type = zcl_command_argument_type_to_cli_data_type
+exports.zcl_string_type_return = zcl_string_type_return
+exports.is_zcl_string = is_zcl_string
+exports.if_command_arguments_have_fixed_length = if_command_arguments_have_fixed_length
+exports.command_arguments_total_length = command_arguments_total_length
+exports.as_underlying_zcl_type_if_command_is_not_fixed_length = as_underlying_zcl_type_if_command_is_not_fixed_length
