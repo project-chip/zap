@@ -5,7 +5,7 @@ typedef void (*{{dotdot_prefix}}_{{parent.label}}_{{label}}_callback_t)(
     const dotdot_unid_t unid,
     const dotdot_endpoint_id_t endpoint,
     {{/first}}
-    {{asUnderlyingType type}} {{label}}
+    {{asUnderlyingType type}} {{label}} // command type
     {{else}}
     const dotdot_unid_t unid,
     const dotdot_endpoint_id_t endpoint
@@ -14,6 +14,6 @@ typedef void (*{{dotdot_prefix}}_{{parent.label}}_{{label}}_callback_t)(
 {{/zcl_commands}}
 typedef struct {
   {{#zcl_attributes}}
-  {{asUnderlyingType type}} {{label}};
+  {{asUnderlyingType type}} {{label}}; // attribute type
   {{/zcl_attributes}}
 } {{dotdot_prefix}}_{{label}}_state_t;

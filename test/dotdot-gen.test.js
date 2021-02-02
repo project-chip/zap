@@ -98,7 +98,12 @@ test(
         let epc = genResult.content['test1.h']
         expect(epc).not.toBeNull()
         expect(
-          epc.includes('EmberAfDrlkOperMode OperatingModeDuringHoliday')
+          epc.includes(
+            'EmberAfDrlkOperMode OperatingModeDuringHoliday // command type'
+          )
+        ).toBeTruthy()
+        expect(
+          epc.includes('EmberAfdrlkopermode OperatingMode; // attribute type')
         ).toBeTruthy()
       }),
   genTimeout
