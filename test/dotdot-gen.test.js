@@ -103,7 +103,7 @@ test(
           )
         ).toBeTruthy()
         expect(
-          epc.includes('EmberAfdrlkopermode OperatingMode; // attribute type')
+          epc.includes('EmberAfDrlkOperMode OperatingMode; // attribute type')
         ).toBeTruthy()
       }),
   genTimeout
