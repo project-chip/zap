@@ -209,7 +209,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
       code: parseInt(normalizeHexValue(a.$.id)),
       //manufacturerCode: '', // TODO: no manuf code in dotdot xml
       name: a.$.name,
-      type: a.$.type.toLowerCase(),
+      type: a.$.type,
       side: side,
       define: a.$.name,
       min: normalizeHexValue(a.$.min),

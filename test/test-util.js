@@ -36,9 +36,12 @@ function testServer(fileName) {
 
 exports.testZigbeeGenerationTemplates =
   './test/gen-template/zigbee/gen-templates.json'
-
 exports.testChipGenerationTemplates =
   './test/gen-template/chip/gen-templates.json'
+exports.dotdotGenerationTemplates =
+  './test/gen-template/dotdot/dotdot-templates.json'
+
+exports.dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
 
 exports.testServer = testServer
 

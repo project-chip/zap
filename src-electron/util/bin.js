@@ -157,6 +157,7 @@ function hexToBinary(hex) {
  * the resulting array is padded with 0x00.
  *
  * @param {*} value
+ * @param {*} maxLength the maximum length of the used memory in bytes
  */
 function stringToOneByteLengthPrefixCBytes(value, maxLength) {
   let len = value.length
@@ -164,8 +165,8 @@ function stringToOneByteLengthPrefixCBytes(value, maxLength) {
   for (let i = 0; i < len; i++) {
     ret = ret.concat(`'${value[i]}', `)
   }
-  if (maxLength > len) {
-    for (let i = 0; i < maxLength - len; i++) {
+  if (maxLength > len + 1) {
+    for (let i = 0; i < maxLength - (len + 1); i++) {
       ret = ret.concat('0x00, ')
     }
   }
@@ -178,6 +179,7 @@ function stringToOneByteLengthPrefixCBytes(value, maxLength) {
  * the resulting array is padded with 0x00.
  *
  * @param {*} value
+ * @param {*} maxLength the maximum length of the used memory in bytes
  */
 function stringToTwoByteLengthPrefixCBytes(value, maxLength) {
   let len = value.length
@@ -186,8 +188,8 @@ function stringToTwoByteLengthPrefixCBytes(value, maxLength) {
   for (let i = 0; i < len; i++) {
     ret = ret.concat(`'${value[i]}', `)
   }
-  if (maxLength > len) {
-    for (let i = 0; i < maxLength - len; i++) {
+  if (maxLength > len + 1) {
+    for (let i = 0; i < maxLength - (len + 2); i++) {
       ret = ret.concat('0x00, ')
     }
   }

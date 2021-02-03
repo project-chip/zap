@@ -295,7 +295,7 @@ function endpoint_attribute_long_defaults(options) {
   let ret = '{ \\\n'
   this.longDefaultsList.forEach((ld) => {
     ret = ret.concat(
-      `  ${ld.value}  /* ${ld.comment}, ${
+      `  /* ${ld.index} */  ${ld.value}  /* ${ld.comment}, ${
         littleEndian ? 'little-endian' : 'big-endian'
       } */ \\\n`
     )
@@ -329,7 +329,7 @@ function collectAttributes(endpointTypes) {
   let deviceList = [] // Array of { deviceId, deviceVersion }
   let minMaxList = [] // Array of { default, min, max }
   let reportList = [] // Array of { direction, endpoint, clusterId, attributeId, mask, mfgCode, minOrSource, maxOrEndpoint, reportableChangeOrTimeout }
-  let longDefaultsList = [] // Array if { value, size. comment }
+  let longDefaultsList = [] // Array of { value, size. comment }
   let attributeIndex = 0
 
   endpointTypes.forEach((ept) => {
@@ -379,6 +379,7 @@ function collectAttributes(endpointTypes) {
             value: def,
             size: a.typeSize,
             comment: `Default for cluster: "${c.name}", attribute: "${a.name}". side: ${a.side}`,
+            index: longDefaultsIndex,
           }
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           longDefaultsList.push(longDef)

@@ -1,0 +1,12 @@
+{
+  "name": "Dotdot templates",
+  "version": "test-dotdot-v1",
+  "requiredFeatureLevel": 2,
+  "templates": [
+    {
+      "path": "test1.zapt",
+      "name": "DotDot test 1",
+      "output": "test1.h"
+    }
+  ]
+}

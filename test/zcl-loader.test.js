@@ -183,7 +183,7 @@ test('test Silabs zcl data loading in memory', () => {
 test('test Dotdot zcl data loading in memory', () => {
   let db
   let packageId
-  dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
+  dotDotZclPropertiesFile = testUtil.dotDotZclPropertiesFile
   return (
     dbApi
       .initRamDatabase()
@@ -285,7 +285,7 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
   let db
   let packageIdSilabs
   let packageIdDotdot
-  let dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
+  let dotDotZclPropertiesFile = testUtil.dotDotZclPropertiesFile
   return (
     dbApi
       .initRamDatabase()

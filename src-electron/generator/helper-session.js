@@ -163,6 +163,101 @@ function all_user_cluster_commands(options) {
 }
 
 /**
+ *
+ * @param name
+ * @param side
+ * @param options
+ * @param currentContext
+ * @param isManufacturingSpecific
+ * Returns: Promise of the resolved blocks iterating over manufacturing or
+ * non-manufacturing specific cluster commands.
+ */
+function all_user_cluster_command_util(
+  name,
+  side,
+  options,
+  currentContext,
+  isManufacturingSpecific
+) {
+  let promise = queryImpexp
+    .exportendPointTypeIds(
+      currentContext.global.db,
+      currentContext.global.sessionId
+    )
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        currentContext.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      isManufacturingSpecific
+        ? queryZcl.exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
+            currentContext.global.db,
+            endpointsAndClusters
+          )
+        : queryZcl.exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
+            currentContext.global.db,
+            endpointsAndClusters
+          )
+    )
+    .then(
+      (endpointCommands) =>
+        new Promise((resolve, reject) => {
+          let availableCommands = []
+          for (let i = 0; i < endpointCommands.length; i++) {
+            if (helperZcl.isStrEqual(name, endpointCommands[i].clusterName)) {
+              if (
+                helperZcl.isCommandAvailable(
+                  side,
+                  endpointCommands[i].incoming,
+                  endpointCommands[i].outgoing,
+                  endpointCommands[i].commandSource,
+                  endpointCommands[i].name
+                )
+              ) {
+                availableCommands.push(endpointCommands[i])
+              }
+            }
+          }
+          resolve(availableCommands)
+        })
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, currentContext)
+    )
+  return promise
+}
+
+/**
+ * Creates endpoint type cluster command iterator. This fetches all
+ * manufacturing specific commands which have been enabled on added endpoints
+ *
+ * @param options
+ * @returns Promise of the resolved blocks iterating over manufacturing specific
+ * cluster commands.
+ */
+function all_user_cluster_manufacturer_specific_commands(name, side, options) {
+  return all_user_cluster_command_util(name, side, options, this, true)
+}
+
+/**
+ * Creates endpoint type cluster command iterator. This fetches all
+ * non-manufacturing specific commands which have been enabled on added endpoints
+ *
+ * @param options
+ * @returns Promise of the resolved blocks iterating over non-manufacturing specific
+ * cluster commands.
+ */
+function all_user_cluster_non_manufacturer_specific_commands(
+  name,
+  side,
+  options
+) {
+  return all_user_cluster_command_util(name, side, options, this, false)
+}
+
+/**
  * Creates endpoint type cluster command iterator. This fetches all
  * commands which have been enabled on added endpoints
  *
@@ -324,11 +419,7 @@ function user_cluster_has_enabled_command(name, side) {
         }
       })
 
-      if (cmdCount == 0) {
-        return false
-      } else {
-        return true
-      }
+      return cmdCount != 0
     })
 }
 
@@ -437,3 +528,5 @@ exports.endpoint_type_identifier = endpoint_type_identifier
 exports.endpoint_type_index = endpoint_type_index
 exports.all_commands_for_user_enabled_clusters = all_commands_for_user_enabled_clusters
 exports.all_user_clusters_irrespective_of_side = all_user_clusters_irrespective_of_side
+exports.all_user_cluster_manufacturer_specific_commands = all_user_cluster_manufacturer_specific_commands
+exports.all_user_cluster_non_manufacturer_specific_commands = all_user_cluster_non_manufacturer_specific_commands
