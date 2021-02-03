@@ -201,7 +201,7 @@ test(
           epc.includes('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
         ).toBeTruthy()
         expect(
-          epc.includes('#define GENERATED_DEFAULTS_COUNT (44)')
+          epc.includes('#define GENERATED_DEFAULTS_COUNT (47)')
         ).toBeTruthy()
         expect(
           epc.includes(
@@ -213,6 +213,11 @@ test(
             '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0003, ZAP_CLUSTER_MASK(CLIENT) | ZAP_CLUSTER_MASK(EXTERNAL_STORAGE), 0x0000, {{ 3, 13, 6 }} }'
           )
         ).toBeTruthy()
+        expect(
+          epc.includes(
+            `/* 5 */  17, 'T', 'e', 's', 't', ' ', 'm', 'a', 'n', 'u', 'f', 'a', 'c', 't', 'u', 'r', 'e', 'r', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,   /* Default for cluster: "Basic", attribute: "manufacturer name". side: server, big-endian */`
+          )
+        ).toBeTruthy()
 
         expect(epcLines.length).toBeGreaterThan(100)
         let cnt = 0
@@ -222,7 +227,7 @@ test(
             cnt++
           }
         })
-        expect(cnt).toBe(73)
+        expect(cnt).toBe(76)
 
         expect(
           epc.includes('#define EMBER_AF_MANUFACTURER_CODE 0x1002')

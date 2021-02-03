@@ -99,7 +99,6 @@ test(
         let header = genResult.content['zap-tokens.h']
 
         // Singletons
-
         expect(
           header.includes('#define CREATOR_STACK_VERSION_SINGLETON')
         ).toBeTruthy()
@@ -267,9 +266,10 @@ test(
             'DEFINE_BASIC_TOKEN(APPLICATION_VERSION_7, tokType_application_version, 11)'
           )
         ).toBeTruthy()
+        console.log(header)
         expect(
           header.includes(
-            "DEFINE_BASIC_TOKEN(PRODUCT_CODE_1, tokType_product_code, { 3, 'A', 'B', 'C', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  })"
+            "DEFINE_BASIC_TOKEN(PRODUCT_CODE_1, tokType_product_code, { 3, 'A', 'B', 'C', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  })"
           )
         ).toBeTruthy()
         expect(
