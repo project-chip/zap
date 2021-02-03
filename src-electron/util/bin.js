@@ -158,19 +158,27 @@ function hexToBinary(hex) {
  *
  * @param {*} value
  * @param {*} maxLength the maximum length of the used memory in bytes
+ * @param {*} pad If true, then pad with 0x00 until maxLength bytes.
+ * @returns Object containing 'length' and 'content', where length
+ * is number of bytes used and content is actual content in C format.
  */
-function stringToOneByteLengthPrefixCBytes(value, maxLength) {
+function stringToOneByteLengthPrefixCBytes(value, maxLength, pad = true) {
   let len = value.length
   let ret = `${len}, `
   for (let i = 0; i < len; i++) {
     ret = ret.concat(`'${value[i]}', `)
   }
-  if (maxLength > len + 1) {
+  let totalBytes = len + 1
+  if (pad && maxLength > len + 1) {
     for (let i = 0; i < maxLength - (len + 1); i++) {
       ret = ret.concat('0x00, ')
+      totalBytes++
     }
   }
-  return ret
+  return {
+    content: ret,
+    length: totalBytes,
+  }
 }
 
 /**
@@ -180,20 +188,28 @@ function stringToOneByteLengthPrefixCBytes(value, maxLength) {
  *
  * @param {*} value
  * @param {*} maxLength the maximum length of the used memory in bytes
+ * @param {*} pad If true, then pad with 0x00 until maxLength bytes.
+ * @returns Object containing 'length' and 'content', where length
+ * is number of bytes used and content is actual content in C format.
  */
-function stringToTwoByteLengthPrefixCBytes(value, maxLength) {
+function stringToTwoByteLengthPrefixCBytes(value, maxLength, pad = true) {
   let len = value.length
   let ret = `${(len >> 8) & 0xff}, `
   ret = ret.concat(`${len & 0xff}, `)
   for (let i = 0; i < len; i++) {
     ret = ret.concat(`'${value[i]}', `)
   }
-  if (maxLength > len + 1) {
+  let totalBytes = len + 2
+  if (pad && maxLength > len + 2) {
     for (let i = 0; i < maxLength - (len + 2); i++) {
       ret = ret.concat('0x00, ')
+      totalBytes++
     }
   }
-  return ret
+  return {
+    content: ret,
+    length: totalBytes,
+  }
 }
 
 exports.int32ToHex = int32ToHex

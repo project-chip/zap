@@ -78,9 +78,9 @@ function longTypeDefaultValue(size, type, value) {
     v = '0x00, '.repeat(size)
   } else if (isNaN(value)) {
     if (isOneBytePrefixedString(type)) {
-      v = bin.stringToOneByteLengthPrefixCBytes(value, size)
+      v = bin.stringToOneByteLengthPrefixCBytes(value, size).content
     } else if (isTwoBytePrefixedString(type)) {
-      v = bin.stringToTwoByteLengthPrefixCBytes(value, size)
+      v = bin.stringToTwoByteLengthPrefixCBytes(value, size).content
     } else {
       v = bin.hexToCBytes(bin.stringToHex(value))
     }
