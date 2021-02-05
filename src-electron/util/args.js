@@ -60,6 +60,7 @@ function processCommandLineArguments(argv) {
     generate: 'Generate ZCL artifacts.',
     selfCheck: 'Perform the self-check of the application.',
     analyze: 'Analyze the zap file without doing anything.',
+    convert: 'Convert a zap or ISC file to latest zap file.',
   }
   let y = yargs
   for (const cmd in commands) {
@@ -126,7 +127,8 @@ function processCommandLineArguments(argv) {
       desc: 'Print out the URL that an external browser should use.',
     })
     .option('output', {
-      desc: 'Specifying the output directory for generation',
+      desc:
+        'Specifying the output directory for generation or output file for conversion.',
       alias: ['out', 'o'],
       type: 'string',
     })

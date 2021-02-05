@@ -104,6 +104,23 @@ function startNormal(uiEnabled, showUrl, zapFiles, options) {
 }
 
 /**
+ * Perform file conversion.
+ *
+ * @param {*} files
+ * @param {*} output
+ */
+function startConvert(files, output, options = { log: true, quit: true }) {
+  if (options.log) console.log(`🤖 Conversion started`)
+  if (options.log) console.log(`    👉 input files: ${files}`)
+  if (options.log) console.log(`    👉 output file: ${output}`)
+
+  if (options.log) console.log('😎 Conversion done!')
+  if (options.quit && app != null) {
+    app.quit()
+  }
+}
+
+/**
  * Perform file analysis.
  *
  * @param {*} paths List of paths to analyze
@@ -323,6 +340,11 @@ function startUp(isElectron) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
     return startAnalyze(argv.zapFiles)
+  } else if (argv._.includes('convert')) {
+    if (argv.zapFiles.length < 1)
+      throw 'You need to specify at least one zap file.'
+    if (argv.output == null) throw 'You need to specify output file.'
+    return startConvert(argv.zapFiles, argv.output)
   } else if (argv._.includes('generate')) {
     return startGeneration(
       argv.output,
