@@ -2092,6 +2092,60 @@ async function exportAllCommandDetailsFromEnabledClusters(
 }
 
 /**
+ *
+ * @param db
+ * @param endpointsAndClusters
+ * @returns  Returns a promise of data for commands with cli inside an endpoint type.
+ */
+async function exportAllCliCommandDetailsFromEnabledClusters(
+  db,
+  endpointsAndClusters
+) {
+  let endpointTypeClusterRef = endpointsAndClusters
+    .map((ep) => ep.endpointTypeClusterRef)
+    .toString()
+  let mapFunction = (x) => {
+    return {
+      id: x.COMMAND_ID,
+      name: x.NAME,
+      code: x.CODE,
+      commandSource: x.SOURCE,
+      mfgCode: x.MANUFACTURER_CODE,
+      description: x.DESCRIPTION,
+      clusterSide: x.SIDE,
+      clusterName: x.CLUSTER_NAME,
+      isClusterEnabled: x.ENABLED,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    COMMAND.COMMAND_ID,
+    COMMAND.NAME,
+    COMMAND.CODE,
+    COMMAND.SOURCE,
+    COMMAND.MANUFACTURER_CODE,
+    COMMAND.DESCRIPTION,
+    ENDPOINT_TYPE_CLUSTER.SIDE,
+    CLUSTER.NAME AS CLUSTER_NAME,
+    ENDPOINT_TYPE_CLUSTER.ENABLED
+  FROM COMMAND
+  INNER JOIN CLUSTER
+  ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  INNER JOIN ENDPOINT_TYPE_CLUSTER
+  ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+  INNER JOIN PACKAGE_OPTION
+  ON PACKAGE_OPTION.OPTION_CODE = COMMAND.NAME
+  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
+  GROUP BY COMMAND.NAME, CLUSTER.NAME
+        `
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
  * Get the number of command arguments for a command
  *
  * @param {*} db
@@ -2346,6 +2400,42 @@ async function exportCommandDetailsFromAllEndpointTypeCluster(
     .then((rows) => rows.map(mapFunction))
 }
 
+/**
+ *
+ * @param db
+ * @param endpointClusterId
+ * Returns: A promise with all commands with cli for a given cluster id
+ */
+async function exportCliCommandsFromCluster(db, endpointClusterId) {
+  let mapFunction = (x) => {
+    return {
+      name: x.NAME,
+      code: x.CODE,
+      mfgCode: x.MANUFACTURER_CODE,
+      source: x.SOURCE,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    COMMAND.NAME,
+    COMMAND.CODE,
+    COMMAND.MANUFACTURER_CODE,
+    COMMAND.SOURCE
+    FROM COMMAND
+    INNER JOIN CLUSTER
+    ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+    INNER JOIN PACKAGE_OPTION
+    ON PACKAGE_OPTION.OPTION_CODE = COMMAND.NAME
+    WHERE CLUSTER.CLUSTER_ID = ?
+        `,
+      [endpointClusterId]
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
 // exports
 exports.selectAllEnums = selectAllEnums
 exports.selectAllEnumItemsById = selectAllEnumItemsById
@@ -2421,3 +2511,5 @@ exports.exportAllCommandDetailsFromEnabledClusters = exportAllCommandDetailsFrom
 exports.exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes = exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes
 exports.exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
 exports.exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
+exports.exportAllCliCommandDetailsFromEnabledClusters = exportAllCliCommandDetailsFromEnabledClusters
+exports.exportCliCommandsFromCluster = exportCliCommandsFromCluster

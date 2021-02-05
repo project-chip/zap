@@ -284,6 +284,34 @@ function all_commands_for_user_enabled_clusters(options) {
     )
   return promise
 }
+/**
+ * This helper returns all commands which have cli within the list of enabled
+ * clusters.
+ *
+ * @param options
+ * @returns all commands with cli from the list of enabled clusters
+ *
+ */
+function all_cli_commands_for_user_enabled_clusters(options) {
+  let promise = queryImpexp
+    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      queryZcl.exportAllCliCommandDetailsFromEnabledClusters(
+        this.global.db,
+        endpointsAndClusters
+      )
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, this)
+    )
+  return promise
+}
 
 /**
  * Creates cluster command iterator for all endpoints.
@@ -357,11 +385,32 @@ function user_cluster_command_count_with_cli() {
 }
 
 /**
+ * This helper works within the the cluster block helpers. It is used to get
+ * all commands of the cluster which have cli associated with them.
+ *
+ * param options
+ * Returns: all commands with cli for a cluster
+ *
+ * Example:
+ * {{#all_user_clusters_irrespective_of_side}}
+ *  {{#user_cluster_commands_with_cli}}
+ *  {{/user_cluster_commands_with_cli}}
+ * {{/all_user_clusters_irrespective_of_side}}
+ */
+function user_cluster_commands_with_cli(options) {
+  return queryZcl
+    .exportCliCommandsFromCluster(this.global.db, this.id)
+    .then((cliCommands) =>
+      templateUtil.collectBlocks(cliCommands, options, this)
+    )
+}
+
+/**
  * Creates endpoint type cluster command iterator. This works only inside
  * cluster block helpers.
  *
- * @param {*} options
- * @returns Promise of the resolved blocks iterating over cluster commands.
+ * @param options
+ * Returns: Promise of the resolved blocks iterating over cluster commands.
  */
 function user_cluster_commands_all_endpoints(options) {
   return queryImpexp
@@ -530,3 +579,5 @@ exports.all_commands_for_user_enabled_clusters = all_commands_for_user_enabled_c
 exports.all_user_clusters_irrespective_of_side = all_user_clusters_irrespective_of_side
 exports.all_user_cluster_manufacturer_specific_commands = all_user_cluster_manufacturer_specific_commands
 exports.all_user_cluster_non_manufacturer_specific_commands = all_user_cluster_non_manufacturer_specific_commands
+exports.user_cluster_commands_with_cli = user_cluster_commands_with_cli
+exports.all_cli_commands_for_user_enabled_clusters = all_cli_commands_for_user_enabled_clusters
