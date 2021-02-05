@@ -29,6 +29,7 @@ const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
+const exportJs = require('../importexport/export.js')
 const uiJs = require('./ui.js')
 
 // This file contains various startup modes.
@@ -114,10 +115,34 @@ function startConvert(files, output, options = { log: true, quit: true }) {
   if (options.log) console.log(`    👉 input files: ${files}`)
   if (options.log) console.log(`    👉 output file: ${output}`)
 
-  if (options.log) console.log('😎 Conversion done!')
-  if (options.quit && app != null) {
-    app.quit()
-  }
+  let dbFile = env.sqliteFile('convert')
+
+  return dbApi
+    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
+    .then((d) => {
+      db = d
+      if (options.log) console.log('    👉 database and schema initialized')
+      return zclLoader.loadZcl(db, args.zclPropertiesFile)
+    })
+    .then((d) => {
+      return util.executePromisesSequentially(files, (singlePath) =>
+        importJs
+          .importDataFromFile(db, singlePath)
+          .then((sessionId) => {
+            if (options.log) console.log('    👉 import done')
+            return exportJs.exportDataIntoFile(db, sessionId, output)
+          })
+          .then(() => {
+            if (options.log) console.log('    👉 export done')
+          })
+      )
+    })
+    .then(() => {
+      if (options.log) console.log('😎 Conversion done!')
+      if (options.quit && app != null) {
+        app.quit()
+      }
+    })
 }
 
 /**
