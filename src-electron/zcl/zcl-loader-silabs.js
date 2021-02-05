@@ -79,6 +79,8 @@ async function collectDataFromJsonFile(ctx) {
     }
 
     ctx.version = obj.version
+    ctx.supportCustomZclDevice = obj.supportCustomZclDevice
+
     env.logInfo(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
     resolve(ctx)
   })
@@ -142,7 +144,7 @@ async function collectDataFromPropertiesFile(ctx) {
         if (zclProps.defaults) {
           ctx.defaults = zclProps.defaults
         }
-
+        ctx.supportCustomZclDevice = zclProps.supportCustomZclDevice
         ctx.version = zclProps.version
         env.logInfo(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
         resolve(ctx)
@@ -1032,6 +1034,29 @@ async function loadIndividualSilabsFile(db, filePath, boundValidator) {
 }
 
 /**
+ * If custom device is supported, then this method creates it.
+ *
+ * @param {*} db
+ * @param {*} ctx
+ * @returns context
+ */
+async function processCustomZclDeviceType(db, ctx) {
+  if (ctx.supportCustomZclDevice) {
+    let customDeviceTypes = []
+    customDeviceTypes.push({
+      domain: 'Custom',
+      code: 0xffff,
+      profileId: 0xffff,
+      name: 'Custom ZCL Device Type',
+      description:
+        'Custom ZCL device type supports any combination of clusters.',
+    })
+    await queryZcl.insertDeviceTypes(db, ctx.packageId, customDeviceTypes)
+  }
+  return ctx
+}
+
+/**
  * Toplevel function that loads the toplevel metafile
  * and orchestrates the promise chain.
  *
@@ -1056,6 +1081,7 @@ async function loadSilabsZcl(db, context, isJson = false) {
     .then((ctx) => zclLoader.recordVersion(ctx))
     .then((ctx) => parseZclFiles(db, ctx))
     .then((ctx) => parseManufacturerData(db, ctx))
+    .then((ctx) => processCustomZclDeviceType(db, ctx))
     .then((ctx) => parseOptions(db, ctx))
     .then((ctx) => parseDefaults(db, ctx))
     .then((ctx) => parseZclSchema(db, ctx))

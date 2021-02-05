@@ -1395,7 +1395,7 @@ INSERT INTO ATTRIBUTE (
  * @export
  * @param {*} db
  * @param {*} packageId
- * @param {*} data an array of objects that must contain: code, name, description
+ * @param {*} data an array of objects that must contain: domain, code, profileId, name, description
  * @returns Promise of an insertion of device types.
  */
 async function insertDeviceTypes(db, packageId, data) {
