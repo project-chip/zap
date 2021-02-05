@@ -94,7 +94,9 @@ function clientSocket(sessionKey) {
   let socketToReturn = null
   if (wsServer == null) return null
   wsServer.clients.forEach((socket) => {
-    if (socket.sessionKey == sessionKey) socketToReturn = socket
+    if (socket.sessionKey == sessionKey) {
+      socketToReturn = socket
+    }
   })
   return socketToReturn
 }
