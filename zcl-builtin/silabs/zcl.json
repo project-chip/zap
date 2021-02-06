@@ -26,6 +26,7 @@
     "wwah-silabs-devices.xml"
   ],
   "zclSchema": "./schema/zcl.xsd",
+  "supportCustomZclDevice": true,
   "manufacturersXml": "../shared/manufacturers.xml",
   "zclValidation": "./schema/zcl-validation.js",
   "options": {

@@ -73,16 +73,34 @@ test('Bit offset', () => {
 })
 
 test('ZCL strings', () => {
-  let r = bin.stringToOneByteLengthPrefixCBytes('Test string')
-  expect(r).toBe("11, 'T', 'e', 's', 't', ' ', 's', 't', 'r', 'i', 'n', 'g', ")
+  let r
+
+  r = bin.stringToOneByteLengthPrefixCBytes('Test string')
+  expect(r.content).toBe(
+    "11, 'T', 'e', 's', 't', ' ', 's', 't', 'r', 'i', 'n', 'g', "
+  )
+
   r = bin.stringToTwoByteLengthPrefixCBytes('Test string')
-  expect(r).toContain(
+  expect(r.content).toContain(
     "0, 11, 'T', 'e', 's', 't', ' ', 's', 't', 'r', 'i', 'n', 'g',"
   )
-  r = bin.stringToTwoByteLengthPrefixCBytes('x'.repeat(300))
-  expect(r).toContain(
+  expect(r.length).toBe(13)
+
+  r = bin.stringToTwoByteLengthPrefixCBytes('x'.repeat(300), 400, false)
+  expect(r.content).toContain(
     "1, 44, 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x',"
   )
+  expect(r.length).toBe(302)
+
+  r = bin.stringToOneByteLengthPrefixCBytes('Test', 10, true)
+  expect(r.content).toBe(
+    "4, 'T', 'e', 's', 't', 0x00, 0x00, 0x00, 0x00, 0x00, "
+  )
+  expect(r.length).toBe(10)
+
+  r = bin.stringToOneByteLengthPrefixCBytes('Test', 10, false)
+  expect(r.content).toBe("4, 'T', 'e', 's', 't', ")
+  expect(r.length).toBe(5)
 })
 
 test('Bit count', () => {

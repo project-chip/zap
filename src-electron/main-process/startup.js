@@ -29,6 +29,7 @@ const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
+const exportJs = require('../importexport/export.js')
 const uiJs = require('./ui.js')
 
 // This file contains various startup modes.
@@ -100,6 +101,47 @@ function startNormal(uiEnabled, showUrl, zapFiles, options) {
     .catch((err) => {
       env.logError(err)
       throw err
+    })
+}
+
+/**
+ * Perform file conversion.
+ *
+ * @param {*} files
+ * @param {*} output
+ */
+function startConvert(files, output, options = { log: true, quit: true }) {
+  if (options.log) console.log(`🤖 Conversion started`)
+  if (options.log) console.log(`    👉 input files: ${files}`)
+  if (options.log) console.log(`    👉 output file: ${output}`)
+
+  let dbFile = env.sqliteFile('convert')
+
+  return dbApi
+    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
+    .then((d) => {
+      db = d
+      if (options.log) console.log('    👉 database and schema initialized')
+      return zclLoader.loadZcl(db, args.zclPropertiesFile)
+    })
+    .then((d) => {
+      return util.executePromisesSequentially(files, (singlePath) =>
+        importJs
+          .importDataFromFile(db, singlePath)
+          .then((sessionId) => {
+            if (options.log) console.log('    👉 import done')
+            return exportJs.exportDataIntoFile(db, sessionId, output)
+          })
+          .then(() => {
+            if (options.log) console.log('    👉 export done')
+          })
+      )
+    })
+    .then(() => {
+      if (options.log) console.log('😎 Conversion done!')
+      if (options.quit && app != null) {
+        app.quit()
+      }
     })
 }
 
@@ -323,6 +365,11 @@ function startUp(isElectron) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
     return startAnalyze(argv.zapFiles)
+  } else if (argv._.includes('convert')) {
+    if (argv.zapFiles.length < 1)
+      throw 'You need to specify at least one zap file.'
+    if (argv.output == null) throw 'You need to specify output file.'
+    return startConvert(argv.zapFiles, argv.output)
   } else if (argv._.includes('generate')) {
     return startGeneration(
       argv.output,

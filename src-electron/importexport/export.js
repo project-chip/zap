@@ -87,11 +87,11 @@ async function exportEndpointTypes(db, sessionId) {
       return Promise.all(promises)
         .then(() => queryImpExp.exportEndpoints(db, sessionId, endpointTypes))
         .then((endpoints) => {
-          return Promise.resolve(endpoints)
-        })
-        .then((endpoints) => {
-          endpointTypes.forEach((ep) => {
-            delete ep.endpointTypeId
+          endpointTypes.forEach((ept) => {
+            delete ept.endpointTypeId
+          })
+          endpoints.forEach((ep) => {
+            delete ep.endpointTypeRef
           })
           return { endpointTypes: endpointTypes, endpoints: endpoints }
         })
