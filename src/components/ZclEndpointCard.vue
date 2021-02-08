@@ -87,27 +87,16 @@ limitations under the License.
           icon="delete"
           @click="deleteEpt()"
         />
-        <div>
-          <q-btn
-            flat
-            dense
-            label="Edit"
-            color="primary"
-            icon="edit"
-            size="sm"
-            v-close-popup
-            @click="modifyEndpointDialog = !modifyEndpointDialog"
-          />
-          <q-btn
-            flat
-            dense
-            label="Configure"
-            color="primary"
-            icon="settings"
-            size="sm"
-            @click="setSelectedEndpointType(endpointReference)"
-          />
-        </div>
+        <q-btn
+          flat
+          dense
+          label="Edit"
+          color="primary"
+          icon="edit"
+          size="sm"
+          v-close-popup
+          @click="modifyEndpointDialog = !modifyEndpointDialog"
+        />
       </q-card-actions>
     </q-card>
     <q-dialog
