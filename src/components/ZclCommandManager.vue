@@ -87,7 +87,9 @@ limitations under the License.
             />
           </q-td>
           <q-td key="direction" :props="props" auto-width>{{
-            props.row.source === 'client' ? 'C ➞ S' : 'S ➞ C'
+            props.row.source === 'client'
+              ? 'Client ➞ Server'
+              : 'Server ➞ Client'
           }}</q-td>
           <q-td key="commandId" :props="props" auto-width>{{
             asHex(props.row.code, 2)
