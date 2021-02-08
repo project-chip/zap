@@ -18,6 +18,7 @@
 const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
+const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
@@ -348,7 +349,9 @@ async function iscDataLoader(db, state, sessionId) {
       )
     }
   })
-  return Promise.all(endpointInsertion).then(() => sessionId)
+  return Promise.all(endpointInsertion)
+    .then(() => querySession.setSessionClean(db, sessionId))
+    .then(() => sessionId)
 }
 
 exports.readIscData = readIscData

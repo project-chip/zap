@@ -21,6 +21,7 @@ const env = require('../util/env.js')
 const queryConfig = require('../db/query-config.js')
 const queryPackage = require('../db/query-package.js')
 const queryImpexp = require('../db/query-impexp.js')
+const querySession = require('../db/query-session.js')
 
 /**
  * Resolves with a promise that imports session key values.
@@ -314,6 +315,7 @@ async function jsonDataLoader(db, state, sessionId) {
 
       return Promise.all(promisesStage1)
         .then(() => Promise.all(promisesStage2))
+        .then(() => querySession.setSessionClean(db, data.sessionId))
         .then(() => data.sessionId)
     }
   )
