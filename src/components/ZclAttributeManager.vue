@@ -410,9 +410,12 @@ export default {
         data.sort((a, b) => {
           const x = descending ? b : a
           const y = descending ? a : b
-
           if (sortBy === 'attrName') {
-            return x[sortBy] > y[sortBy] ? 1 : x[sortBy] < y[sortBy] ? -1 : 0
+            return x['label'].toLowerCase() > y['label'].toLowerCase()
+              ? 1
+              : x['label'].toLowerCase() < y['label'].toLowerCase()
+              ? -1
+              : 0
           } else if (sortBy === 'attrID' || sortBy === 'mfgId') {
             if (x['manufacturerCode'] == y['manufacturerCode']) {
               return x['code'] > y['code'] ? 1 : x['code'] < y['code'] ? -1 : 0
@@ -536,12 +539,14 @@ export default {
           label: 'Required',
           field: 'required',
           align: 'left',
+          sortable: true,
         },
         {
           name: 'clientServer',
           label: 'Client/Server',
           field: 'clientServer',
           align: 'left',
+          sortable: true,
         },
         {
           name: 'mfgID',
