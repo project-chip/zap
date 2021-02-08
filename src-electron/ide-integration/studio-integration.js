@@ -20,6 +20,8 @@
  *
  */
 
+// dirty flag reporting interval
+const DIRTY_FLAG_REPORT_INTERVAL_MS = 1000
 const axios = require('axios')
 const args = require('../util/args.js')
 const env = require('../util/env.js')
@@ -64,7 +66,7 @@ function projectName(studioProject) {
 function initializeReporting() {
   setInterval(() => {
     sendDirtyFlagStatus()
-  }, 1000)
+  }, DIRTY_FLAG_REPORT_INTERVAL_MS)
 }
 
 function sendDirtyFlagStatus() {
@@ -77,7 +79,7 @@ function sendDirtyFlagStatus() {
           .getSessionDirtyFlag(env.mainDatabase(), session.sessionId)
           .then((flag) => {
             wsServer.sendWebSocketMessage(socket, {
-              category: dbEnum.wsCategory.generic,
+              category: dbEnum.wsCategory.dirtyFlag,
               payload: flag,
             })
           })

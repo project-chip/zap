@@ -99,6 +99,10 @@ onWebSocket(dbEnum.wsCategory.tick, (data) =>
   console.log(`Tick received: ${data}`)
 )
 
+onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) =>
+  console.log(`Dirty flag received: ${data}`)
+)
+
 onWebSocket(dbEnum.wsCategory.generic, (data) =>
   console.log(`Generic message received: ${data}`)
 )
