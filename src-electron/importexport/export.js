@@ -62,21 +62,18 @@ async function exportEndpointTypes(db, sessionId) {
                     )
                     .then((commands) => {
                       endpointCluster.commands = commands
-                      return commands
                     })
-                )
-
-                ps.push(
-                  queryImpExp
-                    .exportAttributesFromEndpointTypeCluster(
-                      db,
-                      endpointType.endpointTypeId,
-                      endpointClusterId
+                    .then(() =>
+                      queryImpExp
+                        .exportAttributesFromEndpointTypeCluster(
+                          db,
+                          endpointType.endpointTypeId,
+                          endpointClusterId
+                        )
+                        .then((attributes) => {
+                          endpointCluster.attributes = attributes
+                        })
                     )
-                    .then((attributes) => {
-                      endpointCluster.attributes = attributes
-                      return attributes
-                    })
                 )
               })
               return Promise.all(ps)
