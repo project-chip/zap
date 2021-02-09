@@ -6,7 +6,7 @@
   "productName": "zap",
   "cordovaId": "",
   "capacitorId": "",
-  "author": "Silicon Labs (https://www.silabs.com/support)",
+  "author": "Silicon Labs <support@silabs.com> (https://www.silabs.com/support)",
   "private": true,
   "homepage": "https://github.com/project-chip/zap",
   "main": "src-electron/main-process/electron-main.js",
