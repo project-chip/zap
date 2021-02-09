@@ -274,8 +274,8 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
     dev = await queryZcl.selectDeviceTypeByCodeAndName(
       db,
       packageId,
-      deviceCode,
-      deviceName
+      dbEnum.customDevice.code,
+      dbEnum.customDevice.name
     )
   } else {
     dev = await queryZcl.selectDeviceTypeByCodeAndName(

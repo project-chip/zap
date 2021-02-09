@@ -1048,7 +1048,7 @@ async function processCustomZclDeviceType(db, ctx) {
       code: dbEnum.customDevice.code,
       profileId: dbEnum.customDevice.profileId,
       name: dbEnum.customDevice.name,
-      description: dbEnum.customDevice.name,
+      description: dbEnum.customDevice.description,
     })
     await queryZcl.insertDeviceTypes(db, ctx.packageId, customDeviceTypes)
   }
