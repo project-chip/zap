@@ -493,16 +493,7 @@ function all_user_cluster_commands_irrespective_of_manufaturing_specification(
   side,
   options
 ) {
-  return all_user_cluster_command_util(
-    name,
-    side,
-    options,
-    this,
-    false,
-    true
-  ).then((enabledEndpointCommands) =>
-    templateUtil.collectBlocks(enabledEndpointCommands, options, this)
-  )
+  return all_user_cluster_command_util(name, side, options, this, false, true)
 }
 
 /**
