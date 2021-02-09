@@ -169,15 +169,17 @@ function all_user_cluster_commands(options) {
  * @param options
  * @param currentContext
  * @param isManufacturingSpecific
- * Returns: Promise of the resolved blocks iterating over manufacturing or
- * non-manufacturing specific cluster commands.
+ * @param isIrrespectiveOfManufacturingSpecification
+ * Returns: Promise of the resolved blocks iterating over manufacturing specific,
+ * non-manufacturing specific or both of the cluster commands.
  */
 function all_user_cluster_command_util(
   name,
   side,
   options,
   currentContext,
-  isManufacturingSpecific
+  isManufacturingSpecific,
+  isIrrespectiveOfManufacturingSpecification = false
 ) {
   let promise = queryImpexp
     .exportendPointTypeIds(
@@ -191,7 +193,12 @@ function all_user_cluster_command_util(
       )
     )
     .then((endpointsAndClusters) =>
-      isManufacturingSpecific
+      isIrrespectiveOfManufacturingSpecification
+        ? queryZcl.exportCommandDetailsFromAllEndpointTypesAndClusters(
+            currentContext.global.db,
+            endpointsAndClusters
+          )
+        : isManufacturingSpecific
         ? queryZcl.exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
             currentContext.global.db,
             endpointsAndClusters
@@ -473,6 +480,32 @@ function user_cluster_has_enabled_command(name, side) {
 }
 
 /**
+ * Creates endpoint type cluster command iterator. This fetches all
+ * manufacturing and non-manufaturing specific commands which have been enabled
+ * on added endpoints
+ *
+ * @param options
+ * @returns Promise of the resolved blocks iterating over manufacturing specific
+ * and non-manufacturing specific cluster commands.
+ */
+function all_user_cluster_commands_irrespective_of_manufaturing_specification(
+  name,
+  side,
+  options
+) {
+  return all_user_cluster_command_util(
+    name,
+    side,
+    options,
+    this,
+    false,
+    true
+  ).then((enabledEndpointCommands) =>
+    templateUtil.collectBlocks(enabledEndpointCommands, options, this)
+  )
+}
+
+/**
  * Helper that resolves into a user session key value.
  *
  * @param {*} options
@@ -581,3 +614,4 @@ exports.all_user_cluster_manufacturer_specific_commands = all_user_cluster_manuf
 exports.all_user_cluster_non_manufacturer_specific_commands = all_user_cluster_non_manufacturer_specific_commands
 exports.user_cluster_commands_with_cli = user_cluster_commands_with_cli
 exports.all_cli_commands_for_user_enabled_clusters = all_cli_commands_for_user_enabled_clusters
+exports.all_user_cluster_commands_irrespective_of_manufaturing_specification = all_user_cluster_commands_irrespective_of_manufaturing_specification
