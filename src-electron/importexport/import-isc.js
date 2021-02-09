@@ -269,12 +269,22 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
   let deviceName = endpointType.device
   let deviceCode = endpointType.deviceId
 
-  let dev = await queryZcl.selectDeviceTypeByCodeAndName(
-    db,
-    packageId,
-    deviceCode,
-    deviceName
-  )
+  let dev
+  if (isCustomDevice(deviceName, deviceCode)) {
+    dev = await queryZcl.selectDeviceTypeByCodeAndName(
+      db,
+      packageId,
+      deviceCode,
+      deviceName
+    )
+  } else {
+    dev = await queryZcl.selectDeviceTypeByCodeAndName(
+      db,
+      packageId,
+      deviceCode,
+      deviceName
+    )
+  }
 
   if (dev == null) throw `Unknown device type: ${deviceName} / ${deviceCode}`
   return queryConfig.insertEndpointType(
@@ -284,6 +294,10 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
     dev.id,
     false
   )
+}
+
+function isCustomDevice(deviceName, deviceCode) {
+  return deviceName == 'zcustom'
 }
 
 /**

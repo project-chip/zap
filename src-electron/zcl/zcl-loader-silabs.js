@@ -1044,12 +1044,11 @@ async function processCustomZclDeviceType(db, ctx) {
   if (ctx.supportCustomZclDevice) {
     let customDeviceTypes = []
     customDeviceTypes.push({
-      domain: 'Custom',
-      code: 0xffff,
-      profileId: 0xffff,
-      name: 'Custom ZCL Device Type',
-      description:
-        'Custom ZCL device type supports any combination of clusters.',
+      domain: dbEnum.customDevice.domain,
+      code: dbEnum.customDevice.code,
+      profileId: dbEnum.customDevice.profileId,
+      name: dbEnum.customDevice.name,
+      description: dbEnum.customDevice.name,
     })
     await queryZcl.insertDeviceTypes(db, ctx.packageId, customDeviceTypes)
   }

@@ -106,3 +106,12 @@ exports.sessionOption = {
   defaultResponsePolicy: 'defaultResponsePolicy',
   manufacturerCodes: 'manufacturerCodes',
 }
+
+// When SDK supports a custom device, these are the default values for it.
+exports.customDevice = {
+  domain: 'Custom',
+  name: 'Custom ZCL Device Type',
+  description: 'Custom ZCL device type supports any combination of clusters.',
+  code: 0xffff,
+  profileId: 0xffff,
+}
