@@ -3,13 +3,43 @@
 label=Zigbee Advanced Platform
 description=Graphical configuration tool for application and libraries based on Zigbee Cluster Library.
 path=.,node_modules/.bin/,ZAP.app/Contents/MacOS
-requiredFeatureLevel=apack.core:7
+requiredFeatureLevel=apack.core:8
 featureLevel=1
 
 id=zclConfigurator
 
 # Trigger file extension. No period.
 uc.triggerExtension=zap
+
+executable(zap:win32.x86_64) {
+  exe=zap.exe
+  optional=true
+}
+
+executable(zap:linux.x86_64) {
+  exe=zap
+  optional=true
+}
+
+executable(zap:macosx.x86_64) {
+  exe=zap.app/Contents/MacOS/zap
+  optional=true
+}
+
+executable(zap_regen:win32.x86_64) {
+  exe=zap.exe
+  optional=true
+}
+
+executable(zap_regen:linux.x86_64) {
+  exe=zap
+  optional=true
+}
+
+executable(zap_regen:macosx.x86_64) {
+  exe=zap.app/Contents/MacOS/zap
+  optional=true
+}
 
 executable(zap) {
   engine=node
@@ -36,7 +66,7 @@ function(version:uc_cli) {
 }
 
 function(uc_generate) {
-  cmd=$(zap_regen) --out ${generationOutput} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}
+  cmd=$(zap_regen) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}
 }
 
 function(zapHelp) {
