@@ -275,7 +275,7 @@ function versionsCheck() {
     'v12.15.x',
     'v12.14.x',
   ]
-  let expectedElectronVersion = ['9.3.x']
+  let expectedElectronVersion = ['9.4.x']
   let nodeVersion = process.version
   let electronVersion = process.versions.electron
   let ret = true

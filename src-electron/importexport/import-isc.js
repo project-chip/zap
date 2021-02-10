@@ -212,6 +212,7 @@ async function readIscData(filePath, data) {
 
   let parser = null
   let state = {
+    log: [],
     filePath: filePath,
     featureLevel: 0,
     keyValuePairs: [],
@@ -222,6 +223,10 @@ async function readIscData(filePath, data) {
     clusterOverride: [],
   }
 
+  state.log.push({
+    timestamp: new Date().toISOString(),
+    log: `Imported from ${filePath}`,
+  })
   lines.forEach((line) => {
     if (line == '{setupId:zclAfv2') {
       parser = parseZclAfv2Line
@@ -250,7 +255,10 @@ async function readIscData(filePath, data) {
   })
 
   if (state.parseState == 'init') {
-    throw 'Error importing the file: there is no usable ZCL content in this file.'
+    const S =
+      'Error importing the file: there is no usable ZCL content in this file.'
+    state.log.push(S)
+    throw S
   }
   delete state.parseState
   if (errorLines.length > 0) {
@@ -367,6 +375,11 @@ async function iscDataLoader(db, state, sessionId) {
         )
       }
     })
+
+  if (state.log != null) {
+    querySession.writeLog(db, sessionId, state.log)
+  }
+
   return Promise.all(endpointInsertion)
     .then(() => querySession.setSessionClean(db, sessionId))
     .then(() => sessionId)

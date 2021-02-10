@@ -206,8 +206,13 @@ async function createStateFromDatabase(db, sessionId) {
       return { key: 'endpoints', data: data.endpoints }
     })
 
+    let appendLog = querySession.readLog(db, sessionId).then((log) => {
+      return { key: 'log', data: log }
+    })
+
     promises.push(parseEndpointTypes)
     promises.push(parseEndpoints)
+    promises.push(appendLog)
 
     return Promise.all(promises)
       .then((data) => {

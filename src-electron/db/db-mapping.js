@@ -346,6 +346,13 @@ exports.map = {
       required: x.REQUIRED,
     }
   },
+  sessionLog: (x) => {
+    if (x == null) return undefined
+    return {
+      timestamp: x.TIMESTAMP,
+      log: x.LOG,
+    }
+  },
 }
 
 exports.reverseMap = {
