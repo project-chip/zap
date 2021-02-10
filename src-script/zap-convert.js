@@ -58,10 +58,6 @@ let cli = [
   '--out',
   arg.out,
 ]
-if (arg.in != null) {
-  cli.push(arg.in)
-}
-
 scriptUtil
   .stampVersion()
   .then(() => scriptUtil.executeCmd(ctx, 'node', cli))
