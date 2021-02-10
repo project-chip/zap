@@ -104,6 +104,17 @@ function startNormal(uiEnabled, showUrl, zapFiles, options) {
     })
 }
 
+function outputFile(inputFile, outputPattern) {
+  if (outputPattern.includes('{0}')) {
+    let dir = path.dirname(inputFile)
+    let basename = path.basename(inputFile)
+    let output = outputPattern.replace('{0}', basename)
+    return path.join(dir, output)
+  } else {
+    return outputPattern
+  }
+}
+
 /**
  * Perform file conversion.
  *
@@ -113,7 +124,7 @@ function startNormal(uiEnabled, showUrl, zapFiles, options) {
 function startConvert(files, output, options = { log: true, quit: true }) {
   if (options.log) console.log(`🤖 Conversion started`)
   if (options.log) console.log(`    👉 input files: ${files}`)
-  if (options.log) console.log(`    👉 output file: ${output}`)
+  if (options.log) console.log(`    👉 output pattern: ${output}`)
 
   let dbFile = env.sqliteFile('convert')
 
@@ -129,11 +140,12 @@ function startConvert(files, output, options = { log: true, quit: true }) {
         importJs
           .importDataFromFile(db, singlePath)
           .then((sessionId) => {
-            if (options.log) console.log('    👉 import done')
-            return exportJs.exportDataIntoFile(db, sessionId, output)
+            if (options.log) console.log(`    👈 read in: ${singlePath}`)
+            let of = outputFile(singlePath, output)
+            return exportJs.exportDataIntoFile(db, sessionId, of)
           })
-          .then(() => {
-            if (options.log) console.log('    👉 export done')
+          .then((outputPath) => {
+            if (options.log) console.log(`    👉 write out: ${outputPath}`)
           })
       )
     })

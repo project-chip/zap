@@ -34,13 +34,7 @@ let arg = yargs
     type: 'string',
     demandOption: true,
   })
-  .option('in', {
-    desc: 'Input .zap file from which to read configuration.',
-    alias: 'i',
-    type: 'string',
-    demandOption: false,
-  })
-  .demandOption(['zcl', 'out', 'in'], 'Please provide required options!')
+  .demandOption(['zcl', 'out'], 'Please provide required options!')
   .help()
   .wrap(null).argv
 
@@ -53,11 +47,11 @@ let cli = [
   '--noServer',
   '--zcl',
   arg.zcl,
-  '--in',
-  arg.in,
   '--out',
   arg.out,
 ]
+arg._.forEach((x) => cli.push(x))
+
 scriptUtil
   .stampVersion()
   .then(() => scriptUtil.executeCmd(ctx, 'node', cli))
