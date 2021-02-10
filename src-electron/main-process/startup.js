@@ -104,15 +104,30 @@ function startNormal(uiEnabled, showUrl, zapFiles, options) {
     })
 }
 
+/**
+ * Returns the output file out of input file and a pattern
+ *
+ * @param {*} inputFile
+ * @param {*} outputPattern
+ * @returns the path to the output file.
+ */
 function outputFile(inputFile, outputPattern) {
-  if (outputPattern.includes('{0}')) {
+  let output = outputPattern
+  if (output.includes('{')) {
     let dir = path.dirname(inputFile)
-    let basename = path.basename(inputFile)
-    let output = outputPattern.replace('{0}', basename)
-    return path.join(dir, output)
-  } else {
-    return outputPattern
+    let name = path.basename(inputFile)
+    let basename
+    let i = name.indexOf('.')
+    if (i == -1) {
+      basename = name
+    } else {
+      basename = name.substring(0, i)
+    }
+    output = output.replace('{name}', name)
+    output = output.replace('{basename}', basename)
+    output = path.join(dir, output)
   }
+  return output
 }
 
 /**
