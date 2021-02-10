@@ -234,7 +234,7 @@ async function readIscData(filePath, data) {
       return
     }
 
-    if (line == '}') {
+    if (state.parseState != 'init' && line == '}') {
       parser = null
       state.parseState = 'nonSetup'
       return
@@ -249,6 +249,9 @@ async function readIscData(filePath, data) {
     }
   })
 
+  if (state.parseState == 'init') {
+    throw 'Error importing the file: there is no usable ZCL content in this file.'
+  }
   delete state.parseState
   if (errorLines.length > 0) {
     throw 'Error while importing the file:\n  - ' + errorLines.join('\n  - ')
@@ -343,26 +346,27 @@ async function iscDataLoader(db, state, sessionId) {
   // results is an array of "endpointTypeId"/"endpointType" objects.
 
   let endpointInsertion = []
-  state.endpoint.forEach((ep) => {
-    // insert individual endpoint
-    let endpointTypeId = undefined
-    results.forEach((res) => {
-      if (res.endpointType.typeName == ep.endpointType) {
-        endpointTypeId = res.endpointTypeId
+  if (state.endpoint != null)
+    state.endpoint.forEach((ep) => {
+      // insert individual endpoint
+      let endpointTypeId = undefined
+      results.forEach((res) => {
+        if (res.endpointType.typeName == ep.endpointType) {
+          endpointTypeId = res.endpointTypeId
+        }
+      })
+      if (endpointTypeId != undefined) {
+        endpointInsertion.push(
+          queryConfig.insertEndpoint(
+            db,
+            sessionId,
+            ep.endpoint,
+            endpointTypeId,
+            ep.network
+          )
+        )
       }
     })
-    if (endpointTypeId != undefined) {
-      endpointInsertion.push(
-        queryConfig.insertEndpoint(
-          db,
-          sessionId,
-          ep.endpoint,
-          endpointTypeId,
-          ep.network
-        )
-      )
-    }
-  })
   return Promise.all(endpointInsertion)
     .then(() => querySession.setSessionClean(db, sessionId))
     .then(() => sessionId)

@@ -187,7 +187,7 @@ function startAnalyze(
 }
 
 /**
- * Start up application in self-check mode.
+ * Start up applicationa in self-check mode.
  */
 function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
   env.logInitStdout()
@@ -369,7 +369,10 @@ function startUp(isElectron) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
     if (argv.output == null) throw 'You need to specify output file.'
-    return startConvert(argv.zapFiles, argv.output)
+    return startConvert(argv.zapFiles, argv.output).catch((code) => {
+      console.log(code)
+      process.exit(1)
+    })
   } else if (argv._.includes('generate')) {
     return startGeneration(
       argv.output,
