@@ -15,13 +15,13 @@
  *    limitations under the License.
  */
 
+const path = require('path')
 const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-
 /**
  * Locates or adds an attribute, and returns it.
  *
@@ -225,7 +225,7 @@ async function readIscData(filePath, data) {
 
   state.log.push({
     timestamp: new Date().toISOString(),
-    log: `Imported from ${filePath}`,
+    log: `Imported from ${path.basename(filePath)}`,
   })
   lines.forEach((line) => {
     if (line == '{setupId:zclAfv2') {
