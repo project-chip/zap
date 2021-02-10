@@ -142,6 +142,10 @@ function startConvert(files, output, options = { log: true, quit: true }) {
           .then((sessionId) => {
             if (options.log) console.log(`    👈 read in: ${singlePath}`)
             let of = outputFile(singlePath, output)
+            let parent = path.dirname(of)
+            if (!fs.existsSync(parent)) {
+              fs.mkdirSync(parent, { recursive: true })
+            }
             return exportJs.exportDataIntoFile(db, sessionId, of)
           })
           .then((outputPath) => {
