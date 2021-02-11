@@ -20,6 +20,7 @@ const fs = require('fs')
 const path = require('path')
 
 const dbApi = require('../db/db-api.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 const args = require('../util/args.js')
 const env = require('../util/env.js')
 const zclLoader = require('../zcl/zcl-loader.js')
@@ -27,6 +28,7 @@ const windowJs = require('./window.js')
 const httpServer = require('../server/http-server.js')
 const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
+const queryConfig = require('../db/query-config.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
@@ -177,7 +179,10 @@ async function startConvert(
           if (!fs.existsSync(parent)) {
             fs.mkdirSync(parent, { recursive: true })
           }
-          return exportJs.exportDataIntoFile(db, sessionId, of)
+          // Now we need to write the sessionKey for the file path
+          return queryConfig
+            .updateKeyValue(db, sessionId, dbEnum.sessionKey.filePath, of)
+            .then(() => exportJs.exportDataIntoFile(db, sessionId, of))
         })
         .then((outputPath) => {
           if (options.log) console.log(`    👉 write out: ${outputPath}`)
