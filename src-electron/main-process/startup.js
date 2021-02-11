@@ -136,38 +136,53 @@ function outputFile(inputFile, outputPattern) {
  * @param {*} files
  * @param {*} output
  */
-function startConvert(files, output, options = { log: true, quit: true }) {
+async function startConvert(
+  files,
+  output,
+  options = { log: true, quit: true }
+) {
   if (options.log) console.log(`🤖 Conversion started`)
   if (options.log) console.log(`    👉 input files: ${files}`)
   if (options.log) console.log(`    👉 output pattern: ${output}`)
 
   let dbFile = env.sqliteFile('convert')
+  let db = await dbApi.initDatabaseAndLoadSchema(
+    dbFile,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+  if (options.log) console.log('    👉 database and schema initialized')
+  await zclLoader.loadZcl(db, args.zclPropertiesFile)
+  if (options.log)
+    console.log(`    👉 zcl package loaded: ${args.zclPropertiesFile}`)
+  if (args.genTemplateJsonFile != null) {
+    await generatorEngine.loadTemplates(db, args.genTemplateJsonFile)
+    if (options.log)
+      console.log(`    👉 templates loaded: ${args.genTemplateJsonFile}`)
+  }
 
-  return dbApi
-    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-      if (options.log) console.log('    👉 database and schema initialized')
-      return zclLoader.loadZcl(db, args.zclPropertiesFile)
-    })
-    .then((d) => {
-      return util.executePromisesSequentially(files, (singlePath) =>
-        importJs
-          .importDataFromFile(db, singlePath)
-          .then((sessionId) => {
-            if (options.log) console.log(`    👈 read in: ${singlePath}`)
-            let of = outputFile(singlePath, output)
-            let parent = path.dirname(of)
-            if (!fs.existsSync(parent)) {
-              fs.mkdirSync(parent, { recursive: true })
-            }
-            return exportJs.exportDataIntoFile(db, sessionId, of)
-          })
-          .then((outputPath) => {
-            if (options.log) console.log(`    👉 write out: ${outputPath}`)
-          })
-      )
-    })
+  return util
+    .executePromisesSequentially(files, (singlePath) =>
+      importJs
+        .importDataFromFile(db, singlePath)
+        .then((sessionId) => {
+          return util
+            .initializeSessionPackage(db, sessionId)
+            .then((pkgs) => sessionId)
+        })
+        .then((sessionId) => {
+          if (options.log) console.log(`    👈 read in: ${singlePath}`)
+          let of = outputFile(singlePath, output)
+          let parent = path.dirname(of)
+          if (!fs.existsSync(parent)) {
+            fs.mkdirSync(parent, { recursive: true })
+          }
+          return exportJs.exportDataIntoFile(db, sessionId, of)
+        })
+        .then((outputPath) => {
+          if (options.log) console.log(`    👉 write out: ${outputPath}`)
+        })
+    )
     .then(() => {
       if (options.log) console.log('😎 Conversion done!')
       if (options.quit && app != null) {

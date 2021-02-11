@@ -28,13 +28,22 @@ let arg = yargs
     type: 'string',
     demandOption: true,
   })
+  .option('generationTemplate', {
+    desc: 'Specifies gen-template.json file to be used.',
+    alias: 'g',
+    type: 'string',
+    demandOption: true,
+  })
   .option('out', {
     desc: 'Output filename where the converted file goes.',
     alias: 'o',
     type: 'string',
     demandOption: true,
   })
-  .demandOption(['zcl', 'out'], 'Please provide required options!')
+  .demandOption(
+    ['zcl', 'out', 'generationTemplate'],
+    'Please provide required options!'
+  )
   .help()
   .wrap(null).argv
 
@@ -49,6 +58,8 @@ let cli = [
   arg.zcl,
   '--out',
   arg.out,
+  '--generationTemplate',
+  arg.generationTemplate,
 ]
 arg._.forEach((x) => cli.push(x))
 
