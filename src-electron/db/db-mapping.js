@@ -21,6 +21,8 @@
  * @module DB API: DB mappings between columns and JS object keys.
  */
 
+const dbApi = require('./db-api.js')
+
 exports.map = {
   package: (x) => {
     if (x == null) return undefined
@@ -69,7 +71,7 @@ exports.map = {
       caption: x.DESCRIPTION,
       define: x.DEFINE,
       domainName: x.DOMAIN_NAME,
-      isSingleton: x.IS_SINGLETON,
+      isSingleton: dbApi.fromDbBool(x.IS_SINGLETON),
     }
   },
 
@@ -89,10 +91,10 @@ exports.map = {
       max: x.MAX,
       minLength: x.MIN_LENGTH,
       maxLength: x.MAX_LENGTH,
-      isWritable: x.IS_WRITABLE,
+      isWritable: dbApi.fromDbBool(x.IS_WRITABLE),
       defaultValue: x.DEFAULT_VALUE,
-      isOptional: x.IS_OPTIONAL,
-      isReportable: x.IS_REPORTABLE,
+      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
+      isReportable: dbApi.fromDbBool(x.IS_REPORTABLE),
     }
   },
 
@@ -107,12 +109,12 @@ exports.map = {
       name: x.NAME,
       description: x.DESCRIPTION,
       source: x.SOURCE,
-      isOptional: x.IS_OPTIONAL,
+      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       clusterCode: x.CLUSTER_CODE,
       clusterName: x.CLUSTER_NAME,
       argName: x.ARG_NAME,
       argType: x.ARG_TYPE,
-      argIsArray: x.ARG_IS_ARRAY,
+      argIsArray: dbApi.fromDbBool(x.ARG_IS_ARRAY),
       argPresentIf: x.ARG_PRESENT_IF,
       argCountArg: x.ARG_COUNT_ARG,
     }
@@ -126,7 +128,7 @@ exports.map = {
       name: x.NAME,
       type: x.TYPE,
       code: x.CODE,
-      isArray: x.IS_ARRAY,
+      isArray: dbApi.fromDbBool(x.IS_ARRAY),
       presentIf: x.PRESENT_IF,
       countArg: x.COUNT_ARG,
       caption: `Command argument of type ${x.TYPE}`,
@@ -189,7 +191,7 @@ exports.map = {
       name: x.NAME,
       description: x.DESCRIPTION,
       size: x.ATOMIC_SIZE,
-      discrete: x.DISCRETE,
+      discrete: dbApi.fromDbBool(x.DISCRETE),
     }
   },
 
@@ -232,10 +234,10 @@ exports.map = {
       deviceTypeRef: x.DEVICE_TYPE_REF,
       clusterRef: x.CLUSTER_REF,
       clusterName: x.CLUSTER_NAME,
-      includeClient: x.INCLUDE_CLIENT,
-      includeServer: x.INCLUDE_SERVER,
-      lockClient: x.LOCK_CLIENT,
-      lockServer: x.LOCK_SERVER,
+      includeClient: dbApi.fromDbBool(x.INCLUDE_CLIENT),
+      includeServer: dbApi.fromDbBool(x.INCLUDE_SERVER),
+      lockClient: dbApi.fromDbBool(x.LOCK_CLIENT),
+      lockServer: dbApi.fromDbBool(x.LOCK_SERVER),
     }
   },
 
@@ -286,7 +288,7 @@ exports.map = {
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       clusterRef: x.CLUSTER_REF,
       side: x.SIDE,
-      enabled: x.ENABLED,
+      enabled: dbApi.fromDbBool(x.ENABLED),
     }
   },
 
@@ -296,12 +298,12 @@ exports.map = {
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       clusterRef: x.CLUSTER_REF,
       attributeRef: x.ATTRIBUTE_REF,
-      included: x.INCLUDED,
+      included: dbApi.fromDbBool(x.INCLUDED),
       storageOption: x.STORAGE_OPTION,
-      singleton: x.SINGLETON,
-      bounded: x.BOUNDED,
+      singleton: dbApi.fromDbBool(x.SINGLETON),
+      bounded: dbApi.fromDbBool(x.BOUNDED),
       defaultValue: x.DEFAULT_VALUE,
-      includedReportable: x.INCLUDED_REPORTABLE,
+      includedReportable: dbApi.fromDbBool(x.INCLUDED_REPORTABLE),
       minInterval: x.MIN_INTERVAL,
       maxInterval: x.MAX_INTERVAL,
       reportableChange: x.REPORTABLE_CHANGE,
@@ -314,8 +316,8 @@ exports.map = {
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       clusterRef: x.CLUSTER_REF,
       commandRef: x.COMMAND_REF,
-      incoming: x.INCOMING,
-      outgoing: x.OUTGOING,
+      incoming: dbApi.fromDbBool(x.INCOMING),
+      outgoing: dbApi.fromDbBool(x.OUTGOING),
     }
   },
 

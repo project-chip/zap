@@ -137,7 +137,6 @@ async function exportDataIntoFile(db, sessionId, filePath) {
   return createStateFromDatabase(db, sessionId)
     .then((state) => {
       env.logInfo(`About to write the file to ${filePath}`)
-      env.logInfo(state)
       return new Promise((resolve, reject) => {
         env.logInfo(`Writing the file to ${filePath}`)
         fs.writeFile(filePath, JSON.stringify(state, null, 2), (err) => {
