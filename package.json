@@ -25,7 +25,7 @@
     "test:unit:coverage": "jest --coverage",
     "test:unit:watch": "jest --watch",
     "test:unit:watchAll": "jest --watchAll",
-    "postinstall": "electron-builder install-app-deps",
+    "postinstall": "electron-builder install-app-deps && husky install",
     "zap": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json",
     "zaphelp": "node src-script/zap-start.js --help",
     "zapc": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/chip/gen-templates.json",
