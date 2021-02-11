@@ -77,12 +77,13 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
   if (packages.length == 0) {
     if (pkg.type == dbEnum.packageType.genTemplatesJson) {
       // We don't throw exception for genTemplatesJson, we can survive without.
+      env.logInfo(`No packages of type ${pkg.type} found in the database.`)
       return null
     } else {
       throw `No packages of type ${pkg.type} found in the database.`
     }
   } else if (packages.length == 1) {
-    env.logInfo('Only one package of given type present. Using it.')
+    env.logInfo(`Only one package of given type ${pkg.type} present. Using it.`)
     return {
       packageId: packages[0].id,
       packageType: pkg.type,
@@ -95,12 +96,17 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
   if (packages.length == 0) {
     if (pkg.type == dbEnum.packageType.genTemplatesJson) {
       // We don't throw exception for genTemplatesJson, we can survive without.
+      env.logInfo(
+        `No packages of type ${pkg.type} that match version ${pkg.version} found in the database.`
+      )
       return null
     } else {
       throw `No packages of type ${pkg.type} that match version ${pkg.version} found in the database.`
     }
   } else if (packages.length == 1) {
-    env.logInfo('Only one package of given type and version present. Using it.')
+    env.logInfo(
+      `Only one package of given type ${pkg.type} and version ${pkg.version} present. Using it.`
+    )
     return {
       packageId: packages[0].id,
       packageType: pkg.type,
