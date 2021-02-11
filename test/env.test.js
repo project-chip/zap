@@ -93,6 +93,25 @@ describe('Util Tests', () => {
       expect(array).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     })
   })
+
+  test('Type conversion', () => {
+    let x = 1
+    expect(x).toBeTruthy()
+    expect(x == true).toBeTruthy()
+    expect(x == false).not.toBeTruthy()
+    x = '1'
+    expect(x).toBeTruthy()
+    expect(x == true).toBeTruthy()
+    expect(x == false).not.toBeTruthy()
+    x = 0
+    expect(x).not.toBeTruthy()
+    expect(x == true).not.toBeTruthy()
+    expect(x == false).toBeTruthy()
+    x = '0'
+    expect(x).toBeTruthy() // String '0' is truthy by itself....
+    expect(x == true).not.toBeTruthy() // ... but comparing to true is not truthy ...
+    expect(x == false).toBeTruthy() // ... unlike comparing to false, which is truthy.
+  })
 })
 
 describe('Environment Tests', () => {
