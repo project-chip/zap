@@ -142,8 +142,8 @@ async function startConvert(
   options = { log: true, quit: true }
 ) {
   if (options.log) console.log(`🤖 Conversion started`)
-  if (options.log) console.log(`    👉 input files: ${files}`)
-  if (options.log) console.log(`    👉 output pattern: ${output}`)
+  if (options.log) console.log(`    🔍 input files: ${files}`)
+  if (options.log) console.log(`    🔍 output pattern: ${output}`)
 
   let dbFile = env.sqliteFile('convert')
   let db = await dbApi.initDatabaseAndLoadSchema(
@@ -151,14 +151,14 @@ async function startConvert(
     env.schemaFile(),
     env.zapVersion()
   )
-  if (options.log) console.log('    👉 database and schema initialized')
+  if (options.log) console.log('    🐝 database and schema initialized')
   await zclLoader.loadZcl(db, args.zclPropertiesFile)
   if (options.log)
-    console.log(`    👉 zcl package loaded: ${args.zclPropertiesFile}`)
+    console.log(`    🐝 zcl package loaded: ${args.zclPropertiesFile}`)
   if (args.genTemplateJsonFile != null) {
     await generatorEngine.loadTemplates(db, args.genTemplateJsonFile)
     if (options.log)
-      console.log(`    👉 templates loaded: ${args.genTemplateJsonFile}`)
+      console.log(`    🐝 templates loaded: ${args.genTemplateJsonFile}`)
   }
 
   return util
