@@ -272,7 +272,6 @@ describe('Session specific queries', () => {
       .then(() => exportJs.createStateFromDatabase(db, sid))
       .then((state) => {
         expect(state.creator).toBe('zap')
-        expect(state.writeTime).toBeTruthy()
         expect(state.keyValuePairs.length).toBe(5)
         expect(state.keyValuePairs[0].key).toBe('commandDiscovery')
         expect(state.keyValuePairs[0].value).toBe('1')

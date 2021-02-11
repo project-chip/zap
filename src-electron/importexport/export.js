@@ -161,7 +161,6 @@ async function exportDataIntoFile(db, sessionId, filePath) {
 async function createStateFromDatabase(db, sessionId) {
   return new Promise((resolve, reject) => {
     let state = {
-      writeTime: new Date().toString(),
       featureLevel: env.zapVersion().featureLevel,
       creator: 'zap',
     }
