@@ -22,14 +22,29 @@ const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+
 /**
  * Locates or adds an attribute, and returns it.
- *
+ * at contains clusterId, attributeId, isClient, mfgCode and possibly value
  * @param {*} state
  */
 function locateAttribute(state, at) {
-  state.attributeType.push(at)
-  return at
+  let match = null
+  state.attributeType.forEach((a) => {
+    if (
+      at.clusterId == a.clusterId &&
+      at.attributeId == a.attributeId &&
+      at.isClient == a.isClient
+    ) {
+      match = a
+    }
+  })
+  if (match == null) {
+    state.attributeType.push(at)
+    return at
+  } else {
+    return match
+  }
 }
 
 /**
