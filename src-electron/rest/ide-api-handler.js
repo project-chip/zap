@@ -50,7 +50,7 @@ function httpGetIdeOpen(db) {
           env.logInfo(
             `Studio: Loaded project(${name}), ${JSON.stringify(response)}`
           )
-          queryConfig.updateKeyValue(
+          queryConfig.updateSessionKeyValue(
             db,
             sessionId,
             dbEnum.sessionKey.filePath,

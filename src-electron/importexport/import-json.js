@@ -37,7 +37,12 @@ async function importSessionKeyValues(db, sessionId, keyValuePairs) {
     // Write key value pairs
     keyValuePairs.forEach((element) => {
       allQueries.push(
-        queryConfig.updateKeyValue(db, sessionId, element.key, element.value)
+        queryConfig.updateSessionKeyValue(
+          db,
+          sessionId,
+          element.key,
+          element.value
+        )
       )
     })
   }

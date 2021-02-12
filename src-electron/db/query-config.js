@@ -36,7 +36,7 @@ const restApi = require('../../src-shared/rest-api.js')
  * @param {*} value
  * @returns A promise of creating or updating a row, resolves with the rowid of a new row.
  */
-async function updateKeyValue(db, sessionId, key, value) {
+async function updateSessionKeyValue(db, sessionId, key, value) {
   return dbApi.dbInsert(
     db,
     'INSERT OR REPLACE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
@@ -54,7 +54,7 @@ async function updateKeyValue(db, sessionId, key, value) {
  * @param {*} value
  * @returns A promise of creating or updating a row, resolves with the rowid of a new row.
  */
-async function insertKeyValue(db, sessionId, key, value) {
+async function insertSessionKeyValue(db, sessionId, key, value) {
   return dbApi.dbInsert(
     db,
     'INSERT OR IGNORE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
@@ -1256,8 +1256,8 @@ ORDER BY
 }
 
 // exports
-exports.updateKeyValue = updateKeyValue
-exports.insertKeyValue = insertKeyValue
+exports.updateSessionKeyValue = updateSessionKeyValue
+exports.insertSessionKeyValue = insertSessionKeyValue
 exports.getSessionKeyValue = getSessionKeyValue
 exports.getAllSessionKeyValues = getAllSessionKeyValues
 exports.insertOrReplaceClusterState = insertOrReplaceClusterState

@@ -181,7 +181,12 @@ async function startConvert(
           }
           // Now we need to write the sessionKey for the file path
           return queryConfig
-            .updateKeyValue(db, sessionId, dbEnum.sessionKey.filePath, of)
+            .updateSessionKeyValue(
+              db,
+              sessionId,
+              dbEnum.sessionKey.filePath,
+              of
+            )
             .then(() => exportJs.exportDataIntoFile(db, sessionId, of))
         })
         .then((outputPath) => {
