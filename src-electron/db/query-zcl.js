@@ -1103,8 +1103,8 @@ async function insertClusterExtensions(db, packageId, data) {
   return dbApi
     .dbMultiSelect(
       db,
-      'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?',
-      data.map((cluster) => [cluster.code])
+      'SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ?',
+      data.map((cluster) => [packageId, cluster.code])
     )
     .then((rows) => {
       let commandsToLoad = []
