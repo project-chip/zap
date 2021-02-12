@@ -393,16 +393,23 @@ async function iscDataLoader(db, state, sessionId) {
 
   let individualOverridePromises = []
 
-  if (state.attributeType.length > 0) {
-    console.log(`Loading ${state.attributeType.length} attributes`)
-  }
+  //if (state.attributeType.length > 0) {
+  //}
 
   if (state.clusterOverride.length > 0) {
-    console.log(`Loading ${state.clusterOverride.length} cluster overrides`)
     state.clusterOverride.forEach((cl) => {
-      let clusterId = cl.clusterId
+      let clusterCode = cl.clusterId
       let isIncluded = cl.isIncluded
       let side = cl.side
+      individualOverridePromises.push(
+        queryConfig.setClusterIncluded(
+          db,
+          packageId,
+          clusterCode,
+          isIncluded,
+          side
+        )
+      )
     })
   }
 
