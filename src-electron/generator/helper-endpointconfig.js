@@ -142,7 +142,7 @@ function endpoint_cluster_manufacturer_code_count(options) {
 }
 
 function endpoint_largest_attribute_size(options) {
-  return this.largestAttribute
+  return this.largestAttribute + 1
 }
 
 function endpoint_singletons_size(options) {
