@@ -384,6 +384,16 @@ CREATE TABLE IF NOT EXISTS "SESSION_KEY_VALUE" (
   UNIQUE(SESSION_REF, KEY)
 );
 /*
+ SESSION_LOG table contains general purpose text log for the session
+ */
+DROP TABLE IF EXISTS "SESSION_LOG";
+CREATE TABLE IF NOT EXISTS "SESSION_LOG" (
+  "SESSION_REF" integer,
+  "TIMESTAMP" text,
+  "LOG" text,
+  foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade
+);
+/*
  ENDPOINT_TYPE contains the bulk of the configuration: clusters, attributes, etc.
  */
 DROP TABLE IF EXISTS "ENDPOINT_TYPE";

@@ -166,5 +166,5 @@ test('Read ISD data from file', async () => {
   expect(state.endpoint[2].endpoint).toBe(242)
   expect(state).not.toHaveProperty('parseState')
   expect(state.clusterOverride.length).toBe(2)
-  expect(state.attributeType.length).toBe(10)
+  expect(state.attributeType.length).toBe(6)
 })

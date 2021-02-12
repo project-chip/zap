@@ -1,6 +1,5 @@
 {
-  "writeTime": "Wed Feb 03 2021 09:20:43 GMT-0400 (Atlantic Standard Time)",
-  "featureLevel": 9,
+  "featureLevel": 12,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -140,8 +139,8 @@
           "define": "POWER_CONFIG_CLUSTER",
           "side": "client",
           "enabled": 1,
-          "attributes": [],
-          "commands": []
+          "commands": [],
+          "attributes": []
         },
         {
           "name": "Power Configuration",
@@ -150,6 +149,7 @@
           "define": "POWER_CONFIG_CLUSTER",
           "side": "server",
           "enabled": 0,
+          "commands": [],
           "attributes": [
             {
               "name": "battery percentage remaining",
@@ -181,8 +181,7 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "Device Temperature Configuration",
@@ -618,6 +617,7 @@
           "define": "ON_OFF_SWITCH_CONFIG_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [],
           "attributes": [
             {
               "name": "switch type",
@@ -649,8 +649,7 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "Time",
@@ -1569,6 +1568,7 @@
           "define": "COLOR_CONTROL_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [],
           "attributes": [
             {
               "name": "current hue",
@@ -1690,8 +1690,7 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "Ballast Configuration",
@@ -2029,7 +2028,6 @@
           "define": "GAMING_CLUSTER",
           "side": "client",
           "enabled": 1,
-          "attributes": [],
           "commands": [
             {
               "name": "SearchGame",
@@ -2103,7 +2101,8 @@
               "incoming": 1,
               "outgoing": 1
             }
-          ]
+          ],
+          "attributes": []
         },
         {
           "name": "Gaming",
@@ -2550,6 +2549,24 @@
           "define": "BILLING_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [
+            {
+              "name": "CheckBillStatus",
+              "code": 0,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 1,
+              "outgoing": 1
+            },
+            {
+              "name": "SendBillRecord",
+              "code": 1,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 1,
+              "outgoing": 1
+            }
+          ],
           "attributes": [
             {
               "name": "user id",
@@ -2626,24 +2643,6 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": [
-            {
-              "name": "CheckBillStatus",
-              "code": 0,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 1,
-              "outgoing": 1
-            },
-            {
-              "name": "SendBillRecord",
-              "code": 1,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 1,
-              "outgoing": 1
-            }
           ]
         },
         {
@@ -2663,6 +2662,7 @@
           "define": "METER_IDENTIFICATION_CLUSTER",
           "side": "server",
           "enabled": 0,
+          "commands": [],
           "attributes": [
             {
               "name": "company name",
@@ -2754,8 +2754,7 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "Electrical Measurement",
@@ -2774,8 +2773,8 @@
           "define": "ELECTRICAL_MEASUREMENT_CLUSTER",
           "side": "server",
           "enabled": 0,
-          "attributes": [],
-          "commands": []
+          "commands": [],
+          "attributes": []
         },
         {
           "name": "ZLL Commissioning",
@@ -2784,7 +2783,6 @@
           "define": "ZLL_COMMISSIONING_CLUSTER",
           "side": "client",
           "enabled": 1,
-          "attributes": [],
           "commands": [
             {
               "name": "ScanRequest",
@@ -2866,7 +2864,8 @@
               "incoming": 1,
               "outgoing": 1
             }
-          ]
+          ],
+          "attributes": []
         },
         {
           "name": "ZLL Commissioning",
@@ -2968,6 +2967,7 @@
           "define": "BASIC_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [],
           "attributes": [
             {
               "name": "ZCL version",
@@ -3089,8 +3089,7 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "Identify",
@@ -3326,7 +3325,6 @@
           "define": "BASIC_CLUSTER",
           "side": "client",
           "enabled": 0,
-          "attributes": [],
           "commands": [
             {
               "name": "ResetToFactoryDefaults",
@@ -3336,7 +3334,8 @@
               "incoming": 0,
               "outgoing": 0
             }
-          ]
+          ],
+          "attributes": []
         },
         {
           "name": "Basic",
@@ -3345,6 +3344,7 @@
           "define": "BASIC_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [],
           "attributes": [
             {
               "name": "ZCL version",
@@ -3391,8 +3391,7 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "Identify",
@@ -3793,7 +3792,6 @@
     {
       "endpointTypeName": "Endpoint Type A",
       "endpointTypeIndex": 0,
-      "endpointTypeRef": 1,
       "profileId": "0x0107",
       "endpointId": 41,
       "networkId": 1
@@ -3801,7 +3799,6 @@
     {
       "endpointTypeName": "Endpoint Type C",
       "endpointTypeIndex": 2,
-      "endpointTypeRef": 3,
       "profileId": "0x0104",
       "endpointId": 42,
       "networkId": 1
@@ -3809,10 +3806,10 @@
     {
       "endpointTypeName": "Endpoint Type B",
       "endpointTypeIndex": 1,
-      "endpointTypeRef": 2,
       "profileId": "0x0104",
       "endpointId": 43,
       "networkId": 2
     }
-  ]
+  ],
+  "log": []
 }

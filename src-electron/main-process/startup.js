@@ -20,6 +20,7 @@ const fs = require('fs')
 const path = require('path')
 
 const dbApi = require('../db/db-api.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 const args = require('../util/args.js')
 const env = require('../util/env.js')
 const zclLoader = require('../zcl/zcl-loader.js')
@@ -27,6 +28,7 @@ const windowJs = require('./window.js')
 const httpServer = require('../server/http-server.js')
 const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
+const queryConfig = require('../db/query-config.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
@@ -105,38 +107,87 @@ function startNormal(uiEnabled, showUrl, zapFiles, options) {
 }
 
 /**
+ * Returns the output file out of input file and a pattern
+ *
+ * @param {*} inputFile
+ * @param {*} outputPattern
+ * @returns the path to the output file.
+ */
+function outputFile(inputFile, outputPattern) {
+  let output = outputPattern
+  if (output.includes('{')) {
+    let dir = path.dirname(inputFile)
+    let name = path.basename(inputFile)
+    let basename
+    let i = name.indexOf('.')
+    if (i == -1) {
+      basename = name
+    } else {
+      basename = name.substring(0, i)
+    }
+    output = output.replace('{name}', name)
+    output = output.replace('{basename}', basename)
+    output = path.join(dir, output)
+  }
+  return output
+}
+
+/**
  * Perform file conversion.
  *
  * @param {*} files
  * @param {*} output
  */
-function startConvert(files, output, options = { log: true, quit: true }) {
+async function startConvert(
+  files,
+  output,
+  options = { log: true, quit: true }
+) {
   if (options.log) console.log(`🤖 Conversion started`)
-  if (options.log) console.log(`    👉 input files: ${files}`)
-  if (options.log) console.log(`    👉 output file: ${output}`)
+  if (options.log) console.log(`    🔍 input files: ${files}`)
+  if (options.log) console.log(`    🔍 output pattern: ${output}`)
 
   let dbFile = env.sqliteFile('convert')
+  let db = await dbApi.initDatabaseAndLoadSchema(
+    dbFile,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+  if (options.log) console.log('    🐝 database and schema initialized')
+  await zclLoader.loadZcl(db, args.zclPropertiesFile)
+  if (options.log)
+    console.log(`    🐝 zcl package loaded: ${args.zclPropertiesFile}`)
+  if (args.genTemplateJsonFile != null) {
+    await generatorEngine.loadTemplates(db, args.genTemplateJsonFile)
+    if (options.log)
+      console.log(`    🐝 templates loaded: ${args.genTemplateJsonFile}`)
+  }
 
-  return dbApi
-    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-      if (options.log) console.log('    👉 database and schema initialized')
-      return zclLoader.loadZcl(db, args.zclPropertiesFile)
-    })
-    .then((d) => {
-      return util.executePromisesSequentially(files, (singlePath) =>
-        importJs
-          .importDataFromFile(db, singlePath)
-          .then((sessionId) => {
-            if (options.log) console.log('    👉 import done')
-            return exportJs.exportDataIntoFile(db, sessionId, output)
-          })
-          .then(() => {
-            if (options.log) console.log('    👉 export done')
-          })
-      )
-    })
+  return util
+    .executePromisesSequentially(files, (singlePath) =>
+      importJs
+        .importDataFromFile(db, singlePath)
+        .then((sessionId) => {
+          return util
+            .initializeSessionPackage(db, sessionId)
+            .then((pkgs) => sessionId)
+        })
+        .then((sessionId) => {
+          if (options.log) console.log(`    👈 read in: ${singlePath}`)
+          let of = outputFile(singlePath, output)
+          let parent = path.dirname(of)
+          if (!fs.existsSync(parent)) {
+            fs.mkdirSync(parent, { recursive: true })
+          }
+          // Now we need to write the sessionKey for the file path
+          return queryConfig
+            .updateKeyValue(db, sessionId, dbEnum.sessionKey.filePath, of)
+            .then(() => exportJs.exportDataIntoFile(db, sessionId, of))
+        })
+        .then((outputPath) => {
+          if (options.log) console.log(`    👉 write out: ${outputPath}`)
+        })
+    )
     .then(() => {
       if (options.log) console.log('😎 Conversion done!')
       if (options.quit && app != null) {
@@ -187,7 +238,7 @@ function startAnalyze(
 }
 
 /**
- * Start up application in self-check mode.
+ * Start up applicationa in self-check mode.
  */
 function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
   env.logInitStdout()
@@ -369,7 +420,10 @@ function startUp(isElectron) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
     if (argv.output == null) throw 'You need to specify output file.'
-    return startConvert(argv.zapFiles, argv.output)
+    return startConvert(argv.zapFiles, argv.output).catch((code) => {
+      console.log(code)
+      process.exit(1)
+    })
   } else if (argv._.includes('generate')) {
     return startGeneration(
       argv.output,

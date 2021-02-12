@@ -1411,7 +1411,7 @@ function isCommandAvailable(clusterSide, incoming, outgoing, source, name) {
   }
 
   return (
-    (isClient(clusterSide) && outgoing) || (isServer(clusterSide) && incoming)
+    (isClient(clusterSide) && incoming) || (isServer(clusterSide) && incoming)
   )
 }
 

@@ -351,12 +351,14 @@ async function loadTemplates(db, genTemplatesJson) {
   }
   if (genTemplatesJson == null) {
     context.error = 'No templates file specified.'
+    env.logWarning(context.error)
     return Promise.resolve(context)
   }
 
   let file = path.resolve(genTemplatesJson)
   if (!fs.existsSync(file)) {
     context.error = `Can't locate templates file: ${file}`
+    env.logWarning(context.error)
     return Promise.resolve(context)
   }
 

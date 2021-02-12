@@ -15,20 +15,36 @@
  *    limitations under the License.
  */
 
+const path = require('path')
 const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
+const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Locates or adds an attribute, and returns it.
- *
+ * at contains clusterId, attributeId, isClient, mfgCode and possibly value
  * @param {*} state
  */
 function locateAttribute(state, at) {
-  state.attributeType.push(at)
-  return at
+  let match = null
+  state.attributeType.forEach((a) => {
+    if (
+      at.clusterId == a.clusterId &&
+      at.attributeId == a.attributeId &&
+      at.isClient == a.isClient
+    ) {
+      match = a
+    }
+  })
+  if (match == null) {
+    state.attributeType.push(at)
+    return at
+  } else {
+    return match
+  }
 }
 
 /**
@@ -211,6 +227,7 @@ async function readIscData(filePath, data) {
 
   let parser = null
   let state = {
+    log: [],
     filePath: filePath,
     featureLevel: 0,
     keyValuePairs: [],
@@ -221,6 +238,10 @@ async function readIscData(filePath, data) {
     clusterOverride: [],
   }
 
+  state.log.push({
+    timestamp: new Date().toISOString(),
+    log: `Imported from ${path.basename(filePath)}`,
+  })
   lines.forEach((line) => {
     if (line == '{setupId:zclAfv2') {
       parser = parseZclAfv2Line
@@ -233,7 +254,7 @@ async function readIscData(filePath, data) {
       return
     }
 
-    if (line == '}') {
+    if (state.parseState != 'init' && line == '}') {
       parser = null
       state.parseState = 'nonSetup'
       return
@@ -248,6 +269,12 @@ async function readIscData(filePath, data) {
     }
   })
 
+  if (state.parseState == 'init') {
+    const S =
+      'Error importing the file: there is no usable ZCL content in this file.'
+    state.log.push(S)
+    throw S
+  }
   delete state.parseState
   if (errorLines.length > 0) {
     throw 'Error while importing the file:\n  - ' + errorLines.join('\n  - ')
@@ -268,12 +295,22 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
   let deviceName = endpointType.device
   let deviceCode = endpointType.deviceId
 
-  let dev = await queryZcl.selectDeviceTypeByCodeAndName(
-    db,
-    packageId,
-    deviceCode,
-    deviceName
-  )
+  let dev
+  if (isCustomDevice(deviceName, deviceCode)) {
+    dev = await queryZcl.selectDeviceTypeByCodeAndName(
+      db,
+      packageId,
+      dbEnum.customDevice.code,
+      dbEnum.customDevice.name
+    )
+  } else {
+    dev = await queryZcl.selectDeviceTypeByCodeAndName(
+      db,
+      packageId,
+      deviceCode,
+      deviceName
+    )
+  }
 
   if (dev == null) throw `Unknown device type: ${deviceName} / ${deviceCode}`
   return queryConfig.insertEndpointType(
@@ -283,6 +320,10 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
     dev.id,
     false
   )
+}
+
+function isCustomDevice(deviceName, deviceCode) {
+  return deviceName == 'zcustom'
 }
 
 /**
@@ -328,27 +369,35 @@ async function iscDataLoader(db, state, sessionId) {
   // results is an array of "endpointTypeId"/"endpointType" objects.
 
   let endpointInsertion = []
-  state.endpoint.forEach((ep) => {
-    // insert individual endpoint
-    let endpointTypeId = undefined
-    results.forEach((res) => {
-      if (res.endpointType.typeName == ep.endpointType) {
-        endpointTypeId = res.endpointTypeId
+  if (state.endpoint != null)
+    state.endpoint.forEach((ep) => {
+      // insert individual endpoint
+      let endpointTypeId = undefined
+      results.forEach((res) => {
+        if (res.endpointType.typeName == ep.endpointType) {
+          endpointTypeId = res.endpointTypeId
+        }
+      })
+      if (endpointTypeId != undefined) {
+        endpointInsertion.push(
+          queryConfig.insertEndpoint(
+            db,
+            sessionId,
+            ep.endpoint,
+            endpointTypeId,
+            ep.network
+          )
+        )
       }
     })
-    if (endpointTypeId != undefined) {
-      endpointInsertion.push(
-        queryConfig.insertEndpoint(
-          db,
-          sessionId,
-          ep.endpoint,
-          endpointTypeId,
-          ep.network
-        )
-      )
-    }
-  })
-  return Promise.all(endpointInsertion).then(() => sessionId)
+
+  if (state.log != null) {
+    querySession.writeLog(db, sessionId, state.log)
+  }
+
+  return Promise.all(endpointInsertion)
+    .then(() => querySession.setSessionClean(db, sessionId))
+    .then(() => sessionId)
 }
 
 exports.readIscData = readIscData

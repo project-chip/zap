@@ -21,6 +21,7 @@
  * @module DB API: session related queries.
  */
 const dbApi = require('./db-api.js')
+const dbMapping = require('./db-mapping.js')
 
 /**
  * Returns a promise that resolves into an array of objects containing 'sessionId', 'sessionKey' and 'creationTime'.
@@ -212,6 +213,41 @@ async function deleteSession(db, sessionId) {
   ])
 }
 
+/**
+ * Write logs to the session log.
+ *
+ * @param {*} db database connection
+ * @param {*} sessionId session id to write log to
+ * @param {*} logArray array of objects containing 'timestamp' and 'log'
+ * @returns promise of a database insert.
+ */
+async function writeLog(db, sessionId, logArray) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO SESSION_LOG (SESSION_REF, TIMESTAMP, LOG) VALUES (?,?,?)',
+    logArray.map((logEntry) => {
+      return [sessionId, logEntry.timestamp, logEntry.log]
+    })
+  )
+}
+
+/**
+ * Read all logs for the session.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into an array of objects containing 'timestamp' and 'log'
+ */
+async function readLog(db, sessionId) {
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT TIMESTAMP, LOG from SESSION_LOG WHERE SESSION_REF = ? ORDER BY TIMESTAMP',
+      [sessionId]
+    )
+    .then((rows) => rows.map(dbMapping.map.sessionLog))
+}
+
 // exports
 exports.getAllSessions = getAllSessions
 exports.setSessionClean = setSessionClean
@@ -221,3 +257,5 @@ exports.getSessionInfoFromSessionKey = getSessionInfoFromSessionKey
 exports.ensureZapSessionId = ensureZapSessionId
 exports.createBlankSession = createBlankSession
 exports.deleteSession = deleteSession
+exports.writeLog = writeLog
+exports.readLog = readLog

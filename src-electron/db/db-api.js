@@ -514,6 +514,26 @@ async function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
   )
 }
 
+/**
+ * Returns the data that should be stored into the DB column, from the passed JS boolean.
+ *
+ * @param {*} value
+ * @returns Value to be stored into the database.
+ */
+function toDbBool(value) {
+  return value ? 1 : 0
+}
+
+/**
+ * Returns a true or false JS boolean from the value that was read in the database.
+ *
+ * @param {*} value
+ * @return value to be used in JS after reading value from database.
+ */
+function fromDbBool(value) {
+  return value == 1
+}
+
 exports.dbBeginTransaction = dbBeginTransaction
 exports.dbCommit = dbCommit
 exports.dbRollback = dbRollback
@@ -529,3 +549,5 @@ exports.initRamDatabase = initRamDatabase
 exports.initDatabase = initDatabase
 exports.loadSchema = loadSchema
 exports.initDatabaseAndLoadSchema = initDatabaseAndLoadSchema
+exports.toDbBool = toDbBool
+exports.fromDbBool = fromDbBool

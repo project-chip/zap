@@ -62,21 +62,18 @@ async function exportEndpointTypes(db, sessionId) {
                     )
                     .then((commands) => {
                       endpointCluster.commands = commands
-                      return commands
                     })
-                )
-
-                ps.push(
-                  queryImpExp
-                    .exportAttributesFromEndpointTypeCluster(
-                      db,
-                      endpointType.endpointTypeId,
-                      endpointClusterId
+                    .then(() =>
+                      queryImpExp
+                        .exportAttributesFromEndpointTypeCluster(
+                          db,
+                          endpointType.endpointTypeId,
+                          endpointClusterId
+                        )
+                        .then((attributes) => {
+                          endpointCluster.attributes = attributes
+                        })
                     )
-                    .then((attributes) => {
-                      endpointCluster.attributes = attributes
-                      return attributes
-                    })
                 )
               })
               return Promise.all(ps)
@@ -140,7 +137,6 @@ async function exportDataIntoFile(db, sessionId, filePath) {
   return createStateFromDatabase(db, sessionId)
     .then((state) => {
       env.logInfo(`About to write the file to ${filePath}`)
-      env.logInfo(state)
       return new Promise((resolve, reject) => {
         env.logInfo(`Writing the file to ${filePath}`)
         fs.writeFile(filePath, JSON.stringify(state, null, 2), (err) => {
@@ -165,7 +161,6 @@ async function exportDataIntoFile(db, sessionId, filePath) {
 async function createStateFromDatabase(db, sessionId) {
   return new Promise((resolve, reject) => {
     let state = {
-      writeTime: new Date().toString(),
       featureLevel: env.zapVersion().featureLevel,
       creator: 'zap',
     }
@@ -209,8 +204,13 @@ async function createStateFromDatabase(db, sessionId) {
       return { key: 'endpoints', data: data.endpoints }
     })
 
+    let appendLog = querySession.readLog(db, sessionId).then((log) => {
+      return { key: 'log', data: log }
+    })
+
     promises.push(parseEndpointTypes)
     promises.push(parseEndpoints)
+    promises.push(appendLog)
 
     return Promise.all(promises)
       .then((data) => {

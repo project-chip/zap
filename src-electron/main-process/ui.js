@@ -19,12 +19,6 @@ const { dialog } = require('electron')
 const importJs = require('../importexport/import.js')
 const windowJs = require('./window.js')
 const env = require('../util/env.js')
-/*
- * Created Date: Tuesday, March 10th 2020, 4:22:57 pm
- * Author: Timotej Ecimovic
- *
- * Copyright (c) 2020 Silicon Labs
- */
 
 // You can always use this to show an exception.
 function showErrorMessage(title, err) {

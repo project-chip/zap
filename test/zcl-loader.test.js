@@ -29,8 +29,9 @@ const env = require('../src-electron/util/env.js')
 const types = require('../src-electron/util/types.js')
 const testUtil = require('./test-util.js')
 
-test('test opening and closing the database', () => {
-  return dbApi.initRamDatabase().then((db) => dbApi.closeDatabase(db))
+test('test opening and closing the database', async () => {
+  let db = await dbApi.initRamDatabase()
+  await dbApi.closeDatabase(db)
 })
 
 test('test database schema loading in memory', async () => {
