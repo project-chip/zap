@@ -237,9 +237,9 @@ pipeline
             }
         }
 
-        stage('Check version stamp inside binaries') {
+        stage('Check binaries') {
             parallel {
-                stage('Check version stamp for Windows')
+                stage('Check executable for Windows')
                 {
                     agent { label 'bgbuild-win' }
                     steps
@@ -249,45 +249,59 @@ pipeline
                             {
                                 unstash 'zap_apack_win'
                                 unzip zipFile: 'dist/zap_apack_win.zip'
-                                String response = sh(script: "zap.exe --version", returnStdout: true).trim()
+                                String response = sh(script: 'zap.exe --version', returnStdout: true).trim()
                                 echo response
-                                if ( response.indexOf("undefined") == -1) {
-                                    currentBuild.result = 'SUCCESS'
+                                if ( response.indexOf('undefined') == -1) {
+                                    response = sh (script: 'zap.exe selfCheck', returnStdout: true).trim()
+                                    echo response
+                                    if ( response.indexOf('Self-check done') == -1 ) {
+                                        error 'Wrong self-check result.'
+                                        currentBuild.result = 'FAILURE'
+                                    } else {
+                                        currentBuild.result = 'SUCCESS'
+                                    }
                                 } else {
-                                    error "Undefined version information"
+                                    error 'Undefined version information'
                                     currentBuild.result = 'FAILURE'
                                 }
                             }
                         }
                     }
                 }
-                stage('Check version stamp for Mac')
+                stage('Check executable for Mac')
                 {
                     agent { label 'bgbuild-mac' }
                     steps
                     {
-                        // WORKAROUND: 
-                        // Skip testing zap within .zap since zip/unzip within Jenkins is unable to 
+                        // WORKAROUND:
+                        // Skip testing zap within .zap since zip/unzip within Jenkins is unable to
                         // maintain the framework symlinks, referenced by ZAP
                         script
                         {
-                          // redirect stderr to file to avoid return statusCode failing the pipeline.
-                          // mac binaries would err with "Trace/BPT trap: 5".
-                          // depending on electron/electron-builder version, the error appear/disappear from time to time.
-                          String status = sh(script: "./dist/mac/zap.app/Contents/MacOS/zap --version 2&> output.txt", returnStatus: true)
-                          def output = readFile('output.txt').trim()
-                          echo output
-                          if ( output.indexOf("undefined") == -1) {
-                            currentBuild.result = 'SUCCESS'
+                            // redirect stderr to file to avoid return statusCode failing the pipeline.
+                            // mac binaries would err with "Trace/BPT trap: 5".
+                            // depending on electron/electron-builder version, the error appear/disappear from time to time.
+                            String status = sh(script: './dist/mac/zap.app/Contents/MacOS/zap --version 2&> output.txt', returnStatus: true)
+                            def output = readFile('output.txt').trim()
+                            echo output
+                            if ( output.indexOf('undefined') == -1) {
+                                response = sh (script: './dist/mac/zap.app/Contents/MacOS/zap selfCheck 2&> output.txt', returnStdout: true).trim()
+                                echo response
+                                if ( response.indexOf('Self-check done') == -1 ) {
+                                    error 'Wrong self-check result.'
+                                    currentBuild.result = 'FAILURE'
+                                    } else {
+                                    currentBuild.result = 'SUCCESS'
+                                }
                           } else {
-                            error "Undefined version information"
-                            currentBuild.result = 'FAILURE'
-                          }
+                                error 'Undefined version information'
+                                currentBuild.result = 'FAILURE'
+                            }
                         }
                     }
                 }
 
-                stage('Check version stamp for Linux')
+                stage('Check executable for Linux')
                 {
                     steps
                     {
@@ -297,12 +311,19 @@ pipeline
                                 unstash 'zap_apack_linux'
                                 unzip zipFile: 'dist/zap_apack_linux.zip'
                                 sh 'chmod 755 zap'
-                                String response = sh(script: "./zap --version", returnStdout: true).trim()
+                                String response = sh(script: './zap --version', returnStdout: true).trim()
                                 echo response
-                                if ( response.indexOf("undefined") == -1) {
-                                    currentBuild.result = 'SUCCESS'
+                                if ( response.indexOf('undefined') == -1) {
+                                    response = sh (script: './zap selfCheck', returnStdout: true).trim()
+                                    echo response
+                                    if ( response.indexOf('Self-check done') == -1 ) {
+                                        error 'Wrong self-check result.'
+                                        currentBuild.result = 'FAILURE'
+                                    } else {
+                                        currentBuild.result = 'SUCCESS'
+                                    }
                                 } else {
-                                    error "Undefined version information"
+                                    error 'Undefined version information'
                                     currentBuild.result = 'FAILURE'
                                 }
                             }
