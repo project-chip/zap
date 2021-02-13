@@ -107,7 +107,7 @@
     "electron-devtools-installer": "^3.1.1",
     "electron-installer-dmg": "^3.0.0",
     "electron-packager": "^15.2.0",
-    "electron-rebuild": "^2.3.4",
+    "electron-rebuild": "^2.3.5",
     "eslint": "^7.19.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-loader": "^4.0.2",
