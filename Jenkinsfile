@@ -284,12 +284,13 @@ pipeline
                             def output = readFile('output.txt').trim()
                             echo output
                             if ( output.indexOf('undefined') == -1) {
-                                response = sh (script: './dist/mac/zap.app/Contents/MacOS/zap selfCheck 2&> output.txt', returnStdout: true).trim()
-                                echo response
-                                if ( response.indexOf('Self-check done') == -1 ) {
+                                status = sh (script: './dist/mac/zap.app/Contents/MacOS/zap selfCheck 2&> output.txt', returnStdout: true)
+                                output = readFile('output.txt').trim()
+                                echo output
+                                if ( output.indexOf('Self-check done') == -1 ) {
                                     error 'Wrong self-check result.'
                                     currentBuild.result = 'FAILURE'
-                                    } else {
+                                } else {
                                     currentBuild.result = 'SUCCESS'
                                 }
                           } else {
