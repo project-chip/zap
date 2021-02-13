@@ -57,9 +57,9 @@ function hookAppEvents() {
 
   app.on('quit', () => {
     if (env.mainDatabase() != null) {
-      dbApi
-        .closeDatabase(env.mainDatabase())
-        .then(() => env.logInfo('Database closed, shutting down.'))
+      // Use a sync call, because you can't have promises in the 'quit' event.
+      dbApi.closeDatabaseSync(env.mainDatabase())
+      env.logInfo('Database closed, shutting down.')
     }
   })
 

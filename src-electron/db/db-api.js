@@ -316,7 +316,6 @@ async function dbMultiInsert(db, sql, arrayOfArrays) {
  * Returns a promise that will resolve when the database in question is closed.
  * Rejects with an error if closing fails.
  *
- * @export
  * @param {*} database
  * @returns A promise that resolves without an argument or rejects with error from the database closing.
  */
@@ -328,6 +327,22 @@ async function closeDatabase(database) {
       env.logSql('Database is closed.')
       resolve()
     })
+  })
+}
+
+/**
+ * Returns a promise that will resolve when the database in question is closed.
+ * Rejects with an error if closing fails.
+ *
+ * @param {*} database
+ * @returns A promise that resolves without an argument or rejects with error from the database closing.
+ */
+async function closeDatabaseSync(database) {
+  env.logSql('About to close database.')
+  database.close((err) => {
+    if (err) return reject(err)
+    env.logSql('Database is closed.')
+    resolve()
   })
 }
 
@@ -545,6 +560,7 @@ exports.dbGet = dbGet
 exports.dbMultiSelect = dbMultiSelect
 exports.dbMultiInsert = dbMultiInsert
 exports.closeDatabase = closeDatabase
+exports.closeDatabaseSync = closeDatabaseSync
 exports.initRamDatabase = initRamDatabase
 exports.initDatabase = initDatabase
 exports.loadSchema = loadSchema
