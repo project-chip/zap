@@ -83,6 +83,7 @@
     "pino": "^6.11.1",
     "promised-handlebars": "^2.0.1",
     "properties": "^1.2.1",
+    "request": "^2.88.2",
     "sqlite3": "^4.2.0",
     "utf-8-validate": "^5.0.3",
     "ws": "^7.4.1",

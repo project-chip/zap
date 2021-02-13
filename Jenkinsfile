@@ -23,12 +23,12 @@ pipeline
                 script
                 {
                     sh 'uname -a'
+                    sh 'rm -rf node_modules'
                     sh 'npm --version'
                     sh 'node --version'
                     sh 'npm ci'
                     sh 'npm list || true'
-                    sh 'npm rebuild canvas --update-binary || true'
-                    sh 'npm rebuild libxmljs --update-binary || true'
+                    sh 'src-script/npm-update-binary || true'
                 }
             }
         }
