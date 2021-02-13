@@ -35,6 +35,7 @@ if (process.env.DEV) {
  * Hook up all the events for the electron app object.
  */
 function hookAppEvents() {
+  app.allowRendererProcessReuse = false
   app
     .whenReady()
     .then(() => startup.startUp(true))
