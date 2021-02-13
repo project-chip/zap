@@ -161,7 +161,7 @@ pipeline
         }
         stage('Building distribution artifacts') {
             parallel {
-                stage('Building for Mac')
+                /*stage('Building for Mac')
                 {
                     agent { label 'bgbuild-mac' }
                     steps
@@ -188,6 +188,7 @@ pipeline
                         }
                     }
                 }
+                */
                 stage('Building for Windows / Linux')
                 {
                     steps
@@ -222,7 +223,7 @@ pipeline
                         }
                     }
                 }
-
+                /*
                 stage('Creating artifact for Mac')
                 {
                     agent { label 'bgbuild-mac' }
@@ -234,6 +235,7 @@ pipeline
                         }
                     }
                 }
+                */
             }
         }
 
@@ -268,6 +270,7 @@ pipeline
                         }
                     }
                 }
+                /*
                 stage('Check executable for Mac')
                 {
                     agent { label 'bgbuild-mac' }
@@ -300,7 +303,7 @@ pipeline
                         }
                     }
                 }
-
+                */
                 stage('Check executable for Linux')
                 {
                     steps
