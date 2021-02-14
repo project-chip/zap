@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: sudo apt-get update
-      - run: sudo apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev
+      - run: sudo apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev xvfb
       - run: npm ci
       - run: npm run version-stamp
       - run: npm rebuild canvas --update-binary
@@ -35,6 +35,7 @@ jobs:
       - run: npm run self-check
       - run: npm run gen
       - run: export GH_TOKEN=${{ secrets.GITHUB_TOKEN}} && npm run dist-linux
+      - run: xvfb-run -a dist/linux-unpacked/zap selfCheck
       - name: Archive .rpm file
         uses: actions/upload-artifact@v2
         with:
