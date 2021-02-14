@@ -16,7 +16,7 @@ pipeline
                 }
             }
         }
-        stage('Npm ci')
+        stage('Npm clean install')
         {
             steps
             {
@@ -128,34 +128,29 @@ pipeline
                 }
             }
         }
-        stage('Test blank generation')
-        {
-            steps
-            {
-                script
-                {
-                    sh 'npm run gen'
+        stage('Test generation') {
+            parallel {
+                stage('Test blank generation') {
+                    steps {
+                        script {
+                            sh 'npm run gen'
+                        }
+                    }
                 }
-            }
-        }
-        stage('Test CHIP generation')
-        {
-            steps
-            {
-                script
-                {
-                    sh 'npm run genchip'
-                    sh 'python ./test/resource/chip/compare.py'
+                stage('Test CHIP generation') {
+                    steps {
+                        script {
+                            sh 'npm run genchip'
+                            sh 'python ./test/resource/chip/compare.py'
+                        }
+                    }
                 }
-            }
-        }
-        stage('Test generation with dotdot XML')
-        {
-            steps
-            {
-                script
-                {
-                    sh 'npm run gen3'
+                stage('Test generation with dotdot XML') {
+                    steps {
+                        script {
+                            sh 'npm run gen3'
+                        }
+                    }
                 }
             }
         }
