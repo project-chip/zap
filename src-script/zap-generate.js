@@ -46,6 +46,12 @@ let arg = yargs
     type: 'string',
     demandOption: false,
   })
+  .option('stateDirectory', {
+    desc: 'State directory',
+    type: 'string',
+    demandOption: false,
+    default: '~/.zap',
+  })
   .demandOption(
     ['zcl', 'out', 'generationTemplate'],
     'Please provide required options!'
@@ -60,6 +66,8 @@ let cli = [
   'generate',
   '--noUi',
   '--noServer',
+  '--stateDirectory',
+  arg.stateDirectory,
   '--zcl',
   arg.zcl,
   '--generationTemplate',

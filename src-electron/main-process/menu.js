@@ -362,7 +362,7 @@ function fileSave(db, browserWindow, filePath) {
     )
     .then((row) => {
       return queryConfig
-        .updateKeyValue(
+        .updateSessionKeyValue(
           db,
           row.sessionId,
           dbEnum.sessionKey.filePath,

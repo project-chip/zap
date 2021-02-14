@@ -236,6 +236,59 @@ function all_user_cluster_command_util(
   return promise
 }
 
+function all_user_cluster_attribute_util(
+  name,
+  side,
+  options,
+  currentContext,
+  isManufacturingSpecific,
+  isIrrespectiveOfManufacturingSpecification = false
+) {
+  let promise = queryImpexp
+    .exportendPointTypeIds(
+      currentContext.global.db,
+      currentContext.global.sessionId
+    )
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        currentContext.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      isIrrespectiveOfManufacturingSpecification
+        ? queryZcl.exportAllAttributeDetailsFromEnabledClusters(
+            currentContext.global.db,
+            endpointsAndClusters
+          )
+        : isManufacturingSpecific
+        ? queryZcl.exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
+            currentContext.global.db,
+            endpointsAndClusters
+          )
+        : queryZcl.exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
+            currentContext.global.db,
+            endpointsAndClusters
+          )
+    )
+    .then(
+      (endpointAttributes) =>
+        new Promise((resolve, reject) => {
+          let availableAttributes = []
+          for (let i = 0; i < endpointAttributes.length; i++) {
+            if (helperZcl.isStrEqual(name, endpointAttributes[i].clusterName)) {
+              availableAttributes.push(endpointAttributes[i])
+            }
+          }
+          resolve(availableAttributes)
+        })
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, currentContext)
+    )
+  return promise
+}
+
 /**
  * Creates endpoint type cluster command iterator. This fetches all
  * manufacturing specific commands which have been enabled on added endpoints
@@ -262,6 +315,38 @@ function all_user_cluster_non_manufacturer_specific_commands(
   options
 ) {
   return all_user_cluster_command_util(name, side, options, this, false)
+}
+
+/**
+ * Creates endpoint type cluster command iterator. This fetches all
+ * manufacturing specific commands which have been enabled on added endpoints
+ *
+ * @param options
+ * @returns Promise of the resolved blocks iterating over manufacturing specific
+ * cluster commands.
+ */
+function all_user_cluster_manufacturer_specific_attributes(
+  name,
+  side,
+  options
+) {
+  return all_user_cluster_attribute_util(name, side, options, this, true)
+}
+
+/**
+ * Creates endpoint type cluster command iterator. This fetches all
+ * non-manufacturing specific commands which have been enabled on added endpoints
+ *
+ * @param options
+ * @returns Promise of the resolved blocks iterating over non-manufacturing specific
+ * cluster commands.
+ */
+function all_user_cluster_non_manufacturer_specific_attributes(
+  name,
+  side,
+  options
+) {
+  return all_user_cluster_attribute_util(name, side, options, this, false)
 }
 
 /**
@@ -497,6 +582,23 @@ function all_user_cluster_commands_irrespective_of_manufaturing_specification(
 }
 
 /**
+ * Creates endpoint type cluster attribute iterator. This fetches all
+ * manufacturing and non-manufaturing specific attributes which have been enabled
+ * on added endpoints
+ *
+ * @param options
+ * @returns Promise of the resolved blocks iterating over manufacturing specific
+ * and non-manufacturing specific cluster attributes.
+ */
+function all_user_cluster_attributes_irrespective_of_manufatucuring_specification(
+  name,
+  side,
+  options
+) {
+  return all_user_cluster_attribute_util(name, side, options, this, false, true)
+}
+
+/**
  * Helper that resolves into a user session key value.
  *
  * @param {*} options
@@ -606,3 +708,6 @@ exports.all_user_cluster_non_manufacturer_specific_commands = all_user_cluster_n
 exports.user_cluster_commands_with_cli = user_cluster_commands_with_cli
 exports.all_cli_commands_for_user_enabled_clusters = all_cli_commands_for_user_enabled_clusters
 exports.all_user_cluster_commands_irrespective_of_manufaturing_specification = all_user_cluster_commands_irrespective_of_manufaturing_specification
+exports.all_user_cluster_manufacturer_specific_attributes = all_user_cluster_manufacturer_specific_attributes
+exports.all_user_cluster_non_manufacturer_specific_attributes = all_user_cluster_non_manufacturer_specific_attributes
+exports.all_user_cluster_attributes_irrespective_of_manufatucuring_specification = all_user_cluster_attributes_irrespective_of_manufatucuring_specification

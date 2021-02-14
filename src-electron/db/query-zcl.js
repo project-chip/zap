@@ -1103,8 +1103,8 @@ async function insertClusterExtensions(db, packageId, data) {
   return dbApi
     .dbMultiSelect(
       db,
-      'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?',
-      data.map((cluster) => [cluster.code])
+      'SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ?',
+      data.map((cluster) => [packageId, cluster.code])
     )
     .then((rows) => {
       let commandsToLoad = []
@@ -2039,6 +2039,110 @@ async function exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAn
 }
 
 /**
+ * Returns a promise of data for manufacturing/non-manufacturing specific attributes
+ * inside an endpoint type.
+ *
+ * @param db
+ * @param endpointTypeId
+ * @returns Promise that resolves with the manufacturing/non-manufacturing
+ * specific attribute data.
+ */
+async function exportAttributeDetailsFromAllEndpointTypesAndClustersUtil(
+  db,
+  endpointsAndClusters,
+  isManufacturingSpecific
+) {
+  let endpointTypeIds = endpointsAndClusters
+    .map((ep) => ep.endpointId)
+    .toString()
+  let endpointClusterIds = endpointsAndClusters
+    .map((ep) => ep.endpointClusterId)
+    .toString()
+  let mapFunction = (x) => {
+    return {
+      id: x.ATTRIBUTE_ID,
+      name: x.NAME,
+      code: x.CODE,
+      side: x.SIDE,
+      type: x.TYPE,
+      define: x.DEFINE,
+      mfgCode: x.MANUFACTURER_CODE,
+      clusterSide: x.SIDE,
+      clusterName: x.CLUSTER_NAME,
+      isClusterEnabled: x.ENABLED,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    ATTRIBUTE.ATTRIBUTE_ID,
+    ATTRIBUTE.NAME,
+    ATTRIBUTE.CODE,
+    ATTRIBUTE.SIDE,
+    ATTRIBUTE.TYPE,
+    ATTRIBUTE.DEFINE,
+    ATTRIBUTE.MANUFACTURER_CODE,
+    ENDPOINT_TYPE_CLUSTER.SIDE,
+    CLUSTER.NAME AS CLUSTER_NAME,
+    ENDPOINT_TYPE_CLUSTER.ENABLED
+  FROM ATTRIBUTE
+  INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
+  ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+  INNER JOIN ENDPOINT_TYPE_CLUSTER
+  ON ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  INNER JOIN CLUSTER
+  ON ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+  AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
+  AND ATTRIBUTE.MANUFACTURER_CODE IS` +
+        (isManufacturingSpecific ? ` NOT ` : ` `) +
+        `NULL
+  AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
+  GROUP BY ATTIRBUTE.NAME
+        `
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * Returns a promise of data for manufacturing specific attributes inside an endpoint type.
+ *
+ * @param db
+ * @param endpointTypeId
+ * @returns Promise that resolves with the manufacturing specific attribute data.
+ */
+async function exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
+  db,
+  endpointsAndClusters
+) {
+  return exportAttributeDetailsFromAllEndpointTypesAndClustersUtil(
+    db,
+    endpointsAndClusters,
+    true
+  )
+}
+
+/**
+ * Returns a promise of data for attributes with no manufacturing specific information inside an endpoint type.
+ *
+ * @param db
+ * @param endpointTypeId
+ * @returns Promise that resolves with the non-manufacturing specific attribute data.
+ */
+async function exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
+  db,
+  endpointsAndClusters
+) {
+  return exportAttributeDetailsFromAllEndpointTypesAndClustersUtil(
+    db,
+    endpointsAndClusters,
+    false
+  )
+}
+
+/**
  * Returns a promise of data for commands inside an endpoint type.
  *
  * @param {*} db
@@ -2086,6 +2190,64 @@ async function exportAllCommandDetailsFromEnabledClusters(
   ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
   WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
   GROUP BY COMMAND.NAME
+        `
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * Returns a promise of data for attributes inside an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the attribute data.
+ */
+async function exportAllAttributeDetailsFromEnabledClusters(
+  db,
+  endpointsAndClusters
+) {
+  let endpointTypeClusterRef = endpointsAndClusters
+    .map((ep) => ep.endpointTypeClusterRef)
+    .toString()
+  let mapFunction = (x) => {
+    return {
+      id: x.ATTRIBUTE_ID,
+      name: x.NAME,
+      code: x.CODE,
+      side: x.SIDE,
+      type: x.TYPE,
+      define: x.DEFINE,
+      mfgCode: x.MANUFACTURER_CODE,
+      clusterSide: x.SIDE,
+      clusterName: x.CLUSTER_NAME,
+      isClusterEnabled: x.ENABLED,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    ATTRIBUTE.ATTRIBUTE_ID,
+    ATTRIBUTE.NAME,
+    ATTRIBUTE.CODE,
+    ATTRIBUTE.SIDE,
+    ATTRIBUTE.TYPE,
+    ATTRIBUTE.DEFINE,
+    ATTRIBUTE.MANUFACTURER_CODE,
+    ENDPOINT_TYPE_CLUSTER.SIDE,
+    CLUSTER.NAME AS CLUSTER_NAME,
+    ENDPOINT_TYPE_CLUSTER.ENABLED
+  FROM ATTRIBUTE
+  INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
+  ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+  INNER JOIN CLUSTER
+  ON ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  INNER JOIN ENDPOINT_TYPE_CLUSTER
+  ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
+  AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
+  GROUP BY ATTRIBUTE.NAME
         `
     )
     .then((rows) => rows.map(mapFunction))
@@ -2513,3 +2675,6 @@ exports.exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters 
 exports.exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
 exports.exportAllCliCommandDetailsFromEnabledClusters = exportAllCliCommandDetailsFromEnabledClusters
 exports.exportCliCommandsFromCluster = exportCliCommandsFromCluster
+exports.exportAllAttributeDetailsFromEnabledClusters = exportAllAttributeDetailsFromEnabledClusters
+exports.exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
+exports.exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters

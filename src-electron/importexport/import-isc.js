@@ -130,16 +130,16 @@ function parseZclAfv2Line(state, line) {
     let idOnOff = line.substring('overrideClientCluster:'.length).split(',')
     let override = {
       clusterId: parseInt(idOnOff[0]),
-      isOverriden: idOnOff[1] == 'yes',
-      side: 'client',
+      isIncluded: idOnOff[1] == 'yes',
+      side: dbEnum.side.client,
     }
     state.clusterOverride.push(override)
   } else if (line.startsWith('overrideServerCluster:')) {
     let idOnOff = line.substring('overrideServerCluster:'.length).split(',')
     let override = {
       clusterId: parseInt(idOnOff[0]),
-      isOverriden: idOnOff[1] == 'yes',
-      side: 'server',
+      isIncluded: idOnOff[1] == 'yes',
+      side: dbEnum.side.server,
     }
     state.clusterOverride.push(override)
   } else if (line == 'beginAttributeDefaults') {
@@ -368,7 +368,7 @@ async function iscDataLoader(db, state, sessionId) {
 
   // results is an array of "endpointTypeId"/"endpointType" objects.
 
-  let endpointInsertion = []
+  let endpointInsertionPromises = []
   if (state.endpoint != null)
     state.endpoint.forEach((ep) => {
       // insert individual endpoint
@@ -379,7 +379,7 @@ async function iscDataLoader(db, state, sessionId) {
         }
       })
       if (endpointTypeId != undefined) {
-        endpointInsertion.push(
+        endpointInsertionPromises.push(
           queryConfig.insertEndpoint(
             db,
             sessionId,
@@ -391,11 +391,34 @@ async function iscDataLoader(db, state, sessionId) {
       }
     })
 
+  let individualOverridePromises = []
+
+  //if (state.attributeType.length > 0) {
+  //}
+
+  if (state.clusterOverride.length > 0) {
+    state.clusterOverride.forEach((cl) => {
+      let clusterCode = cl.clusterId
+      let isIncluded = cl.isIncluded
+      let side = cl.side
+      individualOverridePromises.push(
+        queryConfig.setClusterIncluded(
+          db,
+          packageId,
+          clusterCode,
+          isIncluded,
+          side
+        )
+      )
+    })
+  }
+
   if (state.log != null) {
     querySession.writeLog(db, sessionId, state.log)
   }
 
-  return Promise.all(endpointInsertion)
+  return Promise.all(endpointInsertionPromises)
+    .then(() => Promise.all(individualOverridePromises))
     .then(() => querySession.setSessionClean(db, sessionId))
     .then(() => sessionId)
 }

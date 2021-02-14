@@ -135,7 +135,7 @@ async function initializeSessionPackage(db, sessionId) {
                     optionDefault.optionRef
                   )
                   .then((option) => {
-                    return queryConfig.insertKeyValue(
+                    return queryConfig.insertSessionKeyValue(
                       db,
                       sessionId,
                       option.optionCategory,
