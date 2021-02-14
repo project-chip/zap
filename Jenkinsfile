@@ -23,7 +23,7 @@ pipeline
                 script
                 {
                     sh 'uname -a'
-                    sh 'rm -rf node_modules'
+                    sh 'rm -rf dist/'
                     sh 'npm --version'
                     sh 'node --version'
                     sh 'npm ci'
