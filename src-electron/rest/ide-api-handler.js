@@ -29,6 +29,7 @@ const path = require('path')
 const http = require('http-status-codes')
 const queryConfig = require('../db/query-config.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const { queryEndpoints } = require('../db/query-endpoint.js')
 /**
  * HTTP GET: IDE open
  *
@@ -49,12 +50,6 @@ function httpGetIdeOpen(db) {
           let response = { sessionId: sessionId, sessionKey: req.session.id }
           env.logInfo(
             `Studio: Loaded project(${name}), ${JSON.stringify(response)}`
-          )
-          queryConfig.updateSessionKeyValue(
-            db,
-            sessionId,
-            dbEnum.sessionKey.filePath,
-            zapFile
           )
           res.send(response)
         })
