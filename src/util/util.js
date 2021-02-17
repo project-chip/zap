@@ -30,14 +30,14 @@ export function asHex(value, padding) {
 
 /**
  * Setup MutationObserver for specific attribute on the ZAP front end
- * and invoke specific functions on the Window object
+ * and invoke callback functions on the Window Object
  *
  * user case: front-end container (jxBrowser/Electron/etc) intending to 'watch' data inside front-end.
  *
  * @param {*} attributeName
  * @param {*} callback -
- *                      if type "string", it's used as a function name and will be invoked upon the Window Object
- *                      if type "function", it's invoked as a callback.
+*                      if type "string", it's used as a function name and will be invoked upon the Window Object
+*                      if type "function", it's invoked as a callback.
  */
 
 export function observeAttribute(attributeName, callbackObj) {
