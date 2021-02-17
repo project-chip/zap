@@ -16,13 +16,25 @@
  */
 
 const ide = require('./ide-api-request.js')
+const util = require('../util/util.js')
 
-// The purpose of this file is to provide the API for jxbrowser
+// This file provide glue logic to enable function calls & HTML attribute data change listener logic
+// between front-end containers (jxBrowser, Electron, etc) and the node.js
 //
-// NOTE: If a callback applies (e.g. when a function returns a value),
-//       the javascript code will invoke the Java function name "${id}Callback"
-//       e.g. for function "open", "openCallback" is invoked.
+// If a callback applies (e.g. when a function returns a value),
+// the javascript code will invoke the Java function name "${id}Callback"
+// e.g. for function "open", "openCallback" is invoked.
 
+
+/**
+ * Each declared 'function' entry offers such features:
+ * - ability to invoke front-end functions within container via function 'id' with callback.
+ * - ability to observe specific HTML target (a DOM Node) for data change.
+ * 
+ * Per entry, 'type' is 'observer', it is dedicated as a data cahgne listener. The 
+ * e.g. The 'open' function is invoked by the container when opening a new configuration.
+ * The front-end is informed and proceed to init UI elements.
+ */
 export default function createApi() {
   return {
     prefix: 'zap',
@@ -55,9 +67,10 @@ export default function createApi() {
       },
       {
         id: 'isDirty',
+        type: 'init',
         description:
-          'Returns whether editor content should be saved when the editor is closed...',
-        function: () => alert('rename!'),
+          "Observe 'isdirty' attribute, which reflects the DIRTY flag in ZAP backend. setDirty() is invoked as callback.",
+        function: () => util.observeAttribute('isdirty', 'setDirty'),
       },
 
       // Misc operation that might not be supported.

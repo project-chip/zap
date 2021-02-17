@@ -78,7 +78,7 @@ function onWebSocket(category, listener) {
 }
 
 function processReceivedObject(obj) {
-  if ('category' in obj && 'payload' in obj) {
+  if (typeof obj == 'object' && 'category' in obj && 'payload' in obj) {
     eventEmitter.emit(obj.category, obj.payload)
   } else {
     eventEmitter.emit(dbEnum.wsCategory.generic, obj)
@@ -97,6 +97,16 @@ onWebSocket(dbEnum.wsCategory.init, (data) =>
 
 onWebSocket(dbEnum.wsCategory.tick, (data) =>
   console.log(`Tick received: ${data}`)
+)
+
+onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) => {
+  document.documentElement.setAttribute('isdirty', data)
+  console.log(`Dirty flag received: ${data}`)
+}
+)
+
+onWebSocket(dbEnum.wsCategory.generic, (data) =>
+  console.log(`Generic message received: ${data}`)
 )
 
 Vue.prototype.$sendWebSocketData = sendWebSocketData

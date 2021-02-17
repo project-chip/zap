@@ -20,9 +20,14 @@
  *
  */
 
+// dirty flag reporting interval
+const DIRTY_FLAG_REPORT_INTERVAL_MS = 1000
 const axios = require('axios')
 const args = require('../util/args.js')
 const env = require('../util/env.js')
+const querySession = require('../db/query-session.js')
+const wsServer = require('../server/ws-server.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 const localhost = 'http://localhost:'
 const op_tree = '/rest/clic/components/all/project/'
@@ -58,7 +63,33 @@ function projectName(studioProject) {
   }
 }
 
+function initializeReporting() {
+  setInterval(() => {
+    sendDirtyFlagStatus()
+  }, DIRTY_FLAG_REPORT_INTERVAL_MS)
+}
+
+function sendDirtyFlagStatus() {
+  // 'sessionId', 'sessionKey' and 'creationTime'.
+  querySession.getAllSessions(env.mainDatabase()).then((sessions) =>
+    sessions.forEach((session) => {
+      let socket = wsServer.clientSocket(session.sessionKey)
+      if (socket) {
+        querySession
+          .getSessionDirtyFlag(env.mainDatabase(), session.sessionId)
+          .then((flag) => {
+            wsServer.sendWebSocketMessage(socket, {
+              category: dbEnum.wsCategory.dirtyFlag,
+              payload: !!flag,
+            })
+          })
+      }
+    })
+  )
+}
+
 exports.getProjectInfo = getProjectInfo
 exports.addComponent = addComponent
 exports.removeComponent = removeComponent
 exports.projectName = projectName
+exports.initializeReporting = initializeReporting
