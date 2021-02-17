@@ -80,7 +80,7 @@ function sendDirtyFlagStatus() {
           .then((flag) => {
             wsServer.sendWebSocketMessage(socket, {
               category: dbEnum.wsCategory.dirtyFlag,
-              payload: flag,
+              payload: !!flag,
             })
           })
       }
