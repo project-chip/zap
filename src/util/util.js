@@ -36,8 +36,8 @@ export function asHex(value, padding) {
  *
  * @param {*} attributeName
  * @param {*} callback -
-*                      if type "string", it's used as a function name and will be invoked upon the Window Object
-*                      if type "function", it's invoked as a callback.
+ *                      if type "string", it's used as a function name and will be invoked upon the Window Object
+ *                      if type "function", it's invoked as a callback.
  */
 
 export function observeAttribute(attributeName, callbackObj) {
@@ -53,8 +53,6 @@ export function observeAttribute(attributeName, callbackObj) {
         mutation.attributeName === attributeName
       ) {
         let attributeValue = mutation.target.getAttribute(attributeName)
-        console.log('MutationObserver: ' + attributeValue)
-
         if (typeof callbackObj === 'string') {
           window[callbackObj](attributeValue)
         } else if (typeof callbackObj === 'function') {
