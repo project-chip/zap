@@ -24,6 +24,7 @@ limitations under the License.
 <script>
 import Vue from 'vue'
 import { QSpinnerGears } from 'quasar'
+const util = require('./util/util.js')
 
 function initLoad(store) {
   store.dispatch('zap/loadInitialData')
@@ -57,8 +58,8 @@ function initLoad(store) {
 export default {
   name: 'App',
   methods: {
-    setThemeMode(bodyElement) {
-      const theme = bodyElement.getAttribute('data-theme')
+    setThemeMode() {
+      const theme = document.documentElement.getAttribute('data-theme')
       if (theme === 'com.silabs.ss.platform.theme.dark') {
         this.$q.dark.set(true)
       } else {
@@ -97,22 +98,11 @@ export default {
     this.zclDialogTitle = 'ZCL tab!'
     this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
     this.zclDialogFlag = false
-    let html = document.documentElement
-    this.setThemeMode(html)
-    new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (
-          mutation.type === 'attributes' &&
-          mutation.attributeName === 'data-theme'
-        ) {
-          this.setThemeMode(html)
-        }
-      })
-    }).observe(html, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
-      subtree: false,
+
+    util.observeAttribute('data-theme', () => {
+      this.setThemeMode()
     })
+
     initLoad(this.$store).then(() => {
       this.$q.loading.hide()
     })
