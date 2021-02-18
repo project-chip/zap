@@ -53,17 +53,17 @@ export default function createApi() {
       {
         id: 'saveAs',
         description: 'Save As file...',
-        function: () => alert('save!'),
+        function: () => {},
       },
       {
         id: 'refresh',
         description: 'Refresh file...',
-        function: () => alert('refresh!'),
+        function: () => {},
       },
       {
         id: 'rename',
         description: 'Rename file...',
-        function: () => alert('rename!'),
+        function: () => {},
       },
       {
         id: 'isDirty',
@@ -77,17 +77,17 @@ export default function createApi() {
       {
         id: 'move',
         description: 'Move file...',
-        function: () => alert('Move!'),
+        function: () => {},
       },
       {
         id: 'import',
         description: 'Import file...',
-        function: () => alert('import!'),
+        function: () => {},
       },
       {
         id: 'export',
         description: 'Export file...',
-        function: () => alert('export!'),
+        function: () => {},
       },
     ],
   }
