@@ -27,10 +27,12 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const sdkExt = require('../generator/helper-sdkextension.js')
 
 /**
- * Return a list of component Ids required by a specific cluster
- *
- * @param {*} db
- * @returns callback for the express uri registration
+ * Promise that return a list of component Ids required by a specific cluster
+ * @param {*} db 
+ * @param {*} sessionId 
+ * @param {*} clusterId 
+ * @param {*} side 
+ * @returns {componentIds, clusterId, clusterLabel, side}
  */
 function getComponentIdsByCluster(db, sessionId, clusterId, side) {
   // enable components
@@ -73,17 +75,23 @@ function getComponentIdsByCluster(db, sessionId, clusterId, side) {
       })
 
       return Promise.resolve({
-        id: componentIds,
-        clusterId: cluster.id,
+        componentIds,
+        clusterId,
         clusterLabel: cluster.label.toLowerCase(),
         side,
       })
     })
     .catch((err) => {
       console.log(
-        `Failed to retrieve component dependency by clusterId(${clusterId})`,
+        `Failed to retrieve component ids required by clusterId(${clusterId}) from cluster extension mapping.`,
         err
       )
+
+      return Promise.resolve({
+        componentIds: [],
+        clusterId,
+        side,
+      })
     })
 }
 
