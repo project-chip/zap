@@ -392,10 +392,10 @@ export function setAttributeStateLists(context, selectionContext) {
       record.attributeRef,
       record.clusterRef
     )
-    if (record.included === 1) includedAttributes.push(resolvedReference)
-    if (record.singleton === 1) singletonAttributes.push(resolvedReference)
-    if (record.bounded === 1) boundedAttributes.push(resolvedReference)
-    if (record.includedReportable === 1)
+    if (record.included) includedAttributes.push(resolvedReference)
+    if (record.singleton) singletonAttributes.push(resolvedReference)
+    if (record.bounded) boundedAttributes.push(resolvedReference)
+    if (record.includedReportable)
       includedReportableAttributes.push(resolvedReference)
     defaultValue[resolvedReference] = record.defaultValue
     storageOption[resolvedReference] = record.storageOption
@@ -424,8 +424,8 @@ export function setCommandStateLists(context, selectionContext) {
       record.commandRef,
       record.clusterRef
     )
-    if (record.incoming === 1) incoming.push(resolvedReference)
-    if (record.outgoing === 1) outgoing.push(resolvedReference)
+    if (record.incoming) incoming.push(resolvedReference)
+    if (record.outgoing) outgoing.push(resolvedReference)
   })
   context.commit(`setCommandLists`, {
     incoming: incoming,
