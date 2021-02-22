@@ -102,6 +102,15 @@ CREATE TABLE "PACKAGE_EXTENSION_DEFAULT" (
  *  \______/    \____/  \_______|  \____/ \__| \_______|       \_______| \_______|  \____/  \_______|
  */
 /*
+ SPEC table contains the spec information.
+ */
+DROP TABLE IF EXISTS "SPEC";
+CREATE TABLE IF NOT EXISTS "SPEC" (
+  "SPEC_ID" integer primary key autoincrement,
+  "CODE" text,
+  "DESCRIPTION" text
+);
+/*
  CLUSTER table contains the clusters loaded from the ZCL XML files.
  */
 DROP TABLE IF EXISTS "CLUSTER";
