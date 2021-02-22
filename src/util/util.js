@@ -27,3 +27,40 @@ export function asHex(value, padding) {
   if (value == null) return ''
   return '0x' + value.toString(16).padStart(padding, '0').toUpperCase()
 }
+
+/**
+ * Setup MutationObserver for specific attribute on the ZAP front end
+ * and invoke callback functions on the Window Object
+ *
+ * user case: front-end container (jxBrowser/Electron/etc) intending to 'watch' data inside front-end.
+ *
+ * @param {*} attributeName
+ * @param {*} callback -
+ *                      if type "string", it's used as a function name and will be invoked upon the Window Object
+ *                      if type "function", it's invoked as a callback.
+ */
+
+export function observeAttribute(attributeName, callbackObj) {
+  // HTML attribute names are not guaranteed to be case sensitive
+  attributeName = attributeName.toLowerCase()
+  let html = document.documentElement
+  console.log('observing : ' + attributeName)
+
+  new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (
+        mutation.type === 'attributes' &&
+        mutation.attributeName === attributeName
+      ) {
+        let attributeValue = mutation.target.getAttribute(attributeName)
+        if (typeof callbackObj === 'string') {
+          window[callbackObj](attributeValue)
+        } else if (typeof callbackObj === 'function') {
+          callbackObj()
+        }
+      }
+    })
+  }).observe(html, {
+    attributeFilter: [attributeName],
+  })
+}

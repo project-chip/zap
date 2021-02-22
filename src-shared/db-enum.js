@@ -83,6 +83,7 @@ exports.pathRelativity = {
 
 exports.wsCategory = {
   generic: 'generic',
+  dirtyFlag: 'dirtyFlag',
   init: 'init',
   tick: 'tick',
 }

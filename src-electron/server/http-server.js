@@ -28,6 +28,7 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const webSocket = require('./ws-server.js')
+const studio = require('../ide-integration/studio-integration.js')
 
 const restApiModules = [
   '../rest/admin.js',
@@ -162,6 +163,7 @@ async function initHttpServer(db, port, studioPort) {
     })
 
     webSocket.initializeWebSocket(httpServer)
+    studio.initializeReporting()
   })
 }
 
