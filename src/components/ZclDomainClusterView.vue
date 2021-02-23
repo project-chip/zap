@@ -197,7 +197,7 @@ export default {
         side.push('server')
       }
 
-      this.updateComponent({
+      this.updateSelectedComponentRequest({
         clusterId: id,
         side: side,
         added: true,
