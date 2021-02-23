@@ -1624,6 +1624,24 @@ async function insertDomains(db, packageId, data) {
  * @returns Promise of insertion.
  */
 async function insertSpecs(db, packageId, data) {
+  let olders = []
+  data.forEach((domain) => {
+    if ('older' in domain) {
+      domain.older.forEach((older) => olders.push(older))
+    }
+  })
+  if (olders.length > 0) {
+    await dbApi.dbMultiInsert(
+      db,
+      'INSERT INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
+      olders.map((older) => [
+        packageId,
+        older.specCode,
+        older.specDescription,
+        older.specCertifiable ? 1 : 0,
+      ])
+    )
+  }
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
