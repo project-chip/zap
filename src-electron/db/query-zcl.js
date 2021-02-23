@@ -1626,8 +1626,13 @@ async function insertDomains(db, packageId, data) {
 async function insertSpecs(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION) VALUES (?, ?, ?)',
-    data.map((domain) => [packageId, domain.specCode, domain.specDescription])
+    'INSERT INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
+    data.map((domain) => [
+      packageId,
+      domain.specCode,
+      domain.specDescription,
+      domain.specCertifiable ? 1 : 0,
+    ])
   )
 }
 

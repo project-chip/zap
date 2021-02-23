@@ -110,6 +110,7 @@ CREATE TABLE IF NOT EXISTS "SPEC" (
   "PACKAGE_REF" integer,
   "CODE" text,
   "DESCRIPTION" text,
+  "CERTIFIABLE" integer,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*

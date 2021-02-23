@@ -477,11 +477,23 @@ async function processGlobals(db, filePath, packageId, data) {
  * @returns Domain object for DB.
  */
 function prepareDomain(domain) {
-  return {
+  let d = {
     name: domain.$.name,
     specCode: domain.$.spec,
-    specDescription: `Latest ${domain.$.name} spec`,
+    specDescription: `Latest ${domain.$.name} spec: ${domain.$.spec}`,
+    specCerfifiable: domain.$.certifiable == 'true',
   }
+  if ('older' in domain) {
+    d.older = []
+    domain.older.forEach((old) => {
+      d.older.push({
+        specCode: old.$.spec,
+        specDescription: `Older ${domain.$.name} spec ${old.$.spec}`,
+        specCerfifiable: old.$.certifiable == 'true',
+      })
+    })
+  }
+  return d
 }
 
 /**
