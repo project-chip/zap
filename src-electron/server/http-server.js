@@ -28,14 +28,14 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const webSocket = require('./ws-server.js')
-const studio = require('../ide-integration/studio-integration.js')
+const studio = require('../ide-integration/studio-rest-api.js')
 
 const restApiModules = [
   '../rest/admin.js',
   '../rest/static-zcl.js',
   '../rest/generation.js',
   '../rest/ide-api-handler.js',
-  '../rest/uc-component.js',
+  '../rest/uc-api-handler.js',
   '../rest/endpoint.js',
   '../rest/user-data.js',
 ]

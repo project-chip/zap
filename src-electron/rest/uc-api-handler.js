@@ -22,7 +22,7 @@
  */
 
 const env = require('../util/env.js')
-const studio = require('../ide-integration/studio-integration.js')
+const studio = require('../ide-integration/studio-rest-api.js')
 const zcl = require('../ide-integration/zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
 
