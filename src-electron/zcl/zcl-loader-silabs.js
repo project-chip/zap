@@ -481,7 +481,7 @@ function prepareDomain(domain) {
     name: domain.$.name,
     specCode: domain.$.spec,
     specDescription: `Latest ${domain.$.name} spec: ${domain.$.spec}`,
-    specCerfifiable: domain.$.certifiable == 'true',
+    specCertifiable: domain.$.certifiable == 'true',
   }
   if ('older' in domain) {
     d.older = []
@@ -489,7 +489,7 @@ function prepareDomain(domain) {
       d.older.push({
         specCode: old.$.spec,
         specDescription: `Older ${domain.$.name} spec ${old.$.spec}`,
-        specCerfifiable: old.$.certifiable == 'true',
+        specCertifiable: old.$.certifiable == 'true',
       })
     })
   }
