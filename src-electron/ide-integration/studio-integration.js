@@ -35,6 +35,8 @@ const op_tree = '/rest/clic/components/all/project/'
 const op_add = '/rest/clic/component/add/project/'
 const op_remove = '/rest/clic/component/remove/project/'
 
+let reportingIntervalId = null
+
 function getProjectInfo(project) {
   let name = projectName(project)
   let path = localhost + args.studioHttpPort + op_tree + project
@@ -94,10 +96,22 @@ function projectName(studioProject) {
   }
 }
 
+/**
+ * Start the dirty flag reporting interval.
+ *
+ */
 function initializeReporting() {
-  setInterval(() => {
+  reportingIntervalId = setInterval(() => {
     sendDirtyFlagStatus()
   }, DIRTY_FLAG_REPORT_INTERVAL_MS)
+}
+
+/**
+ * Clears up the reporting interval.
+ *
+ */
+function clearReporting() {
+  if (reportingIntervalId != null) clearInterval(reportingIntervalId)
 }
 
 function sendDirtyFlagStatus() {
@@ -125,3 +139,4 @@ exports.getProjectInfo = getProjectInfo
 exports.updateComponent = updateComponent
 exports.projectName = projectName
 exports.initializeReporting = initializeReporting
+exports.clearReporting = clearReporting

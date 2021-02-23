@@ -181,6 +181,7 @@ function shutdownHttpServer() {
         httpServer = null
         resolve(null)
       })
+      studio.clearReporting()
     }
     resolve(null)
   })
