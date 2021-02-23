@@ -322,6 +322,8 @@ function prepareCluster(cluster, isExtension = false) {
       if (cluster.$.singleton == 'true') {
         ret.isSingleton = true
       }
+      ret.introducedIn = cluster.$.introducedIn
+      ret.removedIn = cluster.$.removedIn
     }
   }
 
@@ -335,6 +337,8 @@ function prepareCluster(cluster, isExtension = false) {
         description: command.description[0].trim(),
         source: command.$.source,
         isOptional: command.$.optional == 'true',
+        introducedIn: command.$.introducedIn,
+        removedIn: command.$.removedIn,
       }
       if (cmd.manufacturerCode == null) {
         cmd.manufacturerCode = ret.manufacturerCode
@@ -344,7 +348,7 @@ function prepareCluster(cluster, isExtension = false) {
       if ('arg' in command) {
         cmd.args = []
         command.arg.forEach((arg, index) => {
-          // We are only includsing ones that are NOT removedIn
+          // We are only including ones that are NOT removedIn
           if (arg.$.removedIn == null)
             cmd.args.push({
               name: arg.$.name,
@@ -353,6 +357,8 @@ function prepareCluster(cluster, isExtension = false) {
               presentIf: arg.$.presentIf,
               countArg: arg.$.countArg,
               ordinal: index,
+              introducedIn: arg.$.introducedIn,
+              removedIn: arg.$.removedIn,
             })
         })
       }
@@ -377,6 +383,8 @@ function prepareCluster(cluster, isExtension = false) {
         defaultValue: attribute.$.default,
         isOptional: attribute.$.optional == 'true',
         isReportable: attribute.$.reportable == 'true',
+        introducedIn: attribute.$.introducedIn,
+        removedIn: attribute.$.removedIn,
       }
       if (att.manufacturerCode == null) {
         att.manufacturerCode = ret.manufacturerCode
@@ -384,9 +392,7 @@ function prepareCluster(cluster, isExtension = false) {
         att.manufacturerCode = parseInt(att.manufacturerCode)
       }
       // If attribute has removedIn, then it's not valid any more in LATEST spec.
-      if (attribute.$.removedIn == null) {
-        ret.attributes.push(att)
-      }
+      if (att.removedIn == null) ret.attributes.push(att)
     })
   }
   return ret
