@@ -122,7 +122,7 @@ export default {
       deviceTypeOptions: this.zclDeviceTypeOptions,
       newEndpoint: {
         newEndpointId: '0001',
-        newNetworkId: 1,
+        newNetworkId: 0,
         newDeviceTypeRef: null,
         newVersion: 1,
       },
