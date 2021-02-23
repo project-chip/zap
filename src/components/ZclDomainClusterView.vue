@@ -30,7 +30,14 @@ limitations under the License.
       :table-header-style="{ backgroundColor: '#cccccc' }"
     >
       <template v-slot:body="props">
-        <q-tr :props="props">
+        <q-tr
+          :props="props"
+          :class="
+            isClusterEnabled(props.row.id)
+              ? 'text-weight-bolder'
+              : 'text-weight-regular'
+          "
+        >
           <q-td key="status" :props="props" class="q-px-none">
             <q-icon
               name="warning"
