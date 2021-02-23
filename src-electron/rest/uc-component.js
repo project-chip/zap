@@ -24,9 +24,7 @@
 const env = require('../util/env.js')
 const studio = require('../ide-integration/studio-integration.js')
 const zcl = require('../ide-integration/zcl.js')
-const http = require('http-status-codes')
 const restApi = require('../../src-shared/rest-api.js')
-const dbEnum = require('../../src-shared/db-enum.js')
 
 function httpGetComponentTree(db) {
   return (req, res) => {
@@ -52,10 +50,10 @@ function httpGetComponentTree(db) {
   }
 }
 
-function updateComponent(db, request, response, add) {
-  let { componentId, studioProject, clusterId, side } = request.body
+function httpPostComponentUpdateHandler(db, request, response, add) {
+  let { studioProject, clusterId, side } = request.body
+  let { componentIds } = request.body
   let studioProjectName = studio.projectName(studioProject)
-  let componentIds = []
   let act = add ? 'Enabling' : 'Disabling'
   let acted = add ? 'Added' : 'Removed'
 
@@ -64,9 +62,8 @@ function updateComponent(db, request, response, add) {
   }
 
   // retrieve components to enable
-  if (componentId) {
-    componentIds.push(Promise.resolve(componentId))
-  } else if (clusterId) {
+  let promises = []
+  if (clusterId) {
     let ids = zcl
       .getComponentIdsByCluster(
         db,
@@ -75,60 +72,27 @@ function updateComponent(db, request, response, add) {
         side
       )
       .then((response) => Promise.resolve(response.id))
-    componentIds.push(ids)
+    promises.push(ids)
   }
 
   // enabling components via Studio
-  Promise.all(componentIds)
-    // flatten lists of list into a single list
-    .then((ids) => ids.reduce((list, ele) => list.concat(ele)))
+  Promise.all(promises)
+    .then((ids) => ids.flatMap((x) => x))
+    .then((ids) => ids.concat(componentIds))
     // enabling components via Studio jetty server.
-    .then((ids) => {
-      let promises = []
-      if (Object.keys(ids).length) {
-        if (add) {
-          promises = ids.map((id) => {
-            return studio.addComponent(studioProject, id).catch((err) => {
-              // enabling component failed.
-              let e = new Error(
-                `StudioUC(${studioProjectName}): Failed to add component(${ids})`
-              )
-              e.componentIds = ids
-              e.status = err.response.status
-              throw e
-            })
-          })
-        } else {
-          promises = ids.map((id) => studio.removeComponent(studioProject, id))
-        }
-      }
-      return Promise.resolve({ componentUpdate: Promise.all(promises), ids })
-    })
+    .then((ids) => studio.updateComponent(studioProject, ids, add))
     // gather results and reply
-    .then(function (o) {
-      return o.componentUpdate.then((results) => {
-        let updatedComponentIds = []
-        results.forEach((res, index) => {
-          if (res.status == http.StatusCodes.OK) {
-            updatedComponentIds.push(o.ids[index])
-          }
-        })
-        response.send({
-          componentIds: updatedComponentIds,
-          added: add,
-        })
-      })
-    })
+    .then((states) => response.send(states))
     .catch((err) => {
-      if (componentId) {
-        env.logInfo(
-          `StudioUC(${studioProjectName}): Failed to update component(${err.componentIds})`
-        )
+      let msg = ''
+      if (componentIds) {
+        msg = `StudioUC(${studioProjectName}): Failed to update component(${err.componentIds})`
       } else {
-        env.logInfo(
-          `StudioUC(${studioProjectName}): Failed to update components for cluster(${clusterId})`
-        )
+        msg = `StudioUC(${studioProjectName}): Failed to update components for cluster(${clusterId})`
       }
+
+      env.logInfo(msg)
+      env.logInfo(err)
       response.send(err)
     })
 }
@@ -138,11 +102,13 @@ function updateComponent(db, request, response, add) {
  * @param {*} db
  */
 function httpPostComponentAdd(db) {
-  return (request, response) => updateComponent(db, request, response, true)
+  return (request, response) =>
+    httpPostComponentUpdateHandler(db, request, response, true)
 }
 
 function httpPostComponentRemove(db) {
-  return (request, response) => updateComponent(db, request, response, false)
+  return (request, response) =>
+    httpPostComponentUpdateHandler(db, request, response, false)
 }
 
 function handleError(err, res) {

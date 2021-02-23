@@ -88,15 +88,17 @@ export default {
         (x) => !this.uc.ticked.includes(x)
       )
 
-      enabledItems.forEach(function (item) {
-        let id = item.substr(item.lastIndexOf('-') + 1)
-        this.updateComponent({ componentId: id, added: true })
-      }, this)
+      // Parse component id from Studio ids 
+      // e.g. "zigbee_basic" via "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
+      enabledItems = enabledItems.map(x => x.substr(x.lastIndexOf('-') + 1))
+      if (enabledItems.length) {
+        this.updateSelectedComponentRequest({ componentIds: enabledItems, added: true })
+      }
 
-      disabledItems.forEach(function (item) {
-        let id = item.substr(item.lastIndexOf('-') + 1)
-        this.updateComponent({ componentId: id, added: false })
-      }, this)
+      disabledItems = disabledItems.map(x => x.substr(x.lastIndexOf('-') + 1))
+      if (disabledItems.length) {
+        this.updateSelectedComponentRequest({ componentIds: disabledItems, added: false })
+      }
 
       this.uc.last_ticked = this.uc.ticked
     },

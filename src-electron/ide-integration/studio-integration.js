@@ -28,6 +28,7 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const http = require('http-status-codes')
 
 const localhost = 'http://localhost:'
 const op_tree = '/rest/clic/components/all/project/'
@@ -41,18 +42,50 @@ function getProjectInfo(project) {
   return axios.get(path)
 }
 
-function addComponent(project, componentId) {
-  return component(project, componentId, op_add)
+/**
+ *  Send HTTP Post to update UC component state in Studio
+ * @param {*} project - local Studio project path
+ * @param {*} componentIds - a list of component Ids
+ * @param {*} add - true if adding component, false if removing.
+ * @return - [{id:, - string
+ *             status:, - boolean. true if HTTP REQ status code is OK
+ *             data: - HTTP response data field}]
+ */
+function updateComponent(project, componentIds, add) {
+  let promises = []
+  if (Object.keys(componentIds).length) {
+    promises = componentIds.map((componentId) =>
+      httpPostComponentUpdate(project, componentId, add)
+    )
+  }
+
+  return Promise.all(promises).then((responses) =>
+    responses.map((resp, index) => {
+      return { id: componentIds[index], status: resp.status, data: resp.data }
+    })
+  )
 }
 
-function removeComponent(project, componentId) {
-  return component(project, componentId, op_remove)
-}
-
-function component(project, componentId, operation) {
-  return axios.post(localhost + args.studioHttpPort + operation + project, {
-    componentId: componentId,
-  })
+function httpPostComponentUpdate(project, componentId, add) {
+  let operation = add ? op_add : op_remove
+  let operationText = add ? 'add' : 'remove'
+  return axios
+    .post(localhost + args.studioHttpPort + operation + project, {
+      componentId: componentId,
+    })
+    .then((res) => {
+      res.componentId = componentId
+      return Promise.resolve(res)
+    })
+    .catch((err) => {
+      console.log(JSON.stringify(err))
+      return Promise.resolve({
+        status: http.StatusCodes.NOT_FOUND,
+        data: `StudioUC(${projectName(
+          project
+        )}): Failed to ${operationText} component(${componentId})`,
+      })
+    })
 }
 
 function projectName(studioProject) {
@@ -89,7 +122,8 @@ function sendDirtyFlagStatus() {
 }
 
 exports.getProjectInfo = getProjectInfo
-exports.addComponent = addComponent
-exports.removeComponent = removeComponent
+// exports.addComponent = addComponent
+// exports.removeComponent = removeComponent
+exports.updateComponent = updateComponent
 exports.projectName = projectName
 exports.initializeReporting = initializeReporting
