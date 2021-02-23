@@ -661,24 +661,25 @@ async function processParsedZclData(db, argument) {
   if (!('result' in argument)) {
     return Promise.resolve([])
   } else {
-    let immediatePromises = []
-    let laterPromises = []
+    let promisesStep1 = []
+    let promisesStep2 = []
+    let promisesStep3 = []
     if ('configurator' in data) {
       if ('atomic' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processAtomics(db, filePath, packageId, data.configurator.atomic)
         )
       }
       if ('bitmap' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processBitmaps(db, filePath, packageId, data.configurator.bitmap)
         )
       }
       if ('cluster' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processClusters(db, filePath, packageId, data.configurator.cluster)
         )
-        laterPromises.push(() =>
+        promisesStep3.push(() =>
           processClusterGlobalAttributes(
             db,
             filePath,
@@ -688,22 +689,22 @@ async function processParsedZclData(db, argument) {
         )
       }
       if ('domain' in data.configurator) {
-        immediatePromises.push(
+        promisesStep1.push(
           processDomains(db, filePath, packageId, data.configurator.domain)
         )
       }
       if ('enum' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processEnums(db, filePath, packageId, data.configurator.enum)
         )
       }
       if ('struct' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processStructs(db, filePath, packageId, data.configurator.struct)
         )
       }
       if ('deviceType' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processDeviceTypes(
             db,
             filePath,
@@ -713,12 +714,12 @@ async function processParsedZclData(db, argument) {
         )
       }
       if ('global' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processGlobals(db, filePath, packageId, data.configurator.global)
         )
       }
       if ('clusterExtension' in data.configurator) {
-        laterPromises.push(() =>
+        promisesStep3.push(() =>
           processClusterExtensions(
             db,
             filePath,
@@ -729,7 +730,9 @@ async function processParsedZclData(db, argument) {
       }
     }
     // This thing resolves the immediate promises and then resolves itself with passing the later promises down the chain.
-    return Promise.all(immediatePromises).then(() => laterPromises)
+    await Promise.all(promisesStep1)
+    await Promise.all(promisesStep2)
+    return Promise.all(promisesStep3)
   }
 }
 
