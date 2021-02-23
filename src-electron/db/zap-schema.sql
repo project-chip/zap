@@ -107,8 +107,22 @@ CREATE TABLE "PACKAGE_EXTENSION_DEFAULT" (
 DROP TABLE IF EXISTS "SPEC";
 CREATE TABLE IF NOT EXISTS "SPEC" (
   "SPEC_ID" integer primary key autoincrement,
+  "PACKAGE_REF" integer,
   "CODE" text,
-  "DESCRIPTION" text
+  "DESCRIPTION" text,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+);
+/*
+ DOMAIN table contains domains directly loaded from packages.
+ */
+DROP TABLE IF EXISTS "DOMAIN";
+CREATE TABLE IF NOT EXISTS "DOMAIN" (
+  "DOMAIN_ID" integer primary key autoincrement,
+  "PACKAGE_REF" integer,
+  "NAME" text,
+  "LATEST_SPEC_REF" integer,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  foreign key (LATEST_SPEC_REF) references SPEC(SPEC_ID)
 );
 /*
  CLUSTER table contains the clusters loaded from the ZCL XML files.
@@ -252,16 +266,6 @@ CREATE TABLE IF NOT EXISTS "BITMAP_FIELD" (
   "MASK" integer,
   "TYPE" text,
   foreign key(BITMAP_REF) references BITMAP(BITMAP_ID)
-);
-/*
- DOMAIN table contains domains directly loaded from packages.
- */
-DROP TABLE IF EXISTS "DOMAIN";
-CREATE TABLE IF NOT EXISTS "DOMAIN" (
-  "DOMAIN_ID" integer primary key autoincrement,
-  "PACKAGE_REF" integer,
-  "NAME" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*
  ENUM table contains enums directly loaded from packages.

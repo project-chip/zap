@@ -1604,16 +1604,30 @@ async function updateDeviceTypeEntityReferences(db) {
  * @export
  * @param {*} db
  * @param {*} packageId
- * @param {*} data
+ * @param {*} data Data containing name and specRef
  * @returns A promise that resolves with an array of rowids of all inserted domains.
  */
 async function insertDomains(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO DOMAIN (PACKAGE_REF, NAME) VALUES (?, ?)',
-    data.map((domain) => {
-      return [packageId, domain.name]
-    })
+    'INSERT INTO DOMAIN (PACKAGE_REF, NAME, LATEST_SPEC_REF) VALUES (?, ?, ?)',
+    data.map((domain) => [packageId, domain.name, domain.specRef])
+  )
+}
+
+/**
+ * Inserts a spec into the database.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data Data contining specCode and specDescription.
+ * @returns Promise of insertion.
+ */
+async function insertSpecs(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION) VALUES (?, ?, ?)',
+    data.map((domain) => [packageId, domain.specCode, domain.specDescription])
   )
 }
 
@@ -2647,6 +2661,7 @@ exports.insertClusters = insertClusters
 exports.insertDeviceTypes = insertDeviceTypes
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 exports.insertDomains = insertDomains
+exports.insertSpecs = insertSpecs
 exports.insertStructs = insertStructs
 exports.insertEnums = insertEnums
 exports.insertBitmaps = insertBitmaps

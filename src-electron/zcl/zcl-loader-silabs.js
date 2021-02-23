@@ -477,7 +477,11 @@ async function processGlobals(db, filePath, packageId, data) {
  * @returns Domain object for DB.
  */
 function prepareDomain(domain) {
-  return { name: domain.$.name }
+  return {
+    name: domain.$.name,
+    specCode: domain.$.spec,
+    specDescription: `Latest ${domain.$.name} spec`,
+  }
 }
 
 /**
@@ -490,12 +494,16 @@ function prepareDomain(domain) {
  * @returns Promise of database insertion of domains.
  */
 async function processDomains(db, filePath, packageId, data) {
+  // <domain name="ZLL" spec="zll-1.0-11-0037-10" dependsOn="zcl-1.0-07-5123-03">
+  //    <older ....
+  // </domain>
   env.logInfo(`${filePath}, ${packageId}: ${data.length} domains.`)
-  return queryZcl.insertDomains(
-    db,
-    packageId,
-    data.map((x) => prepareDomain(x))
-  )
+  let preparedDomains = data.map((x) => prepareDomain(x))
+  let specIds = await queryZcl.insertSpecs(db, packageId, preparedDomains)
+  for (let i = 0; i < specIds.length; i++) {
+    preparedDomains[i].specRef = specIds[i]
+  }
+  return queryZcl.insertDomains(db, packageId, preparedDomains)
 }
 
 /**
