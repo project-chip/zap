@@ -1254,22 +1254,7 @@ async function insertGlobalAttributeDefault(db, packageId, data) {
   return Promise.all(individualClusterPromise)
 }
 
-/**
- * Inserts clusters into the database.
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data an array of objects that must contain: code, name, description, define. It also contains commands: and attributes:
- * @returns Promise of cluster insertion.
- */
-async function insertClusters(db, packageId, data) {
-  // If data is extension, we only have code there and we need to simply add commands and clusters.
-  // But if it's not an extension, we need to insert the cluster and then run with
-  return dbApi
-    .dbMultiInsert(
-      db,
-      `
+const INSERT_CLUSTER_QUERY = `
 INSERT INTO CLUSTER (
   PACKAGE_REF,
   CODE,
@@ -1292,7 +1277,112 @@ INSERT INTO CLUSTER (
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
-`,
+`
+const INSERT_COMMAND_QUERY = `
+INSERT INTO COMMAND (
+  CLUSTER_REF,
+  PACKAGE_REF,
+  CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  MANUFACTURER_CODE,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF
+) VALUES (
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+)`
+
+const INSERT_COMMAND_ARG_QUERY = `
+INSERT INTO COMMAND_ARG (
+  COMMAND_REF, 
+  NAME, 
+  TYPE, 
+  IS_ARRAY, 
+  PRESENT_IF, 
+  COUNT_ARG, 
+  ORDINAL,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF
+) VALUES (
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+)`
+
+const INSERT_ATTRIBUTE_QUERY = `
+INSERT INTO ATTRIBUTE (
+  CLUSTER_REF, 
+  PACKAGE_REF, 
+  CODE, 
+  NAME, 
+  TYPE, 
+  SIDE, 
+  DEFINE, 
+  MIN, 
+  MAX, 
+  MIN_LENGTH, 
+  MAX_LENGTH, 
+  IS_WRITABLE, 
+  DEFAULT_VALUE, 
+  IS_OPTIONAL, 
+  IS_REPORTABLE, 
+  MANUFACTURER_CODE,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF
+) VALUES (
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+)`
+
+/**
+ * Inserts clusters into the database.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data an array of objects that must contain: code, name, description, define. It also contains commands: and attributes:
+ * @returns Promise of cluster insertion.
+ */
+async function insertClusters(db, packageId, data) {
+  // If data is extension, we only have code there and we need to simply add commands and clusters.
+  // But if it's not an extension, we need to insert the cluster and then run with
+  return dbApi
+    .dbMultiInsert(
+      db,
+      INSERT_CLUSTER_QUERY,
       data.map((cluster) => {
         return [
           packageId,
@@ -1330,6 +1420,10 @@ INSERT INTO CLUSTER (
               command.source,
               command.isOptional,
               command.manufacturerCode,
+              command.introducedIn,
+              packageId,
+              command.removedIn,
+              packageId,
             ])
           )
           argsForCommands.push(...commands.map((command) => command.args))
@@ -1354,16 +1448,16 @@ INSERT INTO CLUSTER (
               attribute.isOptional,
               attribute.isReportable,
               attribute.manufacturerCode,
+              attribute.introducedIn,
+              packageId,
+              attribute.removedIn,
+              packageId,
             ])
           )
         }
       }
       let pCommand = dbApi
-        .dbMultiInsert(
-          db,
-          'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL, MANUFACTURER_CODE) VALUES (?,?,?,?,?,?,?, ?)',
-          commandsToLoad
-        )
+        .dbMultiInsert(db, INSERT_COMMAND_QUERY, commandsToLoad)
         .then((lids) => {
           let j
           for (j = 0; j < lids.length; j++) {
@@ -1379,37 +1473,19 @@ INSERT INTO CLUSTER (
                   arg.presentIf,
                   arg.countArg,
                   arg.ordinal,
+                  arg.introducedIn,
+                  packageId,
+                  arg.removedIn,
+                  packageId,
                 ])
               )
             }
           }
-          return dbApi.dbMultiInsert(
-            db,
-            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, PRESENT_IF, COUNT_ARG, ORDINAL) VALUES (?,?,?,?,?,?,?)',
-            argsToLoad
-          )
+          return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
         })
       let pAttribute = dbApi.dbMultiInsert(
         db,
-        `
-INSERT INTO ATTRIBUTE (
-  CLUSTER_REF, 
-  PACKAGE_REF, 
-  CODE, 
-  NAME, 
-  TYPE, 
-  SIDE, 
-  DEFINE, 
-  MIN, 
-  MAX, 
-  MIN_LENGTH, 
-  MAX_LENGTH, 
-  IS_WRITABLE, 
-  DEFAULT_VALUE, 
-  IS_OPTIONAL, 
-  IS_REPORTABLE, 
-  MANUFACTURER_CODE
-) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        INSERT_ATTRIBUTE_QUERY,
         attributesToLoad
       )
       return Promise.all([pCommand, pAttribute])
@@ -1927,10 +2003,14 @@ SELECT
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF,
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
   ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-FROM CLUSTER
-INNER JOIN ENDPOINT_TYPE_CLUSTER
-ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})`
+FROM 
+  CLUSTER
+INNER JOIN 
+  ENDPOINT_TYPE_CLUSTER
+ON 
+  CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+WHERE
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})`
     )
     .then((rows) => rows.map(mapFunction))
 }
