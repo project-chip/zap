@@ -1269,7 +1269,30 @@ async function insertClusters(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
-      'INSERT INTO CLUSTER (PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME, IS_SINGLETON) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      `
+INSERT INTO CLUSTER (
+  PACKAGE_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME, DESCRIPTION,
+  DEFINE,
+  DOMAIN_NAME,
+  IS_SINGLETON,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF
+) VALUES (
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+)
+`,
       data.map((cluster) => {
         return [
           packageId,
@@ -1280,6 +1303,10 @@ async function insertClusters(db, packageId, data) {
           cluster.define,
           cluster.domain,
           cluster.isSingleton,
+          cluster.introducedIn,
+          packageId,
+          cluster.removedIn,
+          packageId,
         ]
       })
     )
