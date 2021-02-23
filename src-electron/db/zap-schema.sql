@@ -124,6 +124,10 @@ CREATE TABLE IF NOT EXISTS "CLUSTER" (
   "DESCRIPTION" text,
   "DEFINE" text,
   "IS_SINGLETON" integer,
+  "INTRODUCED_IN_REF" integer,
+  "REMOVED_IN_REF" integer,
+  foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
+  foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*
@@ -140,6 +144,10 @@ CREATE TABLE IF NOT EXISTS "COMMAND" (
   "DESCRIPTION" text,
   "SOURCE" text,
   "IS_OPTIONAL" integer,
+  "INTRODUCED_IN_REF" integer,
+  "REMOVED_IN_REF" integer,
+  foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
+  foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
@@ -155,6 +163,10 @@ CREATE TABLE IF NOT EXISTS "COMMAND_ARG" (
   "IS_ARRAY" integer,
   "PRESENT_IF" text,
   "COUNT_ARG" text,
+  "INTRODUCED_IN_REF" integer,
+  "REMOVED_IN_REF" integer,
+  foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
+  foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (COMMAND_REF) references COMMAND(COMMAND_ID)
 );
 /*
@@ -179,6 +191,10 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   "DEFAULT_VALUE" text,
   "IS_OPTIONAL" integer,
   "IS_REPORTABLE" integer,
+  "INTRODUCED_IN_REF" integer,
+  "REMOVED_IN_REF" integer,
+  foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
+  foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );

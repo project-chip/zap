@@ -28,11 +28,11 @@ const sdkExt = require('../generator/helper-sdkextension.js')
 
 /**
  * Promise that return a list of component Ids required by a specific cluster
- * @param {*} db 
- * @param {*} sessionId 
- * @param {*} clusterId 
- * @param {*} side 
- * @returns {componentIds, clusterId, clusterLabel, side}
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} clusterId
+ * @param {*} side
+ * @returns object containing 'componentIds', 'clusterId', 'clusterLabel', 'side'
  */
 function getComponentIdsByCluster(db, sessionId, clusterId, side) {
   // enable components
