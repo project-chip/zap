@@ -1080,7 +1080,14 @@ async function processCustomZclDeviceType(db, ctx) {
       name: dbEnum.customDevice.name,
       description: dbEnum.customDevice.description,
     })
-    await queryLoader.insertDeviceTypes(db, ctx.packageId, customDeviceTypes)
+    let existingCustomDevice = await queryZcl.selectDeviceTypeByCodeAndName(
+      db,
+      ctx.packageId,
+      dbEnum.customDevice.code,
+      dbEnum.customDevice.name
+    )
+    if (existingCustomDevice == null)
+      await queryLoader.insertDeviceTypes(db, ctx.packageId, customDeviceTypes)
   }
   return ctx
 }
