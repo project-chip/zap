@@ -20,10 +20,126 @@
  *
  * @module DB API: zcl database access
  */
-const Env = require('../util/env.js')
+const env = require('../util/env.js')
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+
+// Some loading queries that are reused few times.
+
+const INSERT_CLUSTER_QUERY = `
+INSERT INTO CLUSTER (
+  PACKAGE_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME, DESCRIPTION,
+  DEFINE,
+  DOMAIN_NAME,
+  IS_SINGLETON,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF
+) VALUES (
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+)
+`
+const INSERT_COMMAND_QUERY = `
+INSERT INTO COMMAND (
+  CLUSTER_REF,
+  PACKAGE_REF,
+  CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  MANUFACTURER_CODE,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF
+) VALUES (
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+)`
+
+const INSERT_COMMAND_ARG_QUERY = `
+INSERT INTO COMMAND_ARG (
+  COMMAND_REF,
+  NAME,
+  TYPE,
+  IS_ARRAY,
+  PRESENT_IF,
+  COUNT_ARG,
+  ORDINAL,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF
+) VALUES (
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+)`
+
+const INSERT_ATTRIBUTE_QUERY = `
+INSERT INTO ATTRIBUTE (
+  CLUSTER_REF,
+  PACKAGE_REF,
+  CODE,
+  NAME,
+  TYPE,
+  SIDE,
+  DEFINE,
+  MIN,
+  MAX,
+  MIN_LENGTH,
+  MAX_LENGTH,
+  IS_WRITABLE,
+  DEFAULT_VALUE,
+  IS_OPTIONAL,
+  IS_REPORTABLE,
+  MANUFACTURER_CODE,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF
+) VALUES (
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+)`
+
 /**
  * Retrieves all the enums in the database.
  *
@@ -543,6 +659,14 @@ ORDER BY
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
+/**
+ * Query for attributes by side.
+ *
+ * @param {*} db
+ * @param {*} side
+ * @param {*} packageId
+ * @returns promise that resolves into attributes.
+ */
 async function selectAllAttributesBySide(db, side, packageId) {
   return dbApi
     .dbAll(
@@ -992,7 +1116,7 @@ WHERE
  * @returns Promise of globals insertion.
  */
 async function insertGlobals(db, packageId, data) {
-  Env.logInfo(`Insert globals: ${data.length}`)
+  env.logInfo(`Insert globals: ${data.length}`)
   let commandsToLoad = []
   let attributesToLoad = []
   let argsForCommands = []
@@ -1010,6 +1134,11 @@ async function insertGlobals(db, packageId, data) {
           command.description,
           command.source,
           command.isOptional,
+          null, // manufacturerCode
+          command.introducedIn,
+          packageId,
+          command.removedIn,
+          packageId,
         ])
       )
       argsForCommands.push(...commands.map((command) => command.args))
@@ -1027,20 +1156,23 @@ async function insertGlobals(db, packageId, data) {
           attribute.define,
           attribute.min,
           attribute.max,
+          attribute.minLength,
+          attribute.maxLength,
           attribute.isWritable,
           attribute.defaultValue,
           attribute.isOptional,
           attribute.isReportable,
+          attribute.manufacturerCode,
+          attribute.introducedIn,
+          packageId,
+          attribute.removedIn,
+          packageId,
         ])
       )
     }
   }
   let pCommand = dbApi
-    .dbMultiInsert(
-      db,
-      'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?)',
-      commandsToLoad
-    )
+    .dbMultiInsert(db, INSERT_COMMAND_QUERY, commandsToLoad)
     .then((lids) => {
       let j
       for (j = 0; j < lids.length; j++) {
@@ -1056,35 +1188,19 @@ async function insertGlobals(db, packageId, data) {
               arg.presentIf,
               arg.countArg,
               arg.ordinal,
+              arg.introducedIn,
+              packageId,
+              arg.removedIn,
+              packageId,
             ])
           )
         }
       }
-      return dbApi.dbMultiInsert(
-        db,
-        'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, PRESENT_IF, COUNT_ARG, ORDINAL) VALUES (?,?,?,?,?,?, ?)',
-        argsToLoad
-      )
+      return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
     })
   let pAttribute = dbApi.dbMultiInsert(
     db,
-    `
-INSERT INTO ATTRIBUTE
-  ( CLUSTER_REF,
-    PACKAGE_REF,
-    CODE,
-    NAME,
-    TYPE,
-    SIDE,
-    DEFINE,
-    MIN,
-    MAX,
-    IS_WRITABLE,
-    DEFAULT_VALUE,
-    IS_OPTIONAL,
-    IS_REPORTABLE)
-VALUES
-  (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    INSERT_ATTRIBUTE_QUERY,
     attributesToLoad
   )
   return Promise.all([pCommand, pAttribute])
@@ -1123,11 +1239,15 @@ async function insertClusterExtensions(db, packageId, data) {
                 lastId,
                 packageId,
                 command.code,
-                command.manufacturerCode,
                 command.name,
                 command.description,
                 command.source,
                 command.isOptional,
+                command.manufacturerCode,
+                command.introducedIn,
+                packageId,
+                command.removedIn,
+                packageId,
               ])
             )
             argsForCommands.push(...commands.map((command) => command.args))
@@ -1139,7 +1259,6 @@ async function insertClusterExtensions(db, packageId, data) {
                 lastId,
                 packageId,
                 attribute.code,
-                attribute.manufacturerCode,
                 attribute.name,
                 attribute.type,
                 attribute.side,
@@ -1152,23 +1271,24 @@ async function insertClusterExtensions(db, packageId, data) {
                 attribute.defaultValue,
                 attribute.isOptional,
                 attribute.isReportable,
+                attribute.manufacturerCode,
+                attribute.introducedIn,
+                packageId,
+                attribute.removedIn,
+                packageId,
               ])
             )
           }
         } else {
           // DANGER: We got here, but we don't have rows. Why not?
           // Because clusters at this point have not yet been created? Odd.
-          Env.logWarning(
+          env.logWarning(
             `Attempting to insert cluster extension, but the cluster was not found: ${data[i].code}`
           )
         }
       }
       let pCommand = dbApi
-        .dbMultiInsert(
-          db,
-          'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?,?)',
-          commandsToLoad
-        )
+        .dbMultiInsert(db, INSERT_COMMAND_QUERY, commandsToLoad)
         .then((lids) => {
           let j
           for (j = 0; j < lids.length; j++) {
@@ -1184,19 +1304,19 @@ async function insertClusterExtensions(db, packageId, data) {
                   arg.presentIf,
                   arg.countArg,
                   arg.ordinal,
+                  arg.introducedIn,
+                  packageId,
+                  arg.removedIn,
+                  packageId,
                 ])
               )
             }
           }
-          return dbApi.dbMultiInsert(
-            db,
-            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, PRESENT_IF, COUNT_ARG, ORDINAL) VALUES (?,?,?,?,?,?,?)',
-            argsToLoad
-          )
+          return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
         })
       let pAttribute = dbApi.dbMultiInsert(
         db,
-        'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        INSERT_ATTRIBUTE_QUERY,
         attributesToLoad
       )
       return Promise.all([pCommand, pAttribute])
@@ -1253,119 +1373,6 @@ async function insertGlobalAttributeDefault(db, packageId, data) {
   })
   return Promise.all(individualClusterPromise)
 }
-
-const INSERT_CLUSTER_QUERY = `
-INSERT INTO CLUSTER (
-  PACKAGE_REF,
-  CODE,
-  MANUFACTURER_CODE,
-  NAME, DESCRIPTION,
-  DEFINE,
-  DOMAIN_NAME,
-  IS_SINGLETON,
-  INTRODUCED_IN_REF,
-  REMOVED_IN_REF
-) VALUES (
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
-)
-`
-const INSERT_COMMAND_QUERY = `
-INSERT INTO COMMAND (
-  CLUSTER_REF,
-  PACKAGE_REF,
-  CODE,
-  NAME,
-  DESCRIPTION,
-  SOURCE,
-  IS_OPTIONAL,
-  MANUFACTURER_CODE,
-  INTRODUCED_IN_REF,
-  REMOVED_IN_REF
-) VALUES (
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
-)`
-
-const INSERT_COMMAND_ARG_QUERY = `
-INSERT INTO COMMAND_ARG (
-  COMMAND_REF, 
-  NAME, 
-  TYPE, 
-  IS_ARRAY, 
-  PRESENT_IF, 
-  COUNT_ARG, 
-  ORDINAL,
-  INTRODUCED_IN_REF,
-  REMOVED_IN_REF
-) VALUES (
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
-)`
-
-const INSERT_ATTRIBUTE_QUERY = `
-INSERT INTO ATTRIBUTE (
-  CLUSTER_REF, 
-  PACKAGE_REF, 
-  CODE, 
-  NAME, 
-  TYPE, 
-  SIDE, 
-  DEFINE, 
-  MIN, 
-  MAX, 
-  MIN_LENGTH, 
-  MAX_LENGTH, 
-  IS_WRITABLE, 
-  DEFAULT_VALUE, 
-  IS_OPTIONAL, 
-  IS_REPORTABLE, 
-  MANUFACTURER_CODE,
-  INTRODUCED_IN_REF,
-  REMOVED_IN_REF
-) VALUES (
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  ?,
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
-)`
 
 /**
  * Inserts clusters into the database.
