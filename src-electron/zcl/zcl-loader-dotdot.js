@@ -597,25 +597,24 @@ async function loadZclData(db, ctx) {
     let d = prepareDeviceType(deviceType)
     ds.push(d)
   })
-  return queryLoader
-    .insertClusters(db, ctx.packageId, cs)
-    .then(() =>
-      queryPackage.insertOptionsKeyValues(
-        db,
-        ctx.packageId,
-        dbEnum.packageOptionCategory.manufacturerCodes,
-        ctx.zclManufacturers.map((data) => {
-          let mfgPair = data['$']
-          return { code: mfgPair['code'], label: mfgPair['translation'] }
-        })
-      )
-    )
-    .then(() => queryZcl.insertDeviceTypes(db, ctx.packageId, ds))
-    .then(() => queryLoader.insertGlobals(db, ctx.packageId, gs))
-    .then(() => queryLoader.insertAtomics(db, ctx.packageId, types.atomics))
-    .then(() => queryLoader.insertEnums(db, ctx.packageId, types.enums))
-    .then(() => queryLoader.insertBitmaps(db, ctx.packageId, types.bitmaps))
-    .then(() => queryLoader.insertStructs(db, ctx.packageId, types.structs))
+  await queryLoader.insertClusters(db, ctx.packageId, cs)
+
+  await queryPackage.insertOptionsKeyValues(
+    db,
+    ctx.packageId,
+    dbEnum.packageOptionCategory.manufacturerCodes,
+    ctx.zclManufacturers.map((data) => {
+      let mfgPair = data['$']
+      return { code: mfgPair['code'], label: mfgPair['translation'] }
+    })
+  )
+
+  await queryLoader.insertDeviceTypes(db, ctx.packageId, ds)
+  await queryLoader.insertGlobals(db, ctx.packageId, gs)
+  await queryLoader.insertAtomics(db, ctx.packageId, types.atomics)
+  await queryLoader.insertEnums(db, ctx.packageId, types.enums)
+  await queryLoader.insertBitmaps(db, ctx.packageId, types.bitmaps)
+  return queryLoader.insertStructs(db, ctx.packageId, types.structs)
 }
 
 /**

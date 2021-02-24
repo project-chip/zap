@@ -992,121 +992,6 @@ WHERE
 }
 
 /**
- * Inserts device types into the database.
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data an array of objects that must contain: domain, code, profileId, name, description
- * @returns Promise of an insertion of device types.
- */
-async function insertDeviceTypes(db, packageId, data) {
-  return dbApi
-    .dbMultiInsert(
-      db,
-      'INSERT INTO DEVICE_TYPE (PACKAGE_REF, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION) VALUES (?, ?, ?, ?, ?, ?)',
-      data.map((dt) => {
-        return [
-          packageId,
-          dt.domain,
-          dt.code,
-          dt.profileId,
-          dt.name,
-          dt.description,
-        ]
-      })
-    )
-    .then((lastIdsArray) => {
-      let zclIdsPromises = []
-      for (let i = 0; i < lastIdsArray.length; i++) {
-        if ('clusters' in data[i]) {
-          let lastId = lastIdsArray[i]
-          let clusters = data[i].clusters
-          // This is an array that links the generated deviceTyepRef to the cluster via generating an array of arrays,
-          zclIdsPromises = Promise.all(
-            clusters.map((cluster) =>
-              dbApi
-                .dbInsert(
-                  db,
-                  'INSERT INTO DEVICE_TYPE_CLUSTER (DEVICE_TYPE_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER) VALUES (?,?,?,?,?,?)',
-                  [
-                    lastId,
-                    cluster.clusterName,
-                    cluster.client,
-                    cluster.server,
-                    cluster.clientLocked,
-                    cluster.serverLocked,
-                  ],
-                  true
-                )
-                .then((deviceTypeClusterRef) => {
-                  return {
-                    dtClusterRef: deviceTypeClusterRef,
-                    clusterData: cluster,
-                  }
-                })
-            )
-          ).then((dtClusterRefDataPairs) => {
-            let promises = []
-            promises.push(insertDeviceTypeAttributes(db, dtClusterRefDataPairs))
-            promises.push(insertDeviceTypeCommands(db, dtClusterRefDataPairs))
-            return Promise.all(promises)
-          })
-        }
-      }
-      return zclIdsPromises
-    })
-}
-
-/**
- * This handles the loading of device type attribute requirements into the database.
- * There is a need to post-process to attach the actual attribute ref after the fact
- * @param {*} db
- * @param {*} dtClusterRefDataPairs
- */
-async function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
-  let attributes = []
-  dtClusterRefDataPairs.map((dtClusterRefDataPair) => {
-    let dtClusterRef = dtClusterRefDataPair.dtClusterRef
-    let clusterData = dtClusterRefDataPair.clusterData
-    if ('requiredAttributes' in clusterData) {
-      clusterData.requiredAttributes.forEach((attributeName) => {
-        attributes.push([dtClusterRef, attributeName])
-      })
-    }
-  })
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO DEVICE_TYPE_ATTRIBUTE (DEVICE_TYPE_CLUSTER_REF, ATTRIBUTE_NAME) VALUES (?, ?)',
-    attributes
-  )
-}
-
-/**
- * This handles the loading of device type command requirements into the database.
- * There is a need to post-process to attach the actual command ref after the fact
- * @param {*} db
- * @param {*} dtClusterRefDataPairs
- */
-async function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
-  let commands = []
-  dtClusterRefDataPairs.map((dtClusterRefDataPair) => {
-    let dtClusterRef = dtClusterRefDataPair.dtClusterRef
-    let clusterData = dtClusterRefDataPair.clusterData
-    if ('requiredCommands' in clusterData) {
-      clusterData.requiredCommands.forEach((commandName) => {
-        commands.push([dtClusterRef, commandName])
-      })
-    }
-  })
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO DEVICE_TYPE_COMMAND (DEVICE_TYPE_CLUSTER_REF, COMMAND_NAME) VALUES (?, ?)',
-    commands
-  )
-}
-
-/**
  * After loading up device type cluster table with the names,
  * this method links the refererence to actual cluster reference.
  *
@@ -2077,7 +1962,6 @@ exports.selectDeviceTypeAttributesByDeviceTypeClusterRef = selectDeviceTypeAttri
 exports.selectDeviceTypeCommandsByDeviceTypeClusterRef = selectDeviceTypeCommandsByDeviceTypeClusterRef
 exports.selectDeviceTypeAttributesByDeviceTypeRef = selectDeviceTypeAttributesByDeviceTypeRef
 exports.selectDeviceTypeCommandsByDeviceTypeRef = selectDeviceTypeCommandsByDeviceTypeRef
-exports.insertDeviceTypes = insertDeviceTypes
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 exports.selectEndpointType = selectEndpointType
 exports.selectAllAtomics = selectAllAtomics

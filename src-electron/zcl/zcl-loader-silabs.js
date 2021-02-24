@@ -658,7 +658,7 @@ function prepareDeviceType(deviceType) {
  */
 async function processDeviceTypes(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} deviceTypes.`)
-  return queryZcl.insertDeviceTypes(
+  return queryLoader.insertDeviceTypes(
     db,
     packageId,
     data.map((x) => prepareDeviceType(x))
@@ -1080,7 +1080,7 @@ async function processCustomZclDeviceType(db, ctx) {
       name: dbEnum.customDevice.name,
       description: dbEnum.customDevice.description,
     })
-    await queryZcl.insertDeviceTypes(db, ctx.packageId, customDeviceTypes)
+    await queryLoader.insertDeviceTypes(db, ctx.packageId, customDeviceTypes)
   }
   return ctx
 }
