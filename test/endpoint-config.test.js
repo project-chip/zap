@@ -191,6 +191,11 @@ test(
           )
         ).toBeTruthy()
         expect(
+          epc.includes(
+            '{ 0x0004, ZAP_TYPE(CHAR_STRING), 32, ZAP_ATTRIBUTE_MASK(TOKENIZE), { (uint8_t *) ZAP_LONG_DEFAULTS_INDEX(0) } }, /* Basic (server): manufacturer name */'
+          )
+        ).toBeTruthy()
+        expect(
           epc.includes(bin.hexToCBytes(bin.stringToHex('Very long user id')))
         )
         expect(epc.includes('#define FIXED_NETWORKS { 1, 1, 2 }')).toBeTruthy()
@@ -205,12 +210,12 @@ test(
         ).toBeTruthy()
         expect(
           epc.includes(
-            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0002, ZAP_CLUSTER_MASK(CLIENT) | ZAP_CLUSTER_MASK(TOKENIZE), 0x0000, {{ 2, 12, 4 }} }'
+            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0002, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 2, 12, 4 }} }'
           )
         ).toBeTruthy()
         expect(
           epc.includes(
-            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0003, ZAP_CLUSTER_MASK(CLIENT) | ZAP_CLUSTER_MASK(EXTERNAL_STORAGE), 0x0000, {{ 3, 13, 6 }} }'
+            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0003, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 3, 13, 6 }} }'
           )
         ).toBeTruthy()
         expect(

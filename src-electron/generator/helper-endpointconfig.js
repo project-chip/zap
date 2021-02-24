@@ -397,12 +397,6 @@ function collectAttributes(endpointTypes) {
           minMaxIndex++
         }
         let rptMask = [c.side]
-        if (a.storage == dbEnum.storageOption.nvm) {
-          rptMask.push('TOKENIZE')
-        }
-        if (a.storage == dbEnum.storageOption.external) {
-          rptMask.push('EXTERNAL_STORAGE')
-        }
         if (a.includedReportable) {
           let rpt = {
             direction: 'REPORTED', // or 'RECEIVED'
@@ -432,6 +426,12 @@ function collectAttributes(endpointTypes) {
         let mask = []
         if (a.side == dbEnum.side.client) {
           mask.push('client')
+        }
+        if (a.storage == dbEnum.storageOption.nvm) {
+          mask.push('TOKENIZE')
+        }
+        if (a.storage == dbEnum.storageOption.external) {
+          mask.push('EXTERNAL_STORAGE')
         }
         if (a.isSingleton) mask.push('singleton')
         if (a.isWritable) mask.push('writable')
