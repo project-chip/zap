@@ -1251,64 +1251,6 @@ async function updateDeviceTypeEntityReferences(db) {
 
 /**
  *
- * Inserts domains into the database.
- * data is an array of objects that must contain: name
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data Data containing name and specRef
- * @returns A promise that resolves with an array of rowids of all inserted domains.
- */
-async function insertDomains(db, packageId, data) {
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO DOMAIN (PACKAGE_REF, NAME, LATEST_SPEC_REF) VALUES (?, ?, ?)',
-    data.map((domain) => [packageId, domain.name, domain.specRef])
-  )
-}
-
-/**
- * Inserts a spec into the database.
- *
- * @param {*} db
- * @param {*} packageId
- * @param {*} data Data contining specCode and specDescription.
- * @returns Promise of insertion.
- */
-async function insertSpecs(db, packageId, data) {
-  let olders = []
-  data.forEach((domain) => {
-    if ('older' in domain) {
-      domain.older.forEach((older) => olders.push(older))
-    }
-  })
-  if (olders.length > 0) {
-    await dbApi.dbMultiInsert(
-      db,
-      'INSERT INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
-      olders.map((older) => [
-        packageId,
-        older.specCode,
-        older.specDescription,
-        older.specCertifiable ? 1 : 0,
-      ])
-    )
-  }
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
-    data.map((domain) => [
-      packageId,
-      domain.specCode,
-      domain.specDescription,
-      domain.specCertifiable ? 1 : 0,
-    ])
-  )
-}
-
-/**
- *
  * Inserts structs into the database.
  * data is an array of objects that must contain: name
  *
@@ -2337,8 +2279,6 @@ exports.selectDeviceTypeAttributesByDeviceTypeRef = selectDeviceTypeAttributesBy
 exports.selectDeviceTypeCommandsByDeviceTypeRef = selectDeviceTypeCommandsByDeviceTypeRef
 exports.insertDeviceTypes = insertDeviceTypes
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
-exports.insertDomains = insertDomains
-exports.insertSpecs = insertSpecs
 exports.insertStructs = insertStructs
 exports.insertEnums = insertEnums
 exports.insertBitmaps = insertBitmaps

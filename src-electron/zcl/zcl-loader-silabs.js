@@ -518,11 +518,11 @@ async function processDomains(db, filePath, packageId, data) {
   // </domain>
   env.logInfo(`${filePath}, ${packageId}: ${data.length} domains.`)
   let preparedDomains = data.map((x) => prepareDomain(x))
-  let specIds = await queryZcl.insertSpecs(db, packageId, preparedDomains)
+  let specIds = await queryLoader.insertSpecs(db, packageId, preparedDomains)
   for (let i = 0; i < specIds.length; i++) {
     preparedDomains[i].specRef = specIds[i]
   }
-  return queryZcl.insertDomains(db, packageId, preparedDomains)
+  return queryLoader.insertDomains(db, packageId, preparedDomains)
 }
 
 /**

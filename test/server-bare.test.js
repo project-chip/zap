@@ -146,7 +146,7 @@ describe('Session specific tests', () => {
     }))
 
   test('load domains', () =>
-    queryZcl.insertDomains(db, packageId, [
+    queryLoader.insertDomains(db, packageId, [
       { name: 'one' },
       { name: 'two' },
       { name: 'three' },
