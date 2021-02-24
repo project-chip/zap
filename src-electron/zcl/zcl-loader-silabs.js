@@ -22,6 +22,7 @@ const properties = require('properties')
 const dbApi = require('../db/db-api.js')
 const queryPackage = require('../db/query-package.js')
 const queryZcl = require('../db/query-zcl.js')
+const queryLoader = require('../db/query-loader.js')
 const env = require('../util/env.js')
 const bin = require('../util/bin.js')
 const util = require('../util/util.js')
@@ -409,7 +410,7 @@ function prepareCluster(cluster, isExtension = false) {
  */
 async function processClusters(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} clusters.`)
-  return queryZcl.insertClusters(
+  return queryLoader.insertClusters(
     db,
     packageId,
     data.map((x) => prepareCluster(x))
@@ -450,7 +451,7 @@ function processClusterGlobalAttributes(db, filePath, packageId, data) {
  */
 async function processClusterExtensions(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} cluster extensions.`)
-  return queryZcl.insertClusterExtensions(
+  return queryLoader.insertClusterExtensions(
     db,
     packageId,
     data.map((x) => prepareCluster(x, true))
@@ -469,7 +470,7 @@ async function processClusterExtensions(db, filePath, packageId, data) {
  */
 async function processGlobals(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} globals.`)
-  return queryZcl.insertGlobals(
+  return queryLoader.insertGlobals(
     db,
     packageId,
     data.map((x) => prepareCluster(x, true))

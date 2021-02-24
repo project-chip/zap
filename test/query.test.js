@@ -20,6 +20,7 @@
 const fs = require('fs')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
+const queryLoader = require('../src-electron/db/query-loader.js')
 const args = require('../src-electron/util/args.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const env = require('../src-electron/util/env.js')
@@ -122,7 +123,7 @@ test('Simple cluster addition.', () => {
     .insertPathCrc(db, 'test', 1)
     .then((rowid) => {
       pkgId = rowid
-      return queryZcl.insertClusters(db, rowid, [
+      return queryLoader.insertClusters(db, rowid, [
         {
           code: 0x1234,
           name: 'Test',

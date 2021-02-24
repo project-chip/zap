@@ -22,6 +22,7 @@ const path = require('path')
 const zclLoader = require('./zcl-loader')
 const dbApi = require('../db/db-api.js')
 const queryZcl = require('../db/query-zcl.js')
+const queryLoader = require('../db/query-loader.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const util = require('../util/util.js')
@@ -596,7 +597,7 @@ async function loadZclData(db, ctx) {
     let d = prepareDeviceType(deviceType)
     ds.push(d)
   })
-  return queryZcl
+  return queryLoader
     .insertClusters(db, ctx.packageId, cs)
     .then(() =>
       queryPackage.insertOptionsKeyValues(
@@ -610,7 +611,7 @@ async function loadZclData(db, ctx) {
       )
     )
     .then(() => queryZcl.insertDeviceTypes(db, ctx.packageId, ds))
-    .then(() => queryZcl.insertGlobals(db, ctx.packageId, gs))
+    .then(() => queryLoader.insertGlobals(db, ctx.packageId, gs))
     .then(() => queryZcl.insertAtomics(db, ctx.packageId, types.atomics))
     .then(() => queryZcl.insertEnums(db, ctx.packageId, types.enums))
     .then(() => queryZcl.insertBitmaps(db, ctx.packageId, types.bitmaps))
