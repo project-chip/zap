@@ -612,10 +612,10 @@ async function loadZclData(db, ctx) {
     )
     .then(() => queryZcl.insertDeviceTypes(db, ctx.packageId, ds))
     .then(() => queryLoader.insertGlobals(db, ctx.packageId, gs))
-    .then(() => queryZcl.insertAtomics(db, ctx.packageId, types.atomics))
-    .then(() => queryZcl.insertEnums(db, ctx.packageId, types.enums))
-    .then(() => queryZcl.insertBitmaps(db, ctx.packageId, types.bitmaps))
-    .then(() => queryZcl.insertStructs(db, ctx.packageId, types.structs))
+    .then(() => queryLoader.insertAtomics(db, ctx.packageId, types.atomics))
+    .then(() => queryLoader.insertEnums(db, ctx.packageId, types.enums))
+    .then(() => queryLoader.insertBitmaps(db, ctx.packageId, types.bitmaps))
+    .then(() => queryLoader.insertStructs(db, ctx.packageId, types.structs))
 }
 
 /**

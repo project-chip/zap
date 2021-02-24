@@ -540,8 +540,213 @@ async function insertSpecs(db, packageId, data) {
   )
 }
 
+/**
+ * Inserts global attribute defaults into the database.
+ *
+ * @param {*} db
+ * @param {*} packagaId
+ * @param {*} data array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value
+ * @returns Promise of data insertion.
+ */
+async function insertGlobalAttributeDefault(db, packageId, data) {
+  let individualClusterPromise = []
+  data.forEach((d) => {
+    let args = []
+    d.globalAttribute.forEach((ga) => {
+      if (ga.side == 'either') {
+        args.push([
+          packageId,
+          d.code,
+          packageId,
+          ga.code,
+          dbEnum.side.client,
+          ga.value,
+        ])
+        args.push([
+          packageId,
+          d.code,
+          packageId,
+          ga.code,
+          dbEnum.side.server,
+          ga.value,
+        ])
+      } else {
+        args.push([packageId, d.code, packageId, ga.code, ga.side, ga.value])
+      }
+    })
+    let p = dbApi.dbMultiInsert(
+      db,
+      `
+    INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_DEFAULT (
+      CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE
+    ) VALUES (
+      ( SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? ),
+      ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE PACKAGE_REF = ? AND CODE = ? AND SIDE = ? ),
+      ?)
+      `,
+      args
+    )
+    individualClusterPromise.push(p)
+  })
+  return Promise.all(individualClusterPromise)
+}
+
+/**
+ *
+ * Inserts structs into the database.
+ * data is an array of objects that must contain: name
+ *
+ * @export
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise that resolves with an array of struct item rowids.
+ */
+async function insertStructs(db, packageId, data) {
+  return dbApi
+    .dbMultiInsert(
+      db,
+      'INSERT INTO STRUCT (PACKAGE_REF, NAME) VALUES (?, ?)',
+      data.map((struct) => {
+        return [packageId, struct.name]
+      })
+    )
+    .then((lastIdsArray) => {
+      let i
+      let itemsToLoad = []
+      for (i = 0; i < lastIdsArray.length; i++) {
+        if ('items' in data[i]) {
+          let lastId = lastIdsArray[i]
+          let items = data[i].items
+          itemsToLoad.push(
+            ...items.map((item) => [lastId, item.name, item.type, item.ordinal])
+          )
+        }
+      }
+      return dbApi.dbMultiInsert(
+        db,
+        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, ORDINAL) VALUES (?,?,?, ?)',
+        itemsToLoad
+      )
+    })
+}
+
+/**
+ * Inserts enums into the database.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data an array of objects that must contain: name, type
+ * @returns A promise of enum insertion.
+ */
+async function insertEnums(db, packageId, data) {
+  return dbApi
+    .dbMultiInsert(
+      db,
+      'INSERT INTO ENUM (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
+      data.map((en) => {
+        return [packageId, en.name, en.type]
+      })
+    )
+    .then((lastIdsArray) => {
+      let i
+      let itemsToLoad = []
+      for (i = 0; i < lastIdsArray.length; i++) {
+        if ('items' in data[i]) {
+          let lastId = lastIdsArray[i]
+          let items = data[i].items
+          itemsToLoad.push(
+            ...items.map((item) => [
+              lastId,
+              item.name,
+              item.value,
+              item.ordinal,
+            ])
+          )
+        }
+      }
+      return dbApi.dbMultiInsert(
+        db,
+        'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE, ORDINAL) VALUES (?, ?, ?, ?)',
+        itemsToLoad
+      )
+    })
+}
+
+/**
+ * Inserts bitmaps into the database. Data is an array of objects that must contain: name, type
+ *
+ * @export
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data Array of object containing 'name' and 'type'.
+ * @returns A promise of bitmap insertions.
+ */
+async function insertBitmaps(db, packageId, data) {
+  return dbApi
+    .dbMultiInsert(
+      db,
+      'INSERT INTO BITMAP (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
+      data.map((bm) => [packageId, bm.name, bm.type])
+    )
+    .then((lastIdsArray) => {
+      let i
+      let fieldsToLoad = []
+      for (i = 0; i < lastIdsArray.length; i++) {
+        if ('fields' in data[i]) {
+          let lastId = lastIdsArray[i]
+          let fields = data[i].fields
+          fieldsToLoad.push(
+            ...fields.map((field) => [
+              lastId,
+              field.name,
+              field.mask,
+              field.type,
+              field.ordinal,
+            ])
+          )
+        }
+      }
+      return dbApi.dbMultiInsert(
+        db,
+        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, TYPE, ORDINAL) VALUES (?, ?, ?, ?, ?)',
+        fieldsToLoad
+      )
+    })
+}
+
+/**
+ * Insert atomics into the database.
+ * Data is an array of objects that must contains: name, id, description.
+ * Object might also contain 'size', but possibly not.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertAtomics(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO ATOMIC (PACKAGE_REF, NAME, DESCRIPTION, ATOMIC_IDENTIFIER, ATOMIC_SIZE, DISCRETE) VALUES (?, ?, ?, ?, ?, ?)',
+    data.map((at) => [
+      packageId,
+      at.name,
+      at.description,
+      at.id,
+      at.size,
+      at.discrete,
+    ])
+  )
+}
+
 exports.insertGlobals = insertGlobals
 exports.insertClusterExtensions = insertClusterExtensions
 exports.insertClusters = insertClusters
 exports.insertDomains = insertDomains
 exports.insertSpecs = insertSpecs
+exports.insertGlobalAttributeDefault = insertGlobalAttributeDefault
+exports.insertAtomics = insertAtomics
+exports.insertStructs = insertStructs
+exports.insertEnums = insertEnums
+exports.insertBitmaps = insertBitmaps

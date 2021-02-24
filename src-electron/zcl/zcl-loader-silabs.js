@@ -208,7 +208,7 @@ function prepareBitmap(bm) {
  */
 async function processBitmaps(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} bitmaps.`)
-  return queryZcl.insertBitmaps(
+  return queryLoader.insertBitmaps(
     db,
     packageId,
     data.map((x) => prepareBitmap(x))
@@ -241,7 +241,7 @@ function prepareAtomic(a) {
 async function processAtomics(db, filePath, packageId, data) {
   let types = data[0].type
   env.logInfo(`${filePath}, ${packageId}: ${types.length} atomic types.`)
-  return queryZcl.insertAtomics(
+  return queryLoader.insertAtomics(
     db,
     packageId,
     types.map((x) => prepareAtomic(x))
@@ -433,7 +433,7 @@ function processClusterGlobalAttributes(db, filePath, packageId, data) {
     if (p != null) objs.push(p)
   })
   if (objs.length > 0) {
-    return queryZcl.insertGlobalAttributeDefault(db, packageId, objs)
+    return queryLoader.insertGlobalAttributeDefault(db, packageId, objs)
   } else {
     return null
   }
@@ -557,7 +557,7 @@ function prepareStruct(struct) {
  */
 async function processStructs(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} structs.`)
-  return queryZcl.insertStructs(
+  return queryLoader.insertStructs(
     db,
     packageId,
     data.map((x) => prepareStruct(x))
@@ -596,7 +596,7 @@ function prepareEnum(en) {
  */
 async function processEnums(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} enums.`)
-  return queryZcl.insertEnums(
+  return queryLoader.insertEnums(
     db,
     packageId,
     data.map((x) => prepareEnum(x))
