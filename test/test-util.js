@@ -48,10 +48,11 @@ exports.testServer = testServer
 exports.testCustomXml = './test/resource/test-custom.xml'
 exports.badTestCustomXml = './test/resource/bad-test-custom.xml'
 
-exports.totalClusterCount = 108
-exports.totalDomainCount = 22
-exports.totalCommandArgsCount = 1782
-exports.totalCommandCount = 623
+exports.totalClusterCount = 109
+exports.totalDomainCount = 23
+exports.totalCommandArgsCount = 1784
+exports.totalCommandCount = 625
 exports.totalAttributeCount = 3430
-exports.totalClusterCommandCount = 600
+exports.totalClusterCommandCount = 602
 exports.totalServerAttributeCount = 2954
+exports.totalSpecCount = 39
