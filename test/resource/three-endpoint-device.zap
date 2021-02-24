@@ -1,5 +1,5 @@
 {
-  "featureLevel": 12,
+  "featureLevel": 14,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -76,7 +76,7 @@
               "mfgCode": null,
               "side": "server",
               "included": 1,
-              "storageOption": "undefined",
+              "storageOption": "NVM",
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "Test manufacturer",
@@ -91,7 +91,7 @@
               "mfgCode": null,
               "side": "server",
               "included": 1,
-              "storageOption": "undefined",
+              "storageOption": "NVM",
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "Test model identifier",
@@ -106,7 +106,7 @@
               "mfgCode": null,
               "side": "server",
               "included": 1,
-              "storageOption": "undefined",
+              "storageOption": "NVM",
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "Test date code",

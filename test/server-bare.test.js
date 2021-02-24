@@ -24,6 +24,7 @@ const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
+const queryLoader = require('../src-electron/db/query-loader.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const querySession = require('../src-electron/db/query-session.js')
@@ -118,7 +119,7 @@ describe('Session specific tests', () => {
       .then(() => queryPackage.insertSessionPackage(db, sessionId, packageId)))
 
   test('load 2 clusters', () =>
-    queryZcl.insertClusters(db, packageId, [
+    queryLoader.insertClusters(db, packageId, [
       {
         code: 0x1111,
         name: 'One',
@@ -145,7 +146,7 @@ describe('Session specific tests', () => {
     }))
 
   test('load domains', () =>
-    queryZcl.insertDomains(db, packageId, [
+    queryLoader.insertDomains(db, packageId, [
       { name: 'one' },
       { name: 'two' },
       { name: 'three' },

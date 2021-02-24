@@ -20,10 +20,11 @@
  *
  * @module DB API: zcl database access
  */
-const Env = require('../util/env.js')
+const env = require('../util/env.js')
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+
 /**
  * Retrieves all the enums in the database.
  *
@@ -543,6 +544,14 @@ ORDER BY
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
+/**
+ * Query for attributes by side.
+ *
+ * @param {*} db
+ * @param {*} side
+ * @param {*} packageId
+ * @returns promise that resolves into attributes.
+ */
 async function selectAllAttributesBySide(db, side, packageId) {
   return dbApi
     .dbAll(
@@ -983,528 +992,6 @@ WHERE
 }
 
 /**
- * Inserts globals into the database.
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data
- * @returns Promise of globals insertion.
- */
-async function insertGlobals(db, packageId, data) {
-  Env.logInfo(`Insert globals: ${data.length}`)
-  let commandsToLoad = []
-  let attributesToLoad = []
-  let argsForCommands = []
-  let argsToLoad = []
-  let i
-  for (i = 0; i < data.length; i++) {
-    if ('commands' in data[i]) {
-      let commands = data[i].commands
-      commandsToLoad.push(
-        ...commands.map((command) => [
-          null, // clusterId
-          packageId,
-          command.code,
-          command.name,
-          command.description,
-          command.source,
-          command.isOptional,
-        ])
-      )
-      argsForCommands.push(...commands.map((command) => command.args))
-    }
-    if ('attributes' in data[i]) {
-      let attributes = data[i].attributes
-      attributesToLoad.push(
-        ...attributes.map((attribute) => [
-          null, // clusterId
-          packageId,
-          attribute.code,
-          attribute.name,
-          attribute.type,
-          attribute.side,
-          attribute.define,
-          attribute.min,
-          attribute.max,
-          attribute.isWritable,
-          attribute.defaultValue,
-          attribute.isOptional,
-          attribute.isReportable,
-        ])
-      )
-    }
-  }
-  let pCommand = dbApi
-    .dbMultiInsert(
-      db,
-      'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?)',
-      commandsToLoad
-    )
-    .then((lids) => {
-      let j
-      for (j = 0; j < lids.length; j++) {
-        let lastCmdId = lids[j]
-        let args = argsForCommands[j]
-        if (args != undefined && args != null) {
-          argsToLoad.push(
-            ...args.map((arg) => [
-              lastCmdId,
-              arg.name,
-              arg.type,
-              arg.isArray,
-              arg.presentIf,
-              arg.countArg,
-              arg.ordinal,
-            ])
-          )
-        }
-      }
-      return dbApi.dbMultiInsert(
-        db,
-        'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, PRESENT_IF, COUNT_ARG, ORDINAL) VALUES (?,?,?,?,?,?, ?)',
-        argsToLoad
-      )
-    })
-  let pAttribute = dbApi.dbMultiInsert(
-    db,
-    `
-INSERT INTO ATTRIBUTE
-  ( CLUSTER_REF,
-    PACKAGE_REF,
-    CODE,
-    NAME,
-    TYPE,
-    SIDE,
-    DEFINE,
-    MIN,
-    MAX,
-    IS_WRITABLE,
-    DEFAULT_VALUE,
-    IS_OPTIONAL,
-    IS_REPORTABLE)
-VALUES
-  (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-    attributesToLoad
-  )
-  return Promise.all([pCommand, pAttribute])
-}
-
-/**
- *  Inserts cluster extensions into the database.
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data
- * @returns Promise of cluster extension insertion.
- */
-async function insertClusterExtensions(db, packageId, data) {
-  return dbApi
-    .dbMultiSelect(
-      db,
-      'SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ?',
-      data.map((cluster) => [packageId, cluster.code])
-    )
-    .then((rows) => {
-      let commandsToLoad = []
-      let attributesToLoad = []
-      let argsForCommands = []
-      let argsToLoad = []
-      let i, lastId
-      for (i = 0; i < rows.length; i++) {
-        let row = rows[i]
-        if (row != null) {
-          lastId = row.CLUSTER_ID
-          if ('commands' in data[i]) {
-            let commands = data[i].commands
-            commandsToLoad.push(
-              ...commands.map((command) => [
-                lastId,
-                packageId,
-                command.code,
-                command.manufacturerCode,
-                command.name,
-                command.description,
-                command.source,
-                command.isOptional,
-              ])
-            )
-            argsForCommands.push(...commands.map((command) => command.args))
-          }
-          if ('attributes' in data[i]) {
-            let attributes = data[i].attributes
-            attributesToLoad.push(
-              ...attributes.map((attribute) => [
-                lastId,
-                packageId,
-                attribute.code,
-                attribute.manufacturerCode,
-                attribute.name,
-                attribute.type,
-                attribute.side,
-                attribute.define,
-                attribute.min,
-                attribute.max,
-                attribute.minLength,
-                attribute.maxLength,
-                attribute.isWritable,
-                attribute.defaultValue,
-                attribute.isOptional,
-                attribute.isReportable,
-              ])
-            )
-          }
-        } else {
-          // DANGER: We got here, but we don't have rows. Why not?
-          // Because clusters at this point have not yet been created? Odd.
-          Env.logWarning(
-            `Attempting to insert cluster extension, but the cluster was not found: ${data[i].code}`
-          )
-        }
-      }
-      let pCommand = dbApi
-        .dbMultiInsert(
-          db,
-          'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?,?)',
-          commandsToLoad
-        )
-        .then((lids) => {
-          let j
-          for (j = 0; j < lids.length; j++) {
-            lastId = lids[j]
-            let args = argsForCommands[j]
-            if (args != undefined && args != null) {
-              argsToLoad.push(
-                ...args.map((arg) => [
-                  lastId,
-                  arg.name,
-                  arg.type,
-                  arg.isArray,
-                  arg.presentIf,
-                  arg.countArg,
-                  arg.ordinal,
-                ])
-              )
-            }
-          }
-          return dbApi.dbMultiInsert(
-            db,
-            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, PRESENT_IF, COUNT_ARG, ORDINAL) VALUES (?,?,?,?,?,?,?)',
-            argsToLoad
-          )
-        })
-      let pAttribute = dbApi.dbMultiInsert(
-        db,
-        'INSERT INTO ATTRIBUTE (CLUSTER_REF, PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, TYPE, SIDE, DEFINE, MIN, MAX, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, DEFAULT_VALUE, IS_OPTIONAL, IS_REPORTABLE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-        attributesToLoad
-      )
-      return Promise.all([pCommand, pAttribute])
-    })
-}
-
-/**
- * Inserts global attribute defaults into the database.
- *
- * @param {*} db
- * @param {*} packagaId
- * @param {*} data array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value
- * @returns Promise of data insertion.
- */
-async function insertGlobalAttributeDefault(db, packageId, data) {
-  let individualClusterPromise = []
-  data.forEach((d) => {
-    let args = []
-    d.globalAttribute.forEach((ga) => {
-      if (ga.side == 'either') {
-        args.push([
-          packageId,
-          d.code,
-          packageId,
-          ga.code,
-          dbEnum.side.client,
-          ga.value,
-        ])
-        args.push([
-          packageId,
-          d.code,
-          packageId,
-          ga.code,
-          dbEnum.side.server,
-          ga.value,
-        ])
-      } else {
-        args.push([packageId, d.code, packageId, ga.code, ga.side, ga.value])
-      }
-    })
-    let p = dbApi.dbMultiInsert(
-      db,
-      `
-  INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_DEFAULT (
-    CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE
-  ) VALUES (
-    ( SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? ),
-    ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE PACKAGE_REF = ? AND CODE = ? AND SIDE = ? ),
-    ?)
-    `,
-      args
-    )
-    individualClusterPromise.push(p)
-  })
-  return Promise.all(individualClusterPromise)
-}
-
-/**
- * Inserts clusters into the database.
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data an array of objects that must contain: code, name, description, define. It also contains commands: and attributes:
- * @returns Promise of cluster insertion.
- */
-async function insertClusters(db, packageId, data) {
-  // If data is extension, we only have code there and we need to simply add commands and clusters.
-  // But if it's not an extension, we need to insert the cluster and then run with
-  return dbApi
-    .dbMultiInsert(
-      db,
-      'INSERT INTO CLUSTER (PACKAGE_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME, IS_SINGLETON) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      data.map((cluster) => {
-        return [
-          packageId,
-          cluster.code,
-          cluster.manufacturerCode,
-          cluster.name,
-          cluster.description,
-          cluster.define,
-          cluster.domain,
-          cluster.isSingleton,
-        ]
-      })
-    )
-    .then((lastIdsArray) => {
-      let commandsToLoad = []
-      let attributesToLoad = []
-      let argsForCommands = []
-      let argsToLoad = []
-      let i
-      for (i = 0; i < lastIdsArray.length; i++) {
-        let lastId = lastIdsArray[i]
-        if ('commands' in data[i]) {
-          let commands = data[i].commands
-          commandsToLoad.push(
-            ...commands.map((command) => [
-              lastId,
-              packageId,
-              command.code,
-              command.name,
-              command.description,
-              command.source,
-              command.isOptional,
-              command.manufacturerCode,
-            ])
-          )
-          argsForCommands.push(...commands.map((command) => command.args))
-        }
-        if ('attributes' in data[i]) {
-          let attributes = data[i].attributes
-          attributesToLoad.push(
-            ...attributes.map((attribute) => [
-              lastId,
-              packageId,
-              attribute.code,
-              attribute.name,
-              attribute.type,
-              attribute.side,
-              attribute.define,
-              attribute.min,
-              attribute.max,
-              attribute.minLength,
-              attribute.maxLength,
-              attribute.isWritable,
-              attribute.defaultValue,
-              attribute.isOptional,
-              attribute.isReportable,
-              attribute.manufacturerCode,
-            ])
-          )
-        }
-      }
-      let pCommand = dbApi
-        .dbMultiInsert(
-          db,
-          'INSERT INTO COMMAND (CLUSTER_REF, PACKAGE_REF, CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL, MANUFACTURER_CODE) VALUES (?,?,?,?,?,?,?, ?)',
-          commandsToLoad
-        )
-        .then((lids) => {
-          let j
-          for (j = 0; j < lids.length; j++) {
-            let lastCmdId = lids[j]
-            let args = argsForCommands[j]
-            if (args != undefined && args != null) {
-              argsToLoad.push(
-                ...args.map((arg) => [
-                  lastCmdId,
-                  arg.name,
-                  arg.type,
-                  arg.isArray,
-                  arg.presentIf,
-                  arg.countArg,
-                  arg.ordinal,
-                ])
-              )
-            }
-          }
-          return dbApi.dbMultiInsert(
-            db,
-            'INSERT INTO COMMAND_ARG (COMMAND_REF, NAME, TYPE, IS_ARRAY, PRESENT_IF, COUNT_ARG, ORDINAL) VALUES (?,?,?,?,?,?,?)',
-            argsToLoad
-          )
-        })
-      let pAttribute = dbApi.dbMultiInsert(
-        db,
-        `
-INSERT INTO ATTRIBUTE (
-  CLUSTER_REF, 
-  PACKAGE_REF, 
-  CODE, 
-  NAME, 
-  TYPE, 
-  SIDE, 
-  DEFINE, 
-  MIN, 
-  MAX, 
-  MIN_LENGTH, 
-  MAX_LENGTH, 
-  IS_WRITABLE, 
-  DEFAULT_VALUE, 
-  IS_OPTIONAL, 
-  IS_REPORTABLE, 
-  MANUFACTURER_CODE
-) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-        attributesToLoad
-      )
-      return Promise.all([pCommand, pAttribute])
-    })
-}
-
-/**
- * Inserts device types into the database.
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data an array of objects that must contain: domain, code, profileId, name, description
- * @returns Promise of an insertion of device types.
- */
-async function insertDeviceTypes(db, packageId, data) {
-  return dbApi
-    .dbMultiInsert(
-      db,
-      'INSERT INTO DEVICE_TYPE (PACKAGE_REF, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION) VALUES (?, ?, ?, ?, ?, ?)',
-      data.map((dt) => {
-        return [
-          packageId,
-          dt.domain,
-          dt.code,
-          dt.profileId,
-          dt.name,
-          dt.description,
-        ]
-      })
-    )
-    .then((lastIdsArray) => {
-      let zclIdsPromises = []
-      for (let i = 0; i < lastIdsArray.length; i++) {
-        if ('clusters' in data[i]) {
-          let lastId = lastIdsArray[i]
-          let clusters = data[i].clusters
-          // This is an array that links the generated deviceTyepRef to the cluster via generating an array of arrays,
-          zclIdsPromises = Promise.all(
-            clusters.map((cluster) =>
-              dbApi
-                .dbInsert(
-                  db,
-                  'INSERT INTO DEVICE_TYPE_CLUSTER (DEVICE_TYPE_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER) VALUES (?,?,?,?,?,?)',
-                  [
-                    lastId,
-                    cluster.clusterName,
-                    cluster.client,
-                    cluster.server,
-                    cluster.clientLocked,
-                    cluster.serverLocked,
-                  ],
-                  true
-                )
-                .then((deviceTypeClusterRef) => {
-                  return {
-                    dtClusterRef: deviceTypeClusterRef,
-                    clusterData: cluster,
-                  }
-                })
-            )
-          ).then((dtClusterRefDataPairs) => {
-            let promises = []
-            promises.push(insertDeviceTypeAttributes(db, dtClusterRefDataPairs))
-            promises.push(insertDeviceTypeCommands(db, dtClusterRefDataPairs))
-            return Promise.all(promises)
-          })
-        }
-      }
-      return zclIdsPromises
-    })
-}
-
-/**
- * This handles the loading of device type attribute requirements into the database.
- * There is a need to post-process to attach the actual attribute ref after the fact
- * @param {*} db
- * @param {*} dtClusterRefDataPairs
- */
-async function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
-  let attributes = []
-  dtClusterRefDataPairs.map((dtClusterRefDataPair) => {
-    let dtClusterRef = dtClusterRefDataPair.dtClusterRef
-    let clusterData = dtClusterRefDataPair.clusterData
-    if ('requiredAttributes' in clusterData) {
-      clusterData.requiredAttributes.forEach((attributeName) => {
-        attributes.push([dtClusterRef, attributeName])
-      })
-    }
-  })
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO DEVICE_TYPE_ATTRIBUTE (DEVICE_TYPE_CLUSTER_REF, ATTRIBUTE_NAME) VALUES (?, ?)',
-    attributes
-  )
-}
-
-/**
- * This handles the loading of device type command requirements into the database.
- * There is a need to post-process to attach the actual command ref after the fact
- * @param {*} db
- * @param {*} dtClusterRefDataPairs
- */
-async function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
-  let commands = []
-  dtClusterRefDataPairs.map((dtClusterRefDataPair) => {
-    let dtClusterRef = dtClusterRefDataPair.dtClusterRef
-    let clusterData = dtClusterRefDataPair.clusterData
-    if ('requiredCommands' in clusterData) {
-      clusterData.requiredCommands.forEach((commandName) => {
-        commands.push([dtClusterRef, commandName])
-      })
-    }
-  })
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO DEVICE_TYPE_COMMAND (DEVICE_TYPE_CLUSTER_REF, COMMAND_NAME) VALUES (?, ?)',
-    commands
-  )
-}
-
-/**
  * After loading up device type cluster table with the names,
  * this method links the refererence to actual cluster reference.
  *
@@ -1597,134 +1084,6 @@ async function updateDeviceTypeEntityReferences(db) {
 }
 
 /**
- *
- * Inserts domains into the database.
- * data is an array of objects that must contain: name
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data
- * @returns A promise that resolves with an array of rowids of all inserted domains.
- */
-async function insertDomains(db, packageId, data) {
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO DOMAIN (PACKAGE_REF, NAME) VALUES (?, ?)',
-    data.map((domain) => {
-      return [packageId, domain.name]
-    })
-  )
-}
-
-/**
- *
- * Inserts structs into the database.
- * data is an array of objects that must contain: name
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data
- * @returns A promise that resolves with an array of struct item rowids.
- */
-async function insertStructs(db, packageId, data) {
-  return dbApi
-    .dbMultiInsert(
-      db,
-      'INSERT INTO STRUCT (PACKAGE_REF, NAME) VALUES (?, ?)',
-      data.map((struct) => {
-        return [packageId, struct.name]
-      })
-    )
-    .then((lastIdsArray) => {
-      let i
-      let itemsToLoad = []
-      for (i = 0; i < lastIdsArray.length; i++) {
-        if ('items' in data[i]) {
-          let lastId = lastIdsArray[i]
-          let items = data[i].items
-          itemsToLoad.push(
-            ...items.map((item) => [lastId, item.name, item.type, item.ordinal])
-          )
-        }
-      }
-      return dbApi.dbMultiInsert(
-        db,
-        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, ORDINAL) VALUES (?,?,?, ?)',
-        itemsToLoad
-      )
-    })
-}
-
-/**
- * Inserts enums into the database.
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data an array of objects that must contain: name, type
- * @returns A promise of enum insertion.
- */
-async function insertEnums(db, packageId, data) {
-  return dbApi
-    .dbMultiInsert(
-      db,
-      'INSERT INTO ENUM (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
-      data.map((en) => {
-        return [packageId, en.name, en.type]
-      })
-    )
-    .then((lastIdsArray) => {
-      let i
-      let itemsToLoad = []
-      for (i = 0; i < lastIdsArray.length; i++) {
-        if ('items' in data[i]) {
-          let lastId = lastIdsArray[i]
-          let items = data[i].items
-          itemsToLoad.push(
-            ...items.map((item) => [
-              lastId,
-              item.name,
-              item.value,
-              item.ordinal,
-            ])
-          )
-        }
-      }
-      return dbApi.dbMultiInsert(
-        db,
-        'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE, ORDINAL) VALUES (?, ?, ?, ?)',
-        itemsToLoad
-      )
-    })
-}
-
-/**
- * Insert atomics into the database.
- * Data is an array of objects that must contains: name, id, description.
- * Object might also contain 'size', but possibly not.
- *
- * @param {*} db
- * @param {*} packageId
- * @param {*} data
- */
-async function insertAtomics(db, packageId, data) {
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO ATOMIC (PACKAGE_REF, NAME, DESCRIPTION, ATOMIC_IDENTIFIER, ATOMIC_SIZE, DISCRETE) VALUES (?, ?, ?, ?, ?, ?)',
-    data.map((at) => [
-      packageId,
-      at.name,
-      at.description,
-      at.id,
-      at.size,
-      at.discrete,
-    ])
-  )
-}
-
-/**
  * Locates atomic type based on a type name.
  *
  * @param {*} db
@@ -1793,48 +1152,6 @@ async function getAtomicSizeFromType(db, packageId, type) {
 }
 
 /**
- * Inserts bitmaps into the database. Data is an array of objects that must contain: name, type
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data Array of object containing 'name' and 'type'.
- * @returns A promise of bitmap insertions.
- */
-async function insertBitmaps(db, packageId, data) {
-  return dbApi
-    .dbMultiInsert(
-      db,
-      'INSERT INTO BITMAP (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
-      data.map((bm) => [packageId, bm.name, bm.type])
-    )
-    .then((lastIdsArray) => {
-      let i
-      let fieldsToLoad = []
-      for (i = 0; i < lastIdsArray.length; i++) {
-        if ('fields' in data[i]) {
-          let lastId = lastIdsArray[i]
-          let fields = data[i].fields
-          fieldsToLoad.push(
-            ...fields.map((field) => [
-              lastId,
-              field.name,
-              field.mask,
-              field.type,
-              field.ordinal,
-            ])
-          )
-        }
-      }
-      return dbApi.dbMultiInsert(
-        db,
-        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, TYPE, ORDINAL) VALUES (?, ?, ?, ?, ?)',
-        fieldsToLoad
-      )
-    })
-}
-
-/**
  * Exports clusters and endpoint ids
  *
  * @param {*} db
@@ -1863,10 +1180,14 @@ SELECT
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF,
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
   ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-FROM CLUSTER
-INNER JOIN ENDPOINT_TYPE_CLUSTER
-ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})`
+FROM 
+  CLUSTER
+INNER JOIN 
+  ENDPOINT_TYPE_CLUSTER
+ON 
+  CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+WHERE
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -2641,17 +1962,8 @@ exports.selectDeviceTypeAttributesByDeviceTypeClusterRef = selectDeviceTypeAttri
 exports.selectDeviceTypeCommandsByDeviceTypeClusterRef = selectDeviceTypeCommandsByDeviceTypeClusterRef
 exports.selectDeviceTypeAttributesByDeviceTypeRef = selectDeviceTypeAttributesByDeviceTypeRef
 exports.selectDeviceTypeCommandsByDeviceTypeRef = selectDeviceTypeCommandsByDeviceTypeRef
-exports.insertGlobals = insertGlobals
-exports.insertClusterExtensions = insertClusterExtensions
-exports.insertClusters = insertClusters
-exports.insertDeviceTypes = insertDeviceTypes
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
-exports.insertDomains = insertDomains
-exports.insertStructs = insertStructs
-exports.insertEnums = insertEnums
-exports.insertBitmaps = insertBitmaps
 exports.selectEndpointType = selectEndpointType
-exports.insertAtomics = insertAtomics
 exports.selectAllAtomics = selectAllAtomics
 exports.getAtomicSizeFromType = getAtomicSizeFromType
 exports.selectAtomicType = selectAtomicType
@@ -2664,7 +1976,6 @@ exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
 exports.exportAllClustersDetailsFromEndpointTypes = exportAllClustersDetailsFromEndpointTypes
 exports.exportAllClustersNamesFromEndpointTypes = exportAllClustersNamesFromEndpointTypes
 exports.exportCommandDetailsFromAllEndpointTypeCluster = exportCommandDetailsFromAllEndpointTypeCluster
-exports.insertGlobalAttributeDefault = insertGlobalAttributeDefault
 exports.selectEnumByName = selectEnumByName
 exports.selectStructByName = selectStructByName
 exports.determineType = determineType

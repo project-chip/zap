@@ -22,6 +22,7 @@ const path = require('path')
 const zclLoader = require('./zcl-loader')
 const dbApi = require('../db/db-api.js')
 const queryZcl = require('../db/query-zcl.js')
+const queryLoader = require('../db/query-loader.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const util = require('../util/util.js')
@@ -596,25 +597,24 @@ async function loadZclData(db, ctx) {
     let d = prepareDeviceType(deviceType)
     ds.push(d)
   })
-  return queryZcl
-    .insertClusters(db, ctx.packageId, cs)
-    .then(() =>
-      queryPackage.insertOptionsKeyValues(
-        db,
-        ctx.packageId,
-        dbEnum.packageOptionCategory.manufacturerCodes,
-        ctx.zclManufacturers.map((data) => {
-          let mfgPair = data['$']
-          return { code: mfgPair['code'], label: mfgPair['translation'] }
-        })
-      )
-    )
-    .then(() => queryZcl.insertDeviceTypes(db, ctx.packageId, ds))
-    .then(() => queryZcl.insertGlobals(db, ctx.packageId, gs))
-    .then(() => queryZcl.insertAtomics(db, ctx.packageId, types.atomics))
-    .then(() => queryZcl.insertEnums(db, ctx.packageId, types.enums))
-    .then(() => queryZcl.insertBitmaps(db, ctx.packageId, types.bitmaps))
-    .then(() => queryZcl.insertStructs(db, ctx.packageId, types.structs))
+  await queryLoader.insertClusters(db, ctx.packageId, cs)
+
+  await queryPackage.insertOptionsKeyValues(
+    db,
+    ctx.packageId,
+    dbEnum.packageOptionCategory.manufacturerCodes,
+    ctx.zclManufacturers.map((data) => {
+      let mfgPair = data['$']
+      return { code: mfgPair['code'], label: mfgPair['translation'] }
+    })
+  )
+
+  await queryLoader.insertDeviceTypes(db, ctx.packageId, ds)
+  await queryLoader.insertGlobals(db, ctx.packageId, gs)
+  await queryLoader.insertAtomics(db, ctx.packageId, types.atomics)
+  await queryLoader.insertEnums(db, ctx.packageId, types.enums)
+  await queryLoader.insertBitmaps(db, ctx.packageId, types.bitmaps)
+  return queryLoader.insertStructs(db, ctx.packageId, types.structs)
 }
 
 /**

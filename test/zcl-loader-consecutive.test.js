@@ -105,7 +105,7 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     .then((x) => expect(x.length).toEqual(54))
     .then(() => queryZcl.selectAllBitmaps(db, jsonPackageId))
     .then(() => queryZcl.selectAllDeviceTypes(db, jsonPackageId))
-    .then((x) => expect(x.length).toEqual(176))
+    .then((x) => expect(x.length).toEqual(175))
     .then(() => queryZcl.selectAllAtomics(db, jsonPackageId))
     .then((x) => expect(x.length).toEqual(56))
     .then(() => queryZcl.selectAllClusters(db, dotdotPackageId))

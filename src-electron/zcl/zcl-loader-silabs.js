@@ -22,6 +22,7 @@ const properties = require('properties')
 const dbApi = require('../db/db-api.js')
 const queryPackage = require('../db/query-package.js')
 const queryZcl = require('../db/query-zcl.js')
+const queryLoader = require('../db/query-loader.js')
 const env = require('../util/env.js')
 const bin = require('../util/bin.js')
 const util = require('../util/util.js')
@@ -207,7 +208,7 @@ function prepareBitmap(bm) {
  */
 async function processBitmaps(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} bitmaps.`)
-  return queryZcl.insertBitmaps(
+  return queryLoader.insertBitmaps(
     db,
     packageId,
     data.map((x) => prepareBitmap(x))
@@ -240,7 +241,7 @@ function prepareAtomic(a) {
 async function processAtomics(db, filePath, packageId, data) {
   let types = data[0].type
   env.logInfo(`${filePath}, ${packageId}: ${types.length} atomic types.`)
-  return queryZcl.insertAtomics(
+  return queryLoader.insertAtomics(
     db,
     packageId,
     types.map((x) => prepareAtomic(x))
@@ -322,6 +323,8 @@ function prepareCluster(cluster, isExtension = false) {
       if (cluster.$.singleton == 'true') {
         ret.isSingleton = true
       }
+      ret.introducedIn = cluster.$.introducedIn
+      ret.removedIn = cluster.$.removedIn
     }
   }
 
@@ -335,6 +338,8 @@ function prepareCluster(cluster, isExtension = false) {
         description: command.description[0].trim(),
         source: command.$.source,
         isOptional: command.$.optional == 'true',
+        introducedIn: command.$.introducedIn,
+        removedIn: command.$.removedIn,
       }
       if (cmd.manufacturerCode == null) {
         cmd.manufacturerCode = ret.manufacturerCode
@@ -344,7 +349,7 @@ function prepareCluster(cluster, isExtension = false) {
       if ('arg' in command) {
         cmd.args = []
         command.arg.forEach((arg, index) => {
-          // We are only includsing ones that are NOT removedIn
+          // We are only including ones that are NOT removedIn
           if (arg.$.removedIn == null)
             cmd.args.push({
               name: arg.$.name,
@@ -353,6 +358,8 @@ function prepareCluster(cluster, isExtension = false) {
               presentIf: arg.$.presentIf,
               countArg: arg.$.countArg,
               ordinal: index,
+              introducedIn: arg.$.introducedIn,
+              removedIn: arg.$.removedIn,
             })
         })
       }
@@ -377,6 +384,8 @@ function prepareCluster(cluster, isExtension = false) {
         defaultValue: attribute.$.default,
         isOptional: attribute.$.optional == 'true',
         isReportable: attribute.$.reportable == 'true',
+        introducedIn: attribute.$.introducedIn,
+        removedIn: attribute.$.removedIn,
       }
       if (att.manufacturerCode == null) {
         att.manufacturerCode = ret.manufacturerCode
@@ -384,9 +393,7 @@ function prepareCluster(cluster, isExtension = false) {
         att.manufacturerCode = parseInt(att.manufacturerCode)
       }
       // If attribute has removedIn, then it's not valid any more in LATEST spec.
-      if (attribute.$.removedIn == null) {
-        ret.attributes.push(att)
-      }
+      if (att.removedIn == null) ret.attributes.push(att)
     })
   }
   return ret
@@ -403,7 +410,7 @@ function prepareCluster(cluster, isExtension = false) {
  */
 async function processClusters(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} clusters.`)
-  return queryZcl.insertClusters(
+  return queryLoader.insertClusters(
     db,
     packageId,
     data.map((x) => prepareCluster(x))
@@ -426,7 +433,7 @@ function processClusterGlobalAttributes(db, filePath, packageId, data) {
     if (p != null) objs.push(p)
   })
   if (objs.length > 0) {
-    return queryZcl.insertGlobalAttributeDefault(db, packageId, objs)
+    return queryLoader.insertGlobalAttributeDefault(db, packageId, objs)
   } else {
     return null
   }
@@ -444,7 +451,7 @@ function processClusterGlobalAttributes(db, filePath, packageId, data) {
  */
 async function processClusterExtensions(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} cluster extensions.`)
-  return queryZcl.insertClusterExtensions(
+  return queryLoader.insertClusterExtensions(
     db,
     packageId,
     data.map((x) => prepareCluster(x, true))
@@ -463,7 +470,7 @@ async function processClusterExtensions(db, filePath, packageId, data) {
  */
 async function processGlobals(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} globals.`)
-  return queryZcl.insertGlobals(
+  return queryLoader.insertGlobals(
     db,
     packageId,
     data.map((x) => prepareCluster(x, true))
@@ -477,7 +484,23 @@ async function processGlobals(db, filePath, packageId, data) {
  * @returns Domain object for DB.
  */
 function prepareDomain(domain) {
-  return { name: domain.$.name }
+  let d = {
+    name: domain.$.name,
+    specCode: domain.$.spec,
+    specDescription: `Latest ${domain.$.name} spec: ${domain.$.spec}`,
+    specCertifiable: domain.$.certifiable == 'true',
+  }
+  if ('older' in domain) {
+    d.older = []
+    domain.older.forEach((old) => {
+      d.older.push({
+        specCode: old.$.spec,
+        specDescription: `Older ${domain.$.name} spec ${old.$.spec}`,
+        specCertifiable: old.$.certifiable == 'true',
+      })
+    })
+  }
+  return d
 }
 
 /**
@@ -490,12 +513,16 @@ function prepareDomain(domain) {
  * @returns Promise of database insertion of domains.
  */
 async function processDomains(db, filePath, packageId, data) {
+  // <domain name="ZLL" spec="zll-1.0-11-0037-10" dependsOn="zcl-1.0-07-5123-03">
+  //    <older ....
+  // </domain>
   env.logInfo(`${filePath}, ${packageId}: ${data.length} domains.`)
-  return queryZcl.insertDomains(
-    db,
-    packageId,
-    data.map((x) => prepareDomain(x))
-  )
+  let preparedDomains = data.map((x) => prepareDomain(x))
+  let specIds = await queryLoader.insertSpecs(db, packageId, preparedDomains)
+  for (let i = 0; i < specIds.length; i++) {
+    preparedDomains[i].specRef = specIds[i]
+  }
+  return queryLoader.insertDomains(db, packageId, preparedDomains)
 }
 
 /**
@@ -530,7 +557,7 @@ function prepareStruct(struct) {
  */
 async function processStructs(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} structs.`)
-  return queryZcl.insertStructs(
+  return queryLoader.insertStructs(
     db,
     packageId,
     data.map((x) => prepareStruct(x))
@@ -569,7 +596,7 @@ function prepareEnum(en) {
  */
 async function processEnums(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} enums.`)
-  return queryZcl.insertEnums(
+  return queryLoader.insertEnums(
     db,
     packageId,
     data.map((x) => prepareEnum(x))
@@ -631,7 +658,7 @@ function prepareDeviceType(deviceType) {
  */
 async function processDeviceTypes(db, filePath, packageId, data) {
   env.logInfo(`${filePath}, ${packageId}: ${data.length} deviceTypes.`)
-  return queryZcl.insertDeviceTypes(
+  return queryLoader.insertDeviceTypes(
     db,
     packageId,
     data.map((x) => prepareDeviceType(x))
@@ -653,24 +680,25 @@ async function processParsedZclData(db, argument) {
   if (!('result' in argument)) {
     return Promise.resolve([])
   } else {
-    let immediatePromises = []
-    let laterPromises = []
+    let promisesStep1 = []
+    let promisesStep2 = []
+    let promisesStep3 = []
     if ('configurator' in data) {
       if ('atomic' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processAtomics(db, filePath, packageId, data.configurator.atomic)
         )
       }
       if ('bitmap' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processBitmaps(db, filePath, packageId, data.configurator.bitmap)
         )
       }
       if ('cluster' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processClusters(db, filePath, packageId, data.configurator.cluster)
         )
-        laterPromises.push(() =>
+        promisesStep3.push(() =>
           processClusterGlobalAttributes(
             db,
             filePath,
@@ -680,22 +708,22 @@ async function processParsedZclData(db, argument) {
         )
       }
       if ('domain' in data.configurator) {
-        immediatePromises.push(
+        promisesStep1.push(
           processDomains(db, filePath, packageId, data.configurator.domain)
         )
       }
       if ('enum' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processEnums(db, filePath, packageId, data.configurator.enum)
         )
       }
       if ('struct' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processStructs(db, filePath, packageId, data.configurator.struct)
         )
       }
       if ('deviceType' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processDeviceTypes(
             db,
             filePath,
@@ -705,12 +733,12 @@ async function processParsedZclData(db, argument) {
         )
       }
       if ('global' in data.configurator) {
-        immediatePromises.push(
+        promisesStep2.push(
           processGlobals(db, filePath, packageId, data.configurator.global)
         )
       }
       if ('clusterExtension' in data.configurator) {
-        laterPromises.push(() =>
+        promisesStep3.push(() =>
           processClusterExtensions(
             db,
             filePath,
@@ -721,7 +749,9 @@ async function processParsedZclData(db, argument) {
       }
     }
     // This thing resolves the immediate promises and then resolves itself with passing the later promises down the chain.
-    return Promise.all(immediatePromises).then(() => laterPromises)
+    await Promise.all(promisesStep1)
+    await Promise.all(promisesStep2)
+    return Promise.all(promisesStep3)
   }
 }
 
@@ -1050,7 +1080,14 @@ async function processCustomZclDeviceType(db, ctx) {
       name: dbEnum.customDevice.name,
       description: dbEnum.customDevice.description,
     })
-    await queryZcl.insertDeviceTypes(db, ctx.packageId, customDeviceTypes)
+    let existingCustomDevice = await queryZcl.selectDeviceTypeByCodeAndName(
+      db,
+      ctx.packageId,
+      dbEnum.customDevice.code,
+      dbEnum.customDevice.name
+    )
+    if (existingCustomDevice == null)
+      await queryLoader.insertDeviceTypes(db, ctx.packageId, customDeviceTypes)
   }
   return ctx
 }

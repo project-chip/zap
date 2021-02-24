@@ -86,6 +86,8 @@ test('test Silabs zcl data loading in memory', () => {
     .then((x) => expect(x).toEqual(165))
     .then(() => queryGeneric.selectCountFrom(db, 'GLOBAL_ATTRIBUTE_DEFAULT'))
     .then((x) => expect(x).toEqual(126))
+    .then(() => queryGeneric.selectCountFrom(db, 'SPEC'))
+    .then((x) => expect(x).toEqual(38))
     .then(() =>
       dbApi.dbAll(
         db,
