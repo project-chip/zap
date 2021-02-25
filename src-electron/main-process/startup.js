@@ -264,7 +264,7 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
       if (options.log) console.log('    👉 zcl data loaded')
       return generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
     })
-    .then((ctx) => {
+    .then(async (ctx) => {
       if (options.log) {
         if (ctx.error) {
           console.log(`    ⚠️  ${ctx.error}`)
@@ -272,6 +272,12 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
           console.log('    👉 generation templates loaded')
         }
       }
+
+      // This is a hack to prevent too quick shutdown that causes core dumps.
+      dbApi.closeDatabaseSync(env.mainDatabase())
+      env.resolveMainDatabase(null)
+      if (options.log) console.log('    👉 database closed')
+      await new Promise((r) => setTimeout(r, 2000))
       if (options.log) console.log('😎 Self-check done!')
       if (options.quit && app != null) {
         app.quit()
