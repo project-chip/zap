@@ -272,7 +272,9 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
         }
       }
       if (options.log) console.log('😎 Self-check done!')
-      if (options.quit && app != null) app.quit()
+      if (options.quit && app != null) {
+        app.quit()
+      }
     })
     .catch((err) => {
       env.logError(err)
@@ -398,7 +400,7 @@ function clearDatabaseFile(dbPath) {
 
 function shutdown() {
   env.logInfo('Shutting down HTTP server...')
-  return httpServer.shutdownHttpServer()
+  httpServer.shutdownHttpServerSync()
 }
 
 /**

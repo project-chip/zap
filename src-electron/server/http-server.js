@@ -189,6 +189,22 @@ function shutdownHttpServer() {
 }
 
 /**
+ * Promises to shut down the http server.
+ *
+ * @export
+ * @returns Promise that resolves when server is shut down.
+ */
+function shutdownHttpServerSync() {
+  if (httpServer != null) {
+    studio.clearReporting()
+    httpServer.close(() => {
+      env.logInfo('HTTP server shut down.')
+      httpServer = null
+    })
+  }
+}
+
+/**
  * Port http server is listening on.
  *
  * @export
@@ -204,4 +220,5 @@ function httpServerPort() {
 // exports
 exports.initHttpServer = initHttpServer
 exports.shutdownHttpServer = shutdownHttpServer
+exports.shutdownHttpServerSync = shutdownHttpServerSync
 exports.httpServerPort = httpServerPort

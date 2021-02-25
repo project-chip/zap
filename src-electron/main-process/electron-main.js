@@ -55,8 +55,9 @@ function hookAppEvents() {
     windowJs.windowCreateIfNotThere(args.httpPort)
   })
 
-  app.on('quit', async () => {
-    await startup.shutdown()
+  app.on('will-quit', () => {
+    startup.shutdown()
+
     if (env.mainDatabase() != null) {
       // Use a sync call, because you can't have promises in the 'quit' event.
       try {

@@ -106,7 +106,7 @@ function windowCreate(port, args = {}) {
       let api = await w.webContents.executeJavaScript(
         'window.global_renderer_api'
       )
-      console.log(api)
+      //console.log(api)
     }
   )
 
