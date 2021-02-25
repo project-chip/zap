@@ -585,7 +585,12 @@ VALUES
 ON CONFLICT DO NOTHING
     `,
     defaultArray.map((d) => {
-      return [packageExtensionId, d.entityCode, d.parentCode, d.value]
+      return [
+        packageExtensionId,
+        d.entityCode,
+        d.parentCode,
+        d.value.toString(),
+      ]
     })
   )
 }
