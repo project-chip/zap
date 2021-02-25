@@ -255,6 +255,7 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
   }
   return dbApi
     .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
+    .then((db) => env.resolveMainDatabase(db))
     .then((db) => {
       if (options.log) console.log('    👉 database and schema initialized')
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
