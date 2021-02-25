@@ -37,6 +37,13 @@
             "value": "Extension to temperature config cluster"
           }
         ]
+      },
+      "testClusterExtension1": {
+        "type": "text",
+        "configurability": "hidden",
+        "globalDefault": null,
+        "label": "Test cluster extension 1",
+        "defaults": "externalDefaults.json"
       }
     },
     "command": {
