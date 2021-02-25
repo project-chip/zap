@@ -103,10 +103,12 @@ function windowCreate(port, args = {}) {
 
   w.loadURL(`http://localhost:${port}/index.html` + queryString).then(
     async () => {
+      /*       
       let api = await w.webContents.executeJavaScript(
         'window.global_renderer_api'
       )
-      //console.log(api)
+      */
+      env.logInfo('Index page loaded.')
     }
   )
 
