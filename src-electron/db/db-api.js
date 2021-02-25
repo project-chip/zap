@@ -331,18 +331,15 @@ async function closeDatabase(database) {
 }
 
 /**
- * Returns a promise that will resolve when the database in question is closed.
- * Rejects with an error if closing fails.
+ * Imediatelly closes the database.
  *
  * @param {*} database
- * @returns A promise that resolves without an argument or rejects with error from the database closing.
  */
 async function closeDatabaseSync(database) {
   env.logSql('About to close database.')
   database.close((err) => {
-    if (err) return reject(err)
+    if (err) console.log(`Database close error: ${err}`)
     env.logSql('Database is closed.')
-    resolve()
   })
 }
 

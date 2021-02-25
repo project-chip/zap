@@ -55,11 +55,16 @@ function hookAppEvents() {
     windowJs.windowCreateIfNotThere(args.httpPort)
   })
 
-  app.on('quit', () => {
+  app.on('quit', async () => {
+    await startup.shutdown()
     if (env.mainDatabase() != null) {
       // Use a sync call, because you can't have promises in the 'quit' event.
-      dbApi.closeDatabaseSync(env.mainDatabase())
-      env.logInfo('Database closed, shutting down.')
+      try {
+        dbApi.closeDatabaseSync(env.mainDatabase())
+        env.logInfo('Database closed, shutting down.')
+      } catch (err) {
+        env.logError('Failed to close database.')
+      }
     }
   })
 

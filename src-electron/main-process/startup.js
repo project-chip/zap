@@ -44,7 +44,7 @@ const uiJs = require('./ui.js')
  * @param {*} uiMode
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
-function startNormal(uiEnabled, showUrl, zapFiles, options) {
+async function startNormal(uiEnabled, showUrl, zapFiles, options) {
   return dbApi
     .initDatabaseAndLoadSchema(
       env.sqliteFile(),
@@ -396,6 +396,11 @@ function clearDatabaseFile(dbPath) {
   util.createBackupFile(dbPath)
 }
 
+function shutdown() {
+  env.logInfo('Shutting down HTTP server...')
+  return httpServer.shutdownHttpServer()
+}
+
 /**
  * Default startup method.
  *
@@ -457,3 +462,4 @@ exports.startSelfCheck = startSelfCheck
 exports.clearDatabaseFile = clearDatabaseFile
 exports.startAnalyze = startAnalyze
 exports.startUp = startUp
+exports.shutdown = shutdown
