@@ -354,9 +354,9 @@ function collectAttributeLoadingPromises(
   let promises = []
   if (state.attributeType.length > 0 && endpointTypeIdArray.length > 0) {
     endpointTypeIdArray.forEach((endpointTypeId) => {
-      console.log(`EPT: ${endpointTypeId}`)
+      //console.log(`EPT: ${endpointTypeId}`)
       state.attributeType.forEach((at) => {
-        console.log(at)
+        //console.log(at)
       })
     })
   }
