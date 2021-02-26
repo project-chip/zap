@@ -114,5 +114,5 @@ exports.customDevice = {
   name: 'Custom ZCL Device Type',
   description: 'Custom ZCL device type supports any combination of clusters.',
   code: 0xffff,
-  profileId: 0x0104,
+  profileId: 0xffff,
 }
