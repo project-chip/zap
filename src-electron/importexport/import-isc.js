@@ -32,8 +32,8 @@ function locateAttribute(state, at) {
   let match = null
   state.attributeType.forEach((a) => {
     if (
-      at.clusterId == a.clusterId &&
-      at.attributeId == a.attributeId &&
+      at.clusterCode == a.clusterCode &&
+      at.attributeCode == a.attributeCode &&
       at.isClient == a.isClient
     ) {
       match = a
@@ -61,15 +61,16 @@ function parseAttribute(attributeString, value = null) {
     .map((x) => x.trim())
     .forEach((el) => {
       if (el.startsWith('cl:')) {
-        at.clusterId = parseInt(el.substring(3))
+        at.clusterCode = parseInt(el.substring(3))
       } else if (el.startsWith('at:')) {
-        at.attributeId = parseInt(el.substring(3))
+        at.attributeCode = parseInt(el.substring(3))
       } else if (el.startsWith('di:')) {
         at.isClient = el.substring(3).trim() == 'client'
       } else if (el.startsWith('mf:')) {
         at.mfgCode = parseInt(el.substring(3))
       }
     })
+  at.storageOption = dbEnum.storageOption.ram
   if (value != null) {
     at.value = value
   }
@@ -180,11 +181,21 @@ function parseZclAfv2Line(state, line) {
     locateAttribute(state, at).defaultValue = at.value
   } else if (state.parseState == 'beginAttributeDefaultReportingConfig') {
     let arr = line.split('=>').map((x) => x.trim())
-    let at = parseAttribute(arr[0], arr[1])
-    locateAttribute(state, at).reportingConfigValue = at.value
+    // Now parse arr[1], which is min,max:change
+    let rpt = {}
+    let splits = arr[1].split(':')
+    let splits2 = splits[0].split(',')
+    rpt.reportableChange = splits[1]
+    rpt.minInterval = splits2[0]
+    rpt.maxInterval = splits2[1]
+    let at = parseAttribute(arr[0], rpt)
+    at = locateAttribute(state, at)
+    at.minInterval = parseInt(rpt.minInterval)
+    at.maxInterval = parseInt(rpt.maxInterval)
+    at.reportableChange = parseInt(rpt.reportableChange)
   } else if (state.parseState == 'EXTERNALLY_SAVED') {
     let at = parseAttribute(line.trim())
-    locateAttribute(state, at).externallySaved = true
+    locateAttribute(state, at).storageOption = dbEnum.storageOption.external
   } else if (state.parseState == 'OPTIONAL') {
     let at = parseAttribute(line.trim())
     locateAttribute(state, at).isOptional = true
@@ -193,10 +204,10 @@ function parseZclAfv2Line(state, line) {
     locateAttribute(state, at).isSingleton = true
   } else if (state.parseState == 'BOUNDED') {
     let at = parseAttribute(line.trim())
-    locateAttribute(state, at).bound = true
+    locateAttribute(state, at).bounded = true
   } else if (state.parseState == 'SAVED_TO_FLASH') {
     let at = parseAttribute(line.trim())
-    locateAttribute(state, at).savedToFlash = true
+    locateAttribute(state, at).storageOption = dbEnum.storageOption.nvm
   } else if (state.parseState == 'REPORTABLE') {
     let at = parseAttribute(line.trim())
     locateAttribute(state, at).reportable = true
@@ -327,6 +338,33 @@ function isCustomDevice(deviceName, deviceCode) {
 }
 
 /**
+ * This method returns an array of promises that contain all the
+ * queries that are needed to load the attribute state
+ *
+ * @param {*} db
+ * @param {*} state
+ * @param {*} sessionId
+ */
+function collectAttributeLoadingPromises(
+  db,
+  state,
+  sessionId,
+  endpointTypeIdArray
+) {
+  let promises = []
+  if (state.attributeType.length > 0 && endpointTypeIdArray.length > 0) {
+    endpointTypeIdArray.forEach((endpointTypeId) => {
+      //console.log(`EPT: ${endpointTypeId}`)
+      state.attributeType.forEach((at) => {
+        //console.log(at)
+      })
+    })
+  }
+  promises.push(Promise.resolve(1))
+  return promises
+}
+
+/**
  * Function that actually loads the data out of a state object.
  * Session at this point is blank, and has no packages.
  *
@@ -391,11 +429,14 @@ async function iscDataLoader(db, state, sessionId) {
       }
     })
 
+  let attributeUpdatePromises = collectAttributeLoadingPromises(
+    db,
+    state,
+    sessionId,
+    results.map((r) => r.endpointTypeId)
+  )
+
   let individualOverridePromises = []
-
-  //if (state.attributeType.length > 0) {
-  //}
-
   if (state.clusterOverride.length > 0) {
     state.clusterOverride.forEach((cl) => {
       let clusterCode = cl.clusterId
@@ -419,6 +460,7 @@ async function iscDataLoader(db, state, sessionId) {
 
   return Promise.all(endpointInsertionPromises)
     .then(() => Promise.all(individualOverridePromises))
+    .then(() => Promise.all(attributeUpdatePromises))
     .then(() => querySession.setSessionClean(db, sessionId))
     .then(() => sessionId)
 }

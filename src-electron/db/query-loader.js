@@ -22,7 +22,6 @@
  */
 const env = require('../util/env.js')
 const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
 // Some loading queries that are reused few times.
@@ -105,6 +104,64 @@ INSERT INTO ATTRIBUTE (
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
 
+function attributeMap(clusterId, packageId, attributes) {
+  return attributes.map((attribute) => [
+    clusterId,
+    packageId,
+    attribute.code,
+    attribute.name,
+    attribute.type,
+    attribute.side,
+    attribute.define,
+    attribute.min,
+    attribute.max,
+    attribute.minLength,
+    attribute.maxLength,
+    attribute.isWritable,
+    attribute.defaultValue,
+    attribute.isOptional,
+    attribute.isReportable,
+    attribute.manufacturerCode,
+    attribute.introducedIn,
+    packageId,
+    attribute.removedIn,
+    packageId,
+  ])
+}
+
+function commandMap(clusterId, packageId, commands) {
+  return commands.map((command) => [
+    clusterId,
+    packageId,
+    command.code,
+    command.name,
+    command.description,
+    command.source,
+    command.isOptional,
+    command.manufacturerCode,
+    command.introducedIn,
+    packageId,
+    command.removedIn,
+    packageId,
+  ])
+}
+
+function argMap(cmdId, packageId, args) {
+  return args.map((arg) => [
+    cmdId,
+    arg.name,
+    arg.type,
+    arg.isArray,
+    arg.presentIf,
+    arg.countArg,
+    arg.ordinal,
+    arg.introducedIn,
+    packageId,
+    arg.removedIn,
+    packageId,
+  ])
+}
+
 /**
  * Inserts globals into the database.
  *
@@ -124,50 +181,12 @@ async function insertGlobals(db, packageId, data) {
   for (i = 0; i < data.length; i++) {
     if ('commands' in data[i]) {
       let commands = data[i].commands
-      commandsToLoad.push(
-        ...commands.map((command) => [
-          null, // clusterId
-          packageId,
-          command.code,
-          command.name,
-          command.description,
-          command.source,
-          command.isOptional,
-          null, // manufacturerCode
-          command.introducedIn,
-          packageId,
-          command.removedIn,
-          packageId,
-        ])
-      )
+      commandsToLoad.push(...commandMap(null, packageId, commands))
       argsForCommands.push(...commands.map((command) => command.args))
     }
     if ('attributes' in data[i]) {
       let attributes = data[i].attributes
-      attributesToLoad.push(
-        ...attributes.map((attribute) => [
-          null, // clusterId
-          packageId,
-          attribute.code,
-          attribute.name,
-          attribute.type,
-          attribute.side,
-          attribute.define,
-          attribute.min,
-          attribute.max,
-          attribute.minLength,
-          attribute.maxLength,
-          attribute.isWritable,
-          attribute.defaultValue,
-          attribute.isOptional,
-          attribute.isReportable,
-          attribute.manufacturerCode,
-          attribute.introducedIn,
-          packageId,
-          attribute.removedIn,
-          packageId,
-        ])
-      )
+      attributesToLoad.push(...attributeMap(null, packageId, attributes))
     }
   }
   let pCommand = dbApi
@@ -178,21 +197,7 @@ async function insertGlobals(db, packageId, data) {
         let lastCmdId = lids[j]
         let args = argsForCommands[j]
         if (args != undefined && args != null) {
-          argsToLoad.push(
-            ...args.map((arg) => [
-              lastCmdId,
-              arg.name,
-              arg.type,
-              arg.isArray,
-              arg.presentIf,
-              arg.countArg,
-              arg.ordinal,
-              arg.introducedIn,
-              packageId,
-              arg.removedIn,
-              packageId,
-            ])
-          )
+          argsToLoad.push(...argMap(lastCmdId, packageId, args))
         }
       }
       return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
@@ -233,49 +238,13 @@ async function insertClusterExtensions(db, packageId, data) {
           lastId = row.CLUSTER_ID
           if ('commands' in data[i]) {
             let commands = data[i].commands
-            commandsToLoad.push(
-              ...commands.map((command) => [
-                lastId,
-                packageId,
-                command.code,
-                command.name,
-                command.description,
-                command.source,
-                command.isOptional,
-                command.manufacturerCode,
-                command.introducedIn,
-                packageId,
-                command.removedIn,
-                packageId,
-              ])
-            )
+            commandsToLoad.push(...commandMap(lastId, packageId, commands))
             argsForCommands.push(...commands.map((command) => command.args))
           }
           if ('attributes' in data[i]) {
             let attributes = data[i].attributes
             attributesToLoad.push(
-              ...attributes.map((attribute) => [
-                lastId,
-                packageId,
-                attribute.code,
-                attribute.name,
-                attribute.type,
-                attribute.side,
-                attribute.define,
-                attribute.min,
-                attribute.max,
-                attribute.minLength,
-                attribute.maxLength,
-                attribute.isWritable,
-                attribute.defaultValue,
-                attribute.isOptional,
-                attribute.isReportable,
-                attribute.manufacturerCode,
-                attribute.introducedIn,
-                packageId,
-                attribute.removedIn,
-                packageId,
-              ])
+              ...attributeMap(lastId, packageId, attributes)
             )
           }
         } else {
@@ -294,21 +263,7 @@ async function insertClusterExtensions(db, packageId, data) {
             lastId = lids[j]
             let args = argsForCommands[j]
             if (args != undefined && args != null) {
-              argsToLoad.push(
-                ...args.map((arg) => [
-                  lastId,
-                  arg.name,
-                  arg.type,
-                  arg.isArray,
-                  arg.presentIf,
-                  arg.countArg,
-                  arg.ordinal,
-                  arg.introducedIn,
-                  packageId,
-                  arg.removedIn,
-                  packageId,
-                ])
-              )
+              argsToLoad.push(...argMap(lastId, packageId, args))
             }
           }
           return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
@@ -365,50 +320,12 @@ async function insertClusters(db, packageId, data) {
         let lastId = lastIdsArray[i]
         if ('commands' in data[i]) {
           let commands = data[i].commands
-          commandsToLoad.push(
-            ...commands.map((command) => [
-              lastId,
-              packageId,
-              command.code,
-              command.name,
-              command.description,
-              command.source,
-              command.isOptional,
-              command.manufacturerCode,
-              command.introducedIn,
-              packageId,
-              command.removedIn,
-              packageId,
-            ])
-          )
+          commandsToLoad.push(...commandMap(lastId, packageId, commands))
           argsForCommands.push(...commands.map((command) => command.args))
         }
         if ('attributes' in data[i]) {
           let attributes = data[i].attributes
-          attributesToLoad.push(
-            ...attributes.map((attribute) => [
-              lastId,
-              packageId,
-              attribute.code,
-              attribute.name,
-              attribute.type,
-              attribute.side,
-              attribute.define,
-              attribute.min,
-              attribute.max,
-              attribute.minLength,
-              attribute.maxLength,
-              attribute.isWritable,
-              attribute.defaultValue,
-              attribute.isOptional,
-              attribute.isReportable,
-              attribute.manufacturerCode,
-              attribute.introducedIn,
-              packageId,
-              attribute.removedIn,
-              packageId,
-            ])
-          )
+          attributesToLoad.push(...attributeMap(lastId, packageId, attributes))
         }
       }
       let pCommand = dbApi
@@ -419,21 +336,7 @@ async function insertClusters(db, packageId, data) {
             let lastCmdId = lids[j]
             let args = argsForCommands[j]
             if (args != undefined && args != null) {
-              argsToLoad.push(
-                ...args.map((arg) => [
-                  lastCmdId,
-                  arg.name,
-                  arg.type,
-                  arg.isArray,
-                  arg.presentIf,
-                  arg.countArg,
-                  arg.ordinal,
-                  arg.introducedIn,
-                  packageId,
-                  arg.removedIn,
-                  packageId,
-                ])
-              )
+              argsToLoad.push(...argMap(lastCmdId, packageId, args))
             }
           }
           return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
@@ -509,7 +412,7 @@ async function insertSpecs(db, packageId, data) {
  * Inserts global attribute defaults into the database.
  *
  * @param {*} db
- * @param {*} packagaId
+ * @param {*} packageId
  * @param {*} data array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value
  * @returns Promise of data insertion.
  */
