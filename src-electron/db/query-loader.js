@@ -130,6 +130,23 @@ function attributeMap(clusterId, packageId, attributes) {
   ])
 }
 
+function commandMap(clusterId, packageId, commands) {
+  return commands.map((command) => [
+    clusterId,
+    packageId,
+    command.code,
+    command.name,
+    command.description,
+    command.source,
+    command.isOptional,
+    command.manufacturerCode,
+    command.introducedIn,
+    packageId,
+    command.removedIn,
+    packageId,
+  ])
+}
+
 /**
  * Inserts globals into the database.
  *
@@ -149,22 +166,7 @@ async function insertGlobals(db, packageId, data) {
   for (i = 0; i < data.length; i++) {
     if ('commands' in data[i]) {
       let commands = data[i].commands
-      commandsToLoad.push(
-        ...commands.map((command) => [
-          null, // clusterId
-          packageId,
-          command.code,
-          command.name,
-          command.description,
-          command.source,
-          command.isOptional,
-          null, // manufacturerCode
-          command.introducedIn,
-          packageId,
-          command.removedIn,
-          packageId,
-        ])
-      )
+      commandsToLoad.push(...commandMap(null, packageId, commands))
       argsForCommands.push(...commands.map((command) => command.args))
     }
     if ('attributes' in data[i]) {
@@ -235,22 +237,7 @@ async function insertClusterExtensions(db, packageId, data) {
           lastId = row.CLUSTER_ID
           if ('commands' in data[i]) {
             let commands = data[i].commands
-            commandsToLoad.push(
-              ...commands.map((command) => [
-                lastId,
-                packageId,
-                command.code,
-                command.name,
-                command.description,
-                command.source,
-                command.isOptional,
-                command.manufacturerCode,
-                command.introducedIn,
-                packageId,
-                command.removedIn,
-                packageId,
-              ])
-            )
+            commandsToLoad.push(...commandMap(lastId, packageId, commands))
             argsForCommands.push(...commands.map((command) => command.args))
           }
           if ('attributes' in data[i]) {
@@ -346,22 +333,7 @@ async function insertClusters(db, packageId, data) {
         let lastId = lastIdsArray[i]
         if ('commands' in data[i]) {
           let commands = data[i].commands
-          commandsToLoad.push(
-            ...commands.map((command) => [
-              lastId,
-              packageId,
-              command.code,
-              command.name,
-              command.description,
-              command.source,
-              command.isOptional,
-              command.manufacturerCode,
-              command.introducedIn,
-              packageId,
-              command.removedIn,
-              packageId,
-            ])
-          )
+          commandsToLoad.push(...commandMap(lastId, packageId, commands))
           argsForCommands.push(...commands.map((command) => command.args))
         }
         if ('attributes' in data[i]) {
