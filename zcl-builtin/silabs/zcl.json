@@ -23,7 +23,8 @@
     "silabs.xml",
     "lo-devices.xml",
     "wwah-silabs.xml",
-    "wwah-silabs-devices.xml"
+    "wwah-silabs-devices.xml",
+    "demo.xml"
   ],
   "zclSchema": "./schema/zcl.xsd",
   "supportCustomZclDevice": true,

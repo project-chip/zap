@@ -265,17 +265,8 @@ function isMatchingVersion(versionsArray, providedVersion) {
  * @returns true or false, depending on match
  */
 function versionsCheck() {
-  let expectedNodeVersion = [
-    'v14.x.x',
-    'v12.20.x',
-    'v12.19.x',
-    'v12.18.x',
-    'v12.17.x',
-    'v12.16.x',
-    'v12.15.x',
-    'v12.14.x',
-  ]
-  let expectedElectronVersion = ['8.2.x']
+  let expectedNodeVersion = ['v14.x.x', 'v12.x.x']
+  let expectedElectronVersion = ['9.4.3']
   let nodeVersion = process.version
   let electronVersion = process.versions.electron
   let ret = true

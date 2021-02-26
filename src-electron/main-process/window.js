@@ -101,7 +101,16 @@ function windowCreate(port, args = {}) {
     args.embeddedMode
   )
 
-  w.loadURL(`http://localhost:${port}/index.html` + queryString)
+  w.loadURL(`http://localhost:${port}/index.html` + queryString).then(
+    async () => {
+      /*       
+      let api = await w.webContents.executeJavaScript(
+        'window.global_renderer_api'
+      )
+      */
+      env.logInfo('Index page loaded.')
+    }
+  )
 
   w.on('page-title-updated', (e) => {
     e.preventDefault()

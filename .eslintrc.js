@@ -16,7 +16,6 @@ module.exports = {
     // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
     'plugin:vue/essential',
     'prettier',
-    'prettier/vue',
     'eslint:recommended',
   ],
 

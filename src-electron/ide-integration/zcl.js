@@ -32,7 +32,7 @@ const sdkExt = require('../generator/helper-sdkextension.js')
  * @param {*} sessionId
  * @param {*} clusterId
  * @param {*} side
- * @returns object containing 'componentIds', 'clusterId', 'clusterLabel', 'side'
+ * @returns {*} - {componentIds, clusterId, clusterLabel, side}
  */
 function getComponentIdsByCluster(db, sessionId, clusterId, side) {
   // enable components

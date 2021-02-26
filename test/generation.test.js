@@ -80,7 +80,7 @@ describe('Session specific tests', () => {
         )
       )
       .then((extensions) => {
-        expect(extensions.length).toBe(1)
+        expect(extensions.length).toBe(2)
         expect(extensions[0].entity).toBe(dbEnum.packageExtensionEntity.cluster)
         expect(extensions[0].property).toBe('testClusterExtension')
         expect(extensions[0].type).toBe('text')
@@ -88,6 +88,12 @@ describe('Session specific tests', () => {
         expect(extensions[0].label).toBe('Test cluster extension')
         expect(extensions[0].globalDefault).toBe(null)
         expect(extensions[0].defaults.length).toBe(3)
+        expect(extensions[1].label).toBe('Test cluster extension 1')
+        expect(extensions[1].globalDefault).toBe(null)
+        expect(extensions[1].defaults.length).toBe(1)
+        expect(extensions[1].defaults[0].value).toBe(
+          'Extension value loaded via external default JSON file.'
+        )
       })
       .then(() =>
         queryPackage.selectPackageExtension(

@@ -49,7 +49,10 @@ function getProjectInfo(project) {
  * @param {*} project - local Studio project path
  * @param {*} componentIds - a list of component Ids
  * @param {*} add - true if adding component, false if removing.
- * @return object containing 'id' (string), 'status' (boolean. true if HTTP REQ status code is OK) and 'data' (HTTP response data field)
+ * @return {*} - [{id, status, data }]
+ *                id - string,
+ *                status - boolean. true if HTTP REQ status code is OK,
+ *                data - HTTP response data field
  */
 function updateComponent(project, componentIds, add) {
   let promises = []

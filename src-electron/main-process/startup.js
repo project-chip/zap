@@ -44,7 +44,7 @@ const uiJs = require('./ui.js')
  * @param {*} uiMode
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
-function startNormal(uiEnabled, showUrl, zapFiles, options) {
+async function startNormal(uiEnabled, showUrl, zapFiles, options) {
   return dbApi
     .initDatabaseAndLoadSchema(
       env.sqliteFile(),
@@ -255,6 +255,7 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
   }
   return dbApi
     .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
+    .then((db) => env.resolveMainDatabase(db))
     .then((db) => {
       if (options.log) console.log('    👉 database and schema initialized')
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
@@ -263,7 +264,7 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
       if (options.log) console.log('    👉 zcl data loaded')
       return generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
     })
-    .then((ctx) => {
+    .then(async (ctx) => {
       if (options.log) {
         if (ctx.error) {
           console.log(`    ⚠️  ${ctx.error}`)
@@ -271,8 +272,16 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
           console.log('    👉 generation templates loaded')
         }
       }
+
+      // This is a hack to prevent too quick shutdown that causes core dumps.
+      dbApi.closeDatabaseSync(env.mainDatabase())
+      env.resolveMainDatabase(null)
+      if (options.log) console.log('    👉 database closed')
+      await new Promise((r) => setTimeout(r, 2000))
       if (options.log) console.log('😎 Self-check done!')
-      if (options.quit && app != null) app.quit()
+      if (options.quit && app != null) {
+        app.quit()
+      }
     })
     .catch((err) => {
       env.logError(err)
@@ -396,6 +405,11 @@ function clearDatabaseFile(dbPath) {
   util.createBackupFile(dbPath)
 }
 
+function shutdown() {
+  env.logInfo('Shutting down HTTP server...')
+  httpServer.shutdownHttpServerSync()
+}
+
 /**
  * Default startup method.
  *
@@ -457,3 +471,4 @@ exports.startSelfCheck = startSelfCheck
 exports.clearDatabaseFile = clearDatabaseFile
 exports.startAnalyze = startAnalyze
 exports.startUp = startUp
+exports.shutdown = shutdown
