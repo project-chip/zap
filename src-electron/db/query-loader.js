@@ -22,7 +22,6 @@
  */
 const env = require('../util/env.js')
 const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
 // Some loading queries that are reused few times.
@@ -147,6 +146,22 @@ function commandMap(clusterId, packageId, commands) {
   ])
 }
 
+function argMap(cmdId, packageId, args) {
+  return args.map((arg) => [
+    cmdId,
+    arg.name,
+    arg.type,
+    arg.isArray,
+    arg.presentIf,
+    arg.countArg,
+    arg.ordinal,
+    arg.introducedIn,
+    packageId,
+    arg.removedIn,
+    packageId,
+  ])
+}
+
 /**
  * Inserts globals into the database.
  *
@@ -182,21 +197,7 @@ async function insertGlobals(db, packageId, data) {
         let lastCmdId = lids[j]
         let args = argsForCommands[j]
         if (args != undefined && args != null) {
-          argsToLoad.push(
-            ...args.map((arg) => [
-              lastCmdId,
-              arg.name,
-              arg.type,
-              arg.isArray,
-              arg.presentIf,
-              arg.countArg,
-              arg.ordinal,
-              arg.introducedIn,
-              packageId,
-              arg.removedIn,
-              packageId,
-            ])
-          )
+          argsToLoad.push(...argMap(lastCmdId, packageId, args))
         }
       }
       return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
@@ -262,21 +263,7 @@ async function insertClusterExtensions(db, packageId, data) {
             lastId = lids[j]
             let args = argsForCommands[j]
             if (args != undefined && args != null) {
-              argsToLoad.push(
-                ...args.map((arg) => [
-                  lastId,
-                  arg.name,
-                  arg.type,
-                  arg.isArray,
-                  arg.presentIf,
-                  arg.countArg,
-                  arg.ordinal,
-                  arg.introducedIn,
-                  packageId,
-                  arg.removedIn,
-                  packageId,
-                ])
-              )
+              argsToLoad.push(...argMap(lastId, packageId, args))
             }
           }
           return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
@@ -349,21 +336,7 @@ async function insertClusters(db, packageId, data) {
             let lastCmdId = lids[j]
             let args = argsForCommands[j]
             if (args != undefined && args != null) {
-              argsToLoad.push(
-                ...args.map((arg) => [
-                  lastCmdId,
-                  arg.name,
-                  arg.type,
-                  arg.isArray,
-                  arg.presentIf,
-                  arg.countArg,
-                  arg.ordinal,
-                  arg.introducedIn,
-                  packageId,
-                  arg.removedIn,
-                  packageId,
-                ])
-              )
+              argsToLoad.push(...argMap(lastCmdId, packageId, args))
             }
           }
           return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
@@ -439,7 +412,7 @@ async function insertSpecs(db, packageId, data) {
  * Inserts global attribute defaults into the database.
  *
  * @param {*} db
- * @param {*} packagaId
+ * @param {*} packageId
  * @param {*} data array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value
  * @returns Promise of data insertion.
  */
