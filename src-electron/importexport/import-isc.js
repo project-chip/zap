@@ -345,11 +345,19 @@ function isCustomDevice(deviceName, deviceCode) {
  * @param {*} state
  * @param {*} sessionId
  */
-function collectAttributeLoadingPromises(db, state, sessionId) {
+function collectAttributeLoadingPromises(
+  db,
+  state,
+  sessionId,
+  endpointTypeIdArray
+) {
   let promises = []
-  if (state.attributeType.length > 0) {
-    state.attributeType.forEach((at) => {
-      console.log(at)
+  if (state.attributeType.length > 0 && endpointTypeIdArray.length > 0) {
+    endpointTypeIdArray.forEach((endpointTypeId) => {
+      console.log(`EPT: ${endpointTypeId}`)
+      state.attributeType.forEach((at) => {
+        console.log(at)
+      })
     })
   }
   promises.push(Promise.resolve(1))
@@ -424,7 +432,8 @@ async function iscDataLoader(db, state, sessionId) {
   let attributeUpdatePromises = collectAttributeLoadingPromises(
     db,
     state,
-    sessionId
+    sessionId,
+    results.map((r) => r.endpointTypeId)
   )
 
   let individualOverridePromises = []
