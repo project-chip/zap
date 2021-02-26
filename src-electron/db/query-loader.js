@@ -105,6 +105,31 @@ INSERT INTO ATTRIBUTE (
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
 
+function attributeMap(clusterId, packageId, attributes) {
+  return attributes.map((attribute) => [
+    clusterId,
+    packageId,
+    attribute.code,
+    attribute.name,
+    attribute.type,
+    attribute.side,
+    attribute.define,
+    attribute.min,
+    attribute.max,
+    attribute.minLength,
+    attribute.maxLength,
+    attribute.isWritable,
+    attribute.defaultValue,
+    attribute.isOptional,
+    attribute.isReportable,
+    attribute.manufacturerCode,
+    attribute.introducedIn,
+    packageId,
+    attribute.removedIn,
+    packageId,
+  ])
+}
+
 /**
  * Inserts globals into the database.
  *
@@ -144,30 +169,7 @@ async function insertGlobals(db, packageId, data) {
     }
     if ('attributes' in data[i]) {
       let attributes = data[i].attributes
-      attributesToLoad.push(
-        ...attributes.map((attribute) => [
-          null, // clusterId
-          packageId,
-          attribute.code,
-          attribute.name,
-          attribute.type,
-          attribute.side,
-          attribute.define,
-          attribute.min,
-          attribute.max,
-          attribute.minLength,
-          attribute.maxLength,
-          attribute.isWritable,
-          attribute.defaultValue,
-          attribute.isOptional,
-          attribute.isReportable,
-          attribute.manufacturerCode,
-          attribute.introducedIn,
-          packageId,
-          attribute.removedIn,
-          packageId,
-        ])
-      )
+      attributesToLoad.push(...attributeMap(null, packageId, attributes))
     }
   }
   let pCommand = dbApi
@@ -254,28 +256,7 @@ async function insertClusterExtensions(db, packageId, data) {
           if ('attributes' in data[i]) {
             let attributes = data[i].attributes
             attributesToLoad.push(
-              ...attributes.map((attribute) => [
-                lastId,
-                packageId,
-                attribute.code,
-                attribute.name,
-                attribute.type,
-                attribute.side,
-                attribute.define,
-                attribute.min,
-                attribute.max,
-                attribute.minLength,
-                attribute.maxLength,
-                attribute.isWritable,
-                attribute.defaultValue,
-                attribute.isOptional,
-                attribute.isReportable,
-                attribute.manufacturerCode,
-                attribute.introducedIn,
-                packageId,
-                attribute.removedIn,
-                packageId,
-              ])
+              ...attributeMap(lastId, packageId, attributes)
             )
           }
         } else {
@@ -385,30 +366,7 @@ async function insertClusters(db, packageId, data) {
         }
         if ('attributes' in data[i]) {
           let attributes = data[i].attributes
-          attributesToLoad.push(
-            ...attributes.map((attribute) => [
-              lastId,
-              packageId,
-              attribute.code,
-              attribute.name,
-              attribute.type,
-              attribute.side,
-              attribute.define,
-              attribute.min,
-              attribute.max,
-              attribute.minLength,
-              attribute.maxLength,
-              attribute.isWritable,
-              attribute.defaultValue,
-              attribute.isOptional,
-              attribute.isReportable,
-              attribute.manufacturerCode,
-              attribute.introducedIn,
-              packageId,
-              attribute.removedIn,
-              packageId,
-            ])
-          )
+          attributesToLoad.push(...attributeMap(lastId, packageId, attributes))
         }
       }
       let pCommand = dbApi
