@@ -29,6 +29,7 @@ const querySession = require('../db/query-session.js')
 const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const http = require('http-status-codes')
+const zcl = require('./zcl.js')
 
 const localhost = 'http://localhost:'
 const op_tree = '/rest/clic/components/all/project/'
@@ -37,11 +38,80 @@ const op_remove = '/rest/clic/component/remove/project/'
 
 let reportingIntervalId = null
 
+function projectName(studioProject) {
+  if (studioProject) {
+    return studioProject.substr(studioProject.lastIndexOf('_2F') + 3)
+  } else {
+    return ''
+  }
+}
+
 function getProjectInfo(project) {
   let name = projectName(project)
   let path = localhost + args.studioHttpPort + op_tree + project
   env.logInfo(`StudioUC(${name}): GET: ${path}`)
   return axios.get(path)
+}
+
+/**
+ *  Send HTTP Post to update UC component state in Studio
+ * @param {*} project
+ * @param {*} componentIds
+ * @param {*} add
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} side
+ * @return {*} - [{id, status, data }]
+ *                id - string,
+ *                status - boolean. true if HTTP REQ status code is OK,
+ *                data - HTTP response data field
+ */
+function updateComponentByClusterIdAndComponentId(
+  db,
+  project,
+  componentIds,
+  clusterId,
+  add,
+  sessionId,
+  side
+) {
+  let name = projectName(project)
+  let act = add ? 'Enabling' : 'Disabling'
+  let acted = add ? 'Added' : 'Removed'
+
+  if (typeof project === 'undefined') {
+    return Promise.resolve({ componentIds: [], added: add })
+  }
+
+  // retrieve components to enable
+  let promises = []
+  if (clusterId) {
+    let ids = zcl
+      .getComponentIdsByCluster(db, sessionId, clusterId, side)
+      .then((response) => Promise.resolve(response.componentIds))
+    promises.push(ids)
+  }
+
+  // enabling components via Studio
+  return (
+    Promise.all(promises)
+      .then((ids) => ids.flat())
+      .then((ids) => ids.concat(componentIds))
+      // enabling components via Studio jetty server.
+      .then((ids) => updateComponentByComponentIds(project, ids, add))
+      .catch((err) => {
+        let msg = ''
+        if (componentIds) {
+          msg = `StudioUC(${name}): Failed to update component(${err.componentIds})`
+        } else {
+          msg = `StudioUC(${name}): Failed to update components for cluster(${clusterId})`
+        }
+
+        env.logInfo(msg)
+        env.logInfo(err)
+        return err
+      })
+  )
 }
 
 /**
@@ -54,7 +124,8 @@ function getProjectInfo(project) {
  *                status - boolean. true if HTTP REQ status code is OK,
  *                data - HTTP response data field
  */
-function updateComponent(project, componentIds, add) {
+function updateComponentByComponentIds(project, componentIds, add) {
+  componentIds = componentIds.filter((x) => x)
   let promises = []
   if (Object.keys(componentIds).length) {
     promises = componentIds.map((componentId) =>
@@ -81,22 +152,14 @@ function httpPostComponentUpdate(project, componentId, add) {
       return Promise.resolve(res)
     })
     .catch((err) => {
-      console.log(JSON.stringify(err))
       return Promise.resolve({
         status: http.StatusCodes.NOT_FOUND,
+        id: componentId,
         data: `StudioUC(${projectName(
           project
         )}): Failed to ${operationText} component(${componentId})`,
       })
     })
-}
-
-function projectName(studioProject) {
-  if (studioProject) {
-    return studioProject.substr(studioProject.lastIndexOf('_2F') + 3)
-  } else {
-    return ''
-  }
 }
 
 /**
@@ -139,7 +202,8 @@ function sendDirtyFlagStatus() {
 exports.getProjectInfo = getProjectInfo
 // exports.addComponent = addComponent
 // exports.removeComponent = removeComponent
-exports.updateComponent = updateComponent
+exports.updateComponentByComponentIds = updateComponentByComponentIds
+exports.updateComponentByClusterIdAndComponentId = updateComponentByClusterIdAndComponentId
 exports.projectName = projectName
 exports.initializeReporting = initializeReporting
 exports.clearReporting = clearReporting

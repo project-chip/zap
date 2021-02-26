@@ -141,7 +141,7 @@ export default {
         if (Array.isArray(components) && components.length) {
           let color = updated ? 'positive' : 'negative'
           let verb = updated ? 'were' : "couldn't be"
-          let action = added ? "added" : "removed"
+          let action = added ? 'added' : 'removed'
 
           let msg = `<div><strong>The following components ${verb} ${action}.</strong></div>`
           msg += `<div><span style="text-transform: capitalize"><ul>`
@@ -172,13 +172,11 @@ export default {
         this.$store
           .dispatch('zap/updateSelectedComponent', params)
           .then((response) => {
-            console.log(JSON.stringify(response))
-            console.log(JSON.stringify(response.data))
-            if (response.status == http.StatusCodes.OK){
+            if (response.status == http.StatusCodes.OK) {
               let componentIdStates = response.data
               this.notifyComponentStatus(componentIdStates, added)
             } else {
-              console.log("Failed to update selected components")
+              console.log('Failed to update selected components')
             }
           })
       } else {

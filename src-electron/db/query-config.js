@@ -661,6 +661,13 @@ async function setEndpointDefaults(
     .then((clusters) => {
       let promises = []
       let clusterPromise = resolveDefaultClusters(db, endpointTypeId, clusters)
+
+      // promises.push(
+      //   // enable associated components required by cluster ids
+      //   resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef)
+
+      // )
+
       promises.push(
         resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef)
       )
