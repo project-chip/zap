@@ -70,6 +70,7 @@ function parseAttribute(attributeString, value = null) {
         at.mfgCode = parseInt(el.substring(3))
       }
     })
+  at.storageOption = dbEnum.storageOption.ram
   if (value != null) {
     at.value = value
   }
@@ -180,11 +181,18 @@ function parseZclAfv2Line(state, line) {
     locateAttribute(state, at).defaultValue = at.value
   } else if (state.parseState == 'beginAttributeDefaultReportingConfig') {
     let arr = line.split('=>').map((x) => x.trim())
-    let at = parseAttribute(arr[0], arr[1])
+    // Now parse arr[1], which is min,max:change
+    let rpt = {}
+    let splits = arr[1].split(':')
+    let splits2 = splits[0].split(',')
+    rpt.reportableChange = splits[1]
+    rpt.minInterval = splits2[0]
+    rpt.maxInterval = splits2[1]
+    let at = parseAttribute(arr[0], rpt)
     locateAttribute(state, at).reportingConfigValue = at.value
   } else if (state.parseState == 'EXTERNALLY_SAVED') {
     let at = parseAttribute(line.trim())
-    locateAttribute(state, at).externallySaved = true
+    locateAttribute(state, at).storageOption = dbEnum.storageOption.external
   } else if (state.parseState == 'OPTIONAL') {
     let at = parseAttribute(line.trim())
     locateAttribute(state, at).isOptional = true
@@ -196,7 +204,7 @@ function parseZclAfv2Line(state, line) {
     locateAttribute(state, at).bound = true
   } else if (state.parseState == 'SAVED_TO_FLASH') {
     let at = parseAttribute(line.trim())
-    locateAttribute(state, at).savedToFlash = true
+    locateAttribute(state, at).storageOption = dbEnum.storageOption.nvm
   } else if (state.parseState == 'REPORTABLE') {
     let at = parseAttribute(line.trim())
     locateAttribute(state, at).reportable = true
@@ -391,11 +399,14 @@ async function iscDataLoader(db, state, sessionId) {
       }
     })
 
+  let attributeUpdatePromises = []
+  if (state.attributeType.length > 0) {
+    state.attributeType.forEach((at) => {
+      console.log(at)
+    })
+  }
+
   let individualOverridePromises = []
-
-  //if (state.attributeType.length > 0) {
-  //}
-
   if (state.clusterOverride.length > 0) {
     state.clusterOverride.forEach((cl) => {
       let clusterCode = cl.clusterId
