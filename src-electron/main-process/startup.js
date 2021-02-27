@@ -440,7 +440,6 @@ function startUp(isElectron) {
       throw 'You need to specify at least one zap file.'
     return startAnalyze(argv.zapFiles)
   } else if (argv._.includes('convert')) {
-    console.log(argv)
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
     if (argv.output == null) throw 'You need to specify output file.'
