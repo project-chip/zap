@@ -54,6 +54,7 @@ let cli = [
   'convert',
   '--noUi',
   '--noServer',
+  '--noZapFileLog',
   '--zcl',
   arg.zcl,
   '--out',

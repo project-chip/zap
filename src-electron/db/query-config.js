@@ -242,15 +242,17 @@ WHERE (
         attributeId,
       ]
     )
-    .then(() =>
-      dbApi.dbUpdate(
-        db,
+    .then(() => {
+      let query =
         'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
-          getAllParamValuePairArrayClauses(paramValuePairArray) +
-          'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?',
-        [endpointTypeId, cluster.endpointTypeClusterId, attributeId]
-      )
-    )
+        getAllParamValuePairArrayClauses(paramValuePairArray) +
+        'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?'
+      return dbApi.dbUpdate(db, query, [
+        endpointTypeId,
+        cluster.endpointTypeClusterId,
+        attributeId,
+      ])
+    })
 }
 
 async function updateEndpointTypeAttribute(db, id, restKey, value) {
@@ -301,18 +303,22 @@ function convertRestKeyToDbColumn(key) {
 
 function getAllParamValuePairArrayClauses(paramValuePairArray) {
   return paramValuePairArray.reduce((currentString, paramValuePair, index) => {
-    return (
-      currentString +
-      (index == 0 ? '' : ',') +
-      convertRestKeyToDbColumn(paramValuePair.key) +
-      ' = ' +
-      (paramValuePair.value == ''
-        ? false
-        : paramValuePair.type == 'text'
-        ? "'" + paramValuePair.value + "'"
-        : paramValuePair.value) +
-      ' '
-    )
+    if (index > 0) currentString += ','
+    currentString += convertRestKeyToDbColumn(paramValuePair.key)
+    currentString += ' = '
+    if (_.isBoolean(paramValuePair.value)) {
+      currentString += paramValuePair.value ? '1' : '0'
+    } else if (paramValuePair.value == '') {
+      currentString += false
+    } else {
+      if (paramValuePair.type == 'text') {
+        currentString += "'" + paramValuePair.value + "'"
+      } else {
+        currentString += paramValuePair.value
+      }
+    }
+    currentString += ' '
+    return currentString
   }, '')
 }
 

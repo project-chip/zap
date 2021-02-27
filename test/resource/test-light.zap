@@ -4406,11 +4406,5 @@
       "endpointId": 242,
       "networkId": "Primary"
     }
-  ],
-  "log": [
-    {
-      "timestamp": "2021-02-27T15:40:31.404Z",
-      "log": "Imported from test-light.isc"
-    }
   ]
 }

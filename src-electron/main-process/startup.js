@@ -141,7 +141,7 @@ function outputFile(inputFile, outputPattern) {
 async function startConvert(
   files,
   output,
-  options = { log: true, quit: true }
+  options = { log: true, quit: true, noZapFileLog: false }
 ) {
   if (options.log) console.log(`🤖 Conversion started`)
   if (options.log) console.log(`    🔍 input files: ${files}`)
@@ -187,7 +187,11 @@ async function startConvert(
               dbEnum.sessionKey.filePath,
               of
             )
-            .then(() => exportJs.exportDataIntoFile(db, sessionId, of))
+            .then(() =>
+              exportJs.exportDataIntoFile(db, sessionId, of, {
+                removeLog: options.noZapFileLog,
+              })
+            )
         })
         .then((outputPath) => {
           if (options.log) console.log(`    👉 write out: ${outputPath}`)
@@ -436,10 +440,15 @@ function startUp(isElectron) {
       throw 'You need to specify at least one zap file.'
     return startAnalyze(argv.zapFiles)
   } else if (argv._.includes('convert')) {
+    console.log(argv)
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
     if (argv.output == null) throw 'You need to specify output file.'
-    return startConvert(argv.zapFiles, argv.output).catch((code) => {
+    return startConvert(argv.zapFiles, argv.output, {
+      log: true,
+      quit: true,
+      noZapFileLog: argv.noZapFileLog,
+    }).catch((code) => {
       console.log(code)
       process.exit(1)
     })

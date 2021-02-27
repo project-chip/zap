@@ -132,13 +132,21 @@ async function exportSessionPackages(db, sessionId, zapFileLocation) {
  * @param {*} filePath
  * @returns A promise that resolves with the path of the file written.
  */
-async function exportDataIntoFile(db, sessionId, filePath) {
+async function exportDataIntoFile(
+  db,
+  sessionId,
+  filePath,
+  options = {
+    removeLog: false,
+  }
+) {
   env.logInfo(`Writing state from session ${sessionId} into file ${filePath}`)
   return createStateFromDatabase(db, sessionId)
     .then((state) => {
       env.logInfo(`About to write the file to ${filePath}`)
       return new Promise((resolve, reject) => {
         env.logInfo(`Writing the file to ${filePath}`)
+        if (options.removeLog) delete state.log
         fs.writeFile(filePath, JSON.stringify(state, null, 2), (err) => {
           if (err) reject(err)
           resolve()
