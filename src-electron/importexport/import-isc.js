@@ -371,10 +371,11 @@ function collectAttributeLoadingPromises(
             )
             .then((id) => {
               if (id == null) {
-                console.log(
-                  `Warning: can't locate attribute on endpoint ${endpointTypeId}:`
-                )
-                console.log(at)
+                // This is ok: we are iterating over all endpoint type ids,
+                // since ISC file doesn't really specifically override attribute
+                // for every given endpoint type. So if we are looking at
+                // the endpoint type which simply doesn't have this
+                // attribute, so be it. Move on.
                 return
               }
               let ps = []
