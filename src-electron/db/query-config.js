@@ -25,6 +25,7 @@ const dbMapping = require('./db-mapping.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
+const _ = require('lodash')
 
 /**
  * Promises to update or insert a key/value pair in SESSION_KEY_VALUE table.
@@ -250,6 +251,18 @@ WHERE (
         [endpointTypeId, cluster.endpointTypeClusterId, attributeId]
       )
     )
+}
+
+async function updateEndpointTypeAttribute(db, id, restKey, value) {
+  let column = convertRestKeyToDbColumn(restKey)
+  return dbApi.dbUpdate(
+    db,
+    `UPDATE ENDPOINT_TYPE_ATTRIBUTE
+SET ${column} = ?
+WHERE ENDPOINT_TYPE_ATTRIBUTE_ID = ?
+  `,
+    [value, id]
+  )
 }
 
 function convertRestKeyToDbColumn(key) {
@@ -1158,6 +1171,55 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ENDPOINT_TYPE_ATTRIBUTE.E
     )
 }
 
+async function getEndpointTypeAttributeId(
+  db,
+  sessionId,
+  clusterCode,
+  attributeCode,
+  attributeSide,
+  mfgCode
+) {
+  let args = [sessionId, clusterCode, attributeCode, attributeSide]
+  if (!(mfgCode == 0 || mfgCode == null)) args.push(mfgCode)
+  let row = await dbApi.dbGet(
+    db,
+    `
+SELECT 
+  ENDPOINT_TYPE_ATTRIBUTE_ID
+FROM 
+  ENDPOINT_TYPE_ATTRIBUTE AS ETA
+INNER JOIN
+  ATTRIBUTE AS A
+ON
+  ETA.ATTRIBUTE_REF = A.ATTRIBUTE_ID 
+INNER JOIN
+  CLUSTER AS C
+ON 
+  C.CLUSTER_ID = A.CLUSTER_REF
+INNER JOIN
+  ENDPOINT_TYPE AS ET
+ON 
+  ETA.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
+WHERE
+  ET.SESSION_REF = ?
+  AND C.CODE = ?
+  AND A.CODE = ?
+  AND A.SIDE = ?
+  AND ${
+    mfgCode == 0 || mfgCode == null
+      ? 'A.MANUFACTURER_CODE IS NULL'
+      : 'A.MANUFACTURER_CODE = ?'
+  }
+`,
+    args
+  )
+  if (row == null) {
+    return null
+  } else {
+    return row.ENDPOINT_TYPE_ATTRIBUTE_ID
+  }
+}
+
 /**
  * Extracts commands from the endpoint_type_command table.
  *
@@ -1310,3 +1372,5 @@ exports.getAllSessionAttributes = getAllSessionAttributes
 exports.insertClusterDefaults = insertClusterDefaults
 
 exports.setClusterIncluded = setClusterIncluded
+exports.getEndpointTypeAttributeId = getEndpointTypeAttributeId
+exports.updateEndpointTypeAttribute = updateEndpointTypeAttribute

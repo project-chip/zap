@@ -22,6 +22,7 @@ const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const restApi = require('../../src-shared/rest-api.js')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -65,7 +66,10 @@ function parseAttribute(attributeString, value = null) {
       } else if (el.startsWith('at:')) {
         at.attributeCode = parseInt(el.substring(3))
       } else if (el.startsWith('di:')) {
-        at.isClient = el.substring(3).trim() == 'client'
+        at.side =
+          el.substring(3).trim() == 'client'
+            ? dbEnum.side.client
+            : dbEnum.side.server
       } else if (el.startsWith('mf:')) {
         at.mfgCode = parseInt(el.substring(3))
       }
@@ -354,9 +358,89 @@ function collectAttributeLoadingPromises(
   let promises = []
   if (state.attributeType.length > 0 && endpointTypeIdArray.length > 0) {
     endpointTypeIdArray.forEach((endpointTypeId) => {
-      //console.log(`EPT: ${endpointTypeId}`)
       state.attributeType.forEach((at) => {
-        //console.log(at)
+        promises.push(
+          queryConfig
+            .getEndpointTypeAttributeId(
+              db,
+              sessionId,
+              at.clusterCode,
+              at.attributeCode,
+              at.side,
+              at.mfgCode
+            )
+            .then((id) => {
+              if (id == null) return
+              let ps = []
+              if ('storageOption' in at) {
+                ps.push(
+                  queryConfig.updateEndpointTypeAttribute(
+                    db,
+                    id,
+                    restApi.updateKey.attributeStorage,
+                    at.storageOption
+                  )
+                )
+              }
+              if ('defaultValue' in at) {
+                ps.push(
+                  queryConfig.updateEndpointTypeAttribute(
+                    db,
+                    id,
+                    restApi.updateKey.attributeDefault,
+                    at.defaultValue
+                  )
+                )
+              }
+              let reportable = false
+              if ('minInterval' in at) {
+                reportable = true
+                ps.push(
+                  queryConfig.updateEndpointTypeAttribute(
+                    db,
+                    id,
+                    restApi.updateKey.attributeReportMin,
+                    at.minInterval
+                  )
+                )
+              }
+              if ('maxInterval' in at) {
+                reportable = true
+                ps.push(
+                  queryConfig.updateEndpointTypeAttribute(
+                    db,
+                    id,
+                    restApi.updateKey.attributeReportMax,
+                    at.maxInterval
+                  )
+                )
+              }
+              if ('reportableChange' in at) {
+                reportable = true
+                ps.push(
+                  queryConfig.updateEndpointTypeAttribute(
+                    db,
+                    id,
+                    restApi.updateKey.attributeReportChange,
+                    at.reportableChange
+                  )
+                )
+              }
+              ps.push(
+                queryConfig.updateEndpointTypeAttribute(
+                  db,
+                  id,
+                  restApi.updateKey.attributeReporting,
+                  reportable ? 1 : 0
+                )
+              )
+              if (ps.length == 0) {
+                return
+              } else {
+                return Promise.all(ps)
+              }
+            })
+        )
       })
     })
   }
