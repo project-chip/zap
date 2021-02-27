@@ -363,7 +363,6 @@ function collectAttributeLoadingPromises(
           queryConfig
             .getEndpointTypeAttributeId(
               db,
-              sessionId,
               endpointTypeId,
               at.clusterCode,
               at.attributeCode,
@@ -371,7 +370,13 @@ function collectAttributeLoadingPromises(
               at.mfgCode
             )
             .then((id) => {
-              if (id == null) return
+              if (id == null) {
+                console.log(
+                  `Warning: can't locate attribute on endpoint ${endpointTypeId}:`
+                )
+                console.log(at)
+                return
+              }
               let ps = []
               if ('storageOption' in at) {
                 ps.push(

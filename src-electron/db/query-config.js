@@ -1192,7 +1192,7 @@ async function getEndpointTypeAttributeId(
 ) {
   let args = [endpointTypeId, clusterCode, attributeCode, attributeSide]
   if (!(mfgCode == 0 || mfgCode == null)) args.push(mfgCode)
-  let row = await dbApi.dbGet(
+  let rows = await dbApi.dbAll(
     db,
     `
 SELECT 
@@ -1220,10 +1220,14 @@ WHERE
 `,
     args
   )
-  if (row == null) {
+  if (rows.length == 0) {
     return null
+  } else if (rows.length == 1) {
+    return rows[0].ENDPOINT_TYPE_ATTRIBUTE_ID
   } else {
-    return row.ENDPOINT_TYPE_ATTRIBUTE_ID
+    throw Error(
+      `Ambiguity: multiple attributes with same data loaded: ${endpointTypeId} / ${clusterCode} / ${attributeCode} / ${attributeSide}.`
+    )
   }
 }
 
