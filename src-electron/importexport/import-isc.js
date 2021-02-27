@@ -364,6 +364,7 @@ function collectAttributeLoadingPromises(
             .getEndpointTypeAttributeId(
               db,
               sessionId,
+              endpointTypeId,
               at.clusterCode,
               at.attributeCode,
               at.side,

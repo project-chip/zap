@@ -1171,15 +1171,26 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ENDPOINT_TYPE_ATTRIBUTE.E
     )
 }
 
+/**
+ * Returns a promise that resolve into an endpoint type attribute id.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} clusterCode
+ * @param {*} attributeCode
+ * @param {*} attributeSide
+ * @param {*} mfgCode
+ * @returns endpointType attribute id or null
+ */
 async function getEndpointTypeAttributeId(
   db,
-  sessionId,
+  endpointTypeId,
   clusterCode,
   attributeCode,
   attributeSide,
   mfgCode
 ) {
-  let args = [sessionId, clusterCode, attributeCode, attributeSide]
+  let args = [endpointTypeId, clusterCode, attributeCode, attributeSide]
   if (!(mfgCode == 0 || mfgCode == null)) args.push(mfgCode)
   let row = await dbApi.dbGet(
     db,
@@ -1196,12 +1207,8 @@ INNER JOIN
   CLUSTER AS C
 ON 
   C.CLUSTER_ID = A.CLUSTER_REF
-INNER JOIN
-  ENDPOINT_TYPE AS ET
-ON 
-  ETA.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
 WHERE
-  ET.SESSION_REF = ?
+  ETA.ENDPOINT_TYPE_REF = ?
   AND C.CODE = ?
   AND A.CODE = ?
   AND A.SIDE = ?
