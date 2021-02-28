@@ -216,10 +216,9 @@ async function insertOrUpdateAttributeState(
     clusterRef
   )
 
-  return dbApi
-    .dbInsert(
-      db,
-      `
+  await dbApi.dbInsert(
+    db,
+    `
 INSERT
 INTO ENDPOINT_TYPE_ATTRIBUTE
   ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE, STORAGE_OPTION, SINGLETON)
@@ -230,29 +229,28 @@ WHERE (
       AND ENDPOINT_TYPE_CLUSTER_REF = ?
       AND ATTRIBUTE_REF = ? )
     == 0)`,
-      [
-        endpointTypeId,
-        cluster.endpointTypeClusterId,
-        attributeId,
-        staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
-        dbEnum.storageOption.ram,
-        clusterRef,
-        endpointTypeId,
-        cluster.endpointTypeClusterId,
-        attributeId,
-      ]
-    )
-    .then(() => {
-      let query =
-        'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
-        getAllParamValuePairArrayClauses(paramValuePairArray) +
-        'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?'
-      return dbApi.dbUpdate(db, query, [
-        endpointTypeId,
-        cluster.endpointTypeClusterId,
-        attributeId,
-      ])
-    })
+    [
+      endpointTypeId,
+      cluster.endpointTypeClusterId,
+      attributeId,
+      staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
+      dbEnum.storageOption.ram,
+      clusterRef,
+      endpointTypeId,
+      cluster.endpointTypeClusterId,
+      attributeId,
+    ]
+  )
+  let query =
+    'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
+    getAllParamValuePairArrayClauses(paramValuePairArray) +
+    'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?'
+
+  return dbApi.dbUpdate(db, query, [
+    endpointTypeId,
+    cluster.endpointTypeClusterId,
+    attributeId,
+  ])
 }
 
 async function updateEndpointTypeAttribute(db, id, restKey, value) {
@@ -768,28 +766,27 @@ async function resolveDefaultDeviceTypeAttributes(
           if (deviceAttribute.attributeRef != null) {
             return queryZcl
               .selectAttributeById(db, deviceAttribute.attributeRef)
-              .then((attribute) => {
-                Promise.all([
-                  insertOrUpdateAttributeState(
-                    db,
-                    endpointTypeId,
-                    attribute.clusterRef,
-                    attribute.side,
-                    deviceAttribute.attributeRef,
-                    [
-                      { key: restApi.updateKey.attributeSelected, value: true },
-                      {
-                        key: restApi.updateKey.attributeReporting,
-                        value: deviceAttribute.isReportable == true,
-                      },
-                    ]
-                  ),
-                ])
-              })
+              .then((attribute) =>
+                insertOrUpdateAttributeState(
+                  db,
+                  endpointTypeId,
+                  attribute.clusterRef,
+                  attribute.side,
+                  deviceAttribute.attributeRef,
+                  [
+                    {
+                      key: restApi.updateKey.attributeSelected,
+                      value: true,
+                    },
+                    {
+                      key: restApi.updateKey.attributeReporting,
+                      value: deviceAttribute.isReportable == true,
+                    },
+                  ]
+                )
+              )
           } else {
-            return new Promise((resolve, reject) => {
-              return resolve()
-            })
+            return Promise.resolve()
           }
         })
       )
@@ -811,8 +808,8 @@ async function resolveDefaultDeviceTypeCommands(
 ) {
   return queryZcl
     .selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef)
-    .then((commands) => {
-      return Promise.all(
+    .then((commands) =>
+      Promise.all(
         commands.map((deviceCommand) => {
           return queryZcl
             .selectDeviceTypeClusterByDeviceTypeClusterId(
@@ -826,7 +823,7 @@ async function resolveDefaultDeviceTypeCommands(
                   .then((command) => {
                     if (command != null) {
                       let promises = []
-                      if (deviceTypeCluster.includeClient == 1) {
+                      if (deviceTypeCluster.includeClient) {
                         promises.push(
                           insertOrUpdateCommandState(
                             db,
@@ -839,7 +836,7 @@ async function resolveDefaultDeviceTypeCommands(
                           )
                         )
                       }
-                      if (deviceTypeCluster.includeServer == 1) {
+                      if (deviceTypeCluster.includeServer) {
                         promises.push(
                           insertOrUpdateCommandState(
                             db,
@@ -858,14 +855,12 @@ async function resolveDefaultDeviceTypeCommands(
                     }
                   })
               } else {
-                return new Promise((resolve, reject) => {
-                  return resolve()
-                })
+                return Promise.resolve()
               }
             })
         })
       )
-    })
+    )
 }
 
 async function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
@@ -959,7 +954,9 @@ async function resolveNonOptionalAndReportableAttributes(
           attribute.id,
           settings
         )
-      } else return Promise.resolve()
+      } else {
+        return Promise.resolve()
+      }
     })
   )
 }
@@ -1093,10 +1090,9 @@ async function getOrInsertDefaultEndpointTypeCluster(
   clusterRef,
   side
 ) {
-  return dbApi
-    .dbInsert(
-      db,
-      `
+  await dbApi.dbInsert(
+    db,
+    `
 INSERT INTO ENDPOINT_TYPE_CLUSTER (ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED)
 SELECT ?, ?, ?, ?
 WHERE  (
@@ -1104,21 +1100,12 @@ WHERE  (
     WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?
       AND ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = ?
       AND ENDPOINT_TYPE_CLUSTER.SIDE = ?) == 0 )`,
-      [
-        endpointTypeId,
-        clusterRef,
-        side,
-        false,
-        endpointTypeId,
-        clusterRef,
-        side,
-      ]
-    )
-    .then((rows) => {
-      return dbApi
-        .dbGet(
-          db,
-          `
+    [endpointTypeId, clusterRef, side, false, endpointTypeId, clusterRef, side]
+  )
+
+  let eptClusterData = await dbApi.dbGet(
+    db,
+    `
 SELECT
   ENDPOINT_TYPE_CLUSTER_ID,
   ENDPOINT_TYPE_REF,
@@ -1129,12 +1116,10 @@ FROM ENDPOINT_TYPE_CLUSTER
 WHERE ENDPOINT_TYPE_REF = ?
   AND CLUSTER_REF = ?
   AND SIDE = ?`,
-          [endpointTypeId, clusterRef, side]
-        )
-        .then((eptClusterData) => {
-          return dbMapping.map.endpointTypeCluster(eptClusterData)
-        })
-    })
+    [endpointTypeId, clusterRef, side]
+  )
+
+  return dbMapping.map.endpointTypeCluster(eptClusterData)
 }
 
 /**
