@@ -115,7 +115,10 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
  */
 function outputFile(inputFile, outputPattern) {
   let output = outputPattern
-  if (output.includes('{')) {
+  if (output.startsWith('{dir}/')) {
+    let dir = path.dirname(inputFile)
+    output = path.join(dir, output.substring(6))
+  } else if (output.includes('{')) {
     let dir = path.dirname(inputFile)
     let name = path.basename(inputFile)
     let basename
