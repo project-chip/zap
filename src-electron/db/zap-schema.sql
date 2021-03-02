@@ -206,6 +206,7 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   "DEFAULT_VALUE" text,
   "IS_OPTIONAL" integer,
   "IS_REPORTABLE" integer,
+  "ARRAY_TYPE" text,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
@@ -309,6 +310,7 @@ CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
   "ORDINAL" integer,
   "NAME" text,
   "TYPE" text,
+  "ARRAY_TYPE" text,
   foreign key (STRUCT_REF) references STRUCT(STRUCT_ID)
 );
 /*

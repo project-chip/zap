@@ -386,6 +386,7 @@ function prepareCluster(cluster, isExtension = false) {
         isReportable: attribute.$.reportable == 'true',
         introducedIn: attribute.$.introducedIn,
         removedIn: attribute.$.removedIn,
+        entryType: attribute.$.entryType,
       }
       if (att.manufacturerCode == null) {
         att.manufacturerCode = ret.manufacturerCode
@@ -540,6 +541,7 @@ function prepareStruct(struct) {
         name: item.$.name,
         type: item.$.type,
         ordinal: index,
+        entryType: item.$.entryType,
       })
     })
   }
