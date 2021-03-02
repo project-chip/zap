@@ -32,10 +32,9 @@ const bin = require('../util/bin.js')
  * @returns promise that resolves into endpoint clusters.
  */
 async function queryEndpointClusters(db, endpointTypeId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   C.CLUSTER_ID,
   EC.ENDPOINT_TYPE_CLUSTER_ID,
@@ -55,22 +54,21 @@ WHERE
   AND EC.ENDPOINT_TYPE_REF = ?
 ORDER BY C.CODE
 `,
-      [endpointTypeId]
-    )
-    .then((rows) =>
-      rows.map((row) => {
-        return {
-          clusterId: row['CLUSTER_ID'],
-          endpointTypeId: row['ENDPOINT_TYPE_REF'],
-          endpointTypeClusterId: row['ENDPOINT_TYPE_CLUSTER_ID'],
-          hexCode: '0x' + bin.int16ToHex(row['CODE']),
-          manufacturerCode: row['MANUFACTURER_CODE'],
-          code: row['CODE'],
-          name: row['NAME'],
-          side: row['SIDE'],
-        }
-      })
-    )
+    [endpointTypeId]
+  )
+
+  return rows.map((row) => {
+    return {
+      clusterId: row['CLUSTER_ID'],
+      endpointTypeId: row['ENDPOINT_TYPE_REF'],
+      endpointTypeClusterId: row['ENDPOINT_TYPE_CLUSTER_ID'],
+      hexCode: '0x' + bin.int16ToHex(row['CODE']),
+      manufacturerCode: row['MANUFACTURER_CODE'],
+      code: row['CODE'],
+      name: row['NAME'],
+      side: row['SIDE'],
+    }
+  })
 }
 
 /**
@@ -88,10 +86,9 @@ async function queryEndpointClusterAttributes(
   side,
   endpointTypeId
 ) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   A.CODE,
   A.NAME,
@@ -127,36 +124,35 @@ WHERE
      FROM ENDPOINT_TYPE_CLUSTER
      WHERE CLUSTER_REF = ? AND side = ? AND ENDPOINT_TYPE_REF = ?)))
     `,
-      [clusterId, side, endpointTypeId, clusterId, side, endpointTypeId]
-    )
-    .then((rows) =>
-      rows.map((row) => {
-        return {
-          clusterId: clusterId,
-          code: row['CODE'],
-          manufacturerCode: row['MANUFACTURER_CODE'],
-          hexCode: '0x' + bin.int16ToHex(row['CODE']),
-          name: row['NAME'],
-          side: row['SIDE'],
-          type: row['TYPE'],
-          minLength: row['MIN_LENGTH'],
-          maxLength: row['MAX_LENGTH'],
-          min: row['MIN'],
-          max: row['MAX'],
-          storage: row['STORAGE_OPTION'],
-          isIncluded: row['INCLUDED'],
-          isSingleton: row['SINGLETON'],
-          isBound: row['BOUNDED'],
-          isWritable: row['IS_WRITABLE'],
-          defaultValue: row['DEFAULT_VALUE'],
-          includedReportable: row['INCLUDED_REPORTABLE'],
-          minInterval: row['MIN_INTERVAL'],
-          maxInterval: row['MAX_INTERVAL'],
-          reportableChange: row['REPORTABLE_CHANGE'],
-          define: row['DEFINE'],
-        }
-      })
-    )
+    [clusterId, side, endpointTypeId, clusterId, side, endpointTypeId]
+  )
+
+  return rows.map((row) => {
+    return {
+      clusterId: clusterId,
+      code: row['CODE'],
+      manufacturerCode: row['MANUFACTURER_CODE'],
+      hexCode: '0x' + bin.int16ToHex(row['CODE']),
+      name: row['NAME'],
+      side: row['SIDE'],
+      type: row['TYPE'],
+      minLength: row['MIN_LENGTH'],
+      maxLength: row['MAX_LENGTH'],
+      min: row['MIN'],
+      max: row['MAX'],
+      storage: row['STORAGE_OPTION'],
+      isIncluded: row['INCLUDED'],
+      isSingleton: row['SINGLETON'],
+      isBound: row['BOUNDED'],
+      isWritable: row['IS_WRITABLE'],
+      defaultValue: row['DEFAULT_VALUE'],
+      includedReportable: row['INCLUDED_REPORTABLE'],
+      minInterval: row['MIN_INTERVAL'],
+      maxInterval: row['MAX_INTERVAL'],
+      reportableChange: row['REPORTABLE_CHANGE'],
+      define: row['DEFINE'],
+    }
+  })
 }
 
 /**
@@ -168,10 +164,9 @@ WHERE
  * @returns promise that resolves into endpoint cluster commands
  */
 async function queryEndpointClusterCommands(db, clusterId, endpointTypeId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   C.NAME,
   C.CODE,
@@ -191,22 +186,21 @@ WHERE
   AND EC.ENDPOINT_TYPE_REF = ?
 ORDER BY C.CODE
   `,
-      [clusterId, endpointTypeId]
-    )
-    .then((rows) =>
-      rows.map((row) => {
-        return {
-          name: row['NAME'],
-          code: row['CODE'],
-          manufacturerCode: row['MANUFACTURER_CODE'],
-          isOptional: row['IS_OPTIONAL'],
-          source: row['SOURCE'],
-          isIncoming: row['INCOMING'],
-          isOutgoing: row['OUTGOING'],
-          hexCode: '0x' + bin.int8ToHex(row['CODE']),
-        }
-      })
-    )
+    [clusterId, endpointTypeId]
+  )
+
+  return rows.map((row) => {
+    return {
+      name: row['NAME'],
+      code: row['CODE'],
+      manufacturerCode: row['MANUFACTURER_CODE'],
+      isOptional: row['IS_OPTIONAL'],
+      source: row['SOURCE'],
+      isIncoming: row['INCOMING'],
+      isOutgoing: row['OUTGOING'],
+      hexCode: '0x' + bin.int8ToHex(row['CODE']),
+    }
+  })
 }
 
 exports.queryEndpoints = queryConfig.getAllEndpoints

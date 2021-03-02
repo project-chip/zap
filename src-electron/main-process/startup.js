@@ -115,7 +115,10 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
  */
 function outputFile(inputFile, outputPattern) {
   let output = outputPattern
-  if (output.includes('{')) {
+  if (output.startsWith('{dir}/')) {
+    let dir = path.dirname(inputFile)
+    output = path.join(dir, output.substring(6))
+  } else if (output.includes('{')) {
     let dir = path.dirname(inputFile)
     let name = path.basename(inputFile)
     let basename
@@ -141,7 +144,7 @@ function outputFile(inputFile, outputPattern) {
 async function startConvert(
   files,
   output,
-  options = { log: true, quit: true }
+  options = { log: true, quit: true, noZapFileLog: false }
 ) {
   if (options.log) console.log(`🤖 Conversion started`)
   if (options.log) console.log(`    🔍 input files: ${files}`)
@@ -187,7 +190,11 @@ async function startConvert(
               dbEnum.sessionKey.filePath,
               of
             )
-            .then(() => exportJs.exportDataIntoFile(db, sessionId, of))
+            .then(() =>
+              exportJs.exportDataIntoFile(db, sessionId, of, {
+                removeLog: options.noZapFileLog,
+              })
+            )
         })
         .then((outputPath) => {
           if (options.log) console.log(`    👉 write out: ${outputPath}`)
@@ -439,7 +446,11 @@ function startUp(isElectron) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
     if (argv.output == null) throw 'You need to specify output file.'
-    return startConvert(argv.zapFiles, argv.output).catch((code) => {
+    return startConvert(argv.zapFiles, argv.output, {
+      log: true,
+      quit: true,
+      noZapFileLog: argv.noZapFileLog,
+    }).catch((code) => {
       console.log(code)
       process.exit(1)
     })

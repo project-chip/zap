@@ -151,6 +151,11 @@ function processCommandLineArguments(argv) {
       type: 'boolean',
       default: process.env[env.environmentVariable.skipPostGen.name] == '1',
     })
+    .option('noZapFileLog', {
+      desc: `When writing out the .zap files, don't include the log. Useful in unit testing, where timestamps otherwise cause diffs.`,
+      type: 'boolean',
+      default: false,
+    })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${zapVersion.featureLevel}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
