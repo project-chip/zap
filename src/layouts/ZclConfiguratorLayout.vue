@@ -29,7 +29,6 @@ limitations under the License.
           </q-toolbar-title>
           <q-space />
 
-          <!-- TODO add a link to said manual here/manage the implementation of manual. -->
           <q-btn
             outline
             color="primary"

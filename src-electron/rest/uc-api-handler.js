@@ -23,7 +23,6 @@
 
 const env = require('../util/env.js')
 const studio = require('../ide-integration/studio-rest-api.js')
-const zcl = require('../ide-integration/zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 function httpGetComponentTree(db) {
@@ -52,8 +51,6 @@ function httpGetComponentTree(db) {
 
 function httpPostUpdateComponentHandler(db, request, response, add) {
   let { studioProject, clusterId, side, componentIds } = request.body
-  let act = add ? 'Enabling' : 'Disabling'
-  let acted = add ? 'Added' : 'Removed'
 
   studio
     .updateComponentByClusterIdAndComponentId(

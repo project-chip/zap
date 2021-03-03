@@ -23,7 +23,6 @@
 const queryConfig = require('../db/query-config.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
-const studioRestApi = require('../ide-integration/studio-rest-api.js')
 
 /**
  * HTTP DELETE: endpoint

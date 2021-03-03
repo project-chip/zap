@@ -76,8 +76,6 @@ function updateComponentByClusterIdAndComponentId(
   side
 ) {
   let name = projectName(project)
-  let act = add ? 'Enabling' : 'Disabling'
-  let acted = add ? 'Added' : 'Removed'
 
   if (typeof project === 'undefined') {
     return Promise.resolve({ componentIds: [], added: add })

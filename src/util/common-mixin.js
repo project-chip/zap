@@ -132,7 +132,7 @@ export default {
 
         if (failure.length) {
           components = failure.map((x) => x.id)
-          updated = false
+          // updated stays false
         } else {
           components = success.map((x) => x.id)
           updated = true
@@ -166,7 +166,7 @@ export default {
      * @param {*} params
      */
     updateSelectedComponentRequest(params) {
-      let { componentIds, added } = params
+      let { added } = params
       if (this.$store.state.zap.studioProject) {
         params['studioProject'] = this.$store.state.zap.studioProject
         this.$store

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div style="">
+  <div>
     <div class="row q-py-md">
       <strong>
         <q-breadcrumbs>
@@ -99,7 +99,6 @@ limitations under the License.
 
 <script>
 import Vue from 'vue'
-import restApi from '../../src-shared/rest-api.js'
 import CommonMixin from '../util/common-mixin'
 
 export default {

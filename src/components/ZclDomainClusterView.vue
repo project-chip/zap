@@ -16,7 +16,6 @@ limitations under the License.
 
 <template>
   <div>
-    <!-- <q-btn label="hide calories" @click="toggleStatus" /> -->
     <q-table
       :data="clusters"
       :columns="columns"
