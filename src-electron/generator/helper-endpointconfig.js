@@ -254,9 +254,17 @@ function endpoint_attribute_min_max_count(options) {
 function endpoint_attribute_min_max_list(options) {
   let ret = '{ \\\n'
   this.minMaxList.forEach((mm) => {
-    ret = ret.concat(
-      `  { ${mm.default}, ${mm.min}, ${mm.max} } /* ${mm.comment} */ \\\n`
-    )
+    let def = parseInt(mm.default)
+    let min = parseInt(mm.min)
+    let max = parseInt(mm.max)
+
+    if (isNaN(def)) def = 0
+    if (isNaN(min)) min = 0
+    if (isNaN(max)) max = 0xffff
+    let defS = '0x' + def.toString(16).toUpperCase()
+    let minS = '0x' + min.toString(16).toUpperCase()
+    let maxS = '0x' + max.toString(16).toUpperCase()
+    ret = ret.concat(`  { ${defS}, ${minS}, ${maxS} } /* ${mm.comment} */ \\\n`)
   })
   return ret.concat('}\n')
 }
