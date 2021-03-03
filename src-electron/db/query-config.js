@@ -647,7 +647,9 @@ async function setEndpointDefaults(
   deviceTypeRef,
   doTransaction = true
 ) {
-  await dbApi.dbBeginTransaction(db)
+  if (doTransaction) {
+    await dbApi.dbBeginTransaction(db)
+  }
   let clusters = await queryZcl.selectDeviceTypeClustersByDeviceTypeRef(
     db,
     deviceTypeRef
