@@ -296,7 +296,7 @@ async function jsonDataLoader(db, state, sessionId) {
       let promisesStage1 = [] // Stage 1 is endpoint types
       let promisesStage2 = [] // Stage 2 is endpoints, which require endpoint types to be loaded prior.
       if (data.optionalIds.length > 0) {
-        data.optionalIds.map((optionalId) =>
+        data.optionalIds.forEach((optionalId) =>
           promisesStage0.push(
             queryPackage.insertSessionPackage(db, sessionId, optionalId)
           )
