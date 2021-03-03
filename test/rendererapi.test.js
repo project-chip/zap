@@ -18,9 +18,9 @@
  * @jest-environment node
  */
 
-const rendererApi = require('../src/api/renderer_api.js')
+import createApi from '../src/api/renderer_api'
 
 test('Test structure of renderer API', () => {
-  let api = rendererApi.createApi()
+  let api = createApi()
   expect(api).not.toBeNull()
 })

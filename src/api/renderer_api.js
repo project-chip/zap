@@ -34,7 +34,7 @@ const util = require('../util/util.js')
  * e.g. The 'open' function is invoked by the container when opening a new configuration.
  * The front-end is informed and proceed to init UI elements.
  */
-function createApi() {
+export default function createApi() {
   return {
     prefix: 'zap',
     description: 'Zap Renderer API',
@@ -91,5 +91,3 @@ function createApi() {
     ],
   }
 }
-
-exports.createApi = createApi
