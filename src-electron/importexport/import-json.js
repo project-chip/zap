@@ -158,13 +158,16 @@ function convertPackageResult(sessionId, data) {
     sessionId: sessionId,
     packageId: null,
     otherIds: [],
+    optionalIds: [],
   }
   data.forEach((obj) => {
     if (obj == null) return null
     if (obj.packageType == dbEnum.packageType.zclProperties) {
       ret.packageId = obj.packageId
-    } else {
+    } else if (obj.packageType == dbEnum.packageType.genTemplatesJson) {
       ret.otherIds.push(obj.packageId)
+    } else {
+      ret.optionalIds.push(obj.packageId)
     }
   })
   return ret
@@ -182,17 +185,6 @@ async function importPackages(db, sessionId, packages, zapFilePath) {
   return Promise.all(allQueries).then((data) =>
     convertPackageResult(sessionId, data)
   )
-}
-
-async function importEndpoints(db, sessionId, endpoints) {
-  let allQueries = []
-  if (endpoints != null) {
-    env.logInfo(`Loading ${endpoints.length} endpoints`)
-    endpoints.forEach((endpoint) => {
-      allQueries.push(queryImpexp.importEndpoint(db, sessionId, endpoint))
-    })
-  }
-  return Promise.all(allQueries)
 }
 
 async function importEndpointTypes(
@@ -299,9 +291,18 @@ async function importEndpointTypes(
 async function jsonDataLoader(db, state, sessionId) {
   return importPackages(db, sessionId, state.package, state.filePath).then(
     (data) => {
-      // data: { sessionId, packageId, otherIds}
+      // data: { sessionId, packageId, otherIds, optionalIds}
+      let promisesStage0 = []
       let promisesStage1 = [] // Stage 1 is endpoint types
       let promisesStage2 = [] // Stage 2 is endpoints, which require endpoint types to be loaded prior.
+      if (data.optionalIds.length > 0) {
+        data.optionalIds.forEach((optionalId) =>
+          promisesStage0.push(
+            queryPackage.insertSessionPackage(db, sessionId, optionalId)
+          )
+        )
+      }
+
       if ('keyValuePairs' in state) {
         promisesStage1.push(
           importSessionKeyValues(db, data.sessionId, state.keyValuePairs)
@@ -320,11 +321,8 @@ async function jsonDataLoader(db, state, sessionId) {
         )
       }
 
-      // TODO: Why is there an empty block here?
-      //if ('endpoints' in state) {
-      //}
-
-      return Promise.all(promisesStage1)
+      return Promise.all(promisesStage0)
+        .then(() => Promise.all(promisesStage1))
         .then(() => Promise.all(promisesStage2))
         .then(() => querySession.setSessionClean(db, data.sessionId))
         .then(() => data.sessionId)

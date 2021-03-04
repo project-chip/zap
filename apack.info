@@ -1,6 +1,6 @@
 # Adapter pack file for Studio.
 #
-label=Zigbee Advanced Platform
+label=Zigbee Cluster Configurator
 description=Graphical configuration tool for application and libraries based on Zigbee Cluster Library.
 path=.,node_modules/.bin/,ZAP.app/Contents/MacOS
 requiredFeatureLevel=apack.core:8

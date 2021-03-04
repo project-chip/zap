@@ -89,7 +89,7 @@ function resolveMainDatabase(db) {
  * @param {*} path Absolute path. Typically '~/.zap'.
  */
 function setAppDirectory(directoryPath) {
-  let appDir = directoryPath
+  let appDir
   if (directoryPath.startsWith('~/')) {
     appDir = path.join(os.homedir(), directoryPath.substring(2))
   } else {

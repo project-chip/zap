@@ -61,18 +61,22 @@ function getComponentIdsByCluster(db, sessionId, clusterId, side) {
     })
     .then((cluster) => {
       let componentIds = []
-      side.forEach((zclRole) => {
-        let clusterKey = `${cluster.label.toLowerCase()}-${zclRole}`
-        let ids = sdkExt.cluster_extension_obj(
-          extensions,
-          'component',
-          clusterKey
-        )
-        if (ids) {
-          ids = ids.split(',').map((x) => x.trim())
-          componentIds = componentIds.concat(ids)
-        }
-      })
+      if (cluster) {
+        side.forEach((zclRole) => {
+          let clusterKey = `${cluster.label.toLowerCase()}-${zclRole}`
+          let ids = sdkExt.cluster_extension_obj(
+            extensions,
+            'component',
+            clusterKey
+          )
+          if (ids) {
+            ids = ids.split(',').map((x) => x.trim())
+            componentIds = componentIds.concat(ids)
+          }
+        })
+      } else {
+        console.log(`Failed to retrieve cluster via clusterId(${clusterId}).`)
+      }
 
       return Promise.resolve({
         componentIds,

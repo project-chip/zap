@@ -23,7 +23,6 @@
 
 const env = require('../util/env.js')
 const studio = require('../ide-integration/studio-rest-api.js')
-const zcl = require('../ide-integration/zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 function httpGetComponentTree(db) {
@@ -50,52 +49,23 @@ function httpGetComponentTree(db) {
   }
 }
 
-function httpPostComponentUpdateHandler(db, request, response, add) {
-  let { studioProject, clusterId, side } = request.body
-  let { componentIds } = request.body
-  let studioProjectName = studio.projectName(studioProject)
-  let act = add ? 'Enabling' : 'Disabling'
-  let acted = add ? 'Added' : 'Removed'
+function httpPostUpdateComponentHandler(db, request, response, add) {
+  let { studioProject, clusterId, side, componentIds } = request.body
 
-  if (typeof studioProject === 'undefined') {
-    return response.send({ componentIds: [], added: add })
-  }
-
-  // retrieve components to enable
-  let promises = []
-  if (clusterId) {
-    let ids = zcl
-      .getComponentIdsByCluster(
-        db,
-        request.session.zapSessionId,
-        clusterId,
-        side
-      )
-      .then((response) => Promise.resolve(response.id))
-    promises.push(ids)
-  }
-
-  // enabling components via Studio
-  Promise.all(promises)
-    .then((ids) => ids.flatMap((x) => x))
-    .then((ids) => ids.concat(componentIds))
-    // enabling components via Studio jetty server.
-    .then((ids) => studio.updateComponent(studioProject, ids, add))
-    // gather results and reply
-    .then((states) => response.send(states))
-    .catch((err) => {
-      let msg = ''
-      if (componentIds) {
-        msg = `StudioUC(${studioProjectName}): Failed to update component(${err.componentIds})`
-      } else {
-        msg = `StudioUC(${studioProjectName}): Failed to update components for cluster(${clusterId})`
-      }
-
-      env.logInfo(msg)
-      env.logInfo(err)
-      response.send(err)
-    })
+  studio
+    .updateComponentByClusterIdAndComponentId(
+      db,
+      studioProject,
+      componentIds,
+      clusterId,
+      add,
+      request.session.zapSessionId,
+      side
+    )
+    .then((res) => response.send(res))
+    .finally((err) => response.send(err))
 }
+
 /**
  *  Enable components by 'componentId' or corresponding components specified, via 'defaults', by 'clusterId' / 'roles'
  *
@@ -103,12 +73,12 @@ function httpPostComponentUpdateHandler(db, request, response, add) {
  */
 function httpPostComponentAdd(db) {
   return (request, response) =>
-    httpPostComponentUpdateHandler(db, request, response, true)
+    httpPostUpdateComponentHandler(db, request, response, true)
 }
 
 function httpPostComponentRemove(db) {
   return (request, response) =>
-    httpPostComponentUpdateHandler(db, request, response, false)
+    httpPostUpdateComponentHandler(db, request, response, false)
 }
 
 function handleError(err, res) {

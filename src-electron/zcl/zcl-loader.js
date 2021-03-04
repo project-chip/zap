@@ -210,7 +210,8 @@ function qualifyZclFile(db, info, parentPackageId, packageType, isCustom) {
               filePath,
               actualCrc,
               packageType,
-              parentPackageId
+              parentPackageId,
+              filePath
             )
             .then((packageId) => {
               resolve({

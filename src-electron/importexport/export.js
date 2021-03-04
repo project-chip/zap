@@ -101,13 +101,13 @@ async function exportEndpointTypes(db, sessionId) {
  * @param {*} db
  * @param {*} sessionId
  */
-async function exportSessionPackages(db, sessionId, zapFileLocation) {
+async function exportSessionPackages(db, sessionId, zapProjectFileLocation) {
   return queryImpExp.exportPackagesFromSession(db, sessionId).then((packages) =>
     packages.map((p) => {
       let pathRelativity = dbEnum.pathRelativity.relativeToUserHome
       let relativePath = path.relative(os.homedir(), p.path)
-      if (zapFileLocation != null) {
-        let rel = path.relative(zapFileLocation, p.path)
+      if (zapProjectFileLocation != null) {
+        let rel = path.relative(path.dirname(zapProjectFileLocation), p.path)
         if (rel.length > 0) {
           relativePath = rel
           pathRelativity = dbEnum.pathRelativity.relativeToZap

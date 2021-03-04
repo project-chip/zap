@@ -25,13 +25,12 @@ const util = require('../util/util.js')
 // the javascript code will invoke the Java function name "${id}Callback"
 // e.g. for function "open", "openCallback" is invoked.
 
-
 /**
  * Each declared 'function' entry offers such features:
  * - ability to invoke front-end functions within container via function 'id' with callback.
  * - ability to observe specific HTML target (a DOM Node) for data change.
- * 
- * Per entry, 'type' is 'observer', it is dedicated as a data cahgne listener. The 
+ *
+ * Per entry, 'type' is 'observer', it is dedicated as a data cahgne listener. The
  * e.g. The 'open' function is invoked by the container when opening a new configuration.
  * The front-end is informed and proceed to init UI elements.
  */

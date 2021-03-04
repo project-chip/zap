@@ -647,49 +647,36 @@ async function setEndpointDefaults(
   deviceTypeRef,
   doTransaction = true
 ) {
-  let p
   if (doTransaction) {
-    p = dbApi.dbBeginTransaction(db)
-  } else {
-    p = Promise.resolve()
+    await dbApi.dbBeginTransaction(db)
   }
+  let clusters = await queryZcl.selectDeviceTypeClustersByDeviceTypeRef(
+    db,
+    deviceTypeRef
+  )
+  let defaultClusters = await resolveDefaultClusters(
+    db,
+    endpointTypeId,
+    clusters
+  )
+  defaultClusters = defaultClusters.flat()
 
-  return p
-    .then(() =>
-      queryZcl.selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef)
-    )
-    .then((clusters) => {
-      let promises = []
-      let clusterPromise = resolveDefaultClusters(db, endpointTypeId, clusters)
-      promises.push(
-        resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef)
-      )
-      promises.push(
-        resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef)
-      )
-      promises.push(
-        clusterPromise.then((data) => {
-          let allClusters = data.flat()
-          let dataPromises = new Promise((resolve, reject) => {
-            promises.push(
-              resolveDefaultAttributes(db, endpointTypeId, allClusters)
-            )
-            promises.push(
-              resolveNonOptionalCommands(db, endpointTypeId, allClusters)
-            )
-            resolve()
-          })
-          return Promise.all([dataPromises])
-        })
-      )
-      return Promise.all(promises)
-    })
+  let promises = []
+
+  promises.push(
+    resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef),
+    resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef),
+    resolveDefaultAttributes(db, endpointTypeId, defaultClusters),
+    resolveNonOptionalCommands(db, endpointTypeId, defaultClusters)
+  )
+
+  return Promise.all(promises)
     .catch((err) => {
       console.log(err)
     })
     .finally((data) => {
       if (doTransaction) return dbApi.dbCommit(db)
-      else return Promise.resolve()
+      else return Promise.resolve({ defaultClusters })
     })
 }
 
