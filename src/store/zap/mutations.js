@@ -391,6 +391,14 @@ export function setAttributeEditting(state, context) {
   )
 }
 
+export function setAttributeReportingEditting(state, context) {
+  Vue.set(
+    state.attributeView.editableAttributesReporting,
+    context.attributeId,
+    context.editState
+  )
+}
+
 export function setOpenDomain(state, context) {
   Vue.set(state.clusterManager.openDomains, context.domainName, context.value)
 }

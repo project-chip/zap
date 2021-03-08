@@ -601,6 +601,10 @@ export function setAttributeEditting(context, editContext) {
   context.commit('setAttributeEditting', editContext)
 }
 
+export function setAttributeReportingEditting(context, editContext) {
+  context.commit('setAttributeReportingEditting', editContext)
+}
+
 export function setOpenDomain(context, state) {
   context.commit('setOpenDomain', state)
 }
