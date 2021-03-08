@@ -78,6 +78,7 @@ export function updateSelectedAttribute(context, selectionContext) {
     .$serverPost(restApi.uri.attributeUpdate, selectionContext)
     .then((res) => {
       let arg = res.data
+      setAttributeState(context, arg.endpointTypeAttributeData)
       if (arg.action === 'boolean') {
         context.commit('updateInclusionList', {
           id: Util.cantorPair(arg.id, arg.clusterRef),
@@ -372,6 +373,24 @@ export function setClusterList(context, selectionContext) {
   context.commit(`setClusterList`, {
     clients: enabledClients,
     servers: enabledServers,
+  })
+}
+export function setAttributeState(context, selectionContext) {
+  let resolvedReference = Util.cantorPair(
+    selectionContext.attributeRef,
+    selectionContext.clusterRef
+  )
+  context.commit('setEndpointTypeAttribute', {
+    id: resolvedReference,
+    included: selectionContext.included,
+    singleton: selectionContext.singleton,
+    bounded: selectionContext.bounded,
+    includedReportable: selectionContext.includedReportable,
+    defaultValue: selectionContext.defaultValue,
+    storageOption: selectionContext.storageOption,
+    minInterval: selectionContext.minInterval,
+    maxInterval: selectionContext.maxInterval,
+    reportableChange: selectionContext.reportableChange,
   })
 }
 

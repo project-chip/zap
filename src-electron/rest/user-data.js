@@ -153,20 +153,25 @@ function httpPostAttributeUpdate(db) {
         [{ key: listType, value: value, type: paramType }]
       )
       .then((row) =>
-        validation
-          .validateAttribute(db, endpointTypeId, id, clusterRef)
-          .then((validationData) => {
-            response.json({
-              action: action,
-              endpointTypeId: endpointTypeId,
-              clusterRef: clusterRef,
-              id: id,
-              added: value,
-              listType: listType,
-              validationIssues: validationData,
-            })
-            return response.status(restApi.httpCode.ok).send()
-          })
+        queryZcl
+          .selectEndpointTypeAttribute(db, endpointTypeId, id, clusterRef)
+          .then((eptAttr) =>
+            validation
+              .validateAttribute(db, endpointTypeId, id, clusterRef)
+              .then((validationData) => {
+                response.json({
+                  action: action,
+                  endpointTypeId: endpointTypeId,
+                  clusterRef: clusterRef,
+                  id: id,
+                  added: value,
+                  listType: listType,
+                  validationIssues: validationData,
+                  endpointTypeAttributeData: eptAttr,
+                })
+                return response.status(restApi.httpCode.ok).send()
+              })
+          )
       )
   }
 }

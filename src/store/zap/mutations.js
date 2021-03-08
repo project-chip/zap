@@ -55,6 +55,53 @@ export function updateAttributes(state, attributes) {
   state.attributes = attributes
 }
 
+export function setEndpointTypeAttribute(state, endpointTypeAttribute) {
+  let attribute = endpointTypeAttribute
+
+  updateInclusionList(state, {
+    id: attribute.id,
+    added: attribute.included,
+    listType: 'selectedAttributes',
+    view: 'attributeView',
+  })
+  updateInclusionList(state, {
+    id: attribute.id,
+    added: attribute.singleton,
+    listType: 'selectedSingleton',
+    view: 'attributeView',
+  })
+  updateInclusionList(state, {
+    id: attribute.id,
+    added: attribute.bounded,
+    listType: 'selectedBounded',
+    view: 'attributeView',
+  })
+  updateInclusionList(state, {
+    id: attribute.id,
+    added: attribute.includedReportable,
+    listType: 'selectedReporting',
+    view: 'attributeView',
+  })
+
+  Vue.set(
+    state.attributeView.defaultValue,
+    attribute.id,
+    attribute.defaultValue
+  )
+  Vue.set(
+    state.attributeView.storageOption,
+    attribute.id,
+    attribute.storageOption
+  )
+  Vue.set(state.attributeView.reportingMin, attribute.id, attribute.minInterval)
+  Vue.set(state.attributeView.reportingMax, attribute.id, attribute.maxInterval)
+  Vue.set(
+    state.attributeView.reportableChange,
+    attribute.id,
+    attribute.reportableChange
+  )
+}
+
 export function initializeDefaultEndpoints(state, defaultEndpoints) {
   defaultEndpoints.forEach((endpoint) => {
     if (state.endpointView.endpointId[endpoint.id] === undefined) {
