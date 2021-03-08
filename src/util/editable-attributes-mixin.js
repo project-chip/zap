@@ -45,6 +45,56 @@ export default {
         })
       },
     },
+    selection: {
+      get() {
+        return this.$store.state.zap.attributeView.selectedAttributes
+      },
+    },
+    selectionSingleton: {
+      get() {
+        return this.$store.state.zap.attributeView.selectedSingleton
+      },
+    },
+    selectionBounded: {
+      get() {
+        return this.$store.state.zap.attributeView.selectedBounded
+      },
+    },
+    selectionStorageOption: {
+      get() {
+        return this.$store.state.zap.attributeView.storageOption
+      },
+    },
+    selectionDefault: {
+      get() {
+        return this.$store.state.zap.attributeView.defaultValue
+      },
+    },
+    selectedReporting: {
+      get() {
+        return this.$store.state.zap.attributeView.selectedReporting
+      },
+    },
+    selectionMin: {
+      get() {
+        return this.$store.state.zap.attributeView.reportingMin
+      },
+    },
+    selectionMax: {
+      get() {
+        return this.$store.state.zap.attributeView.reportingMax
+      },
+    },
+    selectionReportableChange: {
+      get() {
+        return this.$store.state.zap.attributeView.reportableChange
+      },
+    },
+    defaultValueValidation: {
+      get() {
+        return this.$store.state.zap.attributeView.defaultValueValidationIssues
+      },
+    },
   },
   methods: {
     handleLocalChange(value, list, hash) {

@@ -254,31 +254,6 @@ export default {
   },
 
   computed: {
-    selection: {
-      get() {
-        return this.$store.state.zap.attributeView.selectedAttributes
-      },
-    },
-    selectionSingleton: {
-      get() {
-        return this.$store.state.zap.attributeView.selectedSingleton
-      },
-    },
-    selectionBounded: {
-      get() {
-        return this.$store.state.zap.attributeView.selectedBounded
-      },
-    },
-    selectionDefault: {
-      get() {
-        return this.$store.state.zap.attributeView.defaultValue
-      },
-    },
-    selectionStorageOption: {
-      get() {
-        return this.$store.state.zap.attributeView.storageOption
-      },
-    },
     requiredDeviceTypeAttributes: {
       get() {
         return this.$store.state.zap.attributeView.requiredAttributes
@@ -293,11 +268,6 @@ export default {
               this.requiredDeviceTypeAttributes.includes(attribute.id)
           )
           .map((attribute) => attribute.id)
-      },
-    },
-    defaultValueValidation: {
-      get() {
-        return this.$store.state.zap.attributeView.defaultValueValidationIssues
       },
     },
     editableAttributes: {

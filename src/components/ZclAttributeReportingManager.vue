@@ -54,11 +54,11 @@ limitations under the License.
           <q-td key="min" :props="props" auto-width>
             <q-input
               dense
-              :borderless="!editableAttributes[props.row.id]"
-              :outlined="editableAttributes[props.row.id]"
-              :disable="!editableAttributes[props.row.id]"
+              :borderless="!editableAttributesReporting[props.row.id]"
+              :outlined="editableAttributesReporting[props.row.id]"
+              :disable="!editableAttributesReporting[props.row.id]"
               :value="
-                !editableAttributes[props.row.id]
+                !editableAttributesReporting[props.row.id]
                   ? selectionMin[
                       hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                     ]
@@ -78,11 +78,11 @@ limitations under the License.
           <q-td key="max" :props="props" auto-width>
             <q-input
               dense
-              :borderless="!editableAttributes[props.row.id]"
-              :outlined="editableAttributes[props.row.id]"
-              :disable="!editableAttributes[props.row.id]"
+              :borderless="!editableAttributesReporting[props.row.id]"
+              :outlined="editableAttributesReporting[props.row.id]"
+              :disable="!editableAttributesReporting[props.row.id]"
               :value="
-                !editableAttributes[props.row.id]
+                !editableAttributesReporting[props.row.id]
                   ? selectionMax[
                       hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                     ]
@@ -102,9 +102,9 @@ limitations under the License.
           <q-td key="reportable" :props="props" auto-width>
             <q-input
               dense
-              :borderless="!editableAttributes[props.row.id]"
-              :outlined="editableAttributes[props.row.id]"
-              :disable="!editableAttributes[props.row.id]"
+              :borderless="!editableAttributesReporting[props.row.id]"
+              :outlined="editableAttributesReporting[props.row.id]"
+              :disable="!editableAttributesReporting[props.row.id]"
               v-model.number="
                 selectionReportableChange[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
@@ -130,7 +130,7 @@ limitations under the License.
               icon="close"
               color="blue"
               :style="{
-                visibility: editableAttributes[props.row.id]
+                visibility: editableAttributesReporting[props.row.id]
                   ? 'visible'
                   : 'hidden',
               }"
@@ -139,10 +139,12 @@ limitations under the License.
             <q-btn
               dense
               flat
-              :icon="editableAttributes[props.row.id] ? 'done' : 'create'"
+              :icon="
+                editableAttributesReporting[props.row.id] ? 'done' : 'create'
+              "
               color="blue"
               @click="
-                editableAttributes[props.row.id]
+                editableAttributesReporting[props.row.id]
                   ? commitEdittedAttributeReporting(
                       props.row,
                       selectedCluster.id
@@ -188,37 +190,7 @@ export default {
           })
       },
     },
-    selectionDefault: {
-      get() {
-        return this.$store.state.zap.attributeView.defaultValue
-      },
-    },
-    selectedReporting: {
-      get() {
-        return this.$store.state.zap.attributeView.selectedReporting
-      },
-    },
-    selectionMin: {
-      get() {
-        return this.$store.state.zap.attributeView.reportingMin
-      },
-    },
-    selectionMax: {
-      get() {
-        return this.$store.state.zap.attributeView.reportingMax
-      },
-    },
-    selectionReportableChange: {
-      get() {
-        return this.$store.state.zap.attributeView.reportableChange
-      },
-    },
-    defaultValueValidation: {
-      get() {
-        return this.$store.state.zap.attributeView.defaultValueValidationIssues
-      },
-    },
-    editableAttributes: {
+    editableAttributesReporting: {
       get() {
         return this.$store.state.zap.attributeView.editableAttributesReporting
       },
