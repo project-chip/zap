@@ -21,7 +21,7 @@ limitations under the License.
         <q-toolbar>
           <q-toolbar-title style="font-weight: bolder">
             Endpoint
-            {{ asHex(this.endpointId[this.selectedEndpointId], 4) }} Clusters
+            {{ this.endpointId[this.selectedEndpointId] }} Clusters
           </q-toolbar-title>
         </q-toolbar>
       </div>

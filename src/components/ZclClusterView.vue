@@ -20,7 +20,7 @@ limitations under the License.
         <q-breadcrumbs>
           <!-- this needs to be updated depending on how the pages will work -->
           <q-breadcrumbs-el icon="keyboard_arrow_left" to="/">
-            Endpoint {{ asHex(this.endpointId[this.selectedEndpointId], 4) }}
+            Endpoint {{ this.endpointId[this.selectedEndpointId] }}
           </q-breadcrumbs-el>
           <q-breadcrumbs-el to="/">
             {{ selectedCluster.domainName }}

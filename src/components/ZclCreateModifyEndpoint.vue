@@ -24,11 +24,6 @@ limitations under the License.
           <q-field label="Endpoint" stack-label>
             <q-input
               v-model="newEndpoint.newEndpointId"
-              prefix="0x"
-              mask="XXXX"
-              fill-mask="0"
-              maxlength="6"
-              reverse-fill-mask
               outlined
               dense
               class="col"
@@ -108,9 +103,7 @@ export default {
   mixins: [CommonMixin],
   mounted() {
     if (this.endpointReference != null) {
-      this.newEndpoint.newEndpointId = this.endpointId[
-        this.endpointReference
-      ].toString(16)
+      this.newEndpoint.newEndpointId = this.endpointId[this.endpointReference]
       this.newEndpoint.newNetworkId = this.networkId[this.endpointReference]
       this.newEndpoint.newDeviceTypeRef = this.endpointDeviceTypeRef[
         this.endpointType[this.endpointReference]
@@ -121,7 +114,7 @@ export default {
     return {
       deviceTypeOptions: this.zclDeviceTypeOptions,
       newEndpoint: {
-        newEndpointId: '0001',
+        newEndpointId: 1,
         newNetworkId: 0,
         newDeviceTypeRef: null,
         newVersion: 1,
@@ -169,7 +162,7 @@ export default {
           deviceTypeRef: deviceTypeRef,
         })
         .then((response) => {
-          let eptId = parseInt(this.newEndpoint.newEndpointId, 16)
+          let eptId = parseInt(this.newEndpoint.newEndpointId)
           let nwkId = this.newEndpoint.newNetworkId
           this.$store
             .dispatch(`zap/addEndpoint`, {
