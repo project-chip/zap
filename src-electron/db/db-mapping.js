@@ -130,6 +130,8 @@ exports.map = {
       code: x.CODE,
       isArray: dbApi.fromDbBool(x.IS_ARRAY),
       presentIf: x.PRESENT_IF,
+      introducedInRef: x.INTRODUCED_IN_REF,
+      removedInRef: x.REMOVED_IN_REF,
       countArg: x.COUNT_ARG,
       caption: `Command argument of type ${x.TYPE}`,
     }

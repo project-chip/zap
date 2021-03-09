@@ -21,7 +21,6 @@ const templateUtil = require('./template-util.js')
 const helperC = require('./helper-c.js')
 const env = require('../util/env.js')
 const types = require('../util/types.js')
-const queryPackage = require('../db/query-package.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -1418,6 +1417,391 @@ function isCommandAvailable(clusterSide, incoming, outgoing, source, name) {
 /**
  *
  *
+ * @param type: type of argument
+ * @param commandId: command id
+ * @param appendString: append the string to the argument
+ * @param introducedInRef: If the command argument is not present in all zcl
+ * specifications and was introduced in a certain specification version then this will not be null
+ * @param removedInRef: If the command argument is not present in all zcl
+ * specifications and was removed in a certain specification version then this will not be null
+ * @param presentIf: If the command argument is present conditionally then this will be a condition
+ * and not null
+ * @param options: options which can be passed to asUnderlyingZclTypeWithPackageId
+ * for determining the underlying zcl type for the provided argument type
+ * @returns A string as an underlying zcl type if the command is not fixed length and the command
+ * argument is always present in all zcl specifications.
+ */
+function as_underlying_zcl_type_command_argument_always_present(
+  type,
+  commandId,
+  appendString,
+  introducedInRef,
+  removedInRef,
+  presentIf,
+  options
+) {
+  let promise = if_command_arguments_have_fixed_length_with_current_context(
+    commandId,
+    true,
+    false,
+    this
+  )
+    .then((res) => {
+      if (res) {
+        return new Promise((resolve, reject) => resolve('')) // Return nothing since the command is of fixed length
+      } else {
+        // Return the underlying zcl type since command argument is always present
+        if (introducedInRef || removedInRef || presentIf) {
+          // Return nothing if the command argument is not always present
+          return new Promise((resolve, reject) => resolve(''))
+        } else {
+          // Return the underlying zcl type if the command argument is always present.
+          return templateUtil
+            .ensureZclPackageId(this)
+            .then((packageId) =>
+              asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+            )
+        }
+      }
+    })
+    // Adding the appendString for the underlying zcl type
+    .then((res) => (res ? res + appendString : res))
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ *
+ *
+ * @param commandId
+ * @param introducedInRef
+ * @param removedInRef
+ * @param presentIf
+ * @param argumentPresentReturn
+ * @param argumentNotPresentReturn
+ * @returns argumentPresentReturn if the command is not fixed length and command
+ * argument is always present without conditions(introducedInRef, removedInRef,
+ * presentIf) else returns argumentNotPresentReturn
+ */
+function if_command_argument_always_present(
+  commandId,
+  introducedInRef,
+  removedInRef,
+  presentIf,
+  argumentPresentReturn,
+  argumentNotPresentReturn
+) {
+  return if_command_arguments_have_fixed_length_with_current_context(
+    commandId,
+    true,
+    false,
+    this
+  ).then((res) => {
+    if (res) {
+      return '' // Return nothing since command is a fixed length command
+    } else {
+      if (introducedInRef || removedInRef || presentIf) {
+        return argumentNotPresentReturn
+      }
+      return argumentPresentReturn
+    }
+  })
+}
+
+/**
+ *
+ *
+ * @param type: type of argument
+ * @param commandId: command id
+ * @param appendString: append the string to the argument
+ * @param introducedInRef: If the command argument is not present in all zcl
+ * specifications and was introduced in a certain specification version then this will not be null
+ * @param removedInRef: If the command argument is not present in all zcl
+ * specifications and was removed in a certain specification version then this will not be null
+ * @param presentIf: If the command argument is present conditionally then this will be a condition
+ * and not null
+ * @param options: options which can be passed to asUnderlyingZclTypeWithPackageId
+ * for determining the underlying zcl type for the provided argument type
+ * @returns A string as an underlying zcl type if the command is not fixed length, the command
+ * argument is not always present in all zcl specifications and there is no present if conditionality
+ * on the command argument.
+ */
+
+function as_underlying_zcl_type_command_argument_not_always_present_no_presentif(
+  type,
+  commandId,
+  appendString,
+  introducedInRef,
+  removedInRef,
+  presentIf,
+  options
+) {
+  let promise = if_command_arguments_have_fixed_length_with_current_context(
+    commandId,
+    true,
+    false,
+    this
+  )
+    .then((res) => {
+      if (res) {
+        return new Promise((resolve, reject) => resolve('')) // Return nothing since the command is of fixed length
+      } else {
+        // Return the underlying zcl type since command argument is not always present and there is no present if conditionality
+        if ((introducedInRef || removedInRef) && !presentIf) {
+          return templateUtil
+            .ensureZclPackageId(this)
+            .then((packageId) =>
+              asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+            )
+        } else {
+          return new Promise((resolve, reject) => resolve(''))
+        }
+      }
+    })
+    // Adding the appendString for the underlying zcl type
+    .then((res) => (res ? res + appendString : res))
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ *
+ *
+ * @param commandId
+ * @param introducedInRef
+ * @param removedInRef
+ * @param presentIf
+ * @param argumentNotInAllVersionsReturn
+ * @param argumentInAllVersionsReturn
+ * @returns argumentNotInAllVersionsReturn if the command is not fixed length and command
+ * argument is present with conditions introducedInRef or removedInRef but no presentIf
+ * conditions else returns argumentNotPresentReturn
+ */
+function if_command_argument_not_always_present_no_presentif(
+  commandId,
+  introducedInRef,
+  removedInRef,
+  presentIf,
+  argumentNotInAllVersionsReturn,
+  argumentInAllVersionsReturn
+) {
+  return if_command_arguments_have_fixed_length_with_current_context(
+    commandId,
+    true,
+    false,
+    this
+  ).then((res) => {
+    if (res) {
+      return '' // Return nothing since it is a fixed length command
+    } else {
+      if ((introducedInRef || removedInRef) && !presentIf) {
+        return argumentNotInAllVersionsReturn
+      }
+      return argumentInAllVersionsReturn
+    }
+  })
+}
+
+/**
+ *
+ *
+ * @param type: type of argument
+ * @param commandId: command id
+ * @param appendString: append the string to the argument
+ * @param introducedInRef: If the command argument is not present in all zcl
+ * specifications and was introduced in a certain specification version then this will not be null
+ * @param removedInRef: If the command argument is not present in all zcl
+ * specifications and was removed in a certain specification version then this will not be null
+ * @param presentIf: If the command argument is present conditionally then this will be a condition
+ * and not null
+ * @param options: options which can be passed to asUnderlyingZclTypeWithPackageId
+ * for determining the underlying zcl type for the provided argument type
+ * @returns A string as an underlying zcl type if the command is not fixed length, the command
+ * argument is not always present in all zcl specifications and there is a present if conditionality
+ * on the command argument.
+ */
+function as_underlying_zcl_type_command_argument_not_always_present_with_presentif(
+  type,
+  commandId,
+  appendString,
+  introducedInRef,
+  removedInRef,
+  presentIf,
+  options
+) {
+  let promise = if_command_arguments_have_fixed_length_with_current_context(
+    commandId,
+    true,
+    false,
+    this
+  )
+    .then((res) => {
+      if (res) {
+        return new Promise((resolve, reject) => resolve('')) // Return nothing since the command is of fixed length
+      } else {
+        // Return the underlying zcl type since command argument is not always present and there is present if conditionality.
+        if ((introducedInRef || removedInRef) && presentIf) {
+          return templateUtil
+            .ensureZclPackageId(this)
+            .then((packageId) =>
+              asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+            )
+        } else {
+          return new Promise((resolve, reject) => resolve(''))
+        }
+      }
+    })
+    // Adding the appendString for the underlying zcl type
+    .then((res) => (res ? res + appendString : res))
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ *
+ *
+ * @param commandId
+ * @param introducedInRef
+ * @param removedInRef
+ * @param presentIf
+ * @param argumentNotInAllVersionsPresentIfReturn
+ * @param argumentInAllVersionsReturn
+ * @returns argumentNotInAllVersionsReturn if the command is not fixed length, command
+ * argument is present with conditions introducedInRef or removedInRef and presentIf
+ * conditions exist as well else returns argumentNotPresentReturn
+ */
+function if_command_argument_not_always_present_with_presentif(
+  commandId,
+  introducedInRef,
+  removedInRef,
+  presentIf,
+  argumentNotInAllVersionsPresentIfReturn,
+  argumentInAllVersionsReturn
+) {
+  return if_command_arguments_have_fixed_length_with_current_context(
+    commandId,
+    true,
+    false,
+    this
+  ).then((res) => {
+    if (res) {
+      return '' // Return nothing since it is a fixed length command
+    } else {
+      if ((introducedInRef || removedInRef) && presentIf) {
+        return argumentNotInAllVersionsPresentIfReturn
+      }
+      return argumentInAllVersionsReturn
+    }
+  })
+}
+
+/**
+ *
+ *
+ * @param type: type of argument
+ * @param commandId: command id
+ * @param appendString: append the string to the argument
+ * @param introducedInRef: If the command argument is not present in all zcl
+ * specifications and was introduced in a certain specification version then this will not be null
+ * @param removedInRef: If the command argument is not present in all zcl
+ * specifications and was removed in a certain specification version then this will not be null
+ * @param presentIf: If the command argument is present conditionally then this will be a condition
+ * and not null
+ * @param options: options which can be passed to asUnderlyingZclTypeWithPackageId
+ * for determining the underlying zcl type for the provided argument type
+ * @returns A string as an underlying zcl type if the command is not fixed length, the command
+ * argument is always present in all zcl specifications and there is a present if conditionality
+ * on the command argument.
+ */
+function as_underlying_zcl_type_command_argument_always_present_with_presentif(
+  type,
+  commandId,
+  appendString,
+  introducedInRef,
+  removedInRef,
+  presentIf,
+  options
+) {
+  let promise = if_command_arguments_have_fixed_length_with_current_context(
+    commandId,
+    true,
+    false,
+    this
+  )
+    .then((res) => {
+      if (res) {
+        return new Promise((resolve, reject) => resolve('')) // Return nothing since the command is of fixed length
+      } else {
+        // Return the underlying zcl type since command argument is always present and there is a present if condition
+        if (!(introducedInRef || removedInRef) && presentIf) {
+          return templateUtil
+            .ensureZclPackageId(this)
+            .then((packageId) =>
+              asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+            )
+        } else {
+          return new Promise((resolve, reject) => resolve(''))
+        }
+      }
+    })
+    // Adding the appendString for the underlying zcl type
+    .then((res) => (res ? res + appendString : res))
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ *
+ *
+ * @param commandId
+ * @param introducedInRef
+ * @param removedInRef
+ * @param presentIf
+ * @param argumentNotInAllVersionsPresentIfReturn
+ * @param argumentInAllVersionsReturn
+ * @returns argumentInAllVersionsPresentIfReturn if the command is not fixed length, command
+ * argument is always present and presentIf conditions exist else returns argumentNotPresentReturn
+ */
+function if_command_argument_always_present_with_presentif(
+  commandId,
+  introducedInRef,
+  removedInRef,
+  presentIf,
+  argumentInAllVersionsPresentIfReturn,
+  argumentNotAlwaysThereReturn
+) {
+  return if_command_arguments_have_fixed_length_with_current_context(
+    commandId,
+    true,
+    false,
+    this
+  ).then((res) => {
+    if (res) {
+      return '' // Return nothing since it is a fixed length command
+    } else {
+      if (!(introducedInRef || removedInRef) && presentIf) {
+        return argumentInAllVersionsPresentIfReturn
+      }
+      return argumentNotAlwaysThereReturn
+    }
+  })
+}
+
+/**
+ *
+ *
  * @param {*} clusterId
  * @param {*} manufacturer_specific_return
  * @param {*} null_manufacturer_specific_return
@@ -1444,6 +1828,10 @@ function if_manufacturing_specific_cluster(
       }
     })
   return templateUtil.templatePromise(this.global, promise)
+}
+
+function jsonify(currentContext) {
+  return JSON.stringify(currentContext)
 }
 
 const dep = templateUtil.deprecatedHelper
@@ -1522,3 +1910,12 @@ exports.is_zcl_string = is_zcl_string
 exports.if_command_arguments_have_fixed_length = if_command_arguments_have_fixed_length
 exports.command_arguments_total_length = command_arguments_total_length
 exports.as_underlying_zcl_type_if_command_is_not_fixed_length = as_underlying_zcl_type_if_command_is_not_fixed_length
+exports.if_command_argument_always_present = if_command_argument_always_present
+exports.jsonify = jsonify
+exports.as_underlying_zcl_type_command_argument_always_present = as_underlying_zcl_type_command_argument_always_present
+exports.if_command_argument_always_present_with_presentif = if_command_argument_always_present_with_presentif
+exports.as_underlying_zcl_type_command_argument_always_present_with_presentif = as_underlying_zcl_type_command_argument_always_present_with_presentif
+exports.if_command_argument_not_always_present_with_presentif = if_command_argument_not_always_present_with_presentif
+exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif = as_underlying_zcl_type_command_argument_not_always_present_with_presentif
+exports.if_command_argument_not_always_present_no_presentif = if_command_argument_not_always_present_no_presentif
+exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif = as_underlying_zcl_type_command_argument_not_always_present_no_presentif
