@@ -223,11 +223,16 @@ function endpoint_attribute_list(options) {
         .join(' | ')
     }
     // If no default value is found, default to 0
+    let finalDefaultValue
     if (!at.defaultValue) {
-      at.defaultValue = '0'
+      finalDefaultValue = `ZAP_EMPTY_DEFAULT()`
+    } else if (at.isMacro) {
+      finalDefaultValue = at.defaultValue
+    } else {
+      finalDefaultValue = `ZAP_SIMPLE_DEFAULT(${at.defaultValue})`
     }
     ret = ret.concat(
-      `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, { (uint8_t *) ${at.defaultValue} } }, /* ${at.comment} */  \\\n`
+      `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, ${finalDefaultValue} }, /* ${at.comment} */  \\\n`
     )
   })
   return ret.concat('}\n')
@@ -378,6 +383,7 @@ function collectAttributes(endpointTypes) {
 
       // Go over all the attributes in the endpoint and add them to the list.
       c.attributes.forEach((a) => {
+        let defaultValueIsMacro = false
         let attributeDefaultValue = a.defaultValue
         if (a.typeSize > 2) {
           // We will need to generate the GENERATED_DEFAULTS
@@ -394,6 +400,7 @@ function collectAttributes(endpointTypes) {
             index: longDefaultsIndex,
           }
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
+          defaultValueIsMacro = true
           longDefaultsList.push(longDef)
           longDefaultsIndex += a.typeSize
         }
@@ -405,6 +412,7 @@ function collectAttributes(endpointTypes) {
             comment: `Attribute: ${a.name}`,
           }
           attributeDefaultValue = `ZAP_MIN_MAX_DEFAULTS_INDEX(${minMaxIndex})`
+          defaultValueIsMacro = true
           minMaxList.push(minMax)
           minMaxIndex++
         }
@@ -453,6 +461,7 @@ function collectAttributes(endpointTypes) {
           size: a.typeSize, // size
           mask: mask, // array of special properties
           defaultValue: attributeDefaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
+          isMacro: defaultValueIsMacro,
           comment: `${c.name} (${c.side}): ${a.name}`,
         }
         attributeList.push(attr)
