@@ -273,6 +273,7 @@ test(
           )
         ).toBeTruthy()
         expect(zapTypes.includes('uint32_t snapshotCause')).toBeTruthy()
+        expect(zapTypes.includes('typedef uint8_t EphemeralData;')).toBeTruthy()
 
         let zapCli = genResult.content['zap-cli.c']
         expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
