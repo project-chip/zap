@@ -106,7 +106,7 @@ onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) => {
 )
 
 onWebSocket(dbEnum.wsCategory.generic, (data) =>
-  console.log(`Generic message received: ${data}`)
+  console.log(`Generic message received: ${JSON.stringify(data)}`)
 )
 
 Vue.prototype.$sendWebSocketData = sendWebSocketData
