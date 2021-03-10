@@ -29,6 +29,7 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const webSocket = require('./ws-server.js')
 const studio = require('../ide-integration/studio-rest-api.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 const restApiModules = [
   '../rest/admin.js',
@@ -132,8 +133,12 @@ async function initHttpServer(db, port, studioPort) {
             next()
           })
           .catch((err) => {
-            env.logError('Could not create session: ' + err.message)
-            env.logError(err)
+            let resp = {
+              error: 'Could not create session: ' + err.message,
+              errorMessage: err,
+            }
+            studio.sendSessionCreationErrorStatus(resp)
+            env.logError(resp)
           })
       }
     })

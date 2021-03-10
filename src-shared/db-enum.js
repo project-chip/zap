@@ -84,6 +84,7 @@ exports.pathRelativity = {
 exports.wsCategory = {
   generic: 'generic',
   dirtyFlag: 'dirtyFlag',
+  sessionCreationError: 'sessionCreationError',
   init: 'init',
   tick: 'tick',
 }
