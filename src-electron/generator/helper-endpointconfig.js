@@ -270,7 +270,7 @@ function endpoint_attribute_min_max_list(options) {
     let minS = '0x' + min.toString(16).toUpperCase()
     let maxS = '0x' + max.toString(16).toUpperCase()
     ret = ret.concat(
-      `  { ${defS}, ${minS}, ${maxS} }${
+      `  { (uint8_t*)${defS}, (uint8_t*)${minS}, (uint8_t*)${maxS} }${
         index == this.minMaxList.length - 1 ? '' : ','
       } /* ${mm.comment} */ \\\n`
     )
