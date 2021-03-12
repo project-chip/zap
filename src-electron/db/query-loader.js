@@ -95,11 +95,12 @@ INSERT INTO ATTRIBUTE (
   DEFAULT_VALUE,
   IS_OPTIONAL,
   IS_REPORTABLE,
+  ARRAY_TYPE,
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -121,6 +122,7 @@ function attributeMap(clusterId, packageId, attributes) {
     attribute.defaultValue,
     attribute.isOptional,
     attribute.isReportable,
+    attribute.entryType,
     attribute.manufacturerCode,
     attribute.introducedIn,
     packageId,
@@ -487,13 +489,19 @@ async function insertStructs(db, packageId, data) {
           let lastId = lastIdsArray[i]
           let items = data[i].items
           itemsToLoad.push(
-            ...items.map((item) => [lastId, item.name, item.type, item.ordinal])
+            ...items.map((item) => [
+              lastId,
+              item.name,
+              item.type,
+              item.ordinal,
+              item.entryType,
+            ])
           )
         }
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, ORDINAL) VALUES (?,?,?, ?)',
+        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, ORDINAL, ARRAY_TYPE) VALUES (?,?,?,?,?)',
         itemsToLoad
       )
     })
