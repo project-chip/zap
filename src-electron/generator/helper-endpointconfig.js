@@ -312,9 +312,9 @@ function endpoint_attribute_long_defaults(options) {
   let ret = '{ \\\n'
   this.longDefaultsList.forEach((ld) => {
     ret = ret.concat(
-      `  /* ${ld.index} */  ${ld.value}  /* ${ld.comment}, ${
+      `  /* ${ld.index} - ${ld.comment}, ${
         littleEndian ? 'little-endian' : 'big-endian'
-      } */ \\\n`
+      } */\\\n  ${ld.value}\\\n\\\n`
     )
   })
   return ret.concat('}\n')
