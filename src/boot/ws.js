@@ -17,6 +17,7 @@
 import Vue from 'vue'
 import Events from 'events'
 import dbEnum from '../../src-shared/db-enum.js'
+import { Notify } from 'quasar'
 
 let eventEmitter = new Events.EventEmitter()
 
@@ -102,11 +103,27 @@ onWebSocket(dbEnum.wsCategory.tick, (data) =>
 onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) => {
   document.documentElement.setAttribute('isdirty', data)
   console.log(`Dirty flag received: ${data}`)
-}
-)
+})
+
+onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
+  let html = `<center>
+  <strong>${data.error}</strong>
+  <br>
+  ${data.errorMessage}
+  </center>` 
+  Notify.create({
+    message: html,
+    color: 'negative',
+    position: 'top',
+    html: true,
+    timeout: 0,
+  })
+
+  console.log(`sessionCreationError: ${JSON.stringify(data)}`)
+})
 
 onWebSocket(dbEnum.wsCategory.generic, (data) =>
-  console.log(`Generic message received: ${data}`)
+  console.log(`Generic message received: ${JSON.stringify(data)}`)
 )
 
 Vue.prototype.$sendWebSocketData = sendWebSocketData

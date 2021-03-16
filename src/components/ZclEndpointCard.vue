@@ -126,7 +126,7 @@ export default {
   },
   methods: {
     getFormattedEndpointId(endpointRef) {
-      return this.asHex(this.endpointId[endpointRef], 4)
+      return this.endpointId[endpointRef]
     },
     deleteEpt() {
       let endpointReference = this.endpointReference

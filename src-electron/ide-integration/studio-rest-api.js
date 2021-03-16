@@ -197,11 +197,29 @@ function sendDirtyFlagStatus() {
   )
 }
 
+/**
+ * Notify front-end that current session failed to load.
+ * @param {} err
+ */
+function sendSessionCreationErrorStatus(err) {
+  let { error, errorMessage, project} = err;
+  querySession.getAllSessions(env.mainDatabase()).then((sessions) =>
+    sessions.forEach((session) => {
+      let socket = wsServer.clientSocket(session.sessionKey)
+      if (socket) {
+        wsServer.sendWebSocketMessage(socket, {
+          category: dbEnum.wsCategory.sessionCreationError,
+          payload: err,
+        })
+      }
+    })
+  )
+}
+
 exports.getProjectInfo = getProjectInfo
-// exports.addComponent = addComponent
-// exports.removeComponent = removeComponent
 exports.updateComponentByComponentIds = updateComponentByComponentIds
 exports.updateComponentByClusterIdAndComponentId = updateComponentByClusterIdAndComponentId
 exports.projectName = projectName
 exports.initializeReporting = initializeReporting
 exports.clearReporting = clearReporting
+exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus

@@ -54,11 +54,11 @@ limitations under the License.
           <q-td key="min" :props="props" auto-width>
             <q-input
               dense
-              :borderless="!editableAttributes[props.row.id]"
-              :outlined="editableAttributes[props.row.id]"
-              :disable="!editableAttributes[props.row.id]"
+              :borderless="!editableAttributesReporting[props.row.id]"
+              :outlined="editableAttributesReporting[props.row.id]"
+              :disable="!editableAttributesReporting[props.row.id]"
               :value="
-                !editableAttributes[props.row.id]
+                !editableAttributesReporting[props.row.id]
                   ? selectionMin[
                       hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                     ]
@@ -78,11 +78,11 @@ limitations under the License.
           <q-td key="max" :props="props" auto-width>
             <q-input
               dense
-              :borderless="!editableAttributes[props.row.id]"
-              :outlined="editableAttributes[props.row.id]"
-              :disable="!editableAttributes[props.row.id]"
+              :borderless="!editableAttributesReporting[props.row.id]"
+              :outlined="editableAttributesReporting[props.row.id]"
+              :disable="!editableAttributesReporting[props.row.id]"
               :value="
-                !editableAttributes[props.row.id]
+                !editableAttributesReporting[props.row.id]
                   ? selectionMax[
                       hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                     ]
@@ -102,9 +102,9 @@ limitations under the License.
           <q-td key="reportable" :props="props" auto-width>
             <q-input
               dense
-              :borderless="!editableAttributes[props.row.id]"
-              :outlined="editableAttributes[props.row.id]"
-              :disable="!editableAttributes[props.row.id]"
+              :borderless="!editableAttributesReporting[props.row.id]"
+              :outlined="editableAttributesReporting[props.row.id]"
+              :disable="!editableAttributesReporting[props.row.id]"
               v-model.number="
                 selectionReportableChange[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
@@ -130,21 +130,29 @@ limitations under the License.
               icon="close"
               color="blue"
               :style="{
-                visibility: editableAttributes[props.row.id]
+                visibility: editableAttributesReporting[props.row.id]
                   ? 'visible'
                   : 'hidden',
               }"
-              @click="resetAttribute(props.row.id)"
+              @click="resetAttributeReporting(props.row.id)"
             />
             <q-btn
               dense
               flat
-              :icon="editableAttributes[props.row.id] ? 'done' : 'create'"
+              :icon="
+                editableAttributesReporting[props.row.id] ? 'done' : 'create'
+              "
               color="blue"
               @click="
-                editableAttributes[props.row.id]
-                  ? commitEdittedAttribute(props.row, selectedCluster.id)
-                  : setEditableAttribute(props.row.id, selectedCluster.id)
+                editableAttributesReporting[props.row.id]
+                  ? commitEdittedAttributeReporting(
+                      props.row,
+                      selectedCluster.id
+                    )
+                  : setEditableAttributeReporting(
+                      props.row.id,
+                      selectedCluster.id
+                    )
               "
             />
           </q-td>
@@ -155,159 +163,12 @@ limitations under the License.
 </template>
 
 <script>
-import * as Util from '../util/util'
-import Vue from 'vue'
+//This mixin derives from common-mixin.
+import EditableAttributeMixin from '../util/editable-attributes-mixin'
 
-import CommonMixin from '../util/common-mixin'
 export default {
   name: 'ZclAttributeReportingManager',
-  mixins: [CommonMixin],
-  methods: {
-    handleLocalSelection(list, attributeDataId, clusterId) {
-      let hash = this.hashAttributeIdClusterId(attributeDataId, clusterId)
-      let indexOfValue = list.indexOf(hash)
-      if (indexOfValue === -1) {
-        list.push(hash)
-      } else {
-        list.splice(indexOfValue, 1)
-      }
-    },
-    handleLocalChange(value, list, hash) {
-      Vue.set(this[list], hash, value)
-      this[list] = Object.assign({}, this[list])
-    },
-    toggleAttributeSelection(list, listType, attributeData, clusterId, enable) {
-      // We determine the ID that we need to toggle within the list.
-      // This ID comes from hashing the base ZCL attribute and cluster data.
-      let indexOfValue = list.indexOf(
-        this.hashAttributeIdClusterId(attributeData.id, clusterId)
-      )
-      let addedValue
-      if (indexOfValue === -1) {
-        addedValue = true
-      } else {
-        addedValue = false
-      }
-
-      let editContext = {
-        action: 'boolean',
-        endpointTypeId: this.selectedEndpointTypeId,
-        id: attributeData.id,
-        value: addedValue,
-        listType: listType,
-        clusterRef: clusterId,
-        attributeSide: attributeData.side,
-      }
-      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-    },
-    setAttributeSelection(listType, attributeData, clusterId, enable) {
-      let editContext = {
-        action: 'boolean',
-        endpointTypeId: this.selectedEndpointTypeId,
-        id: attributeData.id,
-        value: enable,
-        listType: listType,
-        clusterRef: clusterId,
-        attributeSide: attributeData.side,
-      }
-      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-    },
-    handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
-      let editContext = {
-        action: 'text',
-        endpointTypeId: this.selectedEndpointTypeId,
-        id: attributeData.id,
-        value: newValue,
-        listType: listType,
-        clusterRef: clusterId,
-        attributeSide: attributeData.side,
-      }
-      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-    },
-    isDefaultValueValid(id) {
-      return this.defaultValueValidation[id] != null
-        ? this.defaultValueValidation[id].length === 0
-        : true
-    },
-    getDefaultValueErrorMessage(id) {
-      return this.defaultValueValidation[id] != null
-        ? this.defaultValueValidation[id].reduce(
-            (validationIssueString, currentVal) => {
-              return validationIssueString + '\n' + currentVal
-            },
-            ''
-          )
-        : ''
-    },
-    hashAttributeIdClusterId(attributeId, clusterId) {
-      return Util.cantorPair(attributeId, clusterId)
-    },
-
-    initializeTextEditableList(originatingList, editableList, attrClusterHash) {
-      let data = originatingList[attrClusterHash]
-      editableList[attrClusterHash] = data
-    },
-
-    setEditableAttribute(attributeId, selectedClusterId) {
-      let attrClusterHash = this.hashAttributeIdClusterId(
-        attributeId,
-        selectedClusterId
-      )
-
-      this.initializeTextEditableList(
-        this.selectionMin,
-        this.editableMin,
-        attrClusterHash
-      )
-
-      this.initializeTextEditableList(
-        this.selectionMax,
-        this.editableMax,
-        attrClusterHash
-      )
-
-      this.initializeTextEditableList(
-        this.selectionReportableChange,
-        this.editableReportable,
-        attrClusterHash
-      )
-
-      this.$store.dispatch('zap/setAttributeEditting', {
-        attributeId: attributeId,
-        editState: true,
-      })
-    },
-
-    resetAttribute(attributeId) {
-      this.$store.dispatch('zap/setAttributeEditting', {
-        attributeId: attributeId,
-        editState: false,
-      })
-    },
-
-    commitEdittedAttribute(attributeData, clusterId) {
-      let hash = this.hashAttributeIdClusterId(attributeData.id, clusterId)
-
-      this.handleAttributeDefaultChange(
-        this.editableMin[hash],
-        'reportingMin',
-        attributeData,
-        clusterId
-      )
-      this.handleAttributeDefaultChange(
-        this.editableMax[hash],
-        'reportingMax',
-        attributeData,
-        clusterId
-      )
-
-      this.$store.dispatch('zap/setAttributeEditting', {
-        attributeId: attributeData.id,
-        editState: false,
-      })
-    },
-  },
-
+  mixins: [EditableAttributeMixin],
   computed: {
     attributeData: {
       get() {
@@ -329,47 +190,14 @@ export default {
           })
       },
     },
-    selectionDefault: {
+    editableAttributesReporting: {
       get() {
-        return this.$store.state.zap.attributeView.defaultValue
-      },
-    },
-    selectedReporting: {
-      get() {
-        return this.$store.state.zap.attributeView.selectedReporting
-      },
-    },
-    selectionMin: {
-      get() {
-        return this.$store.state.zap.attributeView.reportingMin
-      },
-    },
-    selectionMax: {
-      get() {
-        return this.$store.state.zap.attributeView.reportingMax
-      },
-    },
-    selectionReportableChange: {
-      get() {
-        return this.$store.state.zap.attributeView.reportableChange
-      },
-    },
-    defaultValueValidation: {
-      get() {
-        return this.$store.state.zap.attributeView.defaultValueValidationIssues
-      },
-    },
-    editableAttributes: {
-      get() {
-        return this.$store.state.zap.attributeView.editableAttributes
+        return this.$store.state.zap.attributeView.editableAttributesReporting
       },
     },
   },
   data() {
     return {
-      editableMin: {},
-      editableMax: {},
-      editableReportable: {},
       pagination: {
         rowsPerPage: 0,
       },

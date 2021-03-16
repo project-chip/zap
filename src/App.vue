@@ -66,11 +66,28 @@ export default {
         this.$q.dark.set(false)
       }
     },
+    setGenerationInProgress() {
+      const pending = document.documentElement.getAttribute(
+        'generation-in-progress'
+      )
+      console.log(`pending: ${pending}`)
+      if (pending === 'true') {
+        console.log('true')
+        this.$q.loading.show({
+          spinner: QSpinnerGears,
+          messageColor: 'white',
+          message: 'Generation in progress...',
+          spinnerSize: 300,
+        })
+      } else {
+        console.log('false')
+        this.$q.loading.hide()
+      }
+    },
   },
   mounted() {
     this.$q.loading.show({
       spinner: QSpinnerGears,
-      spinnerColor: 'red-8',
       spinnerSize: 300,
     })
 
@@ -101,6 +118,10 @@ export default {
 
     util.observeAttribute('data-theme', () => {
       this.setThemeMode()
+    })
+
+    util.observeAttribute('generation-in-progress', () => {
+      this.setGenerationInProgress()
     })
 
     initLoad(this.$store).then(() => {

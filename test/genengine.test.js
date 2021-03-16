@@ -53,6 +53,12 @@ afterAll(() => {
 let templateContext
 
 test(
+  'Load ZCL stuff',
+  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
+  10000
+)
+
+test(
   'Basic gen template parsing and generation',
   () =>
     genEngine
@@ -85,12 +91,6 @@ test('Create session', () =>
     expect(sessionId).not.toBeNull()
     templateContext.sessionId = sessionId
   }))
-
-test(
-  'Load ZCL stuff',
-  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
-  5000
-)
 
 test('Initialize session packages', async () => {
   let packages = await utilJs.initializeSessionPackage(
@@ -273,6 +273,7 @@ test(
           )
         ).toBeTruthy()
         expect(zapTypes.includes('uint32_t snapshotCause')).toBeTruthy()
+        expect(zapTypes.includes('typedef uint8_t EphemeralData;')).toBeTruthy()
 
         let zapCli = genResult.content['zap-cli.c']
         expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
@@ -288,29 +289,49 @@ test(
   genTimeout
 )
 
-test(
-  'Test file import and generation',
-  () =>
-    importJs
-      .importDataFromFile(db, testFile)
-      .then((sessionId) =>
-        genEngine.generate(db, sessionId, templateContext.packageId)
-      )
-      .then((genResult) => {
-        expect(genResult).not.toBeNull()
-        expect(genResult.partial).toBeFalsy()
-        expect(genResult.content).not.toBeNull()
+test('Test file import and cli generation', async () => {
+  let sid = await querySession.createBlankSession(db)
+  await importJs.importDataFromFile(db, testFile, sid)
 
-        let zapCli = genResult.content['zap-cli.c']
-        expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
-        //expect(zapCli.includes('void zclIdentifyIdCommand(sl_cli_command_arg_t *arguments);')).toBeTruthy()
-        //expect(zapCli.includes('SL_CLI_COMMAND(zclIdentifyIdCommand,')).toBeTruthy()
-        //expect(zapCli.includes('{ "id", &cli_cmd_zcl_identify_client_cluster_identify, false },')).toBeTruthy()
-        //expect(zapCli.includes('SL_CLI_COMMAND_GROUP(zcl_identify_client_cluster_command_table, "ZCL identify client cluster commands");')).toBeTruthy()
-        //expect(zapCli.includes('{ "identify", &cli_cmd_identify_client_group, false },')).toBeTruthy()
-      }),
-  genTimeout
-)
+  return genEngine
+    .generate(db, sid, templateContext.packageId)
+    .then((genResult) => {
+      expect(genResult).not.toBeNull()
+      expect(genResult.partial).toBeFalsy()
+      expect(genResult.content).not.toBeNull()
+
+      let zapCli = genResult.content['zap-cli.c']
+      expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
+      //expect(zapCli.includes('void sli_zigbee_cli_zcl_identify_id_command(sl_cli_command_arg_t *arguments);')).toBeTruthy()
+      //expect(zapCli.includes('SL_CLI_COMMAND(sli_zigbee_cli_zcl_identify_id_command,')).toBeTruthy()
+      //expect(zapCli.includes('{ "id", &cli_cmd_zcl_identify_cluster_identify, false },')).toBeTruthy()
+      //expect(zapCli.includes('SL_CLI_COMMAND_GROUP(zcl_identify_cluster_command_table, "ZCL identify cluster commands");')).toBeTruthy()
+      expect(
+        zapCli.includes('{ "identify", &cli_cmd_identify_group, false },')
+      ).toBeTruthy()
+    })
+}, 10000)
+
+/*
+Uncomment after ZAPP-503 is resolved 
+test('Test file import and command parser generation march 9 2021', async () => {
+  let sid = await querySession.createBlankSession(db)
+  await importJs.importDataFromFile(db, testFile, sid)
+
+  return genEngine.generate(db, sid, templateContext.packageId)
+  .then((genResult) => {
+    expect(genResult).not.toBeNull()
+    expect(genResult.partial).toBeFalsy()
+    expect(genResult.content).not.toBeNull()
+
+    let zapCommandParser = genResult.content['zap-command-parser-march-9-2021.c']
+    expect(zapCommandParser.includes('#include \"zap-command-parser.h\"')).toBeTruthy()
+    expect(zapCommandParser.includes('EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);')).toBeTruthy()
+    expect(zapCommandParser.includes('case ZCL_IDENTIFY_CLUSTER_ID:')).toBeTruthy()
+    expect(zapCommandParser.includes('wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);')).toBeTruthy()
+  })
+}, 10000)
+ */
 
 test('Test content indexer - simple', () =>
   genEngine.contentIndexer('Short example').then((preview) => {

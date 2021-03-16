@@ -102,6 +102,9 @@ export default {
     asHex(value, padding) {
       return Util.asHex(value, padding)
     },
+    hashAttributeIdClusterId(attributeId, clusterId) {
+      return Util.cantorPair(attributeId, clusterId)
+    },
     setSelectedEndpointType(endpointReference) {
       this.$store.dispatch('zap/updateSelectedEndpointType', {
         endpointType: this.endpointType[endpointReference],

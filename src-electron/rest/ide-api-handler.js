@@ -30,6 +30,10 @@ const http = require('http-status-codes')
 const queryConfig = require('../db/query-config.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { queryEndpoints } = require('../db/query-endpoint.js')
+const webSocket = require('../server/ws-server.js')
+const httpServer = require('../server/http-server.js')
+const studio = require('../ide-integration/studio-rest-api.js')
+
 /**
  * HTTP GET: IDE open
  *
@@ -54,10 +58,10 @@ function httpGetIdeOpen(db) {
           res.send(response)
         })
         .catch(function (err) {
-          let msg = `Studio: Failed to load project(${zapFile})`
-          env.logError(msg)
-          res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
-          env.logError(err)
+          err.project = zapFile
+          studio.sendSessionCreationErrorStatus(err)
+          env.logError(JSON.stringify(err))
+          res.status(http.StatusCodes.BAD_REQUEST).send(err)
         })
     } else {
       let msg = 'Opening/Loading project: Missing "project" query string'

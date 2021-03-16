@@ -45,6 +45,7 @@ limitations under the License.
               @input="
                 toggleAttributeSelection(
                   selection,
+                  'selectedAttributes',
                   props.row,
                   selectedCluster.id
                 )
@@ -88,9 +89,9 @@ limitations under the License.
               :outlined="editableAttributes[props.row.id]"
               :disable="!editableAttributes[props.row.id]"
               @input="
-                handleLocalStorageChange(
+                handleLocalChange(
                   $event,
-                  editableStorage,
+                  'editableStorage',
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 )
               "
@@ -169,9 +170,9 @@ limitations under the License.
                 )
               "
               @input="
-                handleLocalDefaultChange(
+                handleLocalChange(
                   $event,
-                  editableDefaults,
+                  'editableDefaults',
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 )
               "
@@ -209,199 +210,17 @@ limitations under the License.
 </template>
 
 <script>
-import * as Util from '../util/util'
-import * as RestApi from '../../src-shared/rest-api'
 import * as DbEnum from '../../src-shared/db-enum'
-import Vue from 'vue'
-import CommonMixin from '../util/common-mixin'
+
+//This mixin derives from common-mixin.
+import EditableAttributeMixin from '../util/editable-attributes-mixin'
 
 export default {
   name: 'ZclAttributeManager',
-  mixins: [CommonMixin],
+  mixins: [EditableAttributeMixin],
   methods: {
-    handleLocalSelection(list, attributeDataId, clusterId) {
-      let hash = this.hashAttributeIdClusterId(attributeDataId, clusterId)
-      let indexOfValue = list.indexOf(hash)
-      if (indexOfValue === -1) {
-        list.push(hash)
-      } else {
-        list.splice(indexOfValue, 1)
-      }
-    },
-    handleLocalDefaultChange(value, list, hash) {
-      Vue.set(list, hash, value)
-      this.editableDefaults = Object.assign({}, this.editableDefaults)
-    },
-    handleLocalStorageChange(value, list, hash) {
-      Vue.set(list, hash, value)
-      this.editableStorage = Object.assign({}, this.editableStorage)
-    },
-    toggleAttributeSelection(list, attributeData, clusterId) {
-      // We determine the ID that we need to toggle within the list.
-      // This ID comes from hashing the base ZCL attribute and cluster data.
-      let indexOfValue = list.indexOf(
-        this.hashAttributeIdClusterId(attributeData.id, clusterId)
-      )
-      let addedValue
-      if (indexOfValue === -1) {
-        addedValue = true
-      } else {
-        addedValue = false
-      }
-
-      let editContext = {
-        action: 'boolean',
-        endpointTypeId: this.selectedEndpointTypeId,
-        id: attributeData.id,
-        value: addedValue,
-        listType: RestApi.updateKey.attributeSelected,
-        clusterRef: clusterId,
-        attributeSide: attributeData.side,
-      }
-      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-    },
-    setAttributeSelection(listType, attributeData, clusterId, enable) {
-      let editContext = {
-        action: 'boolean',
-        endpointTypeId: this.selectedEndpointTypeId,
-        id: attributeData.id,
-        value: enable,
-        listType: listType,
-        clusterRef: clusterId,
-        attributeSide: attributeData.side,
-      }
-      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-    },
-    handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
-      let editContext = {
-        action: 'text',
-        endpointTypeId: this.selectedEndpointTypeId,
-        id: attributeData.id,
-        value: newValue,
-        listType: listType,
-        clusterRef: clusterId,
-        attributeSide: attributeData.side,
-      }
-      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-    },
-
     isAttributeRequired(attribute) {
       return this.requiredAttributes.includes(attribute.id)
-    },
-    isDefaultValueValid(id) {
-      return this.defaultValueValidation[id] != null
-        ? this.defaultValueValidation[id].length === 0
-        : true
-    },
-    getDefaultValueErrorMessage(id) {
-      return this.defaultValueValidation[id] != null
-        ? this.defaultValueValidation[id].reduce(
-            (validationIssueString, currentVal) => {
-              return validationIssueString + '\n' + currentVal
-            },
-            ''
-          )
-        : ''
-    },
-    hashAttributeIdClusterId(attributeId, clusterId) {
-      return Util.cantorPair(attributeId, clusterId)
-    },
-
-    initializeBooleanEditableList(
-      originatingList,
-      editableList,
-      attrClusterHash
-    ) {
-      if (originatingList.includes(attrClusterHash)) {
-        if (!editableList.includes(attrClusterHash)) {
-          editableList.push(attrClusterHash)
-        }
-      } else {
-        if (editableList.includes(attrClusterHash)) {
-          let index = editableList.indexOf(attrClusterHash)
-          editableList.splice(index, 1)
-        }
-      }
-    },
-
-    initializeTextEditableList(originatingList, editableList, attrClusterHash) {
-      let data = originatingList[attrClusterHash]
-      editableList[attrClusterHash] = data
-    },
-
-    setEditableAttribute(attributeId, selectedClusterId) {
-      let attrClusterHash = this.hashAttributeIdClusterId(
-        attributeId,
-        selectedClusterId
-      )
-      this.initializeBooleanEditableList(
-        this.selectionBounded,
-        this.edittedData['bounded'],
-        attrClusterHash
-      )
-      this.initializeBooleanEditableList(
-        this.selectionSingleton,
-        this.edittedData['singleton'],
-        attrClusterHash
-      )
-
-      this.initializeTextEditableList(
-        this.selectionDefault,
-        this.editableDefaults,
-        attrClusterHash
-      )
-
-      this.initializeTextEditableList(
-        this.selectionStorageOption,
-        this.editableStorage,
-        attrClusterHash
-      )
-
-      this.$store.dispatch('zap/setAttributeEditting', {
-        attributeId: attributeId,
-        editState: true,
-      })
-    },
-
-    resetAttribute(attributeId) {
-      this.$store.dispatch('zap/setAttributeEditting', {
-        attributeId: attributeId,
-        editState: false,
-      })
-    },
-
-    commitEdittedAttribute(attributeData, clusterId) {
-      let hash = this.hashAttributeIdClusterId(attributeData.id, clusterId)
-      this.handleAttributeDefaultChange(
-        this.editableDefaults[hash],
-        'defaultValue',
-        attributeData,
-        clusterId
-      )
-      console.log(this.editableStorage[hash])
-      this.handleAttributeDefaultChange(
-        this.editableStorage[hash],
-        'storageOption',
-        attributeData,
-        clusterId
-      )
-
-      this.setAttributeSelection(
-        'selectedSingleton',
-        attributeData,
-        clusterId,
-        this.edittedData['singleton'].includes(hash)
-      )
-      this.setAttributeSelection(
-        'selectedBounded',
-        attributeData,
-        clusterId,
-        this.edittedData['bounded'].includes(hash)
-      )
-      this.$store.dispatch('zap/setAttributeEditting', {
-        attributeId: attributeData.id,
-        editState: false,
-      })
     },
     customAttributeSort(rows, sortBy, descending) {
       const data = [...rows]
@@ -435,40 +254,6 @@ export default {
   },
 
   computed: {
-    relevantAttributeData: {
-      get() {
-        return this.$store.state.zap.attributes.filter((a) => {
-          let relevantList =
-            a.side === 'client' ? this.selectionClients : this.selectionServers
-          return relevantList.includes(this.selectedClusterId)
-        })
-      },
-    },
-    selection: {
-      get() {
-        return this.$store.state.zap.attributeView.selectedAttributes
-      },
-    },
-    selectionSingleton: {
-      get() {
-        return this.$store.state.zap.attributeView.selectedSingleton
-      },
-    },
-    selectionBounded: {
-      get() {
-        return this.$store.state.zap.attributeView.selectedBounded
-      },
-    },
-    selectionDefault: {
-      get() {
-        return this.$store.state.zap.attributeView.defaultValue
-      },
-    },
-    selectionStorageOption: {
-      get() {
-        return this.$store.state.zap.attributeView.storageOption
-      },
-    },
     requiredDeviceTypeAttributes: {
       get() {
         return this.$store.state.zap.attributeView.requiredAttributes
@@ -485,11 +270,6 @@ export default {
           .map((attribute) => attribute.id)
       },
     },
-    defaultValueValidation: {
-      get() {
-        return this.$store.state.zap.attributeView.defaultValueValidationIssues
-      },
-    },
     editableAttributes: {
       get() {
         return this.$store.state.zap.attributeView.editableAttributes
@@ -503,12 +283,6 @@ export default {
   },
   data() {
     return {
-      edittedData: {
-        bounded: [],
-        singleton: [],
-      },
-      editableDefaults: {},
-      editableStorage: {},
       pagination: {
         rowsPerPage: 0,
         sortBy: 'attrID',

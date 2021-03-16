@@ -646,14 +646,21 @@ function endpoint_type_identifier(endpointTypeId) {
   return queryImpexp
     .exportendPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
-      queryImpexp
-        .exportEndpoints(this.global.db, this.global.sessionId, endpointTypes)
-        .then((endpoints) => {
+      queryImpexp.exportEndpoints(
+        this.global.db,
+        this.global.sessionId,
+        endpointTypes
+      )
+    )
+    .then(
+      (endpoints) =>
+        new Promise((resolve, reject) => {
           for (let i = 0; i < endpoints.length; i++) {
             if (endpointTypeId == endpoints[i].endpointTypeRef) {
-              return endpoints[i].endpointId
+              resolve(endpoints[i].endpointId)
             }
           }
+          resolve('')
         })
     )
 }
@@ -666,14 +673,21 @@ function endpoint_type_index(endpointTypeId) {
   return queryImpexp
     .exportendPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
-      queryImpexp
-        .exportEndpoints(this.global.db, this.global.sessionId, endpointTypes)
-        .then((endpoints) => {
+      queryImpexp.exportEndpoints(
+        this.global.db,
+        this.global.sessionId,
+        endpointTypes
+      )
+    )
+    .then(
+      (endpoints) =>
+        new Promise((resolve, reject) => {
           for (let i = 0; i < endpoints.length; i++) {
             if (endpointTypeId == endpoints[i].endpointTypeRef) {
-              return i
+              resolve(i)
             }
           }
+          resolve('')
         })
     )
 }
