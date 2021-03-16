@@ -220,7 +220,7 @@ test(
         ).toBeTruthy()
         expect(
           epc.includes(
-            `/* 5 */  17, 'T', 'e', 's', 't', ' ', 'm', 'a', 'n', 'u', 'f', 'a', 'c', 't', 'u', 'r', 'e', 'r', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,   /* Default for cluster: "Basic", attribute: "manufacturer name". side: server, big-endian */`
+            `17, 'T', 'e', 's', 't', ' ', 'm', 'a', 'n', 'u', 'f', 'a', 'c', 't', 'u', 'r', 'e', 'r', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,`
           )
         ).toBeTruthy()
 
