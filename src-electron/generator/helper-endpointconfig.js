@@ -266,9 +266,12 @@ function endpoint_attribute_min_max_list(options) {
     if (isNaN(def)) def = 0
     if (isNaN(min)) min = 0
     if (isNaN(max)) max = 0xffff
-    let defS = '0x' + def.toString(16).toUpperCase()
-    let minS = '0x' + min.toString(16).toUpperCase()
-    let maxS = '0x' + max.toString(16).toUpperCase()
+    let defS =
+      (def >= 0 ? '' : '-') + '0x' + Math.abs(def).toString(16).toUpperCase()
+    let minS =
+      (min >= 0 ? '' : '-') + '0x' + Math.abs(min).toString(16).toUpperCase()
+    let maxS =
+      (max >= 0 ? '' : '-') + '0x' + Math.abs(max).toString(16).toUpperCase()
     ret = ret.concat(
       `  { (uint8_t*)${defS}, (uint8_t*)${minS}, (uint8_t*)${maxS} }${
         index == this.minMaxList.length - 1 ? '' : ','
