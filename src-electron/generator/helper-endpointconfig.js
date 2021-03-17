@@ -48,10 +48,10 @@ function endpoint_count(options) {
  * @returns Macros that need to be created
  */
 function endpoint_config_macros(options) {
-  let longDef = options.longDefaults
-  let minMaxDef = options.minMaxDefaults
-  if (longDef == null) longDef = 'generatedDefaults'
-  if (minMaxDef == null) longDef = 'minMaxDefaults'
+  let longDef = options.hash.longDefaults
+  let minMaxDef = options.hash.minMaxDefaults
+  if (longDef == null) longDef = 'def_long_defaults'
+  if (minMaxDef == null) minMaxDef = 'def_minmax_defaults'
 
   return `
 #define ZAP_TYPE(type) ZCL_ ## type ## _ATTRIBUTE_TYPE
