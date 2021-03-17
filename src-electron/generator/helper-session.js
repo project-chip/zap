@@ -656,13 +656,13 @@ function endpoint_type_identifier(endpointTypeId) {
       for (let i = 0; i < endpoints.length; i++) {
         if (endpointTypeId == endpoints[i].endpointTypeRef) {
           if (endpoints[i].endpointId == null) {
-            return '0 /* Missing endpointId */'
+            return '0'
           } else {
             return `${endpoints[i].endpointId}`
           }
         }
       }
-      return '0 /* Missing endpointTypeId */'
+      return '0'
     })
 }
 
