@@ -652,17 +652,18 @@ function endpoint_type_identifier(endpointTypeId) {
         endpointTypes
       )
     )
-    .then(
-      (endpoints) =>
-        new Promise((resolve, reject) => {
-          for (let i = 0; i < endpoints.length; i++) {
-            if (endpointTypeId == endpoints[i].endpointTypeRef) {
-              resolve(endpoints[i].endpointId)
-            }
+    .then((endpoints) => {
+      for (let i = 0; i < endpoints.length; i++) {
+        if (endpointTypeId == endpoints[i].endpointTypeRef) {
+          if (endpoints[i].endpointId == null) {
+            return '0 /* Missing endpointId */'
+          } else {
+            return `${endpoints[i].endpointId}`
           }
-          resolve('')
-        })
-    )
+        }
+      }
+      return '0 /* Missing endpointTypeId */'
+    })
 }
 
 /*
