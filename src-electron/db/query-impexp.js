@@ -540,7 +540,7 @@ VALUES
  * @param {*} sessionId
  * @returns promise that resolves into rows in the database table.
  */
-async function exportendPointTypeIds(db, sessionId) {
+async function exportEndPointTypeIds(db, sessionId) {
   let mapFunction = (x) => {
     return {
       endpointTypeId: x.ENDPOINT_TYPE_ID,
@@ -611,5 +611,5 @@ exports.importCommandForEndpointType = importCommandForEndpointType
 
 exports.exportEndpoints = exportEndpoints
 exports.importEndpoint = importEndpoint
-exports.exportendPointTypeIds = exportendPointTypeIds
+exports.exportEndPointTypeIds = exportEndPointTypeIds
 exports.exportCliCommandCountFromEndpointTypeCluster = exportCliCommandCountFromEndpointTypeCluster
