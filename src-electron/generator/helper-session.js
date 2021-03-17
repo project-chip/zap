@@ -680,17 +680,14 @@ function endpoint_type_index(endpointTypeId) {
         endpointTypes
       )
     )
-    .then(
-      (endpoints) =>
-        new Promise((resolve, reject) => {
-          for (let i = 0; i < endpoints.length; i++) {
-            if (endpointTypeId == endpoints[i].endpointTypeRef) {
-              resolve(i)
-            }
-          }
-          resolve('')
-        })
-    )
+    .then((endpoints) => {
+      for (let i = 0; i < endpoints.length; i++) {
+        if (endpointTypeId == endpoints[i].endpointTypeRef) {
+          return i
+        }
+      }
+      return -1
+    })
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
