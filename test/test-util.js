@@ -56,3 +56,5 @@ exports.totalAttributeCount = 3430
 exports.totalClusterCommandCount = 602
 exports.totalServerAttributeCount = 2954
 exports.totalSpecCount = 39
+
+exports.testTemplateCount = 16

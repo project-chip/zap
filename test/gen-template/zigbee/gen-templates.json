@@ -167,6 +167,16 @@
       "output": "zap-print.h"
     },
     {
+      "path": "zap-event.h.zapt",
+      "name": "Generated events header",
+      "output": "zap-event.h"
+    },
+    {
+      "path": "zap-event.c.zapt",
+      "name": "Generated events",
+      "output": "zap-event.c"
+    },
+    {
       "path": "zap-tokens.zapt",
       "name": "ZCL tokens",
       "output": "zap-tokens.h"
