@@ -71,9 +71,9 @@ test(
 )
 
 test('Test file import', () =>
-  importJs.importDataFromFile(db, testFile).then((s) => {
-    templateContext.sessionId = s
-    expect(s).not.toBeNull()
+  importJs.importDataFromFile(db, testFile).then((importResult) => {
+    templateContext.sessionId = importResult.sessionId
+    expect(importResult.sessionId).not.toBeNull()
   }))
 
 test('Initialize session packages', () =>

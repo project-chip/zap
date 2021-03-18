@@ -41,7 +41,7 @@
     "gen": "node src-script/zap-generate.js --stateDirectory ~/.zap/gen -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/three-endpoint-device.zap -o ./tmp",
     "gen2": "node src-script/zap-generate.js -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/generation-test-file-1.zap -o ./tmp",
     "gen3": "node src-script/zap-generate.js --stateDirectory ~/.zap/gen3 -z ./zcl-builtin/dotdot/library.xml -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/generation-test-file-1.zap -o ./tmp",
-    "convert": "node src-script/zap-convert.js ./test/resource/test-light.isc -o {basename}.zap -z ./zcl-builtin/silabs/zcl.json -g test/gen-template/zigbee/gen-templates.json",
+    "convert": "node src-script/zap-convert.js -o {basename}.zap -z ./zcl-builtin/silabs/zcl.json -g test/gen-template/zigbee/gen-templates.json ./test/resource/test-light.isc ./test/resource/*.zap",
     "gendotdot": "node src-script/zap-generate.js -z ./zcl-builtin/dotdot/library.xml -g ./test/gen-template/dotdot/dotdot-templates.json -o ./tmp",
     "analyze": "node src-script/zap-start.js analyze -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json ./test/resource/three-endpoint-device.zap -o ./tmp",
     "genchip": "node src-script/zap-generate.js --stateDirectory ~/.zap/genchip -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/chip/gen-test.json -i ./test/resource/chip/chip_test.zap -o ./tmp",

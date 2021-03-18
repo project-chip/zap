@@ -51,7 +51,7 @@ async function readDataFromFile(filePath) {
  * @export
  * @param {*} db
  * @param {*} filePath
- * @returns a promise that resolves with the session Id of the written data.
+ * @returns a promise that resolves with the import result object that contains: sessionId, errors, warnings.
  */
 async function importDataFromFile(db, filePath, sessionId = null) {
   let state = await readDataFromFile(filePath)

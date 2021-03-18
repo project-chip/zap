@@ -87,7 +87,8 @@ test('Test file 2 existence', async () => {
 })
 
 test('Test file 1 import', async () => {
-  let sid = await importJs.importDataFromFile(db, testFile1)
+  let importResult = await importJs.importDataFromFile(db, testFile1)
+  let sid = importResult.sessionId
 
   let x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE')
   expect(x).toBe(1)

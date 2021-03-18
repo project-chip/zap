@@ -170,10 +170,10 @@ async function startConvert(
     .executePromisesSequentially(files, (singlePath) =>
       importJs
         .importDataFromFile(db, singlePath)
-        .then((sessionId) => {
+        .then((importResult) => {
           return util
-            .initializeSessionPackage(db, sessionId)
-            .then((pkgs) => sessionId)
+            .initializeSessionPackage(db, importResult.sessionId)
+            .then((pkgs) => importResult.sessionId)
         })
         .then((sessionId) => {
           if (options.log) console.log(`    👈 read in: ${singlePath}`)
@@ -236,7 +236,9 @@ function startAnalyze(
       return util.executePromisesSequentially(paths, (singlePath) =>
         importJs
           .importDataFromFile(db, singlePath)
-          .then((sessionId) => util.sessionReport(db, sessionId))
+          .then((importResult) =>
+            util.sessionReport(db, importResult.sessionId)
+          )
           .then((report) => {
             if (options.log) console.log(`🤖 File: ${singlePath}\n`)
             if (options.log) console.log(report)
@@ -382,8 +384,12 @@ async function startGeneration(
   let packageId = ctx.packageId
 
   let sessionId
-  if (zapFile == null) sessionId = await querySession.createBlankSession(mainDb)
-  else sessionId = await importJs.importDataFromFile(mainDb, zapFile)
+  if (zapFile == null) {
+    sessionId = await querySession.createBlankSession(mainDb)
+  } else {
+    let importResult = await importJs.importDataFromFile(mainDb, zapFile)
+    sessionId = importResult.sessionId
+  }
 
   await util.initializeSessionPackage(mainDb, sessionId)
 

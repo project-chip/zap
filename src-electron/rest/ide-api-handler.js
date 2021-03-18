@@ -50,8 +50,11 @@ function httpGetIdeOpen(db) {
 
       importJs
         .importDataFromFile(db, zapFile, req.session.zapSessionId)
-        .then((sessionId) => {
-          let response = { sessionId: sessionId, sessionKey: req.session.id }
+        .then((importResult) => {
+          let response = {
+            sessionId: importResult.sessionId,
+            sessionKey: req.session.id,
+          }
           env.logInfo(
             `Studio: Loaded project(${name}), ${JSON.stringify(response)}`
           )

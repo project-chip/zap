@@ -255,13 +255,15 @@ async function importEndpointTypes(
                     if ('attributes' in cluster)
                       cluster.attributes.forEach((attribute) => {
                         ps.push(
-                          queryImpexp.importAttributeForEndpointType(
-                            db,
-                            packageId,
-                            endpointId,
-                            endpointClusterId,
-                            attribute
-                          )
+                          queryImpexp
+                            .importAttributeForEndpointType(
+                              db,
+                              packageId,
+                              endpointId,
+                              endpointClusterId,
+                              attribute
+                            )
+                            .catch((err) => console.log(err))
                         )
                       })
                     return Promise.all(ps)
@@ -325,7 +327,13 @@ async function jsonDataLoader(db, state, sessionId) {
         .then(() => Promise.all(promisesStage1))
         .then(() => Promise.all(promisesStage2))
         .then(() => querySession.setSessionClean(db, data.sessionId))
-        .then(() => data.sessionId)
+        .then(() => {
+          return {
+            sessionId: data.sessionId,
+            errors: [],
+            warnings: [],
+          }
+        })
     }
   )
 }
