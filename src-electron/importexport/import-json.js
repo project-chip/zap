@@ -255,15 +255,13 @@ async function importEndpointTypes(
                     if ('attributes' in cluster)
                       cluster.attributes.forEach((attribute) => {
                         ps.push(
-                          queryImpexp
-                            .importAttributeForEndpointType(
-                              db,
-                              packageId,
-                              endpointId,
-                              endpointClusterId,
-                              attribute
-                            )
-                            .catch((err) => console.log(err))
+                          queryImpexp.importAttributeForEndpointType(
+                            db,
+                            packageId,
+                            endpointId,
+                            endpointClusterId,
+                            attribute
+                          )
                         )
                       })
                     return Promise.all(ps)

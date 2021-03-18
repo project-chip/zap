@@ -1,5 +1,5 @@
 {
-  "featureLevel": 17,
+  "featureLevel": 21,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -1178,21 +1178,6 @@
           ],
           "attributes": [
             {
-              "name": "cluster revision",
-              "code": 65533,
-              "mfgCode": null,
-              "side": "client",
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "4",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
               "name": "OTA Upgrade Server ID",
               "code": 0,
               "mfgCode": null,
@@ -1202,6 +1187,21 @@
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0xffffffffffffffff",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "cluster revision",
+              "code": 65533,
+              "mfgCode": null,
+              "side": "client",
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "4",
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -2743,21 +2743,6 @@
           ],
           "attributes": [
             {
-              "name": "cluster revision",
-              "code": 65533,
-              "mfgCode": null,
-              "side": "client",
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "4",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
               "name": "OTA Upgrade Server ID",
               "code": 0,
               "mfgCode": null,
@@ -2767,6 +2752,21 @@
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0xffffffffffffffff",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "cluster revision",
+              "code": 65533,
+              "mfgCode": null,
+              "side": "client",
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "4",
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -3869,6 +3869,5 @@
       "endpointId": 2,
       "networkId": 0
     }
-  ],
-  "log": []
+  ]
 }
