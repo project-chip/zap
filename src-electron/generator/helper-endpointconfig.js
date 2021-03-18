@@ -38,6 +38,30 @@ function endpoint_type_count(options) {
 function endpoint_count(options) {
   return this.endpoints.length
 }
+
+/**
+ * Prints out all the macros that the endpoint config
+ * configuration depends on. These macros are created
+ * by ZAP, because the use of these macros is also
+ * created by ZAP.
+ *
+ * @returns Macros that need to be created
+ */
+function endpoint_config_macros(options) {
+  let longDef = options.hash.longDefaults
+  let minMaxDef = options.hash.minMaxDefaults
+  if (longDef == null) longDef = 'def_long_defaults'
+  if (minMaxDef == null) minMaxDef = 'def_minmax_defaults'
+
+  return `
+#define ZAP_TYPE(type) ZCL_ ## type ## _ATTRIBUTE_TYPE
+#define ZAP_LONG_DEFAULTS_INDEX(index) {(uint8_t*)(&${longDef}[index])}
+#define ZAP_MIN_MAX_DEFAULTS_INDEX(index) {(uint8_t*)(&${minMaxDef}[index])}
+#define ZAP_EMPTY_DEFAULT() {(uint8_t*) 0}
+#define ZAP_SIMPLE_DEFAULT(x) {(uint8_t *) x}
+`
+}
+
 /**
  * Creates array of endpointId fields on endpoints
  *
@@ -266,9 +290,12 @@ function endpoint_attribute_min_max_list(options) {
     if (isNaN(def)) def = 0
     if (isNaN(min)) min = 0
     if (isNaN(max)) max = 0xffff
-    let defS = '0x' + def.toString(16).toUpperCase()
-    let minS = '0x' + min.toString(16).toUpperCase()
-    let maxS = '0x' + max.toString(16).toUpperCase()
+    let defS =
+      (def >= 0 ? '' : '-') + '0x' + Math.abs(def).toString(16).toUpperCase()
+    let minS =
+      (min >= 0 ? '' : '-') + '0x' + Math.abs(min).toString(16).toUpperCase()
+    let maxS =
+      (max >= 0 ? '' : '-') + '0x' + Math.abs(max).toString(16).toUpperCase()
     ret = ret.concat(
       `  { (uint8_t*)${defS}, (uint8_t*)${minS}, (uint8_t*)${maxS} }${
         index == this.minMaxList.length - 1 ? '' : ','
@@ -714,3 +741,4 @@ exports.endpoint_command_count = endpoint_command_count
 exports.endpoint_reporting_config_defaults = endpoint_reporting_config_defaults
 exports.endpoint_reporting_config_default_count = endpoint_reporting_config_default_count
 exports.endpoint_count = endpoint_count
+exports.endpoint_config_macros = endpoint_config_macros

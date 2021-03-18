@@ -143,7 +143,7 @@ function user_all_attributes(options) {
  */
 function all_user_cluster_commands(options) {
   let promise = queryImpexp
-    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -182,7 +182,7 @@ function all_user_cluster_command_util(
   isIrrespectiveOfManufacturingSpecification = false
 ) {
   let promise = queryImpexp
-    .exportendPointTypeIds(
+    .exportEndPointTypeIds(
       currentContext.global.db,
       currentContext.global.sessionId
     )
@@ -245,7 +245,7 @@ function all_user_cluster_attribute_util(
   isIrrespectiveOfManufacturingSpecification = false
 ) {
   let promise = queryImpexp
-    .exportendPointTypeIds(
+    .exportEndPointTypeIds(
       currentContext.global.db,
       currentContext.global.sessionId
     )
@@ -358,7 +358,7 @@ function all_user_cluster_non_manufacturer_specific_attributes(
  */
 function all_commands_for_user_enabled_clusters(options) {
   let promise = queryImpexp
-    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -386,7 +386,7 @@ function all_commands_for_user_enabled_clusters(options) {
  */
 function all_cli_commands_for_user_enabled_clusters(options) {
   let promise = queryImpexp
-    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -413,7 +413,7 @@ function all_cli_commands_for_user_enabled_clusters(options) {
  */
 function all_user_clusters(options) {
   return queryImpexp
-    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportAllClustersDetailsFromEndpointTypes(
         this.global.db,
@@ -431,7 +431,7 @@ function all_user_clusters(options) {
  */
 function all_user_clusters_irrespective_of_side(options) {
   return queryImpexp
-    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
         this.global.db,
@@ -450,7 +450,7 @@ function all_user_clusters_irrespective_of_side(options) {
  */
 function all_user_clusters_names(options) {
   return queryImpexp
-    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportAllClustersNamesFromEndpointTypes(
         this.global.db,
@@ -466,7 +466,7 @@ function all_user_clusters_names(options) {
  */
 function user_cluster_command_count_with_cli() {
   return queryImpexp
-    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryImpexp.exportCliCommandCountFromEndpointTypeCluster(
         this.global.db,
@@ -506,7 +506,7 @@ function user_cluster_commands_with_cli(options) {
  */
 function user_cluster_commands_all_endpoints(options) {
   return queryImpexp
-    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportCommandDetailsFromAllEndpointTypeCluster(
         this.global.db,
@@ -529,7 +529,7 @@ function user_cluster_commands_all_endpoints(options) {
  */
 function user_cluster_has_enabled_command(name, side) {
   return queryImpexp
-    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -644,7 +644,7 @@ async function user_default_response_policy(options) {
  */
 function endpoint_type_identifier(endpointTypeId) {
   return queryImpexp
-    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryImpexp.exportEndpoints(
         this.global.db,
@@ -652,17 +652,18 @@ function endpoint_type_identifier(endpointTypeId) {
         endpointTypes
       )
     )
-    .then(
-      (endpoints) =>
-        new Promise((resolve, reject) => {
-          for (let i = 0; i < endpoints.length; i++) {
-            if (endpointTypeId == endpoints[i].endpointTypeRef) {
-              resolve(endpoints[i].endpointId)
-            }
+    .then((endpoints) => {
+      for (let i = 0; i < endpoints.length; i++) {
+        if (endpointTypeId == endpoints[i].endpointTypeRef) {
+          if (endpoints[i].endpointId == null) {
+            return '0'
+          } else {
+            return `${endpoints[i].endpointId}`
           }
-          resolve('')
-        })
-    )
+        }
+      }
+      return '0'
+    })
 }
 
 /*
@@ -671,7 +672,7 @@ function endpoint_type_identifier(endpointTypeId) {
  */
 function endpoint_type_index(endpointTypeId) {
   return queryImpexp
-    .exportendPointTypeIds(this.global.db, this.global.sessionId)
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryImpexp.exportEndpoints(
         this.global.db,
@@ -679,17 +680,14 @@ function endpoint_type_index(endpointTypeId) {
         endpointTypes
       )
     )
-    .then(
-      (endpoints) =>
-        new Promise((resolve, reject) => {
-          for (let i = 0; i < endpoints.length; i++) {
-            if (endpointTypeId == endpoints[i].endpointTypeRef) {
-              resolve(i)
-            }
-          }
-          resolve('')
-        })
-    )
+    .then((endpoints) => {
+      for (let i = 0; i < endpoints.length; i++) {
+        if (endpointTypeId == endpoints[i].endpointTypeRef) {
+          return i
+        }
+      }
+      return -1
+    })
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!

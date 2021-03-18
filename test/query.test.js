@@ -462,7 +462,7 @@ describe('Endpoint Type Config Queries', () => {
   })
   test('Get all cluster names', () => {
     let expectedNames = ['Basic', 'Identify', 'Level Control', 'On/off']
-    return queryImpexp.exportendPointTypeIds(db, sid).then((endpointTypes) =>
+    return queryImpexp.exportEndPointTypeIds(db, sid).then((endpointTypes) =>
       queryZcl
         .exportAllClustersNamesFromEndpointTypes(db, endpointTypes)
         .then((names) => {

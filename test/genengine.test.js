@@ -32,7 +32,7 @@ const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 
 let db
-const templateCount = 14
+const templateCount = testUtil.testTemplateCount
 const genTimeout = 8000
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 
