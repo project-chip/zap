@@ -221,7 +221,9 @@ function prepareAttributes(attributes, side, types, cluster = null) {
       defaultValue: normalizeHexValue(a.$.default),
       isOptional: a.$.required != 'true',
       isReportable:
-        a.$.reportRequired === undefined ? 'false' : a.$.reportRequired,
+        a.$.reportRequired === undefined ? false : a.$.reportRequired == 'true',
+      isSceneRequired:
+        a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true',
     }
     if (a.restriction) {
       if (a.restriction[0]['type:minLength'] != null) {
