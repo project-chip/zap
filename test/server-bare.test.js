@@ -170,8 +170,8 @@ describe('Session specific tests', () => {
         expect(fs.existsSync(f)).toBeTruthy()
       })
       .then(() => importJs.importDataFromFile(db, f))
-      .then((nextSessionId) => {
-        secondSessionId = nextSessionId
+      .then((importResult) => {
+        secondSessionId = importResult.sessionId
         fs.unlinkSync(f)
         return Promise.resolve(1)
       })

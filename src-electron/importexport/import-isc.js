@@ -553,7 +553,13 @@ async function iscDataLoader(db, state, sessionId) {
     .then(() => Promise.all(individualOverridePromises))
     .then(() => Promise.all(attributeUpdatePromises))
     .then(() => querySession.setSessionClean(db, sessionId))
-    .then(() => sessionId)
+    .then(() => {
+      return {
+        sessionId: sessionId,
+        errors: [],
+        warnings: [],
+      }
+    })
 }
 
 exports.readIscData = readIscData

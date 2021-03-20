@@ -79,9 +79,9 @@ test(
 )
 
 test('Test file import', () =>
-  importJs.importDataFromFile(db, testFile).then((s) => {
-    sessionId = s
-    expect(s).not.toBeNull()
+  importJs.importDataFromFile(db, testFile).then((importResult) => {
+    sessionId = importResult.sessionId
+    expect(sessionId).not.toBeNull()
   }))
 
 test('Test endpoint config queries', () =>

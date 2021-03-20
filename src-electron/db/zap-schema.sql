@@ -204,6 +204,7 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   "MAX_LENGTH" integer,
   "IS_WRITABLE" integer,
   "DEFAULT_VALUE" text,
+  "IS_SCENE_REQUIRED" integer,
   "IS_OPTIONAL" integer,
   "IS_REPORTABLE" integer,
   "ARRAY_TYPE" text,

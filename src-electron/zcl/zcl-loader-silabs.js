@@ -384,6 +384,7 @@ function prepareCluster(cluster, isExtension = false) {
         defaultValue: attribute.$.default,
         isOptional: attribute.$.optional == 'true',
         isReportable: attribute.$.reportable == 'true',
+        isSceneRequired: attribute.$.sceneRequired == 'true',
         introducedIn: attribute.$.introducedIn,
         removedIn: attribute.$.removedIn,
         entryType: attribute.$.entryType,

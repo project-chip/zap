@@ -95,6 +95,7 @@ exports.map = {
       defaultValue: x.DEFAULT_VALUE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isReportable: dbApi.fromDbBool(x.IS_REPORTABLE),
+      isSceneRequired: dbApi.fromDbBool(x.IS_SCENE_REQUIRED),
     }
   },
 

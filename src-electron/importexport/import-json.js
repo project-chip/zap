@@ -325,7 +325,13 @@ async function jsonDataLoader(db, state, sessionId) {
         .then(() => Promise.all(promisesStage1))
         .then(() => Promise.all(promisesStage2))
         .then(() => querySession.setSessionClean(db, data.sessionId))
-        .then(() => data.sessionId)
+        .then(() => {
+          return {
+            sessionId: data.sessionId,
+            errors: [],
+            warnings: [],
+          }
+        })
     }
   )
 }

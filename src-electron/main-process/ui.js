@@ -43,10 +43,10 @@ function readAndOpenFile(db, filePath, httpPort) {
   env.logInfo(`Read and open: ${filePath}`)
   return importJs
     .importDataFromFile(db, filePath)
-    .then((sessionId) => {
+    .then((importResult) => {
       windowJs.windowCreate(httpPort, {
         filePath: filePath,
-        sessionId: sessionId,
+        sessionId: importResult.sessionId,
       })
       return true
     })

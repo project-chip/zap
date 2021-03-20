@@ -1,37 +1,54 @@
 {
-  "writeTime": "Mon Jul 06 2020 12:58:26 GMT-0400 (Eastern Daylight Time)",
+  "featureLevel": 22,
   "creator": "zap",
   "keyValuePairs": [
     {
-      "key": "filePath",
-      "value": "/home/timotej/git/zap/test.json"
+      "key": "commandDiscovery",
+      "value": "1"
+    },
+    {
+      "key": "defaultResponsePolicy",
+      "value": "always"
+    },
+    {
+      "key": "manufacturerCodes",
+      "value": "0x1002"
     }
   ],
   "package": [
     {
-      "path": "/home/timotej/git/zap/test/zcl/zcl-test.properties",
+      "pathRelativity": "relativeToZap",
+      "path": "../../zcl-builtin/silabs/zcl.json",
       "version": "ZCL Test Data",
       "type": "zcl-properties"
+    },
+    {
+      "pathRelativity": "relativeToZap",
+      "path": "../gen-template/zigbee/gen-templates.json",
+      "version": "test-v1",
+      "type": "gen-templates-json"
     }
   ],
   "endpointTypes": [
     {
       "name": "Saved endpoint type",
-      "deviceTypeName": "TA-billingunit",
-      "deviceTypeCode": "0x0203",
+      "deviceTypeName": null,
+      "deviceTypeCode": null,
+      "deviceTypeProfileId": null,
       "clusters": [
         {
           "name": "Basic",
           "code": 0,
           "mfgCode": null,
+          "define": "BASIC_CLUSTER",
           "side": "client",
           "enabled": 0,
           "commands": [
             {
               "name": "ResetToFactoryDefaults",
               "code": 0,
-              "source": "client",
               "mfgCode": null,
+              "source": "client",
               "incoming": 1,
               "outgoing": 1
             }
@@ -41,8 +58,9 @@
               "name": "cluster revision",
               "code": 65533,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "client",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0x0001",
@@ -57,30 +75,18 @@
           "name": "Basic",
           "code": 0,
           "mfgCode": null,
+          "define": "BASIC_CLUSTER",
           "side": "server",
           "enabled": 1,
           "commands": [],
           "attributes": [
             {
-              "name": "cluster revision",
-              "code": 65533,
-              "mfgCode": null,
-              "external": 0,
-              "flash": 0,
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x0001",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
               "name": "ZCL version",
               "code": 0,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0x03",
@@ -93,11 +99,27 @@
               "name": "power source",
               "code": 7,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0x00",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "cluster revision",
+              "code": 65533,
+              "mfgCode": null,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -109,24 +131,28 @@
           "name": "Power Configuration",
           "code": 1,
           "mfgCode": null,
+          "define": "POWER_CONFIG_CLUSTER",
           "side": "client",
           "enabled": 1,
-          "attributes": [],
-          "commands": []
+          "commands": [],
+          "attributes": []
         },
         {
           "name": "Power Configuration",
           "code": 1,
           "mfgCode": null,
+          "define": "POWER_CONFIG_CLUSTER",
           "side": "server",
           "enabled": 0,
+          "commands": [],
           "attributes": [
             {
               "name": "mains voltage",
               "code": 0,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "",
@@ -139,8 +165,9 @@
               "name": "mains frequency",
               "code": 1,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "",
@@ -153,8 +180,9 @@
               "name": "mains alarm mask",
               "code": 16,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0x00",
@@ -167,8 +195,9 @@
               "name": "mains voltage min threshold",
               "code": 17,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0x0000",
@@ -181,8 +210,9 @@
               "name": "mains voltage max threshold",
               "code": 18,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0xFFFF",
@@ -191,13 +221,33 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "Device Temperature Configuration",
           "code": 2,
           "mfgCode": null,
+          "define": "DEVICE_TEMP_CLUSTER",
+          "side": "server",
+          "enabled": 1,
+          "commands": [],
+          "attributes": []
+        },
+        {
+          "name": "Identify",
+          "code": 3,
+          "mfgCode": null,
+          "define": "IDENTIFY_CLUSTER",
+          "side": "client",
+          "enabled": 1,
+          "commands": [],
+          "attributes": []
+        },
+        {
+          "name": "Groups",
+          "code": 4,
+          "mfgCode": null,
+          "define": "GROUPS_CLUSTER",
           "side": "server",
           "enabled": 1,
           "commands": [],
@@ -207,24 +257,9 @@
           "name": "Information",
           "code": 2304,
           "mfgCode": null,
+          "define": "INFORMATION_CLUSTER",
           "side": "client",
           "enabled": 1,
-          "attributes": [
-            {
-              "name": "cluster revision",
-              "code": 65533,
-              "mfgCode": null,
-              "external": 0,
-              "flash": 0,
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x0001",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            }
-          ],
           "commands": [
             {
               "name": "RequestInformation",
@@ -242,12 +277,30 @@
               "incoming": 0,
               "outgoing": 1
             }
+          ],
+          "attributes": [
+            {
+              "name": "cluster revision",
+              "code": 65533,
+              "mfgCode": null,
+              "side": "client",
+              "included": null,
+              "storageOption": null,
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x0001",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            }
           ]
         },
         {
           "name": "Information",
           "code": 2304,
           "mfgCode": null,
+          "define": "INFORMATION_CLUSTER",
           "side": "server",
           "enabled": 1,
           "commands": [
@@ -270,25 +323,12 @@
           ],
           "attributes": [
             {
-              "name": "cluster revision",
-              "code": 65533,
-              "mfgCode": null,
-              "external": 0,
-              "flash": 0,
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x0001",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
               "name": "node description",
               "code": 0,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "",
@@ -301,8 +341,9 @@
               "name": "delivery enable",
               "code": 1,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "",
@@ -315,8 +356,9 @@
               "name": "enable secure configuration",
               "code": 3,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "",
@@ -324,40 +366,14 @@
               "minInterval": 0,
               "maxInterval": 65344,
               "reportableChange": 0
-            }
-          ]
-        },
-        {
-          "name": "Identify",
-          "code": 3,
-          "mfgCode": null,
-          "side": "client",
-          "enabled": 1,
-          "commands": [],
-          "attributes": []
-        },
-        {
-          "name": "Groups",
-          "code": 4,
-          "mfgCode": null,
-          "side": "server",
-          "enabled": 1,
-          "commands": [],
-          "attributes": []
-        },
-        {
-          "name": "Billing",
-          "code": 2562,
-          "mfgCode": null,
-          "side": "client",
-          "enabled": 1,
-          "attributes": [
+            },
             {
               "name": "cluster revision",
               "code": 65533,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0x0001",
@@ -366,13 +382,39 @@
               "maxInterval": 65344,
               "reportableChange": 0
             }
-          ],
-          "commands": []
+          ]
         },
         {
           "name": "Billing",
           "code": 2562,
           "mfgCode": null,
+          "define": "BILLING_CLUSTER",
+          "side": "client",
+          "enabled": 1,
+          "commands": [],
+          "attributes": [
+            {
+              "name": "cluster revision",
+              "code": 65533,
+              "mfgCode": null,
+              "side": "client",
+              "included": null,
+              "storageOption": null,
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x0001",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            }
+          ]
+        },
+        {
+          "name": "Billing",
+          "code": 2562,
+          "mfgCode": null,
+          "define": "BILLING_CLUSTER",
           "side": "server",
           "enabled": 1,
           "commands": [
@@ -395,25 +437,12 @@
           ],
           "attributes": [
             {
-              "name": "cluster revision",
-              "code": 65533,
-              "mfgCode": null,
-              "external": 0,
-              "flash": 0,
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x0001",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
               "name": "user id",
               "code": 0,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "",
@@ -426,8 +455,9 @@
               "name": "service id",
               "code": 16,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "",
@@ -440,8 +470,9 @@
               "name": "service provider id",
               "code": 17,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "",
@@ -454,8 +485,9 @@
               "name": "session interval",
               "code": 18,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "",
@@ -468,11 +500,27 @@
               "name": "timestamp",
               "code": 32,
               "mfgCode": null,
-              "external": 0,
-              "flash": 0,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "cluster revision",
+              "code": 65533,
+              "mfgCode": null,
+              "side": "server",
+              "included": null,
+              "storageOption": null,
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -482,5 +530,6 @@
         }
       ]
     }
-  ]
+  ],
+  "endpoints": []
 }
