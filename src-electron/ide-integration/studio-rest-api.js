@@ -202,7 +202,6 @@ function sendDirtyFlagStatus() {
  * @param {} err
  */
 function sendSessionCreationErrorStatus(err) {
-  let { error, errorMessage, project} = err;
   querySession.getAllSessions(env.mainDatabase()).then((sessions) =>
     sessions.forEach((session) => {
       let socket = wsServer.clientSocket(session.sessionKey)
