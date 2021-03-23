@@ -38,7 +38,7 @@
   },
   "defaults": {
     "text": {
-      "manufacturerCodes": "0x1002",
+      "manufacturerCodes": "0x1049",
       "defaultResponsePolicy": "always"
     },
     "bool": {
