@@ -62,8 +62,15 @@ function httpPostUpdateComponentHandler(db, request, response, add) {
       request.session.zapSessionId,
       side
     )
-    .then((res) => response.send(res))
-    .finally((err) => response.send(err))
+    .then((res) => {
+      // invoke reportComponentStatus() ws notification
+      studio.sendComponentStatus({data: res, added: add})
+      
+      response.send(res)
+    })
+    .finally((err) => {
+      // invoke reportComponentStatus() ws notification
+      response.send(err)})
 }
 
 /**

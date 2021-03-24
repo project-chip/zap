@@ -18,6 +18,7 @@ import Vue from 'vue'
 import Events from 'events'
 import dbEnum from '../../src-shared/db-enum.js'
 import { Notify } from 'quasar'
+import * as Util from '../util/util.js'
 
 let eventEmitter = new Events.EventEmitter()
 
@@ -120,6 +121,12 @@ onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
   })
 
   console.log(`sessionCreationError: ${JSON.stringify(data)}`)
+})
+
+onWebSocket(dbEnum.wsCategory.componentStatus, (obj) => {
+  let {data, added} = obj
+  console.log(`reportComponentStatus: ${JSON.stringify(obj)}`)
+  Util.notifyComponentStatus(data, added)
 })
 
 onWebSocket(dbEnum.wsCategory.generic, (data) =>

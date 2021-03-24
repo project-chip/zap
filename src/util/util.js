@@ -15,6 +15,9 @@
  *    limitations under the License.
  */
 
+const http = require('http-status-codes')
+import { Notify } from 'quasar'
+
 // Implements the pairing function here as a perfect hash.
 // https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
 // We don't implement the inverse at this time.
@@ -63,4 +66,53 @@ export function observeAttribute(attributeName, callbackObj) {
   }).observe(html, {
     attributeFilter: [attributeName],
   })
+}
+
+/**
+ * Update UI to reflect required components are NOT enabled!
+ *
+ * @param {*} actionSuccessful - true/false
+ * @param {*} componentIds - list of strings
+ */
+export function notifyComponentStatus(componentIdStates, added) {
+  let components = []
+  let updated = false
+  console.log(JSON.stringify(componentIdStates))
+  if (componentIdStates.length) {
+    let success = componentIdStates.filter(
+      (x) => x.status == http.StatusCodes.OK
+    )
+    let failure = componentIdStates.filter(
+      (x) => x.status != http.StatusCodes.OK
+    )
+
+    if (failure.length) {
+      components = failure.map((x) => x.id)
+      // updated stays false
+    } else {
+      components = success.map((x) => x.id)
+      updated = true
+    }
+
+    if (Array.isArray(components) && components.length) {
+      let color = updated ? 'positive' : 'negative'
+      let verb = updated ? 'were' : "couldn't be"
+      let action = added ? 'added' : 'removed'
+
+      let msg = `<div><strong>The following components ${verb} ${action}.</strong></div>`
+      msg += `<div><span style="text-transform: capitalize"><ul>`
+      msg += components
+        .map((id) => `<li>${id.replace(/_/g, ' ')}</li>`)
+        .join(' ')
+      msg += `</ul></span></div>`
+
+      // notify ui
+      Notify.create({
+        message: msg,
+        color,
+        position: 'top',
+        html: true,
+      })
+    }
+  }
 }

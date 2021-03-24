@@ -116,55 +116,6 @@ export default {
     },
 
     /**
-     * Update UI to reflect required components are NOT enabled!
-     *
-     * @param {*} actionSuccessful - true/false
-     * @param {*} componentIds - list of strings
-     */
-    notifyComponentStatus(componentIdStates, added) {
-      let components = []
-      let updated = false
-      console.log(JSON.stringify(componentIdStates))
-      if (componentIdStates.length) {
-        let success = componentIdStates.filter(
-          (x) => x.status == http.StatusCodes.OK
-        )
-        let failure = componentIdStates.filter(
-          (x) => x.status != http.StatusCodes.OK
-        )
-
-        if (failure.length) {
-          components = failure.map((x) => x.id)
-          // updated stays false
-        } else {
-          components = success.map((x) => x.id)
-          updated = true
-        }
-
-        if (Array.isArray(components) && components.length) {
-          let color = updated ? 'positive' : 'negative'
-          let verb = updated ? 'were' : "couldn't be"
-          let action = added ? 'added' : 'removed'
-
-          let msg = `<div><strong>The following components ${verb} ${action}.</strong></div>`
-          msg += `<div><span style="text-transform: capitalize"><ul>`
-          msg += components
-            .map((id) => `<li>${id.replace(/_/g, ' ')}</li>`)
-            .join(' ')
-          msg += `</ul></span></div>`
-
-          // notify ui
-          this.$q.notify({
-            message: msg,
-            color,
-            position: 'top',
-            html: true,
-          })
-        }
-      }
-    },
-
-    /**
      * Enable components by pinging backend, which pings Studio jetty server.
      * @param {*} params
      */
@@ -177,7 +128,7 @@ export default {
           .then((response) => {
             if (response.status == http.StatusCodes.OK) {
               let componentIdStates = response.data
-              this.notifyComponentStatus(componentIdStates, added)
+              // this.notifyComponentStatus(componentIdStates, added)
             } else {
               console.log('Failed to update selected components')
             }
