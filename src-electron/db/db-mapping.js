@@ -358,6 +358,14 @@ exports.map = {
       log: x.LOG,
     }
   },
+  user: (x) => {
+    if (x == null) return undefined
+    return {
+      userId: x.USER_ID,
+      userKey: x.USER_KEY,
+      creationTime: x.CREATION_TIME,
+    }
+  },
 }
 
 exports.reverseMap = {

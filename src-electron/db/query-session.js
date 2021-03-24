@@ -199,6 +199,38 @@ async function createBlankSession(db) {
 }
 
 /**
+ * Creates a new user entry for a given user key if it doesn't exist, or returns
+ * the existing user.
+ *
+ * @param {*} db
+ * @param {*} userKey
+ * @returns user object, containing userId, userKey and creationTime
+ */
+async function ensureUser(db, userKey) {
+  let row = await dbApi.dbGet(
+    db,
+    'SELECT USER_ID, USER_KEY, CREATION_TIME FROM USER WHERE USER_KEY = ?',
+    [userKey]
+  )
+  let user = dbMapping.map.user(row)
+  if (user == null) {
+    let creationTime = Date.now()
+    let userId = await dbApi.dbInsert(
+      db,
+      'INSERT INTO USER ( USER_KEY, CREATION_TIME ) VALUES (?,?)',
+      [userKey, creationTime]
+    )
+    return {
+      userId: userId,
+      userKey: userKey,
+      creationTime: creationTime,
+    }
+  } else {
+    return user
+  }
+}
+
+/**
  * Promises to delete a session from the database, including all the rows that have the session as a foreign key.
  *
  * @export
@@ -340,3 +372,4 @@ exports.updateSessionKeyValue = updateSessionKeyValue
 exports.insertSessionKeyValue = insertSessionKeyValue
 exports.getSessionKeyValue = getSessionKeyValue
 exports.getAllSessionKeyValues = getAllSessionKeyValues
+exports.ensureUser = ensureUser

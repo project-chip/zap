@@ -97,7 +97,8 @@ export default {
   },
   beforeCreate() {
     const urlParams = new URLSearchParams(window.location.search)
-    this.$setSessionId(urlParams.get(restApi.param.sessionId))
+    let sessionId = urlParams.get(restApi.param.sessionId)
+    if (sessionId != null) this.$setSessionId(sessionId)
   },
   mounted() {
     this.$q.loading.show({
