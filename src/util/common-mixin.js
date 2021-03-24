@@ -126,11 +126,11 @@ export default {
         this.$store
           .dispatch('zap/updateSelectedComponent', params)
           .then((response) => {
-            if (response.status == http.StatusCodes.OK) {
-              let componentIdStates = response.data
-              // this.notifyComponentStatus(componentIdStates, added)
-            } else {
+
+            if (response.status != http.StatusCodes.OK) {
               console.log('Failed to update selected components')
+            } else {
+              // notified via ws message.
             }
           })
       } else {
