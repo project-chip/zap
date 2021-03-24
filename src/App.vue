@@ -24,6 +24,7 @@ limitations under the License.
 <script>
 import Vue from 'vue'
 import { QSpinnerGears } from 'quasar'
+const restApi = require(`../src-shared/rest-api.js`)
 const util = require('./util/util.js')
 
 function initLoad(store) {
@@ -93,6 +94,10 @@ export default {
         this.$q.loading.hide()
       }
     },
+  },
+  beforeCreate() {
+    const urlParams = new URLSearchParams(window.location.search)
+    this.$setSessionId(urlParams.get(restApi.param.sessionId))
   },
   mounted() {
     this.$q.loading.show({

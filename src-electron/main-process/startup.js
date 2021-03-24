@@ -75,7 +75,11 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
       if (uiEnabled) {
         windowJs.initializeElectronUi(httpServer.httpServerPort())
         if (zapFiles.length == 0) {
-          uiJs.openNewConfiguration(httpServer.httpServerPort(), options)
+          return uiJs.openNewConfiguration(
+            env.mainDatabase(),
+            httpServer.httpServerPort(),
+            options
+          )
         } else {
           return util.executePromisesSequentially(zapFiles, (f) =>
             uiJs.readAndOpenFile(

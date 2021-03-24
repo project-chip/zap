@@ -24,7 +24,7 @@ Vue.prototype.$axios = axios({ withCredentials: true })
 
 // You can set this to false to not log all the roundtrips
 const log = true
-const sessionId = -1
+let sessionId = -1
 
 /**
  * Internal function that processes response from the server for any request.
@@ -44,6 +44,38 @@ function processResponse(method, url, response) {
 }
 
 /**
+ * Stores the session id for this browser. Session id is a key that links the
+ * browser with a session id inside the database.
+ *
+ * @param {*} sid
+ */
+function setSessionId(sid) {
+  sessionId = sid
+}
+
+/**
+ * This method creates a config as it should be sent to the server.
+ * If passed config is null, then a new config object will be created.
+ * If it's not, then a config object param list will be populated.
+ *
+ * @param {*} config
+ * @returns config
+ */
+function fillConfig(config) {
+  if (config == null) {
+    config = { params: {} }
+    config.params[restApi.param.sessionId] = sessionId
+    return config
+  } else {
+    if (!('params' in config)) {
+      config.params = {}
+    }
+    config.params[restApi.param.sessionId] = sessionId
+    return config
+  }
+}
+
+/**
  * Issues a GET to the server and returns a promise that resolves into a response.
  * GET is idempotent and does not change the state on the server.
  *
@@ -53,7 +85,7 @@ function processResponse(method, url, response) {
  */
 function serverGet(url, config = null) {
   if (log) console.log(`GET → : ${url}, ${config}`)
-  return axios['get'](url, config)
+  return axios['get'](url, fillConfig(config))
     .then((response) => processResponse('GET', url, response))
     .catch((error) => console.log(error))
 }
@@ -66,7 +98,7 @@ function serverGet(url, config = null) {
  */
 function serverDelete(url, config = null) {
   if (log) console.log(`DELETE → : ${url}, ${config}`)
-  return axios['delete'](url, config)
+  return axios['delete'](url, fillConfig(config))
     .then((response) => processResponse('DELETE', url, response))
     .catch((error) => console.log(error))
 }
@@ -85,7 +117,7 @@ function serverDelete(url, config = null) {
  */
 function serverPost(url, data, config = null) {
   if (log) console.log(`POST → : ${url}, ${data}`)
-  return axios['post'](url, data, config)
+  return axios['post'](url, data, fillConfig(config))
     .then((response) => processResponse('POST', url, response))
     .catch((error) => console.log(error))
 }
@@ -103,7 +135,7 @@ function serverPost(url, data, config = null) {
  */
 function serverPut(url, data, config = null) {
   if (log) console.log(`PUT → : ${url}, ${data}`)
-  return axios['put'](url, data, config)
+  return axios['put'](url, data, fillConfig(config))
     .then((response) => processResponse('PUT', url, response))
     .catch((error) => console.log(error))
 }
@@ -116,7 +148,7 @@ function serverPut(url, data, config = null) {
  */
 function serverPatch(url, data, config = null) {
   if (log) console.log(`PATCH → : ${url}, ${data}`)
-  return axios['patch'](url, data, config)
+  return axios['patch'](url, data, fillConfig(config))
     .then((response) => processResponse('PATCH', url, response))
     .catch((error) => console.log(error))
 }
@@ -127,3 +159,4 @@ Vue.prototype.$serverPost = serverPost
 Vue.prototype.$serverPut = serverPut
 Vue.prototype.$serverPatch = serverPatch
 Vue.prototype.$serverDelete = serverDelete
+Vue.prototype.$setSessionId = setSessionId

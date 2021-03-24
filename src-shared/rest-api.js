@@ -88,9 +88,14 @@ const updateKey = {
   attributeStorage: 'storageOption',
 }
 
+const param = {
+  sessionId: 'sessionId',
+}
+
 exports.uri = uri
 exports.httpCode = httpCode
 exports.uiMode = uiMode
 exports.uc = uc
 exports.ide = ide
 exports.updateKey = updateKey
+exports.param = param

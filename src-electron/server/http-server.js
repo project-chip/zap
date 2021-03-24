@@ -120,12 +120,12 @@ async function initHttpServer(db, port, studioPort) {
       if ('sessionId' in req.query) knownSessionId = req.query.sessionId
       if (req.session.zapSessionId) {
         console.log(
-          `############################# User exists: ${req.session.id} => ${req.session.zapSessionId}, Query session id: ${knownSessionId}`
+          `############################# ${req.url}: User exists: ${req.session.id} => ${req.session.zapSessionId}, Query session id: ${knownSessionId}`
         )
         next()
       } else {
         console.log(
-          `############################# New user ID: ${req.session.id}, Query session id: ${knownSessionId}`
+          `############################# ${req.url}: New user ID: ${req.session.id}, Query session id: ${knownSessionId}`
         )
         querySession
           .ensureZapSessionId(db, req.session.id, knownSessionId)

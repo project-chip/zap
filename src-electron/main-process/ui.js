@@ -19,6 +19,7 @@ const { dialog } = require('electron')
 const importJs = require('../importexport/import.js')
 const windowJs = require('./window.js')
 const env = require('../util/env.js')
+const querySession = require('../db/query-session.js')
 
 // You can always use this to show an exception.
 function showErrorMessage(title, err) {
@@ -61,7 +62,10 @@ function readAndOpenFile(db, filePath, httpPort) {
  * @param {*} httpPort
  * @param {*} options: uiMode, embeddedMode
  */
-function openNewConfiguration(httpPort, options) {
+async function openNewConfiguration(db, httpPort, options) {
+  if (options == null) options = {}
+  let sessionId = await querySession.createBlankSession(db)
+  options.sessionId = sessionId
   windowJs.windowCreate(httpPort, options)
 }
 
