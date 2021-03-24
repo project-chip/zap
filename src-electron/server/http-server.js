@@ -21,7 +21,6 @@
  * @module JS API: http server
  */
 
-const bodyParser = require('body-parser')
 const express = require('express')
 const session = require('express-session')
 const env = require('../util/env.js')
@@ -105,8 +104,8 @@ function registerAllRestModules(db, app) {
 async function initHttpServer(db, port, studioPort) {
   return new Promise((resolve, reject) => {
     const app = express()
-    app.use(bodyParser.urlencoded({ extended: true }))
-    app.use(bodyParser.json())
+    app.use(express.urlencoded())
+    app.use(express.json())
     app.use(
       session({
         secret: 'Zap@Watt@SiliconLabs',
@@ -117,11 +116,17 @@ async function initHttpServer(db, port, studioPort) {
 
     // this is a generic logging stuff
     app.use((req, res, next) => {
+      let knownSessionId = null
+      if ('sessionId' in req.query) knownSessionId = req.query.sessionId
       if (req.session.zapSessionId) {
+        console.log(
+          `############################# User exists: ${req.session.id} => ${req.session.zapSessionId}, Query session id: ${knownSessionId}`
+        )
         next()
       } else {
-        let knownSessionId = null
-        if ('sessionId' in req.query) knownSessionId = req.query.sessionId
+        console.log(
+          `############################# New user ID: ${req.session.id}, Query session id: ${knownSessionId}`
+        )
         querySession
           .ensureZapSessionId(db, req.session.id, knownSessionId)
           .then((sessionId) => {

@@ -24,6 +24,7 @@ Vue.prototype.$axios = axios({ withCredentials: true })
 
 // You can set this to false to not log all the roundtrips
 const log = true
+const sessionId = -1
 
 /**
  * Internal function that processes response from the server for any request.
@@ -82,9 +83,9 @@ function serverDelete(url, config = null) {
  * @param {*} data
  * @returns Promise that resolves into a response.
  */
-function serverPost(url, data) {
+function serverPost(url, data, config = null) {
   if (log) console.log(`POST → : ${url}, ${data}`)
-  return axios['post'](url, data)
+  return axios['post'](url, data, config)
     .then((response) => processResponse('POST', url, response))
     .catch((error) => console.log(error))
 }
@@ -100,9 +101,9 @@ function serverPost(url, data) {
  * @param {*} data
  * @returns Promise that resolves into a response.
  */
-function serverPut(url, data) {
+function serverPut(url, data, config = null) {
   if (log) console.log(`PUT → : ${url}, ${data}`)
-  return axios['put'](url, data)
+  return axios['put'](url, data, config)
     .then((response) => processResponse('PUT', url, response))
     .catch((error) => console.log(error))
 }
@@ -113,9 +114,9 @@ function serverPut(url, data) {
  * @param {*} url
  * @returns Promise that resolves into a response.
  */
-function serverPatch(url, data) {
+function serverPatch(url, data, config = null) {
   if (log) console.log(`PATCH → : ${url}, ${data}`)
-  return axios['patch'](url, data)
+  return axios['patch'](url, data, config)
     .then((response) => processResponse('PATCH', url, response))
     .catch((error) => console.log(error))
 }
