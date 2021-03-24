@@ -214,8 +214,15 @@ function endpoint_cluster_list(options) {
 }
 
 function endpoint_command_list(options) {
+  let comment = null
+
   let ret = '{ \\\n'
   this.commandList.forEach((cmd) => {
+    if (cmd.comment != comment) {
+      ret += `\\\n  /* ${cmd.comment} */ \\\n`
+      comment = cmd.comment
+    }
+
     let mask = ''
     if (cmd.mask.length == 0) {
       mask = '0'
@@ -224,11 +231,11 @@ function endpoint_command_list(options) {
         .map((m) => `ZAP_COMMAND_MASK(${m.toUpperCase()})`)
         .join(' | ')
     }
-    ret = ret.concat(
-      `  { ${cmd.clusterId}, ${cmd.commandId}, ${mask} }, /* ${cmd.comment} */ \\\n`
-    )
+    ret += `  { ${cmd.clusterId}, ${cmd.commandId}, ${mask} }, /* ${cmd.name} */ \\\n`
   })
-  return ret.concat('}\n')
+  ret += '}\n'
+
+  return ret
 }
 
 function endpoint_attribute_count(options) {
@@ -236,8 +243,15 @@ function endpoint_attribute_count(options) {
 }
 
 function endpoint_attribute_list(options) {
+  let comment = null
+
   let ret = '{ \\\n'
   this.attributeList.forEach((at) => {
+    if (at.comment != comment) {
+      ret += `\\\n  /* ${at.comment} */ \\\n`
+      comment = at.comment
+    }
+
     let mask = ''
     if (at.mask.length == 0) {
       mask = '0'
@@ -255,11 +269,11 @@ function endpoint_attribute_list(options) {
     } else {
       finalDefaultValue = `ZAP_SIMPLE_DEFAULT(${at.defaultValue})`
     }
-    ret = ret.concat(
-      `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, ${finalDefaultValue} }, /* ${at.comment} */  \\\n`
-    )
+    ret += `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, ${finalDefaultValue} }, /* ${at.name} */  \\\n`
   })
-  return ret.concat('}\n')
+  ret += '}\n'
+
+  return ret
 }
 
 function endpoint_fixed_device_id_array(options) {
@@ -281,8 +295,15 @@ function endpoint_attribute_min_max_count(options) {
 }
 
 function endpoint_attribute_min_max_list(options) {
+  let comment = null
+
   let ret = '{ \\\n'
   this.minMaxList.forEach((mm, index) => {
+    if (mm.comment != comment) {
+      ret += `\\\n  /* ${mm.comment} */ \\\n`
+      comment = mm.comment
+    }
+
     let def = parseInt(mm.default)
     let min = parseInt(mm.min)
     let max = parseInt(mm.max)
@@ -296,18 +317,25 @@ function endpoint_attribute_min_max_list(options) {
       (min >= 0 ? '' : '-') + '0x' + Math.abs(min).toString(16).toUpperCase()
     let maxS =
       (max >= 0 ? '' : '-') + '0x' + Math.abs(max).toString(16).toUpperCase()
-    ret = ret.concat(
-      `  { (uint8_t*)${defS}, (uint8_t*)${minS}, (uint8_t*)${maxS} }${
-        index == this.minMaxList.length - 1 ? '' : ','
-      } /* ${mm.comment} */ \\\n`
-    )
+    ret += `  { (uint8_t*)${defS}, (uint8_t*)${minS}, (uint8_t*)${maxS} }${
+      index == this.minMaxList.length - 1 ? '' : ','
+    } /* ${mm.name} */ \\\n`
   })
-  return ret.concat('}\n')
+  ret += '}\n'
+
+  return ret
 }
 
 function endpoint_reporting_config_defaults(options) {
+  let comment = null
+
   let ret = '{ \\\n'
   this.reportList.forEach((r) => {
+    if (r.comment != comment) {
+      ret += `\\\n  /* ${r.comment} */ \\\n`
+      comment = r.comment
+    }
+
     let mask = ''
     if (r.mask.length == 0) {
       mask = '0'
@@ -316,11 +344,11 @@ function endpoint_reporting_config_defaults(options) {
         .map((m) => `ZAP_CLUSTER_MASK(${m.toUpperCase()})`)
         .join(' | ')
     }
-    ret = ret.concat(
-      `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, {{ ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }} }, /* ${r.comment} */ \\\n`
-    )
+    ret += `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, {{ ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }} }, /* ${r.name} */ \\\n`
   })
-  return ret.concat('}\n')
+  ret += '}\n'
+
+  return ret
 }
 
 function endpoint_reporting_config_default_count(options) {
@@ -332,19 +360,26 @@ function endpoint_attribute_long_defaults_count(options) {
 }
 
 function endpoint_attribute_long_defaults(options) {
+  let comment = null
+
   let littleEndian = true
   if (options.hash.endian == 'big') {
     littleEndian = false
   }
+
   let ret = '{ \\\n'
   this.longDefaultsList.forEach((ld) => {
-    ret = ret.concat(
-      `  /* ${ld.index} - ${ld.comment}, ${
+    if (ld.comment != comment) {
+      ret += `\\\n  /* ${ld.comment}, ${
         littleEndian ? 'little-endian' : 'big-endian'
-      } */\\\n  ${ld.value}\\\n\\\n`
-    )
+      } */\\\n\\\n`
+      comment = ld.comment
+    }
+    ret += `  /* ${ld.index} - ${ld.name}, */\\\n  ${ld.value}\\\n\\\n`
   })
-  return ret.concat('}\n')
+  ret += '}\n'
+
+  return ret
 }
 
 /**
@@ -392,6 +427,16 @@ function collectAttributes(endpointTypes) {
 
     // Go over all the clusters in the endpoint and add them to the list.
 
+    ept.clusters.sort((a, b) => {
+      if (a.code < b.code) return -1
+      if (a.code > b.code) return 1
+
+      if (a.side < b.side) return -1
+      if (a.side > b.side) return -1
+
+      return 0
+    })
+
     ept.clusters.forEach((c) => {
       let cluster = {
         clusterId: c.hexCode,
@@ -408,6 +453,13 @@ function collectAttributes(endpointTypes) {
       clusterIndex++
       attributeIndex += c.attributes.length
 
+      c.attributes.sort((a, b) => {
+        if (a.hexCode < b.hexCode) return -1
+        if (a.hexCode > b.hexCode) return 1
+
+        return 0
+      })
+
       // Go over all the attributes in the endpoint and add them to the list.
       c.attributes.forEach((a) => {
         let defaultValueIsMacro = false
@@ -423,8 +475,9 @@ function collectAttributes(endpointTypes) {
           let longDef = {
             value: def,
             size: a.typeSize,
-            comment: `Default for cluster: "${c.name}", attribute: "${a.name}". side: ${a.side}`,
             index: longDefaultsIndex,
+            name: a.name,
+            comment: cluster.comment,
           }
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           defaultValueIsMacro = true
@@ -436,7 +489,8 @@ function collectAttributes(endpointTypes) {
             default: a.defaultValue,
             min: a.min,
             max: a.max,
-            comment: `Attribute: ${a.name}`,
+            name: a.name,
+            comment: cluster.comment,
           }
           attributeDefaultValue = `ZAP_MIN_MAX_DEFAULTS_INDEX(${minMaxIndex})`
           defaultValueIsMacro = true
@@ -458,7 +512,8 @@ function collectAttributes(endpointTypes) {
             minOrSource: a.minInterval,
             maxOrEndpoint: a.maxInterval,
             reportableChangeOrTimeout: a.reportableChange,
-            comment: `Reporting for cluster: "${c.name}", attribute: "${a.name}". side: ${a.side}`,
+            name: a.name,
+            comment: cluster.comment,
           }
           reportList.push(rpt)
         }
@@ -489,7 +544,8 @@ function collectAttributes(endpointTypes) {
           mask: mask, // array of special properties
           defaultValue: attributeDefaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
           isMacro: defaultValueIsMacro,
-          comment: `${c.name} (${c.side}): ${a.name}`,
+          name: a.name,
+          comment: cluster.comment,
         }
         attributeList.push(attr)
 
@@ -501,7 +557,18 @@ function collectAttributes(endpointTypes) {
           attributeMfgCodes.push(att)
         }
       })
+
       // Go over the commands
+      c.commands.sort((a, b) => {
+        if (a.manufacturerCode < b.manufacturerCode) return -1
+        if (a.manufacturerCode > b.manufacturerCode) return 1
+
+        if (a.hexCode < b.hexCode) return -1
+        if (a.hexCode > b.hexCode) return 1
+
+        return 0
+      })
+
       c.commands.forEach((cmd) => {
         let mask = []
         if (cmd.isOptional) {
@@ -521,15 +588,21 @@ function collectAttributes(endpointTypes) {
           }
         }
         let command = {
-          clId: c.code, // for sorting
-          cmId: cmd.code, // for sorting
-          manufacturerCode: cmd.manufacturerCode, // for post-sorting retrieval of mfg commands
           clusterId: c.hexCode,
           commandId: cmd.hexCode,
           mask: mask,
-          comment: `${c.name} (${c.side}): ${cmd.name}`,
+          name: cmd.name,
+          comment: cluster.comment,
         }
         commandList.push(command)
+
+        if (cmd.manufacturerCode) {
+          let mfgCmd = {
+            index: commandList.length - 1,
+            mfgCode: cmd.manufacturerCode,
+          }
+          commandMfgCodes.push(mfgCmd)
+        }
       })
       endpointAttributeSize += clusterAttributeSize
       cluster.attributeSize = clusterAttributeSize
@@ -537,7 +610,7 @@ function collectAttributes(endpointTypes) {
 
       if (c.manufacturerCode) {
         let clt = {
-          index: clusterList.indexOf(cluster),
+          index: clusterList.length - 1,
           mfgCode: c.manufacturerCode,
         }
         clusterMfgCodes.push(clt)
@@ -545,31 +618,6 @@ function collectAttributes(endpointTypes) {
     })
     endpoint.attributeSize = endpointAttributeSize
     endpointList.push(endpoint)
-  })
-
-  // Sort command list by clusterId / commandId
-  commandList.sort((a, b) => {
-    if (a.clId != b.clId) {
-      return a.clId - b.clId
-    } else if (a.cmId != b.cmId) {
-      return a.cmId - b.cmId
-    } else {
-      if (a.comment < b.comment) return -1
-      else if (a.comment > b.comment) return 1
-      else return 0
-    }
-  })
-
-  // Retrieve manufacturer commands after the sorting
-  // since we need the actual index of the commands in the command list
-  commandList.forEach((cmd) => {
-    if (cmd.manufacturerCode) {
-      let mfgCmd = {
-        index: commandList.indexOf(cmd),
-        mfgCode: cmd.manufacturerCode,
-      }
-      commandMfgCodes.push(mfgCmd)
-    }
   })
 
   return Promise.resolve({
