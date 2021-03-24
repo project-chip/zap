@@ -19,7 +19,6 @@ const path = require('path')
 const { dialog, Menu, shell } = require('electron')
 const env = require('../util/env.js')
 const util = require('../util/util.js')
-const queryConfig = require('../db/query-config.js')
 const queryGeneric = require('../db/query-generic.js')
 const querySession = require('../db/query-session.js')
 const exportJs = require('../importexport/export.js')
@@ -130,11 +129,11 @@ const template = [
             .then((row) => {
               dialog.showMessageBox(browserWindow, {
                 title: 'Information',
-                message: `Zap session id: ${
-                  row.sessionId
-                }\nWinID Session key: ${row.sessionKey}\nTime: ${new Date(
-                  row.creationTime
-                )}\nCookie session key: ${cookieText}`,
+                message: `
+Database sessionId: ${row.sessionId}
+Database creationTime: ${new Date(row.creationTime)}
+Database session key: ${row.sessionKey}
+  Cookie session key: ${cookieText}`,
                 buttons: ['Dismiss'],
               })
             })

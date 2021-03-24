@@ -23,7 +23,8 @@ const menu = require('./menu.js')
 const tray = require('./tray.js')
 const util = require('../util/util.js')
 
-let createPartition = true
+let createPartition = false
+let windowCounter = 0
 
 function initializeElectronUi(port) {
   menu.initMenu(port)
@@ -35,8 +36,6 @@ function windowCreateIfNotThere(port) {
     windowCreate(port)
   }
 }
-
-let windowCounter = 0
 
 function createQueryString(
   sessionId = null,
