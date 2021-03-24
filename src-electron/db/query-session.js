@@ -151,37 +151,36 @@ async function getSessionInfoFromSessionKey(db, sessionKey) {
  *
  * @export
  * @param {*} db
- * @param {*} sessionKey
+ * @param {*} userKey This is in essence the "session cookie id"
  * @param {*} windowId
  * @param {*} sessionId If sessionId exists already, then it's passed in. If it doesn't then this is null.
  * @returns promise that resolves into a session id.
  */
-async function ensureZapSessionId(db, sessionKey, sessionId = null) {
+async function ensureZapSessionId(db, userKey, sessionId = null) {
   if (sessionId == null) {
-    // There is no sessionId from before, so we check if there is one mapped to sessionKey already
-    return dbApi
-      .dbGet(db, 'SELECT SESSION_ID FROM SESSION WHERE SESSION_KEY = ?', [
-        sessionKey,
-      ])
-      .then((row) => {
-        if (row == null) {
-          return dbApi.dbInsert(
-            db,
-            'INSERT INTO SESSION (SESSION_KEY, CREATION_TIME) VALUES (?,?)',
-            [sessionKey, Date.now()]
-          )
-        } else {
-          return Promise.resolve(row.SESSION_ID)
-        }
-      })
+    // There is no sessionId from before, so we check if there is one mapped to userKey already
+    let row = await dbApi.dbGet(
+      db,
+      'SELECT SESSION_ID FROM SESSION WHERE SESSION_KEY = ?',
+      [userKey]
+    )
+    if (row == null) {
+      return await dbApi.dbInsert(
+        db,
+        'INSERT INTO SESSION (SESSION_KEY, CREATION_TIME) VALUES (?,?)',
+        [userKey, Date.now()]
+      )
+    } else {
+      return row.SESSION_ID
+    }
   } else {
     // This is a case where we want to attach to a given sessionId.
-    return dbApi
-      .dbUpdate(db, 'UPDATE SESSION SET SESSION_KEY = ? WHERE SESSION_ID = ?', [
-        sessionKey,
-        sessionId,
-      ])
-      .then(() => Promise.resolve(sessionId))
+    await dbApi.dbUpdate(
+      db,
+      'UPDATE SESSION SET SESSION_KEY = ? WHERE SESSION_ID = ?',
+      [userKey, sessionId]
+    )
+    return sessionId
   }
 }
 
