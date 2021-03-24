@@ -23,6 +23,8 @@ const menu = require('./menu.js')
 const tray = require('./tray.js')
 const util = require('../util/util.js')
 
+let createPartition = true
+
 function initializeElectronUi(port) {
   menu.initMenu(port)
   tray.initTray(port)
@@ -78,7 +80,12 @@ function createQueryString(
  * @returns BrowserWindow that got created
  */
 function windowCreate(port, args = {}) {
-  let newSession = session.fromPartition(`zap-${windowCounter++}`)
+  let webPreferences = {
+    nodeIntegration: false,
+  }
+  if (createPartition) {
+    webPreferences.partition = `zap-${windowCounter++}`
+  }
   let w = new BrowserWindow({
     width: 1600,
     height: 800,
@@ -89,10 +96,7 @@ function windowCreate(port, args = {}) {
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
     title: args.filePath == null ? 'New Configuration' : args.filePath,
     useContentSize: true,
-    webPreferences: {
-      nodeIntegration: false,
-      session: newSession,
-    },
+    webPreferences: webPreferences,
   })
 
   let queryString = createQueryString(

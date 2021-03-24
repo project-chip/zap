@@ -399,9 +399,11 @@ CREATE TABLE IF NOT EXISTS "USER" (
 DROP TABLE IF EXISTS "SESSION";
 CREATE TABLE IF NOT EXISTS "SESSION" (
   "SESSION_ID" integer primary key autoincrement,
+  "USER_REF" integer,
   "SESSION_KEY" text,
   "CREATION_TIME" integer,
   "DIRTY" integer default 1,
+  foreign key (USER_REF) references USER(USER_ID),
   UNIQUE(SESSION_KEY)
 );
 
