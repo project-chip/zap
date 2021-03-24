@@ -199,7 +199,7 @@ function doSave(menuItem, browserWindow, event) {
       querySession.getSessionInfoFromSessionKey(env.mainDatabase(), sessionKey)
     )
     .then((row) =>
-      queryConfig.getSessionKeyValue(
+      querySession.getSessionKeyValue(
         env.mainDatabase(),
         row.sessionId,
         dbEnum.sessionKey.filePath
@@ -361,7 +361,7 @@ function fileSave(db, browserWindow, filePath) {
       querySession.getSessionInfoFromSessionKey(db, sessionKey)
     )
     .then((row) => {
-      return queryConfig
+      return querySession
         .updateSessionKeyValue(
           db,
           row.sessionId,

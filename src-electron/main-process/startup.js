@@ -183,7 +183,7 @@ async function startConvert(
             fs.mkdirSync(parent, { recursive: true })
           }
           // Now we need to write the sessionKey for the file path
-          return queryConfig
+          return querySession
             .updateSessionKeyValue(
               db,
               sessionId,

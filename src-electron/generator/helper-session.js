@@ -23,6 +23,7 @@
 const templateUtil = require('./template-util.js')
 const queryImpexp = require('../db/query-impexp.js')
 const queryConfig = require('../db/query-config.js')
+const querySession = require('../db/query-session.js')
 const queryZcl = require('../db/query-zcl.js')
 const helperZcl = require('./helper-zcl.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -606,7 +607,7 @@ function all_user_cluster_attributes_irrespective_of_manufatucuring_specificatio
  */
 async function user_session_key(options) {
   let key = options.hash.key
-  let value = await queryConfig.getSessionKeyValue(
+  let value = await querySession.getSessionKeyValue(
     this.global.db,
     this.global.sessionId,
     key
@@ -617,7 +618,7 @@ async function user_session_key(options) {
 }
 
 async function user_manufacturer_code(options) {
-  let value = await queryConfig.getSessionKeyValue(
+  let value = await querySession.getSessionKeyValue(
     this.global.db,
     this.global.sessionId,
     dbEnum.sessionOption.manufacturerCodes
@@ -628,7 +629,7 @@ async function user_manufacturer_code(options) {
 }
 
 async function user_default_response_policy(options) {
-  let value = await queryConfig.getSessionKeyValue(
+  let value = await querySession.getSessionKeyValue(
     this.global.db,
     this.global.sessionId,
     dbEnum.sessionOption.defaultResponsePolicy

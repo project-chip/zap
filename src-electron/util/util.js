@@ -27,7 +27,8 @@ const path = require('path')
 const childProcess = require('child_process')
 const queryPackage = require('../db/query-package.js')
 const queryEndpoint = require('../db/query-endpoint.js')
-const queryConfig = require(`../db/query-config.js`)
+const queryConfig = require('../db/query-config.js')
+const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const args = require('./args.js')
 
@@ -135,7 +136,7 @@ async function initializeSessionPackage(db, sessionId) {
                     optionDefault.optionRef
                   )
                   .then((option) => {
-                    return queryConfig.insertSessionKeyValue(
+                    return querySession.insertSessionKeyValue(
                       db,
                       sessionId,
                       option.optionCategory,

@@ -24,6 +24,7 @@
 const env = require('../util/env.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
+const querySession = require('../db/query-session.js')
 const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
@@ -42,7 +43,7 @@ const ideIntegrationZcl = require('../ide-integration/zcl.js')
 function httpGetSessionKeyValues(db) {
   return (request, response) => {
     let sessionId = request.session.zapSessionId
-    queryConfig
+    querySession
       .getAllSessionKeyValues(db, sessionId)
       .then((sessionKeyValues) =>
         response.status(restApi.httpCode.ok).json(sessionKeyValues)
@@ -61,7 +62,7 @@ function httpPostSaveSessionKeyValue(db) {
     let { key, value } = request.body
     let sessionId = request.session.zapSessionId
     env.logInfo(`[${sessionId}]: Saving: ${key} => ${value}`)
-    queryConfig
+    querySession
       .updateSessionKeyValue(db, sessionId, key, value)
       .then(() => {
         response.json({
@@ -254,7 +255,7 @@ function httpGetInitialState(db) {
     })
     statePopulators.push(endpoints)
 
-    let sessionKeyValues = queryConfig
+    let sessionKeyValues = querySession
       .getAllSessionKeyValues(db, sessionId)
       .then((rows) => {
         state.sessionKeyValues = rows

@@ -28,84 +28,6 @@ const restApi = require('../../src-shared/rest-api.js')
 const _ = require('lodash')
 
 /**
- * Promises to update or insert a key/value pair in SESSION_KEY_VALUE table.
- *
- * @export
- * @param {*} db
- * @param {*} sessionId
- * @param {*} key
- * @param {*} value
- * @returns A promise of creating or updating a row, resolves with the rowid of a new row.
- */
-async function updateSessionKeyValue(db, sessionId, key, value) {
-  return dbApi.dbInsert(
-    db,
-    'INSERT OR REPLACE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
-    [sessionId, key, value]
-  )
-}
-
-/**
- * Promises to insert a key/value pair in SESSION_KEY_VALUE table. Ignore if value already exists.
- *
- * @export
- * @param {*} db
- * @param {*} sessionId
- * @param {*} key
- * @param {*} value
- * @returns A promise of creating or updating a row, resolves with the rowid of a new row.
- */
-async function insertSessionKeyValue(db, sessionId, key, value) {
-  return dbApi.dbInsert(
-    db,
-    'INSERT OR IGNORE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
-    [sessionId, key, value]
-  )
-}
-
-/**
- * Retrieves a value of a single session key.
- *
- * @param {*} db
- * @param {*} sessionId
- * @returns A promise that resolves with a value or with 'undefined' if none is found.
- */
-async function getSessionKeyValue(db, sessionId, key) {
-  let row = await dbApi.dbGet(
-    db,
-    'SELECT VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? AND KEY = ?',
-    [sessionId, key]
-  )
-  if (row == null) {
-    return undefined
-  } else {
-    return row.VALUE
-  }
-}
-
-/**
- * Resolves to an array of objects that contain 'key' and 'value'
- *
- * @export
- * @param {*} db
- * @param {*} sessionId
- * @returns Promise to retrieve all session key values.
- */
-async function getAllSessionKeyValues(db, sessionId) {
-  let rows = await dbApi.dbAll(
-    db,
-    'SELECT KEY, VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? ORDER BY KEY',
-    [sessionId]
-  )
-  return rows.map((row) => {
-    return {
-      key: row.KEY,
-      value: row.VALUE,
-    }
-  })
-}
-
-/**
  * Promises to update the cluster include/exclude state.
  * If the entry [as defined uniquely by endpointTypeId, clusterId, side] is not there, then insert
  * Else update the entry in place.
@@ -1327,10 +1249,6 @@ async function setClusterIncluded(
 }
 
 // exports
-exports.updateSessionKeyValue = updateSessionKeyValue
-exports.insertSessionKeyValue = insertSessionKeyValue
-exports.getSessionKeyValue = getSessionKeyValue
-exports.getAllSessionKeyValues = getAllSessionKeyValues
 exports.insertOrReplaceClusterState = insertOrReplaceClusterState
 exports.getClusterState = getClusterState
 exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState

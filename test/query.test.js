@@ -188,13 +188,13 @@ describe('Session specific queries', () => {
     }))
 
   test('Random key value queries', async () => {
-    await queryConfig.updateSessionKeyValue(db, sid, 'key1', 'value1')
-    let value = await queryConfig.getSessionKeyValue(db, sid, 'key1')
+    await querySession.updateSessionKeyValue(db, sid, 'key1', 'value1')
+    let value = await querySession.getSessionKeyValue(db, sid, 'key1')
     expect(value).toBe('value1')
-    await queryConfig.updateSessionKeyValue(db, sid, 'key1', 'value2')
-    value = await queryConfig.getSessionKeyValue(db, sid, 'key1')
+    await querySession.updateSessionKeyValue(db, sid, 'key1', 'value2')
+    value = await querySession.getSessionKeyValue(db, sid, 'key1')
     expect(value).toBe('value2')
-    value = await queryConfig.getSessionKeyValue(db, sid, 'nonexistent')
+    value = await querySession.getSessionKeyValue(db, sid, 'nonexistent')
     expect(value).toBeUndefined()
   })
 
@@ -250,14 +250,14 @@ describe('Session specific queries', () => {
       .getSessionInfoFromSessionKey(db, 'SESSION')
       .then((data) => {
         sid = data.sessionId
-        return queryConfig.updateSessionKeyValue(
+        return querySession.updateSessionKeyValue(
           db,
           sid,
           'testKey',
           'testValue'
         )
       })
-      .then(() => queryConfig.getSessionKeyValue(db, sid, 'testKey'))
+      .then(() => querySession.getSessionKeyValue(db, sid, 'testKey'))
       .then((value) => {
         expect(value).toBe('testValue')
       })

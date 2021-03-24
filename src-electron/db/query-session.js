@@ -248,6 +248,84 @@ async function readLog(db, sessionId) {
     .then((rows) => rows.map(dbMapping.map.sessionLog))
 }
 
+/**
+ * Promises to update or insert a key/value pair in SESSION_KEY_VALUE table.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} key
+ * @param {*} value
+ * @returns A promise of creating or updating a row, resolves with the rowid of a new row.
+ */
+async function updateSessionKeyValue(db, sessionId, key, value) {
+  return dbApi.dbInsert(
+    db,
+    'INSERT OR REPLACE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
+    [sessionId, key, value]
+  )
+}
+
+/**
+ * Promises to insert a key/value pair in SESSION_KEY_VALUE table. Ignore if value already exists.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} key
+ * @param {*} value
+ * @returns A promise of creating or updating a row, resolves with the rowid of a new row.
+ */
+async function insertSessionKeyValue(db, sessionId, key, value) {
+  return dbApi.dbInsert(
+    db,
+    'INSERT OR IGNORE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
+    [sessionId, key, value]
+  )
+}
+
+/**
+ * Retrieves a value of a single session key.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns A promise that resolves with a value or with 'undefined' if none is found.
+ */
+async function getSessionKeyValue(db, sessionId, key) {
+  let row = await dbApi.dbGet(
+    db,
+    'SELECT VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? AND KEY = ?',
+    [sessionId, key]
+  )
+  if (row == null) {
+    return undefined
+  } else {
+    return row.VALUE
+  }
+}
+
+/**
+ * Resolves to an array of objects that contain 'key' and 'value'
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise to retrieve all session key values.
+ */
+async function getAllSessionKeyValues(db, sessionId) {
+  let rows = await dbApi.dbAll(
+    db,
+    'SELECT KEY, VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? ORDER BY KEY',
+    [sessionId]
+  )
+  return rows.map((row) => {
+    return {
+      key: row.KEY,
+      value: row.VALUE,
+    }
+  })
+}
+
 // exports
 exports.getAllSessions = getAllSessions
 exports.setSessionClean = setSessionClean
@@ -259,3 +337,7 @@ exports.createBlankSession = createBlankSession
 exports.deleteSession = deleteSession
 exports.writeLog = writeLog
 exports.readLog = readLog
+exports.updateSessionKeyValue = updateSessionKeyValue
+exports.insertSessionKeyValue = insertSessionKeyValue
+exports.getSessionKeyValue = getSessionKeyValue
+exports.getAllSessionKeyValues = getAllSessionKeyValues

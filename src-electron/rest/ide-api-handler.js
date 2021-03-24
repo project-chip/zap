@@ -28,6 +28,7 @@ const exportJs = require('../importexport/export.js')
 const path = require('path')
 const http = require('http-status-codes')
 const queryConfig = require('../db/query-config.js')
+const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { queryEndpoints } = require('../db/query-endpoint.js')
 const webSocket = require('../server/ws-server.js')
@@ -83,7 +84,7 @@ function httpGetIdeOpen(db) {
 function httpGetIdeSave(db) {
   return (req, res) => {
     env.logInfo(`Saving project: sessionId(${req.session.zapSessionId})`)
-    queryConfig
+    querySession
       .getSessionKeyValue(
         db,
         req.session.zapSessionId,

@@ -366,6 +366,7 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_COMMAND" (
   foreign key (DEVICE_TYPE_CLUSTER_REF) references DEVICE_TYPE_CLUSTER(DEVICE_TYPE_CLUSTER_ID),
   foreign key (COMMAND_REF) references COMMAND(COMMAND_ID)
 );
+
 /*
  *
  *  $$$$$$\                                $$\                                 $$\            $$\               
@@ -377,6 +378,18 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_COMMAND" (
  * \$$$$$$  |\$$$$$$$\ $$$$$$$  |$$$$$$$  |$$ |\$$$$$$  |$$ |  $$ |      \$$$$$$$ |\$$$$$$$ | \$$$$  |\$$$$$$$ |
  *  \______/  \_______|\_______/ \_______/ \__| \______/ \__|  \__|       \_______| \_______|  \____/  \_______|
  */
+
+/*
+ USER table contains a reference to a single "user", which really refers to a given cookie on the 
+ browser side. There is no login management here, so this just refers to a unique browser instance.
+ */
+DROP TABLE IF EXISTS "USER";
+CREATE TABLE IF NOT EXISTS "USER" (
+  "USER_ID" integer primary key autoincrement,
+  "USER_KEY" text,
+  "CREATION_TIME" integer,
+  UNIQUE(USER_KEY)
+);
 
 /*
  SESSION table contains the list of known and remembered sessions.
