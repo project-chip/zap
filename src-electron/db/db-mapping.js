@@ -358,6 +358,14 @@ exports.map = {
       log: x.LOG,
     }
   },
+  session: (x) => {
+    if (x == null) return undefined
+    return {
+      sessionId: x.SESSION_ID,
+      creationTime: x.CREATION_TIME,
+      dirty: x.DIRTY == 1,
+    }
+  },
   user: (x) => {
     if (x == null) return undefined
     return {

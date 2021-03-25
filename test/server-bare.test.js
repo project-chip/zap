@@ -23,7 +23,6 @@ const path = require('path')
 const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
 const dbEnum = require('../src-shared/db-enum.js')
-const queryZcl = require('../src-electron/db/query-zcl.js')
 const queryLoader = require('../src-electron/db/query-loader.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const queryPackage = require('../src-electron/db/query-package.js')
@@ -224,4 +223,69 @@ describe('Admin tests', () => {
     axiosInstance.get('version').then((response) => {
       expect(response.data).toEqual(env.zapVersion())
     }))
+})
+
+describe('User and session tests', () => {
+  let userId
+  let sessionId
+  test('create new user session', async () => {
+    // New session
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'funny-key'
+    )
+    userId = userSession.userId
+    sessionId = userSession.sessionId
+    expect(userId).not.toBeNull()
+    expect(sessionId).not.toBeNull()
+    let sessions = await querySession.getUserSessions(db, userId)
+    expect(sessions.length).toBe(1)
+  })
+
+  test('create new session for existing user', async () => {
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'funny-key',
+      {
+        userId: userId,
+      }
+    )
+    expect(userSession.userId).toEqual(userId)
+    expect(userSession.sessionId).not.toBeNull()
+    expect(userSession.sessionId).not.toEqual(sessionId)
+    let sessions = await querySession.getUserSessions(db, userId)
+    expect(sessions.length).toBe(2)
+  })
+
+  test('create new user for existing session', async () => {
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'new-funny-key',
+      {
+        sessionId: sessionId,
+      }
+    )
+    expect(userSession.userId).not.toBeNull()
+    expect(userSession.userId).not.toEqual(userId)
+    expect(userSession.sessionId).toEqual(sessionId)
+    let sessions = await querySession.getUserSessions(db, userId)
+    expect(sessions.length).toBe(1)
+    sessions = await querySession.getUserSessions(db, userSession.userId)
+    expect(sessions.length).toBe(1)
+  })
+
+  test('reuse existing user and session', async () => {
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'funny-key',
+      {
+        sessionId: sessionId,
+        userId: userId,
+      }
+    )
+    expect(userSession.userId).toEqual(userId)
+    expect(userSession.sessionId).toEqual(sessionId)
+    let sessions = await querySession.getUserSessions(db, userId)
+    expect(sessions.length).toBe(1)
+  })
 })

@@ -152,7 +152,6 @@ async function getSessionInfoFromSessionKey(db, sessionKey) {
  * @export
  * @param {*} db
  * @param {*} userKey This is in essence the "session cookie id"
- * @param {*} windowId
  * @param {*} sessionId If sessionId exists already, then it's passed in. If it doesn't then this is null.
  * @returns promise that resolves into a session id.
  */
@@ -185,6 +184,68 @@ async function ensureZapSessionId(db, userKey, sessionId = null) {
 }
 
 /**
+ * Returns a promise that will resolve into an existing userId and sessionId.
+ * userId and sessionId that are passed as `options` are not
+ * validated, they are trusted. If you pass both sessionId and
+ * userId, this method will simply return them and do nothing.
+ *
+ * So don't use this method as "create if it doesn't exist" kind of
+ * a method. The purpose is just to quickly ensure that an ID
+ * is created when not passed.
+ *
+ * Returned promise resolves into an object with sessionId and userId.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} userKey This is in essence the "session cookie id"
+ * @param {*} sessionId If sessionId exists already, then it's passed in and linked to user.
+ * @returns promise that resolves into an object with sessionId and userId.
+ */
+async function ensureZapUserAndSession(
+  db,
+  userKey,
+  options = {
+    sessionId: null,
+    userId: null,
+  }
+) {
+  if (options.sessionId != null && options.userId != null) {
+    // if we're past both IDs, we simply return them back.
+    return {
+      sessionId: options.sessionId,
+      userId: options.userId,
+    }
+  } else if (options.sessionId != null) {
+    // we have a session, but not the user, so we create
+    // the user and link the session with it.
+    let user = await ensureUser(db, userKey)
+    await linkSessionToUser(db, options.sessionId, user.userId)
+    return {
+      sessionId: options.sessionId,
+      userId: user.userId,
+    }
+  } else if (options.userId != null) {
+    // we have the user, but not the session, so we create the session,
+    // and link it to the user.
+    let sessionId = await createBlankSession(db)
+    await linkSessionToUser(db, sessionId, options.userId)
+    return {
+      sessionId: sessionId,
+      userId: options.userId,
+    }
+  } else {
+    // we have nothing, create both the user and the session.
+    let user = await ensureUser(db, userKey)
+    let sessionId = await createBlankSession(db)
+    await linkSessionToUser(db, sessionId, user.userId)
+    return {
+      sessionId: sessionId,
+      userId: user.userId,
+    }
+  }
+}
+
+/**
  * When loading in a file, we start with a blank session.
  *
  * @export
@@ -196,6 +257,22 @@ async function createBlankSession(db) {
     'INSERT INTO SESSION (SESSION_KEY, CREATION_TIME, DIRTY) VALUES (?,?,?)',
     [`${Math.random()}`, Date.now(), 0]
   )
+}
+
+/**
+ * Returns sessions for a given user.
+ *
+ * @param {*} db
+ * @param {*} userId
+ * @returns Promise that resolves into an array of sessions.
+ */
+async function getUserSessions(db, userId) {
+  let rows = await dbApi.dbAll(
+    db,
+    'SELECT SESSION_ID, CREATION_TIME, DIRTY FROM SESSION WHERE USER_REF = ?',
+    [userId]
+  )
+  return rows.map(dbMapping.map.session)
 }
 
 /**
@@ -230,6 +307,21 @@ async function ensureUser(db, userKey) {
   }
 }
 
+/**
+ * Links an existing session with a user, given both IDs.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} userId
+ * @returns promise that resolves into nothing
+ */
+async function linkSessionToUser(db, sessionId, userId) {
+  return dbApi.dbUpdate(
+    db,
+    `UPDATE SESSION SET USER_REF = ? WHERE SESSION_ID = ?`,
+    [userId, sessionId]
+  )
+}
 /**
  * Promises to delete a session from the database, including all the rows that have the session as a foreign key.
  *
@@ -364,6 +456,7 @@ exports.getSessionDirtyFlag = getSessionDirtyFlag
 exports.getSessionDirtyFlagWithCallback = getSessionDirtyFlagWithCallback
 exports.getSessionInfoFromSessionKey = getSessionInfoFromSessionKey
 exports.ensureZapSessionId = ensureZapSessionId
+exports.ensureZapUserAndSession = ensureZapUserAndSession
 exports.createBlankSession = createBlankSession
 exports.deleteSession = deleteSession
 exports.writeLog = writeLog
@@ -373,3 +466,4 @@ exports.insertSessionKeyValue = insertSessionKeyValue
 exports.getSessionKeyValue = getSessionKeyValue
 exports.getAllSessionKeyValues = getAllSessionKeyValues
 exports.ensureUser = ensureUser
+exports.getUserSessions = getUserSessions

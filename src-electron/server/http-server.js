@@ -114,7 +114,18 @@ async function initHttpServer(db, port, studioPort) {
       })
     )
 
-    // this is a generic logging stuff
+    /*
+     * Session management. Followingt are the possible conditions here:
+     *   1.) if the req.session.id (userKey) has never been heard off before,
+     *       then this is the new user completely. We need to do the following:
+     *              - Create a row in user table.
+     *              - Create a row in session table and return it to the client.
+     *   2.) If this is a known user (meaning the req.session.id is known)
+     *       then we have 2 options:
+     *           a.) If the zapSessionId exists, then we carry on.
+     *           b.) If there is no zapSessionId, then we need to
+     *               create a blank session and return it to the client.
+     */
     app.use((req, res, next) => {
       let userKey = req.session.id
       let sessionId = req.query.sessionId
