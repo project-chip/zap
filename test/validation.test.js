@@ -256,9 +256,11 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       .loadZcl(db, args.zclPropertiesFile)
       .then((ctx) => {
         pkgId = ctx.packageId
-        querySession.ensureZapSessionId(db, 'SESSION').then((id) => {
-          sid = id
-        })
+        querySession
+          .ensureZapUserAndSession(db, 'SESSION')
+          .then((userSession) => {
+            sid = userSession.sessionId
+          })
       })
       .then(() =>
         queryZcl.selectAllDeviceTypes(db, pkgId).then((rows) => {

@@ -38,7 +38,8 @@ beforeAll(async () => {
     env.zapVersion()
   )
   await zclLoader.loadZcl(db, args.zclPropertiesFile)
-  sid = await querySession.ensureZapSessionId(db, 'SESSION')
+  let userSession = await querySession.ensureZapUserAndSession(db, 'SESSION')
+  sid = userSession.sessionId
   return util.initializeSessionPackage(db, sid)
 }, 5000)
 

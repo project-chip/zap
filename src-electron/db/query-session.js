@@ -119,6 +119,7 @@ async function getSessionDirtyFlagWithCallback(db, sessionKey, fn) {
  * @returns A promise that resolves into an object containing sessionId, sessionKey and creationTime.
  */
 async function getSessionInfoFromSessionKey(db, sessionKey) {
+  console.log(`getSessionInfoFromSessionKey CAN NOT WORK!!!`)
   return dbApi
     .dbGet(
       db,
