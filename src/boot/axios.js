@@ -17,6 +17,7 @@
 
 import Vue from 'vue'
 import axios from 'axios'
+import { v4 as uuidv4 } from 'uuid'
 
 import restApi from '../../src-shared/rest-api.js'
 
@@ -24,7 +25,7 @@ Vue.prototype.$axios = axios({ withCredentials: true })
 
 // You can set this to false to not log all the roundtrips
 const log = true
-let sessionId = -1
+let sessionUuid = uuidv4()
 
 /**
  * Internal function that processes response from the server for any request.
@@ -44,16 +45,6 @@ function processResponse(method, url, response) {
 }
 
 /**
- * Stores the session id for this browser. Session id is a key that links the
- * browser with a session id inside the database.
- *
- * @param {*} sid
- */
-function setSessionId(sid) {
-  sessionId = sid
-}
-
-/**
  * This method creates a config as it should be sent to the server.
  * If passed config is null, then a new config object will be created.
  * If it's not, then a config object param list will be populated.
@@ -64,13 +55,13 @@ function setSessionId(sid) {
 function fillConfig(config) {
   if (config == null) {
     config = { params: {} }
-    config.params[restApi.param.sessionId] = sessionId
+    config.params[restApi.param.sessionId] = sessionUuid
     return config
   } else {
     if (!('params' in config)) {
       config.params = {}
     }
-    config.params[restApi.param.sessionId] = sessionId
+    config.params[restApi.param.sessionId] = sessionUuid
     return config
   }
 }
@@ -159,4 +150,3 @@ Vue.prototype.$serverPost = serverPost
 Vue.prototype.$serverPut = serverPut
 Vue.prototype.$serverPatch = serverPatch
 Vue.prototype.$serverDelete = serverDelete
-Vue.prototype.$setSessionId = setSessionId
