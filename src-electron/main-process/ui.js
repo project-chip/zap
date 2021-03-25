@@ -62,10 +62,7 @@ function readAndOpenFile(db, filePath, httpPort) {
  * @param {*} httpPort
  * @param {*} options: uiMode, embeddedMode
  */
-async function openNewConfiguration(db, httpPort, options) {
-  if (options == null) options = {}
-  let sessionId = await querySession.createBlankSession(db)
-  options.sessionId = sessionId
+async function openNewConfiguration(db, httpPort, options = {}) {
   windowJs.windowCreate(httpPort, options)
 }
 

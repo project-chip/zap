@@ -154,7 +154,7 @@ Database session key: ${row.sessionKey}
 ]
 
 function newFile(menuItem, browserWindow, event) {
-  uiJs.openNewConfiguration(env.mainDatabase(), httpPort, {})
+  uiJs.openNewConfiguration(env.mainDatabase(), httpPort)
 }
 
 /**

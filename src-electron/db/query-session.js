@@ -200,7 +200,7 @@ async function ensureZapSessionId(db, userKey, sessionId = null) {
  * @param {*} db
  * @param {*} userKey This is in essence the "session cookie id"
  * @param {*} sessionId If sessionId exists already, then it's passed in and linked to user.
- * @returns promise that resolves into an object with sessionId and userId.
+ * @returns promise that resolves into an object with sessionId and userId and newSession.
  */
 async function ensureZapUserAndSession(
   db,
@@ -211,12 +211,15 @@ async function ensureZapUserAndSession(
   }
 ) {
   if (options.sessionId != null && options.userId != null) {
+    console.log('%%%%%%% case 1: just return already created stuff')
     // if we're past both IDs, we simply return them back.
     return {
       sessionId: options.sessionId,
       userId: options.userId,
+      newSession: false,
     }
   } else if (options.sessionId != null) {
+    console.log('%%%%%%% case 2: missing user, but have the session')
     // we have a session, but not the user, so we create
     // the user and link the session with it.
     let user = await ensureUser(db, userKey)
@@ -224,8 +227,10 @@ async function ensureZapUserAndSession(
     return {
       sessionId: options.sessionId,
       userId: user.userId,
+      newSession: false,
     }
   } else if (options.userId != null) {
+    console.log('%%%%%%% case 3: missing session, but have the user')
     // we have the user, but not the session, so we create the session,
     // and link it to the user.
     let sessionId = await createBlankSession(db)
@@ -233,8 +238,10 @@ async function ensureZapUserAndSession(
     return {
       sessionId: sessionId,
       userId: options.userId,
+      newSession: true,
     }
   } else {
+    console.log('%%%%%%% case 4: missing everything')
     // we have nothing, create both the user and the session.
     let user = await ensureUser(db, userKey)
     let sessionId = await createBlankSession(db)
@@ -242,6 +249,7 @@ async function ensureZapUserAndSession(
     return {
       sessionId: sessionId,
       userId: user.userId,
+      newSession: true,
     }
   }
 }

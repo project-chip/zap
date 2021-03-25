@@ -47,6 +47,7 @@ function initializeWebSocket(httpServer) {
     socket.sessionKey = util.getSessionKeyFromCookieValue(
       request.headers.cookie
     )
+    console.log(`Create new conenction: ${socket.sessionKey}`)
     socket.on('message', (message) => {
       // When we receive a message we emit it via the event emitter.
       let obj = JSON.parse(message)
