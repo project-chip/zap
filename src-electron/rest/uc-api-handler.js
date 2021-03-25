@@ -64,13 +64,16 @@ function httpPostUpdateComponentHandler(db, request, response, add) {
     )
     .then((res) => {
       // invoke reportComponentStatus() ws notification
-      studio.sendComponentStatus(request.session.zapSessionId, {data: res, added: add})
-      
       response.send(res)
+      studio.sendComponentStatus(request.session.zapSessionId, {
+        data: res,
+        added: add,
+      })
     })
     .finally((err) => {
       // invoke reportComponentStatus() ws notification
-      response.send(err)})
+      response.send(err)
+    })
 }
 
 /**
