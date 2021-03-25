@@ -121,23 +121,18 @@ export default {
      */
     updateSelectedComponentRequest(params) {
       let { added } = params
-      if (this.$store.state.zap.studioProject) {
-        params['studioProject'] = this.$store.state.zap.studioProject
-        this.$store
-          .dispatch('zap/updateSelectedComponent', params)
-          .then((response) => {
-
-            if (response.status != http.StatusCodes.OK) {
-              console.log('Failed to update selected components')
-            } else {
-              // notified via ws message.
-            }
-          })
-      } else {
-        console.log(
-          'Unable to update selected component due to invalid "studioProject" path'
-        )
-      }
+      params['studioProject'] = this.$store.state.zap.studioProject
+      this.$store
+        .dispatch('zap/updateSelectedComponent', params)
+        .then((response) => {
+          if (response.status == http.StatusCodes.BAD_REQUEST) {
+            console.log(
+              'Failed to update selected components. Verify "studioProject" path is set!'
+            )
+          } else if (response.status != http.StatusCodes.OK) {
+            console.log('Failed to update selected components')
+          }
+        })
     },
   },
 }

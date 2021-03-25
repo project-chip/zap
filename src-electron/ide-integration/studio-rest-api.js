@@ -164,17 +164,16 @@ function httpPostComponentUpdate(project, componentId, add) {
  * Start the dirty flag reporting interval.
  *
  */
-function initializeReporting() {
+function init() {
   reportingIntervalId = setInterval(() => {
     sendDirtyFlagStatus()
   }, DIRTY_FLAG_REPORT_INTERVAL_MS)
 }
 
 /**
- * Clears up the reporting interval.
- *
+ * Clears up the reporting interval. 
  */
-function clearReporting() {
+function deinit() {
   if (reportingIntervalId != null) clearInterval(reportingIntervalId)
 }
 
@@ -239,7 +238,7 @@ exports.getProjectInfo = getProjectInfo
 exports.updateComponentByComponentIds = updateComponentByComponentIds
 exports.updateComponentByClusterIdAndComponentId = updateComponentByClusterIdAndComponentId
 exports.projectName = projectName
-exports.initializeReporting = initializeReporting
-exports.clearReporting = clearReporting
+exports.init = init
+exports.deinit = deinit
 exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus
 exports.sendComponentStatus = sendComponentStatus

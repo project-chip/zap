@@ -168,7 +168,7 @@ async function initHttpServer(db, port, studioPort) {
     })
 
     webSocket.initializeWebSocket(httpServer)
-    studio.initializeReporting()
+    studio.init()
   })
 }
 
@@ -186,7 +186,7 @@ function shutdownHttpServer() {
         httpServer = null
         resolve(null)
       })
-      studio.clearReporting()
+      studio.deinit()
     } else {
       resolve(null)
     }
@@ -201,7 +201,7 @@ function shutdownHttpServer() {
  */
 function shutdownHttpServerSync() {
   if (httpServer != null) {
-    studio.clearReporting()
+    studio.deinit()
     httpServer.close(() => {
       env.logInfo('HTTP server shut down.')
       httpServer = null
