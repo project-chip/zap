@@ -57,7 +57,7 @@ export default {
   mounted() {
     this.$serverGet(restApi.uc.componentTree, {
       params: {
-        studioProject: this.$store.state.zap.studioProject,
+        studioProject: this.$store.state.zap.studio.projectPath,
       },
     }).then((response) => {
       this.componentTree.length = 0

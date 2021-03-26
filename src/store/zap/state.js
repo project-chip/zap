@@ -18,7 +18,6 @@ const restApi = require('../../../src-shared/rest-api.js')
 
 export default function () {
   return {
-    studioProject: '',
     leftDrawerOpenState: true,
     miniState: false,
     informationText: '',
@@ -115,7 +114,10 @@ export default function () {
     },
     calledArgs: {
       defaultUiMode: restApi.uiMode.ZIGBEE,
-      embeddedMode: true,
+      embeddedMode: false,
     },
+    studio: {
+      projectPath: '',
+    }
   }
 }
