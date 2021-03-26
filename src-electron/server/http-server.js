@@ -28,7 +28,6 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const webSocket = require('./ws-server.js')
 const studio = require('../ide-integration/studio-rest-api.js')
-const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 const restApiModules = [
@@ -115,7 +114,8 @@ async function initHttpServer(db, port, studioPort) {
       })
     )
 
-    app.use(userSessionHandler(db))
+    app.use(simpleSessionHandler(db))
+    //app.use(userSessionHandler(db))
 
     // REST modules
     registerAllRestModules(db, app)
@@ -146,13 +146,53 @@ async function initHttpServer(db, port, studioPort) {
   })
 }
 
+function userSessionHandler(db) {
+  return (req, res, next) => {
+    let sessionUuid = req.query[restApi.param.sessionId]
+    let userKey = req.session.id
+
+    console.log(
+      `%%%%%%%%%%% userKey: ${userKey} / sessionUuid: ${sessionUuid} / url: ${req.url}`
+    )
+
+    if (sessionUuid == null || userKey == null) {
+      // This request does not carry a session along. Do nothing.
+      next()
+    } else {
+      let zapUserId = req.session.zapUserId
+      let zapSessionId
+      if (`zapSessionId` in req.session) {
+        zapSessionId = req.session.zapSessionId[sessionUuid]
+      } else {
+        req.session.zapSessionId = {}
+        zapSessionId = null
+      }
+      querySession
+        .ensureZapUserAndSession(db, userKey, sessionUuid, {
+          sessionId: zapSessionId,
+          userId: zapUserId,
+        })
+        .then((result) => {
+          console.log(
+            `%%%%%% STORING IDS: ${results.userId} / ${result.sessionId}`
+          )
+          req.session.zapUserId = result.userId
+          req.session.zapSessionId[sessionUuid] = result.sessionId
+          next()
+        })
+    }
+  }
+}
+
 /**
- * This method creates a handle for user/session management.
+ * This method creates a handle for simple session management.
+ * This is an old method that should be deleted.
  *
  * @param {*} db
  * @returns a handler
+ * @deprecated
  */
-function userSessionHandler(db) {
+function simpleSessionHandler(db) {
   return (req, res, next) => {
     let userKey = req.session.id
     let sessionId = req.query[restApi.param.sessionId]

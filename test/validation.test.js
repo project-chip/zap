@@ -257,7 +257,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       .then((ctx) => {
         pkgId = ctx.packageId
         querySession
-          .ensureZapUserAndSession(db, 'SESSION')
+          .ensureZapUserAndSession(db, 'USER', 'SESSION')
           .then((userSession) => {
             sid = userSession.sessionId
           })

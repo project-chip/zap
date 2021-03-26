@@ -166,10 +166,12 @@ test('Now load the generation data.', () =>
 
 describe('Session specific queries', () => {
   beforeAll(() =>
-    querySession.ensureZapUserAndSession(db, 'SESSION').then((userSession) => {
-      sid = userSession.sessionId
-      return util.initializeSessionPackage(db, sid)
-    })
+    querySession
+      .ensureZapUserAndSession(db, 'USER', 'SESSION')
+      .then((userSession) => {
+        sid = userSession.sessionId
+        return util.initializeSessionPackage(db, sid)
+      })
   )
 
   test('Test that package id for session is present.', () =>
@@ -295,7 +297,7 @@ describe('Session specific queries', () => {
 describe('Endpoint Type Config Queries', () => {
   beforeAll(() =>
     querySession
-      .ensureZapUserAndSession(db, 'SESSION', { sessionId: sid })
+      .ensureZapUserAndSession(db, 'USER', 'SESSION', { sessionId: sid })
       .then((userSession) => {
         sid = userSession.sessionId
       })

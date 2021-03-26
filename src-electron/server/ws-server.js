@@ -25,7 +25,6 @@ const events = require('events')
 
 const env = require('../util/env.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const util = require('../util/util.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 let eventEmitter = new events.EventEmitter()

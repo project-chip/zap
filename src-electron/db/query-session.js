@@ -22,7 +22,7 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
-
+const { v4: uuidv4 } = require('uuid')
 /**
  * Returns a promise that resolves into an array of objects containing 'sessionId', 'sessionKey' and 'creationTime'.
  *
@@ -119,7 +119,6 @@ async function getSessionDirtyFlagWithCallback(db, sessionKey, fn) {
  * @returns A promise that resolves into an object containing sessionId, sessionKey and creationTime.
  */
 async function getSessionInfoFromSessionKey(db, sessionKey) {
-  console.log(`getSessionInfoFromSessionKey CAN NOT WORK!!!`)
   return dbApi
     .dbGet(
       db,
@@ -128,7 +127,7 @@ async function getSessionInfoFromSessionKey(db, sessionKey) {
     )
     .then((row) => {
       if (row == null) {
-        reject()
+        return null
       } else {
         return {
           sessionId: row.SESSION_ID,
@@ -205,6 +204,7 @@ async function ensureZapSessionId(db, userKey, sessionId = null) {
 async function ensureZapUserAndSession(
   db,
   userKey,
+  sessionUuid,
   options = {
     sessionId: null,
     userId: null,
@@ -233,7 +233,7 @@ async function ensureZapUserAndSession(
     console.log('%%%%%%% case 3: missing session, but have the user')
     // we have the user, but not the session, so we create the session,
     // and link it to the user.
-    let sessionId = await createBlankSession(db)
+    let sessionId = await ensureBlankSession(db, sessionUuid)
     await linkSessionToUser(db, sessionId, options.userId)
     return {
       sessionId: sessionId,
@@ -244,7 +244,7 @@ async function ensureZapUserAndSession(
     console.log('%%%%%%% case 4: missing everything')
     // we have nothing, create both the user and the session.
     let user = await ensureUser(db, userKey)
-    let sessionId = await createBlankSession(db)
+    let sessionId = await ensureBlankSession(db, sessionUuid)
     await linkSessionToUser(db, sessionId, user.userId)
     return {
       sessionId: sessionId,
@@ -254,17 +254,30 @@ async function ensureZapUserAndSession(
   }
 }
 
+async function ensureBlankSession(db, uuid) {
+  await dbApi.dbInsert(
+    db,
+    'INSERT OR IGNORE INTO SESSION (SESSION_KEY, CREATION_TIME, DIRTY) VALUES (?,?,?)',
+    [uuid, Date.now(), 0]
+  )
+  const session = await getSessionInfoFromSessionKey(db, uuid)
+  return session.sessionId
+}
+
 /**
  * When loading in a file, we start with a blank session.
  *
  * @export
  * @param {*} db
  */
-async function createBlankSession(db) {
+async function createBlankSession(db, uuid = null) {
+  let newUuid = uuid
+  if (newUuid == null) newUuid = uuidv4()
+
   return dbApi.dbInsert(
     db,
     'INSERT INTO SESSION (SESSION_KEY, CREATION_TIME, DIRTY) VALUES (?,?,?)',
-    [`${Math.random()}`, Date.now(), 0]
+    [newUuid, Date.now(), 0]
   )
 }
 
@@ -285,6 +298,23 @@ async function getUserSessions(db, userId) {
 }
 
 /**
+ * Returns user with a given key, or null if none exists.
+ *
+ * @param {*} db
+ * @param {*} userKey
+ * @returns A promise of returned user.
+ */
+async function getUserByKey(db, userKey) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT USER_ID, USER_KEY, CREATION_TIME FROM USER WHERE USER_KEY = ?',
+      [userKey]
+    )
+    .then((row) => dbMapping.map.user(row))
+}
+
+/**
  * Creates a new user entry for a given user key if it doesn't exist, or returns
  * the existing user.
  *
@@ -293,27 +323,12 @@ async function getUserSessions(db, userId) {
  * @returns user object, containing userId, userKey and creationTime
  */
 async function ensureUser(db, userKey) {
-  let row = await dbApi.dbGet(
+  await await dbApi.dbInsert(
     db,
-    'SELECT USER_ID, USER_KEY, CREATION_TIME FROM USER WHERE USER_KEY = ?',
-    [userKey]
+    'INSERT OR IGNORE INTO USER ( USER_KEY, CREATION_TIME ) VALUES (?,?)',
+    [userKey, Date.now()]
   )
-  let user = dbMapping.map.user(row)
-  if (user == null) {
-    let creationTime = Date.now()
-    let userId = await dbApi.dbInsert(
-      db,
-      'INSERT INTO USER ( USER_KEY, CREATION_TIME ) VALUES (?,?)',
-      [userKey, creationTime]
-    )
-    return {
-      userId: userId,
-      userKey: userKey,
-      creationTime: creationTime,
-    }
-  } else {
-    return user
-  }
+  return await getUserByKey(db, userKey)
 }
 
 /**

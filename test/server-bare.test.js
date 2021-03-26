@@ -232,7 +232,8 @@ describe('User and session tests', () => {
     // New session
     let userSession = await querySession.ensureZapUserAndSession(
       db,
-      'funny-key'
+      'user1',
+      'session1'
     )
     userId = userSession.userId
     sessionId = userSession.sessionId
@@ -245,7 +246,8 @@ describe('User and session tests', () => {
   test('create new session for existing user', async () => {
     let userSession = await querySession.ensureZapUserAndSession(
       db,
-      'funny-key',
+      'user1',
+      'session2',
       {
         userId: userId,
       }
@@ -260,7 +262,8 @@ describe('User and session tests', () => {
   test('create new user for existing session', async () => {
     let userSession = await querySession.ensureZapUserAndSession(
       db,
-      'new-funny-key',
+      'user2',
+      'session1',
       {
         sessionId: sessionId,
       }
@@ -277,7 +280,8 @@ describe('User and session tests', () => {
   test('reuse existing user and session', async () => {
     let userSession = await querySession.ensureZapUserAndSession(
       db,
-      'funny-key',
+      'user1',
+      'session1',
       {
         sessionId: sessionId,
         userId: userId,
