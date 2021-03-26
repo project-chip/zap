@@ -37,19 +37,8 @@ function windowCreateIfNotThere(port) {
   }
 }
 
-function createQueryString(
-  sessionId = null,
-  uiMode = null,
-  embeddedMode = null
-) {
+function createQueryString(uiMode = null, embeddedMode = null) {
   let queryString = ''
-  if (sessionId) {
-    if (queryString.length == 0) {
-      queryString = `?sessionId=${sessionId}`
-    } else {
-      queryString += `&sessionId=${sessionId}`
-    }
-  }
   if (uiMode) {
     if (queryString.length == 0) {
       queryString = `?uiMode=${uiMode}`
@@ -98,11 +87,7 @@ function windowCreate(port, args = {}) {
     webPreferences: webPreferences,
   })
 
-  let queryString = createQueryString(
-    args.sessionId,
-    args.uiMode,
-    args.embeddedMode
-  )
+  let queryString = createQueryString(args.uiMode, args.embeddedMode)
 
   w.loadURL(`http://localhost:${port}/index.html` + queryString).then(
     async () => {
