@@ -26,6 +26,7 @@ const events = require('events')
 const env = require('../util/env.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const util = require('../util/util.js')
+const restApi = require('../../src-shared/rest-api.js')
 
 let eventEmitter = new events.EventEmitter()
 
@@ -44,10 +45,17 @@ let wsServer = null
 function initializeWebSocket(httpServer) {
   wsServer = new ws.Server({ noServer: true, clientTracking: true })
   wsServer.on('connection', (socket, request) => {
-    socket.sessionKey = util.getSessionKeyFromCookieValue(
-      request.headers.cookie
-    )
-    console.log(`Create new conenction: ${socket.sessionKey}`)
+    const url = request.url
+    const token = `${restApi.param.sessionId}=`
+    const indexOf = url.indexOf(token)
+    if (indexOf == -1) {
+      throw new Error(
+        `WebSockets require a ${restApi.param.sessionId} parameter`
+      )
+    }
+
+    const sessionUuid = url.substring(indexOf + token.length)
+    socket.sessionKey = sessionUuid
     socket.on('message', (message) => {
       // When we receive a message we emit it via the event emitter.
       let obj = JSON.parse(message)

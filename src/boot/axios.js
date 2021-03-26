@@ -27,6 +27,8 @@ Vue.prototype.$axios = axios({ withCredentials: true })
 const log = true
 let sessionUuid = uuidv4()
 
+Vue.prototype.$sessionUuid = sessionUuid
+
 /**
  * Internal function that processes response from the server for any request.
  *
