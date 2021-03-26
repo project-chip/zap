@@ -174,11 +174,27 @@ function userSessionHandler(db) {
         })
         .then((result) => {
           console.log(
-            `%%%%%% STORING IDS: ${results.userId} / ${result.sessionId}`
+            `%%%%%% STORING IDS: ${result.userId} / ${result.sessionId}`
           )
           req.session.zapUserId = result.userId
           req.session.zapSessionId[sessionUuid] = result.sessionId
+          return result
+        })
+        .then((result) => {
+          if (result.newSession) {
+            return util.initializeSessionPackage(db, result.sessionId)
+          }
+        })
+        .then(() => {
           next()
+        })
+        .catch((err) => {
+          let resp = {
+            error: 'Could not create session: ' + err.message,
+            errorMessage: err,
+          }
+          studio.sendSessionCreationErrorStatus(resp)
+          env.logError(resp)
         })
     }
   }
