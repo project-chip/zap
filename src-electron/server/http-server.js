@@ -29,6 +29,7 @@ const util = require('../util/util.js')
 const webSocket = require('./ws-server.js')
 const studio = require('../ide-integration/studio-rest-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const restApi = require('../../src-shared/rest-api.js')
 
 const restApiModules = [
   '../rest/admin.js',
@@ -114,47 +115,7 @@ async function initHttpServer(db, port, studioPort) {
       })
     )
 
-    /*
-     * Session management. Followingt are the possible conditions here:
-     *   1.) if the req.session.id (userKey) has never been heard off before,
-     *       then this is the new user completely. We need to do the following:
-     *              - Create a row in user table.
-     *              - Create a row in session table and return it to the client.
-     *   2.) If this is a known user (meaning the req.session.id is known)
-     *       then we have 2 options:
-     *           a.) If the zapSessionId exists, then we carry on.
-     *           b.) If there is no zapSessionId, then we need to
-     *               create a blank session and return it to the client.
-     */
-    app.use((req, res, next) => {
-      let userKey = req.session.id
-      let sessionId = req.query.sessionId
-      console.log(
-        `%%%%%%%%%%% userKey: ${userKey} / sessionId: ${sessionId} / url: ${req.url}`
-      )
-      if (req.session.zapSessionId) {
-        next()
-      } else {
-        querySession
-          .ensureZapSessionId(db, userKey, sessionId)
-          .then((sessionId) => {
-            req.session.zapSessionId = sessionId
-            return sessionId
-          })
-          .then((sessionId) => util.initializeSessionPackage(db, sessionId))
-          .then((packages) => {
-            next()
-          })
-          .catch((err) => {
-            let resp = {
-              error: 'Could not create session: ' + err.message,
-              errorMessage: err,
-            }
-            studio.sendSessionCreationErrorStatus(resp)
-            env.logError(resp)
-          })
-      }
-    })
+    app.use(userSessionHandler(db))
 
     // REST modules
     registerAllRestModules(db, app)
@@ -183,6 +144,45 @@ async function initHttpServer(db, port, studioPort) {
     webSocket.initializeWebSocket(httpServer)
     studio.init()
   })
+}
+
+/**
+ * This method creates a handle for user/session management.
+ *
+ * @param {*} db
+ * @returns a handler
+ */
+function userSessionHandler(db) {
+  return (req, res, next) => {
+    let userKey = req.session.id
+    let sessionId = req.query[restApi.param.sessionId]
+    console.log(
+      `%%%%%%%%%%% userKey: ${userKey} / sessionId: ${sessionId} / url: ${req.url}`
+    )
+
+    if (req.session.zapSessionId) {
+      next()
+    } else {
+      querySession
+        .ensureZapSessionId(db, userKey, sessionId)
+        .then((sessionId) => {
+          req.session.zapSessionId = sessionId
+          return sessionId
+        })
+        .then((sessionId) => util.initializeSessionPackage(db, sessionId))
+        .then((packages) => {
+          next()
+        })
+        .catch((err) => {
+          let resp = {
+            error: 'Could not create session: ' + err.message,
+            errorMessage: err,
+          }
+          studio.sendSessionCreationErrorStatus(resp)
+          env.logError(resp)
+        })
+    }
+  }
 }
 
 /**
