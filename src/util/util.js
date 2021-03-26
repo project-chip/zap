@@ -116,3 +116,20 @@ export function notifyComponentStatus(componentIdStates, added) {
     }
   }
 }
+
+export function getSelectedComponent(ucComponentTreeResponse) {
+  // computed selected Nodes
+  let selected = []
+  if (ucComponentTreeResponse) {
+    ucComponentTreeResponse.filter(function f(e) {
+      if (e.children) {
+        e.children.filter(f, this)
+      }
+
+      if (e.isSelected) {
+        this.push(e.id)
+      }
+    }, selected)
+  }
+  return selected
+}

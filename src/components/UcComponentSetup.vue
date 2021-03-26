@@ -31,6 +31,7 @@ limitations under the License.
 <script>
 const restApi = require('../../src-shared/rest-api.js')
 import CommonMixin from '../util/common-mixin'
+const util = require('../util/util.js')
 
 export default {
   name: 'UcComponentSetup',
@@ -59,21 +60,13 @@ export default {
         studioProject: this.$store.state.zap.studioProject,
       },
     }).then((response) => {
+      this.componentTree.length = 0
       response.data.forEach((ele) => this.componentTree.push(ele))
 
-      // computed selected Nodes
-      let selected = []
-      this.componentTree.filter(function f(e) {
-        if (e.children) {
-          e.children.filter(f, this)
-        }
+      let selectedComponentIds = util.getSelectedComponent(response.data)
 
-        if (e.isSelected) {
-          this.push(e.id)
-        }
-      }, selected)
-      selected.forEach((e) => this.uc.ticked.push(e))
-
+      this.uc.ticked.length = 0
+      selectedComponentIds.forEach((e) => this.uc.ticked.push(e))
       this.uc.last_ticked = this.uc.ticked
     })
   },
