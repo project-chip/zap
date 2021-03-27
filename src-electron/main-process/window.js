@@ -131,6 +131,16 @@ function windowCreate(port, args = {}) {
 
   w.webContents.on('console-message', (event, level, message) => {
     env.logBrowser(message)
+    const DIRTY = 'Dirty flag received: '
+    if (message.startsWith(DIRTY)) {
+      let dirty = 'true' == message.slice(DIRTY.length)
+      let title = w.getTitle()
+      if (title.startsWith('* ') && !dirty) {
+        w.setTitle(title.slice(2))
+      } else if (!title.startsWith('*') && dirty) {
+        w.setTitle('* ' + title)
+      }
+    }
   })
 
   return w

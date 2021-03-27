@@ -23,7 +23,6 @@ import * as Util from '../util/util.js'
 
 let eventEmitter = new Events.EventEmitter()
 let wsUrl = `ws://${window.location.hostname}:${window.location.port}?${restApi.param.sessionId}=${Vue.prototype.$sessionUuid}`
-console.log(`Initiating websockets at ${wsUrl}`)
 const client = new WebSocket(wsUrl)
 
 function doSend(object) {
