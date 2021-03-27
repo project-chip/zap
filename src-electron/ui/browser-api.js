@@ -38,8 +38,10 @@ function getSessionUuidFromBrowserWindow(browserWindow) {
  * @returns description of renderer api
  */
 function getRendererApiInformation(browserWindow) {
-  browserWindow.webContents.executeJavaScript('alert("hooray!")')
-  return 'info balinfo'
+  let rendererApi = browserWindow.webContents.executeJavaScript(
+    'window.global_renderer_api'
+  )
+  return rendererApi
 }
 
 /**

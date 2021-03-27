@@ -17,9 +17,8 @@
 const { dialog } = require('electron')
 
 const importJs = require('../importexport/import.js')
-const windowJs = require('./window.js')
+const windowJs = require('../main-process/window.js')
 const env = require('../util/env.js')
-const querySession = require('../db/query-session.js')
 
 // You can always use this to show an exception.
 function showErrorMessage(title, err) {

@@ -22,7 +22,7 @@ const util = require('../util/util.js')
 const queryGeneric = require('../db/query-generic.js')
 const querySession = require('../db/query-session.js')
 const exportJs = require('../importexport/export.js')
-const uiJs = require('./ui.js')
+const uiJs = require('../ui/ui-util.js')
 const preference = require('./preference.js')
 const about = require('./about.js')
 const generationEngine = require('../generator/generation-engine.js')
@@ -41,7 +41,7 @@ const template = [
         label: 'New Configuration...',
         accelerator: 'CmdOrCtrl+N',
         click(menuItem, browserWindow, event) {
-          newFile(menuItem, browserWindow, event)
+          uiJs.openNewConfiguration(env.mainDatabase(), httpPort)
         },
       },
       {
@@ -163,10 +163,6 @@ async function getUserSessionInfoMessage(db, browserWindow) {
   Session creationTime: ${new Date(session.creationTime)}
   Session session key:  ${session.sessionKey}
   `
-}
-
-function newFile(menuItem, browserWindow, event) {
-  uiJs.openNewConfiguration(env.mainDatabase(), httpPort)
 }
 
 /**

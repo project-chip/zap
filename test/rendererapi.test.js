@@ -18,7 +18,7 @@
  * @jest-environment node
  */
 
-import renderer_api from '../src/api/renderer_api'
+import { renderer_api } from '../src/api/renderer_api'
 
 test('Test structure of renderer API', () => {
   let api = renderer_api()

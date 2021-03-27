@@ -34,7 +34,7 @@ const util = require('../util/util.js')
  * e.g. The 'open' function is invoked by the container when opening a new configuration.
  * The front-end is informed and proceed to init UI elements.
  */
-export default function renderer_api() {
+function renderer_api_info() {
   return {
     prefix: 'zap',
     description: 'Zap Renderer API',
@@ -42,12 +42,89 @@ export default function renderer_api() {
       {
         id: 'open',
         description: 'Open file...',
-        function: (path) => ide.open(path),
       },
       {
         id: 'save',
         description: 'Save file...',
-        function: (sessionId) => ide.save(sessionId),
+      },
+      {
+        id: 'saveAs',
+        description: 'Save As file...',
+      },
+      {
+        id: 'refresh',
+        description: 'Refresh file...',
+      },
+      {
+        id: 'rename',
+        description: 'Rename file...',
+      },
+      {
+        id: 'isDirty',
+        type: 'init',
+        description:
+          "Observe 'isdirty' attribute, which reflects the DIRTY flag in ZAP backend. setDirty() is invoked as callback.",
+      },
+
+      // Misc operation that might not be supported.
+      {
+        id: 'move',
+        description: 'Move file...',
+      },
+      {
+        id: 'import',
+        description: 'Import file...',
+      },
+      {
+        id: 'export',
+        description: 'Export file...',
+      },
+    ],
+  }
+}
+
+function fnOpen(path) {
+  id.open(path)
+}
+
+function fnSave(sessionId) {
+  ide.save(sessionId)
+}
+
+function fnIsDirty() {
+  util.observeAttribute('isdirty', 'setDirty')
+}
+
+function renderer_api_execute(id) {
+  let ret = null
+  switch (id) {
+    case 'open':
+      ret = fnOpen.apply(null, arguments.slice(1))
+      break
+    case 'save':
+      ret = fnSave.apply(null, arguments.slice(1))
+      break
+    case 'isDirty':
+      ret = fnIsDirty.apply(null, arguments.slice(1))
+      break
+  }
+  return ret
+}
+
+function renderer_api() {
+  return {
+    prefix: 'zap',
+    description: 'Zap Renderer API',
+    functions: [
+      {
+        id: 'open',
+        description: 'Open file...',
+        function: fnOpen,
+      },
+      {
+        id: 'save',
+        description: 'Save file...',
+        function: fnSave,
       },
       {
         id: 'saveAs',
@@ -69,7 +146,7 @@ export default function renderer_api() {
         type: 'init',
         description:
           "Observe 'isdirty' attribute, which reflects the DIRTY flag in ZAP backend. setDirty() is invoked as callback.",
-        function: () => util.observeAttribute('isdirty', 'setDirty'),
+        function: fnIsDirty,
       },
 
       // Misc operation that might not be supported.
@@ -91,3 +168,7 @@ export default function renderer_api() {
     ],
   }
 }
+
+exports.renderer_api = renderer_api
+exports.renderer_api_info = renderer_api_info
+exports.renderer_api_execute = renderer_api_execute
