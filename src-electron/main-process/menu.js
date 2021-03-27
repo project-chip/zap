@@ -18,7 +18,6 @@
 const path = require('path')
 const { dialog, Menu, shell } = require('electron')
 const env = require('../util/env.js')
-const util = require('../util/util.js')
 const queryGeneric = require('../db/query-generic.js')
 const querySession = require('../db/query-session.js')
 const exportJs = require('../importexport/export.js')

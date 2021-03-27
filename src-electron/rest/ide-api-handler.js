@@ -27,12 +27,8 @@ const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const path = require('path')
 const http = require('http-status-codes')
-const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const { queryEndpoints } = require('../db/query-endpoint.js')
-const webSocket = require('../server/ws-server.js')
-const httpServer = require('../server/http-server.js')
 const studio = require('../ide-integration/studio-rest-api.js')
 
 /**
@@ -43,9 +39,10 @@ const studio = require('../ide-integration/studio-rest-api.js')
  */
 function httpGetIdeOpen(db) {
   return (req, res) => {
-    if (req.query.project) {
-      let name = path.posix.basename(req.query.project)
-      let zapFile = req.query.project
+    let zapPath = req.query[restApi.param.path]
+    if (zapPath != null) {
+      let name = path.posix.basename(zapPath)
+      let zapFile = zapPath
 
       env.logInfo(`Studio: Opening/Loading project(${name})`)
 
@@ -68,7 +65,7 @@ function httpGetIdeOpen(db) {
           res.status(http.StatusCodes.BAD_REQUEST).send(err)
         })
     } else {
-      let msg = 'Opening/Loading project: Missing "project" query string'
+      let msg = `Opening/Loading project: Missing "${restApi.param.path}" query string`
       env.logWarning(msg)
       res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
     }

@@ -44,15 +44,25 @@ let environmentVariable = {
   },
 }
 
-// Basic environment tie-ins
-let pino_logger = pino({
+// builtin pino levels: trace=10, debug=20, info=30, warn=40
+const pinoOptions = {
   name: 'zap',
-  level: process.env[environmentVariable.logLevel.name] || 'warn', // This sets the default log level. If you set this, to say `sql`, then you will get SQL queries.
+  level: process.env[environmentVariable.logLevel.name] || 'browser', // This sets the default log level. If you set this, to say `sql`, then you will get SQL queries.
   customLevels: {
+    fatal: 60,
+    error: 50,
+    warn: 40,
+    info: 30,
+    browser: 27,
     sql: 25,
+    debug: 20,
+    trace: 10,
     all: 1,
   },
-})
+}
+
+// Basic environment tie-ins
+let pino_logger = pino(pinoOptions)
 
 let explicit_logger_set = false
 let dbInstance
@@ -68,6 +78,25 @@ function setDevelopmentEnv() {
 function setProductionEnv() {
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
   httpStaticContent = path.join('.').replace(/\\/g, '\\\\')
+}
+
+function logInitStdout() {
+  if (!explicit_logger_set) {
+    pino_logger = pino(pinoOptions, pino.destination(1))
+    console.log('SET STDOUT LOGGER')
+    explicit_logger_set = true
+  }
+}
+
+function logInitLogFile() {
+  if (!explicit_logger_set) {
+    pino_logger = pino(
+      pinoOptions,
+      pino.destination(path.join(appDirectory(), 'zap.log'))
+    )
+    console.log('SET FILE LOGGER')
+    explicit_logger_set = true
+  }
 }
 
 function mainDatabase() {
@@ -187,13 +216,6 @@ function baseUrl() {
   return zapBaseUrl
 }
 
-function logInitStdout() {
-  if (!explicit_logger_set) {
-    pino_logger = pino()
-    explicit_logger_set = true
-  }
-}
-
 function logHttpServerUrl(port, studioPort) {
   logInfo('HTTP server created: ' + baseUrl() + port)
 
@@ -210,13 +232,6 @@ function logHttpServerUrl(port, studioPort) {
 
 function urlLogFile(id) {
   return path.join(appDirectory(), zapUrlLog)
-}
-
-function logInitLogFile() {
-  if (!explicit_logger_set) {
-    pino_logger = pino(pino.destination(path.join(appDirectory(), 'zap.log')))
-    explicit_logger_set = true
-  }
 }
 
 // Use this function to log info-level messages
@@ -236,7 +251,12 @@ function logWarning(msg) {
 
 // Use this function to log SQL messages.
 function logSql(msg) {
-  return pino_logger.debug(msg)
+  return pino_logger.sql(msg)
+}
+
+// Use this function to log browser messages.
+function logBrowser(msg) {
+  return pino_logger.browser(msg)
 }
 
 // Returns true if major or minor component of versions is different.
@@ -305,6 +325,7 @@ exports.logInfo = logInfo
 exports.logError = logError
 exports.logWarning = logWarning
 exports.logSql = logSql
+exports.logBrowser = logBrowser
 exports.httpStaticContent = httpStaticContent
 exports.zapVersion = zapVersion
 exports.zapVersionAsString = zapVersionAsString

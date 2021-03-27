@@ -150,10 +150,6 @@ function userSessionHandler(db) {
     let sessionUuid = req.query[restApi.param.sessionId]
     let userKey = req.session.id
 
-    console.log(
-      `%%%%%%%%%%% userKey: ${userKey} / sessionUuid: ${sessionUuid} / url: ${req.url}`
-    )
-
     if (sessionUuid == null || userKey == null) {
       // This request does not carry a session along. Do nothing.
       next()
@@ -172,9 +168,6 @@ function userSessionHandler(db) {
           userId: zapUserId,
         })
         .then((result) => {
-          console.log(
-            `%%%%%% STORING IDS: ${result.userId} / ${result.sessionId}`
-          )
           req.session.zapUserId = result.userId
           req.session.zapSessionId[sessionUuid] = result.sessionId
           req.zapSessionId = result.sessionId
@@ -182,7 +175,6 @@ function userSessionHandler(db) {
         })
         .then((result) => {
           if (result.newSession) {
-            console.log('%%%%%%% INITIALIZING SESSION PACKAGES!!!!!!')
             return util.initializeSessionPackage(db, result.sessionId)
           }
         })

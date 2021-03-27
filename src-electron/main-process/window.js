@@ -24,7 +24,6 @@ const tray = require('./tray.js')
 const util = require('../util/util.js')
 const browserApi = require('../ui/browser-api.js')
 
-let createPartition = false
 let windowCounter = 0
 
 function initializeElectronUi(port) {
@@ -72,9 +71,7 @@ function windowCreate(port, args = {}) {
   let webPreferences = {
     nodeIntegration: false,
   }
-  if (createPartition) {
-    webPreferences.partition = `zap-${windowCounter++}`
-  }
+  windowCounter++
   let w = new BrowserWindow({
     width: 1600,
     height: 800,
@@ -131,6 +128,10 @@ function windowCreate(port, args = {}) {
       )
     )
   }) // EO close
+
+  w.webContents.on('console-message', (event, level, message) => {
+    env.logBrowser(message)
+  })
 
   return w
 }

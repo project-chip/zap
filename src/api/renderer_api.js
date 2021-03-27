@@ -15,7 +15,6 @@
  *    limitations under the License.
  */
 
-const ide = require('./ide-api-request.js')
 const util = require('../util/util.js')
 
 // This file provide glue logic to enable function calls & HTML attribute data change listener logic
@@ -48,47 +47,32 @@ function renderer_api_info() {
         description: 'Save file...',
       },
       {
-        id: 'saveAs',
-        description: 'Save As file...',
-      },
-      {
-        id: 'refresh',
-        description: 'Refresh file...',
-      },
-      {
-        id: 'rename',
-        description: 'Rename file...',
-      },
-      {
         id: 'isDirty',
         type: 'init',
         description:
           "Observe 'isdirty' attribute, which reflects the DIRTY flag in ZAP backend. setDirty() is invoked as callback.",
       },
-
-      // Misc operation that might not be supported.
-      {
-        id: 'move',
-        description: 'Move file...',
-      },
-      {
-        id: 'import',
-        description: 'Import file...',
-      },
-      {
-        id: 'export',
-        description: 'Export file...',
-      },
     ],
   }
 }
 
-function fnOpen(path) {
-  id.open(path)
+function fnOpen(zap_file) {
+  // Make a request for a user with a given ID
+  if (zap_file) {
+    let config = { params: {} }
+    config.params[restApi.param.path] = zapFile
+    axios
+      .get(`${restApi.ide.open}`, config)
+      .then((res) => window.openCallback(res))
+      .catch((err) => window.openCallback(err))
+  }
 }
 
 function fnSave(sessionId) {
-  ide.save(sessionId)
+  axios
+    .get(`${restApi.ide.save}`)
+    .then((res) => window.saveCallback(res))
+    .then((err) => window.saveCallback(err))
 }
 
 function fnIsDirty() {
@@ -111,64 +95,5 @@ function renderer_api_execute(id) {
   return ret
 }
 
-function renderer_api() {
-  return {
-    prefix: 'zap',
-    description: 'Zap Renderer API',
-    functions: [
-      {
-        id: 'open',
-        description: 'Open file...',
-        function: fnOpen,
-      },
-      {
-        id: 'save',
-        description: 'Save file...',
-        function: fnSave,
-      },
-      {
-        id: 'saveAs',
-        description: 'Save As file...',
-        function: () => {},
-      },
-      {
-        id: 'refresh',
-        description: 'Refresh file...',
-        function: () => {},
-      },
-      {
-        id: 'rename',
-        description: 'Rename file...',
-        function: () => {},
-      },
-      {
-        id: 'isDirty',
-        type: 'init',
-        description:
-          "Observe 'isdirty' attribute, which reflects the DIRTY flag in ZAP backend. setDirty() is invoked as callback.",
-        function: fnIsDirty,
-      },
-
-      // Misc operation that might not be supported.
-      {
-        id: 'move',
-        description: 'Move file...',
-        function: () => {},
-      },
-      {
-        id: 'import',
-        description: 'Import file...',
-        function: () => {},
-      },
-      {
-        id: 'export',
-        description: 'Export file...',
-        function: () => {},
-      },
-    ],
-  }
-}
-
-exports.renderer_api = renderer_api
 exports.renderer_api_info = renderer_api_info
 exports.renderer_api_execute = renderer_api_execute

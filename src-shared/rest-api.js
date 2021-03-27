@@ -90,6 +90,7 @@ const updateKey = {
 
 const param = {
   sessionId: 'sessionId',
+  path: 'path',
 }
 
 exports.uri = uri
