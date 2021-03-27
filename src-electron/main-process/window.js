@@ -22,6 +22,7 @@ const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
 const tray = require('./tray.js')
 const util = require('../util/util.js')
+const browserApi = require('../ui/browser-api.js')
 
 let createPartition = false
 let windowCounter = 0
@@ -106,7 +107,7 @@ function windowCreate(port, args = {}) {
 
   w.on('close', (e) => {
     e.preventDefault()
-    util.getUserKeyFromBrowserWindow(w).then((sessionKey) =>
+    browserApi.getUserKeyFromBrowserWindow(w).then((sessionKey) =>
       querySession.getSessionDirtyFlagWithCallback(
         env.mainDatabase(),
         sessionKey,

@@ -29,6 +29,7 @@ const generationEngine = require('../generator/generation-engine.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const commonUrl = require('../../src-shared/common-url.js')
+const browserApi = require('../ui/browser-api.js')
 
 let httpPort
 
@@ -111,33 +112,28 @@ const template = [
         },
       },
       {
-        label: 'Session Information',
+        label: 'User and session information',
         click(menuItem, browserWindow, event) {
-          let cookieText = ''
-          util
-            .getUserKeyFromBrowserWindow(browserWindow)
-            .then((sessionKey) => {
-              cookieText = sessionKey
-              return sessionKey
-            })
-            .then((sessionKey) =>
-              querySession.getSessionInfoFromSessionKey(
-                env.mainDatabase(),
-                sessionKey
-              )
-            )
-            .then((row) => {
+          getUserSessionInfoMessage(env.mainDatabase(), browserWindow)
+            .then((msg) => {
               dialog.showMessageBox(browserWindow, {
-                title: 'Information',
-                message: `
-Database sessionId: ${row.sessionId}
-Database creationTime: ${new Date(row.creationTime)}
-Database session key: ${row.sessionKey}
-  Cookie session key: ${cookieText}`,
+                title: 'User and session information',
+                message: msg,
                 buttons: ['Dismiss'],
               })
             })
             .catch((err) => uiJs.showErrorMessage('Session info', err))
+        },
+      },
+      {
+        label: 'Renderer API information',
+        click(menuItem, browserWindow, event) {
+          let msg = browserApi.getRendererApiInformation(browserWindow)
+          dialog.showMessageBox(browserWindow, {
+            title: 'Renderer API information',
+            message: msg,
+            buttons: ['Dismiss'],
+          })
         },
       },
       {
@@ -152,6 +148,22 @@ Database session key: ${row.sessionKey}
     ],
   },
 ]
+
+async function getUserSessionInfoMessage(db, browserWindow) {
+  let userKey = await browserApi.getUserKeyFromBrowserWindow(browserWindow)
+  let session = await querySession.getSessionInfoFromSessionKey(db, userKey)
+  let sessionUuid = await browserApi.getSessionUuidFromBrowserWindow(
+    browserWindow
+  )
+  return `
+  Browser session UUID: ${sessionUuid}
+  Browser user key: ${userKey}
+
+  Session id: ${session.sessionId}
+  Session creationTime: ${new Date(session.creationTime)}
+  Session session key:  ${session.sessionKey}
+  `
+}
 
 function newFile(menuItem, browserWindow, event) {
   uiJs.openNewConfiguration(env.mainDatabase(), httpPort)
@@ -192,7 +204,7 @@ function doOpen(menuItem, browserWindow, event) {
  * @param {*} event
  */
 function doSave(menuItem, browserWindow, event) {
-  util
+  browserApi
     .getUserKeyFromBrowserWindow(browserWindow)
     .then((sessionKey) =>
       querySession.getSessionInfoFromSessionKey(env.mainDatabase(), sessionKey)
@@ -283,7 +295,7 @@ function generateInDir(browserWindow) {
     .then((context) => {
       if (!('path' in context)) return context
 
-      return util
+      return browserApi
         .getUserKeyFromBrowserWindow(browserWindow)
         .then((sessionKey) =>
           querySession.getSessionInfoFromSessionKey(
@@ -354,7 +366,7 @@ function generateInDir(browserWindow) {
  * @returns Promise of saving.
  */
 function fileSave(db, browserWindow, filePath) {
-  util
+  browserApi
     .getUserKeyFromBrowserWindow(browserWindow)
     .then((sessionKey) =>
       querySession.getSessionInfoFromSessionKey(db, sessionKey)

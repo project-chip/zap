@@ -27,6 +27,7 @@ Vue.prototype.$axios = axios({ withCredentials: true })
 const log = true
 let sessionUuid = uuidv4()
 
+window.global_session_uuid = sessionUuid
 Vue.prototype.$sessionUuid = sessionUuid
 
 /**
