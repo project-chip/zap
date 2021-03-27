@@ -70,12 +70,12 @@ describe('Util Tests', () => {
 
   test('Test Session Key Cookies', () => {
     let testCookie = { 'connect.sid': 's%3Atest.abra' }
-    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('test')
-    expect(util.getSessionKeyFromBrowserCookie({})).toBeNull()
+    expect(util.getUserKeyFromBrowserCookie(testCookie)).toEqual('test')
+    expect(util.getUserKeyFromBrowserCookie({})).toBeNull()
     testCookie['connect.sid'] = 'tester.abra'
-    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('tester')
+    expect(util.getUserKeyFromBrowserCookie(testCookie)).toEqual('tester')
     testCookie['connect.sid'] = 's%3Aabra'
-    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('abra')
+    expect(util.getUserKeyFromBrowserCookie(testCookie)).toEqual('abra')
   })
 
   let array = []

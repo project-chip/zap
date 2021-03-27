@@ -106,7 +106,7 @@ function windowCreate(port, args = {}) {
 
   w.on('close', (e) => {
     e.preventDefault()
-    util.getSessionKeyFromBrowserWindow(w).then((sessionKey) =>
+    util.getUserKeyFromBrowserWindow(w).then((sessionKey) =>
       querySession.getSessionDirtyFlagWithCallback(
         env.mainDatabase(),
         sessionKey,

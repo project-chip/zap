@@ -115,7 +115,7 @@ const template = [
         click(menuItem, browserWindow, event) {
           let cookieText = ''
           util
-            .getSessionKeyFromBrowserWindow(browserWindow)
+            .getUserKeyFromBrowserWindow(browserWindow)
             .then((sessionKey) => {
               cookieText = sessionKey
               return sessionKey
@@ -193,7 +193,7 @@ function doOpen(menuItem, browserWindow, event) {
  */
 function doSave(menuItem, browserWindow, event) {
   util
-    .getSessionKeyFromBrowserWindow(browserWindow)
+    .getUserKeyFromBrowserWindow(browserWindow)
     .then((sessionKey) =>
       querySession.getSessionInfoFromSessionKey(env.mainDatabase(), sessionKey)
     )
@@ -284,7 +284,7 @@ function generateInDir(browserWindow) {
       if (!('path' in context)) return context
 
       return util
-        .getSessionKeyFromBrowserWindow(browserWindow)
+        .getUserKeyFromBrowserWindow(browserWindow)
         .then((sessionKey) =>
           querySession.getSessionInfoFromSessionKey(
             env.mainDatabase(),
@@ -355,7 +355,7 @@ function generateInDir(browserWindow) {
  */
 function fileSave(db, browserWindow, filePath) {
   util
-    .getSessionKeyFromBrowserWindow(browserWindow)
+    .getUserKeyFromBrowserWindow(browserWindow)
     .then((sessionKey) =>
       querySession.getSessionInfoFromSessionKey(db, sessionKey)
     )
