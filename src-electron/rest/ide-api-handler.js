@@ -50,7 +50,7 @@ function httpGetIdeOpen(db) {
       env.logInfo(`Studio: Opening/Loading project(${name})`)
 
       importJs
-        .importDataFromFile(db, zapFile, req.session.zapSessionId)
+        .importDataFromFile(db, zapFile, req.zapSessionId)
         .then((importResult) => {
           let response = {
             sessionId: importResult.sessionId,
@@ -83,15 +83,11 @@ function httpGetIdeOpen(db) {
  */
 function httpGetIdeSave(db) {
   return (req, res) => {
-    env.logInfo(`Saving project: sessionId(${req.session.zapSessionId})`)
+    env.logInfo(`Saving project: sessionId(${req.zapSessionId})`)
     querySession
-      .getSessionKeyValue(
-        db,
-        req.session.zapSessionId,
-        dbEnum.sessionKey.filePath
-      )
+      .getSessionKeyValue(db, req.zapSessionId, dbEnum.sessionKey.filePath)
       .then((filePath) =>
-        exportJs.exportDataIntoFile(db, req.session.zapSessionId, filePath)
+        exportJs.exportDataIntoFile(db, req.zapSessionId, filePath)
       )
       .then((filePath) => {
         let projectName = path.posix.basename(filePath)
@@ -99,7 +95,7 @@ function httpGetIdeSave(db) {
         res.status(http.StatusCodes.OK).send({ filePath: filePath })
       })
       .catch((err) => {
-        let msg = `Unable to save project with sessionId(${req.session.zapSessionId})`
+        let msg = `Unable to save project with sessionId(${req.zapSessionId})`
         env.logError(msg)
         env.logError(err)
         res.status(http.StatusCodes.BAD_REQUEST).send({

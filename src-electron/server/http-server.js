@@ -114,8 +114,7 @@ async function initHttpServer(db, port, studioPort) {
       })
     )
 
-    app.use(simpleSessionHandler(db))
-    //app.use(userSessionHandler(db))
+    app.use(userSessionHandler(db))
 
     // REST modules
     registerAllRestModules(db, app)
@@ -178,55 +177,16 @@ function userSessionHandler(db) {
           )
           req.session.zapUserId = result.userId
           req.session.zapSessionId[sessionUuid] = result.sessionId
+          req.zapSessionId = result.sessionId
           return result
         })
         .then((result) => {
           if (result.newSession) {
+            console.log('%%%%%%% INITIALIZING SESSION PACKAGES!!!!!!')
             return util.initializeSessionPackage(db, result.sessionId)
           }
         })
         .then(() => {
-          next()
-        })
-        .catch((err) => {
-          let resp = {
-            error: 'Could not create session: ' + err.message,
-            errorMessage: err,
-          }
-          studio.sendSessionCreationErrorStatus(resp)
-          env.logError(resp)
-        })
-    }
-  }
-}
-
-/**
- * This method creates a handle for simple session management.
- * This is an old method that should be deleted.
- *
- * @param {*} db
- * @returns a handler
- * @deprecated
- */
-function simpleSessionHandler(db) {
-  return (req, res, next) => {
-    let userKey = req.session.id
-    let sessionId = req.query[restApi.param.sessionId]
-    console.log(
-      `%%%%%%%%%%% userKey: ${userKey} / sessionId: ${sessionId} / url: ${req.url}`
-    )
-
-    if (req.session.zapSessionId) {
-      next()
-    } else {
-      querySession
-        .ensureZapSessionId(db, userKey, sessionId)
-        .then((sessionId) => {
-          req.session.zapSessionId = sessionId
-          return sessionId
-        })
-        .then((sessionId) => util.initializeSessionPackage(db, sessionId))
-        .then((packages) => {
           next()
         })
         .catch((err) => {

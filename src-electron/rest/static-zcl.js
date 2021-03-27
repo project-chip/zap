@@ -206,7 +206,7 @@ function parseForZclData(db, entity, id, packageIdArray) {
 function httpGetZclEntity(db) {
   return (request, response) => {
     const { id, entity } = request.params
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
 
     queryPackage
       .getSessionZclPackages(db, sessionId)

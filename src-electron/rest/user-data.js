@@ -42,7 +42,7 @@ const ideIntegrationZcl = require('../ide-integration/zcl.js')
  */
 function httpGetSessionKeyValues(db) {
   return (request, response) => {
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
     querySession
       .getAllSessionKeyValues(db, sessionId)
       .then((sessionKeyValues) =>
@@ -60,7 +60,7 @@ function httpGetSessionKeyValues(db) {
 function httpPostSaveSessionKeyValue(db) {
   return (request, response) => {
     let { key, value } = request.body
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
     env.logInfo(`[${sessionId}]: Saving: ${key} => ${value}`)
     querySession
       .updateSessionKeyValue(db, sessionId, key, value)
@@ -239,7 +239,7 @@ function httpPostCommandUpdate(db) {
  */
 function httpGetInitialState(db) {
   return (request, response) => {
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
     let state = {}
 
     let statePopulators = []
@@ -276,7 +276,7 @@ function httpGetInitialState(db) {
  */
 function httpGetOption(db) {
   return (request, response) => {
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
     const { category } = request.params
     queryPackage.getSessionPackages(db, sessionId).then((packages) => {
       let p = packages.map((pkg) =>
@@ -294,7 +294,7 @@ function httpGetOption(db) {
  */
 function httpGetPackages(db) {
   return (request, response) => {
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
     queryPackage
       .getPackageSessionPackagePairBySessionId(db, sessionId)
       .then((packageSessionPackagePairs) =>
@@ -308,7 +308,7 @@ function httpGetPackages(db) {
  */
 function httpPostAddNewPackage(db) {
   return (request, response) => {
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
     let { filePath } = request.body
     zclLoader
       .loadIndividualFile(db, filePath, sessionId)
