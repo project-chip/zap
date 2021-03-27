@@ -24,8 +24,8 @@
  * @param {*} browserWindow
  * @returns session UUID
  */
-function getSessionUuidFromBrowserWindow(browserWindow) {
-  let sessionUuid = browserWindow.webContents.executeJavaScript(
+async function getSessionUuidFromBrowserWindow(browserWindow) {
+  let sessionUuid = await browserWindow.webContents.executeJavaScript(
     'window.global_session_uuid'
   )
   return sessionUuid
@@ -37,11 +37,22 @@ function getSessionUuidFromBrowserWindow(browserWindow) {
  * @param {*} browserWindow
  * @returns description of renderer api
  */
-function getRendererApiInformation(browserWindow) {
-  let rendererApi = browserWindow.webContents.executeJavaScript(
-    'window.global_renderer_api'
+async function getRendererApiInformation(browserWindow) {
+  const info = await browserWindow.webContents.executeJavaScript(
+    'window.global_renderer_api_info'
   )
-  return rendererApi
+  let msg = `
+Prefix: ${info.prefix}
+Description: ${info.description}
+Functions:`
+  info.functions.forEach((fn) => {
+    msg = msg.concat(
+      `\n  - ${fn.id}: ${fn.description} ${
+        'type' in fn ? '[' + fn.type + ']' : ''
+      }`
+    )
+  })
+  return msg
 }
 
 /**

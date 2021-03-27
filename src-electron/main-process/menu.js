@@ -128,11 +128,12 @@ const template = [
       {
         label: 'Renderer API information',
         click(menuItem, browserWindow, event) {
-          let msg = browserApi.getRendererApiInformation(browserWindow)
-          dialog.showMessageBox(browserWindow, {
-            title: 'Renderer API information',
-            message: msg,
-            buttons: ['Dismiss'],
+          browserApi.getRendererApiInformation(browserWindow).then((msg) => {
+            dialog.showMessageBox(browserWindow, {
+              title: 'Renderer API information',
+              message: msg,
+              buttons: ['Dismiss'],
+            })
           })
         },
       },
