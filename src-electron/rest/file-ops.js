@@ -32,14 +32,14 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const studio = require('../ide-integration/studio-rest-api.js')
 
 /**
- * HTTP GET: IDE open
+ * HTTP POST: IDE open
  *
  * @param {*} db
  * @returns callback for the express uri registration
  */
-function httpGetIdeOpen(db) {
+function httpPostFileOpen(db) {
   return (req, res) => {
-    let zapPath = req.query[restApi.param.path]
+    let zapPath = req.body.path
     if (zapPath != null) {
       let name = path.posix.basename(zapPath)
       let zapFile = zapPath
@@ -65,7 +65,7 @@ function httpGetIdeOpen(db) {
           res.status(http.StatusCodes.BAD_REQUEST).send(err)
         })
     } else {
-      let msg = `Opening/Loading project: Missing "${restApi.param.path}" query string`
+      let msg = `Opening/Loading project: Missing path data.`
       env.logWarning(msg)
       res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
     }
@@ -73,14 +73,14 @@ function httpGetIdeOpen(db) {
 }
 
 /**
- * HTTP GET: IDE save
+ * HTTP POST: IDE save
  *
  * @param {*} db
  * @returns callback for the express uri registration
  */
-function httpGetIdeSave(db) {
+function httpPostFileSave(db) {
   return (req, res) => {
-    env.logInfo(`Saving project: sessionId(${req.zapSessionId})`)
+    env.logInfo(`Saving session: uuid = ${req.zapSessionId}`)
     querySession
       .getSessionKeyValue(db, req.zapSessionId, dbEnum.sessionKey.filePath)
       .then((filePath) =>
@@ -88,7 +88,7 @@ function httpGetIdeSave(db) {
       )
       .then((filePath) => {
         let projectName = path.posix.basename(filePath)
-        env.logInfo(`Saving project: project(${projectName})`)
+        env.logInfo(`Saving file: file = ${projectName}`)
         res.status(http.StatusCodes.OK).send({ filePath: filePath })
       })
       .catch((err) => {
@@ -102,13 +102,13 @@ function httpGetIdeSave(db) {
   }
 }
 
-exports.get = [
+exports.post = [
   {
     uri: restApi.ide.open,
-    callback: httpGetIdeOpen,
+    callback: httpPostFileOpen,
   },
   {
     uri: restApi.ide.save,
-    callback: httpGetIdeSave,
+    callback: httpPostFileSave,
   },
 ]

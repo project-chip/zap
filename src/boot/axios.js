@@ -158,3 +158,4 @@ Vue.prototype.$serverPatch = serverPatch
 Vue.prototype.$serverDelete = serverDelete
 
 window.axios_server_get = serverGet
+window.axios_server_post = serverPost

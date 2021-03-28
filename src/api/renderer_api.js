@@ -60,20 +60,17 @@ function renderer_api_info() {
 function fnOpen(zap_file) {
   // Make a request for a user with a given ID
   if (zap_file) {
-    let config = { params: {} }
-    config.params[restApi.param.path] = zap_file
     window
-      .axios_server_get(`${restApi.ide.open}`, config)
+      .axios_server_post(`${restApi.ide.open}`, { path: zap_file })
       .then((res) => window.location.reload())
       .catch((err) => console.log(err))
   }
 }
 
-function fnSave(sessionId) {
+function fnSave() {
   window
-    .axios_server_get(`${restApi.ide.save}`)
-    .then((res) => window.saveCallback(res))
-    .then((err) => window.saveCallback(err))
+    .axios_server_post(`${restApi.ide.save}`)
+    .catch((err) => console.log(err))
 }
 
 function fnIsDirty() {

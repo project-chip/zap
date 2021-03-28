@@ -389,7 +389,7 @@ function fileSave(db, browserWindow, filePath) {
  */
 function fileOpen(db, filePaths) {
   filePaths.forEach((filePath, index) => {
-    uiJs.readAndOpenFile(db, filePath, httpPort)
+    uiJs.openFileConfiguration(db, filePath, httpPort)
   })
 }
 

@@ -34,7 +34,7 @@ const restApiModules = [
   '../rest/admin.js',
   '../rest/static-zcl.js',
   '../rest/generation.js',
-  '../rest/ide-api-handler.js',
+  '../rest/file-ops.js',
   '../rest/uc-api-handler.js',
   '../rest/endpoint.js',
   '../rest/user-data.js',

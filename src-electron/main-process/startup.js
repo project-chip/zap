@@ -82,7 +82,7 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
           )
         } else {
           return util.executePromisesSequentially(zapFiles, (f) =>
-            uiJs.readAndOpenFile(
+            uiJs.openFileConfiguration(
               env.mainDatabase(),
               f,
               httpServer.httpServerPort()
