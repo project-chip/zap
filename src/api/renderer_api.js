@@ -64,8 +64,8 @@ function fnOpen(zap_file) {
     config.params[restApi.param.path] = zap_file
     window
       .axios_server_get(`${restApi.ide.open}`, config)
-      .then((res) => window.openCallback(res))
-      .catch((err) => window.openCallback(err))
+      .then((res) => window.location.reload())
+      .catch((err) => console.log(err))
   }
 }
 
