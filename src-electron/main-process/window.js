@@ -130,14 +130,16 @@ function windowCreate(port, args = {}) {
   w.webContents.on(
     'console-message',
     (event, level, message, line, sourceId) => {
-      const DIRTY = 'Dirty flag received: '
-      if (message.startsWith(DIRTY)) {
-        let dirty = 'true' == message.slice(DIRTY.length)
-        let title = w.getTitle()
-        if (title.startsWith('* ') && !dirty) {
-          w.setTitle(title.slice(2))
-        } else if (!title.startsWith('*') && dirty) {
-          w.setTitle('* ' + title)
+      if (message.startsWith('rendererApiJson:')) {
+        let obj = JSON.parse(message.slice('rendererApiJson:'.length))
+        if (obj.key == 'dirtyFlag') {
+          let dirty = obj.value
+          let title = w.getTitle()
+          if (title.startsWith('* ') && !dirty) {
+            w.setTitle(title.slice(2))
+          } else if (!title.startsWith('*') && dirty) {
+            w.setTitle('* ' + title)
+          }
         }
       } else {
         env.logBrowser(message)

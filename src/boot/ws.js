@@ -20,6 +20,7 @@ import dbEnum from '../../src-shared/db-enum.js'
 import restApi from '../../src-shared/rest-api.js'
 import { Notify } from 'quasar'
 import * as Util from '../util/util.js'
+import { renderer_notify } from '../api/renderer_api.js'
 
 let eventEmitter = new Events.EventEmitter()
 let wsUrl = `ws://${window.location.hostname}:${window.location.port}?${
@@ -104,7 +105,7 @@ onWebSocket(dbEnum.wsCategory.tick, (data) =>
 
 onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) => {
   document.documentElement.setAttribute('isdirty', data)
-  console.log(`Dirty flag received: ${data}`)
+  renderer_notify('dirtyFlag', data)
 })
 
 onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {

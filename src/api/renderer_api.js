@@ -95,5 +95,10 @@ function renderer_api_execute(id, ...args) {
   return ret
 }
 
+function renderer_notify(key, value) {
+  console.log(`rendererApiJson:${JSON.stringify({ key: key, value: value })}`)
+}
+
 exports.renderer_api_info = renderer_api_info
 exports.renderer_api_execute = renderer_api_execute
+exports.renderer_notify = renderer_notify
