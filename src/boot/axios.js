@@ -24,10 +24,10 @@ Vue.prototype.$axios = axios({ withCredentials: true })
 
 // You can set this to false to not log all the roundtrips
 const log = true
-let sessionUuid = uuidv4()
 
-window.global_session_uuid = sessionUuid
-Vue.prototype.$sessionUuid = sessionUuid
+if (window.sessionStorage.getItem('session_uuid') == null) {
+  window.sessionStorage.setItem('session_uuid', uuidv4())
+}
 
 /**
  * Internal function that processes response from the server for any request.
@@ -57,13 +57,17 @@ function processResponse(method, url, response) {
 function fillConfig(config) {
   if (config == null) {
     config = { params: {} }
-    config.params[restApi.param.sessionId] = sessionUuid
+    config.params[restApi.param.sessionId] = window.sessionStorage.getItem(
+      'session_uuid'
+    )
     return config
   } else {
     if (!('params' in config)) {
       config.params = {}
     }
-    config.params[restApi.param.sessionId] = sessionUuid
+    config.params[restApi.param.sessionId] = window.sessionStorage.getItem(
+      'session_uuid'
+    )
     return config
   }
 }

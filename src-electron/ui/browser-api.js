@@ -26,7 +26,7 @@
  */
 async function getSessionUuidFromBrowserWindow(browserWindow) {
   let sessionUuid = await browserWindow.webContents.executeJavaScript(
-    'window.global_session_uuid'
+    'window.sessionStorage.getItem("session_uuid")'
   )
   return sessionUuid
 }
