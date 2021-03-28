@@ -61,6 +61,18 @@ async function executeLoad(browserWindow, path) {
   )
 }
 
+async function executeSave(browserWindow, path) {
+  if (path == null) {
+    await browserWindow.webContents.executeJavaScript(
+      `window.global_renderer_api_execute("save")`
+    )
+  } else {
+    await browserWindow.webContents.executeJavaScript(
+      `window.global_renderer_api_execute("save", "${path}")`
+    )
+  }
+}
+
 /**
  * Returns cookie for user identification.
  *
@@ -108,3 +120,4 @@ exports.getUserKeyFromBrowserWindow = getUserKeyFromBrowserWindow
 exports.getUserKeyFromBrowserCookie = getUserKeyFromBrowserCookie
 exports.getUserKeyFromCookieValue = getUserKeyFromCookieValue
 exports.executeLoad = executeLoad
+exports.executeSave = executeSave

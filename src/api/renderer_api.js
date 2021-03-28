@@ -67,9 +67,11 @@ function fnOpen(zap_file) {
   }
 }
 
-function fnSave() {
+function fnSave(zap_file) {
+  let data = {}
+  if (zap_file != null) data.path = zap_file
   window
-    .axios_server_post(`${restApi.ide.save}`)
+    .axios_server_post(`${restApi.ide.save}`, data)
     .catch((err) => console.log(err))
 }
 

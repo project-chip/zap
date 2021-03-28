@@ -186,7 +186,7 @@ function doOpen(menuItem, browserWindow, event) {
     })
     .then((result) => {
       if (!result.canceled) {
-        fileOpen(env.mainDatabase(), result.filePaths)
+        fileOpen(result.filePaths)
       }
     })
     .catch((err) => uiJs.showErrorMessage('Open file', err))
@@ -200,25 +200,7 @@ function doOpen(menuItem, browserWindow, event) {
  * @param {*} event
  */
 function doSave(menuItem, browserWindow, event) {
-  browserApi
-    .getUserKeyFromBrowserWindow(browserWindow)
-    .then((sessionKey) =>
-      querySession.getSessionInfoFromSessionKey(env.mainDatabase(), sessionKey)
-    )
-    .then((row) =>
-      querySession.getSessionKeyValue(
-        env.mainDatabase(),
-        row.sessionId,
-        dbEnum.sessionKey.filePath
-      )
-    )
-    .then((filePath) => {
-      if (filePath == null) {
-        doSaveAs(menuItem, browserWindow, event)
-      } else {
-        return fileSave(env.mainDatabase(), browserWindow, filePath)
-      }
-    })
+  fileSave(browserWindow, null)
 }
 
 /**
@@ -245,7 +227,7 @@ function doSaveAs(menuItem, browserWindow, event) {
     })
     .then((result) => {
       if (!result.canceled) {
-        return fileSave(env.mainDatabase(), browserWindow, result.filePath)
+        return fileSave(browserWindow, result.filePath)
       } else {
         return null
       }
@@ -361,24 +343,8 @@ function generateInDir(browserWindow) {
  * @param {*} filePath
  * @returns Promise of saving.
  */
-function fileSave(db, browserWindow, filePath) {
-  browserApi
-    .getUserKeyFromBrowserWindow(browserWindow)
-    .then((sessionKey) =>
-      querySession.getSessionInfoFromSessionKey(db, sessionKey)
-    )
-    .then((row) => {
-      return querySession
-        .updateSessionKeyValue(
-          db,
-          row.sessionId,
-          dbEnum.sessionKey.filePath,
-          path.resolve(filePath)
-        )
-        .then(() => row)
-    })
-    .then((row) => exportJs.exportDataIntoFile(db, row.sessionId, filePath))
-    .catch((err) => uiJs.showErrorMessage('File save', err))
+function fileSave(browserWindow, filePath) {
+  browserApi.executeSave(browserWindow, filePath)
 }
 
 /**
@@ -387,9 +353,9 @@ function fileSave(db, browserWindow, filePath) {
  * @param {*} db
  * @param {*} filePaths
  */
-function fileOpen(db, filePaths) {
+function fileOpen(filePaths) {
   filePaths.forEach((filePath, index) => {
-    uiJs.openFileConfiguration(db, filePath, httpPort)
+    uiJs.openFileConfiguration(filePath, httpPort)
   })
 }
 

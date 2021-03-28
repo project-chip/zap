@@ -41,7 +41,7 @@ function showErrorMessage(title, err) {
  * @param {*} filePath
  * @param {*} httpPort Server port for the URL that will be constructed.
  */
-function openFileConfiguration(db, filePath, httpPort) {
+function openFileConfiguration(filePath, httpPort) {
   windowJs.windowCreate(httpPort, {
     filePath: filePath,
   })

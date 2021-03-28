@@ -80,12 +80,30 @@ function httpPostFileOpen(db) {
  */
 function httpPostFileSave(db) {
   return (req, res) => {
-    env.logInfo(`Saving session: uuid = ${req.zapSessionId}`)
-    querySession
-      .getSessionKeyValue(db, req.zapSessionId, dbEnum.sessionKey.filePath)
-      .then((filePath) =>
-        exportJs.exportDataIntoFile(db, req.zapSessionId, filePath)
+    let zapPath = req.body.path
+    env.logInfo(`Saving session: id = ${req.zapSessionId}. path=${zapPath}`)
+
+    let p
+    if (zapPath == null) {
+      p = querySession.getSessionKeyValue(
+        db,
+        req.zapSessionId,
+        dbEnum.sessionKey.filePath
       )
+    } else {
+      p = querySession
+        .updateSessionKeyValue(
+          db,
+          req.zapSessionId,
+          dbEnum.sessionKey.filePath,
+          zapPath
+        )
+        .then(() => zapPath)
+    }
+
+    p.then((path) => {
+      return exportJs.exportDataIntoFile(db, req.zapSessionId, path)
+    })
       .then((filePath) => {
         let projectName = path.posix.basename(filePath)
         env.logInfo(`Saving file: file = ${projectName}`)
