@@ -54,7 +54,7 @@ function initializeWebSocket(httpServer) {
     }
 
     const sessionUuid = url.substring(indexOf + token.length)
-    socket.sessionKey = sessionUuid
+    socket.sessionUuid = sessionUuid
     socket.on('message', (message) => {
       // When we receive a message we emit it via the event emitter.
       let obj = JSON.parse(message)
@@ -96,13 +96,13 @@ function initializeWebSocket(httpServer) {
 /**
  * Method that returns the websocket for a given session key.
  *
- * @param {*} sessionKey
+ * @param {*} sessionUuid
  */
-function clientSocket(sessionKey) {
+function clientSocket(sessionUuid) {
   let socketToReturn = null
   if (wsServer == null) return null
   wsServer.clients.forEach((socket) => {
-    if (socket.sessionKey == sessionKey) {
+    if (socket.sessionUuid == sessionUuid) {
       socketToReturn = socket
     }
   })

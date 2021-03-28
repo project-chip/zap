@@ -171,15 +171,14 @@ function init() {
 }
 
 /**
- * Clears up the reporting interval. 
+ * Clears up the reporting interval.
  */
 function deinit() {
   if (reportingIntervalId != null) clearInterval(reportingIntervalId)
 }
 
 function sendDirtyFlagStatus() {
-  // 'sessionId', 'sessionKey' and 'creationTime'.
-  querySession.getAllSessions(env.mainDatabase()).then((sessions) =>
+  querySession.getAllSessions(env.mainDatabase()).then((sessions) => {
     sessions.forEach((session) => {
       let socket = wsServer.clientSocket(session.sessionKey)
       if (socket) {
@@ -193,7 +192,7 @@ function sendDirtyFlagStatus() {
           })
       }
     })
-  )
+  })
 }
 
 /**

@@ -22,7 +22,9 @@ import { Notify } from 'quasar'
 import * as Util from '../util/util.js'
 
 let eventEmitter = new Events.EventEmitter()
-let wsUrl = `ws://${window.location.hostname}:${window.location.port}?${restApi.param.sessionId}=${Vue.prototype.$sessionUuid}`
+let wsUrl = `ws://${window.location.hostname}:${window.location.port}?${
+  restApi.param.sessionId
+}=${window.sessionStorage.getItem('session_uuid')}`
 const client = new WebSocket(wsUrl)
 
 function doSend(object) {
