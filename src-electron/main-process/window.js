@@ -57,19 +57,19 @@ function createQueryString(uiMode = null, embeddedMode = null) {
 }
 
 /**
- * Create a window, possibly with a given file path and with a desire to attach to a given sessionId
- *
- * Win id will be passed on in the URL, and if sessionId is present, so will it.
+ * Create a window, possibly with a given file path.
  *
  * @export
  * @param {*} port
  * @param {*} [filePath=null]
- * @param {*} [sessionId=null]
+ * @param {*} [uiMode=null]
+ * @param {*} [embeddedMode=null]
  * @returns BrowserWindow that got created
  */
 function windowCreate(port, args = {}) {
   let webPreferences = {
     nodeIntegration: false,
+    worldSafeExecuteJavaScript: true,
   }
   windowCounter++
   let w = new BrowserWindow({
@@ -89,12 +89,9 @@ function windowCreate(port, args = {}) {
 
   w.loadURL(`http://localhost:${port}/index.html` + queryString).then(
     async () => {
-      /*       
-      let api = await w.webContents.executeJavaScript(
-        'window.global_renderer_api'
-      )
-      */
-      env.logInfo('Index page loaded.')
+      if (args.filePath != null) {
+        browserApi.executeLoad(w, args.filePath)
+      }
     }
   )
 
@@ -122,6 +119,7 @@ function windowCreate(port, args = {}) {
 
             if (result === 0) w.destroy()
           } else {
+            e
             w.destroy()
           }
         }
@@ -129,19 +127,23 @@ function windowCreate(port, args = {}) {
     )
   }) // EO close
 
-  w.webContents.on('console-message', (event, level, message) => {
-    env.logBrowser(message)
-    const DIRTY = 'Dirty flag received: '
-    if (message.startsWith(DIRTY)) {
-      let dirty = 'true' == message.slice(DIRTY.length)
-      let title = w.getTitle()
-      if (title.startsWith('* ') && !dirty) {
-        w.setTitle(title.slice(2))
-      } else if (!title.startsWith('*') && dirty) {
-        w.setTitle('* ' + title)
+  w.webContents.on(
+    'console-message',
+    (event, level, message, line, sourceId) => {
+      const DIRTY = 'Dirty flag received: '
+      if (message.startsWith(DIRTY)) {
+        let dirty = 'true' == message.slice(DIRTY.length)
+        let title = w.getTitle()
+        if (title.startsWith('* ') && !dirty) {
+          w.setTitle(title.slice(2))
+        } else if (!title.startsWith('*') && dirty) {
+          w.setTitle('* ' + title)
+        }
+      } else {
+        env.logBrowser(message)
       }
     }
-  })
+  )
 
   return w
 }

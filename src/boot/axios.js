@@ -18,7 +18,6 @@
 import Vue from 'vue'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
-
 import restApi from '../../src-shared/rest-api.js'
 
 Vue.prototype.$axios = axios({ withCredentials: true })
@@ -153,3 +152,5 @@ Vue.prototype.$serverPost = serverPost
 Vue.prototype.$serverPut = serverPut
 Vue.prototype.$serverPatch = serverPatch
 Vue.prototype.$serverDelete = serverDelete
+
+window.axios_server_get = serverGet

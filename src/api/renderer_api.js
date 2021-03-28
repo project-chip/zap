@@ -16,6 +16,7 @@
  */
 
 const util = require('../util/util.js')
+const restApi = require('../../src-shared/rest-api.js')
 
 // This file provide glue logic to enable function calls & HTML attribute data change listener logic
 // between front-end containers (jxBrowser, Electron, etc) and the node.js
@@ -60,17 +61,17 @@ function fnOpen(zap_file) {
   // Make a request for a user with a given ID
   if (zap_file) {
     let config = { params: {} }
-    config.params[restApi.param.path] = zapFile
-    axios
-      .get(`${restApi.ide.open}`, config)
+    config.params[restApi.param.path] = zap_file
+    window
+      .axios_server_get(`${restApi.ide.open}`, config)
       .then((res) => window.openCallback(res))
       .catch((err) => window.openCallback(err))
   }
 }
 
 function fnSave(sessionId) {
-  axios
-    .get(`${restApi.ide.save}`)
+  window
+    .axios_server_get(`${restApi.ide.save}`)
     .then((res) => window.saveCallback(res))
     .then((err) => window.saveCallback(err))
 }
@@ -79,17 +80,17 @@ function fnIsDirty() {
   util.observeAttribute('isdirty', 'setDirty')
 }
 
-function renderer_api_execute(id) {
+function renderer_api_execute(id, ...args) {
   let ret = null
   switch (id) {
     case 'open':
-      ret = fnOpen.apply(null, arguments.slice(1))
+      ret = fnOpen.apply(null, args)
       break
     case 'save':
-      ret = fnSave.apply(null, arguments.slice(1))
+      ret = fnSave.apply(null, args)
       break
     case 'isDirty':
-      ret = fnIsDirty.apply(null, arguments.slice(1))
+      ret = fnIsDirty.apply(null, args)
       break
   }
   return ret

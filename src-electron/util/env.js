@@ -83,7 +83,6 @@ function setProductionEnv() {
 function logInitStdout() {
   if (!explicit_logger_set) {
     pino_logger = pino(pinoOptions, pino.destination(1))
-    console.log('SET STDOUT LOGGER')
     explicit_logger_set = true
   }
 }
@@ -94,7 +93,6 @@ function logInitLogFile() {
       pinoOptions,
       pino.destination(path.join(appDirectory(), 'zap.log'))
     )
-    console.log('SET FILE LOGGER')
     explicit_logger_set = true
   }
 }

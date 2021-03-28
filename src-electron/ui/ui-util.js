@@ -41,18 +41,9 @@ function showErrorMessage(title, err) {
  */
 function readAndOpenFile(db, filePath, httpPort) {
   env.logInfo(`Read and open: ${filePath}`)
-  return importJs
-    .importDataFromFile(db, filePath)
-    .then((importResult) => {
-      windowJs.windowCreate(httpPort, {
-        filePath: filePath,
-        sessionId: importResult.sessionId,
-      })
-      return true
-    })
-    .catch((err) => {
-      showErrorMessage(filePath, err)
-    })
+  windowJs.windowCreate(httpPort, {
+    filePath: filePath,
+  })
 }
 
 /**

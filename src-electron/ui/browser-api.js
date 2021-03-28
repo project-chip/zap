@@ -55,6 +55,12 @@ Functions:`
   return msg
 }
 
+async function executeLoad(browserWindow, path) {
+  await browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute("open", "${path}")`
+  )
+}
+
 /**
  * Returns cookie for user identification.
  *
@@ -101,3 +107,4 @@ exports.getRendererApiInformation = getRendererApiInformation
 exports.getUserKeyFromBrowserWindow = getUserKeyFromBrowserWindow
 exports.getUserKeyFromBrowserCookie = getUserKeyFromBrowserCookie
 exports.getUserKeyFromCookieValue = getUserKeyFromCookieValue
+exports.executeLoad = executeLoad
