@@ -133,3 +133,15 @@ export function getSelectedComponent(ucComponentTreeResponse) {
   }
   return selected
 }
+
+/**
+ * Extract cluster id string "$cluster" from the internal Uc Component Id
+ *
+ * e.g. "basic" from "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
+ * @param {*} ucComponentIds - an array of ids
+ */
+export function getClustersByUcComponentIds(ids) {
+  return ids
+    .filter((x) => x.includes('zigbee_'))
+    .map((x) => x.substr(x.lastIndexOf('-') + 1))
+}

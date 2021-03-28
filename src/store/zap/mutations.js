@@ -436,3 +436,7 @@ export function resetFilters(state) {
 export function updateProjectPackages(state, packages) {
   Vue.set(state, 'packages', packages)
 }
+
+export function updateUcComponentState(state, selectedUcComponentIds) {
+  Vue.set(state.studio, 'selectedComponentIds', selectedUcComponentIds)
+}

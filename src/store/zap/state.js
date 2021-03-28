@@ -118,6 +118,8 @@ export default function () {
     },
     studio: {
       projectPath: '',
-    }
+      projectInfoJson: '', // HTTP response from Studio jetty server
+      selectedComponentIds: [], // parsed from 'projectInfoJson'
+    },
   }
 }
