@@ -101,22 +101,29 @@ function httpPostFileSave(db) {
         .then(() => zapPath)
     }
 
-    p.then((path) => {
-      return exportJs.exportDataIntoFile(db, req.zapSessionId, path)
+    p.then((actualPath) => {
+      if (actualPath != null) {
+        exportJs
+          .exportDataIntoFile(db, req.zapSessionId, actualPath)
+          .then((filePath) => {
+            let projectName = path.posix.basename(filePath)
+            env.logInfo(`Saving file: file = ${projectName}`)
+            res.status(http.StatusCodes.OK).send({ filePath: filePath })
+          })
+          .catch((err) => {
+            let msg = `Unable to save project with sessionId(${req.zapSessionId})`
+            env.logError(msg)
+            env.logError(err)
+            res.status(http.StatusCodes.BAD_REQUEST).send({
+              error: msg,
+            })
+          })
+      } else {
+        res
+          .status(http.StatusCodes.BAD_REQUEST)
+          .send({ error: 'No file specified.' })
+      }
     })
-      .then((filePath) => {
-        let projectName = path.posix.basename(filePath)
-        env.logInfo(`Saving file: file = ${projectName}`)
-        res.status(http.StatusCodes.OK).send({ filePath: filePath })
-      })
-      .catch((err) => {
-        let msg = `Unable to save project with sessionId(${req.zapSessionId})`
-        env.logError(msg)
-        env.logError(err)
-        res.status(http.StatusCodes.BAD_REQUEST).send({
-          error: msg,
-        })
-      })
   }
 }
 
