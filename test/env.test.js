@@ -20,6 +20,7 @@
 
 const env = require('../src-electron/util/env.js')
 const util = require('../src-electron/util/util.js')
+const browserApi = require('../src-electron/ui/browser-api.js')
 const fs = require('fs')
 const os = require('os')
 const dbEnum = require('../src-shared/db-enum.js')
@@ -70,12 +71,12 @@ describe('Util Tests', () => {
 
   test('Test Session Key Cookies', () => {
     let testCookie = { 'connect.sid': 's%3Atest.abra' }
-    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('test')
-    expect(util.getSessionKeyFromBrowserCookie({})).toBeNull()
+    expect(browserApi.getUserKeyFromBrowserCookie(testCookie)).toEqual('test')
+    expect(browserApi.getUserKeyFromBrowserCookie({})).toBeNull()
     testCookie['connect.sid'] = 'tester.abra'
-    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('tester')
+    expect(browserApi.getUserKeyFromBrowserCookie(testCookie)).toEqual('tester')
     testCookie['connect.sid'] = 's%3Aabra'
-    expect(util.getSessionKeyFromBrowserCookie(testCookie)).toEqual('abra')
+    expect(browserApi.getUserKeyFromBrowserCookie(testCookie)).toEqual('abra')
   })
 
   let array = []

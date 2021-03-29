@@ -24,6 +24,7 @@ limitations under the License.
 <script>
 import Vue from 'vue'
 import { QSpinnerGears } from 'quasar'
+const restApi = require(`../src-shared/rest-api.js`)
 const util = require('./util/util.js')
 
 function initLoad(store) {

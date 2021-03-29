@@ -166,13 +166,15 @@ test('Now load the generation data.', () =>
 
 describe('Session specific queries', () => {
   beforeAll(() =>
-    querySession.ensureZapSessionId(db, 'SESSION').then((id) => {
-      sid = id
-      return util.initializeSessionPackage(db, id)
-    })
+    querySession
+      .ensureZapUserAndSession(db, 'USER', 'SESSION')
+      .then((userSession) => {
+        sid = userSession.sessionId
+        return util.initializeSessionPackage(db, sid)
+      })
   )
 
-  test('Test that package id for session is preset.', () =>
+  test('Test that package id for session is present.', () =>
     queryPackage
       .getSessionPackages(db, sid)
       .then((ids) => expect(ids.length).toBe(2))) // One for zclpropertie and one for gen template
@@ -181,11 +183,6 @@ describe('Session specific queries', () => {
     queryPackage
       .getSessionZclPackages(db, sid)
       .then((packages) => expect(packages.length).toBe(1))) // One for zclpropertie
-
-  test('Test some attribute queries.', () =>
-    querySession.getSessionInfoFromSessionKey(db, 'SESSION').then((data) => {
-      expect(data.sessionId).toBe(sid)
-    }))
 
   test('Random key value queries', async () => {
     await querySession.updateSessionKeyValue(db, sid, 'key1', 'value1')
@@ -199,8 +196,6 @@ describe('Session specific queries', () => {
   })
 
   test('Make sure session is dirty', async () => {
-    let data = await querySession.getSessionInfoFromSessionKey(db, 'SESSION')
-    let sid = data.sessionId
     let result = await querySession.getSessionDirtyFlag(db, sid)
     expect(result).toBeTruthy()
     await querySession.setSessionClean(db, sid)
@@ -209,14 +204,9 @@ describe('Session specific queries', () => {
   })
 
   test('Make sure triggers work', () => {
-    let sid
     let endpointTypeId
     return querySession
-      .getSessionInfoFromSessionKey(db, 'SESSION')
-      .then((data) => {
-        sid = data.sessionId
-        return querySession.getSessionDirtyFlag(db, sid)
-      })
+      .getSessionDirtyFlag(db, sid)
       .then((result) => {
         expect(result).toBeFalsy()
       })
@@ -245,18 +235,8 @@ describe('Session specific queries', () => {
   }, 2000)
 
   test('Test key values', () => {
-    let sid
     return querySession
-      .getSessionInfoFromSessionKey(db, 'SESSION')
-      .then((data) => {
-        sid = data.sessionId
-        return querySession.updateSessionKeyValue(
-          db,
-          sid,
-          'testKey',
-          'testValue'
-        )
-      })
+      .updateSessionKeyValue(db, sid, 'testKey', 'testValue')
       .then(() => querySession.getSessionKeyValue(db, sid, 'testKey'))
       .then((value) => {
         expect(value).toBe('testValue')
@@ -264,14 +244,9 @@ describe('Session specific queries', () => {
   })
 
   test('Test state creation', () => {
-    let sid
     let endpointTypeId
-    return querySession
-      .getSessionInfoFromSessionKey(db, 'SESSION')
-      .then((data) => {
-        sid = data.sessionId
-        return queryConfig.insertEndpointType(db, sid, 'Test endpoint')
-      })
+    return queryConfig
+      .insertEndpointType(db, sid, 'Test endpoint')
       .then((id) => {
         endpointTypeId = id
       })
@@ -322,9 +297,9 @@ describe('Session specific queries', () => {
 describe('Endpoint Type Config Queries', () => {
   beforeAll(() =>
     querySession
-      .ensureZapSessionId(db, 'SESSION')
-      .then((id) => {
-        sid = id
+      .ensureZapUserAndSession(db, 'USER', 'SESSION', { sessionId: sid })
+      .then((userSession) => {
+        sid = userSession.sessionId
       })
       .then(() =>
         queryPackage.getSessionPackagesByType(

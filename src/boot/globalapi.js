@@ -17,6 +17,7 @@
 
 // The purpose of this file is to populate the api for the entry points from jxbrowser.
 
-import renderer_api from '../api/renderer_api.js'
+import { renderer_api_info, renderer_api_execute } from '../api/renderer_api.js'
 
-window.global_renderer_api = renderer_api()
+window.global_renderer_api_info = renderer_api_info()
+window.global_renderer_api_execute = renderer_api_execute

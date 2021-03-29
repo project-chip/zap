@@ -168,41 +168,6 @@ function createBackupFile(filePath) {
   }
 }
 
-function getSessionKeyFromCookieValue(cookieValue) {
-  let ret = cookieValue
-  if (ret == null) return null
-  if (ret.startsWith('connect.sid=')) ret = ret.substring(12)
-  if (ret.startsWith('s%3A')) ret = ret.substring(4)
-  if (ret.includes('.')) ret = ret.split('.')[0]
-  return ret
-}
-
-/**
- * Returns the session key
- * @param {*} browserCookie object
- */
-function getSessionKeyFromBrowserCookie(browserCookie) {
-  let sid = browserCookie['connect.sid']
-  if (sid) {
-    return getSessionKeyFromCookieValue(sid)
-  } else {
-    return null
-  }
-}
-
-/**
- * Returns a promise that resolves into the session key.
- * @param {*} browserWindow
- */
-function getSessionKeyFromBrowserWindow(browserWindow) {
-  return browserWindow.webContents.session.cookies
-    .get({ name: 'connect.sid' })
-    .then((cookies) => {
-      if (cookies.length == 0) throw 'Could not find session key'
-      else return getSessionKeyFromCookieValue(cookies[0].value)
-    })
-}
-
 /**
  * Returns an object that contains:
  *    match: true or false if featureLevel is matched or not.
@@ -382,9 +347,6 @@ function executeExternalProgram(
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
-exports.getSessionKeyFromBrowserWindow = getSessionKeyFromBrowserWindow
-exports.getSessionKeyFromBrowserCookie = getSessionKeyFromBrowserCookie
-exports.getSessionKeyFromCookieValue = getSessionKeyFromCookieValue
 exports.matchFeatureLevel = matchFeatureLevel
 exports.sessionReport = sessionReport
 exports.executePromisesSequentially = executePromisesSequentially

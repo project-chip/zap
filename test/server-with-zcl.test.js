@@ -26,6 +26,7 @@ const restApi = require('../src-shared/rest-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const testUtil = require('./test-util.js')
+const { v4: uuidv4 } = require('uuid')
 
 let db
 let axiosInstance = null
@@ -54,6 +55,7 @@ test('get index.html', () =>
   axiosInstance.get('/index.html').then((response) => {
     let sessionCookie = response.headers['set-cookie'][0]
     axiosInstance.defaults.headers.Cookie = sessionCookie
+    console.log(sessionCookie)
     expect(
       response.data.includes(
         'Configuration tool for the Zigbee Cluster Library'
@@ -64,7 +66,7 @@ test('get index.html', () =>
 describe('Miscelaneous REST API tests', () => {
   test('test manufacturer codes', () =>
     axiosInstance
-      .get(`${restApi.uri.option}/manufacturerCodes`)
+      .get(`${restApi.uri.option}/manufacturerCodes?sessionId=${uuidv4()}`)
       .then((response) => {
         expect(response.data.length).toBeGreaterThan(100)
       }))

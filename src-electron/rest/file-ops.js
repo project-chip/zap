@@ -27,30 +27,27 @@ const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const path = require('path')
 const http = require('http-status-codes')
-const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const { queryEndpoints } = require('../db/query-endpoint.js')
-const webSocket = require('../server/ws-server.js')
-const httpServer = require('../server/http-server.js')
 const studio = require('../ide-integration/studio-rest-api.js')
 
 /**
- * HTTP GET: IDE open
+ * HTTP POST: IDE open
  *
  * @param {*} db
  * @returns callback for the express uri registration
  */
-function httpGetIdeOpen(db) {
+function httpPostFileOpen(db) {
   return (req, res) => {
-    if (req.query.project) {
-      let name = path.posix.basename(req.query.project)
-      let zapFile = req.query.project
+    let zapPath = req.body.path
+    if (zapPath != null) {
+      let name = path.posix.basename(zapPath)
+      let zapFile = zapPath
 
       env.logInfo(`Studio: Opening/Loading project(${name})`)
 
       importJs
-        .importDataFromFile(db, zapFile, req.session.zapSessionId)
+        .importDataFromFile(db, zapFile, req.zapSessionId)
         .then((importResult) => {
           let response = {
             sessionId: importResult.sessionId,
@@ -68,7 +65,7 @@ function httpGetIdeOpen(db) {
           res.status(http.StatusCodes.BAD_REQUEST).send(err)
         })
     } else {
-      let msg = 'Opening/Loading project: Missing "project" query string'
+      let msg = `Opening/Loading project: Missing path data.`
       env.logWarning(msg)
       res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
     }
@@ -76,46 +73,67 @@ function httpGetIdeOpen(db) {
 }
 
 /**
- * HTTP GET: IDE save
+ * HTTP POST: IDE save
  *
  * @param {*} db
  * @returns callback for the express uri registration
  */
-function httpGetIdeSave(db) {
+function httpPostFileSave(db) {
   return (req, res) => {
-    env.logInfo(`Saving project: sessionId(${req.session.zapSessionId})`)
-    querySession
-      .getSessionKeyValue(
+    let zapPath = req.body.path
+    env.logInfo(`Saving session: id = ${req.zapSessionId}. path=${zapPath}`)
+
+    let p
+    if (zapPath == null) {
+      p = querySession.getSessionKeyValue(
         db,
-        req.session.zapSessionId,
+        req.zapSessionId,
         dbEnum.sessionKey.filePath
       )
-      .then((filePath) =>
-        exportJs.exportDataIntoFile(db, req.session.zapSessionId, filePath)
-      )
-      .then((filePath) => {
-        let projectName = path.posix.basename(filePath)
-        env.logInfo(`Saving project: project(${projectName})`)
-        res.status(http.StatusCodes.OK).send({ filePath: filePath })
-      })
-      .catch((err) => {
-        let msg = `Unable to save project with sessionId(${req.session.zapSessionId})`
-        env.logError(msg)
-        env.logError(err)
-        res.status(http.StatusCodes.BAD_REQUEST).send({
-          error: msg,
-        })
-      })
+    } else {
+      p = querySession
+        .updateSessionKeyValue(
+          db,
+          req.zapSessionId,
+          dbEnum.sessionKey.filePath,
+          zapPath
+        )
+        .then(() => zapPath)
+    }
+
+    p.then((actualPath) => {
+      if (actualPath != null) {
+        exportJs
+          .exportDataIntoFile(db, req.zapSessionId, actualPath)
+          .then((filePath) => {
+            let projectName = path.posix.basename(filePath)
+            env.logInfo(`Saving file: file = ${projectName}`)
+            res.status(http.StatusCodes.OK).send({ filePath: filePath })
+          })
+          .catch((err) => {
+            let msg = `Unable to save project with sessionId(${req.zapSessionId})`
+            env.logError(msg)
+            env.logError(err)
+            res.status(http.StatusCodes.BAD_REQUEST).send({
+              error: msg,
+            })
+          })
+      } else {
+        res
+          .status(http.StatusCodes.BAD_REQUEST)
+          .send({ error: 'No file specified.' })
+      }
+    })
   }
 }
 
-exports.get = [
+exports.post = [
   {
     uri: restApi.ide.open,
-    callback: httpGetIdeOpen,
+    callback: httpPostFileOpen,
   },
   {
     uri: restApi.ide.save,
-    callback: httpGetIdeSave,
+    callback: httpPostFileSave,
   },
 ]

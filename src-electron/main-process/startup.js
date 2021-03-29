@@ -32,7 +32,7 @@ const queryConfig = require('../db/query-config.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
-const uiJs = require('./ui.js')
+const uiJs = require('../ui/ui-util.js')
 
 // This file contains various startup modes.
 
@@ -75,14 +75,14 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
       if (uiEnabled) {
         windowJs.initializeElectronUi(httpServer.httpServerPort())
         if (zapFiles.length == 0) {
-          uiJs.openNewConfiguration(httpServer.httpServerPort(), options)
+          return uiJs.openNewConfiguration(
+            env.mainDatabase(),
+            httpServer.httpServerPort(),
+            options
+          )
         } else {
           return util.executePromisesSequentially(zapFiles, (f) =>
-            uiJs.readAndOpenFile(
-              env.mainDatabase(),
-              f,
-              httpServer.httpServerPort()
-            )
+            uiJs.openFileConfiguration(f, httpServer.httpServerPort())
           )
         }
       } else {

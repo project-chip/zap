@@ -29,10 +29,12 @@ const args = require('../src-electron/util/args.js')
 const httpServer = require('../src-electron/server/http-server.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const testUtil = require('./test-util.js')
+const { v4: uuidv4 } = require('uuid')
 
 let db
 const { port, baseUrl } = testUtil.testServer(__filename)
 const timeout = 8000
+let uuid = uuidv4()
 
 beforeAll(() => {
   env.setDevelopmentEnv()
@@ -149,12 +151,14 @@ describe('Session specific tests', () => {
   test(
     'test retrieval of all preview template files',
     () => {
-      return axios.get(`${baseUrl}/preview/`).then((response) => {
-        templateCount = response.data['length']
-        for (i = 0; i < response.data['length']; i++) {
-          expect(response.data[i]['version']).toBeDefined()
-        }
-      })
+      return axios
+        .get(`${baseUrl}/preview/?sessionId=${uuid}`)
+        .then((response) => {
+          templateCount = response.data['length']
+          for (i = 0; i < response.data['length']; i++) {
+            expect(response.data[i]['version']).toBeDefined()
+          }
+        })
     },
     timeout
   )
@@ -181,9 +185,11 @@ describe('Session specific tests', () => {
   test(
     'test retrieval of all preview template files make sure they are session aware',
     () => {
-      return axios.get(`${baseUrl}/preview/`).then((response) => {
-        expect(templateCount).toEqual(response.data['length'])
-      })
+      return axios
+        .get(`${baseUrl}/preview/?sessionId=${uuid}`)
+        .then((response) => {
+          expect(templateCount).toEqual(response.data['length'])
+        })
     },
     timeout
   )
@@ -192,7 +198,7 @@ describe('Session specific tests', () => {
     'test that there is generation data in the simple-test.out preview file. Index 1',
     () => {
       return axios
-        .get(`${baseUrl}/preview/simple-test.out/1`)
+        .get(`${baseUrl}/preview/simple-test.out/1?sessionId=${uuid}`)
         .then((response) => {
           expect(response.data['result']).toMatch('Test template file.')
         })
@@ -203,9 +209,11 @@ describe('Session specific tests', () => {
   test(
     'No generation test, incorrect file name',
     () => {
-      return axios.get(`${baseUrl}/preview/no-file`).then((response) => {
-        expect(response.data['result']).toBeUndefined()
-      })
+      return axios
+        .get(`${baseUrl}/preview/no-file?sessionId=${uuid}`)
+        .then((response) => {
+          expect(response.data['result']).toBeUndefined()
+        })
     },
     timeout
   )
@@ -213,9 +221,11 @@ describe('Session specific tests', () => {
   test(
     'No generation test, incorrect file name and incorrect index',
     () => {
-      return axios.get(`${baseUrl}/preview/no-file/1`).then((response) => {
-        expect(response.data['result']).toBeUndefined()
-      })
+      return axios
+        .get(`${baseUrl}/preview/no-file/1?sessionId=${uuid}`)
+        .then((response) => {
+          expect(response.data['result']).toBeUndefined()
+        })
     },
     timeout
   )

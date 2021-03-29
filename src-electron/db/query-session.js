@@ -22,7 +22,7 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
-
+const { v4: uuidv4 } = require('uuid')
 /**
  * Returns a promise that resolves into an array of objects containing 'sessionId', 'sessionKey' and 'creationTime'.
  *
@@ -127,7 +127,7 @@ async function getSessionInfoFromSessionKey(db, sessionKey) {
     )
     .then((row) => {
       if (row == null) {
-        reject()
+        return null
       } else {
         return {
           sessionId: row.SESSION_ID,
@@ -151,38 +151,113 @@ async function getSessionInfoFromSessionKey(db, sessionKey) {
  *
  * @export
  * @param {*} db
- * @param {*} sessionKey
- * @param {*} windowId
+ * @param {*} userKey This is in essence the "session cookie id"
  * @param {*} sessionId If sessionId exists already, then it's passed in. If it doesn't then this is null.
  * @returns promise that resolves into a session id.
  */
-async function ensureZapSessionId(db, sessionKey, sessionId = null) {
+async function ensureZapSessionId(db, userKey, sessionId = null) {
   if (sessionId == null) {
-    // There is no sessionId from before, so we check if there is one mapped to sessionKey already
-    return dbApi
-      .dbGet(db, 'SELECT SESSION_ID FROM SESSION WHERE SESSION_KEY = ?', [
-        sessionKey,
-      ])
-      .then((row) => {
-        if (row == null) {
-          return dbApi.dbInsert(
-            db,
-            'INSERT INTO SESSION (SESSION_KEY, CREATION_TIME) VALUES (?,?)',
-            [sessionKey, Date.now()]
-          )
-        } else {
-          return Promise.resolve(row.SESSION_ID)
-        }
-      })
+    // There is no sessionId from before, so we check if there is one mapped to userKey already
+    let row = await dbApi.dbGet(
+      db,
+      'SELECT SESSION_ID FROM SESSION WHERE SESSION_KEY = ?',
+      [userKey]
+    )
+    if (row == null) {
+      return await dbApi.dbInsert(
+        db,
+        'INSERT INTO SESSION (SESSION_KEY, CREATION_TIME) VALUES (?,?)',
+        [userKey, Date.now()]
+      )
+    } else {
+      return row.SESSION_ID
+    }
   } else {
     // This is a case where we want to attach to a given sessionId.
-    return dbApi
-      .dbUpdate(db, 'UPDATE SESSION SET SESSION_KEY = ? WHERE SESSION_ID = ?', [
-        sessionKey,
-        sessionId,
-      ])
-      .then(() => Promise.resolve(sessionId))
+    await dbApi.dbUpdate(
+      db,
+      'UPDATE SESSION SET SESSION_KEY = ? WHERE SESSION_ID = ?',
+      [userKey, sessionId]
+    )
+    return sessionId
   }
+}
+
+/**
+ * Returns a promise that will resolve into an existing userId and sessionId.
+ * userId and sessionId that are passed as `options` are not
+ * validated, they are trusted. If you pass both sessionId and
+ * userId, this method will simply return them and do nothing.
+ *
+ * So don't use this method as "create if it doesn't exist" kind of
+ * a method. The purpose is just to quickly ensure that an ID
+ * is created when not passed.
+ *
+ * Returned promise resolves into an object with sessionId and userId.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} userKey This is in essence the "session cookie id"
+ * @param {*} sessionId If sessionId exists already, then it's passed in and linked to user.
+ * @returns promise that resolves into an object with sessionId and userId and newSession.
+ */
+async function ensureZapUserAndSession(
+  db,
+  userKey,
+  sessionUuid,
+  options = {
+    sessionId: null,
+    userId: null,
+  }
+) {
+  if (options.sessionId != null && options.userId != null) {
+    // if we're past both IDs, we simply return them back.
+    return {
+      sessionId: options.sessionId,
+      userId: options.userId,
+      newSession: false,
+    }
+  } else if (options.sessionId != null) {
+    // we have a session, but not the user, so we create
+    // the user and link the session with it.
+    let user = await ensureUser(db, userKey)
+    await linkSessionToUser(db, options.sessionId, user.userId)
+    return {
+      sessionId: options.sessionId,
+      userId: user.userId,
+      newSession: false,
+    }
+  } else if (options.userId != null) {
+    // we have the user, but not the session, so we create the session,
+    // and link it to the user.
+    let sessionId = await ensureBlankSession(db, sessionUuid)
+    await linkSessionToUser(db, sessionId, options.userId)
+    return {
+      sessionId: sessionId,
+      userId: options.userId,
+      newSession: true,
+    }
+  } else {
+    // we have nothing, create both the user and the session.
+    let user = await ensureUser(db, userKey)
+    let sessionId = await ensureBlankSession(db, sessionUuid)
+    await linkSessionToUser(db, sessionId, user.userId)
+    return {
+      sessionId: sessionId,
+      userId: user.userId,
+      newSession: true,
+    }
+  }
+}
+
+async function ensureBlankSession(db, uuid) {
+  await dbApi.dbInsert(
+    db,
+    'INSERT OR IGNORE INTO SESSION (SESSION_KEY, CREATION_TIME, DIRTY) VALUES (?,?,?)',
+    [uuid, Date.now(), 0]
+  )
+  const session = await getSessionInfoFromSessionKey(db, uuid)
+  return session.sessionId
 }
 
 /**
@@ -191,14 +266,82 @@ async function ensureZapSessionId(db, sessionKey, sessionId = null) {
  * @export
  * @param {*} db
  */
-async function createBlankSession(db) {
+async function createBlankSession(db, uuid = null) {
+  let newUuid = uuid
+  if (newUuid == null) newUuid = uuidv4()
+
   return dbApi.dbInsert(
     db,
     'INSERT INTO SESSION (SESSION_KEY, CREATION_TIME, DIRTY) VALUES (?,?,?)',
-    [`${Math.random()}`, Date.now(), 0]
+    [newUuid, Date.now(), 0]
   )
 }
 
+/**
+ * Returns sessions for a given user.
+ *
+ * @param {*} db
+ * @param {*} userId
+ * @returns Promise that resolves into an array of sessions.
+ */
+async function getUserSessions(db, userId) {
+  let rows = await dbApi.dbAll(
+    db,
+    'SELECT SESSION_ID, CREATION_TIME, DIRTY FROM SESSION WHERE USER_REF = ?',
+    [userId]
+  )
+  return rows.map(dbMapping.map.session)
+}
+
+/**
+ * Returns user with a given key, or null if none exists.
+ *
+ * @param {*} db
+ * @param {*} userKey
+ * @returns A promise of returned user.
+ */
+async function getUserByKey(db, userKey) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT USER_ID, USER_KEY, CREATION_TIME FROM USER WHERE USER_KEY = ?',
+      [userKey]
+    )
+    .then((row) => dbMapping.map.user(row))
+}
+
+/**
+ * Creates a new user entry for a given user key if it doesn't exist, or returns
+ * the existing user.
+ *
+ * @param {*} db
+ * @param {*} userKey
+ * @returns user object, containing userId, userKey and creationTime
+ */
+async function ensureUser(db, userKey) {
+  await await dbApi.dbInsert(
+    db,
+    'INSERT OR IGNORE INTO USER ( USER_KEY, CREATION_TIME ) VALUES (?,?)',
+    [userKey, Date.now()]
+  )
+  return await getUserByKey(db, userKey)
+}
+
+/**
+ * Links an existing session with a user, given both IDs.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} userId
+ * @returns promise that resolves into nothing
+ */
+async function linkSessionToUser(db, sessionId, userId) {
+  return dbApi.dbUpdate(
+    db,
+    `UPDATE SESSION SET USER_REF = ? WHERE SESSION_ID = ?`,
+    [userId, sessionId]
+  )
+}
 /**
  * Promises to delete a session from the database, including all the rows that have the session as a foreign key.
  *
@@ -333,6 +476,7 @@ exports.getSessionDirtyFlag = getSessionDirtyFlag
 exports.getSessionDirtyFlagWithCallback = getSessionDirtyFlagWithCallback
 exports.getSessionInfoFromSessionKey = getSessionInfoFromSessionKey
 exports.ensureZapSessionId = ensureZapSessionId
+exports.ensureZapUserAndSession = ensureZapUserAndSession
 exports.createBlankSession = createBlankSession
 exports.deleteSession = deleteSession
 exports.writeLog = writeLog
@@ -341,3 +485,5 @@ exports.updateSessionKeyValue = updateSessionKeyValue
 exports.insertSessionKeyValue = insertSessionKeyValue
 exports.getSessionKeyValue = getSessionKeyValue
 exports.getAllSessionKeyValues = getAllSessionKeyValues
+exports.ensureUser = ensureUser
+exports.getUserSessions = getUserSessions
