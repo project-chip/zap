@@ -239,7 +239,8 @@ function doSaveAs(menuItem, browserWindow, event) {
     })
     .then((result) => {
       if (!result.canceled) {
-        return fileSave(browserWindow, result.filePath)
+        fileSave(browserWindow, result.filePath)
+        return result.filePath
       } else {
         return null
       }
@@ -252,11 +253,6 @@ function doSaveAs(menuItem, browserWindow, event) {
           dbEnum.fileLocationCategory.save
         )
         browserWindow.setTitle(filePath)
-        dialog.showMessageBox(browserWindow, {
-          title: 'Save',
-          message: `Save done. Output: ${filePath}`,
-          buttons: ['Ok'],
-        })
       }
     })
     .catch((err) => uiJs.showErrorMessage('Save file', err))
