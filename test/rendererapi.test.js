@@ -24,5 +24,5 @@ test('Test structure of renderer API', () => {
   let api = renderer_api_info()
   expect(api).not.toBeNull()
   expect(api.prefix).toEqual('zap')
-  expect(api.functions.length).toBeGreaterThan(2)
+  expect(api.functions.length).toBeGreaterThanOrEqual(2)
 })
