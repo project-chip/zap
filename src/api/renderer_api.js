@@ -47,12 +47,6 @@ function renderer_api_info() {
         id: 'save',
         description: 'Save file...',
       },
-      {
-        id: 'isDirty',
-        type: 'init',
-        description:
-          "Observe 'isdirty' attribute, which reflects the DIRTY flag in ZAP backend. setDirty() is invoked as callback.",
-      },
     ],
   }
 }
@@ -75,10 +69,6 @@ function fnSave(zap_file) {
     .catch((err) => console.log(err))
 }
 
-function fnIsDirty() {
-  util.observeAttribute('isdirty', 'setDirty')
-}
-
 function renderer_api_execute(id, ...args) {
   let ret = null
   switch (id) {
@@ -87,9 +77,6 @@ function renderer_api_execute(id, ...args) {
       break
     case 'save':
       ret = fnSave.apply(null, args)
-      break
-    case 'isDirty':
-      ret = fnIsDirty.apply(null, args)
       break
   }
   return ret

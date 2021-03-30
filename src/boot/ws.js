@@ -103,7 +103,6 @@ onWebSocket(dbEnum.wsCategory.tick, (data) =>
 )
 
 onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) => {
-  document.documentElement.setAttribute('isdirty', data)
   window.global_renderer_notify('dirtyFlag', data)
 })
 
