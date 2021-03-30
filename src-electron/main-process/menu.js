@@ -140,6 +140,18 @@ const template = [
         type: 'separator',
       },
       {
+        label: 'Start progress',
+        click(menuItem, browserWindow) {
+          browserApi.progressStart(browserWindow, 'Test progress indication.')
+        },
+      },
+      {
+        label: 'End progress',
+        click(menuItem, browserWindow) {
+          browserApi.progressEnd(browserWindow)
+        },
+      },
+      {
         label: 'About',
         click(menuItem, browserWindow, event) {
           about.createOrShowAboutWindow(browserWindow, httpPort)

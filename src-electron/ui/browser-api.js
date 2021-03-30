@@ -15,6 +15,11 @@
  *    limitations under the License.
  */
 
+const restApi = require('../../src-shared/rest-api.js')
+const {
+  exportCommandsFromEndpointTypeCluster,
+} = require('../db/query-impexp.js')
+
 /**
  * @module JS API: renderer API related utilities
  */
@@ -73,6 +78,18 @@ async function executeSave(browserWindow, path) {
   }
 }
 
+async function progressEnd(browserWindow) {
+  await browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${restApi.rendererApiId.progressEnd}')`
+  )
+}
+
+async function progressStart(browserWindow, message) {
+  await browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${restApi.rendererApiId.progressStart}', '${message}')`
+  )
+}
+
 /**
  * Returns cookie for user identification.
  *
@@ -121,3 +138,5 @@ exports.getUserKeyFromBrowserCookie = getUserKeyFromBrowserCookie
 exports.getUserKeyFromCookieValue = getUserKeyFromCookieValue
 exports.executeLoad = executeLoad
 exports.executeSave = executeSave
+exports.progressEnd = progressEnd
+exports.progressStart = progressStart

@@ -80,20 +80,17 @@ export default {
       }
     },
     setGenerationInProgress() {
-      const pending = document.documentElement.getAttribute(
-        'generation-in-progress'
+      const progressMessage = document.documentElement.getAttribute(
+        restApi.progress_attribute
       )
-      console.log(`pending: ${pending}`)
-      if (pending === 'true') {
-        console.log('true')
+      if (progressMessage != null && progressMessage.length > 0) {
         this.$q.loading.show({
           spinner: QSpinnerGears,
           messageColor: 'white',
-          message: 'Generation in progress...',
+          message: progressMessage,
           spinnerSize: 300,
         })
       } else {
-        console.log('false')
         this.$q.loading.hide()
       }
     },
@@ -101,6 +98,8 @@ export default {
   mounted() {
     this.$q.loading.show({
       spinner: QSpinnerGears,
+      messageColor: 'white',
+      message: 'Please wait while zap is loading...',
       spinnerSize: 300,
     })
 
@@ -134,7 +133,7 @@ export default {
       this.setThemeMode()
     })
 
-    util.observeAttribute('generation-in-progress', () => {
+    util.observeAttribute(restApi.progress_attribute, () => {
       this.setGenerationInProgress()
     })
 

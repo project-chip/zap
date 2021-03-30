@@ -40,12 +40,20 @@ function renderer_api_info() {
     description: 'Zap Renderer API',
     functions: [
       {
-        id: 'open',
+        id: restApi.rendererApiId.open,
         description: 'Open file...',
       },
       {
-        id: 'save',
+        id: restApi.rendererApiId.save,
         description: 'Save file...',
+      },
+      {
+        id: restApi.rendererApiId.progressStart,
+        description: 'Start progress indicator.',
+      },
+      {
+        id: restApi.rendererApiId.progressEnd,
+        description: 'End progress indicator.',
       },
     ],
   }
@@ -72,11 +80,17 @@ function fnSave(zap_file) {
 function renderer_api_execute(id, ...args) {
   let ret = null
   switch (id) {
-    case 'open':
+    case restApi.rendererApiId.open:
       ret = fnOpen.apply(null, args)
       break
-    case 'save':
+    case restApi.rendererApiId.save:
       ret = fnSave.apply(null, args)
+      break
+    case restApi.rendererApiId.progressStart:
+      document.documentElement.setAttribute(restApi.progress_attribute, args[0])
+      break
+    case restApi.rendererApiId.progressEnd:
+      document.documentElement.setAttribute(restApi.progress_attribute, '')
       break
   }
   return ret
