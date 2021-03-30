@@ -123,10 +123,10 @@ onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
   console.log(`sessionCreationError: ${JSON.stringify(data)}`)
 })
 
-onWebSocket(dbEnum.wsCategory.componentStatus, (obj) => {
+onWebSocket(dbEnum.wsCategory.componentUpdateStatus, (obj) => {
   let { data, added } = obj
-  console.log(`reportComponentStatus: ${JSON.stringify(obj)}`)
-  Util.notifyComponentStatus(data, added)
+  console.log(`componentUpdateStatus: ${JSON.stringify(obj)}`)
+  Util.notifyComponentUpdateStatus(data, added)
 })
 
 onWebSocket(dbEnum.wsCategory.generic, (data) =>

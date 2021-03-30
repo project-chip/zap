@@ -219,14 +219,14 @@ function sendSessionCreationErrorStatus(err) {
  * Notify front-end that current session failed to load.
  * @param {*} err
  */
-function sendComponentStatus(sessionId, data) {
+function sendComponentUpdateStatus(sessionId, data) {
   querySession.getAllSessions(env.mainDatabase()).then((sessions) =>
     sessions.forEach((session) => {
       if (session.sessionId == sessionId) {
         let socket = wsServer.clientSocket(session.sessionKey)
         if (socket) {
           wsServer.sendWebSocketMessage(socket, {
-            category: dbEnum.wsCategory.componentStatus,
+            category: dbEnum.wsCategory.componentUpdateStatus,
             payload: data,
           })
         }
@@ -242,4 +242,4 @@ exports.projectName = projectName
 exports.init = init
 exports.deinit = deinit
 exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus
-exports.sendComponentStatus = sendComponentStatus
+exports.sendComponentUpdateStatus = sendComponentUpdateStatus

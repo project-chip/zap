@@ -49,8 +49,8 @@ function httpGetComponentTree(db) {
   }
 }
 
-function httpPostUpdateComponentHandler(db, request, response, add) {
-  let { studioProject, clusterId, side, componentIds } = request.body
+function httpPostComponentUpdateHandler(db, request, response, add) {
+  let { clusterId, side, componentIds } = request.body
 
   studio
     .updateComponentByClusterIdAndComponentId(
@@ -64,7 +64,7 @@ function httpPostUpdateComponentHandler(db, request, response, add) {
     .then((res) => {
       // invoke reportComponentStatus() ws notification
       response.send(res)
-      studio.sendComponentStatus(request.zapSessionId, {
+      studio.sendComponentUpdateStatus(request.zapSessionId, {
         data: res,
         added: add,
       })
@@ -82,12 +82,12 @@ function httpPostUpdateComponentHandler(db, request, response, add) {
  */
 function httpPostComponentAdd(db) {
   return (request, response) =>
-    httpPostUpdateComponentHandler(db, request, response, true)
+    httpPostComponentUpdateHandler(db, request, response, true)
 }
 
 function httpPostComponentRemove(db) {
   return (request, response) =>
-    httpPostUpdateComponentHandler(db, request, response, false)
+    httpPostComponentUpdateHandler(db, request, response, false)
 }
 
 function handleError(err, res) {

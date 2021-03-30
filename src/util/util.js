@@ -37,7 +37,7 @@ export function asHex(value, padding) {
  * @param {*} actionSuccessful - true/false
  * @param {*} componentIds - list of strings
  */
-export function notifyComponentStatus(componentIdStates, added) {
+export function notifyComponentUpdateStatus(componentIdStates, added) {
   let components = []
   let updated = false
   console.log(JSON.stringify(componentIdStates))
