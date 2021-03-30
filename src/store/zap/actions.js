@@ -17,6 +17,8 @@
 import Vue from 'vue'
 import * as Util from '../../util/util.js'
 import restApi from '../../../src-shared/rest-api.js'
+import { util } from 'prettier'
+const http = require('http-status-codes')
 
 export function updateInformationText(context, text) {
   Vue.prototype
@@ -114,8 +116,14 @@ export function updateSelectedCommands(context, selectionContext) {
 }
 
 export function updateSelectedComponent(context, payload) {
-  let op = payload.added ? restApi.uc.componentAdd : restApi.uc.componentRemove
-  return Vue.prototype.$serverPost(op, payload)
+  if (!('studioProject' in payload)) {
+    return Promise.resolve({ status: http.StatusCodes.BAD_REQUEST })
+  } else {
+    let op = payload.added
+      ? restApi.uc.componentAdd
+      : restApi.uc.componentRemove
+    return Vue.prototype.$serverPost(op, payload)
+  }
 }
 
 export function updateSelectedServers(context, selectionContext) {
@@ -619,4 +627,18 @@ export function setFilterString(context, filterString) {
 
 export function resetFilters(context) {
   context.commit('resetFilters')
+}
+
+export function updateUcComponentState(context, studioProjectPath) {
+  Vue.prototype
+    .$serverGet(restApi.uc.componentTree, {
+      params: {
+        studioProject: studioProjectPath,
+      },
+    })
+    .then((response) => {
+      let selected = Util.getSelectedComponent(response.data)
+      let selectedComponentIds = Util.getClustersByUcComponentIds(selected)
+      context.commit('updateUcComponentState', selectedComponentIds)
+    })
 }

@@ -15,12 +15,14 @@
  *    limitations under the License.
  */
 const { dialog } = require('electron')
+const windowJs = require('../main-process/window.js')
 
-const importJs = require('../importexport/import.js')
-const windowJs = require('./window.js')
-const env = require('../util/env.js')
-
-// You can always use this to show an exception.
+/**
+ * Simple dialog to show error messages from electron renderer scope.
+ *
+ * @param {*} title
+ * @param {*} err
+ */
 function showErrorMessage(title, err) {
   let msg
   if (err instanceof Error) {
@@ -39,20 +41,10 @@ function showErrorMessage(title, err) {
  * @param {*} filePath
  * @param {*} httpPort Server port for the URL that will be constructed.
  */
-function readAndOpenFile(db, filePath, httpPort) {
-  env.logInfo(`Read and open: ${filePath}`)
-  return importJs
-    .importDataFromFile(db, filePath)
-    .then((importResult) => {
-      windowJs.windowCreate(httpPort, {
-        filePath: filePath,
-        sessionId: importResult.sessionId,
-      })
-      return true
-    })
-    .catch((err) => {
-      showErrorMessage(filePath, err)
-    })
+function openFileConfiguration(filePath, httpPort) {
+  windowJs.windowCreate(httpPort, {
+    filePath: filePath,
+  })
 }
 
 /**
@@ -61,10 +53,10 @@ function readAndOpenFile(db, filePath, httpPort) {
  * @param {*} httpPort
  * @param {*} options: uiMode, embeddedMode
  */
-function openNewConfiguration(httpPort, options) {
+async function openNewConfiguration(db, httpPort, options = {}) {
   windowJs.windowCreate(httpPort, options)
 }
 
 exports.showErrorMessage = showErrorMessage
-exports.readAndOpenFile = readAndOpenFile
+exports.openFileConfiguration = openFileConfiguration
 exports.openNewConfiguration = openNewConfiguration

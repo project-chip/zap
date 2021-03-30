@@ -177,7 +177,7 @@ async function createStateFromDatabase(db, sessionId) {
 
     env.logInfo(`Exporting data for session: ${sessionId}`)
     // Deal with the key/value table
-    let getKeyValues = queryConfig
+    let getKeyValues = querySession
       .getAllSessionKeyValues(db, sessionId)
       .then((data) => {
         env.logInfo(`Retrieved session keys: ${data.length}`)

@@ -25,7 +25,7 @@ const events = require('events')
 
 const env = require('../util/env.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const util = require('../util/util.js')
+const restApi = require('../../src-shared/rest-api.js')
 
 let eventEmitter = new events.EventEmitter()
 
@@ -44,9 +44,17 @@ let wsServer = null
 function initializeWebSocket(httpServer) {
   wsServer = new ws.Server({ noServer: true, clientTracking: true })
   wsServer.on('connection', (socket, request) => {
-    socket.sessionKey = util.getSessionKeyFromCookieValue(
-      request.headers.cookie
-    )
+    const url = request.url
+    const token = `${restApi.param.sessionId}=`
+    const indexOf = url.indexOf(token)
+    if (indexOf == -1) {
+      throw new Error(
+        `WebSockets require a ${restApi.param.sessionId} parameter`
+      )
+    }
+
+    const sessionUuid = url.substring(indexOf + token.length)
+    socket.sessionUuid = sessionUuid
     socket.on('message', (message) => {
       // When we receive a message we emit it via the event emitter.
       let obj = JSON.parse(message)
@@ -88,13 +96,13 @@ function initializeWebSocket(httpServer) {
 /**
  * Method that returns the websocket for a given session key.
  *
- * @param {*} sessionKey
+ * @param {*} sessionUuid
  */
-function clientSocket(sessionKey) {
+function clientSocket(sessionUuid) {
   let socketToReturn = null
   if (wsServer == null) return null
   wsServer.clients.forEach((socket) => {
-    if (socket.sessionKey == sessionKey) {
+    if (socket.sessionUuid == sessionUuid) {
       socketToReturn = socket
     }
   })

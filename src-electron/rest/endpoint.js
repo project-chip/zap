@@ -71,7 +71,7 @@ function httpDeleteEndpointType(db) {
 function httpPostEndpoint(db) {
   return (request, response) => {
     let { endpointId, networkId, endpointType } = request.body
-    let sessionIdexport = request.session.zapSessionId
+    let sessionIdexport = request.zapSessionId
     queryConfig
       .insertEndpoint(db, sessionIdexport, endpointId, endpointType, networkId)
       .then((newId) =>
@@ -98,7 +98,7 @@ function httpPostEndpoint(db) {
 function httpPatchEndpoint(db) {
   return (request, response) => {
     let { context } = request.body
-    let sessionIdexport = request.session.zapSessionId
+    let sessionIdexport = request.zapSessionId
     let changes = context.changes.map((data) => {
       let paramType = ''
       return { key: data.updatedKey, value: data.value, type: paramType }
@@ -130,7 +130,7 @@ function httpPatchEndpoint(db) {
 function httpPostEndpointType(db) {
   return (request, response) => {
     let { name, deviceTypeRef } = request.body
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
     queryConfig
       .insertEndpointType(db, sessionId, name, deviceTypeRef)
       .then((newId) =>
@@ -153,7 +153,7 @@ function httpPostEndpointType(db) {
 function httpPatchEndpointType(db) {
   return (request, response) => {
     let { endpointTypeId, updatedKey, updatedValue } = request.body
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
 
     queryConfig
       .updateEndpointType(

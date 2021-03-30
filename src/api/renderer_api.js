@@ -15,8 +15,8 @@
  *    limitations under the License.
  */
 
-const ide = require('./ide-api-request.js')
 const util = require('../util/util.js')
+const restApi = require('../../src-shared/rest-api.js')
 
 // This file provide glue logic to enable function calls & HTML attribute data change listener logic
 // between front-end containers (jxBrowser, Electron, etc) and the node.js
@@ -34,7 +34,7 @@ const util = require('../util/util.js')
  * e.g. The 'open' function is invoked by the container when opening a new configuration.
  * The front-end is informed and proceed to init UI elements.
  */
-export default function renderer_api() {
+function renderer_api_info() {
   return {
     prefix: 'zap',
     description: 'Zap Renderer API',
@@ -42,52 +42,50 @@ export default function renderer_api() {
       {
         id: 'open',
         description: 'Open file...',
-        function: (path) => ide.open(path),
       },
       {
         id: 'save',
         description: 'Save file...',
-        function: (sessionId) => ide.save(sessionId),
-      },
-      {
-        id: 'saveAs',
-        description: 'Save As file...',
-        function: () => {},
-      },
-      {
-        id: 'refresh',
-        description: 'Refresh file...',
-        function: () => {},
-      },
-      {
-        id: 'rename',
-        description: 'Rename file...',
-        function: () => {},
-      },
-      {
-        id: 'isDirty',
-        type: 'init',
-        description:
-          "Observe 'isdirty' attribute, which reflects the DIRTY flag in ZAP backend. setDirty() is invoked as callback.",
-        function: () => util.observeAttribute('isdirty', 'setDirty'),
-      },
-
-      // Misc operation that might not be supported.
-      {
-        id: 'move',
-        description: 'Move file...',
-        function: () => {},
-      },
-      {
-        id: 'import',
-        description: 'Import file...',
-        function: () => {},
-      },
-      {
-        id: 'export',
-        description: 'Export file...',
-        function: () => {},
       },
     ],
   }
 }
+
+function fnOpen(zap_file) {
+  // Make a request for a user with a given ID
+  if (zap_file) {
+    window
+      .axios_server_post(`${restApi.ide.open}`, { path: zap_file })
+      .then((res) => window.location.reload())
+      .catch((err) => console.log(err))
+  }
+}
+
+function fnSave(zap_file) {
+  let data = {}
+  if (zap_file != null) data.path = zap_file
+  window
+    .axios_server_post(`${restApi.ide.save}`, data)
+    .catch((err) => console.log(err))
+}
+
+function renderer_api_execute(id, ...args) {
+  let ret = null
+  switch (id) {
+    case 'open':
+      ret = fnOpen.apply(null, args)
+      break
+    case 'save':
+      ret = fnSave.apply(null, args)
+      break
+  }
+  return ret
+}
+
+function renderer_notify(key, value) {
+  console.log(`rendererApiJson:${JSON.stringify({ key: key, value: value })}`)
+}
+
+exports.renderer_api_info = renderer_api_info
+exports.renderer_api_execute = renderer_api_execute
+exports.renderer_notify = renderer_notify

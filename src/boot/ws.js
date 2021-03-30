@@ -17,13 +17,15 @@
 import Vue from 'vue'
 import Events from 'events'
 import dbEnum from '../../src-shared/db-enum.js'
+import restApi from '../../src-shared/rest-api.js'
 import { Notify } from 'quasar'
+import * as Util from '../util/util.js'
 
 let eventEmitter = new Events.EventEmitter()
-
-const client = new WebSocket(
-  `ws://${window.location.hostname}:${window.location.port}/`
-)
+let wsUrl = `ws://${window.location.hostname}:${window.location.port}?${
+  restApi.param.sessionId
+}=${window.sessionStorage.getItem('session_uuid')}`
+const client = new WebSocket(wsUrl)
 
 function doSend(object) {
   client.send(JSON.stringify(object))
@@ -101,8 +103,7 @@ onWebSocket(dbEnum.wsCategory.tick, (data) =>
 )
 
 onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) => {
-  document.documentElement.setAttribute('isdirty', data)
-  console.log(`Dirty flag received: ${data}`)
+  window.global_renderer_notify('dirtyFlag', data)
 })
 
 onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
@@ -110,7 +111,7 @@ onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
   <strong>${data.error}</strong>
   <br>
   ${data.errorMessage}
-  </center>` 
+  </center>`
   Notify.create({
     message: html,
     color: 'negative',
@@ -120,6 +121,12 @@ onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
   })
 
   console.log(`sessionCreationError: ${JSON.stringify(data)}`)
+})
+
+onWebSocket(dbEnum.wsCategory.componentStatus, (obj) => {
+  let { data, added } = obj
+  console.log(`reportComponentStatus: ${JSON.stringify(obj)}`)
+  Util.notifyComponentStatus(data, added)
 })
 
 onWebSocket(dbEnum.wsCategory.generic, (data) =>

@@ -85,6 +85,7 @@ exports.wsCategory = {
   generic: 'generic',
   dirtyFlag: 'dirtyFlag',
   sessionCreationError: 'sessionCreationError',
+  componentStatus: 'componentStatus',
   init: 'init',
   tick: 'tick',
 }

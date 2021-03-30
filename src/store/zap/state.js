@@ -18,7 +18,6 @@ const restApi = require('../../../src-shared/rest-api.js')
 
 export default function () {
   return {
-    studioProject: '',
     leftDrawerOpenState: true,
     miniState: false,
     informationText: '',
@@ -116,6 +115,11 @@ export default function () {
     calledArgs: {
       defaultUiMode: restApi.uiMode.ZIGBEE,
       embeddedMode: true,
+    },
+    studio: {
+      projectPath: '',
+      projectInfoJson: '', // HTTP response from Studio jetty server
+      selectedComponentIds: [], // parsed from 'projectInfoJson'
     },
   }
 }

@@ -21,7 +21,6 @@
  * @module JS API: http server
  */
 
-const bodyParser = require('body-parser')
 const express = require('express')
 const session = require('express-session')
 const env = require('../util/env.js')
@@ -29,13 +28,13 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const webSocket = require('./ws-server.js')
 const studio = require('../ide-integration/studio-rest-api.js')
-const dbEnum = require('../../src-shared/db-enum.js')
+const restApi = require('../../src-shared/rest-api.js')
 
 const restApiModules = [
   '../rest/admin.js',
   '../rest/static-zcl.js',
   '../rest/generation.js',
-  '../rest/ide-api-handler.js',
+  '../rest/file-ops.js',
   '../rest/uc-api-handler.js',
   '../rest/endpoint.js',
   '../rest/user-data.js',
@@ -105,8 +104,8 @@ function registerAllRestModules(db, app) {
 async function initHttpServer(db, port, studioPort) {
   return new Promise((resolve, reject) => {
     const app = express()
-    app.use(bodyParser.urlencoded({ extended: true }))
-    app.use(bodyParser.json())
+    app.use(express.urlencoded())
+    app.use(express.json())
     app.use(
       session({
         secret: 'Zap@Watt@SiliconLabs',
@@ -115,33 +114,7 @@ async function initHttpServer(db, port, studioPort) {
       })
     )
 
-    // this is a generic logging stuff
-    app.use((req, res, next) => {
-      if (req.session.zapSessionId) {
-        next()
-      } else {
-        let knownSessionId = null
-        if ('sessionId' in req.query) knownSessionId = req.query.sessionId
-        querySession
-          .ensureZapSessionId(db, req.session.id, knownSessionId)
-          .then((sessionId) => {
-            req.session.zapSessionId = sessionId
-            return sessionId
-          })
-          .then((sessionId) => util.initializeSessionPackage(db, sessionId))
-          .then((packages) => {
-            next()
-          })
-          .catch((err) => {
-            let resp = {
-              error: 'Could not create session: ' + err.message,
-              errorMessage: err,
-            }
-            studio.sendSessionCreationErrorStatus(resp)
-            env.logError(resp)
-          })
-      }
-    })
+    app.use(userSessionHandler(db))
 
     // REST modules
     registerAllRestModules(db, app)
@@ -168,8 +141,56 @@ async function initHttpServer(db, port, studioPort) {
     })
 
     webSocket.initializeWebSocket(httpServer)
-    studio.initializeReporting()
+    studio.init()
   })
+}
+
+function userSessionHandler(db) {
+  return (req, res, next) => {
+    let sessionUuid = req.query[restApi.param.sessionId]
+    let userKey = req.session.id
+
+    if (sessionUuid == null || userKey == null) {
+      // This request does not carry a session along. Do nothing.
+      next()
+    } else {
+      let zapUserId = req.session.zapUserId
+      let zapSessionId
+      if (`zapSessionId` in req.session) {
+        zapSessionId = req.session.zapSessionId[sessionUuid]
+      } else {
+        req.session.zapSessionId = {}
+        zapSessionId = null
+      }
+      querySession
+        .ensureZapUserAndSession(db, userKey, sessionUuid, {
+          sessionId: zapSessionId,
+          userId: zapUserId,
+        })
+        .then((result) => {
+          req.session.zapUserId = result.userId
+          req.session.zapSessionId[sessionUuid] = result.sessionId
+          req.zapSessionId = result.sessionId
+          return result
+        })
+        .then((result) => {
+          if (result.newSession) {
+            return util.initializeSessionPackage(db, result.sessionId)
+          }
+        })
+        .then(() => {
+          next()
+        })
+        .catch((err) => {
+          let resp = {
+            error: 'Could not create session: ' + err.message,
+            errorMessage: err,
+          }
+          studio.sendSessionCreationErrorStatus(resp)
+          env.logError(resp)
+        })
+    }
+  }
 }
 
 /**
@@ -186,7 +207,7 @@ function shutdownHttpServer() {
         httpServer = null
         resolve(null)
       })
-      studio.clearReporting()
+      studio.deinit()
     } else {
       resolve(null)
     }
@@ -201,7 +222,7 @@ function shutdownHttpServer() {
  */
 function shutdownHttpServerSync() {
   if (httpServer != null) {
-    studio.clearReporting()
+    studio.deinit()
     httpServer.close(() => {
       env.logInfo('HTTP server shut down.')
       httpServer = null

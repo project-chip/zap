@@ -23,7 +23,6 @@ const path = require('path')
 const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
 const dbEnum = require('../src-shared/db-enum.js')
-const queryZcl = require('../src-electron/db/query-zcl.js')
 const queryLoader = require('../src-electron/db/query-loader.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const queryPackage = require('../src-electron/db/query-package.js')
@@ -35,6 +34,7 @@ const importJs = require('../src-electron/importexport/import.js')
 const restApi = require('../src-shared/rest-api.js')
 const testUtil = require('./test-util.js')
 const _ = require('lodash')
+const { v4: uuidv4 } = require('uuid')
 
 let db
 const { port, baseUrl } = testUtil.testServer(__filename)
@@ -42,6 +42,7 @@ let packageId
 let sessionId, secondSessionId
 let sessionCookie = null
 let axiosInstance = null
+let uuid = uuidv4()
 
 beforeAll(() => {
   env.setDevelopmentEnv()
@@ -88,7 +89,18 @@ describe('Session specific tests', () => {
       ).toBeTruthy()
     }))
 
-  test('make sure there is 1 session after index.html', () =>
+  test('make sure there is still no session after index.html', () =>
+    queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
+      expect(cnt).toBe(0)
+    }))
+
+  test('test that there is 0 clusters initially', () =>
+    axiosInstance.get(`/zcl/cluster/all?sessionId=${uuid}`).then((response) => {
+      expect(response.data.data.length).toBe(0)
+      expect(response.data.type).toBe('cluster')
+    }))
+
+  test('make sure there is 1 session after previous call', () =>
     queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(1)
     }))
@@ -97,17 +109,6 @@ describe('Session specific tests', () => {
     querySession.getAllSessions(db).then((results) => {
       sessionId = results[0].sessionId
       env.logInfo(`SESSION ID: ${sessionId}`)
-    }))
-
-  test('test that there is 0 clusters initially', () =>
-    axiosInstance.get('/zcl/cluster/all').then((response) => {
-      expect(response.data.data.length).toBe(0)
-      expect(response.data.type).toBe('cluster')
-    }))
-
-  test('make sure there is still 1 session after previous call', () =>
-    queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
-      expect(cnt).toBe(1)
     }))
 
   test('add a package', () =>
@@ -135,7 +136,7 @@ describe('Session specific tests', () => {
     ]))
 
   test('test that there are 2 clusters now', () =>
-    axiosInstance.get('/zcl/cluster/all').then((response) => {
+    axiosInstance.get(`/zcl/cluster/all?sessionId=${uuid}`).then((response) => {
       expect(response.data.data.length).toBe(2)
       expect(response.data.type).toBe('cluster')
     }))
@@ -154,7 +155,7 @@ describe('Session specific tests', () => {
     ]))
 
   test('test that there are domains', () =>
-    axiosInstance.get('/zcl/domain/all').then((response) => {
+    axiosInstance.get(`/zcl/domain/all?sessionId=${uuid}`).then((response) => {
       expect(response.data.data.length).toBe(4)
       expect(response.data.type).toBe('domain')
     }))
@@ -224,4 +225,73 @@ describe('Admin tests', () => {
     axiosInstance.get('version').then((response) => {
       expect(response.data).toEqual(env.zapVersion())
     }))
+})
+
+describe('User and session tests', () => {
+  let userId
+  let sessionId
+  test('create new user session', async () => {
+    // New session
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'user1',
+      'session1'
+    )
+    userId = userSession.userId
+    sessionId = userSession.sessionId
+    expect(userId).not.toBeNull()
+    expect(sessionId).not.toBeNull()
+    let sessions = await querySession.getUserSessions(db, userId)
+    expect(sessions.length).toBe(1)
+  })
+
+  test('create new session for existing user', async () => {
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'user1',
+      'session2',
+      {
+        userId: userId,
+      }
+    )
+    expect(userSession.userId).toEqual(userId)
+    expect(userSession.sessionId).not.toBeNull()
+    expect(userSession.sessionId).not.toEqual(sessionId)
+    let sessions = await querySession.getUserSessions(db, userId)
+    expect(sessions.length).toBe(2)
+  })
+
+  test('create new user for existing session', async () => {
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'user2',
+      'session1',
+      {
+        sessionId: sessionId,
+      }
+    )
+    expect(userSession.userId).not.toBeNull()
+    expect(userSession.userId).not.toEqual(userId)
+    expect(userSession.sessionId).toEqual(sessionId)
+    let sessions = await querySession.getUserSessions(db, userId)
+    expect(sessions.length).toBe(1)
+    sessions = await querySession.getUserSessions(db, userSession.userId)
+    expect(sessions.length).toBe(1)
+  })
+
+  test('reuse existing user and session', async () => {
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'user1',
+      'session1',
+      {
+        sessionId: sessionId,
+        userId: userId,
+      }
+    )
+    expect(userSession.userId).toEqual(userId)
+    expect(userSession.sessionId).toEqual(sessionId)
+    let sessions = await querySession.getUserSessions(db, userId)
+    expect(sessions.length).toBe(1)
+  })
 })

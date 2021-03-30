@@ -18,18 +18,17 @@
 const path = require('path')
 const { dialog, Menu, shell } = require('electron')
 const env = require('../util/env.js')
-const util = require('../util/util.js')
-const queryConfig = require('../db/query-config.js')
 const queryGeneric = require('../db/query-generic.js')
 const querySession = require('../db/query-session.js')
 const exportJs = require('../importexport/export.js')
-const uiJs = require('./ui.js')
+const uiJs = require('../ui/ui-util.js')
 const preference = require('./preference.js')
 const about = require('./about.js')
 const generationEngine = require('../generator/generation-engine.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const commonUrl = require('../../src-shared/common-url.js')
+const browserApi = require('../ui/browser-api.js')
 
 let httpPort
 
@@ -41,7 +40,7 @@ const template = [
         label: 'New Configuration...',
         accelerator: 'CmdOrCtrl+N',
         click(menuItem, browserWindow, event) {
-          newFile(menuItem, browserWindow, event)
+          uiJs.openNewConfiguration(env.mainDatabase(), httpPort)
         },
       },
       {
@@ -112,33 +111,29 @@ const template = [
         },
       },
       {
-        label: 'Session Information',
+        label: 'User and session information',
         click(menuItem, browserWindow, event) {
-          let cookieText = ''
-          util
-            .getSessionKeyFromBrowserWindow(browserWindow)
-            .then((sessionKey) => {
-              cookieText = sessionKey
-              return sessionKey
-            })
-            .then((sessionKey) =>
-              querySession.getSessionInfoFromSessionKey(
-                env.mainDatabase(),
-                sessionKey
-              )
-            )
-            .then((row) => {
+          getUserSessionInfoMessage(env.mainDatabase(), browserWindow)
+            .then((msg) => {
               dialog.showMessageBox(browserWindow, {
-                title: 'Information',
-                message: `Zap session id: ${
-                  row.sessionId
-                }\nWinID Session key: ${row.sessionKey}\nTime: ${new Date(
-                  row.creationTime
-                )}\nCookie session key: ${cookieText}`,
+                title: 'User and session information',
+                message: msg,
                 buttons: ['Dismiss'],
               })
             })
             .catch((err) => uiJs.showErrorMessage('Session info', err))
+        },
+      },
+      {
+        label: 'Renderer API information',
+        click(menuItem, browserWindow, event) {
+          browserApi.getRendererApiInformation(browserWindow).then((msg) => {
+            dialog.showMessageBox(browserWindow, {
+              title: 'Renderer API information',
+              message: msg,
+              buttons: ['Dismiss'],
+            })
+          })
         },
       },
       {
@@ -154,8 +149,20 @@ const template = [
   },
 ]
 
-function newFile(menuItem, browserWindow, event) {
-  uiJs.openNewConfiguration(httpPort, {})
+async function getUserSessionInfoMessage(db, browserWindow) {
+  let userKey = await browserApi.getUserKeyFromBrowserWindow(browserWindow)
+  let session = await querySession.getSessionInfoFromSessionKey(db, userKey)
+  let sessionUuid = await browserApi.getSessionUuidFromBrowserWindow(
+    browserWindow
+  )
+  return `
+  Browser session UUID: ${sessionUuid}
+  Browser user key: ${userKey}
+
+  Session id: ${session.sessionId}
+  Session creationTime: ${new Date(session.creationTime)}
+  Session session key:  ${session.sessionKey}
+  `
 }
 
 /**
@@ -179,7 +186,7 @@ function doOpen(menuItem, browserWindow, event) {
     })
     .then((result) => {
       if (!result.canceled) {
-        fileOpen(env.mainDatabase(), result.filePaths)
+        fileOpen(result.filePaths)
       }
     })
     .catch((err) => uiJs.showErrorMessage('Open file', err))
@@ -193,25 +200,7 @@ function doOpen(menuItem, browserWindow, event) {
  * @param {*} event
  */
 function doSave(menuItem, browserWindow, event) {
-  util
-    .getSessionKeyFromBrowserWindow(browserWindow)
-    .then((sessionKey) =>
-      querySession.getSessionInfoFromSessionKey(env.mainDatabase(), sessionKey)
-    )
-    .then((row) =>
-      queryConfig.getSessionKeyValue(
-        env.mainDatabase(),
-        row.sessionId,
-        dbEnum.sessionKey.filePath
-      )
-    )
-    .then((filePath) => {
-      if (filePath == null) {
-        doSaveAs(menuItem, browserWindow, event)
-      } else {
-        return fileSave(env.mainDatabase(), browserWindow, filePath)
-      }
-    })
+  fileSave(browserWindow, null)
 }
 
 /**
@@ -238,7 +227,7 @@ function doSaveAs(menuItem, browserWindow, event) {
     })
     .then((result) => {
       if (!result.canceled) {
-        return fileSave(env.mainDatabase(), browserWindow, result.filePath)
+        return fileSave(browserWindow, result.filePath)
       } else {
         return null
       }
@@ -284,8 +273,8 @@ function generateInDir(browserWindow) {
     .then((context) => {
       if (!('path' in context)) return context
 
-      return util
-        .getSessionKeyFromBrowserWindow(browserWindow)
+      return browserApi
+        .getUserKeyFromBrowserWindow(browserWindow)
         .then((sessionKey) =>
           querySession.getSessionInfoFromSessionKey(
             env.mainDatabase(),
@@ -354,24 +343,8 @@ function generateInDir(browserWindow) {
  * @param {*} filePath
  * @returns Promise of saving.
  */
-function fileSave(db, browserWindow, filePath) {
-  util
-    .getSessionKeyFromBrowserWindow(browserWindow)
-    .then((sessionKey) =>
-      querySession.getSessionInfoFromSessionKey(db, sessionKey)
-    )
-    .then((row) => {
-      return queryConfig
-        .updateSessionKeyValue(
-          db,
-          row.sessionId,
-          dbEnum.sessionKey.filePath,
-          path.resolve(filePath)
-        )
-        .then(() => row)
-    })
-    .then((row) => exportJs.exportDataIntoFile(db, row.sessionId, filePath))
-    .catch((err) => uiJs.showErrorMessage('File save', err))
+function fileSave(browserWindow, filePath) {
+  browserApi.executeSave(browserWindow, filePath)
 }
 
 /**
@@ -380,9 +353,9 @@ function fileSave(db, browserWindow, filePath) {
  * @param {*} db
  * @param {*} filePaths
  */
-function fileOpen(db, filePaths) {
+function fileOpen(filePaths) {
   filePaths.forEach((filePath, index) => {
-    uiJs.readAndOpenFile(db, filePath, httpPort)
+    uiJs.openFileConfiguration(filePath, httpPort)
   })
 }
 

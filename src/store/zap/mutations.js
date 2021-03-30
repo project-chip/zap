@@ -380,7 +380,7 @@ export function setEmbeddedMode(state, embeddedMode) {
 }
 
 export function setStudioConfigPath(state, filePath) {
-  state.studioProject = filePath
+  Vue.set(state.studio, 'projectPath', filePath)
 }
 
 export function setAttributeEditting(state, context) {
@@ -435,4 +435,8 @@ export function resetFilters(state) {
 
 export function updateProjectPackages(state, packages) {
   Vue.set(state, 'packages', packages)
+}
+
+export function updateUcComponentState(state, selectedUcComponentIds) {
+  Vue.set(state.studio, 'selectedComponentIds', selectedUcComponentIds)
 }

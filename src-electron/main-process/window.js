@@ -22,6 +22,9 @@ const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
 const tray = require('./tray.js')
 const util = require('../util/util.js')
+const browserApi = require('../ui/browser-api.js')
+
+let windowCounter = 0
 
 function initializeElectronUi(port) {
   menu.initMenu(port)
@@ -34,21 +37,8 @@ function windowCreateIfNotThere(port) {
   }
 }
 
-let windowCounter = 0
-
-function createQueryString(
-  sessionId = null,
-  uiMode = null,
-  embeddedMode = null
-) {
+function createQueryString(uiMode = null, embeddedMode = null) {
   let queryString = ''
-  if (sessionId) {
-    if (queryString.length == 0) {
-      queryString = `?sessionId=${sessionId}`
-    } else {
-      queryString += `&sessionId=${sessionId}`
-    }
-  }
   if (uiMode) {
     if (queryString.length == 0) {
       queryString = `?uiMode=${uiMode}`
@@ -67,18 +57,21 @@ function createQueryString(
 }
 
 /**
- * Create a window, possibly with a given file path and with a desire to attach to a given sessionId
- *
- * Win id will be passed on in the URL, and if sessionId is present, so will it.
+ * Create a window, possibly with a given file path.
  *
  * @export
  * @param {*} port
  * @param {*} [filePath=null]
- * @param {*} [sessionId=null]
+ * @param {*} [uiMode=null]
+ * @param {*} [embeddedMode=null]
  * @returns BrowserWindow that got created
  */
 function windowCreate(port, args = {}) {
-  let newSession = session.fromPartition(`zap-${windowCounter++}`)
+  let webPreferences = {
+    nodeIntegration: false,
+    worldSafeExecuteJavaScript: true,
+  }
+  windowCounter++
   let w = new BrowserWindow({
     width: 1600,
     height: 800,
@@ -89,26 +82,16 @@ function windowCreate(port, args = {}) {
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
     title: args.filePath == null ? 'New Configuration' : args.filePath,
     useContentSize: true,
-    webPreferences: {
-      nodeIntegration: false,
-      session: newSession,
-    },
+    webPreferences: webPreferences,
   })
 
-  let queryString = createQueryString(
-    args.sessionId,
-    args.uiMode,
-    args.embeddedMode
-  )
+  let queryString = createQueryString(args.uiMode, args.embeddedMode)
 
   w.loadURL(`http://localhost:${port}/index.html` + queryString).then(
     async () => {
-      /*       
-      let api = await w.webContents.executeJavaScript(
-        'window.global_renderer_api'
-      )
-      */
-      env.logInfo('Index page loaded.')
+      if (args.filePath != null) {
+        browserApi.executeLoad(w, args.filePath)
+      }
     }
   )
 
@@ -118,7 +101,7 @@ function windowCreate(port, args = {}) {
 
   w.on('close', (e) => {
     e.preventDefault()
-    util.getSessionKeyFromBrowserWindow(w).then((sessionKey) =>
+    browserApi.getSessionUuidFromBrowserWindow(w).then((sessionKey) =>
       querySession.getSessionDirtyFlagWithCallback(
         env.mainDatabase(),
         sessionKey,
@@ -136,12 +119,33 @@ function windowCreate(port, args = {}) {
 
             if (result === 0) w.destroy()
           } else {
+            e
             w.destroy()
           }
         }
       )
     )
   }) // EO close
+
+  w.webContents.on(
+    'console-message',
+    (event, level, message, line, sourceId) => {
+      if (message.startsWith('rendererApiJson:')) {
+        let obj = JSON.parse(message.slice('rendererApiJson:'.length))
+        if (obj.key == 'dirtyFlag') {
+          let dirty = obj.value
+          let title = w.getTitle()
+          if (title.startsWith('* ') && !dirty) {
+            w.setTitle(title.slice(2))
+          } else if (!title.startsWith('*') && dirty) {
+            w.setTitle('* ' + title)
+          }
+        }
+      } else {
+        env.logBrowser(message)
+      }
+    }
+  )
 
   return w
 }

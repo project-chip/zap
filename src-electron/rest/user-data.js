@@ -24,6 +24,7 @@
 const env = require('../util/env.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
+const querySession = require('../db/query-session.js')
 const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
@@ -41,8 +42,8 @@ const ideIntegrationZcl = require('../ide-integration/zcl.js')
  */
 function httpGetSessionKeyValues(db) {
   return (request, response) => {
-    let sessionId = request.session.zapSessionId
-    queryConfig
+    let sessionId = request.zapSessionId
+    querySession
       .getAllSessionKeyValues(db, sessionId)
       .then((sessionKeyValues) =>
         response.status(restApi.httpCode.ok).json(sessionKeyValues)
@@ -59,9 +60,9 @@ function httpGetSessionKeyValues(db) {
 function httpPostSaveSessionKeyValue(db) {
   return (request, response) => {
     let { key, value } = request.body
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
     env.logInfo(`[${sessionId}]: Saving: ${key} => ${value}`)
-    queryConfig
+    querySession
       .updateSessionKeyValue(db, sessionId, key, value)
       .then(() => {
         response.json({
@@ -238,7 +239,7 @@ function httpPostCommandUpdate(db) {
  */
 function httpGetInitialState(db) {
   return (request, response) => {
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
     let state = {}
 
     let statePopulators = []
@@ -254,7 +255,7 @@ function httpGetInitialState(db) {
     })
     statePopulators.push(endpoints)
 
-    let sessionKeyValues = queryConfig
+    let sessionKeyValues = querySession
       .getAllSessionKeyValues(db, sessionId)
       .then((rows) => {
         state.sessionKeyValues = rows
@@ -275,7 +276,7 @@ function httpGetInitialState(db) {
  */
 function httpGetOption(db) {
   return (request, response) => {
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
     const { category } = request.params
     queryPackage.getSessionPackages(db, sessionId).then((packages) => {
       let p = packages.map((pkg) =>
@@ -293,7 +294,7 @@ function httpGetOption(db) {
  */
 function httpGetPackages(db) {
   return (request, response) => {
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
     queryPackage
       .getPackageSessionPackagePairBySessionId(db, sessionId)
       .then((packageSessionPackagePairs) =>
@@ -307,7 +308,7 @@ function httpGetPackages(db) {
  */
 function httpPostAddNewPackage(db) {
   return (request, response) => {
-    let sessionId = request.session.zapSessionId
+    let sessionId = request.zapSessionId
     let { filePath } = request.body
     zclLoader
       .loadIndividualFile(db, filePath, sessionId)

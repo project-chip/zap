@@ -177,6 +177,24 @@ export default {
                   this.endpointType[res.id]
                 ],
               })
+
+              // collect all cluster id from new endpoint
+              this.selectionClients.forEach((id) => {
+                this.updateSelectedComponentRequest({
+                  clusterId: id,
+                  side: ['client'],
+                  added: true,
+                })
+              })
+
+              this.selectionServers.forEach((id) => {
+                this.updateSelectedComponentRequest({
+                  clusterId: id,
+                  side: ['server'],
+                  added: true,
+                })
+              })
+
               this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
             })
         })
@@ -205,6 +223,24 @@ export default {
           ],
         },
       })
+
+      // collect all cluster id from new endpoint
+      this.selectionClients.forEach((id) => {
+        this.updateSelectedComponentRequest({
+          clusterId: id,
+          side: ['client'],
+          added: true,
+        })
+      })
+
+      this.selectionServers.forEach((id) => {
+        this.updateSelectedComponentRequest({
+          clusterId: id,
+          side: ['server'],
+          added: true,
+        })
+      })
+
       this.$store.dispatch('zap/updateSelectedEndpointType', {
         endpointType: endpointReference,
         deviceTypeRef: this.endpointDeviceTypeRef[

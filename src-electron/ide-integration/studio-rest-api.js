@@ -164,7 +164,7 @@ function httpPostComponentUpdate(project, componentId, add) {
  * Start the dirty flag reporting interval.
  *
  */
-function initializeReporting() {
+function init() {
   reportingIntervalId = setInterval(() => {
     sendDirtyFlagStatus()
   }, DIRTY_FLAG_REPORT_INTERVAL_MS)
@@ -172,15 +172,13 @@ function initializeReporting() {
 
 /**
  * Clears up the reporting interval.
- *
  */
-function clearReporting() {
+function deinit() {
   if (reportingIntervalId != null) clearInterval(reportingIntervalId)
 }
 
 function sendDirtyFlagStatus() {
-  // 'sessionId', 'sessionKey' and 'creationTime'.
-  querySession.getAllSessions(env.mainDatabase()).then((sessions) =>
+  querySession.getAllSessions(env.mainDatabase()).then((sessions) => {
     sessions.forEach((session) => {
       let socket = wsServer.clientSocket(session.sessionKey)
       if (socket) {
@@ -194,7 +192,7 @@ function sendDirtyFlagStatus() {
           })
       }
     })
-  )
+  })
 }
 
 /**
@@ -215,10 +213,31 @@ function sendSessionCreationErrorStatus(err) {
   )
 }
 
+/**
+ * Notify front-end that current session failed to load.
+ * @param {*} err
+ */
+function sendComponentStatus(sessionId, data) {
+  querySession.getAllSessions(env.mainDatabase()).then((sessions) =>
+    sessions.forEach((session) => {
+      if (session.sessionId == sessionId) {
+        let socket = wsServer.clientSocket(session.sessionKey)
+        if (socket) {
+          wsServer.sendWebSocketMessage(socket, {
+            category: dbEnum.wsCategory.componentStatus,
+            payload: data,
+          })
+        }
+      }
+    })
+  )
+}
+
 exports.getProjectInfo = getProjectInfo
 exports.updateComponentByComponentIds = updateComponentByComponentIds
 exports.updateComponentByClusterIdAndComponentId = updateComponentByClusterIdAndComponentId
 exports.projectName = projectName
-exports.initializeReporting = initializeReporting
-exports.clearReporting = clearReporting
+exports.init = init
+exports.deinit = deinit
 exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus
+exports.sendComponentStatus = sendComponentStatus
