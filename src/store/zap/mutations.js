@@ -379,10 +379,6 @@ export function setEmbeddedMode(state, embeddedMode) {
   Vue.set(state.calledArgs, 'embeddedMode', embeddedMode)
 }
 
-export function setStudioConfigPath(state, filePath) {
-  Vue.set(state.studio, 'projectPath', filePath)
-}
-
 export function setAttributeEditting(state, context) {
   Vue.set(
     state.attributeView.editableAttributes,

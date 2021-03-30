@@ -54,19 +54,8 @@ function initLoad(store) {
 export default {
   name: 'App',
   methods: {
-    pollUcComponentState() {
-      console.log('Initialize polling for Uc Component state.')
-
-      // Start polling Studio component state
-      const UC_COMPONENT_STATE_POLLING_INTERVAL_MS = 4000
-      setInterval(() => {
-        this.$store.dispatch(
-          'zap/updateUcComponentState',
-          this.$store.state.zap.studio.projectPath
-        )
-      }, UC_COMPONENT_STATE_POLLING_INTERVAL_MS)
-    },
-    setThemeMode(theme) {
+    setThemeMode() {
+      const theme = document.documentElement.getAttribute('data-theme')
       if (theme === 'com.silabs.ss.platform.theme.dark') {
         this.$q.dark.set(true)
       } else {
@@ -109,11 +98,6 @@ export default {
 
     if (`embeddedMode` in query) {
       this.$store.dispatch('zap/setEmbeddedMode', query[`embeddedMode`])
-    }
-
-    if (query['studioProject']) {
-      this.$store.dispatch('zap/setStudioConfigPath', query['studioProject'])
-      // this.pollUcComponentState()
     }
 
     this.zclDialogTitle = 'ZCL tab!'

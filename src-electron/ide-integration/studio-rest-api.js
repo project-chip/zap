@@ -30,6 +30,7 @@ const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const http = require('http-status-codes')
 const zcl = require('./zcl.js')
+const session = require('express-session')
 
 const localhost = 'http://localhost:'
 const op_tree = '/rest/clic/components/all/project/'
@@ -66,18 +67,19 @@ function getProjectInfo(project) {
  *                status - boolean. true if HTTP REQ status code is OK,
  *                data - HTTP response data field
  */
-function updateComponentByClusterIdAndComponentId(
+async function updateComponentByClusterIdAndComponentId(
   db,
-  project,
   componentIds,
   clusterId,
   add,
   sessionId,
   side
 ) {
+  let project = await querySession.getSessionKeyValue(db, sessionId, dbEnum.sessionKey.studioProjectPath)
   let name = projectName(project)
 
   if (typeof project === 'undefined') {
+    env.logInfo(`StudioUC(${name}): Failed to update component due to missing 'project' parameter.`)
     return Promise.resolve({ componentIds: [], added: add })
   }
 

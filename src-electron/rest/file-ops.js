@@ -39,16 +39,26 @@ const studio = require('../ide-integration/studio-rest-api.js')
  */
 function httpPostFileOpen(db) {
   return (req, res) => {
-    let zapPath = req.body.path
-    if (zapPath != null) {
-      let name = path.posix.basename(zapPath)
-      let zapFile = zapPath
+    let { zapFilePath, studioFilePath } = req.body
+    let name = ''
 
+    if (zapFilePath ) {
+      name = path.posix.basename(zapFilePath)
       env.logInfo(`Studio: Opening/Loading project(${name})`)
+    }
 
+    if (zapFilePath != null && studioFilePath != null) {
       importJs
-        .importDataFromFile(db, zapFile, req.zapSessionId)
+        .importDataFromFile(db, zapFilePath, req.zapSessionId)
         .then((importResult) => {
+          // store studio project path
+          querySession.updateSessionKeyValue(
+            db,
+            req.zapSessionId,
+            dbEnum.sessionKey.studioProjectPath,
+            studioFilePath
+          )
+
           let response = {
             sessionId: importResult.sessionId,
             sessionKey: req.session.id,
@@ -59,13 +69,13 @@ function httpPostFileOpen(db) {
           res.send(response)
         })
         .catch(function (err) {
-          err.project = zapFile
+          err.project = zapFilePath
           studio.sendSessionCreationErrorStatus(err)
           env.logError(JSON.stringify(err))
           res.status(http.StatusCodes.BAD_REQUEST).send(err)
         })
     } else {
-      let msg = `Opening/Loading project: Missing path data.`
+      let msg = `Opening/Loading project: Missing zap file path or Studio project file path.`
       env.logWarning(msg)
       res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
     }

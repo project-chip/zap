@@ -55,7 +55,6 @@ function httpPostUpdateComponentHandler(db, request, response, add) {
   studio
     .updateComponentByClusterIdAndComponentId(
       db,
-      studioProject,
       componentIds,
       clusterId,
       add,

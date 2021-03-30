@@ -56,11 +56,7 @@ export default {
 
   mounted() {
     if (this.$$serverGet != null) {
-      this.$serverGet(restApi.uc.componentTree, {
-        params: {
-          studioProject: this.$store.state.zap.studio.projectPath,
-        },
-      }).then((response) => {
+      this.$serverGet(restApi.uc.componentTree).then((response) => {
         this.componentTree.length = 0
         response.data.forEach((ele) => this.componentTree.push(ele))
 

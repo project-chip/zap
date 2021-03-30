@@ -117,7 +117,6 @@ export default function () {
       embeddedMode: true,
     },
     studio: {
-      projectPath: '',
       projectInfoJson: '', // HTTP response from Studio jetty server
       selectedComponentIds: [], // parsed from 'projectInfoJson'
     },

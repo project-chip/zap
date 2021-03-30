@@ -73,6 +73,7 @@ exports.fileLocationCategory = {
 
 exports.sessionKey = {
   filePath: 'filePath',
+  studioProjectPath: 'studioProjectPath',
 }
 
 exports.pathRelativity = {
