@@ -65,7 +65,10 @@ export default {
       // Start polling Studio component state
       const UC_COMPONENT_STATE_POLLING_INTERVAL_MS = 4000
       let ucComponentStateIntervalId = setInterval(() => {
-        this.$store.dispatch('zap/updateUcComponentState', this.$store.state.zap.studio.projectPath)
+        this.$store.dispatch(
+          'zap/updateUcComponentState',
+          this.$store.state.zap.studio.projectPath
+        )
       }, UC_COMPONENT_STATE_POLLING_INTERVAL_MS)
     },
     setThemeMode() {
@@ -120,7 +123,7 @@ export default {
 
     if (query['studioProject']) {
       this.$store.dispatch('zap/setStudioConfigPath', query['studioProject'])
-      this.pollUcComponentState()
+      // this.pollUcComponentState()
     }
 
     this.zclDialogTitle = 'ZCL tab!'
