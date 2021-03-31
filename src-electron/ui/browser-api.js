@@ -16,9 +16,7 @@
  */
 
 const restApi = require('../../src-shared/rest-api.js')
-const {
-  exportCommandsFromEndpointTypeCluster,
-} = require('../db/query-impexp.js')
+const uiUtil = require('./ui-util.js')
 
 /**
  * @module JS API: renderer API related utilities
@@ -90,6 +88,41 @@ async function progressStart(browserWindow, message) {
   )
 }
 
+/**
+ * This method takes a message and checks if it's a renderer API
+ * notification call. If it is, it processe it and returns true.
+ * If it's not it returns false.
+ *
+ * @param {*} message
+ * @returns true if message was a notify message and was consumed.
+ */
+function processRendererNotify(browserWindow, message) {
+  if (message.startsWith('rendererApiJson:')) {
+    let obj = JSON.parse(message.slice('rendererApiJson:'.length))
+    switch (obj.key) {
+      case restApi.rendererApiNotifyKey.dirtyFlag:
+        uiUtil.toggleDirtyFlag(browserWindow, obj.value)
+        return true
+      case restApi.rendererApiNotifyKey.fileBrowse:
+        uiUtil.openFileDialogAndReportResult(browserWindow, {
+          title: 'Select an XML file containing custom ZCL objects',
+          defaultPath: obj.value,
+        })
+        return true
+      default:
+        env.logBrowser(`Unhandled renderer API key: ${obj.key}`)
+        return false
+    }
+  }
+  return false
+}
+
+/**
+ * This method calls the reportFiles renderer API call.
+ *
+ * @param {*} browserWindow
+ * @param {*} filesArray
+ */
 async function reportFiles(browserWindow, filesArray) {
   await browserWindow.webContents.executeJavaScript(
     `window.global_renderer_api_execute('${
@@ -149,3 +182,4 @@ exports.executeSave = executeSave
 exports.progressEnd = progressEnd
 exports.progressStart = progressStart
 exports.reportFiles = reportFiles
+exports.processRendererNotify = processRendererNotify
