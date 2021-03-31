@@ -79,7 +79,9 @@ async function updateComponentByClusterIdAndComponentId(
   let name = projectName(project)
 
   if (typeof project === 'undefined') {
-    env.logInfo(`StudioUC(${name}): Failed to update component due to missing 'project' parameter.`)
+    env.logInfo(
+      `StudioUC(${name}): Failed to update component due to undefined studioProjectPath parameter.`
+    )
     return Promise.resolve({ componentIds: [], added: add })
   }
 
