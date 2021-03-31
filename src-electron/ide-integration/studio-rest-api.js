@@ -38,6 +38,13 @@ const op_add = '/rest/clic/component/add/project/'
 const op_remove = '/rest/clic/component/remove/project/'
 
 let reportingIntervalId = null
+function projectPath(db, sessionId) {
+  return querySession.getSessionKeyValue(
+    db,
+    sessionId,
+    dbEnum.sessionKey.studioProjectPath
+  )
+}
 
 function projectName(studioProject) {
   if (studioProject) {
@@ -47,11 +54,22 @@ function projectName(studioProject) {
   }
 }
 
-function getProjectInfo(project) {
-  let name = projectName(project)
-  let path = localhost + args.studioHttpPort + op_tree + project
-  env.logInfo(`StudioUC(${name}): GET: ${path}`)
-  return axios.get(path)
+function getProjectInfo(db, sessionId) {
+  return projectPath(db, sessionId)
+    .then((studioProjectPath) => {
+      if (typeof studioProjectPath === 'undefined') {
+        throw `StudioUC(): Failed to report UC component state due to invalid Studio project path.`
+      }
+
+      let name = projectName(studioProjectPath)
+      let path = localhost + args.studioHttpPort + op_tree + project
+      env.logInfo(`StudioUC(${name}): GET: ${path}`)
+      return axios.get(path)
+    })
+    .catch((err) => {
+      env.logError(err)
+      return Promise.resolve({ data: [] })
+    })
 }
 
 /**
@@ -75,7 +93,7 @@ async function updateComponentByClusterIdAndComponentId(
   sessionId,
   side
 ) {
-  let project = await querySession.getSessionKeyValue(db, sessionId, dbEnum.sessionKey.studioProjectPath)
+  let project = await projectPath(db, sessionId)
   let name = projectName(project)
 
   if (typeof project === 'undefined') {
@@ -241,6 +259,7 @@ exports.getProjectInfo = getProjectInfo
 exports.updateComponentByComponentIds = updateComponentByComponentIds
 exports.updateComponentByClusterIdAndComponentId = updateComponentByClusterIdAndComponentId
 exports.projectName = projectName
+exports.projectPath = projectPath
 exports.init = init
 exports.deinit = deinit
 exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus
