@@ -97,7 +97,10 @@ function renderer_api_execute(id, ...args) {
       document.documentElement.setAttribute(restApi.progress_attribute, '')
       break
     case restApi.rendererApiId.reportFiles:
-      alert(`files: ${args[0]}`)
+      document.documentElement.setAttribute(
+        restApi.reported_files,
+        JSON.parse(args[0])
+      )
       break
   }
   return ret

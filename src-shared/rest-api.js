@@ -107,6 +107,7 @@ exports.rendererApiNotifyKey = {
 }
 
 exports.progress_attribute = 'progress-message'
+exports.reported_files = 'reported-files'
 
 exports.uri = uri
 exports.httpCode = httpCode

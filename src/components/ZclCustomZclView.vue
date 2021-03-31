@@ -102,7 +102,8 @@ limitations under the License.
 <script>
 import Vue from 'vue'
 import CommonMixin from '../util/common-mixin'
-import { rendererApiNotifyKey } from '../../src-shared/rest-api.js'
+import restApi from '../../src-shared/rest-api.js'
+const util = require('../util/util.js')
 
 export default {
   mixins: [CommonMixin],
@@ -113,9 +114,12 @@ export default {
     },
     browseForFile(currentPath) {
       window.global_renderer_notify(
-        rendererApiNotifyKey.fileBrowse,
+        restApi.rendererApiNotifyKey.fileBrowse,
         currentPath
       )
+    },
+    setReportedFiles(files) {
+      this.packageToLoad = files
     },
     loadNewPackage(packageToLoad) {
       if (packageToLoad == null) {
@@ -158,6 +162,11 @@ export default {
   },
   mounted() {
     this.$store.dispatch('zap/getProjectPackages')
+    util.observeAttribute(restApi.reported_files, () => {
+      this.setReportedFiles(
+        document.documentElement.getAttribute(restApi.reported_files)
+      )
+    })
   },
   data() {
     return {
