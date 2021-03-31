@@ -47,8 +47,9 @@ function projectPath(db, sessionId) {
 }
 
 function projectName(studioProject) {
-  if (studioProject) {
-    return studioProject.substr(studioProject.lastIndexOf('_2F') + 3)
+  const prefix = '_2F'
+  if (studioProject && studioProject.includes(prefix)) {
+    return studioProject.substr(studioProject.lastIndexOf(prefix) + prefix.length)
   } else {
     return ''
   }
