@@ -16,6 +16,7 @@
  */
 const { dialog } = require('electron')
 const windowJs = require('../main-process/window.js')
+const browserApi = require('./browser-api.js')
 
 /**
  * Simple dialog to show error messages from electron renderer scope.
@@ -57,6 +58,40 @@ async function openNewConfiguration(db, httpPort, options = {}) {
   windowJs.windowCreate(httpPort, options)
 }
 
+/**
+ * Toggles the dirty flag.
+ *
+ * @param {*} browserWindow window to affect
+ * @param {*} dirty true if this windows is now dirty, false if otherwise
+ */
+function toggleDirtyFlag(browserWindow, dirty) {
+  let title = browserWindow.getTitle()
+  if (title.startsWith('* ') && !dirty) {
+    browserWindow.setTitle(title.slice(2))
+  } else if (!title.startsWith('*') && dirty) {
+    browserWindow.setTitle('* ' + title)
+  }
+}
+
+/**
+ * This function should be invoked as a result of the fileBrowse
+ * notification via the renderer API. It pops the open dialog and
+ * reports result back through the API.
+ *
+ * @param {*} browserWindow
+ * @param {*} options
+ */
+function openFileDialogAndReportResult(browserWindow, options) {
+  dialog.showOpenDialog(browserWindow, options).then((result) => {
+    if (!result.canceled) {
+      let filePaths = result.filePaths // array of strings
+      browserApi.reportFiles(browserWindow, filePaths)
+    }
+  })
+}
+
 exports.showErrorMessage = showErrorMessage
 exports.openFileConfiguration = openFileConfiguration
 exports.openNewConfiguration = openNewConfiguration
+exports.toggleDirtyFlag = toggleDirtyFlag
+exports.openFileDialogAndReportResult = openFileDialogAndReportResult

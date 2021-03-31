@@ -23,6 +23,8 @@ const menu = require('./menu.js')
 const tray = require('./tray.js')
 const util = require('../util/util.js')
 const browserApi = require('../ui/browser-api.js')
+const restApi = require('../../src-shared/rest-api.js')
+const uiUtil = require('../ui/ui-util.js')
 
 let windowCounter = 0
 
@@ -132,21 +134,24 @@ function windowCreate(port, args = {}) {
     (event, level, message, line, sourceId) => {
       if (message.startsWith('rendererApiJson:')) {
         let obj = JSON.parse(message.slice('rendererApiJson:'.length))
-        if (obj.key == 'dirtyFlag') {
-          let dirty = obj.value
-          let title = w.getTitle()
-          if (title.startsWith('* ') && !dirty) {
-            w.setTitle(title.slice(2))
-          } else if (!title.startsWith('*') && dirty) {
-            w.setTitle('* ' + title)
-          }
+        switch (obj.key) {
+          case restApi.rendererApiNotifyKey.dirtyFlag:
+            uiUtil.toggleDirtyFlag(w, obj.value)
+            break
+          case restApi.rendererApiNotifyKey.fileBrowse:
+            uiUtil.openFileDialogAndReportResult(w, {
+              title: 'Select an XML file containing custom ZCL objects',
+              defaultPath: obj.value,
+            })
+            break
+          default:
+            env.logBrowser(`Unhandled renderer API key: ${obj.key}`)
         }
       } else {
         env.logBrowser(message)
       }
     }
   )
-
   return w
 }
 // exports

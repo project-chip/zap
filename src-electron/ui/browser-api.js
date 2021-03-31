@@ -90,6 +90,14 @@ async function progressStart(browserWindow, message) {
   )
 }
 
+async function reportFiles(browserWindow, filesArray) {
+  await browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${
+      restApi.rendererApiId.reportFiles
+    }', '${JSON.stringify(filesArray)}')`
+  )
+}
+
 /**
  * Returns cookie for user identification.
  *
@@ -140,3 +148,4 @@ exports.executeLoad = executeLoad
 exports.executeSave = executeSave
 exports.progressEnd = progressEnd
 exports.progressStart = progressStart
+exports.reportFiles = reportFiles

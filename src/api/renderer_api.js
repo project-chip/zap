@@ -48,6 +48,10 @@ function renderer_api_info() {
         description: 'Save file...',
       },
       {
+        id: restApi.rendererApiId.reportFiles,
+        description: 'Reports files selected by the renderer.',
+      },
+      {
         id: restApi.rendererApiId.progressStart,
         description: 'Start progress indicator.',
       },
@@ -91,6 +95,9 @@ function renderer_api_execute(id, ...args) {
       break
     case restApi.rendererApiId.progressEnd:
       document.documentElement.setAttribute(restApi.progress_attribute, '')
+      break
+    case restApi.rendererApiId.reportFiles:
+      alert(`files: ${args[0]}`)
       break
   }
   return ret

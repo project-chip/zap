@@ -81,11 +81,13 @@ limitations under the License.
     <q-dialog v-model="uploadNewPackage">
       <q-card>
         <q-card-section>
-          Add new custom ZCL Package
-          <q-file
-            v-model="packageToLoad"
-            :error-message="error"
-            :error="error != null"
+          Type in or browse for a custom package file. This is usually an XML
+          file containing ZCL data.
+          <q-input outlined v-model="packageToLoad" label="Custom file path" />
+          <q-btn
+            outline
+            label="Browse..."
+            @click="browseForFile(packageToLoad)"
           />
           <q-card-actions>
             <q-btn label="Cancel" v-close-popup />
@@ -100,6 +102,7 @@ limitations under the License.
 <script>
 import Vue from 'vue'
 import CommonMixin from '../util/common-mixin'
+import { rendererApiNotifyKey } from '../../src-shared/rest-api.js'
 
 export default {
   mixins: [CommonMixin],
@@ -108,7 +111,25 @@ export default {
       let fileName = path.match(/[^/]+$/)
       return fileName.length > 0 ? fileName[0] : path
     },
+    browseForFile(currentPath) {
+      window.global_renderer_notify(
+        rendererApiNotifyKey.fileBrowse,
+        currentPath
+      )
+    },
     loadNewPackage(packageToLoad) {
+      if (packageToLoad == null) {
+        alert('Empty packageToLoad')
+      } else {
+        let s = ''
+        for (const k in packageToLoad) {
+          s += `${k}: ${packageToLoad[k]} \n`
+          if (k == 'text') {
+            s += `fn:${k} : ${packageToLoad.text()}`
+          }
+        }
+        alert(s)
+      }
       this.$store
         .dispatch('zap/addNewPackage', packageToLoad)
         .then((packageStatus) => {

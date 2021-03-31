@@ -93,12 +93,20 @@ const param = {
   path: 'path',
 }
 
-const rendererApiId = {
+exports.rendererApiId = {
   open: 'open',
   save: 'save',
   progressStart: 'progressStart',
   progressEnd: 'progressEnd',
+  reportFiles: 'reportFiles',
 }
+
+exports.rendererApiNotifyKey = {
+  dirtyFlag: 'dirtyFlag',
+  fileBrowse: 'fileBrowse',
+}
+
+exports.progress_attribute = 'progress-message'
 
 exports.uri = uri
 exports.httpCode = httpCode
@@ -107,6 +115,3 @@ exports.uc = uc
 exports.ide = ide
 exports.updateKey = updateKey
 exports.param = param
-exports.rendererApiId = rendererApiId
-
-exports.progress_attribute = 'progress-message'

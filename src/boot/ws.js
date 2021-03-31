@@ -103,7 +103,7 @@ onWebSocket(dbEnum.wsCategory.tick, (data) =>
 )
 
 onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) => {
-  window.global_renderer_notify('dirtyFlag', data)
+  window.global_renderer_notify(restApi.rendererApiNotifyKey.dirtyFlag, data)
 })
 
 onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {

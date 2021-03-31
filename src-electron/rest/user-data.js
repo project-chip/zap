@@ -310,6 +310,7 @@ function httpPostAddNewPackage(db) {
   return (request, response) => {
     let sessionId = request.zapSessionId
     let { filePath } = request.body
+    console.log(`ADDING NEW PACKAGE: ${filePath}`)
     zclLoader
       .loadIndividualFile(db, filePath, sessionId)
       .then((data) => {
