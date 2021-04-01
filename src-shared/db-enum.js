@@ -87,6 +87,7 @@ exports.wsCategory = {
   dirtyFlag: 'dirtyFlag',
   sessionCreationError: 'sessionCreationError',
   componentUpdateStatus: 'componentUpdateStatus',
+  ucComponentStateReport: 'ucComponentStateReport',
   init: 'init',
   tick: 'tick',
 }

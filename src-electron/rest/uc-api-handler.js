@@ -24,28 +24,14 @@
 const env = require('../util/env.js')
 const studio = require('../ide-integration/studio-rest-api.js')
 const restApi = require('../../src-shared/rest-api.js')
+const querySession = require('../db/query-session.js')
 
 function httpGetComponentTree(db) {
   return (req, res) => {
-    let name = studio.projectName(req.query.studioProject)
-    if (name) {
-      env.logInfo(`StudioUC(${name}): Get project info`)
-      studio
-        .getProjectInfo(req.query.studioProject)
-        .then((r) => {
-          env.logInfo(`StudioUC(${name}): RESP: ${r.status}`)
-          res.send(r.data)
-        })
-        .catch((err) => {
-          env.logInfo(`StudioUC(${name}): ERR: ${err}`)
-          handleError(err, res)
-        })
-    } else {
-      env.logInfo(
-        `StudioUC(${name}): Get project info: missing "studioProject=" query string`
-      )
-      res.send([])
-    }
+    studio
+      .getProjectInfo(db, req.zapSessionId)
+      .then((r) => res.send(r.data))
+      .catch((err) => handleError(err, res))
   }
 }
 

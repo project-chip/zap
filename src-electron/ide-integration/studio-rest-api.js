@@ -22,6 +22,7 @@
 
 // dirty flag reporting interval
 const DIRTY_FLAG_REPORT_INTERVAL_MS = 1000
+const UC_COMPONENT_STATE_REPORTING_INTERVAL_ID = 6000
 const axios = require('axios')
 const args = require('../util/args.js')
 const env = require('../util/env.js')
@@ -37,7 +38,9 @@ const op_tree = '/rest/clic/components/all/project/'
 const op_add = '/rest/clic/component/add/project/'
 const op_remove = '/rest/clic/component/remove/project/'
 
-let reportingIntervalId = null
+let dirtyFlagStatusId = null
+let ucComponentStateReportId = null
+
 function projectPath(db, sessionId) {
   return querySession.getSessionKeyValue(
     db,
@@ -46,31 +49,61 @@ function projectPath(db, sessionId) {
   )
 }
 
-function projectName(studioProject) {
+/**
+ * Boolean deciding whether Studio integration logic should be enabled
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns - Promise to studio project path
+ */
+function integrationEnabled(db, sessionId) {
+  return querySession
+    .getSessionKeyValue(db, sessionId, dbEnum.sessionKey.studioProjectPath)
+    .then((path) => typeof path !== 'undefined')
+}
+
+/**
+ *  Extract project name from the Studio project path
+ * @param {} db
+ * @param {*} sessionId
+ * @returns '' if retrival failed
+ */
+function projectName(projectPath) {
   const prefix = '_2F'
-  if (studioProject && studioProject.includes(prefix)) {
-    return studioProject.substr(studioProject.lastIndexOf(prefix) + prefix.length)
+  if (projectPath && projectPath.includes(prefix)) {
+    return projectPath.substr(projectPath.lastIndexOf(prefix) + prefix.length)
   } else {
     return ''
   }
 }
 
-function getProjectInfo(db, sessionId) {
-  return projectPath(db, sessionId)
-    .then((studioProjectPath) => {
-      if (typeof studioProjectPath === 'undefined') {
-        throw `StudioUC(): Failed to report UC component state due to invalid Studio project path.`
-      }
-
-      let name = projectName(studioProjectPath)
-      let path = localhost + args.studioHttpPort + op_tree + project
-      env.logInfo(`StudioUC(${name}): GET: ${path}`)
-      return axios.get(path)
-    })
-    .catch((err) => {
-      env.logError(err)
-      return Promise.resolve({ data: [] })
-    })
+/**
+ * Send HTTP GET request to Studio Jetty server for project information.
+ * @param {} db
+ * @param {*} sessionId
+ * @returns - HTTP RESP with project info in JSON form
+ */
+async function getProjectInfo(db, sessionId) {
+  let studioProjectPath = await projectPath(db, sessionId)
+  if (studioProjectPath) {
+    let name = await projectName(studioProjectPath)
+    let path = localhost + args.studioHttpPort + op_tree + studioProjectPath
+    env.logInfo(`StudioUC(${name}): GET: ${path}`)
+    return axios
+      .get(path)
+      .then((resp) => {
+        env.logInfo(`StudioUC(${name}): RESP: ${resp.status}`)
+        return resp
+      })
+      .catch((err) => {
+        env.logError(`StudioUC(${name}): ERR: ${err}`)
+        return { data: [] }
+      })
+  } else {
+    env.logError(
+      `StudioUC(): Invalid Studio path project. Failed to retrieve project info.`
+    )
+    return { data: [] }
+  }
 }
 
 /**
@@ -94,12 +127,9 @@ async function updateComponentByClusterIdAndComponentId(
   sessionId,
   side
 ) {
-  let project = await projectPath(db, sessionId)
-  let name = projectName(project)
-
-  if (typeof project === 'undefined') {
+  if (!integrationEnabled()) {
     env.logInfo(
-      `StudioUC(${name}): Failed to update component due to undefined studioProjectPath parameter.`
+      `StudioUC(): Failed to update component due to invalid Studio project path.`
     )
     return Promise.resolve({ componentIds: [], added: add })
   }
@@ -119,16 +149,8 @@ async function updateComponentByClusterIdAndComponentId(
       .then((ids) => ids.flat())
       .then((ids) => ids.concat(componentIds))
       // enabling components via Studio jetty server.
-      .then((ids) => updateComponentByComponentIds(project, ids, add))
+      .then((ids) => updateComponentByComponentIds(ids, add))
       .catch((err) => {
-        let msg = ''
-        if (componentIds) {
-          msg = `StudioUC(${name}): Failed to update component(${err.componentIds})`
-        } else {
-          msg = `StudioUC(${name}): Failed to update components for cluster(${clusterId})`
-        }
-
-        env.logInfo(msg)
         env.logInfo(err)
         return err
       })
@@ -145,9 +167,12 @@ async function updateComponentByClusterIdAndComponentId(
  *                status - boolean. true if HTTP REQ status code is OK,
  *                data - HTTP response data field
  */
-function updateComponentByComponentIds(project, componentIds, add) {
+async function updateComponentByComponentIds(componentIds, add) {
   componentIds = componentIds.filter((x) => x)
   let promises = []
+  let project = await projectPath(db, sessionId)
+  let projectName = await projectName(project)
+
   if (Object.keys(componentIds).length) {
     promises = componentIds.map((componentId) =>
       httpPostComponentUpdate(project, componentId, add)
@@ -156,7 +181,12 @@ function updateComponentByComponentIds(project, componentIds, add) {
 
   return Promise.all(promises).then((responses) =>
     responses.map((resp, index) => {
-      return { id: componentIds[index], status: resp.status, data: resp.data }
+      return {
+        projectName,
+        id: componentIds[index],
+        status: resp.status,
+        data: resp.data,
+      }
     })
   )
 }
@@ -188,16 +218,41 @@ function httpPostComponentUpdate(project, componentId, add) {
  *
  */
 function init() {
-  reportingIntervalId = setInterval(() => {
+  dirtyFlagStatusId = setInterval(() => {
     sendDirtyFlagStatus()
   }, DIRTY_FLAG_REPORT_INTERVAL_MS)
+
+  ucComponentStateReportId = setInterval(() => {
+    sendUcComponentStateReport()
+  }, UC_COMPONENT_STATE_REPORTING_INTERVAL_ID)
 }
 
 /**
  * Clears up the reporting interval.
  */
 function deinit() {
-  if (reportingIntervalId != null) clearInterval(reportingIntervalId)
+  if (dirtyFlagStatusId != null) clearInterval(dirtyFlagStatusId)
+  if (ucComponentStateReportId != null) clearInterval(ucComponentStateReportId)
+}
+
+async function sendUcComponentStateReport() {
+  let sessions = await querySession.getAllSessions(env.mainDatabase())
+  for (const session of sessions) {
+    let socket = wsServer.clientSocket(session.sessionKey)
+    let studioIntegration = await integrationEnabled(
+      env.mainDatabase(),
+      session.sessionId
+    )
+    if (socket && studioIntegration) {
+      getProjectInfo(env.mainDatabase(), session.sessionId).then((resp) => {
+        if (resp.status == http.StatusCodes.OK)
+          wsServer.sendWebSocketMessage(socket, {
+            category: dbEnum.wsCategory.ucComponentStateReport,
+            payload: resp.data,
+          })
+      })
+    }
+  }
 }
 
 function sendDirtyFlagStatus() {
@@ -261,6 +316,7 @@ exports.updateComponentByComponentIds = updateComponentByComponentIds
 exports.updateComponentByClusterIdAndComponentId = updateComponentByClusterIdAndComponentId
 exports.projectName = projectName
 exports.projectPath = projectPath
+exports.integrationEnabled = integrationEnabled
 exports.init = init
 exports.deinit = deinit
 exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus

@@ -621,10 +621,8 @@ export function resetFilters(context) {
   context.commit('resetFilters')
 }
 
-export function updateUcComponentState(context) {
-  Vue.prototype.$serverGet(restApi.uc.componentTree).then((response) => {
-    let selected = Util.getSelectedComponent(response.data)
-    let selectedComponentIds = Util.getClustersByUcComponentIds(selected)
-    context.commit('updateUcComponentState', selectedComponentIds)
-  })
+export function updateUcComponentState(context, projectInfoJson) {
+  let selected = Util.getSelectedComponent(projectInfoJson)
+  let selectedComponentIds = Util.getClustersByUcComponentIds(selected)
+  context.commit('updateUcComponentState', selectedComponentIds)
 }

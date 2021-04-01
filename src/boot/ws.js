@@ -20,6 +20,7 @@ import dbEnum from '../../src-shared/db-enum.js'
 import restApi from '../../src-shared/rest-api.js'
 import { Notify } from 'quasar'
 import * as Util from '../util/util.js'
+const http = require('http-status-codes')
 
 let eventEmitter = new Events.EventEmitter()
 let wsUrl = `ws://${window.location.hostname}:${window.location.port}?${
@@ -127,6 +128,13 @@ onWebSocket(dbEnum.wsCategory.componentUpdateStatus, (obj) => {
   let { data, added } = obj
   console.log(`componentUpdateStatus: ${JSON.stringify(obj)}`)
   Util.notifyComponentUpdateStatus(data, added)
+})
+
+onWebSocket(dbEnum.wsCategory.ucComponentStateReport, (resp) => {
+  console.log(`ucComponentStateReport: ${JSON.stringify(resp)}`)
+  if (resp.status == http.StatusCodes.OK) {
+    this.$store.dispatch('zap/updateUcComponentState', resp.data)
+  }
 })
 
 onWebSocket(dbEnum.wsCategory.generic, (data) =>
