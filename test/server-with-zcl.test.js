@@ -75,7 +75,7 @@ describe('Miscelaneous REST API tests', () => {
   test('load a file', () =>
     axiosInstance
       .post(`${restApi.ide.open}?sessionId=${sessionUuid}`, {
-        path: path.join(__dirname, 'resource/three-endpoint-device.zap'),
+        zapFilePath: path.join(__dirname, 'resource/three-endpoint-device.zap'),
       })
       .then((response) => {
         expect(response.status).toBe(restApi.httpCode.ok)

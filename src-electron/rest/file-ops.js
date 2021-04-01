@@ -42,31 +42,41 @@ function httpPostFileOpen(db) {
     let { zapFilePath, studioFilePath } = req.body
     let name = ''
 
-    if (zapFilePath ) {
+    if (zapFilePath) {
       name = path.posix.basename(zapFilePath)
-      env.logInfo(`Studio: Opening/Loading project(${name})`)
+      env.logInfo(`Loading project(${name})`)
     }
 
-    if (zapFilePath != null && studioFilePath != null) {
+    if (zapFilePath) {
       importJs
         .importDataFromFile(db, zapFilePath, req.zapSessionId)
         .then((importResult) => {
-          // store studio project path
-          querySession.updateSessionKeyValue(
-            db,
-            req.zapSessionId,
-            dbEnum.sessionKey.studioProjectPath,
-            studioFilePath
-          )
-
           let response = {
             sessionId: importResult.sessionId,
             sessionKey: req.session.id,
           }
           env.logInfo(
-            `Studio: Loaded project(${name}), ${JSON.stringify(response)}`
+            `Loaded project(${name}) into database. RESP: ${JSON.stringify(
+              response
+            )}`
           )
           res.send(response)
+          return req.zapSessionId
+        })
+        .then((sessionId) => {
+          if (studioFilePath) {
+            env.logInfo(
+              `Studio: setting project path(${name}) to ${studioFilePath}`
+            )
+
+            // store studio project path
+            querySession.updateSessionKeyValue(
+              db,
+              sessionId,
+              dbEnum.sessionKey.studioProjectPath,
+              studioFilePath
+            )
+          }
         })
         .catch(function (err) {
           err.project = zapFilePath
