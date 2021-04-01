@@ -21,7 +21,6 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
 const tray = require('./tray.js')
-const util = require('../util/util.js')
 const browserApi = require('../ui/browser-api.js')
 
 let windowCounter = 0
@@ -80,7 +79,7 @@ function windowCreate(port, args = {}) {
     resizable: true,
     center: true,
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
-    title: args.filePath == null ? 'New Configuration' : args.filePath,
+    title: args.filePath == null ? menu.newConfiguration : args.filePath,
     useContentSize: true,
     webPreferences: webPreferences,
   })
@@ -119,7 +118,6 @@ function windowCreate(port, args = {}) {
 
             if (result === 0) w.destroy()
           } else {
-            e
             w.destroy()
           }
         }
@@ -130,23 +128,11 @@ function windowCreate(port, args = {}) {
   w.webContents.on(
     'console-message',
     (event, level, message, line, sourceId) => {
-      if (message.startsWith('rendererApiJson:')) {
-        let obj = JSON.parse(message.slice('rendererApiJson:'.length))
-        if (obj.key == 'dirtyFlag') {
-          let dirty = obj.value
-          let title = w.getTitle()
-          if (title.startsWith('* ') && !dirty) {
-            w.setTitle(title.slice(2))
-          } else if (!title.startsWith('*') && dirty) {
-            w.setTitle('* ' + title)
-          }
-        }
-      } else {
+      if (!browserApi.processRendererNotify(w, message)) {
         env.logBrowser(message)
       }
     }
   )
-
   return w
 }
 // exports

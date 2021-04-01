@@ -74,7 +74,7 @@ limitations under the License.
           <q-drawer
             :width="$q.screen.width * 0.6"
             bordered
-            show-if-above="true"
+            show-if-above
             overlay
             v-model="drawerRight"
             side="right"

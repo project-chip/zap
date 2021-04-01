@@ -81,11 +81,13 @@ limitations under the License.
     <q-dialog v-model="uploadNewPackage">
       <q-card>
         <q-card-section>
-          Add new custom ZCL Package
-          <q-file
-            v-model="packageToLoad"
-            :error-message="error"
-            :error="error != null"
+          Type in or browse for a custom package file. This is usually an XML
+          file containing ZCL data.
+          <q-input outlined v-model="packageToLoad" label="Custom file path" />
+          <q-btn
+            outline
+            label="Browse..."
+            @click="browseForFile(packageToLoad)"
           />
           <q-card-actions>
             <q-btn label="Cancel" v-close-popup />
@@ -98,8 +100,9 @@ limitations under the License.
 </template>
 
 <script>
-import Vue from 'vue'
 import CommonMixin from '../util/common-mixin'
+import restApi from '../../src-shared/rest-api.js'
+const observable = require('../util/observable.js')
 
 export default {
   mixins: [CommonMixin],
@@ -108,16 +111,22 @@ export default {
       let fileName = path.match(/[^/]+$/)
       return fileName.length > 0 ? fileName[0] : path
     },
+    browseForFile(currentPath) {
+      window.global_renderer_notify(
+        restApi.rendererApiNotifyKey.fileBrowse,
+        currentPath
+      )
+    },
+    setReportedFiles(files) {
+      this.packageToLoad = files
+    },
     loadNewPackage(packageToLoad) {
       this.$store
         .dispatch('zap/addNewPackage', packageToLoad)
         .then((packageStatus) => {
           if (packageStatus.isValid) {
             this.error = null
-            Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
-              let arg = response.data
-              this.$store.dispatch('zap/updateClusters', arg.data)
-            })
+            this.$store.dispatch('zap/updateClusters')
             this.uploadNewPackage = !this.uploadNewPackage
           } else {
             this.error = packageStatus.err
@@ -127,16 +136,16 @@ export default {
     deletePackage(packageToDelete) {
       this.$store
         .dispatch('zap/deleteSessionPackage', packageToDelete.sessionPackage)
-        .then((x) => {
-          Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
-            let arg = response.data
-            this.$store.dispatch('zap/updateClusters', arg.data)
-          })
-        })
+        .then((x) => this.$store.dispatch('zap/updateClusters'))
     },
   },
   mounted() {
-    this.$store.dispatch('zap/getProjectPackages')
+    if (this.$serverGet != null) {
+      this.$store.dispatch('zap/getProjectPackages')
+      observable.observeAttribute(restApi.reported_files, (value) => {
+        this.setReportedFiles(value)
+      })
+    }
   },
   data() {
     return {

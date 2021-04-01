@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-const util = require('../util/util.js')
+const observable = require('../util/observable.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 // This file provide glue logic to enable function calls & HTML attribute data change listener logic
@@ -40,12 +40,24 @@ function renderer_api_info() {
     description: 'Zap Renderer API',
     functions: [
       {
-        id: 'open',
+        id: restApi.rendererApiId.open,
         description: 'Open file...',
       },
       {
-        id: 'save',
+        id: restApi.rendererApiId.save,
         description: 'Save file...',
+      },
+      {
+        id: restApi.rendererApiId.reportFiles,
+        description: 'Reports files selected by the renderer.',
+      },
+      {
+        id: restApi.rendererApiId.progressStart,
+        description: 'Start progress indicator.',
+      },
+      {
+        id: restApi.rendererApiId.progressEnd,
+        description: 'End progress indicator.',
       },
     ],
   }
@@ -72,11 +84,23 @@ function fnSave(zap_file) {
 function renderer_api_execute(id, ...args) {
   let ret = null
   switch (id) {
-    case 'open':
+    case restApi.rendererApiId.open:
       ret = fnOpen.apply(null, args)
       break
-    case 'save':
+    case restApi.rendererApiId.save:
       ret = fnSave.apply(null, args)
+      break
+    case restApi.rendererApiId.progressStart:
+      observable.setObservableAttribute(restApi.progress_attribute, args[0])
+      break
+    case restApi.rendererApiId.progressEnd:
+      observable.setObservableAttribute(restApi.progress_attribute, '')
+      break
+    case restApi.rendererApiId.reportFiles:
+      observable.setObservableAttribute(
+        restApi.reported_files,
+        JSON.parse(args[0])
+      )
       break
   }
   return ret

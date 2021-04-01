@@ -31,13 +31,14 @@ const commonUrl = require('../../src-shared/common-url.js')
 const browserApi = require('../ui/browser-api.js')
 
 let httpPort
+const newConfiguration = 'New Configuration'
 
 const template = [
   {
     role: 'fileMenu',
     submenu: [
       {
-        label: 'New Configuration...',
+        label: newConfiguration + '...',
         accelerator: 'CmdOrCtrl+N',
         click(menuItem, browserWindow, event) {
           uiJs.openNewConfiguration(env.mainDatabase(), httpPort)
@@ -140,6 +141,18 @@ const template = [
         type: 'separator',
       },
       {
+        label: 'Start progress',
+        click(menuItem, browserWindow) {
+          browserApi.progressStart(browserWindow, 'Test progress indication.')
+        },
+      },
+      {
+        label: 'End progress',
+        click(menuItem, browserWindow) {
+          browserApi.progressEnd(browserWindow)
+        },
+      },
+      {
         label: 'About',
         click(menuItem, browserWindow, event) {
           about.createOrShowAboutWindow(browserWindow, httpPort)
@@ -200,7 +213,11 @@ function doOpen(menuItem, browserWindow, event) {
  * @param {*} event
  */
 function doSave(menuItem, browserWindow, event) {
-  fileSave(browserWindow, null)
+  if (browserWindow.getTitle().includes(newConfiguration)) {
+    doSaveAs(menuItem, browserWindow, event)
+  } else {
+    fileSave(browserWindow, null)
+  }
 }
 
 /**
@@ -227,7 +244,8 @@ function doSaveAs(menuItem, browserWindow, event) {
     })
     .then((result) => {
       if (!result.canceled) {
-        return fileSave(browserWindow, result.filePath)
+        fileSave(browserWindow, result.filePath)
+        return result.filePath
       } else {
         return null
       }
@@ -240,11 +258,6 @@ function doSaveAs(menuItem, browserWindow, event) {
           dbEnum.fileLocationCategory.save
         )
         browserWindow.setTitle(filePath)
-        dialog.showMessageBox(browserWindow, {
-          title: 'Save',
-          message: `Save done. Output: ${filePath}`,
-          buttons: ['Ok'],
-        })
       }
     })
     .catch((err) => uiJs.showErrorMessage('Save file', err))
@@ -372,3 +385,4 @@ function initMenu(port) {
 }
 
 exports.initMenu = initMenu
+exports.newConfiguration = newConfiguration

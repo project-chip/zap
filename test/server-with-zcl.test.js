@@ -27,7 +27,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const testUtil = require('./test-util.js')
 const { v4: uuidv4 } = require('uuid')
-
+const path = require('path')
 let db
 let axiosInstance = null
 
@@ -64,10 +64,57 @@ test('get index.html', () =>
   }))
 
 describe('Miscelaneous REST API tests', () => {
+  let sessionUuid = uuidv4()
   test('test manufacturer codes', () =>
     axiosInstance
-      .get(`${restApi.uri.option}/manufacturerCodes?sessionId=${uuidv4()}`)
+      .get(`${restApi.uri.option}/manufacturerCodes?sessionId=${sessionUuid}`)
       .then((response) => {
         expect(response.data.length).toBeGreaterThan(100)
+      }))
+
+  test('load a file', () =>
+    axiosInstance
+      .post(`${restApi.ide.open}?sessionId=${sessionUuid}`, {
+        path: path.join(__dirname, 'resource/three-endpoint-device.zap'),
+      })
+      .then((response) => {
+        expect(response.status).toBe(restApi.httpCode.ok)
+      }))
+
+  test('session key values existence test', () =>
+    axiosInstance
+      .get(`${restApi.uri.getAllSessionKeyValues}?sessionId=${sessionUuid}`)
+      .then((response) => {
+        let data = response.data.reduce((accumulator, current) => {
+          accumulator[current.key] = current.value
+          return accumulator
+        }, {})
+        expect(data.commandDiscovery).toEqual('1')
+        expect(data.defaultResponsePolicy).toEqual('always')
+        expect(data.filePath).toContain('three-endpoint-device.zap')
+        expect(data.manufacturerCodes).toEqual('0x1002')
+      }))
+
+  test('add session key value test', () =>
+    axiosInstance
+      .post(`${restApi.uri.saveSessionKeyValue}?sessionId=${sessionUuid}`, {
+        key: 'testKey',
+        value: 'testValue',
+      })
+      .then(() =>
+        axiosInstance.get(
+          `${restApi.uri.getAllSessionKeyValues}?sessionId=${sessionUuid}`
+        )
+      )
+      .then((response) => {
+        let data = response.data.reduce((accumulator, current) => {
+          accumulator[current.key] = current.value
+          return accumulator
+        }, {})
+        expect(data.commandDiscovery).toEqual('1')
+        expect(data.defaultResponsePolicy).toEqual('always')
+        expect(data.filePath).toContain('three-endpoint-device.zap')
+        expect(data.manufacturerCodes).toEqual('0x1002')
+        expect(data.testKey).toEqual('testValue')
       }))
 })

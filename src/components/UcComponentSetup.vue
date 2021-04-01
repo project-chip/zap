@@ -55,20 +55,22 @@ export default {
   },
 
   mounted() {
-    this.$serverGet(restApi.uc.componentTree, {
-      params: {
-        studioProject: this.$store.state.zap.studio.projectPath,
-      },
-    }).then((response) => {
-      this.componentTree.length = 0
-      response.data.forEach((ele) => this.componentTree.push(ele))
+    if (this.$$serverGet != null) {
+      this.$serverGet(restApi.uc.componentTree, {
+        params: {
+          studioProject: this.$store.state.zap.studio.projectPath,
+        },
+      }).then((response) => {
+        this.componentTree.length = 0
+        response.data.forEach((ele) => this.componentTree.push(ele))
 
-      let selectedComponentIds = util.getSelectedComponent(response.data)
+        let selectedComponentIds = util.getSelectedComponent(response.data)
 
-      this.uc.ticked.length = 0
-      selectedComponentIds.forEach((e) => this.uc.ticked.push(e))
-      this.uc.last_ticked = this.uc.ticked
-    })
+        this.uc.ticked.length = 0
+        selectedComponentIds.forEach((e) => this.uc.ticked.push(e))
+        this.uc.last_ticked = this.uc.ticked
+      })
+    }
   },
 
   methods: {
@@ -81,16 +83,22 @@ export default {
         (x) => !this.uc.ticked.includes(x)
       )
 
-      // Parse component id from Studio ids 
+      // Parse component id from Studio ids
       // e.g. "zigbee_basic" via "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
-      enabledItems = enabledItems.map(x => x.substr(x.lastIndexOf('-') + 1))
+      enabledItems = enabledItems.map((x) => x.substr(x.lastIndexOf('-') + 1))
       if (enabledItems.length) {
-        this.updateSelectedComponentRequest({ componentIds: enabledItems, added: true })
+        this.updateSelectedComponentRequest({
+          componentIds: enabledItems,
+          added: true,
+        })
       }
 
-      disabledItems = disabledItems.map(x => x.substr(x.lastIndexOf('-') + 1))
+      disabledItems = disabledItems.map((x) => x.substr(x.lastIndexOf('-') + 1))
       if (disabledItems.length) {
-        this.updateSelectedComponentRequest({ componentIds: disabledItems, added: false })
+        this.updateSelectedComponentRequest({
+          componentIds: disabledItems,
+          added: false,
+        })
       }
 
       this.uc.last_ticked = this.uc.ticked

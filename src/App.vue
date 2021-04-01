@@ -25,7 +25,7 @@ limitations under the License.
 import Vue from 'vue'
 import { QSpinnerGears } from 'quasar'
 const restApi = require(`../src-shared/rest-api.js`)
-const util = require('./util/util.js')
+const observable = require('./util/observable.js')
 
 function initLoad(store) {
   store.dispatch('zap/loadInitialData')
@@ -40,12 +40,7 @@ function initLoad(store) {
   store.dispatch('zap/loadSessionKeyValues')
 
   let promises = []
-  promises.push(
-    Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
-      let arg = response.data
-      store.dispatch('zap/updateClusters', arg.data)
-    })
-  )
+  promises.push(store.dispatch('zap/updateClusters'))
   promises.push(
     Vue.prototype.$serverGet('/zcl/deviceType/all').then((response) => {
       let arg = response.data
@@ -64,33 +59,29 @@ export default {
 
       // Start polling Studio component state
       const UC_COMPONENT_STATE_POLLING_INTERVAL_MS = 4000
-      let ucComponentStateIntervalId = setInterval(() => {
-        this.$store.dispatch('zap/updateUcComponentState', this.$store.state.zap.studio.projectPath)
+      setInterval(() => {
+        this.$store.dispatch(
+          'zap/updateUcComponentState',
+          this.$store.state.zap.studio.projectPath
+        )
       }, UC_COMPONENT_STATE_POLLING_INTERVAL_MS)
     },
-    setThemeMode() {
-      const theme = document.documentElement.getAttribute('data-theme')
+    setThemeMode(theme) {
       if (theme === 'com.silabs.ss.platform.theme.dark') {
         this.$q.dark.set(true)
       } else {
         this.$q.dark.set(false)
       }
     },
-    setGenerationInProgress() {
-      const pending = document.documentElement.getAttribute(
-        'generation-in-progress'
-      )
-      console.log(`pending: ${pending}`)
-      if (pending === 'true') {
-        console.log('true')
+    setGenerationInProgress(progressMessage) {
+      if (progressMessage != null && progressMessage.length > 0) {
         this.$q.loading.show({
           spinner: QSpinnerGears,
           messageColor: 'white',
-          message: 'Generation in progress...',
+          message: progressMessage,
           spinnerSize: 300,
         })
       } else {
-        console.log('false')
         this.$q.loading.hide()
       }
     },
@@ -98,6 +89,8 @@ export default {
   mounted() {
     this.$q.loading.show({
       spinner: QSpinnerGears,
+      messageColor: 'white',
+      message: 'Please wait while zap is loading...',
       spinnerSize: 300,
     })
 
@@ -120,19 +113,19 @@ export default {
 
     if (query['studioProject']) {
       this.$store.dispatch('zap/setStudioConfigPath', query['studioProject'])
-      this.pollUcComponentState()
+      // this.pollUcComponentState()
     }
 
     this.zclDialogTitle = 'ZCL tab!'
     this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
     this.zclDialogFlag = false
 
-    util.observeAttribute('data-theme', () => {
-      this.setThemeMode()
+    observable.observeAttribute('data-theme', (theme) => {
+      this.setThemeMode(theme)
     })
 
-    util.observeAttribute('generation-in-progress', () => {
-      this.setGenerationInProgress()
+    observable.observeAttribute(restApi.progress_attribute, (message) => {
+      this.setGenerationInProgress(message)
     })
 
     initLoad(this.$store).then(() => {
