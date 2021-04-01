@@ -1218,6 +1218,7 @@ ORDER BY
           min: row.MIN,
           max: row.MAX,
           writable: row.IS_WRITABLE,
+          entryType: row.ARRAY_TYPE,
           reportable: {
             included: row.INCLUDED_REPORTABLE,
             minInterval: row.MIN_INTERVAL,

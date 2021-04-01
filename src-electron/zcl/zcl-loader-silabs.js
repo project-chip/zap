@@ -543,6 +543,9 @@ function prepareStruct(struct) {
         type: item.$.type,
         ordinal: index,
         entryType: item.$.entryType,
+        minLength: 0,
+        maxLength: item.$.length ? item.$.length : null,
+        isWritable: item.$.writable == 'true',
       })
     })
   }

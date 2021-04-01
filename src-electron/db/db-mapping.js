@@ -183,6 +183,9 @@ exports.map = {
       label: x.NAME,
       structRef: x.STRUCT_REF,
       type: x.TYPE,
+      minLength: x.MIN_LENGTH,
+      maxLength: x.MAX_LENGTH,
+      isWritable: dbApi.fromDbBool(x.IS_WRITABLE),
       caption: `Struct Item of type ${x.TYPE}`,
     }
   },
