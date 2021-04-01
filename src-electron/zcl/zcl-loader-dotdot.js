@@ -280,7 +280,7 @@ function prepareCommands(commands, side, types) {
             name: f.$.name,
             type: type,
             ordinal: j,
-            //isArray: 0, //TODO: no indication of array type in dotdot xml
+            isArray: f.$.array == 'true' ? 1 : 0,
           })
         }
       })
