@@ -80,4 +80,18 @@ describe('Miscelaneous REST API tests', () => {
       .then((response) => {
         expect(response.status).toBe(restApi.httpCode.ok)
       }))
+
+  test('session key values test', () =>
+    axiosInstance
+      .get(`${restApi.uri.getAllSessionKeyValues}?sessionId=${sessionUuid}`)
+      .then((response) => {
+        let data = response.data.reduce((accumulator, current) => {
+          accumulator[current.key] = current.value
+          return accumulator
+        }, {})
+        expect(data.commandDiscovery).toEqual('1')
+        expect(data.defaultResponsePolicy).toEqual('always')
+        expect(data.filePath).toContain('three-endpoint-device.zap')
+        expect(data.manufacturerCodes).toEqual('0x1002')
+      }))
 })
