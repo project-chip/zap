@@ -120,7 +120,6 @@ export default {
      * @param {*} params
      */
     updateSelectedComponentRequest(params) {
-      let { added } = params
       params['studioProject'] = this.$store.state.zap.studioProject
       this.$store
         .dispatch('zap/updateSelectedComponent', params)

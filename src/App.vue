@@ -64,7 +64,7 @@ export default {
 
       // Start polling Studio component state
       const UC_COMPONENT_STATE_POLLING_INTERVAL_MS = 4000
-      let ucComponentStateIntervalId = setInterval(() => {
+      setInterval(() => {
         this.$store.dispatch(
           'zap/updateUcComponentState',
           this.$store.state.zap.studio.projectPath

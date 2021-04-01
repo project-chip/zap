@@ -17,7 +17,6 @@
 import Vue from 'vue'
 import * as Util from '../../util/util.js'
 import restApi from '../../../src-shared/rest-api.js'
-import { util } from 'prettier'
 const http = require('http-status-codes')
 
 export function updateInformationText(context, text) {
