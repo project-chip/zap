@@ -118,7 +118,6 @@ function windowCreate(port, args = {}) {
 
             if (result === 0) w.destroy()
           } else {
-            e
             w.destroy()
           }
         }
