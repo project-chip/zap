@@ -31,21 +31,23 @@ const restApi = require(`../../src-shared/rest-api.js`)
 export default {
   name: 'About',
   mounted() {
-    this.$serverGet(restApi.uri.version).then((result) => {
-      this.version = result.data.version
-      this.featureLevel = result.data.featureLevel
-      if ('hash' in result.data) {
-        this.hash = result.data.hash.substring(0, 7)
-      } else {
-        this.hash = 'Unknown hash'
-      }
-      if ('date' in result.data) {
-        let d = new Date(result.data.date)
-        this.date = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
-      } else {
-        this.date = 'Unknown date'
-      }
-    })
+    if (this.$serverGet != null) {
+      this.$serverGet(restApi.uri.version).then((result) => {
+        this.version = result.data.version
+        this.featureLevel = result.data.featureLevel
+        if ('hash' in result.data) {
+          this.hash = result.data.hash.substring(0, 7)
+        } else {
+          this.hash = 'Unknown hash'
+        }
+        if ('date' in result.data) {
+          let d = new Date(result.data.date)
+          this.date = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+        } else {
+          this.date = 'Unknown date'
+        }
+      })
+    }
   },
   data() {
     return {

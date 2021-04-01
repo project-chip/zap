@@ -31,7 +31,6 @@ export function observeAttribute(attributeName, callbackObj) {
   // HTML attribute names are not guaranteed to be case sensitive
   attributeName = attributeName.toLowerCase()
   let html = document.documentElement
-  console.log('observing : ' + attributeName)
 
   new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {

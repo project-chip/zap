@@ -40,12 +40,7 @@ function initLoad(store) {
   store.dispatch('zap/loadSessionKeyValues')
 
   let promises = []
-  promises.push(
-    Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
-      let arg = response.data
-      store.dispatch('zap/updateClusters', arg.data)
-    })
-  )
+  promises.push(store.dispatch('zap/updateClusters'))
   promises.push(
     Vue.prototype.$serverGet('/zcl/deviceType/all').then((response) => {
       let arg = response.data

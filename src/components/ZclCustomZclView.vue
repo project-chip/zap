@@ -100,7 +100,6 @@ limitations under the License.
 </template>
 
 <script>
-import Vue from 'vue'
 import CommonMixin from '../util/common-mixin'
 import restApi from '../../src-shared/rest-api.js'
 const observable = require('../util/observable.js')
@@ -127,10 +126,7 @@ export default {
         .then((packageStatus) => {
           if (packageStatus.isValid) {
             this.error = null
-            Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
-              let arg = response.data
-              this.$store.dispatch('zap/updateClusters', arg.data)
-            })
+            this.$store.dispatch('zap/updateClusters')
             this.uploadNewPackage = !this.uploadNewPackage
           } else {
             this.error = packageStatus.err
@@ -140,19 +136,16 @@ export default {
     deletePackage(packageToDelete) {
       this.$store
         .dispatch('zap/deleteSessionPackage', packageToDelete.sessionPackage)
-        .then((x) => {
-          Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
-            let arg = response.data
-            this.$store.dispatch('zap/updateClusters', arg.data)
-          })
-        })
+        .then((x) => this.$store.dispatch('zap/updateClusters'))
     },
   },
   mounted() {
-    this.$store.dispatch('zap/getProjectPackages')
-    observable.observeAttribute(restApi.reported_files, (value) => {
-      this.setReportedFiles(value)
-    })
+    if (this.$serverGet != null) {
+      this.$store.dispatch('zap/getProjectPackages')
+      observable.observeAttribute(restApi.reported_files, (value) => {
+        this.setReportedFiles(value)
+      })
+    }
   },
   data() {
     return {

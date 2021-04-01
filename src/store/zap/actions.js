@@ -31,8 +31,11 @@ export function updateInformationText(context, text) {
     })
 }
 
-export function updateClusters(context, clusters) {
-  context.commit('updateClusters', clusters)
+export function updateClusters(context) {
+  Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
+    let arg = response.data
+    context.commit('updateClusters', arg.data)
+  })
 }
 
 export function updateSelectedCluster(context, cluster) {
