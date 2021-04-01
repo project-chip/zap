@@ -81,7 +81,7 @@ describe('Miscelaneous REST API tests', () => {
         expect(response.status).toBe(restApi.httpCode.ok)
       }))
 
-  test('session key values test', () =>
+  test('session key values existence test', () =>
     axiosInstance
       .get(`${restApi.uri.getAllSessionKeyValues}?sessionId=${sessionUuid}`)
       .then((response) => {
@@ -93,5 +93,28 @@ describe('Miscelaneous REST API tests', () => {
         expect(data.defaultResponsePolicy).toEqual('always')
         expect(data.filePath).toContain('three-endpoint-device.zap')
         expect(data.manufacturerCodes).toEqual('0x1002')
+      }))
+
+  test('add session key value test', () =>
+    axiosInstance
+      .post(`${restApi.uri.saveSessionKeyValue}?sessionId=${sessionUuid}`, {
+        key: 'testKey',
+        value: 'testValue',
+      })
+      .then(() =>
+        axiosInstance.get(
+          `${restApi.uri.getAllSessionKeyValues}?sessionId=${sessionUuid}`
+        )
+      )
+      .then((response) => {
+        let data = response.data.reduce((accumulator, current) => {
+          accumulator[current.key] = current.value
+          return accumulator
+        }, {})
+        expect(data.commandDiscovery).toEqual('1')
+        expect(data.defaultResponsePolicy).toEqual('always')
+        expect(data.filePath).toContain('three-endpoint-device.zap')
+        expect(data.manufacturerCodes).toEqual('0x1002')
+        expect(data.testKey).toEqual('testValue')
       }))
 })
