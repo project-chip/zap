@@ -25,7 +25,7 @@ limitations under the License.
 import Vue from 'vue'
 import { QSpinnerGears } from 'quasar'
 const restApi = require(`../src-shared/rest-api.js`)
-const util = require('./util/util.js')
+const observable = require('./util/observable.js')
 
 function initLoad(store) {
   store.dispatch('zap/loadInitialData')
@@ -71,18 +71,14 @@ export default {
         )
       }, UC_COMPONENT_STATE_POLLING_INTERVAL_MS)
     },
-    setThemeMode() {
-      const theme = document.documentElement.getAttribute('data-theme')
+    setThemeMode(theme) {
       if (theme === 'com.silabs.ss.platform.theme.dark') {
         this.$q.dark.set(true)
       } else {
         this.$q.dark.set(false)
       }
     },
-    setGenerationInProgress() {
-      const progressMessage = document.documentElement.getAttribute(
-        restApi.progress_attribute
-      )
+    setGenerationInProgress(progressMessage) {
       if (progressMessage != null && progressMessage.length > 0) {
         this.$q.loading.show({
           spinner: QSpinnerGears,
@@ -129,12 +125,12 @@ export default {
     this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
     this.zclDialogFlag = false
 
-    util.observeAttribute('data-theme', () => {
-      this.setThemeMode()
+    observable.observeAttribute('data-theme', (theme) => {
+      this.setThemeMode(theme)
     })
 
-    util.observeAttribute(restApi.progress_attribute, () => {
-      this.setGenerationInProgress()
+    observable.observeAttribute(restApi.progress_attribute, (message) => {
+      this.setGenerationInProgress(message)
     })
 
     initLoad(this.$store).then(() => {

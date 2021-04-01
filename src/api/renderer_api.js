@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-const util = require('../util/util.js')
+const observable = require('../util/observable.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 // This file provide glue logic to enable function calls & HTML attribute data change listener logic
@@ -91,13 +91,13 @@ function renderer_api_execute(id, ...args) {
       ret = fnSave.apply(null, args)
       break
     case restApi.rendererApiId.progressStart:
-      document.documentElement.setAttribute(restApi.progress_attribute, args[0])
+      observable.setObservableAttribute(restApi.progress_attribute, args[0])
       break
     case restApi.rendererApiId.progressEnd:
-      document.documentElement.setAttribute(restApi.progress_attribute, '')
+      observable.setObservableAttribute(restApi.progress_attribute, '')
       break
     case restApi.rendererApiId.reportFiles:
-      document.documentElement.setAttribute(
+      observable.setObservableAttribute(
         restApi.reported_files,
         JSON.parse(args[0])
       )

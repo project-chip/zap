@@ -103,7 +103,7 @@ limitations under the License.
 import Vue from 'vue'
 import CommonMixin from '../util/common-mixin'
 import restApi from '../../src-shared/rest-api.js'
-const util = require('../util/util.js')
+const observable = require('../util/observable.js')
 
 export default {
   mixins: [CommonMixin],
@@ -162,10 +162,8 @@ export default {
   },
   mounted() {
     this.$store.dispatch('zap/getProjectPackages')
-    util.observeAttribute(restApi.reported_files, () => {
-      this.setReportedFiles(
-        document.documentElement.getAttribute(restApi.reported_files)
-      )
+    observable.observeAttribute(restApi.reported_files, (value) => {
+      this.setReportedFiles(value)
     })
   },
   data() {
