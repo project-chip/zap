@@ -122,18 +122,6 @@ export default {
       this.packageToLoad = files
     },
     loadNewPackage(packageToLoad) {
-      if (packageToLoad == null) {
-        alert('Empty packageToLoad')
-      } else {
-        let s = ''
-        for (const k in packageToLoad) {
-          s += `${k}: ${packageToLoad[k]} \n`
-          if (k == 'text') {
-            s += `fn:${k} : ${packageToLoad.text()}`
-          }
-        }
-        alert(s)
-      }
       this.$store
         .dispatch('zap/addNewPackage', packageToLoad)
         .then((packageStatus) => {
