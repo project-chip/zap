@@ -31,13 +31,14 @@ const commonUrl = require('../../src-shared/common-url.js')
 const browserApi = require('../ui/browser-api.js')
 
 let httpPort
+const newConfiguration = 'New Configuration'
 
 const template = [
   {
     role: 'fileMenu',
     submenu: [
       {
-        label: 'New Configuration...',
+        label: newConfiguration + '...',
         accelerator: 'CmdOrCtrl+N',
         click(menuItem, browserWindow, event) {
           uiJs.openNewConfiguration(env.mainDatabase(), httpPort)
@@ -212,7 +213,11 @@ function doOpen(menuItem, browserWindow, event) {
  * @param {*} event
  */
 function doSave(menuItem, browserWindow, event) {
-  fileSave(browserWindow, null)
+  if (browserWindow.getTitle().includes(newConfiguration)) {
+    doSaveAs(menuItem, browserWindow, event)
+  } else {
+    fileSave(browserWindow, null)
+  }
 }
 
 /**
@@ -380,3 +385,4 @@ function initMenu(port) {
 }
 
 exports.initMenu = initMenu
+exports.newConfiguration = newConfiguration

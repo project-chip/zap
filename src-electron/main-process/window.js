@@ -79,7 +79,7 @@ function windowCreate(port, args = {}) {
     resizable: true,
     center: true,
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
-    title: args.filePath == null ? 'New Configuration' : args.filePath,
+    title: args.filePath == null ? menu.newConfiguration : args.filePath,
     useContentSize: true,
     webPreferences: webPreferences,
   })
