@@ -31,7 +31,6 @@ const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const http = require('http-status-codes')
 const zcl = require('./zcl.js')
-const session = require('express-session')
 
 const localhost = 'http://localhost:'
 const op_tree = '/rest/clic/components/all/project/'
@@ -67,10 +66,12 @@ function integrationEnabled(db, sessionId) {
  * @param {*} sessionId
  * @returns '' if retrival failed
  */
-function projectName(projectPath) {
+function projectName(studioProjectPath) {
   const prefix = '_2F'
-  if (projectPath && projectPath.includes(prefix)) {
-    return projectPath.substr(projectPath.lastIndexOf(prefix) + prefix.length)
+  if (studioProjectPath && studioProjectPath.includes(prefix)) {
+    return projectPath.substr(
+      studioProjectPath.lastIndexOf(prefix) + prefix.length
+    )
   } else {
     return ''
   }
@@ -171,7 +172,7 @@ async function updateComponentByComponentIds(componentIds, add) {
   componentIds = componentIds.filter((x) => x)
   let promises = []
   let project = await projectPath(db, sessionId)
-  let projectName = await projectName(project)
+  let studioProjectName = await projectName(project)
 
   if (Object.keys(componentIds).length) {
     promises = componentIds.map((componentId) =>
@@ -182,7 +183,7 @@ async function updateComponentByComponentIds(componentIds, add) {
   return Promise.all(promises).then((responses) =>
     responses.map((resp, index) => {
       return {
-        projectName,
+        studioProjectName,
         id: componentIds[index],
         status: resp.status,
         data: resp.data,
@@ -315,7 +316,6 @@ exports.getProjectInfo = getProjectInfo
 exports.updateComponentByComponentIds = updateComponentByComponentIds
 exports.updateComponentByClusterIdAndComponentId = updateComponentByClusterIdAndComponentId
 exports.projectName = projectName
-exports.projectPath = projectPath
 exports.integrationEnabled = integrationEnabled
 exports.init = init
 exports.deinit = deinit

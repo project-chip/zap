@@ -120,7 +120,6 @@ export default {
      * @param {*} params
      */
     updateSelectedComponentRequest(params) {
-      let { added } = params
       this.$store
         .dispatch('zap/updateSelectedComponent', params)
         .then((response) => {

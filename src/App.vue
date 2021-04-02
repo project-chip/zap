@@ -55,7 +55,7 @@ export default {
   name: 'App',
   methods: {
     setThemeMode() {
-      const theme = document.documentElement.getAttribute('data-theme')
+      const theme = observable.getObservableAttribute('data-theme')
       if (theme === 'com.silabs.ss.platform.theme.dark') {
         this.$q.dark.set(true)
       } else {
