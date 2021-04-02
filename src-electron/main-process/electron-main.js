@@ -70,13 +70,16 @@ function hookAppEvents(argv) {
   })
 
   app.on('second-instance', (event, commandLine, workingDirectory) => {
-    console.log(`New instance: ${commandLine}`)
+    let otherArgv = args.processCommandLineArguments(commandLine)
+    console.log(`New instance with command line: ${commandLine}`)
+    console.log('Args:')
+    console.log(otherArgv)
   })
 }
 
 // Main lifecycle of the application
-let argv = args.processCommandLineArguments(process.argv)
 if (app != null) {
+  let argv = args.processCommandLineArguments(process.argv)
   let reuseZapInstance = args.reuseZapInstance
   let canProceedWithThisInstance
   let gotLock = app.requestSingleInstanceLock()
@@ -97,7 +100,7 @@ if (app != null) {
 } else {
   // If the code is executed via 'node' and not via 'app', then this
   // is where we end up.
-  startup.startUp(false, argv)
+  startup.startUp(false, args.processCommandLineArguments(process.argv))
 }
 
 exports.loaded = true
