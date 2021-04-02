@@ -26,6 +26,7 @@ import Vue from 'vue'
 import { QSpinnerGears } from 'quasar'
 const restApi = require(`../src-shared/rest-api.js`)
 const observable = require('./util/observable.js')
+const dbEnum = require(`../src-shared/db-enum.js`)
 
 function initLoad(store) {
   store.dispatch('zap/loadInitialData')
@@ -114,6 +115,10 @@ export default {
 
     initLoad(this.$store).then(() => {
       this.$q.loading.hide()
+    })
+
+    this.$onWebSocket(dbEnum.wsCategory.ucComponentStateReport, (resp) => {
+      this.$store.dispatch('zap/updateUcComponentState', resp)
     })
   },
 }

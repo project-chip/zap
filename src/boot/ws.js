@@ -130,13 +130,6 @@ onWebSocket(dbEnum.wsCategory.componentUpdateStatus, (obj) => {
   Util.notifyComponentUpdateStatus(data, added)
 })
 
-onWebSocket(dbEnum.wsCategory.ucComponentStateReport, (resp) => {
-  console.log(`ucComponentStateReport: ${JSON.stringify(resp)}`)
-  if (resp.status == http.StatusCodes.OK) {
-    this.$store.dispatch('zap/updateUcComponentState', resp.data)
-  }
-})
-
 onWebSocket(dbEnum.wsCategory.generic, (data) =>
   console.log(`Generic message received: ${JSON.stringify(data)}`)
 )

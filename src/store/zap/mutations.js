@@ -433,6 +433,8 @@ export function updateProjectPackages(state, packages) {
   Vue.set(state, 'packages', packages)
 }
 
-export function updateUcComponentState(state, selectedUcComponentIds) {
-  Vue.set(state.studio, 'selectedComponentIds', selectedUcComponentIds)
+export function updateUcComponentState(state, data) {
+  Vue.set(state.studio, 'projectInfoJson', data.projectInfoJson)
+  Vue.set(state.studio, 'selectedComponents', data.selectedComponents)
+  Vue.set(state.studio, 'selectedUcComponentIds', data.selectedUcComponentIds)
 }

@@ -122,13 +122,13 @@ async function getProjectInfo(db, sessionId) {
  */
 async function updateComponentByClusterIdAndComponentId(
   db,
+  sessionId,
   componentIds,
   clusterId,
   add,
-  sessionId,
   side
 ) {
-  if (!integrationEnabled()) {
+  if (!integrationEnabled(db, sessionId)) {
     env.logInfo(
       `StudioUC(): Failed to update component due to invalid Studio project path.`
     )
@@ -150,7 +150,7 @@ async function updateComponentByClusterIdAndComponentId(
       .then((ids) => ids.flat())
       .then((ids) => ids.concat(componentIds))
       // enabling components via Studio jetty server.
-      .then((ids) => updateComponentByComponentIds(ids, add))
+      .then((ids) => updateComponentByComponentIds(db, sessionId, ids, add))
       .catch((err) => {
         env.logInfo(err)
         return err
@@ -168,11 +168,11 @@ async function updateComponentByClusterIdAndComponentId(
  *                status - boolean. true if HTTP REQ status code is OK,
  *                data - HTTP response data field
  */
-async function updateComponentByComponentIds(componentIds, add) {
+async function updateComponentByComponentIds(db, sessionId, componentIds, add) {
   componentIds = componentIds.filter((x) => x)
   let promises = []
   let project = await projectPath(db, sessionId)
-  let studioProjectName = await projectName(project)
+  let name = await projectName(project)
 
   if (Object.keys(componentIds).length) {
     promises = componentIds.map((componentId) =>
@@ -183,7 +183,7 @@ async function updateComponentByComponentIds(componentIds, add) {
   return Promise.all(promises).then((responses) =>
     responses.map((resp, index) => {
       return {
-        studioProjectName,
+        projectName: name,
         id: componentIds[index],
         status: resp.status,
         data: resp.data,

@@ -44,9 +44,7 @@ function getComponentIdsByCluster(db, sessionId, clusterId, side) {
       sessionId,
       dbEnum.packageType.genTemplatesJson
     )
-    .then((pkgs) => {
-      return pkgs.length == 0 ? null : pkgs[0].id
-    })
+    .then((pkgs) => (pkgs.length == 0 ? null : pkgs[0].id))
     .then((id) => {
       packageId = id
       return queryPackage.selectPackageExtension(

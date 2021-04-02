@@ -41,10 +41,10 @@ function httpPostComponentUpdateHandler(db, request, response, add) {
   studio
     .updateComponentByClusterIdAndComponentId(
       db,
+      request.zapSessionId,
       componentIds,
       clusterId,
       add,
-      request.zapSessionId,
       side
     )
     .then((res) => {

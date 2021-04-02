@@ -622,7 +622,7 @@ export function resetFilters(context) {
 }
 
 export function updateUcComponentState(context, projectInfoJson) {
-  let selected = Util.getSelectedComponent(projectInfoJson)
-  let selectedComponentIds = Util.getClustersByUcComponentIds(selected)
-  context.commit('updateUcComponentState', selectedComponentIds)
+  let selectedComponents = Util.getSelectedComponent(projectInfoJson)
+  let selectedComponentIds = Util.getClustersByUcComponentIds(selectedComponents)
+  context.commit('updateUcComponentState', {projectInfoJson, selectedComponents, selectedComponentIds})
 }
