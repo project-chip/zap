@@ -43,7 +43,7 @@ function cluster_extension(options) {
       .then((packageId) =>
         templateUtil.ensureZclClusterSdkExtensions(this, packageId)
       )
-      .then((extensions) => cluster_extension_obj(extensions, prop, this.code))
+      .then((extensions) => cluster_extension_default_value(extensions, prop, this.code))
   }
 }
 
@@ -55,14 +55,14 @@ function cluster_extension(options) {
  * @param {*} clusterCode search key
  * @returns Value of the cluster extension property.
  */
-function cluster_extension_obj(extensions, property, clusterCode) {
-  let f = extensions.filter((x) => x.property == property)
+function cluster_extension_default_value(extensions, extensionId, defaultKey) {
+  let f = extensions.filter((x) => x.property == extensionId)
   if (f.length == 0) {
     return ''
   } else {
     let val = null
     f[0].defaults.forEach((d) => {
-      if (d.entityCode == clusterCode) val = d.value
+      if (d.entityCode == defaultKey) val = d.value
     })
     if (val == null) val = f[0].globalDefault
     if (val == null) val = ''
@@ -173,7 +173,7 @@ function attribute_extension(options) {
 }
 
 exports.cluster_extension = cluster_extension
-exports.cluster_extension_obj = cluster_extension_obj
+exports.cluster_extension_default_value = cluster_extension_default_value
 exports.command_extension = command_extension
 exports.attribute_extension = attribute_extension
 exports.device_type_extension = device_type_extension

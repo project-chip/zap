@@ -62,7 +62,7 @@ function getComponentIdsByCluster(db, sessionId, clusterId, side) {
       if (cluster) {
         side.forEach((zclRole) => {
           let clusterKey = `${cluster.label.toLowerCase()}-${zclRole}`
-          let ids = sdkExt.cluster_extension_obj(
+          let ids = sdkExt.cluster_extension_default_value(
             extensions,
             'component',
             clusterKey
