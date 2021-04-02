@@ -428,9 +428,7 @@ function shutdown() {
  *
  * @param {*} isElectron
  */
-function startUp(isElectron) {
-  let argv = args.processCommandLineArguments(process.argv)
-
+function startUp(isElectron, argv) {
   if (argv.logToStdout) {
     env.logInitStdout()
   } else {

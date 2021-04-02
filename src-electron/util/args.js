@@ -36,6 +36,7 @@ exports.noServer = false
 exports.zapFiles = []
 exports.genResultFile = false
 exports.skipPostGeneration = false
+exports.reuseZapInstance = false
 
 function environmentVariablesDescription() {
   let vars = env.environmentVariable
@@ -156,6 +157,12 @@ function processCommandLineArguments(argv) {
       type: 'boolean',
       default: false,
     })
+    .option('reuseZapInstance', {
+      desc: `When starting zap, should zap attempt to reuse an instance of previous zap already running.`,
+      type: 'boolean',
+      default:
+        process.env[env.environmentVariable.reuseZapInstance.name] == '1',
+    })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${zapVersion.featureLevel}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
@@ -202,6 +209,8 @@ For more information, see https://github.com/project-chip/zap`
   exports.genResultFile = ret.genResultFile
   exports.zapFiles = allFiles
   exports.skipPostGeneration = ret.skipPostGeneration
+  exports.reuseZapInstance = ret.reuseZapInstance
+
   return ret
 }
 

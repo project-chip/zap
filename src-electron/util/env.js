@@ -42,6 +42,11 @@ let environmentVariable = {
     description:
       'If there is a defined post-generation action for zap, you can set this to variable to 1 to skip it.',
   },
+  reuseZapInstance: {
+    name: 'ZAP_REUSE_INSTANCE',
+    descrpition:
+      'If set to 1, default behavior of zap will be to reuse existing instance.',
+  },
 }
 
 // builtin pino levels: trace=10, debug=20, info=30, warn=40

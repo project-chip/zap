@@ -34,11 +34,11 @@ if (process.env.DEV) {
 /**
  * Hook up all the events for the electron app object.
  */
-function hookAppEvents() {
+function hookAppEvents(argv) {
   app.allowRendererProcessReuse = false
   app
     .whenReady()
-    .then(() => startup.startUp(true))
+    .then(() => startup.startUp(true, argv))
     .catch((err) => {
       console.log(err)
       app.exit(1)
@@ -75,29 +75,29 @@ function hookAppEvents() {
 }
 
 // Main lifecycle of the application
+let argv = args.processCommandLineArguments(process.argv)
 if (app != null) {
-  let supportMultipleInstances = true
+  let reuseZapInstance = args.reuseZapInstance
+  let canProceedWithThisInstance
+  let gotLock = app.requestSingleInstanceLock()
 
-  let gotLock
-
-  if (supportMultipleInstances) {
-    gotLock = true
+  if (reuseZapInstance) {
+    canProceedWithThisInstance = gotLock
   } else {
-    gotLock = app.requestSingleInstanceLock()
+    canProceedWithThisInstance = true
   }
-
-  if (gotLock) {
-    hookAppEvents()
+  if (canProceedWithThisInstance) {
+    hookAppEvents(argv)
   } else {
     // The 'second-instance' event on app was triggered, we need
     // to quit.
-    console.log('🧐 Another copy of zap is running.')
+    console.log('🧐 Existing instance of zap will service this request.')
     app.quit()
   }
 } else {
   // If the code is executed via 'node' and not via 'app', then this
   // is where we end up.
-  startup.startUp(false)
+  startup.startUp(false, argv)
 }
 
 exports.loaded = true
