@@ -485,6 +485,7 @@ exports.startGeneration = startGeneration
 exports.startNormal = startNormal
 exports.startSelfCheck = startSelfCheck
 exports.clearDatabaseFile = clearDatabaseFile
+exports.startConvert = startConvert
 exports.startAnalyze = startAnalyze
 exports.startUp = startUp
 exports.shutdown = shutdown

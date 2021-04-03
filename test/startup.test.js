@@ -42,3 +42,20 @@ test('startup: start generation', () => {
 test('startup: self-check', () => {
   return startup.startSelfCheck({ log: false, quit: false })
 }, 5000)
+
+test('startup: convert', () => {
+  let files = []
+  files.push(path.join(__dirname, 'resource/test-light.isc'))
+  let output = '{basename}.conversion'
+  let testOutputFile = path.join(__dirname, 'resource/test-light.conversion')
+  return startup
+    .startConvert(files, output, {
+      log: false,
+      quit: false,
+      noZapFileLog: true,
+    })
+    .then(() => {
+      expect(fs.existsSync(testOutputFile)).toBeTruthy()
+      fs.unlinkSync(testOutputFile)
+    })
+}, 5000)
