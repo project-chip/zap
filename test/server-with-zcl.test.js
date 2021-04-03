@@ -26,8 +26,8 @@ const restApi = require('../src-shared/rest-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const args = require('../src-electron/util/args.js')
 const testUtil = require('./test-util.js')
-const { v4: uuidv4 } = require('uuid')
 const path = require('path')
+const util = require('../src-electron/util/util.js')
 let db
 let axiosInstance = null
 
@@ -64,7 +64,7 @@ test('get index.html', () =>
   }))
 
 describe('Miscelaneous REST API tests', () => {
-  let sessionUuid = uuidv4()
+  let sessionUuid = util.createUuid()
   test('test manufacturer codes', () =>
     axiosInstance
       .get(`${restApi.uri.option}/manufacturerCodes?sessionId=${sessionUuid}`)

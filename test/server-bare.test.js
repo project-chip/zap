@@ -34,7 +34,7 @@ const importJs = require('../src-electron/importexport/import.js')
 const restApi = require('../src-shared/rest-api.js')
 const testUtil = require('./test-util.js')
 const _ = require('lodash')
-const { v4: uuidv4 } = require('uuid')
+const util = require('../src-electron/util/util.js')
 
 let db
 const { port, baseUrl } = testUtil.testServer(__filename)
@@ -42,7 +42,7 @@ let packageId
 let sessionId, secondSessionId
 let sessionCookie = null
 let axiosInstance = null
-let uuid = uuidv4()
+let uuid = util.createUuid()
 
 beforeAll(() => {
   env.setDevelopmentEnv()

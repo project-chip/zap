@@ -152,4 +152,12 @@ describe('Environment Tests', () => {
     expect('timestamp' in v).toBeTruthy()
     expect('date' in v).toBeTruthy()
   })
+
+  test('Uuid', () => {
+    let uuid1 = util.createUuid()
+    let uuid2 = util.createUuid()
+    expect(uuid1).not.toBeNull()
+    expect(uuid2).not.toBeNull()
+    expect(uuid1).not.toEqual(uuid2)
+  })
 })

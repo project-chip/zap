@@ -22,7 +22,8 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
-const { v4: uuidv4 } = require('uuid')
+const util = require('../util/util.js')
+
 /**
  * Returns a promise that resolves into an array of objects containing 'sessionId', 'sessionKey' and 'creationTime'.
  *
@@ -268,7 +269,7 @@ async function ensureBlankSession(db, uuid) {
  */
 async function createBlankSession(db, uuid = null) {
   let newUuid = uuid
-  if (newUuid == null) newUuid = uuidv4()
+  if (newUuid == null) newUuid = util.createUuid()
 
   return dbApi.dbInsert(
     db,

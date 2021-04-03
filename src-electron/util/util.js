@@ -31,6 +31,7 @@ const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const args = require('./args.js')
+const { v4: uuidv4 } = require('uuid')
 
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
@@ -344,6 +345,13 @@ function executeExternalProgram(
   })
 }
 
+/**
+ * Global way how to get an UUID.
+ */
+function createUuid() {
+  return uuidv4()
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
@@ -353,3 +361,4 @@ exports.executePromisesSequentially = executePromisesSequentially
 exports.createAbsolutePath = createAbsolutePath
 exports.executeExternalProgram = executeExternalProgram
 exports.locateRelativeFilePath = locateRelativeFilePath
+exports.createUuid = createUuid

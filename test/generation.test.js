@@ -29,12 +29,12 @@ const args = require('../src-electron/util/args.js')
 const httpServer = require('../src-electron/server/http-server.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const testUtil = require('./test-util.js')
-const { v4: uuidv4 } = require('uuid')
+const util = require('../src-electron/util/util.js')
 
 let db
 const { port, baseUrl } = testUtil.testServer(__filename)
 const timeout = 8000
-let uuid = uuidv4()
+let uuid = util.createUuid()
 
 beforeAll(() => {
   env.setDevelopmentEnv()
