@@ -17,28 +17,24 @@
 
 const ipc = require('node-ipc')
 const env = require('../util/env.js')
+const path = require('path')
+
 /**
  * IPC initialization.
  *
  * @parem {*} isServer 'true' if this is a server, 'false' for client.
  * @param {*} options
  */
-function init(
-  isServer,
-  options = {
-    port: 9073,
-  }
-) {
-  ipc.config.networkPort = options.port
-  ipc.config.socketRoot = env.appDirectory()
-  ipc.config.appspace = 'zap'
+function init(isServer) {
+  let socketPath = path.join(env.appDirectory(), 'main.ipc')
+  ipc.config.logger = env.logIpc
   ipc.config.id = 'main'
 
   if (isServer) {
-    ipc.serve()
+    ipc.serve(socketPath)
     ipc.server.start()
     ipc.server.on('start', () => {
-      env.logIpc('Started the IPC server.')
+      env.logIpc(`Started the IPC server.`)
     })
     ipc.server.on('error', (err) => {
       env.logIpc('IPC error', err)
@@ -50,13 +46,13 @@ function init(
   }
 }
 
-function shutdown(iServer) {
+function shutdownSync(isServer) {
   if (isServer) {
-    ipc.server.stop()
+    if (ipc.server) ipc.server.stop()
   } else {
     ipc.disconnect('main')
   }
 }
 
 exports.init = init
-exports.shutdown = shutdown
+exports.shutdownSync = shutdownSync

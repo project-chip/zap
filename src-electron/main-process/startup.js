@@ -45,12 +45,6 @@ const uiJs = require('../ui/ui-util.js')
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
 async function startNormal(uiEnabled, showUrl, zapFiles, options) {
-  try {
-    throw new Error('Wompity')
-  } catch (err) {
-    env.logError('ERROR CAUGHT')
-    env.logError('ERROR IS:', err)
-  }
   return dbApi
     .initDatabaseAndLoadSchema(
       env.sqliteFile(),
@@ -70,11 +64,11 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
     })
     .then((ctx) => {
       if (!args.noServer)
-        return httpServer.initHttpServer(
-          ctx.db,
-          args.httpPort,
-          args.studioHttpPort
-        )
+        return httpServer
+          .initHttpServer(ctx.db, args.httpPort, args.studioHttpPort)
+          .then(() => {
+            ipcServer.init(true)
+          })
       else return true
     })
     .then(() => {
@@ -425,7 +419,8 @@ function clearDatabaseFile(dbPath) {
 }
 
 function shutdown() {
-  env.logInfo('Shutting down HTTP server...')
+  env.logInfo('Shutting down HTTP and IPC servers...')
+  ipcServer.shutdownSync(true)
   httpServer.shutdownHttpServerSync()
 }
 

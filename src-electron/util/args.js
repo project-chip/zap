@@ -33,7 +33,6 @@ exports.studioHttpPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE
 exports.embeddedMode = false
 exports.noServer = false
-exports.noIpcServer = false
 exports.zapFiles = []
 exports.genResultFile = false
 exports.skipPostGeneration = false
@@ -118,7 +117,7 @@ function processCommandLineArguments(argv) {
     })
     .options('noServer', {
       desc:
-        "Don't run the http server. You should probably also specify -noUi with this.",
+        "Don't run the http or IPC server. You should probably also specify -noUi with this.",
       default: exports.noServer,
     })
     .options('genResultFile', {
