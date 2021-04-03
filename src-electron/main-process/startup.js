@@ -67,7 +67,7 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
         return httpServer
           .initHttpServer(ctx.db, args.httpPort, args.studioHttpPort)
           .then(() => {
-            ipcServer.init(true)
+            ipcServer.initServer()
           })
       else return true
     })
@@ -420,7 +420,7 @@ function clearDatabaseFile(dbPath) {
 
 function shutdown() {
   env.logInfo('Shutting down HTTP and IPC servers...')
-  ipcServer.shutdownSync(true)
+  ipcServer.shutdownServerSync(true)
   httpServer.shutdownHttpServerSync()
 }
 
