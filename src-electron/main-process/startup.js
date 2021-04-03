@@ -26,9 +26,9 @@ const env = require('../util/env.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const windowJs = require('./window.js')
 const httpServer = require('../server/http-server.js')
+const ipcServer = require('../server/ipc-server.js')
 const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
-const queryConfig = require('../db/query-config.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
@@ -45,6 +45,12 @@ const uiJs = require('../ui/ui-util.js')
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
 async function startNormal(uiEnabled, showUrl, zapFiles, options) {
+  try {
+    throw new Error('Wompity')
+  } catch (err) {
+    env.logError('ERROR CAUGHT')
+    env.logError('ERROR IS:', err)
+  }
   return dbApi
     .initDatabaseAndLoadSchema(
       env.sqliteFile(),

@@ -33,6 +33,7 @@ exports.studioHttpPort = 9000
 exports.uiMode = restApi.uiMode.ZIGBEE
 exports.embeddedMode = false
 exports.noServer = false
+exports.noIpcServer = false
 exports.zapFiles = []
 exports.genResultFile = false
 exports.skipPostGeneration = false

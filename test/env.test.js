@@ -127,6 +127,9 @@ describe('Environment Tests', () => {
     env.logInfo('Info log test.')
     env.logWarning('Warn log test.')
     env.logError('Error log test.')
+    env.logBrowser('Browser log test.')
+    env.logIpc('Ipc level test.')
+    env.logIpc('Error logging test', new Error('Simple test'))
   })
 
   test('Main database', () =>

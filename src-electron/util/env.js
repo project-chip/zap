@@ -58,6 +58,7 @@ const pinoOptions = {
     error: 50,
     warn: 40,
     info: 30,
+    ipc: 29,
     browser: 27,
     sql: 25,
     debug: 20,
@@ -237,29 +238,82 @@ function urlLogFile(id) {
   return path.join(appDirectory(), zapUrlLog)
 }
 
-// Use this function to log info-level messages
-function logInfo(msg) {
-  return pino_logger.info(msg)
+/**
+ * Base level common logger.
+ *
+ * @param {*} level
+ * @param {*} msg
+ * @param {*} err
+ */
+function log(level, msg, err = null) {
+  let objectToLog = {
+    msg: msg,
+  }
+  if (err != null) {
+    objectToLog.err = err
+    objectToLog.err.alert = '⛔'
+  }
+  pino_logger[level](objectToLog)
 }
 
-// Use this function to log error-level messages
-function logError(msg) {
-  return pino_logger.error(msg)
+/**
+ * Info level message.
+ *
+ * @param {*} msg
+ * @param {*} err
+ */
+function logInfo(msg, err = null) {
+  log('info', msg, err)
 }
 
-// Use this function to log warning-level messages
-function logWarning(msg) {
-  return pino_logger.warn(msg)
+/**
+ * Error level message.
+ *
+ * @param {*} msg
+ * @param {*} err
+ */
+function logError(msg, err = null) {
+  log('error', msg, err)
 }
 
-// Use this function to log SQL messages.
-function logSql(msg) {
-  return pino_logger.sql(msg)
+/**
+ * Warning level message.
+ *
+ * @param {*} msg
+ * @param {*} err
+ */
+function logWarning(msg, err = null) {
+  log('warn', msg, err)
 }
 
-// Use this function to log browser messages.
-function logBrowser(msg) {
-  return pino_logger.browser(msg)
+/**
+ * Sql level message.
+ *
+ * @param {*} msg
+ * @param {*} err
+ */
+function logSql(msg, err = null) {
+  log('sql', msg, err)
+}
+
+/**
+ * Browser level message.
+ *
+ * @param {*} msg
+ * @param {*} err
+ */
+function logBrowser(msg, err = null) {
+  log('browser', msg, err)
+}
+
+/**
+ * IPC level message.
+ *
+ * @param {*} msg
+ * @param {*} err
+ */
+function logIpc(msg, err = null) {
+  log('ipc', msg, err)
 }
 
 // Returns true if major or minor component of versions is different.
@@ -289,7 +343,7 @@ function isMatchingVersion(versionsArray, providedVersion) {
  */
 function versionsCheck() {
   let expectedNodeVersion = ['v14.x.x', 'v12.x.x']
-  let expectedElectronVersion = ['9.4.3']
+  let expectedElectronVersion = ['9.4.4']
   let nodeVersion = process.version
   let electronVersion = process.versions.electron
   let ret = true
@@ -329,6 +383,7 @@ exports.logError = logError
 exports.logWarning = logWarning
 exports.logSql = logSql
 exports.logBrowser = logBrowser
+exports.logIpc = logIpc
 exports.httpStaticContent = httpStaticContent
 exports.zapVersion = zapVersion
 exports.zapVersionAsString = zapVersionAsString
