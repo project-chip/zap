@@ -70,11 +70,12 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
           .then(() => {
             ipcServer.initServer()
           })
-      else return true
+          .then(() => ctx)
+      else return ctx
     })
-    .then(() => {
+    .then((ctx) => {
       if (uiEnabled) {
-        windowJs.initializeElectronUi(httpServer.httpServerPort())
+        windowJs.initializeElectronUi(ctx.db, httpServer.httpServerPort())
         if (zapFiles.length == 0) {
           return uiJs.openNewConfiguration(httpServer.httpServerPort(), options)
         } else {

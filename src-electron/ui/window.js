@@ -25,8 +25,8 @@ const browserApi = require('./browser-api.js')
 
 let windowCounter = 0
 
-function initializeElectronUi(port) {
-  menu.initMenu(port)
+function initializeElectronUi(db, port) {
+  menu.initMenu(db, port)
   tray.initTray(port)
 }
 
