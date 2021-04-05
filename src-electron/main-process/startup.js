@@ -86,9 +86,6 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
           )
         }
       } else {
-        if (app.dock) {
-          app.dock.hide()
-        }
         if (showUrl && !args.noServer) {
           // NOTE: this is parsed/used by Studio as the default landing page.
           console.log(
@@ -476,7 +473,7 @@ function startUp(isElectron, argv) {
         embeddedMode: argv.embeddedMode,
       })
     } else {
-      console.log(`Can't start UI with node, must start with electron.`)
+      return startNormal(false, argv.showUrl, [], {})
     }
   }
 }

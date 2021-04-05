@@ -218,7 +218,7 @@ function convertRestKeyToDbColumn(key) {
     case restApi.updateKey.attributeStorage:
       return 'STORAGE_OPTION'
   }
-  throw `Invalid rest update key: ${key}`
+  throw new Error(`Invalid rest update key: ${key}`)
 }
 
 function getAllParamValuePairArrayClauses(paramValuePairArray) {
@@ -1125,7 +1125,7 @@ WHERE
   } else if (rows.length == 1) {
     return rows[0].ENDPOINT_TYPE_ATTRIBUTE_ID
   } else {
-    throw Error(
+    throw new Error(
       `Ambiguity: multiple attributes with same data loaded: ${endpointTypeId} / ${clusterCode} / ${attributeCode} / ${attributeSide}.`
     )
   }

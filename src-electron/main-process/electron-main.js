@@ -31,10 +31,16 @@ if (process.env.DEV) {
   env.setProductionEnv()
 }
 
+function hookSecondInstanceEvents(argv) {
+  app.allowRendererProcessReuse = false
+  console.log('🧐 Existing instance of zap will service this request.')
+  app.quit()
+}
+
 /**
  * Hook up all the events for the electron app object.
  */
-function hookAppEvents(argv) {
+function hookMainInstanceEvents(argv) {
   app.allowRendererProcessReuse = false
   app
     .whenReady()
@@ -90,12 +96,11 @@ if (app != null) {
     canProceedWithThisInstance = true
   }
   if (canProceedWithThisInstance) {
-    hookAppEvents(argv)
+    hookMainInstanceEvents(argv)
   } else {
     // The 'second-instance' event on app was triggered, we need
     // to quit.
-    console.log('🧐 Existing instance of zap will service this request.')
-    app.quit()
+    hookSecondInstanceEvents(argv)
   }
 } else {
   // If the code is executed via 'node' and not via 'app', then this

@@ -41,7 +41,9 @@ async function readDataFromFile(filePath) {
   } else if (stringData.startsWith('#ISD')) {
     return importIsc.readIscData(filePath, data)
   } else {
-    throw 'Invalid file format. Only .zap JSON files and ISC file format are supported.'
+    throw new Error(
+      'Invalid file format. Only .zap JSON files and ISC file format are supported.'
+    )
   }
 }
 

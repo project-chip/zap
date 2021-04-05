@@ -167,7 +167,8 @@ function getUserKeyFromBrowserWindow(browserWindow) {
   return browserWindow.webContents.session.cookies
     .get({ name: 'connect.sid' })
     .then((cookies) => {
-      if (cookies.length == 0) throw 'Could not find session key'
+      if (cookies.length == 0)
+        throw new Error('Could not find session key in a browser window')
       else return getUserKeyFromCookieValue(cookies[0].value)
     })
 }

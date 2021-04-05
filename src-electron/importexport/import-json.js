@@ -85,7 +85,7 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
       env.logInfo(`No packages of type ${pkg.type} found in the database.`)
       return null
     } else {
-      throw `No packages of type ${pkg.type} found in the database.`
+      throw new Error(`No packages of type ${pkg.type} found in the database.`)
     }
   } else if (packages.length == 1) {
     env.logInfo(`Only one package of given type ${pkg.type} present. Using it.`)
@@ -99,14 +99,13 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
   packages = packages.filter((p) => p.version == pkg.version)
   // If there isn't any abort, if there is only one, use it.
   if (packages.length == 0) {
+    let msg = `No packages of type ${pkg.type} that match version ${pkg.version} found in the database.`
     if (pkg.type == dbEnum.packageType.genTemplatesJson) {
       // We don't throw exception for genTemplatesJson, we can survive without.
-      env.logInfo(
-        `No packages of type ${pkg.type} that match version ${pkg.version} found in the database.`
-      )
+      env.logInfo(msg)
       return null
     } else {
-      throw `No packages of type ${pkg.type} that match version ${pkg.version} found in the database.`
+      throw new Error(msg)
     }
   } else if (packages.length == 1) {
     env.logInfo(
@@ -362,7 +361,7 @@ async function readJsonData(filePath, data) {
     state.loader = jsonDataLoader
     return state
   } else {
-    throw status.message
+    throw new Error(status.message)
   }
 }
 

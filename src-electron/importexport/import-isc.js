@@ -288,11 +288,13 @@ async function readIscData(filePath, data) {
     const S =
       'Error importing the file: there is no usable ZCL content in this file.'
     state.log.push(S)
-    throw S
+    throw new Error(S)
   }
   delete state.parseState
   if (errorLines.length > 0) {
-    throw 'Error while importing the file:\n  - ' + errorLines.join('\n  - ')
+    throw new Error(
+      'Error while importing the file:\n  - ' + errorLines.join('\n  - ')
+    )
   } else {
     return state
   }
@@ -327,7 +329,8 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
     )
   }
 
-  if (dev == null) throw `Unknown device type: ${deviceName} / ${deviceCode}`
+  if (dev == null)
+    throw new Error(`Unknown device type: ${deviceName} / ${deviceCode}`)
   return queryConfig.insertEndpointType(
     db,
     sessionId,
@@ -475,7 +478,7 @@ async function iscDataLoader(db, state, sessionId) {
   )
 
   if (zclPackages.length == 0) {
-    throw 'No zcl packages found for ISC import.'
+    throw new Error('No zcl packages found for ISC import.')
   }
 
   let packageId = zclPackages[0].id
