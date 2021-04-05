@@ -139,7 +139,7 @@ async function initHttpServer(db, port, studioPort) {
     })
 
     webSocket.initializeWebSocket(httpServer)
-    studio.init()
+    studio.initIdeIntegration(db)
   })
 }
 

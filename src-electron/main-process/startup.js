@@ -214,7 +214,7 @@ async function startConvert(
  * @param {*} paths List of paths to analyze
  * @param {boolean} [options={ log: true, quit: true }]
  */
-function startAnalyze(
+async function startAnalyze(
   paths,
   options = {
     quit: true,
@@ -258,7 +258,7 @@ function startAnalyze(
 /**
  * Start up applicationa in self-check mode.
  */
-function startSelfCheck(
+async function startSelfCheck(
   options = {
     quit: true,
     cleanDb: true,
@@ -272,10 +272,11 @@ function startSelfCheck(
     options.logger('    👉 remove old database file')
     fs.unlinkSync(dbFile)
   }
+  let mainDb
   return dbApi
     .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
-    .then((db) => env.resolveMainDatabase(db))
     .then((db) => {
+      mainDb = db
       options.logger('    👉 database and schema initialized')
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
     })
@@ -291,8 +292,7 @@ function startSelfCheck(
       }
 
       // This is a hack to prevent too quick shutdown that causes core dumps.
-      dbApi.closeDatabaseSync(env.mainDatabase())
-      env.resolveMainDatabase(null)
+      dbApi.closeDatabaseSync(mainDb)
       options.logger('    👉 database closed')
       await util.waitFor(2000)
       options.logger('😎 Self-check done!')
