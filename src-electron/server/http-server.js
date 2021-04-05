@@ -184,7 +184,7 @@ function userSessionHandler(db) {
             error: 'Could not create session: ' + err.message,
             errorMessage: err,
           }
-          studio.sendSessionCreationErrorStatus(resp)
+          studio.sendSessionCreationErrorStatus(db, resp)
           env.logError(resp)
         })
     }

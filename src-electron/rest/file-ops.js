@@ -80,7 +80,7 @@ function httpPostFileOpen(db) {
         })
         .catch(function (err) {
           err.project = zapFilePath
-          studio.sendSessionCreationErrorStatus(err)
+          studio.sendSessionCreationErrorStatus(db, err)
           env.logError(JSON.stringify(err))
           res.status(http.StatusCodes.BAD_REQUEST).send(err)
         })

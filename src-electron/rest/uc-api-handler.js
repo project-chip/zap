@@ -50,7 +50,7 @@ function httpPostComponentUpdateHandler(db, request, response, add) {
     .then((res) => {
       // invoke reportComponentStatus() ws notification
       response.send(res)
-      studio.sendComponentUpdateStatus(request.zapSessionId, {
+      studio.sendComponentUpdateStatus(db, request.zapSessionId, {
         data: res,
         added: add,
       })

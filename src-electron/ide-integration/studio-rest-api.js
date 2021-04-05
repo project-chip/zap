@@ -218,13 +218,13 @@ function httpPostComponentUpdate(project, componentId, add) {
  * Start the dirty flag reporting interval.
  *
  */
-function init() {
+function initIdeIntegration(db) {
   dirtyFlagStatusId = setInterval(() => {
-    sendDirtyFlagStatus()
+    sendDirtyFlagStatus(db)
   }, DIRTY_FLAG_REPORT_INTERVAL_MS)
 
   ucComponentStateReportId = setInterval(() => {
-    sendUcComponentStateReport()
+    sendUcComponentStateReport(db)
   }, UC_COMPONENT_STATE_REPORTING_INTERVAL_ID)
 }
 
@@ -236,16 +236,13 @@ function deinit() {
   if (ucComponentStateReportId != null) clearInterval(ucComponentStateReportId)
 }
 
-async function sendUcComponentStateReport() {
-  let sessions = await querySession.getAllSessions(env.mainDatabase())
+async function sendUcComponentStateReport(db) {
+  let sessions = await querySession.getAllSessions(db)
   for (const session of sessions) {
     let socket = wsServer.clientSocket(session.sessionKey)
-    let studioIntegration = await integrationEnabled(
-      env.mainDatabase(),
-      session.sessionId
-    )
+    let studioIntegration = await integrationEnabled(db, session.sessionId)
     if (socket && studioIntegration) {
-      getProjectInfo(env.mainDatabase(), session.sessionId).then((resp) => {
+      getProjectInfo(db, session.sessionId).then((resp) => {
         if (resp.status == http.StatusCodes.OK)
           wsServer.sendWebSocketMessage(socket, {
             category: dbEnum.wsCategory.ucComponentStateReport,
@@ -256,19 +253,17 @@ async function sendUcComponentStateReport() {
   }
 }
 
-function sendDirtyFlagStatus() {
-  querySession.getAllSessions(env.mainDatabase()).then((sessions) => {
+function sendDirtyFlagStatus(db) {
+  querySession.getAllSessions(db).then((sessions) => {
     sessions.forEach((session) => {
       let socket = wsServer.clientSocket(session.sessionKey)
       if (socket) {
-        querySession
-          .getSessionDirtyFlag(env.mainDatabase(), session.sessionId)
-          .then((flag) => {
-            wsServer.sendWebSocketMessage(socket, {
-              category: dbEnum.wsCategory.dirtyFlag,
-              payload: !!flag,
-            })
+        querySession.getSessionDirtyFlag(db, session.sessionId).then((flag) => {
+          wsServer.sendWebSocketMessage(socket, {
+            category: dbEnum.wsCategory.dirtyFlag,
+            payload: !!flag,
           })
+        })
       }
     })
   })
@@ -278,8 +273,8 @@ function sendDirtyFlagStatus() {
  * Notify front-end that current session failed to load.
  * @param {} err
  */
-function sendSessionCreationErrorStatus(err) {
-  querySession.getAllSessions(env.mainDatabase()).then((sessions) =>
+function sendSessionCreationErrorStatus(db, err) {
+  querySession.getAllSessions(db).then((sessions) =>
     sessions.forEach((session) => {
       let socket = wsServer.clientSocket(session.sessionKey)
       if (socket) {
@@ -296,8 +291,8 @@ function sendSessionCreationErrorStatus(err) {
  * Notify front-end that current session failed to load.
  * @param {*} err
  */
-function sendComponentUpdateStatus(sessionId, data) {
-  querySession.getAllSessions(env.mainDatabase()).then((sessions) =>
+function sendComponentUpdateStatus(db, sessionId, data) {
+  querySession.getAllSessions(db).then((sessions) =>
     sessions.forEach((session) => {
       if (session.sessionId == sessionId) {
         let socket = wsServer.clientSocket(session.sessionKey)
@@ -317,7 +312,7 @@ exports.updateComponentByComponentIds = updateComponentByComponentIds
 exports.updateComponentByClusterIdAndComponentId = updateComponentByClusterIdAndComponentId
 exports.projectName = projectName
 exports.integrationEnabled = integrationEnabled
-exports.init = init
+exports.initIdeIntegration = initIdeIntegration
 exports.deinit = deinit
 exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus
 exports.sendComponentUpdateStatus = sendComponentUpdateStatus
