@@ -21,7 +21,7 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
 const tray = require('./tray.js')
-const browserApi = require('../ui/browser-api.js')
+const browserApi = require('./browser-api.js')
 
 let windowCounter = 0
 

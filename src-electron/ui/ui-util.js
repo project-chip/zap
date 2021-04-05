@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 const { dialog } = require('electron')
-const windowJs = require('../main-process/window.js')
+const windowJs = require('./window.js')
 const browserApi = require('./browser-api.js')
 
 /**
