@@ -65,7 +65,7 @@ test('startup: analyze', () => {
   files.push(path.join(__dirname, 'resource/test-light.isc'))
   return startup.startAnalyze(files, {
     quit: false,
-    cleanDb: true,
+    cleanDb: false,
     logger: (msg) => {},
   })
 }, 5000)
