@@ -352,6 +352,14 @@ function createUuid() {
   return uuidv4()
 }
 
+/**
+ * Returns a promise that resolves after time milliseconds
+ * @param {} time
+ */
+function waitFor(time) {
+  return new Promise((r) => setTimeout(r, time))
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
@@ -362,3 +370,4 @@ exports.createAbsolutePath = createAbsolutePath
 exports.executeExternalProgram = executeExternalProgram
 exports.locateRelativeFilePath = locateRelativeFilePath
 exports.createUuid = createUuid
+exports.waitFor = waitFor

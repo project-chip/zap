@@ -24,6 +24,8 @@ const clientIpc = new ipc.IPC()
 clientIpc.clientUuid = util.createUuid()
 clientIpc.clientConnected = false
 
+let lastPong = null
+
 function log(msg) {
   env.logIpc(`Ipc client: ${msg}`)
 }
@@ -46,12 +48,40 @@ function initAndConnectClient() {
         env.logIpc('Client disconnected.')
         clientIpc.clientConnected = false
       })
-      socket.on(ipcServer.eventType.test, (data) => {
-        env.logIpc(`Client received a test message: ${data}`)
+
+      // Serve pings
+      socket.on(ipcServer.eventType.ping, (data) => {
+        env.logIpc(`Client received a ping: ${JSON.stringify(data)}`)
+        emit(ipcServer.eventType.pong, data)
       })
+
+      socket.on(ipcServer.eventType.pong, (data) => {
+        env.logIpc(`Client received a pong: ${JSON.stringify(data)}`)
+        lastPong = data
+      })
+
       resolve()
     })
   })
+}
+
+/**
+ * Register a handler for the event type.
+ *
+ * @param {*} eventType
+ * @param {*} handler
+ */
+function on(eventType, handler) {
+  clientIpc.of[clientIpc.clientUuid].on(eventType, handler)
+}
+
+/**
+ * Get the last pong data.
+ *
+ * @returns last pong data or null if none is available
+ */
+function lastPongData() {
+  return lastPong
 }
 
 /**
@@ -85,3 +115,5 @@ exports.initAndConnectClient = initAndConnectClient
 exports.isClientConnected = isClientConnected
 exports.disconnectClient = disconnectClient
 exports.emit = emit
+exports.lastPongData = lastPongData
+exports.on = on

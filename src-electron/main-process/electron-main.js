@@ -33,8 +33,13 @@ if (process.env.DEV) {
 
 function hookSecondInstanceEvents(argv) {
   app.allowRendererProcessReuse = false
-  console.log('🧐 Existing instance of zap will service this request.')
-  app.quit()
+  app
+    .whenReady()
+    .then(() => startup.startUpSecondaryInstance(argv))
+    .catch((err) => {
+      console.log(err)
+      app.exit(1)
+    })
 }
 
 /**
@@ -44,7 +49,7 @@ function hookMainInstanceEvents(argv) {
   app.allowRendererProcessReuse = false
   app
     .whenReady()
-    .then(() => startup.startUp(true, argv))
+    .then(() => startup.startUpMainInstance(true, argv))
     .catch((err) => {
       console.log(err)
       app.exit(1)
@@ -76,10 +81,7 @@ function hookMainInstanceEvents(argv) {
   })
 
   app.on('second-instance', (event, commandLine, workingDirectory) => {
-    let otherArgv = args.processCommandLineArguments(commandLine)
-    console.log(`New instance with command line: ${commandLine}`)
-    console.log('Args:')
-    console.log(otherArgv)
+    env.logInfo(`Zap instance started with command line: ${commandLine}`)
   })
 }
 
@@ -105,7 +107,10 @@ if (app != null) {
 } else {
   // If the code is executed via 'node' and not via 'app', then this
   // is where we end up.
-  startup.startUp(false, args.processCommandLineArguments(process.argv))
+  startup.startUpMainInstance(
+    false,
+    args.processCommandLineArguments(process.argv)
+  )
 }
 
 exports.loaded = true

@@ -27,6 +27,7 @@ const zclLoader = require('../zcl/zcl-loader.js')
 const windowJs = require('./window.js')
 const httpServer = require('../server/http-server.js')
 const ipcServer = require('../server/ipc-server.js')
+const ipcClient = require('../client/ipc-client.js')
 const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
@@ -283,7 +284,7 @@ function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
       dbApi.closeDatabaseSync(env.mainDatabase())
       env.resolveMainDatabase(null)
       if (options.log) console.log('    👉 database closed')
-      await new Promise((r) => setTimeout(r, 2000))
+      await util.waitFor(2000)
       if (options.log) console.log('😎 Self-check done!')
       if (options.quit && app != null) {
         app.quit()
@@ -421,12 +422,24 @@ function shutdown() {
   httpServer.shutdownHttpServerSync()
 }
 
+function startUpSecondaryInstance(argv) {
+  console.log('🧐 Existing instance of zap will service this request.')
+  ipcClient.initAndConnectClient().then(() => {
+    ipcClient.on(ipcServer.eventType.overAndOut, (data) => {
+      env.logInfo('Received overAndOut response from the server.')
+      console.log(data)
+      app.quit()
+    })
+  })
+  ipcClient.emit(ipcServer.eventType.version)
+}
+
 /**
  * Default startup method.
  *
  * @param {*} isElectron
  */
-function startUp(isElectron, argv) {
+function startUpMainInstance(isElectron, argv) {
   if (argv.logToStdout) {
     env.logInitStdout()
   } else {
@@ -484,5 +497,6 @@ exports.startSelfCheck = startSelfCheck
 exports.clearDatabaseFile = clearDatabaseFile
 exports.startConvert = startConvert
 exports.startAnalyze = startAnalyze
-exports.startUp = startUp
+exports.startUpMainInstance = startUpMainInstance
+exports.startUpSecondaryInstance = startUpSecondaryInstance
 exports.shutdown = shutdown

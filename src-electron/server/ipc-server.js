@@ -22,7 +22,10 @@ const path = require('path')
 const serverIpc = new ipc.IPC()
 
 const eventType = {
-  test: 'zapTest',
+  ping: 'ping', // Receiver responds with pong, returning the object.
+  pong: 'pong', // Return of the ping data, no response required.
+  overAndOut: 'overAndOut', // Sent from server to client as a final answer.
+  version: 'version', // Sent from client to server to query version.
 }
 
 /**
@@ -59,8 +62,16 @@ function initServer() {
       serverIpc.server.on('destroy', () => {
         env.logIpc('Destroyed the IPC server.')
       })
-      serverIpc.server.on(eventType.test, (data) => {
-        env.logIpc(`Server received a test message: ${JSON.stringify(data)}`)
+
+      // Serve pings
+      serverIpc.server.on(eventType.ping, (data, socket) => {
+        serverIpc.server.emit(socket, eventType.pong, data)
+      })
+
+      // Server version.
+      serverIpc.server.on(eventType.version, (data, socket) => {
+        env.logIpc(`Responding to version event: ${data}`)
+        serverIpc.server.emit(socket, eventType.overAndOut, env.zapVersion())
       })
       resolve()
     })

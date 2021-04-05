@@ -62,6 +62,7 @@ function processCommandLineArguments(argv) {
     selfCheck: 'Perform the self-check of the application.',
     analyze: 'Analyze the zap file without doing anything.',
     convert: 'Convert a zap or ISC file to latest zap file.',
+    status: 'Query the status of a zap server.',
   }
   let y = yargs
   for (const cmd in commands) {
