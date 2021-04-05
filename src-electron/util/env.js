@@ -71,7 +71,6 @@ const pinoOptions = {
 let pino_logger = pino(pinoOptions)
 
 let explicit_logger_set = false
-let dbInstance
 let httpStaticContent = path.join(__dirname, '../../spa')
 let versionObject = null
 let applicationStateDirectory = null
@@ -101,17 +100,6 @@ function logInitLogFile() {
     )
     explicit_logger_set = true
   }
-}
-
-function mainDatabase() {
-  return dbInstance
-}
-
-function resolveMainDatabase(db) {
-  return new Promise((resolve, reject) => {
-    dbInstance = db
-    resolve(db)
-  })
 }
 
 /**
@@ -387,8 +375,6 @@ exports.logIpc = logIpc
 exports.httpStaticContent = httpStaticContent
 exports.zapVersion = zapVersion
 exports.zapVersionAsString = zapVersionAsString
-exports.resolveMainDatabase = resolveMainDatabase
-exports.mainDatabase = mainDatabase
 exports.logHttpServerUrl = logHttpServerUrl
 exports.urlLogFile = urlLogFile
 exports.baseUrl = baseUrl

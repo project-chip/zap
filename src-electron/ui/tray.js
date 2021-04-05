@@ -46,8 +46,9 @@ function initTray(port) {
     {
       label: 'New ZCL configuration',
       type: 'normal',
+      httpPort: port,
       click: (item, window, event) => {
-        win.windowCreate(port)
+        win.windowCreate(item.httpPort)
       },
     },
     {

@@ -37,6 +37,8 @@ const uiJs = require('../ui/ui-util.js')
 
 // This file contains various startup modes.
 
+let mainDatabase = null
+
 /**
  * Start up application in a normal mode.
  *
@@ -46,14 +48,16 @@ const uiJs = require('../ui/ui-util.js')
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
 async function startNormal(uiEnabled, showUrl, zapFiles, options) {
-  return dbApi
-    .initDatabaseAndLoadSchema(
-      env.sqliteFile(),
-      env.schemaFile(),
-      env.zapVersion()
-    )
-    .then((db) => env.resolveMainDatabase(db))
-    .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
+  let db = await dbApi.initDatabaseAndLoadSchema(
+    env.sqliteFile(),
+    env.schemaFile(),
+    env.zapVersion()
+  )
+
+  mainDatabase = db
+
+  return zclLoader
+    .loadZcl(db, args.zclPropertiesFile)
     .then((ctx) =>
       generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
     )
@@ -426,6 +430,16 @@ function shutdown() {
   env.logInfo('Shutting down HTTP and IPC servers...')
   ipcServer.shutdownServerSync()
   httpServer.shutdownHttpServerSync()
+
+  if (mainDatabase != null) {
+    // Use a sync call, because you can't have promises in the 'quit' event.
+    try {
+      dbApi.closeDatabaseSync(mainDatabase)
+      env.logInfo('Database closed, shutting down.')
+    } catch (err) {
+      env.logError('Failed to close database.')
+    }
+  }
 }
 
 /**

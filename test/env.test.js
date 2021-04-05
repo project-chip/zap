@@ -132,11 +132,6 @@ describe('Environment Tests', () => {
     env.logIpc('Error logging test', new Error('Simple test'))
   })
 
-  test('Main database', () =>
-    env.resolveMainDatabase('stalin').then((db) => {
-      expect(env.mainDatabase()).toBe('stalin')
-    }))
-
   test('Versions check', () => {
     expect(env.versionsCheck()).toBeTruthy()
   })

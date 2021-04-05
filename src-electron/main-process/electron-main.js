@@ -68,16 +68,6 @@ function hookMainInstanceEvents(argv) {
 
   app.on('will-quit', () => {
     startup.shutdown()
-
-    if (env.mainDatabase() != null) {
-      // Use a sync call, because you can't have promises in the 'quit' event.
-      try {
-        dbApi.closeDatabaseSync(env.mainDatabase())
-        env.logInfo('Database closed, shutting down.')
-      } catch (err) {
-        env.logError('Failed to close database.')
-      }
-    }
   })
 
   app.on('second-instance', (event, commandLine, workingDirectory) => {
