@@ -31,13 +31,13 @@ const studio = require('../ide-integration/studio-rest-api.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 const restApiModules = [
-  '../rest/admin.js',
-  '../rest/static-zcl.js',
-  '../rest/generation.js',
-  '../rest/file-ops.js',
-  '../rest/uc-api-handler.js',
-  '../rest/endpoint.js',
-  '../rest/user-data.js',
+  require('../rest/admin.js'),
+  require('../rest/static-zcl.js'),
+  require('../rest/generation.js'),
+  require('../rest/file-ops.js'),
+  require('../rest/uc-api-handler.js'),
+  require('../rest/endpoint.js'),
+  require('../rest/user-data.js'),
 ]
 let httpServer = null
 
@@ -49,9 +49,7 @@ let httpServer = null
  * @param {*} db
  * @param {*} app
  */
-function registerRestApi(filename, db, app) {
-  let module = require(filename)
-
+function registerRestApi(module, db, app) {
   if (module.post != null)
     module.post.forEach((singlePost) => {
       let uri = singlePost.uri
