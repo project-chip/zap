@@ -26,10 +26,13 @@ const serverIpc = new ipc.IPC()
 const eventType = {
   ping: 'ping', // Receiver responds with pong, returning the object.
   pong: 'pong', // Return of the ping data, no response required.
+  over: 'over', // Sent from server to client as an intermediate printout.
   overAndOut: 'overAndOut', // Sent from server to client as a final answer.
   version: 'version', // Sent from client to server to query version.
   new: 'new', // Sent from client to server to request new configuration
   open: 'open', // Sent from client to server with array of files to open
+  convert: 'convert', // Sent from client to server when requesting to convert files
+  generate: 'generate', // Sent from client to server when requesting generation.
 }
 
 /**
@@ -95,6 +98,22 @@ function initServer(db = null, httpPort = null) {
             serverIpc.server.emit(socket, eventType.overAndOut)
           })
       })
+
+      // Convert the ISC or zap files
+      serverIpc.server.on(eventType.convert, (data, socket) => {
+        let zapFiles = data.files
+        let output = data.output
+
+        serverIpc.server.emit(socket, eventType.over, 'Convert')
+        zapFiles.forEach((element) => {
+          serverIpc.server.emit(socket, eventType.over, `File: ${element}`)
+        })
+        serverIpc.server.emit(socket, eventType.overAndOut, 'Done.')
+      })
+
+      // Trigger generation
+      serverIpc.server.on(eventType.generate, (zapFileArray, socket) => {})
+      // Generate
 
       resolve()
     })

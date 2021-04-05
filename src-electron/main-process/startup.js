@@ -451,15 +451,25 @@ function startUpSecondaryInstance(argv) {
   console.log('🧐 Existing instance of zap will service this request.')
   ipcClient.initAndConnectClient().then(() => {
     ipcClient.on(ipcServer.eventType.overAndOut, (data) => {
-      env.logInfo('Received overAndOut response from the server.')
       console.log(data)
       app.quit()
+    })
+
+    ipcClient.on(ipcServer.eventType.over, (data) => {
+      console.log(data)
     })
   })
   if (argv._.includes('status')) {
     ipcClient.emit(ipcServer.eventType.version)
   } else if (argv._.includes('new')) {
     ipcClient.emit(ipcServer.eventType.new)
+  } else if (argv._.includes('convert') && argv.zapFiles != null) {
+    ipcClient.emit(ipcServer.eventType.convert, {
+      output: argv.output,
+      files: argv.zapFiles,
+    })
+  } else if (argv._.includes('generate') && argv.zapFiles != null) {
+    ipcClient.emit(ipcServer.eventType.generate, argv.zapFiles)
   } else if (argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.open, argv.zapFiles)
   }
@@ -470,7 +480,7 @@ function startUpSecondaryInstance(argv) {
  *
  * @param {*} isElectron
  */
-function startUpMainInstance(isElectron, argv) {
+async function startUpMainInstance(isElectron, argv) {
   if (argv.logToStdout) {
     env.logInitStdout()
   } else {
