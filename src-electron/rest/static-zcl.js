@@ -23,8 +23,11 @@
 
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
-
+const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
+const util = require('../util/util.js')
+const env = require('../util/env.js')
+const http = require('http-status-codes')
 
 // This function builds a function that has the following skeleton.
 // This is used to simplify all the logic where we have selectAll and selectById for
@@ -221,10 +224,58 @@ function httpGetZclEntity(db) {
       .then((resultData) => response.json(resultData))
   }
 }
+/**
+ * API: /zclExtension/:entity/:extension
+ *
+ * @param {*} db
+ * @returns
+ */
+function httpGetZclExtension(db) {
+  return (request, response) => {
+    const { entity, extensionId } = request.params
+    let sessionId = request.zapSessionId
+    if (!sessionId) {
+      let err = 'Unable to retrieve zcl extension. Invalid sessionId!'
+      env.logError(err)
+      return response.status(http.StatusCodes.NOT_FOUND).send(err)
+    }
+
+    // enable components
+    queryPackage
+      .getSessionPackagesByType(
+        db,
+        sessionId,
+        dbEnum.packageType.genTemplatesJson
+      )
+      .then((pkgs) => (pkgs.length == 0 ? null : pkgs[0].id))
+      .then((packageId) => {
+        if (!packageId) {
+          throw 'Unable to retrieve valid packageId!'
+        }
+        return queryPackage.selectPackageExtension(db, packageId, entity)
+      })
+      .then((exts) => {
+        let clusterExt = util.getClusterExtension(exts, extensionId)
+        if (clusterExt.length) {
+        return response.json(clusterExt[0])
+        } else {
+          throw `Unable to find cluster extension by ${extensionId}.`
+        }
+      })
+      .catch((err) => {
+        env.logError(err)
+        return response.status(http.StatusCodes.NOT_FOUND).send(err)
+      })
+  }
+}
 
 exports.get = [
   {
     uri: restApi.uri.zclEntity,
     callback: httpGetZclEntity,
+  },
+  {
+    uri: restApi.uri.zclExtension,
+    callback: httpGetZclExtension,
   },
 ]

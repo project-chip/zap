@@ -346,6 +346,41 @@ function executeExternalProgram(
 }
 
 /**
+ * Retrieve specific entry from extensions defaults(array) via 'clusterCode' key fields
+ *
+ * @param {*} extensions
+ * @param {*} property field name under specific extension
+ * @param {*} clusterCode search key
+ * @returns Value of the cluster extension property.
+ */
+function getClusterExtensionDefault(extensions, extensionId, defaultKey) {
+  let f = getClusterExtension(extensions, extensionId)
+  if (f.length == 0) {
+    return ''
+  } else {
+    let val = null
+    f[0].defaults.forEach((d) => {
+      if (d.entityCode == defaultKey) val = d.value
+    })
+    if (val == null) val = f[0].globalDefault
+    if (val == null) val = ''
+    return val
+  }
+}
+
+/**
+ * Retrieve specific entry from extensions defaults(array) via 'clusterCode' key fields
+ *
+ * @param {*} extensions
+ * @param {*} property field name under specific extension
+ * @param {*} clusterCode search key
+ * @returns Object containing all attribuetes specific to the extension
+ */
+function getClusterExtension(extensions, extensionId) {
+  return extensions.filter((x) => x.property == extensionId)
+}
+
+/**
  * Global way how to get an UUID.
  */
 function createUuid() {
@@ -371,3 +406,5 @@ exports.executeExternalProgram = executeExternalProgram
 exports.locateRelativeFilePath = locateRelativeFilePath
 exports.createUuid = createUuid
 exports.waitFor = waitFor
+exports.getClusterExtension = getClusterExtension
+exports.getClusterExtensionDefault = getClusterExtensionDefault

@@ -90,7 +90,9 @@ describe('Session specific tests', () => {
         expect(extensions[0].label).toBe('Test cluster extension')
         expect(extensions[0].globalDefault).toBe(null)
         expect(extensions[0].defaults.length).toBe(3)
-        expect(extensions[1].label).toBe('Test cluster extension 1')
+        expect(extensions[1].label).toBe(
+          'Test cluster extension with external defaults values'
+        )
         expect(extensions[1].globalDefault).toBe(null)
         expect(extensions[1].defaults.length).toBe(1)
         expect(extensions[1].defaults[0].value).toBe(
@@ -162,6 +164,25 @@ describe('Session specific tests', () => {
     },
     timeout
   )
+
+  test('test that zcl extension is loaded and exists', () => {
+    return axios
+      .get(
+        `${baseUrl}/zclExtension/cluster/testClusterExtension1?sessionId=${uuid}`
+      )
+      .then((response) => {
+        console.log(`RESP: ${JSON.stringify(response.data)}`)
+        expect(response.data.entity).toBe('cluster')
+        expect(response.data.property).toBe('testClusterExtension1')
+        expect(response.data.label).toBe(
+          'Test cluster extension with external defaults values'
+        )
+        expect(response.data.defaults[0].entityCode).toBe('0x0003')
+        expect(response.data.defaults[0].value).toBe(
+          'Extension value loaded via external default JSON file.'
+        )
+      })
+  })
 
   test(
     'Load a second set of templates.',

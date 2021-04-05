@@ -24,7 +24,7 @@
 const queryPackage = require('../db/query-package.js')
 const queryZcl = require('../db/query-zcl.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const sdkExt = require('../generator/helper-sdkextension.js')
+const util = require('../util/util.js')
 
 /**
  * Promise that return a list of component Ids required by a specific cluster
@@ -62,7 +62,7 @@ function getComponentIdsByCluster(db, sessionId, clusterId, side) {
       if (cluster) {
         side.forEach((zclRole) => {
           let clusterKey = `${cluster.label.toLowerCase()}-${zclRole}`
-          let ids = sdkExt.cluster_extension_default_value(
+          let ids = util.getClusterExtensionDefault(
             extensions,
             'component',
             clusterKey

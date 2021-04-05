@@ -69,7 +69,7 @@ function integrationEnabled(db, sessionId) {
 function projectName(studioProjectPath) {
   const prefix = '_2F'
   if (studioProjectPath && studioProjectPath.includes(prefix)) {
-    return projectPath.substr(
+    return studioProjectPath.substr(
       studioProjectPath.lastIndexOf(prefix) + prefix.length
     )
   } else {
