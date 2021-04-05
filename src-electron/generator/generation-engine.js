@@ -575,7 +575,7 @@ async function generateAndWriteFiles(
   packageId,
   outputDirectory,
   options = {
-    log: false,
+    logger: (msg) => {},
     backup: false,
     genResultFile: false,
     skipPostGeneration: false,
@@ -600,29 +600,25 @@ async function generateAndWriteFiles(
     )
     .then((genResult) => {
       if (!fs.existsSync(outputDirectory)) {
-        if (options.log) {
-          console.log(`✅ Creating directory: ${outputDirectory}`)
-        }
+        options.logger(`✅ Creating directory: ${outputDirectory}`)
         fs.mkdirSync(outputDirectory, { recursive: true })
       }
-      if (options.log) console.log('🤖 Generating files:')
+      options.logger('🤖 Generating files:')
       let promises = []
       for (const f in genResult.content) {
         let content = genResult.content[f]
         let fileName = path.join(outputDirectory, f)
-        if (options.log) console.log(`    ✍  ${fileName}`)
+        options.logger(`    ✍  ${fileName}`)
         env.logInfo(`Preparing to write file: ${fileName}`)
         promises.push(writeFileWithBackup(fileName, content, options.backup))
       }
       if (genResult.hasErrors) {
-        if (options.log) console.log('⚠️  Errors:')
+        options.logger('⚠️  Errors:')
         for (const f in genResult.errors) {
           let err = genResult.errors[f]
           let fileName = path.join(outputDirectory, f)
-          if (options.log) {
-            console.log(`    👎  ${fileName}: ⛔ ${err}\nStack trace:\n`)
-            console.log(err)
-          }
+          options.logger(`    👎  ${fileName}: ⛔ ${err}\nStack trace:\n`)
+          options.logger(err)
         }
       }
       promises.push(
@@ -645,7 +641,11 @@ async function generateAndWriteFiles(
           if (options.skipPostGeneration) {
             return gr
           } else {
-            return postProcessGeneratedFiles(outputDirectory, gr, options.log)
+            return postProcessGeneratedFiles(
+              outputDirectory,
+              gr,
+              options.logger
+            )
           }
         })
     })
@@ -661,7 +661,7 @@ async function generateAndWriteFiles(
 async function postProcessGeneratedFiles(
   outputDirectory,
   genResult,
-  log = true
+  logger = (msg) => {}
 ) {
   let doExecute = true
   let isEnabledS = genResult.generatorOptions[dbEnum.generatorOptions.enabled]
@@ -717,8 +717,8 @@ async function postProcessGeneratedFiles(
       )
     }
   }
-  if (log && postProcessPromises.length > 0)
-    console.log('🤖 Executing post-processing actions:')
+  if (postProcessPromises.length > 0)
+    logger('🤖 Executing post-processing actions:')
   return Promise.all(postProcessPromises).then(() => genResult)
 }
 

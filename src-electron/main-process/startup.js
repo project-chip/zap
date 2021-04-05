@@ -397,7 +397,7 @@ async function startGeneration(
     packageId,
     output,
     {
-      log: options.log,
+      logger: options.log ? console.log : (msg) => {},
       backup: false,
       genResultFile: args.genResultFile,
       skipPostGeneration: args.skipPostGeneration,
@@ -416,12 +416,20 @@ function clearDatabaseFile(dbPath) {
   util.createBackupFile(dbPath)
 }
 
+/**
+ * Shuts down any servers that might be running.
+ */
 function shutdown() {
   env.logInfo('Shutting down HTTP and IPC servers...')
-  ipcServer.shutdownServerSync(true)
+  ipcServer.shutdownServerSync()
   httpServer.shutdownHttpServerSync()
 }
 
+/**
+ * Startup method for the secondary instance.
+ *
+ * @param {*} argv
+ */
 function startUpSecondaryInstance(argv) {
   console.log('🧐 Existing instance of zap will service this request.')
   ipcClient.initAndConnectClient().then(() => {
