@@ -228,7 +228,7 @@ function httpGetZclEntity(db) {
  * API: /zclExtension/:entity/:extension
  *
  * @param {*} db
- * @returns
+ * @returns zcl extension handler
  */
 function httpGetZclExtension(db) {
   return (request, response) => {
@@ -257,7 +257,7 @@ function httpGetZclExtension(db) {
       .then((exts) => {
         let clusterExt = util.getClusterExtension(exts, extensionId)
         if (clusterExt.length) {
-        return response.json(clusterExt[0])
+          return response.json(clusterExt[0])
         } else {
           throw `Unable to find cluster extension by ${extensionId}.`
         }

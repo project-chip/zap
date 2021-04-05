@@ -205,7 +205,6 @@ function prepareAttributes(attributes, side, types, cluster = null) {
     attributes.attribute === undefined ? attributes : attributes.attribute
   for (let i = 0; i < atts.length; i++) {
     let a = atts[i]
-    env.logInfo(`Preparing attribute ${side} ${a.$.name}`)
     let attributeData = {
       code: parseInt(normalizeHexValue(a.$.id)),
       //manufacturerCode: '', // TODO: no manuf code in dotdot xml

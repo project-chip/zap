@@ -102,7 +102,7 @@ function registerAllRestModules(db, app) {
 async function initHttpServer(db, port, studioPort) {
   return new Promise((resolve, reject) => {
     const app = express()
-    app.use(express.urlencoded({ extended: true }))
+    //app.use(express.urlencoded({ extended: true }))
     app.use(express.json())
     app.use(
       session({
