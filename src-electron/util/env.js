@@ -71,6 +71,7 @@ const pinoOptions = {
 let pino_logger = pino(pinoOptions)
 
 let explicit_logger_set = false
+let dbInstance
 let httpStaticContent = path.join(__dirname, '../../spa')
 let versionObject = null
 let applicationStateDirectory = null
@@ -100,6 +101,17 @@ function logInitLogFile() {
     )
     explicit_logger_set = true
   }
+}
+
+function mainDatabase() {
+  return dbInstance
+}
+
+function resolveMainDatabase(db) {
+  return new Promise((resolve, reject) => {
+    dbInstance = db
+    resolve(db)
+  })
 }
 
 /**
@@ -304,6 +316,16 @@ function logIpc(msg, err = null) {
   log('ipc', msg, err)
 }
 
+/**
+ * Debug level message.
+ *
+ * @param {*} msg
+ * @param {*} err
+ */
+function logDebug(msg, err = null) {
+  log('debug', msg, err)
+}
+
 // Returns true if major or minor component of versions is different.
 function isMatchingVersion(versionsArray, providedVersion) {
   let ret = false
@@ -372,9 +394,12 @@ exports.logWarning = logWarning
 exports.logSql = logSql
 exports.logBrowser = logBrowser
 exports.logIpc = logIpc
+exports.logDebug = logDebug
 exports.httpStaticContent = httpStaticContent
 exports.zapVersion = zapVersion
 exports.zapVersionAsString = zapVersionAsString
+exports.resolveMainDatabase = resolveMainDatabase
+exports.mainDatabase = mainDatabase
 exports.logHttpServerUrl = logHttpServerUrl
 exports.urlLogFile = urlLogFile
 exports.baseUrl = baseUrl

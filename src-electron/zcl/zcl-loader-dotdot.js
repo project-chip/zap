@@ -34,7 +34,7 @@ const util = require('../util/util.js')
  * @returns Promise of resolved files.
  */
 async function collectDataFromLibraryXml(ctx) {
-  env.logInfo(`Collecting ZCL files from: ${ctx.metadataFile}`)
+  env.logDebug(`Collecting ZCL files from: ${ctx.metadataFile}`)
   return fsp
     .readFile(ctx.metadataFile)
     .then((data) =>
@@ -93,7 +93,7 @@ async function parseZclFiles(db, ctx) {
   ctx.zclManufacturers = []
 
   ctx.zclFiles.forEach((file) => {
-    env.logInfo(`Starting to parse Dotdot ZCL file: ${file}`)
+    env.logDebug(`Starting to parse Dotdot ZCL file: ${file}`)
     let p = fsp
       .readFile(file)
       .then((data) => util.calculateCrc({ filePath: file, data: data }))
@@ -138,7 +138,7 @@ async function parseZclFiles(db, ctx) {
         } else {
           //TODO: What to do with "derived clusters", we skip them here but we should probably
           //      extend the DB schema to allow this since we don't really handle it
-          env.logInfo(`Didn't find anything relevant, Skipping file ${file}`)
+          env.logDebug(`Didn't find anything relevant, Skipping file ${file}`)
         }
       })
     perFilePromise.push(p)
@@ -252,7 +252,7 @@ function prepareCommands(commands, side, types) {
   let cmds = commands.command === undefined ? commands : commands.command
   for (let i = 0; i < cmds.length; i++) {
     let c = cmds[i]
-    env.logInfo(`Preparing command ${side} ${c.$.name}`)
+    env.logDebug(`Preparing command ${side} ${c.$.name}`)
     let pcmd = {
       code: parseInt(normalizeHexValue(c.$.id)),
       //manufacturerCode: '', //TODO: no manuf code for dotdot xml
@@ -566,7 +566,7 @@ function prepareDeviceType(deviceType) {
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
 async function loadZclData(db, ctx) {
-  env.logInfo(
+  env.logDebug(
     `Starting to load Dotdot ZCL data in to DB for: ${ctx.metadataFile}, clusters length=${ctx.zclClusters.length}`
   )
   let types = { atomics: [], enums: [], bitmaps: [], structs: [] }
@@ -574,7 +574,7 @@ async function loadZclData(db, ctx) {
   prepareTypes(ctx.zclGlobalTypes, types)
   let cs = []
   ctx.zclClusters.forEach((cluster) => {
-    env.logInfo(`loading cluster: ${cluster.$.name}`)
+    env.logDebug(`loading cluster: ${cluster.$.name}`)
     let c = prepareCluster(cluster, types)
     cs.push(c)
   })
@@ -594,7 +594,7 @@ async function loadZclData(db, ctx) {
   ]
   let ds = []
   ctx.zclDeviceTypes.forEach((deviceType) => {
-    env.logInfo(`loading device: ${deviceType.typeName[0]}`)
+    env.logDebug(`loading device: ${deviceType.typeName[0]}`)
     let d = prepareDeviceType(deviceType)
     ds.push(d)
   })
@@ -640,7 +640,7 @@ function loadIndividualDotDotFile(db, filePath) {
  * @returns a Promise that resolves with the db.
  */
 async function loadDotdotZcl(db, ctx) {
-  env.logInfo(`Loading Dotdot zcl file: ${ctx.metadataFile}`)
+  env.logDebug(`Loading Dotdot zcl file: ${ctx.metadataFile}`)
   return dbApi
     .dbBeginTransaction(db)
     .then(() => zclLoader.readMetadataFile(ctx))

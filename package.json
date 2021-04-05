@@ -19,7 +19,7 @@
     "lint": "eslint --ext .js,.vue src src-electron src-shared src-script test",
     "lintfix": "eslint --fix --ext .js,.vue src src-electron src-shared src-script test",
     "electron-build-dmg": "node src-script/build-dmg.js",
-    "test": "node src-script/zap-versionstamp.js && jest --updateSnapshot --detectOpenHandles --forceExit",
+    "test": "node src-script/zap-versionstamp.js && jest --updateSnapshot",
     "test:unit": "jest --updateSnapshot",
     "test:unit:verbose": "jest --updateSnapshot --verbose false",
     "test:unit:coverage": "jest --coverage",

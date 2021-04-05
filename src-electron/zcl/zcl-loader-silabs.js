@@ -36,7 +36,7 @@ const _ = require('lodash')
  * @returns Promise of resolved file.
  */
 async function collectDataFromJsonFile(ctx) {
-  env.logInfo(`Collecting ZCL files from JSON file: ${ctx.metadataFile}`)
+  env.logDebug(`Collecting ZCL files from JSON file: ${ctx.metadataFile}`)
   return new Promise((resolve, reject) => {
     let obj = JSON.parse(ctx.data)
     let f
@@ -82,7 +82,7 @@ async function collectDataFromJsonFile(ctx) {
     ctx.version = obj.version
     ctx.supportCustomZclDevice = obj.supportCustomZclDevice
 
-    env.logInfo(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
+    env.logDebug(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
     resolve(ctx)
   })
 }
@@ -95,7 +95,7 @@ async function collectDataFromJsonFile(ctx) {
  */
 async function collectDataFromPropertiesFile(ctx) {
   return new Promise((resolve, reject) => {
-    env.logInfo(
+    env.logDebug(
       `Collecting ZCL files from properties file: ${ctx.metadataFile}`
     )
 
@@ -147,7 +147,7 @@ async function collectDataFromPropertiesFile(ctx) {
         }
         ctx.supportCustomZclDevice = zclProps.supportCustomZclDevice
         ctx.version = zclProps.version
-        env.logInfo(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
+        env.logDebug(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
         resolve(ctx)
       }
     })
@@ -207,7 +207,7 @@ function prepareBitmap(bm) {
  * @returns Promise of inserted bitmaps
  */
 async function processBitmaps(db, filePath, packageId, data) {
-  env.logInfo(`${filePath}, ${packageId}: ${data.length} bitmaps.`)
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} bitmaps.`)
   return queryLoader.insertBitmaps(
     db,
     packageId,
@@ -240,7 +240,7 @@ function prepareAtomic(a) {
  */
 async function processAtomics(db, filePath, packageId, data) {
   let types = data[0].type
-  env.logInfo(`${filePath}, ${packageId}: ${types.length} atomic types.`)
+  env.logDebug(`${filePath}, ${packageId}: ${types.length} atomic types.`)
   return queryLoader.insertAtomics(
     db,
     packageId,
@@ -411,7 +411,7 @@ function prepareCluster(cluster, isExtension = false) {
  * @returns Promise of cluster insertion.
  */
 async function processClusters(db, filePath, packageId, data) {
-  env.logInfo(`${filePath}, ${packageId}: ${data.length} clusters.`)
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} clusters.`)
   return queryLoader.insertClusters(
     db,
     packageId,
@@ -452,7 +452,7 @@ function processClusterGlobalAttributes(db, filePath, packageId, data) {
  * @returns promise to resolve the clusterExtension tags
  */
 async function processClusterExtensions(db, filePath, packageId, data) {
-  env.logInfo(`${filePath}, ${packageId}: ${data.length} cluster extensions.`)
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} cluster extensions.`)
   return queryLoader.insertClusterExtensions(
     db,
     packageId,
@@ -471,7 +471,7 @@ async function processClusterExtensions(db, filePath, packageId, data) {
  * @returns promise to resolve the globals
  */
 async function processGlobals(db, filePath, packageId, data) {
-  env.logInfo(`${filePath}, ${packageId}: ${data.length} globals.`)
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} globals.`)
   return queryLoader.insertGlobals(
     db,
     packageId,
@@ -518,7 +518,7 @@ async function processDomains(db, filePath, packageId, data) {
   // <domain name="ZLL" spec="zll-1.0-11-0037-10" dependsOn="zcl-1.0-07-5123-03">
   //    <older ....
   // </domain>
-  env.logInfo(`${filePath}, ${packageId}: ${data.length} domains.`)
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} domains.`)
   let preparedDomains = data.map((x) => prepareDomain(x))
   let specIds = await queryLoader.insertSpecs(db, packageId, preparedDomains)
   for (let i = 0; i < specIds.length; i++) {
@@ -559,7 +559,7 @@ function prepareStruct(struct) {
  * @returns Promise of inserted structs.
  */
 async function processStructs(db, filePath, packageId, data) {
-  env.logInfo(`${filePath}, ${packageId}: ${data.length} structs.`)
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} structs.`)
   return queryLoader.insertStructs(
     db,
     packageId,
@@ -598,7 +598,7 @@ function prepareEnum(en) {
  * @returns A promise of inserted enums.
  */
 async function processEnums(db, filePath, packageId, data) {
-  env.logInfo(`${filePath}, ${packageId}: ${data.length} enums.`)
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} enums.`)
   return queryLoader.insertEnums(
     db,
     packageId,
@@ -660,7 +660,7 @@ function prepareDeviceType(deviceType) {
  * @returns Promise of a resolved device types.
  */
 async function processDeviceTypes(db, filePath, packageId, data) {
-  env.logInfo(`${filePath}, ${packageId}: ${data.length} deviceTypes.`)
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} deviceTypes.`)
   return queryLoader.insertDeviceTypes(
     db,
     packageId,
@@ -769,7 +769,7 @@ async function processParsedZclData(db, argument) {
  */
 async function parseZclFiles(db, ctx) {
   ctx.laterPromises = []
-  env.logInfo(`Starting to parse ZCL files: ${ctx.zclFiles}`)
+  env.logDebug(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   return Promise.all(
     ctx.zclFiles.map((file) =>
       fsp
@@ -1105,7 +1105,7 @@ async function processCustomZclDeviceType(db, ctx) {
  * @returns a Promise that resolves with the db.
  */
 async function loadSilabsZcl(db, context, isJson = false) {
-  env.logInfo(`Loading Silabs zcl file: ${context.metadataFile}`)
+  env.logDebug(`Loading Silabs zcl file: ${context.metadataFile}`)
   return dbApi
     .dbBeginTransaction(db)
     .then(() => zclLoader.readMetadataFile(context))

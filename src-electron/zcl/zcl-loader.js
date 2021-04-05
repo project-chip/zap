@@ -104,7 +104,7 @@ function loadIndividualFile(db, filePath, sessionId) {
     .getSessionPackagesByType(db, sessionId, dbEnum.packageType.zclProperties)
     .then((zclPropertiesPackages) => {
       if (zclPropertiesPackages.length == 0) {
-        env.logInfo(
+        env.logDebug(
           `Unable to find a validator for project, skipping validator`
         )
         // Return an function that returns an empty array
@@ -142,7 +142,7 @@ function bindValidationScript(db, basePackageId) {
       let module = require(zclValidation)
       let validateZclFile = module.validateZclFile
 
-      env.logInfo(`Reading individual file: ${zclSchema}`)
+      env.logDebug(`Reading individual file: ${zclSchema}`)
       return fsp
         .readFile(zclSchema)
         .then((schemaFile) => validateZclFile.bind(null, schemaFile))
@@ -203,7 +203,7 @@ function qualifyZclFile(db, info, parentPackageId, packageType, isCustom) {
       .then((pkg) => {
         if (pkg == null) {
           // This is executed if there is no CRC in the database.
-          env.logInfo(`No CRC in the database for file ${filePath}, parsing.`)
+          env.logDebug(`No CRC in the database for file ${filePath}, parsing.`)
           return queryPackage
             .insertPathCrc(
               db,
@@ -224,7 +224,7 @@ function qualifyZclFile(db, info, parentPackageId, packageType, isCustom) {
         } else {
           // This is executed if CRC is found in the database.
           if (pkg.crc == actualCrc) {
-            env.logInfo(
+            env.logDebug(
               `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
             )
             resolve({
@@ -232,7 +232,7 @@ function qualifyZclFile(db, info, parentPackageId, packageType, isCustom) {
               packageId: pkg.id,
             })
           } else {
-            env.logInfo(
+            env.logDebug(
               `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
             )
             return queryPackage
