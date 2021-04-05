@@ -39,7 +39,7 @@ const template = [
         label: newConfiguration + '...',
         accelerator: 'CmdOrCtrl+N',
         click(menuItem, browserWindow, event) {
-          uiJs.openNewConfiguration(env.mainDatabase(), httpPort)
+          uiJs.openNewConfiguration(httpPort)
         },
       },
       {

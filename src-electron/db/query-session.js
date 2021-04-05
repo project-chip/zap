@@ -86,32 +86,6 @@ async function getSessionDirtyFlag(db, sessionId) {
 }
 
 /**
- * Executes the query for the dirty flag with a callback, not a promise.
- *
- * @export
- * @param {*} db
- * @param {*} windowId
- * @param {*} fn
- */
-async function getSessionDirtyFlagWithCallback(db, sessionKey, fn) {
-  db.get(
-    'SELECT DIRTY FROM SESSION WHERE SESSION_KEY = ?',
-    [sessionKey],
-    (err, row) => {
-      if (err) {
-        fn(false)
-      } else {
-        if (row == null) {
-          fn(false)
-        } else {
-          fn(row.DIRTY)
-        }
-      }
-    }
-  )
-}
-
-/**
  * Resolves into a session id, obtained from window id.
  *
  * @export
@@ -474,7 +448,6 @@ async function getAllSessionKeyValues(db, sessionId) {
 exports.getAllSessions = getAllSessions
 exports.setSessionClean = setSessionClean
 exports.getSessionDirtyFlag = getSessionDirtyFlag
-exports.getSessionDirtyFlagWithCallback = getSessionDirtyFlagWithCallback
 exports.getSessionInfoFromSessionKey = getSessionInfoFromSessionKey
 exports.ensureZapSessionId = ensureZapSessionId
 exports.ensureZapUserAndSession = ensureZapUserAndSession

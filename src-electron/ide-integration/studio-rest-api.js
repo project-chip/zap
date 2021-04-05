@@ -258,12 +258,17 @@ function sendDirtyFlagStatus(db) {
     sessions.forEach((session) => {
       let socket = wsServer.clientSocket(session.sessionKey)
       if (socket) {
-        querySession.getSessionDirtyFlag(db, session.sessionId).then((flag) => {
-          wsServer.sendWebSocketMessage(socket, {
-            category: dbEnum.wsCategory.dirtyFlag,
-            payload: !!flag,
+        querySession
+          .getSessionDirtyFlag(db, session.sessionId)
+          .then((flag) => {
+            wsServer.sendWebSocketMessage(socket, {
+              category: dbEnum.wsCategory.dirtyFlag,
+              payload: flag,
+            })
           })
-        })
+          .catch((err) => {
+            env.logWarning('Could not query dirty status.')
+          })
       }
     })
   })
