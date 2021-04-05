@@ -34,7 +34,7 @@ test('startup: start generation', () => {
     null,
     {
       quit: false,
-      log: false,
+      logger: (msg) => {},
     }
   )
 }, 10000)
@@ -50,12 +50,22 @@ test('startup: convert', () => {
   let testOutputFile = path.join(__dirname, 'resource/test-light.conversion')
   return startup
     .startConvert(files, output, {
-      log: false,
       quit: false,
       noZapFileLog: true,
+      logger: (msg) => {},
     })
     .then(() => {
       expect(fs.existsSync(testOutputFile)).toBeTruthy()
       fs.unlinkSync(testOutputFile)
     })
+}, 5000)
+
+test('startup: analyze', () => {
+  let files = []
+  files.push(path.join(__dirname, 'resource/test-light.isc'))
+  return startup.startAnalyze(files, {
+    quit: false,
+    cleanDb: true,
+    log: false,
+  })
 }, 5000)

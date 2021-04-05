@@ -142,11 +142,15 @@ function outputFile(inputFile, outputPattern) {
 async function startConvert(
   files,
   output,
-  options = { log: true, quit: true, noZapFileLog: false }
+  options = {
+    quit: true,
+    noZapFileLog: false,
+    logger: console.log,
+  }
 ) {
-  if (options.log) console.log(`🤖 Conversion started`)
-  if (options.log) console.log(`    🔍 input files: ${files}`)
-  if (options.log) console.log(`    🔍 output pattern: ${output}`)
+  options.logger(`🤖 Conversion started`)
+  options.logger(`    🔍 input files: ${files}`)
+  options.logger(`    🔍 output pattern: ${output}`)
 
   let dbFile = env.sqliteFile('convert')
   let db = await dbApi.initDatabaseAndLoadSchema(
@@ -154,14 +158,12 @@ async function startConvert(
     env.schemaFile(),
     env.zapVersion()
   )
-  if (options.log) console.log('    🐝 database and schema initialized')
+  options.logger('    🐝 database and schema initialized')
   await zclLoader.loadZcl(db, args.zclPropertiesFile)
-  if (options.log)
-    console.log(`    🐝 zcl package loaded: ${args.zclPropertiesFile}`)
+  options.logger(`    🐝 zcl package loaded: ${args.zclPropertiesFile}`)
   if (args.genTemplateJsonFile != null) {
     await generatorEngine.loadTemplates(db, args.genTemplateJsonFile)
-    if (options.log)
-      console.log(`    🐝 templates loaded: ${args.genTemplateJsonFile}`)
+    options.logger(`    🐝 templates loaded: ${args.genTemplateJsonFile}`)
   }
 
   return util
@@ -174,7 +176,7 @@ async function startConvert(
             .then((pkgs) => importResult.sessionId)
         })
         .then((sessionId) => {
-          if (options.log) console.log(`    👈 read in: ${singlePath}`)
+          options.logger(`    👈 read in: ${singlePath}`)
           let of = outputFile(singlePath, output)
           let parent = path.dirname(of)
           if (!fs.existsSync(parent)) {
@@ -195,11 +197,11 @@ async function startConvert(
             )
         })
         .then((outputPath) => {
-          if (options.log) console.log(`    👉 write out: ${outputPath}`)
+          options.logger(`    👉 write out: ${outputPath}`)
         })
     )
     .then(() => {
-      if (options.log) console.log('😎 Conversion done!')
+      options.logger('😎 Conversion done!')
       if (options.quit && app != null) {
         app.quit()
       }
@@ -313,27 +315,26 @@ async function startGeneration(
   options = {
     quit: true,
     cleanDb: true,
-    log: true,
+    logger: console.log,
   }
 ) {
-  if (options.log)
-    console.log(
-      `🤖 ZAP generation information: 
+  options.logger(
+    `🤖 ZAP generation information: 
     👉 into: ${output}
     👉 using templates: ${genTemplateJsonFile}
     👉 using zcl data: ${zclProperties}`
-    )
+  )
   let zapFile = null
   if (zapFiles != null && zapFiles.length > 0) {
     zapFile = zapFiles[0]
-    if (zapFiles.length > 1 && options.log)
-      console.log(`    ⚠️  Multiple files passed. Using only first one.`)
+    if (zapFiles.length > 1)
+      options.logger(`    ⚠️  Multiple files passed. Using only first one.`)
   }
   if (zapFile != null) {
     if (fs.existsSync(zapFile)) {
       let stat = fs.statSync(zapFile)
       if (stat.isDirectory()) {
-        if (options.log) console.log(`    👉 using input directory: ${zapFile}`)
+        options.logger(`    👉 using input directory: ${zapFile}`)
         let dirents = fs.readdirSync(zapFile, { withFileTypes: true })
         let usedFile = []
         dirents.forEach((element) => {
@@ -342,31 +343,28 @@ async function startGeneration(
           }
         })
         if (usedFile.length == 0) {
-          if (options.log)
-            console.log(`    👎 no zap files found in directory: ${zapFile}`)
+          options.logger(`    👎 no zap files found in directory: ${zapFile}`)
           throw `👎 no zap files found in directory: ${zapFile}`
         } else if (usedFile.length > 1) {
-          if (options.log)
-            console.log(
-              `    👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
-            )
+          options.logger(
+            `    👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
+          )
           throw `👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
         } else {
           zapFile = usedFile[0]
-          if (options.log) console.log(`    👉 using input file: ${zapFile}`)
+          options.logger(`    👉 using input file: ${zapFile}`)
         }
       } else {
-        if (options.log) console.log(`    👉 using input file: ${zapFile}`)
+        options.logger(`    👉 using input file: ${zapFile}`)
       }
     } else {
-      if (options.log) console.log(`    👎 file not found: ${zapFile}`)
+      options.logger(`    👎 file not found: ${zapFile}`)
       throw `👎 file not found: ${zapFile}`
     }
   } else {
-    if (options.log) console.log(`    👉 using empty configuration`)
+    options.logger(`    👉 using empty configuration`)
   }
-  if (options.log)
-    console.log(`    👉 zap version: ${env.zapVersionAsString()}`)
+  options.logger(`    👉 zap version: ${env.zapVersionAsString()}`)
   let dbFile = env.sqliteFile('generate')
   if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   let mainDb = await dbApi.initDatabaseAndLoadSchema(
@@ -397,7 +395,7 @@ async function startGeneration(
     packageId,
     output,
     {
-      logger: options.log ? console.log : (msg) => {},
+      logger: options.logger,
       backup: false,
       genResultFile: args.genResultFile,
       skipPostGeneration: args.skipPostGeneration,
@@ -470,7 +468,7 @@ function startUpMainInstance(isElectron, argv) {
       throw 'You need to specify at least one zap file.'
     if (argv.output == null) throw 'You need to specify output file.'
     return startConvert(argv.zapFiles, argv.output, {
-      log: true,
+      logger: console.log,
       quit: true,
       noZapFileLog: argv.noZapFileLog,
     }).catch((code) => {
