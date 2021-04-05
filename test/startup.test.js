@@ -40,7 +40,7 @@ test('startup: start generation', () => {
 }, 10000)
 
 test('startup: self-check', () => {
-  return startup.startSelfCheck({ log: false, quit: false })
+  return startup.startSelfCheck({ logger: (msg) => {}, quit: false })
 }, 5000)
 
 test('startup: convert', () => {
@@ -66,6 +66,6 @@ test('startup: analyze', () => {
   return startup.startAnalyze(files, {
     quit: false,
     cleanDb: true,
-    log: false,
+    logger: (msg) => {},
   })
 }, 5000)

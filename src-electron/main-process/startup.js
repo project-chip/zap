@@ -216,12 +216,16 @@ async function startConvert(
  */
 function startAnalyze(
   paths,
-  options = { log: true, quit: true, cleanDb: true }
+  options = {
+    quit: true,
+    cleanDb: true,
+    logger: console.log,
+  }
 ) {
   let dbFile = env.sqliteFile('analysis')
-  if (options.log) console.log(`🤖 Starting analysis: ${paths}`)
+  options.logger(`🤖 Starting analysis: ${paths}`)
   if (options.cleanDb && fs.existsSync(dbFile)) {
-    if (options.log) console.log('    👉 remove old database file')
+    options.logger('    👉 remove old database file')
     fs.unlinkSync(dbFile)
   }
   let db
@@ -229,7 +233,7 @@ function startAnalyze(
     .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
     .then((d) => {
       db = d
-      if (options.log) console.log('    👉 database and schema initialized')
+      options.logger('    👉 database and schema initialized')
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
     })
     .then((d) => {
@@ -240,13 +244,13 @@ function startAnalyze(
             util.sessionReport(db, importResult.sessionId)
           )
           .then((report) => {
-            if (options.log) console.log(`🤖 File: ${singlePath}\n`)
-            if (options.log) console.log(report)
+            options.logger(`🤖 File: ${singlePath}\n`)
+            options.logger(report)
           })
       )
     })
     .then(() => {
-      if (options.log) console.log('😎 Analysis done!')
+      options.logger('😎 Analysis done!')
       if (options.quit && app != null) app.quit()
     })
 }
@@ -254,40 +258,44 @@ function startAnalyze(
 /**
  * Start up applicationa in self-check mode.
  */
-function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
+function startSelfCheck(
+  options = {
+    quit: true,
+    cleanDb: true,
+    logger: console.log,
+  }
+) {
   env.logInitStdout()
-  if (options.log) console.log('🤖 Starting self-check')
+  options.logger('🤖 Starting self-check')
   let dbFile = env.sqliteFile('self-check')
   if (options.cleanDb && fs.existsSync(dbFile)) {
-    if (options.log) console.log('    👉 remove old database file')
+    options.logger('    👉 remove old database file')
     fs.unlinkSync(dbFile)
   }
   return dbApi
     .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
     .then((db) => env.resolveMainDatabase(db))
     .then((db) => {
-      if (options.log) console.log('    👉 database and schema initialized')
+      options.logger('    👉 database and schema initialized')
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
     })
     .then((ctx) => {
-      if (options.log) console.log('    👉 zcl data loaded')
+      options.logger('    👉 zcl data loaded')
       return generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
     })
     .then(async (ctx) => {
-      if (options.log) {
-        if (ctx.error) {
-          console.log(`    ⚠️  ${ctx.error}`)
-        } else {
-          console.log('    👉 generation templates loaded')
-        }
+      if (ctx.error) {
+        options.logger(`    ⚠️  ${ctx.error}`)
+      } else {
+        options.logger('    👉 generation templates loaded')
       }
 
       // This is a hack to prevent too quick shutdown that causes core dumps.
       dbApi.closeDatabaseSync(env.mainDatabase())
       env.resolveMainDatabase(null)
-      if (options.log) console.log('    👉 database closed')
+      options.logger('    👉 database closed')
       await util.waitFor(2000)
-      if (options.log) console.log('😎 Self-check done!')
+      options.logger('😎 Self-check done!')
       if (options.quit && app != null) {
         app.quit()
       }
