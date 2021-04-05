@@ -63,6 +63,7 @@ function processCommandLineArguments(argv) {
     analyze: 'Analyze the zap file without doing anything.',
     convert: 'Convert a zap or ISC file to latest zap file.',
     status: 'Query the status of a zap server.',
+    new: 'If in client mode, start a new window on a main instance.',
   }
   let y = yargs
   for (const cmd in commands) {

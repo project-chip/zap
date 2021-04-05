@@ -18,6 +18,8 @@
 const ipc = require('node-ipc')
 const env = require('../util/env.js')
 const path = require('path')
+const uiUtil = require('../ui/ui-util.js')
+const util = require('../util/util.js')
 
 const serverIpc = new ipc.IPC()
 
@@ -26,6 +28,8 @@ const eventType = {
   pong: 'pong', // Return of the ping data, no response required.
   overAndOut: 'overAndOut', // Sent from server to client as a final answer.
   version: 'version', // Sent from client to server to query version.
+  new: 'new', // Sent from client to server to request new configuration
+  open: 'open', // Sent from client to server with array of files to open
 }
 
 /**
@@ -45,7 +49,7 @@ function log(msg) {
  * @parem {*} isServer 'true' if this is a server, 'false' for client.
  * @param {*} options
  */
-function initServer() {
+function initServer(db = null, httpPort = null) {
   return new Promise((resolve, reject) => {
     serverIpc.config.logger = log
     serverIpc.config.id = 'main'
@@ -57,10 +61,10 @@ function initServer() {
         env.logIpc('IPC error', err)
       })
       serverIpc.server.on('connect', () => {
-        env.logIpc('Connection.')
+        env.logIpc('New connection.')
       })
       serverIpc.server.on('destroy', () => {
-        env.logIpc('Destroyed the IPC server.')
+        env.logIpc('IPC server destroyed.')
       })
 
       // Serve pings
@@ -70,9 +74,28 @@ function initServer() {
 
       // Server version.
       serverIpc.server.on(eventType.version, (data, socket) => {
-        env.logIpc(`Responding to version event: ${data}`)
         serverIpc.server.emit(socket, eventType.overAndOut, env.zapVersion())
       })
+
+      // New file window
+      serverIpc.server.on(eventType.new, (data, socket) => {
+        if (httpPort != null) {
+          uiUtil.openNewConfiguration(httpPort)
+          serverIpc.server.emit(socket, eventType.overAndOut)
+        }
+      })
+
+      // Open files
+      serverIpc.server.on(eventType.open, (zapFileArray, socket) => {
+        return util
+          .executePromisesSequentially(zapFileArray, (f) =>
+            uiUtil.openFileConfiguration(f, httpPort)
+          )
+          .then(() => {
+            serverIpc.server.emit(socket, eventType.overAndOut)
+          })
+      })
+
       resolve()
     })
     serverIpc.server.start()

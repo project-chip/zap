@@ -72,7 +72,7 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
         return httpServer
           .initHttpServer(ctx.db, args.httpPort, args.studioHttpPort)
           .then(() => {
-            ipcServer.initServer()
+            ipcServer.initServer(ctx.db, args.httpPort)
           })
           .then(() => ctx)
       else return ctx
@@ -456,7 +456,13 @@ function startUpSecondaryInstance(argv) {
       app.quit()
     })
   })
-  ipcClient.emit(ipcServer.eventType.version)
+  if (argv._.includes('status')) {
+    ipcClient.emit(ipcServer.eventType.version)
+  } else if (argv._.includes('new')) {
+    ipcClient.emit(ipcServer.eventType.new)
+  } else if (argv.zapFiles != null) {
+    ipcClient.emit(ipcServer.eventType.open, argv.zapFiles)
+  }
 }
 
 /**
