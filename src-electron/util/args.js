@@ -37,6 +37,7 @@ exports.zapFiles = []
 exports.genResultFile = false
 exports.skipPostGeneration = false
 exports.reuseZapInstance = false
+exports.watchdogTimer = 60000 // Default watchdog timer: 1 min
 
 function environmentVariablesDescription() {
   let vars = env.environmentVariable

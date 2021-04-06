@@ -29,6 +29,8 @@ const util = require('../util/util.js')
 const webSocket = require('./ws-server.js')
 const studio = require('../ide-integration/studio-rest-api.js')
 const restApi = require('../../src-shared/rest-api.js')
+const dbEnum = require('../../src-shared/db-enum.js')
+const watchdog = require('../main-process/watchdog.js')
 
 const restApiModules = [
   require('../rest/admin.js'),
@@ -139,6 +141,9 @@ async function initHttpServer(db, port, studioPort) {
     })
 
     webSocket.initializeWebSocket(httpServer)
+    webSocket.onWebSocket(dbEnum.wsCategory.tick, () => {
+      watchdog.reset()
+    })
     studio.initIdeIntegration(db)
   })
 }

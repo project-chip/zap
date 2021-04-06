@@ -34,6 +34,7 @@ const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const uiJs = require('../ui/ui-util.js')
+const watchdog = require('./watchdog.js')
 
 // This file contains various startup modes.
 
@@ -54,6 +55,13 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
     env.zapVersion()
   )
 
+  watchdog.start(args.watchdogTimer, () => {
+    if (app != null) {
+      app.quit()
+    } else {
+      process.exit(0)
+    }
+  })
   mainDatabase = db
 
   return zclLoader

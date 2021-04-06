@@ -20,6 +20,7 @@ const env = require('../util/env.js')
 const path = require('path')
 const uiUtil = require('../ui/ui-util.js')
 const util = require('../util/util.js')
+const watchdog = require('../main-process/watchdog.js')
 
 const serverIpc = new ipc.IPC()
 
@@ -65,6 +66,7 @@ function initServer(db = null, httpPort = null) {
       })
       serverIpc.server.on('connect', () => {
         env.logIpc('New connection.')
+        watchdog.reset()
       })
       serverIpc.server.on('destroy', () => {
         env.logIpc('IPC server destroyed.')
@@ -72,16 +74,19 @@ function initServer(db = null, httpPort = null) {
 
       // Serve pings
       serverIpc.server.on(eventType.ping, (data, socket) => {
+        watchdog.reset()
         serverIpc.server.emit(socket, eventType.pong, data)
       })
 
       // Server version.
       serverIpc.server.on(eventType.version, (data, socket) => {
+        watchdog.reset()
         serverIpc.server.emit(socket, eventType.overAndOut, env.zapVersion())
       })
 
       // New file window
       serverIpc.server.on(eventType.new, (data, socket) => {
+        watchdog.reset()
         if (httpPort != null) {
           uiUtil.openNewConfiguration(httpPort)
           serverIpc.server.emit(socket, eventType.overAndOut)
@@ -90,6 +95,7 @@ function initServer(db = null, httpPort = null) {
 
       // Open files
       serverIpc.server.on(eventType.open, (zapFileArray, socket) => {
+        watchdog.reset()
         return util
           .executePromisesSequentially(zapFileArray, (f) =>
             uiUtil.openFileConfiguration(f, httpPort)
@@ -101,6 +107,7 @@ function initServer(db = null, httpPort = null) {
 
       // Convert the ISC or zap files
       serverIpc.server.on(eventType.convert, (data, socket) => {
+        watchdog.reset()
         let zapFiles = data.files
         let output = data.output
 
@@ -111,9 +118,10 @@ function initServer(db = null, httpPort = null) {
         serverIpc.server.emit(socket, eventType.overAndOut, 'Done.')
       })
 
-      // Trigger generation
-      serverIpc.server.on(eventType.generate, (zapFileArray, socket) => {})
       // Generate
+      serverIpc.server.on(eventType.generate, (data, socket) => {
+        watchdog.reset()
+      })
 
       resolve()
     })
