@@ -103,7 +103,9 @@ async function recordTemplatesPackage(context) {
     })
     .then(() => {
       let promises = []
-      env.logInfo(`Loading ${context.templateData.templates.length} templates.`)
+      env.logDebug(
+        `Loading ${context.templateData.templates.length} templates.`
+      )
 
       // Add templates queries to the list of promises
       context.templateData.templates.forEach((template) => {
@@ -367,7 +369,7 @@ async function loadTemplates(db, genTemplatesJson) {
     .dbBeginTransaction(db)
     .then(() => fsPromise.access(context.path, fs.constants.R_OK))
     .then(() => {
-      env.logInfo(`Loading generation templates from: ${context.path}`)
+      env.logDebug(`Loading generation templates from: ${context.path}`)
       return loadGenTemplate(context)
     })
     .then((ctx) => recordTemplatesPackage(ctx))
@@ -619,7 +621,7 @@ async function generateAndWriteFiles(
         let content = genResult.content[f]
         let fileName = path.join(outputDirectory, f)
         options.logger(`    ✍  ${fileName}`)
-        env.logInfo(`Preparing to write file: ${fileName}`)
+        env.logDebug(`Preparing to write file: ${fileName}`)
         promises.push(writeFileWithBackup(fileName, content, options.backup))
       }
       if (genResult.hasErrors) {

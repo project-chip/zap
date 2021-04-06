@@ -118,7 +118,7 @@ async function initHttpServer(db, port, studioPort) {
     registerAllRestModules(db, app)
 
     // Static content
-    env.logInfo(`HTTP static content location: ${env.httpStaticContent}`)
+    env.logDebug(`HTTP static content location: ${env.httpStaticContent}`)
     app.use(express.static(env.httpStaticContent))
 
     httpServer = app.listen(port, () => {
@@ -127,7 +127,7 @@ async function initHttpServer(db, port, studioPort) {
     })
 
     process.on('uncaughtException', function (err) {
-      env.logInfo(`HTTP server port ` + port + ` is busy.`)
+      env.logWarning(`HTTP server port ` + port + ` is busy.`)
       if (err.errno === 'EADDRINUSE') {
         httpServer = app.listen(0, () => {
           env.logHttpServerUrl(httpServerPort(), studioPort)
@@ -200,12 +200,7 @@ function userSessionHandler(db) {
 function shutdownHttpServer() {
   return new Promise((resolve, reject) => {
     if (httpServer != null) {
-      httpServer.close(() => {
-        env.logInfo('HTTP server shut down.')
-        httpServer = null
-        resolve(null)
-      })
-      studio.deinit()
+      shutdownHttpServerSync(() => resolve(null))
     } else {
       resolve(null)
     }
@@ -218,12 +213,13 @@ function shutdownHttpServer() {
  * @export
  * @returns Promise that resolves when server is shut down.
  */
-function shutdownHttpServerSync() {
+function shutdownHttpServerSync(fn = () => {}) {
   if (httpServer != null) {
     studio.deinit()
     httpServer.close(() => {
-      env.logInfo('HTTP server shut down.')
+      env.logDebug('HTTP server shut down.')
       httpServer = null
+      fn()
     })
   }
 }

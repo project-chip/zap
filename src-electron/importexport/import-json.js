@@ -206,7 +206,7 @@ async function importEndpointTypes(
   }
 
   if (endpointTypes != null) {
-    env.logInfo(`Loading ${endpointTypes.length} endpoint types`)
+    env.logDebug(`Loading ${endpointTypes.length} endpoint types`)
     endpointTypes.forEach((et, index) => {
       allQueries.push(
         queryImpexp

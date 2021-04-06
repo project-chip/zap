@@ -44,7 +44,6 @@ beforeAll(() => {
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
       db = d
-      env.logInfo('DB initialized.')
     })
 }, 5000)
 

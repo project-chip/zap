@@ -338,11 +338,7 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
       )
       .then((x) => {
         //env.logWarning(`FOUND ${x.length} UNIQUE ENTRIES`)
-        x.forEach((c) => {
-          env.logInfo(
-            `Found Unique Cluster: ${c.CODE} ${c.NAME} ${c.PACKAGE_REF}`
-          )
-        })
+        expect(x.length).toBeGreaterThan(0)
       })
 
       .then(() =>
@@ -353,11 +349,7 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
         )
       )
       .then((x) => {
-        x.forEach((c) => {
-          env.logInfo(
-            `Found Unique Atomic: ${c.ATOMIC_IDENTIFIER} ${c.NAME} ${c.PACKAGE_REF}`
-          )
-        })
+        expect(x.length).toBeGreaterThan(0)
       })
 
       .then(() =>
@@ -368,11 +360,7 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
         )
       )
       .then((x) => {
-        x.forEach((c) => {
-          env.logInfo(
-            `Found Unique Bitmap: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
-          )
-        })
+        expect(x.length).toBeGreaterThan(0)
       })
 
       .finally(() => {

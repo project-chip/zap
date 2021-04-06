@@ -37,7 +37,6 @@ let db
 const testFile = path.join(__dirname, 'resource/tokens-test.zap')
 // let sessionId
 let templateContext
-let zclContext
 
 beforeAll(() => {
   let file = env.sqliteTestFile('tokens')
@@ -45,7 +44,6 @@ beforeAll(() => {
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
       db = d
-      env.logInfo('DB initialized.')
     })
     .then(() => zclLoader.loadZcl(db, args.zclPropertiesFile))
 }, 5000)

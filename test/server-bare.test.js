@@ -52,7 +52,6 @@ beforeAll(() => {
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
       db = d
-      env.logInfo(`Test database initialized: ${file}.`)
     })
     .catch((err) => env.logError(`Error: ${err}`))
 }, 5000)
@@ -108,7 +107,6 @@ describe('Session specific tests', () => {
   test('save session', () =>
     querySession.getAllSessions(db).then((results) => {
       sessionId = results[0].sessionId
-      env.logInfo(`SESSION ID: ${sessionId}`)
     }))
 
   test('add a package', () =>

@@ -477,6 +477,7 @@ function prepareStruct(type) {
  */
 function prepareTypes(zclTypes, types) {
   if (zclTypes == undefined) return
+  let droppedTypes = []
   zclTypes.map((type) => {
     if (tagContainsBitmap(type)) {
       types.bitmaps.push(prepareBitmap(types, type))
@@ -489,9 +490,12 @@ function prepareTypes(zclTypes, types) {
     } else {
       // TODO: Need to handle sub-atomic types, these are types that impose restrictions
       //       and inherit from an atomic type but are not a struct, bitmap or enum
-      env.logInfo(`*** WARNING *** DROPPING TYPE: ${type.$.name}`)
+      droppedTypes.push(type.$.name)
     }
   })
+  if (droppedTypes.length > 0) {
+    env.logInfo(`Dropped types in DotDot loader: ${droppedTypes}`)
+  }
 }
 
 /**

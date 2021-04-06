@@ -60,17 +60,7 @@ export default {
     },
   },
 
-  mounted() {
-    console.log(
-      `1 ${JSON.stringify(this.$store.state.zap.studio.projectInfoJson)}`
-    )
-    console.log(
-      `2 ${JSON.stringify(this.$store.state.zap.studio.selectedComponents)}`
-    )
-    console.log(
-      `3 ${JSON.stringify(this.$store.state.zap.studio.selectedUcComponentIds)}`
-    )
-  },
+  mounted() {},
 
   methods: {
     handleClick: function (target) {

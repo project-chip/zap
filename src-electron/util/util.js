@@ -61,7 +61,7 @@ async function initializeSessionPackage(db, sessionId) {
       let packageId
       if (rows.length == 1) {
         packageId = rows[0].id
-        env.logInfo(
+        env.logDebug(
           `Single zcl.properties found, using it for the session: ${packageId}`
         )
       } else if (rows.length == 0) {
@@ -90,7 +90,7 @@ async function initializeSessionPackage(db, sessionId) {
       let packageId
       if (rows.length == 1) {
         packageId = rows[0].id
-        env.logInfo(
+        env.logDebug(
           `Single generation template metafile found, using it for the session: ${packageId}`
         )
       } else if (rows.length == 0) {
@@ -161,10 +161,10 @@ function createBackupFile(filePath) {
   let pathBak = filePath + '~'
   if (fs.existsSync(filePath)) {
     if (fs.existsSync(pathBak)) {
-      env.logWarning(`Deleting old backup file: ${pathBak}`)
+      env.logDebug(`Deleting old backup file: ${pathBak}`)
       fs.unlinkSync(pathBak)
     }
-    env.logWarning(`Creating backup file: ${filePath} to ${pathBak}`)
+    env.logDebug(`Creating backup file: ${filePath} to ${pathBak}`)
     fs.renameSync(filePath, pathBak)
   }
 }
