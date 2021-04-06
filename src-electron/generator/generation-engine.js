@@ -391,7 +391,10 @@ async function loadTemplates(db, genTemplatesJson) {
 async function generateAllTemplates(
   genResult,
   genTemplateJsonPkg,
-  generateOnly = null
+  options = {
+    generateOnly: null,
+    disableDeprecationWarnings: false,
+  }
 ) {
   return queryPackage
     .getPackageByParent(genResult.db, genTemplateJsonPkg.id)
@@ -431,7 +434,10 @@ async function generateAllTemplates(
       // Next prepare the templates
       packages.forEach((singlePkg) => {
         if (singlePkg.type == dbEnum.packageType.genSingleTemplate) {
-          if (generateOnly == null || generateOnly == singlePkg.version) {
+          if (
+            options.generateOnly == null ||
+            options.generateOnly == singlePkg.version
+          ) {
             generationTemplates.push(singlePkg)
           }
         }
@@ -443,7 +449,7 @@ async function generateAllTemplates(
           let templates = generationTemplates.map((pkg) =>
             generateSingleTemplate(genResult, pkg, genTemplateJsonPkg.id, {
               overridePath: overridePath,
-              disableDeprecationWarnings: false,
+              disableDeprecationWarnings: options.disableDeprecationWarnings,
             })
           )
           return Promise.all(templates)
@@ -517,7 +523,10 @@ async function generate(
       templatePath: path.dirname(pkg.path),
     }
     if (pkg.type === dbEnum.packageType.genTemplatesJson) {
-      return generateAllTemplates(genResult, pkg, generateOnly)
+      return generateAllTemplates(genResult, pkg, {
+        generateOnly: generateOnly,
+        disableDeprecationWarnings: false,
+      })
     } else {
       throw `Invalid package type: ${pkg.type}`
     }
