@@ -15,7 +15,9 @@
  *    limitations under the License.
  */
 
-let watchDogId
+const { watch } = require('original-fs')
+
+let watchDogId = null
 
 /**
  * Starts a zap watchdog.
@@ -32,7 +34,7 @@ function start(expirationInterval, triggerFunction) {
  * Resets a zap watchdog.
  */
 function reset() {
-  watchDogId.refresh()
+  if (watchDogId != null) watchDogId.refresh()
 }
 
 exports.start = start
