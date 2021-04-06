@@ -66,18 +66,22 @@ function produceContent(
   sessionId,
   singleTemplatePkg,
   genTemplateJsonPackageId,
-  overridePath = null
+  options = {
+    overridePath: null,
+    disableDeprecationWarnings: false,
+  }
 ) {
   return produceCompiledTemplate(singleTemplatePkg).then((template) =>
     template({
       global: {
+        disableDeprecationWarnings: options.disableDeprecationWarnings,
         deprecationWarnings: {},
         db: db,
         sessionId: sessionId,
         templatePath: singleTemplatePkg.path,
         promises: [],
         genTemplatePackageId: genTemplateJsonPackageId,
-        overridable: loadOverridable(overridePath),
+        overridable: loadOverridable(options.overridePath),
       },
     })
   )

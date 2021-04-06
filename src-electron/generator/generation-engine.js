@@ -441,12 +441,10 @@ async function generateAllTemplates(
       return Promise.all(helperPromises).then(() =>
         Promise.all(partialPromises).then(() => {
           let templates = generationTemplates.map((pkg) =>
-            generateSingleTemplate(
-              genResult,
-              pkg,
-              genTemplateJsonPkg.id,
-              overridePath
-            )
+            generateSingleTemplate(genResult, pkg, genTemplateJsonPkg.id, {
+              overridePath: overridePath,
+              disableDeprecationWarnings: false,
+            })
           )
           return Promise.all(templates)
         })
@@ -469,7 +467,10 @@ async function generateSingleTemplate(
   genResult,
   singleTemplatePkg,
   genTemplateJsonPackageId,
-  overridePath
+  options = {
+    overridePath: null,
+    disableDeprecationWarnings: false,
+  }
 ) {
   return templateEngine
     .produceContent(
@@ -477,7 +478,7 @@ async function generateSingleTemplate(
       genResult.sessionId,
       singleTemplatePkg,
       genTemplateJsonPackageId,
-      overridePath
+      options
     )
     .then((data) => {
       genResult.content[singleTemplatePkg.version] = data
