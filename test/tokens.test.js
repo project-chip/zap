@@ -90,7 +90,13 @@ test(
   'Test tokens header generation',
   () =>
     genEngine
-      .generate(db, templateContext.sessionId, templateContext.packageId)
+      .generate(
+        db,
+        templateContext.sessionId,
+        templateContext.packageId,
+        {},
+        { disableDeprecationWarnings: true }
+      )
       .then((genResult) => {
         expect(genResult).not.toBeNull()
         expect(genResult.partial).toBeFalsy()

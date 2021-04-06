@@ -508,8 +508,11 @@ async function generate(
   db,
   sessionId,
   packageId,
-  generateOnly = null,
-  templateGeneratorOptions = {}
+  templateGeneratorOptions = {},
+  options = {
+    generateOnly: null,
+    disableDeprecationWarnings: false,
+  }
 ) {
   return queryPackage.getPackageByPackageId(db, packageId).then((pkg) => {
     if (pkg == null) throw `Invalid packageId: ${packageId}`
@@ -523,10 +526,7 @@ async function generate(
       templatePath: path.dirname(pkg.path),
     }
     if (pkg.type === dbEnum.packageType.genTemplatesJson) {
-      return generateAllTemplates(genResult, pkg, {
-        generateOnly: generateOnly,
-        disableDeprecationWarnings: false,
-      })
+      return generateAllTemplates(genResult, pkg, options)
     } else {
       throw `Invalid package type: ${pkg.type}`
     }
@@ -606,7 +606,7 @@ async function generateAndWriteFiles(
       return templateGeneratorOptions
     })
     .then((templateGeneratorOptions) =>
-      generate(db, sessionId, packageId, null, templateGeneratorOptions)
+      generate(db, sessionId, packageId, templateGeneratorOptions)
     )
     .then((genResult) => {
       if (!fs.existsSync(outputDirectory)) {
@@ -776,7 +776,18 @@ async function generateSingleFileForPreview(db, sessionId, outFileName) {
     .then((pkgs) => {
       let promises = []
       pkgs.forEach((pkg) => {
-        promises.push(generate(db, sessionId, pkg.id, outFileName))
+        promises.push(
+          generate(
+            db,
+            sessionId,
+            pkg.id,
+            {},
+            {
+              generateOnly: outFileName,
+              disableDeprecationWarnings: true,
+            }
+          )
+        )
       })
       return Promise.all(promises)
     })

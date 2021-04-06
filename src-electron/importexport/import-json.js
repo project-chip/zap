@@ -33,7 +33,7 @@ const querySession = require('../db/query-session.js')
 async function importSessionKeyValues(db, sessionId, keyValuePairs) {
   let allQueries = []
   if (keyValuePairs != null) {
-    env.logInfo(`Loading ${keyValuePairs.length} key value pairs.`)
+    env.logDebug(`Loading ${keyValuePairs.length} key value pairs.`)
     // Write key value pairs
     keyValuePairs.forEach((element) => {
       allQueries.push(
@@ -73,7 +73,7 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
   }
 
   // Now we have to perform the guessing logic.
-  env.logInfo(
+  env.logDebug(
     'Packages from the file did not match loaded packages making best bet.'
   )
   let packages = await queryPackage.getPackagesByType(db, pkg.type)
@@ -82,13 +82,15 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
   if (packages.length == 0) {
     if (pkg.type == dbEnum.packageType.genTemplatesJson) {
       // We don't throw exception for genTemplatesJson, we can survive without.
-      env.logInfo(`No packages of type ${pkg.type} found in the database.`)
+      env.logDebug(`No packages of type ${pkg.type} found in the database.`)
       return null
     } else {
       throw new Error(`No packages of type ${pkg.type} found in the database.`)
     }
   } else if (packages.length == 1) {
-    env.logInfo(`Only one package of given type ${pkg.type} present. Using it.`)
+    env.logDebug(
+      `Only one package of given type ${pkg.type} present. Using it.`
+    )
     return {
       packageId: packages[0].id,
       packageType: pkg.type,
@@ -102,13 +104,13 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
     let msg = `No packages of type ${pkg.type} that match version ${pkg.version} found in the database.`
     if (pkg.type == dbEnum.packageType.genTemplatesJson) {
       // We don't throw exception for genTemplatesJson, we can survive without.
-      env.logInfo(msg)
+      env.logDebug(msg)
       return null
     } else {
       throw new Error(msg)
     }
   } else if (packages.length == 1) {
-    env.logInfo(
+    env.logDebug(
       `Only one package of given type ${pkg.type} and version ${pkg.version} present. Using it.`
     )
     return {
@@ -176,7 +178,7 @@ function convertPackageResult(sessionId, data) {
 async function importPackages(db, sessionId, packages, zapFilePath) {
   let allQueries = []
   if (packages != null) {
-    env.logInfo(`Loading ${packages.length} packages`)
+    env.logDebug(`Loading ${packages.length} packages`)
     packages.forEach((p) => {
       allQueries.push(importSinglePackage(db, sessionId, p, zapFilePath))
     })

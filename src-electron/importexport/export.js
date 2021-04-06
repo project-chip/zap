@@ -180,7 +180,7 @@ async function createStateFromDatabase(db, sessionId) {
     let getKeyValues = querySession
       .getAllSessionKeyValues(db, sessionId)
       .then((data) => {
-        env.logInfo(`Retrieved session keys: ${data.length}`)
+        env.logDebug(`Retrieved session keys: ${data.length}`)
         let zapFilePath = null
         let storedKeyValuePairs = data.filter(
           (datum) => !excludedKeys.includes(datum.key)
@@ -204,11 +204,11 @@ async function createStateFromDatabase(db, sessionId) {
 
     let getAllEndpointTypes = exportEndpointTypes(db, sessionId)
     let parseEndpointTypes = getAllEndpointTypes.then((data) => {
-      env.logInfo(`Retrieved endpoint types: ${data.endpointTypes.length}`)
+      env.logDebug(`Retrieved endpoint types: ${data.endpointTypes.length}`)
       return { key: 'endpointTypes', data: data.endpointTypes }
     })
     let parseEndpoints = getAllEndpointTypes.then((data) => {
-      env.logInfo(`Retrieve endpoints: ${data.endpoints.length}`)
+      env.logDebug(`Retrieved endpoints: ${data.endpoints.length}`)
       return { key: 'endpoints', data: data.endpoints }
     })
 

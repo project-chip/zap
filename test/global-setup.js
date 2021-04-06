@@ -17,5 +17,5 @@
 const env = require('../src-electron/util/env.js')
 
 module.exports = async () => {
-  env.logInfo('Global setup.')
+  env.logDebug('Global setup.')
 }

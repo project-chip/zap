@@ -90,7 +90,15 @@ test(
   'Test dotdot generation',
   () =>
     genEngine
-      .generate(db, sessionId, templateContext.packageId)
+      .generate(
+        db,
+        sessionId,
+        templateContext.packageId,
+        {},
+        {
+          disableDeprecationWarnings: true,
+        }
+      )
       .then((genResult) => {
         expect(genResult).not.toBeNull()
         expect(genResult.partial).toBeFalsy()

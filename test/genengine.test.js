@@ -108,7 +108,9 @@ test(
       .generate(
         templateContext.db,
         templateContext.sessionId,
-        templateContext.packageId
+        templateContext.packageId,
+        {},
+        { disableDeprecationWarnings: true }
       )
       .then((genResult) => {
         expect(genResult).not.toBeNull()
@@ -128,7 +130,9 @@ test(
       .generate(
         templateContext.db,
         templateContext.sessionId,
-        templateContext.packageId
+        templateContext.packageId,
+        {},
+        { disableDeprecationWarnings: true }
       )
       .then((genResult) => {
         expect(genResult).not.toBeNull()
@@ -243,7 +247,9 @@ test(
       .generate(
         templateContext.db,
         templateContext.sessionId,
-        templateContext.packageId
+        templateContext.packageId,
+        {},
+        { disableDeprecationWarnings: true }
       )
       .then((genResult) => {
         expect(genResult).not.toBeNull()
