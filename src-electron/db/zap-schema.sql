@@ -312,6 +312,9 @@ CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
   "NAME" text,
   "TYPE" text,
   "ARRAY_TYPE" text,
+  "MIN_LENGTH" integer,
+  "MAX_LENGTH" integer,
+  "IS_WRITABLE" integer,
   foreign key (STRUCT_REF) references STRUCT(STRUCT_ID)
 );
 /*

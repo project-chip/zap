@@ -210,7 +210,7 @@ async function selectAllStructItemsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, TYPE, STRUCT_REF, ARRAY_TYPE FROM STRUCT_ITEM WHERE STRUCT_REF = ? ORDER BY ORDINAL',
+      'SELECT NAME, TYPE, STRUCT_REF, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE FROM STRUCT_ITEM WHERE STRUCT_REF = ? ORDER BY ORDINAL',
       [id]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))

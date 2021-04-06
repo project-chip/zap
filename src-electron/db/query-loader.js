@@ -497,13 +497,16 @@ async function insertStructs(db, packageId, data) {
               item.type,
               item.ordinal,
               item.entryType,
+              item.minLength,
+              item.maxLength,
+              item.isWritable,
             ])
           )
         }
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, ORDINAL, ARRAY_TYPE) VALUES (?,?,?,?,?)',
+        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, ORDINAL, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE) VALUES (?,?,?,?,?,?,?,?)',
         itemsToLoad
       )
     })
