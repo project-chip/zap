@@ -294,6 +294,7 @@ function generateInDir(db, browserWindow) {
     .then((context) => {
       if (!('path' in context)) return context
 
+      browserApi.progressStart(browserWindow, 'Generating...')
       return browserApi
         .getSessionUuidFromBrowserWindow(browserWindow)
         .then((sessionKey) =>
@@ -309,9 +310,6 @@ function generateInDir(db, browserWindow) {
       context.packageIds = []
       if (!('sessionId' in context)) return context
 
-      env.logInfo(
-        `Collecting session packages for session ${context.sessionId}`
-      )
       return queryPackage
         .getSessionPackagesByType(
           db,
@@ -351,6 +349,7 @@ function generateInDir(db, browserWindow) {
       })
     })
     .catch((err) => uiJs.showErrorMessage('Save file', err))
+    .finally(() => browserApi.progressEnd(browserWindow))
 }
 
 /**
