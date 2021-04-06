@@ -15,8 +15,6 @@
  *    limitations under the License.
  */
 
-const { watch } = require('original-fs')
-
 let watchDogId = null
 
 /**
