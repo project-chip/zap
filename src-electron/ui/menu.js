@@ -295,7 +295,7 @@ function generateInDir(db, browserWindow) {
       if (!('path' in context)) return context
 
       return browserApi
-        .getUserKeyFromBrowserWindow(browserWindow)
+        .getSessionUuidFromBrowserWindow(browserWindow)
         .then((sessionKey) =>
           querySession.getSessionInfoFromSessionKey(db, sessionKey)
         )
