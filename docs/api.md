@@ -117,6 +117,19 @@
    See the License for the specific language governing permissions and
    limitations under the License.</p>
 </dd>
+<dt><a href="#ipc">ipc</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
 <dt><a href="#queryZcl">queryZcl</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -240,7 +253,7 @@
  modify this file, but it can be used to extend your development
  environment.</p>
 </dd>
-<dt><a href="#path">path</a></dt>
+<dt><a href="#dbApi">dbApi</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -253,7 +266,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.</p>
 </dd>
-<dt><a href="#dbApi">dbApi</a></dt>
+<dt><a href="#ipc">ipc</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -366,6 +379,24 @@ things were successful or not.</p>
 ## Functions
 
 <dl>
+<dt><a href="#initAndConnectClient">initAndConnectClient()</a> ⇒</dt>
+<dd><p>Initializes and connects a client.</p>
+</dd>
+<dt><a href="#on">on(eventType, handler)</a></dt>
+<dd><p>Register a handler for the event type.</p>
+</dd>
+<dt><a href="#lastPongData">lastPongData()</a> ⇒</dt>
+<dd><p>Get the last pong data.</p>
+</dd>
+<dt><a href="#isClientConnected">isClientConnected()</a> ⇒</dt>
+<dd><p>Returns true if client is connected.</p>
+</dd>
+<dt><a href="#disconnectClient">disconnectClient()</a></dt>
+<dd><p>Disconnects a client asynchronously.</p>
+</dd>
+<dt><a href="#emit">emit(key, object)</a></dt>
+<dd><p>Sends a message to server.</p>
+</dd>
 <dt><a href="#endpoint_type_count">endpoint_type_count(options)</a> ⇒</dt>
 <dd><p>Returns number of endpoint types.</p>
 </dd>
@@ -448,7 +479,7 @@ longDefaults: longDefaults</p>
 <dt><a href="#updateComponentByComponentIds">updateComponentByComponentIds(project, componentIds, add)</a> ⇒ <code>*</code></dt>
 <dd><p>Send HTTP Post to update UC component state in Studio</p>
 </dd>
-<dt><a href="#init">init()</a></dt>
+<dt><a href="#initIdeIntegration">initIdeIntegration()</a></dt>
 <dd><p>Start the dirty flag reporting interval.</p>
 </dd>
 <dt><a href="#deinit">deinit()</a></dt>
@@ -502,12 +533,6 @@ queries that are needed to load the attribute state</p>
 <dd><p>Function that actually loads the data out of a state object.
 Session at this point is blank, and has no packages.</p>
 </dd>
-<dt><a href="#readDataFromFile">readDataFromFile(filePath)</a> ⇒</dt>
-<dd><p>Reads the data from the file and resolves with the state object if all is good.</p>
-</dd>
-<dt><a href="#importDataFromFile">importDataFromFile(db, filePath)</a> ⇒</dt>
-<dd><p>Writes the data from the file into a new session.</p>
-</dd>
 <dt><a href="#importSessionKeyValues">importSessionKeyValues(db, sessionId, keyValuePairs)</a></dt>
 <dd><p>Resolves with a promise that imports session key values.</p>
 </dd>
@@ -518,34 +543,17 @@ with the succesfull writing into the database.</p>
 <dt><a href="#readJsonData">readJsonData(filePath, data)</a> ⇒</dt>
 <dd><p>Parses JSON file and creates a state object out of it, which is passed further down the chain.</p>
 </dd>
+<dt><a href="#readDataFromFile">readDataFromFile(filePath)</a> ⇒</dt>
+<dd><p>Reads the data from the file and resolves with the state object if all is good.</p>
+</dd>
+<dt><a href="#importDataFromFile">importDataFromFile(db, filePath)</a> ⇒</dt>
+<dd><p>Writes the data from the file into a new session.</p>
+</dd>
 <dt><a href="#createOrShowAboutWindow">createOrShowAboutWindow(port)</a></dt>
 <dd><p>Call this function to create a new or show an existing preference window.</p>
 </dd>
-<dt><a href="#hookAppEvents">hookAppEvents()</a></dt>
+<dt><a href="#hookMainInstanceEvents">hookMainInstanceEvents()</a></dt>
 <dd><p>Hook up all the events for the electron app object.</p>
-</dd>
-<dt><a href="#doOpen">doOpen(menuItem, browserWindow, event)</a></dt>
-<dd><p>Perform a file-&gt;open operation.</p>
-</dd>
-<dt><a href="#doSave">doSave(menuItem, browserWindow, event)</a></dt>
-<dd><p>Perform a save, defering to save as if file is not yet selected.</p>
-</dd>
-<dt><a href="#doSaveAs">doSaveAs(menuItem, browserWindow, event)</a></dt>
-<dd><p>Perform save as.</p>
-</dd>
-<dt><a href="#generateInDir">generateInDir(browserWindow)</a></dt>
-<dd><p>This function gets the directory where user wants the output and
-calls generateCode function which generates the code in the user selected
-output.</p>
-</dd>
-<dt><a href="#fileSave">fileSave(db, browserWindow, filePath)</a> ⇒</dt>
-<dd><p>perform the save.</p>
-</dd>
-<dt><a href="#fileOpen">fileOpen(db, filePaths)</a></dt>
-<dd><p>Perform the do open action, possibly reading in multiple files.</p>
-</dd>
-<dt><a href="#initMenu">initMenu(port)</a></dt>
-<dd><p>Initialize a menu.</p>
 </dd>
 <dt><a href="#createOrShowPreferencesWindow">createOrShowPreferencesWindow(port)</a></dt>
 <dd><p>Call this function to create a new or show an existing preference window.</p>
@@ -571,11 +579,49 @@ output.</p>
 <dt><a href="#clearDatabaseFile">clearDatabaseFile(path)</a></dt>
 <dd><p>Move database file out of the way into the backup location.</p>
 </dd>
-<dt><a href="#startUp">startUp(isElectron)</a></dt>
+<dt><a href="#shutdown">shutdown()</a></dt>
+<dd><p>Shuts down any servers that might be running.</p>
+</dd>
+<dt><a href="#startUpSecondaryInstance">startUpSecondaryInstance(argv)</a></dt>
+<dd><p>Startup method for the secondary instance.</p>
+</dd>
+<dt><a href="#startUpMainInstance">startUpMainInstance(isElectron)</a></dt>
 <dd><p>Default startup method.</p>
 </dd>
-<dt><a href="#windowCreate">windowCreate(port, [filePath], [uiMode], [embeddedMode])</a> ⇒</dt>
-<dd><p>Create a window, possibly with a given file path.</p>
+<dt><a href="#socketPath">socketPath()</a></dt>
+<dd><p>Returns the socket path for the IPC.</p>
+</dd>
+<dt><a href="#initServer">initServer(options)</a></dt>
+<dd><p>IPC initialization.</p>
+</dd>
+<dt><a href="#isServerRunning">isServerRunning()</a> ⇒</dt>
+<dd><p>Returns true if server is running.</p>
+</dd>
+<dt><a href="#shutdownServerSync">shutdownServerSync(isServer)</a></dt>
+<dd><p>Shuts down the IPC server.</p>
+</dd>
+<dt><a href="#doOpen">doOpen(menuItem, browserWindow, event)</a></dt>
+<dd><p>Perform a file-&gt;open operation.</p>
+</dd>
+<dt><a href="#doSave">doSave(menuItem, browserWindow, event)</a></dt>
+<dd><p>Perform a save, defering to save as if file is not yet selected.</p>
+</dd>
+<dt><a href="#doSaveAs">doSaveAs(menuItem, browserWindow, event)</a></dt>
+<dd><p>Perform save as.</p>
+</dd>
+<dt><a href="#generateInDir">generateInDir(browserWindow)</a></dt>
+<dd><p>This function gets the directory where user wants the output and
+calls generateCode function which generates the code in the user selected
+output.</p>
+</dd>
+<dt><a href="#fileSave">fileSave(db, browserWindow, filePath)</a> ⇒</dt>
+<dd><p>perform the save.</p>
+</dd>
+<dt><a href="#fileOpen">fileOpen(db, filePaths)</a></dt>
+<dd><p>Perform the do open action, possibly reading in multiple files.</p>
+</dd>
+<dt><a href="#initMenu">initMenu(port)</a></dt>
+<dd><p>Initialize a menu.</p>
 </dd>
 <dt><a href="#showErrorMessage">showErrorMessage(title, err)</a></dt>
 <dd><p>Simple dialog to show error messages from electron renderer scope.</p>
@@ -594,6 +640,9 @@ a new window if all is good.</p>
 <dd><p>This function should be invoked as a result of the fileBrowse
 notification via the renderer API. It pops the open dialog and
 reports result back through the API.</p>
+</dd>
+<dt><a href="#windowCreate">windowCreate(port, [filePath], [uiMode], [embeddedMode])</a> ⇒</dt>
+<dd><p>Create a window, possibly with a given file path.</p>
 </dd>
 <dt><a href="#processCommandLineArguments">processCommandLineArguments(argv)</a> ⇒</dt>
 <dd><p>Process the command line arguments and resets the state in this file
@@ -650,6 +699,30 @@ This method honors &#39;~/&#39; being the first characters in its argument.</p>
 </dd>
 <dt><a href="#zapVersion">zapVersion()</a> ⇒</dt>
 <dd><p>Returns the zap version.</p>
+</dd>
+<dt><a href="#log">log(level, msg, err)</a></dt>
+<dd><p>Base level common logger.</p>
+</dd>
+<dt><a href="#logInfo">logInfo(msg, err)</a></dt>
+<dd><p>Info level message.</p>
+</dd>
+<dt><a href="#logError">logError(msg, err)</a></dt>
+<dd><p>Error level message.</p>
+</dd>
+<dt><a href="#logWarning">logWarning(msg, err)</a></dt>
+<dd><p>Warning level message.</p>
+</dd>
+<dt><a href="#logSql">logSql(msg, err)</a></dt>
+<dd><p>Sql level message.</p>
+</dd>
+<dt><a href="#logBrowser">logBrowser(msg, err)</a></dt>
+<dd><p>Browser level message.</p>
+</dd>
+<dt><a href="#logIpc">logIpc(msg, err)</a></dt>
+<dd><p>IPC level message.</p>
+</dd>
+<dt><a href="#logDebug">logDebug(msg, err)</a></dt>
+<dd><p>Debug level message.</p>
 </dd>
 <dt><a href="#versionsCheck">versionsCheck()</a> ⇒</dt>
 <dd><p>Returns true if versions of node and electron are matching.
@@ -714,35 +787,6 @@ that will be resolved when all the XML files are done, or rejected if at least o
 <dt><a href="#loadDotdotZcl">loadDotdotZcl(db, ctx)</a> ⇒</dt>
 <dd><p>Toplevel function that loads the xml library file
 and orchestrates the promise chain.</p>
-</dd>
-<dt><a href="#readMetadataFile">readMetadataFile(ctx)</a> ⇒</dt>
-<dd><p>Reads the properties file into ctx.data and also calculates crc into ctx.crc</p>
-</dd>
-<dt><a href="#recordToplevelPackage">recordToplevelPackage(ctx)</a></dt>
-<dd><p>Records the toplevel package information and puts ctx.packageId into the context.</p>
-</dd>
-<dt><a href="#recordVersion">recordVersion(db, ctx)</a></dt>
-<dd><p>Records the version into the database.</p>
-</dd>
-<dt><a href="#loadZcl">loadZcl(db, metadataFile)</a> ⇒</dt>
-<dd><p>Toplevel function that loads the zcl file and passes it off to the correct zcl loader.</p>
-</dd>
-<dt><a href="#bindValidationScript">bindValidationScript(db, basePackageId)</a></dt>
-<dd><p>This function creates a validator function with signatuee fn(stringToValidateOn)</p>
-</dd>
-<dt><a href="#getSchemaAndValidationScript">getSchemaAndValidationScript(db, basePackageId)</a></dt>
-<dd><p>Returns an object with zclSchema and zclValidation elements.</p>
-</dd>
-<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
-<dd><p>Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}</p>
-</dd>
-<dt><a href="#processZclPostLoading">processZclPostLoading(db)</a> ⇒</dt>
-<dd><p>Promises to perform a post loading step.</p>
-</dd>
-<dt><a href="#parseZclFile">parseZclFile(argument, validator)</a> ⇒</dt>
-<dd><p>Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }</p>
 </dd>
 <dt><a href="#collectDataFromJsonFile">collectDataFromJsonFile(ctx)</a> ⇒</dt>
 <dd><p>Promises to read the JSON file and resolve all the data.</p>
@@ -846,6 +890,35 @@ that will be resolved when all the XML files are done, or rejected if at least o
 <dt><a href="#loadSilabsZcl">loadSilabsZcl(db, ctx)</a> ⇒</dt>
 <dd><p>Toplevel function that loads the toplevel metafile
 and orchestrates the promise chain.</p>
+</dd>
+<dt><a href="#readMetadataFile">readMetadataFile(ctx)</a> ⇒</dt>
+<dd><p>Reads the properties file into ctx.data and also calculates crc into ctx.crc</p>
+</dd>
+<dt><a href="#recordToplevelPackage">recordToplevelPackage(ctx)</a></dt>
+<dd><p>Records the toplevel package information and puts ctx.packageId into the context.</p>
+</dd>
+<dt><a href="#recordVersion">recordVersion(db, ctx)</a></dt>
+<dd><p>Records the version into the database.</p>
+</dd>
+<dt><a href="#loadZcl">loadZcl(db, metadataFile)</a> ⇒</dt>
+<dd><p>Toplevel function that loads the zcl file and passes it off to the correct zcl loader.</p>
+</dd>
+<dt><a href="#bindValidationScript">bindValidationScript(db, basePackageId)</a></dt>
+<dd><p>This function creates a validator function with signatuee fn(stringToValidateOn)</p>
+</dd>
+<dt><a href="#getSchemaAndValidationScript">getSchemaAndValidationScript(db, basePackageId)</a></dt>
+<dd><p>Returns an object with zclSchema and zclValidation elements.</p>
+</dd>
+<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
+<dd><p>Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}</p>
+</dd>
+<dt><a href="#processZclPostLoading">processZclPostLoading(db)</a> ⇒</dt>
+<dd><p>Promises to perform a post loading step.</p>
+</dd>
+<dt><a href="#parseZclFile">parseZclFile(argument, validator)</a> ⇒</dt>
+<dd><p>Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }</p>
 </dd>
 </dl>
 
@@ -2486,7 +2559,6 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~dataTypeForEnum(db, enum_name, packageId)](#module*Templating API* C formatting helpers..dataTypeForEnum)
   - [~addOne(number)](#module*Templating API* C formatting helpers..addOne)
   - [~cluster_extension(options)](#module*Templating API* C formatting helpers..cluster_extension) ⇒
-  - [~cluster_extension_obj(extensions, property, clusterCode)](#module*Templating API* C formatting helpers..cluster_extension_obj) ⇒
   - [~device_type_extension(options)](#module*Templating API* C formatting helpers..device_type_extension) ⇒
   - [~command_extension(options)](#module*Templating API* C formatting helpers..command_extension) ⇒
   - [~attribute_extension(options)](#module*Templating API* C formatting helpers..attribute_extension) ⇒
@@ -2737,21 +2809,6 @@ specified by property="propName" attribute.
 | Param   | Type            |
 | ------- | --------------- |
 | options | <code>\*</code> |
-
-<a name="module_Templating API_ C formatting helpers..cluster_extension_obj"></a>
-
-### Templating API: C formatting helpers~cluster_extension_obj(extensions, property, clusterCode) ⇒
-
-Retrieve specific entry from extensions defaults(array) via 'clusterCode' key fields
-
-**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
-**Returns**: Value of the cluster extension property.
-
-| Param       | Type            | Description                         |
-| ----------- | --------------- | ----------------------------------- |
-| extensions  | <code>\*</code> |                                     |
-| property    | <code>\*</code> | field name under specific extension |
-| clusterCode | <code>\*</code> | search key                          |
 
 <a name="module_Templating API_ C formatting helpers..device_type_extension"></a>
 
@@ -2824,7 +2881,6 @@ This module contains the API for accessing SDK extensions.
   - [~dataTypeForEnum(db, enum_name, packageId)](#module*Templating API* C formatting helpers..dataTypeForEnum)
   - [~addOne(number)](#module*Templating API* C formatting helpers..addOne)
   - [~cluster_extension(options)](#module*Templating API* C formatting helpers..cluster_extension) ⇒
-  - [~cluster_extension_obj(extensions, property, clusterCode)](#module*Templating API* C formatting helpers..cluster_extension_obj) ⇒
   - [~device_type_extension(options)](#module*Templating API* C formatting helpers..device_type_extension) ⇒
   - [~command_extension(options)](#module*Templating API* C formatting helpers..command_extension) ⇒
   - [~attribute_extension(options)](#module*Templating API* C formatting helpers..attribute_extension) ⇒
@@ -3075,21 +3131,6 @@ specified by property="propName" attribute.
 | Param   | Type            |
 | ------- | --------------- |
 | options | <code>\*</code> |
-
-<a name="module_Templating API_ C formatting helpers..cluster_extension_obj"></a>
-
-### Templating API: C formatting helpers~cluster_extension_obj(extensions, property, clusterCode) ⇒
-
-Retrieve specific entry from extensions defaults(array) via 'clusterCode' key fields
-
-**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
-**Returns**: Value of the cluster extension property.
-
-| Param       | Type            | Description                         |
-| ----------- | --------------- | ----------------------------------- |
-| extensions  | <code>\*</code> |                                     |
-| property    | <code>\*</code> | field name under specific extension |
-| clusterCode | <code>\*</code> | search key                          |
 
 <a name="module_Templating API_ C formatting helpers..device_type_extension"></a>
 
@@ -5721,6 +5762,10 @@ Enable components by 'componentId' or corresponding components specified, via 'd
 
 This module provides the REST API to the static zcl queries.
 
+- [REST API: static zcl functions](#module*REST API* static zcl functions)
+  - [~httpGetZclEntity(app)](#module*REST API* static zcl functions..httpGetZclEntity)
+  - [~httpGetZclExtension(db)](#module*REST API* static zcl functions..httpGetZclExtension) ⇒
+
 <a name="module_REST API_ static zcl functions..httpGetZclEntity"></a>
 
 ### REST API: static zcl functions~httpGetZclEntity(app)
@@ -5732,6 +5777,19 @@ API: /zcl/:entity/:id
 | Param | Type            | Description       |
 | ----- | --------------- | ----------------- |
 | app   | <code>\*</code> | Express instance. |
+
+<a name="module_REST API_ static zcl functions..httpGetZclExtension"></a>
+
+### REST API: static zcl functions~httpGetZclExtension(db) ⇒
+
+API: /zclExtension/:entity/:extension
+
+**Kind**: inner method of [<code>REST API: static zcl functions</code>](#module*REST API* static zcl functions)  
+**Returns**: zcl extension handler
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
 
 <a name="module_REST API_ generation functions"></a>
 
@@ -6404,6 +6462,10 @@ Checks if type is a two-byte lengh string.
   - [~createAbsolutePath(relativePath, relativity, zapFilePath)](#module*JS API* random utilities..createAbsolutePath)
   - [~locateRelativeFilePath(rootFileLocations, relativeFilePath)](#module*JS API* random utilities..locateRelativeFilePath) ⇒
   - [~executeExternalProgram(cmd)](#module*JS API* random utilities..executeExternalProgram)
+  - [~getClusterExtensionDefault(extensions, property, clusterCode)](#module*JS API* random utilities..getClusterExtensionDefault) ⇒
+  - [~getClusterExtension(extensions, property, clusterCode)](#module*JS API* random utilities..getClusterExtension) ⇒
+  - [~createUuid()](#module*JS API* random utilities..createUuid)
+  - [~waitFor(time)](#module*JS API* random utilities..waitFor)
 
 <a name="module_JS API_ random utilities..calculateCrc"></a>
 
@@ -6532,9 +6594,77 @@ Returns a promise of an execution of an external program.
 | ----- | --------------- |
 | cmd   | <code>\*</code> |
 
+<a name="module_JS API_ random utilities..getClusterExtensionDefault"></a>
+
+### JS API: random utilities~getClusterExtensionDefault(extensions, property, clusterCode) ⇒
+
+Retrieve specific entry from extensions defaults(array) via 'clusterCode' key fields
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
+**Returns**: Value of the cluster extension property.
+
+| Param       | Type            | Description                         |
+| ----------- | --------------- | ----------------------------------- |
+| extensions  | <code>\*</code> |                                     |
+| property    | <code>\*</code> | field name under specific extension |
+| clusterCode | <code>\*</code> | search key                          |
+
+<a name="module_JS API_ random utilities..getClusterExtension"></a>
+
+### JS API: random utilities~getClusterExtension(extensions, property, clusterCode) ⇒
+
+Retrieve specific entry from extensions defaults(array) via 'clusterCode' key fields
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
+**Returns**: Object containing all attribuetes specific to the extension
+
+| Param       | Type            | Description                         |
+| ----------- | --------------- | ----------------------------------- |
+| extensions  | <code>\*</code> |                                     |
+| property    | <code>\*</code> | field name under specific extension |
+| clusterCode | <code>\*</code> | search key                          |
+
+<a name="module_JS API_ random utilities..createUuid"></a>
+
+### JS API: random utilities~createUuid()
+
+Global way how to get an UUID.
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
+<a name="module_JS API_ random utilities..waitFor"></a>
+
+### JS API: random utilities~waitFor(time)
+
+Returns a promise that resolves after time milliseconds
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)
+
+| Param |
+| ----- |
+| time  |
+
 <a name="uri"></a>
 
 ## uri
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="ipc"></a>
+
+## ipc
 
 Copyright (c) 2020 Silicon Labs
 
@@ -6732,9 +6862,9 @@ modify this file, but it can be used to extend your development
 environment.
 
 **Kind**: global constant  
-<a name="path"></a>
+<a name="dbApi"></a>
 
-## path
+## dbApi
 
 Copyright (c) 2020 Silicon Labs
 
@@ -6751,9 +6881,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
-<a name="dbApi"></a>
+<a name="ipc"></a>
 
-## dbApi
+## ipc
 
 Copyright (c) 2020 Silicon Labs
 
@@ -6911,6 +7041,63 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
+<a name="initAndConnectClient"></a>
+
+## initAndConnectClient() ⇒
+
+Initializes and connects a client.
+
+**Kind**: global function  
+**Returns**: a promise which resolves when client connects  
+<a name="on"></a>
+
+## on(eventType, handler)
+
+Register a handler for the event type.
+
+**Kind**: global function
+
+| Param     | Type            |
+| --------- | --------------- |
+| eventType | <code>\*</code> |
+| handler   | <code>\*</code> |
+
+<a name="lastPongData"></a>
+
+## lastPongData() ⇒
+
+Get the last pong data.
+
+**Kind**: global function  
+**Returns**: last pong data or null if none is available  
+<a name="isClientConnected"></a>
+
+## isClientConnected() ⇒
+
+Returns true if client is connected.
+
+**Kind**: global function  
+**Returns**: true if client is connected  
+<a name="disconnectClient"></a>
+
+## disconnectClient()
+
+Disconnects a client asynchronously.
+
+**Kind**: global function  
+<a name="emit"></a>
+
+## emit(key, object)
+
+Sends a message to server.
+
+**Kind**: global function
+
+| Param  | Type            |
+| ------ | --------------- |
+| key    | <code>\*</code> |
+| object | <code>\*</code> |
+
 <a name="endpoint_type_count"></a>
 
 ## endpoint_type_count(options) ⇒
@@ -7168,9 +7355,9 @@ data - HTTP response data field
 | componentIds | <code>\*</code> | a list of component Ids                      |
 | add          | <code>\*</code> | true if adding component, false if removing. |
 
-<a name="init"></a>
+<a name="initIdeIntegration"></a>
 
-## init()
+## initIdeIntegration()
 
 Start the dirty flag reporting interval.
 
@@ -7376,33 +7563,6 @@ Session at this point is blank, and has no packages.
 | state     | <code>\*</code> |
 | sessionId | <code>\*</code> |
 
-<a name="readDataFromFile"></a>
-
-## readDataFromFile(filePath) ⇒
-
-Reads the data from the file and resolves with the state object if all is good.
-
-**Kind**: global function  
-**Returns**: Promise of file reading.
-
-| Param    | Type            |
-| -------- | --------------- |
-| filePath | <code>\*</code> |
-
-<a name="importDataFromFile"></a>
-
-## importDataFromFile(db, filePath) ⇒
-
-Writes the data from the file into a new session.
-
-**Kind**: global function  
-**Returns**: a promise that resolves with the import result object that contains: sessionId, errors, warnings.
-
-| Param    | Type            |
-| -------- | --------------- |
-| db       | <code>\*</code> |
-| filePath | <code>\*</code> |
-
 <a name="importSessionKeyValues"></a>
 
 ## importSessionKeyValues(db, sessionId, keyValuePairs)
@@ -7447,6 +7607,33 @@ Parses JSON file and creates a state object out of it, which is passed further d
 | filePath | <code>\*</code> |
 | data     | <code>\*</code> |
 
+<a name="readDataFromFile"></a>
+
+## readDataFromFile(filePath) ⇒
+
+Reads the data from the file and resolves with the state object if all is good.
+
+**Kind**: global function  
+**Returns**: Promise of file reading.
+
+| Param    | Type            |
+| -------- | --------------- |
+| filePath | <code>\*</code> |
+
+<a name="importDataFromFile"></a>
+
+## importDataFromFile(db, filePath) ⇒
+
+Writes the data from the file into a new session.
+
+**Kind**: global function  
+**Returns**: a promise that resolves with the import result object that contains: sessionId, errors, warnings.
+
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| filePath | <code>\*</code> |
+
 <a name="createOrShowAboutWindow"></a>
 
 ## createOrShowAboutWindow(port)
@@ -7459,109 +7646,13 @@ Call this function to create a new or show an existing preference window.
 | ----- | --------------- |
 | port  | <code>\*</code> |
 
-<a name="hookAppEvents"></a>
+<a name="hookMainInstanceEvents"></a>
 
-## hookAppEvents()
+## hookMainInstanceEvents()
 
 Hook up all the events for the electron app object.
 
 **Kind**: global function  
-<a name="doOpen"></a>
-
-## doOpen(menuItem, browserWindow, event)
-
-Perform a file->open operation.
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| menuItem      | <code>\*</code> |
-| browserWindow | <code>\*</code> |
-| event         | <code>\*</code> |
-
-<a name="doSave"></a>
-
-## doSave(menuItem, browserWindow, event)
-
-Perform a save, defering to save as if file is not yet selected.
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| menuItem      | <code>\*</code> |
-| browserWindow | <code>\*</code> |
-| event         | <code>\*</code> |
-
-<a name="doSaveAs"></a>
-
-## doSaveAs(menuItem, browserWindow, event)
-
-Perform save as.
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| menuItem      | <code>\*</code> |
-| browserWindow | <code>\*</code> |
-| event         | <code>\*</code> |
-
-<a name="generateInDir"></a>
-
-## generateInDir(browserWindow)
-
-This function gets the directory where user wants the output and
-calls generateCode function which generates the code in the user selected
-output.
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| browserWindow | <code>\*</code> |
-
-<a name="fileSave"></a>
-
-## fileSave(db, browserWindow, filePath) ⇒
-
-perform the save.
-
-**Kind**: global function  
-**Returns**: Promise of saving.
-
-| Param         | Type            |
-| ------------- | --------------- |
-| db            | <code>\*</code> |
-| browserWindow | <code>\*</code> |
-| filePath      | <code>\*</code> |
-
-<a name="fileOpen"></a>
-
-## fileOpen(db, filePaths)
-
-Perform the do open action, possibly reading in multiple files.
-
-**Kind**: global function
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| filePaths | <code>\*</code> |
-
-<a name="initMenu"></a>
-
-## initMenu(port)
-
-Initialize a menu.
-
-**Kind**: global function
-
-| Param | Type            |
-| ----- | --------------- |
-| port  | <code>\*</code> |
-
 <a name="createOrShowPreferencesWindow"></a>
 
 ## createOrShowPreferencesWindow(port)
@@ -7664,9 +7755,28 @@ Move database file out of the way into the backup location.
 | ----- | --------------- |
 | path  | <code>\*</code> |
 
-<a name="startUp"></a>
+<a name="shutdown"></a>
 
-## startUp(isElectron)
+## shutdown()
+
+Shuts down any servers that might be running.
+
+**Kind**: global function  
+<a name="startUpSecondaryInstance"></a>
+
+## startUpSecondaryInstance(argv)
+
+Startup method for the secondary instance.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| argv  | <code>\*</code> |
+
+<a name="startUpMainInstance"></a>
+
+## startUpMainInstance(isElectron)
 
 Default startup method.
 
@@ -7676,21 +7786,141 @@ Default startup method.
 | ---------- | --------------- |
 | isElectron | <code>\*</code> |
 
-<a name="windowCreate"></a>
+<a name="socketPath"></a>
 
-## windowCreate(port, [filePath], [uiMode], [embeddedMode]) ⇒
+## socketPath()
 
-Create a window, possibly with a given file path.
+Returns the socket path for the IPC.
 
 **Kind**: global function  
-**Returns**: BrowserWindow that got created
+<a name="initServer"></a>
 
-| Param          | Type            | Default       |
-| -------------- | --------------- | ------------- |
-| port           | <code>\*</code> |               |
-| [filePath]     | <code>\*</code> | <code></code> |
-| [uiMode]       | <code>\*</code> | <code></code> |
-| [embeddedMode] | <code>\*</code> | <code></code> |
+## initServer(options)
+
+IPC initialization.
+
+**Kind**: global function  
+**Parem**: <code>\*</code> isServer 'true' if this is a server, 'false' for client.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="isServerRunning"></a>
+
+## isServerRunning() ⇒
+
+Returns true if server is running.
+
+**Kind**: global function  
+**Returns**: true if server is running.  
+<a name="shutdownServerSync"></a>
+
+## shutdownServerSync(isServer)
+
+Shuts down the IPC server.
+
+**Kind**: global function
+
+| Param    | Type            |
+| -------- | --------------- |
+| isServer | <code>\*</code> |
+
+<a name="doOpen"></a>
+
+## doOpen(menuItem, browserWindow, event)
+
+Perform a file->open operation.
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| menuItem      | <code>\*</code> |
+| browserWindow | <code>\*</code> |
+| event         | <code>\*</code> |
+
+<a name="doSave"></a>
+
+## doSave(menuItem, browserWindow, event)
+
+Perform a save, defering to save as if file is not yet selected.
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| menuItem      | <code>\*</code> |
+| browserWindow | <code>\*</code> |
+| event         | <code>\*</code> |
+
+<a name="doSaveAs"></a>
+
+## doSaveAs(menuItem, browserWindow, event)
+
+Perform save as.
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| menuItem      | <code>\*</code> |
+| browserWindow | <code>\*</code> |
+| event         | <code>\*</code> |
+
+<a name="generateInDir"></a>
+
+## generateInDir(browserWindow)
+
+This function gets the directory where user wants the output and
+calls generateCode function which generates the code in the user selected
+output.
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| browserWindow | <code>\*</code> |
+
+<a name="fileSave"></a>
+
+## fileSave(db, browserWindow, filePath) ⇒
+
+perform the save.
+
+**Kind**: global function  
+**Returns**: Promise of saving.
+
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| browserWindow | <code>\*</code> |
+| filePath      | <code>\*</code> |
+
+<a name="fileOpen"></a>
+
+## fileOpen(db, filePaths)
+
+Perform the do open action, possibly reading in multiple files.
+
+**Kind**: global function
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| filePaths | <code>\*</code> |
+
+<a name="initMenu"></a>
+
+## initMenu(port)
+
+Initialize a menu.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| port  | <code>\*</code> |
 
 <a name="showErrorMessage"></a>
 
@@ -7760,6 +7990,22 @@ reports result back through the API.
 | ------------- | --------------- |
 | browserWindow | <code>\*</code> |
 | options       | <code>\*</code> |
+
+<a name="windowCreate"></a>
+
+## windowCreate(port, [filePath], [uiMode], [embeddedMode]) ⇒
+
+Create a window, possibly with a given file path.
+
+**Kind**: global function  
+**Returns**: BrowserWindow that got created
+
+| Param          | Type            | Default       |
+| -------------- | --------------- | ------------- |
+| port           | <code>\*</code> |               |
+| [filePath]     | <code>\*</code> | <code></code> |
+| [uiMode]       | <code>\*</code> | <code></code> |
+| [embeddedMode] | <code>\*</code> | <code></code> |
 
 <a name="processCommandLineArguments"></a>
 
@@ -7955,6 +8201,111 @@ Returns the zap version.
 **Kind**: global function  
 **Returns**: zap version, which is an object that
 contains 'version', 'featureLevel', 'hash', 'timestamp' and 'date'  
+<a name="log"></a>
+
+## log(level, msg, err)
+
+Base level common logger.
+
+**Kind**: global function
+
+| Param | Type            | Default       |
+| ----- | --------------- | ------------- |
+| level | <code>\*</code> |               |
+| msg   | <code>\*</code> |               |
+| err   | <code>\*</code> | <code></code> |
+
+<a name="logInfo"></a>
+
+## logInfo(msg, err)
+
+Info level message.
+
+**Kind**: global function
+
+| Param | Type            | Default       |
+| ----- | --------------- | ------------- |
+| msg   | <code>\*</code> |               |
+| err   | <code>\*</code> | <code></code> |
+
+<a name="logError"></a>
+
+## logError(msg, err)
+
+Error level message.
+
+**Kind**: global function
+
+| Param | Type            | Default       |
+| ----- | --------------- | ------------- |
+| msg   | <code>\*</code> |               |
+| err   | <code>\*</code> | <code></code> |
+
+<a name="logWarning"></a>
+
+## logWarning(msg, err)
+
+Warning level message.
+
+**Kind**: global function
+
+| Param | Type            | Default       |
+| ----- | --------------- | ------------- |
+| msg   | <code>\*</code> |               |
+| err   | <code>\*</code> | <code></code> |
+
+<a name="logSql"></a>
+
+## logSql(msg, err)
+
+Sql level message.
+
+**Kind**: global function
+
+| Param | Type            | Default       |
+| ----- | --------------- | ------------- |
+| msg   | <code>\*</code> |               |
+| err   | <code>\*</code> | <code></code> |
+
+<a name="logBrowser"></a>
+
+## logBrowser(msg, err)
+
+Browser level message.
+
+**Kind**: global function
+
+| Param | Type            | Default       |
+| ----- | --------------- | ------------- |
+| msg   | <code>\*</code> |               |
+| err   | <code>\*</code> | <code></code> |
+
+<a name="logIpc"></a>
+
+## logIpc(msg, err)
+
+IPC level message.
+
+**Kind**: global function
+
+| Param | Type            | Default       |
+| ----- | --------------- | ------------- |
+| msg   | <code>\*</code> |               |
+| err   | <code>\*</code> | <code></code> |
+
+<a name="logDebug"></a>
+
+## logDebug(msg, err)
+
+Debug level message.
+
+**Kind**: global function
+
+| Param | Type            | Default       |
+| ----- | --------------- | ------------- |
+| msg   | <code>\*</code> |               |
+| err   | <code>\*</code> | <code></code> |
+
 <a name="versionsCheck"></a>
 
 ## versionsCheck() ⇒
@@ -8206,128 +8557,6 @@ and orchestrates the promise chain.
 | ----- | --------------- | ------------------- |
 | db    | <code>\*</code> |                     |
 | ctx   | <code>\*</code> | Context of loading. |
-
-<a name="readMetadataFile"></a>
-
-## readMetadataFile(ctx) ⇒
-
-Reads the properties file into ctx.data and also calculates crc into ctx.crc
-
-**Kind**: global function  
-**Returns**: Promise to populate data, filePath and crc into the context.
-
-| Param | Type            |
-| ----- | --------------- |
-| ctx   | <code>\*</code> |
-
-<a name="recordToplevelPackage"></a>
-
-## recordToplevelPackage(ctx)
-
-Records the toplevel package information and puts ctx.packageId into the context.
-
-**Kind**: global function
-
-| Param | Type            |
-| ----- | --------------- |
-| ctx   | <code>\*</code> |
-
-<a name="recordVersion"></a>
-
-## recordVersion(db, ctx)
-
-Records the version into the database.
-
-**Kind**: global function
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-| ctx   | <code>\*</code> |
-
-<a name="loadZcl"></a>
-
-## loadZcl(db, metadataFile) ⇒
-
-Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
-
-**Kind**: global function  
-**Returns**: a Promise that resolves with the db.
-
-| Param        | Type            |
-| ------------ | --------------- |
-| db           | <code>\*</code> |
-| metadataFile | <code>\*</code> |
-
-<a name="bindValidationScript"></a>
-
-## bindValidationScript(db, basePackageId)
-
-This function creates a validator function with signatuee fn(stringToValidateOn)
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| db            | <code>\*</code> |
-| basePackageId | <code>\*</code> |
-
-<a name="getSchemaAndValidationScript"></a>
-
-## getSchemaAndValidationScript(db, basePackageId)
-
-Returns an object with zclSchema and zclValidation elements.
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| db            | <code>\*</code> |
-| basePackageId | <code>\*</code> |
-
-<a name="qualifyZclFile"></a>
-
-## qualifyZclFile(db, info, parentPackageId) ⇒
-
-Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}
-
-**Kind**: global function  
-**Returns**: Promise that resolves int he object of data.
-
-| Param           | Type            |
-| --------------- | --------------- |
-| db              | <code>\*</code> |
-| info            | <code>\*</code> |
-| parentPackageId | <code>\*</code> |
-
-<a name="processZclPostLoading"></a>
-
-## processZclPostLoading(db) ⇒
-
-Promises to perform a post loading step.
-
-**Kind**: global function  
-**Returns**: Promise to deal with the post-loading cleanup.
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-
-<a name="parseZclFile"></a>
-
-## parseZclFile(argument, validator) ⇒
-
-Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
-
-**Kind**: global function  
-**Returns**: promise that resolves with the array [filePath,result,packageId,msg,data]
-
-| Param     | Type            | Default       | Description                                                                                           |
-| --------- | --------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
-| argument  | <code>\*</code> |               |                                                                                                       |
-| validator | <code>\*</code> | <code></code> | validator is a function that takes in an buffer, and returns an array of errors. This can be optional |
 
 <a name="collectDataFromJsonFile"></a>
 
@@ -8792,3 +9021,125 @@ and orchestrates the promise chain.
 | ----- | --------------- | ----------------------- |
 | db    | <code>\*</code> |                         |
 | ctx   | <code>\*</code> | The context of loading. |
+
+<a name="readMetadataFile"></a>
+
+## readMetadataFile(ctx) ⇒
+
+Reads the properties file into ctx.data and also calculates crc into ctx.crc
+
+**Kind**: global function  
+**Returns**: Promise to populate data, filePath and crc into the context.
+
+| Param | Type            |
+| ----- | --------------- |
+| ctx   | <code>\*</code> |
+
+<a name="recordToplevelPackage"></a>
+
+## recordToplevelPackage(ctx)
+
+Records the toplevel package information and puts ctx.packageId into the context.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| ctx   | <code>\*</code> |
+
+<a name="recordVersion"></a>
+
+## recordVersion(db, ctx)
+
+Records the version into the database.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+| ctx   | <code>\*</code> |
+
+<a name="loadZcl"></a>
+
+## loadZcl(db, metadataFile) ⇒
+
+Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
+
+**Kind**: global function  
+**Returns**: a Promise that resolves with the db.
+
+| Param        | Type            |
+| ------------ | --------------- |
+| db           | <code>\*</code> |
+| metadataFile | <code>\*</code> |
+
+<a name="bindValidationScript"></a>
+
+## bindValidationScript(db, basePackageId)
+
+This function creates a validator function with signatuee fn(stringToValidateOn)
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| basePackageId | <code>\*</code> |
+
+<a name="getSchemaAndValidationScript"></a>
+
+## getSchemaAndValidationScript(db, basePackageId)
+
+Returns an object with zclSchema and zclValidation elements.
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| basePackageId | <code>\*</code> |
+
+<a name="qualifyZclFile"></a>
+
+## qualifyZclFile(db, info, parentPackageId) ⇒
+
+Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}
+
+**Kind**: global function  
+**Returns**: Promise that resolves int he object of data.
+
+| Param           | Type            |
+| --------------- | --------------- |
+| db              | <code>\*</code> |
+| info            | <code>\*</code> |
+| parentPackageId | <code>\*</code> |
+
+<a name="processZclPostLoading"></a>
+
+## processZclPostLoading(db) ⇒
+
+Promises to perform a post loading step.
+
+**Kind**: global function  
+**Returns**: Promise to deal with the post-loading cleanup.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="parseZclFile"></a>
+
+## parseZclFile(argument, validator) ⇒
+
+Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
+
+**Kind**: global function  
+**Returns**: promise that resolves with the array [filePath,result,packageId,msg,data]
+
+| Param     | Type            | Default       | Description                                                                                           |
+| --------- | --------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
+| argument  | <code>\*</code> |               |                                                                                                       |
+| validator | <code>\*</code> | <code></code> | validator is a function that takes in an buffer, and returns an array of errors. This can be optional |
