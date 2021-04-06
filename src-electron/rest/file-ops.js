@@ -44,7 +44,7 @@ function httpPostFileOpen(db) {
 
     if (zapFilePath) {
       name = path.posix.basename(zapFilePath)
-      env.logInfo(`Loading project(${name})`)
+      env.logDebug(`Loading project(${name})`)
     }
 
     if (zapFilePath) {
@@ -55,7 +55,7 @@ function httpPostFileOpen(db) {
             sessionId: importResult.sessionId,
             sessionKey: req.session.id,
           }
-          env.logInfo(
+          env.logDebug(
             `Loaded project(${name}) into database. RESP: ${JSON.stringify(
               response
             )}`
@@ -65,7 +65,7 @@ function httpPostFileOpen(db) {
         })
         .then((sessionId) => {
           if (studioFilePath) {
-            env.logInfo(
+            env.logDebug(
               `Studio: setting project path(${name}) to ${studioFilePath}`
             )
 
@@ -101,7 +101,7 @@ function httpPostFileOpen(db) {
 function httpPostFileSave(db) {
   return (req, res) => {
     let zapPath = req.body.path
-    env.logInfo(`Saving session: id = ${req.zapSessionId}. path=${zapPath}`)
+    env.logDebug(`Saving session: id = ${req.zapSessionId}. path=${zapPath}`)
 
     let p
     if (zapPath == null) {
@@ -127,7 +127,7 @@ function httpPostFileSave(db) {
           .exportDataIntoFile(db, req.zapSessionId, actualPath)
           .then((filePath) => {
             let projectName = path.posix.basename(filePath)
-            env.logInfo(`Saving file: file = ${projectName}`)
+            env.logDebug(`Saving file: file = ${projectName}`)
             res.status(http.StatusCodes.OK).send({ filePath: filePath })
           })
           .catch((err) => {

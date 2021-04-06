@@ -140,12 +140,10 @@ async function exportDataIntoFile(
     removeLog: false,
   }
 ) {
-  env.logInfo(`Writing state from session ${sessionId} into file ${filePath}`)
+  env.logDebug(`Writing state from session ${sessionId} into file ${filePath}`)
   return createStateFromDatabase(db, sessionId)
     .then((state) => {
-      env.logInfo(`About to write the file to ${filePath}`)
       return new Promise((resolve, reject) => {
-        env.logInfo(`Writing the file to ${filePath}`)
         if (options.removeLog) delete state.log
         fs.writeFile(filePath, JSON.stringify(state, null, 2), (err) => {
           if (err) reject(err)

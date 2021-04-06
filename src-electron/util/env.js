@@ -52,15 +52,15 @@ let environmentVariable = {
 // builtin pino levels: trace=10, debug=20, info=30, warn=40
 const pinoOptions = {
   name: 'zap',
-  level: process.env[environmentVariable.logLevel.name] || 'browser', // This sets the default log level. If you set this, to say `sql`, then you will get SQL queries.
+  level: process.env[environmentVariable.logLevel.name] || 'info', // This sets the default log level. If you set this, to say `sql`, then you will get SQL queries.
   customLevels: {
     fatal: 60,
     error: 50,
     warn: 40,
     info: 30,
-    ipc: 29,
-    browser: 27,
-    sql: 25,
+    ipc: 27,
+    browser: 25,
+    sql: 22,
     debug: 20,
     trace: 10,
     all: 1,
