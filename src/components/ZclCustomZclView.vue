@@ -112,10 +112,12 @@ export default {
       return fileName.length > 0 ? fileName[0] : path
     },
     browseForFile(currentPath) {
-      window.global_renderer_notify(
-        restApi.rendererApiNotifyKey.fileBrowse,
-        currentPath
-      )
+      window.global_renderer_notify(restApi.rendererApiNotifyKey.fileBrowse, {
+        context: 'customXml',
+        title: 'Select an XML file containing custom ZCL objects',
+        mode: 'file',
+        defaultPath: currentPath,
+      })
     },
     setReportedFiles(files) {
       this.packageToLoad = files
@@ -143,7 +145,7 @@ export default {
     if (this.$serverGet != null) {
       this.$store.dispatch('zap/getProjectPackages')
       observable.observeAttribute(restApi.reported_files, (value) => {
-        this.setReportedFiles(value)
+        if (value.context == 'customXml') this.setReportedFiles(value.filePaths)
       })
     }
   },

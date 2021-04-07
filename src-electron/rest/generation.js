@@ -24,6 +24,7 @@
 const generationEngine = require('../generator/generation-engine.js')
 const queryPackage = require('../db/query-package.js')
 const restApi = require('../../src-shared/rest-api.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * HTTP GET: preview single file with index.
@@ -79,6 +80,40 @@ function httpGetPreview(db) {
   }
 }
 
+/**
+ * HTTP PUT: performs local generation into a specified directory.
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpPutGenerate(db) {
+  return (request, response) => {
+    let sessionId = request.zapSessionId
+    let generationDirectory = request.body.generationDirectory
+    queryPackage
+      .getSessionPackagesByType(
+        db,
+        sessionId,
+        dbEnum.packageType.genTemplatesJson
+      )
+      .then((pkgs) => {
+        let promises = []
+        pkgs.forEach((pkg) => {
+          promises.push(
+            generationEngine.generateAndWriteFiles(
+              db,
+              sessionId,
+              pkg.id,
+              generationDirectory
+            )
+          )
+        })
+        return Promise.all(promises)
+      })
+      .then(() => response.status(restApi.httpCode.ok).send())
+  }
+}
+
 exports.get = [
   {
     uri: restApi.uri.previewNameIndex,
@@ -91,5 +126,11 @@ exports.get = [
   {
     uri: restApi.uri.preview,
     callback: httpGetPreview,
+  },
+]
+exports.put = [
+  {
+    uri: restApi.uri.generate,
+    callback: httpPutGenerate,
   },
 ]

@@ -129,7 +129,7 @@ async function initHttpServer(db, port, studioPort) {
     })
 
     process.on('uncaughtException', function (err) {
-      env.logWarning(`HTTP server port ` + port + ` is busy.`)
+      env.logWarning(`HTTP server exception.`, err)
       if (err.errno === 'EADDRINUSE') {
         httpServer = app.listen(0, () => {
           env.logHttpServerUrl(httpServerPort(), studioPort)

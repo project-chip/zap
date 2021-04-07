@@ -38,9 +38,13 @@ limitations under the License.
         <q-space />
         <q-btn
           flat
+          @click="generateIntoDirectory(generationDirectory)"
+          label="Generate"
+        />
+        <q-btn
+          flat
           @click="drawerRight = !drawerRight"
-          dense
-          label="Preview"
+          label="  Preview  "
           v-on:click="getGeneratedFiles"
         />
       </q-toolbar>
@@ -134,12 +138,19 @@ import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
 const restApi = require(`../../src-shared/rest-api.js`)
-import { scroll } from 'quasar'
-const { getScrollHeight } = scroll
+const observable = require('../util/observable.js')
 
 export default {
   name: 'ZclLayout',
   methods: {
+    generateIntoDirectory(currentPath) {
+      window.global_renderer_notify(restApi.rendererApiNotifyKey.fileBrowse, {
+        context: 'generateDir',
+        title: 'Select directory to generate into',
+        mode: 'directory',
+        defaultPath: currentPath,
+      })
+    },
     getGeneratedFiles() {
       this.$serverGet(restApi.uri.preview).then((result) => {
         this.generationFiles = result.data
@@ -203,8 +214,24 @@ export default {
       scrollTop: '',
       index: 0,
       maxIndex: 0,
+      generationDirectory: '',
     }
   },
-  mounted() {},
+  mounted() {
+    observable.observeAttribute(restApi.reported_files, (value) => {
+      if (value.context == 'generateDir') {
+        this.generationDirectory = value.filePaths[0]
+        window.global_renderer_api_execute(
+          restApi.rendererApiId.progressStart,
+          'Generating files...'
+        )
+        this.$serverPut(restApi.uri.generate, {
+          generationDirectory: this.generationDirectory,
+        }).finally(() => {
+          window.global_renderer_api_execute(restApi.rendererApiId.progressEnd)
+        })
+      }
+    })
+  },
 }
 </script>

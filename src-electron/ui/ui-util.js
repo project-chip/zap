@@ -17,6 +17,7 @@
 const { dialog } = require('electron')
 const windowJs = require('./window.js')
 const browserApi = require('./browser-api.js')
+const { result } = require('lodash')
 
 /**
  * Simple dialog to show error messages from electron renderer scope.
@@ -80,13 +81,21 @@ function toggleDirtyFlag(browserWindow, dirty) {
  * reports result back through the API.
  *
  * @param {*} browserWindow
- * @param {*} options
+ * @param {*} options 'key', 'title', 'mode', 'defaultPath'
  */
 function openFileDialogAndReportResult(browserWindow, options) {
+  if (options.mode === 'file') {
+    options.properties = ['openFile']
+  } else if (options.mode == 'directory') {
+    options.properties = ['openDirectory']
+  }
   dialog.showOpenDialog(browserWindow, options).then((result) => {
     if (!result.canceled) {
-      let filePaths = result.filePaths // array of strings
-      browserApi.reportFiles(browserWindow, filePaths)
+      let output = {
+        context: options.context,
+        filePaths: result.filePaths,
+      }
+      browserApi.reportFiles(browserWindow, output)
     }
   })
 }

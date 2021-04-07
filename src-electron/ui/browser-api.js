@@ -17,6 +17,7 @@
 
 const restApi = require('../../src-shared/rest-api.js')
 const uiUtil = require('./ui-util.js')
+const env = require('../util/env.js')
 
 /**
  * @module JS API: renderer API related utilities
@@ -104,10 +105,7 @@ function processRendererNotify(browserWindow, message) {
         uiUtil.toggleDirtyFlag(browserWindow, obj.value)
         return true
       case restApi.rendererApiNotifyKey.fileBrowse:
-        uiUtil.openFileDialogAndReportResult(browserWindow, {
-          title: 'Select an XML file containing custom ZCL objects',
-          defaultPath: obj.value,
-        })
+        uiUtil.openFileDialogAndReportResult(browserWindow, obj.value)
         return true
       default:
         env.logBrowser(`Unhandled renderer API key: ${obj.key}`)
@@ -121,13 +119,12 @@ function processRendererNotify(browserWindow, message) {
  * This method calls the reportFiles renderer API call.
  *
  * @param {*} browserWindow
- * @param {*} filesArray
+ * @param {*} result
  */
-async function reportFiles(browserWindow, filesArray) {
+async function reportFiles(browserWindow, result) {
+  let resultJson = JSON.stringify(result)
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${
-      restApi.rendererApiId.reportFiles
-    }', '${JSON.stringify(filesArray)}')`
+    `window.global_renderer_api_execute('${restApi.rendererApiId.reportFiles}', '${resultJson}')`
   )
 }
 
