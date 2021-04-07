@@ -182,14 +182,6 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
         []
       )
     )
-    .then((x) => {
-      x.forEach((c) => {
-        env.logWarning(
-          `Found Non Unique Bitmap in Silabs XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
-        )
-      })
-    })
-
     .then(() =>
       dbApi.dbAll(
         db,
@@ -197,13 +189,6 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
         []
       )
     )
-    .then((x) => {
-      x.forEach((c) => {
-        env.logWarning(
-          `Found Non Unique Enum in Silabs XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
-        )
-      })
-    })
     .finally(() => {
       dbApi.closeDatabase(db)
     })

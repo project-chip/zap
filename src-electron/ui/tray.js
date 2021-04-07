@@ -24,16 +24,12 @@ const win = require('./window.js')
 let tray
 
 function initTray(port) {
-  env.logInfo('Initializing tray...')
-
   let trayIconPath = path.join(env.iconsDirectory(), 'zap_32x32.png')
   let dockIconPath = path.join(env.iconsDirectory(), 'zap_128x128.png')
 
   if (!fs.existsSync(trayIconPath)) {
     env.logError(`Tray not created, icon does not exist: ${trayIconPath}`)
     return
-  } else {
-    env.logInfo(`Using tray icon: ${trayIconPath}`)
   }
 
   let trayIcon = nativeImage.createFromPath(trayIconPath)
@@ -46,8 +42,9 @@ function initTray(port) {
     {
       label: 'New ZCL configuration',
       type: 'normal',
+      httpPort: port,
       click: (item, window, event) => {
-        win.windowCreate(port)
+        win.windowCreate(item.httpPort)
       },
     },
     {
@@ -64,7 +61,6 @@ function initTray(port) {
 
   tray.setToolTip('ZCL Advanced Platform')
   tray.setContextMenu(contextMenu)
-  env.logInfo('Tray initialized.')
 }
 
 exports.initTray = initTray

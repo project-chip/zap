@@ -183,9 +183,12 @@ test('test Silabs zcl data loading in memory', () => {
     })
 }, 20000) // Give this test 20 secs to resolve
 
-test('test Dotdot zcl data loading in memory', () => {
+test('test Dotdot zcl data loading in memory', async () => {
   let db
   let packageId
+  let unmatched = []
+  let nullAttribute = []
+  let nonUniqueEnum = []
   dotDotZclPropertiesFile = testUtil.dotDotZclPropertiesFile
   return (
     dbApi
@@ -237,7 +240,7 @@ test('test Dotdot zcl data loading in memory', () => {
             .then((dc) => {
               dc.forEach((dcr) => {
                 if (!dcr.clusterRef) {
-                  env.logInfo(
+                  unmatched.push(
                     `for ${d.caption} failed to match dcr ${dcr.clusterName}`
                   )
                 } else {
@@ -250,7 +253,7 @@ test('test Dotdot zcl data loading in memory', () => {
                       if (dcas.length > 0) {
                         dcas.forEach((dca) => {
                           if (!dca.attributeRef) {
-                            env.logInfo(
+                            nullAttribute.push(
                               `attributeRef for ${dca.attributeName} is NULL`
                             )
                           }
@@ -272,12 +275,16 @@ test('test Dotdot zcl data loading in memory', () => {
       )
       .then((x) => {
         x.forEach((c) => {
-          env.logWarning(
+          nonUniqueEnum.push(
             `Found Non Unique Enum in Dotdot XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
           )
         })
       })
-
+      .then(() => {
+        expect(nonUniqueEnum.length).toBeGreaterThan(0)
+        expect(unmatched.length).toBeGreaterThan(0)
+        expect(nullAttribute.length).toEqual(0)
+      })
       .finally(() => {
         dbApi.closeDatabase(db)
       })
@@ -331,11 +338,7 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
       )
       .then((x) => {
         //env.logWarning(`FOUND ${x.length} UNIQUE ENTRIES`)
-        x.forEach((c) => {
-          env.logInfo(
-            `Found Unique Cluster: ${c.CODE} ${c.NAME} ${c.PACKAGE_REF}`
-          )
-        })
+        expect(x.length).toBeGreaterThan(0)
       })
 
       .then(() =>
@@ -346,11 +349,7 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
         )
       )
       .then((x) => {
-        x.forEach((c) => {
-          env.logInfo(
-            `Found Unique Atomic: ${c.ATOMIC_IDENTIFIER} ${c.NAME} ${c.PACKAGE_REF}`
-          )
-        })
+        expect(x.length).toBeGreaterThan(0)
       })
 
       .then(() =>
@@ -361,11 +360,7 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
         )
       )
       .then((x) => {
-        x.forEach((c) => {
-          env.logInfo(
-            `Found Unique Bitmap: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
-          )
-        })
+        expect(x.length).toBeGreaterThan(0)
       })
 
       .finally(() => {

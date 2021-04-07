@@ -24,48 +24,33 @@
 const env = require('../util/env.js')
 const studio = require('../ide-integration/studio-rest-api.js')
 const restApi = require('../../src-shared/rest-api.js')
+const querySession = require('../db/query-session.js')
 
 function httpGetComponentTree(db) {
   return (req, res) => {
-    let name = studio.projectName(req.query.studioProject)
-    if (name) {
-      env.logInfo(`StudioUC(${name}): Get project info`)
-      studio
-        .getProjectInfo(req.query.studioProject)
-        .then((r) => {
-          env.logInfo(`StudioUC(${name}): RESP: ${r.status}`)
-          res.send(r.data)
-        })
-        .catch((err) => {
-          env.logInfo(`StudioUC(${name}): ERR: ${err}`)
-          handleError(err, res)
-        })
-    } else {
-      env.logInfo(
-        `StudioUC(${name}): Get project info: missing "studioProject=" query string`
-      )
-      res.send([])
-    }
+    studio
+      .getProjectInfo(db, req.zapSessionId)
+      .then((r) => res.send(r.data))
+      .catch((err) => handleError(err, res))
   }
 }
 
-function httpPostUpdateComponentHandler(db, request, response, add) {
-  let { studioProject, clusterId, side, componentIds } = request.body
+function httpPostComponentUpdateHandler(db, request, response, add) {
+  let { clusterId, side, componentIds } = request.body
 
   studio
     .updateComponentByClusterIdAndComponentId(
       db,
-      studioProject,
+      request.zapSessionId,
       componentIds,
       clusterId,
       add,
-      request.zapSessionId,
       side
     )
     .then((res) => {
       // invoke reportComponentStatus() ws notification
       response.send(res)
-      studio.sendComponentStatus(request.zapSessionId, {
+      studio.sendComponentUpdateStatus(db, request.zapSessionId, {
         data: res,
         added: add,
       })
@@ -83,12 +68,12 @@ function httpPostUpdateComponentHandler(db, request, response, add) {
  */
 function httpPostComponentAdd(db) {
   return (request, response) =>
-    httpPostUpdateComponentHandler(db, request, response, true)
+    httpPostComponentUpdateHandler(db, request, response, true)
 }
 
 function httpPostComponentRemove(db) {
   return (request, response) =>
-    httpPostUpdateComponentHandler(db, request, response, false)
+    httpPostComponentUpdateHandler(db, request, response, false)
 }
 
 function handleError(err, res) {

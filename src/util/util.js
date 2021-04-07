@@ -37,7 +37,7 @@ export function asHex(value, padding) {
  * @param {*} actionSuccessful - true/false
  * @param {*} componentIds - list of strings
  */
-export function notifyComponentStatus(componentIdStates, added) {
+export function notifyComponentUpdateStatus(componentIdStates, added) {
   let components = []
   let updated = false
   console.log(JSON.stringify(componentIdStates))
@@ -100,7 +100,7 @@ export function getSelectedComponent(ucComponentTreeResponse) {
 /**
  * Extract cluster id string "$cluster" from the internal Uc Component Id
  *
- * e.g. "basic" from "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
+ * e.g. "zigbee_basic" from "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
  * @param {*} ucComponentIds - an array of ids
  */
 export function getClustersByUcComponentIds(ids) {

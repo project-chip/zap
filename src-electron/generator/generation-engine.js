@@ -103,7 +103,9 @@ async function recordTemplatesPackage(context) {
     })
     .then(() => {
       let promises = []
-      env.logInfo(`Loading ${context.templateData.templates.length} templates.`)
+      env.logDebug(
+        `Loading ${context.templateData.templates.length} templates.`
+      )
 
       // Add templates queries to the list of promises
       context.templateData.templates.forEach((template) => {
@@ -367,7 +369,7 @@ async function loadTemplates(db, genTemplatesJson) {
     .dbBeginTransaction(db)
     .then(() => fsPromise.access(context.path, fs.constants.R_OK))
     .then(() => {
-      env.logInfo(`Loading generation templates from: ${context.path}`)
+      env.logDebug(`Loading generation templates from: ${context.path}`)
       return loadGenTemplate(context)
     })
     .then((ctx) => recordTemplatesPackage(ctx))
@@ -391,7 +393,10 @@ async function loadTemplates(db, genTemplatesJson) {
 async function generateAllTemplates(
   genResult,
   genTemplateJsonPkg,
-  generateOnly = null
+  options = {
+    generateOnly: null,
+    disableDeprecationWarnings: false,
+  }
 ) {
   return queryPackage
     .getPackageByParent(genResult.db, genTemplateJsonPkg.id)
@@ -431,7 +436,10 @@ async function generateAllTemplates(
       // Next prepare the templates
       packages.forEach((singlePkg) => {
         if (singlePkg.type == dbEnum.packageType.genSingleTemplate) {
-          if (generateOnly == null || generateOnly == singlePkg.version) {
+          if (
+            options.generateOnly == null ||
+            options.generateOnly == singlePkg.version
+          ) {
             generationTemplates.push(singlePkg)
           }
         }
@@ -441,12 +449,10 @@ async function generateAllTemplates(
       return Promise.all(helperPromises).then(() =>
         Promise.all(partialPromises).then(() => {
           let templates = generationTemplates.map((pkg) =>
-            generateSingleTemplate(
-              genResult,
-              pkg,
-              genTemplateJsonPkg.id,
-              overridePath
-            )
+            generateSingleTemplate(genResult, pkg, genTemplateJsonPkg.id, {
+              overridePath: overridePath,
+              disableDeprecationWarnings: options.disableDeprecationWarnings,
+            })
           )
           return Promise.all(templates)
         })
@@ -469,7 +475,10 @@ async function generateSingleTemplate(
   genResult,
   singleTemplatePkg,
   genTemplateJsonPackageId,
-  overridePath
+  options = {
+    overridePath: null,
+    disableDeprecationWarnings: false,
+  }
 ) {
   return templateEngine
     .produceContent(
@@ -477,7 +486,7 @@ async function generateSingleTemplate(
       genResult.sessionId,
       singleTemplatePkg,
       genTemplateJsonPackageId,
-      overridePath
+      options
     )
     .then((data) => {
       genResult.content[singleTemplatePkg.version] = data
@@ -501,8 +510,11 @@ async function generate(
   db,
   sessionId,
   packageId,
-  generateOnly = null,
-  templateGeneratorOptions = {}
+  templateGeneratorOptions = {},
+  options = {
+    generateOnly: null,
+    disableDeprecationWarnings: false,
+  }
 ) {
   return queryPackage.getPackageByPackageId(db, packageId).then((pkg) => {
     if (pkg == null) throw `Invalid packageId: ${packageId}`
@@ -516,7 +528,7 @@ async function generate(
       templatePath: path.dirname(pkg.path),
     }
     if (pkg.type === dbEnum.packageType.genTemplatesJson) {
-      return generateAllTemplates(genResult, pkg, generateOnly)
+      return generateAllTemplates(genResult, pkg, options)
     } else {
       throw `Invalid package type: ${pkg.type}`
     }
@@ -575,7 +587,7 @@ async function generateAndWriteFiles(
   packageId,
   outputDirectory,
   options = {
-    log: false,
+    logger: (msg) => {},
     backup: false,
     genResultFile: false,
     skipPostGeneration: false,
@@ -596,33 +608,29 @@ async function generateAndWriteFiles(
       return templateGeneratorOptions
     })
     .then((templateGeneratorOptions) =>
-      generate(db, sessionId, packageId, null, templateGeneratorOptions)
+      generate(db, sessionId, packageId, templateGeneratorOptions)
     )
     .then((genResult) => {
       if (!fs.existsSync(outputDirectory)) {
-        if (options.log) {
-          console.log(`✅ Creating directory: ${outputDirectory}`)
-        }
+        options.logger(`✅ Creating directory: ${outputDirectory}`)
         fs.mkdirSync(outputDirectory, { recursive: true })
       }
-      if (options.log) console.log('🤖 Generating files:')
+      options.logger('🤖 Generating files:')
       let promises = []
       for (const f in genResult.content) {
         let content = genResult.content[f]
         let fileName = path.join(outputDirectory, f)
-        if (options.log) console.log(`    ✍  ${fileName}`)
-        env.logInfo(`Preparing to write file: ${fileName}`)
+        options.logger(`    ✍  ${fileName}`)
+        env.logDebug(`Preparing to write file: ${fileName}`)
         promises.push(writeFileWithBackup(fileName, content, options.backup))
       }
       if (genResult.hasErrors) {
-        if (options.log) console.log('⚠️  Errors:')
+        options.logger('⚠️  Errors:')
         for (const f in genResult.errors) {
           let err = genResult.errors[f]
           let fileName = path.join(outputDirectory, f)
-          if (options.log) {
-            console.log(`    👎  ${fileName}: ⛔ ${err}\nStack trace:\n`)
-            console.log(err)
-          }
+          options.logger(`    👎  ${fileName}: ⛔ ${err}\nStack trace:\n`)
+          options.logger(err)
         }
       }
       promises.push(
@@ -645,7 +653,11 @@ async function generateAndWriteFiles(
           if (options.skipPostGeneration) {
             return gr
           } else {
-            return postProcessGeneratedFiles(outputDirectory, gr, options.log)
+            return postProcessGeneratedFiles(
+              outputDirectory,
+              gr,
+              options.logger
+            )
           }
         })
     })
@@ -661,7 +673,7 @@ async function generateAndWriteFiles(
 async function postProcessGeneratedFiles(
   outputDirectory,
   genResult,
-  log = true
+  logger = (msg) => {}
 ) {
   let doExecute = true
   let isEnabledS = genResult.generatorOptions[dbEnum.generatorOptions.enabled]
@@ -717,8 +729,8 @@ async function postProcessGeneratedFiles(
       )
     }
   }
-  if (log && postProcessPromises.length > 0)
-    console.log('🤖 Executing post-processing actions:')
+  if (postProcessPromises.length > 0)
+    logger('🤖 Executing post-processing actions:')
   return Promise.all(postProcessPromises).then(() => genResult)
 }
 
@@ -766,7 +778,18 @@ async function generateSingleFileForPreview(db, sessionId, outFileName) {
     .then((pkgs) => {
       let promises = []
       pkgs.forEach((pkg) => {
-        promises.push(generate(db, sessionId, pkg.id, outFileName))
+        promises.push(
+          generate(
+            db,
+            sessionId,
+            pkg.id,
+            {},
+            {
+              generateOnly: outFileName,
+              disableDeprecationWarnings: true,
+            }
+          )
+        )
       })
       return Promise.all(promises)
     })

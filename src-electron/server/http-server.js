@@ -29,15 +29,17 @@ const util = require('../util/util.js')
 const webSocket = require('./ws-server.js')
 const studio = require('../ide-integration/studio-rest-api.js')
 const restApi = require('../../src-shared/rest-api.js')
+const dbEnum = require('../../src-shared/db-enum.js')
+const watchdog = require('../main-process/watchdog.js')
 
 const restApiModules = [
-  '../rest/admin.js',
-  '../rest/static-zcl.js',
-  '../rest/generation.js',
-  '../rest/file-ops.js',
-  '../rest/uc-api-handler.js',
-  '../rest/endpoint.js',
-  '../rest/user-data.js',
+  require('../rest/admin.js'),
+  require('../rest/static-zcl.js'),
+  require('../rest/generation.js'),
+  require('../rest/file-ops.js'),
+  require('../rest/uc-api-handler.js'),
+  require('../rest/endpoint.js'),
+  require('../rest/user-data.js'),
 ]
 let httpServer = null
 
@@ -49,9 +51,7 @@ let httpServer = null
  * @param {*} db
  * @param {*} app
  */
-function registerRestApi(filename, db, app) {
-  let module = require(filename)
-
+function registerRestApi(module, db, app) {
   if (module.post != null)
     module.post.forEach((singlePost) => {
       let uri = singlePost.uri
@@ -104,7 +104,7 @@ function registerAllRestModules(db, app) {
 async function initHttpServer(db, port, studioPort) {
   return new Promise((resolve, reject) => {
     const app = express()
-    app.use(express.urlencoded())
+    //app.use(express.urlencoded({ extended: true }))
     app.use(express.json())
     app.use(
       session({
@@ -120,7 +120,7 @@ async function initHttpServer(db, port, studioPort) {
     registerAllRestModules(db, app)
 
     // Static content
-    env.logInfo(`HTTP static content location: ${env.httpStaticContent}`)
+    env.logDebug(`HTTP static content location: ${env.httpStaticContent}`)
     app.use(express.static(env.httpStaticContent))
 
     httpServer = app.listen(port, () => {
@@ -129,7 +129,7 @@ async function initHttpServer(db, port, studioPort) {
     })
 
     process.on('uncaughtException', function (err) {
-      env.logInfo(`HTTP server port ` + port + ` is busy.`)
+      env.logWarning(`HTTP server port ` + port + ` is busy.`)
       if (err.errno === 'EADDRINUSE') {
         httpServer = app.listen(0, () => {
           env.logHttpServerUrl(httpServerPort(), studioPort)
@@ -141,7 +141,10 @@ async function initHttpServer(db, port, studioPort) {
     })
 
     webSocket.initializeWebSocket(httpServer)
-    studio.init()
+    webSocket.onWebSocket(dbEnum.wsCategory.tick, () => {
+      watchdog.reset()
+    })
+    studio.initIdeIntegration(db)
   })
 }
 
@@ -186,7 +189,7 @@ function userSessionHandler(db) {
             error: 'Could not create session: ' + err.message,
             errorMessage: err,
           }
-          studio.sendSessionCreationErrorStatus(resp)
+          studio.sendSessionCreationErrorStatus(db, resp)
           env.logError(resp)
         })
     }
@@ -202,12 +205,7 @@ function userSessionHandler(db) {
 function shutdownHttpServer() {
   return new Promise((resolve, reject) => {
     if (httpServer != null) {
-      httpServer.close(() => {
-        env.logInfo('HTTP server shut down.')
-        httpServer = null
-        resolve(null)
-      })
-      studio.deinit()
+      shutdownHttpServerSync(() => resolve(null))
     } else {
       resolve(null)
     }
@@ -220,12 +218,13 @@ function shutdownHttpServer() {
  * @export
  * @returns Promise that resolves when server is shut down.
  */
-function shutdownHttpServerSync() {
+function shutdownHttpServerSync(fn = () => {}) {
   if (httpServer != null) {
     studio.deinit()
     httpServer.close(() => {
-      env.logInfo('HTTP server shut down.')
+      env.logDebug('HTTP server shut down.')
       httpServer = null
+      fn()
     })
   }
 }

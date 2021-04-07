@@ -176,7 +176,7 @@ function argMap(cmdId, packageId, args) {
  * @returns Promise of globals insertion.
  */
 async function insertGlobals(db, packageId, data) {
-  env.logInfo(`Insert globals: ${data.length}`)
+  env.logDebug(`Insert globals: ${data.length}`)
   let commandsToLoad = []
   let attributesToLoad = []
   let argsForCommands = []

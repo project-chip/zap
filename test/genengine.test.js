@@ -42,7 +42,6 @@ beforeAll(() => {
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
       db = d
-      env.logInfo('DB initialized.')
     })
 }, 5000)
 
@@ -108,7 +107,9 @@ test(
       .generate(
         templateContext.db,
         templateContext.sessionId,
-        templateContext.packageId
+        templateContext.packageId,
+        {},
+        { disableDeprecationWarnings: true }
       )
       .then((genResult) => {
         expect(genResult).not.toBeNull()
@@ -128,7 +129,9 @@ test(
       .generate(
         templateContext.db,
         templateContext.sessionId,
-        templateContext.packageId
+        templateContext.packageId,
+        {},
+        { disableDeprecationWarnings: true }
       )
       .then((genResult) => {
         expect(genResult).not.toBeNull()
@@ -243,7 +246,9 @@ test(
       .generate(
         templateContext.db,
         templateContext.sessionId,
-        templateContext.packageId
+        templateContext.packageId,
+        {},
+        { disableDeprecationWarnings: true }
       )
       .then((genResult) => {
         expect(genResult).not.toBeNull()
@@ -294,7 +299,15 @@ test('Test file import and cli generation', async () => {
   await importJs.importDataFromFile(db, testFile, sid)
 
   return genEngine
-    .generate(db, sid, templateContext.packageId)
+    .generate(
+      db,
+      sid,
+      templateContext.packageId,
+      {},
+      {
+        disableDeprecationWarnings: true,
+      }
+    )
     .then((genResult) => {
       expect(genResult).not.toBeNull()
       expect(genResult.partial).toBeFalsy()

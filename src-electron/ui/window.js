@@ -21,12 +21,12 @@ const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
 const tray = require('./tray.js')
-const browserApi = require('../ui/browser-api.js')
+const browserApi = require('./browser-api.js')
 
 let windowCounter = 0
 
-function initializeElectronUi(port) {
-  menu.initMenu(port)
+function initializeElectronUi(db, port) {
+  menu.initMenu(db, port)
   tray.initTray(port)
 }
 
@@ -86,6 +86,7 @@ function windowCreate(port, args = {}) {
 
   let queryString = createQueryString(args.uiMode, args.embeddedMode)
 
+  w.isDirty = false
   w.loadURL(`http://localhost:${port}/index.html` + queryString).then(
     async () => {
       if (args.filePath != null) {
@@ -100,29 +101,21 @@ function windowCreate(port, args = {}) {
 
   w.on('close', (e) => {
     e.preventDefault()
-    browserApi.getSessionUuidFromBrowserWindow(w).then((sessionKey) =>
-      querySession.getSessionDirtyFlagWithCallback(
-        env.mainDatabase(),
-        sessionKey,
-        (dirty) => {
-          if (dirty) {
-            const result = dialog.showMessageBoxSync(w, {
-              type: 'warning',
-              title: 'Unsaved changes?',
-              message:
-                'Your changes will be lost if you do not save them into the file.',
-              buttons: ['Quit Anyway', 'Cancel'],
-              defaultId: 0,
-              cancelId: 1,
-            })
+    if (w.isDirty) {
+      const result = dialog.showMessageBoxSync(w, {
+        type: 'warning',
+        title: 'Unsaved changes?',
+        message:
+          'Your changes will be lost if you do not save them into the file.',
+        buttons: ['Quit Anyway', 'Cancel'],
+        defaultId: 0,
+        cancelId: 1,
+      })
 
-            if (result === 0) w.destroy()
-          } else {
-            w.destroy()
-          }
-        }
-      )
-    )
+      if (result === 0) w.destroy()
+    } else {
+      w.destroy()
+    }
   }) // EO close
 
   w.webContents.on(

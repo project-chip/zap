@@ -35,6 +35,7 @@ const uri = {
   packages: `/packages`,
   addNewPackage: `/packages/add`,
   sessionPackage: `/sessionPackage`,
+  zclExtension: `/zclExtension/:entity/:extensionId`,
 }
 
 const uiMode = {

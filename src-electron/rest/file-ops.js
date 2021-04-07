@@ -39,33 +39,53 @@ const studio = require('../ide-integration/studio-rest-api.js')
  */
 function httpPostFileOpen(db) {
   return (req, res) => {
-    let zapPath = req.body.path
-    if (zapPath != null) {
-      let name = path.posix.basename(zapPath)
-      let zapFile = zapPath
+    let { zapFilePath, studioFilePath } = req.body
+    let name = ''
 
-      env.logInfo(`Studio: Opening/Loading project(${name})`)
+    if (zapFilePath) {
+      name = path.posix.basename(zapFilePath)
+      env.logDebug(`Loading project(${name})`)
+    }
 
+    if (zapFilePath) {
       importJs
-        .importDataFromFile(db, zapFile, req.zapSessionId)
+        .importDataFromFile(db, zapFilePath, req.zapSessionId)
         .then((importResult) => {
           let response = {
             sessionId: importResult.sessionId,
             sessionKey: req.session.id,
           }
-          env.logInfo(
-            `Studio: Loaded project(${name}), ${JSON.stringify(response)}`
+          env.logDebug(
+            `Loaded project(${name}) into database. RESP: ${JSON.stringify(
+              response
+            )}`
           )
           res.send(response)
+          return req.zapSessionId
+        })
+        .then((sessionId) => {
+          if (studioFilePath) {
+            env.logDebug(
+              `Studio: setting project path(${name}) to ${studioFilePath}`
+            )
+
+            // store studio project path
+            querySession.updateSessionKeyValue(
+              db,
+              sessionId,
+              dbEnum.sessionKey.studioProjectPath,
+              studioFilePath
+            )
+          }
         })
         .catch(function (err) {
-          err.project = zapFile
-          studio.sendSessionCreationErrorStatus(err)
+          err.project = zapFilePath
+          studio.sendSessionCreationErrorStatus(db, err)
           env.logError(JSON.stringify(err))
           res.status(http.StatusCodes.BAD_REQUEST).send(err)
         })
     } else {
-      let msg = `Opening/Loading project: Missing path data.`
+      let msg = `Opening/Loading project: Missing zap file path or Studio project file path.`
       env.logWarning(msg)
       res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
     }
@@ -81,7 +101,7 @@ function httpPostFileOpen(db) {
 function httpPostFileSave(db) {
   return (req, res) => {
     let zapPath = req.body.path
-    env.logInfo(`Saving session: id = ${req.zapSessionId}. path=${zapPath}`)
+    env.logDebug(`Saving session: id = ${req.zapSessionId}. path=${zapPath}`)
 
     let p
     if (zapPath == null) {
@@ -107,7 +127,7 @@ function httpPostFileSave(db) {
           .exportDataIntoFile(db, req.zapSessionId, actualPath)
           .then((filePath) => {
             let projectName = path.posix.basename(filePath)
-            env.logInfo(`Saving file: file = ${projectName}`)
+            env.logDebug(`Saving file: file = ${projectName}`)
             res.status(http.StatusCodes.OK).send({ filePath: filePath })
           })
           .catch((err) => {

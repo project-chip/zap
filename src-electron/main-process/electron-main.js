@@ -20,7 +20,7 @@ const { app } = require('electron')
 const dbApi = require('../db/db-api.js')
 const args = require('../util/args.js')
 const env = require('../util/env.js')
-const windowJs = require('./window.js')
+const windowJs = require('../ui/window.js')
 const startup = require('./startup.js')
 
 env.versionsCheck()
@@ -31,14 +31,25 @@ if (process.env.DEV) {
   env.setProductionEnv()
 }
 
-/**
- * Hook up all the events for the electron app object.
- */
-function hookAppEvents() {
+function hookSecondInstanceEvents(argv) {
   app.allowRendererProcessReuse = false
   app
     .whenReady()
-    .then(() => startup.startUp(true))
+    .then(() => startup.startUpSecondaryInstance(argv))
+    .catch((err) => {
+      console.log(err)
+      app.exit(1)
+    })
+}
+
+/**
+ * Hook up all the events for the electron app object.
+ */
+function hookMainInstanceEvents(argv) {
+  app.allowRendererProcessReuse = false
+  app
+    .whenReady()
+    .then(() => startup.startUpMainInstance(true, argv))
     .catch((err) => {
       console.log(err)
       app.exit(1)
@@ -57,47 +68,39 @@ function hookAppEvents() {
 
   app.on('will-quit', () => {
     startup.shutdown()
-
-    if (env.mainDatabase() != null) {
-      // Use a sync call, because you can't have promises in the 'quit' event.
-      try {
-        dbApi.closeDatabaseSync(env.mainDatabase())
-        env.logInfo('Database closed, shutting down.')
-      } catch (err) {
-        env.logError('Failed to close database.')
-      }
-    }
   })
 
   app.on('second-instance', (event, commandLine, workingDirectory) => {
-    console.log(`New instance: ${commandLine}`)
+    env.logInfo(`Zap instance started with command line: ${commandLine}`)
   })
 }
 
 // Main lifecycle of the application
 if (app != null) {
-  let supportMultipleInstances = true
+  let argv = args.processCommandLineArguments(process.argv)
+  let reuseZapInstance = args.reuseZapInstance
+  let canProceedWithThisInstance
+  let gotLock = app.requestSingleInstanceLock()
 
-  let gotLock
-
-  if (supportMultipleInstances) {
-    gotLock = true
+  if (reuseZapInstance) {
+    canProceedWithThisInstance = gotLock
   } else {
-    gotLock = app.requestSingleInstanceLock()
+    canProceedWithThisInstance = true
   }
-
-  if (gotLock) {
-    hookAppEvents()
+  if (canProceedWithThisInstance) {
+    hookMainInstanceEvents(argv)
   } else {
     // The 'second-instance' event on app was triggered, we need
     // to quit.
-    console.log('🧐 Another copy of zap is running.')
-    app.quit()
+    hookSecondInstanceEvents(argv)
   }
 } else {
   // If the code is executed via 'node' and not via 'app', then this
   // is where we end up.
-  startup.startUp(false)
+  startup.startUpMainInstance(
+    false,
+    args.processCommandLineArguments(process.argv)
+  )
 }
 
 exports.loaded = true

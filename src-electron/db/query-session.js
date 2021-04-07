@@ -22,7 +22,8 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
-const { v4: uuidv4 } = require('uuid')
+const util = require('../util/util.js')
+
 /**
  * Returns a promise that resolves into an array of objects containing 'sessionId', 'sessionKey' and 'creationTime'.
  *
@@ -82,32 +83,6 @@ async function getSessionDirtyFlag(db, sessionId) {
         return row.DIRTY
       }
     })
-}
-
-/**
- * Executes the query for the dirty flag with a callback, not a promise.
- *
- * @export
- * @param {*} db
- * @param {*} windowId
- * @param {*} fn
- */
-async function getSessionDirtyFlagWithCallback(db, sessionKey, fn) {
-  db.get(
-    'SELECT DIRTY FROM SESSION WHERE SESSION_KEY = ?',
-    [sessionKey],
-    (err, row) => {
-      if (err) {
-        fn(false)
-      } else {
-        if (row == null) {
-          fn(false)
-        } else {
-          fn(row.DIRTY)
-        }
-      }
-    }
-  )
 }
 
 /**
@@ -268,7 +243,7 @@ async function ensureBlankSession(db, uuid) {
  */
 async function createBlankSession(db, uuid = null) {
   let newUuid = uuid
-  if (newUuid == null) newUuid = uuidv4()
+  if (newUuid == null) newUuid = util.createUuid()
 
   return dbApi.dbInsert(
     db,
@@ -473,7 +448,6 @@ async function getAllSessionKeyValues(db, sessionId) {
 exports.getAllSessions = getAllSessions
 exports.setSessionClean = setSessionClean
 exports.getSessionDirtyFlag = getSessionDirtyFlag
-exports.getSessionDirtyFlagWithCallback = getSessionDirtyFlagWithCallback
 exports.getSessionInfoFromSessionKey = getSessionInfoFromSessionKey
 exports.ensureZapSessionId = ensureZapSessionId
 exports.ensureZapUserAndSession = ensureZapUserAndSession

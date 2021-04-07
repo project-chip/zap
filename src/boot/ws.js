@@ -20,6 +20,9 @@ import dbEnum from '../../src-shared/db-enum.js'
 import restApi from '../../src-shared/rest-api.js'
 import { Notify } from 'quasar'
 import * as Util from '../util/util.js'
+const http = require('http-status-codes')
+
+const tickInterval = 15000 // 15 seconds tick interval for server watchdog.
 
 let eventEmitter = new Events.EventEmitter()
 let wsUrl = `ws://${window.location.hostname}:${window.location.port}?${
@@ -33,6 +36,7 @@ function doSend(object) {
 
 function sendWebSocketInit() {
   sendWebSocketData(dbEnum.wsCategory.init, 'WebSocket initialized handshake.')
+  setInterval(() => sendWebSocketData(dbEnum.wsCategory.tick), tickInterval)
 }
 
 /**
@@ -48,8 +52,8 @@ function sendWebSocketData(category, payload) {
   }
   let obj = {
     category: category,
-    payload: payload,
   }
+  if (payload != null) obj.payload = payload
   doSend(obj)
 }
 
@@ -123,10 +127,10 @@ onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
   console.log(`sessionCreationError: ${JSON.stringify(data)}`)
 })
 
-onWebSocket(dbEnum.wsCategory.componentStatus, (obj) => {
+onWebSocket(dbEnum.wsCategory.componentUpdateStatus, (obj) => {
   let { data, added } = obj
-  console.log(`reportComponentStatus: ${JSON.stringify(obj)}`)
-  Util.notifyComponentStatus(data, added)
+  console.log(`componentUpdateStatus: ${JSON.stringify(obj)}`)
+  Util.notifyComponentUpdateStatus(data, added)
 })
 
 onWebSocket(dbEnum.wsCategory.generic, (data) =>

@@ -31,6 +31,7 @@ const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const args = require('./args.js')
+const { v4: uuidv4 } = require('uuid')
 
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
@@ -60,7 +61,7 @@ async function initializeSessionPackage(db, sessionId) {
       let packageId
       if (rows.length == 1) {
         packageId = rows[0].id
-        env.logInfo(
+        env.logDebug(
           `Single zcl.properties found, using it for the session: ${packageId}`
         )
       } else if (rows.length == 0) {
@@ -89,7 +90,7 @@ async function initializeSessionPackage(db, sessionId) {
       let packageId
       if (rows.length == 1) {
         packageId = rows[0].id
-        env.logInfo(
+        env.logDebug(
           `Single generation template metafile found, using it for the session: ${packageId}`
         )
       } else if (rows.length == 0) {
@@ -160,10 +161,10 @@ function createBackupFile(filePath) {
   let pathBak = filePath + '~'
   if (fs.existsSync(filePath)) {
     if (fs.existsSync(pathBak)) {
-      env.logWarning(`Deleting old backup file: ${pathBak}`)
+      env.logDebug(`Deleting old backup file: ${pathBak}`)
       fs.unlinkSync(pathBak)
     }
-    env.logWarning(`Creating backup file: ${filePath} to ${pathBak}`)
+    env.logDebug(`Creating backup file: ${filePath} to ${pathBak}`)
     fs.renameSync(filePath, pathBak)
   }
 }
@@ -344,6 +345,56 @@ function executeExternalProgram(
   })
 }
 
+/**
+ * Retrieve specific entry from extensions defaults(array) via 'clusterCode' key fields
+ *
+ * @param {*} extensions
+ * @param {*} property field name under specific extension
+ * @param {*} clusterCode search key
+ * @returns Value of the cluster extension property.
+ */
+function getClusterExtensionDefault(extensions, extensionId, defaultKey) {
+  let f = getClusterExtension(extensions, extensionId)
+  if (f.length == 0) {
+    return ''
+  } else {
+    let val = null
+    f[0].defaults.forEach((d) => {
+      if (d.entityCode == defaultKey) val = d.value
+    })
+    if (val == null) val = f[0].globalDefault
+    if (val == null) val = ''
+    return val
+  }
+}
+
+/**
+ * Retrieve specific entry from extensions defaults(array) via 'clusterCode' key fields
+ *
+ * @param {*} extensions
+ * @param {*} property field name under specific extension
+ * @param {*} clusterCode search key
+ * @returns Object containing all attribuetes specific to the extension
+ */
+function getClusterExtension(extensions, extensionId) {
+  return extensions.filter((x) => x.property == extensionId)
+}
+
+/**
+ * Global way how to get an UUID.
+ */
+function createUuid() {
+  return uuidv4()
+}
+
+/**
+ * Returns a promise that resolves after time milliseconds
+ * @param {} time
+ */
+function waitFor(time) {
+  return new Promise((r) => setTimeout(r, time))
+}
+
 exports.createBackupFile = createBackupFile
 exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
@@ -353,3 +404,7 @@ exports.executePromisesSequentially = executePromisesSequentially
 exports.createAbsolutePath = createAbsolutePath
 exports.executeExternalProgram = executeExternalProgram
 exports.locateRelativeFilePath = locateRelativeFilePath
+exports.createUuid = createUuid
+exports.waitFor = waitFor
+exports.getClusterExtension = getClusterExtension
+exports.getClusterExtensionDefault = getClusterExtensionDefault

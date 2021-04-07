@@ -42,7 +42,7 @@
         "type": "text",
         "configurability": "hidden",
         "globalDefault": null,
-        "label": "Test cluster extension 1",
+        "label": "Test cluster extension with external defaults values",
         "defaults": "externalDefaults.json"
       }
     },

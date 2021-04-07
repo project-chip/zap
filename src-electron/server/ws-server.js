@@ -58,7 +58,7 @@ function initializeWebSocket(httpServer) {
     socket.on('message', (message) => {
       // When we receive a message we emit it via the event emitter.
       let obj = JSON.parse(message)
-      if ('category' in obj && 'payload' in obj) {
+      if ('category' in obj) {
         eventEmitter.emit(obj.category, socket, obj.payload)
       } else {
         eventEmitter.emit(dbEnum.wsCategory.generic, socket, obj)
@@ -164,3 +164,4 @@ exports.initializeWebSocket = initializeWebSocket
 exports.sendWebSocketMessage = sendWebSocketMessage
 exports.sendWebSocketData = sendWebSocketData
 exports.clientSocket = clientSocket
+exports.onWebSocket = onWebSocket

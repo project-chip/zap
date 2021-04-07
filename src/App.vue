@@ -26,6 +26,7 @@ import Vue from 'vue'
 import { QSpinnerGears } from 'quasar'
 const restApi = require(`../src-shared/rest-api.js`)
 const observable = require('./util/observable.js')
+const dbEnum = require(`../src-shared/db-enum.js`)
 
 function initLoad(store) {
   store.dispatch('zap/loadInitialData')
@@ -54,19 +55,8 @@ function initLoad(store) {
 export default {
   name: 'App',
   methods: {
-    pollUcComponentState() {
-      console.log('Initialize polling for Uc Component state.')
-
-      // Start polling Studio component state
-      const UC_COMPONENT_STATE_POLLING_INTERVAL_MS = 4000
-      setInterval(() => {
-        this.$store.dispatch(
-          'zap/updateUcComponentState',
-          this.$store.state.zap.studio.projectPath
-        )
-      }, UC_COMPONENT_STATE_POLLING_INTERVAL_MS)
-    },
-    setThemeMode(theme) {
+    setThemeMode() {
+      const theme = observable.getObservableAttribute('data-theme')
       if (theme === 'com.silabs.ss.platform.theme.dark') {
         this.$q.dark.set(true)
       } else {
@@ -111,11 +101,6 @@ export default {
       this.$store.dispatch('zap/setEmbeddedMode', query[`embeddedMode`])
     }
 
-    if (query['studioProject']) {
-      this.$store.dispatch('zap/setStudioConfigPath', query['studioProject'])
-      // this.pollUcComponentState()
-    }
-
     this.zclDialogTitle = 'ZCL tab!'
     this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
     this.zclDialogFlag = false
@@ -130,6 +115,10 @@ export default {
 
     initLoad(this.$store).then(() => {
       this.$q.loading.hide()
+    })
+
+    this.$onWebSocket(dbEnum.wsCategory.ucComponentStateReport, (resp) => {
+      this.$store.dispatch('zap/updateUcComponentState', resp)
     })
   },
 }

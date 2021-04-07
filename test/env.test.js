@@ -127,12 +127,10 @@ describe('Environment Tests', () => {
     env.logInfo('Info log test.')
     env.logWarning('Warn log test.')
     env.logError('Error log test.')
+    env.logBrowser('Browser log test.')
+    env.logIpc('Ipc level test.')
+    env.logIpc('Error logging test', new Error('Simple test'))
   })
-
-  test('Main database', () =>
-    env.resolveMainDatabase('stalin').then((db) => {
-      expect(env.mainDatabase()).toBe('stalin')
-    }))
 
   test('Versions check', () => {
     expect(env.versionsCheck()).toBeTruthy()
@@ -148,5 +146,13 @@ describe('Environment Tests', () => {
     expect('hash' in v).toBeTruthy()
     expect('timestamp' in v).toBeTruthy()
     expect('date' in v).toBeTruthy()
+  })
+
+  test('Uuid', () => {
+    let uuid1 = util.createUuid()
+    let uuid2 = util.createUuid()
+    expect(uuid1).not.toBeNull()
+    expect(uuid2).not.toBeNull()
+    expect(uuid1).not.toEqual(uuid2)
   })
 })

@@ -24,17 +24,21 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const args = require('../util/args.js')
 const env = require('../util/env.js')
 const zclLoader = require('../zcl/zcl-loader.js')
-const windowJs = require('./window.js')
+const windowJs = require('../ui/window.js')
 const httpServer = require('../server/http-server.js')
+const ipcServer = require('../server/ipc-server.js')
+const ipcClient = require('../client/ipc-client.js')
 const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
-const queryConfig = require('../db/query-config.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const uiJs = require('../ui/ui-util.js')
+const watchdog = require('./watchdog.js')
 
 // This file contains various startup modes.
+
+let mainDatabase = null
 
 /**
  * Start up application in a normal mode.
@@ -45,14 +49,23 @@ const uiJs = require('../ui/ui-util.js')
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
 async function startNormal(uiEnabled, showUrl, zapFiles, options) {
-  return dbApi
-    .initDatabaseAndLoadSchema(
-      env.sqliteFile(),
-      env.schemaFile(),
-      env.zapVersion()
-    )
-    .then((db) => env.resolveMainDatabase(db))
-    .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
+  let db = await dbApi.initDatabaseAndLoadSchema(
+    env.sqliteFile(),
+    env.schemaFile(),
+    env.zapVersion()
+  )
+
+  watchdog.start(args.watchdogTimer, () => {
+    if (app != null) {
+      app.quit()
+    } else {
+      process.exit(0)
+    }
+  })
+  mainDatabase = db
+
+  return zclLoader
+    .loadZcl(db, args.zclPropertiesFile)
     .then((ctx) =>
       generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
     )
@@ -64,31 +77,25 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
     })
     .then((ctx) => {
       if (!args.noServer)
-        return httpServer.initHttpServer(
-          ctx.db,
-          args.httpPort,
-          args.studioHttpPort
-        )
-      else return true
+        return httpServer
+          .initHttpServer(ctx.db, args.httpPort, args.studioHttpPort)
+          .then(() => {
+            ipcServer.initServer(ctx.db, args.httpPort)
+          })
+          .then(() => ctx)
+      else return ctx
     })
-    .then(() => {
+    .then((ctx) => {
       if (uiEnabled) {
-        windowJs.initializeElectronUi(httpServer.httpServerPort())
+        windowJs.initializeElectronUi(ctx.db, httpServer.httpServerPort())
         if (zapFiles.length == 0) {
-          return uiJs.openNewConfiguration(
-            env.mainDatabase(),
-            httpServer.httpServerPort(),
-            options
-          )
+          return uiJs.openNewConfiguration(httpServer.httpServerPort(), options)
         } else {
           return util.executePromisesSequentially(zapFiles, (f) =>
             uiJs.openFileConfiguration(f, httpServer.httpServerPort())
           )
         }
       } else {
-        if (app.dock) {
-          app.dock.hide()
-        }
         if (showUrl && !args.noServer) {
           // NOTE: this is parsed/used by Studio as the default landing page.
           console.log(
@@ -144,11 +151,15 @@ function outputFile(inputFile, outputPattern) {
 async function startConvert(
   files,
   output,
-  options = { log: true, quit: true, noZapFileLog: false }
+  options = {
+    quit: true,
+    noZapFileLog: false,
+    logger: console.log,
+  }
 ) {
-  if (options.log) console.log(`🤖 Conversion started`)
-  if (options.log) console.log(`    🔍 input files: ${files}`)
-  if (options.log) console.log(`    🔍 output pattern: ${output}`)
+  options.logger(`🤖 Conversion started`)
+  options.logger(`    🔍 input files: ${files}`)
+  options.logger(`    🔍 output pattern: ${output}`)
 
   let dbFile = env.sqliteFile('convert')
   let db = await dbApi.initDatabaseAndLoadSchema(
@@ -156,14 +167,12 @@ async function startConvert(
     env.schemaFile(),
     env.zapVersion()
   )
-  if (options.log) console.log('    🐝 database and schema initialized')
+  options.logger('    🐝 database and schema initialized')
   await zclLoader.loadZcl(db, args.zclPropertiesFile)
-  if (options.log)
-    console.log(`    🐝 zcl package loaded: ${args.zclPropertiesFile}`)
+  options.logger(`    🐝 zcl package loaded: ${args.zclPropertiesFile}`)
   if (args.genTemplateJsonFile != null) {
     await generatorEngine.loadTemplates(db, args.genTemplateJsonFile)
-    if (options.log)
-      console.log(`    🐝 templates loaded: ${args.genTemplateJsonFile}`)
+    options.logger(`    🐝 templates loaded: ${args.genTemplateJsonFile}`)
   }
 
   return util
@@ -176,7 +185,7 @@ async function startConvert(
             .then((pkgs) => importResult.sessionId)
         })
         .then((sessionId) => {
-          if (options.log) console.log(`    👈 read in: ${singlePath}`)
+          options.logger(`    👈 read in: ${singlePath}`)
           let of = outputFile(singlePath, output)
           let parent = path.dirname(of)
           if (!fs.existsSync(parent)) {
@@ -197,11 +206,11 @@ async function startConvert(
             )
         })
         .then((outputPath) => {
-          if (options.log) console.log(`    👉 write out: ${outputPath}`)
+          options.logger(`    👉 write out: ${outputPath}`)
         })
     )
     .then(() => {
-      if (options.log) console.log('😎 Conversion done!')
+      options.logger('😎 Conversion done!')
       if (options.quit && app != null) {
         app.quit()
       }
@@ -214,14 +223,18 @@ async function startConvert(
  * @param {*} paths List of paths to analyze
  * @param {boolean} [options={ log: true, quit: true }]
  */
-function startAnalyze(
+async function startAnalyze(
   paths,
-  options = { log: true, quit: true, cleanDb: true }
+  options = {
+    quit: true,
+    cleanDb: true,
+    logger: console.log,
+  }
 ) {
   let dbFile = env.sqliteFile('analysis')
-  if (options.log) console.log(`🤖 Starting analysis: ${paths}`)
+  options.logger(`🤖 Starting analysis: ${paths}`)
   if (options.cleanDb && fs.existsSync(dbFile)) {
-    if (options.log) console.log('    👉 remove old database file')
+    options.logger('    👉 remove old database file')
     fs.unlinkSync(dbFile)
   }
   let db
@@ -229,7 +242,7 @@ function startAnalyze(
     .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
     .then((d) => {
       db = d
-      if (options.log) console.log('    👉 database and schema initialized')
+      options.logger('    👉 database and schema initialized')
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
     })
     .then((d) => {
@@ -240,13 +253,13 @@ function startAnalyze(
             util.sessionReport(db, importResult.sessionId)
           )
           .then((report) => {
-            if (options.log) console.log(`🤖 File: ${singlePath}\n`)
-            if (options.log) console.log(report)
+            options.logger(`🤖 File: ${singlePath}\n`)
+            options.logger(report)
           })
       )
     })
     .then(() => {
-      if (options.log) console.log('😎 Analysis done!')
+      options.logger('😎 Analysis done!')
       if (options.quit && app != null) app.quit()
     })
 }
@@ -254,40 +267,44 @@ function startAnalyze(
 /**
  * Start up applicationa in self-check mode.
  */
-function startSelfCheck(options = { log: true, quit: true, cleanDb: true }) {
+async function startSelfCheck(
+  options = {
+    quit: true,
+    cleanDb: true,
+    logger: console.log,
+  }
+) {
   env.logInitStdout()
-  if (options.log) console.log('🤖 Starting self-check')
+  options.logger('🤖 Starting self-check')
   let dbFile = env.sqliteFile('self-check')
   if (options.cleanDb && fs.existsSync(dbFile)) {
-    if (options.log) console.log('    👉 remove old database file')
+    options.logger('    👉 remove old database file')
     fs.unlinkSync(dbFile)
   }
+  let mainDb
   return dbApi
     .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
-    .then((db) => env.resolveMainDatabase(db))
     .then((db) => {
-      if (options.log) console.log('    👉 database and schema initialized')
+      mainDb = db
+      options.logger('    👉 database and schema initialized')
       return zclLoader.loadZcl(db, args.zclPropertiesFile)
     })
     .then((ctx) => {
-      if (options.log) console.log('    👉 zcl data loaded')
+      options.logger('    👉 zcl data loaded')
       return generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
     })
     .then(async (ctx) => {
-      if (options.log) {
-        if (ctx.error) {
-          console.log(`    ⚠️  ${ctx.error}`)
-        } else {
-          console.log('    👉 generation templates loaded')
-        }
+      if (ctx.error) {
+        options.logger(`    ⚠️  ${ctx.error}`)
+      } else {
+        options.logger('    👉 generation templates loaded')
       }
 
       // This is a hack to prevent too quick shutdown that causes core dumps.
-      dbApi.closeDatabaseSync(env.mainDatabase())
-      env.resolveMainDatabase(null)
-      if (options.log) console.log('    👉 database closed')
-      await new Promise((r) => setTimeout(r, 2000))
-      if (options.log) console.log('😎 Self-check done!')
+      dbApi.closeDatabaseSync(mainDb)
+      options.logger('    👉 database closed')
+      await util.waitFor(2000)
+      options.logger('😎 Self-check done!')
       if (options.quit && app != null) {
         app.quit()
       }
@@ -315,27 +332,26 @@ async function startGeneration(
   options = {
     quit: true,
     cleanDb: true,
-    log: true,
+    logger: console.log,
   }
 ) {
-  if (options.log)
-    console.log(
-      `🤖 ZAP generation information: 
+  options.logger(
+    `🤖 ZAP generation information: 
     👉 into: ${output}
     👉 using templates: ${genTemplateJsonFile}
     👉 using zcl data: ${zclProperties}`
-    )
+  )
   let zapFile = null
   if (zapFiles != null && zapFiles.length > 0) {
     zapFile = zapFiles[0]
-    if (zapFiles.length > 1 && options.log)
-      console.log(`    ⚠️  Multiple files passed. Using only first one.`)
+    if (zapFiles.length > 1)
+      options.logger(`    ⚠️  Multiple files passed. Using only first one.`)
   }
   if (zapFile != null) {
     if (fs.existsSync(zapFile)) {
       let stat = fs.statSync(zapFile)
       if (stat.isDirectory()) {
-        if (options.log) console.log(`    👉 using input directory: ${zapFile}`)
+        options.logger(`    👉 using input directory: ${zapFile}`)
         let dirents = fs.readdirSync(zapFile, { withFileTypes: true })
         let usedFile = []
         dirents.forEach((element) => {
@@ -344,31 +360,28 @@ async function startGeneration(
           }
         })
         if (usedFile.length == 0) {
-          if (options.log)
-            console.log(`    👎 no zap files found in directory: ${zapFile}`)
+          options.logger(`    👎 no zap files found in directory: ${zapFile}`)
           throw `👎 no zap files found in directory: ${zapFile}`
         } else if (usedFile.length > 1) {
-          if (options.log)
-            console.log(
-              `    👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
-            )
+          options.logger(
+            `    👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
+          )
           throw `👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
         } else {
           zapFile = usedFile[0]
-          if (options.log) console.log(`    👉 using input file: ${zapFile}`)
+          options.logger(`    👉 using input file: ${zapFile}`)
         }
       } else {
-        if (options.log) console.log(`    👉 using input file: ${zapFile}`)
+        options.logger(`    👉 using input file: ${zapFile}`)
       }
     } else {
-      if (options.log) console.log(`    👎 file not found: ${zapFile}`)
+      options.logger(`    👎 file not found: ${zapFile}`)
       throw `👎 file not found: ${zapFile}`
     }
   } else {
-    if (options.log) console.log(`    👉 using empty configuration`)
+    options.logger(`    👉 using empty configuration`)
   }
-  if (options.log)
-    console.log(`    👉 zap version: ${env.zapVersionAsString()}`)
+  options.logger(`    👉 zap version: ${env.zapVersionAsString()}`)
   let dbFile = env.sqliteFile('generate')
   if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   let mainDb = await dbApi.initDatabaseAndLoadSchema(
@@ -399,7 +412,7 @@ async function startGeneration(
     packageId,
     output,
     {
-      log: options.log,
+      logger: options.logger,
       backup: false,
       genResultFile: args.genResultFile,
       skipPostGeneration: args.skipPostGeneration,
@@ -418,9 +431,56 @@ function clearDatabaseFile(dbPath) {
   util.createBackupFile(dbPath)
 }
 
+/**
+ * Shuts down any servers that might be running.
+ */
 function shutdown() {
-  env.logInfo('Shutting down HTTP server...')
+  env.logInfo('Shutting down HTTP and IPC servers...')
+  ipcServer.shutdownServerSync()
   httpServer.shutdownHttpServerSync()
+
+  if (mainDatabase != null) {
+    // Use a sync call, because you can't have promises in the 'quit' event.
+    try {
+      dbApi.closeDatabaseSync(mainDatabase)
+      env.logInfo('Database closed, shutting down.')
+    } catch (err) {
+      env.logError('Failed to close database.')
+    }
+  }
+}
+
+/**
+ * Startup method for the secondary instance.
+ *
+ * @param {*} argv
+ */
+function startUpSecondaryInstance(argv) {
+  console.log('🧐 Existing instance of zap will service this request.')
+  ipcClient.initAndConnectClient().then(() => {
+    ipcClient.on(ipcServer.eventType.overAndOut, (data) => {
+      console.log(data)
+      app.quit()
+    })
+
+    ipcClient.on(ipcServer.eventType.over, (data) => {
+      console.log(data)
+    })
+  })
+  if (argv._.includes('status')) {
+    ipcClient.emit(ipcServer.eventType.version)
+  } else if (argv._.includes('new')) {
+    ipcClient.emit(ipcServer.eventType.new)
+  } else if (argv._.includes('convert') && argv.zapFiles != null) {
+    ipcClient.emit(ipcServer.eventType.convert, {
+      output: argv.output,
+      files: argv.zapFiles,
+    })
+  } else if (argv._.includes('generate') && argv.zapFiles != null) {
+    ipcClient.emit(ipcServer.eventType.generate, argv.zapFiles)
+  } else if (argv.zapFiles != null) {
+    ipcClient.emit(ipcServer.eventType.open, argv.zapFiles)
+  }
 }
 
 /**
@@ -428,9 +488,7 @@ function shutdown() {
  *
  * @param {*} isElectron
  */
-function startUp(isElectron) {
-  let argv = args.processCommandLineArguments(process.argv)
-
+async function startUpMainInstance(isElectron, argv) {
   if (argv.logToStdout) {
     env.logInitStdout()
   } else {
@@ -453,7 +511,7 @@ function startUp(isElectron) {
       throw 'You need to specify at least one zap file.'
     if (argv.output == null) throw 'You need to specify output file.'
     return startConvert(argv.zapFiles, argv.output, {
-      log: true,
+      logger: console.log,
       quit: true,
       noZapFileLog: argv.noZapFileLog,
     }).catch((code) => {
@@ -477,7 +535,7 @@ function startUp(isElectron) {
         embeddedMode: argv.embeddedMode,
       })
     } else {
-      console.log(`Can't start UI with node, must start with electron.`)
+      return startNormal(false, argv.showUrl, [], {})
     }
   }
 }
@@ -486,6 +544,8 @@ exports.startGeneration = startGeneration
 exports.startNormal = startNormal
 exports.startSelfCheck = startSelfCheck
 exports.clearDatabaseFile = clearDatabaseFile
+exports.startConvert = startConvert
 exports.startAnalyze = startAnalyze
-exports.startUp = startUp
+exports.startUpMainInstance = startUpMainInstance
+exports.startUpSecondaryInstance = startUpSecondaryInstance
 exports.shutdown = shutdown

@@ -44,7 +44,6 @@ beforeAll(() => {
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
       db = d
-      env.logInfo('DB initialized.')
     })
 }, 5000)
 
@@ -167,7 +166,13 @@ test(
   'Test endpoint config generation',
   () =>
     genEngine
-      .generate(db, sessionId, templateContext.packageId)
+      .generate(
+        db,
+        sessionId,
+        templateContext.packageId,
+        {},
+        { disableDeprecationWarnings: true }
+      )
       .then((genResult) => {
         expect(genResult).not.toBeNull()
         expect(genResult.partial).toBeFalsy()

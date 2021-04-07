@@ -309,6 +309,7 @@ function deprecatedHelper(fn, explanation) {
   let f = function () {
     if (
       this.global != undefined &&
+      this.global.disableDeprecationWarnings != true &&
       this.global.deprecationWarnings != undefined &&
       this.global.deprecationWarnings[fn.name] == null
     ) {

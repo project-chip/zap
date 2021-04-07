@@ -114,12 +114,12 @@ export default function () {
     },
     calledArgs: {
       defaultUiMode: restApi.uiMode.ZIGBEE,
-      embeddedMode: true,
+      embeddedMode: false,
     },
     studio: {
-      projectPath: '',
-      projectInfoJson: '', // HTTP response from Studio jetty server
-      selectedComponentIds: [], // parsed from 'projectInfoJson'
+      projectInfoJson: [], // HTTP response from Studio jetty server
+      selectedComponents: [], // [] of 'studio..' prefixed Studio internal component ids
+      selectedComponentIds: [], // [] of 'zigbee_' prefixed component ids
     },
   }
 }

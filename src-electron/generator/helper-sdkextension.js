@@ -18,6 +18,7 @@
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
+const util = require('../util/util.js')
 
 /**
  * This module contains the API for accessing SDK extensions.
@@ -43,30 +44,7 @@ function cluster_extension(options) {
       .then((packageId) =>
         templateUtil.ensureZclClusterSdkExtensions(this, packageId)
       )
-      .then((extensions) => cluster_extension_obj(extensions, prop, this.code))
-  }
-}
-
-/**
- * Retrieve specific entry from extensions defaults(array) via 'clusterCode' key fields
- *
- * @param {*} extensions
- * @param {*} property field name under specific extension
- * @param {*} clusterCode search key
- * @returns Value of the cluster extension property.
- */
-function cluster_extension_obj(extensions, property, clusterCode) {
-  let f = extensions.filter((x) => x.property == property)
-  if (f.length == 0) {
-    return ''
-  } else {
-    let val = null
-    f[0].defaults.forEach((d) => {
-      if (d.entityCode == clusterCode) val = d.value
-    })
-    if (val == null) val = f[0].globalDefault
-    if (val == null) val = ''
-    return val
+      .then((extensions) => util.getClusterExtensionDefault(extensions, prop, this.code))
   }
 }
 
@@ -173,7 +151,6 @@ function attribute_extension(options) {
 }
 
 exports.cluster_extension = cluster_extension
-exports.cluster_extension_obj = cluster_extension_obj
 exports.command_extension = command_extension
 exports.attribute_extension = attribute_extension
 exports.device_type_extension = device_type_extension

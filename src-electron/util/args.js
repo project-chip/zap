@@ -36,6 +36,8 @@ exports.noServer = false
 exports.zapFiles = []
 exports.genResultFile = false
 exports.skipPostGeneration = false
+exports.reuseZapInstance = false
+exports.watchdogTimer = 60000 // Default watchdog timer: 1 min
 
 function environmentVariablesDescription() {
   let vars = env.environmentVariable
@@ -61,6 +63,8 @@ function processCommandLineArguments(argv) {
     selfCheck: 'Perform the self-check of the application.',
     analyze: 'Analyze the zap file without doing anything.',
     convert: 'Convert a zap or ISC file to latest zap file.',
+    status: 'Query the status of a zap server.',
+    new: 'If in client mode, start a new window on a main instance.',
   }
   let y = yargs
   for (const cmd in commands) {
@@ -116,7 +120,7 @@ function processCommandLineArguments(argv) {
     })
     .options('noServer', {
       desc:
-        "Don't run the http server. You should probably also specify -noUi with this.",
+        "Don't run the http or IPC server. You should probably also specify -noUi with this.",
       default: exports.noServer,
     })
     .options('genResultFile', {
@@ -155,6 +159,12 @@ function processCommandLineArguments(argv) {
       desc: `When writing out the .zap files, don't include the log. Useful in unit testing, where timestamps otherwise cause diffs.`,
       type: 'boolean',
       default: false,
+    })
+    .option('reuseZapInstance', {
+      desc: `When starting zap, should zap attempt to reuse an instance of previous zap already running.`,
+      type: 'boolean',
+      default:
+        process.env[env.environmentVariable.reuseZapInstance.name] == '1',
     })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
@@ -202,6 +212,8 @@ For more information, see https://github.com/project-chip/zap`
   exports.genResultFile = ret.genResultFile
   exports.zapFiles = allFiles
   exports.skipPostGeneration = ret.skipPostGeneration
+  exports.reuseZapInstance = ret.reuseZapInstance
+
   return ret
 }
 

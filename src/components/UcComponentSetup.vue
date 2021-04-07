@@ -17,10 +17,10 @@ limitations under the License.
   <q-card>
     <q-card-section>
       <q-tree
-        :nodes="componentTree"
+        :nodes="ucComponentTree"
         node-key="id"
         tick-strategy="leaf"
-        :ticked.sync="uc.ticked"
+        :ticked.sync="ucComponentTicked"
         :expanded.sync="uc.expanded"
         @update:ticked="handleClick"
       ></q-tree>
@@ -45,47 +45,33 @@ export default {
 
       // q-tree attri
       uc: {
-        last_ticked: [], // keep this to get checked/unchecked items.
         ticked: [],
         expanded: [],
       },
-
-      componentTree: [],
     }
   },
 
-  mounted() {
-    if (this.$$serverGet != null) {
-      this.$serverGet(restApi.uc.componentTree, {
-        params: {
-          studioProject: this.$store.state.zap.studio.projectPath,
-        },
-      }).then((response) => {
-        this.componentTree.length = 0
-        response.data.forEach((ele) => this.componentTree.push(ele))
-
-        let selectedComponentIds = util.getSelectedComponent(response.data)
-
-        this.uc.ticked.length = 0
-        selectedComponentIds.forEach((e) => this.uc.ticked.push(e))
-        this.uc.last_ticked = this.uc.ticked
-      })
-    }
+  computed: {
+    ucComponentTree: function () {
+      return this.$store.state.zap.studio.projectInfoJson
+    },
+    ucComponentTicked: function () {
+      return this.$store.state.zap.studio.selectedComponents
+    },
   },
+
+  mounted() {},
 
   methods: {
     handleClick: function (target) {
-      // let diff = .filter(x => !arr2.includes(x));
-      let enabledItems = this.uc.ticked.filter(
-        (x) => !this.uc.last_ticked.includes(x)
+      let enabledItems = target.filter(
+        (x) => !this.ucComponentTicked.includes(x)
       )
-      let disabledItems = this.uc.last_ticked.filter(
-        (x) => !this.uc.ticked.includes(x)
+      let disabledItems = this.ucComponentTicked.filter(
+        (x) => !target.includes(x)
       )
 
-      // Parse component id from Studio ids
-      // e.g. "zigbee_basic" via "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
-      enabledItems = enabledItems.map((x) => x.substr(x.lastIndexOf('-') + 1))
+      enabledItems = util.getClustersByUcComponentIds(enabledItems)
       if (enabledItems.length) {
         this.updateSelectedComponentRequest({
           componentIds: enabledItems,
@@ -93,15 +79,13 @@ export default {
         })
       }
 
-      disabledItems = disabledItems.map((x) => x.substr(x.lastIndexOf('-') + 1))
+      disabledItems = util.getClustersByUcComponentIds(disabledItems)
       if (disabledItems.length) {
         this.updateSelectedComponentRequest({
           componentIds: disabledItems,
           added: false,
         })
       }
-
-      this.uc.last_ticked = this.uc.ticked
     },
   },
 }

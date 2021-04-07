@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 const { dialog } = require('electron')
-const windowJs = require('../main-process/window.js')
+const windowJs = require('./window.js')
 const browserApi = require('./browser-api.js')
 
 /**
@@ -54,7 +54,7 @@ function openFileConfiguration(filePath, httpPort) {
  * @param {*} httpPort
  * @param {*} options: uiMode, embeddedMode
  */
-async function openNewConfiguration(db, httpPort, options = {}) {
+async function openNewConfiguration(httpPort, options = {}) {
   windowJs.windowCreate(httpPort, options)
 }
 
@@ -66,6 +66,7 @@ async function openNewConfiguration(db, httpPort, options = {}) {
  */
 function toggleDirtyFlag(browserWindow, dirty) {
   let title = browserWindow.getTitle()
+  browserWindow.isDirty = dirty
   if (title.startsWith('* ') && !dirty) {
     browserWindow.setTitle(title.slice(2))
   } else if (!title.startsWith('*') && dirty) {

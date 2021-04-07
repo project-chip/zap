@@ -118,14 +118,8 @@ export function updateSelectedCommands(context, selectionContext) {
 }
 
 export function updateSelectedComponent(context, payload) {
-  if (!('studioProject' in payload)) {
-    return Promise.resolve({ status: http.StatusCodes.BAD_REQUEST })
-  } else {
-    let op = payload.added
-      ? restApi.uc.componentAdd
-      : restApi.uc.componentRemove
-    return Vue.prototype.$serverPost(op, payload)
-  }
+  let op = payload.added ? restApi.uc.componentAdd : restApi.uc.componentRemove
+  return Vue.prototype.$serverPost(op, payload)
 }
 
 export function updateSelectedServers(context, selectionContext) {
@@ -603,10 +597,6 @@ export function setEmbeddedMode(context, embeddedMode) {
   context.commit('setEmbeddedMode', embeddedMode)
 }
 
-export function setStudioConfigPath(context, filePath) {
-  context.commit('setStudioConfigPath', filePath)
-}
-
 export function setAttributeEditting(context, editContext) {
   context.commit('setAttributeEditting', editContext)
 }
@@ -631,16 +621,8 @@ export function resetFilters(context) {
   context.commit('resetFilters')
 }
 
-export function updateUcComponentState(context, studioProjectPath) {
-  Vue.prototype
-    .$serverGet(restApi.uc.componentTree, {
-      params: {
-        studioProject: studioProjectPath,
-      },
-    })
-    .then((response) => {
-      let selected = Util.getSelectedComponent(response.data)
-      let selectedComponentIds = Util.getClustersByUcComponentIds(selected)
-      context.commit('updateUcComponentState', selectedComponentIds)
-    })
+export function updateUcComponentState(context, projectInfoJson) {
+  let selectedComponents = Util.getSelectedComponent(projectInfoJson)
+  let selectedComponentIds = Util.getClustersByUcComponentIds(selectedComponents)
+  context.commit('updateUcComponentState', {projectInfoJson, selectedComponents, selectedComponentIds})
 }

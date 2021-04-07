@@ -15,53 +15,54 @@
  *    limitations under the License.
  */
 
-const path = require('path')
 const { dialog, Menu, shell } = require('electron')
 const env = require('../util/env.js')
 const queryGeneric = require('../db/query-generic.js')
 const querySession = require('../db/query-session.js')
-const exportJs = require('../importexport/export.js')
-const uiJs = require('../ui/ui-util.js')
-const preference = require('./preference.js')
-const about = require('./about.js')
+const uiJs = require('./ui-util.js')
+const preference = require('../main-process/preference.js')
+const about = require('../main-process/about.js')
 const generationEngine = require('../generator/generation-engine.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const commonUrl = require('../../src-shared/common-url.js')
-const browserApi = require('../ui/browser-api.js')
+const browserApi = require('./browser-api.js')
 
-let httpPort
 const newConfiguration = 'New Configuration'
 
-const template = [
+const template = (db, httpPort) => [
   {
     role: 'fileMenu',
     submenu: [
       {
         label: newConfiguration + '...',
         accelerator: 'CmdOrCtrl+N',
+        httpPort: httpPort,
         click(menuItem, browserWindow, event) {
-          uiJs.openNewConfiguration(env.mainDatabase(), httpPort)
+          uiJs.openNewConfiguration(menuItem.httpPort)
         },
       },
       {
         label: 'Open File...',
         accelerator: 'CmdOrCtrl+O',
+        db: db,
         click(menuItem, browserWindow, event) {
-          doOpen(menuItem, browserWindow, event)
+          doOpen(menuItem.db)
         },
       },
       {
         label: 'Save',
         accelerator: 'CmdOrCtrl+S',
+        db: db,
         click(menuItem, browserWindow, event) {
-          doSave(menuItem, browserWindow, event)
+          doSave(menuItem.db, browserWindow)
         },
       },
       {
         label: 'Save As...',
+        db: db,
         click(menuItem, browserWindow, event) {
-          doSaveAs(menuItem, browserWindow, event)
+          doSaveAs(menuItem.db, browserWindow)
         },
       },
       {
@@ -69,14 +70,19 @@ const template = [
       },
       {
         label: 'Generate Code',
+        db: db,
         click(menuItem, browserWindow, event) {
-          generateInDir(browserWindow)
+          generateInDir(menuItem.db, browserWindow)
         },
       },
       {
         label: 'Preferences...',
+        httpPort: httpPort,
         click(menuItem, browserWindow, event) {
-          preference.createOrShowPreferencesWindow(browserWindow, httpPort)
+          preference.createOrShowPreferencesWindow(
+            browserWindow,
+            menuItem.httpPort
+          )
         },
       },
       {
@@ -113,8 +119,9 @@ const template = [
       },
       {
         label: 'User and session information',
+        db: db,
         click(menuItem, browserWindow, event) {
-          getUserSessionInfoMessage(env.mainDatabase(), browserWindow)
+          getUserSessionInfoMessage(menuItem.db, browserWindow)
             .then((msg) => {
               dialog.showMessageBox(browserWindow, {
                 title: 'User and session information',
@@ -154,8 +161,9 @@ const template = [
       },
       {
         label: 'About',
+        httpPort: httpPort,
         click(menuItem, browserWindow, event) {
-          about.createOrShowAboutWindow(browserWindow, httpPort)
+          about.createOrShowAboutWindow(browserWindow, menuItem.httpPort)
         },
       },
     ],
@@ -185,9 +193,9 @@ async function getUserSessionInfoMessage(db, browserWindow) {
  * @param {*} browserWindow
  * @param {*} event
  */
-function doOpen(menuItem, browserWindow, event) {
+function doOpen(db) {
   queryGeneric
-    .selectFileLocation(env.mainDatabase(), dbEnum.fileLocationCategory.save)
+    .selectFileLocation(db, dbEnum.fileLocationCategory.save)
     .then((filePath) => {
       let opts = {
         properties: ['openFile', 'multiSelections'],
@@ -212,9 +220,9 @@ function doOpen(menuItem, browserWindow, event) {
  * @param {*} browserWindow
  * @param {*} event
  */
-function doSave(menuItem, browserWindow, event) {
+function doSave(db, browserWindow) {
   if (browserWindow.getTitle().includes(newConfiguration)) {
-    doSaveAs(menuItem, browserWindow, event)
+    doSaveAs(db, browserWindow)
   } else {
     fileSave(browserWindow, null)
   }
@@ -227,9 +235,9 @@ function doSave(menuItem, browserWindow, event) {
  * @param {*} browserWindow
  * @param {*} event
  */
-function doSaveAs(menuItem, browserWindow, event) {
+function doSaveAs(db, browserWindow) {
   queryGeneric
-    .selectFileLocation(env.mainDatabase(), dbEnum.fileLocationCategory.save)
+    .selectFileLocation(db, dbEnum.fileLocationCategory.save)
     .then((filePath) => {
       let opts = {
         filters: [
@@ -253,7 +261,7 @@ function doSaveAs(menuItem, browserWindow, event) {
     .then((filePath) => {
       if (filePath != null) {
         queryGeneric.insertFileLocation(
-          env.mainDatabase(),
+          db,
           filePath,
           dbEnum.fileLocationCategory.save
         )
@@ -270,7 +278,7 @@ function doSaveAs(menuItem, browserWindow, event) {
  *
  * @param {*} browserWindow
  */
-function generateInDir(browserWindow) {
+function generateInDir(db, browserWindow) {
   dialog
     .showOpenDialog({
       buttonLabel: 'Save',
@@ -286,13 +294,11 @@ function generateInDir(browserWindow) {
     .then((context) => {
       if (!('path' in context)) return context
 
+      browserApi.progressStart(browserWindow, 'Generating...')
       return browserApi
-        .getUserKeyFromBrowserWindow(browserWindow)
+        .getSessionUuidFromBrowserWindow(browserWindow)
         .then((sessionKey) =>
-          querySession.getSessionInfoFromSessionKey(
-            env.mainDatabase(),
-            sessionKey
-          )
+          querySession.getSessionInfoFromSessionKey(db, sessionKey)
         )
         .then((session) => {
           env.logInfo(`Generating for session ${session.sessionId}`)
@@ -304,12 +310,9 @@ function generateInDir(browserWindow) {
       context.packageIds = []
       if (!('sessionId' in context)) return context
 
-      env.logInfo(
-        `Collecting session packages for session ${context.sessionId}`
-      )
       return queryPackage
         .getSessionPackagesByType(
-          env.mainDatabase(),
+          db,
           context.sessionId,
           dbEnum.packageType.genTemplatesJson
         )
@@ -329,7 +332,7 @@ function generateInDir(browserWindow) {
         )
         promises.push(
           generationEngine.generateAndWriteFiles(
-            env.mainDatabase(),
+            db,
             context.sessionId,
             pkgId,
             context.path
@@ -346,6 +349,7 @@ function generateInDir(browserWindow) {
       })
     })
     .catch((err) => uiJs.showErrorMessage('Save file', err))
+    .finally(() => browserApi.progressEnd(browserWindow))
 }
 
 /**
@@ -378,9 +382,8 @@ function fileOpen(filePaths) {
  * @export
  * @param {*} port
  */
-function initMenu(port) {
-  httpPort = port
-  const menu = Menu.buildFromTemplate(template)
+function initMenu(db, httpPort) {
+  const menu = Menu.buildFromTemplate(template(db, httpPort))
   Menu.setApplicationMenu(menu)
 }
 

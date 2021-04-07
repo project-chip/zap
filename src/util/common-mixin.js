@@ -120,16 +120,11 @@ export default {
      * @param {*} params
      */
     updateSelectedComponentRequest(params) {
-      params['studioProject'] = this.$store.state.zap.studioProject
       this.$store
         .dispatch('zap/updateSelectedComponent', params)
         .then((response) => {
-          if (response.status == http.StatusCodes.BAD_REQUEST) {
-            console.log(
-              'Failed to update selected components. Verify "studioProject" path is set!'
-            )
-          } else if (response.status != http.StatusCodes.OK) {
-            console.log('Failed to update selected components')
+          if (response.status != http.StatusCodes.OK) {
+            console.log('Failed to update selected components!')
           }
         })
     },

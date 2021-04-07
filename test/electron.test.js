@@ -19,7 +19,7 @@
  */
 
 const electronMain = require('../src-electron/main-process/electron-main.js')
-const window = require('../src-electron/main-process/window.js')
+const window = require('../src-electron/ui/window.js')
 
 test('Make sure electron main process loads', () => {
   expect(electronMain.loaded).toBeTruthy()

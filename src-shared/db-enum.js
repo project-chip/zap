@@ -73,6 +73,7 @@ exports.fileLocationCategory = {
 
 exports.sessionKey = {
   filePath: 'filePath',
+  studioProjectPath: 'studioProjectPath',
 }
 
 exports.pathRelativity = {
@@ -85,7 +86,8 @@ exports.wsCategory = {
   generic: 'generic',
   dirtyFlag: 'dirtyFlag',
   sessionCreationError: 'sessionCreationError',
-  componentStatus: 'componentStatus',
+  componentUpdateStatus: 'componentUpdateStatus',
+  ucComponentStateReport: 'ucComponentStateReport',
   init: 'init',
   tick: 'tick',
 }

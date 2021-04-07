@@ -335,7 +335,7 @@ async function closeDatabase(database) {
  *
  * @param {*} database
  */
-async function closeDatabaseSync(database) {
+function closeDatabaseSync(database) {
   env.logSql('About to close database.')
   database.close((err) => {
     if (err) console.log(`Database close error: ${err}`)

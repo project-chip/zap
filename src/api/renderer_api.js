@@ -63,14 +63,15 @@ function renderer_api_info() {
   }
 }
 
-function fnOpen(zap_file) {
+function fnOpen(zapFilePath, studioFilePath) {
   // Make a request for a user with a given ID
-  if (zap_file) {
-    window
-      .axios_server_post(`${restApi.ide.open}`, { path: zap_file })
-      .then((res) => window.location.reload())
-      .catch((err) => console.log(err))
-  }
+  window
+    .axios_server_post(`${restApi.ide.open}`, {
+      zapFilePath,
+      studioFilePath,
+    })
+    .then((res) => window.location.reload())
+    .catch((err) => console.log(err))
 }
 
 function fnSave(zap_file) {
