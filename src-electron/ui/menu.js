@@ -16,14 +16,11 @@
  */
 
 const { dialog, Menu, shell } = require('electron')
-const env = require('../util/env.js')
 const queryGeneric = require('../db/query-generic.js')
 const querySession = require('../db/query-session.js')
 const uiJs = require('./ui-util.js')
 const preference = require('../main-process/preference.js')
 const about = require('../main-process/about.js')
-const generationEngine = require('../generator/generation-engine.js')
-const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const commonUrl = require('../../src-shared/common-url.js')
 const browserApi = require('./browser-api.js')

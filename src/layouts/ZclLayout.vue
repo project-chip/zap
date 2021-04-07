@@ -39,12 +39,18 @@ limitations under the License.
         <q-btn
           flat
           @click="generateIntoDirectory(generationDirectory)"
-          label="Generate"
+          label="Generate ..."
+        />
+        <q-btn
+          flat
+          @click="regenerateIntoDirectory(generationDirectory)"
+          label="Regenerate"
+          v-bind:disabled="generationDirectory == ''"
         />
         <q-btn
           flat
           @click="drawerRight = !drawerRight"
-          label="  Preview  "
+          label="Preview"
           v-on:click="getGeneratedFiles"
         />
       </q-toolbar>
@@ -143,6 +149,20 @@ const observable = require('../util/observable.js')
 export default {
   name: 'ZclLayout',
   methods: {
+    doGeneration(path) {
+      window.global_renderer_api_execute(
+        restApi.rendererApiId.progressStart,
+        'Generating files...'
+      )
+      this.$serverPut(restApi.uri.generate, {
+        generationDirectory: path,
+      }).finally(() => {
+        window.global_renderer_api_execute(restApi.rendererApiId.progressEnd)
+      })
+    },
+    regenerateIntoDirectory(currentPath) {
+      this.doGeneration(currentPath)
+    },
     generateIntoDirectory(currentPath) {
       window.global_renderer_notify(restApi.rendererApiNotifyKey.fileBrowse, {
         context: 'generateDir',
@@ -221,15 +241,7 @@ export default {
     observable.observeAttribute(restApi.reported_files, (value) => {
       if (value.context == 'generateDir') {
         this.generationDirectory = value.filePaths[0]
-        window.global_renderer_api_execute(
-          restApi.rendererApiId.progressStart,
-          'Generating files...'
-        )
-        this.$serverPut(restApi.uri.generate, {
-          generationDirectory: this.generationDirectory,
-        }).finally(() => {
-          window.global_renderer_api_execute(restApi.rendererApiId.progressEnd)
-        })
+        this.doGeneration(this.generationDirectory)
       }
     })
   },
