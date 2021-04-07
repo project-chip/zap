@@ -341,13 +341,6 @@ function generateInDir(db, browserWindow) {
       })
       return Promise.all(promises).then(() => context)
     })
-    .then((context) => {
-      dialog.showMessageBox(browserWindow, {
-        title: 'Generation',
-        message: `Generation Output: ${context.path}`,
-        buttons: ['Ok'],
-      })
-    })
     .catch((err) => uiJs.showErrorMessage('Save file', err))
     .finally(() => browserApi.progressEnd(browserWindow))
 }
