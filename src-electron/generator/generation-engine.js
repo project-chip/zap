@@ -19,7 +19,6 @@
  * @module JS API: generator logic
  */
 const _ = require('lodash')
-
 const fs = require('fs')
 const fsPromise = fs.promises
 const path = require('path')
@@ -29,7 +28,6 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
-const { groupEnd } = require('console')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -509,30 +507,32 @@ async function generateSingleTemplate(
 async function generate(
   db,
   sessionId,
-  packageId,
+  templatePackageId,
   templateGeneratorOptions = {},
   options = {
     generateOnly: null,
     disableDeprecationWarnings: false,
   }
 ) {
-  return queryPackage.getPackageByPackageId(db, packageId).then((pkg) => {
-    if (pkg == null) throw `Invalid packageId: ${packageId}`
-    let genResult = {
-      db: db,
-      sessionId: sessionId,
-      content: {},
-      errors: {},
-      hasErrors: false,
-      generatorOptions: templateGeneratorOptions,
-      templatePath: path.dirname(pkg.path),
-    }
-    if (pkg.type === dbEnum.packageType.genTemplatesJson) {
-      return generateAllTemplates(genResult, pkg, options)
-    } else {
-      throw `Invalid package type: ${pkg.type}`
-    }
-  })
+  return queryPackage
+    .getPackageByPackageId(db, templatePackageId)
+    .then((pkg) => {
+      if (pkg == null) throw `Invalid packageId: ${templatePackageId}`
+      let genResult = {
+        db: db,
+        sessionId: sessionId,
+        content: {},
+        errors: {},
+        hasErrors: false,
+        generatorOptions: templateGeneratorOptions,
+        templatePath: path.dirname(pkg.path),
+      }
+      if (pkg.type === dbEnum.packageType.genTemplatesJson) {
+        return generateAllTemplates(genResult, pkg, options)
+      } else {
+        throw `Invalid package type: ${pkg.type}`
+      }
+    })
 }
 
 /**
@@ -584,7 +584,7 @@ async function generateGenerationContent(genResult) {
 async function generateAndWriteFiles(
   db,
   sessionId,
-  packageId,
+  templatePackageId,
   outputDirectory,
   options = {
     logger: (msg) => {},
@@ -596,7 +596,7 @@ async function generateAndWriteFiles(
   return queryPackage
     .selectAllOptionsValues(
       db,
-      packageId,
+      templatePackageId,
       dbEnum.packageOptionCategory.generator
     )
     .then((genOptions) => {
@@ -608,7 +608,7 @@ async function generateAndWriteFiles(
       return templateGeneratorOptions
     })
     .then((templateGeneratorOptions) =>
-      generate(db, sessionId, packageId, templateGeneratorOptions)
+      generate(db, sessionId, templatePackageId, templateGeneratorOptions)
     )
     .then((genResult) => {
       if (!fs.existsSync(outputDirectory)) {

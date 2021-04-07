@@ -39,11 +39,7 @@ export function observeAttribute(attributeName, callbackObj) {
         mutation.attributeName === attributeName
       ) {
         let attributeValue = mutation.target.getAttribute(attributeName)
-        if (typeof callbackObj === 'string') {
-          window[callbackObj](attributeValue)
-        } else if (typeof callbackObj === 'function') {
-          callbackObj(attributeValue)
-        }
+        callbackObj(JSON.parse(attributeValue))
       }
     })
   }).observe(html, {
@@ -59,7 +55,7 @@ export function observeAttribute(attributeName, callbackObj) {
  * @param {*} value
  */
 export function setObservableAttribute(name, value) {
-  document.documentElement.setAttribute(name, value)
+  document.documentElement.setAttribute(name, JSON.stringify(value))
 }
 
 /**
@@ -69,5 +65,5 @@ export function setObservableAttribute(name, value) {
  * @returns value of observable attribute.
  */
 export function getObservableAttribute(name) {
-  return document.documentElement.getAttribute(name)
+  return JSON.parse(document.documentElement.getAttribute(name))
 }
