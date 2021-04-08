@@ -114,6 +114,12 @@ export default {
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
     },
+    sdkExtClusterCode(extEntry) {
+      return extEntry ? extEntry.entityCode : ''
+    },
+    sdkExtUcComponentId(extEntry) {
+      return extEntry ? extEntry.value : ''
+    },
 
     /**
      * Enable components by pinging backend, which pings Studio jetty server.
@@ -127,6 +133,41 @@ export default {
             console.log('Failed to update selected components!')
           }
         })
+    },
+
+    /**
+     * Enable components by pinging backend, which pings Studio jetty server.
+     * @param {*} params
+     */
+    missingUcComponentDependencies(cluster) {
+      let hasClient = this.selectionClients.includes(cluster.id)
+      let hasServer =  this.selectionServers.includes(cluster.id)
+
+      let requiredList = []
+      if (hasClient) {
+        let compList = this.ucComponentRequiredByCluster(cluster, 'client')
+        requiredList = requiredList.concat(
+          compList.map((x) => this.sdkExtUcComponentId(x))
+        )
+      }
+
+      if (hasServer) {
+        let compList = this.ucComponentRequiredByCluster(cluster, 'server')
+        requiredList = requiredList.concat(
+          compList.map((x) => this.sdkExtUcComponentId(x))
+        )
+      }
+
+      return requiredList.filter(
+        (id) => !this.$store.state.zap.studio.selectedUcComponentIds.includes(id)
+      )
+    },
+
+    ucComponentRequiredByCluster(cluster, role) {
+      let clusterRoleName = cluster.label.toLowerCase() + '-' + role
+      return this.$store.state.zap.studio.zclSdkExtClusterToUcComponentMap.filter(
+        (x) => this.sdkExtClusterCode(x) === clusterRoleName
+      )
     },
   },
 }

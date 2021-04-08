@@ -123,7 +123,7 @@ export function updateSelectedComponent(context, payload) {
 }
 
 export function updateSelectedServers(context, selectionContext) {
-  Vue.prototype
+  return Vue.prototype
     .$serverPost(restApi.uri.cluster, {
       clusterId: selectionContext.clusterId,
       endpointTypeId: selectionContext.endpointTypeId,
@@ -137,7 +137,7 @@ export function updateSelectedServers(context, selectionContext) {
 }
 
 export function updateSelectedClients(context, selectionContext) {
-  Vue.prototype
+  return Vue.prototype
     .$serverPost(restApi.uri.cluster, {
       endpointTypeId: selectionContext.endpointTypeId,
       id: selectionContext.id,
@@ -147,8 +147,6 @@ export function updateSelectedClients(context, selectionContext) {
     .then(() => {
       context.commit('updateInclusionList', selectionContext)
     })
-
-  // enable corresponding component for selected clusters
 }
 
 export function getProjectPackages(context) {
@@ -622,7 +620,26 @@ export function resetFilters(context) {
 }
 
 export function updateUcComponentState(context, projectInfoJson) {
-  let selectedComponents = Util.getSelectedComponent(projectInfoJson)
-  let selectedComponentIds = Util.getClustersByUcComponentIds(selectedComponents)
-  context.commit('updateUcComponentState', {projectInfoJson, selectedComponents, selectedComponentIds})
+  let ucComponents = Util.getUcComponents(projectInfoJson)
+  let selectedUcComponents = Util.getSelectedUcComponents(ucComponents)
+  let selectedUcComponentIds = Util.getClusterIdsByUcComponents(
+    selectedUcComponents
+  )
+  context.commit('updateUcComponentState', {
+    projectInfoJson,
+    ucComponents,
+    selectedUcComponents,
+    selectedUcComponentIds,
+  })
+}
+
+export function loadZclClusterToUcComponentDependencyMap(context) {
+  Vue.prototype
+    .$serverGet(`/zclExtension/cluster/component`)
+    .then((response) => {
+      context.commit(
+        'loadZclClusterToUcComponentDependencyMap',
+        response.data.defaults
+      )
+    })
 }

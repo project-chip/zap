@@ -49,6 +49,7 @@ function initLoad(store) {
     })
   )
   promises.push(store.dispatch(`zap/getProjectPackages`))
+  promises.push(store.dispatch(`zap/loadZclClusterToUcComponentDependencyMap`))
   return Promise.all(promises)
 }
 
