@@ -56,7 +56,6 @@ function hookMainInstanceEvents(argv) {
     })
 
   if (!argv._.includes('server')) {
-    console.log('HOOKING UP NON SERVER STUFF!')
     app.on('window-all-closed', () => {
       if (process.platform !== 'darwin') {
         app.quit()
