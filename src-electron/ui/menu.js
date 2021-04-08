@@ -43,8 +43,9 @@ const template = (db, httpPort) => [
         label: 'Open File...',
         accelerator: 'CmdOrCtrl+O',
         db: db,
+        httpPort: httpPort,
         click(menuItem, browserWindow, event) {
-          doOpen(menuItem.db)
+          doOpen(menuItem.db, menuItem.httpPort)
         },
       },
       {
@@ -183,7 +184,7 @@ async function getUserSessionInfoMessage(db, browserWindow) {
  * @param {*} browserWindow
  * @param {*} event
  */
-function doOpen(db) {
+function doOpen(db, httpPort) {
   queryGeneric
     .selectFileLocation(db, dbEnum.fileLocationCategory.save)
     .then((filePath) => {
@@ -197,7 +198,7 @@ function doOpen(db) {
     })
     .then((result) => {
       if (!result.canceled) {
-        fileOpen(result.filePaths)
+        fileOpen(result.filePaths, httpPort)
       }
     })
     .catch((err) => uiJs.showErrorMessage('Open file', err))
@@ -279,7 +280,7 @@ function fileSave(browserWindow, filePath) {
  * @param {*} db
  * @param {*} filePaths
  */
-function fileOpen(filePaths) {
+function fileOpen(filePaths, httpPort) {
   filePaths.forEach((filePath, index) => {
     uiJs.openFileConfiguration(filePath, httpPort)
   })
