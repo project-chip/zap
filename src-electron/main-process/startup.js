@@ -306,7 +306,7 @@ async function startServer() {
         .then(() => ctx)
     })
     .then((ctx) => {
-      console.log(`ZAP Server started at: ${httpServer.httpServerUrl()}`)
+      console.log(httpServer.httpServerStartupMessage())
     })
     .catch((err) => {
       env.logError(err)

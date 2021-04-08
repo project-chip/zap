@@ -86,7 +86,7 @@ function initServer(db = null, httpPort = null) {
         serverIpc.server.emit(
           socket,
           eventType.overAndOut,
-          httpServer.httpServerUrl()
+          httpServer.httpServerStartupMessage()
         )
       })
 
