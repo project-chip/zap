@@ -242,8 +242,18 @@ function httpServerPort() {
     return 0
   }
 }
+
+/**
+ * Returns the URL of the server.
+ * @returns the server URL
+ */
+function httpServerUrl() {
+  return `http://localhost:${httpServerPort()}`
+}
+
 // exports
 exports.initHttpServer = initHttpServer
 exports.shutdownHttpServer = shutdownHttpServer
 exports.shutdownHttpServerSync = shutdownHttpServerSync
 exports.httpServerPort = httpServerPort
+exports.httpServerUrl = httpServerUrl

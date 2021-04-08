@@ -55,16 +55,18 @@ function hookMainInstanceEvents(argv) {
       app.exit(1)
     })
 
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      app.quit()
-    }
-  })
-
-  app.on('activate', () => {
-    env.logInfo('Activate...')
-    windowJs.windowCreateIfNotThere(args.httpPort)
-  })
+  if (!argv._.includes('server')) {
+    console.log('HOOKING UP NON SERVER STUFF!')
+    app.on('window-all-closed', () => {
+      if (process.platform !== 'darwin') {
+        app.quit()
+      }
+    })
+    app.on('activate', () => {
+      env.logInfo('Activate...')
+      windowJs.windowCreateIfNotThere(args.httpPort)
+    })
+  }
 
   app.on('will-quit', () => {
     startup.shutdown()

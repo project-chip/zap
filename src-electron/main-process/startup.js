@@ -265,6 +265,56 @@ async function startAnalyze(
 }
 
 /**
+ * Starts zap in a server mode.
+ *
+ * @param {*} options
+ * @returns promise of a startup
+ */
+async function startServer() {
+  let db = await dbApi.initDatabaseAndLoadSchema(
+    env.sqliteFile(),
+    env.schemaFile(),
+    env.zapVersion()
+  )
+
+  watchdog.start(args.watchdogTimer, () => {
+    if (app != null) {
+      app.quit()
+    } else {
+      process.exit(0)
+    }
+  })
+  mainDatabase = db
+
+  return zclLoader
+    .loadZcl(db, args.zclPropertiesFile)
+    .then((ctx) =>
+      generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
+    )
+    .then((ctx) => {
+      if (ctx.error) {
+        env.logWarning(ctx.error)
+      }
+      return ctx
+    })
+    .then((ctx) => {
+      return httpServer
+        .initHttpServer(ctx.db, args.httpPort, args.studioHttpPort)
+        .then(() => {
+          ipcServer.initServer(ctx.db, args.httpPort)
+        })
+        .then(() => ctx)
+    })
+    .then((ctx) => {
+      console.log(`ZAP Server started at: ${httpServer.httpServerUrl()}`)
+    })
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+}
+
+/**
  * Start up applicationa in self-check mode.
  */
 async function startSelfCheck(
@@ -467,10 +517,13 @@ function startUpSecondaryInstance(argv) {
       console.log(data)
     })
   })
+
   if (argv._.includes('status')) {
     ipcClient.emit(ipcServer.eventType.version)
   } else if (argv._.includes('new')) {
     ipcClient.emit(ipcServer.eventType.new)
+  } else if (argv._.includes('server')) {
+    ipcClient.emit(ipcServer.eventType.serverUrl)
   } else if (argv._.includes('convert') && argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.convert, {
       output: argv.output,
@@ -506,6 +559,8 @@ async function startUpMainInstance(isElectron, argv) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
     return startAnalyze(argv.zapFiles)
+  } else if (argv._.includes('server')) {
+    return startServer()
   } else if (argv._.includes('convert')) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
