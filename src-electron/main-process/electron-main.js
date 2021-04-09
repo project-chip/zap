@@ -79,7 +79,7 @@ function hookMainInstanceEvents(argv) {
 // Main lifecycle of the application
 if (app != null) {
   let argv = args.processCommandLineArguments(process.argv)
-  let reuseZapInstance = args.reuseZapInstance
+  let reuseZapInstance = argv.reuseZapInstance
   let canProceedWithThisInstance
   let gotLock = app.requestSingleInstanceLock()
 

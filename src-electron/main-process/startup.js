@@ -55,7 +55,7 @@ async function startNormal(argv, uiEnabled, showUrl, zapFiles, options) {
     env.zapVersion()
   )
 
-  watchdog.start(args.watchdogTimer, () => {
+  watchdog.start(argv.watchdogTimer, () => {
     if (app != null) {
       app.quit()
     } else {
@@ -277,7 +277,7 @@ async function startServer(argv) {
     env.zapVersion()
   )
 
-  watchdog.start(args.watchdogTimer, () => {
+  watchdog.start(argv.watchdogTimer, () => {
     if (app != null) {
       app.quit()
     } else {
@@ -377,6 +377,7 @@ async function startSelfCheck(
  * @returns Nothing, triggers app.quit()
  */
 async function startGeneration(
+  argv,
   output,
   genTemplateJsonFile,
   zclProperties,
@@ -466,8 +467,8 @@ async function startGeneration(
     {
       logger: options.logger,
       backup: false,
-      genResultFile: args.genResultFile,
-      skipPostGeneration: args.skipPostGeneration,
+      genResultFile: argv.genResultFile,
+      skipPostGeneration: argv.skipPostGeneration,
     }
   )
 
@@ -574,6 +575,7 @@ async function startUpMainInstance(isElectron, argv) {
     })
   } else if (argv._.includes('generate')) {
     return startGeneration(
+      argv,
       argv.output,
       argv.generationTemplate,
       argv.zclProperties,

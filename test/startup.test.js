@@ -28,6 +28,7 @@ test('startup: start generation', () => {
   let testGenDir = path.join(path.join(__dirname, '.zap/'), 'test-gen')
   if (!fs.existsSync(testGenDir)) fs.mkdirSync(testGenDir, { recursive: true })
   return startup.startGeneration(
+    { skipPostGeneration: true },
     testGenDir,
     testUtil.testZigbeeGenerationTemplates,
     args.zclPropertiesFile,

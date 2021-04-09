@@ -30,10 +30,6 @@ exports.zclPropertiesFile = path.join(
 exports.genTemplateJsonFile = null // No default. You need to pass this.
 exports.httpPort = 9070
 exports.zapFiles = []
-exports.genResultFile = false
-exports.skipPostGeneration = false
-exports.reuseZapInstance = false
-exports.watchdogTimer = 60000 // Default watchdog timer: 1 min
 
 function environmentVariablesDescription() {
   let vars = env.environmentVariable
@@ -122,7 +118,7 @@ function processCommandLineArguments(argv) {
     })
     .options('genResultFile', {
       desc: 'If this option is present, then generate the result file.',
-      default: exports.genResultFile,
+      default: false,
     })
     .option('showUrl', {
       desc: 'Print out the URL that an external browser should use.',
@@ -163,6 +159,11 @@ function processCommandLineArguments(argv) {
       default:
         process.env[env.environmentVariable.reuseZapInstance.name] == '1',
     })
+    .option('watchdogTimer', {
+      desc: `In a server mode, how long of no-activity (in ms) shuts down the server.`,
+      type: 'number',
+      default: 60000,
+    })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${zapVersion.featureLevel}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
@@ -202,10 +203,7 @@ For more information, see https://github.com/project-chip/zap`
   exports.zclPropertiesFile = ret.zclProperties
   exports.httpPort = ret.httpPort
   exports.genTemplateJsonFile = ret.generationTemplate
-  exports.genResultFile = ret.genResultFile
   exports.zapFiles = allFiles
-  exports.skipPostGeneration = ret.skipPostGeneration
-  exports.reuseZapInstance = ret.reuseZapInstance
 
   return ret
 }
