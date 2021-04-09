@@ -28,7 +28,6 @@ exports.zclPropertiesFile = path.join(
   '../../zcl-builtin/silabs/zcl.json'
 )
 exports.genTemplateJsonFile = null // No default. You need to pass this.
-exports.httpPort = 9070
 
 function environmentVariablesDescription() {
   let vars = env.environmentVariable
@@ -67,7 +66,7 @@ function processCommandLineArguments(argv) {
       desc: 'Port used for the HTTP server',
       alias: 'p',
       type: 'number',
-      default: exports.httpPort,
+      default: 9070,
     })
     .option('studioHttpPort', {
       desc:
@@ -200,7 +199,6 @@ For more information, see https://github.com/project-chip/zap`
 
   // Now populate exported variables with this.
   exports.zclPropertiesFile = ret.zclProperties
-  exports.httpPort = ret.httpPort
   exports.genTemplateJsonFile = ret.generationTemplate
 
   return ret

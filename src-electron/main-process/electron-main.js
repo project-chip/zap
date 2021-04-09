@@ -63,7 +63,7 @@ function hookMainInstanceEvents(argv) {
     })
     app.on('activate', () => {
       env.logInfo('Activate...')
-      windowJs.windowCreateIfNotThere(args.httpPort)
+      windowJs.windowCreateIfNotThere(argv.httpPort)
     })
   }
 

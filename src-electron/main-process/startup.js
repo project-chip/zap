@@ -67,7 +67,7 @@ async function startNormal(argv, uiEnabled, showUrl, zapFiles, options) {
   return zclLoader
     .loadZcl(db, args.zclPropertiesFile)
     .then((ctx) =>
-      generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
+      generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
     )
     .then((ctx) => {
       if (ctx.error) {
@@ -78,9 +78,9 @@ async function startNormal(argv, uiEnabled, showUrl, zapFiles, options) {
     .then((ctx) => {
       if (!argv.noServer)
         return httpServer
-          .initHttpServer(ctx.db, args.httpPort, argv.studioHttpPort)
+          .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort)
           .then(() => {
-            ipcServer.initServer(ctx.db, args.httpPort)
+            ipcServer.initServer(ctx.db, argv.httpPort)
           })
           .then(() => ctx)
       else return ctx
@@ -149,6 +149,7 @@ function outputFile(inputFile, outputPattern) {
  * @param {*} output
  */
 async function startConvert(
+  argv,
   files,
   output,
   options = {
@@ -170,9 +171,9 @@ async function startConvert(
   options.logger('    🐝 database and schema initialized')
   await zclLoader.loadZcl(db, args.zclPropertiesFile)
   options.logger(`    🐝 zcl package loaded: ${args.zclPropertiesFile}`)
-  if (args.genTemplateJsonFile != null) {
-    await generatorEngine.loadTemplates(db, args.genTemplateJsonFile)
-    options.logger(`    🐝 templates loaded: ${args.genTemplateJsonFile}`)
+  if (argv.generationTemplate != null) {
+    await generatorEngine.loadTemplates(db, argv.generationTemplate)
+    options.logger(`    🐝 templates loaded: ${argv.generationTemplate}`)
   }
 
   return util
@@ -289,7 +290,7 @@ async function startServer(argv) {
   return zclLoader
     .loadZcl(db, args.zclPropertiesFile)
     .then((ctx) =>
-      generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
+      generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
     )
     .then((ctx) => {
       if (ctx.error) {
@@ -299,9 +300,9 @@ async function startServer(argv) {
     })
     .then((ctx) => {
       return httpServer
-        .initHttpServer(ctx.db, args.httpPort, argv.studioHttpPort)
+        .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort)
         .then(() => {
-          ipcServer.initServer(ctx.db, args.httpPort)
+          ipcServer.initServer(ctx.db, argv.httpPort)
         })
         .then(() => ctx)
     })
@@ -344,7 +345,7 @@ async function startSelfCheck(
     })
     .then((ctx) => {
       options.logger('    👉 zcl data loaded')
-      return generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
+      return generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
     })
     .then(async (ctx) => {
       if (ctx.error) {
@@ -566,7 +567,7 @@ async function startUpMainInstance(isElectron, argv) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
     if (argv.output == null) throw 'You need to specify output file.'
-    return startConvert(argv.zapFiles, argv.output, {
+    return startConvert(argv, argv.zapFiles, argv.output, {
       logger: console.log,
       quit: true,
       noZapFileLog: argv.noZapFileLog,
