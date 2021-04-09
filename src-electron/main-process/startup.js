@@ -320,6 +320,7 @@ async function startServer(argv) {
  * Start up applicationa in self-check mode.
  */
 async function startSelfCheck(
+  argv,
   options = {
     quit: true,
     cleanDb: true,
@@ -554,7 +555,7 @@ async function startUpMainInstance(isElectron, argv) {
   }
 
   if (argv._.includes('selfCheck')) {
-    return startSelfCheck()
+    return startSelfCheck(argv)
   } else if (argv._.includes('analyze')) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'

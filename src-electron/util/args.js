@@ -29,7 +29,6 @@ exports.zclPropertiesFile = path.join(
 )
 exports.genTemplateJsonFile = null // No default. You need to pass this.
 exports.httpPort = 9070
-exports.zapFiles = []
 
 function environmentVariablesDescription() {
   let vars = env.environmentVariable
@@ -203,7 +202,6 @@ For more information, see https://github.com/project-chip/zap`
   exports.zclPropertiesFile = ret.zclProperties
   exports.httpPort = ret.httpPort
   exports.genTemplateJsonFile = ret.generationTemplate
-  exports.zapFiles = allFiles
 
   return ret
 }
