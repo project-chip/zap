@@ -29,10 +29,6 @@ exports.zclPropertiesFile = path.join(
 )
 exports.genTemplateJsonFile = null // No default. You need to pass this.
 exports.httpPort = 9070
-exports.studioHttpPort = 9000
-exports.uiMode = restApi.uiMode.ZIGBEE
-exports.embeddedMode = false
-exports.noServer = false
 exports.zapFiles = []
 exports.genResultFile = false
 exports.skipPostGeneration = false
@@ -82,7 +78,7 @@ function processCommandLineArguments(argv) {
       desc:
         "Port used for integration with Silicon Labs Simplicity Studio's internal HTTP server",
       type: 'number',
-      default: exports.studioHttpPort,
+      default: 9000,
     })
     .option('zapFile', {
       desc:
@@ -107,7 +103,7 @@ function processCommandLineArguments(argv) {
       desc: 'Mode of the UI to begin in. Options are: ZIGBEE',
       alias: 'ui',
       type: 'string',
-      default: exports.uiMode,
+      default: restApi.uiMode.ZIGBEE,
     })
     .option('embeddedMode', {
       desc:
@@ -205,11 +201,7 @@ For more information, see https://github.com/project-chip/zap`
   // Now populate exported variables with this.
   exports.zclPropertiesFile = ret.zclProperties
   exports.httpPort = ret.httpPort
-  exports.studioHttpPort = ret.studioHttpPort
-  exports.uiMode = ret.uiMode
   exports.genTemplateJsonFile = ret.generationTemplate
-  exports.embeddedMode = ret.embeddedMode
-  exports.noServer = ret.noServer
   exports.genResultFile = ret.genResultFile
   exports.zapFiles = allFiles
   exports.skipPostGeneration = ret.skipPostGeneration

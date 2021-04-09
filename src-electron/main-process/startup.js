@@ -48,7 +48,7 @@ let mainDatabase = null
  * @param {*} uiMode
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
-async function startNormal(uiEnabled, showUrl, zapFiles, options) {
+async function startNormal(argv, uiEnabled, showUrl, zapFiles, options) {
   let db = await dbApi.initDatabaseAndLoadSchema(
     env.sqliteFile(),
     env.schemaFile(),
@@ -76,9 +76,9 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
       return ctx
     })
     .then((ctx) => {
-      if (!args.noServer)
+      if (!argv.noServer)
         return httpServer
-          .initHttpServer(ctx.db, args.httpPort, args.studioHttpPort)
+          .initHttpServer(ctx.db, args.httpPort, argv.studioHttpPort)
           .then(() => {
             ipcServer.initServer(ctx.db, args.httpPort)
           })
@@ -96,7 +96,7 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
           )
         }
       } else {
-        if (showUrl && !args.noServer) {
+        if (showUrl && !argv.noServer) {
           // NOTE: this is parsed/used by Studio as the default landing page.
           console.log(
             `ZAP Server started at: http://localhost:${httpServer.httpServerPort()}`
@@ -105,7 +105,7 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
       }
     })
     .then(() => {
-      if (args.noServer && app != null) app.quit()
+      if (argv.noServer && app != null) app.quit()
     })
     .catch((err) => {
       env.logError(err)
@@ -270,7 +270,7 @@ async function startAnalyze(
  * @param {*} options
  * @returns promise of a startup
  */
-async function startServer() {
+async function startServer(argv) {
   let db = await dbApi.initDatabaseAndLoadSchema(
     env.sqliteFile(),
     env.schemaFile(),
@@ -299,14 +299,16 @@ async function startServer() {
     })
     .then((ctx) => {
       return httpServer
-        .initHttpServer(ctx.db, args.httpPort, args.studioHttpPort)
+        .initHttpServer(ctx.db, args.httpPort, argv.studioHttpPort)
         .then(() => {
           ipcServer.initServer(ctx.db, args.httpPort)
         })
         .then(() => ctx)
     })
     .then((ctx) => {
-      console.log(httpServer.httpServerStartupMessage())
+      console.log(
+        `ZAP Server started at: http://localhost:${httpServer.httpServerPort()}`
+      )
     })
     .catch((err) => {
       env.logError(err)
@@ -517,13 +519,10 @@ function startUpSecondaryInstance(argv) {
       console.log(data)
     })
   })
-
   if (argv._.includes('status')) {
     ipcClient.emit(ipcServer.eventType.version)
   } else if (argv._.includes('new')) {
     ipcClient.emit(ipcServer.eventType.new)
-  } else if (argv._.includes('server')) {
-    ipcClient.emit(ipcServer.eventType.serverUrl)
   } else if (argv._.includes('convert') && argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.convert, {
       output: argv.output,
@@ -560,7 +559,7 @@ async function startUpMainInstance(isElectron, argv) {
       throw 'You need to specify at least one zap file.'
     return startAnalyze(argv.zapFiles)
   } else if (argv._.includes('server')) {
-    return startServer()
+    return startServer(argv)
   } else if (argv._.includes('convert')) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
@@ -585,12 +584,12 @@ async function startUpMainInstance(isElectron, argv) {
     })
   } else {
     if (isElectron) {
-      return startNormal(!argv.noUi, argv.showUrl, argv.zapFiles, {
+      return startNormal(argv, !argv.noUi, argv.showUrl, argv.zapFiles, {
         uiMode: argv.uiMode,
         embeddedMode: argv.embeddedMode,
       })
     } else {
-      return startNormal(false, argv.showUrl, [], {})
+      return startNormal(argv, false, argv.showUrl, [], {})
     }
   }
 }

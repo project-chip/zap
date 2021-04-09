@@ -144,7 +144,7 @@ async function initHttpServer(db, port, studioPort) {
     webSocket.onWebSocket(dbEnum.wsCategory.tick, () => {
       watchdog.reset()
     })
-    studio.initIdeIntegration(db)
+    studio.initIdeIntegration(db, studioPort)
   })
 }
 

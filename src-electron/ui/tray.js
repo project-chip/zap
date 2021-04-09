@@ -19,7 +19,7 @@ const { Menu, Tray, nativeImage, app } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const env = require('../util/env.js')
-const win = require('./window.js')
+const uiUtil = require('./ui-util.js')
 
 let tray
 
@@ -44,7 +44,7 @@ function initTray(port) {
       type: 'normal',
       httpPort: port,
       click: (item, window, event) => {
-        win.windowCreate(item.httpPort)
+        uiUtil.openNewConfiguration(item.httpPort)
       },
     },
     {
