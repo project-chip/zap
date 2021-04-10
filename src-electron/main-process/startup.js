@@ -392,22 +392,22 @@ async function startSelfCheck(
  */
 async function startGeneration(
   argv,
-  output,
-  templateMetafile,
-  zapFiles = [],
   options = {
     quit: true,
     cleanDb: true,
     logger: console.log,
   }
 ) {
+  let templateMetafile = argv.generationTemplate
+  let zapFiles = argv.zapFiles
+  let zapFile = null
+  let output = argv.output
   options.logger(
     `🤖 ZAP generation information: 
     👉 into: ${output}
     👉 using templates: ${templateMetafile}
     👉 using zcl data: ${argv.zclProperties}`
   )
-  let zapFile = null
   if (zapFiles != null && zapFiles.length > 0) {
     zapFile = zapFiles[0]
     if (zapFiles.length > 1)
@@ -586,12 +586,7 @@ async function startUpMainInstance(isElectron, argv) {
       process.exit(1)
     })
   } else if (argv._.includes('generate')) {
-    return startGeneration(
-      argv,
-      argv.output,
-      argv.generationTemplate,
-      argv.zapFiles
-    ).catch((code) => {
+    return startGeneration(argv).catch((code) => {
       console.log(code)
       process.exit(1)
     })

@@ -35,9 +35,6 @@ test('startup: start generation', () => {
       zclProperties: env.builtinSilabsZclMetafile,
       zapFiles: null,
     },
-    testGenDir,
-    testUtil.testZigbeeGenerationTemplates,
-    null,
     {
       quit: false,
       logger: (msg) => {},
