@@ -93,7 +93,11 @@ test('Create session', () =>
 test('Initialize session packages', async () => {
   let packages = await utilJs.initializeSessionPackage(
     templateContext.db,
-    templateContext.sessionId
+    templateContext.sessionId,
+    {
+      zcl: env.builtinSilabsZclMetafile,
+      template: env.builtinTemplateMetafile,
+    }
   )
 
   expect(packages.length).toBe(2)

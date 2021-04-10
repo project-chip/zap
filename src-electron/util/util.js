@@ -32,6 +32,7 @@ const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const args = require('./args.js')
 const { v4: uuidv4 } = require('uuid')
+const { allTargets } = require('node-abi')
 
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
@@ -51,7 +52,14 @@ function calculateCrc(context) {
  * @param {*} sessionId
  * @returns Promise that resolves with the packages array.
  */
-async function initializeSessionPackage(db, sessionId) {
+async function initializeSessionPackage(
+  db,
+  sessionId,
+  metafiles = {
+    zcl: args.zclPropertiesFile,
+    template: args.genTemplateJsonFile,
+  }
+) {
   let promises = []
 
   // 1. Associate a zclProperties file.
@@ -69,7 +77,7 @@ async function initializeSessionPackage(db, sessionId) {
         packageId = null
       } else {
         rows.forEach((p) => {
-          if (path.resolve(args.zclPropertiesFile) === p.path) {
+          if (path.resolve(metafiles.zcl) === p.path) {
             packageId = p.id
           }
         })
@@ -99,8 +107,8 @@ async function initializeSessionPackage(db, sessionId) {
       } else {
         rows.forEach((p) => {
           if (
-            args.genTemplateJsonFile != null &&
-            path.resolve(args.genTemplateJsonFile) === p.path
+            metafiles.template != null &&
+            path.resolve(metafiles.template) === p.path
           ) {
             packageId = p.id
           }

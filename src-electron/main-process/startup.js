@@ -74,7 +74,7 @@ async function startNormal(
   mainDatabase = db
 
   return zclLoader
-    .loadZcl(db, args.zclPropertiesFile)
+    .loadZcl(db, argv.zclProperties)
     .then((ctx) =>
       generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
     )
@@ -180,8 +180,8 @@ async function startConvert(
     env.zapVersion()
   )
   options.logger('    🐝 database and schema initialized')
-  await zclLoader.loadZcl(db, args.zclPropertiesFile)
-  options.logger(`    🐝 zcl package loaded: ${args.zclPropertiesFile}`)
+  await zclLoader.loadZcl(db, argv.zclProperties)
+  options.logger(`    🐝 zcl package loaded: ${argv.zclProperties}`)
   if (argv.generationTemplate != null) {
     await generatorEngine.loadTemplates(db, argv.generationTemplate)
     options.logger(`    🐝 templates loaded: ${argv.generationTemplate}`)
@@ -256,7 +256,7 @@ async function startAnalyze(
     .then((d) => {
       db = d
       options.logger('    👉 database and schema initialized')
-      return zclLoader.loadZcl(db, args.zclPropertiesFile)
+      return zclLoader.loadZcl(db, argv.zclProperties)
     })
     .then((d) => {
       return util.executePromisesSequentially(paths, (singlePath) =>
@@ -300,7 +300,7 @@ async function startServer(argv, options = {}) {
   mainDatabase = db
 
   return zclLoader
-    .loadZcl(db, args.zclPropertiesFile)
+    .loadZcl(db, argv.zclProperties)
     .then((ctx) =>
       generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
     )
@@ -353,7 +353,7 @@ async function startSelfCheck(
     .then((db) => {
       mainDb = db
       options.logger('    👉 database and schema initialized')
-      return zclLoader.loadZcl(db, args.zclPropertiesFile)
+      return zclLoader.loadZcl(db, argv.zclProperties)
     })
     .then((ctx) => {
       options.logger('    👉 zcl data loaded')

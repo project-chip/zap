@@ -420,3 +420,4 @@ exports.setAppDirectory = setAppDirectory
 exports.environmentVariable = environmentVariable
 exports.builtinSilabsZclMetafile = builtinSilabsZclMetafile
 exports.builtinDotdotZclMetafile = builtinDotdotZclMetafile
+exports.builtinTemplateMetafile = builtinTemplateMetafile

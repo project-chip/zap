@@ -44,7 +44,10 @@ beforeAll(async () => {
     'SESSION'
   )
   sid = userSession.sessionId
-  return util.initializeSessionPackage(db, sid)
+  return util.initializeSessionPackage(db, sid, {
+    zcl: env.builtinSilabsZclMetafile,
+    template: env.builtinTemplateMetafile,
+  })
 }, 5000)
 
 test('Test custom xml', async () => {

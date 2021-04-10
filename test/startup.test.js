@@ -43,7 +43,12 @@ test('startup: start generation', () => {
 }, 10000)
 
 test('startup: self-check', () => {
-  return startup.startSelfCheck({}, { logger: (msg) => {}, quit: false })
+  return startup.startSelfCheck(
+    {
+      zclProperties: env.builtinSilabsZclMetafile,
+    },
+    { logger: (msg) => {}, quit: false }
+  )
 }, 5000)
 
 test('startup: convert', () => {
@@ -56,6 +61,7 @@ test('startup: convert', () => {
       {
         zapFiles: files,
         output: output,
+        zclProperties: env.builtinSilabsZclMetafile,
         noZapFileLog: true,
       },
       {
@@ -73,7 +79,10 @@ test('startup: analyze', () => {
   let files = []
   files.push(path.join(__dirname, 'resource/test-light.isc'))
   return startup.startAnalyze(
-    { zapFiles: files },
+    {
+      zapFiles: files,
+      zclProperties: env.builtinSilabsZclMetafile,
+    },
     {
       quit: false,
       cleanDb: false,
