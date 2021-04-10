@@ -20,16 +20,12 @@
 
 const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine.js')
-const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
-const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const queryPackage = require('../src-electron/db/query-package.js')
-const types = require('../src-electron/util/types.js')
-const bin = require('../src-electron/util/bin.js')
 
 let db
 const templateCount = 1

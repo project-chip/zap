@@ -21,7 +21,6 @@ const path = require('path')
 const fs = require('fs')
 const startup = require('../src-electron/main-process/startup.js')
 const env = require('../src-electron/util/env.js')
-const args = require('../src-electron/util/args.js')
 const testUtil = require('./test-util.js')
 
 test('startup: start generation', () => {

@@ -20,7 +20,6 @@
 
 const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine.js')
-const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')

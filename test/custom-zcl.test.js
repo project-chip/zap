@@ -20,7 +20,6 @@
 
 const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 const testUtil = require('./test-util.js')
 const querySession = require('../src-electron/db/query-session.js')
