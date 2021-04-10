@@ -23,6 +23,7 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
+const args = require('../util/args.js')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -470,7 +471,10 @@ async function iscDataLoader(db, state, sessionId) {
   let endpointTypes = state.endpointTypes
   let promises = []
 
-  await util.initializeSessionPackage(db, sessionId)
+  await util.initializeSessionPackage(db, sessionId, {
+    zcl: args.zclPropertiesFile,
+    template: null,
+  })
   let zclPackages = await queryPackage.getSessionPackagesByType(
     db,
     sessionId,

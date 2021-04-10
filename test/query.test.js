@@ -169,7 +169,10 @@ describe('Session specific queries', () => {
       .ensureZapUserAndSession(db, 'USER', 'SESSION')
       .then((userSession) => {
         sid = userSession.sessionId
-        return util.initializeSessionPackage(db, sid)
+        return util.initializeSessionPackage(db, sid, {
+          zcl: env.builtinSilabsZclMetafile,
+          template: env.builtinTemplateMetafile,
+        })
       })
   )
 

@@ -76,7 +76,10 @@ test('Test file import', () =>
 
 test('Initialize session packages', () =>
   utilJs
-    .initializeSessionPackage(templateContext.db, templateContext.sessionId)
+    .initializeSessionPackage(templateContext.db, templateContext.sessionId, {
+      zcl: env.builtinSilabsZclMetafile,
+      template: env.builtinTemplateMetafile,
+    })
     .then((sessionId) =>
       queryPackage.getSessionPackages(
         templateContext.db,

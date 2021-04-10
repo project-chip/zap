@@ -50,16 +50,10 @@ function calculateCrc(context) {
  *
  * @param {*} db
  * @param {*} sessionId
+ * @param {*} metafiles: object containing 'zcl' and 'template'
  * @returns Promise that resolves with the packages array.
  */
-async function initializeSessionPackage(
-  db,
-  sessionId,
-  metafiles = {
-    zcl: args.zclPropertiesFile,
-    template: args.genTemplateJsonFile,
-  }
-) {
+async function initializeSessionPackage(db, sessionId, metafiles) {
   let promises = []
 
   // 1. Associate a zclProperties file.

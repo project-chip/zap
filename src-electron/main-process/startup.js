@@ -87,7 +87,10 @@ async function startNormal(
     .then((ctx) => {
       if (!argv.noServer)
         return httpServer
-          .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort)
+          .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort, {
+            zcl: argv.zclProperties,
+            template: argv.generationTemplate,
+          })
           .then(() => {
             ipcServer.initServer(ctx.db, argv.httpPort)
           })
@@ -193,7 +196,10 @@ async function startConvert(
         .importDataFromFile(db, singlePath)
         .then((importResult) => {
           return util
-            .initializeSessionPackage(db, importResult.sessionId)
+            .initializeSessionPackage(db, importResult.sessionId, {
+              zcl: argv.zclProperties,
+              template: argv.generationTemplate,
+            })
             .then((pkgs) => importResult.sessionId)
         })
         .then((sessionId) => {
@@ -312,7 +318,10 @@ async function startServer(argv, options = {}) {
     })
     .then((ctx) => {
       return httpServer
-        .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort)
+        .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort, {
+          zcl: argv.zclProperties,
+          template: argv.generationTemplate,
+        })
         .then(() => {
           ipcServer.initServer(ctx.db, argv.httpPort)
         })
@@ -470,7 +479,10 @@ async function startGeneration(
     sessionId = importResult.sessionId
   }
 
-  await util.initializeSessionPackage(mainDb, sessionId)
+  await util.initializeSessionPackage(mainDb, sessionId, {
+    zcl: argv.zclProperties,
+    template: templateMetafile,
+  })
 
   let genResult = await generatorEngine.generateAndWriteFiles(
     mainDb,

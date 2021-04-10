@@ -101,7 +101,15 @@ function registerAllRestModules(db, app) {
  * @param {*} port Port for the HTTP server.
  * @returns A promise that resolves with an express app.
  */
-async function initHttpServer(db, port, studioPort) {
+async function initHttpServer(
+  db,
+  port,
+  studioPort,
+  metafiles = {
+    zcl: env.builtinSilabsZclMetafile,
+    template: env.builtinTemplateMetafile,
+  }
+) {
   return new Promise((resolve, reject) => {
     const app = express()
     //app.use(express.urlencoded({ extended: true }))
@@ -114,7 +122,7 @@ async function initHttpServer(db, port, studioPort) {
       })
     )
 
-    app.use(userSessionHandler(db))
+    app.use(userSessionHandler(db, metafiles))
 
     // REST modules
     registerAllRestModules(db, app)
@@ -148,7 +156,7 @@ async function initHttpServer(db, port, studioPort) {
   })
 }
 
-function userSessionHandler(db) {
+function userSessionHandler(db, metafiles) {
   return (req, res, next) => {
     let sessionUuid = req.query[restApi.param.sessionId]
     let userKey = req.session.id
@@ -178,7 +186,11 @@ function userSessionHandler(db) {
         })
         .then((result) => {
           if (result.newSession) {
-            return util.initializeSessionPackage(db, result.sessionId)
+            return util.initializeSessionPackage(
+              db,
+              result.sessionId,
+              metafiles
+            )
           }
         })
         .then(() => {
