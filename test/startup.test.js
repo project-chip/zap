@@ -28,7 +28,13 @@ test('startup: start generation', () => {
   let testGenDir = path.join(path.join(__dirname, '.zap/'), 'test-gen')
   if (!fs.existsSync(testGenDir)) fs.mkdirSync(testGenDir, { recursive: true })
   return startup.startGeneration(
-    { skipPostGeneration: true },
+    {
+      skipPostGeneration: true,
+      output: testGenDir,
+      generationTemplate: testUtil.testZigbeeGenerationTemplates,
+      zclProperties: args.zclPropertiesFile,
+      zapFiles: null,
+    },
     testGenDir,
     testUtil.testZigbeeGenerationTemplates,
     args.zclPropertiesFile,
@@ -50,11 +56,14 @@ test('startup: convert', () => {
   let output = '{basename}.conversion'
   let testOutputFile = path.join(__dirname, 'resource/test-light.conversion')
   return startup
-    .startConvert({}, files, output, {
-      quit: false,
-      noZapFileLog: true,
-      logger: (msg) => {},
-    })
+    .startConvert(
+      { zapFiles: files, output: output },
+      {
+        quit: false,
+        noZapFileLog: true,
+        logger: (msg) => {},
+      }
+    )
     .then(() => {
       expect(fs.existsSync(testOutputFile)).toBeTruthy()
       fs.unlinkSync(testOutputFile)

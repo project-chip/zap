@@ -48,7 +48,10 @@ let mainDatabase = null
  * @param {*} uiMode
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
-async function startNormal(argv, uiEnabled, showUrl, zapFiles, options) {
+async function startNormal(argv, options) {
+  let zapFiles = argv.zapFiles
+  let showUrl = argv.showUrl
+  let uiEnabled = !argv.noUi
   let db = await dbApi.initDatabaseAndLoadSchema(
     env.sqliteFile(),
     env.schemaFile(),
@@ -150,14 +153,14 @@ function outputFile(inputFile, outputPattern) {
  */
 async function startConvert(
   argv,
-  files,
-  output,
   options = {
     quit: true,
     noZapFileLog: false,
     logger: console.log,
   }
 ) {
+  let files = argv.zapFiles
+  let output = argv.output
   options.logger(`🤖 Conversion started`)
   options.logger(`    🔍 input files: ${files}`)
   options.logger(`    🔍 output pattern: ${output}`)
@@ -271,7 +274,7 @@ async function startAnalyze(
  * @param {*} options
  * @returns promise of a startup
  */
-async function startServer(argv) {
+async function startServer(argv, options = {}) {
   let db = await dbApi.initDatabaseAndLoadSchema(
     env.sqliteFile(),
     env.schemaFile(),
@@ -567,7 +570,7 @@ async function startUpMainInstance(isElectron, argv) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
     if (argv.output == null) throw 'You need to specify output file.'
-    return startConvert(argv, argv.zapFiles, argv.output, {
+    return startConvert(argv, {
       logger: console.log,
       quit: true,
       noZapFileLog: argv.noZapFileLog,
@@ -588,7 +591,7 @@ async function startUpMainInstance(isElectron, argv) {
     })
   } else {
     if (isElectron) {
-      return startNormal(argv, !argv.noUi, argv.showUrl, argv.zapFiles, {
+      return startNormal(argv, {
         uiMode: argv.uiMode,
         embeddedMode: argv.embeddedMode,
       })
