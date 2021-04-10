@@ -73,9 +73,12 @@ test('startup: convert', () => {
 test('startup: analyze', () => {
   let files = []
   files.push(path.join(__dirname, 'resource/test-light.isc'))
-  return startup.startAnalyze(files, {
-    quit: false,
-    cleanDb: false,
-    logger: (msg) => {},
-  })
+  return startup.startAnalyze(
+    { zapFiles: files },
+    {
+      quit: false,
+      cleanDb: false,
+      logger: (msg) => {},
+    }
+  )
 }, 5000)

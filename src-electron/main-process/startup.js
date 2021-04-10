@@ -92,7 +92,10 @@ async function startNormal(argv, options) {
       if (uiEnabled) {
         windowJs.initializeElectronUi(ctx.db, httpServer.httpServerPort())
         if (zapFiles.length == 0) {
-          return uiJs.openNewConfiguration(httpServer.httpServerPort(), options)
+          return uiJs.openNewConfiguration(httpServer.httpServerPort(), {
+            uiMode: argv.uiMode,
+            embeddedMode: argv.embeddedMode,
+          })
         } else {
           return util.executePromisesSequentially(zapFiles, (f) =>
             uiJs.openFileConfiguration(f, httpServer.httpServerPort())
@@ -228,13 +231,14 @@ async function startConvert(
  * @param {boolean} [options={ log: true, quit: true }]
  */
 async function startAnalyze(
-  paths,
+  argv,
   options = {
     quit: true,
     cleanDb: true,
     logger: console.log,
   }
 ) {
+  let paths = argv.zapFiles
   let dbFile = env.sqliteFile('analysis')
   options.logger(`🤖 Starting analysis: ${paths}`)
   if (options.cleanDb && fs.existsSync(dbFile)) {
@@ -563,7 +567,7 @@ async function startUpMainInstance(isElectron, argv) {
   } else if (argv._.includes('analyze')) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
-    return startAnalyze(argv.zapFiles)
+    return startAnalyze(argv)
   } else if (argv._.includes('server')) {
     return startServer(argv)
   } else if (argv._.includes('convert')) {
@@ -590,14 +594,9 @@ async function startUpMainInstance(isElectron, argv) {
       process.exit(1)
     })
   } else {
-    if (isElectron) {
-      return startNormal(argv, {
-        uiMode: argv.uiMode,
-        embeddedMode: argv.embeddedMode,
-      })
-    } else {
-      return startNormal(argv, false, argv.showUrl, [], {})
-    }
+    // If we run with node only, we force no UI as it won't work.
+    if (!isElectron) argv.noUi = true
+    return startNormal(argv, {})
   }
 }
 
