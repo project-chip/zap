@@ -41,8 +41,6 @@ exports.testChipGenerationTemplates =
 exports.dotdotGenerationTemplates =
   './test/gen-template/dotdot/dotdot-templates.json'
 
-exports.dotDotZclPropertiesFile = './zcl-builtin/dotdot/library.xml'
-
 exports.testServer = testServer
 
 exports.testCustomXml = './test/resource/test-custom.xml'

@@ -72,7 +72,7 @@ test(
 test(
   'Load DotDot ZCL stuff',
   () =>
-    zclLoader.loadZcl(db, testUtil.dotDotZclPropertiesFile).then((context) => {
+    zclLoader.loadZcl(db, env.builtinDotdotZclMetafile).then((context) => {
       zclContext = context
     }),
   5000

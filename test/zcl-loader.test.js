@@ -189,7 +189,6 @@ test('test Dotdot zcl data loading in memory', async () => {
   let unmatched = []
   let nullAttribute = []
   let nonUniqueEnum = []
-  dotDotZclPropertiesFile = testUtil.dotDotZclPropertiesFile
   return (
     dbApi
       .initRamDatabase()
@@ -198,7 +197,7 @@ test('test Dotdot zcl data loading in memory', async () => {
         db = d
         return db
       })
-      .then((db) => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
+      .then((db) => zclLoader.loadZcl(db, env.builtinDotdotZclMetafile))
       .then((ctx) => {
         packageId = ctx.packageId
         return queryPackage.getPackageByPackageId(ctx.db, packageId)
@@ -295,7 +294,6 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
   let db
   let packageIdSilabs
   let packageIdDotdot
-  let dotDotZclPropertiesFile = testUtil.dotDotZclPropertiesFile
   return (
     dbApi
       .initRamDatabase()
@@ -317,7 +315,7 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
       .then((rows) => expect(rows.length).toEqual(1))
 
       //Load the Dotdot ZCL XML into the DB
-      .then(() => zclLoader.loadZcl(db, dotDotZclPropertiesFile)) //default silabs
+      .then(() => zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)) //default silabs
       .then((ctx) => {
         packageIdDotdot = ctx.packageId
         return queryPackage.getPackageByPackageId(ctx.db, packageIdDotdot)
