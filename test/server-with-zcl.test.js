@@ -42,7 +42,7 @@ beforeAll(() => {
       db = d
       env.logInfo(`Test database initialized: ${file}.`)
     })
-    .then(() => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
     .then(() => httpServer.initHttpServer(db, port))
     .catch((err) => env.logError(`Error: ${err}`))
 }, 5000)

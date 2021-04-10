@@ -45,7 +45,7 @@ afterAll(() => {
 })
 
 test('Load the static data.', () => {
-  return zclLoader.loadZcl(db, args.zclPropertiesFile)
+  return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
 }, 5000)
 
 test('isValidNumberString Functions', () => {
@@ -252,7 +252,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
   let pkgId
   beforeAll(() => {
     return zclLoader
-      .loadZcl(db, args.zclPropertiesFile)
+      .loadZcl(db, env.builtinSilabsZclMetafile)
       .then((ctx) => {
         pkgId = ctx.packageId
         querySession

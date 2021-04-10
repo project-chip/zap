@@ -27,7 +27,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const env = require('../src-electron/util/env.js')
 const path = require('path')
 
-const zclPropertiesFile = path.join(
+const zclTestPropertiesFile = path.join(
   __dirname,
   '../zcl-builtin/silabs/zcl-test.properties'
 )
@@ -42,7 +42,7 @@ test('test Silabs zcl data loading in memory', () => {
       db = d
       return db
     })
-    .then((db) => zclLoader.loadZcl(db, zclPropertiesFile))
+    .then((db) => zclLoader.loadZcl(db, zclTestPropertiesFile))
     .then((ctx) => {
       packageId = ctx.packageId
       return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)

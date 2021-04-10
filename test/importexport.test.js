@@ -25,7 +25,6 @@ const dbEnum = require('../src-shared/db-enum.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const env = require('../src-electron/util/env.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const args = require('../src-electron/util/args.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const querySession = require('../src-electron/db/query-session.js')
@@ -59,7 +58,7 @@ afterAll(() => {
 
 test(
   'Load the static data.',
-  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
+  () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
   5000
 )
 

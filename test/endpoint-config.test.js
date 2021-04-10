@@ -71,7 +71,7 @@ test(
 test(
   'Load ZCL stuff',
   () =>
-    zclLoader.loadZcl(db, args.zclPropertiesFile).then((context) => {
+    zclLoader.loadZcl(db, env.builtinSilabsZclMetafile).then((context) => {
       zclContext = context
     }),
   5000

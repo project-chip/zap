@@ -45,7 +45,7 @@ beforeAll(() => {
     .then((d) => {
       db = d
     })
-    .then(() => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
 }, 5000)
 
 afterAll(() => {

@@ -18,7 +18,6 @@
  * @jest-environment node
  */
 
-const args = require('../src-electron/util/args.js')
 const cHelper = require('../src-electron/generator/helper-c')
 const env = require('../src-electron/util/env.js')
 const dbApi = require('../src-electron/db/db-api.js')
@@ -68,7 +67,7 @@ test(
 test(
   'Load ZCL stuff',
   () =>
-    zclLoader.loadZcl(db, args.zclPropertiesFile).then((context) => {
+    zclLoader.loadZcl(db, env.builtinSilabsZclMetafile).then((context) => {
       zclContext = context
 
       let globalCtx = {

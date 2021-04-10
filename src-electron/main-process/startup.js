@@ -385,7 +385,7 @@ async function startSelfCheck(
  * Performs headless regeneration for given parameters.
  *
  * @param {*} output Directory where to write files.
- * @param {*} genTemplateJsonFile gen-teplate.json file to use for template loading.
+ * @param {*} templateMetafile gen-teplate.json file to use for template loading.
  * @param {*} zclProperties zcl.properties file to use for ZCL properties.
  * @param {*} [zapFile=null] .zap file that contains application stater, or null if generating from clean state.
  * @returns Nothing, triggers app.quit()
@@ -393,8 +393,7 @@ async function startSelfCheck(
 async function startGeneration(
   argv,
   output,
-  genTemplateJsonFile,
-  zclProperties,
+  templateMetafile,
   zapFiles = [],
   options = {
     quit: true,
@@ -405,8 +404,8 @@ async function startGeneration(
   options.logger(
     `🤖 ZAP generation information: 
     👉 into: ${output}
-    👉 using templates: ${genTemplateJsonFile}
-    👉 using zcl data: ${zclProperties}`
+    👉 using templates: ${templateMetafile}
+    👉 using zcl data: ${argv.zclProperties}`
   )
   let zapFile = null
   if (zapFiles != null && zapFiles.length > 0) {
@@ -456,8 +455,8 @@ async function startGeneration(
     env.schemaFile(),
     env.zapVersion()
   )
-  let ctx = await zclLoader.loadZcl(mainDb, zclProperties)
-  ctx = await generatorEngine.loadTemplates(ctx.db, genTemplateJsonFile)
+  let ctx = await zclLoader.loadZcl(mainDb, argv.zclProperties)
+  ctx = await generatorEngine.loadTemplates(ctx.db, templateMetafile)
   if (ctx.error) {
     throw ctx.error
   }
@@ -591,7 +590,6 @@ async function startUpMainInstance(isElectron, argv) {
       argv,
       argv.output,
       argv.generationTemplate,
-      argv.zclProperties,
       argv.zapFiles
     ).catch((code) => {
       console.log(code)

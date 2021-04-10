@@ -29,13 +29,11 @@ const env = require('../src-electron/util/env.js')
 const testUtil = require('./test-util.js')
 
 test('that that parallel loading of zcl and dotdot is possible', async () => {
-  let zclPropertiesFile = args.zclPropertiesFile
-
   let db = await dbApi.initRamDatabase()
   await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
 
   let promises = []
-  promises.push(zclLoader.loadZcl(db, zclPropertiesFile))
+  promises.push(zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
   promises.push(zclLoader.loadZcl(db, env.builtinDotdotZclMetafile))
 
   await Promise.all(promises)
@@ -53,11 +51,11 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     .then((d) => {
       db = d
     })
-    .then(() => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
     .then((ctx) => {
       jsonPackageId = ctx.packageId
     })
-    .then(() => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
     .then((ctx) => {
       expect(ctx.packageId).toEqual(jsonPackageId)
       return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)

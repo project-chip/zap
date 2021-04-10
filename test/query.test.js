@@ -156,7 +156,7 @@ test('Simple cluster addition.', () => {
 
 test(
   'Now actually load the static data.',
-  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
+  () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
   5000
 )
 
