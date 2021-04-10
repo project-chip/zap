@@ -22,10 +22,6 @@ const fs = require('fs')
 const restApi = require(`../../src-shared/rest-api.js`)
 const env = require('./env.js')
 
-// TODO how to handle relative pathing for things like properties file.
-exports.zclPropertiesFile = env.builtinSilabsZclMetafile
-exports.genTemplateJsonFile = env.builtinTemplateMetafile
-
 function environmentVariablesDescription() {
   let vars = env.environmentVariable
   let desc = ''
@@ -76,19 +72,19 @@ function processCommandLineArguments(argv) {
         'input .zap file to read in. You can also specify them without an option, directly.',
       alias: ['zap', 'in', 'i'],
       type: 'string',
-      default: exports.zapFile,
+      default: [],
     })
     .option('zclProperties', {
       desc: 'zcl.properties file to read in.',
       alias: ['zcl', 'z'],
       type: 'string',
-      default: exports.zclPropertiesFile,
+      default: env.builtinSilabsZclMetafile,
     })
     .option('generationTemplate', {
       desc: 'generation template metafile (gen-template.json) to read in.',
       alias: ['gen', 'g'],
       type: 'string',
-      default: exports.genTemplateJsonFile,
+      default: env.builtinTemplateMetafile,
     })
     .option('uiMode', {
       desc: 'Mode of the UI to begin in. Options are: ZIGBEE',
@@ -101,7 +97,7 @@ function processCommandLineArguments(argv) {
         'Boolean for when you want to embed purely the ZCL parts of the ZAP tool',
       alias: 'embed',
       type: 'boolean',
-      default: exports.embeddedMode,
+      default: false,
     })
     .option('noUi', {
       desc: "Don't show the main window when starting.",
@@ -109,7 +105,7 @@ function processCommandLineArguments(argv) {
     .options('noServer', {
       desc:
         "Don't run the http or IPC server. You should probably also specify -noUi with this.",
-      default: exports.noServer,
+      default: false,
     })
     .options('genResultFile', {
       desc: 'If this option is present, then generate the result file.',
@@ -193,10 +189,6 @@ For more information, see https://github.com/project-chip/zap`
   } else {
     env.setAppDirectory(ret.stateDirectory)
   }
-
-  // Now populate exported variables with this.
-  exports.zclPropertiesFile = ret.zclProperties
-  exports.genTemplateJsonFile = ret.generationTemplate
 
   return ret
 }

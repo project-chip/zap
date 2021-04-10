@@ -159,7 +159,7 @@ test('Test ISC import', async () => {
   expect(endpoints.length).toBe(3)
 }, 5000)
 
-test('Read ISD data from file', async () => {
+test('Read ISC data from file', async () => {
   let state = await importJs.readDataFromFile(testFileIsc)
   expect(Object.keys(state.endpointTypes).length).toBe(4)
   expect(Object.keys(state.endpoint).length).toBe(3)

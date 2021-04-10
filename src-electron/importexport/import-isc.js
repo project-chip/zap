@@ -23,7 +23,6 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
-const args = require('../util/args.js')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -237,7 +236,7 @@ function parseZclCustomizer(state, line) {
  * @param {*} data
  * @returns promise of read ISC data
  */
-async function readIscData(filePath, data) {
+async function readIscData(filePath, data, zclMetafile) {
   const lines = data.toString().split(/\r?\n/)
   const errorLines = []
 
@@ -252,6 +251,7 @@ async function readIscData(filePath, data) {
     // These are not the same as with zap files
     attributeType: [],
     clusterOverride: [],
+    zclMetafile: zclMetafile,
   }
 
   state.log.push({
@@ -472,7 +472,7 @@ async function iscDataLoader(db, state, sessionId) {
   let promises = []
 
   await util.initializeSessionPackage(db, sessionId, {
-    zcl: args.zclPropertiesFile,
+    zcl: state.zclMetafile,
     template: null,
   })
   let zclPackages = await queryPackage.getSessionPackagesByType(

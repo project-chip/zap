@@ -24,7 +24,7 @@ const importIsc = require('./import-isc.js')
 const importJson = require('./import-json.js')
 const dbApi = require('../db/db-api.js')
 const querySession = require('../db/query-session.js')
-
+const env = require('../util/env.js')
 /**
  * Reads the data from the file and resolves with the state object if all is good.
  *
@@ -32,14 +32,17 @@ const querySession = require('../db/query-session.js')
  * @param {*} filePath
  * @returns Promise of file reading.
  */
-async function readDataFromFile(filePath) {
+async function readDataFromFile(
+  filePath,
+  zclMetafile = env.builtinSilabsZclMetafile
+) {
   let data = await fsp.readFile(filePath)
 
   let stringData = data.toString().trim()
   if (stringData.startsWith('{')) {
     return importJson.readJsonData(filePath, data)
   } else if (stringData.startsWith('#ISD')) {
-    return importIsc.readIscData(filePath, data)
+    return importIsc.readIscData(filePath, data, zclMetafile)
   } else {
     throw new Error(
       'Invalid file format. Only .zap JSON files and ISC file format are supported.'
