@@ -37,7 +37,7 @@ beforeAll(async () => {
     env.schemaFile(),
     env.zapVersion()
   )
-  await zclLoader.loadZcl(db, args.zclPropertiesFile)
+  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
   let userSession = await querySession.ensureZapUserAndSession(
     db,
     'USER',

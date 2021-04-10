@@ -50,7 +50,7 @@ test('test Silabs zcl data loading in memory', () => {
       db = d
       return db
     })
-    .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then((db) => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
     .then((ctx) => {
       packageId = ctx.packageId
       return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
@@ -305,7 +305,7 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
         return db
       })
       //Load the Silabs ZCL XML into the DB
-      .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile)) //default silabs
+      .then((db) => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)) //default silabs
       .then((ctx) => {
         packageIdSilabs = ctx.packageId
         return queryPackage.getPackageByPackageId(ctx.db, packageIdSilabs)

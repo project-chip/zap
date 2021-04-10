@@ -22,6 +22,18 @@ const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
 
+const builtinSilabsZclMetafile = path.join(
+  __dirname,
+  '../../zcl-builtin/silabs/zcl.json'
+)
+
+const builtinDotdotZclMetafile = path.join(
+  __dirname,
+  '../../zcl-builtin/dotdot/library.xml'
+)
+
+const builtinTemplateMetafile = null // No default.
+
 let environmentVariable = {
   logLevel: {
     name: 'ZAP_LOGLEVEL',
@@ -406,3 +418,5 @@ exports.baseUrl = baseUrl
 exports.versionsCheck = versionsCheck
 exports.setAppDirectory = setAppDirectory
 exports.environmentVariable = environmentVariable
+exports.builtinSilabsZclMetafile = builtinSilabsZclMetafile
+exports.builtinDotdotZclMetafile = builtinDotdotZclMetafile

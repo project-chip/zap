@@ -23,11 +23,8 @@ const restApi = require(`../../src-shared/rest-api.js`)
 const env = require('./env.js')
 
 // TODO how to handle relative pathing for things like properties file.
-exports.zclPropertiesFile = path.join(
-  __dirname,
-  '../../zcl-builtin/silabs/zcl.json'
-)
-exports.genTemplateJsonFile = null // No default. You need to pass this.
+exports.zclPropertiesFile = env.builtinSilabsZclMetafile
+exports.genTemplateJsonFile = env.builtinTemplateMetafile
 
 function environmentVariablesDescription() {
   let vars = env.environmentVariable
