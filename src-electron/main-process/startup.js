@@ -48,7 +48,13 @@ let mainDatabase = null
  * @param {*} uiMode
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
-async function startNormal(argv, options) {
+async function startNormal(
+  argv,
+  options = {
+    quit: true,
+    logger: console.log,
+  }
+) {
   let zapFiles = argv.zapFiles
   let showUrl = argv.showUrl
   let uiEnabled = !argv.noUi
@@ -111,7 +117,7 @@ async function startNormal(argv, options) {
       }
     })
     .then(() => {
-      if (argv.noServer && app != null) app.quit()
+      if (argv.noServer && app != null && options.quit) app.quit()
     })
     .catch((err) => {
       env.logError(err)
@@ -158,7 +164,6 @@ async function startConvert(
   argv,
   options = {
     quit: true,
-    noZapFileLog: false,
     logger: console.log,
   }
 ) {
@@ -208,7 +213,7 @@ async function startConvert(
             )
             .then(() =>
               exportJs.exportDataIntoFile(db, sessionId, of, {
-                removeLog: options.noZapFileLog,
+                removeLog: argv.noZapFileLog,
               })
             )
         })
@@ -577,7 +582,6 @@ async function startUpMainInstance(isElectron, argv) {
     return startConvert(argv, {
       logger: console.log,
       quit: true,
-      noZapFileLog: argv.noZapFileLog,
     }).catch((code) => {
       console.log(code)
       process.exit(1)

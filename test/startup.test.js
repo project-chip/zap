@@ -57,10 +57,13 @@ test('startup: convert', () => {
   let testOutputFile = path.join(__dirname, 'resource/test-light.conversion')
   return startup
     .startConvert(
-      { zapFiles: files, output: output },
+      {
+        zapFiles: files,
+        output: output,
+        noZapFileLog: true,
+      },
       {
         quit: false,
-        noZapFileLog: true,
         logger: (msg) => {},
       }
     )
