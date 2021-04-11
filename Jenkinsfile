@@ -169,9 +169,11 @@ pipeline
                               usernameVariable: 'SL_USERNAME',
                               passwordVariable: 'SL_PASSWORD')])
                               {
-                                    sh 'npm list || true'
+                                    sh 'npm --version'
+                                    sh 'node --version'
                                     sh 'npm ci'
-                                    sh 'npm rebuild canvas --update-binary || true'
+                                    sh 'npm list || true'
+                                    sh 'src-script/npm-update-binary || true'
                                     sh "security unlock-keychain -p ${SL_PASSWORD} login"
                                     sh 'npm run version-stamp'
                                     sh 'npm run build-spa'
