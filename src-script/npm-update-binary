@@ -1,2 +1,2 @@
 #!/bin/bash
-npm rebuild canvas libxmljs --update-binary
+npm rebuild canvas --update-binary

@@ -80,7 +80,6 @@
     "express-session": "^1.17.1",
     "handlebars": "^4.7.7",
     "http-status-codes": "^2.1.4",
-    "libxmljs": "^0.19.7",
     "lodash": "^4.17.21",
     "node-ipc": "^9.1.4",
     "pino": "^6.11.2",
