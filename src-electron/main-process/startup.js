@@ -21,7 +21,6 @@ const path = require('path')
 
 const dbApi = require('../db/db-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const args = require('../util/args.js')
 const env = require('../util/env.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const windowJs = require('../ui/window.js')

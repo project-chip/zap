@@ -24,7 +24,6 @@
 const DIRTY_FLAG_REPORT_INTERVAL_MS = 1000
 const UC_COMPONENT_STATE_REPORTING_INTERVAL_ID = 6000
 const axios = require('axios')
-const args = require('../util/args.js')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const wsServer = require('../server/ws-server.js')
