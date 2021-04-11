@@ -27,12 +27,9 @@ const path = require('path')
 const childProcess = require('child_process')
 const queryPackage = require('../db/query-package.js')
 const queryEndpoint = require('../db/query-endpoint.js')
-const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const args = require('./args.js')
 const { v4: uuidv4 } = require('uuid')
-const { allTargets } = require('node-abi')
 
 /**
  * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
