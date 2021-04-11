@@ -96,7 +96,7 @@ if (app != null) {
     hookSecondInstanceEvents(argv)
   }
 } else {
-  // If the code is executed via 'node' and not via 'app', then this
+  // If the code is executed via 'node' and not via 'electron', then this
   // is where we end up.
   startup.startUpMainInstance(
     false,
