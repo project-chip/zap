@@ -32,7 +32,7 @@ jobs:
       - run: npm run build-spa
       - run: npm run lint
       - run: npm run test
-      - run: npm run self-check
+      - run: xvfb-run -a npm run self-check
       - run: npm run gen
       - run: export GH_TOKEN=${{ secrets.GITHUB_TOKEN}} && npm run dist-linux
       - run: xvfb-run -a dist/linux-unpacked/zap selfCheck
