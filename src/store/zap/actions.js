@@ -563,11 +563,9 @@ export function loadSessionKeyValues(context) {
     })
 }
 
-export function addNewPackage(context, file) {
+export function addNewPackage(context, filePath) {
   return Vue.prototype
-    .$serverPost(restApi.uri.addNewPackage, {
-      filePath: file.path,
-    })
+    .$serverPost(restApi.uri.addNewPackage, { path: filePath })
     .then((response) => {
       if (response.data.isValid) {
         return getProjectPackages(context).then((packages) => {
