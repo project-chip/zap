@@ -379,6 +379,7 @@ pipeline
                     slackSend (color: slackColor, channel: '#zap', message: slackMessage)
                 }
             }
+            junit 'junit.xml'
             cleanWs()
         }
     }
