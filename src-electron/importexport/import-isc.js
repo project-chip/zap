@@ -236,7 +236,7 @@ function parseZclCustomizer(state, line) {
  * @param {*} data
  * @returns promise of read ISC data
  */
-async function readIscData(filePath, data) {
+async function readIscData(filePath, data, zclMetafile) {
   const lines = data.toString().split(/\r?\n/)
   const errorLines = []
 
@@ -251,6 +251,7 @@ async function readIscData(filePath, data) {
     // These are not the same as with zap files
     attributeType: [],
     clusterOverride: [],
+    zclMetafile: zclMetafile,
   }
 
   state.log.push({
@@ -470,7 +471,10 @@ async function iscDataLoader(db, state, sessionId) {
   let endpointTypes = state.endpointTypes
   let promises = []
 
-  await util.initializeSessionPackage(db, sessionId)
+  await util.initializeSessionPackage(db, sessionId, {
+    zcl: state.zclMetafile,
+    template: null,
+  })
   let zclPackages = await queryPackage.getSessionPackagesByType(
     db,
     sessionId,

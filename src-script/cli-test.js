@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  *
  *    Copyright (c) 2020 Silicon Labs
@@ -15,12 +16,6 @@
  *    limitations under the License.
  */
 
-const libxmljs = require('xml2js')
+const args = require('../src-electron/util/args.js')
 
-// validateZclFile will have validationSchema be bound to it.
-function validateZclFile(validationSchemaBuffer, zclFileBuffer) {
-  let returnValue = { isValid: true, errors: [] }
-  return returnValue
-}
-
-exports.validateZclFile = validateZclFile
+console.log(args.processCommandLineArguments(process.argv.slice(2)))

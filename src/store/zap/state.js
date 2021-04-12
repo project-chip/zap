@@ -118,8 +118,11 @@ export default function () {
     },
     studio: {
       projectInfoJson: [], // HTTP response from Studio jetty server
-      selectedComponents: [], // [] of 'studio..' prefixed Studio internal component ids
-      selectedComponentIds: [], // [] of 'zigbee_' prefixed component ids
+      ucComponents: [],
+      selectedUcComponents: [], // [] of 'studio..' prefixed Studio internal component ids
+      selectedUcComponentIds: [], // [] of 'zigbee_' prefixed component ids
+      // a list of dict: { "clusterCode": "$zcl_cluster-$zcl_role", "value": ["$uc_component_id"] }
+      zclSdkExtClusterToUcComponentMap: [], 
     },
   }
 }

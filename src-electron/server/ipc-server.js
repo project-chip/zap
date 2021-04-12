@@ -21,6 +21,7 @@ const path = require('path')
 const uiUtil = require('../ui/ui-util.js')
 const util = require('../util/util.js')
 const watchdog = require('../main-process/watchdog.js')
+const httpServer = require('../server/http-server.js')
 
 const serverIpc = new ipc.IPC()
 
@@ -34,6 +35,7 @@ const eventType = {
   open: 'open', // Sent from client to server with array of files to open
   convert: 'convert', // Sent from client to server when requesting to convert files
   generate: 'generate', // Sent from client to server when requesting generation.
+  serverUrl: 'serverUrl', // Sent from client to ask for server URL
 }
 
 /**
@@ -78,10 +80,22 @@ function initServer(db = null, httpPort = null) {
         serverIpc.server.emit(socket, eventType.pong, data)
       })
 
+      // Server URL
+      serverIpc.server.on(eventType.serverUrl, (data, socket) => {
+        watchdog.reset()
+        serverIpc.server.emit(
+          socket,
+          eventType.overAndOut,
+          httpServer.httpServerStartupMessage()
+        )
+      })
+
       // Server version.
       serverIpc.server.on(eventType.version, (data, socket) => {
         watchdog.reset()
-        serverIpc.server.emit(socket, eventType.overAndOut, env.zapVersion())
+        let ret = env.zapVersion()
+        ret.url = httpServer.httpServerUrl()
+        serverIpc.server.emit(socket, eventType.overAndOut, ret)
       })
 
       // New file window

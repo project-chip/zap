@@ -22,6 +22,18 @@ const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
 
+const builtinSilabsZclMetafile = path.join(
+  __dirname,
+  '../../zcl-builtin/silabs/zcl.json'
+)
+
+const builtinDotdotZclMetafile = path.join(
+  __dirname,
+  '../../zcl-builtin/dotdot/library.xml'
+)
+
+const builtinTemplateMetafile = null // No default.
+
 let environmentVariable = {
   logLevel: {
     name: 'ZAP_LOGLEVEL',
@@ -71,7 +83,6 @@ const pinoOptions = {
 let pino_logger = pino(pinoOptions)
 
 let explicit_logger_set = false
-let dbInstance
 let httpStaticContent = path.join(__dirname, '../../spa')
 let versionObject = null
 let applicationStateDirectory = null
@@ -101,17 +112,6 @@ function logInitLogFile() {
     )
     explicit_logger_set = true
   }
-}
-
-function mainDatabase() {
-  return dbInstance
-}
-
-function resolveMainDatabase(db) {
-  return new Promise((resolve, reject) => {
-    dbInstance = db
-    resolve(db)
-  })
 }
 
 /**
@@ -353,7 +353,7 @@ function isMatchingVersion(versionsArray, providedVersion) {
  */
 function versionsCheck() {
   let expectedNodeVersion = ['v14.x.x', 'v12.x.x']
-  let expectedElectronVersion = ['9.4.4']
+  let expectedElectronVersion = ['12.0.2']
   let nodeVersion = process.version
   let electronVersion = process.versions.electron
   let ret = true
@@ -395,14 +395,15 @@ exports.logSql = logSql
 exports.logBrowser = logBrowser
 exports.logIpc = logIpc
 exports.logDebug = logDebug
-exports.httpStaticContent = httpStaticContent
 exports.zapVersion = zapVersion
 exports.zapVersionAsString = zapVersionAsString
-exports.resolveMainDatabase = resolveMainDatabase
-exports.mainDatabase = mainDatabase
 exports.logHttpServerUrl = logHttpServerUrl
 exports.urlLogFile = urlLogFile
 exports.baseUrl = baseUrl
 exports.versionsCheck = versionsCheck
 exports.setAppDirectory = setAppDirectory
+exports.httpStaticContent = httpStaticContent
 exports.environmentVariable = environmentVariable
+exports.builtinSilabsZclMetafile = builtinSilabsZclMetafile
+exports.builtinDotdotZclMetafile = builtinDotdotZclMetafile
+exports.builtinTemplateMetafile = builtinTemplateMetafile

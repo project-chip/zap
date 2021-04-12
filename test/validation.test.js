@@ -22,7 +22,6 @@ const fs = require('fs')
 const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const Validation = require('../src-electron/validation/validation.js')
-const args = require('../src-electron/util/args.js')
 const querySession = require('../src-electron/db/query-session.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
@@ -45,7 +44,7 @@ afterAll(() => {
 })
 
 test('Load the static data.', () => {
-  return zclLoader.loadZcl(db, args.zclPropertiesFile)
+  return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
 }, 5000)
 
 test('isValidNumberString Functions', () => {
@@ -252,7 +251,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
   let pkgId
   beforeAll(() => {
     return zclLoader
-      .loadZcl(db, args.zclPropertiesFile)
+      .loadZcl(db, env.builtinSilabsZclMetafile)
       .then((ctx) => {
         pkgId = ctx.packageId
         querySession

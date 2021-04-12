@@ -87,13 +87,11 @@ function windowCreate(port, args = {}) {
   let queryString = createQueryString(args.uiMode, args.embeddedMode)
 
   w.isDirty = false
-  w.loadURL(`http://localhost:${port}/index.html` + queryString).then(
-    async () => {
-      if (args.filePath != null) {
-        browserApi.executeLoad(w, args.filePath)
-      }
+  w.loadURL(`http://localhost:${port}/` + queryString).then(async () => {
+    if (args.filePath != null) {
+      browserApi.executeLoad(w, args.filePath)
     }
-  )
+  })
 
   w.on('page-title-updated', (e) => {
     e.preventDefault()

@@ -24,7 +24,6 @@ const queryZcl = require('../src-electron/db/query-zcl.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 const types = require('../src-electron/util/types.js')
 const testUtil = require('./test-util.js')
@@ -50,7 +49,7 @@ test('test Silabs zcl data loading in memory', () => {
       db = d
       return db
     })
-    .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then((db) => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
     .then((ctx) => {
       packageId = ctx.packageId
       return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
@@ -189,7 +188,6 @@ test('test Dotdot zcl data loading in memory', async () => {
   let unmatched = []
   let nullAttribute = []
   let nonUniqueEnum = []
-  dotDotZclPropertiesFile = testUtil.dotDotZclPropertiesFile
   return (
     dbApi
       .initRamDatabase()
@@ -198,7 +196,7 @@ test('test Dotdot zcl data loading in memory', async () => {
         db = d
         return db
       })
-      .then((db) => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
+      .then((db) => zclLoader.loadZcl(db, env.builtinDotdotZclMetafile))
       .then((ctx) => {
         packageId = ctx.packageId
         return queryPackage.getPackageByPackageId(ctx.db, packageId)
@@ -295,7 +293,6 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
   let db
   let packageIdSilabs
   let packageIdDotdot
-  let dotDotZclPropertiesFile = testUtil.dotDotZclPropertiesFile
   return (
     dbApi
       .initRamDatabase()
@@ -305,7 +302,7 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
         return db
       })
       //Load the Silabs ZCL XML into the DB
-      .then((db) => zclLoader.loadZcl(db, args.zclPropertiesFile)) //default silabs
+      .then((db) => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)) //default silabs
       .then((ctx) => {
         packageIdSilabs = ctx.packageId
         return queryPackage.getPackageByPackageId(ctx.db, packageIdSilabs)
@@ -317,7 +314,7 @@ test('test Dotdot and Silabs zcl data loading in memory', () => {
       .then((rows) => expect(rows.length).toEqual(1))
 
       //Load the Dotdot ZCL XML into the DB
-      .then(() => zclLoader.loadZcl(db, dotDotZclPropertiesFile)) //default silabs
+      .then(() => zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)) //default silabs
       .then((ctx) => {
         packageIdDotdot = ctx.packageId
         return queryPackage.getPackageByPackageId(ctx.db, packageIdDotdot)

@@ -20,18 +20,13 @@
 
 const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine.js')
-const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 const queryPackage = require('../src-electron/db/query-package.js')
-const querySession = require('../src-electron/db/query-session.js')
-const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const utilJs = require('../src-electron/util/util.js')
-const types = require('../src-electron/util/types.js')
-const bin = require('../src-electron/util/bin.js')
 
 let db
 const testFile = path.join(__dirname, 'resource/tokens-test.zap')
@@ -45,7 +40,7 @@ beforeAll(() => {
     .then((d) => {
       db = d
     })
-    .then(() => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
 }, 5000)
 
 afterAll(() => {
@@ -76,7 +71,10 @@ test('Test file import', () =>
 
 test('Initialize session packages', () =>
   utilJs
-    .initializeSessionPackage(templateContext.db, templateContext.sessionId)
+    .initializeSessionPackage(templateContext.db, templateContext.sessionId, {
+      zcl: env.builtinSilabsZclMetafile,
+      template: env.builtinTemplateMetafile,
+    })
     .then((sessionId) =>
       queryPackage.getSessionPackages(
         templateContext.db,

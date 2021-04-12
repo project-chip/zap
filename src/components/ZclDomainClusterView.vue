@@ -39,12 +39,14 @@ limitations under the License.
         >
           <q-td key="status" :props="props" class="q-px-none">
             <q-icon
+              v-if="missingRequiredUcComponents(props.row).length"
               name="warning"
               class="text-amber"
               style="font-size: 1.5rem"
               @click="selectCluster(props.row)"
             ></q-icon>
             <q-popup-edit
+              :disable="!missingRequiredUcComponents(props.row).length"
               :cover="false"
               :offset="[0, -54]"
               v-model="uc_label"
@@ -57,16 +59,30 @@ limitations under the License.
                   class="text-amber q-mr-sm"
                   style="font-size: 1.5rem"
                 ></q-icon>
-                <div class="vertical-middle text-subtitle1">
-                  Clusters not installed
+                <div class="vertical-middle text-subtitle2">
+                  Required UC Component not installed
                 </div>
               </div>
               <div class="row no-wrap">
-                Install cluster in universal components<br />
+                Install following universal components<br />
                 to continue endpoint configuration.
               </div>
+
+              <div class="row no-wrap">
+                <ul style="list-style-type: none">
+                  <li v-for="id in missingRequiredUcComponents(props.row)" :key="id">
+                    {{ ucLabel(id) }}
+                  </li>
+                </ul>
+              </div>
+
               <div class="row justify-end">
-                <q-btn unelevated text-color="primary">Install</q-btn>
+                <q-btn
+                  unelevated
+                  text-color="primary"
+                  @click="enableRequiredComponents(props.row.id)"
+                  >Install</q-btn
+                >
               </div>
             </q-popup-edit>
           </q-td>
@@ -193,13 +209,17 @@ export default {
             view: 'clustersView',
           })
         )
+        .then(() => this.enableRequiredComponents(id))
+    },
+    enableRequiredComponents(id) {
+      let hasClient = this.selectionClients.includes(id)
+      let hasServer = this.selectionServers.includes(id)
 
-      // NOTE: only turn on components when cluster is selected.
       let side = []
-      if (clientSelected) {
+      if (hasClient) {
         side.push('client')
       }
-      if (serverSelected) {
+      if (hasServer) {
         side.push('server')
       }
 
@@ -219,6 +239,17 @@ export default {
           )
         )
     },
+    ucLabel(id) {
+      let list = this.$store.state.zap.studio.ucComponents.filter(
+        (x) => x.name === id
+      )
+      return list && list.length ? list[0].label : ''
+    },
+    missingRequiredUcComponents(cluster) {
+      return this.missingUcComponentDependencies(
+        cluster
+      )
+    },
   },
   data() {
     return {
@@ -229,7 +260,8 @@ export default {
         { label: 'Server', client: false, server: true },
         { label: 'Client & Server', client: true, server: true },
       ],
-      showStatus: false,
+      // TODO: auto-hide when all dependencies are met.
+      showStatus: true,
       columns: [
         {
           name: 'status',

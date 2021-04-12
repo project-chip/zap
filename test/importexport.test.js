@@ -25,7 +25,6 @@ const dbEnum = require('../src-shared/db-enum.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const env = require('../src-electron/util/env.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const args = require('../src-electron/util/args.js')
 const queryGeneric = require('../src-electron/db/query-generic.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const querySession = require('../src-electron/db/query-session.js')
@@ -59,7 +58,7 @@ afterAll(() => {
 
 test(
   'Load the static data.',
-  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
+  () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
   5000
 )
 
@@ -160,7 +159,7 @@ test('Test ISC import', async () => {
   expect(endpoints.length).toBe(3)
 }, 5000)
 
-test('Read ISD data from file', async () => {
+test('Read ISC data from file', async () => {
   let state = await importJs.readDataFromFile(testFileIsc)
   expect(Object.keys(state.endpointTypes).length).toBe(4)
   expect(Object.keys(state.endpoint).length).toBe(3)

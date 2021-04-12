@@ -20,7 +20,6 @@
 
 const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine.js')
-const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryPackage = require('../src-electron/db/query-package.js')
@@ -53,7 +52,7 @@ let templateContext
 
 test(
   'Load ZCL stuff',
-  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
+  () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
   10000
 )
 
@@ -94,7 +93,11 @@ test('Create session', () =>
 test('Initialize session packages', async () => {
   let packages = await utilJs.initializeSessionPackage(
     templateContext.db,
-    templateContext.sessionId
+    templateContext.sessionId,
+    {
+      zcl: env.builtinSilabsZclMetafile,
+      template: env.builtinTemplateMetafile,
+    }
   )
 
   expect(packages.length).toBe(2)

@@ -21,7 +21,6 @@ const path = require('path')
 
 const dbApi = require('../db/db-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const args = require('../util/args.js')
 const env = require('../util/env.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const windowJs = require('../ui/window.js')
@@ -48,14 +47,23 @@ let mainDatabase = null
  * @param {*} uiMode
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
-async function startNormal(uiEnabled, showUrl, zapFiles, options) {
+async function startNormal(
+  argv,
+  options = {
+    quit: true,
+    logger: console.log,
+  }
+) {
+  let zapFiles = argv.zapFiles
+  let showUrl = argv.showUrl
+  let uiEnabled = !argv.noUi
   let db = await dbApi.initDatabaseAndLoadSchema(
     env.sqliteFile(),
     env.schemaFile(),
     env.zapVersion()
   )
 
-  watchdog.start(args.watchdogTimer, () => {
+  watchdog.start(argv.watchdogTimer, () => {
     if (app != null) {
       app.quit()
     } else {
@@ -65,9 +73,9 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
   mainDatabase = db
 
   return zclLoader
-    .loadZcl(db, args.zclPropertiesFile)
+    .loadZcl(db, argv.zclProperties)
     .then((ctx) =>
-      generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
+      generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
     )
     .then((ctx) => {
       if (ctx.error) {
@@ -76,11 +84,14 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
       return ctx
     })
     .then((ctx) => {
-      if (!args.noServer)
+      if (!argv.noServer)
         return httpServer
-          .initHttpServer(ctx.db, args.httpPort, args.studioHttpPort)
+          .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort, {
+            zcl: argv.zclProperties,
+            template: argv.generationTemplate,
+          })
           .then(() => {
-            ipcServer.initServer(ctx.db, args.httpPort)
+            ipcServer.initServer(ctx.db, argv.httpPort)
           })
           .then(() => ctx)
       else return ctx
@@ -89,14 +100,17 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
       if (uiEnabled) {
         windowJs.initializeElectronUi(ctx.db, httpServer.httpServerPort())
         if (zapFiles.length == 0) {
-          return uiJs.openNewConfiguration(httpServer.httpServerPort(), options)
+          return uiJs.openNewConfiguration(httpServer.httpServerPort(), {
+            uiMode: argv.uiMode,
+            embeddedMode: argv.embeddedMode,
+          })
         } else {
           return util.executePromisesSequentially(zapFiles, (f) =>
             uiJs.openFileConfiguration(f, httpServer.httpServerPort())
           )
         }
       } else {
-        if (showUrl && !args.noServer) {
+        if (showUrl && !argv.noServer) {
           // NOTE: this is parsed/used by Studio as the default landing page.
           console.log(
             `ZAP Server started at: http://localhost:${httpServer.httpServerPort()}`
@@ -105,7 +119,7 @@ async function startNormal(uiEnabled, showUrl, zapFiles, options) {
       }
     })
     .then(() => {
-      if (args.noServer && app != null) app.quit()
+      if (argv.noServer && app != null && options.quit) app.quit()
     })
     .catch((err) => {
       env.logError(err)
@@ -149,14 +163,14 @@ function outputFile(inputFile, outputPattern) {
  * @param {*} output
  */
 async function startConvert(
-  files,
-  output,
+  argv,
   options = {
     quit: true,
-    noZapFileLog: false,
     logger: console.log,
   }
 ) {
+  let files = argv.zapFiles
+  let output = argv.output
   options.logger(`🤖 Conversion started`)
   options.logger(`    🔍 input files: ${files}`)
   options.logger(`    🔍 output pattern: ${output}`)
@@ -168,11 +182,11 @@ async function startConvert(
     env.zapVersion()
   )
   options.logger('    🐝 database and schema initialized')
-  await zclLoader.loadZcl(db, args.zclPropertiesFile)
-  options.logger(`    🐝 zcl package loaded: ${args.zclPropertiesFile}`)
-  if (args.genTemplateJsonFile != null) {
-    await generatorEngine.loadTemplates(db, args.genTemplateJsonFile)
-    options.logger(`    🐝 templates loaded: ${args.genTemplateJsonFile}`)
+  await zclLoader.loadZcl(db, argv.zclProperties)
+  options.logger(`    🐝 zcl package loaded: ${argv.zclProperties}`)
+  if (argv.generationTemplate != null) {
+    await generatorEngine.loadTemplates(db, argv.generationTemplate)
+    options.logger(`    🐝 templates loaded: ${argv.generationTemplate}`)
   }
 
   return util
@@ -181,7 +195,10 @@ async function startConvert(
         .importDataFromFile(db, singlePath)
         .then((importResult) => {
           return util
-            .initializeSessionPackage(db, importResult.sessionId)
+            .initializeSessionPackage(db, importResult.sessionId, {
+              zcl: argv.zclProperties,
+              template: argv.generationTemplate,
+            })
             .then((pkgs) => importResult.sessionId)
         })
         .then((sessionId) => {
@@ -201,7 +218,7 @@ async function startConvert(
             )
             .then(() =>
               exportJs.exportDataIntoFile(db, sessionId, of, {
-                removeLog: options.noZapFileLog,
+                removeLog: argv.noZapFileLog,
               })
             )
         })
@@ -224,13 +241,14 @@ async function startConvert(
  * @param {boolean} [options={ log: true, quit: true }]
  */
 async function startAnalyze(
-  paths,
+  argv,
   options = {
     quit: true,
     cleanDb: true,
     logger: console.log,
   }
 ) {
+  let paths = argv.zapFiles
   let dbFile = env.sqliteFile('analysis')
   options.logger(`🤖 Starting analysis: ${paths}`)
   if (options.cleanDb && fs.existsSync(dbFile)) {
@@ -243,7 +261,7 @@ async function startAnalyze(
     .then((d) => {
       db = d
       options.logger('    👉 database and schema initialized')
-      return zclLoader.loadZcl(db, args.zclPropertiesFile)
+      return zclLoader.loadZcl(db, argv.zclProperties)
     })
     .then((d) => {
       return util.executePromisesSequentially(paths, (singlePath) =>
@@ -265,9 +283,65 @@ async function startAnalyze(
 }
 
 /**
+ * Starts zap in a server mode.
+ *
+ * @param {*} options
+ * @returns promise of a startup
+ */
+async function startServer(argv, options = {}) {
+  let db = await dbApi.initDatabaseAndLoadSchema(
+    env.sqliteFile(),
+    env.schemaFile(),
+    env.zapVersion()
+  )
+
+  watchdog.start(argv.watchdogTimer, () => {
+    if (app != null) {
+      app.quit()
+    } else {
+      process.exit(0)
+    }
+  })
+  mainDatabase = db
+
+  return zclLoader
+    .loadZcl(db, argv.zclProperties)
+    .then((ctx) =>
+      generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
+    )
+    .then((ctx) => {
+      if (ctx.error) {
+        env.logWarning(ctx.error)
+      }
+      return ctx
+    })
+    .then((ctx) => {
+      return httpServer
+        .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort, {
+          zcl: argv.zclProperties,
+          template: argv.generationTemplate,
+        })
+        .then(() => {
+          ipcServer.initServer(ctx.db, argv.httpPort)
+        })
+        .then(() => ctx)
+    })
+    .then((ctx) => {
+      console.log(
+        `ZAP Server started at: http://localhost:${httpServer.httpServerPort()}`
+      )
+    })
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+}
+
+/**
  * Start up applicationa in self-check mode.
  */
 async function startSelfCheck(
+  argv,
   options = {
     quit: true,
     cleanDb: true,
@@ -287,11 +361,11 @@ async function startSelfCheck(
     .then((db) => {
       mainDb = db
       options.logger('    👉 database and schema initialized')
-      return zclLoader.loadZcl(db, args.zclPropertiesFile)
+      return zclLoader.loadZcl(db, argv.zclProperties)
     })
     .then((ctx) => {
       options.logger('    👉 zcl data loaded')
-      return generatorEngine.loadTemplates(ctx.db, args.genTemplateJsonFile)
+      return generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
     })
     .then(async (ctx) => {
       if (ctx.error) {
@@ -319,33 +393,34 @@ async function startSelfCheck(
  * Performs headless regeneration for given parameters.
  *
  * @param {*} output Directory where to write files.
- * @param {*} genTemplateJsonFile gen-teplate.json file to use for template loading.
+ * @param {*} templateMetafile gen-teplate.json file to use for template loading.
  * @param {*} zclProperties zcl.properties file to use for ZCL properties.
  * @param {*} [zapFile=null] .zap file that contains application stater, or null if generating from clean state.
  * @returns Nothing, triggers app.quit()
  */
 async function startGeneration(
-  output,
-  genTemplateJsonFile,
-  zclProperties,
-  zapFiles = [],
+  argv,
   options = {
     quit: true,
     cleanDb: true,
     logger: console.log,
   }
 ) {
+  let templateMetafile = argv.generationTemplate
+  let zapFiles = argv.zapFiles
+  let zapFile = null
+  let output = argv.output
   options.logger(
     `🤖 ZAP generation information: 
     👉 into: ${output}
-    👉 using templates: ${genTemplateJsonFile}
-    👉 using zcl data: ${zclProperties}`
+    👉 using templates: ${templateMetafile}
+    👉 using zcl data: ${argv.zclProperties}`
   )
-  let zapFile = null
   if (zapFiles != null && zapFiles.length > 0) {
     zapFile = zapFiles[0]
-    if (zapFiles.length > 1)
+    if (zapFiles.length > 1) {
       options.logger(`    ⚠️  Multiple files passed. Using only first one.`)
+    }
   }
   if (zapFile != null) {
     if (fs.existsSync(zapFile)) {
@@ -389,8 +464,8 @@ async function startGeneration(
     env.schemaFile(),
     env.zapVersion()
   )
-  let ctx = await zclLoader.loadZcl(mainDb, zclProperties)
-  ctx = await generatorEngine.loadTemplates(ctx.db, genTemplateJsonFile)
+  let ctx = await zclLoader.loadZcl(mainDb, argv.zclProperties)
+  ctx = await generatorEngine.loadTemplates(ctx.db, templateMetafile)
   if (ctx.error) {
     throw ctx.error
   }
@@ -404,7 +479,10 @@ async function startGeneration(
     sessionId = importResult.sessionId
   }
 
-  await util.initializeSessionPackage(mainDb, sessionId)
+  await util.initializeSessionPackage(mainDb, sessionId, {
+    zcl: argv.zclProperties,
+    template: templateMetafile,
+  })
 
   let genResult = await generatorEngine.generateAndWriteFiles(
     mainDb,
@@ -414,8 +492,8 @@ async function startGeneration(
     {
       logger: options.logger,
       backup: false,
-      genResultFile: args.genResultFile,
-      skipPostGeneration: args.skipPostGeneration,
+      genResultFile: argv.genResultFile,
+      skipPostGeneration: argv.skipPostGeneration,
     }
   )
 
@@ -501,42 +579,33 @@ async function startUpMainInstance(isElectron, argv) {
   }
 
   if (argv._.includes('selfCheck')) {
-    return startSelfCheck()
+    return startSelfCheck(argv)
   } else if (argv._.includes('analyze')) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
-    return startAnalyze(argv.zapFiles)
+    return startAnalyze(argv)
+  } else if (argv._.includes('server')) {
+    return startServer(argv)
   } else if (argv._.includes('convert')) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
     if (argv.output == null) throw 'You need to specify output file.'
-    return startConvert(argv.zapFiles, argv.output, {
+    return startConvert(argv, {
       logger: console.log,
       quit: true,
-      noZapFileLog: argv.noZapFileLog,
     }).catch((code) => {
       console.log(code)
       process.exit(1)
     })
   } else if (argv._.includes('generate')) {
-    return startGeneration(
-      argv.output,
-      argv.generationTemplate,
-      argv.zclProperties,
-      argv.zapFiles
-    ).catch((code) => {
+    return startGeneration(argv).catch((code) => {
       console.log(code)
       process.exit(1)
     })
   } else {
-    if (isElectron) {
-      return startNormal(!argv.noUi, argv.showUrl, argv.zapFiles, {
-        uiMode: argv.uiMode,
-        embeddedMode: argv.embeddedMode,
-      })
-    } else {
-      return startNormal(false, argv.showUrl, [], {})
-    }
+    // If we run with node only, we force no UI as it won't work.
+    if (!isElectron) argv.noUi = true
+    return startNormal(argv, {})
   }
 }
 

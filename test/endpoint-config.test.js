@@ -20,7 +20,6 @@
 
 const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine.js')
-const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
@@ -71,7 +70,7 @@ test(
 test(
   'Load ZCL stuff',
   () =>
-    zclLoader.loadZcl(db, args.zclPropertiesFile).then((context) => {
+    zclLoader.loadZcl(db, env.builtinSilabsZclMetafile).then((context) => {
       zclContext = context
     }),
   5000

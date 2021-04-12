@@ -24,7 +24,6 @@
 const DIRTY_FLAG_REPORT_INTERVAL_MS = 1000
 const UC_COMPONENT_STATE_REPORTING_INTERVAL_ID = 6000
 const axios = require('axios')
-const args = require('../util/args.js')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
 const wsServer = require('../server/ws-server.js')
@@ -39,6 +38,7 @@ const op_remove = '/rest/clic/component/remove/project/'
 
 let dirtyFlagStatusId = null
 let ucComponentStateReportId = null
+let studioHttpPort = null
 
 function projectPath(db, sessionId) {
   return querySession.getSessionKeyValue(
@@ -87,7 +87,7 @@ async function getProjectInfo(db, sessionId) {
   let studioProjectPath = await projectPath(db, sessionId)
   if (studioProjectPath) {
     let name = await projectName(studioProjectPath)
-    let path = localhost + args.studioHttpPort + op_tree + studioProjectPath
+    let path = localhost + studioHttpPort + op_tree + studioProjectPath
     env.logInfo(`StudioUC(${name}): GET: ${path}`)
     return axios
       .get(path)
@@ -196,7 +196,7 @@ function httpPostComponentUpdate(project, componentId, add) {
   let operation = add ? op_add : op_remove
   let operationText = add ? 'add' : 'remove'
   return axios
-    .post(localhost + args.studioHttpPort + operation + project, {
+    .post(localhost + studioHttpPort + operation + project, {
       componentId: componentId,
     })
     .then((res) => {
@@ -218,7 +218,8 @@ function httpPostComponentUpdate(project, componentId, add) {
  * Start the dirty flag reporting interval.
  *
  */
-function initIdeIntegration(db) {
+function initIdeIntegration(db, studioPort) {
+  studioHttpPort = studioPort
   dirtyFlagStatusId = setInterval(() => {
     sendDirtyFlagStatus(db)
   }, DIRTY_FLAG_REPORT_INTERVAL_MS)

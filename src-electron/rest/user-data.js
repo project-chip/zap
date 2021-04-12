@@ -306,10 +306,9 @@ function httpGetPackages(db) {
  * HTTP POST: Add new project package
  */
 function httpPostAddNewPackage(db) {
-  return (request, response) => {
-    let sessionId = request.zapSessionId
-    let { filePath } = request.body
-    console.log(`ADDING NEW PACKAGE: ${filePath}`)
+  return (req, res) => {
+    let sessionId = req.zapSessionId
+    let filePath = req.body.path
     zclLoader
       .loadIndividualFile(db, filePath, sessionId)
       .then((data) => {
@@ -324,11 +323,11 @@ function httpPostAddNewPackage(db) {
         }
       })
       .then((status) => {
-        return response.status(restApi.httpCode.ok).json(status)
+        return res.status(restApi.httpCode.ok).json(status)
       })
       .catch((err) => {
         console.log(err)
-        return response.status(restApi.httpCode.badRequest).send()
+        return res.status(restApi.httpCode.badRequest).send()
       })
   }
 }

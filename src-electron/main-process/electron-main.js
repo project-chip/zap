@@ -17,7 +17,6 @@
 
 const { app } = require('electron')
 
-const dbApi = require('../db/db-api.js')
 const args = require('../util/args.js')
 const env = require('../util/env.js')
 const windowJs = require('../ui/window.js')
@@ -55,16 +54,17 @@ function hookMainInstanceEvents(argv) {
       app.exit(1)
     })
 
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      app.quit()
-    }
-  })
-
-  app.on('activate', () => {
-    env.logInfo('Activate...')
-    windowJs.windowCreateIfNotThere(args.httpPort)
-  })
+  if (!argv._.includes('server')) {
+    app.on('window-all-closed', () => {
+      if (process.platform !== 'darwin') {
+        app.quit()
+      }
+    })
+    app.on('activate', () => {
+      env.logInfo('Activate...')
+      windowJs.windowCreateIfNotThere(argv.httpPort)
+    })
+  }
 
   app.on('will-quit', () => {
     startup.shutdown()
@@ -78,7 +78,7 @@ function hookMainInstanceEvents(argv) {
 // Main lifecycle of the application
 if (app != null) {
   let argv = args.processCommandLineArguments(process.argv)
-  let reuseZapInstance = args.reuseZapInstance
+  let reuseZapInstance = argv.reuseZapInstance
   let canProceedWithThisInstance
   let gotLock = app.requestSingleInstanceLock()
 
@@ -95,7 +95,7 @@ if (app != null) {
     hookSecondInstanceEvents(argv)
   }
 } else {
-  // If the code is executed via 'node' and not via 'app', then this
+  // If the code is executed via 'node' and not via 'electron', then this
   // is where we end up.
   startup.startUpMainInstance(
     false,

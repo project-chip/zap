@@ -21,17 +21,19 @@ const path = require('path')
 const fs = require('fs')
 const startup = require('../src-electron/main-process/startup.js')
 const env = require('../src-electron/util/env.js')
-const args = require('../src-electron/util/args.js')
 const testUtil = require('./test-util.js')
 
 test('startup: start generation', () => {
   let testGenDir = path.join(path.join(__dirname, '.zap/'), 'test-gen')
   if (!fs.existsSync(testGenDir)) fs.mkdirSync(testGenDir, { recursive: true })
   return startup.startGeneration(
-    testGenDir,
-    testUtil.testZigbeeGenerationTemplates,
-    args.zclPropertiesFile,
-    null,
+    {
+      skipPostGeneration: true,
+      output: testGenDir,
+      generationTemplate: testUtil.testZigbeeGenerationTemplates,
+      zclProperties: env.builtinSilabsZclMetafile,
+      zapFiles: null,
+    },
     {
       quit: false,
       logger: (msg) => {},
@@ -40,7 +42,12 @@ test('startup: start generation', () => {
 }, 10000)
 
 test('startup: self-check', () => {
-  return startup.startSelfCheck({ logger: (msg) => {}, quit: false })
+  return startup.startSelfCheck(
+    {
+      zclProperties: env.builtinSilabsZclMetafile,
+    },
+    { logger: (msg) => {}, quit: false }
+  )
 }, 5000)
 
 test('startup: convert', () => {
@@ -49,11 +56,18 @@ test('startup: convert', () => {
   let output = '{basename}.conversion'
   let testOutputFile = path.join(__dirname, 'resource/test-light.conversion')
   return startup
-    .startConvert(files, output, {
-      quit: false,
-      noZapFileLog: true,
-      logger: (msg) => {},
-    })
+    .startConvert(
+      {
+        zapFiles: files,
+        output: output,
+        zclProperties: env.builtinSilabsZclMetafile,
+        noZapFileLog: true,
+      },
+      {
+        quit: false,
+        logger: (msg) => {},
+      }
+    )
     .then(() => {
       expect(fs.existsSync(testOutputFile)).toBeTruthy()
       fs.unlinkSync(testOutputFile)
@@ -63,9 +77,15 @@ test('startup: convert', () => {
 test('startup: analyze', () => {
   let files = []
   files.push(path.join(__dirname, 'resource/test-light.isc'))
-  return startup.startAnalyze(files, {
-    quit: false,
-    cleanDb: false,
-    logger: (msg) => {},
-  })
+  return startup.startAnalyze(
+    {
+      zapFiles: files,
+      zclProperties: env.builtinSilabsZclMetafile,
+    },
+    {
+      quit: false,
+      cleanDb: false,
+      logger: (msg) => {},
+    }
+  )
 }, 5000)

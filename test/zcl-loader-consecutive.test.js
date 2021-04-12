@@ -22,22 +22,17 @@ const dbApi = require('../src-electron/db/db-api.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const queryPackage = require('../src-electron/db/query-package.js')
-const queryGeneric = require('../src-electron/db/query-generic.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const args = require('../src-electron/util/args.js')
 const env = require('../src-electron/util/env.js')
 const testUtil = require('./test-util.js')
 
 test('that that parallel loading of zcl and dotdot is possible', async () => {
-  let dotDotZclPropertiesFile = testUtil.dotDotZclPropertiesFile
-  let zclPropertiesFile = args.zclPropertiesFile
-
   let db = await dbApi.initRamDatabase()
   await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
 
   let promises = []
-  promises.push(zclLoader.loadZcl(db, zclPropertiesFile))
-  promises.push(zclLoader.loadZcl(db, dotDotZclPropertiesFile))
+  promises.push(zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
+  promises.push(zclLoader.loadZcl(db, env.builtinDotdotZclMetafile))
 
   await Promise.all(promises)
 
@@ -45,7 +40,6 @@ test('that that parallel loading of zcl and dotdot is possible', async () => {
 }, 20000)
 
 test('test that consecutive loading of metafiles properly avoids duplication', () => {
-  let dotDotZclPropertiesFile = testUtil.dotDotZclPropertiesFile
   let db
   let jsonPackageId
   let dotdotPackageId
@@ -55,18 +49,18 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     .then((d) => {
       db = d
     })
-    .then(() => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
     .then((ctx) => {
       jsonPackageId = ctx.packageId
     })
-    .then(() => zclLoader.loadZcl(db, args.zclPropertiesFile))
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
     .then((ctx) => {
       expect(ctx.packageId).toEqual(jsonPackageId)
       return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
     })
     .then((p) => expect(p.version).toEqual('ZCL Test Data'))
-    .then(() => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
-    .then(() => zclLoader.loadZcl(db, dotDotZclPropertiesFile))
+    .then(() => zclLoader.loadZcl(db, env.builtinDotdotZclMetafile))
+    .then(() => zclLoader.loadZcl(db, env.builtinDotdotZclMetafile))
     .then((ctx) => {
       dotdotPackageId = ctx.packageId
       expect(dotdotPackageId).not.toEqual(jsonPackageId)

@@ -84,14 +84,10 @@ limitations under the License.
           Type in or browse for a custom package file. This is usually an XML
           file containing ZCL data.
           <q-input outlined v-model="packageToLoad" label="Custom file path" />
-          <q-btn
-            outline
-            label="Browse..."
-            @click="browseForFile(packageToLoad)"
-          />
+          <q-btn outline label="Browse..." @click="browseForFile()" />
           <q-card-actions>
             <q-btn label="Cancel" v-close-popup />
-            <q-btn label="Add Package" @click="loadNewPackage(packageToLoad)" />
+            <q-btn label="Add Package" @click="loadNewPackage()" />
           </q-card-actions>
         </q-card-section>
       </q-card>
@@ -111,20 +107,17 @@ export default {
       let fileName = path.match(/[^/]+$/)
       return fileName.length > 0 ? fileName[0] : path
     },
-    browseForFile(currentPath) {
+    browseForFile() {
       window.global_renderer_notify(restApi.rendererApiNotifyKey.fileBrowse, {
         context: 'customXml',
         title: 'Select an XML file containing custom ZCL objects',
         mode: 'file',
-        defaultPath: currentPath,
+        defaultPath: this.packageToLoad,
       })
     },
-    setReportedFiles(files) {
-      this.packageToLoad = files
-    },
-    loadNewPackage(packageToLoad) {
+    loadNewPackage() {
       this.$store
-        .dispatch('zap/addNewPackage', packageToLoad)
+        .dispatch('zap/addNewPackage', this.packageToLoad)
         .then((packageStatus) => {
           if (packageStatus.isValid) {
             this.error = null
@@ -145,7 +138,9 @@ export default {
     if (this.$serverGet != null) {
       this.$store.dispatch('zap/getProjectPackages')
       observable.observeAttribute(restApi.reported_files, (value) => {
-        if (value.context == 'customXml') this.setReportedFiles(value.filePaths)
+        if (value.context == 'customXml') {
+          this.packageToLoad = value.filePaths[0]
+        }
       })
     }
   },

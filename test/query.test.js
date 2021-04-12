@@ -21,7 +21,6 @@ const fs = require('fs')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const queryLoader = require('../src-electron/db/query-loader.js')
-const args = require('../src-electron/util/args.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const env = require('../src-electron/util/env.js')
 const util = require('../src-electron/util/util.js')
@@ -156,7 +155,7 @@ test('Simple cluster addition.', () => {
 
 test(
   'Now actually load the static data.',
-  () => zclLoader.loadZcl(db, args.zclPropertiesFile),
+  () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
   5000
 )
 
@@ -169,7 +168,10 @@ describe('Session specific queries', () => {
       .ensureZapUserAndSession(db, 'USER', 'SESSION')
       .then((userSession) => {
         sid = userSession.sessionId
-        return util.initializeSessionPackage(db, sid)
+        return util.initializeSessionPackage(db, sid, {
+          zcl: env.builtinSilabsZclMetafile,
+          template: env.builtinTemplateMetafile,
+        })
       })
   )
 

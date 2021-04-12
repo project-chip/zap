@@ -22,23 +22,6 @@ const fs = require('fs')
 const restApi = require(`../../src-shared/rest-api.js`)
 const env = require('./env.js')
 
-// TODO how to handle relative pathing for things like properties file.
-exports.zclPropertiesFile = path.join(
-  __dirname,
-  '../../zcl-builtin/silabs/zcl.json'
-)
-exports.genTemplateJsonFile = null // No default. You need to pass this.
-exports.httpPort = 9070
-exports.studioHttpPort = 9000
-exports.uiMode = restApi.uiMode.ZIGBEE
-exports.embeddedMode = false
-exports.noServer = false
-exports.zapFiles = []
-exports.genResultFile = false
-exports.skipPostGeneration = false
-exports.reuseZapInstance = false
-exports.watchdogTimer = 60000 // Default watchdog timer: 1 min
-
 function environmentVariablesDescription() {
   let vars = env.environmentVariable
   let desc = ''
@@ -64,6 +47,7 @@ function processCommandLineArguments(argv) {
     analyze: 'Analyze the zap file without doing anything.',
     convert: 'Convert a zap or ISC file to latest zap file.',
     status: 'Query the status of a zap server.',
+    server: 'Run zap in a server mode.',
     new: 'If in client mode, start a new window on a main instance.',
   }
   let y = yargs
@@ -75,45 +59,45 @@ function processCommandLineArguments(argv) {
       desc: 'Port used for the HTTP server',
       alias: 'p',
       type: 'number',
-      default: exports.httpPort,
+      default: 9070,
     })
     .option('studioHttpPort', {
       desc:
         "Port used for integration with Silicon Labs Simplicity Studio's internal HTTP server",
       type: 'number',
-      default: exports.studioHttpPort,
+      default: 9000,
     })
     .option('zapFile', {
       desc:
         'input .zap file to read in. You can also specify them without an option, directly.',
       alias: ['zap', 'in', 'i'],
       type: 'string',
-      default: exports.zapFile,
+      default: null,
     })
     .option('zclProperties', {
       desc: 'zcl.properties file to read in.',
       alias: ['zcl', 'z'],
       type: 'string',
-      default: exports.zclPropertiesFile,
+      default: env.builtinSilabsZclMetafile,
     })
     .option('generationTemplate', {
       desc: 'generation template metafile (gen-template.json) to read in.',
       alias: ['gen', 'g'],
       type: 'string',
-      default: exports.genTemplateJsonFile,
+      default: env.builtinTemplateMetafile,
     })
     .option('uiMode', {
       desc: 'Mode of the UI to begin in. Options are: ZIGBEE',
       alias: 'ui',
       type: 'string',
-      default: exports.uiMode,
+      default: restApi.uiMode.ZIGBEE,
     })
     .option('embeddedMode', {
       desc:
         'Boolean for when you want to embed purely the ZCL parts of the ZAP tool',
       alias: 'embed',
       type: 'boolean',
-      default: exports.embeddedMode,
+      default: false,
     })
     .option('noUi', {
       desc: "Don't show the main window when starting.",
@@ -121,11 +105,11 @@ function processCommandLineArguments(argv) {
     .options('noServer', {
       desc:
         "Don't run the http or IPC server. You should probably also specify -noUi with this.",
-      default: exports.noServer,
+      default: false,
     })
     .options('genResultFile', {
       desc: 'If this option is present, then generate the result file.',
-      default: exports.genResultFile,
+      default: false,
     })
     .option('showUrl', {
       desc: 'Print out the URL that an external browser should use.',
@@ -166,6 +150,11 @@ function processCommandLineArguments(argv) {
       default:
         process.env[env.environmentVariable.reuseZapInstance.name] == '1',
     })
+    .option('watchdogTimer', {
+      desc: `In a server mode, how long of no-activity (in ms) shuts down the server.`,
+      type: 'number',
+      default: 60000,
+    })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${zapVersion.featureLevel}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
@@ -200,19 +189,6 @@ For more information, see https://github.com/project-chip/zap`
   } else {
     env.setAppDirectory(ret.stateDirectory)
   }
-
-  // Now populate exported variables with this.
-  exports.zclPropertiesFile = ret.zclProperties
-  exports.httpPort = ret.httpPort
-  exports.studioHttpPort = ret.studioHttpPort
-  exports.uiMode = ret.uiMode
-  exports.genTemplateJsonFile = ret.generationTemplate
-  exports.embeddedMode = ret.embeddedMode
-  exports.noServer = ret.noServer
-  exports.genResultFile = ret.genResultFile
-  exports.zapFiles = allFiles
-  exports.skipPostGeneration = ret.skipPostGeneration
-  exports.reuseZapInstance = ret.reuseZapInstance
 
   return ret
 }

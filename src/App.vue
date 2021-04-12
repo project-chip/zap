@@ -16,7 +16,7 @@ limitations under the License.
 
 <template>
   <div id="q-app">
-    <q-ajax-bar />
+    <q-ajax-bar color="grey" />
     <router-view />
   </div>
 </template>
@@ -49,6 +49,7 @@ function initLoad(store) {
     })
   )
   promises.push(store.dispatch(`zap/getProjectPackages`))
+  promises.push(store.dispatch(`zap/loadZclClusterToUcComponentDependencyMap`))
   return Promise.all(promises)
 }
 

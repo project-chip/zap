@@ -80,7 +80,11 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
   }
 }
 
-export function getSelectedComponent(ucComponentTreeResponse) {
+export function getSelectedUcComponents(ucComponentList) {
+  return ucComponentList.filter(x => x.isSelected)
+}
+
+export function getUcComponents(ucComponentTreeResponse) {
   // computed selected Nodes
   let selected = []
   if (ucComponentTreeResponse) {
@@ -89,8 +93,8 @@ export function getSelectedComponent(ucComponentTreeResponse) {
         e.children.filter(f, this)
       }
 
-      if (e.isSelected) {
-        this.push(e.id)
+      if (e.id && e.id.includes('zigbee_')) {
+        this.push(e)
       }
     }, selected)
   }
@@ -103,8 +107,8 @@ export function getSelectedComponent(ucComponentTreeResponse) {
  * e.g. "zigbee_basic" from "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
  * @param {*} ucComponentIds - an array of ids
  */
-export function getClustersByUcComponentIds(ids) {
-  return ids
-    .filter((x) => x.includes('zigbee_'))
+export function getClusterIdsByUcComponents(ucComponents) {
+  return ucComponents
+    .map((x) => x.id)
     .map((x) => x.substr(x.lastIndexOf('-') + 1))
 }
