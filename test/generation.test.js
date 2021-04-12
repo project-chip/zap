@@ -106,14 +106,18 @@ describe('Session specific tests', () => {
         )
       )
       .then((extensions) => {
-        expect(extensions.length).toBe(1)
-        expect(extensions[0].entity).toBe(dbEnum.packageExtensionEntity.command)
-        expect(extensions[0].property).toBe('testCommandExtension')
-        expect(extensions[0].type).toBe('boolean')
-        expect(extensions[0].configurability).toBe('hidden')
-        expect(extensions[0].label).toBe('Test command extension')
-        expect(extensions[0].globalDefault).toBe('0')
-        expect(extensions[0].defaults.length).toBe(1)
+        expect(extensions.length).toBe(2)
+        let tcIndex = 1
+        let icIndex = 0
+        expect(extensions[tcIndex].entity).toBe(
+          dbEnum.packageExtensionEntity.command
+        )
+        expect(extensions[tcIndex].property).toBe('testCommandExtension')
+        expect(extensions[tcIndex].type).toBe('boolean')
+        expect(extensions[tcIndex].configurability).toBe('hidden')
+        expect(extensions[tcIndex].label).toBe('Test command extension')
+        expect(extensions[tcIndex].globalDefault).toBe('0')
+        expect(extensions[tcIndex].defaults.length).toBe(1)
       })
       .then(() =>
         queryPackage.selectPackageExtension(
