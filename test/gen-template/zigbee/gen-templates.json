@@ -47,6 +47,13 @@
       }
     },
     "command": {
+      "implementedCommands": {
+        "type": "boolean",
+        "configurability": "hidden",
+        "globalDefault": false,
+        "label": "List of commands that are implemented by the SDK",
+        "defaults": "implementedCommands.json"
+      },
       "testCommandExtension": {
         "type": "boolean",
         "configurability": "hidden",

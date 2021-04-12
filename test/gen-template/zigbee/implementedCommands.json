@@ -1,0 +1,27 @@
+[
+  {
+    "clusterCode": "0x0000",
+    "commandCode": "0x00",
+    "value": true
+  },
+  {
+    "clusterCode": "0x0003",
+    "commandCode": "0x00",
+    "value": true
+  },
+  {
+    "clusterCode": "0x0003",
+    "commandCode": "0x01",
+    "value": true
+  },
+  {
+    "clusterCode": "0x0003",
+    "commandCode": "0x02",
+    "value": true
+  },
+  {
+    "clusterCode": "0x0003",
+    "commandCode": "0x03",
+    "value": true
+  }
+]
