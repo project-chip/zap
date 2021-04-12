@@ -72,7 +72,7 @@ function processCommandLineArguments(argv) {
         'input .zap file to read in. You can also specify them without an option, directly.',
       alias: ['zap', 'in', 'i'],
       type: 'string',
-      default: [],
+      default: null,
     })
     .option('zclProperties', {
       desc: 'zcl.properties file to read in.',

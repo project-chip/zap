@@ -418,8 +418,9 @@ async function startGeneration(
   )
   if (zapFiles != null && zapFiles.length > 0) {
     zapFile = zapFiles[0]
-    if (zapFiles.length > 1)
+    if (zapFiles.length > 1) {
       options.logger(`    ⚠️  Multiple files passed. Using only first one.`)
+    }
   }
   if (zapFile != null) {
     if (fs.existsSync(zapFile)) {
