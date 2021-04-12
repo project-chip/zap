@@ -238,6 +238,12 @@ test(
             "// device type: HA / 0x0006 => HA-remote // extension: 'path/to/remote.c'"
           )
         ).toBeTruthy()
+
+        expect(
+          sdkExtension.includes(
+            'IMPLEMENTED_COMMANDS>ResetToFactoryDefaults,Identify,IdentifyQuery,EZModeInvoke,UpdateCommissionState,<END'
+          )
+        ).toBeTruthy()
       }),
   genTimeout
 )
