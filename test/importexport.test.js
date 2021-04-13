@@ -165,7 +165,7 @@ test('test-light isc read', async () => {
   expect(state.attributeType.length).toBe(6)
 })
 
-test('door-lock isc import', async () => {
+test.only('door-lock isc import', async () => {
   sid = await querySession.createBlankSession(db)
   await importJs.importDataFromFile(db, testDoorLockIsc, sid)
   expect(sid).not.toBeUndefined()
