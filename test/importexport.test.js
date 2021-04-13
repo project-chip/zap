@@ -34,7 +34,7 @@ const queryConfig = require('../src-electron/db/query-config.js')
 let db
 let testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
 let testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
-let testFileIsc = path.join(__dirname, 'resource/test-light.isc')
+let testFileIsc = path.join(__dirname, 'resource/isc/test-light.isc')
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
