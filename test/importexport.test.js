@@ -34,7 +34,8 @@ const queryConfig = require('../src-electron/db/query-config.js')
 let db
 let testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
 let testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
-let testFileIsc = path.join(__dirname, 'resource/test-light.isc')
+let testLightIsc = path.join(__dirname, 'resource/isc/test-light.isc')
+let testDoorLockIsc = path.join(__dirname, 'resource/isc/ha-door-lock.isc')
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
@@ -49,18 +50,13 @@ beforeAll(() => {
       db = d
       env.logInfo(`Test database initialized: ${file}.`)
     })
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
     .catch((err) => env.logError(`Error: ${err}`))
 }, 5000)
 
 afterAll(() => {
   return dbApi.closeDatabase(db)
 })
-
-test(
-  'Load the static data.',
-  () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
-  5000
-)
 
 test('Basic gen template parsing and generation', async () => {
   let context = await generationEngine.loadTemplates(
@@ -145,9 +141,9 @@ test('Test file 2 import', async () => {
   expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
 })
 
-test('Test ISC import', async () => {
+test('test-light isc import', async () => {
   sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, testFileIsc, sid)
+  await importJs.importDataFromFile(db, testLightIsc, sid)
   expect(sid).not.toBeUndefined()
   let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
   expect(endpointTypes.length).toBe(4)
@@ -159,8 +155,8 @@ test('Test ISC import', async () => {
   expect(endpoints.length).toBe(3)
 }, 5000)
 
-test('Read ISC data from file', async () => {
-  let state = await importJs.readDataFromFile(testFileIsc)
+test('test-light isc read', async () => {
+  let state = await importJs.readDataFromFile(testLightIsc)
   expect(Object.keys(state.endpointTypes).length).toBe(4)
   expect(Object.keys(state.endpoint).length).toBe(3)
   expect(state.endpoint[2].endpoint).toBe(242)
@@ -168,3 +164,13 @@ test('Read ISC data from file', async () => {
   expect(state.clusterOverride.length).toBe(2)
   expect(state.attributeType.length).toBe(6)
 })
+
+test('door-lock isc import', async () => {
+  sid = await querySession.createBlankSession(db)
+  await importJs.importDataFromFile(db, testDoorLockIsc, sid)
+  expect(sid).not.toBeUndefined()
+  let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
+  expect(endpointTypes.length).toBe(1)
+  let endpoints = await queryConfig.getAllEndpoints(db, sid)
+  expect(endpoints.length).toBe(1)
+}, 5000)

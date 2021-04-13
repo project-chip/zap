@@ -98,7 +98,7 @@ async function startNormal(
     })
     .then((ctx) => {
       if (uiEnabled) {
-        windowJs.initializeElectronUi(ctx.db, httpServer.httpServerPort())
+        windowJs.initializeElectronUi(httpServer.httpServerPort())
         if (zapFiles.length == 0) {
           return uiJs.openNewConfiguration(httpServer.httpServerPort(), {
             uiMode: argv.uiMode,
@@ -392,10 +392,6 @@ async function startSelfCheck(
 /**
  * Performs headless regeneration for given parameters.
  *
- * @param {*} output Directory where to write files.
- * @param {*} templateMetafile gen-teplate.json file to use for template loading.
- * @param {*} zclProperties zcl.properties file to use for ZCL properties.
- * @param {*} [zapFile=null] .zap file that contains application stater, or null if generating from clean state.
  * @returns Nothing, triggers app.quit()
  */
 async function startGeneration(
@@ -408,14 +404,18 @@ async function startGeneration(
 ) {
   let templateMetafile = argv.generationTemplate
   let zapFiles = argv.zapFiles
-  let zapFile = null
   let output = argv.output
+  let zclProperties = argv.zclProperties
+  let genResultFile = argv.genResultFile
+  let skipPostGeneration = argv.skipPostGeneration
+
   options.logger(
     `🤖 ZAP generation information: 
     👉 into: ${output}
     👉 using templates: ${templateMetafile}
-    👉 using zcl data: ${argv.zclProperties}`
+    👉 using zcl data: ${zclProperties}`
   )
+  let zapFile = null
   if (zapFiles != null && zapFiles.length > 0) {
     zapFile = zapFiles[0]
     if (zapFiles.length > 1) {
@@ -464,7 +464,7 @@ async function startGeneration(
     env.schemaFile(),
     env.zapVersion()
   )
-  let ctx = await zclLoader.loadZcl(mainDb, argv.zclProperties)
+  let ctx = await zclLoader.loadZcl(mainDb, zclProperties)
   ctx = await generatorEngine.loadTemplates(ctx.db, templateMetafile)
   if (ctx.error) {
     throw ctx.error
@@ -480,7 +480,7 @@ async function startGeneration(
   }
 
   await util.initializeSessionPackage(mainDb, sessionId, {
-    zcl: argv.zclProperties,
+    zcl: zclProperties,
     template: templateMetafile,
   })
 
@@ -492,13 +492,15 @@ async function startGeneration(
     {
       logger: options.logger,
       backup: false,
-      genResultFile: argv.genResultFile,
-      skipPostGeneration: argv.skipPostGeneration,
+      genResultFile: genResultFile,
+      skipPostGeneration: skipPostGeneration,
     }
   )
 
   if (genResult.hasErrors) throw 'Generation failed.'
   if (options.quit && app != null) app.quit()
+
+  return genResult
 }
 /**
  * Move database file out of the way into the backup location.

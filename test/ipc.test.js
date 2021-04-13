@@ -23,6 +23,7 @@ const ipcServer = require('../src-electron/server/ipc-server.js')
 const util = require('../src-electron/util/util.js')
 const env = require('../src-electron/util/env.js')
 
+const responseWaitPeriod = 500
 /**
  * This test suite is testing the basic functionality of the
  * IPC between the secondary and primary zap processes.
@@ -50,7 +51,7 @@ test(
   () =>
     ipcClient
       .emit(ipcServer.eventType.ping, 'hello')
-      .then(() => util.waitFor(1000)),
+      .then(() => util.waitFor(responseWaitPeriod)),
   2000
 )
 test('pong data received', () => {
@@ -61,10 +62,20 @@ test('version handshake', () => {
   let response = null
   ipcClient.on(ipcServer.eventType.overAndOut, (data) => (response = data))
   ipcClient.emit(ipcServer.eventType.version)
-  return util.waitFor(1000).then(() => {
+  return util.waitFor(responseWaitPeriod).then(() => {
     expect(response).not.toBeNull()
     let myVersion = env.zapVersion()
     expect(response.hash).toEqual(myVersion.hash)
+  })
+})
+
+test('server url', () => {
+  let response = null
+  ipcClient.on(ipcServer.eventType.overAndOut, (data) => (response = data))
+  ipcClient.emit(ipcServer.eventType.serverUrl)
+  return util.waitFor(responseWaitPeriod).then(() => {
+    expect(response).not.toBeNull()
+    expect(response.includes('http://localhost')).toBeTruthy()
   })
 })
 

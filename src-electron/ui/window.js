@@ -25,8 +25,18 @@ const browserApi = require('./browser-api.js')
 
 let windowCounter = 0
 
-function initializeElectronUi(db, port) {
-  menu.initMenu(db, port)
+/**
+ * Electron UI initialization.
+ *
+ * Note: You might be tempted to pass `db` to this function. Don't.
+ * That was done before and it's just a lazy way to cut through the
+ * layers between UI and back-end. Should not be done. Any information
+ * UI needs from the database should be retrieved via renderer API.
+ *
+ * @param {*} port
+ */
+function initializeElectronUi(port) {
+  menu.initMenu(port)
   tray.initTray(port)
 }
 

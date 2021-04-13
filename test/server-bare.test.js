@@ -44,16 +44,15 @@ let sessionCookie = null
 let axiosInstance = null
 let uuid = util.createUuid()
 
-beforeAll(() => {
+beforeAll(async () => {
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('server')
   axiosInstance = axios.create({ baseURL: baseUrl })
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-    })
-    .catch((err) => env.logError(`Error: ${err}`))
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
 }, 5000)
 
 afterAll(() =>

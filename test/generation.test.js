@@ -142,9 +142,9 @@ describe('Session specific tests', () => {
         expect(extensions[0].defaults.length).toBe(2)
         expect(extensions[1].defaults.length).toBe(1)
         expect(extensions[0].defaults[0].value).toBe('42')
-        expect(extensions[0].defaults[0].parentCode).toBe('0x0000')
-        expect(extensions[0].defaults[0].entityCode).toBe('0x0000')
-        expect(extensions[0].defaults[1].entityCode).toBe('0x0001')
+        expect(extensions[0].defaults[0].parentCode).toBe(0)
+        expect(extensions[0].defaults[0].entityCode).toBe(0)
+        expect(extensions[0].defaults[1].entityCode).toBe(1)
       })
   }, 3000)
 
@@ -174,13 +174,12 @@ describe('Session specific tests', () => {
         `${baseUrl}/zclExtension/cluster/testClusterExtension1?sessionId=${uuid}`
       )
       .then((response) => {
-        console.log(`RESP: ${JSON.stringify(response.data)}`)
         expect(response.data.entity).toBe('cluster')
         expect(response.data.property).toBe('testClusterExtension1')
         expect(response.data.label).toBe(
           'Test cluster extension with external defaults values'
         )
-        expect(response.data.defaults[0].entityCode).toBe('0x0003')
+        expect(response.data.defaults[0].entityCode).toBe(3)
         expect(response.data.defaults[0].value).toBe(
           'Extension value loaded via external default JSON file.'
         )

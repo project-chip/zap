@@ -15,7 +15,6 @@
  *    limitations under the License.
  */
 
-const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
 const util = require('../util/util.js')
@@ -44,7 +43,9 @@ function cluster_extension(options) {
       .then((packageId) =>
         templateUtil.ensureZclClusterSdkExtensions(this, packageId)
       )
-      .then((extensions) => util.getClusterExtensionDefault(extensions, prop, this.code))
+      .then((extensions) =>
+        util.getClusterExtensionDefault(extensions, prop, this.code)
+      )
   }
 }
 
@@ -137,6 +138,23 @@ function command_extension(options) {
   return subentityExtension(this, prop, dbEnum.packageExtensionEntity.command)
 }
 
+function if_extension_true(options) {
+  let prop = options.hash.property
+  if (prop == '') return ''
+
+  return subentityExtension(
+    this,
+    prop,
+    dbEnum.packageExtensionEntity.command
+  ).then((val) => {
+    if (val == true || val == 1) {
+      return options.fn(this)
+    } else {
+      return ''
+    }
+  })
+}
+
 /**
  * When inside a context that contains 'code' and parent 'code', this
  * helper will output the value of the attribute extension
@@ -154,3 +172,4 @@ exports.cluster_extension = cluster_extension
 exports.command_extension = command_extension
 exports.attribute_extension = attribute_extension
 exports.device_type_extension = device_type_extension
+exports.if_extension_true = if_extension_true

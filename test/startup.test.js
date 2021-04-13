@@ -52,9 +52,12 @@ test('startup: self-check', () => {
 
 test('startup: convert', () => {
   let files = []
-  files.push(path.join(__dirname, 'resource/test-light.isc'))
+  files.push(path.join(__dirname, 'resource/isc/test-light.isc'))
   let output = '{basename}.conversion'
-  let testOutputFile = path.join(__dirname, 'resource/test-light.conversion')
+  let testOutputFile = path.join(
+    __dirname,
+    'resource/isc/test-light.conversion'
+  )
   return startup
     .startConvert(
       {
@@ -76,7 +79,7 @@ test('startup: convert', () => {
 
 test('startup: analyze', () => {
   let files = []
-  files.push(path.join(__dirname, 'resource/test-light.isc'))
+  files.push(path.join(__dirname, 'resource/isc/test-light.isc'))
   return startup.startAnalyze(
     {
       zapFiles: files,

@@ -8,15 +8,23 @@
 
 ------------------- Commands -------------------
 {{#zcl_command_tree}}
-// command: {{asHex clusterCode 4 'null'}} / {{asHex code 2}} => {{label}}, test extension: '{{command_extension property="testCommandExtension"}}'
+// command: {{asHex clusterCode 4 'null'}} / {{asHex code 2}} => {{label}}, test extension: '{{command_extension
+property="testCommandExtension"}}'
 {{/zcl_command_tree}}
 
 ------------------- Attributes -------------------
 {{#zcl_attributes}}
-// attribute: {{asHex clusterCode 4}} / {{asHex code 4}} => {{label}}, extensions: '{{attribute_extension property="testAttributeExtension1"}}', '{{attribute_extension property="testAttributeExtension2"}}'
+// attribute: {{asHex clusterCode 4}} / {{asHex code 4}} => {{label}}, extensions: '{{attribute_extension
+property="testAttributeExtension1"}}', '{{attribute_extension property="testAttributeExtension2"}}'
 {{/zcl_attributes}}
 
 ------------------- Device types -------------------
 {{#zcl_device_types}}
-// device type: {{domain}} / {{asHex code 4}} => {{label}} // extension: '{{device_type_extension property="testDeviceTypeExtension"}}'
+// device type: {{domain}} / {{asHex code 4}} => {{label}} // extension: '{{device_type_extension
+property="testDeviceTypeExtension"}}'
 {{/zcl_device_types}}
+
+-------------------- Test the implementedCommands extension.
+
+IMPLEMENTED_COMMANDS>{{#zcl_command_tree}}{{#if_extension_true
+property="implementedCommands"}}{{label}},{{/if_extension_true}}{{/zcl_command_tree}}<END
