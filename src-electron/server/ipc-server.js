@@ -49,6 +49,92 @@ function log(msg) {
   env.logIpc(`Ipc server: ${msg}`)
 }
 
+function handlerPing(data, socket) {
+  serverIpc.server.emit(socket, eventType.pong, data)
+}
+
+function handlerServerUrl(data, socket) {
+  serverIpc.server.emit(
+    socket,
+    eventType.overAndOut,
+    httpServer.httpServerStartupMessage()
+  )
+}
+
+function handlerVersion(data, socket) {
+  let ret = env.zapVersion()
+  ret.url = httpServer.httpServerUrl()
+  serverIpc.server.emit(socket, eventType.overAndOut, ret)
+}
+
+function handlerNew(data, socket, httpPort) {
+  if (httpPort != null) {
+    uiUtil.openNewConfiguration(httpPort)
+    serverIpc.server.emit(socket, eventType.overAndOut)
+  }
+}
+
+function handlerOpen(zapFileArray, socket, httpPort) {
+  return util
+    .executePromisesSequentially(zapFileArray, (f) =>
+      uiUtil.openFileConfiguration(f, httpPort)
+    )
+    .then(() => {
+      serverIpc.server.emit(socket, eventType.overAndOut)
+    })
+}
+
+function handlerConvert(data, socket) {
+  let zapFiles = data.files
+  let output = data.output
+
+  serverIpc.server.emit(socket, eventType.over, 'Convert')
+  zapFiles.forEach((element) => {
+    serverIpc.server.emit(socket, eventType.over, `File: ${element}`)
+  })
+  serverIpc.server.emit(socket, eventType.overAndOut, 'Done.')
+}
+
+function handlerGenerate(data, socket) {}
+
+const handlers = [
+  {
+    eventType: eventType.ping,
+    handler: handlerPing,
+  },
+  {
+    eventType: eventType.serverUrl,
+    handler: handlerServerUrl,
+  },
+  {
+    eventType: eventType.version,
+    handler: handlerVersion,
+  },
+  {
+    eventType: eventType.new,
+    handler: handlerNew,
+  },
+  {
+    eventType: eventType.open,
+    handler: handlerOpen,
+  },
+  {
+    eventType: eventType.convert,
+    handler: handlerConvert,
+  },
+  {
+    eventType: eventType.generate,
+    handler: handlerGenerate,
+  },
+]
+
+/**
+ * Runs just before every time IPC request is processed.
+ */
+function preHandler() {
+  watchdog.reset()
+}
+
 /**
  * IPC initialization.
  *
@@ -74,69 +160,12 @@ function initServer(db = null, httpPort = null) {
         env.logIpc('IPC server destroyed.')
       })
 
-      // Serve pings
-      serverIpc.server.on(eventType.ping, (data, socket) => {
-        watchdog.reset()
-        serverIpc.server.emit(socket, eventType.pong, data)
-      })
-
-      // Server URL
-      serverIpc.server.on(eventType.serverUrl, (data, socket) => {
-        watchdog.reset()
-        serverIpc.server.emit(
-          socket,
-          eventType.overAndOut,
-          httpServer.httpServerStartupMessage()
-        )
-      })
-
-      // Server version.
-      serverIpc.server.on(eventType.version, (data, socket) => {
-        watchdog.reset()
-        let ret = env.zapVersion()
-        ret.url = httpServer.httpServerUrl()
-        serverIpc.server.emit(socket, eventType.overAndOut, ret)
-      })
-
-      // New file window
-      serverIpc.server.on(eventType.new, (data, socket) => {
-        watchdog.reset()
-        if (httpPort != null) {
-          uiUtil.openNewConfiguration(httpPort)
-          serverIpc.server.emit(socket, eventType.overAndOut)
-        }
-      })
-
-      // Open files
-      serverIpc.server.on(eventType.open, (zapFileArray, socket) => {
-        watchdog.reset()
-        return util
-          .executePromisesSequentially(zapFileArray, (f) =>
-            uiUtil.openFileConfiguration(f, httpPort)
-          )
-          .then(() => {
-            serverIpc.server.emit(socket, eventType.overAndOut)
-          })
-      })
-
-      // Convert the ISC or zap files
-      serverIpc.server.on(eventType.convert, (data, socket) => {
-        watchdog.reset()
-        let zapFiles = data.files
-        let output = data.output
-
-        serverIpc.server.emit(socket, eventType.over, 'Convert')
-        zapFiles.forEach((element) => {
-          serverIpc.server.emit(socket, eventType.over, `File: ${element}`)
+      handlers.forEach((handlerRecord) => {
+        serverIpc.server.on(handlerRecord.eventType, (data, socket) => {
+          preHandler()
+          handlerRecord.handler(data, socket, httpPort)
         })
-        serverIpc.server.emit(socket, eventType.overAndOut, 'Done.')
       })
-
-      // Generate
-      serverIpc.server.on(eventType.generate, (data, socket) => {
-        watchdog.reset()
-      })
-
       resolve()
     })
     serverIpc.server.start()
