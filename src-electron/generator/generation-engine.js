@@ -238,20 +238,20 @@ function decodePackageExtensionEntity(entityType, entity) {
   switch (entityType) {
     case dbEnum.packageExtensionEntity.cluster:
       return {
-        entityCode: entity.clusterCode,
+        entityCode: parseInt(entity.clusterCode),
         parentCode: null,
         value: entity.value,
       }
     case dbEnum.packageExtensionEntity.command:
       return {
-        entityCode: entity.commandCode,
-        parentCode: entity.clusterCode,
+        entityCode: parseInt(entity.commandCode),
+        parentCode: parseInt(entity.clusterCode),
         value: entity.value,
       }
     case dbEnum.packageExtensionEntity.attribute:
       return {
-        entityCode: entity.attributeCode,
-        parentCode: entity.clusterCode,
+        entityCode: parseInt(entity.attributeCode),
+        parentCode: parseInt(entity.clusterCode),
         value: entity.value,
       }
     case dbEnum.packageExtensionEntity.deviceType:
