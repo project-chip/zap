@@ -174,7 +174,7 @@ async function getUserSessionInfoMessage(browserWindow) {
  * @param {*} event
  */
 function doOpen(browserWindow, httpPort) {
-  browserAPi
+  browserApi
     .getFileLocation(browserWindow, dbEnum.fileLocationCategory.save)
     .then((filePath) => {
       let opts = {
@@ -187,7 +187,7 @@ function doOpen(browserWindow, httpPort) {
     })
     .then((result) => {
       if (!result.canceled) {
-        fileOpen(browserWindow, result.filePaths, httpPort)
+        fileOpen(result.filePaths, httpPort)
       }
     })
     .catch((err) => uiJs.showErrorMessage('Open file', err))
