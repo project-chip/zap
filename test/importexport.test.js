@@ -50,18 +50,13 @@ beforeAll(() => {
       db = d
       env.logInfo(`Test database initialized: ${file}.`)
     })
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
     .catch((err) => env.logError(`Error: ${err}`))
 }, 5000)
 
 afterAll(() => {
   return dbApi.closeDatabase(db)
 })
-
-test(
-  'Load the static data.',
-  () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
-  5000
-)
 
 test('Basic gen template parsing and generation', async () => {
   let context = await generationEngine.loadTemplates(
