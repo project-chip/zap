@@ -747,12 +747,3 @@ CREATE TABLE IF NOT EXISTS "SETTING" (
   "VALUE" text,
   UNIQUE(CATEGORY, KEY)
 );
-/*
- Previously touched file locations. This should be used as a history for dialogs or any other place that needs to
- save some file location.
- */
-CREATE TABLE IF NOT EXISTS "FILE_LOCATION" (
-  "CATEGORY" text NOT NULL UNIQUE,
-  "FILE_PATH" path,
-  "ACCESS_TIME" integer
-);

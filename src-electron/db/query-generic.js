@@ -36,42 +36,5 @@ async function selectCountFrom(db, table) {
     .then((x) => x.COUNT)
 }
 
-/**
- * Writes the saved location of the file.
- *
- * @export
- * @param {*} db
- * @param {*} filePath
- * @param {*} category
- */
-async function insertFileLocation(db, filePath, category) {
-  return dbApi.dbInsert(
-    db,
-    'INSERT OR REPLACE INTO FILE_LOCATION (CATEGORY, FILE_PATH, ACCESS_TIME) VALUES (?,?,?)',
-    [category, filePath, Date.now()]
-  )
-}
-
-/**
- * Retrieves the saved location from a file
- *
- * @export
- * @param {*} db
- * @param {*} category
- */
-async function selectFileLocation(db, category) {
-  let row = await dbApi.dbGet(
-    db,
-    'SELECT FILE_PATH FROM FILE_LOCATION WHERE CATEGORY = ?',
-    [category]
-  )
-  if (row == null) {
-    return ''
-  } else {
-    return row.FILE_PATH
-  }
-}
 // exports
 exports.selectCountFrom = selectCountFrom
-exports.insertFileLocation = insertFileLocation
-exports.selectFileLocation = selectFileLocation

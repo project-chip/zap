@@ -16,18 +16,16 @@
  */
 
 const { dialog, Menu, shell } = require('electron')
-const queryGeneric = require('../db/query-generic.js')
-const querySession = require('../db/query-session.js')
 const uiJs = require('./ui-util.js')
 const preference = require('../main-process/preference.js')
 const about = require('../main-process/about.js')
-const dbEnum = require('../../src-shared/db-enum.js')
 const commonUrl = require('../../src-shared/common-url.js')
 const browserApi = require('./browser-api.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 const newConfiguration = 'New Configuration'
 
-const template = (db, httpPort) => [
+const template = (httpPort) => [
   {
     role: 'fileMenu',
     submenu: [
@@ -42,25 +40,22 @@ const template = (db, httpPort) => [
       {
         label: 'Open File...',
         accelerator: 'CmdOrCtrl+O',
-        db: db,
         httpPort: httpPort,
         click(menuItem, browserWindow, event) {
-          doOpen(menuItem.db, menuItem.httpPort)
+          doOpen(browserWindow, menuItem.httpPort)
         },
       },
       {
         label: 'Save',
         accelerator: 'CmdOrCtrl+S',
-        db: db,
         click(menuItem, browserWindow, event) {
-          doSave(menuItem.db, browserWindow)
+          doSave(browserWindow)
         },
       },
       {
         label: 'Save As...',
-        db: db,
         click(menuItem, browserWindow, event) {
-          doSaveAs(menuItem.db, browserWindow)
+          doSaveAs(browserWindow)
         },
       },
       {
@@ -110,9 +105,8 @@ const template = (db, httpPort) => [
       },
       {
         label: 'User and session information',
-        db: db,
         click(menuItem, browserWindow, event) {
-          getUserSessionInfoMessage(menuItem.db, browserWindow)
+          getUserSessionInfoMessage(browserWindow)
             .then((msg) => {
               dialog.showMessageBox(browserWindow, {
                 title: 'User and session information',
@@ -161,19 +155,14 @@ const template = (db, httpPort) => [
   },
 ]
 
-async function getUserSessionInfoMessage(db, browserWindow) {
+async function getUserSessionInfoMessage(browserWindow) {
   let userKey = await browserApi.getUserKeyFromBrowserWindow(browserWindow)
-  let session = await querySession.getSessionInfoFromSessionKey(db, userKey)
   let sessionUuid = await browserApi.getSessionUuidFromBrowserWindow(
     browserWindow
   )
   return `
   Browser session UUID: ${sessionUuid}
   Browser user key: ${userKey}
-
-  Session id: ${session.sessionId}
-  Session creationTime: ${new Date(session.creationTime)}
-  Session session key:  ${session.sessionKey}
   `
 }
 
@@ -184,9 +173,9 @@ async function getUserSessionInfoMessage(db, browserWindow) {
  * @param {*} browserWindow
  * @param {*} event
  */
-function doOpen(db, httpPort) {
-  queryGeneric
-    .selectFileLocation(db, dbEnum.fileLocationCategory.save)
+function doOpen(browserWindow, httpPort) {
+  browserAPi
+    .getFileLocation(browserWindow, dbEnum.fileLocationCategory.save)
     .then((filePath) => {
       let opts = {
         properties: ['openFile', 'multiSelections'],
@@ -198,7 +187,7 @@ function doOpen(db, httpPort) {
     })
     .then((result) => {
       if (!result.canceled) {
-        fileOpen(result.filePaths, httpPort)
+        fileOpen(browserWindow, result.filePaths, httpPort)
       }
     })
     .catch((err) => uiJs.showErrorMessage('Open file', err))
@@ -207,13 +196,11 @@ function doOpen(db, httpPort) {
 /**
  * Perform a save, defering to save as if file is not yet selected.
  *
- * @param {*} menuItem
  * @param {*} browserWindow
- * @param {*} event
  */
-function doSave(db, browserWindow) {
+function doSave(browserWindow) {
   if (browserWindow.getTitle().includes(newConfiguration)) {
-    doSaveAs(db, browserWindow)
+    doSaveAs(browserWindow)
   } else {
     fileSave(browserWindow, null)
   }
@@ -226,9 +213,9 @@ function doSave(db, browserWindow) {
  * @param {*} browserWindow
  * @param {*} event
  */
-function doSaveAs(db, browserWindow) {
-  queryGeneric
-    .selectFileLocation(db, dbEnum.fileLocationCategory.save)
+function doSaveAs(browserWindow) {
+  browserApi
+    .getFileLocation(browserWindow, dbEnum.fileLocationCategory.save)
     .then((filePath) => {
       let opts = {
         filters: [
@@ -251,12 +238,11 @@ function doSaveAs(db, browserWindow) {
     })
     .then((filePath) => {
       if (filePath != null) {
-        queryGeneric.insertFileLocation(
-          db,
-          filePath,
+        browserWindow.setTitle(filePath)
+        browserApi.saveFileLocation(
+          browserWindow,
           dbEnum.fileLocationCategory.save
         )
-        browserWindow.setTitle(filePath)
       }
     })
     .catch((err) => uiJs.showErrorMessage('Save file', err))
@@ -281,7 +267,7 @@ function fileSave(browserWindow, filePath) {
  * @param {*} filePaths
  */
 function fileOpen(filePaths, httpPort) {
-  filePaths.forEach((filePath, index) => {
+  filePaths.forEach((filePath) => {
     uiJs.openFileConfiguration(filePath, httpPort)
   })
 }
@@ -292,8 +278,8 @@ function fileOpen(filePaths, httpPort) {
  * @export
  * @param {*} port
  */
-function initMenu(db, httpPort) {
-  const menu = Menu.buildFromTemplate(template(db, httpPort))
+function initMenu(httpPort) {
+  const menu = Menu.buildFromTemplate(template(httpPort))
   Menu.setApplicationMenu(menu)
 }
 

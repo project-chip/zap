@@ -60,7 +60,7 @@ function httpPostSaveSessionKeyValue(db) {
   return (request, response) => {
     let { key, value } = request.body
     let sessionId = request.zapSessionId
-    env.logInfo(`[${sessionId}]: Saving: ${key} => ${value}`)
+    env.logDebug(`[${sessionId}]: Saving: ${key} => ${value}`)
     querySession
       .updateSessionKeyValue(db, sessionId, key, value)
       .then(() => {

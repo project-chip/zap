@@ -98,7 +98,7 @@ async function startNormal(
     })
     .then((ctx) => {
       if (uiEnabled) {
-        windowJs.initializeElectronUi(ctx.db, httpServer.httpServerPort())
+        windowJs.initializeElectronUi(httpServer.httpServerPort())
         if (zapFiles.length == 0) {
           return uiJs.openNewConfiguration(httpServer.httpServerPort(), {
             uiMode: argv.uiMode,

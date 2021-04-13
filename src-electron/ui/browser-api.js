@@ -89,6 +89,12 @@ async function progressStart(browserWindow, message) {
   )
 }
 
+async function getFileLocation(browserWindow, key) {
+  return null
+}
+
+async function saveFileLocation(browserWindow, key, path) {}
+
 /**
  * This method takes a message and checks if it's a renderer API
  * notification call. If it is, it processe it and returns true.
@@ -181,3 +187,5 @@ exports.progressEnd = progressEnd
 exports.progressStart = progressStart
 exports.reportFiles = reportFiles
 exports.processRendererNotify = processRendererNotify
+exports.getFileLocation = getFileLocation
+exports.saveFileLocation = saveFileLocation

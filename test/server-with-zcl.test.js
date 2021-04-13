@@ -30,20 +30,18 @@ const util = require('../src-electron/util/util.js')
 let db
 let axiosInstance = null
 
-beforeAll(() => {
+beforeAll(async () => {
   const { port, baseUrl } = testUtil.testServer(__filename)
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('server-zcl')
   axiosInstance = axios.create({ baseURL: baseUrl })
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-      env.logInfo(`Test database initialized: ${file}.`)
-    })
-    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
-    .then(() => httpServer.initHttpServer(db, port))
-    .catch((err) => env.logError(`Error: ${err}`))
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+  await httpServer.initHttpServer(db, port)
 }, 5000)
 
 afterAll(() =>

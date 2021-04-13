@@ -68,19 +68,6 @@ test('Path CRC queries.', () => {
     .then((c) => expect(c).toBe(crc))
 })
 
-test('File location queries.', () =>
-  queryGeneric
-    .insertFileLocation(db, '/random/file/path', 'cat')
-    .then(() => queryGeneric.selectFileLocation(db, 'cat'))
-    .then((filePath) => expect(filePath).toBe('/random/file/path'))
-    .then(() =>
-      queryGeneric.insertFileLocation(db, '/random/file/second/path', 'cat')
-    )
-    .then(() => queryGeneric.selectFileLocation(db, 'cat'))
-    .then((filePath) => expect(filePath).toBe('/random/file/second/path'))
-    .then(() => queryGeneric.selectFileLocation(db, 'errorTesting'))
-    .then((filePath) => expect(filePath).toBe('')))
-
 test('Replace query', () =>
   dbApi
     .dbInsert(

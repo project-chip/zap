@@ -93,7 +93,7 @@ async function initializeSessionPackage(db, sessionId, metafiles) {
           `Single generation template metafile found, using it for the session: ${packageId}`
         )
       } else if (rows.length == 0) {
-        env.logError(`No generation template metafile found for session.`)
+        env.logInfo(`No generation template metafile found for session.`)
         packageId = null
       } else {
         rows.forEach((p) => {
