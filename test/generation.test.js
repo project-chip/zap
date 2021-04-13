@@ -174,7 +174,6 @@ describe('Session specific tests', () => {
         `${baseUrl}/zclExtension/cluster/testClusterExtension1?sessionId=${uuid}`
       )
       .then((response) => {
-        console.log(`RESP: ${JSON.stringify(response.data)}`)
         expect(response.data.entity).toBe('cluster')
         expect(response.data.property).toBe('testClusterExtension1')
         expect(response.data.label).toBe(

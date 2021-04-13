@@ -54,7 +54,6 @@ test('get index.html', () =>
   axiosInstance.get('/index.html').then((response) => {
     let sessionCookie = response.headers['set-cookie'][0]
     axiosInstance.defaults.headers.Cookie = sessionCookie
-    console.log(sessionCookie)
     expect(
       response.data.includes(
         'Configuration tool for the Zigbee Cluster Library'
