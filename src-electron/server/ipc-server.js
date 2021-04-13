@@ -149,6 +149,8 @@ function initServer(db = null, httpPort = null) {
     serverIpc.serve(socketPath(), () => {
       env.logIpc('IPC server started.')
       serverIpc.serverStarted = true
+
+      // Register top-level handlers
       serverIpc.server.on('error', (err) => {
         env.logIpc('IPC error', err)
       })
@@ -160,6 +162,7 @@ function initServer(db = null, httpPort = null) {
         env.logIpc('IPC server destroyed.')
       })
 
+      // Register individual type handlers
       handlers.forEach((handlerRecord) => {
         serverIpc.server.on(handlerRecord.eventType, (data, socket) => {
           preHandler()
