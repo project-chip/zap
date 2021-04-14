@@ -1269,7 +1269,6 @@ async function exportCommandDetailsFromAllEndpointTypesAndClusters(
   ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
   WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds}) AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
   GROUP BY COMMAND.NAME
-  ORDER BY COMMAND.CODE, COMMAND.NAME
         `
     )
     .then((rows) => rows.map(mapFunction))
@@ -1339,7 +1338,6 @@ async function exportCommandDetailsFromAllEndpointTypesAndClustersUtil(
         (isManufacturingSpecific ? ` NOT ` : ` `) +
         `NULL
   GROUP BY COMMAND.NAME
-  ORDER BY COMMAND.CODE, COMMAND.NAME
         `
     )
     .then((rows) => rows.map(mapFunction))
@@ -1533,7 +1531,6 @@ async function exportAllCommandDetailsFromEnabledClusters(
   ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
   WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
   GROUP BY COMMAND.NAME
-  ORDER BY COMMAND.CODE, COMMAND.NAME
         `
     )
     .then((rows) => rows.map(mapFunction))
@@ -1902,7 +1899,6 @@ async function exportCommandDetailsFromAllEndpointTypeCluster(
   INNER JOIN ENDPOINT_TYPE_COMMAND
   ON COMMAND.COMMAND_ID = ENDPOINT_TYPE_COMMAND.COMMAND_REF
   WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds}) AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ?
-  ORDER BY COMMAND.CODE, COMMAND.NAME
         `,
       [endpointClusterId]
     )
