@@ -176,7 +176,6 @@ WHERE (
 }
 
 async function updateEndpointTypeAttribute(db, id, restKey, value) {
-  console.log(`UPDATE ENDPOINT TYPE ATTRIBUTE: ${id}: ${restKey} => ${value}`)
   let column = convertRestKeyToDbColumn(restKey)
   return dbApi.dbUpdate(
     db,

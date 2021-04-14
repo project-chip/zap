@@ -468,7 +468,6 @@ function collectAttributeLoadingPromises(
  * @param {*} sessionId
  */
 async function iscDataLoader(db, state, sessionId) {
-  console.log(state)
   let endpointTypes = state.endpointTypes
   let promises = []
 
