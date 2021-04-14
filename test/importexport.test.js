@@ -161,11 +161,10 @@ test('test-light isc read', async () => {
   expect(Object.keys(state.endpoint).length).toBe(3)
   expect(state.endpoint[2].endpoint).toBe(242)
   expect(state).not.toHaveProperty('parseState')
-  expect(state.clusterOverride.length).toBe(2)
   expect(state.attributeType.length).toBe(6)
 })
 
-test.only('door-lock isc import', async () => {
+test('door-lock isc import', async () => {
   sid = await querySession.createBlankSession(db)
   await importJs.importDataFromFile(db, testDoorLockIsc, sid)
   expect(sid).not.toBeUndefined()
@@ -173,4 +172,9 @@ test.only('door-lock isc import', async () => {
   expect(endpointTypes.length).toBe(1)
   let endpoints = await queryConfig.getAllEndpoints(db, sid)
   expect(endpoints.length).toBe(1)
+  let clusterState = await queryConfig.getAllEndpointTypeClusterState(
+    db,
+    endpoints[0].id
+  )
+  expect(clusterState.length).toBeGreaterThan(0)
 }, 5000)
