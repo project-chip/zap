@@ -174,7 +174,7 @@ test('door-lock isc import', async () => {
   expect(endpoints.length).toBe(1)
   let clusterState = await queryConfig.getAllEndpointTypeClusterState(
     db,
-    endpoints[0].id
+    endpointTypes[0].id
   )
-  expect(clusterState.length).toBeGreaterThan(0)
+  expect(clusterState.length).toBe(106)
 }, 5000)
