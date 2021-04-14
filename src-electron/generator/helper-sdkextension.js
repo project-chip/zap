@@ -155,6 +155,23 @@ function if_extension_true(options) {
   })
 }
 
+function if_extension_false(options) {
+  let prop = options.hash.property
+  if (prop == '') return ''
+
+  return subentityExtension(
+    this,
+    prop,
+    dbEnum.packageExtensionEntity.command
+  ).then((val) => {
+    if (val == false || val == 0) {
+      return options.fn(this)
+    } else {
+      return ''
+    }
+  })
+}
+
 /**
  * When inside a context that contains 'code' and parent 'code', this
  * helper will output the value of the attribute extension
@@ -173,3 +190,4 @@ exports.command_extension = command_extension
 exports.attribute_extension = attribute_extension
 exports.device_type_extension = device_type_extension
 exports.if_extension_true = if_extension_true
+exports.if_extension_false = if_extension_false
