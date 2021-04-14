@@ -1242,11 +1242,19 @@ ORDER BY
 async function setClusterIncluded(
   db,
   packageId,
+  endpointTypeId,
   clusterCode,
   isIncluded,
   side
 ) {
-  return true
+  let cluster = await queryZcl.selectClusterByCode(db, packageId, clusterCode)
+  return insertOrReplaceClusterState(
+    db,
+    endpointTypeId,
+    cluster.id,
+    side,
+    isIncluded
+  )
 }
 
 // exports

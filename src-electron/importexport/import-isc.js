@@ -117,6 +117,7 @@ function parseZclAfv2Line(state, line) {
     // Create a temporary state.endpointType
     state.endpointType = {
       typeName: line.substring('beginEndpointType:'.length),
+      clusterOverride: [],
     }
   } else if (line.startsWith('endEndpointType')) {
     // Stick the endpoint into `state.endpointTypes[endpointType.typeName]'
@@ -138,7 +139,7 @@ function parseZclAfv2Line(state, line) {
       isIncluded: idOnOff[1] == 'yes',
       side: dbEnum.side.client,
     }
-    state.clusterOverride.push(override)
+    state.endpointType.clusterOverride.push(override)
   } else if (line.startsWith('overrideServerCluster:')) {
     let idOnOff = line.substring('overrideServerCluster:'.length).split(',')
     let override = {
@@ -146,7 +147,7 @@ function parseZclAfv2Line(state, line) {
       isIncluded: idOnOff[1] == 'yes',
       side: dbEnum.side.server,
     }
-    state.clusterOverride.push(override)
+    state.endpointType.clusterOverride.push(override)
   } else if (line == 'beginAttributeDefaults') {
     state.parseState = line
   } else if (line == 'endAttributeDefaults') {
@@ -250,7 +251,6 @@ async function readIscData(filePath, data, zclMetafile) {
     parseState: 'init',
     // These are not the same as with zap files
     attributeType: [],
-    clusterOverride: [],
     zclMetafile: zclMetafile,
   }
 
@@ -489,14 +489,35 @@ async function iscDataLoader(db, state, sessionId) {
 
   for (let key in endpointTypes) {
     promises.push(
-      loadEndpointType(db, sessionId, packageId, endpointTypes[key]).then(
-        (newEndpointTypeId) => {
+      loadEndpointType(db, sessionId, packageId, endpointTypes[key])
+        .then((newEndpointTypeId) => {
           return {
             endpointTypeId: newEndpointTypeId,
             endpointType: endpointTypes[key],
           }
-        }
-      )
+        })
+        .then((endpointTypeIds) => {
+          // Now load the cluster configs
+          let clusterOverridePromises = []
+          endpointTypes[key].clusterOverride.forEach((cl) => {
+            let clusterCode = cl.clusterId
+            let isIncluded = cl.isIncluded
+            let side = cl.side
+            clusterOverridePromises.push(
+              queryConfig.setClusterIncluded(
+                db,
+                packageId,
+                endpointTypeIds.endpointTypeId,
+                clusterCode,
+                isIncluded,
+                side
+              )
+            )
+          })
+          return Promise.all(clusterOverridePromises).then(
+            () => endpointTypeIds
+          )
+        })
     )
   }
 
@@ -534,30 +555,11 @@ async function iscDataLoader(db, state, sessionId) {
     results.map((r) => r.endpointTypeId)
   )
 
-  let individualOverridePromises = []
-  if (state.clusterOverride.length > 0) {
-    state.clusterOverride.forEach((cl) => {
-      let clusterCode = cl.clusterId
-      let isIncluded = cl.isIncluded
-      let side = cl.side
-      individualOverridePromises.push(
-        queryConfig.setClusterIncluded(
-          db,
-          packageId,
-          clusterCode,
-          isIncluded,
-          side
-        )
-      )
-    })
-  }
-
   if (state.log != null) {
     querySession.writeLog(db, sessionId, state.log)
   }
 
   return Promise.all(endpointInsertionPromises)
-    .then(() => Promise.all(individualOverridePromises))
     .then(() => Promise.all(attributeUpdatePromises))
     .then(() => querySession.setSessionClean(db, sessionId))
     .then(() => {

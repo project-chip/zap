@@ -262,6 +262,19 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
 
+async function selectClusterByCode(db, packageId, code, mfgCode = null) {
+  let query
+  let args
+  if (mfgCode == null) {
+    query = `SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME, IS_SINGLETON FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? AND MANUFACTURER_CODE IS NULL`
+    args = [packageId, code]
+  } else {
+    query = `SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME, IS_SINGLETON FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? AND MANUFACTURER_CODE = ?`
+    args = [packageId, code, mfgCode]
+  }
+  return dbApi.dbGet(db, query, args).then(dbMapping.map.cluster)
+}
+
 /**
  * Returns a promise that resolves into a cluster.
  *
@@ -1958,6 +1971,7 @@ exports.selectAllStructItemsById = selectAllStructItemsById
 exports.selectAllStructItemsByStructName = selectAllStructItemsByStructName
 exports.selectAllClusters = selectAllClusters
 exports.selectClusterById = selectClusterById
+exports.selectClusterByCode = selectClusterByCode
 exports.selectAllDeviceTypes = selectAllDeviceTypes
 exports.selectDeviceTypeById = selectDeviceTypeById
 exports.selectDeviceTypeByCodeAndName = selectDeviceTypeByCodeAndName
