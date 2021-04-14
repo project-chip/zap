@@ -336,6 +336,11 @@ test('Test file 2 generation', async () => {
     testFile2
   )
 
+  await utilJs.initializeSessionPackage(db, sessionId, {
+    zcl: env.builtinSilabsZclMetafile,
+    template: env.builtinTemplateMetafile,
+  })
+
   expect(errors.length).toBe(0)
   expect(warnings.length).toBe(0)
   return genEngine
@@ -358,7 +363,7 @@ test('Test file 2 generation', async () => {
         sdkExtension.includes(
           'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,Identify,IdentifyQuery,<END2'
         )
-      ).toBeFalsy()
+      ).toBeTruthy()
     })
 }, 10000)
 
