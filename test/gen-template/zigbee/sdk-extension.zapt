@@ -28,3 +28,8 @@ property="testDeviceTypeExtension"}}'
 
 IMPLEMENTED_COMMANDS>{{#zcl_command_tree}}{{#if_extension_true
 property="implementedCommands"}}{{label}},{{/if_extension_true}}{{/zcl_command_tree}}<END
+
+------ Test if extension true in context of all_user_clusters
+
+IMPLEMENTED_COMMANDS2>{{#all_user_clusters}}{{#all_user_cluster_commands_irrespective_of_manufaturing_specification name side}}{{#if_extension_true property="implementedCommands"}}{{name}},{{/if_extension_true}}{{/all_user_cluster_commands_irrespective_of_manufaturing_specification}}{{/all_user_clusters}}<END2
+

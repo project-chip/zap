@@ -110,10 +110,10 @@ function subentityExtension(context, prop, entityType) {
         } else {
           let val = null
           f[0].defaults.forEach((d) => {
-            if (
-              d.entityCode == context.code &&
-              d.parentCode == context.clusterCode
-            ) {
+            let clusterCode = context.clusterCode
+            if (clusterCode == null && context.parent)
+              clusterCode = context.parent.code
+            if (d.entityCode == context.code && d.parentCode == clusterCode) {
               val = d.value
             }
           })

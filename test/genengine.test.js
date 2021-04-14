@@ -34,6 +34,7 @@ let db
 const templateCount = testUtil.testTemplateCount
 const genTimeout = 8000
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
+const testFile2 = path.join(__dirname, 'resource/three-endpoint-device.zap')
 
 beforeAll(() => {
   let file = env.sqliteTestFile('genengine')
@@ -42,6 +43,7 @@ beforeAll(() => {
     .then((d) => {
       db = d
     })
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
 }, 5000)
 
 afterAll(() => {
@@ -49,12 +51,6 @@ afterAll(() => {
 })
 
 let templateContext
-
-test(
-  'Load ZCL stuff',
-  () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
-  10000
-)
 
 test(
   'Basic gen template parsing and generation',
@@ -249,7 +245,7 @@ test(
 )
 
 test(
-  'Validate specific file generation',
+  'Validate test file 1 generation',
   () =>
     genEngine
       .generate(
@@ -303,7 +299,7 @@ test(
   genTimeout
 )
 
-test('Test file import and cli generation', async () => {
+test('Test file 1 generation', async () => {
   let sid = await querySession.createBlankSession(db)
   await importJs.importDataFromFile(db, testFile, sid)
 
@@ -331,6 +327,38 @@ test('Test file import and cli generation', async () => {
       expect(
         zapCli.includes('{ "identify", &cli_cmd_identify_group, false },')
       ).toBeTruthy()
+    })
+}, 10000)
+
+test('Test file 2 generation', async () => {
+  let { sessionId, errors, warnings } = await importJs.importDataFromFile(
+    db,
+    testFile2
+  )
+
+  expect(errors.length).toBe(0)
+  expect(warnings.length).toBe(0)
+  return genEngine
+    .generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      {
+        disableDeprecationWarnings: true,
+      }
+    )
+    .then((genResult) => {
+      expect(genResult).not.toBeNull()
+      expect(genResult.partial).toBeFalsy()
+      expect(genResult.content).not.toBeNull()
+      let sdkExtension = genResult.content['sdk-extension.out']
+      expect(sdkExtension).not.toBeNull()
+      expect(
+        sdkExtension.includes(
+          'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,Identify,IdentifyQuery,<END2'
+        )
+      ).toBeFalsy()
     })
 }, 10000)
 
