@@ -1248,8 +1248,14 @@ async function setClusterIncluded(
   isIncluded,
   side
 ) {
-  console.log(`IMPORT - SET CLUSTER INCLUDED: ${clusterCode} => ${isIncluded}`)
-  return true
+  let cluster = await queryZcl.selectClusterByCode(db, packageId, clusterCode)
+  return insertOrReplaceClusterState(
+    db,
+    endpointTypeId,
+    cluster.id,
+    side,
+    isIncluded
+  )
 }
 
 // exports

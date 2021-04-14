@@ -315,7 +315,6 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
 
   let dev
   if (isCustomDevice(deviceName, deviceCode)) {
-    console.log(`LOADING CUSTOM DEVICE: ${deviceName} / ${deviceCode}`)
     dev = await queryZcl.selectDeviceTypeByCodeAndName(
       db,
       packageId,
