@@ -109,6 +109,7 @@ function processCommandLineArguments(argv) {
     })
     .options('genResultFile', {
       desc: 'If this option is present, then generate the result file.',
+      type: 'boolean',
       default: false,
     })
     .option('showUrl', {
