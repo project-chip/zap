@@ -156,6 +156,38 @@ function outputFile(inputFile, outputPattern) {
   return output
 }
 
+const BLANK_SESSION = '--blank--'
+/**
+ * This method gathers all the files to process.
+ *
+ * @param {*} filesArg array of files arguments
+ * @param {*} suffix suffix to gather
+ */
+async function gatherFiles(filesArg, suffix = '.zap') {
+  let list = []
+  if (filesArg == null || filesArg.length == 0) {
+    list.push(BLANK_SESSION)
+  } else {
+    filesArg.forEach((f) => {
+      let stat = fs.statSync(f)
+      if (stat.isDirectory()) {
+        let dirents = fs.readdirSync(f, { withFileTypes: true })
+        dirents.forEach((element) => {
+          if (
+            element.name.endsWith(suffix.toLowerCase()) ||
+            element.name.endsWith(suffix.toUpperCase())
+          ) {
+            list.push(path.join(zapFile, element.name))
+          }
+        })
+      } else {
+        list.push(f)
+      }
+    })
+  }
+  return list
+}
+
 /**
  * Perform file conversion.
  *
@@ -171,9 +203,9 @@ async function startConvert(
 ) {
   let files = argv.zapFiles
   let output = argv.output
-  options.logger(`🤖 Conversion started`)
-  options.logger(`    🔍 input files: ${files}`)
-  options.logger(`    🔍 output pattern: ${output}`)
+  options.logger(`🤖 Conversion started
+    🔍 input files: ${files}
+    🔍 output pattern: ${output}`)
 
   let dbFile = env.sqliteFile('convert')
   let db = await dbApi.initDatabaseAndLoadSchema(
@@ -410,11 +442,27 @@ async function startGeneration(
   let skipPostGeneration = argv.skipPostGeneration
 
   options.logger(
-    `🤖 ZAP generation information: 
-    👉 into: ${output}
-    👉 using templates: ${templateMetafile}
-    👉 using zcl data: ${zclProperties}`
+    `🤖 ZAP generation started: 
+    🔍 input files: ${zapFiles}
+    🔍 output pattern: ${output}
+    🔍 using templates: ${templateMetafile}
+    🔍 using zcl data: ${zclProperties}`
   )
+
+  let dbFile = env.sqliteFile('generate')
+  if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
+  let mainDb = await dbApi.initDatabaseAndLoadSchema(
+    dbFile,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+
+  let files = gatherFiles(zapFiles, '.zap')
+  if (files.length == 0) {
+    options.logger(`    👎 no zap files found in: ${zapFiles}`)
+    throw `👎 no zap files found in: ${zapFiles}`
+  }
+
   let zapFile = null
   if (zapFiles != null && zapFiles.length > 0) {
     zapFile = zapFiles[0]
@@ -457,13 +505,6 @@ async function startGeneration(
     options.logger(`    👉 using empty configuration`)
   }
   options.logger(`    👉 zap version: ${env.zapVersionAsString()}`)
-  let dbFile = env.sqliteFile('generate')
-  if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
-  let mainDb = await dbApi.initDatabaseAndLoadSchema(
-    dbFile,
-    env.schemaFile(),
-    env.zapVersion()
-  )
   let ctx = await zclLoader.loadZcl(mainDb, zclProperties)
   ctx = await generatorEngine.loadTemplates(ctx.db, templateMetafile)
   if (ctx.error) {
