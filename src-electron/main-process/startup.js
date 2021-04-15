@@ -34,8 +34,6 @@ const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const uiJs = require('../ui/ui-util.js')
 const watchdog = require('./watchdog.js')
-const utils = require('promised-handlebars/lib/utils')
-const template = require('lodash.template')
 
 // This file contains various startup modes.
 
