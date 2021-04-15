@@ -92,12 +92,12 @@ function processCommandLineArguments(argv) {
       type: 'string',
       default: restApi.uiMode.ZIGBEE,
     })
-    .option('embeddedMode', {
+    .option('debugNavBar', {
       desc:
         'Boolean for when you want to embed purely the ZCL parts of the ZAP tool',
       alias: 'embed',
       type: 'boolean',
-      default: false,
+      default: exports.debugNavBar,
     })
     .option('noUi', {
       desc: "Don't show the main window when starting.",

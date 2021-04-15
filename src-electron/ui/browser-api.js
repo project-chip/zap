@@ -89,6 +89,18 @@ async function progressStart(browserWindow, message) {
   )
 }
 
+async function debugNavBarOn(browserWindow) {
+  await browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${restApi.rendererApiId.debugNavBarOn}')`
+  )
+}
+
+async function debugNavBarOff(browserWindow) {
+  await browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${restApi.rendererApiId.debugNavBarOff}')`
+  )
+}
+
 async function getFileLocation(browserWindow, key) {
   return null
 }
@@ -185,6 +197,8 @@ exports.executeLoad = executeLoad
 exports.executeSave = executeSave
 exports.progressEnd = progressEnd
 exports.progressStart = progressStart
+exports.debugNavBarOn = debugNavBarOn
+exports.debugNavBarOff = debugNavBarOff
 exports.reportFiles = reportFiles
 exports.processRendererNotify = processRendererNotify
 exports.getFileLocation = getFileLocation

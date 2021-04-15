@@ -589,8 +589,8 @@ export function setDefaultUiMode(context, uiMode) {
   context.commit(`setDefaultUiMode`, uiMode)
 }
 
-export function setEmbeddedMode(context, embeddedMode) {
-  context.commit('setEmbeddedMode', embeddedMode)
+export function setDebugNavBar(context, debugNavBar) {
+  context.commit('setDebugNavBar', debugNavBar)
 }
 
 export function setAttributeEditting(context, editContext) {

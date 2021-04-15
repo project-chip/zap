@@ -59,6 +59,14 @@ function renderer_api_info() {
         id: restApi.rendererApiId.progressEnd,
         description: 'End progress indicator.',
       },
+      {
+        id: restApi.rendererApiId.debugNavBarOn,
+        description: 'Show debug navigation bar',
+      },
+      {
+        id: restApi.rendererApiId.debugNavBarOff,
+        description: 'Hide debug navigation bar',
+      },
     ],
   }
 }
@@ -102,6 +110,12 @@ function renderer_api_execute(id, ...args) {
         restApi.reported_files,
         JSON.parse(args[0])
       )
+      break
+    case restApi.rendererApiId.debugNavBarOn:
+      observable.setObservableAttribute(restApi.debugNavBar, true)
+      break
+    case restApi.rendererApiId.debugNavBarOff:
+      observable.setObservableAttribute(restApi.debugNavBar, false)
       break
   }
   return ret

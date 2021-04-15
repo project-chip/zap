@@ -100,6 +100,8 @@ exports.rendererApiId = {
   progressStart: 'progressStart',
   progressEnd: 'progressEnd',
   reportFiles: 'reportFiles',
+  debugNavBarOn: 'debugNavBarOn',
+  debugNavBarOff: 'debugNavBarOff',
 }
 
 exports.rendererApiNotifyKey = {
@@ -109,6 +111,7 @@ exports.rendererApiNotifyKey = {
 
 exports.progress_attribute = 'progress-message'
 exports.reported_files = 'reported-files'
+exports.debugNavBar = 'debugNavBar'
 
 exports.uri = uri
 exports.httpCode = httpCode

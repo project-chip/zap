@@ -114,8 +114,8 @@ export default function () {
     },
     calledArgs: {
       defaultUiMode: restApi.uiMode.ZIGBEE,
-      embeddedMode: false,
     },
+    debugNavBar: false, // default visibility mode for debug navigation bar
     studio: {
       projectInfoJson: [], // HTTP response from Studio jetty server
       ucComponents: [],

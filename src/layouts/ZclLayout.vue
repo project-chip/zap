@@ -29,7 +29,7 @@ limitations under the License.
     <div class="q-gutter-y-md height: 10vh">
       <q-toolbar
         class="shadow-2"
-        v-if="!this.$store.state.zap.calledArgs['embeddedMode']"
+        v-if="this.$store.state.zap.debugNavBar"
       >
         <q-tabs flat v-model="tab">
           <q-tab name="general" label="General" />
@@ -243,6 +243,10 @@ export default {
         this.generationDirectory = value.filePaths[0]
         this.doGeneration(this.generationDirectory)
       }
+    })
+
+    observable.observeAttribute(restApi.debugNavBar, (value) => {
+      this.$store.dispatch('zap/setDebugNavBar', value)
     })
   },
 }

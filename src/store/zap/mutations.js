@@ -375,8 +375,8 @@ export function setDefaultUiMode(state, uiMode) {
   Vue.set(state.calledArgs, `defaultUiMode`, uiMode)
 }
 
-export function setEmbeddedMode(state, embeddedMode) {
-  Vue.set(state.calledArgs, 'embeddedMode', embeddedMode)
+export function setDebugNavBar(state, debugNavBar) {
+  state.debugNavBar = debugNavBar
 }
 
 export function setAttributeEditting(state, context) {

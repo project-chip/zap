@@ -53,7 +53,7 @@ function openFileConfiguration(filePath, httpPort) {
  * Creates a new window with a blank configuration.
  *
  * @param {*} httpPort
- * @param {*} options: uiMode, embeddedMode
+ * @param {*} options: uiMode, debugNavBar
  */
 async function openNewConfiguration(httpPort, options = {}) {
   windowJs.windowCreate(httpPort, options)
