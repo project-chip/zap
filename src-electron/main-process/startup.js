@@ -35,6 +35,7 @@ const exportJs = require('../importexport/export.js')
 const uiJs = require('../ui/ui-util.js')
 const watchdog = require('./watchdog.js')
 const utils = require('promised-handlebars/lib/utils')
+const template = require('lodash.template')
 
 // This file contains various startup modes.
 
@@ -157,7 +158,7 @@ function outputFile(inputFile, outputPattern) {
   return output
 }
 
-const BLANK_SESSION = '--blank--'
+const BLANK_SESSION = '-- blank session --'
 /**
  * This method gathers all the files to process.
  *
@@ -423,17 +424,39 @@ async function startSelfCheck(
 }
 
 async function generateSingleFile(
+  db,
   f,
+  packageId,
+  output,
   options = {
     logger: console.log,
+    zcl: env.builtinSilabsZclMetafile,
+    template: env.builtinTemplateMetafile,
   }
 ) {
+  let sessionId
   if (f === BLANK_SESSION) {
     options.logger(`    👉 using empty configuration`)
+    sessionId = await querySession.createBlankSession(db)
   } else {
     options.logger(`    👉 using input file: ${f}`)
+    let importResult = await importJs.importDataFromFile(db, f)
+    sessionId = importResult.sessionId
   }
-  return f
+
+  await util.initializeSessionPackage(db, sessionId, options)
+
+  let genResult = await generatorEngine.generateAndWriteFiles(
+    db,
+    sessionId,
+    packageId,
+    output,
+    options
+  )
+
+  if (genResult.hasErrors) throw new Error(`Generation failed: ${f}`)
+
+  return genResult
 }
 
 /**
@@ -485,83 +508,18 @@ async function startGeneration(
     throw `👎 no zap files found in: ${zapFiles}`
   }
 
-  await util.executePromisesSequentially(files, (f) =>
-    generateSingleFile(f, options)
-  )
-
-  let zapFile = null
-  if (zapFiles != null && zapFiles.length > 0) {
-    zapFile = zapFiles[0]
-    if (zapFiles.length > 1) {
-      options.logger(`    ⚠️  Multiple files passed. Using only first one.`)
-    }
-  }
-  if (zapFile != null) {
-    if (fs.existsSync(zapFile)) {
-      let stat = fs.statSync(zapFile)
-      if (stat.isDirectory()) {
-        options.logger(`    👉 using input directory: ${zapFile}`)
-        let dirents = fs.readdirSync(zapFile, { withFileTypes: true })
-        let usedFile = []
-        dirents.forEach((element) => {
-          if (element.name.endsWith('.zap') || element.name.endsWith('.ZAP')) {
-            usedFile.push(path.join(zapFile, element.name))
-          }
-        })
-        if (usedFile.length == 0) {
-          options.logger(`    👎 no zap files found in directory: ${zapFile}`)
-          throw `👎 no zap files found in directory: ${zapFile}`
-        } else if (usedFile.length > 1) {
-          options.logger(
-            `    👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
-          )
-          throw `👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
-        } else {
-          zapFile = usedFile[0]
-          options.logger(`    👉 using input file: ${zapFile}`)
-        }
-      } else {
-        options.logger(`    👉 using input file: ${zapFile}`)
-      }
-    } else {
-      options.logger(`    👎 file not found: ${zapFile}`)
-      throw `👎 file not found: ${zapFile}`
-    }
-  } else {
-    options.logger(`    👉 using empty configuration`)
-  }
+  options.zcl = zclProperties
+  options.template = templateMetafile
+  options.backup = false
+  options.genResultFile = genResultFile
+  options.skipPostGeneration = skipPostGeneration
   let packageId = ctx.packageId
 
-  let sessionId
-  if (zapFile == null) {
-    sessionId = await querySession.createBlankSession(mainDb)
-  } else {
-    let importResult = await importJs.importDataFromFile(mainDb, zapFile)
-    sessionId = importResult.sessionId
-  }
-
-  await util.initializeSessionPackage(mainDb, sessionId, {
-    zcl: zclProperties,
-    template: templateMetafile,
-  })
-
-  let genResult = await generatorEngine.generateAndWriteFiles(
-    mainDb,
-    sessionId,
-    packageId,
-    output,
-    {
-      logger: options.logger,
-      backup: false,
-      genResultFile: genResultFile,
-      skipPostGeneration: skipPostGeneration,
-    }
+  await util.executePromisesSequentially(files, (f) =>
+    generateSingleFile(mainDb, f, packageId, output, options)
   )
 
-  if (genResult.hasErrors) throw 'Generation failed.'
   if (options.quit && app != null) app.quit()
-
-  return genResult
 }
 /**
  * Move database file out of the way into the backup location.
