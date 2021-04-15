@@ -179,7 +179,7 @@ function gatherFiles(filesArg, options = { suffix: '.zap', doBlank: true }) {
             element.name.endsWith(options.suffix.toLowerCase()) ||
             element.name.endsWith(options.suffix.toUpperCase())
           ) {
-            list.push(path.join(zapFile, element.name))
+            list.push(path.join(f, element.name))
           }
         })
       } else {
@@ -436,10 +436,10 @@ async function generateSingleFile(
 ) {
   let sessionId
   if (f === BLANK_SESSION) {
-    options.logger(`    👉 using empty configuration`)
+    options.logger(`👉 using empty configuration`)
     sessionId = await querySession.createBlankSession(db)
   } else {
-    options.logger(`    👉 using input file: ${f}`)
+    options.logger(`👉 using input file: ${f}`)
     let importResult = await importJs.importDataFromFile(db, f)
     sessionId = importResult.sessionId
   }
