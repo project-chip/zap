@@ -34,6 +34,7 @@ const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const uiJs = require('../ui/ui-util.js')
 const watchdog = require('./watchdog.js')
+const utils = require('promised-handlebars/lib/utils')
 
 // This file contains various startup modes.
 
@@ -161,12 +162,12 @@ const BLANK_SESSION = '--blank--'
  * This method gathers all the files to process.
  *
  * @param {*} filesArg array of files arguments
- * @param {*} suffix suffix to gather
+ * @param {*} options
  */
-async function gatherFiles(filesArg, suffix = '.zap') {
+function gatherFiles(filesArg, options = { suffix: '.zap', doBlank: true }) {
   let list = []
   if (filesArg == null || filesArg.length == 0) {
-    list.push(BLANK_SESSION)
+    if (options.doBlank) list.push(BLANK_SESSION)
   } else {
     filesArg.forEach((f) => {
       let stat = fs.statSync(f)
@@ -174,8 +175,8 @@ async function gatherFiles(filesArg, suffix = '.zap') {
         let dirents = fs.readdirSync(f, { withFileTypes: true })
         dirents.forEach((element) => {
           if (
-            element.name.endsWith(suffix.toLowerCase()) ||
-            element.name.endsWith(suffix.toUpperCase())
+            element.name.endsWith(options.suffix.toLowerCase()) ||
+            element.name.endsWith(options.suffix.toUpperCase())
           ) {
             list.push(path.join(zapFile, element.name))
           }
@@ -421,6 +422,20 @@ async function startSelfCheck(
     })
 }
 
+async function generateSingleFile(
+  f,
+  options = {
+    logger: console.log,
+  }
+) {
+  if (f === BLANK_SESSION) {
+    options.logger(`    👉 using empty configuration`)
+  } else {
+    options.logger(`    👉 using input file: ${f}`)
+  }
+  return f
+}
+
 /**
  * Performs headless regeneration for given parameters.
  *
@@ -446,7 +461,8 @@ async function startGeneration(
     🔍 input files: ${zapFiles}
     🔍 output pattern: ${output}
     🔍 using templates: ${templateMetafile}
-    🔍 using zcl data: ${zclProperties}`
+    🔍 using zcl data: ${zclProperties}
+    🔍 zap version: ${env.zapVersionAsString()}`
   )
 
   let dbFile = env.sqliteFile('generate')
@@ -457,11 +473,21 @@ async function startGeneration(
     env.zapVersion()
   )
 
-  let files = gatherFiles(zapFiles, '.zap')
+  let ctx = await zclLoader.loadZcl(mainDb, zclProperties)
+  ctx = await generatorEngine.loadTemplates(ctx.db, templateMetafile)
+  if (ctx.error) {
+    throw ctx.error
+  }
+
+  let files = gatherFiles(zapFiles, { suffix: '.zap', doBlank: true })
   if (files.length == 0) {
     options.logger(`    👎 no zap files found in: ${zapFiles}`)
     throw `👎 no zap files found in: ${zapFiles}`
   }
+
+  await util.executePromisesSequentially(files, (f) =>
+    generateSingleFile(f, options)
+  )
 
   let zapFile = null
   if (zapFiles != null && zapFiles.length > 0) {
@@ -503,12 +529,6 @@ async function startGeneration(
     }
   } else {
     options.logger(`    👉 using empty configuration`)
-  }
-  options.logger(`    👉 zap version: ${env.zapVersionAsString()}`)
-  let ctx = await zclLoader.loadZcl(mainDb, zclProperties)
-  ctx = await generatorEngine.loadTemplates(ctx.db, templateMetafile)
-  if (ctx.error) {
-    throw ctx.error
   }
   let packageId = ctx.packageId
 
