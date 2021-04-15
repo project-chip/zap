@@ -138,10 +138,15 @@ async function startNormal(
  */
 function outputFile(inputFile, outputPattern) {
   let output = outputPattern
+  let hadDir = false
+
   if (output.startsWith('{dir}/')) {
     let dir = path.dirname(inputFile)
     output = path.join(dir, output.substring(6))
-  } else if (output.includes('{')) {
+    hadDir = true
+  }
+
+  if (output.includes('{')) {
     let dir = path.dirname(inputFile)
     let name = path.basename(inputFile)
     let basename
@@ -153,7 +158,7 @@ function outputFile(inputFile, outputPattern) {
     }
     output = output.replace('{name}', name)
     output = output.replace('{basename}', basename)
-    output = path.join(dir, output)
+    if (!hadDir) output = path.join(dir, output)
   }
   return output
 }
@@ -427,7 +432,7 @@ async function generateSingleFile(
   db,
   f,
   packageId,
-  output,
+  outputPattern,
   options = {
     logger: console.log,
     zcl: env.builtinSilabsZclMetafile,
@@ -435,14 +440,18 @@ async function generateSingleFile(
   }
 ) {
   let sessionId
+  let output
   if (f === BLANK_SESSION) {
     options.logger(`👉 using empty configuration`)
     sessionId = await querySession.createBlankSession(db)
+    output = outputPattern
   } else {
     options.logger(`👉 using input file: ${f}`)
     let importResult = await importJs.importDataFromFile(db, f)
     sessionId = importResult.sessionId
+    output = outputFile(f, outputPattern)
   }
+  options.logger(`👉 using output destination: ${output}`)
 
   await util.initializeSessionPackage(db, sessionId, options)
 
