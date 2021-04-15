@@ -26,7 +26,7 @@ scriptUtil
   .stampVersion()
   .then(() => scriptUtil.rebuildSpaIfNeeded())
   .then((ctx) => {
-    let cmdArgs = ['src-electron/main-process/electron-main.dev.js']
+    let cmdArgs = ['src-electron/main-process/electron-main.js']
     cmdArgs.push(...process.argv.slice(2))
     return scriptUtil.executeCmd(ctx, 'electron', cmdArgs)
   })

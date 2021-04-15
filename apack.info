@@ -26,31 +26,10 @@ executable(zap:macosx.x86_64) {
   optional=true
 }
 
-executable(zap_regen:win32.x86_64) {
-  exe=zap.exe
-  optional=true
-}
-
-executable(zap_regen:linux.x86_64) {
-  exe=zap
-  optional=true
-}
-
-executable(zap_regen:macosx.x86_64) {
-  exe=zap.app/Contents/MacOS/zap
-  optional=true
-}
-
 executable(zap) {
   engine=node
   optional=true
   exe=src-script/zap-start.js
-}
-
-executable(zap_regen) {
-  engine=node
-  optional=true
-  exe=src-script/zap-generate.js
 }
 
 function(ui:uc_cli) {
@@ -66,7 +45,7 @@ function(version:uc_cli) {
 }
 
 function(uc_generate) {
-  cmd=$(zap_regen) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}
+  cmd=$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}
 }
 
 function(zapHelp) {
