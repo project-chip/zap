@@ -27,8 +27,19 @@ scriptUtil
   .then(() => scriptUtil.rebuildSpaIfNeeded())
   .then((ctx) => {
     let cmdArgs = ['src-electron/main-process/electron-main.js']
-    cmdArgs.push(...process.argv.slice(2))
-    return scriptUtil.executeCmd(ctx, 'electron', cmdArgs)
+    args = process.argv.slice(2)
+    let executor = null
+    if (
+      args[0] == 'generate' ||
+      args[0] == 'selfCheck' ||
+      args[0] == 'analyze' ||
+      args[0] == 'convert' ||
+      args[0] == 'server'
+    )
+      executor = 'node'
+    else executor = 'electron'
+    cmdArgs.push(...args)
+    return scriptUtil.executeCmd(ctx, executor, cmdArgs)
   })
   .then(() => {
     let endTime = process.hrtime(startTime)
