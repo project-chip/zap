@@ -176,5 +176,5 @@ test('door-lock isc import', async () => {
     db,
     endpointTypes[0].id
   )
-  expect(clusterState.length).toBe(106)
+  expect(clusterState.length).toBe(107)
 }, 5000)

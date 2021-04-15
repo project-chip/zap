@@ -1248,13 +1248,21 @@ async function setClusterIncluded(
   side
 ) {
   let cluster = await queryZcl.selectClusterByCode(db, packageId, clusterCode)
-  return insertOrReplaceClusterState(
+  let clusterState = await getClusterState(db, endpointTypeId, cluster.id, side)
+  let insertDefaults = clusterState == null
+  await insertOrReplaceClusterState(
     db,
     endpointTypeId,
     cluster.id,
     side,
     isIncluded
   )
+  if (insertDefaults) {
+    await insertClusterDefaults(db, endpointTypeId, {
+      clusterRef: cluster.id,
+      side: side,
+    })
+  }
 }
 
 // exports
