@@ -38,6 +38,15 @@ scriptUtil
     )
       executor = 'node'
     else executor = 'electron'
+
+    if (executor === 'electron' && process.platform == 'linux') {
+      if (!process.env.DISPLAY) {
+        console.log(`
+⛔ You are on linux, you are attempting to run zap in UI mode without DISPLAY set.
+⛔ Please set your DISPLAY environment variable if you wish to proceed.`)
+        process.exit(1)
+      }
+    }
     cmdArgs.push(...args)
     return scriptUtil.executeCmd(ctx, executor, cmdArgs)
   })
