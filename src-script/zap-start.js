@@ -42,8 +42,8 @@ scriptUtil
     if (executor === 'electron' && process.platform == 'linux') {
       if (!process.env.DISPLAY) {
         console.log(`
-⛔ You are on linux, you are attempting to run zap in UI mode without DISPLAY set.
-⛔ Please set your DISPLAY environment variable if you wish to proceed.`)
+⛔ You are on Linux and you are attempting to run zap in UI mode without DISPLAY set.
+⛔ Please set your DISPLAY environment variable or run zap-start.js with a command that does not require DISPLAY.`)
         process.exit(1)
       }
     }
