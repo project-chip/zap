@@ -36,7 +36,11 @@ if (window.sessionStorage.getItem('session_uuid') == null) {
  * @returns
  */
 function fillUrl(url) {
-  return url
+  if (restApi.separateRestServerPort != null) {
+    return `http://localhost:${restApi.separateRestServerPort}${url}`
+  } else {
+    return url
+  }
 }
 
 /**

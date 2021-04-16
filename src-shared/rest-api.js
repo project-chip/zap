@@ -76,8 +76,8 @@ const updateKey = {
   deviceTypeRef: 'deviceTypeRef',
   endpointId: 'endpointId',
   endpointType: 'endpointType',
-  networkId: 'networkId',
   endpointVersion: 'endpointVersion',
+  networkId: 'networkId',
   name: 'name',
   attributeSelected: 'selectedAttributes',
   attributeSingleton: 'selectedSingleton',
@@ -121,3 +121,10 @@ exports.uc = uc
 exports.ide = ide
 exports.updateKey = updateKey
 exports.param = param
+
+// If this is null, then it's a normal mode of operation
+// If it is not null, then the REST and websocket calls will
+// connect to that port, assuming content comes from a different one.
+
+// exports.separateRestServerPort = 9070
+exports.separateRestServerPort = null
