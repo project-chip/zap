@@ -89,6 +89,7 @@ async function startNormal(
           .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort, {
             zcl: argv.zclProperties,
             template: argv.generationTemplate,
+            allowCors: argv.allowCors,
           })
           .then(() => {
             ipcServer.initServer(ctx.db, argv.httpPort)
@@ -357,6 +358,7 @@ async function startServer(argv, options = {}) {
         .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort, {
           zcl: argv.zclProperties,
           template: argv.generationTemplate,
+          allowCors: argv.allowCors,
         })
         .then(() => {
           ipcServer.initServer(ctx.db, argv.httpPort)

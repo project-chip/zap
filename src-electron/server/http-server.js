@@ -105,13 +105,23 @@ async function initHttpServer(
   db,
   port,
   studioPort,
-  metafiles = {
+  options = {
+    allowCors: false,
     zcl: env.builtinSilabsZclMetafile,
     template: env.builtinTemplateMetafile,
   }
 ) {
   return new Promise((resolve, reject) => {
     const app = express()
+
+    if (options.allowCors) {
+      env.logWarning('CORS is enabled. Please be careful.')
+      app.use(function (req, res, next) {
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        next()
+      })
+    }
+
     //app.use(express.urlencoded({ extended: true }))
     app.use(express.json())
     app.use(
@@ -122,7 +132,7 @@ async function initHttpServer(
       })
     )
 
-    app.use(userSessionHandler(db, metafiles))
+    app.use(userSessionHandler(db, options))
 
     // REST modules
     registerAllRestModules(db, app)

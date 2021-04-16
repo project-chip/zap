@@ -27,6 +27,7 @@
     "test:unit:watchAll": "jest --watchAll",
     "postinstall": "electron-builder install-app-deps && husky install",
     "zap": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json",
+    "zap-devserver": "node src-script/zap-start.js server --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json",
     "zap-server": "node src-script/zap-start.js server --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
     "zap-status": "node src-script/zap-start.js status --reuseZapInstance",
     "zaphelp": "node src-script/zap-start.js --help",

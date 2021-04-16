@@ -21,23 +21,25 @@ const scriptUtil = require('./script-util.js')
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 let startTime = process.hrtime()
+let args = process.argv.slice(2)
+let executor = null
+if (
+  args[0] == 'generate' ||
+  args[0] == 'selfCheck' ||
+  args[0] == 'analyze' ||
+  args[0] == 'convert' ||
+  args[0] == 'server'
+)
+  executor = 'node'
+else executor = 'electron'
 
 scriptUtil
   .stampVersion()
-  .then(() => scriptUtil.rebuildSpaIfNeeded())
-  .then((ctx) => {
+  .then(() => {
+    if (executor === 'electron') return scriptUtil.rebuildSpaIfNeeded()
+  })
+  .then(() => {
     let cmdArgs = ['src-electron/main-process/electron-main.js']
-    args = process.argv.slice(2)
-    let executor = null
-    if (
-      args[0] == 'generate' ||
-      args[0] == 'selfCheck' ||
-      args[0] == 'analyze' ||
-      args[0] == 'convert' ||
-      args[0] == 'server'
-    )
-      executor = 'node'
-    else executor = 'electron'
 
     if (executor === 'electron' && process.platform == 'linux') {
       if (!process.env.DISPLAY) {
@@ -48,7 +50,7 @@ scriptUtil
       }
     }
     cmdArgs.push(...args)
-    return scriptUtil.executeCmd(ctx, executor, cmdArgs)
+    return scriptUtil.executeCmd(null, executor, cmdArgs)
   })
   .then(() => {
     let endTime = process.hrtime(startTime)

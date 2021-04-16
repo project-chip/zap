@@ -154,7 +154,12 @@ function processCommandLineArguments(argv) {
     .option('watchdogTimer', {
       desc: `In a server mode, how long of no-activity (in ms) shuts down the server.`,
       type: 'number',
-      default: 60000,
+      default: 600000, // 10 minutes
+    })
+    .option('allowCors', {
+      desc: `Sets the CORS policy to be enabled or disabled.`,
+      type: 'boolean',
+      default: false,
     })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(

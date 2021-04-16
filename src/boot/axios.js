@@ -30,6 +30,16 @@ if (window.sessionStorage.getItem('session_uuid') == null) {
 }
 
 /**
+ * URL rewriter that can come handy in development mode.
+ *
+ * @param {*} url
+ * @returns
+ */
+function fillUrl(url) {
+  return url
+}
+
+/**
  * Internal function that processes response from the server for any request.
  *
  * @param {*} method
@@ -82,7 +92,7 @@ function fillConfig(config) {
  */
 function serverGet(url, config = null) {
   if (log) console.log(`GET → : ${url}, ${config}`)
-  return axios['get'](url, fillConfig(config))
+  return axios['get'](fillUrl(url), fillConfig(config))
     .then((response) => processResponse('GET', url, response))
     .catch((error) => console.log(error))
 }
@@ -95,7 +105,7 @@ function serverGet(url, config = null) {
  */
 function serverDelete(url, config = null) {
   if (log) console.log(`DELETE → : ${url}, ${config}`)
-  return axios['delete'](url, fillConfig(config))
+  return axios['delete'](fillUrl(url), fillConfig(config))
     .then((response) => processResponse('DELETE', url, response))
     .catch((error) => console.log(error))
 }
@@ -114,7 +124,7 @@ function serverDelete(url, config = null) {
  */
 function serverPost(url, data, config = null) {
   if (log) console.log(`POST → : ${url}, ${data}`)
-  return axios['post'](url, data, fillConfig(config))
+  return axios['post'](fillUrl(url), data, fillConfig(config))
     .then((response) => processResponse('POST', url, response))
     .catch((error) => console.log(error))
 }
@@ -132,7 +142,7 @@ function serverPost(url, data, config = null) {
  */
 function serverPut(url, data, config = null) {
   if (log) console.log(`PUT → : ${url}, ${data}`)
-  return axios['put'](url, data, fillConfig(config))
+  return axios['put'](fillUrl(url), data, fillConfig(config))
     .then((response) => processResponse('PUT', url, response))
     .catch((error) => console.log(error))
 }
@@ -145,7 +155,7 @@ function serverPut(url, data, config = null) {
  */
 function serverPatch(url, data, config = null) {
   if (log) console.log(`PATCH → : ${url}, ${data}`)
-  return axios['patch'](url, data, fillConfig(config))
+  return axios['patch'](fillUrl(url), data, fillConfig(config))
     .then((response) => processResponse('PATCH', url, response))
     .catch((error) => console.log(error))
 }
