@@ -101,6 +101,12 @@ async function debugNavBarOff(browserWindow) {
   )
 }
 
+async function setTheme(browserWindow, theme) {
+  await browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${restApi.rendererApiId.setTheme}', '${theme}')`
+  )
+}
+
 async function getFileLocation(browserWindow, key) {
   return null
 }
@@ -203,3 +209,4 @@ exports.reportFiles = reportFiles
 exports.processRendererNotify = processRendererNotify
 exports.getFileLocation = getFileLocation
 exports.saveFileLocation = saveFileLocation
+exports.setTheme = setTheme

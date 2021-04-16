@@ -67,6 +67,10 @@ function renderer_api_info() {
         id: restApi.rendererApiId.debugNavBarOff,
         description: 'Hide debug navigation bar',
       },
+      {
+        id: restApi.rendererApiId.setTheme,
+        description: 'Set theme...',
+      },
     ],
   }
 }
@@ -117,6 +121,8 @@ function renderer_api_execute(id, ...args) {
     case restApi.rendererApiId.debugNavBarOff:
       observable.setObservableAttribute(restApi.debugNavBar, false)
       break
+    case restApi.rendererApiId.setTheme:
+      observable.setObservableAttribute(restApi.themeData, args[0])
   }
   return ret
 }

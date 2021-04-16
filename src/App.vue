@@ -56,9 +56,8 @@ function initLoad(store) {
 export default {
   name: 'App',
   methods: {
-    setThemeMode() {
-      const theme = observable.getObservableAttribute('data-theme')
-      if (theme === 'com.silabs.ss.platform.theme.dark') {
+    setThemeMode(theme) {
+      if (theme === 'com.silabs.ss.platform.theme.dark' || theme === 'dark') {
         this.$q.dark.set(true)
       } else {
         this.$q.dark.set(false)
@@ -106,7 +105,7 @@ export default {
     this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
     this.zclDialogFlag = false
 
-    observable.observeAttribute('data-theme', (theme) => {
+    observable.observeAttribute(restApi.themeData, (theme) => {
       this.setThemeMode(theme)
     })
 

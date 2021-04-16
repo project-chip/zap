@@ -90,6 +90,30 @@ const template = (httpPort) => [
   },
   {
     role: 'viewMenu',
+    submenu: [
+      {
+        label: 'Dark theme',
+        click(menuItem, browserWindow, event) {
+          browserApi.setTheme(browserWindow, 'dark')
+        },
+      },
+      {
+        label: 'Light theme',
+        click(menuItem, browserWindow, event) {
+          browserApi.setTheme(browserWindow, 'light')
+        },
+      },
+      { type: 'separator' },
+      { role: 'reload' },
+      { role: 'forceReload' },
+      { role: 'toggleDevTools' },
+      { type: 'separator' },
+      { role: 'resetZoom' },
+      { role: 'zoomIn' },
+      { role: 'zoomOut' },
+      { type: 'separator' },
+      { role: 'togglefullscreen' },
+    ],
   },
   {
     role: 'windowMenu',
