@@ -1,5 +1,38 @@
 # Frequently Asked Questions
 
+**Q: How to start up UI in a development mode?**
+
+**A:**
+
+You can start UI in a development mode, which will result in a
+following setup:
+
+- separate quasar development HTTP server which does live refresh on port 8080
+- zap backend running on port 9070
+- chrome or other browser, running independently
+
+In order to get to that setup, follow this instructions.
+
+1. First run the zap development server (which starts on port 9070)
+
+```
+npm run zap-devserver
+```
+
+2. Then run the quasar development server (which starts on port 8080)
+
+```
+quasar dev
+```
+
+3. Point your browser or run one against the proper URL with the `restPort` argument:
+
+```
+google-chrome http://localhost:8080/?restPort=9070
+```
+
+---
+
 **Q: How to make this work on Mac/Linux?**
 
 **A:**
@@ -24,7 +57,7 @@ src-script/install-packages-fedora
 
 ```
 apt-get update
-apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev
+apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-devhttp://localhost:8080
 ```
 
 or run script:

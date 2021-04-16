@@ -25,10 +25,9 @@ const http = require('http-status-codes')
 const tickInterval = 15000 // 15 seconds tick interval for server watchdog.
 
 let eventEmitter = new Events.EventEmitter()
+let restPort = Util.getServerRestPort()
 let wsUrl = `ws://${window.location.hostname}:${
-  restApi.separateRestServerPort == null
-    ? window.location.port
-    : restApi.separateRestServerPort
+  restPort == null ? window.location.port : restPort
 }?${restApi.param.sessionId}=${window.sessionStorage.getItem('session_uuid')}`
 const client = new WebSocket(wsUrl)
 

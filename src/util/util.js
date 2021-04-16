@@ -81,7 +81,7 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
 }
 
 export function getSelectedUcComponents(ucComponentList) {
-  return ucComponentList.filter(x => x.isSelected)
+  return ucComponentList.filter((x) => x.isSelected)
 }
 
 export function getUcComponents(ucComponentTreeResponse) {
@@ -111,4 +111,21 @@ export function getClusterIdsByUcComponents(ucComponents) {
   return ucComponents
     .map((x) => x.id)
     .map((x) => x.substr(x.lastIndexOf('-') + 1))
+}
+
+/**
+ * This method should return null if rest server is on the same port
+ * as the main HTTP server.
+ *
+ * But in development envioronment, the ports are separated, so this method
+ * should return the port that the rest server API is on, while
+ * quasar development server can serve the raw UI content.
+ */
+export function getServerRestPort() {
+  const searchParams = new URLSearchParams(window.location.search)
+  if (searchParams.has('restPort')) {
+    return searchParams.get('restPort')
+  } else {
+    return null
+  }
 }

@@ -19,6 +19,7 @@ import Vue from 'vue'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import restApi from '../../src-shared/rest-api.js'
+import * as Util from '../util/util.js'
 
 Vue.prototype.$axios = axios({ withCredentials: true })
 
@@ -36,8 +37,9 @@ if (window.sessionStorage.getItem('session_uuid') == null) {
  * @returns
  */
 function fillUrl(url) {
-  if (restApi.separateRestServerPort != null) {
-    return `http://localhost:${restApi.separateRestServerPort}${url}`
+  let restPort = Util.getServerRestPort()
+  if (restPort != null) {
+    return `http://localhost:${restPort}${url}`
   } else {
     return url
   }
