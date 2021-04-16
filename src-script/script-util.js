@@ -16,7 +16,6 @@
  */
 const { spawn } = require('cross-spawn')
 const folderHash = require('folder-hash')
-const hashOptions = {}
 const spaDir = 'spa'
 const fs = require('fs')
 const fsp = fs.promises
@@ -24,6 +23,12 @@ const path = require('path')
 const scriptUtil = require('./script-util.js')
 const spaHashFileName = path.join(spaDir, 'hash.json')
 process.env.PATH = process.env.PATH + ':./node_modules/.bin/'
+
+const hashOptions = {
+  folders: {
+    include: ['src', 'src-shared'],
+  },
+}
 
 // Utilities shared by scripts.
 
@@ -93,7 +98,7 @@ async function getStdout(onError, cmd, args) {
  */
 async function rebuildSpaIfNeeded() {
   return folderHash
-    .hashElement('src', hashOptions)
+    .hashElement('.', hashOptions)
     .then((currentHash) => {
       console.log(`🔍 Current hash: ${currentHash.hash}`)
       return {

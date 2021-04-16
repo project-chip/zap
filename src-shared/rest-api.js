@@ -77,6 +77,7 @@ const updateKey = {
   endpointId: 'endpointId',
   endpointType: 'endpointType',
   networkId: 'networkId',
+  endpointVersion: 'endpointVersion',
   name: 'name',
   attributeSelected: 'selectedAttributes',
   attributeSingleton: 'selectedSingleton',

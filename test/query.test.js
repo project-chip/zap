@@ -463,7 +463,7 @@ describe('Endpoint Type Config Queries', () => {
 
   test('Insert Endpoint Test', () =>
     queryConfig
-      .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9)
+      .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9, 22)
       .then((rowId) => {
         return queryConfig.selectEndpoint(db, rowId)
       })
@@ -471,6 +471,7 @@ describe('Endpoint Type Config Queries', () => {
         expect(endpoint.endpointId).toBe(4)
         expect(endpoint.profileId).toBe(260)
         expect(endpoint.networkId).toBe(9)
+        expect(endpoint.endpointVersion).toBe(22)
         expect(endpoint.endpointTypeRef).toBe(endpointTypeIdOnOff)
       }))
 

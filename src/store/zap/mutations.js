@@ -117,6 +117,13 @@ export function initializeDefaultEndpoints(state, defaultEndpoints) {
     if (state.endpointView.networkId[endpoint.id] === undefined) {
       Vue.set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
     }
+    if (state.endpointView.endpointVersion[endpoint.id] === undefined) {
+      Vue.set(
+        state.endpointView.endpointVersion,
+        endpoint.id,
+        endpoint.endpointVersion
+      )
+    }
   })
 }
 
@@ -128,6 +135,11 @@ export function addEndpoint(state, endpoint) {
     endpoint.endpointTypeRef
   )
   Vue.set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
+  Vue.set(
+    state.endpointView.endpointVersion,
+    endpoint.id,
+    endpoint.endpointVersion
+  )
   Vue.set(
     state.endpointView.endpointIdValidationIssues,
     endpoint.id,
@@ -246,6 +258,7 @@ export function deleteEndpoint(state, endpoint) {
   Vue.delete(state.endpointView.endpointId, endpoint.id)
   Vue.delete(state.endpointView.endpointType, endpoint.id)
   Vue.delete(state.endpointView.networkId, endpoint.id)
+  Vue.delete(state.endpointView.endpointVersion, endpoint.id)
 }
 
 export function setClusterList(state, data) {

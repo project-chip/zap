@@ -249,51 +249,45 @@ describe('Validate endpoint for duplicate endpointIds', () => {
   let endpointTypeReference
   let eptId
   let pkgId
-  beforeAll(() => {
-    return zclLoader
-      .loadZcl(db, env.builtinSilabsZclMetafile)
-      .then((ctx) => {
-        pkgId = ctx.packageId
-        querySession
-          .ensureZapUserAndSession(db, 'USER', 'SESSION')
-          .then((userSession) => {
-            sid = userSession.sessionId
-          })
-      })
-      .then(() =>
-        queryZcl.selectAllDeviceTypes(db, pkgId).then((rows) => {
-          let haOnOffDeviceTypeArray = rows.filter(
-            (data) => data.label === 'HA-onoff'
-          )
-          haOnOffDeviceType = haOnOffDeviceTypeArray[0]
-          return Promise.resolve(haOnOffDeviceType.id)
-        })
-      )
-      .then((deviceTypeId) =>
-        queryConfig
-          .insertEndpointType(db, sid, 'testEndpointType', deviceTypeId)
-          .then((rowId) => {
-            endpointTypeIdOnOff = rowId
-            return queryZcl.selectEndpointType(db, rowId)
-          })
-      )
-      .then((endpointType) =>
-        queryConfig
-          .insertEndpoint(db, sid, 1, endpointType.endpointTypeId, 1)
-          .then(
-            queryConfig.insertEndpoint(
-              db,
-              sid,
-              1,
-              endpointType.endpointTypeId,
-              1
-            )
-          )
-      )
-      .then((endpointId) => {
-        eptId = endpointId
-        return Promise.resolve()
-      })
+  beforeAll(async () => {
+    let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+    pkgId = ctx.packageId
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'USER',
+      'SESSION'
+    )
+    sid = userSession.sessionId
+    let rows = await queryZcl.selectAllDeviceTypes(db, pkgId)
+    let haOnOffDeviceTypeArray = rows.filter(
+      (data) => data.label === 'HA-onoff'
+    )
+    haOnOffDeviceType = haOnOffDeviceTypeArray[0]
+    let deviceTypeId = haOnOffDeviceType.id
+    let rowId = await queryConfig.insertEndpointType(
+      db,
+      sid,
+      'testEndpointType',
+      deviceTypeId
+    )
+    endpointTypeIdOnOff = rowId
+    let endpointType = await queryZcl.selectEndpointType(db, rowId)
+    await queryConfig.insertEndpoint(
+      db,
+      sid,
+      1,
+      endpointType.endpointTypeId,
+      1,
+      23
+    )
+    eptId = await queryConfig.insertEndpoint(
+      db,
+      sid,
+      1,
+      endpointType.endpointTypeId,
+      1,
+      23
+    )
   }, 10000)
   test(
     'Test endpoint for duplicates',
