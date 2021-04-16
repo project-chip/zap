@@ -145,6 +145,18 @@ const template = (httpPort) => [
         },
       },
       {
+        label: 'Show debug navigation bar',
+        click(menuItem, browserWindow) {
+          browserApi.debugNavBarOn(browserWindow)
+        },
+      },
+      {
+        label: 'Hide debug navigation bar',
+        click(menuItem, browserWindow) {
+          browserApi.debugNavBarOff(browserWindow)
+        },
+      },
+      {
         label: 'About',
         httpPort: httpPort,
         click(menuItem, browserWindow, event) {

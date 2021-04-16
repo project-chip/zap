@@ -193,22 +193,24 @@ function all_user_cluster_command_util(
         endpointTypes
       )
     )
-    .then((endpointsAndClusters) =>
-      isIrrespectiveOfManufacturingSpecification
-        ? queryZcl.exportCommandDetailsFromAllEndpointTypesAndClusters(
-            currentContext.global.db,
-            endpointsAndClusters
-          )
-        : isManufacturingSpecific
-        ? queryZcl.exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
-            currentContext.global.db,
-            endpointsAndClusters
-          )
-        : queryZcl.exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
-            currentContext.global.db,
-            endpointsAndClusters
-          )
-    )
+    .then((endpointsAndClusters) => {
+      if (isIrrespectiveOfManufacturingSpecification) {
+        return queryZcl.exportCommandDetailsFromAllEndpointTypesAndClusters(
+          currentContext.global.db,
+          endpointsAndClusters
+        )
+      } else if (isManufacturingSpecific) {
+        return queryZcl.exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
+          currentContext.global.db,
+          endpointsAndClusters
+        )
+      } else {
+        return queryZcl.exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
+          currentContext.global.db,
+          endpointsAndClusters
+        )
+      }
+    })
     .then(
       (endpointCommands) =>
         new Promise((resolve, reject) => {

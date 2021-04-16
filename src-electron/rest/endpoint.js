@@ -70,10 +70,17 @@ function httpDeleteEndpointType(db) {
  */
 function httpPostEndpoint(db) {
   return (request, response) => {
-    let { endpointId, networkId, endpointType } = request.body
+    let { endpointId, networkId, endpointType, endpointVersion } = request.body
     let sessionIdexport = request.zapSessionId
     queryConfig
-      .insertEndpoint(db, sessionIdexport, endpointId, endpointType, networkId)
+      .insertEndpoint(
+        db,
+        sessionIdexport,
+        endpointId,
+        endpointType,
+        networkId,
+        endpointVersion
+      )
       .then((newId) =>
         validation.validateEndpoint(db, newId).then((validationData) => {
           response.json({
@@ -81,6 +88,7 @@ function httpPostEndpoint(db) {
             endpointId: endpointId,
             endpointType: endpointType,
             networkId: networkId,
+            endpointVersion: endpointVersion,
             validationIssues: validationData,
           })
         })
@@ -92,16 +100,20 @@ function httpPostEndpoint(db) {
 /**
  * HTTP POST: endpoint
  *
- * @param {*} db
+ * @param {*} db Main database to use for the operation.
  * @returns callback for the express uri registration
  */
 function httpPatchEndpoint(db) {
   return (request, response) => {
-    let { context } = request.body
+    let context = request.body
     let sessionIdexport = request.zapSessionId
     let changes = context.changes.map((data) => {
       let paramType = ''
-      return { key: data.updatedKey, value: data.value, type: paramType }
+      return {
+        key: data.updatedKey,
+        value: data.value,
+        type: paramType,
+      }
     })
 
     queryConfig

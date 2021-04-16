@@ -195,6 +195,8 @@ function convertRestKeyToDbColumn(key) {
       return 'ENDPOINT_TYPE_REF'
     case restApi.updateKey.networkId:
       return 'NETWORK_IDENTIFIER'
+    case restApi.updateKey.endpointVersion:
+      return 'ENDPOINT_VERSION'
     case restApi.updateKey.deviceTypeRef:
       return 'DEVICE_TYPE_REF'
     case restApi.updateKey.name:
@@ -361,14 +363,15 @@ async function insertEndpoint(
   sessionId,
   endpointIdentifier,
   endpointTypeRef,
-  networkIdentifier
+  networkIdentifier,
+  endpointVersion
 ) {
   return dbApi.dbInsert(
     db,
     `
 INSERT OR REPLACE
-INTO ENDPOINT ( SESSION_REF, ENDPOINT_IDENTIFIER, ENDPOINT_TYPE_REF, NETWORK_IDENTIFIER, PROFILE)
-VALUES ( ?, ?, ?, ?,
+INTO ENDPOINT ( SESSION_REF, ENDPOINT_IDENTIFIER, ENDPOINT_TYPE_REF, NETWORK_IDENTIFIER, ENDPOINT_VERSION, PROFILE)
+VALUES ( ?, ?, ?, ?, ?,
          ( SELECT DEVICE_TYPE.PROFILE_ID
            FROM DEVICE_TYPE, ENDPOINT_TYPE
            WHERE ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ?
@@ -378,6 +381,7 @@ VALUES ( ?, ?, ?, ?,
       endpointIdentifier,
       endpointTypeRef,
       networkIdentifier,
+      endpointVersion,
       endpointTypeRef,
     ]
   )
@@ -453,7 +457,8 @@ SELECT
   ENDPOINT_TYPE_REF,
   PROFILE,
   ENDPOINT_IDENTIFIER,
-  NETWORK_IDENTIFIER
+  NETWORK_IDENTIFIER,
+  ENDPOINT_VERSION
 FROM ENDPOINT
 WHERE SESSION_REF = ?
 ORDER BY ENDPOINT_IDENTIFIER
@@ -468,10 +473,10 @@ ORDER BY ENDPOINT_IDENTIFIER
  * Mayb resolve into null if invalid reference.
  *
  * @param {*} db
- * @param {*} endpointRef
+ * @param {*} endpointId
  * @returns Promise of an endpoint.
  */
-async function selectEndpoint(db, endpointRef) {
+async function selectEndpoint(db, endpointId) {
   return dbApi
     .dbGet(
       db,
@@ -482,10 +487,11 @@ SELECT
   ENDPOINT_IDENTIFIER,
   ENDPOINT_TYPE_REF,
   PROFILE,
-  NETWORK_IDENTIFIER
+  NETWORK_IDENTIFIER,
+  ENDPOINT_VERSION
 FROM ENDPOINT
 WHERE ENDPOINT_ID = ?`,
-      [endpointRef]
+      [endpointId]
     )
     .then(dbMapping.map.endpoint)
 }
@@ -1242,11 +1248,27 @@ ORDER BY
 async function setClusterIncluded(
   db,
   packageId,
+  endpointTypeId,
   clusterCode,
   isIncluded,
   side
 ) {
-  return true
+  let cluster = await queryZcl.selectClusterByCode(db, packageId, clusterCode)
+  let clusterState = await getClusterState(db, endpointTypeId, cluster.id, side)
+  let insertDefaults = clusterState == null
+  await insertOrReplaceClusterState(
+    db,
+    endpointTypeId,
+    cluster.id,
+    side,
+    isIncluded
+  )
+  if (insertDefaults) {
+    await insertClusterDefaults(db, endpointTypeId, {
+      clusterRef: cluster.id,
+      side: side,
+    })
+  }
 }
 
 // exports

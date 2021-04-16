@@ -253,6 +253,7 @@ export function addEndpoint(context, newEndpointContext) {
         endpointId: arg.endpointId,
         endpointTypeRef: arg.endpointType,
         networkId: arg.networkId,
+        endpointVersion: arg.endpointVersion,
         endpointIdValidationIssues: arg.validationIssues.endpointId,
         networkIdValidationIssues: arg.validationIssues.networkId,
       })
@@ -589,8 +590,8 @@ export function setDefaultUiMode(context, uiMode) {
   context.commit(`setDefaultUiMode`, uiMode)
 }
 
-export function setEmbeddedMode(context, embeddedMode) {
-  context.commit('setEmbeddedMode', embeddedMode)
+export function setDebugNavBar(context, debugNavBar) {
+  context.commit('setDebugNavBar', debugNavBar)
 }
 
 export function setAttributeEditting(context, editContext) {

@@ -29,9 +29,6 @@ const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
 const zclLoader = require('../zcl/zcl-loader.js')
-const session = require('express-session')
-const dbEnum = require('../../src-shared/db-enum.js')
-const ideIntegrationZcl = require('../ide-integration/zcl.js')
 
 /**
  * HTTP GET: session key values

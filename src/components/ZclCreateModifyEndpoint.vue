@@ -105,6 +105,7 @@ export default {
     if (this.endpointReference != null) {
       this.newEndpoint.newEndpointId = this.endpointId[this.endpointReference]
       this.newEndpoint.newNetworkId = this.networkId[this.endpointReference]
+      this.newEndpoint.newVersion = this.endpointVersion[this.endpointReference]
       this.newEndpoint.newDeviceTypeRef = this.endpointDeviceTypeRef[
         this.endpointType[this.endpointReference]
       ]
@@ -146,6 +147,11 @@ export default {
         return this.$store.state.zap.endpointView.networkId
       },
     },
+    endpointVersion: {
+      get() {
+        return this.$store.state.zap.endpointView.endpointVersion
+      },
+    },
     endpointDeviceTypeRef: {
       get() {
         return this.$store.state.zap.endpointTypeView.deviceTypeRef
@@ -164,11 +170,13 @@ export default {
         .then((response) => {
           let eptId = parseInt(this.newEndpoint.newEndpointId)
           let nwkId = this.newEndpoint.newNetworkId
+          let epVersion = this.newEndpoint.newVersion
           this.$store
             .dispatch(`zap/addEndpoint`, {
               endpointId: eptId,
               networkId: nwkId,
               endpointType: response.id,
+              endpointVersion: epVersion,
             })
             .then((res) => {
               this.$store.dispatch('zap/updateSelectedEndpointType', {
@@ -209,19 +217,21 @@ export default {
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
-        context: {
-          id: endpointReference,
-          changes: [
-            {
-              updatedKey: RestApi.updateKey.endpointId,
-              value: parseInt(newEndpoint.newEndpointId, 16),
-            },
-            {
-              updatedKey: RestApi.updateKey.networkId,
-              value: newEndpoint.newNetworkId,
-            },
-          ],
-        },
+        id: endpointReference,
+        changes: [
+          {
+            updatedKey: RestApi.updateKey.endpointId,
+            value: parseInt(newEndpoint.newEndpointId, 16),
+          },
+          {
+            updatedKey: RestApi.updateKey.networkId,
+            value: newEndpoint.newNetworkId,
+          },
+          {
+            updatedKey: RestApi.updateKey.endpointVersion,
+            value: newEndpoint.newVersion,
+          },
+        ],
       })
 
       // collect all cluster id from new endpoint

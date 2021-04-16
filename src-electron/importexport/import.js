@@ -52,6 +52,7 @@ async function readDataFromFile(
 
 /**
  * Writes the data from the file into a new session.
+ * NOTE: This function does NOT initialize session packages.
  *
  * @export
  * @param {*} db

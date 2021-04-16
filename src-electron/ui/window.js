@@ -46,20 +46,13 @@ function windowCreateIfNotThere(port) {
   }
 }
 
-function createQueryString(uiMode = null, embeddedMode = null) {
+function createQueryString(uiMode = null) {
   let queryString = ''
   if (uiMode) {
     if (queryString.length == 0) {
       queryString = `?uiMode=${uiMode}`
     } else {
       queryString += `&uiMode=${uiMode}`
-    }
-  }
-  if (embeddedMode) {
-    if (queryString.length == 0) {
-      queryString = `?embeddedMode=${embeddedMode}`
-    } else {
-      queryString += `&embeddedMode=${embeddedMode}`
     }
   }
   return queryString
@@ -72,7 +65,6 @@ function createQueryString(uiMode = null, embeddedMode = null) {
  * @param {*} port
  * @param {*} [filePath=null]
  * @param {*} [uiMode=null]
- * @param {*} [embeddedMode=null]
  * @returns BrowserWindow that got created
  */
 function windowCreate(port, args = {}) {
@@ -94,12 +86,18 @@ function windowCreate(port, args = {}) {
     webPreferences: webPreferences,
   })
 
-  let queryString = createQueryString(args.uiMode, args.embeddedMode)
+  let queryString = createQueryString(args.uiMode)
 
   w.isDirty = false
   w.loadURL(`http://localhost:${port}/` + queryString).then(async () => {
     if (args.filePath != null) {
       browserApi.executeLoad(w, args.filePath)
+    }
+
+    if (args.debugNavBar) {
+      browserApi.debugNavBarOn(w)
+    } else {
+      browserApi.debugNavBarOff(w)
     }
   })
 

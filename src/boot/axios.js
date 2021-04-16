@@ -19,6 +19,7 @@ import Vue from 'vue'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import restApi from '../../src-shared/rest-api.js'
+import * as Util from '../util/util.js'
 
 Vue.prototype.$axios = axios({ withCredentials: true })
 
@@ -27,6 +28,21 @@ const log = true
 
 if (window.sessionStorage.getItem('session_uuid') == null) {
   window.sessionStorage.setItem('session_uuid', uuidv4())
+}
+
+/**
+ * URL rewriter that can come handy in development mode.
+ *
+ * @param {*} url
+ * @returns
+ */
+function fillUrl(url) {
+  let restPort = Util.getServerRestPort()
+  if (restPort != null) {
+    return `http://localhost:${restPort}${url}`
+  } else {
+    return url
+  }
 }
 
 /**
@@ -82,7 +98,7 @@ function fillConfig(config) {
  */
 function serverGet(url, config = null) {
   if (log) console.log(`GET → : ${url}, ${config}`)
-  return axios['get'](url, fillConfig(config))
+  return axios['get'](fillUrl(url), fillConfig(config))
     .then((response) => processResponse('GET', url, response))
     .catch((error) => console.log(error))
 }
@@ -95,7 +111,7 @@ function serverGet(url, config = null) {
  */
 function serverDelete(url, config = null) {
   if (log) console.log(`DELETE → : ${url}, ${config}`)
-  return axios['delete'](url, fillConfig(config))
+  return axios['delete'](fillUrl(url), fillConfig(config))
     .then((response) => processResponse('DELETE', url, response))
     .catch((error) => console.log(error))
 }
@@ -114,7 +130,7 @@ function serverDelete(url, config = null) {
  */
 function serverPost(url, data, config = null) {
   if (log) console.log(`POST → : ${url}, ${data}`)
-  return axios['post'](url, data, fillConfig(config))
+  return axios['post'](fillUrl(url), data, fillConfig(config))
     .then((response) => processResponse('POST', url, response))
     .catch((error) => console.log(error))
 }
@@ -132,7 +148,7 @@ function serverPost(url, data, config = null) {
  */
 function serverPut(url, data, config = null) {
   if (log) console.log(`PUT → : ${url}, ${data}`)
-  return axios['put'](url, data, fillConfig(config))
+  return axios['put'](fillUrl(url), data, fillConfig(config))
     .then((response) => processResponse('PUT', url, response))
     .catch((error) => console.log(error))
 }
@@ -145,7 +161,7 @@ function serverPut(url, data, config = null) {
  */
 function serverPatch(url, data, config = null) {
   if (log) console.log(`PATCH → : ${url}, ${data}`)
-  return axios['patch'](url, data, fillConfig(config))
+  return axios['patch'](fillUrl(url), data, fillConfig(config))
     .then((response) => processResponse('PATCH', url, response))
     .catch((error) => console.log(error))
 }

@@ -161,7 +161,6 @@ test('test-light isc read', async () => {
   expect(Object.keys(state.endpoint).length).toBe(3)
   expect(state.endpoint[2].endpoint).toBe(242)
   expect(state).not.toHaveProperty('parseState')
-  expect(state.clusterOverride.length).toBe(2)
   expect(state.attributeType.length).toBe(6)
 })
 
@@ -173,4 +172,9 @@ test('door-lock isc import', async () => {
   expect(endpointTypes.length).toBe(1)
   let endpoints = await queryConfig.getAllEndpoints(db, sid)
   expect(endpoints.length).toBe(1)
+  let clusterState = await queryConfig.getAllEndpointTypeClusterState(
+    db,
+    endpointTypes[0].id
+  )
+  expect(clusterState.length).toBe(107)
 }, 5000)

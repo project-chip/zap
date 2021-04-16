@@ -21,14 +21,36 @@ const scriptUtil = require('./script-util.js')
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 let startTime = process.hrtime()
+let args = process.argv.slice(2)
+let executor = null
+if (
+  args[0] == 'generate' ||
+  args[0] == 'selfCheck' ||
+  args[0] == 'analyze' ||
+  args[0] == 'convert' ||
+  args[0] == 'server'
+)
+  executor = 'node'
+else executor = 'electron'
 
 scriptUtil
   .stampVersion()
-  .then(() => scriptUtil.rebuildSpaIfNeeded())
-  .then((ctx) => {
-    let cmdArgs = ['src-electron/main-process/electron-main.dev.js']
-    cmdArgs.push(...process.argv.slice(2))
-    return scriptUtil.executeCmd(ctx, 'electron', cmdArgs)
+  .then(() => {
+    if (executor === 'electron') return scriptUtil.rebuildSpaIfNeeded()
+  })
+  .then(() => {
+    let cmdArgs = ['src-electron/main-process/electron-main.js']
+
+    if (executor === 'electron' && process.platform == 'linux') {
+      if (!process.env.DISPLAY) {
+        console.log(`
+⛔ You are on Linux and you are attempting to run zap in UI mode without DISPLAY set.
+⛔ Please set your DISPLAY environment variable or run zap-start.js with a command that does not require DISPLAY.`)
+        process.exit(1)
+      }
+    }
+    cmdArgs.push(...args)
+    return scriptUtil.executeCmd(null, executor, cmdArgs)
   })
   .then(() => {
     let endTime = process.hrtime(startTime)

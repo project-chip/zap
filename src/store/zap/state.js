@@ -74,6 +74,7 @@ export default function () {
       endpointId: {},
       endpointType: {},
       networkId: {},
+      endpointVersion: {},
       endpointIdValidationIssues: {},
       networkIdValidationIssues: {},
     },
@@ -114,15 +115,15 @@ export default function () {
     },
     calledArgs: {
       defaultUiMode: restApi.uiMode.ZIGBEE,
-      embeddedMode: false,
     },
+    debugNavBar: false, // default visibility mode for debug navigation bar
     studio: {
       projectInfoJson: [], // HTTP response from Studio jetty server
       ucComponents: [],
       selectedUcComponents: [], // [] of 'studio..' prefixed Studio internal component ids
       selectedUcComponentIds: [], // [] of 'zigbee_' prefixed component ids
       // a list of dict: { "clusterCode": "$zcl_cluster-$zcl_role", "value": ["$uc_component_id"] }
-      zclSdkExtClusterToUcComponentMap: [], 
+      zclSdkExtClusterToUcComponentMap: [],
     },
   }
 }

@@ -73,7 +73,7 @@ limitations under the License.
           <div class="col-md-6">
             <strong>Version</strong>
           </div>
-          <div class="col-md-6">1</div>
+          <div class="col-md-6">{{ endpointVersion[endpointReference] }}</div>
         </q-item>
       </q-list>
       <q-card-actions class="q-gutter-xs">
@@ -149,6 +149,11 @@ export default {
     networkId: {
       get() {
         return this.$store.state.zap.endpointView.networkId
+      },
+    },
+    endpointVersion: {
+      get() {
+        return this.$store.state.zap.endpointView.endpointVersion
       },
     },
     endpointTypeName: {

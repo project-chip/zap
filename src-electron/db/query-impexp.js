@@ -39,8 +39,10 @@ INSERT INTO ENDPOINT (
   ENDPOINT_TYPE_REF,
   PROFILE,
   ENDPOINT_IDENTIFIER,
-  NETWORK_IDENTIFIER
+  NETWORK_IDENTIFIER,
+  ENDPOINT_VERSION
 ) VALUES (
+  ?,
   ?,
   ?,
   ?,
@@ -54,6 +56,7 @@ INSERT INTO ENDPOINT (
       endpoint.profileId,
       endpoint.endpointId,
       endpoint.networkId,
+      endpoint.endpointVersion,
     ]
   )
 }
@@ -77,6 +80,7 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
       profileId: x.PROFILE,
       endpointId: x.ENDPOINT_IDENTIFIER,
       networkId: x.NETWORK_IDENTIFIER,
+      endpointVersion: x.ENDPOINT_VERSION,
     }
   }
   return dbApi
@@ -88,7 +92,8 @@ SELECT
   ENDPOINT.ENDPOINT_TYPE_REF,
   ENDPOINT.PROFILE,
   ENDPOINT.ENDPOINT_IDENTIFIER,
-  ENDPOINT.NETWORK_IDENTIFIER
+  ENDPOINT.NETWORK_IDENTIFIER,
+  ENDPOINT.ENDPOINT_VERSION
 FROM
   ENDPOINT
 LEFT JOIN

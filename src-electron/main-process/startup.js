@@ -89,6 +89,7 @@ async function startNormal(
           .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort, {
             zcl: argv.zclProperties,
             template: argv.generationTemplate,
+            allowCors: argv.allowCors,
           })
           .then(() => {
             ipcServer.initServer(ctx.db, argv.httpPort)
@@ -136,10 +137,15 @@ async function startNormal(
  */
 function outputFile(inputFile, outputPattern) {
   let output = outputPattern
+  let hadDir = false
+
   if (output.startsWith('{dir}/')) {
     let dir = path.dirname(inputFile)
     output = path.join(dir, output.substring(6))
-  } else if (output.includes('{')) {
+    hadDir = true
+  }
+
+  if (output.includes('{')) {
     let dir = path.dirname(inputFile)
     let name = path.basename(inputFile)
     let basename
@@ -151,9 +157,41 @@ function outputFile(inputFile, outputPattern) {
     }
     output = output.replace('{name}', name)
     output = output.replace('{basename}', basename)
-    output = path.join(dir, output)
+    if (!hadDir) output = path.join(dir, output)
   }
   return output
+}
+
+const BLANK_SESSION = '-- blank session --'
+/**
+ * This method gathers all the files to process.
+ *
+ * @param {*} filesArg array of files arguments
+ * @param {*} options
+ */
+function gatherFiles(filesArg, options = { suffix: '.zap', doBlank: true }) {
+  let list = []
+  if (filesArg == null || filesArg.length == 0) {
+    if (options.doBlank) list.push(BLANK_SESSION)
+  } else {
+    filesArg.forEach((f) => {
+      let stat = fs.statSync(f)
+      if (stat.isDirectory()) {
+        let dirents = fs.readdirSync(f, { withFileTypes: true })
+        dirents.forEach((element) => {
+          if (
+            element.name.endsWith(options.suffix.toLowerCase()) ||
+            element.name.endsWith(options.suffix.toUpperCase())
+          ) {
+            list.push(path.join(f, element.name))
+          }
+        })
+      } else {
+        list.push(f)
+      }
+    })
+  }
+  return list
 }
 
 /**
@@ -171,9 +209,9 @@ async function startConvert(
 ) {
   let files = argv.zapFiles
   let output = argv.output
-  options.logger(`🤖 Conversion started`)
-  options.logger(`    🔍 input files: ${files}`)
-  options.logger(`    🔍 output pattern: ${output}`)
+  options.logger(`🤖 Conversion started
+    🔍 input files: ${files}
+    🔍 output pattern: ${output}`)
 
   let dbFile = env.sqliteFile('convert')
   let db = await dbApi.initDatabaseAndLoadSchema(
@@ -320,6 +358,7 @@ async function startServer(argv, options = {}) {
         .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort, {
           zcl: argv.zclProperties,
           template: argv.generationTemplate,
+          allowCors: argv.allowCors,
         })
         .then(() => {
           ipcServer.initServer(ctx.db, argv.httpPort)
@@ -389,6 +428,46 @@ async function startSelfCheck(
     })
 }
 
+async function generateSingleFile(
+  db,
+  f,
+  packageId,
+  outputPattern,
+  options = {
+    logger: console.log,
+    zcl: env.builtinSilabsZclMetafile,
+    template: env.builtinTemplateMetafile,
+  }
+) {
+  let sessionId
+  let output
+  if (f === BLANK_SESSION) {
+    options.logger(`👉 using empty configuration`)
+    sessionId = await querySession.createBlankSession(db)
+    output = outputPattern
+  } else {
+    options.logger(`👉 using input file: ${f}`)
+    let importResult = await importJs.importDataFromFile(db, f)
+    sessionId = importResult.sessionId
+    output = outputFile(f, outputPattern)
+  }
+  options.logger(`👉 using output destination: ${output}`)
+
+  await util.initializeSessionPackage(db, sessionId, options)
+
+  let genResult = await generatorEngine.generateAndWriteFiles(
+    db,
+    sessionId,
+    packageId,
+    output,
+    options
+  )
+
+  if (genResult.hasErrors) throw new Error(`Generation failed: ${f}`)
+
+  return genResult
+}
+
 /**
  * Performs headless regeneration for given parameters.
  *
@@ -410,53 +489,14 @@ async function startGeneration(
   let skipPostGeneration = argv.skipPostGeneration
 
   options.logger(
-    `🤖 ZAP generation information: 
-    👉 into: ${output}
-    👉 using templates: ${templateMetafile}
-    👉 using zcl data: ${zclProperties}`
+    `🤖 ZAP generation started: 
+    🔍 input files: ${zapFiles}
+    🔍 output pattern: ${output}
+    🔍 using templates: ${templateMetafile}
+    🔍 using zcl data: ${zclProperties}
+    🔍 zap version: ${env.zapVersionAsString()}`
   )
-  let zapFile = null
-  if (zapFiles != null && zapFiles.length > 0) {
-    zapFile = zapFiles[0]
-    if (zapFiles.length > 1) {
-      options.logger(`    ⚠️  Multiple files passed. Using only first one.`)
-    }
-  }
-  if (zapFile != null) {
-    if (fs.existsSync(zapFile)) {
-      let stat = fs.statSync(zapFile)
-      if (stat.isDirectory()) {
-        options.logger(`    👉 using input directory: ${zapFile}`)
-        let dirents = fs.readdirSync(zapFile, { withFileTypes: true })
-        let usedFile = []
-        dirents.forEach((element) => {
-          if (element.name.endsWith('.zap') || element.name.endsWith('.ZAP')) {
-            usedFile.push(path.join(zapFile, element.name))
-          }
-        })
-        if (usedFile.length == 0) {
-          options.logger(`    👎 no zap files found in directory: ${zapFile}`)
-          throw `👎 no zap files found in directory: ${zapFile}`
-        } else if (usedFile.length > 1) {
-          options.logger(
-            `    👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
-          )
-          throw `👎 multiple zap files found in directory, only one is allowed: ${zapFile}`
-        } else {
-          zapFile = usedFile[0]
-          options.logger(`    👉 using input file: ${zapFile}`)
-        }
-      } else {
-        options.logger(`    👉 using input file: ${zapFile}`)
-      }
-    } else {
-      options.logger(`    👎 file not found: ${zapFile}`)
-      throw `👎 file not found: ${zapFile}`
-    }
-  } else {
-    options.logger(`    👉 using empty configuration`)
-  }
-  options.logger(`    👉 zap version: ${env.zapVersionAsString()}`)
+
   let dbFile = env.sqliteFile('generate')
   if (options.cleanDb && fs.existsSync(dbFile)) fs.unlinkSync(dbFile)
   let mainDb = await dbApi.initDatabaseAndLoadSchema(
@@ -464,43 +504,31 @@ async function startGeneration(
     env.schemaFile(),
     env.zapVersion()
   )
+
   let ctx = await zclLoader.loadZcl(mainDb, zclProperties)
   ctx = await generatorEngine.loadTemplates(ctx.db, templateMetafile)
   if (ctx.error) {
     throw ctx.error
   }
-  let packageId = ctx.packageId
 
-  let sessionId
-  if (zapFile == null) {
-    sessionId = await querySession.createBlankSession(mainDb)
-  } else {
-    let importResult = await importJs.importDataFromFile(mainDb, zapFile)
-    sessionId = importResult.sessionId
+  let files = gatherFiles(zapFiles, { suffix: '.zap', doBlank: true })
+  if (files.length == 0) {
+    options.logger(`    👎 no zap files found in: ${zapFiles}`)
+    throw `👎 no zap files found in: ${zapFiles}`
   }
 
-  await util.initializeSessionPackage(mainDb, sessionId, {
-    zcl: zclProperties,
-    template: templateMetafile,
-  })
+  options.zcl = zclProperties
+  options.template = templateMetafile
+  options.backup = false
+  options.genResultFile = genResultFile
+  options.skipPostGeneration = skipPostGeneration
+  let packageId = ctx.packageId
 
-  let genResult = await generatorEngine.generateAndWriteFiles(
-    mainDb,
-    sessionId,
-    packageId,
-    output,
-    {
-      logger: options.logger,
-      backup: false,
-      genResultFile: genResultFile,
-      skipPostGeneration: skipPostGeneration,
-    }
+  await util.executePromisesSequentially(files, (f) =>
+    generateSingleFile(mainDb, f, packageId, output, options)
   )
 
-  if (genResult.hasErrors) throw 'Generation failed.'
   if (options.quit && app != null) app.quit()
-
-  return genResult
 }
 /**
  * Move database file out of the way into the backup location.

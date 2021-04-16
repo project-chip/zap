@@ -27,7 +27,7 @@ test('Make sure electron main process loads', () => {
 
 test('Test constructing queries for the window', () => {
   let query = window.createQueryString('um', 'em')
-  expect(query).toBe(`?uiMode=um&embeddedMode=em`)
+  expect(query).toBe(`?uiMode=um`)
   query = window.createQueryString()
   expect(query).toBe(``)
 })
