@@ -97,12 +97,6 @@ async function debugNavBar(browserWindow, flag) {
   )
 }
 
-async function debugNavBarOff(browserWindow) {
-  await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.debugNavBarOff}')`
-  )
-}
-
 async function setTheme(browserWindow, theme) {
   await browserWindow.webContents.executeJavaScript(
     `window.global_renderer_api_execute('${restApi.rendererApiId.setTheme}', '${theme}')`

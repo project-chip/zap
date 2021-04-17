@@ -29,9 +29,11 @@ if (
   args[0] == 'analyze' ||
   args[0] == 'convert' ||
   args[0] == 'server'
-)
+) {
   executor = 'node'
-else executor = 'electron'
+} else {
+  executor = 'electron'
+}
 
 scriptUtil
   .stampVersion()

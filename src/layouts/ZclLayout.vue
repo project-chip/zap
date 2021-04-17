@@ -27,15 +27,13 @@ limitations under the License.
       </q-card>
     </q-dialog>
     <div class="q-gutter-y-md height: 10vh">
-      <q-toolbar
-        class="shadow-2"
-        v-if="this.$store.state.zap.debugNavBar"
-      >
+      <q-toolbar class="shadow-2" v-if="this.$store.state.zap.debugNavBar">
         <q-tabs flat v-model="tab">
           <q-tab name="general" label="General" />
           <q-tab :name="restApi.uiMode.ZIGBEE" label="ZCL" />
         </q-tabs>
         <q-space />
+        <q-btn flat @click="toggleTheme()" label="Dark/Light" />
         <q-btn
           flat
           @click="generateIntoDirectory(generationDirectory)"
@@ -162,6 +160,14 @@ export default {
     },
     regenerateIntoDirectory(currentPath) {
       this.doGeneration(currentPath)
+    },
+    toggleTheme() {
+      let theme = observable.getObservableAttribute(restApi.themeData)
+      if (theme == 'dark') {
+        observable.setObservableAttribute(restApi.themeData, 'light')
+      } else {
+        observable.setObservableAttribute(restApi.themeData, 'dark')
+      }
     },
     generateIntoDirectory(currentPath) {
       window.global_renderer_notify(restApi.rendererApiNotifyKey.fileBrowse, {

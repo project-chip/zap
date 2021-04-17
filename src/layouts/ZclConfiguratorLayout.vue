@@ -17,13 +17,8 @@ limitations under the License.
 <template>
   <div>
     <q-layout view="hHh Lpr lFf">
-      <q-header
-        elevated
-        bordered
-        height-hint="500"
-        class="shadow-2 zclConfiguratorLayoutHeader"
-      >
-        <q-toolbar bordered class="shadow-2 zclConfiguratorLayoutHeader">
+      <q-header elevated bordered height-hint="500" class="shadow-2">
+        <q-toolbar bordered class="shadow-2">
           <q-toolbar-title v-on:click.ctrl="showVersion">
             Zigbee Cluster Configurator
           </q-toolbar-title>

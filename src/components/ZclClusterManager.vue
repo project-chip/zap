@@ -43,7 +43,6 @@ limitations under the License.
               outlined
               :value="filter"
               :options="filterOptions"
-              bg-color="white"
               dense
               class="col-2"
               @input="changeDomainFilter($event)"
@@ -54,7 +53,6 @@ limitations under the License.
         <q-input
           dense
           outlined
-          bg-color="white"
           class="col-4"
           placeholder="Search Clusters"
           @input="changeFilterString($event)"
@@ -195,7 +193,6 @@ export default {
 <!-- Notice lang="scss" -->
 <style lang="scss">
 .bar {
-  background-color: $grey-4;
   padding: 15px 15px 15px 15px;
 }
 </style>

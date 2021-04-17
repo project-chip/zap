@@ -77,6 +77,9 @@ export default {
     },
   },
   mounted() {
+    let theme = observable.getObservableAttribute(restApi.themeData)
+    this.setThemeMode(theme)
+
     this.$q.loading.show({
       spinner: QSpinnerGears,
       messageColor: 'white',
