@@ -101,8 +101,7 @@ exports.rendererApiId = {
   progressStart: 'progressStart',
   progressEnd: 'progressEnd',
   reportFiles: 'reportFiles',
-  debugNavBarOn: 'debugNavBarOn',
-  debugNavBarOff: 'debugNavBarOff',
+  debugNavBar: 'debugNavBar',
   setTheme: 'setTheme',
 }
 

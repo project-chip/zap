@@ -104,6 +104,19 @@ const template = (httpPort) => [
         },
       },
       { type: 'separator' },
+      {
+        label: 'Show debug navigation bar',
+        click(menuItem, browserWindow) {
+          browserApi.debugNavBar(browserWindow, true)
+        },
+      },
+      {
+        label: 'Hide debug navigation bar',
+        click(menuItem, browserWindow) {
+          browserApi.debugNavBar(browserWindow, false)
+        },
+      },
+      { type: 'separator' },
       { role: 'reload' },
       { role: 'forceReload' },
       { role: 'toggleDevTools' },
@@ -166,18 +179,6 @@ const template = (httpPort) => [
         label: 'End progress',
         click(menuItem, browserWindow) {
           browserApi.progressEnd(browserWindow)
-        },
-      },
-      {
-        label: 'Show debug navigation bar',
-        click(menuItem, browserWindow) {
-          browserApi.debugNavBarOn(browserWindow)
-        },
-      },
-      {
-        label: 'Hide debug navigation bar',
-        click(menuItem, browserWindow) {
-          browserApi.debugNavBarOff(browserWindow)
         },
       },
       {

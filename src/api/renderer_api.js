@@ -60,12 +60,8 @@ function renderer_api_info() {
         description: 'End progress indicator.',
       },
       {
-        id: restApi.rendererApiId.debugNavBarOn,
-        description: 'Show debug navigation bar',
-      },
-      {
-        id: restApi.rendererApiId.debugNavBarOff,
-        description: 'Hide debug navigation bar',
+        id: restApi.rendererApiId.debugNavBar,
+        description: 'Show debug navigation bar...',
       },
       {
         id: restApi.rendererApiId.setTheme,
@@ -115,11 +111,8 @@ function renderer_api_execute(id, ...args) {
         JSON.parse(args[0])
       )
       break
-    case restApi.rendererApiId.debugNavBarOn:
-      observable.setObservableAttribute(restApi.debugNavBar, true)
-      break
-    case restApi.rendererApiId.debugNavBarOff:
-      observable.setObservableAttribute(restApi.debugNavBar, false)
+    case restApi.rendererApiId.debugNavBar:
+      observable.setObservableAttribute(restApi.debugNavBar, args[0])
       break
     case restApi.rendererApiId.setTheme:
       observable.setObservableAttribute(restApi.themeData, args[0])
