@@ -103,11 +103,31 @@ async function setTheme(browserWindow, theme) {
   )
 }
 
-async function getFileLocation(browserWindow, key) {
-  return null
+async function getFileLocation(browserWindow, fileCategory) {
+  return getStorageItem(browserWindow, 'lastFileLocation_' + fileCategory)
 }
 
-async function saveFileLocation(browserWindow, key, path) {}
+async function saveFileLocation(browserWindow, fileCategory, path) {
+  setStorageItem(browserWindow, 'lastFileLocation_' + fileCategory, path)
+}
+
+async function setStorageItem(browserWindow, key, value) {
+  return browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${restApi.rendererApiId.setStorageItem}', '${key}', '${value}')`
+  )
+}
+
+async function removeStorageItem(browserWindow, key) {
+  return browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${restApi.rendererApiId.removeStorageItem}', '${key}')`
+  )
+}
+
+async function getStorageItem(browserWindow, key) {
+  return browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${restApi.rendererApiId.getStorageItem}', '${key}')`
+  )
+}
 
 /**
  * This method takes a message and checks if it's a renderer API
@@ -205,3 +225,6 @@ exports.processRendererNotify = processRendererNotify
 exports.getFileLocation = getFileLocation
 exports.saveFileLocation = saveFileLocation
 exports.setTheme = setTheme
+exports.setStorageItem = setStorageItem
+exports.getStorageItem = getStorageItem
+exports.removeStorageItem = removeStorageItem

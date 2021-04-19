@@ -90,9 +90,13 @@ const updateKey = {
   attributeStorage: 'storageOption',
 }
 
-const param = {
+exports.param = {
   sessionId: 'sessionId',
   path: 'path',
+}
+
+exports.fileLocationCategory = {
+  save: 'openFileSave',
 }
 
 exports.rendererApiId = {
@@ -103,6 +107,9 @@ exports.rendererApiId = {
   reportFiles: 'reportFiles',
   debugNavBar: 'debugNavBar',
   setTheme: 'setTheme',
+  setStorageItem: 'setStorageItem',
+  getStorageItem: 'getStorageItem',
+  removeStorageItem: 'removeStorageItem',
 }
 
 exports.rendererApiNotifyKey = {
@@ -121,4 +128,3 @@ exports.uiMode = uiMode
 exports.uc = uc
 exports.ide = ide
 exports.updateKey = updateKey
-exports.param = param

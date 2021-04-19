@@ -17,6 +17,7 @@
 
 const observable = require('../util/observable.js')
 const restApi = require('../../src-shared/rest-api.js')
+const storage = require('../util/storage.js')
 
 // This file provide glue logic to enable function calls & HTML attribute data change listener logic
 // between front-end containers (jxBrowser, Electron, etc) and the node.js
@@ -67,6 +68,18 @@ function renderer_api_info() {
         id: restApi.rendererApiId.setTheme,
         description: 'Set theme...',
       },
+      {
+        id: restApi.rendererApiId.setItem,
+        description: 'Set item...',
+      },
+      {
+        id: restApi.rendererApiId.getItem,
+        description: 'Get item...',
+      },
+      {
+        id: restApi.rendererApiId.removeItem,
+        description: 'Remove item...',
+      },
     ],
   }
 }
@@ -116,6 +129,16 @@ function renderer_api_execute(id, ...args) {
       break
     case restApi.rendererApiId.setTheme:
       observable.setObservableAttribute(restApi.themeData, args[0])
+      break
+    case restApi.rendererApiId.setStorageItem:
+      storage.setItem(args[0], args[1])
+      break
+    case restApi.rendererApiId.getStorageItem:
+      ret = storage.getItem(args[0])
+      break
+    case restApi.rendererApiId.removeStorageItem:
+      storage.removeItem(args[0])
+      break
   }
   return ret
 }
