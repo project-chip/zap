@@ -214,7 +214,6 @@ function doOpen(browserWindow, httpPort) {
   browserApi
     .getFileLocation(browserWindow, restApi.fileLocationCategory.save)
     .then((filePath) => {
-      console.log(`Got file path: ${filePath}`)
       let opts = {
         title: 'Select ZAP or ISC file to load.',
         properties: ['openFile', 'multiSelections'],
