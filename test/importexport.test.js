@@ -177,4 +177,11 @@ test('door-lock isc import', async () => {
     endpointTypes[0].id
   )
   expect(clusterState.length).toBe(107)
+
+  let drp = await querySession.getSessionKeyValue(
+    db,
+    sid,
+    dbEnum.sessionOption.defaultResponsePolicy
+  )
+  expect(drp).toBe('conditional')
 }, 5000)

@@ -403,6 +403,27 @@ async function insertSessionKeyValue(db, sessionId, key, value) {
 }
 
 /**
+ * Promises to insert a whole batch of key/value pairs.
+ * Any key/value inside object is loaded.
+ *
+ * @param {*} db
+ * @param {*} session
+ * @param {*} object
+ * @returns Promise of multi-insert of all attributes inside object.
+ */
+async function insertSessionKeyValues(db, sessionId, object) {
+  let args = []
+  for (const [key, value] of Object.entries(object)) {
+    args.push([sessionId, key, value])
+  }
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT OR REPLACE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
+    args
+  )
+}
+
+/**
  * Retrieves a value of a single session key.
  *
  * @param {*} db
@@ -457,6 +478,7 @@ exports.writeLog = writeLog
 exports.readLog = readLog
 exports.updateSessionKeyValue = updateSessionKeyValue
 exports.insertSessionKeyValue = insertSessionKeyValue
+exports.insertSessionKeyValues = insertSessionKeyValues
 exports.getSessionKeyValue = getSessionKeyValue
 exports.getAllSessionKeyValues = getAllSessionKeyValues
 exports.ensureUser = ensureUser
