@@ -99,24 +99,6 @@ exports.fileLocationCategory = {
   save: 'openFileSave',
 }
 
-exports.rendererApiId = {
-  open: 'open',
-  save: 'save',
-  progressStart: 'progressStart',
-  progressEnd: 'progressEnd',
-  reportFiles: 'reportFiles',
-  debugNavBar: 'debugNavBar',
-  setTheme: 'setTheme',
-  setStorageItem: 'setStorageItem',
-  getStorageItem: 'getStorageItem',
-  removeStorageItem: 'removeStorageItem',
-}
-
-exports.rendererApiNotifyKey = {
-  dirtyFlag: 'dirtyFlag',
-  fileBrowse: 'fileBrowse',
-}
-
 exports.progress_attribute = 'progress-message'
 exports.reported_files = 'reported-files'
 exports.debugNavBar = 'debugNavBar'

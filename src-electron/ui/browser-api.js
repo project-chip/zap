@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-const restApi = require('../../src-shared/rest-api.js')
+const rendApi = require('../../src-shared/rend-api.js')
 const uiUtil = require('./ui-util.js')
 const env = require('../util/env.js')
 
@@ -79,27 +79,27 @@ async function executeSave(browserWindow, path) {
 
 async function progressEnd(browserWindow) {
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.progressEnd}')`
+    `window.global_renderer_api_execute('${rendApi.id.progressEnd}')`
   )
 }
 
 async function progressStart(browserWindow, message) {
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.progressStart}', '${message}')`
+    `window.global_renderer_api_execute('${rendApi.id.progressStart}', '${message}')`
   )
 }
 
 async function debugNavBar(browserWindow, flag) {
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${
-      restApi.rendererApiId.debugNavBar
-    }', ${flag ? 'true' : 'false'})`
+    `window.global_renderer_api_execute('${rendApi.id.debugNavBar}', ${
+      flag ? 'true' : 'false'
+    })`
   )
 }
 
 async function setTheme(browserWindow, theme) {
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.setTheme}', '${theme}')`
+    `window.global_renderer_api_execute('${rendApi.id.setTheme}', '${theme}')`
   )
 }
 
@@ -113,19 +113,19 @@ async function saveFileLocation(browserWindow, fileCategory, path) {
 
 async function setStorageItem(browserWindow, key, value) {
   return browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.setStorageItem}', '${key}', '${value}')`
+    `window.global_renderer_api_execute('${rendApi.id.setStorageItem}', '${key}', '${value}')`
   )
 }
 
 async function removeStorageItem(browserWindow, key) {
   return browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.removeStorageItem}', '${key}')`
+    `window.global_renderer_api_execute('${rendApi.id.removeStorageItem}', '${key}')`
   )
 }
 
 async function getStorageItem(browserWindow, key) {
   return browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.getStorageItem}', '${key}')`
+    `window.global_renderer_api_execute('${rendApi.id.getStorageItem}', '${key}')`
   )
 }
 
@@ -138,13 +138,13 @@ async function getStorageItem(browserWindow, key) {
  * @returns true if message was a notify message and was consumed.
  */
 function processRendererNotify(browserWindow, message) {
-  if (message.startsWith('rendererApiJson:')) {
-    let obj = JSON.parse(message.slice('rendererApiJson:'.length))
+  if (message.startsWith(rendApi.jsonPrefix)) {
+    let obj = JSON.parse(message.slice(rendApi.jsonPrefix.length))
     switch (obj.key) {
-      case restApi.rendererApiNotifyKey.dirtyFlag:
+      case rendApi.notifyKey.dirtyFlag:
         uiUtil.toggleDirtyFlag(browserWindow, obj.value)
         return true
-      case restApi.rendererApiNotifyKey.fileBrowse:
+      case rendApi.notifyKey.fileBrowse:
         uiUtil.openFileDialogAndReportResult(browserWindow, obj.value)
         return true
       default:
@@ -164,7 +164,7 @@ function processRendererNotify(browserWindow, message) {
 async function reportFiles(browserWindow, result) {
   let resultJson = JSON.stringify(result)
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.reportFiles}', '${resultJson}')`
+    `window.global_renderer_api_execute('${rendApi.id.reportFiles}', '${resultJson}')`
   )
 }
 

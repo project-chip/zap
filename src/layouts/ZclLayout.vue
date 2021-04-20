@@ -142,6 +142,7 @@ import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
 const restApi = require(`../../src-shared/rest-api.js`)
+const rendApi = require(`../../src-shared/rend-api.js`)
 const observable = require('../util/observable.js')
 
 export default {
@@ -149,13 +150,13 @@ export default {
   methods: {
     doGeneration(path) {
       window.global_renderer_api_execute(
-        restApi.rendererApiId.progressStart,
+        rendApi.id.progressStart,
         'Generating files...'
       )
       this.$serverPut(restApi.uri.generate, {
         generationDirectory: path,
       }).finally(() => {
-        window.global_renderer_api_execute(restApi.rendererApiId.progressEnd)
+        window.global_renderer_api_execute(rendApi.id.progressEnd)
       })
     },
     regenerateIntoDirectory(currentPath) {
@@ -170,7 +171,7 @@ export default {
       }
     },
     generateIntoDirectory(currentPath) {
-      window.global_renderer_notify(restApi.rendererApiNotifyKey.fileBrowse, {
+      window.global_renderer_notify(rendApi.notifyKey.fileBrowse, {
         context: 'generateDir',
         title: 'Select directory to generate into',
         mode: 'directory',

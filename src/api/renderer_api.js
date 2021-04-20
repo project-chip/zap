@@ -18,6 +18,7 @@
 const observable = require('../util/observable.js')
 const restApi = require('../../src-shared/rest-api.js')
 const storage = require('../util/storage.js')
+const rendApi = require('../../src-shared/rend-api.js')
 
 // This file provide glue logic to enable function calls & HTML attribute data change listener logic
 // between front-end containers (jxBrowser, Electron, etc) and the node.js
@@ -41,43 +42,43 @@ function renderer_api_info() {
     description: 'Zap Renderer API',
     functions: [
       {
-        id: restApi.rendererApiId.open,
+        id: rendApi.id.open,
         description: 'Open file...',
       },
       {
-        id: restApi.rendererApiId.save,
+        id: rendApi.id.save,
         description: 'Save file...',
       },
       {
-        id: restApi.rendererApiId.reportFiles,
+        id: rendApi.id.reportFiles,
         description: 'Reports files selected by the renderer.',
       },
       {
-        id: restApi.rendererApiId.progressStart,
+        id: rendApi.id.progressStart,
         description: 'Start progress indicator.',
       },
       {
-        id: restApi.rendererApiId.progressEnd,
+        id: rendApi.id.progressEnd,
         description: 'End progress indicator.',
       },
       {
-        id: restApi.rendererApiId.debugNavBar,
+        id: rendApi.id.debugNavBar,
         description: 'Show debug navigation bar...',
       },
       {
-        id: restApi.rendererApiId.setTheme,
+        id: rendApi.id.setTheme,
         description: 'Set theme...',
       },
       {
-        id: restApi.rendererApiId.setItem,
+        id: rendApi.id.setItem,
         description: 'Set item...',
       },
       {
-        id: restApi.rendererApiId.getItem,
+        id: rendApi.id.getItem,
         description: 'Get item...',
       },
       {
-        id: restApi.rendererApiId.removeItem,
+        id: rendApi.id.removeItem,
         description: 'Remove item...',
       },
     ],
@@ -106,37 +107,37 @@ function fnSave(zap_file) {
 function renderer_api_execute(id, ...args) {
   let ret = null
   switch (id) {
-    case restApi.rendererApiId.open:
+    case rendApi.id.open:
       ret = fnOpen.apply(null, args)
       break
-    case restApi.rendererApiId.save:
+    case rendApi.id.save:
       ret = fnSave.apply(null, args)
       break
-    case restApi.rendererApiId.progressStart:
+    case rendApi.id.progressStart:
       observable.setObservableAttribute(restApi.progress_attribute, args[0])
       break
-    case restApi.rendererApiId.progressEnd:
+    case rendApi.id.progressEnd:
       observable.setObservableAttribute(restApi.progress_attribute, '')
       break
-    case restApi.rendererApiId.reportFiles:
+    case rendApi.id.reportFiles:
       observable.setObservableAttribute(
         restApi.reported_files,
         JSON.parse(args[0])
       )
       break
-    case restApi.rendererApiId.debugNavBar:
+    case rendApi.id.debugNavBar:
       observable.setObservableAttribute(restApi.debugNavBar, args[0])
       break
-    case restApi.rendererApiId.setTheme:
+    case rendApi.id.setTheme:
       observable.setObservableAttribute(restApi.themeData, args[0])
       break
-    case restApi.rendererApiId.setStorageItem:
+    case rendApi.id.setStorageItem:
       storage.setItem(args[0], args[1])
       break
-    case restApi.rendererApiId.getStorageItem:
+    case rendApi.id.getStorageItem:
       ret = storage.getItem(args[0])
       break
-    case restApi.rendererApiId.removeStorageItem:
+    case rendApi.id.removeStorageItem:
       storage.removeItem(args[0])
       break
   }
@@ -144,7 +145,9 @@ function renderer_api_execute(id, ...args) {
 }
 
 function renderer_notify(key, value) {
-  console.log(`rendererApiJson:${JSON.stringify({ key: key, value: value })}`)
+  console.log(
+    `${rendApi.jsonPrefix}${JSON.stringify({ key: key, value: value })}`
+  )
 }
 
 exports.renderer_api_info = renderer_api_info

@@ -98,6 +98,7 @@ limitations under the License.
 <script>
 import CommonMixin from '../util/common-mixin'
 import restApi from '../../src-shared/rest-api.js'
+import rendApi from '../../src-shared/rend-api.js'
 const observable = require('../util/observable.js')
 
 export default {
@@ -108,7 +109,7 @@ export default {
       return fileName.length > 0 ? fileName[0] : path
     },
     browseForFile() {
-      window.global_renderer_notify(restApi.rendererApiNotifyKey.fileBrowse, {
+      window.global_renderer_notify(rendApi.notifyKey.fileBrowse, {
         context: 'customXml',
         title: 'Select an XML file containing custom ZCL objects',
         mode: 'file',

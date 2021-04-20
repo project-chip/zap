@@ -18,6 +18,7 @@ import Vue from 'vue'
 import Events from 'events'
 import dbEnum from '../../src-shared/db-enum.js'
 import restApi from '../../src-shared/rest-api.js'
+import rendApi from '../../src-shared/rend-api.js'
 import { Notify } from 'quasar'
 import * as Util from '../util/util.js'
 const http = require('http-status-codes')
@@ -108,7 +109,7 @@ onWebSocket(dbEnum.wsCategory.tick, (data) =>
 )
 
 onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) => {
-  window.global_renderer_notify(restApi.rendererApiNotifyKey.dirtyFlag, data)
+  window.global_renderer_notify(rendApi.notifyKey.dirtyFlag, data)
 })
 
 onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
