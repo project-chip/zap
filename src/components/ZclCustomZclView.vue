@@ -97,7 +97,6 @@ limitations under the License.
 
 <script>
 import CommonMixin from '../util/common-mixin'
-import restApi from '../../src-shared/rest-api.js'
 import rendApi from '../../src-shared/rend-api.js'
 const observable = require('../util/observable.js')
 
@@ -138,11 +137,14 @@ export default {
   mounted() {
     if (this.$serverGet != null) {
       this.$store.dispatch('zap/getProjectPackages')
-      observable.observeAttribute(restApi.reported_files, (value) => {
-        if (value.context == 'customXml') {
-          this.packageToLoad = value.filePaths[0]
+      observable.observeAttribute(
+        rendApi.observable.reported_files,
+        (value) => {
+          if (value.context == 'customXml') {
+            this.packageToLoad = value.filePaths[0]
+          }
         }
-      })
+      )
     }
   },
   data() {

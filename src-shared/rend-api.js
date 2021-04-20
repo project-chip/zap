@@ -33,3 +33,10 @@ exports.notifyKey = {
 }
 
 exports.jsonPrefix = 'rendererApiJson:'
+
+exports.observable = {
+  progress_attribute: 'progress-message',
+  reported_files: 'reported-files',
+  debugNavBar: 'debugNavBar',
+  themeData: 'data-theme',
+}

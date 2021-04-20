@@ -99,11 +99,6 @@ exports.fileLocationCategory = {
   save: 'openFileSave',
 }
 
-exports.progress_attribute = 'progress-message'
-exports.reported_files = 'reported-files'
-exports.debugNavBar = 'debugNavBar'
-exports.themeData = 'data-theme'
-
 exports.uri = uri
 exports.httpCode = httpCode
 exports.uiMode = uiMode

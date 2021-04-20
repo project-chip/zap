@@ -114,22 +114,28 @@ function renderer_api_execute(id, ...args) {
       ret = fnSave.apply(null, args)
       break
     case rendApi.id.progressStart:
-      observable.setObservableAttribute(restApi.progress_attribute, args[0])
+      observable.setObservableAttribute(
+        rendApi.observable.progress_attribute,
+        args[0]
+      )
       break
     case rendApi.id.progressEnd:
-      observable.setObservableAttribute(restApi.progress_attribute, '')
+      observable.setObservableAttribute(
+        rendApi.observable.progress_attribute,
+        ''
+      )
       break
     case rendApi.id.reportFiles:
       observable.setObservableAttribute(
-        restApi.reported_files,
+        rendApi.observable.reported_files,
         JSON.parse(args[0])
       )
       break
     case rendApi.id.debugNavBar:
-      observable.setObservableAttribute(restApi.debugNavBar, args[0])
+      observable.setObservableAttribute(rendApi.observable.debugNavBar, args[0])
       break
     case rendApi.id.setTheme:
-      observable.setObservableAttribute(restApi.themeData, args[0])
+      observable.setObservableAttribute(rendApi.observable.themeData, args[0])
       break
     case rendApi.id.setStorageItem:
       storage.setItem(args[0], args[1])

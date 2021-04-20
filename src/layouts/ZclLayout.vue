@@ -163,11 +163,13 @@ export default {
       this.doGeneration(currentPath)
     },
     toggleTheme() {
-      let theme = observable.getObservableAttribute(restApi.themeData)
+      let theme = observable.getObservableAttribute(
+        rendApi.observable.themeData
+      )
       if (theme == 'dark') {
-        observable.setObservableAttribute(restApi.themeData, 'light')
+        observable.setObservableAttribute(rendApi.observable.themeData, 'light')
       } else {
-        observable.setObservableAttribute(restApi.themeData, 'dark')
+        observable.setObservableAttribute(rendApi.observable.themeData, 'dark')
       }
     },
     generateIntoDirectory(currentPath) {
@@ -245,14 +247,14 @@ export default {
     }
   },
   mounted() {
-    observable.observeAttribute(restApi.reported_files, (value) => {
+    observable.observeAttribute(rendApi.observable.reported_files, (value) => {
       if (value.context == 'generateDir') {
         this.generationDirectory = value.filePaths[0]
         this.doGeneration(this.generationDirectory)
       }
     })
 
-    observable.observeAttribute(restApi.debugNavBar, (value) => {
+    observable.observeAttribute(rendApi.observable.debugNavBar, (value) => {
       this.$store.dispatch('zap/setDebugNavBar', value)
     })
   },
