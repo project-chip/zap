@@ -57,11 +57,9 @@ export default {
   name: 'App',
   methods: {
     setThemeMode(theme) {
-      if (theme === 'com.silabs.ss.platform.theme.dark' || theme === 'dark') {
-        this.$q.dark.set(true)
-      } else {
-        this.$q.dark.set(false)
-      }
+      let darkMode =
+        theme === 'com.silabs.ss.platform.theme.dark' || theme === 'dark'
+      this.$q.dark.set(darkMode)
     },
     setGenerationInProgress(progressMessage) {
       if (progressMessage != null && progressMessage.length > 0) {
