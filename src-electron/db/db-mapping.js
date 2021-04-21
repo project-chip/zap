@@ -276,6 +276,7 @@ exports.map = {
       profileId: x.PROFILE,
       networkId: x.NETWORK_IDENTIFIER,
       endpointVersion: x.DEVICE_VERSION,
+      deviceIdentifier: x.DEVICE_IDENTIFIER,
     }
   },
   endpointType: (x) => {

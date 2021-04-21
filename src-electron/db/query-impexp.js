@@ -21,7 +21,6 @@
  * @module DB API: package-based queries.
  */
 const dbApi = require('./db-api.js')
-const env = require('../util/env.js')
 
 /**
  * Imports a single endpoint
@@ -615,18 +614,13 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
 
 exports.exportEndpointTypes = exportEndpointTypes
 exports.importEndpointType = importEndpointType
-
 exports.exportClustersFromEndpointType = exportClustersFromEndpointType
 exports.importClusterForEndpointType = importClusterForEndpointType
-
 exports.exportPackagesFromSession = exportPackagesFromSession
-
 exports.exportAttributesFromEndpointTypeCluster = exportAttributesFromEndpointTypeCluster
 exports.importAttributeForEndpointType = importAttributeForEndpointType
-
 exports.exportCommandsFromEndpointTypeCluster = exportCommandsFromEndpointTypeCluster
 exports.importCommandForEndpointType = importCommandForEndpointType
-
 exports.exportEndpoints = exportEndpoints
 exports.importEndpoint = importEndpoint
 exports.exportEndPointTypeIds = exportEndPointTypeIds

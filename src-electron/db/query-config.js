@@ -364,14 +364,15 @@ async function insertEndpoint(
   endpointIdentifier,
   endpointTypeRef,
   networkIdentifier,
-  endpointVersion
+  endpointVersion,
+  deviceIdentifier
 ) {
   return dbApi.dbInsert(
     db,
     `
 INSERT OR REPLACE
-INTO ENDPOINT ( SESSION_REF, ENDPOINT_IDENTIFIER, ENDPOINT_TYPE_REF, NETWORK_IDENTIFIER, DEVICE_VERSION, PROFILE)
-VALUES ( ?, ?, ?, ?, ?,
+INTO ENDPOINT ( SESSION_REF, ENDPOINT_IDENTIFIER, ENDPOINT_TYPE_REF, NETWORK_IDENTIFIER, DEVICE_VERSION, DEVICE_IDENTIFIER, PROFILE)
+VALUES ( ?, ?, ?, ?, ?, ?,
          ( SELECT DEVICE_TYPE.PROFILE_ID
            FROM DEVICE_TYPE, ENDPOINT_TYPE
            WHERE ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ?
@@ -382,6 +383,7 @@ VALUES ( ?, ?, ?, ?, ?,
       endpointTypeRef,
       networkIdentifier,
       endpointVersion,
+      deviceIdentifier,
       endpointTypeRef,
     ]
   )
@@ -488,7 +490,8 @@ SELECT
   ENDPOINT_TYPE_REF,
   PROFILE,
   NETWORK_IDENTIFIER,
-  DEVICE_VERSION
+  DEVICE_VERSION,
+  DEVICE_IDENTIFIER
 FROM ENDPOINT
 WHERE ENDPOINT_ID = ?`,
       [endpointId]
