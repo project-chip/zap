@@ -23,6 +23,8 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
+const { query } = require('express')
+const session = require('express-session')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -148,6 +150,19 @@ function parseZclAfv2Line(state, line) {
       side: dbEnum.side.server,
     }
     state.endpointType.clusterOverride.push(override)
+  } else if (line.startsWith('intMap:DefaultResponsePolicy = ')) {
+    let drp = parseInt(line.slice('intMap:DefaultResponsePolicy = '.length))
+    switch (drp) {
+      case 0:
+        state.sessionKey.defaultResponsePolicy = 'always'
+        break
+      case 1:
+        state.sessionKey.defaultResponsePolicy = 'conditional'
+        break
+      case 2:
+        state.sessionKey.defaultResponsePolicy = 'never'
+        break
+    }
   } else if (line == 'beginAttributeDefaults') {
     state.parseState = line
   } else if (line == 'endAttributeDefaults') {
@@ -252,6 +267,7 @@ async function readIscData(filePath, data, zclMetafile) {
     // These are not the same as with zap files
     attributeType: [],
     zclMetafile: zclMetafile,
+    sessionKey: {},
   }
 
   state.log.push({
@@ -460,6 +476,16 @@ function collectAttributeLoadingPromises(
 }
 
 /**
+ * Loads the session key values from the keyValues object
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} keyValues
+ */
+async function loadSessionKeyValues(db, sessionId, keyValues) {
+  return querySession.insertSessionKeyValues(db, sessionId, keyValues)
+}
+
+/**
  * Function that actually loads the data out of a state object.
  * Session at this point is blank, and has no packages.
  *
@@ -559,9 +585,9 @@ async function iscDataLoader(db, state, sessionId) {
   if (state.log != null) {
     querySession.writeLog(db, sessionId, state.log)
   }
-
   return Promise.all(endpointInsertionPromises)
     .then(() => Promise.all(attributeUpdatePromises))
+    .then(() => loadSessionKeyValues(db, sessionId, state.sessionKey))
     .then(() => querySession.setSessionClean(db, sessionId))
     .then(() => {
       return {

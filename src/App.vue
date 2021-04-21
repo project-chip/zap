@@ -24,7 +24,7 @@ limitations under the License.
 <script>
 import Vue from 'vue'
 import { QSpinnerGears } from 'quasar'
-const restApi = require(`../src-shared/rest-api.js`)
+const rendApi = require(`../src-shared/rend-api.js`)
 const observable = require('./util/observable.js')
 const dbEnum = require(`../src-shared/db-enum.js`)
 
@@ -56,13 +56,10 @@ function initLoad(store) {
 export default {
   name: 'App',
   methods: {
-    setThemeMode() {
-      const theme = observable.getObservableAttribute('data-theme')
-      if (theme === 'com.silabs.ss.platform.theme.dark') {
-        this.$q.dark.set(true)
-      } else {
-        this.$q.dark.set(false)
-      }
+    setThemeMode(theme) {
+      let darkMode =
+        theme === 'com.silabs.ss.platform.theme.dark' || theme === 'dark'
+      this.$q.dark.set(darkMode)
     },
     setGenerationInProgress(progressMessage) {
       if (progressMessage != null && progressMessage.length > 0) {
@@ -78,6 +75,9 @@ export default {
     },
   },
   mounted() {
+    let theme = observable.getObservableAttribute(rendApi.observable.themeData)
+    this.setThemeMode(theme)
+
     this.$q.loading.show({
       spinner: QSpinnerGears,
       messageColor: 'white',
@@ -106,13 +106,16 @@ export default {
     this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
     this.zclDialogFlag = false
 
-    observable.observeAttribute('data-theme', (theme) => {
+    observable.observeAttribute(rendApi.observable.themeData, (theme) => {
       this.setThemeMode(theme)
     })
 
-    observable.observeAttribute(restApi.progress_attribute, (message) => {
-      this.setGenerationInProgress(message)
-    })
+    observable.observeAttribute(
+      rendApi.observable.progress_attribute,
+      (message) => {
+        this.setGenerationInProgress(message)
+      }
+    )
 
     initLoad(this.$store).then(() => {
       this.$q.loading.hide()

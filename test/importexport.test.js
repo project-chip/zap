@@ -141,7 +141,16 @@ test('Test file 2 import', async () => {
   expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
 })
 
-test('test-light isc import', async () => {
+test('test-light isc read', async () => {
+  let state = await importJs.readDataFromFile(testLightIsc)
+  expect(Object.keys(state.endpointTypes).length).toBe(4)
+  expect(Object.keys(state.endpoint).length).toBe(3)
+  expect(state.endpoint[2].endpoint).toBe(242)
+  expect(state).not.toHaveProperty('parseState')
+  expect(state.attributeType.length).toBe(6)
+})
+
+test.only('test-light isc import', async () => {
   sid = await querySession.createBlankSession(db)
   await importJs.importDataFromFile(db, testLightIsc, sid)
   expect(sid).not.toBeUndefined()
@@ -153,16 +162,13 @@ test('test-light isc import', async () => {
   expect(endpointTypes[3].name).toBe('Touchlink')
   let endpoints = await queryConfig.getAllEndpoints(db, sid)
   expect(endpoints.length).toBe(3)
+  let drp = await querySession.getSessionKeyValue(
+    db,
+    sid,
+    dbEnum.sessionOption.defaultResponsePolicy
+  )
+  expect(drp).toBe('always')
 }, 5000)
-
-test('test-light isc read', async () => {
-  let state = await importJs.readDataFromFile(testLightIsc)
-  expect(Object.keys(state.endpointTypes).length).toBe(4)
-  expect(Object.keys(state.endpoint).length).toBe(3)
-  expect(state.endpoint[2].endpoint).toBe(242)
-  expect(state).not.toHaveProperty('parseState')
-  expect(state.attributeType.length).toBe(6)
-})
 
 test('door-lock isc import', async () => {
   sid = await querySession.createBlankSession(db)
@@ -177,4 +183,11 @@ test('door-lock isc import', async () => {
     endpointTypes[0].id
   )
   expect(clusterState.length).toBe(107)
+
+  let drp = await querySession.getSessionKeyValue(
+    db,
+    sid,
+    dbEnum.sessionOption.defaultResponsePolicy
+  )
+  expect(drp).toBe('conditional')
 }, 5000)

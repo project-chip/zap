@@ -90,29 +90,14 @@ const updateKey = {
   attributeStorage: 'storageOption',
 }
 
-const param = {
+exports.param = {
   sessionId: 'sessionId',
   path: 'path',
 }
 
-exports.rendererApiId = {
-  open: 'open',
-  save: 'save',
-  progressStart: 'progressStart',
-  progressEnd: 'progressEnd',
-  reportFiles: 'reportFiles',
-  debugNavBarOn: 'debugNavBarOn',
-  debugNavBarOff: 'debugNavBarOff',
+exports.fileLocationCategory = {
+  save: 'openFileSave',
 }
-
-exports.rendererApiNotifyKey = {
-  dirtyFlag: 'dirtyFlag',
-  fileBrowse: 'fileBrowse',
-}
-
-exports.progress_attribute = 'progress-message'
-exports.reported_files = 'reported-files'
-exports.debugNavBar = 'debugNavBar'
 
 exports.uri = uri
 exports.httpCode = httpCode
@@ -120,4 +105,3 @@ exports.uiMode = uiMode
 exports.uc = uc
 exports.ide = ide
 exports.updateKey = updateKey
-exports.param = param

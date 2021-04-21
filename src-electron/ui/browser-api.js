@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-const restApi = require('../../src-shared/rest-api.js')
+const rendApi = require('../../src-shared/rend-api.js')
 const uiUtil = require('./ui-util.js')
 const env = require('../util/env.js')
 
@@ -79,33 +79,55 @@ async function executeSave(browserWindow, path) {
 
 async function progressEnd(browserWindow) {
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.progressEnd}')`
+    `window.global_renderer_api_execute('${rendApi.id.progressEnd}')`
   )
 }
 
 async function progressStart(browserWindow, message) {
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.progressStart}', '${message}')`
+    `window.global_renderer_api_execute('${rendApi.id.progressStart}', '${message}')`
   )
 }
 
-async function debugNavBarOn(browserWindow) {
+async function debugNavBar(browserWindow, flag) {
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.debugNavBarOn}')`
+    `window.global_renderer_api_execute('${rendApi.id.debugNavBar}', ${
+      flag ? 'true' : 'false'
+    })`
   )
 }
 
-async function debugNavBarOff(browserWindow) {
+async function setTheme(browserWindow, theme) {
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.debugNavBarOff}')`
+    `window.global_renderer_api_execute('${rendApi.id.setTheme}', '${theme}')`
   )
 }
 
-async function getFileLocation(browserWindow, key) {
-  return null
+async function getFileLocation(browserWindow, fileCategory) {
+  return getStorageItem(browserWindow, 'lastFileLocation_' + fileCategory)
 }
 
-async function saveFileLocation(browserWindow, key, path) {}
+async function saveFileLocation(browserWindow, fileCategory, path) {
+  setStorageItem(browserWindow, 'lastFileLocation_' + fileCategory, path)
+}
+
+async function setStorageItem(browserWindow, key, value) {
+  return browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${rendApi.id.setStorageItem}', '${key}', '${value}')`
+  )
+}
+
+async function removeStorageItem(browserWindow, key) {
+  return browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${rendApi.id.removeStorageItem}', '${key}')`
+  )
+}
+
+async function getStorageItem(browserWindow, key) {
+  return browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${rendApi.id.getStorageItem}', '${key}')`
+  )
+}
 
 /**
  * This method takes a message and checks if it's a renderer API
@@ -116,13 +138,13 @@ async function saveFileLocation(browserWindow, key, path) {}
  * @returns true if message was a notify message and was consumed.
  */
 function processRendererNotify(browserWindow, message) {
-  if (message.startsWith('rendererApiJson:')) {
-    let obj = JSON.parse(message.slice('rendererApiJson:'.length))
+  if (message.startsWith(rendApi.jsonPrefix)) {
+    let obj = JSON.parse(message.slice(rendApi.jsonPrefix.length))
     switch (obj.key) {
-      case restApi.rendererApiNotifyKey.dirtyFlag:
+      case rendApi.notifyKey.dirtyFlag:
         uiUtil.toggleDirtyFlag(browserWindow, obj.value)
         return true
-      case restApi.rendererApiNotifyKey.fileBrowse:
+      case rendApi.notifyKey.fileBrowse:
         uiUtil.openFileDialogAndReportResult(browserWindow, obj.value)
         return true
       default:
@@ -142,7 +164,7 @@ function processRendererNotify(browserWindow, message) {
 async function reportFiles(browserWindow, result) {
   let resultJson = JSON.stringify(result)
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.reportFiles}', '${resultJson}')`
+    `window.global_renderer_api_execute('${rendApi.id.reportFiles}', '${resultJson}')`
   )
 }
 
@@ -197,9 +219,12 @@ exports.executeLoad = executeLoad
 exports.executeSave = executeSave
 exports.progressEnd = progressEnd
 exports.progressStart = progressStart
-exports.debugNavBarOn = debugNavBarOn
-exports.debugNavBarOff = debugNavBarOff
+exports.debugNavBar = debugNavBar
 exports.reportFiles = reportFiles
 exports.processRendererNotify = processRendererNotify
 exports.getFileLocation = getFileLocation
 exports.saveFileLocation = saveFileLocation
+exports.setTheme = setTheme
+exports.setStorageItem = setStorageItem
+exports.getStorageItem = getStorageItem
+exports.removeStorageItem = removeStorageItem

@@ -28,7 +28,7 @@
 		{{/template_options}}
 	{{/if}}
 {{/all_user_clusters}}
-{{#user_endpoint_types}}
+{{#user_endpoints}}
 	{{#user_clusters}}
 		{{#if (is_enabled enabled)}}
 			{{#template_options category="tick_events"}}
@@ -38,7 +38,7 @@
 			{{/template_options}}
 		{{/if}}
 	{{/user_clusters}}
-{{/user_endpoint_types}}
+{{/user_endpoints}}
 {{#all_user_clusters}}
 	{{#if (is_enabled enabled)}}
 		{{#template_options category="generic_events"}}
@@ -48,7 +48,7 @@
 		{{/template_options}}
 	{{/if}}
 {{/all_user_clusters}}
-{{#user_endpoint_types}}
+{{#user_endpoints}}
 	{{#user_clusters}}
 		{{#if (is_enabled enabled)}}
 			{{#template_options category="generic_events"}}
@@ -58,11 +58,11 @@
 			{{/template_options}}
 		{{/if}}
 	{{/user_clusters}}
-{{/user_endpoint_types}}
+{{/user_endpoints}}
 
 // sl_zigbee_event_context_t structs used to populate the sli_zigbee_app_event_context table
 #define EMBER_AF_GENERATED_UC_EVENT_CONTEXT \
-{{#user_endpoint_types}}
+{{#user_endpoints}}
 	{{#user_clusters}}
 		{{#if (is_enabled enabled)}}
 			{{#template_options category="tick_events"}}
@@ -72,5 +72,5 @@
 			{{/template_options}}
 		{{/if}}
 	{{/user_clusters}}
-{{/user_endpoint_types}}
+{{/user_endpoints}}
 

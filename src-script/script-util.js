@@ -24,11 +24,7 @@ const scriptUtil = require('./script-util.js')
 const spaHashFileName = path.join(spaDir, 'hash.json')
 process.env.PATH = process.env.PATH + ':./node_modules/.bin/'
 
-const hashOptions = {
-  folders: {
-    include: ['src', 'src-shared'],
-  },
-}
+const hashOptions = {}
 
 // Utilities shared by scripts.
 
@@ -98,7 +94,7 @@ async function getStdout(onError, cmd, args) {
  */
 async function rebuildSpaIfNeeded() {
   return folderHash
-    .hashElement('.', hashOptions)
+    .hashElement('src', hashOptions)
     .then((currentHash) => {
       console.log(`🔍 Current hash: ${currentHash.hash}`)
       return {

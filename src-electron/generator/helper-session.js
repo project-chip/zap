@@ -29,6 +29,31 @@ const helperZcl = require('./helper-zcl.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
+ * Creates block iterator over the endpoints.
+ *
+ * @param {*} options
+ */
+function user_endpoints(options) {
+  let promise = queryImpexp
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryImpexp.exportEndpoints(
+        this.global.db,
+        this.global.sessionId,
+        endpointTypes
+      )
+    )
+    .then((endpoints) =>
+      endpoints.map((x) => {
+        x.endpointTypeId = x.endpointTypeRef
+        return x
+      })
+    )
+    .then((endpoints) => templateUtil.collectBlocks(endpoints, options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Creates block iterator helper over the endpoint types.
  *
  * @tutorial template-tutorial
@@ -42,6 +67,7 @@ function user_endpoint_types(options) {
     )
   return templateUtil.templatePromise(this.global, promise)
 }
+
 /**
  * Creates cluster iterator over the endpoint types.
  * This works ony inside user_endpoint_types.
@@ -672,6 +698,7 @@ function endpoint_type_identifier(endpointTypeId) {
 /*
  * @param {*} endpointTypeId
  * Returns the index of the endpoint whose endpointTypeId is endpointTypeId
+ * Will return -1 if the given endpoint type is not present.
  */
 function endpoint_type_index(endpointTypeId) {
   return queryImpexp
@@ -699,6 +726,7 @@ function endpoint_type_index(endpointTypeId) {
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
 exports.user_endpoint_types = user_endpoint_types
+exports.user_endpoints = user_endpoints
 exports.user_clusters = user_clusters
 exports.user_cluster_attributes = user_cluster_attributes
 exports.user_cluster_commands = user_cluster_commands

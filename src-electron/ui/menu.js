@@ -21,7 +21,7 @@ const preference = require('../main-process/preference.js')
 const about = require('../main-process/about.js')
 const commonUrl = require('../../src-shared/common-url.js')
 const browserApi = require('./browser-api.js')
-const dbEnum = require('../../src-shared/db-enum.js')
+const restApi = require('../../src-shared/rest-api.js')
 
 const newConfiguration = 'New Configuration'
 
@@ -90,6 +90,43 @@ const template = (httpPort) => [
   },
   {
     role: 'viewMenu',
+    submenu: [
+      {
+        label: 'Dark theme',
+        click(menuItem, browserWindow, event) {
+          browserApi.setTheme(browserWindow, 'dark')
+        },
+      },
+      {
+        label: 'Light theme',
+        click(menuItem, browserWindow, event) {
+          browserApi.setTheme(browserWindow, 'light')
+        },
+      },
+      { type: 'separator' },
+      {
+        label: 'Show debug navigation bar',
+        click(menuItem, browserWindow) {
+          browserApi.debugNavBar(browserWindow, true)
+        },
+      },
+      {
+        label: 'Hide debug navigation bar',
+        click(menuItem, browserWindow) {
+          browserApi.debugNavBar(browserWindow, false)
+        },
+      },
+      { type: 'separator' },
+      { role: 'reload' },
+      { role: 'forceReload' },
+      { role: 'toggleDevTools' },
+      { type: 'separator' },
+      { role: 'resetZoom' },
+      { role: 'zoomIn' },
+      { role: 'zoomOut' },
+      { type: 'separator' },
+      { role: 'togglefullscreen' },
+    ],
   },
   {
     role: 'windowMenu',
@@ -145,18 +182,6 @@ const template = (httpPort) => [
         },
       },
       {
-        label: 'Show debug navigation bar',
-        click(menuItem, browserWindow) {
-          browserApi.debugNavBarOn(browserWindow)
-        },
-      },
-      {
-        label: 'Hide debug navigation bar',
-        click(menuItem, browserWindow) {
-          browserApi.debugNavBarOff(browserWindow)
-        },
-      },
-      {
         label: 'About',
         httpPort: httpPort,
         click(menuItem, browserWindow, event) {
@@ -187,19 +212,25 @@ async function getUserSessionInfoMessage(browserWindow) {
  */
 function doOpen(browserWindow, httpPort) {
   browserApi
-    .getFileLocation(browserWindow, dbEnum.fileLocationCategory.save)
+    .getFileLocation(browserWindow, restApi.fileLocationCategory.save)
     .then((filePath) => {
       let opts = {
+        title: 'Select ZAP or ISC file to load.',
         properties: ['openFile', 'multiSelections'],
       }
       if (filePath != null) {
         opts.defaultPath = filePath
       }
-      return dialog.showOpenDialog(opts)
+      return dialog.showOpenDialog(browserWindow, opts)
     })
     .then((result) => {
       if (!result.canceled) {
         fileOpen(result.filePaths, httpPort)
+        browserApi.saveFileLocation(
+          browserWindow,
+          restApi.fileLocationCategory.save,
+          result.filePaths[0]
+        )
       }
     })
     .catch((err) => uiJs.showErrorMessage('Open file', err))
@@ -227,7 +258,7 @@ function doSave(browserWindow) {
  */
 function doSaveAs(browserWindow) {
   browserApi
-    .getFileLocation(browserWindow, dbEnum.fileLocationCategory.save)
+    .getFileLocation(browserWindow, restApi.fileLocationCategory.save)
     .then((filePath) => {
       let opts = {
         filters: [
@@ -253,7 +284,8 @@ function doSaveAs(browserWindow) {
         browserWindow.setTitle(filePath)
         browserApi.saveFileLocation(
           browserWindow,
-          dbEnum.fileLocationCategory.save
+          restApi.fileLocationCategory.save,
+          filePath
         )
       }
     })

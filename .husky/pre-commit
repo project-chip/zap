@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-pretty-quick --staged && jsdoc src-electron src-shared -r -d ./generated-html/ && eslint --ext .js,.vue src src-electron src-shared src-script test
+pretty-quick --staged && src-script/featurelevel-check.js && jsdoc src-electron src-shared -r -d ./generated-html/ && eslint --ext .js,.vue src src-electron src-shared src-script test

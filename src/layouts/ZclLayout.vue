@@ -27,15 +27,13 @@ limitations under the License.
       </q-card>
     </q-dialog>
     <div class="q-gutter-y-md height: 10vh">
-      <q-toolbar
-        class="shadow-2"
-        v-if="this.$store.state.zap.debugNavBar"
-      >
+      <q-toolbar class="shadow-2" v-if="this.$store.state.zap.debugNavBar">
         <q-tabs flat v-model="tab">
           <q-tab name="general" label="General" />
           <q-tab :name="restApi.uiMode.ZIGBEE" label="ZCL" />
         </q-tabs>
         <q-space />
+        <q-btn flat @click="toggleTheme()" label="Dark/Light" />
         <q-btn
           flat
           @click="generateIntoDirectory(generationDirectory)"
@@ -144,6 +142,7 @@ import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
 const restApi = require(`../../src-shared/rest-api.js`)
+const rendApi = require(`../../src-shared/rend-api.js`)
 const observable = require('../util/observable.js')
 
 export default {
@@ -151,20 +150,30 @@ export default {
   methods: {
     doGeneration(path) {
       window.global_renderer_api_execute(
-        restApi.rendererApiId.progressStart,
+        rendApi.id.progressStart,
         'Generating files...'
       )
       this.$serverPut(restApi.uri.generate, {
         generationDirectory: path,
       }).finally(() => {
-        window.global_renderer_api_execute(restApi.rendererApiId.progressEnd)
+        window.global_renderer_api_execute(rendApi.id.progressEnd)
       })
     },
     regenerateIntoDirectory(currentPath) {
       this.doGeneration(currentPath)
     },
+    toggleTheme() {
+      let theme = observable.getObservableAttribute(
+        rendApi.observable.themeData
+      )
+      if (theme == 'dark') {
+        observable.setObservableAttribute(rendApi.observable.themeData, 'light')
+      } else {
+        observable.setObservableAttribute(rendApi.observable.themeData, 'dark')
+      }
+    },
     generateIntoDirectory(currentPath) {
-      window.global_renderer_notify(restApi.rendererApiNotifyKey.fileBrowse, {
+      window.global_renderer_notify(rendApi.notifyKey.fileBrowse, {
         context: 'generateDir',
         title: 'Select directory to generate into',
         mode: 'directory',
@@ -238,14 +247,14 @@ export default {
     }
   },
   mounted() {
-    observable.observeAttribute(restApi.reported_files, (value) => {
+    observable.observeAttribute(rendApi.observable.reported_files, (value) => {
       if (value.context == 'generateDir') {
         this.generationDirectory = value.filePaths[0]
         this.doGeneration(this.generationDirectory)
       }
     })
 
-    observable.observeAttribute(restApi.debugNavBar, (value) => {
+    observable.observeAttribute(rendApi.observable.debugNavBar, (value) => {
       this.$store.dispatch('zap/setDebugNavBar', value)
     })
   },

@@ -17,6 +17,8 @@
 
 const observable = require('../util/observable.js')
 const restApi = require('../../src-shared/rest-api.js')
+const storage = require('../util/storage.js')
+const rendApi = require('../../src-shared/rend-api.js')
 
 // This file provide glue logic to enable function calls & HTML attribute data change listener logic
 // between front-end containers (jxBrowser, Electron, etc) and the node.js
@@ -40,32 +42,44 @@ function renderer_api_info() {
     description: 'Zap Renderer API',
     functions: [
       {
-        id: restApi.rendererApiId.open,
+        id: rendApi.id.open,
         description: 'Open file...',
       },
       {
-        id: restApi.rendererApiId.save,
+        id: rendApi.id.save,
         description: 'Save file...',
       },
       {
-        id: restApi.rendererApiId.reportFiles,
+        id: rendApi.id.reportFiles,
         description: 'Reports files selected by the renderer.',
       },
       {
-        id: restApi.rendererApiId.progressStart,
+        id: rendApi.id.progressStart,
         description: 'Start progress indicator.',
       },
       {
-        id: restApi.rendererApiId.progressEnd,
+        id: rendApi.id.progressEnd,
         description: 'End progress indicator.',
       },
       {
-        id: restApi.rendererApiId.debugNavBarOn,
-        description: 'Show debug navigation bar',
+        id: rendApi.id.debugNavBar,
+        description: 'Show debug navigation bar...',
       },
       {
-        id: restApi.rendererApiId.debugNavBarOff,
-        description: 'Hide debug navigation bar',
+        id: rendApi.id.setTheme,
+        description: 'Set theme...',
+      },
+      {
+        id: rendApi.id.setItem,
+        description: 'Set item...',
+      },
+      {
+        id: rendApi.id.getItem,
+        description: 'Get item...',
+      },
+      {
+        id: rendApi.id.removeItem,
+        description: 'Remove item...',
       },
     ],
   }
@@ -93,36 +107,53 @@ function fnSave(zap_file) {
 function renderer_api_execute(id, ...args) {
   let ret = null
   switch (id) {
-    case restApi.rendererApiId.open:
+    case rendApi.id.open:
       ret = fnOpen.apply(null, args)
       break
-    case restApi.rendererApiId.save:
+    case rendApi.id.save:
       ret = fnSave.apply(null, args)
       break
-    case restApi.rendererApiId.progressStart:
-      observable.setObservableAttribute(restApi.progress_attribute, args[0])
-      break
-    case restApi.rendererApiId.progressEnd:
-      observable.setObservableAttribute(restApi.progress_attribute, '')
-      break
-    case restApi.rendererApiId.reportFiles:
+    case rendApi.id.progressStart:
       observable.setObservableAttribute(
-        restApi.reported_files,
+        rendApi.observable.progress_attribute,
+        args[0]
+      )
+      break
+    case rendApi.id.progressEnd:
+      observable.setObservableAttribute(
+        rendApi.observable.progress_attribute,
+        ''
+      )
+      break
+    case rendApi.id.reportFiles:
+      observable.setObservableAttribute(
+        rendApi.observable.reported_files,
         JSON.parse(args[0])
       )
       break
-    case restApi.rendererApiId.debugNavBarOn:
-      observable.setObservableAttribute(restApi.debugNavBar, true)
+    case rendApi.id.debugNavBar:
+      observable.setObservableAttribute(rendApi.observable.debugNavBar, args[0])
       break
-    case restApi.rendererApiId.debugNavBarOff:
-      observable.setObservableAttribute(restApi.debugNavBar, false)
+    case rendApi.id.setTheme:
+      observable.setObservableAttribute(rendApi.observable.themeData, args[0])
+      break
+    case rendApi.id.setStorageItem:
+      storage.setItem(args[0], args[1])
+      break
+    case rendApi.id.getStorageItem:
+      ret = storage.getItem(args[0])
+      break
+    case rendApi.id.removeStorageItem:
+      storage.removeItem(args[0])
       break
   }
   return ret
 }
 
 function renderer_notify(key, value) {
-  console.log(`rendererApiJson:${JSON.stringify({ key: key, value: value })}`)
+  console.log(
+    `${rendApi.jsonPrefix}${JSON.stringify({ key: key, value: value })}`
+  )
 }
 
 exports.renderer_api_info = renderer_api_info

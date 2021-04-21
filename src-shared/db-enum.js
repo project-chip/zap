@@ -67,10 +67,6 @@ exports.zclType = {
   string: 'string',
 }
 
-exports.fileLocationCategory = {
-  save: 'openFileSave',
-}
-
 exports.sessionKey = {
   filePath: 'filePath',
   studioProjectPath: 'studioProjectPath',
