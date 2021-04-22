@@ -32,6 +32,8 @@ const testUtil = require('./test-util.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 
 let db
+let sleepyGenericZap = path.join(__dirname, 'resource/sleepy-generic.zap')
+let sleepyGenericIsc = path.join(__dirname, 'resource/sleepy-generic.isc')
 let testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
 let testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
 let testLightIsc = path.join(__dirname, 'resource/isc/test-light.isc')
@@ -67,21 +69,7 @@ test('Basic gen template parsing and generation', async () => {
   expect(context.templateData).not.toBeNull()
 })
 
-test('Test file 1 existence', async () => {
-  let state = await importJs.readDataFromFile(testFile1)
-  expect(state).not.toBe(null)
-  expect(state.creator).toBe('zap')
-  expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
-})
-
-test('Test file 2 existence', async () => {
-  let state = await importJs.readDataFromFile(testFile1)
-  expect(state).not.toBe(null)
-  expect(state.creator).toBe('zap')
-  expect(state.package[0].type).toBe(dbEnum.packageType.zclProperties)
-})
-
-test('Test file 1 import', async () => {
+test(path.basename(testFile1) + ' - import', async () => {
   let importResult = await importJs.importDataFromFile(db, testFile1)
   let sid = importResult.sessionId
 
@@ -111,7 +99,7 @@ test('Test file 1 import', async () => {
   await querySession.deleteSession(db, sid)
 })
 
-test('Test file 2 import', async () => {
+test(path.basename(testFile2) + ' - import', async () => {
   let sid = await querySession.createBlankSession(db)
   await importJs.importDataFromFile(db, testFile2, sid)
 
@@ -141,7 +129,23 @@ test('Test file 2 import', async () => {
   expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
 })
 
-test('test-light isc read', async () => {
+test.skip(path.basename(sleepyGenericZap) + ' - import', async () => {
+  let sid = await querySession.createBlankSession(db)
+  await importJs.importDataFromFile(db, sleepyGenericZap, sid)
+  let endpoints = await queryConfig.getAllEndpoints(db, sid)
+  expect(endpoints.length).toBe(1)
+  expect(endpoints[0].deviceIdentifier).toBe(10)
+})
+
+test(path.basename(sleepyGenericIsc) + ' - import', async () => {
+  let sid = await querySession.createBlankSession(db)
+  await importJs.importDataFromFile(db, sleepyGenericIsc, sid)
+  let endpoints = await queryConfig.getAllEndpoints(db, sid)
+  expect(endpoints.length).toBe(1)
+  expect(endpoints[0].deviceIdentifier).toBe(1281)
+})
+
+test(path.basename(testLightIsc) + ' - read state', async () => {
   let state = await importJs.readDataFromFile(testLightIsc)
   expect(Object.keys(state.endpointTypes).length).toBe(4)
   expect(Object.keys(state.endpoint).length).toBe(3)
@@ -150,45 +154,53 @@ test('test-light isc read', async () => {
   expect(state.attributeType.length).toBe(6)
 })
 
-test('test-light isc import', async () => {
-  sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, testLightIsc, sid)
-  expect(sid).not.toBeUndefined()
-  let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
-  expect(endpointTypes.length).toBe(4)
-  expect(endpointTypes[0].name).toBe('Centralized')
-  expect(endpointTypes[1].name).toBe('GreenPower')
-  expect(endpointTypes[2].name).toBe('Primary')
-  expect(endpointTypes[3].name).toBe('Touchlink')
-  let endpoints = await queryConfig.getAllEndpoints(db, sid)
-  expect(endpoints.length).toBe(3)
-  let drp = await querySession.getSessionKeyValue(
-    db,
-    sid,
-    dbEnum.sessionOption.defaultResponsePolicy
-  )
-  expect(drp).toBe('always')
-}, 5000)
+test(
+  path.basename(testLightIsc) + ' - import',
+  async () => {
+    sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testLightIsc, sid)
+    expect(sid).not.toBeUndefined()
+    let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
+    expect(endpointTypes.length).toBe(4)
+    expect(endpointTypes[0].name).toBe('Centralized')
+    expect(endpointTypes[1].name).toBe('GreenPower')
+    expect(endpointTypes[2].name).toBe('Primary')
+    expect(endpointTypes[3].name).toBe('Touchlink')
+    let endpoints = await queryConfig.getAllEndpoints(db, sid)
+    expect(endpoints.length).toBe(3)
+    let drp = await querySession.getSessionKeyValue(
+      db,
+      sid,
+      dbEnum.sessionOption.defaultResponsePolicy
+    )
+    expect(drp).toBe('always')
+  },
+  5000
+)
 
-test('door-lock isc import', async () => {
-  sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, testDoorLockIsc, sid)
-  expect(sid).not.toBeUndefined()
-  let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
-  expect(endpointTypes.length).toBe(1)
-  let endpoints = await queryConfig.getAllEndpoints(db, sid)
-  expect(endpoints.length).toBe(1)
-  expect(endpoints[0].deviceIdentifier).toBe(10)
-  let clusterState = await queryConfig.getAllEndpointTypeClusterState(
-    db,
-    endpointTypes[0].id
-  )
-  expect(clusterState.length).toBe(107)
+test(
+  path.basename(testDoorLockIsc) + ' - import',
+  async () => {
+    sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testDoorLockIsc, sid)
+    expect(sid).not.toBeUndefined()
+    let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
+    expect(endpointTypes.length).toBe(1)
+    let endpoints = await queryConfig.getAllEndpoints(db, sid)
+    expect(endpoints.length).toBe(1)
+    expect(endpoints[0].deviceIdentifier).toBe(10)
+    let clusterState = await queryConfig.getAllEndpointTypeClusterState(
+      db,
+      endpointTypes[0].id
+    )
+    expect(clusterState.length).toBe(107)
 
-  let drp = await querySession.getSessionKeyValue(
-    db,
-    sid,
-    dbEnum.sessionOption.defaultResponsePolicy
-  )
-  expect(drp).toBe('conditional')
-}, 5000)
+    let drp = await querySession.getSessionKeyValue(
+      db,
+      sid,
+      dbEnum.sessionOption.defaultResponsePolicy
+    )
+    expect(drp).toBe('conditional')
+  },
+  5000
+)
