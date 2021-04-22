@@ -100,8 +100,8 @@ export default {
     this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
     this.zclDialogFlag = false
 
-    observable.observeAttribute(rendApi.observable.themeData, (theme) => {
-      this.setThemeMode(theme)
+    observable.observeAttribute(rendApi.observable.themeData, (newTheme) => {
+      this.setThemeMode(newTheme)
     })
 
     observable.observeAttribute(

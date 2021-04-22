@@ -17,7 +17,6 @@
 const { dialog } = require('electron')
 const windowJs = require('./window.js')
 const browserApi = require('./browser-api.js')
-const { result } = require('lodash')
 
 /**
  * Simple dialog to show error messages from electron renderer scope.
