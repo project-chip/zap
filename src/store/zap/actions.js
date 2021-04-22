@@ -33,8 +33,7 @@ export function updateInformationText(context, text) {
 
 export function updateClusters(context) {
   Vue.prototype.$serverGet(restApi.uri.zclCluster + 'all').then((response) => {
-    let arg = response.data
-    context.commit('updateClusters', arg.data)
+    context.commit('updateClusters', response.data.clusterData)
   })
 }
 
@@ -60,7 +59,7 @@ export function updateZclDeviceTypes(context, deviceTypes) {
   Vue.prototype
     .$serverGet(restApi.uri.zclDeviceType + 'all')
     .then((response) => {
-      let deviceTypes = response.data.data || []
+      let deviceTypes = response.data || []
       let deviceTypeObjects = {}
       deviceTypes.forEach((deviceType) => {
         deviceTypeObjects[deviceType.id] = {

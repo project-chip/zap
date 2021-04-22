@@ -96,8 +96,7 @@ describe('Session specific tests', () => {
     axiosInstance
       .get(`${restApi.uri.zclCluster}all?sessionId=${uuid}`)
       .then((response) => {
-        expect(response.data.data.length).toBe(0)
-        expect(response.data.type).toBe('cluster')
+        expect(response.data.clusterData.length).toBe(0)
       }))
 
   test('make sure there is 1 session after previous call', () =>
@@ -138,8 +137,7 @@ describe('Session specific tests', () => {
     axiosInstance
       .get(`${restApi.uri.zclCluster}all?sessionId=${uuid}`)
       .then((response) => {
-        expect(response.data.data.length).toBe(2)
-        expect(response.data.type).toBe('cluster')
+        expect(response.data.clusterData.length).toBe(2)
       }))
 
   test('make sure there is still 1 session after previous call', () =>
@@ -159,8 +157,7 @@ describe('Session specific tests', () => {
     axiosInstance
       .get(`${restApi.uri.zclDomain}all?sessionId=${uuid}`)
       .then((response) => {
-        expect(response.data.data.length).toBe(4)
-        expect(response.data.type).toBe('domain')
+        expect(response.data.length).toBe(4)
       }))
 
   // We save and then load, which creates a new session.

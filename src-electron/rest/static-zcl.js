@@ -104,10 +104,9 @@ function parseForZclData(db, entity, id, packageIdArray) {
         { clusterData: [], attributeData: [], commandData: [] }
       ).then((data) => {
         return {
-          data: data.clusterData,
+          clusterData: data.clusterData,
           attributeData: data.attributeData,
           commandData: data.commandData,
-          type: 'cluster',
         }
       })
     case 'domain':
@@ -116,36 +115,28 @@ function parseForZclData(db, entity, id, packageIdArray) {
         id,
         packageIdArray,
         zclEntityQuery(queryZcl.selectAllDomains, queryZcl.selectDomainById)
-      ).then((data) => {
-        return { data: data, type: 'domain' }
-      })
+      )
     case 'bitmap':
       return reduceAndConcatenateZclEntity(
         db,
         id,
         packageIdArray,
         zclEntityQuery(queryZcl.selectAllBitmaps, queryZcl.selectBitmapById)
-      ).then((x) => {
-        return { data: x, type: 'bitmap' }
-      })
+      )
     case 'enum':
       return reduceAndConcatenateZclEntity(
         db,
         id,
         packageIdArray,
         zclEntityQuery(queryZcl.selectAllEnums, queryZcl.selectEnumById)
-      ).then((x) => {
-        return { data: x, type: 'enum' }
-      })
+      )
     case 'struct':
       return reduceAndConcatenateZclEntity(
         db,
         id,
         packageIdArray,
         zclEntityQuery(queryZcl.selectAllStructs, queryZcl.selectStructById)
-      ).then((x) => {
-        return { data: x, type: 'struct' }
-      })
+      )
     case 'deviceType':
       return reduceAndConcatenateZclEntity(
         db,
@@ -155,9 +146,7 @@ function parseForZclData(db, entity, id, packageIdArray) {
           queryZcl.selectAllDeviceTypes,
           queryZcl.selectDeviceTypeById
         )
-      ).then((x) => {
-        return { data: x, type: 'device_type' }
-      })
+      )
     case 'endpointTypeClusters':
       return queryZcl.selectEndpointTypeClustersByEndpointTypeId(db, id)
     case 'endpointTypeAttributes':
