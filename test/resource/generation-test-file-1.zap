@@ -1,5 +1,5 @@
 {
-  "featureLevel": 26,
+  "featureLevel": 28,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -3860,14 +3860,18 @@
       "endpointTypeIndex": 0,
       "profileId": 260,
       "endpointId": 1,
-      "networkId": 0
+      "networkId": 0,
+      "endpointVersion": null,
+      "deviceIdentifier": null
     },
     {
       "endpointTypeName": "Anonymous Endpoint Type",
       "endpointTypeIndex": 1,
       "profileId": 260,
       "endpointId": 2,
-      "networkId": 0
+      "networkId": 0,
+      "endpointVersion": null,
+      "deviceIdentifier": null
     }
   ]
 }
