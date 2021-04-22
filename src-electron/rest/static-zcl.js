@@ -159,41 +159,17 @@ function parseForZclData(db, entity, id, packageIdArray) {
         return { data: x, type: 'device_type' }
       })
     case 'endpointTypeClusters':
-      return queryZcl
-        .selectEndpointTypeClustersByEndpointTypeId(db, id)
-        .then((x) => {
-          return { data: x, type: `endpointTypeClusters` }
-        })
+      return queryZcl.selectEndpointTypeClustersByEndpointTypeId(db, id)
     case 'endpointTypeAttributes':
-      return queryZcl
-        .selectEndpointTypeAttributesByEndpointId(db, id)
-        .then((x) => {
-          return { data: x, type: `endpointTypeAttributes` }
-        })
+      return queryZcl.selectEndpointTypeAttributesByEndpointId(db, id)
     case 'endpointTypeCommands':
-      return queryZcl
-        .selectEndpointTypeCommandsByEndpointId(db, id)
-        .then((x) => {
-          return { data: x, type: `endpointTypeCommands` }
-        })
+      return queryZcl.selectEndpointTypeCommandsByEndpointId(db, id)
     case `endpointTypeDeviceTypeClusters`:
-      return queryZcl
-        .selectDeviceTypeClustersByDeviceTypeRef(db, id)
-        .then((x) => {
-          return { data: x, type: `deviceTypeClusters` }
-        })
+      return queryZcl.selectDeviceTypeClustersByDeviceTypeRef(db, id)
     case `endpointTypeDeviceTypeAttributes`:
-      return queryZcl
-        .selectDeviceTypeAttributesByDeviceTypeRef(db, id)
-        .then((x) => {
-          return { data: x, type: `deviceTypeAttributes` }
-        })
+      return queryZcl.selectDeviceTypeAttributesByDeviceTypeRef(db, id)
     case `endpointTypeDeviceTypeCommands`:
-      return queryZcl
-        .selectDeviceTypeCommandsByDeviceTypeRef(db, id)
-        .then((x) => {
-          return { data: x, type: `deviceTypeCommands` }
-        })
+      return queryZcl.selectDeviceTypeCommandsByDeviceTypeRef(db, id)
     default:
       return { type: 'Unknown' }
   }

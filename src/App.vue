@@ -42,12 +42,7 @@ function initLoad(store) {
 
   let promises = []
   promises.push(store.dispatch('zap/updateClusters'))
-  promises.push(
-    Vue.prototype.$serverGet('/zcl/deviceType/all').then((response) => {
-      let arg = response.data
-      store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
-    })
-  )
+  promises.push(store.dispatch('zap/updateZclDeviceTypes'))
   promises.push(store.dispatch(`zap/getProjectPackages`))
   promises.push(store.dispatch(`zap/loadZclClusterToUcComponentDependencyMap`))
   return Promise.all(promises)

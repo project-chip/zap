@@ -36,6 +36,18 @@ const uri = {
   addNewPackage: `/packages/add`,
   sessionPackage: `/sessionPackage`,
   zclExtension: `/zclExtension/:entity/:extensionId`,
+  zclCluster: '/zcl/cluster/',
+  zclDeviceType: '/zcl/deviceType/',
+  zclDomain: '/zcl/domain/',
+  zclBitmap: '/zcl/bitmap/',
+  zclEnum: '/zcl/enum/',
+  zclStruct: '/zcl/struct/',
+  endpointTypeClusters: '/zcl/endpointTypeClusters/',
+  endpointTypeAttributes: '/zcl/endpointTypeAttributes/',
+  endpointTypeCommands: '/zcl/endpointTypeCommands/',
+  deviceTypeClusters: '/zcl/endpointTypeDeviceTypeClusters/',
+  deviceTypeAttributes: '/zcl/endpointTypeDeviceTypeAttributes/',
+  deviceTypeCommands: '/zcl/endpointTypeDeviceTypeCommands/',
 }
 
 const uiMode = {

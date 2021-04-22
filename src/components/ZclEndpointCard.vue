@@ -168,9 +168,7 @@ export default {
     },
     zclDeviceTypeOptions: {
       get() {
-        return Object.keys(this.$store.state.zap.zclDeviceTypes).map((key) => {
-          return key
-        })
+        return Object.keys(this.$store.state.zap.zclDeviceTypes)
       },
     },
     isSelectedEndpoint: {

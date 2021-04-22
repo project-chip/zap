@@ -113,4 +113,41 @@ describe('Miscelaneous REST API tests', () => {
         expect(data.manufacturerCodes).toEqual('0x1002')
         expect(data.testKey).toEqual('testValue')
       }))
+
+  test('all clusters', () =>
+    axiosInstance
+      .get(`${restApi.uri.zclCluster}all?sessionId=${sessionUuid}`)
+      .then((response) => {
+        expect(response.data.data.length).toBe(109)
+      }))
+  test('all device types', () =>
+    axiosInstance
+      .get(`${restApi.uri.zclDeviceType}all?sessionId=${sessionUuid}`)
+      .then((response) => {
+        expect(response.data.data.length).toBe(175)
+      }))
+  test('all domains', () =>
+    axiosInstance
+      .get(`${restApi.uri.zclDomain}all?sessionId=${sessionUuid}`)
+      .then((response) => {
+        expect(response.data.data.length).toBe(23)
+      }))
+  test('all bitmaps', () =>
+    axiosInstance
+      .get(`${restApi.uri.zclBitmap}all?sessionId=${sessionUuid}`)
+      .then((response) => {
+        expect(response.data.data.length).toBe(121)
+      }))
+  test('all enums', () =>
+    axiosInstance
+      .get(`${restApi.uri.zclEnum}all?sessionId=${sessionUuid}`)
+      .then((response) => {
+        expect(response.data.data.length).toBe(208)
+      }))
+  test('all structs', () =>
+    axiosInstance
+      .get(`${restApi.uri.zclStruct}all?sessionId=${sessionUuid}`)
+      .then((response) => {
+        expect(response.data.data.length).toBe(54)
+      }))
 })
