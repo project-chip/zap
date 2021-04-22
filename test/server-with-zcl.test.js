@@ -120,12 +120,47 @@ describe('Miscelaneous REST API tests', () => {
       .then((response) => {
         expect(response.data.clusterData.length).toBe(109)
       }))
-  test('all device types', () =>
-    axiosInstance
-      .get(`${restApi.uri.zclDeviceType}all?sessionId=${sessionUuid}`)
-      .then((response) => {
-        expect(response.data.length).toBe(175)
-      }))
+  test('all device types', async () => {
+    let response = await axiosInstance.get(
+      `${restApi.uri.zclDeviceType}all?sessionId=${sessionUuid}`
+    )
+    expect(response.data.length).toBe(175)
+
+    // Now let's test ha onoff device
+    let haOnOff = response.data.find((d) => d.label == 'HA-onoff')
+    expect(haOnOff).not.toBeNull()
+
+    let clusters = await axiosInstance.get(
+      `${restApi.uri.deviceTypeClusters}${haOnOff.id}`
+    )
+    expect(clusters.data.length).toBe(14)
+    let attributes = await axiosInstance.get(
+      `${restApi.uri.deviceTypeAttributes}${haOnOff.id}`
+    )
+    expect(attributes.data.length).toBe(0)
+    let commands = await axiosInstance.get(
+      `${restApi.uri.deviceTypeCommands}${haOnOff.id}`
+    )
+    expect(commands.data.length).toBe(0)
+
+    let zllNcsr = response.data.find(
+      (d) => d.label == 'ZLL-noncolorsceneremote'
+    )
+    expect(zllNcsr).not.toBeNull()
+
+    clusters = await axiosInstance.get(
+      `${restApi.uri.deviceTypeClusters}${zllNcsr.id}`
+    )
+    expect(clusters.data.length).toBe(8)
+    attributes = await axiosInstance.get(
+      `${restApi.uri.deviceTypeAttributes}${zllNcsr.id}`
+    )
+    expect(attributes.data.length).toBe(9)
+    commands = await axiosInstance.get(
+      `${restApi.uri.deviceTypeCommands}${zllNcsr.id}`
+    )
+    expect(commands.data.length).toBe(32)
+  })
   test('all domains', () =>
     axiosInstance
       .get(`${restApi.uri.zclDomain}all?sessionId=${sessionUuid}`)
