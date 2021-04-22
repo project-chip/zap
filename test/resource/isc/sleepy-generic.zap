@@ -18,14 +18,14 @@
   "package": [
     {
       "pathRelativity": "relativeToZap",
-      "path": "../../../zcl-builtin/silabs/zcl.json",
-      "version": "ZCL Test Data",
+      "path": "../../../../../../../../app/zcl/zcl-zap.json",
+      "version": "Zigbee Silabs ZCL data",
       "type": "zcl-properties"
     },
     {
       "pathRelativity": "relativeToZap",
-      "path": "../../gen-template/zigbee/gen-templates.json",
-      "version": "test-v1",
+      "path": "../../../../gen-template/gen-templates.json",
+      "version": "zigbee-v0",
       "type": "gen-templates-json"
     }
   ],
@@ -1026,6 +1026,21 @@
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0x00",
+              "reportable": 1,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "current frequency",
+              "code": 4,
+              "mfgCode": null,
+              "side": "server",
+              "included": 0,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x0000",
               "reportable": 1,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -2960,7 +2975,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x00",
+              "defaultValue": "0x00000000",
               "reportable": 1,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -3005,7 +3020,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x00",
+              "defaultValue": "0x0000",
               "reportable": 1,
               "minInterval": 0,
               "maxInterval": 65344,
@@ -3254,6 +3269,36 @@
             {
               "name": "rfid programming event mask",
               "code": 71,
+              "mfgCode": null,
+              "side": "server",
+              "included": 0,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x0000",
+              "reportable": 1,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "biometric operation event mask",
+              "code": 72,
+              "mfgCode": null,
+              "side": "server",
+              "included": 0,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x0000",
+              "reportable": 1,
+              "minInterval": 0,
+              "maxInterval": 65344,
+              "reportableChange": 0
+            },
+            {
+              "name": "biometric programming event mask",
+              "code": 73,
               "mfgCode": null,
               "side": "server",
               "included": 0,
@@ -7168,8 +7213,8 @@
   ],
   "log": [
     {
-      "timestamp": "2021-04-22T19:29:04.707Z",
-      "log": "Imported from sleepy-generic.isc"
+      "timestamp": "2021-04-22T19:55:01.737Z",
+      "log": "Imported from SleepyGeneric.isc"
     }
   ]
 }
