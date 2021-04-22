@@ -32,8 +32,8 @@ const testUtil = require('./test-util.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 
 let db
-let sleepyGenericZap = path.join(__dirname, 'resource/sleepy-generic.zap')
-let sleepyGenericIsc = path.join(__dirname, 'resource/sleepy-generic.isc')
+let sleepyGenericZap = path.join(__dirname, 'resource/isc/sleepy-generic.zap')
+let sleepyGenericIsc = path.join(__dirname, 'resource/isc/sleepy-generic.isc')
 let testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
 let testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
 let testLightIsc = path.join(__dirname, 'resource/isc/test-light.isc')
