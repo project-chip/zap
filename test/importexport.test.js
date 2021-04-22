@@ -129,21 +129,25 @@ test(path.basename(testFile2) + ' - import', async () => {
   expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
 })
 
-test.skip(path.basename(sleepyGenericZap) + ' - import', async () => {
+test(path.basename(sleepyGenericZap) + ' - import', async () => {
   let sid = await querySession.createBlankSession(db)
   await importJs.importDataFromFile(db, sleepyGenericZap, sid)
   let endpoints = await queryConfig.getAllEndpoints(db, sid)
   expect(endpoints.length).toBe(1)
-  expect(endpoints[0].deviceIdentifier).toBe(10)
-})
-
-test(path.basename(sleepyGenericIsc) + ' - import', async () => {
-  let sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, sleepyGenericIsc, sid)
-  let endpoints = await queryConfig.getAllEndpoints(db, sid)
-  expect(endpoints.length).toBe(1)
   expect(endpoints[0].deviceIdentifier).toBe(1281)
 })
+
+test(
+  path.basename(sleepyGenericIsc) + ' - import',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, sleepyGenericIsc, sid)
+    let endpoints = await queryConfig.getAllEndpoints(db, sid)
+    expect(endpoints.length).toBe(1)
+    expect(endpoints[0].deviceIdentifier).toBe(1281)
+  },
+  3000
+)
 
 test(path.basename(testLightIsc) + ' - read state', async () => {
   let state = await importJs.readDataFromFile(testLightIsc)
