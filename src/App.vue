@@ -22,7 +22,6 @@ limitations under the License.
 </template>
 
 <script>
-import Vue from 'vue'
 import { QSpinnerGears } from 'quasar'
 const rendApi = require(`../src-shared/rend-api.js`)
 const observable = require('./util/observable.js')

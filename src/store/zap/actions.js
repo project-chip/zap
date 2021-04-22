@@ -55,7 +55,7 @@ export function updateCommands(context, commands) {
   context.commit('updateCommands', commands)
 }
 
-export function updateZclDeviceTypes(context, deviceTypes) {
+export function updateZclDeviceTypes(context) {
   Vue.prototype
     .$serverGet(restApi.uri.zclDeviceType + 'all')
     .then((response) => {
