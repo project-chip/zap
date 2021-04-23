@@ -17,7 +17,7 @@ limitations under the License.
   <div>
     <div class="text-h4 q-mb-md">User settings</div>
     <p>User preferences.</p>
-    <q-input v-model="localPath" label="Last file location" />
+    <q-input @input="setPath" v-model="localPath" label="Last file location" />
   </div>
 </template>
 <script>
@@ -25,6 +25,11 @@ import * as storage from '../util/storage.js'
 import rendApi from '../../src-shared/rend-api.js'
 export default {
   name: 'PreferenceUser',
+  methods: {
+    setPath(path) {
+      storage.setItem(rendApi.storageKey.fileSave, path)
+    },
+  },
   computed: {
     localPath: {
       get() {
