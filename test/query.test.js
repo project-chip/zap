@@ -24,7 +24,6 @@ const queryLoader = require('../src-electron/db/query-loader.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const env = require('../src-electron/util/env.js')
 const util = require('../src-electron/util/util.js')
-const queryGeneric = require('../src-electron/db/query-generic.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const querySession = require('../src-electron/db/query-session.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
@@ -463,7 +462,7 @@ describe('Endpoint Type Config Queries', () => {
 
   test('Insert Endpoint Test', () =>
     queryConfig
-      .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9, 22)
+      .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9, 22, 43)
       .then((rowId) => {
         return queryConfig.selectEndpoint(db, rowId)
       })
@@ -472,6 +471,7 @@ describe('Endpoint Type Config Queries', () => {
         expect(endpoint.profileId).toBe(260)
         expect(endpoint.networkId).toBe(9)
         expect(endpoint.endpointVersion).toBe(22)
+        expect(endpoint.deviceIdentifier).toBe(43)
         expect(endpoint.endpointTypeRef).toBe(endpointTypeIdOnOff)
       }))
 

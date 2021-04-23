@@ -22,7 +22,6 @@ limitations under the License.
 </template>
 
 <script>
-import Vue from 'vue'
 import { QSpinnerGears } from 'quasar'
 const rendApi = require(`../src-shared/rend-api.js`)
 const observable = require('./util/observable.js')
@@ -42,12 +41,7 @@ function initLoad(store) {
 
   let promises = []
   promises.push(store.dispatch('zap/updateClusters'))
-  promises.push(
-    Vue.prototype.$serverGet('/zcl/deviceType/all').then((response) => {
-      let arg = response.data
-      store.dispatch('zap/updateZclDeviceTypes', arg.data || [])
-    })
-  )
+  promises.push(store.dispatch('zap/updateZclDeviceTypes'))
   promises.push(store.dispatch(`zap/getProjectPackages`))
   promises.push(store.dispatch(`zap/loadZclClusterToUcComponentDependencyMap`))
   return Promise.all(promises)
@@ -106,8 +100,8 @@ export default {
     this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
     this.zclDialogFlag = false
 
-    observable.observeAttribute(rendApi.observable.themeData, (theme) => {
-      this.setThemeMode(theme)
+    observable.observeAttribute(rendApi.observable.themeData, (newTheme) => {
+      this.setThemeMode(newTheme)
     })
 
     observable.observeAttribute(

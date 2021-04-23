@@ -142,15 +142,26 @@ async function insertOrUpdateAttributeState(
     db,
     `
 INSERT
-INTO ENDPOINT_TYPE_ATTRIBUTE
-  ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE, STORAGE_OPTION, SINGLETON)
-SELECT ?, ?, ?, ?, ?, (SELECT IS_SINGLETON FROM CLUSTER WHERE CLUSTER_ID = ?)
+INTO ENDPOINT_TYPE_ATTRIBUTE (
+    ENDPOINT_TYPE_REF,
+    ENDPOINT_TYPE_CLUSTER_REF,
+    ATTRIBUTE_REF,
+    DEFAULT_VALUE,
+    STORAGE_OPTION,
+    SINGLETON
+) SELECT
+  ?,
+  ?,
+  ?,
+  ?,
+  ?,
+  ( SELECT IS_SINGLETON FROM CLUSTER WHERE CLUSTER_ID = ? )
 WHERE (
-  ( SELECT COUNT(1) FROM ENDPOINT_TYPE_ATTRIBUTE
+  ( SELECT COUNT(1)
+    FROM ENDPOINT_TYPE_ATTRIBUTE
     WHERE ENDPOINT_TYPE_REF = ?
       AND ENDPOINT_TYPE_CLUSTER_REF = ?
-      AND ATTRIBUTE_REF = ? )
-    == 0)`,
+      AND ATTRIBUTE_REF = ? ) == 0)`,
     [
       endpointTypeId,
       cluster.endpointTypeClusterId,
@@ -196,7 +207,7 @@ function convertRestKeyToDbColumn(key) {
     case restApi.updateKey.networkId:
       return 'NETWORK_IDENTIFIER'
     case restApi.updateKey.endpointVersion:
-      return 'ENDPOINT_VERSION'
+      return 'DEVICE_VERSION'
     case restApi.updateKey.deviceTypeRef:
       return 'DEVICE_TYPE_REF'
     case restApi.updateKey.name:
@@ -364,14 +375,15 @@ async function insertEndpoint(
   endpointIdentifier,
   endpointTypeRef,
   networkIdentifier,
-  endpointVersion
+  endpointVersion,
+  deviceIdentifier
 ) {
   return dbApi.dbInsert(
     db,
     `
 INSERT OR REPLACE
-INTO ENDPOINT ( SESSION_REF, ENDPOINT_IDENTIFIER, ENDPOINT_TYPE_REF, NETWORK_IDENTIFIER, ENDPOINT_VERSION, PROFILE)
-VALUES ( ?, ?, ?, ?, ?,
+INTO ENDPOINT ( SESSION_REF, ENDPOINT_IDENTIFIER, ENDPOINT_TYPE_REF, NETWORK_IDENTIFIER, DEVICE_VERSION, DEVICE_IDENTIFIER, PROFILE)
+VALUES ( ?, ?, ?, ?, ?, ?,
          ( SELECT DEVICE_TYPE.PROFILE_ID
            FROM DEVICE_TYPE, ENDPOINT_TYPE
            WHERE ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ?
@@ -382,6 +394,7 @@ VALUES ( ?, ?, ?, ?, ?,
       endpointTypeRef,
       networkIdentifier,
       endpointVersion,
+      deviceIdentifier,
       endpointTypeRef,
     ]
   )
@@ -458,7 +471,8 @@ SELECT
   PROFILE,
   ENDPOINT_IDENTIFIER,
   NETWORK_IDENTIFIER,
-  ENDPOINT_VERSION
+  DEVICE_VERSION,
+  DEVICE_IDENTIFIER
 FROM ENDPOINT
 WHERE SESSION_REF = ?
 ORDER BY ENDPOINT_IDENTIFIER
@@ -488,7 +502,8 @@ SELECT
   ENDPOINT_TYPE_REF,
   PROFILE,
   NETWORK_IDENTIFIER,
-  ENDPOINT_VERSION
+  DEVICE_VERSION,
+  DEVICE_IDENTIFIER
 FROM ENDPOINT
 WHERE ENDPOINT_ID = ?`,
       [endpointId]

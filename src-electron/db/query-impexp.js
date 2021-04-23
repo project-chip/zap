@@ -21,7 +21,6 @@
  * @module DB API: package-based queries.
  */
 const dbApi = require('./db-api.js')
-const env = require('../util/env.js')
 
 /**
  * Imports a single endpoint
@@ -40,8 +39,10 @@ INSERT INTO ENDPOINT (
   PROFILE,
   ENDPOINT_IDENTIFIER,
   NETWORK_IDENTIFIER,
-  ENDPOINT_VERSION
+  DEVICE_VERSION,
+  DEVICE_IDENTIFIER
 ) VALUES (
+  ?,
   ?,
   ?,
   ?,
@@ -57,6 +58,7 @@ INSERT INTO ENDPOINT (
       endpoint.endpointId,
       endpoint.networkId,
       endpoint.endpointVersion,
+      endpoint.deviceIdentifier,
     ]
   )
 }
@@ -80,7 +82,8 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
       profileId: x.PROFILE,
       endpointId: x.ENDPOINT_IDENTIFIER,
       networkId: x.NETWORK_IDENTIFIER,
-      endpointVersion: x.ENDPOINT_VERSION,
+      endpointVersion: x.DEVICE_VERSION,
+      deviceIdentifier: x.DEVICE_IDENTIFIER,
     }
   }
   return dbApi
@@ -93,7 +96,8 @@ SELECT
   ENDPOINT.PROFILE,
   ENDPOINT.ENDPOINT_IDENTIFIER,
   ENDPOINT.NETWORK_IDENTIFIER,
-  ENDPOINT.ENDPOINT_VERSION
+  ENDPOINT.DEVICE_VERSION,
+  ENDPOINT.DEVICE_IDENTIFIER
 FROM
   ENDPOINT
 LEFT JOIN
@@ -615,18 +619,13 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
 
 exports.exportEndpointTypes = exportEndpointTypes
 exports.importEndpointType = importEndpointType
-
 exports.exportClustersFromEndpointType = exportClustersFromEndpointType
 exports.importClusterForEndpointType = importClusterForEndpointType
-
 exports.exportPackagesFromSession = exportPackagesFromSession
-
 exports.exportAttributesFromEndpointTypeCluster = exportAttributesFromEndpointTypeCluster
 exports.importAttributeForEndpointType = importAttributeForEndpointType
-
 exports.exportCommandsFromEndpointTypeCluster = exportCommandsFromEndpointTypeCluster
 exports.importCommandForEndpointType = importCommandForEndpointType
-
 exports.exportEndpoints = exportEndpoints
 exports.importEndpoint = importEndpoint
 exports.exportEndPointTypeIds = exportEndPointTypeIds

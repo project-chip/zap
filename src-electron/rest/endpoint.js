@@ -70,7 +70,13 @@ function httpDeleteEndpointType(db) {
  */
 function httpPostEndpoint(db) {
   return (request, response) => {
-    let { endpointId, networkId, endpointType, endpointVersion } = request.body
+    let {
+      endpointId,
+      networkId,
+      endpointType,
+      endpointVersion,
+      deviceIdentifier,
+    } = request.body
     let sessionIdexport = request.zapSessionId
     queryConfig
       .insertEndpoint(
@@ -79,7 +85,8 @@ function httpPostEndpoint(db) {
         endpointId,
         endpointType,
         networkId,
-        endpointVersion
+        endpointVersion,
+        deviceIdentifier
       )
       .then((newId) =>
         validation.validateEndpoint(db, newId).then((validationData) => {

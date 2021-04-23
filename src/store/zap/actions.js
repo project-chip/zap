@@ -32,18 +32,19 @@ export function updateInformationText(context, text) {
 }
 
 export function updateClusters(context) {
-  Vue.prototype.$serverGet('/zcl/cluster/all').then((response) => {
-    let arg = response.data
-    context.commit('updateClusters', arg.data)
+  Vue.prototype.$serverGet(restApi.uri.zclCluster + 'all').then((response) => {
+    context.commit('updateClusters', response.data.clusterData)
   })
 }
 
 export function updateSelectedCluster(context, cluster) {
-  Vue.prototype.$serverGet(`/zcl/cluster/${cluster.id}`).then((res) => {
-    context.commit('updateSelectedCluster', [cluster])
-    updateAttributes(context, res.data.attributeData || [])
-    updateCommands(context, res.data.commandData || [])
-  })
+  Vue.prototype
+    .$serverGet(restApi.uri.zclCluster + `${cluster.id}`)
+    .then((res) => {
+      context.commit('updateSelectedCluster', [cluster])
+      updateAttributes(context, res.data.attributeData || [])
+      updateCommands(context, res.data.commandData || [])
+    })
 }
 
 export function updateAttributes(context, attributes) {
@@ -54,19 +55,23 @@ export function updateCommands(context, commands) {
   context.commit('updateCommands', commands)
 }
 
-export function updateZclDeviceTypes(context, deviceTypes) {
-  let deviceTypeObjects = {}
-  deviceTypes.forEach((deviceType) => {
-    deviceTypeObjects[deviceType.id] = {
-      code: deviceType.code,
-      profileId: deviceType.profileId,
-      label: deviceType.label,
-      description: deviceType.caption,
-      domain: deviceType.domain,
-    }
-  })
-
-  context.commit('updateZclDeviceTypes', deviceTypeObjects)
+export function updateZclDeviceTypes(context) {
+  Vue.prototype
+    .$serverGet(restApi.uri.zclDeviceType + 'all')
+    .then((response) => {
+      let deviceTypes = response.data || []
+      let deviceTypeObjects = {}
+      deviceTypes.forEach((deviceType) => {
+        deviceTypeObjects[deviceType.id] = {
+          code: deviceType.code,
+          profileId: deviceType.profileId,
+          label: deviceType.label,
+          description: deviceType.caption,
+          domain: deviceType.domain,
+        }
+      })
+      context.commit('updateZclDeviceTypes', deviceTypeObjects)
+    })
 }
 
 export function updateEndpointConfigs(context, endpointConfigs) {
@@ -187,46 +192,46 @@ export function updateEndpointType(context, endpointType) {
 export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
   Vue.prototype
     .$serverGet(
-      `/zcl/endpointTypeDeviceTypeClusters/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
+      `${restApi.uri.deviceTypeClusters}${endpointIdDeviceTypeRefPair.deviceTypeRef}`
     )
     .then((res) => {
-      setRecommendedClusterList(context, res.data.data)
+      setRecommendedClusterList(context, res.data)
     })
   Vue.prototype
     .$serverGet(
-      `/zcl/endpointTypeDeviceTypeAttributes/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
+      `${restApi.uri.deviceTypeAttributes}${endpointIdDeviceTypeRefPair.deviceTypeRef}`
     )
     .then((res) => {
-      setRequiredAttributes(context, res.data.data)
+      setRequiredAttributes(context, res.data)
     })
   Vue.prototype
     .$serverGet(
-      `/zcl/endpointTypeDeviceTypeCommands/${endpointIdDeviceTypeRefPair.deviceTypeRef}`
+      `${restApi.uri.deviceTypeCommands}${endpointIdDeviceTypeRefPair.deviceTypeRef}`
     )
     .then((res) => {
-      setRequiredCommands(context, res.data.data)
+      setRequiredCommands(context, res.data)
     })
 
   Vue.prototype
     .$serverGet(
-      `/zcl/endpointTypeClusters/${endpointIdDeviceTypeRefPair.endpointId}`
+      `${restApi.uri.endpointTypeClusters}${endpointIdDeviceTypeRefPair.endpointId}`
     )
     .then((res) => {
-      setClusterList(context, res.data.data)
+      setClusterList(context, res.data)
     })
   Vue.prototype
     .$serverGet(
-      `/zcl/endpointTypeAttributes/${endpointIdDeviceTypeRefPair.endpointId}`
+      `${restApi.uri.endpointTypeAttributes}${endpointIdDeviceTypeRefPair.endpointId}`
     )
     .then((res) => {
-      setAttributeStateLists(context, res.data.data || [])
+      setAttributeStateLists(context, res.data || [])
     })
   Vue.prototype
     .$serverGet(
-      `/zcl/endpointTypeCommands/${endpointIdDeviceTypeRefPair.endpointId}`
+      `${restApi.uri.endpointTypeCommands}${endpointIdDeviceTypeRefPair.endpointId}`
     )
     .then((res) => {
-      setCommandStateLists(context, res.data.data || [])
+      setCommandStateLists(context, res.data || [])
     })
   context.commit('setDeviceTypeReference', endpointIdDeviceTypeRefPair)
 }
@@ -296,14 +301,14 @@ export function deleteEndpointType(context, endpointTypeId) {
 
 export function refreshEndpointTypeCluster(context, endpointType) {
   Vue.prototype
-    .$serverGet(`/zcl/endpointTypeAttributes/${endpointType}`)
+    .$serverGet(`${restApi.uri.endpointTypeAttributes}${endpointType}`)
     .then((res) => {
-      setAttributeStateLists(context, res.data.data || [])
+      setAttributeStateLists(context, res.data || [])
     })
   Vue.prototype
-    .$serverGet(`/zcl/endpointTypeCommands/${endpointType}`)
+    .$serverGet(`${restApi.uri.endpointTypeCommands}${endpointType}`)
     .then((res) => {
-      setCommandStateLists(context, res.data.data || [])
+      setCommandStateLists(context, res.data || [])
     })
 }
 
@@ -314,45 +319,45 @@ export function updateSelectedEndpointType(
   if (endpointTypeDeviceTypeRefPair != null) {
     Vue.prototype
       .$serverGet(
-        `/zcl/endpointTypeClusters/${endpointTypeDeviceTypeRefPair.endpointType}`
+        `${restApi.uri.endpointTypeClusters}${endpointTypeDeviceTypeRefPair.endpointType}`
       )
       .then((res) => {
-        setClusterList(context, res.data.data)
+        setClusterList(context, res.data)
       })
     Vue.prototype
       .$serverGet(
-        `/zcl/endpointTypeAttributes/${endpointTypeDeviceTypeRefPair.endpointType}`
+        `${restApi.uri.endpointTypeAttributes}${endpointTypeDeviceTypeRefPair.endpointType}`
       )
       .then((res) => {
-        setAttributeStateLists(context, res.data.data || [])
+        setAttributeStateLists(context, res.data || [])
       })
     Vue.prototype
       .$serverGet(
-        `/zcl/endpointTypeCommands/${endpointTypeDeviceTypeRefPair.endpointType}`
+        `${restApi.uri.endpointTypeCommands}${endpointTypeDeviceTypeRefPair.endpointType}`
       )
       .then((res) => {
-        setCommandStateLists(context, res.data.data || [])
+        setCommandStateLists(context, res.data || [])
       })
     Vue.prototype
       .$serverGet(
-        `/zcl/endpointTypeDeviceTypeClusters/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+        `${restApi.uri.deviceTypeClusters}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
       )
       .then((res) => {
-        setRecommendedClusterList(context, res.data.data)
+        setRecommendedClusterList(context, res.data)
       })
     Vue.prototype
       .$serverGet(
-        `/zcl/endpointTypeDeviceTypeAttributes/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+        `${restApi.uri.deviceTypeAttributes}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
       )
       .then((res) => {
-        setRequiredAttributes(context, res.data.data)
+        setRequiredAttributes(context, res.data)
       })
     Vue.prototype
       .$serverGet(
-        `/zcl/endpointTypeDeviceTypeCommands/${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+        `${restApi.uri.deviceTypeCommands}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
       )
       .then((res) => {
-        setRequiredCommands(context, res.data.data)
+        setRequiredCommands(context, res.data)
       })
     context.commit(
       'updateSelectedEndpointType',

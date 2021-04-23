@@ -26,7 +26,7 @@ let whiteList = fs
   .toString()
   .split('\n')
 let fail = false
-checker.init(args, function (err, json) {
+checker.init(args, (err, json) => {
   for (x in json) {
     let license = json[x].licenses
     if (!x.includes('zap@') && !whiteList.includes(license.toString())) {
@@ -41,8 +41,9 @@ checker.init(args, function (err, json) {
     }
   }
   if (fail) {
-    console.log('License check FAILED')
+    console.log('⛔ License check FAILED')
+    process.exit(1)
   } else {
-    console.log('License check SUCCESS')
+    console.log('😎 License check SUCCESS')
   }
 })

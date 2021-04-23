@@ -86,7 +86,6 @@ function handlerOpen(zapFileArray, socket, httpPort) {
 
 function handlerConvert(data, socket) {
   let zapFiles = data.files
-  let output = data.output
 
   serverIpc.server.emit(socket, eventType.over, 'Convert')
   zapFiles.forEach((element) => {

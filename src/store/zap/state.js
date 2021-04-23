@@ -49,18 +49,11 @@ export default function () {
         },
         {
           label: 'Only Enabled',
-          domainFilterFn: (domain, currentOpenDomains, context) => {
-            return context.enabledClusters
-              .map((a) => a.domainName)
-              .includes(domain)
-          },
-          clusterFilterFn: (cluster, context) => {
-            return (
-              context.enabledClusters.find((a) => {
-                return cluster.id == a.id
-              }) != undefined
-            )
-          },
+          domainFilterFn: (domain, currentOpenDomains, context) =>
+            context.enabledClusters.map((a) => a.domainName).includes(domain),
+          clusterFilterFn: (cluster, context) =>
+            context.enabledClusters.find((a) => cluster.id == a.id) !=
+            undefined,
         },
         {
           label: 'Close All',

@@ -525,7 +525,8 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT" (
   "PROFILE" integer,
   "ENDPOINT_IDENTIFIER" integer,
   "NETWORK_IDENTIFIER" integer,
-  "ENDPOINT_VERSION" integer,
+  "DEVICE_IDENTIFIER" integer,
+  "DEVICE_VERSION" integer,
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete
   set NULL

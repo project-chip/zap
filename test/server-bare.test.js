@@ -93,10 +93,11 @@ describe('Session specific tests', () => {
     }))
 
   test('test that there is 0 clusters initially', () =>
-    axiosInstance.get(`/zcl/cluster/all?sessionId=${uuid}`).then((response) => {
-      expect(response.data.data.length).toBe(0)
-      expect(response.data.type).toBe('cluster')
-    }))
+    axiosInstance
+      .get(`${restApi.uri.zclCluster}all?sessionId=${uuid}`)
+      .then((response) => {
+        expect(response.data.clusterData.length).toBe(0)
+      }))
 
   test('make sure there is 1 session after previous call', () =>
     queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
@@ -133,10 +134,11 @@ describe('Session specific tests', () => {
     ]))
 
   test('test that there are 2 clusters now', () =>
-    axiosInstance.get(`/zcl/cluster/all?sessionId=${uuid}`).then((response) => {
-      expect(response.data.data.length).toBe(2)
-      expect(response.data.type).toBe('cluster')
-    }))
+    axiosInstance
+      .get(`${restApi.uri.zclCluster}all?sessionId=${uuid}`)
+      .then((response) => {
+        expect(response.data.clusterData.length).toBe(2)
+      }))
 
   test('make sure there is still 1 session after previous call', () =>
     queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
@@ -152,10 +154,11 @@ describe('Session specific tests', () => {
     ]))
 
   test('test that there are domains', () =>
-    axiosInstance.get(`/zcl/domain/all?sessionId=${uuid}`).then((response) => {
-      expect(response.data.data.length).toBe(4)
-      expect(response.data.type).toBe('domain')
-    }))
+    axiosInstance
+      .get(`${restApi.uri.zclDomain}all?sessionId=${uuid}`)
+      .then((response) => {
+        expect(response.data.length).toBe(4)
+      }))
 
   // We save and then load, which creates a new session.
   test('save into a file and load from file', () => {

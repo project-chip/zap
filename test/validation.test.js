@@ -278,7 +278,8 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       1,
       endpointType.endpointTypeId,
       1,
-      23
+      23,
+      43
     )
     eptId = await queryConfig.insertEndpoint(
       db,
@@ -286,7 +287,8 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       1,
       endpointType.endpointTypeId,
       1,
-      23
+      23,
+      43
     )
   }, 10000)
   test(

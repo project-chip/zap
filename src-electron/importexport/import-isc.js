@@ -23,8 +23,6 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
-const { query } = require('express')
-const session = require('express-session')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -569,7 +567,8 @@ async function iscDataLoader(db, state, sessionId) {
             ep.endpoint,
             endpointTypeId,
             ep.network,
-            ep.deviceVersion
+            ep.deviceVersion,
+            ep.deviceId
           )
         )
       }

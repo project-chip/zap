@@ -275,7 +275,8 @@ exports.map = {
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       profileId: x.PROFILE,
       networkId: x.NETWORK_IDENTIFIER,
-      endpointVersion: x.ENDPOINT_VERSION,
+      endpointVersion: x.DEVICE_VERSION,
+      deviceIdentifier: x.DEVICE_IDENTIFIER,
     }
   },
   endpointType: (x) => {
@@ -388,6 +389,6 @@ exports.reverseMap = {
     endpointTypeRef: 'ENDPOINT_TYPE_REF',
     profileId: 'PROFILE',
     networkId: 'NETWORK_IDENTIFIER',
-    endpointVersion: 'ENDPOINT_VERSION',
+    endpointVersion: 'DEVICE_VERSION',
   },
 }
