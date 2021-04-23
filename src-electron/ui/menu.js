@@ -21,7 +21,7 @@ const preference = require('../main-process/preference.js')
 const about = require('../main-process/about.js')
 const commonUrl = require('../../src-shared/common-url.js')
 const browserApi = require('./browser-api.js')
-const restApi = require('../../src-shared/rest-api.js')
+const rendApi = require('../../src-shared/rend-api.js')
 
 const newConfiguration = 'New Configuration'
 
@@ -212,7 +212,7 @@ async function getUserSessionInfoMessage(browserWindow) {
  */
 function doOpen(browserWindow, httpPort) {
   browserApi
-    .getFileLocation(browserWindow, restApi.fileLocationCategory.save)
+    .getFileLocation(browserWindow, rendApi.storageKey.fileSave)
     .then((filePath) => {
       let opts = {
         title: 'Select ZAP or ISC file to load.',
@@ -228,7 +228,7 @@ function doOpen(browserWindow, httpPort) {
         fileOpen(result.filePaths, httpPort)
         browserApi.saveFileLocation(
           browserWindow,
-          restApi.fileLocationCategory.save,
+          rendApi.storageKey.fileSave,
           result.filePaths[0]
         )
       }
@@ -258,7 +258,7 @@ function doSave(browserWindow) {
  */
 function doSaveAs(browserWindow) {
   browserApi
-    .getFileLocation(browserWindow, restApi.fileLocationCategory.save)
+    .getFileLocation(browserWindow, rendApi.storageKey.fileSave)
     .then((filePath) => {
       let opts = {
         filters: [
@@ -284,7 +284,7 @@ function doSaveAs(browserWindow) {
         browserWindow.setTitle(filePath)
         browserApi.saveFileLocation(
           browserWindow,
-          restApi.fileLocationCategory.save,
+          rendApi.storageKey.fileSave,
           filePath
         )
       }

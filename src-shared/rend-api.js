@@ -40,3 +40,7 @@ exports.observable = {
   debugNavBar: 'debugNavBar',
   themeData: 'data-theme',
 }
+
+exports.storageKey = {
+  fileSave: 'lastFileLocation_openFileSave',
+}
