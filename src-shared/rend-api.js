@@ -43,4 +43,5 @@ exports.observable = {
 
 exports.storageKey = {
   fileSave: 'lastFileLocation_openFileSave',
+  theme: 'ui_theme',
 }

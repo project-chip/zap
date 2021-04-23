@@ -26,6 +26,7 @@ import { QSpinnerGears } from 'quasar'
 const rendApi = require(`../src-shared/rend-api.js`)
 const observable = require('./util/observable.js')
 const dbEnum = require(`../src-shared/db-enum.js`)
+const storage = require('./util/storage.js')
 
 function initLoad(store) {
   store.dispatch('zap/loadInitialData')
@@ -51,9 +52,8 @@ export default {
   name: 'App',
   methods: {
     setThemeMode(theme) {
-      let darkMode =
-        theme === 'com.silabs.ss.platform.theme.dark' || theme === 'dark'
-      this.$q.dark.set(darkMode)
+      this.$q.dark.set(theme != null && theme.includes('dark'))
+      storage.setItem(rendApi.storageKey.theme, theme)
     },
     setGenerationInProgress(progressMessage) {
       if (progressMessage != null && progressMessage.length > 0) {
@@ -69,7 +69,7 @@ export default {
     },
   },
   mounted() {
-    let theme = observable.getObservableAttribute(rendApi.observable.themeData)
+    let theme = storage.getItem(rendApi.storageKey.theme)
     this.setThemeMode(theme)
 
     this.$q.loading.show({
