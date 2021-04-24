@@ -244,7 +244,11 @@ CREATE TABLE IF NOT EXISTS "ATOMIC" (
   "DESCRIPTION" text,
   "ATOMIC_IDENTIFIER" integer,
   "ATOMIC_SIZE" integer,
-  "DISCRETE" integer default false,
+  "IS_DISCRETE" integer default false,
+  "IS_STRING" integer default false,
+  "IS_LONG" integer default false,
+  "IS_CHAR" integer default false,
+  "IS_SIGNED" integer default false,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*

@@ -226,7 +226,11 @@ function prepareAtomic(a) {
     id: parseInt(a.$.id),
     size: a.$.size,
     description: a.$.description,
-    discrete: a.$.discrete == 'true' ? true : false,
+    isDiscrete: a.$.discrete == 'true',
+    isSigned: a.$.signed == 'true',
+    isString: a.$.string == 'true',
+    isLong: a.$.long == 'true',
+    isChar: a.$.char == 'true',
   }
 }
 /**

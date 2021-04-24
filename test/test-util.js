@@ -54,5 +54,6 @@ exports.totalAttributeCount = 3430
 exports.totalClusterCommandCount = 602
 exports.totalServerAttributeCount = 2954
 exports.totalSpecCount = 39
-
+exports.totalEnumCount = 209
+exports.totalEnumItemCount = 1595
 exports.testTemplateCount = 16

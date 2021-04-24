@@ -609,14 +609,18 @@ async function insertBitmaps(db, packageId, data) {
 async function insertAtomics(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO ATOMIC (PACKAGE_REF, NAME, DESCRIPTION, ATOMIC_IDENTIFIER, ATOMIC_SIZE, DISCRETE) VALUES (?, ?, ?, ?, ?, ?)',
+    'INSERT INTO ATOMIC (PACKAGE_REF, NAME, DESCRIPTION, ATOMIC_IDENTIFIER, ATOMIC_SIZE, IS_DISCRETE, IS_SIGNED, IS_STRING, IS_LONG, IS_CHAR) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     data.map((at) => [
       packageId,
       at.name,
       at.description,
       at.id,
       at.size,
-      at.discrete,
+      at.isDiscrete,
+      at.isSigned,
+      at.isString,
+      at.isLong,
+      at.isChar,
     ])
   )
 }

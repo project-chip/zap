@@ -64,7 +64,7 @@ test('test Silabs zcl data loading in memory', () => {
     .then(() => queryZcl.selectAllDomains(db, packageId))
     .then((x) => expect(x.length).toEqual(testUtil.totalDomainCount))
     .then(() => queryZcl.selectAllEnums(db, packageId))
-    .then((x) => expect(x.length).toEqual(208))
+    .then((x) => expect(x.length).toEqual(testUtil.totalEnumCount))
     .then(() => queryZcl.selectAllStructs(db, packageId))
     .then((x) => expect(x.length).toEqual(54))
     .then(() => queryZcl.selectAllBitmaps(db, packageId))
@@ -76,7 +76,7 @@ test('test Silabs zcl data loading in memory', () => {
     .then(() => queryGeneric.selectCountFrom(db, 'COMMAND'))
     .then((x) => expect(x).toEqual(testUtil.totalCommandCount))
     .then(() => queryGeneric.selectCountFrom(db, 'ENUM_ITEM'))
-    .then((x) => expect(x).toEqual(1569))
+    .then((x) => expect(x).toEqual(testUtil.totalEnumItemCount))
     .then(() => queryGeneric.selectCountFrom(db, 'ATTRIBUTE'))
     .then((x) => expect(x).toEqual(testUtil.totalAttributeCount))
     .then(() => queryGeneric.selectCountFrom(db, 'BITMAP_FIELD'))
@@ -289,79 +289,53 @@ test('test Dotdot zcl data loading in memory', async () => {
   )
 }, 5000) // Give this test 5 secs to resolve
 
-test('test Dotdot and Silabs zcl data loading in memory', () => {
-  let db
-  let packageIdSilabs
-  let packageIdDotdot
-  return (
-    dbApi
-      .initRamDatabase()
-      .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
-      .then((d) => {
-        db = d
-        return db
-      })
-      //Load the Silabs ZCL XML into the DB
-      .then((db) => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)) //default silabs
-      .then((ctx) => {
-        packageIdSilabs = ctx.packageId
-        return queryPackage.getPackageByPackageId(ctx.db, packageIdSilabs)
-      })
-      .then((p) => expect(p.version).toEqual('ZCL Test Data'))
-      .then(() =>
-        queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
-      )
-      .then((rows) => expect(rows.length).toEqual(1))
+test('test Dotdot and Silabs zcl data loading in memory', async () => {
+  let db = await dbApi.initRamDatabase()
+  try {
+    await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+    let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+    let packageIdSilabs = ctx.packageId
 
-      //Load the Dotdot ZCL XML into the DB
-      .then(() => zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)) //default silabs
-      .then((ctx) => {
-        packageIdDotdot = ctx.packageId
-        return queryPackage.getPackageByPackageId(ctx.db, packageIdDotdot)
-      })
-      .then((p) => expect(p.version).toEqual('1.0'))
-      .then(() =>
-        queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
-      )
-      .then((rows) => expect(rows.length).toEqual(2))
+    let p = await queryPackage.getPackageByPackageId(ctx.db, packageIdSilabs)
+    expect(p.version).toEqual('ZCL Test Data')
 
-      //Run some queries on the DB
-      .then(() =>
-        dbApi.dbAll(
-          db,
-          'SELECT NAME, CODE, PACKAGE_REF FROM CLUSTER WHERE CODE IN (SELECT CODE FROM CLUSTER GROUP BY CODE HAVING COUNT(CODE)=1)',
-          []
-        )
-      )
-      .then((x) => {
-        //env.logWarning(`FOUND ${x.length} UNIQUE ENTRIES`)
-        expect(x.length).toBeGreaterThan(0)
-      })
+    let rows = await queryPackage.getPackagesByType(
+      db,
+      dbEnum.packageType.zclProperties
+    )
+    expect(rows.length).toEqual(1)
 
-      .then(() =>
-        dbApi.dbAll(
-          db,
-          'SELECT NAME, ATOMIC_IDENTIFIER, PACKAGE_REF FROM ATOMIC WHERE ATOMIC_IDENTIFIER IN (SELECT ATOMIC_IDENTIFIER FROM ATOMIC GROUP BY ATOMIC_IDENTIFIER HAVING COUNT(ATOMIC_IDENTIFIER)=1)',
-          []
-        )
-      )
-      .then((x) => {
-        expect(x.length).toBeGreaterThan(0)
-      })
+    ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
+    let packageIdDotdot = ctx.packageId
 
-      .then(() =>
-        dbApi.dbAll(
-          db,
-          'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(NAME)=1)',
-          []
-        )
-      )
-      .then((x) => {
-        expect(x.length).toBeGreaterThan(0)
-      })
+    p = await queryPackage.getPackageByPackageId(ctx.db, packageIdDotdot)
+    expect(p.version).toEqual('1.0')
+    rows = await queryPackage.getPackagesByType(
+      db,
+      dbEnum.packageType.zclProperties
+    )
+    expect(rows.length).toEqual(2)
 
-      .finally(() => {
-        dbApi.closeDatabase(db)
-      })
-  )
+    let x = await dbApi.dbAll(
+      db,
+      'SELECT NAME, CODE, PACKAGE_REF FROM CLUSTER WHERE CODE IN (SELECT CODE FROM CLUSTER GROUP BY CODE HAVING COUNT(CODE)=1)',
+      []
+    )
+    expect(x.length).toBeGreaterThan(0)
+
+    x = await dbApi.dbAll(
+      db,
+      'SELECT NAME, ATOMIC_IDENTIFIER, PACKAGE_REF FROM ATOMIC WHERE ATOMIC_IDENTIFIER IN (SELECT ATOMIC_IDENTIFIER FROM ATOMIC GROUP BY ATOMIC_IDENTIFIER HAVING COUNT(ATOMIC_IDENTIFIER)=1)',
+      []
+    )
+    expect(x.length).toBeGreaterThan(0)
+    x = await dbApi.dbAll(
+      db,
+      'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(NAME)=1)',
+      []
+    )
+    expect(x.length).toBeGreaterThan(0)
+  } finally {
+    await dbApi.closeDatabase(db)
+  }
 }, 20000) // Give this test 20 secs to resolve

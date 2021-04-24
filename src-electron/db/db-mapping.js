@@ -197,7 +197,11 @@ exports.map = {
       name: x.NAME,
       description: x.DESCRIPTION,
       size: x.ATOMIC_SIZE,
-      discrete: dbApi.fromDbBool(x.DISCRETE),
+      isDiscrete: dbApi.fromDbBool(x.IS_DISCRETE),
+      isString: dbApi.fromDbBool(x.IS_STRING),
+      isLong: dbApi.fromDbBool(x.IS_LONG),
+      isChar: dbApi.fromDbBool(x.IS_CHAR),
+      isSigned: dbApi.fromDbBool(x.IS_SIGNED),
     }
   },
 

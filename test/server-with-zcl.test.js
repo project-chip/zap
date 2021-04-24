@@ -177,7 +177,7 @@ describe('Miscelaneous REST API tests', () => {
     axiosInstance
       .get(`${restApi.uri.zclEnum}all?sessionId=${sessionUuid}`)
       .then((response) => {
-        expect(response.data.length).toBe(208)
+        expect(response.data.length).toBe(testUtil.totalEnumCount)
       }))
   test('all structs', () =>
     axiosInstance
