@@ -6,7 +6,7 @@
   "requiredFeatureLevel": "apack.core:8",
   "featureLevel": 29,
   "uc.triggerExtension": "zap",
-  "executables": {
+  "executable": {
     "zap:win32.x86_64": {
       "exe": "zap.exe",
       "optional": true
@@ -28,7 +28,7 @@
       "exe": "src-script/zap-start.js"
     }
   },
-  "functions": {
+  "function": {
     "ui:uc_cli": {
       "cmd": "$(zap)"
     },
