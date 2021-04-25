@@ -20,9 +20,9 @@
 let fs = require('fs')
 let path = require('path')
 
-const licenseJs = `/**
+const licenseJs = (year) => `/**
  *
- *    Copyright (c) 2020 Silicon Labs
+ *    Copyright (c) ${year} Silicon Labs
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -38,9 +38,9 @@ const licenseJs = `/**
  */
 `
 
-const licenseTestJs = `/**
+const licenseTestJs = (year, jestEnv = 'node') => `/**
  *
- *    Copyright (c) 2020 Silicon Labs
+ *    Copyright (c) ${year} Silicon Labs
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -55,12 +55,12 @@ const licenseTestJs = `/**
  *    limitations under the License.
  *
  *
- * @jest-environment node
+ * @jest-environment ${jestEnv}
  */
 `
 
-const licenseXml = `<!--
-Copyright (c) 2008,2020 Silicon Labs.
+const licenseXml = (year) => `<!--
+Copyright (c) 2008,${year} Silicon Labs.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -78,30 +78,39 @@ limitations under the License.
 
 // Directories that we will scan
 const directories = ['src', 'src-electron', 'test']
+const startYear = 2020
 
 async function processSingleFile(path) {
   let isVue = path.endsWith('.vue')
   let isJs = path.endsWith('.js')
   let isTestJs = path.endsWith('.test.js')
+  let currentYear = new Date().getFullYear()
 
   if (!(isVue || isJs)) return
 
   fs.readFile(path, 'utf8', (err, data) => {
     if (err) throw err
 
-    if (isTestJs && data.startsWith(licenseTestJs)) {
-      console.log(`    -  valid: ${path}: `)
-      return
-    }
+    for (let year = startYear; year <= currentYear; year++) {
+      if (isTestJs && data.startsWith(licenseTestJs(year, 'node'))) {
+        console.log(`    -  valid: ${path}: `)
+        return
+      }
 
-    if (isJs && data.startsWith(licenseJs)) {
-      console.log(`    -  valid: ${path}: `)
-      return
-    }
+      if (isTestJs && data.startsWith(licenseTestJs(year, 'jsdom'))) {
+        console.log(`    -  valid: ${path}: `)
+        return
+      }
 
-    if (isVue && data.startsWith(licenseXml)) {
-      console.log(`    -  valid: ${path}: `)
-      return
+      if (isJs && data.startsWith(licenseJs(year))) {
+        console.log(`    -  valid: ${path}: `)
+        return
+      }
+
+      if (isVue && data.startsWith(licenseXml(year))) {
+        console.log(`    -  valid: ${path}: `)
+        return
+      }
     }
 
     // Now check if we need to remove old license
@@ -115,7 +124,11 @@ async function processSingleFile(path) {
     }
 
     // Now we write license and then data
-    let output = isJs ? (isTestJs ? licenseTestJs : licenseJs) : licenseXml
+    let output = isJs
+      ? isTestJs
+        ? licenseTestJs(currentYear)
+        : licenseJs(currentYear)
+      : licenseXml(currentYear)
     output = output.concat(data)
     fs.writeFile(path, output, (err) => {
       if (err) throw err
