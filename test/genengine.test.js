@@ -150,13 +150,17 @@ test(
         //expect(zclId).toEqual('random placeholder')
         expect(
           zclId.includes(
-            '// 207/208: label=>ZllStatus caption=>Enum of type ENUM8'
+            `// ${testUtil.totalEnumCount - 1}/${
+              testUtil.totalEnumCount
+            }: label=>ZllStatus caption=>Enum of type ENUM8`
           )
         ).toBeTruthy()
-        expect(zclId.includes('Label count: 208')).toBeTruthy()
+        expect(
+          zclId.includes(`Label count: ${testUtil.totalEnumCount}`)
+        ).toBeTruthy()
         expect(
           zclId.includes(
-            '// 128/208: label=>MeteringBlockEnumerations caption=>Enum of type ENUM8'
+            `// 129/${testUtil.totalEnumCount}: label=>MeteringBlockEnumerations caption=>Enum of type ENUM8`
           )
         ).toBeTruthy()
         expect(

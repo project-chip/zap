@@ -1,0 +1,60 @@
+{
+  "id": "zclConfigurator",
+  "label": "Zigbee Cluster Configurator",
+  "description": "Graphical configuration tool for application and libraries based on Zigbee Cluster Library.",
+  "path": [".", "node_modules/.bin/", "ZAP.app/Contents/MacOS"],
+  "requiredFeatureLevel": "apack.core:8",
+  "featureLevel": 29,
+  "uc.triggerExtension": "zap",
+  "executable": {
+    "zap:win32.x86_64": {
+      "exe": "zap.exe",
+      "optional": true
+    },
+
+    "zap:linux.x86_64": {
+      "exe": "zap",
+      "optional": true
+    },
+
+    "zap:macosx.x86_64": {
+      "exe": "zap.app/Contents/MacOS/zap",
+      "optional": true
+    },
+
+    "zap": {
+      "engine": "node",
+      "optional": true,
+      "exe": "src-script/zap-start.js"
+    }
+  },
+  "function": {
+    "ui:uc_cli": {
+      "cmd": "$(zap)"
+    },
+    "selfcheck:uc_cli": {
+      "cmd": "$(zap) selfCheck"
+    },
+    "version:uc_cli": {
+      "cmd": "$(zap) --version"
+    },
+    "uc_generate": {
+      "cmd": "$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}"
+    },
+    "zapHelp": {
+      "cmd": "$(zap) --help"
+    },
+    "zapSelfcheck": {
+      "cmd": "$(zap) selfCheck"
+    },
+    "zapServer": {
+      "cmd": "$(zap) --noUi --showUrl --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --studioHttpPort ${studioHttpPort}"
+    },
+    "zapServerNoSdk": {
+      "cmd": "$(zap) --noUi --showUrl --studioHttpPort ${studioHttpPort}"
+    },
+    "zapFull": {
+      "cmd": "$(zap) --showUrl --zcl ${sdkRoot}/app/zcl/zcl-zap.json"
+    }
+  }
+}

@@ -22,6 +22,9 @@ const fs = require('fs')
 let packageJson = path.join(__dirname, '../package.json')
 let featureLevelInPackageJson = JSON.parse(fs.readFileSync(packageJson))
   .featureLevel
+let apackJson = path.join(__dirname, '../apack.json')
+let featureLevelInApackJson = JSON.parse(fs.readFileSync(apackJson))
+  .featureLevel
 
 let apackInfo = path.join(__dirname, '../apack.info')
 let data = fs.readFileSync(apackInfo).toString()
@@ -31,9 +34,16 @@ let j = data.indexOf('\n', i + lookFor.length)
 let slice = data.slice(i + lookFor.length, j)
 let featureLevelInApackInfo = parseInt(slice)
 
-if (featureLevelInApackInfo != featureLevelInPackageJson) {
+if (
+  featureLevelInApackInfo != featureLevelInPackageJson ||
+  featureLevelInApackInfo != featureLevelInApackJson
+) {
   console.log(
-    `⛔ Feature level missmatch: ${featureLevelInApackInfo} in apack.info vs ${featureLevelInPackageJson} in package.json. Please make sure both apack.info and package.json have the same feature level.`
+    `⛔ Feature level missmatch: 
+    ${featureLevelInApackInfo} ← apack.info
+    ${featureLevelInPackageJson} ← package.json
+    ${featureLevelInApackJson} ← apack.json
+Please make sure all feature levels are the same.`
   )
   process.exit(1)
 } else {

@@ -37,9 +37,7 @@ if (
 
 scriptUtil
   .stampVersion()
-  .then(() => {
-    if (executor === 'electron') return scriptUtil.rebuildSpaIfNeeded()
-  })
+  .then(() => scriptUtil.rebuildSpaIfNeeded())
   .then(() => {
     let cmdArgs = ['src-electron/main-process/electron-main.js']
 

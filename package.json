@@ -1,7 +1,7 @@
 {
   "name": "zap",
   "version": "0.99.6",
-  "featureLevel": 28,
+  "featureLevel": 29,
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -16,6 +16,7 @@
   "main": "src-electron/main-process/electron-main.js",
   "scripts": {
     "lic": "node src-script/license-check.js --production",
+    "featurelevel": "node src-script/featurelevel-check.js",
     "lint": "eslint --ext .js,.vue src src-electron src-shared src-script test",
     "lintfix": "eslint --fix --ext .js,.vue src src-electron src-shared src-script test",
     "electron-build-dmg": "node src-script/build-dmg.js",

@@ -103,12 +103,12 @@ async function setTheme(browserWindow, theme) {
   )
 }
 
-async function getFileLocation(browserWindow, fileCategory) {
-  return getStorageItem(browserWindow, 'lastFileLocation_' + fileCategory)
+async function getFileLocation(browserWindow, storageKey) {
+  return getStorageItem(browserWindow, storageKey)
 }
 
-async function saveFileLocation(browserWindow, fileCategory, path) {
-  setStorageItem(browserWindow, 'lastFileLocation_' + fileCategory, path)
+async function saveFileLocation(browserWindow, storageKey, path) {
+  setStorageItem(browserWindow, storageKey, path)
 }
 
 async function setStorageItem(browserWindow, key, value) {

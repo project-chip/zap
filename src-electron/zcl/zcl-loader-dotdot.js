@@ -355,12 +355,17 @@ function prepareCluster(cluster, types, isExtension = false) {
  * @returns object ready for insertion into the DB
  */
 function prepareAtomic(type) {
+  let desc = type.$.name
   return {
     name: type.$.short,
     id: parseInt(normalizeHexValue(type.$.id)),
     size: getNumBytesFromShortName(type.$.short),
-    description: type.$.name,
-    discrete: type.$.discrete == 'true' ? true : false,
+    description: desc,
+    isDiscrete: type.$.discrete == 'true' ? true : false,
+    isSigned: desc.includes('Signed'),
+    isString: desc.includes('string'),
+    isLong: desc.includes('string') && desc.includes('Long'),
+    isChar: desc.includes('string') && desc.includes('haracter'),
   }
 }
 

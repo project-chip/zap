@@ -160,6 +160,10 @@ Copyright 2012, Silicon Laboratories Inc.</xs:documentation></xs:annotation>
       <xs:attribute name="description" use="required" type="xs:string" />
       <xs:attribute name="size" type="xs:integer" />
       <xs:attribute name="discrete" type="xs:boolean" />
+      <xs:attribute name="signed" type="xs:boolean" />
+      <xs:attribute name="string" type="xs:boolean" />
+      <xs:attribute name="char" type="xs:boolean" />
+      <xs:attribute name="long" type="xs:boolean" />
     </xs:complexType>
   </xs:element>
   <xs:element name="bitmap">
@@ -348,6 +352,9 @@ Copyright 2012, Silicon Laboratories Inc.</xs:documentation></xs:annotation>
     	<xs:attribute name="manufacturerCode" type="zclCode" />
     	<xs:attribute name="max" type="xs:anySimpleType" />
     	<xs:attribute name="min" type="xs:anySimpleType" />
+    	<xs:attribute name="reportMaxInterval" type="xs:anySimpleType" />
+    	<xs:attribute name="reportMinInterval" type="xs:anySimpleType" />
+    	<xs:attribute name="reportableChange" type="xs:anySimpleType" />
     	<xs:attribute name="optional" use="required" type="xs:boolean" />
     	<xs:attribute name="side" use="required" type="zclSide" />
     	<xs:attribute name="type" use="required" type="xs:string" />

@@ -20,7 +20,6 @@
  *
  * @module DB API: zcl database access
  */
-const env = require('../util/env.js')
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -1116,6 +1115,20 @@ async function updateDeviceTypeEntityReferences(db) {
     .then((res) => updateCommandReferencesForDeviceTypeReferences(db))
 }
 
+const ATOMIC_QUERY = `
+SELECT
+  ATOMIC_IDENTIFIER,
+  NAME,
+  DESCRIPTION,
+  ATOMIC_SIZE,
+  IS_DISCRETE,
+  IS_STRING,
+  IS_LONG,
+  IS_CHAR,
+  IS_SIGNED
+FROM ATOMIC
+`
+
 /**
  * Locates atomic type based on a type name.
  *
@@ -1125,11 +1138,10 @@ async function updateDeviceTypeEntityReferences(db) {
  */
 async function selectAtomicType(db, packageId, typeName) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE, DISCRETE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
-      [packageId, typeName == null ? typeName : typeName.toLowerCase()]
-    )
+    .dbGet(db, `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? AND NAME = ?`, [
+      packageId,
+      typeName == null ? typeName : typeName.toLowerCase(),
+    ])
     .then(dbMapping.map.atomic)
 }
 
@@ -1141,11 +1153,10 @@ async function selectAtomicType(db, packageId, typeName) {
  */
 async function selectAtomicByName(db, name, packageId) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE, DISCRETE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
-      [packageId, name]
-    )
+    .dbGet(db, `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? AND NAME = ?`, [
+      packageId,
+      name,
+    ])
     .then(dbMapping.map.atomic)
 }
 
@@ -1158,7 +1169,7 @@ async function selectAllAtomics(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT ATOMIC_IDENTIFIER, NAME, DESCRIPTION, ATOMIC_SIZE, DISCRETE FROM ATOMIC WHERE PACKAGE_REF = ? ORDER BY ATOMIC_IDENTIFIER',
+      `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? ORDER BY ATOMIC_IDENTIFIER`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.atomic))

@@ -42,23 +42,23 @@ limitations under the License.
     <type id="0x25" name="int48u" size="6" description="Unsigned 48-bit integer"/>
     <type id="0x26" name="int56u" size="7" description="Unsigned 56-bit integer"/>
     <type id="0x27" name="int64u" size="8" description="Unsigned 64-bit integer"/>
-    <type id="0x28" name="int8s" size="1" description="Signed 8-bit integer"/>
-    <type id="0x29" name="int16s" size="2" description="Signed 16-bit integer"/>
-    <type id="0x2A" name="int24s" size="3" description="Signed 24-bit integer"/>
-    <type id="0x2B" name="int32s" size="4" description="Signed 32-bit integer"/>
-    <type id="0x2C" name="int40s" size="5" description="Signed 40-bit integer"/>
-    <type id="0x2D" name="int48s" size="6" description="Signed 48-bit integer"/>
-    <type id="0x2E" name="int56s" size="7" description="Signed 56-bit integer"/>
-    <type id="0x2F" name="int64s" size="8" description="Signed 64-bit integer"/>
+    <type id="0x28" name="int8s" size="1" description="Signed 8-bit integer" signed="true"/>
+    <type id="0x29" name="int16s" size="2" description="Signed 16-bit integer" signed="true"/>
+    <type id="0x2A" name="int24s" size="3" description="Signed 24-bit integer" signed="true"/>
+    <type id="0x2B" name="int32s" size="4" description="Signed 32-bit integer" signed="true"/>
+    <type id="0x2C" name="int40s" size="5" description="Signed 40-bit integer" signed="true"/>
+    <type id="0x2D" name="int48s" size="6" description="Signed 48-bit integer" signed="true"/>
+    <type id="0x2E" name="int56s" size="7" description="Signed 56-bit integer" signed="true"/>
+    <type id="0x2F" name="int64s" size="8" description="Signed 64-bit integer" signed="true"/>
     <type id="0x30" name="enum8" size="1" description="8-bit enumeration" discrete="true" />
     <type id="0x31" name="enum16" size="2" description="16-bit enumeration" discrete="true" />
     <type id="0x38" name="float_semi" size="2" description="Semi-precision"/>
     <type id="0x39" name="float_single" size="4" description="Single precision"/>
     <type id="0x3A" name="float_double" size="8" description="Double precision"/>
-    <type id="0x41" name="octet_string" description="Octet string" discrete="true" />
-    <type id="0x42" name="char_string" description="Character string" discrete="true" />
-    <type id="0x43" name="long_octet_string" description="Long octet string" discrete="true" />
-    <type id="0x44" name="long_char_string" description="Long character string" discrete="true" />
+    <type id="0x41" name="octet_string" description="Octet string" discrete="true"  string="true"/>
+    <type id="0x42" name="char_string" description="Character string" discrete="true" string="true" char="true"/>
+    <type id="0x43" name="long_octet_string" description="Long octet string" discrete="true"  string="true" long="true"/>
+    <type id="0x44" name="long_char_string" description="Long character string" discrete="true"  string="true" char="true" long="true"/>
     <type id="0x48" name="array" description="Array" discrete="true" />
     <type id="0x4C" name="struct" description="Structure" discrete="true" />
     <type id="0x50" name="set" description="Set" discrete="true" />
@@ -797,18 +797,20 @@ limitations under the License.
     <item name="Silent" value="0x00"/>
     <item name="Low" value="0x01"/>
     <item name="High" value="0x02"/>
+    <item name="Medium" value="0x03" />
   </enum>
   <enum name="DoorLockType" type="ENUM8">
     <item name="DeadBolt" value="0x00"/>
     <item name="Magnetic" value="0x01"/>
-    <item name="Mortise" value="0x02"/>
-    <item name="Rim" value="0x03"/>
-    <item name="LatchBolt" value="0x04"/>
-    <item name="Cylindrical" value="0x05"/>
-    <item name="Tubular" value="0x06"/>
-    <item name="Interconnected" value="0x07"/>
-    <item name="DeadLatch" value="0x08"/>
-    <item name="Other" value="0x09"/>
+    <item name="Other" value="0x02"/>
+    <item name="Mortise" value="0x03"/>
+    <item name="Rim" value="0x04"/>
+    <item name="Latch Bolt" value="0x05"/>
+    <item name="Cylindrical" value="0x06"/>
+    <item name="Tubular" value="0x07"/>
+    <item name="Interconnected" value="0x08"/>
+    <item name="DeadLatch" value="0x09"/>
+    <item name="DoorFurniture" value="0x0A"/>
   </enum>
   <enum name="DoorState" type="ENUM8">
     <item name="Open" value="0x00"/>
@@ -816,14 +818,14 @@ limitations under the License.
     <item name="ErrorJammed" value="0x02"/>
     <item name="ErrorForcedOpen" value="0x03"/>
     <item name="ErrorUnspecified" value="0x04"/>
+    <item name="ErrorAjar"        value="0x05" />
   </enum>
   <enum name="DoorLockOperatingMode" type="ENUM8">
     <item name="NormalMode" value="0x00"/>
     <item name="VacationMode" value="0x01"/>
     <item name="PrivacyMode" value="0x02"/>
     <item name="NoRfLockOrUnlock" value="0x03"/>
-    <item name="LocalProgrammingMode" value="0x04"/>
-    <item name="PassageMode" value="0x05"/>
+    <item name="PassageMode" value="0x04"/>
   </enum>
   <enum name="DoorLockSecurityLevel" type="ENUM8">
     <item name="NetworkSecurity" value="0x00"/>
@@ -841,6 +843,8 @@ limitations under the License.
     <item name="WeekDayScheduleUser" value="0x02"/>
     <item name="MasterUser" value="0x03"/>
     <item name="NonAccessUser" value="0x04"/>
+    <item name="CoercedUser"      value="0x05" />
+    <item name="DisposableUser"   value="0x06" />
     <item name="NotSupported" value="0xFF"/>
   </enum>
   <bitmap name="DoorLockDayOfWeek" type="BITMAP8">
@@ -862,6 +866,7 @@ limitations under the License.
     <item name="Rf" value="0x01"/>
     <item name="Manual" value="0x02"/>
     <item name="Rfid" value="0x03"/>
+    <item name="BiometricCred" value="0x04" />
     <item name="Indeterminate" value="0xFF"/>
   </enum>
   <enum name="DoorLockSetPinOrIdStatus" type="ENUM8">
@@ -886,6 +891,13 @@ limitations under the License.
     <item name="ScheduleUnlock" value="0x0C"/>
     <item name="ManualLock" value="0x0D"/>
     <item name="ManualUnlock" value="0x0E"/>
+    <item name="UnlockCoercedUser"     value="0x10" />
+    <item name="FingerpintUnlock"      value="0x11" />
+    <item name="FaceIDUnlock"          value="0x12" />
+    <item name="FingerveinUnlock"      value="0x13" />
+    <item name="AutoUnlock"            value="0x14" />
+    <item name="ApplicationUnlock"     value="0x15" />
+    <item name="UnlockDisposableUser"  value="0x16" />
   </enum>
   <enum name="DoorLockProgrammingEventCode" type="ENUM8">
     <item name="UnknownOrMfgSpecific" value="0x00"/>
@@ -895,7 +907,23 @@ limitations under the License.
     <item name="PinChanged" value="0x04"/>
     <item name="IdAdded" value="0x05"/>
     <item name="IdDeleted" value="0x06"/>
+    <item name="FingerprintAdded"     value="0x07" />
+    <item name="FingerprintDeleted"   value="0x08" />
+    <item name="FaceIdAdded"          value="0x09" />
+    <item name="FaceIdDeleted"        value="0x0A" />
+    <item name="FingerveinAdded"      value="0x0B" />
+    <item name="FingerveinDeleted"    value="0x0C" />
   </enum>
+  <enum name="DoorLockAlarmCode" type="ENUM8">
+    <item name="DeadboltJammed"            value="0x00" />
+    <item name="ResetToFactoryDefaults"    value="0x01" />
+    <item name="RFModulePowerCycled"       value="0x03" />
+    <item name="TamperWrongCodeEntryLimit" value="0x04" />
+    <item name="TamperFrontEscutcheon"     value="0x05" />
+    <item name="ForcedDoorOpen"            value="0x06" />
+    <item name="DoorAjar"                  value="0x07" />
+    <item name="Coerced"                   value="0x08" />    
+  </enum>  
   <enum name="ThermostatRunningMode" type="ENUM8">
     <item name="Off" value="0x00"/>
     <item name="Cool" value="0x03"/>

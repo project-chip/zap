@@ -107,10 +107,6 @@ exports.param = {
   path: 'path',
 }
 
-exports.fileLocationCategory = {
-  save: 'openFileSave',
-}
-
 exports.uri = uri
 exports.httpCode = httpCode
 exports.uiMode = uiMode
