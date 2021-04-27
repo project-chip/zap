@@ -191,7 +191,7 @@ test(
         ).toBeTruthy()
         expect(
           epc.includes(
-            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x0101, 0x0000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65344, 0 }} }, /* Reporting for cluster: "Door Lock", attribute: "lock state". side: server */'
+            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x0101, 0x0000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65344, 0 }} }, /* lock state */'
           )
         ).toBeTruthy()
         expect(
