@@ -285,8 +285,10 @@ function httpServerUrl() {
  * Returns the startup message that needs to be printed out.
  */
 function httpServerStartupMessage() {
+  let ver = env.zapVersion()
   return {
     url: httpServerUrl(),
+    ...ver,
   }
 }
 
@@ -295,5 +297,4 @@ exports.initHttpServer = initHttpServer
 exports.shutdownHttpServer = shutdownHttpServer
 exports.shutdownHttpServerSync = shutdownHttpServerSync
 exports.httpServerPort = httpServerPort
-exports.httpServerUrl = httpServerUrl
 exports.httpServerStartupMessage = httpServerStartupMessage

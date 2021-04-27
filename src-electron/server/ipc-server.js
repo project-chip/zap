@@ -30,12 +30,11 @@ const eventType = {
   pong: 'pong', // Return of the ping data, no response required.
   over: 'over', // Sent from server to client as an intermediate printout.
   overAndOut: 'overAndOut', // Sent from server to client as a final answer.
-  version: 'version', // Sent from client to server to query version.
   new: 'new', // Sent from client to server to request new configuration
   open: 'open', // Sent from client to server with array of files to open
   convert: 'convert', // Sent from client to server when requesting to convert files
   generate: 'generate', // Sent from client to server when requesting generation.
-  serverUrl: 'serverUrl', // Sent from client to ask for server URL
+  serverStatus: 'serverStatus', // Sent from client to ask for server URL
 }
 
 /**
@@ -53,19 +52,10 @@ function handlerPing(data, socket) {
   serverIpc.server.emit(socket, eventType.pong, data)
 }
 
-function handlerServerUrl(data, socket) {
-  serverIpc.server.emit(
-    socket,
-    eventType.overAndOut,
-    httpServer.httpServerStartupMessage()
-  )
-}
-
-function handlerVersion(data, socket) {
-  let ret = env.zapVersion()
-  ret.url = httpServer.httpServerUrl()
-  ret.zapServerStatus = 'running'
-  serverIpc.server.emit(socket, eventType.overAndOut, ret)
+function handlerServerStatus(data, socket) {
+  let svr = httpServer.httpServerStartupMessage()
+  svr.zapServerStatus = 'running'
+  serverIpc.server.emit(socket, eventType.overAndOut, svr)
 }
 
 function handlerNew(data, socket, httpPort) {
@@ -103,12 +93,8 @@ const handlers = [
     handler: handlerPing,
   },
   {
-    eventType: eventType.serverUrl,
-    handler: handlerServerUrl,
-  },
-  {
-    eventType: eventType.version,
-    handler: handlerVersion,
+    eventType: eventType.serverStatus,
+    handler: handlerServerStatus,
   },
   {
     eventType: eventType.new,

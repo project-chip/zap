@@ -583,8 +583,8 @@ function startUpSecondaryInstance(argv) {
       logRemoteData(data)
     })
   })
-  if (argv._.includes('status')) {
-    ipcClient.emit(ipcServer.eventType.version)
+  if (argv._.includes('status') || argv._.includes('server')) {
+    ipcClient.emit(ipcServer.eventType.serverStatus)
   } else if (argv._.includes('new')) {
     ipcClient.emit(ipcServer.eventType.new)
   } else if (argv._.includes('convert') && argv.zapFiles != null) {
@@ -594,8 +594,6 @@ function startUpSecondaryInstance(argv) {
     })
   } else if (argv._.includes('generate') && argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.generate, argv.zapFiles)
-  } else if (argv._.includes('server')) {
-    ipcClient.emit(ipcServer.eventType.serverUrl)
   } else if (argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.open, argv.zapFiles)
   }
