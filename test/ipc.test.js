@@ -75,7 +75,8 @@ test('server url', () => {
   ipcClient.emit(ipcServer.eventType.serverUrl)
   return util.waitFor(responseWaitPeriod).then(() => {
     expect(response).not.toBeNull()
-    expect(response.includes('http://localhost')).toBeTruthy()
+    expect(response.url).not.toBeNull()
+    expect(response.url.includes('http://localhost')).toBeTruthy()
   })
 })
 
