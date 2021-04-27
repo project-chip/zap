@@ -586,6 +586,8 @@ function startUpSecondaryInstance(argv) {
     })
   } else if (argv._.includes('generate') && argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.generate, argv.zapFiles)
+  } else if (argv._.includes('server')) {
+    ipcClient.emit(ipcServer.eventType.serverUrl)
   } else if (argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.open, argv.zapFiles)
   }
@@ -608,7 +610,10 @@ async function startUpMainInstance(isElectron, argv) {
     clearDatabaseFile(env.sqliteFile())
   }
 
-  if (argv._.includes('selfCheck')) {
+  if (argv._.includes('status')) {
+    console.log('Server is not running.')
+    process.exit(0)
+  } else if (argv._.includes('selfCheck')) {
     return startSelfCheck(argv)
   } else if (argv._.includes('analyze')) {
     if (argv.zapFiles.length < 1)
