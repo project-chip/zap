@@ -22,6 +22,8 @@ const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
 const tray = require('./tray.js')
 const browserApi = require('./browser-api.js')
+const querystringUtil = require('querystring')
+const httpServer = require('../server/http-server.js')
 
 let windowCounter = 0
 
@@ -46,16 +48,18 @@ function windowCreateIfNotThere(port) {
   }
 }
 
-function createQueryString(uiMode = null) {
-  let queryString = ''
+function createQueryString(uiMode = null, restPort) {
+  let params = {}
   if (uiMode) {
-    if (queryString.length == 0) {
-      queryString = `?uiMode=${uiMode}`
-    } else {
-      queryString += `&uiMode=${uiMode}`
-    }
+    params.uiMode = uiMode
   }
-  return queryString
+
+  // Electron/Development mode
+  if (process.env.DEV && process.env.MODE === 'electron' && restPort) {
+    params.restPort = restPort
+  }
+
+  return '?' + querystringUtil.stringify(params)
 }
 
 /**
@@ -86,7 +90,7 @@ function windowCreate(port, args = {}) {
     webPreferences: webPreferences,
   })
 
-  let queryString = createQueryString(args.uiMode)
+  let queryString = createQueryString(args.uiMode, httpServer.httpServerPort())
 
   w.isDirty = false
   w.loadURL(`http://localhost:${port}/` + queryString).then(async () => {

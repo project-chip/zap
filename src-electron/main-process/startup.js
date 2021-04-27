@@ -99,16 +99,22 @@ async function startNormal(
       else return ctx
     })
     .then((ctx) => {
+      let port = httpServer.httpServerPort()
+
+      if (process.env.DEV && process.env.MODE === 'electron') {
+        port = 8080
+      }
+
       if (uiEnabled) {
-        windowJs.initializeElectronUi(httpServer.httpServerPort())
+        windowJs.initializeElectronUi(port)
         if (zapFiles.length == 0) {
-          return uiJs.openNewConfiguration(httpServer.httpServerPort(), {
+          return uiJs.openNewConfiguration(port, {
             uiMode: argv.uiMode,
             embeddedMode: argv.embeddedMode,
           })
         } else {
           return util.executePromisesSequentially(zapFiles, (f) =>
-            uiJs.openFileConfiguration(f, httpServer.httpServerPort())
+            uiJs.openFileConfiguration(f, port)
           )
         }
       } else {
