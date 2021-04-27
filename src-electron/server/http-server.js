@@ -285,7 +285,9 @@ function httpServerUrl() {
  * Returns the startup message that needs to be printed out.
  */
 function httpServerStartupMessage() {
-  return `ZAP Server started at: ${httpServerUrl()}`
+  return {
+    url: httpServerUrl(),
+  }
 }
 
 // exports

@@ -64,6 +64,7 @@ function handlerServerUrl(data, socket) {
 function handlerVersion(data, socket) {
   let ret = env.zapVersion()
   ret.url = httpServer.httpServerUrl()
+  ret.zapServerStatus = 'running'
   serverIpc.server.emit(socket, eventType.overAndOut, ret)
 }
 
