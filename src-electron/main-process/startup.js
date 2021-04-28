@@ -554,6 +554,7 @@ function shutdown() {
     // Use a sync call, because you can't have promises in the 'quit' event.
     try {
       dbApi.closeDatabaseSync(mainDatabase)
+      mainDatabase = null
       env.logInfo('Database closed, shutting down.')
     } catch (err) {
       env.logError('Failed to close database.')
