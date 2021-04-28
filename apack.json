@@ -50,6 +50,9 @@
     "zapServer": {
       "cmd": "$(zap) server --reuseZapInstance --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --studioHttpPort ${studioHttpPort}"
     },
+    "zapStop": {
+      "cmd": "$(zap) stop --reuseZapInstance"
+    },
     "zapStatus": {
       "cmd": "$(zap) status --reuseZapInstance"
     },

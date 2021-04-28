@@ -592,6 +592,8 @@ function startUpSecondaryInstance(argv) {
       output: argv.output,
       files: argv.zapFiles,
     })
+  } else if (argv._.includes('stop')) {
+    ipcClient.emit(ipcServer.eventType.stop)
   } else if (argv._.includes('generate') && argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.generate, argv.zapFiles)
   } else if (argv.zapFiles != null) {
@@ -599,12 +601,24 @@ function startUpSecondaryInstance(argv) {
   }
 }
 
+function quit() {}
+
 /**
  * Default startup method.
  *
  * @param {*} isElectron
  */
 async function startUpMainInstance(isElectron, argv) {
+  if (isElectron) {
+    exports.quit = () => {
+      app.quit()
+    }
+  } else {
+    exports.quit = () => {
+      process.exit(0)
+    }
+  }
+
   if (argv.logToStdout) {
     env.logInitStdout()
   } else {
@@ -639,6 +653,9 @@ async function startUpMainInstance(isElectron, argv) {
       console.log(code)
       process.exit(1)
     })
+  } else if (argv._.includes('stop')) {
+    console.log('No server running, nothing to stop.')
+    process.exit(0)
   } else if (argv._.includes('generate')) {
     return startGeneration(argv).catch((code) => {
       console.log(code)
@@ -660,3 +677,4 @@ exports.startAnalyze = startAnalyze
 exports.startUpMainInstance = startUpMainInstance
 exports.startUpSecondaryInstance = startUpSecondaryInstance
 exports.shutdown = shutdown
+exports.quit = quit

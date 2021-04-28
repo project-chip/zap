@@ -22,7 +22,7 @@ const uiUtil = require('../ui/ui-util.js')
 const util = require('../util/util.js')
 const watchdog = require('../main-process/watchdog.js')
 const httpServer = require('../server/http-server.js')
-
+const startup = require('../main-process/startup.js')
 const serverIpc = new ipc.IPC()
 
 const eventType = {
@@ -35,6 +35,7 @@ const eventType = {
   convert: 'convert', // Sent from client to server when requesting to convert files
   generate: 'generate', // Sent from client to server when requesting generation.
   serverStatus: 'serverStatus', // Sent from client to ask for server URL
+  stop: 'stop', // Sent from client to ask for server to shut down
 }
 
 /**
@@ -85,6 +86,13 @@ function handlerConvert(data, socket) {
   serverIpc.server.emit(socket, eventType.overAndOut, 'Done.')
 }
 
+function handlerStop(data, socket) {
+  console.log('Shutting down because of remote client request.')
+  serverIpc.server.emit(socket, eventType.overAndOut, 'Shutting down server.')
+  startup.shutdown()
+  util.waitFor(1000).then(() => startup.quit())
+}
+
 function handlerGenerate(data, socket) {}
 
 const handlers = [
@@ -111,6 +119,10 @@ const handlers = [
   {
     eventType: eventType.generate,
     handler: handlerGenerate,
+  },
+  {
+    eventType: eventType.stop,
+    handler: handlerStop,
   },
 ]
 
