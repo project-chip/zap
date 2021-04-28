@@ -405,7 +405,7 @@ test('Test file import and command parser generation, version 2', async () => {
         ).toBeTruthy()
       }
     })
-}, 10000)
+}, 20000)
 
 test('Test content indexer - simple', () =>
   genEngine.contentIndexer('Short example').then((preview) => {
