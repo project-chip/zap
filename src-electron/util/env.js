@@ -197,11 +197,17 @@ function zapVersion() {
     try {
       let p = require('../../package.json')
       versionObject.version = p.version
-      versionObject.featureLevel = p.featureLevel
     } catch (err) {
       logError('Could not retrieve version from package.json')
-      versionObject.featureLevel = 0
       versionObject.version = '0.0.0'
+    }
+
+    try {
+      let p = require('../../apack.json')
+      versionObject.featureLevel = p.featureLevel
+    } catch (err) {
+      logError('Could not retrieve featureLevel from apack.json')
+      versionObject.featureLevel = 0
     }
 
     try {
