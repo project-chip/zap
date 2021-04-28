@@ -17,16 +17,17 @@
 import Vue from 'vue'
 import * as Util from '../../util/util.js'
 import restApi from '../../../src-shared/rest-api.js'
+import dbEnum from '../../../src-shared/db-enum.js'
+
 const http = require('http-status-codes')
 
 export function updateInformationText(context, text) {
   Vue.prototype
     .$serverPost(restApi.uri.saveSessionKeyValue, {
-      key: 'informationText',
+      key: dbEnum.sessionKey.informationText,
       value: text,
     })
     .then((response) => {
-      console.log('got response for information text')
       context.commit('updateInformationText', text)
     })
 }
