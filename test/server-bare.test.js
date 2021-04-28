@@ -67,15 +67,6 @@ describe('Session specific tests', () => {
 
   test('http server initialization', () => httpServer.initHttpServer(db, port))
 
-  test('verify server port log (~/.zap/zap.url)', () => {
-    expect(fs.existsSync(env.urlLogFile())).toBeTruthy()
-
-    content = fs.readFileSync(env.urlLogFile(), 'utf8')
-    expect(
-      content.trim() === env.baseUrl() + httpServer.httpServerPort()
-    ).toBeTruthy()
-  })
-
   test('get index.html', () =>
     axiosInstance.get('/index.html').then((response) => {
       sessionCookie = response.headers['set-cookie'][0]

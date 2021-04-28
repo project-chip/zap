@@ -44,7 +44,7 @@ function projectPath(db, sessionId) {
   return querySession.getSessionKeyValue(
     db,
     sessionId,
-    dbEnum.sessionKey.studioProjectPath
+    dbEnum.sessionKey.ideProjectPath
   )
 }
 
@@ -56,7 +56,7 @@ function projectPath(db, sessionId) {
  */
 function integrationEnabled(db, sessionId) {
   return querySession
-    .getSessionKeyValue(db, sessionId, dbEnum.sessionKey.studioProjectPath)
+    .getSessionKeyValue(db, sessionId, dbEnum.sessionKey.ideProjectPath)
     .then((path) => typeof path !== 'undefined')
 }
 

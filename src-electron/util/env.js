@@ -226,24 +226,6 @@ function baseUrl() {
   return zapBaseUrl
 }
 
-function logHttpServerUrl(port, studioPort) {
-  logInfo('HTTP server created: ' + baseUrl() + port)
-
-  if (studioPort) {
-    logInfo('Studio integration server: ' + baseUrl() + studioPort)
-  }
-
-  fs.writeFileSync(urlLogFile(), baseUrl() + port, function (err) {
-    if (err) {
-      logError('Unable to log HTTP Server URL to ' + urlLogFile())
-    }
-  })
-}
-
-function urlLogFile(id) {
-  return path.join(appDirectory(), zapUrlLog)
-}
-
 /**
  * Base level common logger.
  *
@@ -403,8 +385,6 @@ exports.logIpc = logIpc
 exports.logDebug = logDebug
 exports.zapVersion = zapVersion
 exports.zapVersionAsString = zapVersionAsString
-exports.logHttpServerUrl = logHttpServerUrl
-exports.urlLogFile = urlLogFile
 exports.baseUrl = baseUrl
 exports.versionsCheck = versionsCheck
 exports.setAppDirectory = setAppDirectory

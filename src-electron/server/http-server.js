@@ -150,7 +150,6 @@ async function initHttpServer(
     app.use(express.static(env.httpStaticContent))
 
     httpServer = app.listen(port, () => {
-      env.logHttpServerUrl(httpServerPort(), studioPort)
       resolve(app)
     })
 
@@ -158,7 +157,6 @@ async function initHttpServer(
       env.logWarning(`HTTP server exception.`, err)
       if (err.errno === 'EADDRINUSE') {
         httpServer = app.listen(0, () => {
-          env.logHttpServerUrl(httpServerPort(), studioPort)
           resolve(app)
         })
       } else {
