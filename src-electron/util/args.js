@@ -48,6 +48,7 @@ function processCommandLineArguments(argv) {
     convert: 'Convert a zap or ISC file to latest zap file.',
     status: 'Query the status of a zap server.',
     server: 'Run zap in a server mode.',
+    stop: 'Stop zap server if one is running.',
     new: 'If in client mode, start a new window on a main instance.',
   }
   let y = yargs
@@ -154,7 +155,7 @@ function processCommandLineArguments(argv) {
     .option('watchdogTimer', {
       desc: `In a server mode, how long of no-activity (in ms) shuts down the server.`,
       type: 'number',
-      default: 600000, // 10 minutes
+      default: 300000, // = 5 minutes
     })
     .option('allowCors', {
       desc: `Sets the CORS policy to be enabled or disabled.`,

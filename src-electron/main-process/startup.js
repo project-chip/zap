@@ -18,6 +18,7 @@
 const { app } = require('electron')
 const fs = require('fs')
 const path = require('path')
+const _ = require('lodash')
 
 const dbApi = require('../db/db-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -113,9 +114,7 @@ async function startNormal(
       } else {
         if (showUrl && !argv.noServer) {
           // NOTE: this is parsed/used by Studio as the default landing page.
-          console.log(
-            `ZAP Server started at: http://localhost:${httpServer.httpServerPort()}`
-          )
+          logRemoteData(httpServer.httpServerStartupMessage())
         }
       }
     })
@@ -366,9 +365,7 @@ async function startServer(argv, options = {}) {
         .then(() => ctx)
     })
     .then((ctx) => {
-      console.log(
-        `ZAP Server started at: http://localhost:${httpServer.httpServerPort()}`
-      )
+      logRemoteData(httpServer.httpServerStartupMessage())
     })
     .catch((err) => {
       env.logError(err)
@@ -558,6 +555,17 @@ function shutdown() {
   }
 }
 
+function logRemoteData(data) {
+  if (data != null) {
+    if (_.isString(data)) {
+      console.log(data)
+    } else {
+      console.log('-- JSON START --')
+      console.log(JSON.stringify(data))
+      console.log('-- JSON END --')
+    }
+  }
+}
 /**
  * Startup method for the secondary instance.
  *
@@ -567,16 +575,16 @@ function startUpSecondaryInstance(argv) {
   console.log('🧐 Existing instance of zap will service this request.')
   ipcClient.initAndConnectClient().then(() => {
     ipcClient.on(ipcServer.eventType.overAndOut, (data) => {
-      console.log(data)
+      logRemoteData(data)
       app.quit()
     })
 
     ipcClient.on(ipcServer.eventType.over, (data) => {
-      console.log(data)
+      logRemoteData(data)
     })
   })
-  if (argv._.includes('status')) {
-    ipcClient.emit(ipcServer.eventType.version)
+  if (argv._.includes('status') || argv._.includes('server')) {
+    ipcClient.emit(ipcServer.eventType.serverStatus)
   } else if (argv._.includes('new')) {
     ipcClient.emit(ipcServer.eventType.new)
   } else if (argv._.includes('convert') && argv.zapFiles != null) {
@@ -584,6 +592,8 @@ function startUpSecondaryInstance(argv) {
       output: argv.output,
       files: argv.zapFiles,
     })
+  } else if (argv._.includes('stop')) {
+    ipcClient.emit(ipcServer.eventType.stop)
   } else if (argv._.includes('generate') && argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.generate, argv.zapFiles)
   } else if (argv.zapFiles != null) {
@@ -591,12 +601,24 @@ function startUpSecondaryInstance(argv) {
   }
 }
 
+function quit() {}
+
 /**
  * Default startup method.
  *
  * @param {*} isElectron
  */
 async function startUpMainInstance(isElectron, argv) {
+  if (isElectron) {
+    exports.quit = () => {
+      app.quit()
+    }
+  } else {
+    exports.quit = () => {
+      process.exit(0)
+    }
+  }
+
   if (argv.logToStdout) {
     env.logInitStdout()
   } else {
@@ -608,7 +630,11 @@ async function startUpMainInstance(isElectron, argv) {
     clearDatabaseFile(env.sqliteFile())
   }
 
-  if (argv._.includes('selfCheck')) {
+  if (argv._.includes('status')) {
+    console.log('⛔ Server is not running.')
+    logRemoteData({ zapServerStatus: 'missing' })
+    process.exit(0)
+  } else if (argv._.includes('selfCheck')) {
     return startSelfCheck(argv)
   } else if (argv._.includes('analyze')) {
     if (argv.zapFiles.length < 1)
@@ -627,6 +653,9 @@ async function startUpMainInstance(isElectron, argv) {
       console.log(code)
       process.exit(1)
     })
+  } else if (argv._.includes('stop')) {
+    console.log('No server running, nothing to stop.')
+    process.exit(0)
   } else if (argv._.includes('generate')) {
     return startGeneration(argv).catch((code) => {
       console.log(code)
@@ -648,3 +677,4 @@ exports.startAnalyze = startAnalyze
 exports.startUpMainInstance = startUpMainInstance
 exports.startUpSecondaryInstance = startUpSecondaryInstance
 exports.shutdown = shutdown
+exports.quit = quit

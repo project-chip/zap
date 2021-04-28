@@ -64,7 +64,7 @@ function httpPostFileOpen(db) {
           return req.zapSessionId
         })
         .then((sessionId) => {
-          if (studioFilePath) {
+          if (studioFilePath != null && studioFilePath.length > 0) {
             env.logDebug(
               `Studio: setting project path(${name}) to ${studioFilePath}`
             )
@@ -78,7 +78,7 @@ function httpPostFileOpen(db) {
             )
           }
         })
-        .catch(function (err) {
+        .catch((err) => {
           err.project = zapFilePath
           studio.sendSessionCreationErrorStatus(db, err)
           env.logError(JSON.stringify(err))

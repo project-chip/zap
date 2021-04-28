@@ -22,18 +22,7 @@ const scriptUtil = require('./script-util.js')
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 let startTime = process.hrtime()
 let args = process.argv.slice(2)
-let executor = null
-if (
-  args[0] == 'generate' ||
-  args[0] == 'selfCheck' ||
-  args[0] == 'analyze' ||
-  args[0] == 'convert' ||
-  args[0] == 'server'
-) {
-  executor = 'node'
-} else {
-  executor = 'electron'
-}
+let executor = 'electron'
 
 scriptUtil
   .stampVersion()

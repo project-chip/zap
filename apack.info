@@ -4,7 +4,7 @@ label=Zigbee Cluster Configurator
 description=Graphical configuration tool for application and libraries based on Zigbee Cluster Library.
 path=.,node_modules/.bin/,ZAP.app/Contents/MacOS
 requiredFeatureLevel=apack.core:8
-featureLevel=29
+featureLevel=30
 
 id=zclConfigurator
 
@@ -57,11 +57,19 @@ function(zapSelfcheck) {
 }
 
 function(zapServer) {
-  cmd=$(zap) --noUi --showUrl --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --studioHttpPort ${studioHttpPort}
+  cmd=$(zap) server --reuseZapInstance --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --studioHttpPort ${studioHttpPort}
+}
+
+function(zapStop) {
+  cmd=$(zap) stop --reuseZapInstance
+}
+
+function(zapStatus) {
+  cmd=$(zap) status --reuseZapInstance 
 }
 
 function(zapServerNoSdk) {
-  cmd=$(zap) --noUi --showUrl --studioHttpPort ${studioHttpPort}
+  cmd=$(zap) server --reuseZapInstance --studioHttpPort ${studioHttpPort}
 }
 
 function(zapFull) {

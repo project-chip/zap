@@ -58,24 +58,16 @@ test('pong data received', () => {
   expect(ipcClient.lastPongData()).toEqual('hello')
 })
 
-test('version handshake', () => {
+test('server status', () => {
   let response = null
   ipcClient.on(ipcServer.eventType.overAndOut, (data) => (response = data))
-  ipcClient.emit(ipcServer.eventType.version)
+  ipcClient.emit(ipcServer.eventType.serverStatus)
   return util.waitFor(responseWaitPeriod).then(() => {
     expect(response).not.toBeNull()
+    expect(response.url).not.toBeNull()
+    expect(response.url.includes('http://localhost')).toBeTruthy()
     let myVersion = env.zapVersion()
     expect(response.hash).toEqual(myVersion.hash)
-  })
-})
-
-test('server url', () => {
-  let response = null
-  ipcClient.on(ipcServer.eventType.overAndOut, (data) => (response = data))
-  ipcClient.emit(ipcServer.eventType.serverUrl)
-  return util.waitFor(responseWaitPeriod).then(() => {
-    expect(response).not.toBeNull()
-    expect(response.includes('http://localhost')).toBeTruthy()
   })
 })
 
