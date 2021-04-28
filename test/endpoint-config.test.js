@@ -31,7 +31,7 @@ const bin = require('../src-electron/util/bin.js')
 
 let db
 const templateCount = testUtil.testTemplateCount
-const genTimeout = 3000
+const genTimeout = 5000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 let sessionId
 let templateContext
