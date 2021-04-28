@@ -154,6 +154,7 @@
       "output": "zap-command-parser.c"
     },
     {
+      "ignore": true,
       "path": "zap-command-parser-2.zapt",
       "name": "ZCL command parsers, v2",
       "output": "zap-command-parser-2.c"

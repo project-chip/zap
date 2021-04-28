@@ -110,15 +110,17 @@ async function recordTemplatesPackage(context) {
         let templatePath = path.resolve(
           path.join(path.dirname(context.path), template.path)
         )
-        promises.push(
-          recordPackageIfNonexistent(
-            context.db,
-            templatePath,
-            context.packageId,
-            dbEnum.packageType.genSingleTemplate,
-            template.output
+        if (!template.ignore) {
+          promises.push(
+            recordPackageIfNonexistent(
+              context.db,
+              templatePath,
+              context.packageId,
+              dbEnum.packageType.genSingleTemplate,
+              template.output
+            )
           )
-        )
+        }
       })
 
       // Add options to the list of promises

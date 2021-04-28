@@ -77,7 +77,7 @@ test('Validate package loading', () =>
       return templateContext
     })
     .then((context) => {
-      expect(context.packages.length).toBe(templateCount + 2) // One for helper and one for overridable
+      expect(context.packages.length).toBe(templateCount - 1 + 2) // -1 for ignored one, one for helper and one for overridable
     }))
 
 test('Create session', () =>
@@ -372,7 +372,7 @@ test('Test file 2 generation', async () => {
     })
 }, 10000)
 
-test('Test file import and command parser generation, version 2', async () => {
+test.skip('Test file import and command parser generation, version 2', async () => {
   let sid = await querySession.createBlankSession(db)
   await importJs.importDataFromFile(db, testFile, sid)
 
@@ -385,7 +385,6 @@ test('Test file import and command parser generation, version 2', async () => {
         expect(genResult).not.toBeNull()
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
-        console.log(genResult)
         let zapCommandParser = genResult.content['zap-command-parser-2.c']
         expect(
           zapCommandParser.includes('#include "zap-command-parser.h"')
@@ -405,7 +404,7 @@ test('Test file import and command parser generation, version 2', async () => {
         ).toBeTruthy()
       }
     })
-}, 20000)
+}, 10000)
 
 test('Test content indexer - simple', () =>
   genEngine.contentIndexer('Short example').then((preview) => {
