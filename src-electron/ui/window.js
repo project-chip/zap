@@ -48,7 +48,7 @@ function windowCreateIfNotThere(port) {
   }
 }
 
-function createQueryString(uiMode = null, restPort) {
+function createQueryString(uiMode, restPort) {
   let params = {}
 
   if (!arguments.length) {
