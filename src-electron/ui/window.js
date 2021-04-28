@@ -50,6 +50,11 @@ function windowCreateIfNotThere(port) {
 
 function createQueryString(uiMode = null, restPort) {
   let params = {}
+
+  if (!arguments.length) {
+    return ''
+  }
+
   if (uiMode) {
     params.uiMode = uiMode
   }

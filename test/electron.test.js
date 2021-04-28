@@ -26,7 +26,14 @@ test('Make sure electron main process loads', () => {
 })
 
 test('Test constructing queries for the window', () => {
-  let query = window.createQueryString('um', 'em')
+  process.env.DEV = true
+  process.env.MODE = 'electron'
+  let query = window.createQueryString('um', 1234)
+  expect(query).toBe(`?uiMode=um&restPort=1234`)
+
+  process.env.DEV = false
+  process.env.MODE = ''
+  query = window.createQueryString('um')
   expect(query).toBe(`?uiMode=um`)
   query = window.createQueryString()
   expect(query).toBe(``)
