@@ -157,7 +157,7 @@ async function dbRemove(db, query, args) {
  * @param {*} db
  * @param {*} query
  * @param {*} args
- * @returns A promise that resolves without an argument, or rejects with an error from the query.
+ * @returns A promise that resolves with a number of changed rows, or rejects with an error from the query.
  */
 async function dbUpdate(db, query, args) {
   return new Promise((resolve, reject) => {
@@ -167,7 +167,7 @@ async function dbUpdate(db, query, args) {
         reject(err)
       } else {
         env.logSql(`Executed update: ${query}: ${args}`)
-        resolve()
+        resolve(this.changes)
       }
     })
   })

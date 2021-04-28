@@ -38,6 +38,7 @@ let testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
 let testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
 let testLightIsc = path.join(__dirname, 'resource/isc/test-light.isc')
 let testDoorLockIsc = path.join(__dirname, 'resource/isc/ha-door-lock.isc')
+let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
@@ -205,6 +206,31 @@ test(
       dbEnum.sessionOption.defaultResponsePolicy
     )
     expect(drp).toBe('conditional')
+  },
+  5000
+)
+
+test(
+  path.basename(haLightIsc) + ' - import',
+  async () => {
+    sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, haLightIsc, sid)
+    expect(sid).not.toBeUndefined()
+    let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
+    expect(endpointTypes.length).toBe(3)
+    let endpoints = await queryConfig.getAllEndpoints(db, sid)
+    expect(endpoints.length).toBe(2)
+    let ps = []
+    endpointTypes.forEach((ept) => {
+      ps.push(queryConfig.getEndpointTypeAttributes(db, ept.id))
+    })
+    let attributes = await Promise.all(ps)
+    let reportableCounts = attributes.map((atArray) =>
+      atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
+    )
+    expect(reportableCounts[0]).toBe(1)
+    expect(reportableCounts[1]).toBe(2)
+    expect(reportableCounts[2]).toBe(0)
   },
   5000
 )

@@ -451,14 +451,15 @@ function collectAttributeLoadingPromises(
                   )
                 )
               }
-              ps.push(
-                queryConfig.updateEndpointTypeAttribute(
-                  db,
-                  id,
-                  restApi.updateKey.attributeReporting,
-                  reportable ? 1 : 0
+              if (reportable)
+                ps.push(
+                  queryConfig.updateEndpointTypeAttribute(
+                    db,
+                    id,
+                    restApi.updateKey.attributeReporting,
+                    1
+                  )
                 )
-              )
               if (ps.length == 0) {
                 return
               } else {
