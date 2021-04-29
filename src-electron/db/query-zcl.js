@@ -261,15 +261,15 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
 
-async function selectClusterByCode(db, packageId, code, mfgCode = null) {
+async function selectClusterByCode(db, packageId, clusterCode, mfgCode = null) {
   let query
   let args
-  if (mfgCode == null) {
+  if (mfgCode == null || mfgCode == 0) {
     query = `SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME, IS_SINGLETON FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? AND MANUFACTURER_CODE IS NULL`
-    args = [packageId, code]
+    args = [packageId, clusterCode]
   } else {
     query = `SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME, IS_SINGLETON FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? AND MANUFACTURER_CODE = ?`
-    args = [packageId, code, mfgCode]
+    args = [packageId, clusterCode, mfgCode]
   }
   return dbApi.dbGet(db, query, args).then(dbMapping.map.cluster)
 }
@@ -409,6 +409,15 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
+/**
+ * Queries for attributes inside a cluster.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} clusterCode
+ * @param {*} manufacturerCode
+ * @returns promise that resolves into attributes.
+ */
 async function selectAttributesByClusterCodeAndManufacturerCode(
   db,
   packageId,
@@ -452,6 +461,53 @@ WHERE CLUSTER.CODE = ?
       [clusterCode, packageId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
+}
+
+async function selectAttributeByCode(
+  db,
+  packageId,
+  clusterCode,
+  attributeCode,
+  manufacturerCode
+) {
+  let manufacturerString
+  if (manufacturerCode == null || manufacturerCode == 0) {
+    manufacturerString = ' AND CLUSTER.MANUFACTURER_CODE IS NULL'
+  } else {
+    manufacturerString =
+      ' AND CLUSTER.MANUFACTURER_CODE IS NULL OR CLUSTER.MANUFACTURER_CODE = ' +
+      manufacturerCode
+  }
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  ATTRIBUTE.ATTRIBUTE_ID,
+  ATTRIBUTE.CLUSTER_REF,
+  ATTRIBUTE.CODE,
+  ATTRIBUTE.MANUFACTURER_CODE,
+  ATTRIBUTE.NAME,
+  ATTRIBUTE.TYPE,
+  ATTRIBUTE.SIDE,
+  ATTRIBUTE.DEFINE,
+  ATTRIBUTE.MIN,
+  ATTRIBUTE.MAX,
+  ATTRIBUTE.IS_WRITABLE,
+  ATTRIBUTE.DEFAULT_VALUE,
+  ATTRIBUTE.IS_OPTIONAL,
+  ATTRIBUTE.IS_REPORTABLE,
+  ATTRIBUTE.IS_SCENE_REQUIRED,
+  ATTRIBUTE.ARRAY_TYPE
+FROM ATTRIBUTE, CLUSTER
+WHERE CLUSTER.CODE = ?
+  AND CLUSTER.CLUSTER_ID = ATTRIBUTE.CLUSTER_REF
+  AND ATTRIBUTE.CODE = ?
+  AND ATTRIBUTE.PACKAGE_REF = ?
+  ${manufacturerString}`,
+      [clusterCode, attributeCode, packageId]
+    )
+    .then(dbMapping.map.attribute)
 }
 
 async function selectAttributeById(db, id) {
@@ -2039,3 +2095,4 @@ exports.exportCliCommandsFromCluster = exportCliCommandsFromCluster
 exports.exportAllAttributeDetailsFromEnabledClusters = exportAllAttributeDetailsFromEnabledClusters
 exports.exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
 exports.exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
+exports.selectAttributeByCode = selectAttributeByCode

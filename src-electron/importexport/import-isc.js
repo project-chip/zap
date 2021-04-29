@@ -381,17 +381,29 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
   if (id == null) {
     if (at.isOptional) {
       // We need to load this thing.
-      let clusterRef = 0
-      let attributeRef = 0
-      /*id = await queryConfig.insertOrUpdateAttributeState(
+      let cluster = await queryZcl.selectClusterByCode(
+        db,
+        packageId,
+        at.clusterCode,
+        at.mfgCode
+      )
+      let attribute = await queryZcl.selectAttributeByCode(
+        db,
+        packageId,
+        at.clusterCode,
+        at.attributeCode,
+        at.mfgCode
+      )
+      let clusterRef = cluster.id
+      let attributeRef = attribute.id
+      id = await queryConfig.insertOrUpdateAttributeState(
         db,
         endpointTypeId,
         clusterRef,
         at.side,
         attributeRef,
-        []
-      )*/
-      return
+        [{ key: restApi.updateKey.attributeSelected, value: 1 }]
+      )
     } else {
       // This is ok: we are iterating over all endpoint type ids,
       // since ISC file doesn't really specifically override attribute
