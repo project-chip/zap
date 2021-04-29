@@ -367,7 +367,7 @@ function isCustomDevice(deviceName, deviceCode) {
  * @param {*} state
  * @param {*} sessionId
  */
-function collectAttributeLoadingPromises(db, state, endpointTypeIdArray) {
+async function loadAttributes(db, state, endpointTypeIdArray) {
   let promises = []
   if (state.attributeType.length > 0 && endpointTypeIdArray.length > 0) {
     endpointTypeIdArray.forEach((endpointTypeId) => {
@@ -490,7 +490,7 @@ function collectAttributeLoadingPromises(db, state, endpointTypeIdArray) {
     })
   }
   promises.push(Promise.resolve(1))
-  return promises
+  return Promise.all(promises)
 }
 
 /**
@@ -594,17 +594,17 @@ async function iscDataLoader(db, state, sessionId) {
       }
     })
 
-  let attributeUpdatePromises = collectAttributeLoadingPromises(
-    db,
-    state,
-    results.map((r) => r.endpointTypeId)
-  )
-
   if (state.log != null) {
     querySession.writeLog(db, sessionId, state.log)
   }
   return Promise.all(endpointInsertionPromises)
-    .then(() => Promise.all(attributeUpdatePromises))
+    .then(() =>
+      loadAttributes(
+        db,
+        state,
+        results.map((r) => r.endpointTypeId)
+      )
+    )
     .then(() => loadSessionKeyValues(db, sessionId, state.sessionKey))
     .then(() => querySession.setSessionClean(db, sessionId))
     .then(() => {
