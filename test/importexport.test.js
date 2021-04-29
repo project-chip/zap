@@ -231,6 +231,13 @@ test(
     expect(reportableCounts[0]).toBe(1)
     expect(reportableCounts[1]).toBe(2)
     expect(reportableCounts[2]).toBe(0)
+
+    let boundedCounts = attributes.map((atArray) =>
+      atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
+    )
+    expect(boundedCounts[0]).toBe(10)
+    expect(boundedCounts[1]).toBe(11)
+    expect(boundedCounts[2]).toBe(2)
   },
   5000
 )

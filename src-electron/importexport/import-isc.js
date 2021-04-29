@@ -451,6 +451,16 @@ function collectAttributeLoadingPromises(
                   )
                 )
               }
+              if ('bounded' in at) {
+                ps.push(
+                  queryConfig.updateEndpointTypeAttribute(
+                    db,
+                    id,
+                    restApi.updateKey.attributeBounded,
+                    at.bounded
+                  )
+                )
+              }
               if (reportable)
                 ps.push(
                   queryConfig.updateEndpointTypeAttribute(
