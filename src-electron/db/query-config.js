@@ -141,7 +141,7 @@ async function insertOrUpdateAttributeState(
   await dbApi.dbInsert(
     db,
     `
-INSERT
+INSERT OR IGNORE
 INTO ENDPOINT_TYPE_ATTRIBUTE (
     ENDPOINT_TYPE_REF,
     ENDPOINT_TYPE_CLUSTER_REF,
@@ -149,19 +149,14 @@ INTO ENDPOINT_TYPE_ATTRIBUTE (
     DEFAULT_VALUE,
     STORAGE_OPTION,
     SINGLETON
-) SELECT
+) VALUES (
   ?,
   ?,
   ?,
   ?,
   ?,
   ( SELECT IS_SINGLETON FROM CLUSTER WHERE CLUSTER_ID = ? )
-WHERE (
-  ( SELECT COUNT(1)
-    FROM ENDPOINT_TYPE_ATTRIBUTE
-    WHERE ENDPOINT_TYPE_REF = ?
-      AND ENDPOINT_TYPE_CLUSTER_REF = ?
-      AND ATTRIBUTE_REF = ? ) == 0)`,
+)`,
     [
       endpointTypeId,
       cluster.endpointTypeClusterId,
@@ -169,9 +164,6 @@ WHERE (
       staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
       dbEnum.storageOption.ram,
       clusterRef,
-      endpointTypeId,
-      cluster.endpointTypeClusterId,
-      attributeId,
     ]
   )
   let query =
