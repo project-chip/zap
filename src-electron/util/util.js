@@ -250,8 +250,8 @@ function sessionReport(db, sessionId) {
  * @param {*} promiseCreator
  */
 function executePromisesSequentially(arrayOfData, promiseCreator) {
-  return arrayOfData.reduce((prev, nextData) => {
-    return prev.then(() => promiseCreator(nextData))
+  return arrayOfData.reduce((prev, nextData, currentIndex) => {
+    return prev.then(() => promiseCreator(nextData, currentIndex))
   }, Promise.resolve())
 }
 

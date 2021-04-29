@@ -140,7 +140,7 @@ async function startNormal(
  * @param {*} outputPattern
  * @returns the path to the output file.
  */
-function outputFile(inputFile, outputPattern) {
+function outputFile(inputFile, outputPattern, index = 0) {
   let output = outputPattern
   let hadDir = false
 
@@ -162,6 +162,7 @@ function outputFile(inputFile, outputPattern) {
     }
     output = output.replace('{name}', name)
     output = output.replace('{basename}', basename)
+    output = output.replace('{index}', index)
     if (!hadDir) output = path.join(dir, output)
   }
   return output
@@ -233,7 +234,7 @@ async function startConvert(
   }
 
   return util
-    .executePromisesSequentially(files, (singlePath) =>
+    .executePromisesSequentially(files, (singlePath, index) =>
       importJs
         .importDataFromFile(db, singlePath)
         .then((importResult) => {
@@ -246,7 +247,7 @@ async function startConvert(
         })
         .then((sessionId) => {
           options.logger(`    👈 read in: ${singlePath}`)
-          let of = outputFile(singlePath, output)
+          let of = outputFile(singlePath, output, index)
           let parent = path.dirname(of)
           if (!fs.existsSync(parent)) {
             fs.mkdirSync(parent, { recursive: true })
@@ -436,6 +437,7 @@ async function generateSingleFile(
   f,
   packageId,
   outputPattern,
+  index,
   options = {
     logger: console.log,
     zcl: env.builtinSilabsZclMetafile,
@@ -452,7 +454,7 @@ async function generateSingleFile(
     options.logger(`👉 using input file: ${f}`)
     let importResult = await importJs.importDataFromFile(db, f)
     sessionId = importResult.sessionId
-    output = outputFile(f, outputPattern)
+    output = outputFile(f, outputPattern, index)
   }
   options.logger(`👉 using output destination: ${output}`)
 
@@ -527,8 +529,8 @@ async function startGeneration(
   options.skipPostGeneration = skipPostGeneration
   let packageId = ctx.packageId
 
-  await util.executePromisesSequentially(files, (f) =>
-    generateSingleFile(mainDb, f, packageId, output, options)
+  await util.executePromisesSequentially(files, (f, index) =>
+    generateSingleFile(mainDb, f, packageId, output, index, options)
   )
 
   if (options.quit && app != null) app.quit()
