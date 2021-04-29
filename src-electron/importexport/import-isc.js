@@ -24,6 +24,7 @@ const queryImpexp = require('../db/query-impexp.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
+const env = require('../util/env.js')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -394,6 +395,12 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
         at.attributeCode,
         at.mfgCode
       )
+      if (cluster == null || attribute == null) {
+        env.logWarning(
+          `Could not resolve attribute ${at.clusterCode} / ${at.attributeCode}`
+        )
+        return
+      }
       let clusterRef = cluster.id
       let attributeRef = attribute.id
       id = await queryConfig.insertOrUpdateAttributeState(
