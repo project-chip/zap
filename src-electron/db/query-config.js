@@ -1109,12 +1109,19 @@ WHERE
 async function getEndpointTypeAttributeId(
   db,
   endpointTypeId,
+  packageId,
   clusterCode,
   attributeCode,
   attributeSide,
   mfgCode
 ) {
-  let args = [endpointTypeId, clusterCode, attributeCode, attributeSide]
+  let args = [
+    endpointTypeId,
+    packageId,
+    clusterCode,
+    attributeCode,
+    attributeSide,
+  ]
   if (!(mfgCode == 0 || mfgCode == null)) args.push(mfgCode)
   let rows = await dbApi.dbAll(
     db,
@@ -1133,6 +1140,7 @@ ON
   C.CLUSTER_ID = A.CLUSTER_REF
 WHERE
   ETA.ENDPOINT_TYPE_REF = ?
+  AND C.PACKAGE_REF = ?
   AND C.CODE = ?
   AND A.CODE = ?
   AND A.SIDE = ?

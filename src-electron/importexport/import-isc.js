@@ -50,7 +50,7 @@ function locateAttribute(state, at) {
 }
 
 /**
- * Parrses attribute string in a form:
+ * Parses attribute string in a form:
  *    cl:0xABCD, at:0xABCD, di: [client|server], mf:0xABCD
  *
  * @param {*} attributeString
@@ -360,10 +360,11 @@ function isCustomDevice(deviceName, deviceCode) {
   return deviceName == 'zcustom'
 }
 
-async function loadSingleAttribute(db, endpointTypeId, at) {
+async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
   let id = await queryConfig.getEndpointTypeAttributeId(
     db,
     endpointTypeId,
+    packageId,
     at.clusterCode,
     at.attributeCode,
     at.side,
@@ -372,14 +373,15 @@ async function loadSingleAttribute(db, endpointTypeId, at) {
 
   if (id == null) {
     if (at.isOptional) {
-      // We need to insert the attribute here
+      // We need to load this thing.
+    } else {
+      // This is ok: we are iterating over all endpoint type ids,
+      // since ISC file doesn't really specifically override attribute
+      // for every given endpoint type. So if we are looking at
+      // the endpoint type which simply doesn't have this
+      // attribute, so be it. Move on.
+      return
     }
-    // This is ok: we are iterating over all endpoint type ids,
-    // since ISC file doesn't really specifically override attribute
-    // for every given endpoint type. So if we are looking at
-    // the endpoint type which simply doesn't have this
-    // attribute, so be it. Move on.
-    return
   }
 
   let keyValuePairs = []
@@ -425,12 +427,12 @@ async function loadSingleAttribute(db, endpointTypeId, at) {
  * @param {*} state
  * @param {*} sessionId
  */
-async function loadAttributes(db, state, endpointTypeIdArray) {
+async function loadAttributes(db, state, packageId, endpointTypeIdArray) {
   let promises = []
   if (state.attributeType.length > 0 && endpointTypeIdArray.length > 0) {
     endpointTypeIdArray.forEach((endpointTypeId) => {
       state.attributeType.forEach((at) => {
-        promises.push(loadSingleAttribute(db, endpointTypeId, at))
+        promises.push(loadSingleAttribute(db, endpointTypeId, packageId, at))
       })
     })
   }
@@ -547,6 +549,7 @@ async function iscDataLoader(db, state, sessionId) {
       loadAttributes(
         db,
         state,
+        packageId,
         results.map((r) => r.endpointTypeId)
       )
     )
