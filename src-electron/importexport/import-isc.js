@@ -359,6 +359,63 @@ function isCustomDevice(deviceName, deviceCode) {
   return deviceName == 'zcustom'
 }
 
+async function loadSingleAttribute(db, endpointTypeId, at) {
+  let id = await queryConfig.getEndpointTypeAttributeId(
+    db,
+    endpointTypeId,
+    at.clusterCode,
+    at.attributeCode,
+    at.side,
+    at.mfgCode
+  )
+
+  if (id == null) {
+    if (at.isOptional) {
+      // We need to insert the attribute here
+    }
+    // This is ok: we are iterating over all endpoint type ids,
+    // since ISC file doesn't really specifically override attribute
+    // for every given endpoint type. So if we are looking at
+    // the endpoint type which simply doesn't have this
+    // attribute, so be it. Move on.
+    return
+  }
+
+  let keyValuePairs = []
+  if ('storageOption' in at) {
+    keyValuePairs.push([restApi.updateKey.attributeStorage, at.storageOption])
+  }
+  if ('defaultValue' in at) {
+    keyValuePairs.push([restApi.updateKey.attributeDefault, at.defaultValue])
+  }
+  let reportable = false
+  if ('minInterval' in at) {
+    keyValuePairs.push([restApi.updateKey.attributeReportMin, at.minInterval])
+    reportable = true
+  }
+  if ('maxInterval' in at) {
+    keyValuePairs.push([restApi.updateKey.attributeReportMax, at.maxInterval])
+    reportable = true
+  }
+  if ('reportableChange' in at) {
+    keyValuePairs.push([
+      restApi.updateKey.attributeReportChange,
+      at.reportableChange,
+    ])
+    reportable = true
+  }
+  if ('isSingleton' in at) {
+    keyValuePairs.push([restApi.updateKey.attributeSingleton, at.isSingleton])
+  }
+  if ('bounded' in at) {
+    keyValuePairs.push([restApi.updateKey.attributeBounded, at.bounded])
+  }
+  if (reportable) {
+    keyValuePairs.push([restApi.updateKey.attributeReporting, 1])
+  }
+  return queryConfig.updateEndpointTypeAttribute(db, id, keyValuePairs)
+}
+
 /**
  * This method returns an array of promises that contain all the
  * queries that are needed to load the attribute state
@@ -372,120 +429,7 @@ async function loadAttributes(db, state, endpointTypeIdArray) {
   if (state.attributeType.length > 0 && endpointTypeIdArray.length > 0) {
     endpointTypeIdArray.forEach((endpointTypeId) => {
       state.attributeType.forEach((at) => {
-        promises.push(
-          queryConfig
-            .getEndpointTypeAttributeId(
-              db,
-              endpointTypeId,
-              at.clusterCode,
-              at.attributeCode,
-              at.side,
-              at.mfgCode
-            )
-            .then((id) => {
-              if (id == null) {
-                if (at.isOptional) {
-                  // We need to insert the attribute here
-                }
-                // This is ok: we are iterating over all endpoint type ids,
-                // since ISC file doesn't really specifically override attribute
-                // for every given endpoint type. So if we are looking at
-                // the endpoint type which simply doesn't have this
-                // attribute, so be it. Move on.
-                return
-              }
-
-              let ps = []
-              if ('storageOption' in at) {
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeStorage,
-                    at.storageOption
-                  )
-                )
-              }
-              if ('defaultValue' in at) {
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeDefault,
-                    at.defaultValue
-                  )
-                )
-              }
-              let reportable = false
-              if ('minInterval' in at) {
-                reportable = true
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeReportMin,
-                    at.minInterval
-                  )
-                )
-              }
-              if ('maxInterval' in at) {
-                reportable = true
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeReportMax,
-                    at.maxInterval
-                  )
-                )
-              }
-              if ('reportableChange' in at) {
-                reportable = true
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeReportChange,
-                    at.reportableChange
-                  )
-                )
-              }
-              if ('isSingleton' in at) {
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeSingleton,
-                    at.isSingleton
-                  )
-                )
-              }
-              if ('bounded' in at) {
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeBounded,
-                    at.bounded
-                  )
-                )
-              }
-              if (reportable)
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeReporting,
-                    1
-                  )
-                )
-              if (ps.length == 0) {
-                return
-              } else {
-                return Promise.all(ps)
-              }
-            })
-        )
+        promises.push(loadSingleAttribute(db, endpointTypeId, at))
       })
     })
   }

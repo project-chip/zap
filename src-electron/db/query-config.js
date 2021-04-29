@@ -186,16 +186,24 @@ WHERE (
   ])
 }
 
-async function updateEndpointTypeAttribute(db, id, restKey, value) {
-  let column = convertRestKeyToDbColumn(restKey)
-  return dbApi.dbUpdate(
-    db,
-    `UPDATE ENDPOINT_TYPE_ATTRIBUTE
-SET ${column} = ?
+async function updateEndpointTypeAttribute(db, id, keyValuePairs) {
+  if (keyValuePairs == null || keyValuePairs.length == 0) return
+
+  let columns = keyValuePairs
+    .map((kv) => `${convertRestKeyToDbColumn(kv[0])} = ?`)
+    .join(', ')
+
+  let args = []
+  keyValuePairs.forEach((kv) => {
+    args.push(kv[1])
+  })
+  args.push(id)
+
+  let query = `UPDATE ENDPOINT_TYPE_ATTRIBUTE SET 
+  ${columns}
 WHERE ENDPOINT_TYPE_ATTRIBUTE_ID = ?
-  `,
-    [value, id]
-  )
+    `
+  return dbApi.dbUpdate(db, query, args)
 }
 
 function convertRestKeyToDbColumn(key) {
