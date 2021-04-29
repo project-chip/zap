@@ -220,6 +220,8 @@ test(
     expect(endpointTypes.length).toBe(3)
     let endpoints = await queryConfig.getAllEndpoints(db, sid)
     expect(endpoints.length).toBe(2)
+    expect(endpoints[0].networkId).toBe(0)
+    expect(endpoints[1].networkId).toBe(0)
     let ps = []
     endpointTypes.forEach((ept) => {
       ps.push(queryConfig.getEndpointTypeAttributes(db, ept.id))

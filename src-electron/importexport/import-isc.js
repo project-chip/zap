@@ -110,7 +110,13 @@ function parseZclAfv2Line(state, line) {
       } else if (tok.startsWith('ept:')) {
         endpoint.endpointType = tok.substring('ept:'.length)
       } else if (tok.startsWith('nwk:')) {
-        endpoint.network = tok.substring('nwk:'.length)
+        let network = tok.substring('nwk:'.length)
+        let networkId = state.networks.indexOf(network)
+        if (networkId == -1) {
+          state.networks.push(network)
+          networkId = state.networks.indexOf(network)
+        }
+        endpoint.network = networkId
       }
     })
     state.endpoint.push(endpoint)
@@ -267,6 +273,7 @@ async function readIscData(filePath, data, zclMetafile) {
     attributeType: [],
     zclMetafile: zclMetafile,
     sessionKey: {},
+    networks: [],
   }
 
   state.log.push({
