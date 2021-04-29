@@ -29,6 +29,7 @@ const env = require('../src-electron/util/env.js')
 
 let db
 let sid
+let pkgId
 
 beforeAll(() => {
   let file = env.sqliteTestFile('validation')
@@ -43,8 +44,9 @@ afterAll(() => {
   return dbApi.closeDatabase(db)
 })
 
-test('Load the static data.', () => {
-  return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+test('Load the static data.', async () => {
+  let context = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+  pkgId = context.packageId
 }, 5000)
 
 test('isValidNumberString Functions', () => {
@@ -103,7 +105,7 @@ test(
   'Integer Test',
   () =>
     queryZcl
-      .selectAttributesByClusterCodeAndManufacturerCode(db, 3, null)
+      .selectAttributesByClusterCodeAndManufacturerCode(db, pkgId, 3, null)
       .then((attribute) => {
         attribute = attribute.filter((e) => {
           return e.code === 0

@@ -411,6 +411,7 @@ ORDER BY CODE`,
 
 async function selectAttributesByClusterCodeAndManufacturerCode(
   db,
+  packageId,
   clusterCode,
   manufacturerCode
 ) {
@@ -446,8 +447,9 @@ SELECT
 FROM ATTRIBUTE, CLUSTER
 WHERE CLUSTER.CODE = ?
   AND CLUSTER.CLUSTER_ID = ATTRIBUTE.CLUSTER_REF
+  AND ATTRIBUTE.PACKAGE_REF = ?
   ${manufacturerString}`,
-      [clusterCode]
+      [clusterCode, packageId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
