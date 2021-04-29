@@ -138,7 +138,7 @@ async function insertOrUpdateAttributeState(
     clusterRef
   )
 
-  await dbApi.dbInsert(
+  let etaId = await dbApi.dbInsert(
     db,
     `
 INSERT OR IGNORE
@@ -166,16 +166,21 @@ INTO ENDPOINT_TYPE_ATTRIBUTE (
       clusterRef,
     ]
   )
-  let query =
-    'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
-    getAllParamValuePairArrayClauses(paramValuePairArray) +
-    'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?'
 
-  return dbApi.dbUpdate(db, query, [
-    endpointTypeId,
-    cluster.endpointTypeClusterId,
-    attributeId,
-  ])
+  if (paramValuePairArray == null || paramValuePairArray.length == 0) {
+    return etaId
+  } else {
+    let query =
+      'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
+      getAllParamValuePairArrayClauses(paramValuePairArray) +
+      'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?'
+
+    return dbApi.dbUpdate(db, query, [
+      endpointTypeId,
+      cluster.endpointTypeClusterId,
+      attributeId,
+    ])
+  }
 }
 
 async function updateEndpointTypeAttribute(db, id, keyValuePairs) {
@@ -287,24 +292,14 @@ async function insertOrUpdateCommandState(
   await dbApi.dbInsert(
     db,
     `
-INSERT
-INTO ENDPOINT_TYPE_COMMAND
-  ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, COMMAND_REF )
-SELECT ?, ?, ?
-WHERE ( ( SELECT COUNT(1)
-          FROM ENDPOINT_TYPE_COMMAND
-          WHERE ENDPOINT_TYPE_REF = ?
-            AND ENDPOINT_TYPE_CLUSTER_REF = ?
-            AND COMMAND_REF = ? )
-        == 0)`,
-    [
-      endpointTypeId,
-      cluster.endpointTypeClusterId,
-      id,
-      endpointTypeId,
-      cluster.endpointTypeClusterId,
-      id,
-    ]
+INSERT OR IGNORE
+INTO ENDPOINT_TYPE_COMMAND (
+  ENDPOINT_TYPE_REF,
+  ENDPOINT_TYPE_CLUSTER_REF,
+  COMMAND_REF
+) VALUES( ?, ?, ? )
+`,
+    [endpointTypeId, cluster.endpointTypeClusterId, id]
   )
   return dbApi.dbUpdate(
     db,
@@ -1023,14 +1018,12 @@ async function getOrInsertDefaultEndpointTypeCluster(
   await dbApi.dbInsert(
     db,
     `
-INSERT INTO ENDPOINT_TYPE_CLUSTER (ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED)
-SELECT ?, ?, ?, ?
-WHERE  (
-  ( SELECT COUNT(1) FROM ENDPOINT_TYPE_CLUSTER
-    WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?
-      AND ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = ?
-      AND ENDPOINT_TYPE_CLUSTER.SIDE = ?) == 0 )`,
-    [endpointTypeId, clusterRef, side, false, endpointTypeId, clusterRef, side]
+INSERT OR IGNORE
+INTO ENDPOINT_TYPE_CLUSTER (
+  ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED
+) VALUES ( ?, ?, ?, ? )
+`,
+    [endpointTypeId, clusterRef, side, false]
   )
 
   let eptClusterData = await dbApi.dbGet(

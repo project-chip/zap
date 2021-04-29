@@ -381,6 +381,17 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
   if (id == null) {
     if (at.isOptional) {
       // We need to load this thing.
+      let clusterRef = 0
+      let attributeRef = 0
+      /*id = await queryConfig.insertOrUpdateAttributeState(
+        db,
+        endpointTypeId,
+        clusterRef,
+        at.side,
+        attributeRef,
+        []
+      )*/
+      return
     } else {
       // This is ok: we are iterating over all endpoint type ids,
       // since ISC file doesn't really specifically override attribute
