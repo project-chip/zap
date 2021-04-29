@@ -1,5 +1,5 @@
 {
-  "featureLevel": 31,
+  "featureLevel": 33,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -4390,7 +4390,7 @@
       "endpointTypeIndex": 1,
       "profileId": 260,
       "endpointId": 1,
-      "networkId": "Primary",
+      "networkId": 0,
       "endpointVersion": 1,
       "deviceIdentifier": -1
     },
@@ -4399,7 +4399,7 @@
       "endpointTypeIndex": 2,
       "profileId": 260,
       "endpointId": 2,
-      "networkId": "Primary",
+      "networkId": 0,
       "endpointVersion": 1,
       "deviceIdentifier": 269
     },
@@ -4408,7 +4408,7 @@
       "endpointTypeIndex": 3,
       "profileId": 41440,
       "endpointId": 242,
-      "networkId": "Primary",
+      "networkId": 0,
       "endpointVersion": 1,
       "deviceIdentifier": -1
     }

@@ -39,6 +39,10 @@ let testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
 let testLightIsc = path.join(__dirname, 'resource/isc/test-light.isc')
 let testDoorLockIsc = path.join(__dirname, 'resource/isc/ha-door-lock.isc')
 let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
+let haCombinedInterfaceIsc = path.join(
+  __dirname,
+  'resource/isc/ha-combined-interface.isc'
+)
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
@@ -244,6 +248,43 @@ test(
       atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
     expect(singletonCounts).toStrictEqual([4, 4, 8])
+  },
+  5000
+)
+
+test(
+  path.basename(haCombinedInterfaceIsc) + ' - import',
+  async () => {
+    sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, haCombinedInterfaceIsc, sid)
+    expect(sid).not.toBeUndefined()
+    let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
+    expect(endpointTypes.length).toBe(2)
+    let endpoints = await queryConfig.getAllEndpoints(db, sid)
+    expect(endpoints.length).toBe(1)
+    expect(endpoints[0].networkId).toBe(0)
+    let ps = []
+    endpointTypes.forEach((ept) => {
+      ps.push(queryConfig.getEndpointTypeAttributes(db, ept.id))
+    })
+    let attributes = await Promise.all(ps)
+
+    let attributeCounts = attributes.map((atArray) => atArray.length)
+    expect(attributeCounts).toStrictEqual([10, 51])
+
+    let reportableCounts = attributes.map((atArray) =>
+      atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
+    )
+    expect(reportableCounts).toStrictEqual([1, 26])
+
+    let boundedCounts = attributes.map((atArray) =>
+      atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
+    )
+    expect(boundedCounts).toStrictEqual([3, 3])
+    let singletonCounts = attributes.map((atArray) =>
+      atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
+    )
+    expect(singletonCounts).toStrictEqual([4, 8])
   },
   5000
 )
