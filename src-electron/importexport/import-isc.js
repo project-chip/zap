@@ -367,12 +367,7 @@ function isCustomDevice(deviceName, deviceCode) {
  * @param {*} state
  * @param {*} sessionId
  */
-function collectAttributeLoadingPromises(
-  db,
-  state,
-  sessionId,
-  endpointTypeIdArray
-) {
+function collectAttributeLoadingPromises(db, state, endpointTypeIdArray) {
   let promises = []
   if (state.attributeType.length > 0 && endpointTypeIdArray.length > 0) {
     endpointTypeIdArray.forEach((endpointTypeId) => {
@@ -389,6 +384,9 @@ function collectAttributeLoadingPromises(
             )
             .then((id) => {
               if (id == null) {
+                if (at.isOptional) {
+                  // We need to insert the attribute here
+                }
                 // This is ok: we are iterating over all endpoint type ids,
                 // since ISC file doesn't really specifically override attribute
                 // for every given endpoint type. So if we are looking at
@@ -396,6 +394,7 @@ function collectAttributeLoadingPromises(
                 // attribute, so be it. Move on.
                 return
               }
+
               let ps = []
               if ('storageOption' in at) {
                 ps.push(
@@ -448,6 +447,16 @@ function collectAttributeLoadingPromises(
                     id,
                     restApi.updateKey.attributeReportChange,
                     at.reportableChange
+                  )
+                )
+              }
+              if ('isSingleton' in at) {
+                ps.push(
+                  queryConfig.updateEndpointTypeAttribute(
+                    db,
+                    id,
+                    restApi.updateKey.attributeSingleton,
+                    at.isSingleton
                   )
                 )
               }
@@ -588,7 +597,6 @@ async function iscDataLoader(db, state, sessionId) {
   let attributeUpdatePromises = collectAttributeLoadingPromises(
     db,
     state,
-    sessionId,
     results.map((r) => r.endpointTypeId)
   )
 

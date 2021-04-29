@@ -225,19 +225,23 @@ test(
       ps.push(queryConfig.getEndpointTypeAttributes(db, ept.id))
     })
     let attributes = await Promise.all(ps)
+
+    let attributeCounts = attributes.map((atArray) => atArray.length)
+    expect(attributeCounts).toStrictEqual([20, 31, 8])
+
     let reportableCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
     )
-    expect(reportableCounts[0]).toBe(1)
-    expect(reportableCounts[1]).toBe(2)
-    expect(reportableCounts[2]).toBe(0)
+    expect(reportableCounts).toStrictEqual([1, 2, 0])
 
     let boundedCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
     )
-    expect(boundedCounts[0]).toBe(10)
-    expect(boundedCounts[1]).toBe(11)
-    expect(boundedCounts[2]).toBe(2)
+    expect(boundedCounts).toStrictEqual([10, 11, 2])
+    let singletonCounts = attributes.map((atArray) =>
+      atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
+    )
+    expect(singletonCounts).toStrictEqual([4, 4, 8])
   },
   5000
 )
