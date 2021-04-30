@@ -446,6 +446,7 @@ async function generateSingleFile(
     template: env.builtinTemplateMetafile,
   }
 ) {
+  let hrstart = process.hrtime()
   let sessionId
   let output
   if (f === BLANK_SESSION) {
@@ -461,6 +462,9 @@ async function generateSingleFile(
   options.logger(`👉 using output destination: ${output}`)
 
   await util.initializeSessionPackage(db, sessionId, options)
+
+  let hrend = process.hrtime(hrstart)
+  options.logger(`🕐 File loading time: ${hrend[0]}s ${hrend[1] / 1000000}ms `)
 
   let genResult = await generatorEngine.generateAndWriteFiles(
     db,
@@ -495,6 +499,7 @@ async function startGeneration(
   let genResultFile = argv.genResultFile
   let skipPostGeneration = argv.skipPostGeneration
 
+  let hrstart = process.hrtime()
   options.logger(
     `🤖 ZAP generation started: 
     🔍 input files: ${zapFiles}
@@ -530,6 +535,9 @@ async function startGeneration(
   options.genResultFile = genResultFile
   options.skipPostGeneration = skipPostGeneration
   let packageId = ctx.packageId
+
+  let hrend = process.hrtime(hrstart)
+  options.logger(`🕐 Setup time: ${hrend[0]}s ${hrend[1] / 1000000}ms `)
 
   await util.executePromisesSequentially(files, (f, index) =>
     generateSingleFile(mainDb, f, packageId, output, index, options)

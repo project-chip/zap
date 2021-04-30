@@ -214,7 +214,7 @@ test(
   5000
 )
 
-test.only(
+test(
   path.basename(haLightIsc) + ' - import',
   async () => {
     sid = await querySession.createBlankSession(db)
@@ -270,7 +270,7 @@ test(
     let attributes = await Promise.all(ps)
 
     let attributeCounts = attributes.map((atArray) => atArray.length)
-    expect(attributeCounts).toStrictEqual([10, 51])
+    expect(attributeCounts).toStrictEqual([12, 53])
 
     let reportableCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
@@ -284,7 +284,7 @@ test(
     let singletonCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
-    expect(singletonCounts).toStrictEqual([4, 8])
+    expect(singletonCounts).toStrictEqual([6, 10])
   },
   5000
 )

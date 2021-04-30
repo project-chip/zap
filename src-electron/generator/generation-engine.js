@@ -595,74 +595,71 @@ async function generateAndWriteFiles(
     skipPostGeneration: false,
   }
 ) {
-  return queryPackage
-    .selectAllOptionsValues(
-      db,
-      templatePackageId,
-      dbEnum.packageOptionCategory.generator
-    )
-    .then((genOptions) => {
-      // Reduce the long array from query into a single object
-      let templateGeneratorOptions = genOptions.reduce((acc, current) => {
-        acc[current.optionCode] = current.optionLabel
-        return acc
-      }, {})
-      return templateGeneratorOptions
-    })
-    .then((templateGeneratorOptions) =>
-      generate(db, sessionId, templatePackageId, templateGeneratorOptions)
-    )
-    .then((genResult) => {
-      if (!fs.existsSync(outputDirectory)) {
-        options.logger(`✅ Creating directory: ${outputDirectory}`)
-        fs.mkdirSync(outputDirectory, { recursive: true })
-      }
-      options.logger('🤖 Generating files:')
-      let promises = []
-      for (const f in genResult.content) {
-        let content = genResult.content[f]
-        let fileName = path.join(outputDirectory, f)
-        options.logger(`    ✍  ${fileName}`)
-        env.logDebug(`Preparing to write file: ${fileName}`)
-        promises.push(writeFileWithBackup(fileName, content, options.backup))
-      }
-      if (genResult.hasErrors) {
-        options.logger('⚠️  Errors:')
-        for (const f in genResult.errors) {
-          let err = genResult.errors[f]
-          let fileName = path.join(outputDirectory, f)
-          options.logger(`    👎  ${fileName}: ⛔ ${err}\nStack trace:\n`)
-          options.logger(err)
-        }
-      }
-      promises.push(
-        generateGenerationContent(genResult).then((generatedContent) => {
-          if (options.genResultFile) {
-            return writeFileWithBackup(
-              path.join(outputDirectory, 'genResult.json'),
-              generatedContent,
-              options.backup
-            )
-          } else {
-            return
-          }
-        })
-      )
+  let hrstart = process.hrtime()
+  let genOptions = await queryPackage.selectAllOptionsValues(
+    db,
+    templatePackageId,
+    dbEnum.packageOptionCategory.generator
+  )
 
-      return Promise.all(promises)
-        .then(() => genResult)
-        .then((gr) => {
-          if (options.skipPostGeneration) {
-            return gr
-          } else {
-            return postProcessGeneratedFiles(
-              outputDirectory,
-              gr,
-              options.logger
-            )
-          }
-        })
+  // Reduce the long array from query into a single object
+  let templateGeneratorOptions = genOptions.reduce((acc, current) => {
+    acc[current.optionCode] = current.optionLabel
+    return acc
+  }, {})
+
+  let genResult = await generate(
+    db,
+    sessionId,
+    templatePackageId,
+    templateGeneratorOptions
+  )
+
+  if (!fs.existsSync(outputDirectory)) {
+    options.logger(`✅ Creating directory: ${outputDirectory}`)
+    fs.mkdirSync(outputDirectory, { recursive: true })
+  }
+  options.logger('🤖 Generating files:')
+  let promises = []
+  for (const f in genResult.content) {
+    let content = genResult.content[f]
+    let fileName = path.join(outputDirectory, f)
+    options.logger(`    ✍  ${fileName}`)
+    env.logDebug(`Preparing to write file: ${fileName}`)
+    promises.push(writeFileWithBackup(fileName, content, options.backup))
+  }
+  if (genResult.hasErrors) {
+    options.logger('⚠️  Errors:')
+    for (const f in genResult.errors) {
+      let err = genResult.errors[f]
+      let fileName = path.join(outputDirectory, f)
+      options.logger(`    👎  ${fileName}: ⛔ ${err}\nStack trace:\n`)
+      options.logger(err)
+    }
+  }
+  let hrend = process.hrtime(hrstart)
+  options.logger(`🕐 Generation time: ${hrend[0]}s ${hrend[1] / 1000000}ms `)
+  promises.push(
+    generateGenerationContent(genResult).then((generatedContent) => {
+      if (options.genResultFile) {
+        return writeFileWithBackup(
+          path.join(outputDirectory, 'genResult.json'),
+          generatedContent,
+          options.backup
+        )
+      } else {
+        return
+      }
     })
+  )
+
+  await Promise.all(promises)
+
+  if (options.skipPostGeneration) {
+    return genResult
+  } else {
+    return postProcessGeneratedFiles(outputDirectory, genResult, options.logger)
+  }
 }
 
 /**
