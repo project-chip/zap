@@ -23,6 +23,7 @@
 
 const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
+const queryPackage = require('../db/query-package.js')
 const dbApi = require('../db/db-api.js')
 
 function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {

@@ -55,7 +55,7 @@ function getComponentIdsByCluster(db, sessionId, clusterId, side) {
     })
     .then((ext) => {
       extensions = ext
-      return queryZcl.selectClusterById(db, clusterId, packageId)
+      return queryZcl.selectClusterById(db, clusterId)
     })
     .then((cluster) => {
       let componentIds = []

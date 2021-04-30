@@ -129,7 +129,9 @@ test('Simple cluster addition.', () => {
       expect(row.label).toBe('Test')
       return row.id
     })
-    .then(() => queryZcl.selectAttributesByClusterId(db, rowid, pkgId))
+    .then(() =>
+      queryZcl.selectAttributesByClusterIdIncludingGlobal(db, rowid, pkgId)
+    )
     .then((rows) => {
       expect(rows.length).toBe(0)
     })

@@ -66,13 +66,9 @@ async function selectAllEnumItems(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.enumItem))
 }
 
-async function selectEnumById(db, id, packageId) {
+async function selectEnumById(db, id) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE ENUM_ID = ? AND PACKAGE_REF = ? ORDER BY NAME',
-      [id, packageId]
-    )
+    .dbGet(db, 'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE ENUM_ID = ?', [id])
     .then(dbMapping.map.enum)
 }
 
@@ -133,13 +129,11 @@ async function selectBitmapByName(db, packageId, name) {
     .then(dbMapping.map.bitmap)
 }
 
-async function selectBitmapById(db, id, packageId) {
+async function selectBitmapById(db, id) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE BITMAP_ID = ? AND PACKAGE_REF = ? ORDER BY NAME',
-      [id, packageId]
-    )
+    .dbGet(db, 'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE BITMAP_ID = ?', [
+      id,
+    ])
     .then(dbMapping.map.bitmap)
 }
 
@@ -158,13 +152,9 @@ async function selectAllDomains(db, packageId) {
   )
 }
 
-async function selectDomainById(db, id, packageId) {
+async function selectDomainById(db, id) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE DOMAIN_ID = ?AND PACKAGE_REF = ? ORDER BY NAME',
-      [id, packageId]
-    )
+    .dbGet(db, 'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE DOMAIN_ID = ?', [id])
     .then(dbMapping.map.domain)
 }
 
@@ -185,13 +175,9 @@ async function selectAllStructs(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.struct))
 }
 
-async function selectStructById(db, id, packageId) {
+async function selectStructById(db, id) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ? AND PACKAGE_REF = ? ORDER BY NAME',
-      [id, packageId]
-    )
+    .dbGet(db, 'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ?', [id])
     .then(dbMapping.map.struct)
 }
 
@@ -320,12 +306,12 @@ async function selectAllDeviceTypes(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.deviceType))
 }
 
-async function selectDeviceTypeById(db, id, packageId) {
+async function selectDeviceTypeById(db, id) {
   return dbApi
     .dbGet(
       db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ? AND PACKAGE_REF = ? ',
-      [id, packageId]
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ?',
+      [id]
     )
     .then(dbMapping.map.deviceType)
 }
@@ -340,7 +326,26 @@ async function selectDeviceTypeByCodeAndName(db, packageId, code, name) {
     .then(dbMapping.map.deviceType)
 }
 
-async function selectAttributesByClusterId(db, clusterId, packageId = null) {
+/**
+ * Returns attributes for a given cluster.
+ * IMPORTANT:
+ *    packageId is needed to properly deal with the global attributes.
+ *
+ * This method will NOT only return the attributes that link to
+ * a given cluster, but will ALSO return the attributes that have
+ * empty clusterRef (which are global attributes), and the check
+ * in that case will be made via packageId.
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @param {*} packageId
+ * @returns promise of a list of attributes, including global attributes
+ */
+async function selectAttributesByClusterIdIncludingGlobal(
+  db,
+  clusterId,
+  packageId
+) {
   return dbApi
     .dbAll(
       db,
@@ -364,14 +369,14 @@ SELECT
   ARRAY_TYPE
 FROM ATTRIBUTE
 WHERE (CLUSTER_REF = ? OR CLUSTER_REF IS NULL)
-  ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
+  AND PACKAGE_REF = ? 
 ORDER BY CODE`,
-      packageId != null ? [clusterId, packageId] : [clusterId]
+      [clusterId, packageId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-async function selectAttributesByClusterIdAndSide(
+async function selectAttributesByClusterIdAndSideIncludingGlobal(
   db,
   clusterId,
   packageId,
@@ -402,9 +407,9 @@ FROM ATTRIBUTE
 WHERE
   SIDE = ?
   AND (CLUSTER_REF = ? OR CLUSTER_REF IS NULL)
-  ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
+  AND PACKAGE_REF = ? 
 ORDER BY CODE`,
-      packageId != null ? [side, clusterId, packageId] : [side, clusterId]
+      [side, clusterId, packageId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
@@ -518,6 +523,7 @@ async function selectAttributeById(db, id) {
 SELECT
   ATTRIBUTE_ID,
   CLUSTER_REF,
+  PACKAGE_REF,
   CODE,
   MANUFACTURER_CODE,
   NAME,
@@ -2045,8 +2051,8 @@ exports.selectClusterByCode = selectClusterByCode
 exports.selectAllDeviceTypes = selectAllDeviceTypes
 exports.selectDeviceTypeById = selectDeviceTypeById
 exports.selectDeviceTypeByCodeAndName = selectDeviceTypeByCodeAndName
-exports.selectAttributesByClusterIdAndSide = selectAttributesByClusterIdAndSide
-exports.selectAttributesByClusterId = selectAttributesByClusterId
+exports.selectAttributesByClusterIdAndSideIncludingGlobal = selectAttributesByClusterIdAndSideIncludingGlobal
+exports.selectAttributesByClusterIdIncludingGlobal = selectAttributesByClusterIdIncludingGlobal
 exports.selectAttributesByClusterCodeAndManufacturerCode = selectAttributesByClusterCodeAndManufacturerCode
 exports.selectAttributeById = selectAttributeById
 exports.selectAttributeByAttributeIdAndClusterRef = selectAttributeByAttributeIdAndClusterRef
