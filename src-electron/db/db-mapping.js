@@ -80,6 +80,7 @@ exports.map = {
     return {
       id: x.ATTRIBUTE_ID,
       clusterRef: x.CLUSTER_REF,
+      packageRef: x.PACKAGE_REF,
       code: x.CODE,
       clusterCode: x.CLUSTER_CODE,
       manufacturerCode: x.MANUFACTURER_CODE,

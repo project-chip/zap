@@ -86,7 +86,7 @@ test('test that consecutive loading of metafiles properly avoids duplication', (
     .then((x) => {
       expect(x.length).toEqual(testUtil.totalDomainCount)
       queryZcl
-        .selectDomainById(db, x.id, jsonPackageId)
+        .selectDomainById(db, x.id)
         .then((z) => expect(z.name).toBe(x.name))
     })
     .then(() => queryZcl.selectAllEnums(db, jsonPackageId))

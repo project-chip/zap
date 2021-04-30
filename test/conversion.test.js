@@ -31,6 +31,8 @@ const querySession = require('../src-electron/db/query-session.js')
 const testUtil = require('./test-util.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const queryPackage = require('../src-electron/db/query-package.js')
+const queryZcl = require('../src-electron/db/query-zcl.js')
+
 let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
 
 beforeAll(() => {
@@ -79,7 +81,22 @@ test(
     })
     let attributes = await Promise.all(ps)
 
-    /*
+    // Here we are testing that we have attributes only from ONE
+    // package present. There was a bug, where global attributes from
+    // other packages got referenced under the session, because
+    // some query wasn't taking packageId into consideration.
+    let allAttributes = attributes.flat()
+    let usedPackages = []
+    for (const at of allAttributes) {
+      let attributeId = at.attributeRef
+      let attribute = await queryZcl.selectAttributeById(db, attributeId)
+      if (usedPackages.indexOf(attribute.packageRef) == -1) {
+        usedPackages.push(attribute.packageRef)
+      }
+    }
+    // Now make sure we have attributes ONLY from one package.
+    expect(usedPackages.length).toBe(1)
+
     let attributeCounts = attributes.map((atArray) => atArray.length)
     expect(attributeCounts).toStrictEqual([28, 39, 16])
 
@@ -96,7 +113,6 @@ test(
       atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
     expect(singletonCounts).toStrictEqual([9, 9, 13])
-    */
   },
   8000
 )

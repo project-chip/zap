@@ -129,7 +129,9 @@ test('Simple cluster addition.', () => {
       expect(row.label).toBe('Test')
       return row.id
     })
-    .then(() => queryZcl.selectAttributesByClusterId(db, rowid, pkgId))
+    .then(() =>
+      queryZcl.selectAttributesByClusterIdIncludingGlobal(db, rowid, pkgId)
+    )
     .then((rows) => {
       expect(rows.length).toBe(0)
     })
@@ -446,7 +448,7 @@ describe('Endpoint Type Config Queries', () => {
         true
       )
       .then(() =>
-        queryConfig.insertClusterDefaults(db, endpointTypeIdOnOff, {
+        queryConfig.insertClusterDefaults(db, endpointTypeIdOnOff, pkgId, {
           clusterRef: levelControlCluster.id,
           side: 'CLIENT',
         })

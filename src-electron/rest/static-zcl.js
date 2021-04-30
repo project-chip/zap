@@ -51,7 +51,7 @@ function returnZclEntitiesForClusterId(db, clusterId, packageId) {
   ).then((x) =>
     zclEntityQuery(
       queryZcl.selectAllAttributes,
-      queryZcl.selectAttributesByClusterId
+      queryZcl.selectAttributesByClusterIdIncludingGlobal
     )(db, clusterId, packageId).then((y) =>
       zclEntityQuery(
         queryZcl.selectAllCommands,

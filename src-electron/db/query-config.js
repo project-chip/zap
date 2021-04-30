@@ -22,6 +22,7 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
+const queryPackage = require('./query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
@@ -99,9 +100,11 @@ async function getClusterState(db, endpointTypeId, clusterRef, side) {
  * @param {*} clusterRef
  * @param {*} side
  */
-async function insertClusterDefaults(db, endpointTypeId, cluster) {
+async function insertClusterDefaults(db, endpointTypeId, packageId, cluster) {
   let promises = []
-  promises.push(resolveDefaultAttributes(db, endpointTypeId, [cluster]))
+  promises.push(
+    resolveDefaultAttributes(db, endpointTypeId, packageId, [cluster])
+  )
   promises.push(resolveNonOptionalCommands(db, endpointTypeId, [cluster]))
   return Promise.all(promises)
 }
@@ -543,7 +546,13 @@ async function insertEndpointType(
     'INSERT OR REPLACE INTO ENDPOINT_TYPE ( SESSION_REF, NAME, DEVICE_TYPE_REF ) VALUES ( ?, ?, ?)',
     [sessionId, name, deviceTypeRef]
   )
-  await setEndpointDefaults(db, newEndpointTypeId, deviceTypeRef, doTransaction)
+  await setEndpointDefaults(
+    db,
+    sessionId,
+    newEndpointTypeId,
+    deviceTypeRef,
+    doTransaction
+  )
   return newEndpointTypeId
 }
 
@@ -569,7 +578,7 @@ async function updateEndpointType(
     [updatedValue, endpointTypeId, sessionId]
   )
   if (param === 'DEVICE_TYPE_REF') {
-    await setEndpointDefaults(db, endpointTypeId, updatedValue)
+    await setEndpointDefaults(db, sessionId, endpointTypeId, updatedValue)
   }
   return newEndpointId
 }
@@ -581,6 +590,7 @@ async function updateEndpointType(
  */
 async function setEndpointDefaults(
   db,
+  sessionId,
   endpointTypeId,
   deviceTypeRef,
   doTransaction = true
@@ -588,6 +598,14 @@ async function setEndpointDefaults(
   if (doTransaction) {
     await dbApi.dbBeginTransaction(db)
   }
+  let pkgs = await queryPackage.getSessionPackagesByType(
+    db,
+    sessionId,
+    dbEnum.packageType.zclProperties
+  )
+  if (pkgs == null || pkgs.length < 1)
+    throw new Error('Could not locate package id for a given session.')
+  let packageId = pkgs[0].id
   let clusters = await queryZcl.selectDeviceTypeClustersByDeviceTypeRef(
     db,
     deviceTypeRef
@@ -604,7 +622,7 @@ async function setEndpointDefaults(
   promises.push(
     resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef),
     resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef),
-    resolveDefaultAttributes(db, endpointTypeId, defaultClusters),
+    resolveDefaultAttributes(db, endpointTypeId, packageId, defaultClusters),
     resolveNonOptionalCommands(db, endpointTypeId, defaultClusters)
   )
 
@@ -823,11 +841,20 @@ async function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
   )
 }
 
-async function resolveDefaultAttributes(db, endpointTypeId, clusters) {
+async function resolveDefaultAttributes(
+  db,
+  endpointTypeId,
+  packageId,
+  endpointClusters
+) {
   return Promise.all(
-    clusters.map((cluster) => {
+    endpointClusters.map((cluster) => {
       return queryZcl
-        .selectAttributesByClusterId(db, cluster.clusterRef)
+        .selectAttributesByClusterIdIncludingGlobal(
+          db,
+          cluster.clusterRef,
+          packageId
+        )
         .then((attributes) => {
           let promiseArray = []
           promiseArray.push(
@@ -1275,7 +1302,7 @@ async function setClusterIncluded(
     isIncluded
   )
   if (insertDefaults) {
-    await insertClusterDefaults(db, endpointTypeId, {
+    await insertClusterDefaults(db, endpointTypeId, packageId, {
       clusterRef: cluster.id,
       side: side,
     })
