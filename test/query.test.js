@@ -448,7 +448,7 @@ describe('Endpoint Type Config Queries', () => {
         true
       )
       .then(() =>
-        queryConfig.insertClusterDefaults(db, endpointTypeIdOnOff, {
+        queryConfig.insertClusterDefaults(db, endpointTypeIdOnOff, pkgId, {
           clusterRef: levelControlCluster.id,
           side: 'CLIENT',
         })

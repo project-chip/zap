@@ -97,7 +97,6 @@ test(
     // Now make sure we have attributes ONLY from one package.
     expect(usedPackages.length).toBe(1)
 
-    /*
     let attributeCounts = attributes.map((atArray) => atArray.length)
     expect(attributeCounts).toStrictEqual([28, 39, 16])
 
@@ -114,7 +113,6 @@ test(
       atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
     expect(singletonCounts).toStrictEqual([9, 9, 13])
-    */
   },
   8000
 )
