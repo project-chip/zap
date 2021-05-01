@@ -21,7 +21,6 @@
  * @module DB API: endpoint configuration queries against the database.
  */
 const dbApi = require('./db-api.js')
-const queryConfig = require('./query-config.js')
 const bin = require('../util/bin.js')
 
 /**
@@ -205,9 +204,6 @@ ORDER BY C.CODE
   })
 }
 
-exports.queryEndpoints = queryConfig.getAllEndpoints
 exports.queryEndpointClusters = queryEndpointClusters
-exports.queryEndpointTypes = queryConfig.getAllEndpointTypes
-exports.queryEndpointType = queryConfig.getEndpointType
 exports.queryEndpointClusterAttributes = queryEndpointClusterAttributes
 exports.queryEndpointClusterCommands = queryEndpointClusterCommands

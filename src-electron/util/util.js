@@ -27,6 +27,7 @@ const path = require('path')
 const childProcess = require('child_process')
 const queryPackage = require('../db/query-package.js')
 const queryEndpoint = require('../db/query-endpoint.js')
+const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { v4: uuidv4 } = require('uuid')
@@ -195,7 +196,7 @@ function matchFeatureLevel(featureLevel) {
  * @returns promise that resolves into a text report for the session.
  */
 function sessionReport(db, sessionId) {
-  return queryEndpoint.queryEndpointTypes(db, sessionId).then((epts) => {
+  return queryConfig.getAllEndpointTypes(db, sessionId).then((epts) => {
     let ps = []
     epts.forEach((ept) => {
       ps.push(

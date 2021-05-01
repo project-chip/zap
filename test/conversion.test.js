@@ -32,6 +32,7 @@ const testUtil = require('./test-util.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
+const util = require('../src-electron/util/util.js')
 
 let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
 
@@ -80,6 +81,9 @@ test(
       ps.push(queryConfig.getEndpointTypeAttributes(db, ept.id))
     })
     let attributes = await Promise.all(ps)
+
+    //let sessionReport = await util.sessionReport(db, sid)
+    //console.log(sessionReport)
 
     // Here we are testing that we have attributes only from ONE
     // package present. There was a bug, where global attributes from
