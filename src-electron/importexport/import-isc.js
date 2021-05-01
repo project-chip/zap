@@ -515,7 +515,7 @@ async function iscDataLoader(db, state, sessionId) {
 
   let packageId = zclPackages[0].id
 
-  for (let key in endpointTypes) {
+  for (let key of Object.keys(endpointTypes)) {
     promises.push(
       loadEndpointType(db, sessionId, packageId, endpointTypes[key])
         .then((newEndpointTypeId) => {

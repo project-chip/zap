@@ -146,7 +146,7 @@ function loadPartial(name, path) {
  */
 function loadHelper(path) {
   let helpers = require(path)
-  for (const singleHelper in helpers) {
+  for (const singleHelper of Object.keys(helpers)) {
     handlebars.registerHelper(singleHelper, helpers[singleHelper])
   }
 }
@@ -164,7 +164,7 @@ function allGlobalHelpers() {
   }
   includedHelpers.forEach((path) => {
     let h = require(path)
-    for (const singleHelper in h) {
+    for (const singleHelper of Object.keys(h)) {
       if (allHelpers.api[singleHelper] != null) {
         allHelpers.duplicates.push(singleHelper)
       }

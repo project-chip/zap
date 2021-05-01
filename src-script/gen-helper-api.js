@@ -27,7 +27,7 @@ if (helpers.duplicates.length > 0) {
   process.exit(1)
 }
 
-for (const key in helpers.api) {
+for (const key of Object.keys(helpers.api)) {
   ar.push({ name: key, isDeprecated: helpers.api[key].isDeprecated })
 }
 

@@ -27,7 +27,7 @@ let whiteList = fs
   .split('\n')
 let fail = false
 checker.init(args, (err, json) => {
-  for (x in json) {
+  for (x of Object.keys(json)) {
     let license = json[x].licenses
     if (!x.includes('zap@') && !whiteList.includes(license.toString())) {
       console.log(

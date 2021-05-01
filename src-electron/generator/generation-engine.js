@@ -125,7 +125,7 @@ async function recordTemplatesPackage(context) {
 
       // Add options to the list of promises
       if (context.templateData.options != null) {
-        for (const category in context.templateData.options) {
+        for (const category of Object.keys(context.templateData.options)) {
           let data = context.templateData.options[category]
 
           if (_.isString(data)) {
@@ -138,7 +138,7 @@ async function recordTemplatesPackage(context) {
               .then((content) => JSON.parse(content))
               .then((jsonData) => {
                 let codeLabels = []
-                for (const code in jsonData) {
+                for (const code of Object.keys(jsonData)) {
                   codeLabels.push({ code: code, label: jsonData[code] })
                 }
                 return codeLabels
@@ -155,7 +155,7 @@ async function recordTemplatesPackage(context) {
           } else {
             // Treat this data as an object.
             let codeLabelArray = []
-            for (const code in data) {
+            for (const code of Object.keys(data)) {
               codeLabelArray.push({ code: code, label: data[code] })
             }
             promises.push(
@@ -276,11 +276,11 @@ function decodePackageExtensionEntity(entityType, entity) {
  */
 async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
   let promises = []
-  for (const entity in zclExt) {
+  for (const entity of Object.keys(zclExt)) {
     let entityExtension = zclExt[entity]
     let propertyArray = []
     let defaultArrayOfArrays = []
-    for (const property in entityExtension) {
+    for (const property of Object.keys(entityExtension)) {
       let prop = entityExtension[property]
       propertyArray.push({
         property: property,
@@ -568,7 +568,7 @@ async function generateGenerationContent(genResult) {
     creator: 'zap',
     content: [],
   }
-  for (const f in genResult.content) {
+  for (const f of Object.keys(genResult.content)) {
     out.content.push(f)
   }
   return Promise.resolve(JSON.stringify(out))
@@ -621,7 +621,7 @@ async function generateAndWriteFiles(
   }
   options.logger('🤖 Generating files:')
   let promises = []
-  for (const f in genResult.content) {
+  for (const f of Object.keys(genResult.content)) {
     let content = genResult.content[f]
     let fileName = path.join(outputDirectory, f)
     options.logger(`    ✍  ${fileName}`)
@@ -630,7 +630,7 @@ async function generateAndWriteFiles(
   }
   if (genResult.hasErrors) {
     options.logger('⚠️  Errors:')
-    for (const f in genResult.errors) {
+    for (const f of Object.keys(genResult.errors)) {
       let err = genResult.errors[f]
       let fileName = path.join(outputDirectory, f)
       options.logger(`    👎  ${fileName}: ⛔ ${err}\nStack trace:\n`)
@@ -700,7 +700,7 @@ async function postProcessGeneratedFiles(
   ) {
     let cmd =
       genResult.generatorOptions[dbEnum.generatorOptions.postProcessMulti]
-    for (const genFile in genResult.content) {
+    for (const genFile of Object.keys(genResult.content)) {
       let fileName = path.join(outputDirectory, genFile)
       cmd = cmd + ' ' + fileName
     }
@@ -718,7 +718,7 @@ async function postProcessGeneratedFiles(
   ) {
     let cmd =
       genResult.generatorOptions[dbEnum.generatorOptions.postProcessSingle]
-    for (const genFile in genResult.content) {
+    for (const genFile of Object.keys(genResult.content)) {
       let fileName = path.join(outputDirectory, genFile)
       let singleCmd = cmd + ' ' + fileName
       postProcessPromises.push(
