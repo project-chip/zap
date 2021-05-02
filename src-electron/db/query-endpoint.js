@@ -89,6 +89,7 @@ async function queryEndpointClusterAttributes(
     db,
     `
 SELECT
+  A.ATTRIBUTE_ID,
   A.CODE,
   A.NAME,
   A.SIDE,
@@ -122,13 +123,14 @@ WHERE
   AND (EA.ENDPOINT_TYPE_REF = ? AND (EA.ENDPOINT_TYPE_CLUSTER_REF =
     (SELECT ENDPOINT_TYPE_CLUSTER_ID
      FROM ENDPOINT_TYPE_CLUSTER
-     WHERE CLUSTER_REF = ? AND side = ? AND ENDPOINT_TYPE_REF = ?)))
+     WHERE CLUSTER_REF = ? AND SIDE = ? AND ENDPOINT_TYPE_REF = ?)))
     `,
     [clusterId, side, endpointTypeId, clusterId, side, endpointTypeId]
   )
 
   return rows.map((row) => {
     return {
+      id: row['ATTRIBUTE_ID'],
       clusterId: clusterId,
       code: row['CODE'],
       manufacturerCode: row['MANUFACTURER_CODE'],

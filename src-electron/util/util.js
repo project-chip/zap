@@ -195,7 +195,7 @@ function matchFeatureLevel(featureLevel) {
  * @param {*} sessionId
  * @returns promise that resolves into a text report for the session.
  */
-function sessionReport(db, sessionId) {
+async function sessionReport(db, sessionId) {
   return queryConfig.getAllEndpointTypes(db, sessionId).then((epts) => {
     let ps = []
     epts.forEach((ept) => {
@@ -240,6 +240,64 @@ function sessionReport(db, sessionId) {
     })
     return Promise.all(ps).then((results) => results.join('\n'))
   })
+}
+
+/**
+ * Produces a text dump of a session data for human consumption.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into a text report for the session.
+ */
+async function sessionDump(db, sessionId) {
+  let dump = {
+    endpointTypes: [],
+    attributes: [],
+    commands: [],
+  }
+  let endpoints = await queryConfig.getAllEndpoints(db, sid)
+  dump.endpoints = endpoints
+
+  let epts = await queryConfig.getAllEndpointTypes(db, sessionId)
+  let ps = []
+
+  epts.forEach((ept) => {
+    ept.clusters = []
+    ept.attributes = []
+    ept.commands = []
+    dump.endpointTypes.push(ept)
+    ps.push(
+      queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
+        let ps2 = []
+        for (c of clusters) {
+          ept.clusters.push(c)
+          ps2.push(
+            queryEndpoint
+              .queryEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
+              .then((attrs) => {
+                c.attributes = attrs
+                ept.attributes.push(...attrs)
+                dump.attributes.push(...attrs)
+              })
+              .then(() =>
+                queryEndpoint.queryEndpointClusterCommands(
+                  db,
+                  c.clusterId,
+                  ept.id
+                )
+              )
+              .then((cmds) => {
+                c.commands = cmds
+                ept.commands.push(...cmds)
+                dump.commands.push(...cmds)
+              })
+          )
+        }
+        return Promise.all(ps2)
+      })
+    )
+  })
+  return Promise.all(ps).then(() => dump)
 }
 
 /**
@@ -400,6 +458,7 @@ exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
 exports.matchFeatureLevel = matchFeatureLevel
 exports.sessionReport = sessionReport
+exports.sessionDump = sessionDump
 exports.executePromisesSequentially = executePromisesSequentially
 exports.createAbsolutePath = createAbsolutePath
 exports.executeExternalProgram = executeExternalProgram

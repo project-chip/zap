@@ -70,26 +70,20 @@ test(
     expect(pkgs.length).toBe(1)
     expect(pkgs[0].version).toBe('ZCL Test Data')
 
-    let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
-    expect(endpointTypes.length).toBe(3)
-    let endpoints = await queryConfig.getAllEndpoints(db, sid)
-    expect(endpoints.length).toBe(2)
-    expect(endpoints[0].networkId).toBe(0)
-    expect(endpoints[1].networkId).toBe(0)
-    let ps = []
-    endpointTypes.forEach((ept) => {
-      ps.push(queryConfig.getEndpointTypeAttributes(db, ept.id))
-    })
-    let attributes = await Promise.all(ps)
+    let dump = await util.sessionDump(db, sid)
+
+    expect(dump.endpointTypes.length).toBe(3)
+    expect(dump.endpoints.length).toBe(2)
+    expect(dump.endpoints[0].networkId).toBe(0)
+    expect(dump.endpoints[1].networkId).toBe(0)
 
     // Here we are testing that we have attributes only from ONE
     // package present. There was a bug, where global attributes from
     // other packages got referenced under the session, because
     // some query wasn't taking packageId into consideration.
-    let allAttributes = attributes.flat()
     let usedPackages = []
-    for (const at of allAttributes) {
-      let attributeId = at.attributeRef
+    for (const at of dump.attributes) {
+      let attributeId = at.id
       let attribute = await queryZcl.selectAttributeById(db, attributeId)
       if (usedPackages.indexOf(attribute.packageRef) == -1) {
         usedPackages.push(attribute.packageRef)
@@ -98,22 +92,34 @@ test(
     // Now make sure we have attributes ONLY from one package.
     expect(usedPackages.length).toBe(1)
 
-    let attributeCounts = attributes.map((atArray) => atArray.length)
-    expect(attributeCounts).toStrictEqual([28, 39, 16])
+    let attributeCounts = dump.endpointTypes.map((ept) => ept.attributes.length)
+    expect(attributeCounts).toStrictEqual([19, 26, 11])
 
-    let reportableCounts = attributes.map((atArray) =>
-      atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
+    let reportableCounts = dump.endpointTypes.map((ept) =>
+      ept.attributes.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
     )
     expect(reportableCounts).toStrictEqual([1, 2, 0])
 
-    let boundedCounts = attributes.map((atArray) =>
-      atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
+    let boundedCounts = dump.endpointTypes.map((ept) =>
+      ept.attributes.reduce((ac, at) => ac + (at.isBound ? 1 : 0), 0)
     )
     expect(boundedCounts).toStrictEqual([10, 11, 2])
-    let singletonCounts = attributes.map((atArray) =>
-      atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
+
+    let singletonCounts = dump.endpointTypes.map((ept) =>
+      ept.attributes.reduce((ac, at) => ac + (at.isSingleton ? 1 : 0), 0)
     )
-    expect(singletonCounts).toStrictEqual([9, 9, 13])
+    expect(singletonCounts).toStrictEqual([7, 7, 11])
+
+    let serverAttributesCount = dump.attributes.reduce(
+      (ac, at) => (ac += at.side == dbEnum.side.server ? 1 : 0),
+      0
+    )
+    expect(serverAttributesCount).toBe(54)
+    let clientAttributesCount = dump.attributes.reduce(
+      (ac, at) => (ac += at.side == dbEnum.side.client ? 1 : 0),
+      0
+    )
+    expect(clientAttributesCount).toBe(2)
   },
   8000
 )
