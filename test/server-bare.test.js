@@ -24,7 +24,6 @@ const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const queryLoader = require('../src-electron/db/query-loader.js')
-const queryGeneric = require('../src-electron/db/query-generic.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const querySession = require('../src-electron/db/query-session.js')
 const httpServer = require('../src-electron/server/http-server.js')
@@ -33,6 +32,7 @@ const exportJs = require('../src-electron/importexport/export.js')
 const importJs = require('../src-electron/importexport/import.js')
 const restApi = require('../src-shared/rest-api.js')
 const testUtil = require('./test-util.js')
+const testQuery = require('./test-query.js')
 const _ = require('lodash')
 const util = require('../src-electron/util/util.js')
 
@@ -61,7 +61,7 @@ afterAll(() =>
 
 describe('Session specific tests', () => {
   test('make sure there is no session at the beginning', () =>
-    queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
+    testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(0)
     }))
 
@@ -79,7 +79,7 @@ describe('Session specific tests', () => {
     }))
 
   test('make sure there is still no session after index.html', () =>
-    queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
+    testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(0)
     }))
 
@@ -91,7 +91,7 @@ describe('Session specific tests', () => {
       }))
 
   test('make sure there is 1 session after previous call', () =>
-    queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
+    testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(1)
     }))
 
@@ -132,7 +132,7 @@ describe('Session specific tests', () => {
       }))
 
   test('make sure there is still 1 session after previous call', () =>
-    queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
+    testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(1)
     }))
 
@@ -172,14 +172,14 @@ describe('Session specific tests', () => {
   // After a new file is loaded a new session will be created.
   // Therefore, at this point, there have to be EXACTLY 2 sessions.
   test('make sure there is now 2 sessions after previous call', () =>
-    queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
+    testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(2)
     }))
 
   test('delete the first session', () =>
     querySession
       .deleteSession(db, sessionId)
-      .then(() => queryGeneric.selectCountFrom(db, 'SESSION'))
+      .then(() => testQuery.selectCountFrom(db, 'SESSION'))
       .then((cnt) => {
         expect(cnt).toBe(1)
       }))
@@ -187,7 +187,7 @@ describe('Session specific tests', () => {
   test('delete the second session', () =>
     querySession
       .deleteSession(db, secondSessionId)
-      .then(() => queryGeneric.selectCountFrom(db, 'SESSION'))
+      .then(() => testQuery.selectCountFrom(db, 'SESSION'))
       .then((cnt) => {
         expect(cnt).toBe(0)
       }))

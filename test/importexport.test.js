@@ -25,10 +25,10 @@ const dbEnum = require('../src-shared/db-enum.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const env = require('../src-electron/util/env.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const queryGeneric = require('../src-electron/db/query-generic.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const querySession = require('../src-electron/db/query-session.js')
 const testUtil = require('./test-util.js')
+const testQuery = require('./test-query.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 
 let db
@@ -78,13 +78,13 @@ test(path.basename(testFile1) + ' - import', async () => {
   let importResult = await importJs.importDataFromFile(db, testFile1)
   let sid = importResult.sessionId
 
-  let x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE')
+  let x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE')
   expect(x).toBe(1)
-  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
+  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
   expect(x).toBe(11)
-  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
+  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
   expect(x).toBe(7)
-  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
+  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
   expect(x).toBe(21)
 
   let state = await exportJs.createStateFromDatabase(db, sid)
@@ -108,16 +108,16 @@ test(path.basename(testFile2) + ' - import', async () => {
   let sid = await querySession.createBlankSession(db)
   await importJs.importDataFromFile(db, testFile2, sid)
 
-  let x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE')
+  let x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE')
   expect(x).toBe(1)
 
-  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
+  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
   expect(x).toBe(19)
 
-  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
+  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
   expect(x).toBe(24)
 
-  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
+  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
   expect(x).toBe(28)
 
   let state = await exportJs.createStateFromDatabase(db, sid)
@@ -198,7 +198,7 @@ test(
     let endpoints = await queryConfig.getAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].deviceIdentifier).toBe(10)
-    let clusterState = await queryConfig.getAllEndpointTypeClusterState(
+    let clusterState = await testQuery.getAllEndpointTypeClusterState(
       db,
       endpointTypes[0].id
     )
@@ -228,7 +228,7 @@ test(
     expect(endpoints[1].networkId).toBe(0)
     let ps = []
     endpointTypes.forEach((ept) => {
-      ps.push(queryConfig.getEndpointTypeAttributes(db, ept.id))
+      ps.push(testQuery.getEndpointTypeAttributes(db, ept.id))
     })
     let attributes = await Promise.all(ps)
 
@@ -265,7 +265,7 @@ test(
     expect(endpoints[0].networkId).toBe(0)
     let ps = []
     endpointTypes.forEach((ept) => {
-      ps.push(queryConfig.getEndpointTypeAttributes(db, ept.id))
+      ps.push(testQuery.getEndpointTypeAttributes(db, ept.id))
     })
     let attributes = await Promise.all(ps)
 

@@ -314,49 +314,6 @@ INTO ENDPOINT_TYPE_COMMAND (
 }
 
 /**
- * Resolves into all the cluster states.
- *
- * @export
- * @param {*} db
- * @param {*} endpointTypeId
- * @returns Promise that resolves with cluster states.
- */
-async function getAllEndpointTypeClusterState(db, endpointTypeId) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-SELECT
-  CLUSTER.NAME,
-  CLUSTER.CODE,
-  CLUSTER.MANUFACTURER_CODE,
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
-  ENDPOINT_TYPE_CLUSTER.SIDE,
-  ENDPOINT_TYPE_CLUSTER.ENABLED
-FROM
-  ENDPOINT_TYPE_CLUSTER
-INNER JOIN CLUSTER
-ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
-WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?`,
-    [endpointTypeId]
-  )
-  if (rows == null) return []
-
-  let result = rows.map((row) => {
-    let obj = {
-      endpointTypeClusterId: row.ENDPOINT_TYPE_CLUSTER_ID,
-      clusterName: row.NAME,
-      clusterCode: row.CODE,
-      side: row.SIDE,
-      enabled: row.STATE == '1',
-    }
-    if (row.MANUFACTURER_CODE != null)
-      obj.manufacturerCode = row.MANUFACTURER_CODE
-    return obj
-  })
-  return result
-}
-
-/**
  * Promises to add an endpoint.
  *
  * @export
@@ -1073,43 +1030,6 @@ WHERE ENDPOINT_TYPE_REF = ?
 }
 
 /**
- * Extracts attributes from the endpoint_type_attribute table.
- *
- * @export
- * @param {*} db
- * @param {*} endpointTypeId
- * @returns A promise that resolves into the rows.
- */
-async function getEndpointTypeAttributes(db, endpointTypeId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  ETA.ATTRIBUTE_REF,
-  ETA.INCLUDED,
-  ETA.STORAGE_OPTION,
-  ETA.SINGLETON,
-  ETA.BOUNDED,
-  ETA.DEFAULT_VALUE,
-  ETA.INCLUDED_REPORTABLE,
-  ETA.MIN_INTERVAL,
-  ETA.MAX_INTERVAL,
-  ETA.REPORTABLE_CHANGE
-FROM
-  ENDPOINT_TYPE_ATTRIBUTE AS ETA
-LEFT JOIN
-  ENDPOINT_TYPE_CLUSTER AS ETC
-ON
-  ETC.ENDPOINT_TYPE_CLUSTER_ID = ETA.ENDPOINT_TYPE_CLUSTER_REF
-WHERE
-  ETA.ENDPOINT_TYPE_REF = ?`,
-      [endpointTypeId]
-    )
-    .then((rows) => rows.map(dbMapping.map.endpointTypeAttribute))
-}
-
-/**
  * Returns a promise that resolve into an endpoint type attribute id.
  *
  * @param {*} db
@@ -1175,32 +1095,6 @@ WHERE
       `Ambiguity: multiple attributes with same data loaded: ${endpointTypeId} / ${clusterCode} / ${attributeCode} / ${attributeSide}.`
     )
   }
-}
-
-/**
- * Extracts commands from the endpoint_type_command table.
- *
- * @export
- * @param {*} db
- * @param {*} endpointTypeId
- * @returns A promise that resolves into the rows.
- */
-async function getEndpointTypeCommands(db, endpointTypeId) {
-  return dbApi
-    .dbAll(
-      db,
-      'SELECT COMMAND_REF, INCOMING, OUTGOING FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ?',
-      [endpointTypeId]
-    )
-    .then((rows) =>
-      rows.map((row) => {
-        return {
-          commandID: row.COMMAND_REF,
-          isIncoming: row.INCOMING,
-          isOutgoing: row.OUTGOING,
-        }
-      })
-    )
 }
 
 /**
@@ -1316,7 +1210,6 @@ exports.insertOrReplaceClusterState = insertOrReplaceClusterState
 exports.getClusterState = getClusterState
 exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState
 exports.insertOrUpdateCommandState = insertOrUpdateCommandState
-exports.getAllEndpointTypeClusterState = getAllEndpointTypeClusterState
 exports.convertRestKeyToDbColumn = convertRestKeyToDbColumn
 
 exports.insertEndpoint = insertEndpoint
@@ -1333,8 +1226,6 @@ exports.getEndpointType = getEndpointType
 
 exports.getEndpointTypeClusters = getEndpointTypeClusters
 exports.getOrInsertDefaultEndpointTypeCluster = getOrInsertDefaultEndpointTypeCluster
-exports.getEndpointTypeAttributes = getEndpointTypeAttributes
-exports.getEndpointTypeCommands = getEndpointTypeCommands
 exports.getAllEndpoints = getAllEndpoints
 exports.getCountOfEndpointsWithGivenEndpointIdentifier = getCountOfEndpointsWithGivenEndpointIdentifier
 exports.getEndpointTypeCount = getEndpointTypeCount
