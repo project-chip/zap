@@ -871,23 +871,6 @@ async function resolveNonOptionalAndReportableAttributes(
 }
 
 /**
- * Inserts endpoint types.
- *
- * @param {*} db
- * @param {*} sessionId
- * @param {*} endpoints
- */
-async function insertEndpointTypes(db, sessionId, endpoints) {
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO ENDPOINT_TYPE (SESSION_REF, NAME, DEVICE_TYPE_REF) VALUES (?,?,?)',
-    endpoints.map((endpoint) => {
-      return [sessionId, endpoint.name, endpoint.deviceTypeId]
-    })
-  )
-}
-
-/**
  * Resolves into the number of endpoint types for session.
  *
  * @param {*} db
@@ -1220,7 +1203,6 @@ exports.selectEndpoint = selectEndpoint
 exports.insertEndpointType = insertEndpointType
 exports.deleteEndpointType = deleteEndpointType
 exports.updateEndpointType = updateEndpointType
-exports.insertEndpointTypes = insertEndpointTypes
 exports.getAllEndpointTypes = getAllEndpointTypes
 exports.getEndpointType = getEndpointType
 
