@@ -473,8 +473,11 @@ async function loadAttributes(db, state, packageId, endpointTypeIdArray) {
       })
     })
   }
-  promises.push(Promise.resolve(1))
-  return Promise.all(promises)
+  if (promises.length > 0) {
+    return Promise.all(promises)
+  } else {
+    return []
+  }
 }
 
 /**

@@ -82,9 +82,6 @@ test(
     })
     let attributes = await Promise.all(ps)
 
-    //let sessionReport = await util.sessionReport(db, sid)
-    //console.log(sessionReport)
-
     // Here we are testing that we have attributes only from ONE
     // package present. There was a bug, where global attributes from
     // other packages got referenced under the session, because

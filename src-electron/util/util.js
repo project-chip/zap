@@ -203,17 +203,17 @@ function sessionReport(db, sessionId) {
         queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
           let s = `Endpoint: ${ept.name} \n`
           let ps2 = []
-          clusters.forEach((c) => {
+          for (c of clusters) {
             let rpt = `  - ${c.hexCode}: cluster: ${c.name} (${c.side})\n`
             ps2.push(
               queryEndpoint
                 .queryEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
                 .then((attrs) => {
-                  attrs.forEach((at) => {
+                  for (at of attrs) {
                     rpt = rpt.concat(
-                      `    - ${at.hexCode}: attribute: ${at.name} [${at.type}]\n`
+                      `    - ${at.hexCode}: attribute: ${at.name} [${at.type}] [bound: ${at.isBound}]\n`
                     )
-                  })
+                  }
                 })
                 .then(() =>
                   queryEndpoint.queryEndpointClusterCommands(
@@ -223,15 +223,15 @@ function sessionReport(db, sessionId) {
                   )
                 )
                 .then((cmds) => {
-                  cmds.forEach((cmd) => {
+                  for (cmd of cmds) {
                     rpt = rpt.concat(
                       `    - ${cmd.hexCode}: command: ${cmd.name}\n`
                     )
-                  })
+                  }
                   return rpt
                 })
             )
-          })
+          }
           return Promise.all(ps2)
             .then((rpts) => rpts.join(''))
             .then((r) => s.concat(r))
