@@ -65,9 +65,7 @@ let cli = [
   'src-electron/main-process/electron-main.js',
   'generate',
   '--noUi',
-  '--noServer',
-  '--stateDirectory',
-  arg.stateDirectory,
+  '--reuseZapInstance',
   '--zcl',
   arg.zcl,
   '--generationTemplate',
@@ -81,7 +79,7 @@ if (arg.in != null) {
 
 scriptUtil
   .stampVersion()
-  .then(() => scriptUtil.executeCmd(ctx, 'node', cli))
+  .then(() => scriptUtil.executeCmd(ctx, 'electron', cli))
   .then(() => {
     let endTime = process.hrtime(startTime)
     console.log(

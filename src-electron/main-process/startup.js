@@ -437,7 +437,7 @@ async function startSelfCheck(
 async function generateSingleFile(
   db,
   f,
-  packageId,
+  templatePackageId,
   outputPattern,
   index,
   options = {
@@ -469,7 +469,7 @@ async function generateSingleFile(
   let genResult = await generatorEngine.generateAndWriteFiles(
     db,
     sessionId,
-    packageId,
+    templatePackageId,
     output,
     options
   )
@@ -534,13 +534,12 @@ async function startGeneration(
   options.backup = false
   options.genResultFile = genResultFile
   options.skipPostGeneration = skipPostGeneration
-  let packageId = ctx.packageId
 
   let hrend = process.hrtime(hrstart)
   options.logger(`🕐 Setup time: ${hrend[0]}s ${hrend[1] / 1000000}ms `)
 
   await util.executePromisesSequentially(files, (f, index) =>
-    generateSingleFile(mainDb, f, packageId, output, index, options)
+    generateSingleFile(mainDb, f, ctx.packageId, output, index, options)
   )
 
   if (options.quit && app != null) app.quit()
@@ -614,7 +613,13 @@ function startUpSecondaryInstance(argv) {
   } else if (argv._.includes('stop')) {
     ipcClient.emit(ipcServer.eventType.stop)
   } else if (argv._.includes('generate') && argv.zapFiles != null) {
-    ipcClient.emit(ipcServer.eventType.generate, argv.zapFiles)
+    let data = {
+      zapFileArray: argv.zapFiles,
+      outputPattern: argv.output,
+      zcl: argv.zclProperties,
+      template: argv.generationTemplate,
+    }
+    ipcClient.emit(ipcServer.eventType.generate, data)
   } else if (argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.open, argv.zapFiles)
   }
@@ -697,3 +702,4 @@ exports.startUpMainInstance = startUpMainInstance
 exports.startUpSecondaryInstance = startUpSecondaryInstance
 exports.shutdown = shutdown
 exports.quit = quit
+exports.generateSingleFile = generateSingleFile
