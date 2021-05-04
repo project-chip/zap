@@ -275,6 +275,7 @@ async function selectClusterById(db, clusterId) {
       `
 SELECT
   CLUSTER_ID,
+  PACKAGE_REF,
   CODE,
   MANUFACTURER_CODE,
   NAME,
@@ -675,7 +676,19 @@ async function selectCommandById(db, id) {
   return dbApi
     .dbGet(
       db,
-      `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE COMMAND_ID = ?`,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  PACKAGE_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL
+FROM COMMAND
+  WHERE COMMAND_ID = ?`,
       [id]
     )
     .then(dbMapping.map.command)

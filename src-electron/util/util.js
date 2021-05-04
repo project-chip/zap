@@ -28,6 +28,7 @@ const childProcess = require('child_process')
 const queryPackage = require('../db/query-package.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')
+const queryZcl = require('../db/query-zcl.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { v4: uuidv4 } = require('uuid')
@@ -74,7 +75,7 @@ async function initializeSessionPackage(db, sessionId, metafiles) {
           }
         })
         env.logWarning(
-          `Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
+          `${sessionId}, ${metafiles.zcl}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
         )
       }
       if (packageId != null) {
@@ -254,8 +255,11 @@ async function sessionDump(db, sessionId) {
     endpointTypes: [],
     attributes: [],
     commands: [],
+    clusters: [],
+    usedPackages: [],
+    packageReport: '',
   }
-  let endpoints = await queryConfig.getAllEndpoints(db, sid)
+  let endpoints = await queryConfig.getAllEndpoints(db, sessionId)
   dump.endpoints = endpoints
 
   let epts = await queryConfig.getAllEndpointTypes(db, sessionId)
@@ -271,6 +275,7 @@ async function sessionDump(db, sessionId) {
         let ps2 = []
         for (c of clusters) {
           ept.clusters.push(c)
+          dump.clusters.push(c)
           ps2.push(
             queryEndpoint
               .queryEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
@@ -297,7 +302,51 @@ async function sessionDump(db, sessionId) {
       })
     )
   })
-  return Promise.all(ps).then(() => dump)
+  await Promise.all(ps)
+
+  // Here we are testing that we have entities only from ONE
+  // package present. There was a bug, where global attributes from
+  // other packages got referenced under the session, because
+  // some query wasn't taking packageId into consideration.
+  for (const at of dump.attributes) {
+    let attributeId = at.id
+    let attribute = await queryZcl.selectAttributeById(db, attributeId)
+    if (dump.usedPackages.indexOf(attribute.packageRef) == -1) {
+      dump.usedPackages.push(attribute.packageRef)
+      if (dump.usedPackages.length > 1) {
+        console.log(`${sessionId} ATTRIBUTE!!!!!!!!!!`)
+        console.log(dump.usedPackages)
+        console.log(attribute)
+      }
+    }
+  }
+
+  for (const cm of dump.commands) {
+    let commandId = cm.id
+    let cmd = await queryZcl.selectCommandById(db, commandId)
+    if (dump.usedPackages.indexOf(cmd.packageRef) == -1) {
+      dump.usedPackages.push(cmd.packageRef)
+      if (dump.usedPackages.length > 1) {
+        console.log(`${sessionId} COMMAND!!!!!!!!!!`)
+        console.log(dump.usedPackages)
+        console.log(cmd)
+      }
+    }
+  }
+
+  for (const cl of dump.clusters) {
+    let clusterId = cl.clusterId
+    let cluster = await queryZcl.selectClusterById(db, clusterId)
+    if (dump.usedPackages.indexOf(cluster.packageRef) == -1) {
+      dump.usedPackages.push(cluster.packageRef)
+      if (dump.usedPackages.length > 1) {
+        console.log(`${sessionId} CLUSTER!!!!!!!!!`)
+        console.log(dump.usedPackages)
+        console.log(cluster)
+      }
+    }
+  }
+  return dump
 }
 
 /**

@@ -49,7 +49,7 @@ function httpPostFileOpen(db) {
 
     if (zapFilePath) {
       importJs
-        .importDataFromFile(db, zapFilePath, req.zapSessionId)
+        .importDataFromFile(db, zapFilePath, { sessionId: req.zapSessionId })
         .then((importResult) => {
           let response = {
             sessionId: importResult.sessionId,

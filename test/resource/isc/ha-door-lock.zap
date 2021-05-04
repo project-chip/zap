@@ -18,6 +18,12 @@
   "package": [
     {
       "pathRelativity": "relativeToZap",
+      "path": "../../../../super/protocol/zigbee/app/framework/gen-template/gen-templates.json",
+      "version": "zigbee-v0",
+      "type": "gen-templates-json"
+    },
+    {
+      "pathRelativity": "relativeToZap",
       "path": "../../../zcl-builtin/silabs/zcl.json",
       "version": "ZCL Test Data",
       "type": "zcl-properties"

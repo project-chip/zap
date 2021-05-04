@@ -305,7 +305,7 @@ test(
 
 test('Test file 1 generation', async () => {
   let sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, testFile, sid)
+  await importJs.importDataFromFile(db, testFile, { sessionId: sid })
 
   return genEngine
     .generate(
@@ -374,7 +374,7 @@ test('Test file 2 generation', async () => {
 
 test.skip('Test file import and command parser generation, version 2', async () => {
   let sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, testFile, sid)
+  await importJs.importDataFromFile(db, testFile, { sessionId: sid })
 
   return genEngine
     .generate(db, sid, templateContext.packageId)

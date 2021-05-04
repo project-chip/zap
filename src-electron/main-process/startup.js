@@ -238,7 +238,9 @@ async function startConvert(
   return util
     .executePromisesSequentially(files, (singlePath, index) =>
       importJs
-        .importDataFromFile(db, singlePath)
+        .importDataFromFile(db, singlePath, {
+          defaultZclMetafile: argv.zclProperties,
+        })
         .then((importResult) => {
           return util
             .initializeSessionPackage(db, importResult.sessionId, {
@@ -312,7 +314,9 @@ async function startAnalyze(
     .then((d) => {
       return util.executePromisesSequentially(paths, (singlePath) =>
         importJs
-          .importDataFromFile(db, singlePath)
+          .importDataFromFile(db, singlePath, {
+            defaultZclMetafile: argv.zclProperties,
+          })
           .then((importResult) =>
             util.sessionReport(db, importResult.sessionId)
           )
@@ -455,7 +459,9 @@ async function generateSingleFile(
     output = outputPattern
   } else {
     options.logger(`👉 using input file: ${f}`)
-    let importResult = await importJs.importDataFromFile(db, f)
+    let importResult = await importJs.importDataFromFile(db, f, {
+      defaultZclMetafile: argv.zclProperties,
+    })
     sessionId = importResult.sessionId
     output = outputFile(f, outputPattern, index)
   }

@@ -65,6 +65,7 @@ exports.map = {
     if (x == null) return undefined
     return {
       id: x.CLUSTER_ID,
+      packageRef: x.PACKAGE_REF,
       code: x.CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
       label: x.NAME,
@@ -105,6 +106,7 @@ exports.map = {
     return {
       id: x.COMMAND_ID,
       clusterRef: x.CLUSTER_REF,
+      packageRef: x.PACKAGE_REF,
       code: x.CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
       label: x.NAME,

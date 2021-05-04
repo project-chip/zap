@@ -106,7 +106,7 @@ test(path.basename(testFile1) + ' - import', async () => {
 
 test(path.basename(testFile2) + ' - import', async () => {
   let sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, testFile2, sid)
+  await importJs.importDataFromFile(db, testFile2, { sessionId: sid })
 
   let x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE')
   expect(x).toBe(1)
@@ -136,7 +136,7 @@ test(path.basename(testFile2) + ' - import', async () => {
 
 test(path.basename(sleepyGenericZap) + ' - import', async () => {
   let sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, sleepyGenericZap, sid)
+  await importJs.importDataFromFile(db, sleepyGenericZap, { sessionId: sid })
   let endpoints = await queryConfig.getAllEndpoints(db, sid)
   expect(endpoints.length).toBe(1)
   expect(endpoints[0].deviceIdentifier).toBe(1281)
@@ -146,7 +146,7 @@ test(
   path.basename(sleepyGenericIsc) + ' - import',
   async () => {
     let sid = await querySession.createBlankSession(db)
-    await importJs.importDataFromFile(db, sleepyGenericIsc, sid)
+    await importJs.importDataFromFile(db, sleepyGenericIsc, { sessionId: sid })
     let endpoints = await queryConfig.getAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].deviceIdentifier).toBe(1281)
@@ -155,7 +155,10 @@ test(
 )
 
 test(path.basename(testLightIsc) + ' - read state', async () => {
-  let state = await importJs.readDataFromFile(testLightIsc)
+  let state = await importJs.readDataFromFile(
+    testLightIsc,
+    env.builtinSilabsZclMetafile
+  )
   expect(Object.keys(state.endpointTypes).length).toBe(4)
   expect(Object.keys(state.endpoint).length).toBe(3)
   expect(state.endpoint[2].endpoint).toBe(242)
@@ -167,7 +170,7 @@ test(
   path.basename(testLightIsc) + ' - import',
   async () => {
     sid = await querySession.createBlankSession(db)
-    await importJs.importDataFromFile(db, testLightIsc, sid)
+    await importJs.importDataFromFile(db, testLightIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
     expect(endpointTypes.length).toBe(4)
@@ -191,7 +194,7 @@ test(
   path.basename(testDoorLockIsc) + ' - import',
   async () => {
     sid = await querySession.createBlankSession(db)
-    await importJs.importDataFromFile(db, testDoorLockIsc, sid)
+    await importJs.importDataFromFile(db, testDoorLockIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
     expect(endpointTypes.length).toBe(1)
@@ -218,7 +221,7 @@ test(
   path.basename(haLightIsc) + ' - import',
   async () => {
     sid = await querySession.createBlankSession(db)
-    await importJs.importDataFromFile(db, haLightIsc, sid)
+    await importJs.importDataFromFile(db, haLightIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
     expect(endpointTypes.length).toBe(3)
@@ -256,7 +259,9 @@ test(
   path.basename(haCombinedInterfaceIsc) + ' - import',
   async () => {
     sid = await querySession.createBlankSession(db)
-    await importJs.importDataFromFile(db, haCombinedInterfaceIsc, sid)
+    await importJs.importDataFromFile(db, haCombinedInterfaceIsc, {
+      sessionId: sid,
+    })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
     expect(endpointTypes.length).toBe(2)

@@ -57,7 +57,7 @@ test(
   path.basename(haLightIsc) + ' - conversion',
   async () => {
     sid = await querySession.createBlankSession(db)
-    await importJs.importDataFromFile(db, haLightIsc, sid)
+    await importJs.importDataFromFile(db, haLightIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
 
     // validate packageId
@@ -76,20 +76,8 @@ test(
     expect(dump.endpoints[0].networkId).toBe(0)
     expect(dump.endpoints[1].networkId).toBe(0)
 
-    // Here we are testing that we have attributes only from ONE
-    // package present. There was a bug, where global attributes from
-    // other packages got referenced under the session, because
-    // some query wasn't taking packageId into consideration.
-    let usedPackages = []
-    for (const at of dump.attributes) {
-      let attributeId = at.id
-      let attribute = await queryZcl.selectAttributeById(db, attributeId)
-      if (usedPackages.indexOf(attribute.packageRef) == -1) {
-        usedPackages.push(attribute.packageRef)
-      }
-    }
     // Now make sure we have attributes ONLY from one package.
-    expect(usedPackages.length).toBe(1)
+    expect(dump.usedPackages.length).toBe(1)
 
     let attributeCounts = dump.endpointTypes.map((ept) => ept.attributes.length)
     expect(attributeCounts).toStrictEqual([19, 26, 11])
@@ -98,6 +86,23 @@ test(
       ept.attributes.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
     )
     expect(reportableCounts).toStrictEqual([1, 2, 0])
+
+    /*
+    let atts = []
+    for (ept of dump.endpointTypes) {
+      for (at of ept.attributes) {
+        if (at.isBound) {
+          atts.push(at)
+        }
+      }
+    }
+    console.log(
+      atts.reduce(
+        (s, v) => s + `\n${v.id} =>${v.clusterId} / ${v.code}`,
+        `Total number: ${atts.length}`
+      )
+    )
+    */
 
     let boundedCounts = dump.endpointTypes.map((ept) =>
       ept.attributes.reduce((ac, at) => ac + (at.isBound ? 1 : 0), 0)

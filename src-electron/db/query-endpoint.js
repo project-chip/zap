@@ -123,7 +123,8 @@ WHERE
   AND (EA.ENDPOINT_TYPE_REF = ? AND (EA.ENDPOINT_TYPE_CLUSTER_REF =
     (SELECT ENDPOINT_TYPE_CLUSTER_ID
      FROM ENDPOINT_TYPE_CLUSTER
-     WHERE CLUSTER_REF = ? AND SIDE = ? AND ENDPOINT_TYPE_REF = ?)))
+     WHERE CLUSTER_REF = ? AND SIDE = ? AND ENDPOINT_TYPE_REF = ?) ))
+ORDER BY A.MANUFACTURER_CODE, A.CODE
     `,
     [clusterId, side, endpointTypeId, clusterId, side, endpointTypeId]
   )
@@ -171,6 +172,7 @@ async function queryEndpointClusterCommands(db, clusterId, endpointTypeId) {
     db,
     `
 SELECT
+  C.COMMAND_ID,
   C.NAME,
   C.CODE,
   C.SOURCE,
@@ -194,6 +196,7 @@ ORDER BY C.CODE
 
   return rows.map((row) => {
     return {
+      id: row['COMMAND_ID'],
       name: row['NAME'],
       code: row['CODE'],
       manufacturerCode: row['MANUFACTURER_CODE'],
