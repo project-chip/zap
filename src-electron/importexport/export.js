@@ -141,11 +141,6 @@ async function exportDataIntoFile(
     removeLog: false,
   }
 ) {
-  let sessionDump = await util.sessionDump(db, sessionId)
-  if (sessionDump.usedPackages.length > 1) {
-    throw new Error(`Used packages guard! Two packages used!`)
-  }
-
   env.logDebug(`Writing state from session ${sessionId} into file ${filePath}`)
   let state = await createStateFromDatabase(db, sessionId)
   await new Promise((resolve, reject) => {
