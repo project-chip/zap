@@ -30,6 +30,7 @@ const querySession = require('../src-electron/db/query-session.js')
 const testUtil = require('./test-util.js')
 const testQuery = require('./test-query.js')
 const queryConfig = require('../src-electron/db/query-config.js')
+const util = require('../src-electron/util/util.js')
 
 let db
 let sleepyGenericZap = path.join(__dirname, 'resource/isc/sleepy-generic.zap')
@@ -290,6 +291,9 @@ test(
       atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
     expect(singletonCounts).toStrictEqual([6, 10])
+
+    let sessionDump = await util.sessionDump(db, sid)
+    expect(sessionDump.usedPackages.length).toBe(1)
   },
   5000
 )
