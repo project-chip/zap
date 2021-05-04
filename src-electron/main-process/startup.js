@@ -460,7 +460,7 @@ async function generateSingleFile(
   } else {
     options.logger(`👉 using input file: ${f}`)
     let importResult = await importJs.importDataFromFile(db, f, {
-      defaultZclMetafile: argv.zclProperties,
+      defaultZclMetafile: options.zcl,
     })
     sessionId = importResult.sessionId
     output = outputFile(f, outputPattern, index)
