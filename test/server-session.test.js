@@ -24,9 +24,13 @@ const httpServer = require('../src-electron/server/http-server.js')
 const env = require('../src-electron/util/env.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const testUtil = require('./test-util.js')
+const restApi = require('../src-shared/rest-api.js')
+const queryZcl = require('../src-electron/db/query-zcl.js')
+const util = require('../src-electron/util/util.js')
 
 let db
 let axiosInstance = null
+let sessionUuid = util.createUuid()
 
 beforeAll(async () => {
   const { port, baseUrl } = testUtil.testServer(__filename)
