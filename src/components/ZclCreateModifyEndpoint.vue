@@ -32,7 +32,7 @@ limitations under the License.
           <q-field label="Profile ID" stack-label>
             <q-input outlined v-model="zclProfileIdString" class="col" />
           </q-field>
-          <q-field label="Device Type" stack-label>
+          <q-field label="Device" stack-label>
             <q-select
               outlined
               class="col"
@@ -165,11 +165,10 @@ export default {
   },
   methods: {
     newEpt(shownEndpoint) {
-      let deviceTypeRef = shownEndpoint.deviceTypeRef
       this.$store
         .dispatch(`zap/addEndpointType`, {
           name: 'Anonymous Endpoint Type',
-          deviceTypeRef: deviceTypeRef,
+          deviceTypeRef: shownEndpoint.deviceTypeRef,
         })
         .then((response) => {
           this.$store
@@ -178,7 +177,9 @@ export default {
               networkId: this.shownEndpoint.networkIdentifier,
               endpointType: response.id,
               endpointVersion: this.shownEndpoint.deviceVersion,
-              deviceIdentifier: 22,
+              deviceIdentifier: this.zclDeviceTypes[
+                this.shownEndpoint.deviceTypeRef
+              ].code,
             })
             .then((res) => {
               this.$store.dispatch('zap/updateSelectedEndpointType', {

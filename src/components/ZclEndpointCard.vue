@@ -29,7 +29,7 @@ limitations under the License.
         <br />
         <q-item class="row">
           <div class="col-md-6">
-            <strong>Device Type</strong>
+            <strong>Device</strong>
           </div>
           <div class="col-md-6">
             {{
