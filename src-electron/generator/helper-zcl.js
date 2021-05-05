@@ -412,14 +412,13 @@ function largestLabelLength(arrayOfClusters) {
  * @returns Number of command arguments as an integer
  */
 function zcl_command_arguments_count(commandId) {
-  let promise = templateUtil.ensureZclPackageId(this).then((packageId) => {
-    let res = queryZcl.selectCommandArgumentsCountByCommandId(
+  let promise = templateUtil.ensureZclPackageId(this).then((packageId) =>
+    queryZcl.selectCommandArgumentsCountByCommandId(
       this.global.db,
       commandId,
       packageId
     )
-    return res
-  })
+  )
   return templateUtil.templatePromise(this.global, promise)
 }
 

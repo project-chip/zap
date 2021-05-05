@@ -36,7 +36,6 @@ const util = require('../util/util.js')
  */
 function getComponentIdsByCluster(db, sessionId, clusterId, side) {
   // enable components
-  let packageId = undefined
   let extensions = undefined
   return queryPackage
     .getSessionPackagesByType(
@@ -46,7 +45,6 @@ function getComponentIdsByCluster(db, sessionId, clusterId, side) {
     )
     .then((pkgs) => (pkgs.length == 0 ? null : pkgs[0].id))
     .then((id) => {
-      packageId = id
       return queryPackage.selectPackageExtension(
         db,
         id,
