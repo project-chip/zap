@@ -23,7 +23,7 @@ limitations under the License.
         <q-form>
           <q-field label="Endpoint" stack-label>
             <q-input
-              v-model="newEndpoint.newEndpointId"
+              v-model="shownEndpoint.endpointIdentifier"
               outlined
               dense
               class="col"
@@ -40,7 +40,7 @@ limitations under the License.
               hide-selected
               fill-input
               :options="deviceTypeOptions"
-              v-model="newEndpoint.newDeviceTypeRef"
+              v-model="shownEndpoint.deviceTypeRef"
               :option-label="
                 (item) =>
                   item == null
@@ -58,14 +58,18 @@ limitations under the License.
           <div class="q-gutter-md row">
             <q-field label="Network" stack-label>
               <q-input
-                v-model="newEndpoint.newNetworkId"
+                v-model="shownEndpoint.networkIdentifier"
                 outlined
                 stack-label
               />
             </q-field>
 
             <q-field label="Version" stack-label>
-              <q-input v-model="newEndpoint.newVersion" outlined stack-label />
+              <q-input
+                v-model="shownEndpoint.deviceVersion"
+                outlined
+                stack-label
+              />
             </q-field>
           </div>
         </q-form>
@@ -79,8 +83,8 @@ limitations under the License.
           class="col"
           @click="
             endpointReference
-              ? editEpt(newEndpoint, endpointReference)
-              : newEpt(newEndpoint)
+              ? editEpt(shownEndpoint, endpointReference)
+              : newEpt(shownEndpoint)
           "
         />
       </q-card-actions>
@@ -98,10 +102,16 @@ export default {
   mixins: [CommonMixin],
   mounted() {
     if (this.endpointReference != null) {
-      this.newEndpoint.newEndpointId = this.endpointId[this.endpointReference]
-      this.newEndpoint.newNetworkId = this.networkId[this.endpointReference]
-      this.newEndpoint.newVersion = this.endpointVersion[this.endpointReference]
-      this.newEndpoint.newDeviceTypeRef = this.endpointDeviceTypeRef[
+      this.shownEndpoint.endpointIdentifier = this.endpointId[
+        this.endpointReference
+      ]
+      this.shownEndpoint.networkIdentifier = this.networkId[
+        this.endpointReference
+      ]
+      this.shownEndpoint.deviceVersion = this.endpointVersion[
+        this.endpointReference
+      ]
+      this.shownEndpoint.deviceTypeRef = this.endpointDeviceTypeRef[
         this.endpointType[this.endpointReference]
       ]
     }
@@ -109,11 +119,11 @@ export default {
   data() {
     return {
       deviceTypeOptions: this.zclDeviceTypeOptions,
-      newEndpoint: {
-        newEndpointId: 1,
-        newNetworkId: 0,
-        newDeviceTypeRef: null,
-        newVersion: 1,
+      shownEndpoint: {
+        endpointIdentifier: 1,
+        networkIdentifier: 0,
+        deviceTypeRef: null,
+        deviceVersion: 1,
       },
     }
   },
@@ -129,9 +139,9 @@ export default {
     },
     zclProfileIdString: {
       get() {
-        return this.newEndpoint.newDeviceTypeRef
+        return this.shownEndpoint.deviceTypeRef
           ? this.asHex(
-              this.zclDeviceTypes[this.newEndpoint.newDeviceTypeRef].profileId,
+              this.zclDeviceTypes[this.shownEndpoint.deviceTypeRef].profileId,
               4
             )
           : ''
@@ -154,24 +164,21 @@ export default {
     },
   },
   methods: {
-    newEpt(newEndpoint) {
-      let deviceTypeRef = newEndpoint.newDeviceTypeRef
-
+    newEpt(shownEndpoint) {
+      let deviceTypeRef = shownEndpoint.deviceTypeRef
       this.$store
         .dispatch(`zap/addEndpointType`, {
           name: 'Anonymous Endpoint Type',
           deviceTypeRef: deviceTypeRef,
         })
         .then((response) => {
-          let eptId = parseInt(this.newEndpoint.newEndpointId)
-          let nwkId = this.newEndpoint.newNetworkId
-          let epVersion = this.newEndpoint.newVersion
           this.$store
             .dispatch(`zap/addEndpoint`, {
-              endpointId: eptId,
-              networkId: nwkId,
+              endpointId: parseInt(this.shownEndpoint.endpointIdentifier),
+              networkId: this.shownEndpoint.networkIdentifier,
               endpointType: response.id,
-              endpointVersion: epVersion,
+              endpointVersion: this.shownEndpoint.deviceVersion,
+              deviceIdentifier: 22,
             })
             .then((res) => {
               this.$store.dispatch('zap/updateSelectedEndpointType', {
@@ -202,13 +209,13 @@ export default {
             })
         })
     },
-    editEpt(newEndpoint, endpointReference) {
+    editEpt(shownEndpoint, endpointReference) {
       let endpointTypeReference = this.endpointType[this.endpointReference]
 
       this.$store.dispatch('zap/updateEndpointType', {
         endpointTypeId: endpointTypeReference,
         updatedKey: RestApi.updateKey.deviceTypeRef,
-        updatedValue: newEndpoint.newDeviceTypeRef,
+        updatedValue: shownEndpoint.deviceTypeRef,
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
@@ -216,15 +223,15 @@ export default {
         changes: [
           {
             updatedKey: RestApi.updateKey.endpointId,
-            value: parseInt(newEndpoint.newEndpointId, 16),
+            value: parseInt(shownEndpoint.endpointIdentifier, 16),
           },
           {
             updatedKey: RestApi.updateKey.networkId,
-            value: newEndpoint.newNetworkId,
+            value: shownEndpoint.networkIdentifier,
           },
           {
             updatedKey: RestApi.updateKey.endpointVersion,
-            value: newEndpoint.newVersion,
+            value: shownEndpoint.deviceVersion,
           },
         ],
       })
