@@ -75,7 +75,7 @@ test(
 
     let dump = await util.sessionDump(db, sid)
 
-    expect(dump.endpointTypes.length).toBe(3)
+    expect(dump.endpointTypes.length).toBe(2)
     expect(dump.endpoints.length).toBe(2)
     expect(dump.endpoints[0].networkId).toBe(0)
     expect(dump.endpoints[1].networkId).toBe(0)
@@ -84,12 +84,12 @@ test(
     expect(dump.usedPackages.length).toBe(1)
 
     let attributeCounts = dump.endpointTypes.map((ept) => ept.attributes.length)
-    expect(attributeCounts).toStrictEqual([15, 26, 11])
+    expect(attributeCounts).toStrictEqual([26, 11])
 
     let reportableCounts = dump.endpointTypes.map((ept) =>
       ept.attributes.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
     )
-    expect(reportableCounts).toStrictEqual([1, 2, 0])
+    expect(reportableCounts).toStrictEqual([2, 0])
 
     /*
     let atts = []
@@ -111,18 +111,18 @@ test(
     let boundedCounts = dump.endpointTypes.map((ept) =>
       ept.attributes.reduce((ac, at) => ac + (at.isBound ? 1 : 0), 0)
     )
-    expect(boundedCounts).toStrictEqual([1, 11, 2])
+    expect(boundedCounts).toStrictEqual([11, 2])
 
     let singletonCounts = dump.endpointTypes.map((ept) =>
       ept.attributes.reduce((ac, at) => ac + (at.isSingleton ? 1 : 0), 0)
     )
-    expect(singletonCounts).toStrictEqual([3, 7, 11])
+    expect(singletonCounts).toStrictEqual([7, 11])
 
     let serverAttributesCount = dump.attributes.reduce(
       (ac, at) => (ac += at.side == dbEnum.side.server ? 1 : 0),
       0
     )
-    expect(serverAttributesCount).toBe(50)
+    expect(serverAttributesCount).toBe(35)
     let clientAttributesCount = dump.attributes.reduce(
       (ac, at) => (ac += at.side == dbEnum.side.client ? 1 : 0),
       0
@@ -150,7 +150,7 @@ test(
 
     let dump = await util.sessionDump(db, sid)
 
-    expect(dump.endpointTypes.length).toBe(2)
+    expect(dump.endpointTypes.length).toBe(1)
     expect(dump.endpoints.length).toBe(1)
   },
   8000

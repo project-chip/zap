@@ -516,6 +516,12 @@ async function iscDataLoader(db, state, sessionId) {
     throw new Error('No zcl packages found for ISC import.')
   }
 
+  let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+  for (let endpointTypeKey of Object.keys(endpointTypes)) {
+    if (!usedEndpointTypes.includes(endpointTypeKey)) {
+      delete endpointTypes[endpointTypeKey]
+    }
+  }
   let packageId = zclPackages[0].id
   for (let key of Object.keys(endpointTypes)) {
     promises.push(

@@ -24,6 +24,12 @@
     },
     {
       "pathRelativity": "relativeToZap",
+      "path": "../../../../super/protocol/zigbee/app/framework/gen-template/gen-templates.json",
+      "version": "zigbee-v0",
+      "type": "gen-templates-json"
+    },
+    {
+      "pathRelativity": "relativeToZap",
       "path": "../../gen-template/zigbee/gen-templates.json",
       "version": "test-v1",
       "type": "gen-templates-json"

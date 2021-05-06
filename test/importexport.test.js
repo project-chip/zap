@@ -174,11 +174,10 @@ test(
     await importJs.importDataFromFile(db, testLightIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
-    expect(endpointTypes.length).toBe(4)
+    expect(endpointTypes.length).toBe(3)
     expect(endpointTypes[0].name).toBe('Centralized')
     expect(endpointTypes[1].name).toBe('GreenPower')
-    expect(endpointTypes[2].name).toBe('Primary')
-    expect(endpointTypes[3].name).toBe('Touchlink')
+    expect(endpointTypes[2].name).toBe('Touchlink')
     let endpoints = await queryConfig.getAllEndpoints(db, sid)
     expect(endpoints.length).toBe(3)
     let drp = await querySession.getSessionKeyValue(
@@ -225,7 +224,7 @@ test(
     await importJs.importDataFromFile(db, haLightIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
-    expect(endpointTypes.length).toBe(3)
+    expect(endpointTypes.length).toBe(2)
     let endpoints = await queryConfig.getAllEndpoints(db, sid)
     expect(endpoints.length).toBe(2)
     expect(endpoints[0].networkId).toBe(0)
@@ -237,21 +236,21 @@ test(
     let attributes = await Promise.all(ps)
 
     let attributeCounts = attributes.map((atArray) => atArray.length)
-    expect(attributeCounts).toStrictEqual([20, 39, 16])
+    expect(attributeCounts).toStrictEqual([39, 16])
 
     let reportableCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
     )
-    expect(reportableCounts).toStrictEqual([1, 2, 0])
+    expect(reportableCounts).toStrictEqual([2, 0])
 
     let boundedCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
     )
-    expect(boundedCounts).toStrictEqual([0, 11, 2])
+    expect(boundedCounts).toStrictEqual([11, 2])
     let singletonCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
-    expect(singletonCounts).toStrictEqual([4, 9, 13])
+    expect(singletonCounts).toStrictEqual([9, 13])
   },
   5000
 )
@@ -265,7 +264,7 @@ test(
     })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
-    expect(endpointTypes.length).toBe(2)
+    expect(endpointTypes.length).toBe(1)
     let endpoints = await queryConfig.getAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].networkId).toBe(0)
@@ -276,21 +275,21 @@ test(
     let attributes = await Promise.all(ps)
 
     let attributeCounts = attributes.map((atArray) => atArray.length)
-    expect(attributeCounts).toStrictEqual([12, 51])
+    expect(attributeCounts).toStrictEqual([12])
 
     let reportableCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
     )
-    expect(reportableCounts).toStrictEqual([1, 26])
+    expect(reportableCounts).toStrictEqual([1])
 
     let boundedCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
     )
-    expect(boundedCounts).toStrictEqual([3, 0])
+    expect(boundedCounts).toStrictEqual([3])
     let singletonCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
-    expect(singletonCounts).toStrictEqual([6, 8])
+    expect(singletonCounts).toStrictEqual([6])
 
     let sessionDump = await util.sessionDump(db, sid)
     expect(sessionDump.usedPackages.length).toBe(1)
