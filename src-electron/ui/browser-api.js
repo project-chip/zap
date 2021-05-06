@@ -77,11 +77,9 @@ async function execRendererApi(browserWindow, rendererApiCommand, ...theArgs) {
   )
 }
 
-async function debugNavBar(browserWindow, flag) {
+async function debugNavBarOn(browserWindow) {
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${rendApi.id.debugNavBar}', ${
-      flag ? 'true' : 'false'
-    })`
+    `window.global_renderer_api_execute('${restApi.rendererApiId.debugNavBarOn}')`
   )
 }
 
@@ -190,7 +188,6 @@ exports.getRendererApiInformation = getRendererApiInformation
 exports.getUserKeyFromBrowserWindow = getUserKeyFromBrowserWindow
 exports.getUserKeyFromBrowserCookie = getUserKeyFromBrowserCookie
 exports.getUserKeyFromCookieValue = getUserKeyFromCookieValue
-exports.debugNavBar = debugNavBar
 exports.reportFiles = reportFiles
 exports.processRendererNotify = processRendererNotify
 exports.getFileLocation = getFileLocation

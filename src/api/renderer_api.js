@@ -90,20 +90,11 @@ function renderer_api_execute(id, ...args) {
         JSON.parse(args[0])
       )
       break
-    case rendApi.id.debugNavBar:
-      observable.setObservableAttribute(rendApi.observable.debugNavBar, args[0])
+    case restApi.rendererApiId.debugNavBarOn:
+      observable.setObservableAttribute(restApi.debugNavBar, true)
       break
-    case rendApi.id.setTheme:
-      observable.setObservableAttribute(rendApi.observable.themeData, args[0])
-      break
-    case rendApi.id.setStorageItem:
-      storage.setItem(args[0], args[1])
-      break
-    case rendApi.id.getStorageItem:
-      ret = storage.getItem(args[0])
-      break
-    case rendApi.id.removeStorageItem:
-      storage.removeItem(args[0])
+    case restApi.rendererApiId.debugNavBarOff:
+      observable.setObservableAttribute(restApi.debugNavBar, false)
       break
   }
   return ret
