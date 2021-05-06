@@ -273,7 +273,7 @@ async function sessionDump(db, sessionId) {
     ps.push(
       queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
         let ps2 = []
-        for (c of clusters) {
+        for (let c of clusters) {
           ept.clusters.push(c)
           dump.clusters.push(c)
           ps2.push(
