@@ -55,6 +55,12 @@
     },
     {
       "id": "removeStorageItem"
+    },
+    {
+      "id": "debugNavBarOff"
+    },
+    {
+      "id": "debugNavBarOn"
     }
   ],
   "notifyKey": [

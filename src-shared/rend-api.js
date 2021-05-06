@@ -34,10 +34,14 @@ exports.renderer_api_info = [
   { id: 'getStorageItem' },
   { id: 'setStorageItem' },
   { id: 'removeStorageItem' },
+  { id: 'debugNavBarOff' },
+  { id: 'debugNavBarOn' },
 ]
 
 exports.id = {
   debugNavBar: 'debugNavBar',
+  debugNavBarOff: 'debugNavBarOff',
+  debugNavBarOn: 'debugNavBarOn',
   getFileLocation: 'getFileLocation',
   getItem: 'getItem',
   getStorageItem: 'getStorageItem',
