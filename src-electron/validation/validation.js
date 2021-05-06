@@ -30,12 +30,11 @@ function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {
   return queryZcl
     .selectEndpointTypeAttribute(db, endpointTypeId, attributeRef, clusterRef)
     .then((endpointAttribute) =>
-      queryZcl.selectAttributeById(db, attributeRef).then(
-        (attribute) =>
-          new Promise((resolve, reject) => {
-            resolve(validateSpecificAttribute(endpointAttribute, attribute))
-          })
-      )
+      queryZcl
+        .selectAttributeById(db, attributeRef)
+        .then((attribute) =>
+          validateSpecificAttribute(endpointAttribute, attribute)
+        )
     )
 }
 

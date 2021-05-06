@@ -141,6 +141,9 @@ async function insertOrUpdateAttributeState(
     clusterRef
   )
 
+  if (staticAttribute == null) {
+    throw new Error(`COULD NOT LOCATE ATTRIBUTE: ${attributeId} `)
+  }
   let etaId = await dbApi.dbInsert(
     db,
     `
@@ -306,9 +309,12 @@ INTO ENDPOINT_TYPE_COMMAND (
   )
   return dbApi.dbUpdate(
     db,
-    'UPDATE ENDPOINT_TYPE_COMMAND SET ' +
-      (isIncoming ? 'INCOMING' : 'OUTGOING') +
-      ' = ? WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND COMMAND_REF = ? ',
+    `
+UPDATE ENDPOINT_TYPE_COMMAND
+SET ${isIncoming ? 'INCOMING' : 'OUTGOING'} = ? 
+WHERE ENDPOINT_TYPE_REF = ?
+  AND ENDPOINT_TYPE_CLUSTER_REF = ?
+  AND COMMAND_REF = ? `,
     [value, endpointTypeId, cluster.endpointTypeClusterId, id]
   )
 }
