@@ -313,11 +313,6 @@ async function sessionDump(db, sessionId) {
     let attribute = await queryZcl.selectAttributeById(db, attributeId)
     if (dump.usedPackages.indexOf(attribute.packageRef) == -1) {
       dump.usedPackages.push(attribute.packageRef)
-      if (dump.usedPackages.length > 1) {
-        console.log(`${sessionId} ATTRIBUTE!!!!!!!!!!`)
-        console.log(dump.usedPackages)
-        console.log(attribute)
-      }
     }
   }
 
@@ -326,11 +321,6 @@ async function sessionDump(db, sessionId) {
     let cmd = await queryZcl.selectCommandById(db, commandId)
     if (dump.usedPackages.indexOf(cmd.packageRef) == -1) {
       dump.usedPackages.push(cmd.packageRef)
-      if (dump.usedPackages.length > 1) {
-        console.log(`${sessionId} COMMAND!!!!!!!!!!`)
-        console.log(dump.usedPackages)
-        console.log(cmd)
-      }
     }
   }
 
@@ -339,11 +329,6 @@ async function sessionDump(db, sessionId) {
     let cluster = await queryZcl.selectClusterById(db, clusterId)
     if (dump.usedPackages.indexOf(cluster.packageRef) == -1) {
       dump.usedPackages.push(cluster.packageRef)
-      if (dump.usedPackages.length > 1) {
-        console.log(`${sessionId} CLUSTER!!!!!!!!!`)
-        console.log(dump.usedPackages)
-        console.log(cluster)
-      }
     }
   }
   return dump
