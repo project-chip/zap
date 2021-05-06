@@ -589,7 +589,9 @@ async function generateAndWriteFiles(
   templatePackageId,
   outputDirectory,
   options = {
-    logger: (msg) => {},
+    logger: (msg) => {
+      // Empty logger is the default.
+    },
     backup: false,
     genResultFile: false,
     skipPostGeneration: false,
@@ -672,7 +674,9 @@ async function generateAndWriteFiles(
 async function postProcessGeneratedFiles(
   outputDirectory,
   genResult,
-  logger = (msg) => {}
+  logger = (msg) => {
+    // Empty logger is the default.
+  }
 ) {
   let doExecute = true
   let isEnabledS = genResult.generatorOptions[dbEnum.generatorOptions.enabled]

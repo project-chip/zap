@@ -166,6 +166,10 @@ function argMap(cmdId, packageId, args) {
   ])
 }
 
+async function insertAttributes(db, attributesToLoad) {
+  return dbApi.dbMultiInsert(db, INSERT_ATTRIBUTE_QUERY, attributesToLoad)
+}
+
 /**
  * Inserts globals into the database.
  *
@@ -206,11 +210,7 @@ async function insertGlobals(db, packageId, data) {
       }
       return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
     })
-  let pAttribute = dbApi.dbMultiInsert(
-    db,
-    INSERT_ATTRIBUTE_QUERY,
-    attributesToLoad
-  )
+  let pAttribute = insertAttributes(db, attributesToLoad)
   return Promise.all([pCommand, pAttribute])
 }
 
@@ -272,11 +272,7 @@ async function insertClusterExtensions(db, packageId, data) {
           }
           return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
         })
-      let pAttribute = dbApi.dbMultiInsert(
-        db,
-        INSERT_ATTRIBUTE_QUERY,
-        attributesToLoad
-      )
+      let pAttribute = insertAttributes(db, attributesToLoad)
       return Promise.all([pCommand, pAttribute])
     })
 }
@@ -345,11 +341,7 @@ async function insertClusters(db, packageId, data) {
           }
           return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
         })
-      let pAttribute = dbApi.dbMultiInsert(
-        db,
-        INSERT_ATTRIBUTE_QUERY,
-        attributesToLoad
-      )
+      let pAttribute = insertAttributes(db, attributesToLoad)
       return Promise.all([pCommand, pAttribute])
     })
 }

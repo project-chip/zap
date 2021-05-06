@@ -631,7 +631,10 @@ function startUpSecondaryInstance(argv) {
   }
 }
 
-function quit() {}
+function quit() {
+  // Empty function by default. Startup sequence is supposed
+  // to declare this depending on whether this is node or electron.
+}
 
 /**
  * Default startup method.

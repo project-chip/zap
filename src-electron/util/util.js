@@ -204,13 +204,13 @@ async function sessionReport(db, sessionId) {
         queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
           let s = `Endpoint: ${ept.name} \n`
           let ps2 = []
-          for (c of clusters) {
+          for (let c of clusters) {
             let rpt = `  - ${c.hexCode}: cluster: ${c.name} (${c.side})\n`
             ps2.push(
               queryEndpoint
                 .queryEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
                 .then((attrs) => {
-                  for (at of attrs) {
+                  for (let at of attrs) {
                     rpt = rpt.concat(
                       `    - ${at.hexCode}: attribute: ${at.name} [${at.type}] [bound: ${at.isBound}]\n`
                     )
@@ -224,7 +224,7 @@ async function sessionReport(db, sessionId) {
                   )
                 )
                 .then((cmds) => {
-                  for (cmd of cmds) {
+                  for (let cmd of cmds) {
                     rpt = rpt.concat(
                       `    - ${cmd.hexCode}: command: ${cmd.name}\n`
                     )
