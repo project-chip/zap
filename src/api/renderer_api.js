@@ -40,48 +40,7 @@ function renderer_api_info() {
   return {
     prefix: 'zap',
     description: 'Zap Renderer API',
-    functions: [
-      {
-        id: rendApi.id.open,
-        description: 'Open file...',
-      },
-      {
-        id: rendApi.id.save,
-        description: 'Save file...',
-      },
-      {
-        id: rendApi.id.reportFiles,
-        description: 'Reports files selected by the renderer.',
-      },
-      {
-        id: rendApi.id.progressStart,
-        description: 'Start progress indicator.',
-      },
-      {
-        id: rendApi.id.progressEnd,
-        description: 'End progress indicator.',
-      },
-      {
-        id: rendApi.id.debugNavBar,
-        description: 'Show debug navigation bar...',
-      },
-      {
-        id: rendApi.id.setTheme,
-        description: 'Set theme...',
-      },
-      {
-        id: rendApi.id.setItem,
-        description: 'Set item...',
-      },
-      {
-        id: rendApi.id.getItem,
-        description: 'Get item...',
-      },
-      {
-        id: rendApi.id.removeItem,
-        description: 'Remove item...',
-      },
-    ],
+    functions: rendApi.renderer_api_info,
   }
 }
 

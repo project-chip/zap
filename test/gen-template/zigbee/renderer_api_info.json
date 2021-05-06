@@ -1,0 +1,96 @@
+{
+  "id": [
+    {
+      "id": "open",
+      "description": "Open file..."
+    },
+    {
+      "id": "save",
+      "description": "Save file..."
+    },
+    {
+      "id": "reportFiles",
+      "description": "Reports files selected by the renderer."
+    },
+    {
+      "id": "progressStart",
+      "arguments": ["${getStorageItem}", "arguments"],
+      "description": "Start progress indicator."
+    },
+    {
+      "id": "progressEnd",
+      "description": "End progress indicator."
+    },
+    {
+      "id": "debugNavBar",
+      "description": "Show debug navigation bar..."
+    },
+    {
+      "id": "setTheme",
+      "description": "Set theme..."
+    },
+    {
+      "id": "setItem",
+      "description": "Set item..."
+    },
+    {
+      "id": "getItem",
+      "description": "Get item..."
+    },
+    {
+      "id": "removeItem",
+      "description": "Remove item..."
+    },
+    {
+      "id": "getFileLocation"
+    },
+    {
+      "id": "saveFileLocation"
+    },
+    {
+      "id": "getStorageItem"
+    },
+    {
+      "id": "setStorageItem"
+    },
+    {
+      "id": "removeStorageItem"
+    }
+  ],
+  "notifyKey": [
+    {
+      "id": "dirtyFlag"
+    },
+    {
+      "id": "fileBrowse"
+    }
+  ],
+  "jsonPrefix": "rendererApiJson:",
+  "observable": [
+    {
+      "id": "progress_attribute",
+      "value": "progress-message"
+    },
+    {
+      "id": "reported_files",
+      "value": "reported-files"
+    },
+    {
+      "id": "debugNavBar"
+    },
+    {
+      "id": "themeData",
+      "value": "data-theme"
+    }
+  ],
+  "storageKey": [
+    {
+      "id": "fileSave",
+      "value": "lastFileLocation_openFileSave"
+    },
+    {
+      "id": "theme",
+      "value": "ui_theme"
+    }
+  ]
+}
