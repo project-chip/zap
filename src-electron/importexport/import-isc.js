@@ -517,7 +517,6 @@ async function iscDataLoader(db, state, sessionId) {
   }
 
   let packageId = zclPackages[0].id
-
   for (let key of Object.keys(endpointTypes)) {
     promises.push(
       loadEndpointType(db, sessionId, packageId, endpointTypes[key])
@@ -568,15 +567,17 @@ async function iscDataLoader(db, state, sessionId) {
       })
       if (endpointTypeId != undefined) {
         endpointInsertionPromises.push(
-          queryConfig.insertEndpoint(
-            db,
-            sessionId,
-            ep.endpoint,
-            endpointTypeId,
-            ep.network,
-            ep.deviceVersion,
-            ep.deviceId
-          )
+          queryConfig
+            .insertEndpoint(
+              db,
+              sessionId,
+              ep.endpoint,
+              endpointTypeId,
+              ep.network,
+              ep.deviceVersion,
+              ep.deviceId
+            )
+            .then(() => endpointTypeId)
         )
       }
     })
@@ -585,13 +586,8 @@ async function iscDataLoader(db, state, sessionId) {
     querySession.writeLog(db, sessionId, state.log)
   }
   return Promise.all(endpointInsertionPromises)
-    .then(() =>
-      loadAttributes(
-        db,
-        state,
-        packageId,
-        results.map((r) => r.endpointTypeId)
-      )
+    .then((endpointTypeIds) =>
+      loadAttributes(db, state, packageId, endpointTypeIds)
     )
     .then(() => loadSessionKeyValues(db, sessionId, state.sessionKey))
     .then(() => querySession.setSessionClean(db, sessionId))

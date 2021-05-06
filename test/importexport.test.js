@@ -237,7 +237,7 @@ test(
     let attributes = await Promise.all(ps)
 
     let attributeCounts = attributes.map((atArray) => atArray.length)
-    expect(attributeCounts).toStrictEqual([28, 39, 16])
+    expect(attributeCounts).toStrictEqual([20, 39, 16])
 
     let reportableCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
@@ -247,11 +247,11 @@ test(
     let boundedCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
     )
-    expect(boundedCounts).toStrictEqual([10, 11, 2])
+    expect(boundedCounts).toStrictEqual([0, 11, 2])
     let singletonCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
-    expect(singletonCounts).toStrictEqual([9, 9, 13])
+    expect(singletonCounts).toStrictEqual([4, 9, 13])
   },
   5000
 )
@@ -276,7 +276,7 @@ test(
     let attributes = await Promise.all(ps)
 
     let attributeCounts = attributes.map((atArray) => atArray.length)
-    expect(attributeCounts).toStrictEqual([12, 53])
+    expect(attributeCounts).toStrictEqual([12, 51])
 
     let reportableCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
@@ -286,11 +286,11 @@ test(
     let boundedCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
     )
-    expect(boundedCounts).toStrictEqual([3, 3])
+    expect(boundedCounts).toStrictEqual([3, 0])
     let singletonCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
-    expect(singletonCounts).toStrictEqual([6, 10])
+    expect(singletonCounts).toStrictEqual([6, 8])
 
     let sessionDump = await util.sessionDump(db, sid)
     expect(sessionDump.usedPackages.length).toBe(1)

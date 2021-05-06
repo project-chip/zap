@@ -34,6 +34,10 @@ const queryZcl = require('../src-electron/db/query-zcl.js')
 const util = require('../src-electron/util/util.js')
 
 let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
+let haCombinedIsc = path.join(
+  __dirname,
+  'resource/isc/ha-combined-interface.isc'
+)
 
 beforeAll(() => {
   env.setDevelopmentEnv()
@@ -80,7 +84,7 @@ test(
     expect(dump.usedPackages.length).toBe(1)
 
     let attributeCounts = dump.endpointTypes.map((ept) => ept.attributes.length)
-    expect(attributeCounts).toStrictEqual([19, 26, 11])
+    expect(attributeCounts).toStrictEqual([15, 26, 11])
 
     let reportableCounts = dump.endpointTypes.map((ept) =>
       ept.attributes.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
@@ -107,23 +111,47 @@ test(
     let boundedCounts = dump.endpointTypes.map((ept) =>
       ept.attributes.reduce((ac, at) => ac + (at.isBound ? 1 : 0), 0)
     )
-    expect(boundedCounts).toStrictEqual([10, 11, 2])
+    expect(boundedCounts).toStrictEqual([1, 11, 2])
 
     let singletonCounts = dump.endpointTypes.map((ept) =>
       ept.attributes.reduce((ac, at) => ac + (at.isSingleton ? 1 : 0), 0)
     )
-    expect(singletonCounts).toStrictEqual([7, 7, 11])
+    expect(singletonCounts).toStrictEqual([3, 7, 11])
 
     let serverAttributesCount = dump.attributes.reduce(
       (ac, at) => (ac += at.side == dbEnum.side.server ? 1 : 0),
       0
     )
-    expect(serverAttributesCount).toBe(54)
+    expect(serverAttributesCount).toBe(50)
     let clientAttributesCount = dump.attributes.reduce(
       (ac, at) => (ac += at.side == dbEnum.side.client ? 1 : 0),
       0
     )
     expect(clientAttributesCount).toBe(2)
+  },
+  8000
+)
+
+test(
+  path.basename(haCombinedIsc) + ' - conversion',
+  async () => {
+    sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, haCombinedIsc, { sessionId: sid })
+    expect(sid).not.toBeUndefined()
+
+    // validate packageId
+    let pkgs = await queryPackage.getSessionPackagesByType(
+      db,
+      sid,
+      dbEnum.packageType.zclProperties
+    )
+    expect(pkgs.length).toBe(1)
+    expect(pkgs[0].version).toBe('ZCL Test Data')
+
+    let dump = await util.sessionDump(db, sid)
+
+    expect(dump.endpointTypes.length).toBe(2)
+    expect(dump.endpoints.length).toBe(1)
   },
   8000
 )
