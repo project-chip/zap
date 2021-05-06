@@ -204,8 +204,7 @@ async function updateEndpointTypeAttribute(db, id, keyValuePairs) {
 
   let query = `UPDATE ENDPOINT_TYPE_ATTRIBUTE SET 
   ${columns}
-WHERE ENDPOINT_TYPE_ATTRIBUTE_ID = ?
-    `
+WHERE ENDPOINT_TYPE_ATTRIBUTE_ID = ?`
   return dbApi.dbUpdate(db, query, args)
 }
 

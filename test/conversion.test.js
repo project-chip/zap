@@ -57,7 +57,7 @@ afterAll(() => {
   return dbApi.closeDatabase(db)
 })
 
-test(
+test.skip(
   path.basename(haLightIsc) + ' - conversion',
   async () => {
     sid = await querySession.createBlankSession(db)
