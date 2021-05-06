@@ -79,7 +79,13 @@ async function execRendererApi(browserWindow, rendererApiCommand, ...theArgs) {
 
 async function debugNavBarOn(browserWindow) {
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${restApi.rendererApiId.debugNavBarOn}')`
+    `window.global_renderer_api_execute('${rendApi.id.debugNavBarOn}')`
+  )
+}
+
+async function debugNavBarOff(browserWindow) {
+  await browserWindow.webContents.executeJavaScript(
+    `window.global_renderer_api_execute('${rendApi.id.debugNavBarOff}')`
   )
 }
 

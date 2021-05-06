@@ -104,7 +104,12 @@ function windowCreate(port, args = {}) {
       // browserApi.executeLoad(w, args.filePath)
       browserApi.execRendererApi(w, rendApi.id.open, args.filePath)
     }
-    browserApi.debugNavBar(w, args.debugNavBar)
+
+    if (args.debugNavBar) {
+      browserApi.debugNavBarOn(w)
+    } else {
+      browserApi.debugNavBarOff(w)
+    }
   })
 
   w.on('page-title-updated', (e) => {
