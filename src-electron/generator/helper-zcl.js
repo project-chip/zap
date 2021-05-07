@@ -1817,10 +1817,7 @@ function if_manufacturing_specific_cluster(
 ) {
   let promise = templateUtil
     .ensureZclPackageId(this)
-    .then((packageId) => {
-      let res = queryZcl.selectClusterById(this.global.db, clusterId)
-      return res
-    })
+    .then((packageId) => queryZcl.selectClusterById(this.global.db, clusterId))
     .then((res) => {
       if (res.manufacturerCode != null) {
         return manufacturer_specific_return
