@@ -85,12 +85,12 @@ function renderer_api_info() {
   }
 }
 
-function fnOpen(zapFilePath, studioFilePath) {
+function fnOpen(zapFilePath, ideProjectPath) {
   // Make a request for a user with a given ID
   window
     .axios_server_post(`${restApi.ide.open}`, {
-      zapFilePath,
-      studioFilePath,
+      zapFilePath: zapFilePath,
+      ideProjectPath: ideProjectPath,
     })
     .then((res) => window.location.reload())
     .catch((err) => console.log(err))

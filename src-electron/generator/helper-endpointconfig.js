@@ -17,6 +17,7 @@
 
 const templateUtil = require('./template-util')
 const queryEndpoint = require('../db/query-endpoint.js')
+const queryConfig = require('../db/query-config.js')
 const bin = require('../util/bin.js')
 const types = require('../util/types.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -698,7 +699,7 @@ function endpoint_config(options) {
   let sessionId = this.global.sessionId
   let promise = templateUtil
     .ensureZclPackageId(newContext)
-    .then(() => queryEndpoint.queryEndpoints(db, sessionId))
+    .then(() => queryConfig.getAllEndpoints(db, sessionId))
     .then((endpoints) => {
       newContext.endpoints = endpoints
       let endpointTypeIds = []
@@ -714,12 +715,10 @@ function endpoint_config(options) {
       let endpointTypePromises = []
       endpointTypeIds.forEach((eptId) => {
         endpointTypePromises.push(
-          queryEndpoint
-            .queryEndpointType(db, eptId.endpointTypeId)
-            .then((ept) => {
-              ept.endpointId = eptId.endpointIdentifier
-              return ept
-            })
+          queryConfig.getEndpointType(db, eptId.endpointTypeId).then((ept) => {
+            ept.endpointId = eptId.endpointIdentifier
+            return ept
+          })
         )
       })
       return Promise.all(endpointTypePromises)

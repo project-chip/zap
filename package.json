@@ -1,7 +1,6 @@
 {
   "name": "zap",
   "version": "0.99.6",
-  "featureLevel": 30,
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -28,6 +27,7 @@
     "test:unit:watchAll": "jest --watchAll",
     "postinstall": "electron-builder install-app-deps && husky install",
     "zap": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json",
+    "zap-dev": "npm run build-spa && quasar dev -m electron",
     "zap-devserver": "node src-script/zap-start.js server --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
     "server": "node src-script/zap-start.js server --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
     "stop": "node src-script/zap-start.js stop --reuseZapInstance",

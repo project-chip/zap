@@ -20,9 +20,11 @@ const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
+const queryImpexp = require('../db/query-impexp.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
+const env = require('../util/env.js')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -49,7 +51,7 @@ function locateAttribute(state, at) {
 }
 
 /**
- * Parrses attribute string in a form:
+ * Parses attribute string in a form:
  *    cl:0xABCD, at:0xABCD, di: [client|server], mf:0xABCD
  *
  * @param {*} attributeString
@@ -109,7 +111,13 @@ function parseZclAfv2Line(state, line) {
       } else if (tok.startsWith('ept:')) {
         endpoint.endpointType = tok.substring('ept:'.length)
       } else if (tok.startsWith('nwk:')) {
-        endpoint.network = tok.substring('nwk:'.length)
+        let network = tok.substring('nwk:'.length)
+        let networkId = state.networks.indexOf(network)
+        if (networkId == -1) {
+          state.networks.push(network)
+          networkId = state.networks.indexOf(network)
+        }
+        endpoint.network = networkId
       }
     })
     state.endpoint.push(endpoint)
@@ -266,6 +274,7 @@ async function readIscData(filePath, data, zclMetafile) {
     attributeType: [],
     zclMetafile: zclMetafile,
     sessionKey: {},
+    networks: [],
   }
 
   state.log.push({
@@ -359,6 +368,94 @@ function isCustomDevice(deviceName, deviceCode) {
   return deviceName == 'zcustom'
 }
 
+async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
+  let id = await queryConfig.getEndpointTypeAttributeId(
+    db,
+    endpointTypeId,
+    packageId,
+    at.clusterCode,
+    at.attributeCode,
+    at.side,
+    at.mfgCode
+  )
+
+  if (id == null) {
+    if (at.isOptional) {
+      // We need to load this thing.
+      let cluster = await queryZcl.selectClusterByCode(
+        db,
+        packageId,
+        at.clusterCode,
+        at.mfgCode
+      )
+      let attribute = await queryZcl.selectAttributeByCode(
+        db,
+        packageId,
+        at.clusterCode,
+        at.attributeCode,
+        at.mfgCode
+      )
+      if (cluster == null || attribute == null) {
+        env.logWarning(
+          `Could not resolve attribute ${at.clusterCode} / ${at.attributeCode}`
+        )
+        return
+      }
+      let clusterRef = cluster.id
+      let attributeRef = attribute.id
+      id = await queryConfig.insertOrUpdateAttributeState(
+        db,
+        endpointTypeId,
+        clusterRef,
+        at.side,
+        attributeRef,
+        [{ key: restApi.updateKey.attributeSelected, value: 1 }]
+      )
+    } else {
+      // This is ok: we are iterating over all endpoint type ids,
+      // since ISC file doesn't really specifically override attribute
+      // for every given endpoint type. So if we are looking at
+      // the endpoint type which simply doesn't have this
+      // attribute, so be it. Move on.
+      return
+    }
+  }
+
+  let keyValuePairs = []
+  if ('storageOption' in at) {
+    keyValuePairs.push([restApi.updateKey.attributeStorage, at.storageOption])
+  }
+  if ('defaultValue' in at) {
+    keyValuePairs.push([restApi.updateKey.attributeDefault, at.defaultValue])
+  }
+  let reportable = false
+  if ('minInterval' in at) {
+    keyValuePairs.push([restApi.updateKey.attributeReportMin, at.minInterval])
+    reportable = true
+  }
+  if ('maxInterval' in at) {
+    keyValuePairs.push([restApi.updateKey.attributeReportMax, at.maxInterval])
+    reportable = true
+  }
+  if ('reportableChange' in at) {
+    keyValuePairs.push([
+      restApi.updateKey.attributeReportChange,
+      at.reportableChange,
+    ])
+    reportable = true
+  }
+  if ('isSingleton' in at) {
+    keyValuePairs.push([restApi.updateKey.attributeSingleton, at.isSingleton])
+  }
+  if ('bounded' in at) {
+    keyValuePairs.push([restApi.updateKey.attributeBounded, at.bounded])
+  }
+  if (reportable) {
+    keyValuePairs.push([restApi.updateKey.attributeReporting, 1])
+  }
+  return queryConfig.updateEndpointTypeAttribute(db, id, keyValuePairs)
+}
+
 /**
  * This method returns an array of promises that contain all the
  * queries that are needed to load the attribute state
@@ -367,110 +464,20 @@ function isCustomDevice(deviceName, deviceCode) {
  * @param {*} state
  * @param {*} sessionId
  */
-function collectAttributeLoadingPromises(
-  db,
-  state,
-  sessionId,
-  endpointTypeIdArray
-) {
+async function loadAttributes(db, state, packageId, endpointTypeIdArray) {
   let promises = []
   if (state.attributeType.length > 0 && endpointTypeIdArray.length > 0) {
     endpointTypeIdArray.forEach((endpointTypeId) => {
       state.attributeType.forEach((at) => {
-        promises.push(
-          queryConfig
-            .getEndpointTypeAttributeId(
-              db,
-              endpointTypeId,
-              at.clusterCode,
-              at.attributeCode,
-              at.side,
-              at.mfgCode
-            )
-            .then((id) => {
-              if (id == null) {
-                // This is ok: we are iterating over all endpoint type ids,
-                // since ISC file doesn't really specifically override attribute
-                // for every given endpoint type. So if we are looking at
-                // the endpoint type which simply doesn't have this
-                // attribute, so be it. Move on.
-                return
-              }
-              let ps = []
-              if ('storageOption' in at) {
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeStorage,
-                    at.storageOption
-                  )
-                )
-              }
-              if ('defaultValue' in at) {
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeDefault,
-                    at.defaultValue
-                  )
-                )
-              }
-              let reportable = false
-              if ('minInterval' in at) {
-                reportable = true
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeReportMin,
-                    at.minInterval
-                  )
-                )
-              }
-              if ('maxInterval' in at) {
-                reportable = true
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeReportMax,
-                    at.maxInterval
-                  )
-                )
-              }
-              if ('reportableChange' in at) {
-                reportable = true
-                ps.push(
-                  queryConfig.updateEndpointTypeAttribute(
-                    db,
-                    id,
-                    restApi.updateKey.attributeReportChange,
-                    at.reportableChange
-                  )
-                )
-              }
-              ps.push(
-                queryConfig.updateEndpointTypeAttribute(
-                  db,
-                  id,
-                  restApi.updateKey.attributeReporting,
-                  reportable ? 1 : 0
-                )
-              )
-              if (ps.length == 0) {
-                return
-              } else {
-                return Promise.all(ps)
-              }
-            })
-        )
+        promises.push(loadSingleAttribute(db, endpointTypeId, packageId, at))
       })
     })
   }
-  promises.push(Promise.resolve(1))
-  return promises
+  if (promises.length > 0) {
+    return Promise.all(promises)
+  } else {
+    return []
+  }
 }
 
 /**
@@ -509,9 +516,14 @@ async function iscDataLoader(db, state, sessionId) {
     throw new Error('No zcl packages found for ISC import.')
   }
 
+  let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+  for (let endpointTypeKey of Object.keys(endpointTypes)) {
+    if (!usedEndpointTypes.includes(endpointTypeKey)) {
+      delete endpointTypes[endpointTypeKey]
+    }
+  }
   let packageId = zclPackages[0].id
-
-  for (let key in endpointTypes) {
+  for (let key of Object.keys(endpointTypes)) {
     promises.push(
       loadEndpointType(db, sessionId, packageId, endpointTypes[key])
         .then((newEndpointTypeId) => {
@@ -561,31 +573,28 @@ async function iscDataLoader(db, state, sessionId) {
       })
       if (endpointTypeId != undefined) {
         endpointInsertionPromises.push(
-          queryConfig.insertEndpoint(
-            db,
-            sessionId,
-            ep.endpoint,
-            endpointTypeId,
-            ep.network,
-            ep.deviceVersion,
-            ep.deviceId
-          )
+          queryConfig
+            .insertEndpoint(
+              db,
+              sessionId,
+              ep.endpoint,
+              endpointTypeId,
+              ep.network,
+              ep.deviceVersion,
+              ep.deviceId
+            )
+            .then(() => endpointTypeId)
         )
       }
     })
-
-  let attributeUpdatePromises = collectAttributeLoadingPromises(
-    db,
-    state,
-    sessionId,
-    results.map((r) => r.endpointTypeId)
-  )
 
   if (state.log != null) {
     querySession.writeLog(db, sessionId, state.log)
   }
   return Promise.all(endpointInsertionPromises)
-    .then(() => Promise.all(attributeUpdatePromises))
+    .then((endpointTypeIds) =>
+      loadAttributes(db, state, packageId, endpointTypeIds)
+    )
     .then(() => loadSessionKeyValues(db, sessionId, state.sessionKey))
     .then(() => querySession.setSessionClean(db, sessionId))
     .then(() => {

@@ -499,7 +499,7 @@ function prepareTypes(zclTypes, types) {
     }
   })
   if (droppedTypes.length > 0) {
-    env.logInfo(`Dropped types in DotDot loader: ${droppedTypes}`)
+    env.logDebug(`Dropped types in DotDot loader: ${droppedTypes}`)
   }
 }
 

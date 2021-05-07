@@ -22,6 +22,7 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
+const queryPackage = require('./query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
@@ -99,9 +100,11 @@ async function getClusterState(db, endpointTypeId, clusterRef, side) {
  * @param {*} clusterRef
  * @param {*} side
  */
-async function insertClusterDefaults(db, endpointTypeId, cluster) {
+async function insertClusterDefaults(db, endpointTypeId, packageId, cluster) {
   let promises = []
-  promises.push(resolveDefaultAttributes(db, endpointTypeId, [cluster]))
+  promises.push(
+    resolveDefaultAttributes(db, endpointTypeId, packageId, [cluster])
+  )
   promises.push(resolveNonOptionalCommands(db, endpointTypeId, [cluster]))
   return Promise.all(promises)
 }
@@ -138,10 +141,13 @@ async function insertOrUpdateAttributeState(
     clusterRef
   )
 
-  await dbApi.dbInsert(
+  if (staticAttribute == null) {
+    throw new Error(`COULD NOT LOCATE ATTRIBUTE: ${attributeId} `)
+  }
+  let etaId = await dbApi.dbInsert(
     db,
     `
-INSERT
+INSERT OR IGNORE
 INTO ENDPOINT_TYPE_ATTRIBUTE (
     ENDPOINT_TYPE_REF,
     ENDPOINT_TYPE_CLUSTER_REF,
@@ -149,19 +155,14 @@ INTO ENDPOINT_TYPE_ATTRIBUTE (
     DEFAULT_VALUE,
     STORAGE_OPTION,
     SINGLETON
-) SELECT
+) VALUES (
   ?,
   ?,
   ?,
   ?,
   ?,
   ( SELECT IS_SINGLETON FROM CLUSTER WHERE CLUSTER_ID = ? )
-WHERE (
-  ( SELECT COUNT(1)
-    FROM ENDPOINT_TYPE_ATTRIBUTE
-    WHERE ENDPOINT_TYPE_REF = ?
-      AND ENDPOINT_TYPE_CLUSTER_REF = ?
-      AND ATTRIBUTE_REF = ? ) == 0)`,
+)`,
     [
       endpointTypeId,
       cluster.endpointTypeClusterId,
@@ -169,33 +170,42 @@ WHERE (
       staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
       dbEnum.storageOption.ram,
       clusterRef,
+    ]
+  )
+
+  if (paramValuePairArray == null || paramValuePairArray.length == 0) {
+    return etaId
+  } else {
+    let query =
+      'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
+      getAllParamValuePairArrayClauses(paramValuePairArray) +
+      'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?'
+
+    return dbApi.dbUpdate(db, query, [
       endpointTypeId,
       cluster.endpointTypeClusterId,
       attributeId,
-    ]
-  )
-  let query =
-    'UPDATE ENDPOINT_TYPE_ATTRIBUTE SET ' +
-    getAllParamValuePairArrayClauses(paramValuePairArray) +
-    'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?'
-
-  return dbApi.dbUpdate(db, query, [
-    endpointTypeId,
-    cluster.endpointTypeClusterId,
-    attributeId,
-  ])
+    ])
+  }
 }
 
-async function updateEndpointTypeAttribute(db, id, restKey, value) {
-  let column = convertRestKeyToDbColumn(restKey)
-  return dbApi.dbUpdate(
-    db,
-    `UPDATE ENDPOINT_TYPE_ATTRIBUTE
-SET ${column} = ?
-WHERE ENDPOINT_TYPE_ATTRIBUTE_ID = ?
-  `,
-    [value, id]
-  )
+async function updateEndpointTypeAttribute(db, id, keyValuePairs) {
+  if (keyValuePairs == null || keyValuePairs.length == 0) return
+
+  let columns = keyValuePairs
+    .map((kv) => `${convertRestKeyToDbColumn(kv[0])} = ?`)
+    .join(', ')
+
+  let args = []
+  keyValuePairs.forEach((kv) => {
+    args.push(kv[1])
+  })
+  args.push(id)
+
+  let query = `UPDATE ENDPOINT_TYPE_ATTRIBUTE SET 
+  ${columns}
+WHERE ENDPOINT_TYPE_ATTRIBUTE_ID = ?`
+  return dbApi.dbUpdate(db, query, args)
 }
 
 function convertRestKeyToDbColumn(key) {
@@ -287,75 +297,25 @@ async function insertOrUpdateCommandState(
   await dbApi.dbInsert(
     db,
     `
-INSERT
-INTO ENDPOINT_TYPE_COMMAND
-  ( ENDPOINT_TYPE_REF, ENDPOINT_TYPE_CLUSTER_REF, COMMAND_REF )
-SELECT ?, ?, ?
-WHERE ( ( SELECT COUNT(1)
-          FROM ENDPOINT_TYPE_COMMAND
-          WHERE ENDPOINT_TYPE_REF = ?
-            AND ENDPOINT_TYPE_CLUSTER_REF = ?
-            AND COMMAND_REF = ? )
-        == 0)`,
-    [
-      endpointTypeId,
-      cluster.endpointTypeClusterId,
-      id,
-      endpointTypeId,
-      cluster.endpointTypeClusterId,
-      id,
-    ]
+INSERT OR IGNORE
+INTO ENDPOINT_TYPE_COMMAND (
+  ENDPOINT_TYPE_REF,
+  ENDPOINT_TYPE_CLUSTER_REF,
+  COMMAND_REF
+) VALUES( ?, ?, ? )
+`,
+    [endpointTypeId, cluster.endpointTypeClusterId, id]
   )
   return dbApi.dbUpdate(
     db,
-    'UPDATE ENDPOINT_TYPE_COMMAND SET ' +
-      (isIncoming ? 'INCOMING' : 'OUTGOING') +
-      ' = ? WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND COMMAND_REF = ? ',
+    `
+UPDATE ENDPOINT_TYPE_COMMAND
+SET ${isIncoming ? 'INCOMING' : 'OUTGOING'} = ? 
+WHERE ENDPOINT_TYPE_REF = ?
+  AND ENDPOINT_TYPE_CLUSTER_REF = ?
+  AND COMMAND_REF = ? `,
     [value, endpointTypeId, cluster.endpointTypeClusterId, id]
   )
-}
-
-/**
- * Resolves into all the cluster states.
- *
- * @export
- * @param {*} db
- * @param {*} endpointTypeId
- * @returns Promise that resolves with cluster states.
- */
-async function getAllEndpointTypeClusterState(db, endpointTypeId) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-SELECT
-  CLUSTER.NAME,
-  CLUSTER.CODE,
-  CLUSTER.MANUFACTURER_CODE,
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
-  ENDPOINT_TYPE_CLUSTER.SIDE,
-  ENDPOINT_TYPE_CLUSTER.ENABLED
-FROM
-  ENDPOINT_TYPE_CLUSTER
-INNER JOIN CLUSTER
-ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
-WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?`,
-    [endpointTypeId]
-  )
-  if (rows == null) return []
-
-  let result = rows.map((row) => {
-    let obj = {
-      endpointTypeClusterId: row.ENDPOINT_TYPE_CLUSTER_ID,
-      clusterName: row.NAME,
-      clusterCode: row.CODE,
-      side: row.SIDE,
-      enabled: row.STATE == '1',
-    }
-    if (row.MANUFACTURER_CODE != null)
-      obj.manufacturerCode = row.MANUFACTURER_CODE
-    return obj
-  })
-  return result
 }
 
 /**
@@ -548,7 +508,13 @@ async function insertEndpointType(
     'INSERT OR REPLACE INTO ENDPOINT_TYPE ( SESSION_REF, NAME, DEVICE_TYPE_REF ) VALUES ( ?, ?, ?)',
     [sessionId, name, deviceTypeRef]
   )
-  await setEndpointDefaults(db, newEndpointTypeId, deviceTypeRef, doTransaction)
+  await setEndpointDefaults(
+    db,
+    sessionId,
+    newEndpointTypeId,
+    deviceTypeRef,
+    doTransaction
+  )
   return newEndpointTypeId
 }
 
@@ -574,7 +540,7 @@ async function updateEndpointType(
     [updatedValue, endpointTypeId, sessionId]
   )
   if (param === 'DEVICE_TYPE_REF') {
-    await setEndpointDefaults(db, endpointTypeId, updatedValue)
+    await setEndpointDefaults(db, sessionId, endpointTypeId, updatedValue)
   }
   return newEndpointId
 }
@@ -586,6 +552,7 @@ async function updateEndpointType(
  */
 async function setEndpointDefaults(
   db,
+  sessionId,
   endpointTypeId,
   deviceTypeRef,
   doTransaction = true
@@ -593,6 +560,14 @@ async function setEndpointDefaults(
   if (doTransaction) {
     await dbApi.dbBeginTransaction(db)
   }
+  let pkgs = await queryPackage.getSessionPackagesByType(
+    db,
+    sessionId,
+    dbEnum.packageType.zclProperties
+  )
+  if (pkgs == null || pkgs.length < 1)
+    throw new Error('Could not locate package id for a given session.')
+  let packageId = pkgs[0].id
   let clusters = await queryZcl.selectDeviceTypeClustersByDeviceTypeRef(
     db,
     deviceTypeRef
@@ -609,7 +584,7 @@ async function setEndpointDefaults(
   promises.push(
     resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef),
     resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef),
-    resolveDefaultAttributes(db, endpointTypeId, defaultClusters),
+    resolveDefaultAttributes(db, endpointTypeId, packageId, defaultClusters),
     resolveNonOptionalCommands(db, endpointTypeId, defaultClusters)
   )
 
@@ -828,11 +803,20 @@ async function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
   )
 }
 
-async function resolveDefaultAttributes(db, endpointTypeId, clusters) {
+async function resolveDefaultAttributes(
+  db,
+  endpointTypeId,
+  packageId,
+  endpointClusters
+) {
   return Promise.all(
-    clusters.map((cluster) => {
+    endpointClusters.map((cluster) => {
       return queryZcl
-        .selectAttributesByClusterId(db, cluster.clusterRef)
+        .selectAttributesByClusterIdIncludingGlobal(
+          db,
+          cluster.clusterRef,
+          packageId
+        )
         .then((attributes) => {
           let promiseArray = []
           promiseArray.push(
@@ -887,23 +871,6 @@ async function resolveNonOptionalAndReportableAttributes(
       } else {
         return Promise.resolve()
       }
-    })
-  )
-}
-
-/**
- * Inserts endpoint types.
- *
- * @param {*} db
- * @param {*} sessionId
- * @param {*} endpoints
- */
-async function insertEndpointTypes(db, sessionId, endpoints) {
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO ENDPOINT_TYPE (SESSION_REF, NAME, DEVICE_TYPE_REF) VALUES (?,?,?)',
-    endpoints.map((endpoint) => {
-      return [sessionId, endpoint.name, endpoint.deviceTypeId]
     })
   )
 }
@@ -1023,14 +990,12 @@ async function getOrInsertDefaultEndpointTypeCluster(
   await dbApi.dbInsert(
     db,
     `
-INSERT INTO ENDPOINT_TYPE_CLUSTER (ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED)
-SELECT ?, ?, ?, ?
-WHERE  (
-  ( SELECT COUNT(1) FROM ENDPOINT_TYPE_CLUSTER
-    WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?
-      AND ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = ?
-      AND ENDPOINT_TYPE_CLUSTER.SIDE = ?) == 0 )`,
-    [endpointTypeId, clusterRef, side, false, endpointTypeId, clusterRef, side]
+INSERT OR IGNORE
+INTO ENDPOINT_TYPE_CLUSTER (
+  ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED
+) VALUES ( ?, ?, ?, ? )
+`,
+    [endpointTypeId, clusterRef, side, false]
   )
 
   let eptClusterData = await dbApi.dbGet(
@@ -1053,46 +1018,6 @@ WHERE ENDPOINT_TYPE_REF = ?
 }
 
 /**
- * Extracts attributes from the endpoint_type_attribute table.
- *
- * @export
- * @param {*} db
- * @param {*} endpointTypeId
- * @returns A promise that resolves into the rows.
- */
-async function getEndpointTypeAttributes(db, endpointTypeId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF,
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
-  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED,
-  ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION,
-  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
-  ENDPOINT_TYPE_ATTRIBUTE.BOUNDED,
-  ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE
-FROM ENDPOINT_TYPE_ATTRIBUTE, ENDPOINT_TYPE_CLUSTER
-WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF
-  AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?`,
-      [endpointTypeId]
-    )
-    .then((rows) =>
-      rows.map((row) => {
-        return {
-          attributeId: row.ATTRIBUTE_REF,
-          isIncluded: row.INCLUDED,
-          storageOption: row.STORAGE_OPTION,
-          isSingleton: row.SINGLETON,
-          isBounded: row.BOUNDED,
-          defaultValue: row.DEFAULT_VALUE,
-        }
-      })
-    )
-}
-
-/**
  * Returns a promise that resolve into an endpoint type attribute id.
  *
  * @param {*} db
@@ -1106,12 +1031,19 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ENDPOINT_TYPE_ATTRIBUTE.E
 async function getEndpointTypeAttributeId(
   db,
   endpointTypeId,
+  packageId,
   clusterCode,
   attributeCode,
   attributeSide,
   mfgCode
 ) {
-  let args = [endpointTypeId, clusterCode, attributeCode, attributeSide]
+  let args = [
+    endpointTypeId,
+    packageId,
+    clusterCode,
+    attributeCode,
+    attributeSide,
+  ]
   if (!(mfgCode == 0 || mfgCode == null)) args.push(mfgCode)
   let rows = await dbApi.dbAll(
     db,
@@ -1130,6 +1062,7 @@ ON
   C.CLUSTER_ID = A.CLUSTER_REF
 WHERE
   ETA.ENDPOINT_TYPE_REF = ?
+  AND C.PACKAGE_REF = ?
   AND C.CODE = ?
   AND A.CODE = ?
   AND A.SIDE = ?
@@ -1150,32 +1083,6 @@ WHERE
       `Ambiguity: multiple attributes with same data loaded: ${endpointTypeId} / ${clusterCode} / ${attributeCode} / ${attributeSide}.`
     )
   }
-}
-
-/**
- * Extracts commands from the endpoint_type_command table.
- *
- * @export
- * @param {*} db
- * @param {*} endpointTypeId
- * @returns A promise that resolves into the rows.
- */
-async function getEndpointTypeCommands(db, endpointTypeId) {
-  return dbApi
-    .dbAll(
-      db,
-      'SELECT COMMAND_REF, INCOMING, OUTGOING FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ?',
-      [endpointTypeId]
-    )
-    .then((rows) =>
-      rows.map((row) => {
-        return {
-          commandID: row.COMMAND_REF,
-          isIncoming: row.INCOMING,
-          isOutgoing: row.OUTGOING,
-        }
-      })
-    )
 }
 
 /**
@@ -1279,7 +1186,7 @@ async function setClusterIncluded(
     isIncluded
   )
   if (insertDefaults) {
-    await insertClusterDefaults(db, endpointTypeId, {
+    await insertClusterDefaults(db, endpointTypeId, packageId, {
       clusterRef: cluster.id,
       side: side,
     })
@@ -1291,7 +1198,6 @@ exports.insertOrReplaceClusterState = insertOrReplaceClusterState
 exports.getClusterState = getClusterState
 exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState
 exports.insertOrUpdateCommandState = insertOrUpdateCommandState
-exports.getAllEndpointTypeClusterState = getAllEndpointTypeClusterState
 exports.convertRestKeyToDbColumn = convertRestKeyToDbColumn
 
 exports.insertEndpoint = insertEndpoint
@@ -1302,14 +1208,11 @@ exports.selectEndpoint = selectEndpoint
 exports.insertEndpointType = insertEndpointType
 exports.deleteEndpointType = deleteEndpointType
 exports.updateEndpointType = updateEndpointType
-exports.insertEndpointTypes = insertEndpointTypes
 exports.getAllEndpointTypes = getAllEndpointTypes
 exports.getEndpointType = getEndpointType
 
 exports.getEndpointTypeClusters = getEndpointTypeClusters
 exports.getOrInsertDefaultEndpointTypeCluster = getOrInsertDefaultEndpointTypeCluster
-exports.getEndpointTypeAttributes = getEndpointTypeAttributes
-exports.getEndpointTypeCommands = getEndpointTypeCommands
 exports.getAllEndpoints = getAllEndpoints
 exports.getCountOfEndpointsWithGivenEndpointIdentifier = getCountOfEndpointsWithGivenEndpointIdentifier
 exports.getEndpointTypeCount = getEndpointTypeCount

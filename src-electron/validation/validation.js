@@ -23,18 +23,18 @@
 
 const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
+const queryPackage = require('../db/query-package.js')
 const dbApi = require('../db/db-api.js')
 
 function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {
   return queryZcl
     .selectEndpointTypeAttribute(db, endpointTypeId, attributeRef, clusterRef)
     .then((endpointAttribute) =>
-      queryZcl.selectAttributeById(db, attributeRef).then(
-        (attribute) =>
-          new Promise((resolve, reject) => {
-            resolve(validateSpecificAttribute(endpointAttribute, attribute))
-          })
-      )
+      queryZcl
+        .selectAttributeById(db, attributeRef)
+        .then((attribute) =>
+          validateSpecificAttribute(endpointAttribute, attribute)
+        )
     )
 }
 

@@ -20,7 +20,6 @@
 
 const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
-const queryGeneric = require('../src-electron/db/query-generic.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const env = require('../src-electron/util/env.js')
@@ -28,6 +27,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const httpServer = require('../src-electron/server/http-server.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const testUtil = require('./test-util.js')
+const testQuery = require('./test-query.js')
 const util = require('../src-electron/util/util.js')
 
 let db
@@ -53,7 +53,7 @@ afterAll(() => {
 
 describe('Session specific tests', () => {
   test('make sure there is no session at the beginning', () => {
-    return queryGeneric.selectCountFrom(db, 'SESSION').then((cnt) => {
+    return testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
       expect(cnt).toBe(0)
     })
   })

@@ -32,17 +32,20 @@ const env = require('../util/env.js')
  * @param {*} filePath
  * @returns Promise of file reading.
  */
-async function readDataFromFile(
-  filePath,
-  zclMetafile = env.builtinSilabsZclMetafile
-) {
+async function readDataFromFile(filePath, defaultZclMetafile) {
   let data = await fsp.readFile(filePath)
 
   let stringData = data.toString().trim()
   if (stringData.startsWith('{')) {
     return importJson.readJsonData(filePath, data)
   } else if (stringData.startsWith('#ISD')) {
-    return importIsc.readIscData(filePath, data, zclMetafile)
+    return importIsc.readIscData(
+      filePath,
+      data,
+      defaultZclMetafile == null
+        ? env.builtinSilabsZclMetafile
+        : defaultZclMetafile
+    )
   } else {
     throw new Error(
       'Invalid file format. Only .zap JSON files and ISC file format are supported.'
@@ -59,15 +62,22 @@ async function readDataFromFile(
  * @param {*} filePath
  * @returns a promise that resolves with the import result object that contains: sessionId, errors, warnings.
  */
-async function importDataFromFile(db, filePath, sessionId = null) {
-  let state = await readDataFromFile(filePath)
+async function importDataFromFile(
+  db,
+  filePath,
+  options = {
+    sessionId: null,
+    defaultZclMetafile: env.builtinSilabsZclMetafile,
+  }
+) {
+  let state = await readDataFromFile(filePath, options.defaultZclMetafile)
   return dbApi
     .dbBeginTransaction(db)
     .then(() => {
-      if (sessionId == null) {
+      if (options.sessionId == null) {
         return querySession.createBlankSession(db)
       } else {
-        return sessionId
+        return options.sessionId
       }
     })
     .then((sid) => state.loader(db, state, sid))

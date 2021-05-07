@@ -42,5 +42,10 @@ require('electron')
       })
   })
 
+// Development via Electron.
+if (process.env.MODE === 'electron') {
+  process.argv.push('--allowCors')
+}
+
 // Require `main` process to boot app
 require('./electron-main.js')

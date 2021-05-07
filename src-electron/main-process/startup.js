@@ -99,16 +99,22 @@ async function startNormal(
       else return ctx
     })
     .then((ctx) => {
+      let port = httpServer.httpServerPort()
+
+      if (process.env.DEV && process.env.MODE === 'electron') {
+        port = 8080
+      }
+
       if (uiEnabled) {
-        windowJs.initializeElectronUi(httpServer.httpServerPort())
+        windowJs.initializeElectronUi(port)
         if (zapFiles.length == 0) {
-          return uiJs.openNewConfiguration(httpServer.httpServerPort(), {
+          return uiJs.openNewConfiguration(port, {
             uiMode: argv.uiMode,
             embeddedMode: argv.embeddedMode,
           })
         } else {
           return util.executePromisesSequentially(zapFiles, (f) =>
-            uiJs.openFileConfiguration(f, httpServer.httpServerPort())
+            uiJs.openFileConfiguration(f, port)
           )
         }
       } else {
@@ -134,7 +140,7 @@ async function startNormal(
  * @param {*} outputPattern
  * @returns the path to the output file.
  */
-function outputFile(inputFile, outputPattern) {
+function outputFile(inputFile, outputPattern, index = 0) {
   let output = outputPattern
   let hadDir = false
 
@@ -156,7 +162,10 @@ function outputFile(inputFile, outputPattern) {
     }
     output = output.replace('{name}', name)
     output = output.replace('{basename}', basename)
-    if (!hadDir) output = path.join(dir, output)
+    output = output.replace('{index}', index)
+    if (!hadDir) {
+      if (!output.startsWith('/')) output = path.join(dir, output)
+    }
   }
   return output
 }
@@ -227,9 +236,11 @@ async function startConvert(
   }
 
   return util
-    .executePromisesSequentially(files, (singlePath) =>
+    .executePromisesSequentially(files, (singlePath, index) =>
       importJs
-        .importDataFromFile(db, singlePath)
+        .importDataFromFile(db, singlePath, {
+          defaultZclMetafile: argv.zclProperties,
+        })
         .then((importResult) => {
           return util
             .initializeSessionPackage(db, importResult.sessionId, {
@@ -240,7 +251,7 @@ async function startConvert(
         })
         .then((sessionId) => {
           options.logger(`    👈 read in: ${singlePath}`)
-          let of = outputFile(singlePath, output)
+          let of = outputFile(singlePath, output, index)
           let parent = path.dirname(of)
           if (!fs.existsSync(parent)) {
             fs.mkdirSync(parent, { recursive: true })
@@ -303,7 +314,9 @@ async function startAnalyze(
     .then((d) => {
       return util.executePromisesSequentially(paths, (singlePath) =>
         importJs
-          .importDataFromFile(db, singlePath)
+          .importDataFromFile(db, singlePath, {
+            defaultZclMetafile: argv.zclProperties,
+          })
           .then((importResult) =>
             util.sessionReport(db, importResult.sessionId)
           )
@@ -428,14 +441,16 @@ async function startSelfCheck(
 async function generateSingleFile(
   db,
   f,
-  packageId,
+  templatePackageId,
   outputPattern,
+  index,
   options = {
     logger: console.log,
     zcl: env.builtinSilabsZclMetafile,
     template: env.builtinTemplateMetafile,
   }
 ) {
+  let hrstart = process.hrtime()
   let sessionId
   let output
   if (f === BLANK_SESSION) {
@@ -444,18 +459,23 @@ async function generateSingleFile(
     output = outputPattern
   } else {
     options.logger(`👉 using input file: ${f}`)
-    let importResult = await importJs.importDataFromFile(db, f)
+    let importResult = await importJs.importDataFromFile(db, f, {
+      defaultZclMetafile: options.zcl,
+    })
     sessionId = importResult.sessionId
-    output = outputFile(f, outputPattern)
+    output = outputFile(f, outputPattern, index)
   }
   options.logger(`👉 using output destination: ${output}`)
 
   await util.initializeSessionPackage(db, sessionId, options)
 
+  let hrend = process.hrtime(hrstart)
+  options.logger(`🕐 File loading time: ${hrend[0]}s ${hrend[1] / 1000000}ms `)
+
   let genResult = await generatorEngine.generateAndWriteFiles(
     db,
     sessionId,
-    packageId,
+    templatePackageId,
     output,
     options
   )
@@ -485,6 +505,7 @@ async function startGeneration(
   let genResultFile = argv.genResultFile
   let skipPostGeneration = argv.skipPostGeneration
 
+  let hrstart = process.hrtime()
   options.logger(
     `🤖 ZAP generation started: 
     🔍 input files: ${zapFiles}
@@ -519,10 +540,12 @@ async function startGeneration(
   options.backup = false
   options.genResultFile = genResultFile
   options.skipPostGeneration = skipPostGeneration
-  let packageId = ctx.packageId
 
-  await util.executePromisesSequentially(files, (f) =>
-    generateSingleFile(mainDb, f, packageId, output, options)
+  let hrend = process.hrtime(hrstart)
+  options.logger(`🕐 Setup time: ${hrend[0]}s ${hrend[1] / 1000000}ms `)
+
+  await util.executePromisesSequentially(files, (f, index) =>
+    generateSingleFile(mainDb, f, ctx.packageId, output, index, options)
   )
 
   if (options.quit && app != null) app.quit()
@@ -548,6 +571,7 @@ function shutdown() {
     // Use a sync call, because you can't have promises in the 'quit' event.
     try {
       dbApi.closeDatabaseSync(mainDatabase)
+      mainDatabase = null
       env.logInfo('Database closed, shutting down.')
     } catch (err) {
       env.logError('Failed to close database.')
@@ -595,13 +619,22 @@ function startUpSecondaryInstance(argv) {
   } else if (argv._.includes('stop')) {
     ipcClient.emit(ipcServer.eventType.stop)
   } else if (argv._.includes('generate') && argv.zapFiles != null) {
-    ipcClient.emit(ipcServer.eventType.generate, argv.zapFiles)
+    let data = {
+      zapFileArray: argv.zapFiles,
+      outputPattern: argv.output,
+      zcl: argv.zclProperties,
+      template: argv.generationTemplate,
+    }
+    ipcClient.emit(ipcServer.eventType.generate, data)
   } else if (argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.open, argv.zapFiles)
   }
 }
 
-function quit() {}
+function quit() {
+  // Empty function by default. Startup sequence is supposed
+  // to declare this depending on whether this is node or electron.
+}
 
 /**
  * Default startup method.
@@ -678,3 +711,4 @@ exports.startUpMainInstance = startUpMainInstance
 exports.startUpSecondaryInstance = startUpSecondaryInstance
 exports.shutdown = shutdown
 exports.quit = quit
+exports.generateSingleFile = generateSingleFile

@@ -31,6 +31,7 @@ const exportJs = require('../src-electron/importexport/export.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const testUtil = require('./test-util.js')
+const testQuery = require('./test-query.js')
 const restApi = require('../src-shared/rest-api.js')
 const queryImpexp = require('../src-electron/db/query-impexp.js')
 
@@ -129,7 +130,9 @@ test('Simple cluster addition.', () => {
       expect(row.label).toBe('Test')
       return row.id
     })
-    .then(() => queryZcl.selectAttributesByClusterId(db, rowid, pkgId))
+    .then(() =>
+      queryZcl.selectAttributesByClusterIdIncludingGlobal(db, rowid, pkgId)
+    )
     .then((rows) => {
       expect(rows.length).toBe(0)
     })
@@ -334,7 +337,7 @@ describe('Endpoint Type Config Queries', () => {
   test(
     'Test get all cluster states',
     () =>
-      queryConfig
+      testQuery
         .getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
         .then((clusters) => {
           expect(clusters.length).toBe(6)
@@ -356,7 +359,7 @@ describe('Endpoint Type Config Queries', () => {
           expect(typeof rowId).toBe('number')
         })
         .then(() =>
-          queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
+          testQuery.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
         )
         .then((clusters) => {
           expect(clusters.length).toBe(7)
@@ -365,14 +368,14 @@ describe('Endpoint Type Config Queries', () => {
   )
 
   test('Test get all attribute states', () =>
-    queryConfig
+    testQuery
       .getEndpointTypeAttributes(db, endpointTypeIdOnOff)
       .then((attributes) => {
         expect(attributes.length).toBe(10)
       }))
 
   test('Get all cluster commands', () =>
-    queryConfig
+    testQuery
       .getEndpointTypeCommands(db, endpointTypeIdOnOff)
       .then((commands) => {
         expect(commands.length).toBe(6)
@@ -446,13 +449,13 @@ describe('Endpoint Type Config Queries', () => {
         true
       )
       .then(() =>
-        queryConfig.insertClusterDefaults(db, endpointTypeIdOnOff, {
+        queryConfig.insertClusterDefaults(db, endpointTypeIdOnOff, pkgId, {
           clusterRef: levelControlCluster.id,
           side: 'CLIENT',
         })
       )
       .then(() =>
-        queryConfig
+        testQuery
           .getEndpointTypeAttributes(db, endpointTypeIdOnOff)
           .then((attributes) => {
             expect(attributes.length).toBe(13)
@@ -493,7 +496,7 @@ describe('Endpoint Type Config Queries', () => {
   test('Delete Endpoint Type', () =>
     queryConfig
       .deleteEndpointType(db, endpointTypeIdOnOff)
-      .then(queryConfig.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
+      .then(testQuery.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
       .then((clusters) => {
         expect(clusters.length).toBe(undefined)
         return Promise.resolve()

@@ -27,6 +27,8 @@ const path = require('path')
 const childProcess = require('child_process')
 const queryPackage = require('../db/query-package.js')
 const queryEndpoint = require('../db/query-endpoint.js')
+const queryConfig = require('../db/query-config.js')
+const queryZcl = require('../db/query-zcl.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { v4: uuidv4 } = require('uuid')
@@ -73,7 +75,7 @@ async function initializeSessionPackage(db, sessionId, metafiles) {
           }
         })
         env.logWarning(
-          `Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
+          `${sessionId}, ${metafiles.zcl}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
         )
       }
       if (packageId != null) {
@@ -194,25 +196,25 @@ function matchFeatureLevel(featureLevel) {
  * @param {*} sessionId
  * @returns promise that resolves into a text report for the session.
  */
-function sessionReport(db, sessionId) {
-  return queryEndpoint.queryEndpointTypes(db, sessionId).then((epts) => {
+async function sessionReport(db, sessionId) {
+  return queryConfig.getAllEndpointTypes(db, sessionId).then((epts) => {
     let ps = []
     epts.forEach((ept) => {
       ps.push(
         queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
           let s = `Endpoint: ${ept.name} \n`
           let ps2 = []
-          clusters.forEach((c) => {
+          for (let c of clusters) {
             let rpt = `  - ${c.hexCode}: cluster: ${c.name} (${c.side})\n`
             ps2.push(
               queryEndpoint
                 .queryEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
                 .then((attrs) => {
-                  attrs.forEach((at) => {
+                  for (let at of attrs) {
                     rpt = rpt.concat(
-                      `    - ${at.hexCode}: attribute: ${at.name} [${at.type}]\n`
+                      `    - ${at.hexCode}: attribute: ${at.name} [${at.type}] [bound: ${at.isBound}]\n`
                     )
-                  })
+                  }
                 })
                 .then(() =>
                   queryEndpoint.queryEndpointClusterCommands(
@@ -222,15 +224,15 @@ function sessionReport(db, sessionId) {
                   )
                 )
                 .then((cmds) => {
-                  cmds.forEach((cmd) => {
+                  for (let cmd of cmds) {
                     rpt = rpt.concat(
                       `    - ${cmd.hexCode}: command: ${cmd.name}\n`
                     )
-                  })
+                  }
                   return rpt
                 })
             )
-          })
+          }
           return Promise.all(ps2)
             .then((rpts) => rpts.join(''))
             .then((r) => s.concat(r))
@@ -242,6 +244,97 @@ function sessionReport(db, sessionId) {
 }
 
 /**
+ * Produces a text dump of a session data for human consumption.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into a text report for the session.
+ */
+async function sessionDump(db, sessionId) {
+  let dump = {
+    endpointTypes: [],
+    attributes: [],
+    commands: [],
+    clusters: [],
+    usedPackages: [],
+    packageReport: '',
+  }
+  let endpoints = await queryConfig.getAllEndpoints(db, sessionId)
+  dump.endpoints = endpoints
+
+  let epts = await queryConfig.getAllEndpointTypes(db, sessionId)
+  let ps = []
+
+  epts.forEach((ept) => {
+    ept.clusters = []
+    ept.attributes = []
+    ept.commands = []
+    dump.endpointTypes.push(ept)
+    ps.push(
+      queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
+        let ps2 = []
+        for (let c of clusters) {
+          ept.clusters.push(c)
+          dump.clusters.push(c)
+          ps2.push(
+            queryEndpoint
+              .queryEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
+              .then((attrs) => {
+                c.attributes = attrs
+                ept.attributes.push(...attrs)
+                dump.attributes.push(...attrs)
+              })
+              .then(() =>
+                queryEndpoint.queryEndpointClusterCommands(
+                  db,
+                  c.clusterId,
+                  ept.id
+                )
+              )
+              .then((cmds) => {
+                c.commands = cmds
+                ept.commands.push(...cmds)
+                dump.commands.push(...cmds)
+              })
+          )
+        }
+        return Promise.all(ps2)
+      })
+    )
+  })
+  await Promise.all(ps)
+
+  // Here we are testing that we have entities only from ONE
+  // package present. There was a bug, where global attributes from
+  // other packages got referenced under the session, because
+  // some query wasn't taking packageId into consideration.
+  for (const at of dump.attributes) {
+    let attributeId = at.id
+    let attribute = await queryZcl.selectAttributeById(db, attributeId)
+    if (dump.usedPackages.indexOf(attribute.packageRef) == -1) {
+      dump.usedPackages.push(attribute.packageRef)
+    }
+  }
+
+  for (const cm of dump.commands) {
+    let commandId = cm.id
+    let cmd = await queryZcl.selectCommandById(db, commandId)
+    if (dump.usedPackages.indexOf(cmd.packageRef) == -1) {
+      dump.usedPackages.push(cmd.packageRef)
+    }
+  }
+
+  for (const cl of dump.clusters) {
+    let clusterId = cl.clusterId
+    let cluster = await queryZcl.selectClusterById(db, clusterId)
+    if (dump.usedPackages.indexOf(cluster.packageRef) == -1) {
+      dump.usedPackages.push(cluster.packageRef)
+    }
+  }
+  return dump
+}
+
+/**
  * If you have an array of arguments, and a function that creates
  * a promise out of each of those arguments, this function
  * executes them sequentially, one by one.
@@ -250,8 +343,8 @@ function sessionReport(db, sessionId) {
  * @param {*} promiseCreator
  */
 function executePromisesSequentially(arrayOfData, promiseCreator) {
-  return arrayOfData.reduce((prev, nextData) => {
-    return prev.then(() => promiseCreator(nextData))
+  return arrayOfData.reduce((prev, nextData, currentIndex) => {
+    return prev.then(() => promiseCreator(nextData, currentIndex))
   }, Promise.resolve())
 }
 
@@ -399,6 +492,7 @@ exports.calculateCrc = calculateCrc
 exports.initializeSessionPackage = initializeSessionPackage
 exports.matchFeatureLevel = matchFeatureLevel
 exports.sessionReport = sessionReport
+exports.sessionDump = sessionDump
 exports.executePromisesSequentially = executePromisesSequentially
 exports.createAbsolutePath = createAbsolutePath
 exports.executeExternalProgram = executeExternalProgram

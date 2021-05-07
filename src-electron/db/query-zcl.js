@@ -66,13 +66,9 @@ async function selectAllEnumItems(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.enumItem))
 }
 
-async function selectEnumById(db, id, packageId) {
+async function selectEnumById(db, id) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE ENUM_ID = ? AND PACKAGE_REF = ? ORDER BY NAME',
-      [id, packageId]
-    )
+    .dbGet(db, 'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE ENUM_ID = ?', [id])
     .then(dbMapping.map.enum)
 }
 
@@ -133,13 +129,11 @@ async function selectBitmapByName(db, packageId, name) {
     .then(dbMapping.map.bitmap)
 }
 
-async function selectBitmapById(db, id, packageId) {
+async function selectBitmapById(db, id) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE BITMAP_ID = ? AND PACKAGE_REF = ? ORDER BY NAME',
-      [id, packageId]
-    )
+    .dbGet(db, 'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE BITMAP_ID = ?', [
+      id,
+    ])
     .then(dbMapping.map.bitmap)
 }
 
@@ -158,13 +152,9 @@ async function selectAllDomains(db, packageId) {
   )
 }
 
-async function selectDomainById(db, id, packageId) {
+async function selectDomainById(db, id) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE DOMAIN_ID = ?AND PACKAGE_REF = ? ORDER BY NAME',
-      [id, packageId]
-    )
+    .dbGet(db, 'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE DOMAIN_ID = ?', [id])
     .then(dbMapping.map.domain)
 }
 
@@ -185,13 +175,9 @@ async function selectAllStructs(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.struct))
 }
 
-async function selectStructById(db, id, packageId) {
+async function selectStructById(db, id) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ? AND PACKAGE_REF = ? ORDER BY NAME',
-      [id, packageId]
-    )
+    .dbGet(db, 'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ?', [id])
     .then(dbMapping.map.struct)
 }
 
@@ -261,15 +247,15 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
 
-async function selectClusterByCode(db, packageId, code, mfgCode = null) {
+async function selectClusterByCode(db, packageId, clusterCode, mfgCode = null) {
   let query
   let args
-  if (mfgCode == null) {
+  if (mfgCode == null || mfgCode == 0) {
     query = `SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME, IS_SINGLETON FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? AND MANUFACTURER_CODE IS NULL`
-    args = [packageId, code]
+    args = [packageId, clusterCode]
   } else {
     query = `SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME, IS_SINGLETON FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? AND MANUFACTURER_CODE = ?`
-    args = [packageId, code, mfgCode]
+    args = [packageId, clusterCode, mfgCode]
   }
   return dbApi.dbGet(db, query, args).then(dbMapping.map.cluster)
 }
@@ -289,6 +275,7 @@ async function selectClusterById(db, clusterId) {
       `
 SELECT
   CLUSTER_ID,
+  PACKAGE_REF,
   CODE,
   MANUFACTURER_CODE,
   NAME,
@@ -320,12 +307,12 @@ async function selectAllDeviceTypes(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.deviceType))
 }
 
-async function selectDeviceTypeById(db, id, packageId) {
+async function selectDeviceTypeById(db, id) {
   return dbApi
     .dbGet(
       db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ? AND PACKAGE_REF = ? ',
-      [id, packageId]
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ?',
+      [id]
     )
     .then(dbMapping.map.deviceType)
 }
@@ -340,7 +327,26 @@ async function selectDeviceTypeByCodeAndName(db, packageId, code, name) {
     .then(dbMapping.map.deviceType)
 }
 
-async function selectAttributesByClusterId(db, clusterId, packageId = null) {
+/**
+ * Returns attributes for a given cluster.
+ * IMPORTANT:
+ *    packageId is needed to properly deal with the global attributes.
+ *
+ * This method will NOT only return the attributes that link to
+ * a given cluster, but will ALSO return the attributes that have
+ * empty clusterRef (which are global attributes), and the check
+ * in that case will be made via packageId.
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @param {*} packageId
+ * @returns promise of a list of attributes, including global attributes
+ */
+async function selectAttributesByClusterIdIncludingGlobal(
+  db,
+  clusterId,
+  packageId
+) {
   return dbApi
     .dbAll(
       db,
@@ -364,14 +370,14 @@ SELECT
   ARRAY_TYPE
 FROM ATTRIBUTE
 WHERE (CLUSTER_REF = ? OR CLUSTER_REF IS NULL)
-  ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
+  AND PACKAGE_REF = ? 
 ORDER BY CODE`,
-      packageId != null ? [clusterId, packageId] : [clusterId]
+      [clusterId, packageId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-async function selectAttributesByClusterIdAndSide(
+async function selectAttributesByClusterIdAndSideIncludingGlobal(
   db,
   clusterId,
   packageId,
@@ -402,15 +408,25 @@ FROM ATTRIBUTE
 WHERE
   SIDE = ?
   AND (CLUSTER_REF = ? OR CLUSTER_REF IS NULL)
-  ${packageId != null ? 'AND PACKAGE_REF = ? ' : ''}
+  AND PACKAGE_REF = ? 
 ORDER BY CODE`,
-      packageId != null ? [side, clusterId, packageId] : [side, clusterId]
+      [side, clusterId, packageId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
+/**
+ * Queries for attributes inside a cluster.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} clusterCode
+ * @param {*} manufacturerCode
+ * @returns promise that resolves into attributes.
+ */
 async function selectAttributesByClusterCodeAndManufacturerCode(
   db,
+  packageId,
   clusterCode,
   manufacturerCode
 ) {
@@ -446,10 +462,58 @@ SELECT
 FROM ATTRIBUTE, CLUSTER
 WHERE CLUSTER.CODE = ?
   AND CLUSTER.CLUSTER_ID = ATTRIBUTE.CLUSTER_REF
+  AND ATTRIBUTE.PACKAGE_REF = ?
   ${manufacturerString}`,
-      [clusterCode]
+      [clusterCode, packageId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
+}
+
+async function selectAttributeByCode(
+  db,
+  packageId,
+  clusterCode,
+  attributeCode,
+  manufacturerCode
+) {
+  let manufacturerString
+  if (manufacturerCode == null || manufacturerCode == 0) {
+    manufacturerString = ' AND CLUSTER.MANUFACTURER_CODE IS NULL'
+  } else {
+    manufacturerString =
+      ' AND CLUSTER.MANUFACTURER_CODE IS NULL OR CLUSTER.MANUFACTURER_CODE = ' +
+      manufacturerCode
+  }
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  ATTRIBUTE.ATTRIBUTE_ID,
+  ATTRIBUTE.CLUSTER_REF,
+  ATTRIBUTE.CODE,
+  ATTRIBUTE.MANUFACTURER_CODE,
+  ATTRIBUTE.NAME,
+  ATTRIBUTE.TYPE,
+  ATTRIBUTE.SIDE,
+  ATTRIBUTE.DEFINE,
+  ATTRIBUTE.MIN,
+  ATTRIBUTE.MAX,
+  ATTRIBUTE.IS_WRITABLE,
+  ATTRIBUTE.DEFAULT_VALUE,
+  ATTRIBUTE.IS_OPTIONAL,
+  ATTRIBUTE.IS_REPORTABLE,
+  ATTRIBUTE.IS_SCENE_REQUIRED,
+  ATTRIBUTE.ARRAY_TYPE
+FROM ATTRIBUTE, CLUSTER
+WHERE CLUSTER.CODE = ?
+  AND CLUSTER.CLUSTER_ID = ATTRIBUTE.CLUSTER_REF
+  AND ATTRIBUTE.CODE = ?
+  AND ATTRIBUTE.PACKAGE_REF = ?
+  ${manufacturerString}`,
+      [clusterCode, attributeCode, packageId]
+    )
+    .then(dbMapping.map.attribute)
 }
 
 async function selectAttributeById(db, id) {
@@ -460,6 +524,7 @@ async function selectAttributeById(db, id) {
 SELECT
   ATTRIBUTE_ID,
   CLUSTER_REF,
+  PACKAGE_REF,
   CODE,
   MANUFACTURER_CODE,
   NAME,
@@ -498,30 +563,39 @@ async function selectAttributeByAttributeIdAndClusterRef(
       db,
       `
 SELECT
-  ATTRIBUTE.ATTRIBUTE_ID,
-  ATTRIBUTE.CLUSTER_REF,
-  ATTRIBUTE.CODE,
-  ATTRIBUTE.MANUFACTURER_CODE,
-  ATTRIBUTE.NAME,
-  ATTRIBUTE.TYPE,
-  ATTRIBUTE.SIDE,
-  ATTRIBUTE.DEFINE,
-  ATTRIBUTE.MIN,
-  ATTRIBUTE.MAX,
-  ATTRIBUTE.IS_WRITABLE,
-  CASE WHEN ATTRIBUTE.CLUSTER_REF NOT NULL THEN ATTRIBUTE.DEFAULT_VALUE
-       ELSE
-          CASE
-            WHEN EXISTS(SELECT DEFAULT_VALUE FROM GLOBAL_ATTRIBUTE_DEFAULT WHERE GLOBAL_ATTRIBUTE_DEFAULT.CLUSTER_REF = ? AND GLOBAL_ATTRIBUTE_DEFAULT.ATTRIBUTE_REF = ATTRIBUTE_ID)
-              THEN (SELECT DEFAULT_VALUE FROM GLOBAL_ATTRIBUTE_DEFAULT WHERE GLOBAL_ATTRIBUTE_DEFAULT.CLUSTER_REF = ? AND GLOBAL_ATTRIBUTE_DEFAULT.ATTRIBUTE_REF = ATTRIBUTE_ID)
-            ELSE ATTRIBUTE.DEFAULT_VALUE
-          END
-       END AS DEFAULT_VALUE,
-  ATTRIBUTE.IS_OPTIONAL,
-  ATTRIBUTE.IS_REPORTABLE,
-  ATTRIBUTE.IS_SCENE_REQUIRED,
-  ATTRIBUTE.ARRAY_TYPE
-FROM ATTRIBUTE, GLOBAL_ATTRIBUTE_DEFAULT
+  A.ATTRIBUTE_ID,
+  A.CLUSTER_REF,
+  A.CODE,
+  A.MANUFACTURER_CODE,
+  A.NAME,
+  A.TYPE,
+  A.SIDE,
+  A.DEFINE,
+  A.MIN,
+  A.MAX,
+  A.IS_WRITABLE,
+  CASE
+    WHEN A.CLUSTER_REF NOT NULL
+    THEN A.DEFAULT_VALUE
+  ELSE
+    CASE
+      WHEN
+        EXISTS ( SELECT DEFAULT_VALUE
+                 FROM GLOBAL_ATTRIBUTE_DEFAULT
+                 WHERE CLUSTER_REF = ?
+                   AND ATTRIBUTE_REF = ATTRIBUTE_ID )
+      THEN ( SELECT DEFAULT_VALUE
+             FROM GLOBAL_ATTRIBUTE_DEFAULT
+             WHERE CLUSTER_REF = ?
+               AND ATTRIBUTE_REF = ATTRIBUTE_ID)
+    ELSE A.DEFAULT_VALUE
+    END
+  END AS DEFAULT_VALUE,
+  A.IS_OPTIONAL,
+  A.IS_REPORTABLE,
+  A.IS_SCENE_REQUIRED,
+  A.ARRAY_TYPE
+FROM ATTRIBUTE AS A
 WHERE ATTRIBUTE_ID = ?`,
       [clusterRef, clusterRef, attributeId]
     )
@@ -611,7 +685,19 @@ async function selectCommandById(db, id) {
   return dbApi
     .dbGet(
       db,
-      `SELECT COMMAND_ID, CLUSTER_REF, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, SOURCE, IS_OPTIONAL FROM COMMAND WHERE COMMAND_ID = ?`,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  PACKAGE_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL
+FROM COMMAND
+  WHERE COMMAND_ID = ?`,
       [id]
     )
     .then(dbMapping.map.command)
@@ -809,23 +895,24 @@ async function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
       db,
       `
 SELECT
-  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF,
-  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF,
-  ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF,
-  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED,
-  ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION,
-  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
-  ENDPOINT_TYPE_ATTRIBUTE.BOUNDED,
-  ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE,
-  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED_REPORTABLE,
-  ENDPOINT_TYPE_ATTRIBUTE.MIN_INTERVAL,
-  ENDPOINT_TYPE_ATTRIBUTE.MAX_INTERVAL,
-  ENDPOINT_TYPE_ATTRIBUTE.REPORTABLE_CHANGE
+  ETA.ENDPOINT_TYPE_REF,
+  ETC.CLUSTER_REF,
+  ETA.ATTRIBUTE_REF,
+  ETA.INCLUDED,
+  ETA.STORAGE_OPTION,
+  ETA.SINGLETON,
+  ETA.BOUNDED,
+  ETA.DEFAULT_VALUE,
+  ETA.INCLUDED_REPORTABLE,
+  ETA.MIN_INTERVAL,
+  ETA.MAX_INTERVAL,
+  ETA.REPORTABLE_CHANGE
 FROM
-  ENDPOINT_TYPE_ATTRIBUTE, ENDPOINT_TYPE_CLUSTER
+  ENDPOINT_TYPE_ATTRIBUTE AS ETA,
+  ENDPOINT_TYPE_CLUSTER AS ETC
 WHERE
-  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?
-  AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  ETA.ENDPOINT_TYPE_REF = ?
+  AND ETA.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
 ORDER BY ATTRIBUTE_REF`,
       [endpointTypeId]
     )
@@ -845,25 +932,25 @@ async function selectEndpointTypeAttribute(
       db,
       `
 SELECT
-  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF,
-  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF,
-  ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF,
-  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED,
-  ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION,
-  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
-  ENDPOINT_TYPE_ATTRIBUTE.BOUNDED,
-  ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE,
-  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED_REPORTABLE,
-  ENDPOINT_TYPE_ATTRIBUTE.MIN_INTERVAL,
-  ENDPOINT_TYPE_ATTRIBUTE.MAX_INTERVAL,
-  ENDPOINT_TYPE_ATTRIBUTE.REPORTABLE_CHANGE
+  ETA.ENDPOINT_TYPE_REF,
+  ETC.CLUSTER_REF,
+  ETA.ATTRIBUTE_REF,
+  ETA.INCLUDED,
+  ETA.STORAGE_OPTION,
+  ETA.SINGLETON,
+  ETA.BOUNDED,
+  ETA.DEFAULT_VALUE,
+  ETA.INCLUDED_REPORTABLE,
+  ETA.MIN_INTERVAL,
+  ETA.MAX_INTERVAL,
+  ETA.REPORTABLE_CHANGE
 FROM
-  ENDPOINT_TYPE_ATTRIBUTE, ENDPOINT_TYPE_CLUSTER
+  ENDPOINT_TYPE_ATTRIBUTE AS ETA, ENDPOINT_TYPE_CLUSTER AS ETC
 WHERE
-  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?
-  AND ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ?
-  AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
-  AND ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = ?`,
+  ETA.ENDPOINT_TYPE_REF = ?
+  AND ETA.ATTRIBUTE_REF = ?
+  AND ETA.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
+  AND ETC.CLUSTER_REF = ?`,
       [endpointTypeId, attributeRef, clusterRef]
     )
     .then(dbMapping.map.endpointTypeAttribute)
@@ -1986,8 +2073,8 @@ exports.selectClusterByCode = selectClusterByCode
 exports.selectAllDeviceTypes = selectAllDeviceTypes
 exports.selectDeviceTypeById = selectDeviceTypeById
 exports.selectDeviceTypeByCodeAndName = selectDeviceTypeByCodeAndName
-exports.selectAttributesByClusterIdAndSide = selectAttributesByClusterIdAndSide
-exports.selectAttributesByClusterId = selectAttributesByClusterId
+exports.selectAttributesByClusterIdAndSideIncludingGlobal = selectAttributesByClusterIdAndSideIncludingGlobal
+exports.selectAttributesByClusterIdIncludingGlobal = selectAttributesByClusterIdIncludingGlobal
 exports.selectAttributesByClusterCodeAndManufacturerCode = selectAttributesByClusterCodeAndManufacturerCode
 exports.selectAttributeById = selectAttributeById
 exports.selectAttributeByAttributeIdAndClusterRef = selectAttributeByAttributeIdAndClusterRef
@@ -2036,3 +2123,4 @@ exports.exportCliCommandsFromCluster = exportCliCommandsFromCluster
 exports.exportAllAttributeDetailsFromEnabledClusters = exportAllAttributeDetailsFromEnabledClusters
 exports.exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
 exports.exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
+exports.selectAttributeByCode = selectAttributeByCode

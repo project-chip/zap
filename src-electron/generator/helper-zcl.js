@@ -286,7 +286,7 @@ function zcl_attributes(options) {
     .then((packageId) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryZcl.selectAttributesByClusterId(
+        return queryZcl.selectAttributesByClusterIdIncludingGlobal(
           this.global.db,
           this.id,
           packageId
@@ -314,7 +314,7 @@ function zcl_attributes_client(options) {
     .ensureZclPackageId(this)
     .then((packageId) => {
       if ('id' in this) {
-        return queryZcl.selectAttributesByClusterIdAndSide(
+        return queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
           this.global.db,
           this.id,
           packageId,
@@ -348,7 +348,7 @@ function zcl_attributes_server(options) {
     .then((packageId) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryZcl.selectAttributesByClusterIdAndSide(
+        return queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
           this.global.db,
           this.id,
           packageId,
@@ -412,14 +412,15 @@ function largestLabelLength(arrayOfClusters) {
  * @returns Number of command arguments as an integer
  */
 function zcl_command_arguments_count(commandId) {
-  let promise = templateUtil.ensureZclPackageId(this).then((packageId) => {
-    let res = queryZcl.selectCommandArgumentsCountByCommandId(
-      this.global.db,
-      commandId,
-      packageId
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectCommandArgumentsCountByCommandId(
+        this.global.db,
+        commandId,
+        packageId
+      )
     )
-    return res
-  })
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -559,7 +560,7 @@ function as_underlying_zcl_type_if_command_is_not_fixed_length(
   )
     .then((res) => {
       if (res) {
-        return new Promise((resolve, reject) => resolve(''))
+        return ''
       } else {
         return templateUtil
           .ensureZclPackageId(this)
@@ -1448,12 +1449,12 @@ function as_underlying_zcl_type_command_argument_always_present(
   )
     .then((res) => {
       if (res) {
-        return new Promise((resolve, reject) => resolve('')) // Return nothing since the command is of fixed length
+        return ''
       } else {
         // Return the underlying zcl type since command argument is always present
         if (introducedInRef || removedInRef || presentIf) {
           // Return nothing if the command argument is not always present
-          return new Promise((resolve, reject) => resolve(''))
+          return ''
         } else {
           // Return the underlying zcl type if the command argument is always present.
           return templateUtil
@@ -1547,7 +1548,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
   )
     .then((res) => {
       if (res) {
-        return new Promise((resolve, reject) => resolve('')) // Return nothing since the command is of fixed length
+        return '' // Return nothing since the command is of fixed length
       } else {
         // Return the underlying zcl type since command argument is not always present and there is no present if conditionality
         if ((introducedInRef || removedInRef) && !presentIf) {
@@ -1557,7 +1558,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
               asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
             )
         } else {
-          return new Promise((resolve, reject) => resolve(''))
+          return ''
         }
       }
     })
@@ -1643,7 +1644,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
   )
     .then((res) => {
       if (res) {
-        return new Promise((resolve, reject) => resolve('')) // Return nothing since the command is of fixed length
+        return '' // Return nothing since the command is of fixed length
       } else {
         // Return the underlying zcl type since command argument is not always present and there is present if conditionality.
         if ((introducedInRef || removedInRef) && presentIf) {
@@ -1653,7 +1654,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
               asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
             )
         } else {
-          return new Promise((resolve, reject) => resolve(''))
+          return ''
         }
       }
     })
@@ -1739,7 +1740,7 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
   )
     .then((res) => {
       if (res) {
-        return new Promise((resolve, reject) => resolve('')) // Return nothing since the command is of fixed length
+        return '' // Return nothing since the command is of fixed length
       } else {
         // Return the underlying zcl type since command argument is always present and there is a present if condition
         if (!(introducedInRef || removedInRef) && presentIf) {
@@ -1749,7 +1750,7 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
               asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
             )
         } else {
-          return new Promise((resolve, reject) => resolve(''))
+          return ''
         }
       }
     })

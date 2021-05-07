@@ -42,6 +42,7 @@ module.exports = {
     'no-implicit-globals': 'error',
     'block-scoped-var': 'error',
     'vars-on-top': 'error',
+    'guard-for-in': 'error',
 
     'import/first': 'off',
     'import/named': 'error',

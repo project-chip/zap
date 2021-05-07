@@ -21,6 +21,19 @@
 const yargs = require('yargs')
 const args = require('../src-electron/util/args.js')
 
+function x(arg = 'blah') {
+  return arg
+}
+
+function y(
+  arg = {
+    a: 1,
+    b: 2,
+  }
+) {
+  return arg.a + arg.b
+}
+
 test('Test basic command line processing', () => {
   let a = args.processCommandLineArguments([
     'node',
@@ -47,4 +60,15 @@ test('Verify how yargs works', () => {
   expect(argv.x).toBe(1)
   expect(argv.y).toBe(2)
   expect(argv.tst).toBe(42)
+})
+
+test('Verify how unpassed arguments work', () => {
+  expect(x()).toBe('blah')
+  expect(x(null)).toBe(null)
+  expect(x(undefined)).toBe('blah')
+  expect(x('funny')).toBe('funny')
+
+  expect(y()).toBe(3)
+  expect(y({ a: 22, b: 34 })).toBe(56)
+  expect(y({ a: 22 })).toBe(NaN) // A missing options key is just missing
 })

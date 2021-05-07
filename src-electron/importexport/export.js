@@ -27,6 +27,7 @@ const querySession = require('../db/query-session.js')
 const queryConfig = require('../db/query-config.js')
 const queryImpExp = require('../db/query-impexp.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const util = require('../util/util.js')
 
 /**
  * Resolves to an array of endpoint types.
@@ -141,18 +142,16 @@ async function exportDataIntoFile(
   }
 ) {
   env.logDebug(`Writing state from session ${sessionId} into file ${filePath}`)
-  return createStateFromDatabase(db, sessionId)
-    .then((state) => {
-      return new Promise((resolve, reject) => {
-        if (options.removeLog) delete state.log
-        fs.writeFile(filePath, JSON.stringify(state, null, 2), (err) => {
-          if (err) reject(err)
-          resolve()
-        })
-      })
+  let state = await createStateFromDatabase(db, sessionId)
+  await new Promise((resolve, reject) => {
+    if (options.removeLog) delete state.log
+    fs.writeFile(filePath, JSON.stringify(state, null, 2), (err) => {
+      if (err) reject(err)
+      resolve()
     })
-    .then(() => querySession.setSessionClean(db, sessionId))
-    .then(() => filePath)
+  })
+  await querySession.setSessionClean(db, sessionId)
+  return filePath
 }
 
 /**

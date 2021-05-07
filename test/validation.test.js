@@ -21,14 +21,16 @@
 const fs = require('fs')
 const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const Validation = require('../src-electron/validation/validation.js')
+const validation = require('../src-electron/validation/validation.js')
 const querySession = require('../src-electron/db/query-session.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const env = require('../src-electron/util/env.js')
+const util = require('../src-electron/util/util.js')
 
 let db
 let sid
+let pkgId
 
 beforeAll(() => {
   let file = env.sqliteTestFile('validation')
@@ -43,74 +45,75 @@ afterAll(() => {
   return dbApi.closeDatabase(db)
 })
 
-test('Load the static data.', () => {
-  return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+test('Load the static data.', async () => {
+  let context = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+  pkgId = context.packageId
 }, 5000)
 
 test('isValidNumberString Functions', () => {
   // Integer
-  expect(Validation.isValidNumberString('0x0000')).toBeTruthy()
-  expect(Validation.isValidNumberString('0x0001')).toBeTruthy()
-  expect(!Validation.isValidNumberString('0x00asdfajaklsf;01')).toBeTruthy()
+  expect(validation.isValidNumberString('0x0000')).toBeTruthy()
+  expect(validation.isValidNumberString('0x0001')).toBeTruthy()
+  expect(!validation.isValidNumberString('0x00asdfajaklsf;01')).toBeTruthy()
   // Float
-  expect(Validation.isValidFloat('5.6')).toBeTruthy()
-  expect(Validation.isValidFloat('5')).toBeTruthy()
-  expect(!Validation.isValidFloat('5.6....')).toBeTruthy()
-  expect(Validation.isValidFloat('.0001')).toBeTruthy()
+  expect(validation.isValidFloat('5.6')).toBeTruthy()
+  expect(validation.isValidFloat('5')).toBeTruthy()
+  expect(!validation.isValidFloat('5.6....')).toBeTruthy()
+  expect(validation.isValidFloat('.0001')).toBeTruthy()
 }, 5000)
 
 test('extractValue Functions', () => {
   //Integer
-  expect(Validation.extractIntegerValue('5') == 5).toBeTruthy()
-  expect(Validation.extractIntegerValue('0x05') == 5).toBeTruthy()
-  expect(Validation.extractIntegerValue('A') == 10).toBeTruthy()
+  expect(validation.extractIntegerValue('5') == 5).toBeTruthy()
+  expect(validation.extractIntegerValue('0x05') == 5).toBeTruthy()
+  expect(validation.extractIntegerValue('A') == 10).toBeTruthy()
   //float
-  expect(Validation.extractFloatValue('0.53') == 0.53).toBeTruthy()
-  expect(Validation.extractFloatValue('.53') == 0.53).toBeTruthy()
+  expect(validation.extractFloatValue('0.53') == 0.53).toBeTruthy()
+  expect(validation.extractFloatValue('.53') == 0.53).toBeTruthy()
 }, 5000)
 
 test('Test int bounds', () => {
   //Integer
-  expect(Validation.checkBoundsInteger(50, 25, 60)).toBeTruthy()
-  expect(!Validation.checkBoundsInteger(50, 25, 20)).toBeTruthy()
-  expect(!Validation.checkBoundsInteger(50, 51, 55)).toBeTruthy()
-  expect(!Validation.checkBoundsInteger(30, 'avaa', 2)).toBeTruthy()
-  expect(!Validation.checkBoundsInteger(30, 45, 50)).toBeTruthy()
-  expect(Validation.checkBoundsInteger('asdfa', 40, 50)).toBeFalsy()
+  expect(validation.checkBoundsInteger(50, 25, 60)).toBeTruthy()
+  expect(!validation.checkBoundsInteger(50, 25, 20)).toBeTruthy()
+  expect(!validation.checkBoundsInteger(50, 51, 55)).toBeTruthy()
+  expect(!validation.checkBoundsInteger(30, 'avaa', 2)).toBeTruthy()
+  expect(!validation.checkBoundsInteger(30, 45, 50)).toBeTruthy()
+  expect(validation.checkBoundsInteger('asdfa', 40, 50)).toBeFalsy()
 
   //Float
-  expect(Validation.checkBoundsFloat(35.0, 25, 50.0))
-  expect(!Validation.checkBoundsFloat(351.0, 25, 50.0))
-  expect(!Validation.checkBoundsFloat(351.0, 355, 5650.0))
+  expect(validation.checkBoundsFloat(35.0, 25, 50.0))
+  expect(!validation.checkBoundsFloat(351.0, 25, 50.0))
+  expect(!validation.checkBoundsFloat(351.0, 355, 5650.0))
 }, 5000)
 
 test('Validate types', () => {
-  expect(Validation.isStringType('CHAR_STRING'))
+  expect(validation.isStringType('CHAR_STRING'))
 
-  expect(Validation.isStringType('char_string'))
-  expect(Validation.isStringType('OCTET_STRING'))
-  expect(Validation.isStringType('LONG_CHAR_STRING'))
-  expect(Validation.isStringType('LONG_OCTET_STRING'))
-  expect(!Validation.isStringType('FLOAT_SEMI'))
+  expect(validation.isStringType('char_string'))
+  expect(validation.isStringType('OCTET_STRING'))
+  expect(validation.isStringType('LONG_CHAR_STRING'))
+  expect(validation.isStringType('LONG_OCTET_STRING'))
+  expect(!validation.isStringType('FLOAT_SEMI'))
 
-  expect(Validation.isFloatType('FLOAT_SEMI'))
-  expect(Validation.isFloatType('FLOAT_SINGLE'))
-  expect(Validation.isFloatType('FLOAT_DOUBLE'))
-  expect(!Validation.isFloatType('LONG_OCTET_STRING'))
+  expect(validation.isFloatType('FLOAT_SEMI'))
+  expect(validation.isFloatType('FLOAT_SINGLE'))
+  expect(validation.isFloatType('FLOAT_DOUBLE'))
+  expect(!validation.isFloatType('LONG_OCTET_STRING'))
 }, 5000)
 
 test(
   'Integer Test',
   () =>
     queryZcl
-      .selectAttributesByClusterCodeAndManufacturerCode(db, 3, null)
+      .selectAttributesByClusterCodeAndManufacturerCode(db, pkgId, 3, null)
       .then((attribute) => {
         attribute = attribute.filter((e) => {
           return e.code === 0
         })[0]
 
         //Test Constraints
-        let minMax = Validation.getBoundsInteger(attribute)
+        let minMax = validation.getBoundsInteger(attribute)
         expect(minMax.min == 0).toBeTruthy()
         expect(minMax.max === 0xffff).toBeTruthy()
       }),
@@ -129,25 +132,25 @@ test('validate Attribute Test', () => {
   }
 
   expect(
-    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
       .defaultValue.length == 0
   ).toBeTruthy()
   // Check for if attribute is out of bounds.
   fakeEndpointAttribute.defaultValue = '60'
   expect(
-    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
       .defaultValue.length == 0
   ).toBeFalsy()
   fakeEndpointAttribute.defaultValue = '5'
   expect(
-    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
       .defaultValue.length == 0
   ).toBeFalsy()
 
   //Check if attribute is actually a number
   fakeEndpointAttribute.defaultValue = 'xxxxxx'
   expect(
-    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
       .defaultValue.length == 0
   ).toBeFalsy()
 
@@ -161,7 +164,7 @@ test('validate Attribute Test', () => {
     defaultValue: '1.5',
   }
   expect(
-    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
       .defaultValue.length == 0
   ).toBeTruthy()
   //Check out of bounds.
@@ -169,21 +172,21 @@ test('validate Attribute Test', () => {
     defaultValue: '4.5',
   }
   expect(
-    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
       .defaultValue.length == 0
   ).toBeFalsy()
   fakeEndpointAttribute = {
     defaultValue: '.25',
   }
   expect(
-    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
       .defaultValue.length == 0
   ).toBeFalsy()
 
   //Check if attribute is actually a number
   fakeEndpointAttribute.defaultValue = 'xxxxxx'
   expect(
-    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
       .defaultValue.length == 0
   ).toBeFalsy()
 
@@ -195,7 +198,7 @@ test('validate Attribute Test', () => {
     defaultValue: '30adfadf',
   }
   expect(
-    Validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
       .defaultValue.length == 0
   ).toBeTruthy()
 }, 2000)
@@ -207,10 +210,10 @@ test('validate endpoint test', () => {
     networkId: '0',
   }
   expect(
-    Validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+    validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
   ).toBeTruthy()
   expect(
-    Validation.validateSpecificEndpoint(endpoint).networkId.length == 0
+    validation.validateSpecificEndpoint(endpoint).networkId.length == 0
   ).toBeTruthy()
 
   //Validate not a number
@@ -219,10 +222,10 @@ test('validate endpoint test', () => {
     networkId: 'blah',
   }
   expect(
-    Validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+    validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
   ).toBeFalsy()
   expect(
-    Validation.validateSpecificEndpoint(endpoint).networkId.length == 0
+    validation.validateSpecificEndpoint(endpoint).networkId.length == 0
   ).toBeFalsy()
 
   //Validate 0 not being valid Endpoint ID
@@ -231,7 +234,7 @@ test('validate endpoint test', () => {
     networkId: 'blah',
   }
   expect(
-    Validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+    validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
   ).toBeFalsy()
 
   //Validate out of bounds on endpointId
@@ -240,7 +243,7 @@ test('validate endpoint test', () => {
     networkId: 'blah',
   }
   expect(
-    Validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+    validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
   ).toBeFalsy()
 }, 2000)
 
@@ -257,6 +260,11 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       'USER',
       'SESSION'
     )
+    await util.initializeSessionPackage(db, userSession.sessionId, {
+      zcl: env.builtinSilabsZclMetafile,
+      template: env.builtinTemplateMetafile,
+    })
+
     sid = userSession.sessionId
     let rows = await queryZcl.selectAllDeviceTypes(db, pkgId)
     let haOnOffDeviceTypeArray = rows.filter(
@@ -294,8 +302,9 @@ describe('Validate endpoint for duplicate endpointIds', () => {
   test(
     'Test endpoint for duplicates',
     () =>
-      Validation.validateEndpoint(db, eptId)
-        .then((data) => Validation.validateNoDuplicateEndpoints(db, eptId, sid))
+      validation
+        .validateEndpoint(db, eptId)
+        .then((data) => validation.validateNoDuplicateEndpoints(db, eptId, sid))
         .then((hasNoDuplicates) => {
           expect(hasNoDuplicates).toBeFalsy()
         }),

@@ -69,7 +69,8 @@ exports.zclType = {
 
 exports.sessionKey = {
   filePath: 'filePath',
-  studioProjectPath: 'studioProjectPath',
+  ideProjectPath: 'ideProjectPath',
+  informationText: 'informationText',
 }
 
 exports.pathRelativity = {

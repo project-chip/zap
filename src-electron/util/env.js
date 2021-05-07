@@ -197,11 +197,17 @@ function zapVersion() {
     try {
       let p = require('../../package.json')
       versionObject.version = p.version
-      versionObject.featureLevel = p.featureLevel
     } catch (err) {
       logError('Could not retrieve version from package.json')
-      versionObject.featureLevel = 0
       versionObject.version = '0.0.0'
+    }
+
+    try {
+      let p = require('../../apack.json')
+      versionObject.featureLevel = p.featureLevel
+    } catch (err) {
+      logError('Could not retrieve featureLevel from apack.json')
+      versionObject.featureLevel = 0
     }
 
     try {
@@ -218,24 +224,6 @@ function zapVersion() {
 
 function baseUrl() {
   return zapBaseUrl
-}
-
-function logHttpServerUrl(port, studioPort) {
-  logInfo('HTTP server created: ' + baseUrl() + port)
-
-  if (studioPort) {
-    logInfo('Studio integration server: ' + baseUrl() + studioPort)
-  }
-
-  fs.writeFileSync(urlLogFile(), baseUrl() + port, function (err) {
-    if (err) {
-      logError('Unable to log HTTP Server URL to ' + urlLogFile())
-    }
-  })
-}
-
-function urlLogFile(id) {
-  return path.join(appDirectory(), zapUrlLog)
 }
 
 /**
@@ -397,8 +385,6 @@ exports.logIpc = logIpc
 exports.logDebug = logDebug
 exports.zapVersion = zapVersion
 exports.zapVersionAsString = zapVersionAsString
-exports.logHttpServerUrl = logHttpServerUrl
-exports.urlLogFile = urlLogFile
 exports.baseUrl = baseUrl
 exports.versionsCheck = versionsCheck
 exports.setAppDirectory = setAppDirectory

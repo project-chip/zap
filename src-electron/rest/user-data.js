@@ -29,6 +29,7 @@ const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
 const zclLoader = require('../zcl/zcl-loader.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * HTTP GET: session key values
@@ -82,19 +83,30 @@ function httpPostSaveSessionKeyValue(db) {
 function httpPostCluster(db) {
   return (request, response) => {
     let { id, side, flag, endpointTypeId } = request.body
+    let sessionId = request.zapSessionId
+    let packageId
 
-    queryConfig
-      .getClusterState(db, endpointTypeId, id, side)
+    queryPackage
+      .getSessionPackagesByType(db, sessionId, dbEnum.packageType.zclProperties)
+      .then((pkgs) => {
+        packageId = pkgs[0].id
+      })
+      .then(() => queryConfig.getClusterState(db, endpointTypeId, id, side))
       .then((clusterState) => (clusterState == null ? true : false))
       .then((insertDefaults) => {
         return queryConfig
           .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
           .then(() => {
             if (insertDefaults) {
-              return queryConfig.insertClusterDefaults(db, endpointTypeId, {
-                clusterRef: id,
-                side: side,
-              })
+              return queryConfig.insertClusterDefaults(
+                db,
+                endpointTypeId,
+                packageId,
+                {
+                  clusterRef: id,
+                  side: side,
+                }
+              )
             } else {
               return Promise.resolve()
             }

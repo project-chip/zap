@@ -166,6 +166,25 @@ function argMap(cmdId, packageId, args) {
   ])
 }
 
+async function insertAttributes(db, attributesToLoad) {
+  return dbApi.dbMultiInsert(db, INSERT_ATTRIBUTE_QUERY, attributesToLoad)
+}
+
+async function insertCommands(db, packageId, commandsToLoad, argsForCommands) {
+  return dbApi
+    .dbMultiInsert(db, INSERT_COMMAND_QUERY, commandsToLoad)
+    .then((lids) => {
+      let argsToLoad = []
+      for (let j = 0; j < lids.length; j++) {
+        let lastCmdId = lids[j]
+        let args = argsForCommands[j]
+        if (args != undefined && args != null) {
+          argsToLoad.push(...argMap(lastCmdId, packageId, args))
+        }
+      }
+      return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
+    })
+}
 /**
  * Inserts globals into the database.
  *
@@ -180,7 +199,6 @@ async function insertGlobals(db, packageId, data) {
   let commandsToLoad = []
   let attributesToLoad = []
   let argsForCommands = []
-  let argsToLoad = []
   let i
   for (i = 0; i < data.length; i++) {
     if ('commands' in data[i]) {
@@ -193,24 +211,8 @@ async function insertGlobals(db, packageId, data) {
       attributesToLoad.push(...attributeMap(null, packageId, attributes))
     }
   }
-  let pCommand = dbApi
-    .dbMultiInsert(db, INSERT_COMMAND_QUERY, commandsToLoad)
-    .then((lids) => {
-      let j
-      for (j = 0; j < lids.length; j++) {
-        let lastCmdId = lids[j]
-        let args = argsForCommands[j]
-        if (args != undefined && args != null) {
-          argsToLoad.push(...argMap(lastCmdId, packageId, args))
-        }
-      }
-      return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
-    })
-  let pAttribute = dbApi.dbMultiInsert(
-    db,
-    INSERT_ATTRIBUTE_QUERY,
-    attributesToLoad
-  )
+  let pCommand = insertCommands(db, packageId, commandsToLoad, argsForCommands)
+  let pAttribute = insertAttributes(db, attributesToLoad)
   return Promise.all([pCommand, pAttribute])
 }
 
@@ -234,7 +236,6 @@ async function insertClusterExtensions(db, packageId, data) {
       let commandsToLoad = []
       let attributesToLoad = []
       let argsForCommands = []
-      let argsToLoad = []
       let i, lastId
       for (i = 0; i < rows.length; i++) {
         let row = rows[i]
@@ -259,24 +260,13 @@ async function insertClusterExtensions(db, packageId, data) {
           )
         }
       }
-      let pCommand = dbApi
-        .dbMultiInsert(db, INSERT_COMMAND_QUERY, commandsToLoad)
-        .then((lids) => {
-          let j
-          for (j = 0; j < lids.length; j++) {
-            lastId = lids[j]
-            let args = argsForCommands[j]
-            if (args != undefined && args != null) {
-              argsToLoad.push(...argMap(lastId, packageId, args))
-            }
-          }
-          return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
-        })
-      let pAttribute = dbApi.dbMultiInsert(
+      let pCommand = insertCommands(
         db,
-        INSERT_ATTRIBUTE_QUERY,
-        attributesToLoad
+        packageId,
+        commandsToLoad,
+        argsForCommands
       )
+      let pAttribute = insertAttributes(db, attributesToLoad)
       return Promise.all([pCommand, pAttribute])
     })
 }
@@ -318,7 +308,6 @@ async function insertClusters(db, packageId, data) {
       let commandsToLoad = []
       let attributesToLoad = []
       let argsForCommands = []
-      let argsToLoad = []
       let i
       for (i = 0; i < lastIdsArray.length; i++) {
         let lastId = lastIdsArray[i]
@@ -332,24 +321,13 @@ async function insertClusters(db, packageId, data) {
           attributesToLoad.push(...attributeMap(lastId, packageId, attributes))
         }
       }
-      let pCommand = dbApi
-        .dbMultiInsert(db, INSERT_COMMAND_QUERY, commandsToLoad)
-        .then((lids) => {
-          let j
-          for (j = 0; j < lids.length; j++) {
-            let lastCmdId = lids[j]
-            let args = argsForCommands[j]
-            if (args != undefined && args != null) {
-              argsToLoad.push(...argMap(lastCmdId, packageId, args))
-            }
-          }
-          return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
-        })
-      let pAttribute = dbApi.dbMultiInsert(
+      let pCommand = insertCommands(
         db,
-        INSERT_ATTRIBUTE_QUERY,
-        attributesToLoad
+        packageId,
+        commandsToLoad,
+        argsForCommands
       )
+      let pAttribute = insertAttributes(db, attributesToLoad)
       return Promise.all([pCommand, pAttribute])
     })
 }

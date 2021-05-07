@@ -24,6 +24,8 @@ const watchdog = require('../main-process/watchdog.js')
 const httpServer = require('../server/http-server.js')
 const startup = require('../main-process/startup.js')
 const serverIpc = new ipc.IPC()
+const queryPackage = require('../db/query-package.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 const eventType = {
   ping: 'ping', // Receiver responds with pong, returning the object.
@@ -49,51 +51,88 @@ function log(msg) {
   env.logIpc(`Ipc server: ${msg}`)
 }
 
-function handlerPing(data, socket) {
-  serverIpc.server.emit(socket, eventType.pong, data)
+function handlerPing(context, data) {
+  serverIpc.server.emit(context.socket, eventType.pong, data)
 }
 
-function handlerServerStatus(data, socket) {
+function handlerServerStatus(context) {
   let svr = httpServer.httpServerStartupMessage()
   svr.zapServerStatus = 'running'
-  serverIpc.server.emit(socket, eventType.overAndOut, svr)
+  serverIpc.server.emit(context.socket, eventType.overAndOut, svr)
 }
 
-function handlerNew(data, socket, httpPort) {
-  if (httpPort != null) {
-    uiUtil.openNewConfiguration(httpPort)
-    serverIpc.server.emit(socket, eventType.overAndOut)
+function handlerNew(context) {
+  if (context.httpPort != null) {
+    uiUtil.openNewConfiguration(context.httpPort)
+    serverIpc.server.emit(context.socket, eventType.overAndOut)
   }
 }
 
-function handlerOpen(zapFileArray, socket, httpPort) {
+function handlerOpen(context, zapFileArray) {
   return util
     .executePromisesSequentially(zapFileArray, (f) =>
-      uiUtil.openFileConfiguration(f, httpPort)
+      uiUtil.openFileConfiguration(f, context.httpPort)
     )
     .then(() => {
-      serverIpc.server.emit(socket, eventType.overAndOut)
+      serverIpc.server.emit(context.socket, eventType.overAndOut)
     })
 }
 
-function handlerConvert(data, socket) {
+function handlerConvert(context, data) {
   let zapFiles = data.files
 
-  serverIpc.server.emit(socket, eventType.over, 'Convert')
+  serverIpc.server.emit(context.socket, eventType.over, 'Convert')
   zapFiles.forEach((element) => {
-    serverIpc.server.emit(socket, eventType.over, `File: ${element}`)
+    serverIpc.server.emit(context.socket, eventType.over, `File: ${element}`)
   })
-  serverIpc.server.emit(socket, eventType.overAndOut, 'Done.')
+  serverIpc.server.emit(context.socket, eventType.overAndOut, 'Done.')
 }
 
-function handlerStop(data, socket) {
+function handlerStop(context, data) {
   console.log('Shutting down because of remote client request.')
-  serverIpc.server.emit(socket, eventType.overAndOut, 'Shutting down server.')
+  serverIpc.server.emit(
+    context.socket,
+    eventType.overAndOut,
+    'Shutting down server.'
+  )
   startup.shutdown()
   util.waitFor(1000).then(() => startup.quit())
 }
 
-function handlerGenerate(data, socket) {}
+// Data contains: zapFileArray, outputPattern, zcl, template
+async function handlerGenerate(context, data) {
+  let ps = []
+  let packages = await queryPackage.getPackagesByType(
+    context.db,
+    dbEnum.packageType.genTemplatesJson
+  )
+  let templatePackageId = packages[0].id
+
+  data.zapFileArray.forEach((zapFile, index) => {
+    ps.push(
+      startup.generateSingleFile(
+        context.db,
+        zapFile,
+        templatePackageId,
+        data.outputPattern,
+        index,
+        {
+          logger: (x) =>
+            serverIpc.server.emit(context.socket, eventType.over, x),
+          zcl: env.builtinSilabsZclMetafile,
+          template: env.builtinTemplateMetafile,
+        }
+      )
+    )
+  })
+  return Promise.all(ps).then(() => {
+    serverIpc.server.emit(
+      context.socket,
+      eventType.overAndOut,
+      'Generation done.'
+    )
+  })
+}
 
 const handlers = [
   {
@@ -139,7 +178,7 @@ function preHandler() {
  * @parem {*} isServer 'true' if this is a server, 'false' for client.
  * @param {*} options
  */
-function initServer(db = null, httpPort = null) {
+async function initServer(db = null, httpPort = null) {
   return new Promise((resolve, reject) => {
     serverIpc.config.logger = log
     serverIpc.config.id = 'main'
@@ -164,7 +203,14 @@ function initServer(db = null, httpPort = null) {
       handlers.forEach((handlerRecord) => {
         serverIpc.server.on(handlerRecord.eventType, (data, socket) => {
           preHandler()
-          handlerRecord.handler(data, socket, httpPort)
+          handlerRecord.handler(
+            {
+              db: db,
+              socket: socket,
+              httpPort: httpPort,
+            },
+            data
+          )
         })
       })
       resolve()

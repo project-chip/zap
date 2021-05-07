@@ -51,7 +51,7 @@ function returnZclEntitiesForClusterId(db, clusterId, packageId) {
   ).then((x) =>
     zclEntityQuery(
       queryZcl.selectAllAttributes,
-      queryZcl.selectAttributesByClusterId
+      queryZcl.selectAttributesByClusterIdIncludingGlobal
     )(db, clusterId, packageId).then((y) =>
       zclEntityQuery(
         queryZcl.selectAllCommands,
@@ -215,7 +215,7 @@ function httpGetZclExtension(db) {
       .then((pkgs) => (pkgs.length == 0 ? null : pkgs[0].id))
       .then((packageId) => {
         if (!packageId) {
-          throw 'Unable to retrieve valid packageId!'
+          throw new Error('Unable to retrieve valid packageId!')
         }
         return queryPackage.selectPackageExtension(db, packageId, entity)
       })
@@ -224,7 +224,7 @@ function httpGetZclExtension(db) {
         if (clusterExt.length) {
           return response.json(clusterExt[0])
         } else {
-          throw `Unable to find cluster extension by ${extensionId}.`
+          throw new Error(`Unable to find cluster extension by ${extensionId}.`)
         }
       })
       .catch((err) => {

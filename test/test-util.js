@@ -23,8 +23,14 @@ function testServer(fileName) {
     testPort = 9074
   } else if (fileName.includes('generation.test')) {
     testPort = 9075
+  } else if (fileName.includes('server-session.test')) {
+    testPort = 9076
   } else {
-    throw `You must manually assign a port for the given test file: ${fileName}`
+    let msg = new Error(
+      `You must manually assign a port for the given test file: ${fileName}`
+    )
+    console.log(msg)
+    throw msg
   }
   let ret = {
     port: testPort,
@@ -55,4 +61,4 @@ exports.totalServerAttributeCount = 2954
 exports.totalSpecCount = 39
 exports.totalEnumCount = 209
 exports.totalEnumItemCount = 1595
-exports.testTemplateCount = 16
+exports.testTemplateCount = 17

@@ -52,7 +52,7 @@ function processCommandLineArguments(argv) {
     new: 'If in client mode, start a new window on a main instance.',
   }
   let y = yargs
-  for (const cmd in commands) {
+  for (const cmd of Object.keys(commands)) {
     y.command(cmd, commands[cmd])
   }
   let ret = y

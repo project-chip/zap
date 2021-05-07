@@ -40,29 +40,6 @@ limitations under the License.
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">
-          <q-td key="in" :props="props" auto-width>
-            <q-checkbox
-              class="q-mt-xs"
-              v-model="selectionIn"
-              :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
-              indeterminate-value="false"
-              keep-color
-              v-show="
-                (selectionServers.includes(selectedCluster.id) &&
-                  props.row.source == 'client') ||
-                (selectionClients.includes(selectedCluster.id) &&
-                  props.row.source == 'server')
-              "
-              @input="
-                handleCommandSelection(
-                  selectionIn,
-                  'selectedIn',
-                  props.row,
-                  selectedCluster.id
-                )
-              "
-            />
-          </q-td>
           <q-td key="out" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
@@ -80,6 +57,29 @@ limitations under the License.
                 handleCommandSelection(
                   selectionOut,
                   'selectedOut',
+                  props.row,
+                  selectedCluster.id
+                )
+              "
+            />
+          </q-td>
+          <q-td key="in" :props="props" auto-width>
+            <q-checkbox
+              class="q-mt-xs"
+              v-model="selectionIn"
+              :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
+              indeterminate-value="false"
+              keep-color
+              v-show="
+                (selectionServers.includes(selectedCluster.id) &&
+                  props.row.source == 'client') ||
+                (selectionClients.includes(selectedCluster.id) &&
+                  props.row.source == 'server')
+              "
+              @input="
+                handleCommandSelection(
+                  selectionIn,
+                  'selectedIn',
                   props.row,
                   selectedCluster.id
                 )
@@ -183,17 +183,17 @@ export default {
       },
       columns: [
         {
-          name: 'in',
-          label: 'In',
-          field: 'in',
+          name: 'out',
+          label: 'Out',
+          field: 'out',
           align: 'left',
           sortable: true,
           style: 'width:1%',
         },
         {
-          name: 'out',
-          label: 'Out',
-          field: 'out',
+          name: 'in',
+          label: 'In',
+          field: 'in',
           align: 'left',
           sortable: true,
           style: 'width:1%',

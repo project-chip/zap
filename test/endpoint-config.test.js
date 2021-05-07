@@ -26,12 +26,13 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 const queryEndpoint = require('../src-electron/db/query-endpoint.js')
+const queryConfig = require('../src-electron/db/query-config.js')
 const types = require('../src-electron/util/types.js')
 const bin = require('../src-electron/util/bin.js')
 
 let db
 const templateCount = testUtil.testTemplateCount
-const genTimeout = 3000
+const genTimeout = 5000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 let sessionId
 let templateContext
@@ -76,90 +77,102 @@ test(
   5000
 )
 
-test('Test file import', () =>
-  importJs.importDataFromFile(db, testFile).then((importResult) => {
-    sessionId = importResult.sessionId
-    expect(sessionId).not.toBeNull()
-  }))
+test(
+  'Test file import',
+  () =>
+    importJs.importDataFromFile(db, testFile).then((importResult) => {
+      sessionId = importResult.sessionId
+      expect(sessionId).not.toBeNull()
+    }),
+  genTimeout
+)
 
-test('Test endpoint config queries', () =>
-  queryEndpoint
-    .queryEndpointTypes(db, sessionId)
-    .then((epts) => {
-      expect(epts.length).toBe(3)
-      return epts
-    })
-    .then((epts) => {
-      let ps = []
-      epts.forEach((ept) => {
-        ps.push(queryEndpoint.queryEndpointClusters(db, ept.id))
+test(
+  'Test endpoint config queries',
+  () =>
+    queryConfig
+      .getAllEndpointTypes(db, sessionId)
+      .then((epts) => {
+        expect(epts.length).toBe(3)
+        return epts
       })
-      return Promise.all(ps)
-    })
-    .then((clusterArray) => {
-      expect(clusterArray.length).toBe(3)
-      expect(clusterArray[0].length).toBe(28)
-      expect(clusterArray[1].length).toBe(5)
-      expect(clusterArray[2].length).toBe(7)
-      let promiseAttributes = []
-      let promiseCommands = []
-      clusterArray.forEach((clusters) => {
-        clusters.forEach((cluster) => {
-          promiseAttributes.push(
-            queryEndpoint.queryEndpointClusterAttributes(
-              db,
-              cluster.clusterId,
-              cluster.side,
-              cluster.endpointTypeId
-            )
-          )
-          promiseCommands.push(
-            queryEndpoint.queryEndpointClusterCommands(
-              db,
-              cluster.clusterId,
-              cluster.endpointTypeId
-            )
-          )
+      .then((epts) => {
+        let ps = []
+        epts.forEach((ept) => {
+          ps.push(queryEndpoint.queryEndpointClusters(db, ept.id))
         })
+        return Promise.all(ps)
       })
-      return Promise.all([
-        Promise.all(promiseAttributes),
-        Promise.all(promiseCommands),
-      ])
-    })
-    .then((twoLists) => {
-      let attributeLists = twoLists[0]
-      let commandLists = twoLists[1]
-      expect(attributeLists.length).toBe(40)
-      expect(commandLists.length).toBe(40)
-
-      let atSums = {}
-      attributeLists.forEach((al) => {
-        let l = al.length
-        if (atSums[l]) {
-          atSums[l]++
-        } else {
-          atSums[l] = 1
-        }
+      .then((clusterArray) => {
+        expect(clusterArray.length).toBe(3)
+        expect(clusterArray[0].length).toBe(28)
+        expect(clusterArray[1].length).toBe(5)
+        expect(clusterArray[2].length).toBe(7)
+        let promiseAttributes = []
+        let promiseCommands = []
+        clusterArray.forEach((clusters) => {
+          clusters.forEach((cluster) => {
+            promiseAttributes.push(
+              queryEndpoint.queryEndpointClusterAttributes(
+                db,
+                cluster.clusterId,
+                cluster.side,
+                cluster.endpointTypeId
+              )
+            )
+            promiseCommands.push(
+              queryEndpoint.queryEndpointClusterCommands(
+                db,
+                cluster.clusterId,
+                cluster.endpointTypeId
+              )
+            )
+          })
+        })
+        return Promise.all([
+          Promise.all(promiseAttributes),
+          Promise.all(promiseCommands),
+        ])
       })
-      expect(atSums[0]).toBe(18)
+      .then((twoLists) => {
+        let attributeLists = twoLists[0]
+        let commandLists = twoLists[1]
+        expect(attributeLists.length).toBe(40)
+        expect(commandLists.length).toBe(40)
 
-      let cmdSums = {}
-      commandLists.forEach((cl) => {
-        let l = cl.length
-        if (cmdSums[l]) {
-          cmdSums[l]++
-        } else {
-          cmdSums[l] = 1
-        }
-      })
-      expect(cmdSums[0]).toBe(15)
-    }))
+        let atSums = {}
+        attributeLists.forEach((al) => {
+          let l = al.length
+          if (atSums[l]) {
+            atSums[l]++
+          } else {
+            atSums[l] = 1
+          }
+        })
+        expect(atSums[0]).toBe(18)
 
-test('Some intermediate queries', () =>
-  types.typeSize(db, zclContext.packageId, 'bitmap8').then((size) => {
-    expect(size).toBe(1)
-  }))
+        let cmdSums = {}
+        commandLists.forEach((cl) => {
+          let l = cl.length
+          if (cmdSums[l]) {
+            cmdSums[l]++
+          } else {
+            cmdSums[l] = 1
+          }
+        })
+        expect(cmdSums[0]).toBe(15)
+      }),
+  genTimeout
+)
+
+test(
+  'Some intermediate queries',
+  () =>
+    types.typeSize(db, zclContext.packageId, 'bitmap8').then((size) => {
+      expect(size).toBe(1)
+    }),
+  genTimeout
+)
 
 test(
   'Test endpoint config generation',

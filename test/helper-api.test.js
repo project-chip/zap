@@ -25,7 +25,7 @@ const path = require('path')
 test('helper functions need to be snake_case without uppercase characters unless they are deprecated', () => {
   let helpers = templateEngine.allGlobalHelpers()
   expect(Object.keys(helpers.api).length).toBeGreaterThan(10)
-  for (const x in helpers.api) {
+  for (const x of Object.keys(helpers.api)) {
     expect(helpers.api[x]).not.toBeNull()
     let n = x
     if (!helpers.api[x].isDeprecated) expect(n.toLowerCase()).toEqual(n)

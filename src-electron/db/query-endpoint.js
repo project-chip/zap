@@ -21,7 +21,6 @@
  * @module DB API: endpoint configuration queries against the database.
  */
 const dbApi = require('./db-api.js')
-const queryConfig = require('./query-config.js')
 const bin = require('../util/bin.js')
 
 /**
@@ -90,6 +89,7 @@ async function queryEndpointClusterAttributes(
     db,
     `
 SELECT
+  A.ATTRIBUTE_ID,
   A.CODE,
   A.NAME,
   A.SIDE,
@@ -123,13 +123,15 @@ WHERE
   AND (EA.ENDPOINT_TYPE_REF = ? AND (EA.ENDPOINT_TYPE_CLUSTER_REF =
     (SELECT ENDPOINT_TYPE_CLUSTER_ID
      FROM ENDPOINT_TYPE_CLUSTER
-     WHERE CLUSTER_REF = ? AND side = ? AND ENDPOINT_TYPE_REF = ?)))
+     WHERE CLUSTER_REF = ? AND SIDE = ? AND ENDPOINT_TYPE_REF = ?) ))
+ORDER BY A.MANUFACTURER_CODE, A.CODE
     `,
     [clusterId, side, endpointTypeId, clusterId, side, endpointTypeId]
   )
 
   return rows.map((row) => {
     return {
+      id: row['ATTRIBUTE_ID'],
       clusterId: clusterId,
       code: row['CODE'],
       manufacturerCode: row['MANUFACTURER_CODE'],
@@ -170,6 +172,7 @@ async function queryEndpointClusterCommands(db, clusterId, endpointTypeId) {
     db,
     `
 SELECT
+  C.COMMAND_ID,
   C.NAME,
   C.CODE,
   C.SOURCE,
@@ -193,6 +196,7 @@ ORDER BY C.CODE
 
   return rows.map((row) => {
     return {
+      id: row['COMMAND_ID'],
       name: row['NAME'],
       code: row['CODE'],
       manufacturerCode: row['MANUFACTURER_CODE'],
@@ -205,9 +209,6 @@ ORDER BY C.CODE
   })
 }
 
-exports.queryEndpoints = queryConfig.getAllEndpoints
 exports.queryEndpointClusters = queryEndpointClusters
-exports.queryEndpointTypes = queryConfig.getAllEndpointTypes
-exports.queryEndpointType = queryConfig.getEndpointType
 exports.queryEndpointClusterAttributes = queryEndpointClusterAttributes
 exports.queryEndpointClusterCommands = queryEndpointClusterCommands

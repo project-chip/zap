@@ -25,11 +25,12 @@ const dbEnum = require('../src-shared/db-enum.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const env = require('../src-electron/util/env.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const queryGeneric = require('../src-electron/db/query-generic.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const querySession = require('../src-electron/db/query-session.js')
 const testUtil = require('./test-util.js')
+const testQuery = require('./test-query.js')
 const queryConfig = require('../src-electron/db/query-config.js')
+const util = require('../src-electron/util/util.js')
 
 let db
 let sleepyGenericZap = path.join(__dirname, 'resource/isc/sleepy-generic.zap')
@@ -38,6 +39,11 @@ let testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
 let testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
 let testLightIsc = path.join(__dirname, 'resource/isc/test-light.isc')
 let testDoorLockIsc = path.join(__dirname, 'resource/isc/ha-door-lock.isc')
+let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
+let haCombinedInterfaceIsc = path.join(
+  __dirname,
+  'resource/isc/ha-combined-interface.isc'
+)
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
@@ -73,13 +79,13 @@ test(path.basename(testFile1) + ' - import', async () => {
   let importResult = await importJs.importDataFromFile(db, testFile1)
   let sid = importResult.sessionId
 
-  let x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE')
+  let x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE')
   expect(x).toBe(1)
-  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
+  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
   expect(x).toBe(11)
-  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
+  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
   expect(x).toBe(7)
-  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
+  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
   expect(x).toBe(21)
 
   let state = await exportJs.createStateFromDatabase(db, sid)
@@ -101,18 +107,18 @@ test(path.basename(testFile1) + ' - import', async () => {
 
 test(path.basename(testFile2) + ' - import', async () => {
   let sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, testFile2, sid)
+  await importJs.importDataFromFile(db, testFile2, { sessionId: sid })
 
-  let x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE')
+  let x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE')
   expect(x).toBe(1)
 
-  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
+  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
   expect(x).toBe(19)
 
-  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
+  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
   expect(x).toBe(24)
 
-  x = await queryGeneric.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
+  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
   expect(x).toBe(28)
 
   let state = await exportJs.createStateFromDatabase(db, sid)
@@ -131,7 +137,7 @@ test(path.basename(testFile2) + ' - import', async () => {
 
 test(path.basename(sleepyGenericZap) + ' - import', async () => {
   let sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, sleepyGenericZap, sid)
+  await importJs.importDataFromFile(db, sleepyGenericZap, { sessionId: sid })
   let endpoints = await queryConfig.getAllEndpoints(db, sid)
   expect(endpoints.length).toBe(1)
   expect(endpoints[0].deviceIdentifier).toBe(1281)
@@ -141,7 +147,7 @@ test(
   path.basename(sleepyGenericIsc) + ' - import',
   async () => {
     let sid = await querySession.createBlankSession(db)
-    await importJs.importDataFromFile(db, sleepyGenericIsc, sid)
+    await importJs.importDataFromFile(db, sleepyGenericIsc, { sessionId: sid })
     let endpoints = await queryConfig.getAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].deviceIdentifier).toBe(1281)
@@ -150,7 +156,10 @@ test(
 )
 
 test(path.basename(testLightIsc) + ' - read state', async () => {
-  let state = await importJs.readDataFromFile(testLightIsc)
+  let state = await importJs.readDataFromFile(
+    testLightIsc,
+    env.builtinSilabsZclMetafile
+  )
   expect(Object.keys(state.endpointTypes).length).toBe(4)
   expect(Object.keys(state.endpoint).length).toBe(3)
   expect(state.endpoint[2].endpoint).toBe(242)
@@ -162,14 +171,13 @@ test(
   path.basename(testLightIsc) + ' - import',
   async () => {
     sid = await querySession.createBlankSession(db)
-    await importJs.importDataFromFile(db, testLightIsc, sid)
+    await importJs.importDataFromFile(db, testLightIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
-    expect(endpointTypes.length).toBe(4)
+    expect(endpointTypes.length).toBe(3)
     expect(endpointTypes[0].name).toBe('Centralized')
     expect(endpointTypes[1].name).toBe('GreenPower')
-    expect(endpointTypes[2].name).toBe('Primary')
-    expect(endpointTypes[3].name).toBe('Touchlink')
+    expect(endpointTypes[2].name).toBe('Touchlink')
     let endpoints = await queryConfig.getAllEndpoints(db, sid)
     expect(endpoints.length).toBe(3)
     let drp = await querySession.getSessionKeyValue(
@@ -186,14 +194,14 @@ test(
   path.basename(testDoorLockIsc) + ' - import',
   async () => {
     sid = await querySession.createBlankSession(db)
-    await importJs.importDataFromFile(db, testDoorLockIsc, sid)
+    await importJs.importDataFromFile(db, testDoorLockIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
     expect(endpointTypes.length).toBe(1)
     let endpoints = await queryConfig.getAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].deviceIdentifier).toBe(10)
-    let clusterState = await queryConfig.getAllEndpointTypeClusterState(
+    let clusterState = await testQuery.getAllEndpointTypeClusterState(
       db,
       endpointTypes[0].id
     )
@@ -205,6 +213,86 @@ test(
       dbEnum.sessionOption.defaultResponsePolicy
     )
     expect(drp).toBe('conditional')
+  },
+  5000
+)
+
+test(
+  path.basename(haLightIsc) + ' - import',
+  async () => {
+    sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, haLightIsc, { sessionId: sid })
+    expect(sid).not.toBeUndefined()
+    let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
+    expect(endpointTypes.length).toBe(2)
+    let endpoints = await queryConfig.getAllEndpoints(db, sid)
+    expect(endpoints.length).toBe(2)
+    expect(endpoints[0].networkId).toBe(0)
+    expect(endpoints[1].networkId).toBe(0)
+    let ps = []
+    endpointTypes.forEach((ept) => {
+      ps.push(testQuery.getEndpointTypeAttributes(db, ept.id))
+    })
+    let attributes = await Promise.all(ps)
+
+    let attributeCounts = attributes.map((atArray) => atArray.length)
+    expect(attributeCounts).toStrictEqual([39, 16])
+
+    let reportableCounts = attributes.map((atArray) =>
+      atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
+    )
+    expect(reportableCounts).toStrictEqual([2, 0])
+
+    let boundedCounts = attributes.map((atArray) =>
+      atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
+    )
+    expect(boundedCounts).toStrictEqual([11, 2])
+    let singletonCounts = attributes.map((atArray) =>
+      atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
+    )
+    expect(singletonCounts).toStrictEqual([9, 13])
+  },
+  5000
+)
+
+test(
+  path.basename(haCombinedInterfaceIsc) + ' - import',
+  async () => {
+    sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, haCombinedInterfaceIsc, {
+      sessionId: sid,
+    })
+    expect(sid).not.toBeUndefined()
+    let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)
+    expect(endpointTypes.length).toBe(1)
+    let endpoints = await queryConfig.getAllEndpoints(db, sid)
+    expect(endpoints.length).toBe(1)
+    expect(endpoints[0].networkId).toBe(0)
+    let ps = []
+    endpointTypes.forEach((ept) => {
+      ps.push(testQuery.getEndpointTypeAttributes(db, ept.id))
+    })
+    let attributes = await Promise.all(ps)
+
+    let attributeCounts = attributes.map((atArray) => atArray.length)
+    expect(attributeCounts).toStrictEqual([12])
+
+    let reportableCounts = attributes.map((atArray) =>
+      atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
+    )
+    expect(reportableCounts).toStrictEqual([1])
+
+    let boundedCounts = attributes.map((atArray) =>
+      atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
+    )
+    expect(boundedCounts).toStrictEqual([3])
+    let singletonCounts = attributes.map((atArray) =>
+      atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
+    )
+    expect(singletonCounts).toStrictEqual([6])
+
+    let sessionDump = await util.sessionDump(db, sid)
+    expect(sessionDump.usedPackages.length).toBe(1)
   },
   5000
 )
