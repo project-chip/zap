@@ -71,17 +71,17 @@ async function execRendererApi(browserWindow, rendererApiCommand, ...theArgs) {
     'window.global_renderer_api_info'
   )
 
-  let apiFound = info.functions.reduce((x) => x.id === rendererApiCommand)
-  if (!apiFound) {
+  let apiFound = info.functions.filter((x) => x.id === rendererApiCommand)
+  if (!apiFound.length) {
     env.logBrowser(
       `Unhandled renderer API function id invoked: ${rendererApiCommand}`
     )
+  } else {
+    // call javascript
+    await browserWindow.webContents.executeJavaScript(
+      `window.global_renderer_api_execute('${rendererApiCommand}', "${theArgs}")`
+    )
   }
-
-  // call javascript
-  await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${rendererApiCommand}', "${theArgs}")`
-  )
 }
 
 async function getFileLocation(browserWindow, storageKey) {
