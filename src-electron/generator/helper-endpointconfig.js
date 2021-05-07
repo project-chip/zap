@@ -245,6 +245,15 @@ function endpoint_attribute_count(options) {
 function endpoint_attribute_list(options) {
   let comment = null
 
+  let littleEndian = true
+  let pointerSize = 4
+  if (options.hash.endian == 'big') {
+    littleEndian = false
+    if (typeof options.hash.pointer != 'undefined') {
+      pointerSize = options.hash.pointer
+    }
+  }
+
   let ret = '{ \\\n'
   this.attributeList.forEach((at) => {
     if (at.comment != comment) {
@@ -267,7 +276,11 @@ function endpoint_attribute_list(options) {
     } else if (at.isMacro) {
       finalDefaultValue = at.defaultValue
     } else {
-      finalDefaultValue = `ZAP_SIMPLE_DEFAULT(${at.defaultValue})`
+      let defaultValue = at.defaultValue
+      if (!littleEndian) {
+        defaultValue = Number(defaultValue).toString(16).padStart(6,'0x0000').padEnd(2+2*pointerSize,'0')
+      }
+      finalDefaultValue = `ZAP_SIMPLE_DEFAULT(${defaultValue})`
     }
     ret += `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, ${finalDefaultValue} }, /* ${at.name} */  \\\n`
   })
