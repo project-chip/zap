@@ -1323,6 +1323,22 @@ WHERE
     .then((rows) => rows.map(mapFunction))
 }
 
+function commandMap(x) {
+  return {
+    id: x.COMMAND_ID,
+    name: x.NAME,
+    code: x.CODE,
+    commandSource: x.SOURCE,
+    mfgCode: x.MANUFACTURER_CODE,
+    incoming: x.INCOMING,
+    outgoing: x.OUTGOING,
+    description: x.DESCRIPTION,
+    clusterSide: x.SIDE,
+    clusterName: x.CLUSTER_NAME,
+    isClusterEnabled: x.ENABLED,
+  }
+}
+
 /**
  * Returns a promise of data for commands inside an endpoint type.
  *
@@ -1340,21 +1356,6 @@ async function exportCommandDetailsFromAllEndpointTypesAndClusters(
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
     .toString()
-  let mapFunction = (x) => {
-    return {
-      id: x.COMMAND_ID,
-      name: x.NAME,
-      code: x.CODE,
-      commandSource: x.SOURCE,
-      mfgCode: x.MANUFACTURER_CODE,
-      incoming: x.INCOMING,
-      outgoing: x.OUTGOING,
-      description: x.DESCRIPTION,
-      clusterSide: x.SIDE,
-      clusterName: x.CLUSTER_NAME,
-      isClusterEnabled: x.ENABLED,
-    }
-  }
   return dbApi
     .dbAll(
       db,
@@ -1382,7 +1383,7 @@ async function exportCommandDetailsFromAllEndpointTypesAndClusters(
   GROUP BY COMMAND.NAME
         `
     )
-    .then((rows) => rows.map(mapFunction))
+    .then((rows) => rows.map(commandMap))
 }
 
 /**
@@ -1405,21 +1406,6 @@ async function exportCommandDetailsFromAllEndpointTypesAndClustersUtil(
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
     .toString()
-  let mapFunction = (x) => {
-    return {
-      id: x.COMMAND_ID,
-      name: x.NAME,
-      code: x.CODE,
-      commandSource: x.SOURCE,
-      mfgCode: x.MANUFACTURER_CODE,
-      incoming: x.INCOMING,
-      outgoing: x.OUTGOING,
-      description: x.DESCRIPTION,
-      clusterSide: x.SIDE,
-      clusterName: x.CLUSTER_NAME,
-      isClusterEnabled: x.ENABLED,
-    }
-  }
   return dbApi
     .dbAll(
       db,
@@ -1451,7 +1437,7 @@ async function exportCommandDetailsFromAllEndpointTypesAndClustersUtil(
   GROUP BY COMMAND.NAME
         `
     )
-    .then((rows) => rows.map(mapFunction))
+    .then((rows) => rows.map(commandMap))
 }
 
 /**
