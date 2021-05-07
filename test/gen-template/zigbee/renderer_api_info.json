@@ -22,10 +22,6 @@
       "description": "End progress indicator."
     },
     {
-      "id": "debugNavBar",
-      "description": "Show debug navigation bar..."
-    },
-    {
       "id": "setTheme",
       "description": "Set theme..."
     },
@@ -57,10 +53,12 @@
       "id": "removeStorageItem"
     },
     {
-      "id": "debugNavBarOff"
+      "id": "debugNavBarOff",
+      "description": "Hide debug navigation bar..."
     },
     {
-      "id": "debugNavBarOn"
+      "id": "debugNavBarOn",
+      "description": "Show debug navigation bar..."
     }
   ],
   "notifyKey": [
