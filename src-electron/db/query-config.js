@@ -685,7 +685,7 @@ async function resolveDefaultDeviceTypeAttributes(
                     },
                     {
                       key: restApi.updateKey.attributeReporting,
-                      value: deviceAttribute.isReportable == true,
+                      value: deviceAttribute.isReportable,
                     },
                   ]
                 )
@@ -711,61 +711,58 @@ async function resolveDefaultDeviceTypeCommands(
   endpointTypeId,
   deviceTypeRef
 ) {
-  return queryZcl
-    .selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef)
-    .then((commands) =>
-      Promise.all(
-        commands.map((deviceCommand) => {
+  let commands = await queryZcl.selectDeviceTypeCommandsByDeviceTypeRef(
+    db,
+    deviceTypeRef
+  )
+
+  let mappedCommands = commands.map((deviceCommand) => {
+    return queryZcl
+      .selectDeviceTypeClusterByDeviceTypeClusterId(
+        db,
+        deviceCommand.deviceTypeClusterRef
+      )
+      .then((deviceTypeCluster) => {
+        if (deviceCommand.commandRef != null) {
           return queryZcl
-            .selectDeviceTypeClusterByDeviceTypeClusterId(
-              db,
-              deviceCommand.deviceTypeClusterRef
-            )
-            .then((deviceTypeCluster) => {
-              if (deviceCommand.commandRef != null) {
-                return queryZcl
-                  .selectCommandById(db, deviceCommand.commandRef)
-                  .then((command) => {
-                    if (command != null) {
-                      let promises = []
-                      if (deviceTypeCluster.includeClient) {
-                        promises.push(
-                          insertOrUpdateCommandState(
-                            db,
-                            endpointTypeId,
-                            command.clusterRef,
-                            command.source,
-                            deviceCommand.commandRef,
-                            true,
-                            command.source != dbEnum.source.client
-                          )
-                        )
-                      }
-                      if (deviceTypeCluster.includeServer) {
-                        promises.push(
-                          insertOrUpdateCommandState(
-                            db,
-                            endpointTypeId,
-                            command.clusterRef,
-                            command.source,
-                            deviceCommand.commandRef,
-                            true,
-                            command.source != dbEnum.source.server
-                          )
-                        )
-                      }
-                      return Promise.all(promises)
-                    } else {
-                      return Promise.resolve()
-                    }
-                  })
-              } else {
-                return Promise.resolve()
+            .selectCommandById(db, deviceCommand.commandRef)
+            .then((command) => {
+              if (command != null) {
+                let promises = []
+                if (deviceTypeCluster.includeClient) {
+                  promises.push(
+                    insertOrUpdateCommandState(
+                      db,
+                      endpointTypeId,
+                      command.clusterRef,
+                      command.source,
+                      deviceCommand.commandRef,
+                      true,
+                      command.source != dbEnum.source.client
+                    )
+                  )
+                }
+                if (deviceTypeCluster.includeServer) {
+                  promises.push(
+                    insertOrUpdateCommandState(
+                      db,
+                      endpointTypeId,
+                      command.clusterRef,
+                      command.source,
+                      deviceCommand.commandRef,
+                      true,
+                      command.source != dbEnum.source.server
+                    )
+                  )
+                }
+                return Promise.all(promises)
               }
             })
-        })
-      )
-    )
+        }
+      })
+  })
+
+  return Promise.all(mappedCommands)
 }
 
 async function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
