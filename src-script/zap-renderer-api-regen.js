@@ -57,9 +57,11 @@ function generateTemplate(
     template({
       key: 'renderer_api_info',
       value: JSON.stringify(
-        rendererApiInfo['id'].map((x) => {
-          return { id: x.id, description: x.description }
-        })
+        rendererApiInfo['id']
+          .sort((a, b) => ('' + a.id).localeCompare(b.id))
+          .map((x) => {
+            return { id: x.id, description: x.description }
+          })
       ),
     })
   )
