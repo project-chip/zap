@@ -76,32 +76,14 @@ async function execRendererApi(browserWindow, rendererApiCommand, ...theArgs) {
     env.logBrowser(
       `Unhandled renderer API function id invoked: ${rendererApiCommand}`
     )
+    return Promise.resolve()
   } else {
     // call javascript
-    await browserWindow.webContents.executeJavaScript(
+    return await browserWindow.webContents.executeJavaScript(
       `window.global_renderer_api_execute('${rendererApiCommand}', "${theArgs}")`
     )
   }
 }
-
-async function getFileLocation(browserWindow, storageKey) {
-  return getStorageItem(browserWindow, storageKey)
-}
-
-async function saveFileLocation(browserWindow, storageKey, path) {
-  execRendererApi(browserWindow, rendApi.id.setStorageItem, storageKey, path)
-}
-
-async function getStorageItem(browserWindow, key) {
-  return browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${rendApi.id.getStorageItem}', '${key}')`
-  )
-}
-// async function setStorageItem(browserWindow, key, value) {
-//   return browserWindow.webContents.executeJavaScript(
-//     `window.global_renderer_api_execute('${rendApi.id.setStorageItem}', '${key}', '${value}')`
-//   )
-// }
 
 /**
  * This method takes a message and checks if it's a renderer API
@@ -191,6 +173,4 @@ exports.getUserKeyFromBrowserCookie = getUserKeyFromBrowserCookie
 exports.getUserKeyFromCookieValue = getUserKeyFromCookieValue
 exports.reportFiles = reportFiles
 exports.processRendererNotify = processRendererNotify
-exports.getFileLocation = getFileLocation
-exports.saveFileLocation = saveFileLocation
 exports.execRendererApi = execRendererApi

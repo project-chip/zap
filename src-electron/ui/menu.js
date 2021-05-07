@@ -212,7 +212,11 @@ async function getUserSessionInfoMessage(browserWindow) {
  */
 function doOpen(browserWindow, httpPort) {
   browserApi
-    .getFileLocation(browserWindow, rendApi.storageKey.fileSave)
+    .execRendererApi(
+      browserWindow,
+      rendApi.id.getStorageItem,
+      rendApi.storageKey.fileSave
+    )
     .then((filePath) => {
       let opts = {
         title: 'Select ZAP or ISC file to load.',
@@ -226,8 +230,9 @@ function doOpen(browserWindow, httpPort) {
     .then((result) => {
       if (!result.canceled) {
         fileOpen(result.filePaths, httpPort)
-        browserApi.saveFileLocation(
+        browserApi.execRendererApi(
           browserWindow,
+          rendApi.id.setStorageItem,
           rendApi.storageKey.fileSave,
           result.filePaths[0]
         )
@@ -258,7 +263,11 @@ function doSave(browserWindow) {
  */
 function doSaveAs(browserWindow) {
   browserApi
-    .getFileLocation(browserWindow, rendApi.storageKey.fileSave)
+    .execRendererApi(
+      browserWindow,
+      rendApi.id.getStorageItem,
+      rendApi.storageKey.fileSave
+    )
     .then((filePath) => {
       let opts = {
         filters: [
@@ -282,8 +291,9 @@ function doSaveAs(browserWindow) {
     .then((filePath) => {
       if (filePath != null) {
         browserWindow.setTitle(filePath)
-        browserApi.saveFileLocation(
+        browserApi.execRendererApi(
           browserWindow,
+          rendApi.id.setStorageItem,
           rendApi.storageKey.fileSave,
           filePath
         )
