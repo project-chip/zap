@@ -688,6 +688,46 @@ async function resolveDefaultDeviceTypeAttributes(
     })
 }
 
+async function resolveCommandState(db, endpointTypeId, deviceCommand) {
+  let deviceTypeCluster = await queryZcl.selectDeviceTypeClusterByDeviceTypeClusterId(
+    db,
+    deviceCommand.deviceTypeClusterRef
+  )
+  if (deviceCommand.commandRef == null) return null
+
+  let command = await queryZcl.selectCommandById(db, deviceCommand.commandRef)
+  if (command == null) return null
+
+  let promises = []
+  if (deviceTypeCluster.includeClient) {
+    promises.push(
+      insertOrUpdateCommandState(
+        db,
+        endpointTypeId,
+        command.clusterRef,
+        command.source,
+        deviceCommand.commandRef,
+        true,
+        command.source != dbEnum.source.client
+      )
+    )
+  }
+  if (deviceTypeCluster.includeServer) {
+    promises.push(
+      insertOrUpdateCommandState(
+        db,
+        endpointTypeId,
+        command.clusterRef,
+        command.source,
+        deviceCommand.commandRef,
+        true,
+        command.source != dbEnum.source.server
+      )
+    )
+  }
+  return Promise.all(promises)
+}
+
 /**
  * Returns promise of default device type commands.
  *
@@ -705,54 +745,9 @@ async function resolveDefaultDeviceTypeCommands(
     db,
     deviceTypeRef
   )
-
-  let commandPromises = commands.map((deviceCommand) => {
-    return queryZcl
-      .selectDeviceTypeClusterByDeviceTypeClusterId(
-        db,
-        deviceCommand.deviceTypeClusterRef
-      )
-      .then((deviceTypeCluster) => {
-        if (deviceCommand.commandRef != null) {
-          return queryZcl
-            .selectCommandById(db, deviceCommand.commandRef)
-            .then((command) => {
-              if (command != null) {
-                let promises = []
-                if (deviceTypeCluster.includeClient) {
-                  promises.push(
-                    insertOrUpdateCommandState(
-                      db,
-                      endpointTypeId,
-                      command.clusterRef,
-                      command.source,
-                      deviceCommand.commandRef,
-                      true,
-                      command.source != dbEnum.source.client
-                    )
-                  )
-                }
-                if (deviceTypeCluster.includeServer) {
-                  promises.push(
-                    insertOrUpdateCommandState(
-                      db,
-                      endpointTypeId,
-                      command.clusterRef,
-                      command.source,
-                      deviceCommand.commandRef,
-                      true,
-                      command.source != dbEnum.source.server
-                    )
-                  )
-                }
-                return Promise.all(promises)
-              }
-            })
-        }
-      })
-  })
-
-  return Promise.all(commandPromises)
+  return Promise.all(
+    commands.map((cmd) => resolveCommandState(db, endpointTypeId, cmd))
+  )
 }
 
 async function resolveNonOptionalCommands(db, endpointTypeId, clusters) {

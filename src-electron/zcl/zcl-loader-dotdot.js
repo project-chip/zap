@@ -535,33 +535,34 @@ function prepareDeviceType(deviceType) {
     name: deviceType.name[0],
     description: deviceType.typeName[0],
   }
-  if ('clusters' in deviceType) {
-    ret.clusters = []
-    deviceType.clusters.forEach((cluster) => {
-      if ('include' in cluster) {
-        cluster.include.forEach((include) => {
-          let attributes = []
-          let commands = []
-          if ('requireAttribute' in include) {
-            attributes = include.requireAttribute
-          }
-          if ('requireCommand' in include) {
-            commands = include.requireCommand
-          }
-          ret.clusters.push({
-            client: 'true' == include.$.client,
-            server: 'true' == include.$.server,
-            clientLocked: 'true' == include.$.clientLocked,
-            serverLocked: 'true' == include.$.serverLocked,
-            clusterName:
-              include.$.cluster != undefined ? include.$.cluster : include._,
-            requiredAttributes: attributes,
-            requiredCommands: commands,
-          })
+
+  if (!('clusters' in deviceType)) return ret
+
+  ret.clusters = []
+  deviceType.clusters.forEach((cluster) => {
+    if ('include' in cluster) {
+      cluster.include.forEach((include) => {
+        let attributes = []
+        let commands = []
+        if ('requireAttribute' in include) {
+          attributes = include.requireAttribute
+        }
+        if ('requireCommand' in include) {
+          commands = include.requireCommand
+        }
+        ret.clusters.push({
+          client: 'true' == include.$.client,
+          server: 'true' == include.$.server,
+          clientLocked: 'true' == include.$.clientLocked,
+          serverLocked: 'true' == include.$.serverLocked,
+          clusterName:
+            include.$.cluster != undefined ? include.$.cluster : include._,
+          requiredAttributes: attributes,
+          requiredCommands: commands,
         })
-      }
-    })
-  }
+      })
+    }
+  })
   return ret
 }
 

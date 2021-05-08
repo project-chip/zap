@@ -794,42 +794,42 @@ function zcl_command_argument_type_to_cli_data_type(type, options) {
             case dbEnum.zclType.bitmap:
               return queryZcl
                 .selectBitmapByName(this.global.db, packageId, type)
-                .then((bitmap) => {
-                  return queryZcl.selectAtomicType(
+                .then((bitmap) =>
+                  queryZcl.selectAtomicType(
                     this.global.db,
                     packageId,
                     bitmap.type
                   )
-                })
-                .then((res) => {
-                  return calculateBytes(
+                )
+                .then((res) =>
+                  calculateBytes(
                     res.name,
                     options,
                     this.global.db,
                     packageId,
                     false
                   )
-                })
+                )
                 .then((size) => helperC.as_zcl_cli_type(size, false, false))
             case dbEnum.zclType.enum:
               return queryZcl
                 .selectEnumByName(this.global.db, type, packageId)
-                .then((enumRec) => {
-                  return queryZcl.selectAtomicType(
+                .then((enumRec) =>
+                  queryZcl.selectAtomicType(
                     this.global.db,
                     packageId,
                     enumRec.type
                   )
-                })
-                .then((res) => {
-                  return calculateBytes(
+                )
+                .then((res) =>
+                  calculateBytes(
                     res.name,
                     options,
                     this.global.db,
                     packageId,
                     false
                   )
-                })
+                )
                 .then((size) => helperC.as_zcl_cli_type(size, false, false))
             case dbEnum.zclType.struct:
             case dbEnum.zclType.atomic:

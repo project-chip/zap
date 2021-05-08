@@ -1476,6 +1476,21 @@ async function exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAn
   )
 }
 
+function attributeExportMapping(x) {
+  return {
+    id: x.ATTRIBUTE_ID,
+    name: x.NAME,
+    code: x.CODE,
+    side: x.SIDE,
+    type: x.TYPE,
+    define: x.DEFINE,
+    mfgCode: x.MANUFACTURER_CODE,
+    clusterSide: x.SIDE,
+    clusterName: x.CLUSTER_NAME,
+    isClusterEnabled: x.ENABLED,
+  }
+}
+
 /**
  * Returns a promise of data for manufacturing/non-manufacturing specific attributes
  * inside an endpoint type.
@@ -1496,20 +1511,6 @@ async function exportAttributeDetailsFromAllEndpointTypesAndClustersUtil(
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
     .toString()
-  let mapFunction = (x) => {
-    return {
-      id: x.ATTRIBUTE_ID,
-      name: x.NAME,
-      code: x.CODE,
-      side: x.SIDE,
-      type: x.TYPE,
-      define: x.DEFINE,
-      mfgCode: x.MANUFACTURER_CODE,
-      clusterSide: x.SIDE,
-      clusterName: x.CLUSTER_NAME,
-      isClusterEnabled: x.ENABLED,
-    }
-  }
   return dbApi
     .dbAll(
       db,
@@ -1541,7 +1542,7 @@ async function exportAttributeDetailsFromAllEndpointTypesAndClustersUtil(
   GROUP BY ATTIRBUTE.NAME
         `
     )
-    .then((rows) => rows.map(mapFunction))
+    .then((rows) => rows.map(attributeExportMapping))
 }
 
 /**
@@ -1647,20 +1648,6 @@ async function exportAllAttributeDetailsFromEnabledClusters(
   let endpointTypeClusterRef = endpointsAndClusters
     .map((ep) => ep.endpointTypeClusterRef)
     .toString()
-  let mapFunction = (x) => {
-    return {
-      id: x.ATTRIBUTE_ID,
-      name: x.NAME,
-      code: x.CODE,
-      side: x.SIDE,
-      type: x.TYPE,
-      define: x.DEFINE,
-      mfgCode: x.MANUFACTURER_CODE,
-      clusterSide: x.SIDE,
-      clusterName: x.CLUSTER_NAME,
-      isClusterEnabled: x.ENABLED,
-    }
-  }
   return dbApi
     .dbAll(
       db,
@@ -1688,7 +1675,7 @@ async function exportAllAttributeDetailsFromEnabledClusters(
   GROUP BY ATTRIBUTE.NAME
         `
     )
-    .then((rows) => rows.map(mapFunction))
+    .then((rows) => rows.map(attributeExportMapping))
 }
 
 /**

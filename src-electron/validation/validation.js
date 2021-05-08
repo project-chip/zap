@@ -38,33 +38,31 @@ function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {
     )
 }
 
-function validateEndpoint(db, endpointId) {
-  return queryConfig.selectEndpoint(db, endpointId).then((endpoint) => {
-    return new Promise((resolve, reject) => {
-      resolve(validateSpecificEndpoint(endpoint))
-    }).then((currentIssues) => {
-      return validateNoDuplicateEndpoints(
-        db,
-        endpoint.endpointId,
-        endpoint.sessionRef
-      ).then((noDuplicates) => {
-        if (!noDuplicates) {
-          currentIssues.endpointId.push('Duplicate EndpointIds Exist')
-        }
-        return currentIssues
-      })
-    })
-  })
+async function validateEndpoint(db, endpointId) {
+  let endpoint = await queryConfig.selectEndpoint(db, endpointId)
+  let currentIssues = validateSpecificEndpoint(endpoint)
+  let noDuplicates = await validateNoDuplicateEndpoints(
+    db,
+    endpoint.endpointId,
+    endpoint.sessionRef
+  )
+  if (!noDuplicates) {
+    currentIssues.endpointId.push('Duplicate EndpointIds Exist')
+  }
+  return currentIssues
 }
 
-function validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef) {
-  return queryConfig
-    .getCountOfEndpointsWithGivenEndpointIdentifier(
-      db,
-      endpointIdentifier,
-      sessionRef
-    )
-    .then((count) => count.length <= 1)
+async function validateNoDuplicateEndpoints(
+  db,
+  endpointIdentifier,
+  sessionRef
+) {
+  let count = await queryConfig.getCountOfEndpointsWithGivenEndpointIdentifier(
+    db,
+    endpointIdentifier,
+    sessionRef
+  )
+  return count.length <= 1
 }
 
 function validateSpecificAttribute(endpointAttribute, attribute) {

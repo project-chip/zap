@@ -57,7 +57,9 @@ function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
       if (defaultValue != null) {
         return defaultValue
       } else {
-        throw `ERROR: Unknown size for attribute: ${at.label} / ${at.code}`
+        throw new Error(
+          `ERROR: Unknown size for attribute: ${at.label} / ${at.code}`
+        )
       }
     }
   })
