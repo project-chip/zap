@@ -814,23 +814,23 @@ async function parseZclFiles(db, ctx) {
  * @returns Promise of a parsed manufacturers file.
  */
 async function parseManufacturerData(db, ctx) {
-  if (!ctx.manufacturersXml) return Promise.resolve(ctx)
-  return fsp
-    .readFile(ctx.manufacturersXml)
-    .then((data) =>
-      zclLoader.parseZclFile({ data: data }).then((manufacturerMap) =>
-        queryPackage.insertOptionsKeyValues(
-          db,
-          ctx.packageId,
-          dbEnum.packageOptionCategory.manufacturerCodes,
-          manufacturerMap.result.map.mapping.map((datum) => {
-            let mfgPair = datum['$']
-            return { code: mfgPair['code'], label: mfgPair['translation'] }
-          })
-        )
-      )
-    )
-    .then(() => ctx)
+  if (!ctx.manufacturersXml) return ctx
+
+  let data = await fsp.readFile(ctx.manufacturersXml)
+
+  let manufacturerMap = await zclLoader.parseZclFile({ data: data })
+
+  await queryPackage.insertOptionsKeyValues(
+    db,
+    ctx.packageId,
+    dbEnum.packageOptionCategory.manufacturerCodes,
+    manufacturerMap.result.map.mapping.map((datum) => {
+      let mfgPair = datum['$']
+      return { code: mfgPair['code'], label: mfgPair['translation'] }
+    })
+  )
+
+  return ctx
 }
 
 /**
@@ -879,11 +879,12 @@ async function parseZclSchema(db, ctx) {
  * @returns promise of parsed options
  */
 async function parseOptions(db, ctx) {
-  if (!ctx.options) return Promise.resolve(ctx)
+  if (!ctx.options) return ctx
   let promises = []
   promises.push(parseTextOptions(db, ctx.packageId, ctx.options.text))
   promises.push(parseBoolOptions(db, ctx.packageId, ctx.options.bool))
-  return Promise.all(promises).then(() => ctx)
+  await Promise.all(promises)
+  return ctx
 }
 
 /**

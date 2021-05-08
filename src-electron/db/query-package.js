@@ -40,7 +40,7 @@ async function getPackageByPathAndParent(db, path, parentId, isCustom) {
         (isCustom ? 'PARENT_PACKAGE_REF IS NULL' : '(PARENT_PACKAGE_REF = ?)'),
       isCustom ? [path] : [path, parentId]
     )
-    .then((row) => dbMapping.map.package(row))
+    .then(dbMapping.map.package)
 }
 
 /**
@@ -75,7 +75,7 @@ async function getPackageByPathAndType(db, path, type) {
       'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ? AND TYPE = ?',
       [path, type]
     )
-    .then((row) => dbMapping.map.package(row))
+    .then(dbMapping.map.package)
 }
 
 /**

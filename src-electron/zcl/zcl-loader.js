@@ -99,7 +99,7 @@ async function loadZcl(db, metadataFile) {
   }
 }
 
-function loadIndividualFile(db, filePath, sessionId) {
+async function loadIndividualFile(db, filePath, sessionId) {
   return queryPackage
     .getSessionPackagesByType(db, sessionId, dbEnum.packageType.zclProperties)
     .then((zclPropertiesPackages) => {
@@ -128,7 +128,7 @@ function loadIndividualFile(db, filePath, sessionId) {
  * @param {*} db
  * @param {*} basePackageId
  */
-function bindValidationScript(db, basePackageId) {
+async function bindValidationScript(db, basePackageId) {
   return getSchemaAndValidationScript(db, basePackageId)
     .then((data) => {
       if (
@@ -157,7 +157,7 @@ function bindValidationScript(db, basePackageId) {
  * @param {*} db
  * @param {*} basePackageId
  */
-function getSchemaAndValidationScript(db, basePackageId) {
+async function getSchemaAndValidationScript(db, basePackageId) {
   let promises = []
   promises.push(
     queryPackage.getPackagesByParentAndType(
@@ -193,7 +193,13 @@ function getSchemaAndValidationScript(db, basePackageId) {
  * @param {*} parentPackageId
  * @returns Promise that resolves int he object of data.
  */
-function qualifyZclFile(db, info, parentPackageId, packageType, isCustom) {
+async function qualifyZclFile(
+  db,
+  info,
+  parentPackageId,
+  packageType,
+  isCustom
+) {
   return new Promise((resolve, reject) => {
     let filePath = info.filePath
     let data = info.data
@@ -268,19 +274,18 @@ function processZclPostLoading(db) {
  * @param {*} validator validator is a function that takes in an buffer, and returns an array of errors. This can be optional
  * @returns promise that resolves with the array [filePath,result,packageId,msg,data]
  */
-function parseZclFile(argument, validator = null) {
+async function parseZclFile(argument, validator = null) {
   // No data, we skip this.
   if (!('data' in argument)) {
-    return Promise.resolve(argument)
+    return argument
   } else {
     if (validator) {
       argument.validation = validator(argument.data)
     }
-    return xml2js.parseStringPromise(argument.data).then((result) => {
-      argument.result = result
-      delete argument.data
-      return argument
-    })
+    let result = await xml2js.parseStringPromise(argument.data)
+    argument.result = result
+    delete argument.data
+    return argument
   }
 }
 
