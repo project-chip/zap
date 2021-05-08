@@ -15,14 +15,33 @@
  *    limitations under the License.
  */
 
+/**
+ * Sets the item value on the persistent storage.
+ *
+ * @param {*} key
+ * @param {*} value
+ */
 export function setItem(key, value) {
   window.localStorage.setItem(key, value)
 }
 
-export function getItem(key, value) {
-  return window.localStorage.getItem(key, value)
+/**
+ * Returns the value of the item in a persistent storage,
+ * or null if none is present.
+ *
+ * @param {*} key
+ * @returns value of the item or null.
+ */
+export function getItem(key) {
+  return window.localStorage.getItem(key)
 }
 
-export function removeItem(key, value) {
-  window.localStorage.removeItem(key, value)
+/**
+ * Deletes an item from the persistent storage.
+ *
+ * @param {*} key
+ * @param {*} value
+ */
+export function removeItem(key) {
+  window.localStorage.removeItem(key)
 }
