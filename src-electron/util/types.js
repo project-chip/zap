@@ -132,6 +132,39 @@ function convertToCliType(str) {
 }
 
 /**
+ * Returns true if a given ZCL type is a string type.
+ * @param {*} type
+ * @returns true if type is string, false otherwise
+ */
+function isString(type) {
+  switch (type.toUpperCase()) {
+    case 'CHAR_STRING':
+    case 'OCTET_STRING':
+    case 'LONG_CHAR_STRING':
+    case 'LONG_OCTET_STRING':
+      return true
+    default:
+      return false
+  }
+}
+
+/**
+ * Returns true if a given ZCL type is a float type.
+ * @param {*} type
+ * @returns true if type is float, false otherwise
+ */
+function isFloat(type) {
+  switch (type) {
+    case 'FLOAT_SEMI':
+    case 'FLOAT_SINGLE':
+    case 'FLOAT_DOUBLE':
+      return true
+    default:
+      return false
+  }
+}
+
+/**
  * Checks if type is a one-byte lengh string.
  *
  * @param {*} type
@@ -156,3 +189,5 @@ exports.longTypeDefaultValue = longTypeDefaultValue
 exports.isOneBytePrefixedString = isOneBytePrefixedString
 exports.isTwoBytePrefixedString = isTwoBytePrefixedString
 exports.convertToCliType = convertToCliType
+exports.isString = isString
+exports.isFloat = isFloat
