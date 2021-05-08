@@ -588,14 +588,10 @@ async function setEndpointDefaults(
     resolveNonOptionalCommands(db, endpointTypeId, defaultClusters)
   )
 
-  return Promise.all(promises)
-    .catch((err) => {
-      console.log(err)
-    })
-    .finally((data) => {
-      if (doTransaction) return dbApi.dbCommit(db)
-      else return Promise.resolve({ defaultClusters })
-    })
+  return Promise.all(promises).finally(() => {
+    if (doTransaction) return dbApi.dbCommit(db)
+    else return Promise.resolve({ defaultClusters })
+  })
 }
 
 /**
@@ -611,38 +607,34 @@ async function resolveDefaultClusters(db, endpointTypeId, clusters) {
     let clientServerPromise = []
     if (cluster.includeClient) {
       clientServerPromise.push(
-        new Promise((resolve, reject) =>
-          insertOrReplaceClusterState(
-            db,
-            endpointTypeId,
-            cluster.clusterRef,
-            dbEnum.side.client,
-            true
-          ).then((data) => {
-            resolve({
-              clusterRef: cluster.clusterRef,
-              side: dbEnum.side.client,
-            })
-          })
-        )
+        insertOrReplaceClusterState(
+          db,
+          endpointTypeId,
+          cluster.clusterRef,
+          dbEnum.side.client,
+          true
+        ).then(() => {
+          return {
+            clusterRef: cluster.clusterRef,
+            side: dbEnum.side.client,
+          }
+        })
       )
     }
     if (cluster.includeServer) {
       clientServerPromise.push(
-        new Promise((resolve, reject) =>
-          insertOrReplaceClusterState(
-            db,
-            endpointTypeId,
-            cluster.clusterRef,
-            dbEnum.side.server,
-            true
-          ).then((data) => {
-            resolve({
-              clusterRef: cluster.clusterRef,
-              side: dbEnum.side.server,
-            })
-          })
-        )
+        insertOrReplaceClusterState(
+          db,
+          endpointTypeId,
+          cluster.clusterRef,
+          dbEnum.side.server,
+          true
+        ).then(() => {
+          return {
+            clusterRef: cluster.clusterRef,
+            side: dbEnum.side.server,
+          }
+        })
       )
     }
     return Promise.all(clientServerPromise)
@@ -690,8 +682,6 @@ async function resolveDefaultDeviceTypeAttributes(
                   ]
                 )
               )
-          } else {
-            return Promise.resolve()
           }
         })
       )
@@ -716,7 +706,7 @@ async function resolveDefaultDeviceTypeCommands(
     deviceTypeRef
   )
 
-  let mappedCommands = commands.map((deviceCommand) => {
+  let commandPromises = commands.map((deviceCommand) => {
     return queryZcl
       .selectDeviceTypeClusterByDeviceTypeClusterId(
         db,
@@ -762,42 +752,39 @@ async function resolveDefaultDeviceTypeCommands(
       })
   })
 
-  return Promise.all(mappedCommands)
+  return Promise.all(commandPromises)
 }
 
 async function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
-  return Promise.all(
-    clusters.map((cluster) => {
-      return queryZcl
-        .selectCommandsByClusterId(db, cluster.clusterRef)
-        .then((commands) => {
-          return Promise.all(
-            commands.map((command) => {
-              if (!command.isOptional) {
-                let isOutgoing =
-                  (cluster.side == dbEnum.side.client &&
-                    command.source == dbEnum.source.client) ||
-                  (cluster.side == dbEnum.side.server &&
-                    command.source == dbEnum.source.server)
-                return insertOrUpdateCommandState(
-                  db,
-                  endpointTypeId,
-                  command.clusterRef,
-                  command.source,
-                  command.id,
-                  true,
-                  !isOutgoing
-                )
-              } else {
-                return new Promise((resolve, reject) => {
-                  return resolve()
-                })
-              }
-            })
-          )
-        })
-    })
+  let clustersPromises = clusters.map((cluster) =>
+    queryZcl
+      .selectCommandsByClusterId(db, cluster.clusterRef)
+      .then((commands) =>
+        Promise.all(
+          commands.map((command) => {
+            if (!command.isOptional) {
+              let isOutgoing =
+                (cluster.side == dbEnum.side.client &&
+                  command.source == dbEnum.source.client) ||
+                (cluster.side == dbEnum.side.server &&
+                  command.source == dbEnum.source.server)
+              return insertOrUpdateCommandState(
+                db,
+                endpointTypeId,
+                command.clusterRef,
+                command.source,
+                command.id,
+                true,
+                !isOutgoing
+              )
+            } else {
+              return Promise.resolve()
+            }
+          })
+        )
+      )
   )
+  return Promise.all(clustersPromises)
 }
 
 async function resolveDefaultAttributes(
@@ -806,28 +793,27 @@ async function resolveDefaultAttributes(
   packageId,
   endpointClusters
 ) {
-  return Promise.all(
-    endpointClusters.map((cluster) => {
-      return queryZcl
-        .selectAttributesByClusterIdIncludingGlobal(
-          db,
-          cluster.clusterRef,
-          packageId
-        )
-        .then((attributes) => {
-          let promiseArray = []
-          promiseArray.push(
-            resolveNonOptionalAndReportableAttributes(
-              db,
-              endpointTypeId,
-              attributes,
-              cluster
-            )
+  let endpointClustersPromises = endpointClusters.map((cluster) =>
+    queryZcl
+      .selectAttributesByClusterIdIncludingGlobal(
+        db,
+        cluster.clusterRef,
+        packageId
+      )
+      .then((attributes) => {
+        let promiseArray = []
+        promiseArray.push(
+          resolveNonOptionalAndReportableAttributes(
+            db,
+            endpointTypeId,
+            attributes,
+            cluster
           )
-          return Promise.all(promiseArray)
-        })
-    })
+        )
+        return Promise.all(promiseArray)
+      })
   )
+  return Promise.all(endpointClustersPromises)
 }
 
 async function resolveNonOptionalAndReportableAttributes(
