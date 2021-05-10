@@ -765,6 +765,24 @@ async function processParsedZclData(db, argument) {
   }
 }
 
+async function parseSingleZclFile(db, ctx, file) {
+  try {
+    let fileContent = await fsp.readFile(file)
+    let data = util.calculateCrc({ filePath: file, data: fileContent })
+    let result = await zclLoader.qualifyZclFile(
+      db,
+      data,
+      ctx.packageId,
+      dbEnum.packageType.zclXml,
+      false
+    )
+    await zclLoader.parseZclFile(result)
+    return processParsedZclData(db, result)
+  } catch (err) {
+    env.logError(`Could not load ${file}`, err)
+  }
+}
+
 /**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
@@ -775,31 +793,12 @@ async function processParsedZclData(db, argument) {
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
 async function parseZclFiles(db, ctx) {
-  let laterPromises = []
   env.logDebug(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   let individualFilePromise = ctx.zclFiles.map((file) =>
-    fsp
-      .readFile(file)
-      .then((data) => util.calculateCrc({ filePath: file, data: data }))
-      .then((data) =>
-        zclLoader.qualifyZclFile(
-          db,
-          data,
-          ctx.packageId,
-          dbEnum.packageType.zclXml,
-          false
-        )
-      )
-      .then((result) => zclLoader.parseZclFile(result))
-      .then((result) => processParsedZclData(db, result))
-      .then((toDoPromises) => {
-        toDoPromises.flat(1).forEach((p) => laterPromises.push(p))
-        return ctx
-      })
-      .catch((err) => env.logError(err))
+    parseSingleZclFile(db, ctx, file)
   )
 
-  await Promise.all(individualFilePromise)
+  let laterPromises = (await Promise.all(individualFilePromise)).flat(2)
   await Promise.all(laterPromises.map((promise) => promise()))
   return zclLoader.processZclPostLoading(db)
 }
