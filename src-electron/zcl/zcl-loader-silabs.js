@@ -835,35 +835,27 @@ async function parseManufacturerData(db, ctx) {
  * @param {*} ctx
  */
 async function parseZclSchema(db, ctx) {
-  if (!ctx.zclSchema || !ctx.zclValidation) return Promise.resolve(ctx)
-  return fsp
-    .readFile(ctx.zclSchema)
-    .then((data) => util.calculateCrc({ filePath: ctx.zclSchema, data: data }))
-    .then((data) =>
-      zclLoader.qualifyZclFile(
-        db,
-        data,
-        ctx.packageId,
-        dbEnum.packageType.zclSchema,
-        false
-      )
-    )
-    .then(() =>
-      fsp
-        .readFile(ctx.zclValidation)
-        .then((data) =>
-          util.calculateCrc({ filePath: ctx.zclValidation, data: data })
-        )
-    )
-    .then((data) => {
-      zclLoader.qualifyZclFile(
-        db,
-        data,
-        ctx.packageId,
-        dbEnum.packageType.zclValidation,
-        false
-      )
-    })
+  if (!ctx.zclSchema || !ctx.zclValidation) return
+
+  let data = await fsp.readFile(ctx.zclSchema)
+  let info = await util.calculateCrc({ filePath: ctx.zclSchema, data: data })
+  await zclLoader.qualifyZclFile(
+    db,
+    info,
+    ctx.packageId,
+    dbEnum.packageType.zclSchema,
+    false
+  )
+  data = await fsp.readFile(ctx.zclValidation)
+  info = await util.calculateCrc({ filePath: ctx.zclValidation, data: data })
+
+  return zclLoader.qualifyZclFile(
+    db,
+    info,
+    ctx.packageId,
+    dbEnum.packageType.zclValidation,
+    false
+  )
 }
 
 /**
