@@ -768,7 +768,8 @@ async function processParsedZclData(db, argument) {
 async function parseSingleZclFile(db, ctx, file) {
   try {
     let fileContent = await fsp.readFile(file)
-    let data = util.calculateCrc({ filePath: file, data: fileContent })
+    let data = { filePath: file, data: fileContent }
+    util.calculateCrc(data)
     let result = await zclLoader.qualifyZclFile(
       db,
       data,
@@ -837,7 +838,8 @@ async function parseZclSchema(db, ctx) {
   if (!ctx.zclSchema || !ctx.zclValidation) return
 
   let data = await fsp.readFile(ctx.zclSchema)
-  let info = await util.calculateCrc({ filePath: ctx.zclSchema, data: data })
+  let info = { filePath: ctx.zclSchema, data: data }
+  util.calculateCrc(info)
   await zclLoader.qualifyZclFile(
     db,
     info,
@@ -846,7 +848,8 @@ async function parseZclSchema(db, ctx) {
     false
   )
   data = await fsp.readFile(ctx.zclValidation)
-  info = await util.calculateCrc({ filePath: ctx.zclValidation, data: data })
+  info = { filePath: ctx.zclValidation, data: data }
+  util.calculateCrc(info)
 
   return zclLoader.qualifyZclFile(
     db,
@@ -1024,7 +1027,8 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
 async function loadIndividualSilabsFile(db, filePath, boundValidator) {
   try {
     let fileContent = await fsp.readFile(filePath)
-    let data = util.calculateCrc({ filePath: filePath, data: fileContent })
+    let data = { filePath: filePath, data: fileContent }
+    util.calculateCrc(data)
 
     let result = await zclLoader.qualifyZclFile(
       db,

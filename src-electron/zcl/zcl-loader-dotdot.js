@@ -35,22 +35,18 @@ const util = require('../util/util.js')
  */
 async function collectDataFromLibraryXml(ctx) {
   env.logDebug(`Collecting ZCL files from: ${ctx.metadataFile}`)
-  return fsp
-    .readFile(ctx.metadataFile)
-    .then((data) =>
-      util.calculateCrc({ filePath: ctx.metadataFile, data: data })
-    )
-    .then((data) => zclLoader.parseZclFile(data))
-    .then((data) => {
-      let result = data.result
-      let zclLib = result['zcl:library']
-      ctx.version = '1.0'
-      ctx.zclFiles = zclLib['xi:include'].map((f) =>
-        path.join(path.dirname(ctx.metadataFile), f.$.href)
-      )
-      ctx.zclFiles.push(ctx.metadataFile)
-      return ctx
-    })
+  let fileContent = await fsp.readFile(ctx.metadataFile)
+  let data = { filePath: ctx.metadataFile, data: fileContent }
+  util.calculateCrc(data)
+  await zclLoader.parseZclFile(data)
+  let result = data.result
+  let zclLib = result['zcl:library']
+  ctx.version = '1.0'
+  ctx.zclFiles = zclLib['xi:include'].map((f) =>
+    path.join(path.dirname(ctx.metadataFile), f.$.href)
+  )
+  ctx.zclFiles.push(ctx.metadataFile)
+  return ctx
 }
 
 // Random internal XML utility functions
