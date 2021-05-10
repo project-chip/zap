@@ -22,7 +22,6 @@ const about = require('../main-process/about.js')
 const commonUrl = require('../../src-shared/common-url.js')
 const browserApi = require('./browser-api.js')
 const rendApi = require('../../src-shared/rend-api.js')
-const { render } = require('jsdoc-to-markdown')
 
 const newConfiguration = 'New Configuration'
 
