@@ -688,7 +688,7 @@ async function processParsedZclData(db, argument) {
   let data = argument.result
   let packageId = argument.packageId
   if (!('result' in argument)) {
-    return Promise.resolve([])
+    return []
   } else {
     let promisesStep1 = []
     let promisesStep2 = []
@@ -777,33 +777,32 @@ async function processParsedZclData(db, argument) {
 async function parseZclFiles(db, ctx) {
   ctx.laterPromises = []
   env.logDebug(`Starting to parse ZCL files: ${ctx.zclFiles}`)
-  return Promise.all(
-    ctx.zclFiles.map((file) =>
-      fsp
-        .readFile(file)
-        .then((data) => util.calculateCrc({ filePath: file, data: data }))
-        .then((data) =>
-          zclLoader.qualifyZclFile(
-            db,
-            data,
-            ctx.packageId,
-            dbEnum.packageType.zclXml,
-            false
-          )
+  let individualFilePromise = ctx.zclFiles.map((file) =>
+    fsp
+      .readFile(file)
+      .then((data) => util.calculateCrc({ filePath: file, data: data }))
+      .then((data) =>
+        zclLoader.qualifyZclFile(
+          db,
+          data,
+          ctx.packageId,
+          dbEnum.packageType.zclXml,
+          false
         )
-        .then((result) => zclLoader.parseZclFile(result))
-        .then((result) => processParsedZclData(db, result))
-        .then((laterPromises) => {
-          laterPromises.flat(1).forEach((p) => ctx.laterPromises.push(p))
-          return ctx
-        })
-        .catch((err) => env.logError(err))
-    )
+      )
+      .then((result) => zclLoader.parseZclFile(result))
+      .then((result) => processParsedZclData(db, result))
+      .then((toDoPromises) => {
+        processParsedZclData
+        toDoPromises.flat(1).forEach((p) => ctx.laterPromises.push(p))
+        return ctx
+      })
+      .catch((err) => env.logError(err))
   )
-    .then(() => ctx.laterPromises.map((promise) => promise()))
-    .then((promiseArray) => Promise.all(promiseArray))
-    .then(() => zclLoader.processZclPostLoading(db))
-    .then(() => ctx)
+
+  await Promise.all(individualFilePromise)
+  await Promise.all(ctx.laterPromises.map((promise) => promise()))
+  return zclLoader.processZclPostLoading(db)
 }
 
 /**
@@ -814,13 +813,13 @@ async function parseZclFiles(db, ctx) {
  * @returns Promise of a parsed manufacturers file.
  */
 async function parseManufacturerData(db, ctx) {
-  if (!ctx.manufacturersXml) return ctx
+  if (!ctx.manufacturersXml) return
 
   let data = await fsp.readFile(ctx.manufacturersXml)
 
   let manufacturerMap = await zclLoader.parseZclFile({ data: data })
 
-  await queryPackage.insertOptionsKeyValues(
+  return queryPackage.insertOptionsKeyValues(
     db,
     ctx.packageId,
     dbEnum.packageOptionCategory.manufacturerCodes,
@@ -829,8 +828,6 @@ async function parseManufacturerData(db, ctx) {
       return { code: mfgPair['code'], label: mfgPair['translation'] }
     })
   )
-
-  return ctx
 }
 
 /**
@@ -868,7 +865,6 @@ async function parseZclSchema(db, ctx) {
         false
       )
     })
-    .then(() => Promise.resolve(ctx))
 }
 
 /**
@@ -883,8 +879,7 @@ async function parseOptions(db, ctx) {
   let promises = []
   promises.push(parseTextOptions(db, ctx.packageId, ctx.options.text))
   promises.push(parseBoolOptions(db, ctx.packageId, ctx.options.bool))
-  await Promise.all(promises)
-  return ctx
+  return Promise.all(promises)
 }
 
 /**
@@ -959,7 +954,7 @@ async function parseDefaults(db, ctx) {
   let promises = []
   promises.push(parseTextDefaults(db, ctx.packageId, ctx.defaults.text))
   promises.push(parseBoolDefaults(db, ctx.packageId, ctx.defaults.bool))
-  return Promise.all(promises).then(() => ctx)
+  return Promise.all(promises)
 }
 
 async function parseTextDefaults(db, pkgRef, textDefaults) {
@@ -1100,7 +1095,6 @@ async function processCustomZclDeviceType(db, ctx) {
     if (existingCustomDevice == null)
       await queryLoader.insertDeviceTypes(db, ctx.packageId, customDeviceTypes)
   }
-  return ctx
 }
 
 /**
@@ -1114,30 +1108,29 @@ async function processCustomZclDeviceType(db, ctx) {
  */
 async function loadSilabsZcl(db, context, isJson = false) {
   env.logDebug(`Loading Silabs zcl file: ${context.metadataFile}`)
-  return dbApi
-    .dbBeginTransaction(db)
-    .then(() => zclLoader.readMetadataFile(context))
-    .then((ctx) => zclLoader.recordToplevelPackage(db, ctx))
-    .then((ctx) => {
-      if (isJson) {
-        return collectDataFromJsonFile(ctx)
-      } else {
-        return collectDataFromPropertiesFile(ctx)
-      }
-    })
-    .then((ctx) => zclLoader.recordVersion(ctx))
-    .then((ctx) => parseZclFiles(db, ctx))
-    .then((ctx) => parseManufacturerData(db, ctx))
-    .then((ctx) => processCustomZclDeviceType(db, ctx))
-    .then((ctx) => parseOptions(db, ctx))
-    .then((ctx) => parseDefaults(db, ctx))
-    .then((ctx) => parseZclSchema(db, ctx))
-    .then(() => dbApi.dbCommit(db))
-    .then(() => context)
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
+  await dbApi.dbBeginTransaction(db)
+  try {
+    let ctx = await zclLoader.readMetadataFile(context)
+    ctx = await zclLoader.recordToplevelPackage(db, ctx)
+    if (isJson) {
+      ctx = await collectDataFromJsonFile(ctx)
+    } else {
+      ctx = await collectDataFromPropertiesFile(ctx)
+    }
+    await zclLoader.recordVersion(ctx)
+    await parseZclFiles(db, ctx)
+    await parseManufacturerData(db, ctx)
+    await processCustomZclDeviceType(db, ctx)
+    await parseOptions(db, ctx)
+    await parseDefaults(db, ctx)
+    await parseZclSchema(db, ctx)
+  } catch (err) {
+    env.logError(err)
+    throw err
+  } finally {
+    dbApi.dbCommit(db)
+  }
+  return context
 }
 
 exports.loadSilabsZcl = loadSilabsZcl
