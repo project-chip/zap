@@ -458,48 +458,29 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   let context = { filePath: schemaPath, data: data }
   util.calculateCrc(context)
   await determineIfSchemaShouldLoad(db, context)
-  if (context.mustLoad && context.hasSchema) await closeDatabase(db)
-
-  return Promise.resolve(context)
-    .then((context) => {
-      if (context.mustLoad && context.hasSchema) {
-        if (sqliteFile != null) util.createBackupFile(sqliteFile)
-        let p
-        if (sqliteFile == null) p = initRamDatabase()
-        else p = initDatabase(sqliteFile)
-        return p.then((d) => {
-          db = d
-          return context
-        })
-      } else {
-        return context
-      }
-    })
-    .then((context) => {
-      if (context.mustLoad) {
-        return performSchemaLoad(db, context.data).then(() => context)
-      } else {
-        return context
-      }
-    })
-    .then((context) => {
-      if (context.mustLoad) return updateCurrentSchemaCrc(db, context)
-      else return context
-    })
-    .then(() =>
-      insertOrReplaceSetting(db, 'APP', 'VERSION', zapVersion.version)
-    )
-    .then(() => {
-      if ('hash' in zapVersion) {
-        return insertOrReplaceSetting(db, 'APP', 'HASH', zapVersion.hash)
-      }
-    })
-    .then(() => {
-      if ('date' in zapVersion) {
-        return insertOrReplaceSetting(db, 'APP', 'DATE', zapVersion.date)
-      }
-    })
-    .then(() => db)
+  if (context.mustLoad && context.hasSchema) {
+    await closeDatabase(db)
+    if (sqliteFile != null) util.createBackupFile(sqliteFile)
+  }
+  if (context.mustLoad && context.hasSchema) {
+    if (sqliteFile == null) {
+      db = await initRamDatabase()
+    } else {
+      db = await initDatabase(sqliteFile)
+    }
+  }
+  if (context.mustLoad) {
+    await performSchemaLoad(db, context.data)
+    await updateCurrentSchemaCrc(db, context)
+  }
+  await insertOrReplaceSetting(db, 'APP', 'VERSION', zapVersion.version)
+  if ('hash' in zapVersion) {
+    await insertOrReplaceSetting(db, 'APP', 'HASH', zapVersion.hash)
+  }
+  if ('date' in zapVersion) {
+    await insertOrReplaceSetting(db, 'APP', 'DATE', zapVersion.date)
+  }
+  return db
 }
 
 /**
