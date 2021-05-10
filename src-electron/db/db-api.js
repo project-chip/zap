@@ -397,29 +397,27 @@ async function insertOrReplaceSetting(db, category, key, value) {
 }
 
 async function determineIfSchemaShouldLoad(db, context) {
-  return new Promise((resolve, reject) => {
-    return dbGet(
-      db,
-      'SELECT CRC FROM PACKAGE WHERE PATH = ?',
-      [context.filePath],
-      false
-    )
-      .then((row) => {
-        if (row == null) {
-          context.mustLoad = true
-        } else {
-          context.mustLoad = row.CRC != context.crc
-        }
-        context.hasSchema = true
-        resolve(context)
-      })
-      .catch((err) => {
-        // Fall through, do nothing
+  return dbGet(
+    db,
+    'SELECT CRC FROM PACKAGE WHERE PATH = ?',
+    [context.filePath],
+    false
+  )
+    .then((row) => {
+      if (row == null) {
         context.mustLoad = true
-        context.hasSchema = false
-        resolve(context)
-      })
-  })
+      } else {
+        context.mustLoad = row.CRC != context.crc
+      }
+      context.hasSchema = true
+      return context
+    })
+    .catch((err) => {
+      // Fall through, do nothing
+      context.mustLoad = true
+      context.hasSchema = false
+      return context
+    })
 }
 
 async function updateCurrentSchemaCrc(db, context) {
@@ -456,15 +454,13 @@ async function performSchemaLoad(db, schemaContent) {
  * @returns A promise that resolves with the same db that got passed in, or rejects with an error.
  */
 async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
-  return fsp
-    .readFile(schemaPath, 'utf8')
-    .then((data) => util.calculateCrc({ filePath: schemaPath, data: data }))
-    .then((context) => determineIfSchemaShouldLoad(db, context))
-    .then((context) => {
-      if (context.mustLoad && context.hasSchema)
-        return closeDatabase(db).then(() => context)
-      else return context
-    })
+  let data = await fsp.readFile(schemaPath, 'utf8')
+  let context = { filePath: schemaPath, data: data }
+  util.calculateCrc(context)
+  await determineIfSchemaShouldLoad(db, context)
+  if (context.mustLoad && context.hasSchema) await closeDatabase(db)
+
+  return Promise.resolve(context)
     .then((context) => {
       if (context.mustLoad && context.hasSchema) {
         if (sqliteFile != null) util.createBackupFile(sqliteFile)
