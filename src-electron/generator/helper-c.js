@@ -77,49 +77,38 @@ function asHex(rawValue, padding, nullValue) {
  * Converts the actual zcl type into an underlying usable C type.
  * @param {*} value
  */
-function asUnderlyingType(value) {
-  return templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryZcl.selectAtomicType(this.global.db, packageId, value)
+async function asUnderlyingType(value) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let atomic = await queryZcl.selectAtomicType(this.global.db, packageId, value)
+
+  if (atomic == null) {
+    // Check if it's maybe a bitmap.
+    let bitmap = await queryZcl.selectBitmapByName(
+      this.global.db,
+      this.global.zclPackageId,
+      value
     )
-    .then((atomic) => {
-      if (atomic == null) {
-        return queryZcl
-          .selectBitmapByName(this.global.db, this.global.zclPackageId, value)
-          .then((bitmap) => {
-            if (bitmap == null) {
-              return atomic
-            } else {
-              return queryZcl.selectAtomicType(
-                this.global.db,
-                this.global.zclPackageId,
-                bitmap.type
-              )
-            }
-          })
-      } else {
-        // Just pass it through
-        return atomic
-      }
-    })
-    .then((atomic) => {
-      if (atomic == null) {
-        return this.global.overridable.nonAtomicType({ name: value })
-      } else {
-        return queryPackage
-          .selectSpecificOptionValue(
-            this.global.db,
-            this.global.genTemplatePackageId,
-            'types',
-            atomic.name
-          )
-          .then((opt) => {
-            if (opt == null) return this.global.overridable.atomicType(atomic)
-            else return opt.optionLabel
-          })
-      }
-    })
+    if (bitmap != null) {
+      atomic = await queryZcl.selectAtomicType(
+        this.global.db,
+        this.global.zclPackageId,
+        bitmap.type
+      )
+    }
+  }
+
+  if (atomic == null) {
+    return this.global.overridable.nonAtomicType({ name: value })
+  } else {
+    let opt = await queryPackage.selectSpecificOptionValue(
+      this.global.db,
+      this.global.genTemplatePackageId,
+      'types',
+      atomic.name
+    )
+    if (opt == null) return this.global.overridable.atomicType(atomic)
+    else return opt.optionLabel
+  }
 }
 
 /**

@@ -519,7 +519,8 @@ async function generate(
   return queryPackage
     .getPackageByPackageId(db, templatePackageId)
     .then((pkg) => {
-      if (pkg == null) throw `Invalid packageId: ${templatePackageId}`
+      if (pkg == null)
+        throw new Error(`Invalid packageId: ${templatePackageId}`)
       let genResult = {
         db: db,
         sessionId: sessionId,
@@ -532,7 +533,7 @@ async function generate(
       if (pkg.type === dbEnum.packageType.genTemplatesJson) {
         return generateAllTemplates(genResult, pkg, options)
       } else {
-        throw `Invalid package type: ${pkg.type}`
+        throw new Error(`Invalid package type: ${pkg.type}`)
       }
     })
 }
