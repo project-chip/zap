@@ -140,7 +140,9 @@ async function parseZclFiles(db, ctx) {
     perFilePromise.push(p)
   })
 
-  return Promise.all(perFilePromise).then(() => ctx)
+  await Promise.all(perFilePromise)
+
+  return ctx
 }
 
 /**
