@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  *
  *    Copyright (c) 2020 Silicon Labs
@@ -16,13 +17,27 @@
  *    limitations under the License.
  */
 
+/**
+ * This script is used to generate the RendererApi ids / api_info struct.
+ *
+ * The source metadata should be defined by 'rendererApiInfo' in the
+ * Zigbee "gen-template.json" file.
+ * The generated files are "rend-api.js"
+ */
+
 const Handlebars = require('handlebars')
-const scriptUtil = require('./script-util.js')
-const genTemplate = '../test/gen-template/zigbee/gen-templates.json'
 const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
+
 const scriptName = path.basename(__filename)
+const curDir = path.dirname(__filename)
+const genTemplate = path.join(
+  curDir,
+  '../test/gen-template/zigbee/gen-templates.json'
+)
+const rendApi = path.join(curDir, '../src-shared/rend-api.js')
+const scriptUtil = require('./script-util.js')
 
 const license = `/**
  *
@@ -45,11 +60,8 @@ const license = `/**
 // Please don't edit manually.
 `
 
-// Generating rend_api.js content
-function generateTemplate(
-  rendererApiInfo,
-  outputFile = '../src-shared/rend-api.js'
-) {
+// Generating rend-api.js content
+function generateTemplate(rendererApiInfo, outputFile) {
   const template = Handlebars.compile(`exports.{{key}} = {{{value}}}\n`)
   let output = [license]
 
@@ -99,7 +111,7 @@ async function generate() {
   )
   let rendererApiData = await fsp.readFile(rendererApi, 'utf8')
   //   console.log(rendererApiData)
-  generateTemplate(JSON.parse(rendererApiData))
+  generateTemplate(JSON.parse(rendererApiData), rendApi)
 }
 
 generate()
