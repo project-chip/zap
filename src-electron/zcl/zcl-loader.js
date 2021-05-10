@@ -100,26 +100,27 @@ async function loadZcl(db, metadataFile) {
 }
 
 async function loadIndividualFile(db, filePath, sessionId) {
-  return queryPackage
-    .getSessionPackagesByType(db, sessionId, dbEnum.packageType.zclProperties)
-    .then((zclPropertiesPackages) => {
-      if (zclPropertiesPackages.length == 0) {
-        env.logDebug(
-          `Unable to find a validator for project, skipping validator`
-        )
-        // Return an function that returns an empty array
-        return defaultValidator
-      }
-      return bindValidationScript(db, zclPropertiesPackages[0].id)
-    })
-    .then((validator) => {
-      let ext = path.extname(filePath)
-      if (ext == '.xml') {
-        return sLoad.loadIndividualSilabsFile(db, filePath, validator)
-      } else {
-        return Promise.reject('Unknown extension file')
-      }
-    })
+  let zclPropertiesPackages = await queryPackage.getSessionPackagesByType(
+    db,
+    sessionId,
+    dbEnum.packageType.zclProperties
+  )
+
+  let validator
+  if (zclPropertiesPackages.length == 0) {
+    env.logDebug(`Unable to find a validator for project, skipping validator`)
+    // Return an function that returns an empty array
+    validator = defaultValidator
+  } else {
+    validator = await bindValidationScript(db, zclPropertiesPackages[0].id)
+  }
+
+  let ext = path.extname(filePath)
+  if (ext == '.xml') {
+    return sLoad.loadIndividualSilabsFile(db, filePath, validator)
+  } else {
+    return Promise.reject('Unknown extension file')
+  }
 }
 
 /**
@@ -129,29 +130,30 @@ async function loadIndividualFile(db, filePath, sessionId) {
  * @param {*} basePackageId
  */
 async function bindValidationScript(db, basePackageId) {
-  return getSchemaAndValidationScript(db, basePackageId)
-    .then((data) => {
-      if (
-        !(dbEnum.packageType.zclSchema in data) ||
-        !(dbEnum.packageType.zclValidation in data)
-      ) {
-        return defaultValidator
-      }
+  try {
+    let data = await getSchemaAndValidationScript(db, basePackageId)
+
+    if (
+      !(dbEnum.packageType.zclSchema in data) ||
+      !(dbEnum.packageType.zclValidation in data)
+    ) {
+      return defaultValidator
+    } else {
       let zclSchema = data[dbEnum.packageType.zclSchema]
       let zclValidation = data[dbEnum.packageType.zclValidation]
       let module = require(zclValidation)
       let validateZclFile = module.validateZclFile
 
       env.logDebug(`Reading individual file: ${zclSchema}`)
-      return fsp
-        .readFile(zclSchema)
-        .then((schemaFile) => validateZclFile.bind(null, schemaFile))
-    })
-    .catch((err) => {
-      env.logError(`Error loading package specific validator: ${err}`)
-      return defaultValidator
-    })
+      let schemaFileContent = await fsp.readFile(zclSchema)
+      return validateZclFile.bind(null, schemaFileContent)
+    }
+  } catch (err) {
+    env.logError(`Error loading package specific validator: ${err}`)
+    return defaultValidator
+  }
 }
+
 /**
  * Returns an object with zclSchema and zclValidation elements.
  * @param {*} db
@@ -173,14 +175,13 @@ async function getSchemaAndValidationScript(db, basePackageId) {
       dbEnum.packageType.zclValidation
     )
   )
-  return Promise.all(promises).then((data) =>
-    data.reduce((result, item) => {
-      if (item.length >= 1) {
-        result[item[0].type] = item[0].path
-      }
-      return result
-    }, {})
-  )
+  let data = await Promise.all(promises)
+  return data.reduce((result, item) => {
+    if (item.length >= 1) {
+      result[item[0].type] = item[0].path
+    }
+    return result
+  }, {})
 }
 
 /**
@@ -200,61 +201,55 @@ async function qualifyZclFile(
   packageType,
   isCustom
 ) {
-  return new Promise((resolve, reject) => {
-    let filePath = info.filePath
-    let data = info.data
-    let actualCrc = info.crc
-    queryPackage
-      .getPackageByPathAndParent(db, filePath, parentPackageId, isCustom)
-      .then((pkg) => {
-        if (pkg == null) {
-          // This is executed if there is no CRC in the database.
-          env.logDebug(`No CRC in the database for file ${filePath}, parsing.`)
-          return queryPackage
-            .insertPathCrc(
-              db,
-              filePath,
-              actualCrc,
-              packageType,
-              parentPackageId,
-              filePath
-            )
-            .then((packageId) => {
-              resolve({
-                filePath: filePath,
-                data: data,
-                packageId:
-                  parentPackageId == null ? packageId : parentPackageId,
-              })
-            })
-        } else {
-          // This is executed if CRC is found in the database.
-          if (pkg.crc == actualCrc) {
-            env.logDebug(
-              `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
-            )
-            resolve({
-              error: `${pkg.path} skipped`,
-              packageId: pkg.id,
-            })
-          } else {
-            env.logDebug(
-              `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
-            )
-            return queryPackage
-              .updatePathCrc(db, filePath, actualCrc, parentPackageId)
-              .then(() => {
-                resolve({
-                  filePath: filePath,
-                  data: data,
-                  packageId:
-                    parentPackageId == null ? packageId : parentPackageId,
-                })
-              })
-          }
-        }
-      })
-  })
+  let filePath = info.filePath
+  let data = info.data
+  let actualCrc = info.crc
+
+  let pkg = await queryPackage.getPackageByPathAndParent(
+    db,
+    filePath,
+    parentPackageId,
+    isCustom
+  )
+
+  if (pkg == null) {
+    // This is executed if there is no CRC in the database.
+    env.logDebug(`No CRC in the database for file ${filePath}, parsing.`)
+    let packageId = await queryPackage.insertPathCrc(
+      db,
+      filePath,
+      actualCrc,
+      packageType,
+      parentPackageId,
+      filePath
+    )
+    return {
+      filePath: filePath,
+      data: data,
+      packageId: parentPackageId == null ? packageId : parentPackageId,
+    }
+  } else {
+    // This is executed if CRC is found in the database.
+    if (pkg.crc == actualCrc) {
+      env.logDebug(
+        `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
+      )
+      return {
+        error: `${pkg.path} skipped`,
+        packageId: pkg.id,
+      }
+    } else {
+      env.logDebug(
+        `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
+      )
+      await queryPackage.updatePathCrc(db, filePath, actualCrc, parentPackageId)
+      return {
+        filePath: filePath,
+        data: data,
+        packageId: parentPackageId == null ? packageId : parentPackageId,
+      }
+    }
+  }
 }
 
 /**

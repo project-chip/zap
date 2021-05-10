@@ -1023,41 +1023,29 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
  * @returns Promise of a loaded file.
  */
 async function loadIndividualSilabsFile(db, filePath, boundValidator) {
-  let pkgId
-  return fsp
-    .readFile(filePath)
-    .then((data) => util.calculateCrc({ filePath: filePath, data: data }))
-    .then((data) =>
-      zclLoader.qualifyZclFile(
-        db,
-        data,
-        null,
-        dbEnum.packageType.zclXmlStandalone,
-        true
-      )
+  try {
+    let fileContent = await fsp.readFile(filePath)
+    let data = util.calculateCrc({ filePath: filePath, data: fileContent })
+
+    let result = await zclLoader.qualifyZclFile(
+      db,
+      data,
+      null,
+      dbEnum.packageType.zclXmlStandalone,
+      true
     )
-    .then((result) => {
-      pkgId = result.packageId
-      return result
-    })
-    .then((result) => zclLoader.parseZclFile(result, boundValidator))
-    .then((result) => {
-      if (result.validation && result.validation.isValid == false) {
-        throw new Error('Validation Failed')
-      }
-      return result
-    })
-    .then((result) => processParsedZclData(db, result))
-    .then((laterPromises) =>
-      Promise.all(laterPromises.flat(1).map((promise) => promise()))
-    )
-    .then(() => zclLoader.processZclPostLoading(db))
-    .then(() => {
-      return { succeeded: true, packageId: pkgId }
-    })
-    .catch((err) => {
-      return { succeeded: false, err: err }
-    })
+    let pkgId = result.packageId
+    result = await zclLoader.parseZclFile(result, boundValidator)
+    if (result.validation && result.validation.isValid == false) {
+      throw new Error('Validation Failed')
+    }
+    let laterPromises = await processParsedZclData(db, result)
+    await Promise.all(laterPromises.flat(1).map((promise) => promise()))
+    await zclLoader.processZclPostLoading(db)
+    return { succeeded: true, packageId: pkgId }
+  } catch (err) {
+    return { succeeded: false, err: err }
+  }
 }
 
 /**
