@@ -775,7 +775,7 @@ async function processParsedZclData(db, argument) {
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
 async function parseZclFiles(db, ctx) {
-  ctx.laterPromises = []
+  laterPromises = []
   env.logDebug(`Starting to parse ZCL files: ${ctx.zclFiles}`)
   let individualFilePromise = ctx.zclFiles.map((file) =>
     fsp
@@ -793,15 +793,14 @@ async function parseZclFiles(db, ctx) {
       .then((result) => zclLoader.parseZclFile(result))
       .then((result) => processParsedZclData(db, result))
       .then((toDoPromises) => {
-        processParsedZclData
-        toDoPromises.flat(1).forEach((p) => ctx.laterPromises.push(p))
+        toDoPromises.flat(1).forEach((p) => laterPromises.push(p))
         return ctx
       })
       .catch((err) => env.logError(err))
   )
 
   await Promise.all(individualFilePromise)
-  await Promise.all(ctx.laterPromises.map((promise) => promise()))
+  await Promise.all(laterPromises.map((promise) => promise()))
   return zclLoader.processZclPostLoading(db)
 }
 
