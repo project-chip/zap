@@ -59,74 +59,30 @@ Functions:`
   return msg
 }
 
-async function executeLoad(browserWindow, path) {
-  await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute("open", "${path}")`
-  )
-}
+/**
+ * Execute RendererApi commands
+ * @param {*} browserWindow
+ * @param {*} rendererApiCommand
+ * @param  {...any} theArgs
+ */
 
-async function executeSave(browserWindow, path) {
-  if (path == null) {
-    await browserWindow.webContents.executeJavaScript(
-      `window.global_renderer_api_execute("save")`
+async function execRendererApi(browserWindow, rendererApiCommand, ...theArgs) {
+  const info = await browserWindow.webContents.executeJavaScript(
+    'window.global_renderer_api_info'
+  )
+
+  let apiFound = info.functions.filter((x) => x.id === rendererApiCommand)
+  if (!apiFound.length) {
+    env.logBrowser(
+      `Unhandled renderer API function id invoked: ${rendererApiCommand}`
     )
+    return Promise.resolve()
   } else {
-    await browserWindow.webContents.executeJavaScript(
-      `window.global_renderer_api_execute("save", "${path}")`
+    // call javascript
+    return await browserWindow.webContents.executeJavaScript(
+      `window.global_renderer_api_execute('${rendererApiCommand}', "${theArgs}")`
     )
   }
-}
-
-async function progressEnd(browserWindow) {
-  await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${rendApi.id.progressEnd}')`
-  )
-}
-
-async function progressStart(browserWindow, message) {
-  await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${rendApi.id.progressStart}', '${message}')`
-  )
-}
-
-async function debugNavBar(browserWindow, flag) {
-  await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${rendApi.id.debugNavBar}', ${
-      flag ? 'true' : 'false'
-    })`
-  )
-}
-
-async function setTheme(browserWindow, theme) {
-  await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${rendApi.id.setTheme}', '${theme}')`
-  )
-}
-
-async function getFileLocation(browserWindow, storageKey) {
-  return getStorageItem(browserWindow, storageKey)
-}
-
-async function saveFileLocation(browserWindow, storageKey, path) {
-  setStorageItem(browserWindow, storageKey, path)
-}
-
-async function setStorageItem(browserWindow, key, value) {
-  return browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${rendApi.id.setStorageItem}', '${key}', '${value}')`
-  )
-}
-
-async function removeStorageItem(browserWindow, key) {
-  return browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${rendApi.id.removeStorageItem}', '${key}')`
-  )
-}
-
-async function getStorageItem(browserWindow, key) {
-  return browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${rendApi.id.getStorageItem}', '${key}')`
-  )
 }
 
 /**
@@ -215,16 +171,6 @@ exports.getRendererApiInformation = getRendererApiInformation
 exports.getUserKeyFromBrowserWindow = getUserKeyFromBrowserWindow
 exports.getUserKeyFromBrowserCookie = getUserKeyFromBrowserCookie
 exports.getUserKeyFromCookieValue = getUserKeyFromCookieValue
-exports.executeLoad = executeLoad
-exports.executeSave = executeSave
-exports.progressEnd = progressEnd
-exports.progressStart = progressStart
-exports.debugNavBar = debugNavBar
 exports.reportFiles = reportFiles
 exports.processRendererNotify = processRendererNotify
-exports.getFileLocation = getFileLocation
-exports.saveFileLocation = saveFileLocation
-exports.setTheme = setTheme
-exports.setStorageItem = setStorageItem
-exports.getStorageItem = getStorageItem
-exports.removeStorageItem = removeStorageItem
+exports.execRendererApi = execRendererApi
