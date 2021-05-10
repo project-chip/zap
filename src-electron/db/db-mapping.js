@@ -351,7 +351,9 @@ exports.map = {
     if (x == null) return undefined
     return {
       entityCode: x.ENTITY_CODE,
+      entityQualifier: x.ENTITY_QUALIFIER,
       parentCode: x.PARENT_CODE,
+      manufacturerCode: x.MANUFACTURER_CODE,
       value: x.VALUE,
     }
   },

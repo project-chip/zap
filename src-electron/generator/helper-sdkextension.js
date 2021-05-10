@@ -113,7 +113,18 @@ async function subentityExtension(context, prop, entityType) {
     let clusterCode = context.clusterCode
     if (clusterCode == null && context.parent) clusterCode = context.parent.code
     if (d.entityCode == context.code && d.parentCode == clusterCode) {
-      val = d.value
+      // Now let's deal with qualifier:
+      if (
+        d.entityQualifier != null &&
+        entityType == dbEnum.packageExtensionEntity.command
+      ) {
+        if (d.entityQualifier == context.source) {
+          val = d.value
+        }
+      } else {
+        // No special conditions, we match
+        if (val == null) val = d.value
+      }
     }
   })
   if (val == null) val = f[0].globalDefault

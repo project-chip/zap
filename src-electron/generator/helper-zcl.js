@@ -173,9 +173,7 @@ function zcl_commands(options) {
 function zcl_command_tree(options) {
   let promise = templateUtil
     .ensureZclPackageId(this)
-    .then((packageId) => {
-      return queryZcl.selectCommandTree(this.global.db, packageId)
-    })
+    .then((packageId) => queryZcl.selectCommandTree(this.global.db, packageId))
     .then((cmds) => {
       // Now reduce the array by collecting together arguments.
       let reducedCommands = []
@@ -188,7 +186,8 @@ function zcl_command_tree(options) {
           lastCommand = reducedCommands[reducedCommands.length - 1]
           if (
             el.code == lastCommand.code &&
-            el.clusterCode == lastCommand.clusterCode
+            el.clusterCode == lastCommand.clusterCode &&
+            el.source == lastCommand.source
           ) {
             newCommand = false
           } else {

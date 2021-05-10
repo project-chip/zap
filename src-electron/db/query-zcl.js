@@ -1329,6 +1329,7 @@ function commandMap(x) {
     name: x.NAME,
     code: x.CODE,
     commandSource: x.SOURCE,
+    source: x.SOURCE,
     mfgCode: x.MANUFACTURER_CODE,
     incoming: x.INCOMING,
     outgoing: x.OUTGOING,
