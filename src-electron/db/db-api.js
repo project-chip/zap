@@ -22,7 +22,7 @@
  */
 
 const sqlite = require('sqlite3')
-const fs = require('fs')
+const fsp = require('fs').promises
 const env = require('../util/env.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -423,13 +423,25 @@ async function determineIfSchemaShouldLoad(db, context) {
 }
 
 async function updateCurrentSchemaCrc(db, context) {
+  return dbInsert(
+    db,
+    'INSERT OR REPLACE INTO PACKAGE (PATH, CRC, TYPE) VALUES ( ?, ?, ? )',
+    [context.filePath, context.crc, dbEnum.packageType.sqlSchema]
+  ).then(() => context)
+}
+
+async function performSchemaLoad(db, schemaContent) {
   return new Promise((resolve, reject) => {
-    dbInsert(
-      db,
-      'INSERT OR REPLACE INTO PACKAGE (PATH, CRC, TYPE) VALUES ( ?, ?, ? )',
-      [context.filePath, context.crc, dbEnum.packageType.sqlSchema]
-    ).then(() => {
-      resolve(context)
+    env.logSql('Loading schema.')
+    db.serialize(() => {
+      db.exec(schemaContent, (err) => {
+        if (err) {
+          env.logError('Failed to populate schema')
+          env.logError(err)
+          reject(err)
+        }
+        resolve()
+      })
     })
   })
 }
@@ -444,12 +456,8 @@ async function updateCurrentSchemaCrc(db, context) {
  * @returns A promise that resolves with the same db that got passed in, or rejects with an error.
  */
 async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(schemaPath, 'utf8', (err, data) => {
-      if (err) return reject(err)
-      resolve(data)
-    })
-  })
+  return fsp
+    .readFile(schemaPath, 'utf8')
     .then((data) => util.calculateCrc({ filePath: schemaPath, data: data }))
     .then((context) => determineIfSchemaShouldLoad(db, context))
     .then((context) => {
@@ -471,27 +479,13 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
         return context
       }
     })
-    .then(
-      (context) =>
-        new Promise((resolve, reject) => {
-          if (context.mustLoad) {
-            env.logSql('Schema load: must be done.')
-            db.serialize(() => {
-              db.exec(context.data, (err) => {
-                if (err) {
-                  env.logError('Failed to populate schema')
-                  env.logError(err)
-                  reject(err)
-                }
-                resolve(context)
-              })
-            })
-          } else {
-            env.logSql('Schema load: skipped.')
-            resolve(context)
-          }
-        })
-    )
+    .then((context) => {
+      if (context.mustLoad) {
+        return performSchemaLoad(db, context.data).then(() => context)
+      } else {
+        return context
+      }
+    })
     .then((context) => {
       if (context.mustLoad) return updateCurrentSchemaCrc(db, context)
       else return context
@@ -509,7 +503,7 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
         return insertOrReplaceSetting(db, 'APP', 'DATE', zapVersion.date)
       }
     })
-    .then(() => Promise.resolve(db))
+    .then(() => db)
 }
 
 /**
@@ -521,9 +515,8 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
  * @returns Promise that resolves into the database object.
  */
 async function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
-  return initDatabase(sqliteFile).then((db) =>
-    loadSchema(db, schemaFile, zapVersion, sqliteFile)
-  )
+  let db = await initDatabase(sqliteFile)
+  return loadSchema(db, schemaFile, zapVersion, sqliteFile)
 }
 
 /**

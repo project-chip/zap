@@ -567,7 +567,7 @@ async function selectAllDefaultOptions(db, packageId) {
  *
  * @param {*} db
  * @param {*} packageExtensionId
- * @param {*} defaultArray Array containing objects with 'entityCode', 'parentCode', 'value'
+ * @param {*} defaultArray Array containing objects with 'entityCode', 'parentCode', 'manufacturerCode', 'entityQualifier', 'value'
  * @returns Promise of insertion for defaults.
  */
 async function insertPackageExtensionDefault(
@@ -579,13 +579,20 @@ async function insertPackageExtensionDefault(
     db,
     `
 INSERT INTO PACKAGE_EXTENSION_DEFAULT
-  (PACKAGE_EXTENSION_REF, ENTITY_CODE, PARENT_CODE, VALUE)
+  (PACKAGE_EXTENSION_REF, ENTITY_CODE, ENTITY_QUALIFIER, PARENT_CODE, MANUFACTURER_CODE, VALUE)
 VALUES
-  ( ?, ?, ?, ?)
+  ( ?, ?, ?, ?, ?, ?)
 ON CONFLICT DO NOTHING
     `,
     defaultArray.map((d) => {
-      return [packageExtensionId, d.entityCode, d.parentCode, d.value]
+      return [
+        packageExtensionId,
+        d.entityCode,
+        d.entityQualifier,
+        d.parentCode,
+        d.manufacturerCode,
+        d.value,
+      ]
     })
   )
 }

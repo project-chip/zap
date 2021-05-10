@@ -239,29 +239,45 @@ async function recordTemplatesPackage(context) {
   return Promise.all(promises).then(() => context)
 }
 
+/**
+ * This method takes extension data in JSON, and converts it into
+ * an object that contains:
+ *    entityCode, entityQualifier, parentCode, manufacturerCode and value
+ * @param {*} entityType
+ * @param {*} entity
+ * @returns object that can be used for database injection
+ */
 function decodePackageExtensionEntity(entityType, entity) {
   switch (entityType) {
     case dbEnum.packageExtensionEntity.cluster:
       return {
         entityCode: parseInt(entity.clusterCode),
+        entityQualifier: null,
+        manufacturerCode: null,
         parentCode: null,
         value: entity.value,
       }
     case dbEnum.packageExtensionEntity.command:
       return {
         entityCode: parseInt(entity.commandCode),
+        entityQualifier: entity.source,
+        manufacturerCode: null,
         parentCode: parseInt(entity.clusterCode),
         value: entity.value,
       }
     case dbEnum.packageExtensionEntity.attribute:
       return {
         entityCode: parseInt(entity.attributeCode),
+        entityQualifier: null,
+        manufacturerCode: null,
         parentCode: parseInt(entity.clusterCode),
         value: entity.value,
       }
     case dbEnum.packageExtensionEntity.deviceType:
       return {
         entityCode: entity.device,
+        entityQualifier: null,
+        manufacturerCode: null,
         parentCode: null,
         value: entity.value,
       }
