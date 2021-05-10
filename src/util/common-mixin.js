@@ -79,13 +79,11 @@ export default {
       get() {
         return this.$store.state.zap.clustersView.selectedClients
       },
-      set(val) {},
     },
     selectionServers: {
       get() {
         return this.$store.state.zap.clustersView.selectedServers
       },
-      set(val) {},
     },
     zclDeviceTypes: {
       get() {
@@ -141,7 +139,7 @@ export default {
      */
     missingUcComponentDependencies(cluster) {
       let hasClient = this.selectionClients.includes(cluster.id)
-      let hasServer =  this.selectionServers.includes(cluster.id)
+      let hasServer = this.selectionServers.includes(cluster.id)
 
       let requiredList = []
       if (hasClient) {
@@ -159,7 +157,8 @@ export default {
       }
 
       return requiredList.filter(
-        (id) => !this.$store.state.zap.studio.selectedUcComponentIds.includes(id)
+        (id) =>
+          !this.$store.state.zap.studio.selectedUcComponentIds.includes(id)
       )
     },
 

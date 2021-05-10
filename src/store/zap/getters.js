@@ -15,4 +15,6 @@
  *    limitations under the License.
  */
 
-export function someGetter(state) {}
+export function getFullState(state) {
+  return state
+}

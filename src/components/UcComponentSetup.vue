@@ -56,11 +56,9 @@ export default {
       return this.$store.state.zap.studio.projectInfoJson
     },
     ucComponentTicked: function () {
-      return this.$store.state.zap.studio.selectedUcComponents.map(x => x.id)
+      return this.$store.state.zap.studio.selectedUcComponents.map((x) => x.id)
     },
   },
-
-  mounted() {},
 
   methods: {
     handleClick: function (target) {
