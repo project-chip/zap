@@ -35,56 +35,53 @@ const _ = require('lodash')
  * @param {*} ctx  Context containing information about the file
  * @returns Promise of resolved file.
  */
-async function collectDataFromJsonFile(ctx) {
+function collectDataFromJsonFile(ctx) {
   env.logDebug(`Collecting ZCL files from JSON file: ${ctx.metadataFile}`)
-  return new Promise((resolve, reject) => {
-    let obj = JSON.parse(ctx.data)
-    let f
+  let obj = JSON.parse(ctx.data)
+  let f
 
-    let fileLocations
-    if (Array.isArray(obj.xmlRoot)) {
-      fileLocations = obj.xmlRoot.map((p) =>
-        path.join(path.dirname(ctx.metadataFile), p)
-      )
-    } else {
-      fileLocations = [path.join(path.dirname(ctx.metadataFile), obj.xmlRoot)]
-    }
-    let zclFiles = []
-    obj.xmlFile.forEach((xmlF) => {
-      f = util.locateRelativeFilePath(fileLocations, xmlF)
-      if (f != null) zclFiles.push(f)
-    })
-
-    ctx.zclFiles = zclFiles
-
-    // Manufacturers XML file.
-    f = util.locateRelativeFilePath(fileLocations, obj.manufacturersXml)
-    if (f != null) ctx.manufacturersXml = f
-
-    // Zcl XSD file
-    f = util.locateRelativeFilePath(fileLocations, obj.zclSchema)
-    if (f != null) ctx.zclSchema = f
-
-    // Zcl Validation Script
-    f = util.locateRelativeFilePath(fileLocations, obj.zclValidation)
-    if (f != null) ctx.zclValidation = f
-
-    // General options
-    // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
-    if (obj.options) {
-      ctx.options = obj.options
-    }
-    // Defaults. Note that the keys should be the categories that are listed for PACKAGE_OPTION, and the value should be the OPTION_CODE
-    if (obj.defaults) {
-      ctx.defaults = obj.defaults
-    }
-
-    ctx.version = obj.version
-    ctx.supportCustomZclDevice = obj.supportCustomZclDevice
-
-    env.logDebug(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
-    resolve(ctx)
+  let fileLocations
+  if (Array.isArray(obj.xmlRoot)) {
+    fileLocations = obj.xmlRoot.map((p) =>
+      path.join(path.dirname(ctx.metadataFile), p)
+    )
+  } else {
+    fileLocations = [path.join(path.dirname(ctx.metadataFile), obj.xmlRoot)]
+  }
+  let zclFiles = []
+  obj.xmlFile.forEach((xmlF) => {
+    f = util.locateRelativeFilePath(fileLocations, xmlF)
+    if (f != null) zclFiles.push(f)
   })
+
+  ctx.zclFiles = zclFiles
+
+  // Manufacturers XML file.
+  f = util.locateRelativeFilePath(fileLocations, obj.manufacturersXml)
+  if (f != null) ctx.manufacturersXml = f
+
+  // Zcl XSD file
+  f = util.locateRelativeFilePath(fileLocations, obj.zclSchema)
+  if (f != null) ctx.zclSchema = f
+
+  // Zcl Validation Script
+  f = util.locateRelativeFilePath(fileLocations, obj.zclValidation)
+  if (f != null) ctx.zclValidation = f
+
+  // General options
+  // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
+  if (obj.options) {
+    ctx.options = obj.options
+  }
+  // Defaults. Note that the keys should be the categories that are listed for PACKAGE_OPTION, and the value should be the OPTION_CODE
+  if (obj.defaults) {
+    ctx.defaults = obj.defaults
+  }
+
+  ctx.version = obj.version
+  ctx.supportCustomZclDevice = obj.supportCustomZclDevice
+
+  env.logDebug(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
 }
 
 /**
@@ -93,64 +90,53 @@ async function collectDataFromJsonFile(ctx) {
  * @param {*} ctx Context which contains information about the propertiesFiles and data
  * @returns Promise of resolved files.
  */
-async function collectDataFromPropertiesFile(ctx) {
-  return new Promise((resolve, reject) => {
-    env.logDebug(
-      `Collecting ZCL files from properties file: ${ctx.metadataFile}`
-    )
+function collectDataFromPropertiesFile(ctx) {
+  env.logDebug(`Collecting ZCL files from properties file: ${ctx.metadataFile}`)
 
-    properties.parse(ctx.data, { namespaces: true }, (err, zclProps) => {
-      if (err) {
-        env.logError(`Could not read file: ${ctx.metadataFile}`)
-        reject(err)
-      } else {
-        let fileLocations = zclProps.xmlRoot
-          .split(',')
-          .map((p) => path.join(path.dirname(ctx.metadataFile), p))
-        let zclFiles = []
-        let f
+  properties.parse(ctx.data, { namespaces: true }, (err, zclProps) => {
+    if (err) {
+      env.logError(`Could not read file: ${ctx.metadataFile}`)
+      throw err
+    } else {
+      let fileLocations = zclProps.xmlRoot
+        .split(',')
+        .map((p) => path.join(path.dirname(ctx.metadataFile), p))
+      let zclFiles = []
+      let f
 
-        // Iterate over all XML files in the properties file, and check
-        // if they exist in one or the other directory listed in xmlRoot
-        zclProps.xmlFile.split(',').forEach((singleXmlFile) => {
-          let fullPath = util.locateRelativeFilePath(
-            fileLocations,
-            singleXmlFile
-          )
-          if (fullPath != null) zclFiles.push(fullPath)
-        })
+      // Iterate over all XML files in the properties file, and check
+      // if they exist in one or the other directory listed in xmlRoot
+      zclProps.xmlFile.split(',').forEach((singleXmlFile) => {
+        let fullPath = util.locateRelativeFilePath(fileLocations, singleXmlFile)
+        if (fullPath != null) zclFiles.push(fullPath)
+      })
 
-        ctx.zclFiles = zclFiles
-        // Manufacturers XML file.
-        f = util.locateRelativeFilePath(
-          fileLocations,
-          zclProps.manufacturersXml
-        )
-        if (f != null) ctx.manufacturersXml = f
+      ctx.zclFiles = zclFiles
+      // Manufacturers XML file.
+      f = util.locateRelativeFilePath(fileLocations, zclProps.manufacturersXml)
+      if (f != null) ctx.manufacturersXml = f
 
-        // Zcl XSD file
-        f = util.locateRelativeFilePath(fileLocations, zclProps.zclSchema)
-        if (f != null) ctx.zclSchema = f
+      // Zcl XSD file
+      f = util.locateRelativeFilePath(fileLocations, zclProps.zclSchema)
+      if (f != null) ctx.zclSchema = f
 
-        // Zcl Validation Script
-        f = util.locateRelativeFilePath(fileLocations, zclProps.zclValidation)
-        if (f != null) ctx.zclValidation = f
+      // Zcl Validation Script
+      f = util.locateRelativeFilePath(fileLocations, zclProps.zclValidation)
+      if (f != null) ctx.zclValidation = f
 
-        // General options
-        // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
-        if (zclProps.options) {
-          ctx.options = zclProps.options
-        }
-        // Defaults. Note that the keys should be the categories that are listed for PACKAGE_OPTION, and the value should be the OPTION_CODE
-        if (zclProps.defaults) {
-          ctx.defaults = zclProps.defaults
-        }
-        ctx.supportCustomZclDevice = zclProps.supportCustomZclDevice
-        ctx.version = zclProps.version
-        env.logDebug(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
-        resolve(ctx)
+      // General options
+      // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
+      if (zclProps.options) {
+        ctx.options = zclProps.options
       }
-    })
+      // Defaults. Note that the keys should be the categories that are listed for PACKAGE_OPTION, and the value should be the OPTION_CODE
+      if (zclProps.defaults) {
+        ctx.defaults = zclProps.defaults
+      }
+      ctx.supportCustomZclDevice = zclProps.supportCustomZclDevice
+      ctx.version = zclProps.version
+      env.logDebug(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
+    }
   })
 }
 
@@ -765,7 +751,7 @@ async function processParsedZclData(db, argument) {
   }
 }
 
-async function parseSingleZclFile(db, ctx, file) {
+async function parseSingleZclFile(db, packageId, file) {
   try {
     let fileContent = await fsp.readFile(file)
     let data = {
@@ -776,7 +762,7 @@ async function parseSingleZclFile(db, ctx, file) {
     let result = await zclLoader.qualifyZclFile(
       db,
       data,
-      ctx.packageId,
+      packageId,
       dbEnum.packageType.zclXml,
       false
     )
@@ -799,10 +785,10 @@ async function parseSingleZclFile(db, ctx, file) {
  * @param {*} ctx
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
-async function parseZclFiles(db, ctx) {
-  env.logDebug(`Starting to parse ZCL files: ${ctx.zclFiles}`)
-  let individualFilePromise = ctx.zclFiles.map((file) =>
-    parseSingleZclFile(db, ctx, file)
+async function parseZclFiles(db, packageId, zclFiles) {
+  env.logDebug(`Starting to parse ZCL files: ${zclFiles}`)
+  let individualFilePromise = zclFiles.map((file) =>
+    parseSingleZclFile(db, packageId, file)
   )
 
   let laterPromises = (await Promise.all(individualFilePromise)).flat(2)
@@ -1114,14 +1100,14 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
       ctx.crc
     )
     if (isJson) {
-      await collectDataFromJsonFile(ctx)
+      collectDataFromJsonFile(ctx)
     } else {
-      await collectDataFromPropertiesFile(ctx)
+      collectDataFromPropertiesFile(ctx)
     }
     if (ctx.version != null) {
       await zclLoader.recordVersion(db, ctx.packageId, ctx.version)
     }
-    await parseZclFiles(db, ctx)
+    await parseZclFiles(db, ctx.packageId, ctx.zclFiles)
     if (ctx.manufacturersXml) {
       await parseManufacturerData(db, ctx.packageId, ctx.manufacturersXml)
     }
