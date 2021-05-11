@@ -139,9 +139,7 @@ async function parseZclFiles(db, ctx) {
     perFilePromise.push(p)
   })
 
-  await Promise.all(perFilePromise)
-
-  return ctx
+  return Promise.all(perFilePromise)
 }
 
 /**
@@ -645,14 +643,24 @@ async function loadIndividualDotDotFile(db, filePath) {
  * @param {*} ctx Context of loading.
  * @returns a Promise that resolves with the db.
  */
-async function loadDotdotZcl(db, ctx) {
-  env.logDebug(`Loading Dotdot zcl file: ${ctx.metadataFile}`)
+async function loadDotdotZcl(db, metafile) {
+  let ctx = {
+    metadataFile: metafile,
+    db: db,
+  }
+  env.logDebug(`Loading Dotdot zcl file: ${metafile}`)
   try {
     await dbApi.dbBeginTransaction(db)
-    await zclLoader.readMetadataFile(ctx)
-    await zclLoader.recordToplevelPackage(db, ctx)
+    Object.assign(ctx, await zclLoader.readMetadataFile(metafile))
+    ctx.packageId = await zclLoader.recordToplevelPackage(
+      db,
+      ctx.metadataFile,
+      ctx.crc
+    )
     await collectDataFromLibraryXml(ctx)
-    await zclLoader.recordVersion(ctx)
+    if (ctx.version != null) {
+      await zclLoader.recordVersion(db, ctx.packageId, ctx.version)
+    }
     await parseZclFiles(db, ctx)
     await loadZclData(db, ctx)
     await zclLoader.processZclPostLoading(db)

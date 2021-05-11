@@ -32,33 +32,35 @@ const defaultValidator = (zclData) => {
 }
 
 /**
- * Reads the properties file into ctx.data and also calculates crc into ctx.crc
+ * Reads the properties file and returns object containing
+ * 'data', 'filePath' and 'crc'
  *
- * @param {*} ctx
+ * @param {*} metadata file
  * @returns Promise to populate data, filePath and crc into the context.
  */
-async function readMetadataFile(ctx) {
-  let content = await fsp.readFile(ctx.metadataFile, { encoding: 'utf-8' })
-  ctx.data = content
-  ctx.filePath = ctx.metadataFile
-  ctx.crc = util.checksum(content)
-  return ctx
+async function readMetadataFile(metadataFile) {
+  let content = await fsp.readFile(metadataFile, { encoding: 'utf-8' })
+  return {
+    data: content,
+    filePath: metadataFile,
+    crc: util.checksum(content),
+  }
 }
 
 /**
- * Records the toplevel package information and puts ctx.packageId into the context.
- *
- * @param {*} ctx
+ * Records the toplevel package information and resolves into packageId
+ * @param {*} db
+ * @param {*} metadataFile
+ * @param {*} crc
+ * @returns packageId
  */
-async function recordToplevelPackage(db, ctx) {
-  let id = await queryPackage.registerTopLevelPackage(
+async function recordToplevelPackage(db, metadataFile, crc) {
+  return queryPackage.registerTopLevelPackage(
     db,
-    ctx.metadataFile,
-    ctx.crc,
+    metadataFile,
+    crc,
     dbEnum.packageType.zclProperties
   )
-  ctx.packageId = id
-  return ctx
 }
 
 /**
@@ -67,11 +69,8 @@ async function recordToplevelPackage(db, ctx) {
  * @param {*} db
  * @param {*} ctx
  */
-async function recordVersion(ctx) {
-  if (ctx.version != null) {
-    await queryPackage.updateVersion(ctx.db, ctx.packageId, ctx.version)
-  }
-  return ctx
+async function recordVersion(db, packageId, version) {
+  return queryPackage.updateVersion(db, packageId, version)
 }
 
 /**
@@ -83,19 +82,16 @@ async function recordVersion(ctx) {
  * @returns a Promise that resolves with the db.
  */
 async function loadZcl(db, metadataFile) {
-  let ctx = {
-    metadataFile: path.resolve(metadataFile),
-    db: db,
-  }
   let ext = path.extname(metadataFile)
+  let resolvedMetafile = path.resolve(metadataFile)
   if (ext == '.xml') {
-    return dLoad.loadDotdotZcl(db, ctx)
+    return dLoad.loadDotdotZcl(db, resolvedMetafile)
   } else if (ext == '.properties') {
-    return sLoad.loadSilabsZcl(db, ctx, false)
+    return sLoad.loadSilabsZcl(db, resolvedMetafile, false)
   } else if (ext == '.json') {
-    return sLoad.loadSilabsZcl(db, ctx, true)
+    return sLoad.loadSilabsZcl(db, resolvedMetafile, true)
   } else {
-    throw 'unknown properties file type'
+    throw new Error(`Unknown zcl metafile type: ${metadataFile}`)
   }
 }
 
