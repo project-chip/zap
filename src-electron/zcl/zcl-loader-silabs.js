@@ -1050,7 +1050,10 @@ async function loadIndividualSilabsFile(db, filePath, boundValidator) {
       true
     )
     let pkgId = result.packageId
-    result = await zclLoader.parseZclFile(result, boundValidator)
+    if (boundValidator != null && fileContent != null) {
+      result.validation = boundValidator(fileContent)
+    }
+    result = await zclLoader.parseZclFile(result)
     if (result.validation && result.validation.isValid == false) {
       throw new Error('Validation Failed')
     }

@@ -25,7 +25,6 @@ const sLoad = require('./zcl-loader-silabs.js')
 const dLoad = require('./zcl-loader-dotdot.js')
 const queryZcl = require('../db/query-zcl.js')
 const env = require('../util/env.js')
-const xml2js = require('xml2js')
 const _ = require('lodash')
 
 const defaultValidator = (zclData) => {
@@ -270,15 +269,12 @@ function processZclPostLoading(db) {
  * @param {*} validator validator is a function that takes in an buffer, and returns an array of errors. This can be optional
  * @returns promise that resolves with the array [filePath,result,packageId,msg,data]
  */
-async function parseZclFile(argument, validator = null) {
+async function parseZclFile(argument) {
   // No data, we skip this.
   if (!('data' in argument)) {
     return argument
   } else {
-    if (validator) {
-      argument.validation = validator(argument.data)
-    }
-    let result = await xml2js.parseStringPromise(argument.data)
+    let result = await util.parseXml(argument.data)
     argument.result = result
     delete argument.data
     return argument

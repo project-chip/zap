@@ -38,11 +38,9 @@ async function collectDataFromLibraryXml(ctx) {
   let fileContent = await fsp.readFile(ctx.metadataFile)
   let data = {
     filePath: ctx.metadataFile,
-    data: fileContent,
     crc: util.checksum(fileContent),
   }
-  await zclLoader.parseZclFile(data)
-  let result = data.result
+  let result = await util.parseXml(fileContent)
   let zclLib = result['zcl:library']
   ctx.version = '1.0'
   ctx.zclFiles = zclLib['xi:include'].map((f) =>

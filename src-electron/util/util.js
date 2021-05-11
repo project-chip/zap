@@ -32,6 +32,7 @@ const queryZcl = require('../db/query-zcl.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { v4: uuidv4 } = require('uuid')
+const xml2js = require('xml2js')
 
 /**
  * Returns the CRC of the data that is passed.
@@ -485,6 +486,15 @@ function waitFor(time) {
   return new Promise((r) => setTimeout(r, time))
 }
 
+/**
+ * Returns a promise that resolve into a parsed XML object.
+ * @param {*} fileContent
+ * @returns promise that resolves into parsed object.
+ */
+async function parseXml(fileContent) {
+  return xml2js.parseStringPromise(fileContent)
+}
+
 exports.createBackupFile = createBackupFile
 exports.checksum = checksum
 exports.initializeSessionPackage = initializeSessionPackage
@@ -499,3 +509,4 @@ exports.createUuid = createUuid
 exports.waitFor = waitFor
 exports.getClusterExtension = getClusterExtension
 exports.getClusterExtensionDefault = getClusterExtensionDefault
+exports.parseXml = parseXml
