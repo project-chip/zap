@@ -589,6 +589,46 @@ ORDER BY ENDPOINT_TYPE.NAME`,
 }
 
 /**
+ * Extracts endpoint type ids which belong to user endpoints.
+ * There have been occasions when the endpoint types are present but they do
+ * not belong to any endpoints. Which makes these endpoint type additional meta
+ * data in a zap file.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into rows in the database table.
+ */
+async function exportUsedEndPointTypeIds(db, sessionId) {
+  let mapFunction = (x) => {
+    return {
+      endpointTypeId: x.ENDPOINT_TYPE_ID,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+FROM
+  ENDPOINT_TYPE
+INNER JOIN ENDPOINT
+on
+endpoint_type.endpoint_type_id = endpoint.endpoint_type_ref
+LEFT JOIN
+  DEVICE_TYPE
+ON
+  ENDPOINT_TYPE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+WHERE
+  ENDPOINT_TYPE.SESSION_REF = ?
+ORDER BY ENDPOINT_TYPE.NAME`,
+      [sessionId]
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
  * Returns the count of the number of cluster commands with cli for a cluster
  * @param {*} db
  * @param {*} endpointTypes
@@ -635,3 +675,4 @@ exports.exportEndpoints = exportEndpoints
 exports.importEndpoint = importEndpoint
 exports.exportEndPointTypeIds = exportEndPointTypeIds
 exports.exportCliCommandCountFromEndpointTypeCluster = exportCliCommandCountFromEndpointTypeCluster
+exports.exportUsedEndPointTypeIds = exportUsedEndPointTypeIds
