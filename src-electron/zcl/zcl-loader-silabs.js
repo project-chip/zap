@@ -90,53 +90,64 @@ function collectDataFromJsonFile(ctx) {
  * @param {*} ctx Context which contains information about the propertiesFiles and data
  * @returns Promise of resolved files.
  */
-function collectDataFromPropertiesFile(ctx) {
-  env.logDebug(`Collecting ZCL files from properties file: ${ctx.metadataFile}`)
+async function collectDataFromPropertiesFile(ctx) {
+  return new Promise((resolve, reject) => {
+    env.logDebug(
+      `Collecting ZCL files from properties file: ${ctx.metadataFile}`
+    )
 
-  properties.parse(ctx.data, { namespaces: true }, (err, zclProps) => {
-    if (err) {
-      env.logError(`Could not read file: ${ctx.metadataFile}`)
-      throw err
-    } else {
-      let fileLocations = zclProps.xmlRoot
-        .split(',')
-        .map((p) => path.join(path.dirname(ctx.metadataFile), p))
-      let zclFiles = []
-      let f
+    properties.parse(ctx.data, { namespaces: true }, (err, zclProps) => {
+      if (err) {
+        env.logError(`Could not read file: ${ctx.metadataFile}`)
+        reject(err)
+      } else {
+        let fileLocations = zclProps.xmlRoot
+          .split(',')
+          .map((p) => path.join(path.dirname(ctx.metadataFile), p))
+        let zclFiles = []
+        let f
 
-      // Iterate over all XML files in the properties file, and check
-      // if they exist in one or the other directory listed in xmlRoot
-      zclProps.xmlFile.split(',').forEach((singleXmlFile) => {
-        let fullPath = util.locateRelativeFilePath(fileLocations, singleXmlFile)
-        if (fullPath != null) zclFiles.push(fullPath)
-      })
+        // Iterate over all XML files in the properties file, and check
+        // if they exist in one or the other directory listed in xmlRoot
+        zclProps.xmlFile.split(',').forEach((singleXmlFile) => {
+          let fullPath = util.locateRelativeFilePath(
+            fileLocations,
+            singleXmlFile
+          )
+          if (fullPath != null) zclFiles.push(fullPath)
+        })
 
-      ctx.zclFiles = zclFiles
-      // Manufacturers XML file.
-      f = util.locateRelativeFilePath(fileLocations, zclProps.manufacturersXml)
-      if (f != null) ctx.manufacturersXml = f
+        ctx.zclFiles = zclFiles
+        // Manufacturers XML file.
+        f = util.locateRelativeFilePath(
+          fileLocations,
+          zclProps.manufacturersXml
+        )
+        if (f != null) ctx.manufacturersXml = f
 
-      // Zcl XSD file
-      f = util.locateRelativeFilePath(fileLocations, zclProps.zclSchema)
-      if (f != null) ctx.zclSchema = f
+        // Zcl XSD file
+        f = util.locateRelativeFilePath(fileLocations, zclProps.zclSchema)
+        if (f != null) ctx.zclSchema = f
 
-      // Zcl Validation Script
-      f = util.locateRelativeFilePath(fileLocations, zclProps.zclValidation)
-      if (f != null) ctx.zclValidation = f
+        // Zcl Validation Script
+        f = util.locateRelativeFilePath(fileLocations, zclProps.zclValidation)
+        if (f != null) ctx.zclValidation = f
 
-      // General options
-      // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
-      if (zclProps.options) {
-        ctx.options = zclProps.options
+        // General options
+        // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
+        if (zclProps.options) {
+          ctx.options = zclProps.options
+        }
+        // Defaults. Note that the keys should be the categories that are listed for PACKAGE_OPTION, and the value should be the OPTION_CODE
+        if (zclProps.defaults) {
+          ctx.defaults = zclProps.defaults
+        }
+        ctx.supportCustomZclDevice = zclProps.supportCustomZclDevice
+        ctx.version = zclProps.version
+        env.logDebug(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
+        resolve(ctx)
       }
-      // Defaults. Note that the keys should be the categories that are listed for PACKAGE_OPTION, and the value should be the OPTION_CODE
-      if (zclProps.defaults) {
-        ctx.defaults = zclProps.defaults
-      }
-      ctx.supportCustomZclDevice = zclProps.supportCustomZclDevice
-      ctx.version = zclProps.version
-      env.logDebug(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
-    }
+    })
   })
 }
 
@@ -1102,7 +1113,7 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     if (isJson) {
       collectDataFromJsonFile(ctx)
     } else {
-      collectDataFromPropertiesFile(ctx)
+      await collectDataFromPropertiesFile(ctx)
     }
     if (ctx.version != null) {
       await zclLoader.recordVersion(db, ctx.packageId, ctx.version)
