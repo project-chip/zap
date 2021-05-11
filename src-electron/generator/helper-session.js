@@ -209,7 +209,7 @@ function all_user_cluster_command_util(
   isIrrespectiveOfManufacturingSpecification = false
 ) {
   let promise = queryImpexp
-    .exportEndPointTypeIds(
+    .exportUsedEndPointTypeIds(
       currentContext.global.db,
       currentContext.global.sessionId
     )

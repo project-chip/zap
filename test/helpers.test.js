@@ -88,6 +88,11 @@ test('Add one', () => {
   expect(cHelper.add_one(52)).toEqual(53)
 })
 
+test('Number greater than 2', () => {
+  expect(cHelper.is_number_greater_than_2(3)).toBeTruthy
+  expect(cHelper.is_number_greater_than_2(1)).toBeFalsy
+})
+
 test('dataTypeForEnum', () => {
   return cHelper
     .data_type_for_enum(db, 'patate', zclContext.packageId)
@@ -175,9 +180,61 @@ test('Various small Helper', () => {
   })
 })
 
+test('Generated Macro', () => {
+  let options = { hash: { endian: 'little' } }
+  return zclHelper
+    .as_generated_default_macro('0x00003840', 4, options)
+    .then((res) => expect(res).toBe('0x40, 0x38, 0x00, 0x00, '))
+})
+
+test('Attribute Mask', () => {
+  return zclHelper
+    .attribute_mask(0, 'RAM', 0, 0, 0, 'server', 1, 'ATTRIBUTE_MASK_', '')
+    .then((res) => expect(res).toBe('ATTRIBUTE_MASK_SINGLETON'))
+    .then(() =>
+      zclHelper.attribute_mask(
+        1,
+        'RAM',
+        1,
+        0,
+        32,
+        'server',
+        0,
+        'ATTRIBUTE_MASK_',
+        ''
+      )
+    )
+    .then((res) =>
+      expect(res).toBe('ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_MIN_MAX')
+    )
+})
+
+test('Command Mask', () => {
+  return zclHelper
+    .command_mask('client', 'either', 1, 1, 0, 'COMMAND_MASK_')
+    .then((res) =>
+      expect(res).toBe(
+        'COMMAND_MASK_INCOMING_SERVER | COMMAND_MASK_OUTGOING_CLIENT'
+      )
+    )
+})
+
 /*
 helper-zap.js
 */
-test('Various small Helper', () => {
+test('String comparison', () => {
   expect(zapHelper.is_lowercase_equal('A', 'a')).toBeTruthy()
+})
+
+test('Number comparison', () => {
+  expect(zapHelper.is_num_equal(1, 1)).toBeTruthy()
+  expect(zapHelper.is_num_equal(2, 1)).toBeFalsy()
+  expect(zapHelper.is_num_equal('1', 1)).toBeTruthy()
+})
+
+test('is argument undefined', () => {
+  expect(zapHelper.is_defined('abc')).toBeTruthy()
+  expect(zapHelper.is_defined('')).toBeFalsy()
+  expect(zapHelper.is_defined(null)).toBeFalsy()
+  expect(zapHelper.is_defined(undefined)).toBeFalsy()
 })

@@ -348,7 +348,7 @@ function is_num_equal(numA, numB) {
  * @param value
  * @returns true or false based on whether the value is undefined or not
  */
-function is_undefined(value) {
+function is_defined(value) {
   return !(value == null || value == undefined || value == '')
 }
 
@@ -387,4 +387,4 @@ exports.is_lowercase_equal = is_lowercase_equal
 exports.new_line = new_line
 exports.backslash = backslash
 exports.is_num_equal = is_num_equal
-exports.is_undefined = is_undefined
+exports.is_defined = is_defined
