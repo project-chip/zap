@@ -41,6 +41,9 @@
     "uc_generate": {
       "cmd": "$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}"
     },
+    "uc_upgrade": {
+      "cmd": "$(zap) convert --noUi --noServer --in ${contentFolder} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json"
+    },
     "zapHelp": {
       "cmd": "$(zap) --help"
     },
