@@ -853,7 +853,7 @@ function generated_clustes_details(options) {
 /**
  * Entails Endpoint type details along with their cluster summaries
  * @param options
- * @returns
+ * @returns Endpoint type details along with their cluster summaries
  */
 function generated_endpoint_type_details(options) {
   let promise = queryImpexp
