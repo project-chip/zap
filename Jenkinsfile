@@ -53,16 +53,6 @@ pipeline
                         }
                     }
                 }
-                stage('Feature level check')
-                {
-                    steps
-                    {
-                        script
-                        {
-                            sh 'npm run featurelevel'
-                        }
-                    }
-                }
                 stage('Outdated packages report')
                 {
                     steps
