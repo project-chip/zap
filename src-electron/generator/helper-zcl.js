@@ -1840,7 +1840,8 @@ function as_generated_default_macro(value, attributeSize, options) {
   return new Promise((resolve, reject) => {
     let default_macro_signature = ''
     if (attributeSize > 2) {
-      let default_macro = asHex(value, null, null)
+      let default_macro = helperC
+        .asHex(value, null, null)
         .replace('0x', '')
         .match(/.{1,2}/g)
       let padding_length = attributeSize - default_macro.length
