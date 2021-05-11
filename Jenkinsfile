@@ -339,6 +339,7 @@ pipeline
                 }
             }
         }
+
         stage('Run Adapter_Pack_ZAP_64 on JNKAUS-16.silabs.com')
         {
             when
@@ -349,12 +350,16 @@ pipeline
             {
                 script
                 {
-                    triggerRemoteJob blockBuildUntilComplete: false,
-                                     job: 'https://jnkaus016.silabs.com/job/Adapter_Pack_ZAP_64/',
-                                     remoteJenkinsName: 'jnkaus016',
-                                     shouldNotFailBuild: true,
-                                     useCrumbCache: true,
-                                     useJobInfoCache: true
+                    try {
+                        triggerRemoteJob blockBuildUntilComplete: false,
+                                        job: 'https://jnkaus016.silabs.com/job/Adapter_Pack_ZAP_64/',
+                                        remoteJenkinsName: 'jnkaus016',
+                                        shouldNotFailBuild: true,
+                                        useCrumbCache: true,
+                                        useJobInfoCache: true
+                    } catch (err) {
+                        currentBuild.result = 'UNSTABLE'
+                    }
                 }
             }
         }
@@ -369,7 +374,12 @@ pipeline
                 jobName = "${currentBuild.fullDisplayName}".replace('%2', '/')
                 if (currentBuild.result != 'SUCCESS') {
                     slackMessage = ":zap_failure: FAILED: <${env.RUN_DISPLAY_URL}|" + jobName + '>, changes by: ' + committers
-                    slackColor = '#FF0000'
+                    slackColor = 'danger'
+                    slackSend (color: slackColor, channel: '#zap', message: slackMessage)
+                }
+                else if(currentBuild.result == 'UNSTABLE') {
+                    slackMessage = ":warning: WARNING: <${env.RUN_DISPLAY_URL}|" + jobName + '>, changes by: ' + committers
+                    slackColor = 'warning'
                     slackSend (color: slackColor, channel: '#zap', message: slackMessage)
                 }
                 else
