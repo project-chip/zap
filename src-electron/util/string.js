@@ -26,8 +26,8 @@
  * @parem {*} firstLower if True the it starts with lowecase.
  * @returns a spaced out string in lowercase
  */
-function toCamelCase(label, firstLower = true) {
-  let str = label.split(/ |_|-|\//)
+ function toCamelCase(label, firstLower = true) {
+  let str = label.replace(/[+()&]/g, '').split(/ |_|-|\//)
   let res = ''
   for (let i = 0; i < str.length; i++) {
     if (i == 0 && firstLower) {
@@ -46,7 +46,7 @@ function toCamelCase(label, firstLower = true) {
 }
 
 function toSpacedLowercase(str) {
-  let res = str.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+  let res = str.replace(/[+()&]/g, '').replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return ' ' + y
   })
   return res.toLowerCase()
@@ -61,7 +61,7 @@ function toSpacedLowercase(str) {
 function toSnakeCaseAllCaps(label) {
   let ret = ''
   if (label == null) return ret
-  label = label.replace(/\.?([A-Z][a-z])/g, function (x, y) {
+  label = label.replace(/[+()&]/g, '').replace(/\.?([A-Z][a-z])/g, function (x, y) {
     return '_' + y
   })
   let wasUp = false
