@@ -780,7 +780,10 @@ async function parseSingleZclFile(db, ctx, file) {
       dbEnum.packageType.zclXml,
       false
     )
-    await zclLoader.parseZclFile(result)
+    if (result.data) {
+      result.result = await util.parseXml(fileContent)
+      delete result.data
+    }
     return processParsedZclData(db, result)
   } catch (err) {
     env.logError(`Could not load ${file}`, err)
@@ -819,13 +822,13 @@ async function parseManufacturerData(db, ctx) {
 
   let data = await fsp.readFile(ctx.manufacturersXml)
 
-  let manufacturerMap = await zclLoader.parseZclFile({ data: data })
+  let manufacturerMap = await util.parseXml(data)
 
   return queryPackage.insertOptionsKeyValues(
     db,
     ctx.packageId,
     dbEnum.packageOptionCategory.manufacturerCodes,
-    manufacturerMap.result.map.mapping.map((datum) => {
+    manufacturerMap.map.mapping.map((datum) => {
       let mfgPair = datum['$']
       return { code: mfgPair['code'], label: mfgPair['translation'] }
     })
@@ -1053,7 +1056,10 @@ async function loadIndividualSilabsFile(db, filePath, boundValidator) {
     if (boundValidator != null && fileContent != null) {
       result.validation = boundValidator(fileContent)
     }
-    result = await zclLoader.parseZclFile(result)
+    if (result.data) {
+      result.result = await util.parseXml(result.data)
+      delete result.data
+    }
     if (result.validation && result.validation.isValid == false) {
       throw new Error('Validation Failed')
     }

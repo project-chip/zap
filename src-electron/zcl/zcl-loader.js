@@ -262,25 +262,6 @@ function processZclPostLoading(db) {
   return queryZcl.updateDeviceTypeEntityReferences(db)
 }
 
-/**
- * Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
- *
- * @param {*} argument
- * @param {*} validator validator is a function that takes in an buffer, and returns an array of errors. This can be optional
- * @returns promise that resolves with the array [filePath,result,packageId,msg,data]
- */
-async function parseZclFile(argument) {
-  // No data, we skip this.
-  if (!('data' in argument)) {
-    return argument
-  } else {
-    let result = await util.parseXml(argument.data)
-    argument.result = result
-    delete argument.data
-    return argument
-  }
-}
-
 exports.loadZcl = loadZcl
 exports.readMetadataFile = readMetadataFile
 exports.recordToplevelPackage = recordToplevelPackage
@@ -288,4 +269,3 @@ exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading
 exports.loadIndividualFile = loadIndividualFile
 exports.qualifyZclFile = qualifyZclFile
-exports.parseZclFile = parseZclFile

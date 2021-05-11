@@ -36,10 +36,7 @@ const util = require('../util/util.js')
 async function collectDataFromLibraryXml(ctx) {
   env.logDebug(`Collecting ZCL files from: ${ctx.metadataFile}`)
   let fileContent = await fsp.readFile(ctx.metadataFile)
-  let data = {
-    filePath: ctx.metadataFile,
-    crc: util.checksum(fileContent),
-  }
+  ctx.crc = util.checksum(fileContent)
   let result = await util.parseXml(fileContent)
   let zclLib = result['zcl:library']
   ctx.version = '1.0'
@@ -86,8 +83,11 @@ async function parseSingleZclFile(db, ctx, file) {
     ctx.packageId,
     dbEnum.packageType.zclXml
   )
-  let result = (await zclLoader.parseZclFile(res)).result
-  if (result == null) return []
+  if (!res.data) {
+    return []
+  }
+
+  let result = await util.parseXml(fileContent)
   if (result['zcl:cluster']) {
     ctx.zclClusters.push(result['zcl:cluster'])
   } else if (result['zcl:global']) {
