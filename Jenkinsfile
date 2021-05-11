@@ -354,8 +354,7 @@ pipeline
                                      remoteJenkinsName: 'jnkaus016',
                                      shouldNotFailBuild: true,
                                      useCrumbCache: true,
-                                     useJobInfoCache: true,
-                                     disabled: true
+                                     useJobInfoCache: true
                 }
             }
         }
