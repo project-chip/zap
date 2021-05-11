@@ -28,7 +28,6 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
-const { createGzip } = require('zlib')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -38,7 +37,7 @@ const { createGzip } = require('zlib')
  */
 async function loadGenTemplate(context) {
   context.data = await fsPromise.readFile(context.path, 'utf8')
-  await util.calculateCrc(context)
+  context.crc = util.checksum(context.data)
   context.templateData = JSON.parse(context.data)
 
   let requiredFeatureLevel = 0

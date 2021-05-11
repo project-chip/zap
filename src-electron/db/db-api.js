@@ -454,9 +454,12 @@ async function performSchemaLoad(db, schemaContent) {
  * @returns A promise that resolves with the same db that got passed in, or rejects with an error.
  */
 async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
-  let data = await fsp.readFile(schemaPath, 'utf8')
-  let context = { filePath: schemaPath, data: data }
-  util.calculateCrc(context)
+  let schemaFileContent = await fsp.readFile(schemaPath, 'utf8')
+  let context = {
+    filePath: schemaPath,
+    data: schemaFileContent,
+    crc: util.checksum(schemaFileContent),
+  }
   await determineIfSchemaShouldLoad(db, context)
   if (context.mustLoad && context.hasSchema) {
     await closeDatabase(db)

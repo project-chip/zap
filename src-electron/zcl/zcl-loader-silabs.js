@@ -768,8 +768,11 @@ async function processParsedZclData(db, argument) {
 async function parseSingleZclFile(db, ctx, file) {
   try {
     let fileContent = await fsp.readFile(file)
-    let data = { filePath: file, data: fileContent }
-    util.calculateCrc(data)
+    let data = {
+      filePath: file,
+      data: fileContent,
+      crc: util.checksum(fileContent),
+    }
     let result = await zclLoader.qualifyZclFile(
       db,
       data,
@@ -837,9 +840,12 @@ async function parseManufacturerData(db, ctx) {
 async function parseZclSchema(db, ctx) {
   if (!ctx.zclSchema || !ctx.zclValidation) return
 
-  let data = await fsp.readFile(ctx.zclSchema)
-  let info = { filePath: ctx.zclSchema, data: data }
-  util.calculateCrc(info)
+  let content = await fsp.readFile(ctx.zclSchema)
+  let info = {
+    filePath: ctx.zclSchema,
+    data: content,
+    crc: util.checksum(content),
+  }
   await zclLoader.qualifyZclFile(
     db,
     info,
@@ -847,9 +853,12 @@ async function parseZclSchema(db, ctx) {
     dbEnum.packageType.zclSchema,
     false
   )
-  data = await fsp.readFile(ctx.zclValidation)
-  info = { filePath: ctx.zclValidation, data: data }
-  util.calculateCrc(info)
+  content = await fsp.readFile(ctx.zclValidation)
+  info = {
+    filePath: ctx.zclValidation,
+    data: content,
+    crc: util.checksum(content),
+  }
 
   return zclLoader.qualifyZclFile(
     db,
@@ -954,7 +963,7 @@ async function parseTextDefaults(db, pkgRef, textDefaults) {
   if (!textDefaults) return Promise.resolve()
 
   let promises = []
-  Object.keys(textDefaults).forEach((optionCategory) => {
+  for (let optionCategory of Object.keys(textDefaults)) {
     let txt = textDefaults[optionCategory]
     promises.push(
       queryPackage
@@ -987,7 +996,7 @@ async function parseTextDefaults(db, pkgRef, textDefaults) {
           }
         })
     )
-  })
+  }
   return Promise.all(promises)
 }
 
@@ -995,7 +1004,7 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
   if (!booleanCategories) return Promise.resolve()
 
   let promises = []
-  Object.keys(booleanCategories).forEach((optionCategory) => {
+  for (let optionCategory of Object.keys(booleanCategories)) {
     promises.push(
       queryPackage
         .selectSpecificOptionValue(
@@ -1013,7 +1022,7 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
           )
         )
     )
-  })
+  }
   return Promise.all(promises)
 }
 
@@ -1027,8 +1036,11 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
 async function loadIndividualSilabsFile(db, filePath, boundValidator) {
   try {
     let fileContent = await fsp.readFile(filePath)
-    let data = { filePath: filePath, data: fileContent }
-    util.calculateCrc(data)
+    let data = {
+      filePath: filePath,
+      data: fileContent,
+      crc: util.checksum(fileContent),
+    }
 
     let result = await zclLoader.qualifyZclFile(
       db,

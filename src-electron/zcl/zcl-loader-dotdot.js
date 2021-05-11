@@ -36,8 +36,11 @@ const util = require('../util/util.js')
 async function collectDataFromLibraryXml(ctx) {
   env.logDebug(`Collecting ZCL files from: ${ctx.metadataFile}`)
   let fileContent = await fsp.readFile(ctx.metadataFile)
-  let data = { filePath: ctx.metadataFile, data: fileContent }
-  util.calculateCrc(data)
+  let data = {
+    filePath: ctx.metadataFile,
+    data: fileContent,
+    crc: util.checksum(fileContent),
+  }
   await zclLoader.parseZclFile(data)
   let result = data.result
   let zclLib = result['zcl:library']
@@ -70,6 +73,50 @@ function tagContainsStruct(tag) {
 function tagContainsBitmap(tag) {
   return 'bitmap' in tag
 }
+
+async function parseSingleZclFile(db, ctx, file) {
+  let fileContent = await fsp.readFile(file)
+  let data = {
+    filePath: file,
+    data: fileContent,
+    crc: util.checksum(fileContent),
+  }
+
+  let res = await zclLoader.qualifyZclFile(
+    db,
+    data,
+    ctx.packageId,
+    dbEnum.packageType.zclXml
+  )
+  let result = (await zclLoader.parseZclFile(res)).result
+  if (result == null) return []
+  if (result['zcl:cluster']) {
+    ctx.zclClusters.push(result['zcl:cluster'])
+  } else if (result['zcl:global']) {
+    let zclGlobal = result['zcl:global']
+    ctx.zclGlobalTypes = zclGlobal['type:type']
+    ctx.zclGlobalAttributes = zclGlobal.attributes[0].attribute
+    ctx.zclGlobalCommands = zclGlobal.commands[0].command
+  } else if (result['zcl:library']) {
+    let zclLibrary = result['zcl:library']
+    ctx.zclTypes = zclLibrary['type:type']
+  } else if (result['zcl:device']) {
+    let deviceTypes = result['zcl:device']
+    if (ctx.zclDeviceTypes === undefined) {
+      ctx.zclDeviceTypes = deviceTypes['deviceType']
+    } else {
+      ctx.zclDeviceTypes = ctx.zclDeviceTypes.concat(deviceTypes['deviceType'])
+    }
+  } else if (result['map']) {
+    let manufacturers = result['map']
+    ctx.zclManufacturers = manufacturers['mapping']
+  } else {
+    //TODO: What to do with "derived clusters", we skip them here but we should probably
+    //      extend the DB schema to allow this since we don't really handle it
+    env.logDebug(`Didn't find anything relevant, Skipping file ${file}`)
+  }
+}
+
 /**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
@@ -90,53 +137,7 @@ async function parseZclFiles(db, ctx) {
 
   ctx.zclFiles.forEach((file) => {
     env.logDebug(`Starting to parse Dotdot ZCL file: ${file}`)
-    let p = fsp
-      .readFile(file)
-      .then((data) => util.calculateCrc({ filePath: file, data: data }))
-      .then((data) =>
-        zclLoader.qualifyZclFile(
-          db,
-          data,
-          ctx.packageId,
-          dbEnum.packageType.zclXml
-        )
-      )
-      .then((result) => zclLoader.parseZclFile(result))
-      .then((r) => {
-        let result = r.result
-
-        if (result == null) {
-          return Promise.resolve([])
-        }
-
-        if (result['zcl:cluster']) {
-          ctx.zclClusters.push(result['zcl:cluster'])
-        } else if (result['zcl:global']) {
-          let zclGlobal = result['zcl:global']
-          ctx.zclGlobalTypes = zclGlobal['type:type']
-          ctx.zclGlobalAttributes = zclGlobal.attributes[0].attribute
-          ctx.zclGlobalCommands = zclGlobal.commands[0].command
-        } else if (result['zcl:library']) {
-          let zclLibrary = result['zcl:library']
-          ctx.zclTypes = zclLibrary['type:type']
-        } else if (result['zcl:device']) {
-          let deviceTypes = result['zcl:device']
-          if (ctx.zclDeviceTypes === undefined) {
-            ctx.zclDeviceTypes = deviceTypes['deviceType']
-          } else {
-            ctx.zclDeviceTypes = ctx.zclDeviceTypes.concat(
-              deviceTypes['deviceType']
-            )
-          }
-        } else if (result['map']) {
-          let manufacturers = result['map']
-          ctx.zclManufacturers = manufacturers['mapping']
-        } else {
-          //TODO: What to do with "derived clusters", we skip them here but we should probably
-          //      extend the DB schema to allow this since we don't really handle it
-          env.logDebug(`Didn't find anything relevant, Skipping file ${file}`)
-        }
-      })
+    let p = parseSingleZclFile(db, ctx, file)
     perFilePromise.push(p)
   })
 
@@ -632,10 +633,9 @@ async function loadZclData(db, ctx) {
  * @param {*} filePath
  * @return {*} object w/ following: { packageId: pkgId } or { err: err }
  */
-function loadIndividualDotDotFile(db, filePath) {
-  return fsp.readFile(filePath).then((data) => {
-    console.log(data)
-  })
+async function loadIndividualDotDotFile(db, filePath) {
+  let content = await fsp.readFile(filePath)
+  console.log(`UNSUPPORTED: ${content}`)
 }
 
 /**
@@ -649,21 +649,22 @@ function loadIndividualDotDotFile(db, filePath) {
  */
 async function loadDotdotZcl(db, ctx) {
   env.logDebug(`Loading Dotdot zcl file: ${ctx.metadataFile}`)
-  return dbApi
-    .dbBeginTransaction(db)
-    .then(() => zclLoader.readMetadataFile(ctx))
-    .then((context) => zclLoader.recordToplevelPackage(db, context))
-    .then((context) => collectDataFromLibraryXml(context))
-    .then((context) => zclLoader.recordVersion(context))
-    .then((context) => parseZclFiles(db, context))
-    .then((context) => loadZclData(db, context))
-    .then(() => zclLoader.processZclPostLoading(db))
-    .then(() => dbApi.dbCommit(db))
-    .then(() => ctx)
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
+  try {
+    await dbApi.dbBeginTransaction(db)
+    await zclLoader.readMetadataFile(ctx)
+    await zclLoader.recordToplevelPackage(db, ctx)
+    await collectDataFromLibraryXml(ctx)
+    await zclLoader.recordVersion(ctx)
+    await parseZclFiles(db, ctx)
+    await loadZclData(db, ctx)
+    await zclLoader.processZclPostLoading(db)
+  } catch (err) {
+    env.logError(err)
+    throw err
+  } finally {
+    await dbApi.dbCommit(db)
+  }
+  return ctx
 }
 
 exports.loadDotdotZcl = loadDotdotZcl
