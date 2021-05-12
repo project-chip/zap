@@ -89,8 +89,8 @@ test('Add one', () => {
 })
 
 test('Number greater than 2', () => {
-  expect(cHelper.is_number_greater_than_2(3)).toBeTruthy
-  expect(cHelper.is_number_greater_than_2(1)).toBeFalsy
+  expect(cHelper.is_number_greater_than(3, 2)).toBeTruthy
+  expect(cHelper.is_number_greater_than(1, 2)).toBeFalsy
 })
 
 test('dataTypeForEnum', () => {

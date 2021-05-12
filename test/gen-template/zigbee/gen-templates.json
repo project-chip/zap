@@ -171,9 +171,9 @@
       "output": "zap-config.h"
     },
     {
-      "path": "zap-config-may-11-2021.zapt",
-      "name": "ZCL endpoint configuration on MAY 11 2021",
-      "output": "zap-config-may-11-2021.h"
+      "path": "zap-config-version-2.zapt",
+      "name": "ZCL endpoint configuration Version 2",
+      "output": "zap-config-version-2.h"
     },
     {
       "path": "zap-reporting.zapt",

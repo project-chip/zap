@@ -338,12 +338,13 @@ function addOne(number) {
 }
 
 /**
- * Return true if number is greater than 2
- * @param num
- * @returns true if num is greater than 2 else returns false
+ * Return true if number1 is greater than number2
+ * @param num1
+ * @param num2
+ * @returns true if num1 is greater than num2 else returns false
  */
-function is_number_greater_than_2(num) {
-  return num > 2
+function is_number_greater_than(num1, num2) {
+  return num1 > num2
 }
 
 const dep = templateUtil.deprecatedHelper
@@ -404,4 +405,4 @@ exports.cleanseLabelAsKebabCase = dep(cleanseLabelAsKebabCase, {
 exports.format_value = formatValue
 exports.formatValue = dep(formatValue, { to: 'format_value' })
 exports.as_zcl_cli_type = as_zcl_cli_type
-exports.is_number_greater_than_2 = is_number_greater_than_2
+exports.is_number_greater_than = is_number_greater_than

@@ -208,7 +208,7 @@ function all_user_cluster_command_util(
   isManufacturingSpecific,
   isIrrespectiveOfManufacturingSpecification = false
 ) {
-  let promise = queryImpexp
+  let promise = queryZcl
     .exportUsedEndPointTypeIds(
       currentContext.global.db,
       currentContext.global.sessionId
@@ -810,7 +810,7 @@ function all_user_reportable_attributes(options) {
  * @returns All available cluster commands across all endpoints and clusters
  */
 function all_user_cluster_generated_commands(options) {
-  let promise = queryImpexp
+  let promise = queryZcl
     .exportUsedEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportAllAvailableClusterCommandDetailsFromEndpointTypes(
