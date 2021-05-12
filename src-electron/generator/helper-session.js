@@ -208,8 +208,8 @@ function all_user_cluster_command_util(
   isManufacturingSpecific,
   isIrrespectiveOfManufacturingSpecification = false
 ) {
-  let promise = queryZcl
-    .exportUsedEndPointTypeIds(
+  let promise = queryImpexp
+    .exportEndPointTypeIds(
       currentContext.global.db,
       currentContext.global.sessionId
     )
