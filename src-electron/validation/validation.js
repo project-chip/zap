@@ -23,54 +23,51 @@
 
 const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
-const queryPackage = require('../db/query-package.js')
-const dbApi = require('../db/db-api.js')
+const types = require('../util/types.js')
 
-function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {
-  return queryZcl
-    .selectEndpointTypeAttribute(db, endpointTypeId, attributeRef, clusterRef)
-    .then((endpointAttribute) =>
-      queryZcl
-        .selectAttributeById(db, attributeRef)
-        .then((attribute) =>
-          validateSpecificAttribute(endpointAttribute, attribute)
-        )
-    )
+async function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {
+  let endpointAttribute = await queryZcl.selectEndpointTypeAttribute(
+    db,
+    endpointTypeId,
+    attributeRef,
+    clusterRef
+  )
+  let attribute = await queryZcl.selectAttributeById(db, attributeRef)
+
+  return validateSpecificAttribute(endpointAttribute, attribute)
 }
 
-function validateEndpoint(db, endpointId) {
-  return queryConfig.selectEndpoint(db, endpointId).then((endpoint) => {
-    return new Promise((resolve, reject) => {
-      resolve(validateSpecificEndpoint(endpoint))
-    }).then((currentIssues) => {
-      return validateNoDuplicateEndpoints(
-        db,
-        endpoint.endpointId,
-        endpoint.sessionRef
-      ).then((noDuplicates) => {
-        if (!noDuplicates) {
-          currentIssues.endpointId.push('Duplicate EndpointIds Exist')
-        }
-        return currentIssues
-      })
-    })
-  })
+async function validateEndpoint(db, endpointId) {
+  let endpoint = await queryConfig.selectEndpoint(db, endpointId)
+  let currentIssues = validateSpecificEndpoint(endpoint)
+  let noDuplicates = await validateNoDuplicateEndpoints(
+    db,
+    endpoint.endpointId,
+    endpoint.sessionRef
+  )
+  if (!noDuplicates) {
+    currentIssues.endpointId.push('Duplicate EndpointIds Exist')
+  }
+  return currentIssues
 }
 
-function validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef) {
-  return queryConfig
-    .getCountOfEndpointsWithGivenEndpointIdentifier(
-      db,
-      endpointIdentifier,
-      sessionRef
-    )
-    .then((count) => count.length <= 1)
+async function validateNoDuplicateEndpoints(
+  db,
+  endpointIdentifier,
+  sessionRef
+) {
+  let count = await queryConfig.getCountOfEndpointsWithGivenEndpointIdentifier(
+    db,
+    endpointIdentifier,
+    sessionRef
+  )
+  return count.length <= 1
 }
 
 function validateSpecificAttribute(endpointAttribute, attribute) {
   let defaultAttributeIssues = []
-  if (!isStringType(attribute.type)) {
-    if (isFloatType(attribute.type)) {
+  if (!types.isString(attribute.type)) {
+    if (types.isFloat(attribute.type)) {
       if (!isValidFloat(endpointAttribute.defaultValue))
         defaultAttributeIssues.push('Invalid Float')
       //Interpreting float values
@@ -168,30 +165,6 @@ function checkBoundsFloat(defaultValue, min, max) {
   return defaultValue >= min && defaultValue <= max
 }
 
-// This function checks to see if
-function isStringType(type) {
-  switch (type.toUpperCase()) {
-    case 'CHAR_STRING':
-    case 'OCTET_STRING':
-    case 'LONG_CHAR_STRING':
-    case 'LONG_OCTET_STRING':
-      return true
-    default:
-      return false
-  }
-}
-
-function isFloatType(type) {
-  switch (type) {
-    case 'FLOAT_SEMI':
-    case 'FLOAT_SINGLE':
-    case 'FLOAT_DOUBLE':
-      return true
-    default:
-      return false
-  }
-}
-
 // exports
 exports.validateAttribute = validateAttribute
 exports.validateEndpoint = validateEndpoint
@@ -206,5 +179,3 @@ exports.getBoundsInteger = getBoundsInteger
 exports.checkBoundsInteger = checkBoundsInteger
 exports.getBoundsFloat = getBoundsFloat
 exports.checkBoundsFloat = checkBoundsFloat
-exports.isStringType = isStringType
-exports.isFloatType = isFloatType

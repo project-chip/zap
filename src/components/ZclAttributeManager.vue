@@ -32,6 +32,7 @@ limitations under the License.
       binary-state-sort
       :pagination.sync="pagination"
       :sort-method="customAttributeSort"
+      data-cy="Attributes"
     >
       <template v-slot:body="props">
         <q-tr :props="props">

@@ -37,7 +37,7 @@ const dbApi = require('../db/db-api.js')
  */
 async function loadGenTemplate(context) {
   context.data = await fsPromise.readFile(context.path, 'utf8')
-  await util.calculateCrc(context)
+  context.crc = util.checksum(context.data)
   context.templateData = JSON.parse(context.data)
 
   let requiredFeatureLevel = 0
@@ -81,6 +81,27 @@ async function recordPackageIfNonexistent(
   }
 }
 
+async function loadTemplateOptionsFromJsonFile(
+  db,
+  packageId,
+  category,
+  externalPath
+) {
+  let content = await fsPromise.readFile(externalPath, 'utf8')
+  let jsonData = JSON.parse(content)
+  let codeLabels = []
+  for (const code of Object.keys(jsonData)) {
+    codeLabels.push({ code: code, label: jsonData[code] })
+  }
+
+  return queryPackage.insertOptionsKeyValues(
+    db,
+    packageId,
+    category,
+    codeLabels
+  )
+}
+
 /**
  * Given a loading context, it records the package into the packages table and adds the packageId field into the resolved context.
  *
@@ -88,177 +109,174 @@ async function recordPackageIfNonexistent(
  * @returns promise that resolves with the same context passed in, except packageId added to it
  */
 async function recordTemplatesPackage(context) {
-  return queryPackage
-    .registerTopLevelPackage(
-      context.db,
-      context.path,
-      context.crc,
-      dbEnum.packageType.genTemplatesJson,
-      context.templateData.version
+  context.packageId = await queryPackage.registerTopLevelPackage(
+    context.db,
+    context.path,
+    context.crc,
+    dbEnum.packageType.genTemplatesJson,
+    context.templateData.version
+  )
+
+  let promises = []
+  env.logDebug(`Loading ${context.templateData.templates.length} templates.`)
+
+  // Add templates queries to the list of promises
+  context.templateData.templates.forEach((template) => {
+    let templatePath = path.resolve(
+      path.join(path.dirname(context.path), template.path)
     )
-    .then((packageId) => {
-      context.packageId = packageId
-    })
-    .then(() => {
-      let promises = []
-      env.logDebug(
-        `Loading ${context.templateData.templates.length} templates.`
+    if (!template.ignore) {
+      promises.push(
+        recordPackageIfNonexistent(
+          context.db,
+          templatePath,
+          context.packageId,
+          dbEnum.packageType.genSingleTemplate,
+          template.output
+        )
       )
+    }
+  })
 
-      // Add templates queries to the list of promises
-      context.templateData.templates.forEach((template) => {
-        let templatePath = path.resolve(
-          path.join(path.dirname(context.path), template.path)
-        )
-        if (!template.ignore) {
-          promises.push(
-            recordPackageIfNonexistent(
-              context.db,
-              templatePath,
-              context.packageId,
-              dbEnum.packageType.genSingleTemplate,
-              template.output
-            )
-          )
-        }
-      })
+  // Add options to the list of promises
+  if (context.templateData.options != null) {
+    for (const category of Object.keys(context.templateData.options)) {
+      let data = context.templateData.options[category]
 
-      // Add options to the list of promises
-      if (context.templateData.options != null) {
-        for (const category of Object.keys(context.templateData.options)) {
-          let data = context.templateData.options[category]
-
-          if (_.isString(data)) {
-            // Data is a string, so we will treat it as a relative path to the JSON file.
-            let externalPath = path.resolve(
-              path.join(path.dirname(context.path), data)
-            )
-            let promise = fsPromise
-              .readFile(externalPath, 'utf8')
-              .then((content) => JSON.parse(content))
-              .then((jsonData) => {
-                let codeLabels = []
-                for (const code of Object.keys(jsonData)) {
-                  codeLabels.push({ code: code, label: jsonData[code] })
-                }
-                return codeLabels
-              })
-              .then((codeLabels) =>
-                queryPackage.insertOptionsKeyValues(
-                  context.db,
-                  context.packageId,
-                  category,
-                  codeLabels
-                )
-              )
-            promises.push(promise)
-          } else {
-            // Treat this data as an object.
-            let codeLabelArray = []
-            for (const code of Object.keys(data)) {
-              codeLabelArray.push({ code: code, label: data[code] })
-            }
-            promises.push(
-              queryPackage.insertOptionsKeyValues(
-                context.db,
-                context.packageId,
-                category,
-                codeLabelArray
-              )
-            )
-          }
-        }
-      }
-
-      // Deal with helpers
-      if (context.templateData.helpers != null) {
-        context.templateData.helpers.forEach((helper) => {
-          let helperPath = path.join(path.dirname(context.path), helper)
-          promises.push(
-            recordPackageIfNonexistent(
-              context.db,
-              helperPath,
-              context.packageId,
-              dbEnum.packageType.genHelper,
-              null
-            )
-          )
-        })
-      }
-
-      // Deal with overrides
-      if (context.templateData.override != null) {
-        let overridePath = path.join(
-          path.dirname(context.path),
-          context.templateData.override
+      if (_.isString(data)) {
+        // Data is a string, so we will treat it as a relative path to the JSON file.
+        let externalPath = path.resolve(
+          path.join(path.dirname(context.path), data)
         )
         promises.push(
-          recordPackageIfNonexistent(
+          loadTemplateOptionsFromJsonFile(
             context.db,
-            overridePath,
             context.packageId,
-            dbEnum.packageType.genOverride,
-            null
+            category,
+            externalPath
           )
         )
-      }
-      // Deal with partials
-      if (context.templateData.partials != null) {
-        context.templateData.partials.forEach((partial) => {
-          let partialPath = path.join(path.dirname(context.path), partial.path)
-          promises.push(
-            queryPackage.insertPathCrc(
-              context.db,
-              partialPath,
-              null,
-              dbEnum.packageType.genPartial,
-              context.packageId,
-              partial.name
-            )
-          )
-        })
-      }
-
-      // Deal with zcl extensions
-      if (context.templateData.zcl != null) {
-        let zclExtension = context.templateData.zcl
+      } else {
+        // Treat this data as an object.
+        let codeLabelArray = []
+        for (const code of Object.keys(data)) {
+          codeLabelArray.push({ code: code, label: data[code] })
+        }
         promises.push(
-          loadZclExtensions(
+          queryPackage.insertOptionsKeyValues(
             context.db,
             context.packageId,
-            zclExtension,
-            context.path
+            category,
+            codeLabelArray
           )
         )
       }
-      return Promise.all(promises)
+    }
+  }
+
+  // Deal with helpers
+  if (context.templateData.helpers != null) {
+    context.templateData.helpers.forEach((helper) => {
+      let helperPath = path.join(path.dirname(context.path), helper)
+      promises.push(
+        recordPackageIfNonexistent(
+          context.db,
+          helperPath,
+          context.packageId,
+          dbEnum.packageType.genHelper,
+          null
+        )
+      )
     })
-    .then(() => context)
+  }
+
+  // Deal with overrides
+  if (context.templateData.override != null) {
+    let overridePath = path.join(
+      path.dirname(context.path),
+      context.templateData.override
+    )
+    promises.push(
+      recordPackageIfNonexistent(
+        context.db,
+        overridePath,
+        context.packageId,
+        dbEnum.packageType.genOverride,
+        null
+      )
+    )
+  }
+  // Deal with partials
+  if (context.templateData.partials != null) {
+    context.templateData.partials.forEach((partial) => {
+      let partialPath = path.join(path.dirname(context.path), partial.path)
+      promises.push(
+        queryPackage.insertPathCrc(
+          context.db,
+          partialPath,
+          null,
+          dbEnum.packageType.genPartial,
+          context.packageId,
+          partial.name
+        )
+      )
+    })
+  }
+
+  // Deal with zcl extensions
+  if (context.templateData.zcl != null) {
+    let zclExtension = context.templateData.zcl
+    promises.push(
+      loadZclExtensions(
+        context.db,
+        context.packageId,
+        zclExtension,
+        context.path
+      )
+    )
+  }
+  return Promise.all(promises).then(() => context)
 }
 
+/**
+ * This method takes extension data in JSON, and converts it into
+ * an object that contains:
+ *    entityCode, entityQualifier, parentCode, manufacturerCode and value
+ * @param {*} entityType
+ * @param {*} entity
+ * @returns object that can be used for database injection
+ */
 function decodePackageExtensionEntity(entityType, entity) {
   switch (entityType) {
     case dbEnum.packageExtensionEntity.cluster:
       return {
         entityCode: parseInt(entity.clusterCode),
+        entityQualifier: null,
+        manufacturerCode: null,
         parentCode: null,
         value: entity.value,
       }
     case dbEnum.packageExtensionEntity.command:
       return {
         entityCode: parseInt(entity.commandCode),
+        entityQualifier: entity.source,
+        manufacturerCode: null,
         parentCode: parseInt(entity.clusterCode),
         value: entity.value,
       }
     case dbEnum.packageExtensionEntity.attribute:
       return {
         entityCode: parseInt(entity.attributeCode),
+        entityQualifier: null,
+        manufacturerCode: null,
         parentCode: parseInt(entity.clusterCode),
         value: entity.value,
       }
     case dbEnum.packageExtensionEntity.deviceType:
       return {
         entityCode: entity.device,
+        entityQualifier: null,
+        manufacturerCode: null,
         parentCode: null,
         value: entity.value,
       }
@@ -302,14 +320,14 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
             .readFile(externalPath, 'utf8')
             .then((content) => JSON.parse(content))
             .catch((err) => {
-              env.logInfo(
+              env.logWarning(
                 `Invalid file! Failed to load defaults from: ${prop.defaults}`
               )
             })
 
           if (data) {
             if (!Array.isArray(data)) {
-              env.logInfo(
+              env.logWarning(
                 `Invalid file format! Failed to load defaults from: ${prop.defaults}`
               )
             } else {
@@ -519,7 +537,8 @@ async function generate(
   return queryPackage
     .getPackageByPackageId(db, templatePackageId)
     .then((pkg) => {
-      if (pkg == null) throw `Invalid packageId: ${templatePackageId}`
+      if (pkg == null)
+        throw new Error(`Invalid packageId: ${templatePackageId}`)
       let genResult = {
         db: db,
         sessionId: sessionId,
@@ -532,7 +551,7 @@ async function generate(
       if (pkg.type === dbEnum.packageType.genTemplatesJson) {
         return generateAllTemplates(genResult, pkg, options)
       } else {
-        throw `Invalid package type: ${pkg.type}`
+        throw new Error(`Invalid package type: ${pkg.type}`)
       }
     })
 }

@@ -40,7 +40,7 @@ async function getPackageByPathAndParent(db, path, parentId, isCustom) {
         (isCustom ? 'PARENT_PACKAGE_REF IS NULL' : '(PARENT_PACKAGE_REF = ?)'),
       isCustom ? [path] : [path, parentId]
     )
-    .then((row) => dbMapping.map.package(row))
+    .then(dbMapping.map.package)
 }
 
 /**
@@ -75,7 +75,7 @@ async function getPackageByPathAndType(db, path, type) {
       'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ? AND TYPE = ?',
       [path, type]
     )
-    .then((row) => dbMapping.map.package(row))
+    .then(dbMapping.map.package)
 }
 
 /**
@@ -567,7 +567,7 @@ async function selectAllDefaultOptions(db, packageId) {
  *
  * @param {*} db
  * @param {*} packageExtensionId
- * @param {*} defaultArray Array containing objects with 'entityCode', 'parentCode', 'value'
+ * @param {*} defaultArray Array containing objects with 'entityCode', 'parentCode', 'manufacturerCode', 'entityQualifier', 'value'
  * @returns Promise of insertion for defaults.
  */
 async function insertPackageExtensionDefault(
@@ -579,13 +579,20 @@ async function insertPackageExtensionDefault(
     db,
     `
 INSERT INTO PACKAGE_EXTENSION_DEFAULT
-  (PACKAGE_EXTENSION_REF, ENTITY_CODE, PARENT_CODE, VALUE)
+  (PACKAGE_EXTENSION_REF, ENTITY_CODE, ENTITY_QUALIFIER, PARENT_CODE, MANUFACTURER_CODE, VALUE)
 VALUES
-  ( ?, ?, ?, ?)
+  ( ?, ?, ?, ?, ?, ?)
 ON CONFLICT DO NOTHING
     `,
     defaultArray.map((d) => {
-      return [packageExtensionId, d.entityCode, d.parentCode, d.value]
+      return [
+        packageExtensionId,
+        d.entityCode,
+        d.entityQualifier,
+        d.parentCode,
+        d.manufacturerCode,
+        d.value,
+      ]
     })
   )
 }
@@ -666,7 +673,9 @@ SELECT
   PE.LABEL,
   PE.GLOBAL_DEFAULT,
   PED.ENTITY_CODE,
+  PED.ENTITY_QUALIFIER,
   PED.PARENT_CODE,
+  PED.MANUFACTURER_CODE,
   PED.VALUE
 FROM 
   PACKAGE_EXTENSION AS PE

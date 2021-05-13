@@ -85,44 +85,51 @@ function device_type_extension(options) {
   }
 }
 
-function subentityExtension(context, prop, entityType) {
-  if (prop == null) {
-    return ''
+async function subentityExtension(context, prop, entityType) {
+  if (prop == null) return ''
+
+  let packageId = await templateUtil.ensureTemplatePackageId(context)
+
+  let extensions
+  if (entityType == dbEnum.packageExtensionEntity.attribute) {
+    extensions = await templateUtil.ensureZclAttributeSdkExtensions(
+      context,
+      packageId
+    )
+  } else if (entityType == dbEnum.packageExtensionEntity.command) {
+    extensions = await templateUtil.ensureZclCommandSdkExtensions(
+      context,
+      packageId
+    )
   } else {
-    return templateUtil
-      .ensureTemplatePackageId(context)
-      .then((packageId) => {
-        if (entityType == dbEnum.packageExtensionEntity.attribute) {
-          return templateUtil.ensureZclAttributeSdkExtensions(
-            context,
-            packageId
-          )
-        } else if (entityType == dbEnum.packageExtensionEntity.command) {
-          return templateUtil.ensureZclCommandSdkExtensions(context, packageId)
-        } else {
-          throw `Invalid subentity: ${entityType}`
-        }
-      })
-      .then((extensions) => {
-        let f = extensions.filter((x) => x.property == prop)
-        if (f.length == 0) {
-          return ''
-        } else {
-          let val = null
-          f[0].defaults.forEach((d) => {
-            let clusterCode = context.clusterCode
-            if (clusterCode == null && context.parent)
-              clusterCode = context.parent.code
-            if (d.entityCode == context.code && d.parentCode == clusterCode) {
-              val = d.value
-            }
-          })
-          if (val == null) val = f[0].globalDefault
-          if (val == null) val = ''
-          return val
-        }
-      })
+    throw new Error(`Invalid subentity: ${entityType}`)
   }
+
+  let f = extensions.filter((x) => x.property == prop)
+  if (f.length == 0) return ''
+
+  let val = null
+  f[0].defaults.forEach((d) => {
+    let clusterCode = context.clusterCode
+    if (clusterCode == null && context.parent) clusterCode = context.parent.code
+    if (d.entityCode == context.code && d.parentCode == clusterCode) {
+      // Now let's deal with qualifier:
+      if (
+        d.entityQualifier != null &&
+        entityType == dbEnum.packageExtensionEntity.command
+      ) {
+        if (d.entityQualifier == context.source) {
+          val = d.value
+        }
+      } else {
+        // No special conditions, we match
+        if (val == null) val = d.value
+      }
+    }
+  })
+  if (val == null) val = f[0].globalDefault
+  if (val == null) val = ''
+  return val
 }
 
 /**

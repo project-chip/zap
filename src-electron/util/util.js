@@ -32,16 +32,15 @@ const queryZcl = require('../db/query-zcl.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { v4: uuidv4 } = require('uuid')
+const xml2js = require('xml2js')
 
 /**
- * Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
- *
- * @param {*} context that contains 'filePath' and 'data' keys for the file and contents of the file.
- * @returns Promise that resolves with the same object, just adds the 'crc' key into it.
+ * Returns the CRC of the data that is passed.
+ * @param {*} data
+ * @returns Calculated CRC of a data.
  */
-function calculateCrc(context) {
-  context.crc = crc.crc32(context.data)
-  return context
+function checksum(data) {
+  return crc.crc32(data)
 }
 
 /**
@@ -487,8 +486,17 @@ function waitFor(time) {
   return new Promise((r) => setTimeout(r, time))
 }
 
+/**
+ * Returns a promise that resolve into a parsed XML object.
+ * @param {*} fileContent
+ * @returns promise that resolves into parsed object.
+ */
+async function parseXml(fileContent) {
+  return xml2js.parseStringPromise(fileContent)
+}
+
 exports.createBackupFile = createBackupFile
-exports.calculateCrc = calculateCrc
+exports.checksum = checksum
 exports.initializeSessionPackage = initializeSessionPackage
 exports.matchFeatureLevel = matchFeatureLevel
 exports.sessionReport = sessionReport
@@ -501,3 +509,4 @@ exports.createUuid = createUuid
 exports.waitFor = waitFor
 exports.getClusterExtension = getClusterExtension
 exports.getClusterExtensionDefault = getClusterExtensionDefault
+exports.parseXml = parseXml

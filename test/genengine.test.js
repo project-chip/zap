@@ -241,7 +241,7 @@ test(
 
         expect(
           sdkExtension.includes(
-            'IMPLEMENTED_COMMANDS>ResetToFactoryDefaults,Identify,IdentifyQuery,EZModeInvoke,UpdateCommissionState,<END'
+            'IMPLEMENTED_COMMANDS>ResetToFactoryDefaults,IdentifyQueryResponse,IdentifyQuery,EZModeInvoke,UpdateCommissionState,<END'
           )
         ).toBeTruthy()
       }),
@@ -366,7 +366,7 @@ test('Test file 2 generation', async () => {
       expect(sdkExtension).not.toBeNull()
       expect(
         sdkExtension.includes(
-          'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,Identify,IdentifyQuery,<END2'
+          'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,IdentifyQuery,<END2'
         )
       ).toBeTruthy()
     })

@@ -246,13 +246,13 @@ function shutdownHttpServer() {
  * @export
  * @returns Promise that resolves when server is shut down.
  */
-function shutdownHttpServerSync(fn = () => {}) {
+function shutdownHttpServerSync(fn = null) {
   if (httpServer != null) {
     studio.deinit()
     httpServer.close(() => {
       env.logDebug('HTTP server shut down.')
       httpServer = null
-      fn()
+      if (fn != null) fn()
     })
   }
 }

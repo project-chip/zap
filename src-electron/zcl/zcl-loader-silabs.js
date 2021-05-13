@@ -35,56 +35,53 @@ const _ = require('lodash')
  * @param {*} ctx  Context containing information about the file
  * @returns Promise of resolved file.
  */
-async function collectDataFromJsonFile(ctx) {
+function collectDataFromJsonFile(ctx) {
   env.logDebug(`Collecting ZCL files from JSON file: ${ctx.metadataFile}`)
-  return new Promise((resolve, reject) => {
-    let obj = JSON.parse(ctx.data)
-    let f
+  let obj = JSON.parse(ctx.data)
+  let f
 
-    let fileLocations
-    if (Array.isArray(obj.xmlRoot)) {
-      fileLocations = obj.xmlRoot.map((p) =>
-        path.join(path.dirname(ctx.metadataFile), p)
-      )
-    } else {
-      fileLocations = [path.join(path.dirname(ctx.metadataFile), obj.xmlRoot)]
-    }
-    let zclFiles = []
-    obj.xmlFile.forEach((xmlF) => {
-      f = util.locateRelativeFilePath(fileLocations, xmlF)
-      if (f != null) zclFiles.push(f)
-    })
-
-    ctx.zclFiles = zclFiles
-
-    // Manufacturers XML file.
-    f = util.locateRelativeFilePath(fileLocations, obj.manufacturersXml)
-    if (f != null) ctx.manufacturersXml = f
-
-    // Zcl XSD file
-    f = util.locateRelativeFilePath(fileLocations, obj.zclSchema)
-    if (f != null) ctx.zclSchema = f
-
-    // Zcl Validation Script
-    f = util.locateRelativeFilePath(fileLocations, obj.zclValidation)
-    if (f != null) ctx.zclValidation = f
-
-    // General options
-    // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
-    if (obj.options) {
-      ctx.options = obj.options
-    }
-    // Defaults. Note that the keys should be the categories that are listed for PACKAGE_OPTION, and the value should be the OPTION_CODE
-    if (obj.defaults) {
-      ctx.defaults = obj.defaults
-    }
-
-    ctx.version = obj.version
-    ctx.supportCustomZclDevice = obj.supportCustomZclDevice
-
-    env.logDebug(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
-    resolve(ctx)
+  let fileLocations
+  if (Array.isArray(obj.xmlRoot)) {
+    fileLocations = obj.xmlRoot.map((p) =>
+      path.join(path.dirname(ctx.metadataFile), p)
+    )
+  } else {
+    fileLocations = [path.join(path.dirname(ctx.metadataFile), obj.xmlRoot)]
+  }
+  let zclFiles = []
+  obj.xmlFile.forEach((xmlF) => {
+    f = util.locateRelativeFilePath(fileLocations, xmlF)
+    if (f != null) zclFiles.push(f)
   })
+
+  ctx.zclFiles = zclFiles
+
+  // Manufacturers XML file.
+  f = util.locateRelativeFilePath(fileLocations, obj.manufacturersXml)
+  if (f != null) ctx.manufacturersXml = f
+
+  // Zcl XSD file
+  f = util.locateRelativeFilePath(fileLocations, obj.zclSchema)
+  if (f != null) ctx.zclSchema = f
+
+  // Zcl Validation Script
+  f = util.locateRelativeFilePath(fileLocations, obj.zclValidation)
+  if (f != null) ctx.zclValidation = f
+
+  // General options
+  // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
+  if (obj.options) {
+    ctx.options = obj.options
+  }
+  // Defaults. Note that the keys should be the categories that are listed for PACKAGE_OPTION, and the value should be the OPTION_CODE
+  if (obj.defaults) {
+    ctx.defaults = obj.defaults
+  }
+
+  ctx.version = obj.version
+  ctx.supportCustomZclDevice = obj.supportCustomZclDevice
+
+  env.logDebug(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
 }
 
 /**
@@ -688,7 +685,7 @@ async function processParsedZclData(db, argument) {
   let data = argument.result
   let packageId = argument.packageId
   if (!('result' in argument)) {
-    return Promise.resolve([])
+    return []
   } else {
     let promisesStep1 = []
     let promisesStep2 = []
@@ -765,6 +762,31 @@ async function processParsedZclData(db, argument) {
   }
 }
 
+async function parseSingleZclFile(db, packageId, file) {
+  try {
+    let fileContent = await fsp.readFile(file)
+    let data = {
+      filePath: file,
+      data: fileContent,
+      crc: util.checksum(fileContent),
+    }
+    let result = await zclLoader.qualifyZclFile(
+      db,
+      data,
+      packageId,
+      dbEnum.packageType.zclXml,
+      false
+    )
+    if (result.data) {
+      result.result = await util.parseXml(fileContent)
+      delete result.data
+    }
+    return processParsedZclData(db, result)
+  } catch (err) {
+    env.logError(`Could not load ${file}`, err)
+  }
+}
+
 /**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
@@ -774,36 +796,15 @@ async function processParsedZclData(db, argument) {
  * @param {*} ctx
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
-async function parseZclFiles(db, ctx) {
-  ctx.laterPromises = []
-  env.logDebug(`Starting to parse ZCL files: ${ctx.zclFiles}`)
-  return Promise.all(
-    ctx.zclFiles.map((file) =>
-      fsp
-        .readFile(file)
-        .then((data) => util.calculateCrc({ filePath: file, data: data }))
-        .then((data) =>
-          zclLoader.qualifyZclFile(
-            db,
-            data,
-            ctx.packageId,
-            dbEnum.packageType.zclXml,
-            false
-          )
-        )
-        .then((result) => zclLoader.parseZclFile(result))
-        .then((result) => processParsedZclData(db, result))
-        .then((laterPromises) => {
-          laterPromises.flat(1).forEach((p) => ctx.laterPromises.push(p))
-          return ctx
-        })
-        .catch((err) => env.logError(err))
-    )
+async function parseZclFiles(db, packageId, zclFiles) {
+  env.logDebug(`Starting to parse ZCL files: ${zclFiles}`)
+  let individualFilePromise = zclFiles.map((file) =>
+    parseSingleZclFile(db, packageId, file)
   )
-    .then(() => ctx.laterPromises.map((promise) => promise()))
-    .then((promiseArray) => Promise.all(promiseArray))
-    .then(() => zclLoader.processZclPostLoading(db))
-    .then(() => ctx)
+
+  let laterPromises = (await Promise.all(individualFilePromise)).flat(2)
+  await Promise.all(laterPromises.map((promise) => promise()))
+  return zclLoader.processZclPostLoading(db)
 }
 
 /**
@@ -813,77 +814,67 @@ async function parseZclFiles(db, ctx) {
  * @param {*} ctx
  * @returns Promise of a parsed manufacturers file.
  */
-async function parseManufacturerData(db, ctx) {
-  if (!ctx.manufacturersXml) return Promise.resolve(ctx)
-  return fsp
-    .readFile(ctx.manufacturersXml)
-    .then((data) =>
-      zclLoader.parseZclFile({ data: data }).then((manufacturerMap) =>
-        queryPackage.insertOptionsKeyValues(
-          db,
-          ctx.packageId,
-          dbEnum.packageOptionCategory.manufacturerCodes,
-          manufacturerMap.result.map.mapping.map((datum) => {
-            let mfgPair = datum['$']
-            return { code: mfgPair['code'], label: mfgPair['translation'] }
-          })
-        )
-      )
-    )
-    .then(() => ctx)
+async function parseManufacturerData(db, packageId, manufacturersXml) {
+  let data = await fsp.readFile(manufacturersXml)
+
+  let manufacturerMap = await util.parseXml(data)
+
+  return queryPackage.insertOptionsKeyValues(
+    db,
+    packageId,
+    dbEnum.packageOptionCategory.manufacturerCodes,
+    manufacturerMap.map.mapping.map((datum) => {
+      let mfgPair = datum['$']
+      return { code: mfgPair['code'], label: mfgPair['translation'] }
+    })
+  )
 }
 
 /**
  * Parses the ZCL Schema
  * @param {*} db
- * @param {*} ctx
  */
-async function parseZclSchema(db, ctx) {
-  if (!ctx.zclSchema || !ctx.zclValidation) return Promise.resolve(ctx)
-  return fsp
-    .readFile(ctx.zclSchema)
-    .then((data) => util.calculateCrc({ filePath: ctx.zclSchema, data: data }))
-    .then((data) =>
-      zclLoader.qualifyZclFile(
-        db,
-        data,
-        ctx.packageId,
-        dbEnum.packageType.zclSchema,
-        false
-      )
-    )
-    .then(() =>
-      fsp
-        .readFile(ctx.zclValidation)
-        .then((data) =>
-          util.calculateCrc({ filePath: ctx.zclValidation, data: data })
-        )
-    )
-    .then((data) => {
-      zclLoader.qualifyZclFile(
-        db,
-        data,
-        ctx.packageId,
-        dbEnum.packageType.zclValidation,
-        false
-      )
-    })
-    .then(() => Promise.resolve(ctx))
+async function parseZclSchema(db, packageId, zclSchema, zclValidation) {
+  let content = await fsp.readFile(zclSchema)
+  let info = {
+    filePath: zclSchema,
+    data: content,
+    crc: util.checksum(content),
+  }
+  await zclLoader.qualifyZclFile(
+    db,
+    info,
+    packageId,
+    dbEnum.packageType.zclSchema,
+    false
+  )
+  content = await fsp.readFile(zclValidation)
+  info = {
+    filePath: zclValidation,
+    data: content,
+    crc: util.checksum(content),
+  }
+
+  return zclLoader.qualifyZclFile(
+    db,
+    info,
+    packageId,
+    dbEnum.packageType.zclValidation,
+    false
+  )
 }
 
 /**
  * Parses and loads the text and boolean options.
  *
  * @param {*} db
- * @param {*} ctx
  * @returns promise of parsed options
  */
-async function parseOptions(db, ctx) {
-  if (!ctx.options) return Promise.resolve(ctx)
+async function parseOptions(db, packageId, options) {
   let promises = []
-  promises.push(parseTextOptions(db, ctx.packageId, ctx.options.text))
-  promises.push(parseBoolOptions(db, ctx.packageId, ctx.options.bool))
-  return Promise.all(promises).then(() => ctx)
+  promises.push(parseTextOptions(db, packageId, options.text))
+  promises.push(parseBoolOptions(db, packageId, options.bool))
+  return Promise.all(promises)
 }
 
 /**
@@ -953,19 +944,18 @@ async function parseBoolOptions(db, pkgRef, booleanCategories) {
  * @param {*} ctx
  * @returns Promised of parsed text and bool defaults.
  */
-async function parseDefaults(db, ctx) {
-  if (!ctx.defaults) return Promise.resolve(ctx)
+async function parseDefaults(db, packageId, defaults) {
   let promises = []
-  promises.push(parseTextDefaults(db, ctx.packageId, ctx.defaults.text))
-  promises.push(parseBoolDefaults(db, ctx.packageId, ctx.defaults.bool))
-  return Promise.all(promises).then(() => ctx)
+  promises.push(parseTextDefaults(db, packageId, defaults.text))
+  promises.push(parseBoolDefaults(db, packageId, defaults.bool))
+  return Promise.all(promises)
 }
 
 async function parseTextDefaults(db, pkgRef, textDefaults) {
   if (!textDefaults) return Promise.resolve()
 
   let promises = []
-  Object.keys(textDefaults).forEach((optionCategory) => {
+  for (let optionCategory of Object.keys(textDefaults)) {
     let txt = textDefaults[optionCategory]
     promises.push(
       queryPackage
@@ -998,7 +988,7 @@ async function parseTextDefaults(db, pkgRef, textDefaults) {
           }
         })
     )
-  })
+  }
   return Promise.all(promises)
 }
 
@@ -1006,7 +996,7 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
   if (!booleanCategories) return Promise.resolve()
 
   let promises = []
-  Object.keys(booleanCategories).forEach((optionCategory) => {
+  for (let optionCategory of Object.keys(booleanCategories)) {
     promises.push(
       queryPackage
         .selectSpecificOptionValue(
@@ -1024,7 +1014,7 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
           )
         )
     )
-  })
+  }
   return Promise.all(promises)
 }
 
@@ -1036,41 +1026,39 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
  * @returns Promise of a loaded file.
  */
 async function loadIndividualSilabsFile(db, filePath, boundValidator) {
-  let pkgId
-  return fsp
-    .readFile(filePath)
-    .then((data) => util.calculateCrc({ filePath: filePath, data: data }))
-    .then((data) =>
-      zclLoader.qualifyZclFile(
-        db,
-        data,
-        null,
-        dbEnum.packageType.zclXmlStandalone,
-        true
-      )
+  try {
+    let fileContent = await fsp.readFile(filePath)
+    let data = {
+      filePath: filePath,
+      data: fileContent,
+      crc: util.checksum(fileContent),
+    }
+
+    let result = await zclLoader.qualifyZclFile(
+      db,
+      data,
+      null,
+      dbEnum.packageType.zclXmlStandalone,
+      true
     )
-    .then((result) => {
-      pkgId = result.packageId
-      return result
-    })
-    .then((result) => zclLoader.parseZclFile(result, boundValidator))
-    .then((result) => {
-      if (result.validation && result.validation.isValid == false) {
-        throw new Error('Validation Failed')
-      }
-      return result
-    })
-    .then((result) => processParsedZclData(db, result))
-    .then((laterPromises) =>
-      Promise.all(laterPromises.flat(1).map((promise) => promise()))
-    )
-    .then(() => zclLoader.processZclPostLoading(db))
-    .then(() => {
-      return { succeeded: true, packageId: pkgId }
-    })
-    .catch((err) => {
-      return { succeeded: false, err: err }
-    })
+    let pkgId = result.packageId
+    if (boundValidator != null && fileContent != null) {
+      result.validation = boundValidator(fileContent)
+    }
+    if (result.data) {
+      result.result = await util.parseXml(result.data)
+      delete result.data
+    }
+    if (result.validation && result.validation.isValid == false) {
+      throw new Error('Validation Failed')
+    }
+    let laterPromises = await processParsedZclData(db, result)
+    await Promise.all(laterPromises.flat(1).map((promise) => promise()))
+    await zclLoader.processZclPostLoading(db)
+    return { succeeded: true, packageId: pkgId }
+  } catch (err) {
+    return { succeeded: false, err: err }
+  }
 }
 
 /**
@@ -1080,26 +1068,23 @@ async function loadIndividualSilabsFile(db, filePath, boundValidator) {
  * @param {*} ctx
  * @returns context
  */
-async function processCustomZclDeviceType(db, ctx) {
-  if (ctx.supportCustomZclDevice) {
-    let customDeviceTypes = []
-    customDeviceTypes.push({
-      domain: dbEnum.customDevice.domain,
-      code: dbEnum.customDevice.code,
-      profileId: dbEnum.customDevice.profileId,
-      name: dbEnum.customDevice.name,
-      description: dbEnum.customDevice.description,
-    })
-    let existingCustomDevice = await queryZcl.selectDeviceTypeByCodeAndName(
-      db,
-      ctx.packageId,
-      dbEnum.customDevice.code,
-      dbEnum.customDevice.name
-    )
-    if (existingCustomDevice == null)
-      await queryLoader.insertDeviceTypes(db, ctx.packageId, customDeviceTypes)
-  }
-  return ctx
+async function processCustomZclDeviceType(db, packageId) {
+  let customDeviceTypes = []
+  customDeviceTypes.push({
+    domain: dbEnum.customDevice.domain,
+    code: dbEnum.customDevice.code,
+    profileId: dbEnum.customDevice.profileId,
+    name: dbEnum.customDevice.name,
+    description: dbEnum.customDevice.description,
+  })
+  let existingCustomDevice = await queryZcl.selectDeviceTypeByCodeAndName(
+    db,
+    packageId,
+    dbEnum.customDevice.code,
+    dbEnum.customDevice.name
+  )
+  if (existingCustomDevice == null)
+    await queryLoader.insertDeviceTypes(db, packageId, customDeviceTypes)
 }
 
 /**
@@ -1111,32 +1096,51 @@ async function processCustomZclDeviceType(db, ctx) {
  * @param {*} ctx The context of loading.
  * @returns a Promise that resolves with the db.
  */
-async function loadSilabsZcl(db, context, isJson = false) {
-  env.logDebug(`Loading Silabs zcl file: ${context.metadataFile}`)
-  return dbApi
-    .dbBeginTransaction(db)
-    .then(() => zclLoader.readMetadataFile(context))
-    .then((ctx) => zclLoader.recordToplevelPackage(db, ctx))
-    .then((ctx) => {
-      if (isJson) {
-        return collectDataFromJsonFile(ctx)
-      } else {
-        return collectDataFromPropertiesFile(ctx)
-      }
-    })
-    .then((ctx) => zclLoader.recordVersion(ctx))
-    .then((ctx) => parseZclFiles(db, ctx))
-    .then((ctx) => parseManufacturerData(db, ctx))
-    .then((ctx) => processCustomZclDeviceType(db, ctx))
-    .then((ctx) => parseOptions(db, ctx))
-    .then((ctx) => parseDefaults(db, ctx))
-    .then((ctx) => parseZclSchema(db, ctx))
-    .then(() => dbApi.dbCommit(db))
-    .then(() => context)
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
+async function loadSilabsZcl(db, metafile, isJson = false) {
+  let ctx = {
+    metadataFile: metafile,
+    db: db,
+  }
+  env.logDebug(`Loading Silabs zcl file: ${ctx.metadataFile}`)
+  await dbApi.dbBeginTransaction(db)
+  try {
+    Object.assign(ctx, await zclLoader.readMetadataFile(metafile))
+    ctx.packageId = await zclLoader.recordToplevelPackage(
+      db,
+      ctx.metadataFile,
+      ctx.crc
+    )
+    if (isJson) {
+      collectDataFromJsonFile(ctx)
+    } else {
+      await collectDataFromPropertiesFile(ctx)
+    }
+    if (ctx.version != null) {
+      await zclLoader.recordVersion(db, ctx.packageId, ctx.version)
+    }
+    await parseZclFiles(db, ctx.packageId, ctx.zclFiles)
+    if (ctx.manufacturersXml) {
+      await parseManufacturerData(db, ctx.packageId, ctx.manufacturersXml)
+    }
+    if (ctx.supportCustomZclDevice) {
+      await processCustomZclDeviceType(db, ctx.packageId)
+    }
+    if (ctx.options) {
+      await parseOptions(db, ctx.packageId, ctx.options)
+    }
+    if (ctx.defaults) {
+      await parseDefaults(db, ctx.packageId, ctx.defaults)
+    }
+    if (ctx.zclSchema && ctx.zclValidation) {
+      await parseZclSchema(db, ctx.packageId, ctx.zclSchema, ctx.zclValidation)
+    }
+  } catch (err) {
+    env.logError(err)
+    throw err
+  } finally {
+    dbApi.dbCommit(db)
+  }
+  return ctx
 }
 
 exports.loadSilabsZcl = loadSilabsZcl

@@ -12,6 +12,7 @@
     },
     "externalOption": "externalOptions.json",
     "cli": "cli.json",
+    "rendererApiInfo": "renderer_api_info.json",
     "types": {
       "bacnet_oid": "bacnet_type_t"
     }

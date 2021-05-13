@@ -21,11 +21,10 @@ const queryPackage = require('../db/query-package.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const fsp = fs.promises
-const sLoad = require('./zcl-loader-silabs')
-const dLoad = require('./zcl-loader-dotdot')
+const sLoad = require('./zcl-loader-silabs.js')
+const dLoad = require('./zcl-loader-dotdot.js')
 const queryZcl = require('../db/query-zcl.js')
 const env = require('../util/env.js')
-const xml2js = require('xml2js')
 const _ = require('lodash')
 
 const defaultValidator = (zclData) => {
@@ -33,32 +32,35 @@ const defaultValidator = (zclData) => {
 }
 
 /**
- * Reads the properties file into ctx.data and also calculates crc into ctx.crc
+ * Reads the properties file and returns object containing
+ * 'data', 'filePath' and 'crc'
  *
- * @param {*} ctx
+ * @param {*} metadata file
  * @returns Promise to populate data, filePath and crc into the context.
  */
-async function readMetadataFile(ctx) {
-  let data = await fsp.readFile(ctx.metadataFile, { encoding: 'utf-8' })
-  ctx.data = data
-  ctx.filePath = ctx.metadataFile
-  return util.calculateCrc(ctx)
+async function readMetadataFile(metadataFile) {
+  let content = await fsp.readFile(metadataFile, { encoding: 'utf-8' })
+  return {
+    data: content,
+    filePath: metadataFile,
+    crc: util.checksum(content),
+  }
 }
 
 /**
- * Records the toplevel package information and puts ctx.packageId into the context.
- *
- * @param {*} ctx
+ * Records the toplevel package information and resolves into packageId
+ * @param {*} db
+ * @param {*} metadataFile
+ * @param {*} crc
+ * @returns packageId
  */
-async function recordToplevelPackage(db, ctx) {
-  let id = await queryPackage.registerTopLevelPackage(
+async function recordToplevelPackage(db, metadataFile, crc) {
+  return queryPackage.registerTopLevelPackage(
     db,
-    ctx.metadataFile,
-    ctx.crc,
+    metadataFile,
+    crc,
     dbEnum.packageType.zclProperties
   )
-  ctx.packageId = id
-  return ctx
 }
 
 /**
@@ -67,11 +69,8 @@ async function recordToplevelPackage(db, ctx) {
  * @param {*} db
  * @param {*} ctx
  */
-async function recordVersion(ctx) {
-  if (ctx.version != null) {
-    await queryPackage.updateVersion(ctx.db, ctx.packageId, ctx.version)
-  }
-  return ctx
+async function recordVersion(db, packageId, version) {
+  return queryPackage.updateVersion(db, packageId, version)
 }
 
 /**
@@ -83,43 +82,41 @@ async function recordVersion(ctx) {
  * @returns a Promise that resolves with the db.
  */
 async function loadZcl(db, metadataFile) {
-  let ctx = {
-    metadataFile: path.resolve(metadataFile),
-    db: db,
-  }
   let ext = path.extname(metadataFile)
+  let resolvedMetafile = path.resolve(metadataFile)
   if (ext == '.xml') {
-    return dLoad.loadDotdotZcl(db, ctx)
+    return dLoad.loadDotdotZcl(db, resolvedMetafile)
   } else if (ext == '.properties') {
-    return sLoad.loadSilabsZcl(db, ctx, false)
+    return sLoad.loadSilabsZcl(db, resolvedMetafile, false)
   } else if (ext == '.json') {
-    return sLoad.loadSilabsZcl(db, ctx, true)
+    return sLoad.loadSilabsZcl(db, resolvedMetafile, true)
   } else {
-    throw 'unknown properties file type'
+    throw new Error(`Unknown zcl metafile type: ${metadataFile}`)
   }
 }
 
-function loadIndividualFile(db, filePath, sessionId) {
-  return queryPackage
-    .getSessionPackagesByType(db, sessionId, dbEnum.packageType.zclProperties)
-    .then((zclPropertiesPackages) => {
-      if (zclPropertiesPackages.length == 0) {
-        env.logDebug(
-          `Unable to find a validator for project, skipping validator`
-        )
-        // Return an function that returns an empty array
-        return defaultValidator
-      }
-      return bindValidationScript(db, zclPropertiesPackages[0].id)
-    })
-    .then((validator) => {
-      let ext = path.extname(filePath)
-      if (ext == '.xml') {
-        return sLoad.loadIndividualSilabsFile(db, filePath, validator)
-      } else {
-        return Promise.reject('Unknown extension file')
-      }
-    })
+async function loadIndividualFile(db, filePath, sessionId) {
+  let zclPropertiesPackages = await queryPackage.getSessionPackagesByType(
+    db,
+    sessionId,
+    dbEnum.packageType.zclProperties
+  )
+
+  let validator
+  if (zclPropertiesPackages.length == 0) {
+    env.logDebug(`Unable to find a validator for project, skipping validator`)
+    // Return an function that returns an empty array
+    validator = defaultValidator
+  } else {
+    validator = await bindValidationScript(db, zclPropertiesPackages[0].id)
+  }
+
+  let ext = path.extname(filePath)
+  if (ext == '.xml') {
+    return sLoad.loadIndividualSilabsFile(db, filePath, validator)
+  } else {
+    return Promise.reject('Unknown extension file')
+  }
 }
 
 /**
@@ -128,36 +125,37 @@ function loadIndividualFile(db, filePath, sessionId) {
  * @param {*} db
  * @param {*} basePackageId
  */
-function bindValidationScript(db, basePackageId) {
-  return getSchemaAndValidationScript(db, basePackageId)
-    .then((data) => {
-      if (
-        !(dbEnum.packageType.zclSchema in data) ||
-        !(dbEnum.packageType.zclValidation in data)
-      ) {
-        return defaultValidator
-      }
+async function bindValidationScript(db, basePackageId) {
+  try {
+    let data = await getSchemaAndValidationScript(db, basePackageId)
+
+    if (
+      !(dbEnum.packageType.zclSchema in data) ||
+      !(dbEnum.packageType.zclValidation in data)
+    ) {
+      return defaultValidator
+    } else {
       let zclSchema = data[dbEnum.packageType.zclSchema]
       let zclValidation = data[dbEnum.packageType.zclValidation]
       let module = require(zclValidation)
       let validateZclFile = module.validateZclFile
 
       env.logDebug(`Reading individual file: ${zclSchema}`)
-      return fsp
-        .readFile(zclSchema)
-        .then((schemaFile) => validateZclFile.bind(null, schemaFile))
-    })
-    .catch((err) => {
-      env.logError(`Error loading package specific validator: ${err}`)
-      return defaultValidator
-    })
+      let schemaFileContent = await fsp.readFile(zclSchema)
+      return validateZclFile.bind(null, schemaFileContent)
+    }
+  } catch (err) {
+    env.logError(`Error loading package specific validator: ${err}`)
+    return defaultValidator
+  }
 }
+
 /**
  * Returns an object with zclSchema and zclValidation elements.
  * @param {*} db
  * @param {*} basePackageId
  */
-function getSchemaAndValidationScript(db, basePackageId) {
+async function getSchemaAndValidationScript(db, basePackageId) {
   let promises = []
   promises.push(
     queryPackage.getPackagesByParentAndType(
@@ -173,14 +171,13 @@ function getSchemaAndValidationScript(db, basePackageId) {
       dbEnum.packageType.zclValidation
     )
   )
-  return Promise.all(promises).then((data) =>
-    data.reduce((result, item) => {
-      if (item.length >= 1) {
-        result[item[0].type] = item[0].path
-      }
-      return result
-    }, {})
-  )
+  let data = await Promise.all(promises)
+  return data.reduce((result, item) => {
+    if (item.length >= 1) {
+      result[item[0].type] = item[0].path
+    }
+    return result
+  }, {})
 }
 
 /**
@@ -193,62 +190,62 @@ function getSchemaAndValidationScript(db, basePackageId) {
  * @param {*} parentPackageId
  * @returns Promise that resolves int he object of data.
  */
-function qualifyZclFile(db, info, parentPackageId, packageType, isCustom) {
-  return new Promise((resolve, reject) => {
-    let filePath = info.filePath
-    let data = info.data
-    let actualCrc = info.crc
-    queryPackage
-      .getPackageByPathAndParent(db, filePath, parentPackageId, isCustom)
-      .then((pkg) => {
-        if (pkg == null) {
-          // This is executed if there is no CRC in the database.
-          env.logDebug(`No CRC in the database for file ${filePath}, parsing.`)
-          return queryPackage
-            .insertPathCrc(
-              db,
-              filePath,
-              actualCrc,
-              packageType,
-              parentPackageId,
-              filePath
-            )
-            .then((packageId) => {
-              resolve({
-                filePath: filePath,
-                data: data,
-                packageId:
-                  parentPackageId == null ? packageId : parentPackageId,
-              })
-            })
-        } else {
-          // This is executed if CRC is found in the database.
-          if (pkg.crc == actualCrc) {
-            env.logDebug(
-              `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
-            )
-            resolve({
-              error: `${pkg.path} skipped`,
-              packageId: pkg.id,
-            })
-          } else {
-            env.logDebug(
-              `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
-            )
-            return queryPackage
-              .updatePathCrc(db, filePath, actualCrc, parentPackageId)
-              .then(() => {
-                resolve({
-                  filePath: filePath,
-                  data: data,
-                  packageId:
-                    parentPackageId == null ? packageId : parentPackageId,
-                })
-              })
-          }
-        }
-      })
-  })
+async function qualifyZclFile(
+  db,
+  info,
+  parentPackageId,
+  packageType,
+  isCustom
+) {
+  let filePath = info.filePath
+  let data = info.data
+  let actualCrc = info.crc
+
+  let pkg = await queryPackage.getPackageByPathAndParent(
+    db,
+    filePath,
+    parentPackageId,
+    isCustom
+  )
+
+  if (pkg == null) {
+    // This is executed if there is no CRC in the database.
+    env.logDebug(`No CRC in the database for file ${filePath}, parsing.`)
+    let packageId = await queryPackage.insertPathCrc(
+      db,
+      filePath,
+      actualCrc,
+      packageType,
+      parentPackageId,
+      filePath
+    )
+    return {
+      filePath: filePath,
+      data: data,
+      packageId: parentPackageId == null ? packageId : parentPackageId,
+    }
+  } else {
+    // This is executed if CRC is found in the database.
+    if (pkg.crc == actualCrc) {
+      env.logDebug(
+        `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
+      )
+      return {
+        error: `${pkg.path} skipped`,
+        packageId: pkg.id,
+      }
+    } else {
+      env.logDebug(
+        `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
+      )
+      await queryPackage.updatePathCrc(db, filePath, actualCrc, parentPackageId)
+      return {
+        filePath: filePath,
+        data: data,
+        packageId: parentPackageId == null ? packageId : parentPackageId,
+      }
+    }
+  }
 }
 
 /**
@@ -261,29 +258,6 @@ function processZclPostLoading(db) {
   return queryZcl.updateDeviceTypeEntityReferences(db)
 }
 
-/**
- * Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
- *
- * @param {*} argument
- * @param {*} validator validator is a function that takes in an buffer, and returns an array of errors. This can be optional
- * @returns promise that resolves with the array [filePath,result,packageId,msg,data]
- */
-function parseZclFile(argument, validator = null) {
-  // No data, we skip this.
-  if (!('data' in argument)) {
-    return Promise.resolve(argument)
-  } else {
-    if (validator) {
-      argument.validation = validator(argument.data)
-    }
-    return xml2js.parseStringPromise(argument.data).then((result) => {
-      argument.result = result
-      delete argument.data
-      return argument
-    })
-  }
-}
-
 exports.loadZcl = loadZcl
 exports.readMetadataFile = readMetadataFile
 exports.recordToplevelPackage = recordToplevelPackage
@@ -291,4 +265,3 @@ exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading
 exports.loadIndividualFile = loadIndividualFile
 exports.qualifyZclFile = qualifyZclFile
-exports.parseZclFile = parseZclFile

@@ -27,6 +27,7 @@ const queryConfig = require('../src-electron/db/query-config.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const env = require('../src-electron/util/env.js')
 const util = require('../src-electron/util/util.js')
+const types = require('../src-electron/util/types.js')
 
 let db
 let sid
@@ -88,18 +89,18 @@ test('Test int bounds', () => {
 }, 5000)
 
 test('Validate types', () => {
-  expect(validation.isStringType('CHAR_STRING'))
+  expect(types.isString('CHAR_STRING'))
 
-  expect(validation.isStringType('char_string'))
-  expect(validation.isStringType('OCTET_STRING'))
-  expect(validation.isStringType('LONG_CHAR_STRING'))
-  expect(validation.isStringType('LONG_OCTET_STRING'))
-  expect(!validation.isStringType('FLOAT_SEMI'))
+  expect(types.isString('char_string'))
+  expect(types.isString('OCTET_STRING'))
+  expect(types.isString('LONG_CHAR_STRING'))
+  expect(types.isString('LONG_OCTET_STRING'))
+  expect(!types.isString('FLOAT_SEMI'))
 
-  expect(validation.isFloatType('FLOAT_SEMI'))
-  expect(validation.isFloatType('FLOAT_SINGLE'))
-  expect(validation.isFloatType('FLOAT_DOUBLE'))
-  expect(!validation.isFloatType('LONG_OCTET_STRING'))
+  expect(types.isFloat('FLOAT_SEMI'))
+  expect(types.isFloat('FLOAT_SINGLE'))
+  expect(types.isFloat('FLOAT_DOUBLE'))
+  expect(!types.isFloat('LONG_OCTET_STRING'))
 }, 5000)
 
 test(

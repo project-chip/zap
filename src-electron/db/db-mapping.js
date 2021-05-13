@@ -351,7 +351,9 @@ exports.map = {
     if (x == null) return undefined
     return {
       entityCode: x.ENTITY_CODE,
+      entityQualifier: x.ENTITY_QUALIFIER,
       parentCode: x.PARENT_CODE,
+      manufacturerCode: x.MANUFACTURER_CODE,
       value: x.VALUE,
     }
   },
@@ -374,6 +376,7 @@ exports.map = {
     if (x == null) return undefined
     return {
       sessionId: x.SESSION_ID,
+      sessionKey: x.SESSION_KEY,
       creationTime: x.CREATION_TIME,
       dirty: x.DIRTY == 1,
     }

@@ -99,7 +99,6 @@ export default {
   data() {
     return {}
   },
-  created() {},
   components: {
     ZclGeneralOptionsBar,
     ZclEndpointManager,

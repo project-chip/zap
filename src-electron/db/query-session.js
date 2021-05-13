@@ -34,20 +34,7 @@ const util = require('../util/util.js')
 async function getAllSessions(db) {
   return dbApi
     .dbAll(db, 'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION', [])
-    .then((rows) => {
-      if (rows == null) {
-        reject()
-      } else {
-        let map = rows.map((row) => {
-          return {
-            sessionId: row.SESSION_ID,
-            sessionKey: row.SESSION_KEY,
-            creationTime: row.CREATION_TIME,
-          }
-        })
-        return Promise.resolve(map)
-      }
-    })
+    .then((rows) => rows.map(dbMapping.map.session))
 }
 
 /**
@@ -100,17 +87,7 @@ async function getSessionInfoFromSessionKey(db, sessionKey) {
       'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION WHERE SESSION_KEY = ?',
       [sessionKey]
     )
-    .then((row) => {
-      if (row == null) {
-        return null
-      } else {
-        return {
-          sessionId: row.SESSION_ID,
-          sessionKey: row.SESSION_KEY,
-          creationTime: row.CREATION_TIME,
-        }
-      }
-    })
+    .then(dbMapping.map.session)
 }
 
 /**

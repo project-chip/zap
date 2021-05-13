@@ -342,12 +342,20 @@ async function insertEndpoint(
     db,
     `
 INSERT OR REPLACE
-INTO ENDPOINT ( SESSION_REF, ENDPOINT_IDENTIFIER, ENDPOINT_TYPE_REF, NETWORK_IDENTIFIER, DEVICE_VERSION, DEVICE_IDENTIFIER, PROFILE)
-VALUES ( ?, ?, ?, ?, ?, ?,
-         ( SELECT DEVICE_TYPE.PROFILE_ID
-           FROM DEVICE_TYPE, ENDPOINT_TYPE
-           WHERE ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ?
-             AND ENDPOINT_TYPE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID ) )`,
+INTO ENDPOINT (
+  SESSION_REF,
+  ENDPOINT_IDENTIFIER,
+  ENDPOINT_TYPE_REF,
+  NETWORK_IDENTIFIER,
+  DEVICE_VERSION,
+  DEVICE_IDENTIFIER,
+  PROFILE
+) VALUES ( ?, ?, ?, ?, ?, ?,
+         ( SELECT DT.PROFILE_ID
+           FROM DEVICE_TYPE AS DT, ENDPOINT_TYPE AS ET
+           WHERE ET.ENDPOINT_TYPE_ID = ?
+             AND ET.DEVICE_TYPE_REF = DT.DEVICE_TYPE_ID )
+)`,
     [
       sessionId,
       endpointIdentifier,
@@ -588,14 +596,10 @@ async function setEndpointDefaults(
     resolveNonOptionalCommands(db, endpointTypeId, defaultClusters)
   )
 
-  return Promise.all(promises)
-    .catch((err) => {
-      console.log(err)
-    })
-    .finally((data) => {
-      if (doTransaction) return dbApi.dbCommit(db)
-      else return Promise.resolve({ defaultClusters })
-    })
+  return Promise.all(promises).finally(() => {
+    if (doTransaction) return dbApi.dbCommit(db)
+    else return Promise.resolve({ defaultClusters })
+  })
 }
 
 /**
@@ -611,38 +615,34 @@ async function resolveDefaultClusters(db, endpointTypeId, clusters) {
     let clientServerPromise = []
     if (cluster.includeClient) {
       clientServerPromise.push(
-        new Promise((resolve, reject) =>
-          insertOrReplaceClusterState(
-            db,
-            endpointTypeId,
-            cluster.clusterRef,
-            dbEnum.side.client,
-            true
-          ).then((data) => {
-            resolve({
-              clusterRef: cluster.clusterRef,
-              side: dbEnum.side.client,
-            })
-          })
-        )
+        insertOrReplaceClusterState(
+          db,
+          endpointTypeId,
+          cluster.clusterRef,
+          dbEnum.side.client,
+          true
+        ).then(() => {
+          return {
+            clusterRef: cluster.clusterRef,
+            side: dbEnum.side.client,
+          }
+        })
       )
     }
     if (cluster.includeServer) {
       clientServerPromise.push(
-        new Promise((resolve, reject) =>
-          insertOrReplaceClusterState(
-            db,
-            endpointTypeId,
-            cluster.clusterRef,
-            dbEnum.side.server,
-            true
-          ).then((data) => {
-            resolve({
-              clusterRef: cluster.clusterRef,
-              side: dbEnum.side.server,
-            })
-          })
-        )
+        insertOrReplaceClusterState(
+          db,
+          endpointTypeId,
+          cluster.clusterRef,
+          dbEnum.side.server,
+          true
+        ).then(() => {
+          return {
+            clusterRef: cluster.clusterRef,
+            side: dbEnum.side.server,
+          }
+        })
       )
     }
     return Promise.all(clientServerPromise)
@@ -690,12 +690,50 @@ async function resolveDefaultDeviceTypeAttributes(
                   ]
                 )
               )
-          } else {
-            return Promise.resolve()
           }
         })
       )
     })
+}
+
+async function resolveCommandState(db, endpointTypeId, deviceCommand) {
+  let deviceTypeCluster = await queryZcl.selectDeviceTypeClusterByDeviceTypeClusterId(
+    db,
+    deviceCommand.deviceTypeClusterRef
+  )
+  if (deviceCommand.commandRef == null) return null
+
+  let command = await queryZcl.selectCommandById(db, deviceCommand.commandRef)
+  if (command == null) return null
+
+  let promises = []
+  if (deviceTypeCluster.includeClient) {
+    promises.push(
+      insertOrUpdateCommandState(
+        db,
+        endpointTypeId,
+        command.clusterRef,
+        command.source,
+        deviceCommand.commandRef,
+        true,
+        command.source != dbEnum.source.client
+      )
+    )
+  }
+  if (deviceTypeCluster.includeServer) {
+    promises.push(
+      insertOrUpdateCommandState(
+        db,
+        endpointTypeId,
+        command.clusterRef,
+        command.source,
+        deviceCommand.commandRef,
+        true,
+        command.source != dbEnum.source.server
+      )
+    )
+  }
+  return Promise.all(promises)
 }
 
 /**
@@ -711,96 +749,45 @@ async function resolveDefaultDeviceTypeCommands(
   endpointTypeId,
   deviceTypeRef
 ) {
-  return queryZcl
-    .selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef)
-    .then((commands) =>
-      Promise.all(
-        commands.map((deviceCommand) => {
-          return queryZcl
-            .selectDeviceTypeClusterByDeviceTypeClusterId(
-              db,
-              deviceCommand.deviceTypeClusterRef
-            )
-            .then((deviceTypeCluster) => {
-              if (deviceCommand.commandRef != null) {
-                return queryZcl
-                  .selectCommandById(db, deviceCommand.commandRef)
-                  .then((command) => {
-                    if (command != null) {
-                      let promises = []
-                      if (deviceTypeCluster.includeClient) {
-                        promises.push(
-                          insertOrUpdateCommandState(
-                            db,
-                            endpointTypeId,
-                            command.clusterRef,
-                            command.source,
-                            deviceCommand.commandRef,
-                            true,
-                            command.source != dbEnum.source.client
-                          )
-                        )
-                      }
-                      if (deviceTypeCluster.includeServer) {
-                        promises.push(
-                          insertOrUpdateCommandState(
-                            db,
-                            endpointTypeId,
-                            command.clusterRef,
-                            command.source,
-                            deviceCommand.commandRef,
-                            true,
-                            command.source != dbEnum.source.server
-                          )
-                        )
-                      }
-                      return Promise.all(promises)
-                    } else {
-                      return Promise.resolve()
-                    }
-                  })
-              } else {
-                return Promise.resolve()
-              }
-            })
-        })
-      )
-    )
+  let commands = await queryZcl.selectDeviceTypeCommandsByDeviceTypeRef(
+    db,
+    deviceTypeRef
+  )
+  return Promise.all(
+    commands.map((cmd) => resolveCommandState(db, endpointTypeId, cmd))
+  )
 }
 
 async function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
-  return Promise.all(
-    clusters.map((cluster) => {
-      return queryZcl
-        .selectCommandsByClusterId(db, cluster.clusterRef)
-        .then((commands) => {
-          return Promise.all(
-            commands.map((command) => {
-              if (!command.isOptional) {
-                let isOutgoing =
-                  (cluster.side == dbEnum.side.client &&
-                    command.source == dbEnum.source.client) ||
-                  (cluster.side == dbEnum.side.server &&
-                    command.source == dbEnum.source.server)
-                return insertOrUpdateCommandState(
-                  db,
-                  endpointTypeId,
-                  command.clusterRef,
-                  command.source,
-                  command.id,
-                  true,
-                  !isOutgoing
-                )
-              } else {
-                return new Promise((resolve, reject) => {
-                  return resolve()
-                })
-              }
-            })
-          )
-        })
-    })
+  let clustersPromises = clusters.map((cluster) =>
+    queryZcl
+      .selectCommandsByClusterId(db, cluster.clusterRef)
+      .then((commands) =>
+        Promise.all(
+          commands.map((command) => {
+            if (!command.isOptional) {
+              let isOutgoing =
+                (cluster.side == dbEnum.side.client &&
+                  command.source == dbEnum.source.client) ||
+                (cluster.side == dbEnum.side.server &&
+                  command.source == dbEnum.source.server)
+              return insertOrUpdateCommandState(
+                db,
+                endpointTypeId,
+                command.clusterRef,
+                command.source,
+                command.id,
+                true,
+                !isOutgoing
+              )
+            } else {
+              return Promise.resolve()
+            }
+          })
+        )
+      )
   )
+  return Promise.all(clustersPromises)
 }
 
 async function resolveDefaultAttributes(
@@ -809,28 +796,27 @@ async function resolveDefaultAttributes(
   packageId,
   endpointClusters
 ) {
-  return Promise.all(
-    endpointClusters.map((cluster) => {
-      return queryZcl
-        .selectAttributesByClusterIdIncludingGlobal(
-          db,
-          cluster.clusterRef,
-          packageId
-        )
-        .then((attributes) => {
-          let promiseArray = []
-          promiseArray.push(
-            resolveNonOptionalAndReportableAttributes(
-              db,
-              endpointTypeId,
-              attributes,
-              cluster
-            )
+  let endpointClustersPromises = endpointClusters.map((cluster) =>
+    queryZcl
+      .selectAttributesByClusterIdIncludingGlobal(
+        db,
+        cluster.clusterRef,
+        packageId
+      )
+      .then((attributes) => {
+        let promiseArray = []
+        promiseArray.push(
+          resolveNonOptionalAndReportableAttributes(
+            db,
+            endpointTypeId,
+            attributes,
+            cluster
           )
-          return Promise.all(promiseArray)
-        })
-    })
+        )
+        return Promise.all(promiseArray)
+      })
   )
+  return Promise.all(endpointClustersPromises)
 }
 
 async function resolveNonOptionalAndReportableAttributes(
@@ -907,8 +893,16 @@ async function getEndpointTypeCountByCluster(
 ) {
   let x = await dbApi.dbGet(
     db,
-    `SELECT COUNT(ENDPOINT_TYPE_ID) FROM ENDPOINT_TYPE WHERE SESSION_REF = ? AND ENDPOINT_TYPE_ID IN
-      (SELECT ENDPOINT_TYPE_REF FROM ENDPOINT_TYPE_CLUSTER WHERE CLUSTER_REF = ? AND SIDE = ? AND ENABLED = 1) `,
+    `
+SELECT
+  COUNT(ENDPOINT_TYPE_ID)
+FROM
+  ENDPOINT_TYPE
+WHERE SESSION_REF = ?
+  AND ENDPOINT_TYPE_ID IN
+      (SELECT ENDPOINT_TYPE_REF
+       FROM ENDPOINT_TYPE_CLUSTER
+       WHERE CLUSTER_REF = ? AND SIDE = ? AND ENABLED = 1) `,
     [sessionId, endpointClusterId, side]
   )
   return x['COUNT(ENDPOINT_TYPE_ID)']
@@ -925,7 +919,15 @@ async function getEndpointTypeCountByCluster(
 async function getAllEndpointTypes(db, sessionId) {
   let rows = await dbApi.dbAll(
     db,
-    'SELECT ENDPOINT_TYPE_ID, NAME, DEVICE_TYPE_REF, SESSION_REF FROM ENDPOINT_TYPE WHERE SESSION_REF = ? ORDER BY NAME',
+    `
+SELECT
+  ENDPOINT_TYPE_ID,
+  NAME,
+  DEVICE_TYPE_REF,
+  SESSION_REF
+FROM
+  ENDPOINT_TYPE
+WHERE SESSION_REF = ? ORDER BY NAME`,
     [sessionId]
   )
   return rows.map(dbMapping.map.endpointType)

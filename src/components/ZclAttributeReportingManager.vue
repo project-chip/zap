@@ -25,6 +25,7 @@ limitations under the License.
       virtual-scroll
       binary-state-sort
       :pagination.sync="pagination"
+      data-cy="Attributes Reporting"
     >
       <template v-slot:body="props">
         <q-tr :props="props">

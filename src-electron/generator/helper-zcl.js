@@ -173,9 +173,7 @@ function zcl_commands(options) {
 function zcl_command_tree(options) {
   let promise = templateUtil
     .ensureZclPackageId(this)
-    .then((packageId) => {
-      return queryZcl.selectCommandTree(this.global.db, packageId)
-    })
+    .then((packageId) => queryZcl.selectCommandTree(this.global.db, packageId))
     .then((cmds) => {
       // Now reduce the array by collecting together arguments.
       let reducedCommands = []
@@ -188,7 +186,8 @@ function zcl_command_tree(options) {
           lastCommand = reducedCommands[reducedCommands.length - 1]
           if (
             el.code == lastCommand.code &&
-            el.clusterCode == lastCommand.clusterCode
+            el.clusterCode == lastCommand.clusterCode &&
+            el.source == lastCommand.source
           ) {
             newCommand = false
           } else {
@@ -794,42 +793,42 @@ function zcl_command_argument_type_to_cli_data_type(type, options) {
             case dbEnum.zclType.bitmap:
               return queryZcl
                 .selectBitmapByName(this.global.db, packageId, type)
-                .then((bitmap) => {
-                  return queryZcl.selectAtomicType(
+                .then((bitmap) =>
+                  queryZcl.selectAtomicType(
                     this.global.db,
                     packageId,
                     bitmap.type
                   )
-                })
-                .then((res) => {
-                  return calculateBytes(
+                )
+                .then((res) =>
+                  calculateBytes(
                     res.name,
                     options,
                     this.global.db,
                     packageId,
                     false
                   )
-                })
+                )
                 .then((size) => helperC.as_zcl_cli_type(size, false, false))
             case dbEnum.zclType.enum:
               return queryZcl
                 .selectEnumByName(this.global.db, type, packageId)
-                .then((enumRec) => {
-                  return queryZcl.selectAtomicType(
+                .then((enumRec) =>
+                  queryZcl.selectAtomicType(
                     this.global.db,
                     packageId,
                     enumRec.type
                   )
-                })
-                .then((res) => {
-                  return calculateBytes(
+                )
+                .then((res) =>
+                  calculateBytes(
                     res.name,
                     options,
                     this.global.db,
                     packageId,
                     false
                   )
-                })
+                )
                 .then((size) => helperC.as_zcl_cli_type(size, false, false))
             case dbEnum.zclType.struct:
             case dbEnum.zclType.atomic:
@@ -1817,10 +1816,7 @@ function if_manufacturing_specific_cluster(
 ) {
   let promise = templateUtil
     .ensureZclPackageId(this)
-    .then((packageId) => {
-      let res = queryZcl.selectClusterById(this.global.db, clusterId)
-      return res
-    })
+    .then((packageId) => queryZcl.selectClusterById(this.global.db, clusterId))
     .then((res) => {
       if (res.manufacturerCode != null) {
         return manufacturer_specific_return
