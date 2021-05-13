@@ -478,14 +478,13 @@ function if_command_arguments_have_fixed_length_with_current_context(
 ) {
   return templateUtil
     .ensureZclPackageId(currentContext)
-    .then((packageId) => {
-      let res = queryZcl.selectCommandArgumentsByCommandId(
+    .then((packageId) =>
+      queryZcl.selectCommandArgumentsByCommandId(
         currentContext.global.db,
         commandId,
         packageId
       )
-      return res
-    })
+    )
     .then(
       (commandArgs) =>
         new Promise((resolve, reject) => {
