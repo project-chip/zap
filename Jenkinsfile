@@ -445,7 +445,7 @@ pipeline
         {
             when
             {
-                allOf { branch 'silabs'; equals expected: true, actual: triggerAdapterPackJob }
+                allOf { branch 'silabs-rel'; equals expected: true, actual: triggerAdapterPackJob }
             }
             steps
             {
@@ -453,7 +453,7 @@ pipeline
                 {
                     try {
                         triggerRemoteJob blockBuildUntilComplete: false,
-                                        job: 'https://jnkaus016.silabs.com/job/Adapter_Pack_ZAP_64/',
+                                        job: 'https://jnkaus016.silabs.com/view/v5.rel/job/rel.Adapter_Pack_ZAP_64/',
                                         remoteJenkinsName: 'jnkaus016',
                                         shouldNotFailBuild: false,
                                         useCrumbCache: true,
