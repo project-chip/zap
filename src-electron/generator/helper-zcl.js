@@ -2022,6 +2022,35 @@ function command_mask_sub_helper(commandMask, str) {
   }
 }
 
+/**
+ * This may be used within all_user_cluster_attributes_for_generated_defaults
+ * for example:
+ * {{format_zcl_string_as_characters_for_generated_defaults 'abc' 5}}
+ * will return as follows:
+ * 3, 'a', 'b', 'c' 0x00, 0x00
+ * @param stringVal
+ * @param sizeOfString
+ * @returns Formatted string for generated defaults starting with the lenth of a
+ * string then each character and then filler for the size allocated for the
+ * string
+ */
+function format_zcl_string_as_characters_for_generated_defaults(
+  stringVal,
+  sizeOfString
+) {
+  return new Promise((resolve, reject) => {
+    let lengthOfString = stringVal.length
+    let formatted_string = lengthOfString + ', '
+    for (let i = 0; i < lengthOfString; i++) {
+      formatted_string += "'" + stringVal.charAt(i) + "', "
+    }
+    for (let i = lengthOfString + 1; i < sizeOfString; i++) {
+      formatted_string += '0x00' + ', '
+    }
+    resolve(formatted_string)
+  })
+}
+
 const dep = templateUtil.deprecatedHelper
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -2109,3 +2138,4 @@ exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif 
 exports.as_generated_default_macro = as_generated_default_macro
 exports.attribute_mask = attribute_mask
 exports.command_mask = command_mask
+exports.format_zcl_string_as_characters_for_generated_defaults = format_zcl_string_as_characters_for_generated_defaults
