@@ -32,7 +32,7 @@ const testUtil = require('./test-util.js')
 
 let db
 const templateCount = testUtil.testTemplateCount
-const genTimeout = 8000
+const genTimeout = testUtil.longTimeout
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 const testFile2 = path.join(__dirname, 'resource/three-endpoint-device.zap')
 
