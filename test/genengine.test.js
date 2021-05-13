@@ -386,7 +386,7 @@ test('Test file 1 generation', async () => {
       // Test GENERATED_ENDPOINT_TYPES
       expect(
         genResult.content['zap-config-version-2.h'].includes(
-          '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 59 },'
+          '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 241 },'
         )
       ).toBeTruthy()
       // Test ATTRIBUTE_LARGEST
