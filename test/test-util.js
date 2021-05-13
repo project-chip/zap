@@ -62,3 +62,5 @@ exports.totalSpecCount = 39
 exports.totalEnumCount = 209
 exports.totalEnumItemCount = 1595
 exports.testTemplateCount = 17
+
+exports.longTimeout = 12000

@@ -32,7 +32,7 @@ const util = require('../src-electron/util/util.js')
 
 let db
 const { port, baseUrl } = testUtil.testServer(__filename)
-const timeout = 8000
+const timeout = testUtil.longTimeout
 let uuid = util.createUuid()
 
 beforeAll(() => {

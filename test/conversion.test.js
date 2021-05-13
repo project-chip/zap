@@ -33,6 +33,7 @@ const queryPackage = require('../src-electron/db/query-package.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const util = require('../src-electron/util/util.js')
 
+let timeout = testUtil.longTimeout
 let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
 let haCombinedIsc = path.join(
   __dirname,
@@ -129,7 +130,7 @@ test.skip(
     )
     expect(clientAttributesCount).toBe(2)
   },
-  8000
+  timeout
 )
 
 test(
@@ -153,5 +154,5 @@ test(
     expect(dump.endpointTypes.length).toBe(1)
     expect(dump.endpoints.length).toBe(1)
   },
-  8000
+  timeout
 )
