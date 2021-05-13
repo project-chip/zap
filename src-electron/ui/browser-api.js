@@ -78,8 +78,7 @@ async function execRendererApi(browserWindow, rendererApiCommand, ...theArgs) {
     )
     return Promise.resolve()
   } else {
-    // call javascript
-    await browserWindow.webContents.executeJavaScript(
+    return browserWindow.webContents.executeJavaScript(
       `window.global_renderer_api_execute('${rendererApiCommand}', "${theArgs}")`
     )
   }
