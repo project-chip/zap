@@ -310,7 +310,7 @@ function doSaveAs(browserWindow) {
  * @returns Promise of saving.
  */
 function fileSave(browserWindow, filePath) {
-  browserApi.executeSave(browserWindow, filePath)
+  browserApi.execRendererApi(browserWindow, rendApi.id.save, filePath)
 }
 
 /**
