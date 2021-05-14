@@ -60,7 +60,7 @@ afterAll(() => {
 test.skip(
   path.basename(haLightIsc) + ' - conversion',
   async () => {
-    sid = await querySession.createBlankSession(db)
+    let sid = await querySession.createBlankSession(db)
     await importJs.importDataFromFile(db, haLightIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
 

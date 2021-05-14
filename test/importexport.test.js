@@ -170,7 +170,7 @@ test(path.basename(testLightIsc) + ' - read state', async () => {
 test(
   path.basename(testLightIsc) + ' - import',
   async () => {
-    sid = await querySession.createBlankSession(db)
+    let sid = await querySession.createBlankSession(db)
     await importJs.importDataFromFile(db, testLightIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.getAllEndpointTypes(db, sid)

@@ -59,7 +59,6 @@ test(
         expect(context.templateData.version).toEqual('test-v1')
         expect(context.templateData.templates.length).toEqual(templateCount)
         expect(context.packageId).not.toBeNull()
-        templateContext = context
       }),
   3000
 )
