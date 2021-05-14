@@ -2039,8 +2039,8 @@ async function exportCliCommandsFromCluster(db, endpointClusterId) {
  */
 
 async function exportAttributeBoundDetails(db, endpointsAndClusters) {
-  let endpointTypeClusterRef = endpointsAndClusters
-    .map((ep) => ep.endpointTypeClusterRef)
+  let endpointClusterIds = endpointsAndClusters
+    .map((ep) => ep.endpointClusterId)
     .toString()
   let mapFunction = (x) => {
     return {
@@ -2097,7 +2097,7 @@ async function exportAttributeBoundDetails(db, endpointsAndClusters) {
   ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
   INNER JOIN ATOMIC
   ON ATOMIC.NAME = ATTRIBUTE.TYPE
-  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
+  WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
   AND ENDPOINT_TYPE_CLUSTER.SIDE = ATTRIBUTE.SIDE AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
   AND (CASE
     WHEN ATOMIC.IS_STRING=1 THEN 
@@ -2140,7 +2140,7 @@ INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
 INNER JOIN ATOMIC
 ON ATOMIC.NAME = ATTRIBUTE.TYPE
-WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
+WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
 AND ENDPOINT_TYPE_CLUSTER.SIDE = ATTRIBUTE.SIDE AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
 AND (CASE
   WHEN ATOMIC.IS_STRING=1 THEN 
@@ -2183,7 +2183,7 @@ INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
 INNER JOIN ATOMIC
 ON ATOMIC.NAME = ATTRIBUTE.TYPE
-WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
+WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
 AND ENDPOINT_TYPE_CLUSTER.SIDE = ATTRIBUTE.SIDE AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
 AND (CASE
   WHEN ATOMIC.IS_STRING=1 THEN 
@@ -2209,8 +2209,8 @@ async function exportAttributeDetailsFromEnabledClusters(
   db,
   endpointsAndClusters
 ) {
-  let endpointTypeClusterRef = endpointsAndClusters
-    .map((ep) => ep.endpointTypeClusterRef)
+  let endpointClusterIds = endpointsAndClusters
+    .map((ep) => ep.endpointClusterId)
     .toString()
   let mapFunction = (x) => {
     return {
@@ -2309,7 +2309,7 @@ async function exportAttributeDetailsFromEnabledClusters(
   ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
   INNER JOIN ATOMIC
   ON ATOMIC.NAME = ATTRIBUTE.TYPE
-  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF IN (${endpointTypeClusterRef})
+  WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF IN (${endpointClusterIds})
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_CLUSTER.ENABLED=1 AND ENDPOINT_TYPE_CLUSTER.SIDE=ATTRIBUTE.SIDE
   GROUP BY CLUSTER.NAME, ATTRIBUTE.NAME, ATTRIBUTE.SIDE
         `
@@ -2327,8 +2327,8 @@ async function exportReportableAttributeDetailsFromEnabledClustersAndEndpoints(
   db,
   endpointsAndClusters
 ) {
-  let endpointTypeClusterRef = endpointsAndClusters
-    .map((ep) => ep.endpointTypeClusterRef)
+  let endpointClusterIds = endpointsAndClusters
+    .map((ep) => ep.endpointClusterId)
     .toString()
   let mapFunction = (x) => {
     return {
@@ -2431,7 +2431,7 @@ async function exportReportableAttributeDetailsFromEnabledClustersAndEndpoints(
   ON ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT.ENDPOINT_TYPE_REF
   INNER JOIN ATOMIC
   ON ATOMIC.NAME = ATTRIBUTE.TYPE
-  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF IN (${endpointTypeClusterRef})
+  WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF IN (${endpointClusterIds})
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_CLUSTER.ENABLED=1 AND ENDPOINT_TYPE_CLUSTER.SIDE=ATTRIBUTE.SIDE
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED_REPORTABLE = 1
   GROUP BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME, ATTRIBUTE.NAME, ATTRIBUTE.SIDE
@@ -2524,8 +2524,8 @@ async function exportClusterDetailsFromEnabledClusters(
   db,
   endpointsAndClusters
 ) {
-  let endpointTypeClusterRef = endpointsAndClusters
-    .map((ep) => ep.endpointTypeClusterRef)
+  let endpointClusterIds = endpointsAndClusters
+    .map((ep) => ep.endpointClusterId)
     .toString()
   let mapFunction = (x) => {
     return {
@@ -2619,7 +2619,7 @@ async function exportClusterDetailsFromEnabledClusters(
   INNER JOIN ENDPOINT
   ON
   ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
-  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef}) AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+  WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF IN (${endpointClusterIds}) AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_CLUSTER.SIDE=ATTRIBUTE.SIDE
   GROUP BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE, ATTRIBUTE.NAME ) WHERE CLUSTER_INDEX=1 ORDER BY ENDPOINT_IDENTIFIER, CLUSTER_NAME, CLUSTER_SIDE
         `
@@ -2637,8 +2637,8 @@ async function exportEndpointDetailsFromAddedEndpoints(
   db,
   endpointsAndClusters
 ) {
-  let endpointTypeClusterRef = endpointsAndClusters
-    .map((ep) => ep.endpointTypeClusterRef)
+  let endpointClusterIds = endpointsAndClusters
+    .map((ep) => ep.endpointClusterId)
     .toString()
   let mapFunction = (x) => {
     return {
@@ -2744,7 +2744,7 @@ SELECT * FROM (
   ON ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
   INNER JOIN ENDPOINT
   ON ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT.ENDPOINT_TYPE_REF
-  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef}) AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+  WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF IN (${endpointClusterIds}) AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_CLUSTER.SIDE=ATTRIBUTE.SIDE
   GROUP BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE, ATTRIBUTE.NAME) WHERE ENDPOINT_INDEX=1 ORDER BY ENDPOINT_IDENTIFIER
         `
@@ -2764,8 +2764,8 @@ async function exportAttributeDetailsWithABoundFromEnabledClusters(
   db,
   endpointsAndClusters
 ) {
-  let endpointTypeClusterRef = endpointsAndClusters
-    .map((ep) => ep.endpointTypeClusterRef)
+  let endpointClusterIds = endpointsAndClusters
+    .map((ep) => ep.endpointClusterId)
     .toString()
   let mapFunction = (x) => {
     return {
@@ -2822,7 +2822,7 @@ async function exportAttributeDetailsWithABoundFromEnabledClusters(
   ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
   INNER JOIN ATOMIC
   ON ATOMIC.NAME = ATTRIBUTE.TYPE
-  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
+  WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_ATTRIBUTE.BOUNDED !=0
   AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
   GROUP BY CLUSTER.NAME, ATTRIBUTE.NAME
