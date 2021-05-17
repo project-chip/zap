@@ -18,7 +18,7 @@ limitations under the License.
     <q-card>
       <q-card-section>
         <div class="text-h6 text-align:left">
-          {{ this.endpointRefernce ? 'Create New Endpoint' : 'Edit Endpoint' }}
+          {{ this.endpointReference ? 'Create New Endpoint' : 'Edit Endpoint' }}
         </div>
         <q-form>
           <q-field label="Endpoint" stack-label>
@@ -26,15 +26,24 @@ limitations under the License.
               v-model="shownEndpoint.endpointIdentifier"
               outlined
               dense
+              filled
+              type="number"
               class="col"
             />
           </q-field>
           <q-field label="Profile ID" stack-label>
-            <q-input outlined v-model="zclProfileIdString" class="col" />
+            <q-input
+              outlined
+              filled
+              type="number"
+              v-model="zclProfileIdString"
+              class="col"
+            />
           </q-field>
           <q-field label="Device" stack-label>
             <q-select
               outlined
+              filled
               class="col"
               use-input
               hide-selected
@@ -60,6 +69,8 @@ limitations under the License.
               <q-input
                 v-model="shownEndpoint.networkIdentifier"
                 outlined
+                type="number"
+                filled
                 stack-label
               />
             </q-field>
@@ -68,6 +79,8 @@ limitations under the License.
               <q-input
                 v-model="shownEndpoint.deviceVersion"
                 outlined
+                filled
+                type="number"
                 stack-label
               />
             </q-field>
