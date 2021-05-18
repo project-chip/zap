@@ -22,42 +22,37 @@ limitations under the License.
         </div>
         <q-form>
           <q-input
-            v-model="shownEndpoint.endpointIdentifier"
             label="Endpoint"
-            filled
             type="number"
+            v-model="shownEndpoint.endpointIdentifier"
+            ref="endpoint"
+            filled
             class="col"
-            :rules="[
-              (val) => val.toString().length > 0 || '* Required',
-              (val) => val >= 0 || '* Positive integer required',
-            ]"
+            :rules="[reqPosInt]"
           />
           <q-input
-            outlined
-            filled
+            label="Profile ID"
             type="number"
             v-model="zclProfileIdString"
-            label="Profile ID"
-            class="col"
-            disable
-            :rules="[
-              (val) => val.toString().length > 0 || '* Required',
-              (val) => val >= 0 || '* Positive integer required',
-            ]"
-          />
-          <q-select
+            ref="profileId"
             outlined
             filled
             class="col"
+            disable
+            :rules="[reqValue]"
+          />
+          <q-select
             label="Device"
+            ref="device"
+            outlined
+            filled
+            class="col"
             use-input
             hide-selected
             fill-input
             :options="deviceTypeOptions"
             v-model="shownEndpoint.deviceTypeRef"
-            :rules="[
-              (val) => val.toString().length > 0 || '* Required',
-            ]"
+            :rules="[reqValue]"
             :option-label="
               (item) =>
                 item == null
@@ -73,29 +68,25 @@ limitations under the License.
 
           <div class="q-gutter-md row">
             <q-input
-              v-model="shownEndpoint.networkIdentifier"
-              outlined
               label="Network"
               type="number"
+              v-model="shownEndpoint.networkIdentifier"
+              ref="network"
+              outlined
               filled
               stack-label
-              :rules="[
-                (val) => val.toString().length > 0 || '* Required',
-                (val) => val >= 0 || '* Positive integer required',
-              ]"
+              :rules="[reqPosInt]"
             />
 
             <q-input
+              label="Version"
+              type="number"
               v-model="shownEndpoint.deviceVersion"
+              ref="version"
               outlined
               filled
-              type="number"
-              label="Version"
               stack-label
-              :rules="[
-                (val) => val.toString().length > 0 || '* Required',
-                (val) => val >= 0 || '* Positive integer required',
-              ]"
+              :rules="[reqPosInt]"
             />
           </div>
         </q-form>
@@ -105,13 +96,9 @@ limitations under the License.
         <q-btn
           :label="endpointReference ? 'Save' : 'Create'"
           color="primary"
-          v-close-popup
           class="col"
-          @click="
-            endpointReference
-              ? editEpt(shownEndpoint, endpointReference)
-              : newEpt(shownEndpoint)
-          "
+          v-close-popup="saveOrCreateCloseFlag"
+          @click="saveOrCreateHandler()"
         />
       </q-card-actions>
     </q-card>
@@ -152,6 +139,7 @@ export default {
         deviceTypeRef: null,
         deviceVersion: 1,
       },
+      saveOrCreateCloseFlag: false,
     }
   },
   computed: {
@@ -191,6 +179,30 @@ export default {
     },
   },
   methods: {
+    saveOrCreateHandler() {
+      if (
+        this.$refs.endpoint.validate() &&
+        this.$refs.device.validate() &&
+        this.$refs.network.validate() &&
+        this.$refs.version.validate()
+      ) {
+        this.saveOrCreateCloseFlag = true
+        if (this.endpointReference) {
+          this.editEpt(this.shownEndpoint, this.endpointReference)
+        } else {
+          this.newEpt(this.shownEndpoint)
+        }
+      }
+    },
+    reqValue(value) {
+      return !_.isEmpty(value) || '* Required'
+    },
+    reqPosInt(value) {
+      return (
+        (_.isNumber(parseInt(value)) && parseInt(value) >= 0) ||
+        '* Positive integer required'
+      )
+    },
     newEpt(shownEndpoint) {
       this.$store
         .dispatch(`zap/addEndpointType`, {
