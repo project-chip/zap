@@ -237,7 +237,7 @@ export default {
         changes: [
           {
             updatedKey: RestApi.updateKey.endpointId,
-            value: parseInt(shownEndpoint.endpointIdentifier, 16),
+            value: parseInt(shownEndpoint.endpointIdentifier),
           },
           {
             updatedKey: RestApi.updateKey.networkId,
