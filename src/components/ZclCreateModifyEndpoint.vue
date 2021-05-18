@@ -21,69 +21,82 @@ limitations under the License.
           {{ this.endpointReference ? 'Edit Endpoint' : 'Create New Endpoint' }}
         </div>
         <q-form>
-          <q-field label="Endpoint" stack-label>
-            <q-input
-              v-model="shownEndpoint.endpointIdentifier"
-              outlined
-              dense
-              filled
-              type="number"
-              class="col"
-            />
-          </q-field>
-          <q-field label="Profile ID" stack-label>
-            <q-input
-              outlined
-              filled
-              type="number"
-              v-model="zclProfileIdString"
-              class="col"
-            />
-          </q-field>
-          <q-field label="Device" stack-label>
-            <q-select
-              outlined
-              filled
-              class="col"
-              use-input
-              hide-selected
-              fill-input
-              :options="deviceTypeOptions"
-              v-model="shownEndpoint.deviceTypeRef"
-              :option-label="
-                (item) =>
-                  item == null
-                    ? ''
-                    : zclDeviceTypes[item].description +
-                      ' (' +
-                      asHex(zclDeviceTypes[item].code, 4) +
-                      ')'
-              "
-              @filter="filterDeviceTypes"
-            >
-            </q-select>
-          </q-field>
+          <q-input
+            v-model="shownEndpoint.endpointIdentifier"
+            label="Endpoint"
+            filled
+            type="number"
+            class="col"
+            :rules="[
+              (val) => val.toString().length > 0 || '* Required',
+              (val) => val >= 0 || '* Positive integer required',
+            ]"
+          />
+          <q-input
+            outlined
+            filled
+            type="number"
+            v-model="zclProfileIdString"
+            label="Profile ID"
+            class="col"
+            disable
+            :rules="[
+              (val) => val.toString().length > 0 || '* Required',
+              (val) => val >= 0 || '* Positive integer required',
+            ]"
+          />
+          <q-select
+            outlined
+            filled
+            class="col"
+            label="Device"
+            use-input
+            hide-selected
+            fill-input
+            :options="deviceTypeOptions"
+            v-model="shownEndpoint.deviceTypeRef"
+            :rules="[
+              (val) => val.toString().length > 0 || '* Required',
+            ]"
+            :option-label="
+              (item) =>
+                item == null
+                  ? ''
+                  : zclDeviceTypes[item].description +
+                    ' (' +
+                    asHex(zclDeviceTypes[item].code, 4) +
+                    ')'
+            "
+            @filter="filterDeviceTypes"
+          >
+          </q-select>
 
           <div class="q-gutter-md row">
-            <q-field label="Network" stack-label>
-              <q-input
-                v-model="shownEndpoint.networkIdentifier"
-                outlined
-                type="number"
-                filled
-                stack-label
-              />
-            </q-field>
+            <q-input
+              v-model="shownEndpoint.networkIdentifier"
+              outlined
+              label="Network"
+              type="number"
+              filled
+              stack-label
+              :rules="[
+                (val) => val.toString().length > 0 || '* Required',
+                (val) => val >= 0 || '* Positive integer required',
+              ]"
+            />
 
-            <q-field label="Version" stack-label>
-              <q-input
-                v-model="shownEndpoint.deviceVersion"
-                outlined
-                filled
-                type="number"
-                stack-label
-              />
-            </q-field>
+            <q-input
+              v-model="shownEndpoint.deviceVersion"
+              outlined
+              filled
+              type="number"
+              label="Version"
+              stack-label
+              :rules="[
+                (val) => val.toString().length > 0 || '* Required',
+                (val) => val >= 0 || '* Positive integer required',
+              ]"
+            />
           </div>
         </q-form>
       </q-card-section>
@@ -108,6 +121,7 @@ limitations under the License.
 <script>
 import * as RestApi from '../../src-shared/rest-api'
 import CommonMixin from '../util/common-mixin'
+const _ = require('lodash')
 
 export default {
   name: 'ZclCreateModifyEndpoint',
@@ -115,15 +129,15 @@ export default {
   mixins: [CommonMixin],
   mounted() {
     if (this.endpointReference != null) {
-      this.shownEndpoint.endpointIdentifier = this.endpointId[
-        this.endpointReference
-      ]
-      this.shownEndpoint.networkIdentifier = this.networkId[
-        this.endpointReference
-      ]
-      this.shownEndpoint.deviceVersion = this.endpointVersion[
-        this.endpointReference
-      ]
+      this.shownEndpoint.endpointIdentifier = parseInt(
+        this.endpointId[this.endpointReference]
+      )
+      this.shownEndpoint.networkIdentifier = parseInt(
+        this.networkId[this.endpointReference]
+      )
+      this.shownEndpoint.deviceVersion = parseInt(
+        this.endpointVersion[this.endpointReference]
+      )
       this.shownEndpoint.deviceTypeRef = this.endpointDeviceTypeRef[
         this.endpointType[this.endpointReference]
       ]
