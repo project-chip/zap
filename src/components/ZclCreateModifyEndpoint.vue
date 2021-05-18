@@ -18,7 +18,7 @@ limitations under the License.
     <q-card>
       <q-card-section>
         <div class="text-h6 text-align:left">
-          {{ this.endpointReference ? 'Create New Endpoint' : 'Edit Endpoint' }}
+          {{ this.endpointReference ? 'Edit Endpoint' : 'Create New Endpoint' }}
         </div>
         <q-form>
           <q-field label="Endpoint" stack-label>
