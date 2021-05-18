@@ -360,7 +360,8 @@ const dep = templateUtil.deprecatedHelper
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
 exports.zap_header = zap_header
-exports.ident = ident
+exports.indent = ident
+exports.ident = dep(ident, { to: 'indent' })
 exports.template_options = template_options
 exports.last = last
 exports.not_last = not_last
