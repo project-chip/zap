@@ -66,23 +66,12 @@ limitations under the License.
           >
           </q-select>
 
-          <div class="q-gutter-md row">
+          <div class="col">
             <q-input
               label="Network"
               type="number"
               v-model="shownEndpoint.networkIdentifier"
               ref="network"
-              outlined
-              filled
-              stack-label
-              :rules="[reqPosInt]"
-            />
-
-            <q-input
-              label="Version"
-              type="number"
-              v-model="shownEndpoint.deviceVersion"
-              ref="version"
               outlined
               filled
               stack-label
@@ -183,8 +172,7 @@ export default {
       if (
         this.$refs.endpoint.validate() &&
         this.$refs.device.validate() &&
-        this.$refs.network.validate() &&
-        this.$refs.version.validate()
+        this.$refs.network.validate()
       ) {
         this.saveOrCreateCloseFlag = true
         if (this.endpointReference) {

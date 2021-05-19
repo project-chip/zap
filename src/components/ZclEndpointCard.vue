@@ -69,12 +69,6 @@ limitations under the License.
             }}
           </div>
         </q-item>
-        <q-item class="row">
-          <div class="col-md-6">
-            <strong>Version</strong>
-          </div>
-          <div class="col-md-6">{{ endpointVersion[endpointReference] }}</div>
-        </q-item>
       </q-list>
       <q-card-actions class="q-gutter-xs">
         <q-btn
