@@ -279,7 +279,10 @@ function endpoint_attribute_list(options) {
     } else {
       let defaultValue = at.defaultValue
       if (!littleEndian) {
-        defaultValue = Number(defaultValue).toString(16).padStart(6,'0x0000').padEnd(2+2*pointerSize,'0')
+        defaultValue = Number(defaultValue)
+          .toString(16)
+          .padStart(6, '0x0000')
+          .padEnd(2 + 2 * pointerSize, '0')
       }
       finalDefaultValue = `ZAP_SIMPLE_DEFAULT(${defaultValue})`
     }
@@ -454,6 +457,8 @@ function collectAttributes(endpointTypes) {
     ept.clusters.forEach((c) => {
       let cluster = {
         clusterId: c.hexCode,
+        clusterName: c.name,
+        clusterSide: c.side,
         attributeIndex: attributeIndex,
         attributeCount: c.attributes.length,
         attributeSize: 0,
