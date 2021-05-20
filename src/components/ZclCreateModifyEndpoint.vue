@@ -39,7 +39,7 @@ limitations under the License.
             filled
             class="col"
             disable
-            :rules="[reqValue]"
+            :rules="[(val) => true]"
           />
           <q-select
             label="Device"
@@ -52,7 +52,7 @@ limitations under the License.
             fill-input
             :options="deviceTypeOptions"
             v-model="shownEndpoint.deviceTypeRef"
-            :rules="[reqValue]"
+            :rules="[(val) => val != null || '* Required', reqPosInt]"
             :option-label="
               (item) =>
                 item == null
