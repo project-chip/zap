@@ -271,7 +271,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
     let haOnOffDeviceTypeArray = rows.filter(
       (data) => data.label === 'HA-onoff'
     )
-    haOnOffDeviceType = haOnOffDeviceTypeArray[0]
+    let haOnOffDeviceType = haOnOffDeviceTypeArray[0]
     let deviceTypeId = haOnOffDeviceType.id
     let rowId = await queryConfig.insertEndpointType(
       db,

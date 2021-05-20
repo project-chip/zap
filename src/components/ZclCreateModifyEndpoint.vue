@@ -18,59 +18,76 @@ limitations under the License.
     <q-card>
       <q-card-section>
         <div class="text-h6 text-align:left">
-          {{ this.endpointRefernce ? 'Create New Endpoint' : 'Edit Endpoint' }}
+          {{ this.endpointReference ? 'Edit Endpoint' : 'Create New Endpoint' }}
         </div>
         <q-form>
-          <q-field label="Endpoint" stack-label>
-            <q-input
-              v-model="shownEndpoint.endpointIdentifier"
-              outlined
-              dense
-              class="col"
-            />
-          </q-field>
-          <q-field label="Profile ID" stack-label>
-            <q-input outlined v-model="zclProfileIdString" class="col" />
-          </q-field>
-          <q-field label="Device" stack-label>
-            <q-select
-              outlined
-              class="col"
-              use-input
-              hide-selected
-              fill-input
-              :options="deviceTypeOptions"
-              v-model="shownEndpoint.deviceTypeRef"
-              :option-label="
-                (item) =>
-                  item == null
-                    ? ''
-                    : zclDeviceTypes[item].description +
-                      ' (' +
-                      asHex(zclDeviceTypes[item].code, 4) +
-                      ')'
-              "
-              @filter="filterDeviceTypes"
-            >
-            </q-select>
-          </q-field>
+          <q-input
+            label="Endpoint"
+            type="number"
+            v-model="shownEndpoint.endpointIdentifier"
+            ref="endpoint"
+            filled
+            class="col"
+            :rules="[reqPosInt]"
+          />
+          <q-input
+            label="Profile ID"
+            type="number"
+            v-model="zclProfileIdString"
+            ref="profileId"
+            outlined
+            filled
+            class="col"
+            disable
+            :rules="[reqValue]"
+          />
+          <q-select
+            label="Device"
+            ref="device"
+            outlined
+            filled
+            class="col"
+            use-input
+            hide-selected
+            fill-input
+            :options="deviceTypeOptions"
+            v-model="shownEndpoint.deviceTypeRef"
+            :rules="[reqValue]"
+            :option-label="
+              (item) =>
+                item == null
+                  ? ''
+                  : zclDeviceTypes[item].description +
+                    ' (' +
+                    asHex(zclDeviceTypes[item].code, 4) +
+                    ')'
+            "
+            @filter="filterDeviceTypes"
+          >
+          </q-select>
 
           <div class="q-gutter-md row">
-            <q-field label="Network" stack-label>
-              <q-input
-                v-model="shownEndpoint.networkIdentifier"
-                outlined
-                stack-label
-              />
-            </q-field>
+            <q-input
+              label="Network"
+              type="number"
+              v-model="shownEndpoint.networkIdentifier"
+              ref="network"
+              outlined
+              filled
+              stack-label
+              :rules="[reqPosInt]"
+            />
 
-            <q-field label="Version" stack-label>
-              <q-input
-                v-model="shownEndpoint.deviceVersion"
-                outlined
-                stack-label
-              />
-            </q-field>
+            <q-input
+              label="Version"
+              type="number"
+              v-model="shownEndpoint.deviceVersion"
+              ref="version"
+              outlined
+              filled
+              stack-label
+              :rules="[reqPosInt]"
+            />
           </div>
         </q-form>
       </q-card-section>
@@ -79,13 +96,9 @@ limitations under the License.
         <q-btn
           :label="endpointReference ? 'Save' : 'Create'"
           color="primary"
-          v-close-popup
           class="col"
-          @click="
-            endpointReference
-              ? editEpt(shownEndpoint, endpointReference)
-              : newEpt(shownEndpoint)
-          "
+          v-close-popup="saveOrCreateCloseFlag"
+          @click="saveOrCreateHandler()"
         />
       </q-card-actions>
     </q-card>
@@ -95,6 +108,7 @@ limitations under the License.
 <script>
 import * as RestApi from '../../src-shared/rest-api'
 import CommonMixin from '../util/common-mixin'
+const _ = require('lodash')
 
 export default {
   name: 'ZclCreateModifyEndpoint',
@@ -102,15 +116,15 @@ export default {
   mixins: [CommonMixin],
   mounted() {
     if (this.endpointReference != null) {
-      this.shownEndpoint.endpointIdentifier = this.endpointId[
-        this.endpointReference
-      ]
-      this.shownEndpoint.networkIdentifier = this.networkId[
-        this.endpointReference
-      ]
-      this.shownEndpoint.deviceVersion = this.endpointVersion[
-        this.endpointReference
-      ]
+      this.shownEndpoint.endpointIdentifier = parseInt(
+        this.endpointId[this.endpointReference]
+      )
+      this.shownEndpoint.networkIdentifier = parseInt(
+        this.networkId[this.endpointReference]
+      )
+      this.shownEndpoint.deviceVersion = parseInt(
+        this.endpointVersion[this.endpointReference]
+      )
       this.shownEndpoint.deviceTypeRef = this.endpointDeviceTypeRef[
         this.endpointType[this.endpointReference]
       ]
@@ -125,6 +139,7 @@ export default {
         deviceTypeRef: null,
         deviceVersion: 1,
       },
+      saveOrCreateCloseFlag: false,
     }
   },
   computed: {
@@ -164,6 +179,30 @@ export default {
     },
   },
   methods: {
+    saveOrCreateHandler() {
+      if (
+        this.$refs.endpoint.validate() &&
+        this.$refs.device.validate() &&
+        this.$refs.network.validate() &&
+        this.$refs.version.validate()
+      ) {
+        this.saveOrCreateCloseFlag = true
+        if (this.endpointReference) {
+          this.editEpt(this.shownEndpoint, this.endpointReference)
+        } else {
+          this.newEpt(this.shownEndpoint)
+        }
+      }
+    },
+    reqValue(value) {
+      return !_.isEmpty(value) || '* Required'
+    },
+    reqPosInt(value) {
+      return (
+        (_.isNumber(parseInt(value)) && parseInt(value) >= 0) ||
+        '* Positive integer required'
+      )
+    },
     newEpt(shownEndpoint) {
       this.$store
         .dispatch(`zap/addEndpointType`, {
@@ -224,7 +263,7 @@ export default {
         changes: [
           {
             updatedKey: RestApi.updateKey.endpointId,
-            value: parseInt(shownEndpoint.endpointIdentifier, 16),
+            value: parseInt(shownEndpoint.endpointIdentifier),
           },
           {
             updatedKey: RestApi.updateKey.networkId,

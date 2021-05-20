@@ -160,7 +160,7 @@ describe('Session specific tests', () => {
         .get(`${baseUrl}/preview/?sessionId=${uuid}`)
         .then((response) => {
           templateCount = response.data['length']
-          for (i = 0; i < response.data['length']; i++) {
+          for (let i = 0; i < response.data['length']; i++) {
             expect(response.data[i]['version']).toBeDefined()
           }
         })

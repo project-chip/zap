@@ -337,6 +337,21 @@ async function jsonDataLoader(db, state, sessionId) {
   )
 }
 
+// This function cleans up some backwards-compatible problems in zap
+// files.
+function cleanJsonState(state) {
+  if (!('featureLevel' in state)) {
+    state.featureLevel = 0
+  }
+  /*
+  state.endpoints.forEach((ep) => {
+    if (!('endpointVersion' in ep) || ep.endpointVersion == null) {
+      ep.endpointVersion = 1
+    }
+  })
+  */
+}
+
 /**
  * Parses JSON file and creates a state object out of it, which is passed further down the chain.
  *
@@ -346,9 +361,8 @@ async function jsonDataLoader(db, state, sessionId) {
  */
 async function readJsonData(filePath, data) {
   let state = JSON.parse(data)
-  if (!('featureLevel' in state)) {
-    state.featureLevel = 0
-  }
+
+  cleanJsonState(state)
   let status = util.matchFeatureLevel(state.featureLevel)
 
   if (status.match) {

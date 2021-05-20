@@ -94,13 +94,17 @@ const template = (httpPort) => [
       {
         label: 'Dark theme',
         click(menuItem, browserWindow, event) {
-          browserApi.setTheme(browserWindow, 'dark')
+          browserApi.execRendererApi(browserWindow, rendApi.id.setTheme, 'dark')
         },
       },
       {
         label: 'Light theme',
         click(menuItem, browserWindow, event) {
-          browserApi.setTheme(browserWindow, 'light')
+          browserApi.execRendererApi(
+            browserWindow,
+            rendApi.id.setTheme,
+            'light'
+          )
         },
       },
       { type: 'separator' },
@@ -159,13 +163,17 @@ const template = (httpPort) => [
       {
         label: 'Start progress',
         click(menuItem, browserWindow) {
-          browserApi.progressStart(browserWindow, 'Test progress indication.')
+          browserApi.execRendererApi(
+            browserWindow,
+            rendApi.id.progressStart,
+            'Test progress indication.'
+          )
         },
       },
       {
         label: 'End progress',
         click(menuItem, browserWindow) {
-          browserApi.progressEnd(browserWindow)
+          browserApi.execRendererApi(browserWindow, rendApi.id.progressEnd)
         },
       },
       {
@@ -310,7 +318,7 @@ function doSaveAs(browserWindow) {
  * @returns Promise of saving.
  */
 function fileSave(browserWindow, filePath) {
-  browserApi.executeSave(browserWindow, filePath)
+  browserApi.execRendererApi(browserWindow, rendApi.id.save, filePath)
 }
 
 /**
