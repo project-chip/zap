@@ -31,6 +31,7 @@
           },
           {
             "clusterCode": "0x0001",
+            "role": "server",
             "value": "Extension to power cluster"
           },
           {

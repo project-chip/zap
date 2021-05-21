@@ -251,7 +251,7 @@ function decodePackageExtensionEntity(entityType, entity) {
     case dbEnum.packageExtensionEntity.cluster:
       return {
         entityCode: entity.clusterCode,
-        entityQualifier: null,
+        entityQualifier: entity.role,
         manufacturerCode: null,
         parentCode: null,
         value: entity.value,
