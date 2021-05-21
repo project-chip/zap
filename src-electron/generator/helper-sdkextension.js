@@ -35,6 +35,7 @@ const util = require('../util/util.js')
  */
 function cluster_extension(options) {
   let prop = options.hash.property
+  let role = options.hash.role
   if (prop == null) {
     return ''
   } else {
@@ -44,7 +45,7 @@ function cluster_extension(options) {
         templateUtil.ensureZclClusterSdkExtensions(this, packageId)
       )
       .then((extensions) =>
-        util.getClusterExtensionDefault(extensions, prop, this.code)
+        util.getClusterExtensionDefault(extensions, prop, this.code, role)
       )
   }
 }
