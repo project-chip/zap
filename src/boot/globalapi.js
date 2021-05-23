@@ -23,6 +23,22 @@ import {
   renderer_notify,
 } from '../api/renderer_api.js'
 
+/**
+ * This symbol contains the actual Renderer API meta object.
+ * This is the symbol that is discovered by the renderer container code.
+ */
 window.global_renderer_api_info = renderer_api_info()
+
+/**
+ * This symbol contains the function that executes a renderer api.
+ * The first argument is the renderer API function ID, remaining
+ * arguments are arguments for the function itself.
+ */
 window.global_renderer_api_execute = renderer_api_execute
+
+/**
+ * This symbol contains the notification function. It allows the
+ * renderer container to register a function or action to happen
+ * when the notification is about to happen.
+ */
 window.global_renderer_notify = renderer_notify

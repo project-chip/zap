@@ -101,14 +101,8 @@ function windowCreate(port, args = {}) {
   w.isDirty = false
   w.loadURL(`http://localhost:${port}/` + queryString).then(async () => {
     if (args.filePath != null) {
-      // browserApi.executeLoad(w, args.filePath)
       browserApi.execRendererApi(w, rendApi.id.open, args.filePath)
     }
-
-    browserApi.execRendererApi(
-      w,
-      args.debugNavBar ? rendApi.id.debugNavBarOn : rendApi.id.debugNavBarOff
-    )
   })
 
   w.on('page-title-updated', (e) => {
