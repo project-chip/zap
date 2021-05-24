@@ -95,6 +95,9 @@ function renderer_api_execute(id, ...args) {
     case rendApi.id.debugNavBarOff:
       observable.setObservableAttribute(rendApi.observable.debugNavBar, false)
       break
+    case rendApi.id.setTheme:
+      observable.setObservableAttribute(rendApi.observable.themeData, args[0])
+      break
   }
   return ret
 }
