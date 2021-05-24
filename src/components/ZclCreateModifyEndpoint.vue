@@ -28,7 +28,7 @@ limitations under the License.
             ref="endpoint"
             filled
             class="col"
-            :rules="[reqPosInt]"
+            :rules="[reqPosInt, reqUniqueEndpoint]"
           />
           <q-input
             label="Profile ID"
@@ -223,6 +223,12 @@ export default {
       return (
         (_.isNumber(parseInt(value)) && parseInt(value) >= 0) ||
         '* Positive integer required'
+      )
+    },
+    reqUniqueEndpoint(value) {
+      return (
+        _.isNil(_.findKey(this.endpointId, (a) => a == value)) ||
+        'Endpoint identifier must be unique'
       )
     },
     newEpt(shownEndpoint) {
