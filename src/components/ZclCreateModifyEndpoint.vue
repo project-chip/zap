@@ -75,7 +75,12 @@ limitations under the License.
               filled
               stack-label
               :rules="[reqPosInt]"
-            />
+            >
+              <q-tooltip>
+                An endpoint can be assigned a network id that corresponds to
+                which network it is on.
+              </q-tooltip>
+            </q-input>
 
             <q-input
               label="Version"
