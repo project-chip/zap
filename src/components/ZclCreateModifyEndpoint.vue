@@ -139,6 +139,8 @@ export default {
       this.shownEndpoint.deviceTypeRef = this.endpointDeviceTypeRef[
         this.endpointType[this.endpointReference]
       ]
+    } else {
+      this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
   },
   data() {
@@ -191,6 +193,22 @@ export default {
     },
   },
   methods: {
+    getSmallestUnusedEndpointId() {
+      let id = 1
+      for (id; id < Object.values(this.endpointId).length + 1; id++) {
+        if (
+          _.isNil(
+            _.find(
+              Object.values(this.endpointId),
+              (existingEndpointId) => id == existingEndpointId
+            )
+          )
+        ) {
+          return id
+        }
+      }
+      return id
+    },
     setDeviceTypeCallback(value) {
       let profileId = this.shownEndpoint.profileIdentifier
       // On change of device type, reset the profileId to the current deviceType _unless_ the default profileId is custom
