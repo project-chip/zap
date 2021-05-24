@@ -32,14 +32,12 @@ limitations under the License.
           />
           <q-input
             label="Profile ID"
-            type="number"
-            v-model="zclProfileIdString"
-            ref="profileId"
+            v-model="shownEndpoint.profileIdentifier"
+            ref="profile"
             outlined
             filled
             class="col"
-            disable
-            :rules="[(val) => true]"
+            :rules="[reqPosInt]"
           />
           <q-select
             label="Device"
@@ -63,6 +61,7 @@ limitations under the License.
                     ')'
             "
             @filter="filterDeviceTypes"
+            @input="setDeviceTypeCallback"
           >
           </q-select>
 
@@ -107,6 +106,7 @@ limitations under the License.
 
 <script>
 import * as RestApi from '../../src-shared/rest-api'
+import * as DbEnum from '../../src-shared/db-enum'
 import CommonMixin from '../util/common-mixin'
 const _ = require('lodash')
 
@@ -122,6 +122,12 @@ export default {
       this.shownEndpoint.networkIdentifier = parseInt(
         this.networkId[this.endpointReference]
       )
+
+      this.shownEndpoint.profileIdentifier = this.asHex(
+        parseInt(this.profileId[this.endpointReference]),
+        4
+      )
+
       this.shownEndpoint.deviceVersion = parseInt(
         this.endpointVersion[this.endpointReference]
       )
@@ -135,6 +141,7 @@ export default {
       deviceTypeOptions: this.zclDeviceTypeOptions,
       shownEndpoint: {
         endpointIdentifier: 1,
+        profileIdentifier: null,
         networkIdentifier: 0,
         deviceTypeRef: null,
         deviceVersion: 1,
@@ -154,17 +161,17 @@ export default {
     },
     zclProfileIdString: {
       get() {
-        return this.shownEndpoint.deviceTypeRef
-          ? this.asHex(
-              this.zclDeviceTypes[this.shownEndpoint.deviceTypeRef].profileId,
-              4
-            )
-          : ''
+        return this.$store.state.zap.endpointView.profileId
       },
     },
     networkId: {
       get() {
         return this.$store.state.zap.endpointView.networkId
+      },
+    },
+    profileId: {
+      get() {
+        return this.$store.state.zap.endpointView.profileId
       },
     },
     endpointVersion: {
@@ -179,12 +186,27 @@ export default {
     },
   },
   methods: {
+    setDeviceTypeCallback(value) {
+      let profileId = this.shownEndpoint.profileIdentifier
+      // On change of device type, reset the profileId to the current deviceType _unless_ the default profileId is custom
+      if (this.shownEndpoint.profileIdentifier != null) {
+        profileId =
+          this.zclDeviceTypes[value].profileId == DbEnum.customDevice.profileId
+            ? this.asHex(profileId, 4)
+            : this.asHex(this.zclDeviceTypes[value].profileId, 4)
+      } else {
+        profileId = this.asHex(this.zclDeviceTypes[value].profileId, 4)
+      }
+
+      this.shownEndpoint.profileIdentifier = profileId
+    },
     saveOrCreateHandler() {
       if (
         this.$refs.endpoint.validate() &&
         this.$refs.device.validate() &&
         this.$refs.network.validate() &&
-        this.$refs.version.validate()
+        this.$refs.version.validate() &&
+        this.$refs.profile.validate()
       ) {
         this.saveOrCreateCloseFlag = true
         if (this.endpointReference) {
@@ -214,6 +236,7 @@ export default {
             .dispatch(`zap/addEndpoint`, {
               endpointId: parseInt(this.shownEndpoint.endpointIdentifier),
               networkId: this.shownEndpoint.networkIdentifier,
+              profileId: parseInt(this.shownEndpoint.profileIdentifier),
               endpointType: response.id,
               endpointVersion: this.shownEndpoint.deviceVersion,
               deviceIdentifier: this.zclDeviceTypes[
@@ -268,6 +291,10 @@ export default {
           {
             updatedKey: RestApi.updateKey.networkId,
             value: shownEndpoint.networkIdentifier,
+          },
+          {
+            updatedKey: RestApi.updateKey.profileId,
+            value: parseInt(shownEndpoint.profileIdentifier),
           },
           {
             updatedKey: RestApi.updateKey.endpointVersion,

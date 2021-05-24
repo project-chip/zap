@@ -466,7 +466,7 @@ describe('Endpoint Type Config Queries', () => {
 
   test('Insert Endpoint Test', () =>
     queryConfig
-      .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9, 22, 43)
+      .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9, 260, 22, 43)
       .then((rowId) => {
         return queryConfig.selectEndpoint(db, rowId)
       })
@@ -532,6 +532,9 @@ test('Test Rest Key to DB Column Test', () => {
   expect(
     queryConfig.convertRestKeyToDbColumn(restApi.updateKey.networkId)
   ).toEqual('NETWORK_IDENTIFIER')
+  expect(
+    queryConfig.convertRestKeyToDbColumn(restApi.updateKey.profileId)
+  ).toEqual('PROFILE')
   expect(
     queryConfig.convertRestKeyToDbColumn(restApi.updateKey.deviceTypeRef)
   ).toEqual('DEVICE_TYPE_REF')

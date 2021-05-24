@@ -259,6 +259,7 @@ export function addEndpoint(context, newEndpointContext) {
         endpointId: arg.endpointId,
         endpointTypeRef: arg.endpointType,
         networkId: arg.networkId,
+        profileId: arg.profileId,
         endpointVersion: arg.endpointVersion,
         endpointIdValidationIssues: arg.validationIssues.endpointId,
         networkIdValidationIssues: arg.validationIssues.networkId,
