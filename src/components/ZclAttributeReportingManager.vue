@@ -25,6 +25,7 @@ limitations under the License.
       virtual-scroll
       binary-state-sort
       :pagination.sync="pagination"
+      :sort-method="customAttributeSort"
       data-cy="Attributes Reporting"
     >
       <template v-slot:body="props">
@@ -201,6 +202,7 @@ export default {
     return {
       pagination: {
         rowsPerPage: 0,
+        sortBy: 'clientServer',
       },
       columns: [
         {
@@ -229,21 +231,18 @@ export default {
           align: 'left',
           label: 'Min Interval',
           field: 'min',
-          sortable: true,
         },
         {
           name: 'max',
           align: 'left',
           label: 'Max Interval',
           field: 'max',
-          sortable: true,
         },
         {
           name: 'reportable',
           align: 'left',
           label: 'Reportable Change',
           field: 'reportable',
-          sortable: true,
         },
         {
           name: 'edit',
@@ -253,6 +252,39 @@ export default {
         },
       ],
     }
+  },
+  methods: {
+    customAttributeSort(rows, sortBy, descending) {
+      const data = [...rows]
+
+      if (sortBy) {
+        data.sort((a, b) => {
+          const x = descending ? b : a
+          const y = descending ? a : b
+          if (sortBy === 'enabled') {
+            return this.sortByBoolean(
+              x,
+              y,
+              a,
+              b,
+              this.selectedReporting,
+              this.sortByClusterAndManufacturerCode
+            )
+          } else if (sortBy === 'attrName') {
+            return this.sortByText(x['label'], y['label'], a, b)
+          } else if (sortBy === 'clientServer') {
+            return this.sortByText(
+              x['side'],
+              y['side'],
+              a,
+              b,
+              this.sortByClusterAndManufacturerCode
+            )
+          }
+        })
+      }
+      return data
+    },
   },
 }
 </script>

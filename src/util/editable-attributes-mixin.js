@@ -323,5 +323,42 @@ export default {
         editState: false,
       })
     },
+    sortByText(x, y, ascendingA, ascendingB, callback = (x, (y) => 0)) {
+      return x.toLowerCase() > y.toLowerCase()
+        ? 1
+        : x.toLowerCase() < y.toLowerCase()
+        ? -1
+        : callback(ascendingA, ascendingB)
+    },
+    sortByBoolean(
+      x,
+      y,
+      ascendingA,
+      ascendingB,
+      singletonList,
+      callback = (x, (y) => 0)
+    ) {
+      let i = this.hashAttributeIdClusterId(x.id, this.selectedCluster.id)
+      let j = this.hashAttributeIdClusterId(y.id, this.selectedCluster.id)
+      if (singletonList.indexOf(i) != -1 && singletonList.indexOf(j) != -1) {
+        return callback(ascendingA, ascendingB)
+      } else {
+        if (singletonList.indexOf(i) != -1) return 1
+        else if (singletonList.indexOf(j) != -1) return -1
+        else return callback(ascendingA, ascendingB)
+      }
+    },
+
+    sortByClusterAndManufacturerCode(x, y) {
+      if (x['manufacturerCode'] == y['manufacturerCode']) {
+        return x['code'] > y['code'] ? 1 : x['code'] < y['code'] ? -1 : 0
+      } else {
+        return x['manufacturerCode'] > y['manufacturerCode']
+          ? 1
+          : x['manufacturerCode'] < y['manufacturerCode']
+          ? -1
+          : 0
+      }
+    },
   },
 }
