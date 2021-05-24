@@ -53,9 +53,11 @@ limitations under the License.
         <q-input
           dense
           outlined
+          clearable
           class="col-4"
           placeholder="Search Clusters"
           @input="changeFilterString($event)"
+          @clear="changeFilterString('')"
           :value="filterString"
         >
           <template v-slot:prepend>
