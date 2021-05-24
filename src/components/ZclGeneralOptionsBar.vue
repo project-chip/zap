@@ -17,10 +17,8 @@ limitations under the License.
 <template>
   <div>
     <q-toolbar>
-      <div class="q-pr-lg row-m-4 vertical-align:middle">
-        Manufacturer Name or Code
-      </div>
-      <div class="q-pr-xl">
+      <div class="q-pr-lg vertical-align:middle">Manufacturer Name or Code</div>
+      <div>
         <q-select
           use-input
           hide-selected
@@ -42,6 +40,7 @@ limitations under the License.
           dense
         />
       </div>
+      <div class="col" />
       <div class="q-pr-lg vertical-align:middle">Default Response Policy</div>
       <q-select
         :options="defaultResponsePolicyOptions"
@@ -54,9 +53,21 @@ limitations under the License.
         outlined
         dense
       />
+      <div class="col" />
+      <div>
+        <q-toggle
+          :value="commandDiscoverySetting == 1 ? true : false"
+          label="Enable Command Discovery"
+          dense
+          left-label
+          @input="handleCommandOptionChange('commandDiscovery', $event)"
+        >
+          <q-tooltip> Enable Command Discovery for your project </q-tooltip>
+        </q-toggle>
+      </div>
+      <div class="col" />
 
       <q-btn
-        class="col-6 left"
         align="left"
         text-color="primary"
         icon="add"
@@ -67,6 +78,7 @@ limitations under the License.
         :outline="none"
         to="/customZcl"
       />
+      <div class="col-3" />
     </q-toolbar>
   </div>
 </template>
@@ -130,6 +142,11 @@ export default {
             )
       },
     },
+    commandDiscoverySetting: {
+      get() {
+        return this.$store.state.zap.selectedGenericOptions['commandDiscovery']
+      },
+    },
   },
   data() {
     return {
@@ -141,6 +158,12 @@ export default {
       this.$store.dispatch('zap/setSelectedGenericKey', {
         key: option,
         value: value.optionCode,
+      })
+    },
+    handleCommandOptionChange(option, value) {
+      this.$store.dispatch('zap/setSelectedGenericKey', {
+        key: option,
+        value: value,
       })
     },
 
