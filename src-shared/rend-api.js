@@ -15,6 +15,71 @@
  *    limitations under the License.
  */
 
+exports.api = {
+  featureLevel: 1,
+  prefix: 'zap',
+  description: 'Zap Renderer API',
+  notifications: {
+    dirtyFlag: {
+      arg: 'dirtyState',
+    },
+    fileBrowse: {
+      arg: 'browseObject',
+    },
+  },
+  functions: {
+    debugNavBarOff: {
+      description: 'Hide debug navigation bar...',
+    },
+    debugNavBarOn: {
+      description: 'Show debug navigation bar...',
+    },
+    getFileLocation: {
+      description: 'Get file location.',
+    },
+    getItem: {
+      description: 'Get item...',
+    },
+    getStorageItem: {
+      description: 'Get storage item',
+    },
+    open: {
+      description: 'Open file...',
+    },
+    progressEnd: {
+      description: 'End progress indicator.',
+    },
+    progressStart: {
+      description: 'Start progress indicator.',
+    },
+    removeItem: {
+      description: 'Remove item...',
+    },
+    removeStorageItem: {
+      description: 'Remove storage item',
+    },
+    reportFiles: {
+      description: 'Reports files selected by the renderer.',
+    },
+    save: {
+      description: 'Save file...',
+    },
+    saveFileLocation: {
+      description: 'Save file location',
+    },
+    setItem: {
+      description: 'Set item...',
+    },
+    setStorageItem: {
+      description: 'Set storage item...',
+    },
+    setTheme: {
+      description: 'Set theme...',
+      arg: 'theme',
+    },
+  },
+}
+
 exports.renderer_api_info = [
   { id: 'debugNavBarOff', description: 'Hide debug navigation bar...' },
   { id: 'debugNavBarOn', description: 'Show debug navigation bar...' },

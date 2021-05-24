@@ -51,19 +51,19 @@ export function observeAttribute(attributeName, callbackObj) {
  * Sets a current value of the observable attribute, triggering
  * all observers to fire.
  *
- * @param {*} name
+ * @param {*} attributeName
  * @param {*} value
  */
-export function setObservableAttribute(name, value) {
-  document.documentElement.setAttribute(name, JSON.stringify(value))
+export function setObservableAttribute(attributeName, value) {
+  document.documentElement.setAttribute(attributeName, JSON.stringify(value))
 }
 
 /**
  * Returns a value of observable attribute.
  *
- * @param {*} name
+ * @param {*} attributeName
  * @returns value of observable attribute.
  */
-export function getObservableAttribute(name) {
-  return JSON.parse(document.documentElement.getAttribute(name))
+export function getObservableAttribute(attributeName) {
+  return JSON.parse(document.documentElement.getAttribute(attributeName))
 }
