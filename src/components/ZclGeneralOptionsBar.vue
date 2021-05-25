@@ -17,9 +17,10 @@ limitations under the License.
 <template>
   <div>
     <q-toolbar>
-      <div class="q-pr-lg vertical-align:middle">Manufacturer Name or Code</div>
+      <div class="q-mr-sm vertical-align:middle">Manufacturer Name or Code</div>
       <div>
         <q-select
+          class="q-mr-sm"
           use-input
           hide-selected
           fill-input
@@ -40,22 +41,21 @@ limitations under the License.
           dense
         />
       </div>
-      <div class="col" />
-      <div class="q-pr-lg vertical-align:middle">Default Response Policy</div>
+      <div class="q-mr-sm vertical-align:middle">Default Response Policy</div>
       <q-select
+        class="q-mr-sm"
         :options="defaultResponsePolicyOptions"
         v-model="selectedDefaultResponsePolicy"
         :option-label="(item) => (item === null ? 'NULL' : item.optionLabel)"
         @input="
           handleOptionChange(DbEnum.sessionOption.defaultResponsePolicy, $event)
         "
-        style="width: 150px"
         outlined
         dense
       />
-      <div class="col" />
       <div>
         <q-toggle
+          class="q-mr-sm"
           :value="commandDiscoverySetting == 1 ? true : false"
           label="Enable Command Discovery"
           dense
@@ -65,9 +65,8 @@ limitations under the License.
           <q-tooltip> Enable Command Discovery for your project </q-tooltip>
         </q-toggle>
       </div>
-      <div class="col" />
-
       <q-btn
+        class="q-mr-sm"
         align="left"
         text-color="primary"
         icon="add"
@@ -78,6 +77,7 @@ limitations under the License.
         :outline="none"
         to="/customZcl"
       />
+      <q-space />
     </q-toolbar>
   </div>
 </template>
