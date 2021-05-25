@@ -74,7 +74,7 @@ limitations under the License.
           v-close-popup
           size="sm"
           icon="delete"
-          @click="deleteEndpointDialog = !deleteEndpointDialog"
+          @click="handleDeletionDialog"
         />
         <q-btn
           flat
@@ -107,6 +107,14 @@ limitations under the License.
           This action is irreversible and you will loose all the data under the
           endpoint.
         </q-card-section>
+        <q-card-section>
+          <q-checkbox
+            class="q-mt-xs"
+            label="Don't show this dialog again"
+            :value="confirmDeleteEndpointDialog"
+            @input="confirmDeleteEndpointDialog = !confirmDeleteEndpointDialog"
+          />
+        </q-card-section>
         <q-card-actions>
           <q-btn label="Cancel" v-close-popup class="col" />
           <q-btn
@@ -114,7 +122,7 @@ limitations under the License.
             color="primary"
             class="col"
             v-close-popup="deleteEndpointDialog"
-            @click="deleteEpt()"
+            @click="updateDialogStateAndDeleteEndpoint()"
           />
         </q-card-actions>
       </q-card>
@@ -125,6 +133,7 @@ limitations under the License.
 <script>
 import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
 import CommonMixin from '../util/common-mixin'
+import * as Storage from '../util/storage'
 
 export default {
   name: 'ZclEndpointCard',
@@ -135,11 +144,29 @@ export default {
     return {
       modifyEndpointDialog: false,
       deleteEndpointDialog: false,
+      confirmDeleteEndpointDialog: false,
     }
   },
   methods: {
     getFormattedEndpointId(endpointRef) {
       return this.endpointId[endpointRef]
+    },
+    getStorageParam() {
+      return Storage.getItem('confirmDeleteEndpointDialog')
+    },
+    updateDialogStateAndDeleteEndpoint() {
+      Storage.setItem(
+        'confirmDeleteEndpointDialog',
+        this.confirmDeleteEndpointDialog
+      )
+      this.deleteEpt()
+    },
+    handleDeletionDialog() {
+      if (this.getStorageParam() == 'true') {
+        this.deleteEpt()
+      } else {
+        this.deleteEndpointDialog = !this.deleteEndpointDialog
+      }
     },
     deleteEpt() {
       let endpointReference = this.endpointReference
