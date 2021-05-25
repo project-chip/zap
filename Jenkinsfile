@@ -156,7 +156,7 @@ pipeline
         }
         stage('Building distribution artifacts') {
             parallel {
-                stage('Building for Mac')
+               /* stage('Building for Mac')
                 {
                     agent { label 'bgbuild-mac' }
                     steps
@@ -184,7 +184,7 @@ pipeline
                             }
                         }
                     }
-                }
+                }*/
                 stage('Building for Windows / Linux')
                 {
                     steps
@@ -219,7 +219,7 @@ pipeline
                         }
                     }
                 }
-                stage('Creating artifact for Mac')
+                /*stage('Creating artifact for Mac')
                 {
                     agent { label 'bgbuild-mac' }
                     steps
@@ -229,7 +229,7 @@ pipeline
                             archiveArtifacts artifacts:'dist/zap*', fingerprint: true
                         }
                     }
-                }
+                }*/
             }
         }
 
@@ -264,7 +264,7 @@ pipeline
                         }
                     }
                 }
-                stage('Check executable for Mac')
+               /* stage('Check executable for Mac')
                 {
                     agent { label 'bgbuild-mac' }
                     steps
@@ -296,7 +296,7 @@ pipeline
                             }
                         }
                     }
-                }
+                }*/
                 stage('Check executable for Linux')
                 {
                     steps
