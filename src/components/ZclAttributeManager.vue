@@ -200,7 +200,7 @@ limitations under the License.
               @click="
                 editableAttributes[props.row.id]
                   ? commitEdittedAttribute(props.row, selectedCluster.id)
-                  : setEditableAttribute(props.row.id, selectedCluster.id)
+                  : setEditableAttribute(props.row, selectedCluster.id)
               "
             />
           </q-td>

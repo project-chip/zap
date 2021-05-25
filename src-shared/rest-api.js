@@ -101,6 +101,7 @@ const updateKey = {
   attributeReportMax: 'reportingMax',
   attributeReportChange: 'reportableChange',
   attributeStorage: 'storageOption',
+  init: 'init',
 }
 
 exports.param = {

@@ -154,16 +154,18 @@ export default {
       }
     },
     handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
-      let editContext = {
-        action: 'text',
-        endpointTypeId: this.selectedEndpointTypeId,
-        id: attributeData.id,
-        value: newValue,
-        listType: listType,
-        clusterRef: clusterId,
-        attributeSide: attributeData.side,
+      if (newValue) {
+        let editContext = {
+          action: 'text',
+          endpointTypeId: this.selectedEndpointTypeId,
+          id: attributeData.id,
+          value: newValue,
+          listType: listType,
+          clusterRef: clusterId,
+          attributeSide: attributeData.side,
+        }
+        this.$store.dispatch('zap/updateSelectedAttribute', editContext)
       }
-      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
     toggleAttributeSelection(list, listType, attributeData, clusterId) {
       // We determine the ID that we need to toggle within the list.
@@ -189,42 +191,57 @@ export default {
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
+
     initializeTextEditableList(originatingList, editableList, attrClusterHash) {
       let data = originatingList[attrClusterHash]
       editableList[attrClusterHash] = data
     },
-    setEditableAttribute(attributeId, selectedClusterId) {
-      let attrClusterHash = this.hashAttributeIdClusterId(
-        attributeId,
-        selectedClusterId
-      )
-      this.initializeBooleanEditableList(
-        this.selectionBounded,
-        this.edittedData['bounded'],
-        attrClusterHash
-      )
-      this.initializeBooleanEditableList(
-        this.selectionSingleton,
-        this.edittedData['singleton'],
-        attrClusterHash
-      )
 
-      this.initializeTextEditableList(
-        this.selectionDefault,
-        this.editableDefaults,
-        attrClusterHash
-      )
+    setEditableAttribute(attributeData, selectedClusterId) {
+      let initContext = {
+        action: 'init',
+        endpointTypeId: this.selectedEndpointTypeId,
+        id: attributeData.id,
+        value: 'init',
+        listType: 'init',
+        clusterRef: selectedClusterId,
+        attributeSide: attributeData.side,
+      }
+      this.$store
+        .dispatch('zap/initSelectedAttribute', initContext)
+        .then(() => {
+          let attrClusterHash = this.hashAttributeIdClusterId(
+            attributeData.id,
+            selectedClusterId
+          )
+          this.initializeBooleanEditableList(
+            this.selectionBounded,
+            this.edittedData['bounded'],
+            attrClusterHash
+          )
+          this.initializeBooleanEditableList(
+            this.selectionSingleton,
+            this.edittedData['singleton'],
+            attrClusterHash
+          )
 
-      this.initializeTextEditableList(
-        this.selectionStorageOption,
-        this.editableStorage,
-        attrClusterHash
-      )
+          this.initializeTextEditableList(
+            this.selectionDefault,
+            this.editableDefaults,
+            attrClusterHash
+          )
 
-      this.$store.dispatch('zap/setAttributeEditting', {
-        attributeId: attributeId,
-        editState: true,
-      })
+          this.initializeTextEditableList(
+            this.selectionStorageOption,
+            this.editableStorage,
+            attrClusterHash
+          )
+
+          this.$store.dispatch('zap/setAttributeEditting', {
+            attributeId: attributeData.id,
+            editState: true,
+          })
+        })
     },
     setEditableAttributeReporting(attributeId, selectedClusterId) {
       let attrClusterHash = this.hashAttributeIdClusterId(
@@ -292,13 +309,14 @@ export default {
     },
     commitEdittedAttribute(attributeData, clusterId) {
       let hash = this.hashAttributeIdClusterId(attributeData.id, clusterId)
+
       this.handleAttributeDefaultChange(
         this.editableDefaults[hash],
         'defaultValue',
         attributeData,
         clusterId
       )
-      console.log(this.editableStorage[hash])
+
       this.handleAttributeDefaultChange(
         this.editableStorage[hash],
         'storageOption',

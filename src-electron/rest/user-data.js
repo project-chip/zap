@@ -152,6 +152,11 @@ function httpPostAttributeUpdate(db) {
         paramType = ''
         break
     }
+    let paramArray =
+      listType == restApi.updateKey.init
+        ? null
+        : [{ key: listType, value: value, type: paramType }]
+
     queryConfig
       .insertOrUpdateAttributeState(
         db,
@@ -159,7 +164,7 @@ function httpPostAttributeUpdate(db) {
         clusterRef,
         attributeSide,
         id,
-        [{ key: listType, value: value, type: paramType }]
+        paramArray
       )
       .then((row) =>
         queryZcl
