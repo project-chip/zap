@@ -78,7 +78,6 @@ limitations under the License.
         :outline="none"
         to="/customZcl"
       />
-      <div class="col-3" />
     </q-toolbar>
   </div>
 </template>
