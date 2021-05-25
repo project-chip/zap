@@ -73,6 +73,7 @@ function httpPostEndpoint(db) {
     let {
       endpointId,
       networkId,
+      profileId,
       endpointType,
       endpointVersion,
       deviceIdentifier,
@@ -85,6 +86,7 @@ function httpPostEndpoint(db) {
         endpointId,
         endpointType,
         networkId,
+        profileId,
         endpointVersion,
         deviceIdentifier
       )
@@ -95,6 +97,7 @@ function httpPostEndpoint(db) {
             endpointId: endpointId,
             endpointType: endpointType,
             networkId: networkId,
+            profileId: profileId,
             endpointVersion: endpointVersion,
             validationIssues: validationData,
           })

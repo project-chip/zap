@@ -231,25 +231,71 @@ export default {
           const x = descending ? b : a
           const y = descending ? a : b
           if (sortBy === 'attrName') {
-            return x['label'].toLowerCase() > y['label'].toLowerCase()
-              ? 1
-              : x['label'].toLowerCase() < y['label'].toLowerCase()
-              ? -1
-              : 0
+            return this.sortByText(x['label'], y['label'], a, b)
           } else if (sortBy === 'attrID' || sortBy === 'mfgId') {
-            if (x['manufacturerCode'] == y['manufacturerCode']) {
-              return x['code'] > y['code'] ? 1 : x['code'] < y['code'] ? -1 : 0
+            return this.sortByClusterAndManufacturerCode(x, y)
+          } else if (sortBy === 'required') {
+            if (this.isAttributeRequired(x) == this.isAttributeRequired(y)) {
+              //This uses a,b in order to main ascending order.
+              return this.sortByClusterAndManufacturerCode(a, b)
             } else {
-              return x['manufacturerCode'] > y['manufacturerCode']
-                ? 1
-                : x['manufacturerCode'] < y['manufacturerCode']
-                ? -1
-                : 0
+              if (this.isAttributeRequired(x)) return 1
+              else if (this.isAttributeRequired(y)) return -1
+              else return 0
             }
+          } else if (sortBy === 'clientServer') {
+            return this.sortByText(
+              x['side'],
+              y['side'],
+              a,
+              b,
+              this.sortByClusterAndManufacturerCode
+            )
+          } else if (sortBy === 'storageOption') {
+            let i = this.selectionStorageOption[
+              this.hashAttributeIdClusterId(x.id, this.selectedCluster.id)
+            ]
+            i = i ? i : ''
+            let j = this.selectionStorageOption[
+              this.hashAttributeIdClusterId(y.id, this.selectedCluster.id)
+            ]
+            j = j ? j : ''
+            return this.sortByText(
+              i,
+              j,
+              a,
+              b,
+              this.sortByClusterAndManufacturerCode
+            )
+          } else if (sortBy === 'singleton') {
+            return this.sortByBoolean(
+              x,
+              y,
+              a,
+              b,
+              this.selectionSingleton,
+              this.sortByClusterAndManufacturerCode
+            )
+          } else if (sortBy === 'bounded') {
+            return this.sortByBoolean(
+              x,
+              y,
+              a,
+              b,
+              this.selectionBounded,
+              this.sortByClusterAndManufacturerCode
+            )
+          } else if (sortBy === 'type') {
+            return this.sortByText(
+              x['type'],
+              y['type'],
+              a,
+              b,
+              this.sortByClusterAndManufacturerCode
+            )
           }
         })
       }
-
       return data
     },
   },
@@ -286,7 +332,7 @@ export default {
     return {
       pagination: {
         rowsPerPage: 0,
-        sortBy: 'attrID',
+        sortBy: 'clientServer',
       },
       columns: [
         {
@@ -335,24 +381,28 @@ export default {
           label: 'Storage Option',
           align: 'left',
           field: 'storageOption',
+          sortable: true,
         },
         {
           name: 'singleton',
           align: 'left',
           label: 'Singleton',
           field: 'singleton',
+          sortable: true,
         },
         {
           name: 'bounded',
           align: 'left',
           label: 'Bounded',
           field: 'bounded',
+          sortable: true,
         },
         {
           name: 'type',
           align: 'left',
           label: 'Type',
           field: 'type',
+          sortable: true,
         },
         {
           name: 'default',

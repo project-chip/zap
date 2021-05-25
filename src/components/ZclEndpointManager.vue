@@ -27,7 +27,6 @@ limitations under the License.
         flat
         :ripple="false"
         :unelevated="false"
-        :outline="none"
       />
       <q-space />
       <q-btn
@@ -36,7 +35,6 @@ limitations under the License.
         flat
         :ripple="false"
         :unelevated="false"
-        :outline="none"
         @click="miniState = !miniState"
         class="col"
       />

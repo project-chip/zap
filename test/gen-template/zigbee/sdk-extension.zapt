@@ -6,6 +6,12 @@
 // cluster: {{asHex code 4}} {{label}}, text extension: '{{cluster_extension property="testClusterExtension"}}'
 {{/zcl_clusters}}
 
+------------------- By-role Clusters -------------------
+{{#zcl_clusters}}
+// server cluster: {{asHex code 4}} {{label}}, text extension: '{{cluster_extension role="server" property="testClusterExtension"}}'
+// client cluster: {{asHex code 4}} {{label}}, text extension: '{{cluster_extension role="client" property="testClusterExtension"}}'
+{{/zcl_clusters}}
+
 ------------------- Commands -------------------
 {{#zcl_command_tree}}
 // command: {{asHex clusterCode 4 'null'}} / {{asHex code 2}} => {{label}}, test extension: '{{command_extension

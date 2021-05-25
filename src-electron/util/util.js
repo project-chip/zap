@@ -440,18 +440,30 @@ function executeExternalProgram(
  * Retrieve specific entry from extensions defaults(array) via 'clusterCode' key fields
  *
  * @param {*} extensions
- * @param {*} property field name under specific extension
+ * @param {*} extensionId field name under specific extension
  * @param {*} clusterCode search key
+ * @parem {*} clusterRole: one of server/client enums, or null for either.
  * @returns Value of the cluster extension property.
  */
-function getClusterExtensionDefault(extensions, extensionId, defaultKey) {
+function getClusterExtensionDefault(
+  extensions,
+  extensionId,
+  clusterCode,
+  clusterRole = null
+) {
   let f = getClusterExtension(extensions, extensionId)
   if (f.length == 0) {
     return ''
   } else {
     let val = null
     f[0].defaults.forEach((d) => {
-      if (d.entityCode == defaultKey) val = d.value
+      if (d.entityCode == clusterCode) {
+        if (clusterRole == null) {
+          val = d.value
+        } else if (clusterRole == d.entityQualifier) {
+          val = d.value
+        }
+      }
     })
     if (val == null) val = f[0].globalDefault
     if (val == null) val = ''

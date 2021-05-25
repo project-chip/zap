@@ -117,6 +117,11 @@ export function initializeDefaultEndpoints(state, defaultEndpoints) {
     if (state.endpointView.networkId[endpoint.id] === undefined) {
       Vue.set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
     }
+
+    if (state.endpointView.profileId[endpoint.id] === undefined) {
+      Vue.set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
+    }
+
     if (state.endpointView.endpointVersion[endpoint.id] === undefined) {
       Vue.set(
         state.endpointView.endpointVersion,
@@ -135,6 +140,7 @@ export function addEndpoint(state, endpoint) {
     endpoint.endpointTypeRef
   )
   Vue.set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
+  Vue.set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
   Vue.set(
     state.endpointView.endpointVersion,
     endpoint.id,

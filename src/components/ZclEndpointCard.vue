@@ -55,18 +55,7 @@ limitations under the License.
             <strong>Profile ID</strong>
           </div>
           <div class="col-md-6">
-            {{
-              zclDeviceTypes[
-                endpointDeviceTypeRef[endpointType[endpointReference]]
-              ]
-                ? asHex(
-                    zclDeviceTypes[
-                      endpointDeviceTypeRef[endpointType[endpointReference]]
-                    ].profileId,
-                    4
-                  )
-                : ''
-            }}
+            {{ asHex(profileId[endpointReference], 4) }}
           </div>
         </q-item>
         <q-item class="row">
@@ -149,6 +138,11 @@ export default {
     networkId: {
       get() {
         return this.$store.state.zap.endpointView.networkId
+      },
+    },
+    profileId: {
+      get() {
+        return this.$store.state.zap.endpointView.profileId
       },
     },
     endpointVersion: {

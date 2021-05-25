@@ -38,7 +38,7 @@ limitations under the License.
       <q-btn
         color="primary"
         label="Add"
-        @click="uploadNewPackage = !uploadNewPackage"
+        @click="browseForFile()"
         v-close-popup
       />
     </div>
@@ -78,20 +78,6 @@ limitations under the License.
         </template>
       </q-list>
     </div>
-    <q-dialog v-model="uploadNewPackage">
-      <q-card>
-        <q-card-section>
-          Type in or browse for a custom package file. This is usually an XML
-          file containing ZCL data.
-          <q-input outlined v-model="packageToLoad" label="Custom file path" />
-          <q-btn outline label="Browse..." @click="browseForFile()" />
-          <q-card-actions>
-            <q-btn label="Cancel" v-close-popup />
-            <q-btn label="Add Package" @click="loadNewPackage()" />
-          </q-card-actions>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
   </div>
 </template>
 
@@ -122,7 +108,6 @@ export default {
           if (packageStatus.isValid) {
             this.error = null
             this.$store.dispatch('zap/updateClusters')
-            this.uploadNewPackage = !this.uploadNewPackage
           } else {
             this.error = packageStatus.err
           }
@@ -142,6 +127,7 @@ export default {
         (value) => {
           if (value.context == 'customXml') {
             this.packageToLoad = value.filePaths[0]
+            this.loadNewPackage()
           }
         }
       )
@@ -149,7 +135,6 @@ export default {
   },
   data() {
     return {
-      uploadNewPackage: false,
       packageToLoad: '',
       error: null,
     }

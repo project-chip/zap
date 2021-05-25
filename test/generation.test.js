@@ -93,7 +93,7 @@ describe('Session specific tests', () => {
           'Test cluster extension with external defaults values'
         )
         expect(extensions[1].globalDefault).toBe(null)
-        expect(extensions[1].defaults.length).toBe(1)
+        expect(extensions[1].defaults.length).toBe(2)
         expect(extensions[1].defaults[0].value).toBe(
           'Extension value loaded via external default JSON file.'
         )
@@ -179,9 +179,12 @@ describe('Session specific tests', () => {
         expect(response.data.label).toBe(
           'Test cluster extension with external defaults values'
         )
-        expect(response.data.defaults[0].entityCode).toBe(3)
+        expect(response.data.defaults[0].entityCode).toBe('0x0003')
         expect(response.data.defaults[0].value).toBe(
           'Extension value loaded via external default JSON file.'
+        )
+        expect(response.data.defaults[1].entityCode).toBe(
+          'clusterCode mixed with strings'
         )
       })
   })

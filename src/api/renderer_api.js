@@ -17,7 +17,6 @@
 
 const observable = require('../util/observable.js')
 const restApi = require('../../src-shared/rest-api.js')
-const storage = require('../util/storage.js')
 const rendApi = require('../../src-shared/rend-api.js')
 
 // This file provide glue logic to enable function calls & HTML attribute data change listener logic
@@ -96,10 +95,22 @@ function renderer_api_execute(id, ...args) {
     case rendApi.id.debugNavBarOff:
       observable.setObservableAttribute(rendApi.observable.debugNavBar, false)
       break
+    case rendApi.id.setTheme:
+      observable.setObservableAttribute(rendApi.observable.themeData, args[0])
+      break
   }
   return ret
 }
 
+/**
+ * Default implementation of the notification function simply
+ * prints the notification to the console log. In case of electron
+ * renderer container, this is all that's needed. In case of others,
+ * they can register their own notifier functions.
+ *
+ * @param {*} key
+ * @param {*} value
+ */
 function renderer_notify(key, value) {
   console.log(
     `${rendApi.jsonPrefix}${JSON.stringify({ key: key, value: value })}`

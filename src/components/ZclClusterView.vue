@@ -42,16 +42,6 @@ limitations under the License.
         Cluster ID: {{ asHex(selectedCluster.code, 4) }}, Enabled for
         <strong> {{ enabledMessage }} </strong>
       </div>
-      <div>
-        <q-toggle
-          :value="commandDiscoverySetting == 1 ? true : false"
-          label="Enable Command Discovery"
-          @input="handleOptionChange('commandDiscovery', $event)"
-        ></q-toggle>
-        <q-btn round flat icon="info" size="md" color="grey">
-          <q-tooltip> Enable Command Discovery for your project </q-tooltip>
-        </q-btn>
-      </div>
     </div>
 
     <div class="q-pb-sm">
@@ -99,20 +89,6 @@ export default {
           return ' Client'
         return ' none'
       },
-    },
-    commandDiscoverySetting: {
-      get() {
-        return this.$store.state.zap.selectedGenericOptions['commandDiscovery']
-      },
-    },
-  },
-  methods: {
-    handleOptionChange(option, value) {
-      console.log(this.commandDiscoverySetting)
-      this.$store.dispatch('zap/setSelectedGenericKey', {
-        key: option,
-        value: value,
-      })
     },
   },
   data() {

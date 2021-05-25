@@ -28,18 +28,16 @@ limitations under the License.
             ref="endpoint"
             filled
             class="col"
-            :rules="[reqPosInt]"
+            :rules="[reqPosInt, reqUniqueEndpoint]"
           />
           <q-input
             label="Profile ID"
-            type="number"
-            v-model="zclProfileIdString"
-            ref="profileId"
+            v-model="shownEndpoint.profileIdentifier"
+            ref="profile"
             outlined
             filled
             class="col"
-            disable
-            :rules="[reqValue]"
+            :rules="[reqPosInt]"
           />
           <q-select
             label="Device"
@@ -52,7 +50,7 @@ limitations under the License.
             fill-input
             :options="deviceTypeOptions"
             v-model="shownEndpoint.deviceTypeRef"
-            :rules="[reqValue]"
+            :rules="[(val) => val != null || '* Required', reqPosInt]"
             :option-label="
               (item) =>
                 item == null
@@ -63,6 +61,7 @@ limitations under the License.
                     ')'
             "
             @filter="filterDeviceTypes"
+            @input="setDeviceTypeCallback"
           >
           </q-select>
 
@@ -76,7 +75,12 @@ limitations under the License.
               filled
               stack-label
               :rules="[reqPosInt]"
-            />
+            >
+              <q-tooltip>
+                An endpoint can be assigned a network id that corresponds to
+                which network it is on.
+              </q-tooltip>
+            </q-input>
 
             <q-input
               label="Version"
@@ -107,6 +111,7 @@ limitations under the License.
 
 <script>
 import * as RestApi from '../../src-shared/rest-api'
+import * as DbEnum from '../../src-shared/db-enum'
 import CommonMixin from '../util/common-mixin'
 const _ = require('lodash')
 
@@ -122,12 +127,20 @@ export default {
       this.shownEndpoint.networkIdentifier = parseInt(
         this.networkId[this.endpointReference]
       )
+
+      this.shownEndpoint.profileIdentifier = this.asHex(
+        parseInt(this.profileId[this.endpointReference]),
+        4
+      )
+
       this.shownEndpoint.deviceVersion = parseInt(
         this.endpointVersion[this.endpointReference]
       )
       this.shownEndpoint.deviceTypeRef = this.endpointDeviceTypeRef[
         this.endpointType[this.endpointReference]
       ]
+    } else {
+      this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
   },
   data() {
@@ -135,6 +148,7 @@ export default {
       deviceTypeOptions: this.zclDeviceTypeOptions,
       shownEndpoint: {
         endpointIdentifier: 1,
+        profileIdentifier: null,
         networkIdentifier: 0,
         deviceTypeRef: null,
         deviceVersion: 1,
@@ -154,17 +168,17 @@ export default {
     },
     zclProfileIdString: {
       get() {
-        return this.shownEndpoint.deviceTypeRef
-          ? this.asHex(
-              this.zclDeviceTypes[this.shownEndpoint.deviceTypeRef].profileId,
-              4
-            )
-          : ''
+        return this.$store.state.zap.endpointView.profileId
       },
     },
     networkId: {
       get() {
         return this.$store.state.zap.endpointView.networkId
+      },
+    },
+    profileId: {
+      get() {
+        return this.$store.state.zap.endpointView.profileId
       },
     },
     endpointVersion: {
@@ -179,12 +193,43 @@ export default {
     },
   },
   methods: {
+    getSmallestUnusedEndpointId() {
+      let id = 1
+      for (id; id < Object.values(this.endpointId).length + 1; id++) {
+        if (
+          _.isNil(
+            _.find(
+              Object.values(this.endpointId),
+              (existingEndpointId) => id == existingEndpointId
+            )
+          )
+        ) {
+          return id
+        }
+      }
+      return id
+    },
+    setDeviceTypeCallback(value) {
+      let profileId = this.shownEndpoint.profileIdentifier
+      // On change of device type, reset the profileId to the current deviceType _unless_ the default profileId is custom
+      if (this.shownEndpoint.profileIdentifier != null) {
+        profileId =
+          this.zclDeviceTypes[value].profileId == DbEnum.customDevice.profileId
+            ? this.asHex(profileId, 4)
+            : this.asHex(this.zclDeviceTypes[value].profileId, 4)
+      } else {
+        profileId = this.asHex(this.zclDeviceTypes[value].profileId, 4)
+      }
+
+      this.shownEndpoint.profileIdentifier = profileId
+    },
     saveOrCreateHandler() {
       if (
         this.$refs.endpoint.validate() &&
         this.$refs.device.validate() &&
         this.$refs.network.validate() &&
-        this.$refs.version.validate()
+        this.$refs.version.validate() &&
+        this.$refs.profile.validate()
       ) {
         this.saveOrCreateCloseFlag = true
         if (this.endpointReference) {
@@ -203,6 +248,12 @@ export default {
         '* Positive integer required'
       )
     },
+    reqUniqueEndpoint(value) {
+      return (
+        _.isNil(_.findKey(this.endpointId, (a) => a == value)) ||
+        'Endpoint identifier must be unique'
+      )
+    },
     newEpt(shownEndpoint) {
       this.$store
         .dispatch(`zap/addEndpointType`, {
@@ -214,6 +265,7 @@ export default {
             .dispatch(`zap/addEndpoint`, {
               endpointId: parseInt(this.shownEndpoint.endpointIdentifier),
               networkId: this.shownEndpoint.networkIdentifier,
+              profileId: parseInt(this.shownEndpoint.profileIdentifier),
               endpointType: response.id,
               endpointVersion: this.shownEndpoint.deviceVersion,
               deviceIdentifier: this.zclDeviceTypes[
@@ -268,6 +320,10 @@ export default {
           {
             updatedKey: RestApi.updateKey.networkId,
             value: shownEndpoint.networkIdentifier,
+          },
+          {
+            updatedKey: RestApi.updateKey.profileId,
+            value: parseInt(shownEndpoint.profileIdentifier),
           },
           {
             updatedKey: RestApi.updateKey.endpointVersion,

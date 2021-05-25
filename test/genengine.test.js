@@ -219,6 +219,16 @@ test(
         ).toBeTruthy()
         expect(
           sdkExtension.includes(
+            "// server cluster: 0x0001 Power Configuration, text extension: 'Extension to power cluster'"
+          )
+        ).toBeTruthy()
+        expect(
+          sdkExtension.includes(
+            "// client cluster: 0x0001 Power Configuration, text extension: ''"
+          )
+        ).toBeTruthy()
+        expect(
+          sdkExtension.includes(
             "// attribute: 0x0000 / 0x0000 => ZCL version, extensions: '42', '99'"
           )
         ).toBeTruthy()

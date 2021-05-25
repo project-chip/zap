@@ -216,6 +216,8 @@ function convertRestKeyToDbColumn(key) {
       return 'ENDPOINT_TYPE_REF'
     case restApi.updateKey.networkId:
       return 'NETWORK_IDENTIFIER'
+    case restApi.updateKey.profileId:
+      return 'PROFILE'
     case restApi.updateKey.endpointVersion:
       return 'DEVICE_VERSION'
     case restApi.updateKey.deviceTypeRef:
@@ -335,6 +337,7 @@ async function insertEndpoint(
   endpointIdentifier,
   endpointTypeRef,
   networkIdentifier,
+  profileIdentifier,
   endpointVersion,
   deviceIdentifier
 ) {
@@ -350,12 +353,7 @@ INTO ENDPOINT (
   DEVICE_VERSION,
   DEVICE_IDENTIFIER,
   PROFILE
-) VALUES ( ?, ?, ?, ?, ?, ?,
-         ( SELECT DT.PROFILE_ID
-           FROM DEVICE_TYPE AS DT, ENDPOINT_TYPE AS ET
-           WHERE ET.ENDPOINT_TYPE_ID = ?
-             AND ET.DEVICE_TYPE_REF = DT.DEVICE_TYPE_ID )
-)`,
+) VALUES ( ?, ?, ?, ?, ?, ?, ?)`,
     [
       sessionId,
       endpointIdentifier,
@@ -363,7 +361,7 @@ INTO ENDPOINT (
       networkIdentifier,
       endpointVersion,
       deviceIdentifier,
-      endpointTypeRef,
+      profileIdentifier,
     ]
   )
 }

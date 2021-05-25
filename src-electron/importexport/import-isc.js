@@ -580,6 +580,7 @@ async function iscDataLoader(db, state, sessionId) {
               ep.endpoint,
               endpointTypeId,
               ep.network,
+              ep.profileId,
               ep.deviceVersion,
               ep.deviceId
             )
