@@ -74,7 +74,7 @@ limitations under the License.
           v-close-popup
           size="sm"
           icon="delete"
-          @click="deleteEpt()"
+          @click="deleteEndpointDialog = !deleteEndpointDialog"
         />
         <q-btn
           flat
@@ -96,6 +96,29 @@ limitations under the License.
         v-bind:endpointReference="endpointReference"
       />
     </q-dialog>
+    <q-dialog
+      v-model="deleteEndpointDialog"
+      class="background-color:transparent"
+    >
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Delete Endpoint</div>
+
+          This action is irreversible and you will loose all the data under the
+          endpoint.
+        </q-card-section>
+        <q-card-actions>
+          <q-btn label="Cancel" v-close-popup class="col" />
+          <q-btn
+            :label="'Delete'"
+            color="primary"
+            class="col"
+            v-close-popup="deleteEndpointDialog"
+            @click="deleteEpt()"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -111,6 +134,7 @@ export default {
   data() {
     return {
       modifyEndpointDialog: false,
+      deleteEndpointDialog: false,
     }
   },
   methods: {
