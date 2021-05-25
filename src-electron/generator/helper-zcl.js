@@ -1496,8 +1496,8 @@ function as_underlying_zcl_type_command_argument_always_present(
 ) {
   let promise = if_command_arguments_have_fixed_length_with_current_context(
     commandId,
-    false,
     true,
+    false,
     this
   )
     .then((res) => {
@@ -1550,8 +1550,8 @@ function if_command_argument_always_present(
 ) {
   return if_command_arguments_have_fixed_length_with_current_context(
     commandId,
-    false,
     true,
+    false,
     this
   ).then((res) => {
     if (res) {
@@ -1595,8 +1595,8 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
 ) {
   let promise = if_command_arguments_have_fixed_length_with_current_context(
     commandId,
-    false,
     true,
+    false,
     this
   )
     .then((res) => {
@@ -1647,8 +1647,8 @@ function if_command_argument_not_always_present_no_presentif(
 ) {
   return if_command_arguments_have_fixed_length_with_current_context(
     commandId,
-    false,
     true,
+    false,
     this
   ).then((res) => {
     if (res) {
@@ -1691,8 +1691,8 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
 ) {
   let promise = if_command_arguments_have_fixed_length_with_current_context(
     commandId,
-    false,
     true,
+    false,
     this
   )
     .then((res) => {
@@ -1743,8 +1743,8 @@ function if_command_argument_not_always_present_with_presentif(
 ) {
   return if_command_arguments_have_fixed_length_with_current_context(
     commandId,
-    false,
     true,
+    false,
     this
   ).then((res) => {
     if (res) {
@@ -1787,8 +1787,8 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
 ) {
   let promise = if_command_arguments_have_fixed_length_with_current_context(
     commandId,
-    false,
     true,
+    false,
     this
   )
     .then((res) => {
@@ -1838,8 +1838,8 @@ async function if_command_argument_always_present_with_presentif(
 ) {
   let res = await if_command_arguments_have_fixed_length_with_current_context(
     commandId,
-    false,
     true,
+    false,
     this
   )
   if (res) {
