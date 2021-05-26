@@ -341,7 +341,7 @@ export default {
         editState: false,
       })
     },
-    sortByText(x, y, ascendingA, ascendingB, callback = (x, y) => 0) {
+    sortByText(x, y, ascendingA, ascendingB, callback = (i, j) => 0) {
       return x.toLowerCase() > y.toLowerCase()
         ? 1
         : x.toLowerCase() < y.toLowerCase()
@@ -354,7 +354,7 @@ export default {
       ascendingA,
       ascendingB,
       singletonList,
-      callback = (x, y) => 0
+      callback = (i, j) => 0
     ) {
       let i = this.hashAttributeIdClusterId(x.id, this.selectedCluster.id)
       let j = this.hashAttributeIdClusterId(y.id, this.selectedCluster.id)
