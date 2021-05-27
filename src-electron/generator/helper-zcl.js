@@ -589,6 +589,125 @@ function if_command_is_fixed_length(
     })
 }
 
+function if_command_is_not_fixed_length_but_command_argument_is_always_present(
+  command,
+  commandArg,
+  trueReturn,
+  falseReturn
+) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectCommandArgumentsByCommandId(
+        this.global.db,
+        command,
+        packageId
+      )
+    )
+    .then(
+      (commandArgs) =>
+        new Promise((resolve, reject) => {
+          for (let ca of commandArgs) {
+            if (
+              ca.isArray ||
+              is_zcl_string(ca.type) ||
+              ca.introducedInRef ||
+              ca.removedInRef ||
+              ca.presentIf
+            ) {
+              resolve(false)
+            }
+          }
+          resolve(true)
+        })
+    )
+    .then(
+      (isFixedLengthCommand) =>
+        new Promise((resolve, reject) => {
+          if (isFixedLengthCommand) {
+            resolve(falseReturn)
+          } else if (
+            !(
+              commandArg.isArray ||
+              commandArg.introducedInRef ||
+              commandArg.removedInRef ||
+              commandArg.presentIf
+            )
+          ) {
+            resolve(trueReturn)
+          }
+          resolve(falseReturn)
+        })
+    )
+    .catch((err) => {
+      env.logError(
+        'Failure in as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present: ' +
+          err
+      )
+    })
+}
+
+function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present(
+  type,
+  command,
+  commandArg,
+  appendString,
+  options
+) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectCommandArgumentsByCommandId(
+        this.global.db,
+        command,
+        packageId
+      )
+    )
+    .then(
+      (commandArgs) =>
+        new Promise((resolve, reject) => {
+          for (let ca of commandArgs) {
+            if (
+              ca.isArray ||
+              is_zcl_string(ca.type) ||
+              ca.introducedInRef ||
+              ca.removedInRef ||
+              ca.presentIf
+            ) {
+              resolve(false)
+            }
+          }
+          resolve(true)
+        })
+    )
+    .then((isFixedLengthCommand) => {
+      if (isFixedLengthCommand) {
+        return ''
+      } else if (
+        !(
+          commandArg.isArray ||
+          commandArg.introducedInRef ||
+          commandArg.removedInRef ||
+          commandArg.presentIf
+        )
+      ) {
+        return templateUtil
+          .ensureZclPackageId(this)
+          .then((packageId) =>
+            asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+          )
+      }
+      return ''
+    })
+    .then((res) => (res ? res + appendString : res))
+    .catch((err) => {
+      env.logError(
+        'Failure in as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present: ' +
+          err
+      )
+    })
+}
+
 /**
  *
  * @param type
@@ -1480,6 +1599,7 @@ function isCommandAvailable(clusterSide, incoming, outgoing, source, name) {
  * specifications and was removed in a certain specification version then this will not be null
  * @param presentIf: If the command argument is present conditionally then this will be a condition
  * and not null
+ *
  * @param options: options which can be passed to asUnderlyingZclTypeWithPackageId
  * for determining the underlying zcl type for the provided argument type
  * @returns A string as an underlying zcl type if the command is not fixed length and the command
@@ -1501,21 +1621,16 @@ function as_underlying_zcl_type_command_argument_always_present(
     this
   )
     .then((res) => {
-      if (res) {
+      if (introducedInRef || removedInRef || presentIf) {
+        // Return nothing if the command argument is not always present
         return ''
       } else {
-        // Return the underlying zcl type since command argument is always present
-        if (introducedInRef || removedInRef || presentIf) {
-          // Return nothing if the command argument is not always present
-          return ''
-        } else {
-          // Return the underlying zcl type if the command argument is always present.
-          return templateUtil
-            .ensureZclPackageId(this)
-            .then((packageId) =>
-              asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
-            )
-        }
+        // Return the underlying zcl type if the command argument is always present.
+        return templateUtil
+          .ensureZclPackageId(this)
+          .then((packageId) =>
+            asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+          )
       }
     })
     // Adding the appendString for the underlying zcl type
@@ -2162,3 +2277,5 @@ exports.attribute_mask = attribute_mask
 exports.command_mask = command_mask
 exports.format_zcl_string_as_characters_for_generated_defaults = format_zcl_string_as_characters_for_generated_defaults
 exports.if_command_is_fixed_length = if_command_is_fixed_length
+exports.if_command_is_not_fixed_length_but_command_argument_is_always_present = if_command_is_not_fixed_length_but_command_argument_is_always_present
+exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present = as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
