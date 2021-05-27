@@ -57,6 +57,7 @@ import {
   QBtnDropdown,
   QScrollArea,
   QScrollObserver,
+  QCheckbox,
 } from 'quasar'
 import Vue from 'vue'
 
@@ -127,6 +128,7 @@ Vue.use(Quasar, {
     QBtnDropdown,
     QScrollArea,
     QScrollObserver,
+    QCheckbox,
   },
   directives: {
     ClosePopup,
