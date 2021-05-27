@@ -1554,14 +1554,10 @@ function if_command_argument_always_present(
     false,
     this
   ).then((res) => {
-    if (res) {
-      return '' // Return nothing since command is a fixed length command
-    } else {
-      if (introducedInRef || removedInRef || presentIf) {
-        return argumentNotPresentReturn
-      }
-      return argumentPresentReturn
+    if (introducedInRef || removedInRef || presentIf) {
+      return argumentNotPresentReturn
     }
+    return argumentPresentReturn
   })
 }
 
@@ -1600,19 +1596,15 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
     this
   )
     .then((res) => {
-      if (res) {
-        return '' // Return nothing since the command is of fixed length
+      // Return the underlying zcl type since command argument is not always present and there is no present if conditionality
+      if ((introducedInRef || removedInRef) && !presentIf) {
+        return templateUtil
+          .ensureZclPackageId(this)
+          .then((packageId) =>
+            asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+          )
       } else {
-        // Return the underlying zcl type since command argument is not always present and there is no present if conditionality
-        if ((introducedInRef || removedInRef) && !presentIf) {
-          return templateUtil
-            .ensureZclPackageId(this)
-            .then((packageId) =>
-              asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
-            )
-        } else {
-          return ''
-        }
+        return ''
       }
     })
     // Adding the appendString for the underlying zcl type
@@ -1651,14 +1643,10 @@ function if_command_argument_not_always_present_no_presentif(
     false,
     this
   ).then((res) => {
-    if (res) {
-      return '' // Return nothing since it is a fixed length command
-    } else {
-      if ((introducedInRef || removedInRef) && !presentIf) {
-        return argumentNotInAllVersionsReturn
-      }
-      return argumentInAllVersionsReturn
+    if ((introducedInRef || removedInRef) && !presentIf) {
+      return argumentNotInAllVersionsReturn
     }
+    return argumentInAllVersionsReturn
   })
 }
 
@@ -1696,19 +1684,15 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
     this
   )
     .then((res) => {
-      if (res) {
-        return '' // Return nothing since the command is of fixed length
+      // Return the underlying zcl type since command argument is not always present and there is present if conditionality.
+      if ((introducedInRef || removedInRef) && presentIf) {
+        return templateUtil
+          .ensureZclPackageId(this)
+          .then((packageId) =>
+            asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+          )
       } else {
-        // Return the underlying zcl type since command argument is not always present and there is present if conditionality.
-        if ((introducedInRef || removedInRef) && presentIf) {
-          return templateUtil
-            .ensureZclPackageId(this)
-            .then((packageId) =>
-              asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
-            )
-        } else {
-          return ''
-        }
+        return ''
       }
     })
     // Adding the appendString for the underlying zcl type
@@ -1747,14 +1731,10 @@ function if_command_argument_not_always_present_with_presentif(
     false,
     this
   ).then((res) => {
-    if (res) {
-      return '' // Return nothing since it is a fixed length command
-    } else {
-      if ((introducedInRef || removedInRef) && presentIf) {
-        return argumentNotInAllVersionsPresentIfReturn
-      }
-      return argumentInAllVersionsReturn
+    if ((introducedInRef || removedInRef) && presentIf) {
+      return argumentNotInAllVersionsPresentIfReturn
     }
+    return argumentInAllVersionsReturn
   })
 }
 
@@ -1792,19 +1772,15 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
     this
   )
     .then((res) => {
-      if (res) {
-        return '' // Return nothing since the command is of fixed length
+      // Return the underlying zcl type since command argument is always present and there is a present if condition
+      if (!(introducedInRef || removedInRef) && presentIf) {
+        return templateUtil
+          .ensureZclPackageId(this)
+          .then((packageId) =>
+            asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+          )
       } else {
-        // Return the underlying zcl type since command argument is always present and there is a present if condition
-        if (!(introducedInRef || removedInRef) && presentIf) {
-          return templateUtil
-            .ensureZclPackageId(this)
-            .then((packageId) =>
-              asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
-            )
-        } else {
-          return ''
-        }
+        return ''
       }
     })
     // Adding the appendString for the underlying zcl type
