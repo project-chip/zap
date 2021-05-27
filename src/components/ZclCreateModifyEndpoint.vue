@@ -251,6 +251,8 @@ export default {
     reqUniqueEndpoint(value) {
       return (
         _.isNil(_.findKey(this.endpointId, (a) => a == value)) ||
+        this.endpointReference ==
+          _.findKey(this.endpointId, (a) => a == value) ||
         'Endpoint identifier must be unique'
       )
     },
