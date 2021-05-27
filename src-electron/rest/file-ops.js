@@ -101,10 +101,10 @@ function httpPostFileOpen(db) {
 function httpPostFileSave(db) {
   return (req, res) => {
     let zapPath = req.body.path
-    env.logDebug(`Saving session: id = ${req.zapSessionId}. path=${zapPath}`)
+    env.logDebug(`Saving session: id = ${req.zapSessionId}. path = ${zapPath}`)
 
     let p
-    if (zapPath == null) {
+    if (zapPath == null || zapPath.length == 0) {
       p = querySession.getSessionKeyValue(
         db,
         req.zapSessionId,
@@ -122,18 +122,15 @@ function httpPostFileSave(db) {
     }
 
     p.then((actualPath) => {
-      if (actualPath != null) {
+      if (actualPath != null && actualPath.length > 0) {
         exportJs
           .exportDataIntoFile(db, req.zapSessionId, actualPath)
           .then((filePath) => {
-            let projectName = path.posix.basename(filePath)
-            env.logDebug(`Saving file: file = ${projectName}`)
             res.status(http.StatusCodes.OK).send({ filePath: filePath })
           })
           .catch((err) => {
-            let msg = `Unable to save project with sessionId(${req.zapSessionId})`
-            env.logError(msg)
-            env.logError(err)
+            let msg = `Unable to save project.`
+            env.logError(msg, err)
             res.status(http.StatusCodes.BAD_REQUEST).send({
               error: msg,
             })

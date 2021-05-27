@@ -83,6 +83,15 @@ export function selectConfiguration(context, configurationName) {
   context.commit('selectConfiguration', configurationName)
 }
 
+export function initSelectedAttribute(context, selectionContext) {
+  return Vue.prototype
+    .$serverPost(restApi.uri.attributeUpdate, selectionContext)
+    .then((res) => {
+      let arg = res.data
+      setAttributeState(context, arg.endpointTypeAttributeData)
+    })
+}
+
 export function updateSelectedAttribute(context, selectionContext) {
   Vue.prototype
     .$serverPost(restApi.uri.attributeUpdate, selectionContext)
