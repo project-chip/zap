@@ -107,6 +107,18 @@ const template = (httpPort) => [
         },
       },
       { type: 'separator' },
+      {
+        label: 'Navigate back ...',
+        click(menuItem, browserWindow, event) {
+          browserWindow.webContents.goBack()
+        },
+      },
+      {
+        label: 'Navigate forward ...',
+        click(menuItem, browserWindow, event) {
+          browserWindow.webContents.goForward()
+        },
+      },
       { role: 'reload' },
       { role: 'forceReload' },
       { role: 'toggleDevTools' },
