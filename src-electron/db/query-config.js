@@ -540,12 +540,19 @@ async function updateEndpointType(
   updatedValue
 ) {
   let param = convertRestKeyToDbColumn(updateKey)
+  let wasPresent = await dbApi.dbGet(
+    db,
+    'SELECT DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?',
+    [endpointTypeId, sessionId]
+  )
+
   let newEndpointId = await dbApi.dbUpdate(
     db,
     `UPDATE ENDPOINT_TYPE SET ${param} = ? WHERE ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?`,
     [updatedValue, endpointTypeId, sessionId]
   )
-  if (param === 'DEVICE_TYPE_REF') {
+
+  if (param === 'DEVICE_TYPE_REF' && wasPresent[param] != updatedValue) {
     await setEndpointDefaults(db, sessionId, endpointTypeId, updatedValue)
   }
   return newEndpointId
