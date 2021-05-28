@@ -145,3 +145,38 @@ test('Reset domain filter', () => {
   expect(state.clusterManager.filter.label).toEqual('No filter')
   expect(Object.keys(state.clusterManager.openDomains).length).toBe(0)
 })
+
+test('Set endpoint type attribute', () => {
+  let state = ZapState()
+  let eptAttr = {
+    id: 5,
+    included: true,
+    singleton: true,
+    bounded: false,
+    includedReportable: true,
+    defaultValue: '423',
+    storageOption: 'ram',
+    minInterval: 0,
+    maxInterval: 532,
+    reportableChange: 40,
+  }
+  mutations.setEndpointTypeAttribute(state, eptAttr)
+  console.log(state.attributeView)
+  expect(
+    state.attributeView.selectedAttributes.find((a) => a == eptAttr.id)
+  ).toBe(5)
+  expect(
+    state.attributeView.selectedSingleton.find((a) => a == eptAttr.id)
+  ).toBe(5)
+  expect(
+    state.attributeView.selectedBounded.find((a) => a == eptAttr.id)
+  ).toBeUndefined()
+  expect(
+    state.attributeView.selectedReporting.find((a) => a == eptAttr.id)
+  ).toBe(5)
+  expect(state.attributeView.defaultValue[eptAttr.id]).toBe('423')
+  expect(state.attributeView.storageOption[eptAttr.id]).toBe('ram')
+  expect(state.attributeView.reportingMin[eptAttr.id]).toBe(0)
+  expect(state.attributeView.reportingMax[eptAttr.id]).toBe(532)
+  expect(state.attributeView.reportableChange[eptAttr.id]).toBe(40)
+})
