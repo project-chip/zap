@@ -435,7 +435,7 @@ function all_cli_commands_for_user_enabled_clusters(options) {
 }
 
 /**
- * Creates cluster command iterator for all endpoints.
+ * Creates cluster iterator for all endpoints.
  *
  * @param {*} options
  * @returns Promise of the resolved blocks iterating over cluster commands.
@@ -720,6 +720,297 @@ function endpoint_type_index(endpointTypeId) {
     })
 }
 
+/**
+ * Default values for the attributes longer than a pointer.
+ * All attribute values with size greater than 2 bytes.
+ * Excluding 0 values and externally saved values
+ *
+ * @param name
+ * @param side
+ * @param options
+ * @returns Attribute values greater than 2 bytes and not 0 nor externally saved.
+ */
+function all_user_cluster_attributes_for_generated_defaults(options) {
+  let promise = queryImpexp
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      queryZcl.exportAttributeBoundDetails(this.global.db, endpointsAndClusters)
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, this)
+    )
+  return promise
+}
+
+/**
+ * Entails the list of all attributes which have been enabled. Given the
+ * cluster is enabled as well. The helper retrieves the attributes across
+ * all endpoints.
+ * @param options
+ * @returns enabled attributes
+ */
+function all_user_cluster_generated_attributes(options) {
+  let promise = queryImpexp
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      queryZcl.exportAttributeDetailsFromEnabledClusters(
+        this.global.db,
+        endpointsAndClusters
+      )
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, this)
+    )
+  return promise
+}
+
+/**
+ * Entails the list of reportable attributes which have been enabled. Given the
+ * cluster is enabled as well. The helper retrieves the reportable attributes
+ * per endpoint per cluster.
+ * @param options
+ * @returns Reportable attributes
+ */
+function all_user_reportable_attributes(options) {
+  let promise = queryImpexp
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      queryZcl.exportReportableAttributeDetailsFromEnabledClustersAndEndpoints(
+        this.global.db,
+        endpointsAndClusters
+      )
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, this)
+    )
+  return promise
+}
+
+/**
+ * All available cluster commands across all endpoints and clusters.
+ * @param options
+ * @returns All available cluster commands across all endpoints and clusters
+ */
+function all_user_cluster_generated_commands(options) {
+  let promise = queryZcl
+    .exportUsedEndPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportAllAvailableClusterCommandDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, this)
+    )
+  return promise
+}
+
+/**
+ * Entails the Cluster details per endpoint
+ * @param {*} options
+ * @returns Cluster Details per endpoint with attribute summaries within the clusters
+ */
+function generated_clustes_details(options) {
+  let promise = queryImpexp
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      queryZcl.exportClusterDetailsFromEnabledClusters(
+        this.global.db,
+        endpointsAndClusters
+      )
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, this)
+    )
+  return promise
+}
+
+/**
+ * Entails Endpoint type details along with their cluster summaries
+ * @param options
+ * @returns Endpoint type details along with their cluster summaries
+ */
+function generated_endpoint_type_details(options) {
+  let promise = queryImpexp
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      queryZcl.exportEndpointDetailsFromAddedEndpoints(
+        this.global.db,
+        endpointsAndClusters
+      )
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, this)
+    )
+  return promise
+}
+
+/**
+ * Returns attributes inside an endpoint type that either have a default or a
+ * bounded attribute.
+ *
+ * @param name
+ * @param side
+ * @param options
+ * @returns endpoints with bounds or defaults
+ */
+function all_user_cluster_attributes_min_max_defaults(options) {
+  let promise = queryImpexp
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      queryZcl.exportAttributeDetailsWithABoundFromEnabledClusters(
+        this.global.db,
+        endpointsAndClusters
+      )
+    )
+    .then((endpointCommands) =>
+      templateUtil.collectBlocks(endpointCommands, options, this)
+    )
+  return promise
+}
+
+/**
+ * Extracts the index of generated defaults array which come from
+ * all_user_cluster_attributes_for_generated_defaults
+ * @param clusterName
+ * @param attributeName
+ * @param attributeValueType
+ * @param attributeValue
+ * @param prefixReturn
+ * @param postFixReturn
+ * @returns index of the generated default array
+ */
+function generated_defaults_index(
+  clusterName,
+  attributeName,
+  attributeValueType,
+  attributeValue,
+  prefixReturn,
+  postFixReturn
+) {
+  let promise = queryImpexp
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      queryZcl.exportAttributeBoundDetails(this.global.db, endpointsAndClusters)
+    )
+    .then(
+      (endpointAttributes) =>
+        new Promise((resolve, reject) => {
+          let dataPtr = attributeValue
+          for (let i = 0; i < endpointAttributes.length; i++) {
+            if (
+              endpointAttributes[i].clusterName === clusterName &&
+              endpointAttributes[i].name === attributeName &&
+              endpointAttributes[i].attributeValueType === attributeValueType
+            ) {
+              if (endpointAttributes[i].arrayIndex) {
+                dataPtr = endpointAttributes[i].arrayIndex
+              } else {
+                dataPtr = 0
+              }
+            }
+          }
+          if (dataPtr === attributeValue) {
+            if (dataPtr) {
+              dataPtr = '(uint8_t*)' + dataPtr
+            } else {
+              dataPtr = 'NULL'
+            }
+          } else {
+            dataPtr = prefixReturn + dataPtr + postFixReturn
+          }
+          resolve(dataPtr)
+        })
+    )
+
+  return promise
+}
+
+/**
+ *
+ * Extracts the index of generated min max defaults array which come from
+ * all_user_cluster_attributes_min_max_defaults
+ * @param name
+ * @param side
+ * @param options
+ * @returns index of the generated min max default array
+ */
+function generated_attributes_min_max_index(clusterName, attributeName) {
+  let promise = queryImpexp
+    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((endpointsAndClusters) =>
+      queryZcl.exportAttributeDetailsWithABoundFromEnabledClusters(
+        this.global.db,
+        endpointsAndClusters
+      )
+    )
+    .then(
+      (endpointAttributes) =>
+        new Promise((resolve, reject) => {
+          let dataPtr = 0
+          for (let i = 0; i < endpointAttributes.length; i++) {
+            if (
+              endpointAttributes[i].clusterName === clusterName &&
+              endpointAttributes[i].name === attributeName
+            ) {
+              dataPtr = i
+            }
+          }
+          resolve(dataPtr)
+        })
+    )
+  return promise
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -754,3 +1045,12 @@ exports.all_user_cluster_commands_irrespective_of_manufaturing_specification = a
 exports.all_user_cluster_manufacturer_specific_attributes = all_user_cluster_manufacturer_specific_attributes
 exports.all_user_cluster_non_manufacturer_specific_attributes = all_user_cluster_non_manufacturer_specific_attributes
 exports.all_user_cluster_attributes_irrespective_of_manufatucuring_specification = all_user_cluster_attributes_irrespective_of_manufatucuring_specification
+exports.all_user_cluster_attributes_for_generated_defaults = all_user_cluster_attributes_for_generated_defaults
+exports.all_user_cluster_generated_attributes = all_user_cluster_generated_attributes
+exports.all_user_reportable_attributes = all_user_reportable_attributes
+exports.all_user_cluster_generated_commands = all_user_cluster_generated_commands
+exports.generated_clustes_details = generated_clustes_details
+exports.generated_endpoint_type_details = generated_endpoint_type_details
+exports.all_user_cluster_attributes_min_max_defaults = all_user_cluster_attributes_min_max_defaults
+exports.generated_defaults_index = generated_defaults_index
+exports.generated_attributes_min_max_index = generated_attributes_min_max_index

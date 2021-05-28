@@ -1826,8 +1826,229 @@ function if_manufacturing_specific_cluster(
   return templateUtil.templatePromise(this.global, promise)
 }
 
-function jsonify(currentContext) {
-  return JSON.stringify(currentContext)
+/**
+ * Given the value and size of an attribute along with endian as an option.
+ * This helper returns the attribute value as big/little endian.
+ * Example: {{as_generated_default_macro 0x00003840 4 endian="big"}}
+ * will return: 0x00, 0x00, 0x38, 0x40,
+ * @param value
+ * @param attributeSize
+ * @param options
+ * @returns Formatted attribute value based on given arguments
+ */
+function as_generated_default_macro(value, attributeSize, options) {
+  return new Promise((resolve, reject) => {
+    let default_macro_signature = ''
+    if (attributeSize > 2) {
+      let default_macro = helperC
+        .asHex(value, null, null)
+        .replace('0x', '')
+        .match(/.{1,2}/g)
+      let padding_length = attributeSize - default_macro.length
+      for (let i = 0; i < padding_length; i++) {
+        default_macro_signature += '0x00, '
+      }
+      for (let j = 0; j < default_macro.length; j++) {
+        default_macro_signature += ' 0x' + default_macro[j] + ','
+      }
+      if (options.hash.endian != 'big') {
+        default_macro_signature = default_macro_signature
+          .split(' ')
+          .reverse()
+          .join(' ')
+      }
+    }
+    resolve(default_macro_signature)
+  })
+}
+
+/**
+ * Given the attributes of a zcl attribute. Creates an attribute mask based on
+ * the given options
+ * @param writable
+ * @param storageOption
+ * @param minMax
+ * @param mfgSpecific
+ * @param clusterCode
+ * @param client
+ * @param isSingleton
+ * @param prefixString
+ * @param postfixString
+ * @returns attribute mask based on given values
+ */
+function attribute_mask(
+  writable,
+  storageOption,
+  minMax,
+  mfgSpecific,
+  clusterCode,
+  client,
+  isSingleton,
+  prefixString,
+  postfixString
+) {
+  return new Promise((resolve, reject) => {
+    let attributeMask = ''
+    // mask for isWritable
+    if (writable) {
+      attributeMask +=
+        (attributeMask ? '| ' : '') + prefixString + 'WRITABLE' + postfixString
+    }
+
+    // mask for storage option
+    if (storageOption === 'NVM') {
+      attributeMask +=
+        (attributeMask ? '| ' : '') + prefixString + 'TOKENIZE' + postfixString
+    } else if (storageOption === 'EXTERNAL') {
+      attributeMask +=
+        (attributeMask ? '| ' : '') + prefixString + 'EXTERNAL' + postfixString
+    }
+
+    // mask for bound
+    if (minMax) {
+      attributeMask +=
+        (attributeMask ? '| ' : '') + prefixString + 'MIN_MAX' + postfixString
+    }
+
+    // mask for manufacturing specific attributes
+    if (mfgSpecific && clusterCode < 64512) {
+      attributeMask +=
+        (attributeMask ? '| ' : '') +
+        prefixString +
+        'MANUFACTURER_SPECIFIC' +
+        postfixString
+    }
+
+    // mask for client side attribute
+    if (client === 'client') {
+      attributeMask +=
+        (attributeMask ? '| ' : '') + prefixString + 'CLIENT' + postfixString
+    }
+
+    //mask for singleton attirbute
+    if (isSingleton) {
+      attributeMask +=
+        (attributeMask ? '| ' : '') + prefixString + 'SINGLETON' + postfixString
+    }
+
+    if (!attributeMask) {
+      attributeMask = '0x00'
+    }
+    resolve(attributeMask)
+  })
+}
+
+/**
+ * Given the attributes of a zcl command. Creates a command mask based on
+ * the given options
+ * @param commmandSource
+ * @param clusterSide
+ * @param isIncomingEnabled
+ * @param isOutgoingEnabled
+ * @param manufacturingCode
+ * @param prefixForMask
+ * @returns command mask based on given values
+ */
+function command_mask(
+  commmandSource,
+  clusterSide,
+  isIncomingEnabled,
+  isOutgoingEnabled,
+  manufacturingCode,
+  prefixForMask
+) {
+  return new Promise((resolve, reject) => {
+    let commandMask = ''
+    if (isClient(commmandSource)) {
+      if (
+        (isIncomingEnabled && commmandSource != clusterSide) ||
+        (isIncomingEnabled && clusterSide == 'either')
+      ) {
+        commandMask += command_mask_sub_helper(
+          commandMask,
+          prefixForMask + 'INCOMING_SERVER'
+        )
+      }
+      if (
+        (isOutgoingEnabled && commmandSource == clusterSide) ||
+        (isOutgoingEnabled && clusterSide == 'either')
+      ) {
+        commandMask += command_mask_sub_helper(
+          commandMask,
+          prefixForMask + 'OUTGOING_CLIENT'
+        )
+      }
+    } else {
+      if (
+        (isIncomingEnabled && commmandSource != clusterSide) ||
+        (isIncomingEnabled && clusterSide == 'either')
+      ) {
+        commandMask += command_mask_sub_helper(
+          commandMask,
+          prefixForMask + 'INCOMING_CLIENT'
+        )
+      }
+      if (
+        (isOutgoingEnabled && commmandSource == clusterSide) ||
+        (isOutgoingEnabled && clusterSide == 'either')
+      ) {
+        commandMask += command_mask_sub_helper(
+          commandMask,
+          prefixForMask + 'OUTGOING_SERVER'
+        )
+      }
+    }
+    if (manufacturingCode && commandMask) {
+      commandMask += command_mask_sub_helper(
+        commandMask,
+        prefixForMask + 'MANUFACTURER_SPECIFIC'
+      )
+    }
+    resolve(commandMask)
+  })
+}
+
+/**
+ * A Sub helper api for command_mask to reduce code redundancy
+ * @param commandMask
+ * @param str
+ * @returns command mask addition based on the arguments
+ */
+function command_mask_sub_helper(commandMask, str) {
+  if (commandMask) {
+    return ' | ' + str
+  } else {
+    return str
+  }
+}
+
+/**
+ * This may be used within all_user_cluster_attributes_for_generated_defaults
+ * for example:
+ * {{format_zcl_string_as_characters_for_generated_defaults 'abc' 5}}
+ * will return as follows:
+ * 3, 'a', 'b', 'c' 0x00, 0x00
+ * @param stringVal
+ * @param sizeOfString
+ * @returns Formatted string for generated defaults starting with the lenth of a
+ * string then each character and then filler for the size allocated for the
+ * string
+ */
+function format_zcl_string_as_characters_for_generated_defaults(
+  stringVal,
+  sizeOfString
+) {
+  return new Promise((resolve, reject) => {
+    let lengthOfString = stringVal.length
+    let formatted_string = lengthOfString + ', '
+    for (let i = 0; i < lengthOfString; i++) {
+      formatted_string += "'" + stringVal.charAt(i) + "', "
+    }
+    for (let i = lengthOfString + 1; i < sizeOfString; i++) {
+      formatted_string += '0x00' + ', '
+    }
+    resolve(formatted_string)
+  })
 }
 
 const dep = templateUtil.deprecatedHelper
@@ -1907,7 +2128,6 @@ exports.if_command_arguments_have_fixed_length = if_command_arguments_have_fixed
 exports.command_arguments_total_length = command_arguments_total_length
 exports.as_underlying_zcl_type_if_command_is_not_fixed_length = as_underlying_zcl_type_if_command_is_not_fixed_length
 exports.if_command_argument_always_present = if_command_argument_always_present
-exports.jsonify = jsonify
 exports.as_underlying_zcl_type_command_argument_always_present = as_underlying_zcl_type_command_argument_always_present
 exports.if_command_argument_always_present_with_presentif = if_command_argument_always_present_with_presentif
 exports.as_underlying_zcl_type_command_argument_always_present_with_presentif = as_underlying_zcl_type_command_argument_always_present_with_presentif
@@ -1915,3 +2135,7 @@ exports.if_command_argument_not_always_present_with_presentif = if_command_argum
 exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif = as_underlying_zcl_type_command_argument_not_always_present_with_presentif
 exports.if_command_argument_not_always_present_no_presentif = if_command_argument_not_always_present_no_presentif
 exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif = as_underlying_zcl_type_command_argument_not_always_present_no_presentif
+exports.as_generated_default_macro = as_generated_default_macro
+exports.attribute_mask = attribute_mask
+exports.command_mask = command_mask
+exports.format_zcl_string_as_characters_for_generated_defaults = format_zcl_string_as_characters_for_generated_defaults
