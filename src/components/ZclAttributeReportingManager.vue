@@ -171,6 +171,14 @@ import EditableAttributeMixin from '../util/editable-attributes-mixin'
 export default {
   name: 'ZclAttributeReportingManager',
   mixins: [EditableAttributeMixin],
+  destroyed() {
+    Object.keys(this.editableAttributesReporting).forEach((attrId) => {
+      this.commitEdittedAttributeReporting(
+        this.getAttributeById(attrId),
+        this.selectedCluster.id
+      )
+    })
+  },
   computed: {
     attributeData: {
       get() {

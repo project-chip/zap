@@ -219,6 +219,14 @@ import EditableAttributeMixin from '../util/editable-attributes-mixin'
 export default {
   name: 'ZclAttributeManager',
   mixins: [EditableAttributeMixin],
+  destroyed() {
+    Object.keys(this.editableAttributes).forEach((attrId) => {
+      this.commitEdittedAttribute(
+        this.getAttributeById(attrId),
+        this.selectedCluster.id
+      )
+    })
+  },
   methods: {
     isAttributeRequired(attribute) {
       return this.requiredAttributes.includes(attribute.id)
