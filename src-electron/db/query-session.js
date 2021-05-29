@@ -116,7 +116,7 @@ async function ensureZapSessionId(db, userKey, sessionId = null) {
       [userKey]
     )
     if (row == null) {
-      return await dbApi.dbInsert(
+      return dbApi.dbInsert(
         db,
         'INSERT INTO SESSION (SESSION_KEY, CREATION_TIME) VALUES (?,?)',
         [userKey, Date.now()]
@@ -276,7 +276,7 @@ async function ensureUser(db, userKey) {
     'INSERT OR IGNORE INTO USER ( USER_KEY, CREATION_TIME ) VALUES (?,?)',
     [userKey, Date.now()]
   )
-  return await getUserByKey(db, userKey)
+  return getUserByKey(db, userKey)
 }
 
 /**

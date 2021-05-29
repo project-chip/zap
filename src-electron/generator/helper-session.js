@@ -917,7 +917,7 @@ function all_user_cluster_attributes_min_max_defaults(options) {
  * @param postFixReturn
  * @returns index of the generated default array
  */
-function generated_defaults_index(
+async function generated_defaults_index(
   clusterName,
   attributeName,
   attributeValueType,
@@ -925,48 +925,37 @@ function generated_defaults_index(
   prefixReturn,
   postFixReturn
 ) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryZcl.exportAttributeBoundDetails(this.global.db, endpointsAndClusters)
-    )
-    .then(
-      (endpointAttributes) =>
-        new Promise((resolve, reject) => {
-          let dataPtr = attributeValue
-          for (let i = 0; i < endpointAttributes.length; i++) {
-            if (
-              endpointAttributes[i].clusterName === clusterName &&
-              endpointAttributes[i].name === attributeName &&
-              endpointAttributes[i].attributeValueType === attributeValueType
-            ) {
-              if (endpointAttributes[i].arrayIndex) {
-                dataPtr = endpointAttributes[i].arrayIndex
-              } else {
-                dataPtr = 0
-              }
-            }
-          }
-          if (dataPtr === attributeValue) {
-            if (dataPtr) {
-              dataPtr = '(uint8_t*)' + dataPtr
-            } else {
-              dataPtr = 'NULL'
-            }
-          } else {
-            dataPtr = prefixReturn + dataPtr + postFixReturn
-          }
-          resolve(dataPtr)
-        })
-    )
+  let endpointTypes = await queryImpexp.exportEndPointTypeIds(
+    this.global.db,
+    this.global.sessionId
+  )
 
-  return promise
+  let endpointsAndClusters = await queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+
+  let endpointAttributes = await queryZcl.exportAttributeBoundDetails(
+    this.global.db,
+    endpointsAndClusters
+  )
+
+  let dataPtr = attributeValue
+  for (const ea of endpointAttributes) {
+    if (
+      ea.clusterName === clusterName &&
+      ea.name === attributeName &&
+      ea.attributeValueType === attributeValueType
+    ) {
+      dataPtr = ea.arrayIndex ? ea.arrayIndex : 0
+    }
+  }
+  if (dataPtr === attributeValue) {
+    dataPtr = dataPtr ? '(uint8_t*)' + dataPtr : 'NULL'
+  } else {
+    dataPtr = prefixReturn + dataPtr + postFixReturn
+  }
+  return dataPtr
 }
 
 /**

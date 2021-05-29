@@ -1527,19 +1527,24 @@ async function exportAttributeDetailsFromAllEndpointTypesAndClustersUtil(
     ENDPOINT_TYPE_CLUSTER.SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
     ENDPOINT_TYPE_CLUSTER.ENABLED
-  FROM ATTRIBUTE
-  INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
+  FROM
+    ATTRIBUTE
+  INNER JOIN
+    ENDPOINT_TYPE_ATTRIBUTE
   ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
-  INNER JOIN ENDPOINT_TYPE_CLUSTER
+  INNER JOIN
+    ENDPOINT_TYPE_CLUSTER
   ON ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
-  INNER JOIN CLUSTER
+  INNER JOIN
+    CLUSTER
   ON ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
-  WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
-  AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
-  AND ATTRIBUTE.MANUFACTURER_CODE IS` +
-        (isManufacturingSpecific ? ` NOT ` : ` `) +
+  WHERE
+    ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+    AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
+    AND ATTRIBUTE.MANUFACTURER_CODE IS ` +
+        (isManufacturingSpecific ? `NOT ` : ``) +
         `NULL
-  AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
+    AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
   GROUP BY ATTIRBUTE.NAME
         `
     )
@@ -1582,6 +1587,20 @@ async function exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypes
   )
 }
 
+function commandMapFunction(x) {
+  return {
+    id: x.COMMAND_ID,
+    name: x.NAME,
+    code: x.CODE,
+    commandSource: x.SOURCE,
+    mfgCode: x.MANUFACTURER_CODE,
+    description: x.DESCRIPTION,
+    clusterSide: x.SIDE,
+    clusterName: x.CLUSTER_NAME,
+    isClusterEnabled: x.ENABLED,
+  }
+}
+
 /**
  * Returns a promise of data for commands inside an endpoint type.
  *
@@ -1596,19 +1615,6 @@ async function exportAllCommandDetailsFromEnabledClusters(
   let endpointTypeClusterRef = endpointsAndClusters
     .map((ep) => ep.endpointTypeClusterRef)
     .toString()
-  let mapFunction = (x) => {
-    return {
-      id: x.COMMAND_ID,
-      name: x.NAME,
-      code: x.CODE,
-      commandSource: x.SOURCE,
-      mfgCode: x.MANUFACTURER_CODE,
-      description: x.DESCRIPTION,
-      clusterSide: x.SIDE,
-      clusterName: x.CLUSTER_NAME,
-      isClusterEnabled: x.ENABLED,
-    }
-  }
   return dbApi
     .dbAll(
       db,
@@ -1632,7 +1638,7 @@ async function exportAllCommandDetailsFromEnabledClusters(
   GROUP BY COMMAND.NAME
         `
     )
-    .then((rows) => rows.map(mapFunction))
+    .then((rows) => rows.map(commandMapFunction))
 }
 
 /**
@@ -1656,13 +1662,7 @@ async function exportAllAttributeDetailsFromEnabledClusters(
   SELECT
     ATTRIBUTE.ATTRIBUTE_ID,
     ATTRIBUTE.NAME,
-    ATTRIBUTE.CODE,
-    ATTRIBUTE.SIDE,
-    ATTRIBUTE.TYPE,
-    ATTRIBUTE.DEFINE,
-    ATTRIBUTE.MANUFACTURER_CODE,
-    ENDPOINT_TYPE_CLUSTER.SIDE,
-    CLUSTER.NAME AS CLUSTER_NAME,
+    ATTRIBUTE.CODE,:
     ENDPOINT_TYPE_CLUSTER.ENABLED
   FROM ATTRIBUTE
   INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
@@ -1692,19 +1692,6 @@ async function exportAllCliCommandDetailsFromEnabledClusters(
   let endpointTypeClusterRef = endpointsAndClusters
     .map((ep) => ep.endpointTypeClusterRef)
     .toString()
-  let mapFunction = (x) => {
-    return {
-      id: x.COMMAND_ID,
-      name: x.NAME,
-      code: x.CODE,
-      commandSource: x.SOURCE,
-      mfgCode: x.MANUFACTURER_CODE,
-      description: x.DESCRIPTION,
-      clusterSide: x.SIDE,
-      clusterName: x.CLUSTER_NAME,
-      isClusterEnabled: x.ENABLED,
-    }
-  }
   return dbApi
     .dbAll(
       db,
@@ -1730,7 +1717,7 @@ async function exportAllCliCommandDetailsFromEnabledClusters(
   GROUP BY COMMAND.NAME, CLUSTER.NAME
         `
     )
-    .then((rows) => rows.map(mapFunction))
+    .then((rows) => rows.map(commandMapFunction))
 }
 
 /**
@@ -1775,7 +1762,8 @@ SELECT
   INTRODUCED_IN_REF,
   REMOVED_IN_REF,
   COUNT_ARG
-FROM COMMAND_ARG WHERE COMMAND_REF = ?
+FROM COMMAND_ARG
+WHERE COMMAND_REF = ?
 ORDER BY ORDINAL`,
       [commandId]
     )

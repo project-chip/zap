@@ -110,8 +110,8 @@ function endpoint_fixed_network_array(options) {
  */
 function endpoint_fixed_endpoint_type_array(options) {
   let indexes = []
-  for (let i = 0; i < this.endpoints.length; i++) {
-    let epType = this.endpoints[i].endpointTypeRef
+  for (const ep of this.endpoints) {
+    let epType = ep.endpointTypeRef
     let index = -1
     for (let j = 0; j < this.endpointTypes.length; j++) {
       if (epType == this.endpointTypes[j].id) {

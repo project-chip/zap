@@ -161,7 +161,6 @@ test('Set endpoint type attribute', () => {
     reportableChange: 40,
   }
   mutations.setEndpointTypeAttribute(state, eptAttr)
-  console.log(state.attributeView)
   expect(
     state.attributeView.selectedAttributes.find((a) => a == eptAttr.id)
   ).toBe(5)

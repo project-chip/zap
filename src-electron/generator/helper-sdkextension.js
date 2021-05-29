@@ -110,9 +110,14 @@ async function subentityExtension(context, prop, entityType) {
   if (f.length == 0) return ''
 
   let val = null
+
+  // Iterate over all the extension defaults for this property
   f[0].defaults.forEach((d) => {
     let clusterCode = context.clusterCode
+
+    // ClusterCode may be on the parent.
     if (clusterCode == null && context.parent) clusterCode = context.parent.code
+
     if (d.entityCode == context.code && d.parentCode == clusterCode) {
       // Now let's deal with qualifier:
       if (
@@ -128,8 +133,12 @@ async function subentityExtension(context, prop, entityType) {
       }
     }
   })
+  // Wasn't set, set global default
   if (val == null) val = f[0].globalDefault
+
+  // No global default either, use empty string.
   if (val == null) val = ''
+
   return val
 }
 
