@@ -198,6 +198,13 @@ export default {
                 : this.selectionServers
             return relevantList.includes(this.selectedClusterId)
           })
+          .filter((attribute) => {
+            return this.individualClusterFilterString == ''
+              ? true
+              : attribute.label
+                  .toLowerCase()
+                  .includes(this.individualClusterFilterString.toLowerCase())
+          })
       },
     },
     editableAttributesReporting: {

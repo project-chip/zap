@@ -634,6 +634,10 @@ export function resetFilters(context) {
   context.commit('resetFilters')
 }
 
+export function setIndividualClusterFilterString(context, filterString) {
+  context.commit('setIndividualClusterFilterString', filterString)
+}
+
 export function updateUcComponentState(context, projectInfoJson) {
   let ucComponents = Util.getUcComponents(projectInfoJson)
   let selectedUcComponents = Util.getSelectedUcComponents(ucComponents)

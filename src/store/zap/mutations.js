@@ -439,6 +439,10 @@ export function setFilterString(state, filterString) {
   state.clusterManager.filterString = filterString
 }
 
+export function setIndividualClusterFilterString(state, filterString) {
+  state.clusterManager.individualClusterFilterString = filterString
+}
+
 export function resetFilters(state) {
   state.clusterManager.filter = {
     label: 'No filter',

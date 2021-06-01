@@ -61,6 +61,7 @@ export default function () {
         },
       ],
       filterString: '',
+      individualClusterFilterString: '',
     },
     endpointView: {
       selectedEndpoint: [],

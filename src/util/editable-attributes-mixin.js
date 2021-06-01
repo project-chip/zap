@@ -38,11 +38,21 @@ export default {
   computed: {
     relevantAttributeData: {
       get() {
-        return this.$store.state.zap.attributes.filter((a) => {
-          let relevantList =
-            a.side === 'client' ? this.selectionClients : this.selectionServers
-          return relevantList.includes(this.selectedClusterId)
-        })
+        return this.$store.state.zap.attributes
+          .filter((a) => {
+            let relevantList =
+              a.side === 'client'
+                ? this.selectionClients
+                : this.selectionServers
+            return relevantList.includes(this.selectedClusterId)
+          })
+          .filter((attribute) => {
+            return this.individualClusterFilterString == ''
+              ? true
+              : attribute.label
+                  .toLowerCase()
+                  .includes(this.individualClusterFilterString.toLowerCase())
+          })
       },
     },
     selection: {
@@ -93,6 +103,12 @@ export default {
     defaultValueValidation: {
       get() {
         return this.$store.state.zap.attributeView.defaultValueValidationIssues
+      },
+    },
+    individualClusterFilterString: {
+      get() {
+        return this.$store.state.zap.clusterManager
+          .individualClusterFilterString
       },
     },
   },
