@@ -94,6 +94,7 @@ limitations under the License.
     >
       <zcl-create-modify-endpoint
         v-bind:endpointReference="endpointReference"
+        v-on:saveOrCreateValidated="modifyEndpointDialog = false"
       />
     </q-dialog>
     <q-dialog

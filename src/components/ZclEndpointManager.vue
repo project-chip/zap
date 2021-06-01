@@ -50,7 +50,10 @@ limitations under the License.
     </template>
 
     <q-dialog v-model="newEndpointDialog" class="background-color:transparent">
-      <zcl-create-modify-endpoint v-bind:endpointReference="null" />
+      <zcl-create-modify-endpoint 
+        v-bind:endpointReference="null"
+        v-on:saveOrCreateValidated="newEndpointDialog = false" 
+      />
     </q-dialog>
   </div>
 </template>
