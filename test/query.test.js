@@ -209,7 +209,7 @@ describe('Session specific queries', () => {
       .then((result) => {
         expect(result).toBeTruthy()
       })
-      .then(() => queryConfig.getAllEndpointTypes(db, sid))
+      .then(() => queryConfig.selectAllEndpointTypes(db, sid))
       .then((rows) => {
         expect(rows.length).toBe(1)
       })

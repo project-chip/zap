@@ -921,7 +921,7 @@ WHERE SESSION_REF = ?
  * @param {*} sessionId
  * @returns promise that resolves into rows in the database table.
  */
-async function getAllEndpointTypes(db, sessionId) {
+async function selectAllEndpointTypes(db, sessionId) {
   let rows = await dbApi.dbAll(
     db,
     `
@@ -1220,7 +1220,7 @@ exports.selectEndpoint = selectEndpoint
 exports.insertEndpointType = insertEndpointType
 exports.deleteEndpointType = deleteEndpointType
 exports.updateEndpointType = updateEndpointType
-exports.getAllEndpointTypes = getAllEndpointTypes
+exports.selectAllEndpointTypes = selectAllEndpointTypes
 exports.getEndpointType = getEndpointType
 
 exports.getEndpointTypeClusters = getEndpointTypeClusters

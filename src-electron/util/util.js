@@ -196,7 +196,7 @@ function matchFeatureLevel(featureLevel) {
  * @returns promise that resolves into a text report for the session.
  */
 async function sessionReport(db, sessionId) {
-  return queryConfig.getAllEndpointTypes(db, sessionId).then((epts) => {
+  return queryConfig.selectAllEndpointTypes(db, sessionId).then((epts) => {
     let ps = []
     epts.forEach((ept) => {
       ps.push(
@@ -261,7 +261,7 @@ async function sessionDump(db, sessionId) {
   let endpoints = await queryConfig.getAllEndpoints(db, sessionId)
   dump.endpoints = endpoints
 
-  let epts = await queryConfig.getAllEndpointTypes(db, sessionId)
+  let epts = await queryConfig.selectAllEndpointTypes(db, sessionId)
   let ps = []
 
   epts.forEach((ept) => {

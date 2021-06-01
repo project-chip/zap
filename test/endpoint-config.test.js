@@ -91,7 +91,7 @@ test(
   'Test endpoint config queries',
   () =>
     queryConfig
-      .getAllEndpointTypes(db, sessionId)
+      .selectAllEndpointTypes(db, sessionId)
       .then((epts) => {
         expect(epts.length).toBe(3)
         return epts
