@@ -28,7 +28,7 @@ const testUtil = require('./test-util.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 
 let db
-const templateCount = 2
+const templateCount = 3
 const genTimeout = 3000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 let sessionId
@@ -112,6 +112,12 @@ test(
 
         mqtt = genResult.content['mqtt.cpp']
         expect(mqtt).not.toBeNull()
+
+        types = genResult.content['dotdot-type.h']
+        expect(types).not.toBeNull()
+        expect(
+          types.includes('// Bitmap: LevelOptions, type: map8')
+        ).toBeTruthy()
       }),
   genTimeout
 )

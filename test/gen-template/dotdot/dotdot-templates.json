@@ -13,6 +13,11 @@
       "path": "mqtt.zapt",
       "name": "MQTT test for dotdot",
       "output": "mqtt.cpp"
+    },
+    {
+      "path": "dotdot-type.zapt",
+      "name": "Dot dot types",
+      "output": "dotdot-type.h"
     }
   ]
 }
