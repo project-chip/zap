@@ -28,7 +28,7 @@ const testUtil = require('./test-util.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 
 let db
-const templateCount = 1
+const templateCount = 2
 const genTimeout = 3000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 let sessionId
@@ -109,6 +109,9 @@ test(
         expect(
           epc.includes('EmberAfDrlkOperMode OperatingMode; // attribute type')
         ).toBeTruthy()
+
+        mqtt = genResult.content['mqtt.cpp']
+        expect(mqtt).not.toBeNull()
       }),
   genTimeout
 )
