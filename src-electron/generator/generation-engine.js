@@ -235,7 +235,8 @@ async function recordTemplatesPackage(context) {
       )
     )
   }
-  return Promise.all(promises).then(() => context)
+  await Promise.all(promises)
+  return context
 }
 
 /**

@@ -670,8 +670,8 @@ async function resolveDefaultDeviceTypeAttributes(
 ) {
   return queryZcl
     .selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef)
-    .then((deviceTypeAttributes) => {
-      return Promise.all(
+    .then((deviceTypeAttributes) =>
+      Promise.all(
         deviceTypeAttributes.map((deviceAttribute) => {
           if (deviceAttribute.attributeRef != null) {
             return queryZcl
@@ -698,7 +698,7 @@ async function resolveDefaultDeviceTypeAttributes(
           }
         })
       )
-    })
+    )
 }
 
 async function resolveCommandState(db, endpointTypeId, deviceCommand) {
@@ -876,10 +876,10 @@ async function resolveNonOptionalAndReportableAttributes(
 async function getEndpointTypeCount(db, sessionId) {
   let x = await dbApi.dbGet(
     db,
-    'SELECT COUNT(ENDPOINT_TYPE_ID) FROM ENDPOINT_TYPE WHERE SESSION_REF = ?',
+    'SELECT COUNT(ENDPOINT_TYPE_ID) AS CNT FROM ENDPOINT_TYPE WHERE SESSION_REF = ?',
     [sessionId]
   )
-  return x['COUNT(ENDPOINT_TYPE_ID)']
+  return x['CNT']
 }
 
 /**

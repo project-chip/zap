@@ -554,74 +554,6 @@ VALUES
   )
 }
 
-/**
- * Extracts endpoint type ids.
- *
- * @export
- * @param {*} db
- * @param {*} sessionId
- * @returns promise that resolves into rows in the database table.
- */
-async function exportEndPointTypeIds(db, sessionId) {
-  let mapFunction = (x) => {
-    return {
-      endpointTypeId: x.ENDPOINT_TYPE_ID,
-    }
-  }
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  ENDPOINT_TYPE.ENDPOINT_TYPE_ID
-FROM
-  ENDPOINT_TYPE
-LEFT JOIN
-  DEVICE_TYPE
-ON
-  ENDPOINT_TYPE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
-WHERE
-  ENDPOINT_TYPE.SESSION_REF = ?
-ORDER BY ENDPOINT_TYPE.NAME`,
-      [sessionId]
-    )
-    .then((rows) => rows.map(mapFunction))
-}
-
-/**
- * Returns the count of the number of cluster commands with cli for a cluster
- * @param {*} db
- * @param {*} endpointTypes
- * @param {*} endpointClusterId
- */
-async function exportCliCommandCountFromEndpointTypeCluster(
-  db,
-  endpointTypes,
-  endpointClusterId
-) {
-  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  COUNT(*) AS COUNT
-FROM
-  COMMAND
-INNER JOIN CLUSTER
-  ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
-INNER JOIN ENDPOINT_TYPE_CLUSTER
-  ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
-INNER JOIN PACKAGE_OPTION
-  ON PACKAGE_OPTION.OPTION_CODE = COMMAND.NAME
-WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
-  AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
-        `,
-      [endpointClusterId]
-    )
-    .then((res) => res[0].COUNT)
-}
-
 exports.exportEndpointTypes = exportEndpointTypes
 exports.importEndpointType = importEndpointType
 exports.exportClustersFromEndpointType = exportClustersFromEndpointType
@@ -633,5 +565,3 @@ exports.exportCommandsFromEndpointTypeCluster = exportCommandsFromEndpointTypeCl
 exports.importCommandForEndpointType = importCommandForEndpointType
 exports.exportEndpoints = exportEndpoints
 exports.importEndpoint = importEndpoint
-exports.exportEndPointTypeIds = exportEndPointTypeIds
-exports.exportCliCommandCountFromEndpointTypeCluster = exportCliCommandCountFromEndpointTypeCluster

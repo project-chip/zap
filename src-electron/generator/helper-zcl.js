@@ -1773,7 +1773,7 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
  * @returns argumentInAllVersionsPresentIfReturn if the command is not fixed length, command
  * argument is always present and presentIf conditions exist else returns argumentNotPresentReturn
  */
-function if_command_argument_always_present_with_presentif(
+async function if_command_argument_always_present_with_presentif(
   commandId,
   introducedInRef,
   removedInRef,
@@ -1781,21 +1781,20 @@ function if_command_argument_always_present_with_presentif(
   argumentInAllVersionsPresentIfReturn,
   argumentNotAlwaysThereReturn
 ) {
-  return if_command_arguments_have_fixed_length_with_current_context(
+  let res = await if_command_arguments_have_fixed_length_with_current_context(
     commandId,
     true,
     false,
     this
-  ).then((res) => {
-    if (res) {
-      return '' // Return nothing since it is a fixed length command
-    } else {
-      if (!(introducedInRef || removedInRef) && presentIf) {
-        return argumentInAllVersionsPresentIfReturn
-      }
-      return argumentNotAlwaysThereReturn
+  )
+  if (res) {
+    return '' // Return nothing since it is a fixed length command
+  } else {
+    if (!(introducedInRef || removedInRef) && presentIf) {
+      return argumentInAllVersionsPresentIfReturn
     }
-  })
+    return argumentNotAlwaysThereReturn
+  }
 }
 
 /**
@@ -1836,30 +1835,28 @@ function if_manufacturing_specific_cluster(
  * @param options
  * @returns Formatted attribute value based on given arguments
  */
-function as_generated_default_macro(value, attributeSize, options) {
-  return new Promise((resolve, reject) => {
-    let default_macro_signature = ''
-    if (attributeSize > 2) {
-      let default_macro = helperC
-        .asHex(value, null, null)
-        .replace('0x', '')
-        .match(/.{1,2}/g)
-      let padding_length = attributeSize - default_macro.length
-      for (let i = 0; i < padding_length; i++) {
-        default_macro_signature += '0x00, '
-      }
-      for (let j = 0; j < default_macro.length; j++) {
-        default_macro_signature += ' 0x' + default_macro[j] + ','
-      }
-      if (options.hash.endian != 'big') {
-        default_macro_signature = default_macro_signature
-          .split(' ')
-          .reverse()
-          .join(' ')
-      }
+async function as_generated_default_macro(value, attributeSize, options) {
+  let default_macro_signature = ''
+  if (attributeSize > 2) {
+    let default_macro = helperC
+      .asHex(value, null, null)
+      .replace('0x', '')
+      .match(/.{1,2}/g)
+    let padding_length = attributeSize - default_macro.length
+    for (let i = 0; i < padding_length; i++) {
+      default_macro_signature += '0x00, '
     }
-    resolve(default_macro_signature)
-  })
+    for (let j = 0; j < default_macro.length; j++) {
+      default_macro_signature += ' 0x' + default_macro[j] + ','
+    }
+    if (options.hash.endian != 'big') {
+      default_macro_signature = default_macro_signature
+        .split(' ')
+        .reverse()
+        .join(' ')
+    }
+  }
+  return default_macro_signature
 }
 
 /**
@@ -1876,7 +1873,7 @@ function as_generated_default_macro(value, attributeSize, options) {
  * @param postfixString
  * @returns attribute mask based on given values
  */
-function attribute_mask(
+async function attribute_mask(
   writable,
   storageOption,
   minMax,
@@ -1887,55 +1884,53 @@ function attribute_mask(
   prefixString,
   postfixString
 ) {
-  return new Promise((resolve, reject) => {
-    let attributeMask = ''
-    // mask for isWritable
-    if (writable) {
-      attributeMask +=
-        (attributeMask ? '| ' : '') + prefixString + 'WRITABLE' + postfixString
-    }
+  let attributeMask = ''
+  // mask for isWritable
+  if (writable) {
+    attributeMask +=
+      (attributeMask ? '| ' : '') + prefixString + 'WRITABLE' + postfixString
+  }
 
-    // mask for storage option
-    if (storageOption === 'NVM') {
-      attributeMask +=
-        (attributeMask ? '| ' : '') + prefixString + 'TOKENIZE' + postfixString
-    } else if (storageOption === 'EXTERNAL') {
-      attributeMask +=
-        (attributeMask ? '| ' : '') + prefixString + 'EXTERNAL' + postfixString
-    }
+  // mask for storage option
+  if (storageOption === 'NVM') {
+    attributeMask +=
+      (attributeMask ? '| ' : '') + prefixString + 'TOKENIZE' + postfixString
+  } else if (storageOption === 'EXTERNAL') {
+    attributeMask +=
+      (attributeMask ? '| ' : '') + prefixString + 'EXTERNAL' + postfixString
+  }
 
-    // mask for bound
-    if (minMax) {
-      attributeMask +=
-        (attributeMask ? '| ' : '') + prefixString + 'MIN_MAX' + postfixString
-    }
+  // mask for bound
+  if (minMax) {
+    attributeMask +=
+      (attributeMask ? '| ' : '') + prefixString + 'MIN_MAX' + postfixString
+  }
 
-    // mask for manufacturing specific attributes
-    if (mfgSpecific && clusterCode < 64512) {
-      attributeMask +=
-        (attributeMask ? '| ' : '') +
-        prefixString +
-        'MANUFACTURER_SPECIFIC' +
-        postfixString
-    }
+  // mask for manufacturing specific attributes
+  if (mfgSpecific && clusterCode < 64512) {
+    attributeMask +=
+      (attributeMask ? '| ' : '') +
+      prefixString +
+      'MANUFACTURER_SPECIFIC' +
+      postfixString
+  }
 
-    // mask for client side attribute
-    if (client === 'client') {
-      attributeMask +=
-        (attributeMask ? '| ' : '') + prefixString + 'CLIENT' + postfixString
-    }
+  // mask for client side attribute
+  if (client === 'client') {
+    attributeMask +=
+      (attributeMask ? '| ' : '') + prefixString + 'CLIENT' + postfixString
+  }
 
-    //mask for singleton attirbute
-    if (isSingleton) {
-      attributeMask +=
-        (attributeMask ? '| ' : '') + prefixString + 'SINGLETON' + postfixString
-    }
+  //mask for singleton attirbute
+  if (isSingleton) {
+    attributeMask +=
+      (attributeMask ? '| ' : '') + prefixString + 'SINGLETON' + postfixString
+  }
 
-    if (!attributeMask) {
-      attributeMask = '0x00'
-    }
-    resolve(attributeMask)
-  })
+  if (!attributeMask) {
+    attributeMask = '0x00'
+  }
+  return attributeMask
 }
 
 /**
@@ -1949,7 +1944,7 @@ function attribute_mask(
  * @param prefixForMask
  * @returns command mask based on given values
  */
-function command_mask(
+async function command_mask(
   commmandSource,
   clusterSide,
   isIncomingEnabled,
@@ -1957,55 +1952,53 @@ function command_mask(
   manufacturingCode,
   prefixForMask
 ) {
-  return new Promise((resolve, reject) => {
-    let commandMask = ''
-    if (isClient(commmandSource)) {
-      if (
-        (isIncomingEnabled && commmandSource != clusterSide) ||
-        (isIncomingEnabled && clusterSide == 'either')
-      ) {
-        commandMask += command_mask_sub_helper(
-          commandMask,
-          prefixForMask + 'INCOMING_SERVER'
-        )
-      }
-      if (
-        (isOutgoingEnabled && commmandSource == clusterSide) ||
-        (isOutgoingEnabled && clusterSide == 'either')
-      ) {
-        commandMask += command_mask_sub_helper(
-          commandMask,
-          prefixForMask + 'OUTGOING_CLIENT'
-        )
-      }
-    } else {
-      if (
-        (isIncomingEnabled && commmandSource != clusterSide) ||
-        (isIncomingEnabled && clusterSide == 'either')
-      ) {
-        commandMask += command_mask_sub_helper(
-          commandMask,
-          prefixForMask + 'INCOMING_CLIENT'
-        )
-      }
-      if (
-        (isOutgoingEnabled && commmandSource == clusterSide) ||
-        (isOutgoingEnabled && clusterSide == 'either')
-      ) {
-        commandMask += command_mask_sub_helper(
-          commandMask,
-          prefixForMask + 'OUTGOING_SERVER'
-        )
-      }
-    }
-    if (manufacturingCode && commandMask) {
+  let commandMask = ''
+  if (isClient(commmandSource)) {
+    if (
+      (isIncomingEnabled && commmandSource != clusterSide) ||
+      (isIncomingEnabled && clusterSide == 'either')
+    ) {
       commandMask += command_mask_sub_helper(
         commandMask,
-        prefixForMask + 'MANUFACTURER_SPECIFIC'
+        prefixForMask + 'INCOMING_SERVER'
       )
     }
-    resolve(commandMask)
-  })
+    if (
+      (isOutgoingEnabled && commmandSource == clusterSide) ||
+      (isOutgoingEnabled && clusterSide == 'either')
+    ) {
+      commandMask += command_mask_sub_helper(
+        commandMask,
+        prefixForMask + 'OUTGOING_CLIENT'
+      )
+    }
+  } else {
+    if (
+      (isIncomingEnabled && commmandSource != clusterSide) ||
+      (isIncomingEnabled && clusterSide == 'either')
+    ) {
+      commandMask += command_mask_sub_helper(
+        commandMask,
+        prefixForMask + 'INCOMING_CLIENT'
+      )
+    }
+    if (
+      (isOutgoingEnabled && commmandSource == clusterSide) ||
+      (isOutgoingEnabled && clusterSide == 'either')
+    ) {
+      commandMask += command_mask_sub_helper(
+        commandMask,
+        prefixForMask + 'OUTGOING_SERVER'
+      )
+    }
+  }
+  if (manufacturingCode && commandMask) {
+    commandMask += command_mask_sub_helper(
+      commandMask,
+      prefixForMask + 'MANUFACTURER_SPECIFIC'
+    )
+  }
+  return commandMask
 }
 
 /**
@@ -2034,21 +2027,19 @@ function command_mask_sub_helper(commandMask, str) {
  * string then each character and then filler for the size allocated for the
  * string
  */
-function format_zcl_string_as_characters_for_generated_defaults(
+async function format_zcl_string_as_characters_for_generated_defaults(
   stringVal,
   sizeOfString
 ) {
-  return new Promise((resolve, reject) => {
-    let lengthOfString = stringVal.length
-    let formatted_string = lengthOfString + ', '
-    for (let i = 0; i < lengthOfString; i++) {
-      formatted_string += "'" + stringVal.charAt(i) + "', "
-    }
-    for (let i = lengthOfString + 1; i < sizeOfString; i++) {
-      formatted_string += '0x00' + ', '
-    }
-    resolve(formatted_string)
-  })
+  let lengthOfString = stringVal.length
+  let formatted_string = lengthOfString + ', '
+  for (let i = 0; i < lengthOfString; i++) {
+    formatted_string += "'" + stringVal.charAt(i) + "', "
+  }
+  for (let i = lengthOfString + 1; i < sizeOfString; i++) {
+    formatted_string += '0x00' + ', '
+  }
+  return formatted_string
 }
 
 const dep = templateUtil.deprecatedHelper

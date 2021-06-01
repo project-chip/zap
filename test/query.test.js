@@ -33,7 +33,7 @@ const generationEngine = require('../src-electron/generator/generation-engine.js
 const testUtil = require('./test-util.js')
 const testQuery = require('./test-query.js')
 const restApi = require('../src-shared/rest-api.js')
-const queryImpexp = require('../src-electron/db/query-impexp.js')
+const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -428,7 +428,7 @@ describe('Endpoint Type Config Queries', () => {
   })
   test('Get all cluster names', () => {
     let expectedNames = ['Basic', 'Identify', 'Level Control', 'On/off']
-    return queryImpexp.exportEndPointTypeIds(db, sid).then((endpointTypes) =>
+    return queryEndpoint.selectEndPointTypeIds(db, sid).then((endpointTypes) =>
       queryZcl
         .exportAllClustersNamesFromEndpointTypes(db, endpointTypes)
         .then((names) => {

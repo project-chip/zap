@@ -22,6 +22,9 @@
  */
 const templateUtil = require('./template-util.js')
 const queryImpexp = require('../db/query-impexp.js')
+const queryEndpoint = require('../db/query-endpoint.js')
+const queryCommand = require('../db/query-command.js')
+const queryAttribute = require('../db/query-attribute.js')
 const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
 const queryZcl = require('../db/query-zcl.js')
@@ -34,8 +37,8 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} options
  */
 function user_endpoints(options) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryImpexp.exportEndpoints(
         this.global.db,
@@ -169,8 +172,8 @@ function user_all_attributes(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function all_user_cluster_commands(options) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -208,8 +211,8 @@ function all_user_cluster_command_util(
   isManufacturingSpecific,
   isIrrespectiveOfManufacturingSpecification = false
 ) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(
       currentContext.global.db,
       currentContext.global.sessionId
     )
@@ -273,8 +276,8 @@ function all_user_cluster_attribute_util(
   isManufacturingSpecific,
   isIrrespectiveOfManufacturingSpecification = false
 ) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(
       currentContext.global.db,
       currentContext.global.sessionId
     )
@@ -286,16 +289,16 @@ function all_user_cluster_attribute_util(
     )
     .then((endpointsAndClusters) =>
       isIrrespectiveOfManufacturingSpecification
-        ? queryZcl.exportAllAttributeDetailsFromEnabledClusters(
+        ? queryAttribute.selectAllAttributeDetailsFromEnabledClusters(
             currentContext.global.db,
             endpointsAndClusters
           )
         : isManufacturingSpecific
-        ? queryZcl.exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
+        ? queryAttribute.selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
             currentContext.global.db,
             endpointsAndClusters
           )
-        : queryZcl.exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
+        : queryAttribute.selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
             currentContext.global.db,
             endpointsAndClusters
           )
@@ -386,8 +389,8 @@ function all_user_cluster_non_manufacturer_specific_attributes(
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function all_commands_for_user_enabled_clusters(options) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -414,8 +417,8 @@ function all_commands_for_user_enabled_clusters(options) {
  *
  */
 function all_cli_commands_for_user_enabled_clusters(options) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -441,8 +444,8 @@ function all_cli_commands_for_user_enabled_clusters(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function all_user_clusters(options) {
-  return queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  return queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportAllClustersDetailsFromEndpointTypes(
         this.global.db,
@@ -459,8 +462,8 @@ function all_user_clusters(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function all_user_clusters_irrespective_of_side(options) {
-  return queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  return queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
         this.global.db,
@@ -478,8 +481,8 @@ function all_user_clusters_irrespective_of_side(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function all_user_clusters_names(options) {
-  return queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  return queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportAllClustersNamesFromEndpointTypes(
         this.global.db,
@@ -494,10 +497,10 @@ function all_user_clusters_names(options) {
  * This is used under a cluster block helper
  */
 function user_cluster_command_count_with_cli() {
-  return queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  return queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
-      queryImpexp.exportCliCommandCountFromEndpointTypeCluster(
+      queryCommand.selectCliCommandCountFromEndpointTypeCluster(
         this.global.db,
         endpointTypes,
         this.endpointClusterId
@@ -519,8 +522,8 @@ function user_cluster_command_count_with_cli() {
  * {{/all_user_clusters_irrespective_of_side}}
  */
 function user_cluster_commands_with_cli(options) {
-  return queryZcl
-    .exportCliCommandsFromCluster(this.global.db, this.id)
+  return queryCommand
+    .selectCliCommandsFromCluster(this.global.db, this.id)
     .then((cliCommands) =>
       templateUtil.collectBlocks(cliCommands, options, this)
     )
@@ -534,8 +537,8 @@ function user_cluster_commands_with_cli(options) {
  * Returns: Promise of the resolved blocks iterating over cluster commands.
  */
 function user_cluster_commands_all_endpoints(options) {
-  return queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  return queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportCommandDetailsFromAllEndpointTypeCluster(
         this.global.db,
@@ -557,8 +560,8 @@ function user_cluster_commands_all_endpoints(options) {
  * @returns True if cluster has enabled commands otherwise false
  */
 function user_cluster_has_enabled_command(name, side) {
-  return queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  return queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -672,8 +675,8 @@ async function user_default_response_policy(options) {
  * Returns the endpoint type identifier for an endpoint type
  */
 function endpoint_type_identifier(endpointTypeId) {
-  return queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  return queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryImpexp.exportEndpoints(
         this.global.db,
@@ -701,8 +704,8 @@ function endpoint_type_identifier(endpointTypeId) {
  * Will return -1 if the given endpoint type is not present.
  */
 function endpoint_type_index(endpointTypeId) {
-  return queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  return queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryImpexp.exportEndpoints(
         this.global.db,
@@ -731,8 +734,8 @@ function endpoint_type_index(endpointTypeId) {
  * @returns Attribute values greater than 2 bytes and not 0 nor externally saved.
  */
 function all_user_cluster_attributes_for_generated_defaults(options) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -740,7 +743,10 @@ function all_user_cluster_attributes_for_generated_defaults(options) {
       )
     )
     .then((endpointsAndClusters) =>
-      queryZcl.exportAttributeBoundDetails(this.global.db, endpointsAndClusters)
+      queryAttribute.selectAttributeBoundDetails(
+        this.global.db,
+        endpointsAndClusters
+      )
     )
     .then((endpointCommands) =>
       templateUtil.collectBlocks(endpointCommands, options, this)
@@ -756,8 +762,8 @@ function all_user_cluster_attributes_for_generated_defaults(options) {
  * @returns enabled attributes
  */
 function all_user_cluster_generated_attributes(options) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -765,7 +771,7 @@ function all_user_cluster_generated_attributes(options) {
       )
     )
     .then((endpointsAndClusters) =>
-      queryZcl.exportAttributeDetailsFromEnabledClusters(
+      queryAttribute.selectAttributeDetailsFromEnabledClusters(
         this.global.db,
         endpointsAndClusters
       )
@@ -784,8 +790,8 @@ function all_user_cluster_generated_attributes(options) {
  * @returns Reportable attributes
  */
 function all_user_reportable_attributes(options) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -793,7 +799,7 @@ function all_user_reportable_attributes(options) {
       )
     )
     .then((endpointsAndClusters) =>
-      queryZcl.exportReportableAttributeDetailsFromEnabledClustersAndEndpoints(
+      queryAttribute.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
         this.global.db,
         endpointsAndClusters
       )
@@ -810,10 +816,10 @@ function all_user_reportable_attributes(options) {
  * @returns All available cluster commands across all endpoints and clusters
  */
 function all_user_cluster_generated_commands(options) {
-  let promise = queryZcl
-    .exportUsedEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = queryEndpoint
+    .selectUsedEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
-      queryZcl.exportAllAvailableClusterCommandDetailsFromEndpointTypes(
+      queryCommand.selectAllAvailableClusterCommandDetailsFromEndpointTypes(
         this.global.db,
         endpointTypes
       )
@@ -830,8 +836,8 @@ function all_user_cluster_generated_commands(options) {
  * @returns Cluster Details per endpoint with attribute summaries within the clusters
  */
 function generated_clustes_details(options) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -856,8 +862,8 @@ function generated_clustes_details(options) {
  * @returns Endpoint type details along with their cluster summaries
  */
 function generated_endpoint_type_details(options) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -886,8 +892,8 @@ function generated_endpoint_type_details(options) {
  * @returns endpoints with bounds or defaults
  */
 function all_user_cluster_attributes_min_max_defaults(options) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -895,7 +901,7 @@ function all_user_cluster_attributes_min_max_defaults(options) {
       )
     )
     .then((endpointsAndClusters) =>
-      queryZcl.exportAttributeDetailsWithABoundFromEnabledClusters(
+      queryAttribute.selectAttributeDetailsWithABoundFromEnabledClusters(
         this.global.db,
         endpointsAndClusters
       )
@@ -925,7 +931,7 @@ async function generated_defaults_index(
   prefixReturn,
   postFixReturn
 ) {
-  let endpointTypes = await queryImpexp.exportEndPointTypeIds(
+  let endpointTypes = await queryEndpoint.selectEndPointTypeIds(
     this.global.db,
     this.global.sessionId
   )
@@ -935,7 +941,7 @@ async function generated_defaults_index(
     endpointTypes
   )
 
-  let endpointAttributes = await queryZcl.exportAttributeBoundDetails(
+  let endpointAttributes = await queryAttribute.selectAttributeBoundDetails(
     this.global.db,
     endpointsAndClusters
   )
@@ -968,8 +974,8 @@ async function generated_defaults_index(
  * @returns index of the generated min max default array
  */
 function generated_attributes_min_max_index(clusterName, attributeName) {
-  let promise = queryImpexp
-    .exportEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = queryEndpoint
+    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -977,7 +983,7 @@ function generated_attributes_min_max_index(clusterName, attributeName) {
       )
     )
     .then((endpointsAndClusters) =>
-      queryZcl.exportAttributeDetailsWithABoundFromEnabledClusters(
+      queryAttribute.selectAttributeDetailsWithABoundFromEnabledClusters(
         this.global.db,
         endpointsAndClusters
       )
