@@ -389,7 +389,7 @@ function prepareBitmap(
   } else {
     ret = {
       name: type.$.short,
-      type: type.bitmap[0].element[0].$.type,
+      type: type.$.inheritsFrom,
     }
   }
   if (tagContainsBitmap(type)) {
