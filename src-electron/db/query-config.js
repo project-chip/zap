@@ -71,7 +71,7 @@ DO UPDATE SET ENABLED = ?`,
  * @param {*} clusterRef
  * @param {*} side
  */
-async function getClusterState(db, endpointTypeId, clusterRef, side) {
+async function selectClusterState(db, endpointTypeId, clusterRef, side) {
   return dbApi
     .dbGet(
       db,
@@ -1183,7 +1183,12 @@ async function setClusterIncluded(
   side
 ) {
   let cluster = await queryZcl.selectClusterByCode(db, packageId, clusterCode)
-  let clusterState = await getClusterState(db, endpointTypeId, cluster.id, side)
+  let clusterState = await selectClusterState(
+    db,
+    endpointTypeId,
+    cluster.id,
+    side
+  )
   let insertDefaults = clusterState == null
   await insertOrReplaceClusterState(
     db,
@@ -1202,7 +1207,7 @@ async function setClusterIncluded(
 
 // exports
 exports.insertOrReplaceClusterState = insertOrReplaceClusterState
-exports.getClusterState = getClusterState
+exports.selectClusterState = selectClusterState
 exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState
 exports.insertOrUpdateCommandState = insertOrUpdateCommandState
 exports.convertRestKeyToDbColumn = convertRestKeyToDbColumn

@@ -91,7 +91,7 @@ function httpPostCluster(db) {
       .then((pkgs) => {
         packageId = pkgs[0].id
       })
-      .then(() => queryConfig.getClusterState(db, endpointTypeId, id, side))
+      .then(() => queryConfig.selectClusterState(db, endpointTypeId, id, side))
       .then((clusterState) => (clusterState == null ? true : false))
       .then((insertDefaults) => {
         return queryConfig
