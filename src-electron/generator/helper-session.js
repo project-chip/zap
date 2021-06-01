@@ -127,7 +127,7 @@ function user_cluster_commands(options) {
 }
 
 function user_endpoint_type_count() {
-  let promise = queryConfig.getEndpointTypeCount(
+  let promise = queryConfig.selectEndpointTypeCount(
     this.global.db,
     this.global.sessionId
   )
@@ -142,7 +142,7 @@ function user_endpoint_type_count() {
  * @return Promise of the number of endpoint
  */
 function user_endpoint_count_by_cluster(clusterTypeId, side) {
-  let promise = queryConfig.getEndpointTypeCountByCluster(
+  let promise = queryConfig.selectEndpointTypeCountByCluster(
     this.global.db,
     this.global.sessionId,
     clusterTypeId,
@@ -159,7 +159,7 @@ function user_endpoint_count_by_cluster(clusterTypeId, side) {
  */
 function user_all_attributes(options) {
   let promise = queryConfig
-    .getAllSessionAttributes(this.global.db, this.global.sessionId)
+    .selectAllSessionAttributes(this.global.db, this.global.sessionId)
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
   return templateUtil.templatePromise(this.global, promise)
 }

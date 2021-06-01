@@ -30,7 +30,7 @@ const bin = require('../util/bin.js')
  * @param {*} endpointTypeId
  * @returns promise that resolves into endpoint clusters.
  */
-async function queryEndpointClusters(db, endpointTypeId) {
+async function selectEndpointClusters(db, endpointTypeId) {
   let rows = await dbApi.dbAll(
     db,
     `
@@ -79,7 +79,7 @@ ORDER BY C.CODE
  * @param {*} endpointTypeId
  * @returns promise that resolves into endpoint cluster attributes
  */
-async function queryEndpointClusterAttributes(
+async function selectEndpointClusterAttributes(
   db,
   clusterId,
   side,
@@ -167,7 +167,7 @@ ORDER BY A.MANUFACTURER_CODE, A.CODE
  * @param {*} endpointTypeId
  * @returns promise that resolves into endpoint cluster commands
  */
-async function queryEndpointClusterCommands(db, clusterId, endpointTypeId) {
+async function selectEndpointClusterCommands(db, clusterId, endpointTypeId) {
   let rows = await dbApi.dbAll(
     db,
     `
@@ -283,8 +283,8 @@ ORDER BY ENDPOINT_TYPE.NAME`,
     .then((rows) => rows.map(mapFunction))
 }
 
-exports.queryEndpointClusters = queryEndpointClusters
-exports.queryEndpointClusterAttributes = queryEndpointClusterAttributes
-exports.queryEndpointClusterCommands = queryEndpointClusterCommands
+exports.selectEndpointClusters = selectEndpointClusters
+exports.selectEndpointClusterAttributes = selectEndpointClusterAttributes
+exports.selectEndpointClusterCommands = selectEndpointClusterCommands
 exports.selectEndPointTypeIds = selectEndPointTypeIds
 exports.selectUsedEndPointTypeIds = selectUsedEndPointTypeIds

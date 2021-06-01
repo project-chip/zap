@@ -368,7 +368,7 @@ function isCustomDevice(deviceName, deviceCode) {
 }
 
 async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
-  let id = await queryConfig.getEndpointTypeAttributeId(
+  let id = await queryConfig.selectEndpointTypeAttributeId(
     db,
     endpointTypeId,
     packageId,

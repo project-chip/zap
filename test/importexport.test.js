@@ -138,7 +138,7 @@ test(path.basename(testFile2) + ' - import', async () => {
 test(path.basename(sleepyGenericZap) + ' - import', async () => {
   let sid = await querySession.createBlankSession(db)
   await importJs.importDataFromFile(db, sleepyGenericZap, { sessionId: sid })
-  let endpoints = await queryConfig.getAllEndpoints(db, sid)
+  let endpoints = await queryConfig.selectAllEndpoints(db, sid)
   expect(endpoints.length).toBe(1)
   expect(endpoints[0].deviceIdentifier).toBe(1281)
 })
@@ -148,7 +148,7 @@ test(
   async () => {
     let sid = await querySession.createBlankSession(db)
     await importJs.importDataFromFile(db, sleepyGenericIsc, { sessionId: sid })
-    let endpoints = await queryConfig.getAllEndpoints(db, sid)
+    let endpoints = await queryConfig.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].deviceIdentifier).toBe(1281)
   },
@@ -178,7 +178,7 @@ test(
     expect(endpointTypes[0].name).toBe('Centralized')
     expect(endpointTypes[1].name).toBe('GreenPower')
     expect(endpointTypes[2].name).toBe('Touchlink')
-    let endpoints = await queryConfig.getAllEndpoints(db, sid)
+    let endpoints = await queryConfig.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(3)
     let drp = await querySession.getSessionKeyValue(
       db,
@@ -198,7 +198,7 @@ test(
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.selectAllEndpointTypes(db, sid)
     expect(endpointTypes.length).toBe(1)
-    let endpoints = await queryConfig.getAllEndpoints(db, sid)
+    let endpoints = await queryConfig.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].deviceIdentifier).toBe(10)
     let clusterState = await testQuery.getAllEndpointTypeClusterState(
@@ -225,7 +225,7 @@ test(
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.selectAllEndpointTypes(db, sid)
     expect(endpointTypes.length).toBe(2)
-    let endpoints = await queryConfig.getAllEndpoints(db, sid)
+    let endpoints = await queryConfig.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(2)
     expect(endpoints[0].networkId).toBe(0)
     expect(endpoints[1].networkId).toBe(0)
@@ -265,7 +265,7 @@ test(
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryConfig.selectAllEndpointTypes(db, sid)
     expect(endpointTypes.length).toBe(1)
-    let endpoints = await queryConfig.getAllEndpoints(db, sid)
+    let endpoints = await queryConfig.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].networkId).toBe(0)
     let ps = []

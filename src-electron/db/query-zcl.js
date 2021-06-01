@@ -883,7 +883,18 @@ async function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
-      `SELECT ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED FROM ENDPOINT_TYPE_CLUSTER WHERE ENDPOINT_TYPE_REF = ? ORDER BY CLUSTER_REF`,
+      `
+SELECT
+  ENDPOINT_TYPE_REF,
+  CLUSTER_REF,
+  SIDE,
+  ENABLED
+FROM
+  ENDPOINT_TYPE_CLUSTER
+WHERE
+  ENDPOINT_TYPE_REF = ?
+ORDER BY
+  CLUSTER_REF`,
       [endpointTypeId]
     )
     .then((rows) => rows.map(dbMapping.map.endpointTypeCluster))

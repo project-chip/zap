@@ -128,7 +128,7 @@ async function insertOrUpdateAttributeState(
   attributeId,
   paramValuePairArray
 ) {
-  let cluster = await getOrInsertDefaultEndpointTypeCluster(
+  let cluster = await insertOrSelectDefaultEndpointTypeCluster(
     db,
     endpointTypeId,
     clusterRef,
@@ -289,7 +289,7 @@ async function insertOrUpdateCommandState(
   value,
   isIncoming
 ) {
-  let cluster = await getOrInsertDefaultEndpointTypeCluster(
+  let cluster = await insertOrSelectDefaultEndpointTypeCluster(
     db,
     endpointTypeId,
     clusterRef,
@@ -405,7 +405,7 @@ async function updateEndpoint(db, sessionId, endpointId, changesArray) {
  * @param {*} sessionId
  * @returns Promise that resolves into a count.
  */
-async function getCountOfEndpointsWithGivenEndpointIdentifier(
+async function selectCountOfEndpointsWithGivenEndpointIdentifier(
   db,
   endpointIdentifier,
   sessionId
@@ -426,7 +426,7 @@ async function getCountOfEndpointsWithGivenEndpointIdentifier(
  * @param {*} sessionId
  * @returns Promise resolving into all endpoints.
  */
-async function getAllEndpoints(db, sessionId) {
+async function selectAllEndpoints(db, sessionId) {
   let rows = await dbApi.dbAll(
     db,
     `
@@ -873,7 +873,7 @@ async function resolveNonOptionalAndReportableAttributes(
  * @param {*} sessionId
  * @returns Promise that resolves into a count.
  */
-async function getEndpointTypeCount(db, sessionId) {
+async function selectEndpointTypeCount(db, sessionId) {
   let x = await dbApi.dbGet(
     db,
     'SELECT COUNT(ENDPOINT_TYPE_ID) AS CNT FROM ENDPOINT_TYPE WHERE SESSION_REF = ?',
@@ -890,7 +890,7 @@ async function getEndpointTypeCount(db, sessionId) {
  * @param {*} sessionId
  * @returns Promise that resolves into a count.
  */
-async function getEndpointTypeCountByCluster(
+async function selectEndpointTypeCountByCluster(
   db,
   sessionId,
   endpointClusterId,
@@ -939,48 +939,6 @@ WHERE SESSION_REF = ? ORDER BY NAME`,
 }
 
 /**
- * Extracts endpoint type row.
- *
- * @export
- * @param {*} db
- * @param {*} endpointTypeId
- * @returns promise that resolves into rows in the database table.
- */
-async function getEndpointType(db, endpointTypeId) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT ENDPOINT_TYPE_ID, NAME, DEVICE_TYPE_REF FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?',
-      [endpointTypeId]
-    )
-    .then(dbMapping.map.endpointType)
-}
-
-/**
- * Extracts clusters from the endpoint_type_cluster table.
- *
- * @export
- * @param {*} endpointTypeId
- * @returns A promise that resolves into the rows.
- */
-async function getEndpointTypeClusters(db, endpointTypeId) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-SELECT
-  ENDPOINT_TYPE_CLUSTER_ID,
-  ENDPOINT_TYPE_REF,
-  CLUSTER_REF,
-  SIDE,
-  ENABLED
-FROM ENDPOINT_TYPE_CLUSTER
-WHERE ENDPOINT_TYPE_REF = ?`,
-    [endpointTypeId]
-  )
-  return rows.map(dbMapping.map.endpointTypeCluster)
-}
-
-/**
  * Get or inserts default endpoint type cluster given endpoint type, cluster ref, and side.
  * @param {*} db
  * @param {*} endpointTypeId
@@ -988,7 +946,7 @@ WHERE ENDPOINT_TYPE_REF = ?`,
  * @param {*} side
  */
 
-async function getOrInsertDefaultEndpointTypeCluster(
+async function insertOrSelectDefaultEndpointTypeCluster(
   db,
   endpointTypeId,
   clusterRef,
@@ -1035,7 +993,7 @@ WHERE ENDPOINT_TYPE_REF = ?
  * @param {*} mfgCode
  * @returns endpointType attribute id or null
  */
-async function getEndpointTypeAttributeId(
+async function selectEndpointTypeAttributeId(
   db,
   endpointTypeId,
   packageId,
@@ -1098,7 +1056,7 @@ WHERE
  * @param {*} db
  * @param {*} sessionId
  */
-async function getAllSessionAttributes(db, sessionId) {
+async function selectAllSessionAttributes(db, sessionId) {
   return dbApi
     .dbAll(
       db,
@@ -1221,17 +1179,14 @@ exports.insertEndpointType = insertEndpointType
 exports.deleteEndpointType = deleteEndpointType
 exports.updateEndpointType = updateEndpointType
 exports.selectAllEndpointTypes = selectAllEndpointTypes
-exports.getEndpointType = getEndpointType
 
-exports.getEndpointTypeClusters = getEndpointTypeClusters
-exports.getOrInsertDefaultEndpointTypeCluster = getOrInsertDefaultEndpointTypeCluster
-exports.getAllEndpoints = getAllEndpoints
-exports.getCountOfEndpointsWithGivenEndpointIdentifier = getCountOfEndpointsWithGivenEndpointIdentifier
-exports.getEndpointTypeCount = getEndpointTypeCount
-exports.getEndpointTypeCountByCluster = getEndpointTypeCountByCluster
-exports.getAllSessionAttributes = getAllSessionAttributes
+exports.selectAllEndpoints = selectAllEndpoints
+exports.selectCountOfEndpointsWithGivenEndpointIdentifier = selectCountOfEndpointsWithGivenEndpointIdentifier
+exports.selectEndpointTypeCount = selectEndpointTypeCount
+exports.selectEndpointTypeCountByCluster = selectEndpointTypeCountByCluster
+exports.selectAllSessionAttributes = selectAllSessionAttributes
 exports.insertClusterDefaults = insertClusterDefaults
 
 exports.setClusterIncluded = setClusterIncluded
-exports.getEndpointTypeAttributeId = getEndpointTypeAttributeId
+exports.selectEndpointTypeAttributeId = selectEndpointTypeAttributeId
 exports.updateEndpointTypeAttribute = updateEndpointTypeAttribute

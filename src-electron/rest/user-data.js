@@ -263,9 +263,11 @@ function httpGetInitialState(db) {
       })
     statePopulators.push(endpointTypes)
 
-    let endpoints = queryConfig.getAllEndpoints(db, sessionId).then((rows) => {
-      state.endpoints = rows
-    })
+    let endpoints = queryConfig
+      .selectAllEndpoints(db, sessionId)
+      .then((rows) => {
+        state.endpoints = rows
+      })
     statePopulators.push(endpoints)
 
     let sessionKeyValues = querySession

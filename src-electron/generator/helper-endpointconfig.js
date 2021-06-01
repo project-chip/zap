@@ -17,6 +17,7 @@
 
 const templateUtil = require('./template-util')
 const queryEndpoint = require('../db/query-endpoint.js')
+const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
 const bin = require('../util/bin.js')
 const types = require('../util/types.js')
@@ -704,7 +705,7 @@ function endpoint_config(options) {
   let sessionId = this.global.sessionId
   let promise = templateUtil
     .ensureZclPackageId(newContext)
-    .then(() => queryConfig.getAllEndpoints(db, sessionId))
+    .then(() => queryConfig.selectAllEndpoints(db, sessionId))
     .then((endpoints) => {
       newContext.endpoints = endpoints
       let endpointTypeIds = []
@@ -720,7 +721,7 @@ function endpoint_config(options) {
       let endpointTypePromises = []
       endpointTypeIds.forEach((eptId) => {
         endpointTypePromises.push(
-          queryConfig.getEndpointType(db, eptId.endpointTypeId).then((ept) => {
+          queryZcl.selectEndpointType(db, eptId.endpointTypeId).then((ept) => {
             ept.endpointId = eptId.endpointIdentifier
             return ept
           })
@@ -733,13 +734,13 @@ function endpoint_config(options) {
       newContext.endpointTypes = endpointTypes
       endpointTypes.forEach((ept) => {
         promises.push(
-          queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
+          queryEndpoint.selectEndpointClusters(db, ept.id).then((clusters) => {
             ept.clusters = clusters // Put 'clusters' into endpoint
             let ps = []
             clusters.forEach((cl) => {
               ps.push(
                 queryEndpoint
-                  .queryEndpointClusterAttributes(
+                  .selectEndpointClusterAttributes(
                     db,
                     cl.clusterId,
                     cl.side,
@@ -752,7 +753,7 @@ function endpoint_config(options) {
               )
               ps.push(
                 queryEndpoint
-                  .queryEndpointClusterCommands(db, cl.clusterId, ept.id)
+                  .selectEndpointClusterCommands(db, cl.clusterId, ept.id)
                   .then((commands) => {
                     cl.commands = commands
                   })

@@ -99,7 +99,7 @@ test(
       .then((epts) => {
         let ps = []
         epts.forEach((ept) => {
-          ps.push(queryEndpoint.queryEndpointClusters(db, ept.id))
+          ps.push(queryEndpoint.selectEndpointClusters(db, ept.id))
         })
         return Promise.all(ps)
       })
@@ -113,7 +113,7 @@ test(
         clusterArray.forEach((clusters) => {
           clusters.forEach((cluster) => {
             promiseAttributes.push(
-              queryEndpoint.queryEndpointClusterAttributes(
+              queryEndpoint.selectEndpointClusterAttributes(
                 db,
                 cluster.clusterId,
                 cluster.side,
@@ -121,7 +121,7 @@ test(
               )
             )
             promiseCommands.push(
-              queryEndpoint.queryEndpointClusterCommands(
+              queryEndpoint.selectEndpointClusterCommands(
                 db,
                 cluster.clusterId,
                 cluster.endpointTypeId

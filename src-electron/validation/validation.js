@@ -56,7 +56,7 @@ async function validateNoDuplicateEndpoints(
   endpointIdentifier,
   sessionRef
 ) {
-  let count = await queryConfig.getCountOfEndpointsWithGivenEndpointIdentifier(
+  let count = await queryConfig.selectCountOfEndpointsWithGivenEndpointIdentifier(
     db,
     endpointIdentifier,
     sessionRef
