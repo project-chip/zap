@@ -447,7 +447,7 @@ function all_user_clusters(options) {
   return queryEndpoint
     .selectEndPointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
-      queryZcl.exportAllClustersDetailsFromEndpointTypes(
+      queryZcl.selectAllClustersDetailsFromEndpointTypes(
         this.global.db,
         endpointTypes
       )
@@ -871,7 +871,7 @@ function generated_endpoint_type_details(options) {
       )
     )
     .then((endpointsAndClusters) =>
-      queryZcl.exportEndpointDetailsFromAddedEndpoints(
+      queryZcl.selectEndpointDetailsFromAddedEndpoints(
         this.global.db,
         endpointsAndClusters
       )

@@ -1280,17 +1280,17 @@ async function selectAllAtomics(db, packageId) {
  * @param {*} packageId
  * @param {*} type
  */
-async function getAtomicSizeFromType(db, packageId, type) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
-      [packageId, type]
-    )
-    .then((row) => {
-      if (row == null) return null
-      else return row.ATOMIC_SIZE
-    })
+async function selectAtomicSizeFromType(db, packageId, type) {
+  let row = await dbApi.dbGet(
+    db,
+    'SELECT ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
+    [packageId, type]
+  )
+  if (row == null) {
+    return null
+  } else {
+    return row.ATOMIC_SIZE
+  }
 }
 
 /**
@@ -1664,7 +1664,7 @@ async function determineType(db, type, packageId) {
  * @param {*} endpointTypeId
  * @returns Promise that resolves with the data that should go into the external form.
  */
-async function exportAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
+async function selectAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mapFunction = (x) => {
     return {
@@ -1785,12 +1785,17 @@ SELECT
   ENDPOINT_TYPE_CLUSTER.SIDE,
   ENDPOINT_TYPE_CLUSTER.ENABLED,
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
-FROM CLUSTER
-INNER JOIN ENDPOINT_TYPE_CLUSTER
-ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
-AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
-GROUP BY NAME`
+FROM
+  CLUSTER
+INNER JOIN
+  ENDPOINT_TYPE_CLUSTER
+ON
+  CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+WHERE
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+  AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
+GROUP BY
+  NAME`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -1960,7 +1965,7 @@ async function exportClusterDetailsFromEnabledClusters(
  * @param endpointsAndClusters
  * @returns Endpoint type details
  */
-async function exportEndpointDetailsFromAddedEndpoints(
+async function selectEndpointDetailsFromAddedEndpoints(
   db,
   endpointsAndClusters
 ) {
@@ -2126,26 +2131,27 @@ exports.selectDeviceTypeCommandsByDeviceTypeRef = selectDeviceTypeCommandsByDevi
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 exports.selectEndpointType = selectEndpointType
 exports.selectAllAtomics = selectAllAtomics
-exports.getAtomicSizeFromType = getAtomicSizeFromType
+exports.selectAtomicSizeFromType = selectAtomicSizeFromType
 exports.selectAtomicType = selectAtomicType
 exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById
 exports.selectBitmapByName = selectBitmapByName
-exports.exportClustersAndEndpointDetailsFromEndpointTypes = exportClustersAndEndpointDetailsFromEndpointTypes
-exports.exportCommandDetailsFromAllEndpointTypesAndClusters = exportCommandDetailsFromAllEndpointTypesAndClusters
 exports.selectCommandArgumentsCountByCommandId = selectCommandArgumentsCountByCommandId
 exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
-exports.exportAllClustersDetailsFromEndpointTypes = exportAllClustersDetailsFromEndpointTypes
-exports.exportAllClustersNamesFromEndpointTypes = exportAllClustersNamesFromEndpointTypes
-exports.exportCommandDetailsFromAllEndpointTypeCluster = exportCommandDetailsFromAllEndpointTypeCluster
 exports.selectEnumByName = selectEnumByName
 exports.selectStructByName = selectStructByName
 exports.determineType = determineType
 exports.selectCommandTree = selectCommandTree
+exports.selectAttributeByCode = selectAttributeByCode
+exports.selectEndpointDetailsFromAddedEndpoints = selectEndpointDetailsFromAddedEndpoints
+exports.selectAllClustersDetailsFromEndpointTypes = selectAllClustersDetailsFromEndpointTypes
+
+exports.exportAllClustersNamesFromEndpointTypes = exportAllClustersNamesFromEndpointTypes
+exports.exportCommandDetailsFromAllEndpointTypeCluster = exportCommandDetailsFromAllEndpointTypeCluster
+exports.exportClustersAndEndpointDetailsFromEndpointTypes = exportClustersAndEndpointDetailsFromEndpointTypes
+exports.exportCommandDetailsFromAllEndpointTypesAndClusters = exportCommandDetailsFromAllEndpointTypesAndClusters
 exports.exportAllCommandDetailsFromEnabledClusters = exportAllCommandDetailsFromEnabledClusters
 exports.exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes = exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes
 exports.exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
 exports.exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
 exports.exportAllCliCommandDetailsFromEnabledClusters = exportAllCliCommandDetailsFromEnabledClusters
-exports.selectAttributeByCode = selectAttributeByCode
 exports.exportClusterDetailsFromEnabledClusters = exportClusterDetailsFromEnabledClusters
-exports.exportEndpointDetailsFromAddedEndpoints = exportEndpointDetailsFromAddedEndpoints
