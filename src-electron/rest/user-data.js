@@ -91,7 +91,7 @@ function httpPostCluster(db) {
       .then((pkgs) => {
         packageId = pkgs[0].id
       })
-      .then(() => queryConfig.getClusterState(db, endpointTypeId, id, side))
+      .then(() => queryConfig.selectClusterState(db, endpointTypeId, id, side))
       .then((clusterState) => (clusterState == null ? true : false))
       .then((insertDefaults) => {
         return queryConfig
@@ -257,15 +257,17 @@ function httpGetInitialState(db) {
 
     let statePopulators = []
     let endpointTypes = queryConfig
-      .getAllEndpointTypes(db, sessionId)
+      .selectAllEndpointTypes(db, sessionId)
       .then((rows) => {
         state.endpointTypes = rows
       })
     statePopulators.push(endpointTypes)
 
-    let endpoints = queryConfig.getAllEndpoints(db, sessionId).then((rows) => {
-      state.endpoints = rows
-    })
+    let endpoints = queryConfig
+      .selectAllEndpoints(db, sessionId)
+      .then((rows) => {
+        state.endpoints = rows
+      })
     statePopulators.push(endpoints)
 
     let sessionKeyValues = querySession

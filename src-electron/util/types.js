@@ -31,8 +31,8 @@ const env = require('./env.js')
  * @param {*} zclPackageId
  * @param {*} type
  */
-function typeSize(db, zclPackageId, type) {
-  return queryZcl.getAtomicSizeFromType(db, zclPackageId, type)
+async function typeSize(db, zclPackageId, type) {
+  return queryZcl.selectAtomicSizeFromType(db, zclPackageId, type)
 }
 
 /**
@@ -45,24 +45,24 @@ function typeSize(db, zclPackageId, type) {
  * @param {*} [defaultValue=null]
  * @returns Promise that resolves into the size of the attribute.
  */
-function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
-  return typeSize(db, zclPackageId, at.type).then((size) => {
-    if (size) {
-      return size
-    } else if (at.maxLength != null) {
-      return at.maxLength
-    } else if (at.defaultValue) {
-      return at.defaultValue.length + 1
+async function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
+  let size = await typeSize(db, zclPackageId, at.type)
+
+  if (size) {
+    return size
+  } else if (at.maxLength != null) {
+    return at.maxLength
+  } else if (at.defaultValue) {
+    return at.defaultValue.length + 1
+  } else {
+    if (defaultValue != null) {
+      return defaultValue
     } else {
-      if (defaultValue != null) {
-        return defaultValue
-      } else {
-        throw new Error(
-          `ERROR: Unknown size for attribute: ${at.label} / ${at.code}`
-        )
-      }
+      throw new Error(
+        `ERROR: Unknown size for attribute: ${at.label} / ${at.code}`
+      )
     }
-  })
+  }
 }
 
 /**

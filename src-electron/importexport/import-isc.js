@@ -20,7 +20,6 @@ const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
-const queryImpexp = require('../db/query-impexp.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
@@ -369,7 +368,7 @@ function isCustomDevice(deviceName, deviceCode) {
 }
 
 async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
-  let id = await queryConfig.getEndpointTypeAttributeId(
+  let id = await queryConfig.selectEndpointTypeAttributeId(
     db,
     endpointTypeId,
     packageId,

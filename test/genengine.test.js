@@ -341,6 +341,90 @@ test('Test file 1 generation', async () => {
       expect(
         zapCli.includes('{ "identify", &cli_cmd_identify_group, false },')
       ).toBeTruthy()
+      // Test GENERATED_DEFAULTS
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* 0,DEFAULT value for cluster: Over the Air Bootloading, attribute: OTA Upgrade Server ID, side: client*/'
+        )
+      ).toBeTruthy()
+      // Test GENERATED_ATTRIBUTE_COUNT
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '#define GENERATED_ATTRIBUTE_COUNT 81'
+        )
+      ).toBeTruthy()
+      // Test GENERATED_ATTRIBUTES
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x00  } }, /* 16 Cluster: Color Control, Attribute: color control options, Side: server*/'
+        )
+      ).toBeTruthy()
+      // Test is_number_greater_than within GENERATED_ATTRIBUTES
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 70 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
+        )
+      ).toBeTruthy()
+      // Test GENERATED_CLUSTER_COUNT
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '#define GENERATED_CLUSTER_COUNT 18'
+        )
+      ).toBeTruthy()
+      // Test GENERATED_CLUSTERS
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[70]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/'
+        )
+      ).toBeTruthy()
+      // Test GENERATED_ENDPOINT_TYPE_COUNT
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '#define GENERATED_ENDPOINT_TYPE_COUNT (2)'
+        )
+      ).toBeTruthy()
+      // Test GENERATED_ENDPOINT_TYPES
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 241 },'
+        )
+      ).toBeTruthy()
+      // Test ATTRIBUTE_LARGEST
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '#define ATTRIBUTE_LARGEST (65)'
+        )
+      ).toBeTruthy()
+      // Test ATTRIBUTE_SINGLETONS_SIZE
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '#define ATTRIBUTE_SINGLETONS_SIZE (191)'
+        )
+      ).toBeTruthy()
+      // Test ATTRIBUTE_MAX_SIZE
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '#define ATTRIBUTE_MAX_SIZE (546)'
+        )
+      ).toBeTruthy()
+      // Test FIXED_ENDPOINT_COUNT
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '#define FIXED_ENDPOINT_COUNT (2)'
+        )
+      ).toBeTruthy()
+      // Test EMBER_AF_GENERATED_COMMAND_COUNT
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '#define EMBER_AF_GENERATED_COMMAND_COUNT  (88)'
+        )
+      ).toBeTruthy()
+      // Test GENERATED_COMMANDS
+      expect(
+        genResult.content['zap-config-version-2.h'].includes(
+          '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 28, Cluster: Groups, Command: ViewGroupResponse*/'
+        )
+      ).toBeTruthy()
     })
 }, 10000)
 

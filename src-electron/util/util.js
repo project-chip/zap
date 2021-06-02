@@ -196,18 +196,23 @@ function matchFeatureLevel(featureLevel) {
  * @returns promise that resolves into a text report for the session.
  */
 async function sessionReport(db, sessionId) {
-  return queryConfig.getAllEndpointTypes(db, sessionId).then((epts) => {
+  return queryConfig.selectAllEndpointTypes(db, sessionId).then((epts) => {
     let ps = []
     epts.forEach((ept) => {
       ps.push(
-        queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
+        queryEndpoint.selectEndpointClusters(db, ept.id).then((clusters) => {
           let s = `Endpoint: ${ept.name} \n`
           let ps2 = []
           for (let c of clusters) {
             let rpt = `  - ${c.hexCode}: cluster: ${c.name} (${c.side})\n`
             ps2.push(
               queryEndpoint
-                .queryEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
+                .selectEndpointClusterAttributes(
+                  db,
+                  c.clusterId,
+                  c.side,
+                  ept.id
+                )
                 .then((attrs) => {
                   for (let at of attrs) {
                     rpt = rpt.concat(
@@ -216,7 +221,7 @@ async function sessionReport(db, sessionId) {
                   }
                 })
                 .then(() =>
-                  queryEndpoint.queryEndpointClusterCommands(
+                  queryEndpoint.selectEndpointClusterCommands(
                     db,
                     c.clusterId,
                     ept.id
@@ -258,10 +263,10 @@ async function sessionDump(db, sessionId) {
     usedPackages: [],
     packageReport: '',
   }
-  let endpoints = await queryConfig.getAllEndpoints(db, sessionId)
+  let endpoints = await queryConfig.selectAllEndpoints(db, sessionId)
   dump.endpoints = endpoints
 
-  let epts = await queryConfig.getAllEndpointTypes(db, sessionId)
+  let epts = await queryConfig.selectAllEndpointTypes(db, sessionId)
   let ps = []
 
   epts.forEach((ept) => {
@@ -270,21 +275,21 @@ async function sessionDump(db, sessionId) {
     ept.commands = []
     dump.endpointTypes.push(ept)
     ps.push(
-      queryEndpoint.queryEndpointClusters(db, ept.id).then((clusters) => {
+      queryEndpoint.selectEndpointClusters(db, ept.id).then((clusters) => {
         let ps2 = []
         for (let c of clusters) {
           ept.clusters.push(c)
           dump.clusters.push(c)
           ps2.push(
             queryEndpoint
-              .queryEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
+              .selectEndpointClusterAttributes(db, c.clusterId, c.side, ept.id)
               .then((attrs) => {
                 c.attributes = attrs
                 ept.attributes.push(...attrs)
                 dump.attributes.push(...attrs)
               })
               .then(() =>
-                queryEndpoint.queryEndpointClusterCommands(
+                queryEndpoint.selectEndpointClusterCommands(
                   db,
                   c.clusterId,
                   ept.id

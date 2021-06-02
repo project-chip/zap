@@ -164,68 +164,65 @@ async function exportDataIntoFile(
  * @returns state object that needs to be saved into a file.
  */
 async function createStateFromDatabase(db, sessionId) {
-  return new Promise((resolve, reject) => {
-    let state = {
-      featureLevel: env.zapVersion().featureLevel,
-      creator: 'zap',
-    }
-    let promises = []
-    let excludedKeys = [dbEnum.sessionKey.filePath]
+  let state = {
+    featureLevel: env.zapVersion().featureLevel,
+    creator: 'zap',
+  }
+  let promises = []
+  let excludedKeys = [dbEnum.sessionKey.filePath]
 
-    env.logInfo(`Exporting data for session: ${sessionId}`)
-    // Deal with the key/value table
-    let getKeyValues = querySession
-      .getAllSessionKeyValues(db, sessionId)
-      .then((data) => {
-        env.logDebug(`Retrieved session keys: ${data.length}`)
-        let zapFilePath = null
-        let storedKeyValuePairs = data.filter(
-          (datum) => !excludedKeys.includes(datum.key)
-        )
-        let x = data.filter((datum) => datum.key == dbEnum.sessionKey.filePath)
-        if (x.length > 0) zapFilePath = x[0].value
-        return {
-          key: 'keyValuePairs',
-          data: storedKeyValuePairs,
-          zapFilePath: zapFilePath,
+  env.logInfo(`Exporting data for session: ${sessionId}`)
+  // Deal with the key/value table
+  let getKeyValuesPromise = querySession
+    .getAllSessionKeyValues(db, sessionId)
+    .then((data) => {
+      env.logDebug(`Retrieved session keys: ${data.length}`)
+      let zapFilePath = null
+      let storedKeyValuePairs = data.filter(
+        (datum) => !excludedKeys.includes(datum.key)
+      )
+      let x = data.filter((datum) => datum.key == dbEnum.sessionKey.filePath)
+      if (x.length > 0) zapFilePath = x[0].value
+      return {
+        key: 'keyValuePairs',
+        data: storedKeyValuePairs,
+        zapFilePath: zapFilePath,
+      }
+    })
+    .then((data) => {
+      return exportSessionPackages(db, sessionId, data.zapFilePath).then(
+        (d) => {
+          return [data, { key: 'package', data: d }]
         }
-      })
-      .then((data) => {
-        return exportSessionPackages(db, sessionId, data.zapFilePath).then(
-          (d) => {
-            return [data, { key: 'package', data: d }]
-          }
-        )
-      })
-    promises.push(getKeyValues)
-
-    let getAllEndpointTypes = exportEndpointTypes(db, sessionId)
-    let parseEndpointTypes = getAllEndpointTypes.then((data) => {
-      env.logDebug(`Retrieved endpoint types: ${data.endpointTypes.length}`)
-      return { key: 'endpointTypes', data: data.endpointTypes }
+      )
     })
-    let parseEndpoints = getAllEndpointTypes.then((data) => {
-      env.logDebug(`Retrieved endpoints: ${data.endpoints.length}`)
-      return { key: 'endpoints', data: data.endpoints }
-    })
+  promises.push(getKeyValuesPromise)
 
-    let appendLog = querySession.readLog(db, sessionId).then((log) => {
-      return { key: 'log', data: log }
-    })
+  let allEndpointTypes = await exportEndpointTypes(db, sessionId)
 
-    promises.push(parseEndpointTypes)
-    promises.push(parseEndpoints)
-    promises.push(appendLog)
-
-    return Promise.all(promises)
-      .then((data) => {
-        data.flat().forEach((keyDataPair) => {
-          state[keyDataPair.key] = keyDataPair.data
-        })
-        resolve(state)
-      })
-      .catch((err) => reject(err))
+  let parseEndpointTypes = Promise.resolve({
+    key: 'endpointTypes',
+    data: allEndpointTypes.endpointTypes,
   })
+
+  let parseEndpoints = Promise.resolve({
+    key: 'endpoints',
+    data: allEndpointTypes.endpoints,
+  })
+
+  let appendLogPromise = querySession.readLog(db, sessionId).then((log) => {
+    return { key: 'log', data: log }
+  })
+
+  promises.push(parseEndpointTypes)
+  promises.push(parseEndpoints)
+  promises.push(appendLogPromise)
+
+  let data = await Promise.all(promises)
+  data.flat().forEach((keyDataPair) => {
+    state[keyDataPair.key] = keyDataPair.data
+  })
+  return state
 }
 // exports
 exports.exportDataIntoFile = exportDataIntoFile

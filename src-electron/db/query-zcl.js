@@ -883,7 +883,18 @@ async function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
-      `SELECT ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE, ENABLED FROM ENDPOINT_TYPE_CLUSTER WHERE ENDPOINT_TYPE_REF = ? ORDER BY CLUSTER_REF`,
+      `
+SELECT
+  ENDPOINT_TYPE_REF,
+  CLUSTER_REF,
+  SIDE,
+  ENABLED
+FROM
+  ENDPOINT_TYPE_CLUSTER
+WHERE
+  ENDPOINT_TYPE_REF = ?
+ORDER BY
+  CLUSTER_REF`,
       [endpointTypeId]
     )
     .then((rows) => rows.map(dbMapping.map.endpointTypeCluster))
@@ -1269,17 +1280,17 @@ async function selectAllAtomics(db, packageId) {
  * @param {*} packageId
  * @param {*} type
  */
-async function getAtomicSizeFromType(db, packageId, type) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
-      [packageId, type]
-    )
-    .then((row) => {
-      if (row == null) return null
-      else return row.ATOMIC_SIZE
-    })
+async function selectAtomicSizeFromType(db, packageId, type) {
+  let row = await dbApi.dbGet(
+    db,
+    'SELECT ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
+    [packageId, type]
+  )
+  if (row == null) {
+    return null
+  } else {
+    return row.ATOMIC_SIZE
+  }
 }
 
 /**
@@ -1477,109 +1488,18 @@ async function exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAn
   )
 }
 
-function attributeExportMapping(x) {
+function commandMapFunction(x) {
   return {
-    id: x.ATTRIBUTE_ID,
+    id: x.COMMAND_ID,
     name: x.NAME,
     code: x.CODE,
-    side: x.SIDE,
-    type: x.TYPE,
-    define: x.DEFINE,
+    commandSource: x.SOURCE,
     mfgCode: x.MANUFACTURER_CODE,
+    description: x.DESCRIPTION,
     clusterSide: x.SIDE,
     clusterName: x.CLUSTER_NAME,
     isClusterEnabled: x.ENABLED,
   }
-}
-
-/**
- * Returns a promise of data for manufacturing/non-manufacturing specific attributes
- * inside an endpoint type.
- *
- * @param db
- * @param endpointTypeId
- * @returns Promise that resolves with the manufacturing/non-manufacturing
- * specific attribute data.
- */
-async function exportAttributeDetailsFromAllEndpointTypesAndClustersUtil(
-  db,
-  endpointsAndClusters,
-  isManufacturingSpecific
-) {
-  let endpointTypeIds = endpointsAndClusters
-    .map((ep) => ep.endpointId)
-    .toString()
-  let endpointClusterIds = endpointsAndClusters
-    .map((ep) => ep.endpointClusterId)
-    .toString()
-  return dbApi
-    .dbAll(
-      db,
-      `
-  SELECT
-    ATTRIBUTE.ATTRIBUTE_ID,
-    ATTRIBUTE.NAME,
-    ATTRIBUTE.CODE,
-    ATTRIBUTE.SIDE,
-    ATTRIBUTE.TYPE,
-    ATTRIBUTE.DEFINE,
-    ATTRIBUTE.MANUFACTURER_CODE,
-    ENDPOINT_TYPE_CLUSTER.SIDE,
-    CLUSTER.NAME AS CLUSTER_NAME,
-    ENDPOINT_TYPE_CLUSTER.ENABLED
-  FROM ATTRIBUTE
-  INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
-  ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
-  INNER JOIN ENDPOINT_TYPE_CLUSTER
-  ON ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
-  INNER JOIN CLUSTER
-  ON ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
-  WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
-  AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
-  AND ATTRIBUTE.MANUFACTURER_CODE IS` +
-        (isManufacturingSpecific ? ` NOT ` : ` `) +
-        `NULL
-  AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
-  GROUP BY ATTIRBUTE.NAME
-        `
-    )
-    .then((rows) => rows.map(attributeExportMapping))
-}
-
-/**
- * Returns a promise of data for manufacturing specific attributes inside an endpoint type.
- *
- * @param db
- * @param endpointTypeId
- * @returns Promise that resolves with the manufacturing specific attribute data.
- */
-async function exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
-  db,
-  endpointsAndClusters
-) {
-  return exportAttributeDetailsFromAllEndpointTypesAndClustersUtil(
-    db,
-    endpointsAndClusters,
-    true
-  )
-}
-
-/**
- * Returns a promise of data for attributes with no manufacturing specific information inside an endpoint type.
- *
- * @param db
- * @param endpointTypeId
- * @returns Promise that resolves with the non-manufacturing specific attribute data.
- */
-async function exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
-  db,
-  endpointsAndClusters
-) {
-  return exportAttributeDetailsFromAllEndpointTypesAndClustersUtil(
-    db,
-    endpointsAndClusters,
-    false
-  )
 }
 
 /**
@@ -1596,19 +1516,6 @@ async function exportAllCommandDetailsFromEnabledClusters(
   let endpointTypeClusterRef = endpointsAndClusters
     .map((ep) => ep.endpointTypeClusterRef)
     .toString()
-  let mapFunction = (x) => {
-    return {
-      id: x.COMMAND_ID,
-      name: x.NAME,
-      code: x.CODE,
-      commandSource: x.SOURCE,
-      mfgCode: x.MANUFACTURER_CODE,
-      description: x.DESCRIPTION,
-      clusterSide: x.SIDE,
-      clusterName: x.CLUSTER_NAME,
-      isClusterEnabled: x.ENABLED,
-    }
-  }
   return dbApi
     .dbAll(
       db,
@@ -1632,51 +1539,7 @@ async function exportAllCommandDetailsFromEnabledClusters(
   GROUP BY COMMAND.NAME
         `
     )
-    .then((rows) => rows.map(mapFunction))
-}
-
-/**
- * Returns a promise of data for attributes inside an endpoint type.
- *
- * @param {*} db
- * @param {*} endpointTypeId
- * @returns Promise that resolves with the attribute data.
- */
-async function exportAllAttributeDetailsFromEnabledClusters(
-  db,
-  endpointsAndClusters
-) {
-  let endpointTypeClusterRef = endpointsAndClusters
-    .map((ep) => ep.endpointTypeClusterRef)
-    .toString()
-  return dbApi
-    .dbAll(
-      db,
-      `
-  SELECT
-    ATTRIBUTE.ATTRIBUTE_ID,
-    ATTRIBUTE.NAME,
-    ATTRIBUTE.CODE,
-    ATTRIBUTE.SIDE,
-    ATTRIBUTE.TYPE,
-    ATTRIBUTE.DEFINE,
-    ATTRIBUTE.MANUFACTURER_CODE,
-    ENDPOINT_TYPE_CLUSTER.SIDE,
-    CLUSTER.NAME AS CLUSTER_NAME,
-    ENDPOINT_TYPE_CLUSTER.ENABLED
-  FROM ATTRIBUTE
-  INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
-  ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
-  INNER JOIN CLUSTER
-  ON ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
-  INNER JOIN ENDPOINT_TYPE_CLUSTER
-  ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
-  AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
-  GROUP BY ATTRIBUTE.NAME
-        `
-    )
-    .then((rows) => rows.map(attributeExportMapping))
+    .then((rows) => rows.map(commandMapFunction))
 }
 
 /**
@@ -1692,19 +1555,6 @@ async function exportAllCliCommandDetailsFromEnabledClusters(
   let endpointTypeClusterRef = endpointsAndClusters
     .map((ep) => ep.endpointTypeClusterRef)
     .toString()
-  let mapFunction = (x) => {
-    return {
-      id: x.COMMAND_ID,
-      name: x.NAME,
-      code: x.CODE,
-      commandSource: x.SOURCE,
-      mfgCode: x.MANUFACTURER_CODE,
-      description: x.DESCRIPTION,
-      clusterSide: x.SIDE,
-      clusterName: x.CLUSTER_NAME,
-      isClusterEnabled: x.ENABLED,
-    }
-  }
   return dbApi
     .dbAll(
       db,
@@ -1730,7 +1580,7 @@ async function exportAllCliCommandDetailsFromEnabledClusters(
   GROUP BY COMMAND.NAME, CLUSTER.NAME
         `
     )
-    .then((rows) => rows.map(mapFunction))
+    .then((rows) => rows.map(commandMapFunction))
 }
 
 /**
@@ -1775,7 +1625,8 @@ SELECT
   INTRODUCED_IN_REF,
   REMOVED_IN_REF,
   COUNT_ARG
-FROM COMMAND_ARG WHERE COMMAND_REF = ?
+FROM COMMAND_ARG
+WHERE COMMAND_REF = ?
 ORDER BY ORDINAL`,
       [commandId]
     )
@@ -1813,7 +1664,7 @@ async function determineType(db, type, packageId) {
  * @param {*} endpointTypeId
  * @returns Promise that resolves with the data that should go into the external form.
  */
-async function exportAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
+async function selectAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mapFunction = (x) => {
     return {
@@ -1934,12 +1785,17 @@ SELECT
   ENDPOINT_TYPE_CLUSTER.SIDE,
   ENDPOINT_TYPE_CLUSTER.ENABLED,
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
-FROM CLUSTER
-INNER JOIN ENDPOINT_TYPE_CLUSTER
-ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
-AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
-GROUP BY NAME`
+FROM
+  CLUSTER
+INNER JOIN
+  ENDPOINT_TYPE_CLUSTER
+ON
+  CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+WHERE
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+  AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
+GROUP BY
+  NAME`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -1991,37 +1847,239 @@ async function exportCommandDetailsFromAllEndpointTypeCluster(
 }
 
 /**
- *
+ * All cluster details along with their attribute details per endpoint.
  * @param db
- * @param endpointClusterId
- * Returns: A promise with all commands with cli for a given cluster id
+ * @param endpointsAndClusters
+ * @returns cluster details along with their attribute details per endpoint.
  */
-async function exportCliCommandsFromCluster(db, endpointClusterId) {
+async function exportClusterDetailsFromEnabledClusters(
+  db,
+  endpointsAndClusters
+) {
+  let endpointClusterIds = endpointsAndClusters
+    .map((ep) => ep.endpointClusterId)
+    .toString()
   let mapFunction = (x) => {
     return {
+      id: x.ATTRIBUTE_ID,
       name: x.NAME,
       code: x.CODE,
+      side: x.SIDE,
+      type: x.TYPE,
+      define: x.DEFINE,
       mfgCode: x.MANUFACTURER_CODE,
-      source: x.SOURCE,
+      isWritable: x.IS_WRITABLE,
+      clusterSide: x.CLUSTER_SIDE,
+      clusterName: x.CLUSTER_NAME,
+      clusterCode: x.CLUSTER_CODE,
+      isClusterEnabled: x.ENABLED,
+      isAttributeBounded: x.BOUNDED,
+      storageOption: x.STORAGE_OPTION,
+      isSingleton: x.SINGLETON,
+      attributeMinValue: x.MIN,
+      attributeMaxValue: x.MAX,
+      defaultValue: x.DEFAULT_VALUE,
+      attributeSize: x.ATOMIC_SIZE,
+      clusterIndex: x.CLUSTER_INDEX,
+      endpointIndex: x.ENDPOINT_INDEX,
+      rowNumber: x.ROW_INDEX,
+      attributeCount: x.ATTRIBUTE_COUNT,
+      clusterCount: x.CLUSTER_COUNT,
+      attributesSize: x.ATTRIBUTES_SIZE,
+      endpointTypeId: x.ENDPOINT_TYPE_ID,
+      endpointIdentifier: x.ENDPOINT_IDENTIFIER,
+      mfgClusterCount: x.MANUFACTURING_SPECIFIC_CLUSTER_COUNT,
     }
   }
   return dbApi
     .dbAll(
       db,
       `
+  SELECT *, COUNT(MANUFACTURER_CODE) OVER () AS MANUFACTURING_SPECIFIC_CLUSTER_COUNT FROM (
   SELECT
-    COMMAND.NAME,
-    COMMAND.CODE,
-    COMMAND.MANUFACTURER_CODE,
-    COMMAND.SOURCE
-    FROM COMMAND
-    INNER JOIN CLUSTER
-    ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
-    INNER JOIN PACKAGE_OPTION
-    ON PACKAGE_OPTION.OPTION_CODE = COMMAND.NAME
-    WHERE CLUSTER.CLUSTER_ID = ?
-        `,
-      [endpointClusterId]
+    ATTRIBUTE.ATTRIBUTE_ID AS ATTRIBUTE_ID,
+    ATTRIBUTE.NAME AS NAME,
+    ATTRIBUTE.CODE AS CODE,
+    ATTRIBUTE.SIDE AS SIDE,
+    ATTRIBUTE.TYPE AS TYPE,
+    ATTRIBUTE.DEFINE AS DEFINE,
+    CLUSTER.MANUFACTURER_CODE AS MANUFACTURER_CODE,
+    ATTRIBUTE.IS_WRITABLE AS IS_WRITABLE,
+    ENDPOINT_TYPE_CLUSTER.SIDE AS CLUSTER_SIDE,
+    CLUSTER.NAME AS CLUSTER_NAME,
+    CLUSTER.CODE AS CLUSTER_CODE,
+    ENDPOINT_TYPE_CLUSTER.ENABLED AS ENABLED,
+    ENDPOINT_TYPE_ATTRIBUTE.BOUNDED AS BOUNDED,
+    ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION AS STORAGE_OPTION,
+    ENDPOINT_TYPE_ATTRIBUTE.SINGLETON AS SINGLETON,
+    ATTRIBUTE.MIN AS MIN,
+    ATTRIBUTE.MAX AS MAX,
+    ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE AS DEFAULT_VALUE,
+    CASE
+      WHEN ATOMIC.IS_STRING=1 THEN 
+        CASE WHEN ATOMIC.IS_LONG=0 THEN ATTRIBUTE.MAX_LENGTH+1
+             WHEN ATOMIC.IS_LONG=1 THEN ATTRIBUTE.MAX_LENGTH+2
+             ELSE ATOMIC.ATOMIC_SIZE
+             END
+        ELSE ATOMIC.ATOMIC_SIZE
+    END AS ATOMIC_SIZE,
+    ROW_NUMBER() OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE) CLUSTER_INDEX,
+    ROW_NUMBER() OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER) ENDPOINT_INDEX,
+    ROW_NUMBER() OVER () ROW_INDEX,
+    COUNT(ATTRIBUTE.CODE) OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE) ATTRIBUTE_COUNT,
+    COUNT(CLUSTER.CODE) OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME) CLUSTER_COUNT,
+    SUM(CASE WHEN ATOMIC.IS_STRING=1 THEN 
+      CASE WHEN ATOMIC.IS_LONG=0 THEN ATTRIBUTE.MAX_LENGTH+1
+          WHEN ATOMIC.IS_LONG=1 THEN ATTRIBUTE.MAX_LENGTH+2
+          ELSE ATOMIC.ATOMIC_SIZE
+      END
+    ELSE ATOMIC.ATOMIC_SIZE
+    END) OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE) ATTRIBUTES_SIZE,
+    ENDPOINT_TYPE.ENDPOINT_TYPE_ID AS ENDPOINT_TYPE_ID,
+    ENDPOINT.ENDPOINT_IDENTIFIER AS ENDPOINT_IDENTIFIER
+  FROM ATTRIBUTE
+  INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
+  ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+  INNER JOIN ENDPOINT_TYPE_CLUSTER
+  ON ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  INNER JOIN CLUSTER
+  ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  INNER JOIN ATOMIC
+  ON ATOMIC.NAME = ATTRIBUTE.TYPE
+  INNER JOIN ENDPOINT_TYPE
+  ON ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+  INNER JOIN ENDPOINT
+  ON
+  ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+  WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF IN (${endpointClusterIds}) AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+  AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_CLUSTER.SIDE=ATTRIBUTE.SIDE
+  GROUP BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE, ATTRIBUTE.NAME ) WHERE CLUSTER_INDEX=1 ORDER BY ENDPOINT_IDENTIFIER, CLUSTER_NAME, CLUSTER_SIDE
+        `
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * Endpoint type details along with their cluster and attribute details
+ * @param db
+ * @param endpointsAndClusters
+ * @returns Endpoint type details
+ */
+async function selectEndpointDetailsFromAddedEndpoints(
+  db,
+  endpointsAndClusters
+) {
+  let endpointClusterIds = endpointsAndClusters
+    .map((ep) => ep.endpointClusterId)
+    .toString()
+  let mapFunction = (x) => {
+    return {
+      id: x.ATTRIBUTE_ID,
+      name: x.NAME,
+      code: x.CODE,
+      side: x.SIDE,
+      type: x.TYPE,
+      define: x.DEFINE,
+      mfgCode: x.MANUFACTURER_CODE,
+      isWritable: x.IS_WRITABLE,
+      clusterSide: x.CLUSTER_SIDE,
+      clusterName: x.CLUSTER_NAME,
+      clusterCode: x.CLUSTER_CODE,
+      isClusterEnabled: x.ENABLED,
+      isAttributeBounded: x.BOUNDED,
+      storageOption: x.STORAGE_OPTION,
+      isSingleton: x.SINGLETON,
+      attributeMinValue: x.MIN,
+      attributeMaxValue: x.MAX,
+      defaultValue: x.DEFAULT_VALUE,
+      attributeSize: x.ATOMIC_SIZE,
+      clusterIndex: x.CLUSTER_INDEX,
+      endpointIndex: x.ENDPOINT_INDEX,
+      rowNumber: x.ROW_INDEX,
+      clusterCount: x.CLUSTER_COUNT,
+      attributesSize: x.ATTRIBUTES_SIZE,
+      endpointTypeId: x.ENDPOINT_TYPE_ID,
+      endpointIdentifier: x.ENDPOINT_IDENTIFIER,
+      totalAttributeSizeAcrossEndpoints: x.ALL_ATTRIBUTES_SIZE_ACROSS_ENDPOINTS,
+      profileId: x.PROFILE_ID,
+      deviceId: x.DEVICE_ID,
+      deviceVersion: x.DEVICE_VERSION,
+      networkId: x.NETWORK_ID,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT * FROM (
+  SELECT
+    ATTRIBUTE.ATTRIBUTE_ID AS ATTRIBUTE_ID,
+    ATTRIBUTE.NAME AS NAME,
+    ATTRIBUTE.CODE AS CODE,
+    ATTRIBUTE.SIDE AS SIDE,
+    ATTRIBUTE.TYPE AS TYPE,
+    ATTRIBUTE.DEFINE AS DEFINE,
+    ATTRIBUTE.MANUFACTURER_CODE AS MANUFACTURER_CODE,
+    ATTRIBUTE.IS_WRITABLE AS IS_WRITABLE,
+    ENDPOINT_TYPE_CLUSTER.SIDE AS CLUSTER_SIDE,
+    CLUSTER.NAME AS CLUSTER_NAME,
+    CLUSTER.CODE AS CLUSTER_CODE,
+    ENDPOINT_TYPE_CLUSTER.ENABLED AS ENABLED,
+    ENDPOINT_TYPE_ATTRIBUTE.BOUNDED AS BOUNDED,
+    ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION AS STORAGE_OPTION,
+    ENDPOINT_TYPE_ATTRIBUTE.SINGLETON AS SINGLETON,
+    ATTRIBUTE.MIN AS MIN,
+    ATTRIBUTE.MAX AS MAX,
+    ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE AS DEFAULT_VALUE,
+    CASE
+      WHEN ATOMIC.IS_STRING=1 THEN 
+        CASE WHEN ATOMIC.IS_LONG=0 THEN ATTRIBUTE.MAX_LENGTH+1
+             WHEN ATOMIC.IS_LONG=1 THEN ATTRIBUTE.MAX_LENGTH+2
+             ELSE ATOMIC.ATOMIC_SIZE
+             END
+        ELSE ATOMIC.ATOMIC_SIZE
+    END AS ATOMIC_SIZE,
+    ROW_NUMBER() OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE) CLUSTER_INDEX,
+    ROW_NUMBER() OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER) ENDPOINT_INDEX,
+    ROW_NUMBER() OVER () ROW_INDEX,
+    (DENSE_RANK() over (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER ORDER BY CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE) + DENSE_RANK() OVER (PARTITION BY ENDPOINT_TYPE.ENDPOINT_TYPE_ID ORDER BY CLUSTER.NAME DESC, ENDPOINT_TYPE_CLUSTER.SIDE DESC) - 1) AS CLUSTER_COUNT,
+    SUM(CASE WHEN ATOMIC.IS_STRING=1 THEN 
+      CASE WHEN ATOMIC.IS_LONG=0 THEN ATTRIBUTE.MAX_LENGTH+1
+          WHEN ATOMIC.IS_LONG=1 THEN ATTRIBUTE.MAX_LENGTH+2
+          ELSE ATOMIC.ATOMIC_SIZE
+      END
+    ELSE ATOMIC.ATOMIC_SIZE
+    END) OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER) ATTRIBUTES_SIZE,
+    ENDPOINT_TYPE.ENDPOINT_TYPE_ID AS ENDPOINT_TYPE_ID,
+    ENDPOINT.ENDPOINT_IDENTIFIER AS ENDPOINT_IDENTIFIER,
+    SUM(CASE WHEN ATOMIC.IS_STRING=1 THEN 
+          CASE WHEN ATOMIC.IS_LONG=0 THEN ATTRIBUTE.MAX_LENGTH+1
+              WHEN ATOMIC.IS_LONG=1 THEN ATTRIBUTE.MAX_LENGTH+2
+              ELSE ATOMIC.ATOMIC_SIZE
+          END
+        ELSE ATOMIC.ATOMIC_SIZE
+        END) OVER () ALL_ATTRIBUTES_SIZE_ACROSS_ENDPOINTS,
+    ENDPOINT.PROFILE AS PROFILE_ID,
+    ENDPOINT.DEVICE_IDENTIFIER AS DEVICE_ID,
+    ENDPOINT.DEVICE_VERSION AS DEVICE_VERSION,
+    ENDPOINT.NETWORK_IDENTIFIER AS NETWORK_ID
+  FROM ATTRIBUTE
+  INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
+  ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+  INNER JOIN ENDPOINT_TYPE_CLUSTER
+  ON ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  INNER JOIN CLUSTER
+  ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  INNER JOIN ATOMIC
+  ON ATOMIC.NAME = ATTRIBUTE.TYPE
+  INNER JOIN ENDPOINT_TYPE
+  ON ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+  INNER JOIN ENDPOINT
+  ON ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT.ENDPOINT_TYPE_REF
+  WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF IN (${endpointClusterIds}) AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+  AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_CLUSTER.SIDE=ATTRIBUTE.SIDE
+  GROUP BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE, ATTRIBUTE.NAME) WHERE ENDPOINT_INDEX=1 ORDER BY ENDPOINT_IDENTIFIER
+        `
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -2073,28 +2131,27 @@ exports.selectDeviceTypeCommandsByDeviceTypeRef = selectDeviceTypeCommandsByDevi
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 exports.selectEndpointType = selectEndpointType
 exports.selectAllAtomics = selectAllAtomics
-exports.getAtomicSizeFromType = getAtomicSizeFromType
+exports.selectAtomicSizeFromType = selectAtomicSizeFromType
 exports.selectAtomicType = selectAtomicType
 exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById
 exports.selectBitmapByName = selectBitmapByName
-exports.exportClustersAndEndpointDetailsFromEndpointTypes = exportClustersAndEndpointDetailsFromEndpointTypes
-exports.exportCommandDetailsFromAllEndpointTypesAndClusters = exportCommandDetailsFromAllEndpointTypesAndClusters
 exports.selectCommandArgumentsCountByCommandId = selectCommandArgumentsCountByCommandId
 exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
-exports.exportAllClustersDetailsFromEndpointTypes = exportAllClustersDetailsFromEndpointTypes
-exports.exportAllClustersNamesFromEndpointTypes = exportAllClustersNamesFromEndpointTypes
-exports.exportCommandDetailsFromAllEndpointTypeCluster = exportCommandDetailsFromAllEndpointTypeCluster
 exports.selectEnumByName = selectEnumByName
 exports.selectStructByName = selectStructByName
 exports.determineType = determineType
 exports.selectCommandTree = selectCommandTree
+exports.selectAttributeByCode = selectAttributeByCode
+exports.selectEndpointDetailsFromAddedEndpoints = selectEndpointDetailsFromAddedEndpoints
+exports.selectAllClustersDetailsFromEndpointTypes = selectAllClustersDetailsFromEndpointTypes
+
+exports.exportAllClustersNamesFromEndpointTypes = exportAllClustersNamesFromEndpointTypes
+exports.exportCommandDetailsFromAllEndpointTypeCluster = exportCommandDetailsFromAllEndpointTypeCluster
+exports.exportClustersAndEndpointDetailsFromEndpointTypes = exportClustersAndEndpointDetailsFromEndpointTypes
+exports.exportCommandDetailsFromAllEndpointTypesAndClusters = exportCommandDetailsFromAllEndpointTypesAndClusters
 exports.exportAllCommandDetailsFromEnabledClusters = exportAllCommandDetailsFromEnabledClusters
 exports.exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes = exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes
 exports.exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
 exports.exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
 exports.exportAllCliCommandDetailsFromEnabledClusters = exportAllCliCommandDetailsFromEnabledClusters
-exports.exportCliCommandsFromCluster = exportCliCommandsFromCluster
-exports.exportAllAttributeDetailsFromEnabledClusters = exportAllAttributeDetailsFromEnabledClusters
-exports.exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
-exports.exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
-exports.selectAttributeByCode = selectAttributeByCode
+exports.exportClusterDetailsFromEnabledClusters = exportClusterDetailsFromEnabledClusters

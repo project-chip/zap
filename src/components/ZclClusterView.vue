@@ -38,12 +38,25 @@ limitations under the License.
       </strong>
     </h5>
     <div class="row q-py-none">
-      <div class="col">
+      <div>
         Cluster ID: {{ asHex(selectedCluster.code, 4) }}, Enabled for
         <strong> {{ enabledMessage }} </strong>
       </div>
+      <q-space />
+      <q-input
+        dense
+        outlined
+        clearable
+        :placeholder="placeHolderText"
+        @input="setIndividualClusterFilterString($event)"
+        @clear="setIndividualClusterFilterString('')"
+        :value="individualClusterFilterString"
+      >
+        <template v-slot:prepend>
+          <q-icon name="search" />
+        </template>
+      </q-input>
     </div>
-
     <div class="q-pb-sm">
       <q-tabs v-model="tab" dense active-color="blue" align="left">
         <q-tab name="attributes" label="Attributes" />
@@ -70,11 +83,11 @@ limitations under the License.
 import ZclAttributeManager from './ZclAttributeManager.vue'
 import ZclAttributeReportingManager from './ZclAttributeReportingManager.vue'
 import ZclCommandManager from './ZclCommandManager.vue'
-import CommonMixin from '../util/common-mixin'
+import EditableAttributesMixin from '../util/editable-attributes-mixin'
 
 export default {
   name: 'ZclClusterView',
-  mixins: [CommonMixin],
+  mixins: [EditableAttributesMixin],
   computed: {
     enabledMessage: {
       get() {
@@ -89,6 +102,22 @@ export default {
           return ' Client'
         return ' none'
       },
+    },
+    placeHolderText: {
+      get() {
+        return 'Search ' + this.tab
+      },
+    },
+    individualClusterFilterString: {
+      get() {
+        return this.$store.state.zap.clusterManager
+          .individualClusterFilterString
+      },
+    },
+  },
+  methods: {
+    setIndividualClusterFilterString(filterString) {
+      this.$store.dispatch('zap/setIndividualClusterFilterString', filterString)
     },
   },
   data() {

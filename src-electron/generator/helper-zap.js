@@ -333,6 +333,25 @@ function concatenate() {
   return Array.prototype.slice.call(arguments, 0, -1).join(' ')
 }
 
+/**
+ *
+ * @param numA
+ * @param numB
+ * @returns true if both numbers are equal else returns false
+ */
+function is_num_equal(numA, numB) {
+  return numA == numB
+}
+
+/**
+ *
+ * @param value
+ * @returns true or false based on whether the value is undefined or not
+ */
+function is_defined(value) {
+  return !(value == null || value == undefined || value == '')
+}
+
 const dep = templateUtil.deprecatedHelper
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -341,7 +360,8 @@ const dep = templateUtil.deprecatedHelper
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
 exports.zap_header = zap_header
-exports.ident = ident
+exports.indent = ident
+exports.ident = dep(ident, { to: 'indent' })
 exports.template_options = template_options
 exports.last = last
 exports.not_last = not_last
@@ -367,3 +387,5 @@ exports.concatenate = concatenate
 exports.is_lowercase_equal = is_lowercase_equal
 exports.new_line = new_line
 exports.backslash = backslash
+exports.is_num_equal = is_num_equal
+exports.is_defined = is_defined

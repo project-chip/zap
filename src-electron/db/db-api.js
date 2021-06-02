@@ -397,27 +397,26 @@ async function insertOrReplaceSetting(db, category, key, value) {
 }
 
 async function determineIfSchemaShouldLoad(db, context) {
-  return dbGet(
-    db,
-    'SELECT CRC FROM PACKAGE WHERE PATH = ?',
-    [context.filePath],
-    false
-  )
-    .then((row) => {
-      if (row == null) {
-        context.mustLoad = true
-      } else {
-        context.mustLoad = row.CRC != context.crc
-      }
-      context.hasSchema = true
-      return context
-    })
-    .catch((err) => {
-      // Fall through, do nothing
+  try {
+    let row = await dbGet(
+      db,
+      'SELECT CRC FROM PACKAGE WHERE PATH = ?',
+      [context.filePath],
+      false
+    )
+    if (row == null) {
       context.mustLoad = true
-      context.hasSchema = false
-      return context
-    })
+    } else {
+      context.mustLoad = row.CRC != context.crc
+    }
+    context.hasSchema = true
+    return context
+  } catch (err) {
+    // Fall through, do nothing
+    context.mustLoad = true
+    context.hasSchema = false
+    return context
+  }
 }
 
 async function updateCurrentSchemaCrc(db, context) {

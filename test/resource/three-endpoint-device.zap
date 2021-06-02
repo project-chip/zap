@@ -1,5 +1,5 @@
 {
-  "featureLevel": 34,
+  "featureLevel": 36,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -3792,29 +3792,30 @@
     {
       "endpointTypeName": "Endpoint Type A",
       "endpointTypeIndex": 0,
-      "profileId": "0x0107",
+      "profileId": 263,
       "endpointId": 41,
       "networkId": 1,
-      "endpointVersion": null,
+      "endpointVersion": 1,
       "deviceIdentifier": null
     },
     {
       "endpointTypeName": "Endpoint Type C",
       "endpointTypeIndex": 1,
-      "profileId": "0x0104",
+      "profileId": 260,
       "endpointId": 42,
       "networkId": 1,
-      "endpointVersion": null,
+      "endpointVersion": 2,
       "deviceIdentifier": null
     },
     {
       "endpointTypeName": "Endpoint Type B",
       "endpointTypeIndex": 2,
-      "profileId": "0x0104",
+      "profileId": 260,
       "endpointId": 43,
       "networkId": 2,
-      "endpointVersion": null,
+      "endpointVersion": 3,
       "deviceIdentifier": null
     }
-  ]
+  ],
+  "log": []
 }

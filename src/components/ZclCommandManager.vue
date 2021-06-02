@@ -117,15 +117,21 @@ limitations under the License.
 
 <script>
 import * as Util from '../util/util.js'
-import CommonMixin from '../util/common-mixin'
+import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
 
 export default {
   name: 'ZclCommandManager',
-  mixins: [CommonMixin],
+  mixins: [EditableAttributesMixin],
   computed: {
     commandData: {
       get() {
-        return this.$store.state.zap.commands
+        return this.$store.state.zap.commands.filter((command) => {
+          return this.individualClusterFilterString == ''
+            ? true
+            : command.name
+                .toLowerCase()
+                .includes(this.individualClusterFilterString.toLowerCase())
+        })
       },
     },
     selectionIn: {

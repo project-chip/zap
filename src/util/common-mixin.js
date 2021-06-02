@@ -103,6 +103,9 @@ export default {
     hashAttributeIdClusterId(attributeId, clusterId) {
       return Util.cantorPair(attributeId, clusterId)
     },
+    getAttributeById(attributeId) {
+      return this.$store.state.zap.attributes.find((a) => a.id == attributeId)
+    },
     setSelectedEndpointType(endpointReference) {
       this.$store.dispatch('zap/updateSelectedEndpointType', {
         endpointType: this.endpointType[endpointReference],
