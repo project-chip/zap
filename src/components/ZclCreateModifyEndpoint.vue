@@ -101,7 +101,6 @@ limitations under the License.
           :label="endpointReference ? 'Save' : 'Create'"
           color="primary"
           class="col"
-          v-close-popup="saveOrCreateCloseFlag"
           @click="saveOrCreateHandler()"
         />
       </q-card-actions>
@@ -118,6 +117,7 @@ const _ = require('lodash')
 export default {
   name: 'ZclCreateModifyEndpoint',
   props: ['endpointReference'],
+  emits: ['saveOrCreateValidated'],
   mixins: [CommonMixin],
   mounted() {
     if (this.endpointReference != null) {
@@ -231,7 +231,7 @@ export default {
         this.$refs.version.validate() &&
         this.$refs.profile.validate()
       ) {
-        this.saveOrCreateCloseFlag = true
+        this.$emit('saveOrCreateValidated')
         if (this.endpointReference) {
           this.editEpt(this.shownEndpoint, this.endpointReference)
         } else {
