@@ -22,6 +22,7 @@ const about = require('../main-process/about.js')
 const commonUrl = require('../../src-shared/common-url.js')
 const browserApi = require('./browser-api.js')
 const rendApi = require('../../src-shared/rend-api.js')
+
 const newConfiguration = 'New Configuration'
 
 const template = (httpPort) => [

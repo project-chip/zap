@@ -94,7 +94,7 @@ export default {
       return fileName.length > 0 ? fileName[0] : path
     },
     browseForFile() {
-      window.global_renderer_notify(rendApi.notifyKey.fileBrowse, {
+      window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.fileBrowse, {
         context: 'customXml',
         title: 'Select an XML file containing custom ZCL objects',
         mode: 'file',

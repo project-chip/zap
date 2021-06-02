@@ -24,7 +24,6 @@ const tray = require('./tray.js')
 const browserApi = require('./browser-api.js')
 const querystringUtil = require('querystring')
 const httpServer = require('../server/http-server.js')
-const rendApi = require('../../src-shared/rend-api.js')
 
 let windowCounter = 0
 
@@ -101,7 +100,7 @@ function windowCreate(port, args = {}) {
   w.isDirty = false
   w.loadURL(`http://localhost:${port}/` + queryString).then(async () => {
     if (args.filePath != null) {
-      browserApi.execRendererApi(w, rendApi.id.open, args.filePath)
+      browserApi.execFileOpen(w, args.filePath)
     }
   })
 
