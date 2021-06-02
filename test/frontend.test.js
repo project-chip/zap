@@ -18,6 +18,10 @@
  * @jest-environment jsdom
  */
 
+const axios = require('../src/boot/axios.js')
+const ws = require('../src/boot/ws.js')
+const actions = require('../src/store/zap/actions.js')
+const mutations = require('../src/store/zap/mutations.js')
 const rendApi = require('../src-shared/rend-api.js')
 import routes from '../src/router/routes.js'
 import index from '../src/router/index.js'
