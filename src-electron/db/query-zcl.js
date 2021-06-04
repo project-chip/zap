@@ -1039,46 +1039,6 @@ WHERE
     .then(dbMapping.map.deviceTypeCluster)
 }
 
-async function selectDeviceTypeAttributesByDeviceTypeClusterRef(
-  db,
-  deviceTypeClusterRef
-) {
-  return dbApi.dbAll(
-    db,
-    `
-SELECT
-  DEVICE_TYPE_CLUSTER_REF,
-  ATTRIBUTE_REF,
-  ATTRIBUTE_NAME
-FROM
-  DEVICE_TYPE_ATTRIBUTE
-WHERE
-  DEVICE_TYPE_CLUSTER_REF = ?
-ORDER BY ATTRIBUTE_REF`,
-    [deviceTypeClusterRef]
-  )
-}
-
-async function selectDeviceTypeCommandsByDeviceTypeClusterRef(
-  db,
-  deviceTypeClusterRef
-) {
-  return dbApi.dbAll(
-    db,
-    `
-SELECT
-  DEVICE_TYPE_CLUSTER_REF,
-  COMMAND_REF,
-  COMMAND_NAME
-FROM
-  DEVICE_TYPE_COMMAND
-WHERE
-  DEVICE_TYPE_CLUSTER_REF = ?
-ORDER BY COMMAND_REF`,
-    [deviceTypeClusterRef]
-  )
-}
-
 async function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
   return dbApi
     .dbAll(
@@ -2124,8 +2084,6 @@ exports.selectEndpointTypeAttribute = selectEndpointTypeAttribute
 exports.selectEndpointTypeCommandsByEndpointId = selectEndpointTypeCommandsByEndpointId
 exports.selectDeviceTypeClustersByDeviceTypeRef = selectDeviceTypeClustersByDeviceTypeRef
 exports.selectDeviceTypeClusterByDeviceTypeClusterId = selectDeviceTypeClusterByDeviceTypeClusterId
-exports.selectDeviceTypeAttributesByDeviceTypeClusterRef = selectDeviceTypeAttributesByDeviceTypeClusterRef
-exports.selectDeviceTypeCommandsByDeviceTypeClusterRef = selectDeviceTypeCommandsByDeviceTypeClusterRef
 exports.selectDeviceTypeAttributesByDeviceTypeRef = selectDeviceTypeAttributesByDeviceTypeRef
 exports.selectDeviceTypeCommandsByDeviceTypeRef = selectDeviceTypeCommandsByDeviceTypeRef
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
