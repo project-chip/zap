@@ -175,6 +175,19 @@ function template_option_with_code(options, key) {
 }
 
 /**
+ * Forced fail halper.
+ *
+ * @param {*} options
+ */
+function fail(options) {
+  let message = options.hash.message
+  if (message == null) {
+    message = 'Template failure.'
+  }
+  throw new Error(message)
+}
+
+/**
  * This returns a boolean if the 2 strings are same
  *
  * @param {*} string_a
@@ -389,3 +402,4 @@ exports.new_line = new_line
 exports.backslash = backslash
 exports.is_num_equal = is_num_equal
 exports.is_defined = is_defined
+exports.fail = fail

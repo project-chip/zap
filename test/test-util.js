@@ -45,6 +45,7 @@ exports.testChipGenerationTemplates =
   './test/gen-template/chip/gen-templates.json'
 exports.dotdotGenerationTemplates =
   './test/gen-template/dotdot/dotdot-templates.json'
+exports.testTemplates = './test/gen-template/test/gen-test.json'
 
 exports.testServer = testServer
 
