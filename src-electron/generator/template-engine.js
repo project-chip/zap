@@ -19,6 +19,7 @@
  * @module JS API: generator logic
  */
 
+const _ = require('lodash')
 const fsPromise = require('fs').promises
 const promisedHandlebars = require('promised-handlebars')
 const handlebars = promisedHandlebars(require('handlebars'))
@@ -41,15 +42,20 @@ const templateCompileOptions = {
 
 const precompiledTemplates = {}
 
-function produceCompiledTemplate(singleTemplatePkg) {
-  if (singleTemplatePkg.id in precompiledTemplates)
-    return Promise.resolve(precompiledTemplates[singleTemplatePkg.id])
-  else
-    return fsPromise.readFile(singleTemplatePkg.path, 'utf8').then((data) => {
-      let template = handlebars.compile(data, templateCompileOptions)
-      precompiledTemplates[singleTemplatePkg.id] = template
-      return template
-    })
+/**
+ * Resolves into a precompiled template, either from previous precompile or freshly compiled.
+ * @param {*} singleTemplatePkg
+ * @returns templates
+ */
+async function produceCompiledTemplate(singleTemplatePkg) {
+  if (singleTemplatePkg.id in precompiledTemplates) {
+    return precompiledTemplates[singleTemplatePkg.id]
+  } else {
+    let data = await fsPromise.readFile(singleTemplatePkg.path, 'utf8')
+    let template = handlebars.compile(data, templateCompileOptions)
+    precompiledTemplates[singleTemplatePkg.id] = template
+    return template
+  }
 }
 
 /**
@@ -139,6 +145,26 @@ function loadPartial(name, path) {
     .then((data) => handlebars.registerPartial(name, data))
 }
 
+function helperWrapper(wrappedHelper) {
+  return function w(...args) {
+    try {
+      return wrappedHelper.call(this, ...args)
+    } catch (err) {
+      let thrownObject
+      let opts = args[args.length - 1]
+      if ('loc' in opts) {
+        let locMsg = ` [line: ${opts.loc.start.line}, column: ${opts.loc.start.column}, file: ${this.global.templatePath} ]`
+        if (_.isString(err)) {
+          thrownObject = new Error(err + locMsg)
+        } else {
+          thrownObject = err
+          thrownObject.message = err.message + locMsg
+        }
+      }
+      throw thrownObject
+    }
+  }
+}
 /**
  * Function that loads the helpers.
  *
@@ -147,7 +173,10 @@ function loadPartial(name, path) {
 function loadHelper(path) {
   let helpers = require(path)
   for (const singleHelper of Object.keys(helpers)) {
-    handlebars.registerHelper(singleHelper, helpers[singleHelper])
+    handlebars.registerHelper(
+      singleHelper,
+      helperWrapper(helpers[singleHelper])
+    )
   }
 }
 

@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-exports.api = {
+exports.renderer_api = {
   featureLevel: 1,
   prefix: 'zap',
   description: 'Zap Renderer API',
@@ -96,7 +96,7 @@ exports.renderer_api_info = [
   { id: 'saveFileLocation' },
   { id: 'setItem', description: 'Set item...' },
   { id: 'setStorageItem' },
-  { id: 'setTheme', description: 'Set theme...' },
+  { id: 'setTheme', description: 'Set theme...', arg: 'theme' },
 ]
 
 exports.id = {
@@ -133,3 +133,12 @@ exports.storageKey = {
   fileSave: 'lastFileLocation_openFileSave',
   theme: 'ui_theme',
 }
+
+/** Global symbol that carries the API info metadata */
+exports.GLOBAL_SYMBOL_INFO = 'global_renderer_api_info'
+
+/** Global function that can execute the APIs. */
+exports.GLOBAL_SYMBOL_EXECUTE = 'global_renderer_api_execute'
+
+/** Global function that can be overloaded by jxbrowser for notifications */
+exports.GLOBAL_SYMBOL_NOTIFY = 'global_renderer_api_notify'

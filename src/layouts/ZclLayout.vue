@@ -149,14 +149,14 @@ export default {
   name: 'ZclLayout',
   methods: {
     doGeneration(path) {
-      window.global_renderer_api_execute(
+      window[rendApi.GLOBAL_SYMBOL_EXECUTE](
         rendApi.id.progressStart,
         'Generating files...'
       )
       this.$serverPut(restApi.uri.generate, {
         generationDirectory: path,
       }).finally(() => {
-        window.global_renderer_api_execute(rendApi.id.progressEnd)
+        window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.progressEnd)
       })
     },
     regenerateIntoDirectory(currentPath) {
@@ -173,7 +173,7 @@ export default {
       }
     },
     generateIntoDirectory(currentPath) {
-      window.global_renderer_notify(rendApi.notifyKey.fileBrowse, {
+      window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.fileBrowse, {
         context: 'generateDir',
         title: 'Select directory to generate into',
         mode: 'directory',

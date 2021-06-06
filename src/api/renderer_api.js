@@ -111,7 +111,7 @@ function renderer_api_execute(id, ...args) {
  * @param {*} key
  * @param {*} value
  */
-function renderer_notify(key, value) {
+function renderer_api_notify(key, value) {
   console.log(
     `${rendApi.jsonPrefix}${JSON.stringify({ key: key, value: value })}`
   )
@@ -119,4 +119,4 @@ function renderer_notify(key, value) {
 
 exports.renderer_api_info = renderer_api_info
 exports.renderer_api_execute = renderer_api_execute
-exports.renderer_notify = renderer_notify
+exports.renderer_api_notify = renderer_api_notify

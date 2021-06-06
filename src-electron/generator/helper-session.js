@@ -37,8 +37,8 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} options
  */
 function user_endpoints(options) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = templateUtil
+    .ensureEndpointTypeIds(this)
     .then((endpointTypes) =>
       queryImpexp.exportEndpoints(
         this.global.db,
@@ -172,8 +172,8 @@ function user_all_attributes(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function all_user_cluster_commands(options) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
+  let promise = templateUtil
+    .ensureEndpointTypeIds(this)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         this.global.db,
@@ -211,11 +211,8 @@ function all_user_cluster_command_util(
   isManufacturingSpecific,
   isIrrespectiveOfManufacturingSpecification = false
 ) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(
-      currentContext.global.db,
-      currentContext.global.sessionId
-    )
+  let promise = templateUtil
+    .ensureEndpointTypeIds(currentContext)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         currentContext.global.db,
@@ -276,11 +273,8 @@ function all_user_cluster_attribute_util(
   isManufacturingSpecific,
   isIrrespectiveOfManufacturingSpecification = false
 ) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(
-      currentContext.global.db,
-      currentContext.global.sessionId
-    )
+  let promise = templateUtil
+    .ensureEndpointTypeIds(currentContext)
     .then((endpointTypes) =>
       queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
         currentContext.global.db,
@@ -388,25 +382,17 @@ function all_user_cluster_non_manufacturer_specific_attributes(
  * @param {*} options
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
-function all_commands_for_user_enabled_clusters(options) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryZcl.exportAllCommandDetailsFromEnabledClusters(
-        this.global.db,
-        endpointsAndClusters
-      )
-    )
-    .then((endpointCommands) =>
-      templateUtil.collectBlocks(endpointCommands, options, this)
-    )
-  return promise
+async function all_commands_for_user_enabled_clusters(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpointsAndClusters = await queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+  let endpointCommands = await queryZcl.exportAllCommandDetailsFromEnabledClusters(
+    this.global.db,
+    endpointsAndClusters
+  )
+  return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 /**
  * This helper returns all commands which have cli within the list of enabled
@@ -416,25 +402,18 @@ function all_commands_for_user_enabled_clusters(options) {
  * @returns all commands with cli from the list of enabled clusters
  *
  */
-function all_cli_commands_for_user_enabled_clusters(options) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryZcl.exportAllCliCommandDetailsFromEnabledClusters(
-        this.global.db,
-        endpointsAndClusters
-      )
-    )
-    .then((endpointCommands) =>
-      templateUtil.collectBlocks(endpointCommands, options, this)
-    )
-  return promise
+async function all_cli_commands_for_user_enabled_clusters(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpointsAndClusters = await queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+
+  let endpointCommands = await queryZcl.exportAllCliCommandDetailsFromEnabledClusters(
+    this.global.db,
+    endpointsAndClusters
+  )
+  return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
 /**
@@ -443,16 +422,15 @@ function all_cli_commands_for_user_enabled_clusters(options) {
  * @param {*} options
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
-function all_user_clusters(options) {
-  return queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.selectAllClustersDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((clusters) => templateUtil.collectBlocks(clusters, options, this))
+async function all_user_clusters(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+
+  let clusters = await queryZcl.selectAllClustersDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+
+  return templateUtil.collectBlocks(clusters, options, this)
 }
 
 /**
@@ -461,16 +439,15 @@ function all_user_clusters(options) {
  * @param {*} options
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
-function all_user_clusters_irrespective_of_side(options) {
-  return queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((clusters) => templateUtil.collectBlocks(clusters, options, this))
+async function all_user_clusters_irrespective_of_side(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+
+  let clusters = await queryZcl.exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+
+  return templateUtil.collectBlocks(clusters, options, this)
 }
 
 /**
@@ -480,32 +457,27 @@ function all_user_clusters_irrespective_of_side(options) {
  * @param {*} options
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
-function all_user_clusters_names(options) {
-  return queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportAllClustersNamesFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((clusters) => templateUtil.collectBlocks(clusters, options, this))
+async function all_user_clusters_names(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let clusters = await queryZcl.exportAllClustersNamesFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+
+  return templateUtil.collectBlocks(clusters, options, this)
 }
 
 /**
  * Get the count of the number of clusters commands with cli for a cluster.
  * This is used under a cluster block helper
  */
-function user_cluster_command_count_with_cli() {
-  return queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryCommand.selectCliCommandCountFromEndpointTypeCluster(
-        this.global.db,
-        endpointTypes,
-        this.endpointClusterId
-      )
-    )
+async function user_cluster_command_count_with_cli() {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  return queryCommand.selectCliCommandCountFromEndpointTypeCluster(
+    this.global.db,
+    endpointTypes,
+    this.endpointClusterId
+  )
 }
 
 /**
@@ -521,12 +493,12 @@ function user_cluster_command_count_with_cli() {
  *  {{/user_cluster_commands_with_cli}}
  * {{/all_user_clusters_irrespective_of_side}}
  */
-function user_cluster_commands_with_cli(options) {
-  return queryCommand
-    .selectCliCommandsFromCluster(this.global.db, this.id)
-    .then((cliCommands) =>
-      templateUtil.collectBlocks(cliCommands, options, this)
-    )
+async function user_cluster_commands_with_cli(options) {
+  let cliCommands = await queryCommand.selectCliCommandsFromCluster(
+    this.global.db,
+    this.id
+  )
+  return templateUtil.collectBlocks(cliCommands, options, this)
 }
 
 /**
@@ -536,19 +508,18 @@ function user_cluster_commands_with_cli(options) {
  * @param options
  * Returns: Promise of the resolved blocks iterating over cluster commands.
  */
-function user_cluster_commands_all_endpoints(options) {
-  return queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportCommandDetailsFromAllEndpointTypeCluster(
-        this.global.db,
-        endpointTypes,
-        this.endpointClusterId
-      )
-    )
-    .then((endpointCommands) =>
-      templateUtil.collectBlocks(endpointCommands, options, this)
-    )
+async function user_cluster_commands_all_endpoints(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpointCommands = await queryZcl.exportCommandDetailsFromAllEndpointTypeCluster(
+    this.global.db,
+    endpointTypes,
+    this.endpointClusterId
+  )
+  return endpointsAndClusterstemplateUtil.collectBlocks(
+    endpointCommands,
+    options,
+    this
+  )
 }
 
 /**
@@ -559,41 +530,34 @@ function user_cluster_commands_all_endpoints(options) {
  * @param {*} side : Cluster side
  * @returns True if cluster has enabled commands otherwise false
  */
-function user_cluster_has_enabled_command(name, side) {
-  return queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryZcl.exportCommandDetailsFromAllEndpointTypesAndClusters(
-        this.global.db,
-        endpointsAndClusters
-      )
-    )
-    .then((endpointCommands) => {
-      let cmdCount = 0
-      endpointCommands.forEach((command) => {
-        if (helperZcl.isStrEqual(name, command.clusterName)) {
-          if (
-            helperZcl.isCommandAvailable(
-              side,
-              command.incoming,
-              command.outgoing,
-              command.commandSource,
-              command.name
-            )
-          ) {
-            cmdCount++
-          }
-        }
-      })
+async function user_cluster_has_enabled_command(name, side) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpointsAndClusters = await queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
 
-      return cmdCount != 0
-    })
+  let endpointCommands = await queryZcl.exportCommandDetailsFromAllEndpointTypesAndClusters(
+    this.global.db,
+    endpointsAndClusters
+  )
+  let cmdCount = 0
+  endpointCommands.forEach((command) => {
+    if (helperZcl.isStrEqual(name, command.clusterName)) {
+      if (
+        helperZcl.isCommandAvailable(
+          side,
+          command.incoming,
+          command.outgoing,
+          command.commandSource,
+          command.name
+        )
+      ) {
+        cmdCount++
+      }
+    }
+  })
+  return cmdCount != 0
 }
 
 /**
@@ -674,28 +638,23 @@ async function user_default_response_policy(options) {
  * @param {*} endpointTypeId
  * Returns the endpoint type identifier for an endpoint type
  */
-function endpoint_type_identifier(endpointTypeId) {
-  return queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryImpexp.exportEndpoints(
-        this.global.db,
-        this.global.sessionId,
-        endpointTypes
-      )
-    )
-    .then((endpoints) => {
-      for (let i = 0; i < endpoints.length; i++) {
-        if (endpointTypeId == endpoints[i].endpointTypeRef) {
-          if (endpoints[i].endpointId == null) {
-            return '0'
-          } else {
-            return `${endpoints[i].endpointId}`
-          }
-        }
+async function endpoint_type_identifier(endpointTypeId) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpoints = await queryImpexp.exportEndpoints(
+    this.global.db,
+    this.global.sessionId,
+    endpointTypes
+  )
+  for (let i = 0; i < endpoints.length; i++) {
+    if (endpointTypeId == endpoints[i].endpointTypeRef) {
+      if (endpoints[i].endpointId == null) {
+        return '0'
+      } else {
+        return `${endpoints[i].endpointId}`
       }
-      return '0'
-    })
+    }
+  }
+  return '0'
 }
 
 /*
@@ -703,24 +662,19 @@ function endpoint_type_identifier(endpointTypeId) {
  * Returns the index of the endpoint whose endpointTypeId is endpointTypeId
  * Will return -1 if the given endpoint type is not present.
  */
-function endpoint_type_index(endpointTypeId) {
-  return queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryImpexp.exportEndpoints(
-        this.global.db,
-        this.global.sessionId,
-        endpointTypes
-      )
-    )
-    .then((endpoints) => {
-      for (let i = 0; i < endpoints.length; i++) {
-        if (endpointTypeId == endpoints[i].endpointTypeRef) {
-          return i
-        }
-      }
-      return -1
-    })
+async function endpoint_type_index(endpointTypeId) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpoints = await queryImpexp.exportEndpoints(
+    this.global.db,
+    this.global.sessionId,
+    endpointTypes
+  )
+  for (let i = 0; i < endpoints.length; i++) {
+    if (endpointTypeId == endpoints[i].endpointTypeRef) {
+      return i
+    }
+  }
+  return -1
 }
 
 /**
@@ -733,25 +687,17 @@ function endpoint_type_index(endpointTypeId) {
  * @param options
  * @returns Attribute values greater than 2 bytes and not 0 nor externally saved.
  */
-function all_user_cluster_attributes_for_generated_defaults(options) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryAttribute.selectAttributeBoundDetails(
-        this.global.db,
-        endpointsAndClusters
-      )
-    )
-    .then((endpointCommands) =>
-      templateUtil.collectBlocks(endpointCommands, options, this)
-    )
-  return promise
+async function all_user_cluster_attributes_for_generated_defaults(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpointsAndClusters = await queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+  let endpointCommands = await queryAttribute.selectAttributeBoundDetails(
+    this.global.db,
+    endpointsAndClusters
+  )
+  return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
 /**
@@ -761,25 +707,17 @@ function all_user_cluster_attributes_for_generated_defaults(options) {
  * @param options
  * @returns enabled attributes
  */
-function all_user_cluster_generated_attributes(options) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryAttribute.selectAttributeDetailsFromEnabledClusters(
-        this.global.db,
-        endpointsAndClusters
-      )
-    )
-    .then((endpointCommands) =>
-      templateUtil.collectBlocks(endpointCommands, options, this)
-    )
-  return promise
+async function all_user_cluster_generated_attributes(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpointsAndClusters = await queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+  let endpointCommands = await queryAttribute.selectAttributeDetailsFromEnabledClusters(
+    this.global.db,
+    endpointsAndClusters
+  )
+  return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
 /**
@@ -789,25 +727,17 @@ function all_user_cluster_generated_attributes(options) {
  * @param options
  * @returns Reportable attributes
  */
-function all_user_reportable_attributes(options) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryAttribute.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
-        this.global.db,
-        endpointsAndClusters
-      )
-    )
-    .then((endpointCommands) =>
-      templateUtil.collectBlocks(endpointCommands, options, this)
-    )
-  return promise
+async function all_user_reportable_attributes(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpointsAndClusters = await queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+  let endpointCommands = await queryAttribute.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
+    this.global.db,
+    endpointsAndClusters
+  )
+  return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
 /**
@@ -815,19 +745,16 @@ function all_user_reportable_attributes(options) {
  * @param options
  * @returns All available cluster commands across all endpoints and clusters
  */
-function all_user_cluster_generated_commands(options) {
-  let promise = queryEndpoint
-    .selectUsedEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryCommand.selectAllAvailableClusterCommandDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointCommands) =>
-      templateUtil.collectBlocks(endpointCommands, options, this)
-    )
-  return promise
+async function all_user_cluster_generated_commands(options) {
+  let endpointTypes = await queryEndpoint.selectUsedEndPointTypeIds(
+    this.global.db,
+    this.global.sessionId
+  )
+  let endpointCommands = await queryCommand.selectAllAvailableClusterCommandDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+  return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
 /**
@@ -835,25 +762,17 @@ function all_user_cluster_generated_commands(options) {
  * @param {*} options
  * @returns Cluster Details per endpoint with attribute summaries within the clusters
  */
-function generated_clustes_details(options) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryZcl.exportClusterDetailsFromEnabledClusters(
-        this.global.db,
-        endpointsAndClusters
-      )
-    )
-    .then((endpointCommands) =>
-      templateUtil.collectBlocks(endpointCommands, options, this)
-    )
-  return promise
+async function generated_clustes_details(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpointsAndClusters = await queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+  let endpointCommands = await queryZcl.exportClusterDetailsFromEnabledClusters(
+    this.global.db,
+    endpointsAndClusters
+  )
+  return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
 /**
@@ -861,25 +780,17 @@ function generated_clustes_details(options) {
  * @param options
  * @returns Endpoint type details along with their cluster summaries
  */
-function generated_endpoint_type_details(options) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryZcl.selectEndpointDetailsFromAddedEndpoints(
-        this.global.db,
-        endpointsAndClusters
-      )
-    )
-    .then((endpointCommands) =>
-      templateUtil.collectBlocks(endpointCommands, options, this)
-    )
-  return promise
+async function generated_endpoint_type_details(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpointsAndClusters = await queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+  let endpointCommands = await queryZcl.selectEndpointDetailsFromAddedEndpoints(
+    this.global.db,
+    endpointsAndClusters
+  )
+  return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
 /**
@@ -891,25 +802,17 @@ function generated_endpoint_type_details(options) {
  * @param options
  * @returns endpoints with bounds or defaults
  */
-function all_user_cluster_attributes_min_max_defaults(options) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryAttribute.selectAttributeDetailsWithABoundFromEnabledClusters(
-        this.global.db,
-        endpointsAndClusters
-      )
-    )
-    .then((endpointCommands) =>
-      templateUtil.collectBlocks(endpointCommands, options, this)
-    )
-  return promise
+async function all_user_cluster_attributes_min_max_defaults(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpointsAndClusters = await queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+  let endpointCommands = await queryAttribute.selectAttributeDetailsWithABoundFromEnabledClusters(
+    this.global.db,
+    endpointsAndClusters
+  )
+  return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
 /**
@@ -931,10 +834,7 @@ async function generated_defaults_index(
   prefixReturn,
   postFixReturn
 ) {
-  let endpointTypes = await queryEndpoint.selectEndPointTypeIds(
-    this.global.db,
-    this.global.sessionId
-  )
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
 
   let endpointsAndClusters = await queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
     this.global.db,
@@ -973,37 +873,27 @@ async function generated_defaults_index(
  * @param options
  * @returns index of the generated min max default array
  */
-function generated_attributes_min_max_index(clusterName, attributeName) {
-  let promise = queryEndpoint
-    .selectEndPointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryAttribute.selectAttributeDetailsWithABoundFromEnabledClusters(
-        this.global.db,
-        endpointsAndClusters
-      )
-    )
-    .then(
-      (endpointAttributes) =>
-        new Promise((resolve, reject) => {
-          let dataPtr = 0
-          for (let i = 0; i < endpointAttributes.length; i++) {
-            if (
-              endpointAttributes[i].clusterName === clusterName &&
-              endpointAttributes[i].name === attributeName
-            ) {
-              dataPtr = i
-            }
-          }
-          resolve(dataPtr)
-        })
-    )
-  return promise
+async function generated_attributes_min_max_index(clusterName, attributeName) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let endpointsAndClusters = await queryZcl.exportClustersAndEndpointDetailsFromEndpointTypes(
+    this.global.db,
+    endpointTypes
+  )
+
+  let endpointAttributes = await queryAttribute.selectAttributeDetailsWithABoundFromEnabledClusters(
+    this.global.db,
+    endpointsAndClusters
+  )
+  let dataPtr = 0
+  for (let i = 0; i < endpointAttributes.length; i++) {
+    if (
+      endpointAttributes[i].clusterName === clusterName &&
+      endpointAttributes[i].name === attributeName
+    ) {
+      dataPtr = i
+    }
+  }
+  return dataPtr
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!

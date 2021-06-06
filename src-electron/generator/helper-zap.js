@@ -175,6 +175,19 @@ function template_option_with_code(options, key) {
 }
 
 /**
+ * Forced fail halper.
+ *
+ * @param {*} options
+ */
+function fail(options) {
+  let message = options.hash.message
+  if (message == null) {
+    message = 'Template failure.'
+  }
+  throw new Error(message)
+}
+
+/**
  * This returns a boolean if the 2 strings are same
  *
  * @param {*} string_a
@@ -299,10 +312,8 @@ function waitForSynchronousPromise(pollInterval, promise, resolve, reject) {
   }
 }
 
-function promiseToResolveAllPreviousPromises(globalPromises) {
-  if (globalPromises.length == 0) {
-    return Promise.resolve()
-  } else {
+async function promiseToResolveAllPreviousPromises(globalPromises) {
+  if (globalPromises.length > 0) {
     let promises = []
     globalPromises.forEach((promise) => {
       promises.push(
@@ -311,18 +322,17 @@ function promiseToResolveAllPreviousPromises(globalPromises) {
         })
       )
     })
-    return Promise.all(promises).then(() => Promise.resolve())
+    await Promise.all(promises)
   }
 }
 
-function after(options) {
-  return promiseToResolveAllPreviousPromises(this.global.promises).then(() => {
-    let newContext = {
-      global: this.global,
-      parent: this,
-    }
-    return options.fn(newContext)
-  })
+async function after(options) {
+  await promiseToResolveAllPreviousPromises(this.global.promises)
+  let newContext = {
+    global: this.global,
+    parent: this,
+  }
+  return options.fn(newContext)
 }
 
 /**
@@ -389,3 +399,4 @@ exports.new_line = new_line
 exports.backslash = backslash
 exports.is_num_equal = is_num_equal
 exports.is_defined = is_defined
+exports.fail = fail

@@ -150,7 +150,7 @@ test(
 )
 
 test('Now load the generation data.', () =>
-  generationEngine.loadTemplates(db, testUtil.testZigbeeGenerationTemplates))
+  generationEngine.loadTemplates(db, testUtil.testTemplate.zigbee))
 
 describe('Session specific queries', () => {
   beforeAll(() =>

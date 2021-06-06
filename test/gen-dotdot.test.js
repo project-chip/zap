@@ -52,7 +52,7 @@ test(
   'Basic gen template parsing and generation',
   () =>
     genEngine
-      .loadTemplates(db, testUtil.dotdotGenerationTemplates)
+      .loadTemplates(db, testUtil.testTemplate.dotdot)
       .then((context) => {
         expect(context.crc).not.toBeNull()
         expect(context.templateData).not.toBeNull()

@@ -21,6 +21,7 @@ const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
 const bin = require('../util/bin.js')
 const types = require('../util/types.js')
+const zclUtil = require('../util/zcl-util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 /**
  * Returns number of endpoint types.
@@ -406,7 +407,7 @@ function endpoint_attribute_long_defaults(options) {
  *    2.) If client is included on at least one endpoint add client atts.
  *    3.) If server is included on at least one endpoint add server atts.
  */
-function collectAttributes(endpointTypes) {
+async function collectAttributes(endpointTypes) {
   let commandMfgCodes = [] // Array of { index, mfgCode } objects
   let clusterMfgCodes = [] // Array of { index, mfgCode } objects
   let attributeMfgCodes = [] // Array of { index, mfgCode } objects
@@ -445,15 +446,7 @@ function collectAttributes(endpointTypes) {
 
     // Go over all the clusters in the endpoint and add them to the list.
 
-    ept.clusters.sort((a, b) => {
-      if (a.code < b.code) return -1
-      if (a.code > b.code) return 1
-
-      if (a.side < b.side) return -1
-      if (a.side > b.side) return -1
-
-      return 0
-    })
+    ept.clusters.sort(zclUtil.clusterComparator)
 
     ept.clusters.forEach((c) => {
       let cluster = {
@@ -473,12 +466,7 @@ function collectAttributes(endpointTypes) {
       clusterIndex++
       attributeIndex += c.attributes.length
 
-      c.attributes.sort((a, b) => {
-        if (a.hexCode < b.hexCode) return -1
-        if (a.hexCode > b.hexCode) return 1
-
-        return 0
-      })
+      c.attributes.sort(zclUtil.attributeComparator)
 
       // Go over all the attributes in the endpoint and add them to the list.
       c.attributes.forEach((a) => {
@@ -579,15 +567,7 @@ function collectAttributes(endpointTypes) {
       })
 
       // Go over the commands
-      c.commands.sort((a, b) => {
-        if (a.manufacturerCode < b.manufacturerCode) return -1
-        if (a.manufacturerCode > b.manufacturerCode) return 1
-
-        if (a.hexCode < b.hexCode) return -1
-        if (a.hexCode > b.hexCode) return 1
-
-        return 0
-      })
+      c.commands.sort(zclUtil.commandComparator)
 
       c.commands.forEach((cmd) => {
         let mask = []
@@ -640,7 +620,7 @@ function collectAttributes(endpointTypes) {
     endpointList.push(endpoint)
   })
 
-  return Promise.resolve({
+  return {
     endpointList: endpointList,
     clusterList: clusterList,
     attributeList: attributeList,
@@ -656,7 +636,7 @@ function collectAttributes(endpointTypes) {
     minMaxList: minMaxList,
     reportList: reportList,
     longDefaultsList: longDefaultsList,
-  })
+  }
 }
 
 /**
@@ -666,7 +646,7 @@ function collectAttributes(endpointTypes) {
  * @returns promise that resolves with the passed endpointTypes, after populating the attribute type sizes.
  *
  */
-function collectAttributeSizes(db, zclPackageId, endpointTypes) {
+async function collectAttributeSizes(db, zclPackageId, endpointTypes) {
   let ps = []
   endpointTypes.forEach((ept) => {
     ept.clusters.forEach((cl) => {
@@ -686,7 +666,8 @@ function collectAttributeSizes(db, zclPackageId, endpointTypes) {
       })
     })
   })
-  return Promise.all(ps).then(() => endpointTypes)
+  await Promise.all(ps)
+  return endpointTypes
 }
 
 /**
