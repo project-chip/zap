@@ -62,4 +62,4 @@ exports.totalServerAttributeCount = 2954
 exports.totalSpecCount = 39
 exports.totalEnumCount = 209
 exports.totalEnumItemCount = 1595
-exports.longTimeout = 12000
+exports.longTimeout = 13000
