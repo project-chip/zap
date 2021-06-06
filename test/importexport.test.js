@@ -69,7 +69,7 @@ afterAll(() => {
 test('Basic gen template parsing and generation', async () => {
   let context = await generationEngine.loadTemplates(
     db,
-    testUtil.testZigbeeGenerationTemplates
+    testUtil.testTemplate.zigbee
   )
   expect(context.crc).not.toBeNull()
   expect(context.templateData).not.toBeNull()

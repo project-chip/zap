@@ -28,7 +28,7 @@ const testUtil = require('./test-util.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 
 let db
-const templateCount = 3
+const templateCount = 1
 const genTimeout = 3000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 let sessionId
@@ -36,7 +36,7 @@ let templateContext
 let zclContext
 
 beforeAll(() => {
-  let file = env.sqliteTestFile('dotdotgen')
+  let file = env.sqliteTestFile('testgen')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
     .then((d) => {
@@ -49,15 +49,15 @@ afterAll(() => {
 })
 
 test(
-  'Basic gen template parsing and generation',
+  'Basic test template parsing and generation',
   () =>
     genEngine
-      .loadTemplates(db, testUtil.dotdotGenerationTemplates)
+      .loadTemplates(db, testUtil.testTemplate.unittest)
       .then((context) => {
         expect(context.crc).not.toBeNull()
         expect(context.templateData).not.toBeNull()
-        expect(context.templateData.name).toEqual('Dotdot templates')
-        expect(context.templateData.version).toEqual('test-dotdot-v1')
+        expect(context.templateData.name).toEqual('Unit test templates')
+        expect(context.templateData.version).toEqual('unit-test')
         expect(context.templateData.templates.length).toEqual(templateCount)
         expect(context.packageId).not.toBeNull()
         templateContext = context
@@ -66,9 +66,9 @@ test(
 )
 
 test(
-  'Load DotDot ZCL stuff',
+  'Load ZCL stuff',
   () =>
-    zclLoader.loadZcl(db, env.builtinDotdotZclMetafile).then((context) => {
+    zclLoader.loadZcl(db, env.builtinSilabsZclMetafile).then((context) => {
       zclContext = context
     }),
   5000
@@ -99,25 +99,15 @@ test(
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
 
-        let epc = genResult.content['test1.h']
+        let epc = genResult.content['test-fail.out']
         expect(epc).not.toBeNull()
+        expect(genResult.hasErrors).toBeTruthy()
+        let err = genResult.errors['test-fail.out']
         expect(
-          epc.includes(
-            'EmberAfDrlkOperMode OperatingModeDuringHoliday // command type'
-          )
+          err.message.includes('this is where the failure lies')
         ).toBeTruthy()
-        expect(
-          epc.includes('EmberAfDrlkOperMode OperatingMode; // attribute type')
-        ).toBeTruthy()
-
-        mqtt = genResult.content['mqtt.cpp']
-        expect(mqtt).not.toBeNull()
-
-        types = genResult.content['dotdot-type.h']
-        expect(types).not.toBeNull()
-        expect(
-          types.includes('// Bitmap: LevelOptions, type: map8')
-        ).toBeTruthy()
+        expect(err.message.includes('line: 3, column: 0')).toBeTruthy()
+        expect(err.message.includes('test-fail.zapt')).toBeTruthy()
       }),
   genTimeout
 )

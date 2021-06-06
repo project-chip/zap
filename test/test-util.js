@@ -39,13 +39,13 @@ function testServer(fileName) {
   return ret
 }
 
-exports.testZigbeeGenerationTemplates =
-  './test/gen-template/zigbee/gen-templates.json'
-exports.testChipGenerationTemplates =
-  './test/gen-template/chip/gen-templates.json'
-exports.dotdotGenerationTemplates =
-  './test/gen-template/dotdot/dotdot-templates.json'
-exports.testTemplates = './test/gen-template/test/gen-test.json'
+exports.testTemplate = {
+  zigbee: './test/gen-template/zigbee/gen-templates.json',
+  zigbeeCount: 18,
+  chip: './test/gen-template/chip/gen-templates.json',
+  dotdot: './test/gen-template/dotdot/dotdot-templates.json',
+  unittest: './test/gen-template/test/gen-test.json',
+}
 
 exports.testServer = testServer
 
@@ -63,4 +63,3 @@ exports.totalSpecCount = 39
 exports.totalEnumCount = 209
 exports.totalEnumItemCount = 1595
 exports.longTimeout = 12000
-exports.testTemplateCount = 18

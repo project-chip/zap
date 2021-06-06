@@ -58,31 +58,28 @@ function cluster_extension(options) {
  * @param {*} options
  * @returns Value of the cluster extension property.
  */
-function device_type_extension(options) {
+async function device_type_extension(options) {
   let prop = options.hash.property
-  if (prop == null) {
+  if (prop == null) return ''
+
+  let packageId = await templateUtil.ensureTemplatePackageId(this)
+  let extensions = await templateUtil.ensureZclDeviceTypeSdkExtensions(
+    this,
+    packageId
+  )
+
+  let f = extensions.filter((x) => x.property == prop)
+  if (f.length == 0) {
     return ''
   } else {
-    return templateUtil
-      .ensureTemplatePackageId(this)
-      .then((packageId) =>
-        templateUtil.ensureZclDeviceTypeSdkExtensions(this, packageId)
-      )
-      .then((extensions) => {
-        let f = extensions.filter((x) => x.property == prop)
-        if (f.length == 0) {
-          return ''
-        } else {
-          let val = null
-          f[0].defaults.forEach((d) => {
-            if (d.entityCode == this.code) val = d.value
-            if (d.entityCode == this.label) val = d.value
-          })
-          if (val == null) val = f[0].globalDefault
-          if (val == null) val = ''
-          return val
-        }
-      })
+    let val = null
+    f[0].defaults.forEach((d) => {
+      if (d.entityCode == this.code) val = d.value
+      if (d.entityCode == this.label) val = d.value
+    })
+    if (val == null) val = f[0].globalDefault
+    if (val == null) val = ''
+    return val
   }
 }
 

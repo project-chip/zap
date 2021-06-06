@@ -31,7 +31,7 @@ const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 
 let db
-const templateCount = testUtil.testTemplateCount
+const templateCount = testUtil.testTemplate.zigbeeCount
 const genTimeout = testUtil.longTimeout
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 const testFile2 = path.join(__dirname, 'resource/three-endpoint-device.zap')
@@ -56,7 +56,7 @@ test(
   'Basic gen template parsing and generation',
   () =>
     genEngine
-      .loadTemplates(db, testUtil.testZigbeeGenerationTemplates)
+      .loadTemplates(db, testUtil.testTemplate.zigbee)
       .then((context) => {
         expect(context.crc).not.toBeNull()
         expect(context.templateData).not.toBeNull()

@@ -16,6 +16,7 @@
  */
 
 const queryPackage = require('../db/query-package.js')
+const queryEndpoint = require('../db/query-endpoint.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const _ = require('lodash')
@@ -144,7 +145,7 @@ async function ensureZclPackageId(context) {
  */
 async function ensureTemplatePackageId(context) {
   if ('templatePackageId' in context.global) {
-    return Promise.resolve(context.global.templatePackageId)
+    return context.global.templatePackageId
   } else {
     return queryPackage
       .getSessionPackagesByType(
@@ -159,6 +160,19 @@ async function ensureTemplatePackageId(context) {
           context.global.templatePackageId = pkgs[0].id
           return pkgs[0].id
         }
+      })
+  }
+}
+
+async function ensureEndpointTypeIds(context) {
+  if ('endpointTypeIds' in context.global) {
+    return context.global.endpointTypeIds
+  } else {
+    return queryEndpoint
+      .selectEndPointTypeIds(context.global.db, context.global.sessionId)
+      .then((epts) => {
+        context.global.endpointTypeIds = epts
+        return epts
       })
   }
 }
@@ -330,6 +344,7 @@ exports.ensureZclClusterSdkExtensions = ensureZclClusterSdkExtensions
 exports.ensureZclAttributeSdkExtensions = ensureZclAttributeSdkExtensions
 exports.ensureZclCommandSdkExtensions = ensureZclCommandSdkExtensions
 exports.ensureZclDeviceTypeSdkExtensions = ensureZclDeviceTypeSdkExtensions
+exports.ensureEndpointTypeIds = ensureEndpointTypeIds
 exports.makeSynchronizablePromise = makeSynchronizablePromise
 exports.templatePromise = templatePromise
 exports.deprecatedHelper = deprecatedHelper

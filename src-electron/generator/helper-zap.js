@@ -312,10 +312,8 @@ function waitForSynchronousPromise(pollInterval, promise, resolve, reject) {
   }
 }
 
-function promiseToResolveAllPreviousPromises(globalPromises) {
-  if (globalPromises.length == 0) {
-    return Promise.resolve()
-  } else {
+async function promiseToResolveAllPreviousPromises(globalPromises) {
+  if (globalPromises.length > 0) {
     let promises = []
     globalPromises.forEach((promise) => {
       promises.push(
@@ -324,18 +322,17 @@ function promiseToResolveAllPreviousPromises(globalPromises) {
         })
       )
     })
-    return Promise.all(promises).then(() => Promise.resolve())
+    await Promise.all(promises)
   }
 }
 
-function after(options) {
-  return promiseToResolveAllPreviousPromises(this.global.promises).then(() => {
-    let newContext = {
-      global: this.global,
-      parent: this,
-    }
-    return options.fn(newContext)
-  })
+async function after(options) {
+  await promiseToResolveAllPreviousPromises(this.global.promises)
+  let newContext = {
+    global: this.global,
+    parent: this,
+  }
+  return options.fn(newContext)
 }
 
 /**
