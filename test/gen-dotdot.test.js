@@ -35,13 +35,13 @@ let sessionId
 let templateContext
 let zclContext
 
-beforeAll(() => {
+beforeAll(async () => {
   let file = env.sqliteTestFile('dotdotgen')
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-    })
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
 }, 5000)
 
 afterAll(() => {
