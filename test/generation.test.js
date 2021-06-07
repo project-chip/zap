@@ -67,7 +67,7 @@ describe('Session specific tests', () => {
   test('And load the templates.', () => {
     let packageId
     return generationEngine
-      .loadTemplates(db, testUtil.testZigbeeGenerationTemplates)
+      .loadTemplates(db, testUtil.testTemplate.zigbee)
       .then((context) => {
         packageId = context.packageId
         expect(packageId).not.toBe(null)
@@ -191,8 +191,7 @@ describe('Session specific tests', () => {
 
   test(
     'Load a second set of templates.',
-    () =>
-      generationEngine.loadTemplates(db, testUtil.testChipGenerationTemplates),
+    () => generationEngine.loadTemplates(db, testUtil.testTemplate.chip),
     3000
   )
 

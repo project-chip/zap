@@ -43,7 +43,7 @@ async function getSessionUuidFromBrowserWindow(browserWindow) {
  */
 async function getRendererApiInformation(browserWindow) {
   const info = await browserWindow.webContents.executeJavaScript(
-    'window.global_renderer_api_info'
+    `window.${rendApi.GLOBAL_SYMBOL_INFO}`
   )
   let msg = `
 Prefix: ${info.prefix}
@@ -68,7 +68,7 @@ Functions:`
 
 async function execRendererApi(browserWindow, rendererApiCommand, ...theArgs) {
   const info = await browserWindow.webContents.executeJavaScript(
-    'window.global_renderer_api_info'
+    `window.${rendApi.GLOBAL_SYMBOL_INFO}`
   )
 
   let apiFound = info.functions.filter((x) => x.id === rendererApiCommand)
@@ -76,12 +76,22 @@ async function execRendererApi(browserWindow, rendererApiCommand, ...theArgs) {
     env.logBrowser(
       `Unhandled renderer API function id invoked: ${rendererApiCommand}`
     )
-    return Promise.resolve()
+    return
   } else {
     return browserWindow.webContents.executeJavaScript(
-      `window.global_renderer_api_execute('${rendererApiCommand}', "${theArgs}")`
+      `window.${rendApi.GLOBAL_SYMBOL_EXECUTE}('${rendererApiCommand}', "${theArgs}")`
     )
   }
+}
+
+/**
+ * Executes the file open renderer API action.
+ * @param {*} browserWindow
+ * @param {*} filePath
+ * @returns Result of file open call.
+ */
+async function execFileOpen(browserWindow, filePath) {
+  return execRendererApi(browserWindow, rendApi.id.open, filePath)
 }
 
 /**
@@ -119,7 +129,7 @@ function processRendererNotify(browserWindow, message) {
 async function reportFiles(browserWindow, result) {
   let resultJson = JSON.stringify(result)
   await browserWindow.webContents.executeJavaScript(
-    `window.global_renderer_api_execute('${rendApi.id.reportFiles}', '${resultJson}')`
+    `window.${rendApi.GLOBAL_SYMBOL_EXECUTE}('${rendApi.id.reportFiles}', '${resultJson}')`
   )
 }
 
@@ -173,3 +183,4 @@ exports.getUserKeyFromCookieValue = getUserKeyFromCookieValue
 exports.reportFiles = reportFiles
 exports.processRendererNotify = processRendererNotify
 exports.execRendererApi = execRendererApi
+exports.execFileOpen = execFileOpen

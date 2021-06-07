@@ -30,7 +30,7 @@ test('startup: start generation', () => {
     {
       skipPostGeneration: true,
       output: testGenDir,
-      generationTemplate: testUtil.testZigbeeGenerationTemplates,
+      generationTemplate: testUtil.testTemplate.zigbee,
       zclProperties: env.builtinSilabsZclMetafile,
       zapFiles: null,
     },

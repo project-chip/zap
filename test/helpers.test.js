@@ -29,7 +29,6 @@ const dbEnum = require('../src-shared/db-enum.js')
 const zapHelper = require('../src-electron/generator/helper-zap.js')
 
 let db
-const templateCount = testUtil.testTemplateCount
 let zclContext
 
 let ctx
@@ -51,13 +50,15 @@ test(
   'Basic gen template parsing and generation',
   () =>
     genEngine
-      .loadTemplates(db, testUtil.testZigbeeGenerationTemplates)
+      .loadTemplates(db, testUtil.testTemplate.zigbee)
       .then((context) => {
         expect(context.crc).not.toBeNull()
         expect(context.templateData).not.toBeNull()
         expect(context.templateData.name).toEqual('Test templates')
         expect(context.templateData.version).toEqual('test-v1')
-        expect(context.templateData.templates.length).toEqual(templateCount)
+        expect(context.templateData.templates.length).toEqual(
+          testUtil.testTemplate.zigbeeCount
+        )
         expect(context.packageId).not.toBeNull()
       }),
   3000

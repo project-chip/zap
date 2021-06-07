@@ -31,19 +31,19 @@ const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 
 let db
-const templateCount = testUtil.testTemplateCount
+const templateCount = testUtil.testTemplate.zigbeeCount
 const genTimeout = testUtil.longTimeout
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 const testFile2 = path.join(__dirname, 'resource/three-endpoint-device.zap')
 
-beforeAll(() => {
+beforeAll(async () => {
   let file = env.sqliteTestFile('genengine')
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-    })
-    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+  return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
 }, 5000)
 
 afterAll(() => {
@@ -56,7 +56,7 @@ test(
   'Basic gen template parsing and generation',
   () =>
     genEngine
-      .loadTemplates(db, testUtil.testZigbeeGenerationTemplates)
+      .loadTemplates(db, testUtil.testTemplate.zigbee)
       .then((context) => {
         expect(context.crc).not.toBeNull()
         expect(context.templateData).not.toBeNull()
@@ -69,16 +69,13 @@ test(
   3000
 )
 
-test('Validate package loading', () =>
-  queryPackage
-    .getPackageByParent(templateContext.db, templateContext.packageId)
-    .then((packages) => {
-      templateContext.packages = packages
-      return templateContext
-    })
-    .then((context) => {
-      expect(context.packages.length).toBe(templateCount - 1 + 2) // -1 for ignored one, one for helper and one for overridable
-    }))
+test('Validate package loading', async () => {
+  templateContext.packages = await queryPackage.getPackageByParent(
+    templateContext.db,
+    templateContext.packageId
+  )
+  expect(templateContext.packages.length).toBe(templateCount - 1 + 2) // -1 for ignored one, one for helper and one for overridable
+})
 
 test('Create session', () =>
   querySession.createBlankSession(db).then((sessionId) => {
@@ -313,192 +310,204 @@ test(
   genTimeout
 )
 
-test('Test file 1 generation', async () => {
-  let sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, testFile, { sessionId: sid })
+test(
+  'Test file 1 generation',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile, { sessionId: sid })
 
-  return genEngine
-    .generate(
-      db,
-      sid,
-      templateContext.packageId,
-      {},
-      {
-        disableDeprecationWarnings: true,
-      }
-    )
-    .then((genResult) => {
-      expect(genResult).not.toBeNull()
-      expect(genResult.partial).toBeFalsy()
-      expect(genResult.content).not.toBeNull()
-
-      let zapCli = genResult.content['zap-cli.c']
-      expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
-      //expect(zapCli.includes('void sli_zigbee_cli_zcl_identify_id_command(sl_cli_command_arg_t *arguments);')).toBeTruthy()
-      //expect(zapCli.includes('SL_CLI_COMMAND(sli_zigbee_cli_zcl_identify_id_command,')).toBeTruthy()
-      //expect(zapCli.includes('{ "id", &cli_cmd_zcl_identify_cluster_identify, false },')).toBeTruthy()
-      //expect(zapCli.includes('SL_CLI_COMMAND_GROUP(zcl_identify_cluster_command_table, "ZCL identify cluster commands");')).toBeTruthy()
-      expect(
-        zapCli.includes('{ "identify", &cli_cmd_identify_group, false },')
-      ).toBeTruthy()
-      // Test GENERATED_DEFAULTS
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* 0,DEFAULT value for cluster: Over the Air Bootloading, attribute: OTA Upgrade Server ID, side: client*/'
-        )
-      ).toBeTruthy()
-      // Test GENERATED_ATTRIBUTE_COUNT
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '#define GENERATED_ATTRIBUTE_COUNT 81'
-        )
-      ).toBeTruthy()
-      // Test GENERATED_ATTRIBUTES
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x00  } }, /* 16 Cluster: Color Control, Attribute: color control options, Side: server*/'
-        )
-      ).toBeTruthy()
-      // Test is_number_greater_than within GENERATED_ATTRIBUTES
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 70 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
-        )
-      ).toBeTruthy()
-      // Test GENERATED_CLUSTER_COUNT
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '#define GENERATED_CLUSTER_COUNT 18'
-        )
-      ).toBeTruthy()
-      // Test GENERATED_CLUSTERS
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[70]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/'
-        )
-      ).toBeTruthy()
-      // Test GENERATED_ENDPOINT_TYPE_COUNT
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '#define GENERATED_ENDPOINT_TYPE_COUNT (2)'
-        )
-      ).toBeTruthy()
-      // Test GENERATED_ENDPOINT_TYPES
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 241 },'
-        )
-      ).toBeTruthy()
-      // Test ATTRIBUTE_LARGEST
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '#define ATTRIBUTE_LARGEST (65)'
-        )
-      ).toBeTruthy()
-      // Test ATTRIBUTE_SINGLETONS_SIZE
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '#define ATTRIBUTE_SINGLETONS_SIZE (191)'
-        )
-      ).toBeTruthy()
-      // Test ATTRIBUTE_MAX_SIZE
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '#define ATTRIBUTE_MAX_SIZE (546)'
-        )
-      ).toBeTruthy()
-      // Test FIXED_ENDPOINT_COUNT
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '#define FIXED_ENDPOINT_COUNT (2)'
-        )
-      ).toBeTruthy()
-      // Test EMBER_AF_GENERATED_COMMAND_COUNT
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '#define EMBER_AF_GENERATED_COMMAND_COUNT  (88)'
-        )
-      ).toBeTruthy()
-      // Test GENERATED_COMMANDS
-      expect(
-        genResult.content['zap-config-version-2.h'].includes(
-          '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 28, Cluster: Groups, Command: ViewGroupResponse*/'
-        )
-      ).toBeTruthy()
-    })
-}, 10000)
-
-test('Test file 2 generation', async () => {
-  let { sessionId, errors, warnings } = await importJs.importDataFromFile(
-    db,
-    testFile2
-  )
-
-  await utilJs.initializeSessionPackage(db, sessionId, {
-    zcl: env.builtinSilabsZclMetafile,
-    template: env.builtinTemplateMetafile,
-  })
-
-  expect(errors.length).toBe(0)
-  expect(warnings.length).toBe(0)
-  return genEngine
-    .generate(
-      db,
-      sessionId,
-      templateContext.packageId,
-      {},
-      {
-        disableDeprecationWarnings: true,
-      }
-    )
-    .then((genResult) => {
-      expect(genResult.hasErrors).toBeFalsy()
-      expect(genResult).not.toBeNull()
-      expect(genResult.partial).toBeFalsy()
-      expect(genResult.content).not.toBeNull()
-      let sdkExtension = genResult.content['sdk-extension.out']
-      expect(sdkExtension).not.toBeNull()
-      expect(
-        sdkExtension.includes(
-          'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,IdentifyQuery,<END2'
-        )
-      ).toBeTruthy()
-    })
-}, 10000)
-
-test.skip('Test file import and command parser generation, version 2', async () => {
-  let sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, testFile, { sessionId: sid })
-
-  return genEngine
-    .generate(db, sid, templateContext.packageId)
-    .then((genResult) => {
-      if (genResult.hasErrors) {
-        // Ok, there is the error with this file.
-      } else {
+    return genEngine
+      .generate(
+        db,
+        sid,
+        templateContext.packageId,
+        {},
+        {
+          disableDeprecationWarnings: true,
+        }
+      )
+      .then((genResult) => {
         expect(genResult).not.toBeNull()
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
-        let zapCommandParser = genResult.content['zap-command-parser-2.c']
+
+        let zapCli = genResult.content['zap-cli.c']
+        expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
+        //expect(zapCli.includes('void sli_zigbee_cli_zcl_identify_id_command(sl_cli_command_arg_t *arguments);')).toBeTruthy()
+        //expect(zapCli.includes('SL_CLI_COMMAND(sli_zigbee_cli_zcl_identify_id_command,')).toBeTruthy()
+        //expect(zapCli.includes('{ "id", &cli_cmd_zcl_identify_cluster_identify, false },')).toBeTruthy()
+        //expect(zapCli.includes('SL_CLI_COMMAND_GROUP(zcl_identify_cluster_command_table, "ZCL identify cluster commands");')).toBeTruthy()
         expect(
-          zapCommandParser.includes('#include "zap-command-parser.h"')
+          zapCli.includes('{ "identify", &cli_cmd_identify_group, false },')
         ).toBeTruthy()
+        // Test GENERATED_DEFAULTS
         expect(
-          zapCommandParser.includes(
-            'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          genResult.content['zap-config-version-2.h'].includes(
+            '0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* 0,DEFAULT value for cluster: Over the Air Bootloading, attribute: OTA Upgrade Server ID, side: client*/'
           )
         ).toBeTruthy()
+        // Test GENERATED_ATTRIBUTE_COUNT
         expect(
-          zapCommandParser.includes('case ZCL_IDENTIFY_CLUSTER_ID:')
-        ).toBeTruthy()
-        expect(
-          zapCommandParser.includes(
-            'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
+          genResult.content['zap-config-version-2.h'].includes(
+            '#define GENERATED_ATTRIBUTE_COUNT 81'
           )
         ).toBeTruthy()
-      }
+        // Test GENERATED_ATTRIBUTES
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x00  } }, /* 16 Cluster: Color Control, Attribute: color control options, Side: server*/'
+          )
+        ).toBeTruthy()
+        // Test is_number_greater_than within GENERATED_ATTRIBUTES
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 70 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
+          )
+        ).toBeTruthy()
+        // Test GENERATED_CLUSTER_COUNT
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '#define GENERATED_CLUSTER_COUNT 18'
+          )
+        ).toBeTruthy()
+        // Test GENERATED_CLUSTERS
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[70]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/'
+          )
+        ).toBeTruthy()
+        // Test GENERATED_ENDPOINT_TYPE_COUNT
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '#define GENERATED_ENDPOINT_TYPE_COUNT (2)'
+          )
+        ).toBeTruthy()
+        // Test GENERATED_ENDPOINT_TYPES
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 241 },'
+          )
+        ).toBeTruthy()
+        // Test ATTRIBUTE_LARGEST
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '#define ATTRIBUTE_LARGEST (65)'
+          )
+        ).toBeTruthy()
+        // Test ATTRIBUTE_SINGLETONS_SIZE
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '#define ATTRIBUTE_SINGLETONS_SIZE (191)'
+          )
+        ).toBeTruthy()
+        // Test ATTRIBUTE_MAX_SIZE
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '#define ATTRIBUTE_MAX_SIZE (546)'
+          )
+        ).toBeTruthy()
+        // Test FIXED_ENDPOINT_COUNT
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '#define FIXED_ENDPOINT_COUNT (2)'
+          )
+        ).toBeTruthy()
+        // Test EMBER_AF_GENERATED_COMMAND_COUNT
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '#define EMBER_AF_GENERATED_COMMAND_COUNT  (88)'
+          )
+        ).toBeTruthy()
+        // Test GENERATED_COMMANDS
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 28, Cluster: Groups, Command: ViewGroupResponse*/'
+          )
+        ).toBeTruthy()
+      })
+  },
+  genTimeout
+)
+
+test(
+  'Test file 2 generation',
+  async () => {
+    let { sessionId, errors, warnings } = await importJs.importDataFromFile(
+      db,
+      testFile2
+    )
+
+    await utilJs.initializeSessionPackage(db, sessionId, {
+      zcl: env.builtinSilabsZclMetafile,
+      template: env.builtinTemplateMetafile,
     })
-}, 10000)
+
+    expect(errors.length).toBe(0)
+    expect(warnings.length).toBe(0)
+    return genEngine
+      .generate(
+        db,
+        sessionId,
+        templateContext.packageId,
+        {},
+        {
+          disableDeprecationWarnings: true,
+        }
+      )
+      .then((genResult) => {
+        expect(genResult.hasErrors).toBeFalsy()
+        expect(genResult).not.toBeNull()
+        expect(genResult.partial).toBeFalsy()
+        expect(genResult.content).not.toBeNull()
+        let sdkExtension = genResult.content['sdk-extension.out']
+        expect(sdkExtension).not.toBeNull()
+        expect(
+          sdkExtension.includes(
+            'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,IdentifyQuery,<END2'
+          )
+        ).toBeTruthy()
+      })
+  },
+  genTimeout
+)
+
+test.skip(
+  'Test file import and command parser generation, version 2',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile, { sessionId: sid })
+
+    return genEngine
+      .generate(db, sid, templateContext.packageId)
+      .then((genResult) => {
+        if (genResult.hasErrors) {
+          // Ok, there is the error with this file.
+        } else {
+          expect(genResult).not.toBeNull()
+          expect(genResult.partial).toBeFalsy()
+          expect(genResult.content).not.toBeNull()
+          let zapCommandParser = genResult.content['zap-command-parser-2.c']
+          expect(
+            zapCommandParser.includes('#include "zap-command-parser.h"')
+          ).toBeTruthy()
+          expect(
+            zapCommandParser.includes(
+              'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+            )
+          ).toBeTruthy()
+          expect(
+            zapCommandParser.includes('case ZCL_IDENTIFY_CLUSTER_ID:')
+          ).toBeTruthy()
+          expect(
+            zapCommandParser.includes(
+              'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
+            )
+          ).toBeTruthy()
+        }
+      })
+  },
+  genTimeout
+)
 
 test('Test content indexer - simple', () =>
   genEngine.contentIndexer('Short example').then((preview) => {

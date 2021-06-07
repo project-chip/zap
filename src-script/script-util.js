@@ -93,14 +93,17 @@ async function getStdout(onError, cmd, args) {
  * @returns
  */
 async function rebuildSpaIfNeeded() {
-  return folderHash
-    .hashElement('src', hashOptions)
-    .then((currentHash) => {
-      console.log(`🔍 Current hash: ${currentHash.hash}`)
-      return {
-        currentHash: currentHash,
-      }
-    })
+  let srcHash = await folderHash.hashElement('src', hashOptions)
+  console.log(`🔍 Current src hash: ${srcHash.hash}`)
+  let srcSharedHash = await folderHash.hashElement('src-shared', hashOptions)
+  console.log(`🔍 Current src-shared hash: ${srcSharedHash.hash}`)
+  let ctx = {
+    hash: {
+      srcHash: srcHash.hash,
+      srcSharedHash: srcSharedHash.hash,
+    },
+  }
+  return Promise.resolve(ctx)
     .then(
       (ctx) =>
         new Promise((resolve, reject) => {
@@ -111,8 +114,13 @@ async function rebuildSpaIfNeeded() {
               ctx.needsRebuild = true
             } else {
               oldHash = JSON.parse(data)
-              console.log(`🔍 Previous hash: ${oldHash.hash}`)
-              ctx.needsRebuild = oldHash.hash != ctx.currentHash.hash
+              console.log(`🔍 Previous src hash: ${oldHash.srcHash}`)
+              console.log(
+                `🔍 Previous src-shared hash: ${oldHash.srcSharedHash}`
+              )
+              ctx.needsRebuild =
+                oldHash.srcSharedHash != ctx.hash.srcSharedHash ||
+                oldHash.srcHash != ctx.hash.srcHash
             }
             if (ctx.needsRebuild) {
               console.log(
@@ -137,14 +145,10 @@ async function rebuildSpaIfNeeded() {
         new Promise((resolve, reject) => {
           if (ctx.needsRebuild) {
             console.log('✍ Writing out new hash file.')
-            fs.writeFile(
-              spaHashFileName,
-              JSON.stringify(ctx.currentHash),
-              (err) => {
-                if (err) reject(err)
-                else resolve(ctx)
-              }
-            )
+            fs.writeFile(spaHashFileName, JSON.stringify(ctx.hash), (err) => {
+              if (err) reject(err)
+              else resolve(ctx)
+            })
           } else {
             resolve(ctx)
           }
