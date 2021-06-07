@@ -1,0 +1,5 @@
+enum ExampleEnum: ENUM8 {
+    FirstValue = 0,
+    HexValue   = 0x1234,
+    LastValue  = 123
+}
