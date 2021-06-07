@@ -18,11 +18,38 @@ const peggy = require('peggy')
 
 // Syntax of matter idl files.
 // interactively develop/test at https://peggyjs.org/online
+//
+// Note the extra '\\' escapes in whitespace when converting between online
+// and grammar declarations
 const GRAMMAR = `
+
+// Parses a IDL file for matter
+Idl
+  = declarations:(_ Declaration _)* {
+    const idl = { 
+      enums: [],
+    };
+    
+    for (const d of declarations) {
+      const item = d[1];
+      if (item.type === 'enum') {
+        idl.enums.push(item.data);
+      } else {
+        throw new Error("Unknown declaration: " + item.type);
+      }
+    }
+    return idl;
+  }
+  
+// Represents an individual declaration such as enum, struct and
+// endpoints
+Declaration 
+  = _ e:Enum { return {type: "enum", data: e }; }
+
+// An enum declaration
 Enum
   = "enum" id:Identifier _ ":" _ enumType:EnumType _ "{" values:EnumValueList "}" {
      return {
-     	type: "enum",
         dataType: enumType,
         id: id,
         values: values,
@@ -72,7 +99,8 @@ _ "whitespace"
  * @param {*} sessionId
  */
 async function matterDataLoader(db, state, sessionId) {
-  console.log('NOT YET IMEPLEMENTED: %o', state.data)
+  // TODO(andy31415): implement conversion from state to database
+  console.log('MATTER import not yet implemented. Parsed data: %o', state.data)
 }
 
 /**
@@ -87,16 +115,12 @@ async function matterDataLoader(db, state, sessionId) {
  *
  */
 async function readMatterIdl(filePath, data) {
-  try {
-    return {
-      // required state properties
-      loader: matterDataLoader,
+  return {
+    // required state properties
+    loader: matterDataLoader,
 
-      // state specific to Matter
-      data: peggy.generate(GRAMMAR).parse(data),
-    }
-  } catch (e) {
-    throw new Error(e.message)
+    // state specific to Matter
+    data: peggy.generate(GRAMMAR).parse(data),
   }
 }
 

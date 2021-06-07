@@ -3,3 +3,8 @@ enum ExampleEnum: ENUM8 {
     HexValue   = 0x1234,
     LastValue  = 123
 }
+
+enum AnotherEnum : enum8 {
+    SomeValue = 123,
+    Other = 234
+}
