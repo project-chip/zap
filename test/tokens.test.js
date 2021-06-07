@@ -33,391 +33,346 @@ const testFile = path.join(__dirname, 'resource/tokens-test.zap')
 // let sessionId
 let templateContext
 
-beforeAll(() => {
+beforeAll(async () => {
   let file = env.sqliteTestFile('tokens')
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-    })
-    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
 }, 5000)
 
-afterAll(() => {
-  return dbApi.closeDatabase(db)
+afterAll(() => dbApi.closeDatabase(db))
+
+test('Basic gen template parsing and generation', async () => {
+  let context = await genEngine.loadTemplates(db, testUtil.testTemplate.zigbee)
+  expect(context.crc).not.toBeNull()
+  expect(context.templateData).not.toBeNull()
+  expect(context.templateData.name).toEqual('Test templates')
+  expect(context.templateData.version).toEqual('test-v1')
+  expect(context.packageId).not.toBeNull()
+  templateContext = context
+}, 3000)
+
+test('Test file import', async () => {
+  let importResult = await importJs.importDataFromFile(db, testFile)
+  templateContext.sessionId = importResult.sessionId
+  expect(importResult.sessionId).not.toBeNull()
 })
 
-test(
-  'Basic gen template parsing and generation',
-  () =>
-    genEngine
-      .loadTemplates(db, testUtil.testTemplate.zigbee)
-      .then((context) => {
-        expect(context.crc).not.toBeNull()
-        expect(context.templateData).not.toBeNull()
-        expect(context.templateData.name).toEqual('Test templates')
-        expect(context.templateData.version).toEqual('test-v1')
-        expect(context.packageId).not.toBeNull()
-        templateContext = context
-      }),
-  3000
-)
-
-test('Test file import', () =>
-  importJs.importDataFromFile(db, testFile).then((importResult) => {
-    templateContext.sessionId = importResult.sessionId
-    expect(importResult.sessionId).not.toBeNull()
-  }))
-
-test('Initialize session packages', () =>
-  utilJs
-    .initializeSessionPackage(templateContext.db, templateContext.sessionId, {
+test('Initialize session packages', async () => {
+  await utilJs.initializeSessionPackage(
+    templateContext.db,
+    templateContext.sessionId,
+    {
       zcl: env.builtinSilabsZclMetafile,
       template: env.builtinTemplateMetafile,
-    })
-    .then((sessionId) =>
-      queryPackage.getSessionPackages(
-        templateContext.db,
-        templateContext.sessionId
-      )
-    ))
+    }
+  )
+})
 
-test(
-  'Test tokens header generation',
-  () =>
-    genEngine
-      .generate(
-        db,
-        templateContext.sessionId,
-        templateContext.packageId,
-        {},
-        { disableDeprecationWarnings: true }
-      )
-      .then((genResult) => {
-        expect(genResult).not.toBeNull()
-        expect(genResult.partial).toBeFalsy()
-        expect(genResult.content).not.toBeNull()
+test('Test tokens header generation', async () => {
+  let genResult = await genEngine.generate(
+    db,
+    templateContext.sessionId,
+    templateContext.packageId,
+    {},
+    { disableDeprecationWarnings: true }
+  )
 
-        let header = genResult.content['zap-tokens.h']
+  expect(genResult).not.toBeNull()
+  expect(genResult.partial).toBeFalsy()
+  expect(genResult.content).not.toBeNull()
 
-        // Singletons
-        expect(
-          header.includes('#define CREATOR_STACK_VERSION_SINGLETON')
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_STACK_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeTruthy()
-        expect(header.includes('#define CREATOR_STACK_VERSION_1')).toBeFalsy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_STACK_VERSION_1 (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeFalsy()
+  let header = genResult.content['zap-tokens.h']
 
-        expect(
-          header.includes('#define CREATOR_HW_VERSION_SINGLETON')
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_HW_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeTruthy()
-        expect(header.includes('#define CREATOR_HW_VERSION_1')).toBeFalsy()
-        expect(
-          header.includes('#define NVM3KEY_HW_VERSION_1 (NVM3KEY_DOMAIN_ZIGBEE')
-        ).toBeFalsy()
+  // Singletons
+  expect(
+    header.includes('#define CREATOR_STACK_VERSION_SINGLETON')
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      '#define NVM3KEY_STACK_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE'
+    )
+  ).toBeTruthy()
+  expect(header.includes('#define CREATOR_STACK_VERSION_1')).toBeFalsy()
+  expect(
+    header.includes('#define NVM3KEY_STACK_VERSION_1 (NVM3KEY_DOMAIN_ZIGBEE')
+  ).toBeFalsy()
 
-        // Non-singletons
+  expect(header.includes('#define CREATOR_HW_VERSION_SINGLETON')).toBeTruthy()
+  expect(
+    header.includes(
+      '#define NVM3KEY_HW_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE'
+    )
+  ).toBeTruthy()
+  expect(header.includes('#define CREATOR_HW_VERSION_1')).toBeFalsy()
+  expect(
+    header.includes('#define NVM3KEY_HW_VERSION_1 (NVM3KEY_DOMAIN_ZIGBEE')
+  ).toBeFalsy()
 
-        expect(
-          header.includes('#define CREATOR_APPLICATION_VERSION_1')
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_APPLICATION_VERSION_1 (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes('#define CREATOR_APPLICATION_VERSION_7')
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_APPLICATION_VERSION_7 (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes('#define CREATOR_APPLICATION_VERSION_SINGLETON')
-        ).toBeFalsy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_APPLICATION_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeFalsy()
+  // Non-singletons
 
-        expect(header.includes('#define CREATOR_PRODUCT_CODE_1')).toBeTruthy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_PRODUCT_CODE_1 (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeTruthy()
-        expect(header.includes('#define CREATOR_PRODUCT_CODE_2')).toBeFalsy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_PRODUCT_CODE_2 (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeFalsy()
-        expect(header.includes('#define CREATOR_PRODUCT_CODE_7')).toBeFalsy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_PRODUCT_CODE_7 (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeFalsy()
+  expect(header.includes('#define CREATOR_APPLICATION_VERSION_1')).toBeTruthy()
+  expect(
+    header.includes(
+      '#define NVM3KEY_APPLICATION_VERSION_1 (NVM3KEY_DOMAIN_ZIGBEE'
+    )
+  ).toBeTruthy()
+  expect(header.includes('#define CREATOR_APPLICATION_VERSION_7')).toBeTruthy()
+  expect(
+    header.includes(
+      '#define NVM3KEY_APPLICATION_VERSION_7 (NVM3KEY_DOMAIN_ZIGBEE'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes('#define CREATOR_APPLICATION_VERSION_SINGLETON')
+  ).toBeFalsy()
+  expect(
+    header.includes(
+      '#define NVM3KEY_APPLICATION_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE'
+    )
+  ).toBeFalsy()
 
-        expect(
-          header.includes('#define CREATOR_COLOR_CONTROL_COLOR_MODE_1')
-        ).toBeFalsy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_COLOR_CONTROL_COLOR_MODE_1 (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeFalsy()
-        expect(
-          header.includes('#define CREATOR_COLOR_CONTROL_COLOR_MODE_2')
-        ).toBeFalsy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_COLOR_CONTROL_COLOR_MODE_2 (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeFalsy()
-        expect(
-          header.includes('#define CREATOR_COLOR_CONTROL_COLOR_MODE_7')
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_COLOR_CONTROL_COLOR_MODE_7 (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeTruthy()
+  expect(header.includes('#define CREATOR_PRODUCT_CODE_1')).toBeTruthy()
+  expect(
+    header.includes('#define NVM3KEY_PRODUCT_CODE_1 (NVM3KEY_DOMAIN_ZIGBEE')
+  ).toBeTruthy()
+  expect(header.includes('#define CREATOR_PRODUCT_CODE_2')).toBeFalsy()
+  expect(
+    header.includes('#define NVM3KEY_PRODUCT_CODE_2 (NVM3KEY_DOMAIN_ZIGBEE')
+  ).toBeFalsy()
+  expect(header.includes('#define CREATOR_PRODUCT_CODE_7')).toBeFalsy()
+  expect(
+    header.includes('#define NVM3KEY_PRODUCT_CODE_7 (NVM3KEY_DOMAIN_ZIGBEE')
+  ).toBeFalsy()
 
-        expect(
-          header.includes('#define CREATOR_LEVEL_CONTROL_REMAINING_TIME_7')
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_LEVEL_CONTROL_REMAINING_TIME_7 (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes('#define CREATOR_COLOR_CONTROL_REMAINING_TIME_7')
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            '#define NVM3KEY_COLOR_CONTROL_REMAINING_TIME_7 (NVM3KEY_DOMAIN_ZIGBEE'
-          )
-        ).toBeTruthy()
-        expect(header.includes('#define CREATOR_REMAINING_TIME_')).toBeFalsy()
+  expect(
+    header.includes('#define CREATOR_COLOR_CONTROL_COLOR_MODE_1')
+  ).toBeFalsy()
+  expect(
+    header.includes(
+      '#define NVM3KEY_COLOR_CONTROL_COLOR_MODE_1 (NVM3KEY_DOMAIN_ZIGBEE'
+    )
+  ).toBeFalsy()
+  expect(
+    header.includes('#define CREATOR_COLOR_CONTROL_COLOR_MODE_2')
+  ).toBeFalsy()
+  expect(
+    header.includes(
+      '#define NVM3KEY_COLOR_CONTROL_COLOR_MODE_2 (NVM3KEY_DOMAIN_ZIGBEE'
+    )
+  ).toBeFalsy()
+  expect(
+    header.includes('#define CREATOR_COLOR_CONTROL_COLOR_MODE_7')
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      '#define NVM3KEY_COLOR_CONTROL_COLOR_MODE_7 (NVM3KEY_DOMAIN_ZIGBEE'
+    )
+  ).toBeTruthy()
 
-        // Check token IDs
-        expect(header.includes('(NVM3KEY_DOMAIN_ZIGBEE | 0xB000)')).toBeTruthy()
-        expect(header.includes('(NVM3KEY_DOMAIN_ZIGBEE | 0xB008)')).toBeTruthy()
-        expect(header.includes('(NVM3KEY_DOMAIN_ZIGBEE | 0xB009)')).toBeFalsy()
+  expect(
+    header.includes('#define CREATOR_LEVEL_CONTROL_REMAINING_TIME_7')
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      '#define NVM3KEY_LEVEL_CONTROL_REMAINING_TIME_7 (NVM3KEY_DOMAIN_ZIGBEE'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes('#define CREATOR_COLOR_CONTROL_REMAINING_TIME_7')
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      '#define NVM3KEY_COLOR_CONTROL_REMAINING_TIME_7 (NVM3KEY_DOMAIN_ZIGBEE'
+    )
+  ).toBeTruthy()
+  expect(header.includes('#define CREATOR_REMAINING_TIME_')).toBeFalsy()
 
-        // DEFINETYPES
+  // Check token IDs
+  expect(header.includes('(NVM3KEY_DOMAIN_ZIGBEE | 0xB000)')).toBeTruthy()
+  expect(header.includes('(NVM3KEY_DOMAIN_ZIGBEE | 0xB008)')).toBeTruthy()
+  expect(header.includes('(NVM3KEY_DOMAIN_ZIGBEE | 0xB009)')).toBeFalsy()
 
-        expect(
-          header.includes('typedef uint8_t tokType_stack_version;')
-        ).toBeTruthy()
-        expect(
-          header.includes('typedef uint8_t tokType_hw_version;')
-        ).toBeTruthy()
-        expect(
-          header.includes('typedef uint8_t tokType_product_code[16];')
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'typedef uint16_t tokType_level_control_remaining_time;'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes('uint16_t tokType_color_control_remaining_time;')
-        ).toBeTruthy()
-        expect(
-          header.includes('typedef uint8_t tokType_reporting_status_client;')
-        ).toBeTruthy()
+  // DEFINETYPES
 
-        // DEFINETOKENS
+  expect(header.includes('typedef uint8_t tokType_stack_version;')).toBeTruthy()
+  expect(header.includes('typedef uint8_t tokType_hw_version;')).toBeTruthy()
+  expect(
+    header.includes('typedef uint8_t tokType_product_code[16];')
+  ).toBeTruthy()
+  expect(
+    header.includes('typedef uint16_t tokType_level_control_remaining_time;')
+  ).toBeTruthy()
+  expect(
+    header.includes('uint16_t tokType_color_control_remaining_time;')
+  ).toBeTruthy()
+  expect(
+    header.includes('typedef uint8_t tokType_reporting_status_client;')
+  ).toBeTruthy()
 
-        expect(
-          header.includes(
-            'DEFINE_BASIC_TOKEN(STACK_VERSION_SINGLETON, tokType_stack_version, 12)'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'DEFINE_BASIC_TOKEN(HW_VERSION_SINGLETON, tokType_hw_version, 13)'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'DEFINE_BASIC_TOKEN(APPLICATION_VERSION_1, tokType_application_version, 11)'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'DEFINE_BASIC_TOKEN(APPLICATION_VERSION_7, tokType_application_version, 11)'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            "DEFINE_BASIC_TOKEN(PRODUCT_CODE_1, tokType_product_code, { 3, 'A', 'B', 'C', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  })"
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'DEFINE_BASIC_TOKEN(LEVEL_CONTROL_REMAINING_TIME_7, tokType_level_control_remaining_time, 10)'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'DEFINE_BASIC_TOKEN(COLOR_CONTROL_REMAINING_TIME_7, tokType_color_control_remaining_time, 0xA1B2)'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'DEFINE_BASIC_TOKEN(COLOR_CONTROL_COLOR_MODE_7, tokType_color_control_color_mode, 1)'
-          )
-        ).toBeTruthy()
+  // DEFINETOKENS
 
-        // GENERATED_TOKEN_LOADER
+  expect(
+    header.includes(
+      'DEFINE_BASIC_TOKEN(STACK_VERSION_SINGLETON, tokType_stack_version, 12)'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'DEFINE_BASIC_TOKEN(HW_VERSION_SINGLETON, tokType_hw_version, 13)'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'DEFINE_BASIC_TOKEN(APPLICATION_VERSION_1, tokType_application_version, 11)'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'DEFINE_BASIC_TOKEN(APPLICATION_VERSION_7, tokType_application_version, 11)'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      "DEFINE_BASIC_TOKEN(PRODUCT_CODE_1, tokType_product_code, { 3, 'A', 'B', 'C', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  })"
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'DEFINE_BASIC_TOKEN(LEVEL_CONTROL_REMAINING_TIME_7, tokType_level_control_remaining_time, 10)'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'DEFINE_BASIC_TOKEN(COLOR_CONTROL_REMAINING_TIME_7, tokType_color_control_remaining_time, 0xA1B2)'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'DEFINE_BASIC_TOKEN(COLOR_CONTROL_COLOR_MODE_7, tokType_color_control_color_mode, 1)'
+    )
+  ).toBeTruthy()
 
-        expect(
-          header.includes(
-            'halCommonGetToken((tokType_stack_version *)ptr, TOKEN_STACK_VERSION_SINGLETON);'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'emberAfWriteServerAttribute(1, ZCL_BASIC_CLUSTER_ID, ZCL_STACK_VERSION_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_INT8U_ATTRIBUTE_TYPE);'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'halCommonGetToken((tokType_hw_version *)ptr, TOKEN_HW_VERSION_SINGLETON);'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'emberAfWriteServerAttribute(1, ZCL_BASIC_CLUSTER_ID, ZCL_HW_VERSION_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_INT8U_ATTRIBUTE_TYPE);'
-          )
-        ).toBeTruthy()
+  // GENERATED_TOKEN_LOADER
 
-        expect(
-          header.includes(
-            'halCommonGetToken((tokType_stack_version *)ptr, TOKEN_STACK_VERSION_1);'
-          )
-        ).toBeFalsy()
-        expect(
-          header.includes(
-            'halCommonGetToken((tokType_hw_version *)ptr, TOKEN_HW_VERSION_1);'
-          )
-        ).toBeFalsy()
+  expect(
+    header.includes(
+      'halCommonGetToken((tokType_stack_version *)ptr, TOKEN_STACK_VERSION_SINGLETON);'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'emberAfWriteServerAttribute(1, ZCL_BASIC_CLUSTER_ID, ZCL_STACK_VERSION_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_INT8U_ATTRIBUTE_TYPE);'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'halCommonGetToken((tokType_hw_version *)ptr, TOKEN_HW_VERSION_SINGLETON);'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'emberAfWriteServerAttribute(1, ZCL_BASIC_CLUSTER_ID, ZCL_HW_VERSION_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_INT8U_ATTRIBUTE_TYPE);'
+    )
+  ).toBeTruthy()
 
-        expect(
-          header.includes(
-            'if(1 == (endpoint) || (EMBER_BROADCAST_ENDPOINT == (endpoint) && epNetwork == curNetwork))'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'if(2 == (endpoint) || (EMBER_BROADCAST_ENDPOINT == (endpoint) && epNetwork == curNetwork))'
-          )
-        ).toBeFalsy()
-        expect(
-          header.includes(
-            'if(7 == (endpoint) || (EMBER_BROADCAST_ENDPOINT == (endpoint) && epNetwork == curNetwork))'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'halCommonGetToken((tokType_application_version *)ptr, TOKEN_APPLICATION_VERSION_1);'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'halCommonGetToken((tokType_application_version *)ptr, TOKEN_APPLICATION_VERSION_7);'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'halCommonGetToken((tokType_reporting_status_client *)ptr, TOKEN_REPORTING_STATUS_CLIENT_7);'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'emberAfWriteServerAttribute(1, ZCL_BASIC_CLUSTER_ID, ZCL_APPLICATION_VERSION_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_INT8U_ATTRIBUTE_TYPE);'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'emberAfWriteClientAttribute(1, ZCL_THERMOSTAT_CLUSTER_ID, ZCL_REPORTING_STATUS_CLIENT_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_ENUM8_ATTRIBUTE_TYPE);'
-          )
-        ).toBeTruthy()
+  expect(
+    header.includes(
+      'halCommonGetToken((tokType_stack_version *)ptr, TOKEN_STACK_VERSION_1);'
+    )
+  ).toBeFalsy()
+  expect(
+    header.includes(
+      'halCommonGetToken((tokType_hw_version *)ptr, TOKEN_HW_VERSION_1);'
+    )
+  ).toBeFalsy()
 
-        // GENERATED_TOKEN_SAVER
+  expect(
+    header.includes(
+      'if(1 == (endpoint) || (EMBER_BROADCAST_ENDPOINT == (endpoint) && epNetwork == curNetwork))'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'if(2 == (endpoint) || (EMBER_BROADCAST_ENDPOINT == (endpoint) && epNetwork == curNetwork))'
+    )
+  ).toBeFalsy()
+  expect(
+    header.includes(
+      'if(7 == (endpoint) || (EMBER_BROADCAST_ENDPOINT == (endpoint) && epNetwork == curNetwork))'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'halCommonGetToken((tokType_application_version *)ptr, TOKEN_APPLICATION_VERSION_1);'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'halCommonGetToken((tokType_application_version *)ptr, TOKEN_APPLICATION_VERSION_7);'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'halCommonGetToken((tokType_reporting_status_client *)ptr, TOKEN_REPORTING_STATUS_CLIENT_7);'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'emberAfWriteServerAttribute(1, ZCL_BASIC_CLUSTER_ID, ZCL_APPLICATION_VERSION_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_INT8U_ATTRIBUTE_TYPE);'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'emberAfWriteClientAttribute(1, ZCL_THERMOSTAT_CLUSTER_ID, ZCL_REPORTING_STATUS_CLIENT_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_ENUM8_ATTRIBUTE_TYPE);'
+    )
+  ).toBeTruthy()
 
-        expect(header.includes('if ( 0x0000 == clusterId )')).toBeTruthy()
-        expect(header.includes('if ( 0x0001 == clusterId )')).toBeFalsy()
-        expect(
-          header.includes(
-            'if ( 0x0002 == metadata->attributeId && 0x0000 == emberAfGetMfgCode(metadata) && !emberAfAttributeIsClient(metadata) ) {'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'halCommonSetToken(TOKEN_STACK_VERSION_SINGLETON, data); }'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'if ( 0x0003 == metadata->attributeId && 0x0000 == emberAfGetMfgCode(metadata) && !emberAfAttributeIsClient(metadata) )'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'halCommonSetToken(TOKEN_HW_VERSION_SINGLETON, data); }'
-          )
-        ).toBeTruthy()
-        expect(header.includes('if ( 0x0201 == clusterId )')).toBeTruthy()
-        expect(
-          header.includes(
-            'if ( 0xFFFE == metadata->attributeId && 0x0000 == emberAfGetMfgCode(metadata) && emberAfAttributeIsClient(metadata) )'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'halCommonSetToken(TOKEN_REPORTING_STATUS_CLIENT_7, data);'
-          )
-        ).toBeTruthy()
+  // GENERATED_TOKEN_SAVER
 
-        expect(header.includes('if ( 1 == endpoint )')).toBeTruthy()
-        expect(header.includes('if ( 2 == endpoint )')).toBeFalsy()
-        expect(header.includes('if ( 7 == endpoint )')).toBeTruthy()
-        expect(
-          header.includes(
-            'if ( 0x0001 == metadata->attributeId && 0x0000 == emberAfGetMfgCode(metadata) && !emberAfAttributeIsClient(metadata) )'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'halCommonSetToken(TOKEN_APPLICATION_VERSION_1, data);'
-          )
-        ).toBeTruthy()
-        expect(
-          header.includes(
-            'halCommonSetToken(TOKEN_APPLICATION_VERSION_7, data);'
-          )
-        ).toBeTruthy()
-      }),
-  12000
-)
+  expect(header.includes('if ( 0x0000 == clusterId )')).toBeTruthy()
+  expect(header.includes('if ( 0x0001 == clusterId )')).toBeFalsy()
+  expect(
+    header.includes(
+      'if ( 0x0002 == metadata->attributeId && 0x0000 == emberAfGetMfgCode(metadata) && !emberAfAttributeIsClient(metadata) ) {'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes('halCommonSetToken(TOKEN_STACK_VERSION_SINGLETON, data); }')
+  ).toBeTruthy()
+  expect(
+    header.includes(
+      'if ( 0x0003 == metadata->attributeId && 0x0000 == emberAfGetMfgCode(metadata) && !emberAfAttributeIsClient(metadata) )'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes('halCommonSetToken(TOKEN_HW_VERSION_SINGLETON, data); }')
+  ).toBeTruthy()
+  expect(header.includes('if ( 0x0201 == clusterId )')).toBeTruthy()
+  expect(
+    header.includes(
+      'if ( 0xFFFE == metadata->attributeId && 0x0000 == emberAfGetMfgCode(metadata) && emberAfAttributeIsClient(metadata) )'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes('halCommonSetToken(TOKEN_REPORTING_STATUS_CLIENT_7, data);')
+  ).toBeTruthy()
+
+  expect(header.includes('if ( 1 == endpoint )')).toBeTruthy()
+  expect(header.includes('if ( 2 == endpoint )')).toBeFalsy()
+  expect(header.includes('if ( 7 == endpoint )')).toBeTruthy()
+  expect(
+    header.includes(
+      'if ( 0x0001 == metadata->attributeId && 0x0000 == emberAfGetMfgCode(metadata) && !emberAfAttributeIsClient(metadata) )'
+    )
+  ).toBeTruthy()
+  expect(
+    header.includes('halCommonSetToken(TOKEN_APPLICATION_VERSION_1, data);')
+  ).toBeTruthy()
+  expect(
+    header.includes('halCommonSetToken(TOKEN_APPLICATION_VERSION_7, data);')
+  ).toBeTruthy()
+}, 12000)
