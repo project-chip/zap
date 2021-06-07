@@ -57,12 +57,8 @@ Enum
   }
   
 EnumValueList
-  = _ head:EnumValue tail:(_ "," _ EnumValue)* {
-    const result = [head];
-    for (const element of tail) {
-      result.push(element[3]);
-    }
-    return result;
+  = _ head:EnumValue tail:(_ "," _ @EnumValue)* {
+    return [head, ...tail];
   }
   
 EnumValue "enumeration value"
