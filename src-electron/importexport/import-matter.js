@@ -111,12 +111,29 @@ async function matterDataLoader(db, state, sessionId) {
  *
  */
 async function readMatterIdl(filePath, data) {
-  return {
-    // required state properties
-    loader: matterDataLoader,
+  const grammarSource = 'HARDCODED'
 
-    // state specific to Matter
-    data: peggy.generate(GRAMMAR).parse(data),
+  try {
+    return {
+      // required state properties
+      loader: matterDataLoader,
+
+      // state specific to Matter
+      data: peggy
+        .generate(GRAMMAR, { grammarSource })
+        .parse(data, { grammarSource: filePath }),
+    }
+  } catch (e) {
+    if (typeof e.format === 'function') {
+      throw new Error(
+        e.format([
+          { source: grammarSource, text: GRAMMAR },
+          { source: filePath, text: data },
+        ])
+      )
+    } else {
+      throw e
+    }
   }
 }
 
