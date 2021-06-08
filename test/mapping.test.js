@@ -18,10 +18,15 @@
  * @jest-environment node
  */
 const dbMapping = require('../src-electron/db/db-mapping.js')
+const { timeout } = require('./test-util.js')
 
-test('Test DB mappings', () => {
-  Object.keys(dbMapping.map).forEach((k) => {
-    dbMapping.map[k](null)
-    dbMapping.map[k]({ a: 1 })
-  })
-})
+test(
+  'Test DB mappings',
+  () => {
+    Object.keys(dbMapping.map).forEach((k) => {
+      dbMapping.map[k](null)
+      dbMapping.map[k]({ a: 1 })
+    })
+  },
+  timeout.short()
+)

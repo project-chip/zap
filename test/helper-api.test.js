@@ -21,41 +21,54 @@
 const templateEngine = require('../src-electron/generator/template-engine.js')
 const fs = require('fs')
 const path = require('path')
+const { timeout } = require('./test-util.js')
 
-test('helper functions need to be snake_case without uppercase characters unless they are deprecated', () => {
-  let helpers = templateEngine.allGlobalHelpers()
-  expect(Object.keys(helpers.api).length).toBeGreaterThan(10)
-  for (const x of Object.keys(helpers.api)) {
-    expect(helpers.api[x]).not.toBeNull()
-    let n = x
-    if (!helpers.api[x].isDeprecated) expect(n.toLowerCase()).toEqual(n)
-  }
-})
-
-test('check that there is no overlapping duplicates', () => {
-  let helpers = templateEngine.allGlobalHelpers()
-  let dups = helpers.duplicates.join(', ')
-  expect(dups).toBe('')
-})
-
-test('compare APIs against the baseline', () => {
-  let apiFromFile = JSON.parse(
-    fs.readFileSync(path.join(__dirname, 'helper-api-baseline.json'))
-  )
-  let helpers = templateEngine.allGlobalHelpers()
-
-  let errorMessage = ''
-
-  apiFromFile.forEach((api) => {
-    let fn = api.name
-    let apiFn = helpers.api[fn]
-    if (apiFn == undefined) {
-      errorMessage += `Helper ${fn} has been removed, breaking the API.\n`
+test(
+  'helper functions need to be snake_case without uppercase characters unless they are deprecated',
+  () => {
+    let helpers = templateEngine.allGlobalHelpers()
+    expect(Object.keys(helpers.api).length).toBeGreaterThan(10)
+    for (const x of Object.keys(helpers.api)) {
+      expect(helpers.api[x]).not.toBeNull()
+      let n = x
+      if (!helpers.api[x].isDeprecated) expect(n.toLowerCase()).toEqual(n)
     }
-    if (api.isDeprecated) {
-      if (!apiFn.isDeprecated)
-        errorMessage += `Helper ${fn} has been deprecated, but now it's not any more.\n`
-    }
-  })
-  expect(errorMessage).toEqual('')
-})
+  },
+  timeout.short()
+)
+
+test(
+  'check that there is no overlapping duplicates',
+  () => {
+    let helpers = templateEngine.allGlobalHelpers()
+    let dups = helpers.duplicates.join(', ')
+    expect(dups).toBe('')
+  },
+  timeout.short()
+)
+
+test(
+  'compare APIs against the baseline',
+  () => {
+    let apiFromFile = JSON.parse(
+      fs.readFileSync(path.join(__dirname, 'helper-api-baseline.json'))
+    )
+    let helpers = templateEngine.allGlobalHelpers()
+
+    let errorMessage = ''
+
+    apiFromFile.forEach((api) => {
+      let fn = api.name
+      let apiFn = helpers.api[fn]
+      if (apiFn == undefined) {
+        errorMessage += `Helper ${fn} has been removed, breaking the API.\n`
+      }
+      if (api.isDeprecated) {
+        if (!apiFn.isDeprecated)
+          errorMessage += `Helper ${fn} has been deprecated, but now it's not any more.\n`
+      }
+    })
+    expect(errorMessage).toEqual('')
+  },
+  timeout.short()
+)

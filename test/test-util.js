@@ -39,6 +39,41 @@ function testServer(fileName) {
   return ret
 }
 
+const zto = 'ZAP_TEST_TIMEOUT'
+const ztoShort = 'ZAP_TEST_TIMEOUT_SHORT'
+const ztoMedium = 'ZAP_TEST_TIMEOUT_MEDIUM'
+const ztoLong = 'ZAP_TEST_TIMEOUT_LONG'
+
+exports.timeout = {
+  short: () => {
+    if (ztoShort in process.env) {
+      return parseInt(process.env[ztoShort])
+    } else if (zto in process.env) {
+      return parseInt(process.env[zto])
+    } else {
+      return 1000
+    }
+  },
+  medium: () => {
+    if (ztoMedium in process.env) {
+      return parseInt(process.env[ztoMedium])
+    } else if (zto in process.env) {
+      return parseInt(process.env[zto])
+    } else {
+      return 5000
+    }
+  },
+  long: () => {
+    if (ztoLong in process.env) {
+      return parseInt(process.env[ztoLong])
+    } else if (zto in process.env) {
+      return parseInt(process.env[zto])
+    } else {
+      return 20000
+    }
+  },
+}
+
 exports.testTemplate = {
   zigbee: './test/gen-template/zigbee/gen-templates.json',
   zigbeeCount: 18,
@@ -62,4 +97,3 @@ exports.totalServerAttributeCount = 2954
 exports.totalSpecCount = 39
 exports.totalEnumCount = 209
 exports.totalEnumItemCount = 1595
-exports.longTimeout = 13000

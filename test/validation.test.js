@@ -28,6 +28,7 @@ const queryZcl = require('../src-electron/db/query-zcl.js')
 const env = require('../src-electron/util/env.js')
 const util = require('../src-electron/util/util.js')
 const types = require('../src-electron/util/types.js')
+const { timeout } = require('./test-util.js')
 
 let db
 let sid
@@ -40,68 +41,86 @@ beforeAll(() => {
     .then((d) => {
       db = d
     })
-}, 5000)
+}, timeout.medium())
 
-afterAll(() => {
-  return dbApi.closeDatabase(db)
-})
+afterAll(() => dbApi.closeDatabase(db), timeout.short())
 
-test('Load the static data.', async () => {
-  let context = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
-  pkgId = context.packageId
-}, 5000)
+test(
+  'Load the static data.',
+  async () => {
+    let context = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+    pkgId = context.packageId
+  },
+  timeout.medium()
+)
 
-test('isValidNumberString Functions', () => {
-  // Integer
-  expect(validation.isValidNumberString('0x0000')).toBeTruthy()
-  expect(validation.isValidNumberString('0x0001')).toBeTruthy()
-  expect(!validation.isValidNumberString('0x00asdfajaklsf;01')).toBeTruthy()
-  // Float
-  expect(validation.isValidFloat('5.6')).toBeTruthy()
-  expect(validation.isValidFloat('5')).toBeTruthy()
-  expect(!validation.isValidFloat('5.6....')).toBeTruthy()
-  expect(validation.isValidFloat('.0001')).toBeTruthy()
-}, 5000)
+test(
+  'isValidNumberString Functions',
+  () => {
+    // Integer
+    expect(validation.isValidNumberString('0x0000')).toBeTruthy()
+    expect(validation.isValidNumberString('0x0001')).toBeTruthy()
+    expect(!validation.isValidNumberString('0x00asdfajaklsf;01')).toBeTruthy()
+    // Float
+    expect(validation.isValidFloat('5.6')).toBeTruthy()
+    expect(validation.isValidFloat('5')).toBeTruthy()
+    expect(!validation.isValidFloat('5.6....')).toBeTruthy()
+    expect(validation.isValidFloat('.0001')).toBeTruthy()
+  },
+  timeout.medium()
+)
 
-test('extractValue Functions', () => {
-  //Integer
-  expect(validation.extractIntegerValue('5') == 5).toBeTruthy()
-  expect(validation.extractIntegerValue('0x05') == 5).toBeTruthy()
-  expect(validation.extractIntegerValue('A') == 10).toBeTruthy()
-  //float
-  expect(validation.extractFloatValue('0.53') == 0.53).toBeTruthy()
-  expect(validation.extractFloatValue('.53') == 0.53).toBeTruthy()
-}, 5000)
+test(
+  'extractValue Functions',
+  () => {
+    //Integer
+    expect(validation.extractIntegerValue('5') == 5).toBeTruthy()
+    expect(validation.extractIntegerValue('0x05') == 5).toBeTruthy()
+    expect(validation.extractIntegerValue('A') == 10).toBeTruthy()
+    //float
+    expect(validation.extractFloatValue('0.53') == 0.53).toBeTruthy()
+    expect(validation.extractFloatValue('.53') == 0.53).toBeTruthy()
+  },
+  timeout.medium()
+)
 
-test('Test int bounds', () => {
-  //Integer
-  expect(validation.checkBoundsInteger(50, 25, 60)).toBeTruthy()
-  expect(!validation.checkBoundsInteger(50, 25, 20)).toBeTruthy()
-  expect(!validation.checkBoundsInteger(50, 51, 55)).toBeTruthy()
-  expect(!validation.checkBoundsInteger(30, 'avaa', 2)).toBeTruthy()
-  expect(!validation.checkBoundsInteger(30, 45, 50)).toBeTruthy()
-  expect(validation.checkBoundsInteger('asdfa', 40, 50)).toBeFalsy()
+test(
+  'Test int bounds',
+  () => {
+    //Integer
+    expect(validation.checkBoundsInteger(50, 25, 60)).toBeTruthy()
+    expect(!validation.checkBoundsInteger(50, 25, 20)).toBeTruthy()
+    expect(!validation.checkBoundsInteger(50, 51, 55)).toBeTruthy()
+    expect(!validation.checkBoundsInteger(30, 'avaa', 2)).toBeTruthy()
+    expect(!validation.checkBoundsInteger(30, 45, 50)).toBeTruthy()
+    expect(validation.checkBoundsInteger('asdfa', 40, 50)).toBeFalsy()
 
-  //Float
-  expect(validation.checkBoundsFloat(35.0, 25, 50.0))
-  expect(!validation.checkBoundsFloat(351.0, 25, 50.0))
-  expect(!validation.checkBoundsFloat(351.0, 355, 5650.0))
-}, 5000)
+    //Float
+    expect(validation.checkBoundsFloat(35.0, 25, 50.0))
+    expect(!validation.checkBoundsFloat(351.0, 25, 50.0))
+    expect(!validation.checkBoundsFloat(351.0, 355, 5650.0))
+  },
+  timeout.medium()
+)
 
-test('Validate types', () => {
-  expect(types.isString('CHAR_STRING'))
+test(
+  'Validate types',
+  () => {
+    expect(types.isString('CHAR_STRING'))
 
-  expect(types.isString('char_string'))
-  expect(types.isString('OCTET_STRING'))
-  expect(types.isString('LONG_CHAR_STRING'))
-  expect(types.isString('LONG_OCTET_STRING'))
-  expect(!types.isString('FLOAT_SEMI'))
+    expect(types.isString('char_string'))
+    expect(types.isString('OCTET_STRING'))
+    expect(types.isString('LONG_CHAR_STRING'))
+    expect(types.isString('LONG_OCTET_STRING'))
+    expect(!types.isString('FLOAT_SEMI'))
 
-  expect(types.isFloat('FLOAT_SEMI'))
-  expect(types.isFloat('FLOAT_SINGLE'))
-  expect(types.isFloat('FLOAT_DOUBLE'))
-  expect(!types.isFloat('LONG_OCTET_STRING'))
-}, 5000)
+    expect(types.isFloat('FLOAT_SEMI'))
+    expect(types.isFloat('FLOAT_SINGLE'))
+    expect(types.isFloat('FLOAT_DOUBLE'))
+    expect(!types.isFloat('LONG_OCTET_STRING'))
+  },
+  timeout.medium()
+)
 
 test(
   'Integer Test',
@@ -118,135 +137,143 @@ test(
         expect(minMax.min == 0).toBeTruthy()
         expect(minMax.max === 0xffff).toBeTruthy()
       }),
-  2000
+  timeout.medium()
 )
 
-test('validate Attribute Test', () => {
-  let fakeEndpointAttribute = {
-    defaultValue: '30',
-  }
+test(
+  'validate Attribute Test',
+  () => {
+    let fakeEndpointAttribute = {
+      defaultValue: '30',
+    }
 
-  let fakeAttribute = {
-    type: 'UINT16',
-    min: '0x0010',
-    max: '50',
-  }
+    let fakeAttribute = {
+      type: 'UINT16',
+      min: '0x0010',
+      max: '50',
+    }
 
-  expect(
-    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-      .defaultValue.length == 0
-  ).toBeTruthy()
-  // Check for if attribute is out of bounds.
-  fakeEndpointAttribute.defaultValue = '60'
-  expect(
-    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-      .defaultValue.length == 0
-  ).toBeFalsy()
-  fakeEndpointAttribute.defaultValue = '5'
-  expect(
-    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-      .defaultValue.length == 0
-  ).toBeFalsy()
+    expect(
+      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+        .defaultValue.length == 0
+    ).toBeTruthy()
+    // Check for if attribute is out of bounds.
+    fakeEndpointAttribute.defaultValue = '60'
+    expect(
+      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+        .defaultValue.length == 0
+    ).toBeFalsy()
+    fakeEndpointAttribute.defaultValue = '5'
+    expect(
+      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+        .defaultValue.length == 0
+    ).toBeFalsy()
 
-  //Check if attribute is actually a number
-  fakeEndpointAttribute.defaultValue = 'xxxxxx'
-  expect(
-    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-      .defaultValue.length == 0
-  ).toBeFalsy()
+    //Check if attribute is actually a number
+    fakeEndpointAttribute.defaultValue = 'xxxxxx'
+    expect(
+      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+        .defaultValue.length == 0
+    ).toBeFalsy()
 
-  fakeAttribute = {
-    type: 'FLOAT_SINGLE',
-    min: '0.5',
-    max: '2',
-  }
+    fakeAttribute = {
+      type: 'FLOAT_SINGLE',
+      min: '0.5',
+      max: '2',
+    }
 
-  fakeEndpointAttribute = {
-    defaultValue: '1.5',
-  }
-  expect(
-    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-      .defaultValue.length == 0
-  ).toBeTruthy()
-  //Check out of bounds.
-  fakeEndpointAttribute = {
-    defaultValue: '4.5',
-  }
-  expect(
-    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-      .defaultValue.length == 0
-  ).toBeFalsy()
-  fakeEndpointAttribute = {
-    defaultValue: '.25',
-  }
-  expect(
-    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-      .defaultValue.length == 0
-  ).toBeFalsy()
+    fakeEndpointAttribute = {
+      defaultValue: '1.5',
+    }
+    expect(
+      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+        .defaultValue.length == 0
+    ).toBeTruthy()
+    //Check out of bounds.
+    fakeEndpointAttribute = {
+      defaultValue: '4.5',
+    }
+    expect(
+      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+        .defaultValue.length == 0
+    ).toBeFalsy()
+    fakeEndpointAttribute = {
+      defaultValue: '.25',
+    }
+    expect(
+      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+        .defaultValue.length == 0
+    ).toBeFalsy()
 
-  //Check if attribute is actually a number
-  fakeEndpointAttribute.defaultValue = 'xxxxxx'
-  expect(
-    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-      .defaultValue.length == 0
-  ).toBeFalsy()
+    //Check if attribute is actually a number
+    fakeEndpointAttribute.defaultValue = 'xxxxxx'
+    expect(
+      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+        .defaultValue.length == 0
+    ).toBeFalsy()
 
-  // Expect no issues with strings.
-  fakeAttribute = {
-    type: 'CHAR_STRING',
-  }
-  fakeEndpointAttribute = {
-    defaultValue: '30adfadf',
-  }
-  expect(
-    validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-      .defaultValue.length == 0
-  ).toBeTruthy()
-}, 2000)
+    // Expect no issues with strings.
+    fakeAttribute = {
+      type: 'CHAR_STRING',
+    }
+    fakeEndpointAttribute = {
+      defaultValue: '30adfadf',
+    }
+    expect(
+      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
+        .defaultValue.length == 0
+    ).toBeTruthy()
+  },
+  timeout.medium()
+)
 
-test('validate endpoint test', () => {
-  //Validate normal operation
-  let endpoint = {
-    endpointId: '1',
-    networkId: '0',
-  }
-  expect(
-    validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
-  ).toBeTruthy()
-  expect(
-    validation.validateSpecificEndpoint(endpoint).networkId.length == 0
-  ).toBeTruthy()
+test(
+  'validate endpoint test',
+  () => {
+    //Validate normal operation
+    let endpoint = {
+      endpointId: '1',
+      networkId: '0',
+    }
+    expect(
+      validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+    ).toBeTruthy()
+    expect(
+      validation.validateSpecificEndpoint(endpoint).networkId.length == 0
+    ).toBeTruthy()
 
-  //Validate not a number
-  endpoint = {
-    endpointId: 'blah',
-    networkId: 'blah',
-  }
-  expect(
-    validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
-  ).toBeFalsy()
-  expect(
-    validation.validateSpecificEndpoint(endpoint).networkId.length == 0
-  ).toBeFalsy()
+    //Validate not a number
+    endpoint = {
+      endpointId: 'blah',
+      networkId: 'blah',
+    }
+    expect(
+      validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+    ).toBeFalsy()
+    expect(
+      validation.validateSpecificEndpoint(endpoint).networkId.length == 0
+    ).toBeFalsy()
 
-  //Validate 0 not being valid Endpoint ID
-  endpoint = {
-    endpointId: '0',
-    networkId: 'blah',
-  }
-  expect(
-    validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
-  ).toBeFalsy()
+    //Validate 0 not being valid Endpoint ID
+    endpoint = {
+      endpointId: '0',
+      networkId: 'blah',
+    }
+    expect(
+      validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+    ).toBeFalsy()
 
-  //Validate out of bounds on endpointId
-  endpoint = {
-    endpointId: '0xFFFFFFFF',
-    networkId: 'blah',
-  }
-  expect(
-    validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
-  ).toBeFalsy()
-}, 2000)
+    //Validate out of bounds on endpointId
+    endpoint = {
+      endpointId: '0xFFFFFFFF',
+      networkId: 'blah',
+    }
+    expect(
+      validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+    ).toBeFalsy()
+  },
+  timeout.medium()
+)
 
 describe('Validate endpoint for duplicate endpointIds', () => {
   let endpointTypeIdOnOff
@@ -299,7 +326,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       23,
       43
     )
-  }, 10000)
+  }, timeout.long())
   test(
     'Test endpoint for duplicates',
     () =>
@@ -309,6 +336,6 @@ describe('Validate endpoint for duplicate endpointIds', () => {
         .then((hasNoDuplicates) => {
           expect(hasNoDuplicates).toBeFalsy()
         }),
-    5000
+    timeout.medium()
   )
 })

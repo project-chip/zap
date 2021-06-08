@@ -29,7 +29,6 @@ const queryPackage = require('../src-electron/db/query-package.js')
 
 let db
 const templateCount = 3
-const genTimeout = 3000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 let sessionId
 let templateContext
@@ -42,7 +41,7 @@ beforeAll(async () => {
     env.schemaFile(),
     env.zapVersion()
   )
-}, 5000)
+}, testUtil.timeout.medium())
 
 afterAll(() => {
   return dbApi.closeDatabase(db)
@@ -62,7 +61,7 @@ test(
         expect(context.packageId).not.toBeNull()
         templateContext = context
       }),
-  3000
+  testUtil.timeout.medium()
 )
 
 test(
@@ -71,15 +70,19 @@ test(
     zclLoader.loadZcl(db, env.builtinDotdotZclMetafile).then((context) => {
       zclContext = context
     }),
-  5000
+  testUtil.timeout.medium()
 )
 
-test('File import and zcl package insertion', async () => {
-  let importResult = await importJs.importDataFromFile(db, testFile)
-  sessionId = importResult.sessionId
-  expect(sessionId).not.toBeNull()
-  await queryPackage.insertSessionPackage(db, sessionId, zclContext.packageId)
-})
+test(
+  'File import and zcl package insertion',
+  async () => {
+    let importResult = await importJs.importDataFromFile(db, testFile)
+    sessionId = importResult.sessionId
+    expect(sessionId).not.toBeNull()
+    await queryPackage.insertSessionPackage(db, sessionId, zclContext.packageId)
+  },
+  testUtil.timeout.medium()
+)
 
 test(
   'Test dotdot generation',
@@ -119,5 +122,5 @@ test(
           types.includes('// Bitmap: LevelOptions, type: map8')
         ).toBeTruthy()
       }),
-  genTimeout
+  testUtil.timeout.medium()
 )

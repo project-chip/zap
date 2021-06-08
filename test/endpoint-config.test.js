@@ -32,7 +32,6 @@ const bin = require('../src-electron/util/bin.js')
 
 let db
 const templateCount = testUtil.testTemplate.zigbeeCount
-const genTimeout = 5000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 let sessionId
 let templateContext
@@ -45,11 +44,11 @@ beforeAll(() => {
     .then((d) => {
       db = d
     })
-}, 5000)
+}, testUtil.timeout.medium())
 
 afterAll(() => {
   return dbApi.closeDatabase(db)
-})
+}, testUtil.timeout.short())
 
 test(
   'Basic gen template parsing and generation',
@@ -65,7 +64,7 @@ test(
         expect(context.packageId).not.toBeNull()
         templateContext = context
       }),
-  3000
+  testUtil.timeout.medium()
 )
 
 test(
@@ -74,7 +73,7 @@ test(
     zclLoader.loadZcl(db, env.builtinSilabsZclMetafile).then((context) => {
       zclContext = context
     }),
-  5000
+  testUtil.timeout.medium()
 )
 
 test(
@@ -84,7 +83,7 @@ test(
       sessionId = importResult.sessionId
       expect(sessionId).not.toBeNull()
     }),
-  genTimeout
+  testUtil.timeout.medium()
 )
 
 test(
@@ -162,7 +161,7 @@ test(
         })
         expect(cmdSums[0]).toBe(15)
       }),
-  genTimeout
+  testUtil.timeout.medium()
 )
 
 test(
@@ -171,7 +170,7 @@ test(
     types.typeSize(db, zclContext.packageId, 'bitmap8').then((size) => {
       expect(size).toBe(1)
     }),
-  genTimeout
+  testUtil.timeout.medium()
 )
 
 test(
@@ -258,5 +257,5 @@ test(
           epc.includes('#define EMBER_AF_DEFAULT_RESPONSE_POLICY_ALWAYS')
         ).toBeTruthy()
       }),
-  genTimeout
+  testUtil.timeout.medium()
 )

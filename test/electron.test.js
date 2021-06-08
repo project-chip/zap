@@ -20,23 +20,32 @@
 
 const electronMain = require('../src-electron/main-process/electron-main.js')
 const window = require('../src-electron/ui/window.js')
+const { timeout } = require('./test-util.js')
 
-test('Make sure electron main process loads', () => {
-  expect(electronMain.loaded).toBeTruthy()
-})
+test(
+  'Make sure electron main process loads',
+  () => {
+    expect(electronMain.loaded).toBeTruthy()
+  },
+  timeout.short()
+)
 
-test('Test constructing queries for the window', () => {
-  process.env.DEV = true
-  process.env.MODE = 'electron'
-  let query = window.createQueryString('um', 1234)
-  expect(query).toBe(`?uiMode=um&restPort=1234`)
+test(
+  'Test constructing queries for the window',
+  () => {
+    process.env.DEV = true
+    process.env.MODE = 'electron'
+    let query = window.createQueryString('um', 1234)
+    expect(query).toBe(`?uiMode=um&restPort=1234`)
 
-  process.env.DEV = false
-  process.env.MODE = ''
-  query = window.createQueryString('um')
-  expect(query).toBe(`?uiMode=um`)
-  query = window.createQueryString()
-  expect(query).toBe(``)
-})
+    process.env.DEV = false
+    process.env.MODE = ''
+    query = window.createQueryString('um')
+    expect(query).toBe(`?uiMode=um`)
+    query = window.createQueryString()
+    expect(query).toBe(``)
+  },
+  timeout.short()
+)
 
 require('../src-electron/main-process/preference.js')

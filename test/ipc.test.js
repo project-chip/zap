@@ -22,6 +22,7 @@ const ipcClient = require('../src-electron/client/ipc-client.js')
 const ipcServer = require('../src-electron/server/ipc-server.js')
 const util = require('../src-electron/util/util.js')
 const env = require('../src-electron/util/env.js')
+const { timeout } = require('./test-util.js')
 
 const responseWaitPeriod = 500
 /**
@@ -30,21 +31,33 @@ const responseWaitPeriod = 500
  */
 test('test no server', () => expect(ipcServer.isServerRunning()).toBeFalsy())
 
-test('start server', () =>
-  ipcServer.initServer().then(() => {
-    expect(ipcServer.isServerRunning()).toBeTruthy()
-  }))
+test(
+  'start server',
+  () =>
+    ipcServer.initServer().then(() => {
+      expect(ipcServer.isServerRunning()).toBeTruthy()
+    }),
+  timeout.medium()
+)
 
 test('test no client', () => expect(ipcClient.isClientConnected()).toBeFalsy())
 
-test('connect first client', () =>
-  ipcClient.initAndConnectClient().then(() => {
-    expect(ipcClient.isClientConnected()).toBeTruthy()
-  }))
+test(
+  'connect first client',
+  () =>
+    ipcClient.initAndConnectClient().then(() => {
+      expect(ipcClient.isClientConnected()).toBeTruthy()
+    }),
+  timeout.medium()
+)
 
-test('no pong data', () => {
-  expect(ipcClient.lastPongData()).toBeNull()
-})
+test(
+  'no pong data',
+  () => {
+    expect(ipcClient.lastPongData()).toBeNull()
+  },
+  timeout.medium()
+)
 
 test(
   'send ping from client, wait a second',
@@ -52,27 +65,39 @@ test(
     ipcClient
       .emit(ipcServer.eventType.ping, 'hello')
       .then(() => util.waitFor(responseWaitPeriod)),
-  2000
+  timeout.medium()
 )
-test('pong data received', () => {
-  expect(ipcClient.lastPongData()).toEqual('hello')
-})
+test(
+  'pong data received',
+  () => {
+    expect(ipcClient.lastPongData()).toEqual('hello')
+  },
+  timeout.medium()
+)
 
-test('server status', () => {
-  let response = null
-  ipcClient.on(ipcServer.eventType.overAndOut, (data) => (response = data))
-  ipcClient.emit(ipcServer.eventType.serverStatus)
-  return util.waitFor(responseWaitPeriod).then(() => {
-    expect(response).not.toBeNull()
-    expect(response.url).not.toBeNull()
-    expect(response.url.includes('http://localhost')).toBeTruthy()
-    let myVersion = env.zapVersion()
-    expect(response.hash).toEqual(myVersion.hash)
-  })
-})
+test(
+  'server status',
+  () => {
+    let response = null
+    ipcClient.on(ipcServer.eventType.overAndOut, (data) => (response = data))
+    ipcClient.emit(ipcServer.eventType.serverStatus)
+    return util.waitFor(responseWaitPeriod).then(() => {
+      expect(response).not.toBeNull()
+      expect(response.url).not.toBeNull()
+      expect(response.url.includes('http://localhost')).toBeTruthy()
+      let myVersion = env.zapVersion()
+      expect(response.hash).toEqual(myVersion.hash)
+    })
+  },
+  timeout.medium()
+)
 
-test('disconnect client', () => ipcClient.disconnectClient())
+test('disconnect client', () => ipcClient.disconnectClient(), timeout.short())
 
-test('shutdown server', () => {
-  ipcServer.shutdownServerSync()
-})
+test(
+  'shutdown server',
+  () => {
+    ipcServer.shutdownServerSync()
+  },
+  timeout.medium()
+)

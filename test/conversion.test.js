@@ -20,20 +20,15 @@
 const path = require('path')
 const fs = require('fs')
 const importJs = require('../src-electron/importexport/import.js')
-const exportJs = require('../src-electron/importexport/export.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const env = require('../src-electron/util/env.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const generationEngine = require('../src-electron/generator/generation-engine.js')
 const querySession = require('../src-electron/db/query-session.js')
 const testUtil = require('./test-util.js')
-const queryConfig = require('../src-electron/db/query-config.js')
 const queryPackage = require('../src-electron/db/query-package.js')
-const queryZcl = require('../src-electron/db/query-zcl.js')
 const util = require('../src-electron/util/util.js')
 
-let timeout = testUtil.longTimeout
 let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
 let haCombinedIsc = path.join(
   __dirname,
@@ -52,11 +47,11 @@ beforeAll(() => {
     .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
     .then(() => zclLoader.loadZcl(db, env.builtinDotdotZclMetafile))
     .catch((err) => env.logError(`Error: ${err}`))
-}, 10000)
+}, testUtil.timeout.long())
 
 afterAll(() => {
   return dbApi.closeDatabase(db)
-})
+}, testUtil.timeout.short())
 
 test.skip(
   path.basename(haLightIsc) + ' - conversion',
@@ -130,7 +125,7 @@ test.skip(
     )
     expect(clientAttributesCount).toBe(2)
   },
-  timeout
+  testUtil.timeout.long()
 )
 
 test(
@@ -154,5 +149,5 @@ test(
     expect(dump.endpointTypes.length).toBe(1)
     expect(dump.endpoints.length).toBe(1)
   },
-  timeout
+  testUtil.timeout.long()
 )

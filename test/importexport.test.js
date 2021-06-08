@@ -60,88 +60,102 @@ beforeAll(() => {
     })
     .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
     .catch((err) => env.logError(`Error: ${err}`))
-}, 5000)
+}, testUtil.timeout.medium())
 
-afterAll(() => {
-  return dbApi.closeDatabase(db)
-})
+afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
-test('Basic gen template parsing and generation', async () => {
-  let context = await generationEngine.loadTemplates(
-    db,
-    testUtil.testTemplate.zigbee
-  )
-  expect(context.crc).not.toBeNull()
-  expect(context.templateData).not.toBeNull()
-})
+test(
+  'Basic gen template parsing and generation',
+  async () => {
+    let context = await generationEngine.loadTemplates(
+      db,
+      testUtil.testTemplate.zigbee
+    )
+    expect(context.crc).not.toBeNull()
+    expect(context.templateData).not.toBeNull()
+  },
+  testUtil.timeout.short()
+)
 
-test(path.basename(testFile1) + ' - import', async () => {
-  let importResult = await importJs.importDataFromFile(db, testFile1)
-  let sid = importResult.sessionId
+test(
+  path.basename(testFile1) + ' - import',
+  async () => {
+    let importResult = await importJs.importDataFromFile(db, testFile1)
+    let sid = importResult.sessionId
 
-  let x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE')
-  expect(x).toBe(1)
-  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
-  expect(x).toBe(11)
-  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
-  expect(x).toBe(7)
-  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
-  expect(x).toBe(21)
+    let x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE')
+    expect(x).toBe(1)
+    x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
+    expect(x).toBe(11)
+    x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
+    expect(x).toBe(7)
+    x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
+    expect(x).toBe(21)
 
-  let state = await exportJs.createStateFromDatabase(db, sid)
-  let commandCount = 0
-  let attributeCount = 0
-  expect(state.featureLevel).toBe(env.zapVersion().featureLevel)
-  expect(state.endpointTypes.length).toBe(1)
-  expect(state.endpointTypes[0].clusters.length).toBe(11)
-  state.endpointTypes[0].clusters.forEach((c) => {
-    commandCount += c.commands.length
-    attributeCount += c.attributes.length
-  })
-  expect(commandCount).toBe(7)
-  // This flag exists for this test due to planned global attribute rework.
-  expect(attributeCount).toBe(bypassGlobalAttributes ? 15 : 21)
+    let state = await exportJs.createStateFromDatabase(db, sid)
+    let commandCount = 0
+    let attributeCount = 0
+    expect(state.featureLevel).toBe(env.zapVersion().featureLevel)
+    expect(state.endpointTypes.length).toBe(1)
+    expect(state.endpointTypes[0].clusters.length).toBe(11)
+    state.endpointTypes[0].clusters.forEach((c) => {
+      commandCount += c.commands.length
+      attributeCount += c.attributes.length
+    })
+    expect(commandCount).toBe(7)
+    // This flag exists for this test due to planned global attribute rework.
+    expect(attributeCount).toBe(bypassGlobalAttributes ? 15 : 21)
 
-  await querySession.deleteSession(db, sid)
-})
+    await querySession.deleteSession(db, sid)
+  },
+  testUtil.timeout.medium()
+)
 
-test(path.basename(testFile2) + ' - import', async () => {
-  let sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, testFile2, { sessionId: sid })
+test(
+  path.basename(testFile2) + ' - import',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile2, { sessionId: sid })
 
-  let x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE')
-  expect(x).toBe(1)
+    let x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE')
+    expect(x).toBe(1)
 
-  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
-  expect(x).toBe(19)
+    x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
+    expect(x).toBe(19)
 
-  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
-  expect(x).toBe(24)
+    x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
+    expect(x).toBe(24)
 
-  x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
-  expect(x).toBe(28)
+    x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
+    expect(x).toBe(28)
 
-  let state = await exportJs.createStateFromDatabase(db, sid)
-  let commandCount = 0
-  let attributeCount = 0
-  expect(state.endpointTypes.length).toBe(1)
-  expect(state.endpointTypes[0].clusters.length).toBe(19)
-  state.endpointTypes[0].clusters.forEach((c) => {
-    commandCount += c.commands.length
-    attributeCount += c.attributes.length
-  })
-  expect(commandCount).toBe(24)
-  // This flag exists for this test due to planned global attribute rework.
-  expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
-})
+    let state = await exportJs.createStateFromDatabase(db, sid)
+    let commandCount = 0
+    let attributeCount = 0
+    expect(state.endpointTypes.length).toBe(1)
+    expect(state.endpointTypes[0].clusters.length).toBe(19)
+    state.endpointTypes[0].clusters.forEach((c) => {
+      commandCount += c.commands.length
+      attributeCount += c.attributes.length
+    })
+    expect(commandCount).toBe(24)
+    // This flag exists for this test due to planned global attribute rework.
+    expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
+  },
+  testUtil.timeout.medium()
+)
 
-test(path.basename(sleepyGenericZap) + ' - import', async () => {
-  let sid = await querySession.createBlankSession(db)
-  await importJs.importDataFromFile(db, sleepyGenericZap, { sessionId: sid })
-  let endpoints = await queryConfig.selectAllEndpoints(db, sid)
-  expect(endpoints.length).toBe(1)
-  expect(endpoints[0].deviceIdentifier).toBe(1281)
-})
+test(
+  path.basename(sleepyGenericZap) + ' - import',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, sleepyGenericZap, { sessionId: sid })
+    let endpoints = await queryConfig.selectAllEndpoints(db, sid)
+    expect(endpoints.length).toBe(1)
+    expect(endpoints[0].deviceIdentifier).toBe(1281)
+  },
+  testUtil.timeout.medium()
+)
 
 test(
   path.basename(sleepyGenericIsc) + ' - import',
@@ -152,20 +166,24 @@ test(
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].deviceIdentifier).toBe(1281)
   },
-  3000
+  testUtil.timeout.medium()
 )
 
-test(path.basename(testLightIsc) + ' - read state', async () => {
-  let state = await importJs.readDataFromFile(
-    testLightIsc,
-    env.builtinSilabsZclMetafile
-  )
-  expect(Object.keys(state.endpointTypes).length).toBe(4)
-  expect(Object.keys(state.endpoint).length).toBe(3)
-  expect(state.endpoint[2].endpoint).toBe(242)
-  expect(state).not.toHaveProperty('parseState')
-  expect(state.attributeType.length).toBe(6)
-})
+test(
+  path.basename(testLightIsc) + ' - read state',
+  async () => {
+    let state = await importJs.readDataFromFile(
+      testLightIsc,
+      env.builtinSilabsZclMetafile
+    )
+    expect(Object.keys(state.endpointTypes).length).toBe(4)
+    expect(Object.keys(state.endpoint).length).toBe(3)
+    expect(state.endpoint[2].endpoint).toBe(242)
+    expect(state).not.toHaveProperty('parseState')
+    expect(state.attributeType.length).toBe(6)
+  },
+  testUtil.timeout.medium()
+)
 
 test(
   path.basename(testLightIsc) + ' - import',
@@ -187,7 +205,7 @@ test(
     )
     expect(drp).toBe('always')
   },
-  5000
+  testUtil.timeout.medium()
 )
 
 test(
@@ -214,7 +232,7 @@ test(
     )
     expect(drp).toBe('conditional')
   },
-  5000
+  testUtil.timeout.medium()
 )
 
 test(
@@ -252,7 +270,7 @@ test(
     )
     expect(singletonCounts).toStrictEqual([9, 13])
   },
-  5000
+  testUtil.timeout.medium()
 )
 
 test(
@@ -294,5 +312,5 @@ test(
     let sessionDump = await util.sessionDump(db, sid)
     expect(sessionDump.usedPackages.length).toBe(1)
   },
-  5000
+  testUtil.timeout.medium()
 )

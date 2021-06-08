@@ -19,38 +19,55 @@
  */
 
 const string = require('../src-electron/util/string.js')
+const { timeout } = require('./test-util.js')
 
-test('Clean symbol', () => {
-  expect(string.toCleanSymbol('a b c')).toEqual('a_b_c')
-  expect(string.toCleanSymbol('a:b-c')).toEqual('a_b_c')
-  expect(string.toCleanSymbol('a____:___c')).toEqual('a_c')
-})
+test(
+  'Clean symbol',
+  () => {
+    expect(string.toCleanSymbol('a b c')).toEqual('a_b_c')
+    expect(string.toCleanSymbol('a:b-c')).toEqual('a_b_c')
+    expect(string.toCleanSymbol('a____:___c')).toEqual('a_c')
+  },
+  timeout.short()
+)
 
-test('Snake case', () => {
-  expect(string.toSnakeCaseAllCaps('VerySimpleLabel')).toEqual(
-    'VERY_SIMPLE_LABEL'
-  )
-  expect(string.toSnakeCase('My-String')).toEqual('my_string')
-})
+test(
+  'Snake case',
+  () => {
+    expect(string.toSnakeCaseAllCaps('VerySimpleLabel')).toEqual(
+      'VERY_SIMPLE_LABEL'
+    )
+    expect(string.toSnakeCase('My-String')).toEqual('my_string')
+  },
+  timeout.short()
+)
 
-test('Camel case', () => {
-  expect(string.toCamelCase('some random string')).toEqual('someRandomString')
-  expect(string.toCamelCase('some random string', false)).toEqual(
-    'SomeRandomString'
-  )
-  expect(string.toCamelCase('ZLL Commissioning')).toEqual('zllCommissioning')
-  expect(string.toCamelCase('AddGroup')).toEqual('addGroup')
-  expect(string.toCamelCase('AddGroup', false)).toEqual('AddGroup')
-  expect(string.toCamelCase('long string with an ACRONYM inside')).toEqual(
-    'longStringWithAnAcronymInside'
-  )
-  expect(string.toCamelCase('longStringWithAnAcronymInside')).toEqual(
-    'longStringWithAnAcronymInside'
-  )
-})
+test(
+  'Camel case',
+  () => {
+    expect(string.toCamelCase('some random string')).toEqual('someRandomString')
+    expect(string.toCamelCase('some random string', false)).toEqual(
+      'SomeRandomString'
+    )
+    expect(string.toCamelCase('ZLL Commissioning')).toEqual('zllCommissioning')
+    expect(string.toCamelCase('AddGroup')).toEqual('addGroup')
+    expect(string.toCamelCase('AddGroup', false)).toEqual('AddGroup')
+    expect(string.toCamelCase('long string with an ACRONYM inside')).toEqual(
+      'longStringWithAnAcronymInside'
+    )
+    expect(string.toCamelCase('longStringWithAnAcronymInside')).toEqual(
+      'longStringWithAnAcronymInside'
+    )
+  },
+  timeout.short()
+)
 
-test('Kebab case', () => {
-  expect(string.toCleanSymbolAsKebabCase('Very Simple:Label')).toEqual(
-    'very-simple-label'
-  )
-})
+test(
+  'Kebab case',
+  () => {
+    expect(string.toCleanSymbolAsKebabCase('Very Simple:Label')).toEqual(
+      'very-simple-label'
+    )
+  },
+  timeout.short()
+)

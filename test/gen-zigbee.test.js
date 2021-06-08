@@ -32,7 +32,6 @@ const testUtil = require('./test-util.js')
 
 let db
 const templateCount = testUtil.testTemplate.zigbeeCount
-const genTimeout = testUtil.longTimeout
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 const testFile2 = path.join(__dirname, 'resource/three-endpoint-device.zap')
 
@@ -44,11 +43,9 @@ beforeAll(async () => {
     env.zapVersion()
   )
   return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
-}, 5000)
+}, testUtil.timeout.medium())
 
-afterAll(() => {
-  return dbApi.closeDatabase(db)
-})
+afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 let templateContext
 
@@ -66,35 +63,47 @@ test(
         expect(context.packageId).not.toBeNull()
         templateContext = context
       }),
-  3000
+  testUtil.timeout.medium()
 )
 
-test('Validate package loading', async () => {
-  templateContext.packages = await queryPackage.getPackageByParent(
-    templateContext.db,
-    templateContext.packageId
-  )
-  expect(templateContext.packages.length).toBe(templateCount - 1 + 2) // -1 for ignored one, one for helper and one for overridable
-})
+test(
+  'Validate package loading',
+  async () => {
+    templateContext.packages = await queryPackage.getPackageByParent(
+      templateContext.db,
+      templateContext.packageId
+    )
+    expect(templateContext.packages.length).toBe(templateCount - 1 + 2) // -1 for ignored one, one for helper and one for overridable
+  },
+  testUtil.timeout.short()
+)
 
-test('Create session', () =>
-  querySession.createBlankSession(db).then((sessionId) => {
-    expect(sessionId).not.toBeNull()
-    templateContext.sessionId = sessionId
-  }))
+test(
+  'Create session',
+  () =>
+    querySession.createBlankSession(db).then((sessionId) => {
+      expect(sessionId).not.toBeNull()
+      templateContext.sessionId = sessionId
+    }),
+  testUtil.timeout.short()
+)
 
-test('Initialize session packages', async () => {
-  let packages = await utilJs.initializeSessionPackage(
-    templateContext.db,
-    templateContext.sessionId,
-    {
-      zcl: env.builtinSilabsZclMetafile,
-      template: env.builtinTemplateMetafile,
-    }
-  )
+test(
+  'Initialize session packages',
+  async () => {
+    let packages = await utilJs.initializeSessionPackage(
+      templateContext.db,
+      templateContext.sessionId,
+      {
+        zcl: env.builtinSilabsZclMetafile,
+        template: env.builtinTemplateMetafile,
+      }
+    )
 
-  expect(packages.length).toBe(2)
-})
+    expect(packages.length).toBe(2)
+  },
+  testUtil.timeout.short()
+)
 
 test(
   'Validate basic generation',
@@ -115,7 +124,7 @@ test(
         expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
         expect(simpleTest.includes('Strange type: bacnet_type_t')).toBeTruthy()
       }),
-  genTimeout
+  testUtil.timeout.long()
 )
 
 test(
@@ -252,7 +261,7 @@ test(
           )
         ).toBeTruthy()
       }),
-  genTimeout
+  testUtil.timeout.long()
 )
 
 test(
@@ -307,7 +316,7 @@ test(
           )
         ).toBeTruthy()
       }),
-  genTimeout
+  testUtil.timeout.long()
 )
 
 test(
@@ -426,7 +435,7 @@ test(
         ).toBeTruthy()
       })
   },
-  genTimeout
+  testUtil.timeout.long()
 )
 
 test(
@@ -468,7 +477,7 @@ test(
         ).toBeTruthy()
       })
   },
-  genTimeout
+  testUtil.timeout.long()
 )
 
 test.skip(
@@ -506,33 +515,45 @@ test.skip(
         }
       })
   },
-  genTimeout
+  testUtil.timeout.long()
 )
 
-test('Test content indexer - simple', () =>
-  genEngine.contentIndexer('Short example').then((preview) => {
-    expect(preview['1']).toBe('Short example\n')
-  }))
-
-test('Test content indexer - line by line', () =>
-  genEngine
-    .contentIndexer('Short example\nwith three\nlines of text', 1)
-    .then((preview) => {
+test(
+  'Test content indexer - simple',
+  () =>
+    genEngine.contentIndexer('Short example').then((preview) => {
       expect(preview['1']).toBe('Short example\n')
-      expect(preview['2']).toBe('with three\n')
-      expect(preview['3']).toBe('lines of text\n')
-    }))
+    }),
+  testUtil.timeout.short()
+)
 
-test('Test content indexer - blocks', () => {
-  let content = ''
-  let i = 0
-  for (i = 0; i < 1000; i++) {
-    content = content.concat(`line ${i}\n`)
-  }
-  return genEngine.contentIndexer(content, 50).then((preview) => {
-    expect(preview['1'].startsWith('line 0')).toBeTruthy()
-    expect(preview['2'].startsWith('line 50')).toBeTruthy()
-    expect(preview['3'].startsWith('line 100')).toBeTruthy()
-    expect(preview['20'].startsWith('line 950')).toBeTruthy()
-  })
-})
+test(
+  'Test content indexer - line by line',
+  () =>
+    genEngine
+      .contentIndexer('Short example\nwith three\nlines of text', 1)
+      .then((preview) => {
+        expect(preview['1']).toBe('Short example\n')
+        expect(preview['2']).toBe('with three\n')
+        expect(preview['3']).toBe('lines of text\n')
+      }),
+  testUtil.timeout.short()
+)
+
+test(
+  'Test content indexer - blocks',
+  () => {
+    let content = ''
+    let i = 0
+    for (i = 0; i < 1000; i++) {
+      content = content.concat(`line ${i}\n`)
+    }
+    return genEngine.contentIndexer(content, 50).then((preview) => {
+      expect(preview['1'].startsWith('line 0')).toBeTruthy()
+      expect(preview['2'].startsWith('line 50')).toBeTruthy()
+      expect(preview['3'].startsWith('line 100')).toBeTruthy()
+      expect(preview['20'].startsWith('line 950')).toBeTruthy()
+    })
+  },
+  testUtil.timeout.short()
+)
