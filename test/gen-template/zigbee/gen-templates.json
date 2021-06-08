@@ -209,6 +209,11 @@
       "path": "sdk-extension.zapt",
       "name": "SDK Extension",
       "output": "sdk-extension.out"
+    },
+    {
+      "path": "zap-command-parser-ver-3.c.zapt",
+      "name": "Version 3 of zap command parser c file",
+      "output": "zap-command-parser-ver-3.c"
     }
   ]
 }
