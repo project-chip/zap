@@ -254,8 +254,9 @@ async function qualifyZclFile(
  * @param {*} db
  * @returns Promise to deal with the post-loading cleanup.
  */
-function processZclPostLoading(db) {
-  return queryZcl.updateDeviceTypeEntityReferences(db)
+async function processZclPostLoading(db) {
+  await queryZcl.updateDeviceTypeEntityReferences(db)
+  return queryZcl.updateCommandRequestResponseReferences(db)
 }
 
 exports.loadZcl = loadZcl

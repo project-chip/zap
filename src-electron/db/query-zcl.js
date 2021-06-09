@@ -695,7 +695,8 @@ SELECT
   NAME,
   DESCRIPTION,
   SOURCE,
-  IS_OPTIONAL
+  IS_OPTIONAL,
+  RESPONSE_REF
 FROM COMMAND
   WHERE COMMAND_ID = ?`,
       [id]
@@ -755,6 +756,7 @@ SELECT
   CMD.DESCRIPTION,
   CMD.SOURCE,
   CMD.IS_OPTIONAL,
+  CMD.RESPONSE_REF,
   CL.CODE AS CLUSTER_CODE,
   CL.NAME AS CLUSTER_NAME,
   CA.NAME AS ARG_NAME,
@@ -792,7 +794,8 @@ SELECT
   NAME,
   DESCRIPTION,
   SOURCE,
-  IS_OPTIONAL
+  IS_OPTIONAL,
+  RESPONSE_REF
 FROM COMMAND
   WHERE PACKAGE_REF = ?
 ORDER BY CODE`,
@@ -814,7 +817,8 @@ SELECT
   NAME,
   DESCRIPTION,
   SOURCE,
-  IS_OPTIONAL
+  IS_OPTIONAL,
+  RESPONSE_REF
 FROM COMMAND
 WHERE CLUSTER_REF IS NULL AND PACKAGE_REF = ?
 ORDER BY CODE`,
@@ -836,7 +840,8 @@ SELECT
   NAME,
   DESCRIPTION,
   SOURCE,
-  IS_OPTIONAL
+  IS_OPTIONAL,
+  RESPONSE_REF
 FROM COMMAND
 WHERE CLUSTER_REF IS NOT NULL AND PACKAGE_REF = ?
 ORDER BY CODE`,
@@ -1168,9 +1173,78 @@ SET
  * @returns promise of completed linking
  */
 async function updateDeviceTypeEntityReferences(db) {
-  return updateClusterReferencesForDeviceTypeClusters(db)
-    .then((res) => updateAttributeReferencesForDeviceTypeReferences(db))
-    .then((res) => updateCommandReferencesForDeviceTypeReferences(db))
+  await updateClusterReferencesForDeviceTypeClusters(db)
+  await updateAttributeReferencesForDeviceTypeReferences(db)
+  return updateCommandReferencesForDeviceTypeReferences(db)
+}
+
+/**
+ * After the data is loaded from XML, we need to link the command request/responses
+ * RESPONSE_REF fields together.
+ * This is done in a 2 ways:
+ *    - for commands that already have RESPONSE_NAME, it is used.
+ *    - for commands that have Request/Response names, those names are matched.
+ * In both cases, RESPONSE_REF is properly linked.
+ *
+ * @param {*} db
+ */
+async function updateCommandRequestResponseReferences(db) {
+  // First we link up all the cases where the response_for_name is present
+  await dbApi.dbUpdate(
+    db,
+    `
+UPDATE
+  COMMAND
+SET
+  RESPONSE_REF =
+  ( SELECT
+      CMD_REF.COMMAND_ID
+    FROM
+      COMMAND AS CMD_REF
+    WHERE
+      ( CMD_REF.NAME = COMMAND.RESPONSE_NAME
+      ) AND (
+        ( CMD_REF.CLUSTER_REF = COMMAND.CLUSTER_REF )
+        OR
+        ( CMD_REF.CLUSTER_REF IS NULL AND COMMAND.CLUSTER_REF IS NULL )
+      ) AND (
+        ( CMD_REF.PACKAGE_REF = COMMAND.PACKAGE_REF)
+      )
+  )
+WHERE
+  COMMAND.RESPONSE_NAME IS NOT NULL
+  `
+  )
+
+  // Then we link up the ones where the "response/request" names match.
+  await dbApi.dbUpdate(
+    db,
+    `
+UPDATE
+  COMMAND
+SET
+  RESPONSE_REF =
+  (
+    SELECT
+      CMD_REF.COMMAND_ID
+    FROM
+      COMMAND AS CMD_REF
+    WHERE
+      ( CMD_REF.NAME = COMMAND.NAME||'Response'
+        OR
+        CMD_REF.NAME = REPLACE(COMMAND.NAME, 'Request', '')||'Response'
+      ) AND (
+        ( CMD_REF.CLUSTER_REF = COMMAND.CLUSTER_REF )
+        OR
+        ( CMD_REF.CLUSTER_REF IS NULL AND COMMAND.CLUSTER_REF IS NULL )
+        ) AND (
+          ( CMD_REF.PACKAGE_REF = COMMAND.PACKAGE_REF)
+        )
+  )
+WHERE
+  COMMAND.NAME NOT LIKE '%Response'
+    `
+  )
 }
 
 const ATOMIC_QUERY = `
@@ -2087,6 +2161,7 @@ exports.selectDeviceTypeClusterByDeviceTypeClusterId = selectDeviceTypeClusterBy
 exports.selectDeviceTypeAttributesByDeviceTypeRef = selectDeviceTypeAttributesByDeviceTypeRef
 exports.selectDeviceTypeCommandsByDeviceTypeRef = selectDeviceTypeCommandsByDeviceTypeRef
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
+exports.updateCommandRequestResponseReferences = updateCommandRequestResponseReferences
 exports.selectEndpointType = selectEndpointType
 exports.selectAllAtomics = selectAllAtomics
 exports.selectAtomicSizeFromType = selectAtomicSizeFromType

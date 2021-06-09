@@ -853,7 +853,7 @@ limitations under the License.
       </description>
       <arg name="locationType" type="LocationType"/>
     </command>
-    <command source="server" code="0x05" name="RssiRequest" optional="true">
+    <command source="server" code="0x05" name="RssiRequest" optional="true" response="RssiResponse">
       <description>
         Command description for RssiRequest
       </description>

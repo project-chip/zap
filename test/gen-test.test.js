@@ -29,7 +29,6 @@ const queryPackage = require('../src-electron/db/query-package.js')
 
 let db
 const templateCount = 1
-const genTimeout = 3000
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 let sessionId
 let templateContext
@@ -42,11 +41,9 @@ beforeAll(() => {
     .then((d) => {
       db = d
     })
-}, 5000)
+}, testUtil.timeout.medium())
 
-afterAll(() => {
-  return dbApi.closeDatabase(db)
-})
+afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
   'Basic test template parsing and generation',
@@ -62,7 +59,7 @@ test(
         expect(context.packageId).not.toBeNull()
         templateContext = context
       }),
-  3000
+  testUtil.timeout.medium()
 )
 
 test(
@@ -71,15 +68,19 @@ test(
     zclLoader.loadZcl(db, env.builtinSilabsZclMetafile).then((context) => {
       zclContext = context
     }),
-  5000
+  testUtil.timeout.medium()
 )
 
-test('File import and zcl package insertion', async () => {
-  let importResult = await importJs.importDataFromFile(db, testFile)
-  sessionId = importResult.sessionId
-  expect(sessionId).not.toBeNull()
-  await queryPackage.insertSessionPackage(db, sessionId, zclContext.packageId)
-})
+test(
+  'File import and zcl package insertion',
+  async () => {
+    let importResult = await importJs.importDataFromFile(db, testFile)
+    sessionId = importResult.sessionId
+    expect(sessionId).not.toBeNull()
+    await queryPackage.insertSessionPackage(db, sessionId, zclContext.packageId)
+  },
+  testUtil.timeout.medium()
+)
 
 test(
   'Test dotdot generation',
@@ -109,5 +110,5 @@ test(
         expect(err.message.includes('line: 3, column: 0')).toBeTruthy()
         expect(err.message.includes('test-fail.zapt')).toBeTruthy()
       }),
-  genTimeout
+  testUtil.timeout.medium()
 )

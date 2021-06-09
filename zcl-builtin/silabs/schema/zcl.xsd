@@ -330,6 +330,7 @@ Copyright 2012, Silicon Laboratories Inc.</xs:documentation></xs:annotation>
     	<xs:attribute name="optional" type="xs:boolean" />
     	<xs:attribute name="source" type="xs:string" />
     	<xs:attribute name="restriction" type="xs:string" />
+    	<xs:attribute name="responseName" type="xs:string" />
     </xs:complexType>
   </xs:element>
   <xs:element name="item">

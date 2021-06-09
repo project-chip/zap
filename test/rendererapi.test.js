@@ -19,10 +19,15 @@
  */
 
 import { renderer_api_info } from '../src/api/renderer_api'
+import { timeout } from './test-util'
 
-test('Test structure of renderer API', () => {
-  let api = renderer_api_info()
-  expect(api).not.toBeNull()
-  expect(api.prefix).toEqual('zap')
-  expect(api.functions.length).toBeGreaterThanOrEqual(2)
-})
+test(
+  'Test structure of renderer API',
+  () => {
+    let api = renderer_api_info()
+    expect(api).not.toBeNull()
+    expect(api.prefix).toEqual('zap')
+    expect(api.functions.length).toBeGreaterThanOrEqual(2)
+  },
+  timeout.short()
+)

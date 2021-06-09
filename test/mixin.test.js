@@ -19,15 +19,22 @@
  */
 
 import ZapState from '../src/store/zap/state.js'
+import { timeout } from './test-util.js'
 const mutations = require('../src/store/zap/mutations.js')
 const CommonMixin = require('../src/util/common-mixin.js')
 
-test('hashAttributeIdClusterId test', () => {
-  expect(CommonMixin.default.methods.hashAttributeIdClusterId(50, 50)).toBe(
-    5100
-  )
-  expect(CommonMixin.default.methods.hashAttributeIdClusterId(50, 35)).toBe(
-    3690
-  )
-  expect(CommonMixin.default.methods.hashAttributeIdClusterId(17, 9)).toBe(360)
-})
+test(
+  'hashAttributeIdClusterId test',
+  () => {
+    expect(CommonMixin.default.methods.hashAttributeIdClusterId(50, 50)).toBe(
+      5100
+    )
+    expect(CommonMixin.default.methods.hashAttributeIdClusterId(50, 35)).toBe(
+      3690
+    )
+    expect(CommonMixin.default.methods.hashAttributeIdClusterId(17, 9)).toBe(
+      360
+    )
+  },
+  timeout.short()
+)

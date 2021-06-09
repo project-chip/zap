@@ -32,7 +32,6 @@ const util = require('../src-electron/util/util.js')
 
 let db
 const { port, baseUrl } = testUtil.testServer(__filename)
-const timeout = testUtil.longTimeout
 let uuid = util.createUuid()
 
 beforeAll(() => {
@@ -45,112 +44,126 @@ beforeAll(() => {
       env.logInfo(`Test database initialized: ${file}.`)
     })
     .catch((err) => env.logError(`Error: ${err}`))
-}, 5000)
+}, testUtil.timeout.medium())
 
 afterAll(() => {
   return httpServer.shutdownHttpServer().then(() => dbApi.closeDatabase(db))
-})
+}, testUtil.timeout.medium())
 
 describe('Session specific tests', () => {
-  test('make sure there is no session at the beginning', () => {
-    return testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
-      expect(cnt).toBe(0)
-    })
-  })
+  test(
+    'make sure there is no session at the beginning',
+    () => {
+      return testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
+        expect(cnt).toBe(0)
+      })
+    },
+    testUtil.timeout.short()
+  )
 
   test(
     'Now actually load the static data.',
     () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
-    timeout
+    testUtil.timeout.medium()
   )
 
-  test('And load the templates.', () => {
-    let packageId
-    return generationEngine
-      .loadTemplates(db, testUtil.testTemplate.zigbee)
-      .then((context) => {
-        packageId = context.packageId
-        expect(packageId).not.toBe(null)
-        expect(db).not.toBe(null)
-      })
-      .then(() =>
-        queryPackage.selectPackageExtension(
-          db,
-          packageId,
-          dbEnum.packageExtensionEntity.cluster
+  test(
+    'And load the templates.',
+    () => {
+      let packageId
+      return generationEngine
+        .loadTemplates(db, testUtil.testTemplate.zigbee)
+        .then((context) => {
+          packageId = context.packageId
+          expect(packageId).not.toBe(null)
+          expect(db).not.toBe(null)
+        })
+        .then(() =>
+          queryPackage.selectPackageExtension(
+            db,
+            packageId,
+            dbEnum.packageExtensionEntity.cluster
+          )
         )
-      )
-      .then((extensions) => {
-        expect(extensions.length).toBe(2)
-        expect(extensions[0].entity).toBe(dbEnum.packageExtensionEntity.cluster)
-        expect(extensions[0].property).toBe('testClusterExtension')
-        expect(extensions[0].type).toBe('text')
-        expect(extensions[0].configurability).toBe('hidden')
-        expect(extensions[0].label).toBe('Test cluster extension')
-        expect(extensions[0].globalDefault).toBe(null)
-        expect(extensions[0].defaults.length).toBe(3)
-        expect(extensions[1].label).toBe(
-          'Test cluster extension with external defaults values'
+        .then((extensions) => {
+          expect(extensions.length).toBe(2)
+          expect(extensions[0].entity).toBe(
+            dbEnum.packageExtensionEntity.cluster
+          )
+          expect(extensions[0].property).toBe('testClusterExtension')
+          expect(extensions[0].type).toBe('text')
+          expect(extensions[0].configurability).toBe('hidden')
+          expect(extensions[0].label).toBe('Test cluster extension')
+          expect(extensions[0].globalDefault).toBe(null)
+          expect(extensions[0].defaults.length).toBe(3)
+          expect(extensions[1].label).toBe(
+            'Test cluster extension with external defaults values'
+          )
+          expect(extensions[1].globalDefault).toBe(null)
+          expect(extensions[1].defaults.length).toBe(2)
+          expect(extensions[1].defaults[0].value).toBe(
+            'Extension value loaded via external default JSON file.'
+          )
+        })
+        .then(() =>
+          queryPackage.selectPackageExtension(
+            db,
+            packageId,
+            dbEnum.packageExtensionEntity.command
+          )
         )
-        expect(extensions[1].globalDefault).toBe(null)
-        expect(extensions[1].defaults.length).toBe(2)
-        expect(extensions[1].defaults[0].value).toBe(
-          'Extension value loaded via external default JSON file.'
+        .then((extensions) => {
+          expect(extensions.length).toBe(2)
+          let tcIndex = 1
+          let icIndex = 0
+          expect(extensions[tcIndex].entity).toBe(
+            dbEnum.packageExtensionEntity.command
+          )
+          expect(extensions[tcIndex].property).toBe('testCommandExtension')
+          expect(extensions[tcIndex].type).toBe('boolean')
+          expect(extensions[tcIndex].configurability).toBe('hidden')
+          expect(extensions[tcIndex].label).toBe('Test command extension')
+          expect(extensions[tcIndex].globalDefault).toBe('0')
+          expect(extensions[tcIndex].defaults.length).toBe(1)
+        })
+        .then(() =>
+          queryPackage.selectPackageExtension(
+            db,
+            packageId,
+            dbEnum.packageExtensionEntity.attribute
+          )
         )
-      })
-      .then(() =>
-        queryPackage.selectPackageExtension(
-          db,
-          packageId,
-          dbEnum.packageExtensionEntity.command
-        )
-      )
-      .then((extensions) => {
-        expect(extensions.length).toBe(2)
-        let tcIndex = 1
-        let icIndex = 0
-        expect(extensions[tcIndex].entity).toBe(
-          dbEnum.packageExtensionEntity.command
-        )
-        expect(extensions[tcIndex].property).toBe('testCommandExtension')
-        expect(extensions[tcIndex].type).toBe('boolean')
-        expect(extensions[tcIndex].configurability).toBe('hidden')
-        expect(extensions[tcIndex].label).toBe('Test command extension')
-        expect(extensions[tcIndex].globalDefault).toBe('0')
-        expect(extensions[tcIndex].defaults.length).toBe(1)
-      })
-      .then(() =>
-        queryPackage.selectPackageExtension(
-          db,
-          packageId,
-          dbEnum.packageExtensionEntity.attribute
-        )
-      )
-      .then((extensions) => {
-        expect(extensions.length).toBe(2)
-        expect(extensions[0].entity).toBe(
-          dbEnum.packageExtensionEntity.attribute
-        )
-        expect(extensions[0].property).toBe('testAttributeExtension1')
-        expect(extensions[1].property).toBe('testAttributeExtension2')
-        expect(extensions[0].type).toBe('integer')
-        expect(extensions[0].configurability).toBe('hidden')
-        expect(extensions[0].label).toBe('Test attribute extension 1')
-        expect(extensions[1].label).toBe('Test attribute extension 2')
-        expect(extensions[0].globalDefault).toBe('0')
-        expect(extensions[1].globalDefault).toBe('1')
-        expect(extensions[0].defaults.length).toBe(2)
-        expect(extensions[1].defaults.length).toBe(1)
-        expect(extensions[0].defaults[0].value).toBe('42')
-        expect(extensions[0].defaults[0].parentCode).toBe(0)
-        expect(extensions[0].defaults[0].entityCode).toBe(0)
-        expect(extensions[0].defaults[1].entityCode).toBe(1)
-      })
-  }, 3000)
+        .then((extensions) => {
+          expect(extensions.length).toBe(2)
+          expect(extensions[0].entity).toBe(
+            dbEnum.packageExtensionEntity.attribute
+          )
+          expect(extensions[0].property).toBe('testAttributeExtension1')
+          expect(extensions[1].property).toBe('testAttributeExtension2')
+          expect(extensions[0].type).toBe('integer')
+          expect(extensions[0].configurability).toBe('hidden')
+          expect(extensions[0].label).toBe('Test attribute extension 1')
+          expect(extensions[1].label).toBe('Test attribute extension 2')
+          expect(extensions[0].globalDefault).toBe('0')
+          expect(extensions[1].globalDefault).toBe('1')
+          expect(extensions[0].defaults.length).toBe(2)
+          expect(extensions[1].defaults.length).toBe(1)
+          expect(extensions[0].defaults[0].value).toBe('42')
+          expect(extensions[0].defaults[0].parentCode).toBe(0)
+          expect(extensions[0].defaults[0].entityCode).toBe(0)
+          expect(extensions[0].defaults[1].entityCode).toBe(1)
+        })
+    },
+    testUtil.timeout.medium()
+  )
 
-  test('http server initialization', () => {
-    return httpServer.initHttpServer(db, port)
-  })
+  test(
+    'http server initialization',
+    () => {
+      return httpServer.initHttpServer(db, port)
+    },
+    testUtil.timeout.medium()
+  )
 
   let templateCount = 0
   test(
@@ -165,34 +178,38 @@ describe('Session specific tests', () => {
           }
         })
     },
-    timeout
+    testUtil.timeout.short()
   )
 
-  test('test that zcl extension is loaded and exists', () => {
-    return axios
-      .get(
-        `${baseUrl}/zclExtension/cluster/testClusterExtension1?sessionId=${uuid}`
-      )
-      .then((response) => {
-        expect(response.data.entity).toBe('cluster')
-        expect(response.data.property).toBe('testClusterExtension1')
-        expect(response.data.label).toBe(
-          'Test cluster extension with external defaults values'
+  test(
+    'test that zcl extension is loaded and exists',
+    () => {
+      return axios
+        .get(
+          `${baseUrl}/zclExtension/cluster/testClusterExtension1?sessionId=${uuid}`
         )
-        expect(response.data.defaults[0].entityCode).toBe('0x0003')
-        expect(response.data.defaults[0].value).toBe(
-          'Extension value loaded via external default JSON file.'
-        )
-        expect(response.data.defaults[1].entityCode).toBe(
-          'clusterCode mixed with strings'
-        )
-      })
-  })
+        .then((response) => {
+          expect(response.data.entity).toBe('cluster')
+          expect(response.data.property).toBe('testClusterExtension1')
+          expect(response.data.label).toBe(
+            'Test cluster extension with external defaults values'
+          )
+          expect(response.data.defaults[0].entityCode).toBe('0x0003')
+          expect(response.data.defaults[0].value).toBe(
+            'Extension value loaded via external default JSON file.'
+          )
+          expect(response.data.defaults[1].entityCode).toBe(
+            'clusterCode mixed with strings'
+          )
+        })
+    },
+    testUtil.timeout.medium()
+  )
 
   test(
     'Load a second set of templates.',
     () => generationEngine.loadTemplates(db, testUtil.testTemplate.chip),
-    3000
+    testUtil.timeout.medium()
   )
 
   // Make sure all templates are loaded
@@ -204,7 +221,7 @@ describe('Session specific tests', () => {
         .then((pkgs) => {
           expect(templateCount).toBeLessThan(pkgs.length)
         }),
-    3000
+    testUtil.timeout.medium()
   )
 
   test(
@@ -216,7 +233,7 @@ describe('Session specific tests', () => {
           expect(templateCount).toEqual(response.data['length'])
         })
     },
-    timeout
+    testUtil.timeout.short()
   )
 
   test(
@@ -228,7 +245,7 @@ describe('Session specific tests', () => {
           expect(response.data['result']).toMatch('Test template file.')
         })
     },
-    timeout
+    testUtil.timeout.short()
   )
 
   test(
@@ -240,7 +257,7 @@ describe('Session specific tests', () => {
           expect(response.data['result']).toBeUndefined()
         })
     },
-    timeout
+    testUtil.timeout.short()
   )
 
   test(
@@ -252,6 +269,6 @@ describe('Session specific tests', () => {
           expect(response.data['result']).toBeUndefined()
         })
     },
-    timeout
+    testUtil.timeout.short()
   )
 })

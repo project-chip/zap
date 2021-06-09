@@ -52,11 +52,12 @@ INSERT INTO COMMAND (
   DESCRIPTION,
   SOURCE,
   IS_OPTIONAL,
+  RESPONSE_NAME,
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -142,6 +143,7 @@ function commandMap(clusterId, packageId, commands) {
     command.description,
     command.source,
     command.isOptional ? 1 : 0,
+    command.responseName,
     command.manufacturerCode,
     command.introducedIn,
     packageId,

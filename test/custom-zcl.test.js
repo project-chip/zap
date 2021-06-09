@@ -45,29 +45,22 @@ beforeAll(async () => {
     zcl: env.builtinSilabsZclMetafile,
     template: env.builtinTemplateMetafile,
   })
-}, 5000)
+}, testUtil.timeout.medium())
 
-test('Test custom xml', async () => {
-  let result = await zclLoader.loadIndividualFile(
-    db,
-    testUtil.testCustomXml,
-    sid
-  )
-  if (!result.succeeded) {
-    console.log(`Test failure: ${result.err}`)
-  }
-  expect(result.succeeded).toBeTruthy()
-}, 5000)
+afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
-/*test('Test bad custom xml', () => {
-  return zclLoader
-    .loadIndividualFile(db, testUtil.badTestCustomXml, sid)
-    .then((result) => {
-      expect(result.succeeded).toBeFalsy()
-    })
-}, 5000)
-*/
-
-afterAll(() => {
-  return dbApi.closeDatabase(db)
-})
+test(
+  'Test custom xml',
+  async () => {
+    let result = await zclLoader.loadIndividualFile(
+      db,
+      testUtil.testCustomXml,
+      sid
+    )
+    if (!result.succeeded) {
+      console.log(`Test failure: ${result.err}`)
+    }
+    expect(result.succeeded).toBeTruthy()
+  },
+  testUtil.timeout.medium()
+)

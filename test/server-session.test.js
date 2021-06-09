@@ -44,19 +44,24 @@ beforeAll(async () => {
   )
   await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
   await httpServer.initHttpServer(db, port)
-}, 5000)
+}, testUtil.timeout.medium())
 
-afterAll(() =>
-  httpServer.shutdownHttpServer().then(() => dbApi.closeDatabase(db))
+afterAll(
+  () => httpServer.shutdownHttpServer().then(() => dbApi.closeDatabase(db)),
+  testUtil.timeout.medium()
 )
 
-test('get index.html', () =>
-  axiosInstance.get('/index.html').then((response) => {
-    let sessionCookie = response.headers['set-cookie'][0]
-    axiosInstance.defaults.headers.Cookie = sessionCookie
-    expect(
-      response.data.includes(
-        'Configuration tool for the Zigbee Cluster Library'
-      )
-    ).toBeTruthy()
-  }))
+test(
+  'get index.html',
+  () =>
+    axiosInstance.get('/index.html').then((response) => {
+      let sessionCookie = response.headers['set-cookie'][0]
+      axiosInstance.defaults.headers.Cookie = sessionCookie
+      expect(
+        response.data.includes(
+          'Configuration tool for the Zigbee Cluster Library'
+        )
+      ).toBeTruthy()
+    }),
+  testUtil.timeout.medium()
+)

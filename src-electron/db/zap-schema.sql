@@ -163,10 +163,13 @@ CREATE TABLE IF NOT EXISTS "COMMAND" (
   "IS_OPTIONAL" integer,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
+  "RESPONSE_NAME" integer,
+  "RESPONSE_REF" integer,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  foreign key (RESPONSE_REF) references COMMAND(COMMAND_ID)
 );
 /*
  COMMAND_ARG table contains arguments for a command.

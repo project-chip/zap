@@ -25,25 +25,42 @@ const mutations = require('../src/store/zap/mutations.js')
 const rendApi = require('../src-shared/rend-api.js')
 import routes from '../src/router/routes.js'
 import index from '../src/router/index.js'
+import { timeout } from './test-util.js'
 
 const Vue = require('vue')
 
-test('Global renderer API', () => {
-  expect(window[rendApi.GLOBAL_SYMBOL_EXECUTE]).not.toBeNull()
-  expect(window[rendApi.GLOBAL_SYMBOL_INFO]).not.toBeNull()
-  expect(window[rendApi.GLOBAL_SYMBOL_NOTIFY]).not.toBeNull()
-})
+test(
+  'Global renderer API',
+  () => {
+    expect(window[rendApi.GLOBAL_SYMBOL_EXECUTE]).not.toBeNull()
+    expect(window[rendApi.GLOBAL_SYMBOL_INFO]).not.toBeNull()
+    expect(window[rendApi.GLOBAL_SYMBOL_NOTIFY]).not.toBeNull()
+  },
+  timeout.short()
+)
 
-test('Session ID existence', () => {
-  expect(window.sessionStorage.getItem('session_uuid')).not.toBeNull()
-})
+test(
+  'Session ID existence',
+  () => {
+    expect(window.sessionStorage.getItem('session_uuid')).not.toBeNull()
+  },
+  timeout.short()
+)
 
-test('WebSockets', () => {
-  expect(Vue.prototype.$onWebSocket).not.toBeNull()
-})
+test(
+  'WebSockets',
+  () => {
+    expect(Vue.prototype.$onWebSocket).not.toBeNull()
+  },
+  timeout.short()
+)
 
-test('Routes', () => {
-  expect(routes.length).toBeGreaterThan(0)
-  let router = index()
-  expect(router.mode).toBe('hash')
-})
+test(
+  'Routes',
+  () => {
+    expect(routes.length).toBeGreaterThan(0)
+    let router = index()
+    expect(router.mode).toBe('hash')
+  },
+  timeout.short()
+)

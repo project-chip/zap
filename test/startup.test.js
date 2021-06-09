@@ -23,72 +23,89 @@ const startup = require('../src-electron/main-process/startup.js')
 const env = require('../src-electron/util/env.js')
 const testUtil = require('./test-util.js')
 
-test('startup: start generation', () => {
-  let testGenDir = path.join(path.join(__dirname, '.zap/'), 'test-gen')
-  if (!fs.existsSync(testGenDir)) fs.mkdirSync(testGenDir, { recursive: true })
-  return startup.startGeneration(
-    {
-      skipPostGeneration: true,
-      output: testGenDir,
-      generationTemplate: testUtil.testTemplate.zigbee,
-      zclProperties: env.builtinSilabsZclMetafile,
-      zapFiles: null,
-    },
-    {
-      quit: false,
-      logger: (msg) => {},
-    }
-  )
-}, 10000)
-
-test('startup: self-check', () => {
-  return startup.startSelfCheck(
-    {
-      zclProperties: env.builtinSilabsZclMetafile,
-    },
-    { logger: (msg) => {}, quit: false }
-  )
-}, 5000)
-
-test('startup: convert', () => {
-  let files = []
-  files.push(path.join(__dirname, 'resource/isc/test-light.isc'))
-  let output = '{basename}.conversion'
-  let testOutputFile = path.join(
-    __dirname,
-    'resource/isc/test-light.conversion'
-  )
-  return startup
-    .startConvert(
+test(
+  'startup: start generation',
+  () => {
+    let testGenDir = path.join(path.join(__dirname, '.zap/'), 'test-gen')
+    if (!fs.existsSync(testGenDir))
+      fs.mkdirSync(testGenDir, { recursive: true })
+    return startup.startGeneration(
       {
-        zapFiles: files,
-        output: output,
+        skipPostGeneration: true,
+        output: testGenDir,
+        generationTemplate: testUtil.testTemplate.zigbee,
         zclProperties: env.builtinSilabsZclMetafile,
-        noZapFileLog: true,
+        zapFiles: null,
       },
       {
         quit: false,
         logger: (msg) => {},
       }
     )
-    .then(() => {
-      expect(fs.existsSync(testOutputFile)).toBeTruthy()
-      fs.unlinkSync(testOutputFile)
-    })
-}, 5000)
+  },
+  testUtil.timeout.long()
+)
 
-test('startup: analyze', () => {
-  let files = []
-  files.push(path.join(__dirname, 'resource/isc/test-light.isc'))
-  return startup.startAnalyze(
-    {
-      zapFiles: files,
-      zclProperties: env.builtinSilabsZclMetafile,
-    },
-    {
-      quit: false,
-      cleanDb: false,
-      logger: (msg) => {},
-    }
-  )
-}, 5000)
+test(
+  'startup: self-check',
+  () => {
+    return startup.startSelfCheck(
+      {
+        zclProperties: env.builtinSilabsZclMetafile,
+      },
+      { logger: (msg) => {}, quit: false }
+    )
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'startup: convert',
+  () => {
+    let files = []
+    files.push(path.join(__dirname, 'resource/isc/test-light.isc'))
+    let output = '{basename}.conversion'
+    let testOutputFile = path.join(
+      __dirname,
+      'resource/isc/test-light.conversion'
+    )
+    return startup
+      .startConvert(
+        {
+          zapFiles: files,
+          output: output,
+          zclProperties: env.builtinSilabsZclMetafile,
+          noZapFileLog: true,
+        },
+        {
+          quit: false,
+          logger: (msg) => {},
+        }
+      )
+      .then(() => {
+        expect(fs.existsSync(testOutputFile)).toBeTruthy()
+        fs.unlinkSync(testOutputFile)
+      })
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'startup: analyze',
+  () => {
+    let files = []
+    files.push(path.join(__dirname, 'resource/isc/test-light.isc'))
+    return startup.startAnalyze(
+      {
+        zapFiles: files,
+        zclProperties: env.builtinSilabsZclMetafile,
+      },
+      {
+        quit: false,
+        cleanDb: false,
+        logger: (msg) => {},
+      }
+    )
+  },
+  testUtil.timeout.long()
+)
