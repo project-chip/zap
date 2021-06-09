@@ -81,6 +81,23 @@ test(
       .then((x) => expect(x.length).toEqual(testUtil.totalClusterCount))
       .then(() => queryZcl.selectAllClusterCommands(db, jsonPackageId))
       .then((x) => {
+        let unmatchedRequestCount = 0
+        let responsesCount = 0
+        let totalCount = 0
+        for (cmd of x) {
+          totalCount++
+          if (cmd.responseRef != null) {
+            responsesCount++
+          }
+          if (cmd.name.endsWith('Request') && cmd.responseRef == null) {
+            unmatchedRequestCount++
+          }
+        }
+        expect(totalCount).toBeGreaterThan(0)
+        // This is how many commands are linked to their responses
+        expect(responsesCount).toBe(120)
+        // This seems to be the unmatched number in our XML files.
+        expect(unmatchedRequestCount).toBe(12)
         expect(x.length).toBe(testUtil.totalClusterCommandCount)
         queryZcl
           .selectCommandById(db, x[0].id)

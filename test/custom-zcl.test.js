@@ -47,6 +47,8 @@ beforeAll(async () => {
   })
 }, testUtil.timeout.medium())
 
+afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
+
 test(
   'Test custom xml',
   async () => {
@@ -62,5 +64,3 @@ test(
   },
   testUtil.timeout.medium()
 )
-
-afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())

@@ -257,5 +257,5 @@ test(
           epc.includes('#define EMBER_AF_DEFAULT_RESPONSE_POLICY_ALWAYS')
         ).toBeTruthy()
       }),
-  testUtil.timeout.medium()
+  testUtil.timeout.long()
 )

@@ -341,6 +341,7 @@ function prepareCluster(cluster, isExtension = false) {
         isOptional: command.$.optional == 'true',
         introducedIn: command.$.introducedIn,
         removedIn: command.$.removedIn,
+        responseName: command.$.response == null ? null : command.$.response,
       }
       if (cmd.manufacturerCode == null) {
         cmd.manufacturerCode = ret.manufacturerCode

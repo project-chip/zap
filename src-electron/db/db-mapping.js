@@ -121,6 +121,7 @@ exports.map = {
       argIsArray: dbApi.fromDbBool(x.ARG_IS_ARRAY),
       argPresentIf: x.ARG_PRESENT_IF,
       argCountArg: x.ARG_COUNT_ARG,
+      responseRef: x.RESPONSE_REF,
     }
   },
 
