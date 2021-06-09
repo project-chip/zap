@@ -145,11 +145,13 @@ async function selectBitmapById(db, id) {
  * @returns Promise that resolves with the rows of domains.
  */
 async function selectAllDomains(db, packageId) {
-  return dbApi.dbAll(
-    db,
-    'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE PACKAGE_REF = ? ORDER BY NAME',
-    [packageId]
-  )
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE PACKAGE_REF = ? ORDER BY NAME',
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.domain))
 }
 
 async function selectDomainById(db, id) {

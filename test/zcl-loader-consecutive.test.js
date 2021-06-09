@@ -45,84 +45,78 @@ test(
 
 test(
   'test that consecutive loading of metafiles properly avoids duplication',
-  () => {
-    let db
-    let jsonPackageId
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+
     let dotdotPackageId
-    return dbApi
-      .initRamDatabase()
-      .then((db) => dbApi.loadSchema(db, env.schemaFile(), env.zapVersion()))
-      .then((d) => {
-        db = d
-      })
-      .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
-      .then((ctx) => {
-        jsonPackageId = ctx.packageId
-      })
-      .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
-      .then((ctx) => {
-        expect(ctx.packageId).toEqual(jsonPackageId)
-        return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
-      })
-      .then((p) => expect(p.version).toEqual('ZCL Test Data'))
-      .then(() => zclLoader.loadZcl(db, env.builtinDotdotZclMetafile))
-      .then(() => zclLoader.loadZcl(db, env.builtinDotdotZclMetafile))
-      .then((ctx) => {
-        dotdotPackageId = ctx.packageId
-        expect(dotdotPackageId).not.toEqual(jsonPackageId)
-        return queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
-      })
-      .then((p) => expect(p.version).toEqual('1.0'))
-      .then(() =>
-        queryPackage.getPackagesByType(db, dbEnum.packageType.zclProperties)
-      )
-      .then((rows) => expect(rows.length).toEqual(2))
-      .then(() => queryZcl.selectAllClusters(db, jsonPackageId))
-      .then((x) => expect(x.length).toEqual(testUtil.totalClusterCount))
-      .then(() => queryZcl.selectAllClusterCommands(db, jsonPackageId))
-      .then((x) => {
-        let unmatchedRequestCount = 0
-        let responsesCount = 0
-        let totalCount = 0
-        for (cmd of x) {
-          totalCount++
-          if (cmd.responseRef != null) {
-            responsesCount++
-          }
-          if (cmd.name.endsWith('Request') && cmd.responseRef == null) {
-            unmatchedRequestCount++
-          }
-        }
-        expect(totalCount).toBeGreaterThan(0)
-        // This is how many commands are linked to their responses
-        expect(responsesCount).toBe(120)
-        // This seems to be the unmatched number in our XML files.
-        expect(unmatchedRequestCount).toBe(12)
-        expect(x.length).toBe(testUtil.totalClusterCommandCount)
-        queryZcl
-          .selectCommandById(db, x[0].id)
-          .then((z) => expect(z.label).toBe(x[0].label))
-      })
-      .then(() => queryZcl.selectAllCommandArguments(db, jsonPackageId))
-      .then((x) => expect(x.length).toEqual(testUtil.totalCommandArgsCount))
-      .then(() => queryZcl.selectAllDomains(db, jsonPackageId))
-      .then((x) => {
-        expect(x.length).toEqual(testUtil.totalDomainCount)
-        queryZcl
-          .selectDomainById(db, x.id)
-          .then((z) => expect(z.name).toBe(x.name))
-      })
-      .then(() => queryZcl.selectAllEnums(db, jsonPackageId))
-      .then((x) => expect(x.length).toEqual(testUtil.totalEnumCount))
-      .then(() =>
-        queryZcl.selectAllAttributesBySide(db, 'server', jsonPackageId)
-      )
-      .then((x) => expect(x.length).toBe(testUtil.totalServerAttributeCount))
-      .then(() => queryZcl.selectAllEnumItems(db, jsonPackageId))
-      .then((x) => expect(x.length).toEqual(testUtil.totalEnumItemCount))
-      .then(() => queryZcl.selectAllStructs(db, jsonPackageId))
-      .then((x) => expect(x.length).toEqual(54))
-      .then(() => queryZcl.selectAllBitmaps(db, jsonPackageId))
+    let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+    let jsonPackageId = ctx.packageId
+
+    ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+    expect(ctx.packageId).toEqual(jsonPackageId)
+    let p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
+    expect(p.version).toEqual('ZCL Test Data')
+    await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
+    ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
+    dotdotPackageId = ctx.packageId
+    expect(dotdotPackageId).not.toEqual(jsonPackageId)
+    p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
+    expect(p.version).toEqual('1.0')
+
+    let rows = await queryPackage.getPackagesByType(
+      db,
+      dbEnum.packageType.zclProperties
+    )
+    expect(rows.length).toEqual(2)
+    let x = await queryZcl.selectAllClusters(db, jsonPackageId)
+    expect(x.length).toEqual(testUtil.totalClusterCount)
+    x = await queryZcl.selectAllClusterCommands(db, jsonPackageId)
+
+    let unmatchedRequestCount = 0
+    let responsesCount = 0
+    let totalCount = 0
+    for (cmd of x) {
+      totalCount++
+      if (cmd.responseRef != null) {
+        responsesCount++
+      }
+      if (cmd.name.endsWith('Request') && cmd.responseRef == null) {
+        unmatchedRequestCount++
+      }
+    }
+    expect(totalCount).toBeGreaterThan(0)
+    // This is how many commands are linked to their responses
+    expect(responsesCount).toBe(120)
+    // This seems to be the unmatched number in our XML files.
+    expect(unmatchedRequestCount).toBe(12)
+    expect(x.length).toBe(testUtil.totalClusterCommandCount)
+    let z = await queryZcl.selectCommandById(db, x[0].id)
+    expect(z.label).toBe(x[0].label)
+
+    x = await queryZcl.selectAllCommandArguments(db, jsonPackageId)
+    expect(x.length).toEqual(testUtil.totalCommandArgsCount)
+
+    x = await queryZcl.selectAllDomains(db, jsonPackageId)
+    expect(x.length).toEqual(testUtil.totalDomainCount)
+
+    z = await queryZcl.selectDomainById(db, x[0].id)
+    expect(z.label).toBe(x[0].label)
+
+    x = await queryZcl.selectAllEnums(db, jsonPackageId)
+    expect(x.length).toEqual(testUtil.totalEnumCount)
+
+    x = await queryZcl.selectAllAttributesBySide(db, 'server', jsonPackageId)
+    expect(x.length).toBe(testUtil.totalServerAttributeCount)
+
+    x = await queryZcl.selectAllEnumItems(db, jsonPackageId)
+    expect(x.length).toEqual(testUtil.totalEnumItemCount)
+
+    x = await queryZcl.selectAllStructs(db, jsonPackageId)
+    expect(x.length).toEqual(54)
+
+    queryZcl
+      .selectAllBitmaps(db, jsonPackageId)
       .then(() => queryZcl.selectAllDeviceTypes(db, jsonPackageId))
       .then((x) => expect(x.length).toEqual(175))
       .then(() => queryZcl.selectAllAtomics(db, jsonPackageId))
