@@ -47,165 +47,171 @@ test(
   'test that consecutive loading of metafiles properly avoids duplication',
   async () => {
     let db = await dbApi.initRamDatabase()
-    await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
 
-    let dotdotPackageId
-    let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
-    let jsonPackageId = ctx.packageId
+      let dotdotPackageId
+      let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+      let jsonPackageId = ctx.packageId
 
-    ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
-    expect(ctx.packageId).toEqual(jsonPackageId)
-    let p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
-    expect(p.version).toEqual('ZCL Test Data')
-    await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
-    ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
-    dotdotPackageId = ctx.packageId
-    expect(dotdotPackageId).not.toEqual(jsonPackageId)
-    p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
-    expect(p.version).toEqual('1.0')
+      ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+      expect(ctx.packageId).toEqual(jsonPackageId)
+      let p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
+      expect(p.version).toEqual('ZCL Test Data')
+      await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
+      ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
+      dotdotPackageId = ctx.packageId
+      expect(dotdotPackageId).not.toEqual(jsonPackageId)
+      p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
+      expect(p.version).toEqual('1.0')
 
-    let rows = await queryPackage.getPackagesByType(
-      db,
-      dbEnum.packageType.zclProperties
-    )
-    expect(rows.length).toEqual(2)
-    let x = await queryZcl.selectAllClusters(db, jsonPackageId)
-    expect(x.length).toEqual(testUtil.totalClusterCount)
-    x = await queryZcl.selectAllClusterCommands(db, jsonPackageId)
+      let rows = await queryPackage.getPackagesByType(
+        db,
+        dbEnum.packageType.zclProperties
+      )
+      expect(rows.length).toEqual(2)
+      let x = await queryZcl.selectAllClusters(db, jsonPackageId)
+      expect(x.length).toEqual(testUtil.totalClusterCount)
+      x = await queryZcl.selectAllClusterCommands(db, jsonPackageId)
 
-    let unmatchedRequestCount = 0
-    let responsesCount = 0
-    let totalCount = 0
-    for (cmd of x) {
-      totalCount++
-      if (cmd.responseRef != null) {
-        responsesCount++
+      let unmatchedRequestCount = 0
+      let responsesCount = 0
+      let totalCount = 0
+      for (cmd of x) {
+        totalCount++
+        if (cmd.responseRef != null) {
+          responsesCount++
+        }
+        if (cmd.name.endsWith('Request') && cmd.responseRef == null) {
+          unmatchedRequestCount++
+        }
       }
-      if (cmd.name.endsWith('Request') && cmd.responseRef == null) {
-        unmatchedRequestCount++
-      }
+      expect(totalCount).toBeGreaterThan(0)
+      // This is how many commands are linked to their responses
+      expect(responsesCount).toBe(120)
+      // This seems to be the unmatched number in our XML files.
+      expect(unmatchedRequestCount).toBe(12)
+      expect(x.length).toBe(testUtil.totalClusterCommandCount)
+      let z = await queryZcl.selectCommandById(db, x[0].id)
+      expect(z.label).toBe(x[0].label)
+
+      x = await queryZcl.selectAllCommandArguments(db, jsonPackageId)
+      expect(x.length).toEqual(testUtil.totalCommandArgsCount)
+
+      x = await queryZcl.selectAllDomains(db, jsonPackageId)
+      expect(x.length).toEqual(testUtil.totalDomainCount)
+
+      z = await queryZcl.selectDomainById(db, x[0].id)
+      expect(z.label).toBe(x[0].label)
+
+      x = await queryZcl.selectAllEnums(db, jsonPackageId)
+      expect(x.length).toEqual(testUtil.totalEnumCount)
+
+      x = await queryZcl.selectAllAttributesBySide(db, 'server', jsonPackageId)
+      expect(x.length).toBe(testUtil.totalServerAttributeCount)
+
+      x = await queryZcl.selectAllEnumItems(db, jsonPackageId)
+      expect(x.length).toEqual(testUtil.totalEnumItemCount)
+
+      x = await queryZcl.selectAllStructs(db, jsonPackageId)
+      expect(x.length).toEqual(54)
+
+      x = await queryZcl.selectAllBitmaps(db, jsonPackageId)
+      expect(x.length).toEqual(121)
+
+      x = await queryZcl.selectAllDeviceTypes(db, jsonPackageId)
+
+      expect(x.length).toEqual(175)
+
+      x = await queryZcl.selectAllAtomics(db, jsonPackageId)
+      expect(x.length).toEqual(56)
+
+      x = await queryZcl.selectAllClusters(db, dotdotPackageId)
+      expect(x.length).toEqual(41)
+
+      x = await queryZcl.selectAllClusterCommands(db, dotdotPackageId)
+      expect(x.length).toBe(215)
+
+      x = await queryZcl.selectAllCommandArguments(db, dotdotPackageId)
+      expect(x.length).toEqual(644)
+
+      x = await queryZcl.selectAllDeviceTypes(db, dotdotPackageId)
+      expect(x.length).toEqual(108)
+
+      x = await queryZcl.selectAllBitmaps(db, dotdotPackageId)
+      expect(x.length).toEqual(61)
+
+      x = await queryZcl.selectAllEnums(db, dotdotPackageId)
+      expect(x.length).toEqual(105)
+
+      x = await queryZcl.selectAllAttributesBySide(
+        db,
+        'server',
+        dotdotPackageId
+      )
+      expect(x.length).toBe(615)
+
+      x = await queryZcl.selectAllEnumItems(db, dotdotPackageId)
+      expect(x.length).toEqual(639)
+
+      x = await queryZcl.selectAllStructs(db, dotdotPackageId)
+      expect(x.length).toEqual(20)
+
+      x = await queryZcl.selectAllAtomics(db, dotdotPackageId)
+      expect(x.length).toEqual(56)
+
+      x = await dbApi.dbAll(
+        db,
+        'SELECT MANUFACTURER_CODE FROM CLUSTER WHERE MANUFACTURER_CODE NOT NULL',
+        []
+      )
+      expect(x.length).toEqual(3)
+
+      x = await dbApi.dbAll(
+        db,
+        'SELECT MANUFACTURER_CODE FROM COMMAND WHERE MANUFACTURER_CODE NOT NULL',
+        []
+      )
+      expect(x.length).toEqual(51)
+
+      x = await dbApi.dbAll(
+        db,
+        'SELECT MANUFACTURER_CODE FROM ATTRIBUTE WHERE MANUFACTURER_CODE NOT NULL',
+        []
+      )
+      expect(x.length).toEqual(22)
+
+      rows = await dbApi.dbMultiSelect(
+        db,
+        'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?',
+        [[0], [6]]
+      )
+      expect(rows.length).toBe(2)
+      expect(rows[0]).not.toBeUndefined()
+      expect(rows[1]).not.toBeUndefined()
+      expect(rows[0].CLUSTER_ID).not.toBeUndefined()
+      expect(rows[1].CLUSTER_ID).not.toBeUndefined()
+
+      rows = await queryPackage.selectAllOptionsValues(
+        db,
+        jsonPackageId,
+        dbEnum.sessionOption.defaultResponsePolicy
+      )
+      expect(rows.length).toBe(3)
+
+      await dbApi.dbAll(
+        db,
+        'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(*)>1)',
+        []
+      )
+      await dbApi.dbAll(
+        db,
+        'SELECT NAME, TYPE, PACKAGE_REF FROM ENUM WHERE NAME IN (SELECT NAME FROM ENUM GROUP BY NAME HAVING COUNT(*)>1)',
+        []
+      )
+    } finally {
+      dbApi.closeDatabase(db)
     }
-    expect(totalCount).toBeGreaterThan(0)
-    // This is how many commands are linked to their responses
-    expect(responsesCount).toBe(120)
-    // This seems to be the unmatched number in our XML files.
-    expect(unmatchedRequestCount).toBe(12)
-    expect(x.length).toBe(testUtil.totalClusterCommandCount)
-    let z = await queryZcl.selectCommandById(db, x[0].id)
-    expect(z.label).toBe(x[0].label)
-
-    x = await queryZcl.selectAllCommandArguments(db, jsonPackageId)
-    expect(x.length).toEqual(testUtil.totalCommandArgsCount)
-
-    x = await queryZcl.selectAllDomains(db, jsonPackageId)
-    expect(x.length).toEqual(testUtil.totalDomainCount)
-
-    z = await queryZcl.selectDomainById(db, x[0].id)
-    expect(z.label).toBe(x[0].label)
-
-    x = await queryZcl.selectAllEnums(db, jsonPackageId)
-    expect(x.length).toEqual(testUtil.totalEnumCount)
-
-    x = await queryZcl.selectAllAttributesBySide(db, 'server', jsonPackageId)
-    expect(x.length).toBe(testUtil.totalServerAttributeCount)
-
-    x = await queryZcl.selectAllEnumItems(db, jsonPackageId)
-    expect(x.length).toEqual(testUtil.totalEnumItemCount)
-
-    x = await queryZcl.selectAllStructs(db, jsonPackageId)
-    expect(x.length).toEqual(54)
-
-    queryZcl
-      .selectAllBitmaps(db, jsonPackageId)
-      .then(() => queryZcl.selectAllDeviceTypes(db, jsonPackageId))
-      .then((x) => expect(x.length).toEqual(175))
-      .then(() => queryZcl.selectAllAtomics(db, jsonPackageId))
-      .then((x) => expect(x.length).toEqual(56))
-      .then(() => queryZcl.selectAllClusters(db, dotdotPackageId))
-      .then((x) => expect(x.length).toEqual(41))
-      .then(() => queryZcl.selectAllClusterCommands(db, dotdotPackageId))
-      .then((x) => expect(x.length).toBe(215)) //seems low
-      .then(() => queryZcl.selectAllCommandArguments(db, dotdotPackageId))
-      .then((x) => expect(x.length).toEqual(644))
-      .then(() => queryZcl.selectAllDeviceTypes(db, dotdotPackageId))
-      .then((x) => expect(x.length).toEqual(108))
-      .then(() => queryZcl.selectAllBitmaps(db, dotdotPackageId))
-      .then((x) => expect(x.length).toEqual(61)) //seems low
-      .then(() => queryZcl.selectAllEnums(db, dotdotPackageId))
-      .then((x) => expect(x.length).toEqual(105)) //seems low
-      .then(() =>
-        queryZcl.selectAllAttributesBySide(db, 'server', dotdotPackageId)
-      )
-      .then((x) => expect(x.length).toBe(615)) //seems low
-      .then(() => queryZcl.selectAllEnumItems(db, dotdotPackageId))
-      .then((x) => expect(x.length).toEqual(639))
-      .then(() => queryZcl.selectAllStructs(db, dotdotPackageId))
-      .then((x) => expect(x.length).toEqual(20)) //seems low
-      .then(() => queryZcl.selectAllAtomics(db, dotdotPackageId))
-      .then((x) => expect(x.length).toEqual(56)) //This is the correct number of atomics from the ZCL8 ch. 2.6
-      .then(() =>
-        dbApi.dbAll(
-          db,
-          'SELECT MANUFACTURER_CODE FROM CLUSTER WHERE MANUFACTURER_CODE NOT NULL',
-          []
-        )
-      )
-      .then((x) => expect(x.length).toEqual(3))
-      .then(() =>
-        dbApi.dbAll(
-          db,
-          'SELECT MANUFACTURER_CODE FROM COMMAND WHERE MANUFACTURER_CODE NOT NULL',
-          []
-        )
-      )
-      .then((x) => expect(x.length).toEqual(51))
-      .then(() =>
-        dbApi.dbAll(
-          db,
-          'SELECT MANUFACTURER_CODE FROM ATTRIBUTE WHERE MANUFACTURER_CODE NOT NULL',
-          []
-        )
-      )
-      .then((x) => expect(x.length).toEqual(22))
-      .then(() =>
-        dbApi.dbMultiSelect(
-          db,
-          'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?',
-          [[0], [6]]
-        )
-      )
-      .then((rows) => {
-        expect(rows.length).toBe(2)
-        expect(rows[0]).not.toBeUndefined()
-        expect(rows[1]).not.toBeUndefined()
-        expect(rows[0].CLUSTER_ID).not.toBeUndefined()
-        expect(rows[1].CLUSTER_ID).not.toBeUndefined()
-      })
-      .then(() =>
-        queryPackage.selectAllOptionsValues(
-          db,
-          jsonPackageId,
-          dbEnum.sessionOption.defaultResponsePolicy
-        )
-      )
-      .then((rows) => expect(rows.length).toBe(3))
-      .then(() =>
-        dbApi.dbAll(
-          db,
-          'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(*)>1)',
-          []
-        )
-      )
-      .then(() =>
-        dbApi.dbAll(
-          db,
-          'SELECT NAME, TYPE, PACKAGE_REF FROM ENUM WHERE NAME IN (SELECT NAME FROM ENUM GROUP BY NAME HAVING COUNT(*)>1)',
-          []
-        )
-      )
-      .finally(() => {
-        dbApi.closeDatabase(db)
-      })
   },
   testUtil.timeout.long()
 )
