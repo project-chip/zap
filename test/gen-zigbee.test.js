@@ -495,17 +495,17 @@ test('Testing zap command parser generation', async () => {
       ).toBeTruthy()
 
       // Test Command callback
-      /*expect(
+      expect(
         genResult.content['zap-command-parser-ver-3.c'].includes(
-          'wasHandled = emberAfColorControlClusterColorLoopSetCallback(updateFlags, action, direction, time, startHue);'
+          'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
         )
       ).toBeTruthy()
 
       expect(
         genResult.content['zap-command-parser-ver-3.c'].includes(
-          'wasHandled = emberAfOnOffClusterOnWithTimedOffCallback(onOffControl, onTime, offWaitTime);'
+          'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
         )
-      ).toBeTruthy()*/
+      ).toBeTruthy()
     })
 }, 10000)
 
