@@ -1120,87 +1120,131 @@ function defaultMessageForTypeConversion(fromType, toType, noWarning) {
  */
 function calculateBytes(res, options, db, packageId, isStructType) {
   if (!isStructType) {
-    return types.typeSize(db, packageId, res.toLowerCase()).then((x) => {
-      switch (x) {
-        case 1:
-          return user_defined_output_or_default(options, 'one_byte', x)
-        case 2:
-          return user_defined_output_or_default(options, 'two_byte', x)
-        case 3:
-          return user_defined_output_or_default(options, 'three_byte', x)
-        case 4:
-          return user_defined_output_or_default(options, 'four_byte', x)
-        case 5:
-          return user_defined_output_or_default(options, 'five_byte', x)
-        case 6:
-          return user_defined_output_or_default(options, 'six_byte', x)
-        case 7:
-          return user_defined_output_or_default(options, 'seven_byte', x)
-        case 8:
-          return user_defined_output_or_default(options, 'eight_byte', x)
-        case 9:
-          return user_defined_output_or_default(options, 'nine_byte', x)
-        case 10:
-          return user_defined_output_or_default(options, 'ten_byte', x)
-        case 11:
-          return user_defined_output_or_default(options, 'eleven_byte', x)
-        case 12:
-          return user_defined_output_or_default(options, 'twelve_byte', x)
-        case 13:
-          return user_defined_output_or_default(options, 'thirteen_byte', x)
-        case 14:
-          return user_defined_output_or_default(options, 'fourteen_byte', x)
-        case 15:
-          return user_defined_output_or_default(options, 'fifteen_byte', x)
-        case 16:
-          return user_defined_output_or_default(options, 'sixteen_byte', x)
-        default:
-          if (
-            res != null &&
-            res.includes('long') &&
-            res.includes(dbEnum.zclType.string)
-          ) {
-            return user_defined_output_or_default(options, 'long_string', 'l')
-          } else if (
-            res != null &&
-            !res.includes('long') &&
-            res.includes(dbEnum.zclType.string)
-          ) {
-            return user_defined_output_or_default(options, 'short_string', 's')
-          } else {
-            return options.hash.default
-          }
-      }
-    })
+    return calculate_bytes_for_types(res, options, db, packageId)
   } else {
-    if ('struct' in options.hash) {
-      return options.hash.struct
-    } else {
-      return queryZcl
-        .selectAllStructItemsByStructName(db, res)
-        .then((items) => {
-          let promises = []
-          for (let itemCount = 0; itemCount < items.length; ) {
-            promises.push(
-              dataTypeCharacterFormatter(
-                db,
-                packageId,
-                items[itemCount],
+    return calculate_bytes_for_structs(res, options, db, packageId)
+  }
+}
+
+function calculate_bytes_for_types(res, options, db, packageId) {
+  return types
+    .typeSize(db, packageId, res.toLowerCase())
+    .then((x) => {
+      return new Promise((resolve, reject) => {
+        let result = 0
+        switch (x) {
+          case 1:
+            result = user_defined_output_or_default(options, 'one_byte', x)
+            break
+          case 2:
+            result = user_defined_output_or_default(options, 'two_byte', x)
+            break
+          case 3:
+            result = user_defined_output_or_default(options, 'three_byte', x)
+            break
+          case 4:
+            result = user_defined_output_or_default(options, 'four_byte', x)
+            break
+          case 5:
+            result = user_defined_output_or_default(options, 'five_byte', x)
+            break
+          case 6:
+            result = user_defined_output_or_default(options, 'six_byte', x)
+            break
+          case 7:
+            result = user_defined_output_or_default(options, 'seven_byte', x)
+            break
+          case 8:
+            result = user_defined_output_or_default(options, 'eight_byte', x)
+            break
+          case 9:
+            result = user_defined_output_or_default(options, 'nine_byte', x)
+            break
+          case 10:
+            result = user_defined_output_or_default(options, 'ten_byte', x)
+            break
+          case 11:
+            result = user_defined_output_or_default(options, 'eleven_byte', x)
+            break
+          case 12:
+            result = user_defined_output_or_default(options, 'twelve_byte', x)
+            break
+          case 13:
+            result = user_defined_output_or_default(options, 'thirteen_byte', x)
+            break
+          case 14:
+            result = user_defined_output_or_default(options, 'fourteen_byte', x)
+            break
+          case 15:
+            result = user_defined_output_or_default(options, 'fifteen_byte', x)
+            break
+          case 16:
+            result = user_defined_output_or_default(options, 'sixteen_byte', x)
+            break
+          default:
+            if (
+              res != null &&
+              res.includes('long') &&
+              res.includes(dbEnum.zclType.string)
+            ) {
+              result = user_defined_output_or_default(
                 options,
-                type
+                'long_string',
+                'l'
               )
-            )
-          }
-          return Promise.all(promises)
-        })
-        .then((resolvedPromises) =>
-          resolvedPromises.reduce((acc, cur) => acc + cur, 0)
+            } else if (
+              res != null &&
+              !res.includes('long') &&
+              res.includes(dbEnum.zclType.string)
+            ) {
+              result = user_defined_output_or_default(
+                options,
+                'short_string',
+                's'
+              )
+            } else if ('default' in options.hash) {
+              result = options.hash.default
+            }
+            break
+        }
+        resolve(result)
+      })
+    })
+    .catch((err) => {
+      env.logError(
+        'Could not find size of the given type in' +
+          ' calculate_bytes_for_types: ' +
+          err
+      )
+    })
+}
+
+function calculate_bytes_for_structs(res, options, db, packageId) {
+  if ('struct' in options.hash) {
+    return Promise.resolve(options.hash.struct)
+  } else {
+    return queryZcl
+      .selectAllStructItemsByStructName(db, res)
+      .then((items) => {
+        let promises = []
+        items.forEach((item) =>
+          promises.push(
+            dataTypeCharacterFormatter(db, packageId, item, options, type)
+          )
         )
-        .catch((err) => {
-          env.logError('Could not find size of struct: ' + err)
-          return 0
-        })
-    }
+        return Promise.all(promises)
+      })
+      .then((resolvedPromises) =>
+        resolvedPromises.reduce((acc, cur) => acc + cur, 0)
+      )
+      .catch((err) => {
+        env.logError(
+          'Could not find size of struct in' +
+            ' calculate_size_for_structs: ' +
+            err
+        )
+        return Promise.resolve(0)
+      })
   }
 }
 
@@ -1232,9 +1276,9 @@ function dataTypeCharacterFormatter(db, packageId, type, options, resType) {
   switch (resType) {
     case dbEnum.zclType.array:
       if (dbEnum.zclType.array in options.hash) {
-        return options.hash.array
+        return Promise.resolve(options.hash.array)
       } else {
-        return 'b'
+        return Promise.resolve('b')
       }
     case dbEnum.zclType.bitmap:
       return queryZcl
@@ -1242,21 +1286,17 @@ function dataTypeCharacterFormatter(db, packageId, type, options, resType) {
         .then((bitmap) => {
           return queryZcl.selectAtomicType(db, packageId, bitmap.type)
         })
-        .then((res) => {
-          return calculateBytes(res.name, options, db, packageId, false)
-        })
+        .then((res) => calculateBytes(res.name, options, db, packageId, false))
     case dbEnum.zclType.enum:
       return queryZcl
         .selectEnumByName(db, type, packageId)
         .then((enumRec) => {
           return queryZcl.selectAtomicType(db, packageId, enumRec.type)
         })
-        .then((res) => {
-          return calculateBytes(res.name, options, db, packageId, false)
-        })
+        .then((res) => calculateBytes(res.name, options, db, packageId, false))
     case dbEnum.zclType.struct:
       if (dbEnum.zclType.struct in options.hash) {
-        return options.hash.struct
+        return Promise.resolve(options.hash.struct)
       } else {
         return calculateBytes(type, options, db, packageId, true)
       }
@@ -1273,13 +1313,11 @@ function dataTypeCharacterFormatter(db, packageId, type, options, resType) {
               atomic.name == 'long_octet_string' ||
               atomic.name == 'long_char_string')
           ) {
-            return atomic.name
+            return Promise.resolve(atomic.name)
           }
-          return type
+          return Promise.resolve(type)
         })
-        .then((res) => {
-          return calculateBytes(res, options, db, packageId, false)
-        })
+        .then((res) => calculateBytes(res, options, db, packageId, false))
   }
 }
 
