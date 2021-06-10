@@ -76,7 +76,7 @@ exports.timeout = {
 
 exports.testTemplate = {
   zigbee: './test/gen-template/zigbee/gen-templates.json',
-  zigbeeCount: 18,
+  zigbeeCount: 19,
   chip: './test/gen-template/chip/gen-templates.json',
   dotdot: './test/gen-template/dotdot/dotdot-templates.json',
   unittest: './test/gen-template/test/gen-test.json',
@@ -98,4 +98,3 @@ exports.totalSpecCount = 39
 exports.totalEnumCount = 209
 exports.totalEnumItemCount = 1595
 exports.longTimeout = 12000
-exports.testTemplateCount = 19
