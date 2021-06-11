@@ -34,6 +34,7 @@ let db
 const templateCount = testUtil.testTemplate.zigbeeCount
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 const testFile2 = path.join(__dirname, 'resource/three-endpoint-device.zap')
+const testFile3 = path.join(__dirname, 'resource/zll-on-off-switch-test.zap')
 
 beforeAll(async () => {
   let file = env.sqliteTestFile('genengine')
@@ -431,6 +432,82 @@ test(
         expect(
           genResult.content['zap-config-version-2.h'].includes(
             '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 28, Cluster: Groups, Command: ViewGroupResponse*/'
+          )
+        ).toBeTruthy()
+      })
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Testing zap command parser generation',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile3, { sessionId: sid })
+
+    return genEngine
+      .generate(
+        db,
+        sid,
+        templateContext.packageId,
+        {},
+        {
+          disableDeprecationWarnings: true,
+        }
+      )
+      .then((genResult) => {
+        // Test Cluster command parsers that should be defined
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfGroupsClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfGroupsClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfIdentifyClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfLevelControlClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfOnOffClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfScenesClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfZllCommissioningClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+
+        // Test Command callback
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
           )
         ).toBeTruthy()
       })

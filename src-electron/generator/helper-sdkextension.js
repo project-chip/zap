@@ -121,7 +121,10 @@ async function subentityExtension(context, prop, entityType) {
         d.entityQualifier != null &&
         entityType == dbEnum.packageExtensionEntity.command
       ) {
-        if (d.entityQualifier == context.source) {
+        if (
+          d.entityQualifier == context.source ||
+          d.entityQualifier == context.commandSource
+        ) {
           val = d.value
         }
       } else {
