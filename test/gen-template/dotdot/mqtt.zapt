@@ -434,3 +434,15 @@ void {{dotdot_prefix}}_publish_supported_commands(
   {{/if}}
   {{/zcl_clusters}}
 }
+
+{{#zcl_command_arguments}}
+{{#if_is_bitmap type}}
+const std::string Bitmap_{{label}} = "{{type}}"
+{{else}}
+{{#if_is_enum type}}
+const std::string Enum_{{label}} = "{{type}}"
+{{else}}
+const std::string Not_either_{{label}} = "{{type}}"
+{{/if_is_enum}}
+{{/if_is_bitmap}}
+{{/zcl_command_arguments}}
