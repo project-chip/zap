@@ -21,6 +21,7 @@
 
 const os = require('os')
 const fs = require('fs')
+const fsp = fs.promises
 const env = require('./env.js')
 const crc = require('crc')
 const path = require('path')
@@ -512,6 +513,22 @@ async function parseXml(fileContent) {
   return xml2js.parseStringPromise(fileContent)
 }
 
+/**
+ * Reads the properties file and returns object containing
+ * 'data', 'filePath' and 'crc'
+ *
+ * @param {*} metadata file
+ * @returns Promise to populate data, filePath and crc into the context.
+ */
+async function readFileContentAndCrc(metadataFile) {
+  let content = await fsp.readFile(metadataFile, { encoding: 'utf-8' })
+  return {
+    data: content,
+    filePath: metadataFile,
+    crc: checksum(content),
+  }
+}
+
 exports.createBackupFile = createBackupFile
 exports.checksum = checksum
 exports.initializeSessionPackage = initializeSessionPackage
@@ -527,3 +544,4 @@ exports.waitFor = waitFor
 exports.getClusterExtension = getClusterExtension
 exports.getClusterExtensionDefault = getClusterExtensionDefault
 exports.parseXml = parseXml
+exports.readFileContentAndCrc = readFileContentAndCrc

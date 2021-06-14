@@ -18,33 +18,15 @@
 const fs = require('fs')
 const path = require('path')
 const queryPackage = require('../db/query-package.js')
-const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const fsp = fs.promises
 const sLoad = require('./zcl-loader-silabs.js')
 const dLoad = require('./zcl-loader-dotdot.js')
 const queryZcl = require('../db/query-zcl.js')
 const env = require('../util/env.js')
-const _ = require('lodash')
 
 const defaultValidator = (zclData) => {
   return []
-}
-
-/**
- * Reads the properties file and returns object containing
- * 'data', 'filePath' and 'crc'
- *
- * @param {*} metadata file
- * @returns Promise to populate data, filePath and crc into the context.
- */
-async function readMetadataFile(metadataFile) {
-  let content = await fsp.readFile(metadataFile, { encoding: 'utf-8' })
-  return {
-    data: content,
-    filePath: metadataFile,
-    crc: util.checksum(content),
-  }
 }
 
 /**
@@ -260,7 +242,6 @@ async function processZclPostLoading(db) {
 }
 
 exports.loadZcl = loadZcl
-exports.readMetadataFile = readMetadataFile
 exports.recordToplevelPackage = recordToplevelPackage
 exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading

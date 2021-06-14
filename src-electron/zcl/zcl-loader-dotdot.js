@@ -651,7 +651,7 @@ async function loadDotdotZcl(db, metafile) {
   env.logDebug(`Loading Dotdot zcl file: ${metafile}`)
   try {
     await dbApi.dbBeginTransaction(db)
-    Object.assign(ctx, await zclLoader.readMetadataFile(metafile))
+    Object.assign(ctx, await util.readFileContentAndCrc(ctx.metadataFile))
     ctx.packageId = await zclLoader.recordToplevelPackage(
       db,
       ctx.metadataFile,

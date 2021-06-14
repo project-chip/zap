@@ -35,18 +35,19 @@ const _ = require('lodash')
  * @param {*} ctx  Context containing information about the file
  * @returns Promise of resolved file.
  */
-function collectDataFromJsonFile(ctx) {
-  env.logDebug(`Collecting ZCL files from JSON file: ${ctx.metadataFile}`)
-  let obj = JSON.parse(ctx.data)
+async function collectDataFromJsonFile(metadataFile, data) {
+  env.logDebug(`Collecting ZCL files from JSON file: ${metadataFile}`)
+  let obj = JSON.parse(data)
   let f
+  let returnObject = {}
 
   let fileLocations
   if (Array.isArray(obj.xmlRoot)) {
     fileLocations = obj.xmlRoot.map((p) =>
-      path.join(path.dirname(ctx.metadataFile), p)
+      path.join(path.dirname(metadataFile), p)
     )
   } else {
-    fileLocations = [path.join(path.dirname(ctx.metadataFile), obj.xmlRoot)]
+    fileLocations = [path.join(path.dirname(metadataFile), obj.xmlRoot)]
   }
   let zclFiles = []
   obj.xmlFile.forEach((xmlF) => {
@@ -54,34 +55,38 @@ function collectDataFromJsonFile(ctx) {
     if (f != null) zclFiles.push(f)
   })
 
-  ctx.zclFiles = zclFiles
+  returnObject.zclFiles = zclFiles
 
   // Manufacturers XML file.
   f = util.locateRelativeFilePath(fileLocations, obj.manufacturersXml)
-  if (f != null) ctx.manufacturersXml = f
+  if (f != null) returnObject.manufacturersXml = f
 
   // Zcl XSD file
   f = util.locateRelativeFilePath(fileLocations, obj.zclSchema)
-  if (f != null) ctx.zclSchema = f
+  if (f != null) returnObject.zclSchema = f
 
   // Zcl Validation Script
   f = util.locateRelativeFilePath(fileLocations, obj.zclValidation)
-  if (f != null) ctx.zclValidation = f
+  if (f != null) returnObject.zclValidation = f
 
   // General options
   // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
   if (obj.options) {
-    ctx.options = obj.options
+    returnObject.options = obj.options
   }
   // Defaults. Note that the keys should be the categories that are listed for PACKAGE_OPTION, and the value should be the OPTION_CODE
   if (obj.defaults) {
-    ctx.defaults = obj.defaults
+    returnObject.defaults = obj.defaults
   }
 
-  ctx.version = obj.version
-  ctx.supportCustomZclDevice = obj.supportCustomZclDevice
+  returnObject.version = obj.version
+  returnObject.supportCustomZclDevice = obj.supportCustomZclDevice
 
-  env.logDebug(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
+  env.logDebug(
+    `Resolving: ${returnObject.zclFiles}, version: ${returnObject.version}`
+  )
+
+  return returnObject
 }
 
 /**
@@ -90,20 +95,20 @@ function collectDataFromJsonFile(ctx) {
  * @param {*} ctx Context which contains information about the propertiesFiles and data
  * @returns Promise of resolved files.
  */
-async function collectDataFromPropertiesFile(ctx) {
+async function collectDataFromPropertiesFile(metadataFile, data) {
   return new Promise((resolve, reject) => {
-    env.logDebug(
-      `Collecting ZCL files from properties file: ${ctx.metadataFile}`
-    )
+    env.logDebug(`Collecting ZCL files from properties file: ${metadataFile}`)
 
-    properties.parse(ctx.data, { namespaces: true }, (err, zclProps) => {
+    let returnObject = {}
+
+    properties.parse(data, { namespaces: true }, (err, zclProps) => {
       if (err) {
-        env.logError(`Could not read file: ${ctx.metadataFile}`)
+        env.logError(`Could not read file: ${metadataFile}`)
         reject(err)
       } else {
         let fileLocations = zclProps.xmlRoot
           .split(',')
-          .map((p) => path.join(path.dirname(ctx.metadataFile), p))
+          .map((p) => path.join(path.dirname(metadataFile), p))
         let zclFiles = []
         let f
 
@@ -117,35 +122,37 @@ async function collectDataFromPropertiesFile(ctx) {
           if (fullPath != null) zclFiles.push(fullPath)
         })
 
-        ctx.zclFiles = zclFiles
+        returnObject.zclFiles = zclFiles
         // Manufacturers XML file.
         f = util.locateRelativeFilePath(
           fileLocations,
           zclProps.manufacturersXml
         )
-        if (f != null) ctx.manufacturersXml = f
+        if (f != null) returnObject.manufacturersXml = f
 
         // Zcl XSD file
         f = util.locateRelativeFilePath(fileLocations, zclProps.zclSchema)
-        if (f != null) ctx.zclSchema = f
+        if (f != null) returnObject.zclSchema = f
 
         // Zcl Validation Script
         f = util.locateRelativeFilePath(fileLocations, zclProps.zclValidation)
-        if (f != null) ctx.zclValidation = f
+        if (f != null) returnObject.zclValidation = f
 
         // General options
         // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
         if (zclProps.options) {
-          ctx.options = zclProps.options
+          returnObject.options = zclProps.options
         }
         // Defaults. Note that the keys should be the categories that are listed for PACKAGE_OPTION, and the value should be the OPTION_CODE
         if (zclProps.defaults) {
-          ctx.defaults = zclProps.defaults
+          returnObject.defaults = zclProps.defaults
         }
-        ctx.supportCustomZclDevice = zclProps.supportCustomZclDevice
-        ctx.version = zclProps.version
-        env.logDebug(`Resolving: ${ctx.zclFiles}, version: ${ctx.version}`)
-        resolve(ctx)
+        returnObject.supportCustomZclDevice = zclProps.supportCustomZclDevice
+        returnObject.version = zclProps.version
+        env.logDebug(
+          `Resolving: ${returnObject.zclFiles}, version: ${returnObject.version}`
+        )
+        resolve(returnObject)
       }
     })
   })
@@ -1105,17 +1112,19 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
   env.logDebug(`Loading Silabs zcl file: ${ctx.metadataFile}`)
   await dbApi.dbBeginTransaction(db)
   try {
-    Object.assign(ctx, await zclLoader.readMetadataFile(metafile))
+    Object.assign(ctx, await util.readFileContentAndCrc(ctx.metadataFile))
     ctx.packageId = await zclLoader.recordToplevelPackage(
       db,
       ctx.metadataFile,
       ctx.crc
     )
+    let ret
     if (isJson) {
-      collectDataFromJsonFile(ctx)
+      ret = await collectDataFromJsonFile(ctx.metadataFile, ctx.data)
     } else {
-      await collectDataFromPropertiesFile(ctx)
+      ret = await collectDataFromPropertiesFile(ctx.metadataFile, ctx.data)
     }
+    Object.assign(ctx, ret)
     if (ctx.version != null) {
       await zclLoader.recordVersion(db, ctx.packageId, ctx.version)
     }
