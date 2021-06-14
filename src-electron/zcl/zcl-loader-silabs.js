@@ -194,7 +194,7 @@ function prepareBitmap(bm) {
         name: field.$.name,
         mask: parseInt(field.$.mask),
         type: maskToType(field.$.mask),
-        ordinal: index,
+        fieldIdentifier: index + 1,
       })
     })
   }
@@ -366,7 +366,7 @@ function prepareCluster(cluster, isExtension = false) {
               isArray: arg.$.array == 'true' ? 1 : 0,
               presentIf: arg.$.presentIf,
               countArg: arg.$.countArg,
-              ordinal: index,
+              fieldIdentifier: index + 1,
               introducedIn: arg.$.introducedIn,
               removedIn: arg.$.removedIn,
             })
@@ -550,7 +550,7 @@ function prepareStruct(struct) {
       ret.items.push({
         name: item.$.name,
         type: item.$.type,
-        ordinal: index,
+        fieldIdentifier: index + 1,
         entryType: item.$.entryType,
         minLength: 0,
         maxLength: item.$.length ? item.$.length : null,
@@ -593,7 +593,7 @@ function prepareEnum(en) {
       ret.items.push({
         name: item.$.name,
         value: parseInt(item.$.value),
-        ordinal: index,
+        fieldIdentifier: index + 1,
       })
     })
   }

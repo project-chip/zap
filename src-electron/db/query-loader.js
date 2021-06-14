@@ -160,7 +160,7 @@ function argMap(cmdId, packageId, args) {
     arg.isArray ? 1 : 0,
     arg.presentIf,
     arg.countArg,
-    arg.ordinal,
+    arg.fieldIdentifier,
     arg.introducedIn,
     packageId,
     arg.removedIn,
@@ -475,7 +475,7 @@ async function insertStructs(db, packageId, data) {
               lastId,
               item.name,
               item.type,
-              item.ordinal,
+              item.fieldIdentifier,
               item.entryType,
               item.minLength,
               item.maxLength,
@@ -522,7 +522,7 @@ async function insertEnums(db, packageId, data) {
               lastId,
               item.name,
               item.value,
-              item.ordinal,
+              item.fieldIdentifier,
             ])
           )
         }
@@ -564,7 +564,7 @@ async function insertBitmaps(db, packageId, data) {
               field.name,
               field.mask,
               field.type,
-              field.ordinal,
+              field.fieldIdentifier,
             ])
           )
         }

@@ -274,7 +274,7 @@ function prepareCommands(commands, side, types) {
           pcmd.args.push({
             name: f.$.name,
             type: type,
-            ordinal: j,
+            fieldIdentifier: j + 1,
             isArray: f.$.array == 'true' ? 1 : 0,
           })
         }
@@ -399,7 +399,7 @@ function prepareBitmap(
         name: e.$.name,
         mask: normalizeHexValue(e.$.mask),
         type: e.$.type,
-        ordinal: index,
+        fieldIdentifier: index + 1,
       })
       if (tagContainsEnum(e)) {
         typeContainer.enums.push(prepareEnum(e, true, type.$.name))
@@ -437,7 +437,7 @@ function prepareEnum(type, fromAttribute = false, namePrefix = null) {
       ret.items.push({
         name: e.$.name,
         value: parseInt(normalizeHexValue(e.$.value)),
-        ordinal: index,
+        fieldIdentifier: index + 1,
       })
     })
   }
@@ -460,7 +460,7 @@ function prepareStruct(type) {
         ret.items.push({
           name: field.$.name,
           type: field.$.type,
-          ordinal: index,
+          fieldIdentifier: index + 1,
         })
       })
     })
