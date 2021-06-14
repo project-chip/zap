@@ -1426,7 +1426,7 @@ async function exportCommandDetailsFromAllEndpointTypesAndClusters(
   INNER JOIN CLUSTER
   ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
   WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds}) AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
-  GROUP BY COMMAND.NAME
+  GROUP BY COMMAND.NAME, COMMAND.COMMAND_ID
         `
     )
     .then((rows) => rows.map(commandMap))
