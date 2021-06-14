@@ -45,7 +45,7 @@ async function selectAllEnumItemsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, VALUE FROM ENUM_ITEM WHERE ENUM_REF = ? ORDER BY ORDINAL',
+      'SELECT NAME, VALUE FROM ENUM_ITEM WHERE ENUM_REF = ? ORDER BY FIELD_IDENTIFIER',
       [id]
     )
     .then((rows) => rows.map(dbMapping.map.enumItem))
@@ -60,7 +60,7 @@ async function selectAllEnumItems(db, packageId) {
               ENUM_ITEM.ENUM_REF
        FROM ENUM_ITEM, ENUM
        WHERE ENUM.PACKAGE_REF = ? AND ENUM.ENUM_ID = ENUM_ITEM.ENUM_REF
-       ORDER BY ENUM_ITEM.ENUM_REF, ENUM_ITEM.ORDINAL`,
+       ORDER BY ENUM_ITEM.ENUM_REF, ENUM_ITEM.FIELD_IDENTIFIER`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.enumItem))
@@ -103,7 +103,7 @@ async function selectAllBitmapFieldsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, MASK, TYPE FROM BITMAP_FIELD WHERE BITMAP_REF = ? ORDER BY ORDINAL',
+      'SELECT NAME, MASK, TYPE FROM BITMAP_FIELD WHERE BITMAP_REF = ? ORDER BY FIELD_IDENTIFIER',
       [id]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
@@ -113,7 +113,7 @@ async function selectAllBitmapFields(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, MASK, TYPE, BITMAP_REF FROM BITMAP_FIELD  WHERE PACKAGE_REF = ? ORDER BY BITMAP_REF, ORDINAL',
+      'SELECT NAME, MASK, TYPE, BITMAP_REF FROM BITMAP_FIELD  WHERE PACKAGE_REF = ? ORDER BY BITMAP_REF, FIELD_IDENTIFIER',
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
@@ -197,7 +197,7 @@ async function selectAllStructItemsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, TYPE, STRUCT_REF, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE FROM STRUCT_ITEM WHERE STRUCT_REF = ? ORDER BY ORDINAL',
+      'SELECT NAME, TYPE, STRUCT_REF, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE FROM STRUCT_ITEM WHERE STRUCT_REF = ? ORDER BY FIELD_IDENTIFIER',
       [id]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))
@@ -214,7 +214,7 @@ async function selectAllStructItemsByStructName(db, name) {
   return dbApi
     .dbAll(
       db,
-      'SELECT STRUCT_ITEM.NAME, STRUCT_ITEM.TYPE, STRUCT_ITEM.STRUCT_REF, STRUCT_ITEM.ARRAY_TYPE FROM STRUCT_ITEM INNER JOIN STRUCT ON STRUCT.STRUCT_ID = STRUCT_ITEM.STRUCT_REF WHERE STRUCT.NAME = ? ORDER BY ORDINAL',
+      'SELECT STRUCT_ITEM.NAME, STRUCT_ITEM.TYPE, STRUCT_ITEM.STRUCT_REF, STRUCT_ITEM.ARRAY_TYPE FROM STRUCT_ITEM INNER JOIN STRUCT ON STRUCT.STRUCT_ID = STRUCT_ITEM.STRUCT_REF WHERE STRUCT.NAME = ? ORDER BY FIELD_IDENTIFIER',
       [name]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))
@@ -777,7 +777,7 @@ LEFT JOIN
 ON
   CMD.COMMAND_ID = CA.COMMAND_REF
 WHERE CMD.PACKAGE_REF = ?
-ORDER BY CL.CODE, CMD.CODE, CA.ORDINAL`,
+ORDER BY CL.CODE, CMD.CODE, CA.FIELD_IDENTIFIER`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
@@ -870,7 +870,7 @@ FROM COMMAND_ARG, COMMAND
 WHERE
   COMMAND_ARG.COMMAND_REF = COMMAND.COMMAND_ID
   AND COMMAND.PACKAGE_REF = ?
-ORDER BY COMMAND_REF, ORDINAL`,
+ORDER BY COMMAND_REF, FIELD_IDENTIFIER`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.commandArgument))
@@ -1663,7 +1663,7 @@ SELECT
   COUNT_ARG
 FROM COMMAND_ARG
 WHERE COMMAND_REF = ?
-ORDER BY ORDINAL`,
+ORDER BY FIELD_IDENTIFIER`,
       [commandId]
     )
     .then((rows) => rows.map(dbMapping.map.commandArgument))

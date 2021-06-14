@@ -70,7 +70,7 @@ INSERT INTO COMMAND_ARG (
   IS_ARRAY,
   PRESENT_IF,
   COUNT_ARG,
-  ORDINAL,
+  FIELD_IDENTIFIER,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
@@ -486,7 +486,7 @@ async function insertStructs(db, packageId, data) {
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, ORDINAL, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE) VALUES (?,?,?,?,?,?,?,?)',
+        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, FIELD_IDENTIFIER, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE) VALUES (?,?,?,?,?,?,?,?)',
         itemsToLoad
       )
     })
@@ -529,7 +529,7 @@ async function insertEnums(db, packageId, data) {
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE, ORDINAL) VALUES (?, ?, ?, ?)',
+        'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER) VALUES (?, ?, ?, ?)',
         itemsToLoad
       )
     })
@@ -571,7 +571,7 @@ async function insertBitmaps(db, packageId, data) {
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, TYPE, ORDINAL) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, TYPE, FIELD_IDENTIFIER) VALUES (?, ?, ?, ?, ?)',
         fieldsToLoad
       )
     })
