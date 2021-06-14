@@ -46,26 +46,25 @@ let db
 let sid
 let pkgId
 
-beforeAll(() => {
+beforeAll(async () => {
   let file = env.sqliteTestFile('query')
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-    })
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
 }, testUtil.timeout.medium())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
   'Path CRC queries.',
-  () => {
+  async () => {
     let path = '/some/random/path'
     let crc = 42
-    return queryPackage
-      .insertPathCrc(db, path, crc)
-      .then((rowid) => queryPackage.getPathCrc(db, path))
-      .then((c) => expect(c).toBe(crc))
+    await queryPackage.insertPathCrc(db, path, crc)
+    let c = await queryPackage.getPathCrc(db, path)
+    expect(c).toBe(crc)
   },
   testUtil.timeout.short()
 )

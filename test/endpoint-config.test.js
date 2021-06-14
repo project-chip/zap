@@ -37,42 +37,39 @@ let sessionId
 let templateContext
 let zclContext
 
-beforeAll(() => {
+beforeAll(async () => {
   let file = env.sqliteTestFile('endpointconfig')
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-    })
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
 }, testUtil.timeout.medium())
 
-afterAll(() => {
-  return dbApi.closeDatabase(db)
-}, testUtil.timeout.short())
+afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
   'Basic gen template parsing and generation',
-  () =>
-    genEngine
-      .loadTemplates(db, testUtil.testTemplate.zigbee)
-      .then((context) => {
-        expect(context.crc).not.toBeNull()
-        expect(context.templateData).not.toBeNull()
-        expect(context.templateData.name).toEqual('Test templates')
-        expect(context.templateData.version).toEqual('test-v1')
-        expect(context.templateData.templates.length).toEqual(templateCount)
-        expect(context.packageId).not.toBeNull()
-        templateContext = context
-      }),
+  async () => {
+    templateContext = await genEngine.loadTemplates(
+      db,
+      testUtil.testTemplate.zigbee
+    )
+    expect(templateContext.crc).not.toBeNull()
+    expect(templateContext.templateData).not.toBeNull()
+    expect(templateContext.templateData.name).toEqual('Test templates')
+    expect(templateContext.templateData.version).toEqual('test-v1')
+    expect(templateContext.templateData.templates.length).toEqual(templateCount)
+    expect(templateContext.packageId).not.toBeNull()
+  },
   testUtil.timeout.medium()
 )
 
 test(
   'Load ZCL stuff',
-  () =>
-    zclLoader.loadZcl(db, env.builtinSilabsZclMetafile).then((context) => {
-      zclContext = context
-    }),
+  async () => {
+    zclContext = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+  },
   testUtil.timeout.medium()
 )
 
@@ -166,96 +163,89 @@ test(
 
 test(
   'Some intermediate queries',
-  () =>
-    types.typeSize(db, zclContext.packageId, 'bitmap8').then((size) => {
-      expect(size).toBe(1)
-    }),
+  async () => {
+    let size = await types.typeSize(db, zclContext.packageId, 'bitmap8')
+    expect(size).toBe(1)
+  },
   testUtil.timeout.medium()
 )
 
 test(
   'Test endpoint config generation',
-  () =>
-    genEngine
-      .generate(
-        db,
-        sessionId,
-        templateContext.packageId,
-        {},
-        { disableDeprecationWarnings: true }
+  async () => {
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      { disableDeprecationWarnings: true }
+    )
+
+    expect(genResult).not.toBeNull()
+    expect(genResult.partial).toBeFalsy()
+    expect(genResult.content).not.toBeNull()
+
+    let epc = genResult.content['zap-config.h']
+    let epcLines = epc.split(/\r?\n/)
+    expect(
+      epc.includes('#define FIXED_ENDPOINT_ARRAY { 0x0029, 0x002A, 0x002B }')
+    ).toBeTruthy()
+    expect(
+      epc.includes(
+        "17, 'V', 'e', 'r', 'y', ' ', 'l', 'o', 'n', 'g', ' ', 'u', 's', 'e', 'r', ' ', 'i', 'd', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,"
       )
-      .then((genResult) => {
-        expect(genResult).not.toBeNull()
-        expect(genResult.partial).toBeFalsy()
-        expect(genResult.content).not.toBeNull()
+    ).toBeTruthy()
+    expect(
+      epc.includes(
+        '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x0101, 0x0000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65344, 0 }} }, /* lock state */'
+      )
+    ).toBeTruthy()
+    expect(
+      epc.includes(
+        '{ 0x0004, ZAP_TYPE(CHAR_STRING), 32, ZAP_ATTRIBUTE_MASK(TOKENIZE), ZAP_LONG_DEFAULTS_INDEX(5) }'
+      )
+    ).toBeTruthy()
+    expect(epc.includes(bin.hexToCBytes(bin.stringToHex('Very long user id'))))
+    expect(epc.includes('#define FIXED_NETWORKS { 1, 1, 2 }')).toBeTruthy()
+    expect(
+      epc.includes('#define FIXED_PROFILE_IDS { 0x0107, 0x0104, 0x0104 }')
+    ).toBeTruthy()
+    expect(
+      epc.includes('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
+    ).toBeTruthy()
+    expect(epc.includes('#define GENERATED_DEFAULTS_COUNT (47)')).toBeTruthy()
+    expect(
+      epc.includes(
+        '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0002, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 2, 12, 4 }} }'
+      )
+    ).toBeTruthy()
+    expect(
+      epc.includes(
+        '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0003, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 3, 13, 6 }} }'
+      )
+    ).toBeTruthy()
+    expect(
+      epc.includes(
+        `17, 'T', 'e', 's', 't', ' ', 'm', 'a', 'n', 'u', 'f', 'a', 'c', 't', 'u', 'r', 'e', 'r', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,`
+      )
+    ).toBeTruthy()
 
-        let epc = genResult.content['zap-config.h']
-        let epcLines = epc.split(/\r?\n/)
-        expect(
-          epc.includes(
-            '#define FIXED_ENDPOINT_ARRAY { 0x0029, 0x002A, 0x002B }'
-          )
-        ).toBeTruthy()
-        expect(
-          epc.includes(
-            "17, 'V', 'e', 'r', 'y', ' ', 'l', 'o', 'n', 'g', ' ', 'u', 's', 'e', 'r', ' ', 'i', 'd', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,"
-          )
-        ).toBeTruthy()
-        expect(
-          epc.includes(
-            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x0101, 0x0000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65344, 0 }} }, /* lock state */'
-          )
-        ).toBeTruthy()
-        expect(
-          epc.includes(
-            '{ 0x0004, ZAP_TYPE(CHAR_STRING), 32, ZAP_ATTRIBUTE_MASK(TOKENIZE), ZAP_LONG_DEFAULTS_INDEX(5) }'
-          )
-        ).toBeTruthy()
-        expect(
-          epc.includes(bin.hexToCBytes(bin.stringToHex('Very long user id')))
-        )
-        expect(epc.includes('#define FIXED_NETWORKS { 1, 1, 2 }')).toBeTruthy()
-        expect(
-          epc.includes('#define FIXED_PROFILE_IDS { 0x0107, 0x0104, 0x0104 }')
-        ).toBeTruthy()
-        expect(
-          epc.includes('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
-        ).toBeTruthy()
-        expect(
-          epc.includes('#define GENERATED_DEFAULTS_COUNT (47)')
-        ).toBeTruthy()
-        expect(
-          epc.includes(
-            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0002, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 2, 12, 4 }} }'
-          )
-        ).toBeTruthy()
-        expect(
-          epc.includes(
-            '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0003, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 3, 13, 6 }} }'
-          )
-        ).toBeTruthy()
-        expect(
-          epc.includes(
-            `17, 'T', 'e', 's', 't', ' ', 'm', 'a', 'n', 'u', 'f', 'a', 'c', 't', 'u', 'r', 'e', 'r', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,`
-          )
-        ).toBeTruthy()
+    expect(epcLines.length).toBeGreaterThan(100)
+    let cnt = 0
+    epcLines.forEach((line) => {
+      if (line.includes('ZAP_TYPE(')) {
+        expect(line.includes('undefined')).toBeFalsy()
+        cnt++
+      }
+    })
+    expect(cnt).toBe(76)
 
-        expect(epcLines.length).toBeGreaterThan(100)
-        let cnt = 0
-        epcLines.forEach((line) => {
-          if (line.includes('ZAP_TYPE(')) {
-            expect(line.includes('undefined')).toBeFalsy()
-            cnt++
-          }
-        })
-        expect(cnt).toBe(76)
-
-        expect(
-          epc.includes('#define EMBER_AF_MANUFACTURER_CODE 0x1002')
-        ).toBeTruthy()
-        expect(
-          epc.includes('#define EMBER_AF_DEFAULT_RESPONSE_POLICY_ALWAYS')
-        ).toBeTruthy()
-      }),
+    expect(
+      epc.includes('#define EMBER_AF_MANUFACTURER_CODE 0x1002')
+    ).toBeTruthy()
+    expect(
+      epc.includes('#define EMBER_AF_DEFAULT_RESPONSE_POLICY_ALWAYS')
+    ).toBeTruthy()
+  },
   testUtil.timeout.long()
 )

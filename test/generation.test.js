@@ -34,29 +34,27 @@ let db
 const { port, baseUrl } = testUtil.testServer(__filename)
 let uuid = util.createUuid()
 
-beforeAll(() => {
+beforeAll(async () => {
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('generation')
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-      env.logInfo(`Test database initialized: ${file}.`)
-    })
-    .catch((err) => env.logError(`Error: ${err}`))
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
 }, testUtil.timeout.medium())
 
-afterAll(() => {
-  return httpServer.shutdownHttpServer().then(() => dbApi.closeDatabase(db))
+afterAll(async () => {
+  await httpServer.shutdownHttpServer()
+  await dbApi.closeDatabase(db)
 }, testUtil.timeout.medium())
 
 describe('Session specific tests', () => {
   test(
     'make sure there is no session at the beginning',
-    () => {
-      return testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
-        expect(cnt).toBe(0)
-      })
+    async () => {
+      let cnt = await testQuery.selectCountFrom(db, 'SESSION')
+      expect(cnt).toBe(0)
     },
     testUtil.timeout.short()
   )
@@ -215,59 +213,54 @@ describe('Session specific tests', () => {
   // Make sure all templates are loaded
   test(
     'Make sure second set of templates are loaded.',
-    () =>
-      queryPackage
-        .getPackagesByType(db, dbEnum.packageType.genSingleTemplate)
-        .then((pkgs) => {
-          expect(templateCount).toBeLessThan(pkgs.length)
-        }),
+    async () => {
+      let pkgs = await queryPackage.getPackagesByType(
+        db,
+        dbEnum.packageType.genSingleTemplate
+      )
+      expect(templateCount).toBeLessThan(pkgs.length)
+    },
     testUtil.timeout.medium()
   )
 
   test(
     'test retrieval of all preview template files make sure they are session aware',
-    () => {
-      return axios
-        .get(`${baseUrl}/preview/?sessionId=${uuid}`)
-        .then((response) => {
-          expect(templateCount).toEqual(response.data['length'])
-        })
+    async () => {
+      let response = await axios.get(`${baseUrl}/preview/?sessionId=${uuid}`)
+      expect(templateCount).toEqual(response.data['length'])
     },
     testUtil.timeout.short()
   )
 
   test(
     'test that there is generation data in the simple-test.out preview file. Index 1',
-    () => {
-      return axios
-        .get(`${baseUrl}/preview/simple-test.out/1?sessionId=${uuid}`)
-        .then((response) => {
-          expect(response.data['result']).toMatch('Test template file.')
-        })
+    async () => {
+      let response = await axios.get(
+        `${baseUrl}/preview/simple-test.out/1?sessionId=${uuid}`
+      )
+      expect(response.data['result']).toMatch('Test template file.')
     },
     testUtil.timeout.short()
   )
 
   test(
     'No generation test, incorrect file name',
-    () => {
-      return axios
-        .get(`${baseUrl}/preview/no-file?sessionId=${uuid}`)
-        .then((response) => {
-          expect(response.data['result']).toBeUndefined()
-        })
+    async () => {
+      let response = await axios.get(
+        `${baseUrl}/preview/no-file?sessionId=${uuid}`
+      )
+      expect(response.data['result']).toBeUndefined()
     },
     testUtil.timeout.short()
   )
 
   test(
     'No generation test, incorrect file name and incorrect index',
-    () => {
-      return axios
-        .get(`${baseUrl}/preview/no-file/1?sessionId=${uuid}`)
-        .then((response) => {
-          expect(response.data['result']).toBeUndefined()
-        })
+    async () => {
+      let response = await axios.get(
+        `${baseUrl}/preview/no-file/1?sessionId=${uuid}`
+      )
+      expect(response.data['result']).toBeUndefined()
     },
     testUtil.timeout.short()
   )

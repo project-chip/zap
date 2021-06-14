@@ -597,40 +597,40 @@ test.skip(
 
 test(
   'Test content indexer - simple',
-  () =>
-    genEngine.contentIndexer('Short example').then((preview) => {
-      expect(preview['1']).toBe('Short example\n')
-    }),
+  async () => {
+    let preview = await genEngine.contentIndexer('Short example')
+    expect(preview['1']).toBe('Short example\n')
+  },
   testUtil.timeout.short()
 )
 
 test(
   'Test content indexer - line by line',
-  () =>
-    genEngine
-      .contentIndexer('Short example\nwith three\nlines of text', 1)
-      .then((preview) => {
-        expect(preview['1']).toBe('Short example\n')
-        expect(preview['2']).toBe('with three\n')
-        expect(preview['3']).toBe('lines of text\n')
-      }),
+  async () => {
+    let preview = await genEngine.contentIndexer(
+      'Short example\nwith three\nlines of text',
+      1
+    )
+    expect(preview['1']).toBe('Short example\n')
+    expect(preview['2']).toBe('with three\n')
+    expect(preview['3']).toBe('lines of text\n')
+  },
   testUtil.timeout.short()
 )
 
 test(
   'Test content indexer - blocks',
-  () => {
+  async () => {
     let content = ''
     let i = 0
     for (i = 0; i < 1000; i++) {
       content = content.concat(`line ${i}\n`)
     }
-    return genEngine.contentIndexer(content, 50).then((preview) => {
-      expect(preview['1'].startsWith('line 0')).toBeTruthy()
-      expect(preview['2'].startsWith('line 50')).toBeTruthy()
-      expect(preview['3'].startsWith('line 100')).toBeTruthy()
-      expect(preview['20'].startsWith('line 950')).toBeTruthy()
-    })
+    let preview = await genEngine.contentIndexer(content, 50)
+    expect(preview['1'].startsWith('line 0')).toBeTruthy()
+    expect(preview['2'].startsWith('line 50')).toBeTruthy()
+    expect(preview['3'].startsWith('line 100')).toBeTruthy()
+    expect(preview['20'].startsWith('line 950')).toBeTruthy()
   },
   testUtil.timeout.short()
 )

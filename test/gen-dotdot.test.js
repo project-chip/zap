@@ -43,9 +43,7 @@ beforeAll(async () => {
   )
 }, testUtil.timeout.medium())
 
-afterAll(() => {
-  return dbApi.closeDatabase(db)
-})
+afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
   'Basic gen template parsing and generation',
