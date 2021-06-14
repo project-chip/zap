@@ -262,9 +262,19 @@ function sendDirtyFlagStatus(db) {
         querySession
           .getSessionDirtyFlag(db, session.sessionId)
           .then((flag) => {
+            let dirtyStatus
+            if (flag == null) {
+              dirtyStatus = false
+            } else if (flag) {
+              dirtyStatus = true
+            } else if (flag == 1) {
+              dirtyStatus = true
+            } else {
+              dirtyStatus = false
+            }
             wsServer.sendWebSocketMessage(socket, {
               category: dbEnum.wsCategory.dirtyFlag,
-              payload: flag,
+              payload: dirtyStatus,
             })
           })
           .catch((err) => {
