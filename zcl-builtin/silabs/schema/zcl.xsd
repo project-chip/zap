@@ -180,6 +180,7 @@ Copyright 2012, Silicon Laboratories Inc.</xs:documentation>
       <xs:attribute name="mask" use="required" type="xs:string"/>
       <xs:attribute name="name" use="required" type="xs:string"/>
       <xs:attribute name="introducedIn" type="zclSpecVersion"/>
+      <xs:attribute name="fieldId" type="xs:integer"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="globalAttribute">
@@ -338,6 +339,7 @@ Copyright 2012, Silicon Laboratories Inc.</xs:documentation>
       <xs:attribute name="type" type="xs:string"/>
       <xs:attribute name="value" type="xs:string"/>
       <xs:attribute name="array" type="xs:boolean"/>
+      <xs:attribute name="fieldId" type="xs:integer"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="attribute">
@@ -389,6 +391,7 @@ In those cases, an array becomes a known length, and you can have variable lengt
       <xs:attribute name="length" type="xs:int"/>
       <xs:attribute name="presentIf" type="xs:string"/>
       <xs:attribute name="optional" type="xs:integer"/>
+      <xs:attribute name="fieldId" type="xs:integer"/>
       <xs:attribute name="countArg" type="xs:string" use="optional"/>
     </xs:complexType>
   </xs:element>
