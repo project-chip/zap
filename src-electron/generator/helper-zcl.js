@@ -165,6 +165,34 @@ function zcl_commands(options) {
 }
 
 /**
+ * Block helper iterating over all events.
+ * There are two modes of this helper:
+ *   when used in a global context, it iterates over ALL events in the database.
+ *   when used inside a `zcl_cluster` block helper, it iterates only over the events for that cluster.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_events(options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) => {
+      if ('id' in this) {
+        // We're functioning inside a nested context with an id, so we will only query for this cluster.
+        return queryZcl.selectEventsByClusterId(
+          this.global.db,
+          this.id,
+          packageId
+        )
+      } else {
+        return queryZcl.selectAllEvents(this.global.db, packageId)
+      }
+    })
+    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Block helper iterating over all commands, including their arguments and clusters.
  *
  * @param {*} options
@@ -2541,6 +2569,7 @@ exports.zcl_struct_items = zcl_struct_items
 exports.zcl_clusters = zcl_clusters
 exports.zcl_device_types = zcl_device_types
 exports.zcl_commands = zcl_commands
+exports.zcl_events = zcl_events
 exports.zcl_command_tree = zcl_command_tree
 exports.zcl_attributes = zcl_attributes
 exports.zcl_attributes_client = zcl_attributes_client

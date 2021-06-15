@@ -27,15 +27,20 @@ Last item
 // {{description}}
 {{/zcl_clusters}}
 
-/******************/
+/********* COMMANDS *********/
 {{#zcl_commands}}
 // cmd: {{asHex code 2}} {{label}}
 {{/zcl_commands}}
 
-/******************/
+/********* ATTRIBUTES *********/
 {{#zcl_attributes}}
 // att: {{asHex code 4}} {{label}}
 {{/zcl_attributes}}
+
+/********* EVENTS **********/
+{{#zcl_events}}
+// event: {{asHex code 4}} {{name}}
+{{/zcl_events}}
 
 
 /******************/

@@ -62,6 +62,20 @@ INSERT INTO EVENT (
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
 `
+const INSERT_EVENT_FIELD_QUERY = `
+INSERT INTO EVENT_FIELD (
+  EVENT_REF,
+  FIELD_IDENTIFIER,
+  NAME,
+  TYPE,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF
+) VALUES (
+  ?, ?, ?, ?, 
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+)
+`
 const INSERT_COMMAND_QUERY = `
 INSERT INTO COMMAND (
   CLUSTER_REF,
@@ -188,6 +202,19 @@ function commandMap(clusterId, packageId, commands) {
   ])
 }
 
+function fieldMap(eventId, packageId, fields) {
+  return fields.map((field) => [
+    eventId,
+    field.fieldIdentifier,
+    field.name,
+    field.type,
+    field.introducedIn,
+    packageId,
+    field.removedIn,
+    packageId,
+  ])
+}
+
 function argMap(cmdId, packageId, args) {
   return args.map((arg) => [
     cmdId,
@@ -211,7 +238,16 @@ async function insertAttributes(db, attributesToLoad) {
 
 async function insertEvents(db, packageId, eventsToLoad, fieldsForEvents) {
   if (eventsToLoad == null || eventsToLoad.length == 0) return
-  return dbApi.dbMultiInsert(db, INSERT_EVENT_QUERY, eventsToLoad)
+  let eventIds = await dbApi.dbMultiInsert(db, INSERT_EVENT_QUERY, eventsToLoad)
+  let fieldsToLoad = []
+  for (let j = 0; j < eventIds.length; j++) {
+    let lastEventId = eventIds[j]
+    let fields = fieldsForEvents[j]
+    if (fields != undefined && fields != null) {
+      fieldsToLoad.push(...fieldMap(lastEventId, packageId, fields))
+    }
+  }
+  return dbApi.dbMultiInsert(db, INSERT_EVENT_FIELD_QUERY, fieldsToLoad)
 }
 
 async function insertCommands(db, packageId, commandsToLoad, argsForCommands) {
