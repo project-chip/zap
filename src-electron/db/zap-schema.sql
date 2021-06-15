@@ -190,6 +190,42 @@ CREATE TABLE IF NOT EXISTS "COMMAND_ARG" (
   foreign key (COMMAND_REF) references COMMAND(COMMAND_ID)
 );
 /*
+ EVENT table contains events for a given cluster. 
+ */
+DROP TABLE IF EXISTS "EVENT";
+CREATE TABLE IF NOT EXISTS "EVENT" (
+  "EVENT_ID" integer primary key autoincrement,
+  "CLUSTER_REF" integer,
+  "PACKAGE_REF" integer,
+  "CODE" integer,
+  "MANUFACTURER_CODE" integer,
+  "NAME" text,
+  "DESCRIPTION" text,
+  "SIDE" text,
+  "PRIORITY" text,
+  "INTRODUCED_IN_REF" integer,
+  "REMOVED_IN_REF" integer,
+  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
+  foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID)
+);
+/*
+ EVENT_FIELD table contains events for a given cluster. 
+ */
+DROP TABLE IF EXISTS "EVENT_FIELD";
+CREATE TABLE IF NOT EXISTS "EVENT_FIELD" (
+  "EVENT_REF" integer,
+  "FIELD_IDENTIFIER" integer,
+  "NAME" text,
+  "TYPE" text,
+  "INTRODUCED_IN_REF" integer,
+  "REMOVED_IN_REF" integer,
+  foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
+  foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
+  foreign key (EVENT_REF) references EVENT(EVENT_ID)
+);
+/*
  ATTRIBUTE table contains attributes for the cluster.
  */
 DROP TABLE IF EXISTS "ATTRIBUTE";
