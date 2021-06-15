@@ -379,6 +379,41 @@ function prepareCluster(cluster, isExtension = false) {
       ret.commands.push(cmd)
     })
   }
+  if ('event' in cluster) {
+    ret.events = []
+    cluster.event.forEach((event) => {
+      let ev = {
+        code: parseInt(event.$.code),
+        manufacturerCode: event.$.manufacturerCode,
+        name: event.$.name,
+        side: event.$.side,
+        priority: event.$.priority,
+        description: event.description[0].trim(),
+      }
+      if (ev.manufacturerCode == null) {
+        ev.manufacturerCode = ret.manufacturerCode
+      } else {
+        ev.manufacturerCode = parseInt(ev.manufacturerCode)
+      }
+      if ('field' in event) {
+        ev.fields = []
+        event.field.forEach((field, index) => {
+          if (field.$.removedIn == null) {
+            ev.fields.push({
+              name: field.$.name,
+              type: field.$.type,
+              fieldIdentifier: field.$.id ? parseInt(field.$.id) : index + 1,
+              introducedIn: field.$.introducedIn,
+              removedIn: field.$.removedIn,
+            })
+          }
+        })
+      }
+      // We only add event if it does not have removedIn
+      if (ev.removedIn == null) ret.events.push(ev)
+    })
+  }
+
   if ('attribute' in cluster) {
     ret.attributes = []
     cluster.attribute.forEach((attribute) => {
@@ -411,6 +446,7 @@ function prepareCluster(cluster, isExtension = false) {
       if (att.removedIn == null) ret.attributes.push(att)
     })
   }
+
   return ret
 }
 

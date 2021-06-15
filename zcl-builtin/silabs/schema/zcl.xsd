@@ -22,39 +22,34 @@ This schema describes the format of the XML files, that describe the ZCL specifi
 Copyright 2012, Silicon Laboratories Inc.
   </xs:documentation>
   </xs:annotation>
-
-    <xs:complexType name="eventField">
-      <xs:attribute name="id" use="required" type="xs:string"/>
-      <xs:attribute name="name" use="required" type="xs:string"/>
-      <xs:attribute name="type" use="required" type="xs:string"/>
-    </xs:complexType>
-
-  <xs:complexType name="arg">
-      <xs:attribute name="arrayLength" type="xs:boolean"/>
-      <xs:attribute name="array" type="xs:boolean"/>
-      <xs:attribute name="default" type="xs:string"/>
-      <xs:attribute name="description" type="xs:string"/>
-      <xs:attribute name="introducedIn" type="zclSpecVersion"/>
-      <xs:attribute name="removedIn" type="zclSpecVersion"/>
-      <xs:attribute name="name" use="required"/>
-      <xs:attribute name="type" use="required"/>
-      <xs:attribute name="length" type="xs:int"/>
-      <xs:attribute name="presentIf" type="xs:string"/>
-      <xs:attribute name="optional" type="xs:integer"/>
-      <xs:attribute name="fieldId" type="xs:integer"/>
-      <xs:attribute name="countArg" type="xs:string" use="optional"/>
-    </xs:complexType>
-
-  <xs:complexType name="item">
-      <xs:attribute name="introducedIn" type="zclSpecVersion"/>
-      <xs:attribute name="name" use="required" type="xs:string"/>
-      <xs:attribute name="type" type="xs:string"/>
-      <xs:attribute name="value" type="xs:string"/>
-      <xs:attribute name="array" type="xs:boolean"/>
-      <xs:attribute name="fieldId" type="xs:integer"/>
+  <xs:complexType name="eventField">
+    <xs:attribute name="id" use="required" type="xs:string"/>
+    <xs:attribute name="name" use="required" type="xs:string"/>
+    <xs:attribute name="type" use="required" type="xs:string"/>
   </xs:complexType>
-
-
+  <xs:complexType name="arg">
+    <xs:attribute name="arrayLength" type="xs:boolean"/>
+    <xs:attribute name="array" type="xs:boolean"/>
+    <xs:attribute name="default" type="xs:string"/>
+    <xs:attribute name="description" type="xs:string"/>
+    <xs:attribute name="introducedIn" type="zclSpecVersion"/>
+    <xs:attribute name="removedIn" type="zclSpecVersion"/>
+    <xs:attribute name="name" use="required"/>
+    <xs:attribute name="type" use="required"/>
+    <xs:attribute name="length" type="xs:int"/>
+    <xs:attribute name="presentIf" type="xs:string"/>
+    <xs:attribute name="optional" type="xs:integer"/>
+    <xs:attribute name="fieldId" type="xs:integer"/>
+    <xs:attribute name="countArg" type="xs:string" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="item">
+    <xs:attribute name="introducedIn" type="zclSpecVersion"/>
+    <xs:attribute name="name" use="required" type="xs:string"/>
+    <xs:attribute name="type" type="xs:string"/>
+    <xs:attribute name="value" type="xs:string"/>
+    <xs:attribute name="array" type="xs:boolean"/>
+    <xs:attribute name="fieldId" type="xs:integer"/>
+  </xs:complexType>
   <xs:element name="cli">
     <xs:complexType>
       <xs:sequence>
@@ -353,6 +348,7 @@ Copyright 2012, Silicon Laboratories Inc.
       </xs:sequence>
       <xs:attribute name="code" type="xs:string"/>
       <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="side" use="required" type="zclSide"/>
       <xs:attribute name="priority" type="xs:string"/>
     </xs:complexType>
   </xs:element>
@@ -360,8 +356,7 @@ Copyright 2012, Silicon Laboratories Inc.
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="description"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="arg"
-        type="arg"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="arg" type="arg"/>
       </xs:sequence>
       <xs:attribute name="cli"/>
       <xs:attribute name="cliFunctionName" type="xs:string"/>
