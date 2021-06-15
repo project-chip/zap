@@ -2196,16 +2196,15 @@ async function if_command_argument_always_present_with_presentif(
     true,
     false,
     this
-  ).then((res) => {
-    if (res) {
-      return '' // Return nothing since it is a fixed length command
-    } else {
-      if (!(introducedInRef || removedInRef) && presentIf) {
-        return argumentInAllVersionsPresentIfReturn
-      }
-      return argumentNotAlwaysThereReturn
+  )
+  if (res) {
+    return '' // Return nothing since it is a fixed length command
+  } else {
+    if (!(introducedInRef || removedInRef) && presentIf) {
+      return argumentInAllVersionsPresentIfReturn
     }
-  })
+    return argumentNotAlwaysThereReturn
+  }
 }
 
 /**
