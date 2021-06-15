@@ -32,9 +32,12 @@ const util = require('../util/util.js')
  * @returns A promise of executing a query.
  */
 async function getAllSessions(db) {
-  return dbApi
-    .dbAll(db, 'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION', [])
-    .then((rows) => rows.map(dbMapping.map.session))
+  let rows = await dbApi.dbAll(
+    db,
+    'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION',
+    []
+  )
+  return rows.map(dbMapping.map.session)
 }
 
 /**
@@ -61,15 +64,16 @@ async function setSessionClean(db, sessionId) {
  * @returns A promise that resolves into true or false, reflecting session dirty state.
  */
 async function getSessionDirtyFlag(db, sessionId) {
-  return dbApi
-    .dbGet(db, 'SELECT DIRTY FROM SESSION WHERE SESSION_ID = ?', [sessionId])
-    .then((row) => {
-      if (row == null) {
-        return undefined
-      } else {
-        return row.DIRTY
-      }
-    })
+  let row = await dbApi.dbGet(
+    db,
+    'SELECT DIRTY FROM SESSION WHERE SESSION_ID = ?',
+    [sessionId]
+  )
+  if (row == null) {
+    return undefined
+  } else {
+    return dbApi.fromDbBool(row.DIRTY)
+  }
 }
 
 /**
@@ -253,13 +257,12 @@ async function getUserSessions(db, userId) {
  * @returns A promise of returned user.
  */
 async function getUserByKey(db, userKey) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT USER_ID, USER_KEY, CREATION_TIME FROM USER WHERE USER_KEY = ?',
-      [userKey]
-    )
-    .then((row) => dbMapping.map.user(row))
+  let row = await dbApi.dbGet(
+    db,
+    'SELECT USER_ID, USER_KEY, CREATION_TIME FROM USER WHERE USER_KEY = ?',
+    [userKey]
+  )
+  return dbMapping.map.user(row)
 }
 
 /**
@@ -271,7 +274,7 @@ async function getUserByKey(db, userKey) {
  * @returns user object, containing userId, userKey and creationTime
  */
 async function ensureUser(db, userKey) {
-  await await dbApi.dbInsert(
+  await dbApi.dbInsert(
     db,
     'INSERT OR IGNORE INTO USER ( USER_KEY, CREATION_TIME ) VALUES (?,?)',
     [userKey, Date.now()]
