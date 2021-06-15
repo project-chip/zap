@@ -16,11 +16,45 @@ limitations under the License.
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
   <xs:annotation>
-    <xs:documentation>This schema describes the format of the XML files, that describe the ZCL specification.
-It does not describe over-the-air format of the packet.
+    <xs:documentation>
+This schema describes the format of the XML files, that describe the ZCL specification.
 
-Copyright 2012, Silicon Laboratories Inc.</xs:documentation>
+Copyright 2012, Silicon Laboratories Inc.
+  </xs:documentation>
   </xs:annotation>
+
+    <xs:complexType name="eventField">
+      <xs:attribute name="id" use="required" type="xs:string"/>
+      <xs:attribute name="name" use="required" type="xs:string"/>
+      <xs:attribute name="type" use="required" type="xs:string"/>
+    </xs:complexType>
+
+  <xs:complexType name="arg">
+      <xs:attribute name="arrayLength" type="xs:boolean"/>
+      <xs:attribute name="array" type="xs:boolean"/>
+      <xs:attribute name="default" type="xs:string"/>
+      <xs:attribute name="description" type="xs:string"/>
+      <xs:attribute name="introducedIn" type="zclSpecVersion"/>
+      <xs:attribute name="removedIn" type="zclSpecVersion"/>
+      <xs:attribute name="name" use="required"/>
+      <xs:attribute name="type" use="required"/>
+      <xs:attribute name="length" type="xs:int"/>
+      <xs:attribute name="presentIf" type="xs:string"/>
+      <xs:attribute name="optional" type="xs:integer"/>
+      <xs:attribute name="fieldId" type="xs:integer"/>
+      <xs:attribute name="countArg" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+  <xs:complexType name="item">
+      <xs:attribute name="introducedIn" type="zclSpecVersion"/>
+      <xs:attribute name="name" use="required" type="xs:string"/>
+      <xs:attribute name="type" type="xs:string"/>
+      <xs:attribute name="value" type="xs:string"/>
+      <xs:attribute name="array" type="xs:boolean"/>
+      <xs:attribute name="fieldId" type="xs:integer"/>
+  </xs:complexType>
+
+
   <xs:element name="cli">
     <xs:complexType>
       <xs:sequence>
@@ -204,6 +238,7 @@ Copyright 2012, Silicon Laboratories Inc.</xs:documentation>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="globalAttribute"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="attribute"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="command"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="event"/>
       </xs:sequence>
       <xs:attribute name="introducedIn" type="xs:string"/>
       <xs:attribute name="manufacturerCode" type="zclCode"/>
@@ -247,7 +282,7 @@ Copyright 2012, Silicon Laboratories Inc.</xs:documentation>
   <xs:element name="enum">
     <xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="item"/>
+        <xs:element maxOccurs="unbounded" name="item" type="item"/>
       </xs:sequence>
       <xs:attribute name="description"/>
       <xs:attribute name="name" use="required" type="xs:string"/>
@@ -257,7 +292,7 @@ Copyright 2012, Silicon Laboratories Inc.</xs:documentation>
   <xs:element name="struct">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="item"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="item" type="item"/>
       </xs:sequence>
       <xs:attribute name="length" type="xs:integer"/>
       <xs:attribute name="name" use="required" type="xs:string"/>
@@ -276,7 +311,7 @@ Copyright 2012, Silicon Laboratories Inc.</xs:documentation>
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" ref="description"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="arg"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="arg" type="arg"/>
         <xs:element minOccurs="0" ref="codeForStub"/>
       </xs:sequence>
       <xs:attribute name="category" type="xs:string"/>
@@ -310,11 +345,23 @@ Copyright 2012, Silicon Laboratories Inc.</xs:documentation>
       <xs:attribute name="certifiable" type="xs:boolean"/>
     </xs:complexType>
   </xs:element>
+  <xs:element name="event">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="description"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="field" type="eventField"/>
+      </xs:sequence>
+      <xs:attribute name="code" type="xs:string"/>
+      <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="priority" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="command">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="description"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="arg"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="arg"
+        type="arg"/>
       </xs:sequence>
       <xs:attribute name="cli"/>
       <xs:attribute name="cliFunctionName" type="xs:string"/>
@@ -330,16 +377,6 @@ Copyright 2012, Silicon Laboratories Inc.</xs:documentation>
       <xs:attribute name="source" type="xs:string"/>
       <xs:attribute name="restriction" type="xs:string"/>
       <xs:attribute name="response" type="xs:string"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="item">
-    <xs:complexType>
-      <xs:attribute name="introducedIn" type="zclSpecVersion"/>
-      <xs:attribute name="name" use="required" type="xs:string"/>
-      <xs:attribute name="type" type="xs:string"/>
-      <xs:attribute name="value" type="xs:string"/>
-      <xs:attribute name="array" type="xs:boolean"/>
-      <xs:attribute name="fieldId" type="xs:integer"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="attribute">
@@ -367,32 +404,8 @@ Copyright 2012, Silicon Laboratories Inc.</xs:documentation>
   <xs:element name="description">
     <xs:complexType mixed="true">
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="arg"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="arg" type="arg"/>
       </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="arg">
-    <xs:annotation>
-      <xs:documentation>An optional attribute, that specifies the length argument.
-
-This is used in cases where a length argument is preceding the actual array.
-
-In those cases, an array becomes a known length, and you can have variable length arguments after it.</xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:attribute name="arrayLength" type="xs:boolean"/>
-      <xs:attribute name="array" type="xs:boolean"/>
-      <xs:attribute name="default" type="xs:string"/>
-      <xs:attribute name="description" type="xs:string"/>
-      <xs:attribute name="introducedIn" type="zclSpecVersion"/>
-      <xs:attribute name="removedIn" type="zclSpecVersion"/>
-      <xs:attribute name="name" use="required"/>
-      <xs:attribute name="type" use="required"/>
-      <xs:attribute name="length" type="xs:int"/>
-      <xs:attribute name="presentIf" type="xs:string"/>
-      <xs:attribute name="optional" type="xs:integer"/>
-      <xs:attribute name="fieldId" type="xs:integer"/>
-      <xs:attribute name="countArg" type="xs:string" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:simpleType name="zclAttributeDefine">
