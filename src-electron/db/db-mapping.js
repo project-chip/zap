@@ -101,6 +101,21 @@ exports.map = {
     }
   },
 
+  event: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.EVENT_ID,
+      clusterRef: x.CLUSTER_REF,
+      packageRef: x.PACKAGE_REF,
+      code: x.CODE,
+      manufacturerCode: x.MANUFACTURER_CODE,
+      name: x.NAME,
+      description: x.DESCRIPTION,
+      side: x.SIDE,
+      priority: x.PRIORITY,
+    }
+  },
+
   command: (x) => {
     if (x == null) return undefined
     return {

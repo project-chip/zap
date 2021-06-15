@@ -33,10 +33,10 @@ test('test no server', () => expect(ipcServer.isServerRunning()).toBeFalsy())
 
 test(
   'start server',
-  () =>
-    ipcServer.initServer().then(() => {
-      expect(ipcServer.isServerRunning()).toBeTruthy()
-    }),
+  async () => {
+    await ipcServer.initServer()
+    expect(ipcServer.isServerRunning()).toBeTruthy()
+  },
   timeout.medium()
 )
 
@@ -44,10 +44,10 @@ test('test no client', () => expect(ipcClient.isClientConnected()).toBeFalsy())
 
 test(
   'connect first client',
-  () =>
-    ipcClient.initAndConnectClient().then(() => {
-      expect(ipcClient.isClientConnected()).toBeTruthy()
-    }),
+  async () => {
+    await ipcClient.initAndConnectClient()
+    expect(ipcClient.isClientConnected()).toBeTruthy()
+  },
   timeout.medium()
 )
 
@@ -61,10 +61,10 @@ test(
 
 test(
   'send ping from client, wait a second',
-  () =>
-    ipcClient
-      .emit(ipcServer.eventType.ping, 'hello')
-      .then(() => util.waitFor(responseWaitPeriod)),
+  async () => {
+    await ipcClient.emit(ipcServer.eventType.ping, 'hello')
+    await util.waitFor(responseWaitPeriod)
+  },
   timeout.medium()
 )
 test(
@@ -77,17 +77,16 @@ test(
 
 test(
   'server status',
-  () => {
+  async () => {
     let response = null
     ipcClient.on(ipcServer.eventType.overAndOut, (data) => (response = data))
     ipcClient.emit(ipcServer.eventType.serverStatus)
-    return util.waitFor(responseWaitPeriod).then(() => {
-      expect(response).not.toBeNull()
-      expect(response.url).not.toBeNull()
-      expect(response.url.includes('http://localhost')).toBeTruthy()
-      let myVersion = env.zapVersion()
-      expect(response.hash).toEqual(myVersion.hash)
-    })
+    await util.waitFor(responseWaitPeriod)
+    expect(response).not.toBeNull()
+    expect(response.url).not.toBeNull()
+    expect(response.url.includes('http://localhost')).toBeTruthy()
+    let myVersion = env.zapVersion()
+    expect(response.hash).toEqual(myVersion.hash)
   },
   timeout.medium()
 )
@@ -98,6 +97,7 @@ test(
   'shutdown server',
   () => {
     ipcServer.shutdownServerSync()
+    expect(ipcServer.isServerRunning()).toBeFalsy()
   },
   timeout.medium()
 )

@@ -758,6 +758,53 @@ async function all_user_cluster_generated_commands(options) {
 }
 
 /**
+ * All clusters with side that have available incoming commands
+ * @param options
+ * @returns All clusters with side that have available incoming commands across
+ * all endpoints.
+ */
+function all_user_clusters_with_incoming_commands(options) {
+  return queryEndpoint
+    .selectUsedEndPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryCommand.selectAllClustersWithIncomingCommands(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((clustersWithIncomingCommands) =>
+      templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
+    )
+}
+
+/**
+ * All commands that need to be parsed for a given cluster
+ * @param clusterName
+ * @param options
+ * @returns all commands that need to be parsed for a given cluster
+ */
+function all_incoming_commands_for_cluster(clusterName, clusterSide, options) {
+  let isMfgSpec =
+    'isMfgSpecific' in options.hash
+      ? options.hash.isMfgSpecific.toLowerCase() === 'true'
+      : undefined
+  return queryEndpoint
+    .selectUsedEndPointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryCommand.selectAllIncomingCommandsForCluster(
+        this.global.db,
+        endpointTypes,
+        clusterName,
+        clusterSide,
+        isMfgSpec
+      )
+    )
+    .then((clustersWithIncomingCommands) =>
+      templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
+    )
+}
+
+/**
  * Entails the Cluster details per endpoint
  * @param {*} options
  * @returns Cluster Details per endpoint with attribute summaries within the clusters
@@ -939,3 +986,5 @@ exports.generated_endpoint_type_details = generated_endpoint_type_details
 exports.all_user_cluster_attributes_min_max_defaults = all_user_cluster_attributes_min_max_defaults
 exports.generated_defaults_index = generated_defaults_index
 exports.generated_attributes_min_max_index = generated_attributes_min_max_index
+exports.all_user_clusters_with_incoming_commands = all_user_clusters_with_incoming_commands
+exports.all_incoming_commands_for_cluster = all_incoming_commands_for_cluster

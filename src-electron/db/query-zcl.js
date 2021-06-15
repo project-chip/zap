@@ -45,7 +45,7 @@ async function selectAllEnumItemsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, VALUE FROM ENUM_ITEM WHERE ENUM_REF = ? ORDER BY ORDINAL',
+      'SELECT NAME, VALUE FROM ENUM_ITEM WHERE ENUM_REF = ? ORDER BY FIELD_IDENTIFIER',
       [id]
     )
     .then((rows) => rows.map(dbMapping.map.enumItem))
@@ -60,7 +60,7 @@ async function selectAllEnumItems(db, packageId) {
               ENUM_ITEM.ENUM_REF
        FROM ENUM_ITEM, ENUM
        WHERE ENUM.PACKAGE_REF = ? AND ENUM.ENUM_ID = ENUM_ITEM.ENUM_REF
-       ORDER BY ENUM_ITEM.ENUM_REF, ENUM_ITEM.ORDINAL`,
+       ORDER BY ENUM_ITEM.ENUM_REF, ENUM_ITEM.FIELD_IDENTIFIER`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.enumItem))
@@ -103,7 +103,7 @@ async function selectAllBitmapFieldsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, MASK, TYPE FROM BITMAP_FIELD WHERE BITMAP_REF = ? ORDER BY ORDINAL',
+      'SELECT NAME, MASK, TYPE FROM BITMAP_FIELD WHERE BITMAP_REF = ? ORDER BY FIELD_IDENTIFIER',
       [id]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
@@ -113,7 +113,7 @@ async function selectAllBitmapFields(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, MASK, TYPE, BITMAP_REF FROM BITMAP_FIELD  WHERE PACKAGE_REF = ? ORDER BY BITMAP_REF, ORDINAL',
+      'SELECT NAME, MASK, TYPE, BITMAP_REF FROM BITMAP_FIELD  WHERE PACKAGE_REF = ? ORDER BY BITMAP_REF, FIELD_IDENTIFIER',
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
@@ -145,11 +145,13 @@ async function selectBitmapById(db, id) {
  * @returns Promise that resolves with the rows of domains.
  */
 async function selectAllDomains(db, packageId) {
-  return dbApi.dbAll(
-    db,
-    'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE PACKAGE_REF = ? ORDER BY NAME',
-    [packageId]
-  )
+  return dbApi
+    .dbAll(
+      db,
+      'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE PACKAGE_REF = ? ORDER BY NAME',
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.domain))
 }
 
 async function selectDomainById(db, id) {
@@ -195,7 +197,7 @@ async function selectAllStructItemsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, TYPE, STRUCT_REF, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE FROM STRUCT_ITEM WHERE STRUCT_REF = ? ORDER BY ORDINAL',
+      'SELECT NAME, TYPE, STRUCT_REF, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE FROM STRUCT_ITEM WHERE STRUCT_REF = ? ORDER BY FIELD_IDENTIFIER',
       [id]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))
@@ -212,7 +214,7 @@ async function selectAllStructItemsByStructName(db, name) {
   return dbApi
     .dbAll(
       db,
-      'SELECT STRUCT_ITEM.NAME, STRUCT_ITEM.TYPE, STRUCT_ITEM.STRUCT_REF, STRUCT_ITEM.ARRAY_TYPE FROM STRUCT_ITEM INNER JOIN STRUCT ON STRUCT.STRUCT_ID = STRUCT_ITEM.STRUCT_REF WHERE STRUCT.NAME = ? ORDER BY ORDINAL',
+      'SELECT STRUCT_ITEM.NAME, STRUCT_ITEM.TYPE, STRUCT_ITEM.STRUCT_REF, STRUCT_ITEM.ARRAY_TYPE FROM STRUCT_ITEM INNER JOIN STRUCT ON STRUCT.STRUCT_ID = STRUCT_ITEM.STRUCT_REF WHERE STRUCT.NAME = ? ORDER BY FIELD_IDENTIFIER',
       [name]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))
@@ -732,6 +734,36 @@ ORDER BY CODE`,
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
+
+/**
+ * Retrieves events for a given cluster Id.
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @returns promise of an array of event rows, which represent per-cluster events.
+ */
+async function selectEventsByClusterId(db, clusterId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  EVENT_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SIDE,
+  PRIORITY
+FROM EVENT
+WHERE CLUSTER_REF = ?
+ORDER BY CODE`,
+      [clusterId]
+    )
+    .then((rows) => rows.map(dbMapping.map.event))
+}
+
 /**
  * This method returns all commands, joined with their
  * respective arguments and clusters, so it's a long query.
@@ -775,7 +807,7 @@ LEFT JOIN
 ON
   CMD.COMMAND_ID = CA.COMMAND_REF
 WHERE CMD.PACKAGE_REF = ?
-ORDER BY CL.CODE, CMD.CODE, CA.ORDINAL`,
+ORDER BY CL.CODE, CMD.CODE, CA.FIELD_IDENTIFIER`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
@@ -802,6 +834,28 @@ ORDER BY CODE`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
+}
+
+async function selectAllEvents(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  EVENT_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SIDE,
+  PRIORITY
+FROM EVENT
+WHERE PACKAGE_REF = ?
+ORDER BY CODE`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.event))
 }
 
 async function selectAllGlobalCommands(db, packageId) {
@@ -868,7 +922,7 @@ FROM COMMAND_ARG, COMMAND
 WHERE
   COMMAND_ARG.COMMAND_REF = COMMAND.COMMAND_ID
   AND COMMAND.PACKAGE_REF = ?
-ORDER BY COMMAND_REF, ORDINAL`,
+ORDER BY COMMAND_REF, FIELD_IDENTIFIER`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.commandArgument))
@@ -1661,7 +1715,7 @@ SELECT
   COUNT_ARG
 FROM COMMAND_ARG
 WHERE COMMAND_REF = ?
-ORDER BY ORDINAL`,
+ORDER BY FIELD_IDENTIFIER`,
       [commandId]
     )
     .then((rows) => rows.map(dbMapping.map.commandArgument))
@@ -2148,7 +2202,9 @@ exports.selectAllAttributes = selectAllAttributes
 exports.selectAllAttributesBySide = selectAllAttributesBySide
 exports.selectCommandById = selectCommandById
 exports.selectCommandsByClusterId = selectCommandsByClusterId
+exports.selectEventsByClusterId = selectEventsByClusterId
 exports.selectAllCommands = selectAllCommands
+exports.selectAllEvents = selectAllEvents
 exports.selectAllGlobalCommands = selectAllGlobalCommands
 exports.selectAllClusterCommands = selectAllClusterCommands
 exports.selectAllCommandArguments = selectAllCommandArguments

@@ -1,6 +1,7 @@
 pipeline
 {
-    agent { label 'Zap-Build' }
+    agent { node{ label 'Build-Farm'
+                  customWorkspace '/mnt/raid/workspaces/zap'    } }
 
     options { buildDiscarder(logRotator(artifactNumToKeepStr: '10')) }
 
@@ -102,7 +103,10 @@ pipeline
                 script
                 {
                     // Temporarily comment this out: sh 'rm -rf ~/.zap'
-                    sh 'npm run test'
+                    withEnv(['ZAP_TEST_TIMEOUT=3600000'])
+                    {
+                        sh 'xvfb-run -a npm run test'
+                    }
                 }
             }
         }
@@ -113,7 +117,7 @@ pipeline
                 script
                 {
                     sh 'rm -rf ~/.zap'
-                    sh 'npm run self-check'
+                    sh 'xvfb-run -a npm run self-check'
                 }
             }
         }
@@ -122,7 +126,7 @@ pipeline
                 stage('Test blank generation') {
                     steps {
                         script {
-                            sh 'npm run gen'
+                            sh 'xvfb-run -a npm run gen'
                         }
                     }
                 }
@@ -137,7 +141,7 @@ pipeline
                 stage('Test generation with dotdot XML') {
                     steps {
                         script {
-                            sh 'npm run gen3'
+                            sh ' xvfb-run -a npm run gen3'
                         }
                     }
                 }
@@ -150,41 +154,43 @@ pipeline
                 script
                 {
                     gitBranch = "${env.BRANCH_NAME}"
-                    sh '/home/buildengineer/tools/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=https://sonarqube.silabs.net/ -Dsonar.login=e48b8a949e2869afa974414c56b4dc7baeb146e3 -X -Dsonar.branch.name=' + gitBranch
+                    sh '/opt/sonar-scanner-cli/sonar-scanner-4.5.0.2216-linux/bin/sonar-scanner -Dsonar.host.url=https://sonarqube.silabs.net/ -Dsonar.login=e48b8a949e2869afa974414c56b4dc7baeb146e3 -X -Dsonar.branch.name=' + gitBranch
                 }
             }
         }
         stage('Building distribution artifacts') {
             parallel {
-               /* stage('Building for Mac')
+                stage('Building for Mac')
                 {
                     agent { label 'bgbuild-mac' }
                     steps
                     {
                         script
                         {
-                            withEnv(['PATH+LOCAL_BIN=/usr/local/bin'])
+                            withEnv(['PATH+LOCAL_BIN=/usr/local/bin',
+                                     'PATH+NODE14=/usr/local/opt/node@14/bin',
+                                     'NODE_TLS_REJECT_UNAUTHORIZED=0']) // workaround for a self-signed cert issue on canvas 2.7.0 on mac
                             {
                                 withCredentials([usernamePassword(credentialsId: 'buildengineer',
-                              usernameVariable: 'SL_USERNAME',
-                              passwordVariable: 'SL_PASSWORD')])
-                              {
+                                                                  usernameVariable: 'SL_USERNAME',
+                                                                  passwordVariable: 'SL_PASSWORD')])
+                                {
                                     sh 'npm --version'
                                     sh 'node --version'
                                     sh 'npm ci'
                                     sh 'npm list || true'
                                     sh 'src-script/npm-update-binary || true'
-                                    sh "security unlock-keychain -p ${SL_PASSWORD} login"
+                                    sh 'security unlock-keychain -u  "/Library/Keychains/System.keychain"'
                                     sh 'npm run version-stamp'
                                     sh 'npm run build-spa'
                                     sh 'npm run dist-mac'
                                     sh 'npm run apack:mac'
                                     stash includes: 'dist/zap_apack_mac.zip', name: 'zap_apack_mac'
-                              }
+                                }
                             }
                         }
                     }
-                }*/
+                }
                 stage('Building for Windows / Linux')
                 {
                     steps
@@ -192,13 +198,13 @@ pipeline
                         script
                         {
                             sh 'echo "Building for Windows"'
-                            sh 'npm run dist-win'
-                            sh 'npm run apack:win'
+                            sh 'xvfb-run -a npm run dist-win'
+                            sh 'xvfb-run -a npm run apack:win'
                             stash includes: 'dist/zap_apack_win.zip', name: 'zap_apack_win'
 
                             sh 'echo "Building for Linux"'
-                            sh 'npm run dist-linux'
-                            sh 'npm run apack:linux'
+                            sh 'xvfb-run -a npm run dist-linux'
+                            sh 'xvfb-run -a npm run apack:linux'
                             stash includes: 'dist/zap_apack_linux.zip', name: 'zap_apack_linux'
                         }
                     }
@@ -219,7 +225,7 @@ pipeline
                         }
                     }
                 }
-                /*stage('Creating artifact for Mac')
+                stage('Creating artifact for Mac')
                 {
                     agent { label 'bgbuild-mac' }
                     steps
@@ -229,7 +235,7 @@ pipeline
                             archiveArtifacts artifacts:'dist/zap*', fingerprint: true
                         }
                     }
-                }*/
+                }
             }
         }
 
@@ -237,7 +243,7 @@ pipeline
             parallel {
                 stage('Check executable for Windows')
                 {
-                    agent { label 'bgbuild-win' }
+                    agent { label 'windows10' }
                     steps
                     {
                         dir('test_apack_bin') {
@@ -245,10 +251,10 @@ pipeline
                             {
                                 unstash 'zap_apack_win'
                                 unzip zipFile: 'dist/zap_apack_win.zip'
-                                String response = sh(script: 'zap.exe --version', returnStdout: true).trim()
+                                String response = bat(script: 'zap.exe --version', returnStdout: true).trim()
                                 echo response
                                 if ( response.indexOf('undefined') == -1) {
-                                    response = sh (script: 'zap.exe selfCheck', returnStdout: true).trim()
+                                    response = bat (script: 'zap.exe selfCheck', returnStdout: true).trim()
                                     echo response
                                     if ( response.indexOf('Self-check done') == -1 ) {
                                         error 'Wrong self-check result.'
@@ -264,7 +270,7 @@ pipeline
                         }
                     }
                 }
-               /* stage('Check executable for Mac')
+                stage('Check executable for Mac')
                 {
                     agent { label 'bgbuild-mac' }
                     steps
@@ -296,7 +302,7 @@ pipeline
                             }
                         }
                     }
-                }*/
+                }
                 stage('Check executable for Linux')
                 {
                     steps
@@ -307,10 +313,10 @@ pipeline
                                 unstash 'zap_apack_linux'
                                 unzip zipFile: 'dist/zap_apack_linux.zip'
                                 sh 'chmod 755 zap'
-                                String response = sh(script: './zap --version', returnStdout: true).trim()
+                                String response = sh(script: 'xvfb-run -a ./zap --version', returnStdout: true).trim()
                                 echo response
                                 if ( response.indexOf('undefined') == -1) {
-                                    response = sh (script: './zap selfCheck', returnStdout: true).trim()
+                                    response = sh (script: 'xvfb-run -a ./zap selfCheck', returnStdout: true).trim()
                                     echo response
                                     if ( response.indexOf('Self-check done') == -1 ) {
                                         error 'Wrong self-check result.'

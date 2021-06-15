@@ -43,9 +43,7 @@ beforeAll(async () => {
   )
 }, testUtil.timeout.medium())
 
-afterAll(() => {
-  return dbApi.closeDatabase(db)
-})
+afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
   'Basic gen template parsing and generation',
@@ -115,6 +113,10 @@ test(
 
         mqtt = genResult.content['mqtt.cpp']
         expect(mqtt).not.toBeNull()
+        expect(mqtt.includes('Bitmap_DaysMask = "DrlkDaysMask"')).toBeTruthy()
+        expect(mqtt.includes('Bitmap_RelayStatus = "map8"')).toBeTruthy()
+        expect(mqtt.includes('Enum_StatusCode = "zclStatus"')).toBeTruthy()
+        expect(mqtt.includes('Enum_AlarmCode = "enum8"')).toBeTruthy()
 
         types = genResult.content['dotdot-type.h']
         expect(types).not.toBeNull()

@@ -235,8 +235,12 @@ function isServerRunning() {
  */
 function shutdownServerSync() {
   env.logIpc('Shutting down the server.')
-  if (serverIpc.server) serverIpc.server.stop()
-  else env.logIpc('There is no server.')
+  if (serverIpc.server) {
+    serverIpc.server.stop()
+    serverIpc.serverStarted = false
+  } else {
+    env.logIpc('There is no server.')
+  }
 }
 
 exports.socketPath = socketPath

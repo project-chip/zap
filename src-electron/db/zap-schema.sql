@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS "COMMAND" (
 DROP TABLE IF EXISTS "COMMAND_ARG";
 CREATE TABLE IF NOT EXISTS "COMMAND_ARG" (
   "COMMAND_REF" integer,
-  "ORDINAL" integer,
+  "FIELD_IDENTIFIER" integer,
   "NAME" text,
   "TYPE" text,
   "IS_ARRAY" integer,
@@ -188,6 +188,42 @@ CREATE TABLE IF NOT EXISTS "COMMAND_ARG" (
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (COMMAND_REF) references COMMAND(COMMAND_ID)
+);
+/*
+ EVENT table contains events for a given cluster. 
+ */
+DROP TABLE IF EXISTS "EVENT";
+CREATE TABLE IF NOT EXISTS "EVENT" (
+  "EVENT_ID" integer primary key autoincrement,
+  "CLUSTER_REF" integer,
+  "PACKAGE_REF" integer,
+  "CODE" integer,
+  "MANUFACTURER_CODE" integer,
+  "NAME" text,
+  "DESCRIPTION" text,
+  "SIDE" text,
+  "PRIORITY" text,
+  "INTRODUCED_IN_REF" integer,
+  "REMOVED_IN_REF" integer,
+  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
+  foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID)
+);
+/*
+ EVENT_FIELD table contains events for a given cluster. 
+ */
+DROP TABLE IF EXISTS "EVENT_FIELD";
+CREATE TABLE IF NOT EXISTS "EVENT_FIELD" (
+  "EVENT_REF" integer,
+  "FIELD_IDENTIFIER" integer,
+  "NAME" text,
+  "TYPE" text,
+  "INTRODUCED_IN_REF" integer,
+  "REMOVED_IN_REF" integer,
+  foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
+  foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
+  foreign key (EVENT_REF) references EVENT(EVENT_ID)
 );
 /*
  ATTRIBUTE table contains attributes for the cluster.
@@ -273,7 +309,7 @@ CREATE TABLE IF NOT EXISTS "BITMAP" (
 DROP TABLE IF EXISTS "BITMAP_FIELD";
 CREATE TABLE IF NOT EXISTS "BITMAP_FIELD" (
   "BITMAP_REF" integer,
-  "ORDINAL" integer,
+  "FIELD_IDENTIFIER" integer,
   "NAME" text,
   "MASK" integer,
   "TYPE" text,
@@ -296,7 +332,7 @@ CREATE TABLE IF NOT EXISTS "ENUM" (
 DROP TABLE IF EXISTS "ENUM_ITEM";
 CREATE TABLE IF NOT EXISTS "ENUM_ITEM" (
   "ENUM_REF" integer,
-  "ORDINAL" integer,
+  "FIELD_IDENTIFIER" integer,
   "NAME" text,
   "VALUE" integer,
   foreign key (ENUM_REF) references ENUM(ENUM_ID)
@@ -317,7 +353,7 @@ CREATE TABLE IF NOT EXISTS "STRUCT" (
 DROP TABLE IF EXISTS "STRUCT_ITEM";
 CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
   "STRUCT_REF" integer,
-  "ORDINAL" integer,
+  "FIELD_IDENTIFIER" integer,
   "NAME" text,
   "TYPE" text,
   "ARRAY_TYPE" text,

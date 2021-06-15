@@ -46,26 +46,25 @@ let db
 let sid
 let pkgId
 
-beforeAll(() => {
+beforeAll(async () => {
   let file = env.sqliteTestFile('query')
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-    })
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
 }, testUtil.timeout.medium())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
   'Path CRC queries.',
-  () => {
+  async () => {
     let path = '/some/random/path'
     let crc = 42
-    return queryPackage
-      .insertPathCrc(db, path, crc)
-      .then((rowid) => queryPackage.getPathCrc(db, path))
-      .then((c) => expect(c).toBe(crc))
+    await queryPackage.insertPathCrc(db, path, crc)
+    let c = await queryPackage.getPathCrc(db, path)
+    expect(c).toBe(crc)
   },
   testUtil.timeout.short()
 )
@@ -227,48 +226,35 @@ describe('Session specific queries', () => {
 
   test(
     'Make sure triggers work',
-    () => {
-      let endpointTypeId
-      return querySession
-        .getSessionDirtyFlag(db, sid)
-        .then((result) => {
-          expect(result).toBeFalsy()
-        })
-        .then(() => queryConfig.insertEndpointType(db, sid, 'Test endpoint'))
-        .then((id) => {
-          endpointTypeId = id
-          return querySession.getSessionDirtyFlag(db, sid)
-        })
-        .then((result) => {
-          expect(result).toBeTruthy()
-        })
-        .then(() => queryConfig.selectAllEndpointTypes(db, sid))
-        .then((rows) => {
-          expect(rows.length).toBe(1)
-        })
-        .then(() => querySession.setSessionClean(db, sid))
-        .then(() => querySession.getSessionDirtyFlag(db, sid))
-        .then((result) => {
-          expect(result).toBeFalsy()
-        })
-        .then(() => queryConfig.deleteEndpointType(db, endpointTypeId))
-        .then(() => querySession.getSessionDirtyFlag(db, sid))
-        .then((result) => {
-          expect(result).toBeTruthy()
-        })
+    async () => {
+      let result = await querySession.getSessionDirtyFlag(db, sid)
+      expect(result).toBeFalsy()
+
+      let endpointTypeId = await queryConfig.insertEndpointType(
+        db,
+        sid,
+        'Test endpoint'
+      )
+      result = await querySession.getSessionDirtyFlag(db, sid)
+      expect(result).toBeTruthy()
+      let rows = await queryConfig.selectAllEndpointTypes(db, sid)
+      expect(rows.length).toBe(1)
+      await querySession.setSessionClean(db, sid)
+      result = await querySession.getSessionDirtyFlag(db, sid)
+      expect(result).toBeFalsy()
+      await queryConfig.deleteEndpointType(db, endpointTypeId)
+      result = await querySession.getSessionDirtyFlag(db, sid)
+      expect(result).toBeTruthy()
     },
     testUtil.timeout.medium()
   )
 
   test(
     'Test key values',
-    () => {
-      return querySession
-        .updateSessionKeyValue(db, sid, 'testKey', 'testValue')
-        .then(() => querySession.getSessionKeyValue(db, sid, 'testKey'))
-        .then((value) => {
-          expect(value).toBe('testValue')
-        })
+    async () => {
+      await querySession.updateSessionKeyValue(db, sid, 'testKey', 'testValue')
+      let value = await querySession.getSessionKeyValue(db, sid, 'testKey')
+      expect(value).toBe('testValue')
     },
     testUtil.timeout.short()
   )

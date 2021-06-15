@@ -34,6 +34,7 @@ let db
 const templateCount = testUtil.testTemplate.zigbeeCount
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 const testFile2 = path.join(__dirname, 'resource/three-endpoint-device.zap')
+const testFile3 = path.join(__dirname, 'resource/zll-on-off-switch-test.zap')
 
 beforeAll(async () => {
   let file = env.sqliteTestFile('genengine')
@@ -183,6 +184,7 @@ test(
         expect(
           zclId.includes('// struct: WwahClusterStatusToUseTC\nLast item')
         ).toBeTruthy()
+        expect(zclId.includes('// event: 0x0001 HelloEvent')).toBeTruthy()
 
         let accumulator = genResult.content['accumulator.out']
         expect(accumulator.includes('Iteration: 19 out of 20')).toBeTruthy()
@@ -439,6 +441,82 @@ test(
 )
 
 test(
+  'Testing zap command parser generation',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile3, { sessionId: sid })
+
+    return genEngine
+      .generate(
+        db,
+        sid,
+        templateContext.packageId,
+        {},
+        {
+          disableDeprecationWarnings: true,
+        }
+      )
+      .then((genResult) => {
+        // Test Cluster command parsers that should be defined
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfGroupsClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfGroupsClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfIdentifyClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfLevelControlClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfOnOffClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfScenesClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'EmberAfStatus emberAfZllCommissioningClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+
+        // Test Command callback
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
+          )
+        ).toBeTruthy()
+      })
+  },
+  testUtil.timeout.long()
+)
+
+test(
   'Test file 2 generation',
   async () => {
     let { sessionId, errors, warnings } = await importJs.importDataFromFile(
@@ -520,40 +598,40 @@ test.skip(
 
 test(
   'Test content indexer - simple',
-  () =>
-    genEngine.contentIndexer('Short example').then((preview) => {
-      expect(preview['1']).toBe('Short example\n')
-    }),
+  async () => {
+    let preview = await genEngine.contentIndexer('Short example')
+    expect(preview['1']).toBe('Short example\n')
+  },
   testUtil.timeout.short()
 )
 
 test(
   'Test content indexer - line by line',
-  () =>
-    genEngine
-      .contentIndexer('Short example\nwith three\nlines of text', 1)
-      .then((preview) => {
-        expect(preview['1']).toBe('Short example\n')
-        expect(preview['2']).toBe('with three\n')
-        expect(preview['3']).toBe('lines of text\n')
-      }),
+  async () => {
+    let preview = await genEngine.contentIndexer(
+      'Short example\nwith three\nlines of text',
+      1
+    )
+    expect(preview['1']).toBe('Short example\n')
+    expect(preview['2']).toBe('with three\n')
+    expect(preview['3']).toBe('lines of text\n')
+  },
   testUtil.timeout.short()
 )
 
 test(
   'Test content indexer - blocks',
-  () => {
+  async () => {
     let content = ''
     let i = 0
     for (i = 0; i < 1000; i++) {
       content = content.concat(`line ${i}\n`)
     }
-    return genEngine.contentIndexer(content, 50).then((preview) => {
-      expect(preview['1'].startsWith('line 0')).toBeTruthy()
-      expect(preview['2'].startsWith('line 50')).toBeTruthy()
-      expect(preview['3'].startsWith('line 100')).toBeTruthy()
-      expect(preview['20'].startsWith('line 950')).toBeTruthy()
-    })
+    let preview = await genEngine.contentIndexer(content, 50)
+    expect(preview['1'].startsWith('line 0')).toBeTruthy()
+    expect(preview['2'].startsWith('line 50')).toBeTruthy()
+    expect(preview['3'].startsWith('line 100')).toBeTruthy()
+    expect(preview['20'].startsWith('line 950')).toBeTruthy()
   },
   testUtil.timeout.short()
 )

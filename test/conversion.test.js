@@ -29,29 +29,26 @@ const testUtil = require('./test-util.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const util = require('../src-electron/util/util.js')
 
+let db
 let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
 let haCombinedIsc = path.join(
   __dirname,
   'resource/isc/ha-combined-interface.isc'
 )
 
-beforeAll(() => {
+beforeAll(async () => {
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('conversion')
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-      env.logInfo(`Test database initialized: ${file}.`)
-    })
-    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
-    .then(() => zclLoader.loadZcl(db, env.builtinDotdotZclMetafile))
-    .catch((err) => env.logError(`Error: ${err}`))
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+  await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
 }, testUtil.timeout.long())
 
-afterAll(() => {
-  return dbApi.closeDatabase(db)
-}, testUtil.timeout.short())
+afterAll(async () => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test.skip(
   path.basename(haLightIsc) + ' - conversion',
@@ -86,23 +83,6 @@ test.skip(
       ept.attributes.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
     )
     expect(reportableCounts).toStrictEqual([2, 0])
-
-    /*
-    let atts = []
-    for (ept of dump.endpointTypes) {
-      for (at of ept.attributes) {
-        if (at.isBound) {
-          atts.push(at)
-        }
-      }
-    }
-    console.log(
-      atts.reduce(
-        (s, v) => s + `\n${v.id} =>${v.clusterId} / ${v.code}`,
-        `Total number: ${atts.length}`
-      )
-    )
-    */
 
     let boundedCounts = dump.endpointTypes.map((ept) =>
       ept.attributes.reduce((ac, at) => ac + (at.isBound ? 1 : 0), 0)

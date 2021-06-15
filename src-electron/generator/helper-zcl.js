@@ -165,6 +165,34 @@ function zcl_commands(options) {
 }
 
 /**
+ * Block helper iterating over all events.
+ * There are two modes of this helper:
+ *   when used in a global context, it iterates over ALL events in the database.
+ *   when used inside a `zcl_cluster` block helper, it iterates only over the events for that cluster.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_events(options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) => {
+      if ('id' in this) {
+        // We're functioning inside a nested context with an id, so we will only query for this cluster.
+        return queryZcl.selectEventsByClusterId(
+          this.global.db,
+          this.id,
+          packageId
+        )
+      } else {
+        return queryZcl.selectAllEvents(this.global.db, packageId)
+      }
+    })
+    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Block helper iterating over all commands, including their arguments and clusters.
  *
  * @param {*} options
@@ -519,7 +547,8 @@ function if_command_arguments_have_fixed_length_with_current_context(
  * @param fixedLengthReturn
  * @param notFixedLengthReturn
  * Returns fixedLengthReturn or notFixedLengthReturn based on whether the
- * command is fixed length or not
+ * command is fixed length or not. Does not check if command
+ * arguments are always present or not.
  */
 function if_command_arguments_have_fixed_length(
   commandId,
@@ -532,6 +561,199 @@ function if_command_arguments_have_fixed_length(
     notFixedLengthReturn,
     this
   )
+}
+
+/**
+ *
+ * @param commandId
+ * @param fixedLengthReturn
+ * @param notFixedLengthReturn
+ * Returns fixedLengthReturn or notFixedLengthReturn based on whether the
+ * command is fixed length or not. Also checks if the command arguments are
+ * always present or not.
+ */
+function if_command_is_fixed_length(
+  commandId,
+  fixedLengthReturn,
+  notFixedLengthReturn
+) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectCommandArgumentsByCommandId(
+        this.global.db,
+        commandId,
+        packageId
+      )
+    )
+    .then(
+      (commandArgs) =>
+        new Promise((resolve, reject) => {
+          for (let commandArg of commandArgs) {
+            if (
+              commandArg.isArray ||
+              is_zcl_string(commandArg.type) ||
+              commandArg.introducedInRef ||
+              commandArg.removedInRef ||
+              commandArg.presentIf
+            ) {
+              resolve(false)
+            }
+          }
+          resolve(true)
+        })
+    )
+    .then((fixedLength) => {
+      if (fixedLength) {
+        return fixedLengthReturn
+      } else {
+        return notFixedLengthReturn
+      }
+    })
+    .catch((err) => {
+      env.logError(
+        'Unable to determine if command is fixed length or not: ' + err
+      )
+    })
+}
+
+/**
+ *
+ * @param command
+ * @param commandArg
+ * @param trueReturn
+ * @param falseReturn
+ * @returns trueReturn if command is not fixed length but command argument is
+ * always present else returns falseReturn
+ */
+function if_command_is_not_fixed_length_but_command_argument_is_always_present(
+  command,
+  commandArg,
+  trueReturn,
+  falseReturn
+) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectCommandArgumentsByCommandId(
+        this.global.db,
+        command,
+        packageId
+      )
+    )
+    .then(
+      (commandArgs) =>
+        new Promise((resolve, reject) => {
+          for (let ca of commandArgs) {
+            if (
+              ca.isArray ||
+              is_zcl_string(ca.type) ||
+              ca.introducedInRef ||
+              ca.removedInRef ||
+              ca.presentIf
+            ) {
+              resolve(false)
+            }
+          }
+          resolve(true)
+        })
+    )
+    .then(
+      (isFixedLengthCommand) =>
+        new Promise((resolve, reject) => {
+          if (isFixedLengthCommand) {
+            resolve(falseReturn)
+          } else if (
+            !(
+              commandArg.isArray ||
+              commandArg.introducedInRef ||
+              commandArg.removedInRef ||
+              commandArg.presentIf
+            )
+          ) {
+            resolve(trueReturn)
+          }
+          resolve(falseReturn)
+        })
+    )
+    .catch((err) => {
+      env.logError(
+        'Failure in if_command_is_not_fixed_length_but_command_argument_is_always_present: ' +
+          err
+      )
+    })
+}
+
+/**
+ *
+ * @param type
+ * @param command
+ * @param commandArg
+ * @param appendString
+ * @param options
+ * @returns the underlying zcl type of a command argument if the argument is
+ * not fixed length but is always present. If the condition is not met then
+ * returns an empty string.
+ */
+function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present(
+  type,
+  command,
+  commandArg,
+  appendString,
+  options
+) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryZcl.selectCommandArgumentsByCommandId(
+        this.global.db,
+        command,
+        packageId
+      )
+    )
+    .then(
+      (commandArgs) =>
+        new Promise((resolve, reject) => {
+          for (let ca of commandArgs) {
+            if (
+              ca.isArray ||
+              is_zcl_string(ca.type) ||
+              ca.introducedInRef ||
+              ca.removedInRef ||
+              ca.presentIf
+            ) {
+              resolve(false)
+            }
+          }
+          resolve(true)
+        })
+    )
+    .then((isFixedLengthCommand) => {
+      if (isFixedLengthCommand) {
+        return ''
+      } else if (
+        !(
+          commandArg.isArray ||
+          commandArg.introducedInRef ||
+          commandArg.removedInRef ||
+          commandArg.presentIf
+        )
+      ) {
+        return templateUtil
+          .ensureZclPackageId(this)
+          .then((packageId) =>
+            asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+          )
+      }
+      return ''
+    })
+    .then((res) => (res ? res + appendString : res))
+    .catch((err) => {
+      env.logError(
+        'Failure in as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present: ' +
+          err
+      )
+    })
 }
 
 /**
@@ -926,87 +1148,131 @@ function defaultMessageForTypeConversion(fromType, toType, noWarning) {
  */
 function calculateBytes(res, options, db, packageId, isStructType) {
   if (!isStructType) {
-    return types.typeSize(db, packageId, res.toLowerCase()).then((x) => {
-      switch (x) {
-        case 1:
-          return user_defined_output_or_default(options, 'one_byte', x)
-        case 2:
-          return user_defined_output_or_default(options, 'two_byte', x)
-        case 3:
-          return user_defined_output_or_default(options, 'three_byte', x)
-        case 4:
-          return user_defined_output_or_default(options, 'four_byte', x)
-        case 5:
-          return user_defined_output_or_default(options, 'five_byte', x)
-        case 6:
-          return user_defined_output_or_default(options, 'six_byte', x)
-        case 7:
-          return user_defined_output_or_default(options, 'seven_byte', x)
-        case 8:
-          return user_defined_output_or_default(options, 'eight_byte', x)
-        case 9:
-          return user_defined_output_or_default(options, 'nine_byte', x)
-        case 10:
-          return user_defined_output_or_default(options, 'ten_byte', x)
-        case 11:
-          return user_defined_output_or_default(options, 'eleven_byte', x)
-        case 12:
-          return user_defined_output_or_default(options, 'twelve_byte', x)
-        case 13:
-          return user_defined_output_or_default(options, 'thirteen_byte', x)
-        case 14:
-          return user_defined_output_or_default(options, 'fourteen_byte', x)
-        case 15:
-          return user_defined_output_or_default(options, 'fifteen_byte', x)
-        case 16:
-          return user_defined_output_or_default(options, 'sixteen_byte', x)
-        default:
-          if (
-            res != null &&
-            res.includes('long') &&
-            res.includes(dbEnum.zclType.string)
-          ) {
-            return user_defined_output_or_default(options, 'long_string', 'l')
-          } else if (
-            res != null &&
-            !res.includes('long') &&
-            res.includes(dbEnum.zclType.string)
-          ) {
-            return user_defined_output_or_default(options, 'short_string', 's')
-          } else {
-            return options.hash.default
-          }
-      }
-    })
+    return calculate_bytes_for_types(res, options, db, packageId)
   } else {
-    if ('struct' in options.hash) {
-      return options.hash.struct
-    } else {
-      return queryZcl
-        .selectAllStructItemsByStructName(db, res)
-        .then((items) => {
-          let promises = []
-          for (let itemCount = 0; itemCount < items.length; ) {
-            promises.push(
-              dataTypeCharacterFormatter(
-                db,
-                packageId,
-                items[itemCount],
+    return calculate_bytes_for_structs(res, options, db, packageId)
+  }
+}
+
+function calculate_bytes_for_types(res, options, db, packageId) {
+  return types
+    .typeSize(db, packageId, res.toLowerCase())
+    .then((x) => {
+      return new Promise((resolve, reject) => {
+        let result = 0
+        switch (x) {
+          case 1:
+            result = user_defined_output_or_default(options, 'one_byte', x)
+            break
+          case 2:
+            result = user_defined_output_or_default(options, 'two_byte', x)
+            break
+          case 3:
+            result = user_defined_output_or_default(options, 'three_byte', x)
+            break
+          case 4:
+            result = user_defined_output_or_default(options, 'four_byte', x)
+            break
+          case 5:
+            result = user_defined_output_or_default(options, 'five_byte', x)
+            break
+          case 6:
+            result = user_defined_output_or_default(options, 'six_byte', x)
+            break
+          case 7:
+            result = user_defined_output_or_default(options, 'seven_byte', x)
+            break
+          case 8:
+            result = user_defined_output_or_default(options, 'eight_byte', x)
+            break
+          case 9:
+            result = user_defined_output_or_default(options, 'nine_byte', x)
+            break
+          case 10:
+            result = user_defined_output_or_default(options, 'ten_byte', x)
+            break
+          case 11:
+            result = user_defined_output_or_default(options, 'eleven_byte', x)
+            break
+          case 12:
+            result = user_defined_output_or_default(options, 'twelve_byte', x)
+            break
+          case 13:
+            result = user_defined_output_or_default(options, 'thirteen_byte', x)
+            break
+          case 14:
+            result = user_defined_output_or_default(options, 'fourteen_byte', x)
+            break
+          case 15:
+            result = user_defined_output_or_default(options, 'fifteen_byte', x)
+            break
+          case 16:
+            result = user_defined_output_or_default(options, 'sixteen_byte', x)
+            break
+          default:
+            if (
+              res != null &&
+              res.includes('long') &&
+              res.includes(dbEnum.zclType.string)
+            ) {
+              result = user_defined_output_or_default(
                 options,
-                type
+                'long_string',
+                'l'
               )
-            )
-          }
-          return Promise.all(promises)
-        })
-        .then((resolvedPromises) =>
-          resolvedPromises.reduce((acc, cur) => acc + cur, 0)
+            } else if (
+              res != null &&
+              !res.includes('long') &&
+              res.includes(dbEnum.zclType.string)
+            ) {
+              result = user_defined_output_or_default(
+                options,
+                'short_string',
+                's'
+              )
+            } else if ('default' in options.hash) {
+              result = options.hash.default
+            }
+            break
+        }
+        resolve(result)
+      })
+    })
+    .catch((err) => {
+      env.logError(
+        'Could not find size of the given type in' +
+          ' calculate_bytes_for_types: ' +
+          err
+      )
+    })
+}
+
+function calculate_bytes_for_structs(res, options, db, packageId) {
+  if ('struct' in options.hash) {
+    return Promise.resolve(options.hash.struct)
+  } else {
+    return queryZcl
+      .selectAllStructItemsByStructName(db, res)
+      .then((items) => {
+        let promises = []
+        items.forEach((item) =>
+          promises.push(
+            dataTypeCharacterFormatter(db, packageId, item, options, type)
+          )
         )
-        .catch((err) => {
-          env.logError('Could not find size of struct: ' + err)
-          return 0
-        })
-    }
+        return Promise.all(promises)
+      })
+      .then((resolvedPromises) =>
+        resolvedPromises.reduce((acc, cur) => acc + cur, 0)
+      )
+      .catch((err) => {
+        env.logError(
+          'Could not find size of struct in' +
+            ' calculate_size_for_structs: ' +
+            err
+        )
+        return Promise.resolve(0)
+      })
   }
 }
 
@@ -1038,9 +1304,9 @@ function dataTypeCharacterFormatter(db, packageId, type, options, resType) {
   switch (resType) {
     case dbEnum.zclType.array:
       if (dbEnum.zclType.array in options.hash) {
-        return options.hash.array
+        return Promise.resolve(options.hash.array)
       } else {
-        return 'b'
+        return Promise.resolve('b')
       }
     case dbEnum.zclType.bitmap:
       return queryZcl
@@ -1048,21 +1314,17 @@ function dataTypeCharacterFormatter(db, packageId, type, options, resType) {
         .then((bitmap) => {
           return queryZcl.selectAtomicType(db, packageId, bitmap.type)
         })
-        .then((res) => {
-          return calculateBytes(res.name, options, db, packageId, false)
-        })
+        .then((res) => calculateBytes(res.name, options, db, packageId, false))
     case dbEnum.zclType.enum:
       return queryZcl
         .selectEnumByName(db, type, packageId)
         .then((enumRec) => {
           return queryZcl.selectAtomicType(db, packageId, enumRec.type)
         })
-        .then((res) => {
-          return calculateBytes(res.name, options, db, packageId, false)
-        })
+        .then((res) => calculateBytes(res.name, options, db, packageId, false))
     case dbEnum.zclType.struct:
       if (dbEnum.zclType.struct in options.hash) {
-        return options.hash.struct
+        return Promise.resolve(options.hash.struct)
       } else {
         return calculateBytes(type, options, db, packageId, true)
       }
@@ -1079,13 +1341,11 @@ function dataTypeCharacterFormatter(db, packageId, type, options, resType) {
               atomic.name == 'long_octet_string' ||
               atomic.name == 'long_char_string')
           ) {
-            return atomic.name
+            return Promise.resolve(atomic.name)
           }
-          return type
+          return Promise.resolve(type)
         })
-        .then((res) => {
-          return calculateBytes(res, options, db, packageId, false)
-        })
+        .then((res) => calculateBytes(res, options, db, packageId, false))
   }
 }
 
@@ -1368,6 +1628,56 @@ function isBitmap(db, bitmap_name, packageId) {
 }
 
 /**
+ * If helper that checks if a type is a bitmap
+ *
+ * example:
+ * {{#if_is_bitmap type}}
+ * type is bitmap
+ * {{else}}
+ * type is not bitmap
+ * {{/if_is_bitmap}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+function if_is_bitmap(type, options) {
+  let promise = templateUtil.ensureZclPackageId(this).then((packageId) =>
+    queryZcl.selectBitmapByName(this.global.db, packageId, type).then((st) => {
+      if (st || type.startsWith('map')) {
+        return options.fn(this)
+      }
+      return options.inverse(this)
+    })
+  )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a type is an enum
+ *
+ * * example:
+ * {{#if_is_enum type}}
+ * type is bitmap
+ * {{else}}
+ * type is not bitmap
+ * {{/if_is_enum}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+function if_is_enum(type, options) {
+  let promise = templateUtil.ensureZclPackageId(this).then((packageId) =>
+    queryZcl.selectEnumByName(this.global.db, type, packageId).then((st) => {
+      if (st || type.startsWith('enum')) {
+        return options.fn(this)
+      }
+      return options.inverse(this)
+    })
+  )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Checks if the side is client or not
  *
  * @param {*} side
@@ -1425,6 +1735,7 @@ function isCommandAvailable(clusterSide, incoming, outgoing, source, name) {
  * specifications and was removed in a certain specification version then this will not be null
  * @param presentIf: If the command argument is present conditionally then this will be a condition
  * and not null
+ *
  * @param options: options which can be passed to asUnderlyingZclTypeWithPackageId
  * for determining the underlying zcl type for the provided argument type
  * @returns A string as an underlying zcl type if the command is not fixed length and the command
@@ -1570,6 +1881,50 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
 }
 
 /**
+ * @param commandArg command argument
+ * @param appendString append the string to the argument
+ * @param options options which can be passed to asUnderlyingZclTypeWithPackageId
+ * for determining the underlying zcl type for the provided argument type
+ * @returns A string as an underlying zcl type if the command is not fixed
+ * length, the command argument is not always present in all zcl specifications
+ * and there is no present if conditionality on the command argument.
+ */
+function as_underlying_zcl_type_ca_not_always_present_no_presentif(
+  commandArg,
+  appendString,
+  options
+) {
+  // Return the underlying zcl type since command argument is not always
+  // present and there is no present if conditionality
+  if (
+    (commandArg.introducedInRef || commandArg.removedInRef) &&
+    !commandArg.presentIf
+  ) {
+    let promise = templateUtil
+      .ensureZclPackageId(this)
+      .then((packageId) =>
+        asUnderlyingZclTypeWithPackageId(
+          commandArg.type,
+          options,
+          packageId,
+          this
+        )
+      ) // Adding the appendString for the underlying zcl type
+      .then((res) => (res ? res + appendString : res))
+      .catch((err) => {
+        env.logError(
+          'Error in as_underlying_zcl_type_ca_not_always_present_no_presentif ' +
+            err
+        )
+        throw err
+      })
+    return templateUtil.templatePromise(this.global, promise)
+  } else {
+    return ''
+  }
+}
+
+/**
  *
  *
  * @param commandId
@@ -1605,6 +1960,28 @@ function if_command_argument_not_always_present_no_presentif(
       return argumentInAllVersionsReturn
     }
   })
+}
+
+/**
+ *
+ * @param commandArg
+ * @param trueReturn
+ * @param falseReturn
+ * @returns trueReturn if command argument is not always present and there is no
+ * presentIf condition else returns false
+ */
+function if_ca_not_always_present_no_presentif(
+  commandArg,
+  trueReturn,
+  falseReturn
+) {
+  if (
+    (commandArg.introducedInRef || commandArg.removedInRef) &&
+    !commandArg.presentIf
+  ) {
+    return trueReturn
+  }
+  return falseReturn
 }
 
 /**
@@ -1666,6 +2043,50 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
 }
 
 /**
+ * @param commandArg command argument
+ * @param appendString append the string to the argument
+ * @param options options which can be passed to asUnderlyingZclTypeWithPackageId
+ * for determining the underlying zcl type for the provided argument type
+ * @returns A string as an underlying zcl type if the command is not fixed
+ * length, the command argument is not always present in all zcl specifications
+ * but there is a present if conditionality on the command argument.
+ */
+function as_underlying_zcl_type_ca_not_always_present_with_presentif(
+  commandArg,
+  appendString,
+  options
+) {
+  // Return the underlying zcl type since command argument is not always
+  // present and there is a present if conditionality
+  if (
+    (commandArg.introducedInRef || commandArg.removedInRef) &&
+    commandArg.presentIf
+  ) {
+    let promise = templateUtil
+      .ensureZclPackageId(this)
+      .then((packageId) =>
+        asUnderlyingZclTypeWithPackageId(
+          commandArg.type,
+          options,
+          packageId,
+          this
+        )
+      ) // Adding the appendString for the underlying zcl type
+      .then((res) => (res ? res + appendString : res))
+      .catch((err) => {
+        env.logError(
+          'Error in as_underlying_zcl_type_ca_not_always_present_with_presentif ' +
+            err
+        )
+        throw err
+      })
+    return templateUtil.templatePromise(this.global, promise)
+  } else {
+    return ''
+  }
+}
+
+/**
  *
  *
  * @param commandId
@@ -1701,6 +2122,29 @@ function if_command_argument_not_always_present_with_presentif(
       return argumentInAllVersionsReturn
     }
   })
+}
+
+/**
+ *
+ * @param commandArg
+ * @param trueReturn
+ * @param falseReturn
+ * @returns trueReturn if command argument is not always present and there is a
+ * presentIf condition else returns false
+ */
+function if_ca_not_always_present_with_presentif(
+  commandArg,
+  trueReturn,
+  falseReturn
+) {
+  if (
+    (commandArg.introducedInRef || commandArg.removedInRef) &&
+    commandArg.presentIf
+  ) {
+    return trueReturn
+  } else {
+    return falseReturn
+  }
 }
 
 /**
@@ -1762,6 +2206,50 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
 }
 
 /**
+ * @param commandArg command argument
+ * @param appendString append the string to the argument
+ * @param options options which can be passed to asUnderlyingZclTypeWithPackageId
+ * for determining the underlying zcl type for the provided argument type
+ * @returns A string as an underlying zcl type if the command is not fixed
+ * length, the command argument is always present in all zcl specifications
+ * but there is a present if conditionality on the command argument.
+ */
+function as_underlying_zcl_type_ca_always_present_with_presentif(
+  commandArg,
+  appendString,
+  options
+) {
+  // Return the underlying zcl type since command argument is always
+  // present and there is a present if conditionality
+  if (
+    !(commandArg.introducedInRef || commandArg.removedInRef) &&
+    commandArg.presentIf
+  ) {
+    let promise = templateUtil
+      .ensureZclPackageId(this)
+      .then((packageId) =>
+        asUnderlyingZclTypeWithPackageId(
+          commandArg.type,
+          options,
+          packageId,
+          this
+        )
+      ) // Adding the appendString for the underlying zcl type
+      .then((res) => (res ? res + appendString : res))
+      .catch((err) => {
+        env.logError(
+          'Error in as_underlying_zcl_type_ca_always_present_with_presentif ' +
+            err
+        )
+        throw err
+      })
+    return templateUtil.templatePromise(this.global, promise)
+  } else {
+    return ''
+  }
+}
+
+/**
  *
  *
  * @param commandId
@@ -1794,6 +2282,29 @@ async function if_command_argument_always_present_with_presentif(
       return argumentInAllVersionsPresentIfReturn
     }
     return argumentNotAlwaysThereReturn
+  }
+}
+
+/**
+ *
+ * @param commandArg
+ * @param trueReturn
+ * @param falseReturn
+ * @returns trueReturn if command argument is always present and there is a
+ * presentIf condition else returns false
+ */
+function if_ca_always_present_with_presentif(
+  commandArg,
+  trueReturn,
+  falseReturn
+) {
+  if (
+    !(commandArg.introducedInRef || commandArg.removedInRef) &&
+    commandArg.presentIf
+  ) {
+    return trueReturn
+  } else {
+    return falseReturn
   }
 }
 
@@ -2058,6 +2569,7 @@ exports.zcl_struct_items = zcl_struct_items
 exports.zcl_clusters = zcl_clusters
 exports.zcl_device_types = zcl_device_types
 exports.zcl_commands = zcl_commands
+exports.zcl_events = zcl_events
 exports.zcl_command_tree = zcl_command_tree
 exports.zcl_attributes = zcl_attributes
 exports.zcl_attributes_client = zcl_attributes_client
@@ -2104,6 +2616,10 @@ exports.asUnderlyingZclType = dep(asUnderlyingZclType, {
 exports.is_bitmap = isBitmap
 exports.isBitmap = dep(isBitmap, { to: 'is_bitmap' })
 
+exports.if_is_bitmap = if_is_bitmap
+
+exports.if_is_enum = if_is_enum
+
 exports.is_struct = isStruct
 exports.isStruct = dep(isStruct, { to: 'is_struct' })
 
@@ -2112,21 +2628,71 @@ exports.isEnum = dep(isEnum, { to: 'is_enum' })
 
 exports.if_command_arguments_exist = if_command_arguments_exist
 exports.if_manufacturing_specific_cluster = if_manufacturing_specific_cluster
-exports.zcl_command_argument_type_to_cli_data_type = zcl_command_argument_type_to_cli_data_type
+exports.zcl_command_argument_type_to_cli_data_type =
+  zcl_command_argument_type_to_cli_data_type
 exports.zcl_string_type_return = zcl_string_type_return
 exports.is_zcl_string = is_zcl_string
-exports.if_command_arguments_have_fixed_length = if_command_arguments_have_fixed_length
+exports.if_command_arguments_have_fixed_length =
+  if_command_arguments_have_fixed_length
 exports.command_arguments_total_length = command_arguments_total_length
-exports.as_underlying_zcl_type_if_command_is_not_fixed_length = as_underlying_zcl_type_if_command_is_not_fixed_length
-exports.if_command_argument_always_present = if_command_argument_always_present
-exports.as_underlying_zcl_type_command_argument_always_present = as_underlying_zcl_type_command_argument_always_present
-exports.if_command_argument_always_present_with_presentif = if_command_argument_always_present_with_presentif
-exports.as_underlying_zcl_type_command_argument_always_present_with_presentif = as_underlying_zcl_type_command_argument_always_present_with_presentif
-exports.if_command_argument_not_always_present_with_presentif = if_command_argument_not_always_present_with_presentif
-exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif = as_underlying_zcl_type_command_argument_not_always_present_with_presentif
-exports.if_command_argument_not_always_present_no_presentif = if_command_argument_not_always_present_no_presentif
-exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif = as_underlying_zcl_type_command_argument_not_always_present_no_presentif
+exports.as_underlying_zcl_type_if_command_is_not_fixed_length =
+  as_underlying_zcl_type_if_command_is_not_fixed_length
+exports.if_command_argument_always_present = dep(
+  if_command_argument_always_present,
+  {
+    to: 'if_command_is_not_fixed_length_but_command_argument_is_always_present',
+  }
+)
+exports.as_underlying_zcl_type_command_argument_always_present = dep(
+  as_underlying_zcl_type_command_argument_always_present,
+  {
+    to: 'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present',
+  }
+)
+exports.if_command_argument_always_present_with_presentif = dep(
+  if_command_argument_always_present_with_presentif,
+  { to: 'if_ca_always_present_with_presentif' }
+)
+exports.as_underlying_zcl_type_command_argument_always_present_with_presentif =
+  dep(as_underlying_zcl_type_command_argument_always_present_with_presentif, {
+    to: 'as_underlying_zcl_type_ca_always_present_with_presentif',
+  })
+exports.if_command_argument_not_always_present_with_presentif = dep(
+  if_command_argument_not_always_present_with_presentif,
+  { to: 'if_ca_not_always_present_with_presentif' }
+)
+exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif =
+  dep(
+    as_underlying_zcl_type_command_argument_not_always_present_with_presentif,
+    { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' }
+  )
+exports.if_command_argument_not_always_present_no_presentif = dep(
+  if_command_argument_not_always_present_no_presentif,
+  { to: 'if_ca_not_always_present_no_presentif' }
+)
+exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif =
+  dep(as_underlying_zcl_type_command_argument_not_always_present_no_presentif, {
+    to: 'as_underlying_zcl_type_ca_not_always_present_no_presentif',
+  })
 exports.as_generated_default_macro = as_generated_default_macro
 exports.attribute_mask = attribute_mask
 exports.command_mask = command_mask
-exports.format_zcl_string_as_characters_for_generated_defaults = format_zcl_string_as_characters_for_generated_defaults
+exports.format_zcl_string_as_characters_for_generated_defaults =
+  format_zcl_string_as_characters_for_generated_defaults
+exports.if_command_is_fixed_length = if_command_is_fixed_length
+exports.if_command_is_not_fixed_length_but_command_argument_is_always_present =
+  if_command_is_not_fixed_length_but_command_argument_is_always_present
+exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present =
+  as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
+exports.as_underlying_zcl_type_ca_not_always_present_no_presentif =
+  as_underlying_zcl_type_ca_not_always_present_no_presentif
+exports.if_ca_not_always_present_no_presentif =
+  if_ca_not_always_present_no_presentif
+exports.as_underlying_zcl_type_ca_not_always_present_with_presentif =
+  as_underlying_zcl_type_ca_not_always_present_with_presentif
+exports.if_ca_not_always_present_with_presentif =
+  if_ca_not_always_present_with_presentif
+exports.as_underlying_zcl_type_ca_always_present_with_presentif =
+  as_underlying_zcl_type_ca_always_present_with_presentif
+exports.if_ca_always_present_with_presentif =
+  if_ca_always_present_with_presentif

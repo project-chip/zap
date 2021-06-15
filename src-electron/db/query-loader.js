@@ -43,6 +43,39 @@ INSERT INTO CLUSTER (
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
 `
+
+const INSERT_EVENT_QUERY = `
+INSERT INTO EVENT (
+  CLUSTER_REF,
+  PACKAGE_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SIDE,
+  PRIORITY,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF
+) VALUES (
+  ?, ?, ?, ?, ?, ?, ?, ?,
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+)
+`
+const INSERT_EVENT_FIELD_QUERY = `
+INSERT INTO EVENT_FIELD (
+  EVENT_REF,
+  FIELD_IDENTIFIER,
+  NAME,
+  TYPE,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF
+) VALUES (
+  ?, ?, ?, ?, 
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+)
+`
 const INSERT_COMMAND_QUERY = `
 INSERT INTO COMMAND (
   CLUSTER_REF,
@@ -70,7 +103,7 @@ INSERT INTO COMMAND_ARG (
   IS_ARRAY,
   PRESENT_IF,
   COUNT_ARG,
-  ORDINAL,
+  FIELD_IDENTIFIER,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
@@ -134,6 +167,23 @@ function attributeMap(clusterId, packageId, attributes) {
   ])
 }
 
+function eventMap(clusterId, packageId, events) {
+  return events.map((event) => [
+    clusterId,
+    packageId,
+    event.code,
+    event.manufacturerCode,
+    event.name,
+    event.description,
+    event.side,
+    event.priority,
+    event.introducedIn,
+    packageId,
+    event.removedIn,
+    packageId,
+  ])
+}
+
 function commandMap(clusterId, packageId, commands) {
   return commands.map((command) => [
     clusterId,
@@ -152,6 +202,19 @@ function commandMap(clusterId, packageId, commands) {
   ])
 }
 
+function fieldMap(eventId, packageId, fields) {
+  return fields.map((field) => [
+    eventId,
+    field.fieldIdentifier,
+    field.name,
+    field.type,
+    field.introducedIn,
+    packageId,
+    field.removedIn,
+    packageId,
+  ])
+}
+
 function argMap(cmdId, packageId, args) {
   return args.map((arg) => [
     cmdId,
@@ -160,7 +223,7 @@ function argMap(cmdId, packageId, args) {
     arg.isArray ? 1 : 0,
     arg.presentIf,
     arg.countArg,
-    arg.ordinal,
+    arg.fieldIdentifier,
     arg.introducedIn,
     packageId,
     arg.removedIn,
@@ -169,23 +232,40 @@ function argMap(cmdId, packageId, args) {
 }
 
 async function insertAttributes(db, attributesToLoad) {
+  if (attributesToLoad == null || attributesToLoad.length == 0) return
   return dbApi.dbMultiInsert(db, INSERT_ATTRIBUTE_QUERY, attributesToLoad)
 }
 
+async function insertEvents(db, packageId, eventsToLoad, fieldsForEvents) {
+  if (eventsToLoad == null || eventsToLoad.length == 0) return
+  let eventIds = await dbApi.dbMultiInsert(db, INSERT_EVENT_QUERY, eventsToLoad)
+  let fieldsToLoad = []
+  for (let j = 0; j < eventIds.length; j++) {
+    let lastEventId = eventIds[j]
+    let fields = fieldsForEvents[j]
+    if (fields != undefined && fields != null) {
+      fieldsToLoad.push(...fieldMap(lastEventId, packageId, fields))
+    }
+  }
+  return dbApi.dbMultiInsert(db, INSERT_EVENT_FIELD_QUERY, fieldsToLoad)
+}
+
 async function insertCommands(db, packageId, commandsToLoad, argsForCommands) {
-  return dbApi
-    .dbMultiInsert(db, INSERT_COMMAND_QUERY, commandsToLoad)
-    .then((lids) => {
-      let argsToLoad = []
-      for (let j = 0; j < lids.length; j++) {
-        let lastCmdId = lids[j]
-        let args = argsForCommands[j]
-        if (args != undefined && args != null) {
-          argsToLoad.push(...argMap(lastCmdId, packageId, args))
-        }
-      }
-      return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
-    })
+  if (commandsToLoad == null || commandsToLoad.length == 0) return
+  let commandIds = await dbApi.dbMultiInsert(
+    db,
+    INSERT_COMMAND_QUERY,
+    commandsToLoad
+  )
+  let argsToLoad = []
+  for (let j = 0; j < commandIds.length; j++) {
+    let lastCmdId = commandIds[j]
+    let args = argsForCommands[j]
+    if (args != undefined && args != null) {
+      argsToLoad.push(...argMap(lastCmdId, packageId, args))
+    }
+  }
+  return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
 }
 /**
  * Inserts globals into the database.
@@ -308,8 +388,10 @@ async function insertClusters(db, packageId, data) {
     )
     .then((lastIdsArray) => {
       let commandsToLoad = []
+      let eventsToLoad = []
       let attributesToLoad = []
       let argsForCommands = []
+      let fieldsForEvents = []
       let i
       for (i = 0; i < lastIdsArray.length; i++) {
         let lastId = lastIdsArray[i]
@@ -322,6 +404,11 @@ async function insertClusters(db, packageId, data) {
           let attributes = data[i].attributes
           attributesToLoad.push(...attributeMap(lastId, packageId, attributes))
         }
+        if ('events' in data[i]) {
+          let events = data[i].events
+          eventsToLoad.push(...eventMap(lastId, packageId, events))
+          fieldsForEvents.push(...events.map((event) => event.fields))
+        }
       }
       let pCommand = insertCommands(
         db,
@@ -330,7 +417,8 @@ async function insertClusters(db, packageId, data) {
         argsForCommands
       )
       let pAttribute = insertAttributes(db, attributesToLoad)
-      return Promise.all([pCommand, pAttribute])
+      let pEvent = insertEvents(db, packageId, eventsToLoad, fieldsForEvents)
+      return Promise.all([pCommand, pAttribute, pEvent])
     })
 }
 
@@ -475,7 +563,7 @@ async function insertStructs(db, packageId, data) {
               lastId,
               item.name,
               item.type,
-              item.ordinal,
+              item.fieldIdentifier,
               item.entryType,
               item.minLength,
               item.maxLength,
@@ -486,7 +574,7 @@ async function insertStructs(db, packageId, data) {
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, ORDINAL, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE) VALUES (?,?,?,?,?,?,?,?)',
+        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, FIELD_IDENTIFIER, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE) VALUES (?,?,?,?,?,?,?,?)',
         itemsToLoad
       )
     })
@@ -522,14 +610,14 @@ async function insertEnums(db, packageId, data) {
               lastId,
               item.name,
               item.value,
-              item.ordinal,
+              item.fieldIdentifier,
             ])
           )
         }
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE, ORDINAL) VALUES (?, ?, ?, ?)',
+        'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER) VALUES (?, ?, ?, ?)',
         itemsToLoad
       )
     })
@@ -564,14 +652,14 @@ async function insertBitmaps(db, packageId, data) {
               field.name,
               field.mask,
               field.type,
-              field.ordinal,
+              field.fieldIdentifier,
             ])
           )
         }
       }
       return dbApi.dbMultiInsert(
         db,
-        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, TYPE, ORDINAL) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, TYPE, FIELD_IDENTIFIER) VALUES (?, ?, ?, ?, ?)',
         fieldsToLoad
       )
     })

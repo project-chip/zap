@@ -34,40 +34,39 @@ let sessionId
 let templateContext
 let zclContext
 
-beforeAll(() => {
+beforeAll(async () => {
   let file = env.sqliteTestFile('testgen')
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-    })
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
 }, testUtil.timeout.medium())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
   'Basic test template parsing and generation',
-  () =>
-    genEngine
-      .loadTemplates(db, testUtil.testTemplate.unittest)
-      .then((context) => {
-        expect(context.crc).not.toBeNull()
-        expect(context.templateData).not.toBeNull()
-        expect(context.templateData.name).toEqual('Unit test templates')
-        expect(context.templateData.version).toEqual('unit-test')
-        expect(context.templateData.templates.length).toEqual(templateCount)
-        expect(context.packageId).not.toBeNull()
-        templateContext = context
-      }),
+  async () => {
+    templateContext = await genEngine.loadTemplates(
+      db,
+      testUtil.testTemplate.unittest
+    )
+    expect(templateContext.crc).not.toBeNull()
+    expect(templateContext.templateData).not.toBeNull()
+    expect(templateContext.templateData.name).toEqual('Unit test templates')
+    expect(templateContext.templateData.version).toEqual('unit-test')
+    expect(templateContext.templateData.templates.length).toEqual(templateCount)
+    expect(templateContext.packageId).not.toBeNull()
+  },
   testUtil.timeout.medium()
 )
 
 test(
   'Load ZCL stuff',
-  () =>
-    zclLoader.loadZcl(db, env.builtinSilabsZclMetafile).then((context) => {
-      zclContext = context
-    }),
+  async () => {
+    zclContext = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+  },
   testUtil.timeout.medium()
 )
 
@@ -84,31 +83,29 @@ test(
 
 test(
   'Test dotdot generation',
-  () =>
-    genEngine
-      .generate(
-        db,
-        sessionId,
-        templateContext.packageId,
-        {},
-        {
-          disableDeprecationWarnings: true,
-        }
-      )
-      .then((genResult) => {
-        expect(genResult).not.toBeNull()
-        expect(genResult.partial).toBeFalsy()
-        expect(genResult.content).not.toBeNull()
+  async () => {
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      {
+        disableDeprecationWarnings: true,
+      }
+    )
 
-        let epc = genResult.content['test-fail.out']
-        expect(epc).not.toBeNull()
-        expect(genResult.hasErrors).toBeTruthy()
-        let err = genResult.errors['test-fail.out']
-        expect(
-          err.message.includes('this is where the failure lies')
-        ).toBeTruthy()
-        expect(err.message.includes('line: 3, column: 0')).toBeTruthy()
-        expect(err.message.includes('test-fail.zapt')).toBeTruthy()
-      }),
+    expect(genResult).not.toBeNull()
+    expect(genResult.partial).toBeFalsy()
+    expect(genResult.content).not.toBeNull()
+
+    let epc = genResult.content['test-fail.out']
+    expect(epc).not.toBeNull()
+    expect(genResult.hasErrors).toBeTruthy()
+
+    let err = genResult.errors['test-fail.out']
+    expect(err.message.includes('this is where the failure lies')).toBeTruthy()
+    expect(err.message.includes('line: 3, column: 0')).toBeTruthy()
+    expect(err.message.includes('test-fail.zapt')).toBeTruthy()
+  },
   testUtil.timeout.medium()
 )
