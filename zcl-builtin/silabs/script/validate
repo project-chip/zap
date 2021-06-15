@@ -1,0 +1,7 @@
+#!/bin/bash
+
+LOC=`dirname "$0"`
+
+for A in ${LOC}/../*.xml; do 
+	xmllint --noout --schema ${LOC}/../schema/zcl.xsd  $A
+done
