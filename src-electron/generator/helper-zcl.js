@@ -16,6 +16,7 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const queryEvent = require('../db/query-event.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
 const helperC = require('./helper-c.js')
@@ -179,13 +180,13 @@ function zcl_events(options) {
     .then((packageId) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryZcl.selectEventsByClusterId(
+        return queryEvent.selectEventsByClusterId(
           this.global.db,
           this.id,
           packageId
         )
       } else {
-        return queryZcl.selectAllEvents(this.global.db, packageId)
+        return queryEvent.selectAllEvents(this.global.db, packageId)
       }
     })
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
@@ -867,8 +868,7 @@ function zcl_command_arguments(options) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
         return queryZcl.selectCommandArgumentsByCommandId(
           this.global.db,
-          this.id,
-          packageId
+          this.id
         )
       } else {
         return queryZcl.selectAllCommandArguments(this.global.db, packageId)
@@ -880,6 +880,33 @@ function zcl_command_arguments(options) {
 
   let promise = p.then((args) =>
     templateUtil.collectBlocks(args, options, this)
+  )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Block helper iterating over the event fields inside an event.
+ *
+ * @param {*} options
+ */
+function zcl_event_fields(options) {
+  let eventFields = this.eventField
+  let p
+
+  if (eventFields == null) {
+    p = templateUtil.ensureZclPackageId(this).then((packageId) => {
+      if ('id' in this) {
+        return queryEvent.selectEventFieldsByEventId(this.global.db, this.id)
+      } else {
+        return queryEvent.selectAllEventFields(this.global.db, packageId)
+      }
+    })
+  } else {
+    p = Promise.resolve(eventFields)
+  }
+
+  let promise = p.then((fields) =>
+    templateUtil.collectBlocks(fields, options, this)
   )
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -2570,6 +2597,7 @@ exports.zcl_clusters = zcl_clusters
 exports.zcl_device_types = zcl_device_types
 exports.zcl_commands = zcl_commands
 exports.zcl_events = zcl_events
+exports.zcl_event_fields = zcl_event_fields
 exports.zcl_command_tree = zcl_command_tree
 exports.zcl_attributes = zcl_attributes
 exports.zcl_attributes_client = zcl_attributes_client
@@ -2628,15 +2656,12 @@ exports.isEnum = dep(isEnum, { to: 'is_enum' })
 
 exports.if_command_arguments_exist = if_command_arguments_exist
 exports.if_manufacturing_specific_cluster = if_manufacturing_specific_cluster
-exports.zcl_command_argument_type_to_cli_data_type =
-  zcl_command_argument_type_to_cli_data_type
+exports.zcl_command_argument_type_to_cli_data_type = zcl_command_argument_type_to_cli_data_type
 exports.zcl_string_type_return = zcl_string_type_return
 exports.is_zcl_string = is_zcl_string
-exports.if_command_arguments_have_fixed_length =
-  if_command_arguments_have_fixed_length
+exports.if_command_arguments_have_fixed_length = if_command_arguments_have_fixed_length
 exports.command_arguments_total_length = command_arguments_total_length
-exports.as_underlying_zcl_type_if_command_is_not_fixed_length =
-  as_underlying_zcl_type_if_command_is_not_fixed_length
+exports.as_underlying_zcl_type_if_command_is_not_fixed_length = as_underlying_zcl_type_if_command_is_not_fixed_length
 exports.if_command_argument_always_present = dep(
   if_command_argument_always_present,
   {
@@ -2646,53 +2671,48 @@ exports.if_command_argument_always_present = dep(
 exports.as_underlying_zcl_type_command_argument_always_present = dep(
   as_underlying_zcl_type_command_argument_always_present,
   {
-    to: 'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present',
+    to:
+      'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present',
   }
 )
 exports.if_command_argument_always_present_with_presentif = dep(
   if_command_argument_always_present_with_presentif,
   { to: 'if_ca_always_present_with_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_always_present_with_presentif =
-  dep(as_underlying_zcl_type_command_argument_always_present_with_presentif, {
+exports.as_underlying_zcl_type_command_argument_always_present_with_presentif = dep(
+  as_underlying_zcl_type_command_argument_always_present_with_presentif,
+  {
     to: 'as_underlying_zcl_type_ca_always_present_with_presentif',
-  })
+  }
+)
 exports.if_command_argument_not_always_present_with_presentif = dep(
   if_command_argument_not_always_present_with_presentif,
   { to: 'if_ca_not_always_present_with_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif =
-  dep(
-    as_underlying_zcl_type_command_argument_not_always_present_with_presentif,
-    { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' }
-  )
+exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif = dep(
+  as_underlying_zcl_type_command_argument_not_always_present_with_presentif,
+  { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' }
+)
 exports.if_command_argument_not_always_present_no_presentif = dep(
   if_command_argument_not_always_present_no_presentif,
   { to: 'if_ca_not_always_present_no_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif =
-  dep(as_underlying_zcl_type_command_argument_not_always_present_no_presentif, {
+exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif = dep(
+  as_underlying_zcl_type_command_argument_not_always_present_no_presentif,
+  {
     to: 'as_underlying_zcl_type_ca_not_always_present_no_presentif',
-  })
+  }
+)
 exports.as_generated_default_macro = as_generated_default_macro
 exports.attribute_mask = attribute_mask
 exports.command_mask = command_mask
-exports.format_zcl_string_as_characters_for_generated_defaults =
-  format_zcl_string_as_characters_for_generated_defaults
+exports.format_zcl_string_as_characters_for_generated_defaults = format_zcl_string_as_characters_for_generated_defaults
 exports.if_command_is_fixed_length = if_command_is_fixed_length
-exports.if_command_is_not_fixed_length_but_command_argument_is_always_present =
-  if_command_is_not_fixed_length_but_command_argument_is_always_present
-exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present =
-  as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
-exports.as_underlying_zcl_type_ca_not_always_present_no_presentif =
-  as_underlying_zcl_type_ca_not_always_present_no_presentif
-exports.if_ca_not_always_present_no_presentif =
-  if_ca_not_always_present_no_presentif
-exports.as_underlying_zcl_type_ca_not_always_present_with_presentif =
-  as_underlying_zcl_type_ca_not_always_present_with_presentif
-exports.if_ca_not_always_present_with_presentif =
-  if_ca_not_always_present_with_presentif
-exports.as_underlying_zcl_type_ca_always_present_with_presentif =
-  as_underlying_zcl_type_ca_always_present_with_presentif
-exports.if_ca_always_present_with_presentif =
-  if_ca_always_present_with_presentif
+exports.if_command_is_not_fixed_length_but_command_argument_is_always_present = if_command_is_not_fixed_length_but_command_argument_is_always_present
+exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present = as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
+exports.as_underlying_zcl_type_ca_not_always_present_no_presentif = as_underlying_zcl_type_ca_not_always_present_no_presentif
+exports.if_ca_not_always_present_no_presentif = if_ca_not_always_present_no_presentif
+exports.as_underlying_zcl_type_ca_not_always_present_with_presentif = as_underlying_zcl_type_ca_not_always_present_with_presentif
+exports.if_ca_not_always_present_with_presentif = if_ca_not_always_present_with_presentif
+exports.as_underlying_zcl_type_ca_always_present_with_presentif = as_underlying_zcl_type_ca_always_present_with_presentif
+exports.if_ca_always_present_with_presentif = if_ca_always_present_with_presentif

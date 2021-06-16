@@ -185,6 +185,7 @@ test(
           zclId.includes('// struct: WwahClusterStatusToUseTC\nLast item')
         ).toBeTruthy()
         expect(zclId.includes('// event: 0x0001 HelloEvent')).toBeTruthy()
+        expect(zclId.includes('-> field: 0x0002 arg2 INT32U')).toBeTruthy()
 
         let accumulator = genResult.content['accumulator.out']
         expect(accumulator.includes('Iteration: 19 out of 20')).toBeTruthy()

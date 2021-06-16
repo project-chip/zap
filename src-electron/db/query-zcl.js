@@ -736,35 +736,6 @@ ORDER BY CODE`,
 }
 
 /**
- * Retrieves events for a given cluster Id.
- *
- * @param {*} db
- * @param {*} clusterId
- * @returns promise of an array of event rows, which represent per-cluster events.
- */
-async function selectEventsByClusterId(db, clusterId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  EVENT_ID,
-  CLUSTER_REF,
-  CODE,
-  MANUFACTURER_CODE,
-  NAME,
-  DESCRIPTION,
-  SIDE,
-  PRIORITY
-FROM EVENT
-WHERE CLUSTER_REF = ?
-ORDER BY CODE`,
-      [clusterId]
-    )
-    .then((rows) => rows.map(dbMapping.map.event))
-}
-
-/**
  * This method returns all commands, joined with their
  * respective arguments and clusters, so it's a long query.
  * If you are just looking for a quick query across all commands
@@ -834,28 +805,6 @@ ORDER BY CODE`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
-}
-
-async function selectAllEvents(db, packageId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  EVENT_ID,
-  CLUSTER_REF,
-  CODE,
-  MANUFACTURER_CODE,
-  NAME,
-  DESCRIPTION,
-  SIDE,
-  PRIORITY
-FROM EVENT
-WHERE PACKAGE_REF = ?
-ORDER BY CODE`,
-      [packageId]
-    )
-    .then((rows) => rows.map(dbMapping.map.event))
 }
 
 async function selectAllGlobalCommands(db, packageId) {
@@ -2200,11 +2149,9 @@ exports.selectAttributeById = selectAttributeById
 exports.selectAttributeByAttributeIdAndClusterRef = selectAttributeByAttributeIdAndClusterRef
 exports.selectAllAttributes = selectAllAttributes
 exports.selectAllAttributesBySide = selectAllAttributesBySide
-exports.selectCommandById = selectCommandById
 exports.selectCommandsByClusterId = selectCommandsByClusterId
-exports.selectEventsByClusterId = selectEventsByClusterId
 exports.selectAllCommands = selectAllCommands
-exports.selectAllEvents = selectAllEvents
+exports.selectCommandById = selectCommandById
 exports.selectAllGlobalCommands = selectAllGlobalCommands
 exports.selectAllClusterCommands = selectAllClusterCommands
 exports.selectAllCommandArguments = selectAllCommandArguments

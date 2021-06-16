@@ -101,6 +101,15 @@ exports.map = {
     }
   },
 
+  eventField: (x) => {
+    if (x == null) return undefined
+    return {
+      fieldIdentifier: x.FIELD_IDENTIFIER,
+      name: x.NAME,
+      type: x.TYPE,
+    }
+  },
+
   event: (x) => {
     if (x == null) return undefined
     return {
