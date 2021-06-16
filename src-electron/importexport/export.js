@@ -24,10 +24,8 @@ const fs = require('fs')
 const path = require('path')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
-const queryConfig = require('../db/query-config.js')
 const queryImpExp = require('../db/query-impexp.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const util = require('../util/util.js')
 
 async function exportEndpointType(db, endpointType) {
   let data = await queryImpExp.exportClustersFromEndpointType(
