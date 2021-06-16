@@ -1,5 +1,5 @@
 {
-  "featureLevel": 34,
+  "featureLevel": 39,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -21,12 +21,6 @@
       "path": "../../../zcl-builtin/silabs/zcl.json",
       "version": "ZCL Test Data",
       "type": "zcl-properties"
-    },
-    {
-      "pathRelativity": "relativeToZap",
-      "path": "../../../../super/protocol/zigbee/app/framework/gen-template/gen-templates.json",
-      "version": "zigbee-v0",
-      "type": "gen-templates-json"
     },
     {
       "pathRelativity": "relativeToZap",
@@ -7750,7 +7744,7 @@
     {
       "endpointTypeName": "Primary",
       "endpointTypeIndex": 0,
-      "profileId": 65535,
+      "profileId": 260,
       "endpointId": 1,
       "networkId": 0,
       "endpointVersion": 0,

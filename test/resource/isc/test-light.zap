@@ -1,5 +1,5 @@
 {
-  "featureLevel": 34,
+  "featureLevel": 39,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -21,12 +21,6 @@
       "path": "../../../zcl-builtin/silabs/zcl.json",
       "version": "ZCL Test Data",
       "type": "zcl-properties"
-    },
-    {
-      "pathRelativity": "relativeToZap",
-      "path": "../../../../super/protocol/zigbee/app/framework/gen-template/gen-templates.json",
-      "version": "zigbee-v0",
-      "type": "gen-templates-json"
     },
     {
       "pathRelativity": "relativeToZap",
@@ -4119,7 +4113,7 @@
     {
       "endpointTypeName": "Centralized",
       "endpointTypeIndex": 0,
-      "profileId": 260,
+      "profileId": -1,
       "endpointId": 1,
       "networkId": 0,
       "endpointVersion": 1,
@@ -4137,7 +4131,7 @@
     {
       "endpointTypeName": "GreenPower",
       "endpointTypeIndex": 2,
-      "profileId": 41440,
+      "profileId": -1,
       "endpointId": 242,
       "networkId": 0,
       "endpointVersion": 1,
