@@ -25,6 +25,7 @@ const dbMapping = require('./db-mapping.js')
 const queryPackage = require('./query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
+const queryCommand = require('./query-command.js')
 const restApi = require('../../src-shared/rest-api.js')
 const _ = require('lodash')
 
@@ -708,7 +709,10 @@ async function resolveCommandState(db, endpointTypeId, deviceCommand) {
   )
   if (deviceCommand.commandRef == null) return null
 
-  let command = await queryZcl.selectCommandById(db, deviceCommand.commandRef)
+  let command = await queryCommand.selectCommandById(
+    db,
+    deviceCommand.commandRef
+  )
   if (command == null) return null
 
   let promises = []
@@ -765,7 +769,7 @@ async function resolveDefaultDeviceTypeCommands(
 
 async function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
   let clustersPromises = clusters.map((cluster) =>
-    queryZcl
+    queryCommand
       .selectCommandsByClusterId(db, cluster.clusterRef)
       .then((commands) =>
         Promise.all(

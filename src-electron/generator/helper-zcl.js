@@ -16,6 +16,7 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const queryCommand = require('../db/query-command.js')
 const queryEvent = require('../db/query-event.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
@@ -152,13 +153,13 @@ function zcl_commands(options) {
     .then((packageId) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryZcl.selectCommandsByClusterId(
+        return queryCommand.selectCommandsByClusterId(
           this.global.db,
           this.id,
           packageId
         )
       } else {
-        return queryZcl.selectAllCommands(this.global.db, packageId)
+        return queryCommand.selectAllCommands(this.global.db, packageId)
       }
     })
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
@@ -292,7 +293,7 @@ function zcl_global_commands(options) {
   let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
-      queryZcl.selectAllGlobalCommands(this.global.db, packageId)
+      queryCommand.selectAllGlobalCommands(this.global.db, packageId)
     )
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
   return templateUtil.templatePromise(this.global, promise)
@@ -871,7 +872,7 @@ function zcl_command_arguments(options) {
           this.id
         )
       } else {
-        return queryZcl.selectAllCommandArguments(this.global.db, packageId)
+        return queryCommand.selectAllCommandArguments(this.global.db, packageId)
       }
     })
   } else {

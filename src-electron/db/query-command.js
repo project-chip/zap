@@ -21,6 +21,7 @@
  * @module DB API: command queries.
  */
 const dbApi = require('./db-api.js')
+const dbMapping = require('./db-mapping.js')
 
 /**
  * Returns the count of the number of cluster commands with cli for a cluster
@@ -292,8 +293,159 @@ ${mfgSpecificString} GROUP BY COMMAND.NAME`
     .then((rows) => rows.map(mapFunction))
 }
 
+async function selectCommandById(db, id) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  PACKAGE_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  RESPONSE_REF
+FROM COMMAND
+  WHERE COMMAND_ID = ?`,
+      [id]
+    )
+    .then(dbMapping.map.command)
+}
+
+/**
+ * Retrieves commands for a given cluster Id.
+ * This method DOES NOT retrieve global commands, since those have a cluster_ref = null
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @returns promise of an array of command rows, which represent per-cluster commands, excluding global commands.
+ */
+async function selectCommandsByClusterId(db, clusterId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL
+FROM COMMAND WHERE CLUSTER_REF = ?
+ORDER BY CODE`,
+      [clusterId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
+async function selectAllCommands(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  RESPONSE_REF
+FROM COMMAND
+  WHERE PACKAGE_REF = ?
+ORDER BY CODE`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
+async function selectAllGlobalCommands(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  RESPONSE_REF
+FROM COMMAND
+WHERE CLUSTER_REF IS NULL AND PACKAGE_REF = ?
+ORDER BY CODE`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
+async function selectAllClusterCommands(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  RESPONSE_REF
+FROM COMMAND
+WHERE CLUSTER_REF IS NOT NULL AND PACKAGE_REF = ?
+ORDER BY CODE`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
+async function selectAllCommandArguments(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ARG.COMMAND_REF,
+  COMMAND_ARG.NAME,
+  COMMAND_ARG.TYPE,
+  COMMAND_ARG.IS_ARRAY,
+  COMMAND_ARG.PRESENT_IF,
+  COMMAND_ARG.INTRODUCED_IN_REF,
+  COMMAND_ARG.REMOVED_IN_REF,
+  COMMAND_ARG.COUNT_ARG
+FROM COMMAND_ARG, COMMAND
+WHERE
+  COMMAND_ARG.COMMAND_REF = COMMAND.COMMAND_ID
+  AND COMMAND.PACKAGE_REF = ?
+ORDER BY COMMAND_REF, FIELD_IDENTIFIER`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.commandArgument))
+}
+
 exports.selectCliCommandCountFromEndpointTypeCluster = selectCliCommandCountFromEndpointTypeCluster
 exports.selectCliCommandsFromCluster = selectCliCommandsFromCluster
 exports.selectAllAvailableClusterCommandDetailsFromEndpointTypes = selectAllAvailableClusterCommandDetailsFromEndpointTypes
 exports.selectAllClustersWithIncomingCommands = selectAllClustersWithIncomingCommands
 exports.selectAllIncomingCommandsForCluster = selectAllIncomingCommandsForCluster
+exports.selectAllCommands = selectAllCommands
+exports.selectCommandsByClusterId = selectCommandsByClusterId
+exports.selectCommandById = selectCommandById
+exports.selectAllGlobalCommands = selectAllGlobalCommands
+exports.selectAllClusterCommands = selectAllClusterCommands
+exports.selectAllCommandArguments = selectAllCommandArguments
