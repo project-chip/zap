@@ -444,7 +444,7 @@ function zcl_command_arguments_count(commandId) {
   let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
-      queryZcl.selectCommandArgumentsCountByCommandId(
+      queryCommand.selectCommandArgumentsCountByCommandId(
         this.global.db,
         commandId,
         packageId
@@ -474,7 +474,7 @@ function if_command_arguments_exist(
   let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
-      let res = queryZcl.selectCommandArgumentsCountByCommandId(
+      let res = queryCommand.selectCommandArgumentsCountByCommandId(
         this.global.db,
         commandId,
         packageId
@@ -509,7 +509,7 @@ function if_command_arguments_have_fixed_length_with_current_context(
   return templateUtil
     .ensureZclPackageId(currentContext)
     .then((packageId) =>
-      queryZcl.selectCommandArgumentsByCommandId(
+      queryCommand.selectCommandArgumentsByCommandId(
         currentContext.global.db,
         commandId,
         packageId
@@ -582,7 +582,7 @@ function if_command_is_fixed_length(
   return templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
-      queryZcl.selectCommandArgumentsByCommandId(
+      queryCommand.selectCommandArgumentsByCommandId(
         this.global.db,
         commandId,
         packageId
@@ -637,7 +637,7 @@ function if_command_is_not_fixed_length_but_command_argument_is_always_present(
   return templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
-      queryZcl.selectCommandArgumentsByCommandId(
+      queryCommand.selectCommandArgumentsByCommandId(
         this.global.db,
         command,
         packageId
@@ -707,7 +707,7 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
   return templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
-      queryZcl.selectCommandArgumentsByCommandId(
+      queryCommand.selectCommandArgumentsByCommandId(
         this.global.db,
         command,
         packageId
@@ -810,7 +810,7 @@ function command_arguments_total_length(commandId) {
   return templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
-      let res = queryZcl.selectCommandArgumentsByCommandId(
+      let res = queryCommand.selectCommandArgumentsByCommandId(
         this.global.db,
         commandId,
         packageId
@@ -867,7 +867,7 @@ function zcl_command_arguments(options) {
     p = templateUtil.ensureZclPackageId(this).then((packageId) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryZcl.selectCommandArgumentsByCommandId(
+        return queryCommand.selectCommandArgumentsByCommandId(
           this.global.db,
           this.id
         )

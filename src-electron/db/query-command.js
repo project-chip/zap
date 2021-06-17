@@ -438,6 +438,56 @@ ORDER BY COMMAND_REF, FIELD_IDENTIFIER`,
     .then((rows) => rows.map(dbMapping.map.commandArgument))
 }
 
+/**
+ * Get the number of command arguments for a command
+ *
+ * @param {*} db
+ * @param {*} commandId
+ * @param {*} [packageId=null]
+ * @returns A promise with number of command arguments for a command
+ */
+async function selectCommandArgumentsCountByCommandId(db, commandId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT COUNT(*) AS count
+FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
+      [commandId]
+    )
+    .then((res) => res[0].count)
+}
+
+/**
+ * Extract the command arguments for a command
+ *
+ * @param {*} db
+ * @param {*} commandId
+ * @param {*} [packageId=null]
+ * @returns A promise with command arguments for a command
+ */
+async function selectCommandArgumentsByCommandId(db, commandId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_REF,
+  NAME,
+  TYPE,
+  IS_ARRAY,
+  PRESENT_IF,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF,
+  COUNT_ARG
+FROM COMMAND_ARG
+WHERE COMMAND_REF = ?
+ORDER BY FIELD_IDENTIFIER`,
+      [commandId]
+    )
+    .then((rows) => rows.map(dbMapping.map.commandArgument))
+}
+
 exports.selectCliCommandCountFromEndpointTypeCluster = selectCliCommandCountFromEndpointTypeCluster
 exports.selectCliCommandsFromCluster = selectCliCommandsFromCluster
 exports.selectAllAvailableClusterCommandDetailsFromEndpointTypes = selectAllAvailableClusterCommandDetailsFromEndpointTypes
@@ -449,3 +499,6 @@ exports.selectCommandById = selectCommandById
 exports.selectAllGlobalCommands = selectAllGlobalCommands
 exports.selectAllClusterCommands = selectAllClusterCommands
 exports.selectAllCommandArguments = selectAllCommandArguments
+exports.selectCommandArgumentsCountByCommandId = selectCommandArgumentsCountByCommandId
+
+exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
