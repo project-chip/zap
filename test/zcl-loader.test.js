@@ -21,6 +21,7 @@
 const dbApi = require('../src-electron/db/db-api.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
+const queryCommand = require('../src-electron/db/query-command.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const env = require('../src-electron/util/env.js')
@@ -141,7 +142,7 @@ test(
 
       expect(rows.length).toBe(3)
 
-      let commandTree = await queryZcl.selectCommandTree(db, packageId)
+      let commandTree = await queryCommand.selectCommandTree(db, packageId)
       let found = false
       commandTree.forEach((c) => {
         if (c.clusterCode == 0 && c.code == 0) found = true

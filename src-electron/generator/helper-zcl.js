@@ -203,7 +203,9 @@ function zcl_events(options) {
 function zcl_command_tree(options) {
   let promise = templateUtil
     .ensureZclPackageId(this)
-    .then((packageId) => queryZcl.selectCommandTree(this.global.db, packageId))
+    .then((packageId) =>
+      queryCommand.selectCommandTree(this.global.db, packageId)
+    )
     .then((cmds) => {
       // Now reduce the array by collecting together arguments.
       let reducedCommands = []
@@ -1712,7 +1714,7 @@ function if_is_enum(type, options) {
  * @returns boolean
  */
 function isClient(side) {
-  return 0 == side.localeCompare('client')
+  return 0 == side.localeCompare(dbEnum.side.client)
 }
 
 /**
@@ -1722,7 +1724,7 @@ function isClient(side) {
  * @returns boolean
  */
 function isServer(side) {
-  return 0 == side.localeCompare('server')
+  return 0 == side.localeCompare(dbEnum.side.server)
 }
 
 function isStrEqual(str1, str2) {

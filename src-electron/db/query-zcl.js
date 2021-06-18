@@ -683,55 +683,6 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-/**
- * This method returns all commands, joined with their
- * respective arguments and clusters, so it's a long query.
- * If you are just looking for a quick query across all commands
- * use the selectAllCommands query.
- *
- * @param {*} db
- * @param {*} packageId
- * @returns promise that resolves into a list of all commands and arguments.
- */
-async function selectCommandTree(db, packageId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  CMD.COMMAND_ID,
-  CMD.CLUSTER_REF,
-  CMD.CODE,
-  CMD.MANUFACTURER_CODE,
-  CMD.NAME,
-  CMD.DESCRIPTION,
-  CMD.SOURCE,
-  CMD.IS_OPTIONAL,
-  CMD.RESPONSE_REF,
-  CL.CODE AS CLUSTER_CODE,
-  CL.NAME AS CLUSTER_NAME,
-  CA.NAME AS ARG_NAME,
-  CA.TYPE AS ARG_TYPE,
-  CA.IS_ARRAY AS ARG_IS_ARRAY,
-  CA.PRESENT_IF AS ARG_PRESENT_IF,
-  CA.COUNT_ARG AS ARG_COUNT_ARG
-FROM 
-  COMMAND AS CMD
-LEFT JOIN
-  CLUSTER AS CL
-ON
-  CMD.CLUSTER_REF = CL.CLUSTER_ID
-LEFT JOIN
-  COMMAND_ARG AS CA
-ON
-  CMD.COMMAND_ID = CA.COMMAND_REF
-WHERE CMD.PACKAGE_REF = ?
-ORDER BY CL.CODE, CMD.CODE, CA.FIELD_IDENTIFIER`,
-      [packageId]
-    )
-    .then((rows) => rows.map(dbMapping.map.command))
-}
-
 async function selectEndpointType(db, id) {
   return dbApi
     .dbGet(
@@ -1964,7 +1915,6 @@ exports.selectDeviceTypeAttributesByDeviceTypeRef = selectDeviceTypeAttributesBy
 exports.selectDeviceTypeCommandsByDeviceTypeRef = selectDeviceTypeCommandsByDeviceTypeRef
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 exports.updateCommandRequestResponseReferences = updateCommandRequestResponseReferences
-exports.selectCommandTree = selectCommandTree
 exports.selectEndpointType = selectEndpointType
 exports.selectAllAtomics = selectAllAtomics
 exports.selectAtomicSizeFromType = selectAtomicSizeFromType
