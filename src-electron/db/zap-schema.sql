@@ -268,11 +268,29 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
  */
 DROP TABLE IF EXISTS "GLOBAL_ATTRIBUTE_DEFAULT";
 CREATE TABLE IF NOT EXISTS "GLOBAL_ATTRIBUTE_DEFAULT" (
+  "GLOBAL_ATTRIBUTE_DEFAULT_ID" integer primary key autoincrement,
   "CLUSTER_REF" integer NOT NULL,
   "ATTRIBUTE_REF" integer NOT NULL,
   "DEFAULT_VALUE" text,
   foreign key(CLUSTER_REF) references CLUSTER(CLUSTER_ID),
   foreign key(ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID)
+);
+/*
+ GLOBAL_ATTRIBUTE_BIT is carrying information about the mappings of a 
+ bit for a given global attribute value. Example are FeatureMap global
+ attributes in Matter implementation. For that case, the value
+ of global attribute carries both the value, as well as the meaning
+ of which bit corresponds to whith TAG. Hence this separate table that
+ links those.
+ */
+DROP TABLE IF EXISTS "GLOBAL_ATTRIBUTE_BIT";
+CREATE TABLE IF NOT EXISTS "GLOBAL_ATTRIBUTE_BIT" (
+  "GLOBAL_ATTRIBUTE_DEFAULT_REF" integer NOT NULL,
+  "BIT" integer NOT NULL,
+  "VALUE" integer,
+  "TAG_REF" integer NOT NULL,
+  foreign key(GLOBAL_ATTRIBUTE_DEFAULT_REF) references GLOBAL_ATTRIBUTE_DEFAULT(GLOBAL_ATTRIBUTE_DEFAULT_ID),
+  foreign key(TAG_REF) references TAG(TAG_ID)
 );
 /*
  ATOMIC table contains the atomic types loaded from packages
@@ -413,6 +431,17 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_COMMAND" (
   "COMMAND_NAME" text,
   foreign key (DEVICE_TYPE_CLUSTER_REF) references DEVICE_TYPE_CLUSTER(DEVICE_TYPE_CLUSTER_ID),
   foreign key (COMMAND_REF) references COMMAND(COMMAND_ID)
+);
+/*
+ TAG table contains tags. They can be used for access control and feature maps.
+ */
+DROP TABLE IF EXISTS "TAG";
+CREATE TABLE IF NOT EXISTS "TAG" (
+  "TAG_ID" integer primary key autoincrement,
+  "PACKAGE_REF" integer,
+  "NAME" text,
+  "DESCRIPTION" text,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*
  *
