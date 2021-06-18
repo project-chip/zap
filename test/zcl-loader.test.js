@@ -99,6 +99,8 @@ test(
       expect(x).toEqual(126)
       x = await testQuery.selectCountFrom(db, 'SPEC')
       expect(x).toEqual(testUtil.totalSpecCount)
+      x = await testQuery.selectCountFrom(db, 'TAG')
+      expect(x).toEqual(1)
 
       x = await dbApi.dbAll(
         db,

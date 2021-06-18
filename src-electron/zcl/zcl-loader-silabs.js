@@ -528,6 +528,27 @@ async function processGlobals(db, filePath, packageId, data) {
   )
 }
 
+function prepareTag(tag) {
+  return {
+    name: tag.$.name,
+    description: tag.$.description,
+  }
+}
+
+/**
+ * Processes the tags in the XML.
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} tags
+ */
+async function processTags(db, filePath, packageId, tags) {
+  // <tag name="AB" description="Description"/>
+  env.logDebug(`${filePath}, ${packageId}: ${tags.length} tags.`)
+  let preparedTags = tags.map((x) => prepareTag(x))
+  return queryLoader.insertTags(db, packageId, preparedTags)
+}
+
 /**
  * Convert domain from XMl to domain for DB.
  *
@@ -739,6 +760,11 @@ async function processParsedZclData(db, argument) {
     let promisesStep2 = []
     let promisesStep3 = []
     if ('configurator' in data) {
+      if ('tag' in data.configurator) {
+        promisesStep1.push(
+          processTags(db, filePath, packageId, data.configurator.tag)
+        )
+      }
       if ('atomic' in data.configurator) {
         promisesStep2.push(
           processAtomics(db, filePath, packageId, data.configurator.atomic)

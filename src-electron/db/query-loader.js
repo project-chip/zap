@@ -423,6 +423,22 @@ async function insertClusters(db, packageId, data) {
 }
 
 /**
+ * Inserts tags into the database.
+ * data is an array of objects, containing 'name' and 'description'
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise that resolves with array of rowids.
+ */
+async function insertTags(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO TAG (PACKAGE_REF, NAME, DESCRIPTION) VALUES (?, ?, ?)',
+    data.map((tag) => [packageId, tag.name, tag.description])
+  )
+}
+
+/**
  *
  * Inserts domains into the database.
  * data is an array of objects that must contain: name
@@ -819,3 +835,4 @@ exports.insertStructs = insertStructs
 exports.insertEnums = insertEnums
 exports.insertBitmaps = insertBitmaps
 exports.insertDeviceTypes = insertDeviceTypes
+exports.insertTags = insertTags
