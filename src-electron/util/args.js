@@ -20,6 +20,7 @@ const path = require('path')
 const os = require('os')
 const fs = require('fs')
 const restApi = require(`../../src-shared/rest-api.js`)
+const commonUrl = require('../../src-shared/common-url.js')
 const env = require('./env.js')
 
 function environmentVariablesDescription() {
@@ -173,7 +174,7 @@ function processCommandLineArguments(argv) {
     .epilogue(
       `Environment variables:
 ${environmentVariablesDescription()}
-For more information, see https://github.com/project-chip/zap`
+For more information, see ${commonUrl.projectUrl}`
     )
     .wrap(null)
     .parse(argv)
