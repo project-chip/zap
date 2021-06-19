@@ -2,7 +2,10 @@ Test for feature map generation:
 
 {{#zcl_clusters}}
 Cluster: {{label}}
-{{#zcl_attribute_default code="0xFFFC"}}
-
-{{/zcl_attribute_default}}
+{{#attribute_default code="0xFFFC"}}
+- feature bits for the feature map attribute:
+{{#feature_bits}}
+    {{index}}: {{bit}} {{tag}} {{description}}
+{{/feature_bits}}
+{{/attribute_default}}
 {{/zcl_clusters}}

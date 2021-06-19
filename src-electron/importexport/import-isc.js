@@ -18,6 +18,7 @@
 const path = require('path')
 const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
+const queryAttribute = require('../db/query-attribute.js')
 const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
@@ -387,7 +388,7 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
         at.clusterCode,
         at.mfgCode
       )
-      let attribute = await queryZcl.selectAttributeByCode(
+      let attribute = await queryAttribute.selectAttributeByCode(
         db,
         packageId,
         at.clusterCode,

@@ -21,6 +21,7 @@
  * @module DB API: attribute queries.
  */
 const dbApi = require('./db-api.js')
+const dbMapping = require('./db-mapping.js')
 
 function attributeExportMapping(x) {
   return {
@@ -678,6 +679,54 @@ async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
     .then((rows) => rows.map(mapFunction))
 }
 
+async function selectAttributeByCode(
+  db,
+  packageId,
+  clusterCode,
+  attributeCode,
+  manufacturerCode
+) {
+  let manufacturerString
+  if (manufacturerCode == null || manufacturerCode == 0) {
+    manufacturerString = ' AND C.MANUFACTURER_CODE IS NULL'
+  } else {
+    manufacturerString =
+      ' AND C.MANUFACTURER_CODE IS NULL OR C.MANUFACTURER_CODE = ' +
+      manufacturerCode
+  }
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  A.ATTRIBUTE_ID,
+  A.CLUSTER_REF,
+  A.CODE,
+  A.MANUFACTURER_CODE,
+  A.NAME,
+  A.TYPE,
+  A.SIDE,
+  A.DEFINE,
+  A.MIN,
+  A.MAX,
+  A.IS_WRITABLE,
+  A.DEFAULT_VALUE,
+  A.IS_OPTIONAL,
+  A.IS_REPORTABLE,
+  A.IS_SCENE_REQUIRED,
+  A.ARRAY_TYPE
+FROM ATTRIBUTE AS A
+INNER JOIN CLUSTER AS C
+ON C.CLUSTER_ID = A.CLUSTER_REF
+WHERE C.CODE = ?
+  AND A.CODE = ?
+  AND A.PACKAGE_REF = ?
+  ${manufacturerString}`,
+      [clusterCode, attributeCode, packageId]
+    )
+    .then(dbMapping.map.attribute)
+}
+
 /**
  * Retrieves the global attribute data for a given attribute code.
  *
@@ -718,3 +767,4 @@ exports.selectAttributeDetailsFromEnabledClusters = selectAttributeDetailsFromEn
 exports.selectAttributeBoundDetails = selectAttributeBoundDetails
 exports.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints = selectReportableAttributeDetailsFromEnabledClustersAndEndpoints
 exports.selectGlobalAttributeDefaults = selectGlobalAttributeDefaults
+exports.selectAttributeByCode = selectAttributeByCode

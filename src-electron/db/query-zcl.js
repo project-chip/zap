@@ -471,53 +471,6 @@ WHERE CLUSTER.CODE = ?
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
-async function selectAttributeByCode(
-  db,
-  packageId,
-  clusterCode,
-  attributeCode,
-  manufacturerCode
-) {
-  let manufacturerString
-  if (manufacturerCode == null || manufacturerCode == 0) {
-    manufacturerString = ' AND CLUSTER.MANUFACTURER_CODE IS NULL'
-  } else {
-    manufacturerString =
-      ' AND CLUSTER.MANUFACTURER_CODE IS NULL OR CLUSTER.MANUFACTURER_CODE = ' +
-      manufacturerCode
-  }
-  return dbApi
-    .dbGet(
-      db,
-      `
-SELECT
-  ATTRIBUTE.ATTRIBUTE_ID,
-  ATTRIBUTE.CLUSTER_REF,
-  ATTRIBUTE.CODE,
-  ATTRIBUTE.MANUFACTURER_CODE,
-  ATTRIBUTE.NAME,
-  ATTRIBUTE.TYPE,
-  ATTRIBUTE.SIDE,
-  ATTRIBUTE.DEFINE,
-  ATTRIBUTE.MIN,
-  ATTRIBUTE.MAX,
-  ATTRIBUTE.IS_WRITABLE,
-  ATTRIBUTE.DEFAULT_VALUE,
-  ATTRIBUTE.IS_OPTIONAL,
-  ATTRIBUTE.IS_REPORTABLE,
-  ATTRIBUTE.IS_SCENE_REQUIRED,
-  ATTRIBUTE.ARRAY_TYPE
-FROM ATTRIBUTE, CLUSTER
-WHERE CLUSTER.CODE = ?
-  AND CLUSTER.CLUSTER_ID = ATTRIBUTE.CLUSTER_REF
-  AND ATTRIBUTE.CODE = ?
-  AND ATTRIBUTE.PACKAGE_REF = ?
-  ${manufacturerString}`,
-      [clusterCode, attributeCode, packageId]
-    )
-    .then(dbMapping.map.attribute)
-}
-
 async function selectAttributeById(db, id) {
   return dbApi
     .dbGet(
@@ -1924,7 +1877,6 @@ exports.selectBitmapByName = selectBitmapByName
 exports.selectEnumByName = selectEnumByName
 exports.selectStructByName = selectStructByName
 exports.determineType = determineType
-exports.selectAttributeByCode = selectAttributeByCode
 exports.selectEndpointDetailsFromAddedEndpoints = selectEndpointDetailsFromAddedEndpoints
 exports.selectAllClustersDetailsFromEndpointTypes = selectAllClustersDetailsFromEndpointTypes
 
