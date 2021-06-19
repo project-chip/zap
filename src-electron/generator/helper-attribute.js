@@ -16,6 +16,7 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const queryAttribute = require('../db/query-attribute.js')
 const queryCommand = require('../db/query-command.js')
 const queryEvent = require('../db/query-event.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -24,27 +25,52 @@ const helperC = require('./helper-c.js')
 const env = require('../util/env.js')
 const types = require('../util/types.js')
 
+async function featureBits(options) {
+  if ('featureBits' in this) {
+    let p = templateUtil.collectBlocks(this.featureBits, options, this)
+    return templateUtil.templatePromise(this.global, p)
+  } else {
+    return ''
+  }
+}
+
 /**
  * Valid within a cluster context, requires code.
  *
  * @returns Produces attribute defaults.
  */
-async function zclAttributeDefault(options) {
+async function attributeDefault(options) {
+  if (!('id' in this)) throw new Error('Requires an id inside the context.')
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
   let code = parseInt(options.hash.code)
 
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
-      if ('id' in this) {
-        return []
-      } else {
-        throw new Error('Requires an id inside the context.')
-      }
-    })
-    .then((atts) => templateUtil.collectBlocks(atts, options, this))
-  return templateUtil.templatePromise(this.global, promise)
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let attr = await queryAttribute.selectAttributeByCode(
+    this.global.db,
+    packageId,
+    this.id,
+    code,
+    this.mfgCode
+  )
+  if (attr == null) {
+    // Check if it's global attribute
+    attr = await queryAttribute.selectAttributeByCode(
+      this.global.db,
+      packageId,
+      null,
+      code,
+      this.mfgCode
+    )
+  }
+  let defs = await queryAttribute.selectGlobalAttributeDefaults(
+    this.global.db,
+    this.id,
+    attr.id
+  )
+  let p = templateUtil.collectBlocks([defs], options, this)
+  return templateUtil.templatePromise(this.global, p)
 }
 
-exports.zcl_attribute_default = zclAttributeDefault
+exports.global_attribute_default = attributeDefault
+exports.feature_bits = featureBits

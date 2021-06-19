@@ -58,6 +58,36 @@ test('Validate loading', async () => {
   expect(c).toBe(4)
   c = await testQuery.selectCountFrom(db, 'GLOBAL_ATTRIBUTE_BIT')
   expect(c).toBe(8) // 4 feature bits per each client/server of 1 cluster
+
+  let attr = await queryAttribute.selectAttributeByCode(
+    db,
+    zclPackageId,
+    null,
+    0xfffc,
+    null
+  )
+  expect(attr).not.toBe(null)
+
+  let cluster = await queryZcl.selectClusterByCode(
+    db,
+    zclPackageId,
+    0x9999,
+    null
+  )
+  expect(cluster).not.toBe(null)
+
+  let defs = await queryAttribute.selectGlobalAttributeDefaults(
+    db,
+    cluster.id,
+    attr.id
+  )
+  expect(defs).not.toBeNull()
+  expect(defs.defaultValue).toBe('0x0055')
+  expect(defs.featureBits.length).toBe(4)
+  expect(defs.featureBits[0].bit).toBe(0)
+  expect(defs.featureBits[1].bit).toBe(2)
+  expect(defs.featureBits[2].bit).toBe(4)
+  expect(defs.featureBits[3].bit).toBe(6)
 })
 
 test(
@@ -88,6 +118,23 @@ test(
   testUtil.timeout.short()
 )
 
+test(
+  'Initialize session packages',
+  async () => {
+    let packages = await utilJs.initializeSessionPackage(
+      templateContext.db,
+      templateContext.sessionId,
+      {
+        zcl: env.builtinMatterZclMetafile,
+        template: testUtil.testTemplate.matter,
+      }
+    )
+
+    expect(packages.length).toBe(2)
+  },
+  testUtil.timeout.short()
+)
+
 test('Load a file', async () => {
   await importJs.importDataFromFile(db, testFile, {
     sessionId: templateContext.sessionId,
@@ -113,6 +160,20 @@ test(
         expect(
           simpleTest.includes(
             'Cluster Name : Groups+Command Name : RemoveAllGroups'
+          )
+        ).toBeTruthy()
+
+        let featureMap = genResult.content['feature-map.h']
+        expect(featureMap).not.toBeNull()
+        expect(
+          featureMap.includes(
+            `Cluster: Network Provisioning
+- default value: 0x0055
+- feature bits for the feature map attribute:
+    0: Bit 0 is assigned to tag F0 => value = 1
+    1: Bit 2 is assigned to tag F1 => value = 0
+    2: Bit 4 is assigned to tag F2 => value = 1
+    3: Bit 6 is assigned to tag F3 => value = 0`
           )
         ).toBeTruthy()
       }),

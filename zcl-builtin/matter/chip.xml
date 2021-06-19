@@ -69,9 +69,9 @@ limitations under the License.
         <server tick="false" init="false">true</server>
         <globalAttribute side="either" code="0xFFFC" value="0x0055">
           <featureBit tag="F0" bit="0">true</featureBit>
-          <featureBit tag="F1" bit="2">true</featureBit>
+          <featureBit tag="F1" bit="2">false</featureBit>
           <featureBit tag="F2" bit="4">true</featureBit>
-          <featureBit tag="F3" bit="6">true</featureBit>
+          <featureBit tag="F3" bit="6">false</featureBit>
         </globalAttribute>
         <command source="client" code="0x01" name="ScanNetworks" optional="false" cli="chip nwprov scannetworks">
             <description>TODO</description>

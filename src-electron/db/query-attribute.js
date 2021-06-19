@@ -686,13 +686,40 @@ async function selectAttributeByCode(
   attributeCode,
   manufacturerCode
 ) {
-  let manufacturerString
-  if (manufacturerCode == null || manufacturerCode == 0) {
-    manufacturerString = ' AND C.MANUFACTURER_CODE IS NULL'
-  } else {
-    manufacturerString =
-      ' AND C.MANUFACTURER_CODE IS NULL OR C.MANUFACTURER_CODE = ' +
+  if (clusterCode == null) {
+    return selectGlobalAttributeByCode(
+      db,
+      packageId,
+      attributeCode,
       manufacturerCode
+    )
+  } else {
+    return selectNonGlobalAttributeByCode(
+      db,
+      packageId,
+      clusterCode,
+      attributeCode,
+      manufacturerCode
+    )
+  }
+}
+
+async function selectNonGlobalAttributeByCode(
+  db,
+  packageId,
+  clusterCode,
+  attributeCode,
+  manufacturerCode
+) {
+  let manufacturerCondition
+  let arg = [packageId, attributeCode, clusterCode]
+
+  if (manufacturerCode == null || manufacturerCode == 0) {
+    manufacturerCondition = 'C.MANUFACTURER_CODE IS NULL'
+  } else {
+    manufacturerCondition =
+      '( C.MANUFACTURER_CODE IS NULL OR C.MANUFACTURER_CODE = ? )'
+    arg.push(manufacturerCode)
   }
   return dbApi
     .dbGet(
@@ -718,11 +745,57 @@ SELECT
 FROM ATTRIBUTE AS A
 INNER JOIN CLUSTER AS C
 ON C.CLUSTER_ID = A.CLUSTER_REF
-WHERE C.CODE = ?
+WHERE A.PACKAGE_REF = ?
   AND A.CODE = ?
-  AND A.PACKAGE_REF = ?
-  ${manufacturerString}`,
-      [clusterCode, attributeCode, packageId]
+  AND C.CODE = ?
+  AND ${manufacturerCondition}`,
+      arg
+    )
+    .then(dbMapping.map.attribute)
+}
+
+async function selectGlobalAttributeByCode(
+  db,
+  packageId,
+  attributeCode,
+  manufacturerCode
+) {
+  let manufacturerCondition
+  let arg = [packageId, attributeCode]
+
+  if (manufacturerCode == null || manufacturerCode == 0) {
+    manufacturerCondition = 'A.MANUFACTURER_CODE IS NULL'
+  } else {
+    manufacturerCondition =
+      '( A.MANUFACTURER_CODE IS NULL OR A.MANUFACTURER_CODE = ? )'
+    arg.push(manufacturerCode)
+  }
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  A.ATTRIBUTE_ID,
+  A.CLUSTER_REF,
+  A.CODE,
+  A.MANUFACTURER_CODE,
+  A.NAME,
+  A.TYPE,
+  A.SIDE,
+  A.DEFINE,
+  A.MIN,
+  A.MAX,
+  A.IS_WRITABLE,
+  A.DEFAULT_VALUE,
+  A.IS_OPTIONAL,
+  A.IS_REPORTABLE,
+  A.IS_SCENE_REQUIRED,
+  A.ARRAY_TYPE
+FROM ATTRIBUTE AS A
+WHERE A.PACKAGE_REF = ?
+  AND A.CODE = ?
+  AND ${manufacturerCondition}`,
+      arg
     )
     .then(dbMapping.map.attribute)
 }
@@ -735,9 +808,10 @@ WHERE C.CODE = ?
  * @param {*} attributeCode
  */
 async function selectGlobalAttributeDefaults(db, clusterRef, attributeRef) {
-  return dbApi.dbAll(
-    db,
-    `
+  return dbApi
+    .dbAll(
+      db,
+      `
 SELECT
   GAD.DEFAULT_VALUE,
   GAB.BIT,
@@ -755,8 +829,22 @@ WHERE
 ORDER BY
   GAD.CLUSTER_REF, GAD.ATTRIBUTE_REF, GAB.BIT
 `,
-    [clusterRef, attributeRef]
-  )
+      [clusterRef, attributeRef]
+    )
+    .then((rows) =>
+      rows.reduce((ac, row) => {
+        if (!('default_value' in ac)) {
+          ac.defaultValue = row.DEFAULT_VALUE
+        }
+        if (row.BIT != null) {
+          if (!('featureBits' in ac)) {
+            ac.featureBits = []
+          }
+          ac.featureBits.push({ bit: row.BIT, value: row.VALUE, tag: row.TAG })
+        }
+        return ac
+      }, {})
+    )
 }
 
 exports.selectAllAttributeDetailsFromEnabledClusters = selectAllAttributeDetailsFromEnabledClusters
