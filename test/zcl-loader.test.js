@@ -21,6 +21,7 @@
 const dbApi = require('../src-electron/db/db-api.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
+const queryCommand = require('../src-electron/db/query-command.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const env = require('../src-electron/util/env.js')
@@ -98,6 +99,8 @@ test(
       expect(x).toEqual(126)
       x = await testQuery.selectCountFrom(db, 'SPEC')
       expect(x).toEqual(testUtil.totalSpecCount)
+      x = await testQuery.selectCountFrom(db, 'TAG')
+      expect(x).toEqual(1)
 
       x = await dbApi.dbAll(
         db,
@@ -141,7 +144,7 @@ test(
 
       expect(rows.length).toBe(3)
 
-      let commandTree = await queryZcl.selectCommandTree(db, packageId)
+      let commandTree = await queryCommand.selectCommandTree(db, packageId)
       let found = false
       commandTree.forEach((c) => {
         if (c.clusterCode == 0 && c.code == 0) found = true
@@ -332,6 +335,40 @@ test(
         []
       )
       expect(x.length).toBeGreaterThan(0)
+    } finally {
+      await dbApi.closeDatabase(db)
+    }
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'test Matter zcl data loading in memory',
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+      let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile)
+      let packageId = ctx.packageId
+      let p = await queryPackage.getPackageByPackageId(ctx.db, packageId)
+      expect(p.version).toEqual('Matter Test Data')
+
+      let x = await queryPackage.getPackagesByType(
+        db,
+        dbEnum.packageType.zclProperties
+      )
+      expect(x.length).toEqual(1)
+
+      x = await queryZcl.selectAllClusters(db, packageId)
+      expect(x.length).toEqual(105)
+      x = await queryZcl.selectAllDeviceTypes(db, packageId)
+      expect(x.length).toEqual(172)
+      x = await testQuery.selectCountFrom(db, 'COMMAND_ARG')
+      expect(x).toEqual(1782)
+      x = await testQuery.selectCountFrom(db, 'COMMAND')
+      expect(x).toEqual(625)
+      x = await testQuery.selectCountFrom(db, 'ATTRIBUTE')
+      expect(x).toEqual(3397)
     } finally {
       await dbApi.closeDatabase(db)
     }

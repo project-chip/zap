@@ -40,6 +40,9 @@ Last item
 /********* EVENTS **********/
 {{#zcl_events}}
 // event: {{asHex code 4}} {{name}}
+{{#zcl_event_fields}}
+//   -> field: {{asHex fieldIdentifier 4}} {{name}} {{type}}
+{{/zcl_event_fields}}
 {{/zcl_events}}
 
 

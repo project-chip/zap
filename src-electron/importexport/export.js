@@ -24,10 +24,34 @@ const fs = require('fs')
 const path = require('path')
 const env = require('../util/env.js')
 const querySession = require('../db/query-session.js')
-const queryConfig = require('../db/query-config.js')
 const queryImpExp = require('../db/query-impexp.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const util = require('../util/util.js')
+
+async function exportEndpointType(db, endpointType) {
+  let data = await queryImpExp.exportClustersFromEndpointType(
+    db,
+    endpointType.endpointTypeId
+  )
+
+  endpointType.clusters = data
+
+  let ps = data.map(async (endpointCluster) => {
+    let endpointClusterId = endpointCluster.endpointClusterId
+    delete endpointCluster.endpointClusterId
+    endpointCluster.commands = await queryImpExp.exportCommandsFromEndpointTypeCluster(
+      db,
+      endpointType.endpointTypeId,
+      endpointClusterId
+    )
+
+    endpointCluster.attributes = await queryImpExp.exportAttributesFromEndpointTypeCluster(
+      db,
+      endpointType.endpointTypeId,
+      endpointClusterId
+    )
+  })
+  return Promise.all(ps)
+}
 
 /**
  * Resolves to an array of endpoint types.
@@ -41,46 +65,9 @@ async function exportEndpointTypes(db, sessionId) {
   return queryImpExp
     .exportEndpointTypes(db, sessionId)
     .then((endpointTypes) => {
-      let promises = []
-      endpointTypes.forEach((endpointType) => {
-        // Add in the clusters.
-        promises.push(
-          queryImpExp
-            .exportClustersFromEndpointType(db, endpointType.endpointTypeId)
-            .then((data) => {
-              endpointType.clusters = data
-
-              let ps = []
-              data.forEach((endpointCluster) => {
-                let endpointClusterId = endpointCluster.endpointClusterId
-                delete endpointCluster.endpointClusterId
-                ps.push(
-                  queryImpExp
-                    .exportCommandsFromEndpointTypeCluster(
-                      db,
-                      endpointType.endpointTypeId,
-                      endpointClusterId
-                    )
-                    .then((commands) => {
-                      endpointCluster.commands = commands
-                    })
-                    .then(() =>
-                      queryImpExp
-                        .exportAttributesFromEndpointTypeCluster(
-                          db,
-                          endpointType.endpointTypeId,
-                          endpointClusterId
-                        )
-                        .then((attributes) => {
-                          endpointCluster.attributes = attributes
-                        })
-                    )
-                )
-              })
-              return Promise.all(ps)
-            })
-        )
-      })
+      let promises = endpointTypes.map((endpointType) =>
+        exportEndpointType(db, endpointType)
+      )
 
       return Promise.all(promises)
         .then(() => queryImpExp.exportEndpoints(db, sessionId, endpointTypes))

@@ -20,6 +20,7 @@
 const fs = require('fs')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
+const queryCommand = require('../src-electron/db/query-command.js')
 const queryLoader = require('../src-electron/db/query-loader.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const env = require('../src-electron/util/env.js')
@@ -144,7 +145,7 @@ test(
       .then((rows) => {
         expect(rows.length).toBe(0)
       })
-      .then(() => queryZcl.selectCommandsByClusterId(db, rowid, pkgId))
+      .then(() => queryCommand.selectCommandsByClusterId(db, rowid, pkgId))
       .then((rows) => {
         expect(rows.length).toBe(0)
       })

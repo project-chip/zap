@@ -21,6 +21,7 @@
  * @module DB API: attribute queries.
  */
 const dbApi = require('./db-api.js')
+const dbMapping = require('./db-mapping.js')
 
 function attributeExportMapping(x) {
   return {
@@ -678,6 +679,174 @@ async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
     .then((rows) => rows.map(mapFunction))
 }
 
+async function selectAttributeByCode(
+  db,
+  packageId,
+  clusterCode,
+  attributeCode,
+  manufacturerCode
+) {
+  if (clusterCode == null) {
+    return selectGlobalAttributeByCode(
+      db,
+      packageId,
+      attributeCode,
+      manufacturerCode
+    )
+  } else {
+    return selectNonGlobalAttributeByCode(
+      db,
+      packageId,
+      clusterCode,
+      attributeCode,
+      manufacturerCode
+    )
+  }
+}
+
+async function selectNonGlobalAttributeByCode(
+  db,
+  packageId,
+  clusterCode,
+  attributeCode,
+  manufacturerCode
+) {
+  let manufacturerCondition
+  let arg = [packageId, attributeCode, clusterCode]
+
+  if (manufacturerCode == null || manufacturerCode == 0) {
+    manufacturerCondition = 'C.MANUFACTURER_CODE IS NULL'
+  } else {
+    manufacturerCondition =
+      '( C.MANUFACTURER_CODE IS NULL OR C.MANUFACTURER_CODE = ? )'
+    arg.push(manufacturerCode)
+  }
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  A.ATTRIBUTE_ID,
+  A.CLUSTER_REF,
+  A.CODE,
+  A.MANUFACTURER_CODE,
+  A.NAME,
+  A.TYPE,
+  A.SIDE,
+  A.DEFINE,
+  A.MIN,
+  A.MAX,
+  A.IS_WRITABLE,
+  A.DEFAULT_VALUE,
+  A.IS_OPTIONAL,
+  A.IS_REPORTABLE,
+  A.IS_SCENE_REQUIRED,
+  A.ARRAY_TYPE
+FROM ATTRIBUTE AS A
+INNER JOIN CLUSTER AS C
+ON C.CLUSTER_ID = A.CLUSTER_REF
+WHERE A.PACKAGE_REF = ?
+  AND A.CODE = ?
+  AND C.CODE = ?
+  AND ${manufacturerCondition}`,
+      arg
+    )
+    .then(dbMapping.map.attribute)
+}
+
+async function selectGlobalAttributeByCode(
+  db,
+  packageId,
+  attributeCode,
+  manufacturerCode
+) {
+  let manufacturerCondition
+  let arg = [packageId, attributeCode]
+
+  if (manufacturerCode == null || manufacturerCode == 0) {
+    manufacturerCondition = 'A.MANUFACTURER_CODE IS NULL'
+  } else {
+    manufacturerCondition =
+      '( A.MANUFACTURER_CODE IS NULL OR A.MANUFACTURER_CODE = ? )'
+    arg.push(manufacturerCode)
+  }
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  A.ATTRIBUTE_ID,
+  A.CLUSTER_REF,
+  A.CODE,
+  A.MANUFACTURER_CODE,
+  A.NAME,
+  A.TYPE,
+  A.SIDE,
+  A.DEFINE,
+  A.MIN,
+  A.MAX,
+  A.IS_WRITABLE,
+  A.DEFAULT_VALUE,
+  A.IS_OPTIONAL,
+  A.IS_REPORTABLE,
+  A.IS_SCENE_REQUIRED,
+  A.ARRAY_TYPE
+FROM ATTRIBUTE AS A
+WHERE A.PACKAGE_REF = ?
+  AND A.CODE = ?
+  AND ${manufacturerCondition}`,
+      arg
+    )
+    .then(dbMapping.map.attribute)
+}
+
+/**
+ * Retrieves the global attribute data for a given attribute code.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} attributeCode
+ */
+async function selectGlobalAttributeDefaults(db, clusterRef, attributeRef) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  GAD.DEFAULT_VALUE,
+  GAB.BIT,
+  GAB.VALUE,
+  (SELECT NAME FROM TAG WHERE TAG_ID = GAB.TAG_REF) AS TAG
+FROM
+  GLOBAL_ATTRIBUTE_DEFAULT AS GAD
+LEFT JOIN
+  GLOBAL_ATTRIBUTE_BIT AS GAB
+ON
+  GAD.GLOBAL_ATTRIBUTE_DEFAULT_ID = GAB.GLOBAL_ATTRIBUTE_DEFAULT_REF
+WHERE
+  GAD.CLUSTER_REF = ?
+  AND GAD.ATTRIBUTE_REF = ?
+ORDER BY
+  GAD.CLUSTER_REF, GAD.ATTRIBUTE_REF, GAB.BIT
+`,
+      [clusterRef, attributeRef]
+    )
+    .then((rows) =>
+      rows.reduce((ac, row) => {
+        if (!('default_value' in ac)) {
+          ac.defaultValue = row.DEFAULT_VALUE
+        }
+        if (row.BIT != null) {
+          if (!('featureBits' in ac)) {
+            ac.featureBits = []
+          }
+          ac.featureBits.push({ bit: row.BIT, value: row.VALUE, tag: row.TAG })
+        }
+        return ac
+      }, {})
+    )
+}
+
 exports.selectAllAttributeDetailsFromEnabledClusters = selectAllAttributeDetailsFromEnabledClusters
 exports.selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
 exports.selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
@@ -685,3 +854,5 @@ exports.selectAttributeDetailsWithABoundFromEnabledClusters = selectAttributeDet
 exports.selectAttributeDetailsFromEnabledClusters = selectAttributeDetailsFromEnabledClusters
 exports.selectAttributeBoundDetails = selectAttributeBoundDetails
 exports.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints = selectReportableAttributeDetailsFromEnabledClustersAndEndpoints
+exports.selectGlobalAttributeDefaults = selectGlobalAttributeDefaults
+exports.selectAttributeByCode = selectAttributeByCode

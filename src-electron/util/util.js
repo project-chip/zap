@@ -30,6 +30,7 @@ const queryPackage = require('../db/query-package.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
+const queryCommand = require('../db/query-command.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { v4: uuidv4 } = require('uuid')
@@ -323,7 +324,7 @@ async function sessionDump(db, sessionId) {
 
   for (const cm of dump.commands) {
     let commandId = cm.id
-    let cmd = await queryZcl.selectCommandById(db, commandId)
+    let cmd = await queryCommand.selectCommandById(db, commandId)
     if (dump.usedPackages.indexOf(cmd.packageRef) == -1) {
       dump.usedPackages.push(cmd.packageRef)
     }

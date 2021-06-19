@@ -21,6 +21,7 @@
  * @module DB API: command queries.
  */
 const dbApi = require('./db-api.js')
+const dbMapping = require('./db-mapping.js')
 
 /**
  * Returns the count of the number of cluster commands with cli for a cluster
@@ -292,8 +293,261 @@ ${mfgSpecificString} GROUP BY COMMAND.NAME`
     .then((rows) => rows.map(mapFunction))
 }
 
+async function selectCommandById(db, id) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  PACKAGE_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  RESPONSE_REF
+FROM COMMAND
+  WHERE COMMAND_ID = ?`,
+      [id]
+    )
+    .then(dbMapping.map.command)
+}
+
+/**
+ * Retrieves commands for a given cluster Id.
+ * This method DOES NOT retrieve global commands, since those have a cluster_ref = null
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @returns promise of an array of command rows, which represent per-cluster commands, excluding global commands.
+ */
+async function selectCommandsByClusterId(db, clusterId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL
+FROM COMMAND WHERE CLUSTER_REF = ?
+ORDER BY CODE`,
+      [clusterId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
+async function selectAllCommands(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  RESPONSE_REF
+FROM COMMAND
+  WHERE PACKAGE_REF = ?
+ORDER BY CODE`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
+async function selectAllGlobalCommands(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  RESPONSE_REF
+FROM COMMAND
+WHERE CLUSTER_REF IS NULL AND PACKAGE_REF = ?
+ORDER BY CODE`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
+async function selectAllClusterCommands(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  RESPONSE_REF
+FROM COMMAND
+WHERE CLUSTER_REF IS NOT NULL AND PACKAGE_REF = ?
+ORDER BY CODE`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
+async function selectAllCommandArguments(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ARG.COMMAND_REF,
+  COMMAND_ARG.NAME,
+  COMMAND_ARG.TYPE,
+  COMMAND_ARG.IS_ARRAY,
+  COMMAND_ARG.PRESENT_IF,
+  COMMAND_ARG.INTRODUCED_IN_REF,
+  COMMAND_ARG.REMOVED_IN_REF,
+  COMMAND_ARG.COUNT_ARG
+FROM COMMAND_ARG, COMMAND
+WHERE
+  COMMAND_ARG.COMMAND_REF = COMMAND.COMMAND_ID
+  AND COMMAND.PACKAGE_REF = ?
+ORDER BY COMMAND_REF, FIELD_IDENTIFIER`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.commandArgument))
+}
+
+/**
+ * Get the number of command arguments for a command
+ *
+ * @param {*} db
+ * @param {*} commandId
+ * @param {*} [packageId=null]
+ * @returns A promise with number of command arguments for a command
+ */
+async function selectCommandArgumentsCountByCommandId(db, commandId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT COUNT(*) AS count
+FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
+      [commandId]
+    )
+    .then((res) => res[0].count)
+}
+
+/**
+ * Extract the command arguments for a command
+ *
+ * @param {*} db
+ * @param {*} commandId
+ * @param {*} [packageId=null]
+ * @returns A promise with command arguments for a command
+ */
+async function selectCommandArgumentsByCommandId(db, commandId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_REF,
+  NAME,
+  TYPE,
+  IS_ARRAY,
+  PRESENT_IF,
+  INTRODUCED_IN_REF,
+  REMOVED_IN_REF,
+  COUNT_ARG
+FROM COMMAND_ARG
+WHERE COMMAND_REF = ?
+ORDER BY FIELD_IDENTIFIER`,
+      [commandId]
+    )
+    .then((rows) => rows.map(dbMapping.map.commandArgument))
+}
+
+/**
+ * This method returns all commands, joined with their
+ * respective arguments and clusters, so it's a long query.
+ * If you are just looking for a quick query across all commands
+ * use the selectAllCommands query.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @returns promise that resolves into a list of all commands and arguments.
+ */
+async function selectCommandTree(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  CMD.COMMAND_ID,
+  CMD.CLUSTER_REF,
+  CMD.CODE,
+  CMD.MANUFACTURER_CODE,
+  CMD.NAME,
+  CMD.DESCRIPTION,
+  CMD.SOURCE,
+  CMD.IS_OPTIONAL,
+  CMD.RESPONSE_REF,
+  CL.CODE AS CLUSTER_CODE,
+  CL.NAME AS CLUSTER_NAME,
+  CA.NAME AS ARG_NAME,
+  CA.TYPE AS ARG_TYPE,
+  CA.IS_ARRAY AS ARG_IS_ARRAY,
+  CA.PRESENT_IF AS ARG_PRESENT_IF,
+  CA.COUNT_ARG AS ARG_COUNT_ARG
+FROM 
+  COMMAND AS CMD
+LEFT JOIN
+  CLUSTER AS CL
+ON
+  CMD.CLUSTER_REF = CL.CLUSTER_ID
+LEFT JOIN
+  COMMAND_ARG AS CA
+ON
+  CMD.COMMAND_ID = CA.COMMAND_REF
+WHERE CMD.PACKAGE_REF = ?
+ORDER BY CL.CODE, CMD.CODE, CA.FIELD_IDENTIFIER`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
 exports.selectCliCommandCountFromEndpointTypeCluster = selectCliCommandCountFromEndpointTypeCluster
 exports.selectCliCommandsFromCluster = selectCliCommandsFromCluster
 exports.selectAllAvailableClusterCommandDetailsFromEndpointTypes = selectAllAvailableClusterCommandDetailsFromEndpointTypes
 exports.selectAllClustersWithIncomingCommands = selectAllClustersWithIncomingCommands
 exports.selectAllIncomingCommandsForCluster = selectAllIncomingCommandsForCluster
+exports.selectAllCommands = selectAllCommands
+exports.selectCommandsByClusterId = selectCommandsByClusterId
+exports.selectCommandById = selectCommandById
+exports.selectAllGlobalCommands = selectAllGlobalCommands
+exports.selectAllClusterCommands = selectAllClusterCommands
+exports.selectAllCommandArguments = selectAllCommandArguments
+exports.selectCommandArgumentsCountByCommandId = selectCommandArgumentsCountByCommandId
+exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
+exports.selectCommandTree = selectCommandTree

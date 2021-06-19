@@ -276,23 +276,31 @@ function prepareClusterGlobalAttribute(cluster) {
 
     ret.globalAttribute = []
     cluster.globalAttribute.forEach((ga) => {
+      let at = {
+        code: parseInt(ga.$.code),
+        value: ga.$.value,
+      }
+
+      if ('featureBit' in ga) {
+        at.featureBit = ga.featureBit.map((fb) => {
+          let content = fb._ != null ? fb._.toLowerCase() : null
+          return {
+            tag: fb.$.tag,
+            bit: parseInt(fb.$.bit),
+            value: content == '1' || content == 'true',
+          }
+        })
+      }
+
       if (ga.$.side == dbEnum.side.either) {
-        ret.globalAttribute.push({
-          code: parseInt(ga.$.code),
-          side: dbEnum.side.client,
-          value: ga.$.value,
-        })
-        ret.globalAttribute.push({
-          code: parseInt(ga.$.code),
-          side: dbEnum.side.server,
-          value: ga.$.value,
-        })
+        ret.globalAttribute.push(
+          Object.assign({ side: dbEnum.side.client }, at)
+        )
+        ret.globalAttribute.push(
+          Object.assign({ side: dbEnum.side.server }, at)
+        )
       } else {
-        ret.globalAttribute.push({
-          code: parseInt(ga.$.code),
-          side: ga.$.side,
-          value: ga.$.value,
-        })
+        ret.globalAttribute.push(Object.assign({ side: ga.$.side }, at))
       }
     })
     return ret
@@ -528,6 +536,27 @@ async function processGlobals(db, filePath, packageId, data) {
   )
 }
 
+function prepareTag(tag) {
+  return {
+    name: tag.$.name,
+    description: tag.$.description,
+  }
+}
+
+/**
+ * Processes the tags in the XML.
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} tags
+ */
+async function processTags(db, filePath, packageId, tags) {
+  // <tag name="AB" description="Description"/>
+  env.logDebug(`${filePath}, ${packageId}: ${tags.length} tags.`)
+  let preparedTags = tags.map((x) => prepareTag(x))
+  return queryLoader.insertTags(db, packageId, preparedTags)
+}
+
 /**
  * Convert domain from XMl to domain for DB.
  *
@@ -739,6 +768,11 @@ async function processParsedZclData(db, argument) {
     let promisesStep2 = []
     let promisesStep3 = []
     if ('configurator' in data) {
+      if ('tag' in data.configurator) {
+        promisesStep1.push(
+          processTags(db, filePath, packageId, data.configurator.tag)
+        )
+      }
       if ('atomic' in data.configurator) {
         promisesStep2.push(
           processAtomics(db, filePath, packageId, data.configurator.atomic)

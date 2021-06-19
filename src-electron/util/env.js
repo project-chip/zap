@@ -27,6 +27,11 @@ const builtinSilabsZclMetafile = path.join(
   '../../zcl-builtin/silabs/zcl.json'
 )
 
+const builtinMatterZclMetafile = path.join(
+  __dirname,
+  '../../zcl-builtin/matter/zcl.json'
+)
+
 const builtinDotdotZclMetafile = path.join(
   __dirname,
   '../../zcl-builtin/dotdot/library.xml'
@@ -391,5 +396,6 @@ exports.setAppDirectory = setAppDirectory
 exports.httpStaticContent = httpStaticContent
 exports.environmentVariable = environmentVariable
 exports.builtinSilabsZclMetafile = builtinSilabsZclMetafile
+exports.builtinMatterZclMetafile = builtinMatterZclMetafile
 exports.builtinDotdotZclMetafile = builtinDotdotZclMetafile
 exports.builtinTemplateMetafile = builtinTemplateMetafile

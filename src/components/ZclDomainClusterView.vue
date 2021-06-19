@@ -60,17 +60,19 @@ limitations under the License.
                   style="font-size: 1.5rem"
                 ></q-icon>
                 <div class="vertical-middle text-subtitle2">
-                  Required UC Component not installed
+                  Required SLC Component not installed
                 </div>
               </div>
               <div class="row no-wrap">
-                Install following universal components<br />
-                to continue endpoint configuration.
+                Install following components to continue endpoint configuration.
               </div>
 
               <div class="row no-wrap">
                 <ul style="list-style-type: none">
-                  <li v-for="id in missingRequiredUcComponents(props.row)" :key="id">
+                  <li
+                    v-for="id in missingRequiredUcComponents(props.row)"
+                    :key="id"
+                  >
                     {{ ucLabel(id) }}
                   </li>
                 </ul>
@@ -246,9 +248,7 @@ export default {
       return list && list.length ? list[0].label : ''
     },
     missingRequiredUcComponents(cluster) {
-      return this.missingUcComponentDependencies(
-        cluster
-      )
+      return this.missingUcComponentDependencies(cluster)
     },
   },
   data() {

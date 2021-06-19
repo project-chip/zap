@@ -120,20 +120,17 @@ async function ensureZclPackageId(context) {
   if ('zclPackageId' in context.global) {
     return Promise.resolve(context.global.zclPackageId)
   } else {
-    return queryPackage
-      .getSessionPackagesByType(
-        context.global.db,
-        context.global.sessionId,
-        dbEnum.packageType.zclProperties
-      )
-      .then((pkgs) => {
-        if (pkgs.length == 0) {
-          return null
-        } else {
-          context.global.zclPackageId = pkgs[0].id
-          return pkgs[0].id
-        }
-      })
+    let pkgs = await queryPackage.getSessionPackagesByType(
+      context.global.db,
+      context.global.sessionId,
+      dbEnum.packageType.zclProperties
+    )
+    if (pkgs.length == 0) {
+      return null
+    } else {
+      context.global.zclPackageId = pkgs[0].id
+      return pkgs[0].id
+    }
   }
 }
 
@@ -147,33 +144,35 @@ async function ensureTemplatePackageId(context) {
   if ('templatePackageId' in context.global) {
     return context.global.templatePackageId
   } else {
-    return queryPackage
-      .getSessionPackagesByType(
-        context.global.db,
-        context.global.sessionId,
-        dbEnum.packageType.genTemplatesJson
-      )
-      .then((pkgs) => {
-        if (pkgs.length == 0) {
-          return null
-        } else {
-          context.global.templatePackageId = pkgs[0].id
-          return pkgs[0].id
-        }
-      })
+    let pkgs = await queryPackage.getSessionPackagesByType(
+      context.global.db,
+      context.global.sessionId,
+      dbEnum.packageType.genTemplatesJson
+    )
+    if (pkgs.length == 0) {
+      return null
+    } else {
+      context.global.templatePackageId = pkgs[0].id
+      return pkgs[0].id
+    }
   }
 }
 
+/**
+ * Populate the endpoint type ids into the global context.
+ * @param {*} context
+ * @returns endpoint type ids
+ */
 async function ensureEndpointTypeIds(context) {
   if ('endpointTypeIds' in context.global) {
     return context.global.endpointTypeIds
   } else {
-    return queryEndpoint
-      .selectEndPointTypeIds(context.global.db, context.global.sessionId)
-      .then((epts) => {
-        context.global.endpointTypeIds = epts
-        return epts
-      })
+    let epts = await queryEndpoint.selectEndPointTypeIds(
+      context.global.db,
+      context.global.sessionId
+    )
+    context.global.endpointTypeIds = epts
+    return epts
   }
 }
 
@@ -187,18 +186,15 @@ async function ensureEndpointTypeIds(context) {
  */
 async function ensureZclClusterSdkExtensions(context, templatePackageId) {
   if ('zclClusterSdkExtension' in context.global) {
-    return Promise.resolve(context.global.zclClusterSdkExtension)
+    return context.global.zclClusterSdkExtension
   } else {
-    return queryPackage
-      .selectPackageExtension(
-        context.global.db,
-        templatePackageId,
-        dbEnum.packageExtensionEntity.cluster
-      )
-      .then((extensions) => {
-        context.global.zclClusterSdkExtension = extensions
-        return extensions
-      })
+    let extensions = await queryPackage.selectPackageExtension(
+      context.global.db,
+      templatePackageId,
+      dbEnum.packageExtensionEntity.cluster
+    )
+    context.global.zclClusterSdkExtension = extensions
+    return extensions
   }
 }
 
@@ -212,18 +208,15 @@ async function ensureZclClusterSdkExtensions(context, templatePackageId) {
  */
 async function ensureZclDeviceTypeSdkExtensions(context, templatePackageId) {
   if ('zclDeviceTypeExtension' in context.global) {
-    return Promise.resolve(context.global.zclDeviceTypeExtension)
+    return context.global.zclDeviceTypeExtension
   } else {
-    return queryPackage
-      .selectPackageExtension(
-        context.global.db,
-        templatePackageId,
-        dbEnum.packageExtensionEntity.deviceType
-      )
-      .then((extensions) => {
-        context.global.zclDeviceTypeExtension = extensions
-        return extensions
-      })
+    let extensions = await queryPackage.selectPackageExtension(
+      context.global.db,
+      templatePackageId,
+      dbEnum.packageExtensionEntity.deviceType
+    )
+    context.global.zclDeviceTypeExtension = extensions
+    return extensions
   }
 }
 
@@ -237,18 +230,15 @@ async function ensureZclDeviceTypeSdkExtensions(context, templatePackageId) {
  */
 async function ensureZclAttributeSdkExtensions(context, templatePackageId) {
   if ('zclAttributeSdkExtension' in context.global) {
-    return Promise.resolve(context.global.zclAttributeSdkExtension)
+    return context.global.zclAttributeSdkExtension
   } else {
-    return queryPackage
-      .selectPackageExtension(
-        context.global.db,
-        templatePackageId,
-        dbEnum.packageExtensionEntity.attribute
-      )
-      .then((extensions) => {
-        context.global.zclAttributeSdkExtension = extensions
-        return extensions
-      })
+    let extensions = await queryPackage.selectPackageExtension(
+      context.global.db,
+      templatePackageId,
+      dbEnum.packageExtensionEntity.attribute
+    )
+    context.global.zclAttributeSdkExtension = extensions
+    return extensions
   }
 }
 
@@ -262,18 +252,15 @@ async function ensureZclAttributeSdkExtensions(context, templatePackageId) {
  */
 async function ensureZclCommandSdkExtensions(context, templatePackageId) {
   if ('zclCommandSdkExtension' in context.global) {
-    return Promise.resolve(context.global.zclCommandSdkExtension)
+    return context.global.zclCommandSdkExtension
   } else {
-    return queryPackage
-      .selectPackageExtension(
-        context.global.db,
-        templatePackageId,
-        dbEnum.packageExtensionEntity.command
-      )
-      .then((extensions) => {
-        context.global.zclCommandSdkExtension = extensions
-        return extensions
-      })
+    let extensions = await queryPackage.selectPackageExtension(
+      context.global.db,
+      templatePackageId,
+      dbEnum.packageExtensionEntity.command
+    )
+    context.global.zclCommandSdkExtension = extensions
+    return extensions
   }
 }
 

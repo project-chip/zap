@@ -22,6 +22,7 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const queryCommand = require('../db/query-command.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
@@ -54,8 +55,8 @@ function returnZclEntitiesForClusterId(db, clusterId, packageId) {
       queryZcl.selectAttributesByClusterIdIncludingGlobal
     )(db, clusterId, packageId).then((y) =>
       zclEntityQuery(
-        queryZcl.selectAllCommands,
-        queryZcl.selectCommandsByClusterId
+        queryCommand.selectAllCommands,
+        queryCommand.selectCommandsByClusterId
       )(db, clusterId, packageId).then((z) => {
         return { clusterData: x, attributeData: y, commandData: z }
       })

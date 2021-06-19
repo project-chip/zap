@@ -21,13 +21,14 @@
 const dbApi = require('../src-electron/db/db-api.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
+const queryCommand = require('../src-electron/db/query-command.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const env = require('../src-electron/util/env.js')
 const testUtil = require('./test-util.js')
 
 test(
-  'that that parallel loading of zcl and dotdot is possible',
+  'that that parallel loading of zcl and dotdot and matter is possible',
   async () => {
     let db = await dbApi.initRamDatabase()
     await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
@@ -72,7 +73,7 @@ test(
       expect(rows.length).toEqual(2)
       let x = await queryZcl.selectAllClusters(db, jsonPackageId)
       expect(x.length).toEqual(testUtil.totalClusterCount)
-      x = await queryZcl.selectAllClusterCommands(db, jsonPackageId)
+      x = await queryCommand.selectAllClusterCommands(db, jsonPackageId)
 
       let unmatchedRequestCount = 0
       let responsesCount = 0
@@ -92,10 +93,10 @@ test(
       // This seems to be the unmatched number in our XML files.
       expect(unmatchedRequestCount).toBe(12)
       expect(x.length).toBe(testUtil.totalClusterCommandCount)
-      let z = await queryZcl.selectCommandById(db, x[0].id)
+      let z = await queryCommand.selectCommandById(db, x[0].id)
       expect(z.label).toBe(x[0].label)
 
-      x = await queryZcl.selectAllCommandArguments(db, jsonPackageId)
+      x = await queryCommand.selectAllCommandArguments(db, jsonPackageId)
       expect(x.length).toEqual(testUtil.totalCommandArgsCount)
 
       x = await queryZcl.selectAllDomains(db, jsonPackageId)
@@ -129,10 +130,10 @@ test(
       x = await queryZcl.selectAllClusters(db, dotdotPackageId)
       expect(x.length).toEqual(41)
 
-      x = await queryZcl.selectAllClusterCommands(db, dotdotPackageId)
+      x = await queryCommand.selectAllClusterCommands(db, dotdotPackageId)
       expect(x.length).toBe(215)
 
-      x = await queryZcl.selectAllCommandArguments(db, dotdotPackageId)
+      x = await queryCommand.selectAllCommandArguments(db, dotdotPackageId)
       expect(x.length).toEqual(644)
 
       x = await queryZcl.selectAllDeviceTypes(db, dotdotPackageId)

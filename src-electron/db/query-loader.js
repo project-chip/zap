@@ -423,6 +423,22 @@ async function insertClusters(db, packageId, data) {
 }
 
 /**
+ * Inserts tags into the database.
+ * data is an array of objects, containing 'name' and 'description'
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise that resolves with array of rowids.
+ */
+async function insertTags(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO TAG (PACKAGE_REF, NAME, DESCRIPTION) VALUES (?, ?, ?)',
+    data.map((tag) => [packageId, tag.name, tag.description])
+  )
+}
+
+/**
  *
  * Inserts domains into the database.
  * data is an array of objects that must contain: name
@@ -485,38 +501,27 @@ async function insertSpecs(db, packageId, data) {
  *
  * @param {*} db
  * @param {*} packageId
- * @param {*} data array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value
+ * @param {*} clusterData array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value
  * @returns Promise of data insertion.
  */
-async function insertGlobalAttributeDefault(db, packageId, data) {
+async function insertGlobalAttributeDefault(db, packageId, clusterData) {
   let individualClusterPromise = []
-  data.forEach((d) => {
+  clusterData.forEach((cluster) => {
     let args = []
-    d.globalAttribute.forEach((ga) => {
-      if (ga.side == 'either') {
-        args.push([
-          packageId,
-          d.code,
-          packageId,
-          ga.code,
-          dbEnum.side.client,
-          ga.value,
-        ])
-        args.push([
-          packageId,
-          d.code,
-          packageId,
-          ga.code,
-          dbEnum.side.server,
-          ga.value,
-        ])
-      } else {
-        args.push([packageId, d.code, packageId, ga.code, ga.side, ga.value])
-      }
+    cluster.globalAttribute.forEach((ga) => {
+      args.push([
+        packageId,
+        cluster.code,
+        packageId,
+        ga.code,
+        ga.side,
+        ga.value,
+      ])
     })
-    let p = dbApi.dbMultiInsert(
-      db,
-      `
+    let p = dbApi
+      .dbMultiInsert(
+        db,
+        `
     INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_DEFAULT (
       CLUSTER_REF, ATTRIBUTE_REF, DEFAULT_VALUE
     ) VALUES (
@@ -524,8 +529,47 @@ async function insertGlobalAttributeDefault(db, packageId, data) {
       ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE PACKAGE_REF = ? AND CODE = ? AND SIDE = ? ),
       ?)
       `,
-      args
-    )
+        args
+      )
+      .then((individualGaIds) => {
+        let featureBitArgs = []
+        for (let i = 0; i < individualGaIds.length; i++) {
+          let id = individualGaIds[i]
+          let ga = cluster.globalAttribute[i]
+          if (id != null && 'featureBit' in ga) {
+            ga.featureBit.forEach((fb) => {
+              featureBitArgs.push([
+                id,
+                fb.bit,
+                dbApi.toDbBool(fb.value),
+                packageId,
+                fb.tag,
+              ])
+            })
+          }
+        }
+        if (featureBitArgs.length == 0) {
+          return
+        } else {
+          return dbApi.dbMultiInsert(
+            db,
+            `
+INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_BIT (
+  GLOBAL_ATTRIBUTE_DEFAULT_REF,
+  BIT,
+  VALUE,
+  TAG_REF
+) VALUES (
+  ?,
+  ?,
+  ?,
+  (SELECT TAG_ID FROM TAG WHERE PACKAGE_REF = ? AND NAME = ?)
+)
+        `,
+            featureBitArgs
+          )
+        }
+      })
     individualClusterPromise.push(p)
   })
   return Promise.all(individualClusterPromise)
@@ -819,3 +863,4 @@ exports.insertStructs = insertStructs
 exports.insertEnums = insertEnums
 exports.insertBitmaps = insertBitmaps
 exports.insertDeviceTypes = insertDeviceTypes
+exports.insertTags = insertTags

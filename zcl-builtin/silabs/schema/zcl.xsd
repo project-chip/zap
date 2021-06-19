@@ -75,16 +75,15 @@ Copyright 2012, Silicon Laboratories Inc.
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="deviceType"/>
         </xs:choice>
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-          <xs:element minOccurs="0" ref="global"/>
-          <xs:element minOccurs="0" maxOccurs="unbounded" ref="domain"/>
-        </xs:choice>
-        <xs:choice minOccurs="0" maxOccurs="unbounded">
           <xs:element ref="atomic"/>
           <xs:element ref="bitmap"/>
           <xs:element ref="cluster"/>
           <xs:element ref="clusterExtension"/>
           <xs:element ref="enum"/>
           <xs:element ref="struct"/>
+          <xs:element ref="domain"/>
+          <xs:element ref="global"/>
+          <xs:element ref="tag"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>
@@ -322,6 +321,12 @@ Copyright 2012, Silicon Laboratories Inc.
   </xs:element>
   <xs:element name="codeForStub" type="xs:string"/>
   <xs:element name="name" type="xs:string"/>
+  <xs:element name="tag">
+    <xs:complexType>
+      <xs:attribute name="name" use="required" type="xs:string"/>
+      <xs:attribute name="description" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="domain">
     <xs:complexType mixed="true">
       <xs:sequence>
