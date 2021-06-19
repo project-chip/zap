@@ -1,0 +1,8 @@
+Test for feature map generation:
+
+{{#zcl_clusters}}
+Cluster: {{label}}
+{{#zcl_attribute_default code="0xFFFC"}}
+
+{{/zcl_attribute_default}}
+{{/zcl_clusters}}

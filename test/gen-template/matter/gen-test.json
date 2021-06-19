@@ -15,9 +15,14 @@
   "helpers": ["helper-chip.js"],
   "templates": [
     {
-      "path": "chip_test.zapt",
-      "name": "CHIP testing",
-      "output": "chip_test.h"
+      "path": "simple-test.zapt",
+      "name": "Simple test template",
+      "output": "simple-test.h"
+    },
+    {
+      "path": "feature-map.zapt",
+      "name": "Feature map test template",
+      "output": "feature-map.h"
     }
   ]
 }

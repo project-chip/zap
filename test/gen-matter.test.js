@@ -23,7 +23,9 @@ const genEngine = require('../src-electron/generator/generation-engine.js')
 const env = require('../src-electron/util/env.js')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryPackage = require('../src-electron/db/query-package.js')
+const queryAttribute = require('../src-electron/db/query-attribute.js')
 const querySession = require('../src-electron/db/query-session.js')
+const queryZcl = require('../src-electron/db/query-zcl.js')
 const utilJs = require('../src-electron/util/util.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const helperZap = require('../src-electron/generator/helper-zap.js')
@@ -33,6 +35,7 @@ const testQuery = require('./test-query.js')
 
 let db
 let templateContext
+let zclPackageId
 
 const testFile = path.join(__dirname, 'resource/matter-test.zap')
 const templateCount = testUtil.testTemplate.matterCount
@@ -44,7 +47,8 @@ beforeAll(async () => {
     env.schemaFile(),
     env.zapVersion()
   )
-  return zclLoader.loadZcl(db, env.builtinMatterZclMetafile)
+  let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile)
+  zclPackageId = ctx.packageId
 }, testUtil.timeout.medium())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
@@ -73,6 +77,7 @@ test(
   },
   testUtil.timeout.medium()
 )
+
 test(
   'Create session',
   () =>
@@ -104,7 +109,7 @@ test(
         expect(genResult).not.toBeNull()
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
-        let simpleTest = genResult.content['chip_test.h']
+        let simpleTest = genResult.content['simple-test.h']
         expect(
           simpleTest.includes(
             'Cluster Name : Groups+Command Name : RemoveAllGroups'

@@ -678,6 +678,38 @@ async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
     .then((rows) => rows.map(mapFunction))
 }
 
+/**
+ * Retrieves the global attribute data for a given attribute code.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} attributeCode
+ */
+async function selectGlobalAttributeDefaults(db, clusterRef, attributeRef) {
+  return dbApi.dbAll(
+    db,
+    `
+SELECT
+  GAD.DEFAULT_VALUE,
+  GAB.BIT,
+  GAB.VALUE,
+  (SELECT NAME FROM TAG WHERE TAG_ID = GAB.TAG_REF) AS TAG
+FROM
+  GLOBAL_ATTRIBUTE_DEFAULT AS GAD
+LEFT JOIN
+  GLOBAL_ATTRIBUTE_BIT AS GAB
+ON
+  GAD.GLOBAL_ATTRIBUTE_DEFAULT_ID = GAB.GLOBAL_ATTRIBUTE_DEFAULT_REF
+WHERE
+  GAD.CLUSTER_REF = ?
+  AND GAD.ATTRIBUTE_REF = ?
+ORDER BY
+  GAD.CLUSTER_REF, GAD.ATTRIBUTE_REF, GAB.BIT
+`,
+    [clusterRef, attributeRef]
+  )
+}
+
 exports.selectAllAttributeDetailsFromEnabledClusters = selectAllAttributeDetailsFromEnabledClusters
 exports.selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
 exports.selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
@@ -685,3 +717,4 @@ exports.selectAttributeDetailsWithABoundFromEnabledClusters = selectAttributeDet
 exports.selectAttributeDetailsFromEnabledClusters = selectAttributeDetailsFromEnabledClusters
 exports.selectAttributeBoundDetails = selectAttributeBoundDetails
 exports.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints = selectReportableAttributeDetailsFromEnabledClustersAndEndpoints
+exports.selectGlobalAttributeDefaults = selectGlobalAttributeDefaults
