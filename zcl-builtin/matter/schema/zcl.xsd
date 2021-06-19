@@ -50,6 +50,10 @@ Copyright 2012, Silicon Laboratories Inc.
     <xs:attribute name="array" type="xs:boolean"/>
     <xs:attribute name="fieldId" type="xs:integer"/>
   </xs:complexType>
+  <xs:complexType name="featureBit" mixed="true">
+    <xs:attribute name="tag" use="required" type="xs:string"/>
+    <xs:attribute name="bit" use="required" type="xs:integer"/>
+  </xs:complexType>
   <xs:element name="cli">
     <xs:complexType>
       <xs:sequence>
@@ -212,7 +216,10 @@ Copyright 2012, Silicon Laboratories Inc.
     </xs:complexType>
   </xs:element>
   <xs:element name="globalAttribute">
-    <xs:complexType>
+    <xs:complexType mixed="true">
+      <xs:choice>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="featureBit" type="featureBit"/>
+      </xs:choice>
       <xs:attribute name="side" use="required" type="zclSideWithEither"/>
       <xs:attribute name="code" use="required" type="xs:string"/>
       <xs:attribute name="value" use="required" type="xs:string"/>

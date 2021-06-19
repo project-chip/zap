@@ -29,6 +29,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const helperZap = require('../src-electron/generator/helper-zap.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
+const testQuery = require('./test-query.js')
 
 let db
 let templateContext
@@ -48,20 +49,28 @@ beforeAll(async () => {
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
+test('Validate loading', async () => {
+  let c = await testQuery.selectCountFrom(db, 'TAG')
+  expect(c).toBe(4)
+  c = await testQuery.selectCountFrom(db, 'GLOBAL_ATTRIBUTE_BIT')
+  expect(c).toBe(8) // 4 feature bits per each client/server of 1 cluster
+})
+
 test(
   'Basic gen template parsing and generation',
-  () =>
-    genEngine
-      .loadTemplates(db, testUtil.testTemplate.matter)
-      .then((context) => {
-        expect(context.crc).not.toBeNull()
-        expect(context.templateData).not.toBeNull()
-        expect(context.templateData.name).toEqual('Matter test template')
-        expect(context.templateData.version).toEqual('test-matter')
-        expect(context.templateData.templates.length).toEqual(templateCount)
-        expect(context.packageId).not.toBeNull()
-        templateContext = context
-      }),
+  async () => {
+    templateContext = await genEngine.loadTemplates(
+      db,
+      testUtil.testTemplate.matter
+    )
+
+    expect(templateContext.crc).not.toBeNull()
+    expect(templateContext.templateData).not.toBeNull()
+    expect(templateContext.templateData.name).toEqual('Matter test template')
+    expect(templateContext.templateData.version).toEqual('test-matter')
+    expect(templateContext.templateData.templates.length).toEqual(templateCount)
+    expect(templateContext.packageId).not.toBeNull()
+  },
   testUtil.timeout.medium()
 )
 test(

@@ -55,6 +55,10 @@ limitations under the License.
     <struct name="ThreadInterfaceScanResult">
         <item name="DiscoveryResponse" type="OCTET_STRING"/>
     </struct>
+    <tag name="F0" description="Test tag 0"/>
+    <tag name="F1" description="Test tag 1"/>
+    <tag name="F2" description="Test tag 2"/>
+    <tag name="F3" description="Test tag 3"/>
     <cluster>
         <name>Network Provisioning</name>
         <domain>CHIP</domain>
@@ -63,6 +67,12 @@ limitations under the License.
         <define>NWPROV_CLUSTER</define>
         <client tick="false" init="false">true</client>
         <server tick="false" init="false">true</server>
+        <globalAttribute side="either" code="0xFFFC" value="0x0055">
+          <featureBit tag="F0" bit="0">true</featureBit>
+          <featureBit tag="F1" bit="2">true</featureBit>
+          <featureBit tag="F2" bit="4">true</featureBit>
+          <featureBit tag="F3" bit="6">true</featureBit>
+        </globalAttribute>
         <command source="client" code="0x01" name="ScanNetworks" optional="false" cli="chip nwprov scannetworks">
             <description>TODO</description>
             <arg name="SSID" type="OCTET_STRING"/>

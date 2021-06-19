@@ -276,23 +276,31 @@ function prepareClusterGlobalAttribute(cluster) {
 
     ret.globalAttribute = []
     cluster.globalAttribute.forEach((ga) => {
+      let at = {
+        code: parseInt(ga.$.code),
+        value: ga.$.value,
+      }
+
+      if ('featureBit' in ga) {
+        at.featureBit = ga.featureBit.map((fb) => {
+          let content = fb._ != null ? fb._.toLowerCase() : null
+          return {
+            tag: fb.$.tag,
+            bit: parseInt(fb.$.bit),
+            value: content == '1' || content == 'true',
+          }
+        })
+      }
+
       if (ga.$.side == dbEnum.side.either) {
-        ret.globalAttribute.push({
-          code: parseInt(ga.$.code),
-          side: dbEnum.side.client,
-          value: ga.$.value,
-        })
-        ret.globalAttribute.push({
-          code: parseInt(ga.$.code),
-          side: dbEnum.side.server,
-          value: ga.$.value,
-        })
+        ret.globalAttribute.push(
+          Object.assign({ side: dbEnum.side.client }, at)
+        )
+        ret.globalAttribute.push(
+          Object.assign({ side: dbEnum.side.server }, at)
+        )
       } else {
-        ret.globalAttribute.push({
-          code: parseInt(ga.$.code),
-          side: ga.$.side,
-          value: ga.$.value,
-        })
+        ret.globalAttribute.push(Object.assign({ side: ga.$.side }, at))
       }
     })
     return ret
