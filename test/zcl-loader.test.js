@@ -341,3 +341,37 @@ test(
   },
   testUtil.timeout.long()
 )
+
+test(
+  'test Matter zcl data loading in memory',
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+      let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile)
+      let packageId = ctx.packageId
+      let p = await queryPackage.getPackageByPackageId(ctx.db, packageId)
+      expect(p.version).toEqual('Matter Test Data')
+
+      let x = await queryPackage.getPackagesByType(
+        db,
+        dbEnum.packageType.zclProperties
+      )
+      expect(x.length).toEqual(1)
+
+      x = await queryZcl.selectAllClusters(db, packageId)
+      expect(x.length).toEqual(105)
+      x = await queryZcl.selectAllDeviceTypes(db, packageId)
+      expect(x.length).toEqual(172)
+      x = await testQuery.selectCountFrom(db, 'COMMAND_ARG')
+      expect(x).toEqual(1782)
+      x = await testQuery.selectCountFrom(db, 'COMMAND')
+      expect(x).toEqual(625)
+      x = await testQuery.selectCountFrom(db, 'ATTRIBUTE')
+      expect(x).toEqual(3397)
+    } finally {
+      await dbApi.closeDatabase(db)
+    }
+  },
+  testUtil.timeout.long()
+)

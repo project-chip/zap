@@ -1,5 +1,5 @@
 {
-  "version": "ZCL Test Data",
+  "version": "Matter Test Data",
   "xmlRoot": ".",
   "xmlFile": [
     "chip.xml",

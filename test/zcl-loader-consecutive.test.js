@@ -28,7 +28,7 @@ const env = require('../src-electron/util/env.js')
 const testUtil = require('./test-util.js')
 
 test(
-  'that that parallel loading of zcl and dotdot is possible',
+  'that that parallel loading of zcl and dotdot and matter is possible',
   async () => {
     let db = await dbApi.initRamDatabase()
     await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
