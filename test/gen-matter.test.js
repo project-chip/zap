@@ -34,7 +34,7 @@ const testQuery = require('./test-query.js')
 let db
 let templateContext
 
-const testFile = path.join(__dirname, 'resource/chip/chip_test.zap')
+const testFile = path.join(__dirname, 'resource/matter-test.zap')
 const templateCount = testUtil.testTemplate.matterCount
 
 beforeAll(async () => {

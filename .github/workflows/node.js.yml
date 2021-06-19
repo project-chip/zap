@@ -34,6 +34,7 @@ jobs:
       - run: npm run test
       - run: xvfb-run -a npm run self-check
       - run: npm run gen
+      - run: npm run genmatter
       - run: export GH_TOKEN=${{ secrets.GITHUB_TOKEN}} && npm run dist-linux
       - run: xvfb-run -a dist/linux-unpacked/zap selfCheck
       - name: Archive .rpm file

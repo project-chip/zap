@@ -133,8 +133,7 @@ pipeline
                 stage('Test CHIP generation') {
                     steps {
                         script {
-                            sh 'npm run genchip'
-                            sh 'python ./test/resource/chip/compare.py'
+                            sh 'npm run genmatter'
                         }
                     }
                 }
