@@ -206,7 +206,7 @@ describe('Session specific tests', () => {
 
   test(
     'Load a second set of templates.',
-    () => generationEngine.loadTemplates(db, testUtil.testTemplate.chip),
+    () => generationEngine.loadTemplates(db, testUtil.testTemplate.matter),
     testUtil.timeout.medium()
   )
 
