@@ -180,5 +180,11 @@ limitations under the License.
       <description>TODO</description>
       <arg name="TimeoutMs" type="INT32U"/>
     </command>
+    <event code="0x0001" name="HelloEvent" priority="info" side="server">
+      <description>Example test event</description>
+      <field id="1" name="arg1" type="INT8U"/>
+      <field id="2" name="arg2" type="INT32U"/>
+      <field id="3" name="arg3" type="CHAR_STRING"/>
+    </event>
   </cluster>
 </configurator>

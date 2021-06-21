@@ -369,6 +369,12 @@ test(
       expect(x).toEqual(625)
       x = await testQuery.selectCountFrom(db, 'ATTRIBUTE')
       expect(x).toEqual(3397)
+      x = await testQuery.selectCountFrom(db, 'TAG')
+      expect(x).toEqual(4)
+      x = await testQuery.selectCountFrom(db, 'EVENT')
+      expect(x).toEqual(1)
+      x = await testQuery.selectCountFrom(db, 'EVENT_FIELD')
+      expect(x).toEqual(3)
     } finally {
       await dbApi.closeDatabase(db)
     }

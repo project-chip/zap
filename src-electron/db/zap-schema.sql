@@ -441,7 +441,8 @@ CREATE TABLE IF NOT EXISTS "TAG" (
   "PACKAGE_REF" integer,
   "NAME" text,
   "DESCRIPTION" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  UNIQUE(PACKAGE_REF, NAME)
 );
 /*
  *
