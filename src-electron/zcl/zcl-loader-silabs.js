@@ -597,7 +597,8 @@ async function processDomains(db, filePath, packageId, data) {
   // </domain>
   env.logDebug(`${filePath}, ${packageId}: ${data.length} domains.`)
   let preparedDomains = data.map((x) => prepareDomain(x))
-  let specIds = await queryLoader.insertSpecs(db, packageId, preparedDomains)
+  let preparedSpecs = preparedDomains.filter((d) => d.specCode != null)
+  let specIds = await queryLoader.insertSpecs(db, packageId, preparedSpecs)
   for (let i = 0; i < specIds.length; i++) {
     preparedDomains[i].specRef = specIds[i]
   }

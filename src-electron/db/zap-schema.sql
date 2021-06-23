@@ -110,10 +110,11 @@ DROP TABLE IF EXISTS "SPEC";
 CREATE TABLE IF NOT EXISTS "SPEC" (
   "SPEC_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
-  "CODE" text,
+  "CODE" text NOT NULL,
   "DESCRIPTION" text,
   "CERTIFIABLE" integer,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  UNIQUE(PACKAGE_REF, CODE)
 );
 /*
  DOMAIN table contains domains directly loaded from packages.

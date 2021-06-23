@@ -452,8 +452,8 @@ async function insertTags(db, packageId, data) {
 async function insertDomains(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO DOMAIN (PACKAGE_REF, NAME, LATEST_SPEC_REF) VALUES (?, ?, ?)',
-    data.map((domain) => [packageId, domain.name, domain.specRef])
+    'INSERT INTO DOMAIN (PACKAGE_REF, NAME, LATEST_SPEC_REF) VALUES (?, ?, (SELECT SPEC_ID FROM SPEC WHERE PACKAGE_REF = ? AND CODE = ? ))',
+    data.map((domain) => [packageId, domain.name, packageId, domain.specCode])
   )
 }
 
