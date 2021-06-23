@@ -68,20 +68,25 @@ async function selectAllEvents(db, packageId) {
       db,
       `
 SELECT
-  EVENT_ID,
-  CLUSTER_REF,
-  CODE,
-  MANUFACTURER_CODE,
-  NAME,
-  DESCRIPTION,
-  SIDE,
-  PRIORITY
+  E.EVENT_ID,
+  E.CLUSTER_REF,
+  E.CODE,
+  C.CODE AS CLUSTER_CODE,
+  E.MANUFACTURER_CODE,
+  E.NAME,
+  E.DESCRIPTION,
+  E.SIDE,
+  E.PRIORITY
 FROM
-  EVENT
+  EVENT AS E
+INNER JOIN
+  CLUSTER AS C
+ON
+  E.CLUSTER_REF = C.CLUSTER_ID
 WHERE
-  PACKAGE_REF = ?
+  E.PACKAGE_REF = ?
 ORDER BY
-  CODE`,
+  C.CODE, E.CODE`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.event))

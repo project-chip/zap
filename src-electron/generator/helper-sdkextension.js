@@ -99,6 +99,11 @@ async function subentityExtension(context, prop, entityType) {
       context,
       packageId
     )
+  } else if (entityType == dbEnum.packageExtensionEntity.event) {
+    extensions = await templateUtil.ensureZclEventSdkExtensions(
+      context,
+      packageId
+    )
   } else {
     throw new Error(`Invalid subentity: ${entityType}`)
   }
@@ -140,19 +145,6 @@ async function subentityExtension(context, prop, entityType) {
   if (val == null) val = ''
 
   return val
-}
-
-/**
- * When inside a context that contains 'code' and parent 'code', this
- * helper will output the value of the command extension
- * specified by property="propName" attribute.
- *
- * @param {*} options
- * @returns Value of the command extension property.
- */
-function command_extension(options) {
-  let prop = options.hash.property
-  return subentityExtension(this, prop, dbEnum.packageExtensionEntity.command)
 }
 
 function if_extension_true(options) {
@@ -202,8 +194,35 @@ function attribute_extension(options) {
   return subentityExtension(this, prop, dbEnum.packageExtensionEntity.attribute)
 }
 
+/**
+ * When inside a context that contains 'code' and parent 'code', this
+ * helper will output the value of the command extension
+ * specified by property="propName" attribute.
+ *
+ * @param {*} options
+ * @returns Value of the command extension property.
+ */
+function command_extension(options) {
+  let prop = options.hash.property
+  return subentityExtension(this, prop, dbEnum.packageExtensionEntity.command)
+}
+
+/**
+ * When inside a context that contains 'code' and parent 'code', this
+ * helper will output the value of the command extension
+ * specified by property="propName" attribute.
+ *
+ * @param {*} options
+ * @returns Value of the command extension property.
+ */
+function event_extension(options) {
+  let prop = options.hash.property
+  return subentityExtension(this, prop, dbEnum.packageExtensionEntity.event)
+}
+
 exports.cluster_extension = cluster_extension
 exports.command_extension = command_extension
+exports.event_extension = event_extension
 exports.attribute_extension = attribute_extension
 exports.device_type_extension = device_type_extension
 exports.if_extension_true = if_extension_true

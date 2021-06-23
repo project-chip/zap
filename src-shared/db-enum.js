@@ -94,6 +94,7 @@ exports.packageExtensionEntity = {
   command: 'command',
   attribute: 'attribute',
   deviceType: 'deviceType',
+  event: 'event',
 }
 
 exports.generatorOptions = {

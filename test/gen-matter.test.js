@@ -156,6 +156,14 @@ test(
         expect(genResult).not.toBeNull()
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
+        let sdkExt = genResult.content['sdk-ext.txt']
+        expect(sdkExt).not.toBeNull()
+        expect(
+          sdkExt.includes(
+            "// event: 0x9999 / 0x0001 => HelloEvent, extensions: 'defHello'"
+          )
+        ).toBeTruthy()
+
         let simpleTest = genResult.content['simple-test.h']
         expect(
           simpleTest.includes(

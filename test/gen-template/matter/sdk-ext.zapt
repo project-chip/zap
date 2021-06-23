@@ -26,7 +26,7 @@ property="testAttributeExtension1"}}', '{{attribute_extension property="testAttr
 
 -------------------- Events -----------------------
 {{#zcl_events}}
-// event: {{asHex clusterCode 4}} / {{asHex code 4}} => {{name}}, extensions: '{{attribute_extension
+// event: {{asHex clusterCode 4}} / {{asHex code 4}} => {{name}}, extensions: '{{event_extension
 property="testEventExtension1"}}'
 {{/zcl_events}}
 

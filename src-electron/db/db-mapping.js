@@ -115,6 +115,7 @@ exports.map = {
     return {
       id: x.EVENT_ID,
       clusterRef: x.CLUSTER_REF,
+      clusterCode: x.CLUSTER_CODE,
       packageRef: x.PACKAGE_REF,
       code: x.CODE,
       manufacturerCode: x.MANUFACTURER_CODE,

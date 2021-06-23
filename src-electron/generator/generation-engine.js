@@ -265,6 +265,13 @@ function decodePackageExtensionEntity(entityType, entity) {
         parentCode: parseInt(entity.clusterCode),
         value: entity.value,
       }
+    case dbEnum.packageExtensionEntity.event:
+      return {
+        entityCode: parseInt(entity.eventCode),
+        manufacturerCode: null,
+        parentCode: parseInt(entity.clusterCode),
+        value: entity.value,
+      }
     case dbEnum.packageExtensionEntity.attribute:
       return {
         entityCode: parseInt(entity.attributeCode),
