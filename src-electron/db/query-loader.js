@@ -475,7 +475,7 @@ async function insertSpecs(db, packageId, data) {
   if (olders.length > 0) {
     await dbApi.dbMultiInsert(
       db,
-      'INSERT INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
+      'INSERT OR IGNORE INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
       olders.map((older) => [
         packageId,
         older.specCode,
@@ -486,7 +486,7 @@ async function insertSpecs(db, packageId, data) {
   }
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
+    'INSERT OR IGNORE INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
     data.map((domain) => [
       packageId,
       domain.specCode,

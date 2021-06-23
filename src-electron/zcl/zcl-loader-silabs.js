@@ -571,13 +571,12 @@ function prepareDomain(domain) {
     specCertifiable: domain.$.certifiable == 'true',
   }
   if ('older' in domain) {
-    d.older = []
-    domain.older.forEach((old) => {
-      d.older.push({
+    d.older = domain.older.map((old) => {
+      return {
         specCode: old.$.spec,
         specDescription: `Older ${domain.$.name} spec ${old.$.spec}`,
         specCertifiable: old.$.certifiable == 'true',
-      })
+      }
     })
   }
   return d
