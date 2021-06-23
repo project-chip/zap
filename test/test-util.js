@@ -89,7 +89,7 @@ exports.testCustomXml = './test/resource/test-custom.xml'
 exports.badTestCustomXml = './test/resource/bad-test-custom.xml'
 
 exports.totalClusterCount = 109
-exports.totalDomainCount = 23
+exports.totalDomainCount = 20
 exports.totalCommandArgsCount = 1784
 exports.totalCommandCount = 625
 exports.totalEventFieldCount = 3

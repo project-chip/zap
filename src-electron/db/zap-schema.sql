@@ -126,7 +126,8 @@ CREATE TABLE IF NOT EXISTS "DOMAIN" (
   "NAME" text,
   "LATEST_SPEC_REF" integer,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
-  foreign key (LATEST_SPEC_REF) references SPEC(SPEC_ID)
+  foreign key (LATEST_SPEC_REF) references SPEC(SPEC_ID),
+  UNIQUE(PACKAGE_REF, NAME)
 );
 /*
  CLUSTER table contains the clusters loaded from the ZCL XML files.

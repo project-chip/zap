@@ -201,7 +201,7 @@ describe('Miscelaneous REST API tests', () => {
       axiosInstance
         .get(`${restApi.uri.zclDomain}all?sessionId=${sessionUuid}`)
         .then((response) => {
-          expect(response.data.length).toBe(23)
+          expect(response.data.length).toBe(testUtil.totalDomainCount)
         }),
     testUtil.timeout.short()
   )
