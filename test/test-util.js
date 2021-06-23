@@ -78,7 +78,7 @@ exports.testTemplate = {
   zigbee: './test/gen-template/zigbee/gen-templates.json',
   zigbeeCount: 19,
   matter: './test/gen-template/matter/gen-test.json',
-  matterCount: 2,
+  matterCount: 3,
   dotdot: './test/gen-template/dotdot/dotdot-templates.json',
   unittest: './test/gen-template/test/gen-test.json',
 }
@@ -89,7 +89,7 @@ exports.testCustomXml = './test/resource/test-custom.xml'
 exports.badTestCustomXml = './test/resource/bad-test-custom.xml'
 
 exports.totalClusterCount = 109
-exports.totalDomainCount = 23
+exports.totalDomainCount = 20
 exports.totalCommandArgsCount = 1784
 exports.totalCommandCount = 625
 exports.totalEventFieldCount = 3
@@ -97,7 +97,7 @@ exports.totalEventCount = 1
 exports.totalAttributeCount = 3430
 exports.totalClusterCommandCount = 602
 exports.totalServerAttributeCount = 2954
-exports.totalSpecCount = 39
+exports.totalSpecCount = 24
 exports.totalEnumCount = 209
 exports.totalEnumItemCount = 1595
 exports.longTimeout = 12000

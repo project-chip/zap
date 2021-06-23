@@ -52,7 +52,7 @@ test(
       x = await queryZcl.selectAllClusters(db, packageId)
       expect(x.length).toEqual(104)
       x = await queryZcl.selectAllDomains(db, packageId)
-      expect(x.length).toEqual(19)
+      expect(x.length).toEqual(17)
       x = await queryZcl.selectAllEnums(db, packageId)
       expect(x.length).toEqual(206)
       x = await queryZcl.selectAllStructs(db, packageId)

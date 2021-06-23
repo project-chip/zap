@@ -452,8 +452,8 @@ async function insertTags(db, packageId, data) {
 async function insertDomains(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO DOMAIN (PACKAGE_REF, NAME, LATEST_SPEC_REF) VALUES (?, ?, ?)',
-    data.map((domain) => [packageId, domain.name, domain.specRef])
+    'INSERT OR IGNORE INTO DOMAIN (PACKAGE_REF, NAME, LATEST_SPEC_REF) VALUES (?, ?, (SELECT SPEC_ID FROM SPEC WHERE PACKAGE_REF = ? AND CODE = ? ))',
+    data.map((domain) => [packageId, domain.name, packageId, domain.specCode])
   )
 }
 
@@ -475,7 +475,7 @@ async function insertSpecs(db, packageId, data) {
   if (olders.length > 0) {
     await dbApi.dbMultiInsert(
       db,
-      'INSERT INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
+      'INSERT OR IGNORE INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
       olders.map((older) => [
         packageId,
         older.specCode,
@@ -486,7 +486,7 @@ async function insertSpecs(db, packageId, data) {
   }
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
+    'INSERT OR IGNORE INTO SPEC (PACKAGE_REF, CODE, DESCRIPTION, CERTIFIABLE) VALUES (?, ?, ?, ?)',
     data.map((domain) => [
       packageId,
       domain.specCode,

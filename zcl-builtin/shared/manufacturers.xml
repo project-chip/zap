@@ -110,7 +110,7 @@ limitations under the License.
   <mapping code="0x1055" translation="Cason Engineering plc"/>
   <mapping code="0x1056" translation="Wireless Glue Networks Inc."/>
   <mapping code="0x1057" translation="Elster"/>
-  <mapping code="0x1058" translation="SMS Tecnologia Eletrônica"/>
+  <mapping code="0x1058" translation="SMS Tecnologia Eletr&#xF4;nica"/>
   <mapping code="0x1059" translation="Onset Computer Corporation"/>
   <mapping code="0x105A" translation="Riga Development"/>
   <mapping code="0x105B" translation="Energate"/>
@@ -188,7 +188,7 @@ limitations under the License.
   <mapping code="0x10A9" translation="Navetas"/>
   <mapping code="0x10AA" translation="Lightspeed Technologies"/>
   <mapping code="0x10AB" translation="Oki Electric Industry Co., Ltd."/>
-  <mapping code="0x10AC" translation="S I - Sistemas Inteligentes Eletrônicos Ltda"/>
+  <mapping code="0x10AC" translation="S I - Sistemas Inteligentes Eletr&#xF4;nicos Ltda"/>
   <mapping code="0x10AD" translation="Dometic"/>
   <mapping code="0x10AE" translation="Alps"/>
   <mapping code="0x10AF" translation="EnergyHub"/>
@@ -334,7 +334,7 @@ limitations under the License.
   <mapping code="0x113B" translation="Waxman Consumer Products Group, Inc."/>
   <mapping code="0x113C" translation="Owon Technology, Inc."/>
   <mapping code="0x113D" translation="Hitron Technologies, Inc."/>
-  <mapping code="0x113E" translation="Scemtec Hard - und Software für Mess - und Steuerungstechnik GmbH"/>
+  <mapping code="0x113E" translation="Scemtec Hard - und Software f&#xFC;r Mess - und Steuerungstechnik GmbH"/>
   <mapping code="0x113F" translation="Webee LLC"/>
   <mapping code="0x1140" translation="Grid2Home Inc"/>
   <mapping code="0x1141" translation="Telink Micro"/>
@@ -373,7 +373,7 @@ limitations under the License.
   <mapping code="0x1162" translation="ABB Genway Xiamen Electrical Equipment Co., Ltd."/>
   <mapping code="0x1163" translation="Zhejiang Rexense Tech"/>
   <mapping code="0x1164" translation="ForEE Technology"/>
-  <mapping code="0x1165" translation="Open Access Technology Int’l."/>
+  <mapping code="0x1165" translation="Open Access Technology Int&#x2019;l."/>
   <mapping code="0x1166" translation="INNR Lighting BV"/>
   <mapping code="0x1167" translation="Techworld Industries"/>
   <mapping code="0x1168" translation="Leedarson Lighting Co., Ltd."/>
@@ -382,7 +382,7 @@ limitations under the License.
   <mapping code="0x116B" translation="Beldon Technologies"/>
   <mapping code="0x116C" translation="Flextronics"/>
   <mapping code="0x116D" translation="Shenzhen Meian"/>
-  <mapping code="0x116E" translation="Lowe’s"/>
+  <mapping code="0x116E" translation="Lowe&#x2019;s"/>
   <mapping code="0x116F" translation="Sigma Connectivity"/>
   <mapping code="0x1171" translation="Wulian"/>
   <mapping code="0x1172" translation="Plugwise B.V."/>

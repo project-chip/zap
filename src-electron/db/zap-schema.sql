@@ -110,10 +110,11 @@ DROP TABLE IF EXISTS "SPEC";
 CREATE TABLE IF NOT EXISTS "SPEC" (
   "SPEC_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
-  "CODE" text,
+  "CODE" text NOT NULL,
   "DESCRIPTION" text,
   "CERTIFIABLE" integer,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  UNIQUE(PACKAGE_REF, CODE)
 );
 /*
  DOMAIN table contains domains directly loaded from packages.
@@ -125,7 +126,8 @@ CREATE TABLE IF NOT EXISTS "DOMAIN" (
   "NAME" text,
   "LATEST_SPEC_REF" integer,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
-  foreign key (LATEST_SPEC_REF) references SPEC(SPEC_ID)
+  foreign key (LATEST_SPEC_REF) references SPEC(SPEC_ID),
+  UNIQUE(PACKAGE_REF, NAME)
 );
 /*
  CLUSTER table contains the clusters loaded from the ZCL XML files.
@@ -441,7 +443,8 @@ CREATE TABLE IF NOT EXISTS "TAG" (
   "PACKAGE_REF" integer,
   "NAME" text,
   "DESCRIPTION" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  UNIQUE(PACKAGE_REF, NAME)
 );
 /*
  *

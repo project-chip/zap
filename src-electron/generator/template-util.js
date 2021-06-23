@@ -265,6 +265,28 @@ async function ensureZclCommandSdkExtensions(context, templatePackageId) {
 }
 
 /**
+ * Resolves with cached command extensions, but if they don't
+ * exist, it will populate them.
+ *
+ * @param {*} context
+ * @param {*} templatePackageId
+ * @returns promise that resolves with command extensions.
+ */
+async function ensureZclEventSdkExtensions(context, templatePackageId) {
+  if ('zclEventSdkExtension' in context.global) {
+    return context.global.zclEventSdkExtension
+  } else {
+    let extensions = await queryPackage.selectPackageExtension(
+      context.global.db,
+      templatePackageId,
+      dbEnum.packageExtensionEntity.event
+    )
+    context.global.zclEventSdkExtension = extensions
+    return extensions
+  }
+}
+
+/**
  * Every helper that returns a promise, should
  * not return the promise directly. So instead of
  * returning the promise directly, it should return:
@@ -330,6 +352,7 @@ exports.ensureTemplatePackageId = ensureTemplatePackageId
 exports.ensureZclClusterSdkExtensions = ensureZclClusterSdkExtensions
 exports.ensureZclAttributeSdkExtensions = ensureZclAttributeSdkExtensions
 exports.ensureZclCommandSdkExtensions = ensureZclCommandSdkExtensions
+exports.ensureZclEventSdkExtensions = ensureZclEventSdkExtensions
 exports.ensureZclDeviceTypeSdkExtensions = ensureZclDeviceTypeSdkExtensions
 exports.ensureEndpointTypeIds = ensureEndpointTypeIds
 exports.makeSynchronizablePromise = makeSynchronizablePromise

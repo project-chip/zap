@@ -25,7 +25,7 @@
     "wwah-silabs.xml",
     "wwah-silabs-devices.xml"
   ],
-  "zclSchema": "./schema/zcl.xsd",
+  "zclSchema": "../shared/schema/zcl.xsd",
   "manufacturersXml": "../shared/manufacturers.xml",
   "options": {
     "text": {
