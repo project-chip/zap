@@ -441,9 +441,11 @@ DROP TABLE IF EXISTS "TAG";
 CREATE TABLE IF NOT EXISTS "TAG" (
   "TAG_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
+  "CLUSTER_REF" integer,
   "NAME" text,
   "DESCRIPTION" text,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
   UNIQUE(PACKAGE_REF, NAME)
 );
 /*

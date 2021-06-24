@@ -55,9 +55,9 @@ afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test('Validate loading', async () => {
   let c = await testQuery.selectCountFrom(db, 'TAG')
-  expect(c).toBe(4)
+  expect(c).toBe(6)
   c = await testQuery.selectCountFrom(db, 'GLOBAL_ATTRIBUTE_BIT')
-  expect(c).toBe(8) // 4 feature bits per each client/server of 1 cluster
+  expect(c).toBe(12) // 6 feature bits per each client/server of 1 cluster
 
   let attr = await queryAttribute.selectAttributeByCode(
     db,
@@ -83,11 +83,13 @@ test('Validate loading', async () => {
   )
   expect(defs).not.toBeNull()
   expect(defs.defaultValue).toBe('0x0055')
-  expect(defs.featureBits.length).toBe(4)
+  expect(defs.featureBits.length).toBe(6)
   expect(defs.featureBits[0].bit).toBe(0)
-  expect(defs.featureBits[1].bit).toBe(2)
-  expect(defs.featureBits[2].bit).toBe(4)
-  expect(defs.featureBits[3].bit).toBe(6)
+  expect(defs.featureBits[1].bit).toBe(1)
+  expect(defs.featureBits[2].bit).toBe(2)
+  expect(defs.featureBits[3].bit).toBe(3)
+  expect(defs.featureBits[4].bit).toBe(4)
+  expect(defs.featureBits[5].bit).toBe(6)
 })
 
 test(
@@ -179,9 +181,11 @@ test(
 - default value: 0x0055
 - feature bits for the feature map attribute:
     0: Bit 0 is assigned to tag F0 => value = 1
-    1: Bit 2 is assigned to tag F1 => value = 0
-    2: Bit 4 is assigned to tag F2 => value = 1
-    3: Bit 6 is assigned to tag F3 => value = 0`
+    1: Bit 1 is assigned to tag C0 => value = 0
+    2: Bit 2 is assigned to tag F1 => value = 0
+    3: Bit 3 is assigned to tag C1 => value = 0
+    4: Bit 4 is assigned to tag F2 => value = 1
+    5: Bit 6 is assigned to tag F3 => value = 0`
           )
         ).toBeTruthy()
       }),

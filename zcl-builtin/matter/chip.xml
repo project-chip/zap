@@ -67,9 +67,13 @@ limitations under the License.
     <define>NWPROV_CLUSTER</define>
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
+    <tag name="C0" description="Test cluster tag 0"/>
+    <tag name="C1" description="Test cluster tag 1"/>
     <globalAttribute side="either" code="0xFFFC" value="0x0055">
       <featureBit tag="F0" bit="0">true</featureBit>
+      <featureBit tag="C0" bit="1">false</featureBit>
       <featureBit tag="F1" bit="2">false</featureBit>
+      <featureBit tag="C1" bit="3">false</featureBit>
       <featureBit tag="F2" bit="4">true</featureBit>
       <featureBit tag="F3" bit="6">false</featureBit>
     </globalAttribute>
