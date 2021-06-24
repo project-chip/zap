@@ -27,6 +27,10 @@ Copyright 2012, Silicon Laboratories Inc.
     <xs:attribute name="name" use="required" type="xs:string"/>
     <xs:attribute name="type" use="required" type="xs:string"/>
   </xs:complexType>
+  <xs:complexType name="tag">
+    <xs:attribute name="name" use="required" type="xs:string"/>
+    <xs:attribute name="description" use="required" type="xs:string"/>
+  </xs:complexType>
   <xs:complexType name="arg">
     <xs:attribute name="arrayLength" type="xs:boolean"/>
     <xs:attribute name="array" type="xs:boolean"/>
@@ -236,6 +240,7 @@ Copyright 2012, Silicon Laboratories Inc.
         <xs:element ref="client"/>
         <xs:element ref="server"/>
         <xs:element minOccurs="0" ref="generateCmdHandlers"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="tag" type="tag"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="globalAttribute"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="attribute"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="command"/>
@@ -328,12 +333,7 @@ Copyright 2012, Silicon Laboratories Inc.
   </xs:element>
   <xs:element name="codeForStub" type="xs:string"/>
   <xs:element name="name" type="xs:string"/>
-  <xs:element name="tag">
-    <xs:complexType>
-      <xs:attribute name="name" use="required" type="xs:string"/>
-      <xs:attribute name="description" use="required" type="xs:string"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="tag" type="tag"/>
   <xs:element name="domain">
     <xs:complexType mixed="true">
       <xs:sequence>
