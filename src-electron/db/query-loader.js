@@ -392,6 +392,8 @@ async function insertClusters(db, packageId, data) {
       let attributesToLoad = []
       let argsForCommands = []
       let fieldsForEvents = []
+      let pTags = null
+
       let i
       for (i = 0; i < lastIdsArray.length; i++) {
         let lastId = lastIdsArray[i]
@@ -409,6 +411,9 @@ async function insertClusters(db, packageId, data) {
           eventsToLoad.push(...eventMap(lastId, packageId, events))
           fieldsForEvents.push(...events.map((event) => event.fields))
         }
+        if ('tags' in data[i]) {
+          pTags = insertTags(db, packageId, data[i].tags, lastId)
+        }
       }
       let pCommand = insertCommands(
         db,
@@ -418,7 +423,9 @@ async function insertClusters(db, packageId, data) {
       )
       let pAttribute = insertAttributes(db, attributesToLoad)
       let pEvent = insertEvents(db, packageId, eventsToLoad, fieldsForEvents)
-      return Promise.all([pCommand, pAttribute, pEvent])
+      let pArray = [pCommand, pAttribute, pEvent]
+      if (pTags != null) pArray.push(pTags)
+      return Promise.all(pArray)
     })
 }
 
@@ -430,11 +437,11 @@ async function insertClusters(db, packageId, data) {
  * @param {*} data
  * @returns A promise that resolves with array of rowids.
  */
-async function insertTags(db, packageId, data) {
+async function insertTags(db, packageId, data, clusterRef) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO TAG (PACKAGE_REF, NAME, DESCRIPTION) VALUES (?, ?, ?)',
-    data.map((tag) => [packageId, tag.name, tag.description])
+    'INSERT INTO TAG (PACKAGE_REF, CLUSTER_REF, NAME, DESCRIPTION) VALUES (?, ?, ?, ?)',
+    data.map((tag) => [packageId, clusterRef, tag.name, tag.description])
   )
 }
 

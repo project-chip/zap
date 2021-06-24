@@ -346,6 +346,10 @@ function prepareCluster(cluster, isExtension = false) {
     }
   }
 
+  if ('tag' in cluster) {
+    ret.tags = cluster.tag.map((tag) => prepareTag(tag))
+  }
+
   if ('command' in cluster) {
     ret.commands = []
     cluster.command.forEach((command) => {
@@ -554,7 +558,7 @@ async function processTags(db, filePath, packageId, tags) {
   // <tag name="AB" description="Description"/>
   env.logDebug(`${filePath}, ${packageId}: ${tags.length} tags.`)
   let preparedTags = tags.map((x) => prepareTag(x))
-  return queryLoader.insertTags(db, packageId, preparedTags)
+  return queryLoader.insertTags(db, packageId, preparedTags, null)
 }
 
 /**

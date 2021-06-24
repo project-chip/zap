@@ -370,7 +370,7 @@ test(
       x = await testQuery.selectCountFrom(db, 'ATTRIBUTE')
       expect(x).toEqual(3397)
       x = await testQuery.selectCountFrom(db, 'TAG')
-      expect(x).toEqual(4)
+      expect(x).toEqual(6)
       x = await testQuery.selectCountFrom(db, 'EVENT')
       expect(x).toEqual(1)
       x = await testQuery.selectCountFrom(db, 'EVENT_FIELD')
