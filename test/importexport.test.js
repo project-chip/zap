@@ -44,6 +44,7 @@ let haCombinedInterfaceIsc = path.join(
   __dirname,
   'resource/isc/ha-combined-interface.isc'
 )
+let testSimpleMatterIdl = path.join(__dirname, 'resource/matter/simple.matter')
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
@@ -313,4 +314,18 @@ test(
     expect(sessionDump.usedPackages.length).toBe(1)
   },
   testUtil.timeout.medium()
+)
+
+test(
+  path.basename(testSimpleMatterIdl) + ' - import',
+  async () => {
+    sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testSimpleMatterIdl, {
+      sessionId: sid,
+    })
+    expect(sid).not.toBeUndefined()
+
+    // TODO(andy31415): validate that data is imported correctly here
+  },
+  5000
 )

@@ -22,9 +22,12 @@
 const fsp = require('fs').promises
 const importIsc = require('./import-isc.js')
 const importJson = require('./import-json.js')
+const importMatter = require('./import-matter.js')
 const dbApi = require('../db/db-api.js')
 const querySession = require('../db/query-session.js')
 const env = require('../util/env.js')
+const path = require('path')
+
 /**
  * Reads the data from the file and resolves with the state object if all is good.
  *
@@ -34,11 +37,17 @@ const env = require('../util/env.js')
  */
 async function readDataFromFile(filePath, defaultZclMetafile) {
   let data = await fsp.readFile(filePath)
-
   let stringData = data.toString().trim()
+
+  if (path.extname(filePath) === '.matter') {
+    return importMatter.readMatterIdl(filePath, stringData)
+  }
+
   if (stringData.startsWith('{')) {
     return importJson.readJsonData(filePath, data)
-  } else if (stringData.startsWith('#ISD')) {
+  }
+
+  if (stringData.startsWith('#ISD')) {
     return importIsc.readIscData(
       filePath,
       data,
@@ -46,11 +55,11 @@ async function readDataFromFile(filePath, defaultZclMetafile) {
         ? env.builtinSilabsZclMetafile
         : defaultZclMetafile
     )
-  } else {
-    throw new Error(
-      'Invalid file format. Only .zap JSON files and ISC file format are supported.'
-    )
   }
+
+  throw new Error(
+    'Invalid file format. Supported formats: matter IDL, .zap JSON and ISC.'
+  )
 }
 
 /**
