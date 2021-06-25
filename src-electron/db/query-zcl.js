@@ -1312,6 +1312,7 @@ function commandMapFunction(x) {
     description: x.DESCRIPTION,
     clusterSide: x.SIDE,
     clusterName: x.CLUSTER_NAME,
+    clusterDefine: x.CLUSTER_DEFINE,
     isClusterEnabled: x.ENABLED,
   }
 }
@@ -1382,6 +1383,7 @@ async function exportAllCliCommandDetailsFromEnabledClusters(
     COMMAND.DESCRIPTION,
     ENDPOINT_TYPE_CLUSTER.SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
+    CLUSTER.DEFINE AS CLUSTER_DEFINE,
     ENDPOINT_TYPE_CLUSTER.ENABLED
   FROM COMMAND
   INNER JOIN CLUSTER
