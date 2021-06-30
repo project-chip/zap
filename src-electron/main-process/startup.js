@@ -450,6 +450,7 @@ async function generateSingleFile(
     logger: console.log,
     zcl: env.builtinSilabsZclMetafile,
     template: env.builtinTemplateMetafile,
+    postImportScript: null,
   }
 ) {
   let hrstart = process.hrtime()
@@ -463,7 +464,7 @@ async function generateSingleFile(
     options.logger(`👉 using input file: ${f}`)
     let importResult = await importJs.importDataFromFile(db, f, {
       defaultZclMetafile: options.zcl,
-      postImportScript: argv.postImportScript,
+      postImportScript: options.postImportScript,
     })
     sessionId = importResult.sessionId
     output = outputFile(f, outputPattern, index)
@@ -543,6 +544,7 @@ async function startGeneration(
   options.backup = false
   options.genResultFile = genResultFile
   options.skipPostGeneration = skipPostGeneration
+  options.postImportScript = argv.postImportScript
 
   let hrend = process.hrtime(hrstart)
   options.logger(`🕐 Setup time: ${hrend[0]}s ${hrend[1] / 1000000}ms `)

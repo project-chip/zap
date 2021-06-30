@@ -29,10 +29,19 @@ function print(text) {
   console.log(text)
 }
 
+/**
+ * Returns array of function names available in this module.
+ */
 function functions() {
   return Object.keys(exports)
 }
 
+/**
+ * Returns the session id in the context.
+ *
+ * @param {*} context
+ * @returns sessionId
+ */
 function sessionId(context) {
   return context.sessionId
 }
