@@ -25,6 +25,7 @@ export default function () {
     domains: [],
     attributes: [],
     commands: [],
+    events: [],
     zclDeviceTypes: {},
     endpoints: [],
     genericOptions: {},

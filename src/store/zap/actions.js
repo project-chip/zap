@@ -45,6 +45,7 @@ export function updateSelectedCluster(context, cluster) {
       context.commit('updateSelectedCluster', [cluster])
       updateAttributes(context, res.data.attributeData || [])
       updateCommands(context, res.data.commandData || [])
+      updateEvents(context, res.data.eventData || [])
     })
 }
 
@@ -54,6 +55,10 @@ export function updateAttributes(context, attributes) {
 
 export function updateCommands(context, commands) {
   context.commit('updateCommands', commands)
+}
+
+export function updateEvents(context, events) {
+  context.commit('updateEvents', events)
 }
 
 export function updateZclDeviceTypes(context) {

@@ -215,6 +215,10 @@ export function updateCommands(state, commands) {
   state.commands = commands
 }
 
+export function updateEvents(state, events) {
+  state.events = events
+}
+
 export function updateZclDeviceTypes(state, zclDeviceTypes) {
   state.zclDeviceTypes = zclDeviceTypes
 }

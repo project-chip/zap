@@ -62,6 +62,7 @@ limitations under the License.
         <q-tab name="attributes" label="Attributes" />
         <q-tab name="reporting" label="Attribute Reporting" />
         <q-tab name="commands" label="Commands" />
+        <q-tab name="events" label="Events" />
       </q-tabs>
 
       <q-separator />
@@ -75,6 +76,9 @@ limitations under the License.
         <div class="col" v-show="tab == 'reporting'">
           <ZclAttributeReportingManager />
         </div>
+        <div class="col" v-show="tab == 'events'">
+          <ZclEventManager />
+        </div>
       </div>
     </div>
   </div>
@@ -83,6 +87,7 @@ limitations under the License.
 import ZclAttributeManager from './ZclAttributeManager.vue'
 import ZclAttributeReportingManager from './ZclAttributeReportingManager.vue'
 import ZclCommandManager from './ZclCommandManager.vue'
+import ZclEventManager from './ZclEventManager.vue'
 import EditableAttributesMixin from '../util/editable-attributes-mixin'
 
 export default {
@@ -130,6 +135,7 @@ export default {
     ZclCommandManager,
     ZclAttributeManager,
     ZclAttributeReportingManager,
+    ZclEventManager,
   },
 }
 </script>
