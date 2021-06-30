@@ -240,6 +240,7 @@ async function startConvert(
       importJs
         .importDataFromFile(db, singlePath, {
           defaultZclMetafile: argv.zclProperties,
+          postImportScript: argv.postImportScript,
         })
         .then((importResult) => {
           return util
@@ -316,6 +317,7 @@ async function startAnalyze(
         importJs
           .importDataFromFile(db, singlePath, {
             defaultZclMetafile: argv.zclProperties,
+            postImportScript: argv.postImportScript,
           })
           .then((importResult) =>
             util.sessionReport(db, importResult.sessionId)
@@ -461,6 +463,7 @@ async function generateSingleFile(
     options.logger(`👉 using input file: ${f}`)
     let importResult = await importJs.importDataFromFile(db, f, {
       defaultZclMetafile: options.zcl,
+      postImportScript: argv.postImportScript,
     })
     sessionId = importResult.sessionId
     output = outputFile(f, outputPattern, index)
