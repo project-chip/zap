@@ -362,6 +362,17 @@ function is_defined(value) {
   return !(value == null || value == undefined || value == '')
 }
 
+/**
+ *
+ * @param mainString
+ * @param replaceString
+ * @param replaceWithString
+ * @returns A string replaced with another string in the mainString
+ */
+function replace_string(mainString, replaceString, replaceWithString) {
+  return mainString.replace(replaceString, replaceWithString)
+}
+
 const dep = templateUtil.deprecatedHelper
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -400,3 +411,4 @@ exports.backslash = backslash
 exports.is_num_equal = is_num_equal
 exports.is_defined = is_defined
 exports.fail = fail
+exports.replace_string = replace_string
