@@ -24,6 +24,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const validation = require('../src-electron/validation/validation.js')
 const querySession = require('../src-electron/db/query-session.js')
 const queryConfig = require('../src-electron/db/query-config.js')
+const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const env = require('../src-electron/util/env.js')
 const util = require('../src-electron/util/util.js')
@@ -308,7 +309,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
     )
     endpointTypeIdOnOff = rowId
     let endpointType = await queryZcl.selectEndpointType(db, rowId)
-    await queryConfig.insertEndpoint(
+    await queryEndpoint.insertEndpoint(
       db,
       sid,
       1,
@@ -317,7 +318,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       23,
       43
     )
-    eptId = await queryConfig.insertEndpoint(
+    eptId = await queryEndpoint.insertEndpoint(
       db,
       sid,
       1,

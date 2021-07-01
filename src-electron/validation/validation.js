@@ -23,6 +23,7 @@
 
 const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
+const queryEndpoint = require('../db/query-endpoint.js')
 const types = require('../util/types.js')
 
 async function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {
@@ -38,7 +39,7 @@ async function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {
 }
 
 async function validateEndpoint(db, endpointId) {
-  let endpoint = await queryConfig.selectEndpoint(db, endpointId)
+  let endpoint = await queryEndpoint.selectEndpoint(db, endpointId)
   let currentIssues = validateSpecificEndpoint(endpoint)
   let noDuplicates = await validateNoDuplicateEndpoints(
     db,

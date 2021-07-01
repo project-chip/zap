@@ -23,6 +23,7 @@
 const templateUtil = require('./template-util.js')
 const queryImpexp = require('../db/query-impexp.js')
 const queryEndpoint = require('../db/query-endpoint.js')
+const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryCommand = require('../db/query-command.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryConfig = require('../db/query-config.js')
@@ -746,7 +747,7 @@ async function all_user_reportable_attributes(options) {
  * @returns All available cluster commands across all endpoints and clusters
  */
 async function all_user_cluster_generated_commands(options) {
-  let endpointTypes = await queryEndpoint.selectUsedEndPointTypeIds(
+  let endpointTypes = await queryEndpointType.selectUsedEndpointTypeIds(
     this.global.db,
     this.global.sessionId
   )
@@ -764,8 +765,8 @@ async function all_user_cluster_generated_commands(options) {
  * all endpoints.
  */
 function all_user_clusters_with_incoming_commands(options) {
-  return queryEndpoint
-    .selectUsedEndPointTypeIds(this.global.db, this.global.sessionId)
+  return queryEndpointType
+    .selectUsedEndpointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryCommand.selectAllClustersWithIncomingCommands(
         this.global.db,
@@ -788,8 +789,8 @@ function all_incoming_commands_for_cluster(clusterName, clusterSide, options) {
     'isMfgSpecific' in options.hash
       ? options.hash.isMfgSpecific.toLowerCase() === 'true'
       : undefined
-  return queryEndpoint
-    .selectUsedEndPointTypeIds(this.global.db, this.global.sessionId)
+  return queryEndpointType
+    .selectUsedEndpointTypeIds(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       queryCommand.selectAllIncomingCommandsForCluster(
         this.global.db,

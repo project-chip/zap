@@ -18,15 +18,19 @@
  * @jest-environment node
  */
 const fs = require('fs')
+
 const dbApi = require('../src-electron/db/db-api.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const queryCommand = require('../src-electron/db/query-command.js')
 const queryLoader = require('../src-electron/db/query-loader.js')
 const queryConfig = require('../src-electron/db/query-config.js')
-const env = require('../src-electron/util/env.js')
-const util = require('../src-electron/util/util.js')
+const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
+const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const querySession = require('../src-electron/db/query-session.js')
+
+const env = require('../src-electron/util/env.js')
+const util = require('../src-electron/util/util.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const exportJs = require('../src-electron/importexport/export.js')
 const dbEnum = require('../src-shared/db-enum.js')
@@ -34,7 +38,6 @@ const generationEngine = require('../src-electron/generator/generation-engine.js
 const testUtil = require('./test-util.js')
 const testQuery = require('./test-query.js')
 const restApi = require('../src-shared/rest-api.js')
-const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -238,12 +241,12 @@ describe('Session specific queries', () => {
       )
       result = await querySession.getSessionDirtyFlag(db, sid)
       expect(result).toBeTruthy()
-      let rows = await queryConfig.selectAllEndpointTypes(db, sid)
+      let rows = await queryEndpointType.selectAllEndpointTypes(db, sid)
       expect(rows.length).toBe(1)
       await querySession.setSessionClean(db, sid)
       result = await querySession.getSessionDirtyFlag(db, sid)
       expect(result).toBeFalsy()
-      await queryConfig.deleteEndpointType(db, endpointTypeId)
+      await queryEndpointType.deleteEndpointType(db, endpointTypeId)
       result = await querySession.getSessionDirtyFlag(db, sid)
       expect(result).toBeTruthy()
     },
@@ -312,7 +315,7 @@ describe('Session specific queries', () => {
   test(
     'Empty delete',
     () =>
-      queryConfig.deleteEndpoint(db, 123).then((data) => {
+      queryEndpoint.deleteEndpoint(db, 123).then((data) => {
         expect(data).toBe(0)
       }),
     testUtil.timeout.short()
@@ -489,8 +492,8 @@ describe('Endpoint Type Config Queries', () => {
     'Get all cluster names',
     () => {
       let expectedNames = ['Basic', 'Identify', 'Level Control', 'On/off']
-      return queryEndpoint
-        .selectEndPointTypeIds(db, sid)
+      return queryEndpointType
+        .selectEndpointTypeIds(db, sid)
         .then((endpointTypes) =>
           queryZcl
             .exportAllClustersNamesFromEndpointTypes(db, endpointTypes)
@@ -536,10 +539,10 @@ describe('Endpoint Type Config Queries', () => {
   test(
     'Insert Endpoint Test',
     () =>
-      queryConfig
+      queryEndpoint
         .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9, 260, 22, 43)
         .then((rowId) => {
-          return queryConfig.selectEndpoint(db, rowId)
+          return queryEndpoint.selectEndpoint(db, rowId)
         })
         .then((endpoint) => {
           expect(endpoint.endpointId).toBe(4)
@@ -574,7 +577,7 @@ describe('Endpoint Type Config Queries', () => {
   test(
     'Delete Endpoint Type',
     () =>
-      queryConfig
+      queryEndpointType
         .deleteEndpointType(db, endpointTypeIdOnOff)
         .then(testQuery.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff))
         .then((clusters) => {

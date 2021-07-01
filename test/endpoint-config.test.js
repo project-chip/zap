@@ -26,6 +26,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 const queryEndpoint = require('../src-electron/db/query-endpoint.js')
+const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const types = require('../src-electron/util/types.js')
 const bin = require('../src-electron/util/bin.js')
@@ -86,7 +87,7 @@ test(
 test(
   'Test endpoint config queries',
   () =>
-    queryConfig
+    queryEndpointType
       .selectAllEndpointTypes(db, sessionId)
       .then((epts) => {
         expect(epts.length).toBe(3)
