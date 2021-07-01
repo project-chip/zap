@@ -1010,47 +1010,6 @@ async function selectAtomicSizeFromType(db, packageId, type) {
   }
 }
 
-/**
- * Exports clusters and endpoint ids
- *
- * @param {*} db
- * @param {*} endpointTypeId
- * @returns Promise that resolves with the data that contains cluster
- * and endpoint id references
- */
-async function exportClustersAndEndpointDetailsFromEndpointTypes(
-  db,
-  endpointTypes
-) {
-  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
-  let mapFunction = (x) => {
-    return {
-      endpointId: x.ENDPOINT_TYPE_REF,
-      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
-      endpointTypeClusterRef: x.CLUSTER_REF,
-    }
-  }
-
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF,
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
-  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-FROM 
-  CLUSTER
-INNER JOIN 
-  ENDPOINT_TYPE_CLUSTER
-ON 
-  CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-WHERE
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})`
-    )
-    .then((rows) => rows.map(mapFunction))
-}
-
 function commandMap(x) {
   return {
     id: x.COMMAND_ID,
@@ -1513,7 +1472,6 @@ exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 
 exports.determineType = determineType
 
-exports.exportClustersAndEndpointDetailsFromEndpointTypes = exportClustersAndEndpointDetailsFromEndpointTypes
 exports.exportCommandDetailsFromAllEndpointTypesAndClusters = exportCommandDetailsFromAllEndpointTypesAndClusters
 exports.exportAllCommandDetailsFromEnabledClusters = exportAllCommandDetailsFromEnabledClusters
 exports.exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
