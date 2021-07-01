@@ -373,7 +373,7 @@ describe('Endpoint Type Config Queries', () => {
         .insertEndpointType(db, sid, 'testEndpointType', haOnOffDeviceType.id)
         .then((rowId) => {
           endpointTypeIdOnOff = rowId
-          return queryZcl.selectEndpointType(db, rowId)
+          return queryEndpointType.selectEndpointType(db, rowId)
         })
         .then((endpointType) => {
           expect(endpointType.deviceTypeRef).toBe(haOnOffDeviceType.id)
@@ -495,8 +495,8 @@ describe('Endpoint Type Config Queries', () => {
       return queryEndpointType
         .selectEndpointTypeIds(db, sid)
         .then((endpointTypes) =>
-          queryZcl
-            .exportAllClustersNamesFromEndpointTypes(db, endpointTypes)
+          queryEndpointType
+            .selectAllClustersNamesFromEndpointTypes(db, endpointTypes)
             .then((names) => {
               expect(names.length).toBe(4)
               names.forEach((element) => {

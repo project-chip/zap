@@ -548,6 +548,75 @@ ORDER BY CL.CODE, CMD.CODE, CA.FIELD_IDENTIFIER`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
+/**
+ * After the data is loaded from XML, we need to link the command request/responses
+ * RESPONSE_REF fields together.
+ * This is done in a 2 ways:
+ *    - for commands that already have RESPONSE_NAME, it is used.
+ *    - for commands that have Request/Response names, those names are matched.
+ * In both cases, RESPONSE_REF is properly linked.
+ *
+ * @param {*} db
+ */
+async function updateCommandRequestResponseReferences(db) {
+  // First we link up all the cases where the response_for_name is present
+  await dbApi.dbUpdate(
+    db,
+    `
+UPDATE
+  COMMAND
+SET
+  RESPONSE_REF =
+  ( SELECT
+      CMD_REF.COMMAND_ID
+    FROM
+      COMMAND AS CMD_REF
+    WHERE
+      ( CMD_REF.NAME = COMMAND.RESPONSE_NAME
+      ) AND (
+        ( CMD_REF.CLUSTER_REF = COMMAND.CLUSTER_REF )
+        OR
+        ( CMD_REF.CLUSTER_REF IS NULL AND COMMAND.CLUSTER_REF IS NULL )
+      ) AND (
+        ( CMD_REF.PACKAGE_REF = COMMAND.PACKAGE_REF)
+      )
+  )
+WHERE
+  COMMAND.RESPONSE_NAME IS NOT NULL
+  `
+  )
+
+  // Then we link up the ones where the "response/request" names match.
+  await dbApi.dbUpdate(
+    db,
+    `
+UPDATE
+  COMMAND
+SET
+  RESPONSE_REF =
+  (
+    SELECT
+      CMD_REF.COMMAND_ID
+    FROM
+      COMMAND AS CMD_REF
+    WHERE
+      ( CMD_REF.NAME = COMMAND.NAME||'Response'
+        OR
+        CMD_REF.NAME = REPLACE(COMMAND.NAME, 'Request', '')||'Response'
+      ) AND (
+        ( CMD_REF.CLUSTER_REF = COMMAND.CLUSTER_REF )
+        OR
+        ( CMD_REF.CLUSTER_REF IS NULL AND COMMAND.CLUSTER_REF IS NULL )
+        ) AND (
+          ( CMD_REF.PACKAGE_REF = COMMAND.PACKAGE_REF)
+        )
+  )
+WHERE
+  COMMAND.NAME NOT LIKE '%Response'
+    `
+  )
+}
+
 exports.selectCliCommandCountFromEndpointTypeCluster = selectCliCommandCountFromEndpointTypeCluster
 exports.selectCliCommandsFromCluster = selectCliCommandsFromCluster
 exports.selectAllAvailableClusterCommandDetailsFromEndpointTypes = selectAllAvailableClusterCommandDetailsFromEndpointTypes
@@ -562,3 +631,4 @@ exports.selectAllCommandArguments = selectAllCommandArguments
 exports.selectCommandArgumentsCountByCommandId = selectCommandArgumentsCountByCommandId
 exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
 exports.selectCommandTree = selectCommandTree
+exports.updateCommandRequestResponseReferences = updateCommandRequestResponseReferences

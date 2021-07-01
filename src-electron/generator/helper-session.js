@@ -426,7 +426,7 @@ async function all_cli_commands_for_user_enabled_clusters(options) {
 async function all_user_clusters(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
 
-  let clusters = await queryZcl.selectAllClustersDetailsFromEndpointTypes(
+  let clusters = await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
     this.global.db,
     endpointTypes
   )
@@ -443,7 +443,7 @@ async function all_user_clusters(options) {
 async function all_user_clusters_irrespective_of_side(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
 
-  let clusters = await queryZcl.exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
+  let clusters = await queryEndpointType.selectAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
     this.global.db,
     endpointTypes
   )
@@ -460,7 +460,7 @@ async function all_user_clusters_irrespective_of_side(options) {
  */
 async function all_user_clusters_names(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let clusters = await queryZcl.exportAllClustersNamesFromEndpointTypes(
+  let clusters = await queryEndpointType.selectAllClustersNamesFromEndpointTypes(
     this.global.db,
     endpointTypes
   )
@@ -511,7 +511,7 @@ async function user_cluster_commands_with_cli(options) {
  */
 async function user_cluster_commands_all_endpoints(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let endpointCommands = await queryZcl.exportCommandDetailsFromAllEndpointTypeCluster(
+  let endpointCommands = await queryEndpointType.selectCommandDetailsFromAllEndpointTypeCluster(
     this.global.db,
     endpointTypes,
     this.endpointClusterId
@@ -834,7 +834,7 @@ async function generated_endpoint_type_details(options) {
     this.global.db,
     endpointTypes
   )
-  let endpointCommands = await queryZcl.selectEndpointDetailsFromAddedEndpoints(
+  let endpointCommands = await queryEndpointType.selectEndpointDetailsFromAddedEndpoints(
     this.global.db,
     endpointsAndClusters
   )

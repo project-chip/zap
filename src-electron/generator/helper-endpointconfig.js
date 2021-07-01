@@ -17,6 +17,7 @@
 
 const templateUtil = require('./template-util')
 const queryEndpoint = require('../db/query-endpoint.js')
+const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
 const bin = require('../util/bin.js')
@@ -702,10 +703,12 @@ function endpoint_config(options) {
       let endpointTypePromises = []
       endpointTypeIds.forEach((eptId) => {
         endpointTypePromises.push(
-          queryZcl.selectEndpointType(db, eptId.endpointTypeId).then((ept) => {
-            ept.endpointId = eptId.endpointIdentifier
-            return ept
-          })
+          queryEndpointType
+            .selectEndpointType(db, eptId.endpointTypeId)
+            .then((ept) => {
+              ept.endpointId = eptId.endpointIdentifier
+              return ept
+            })
         )
       })
       return Promise.all(endpointTypePromises)

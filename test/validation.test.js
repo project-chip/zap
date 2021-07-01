@@ -25,6 +25,7 @@ const validation = require('../src-electron/validation/validation.js')
 const querySession = require('../src-electron/db/query-session.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const queryEndpoint = require('../src-electron/db/query-endpoint.js')
+const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const env = require('../src-electron/util/env.js')
 const util = require('../src-electron/util/util.js')
@@ -308,7 +309,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       deviceTypeId
     )
     endpointTypeIdOnOff = rowId
-    let endpointType = await queryZcl.selectEndpointType(db, rowId)
+    let endpointType = await queryEndpointType.selectEndpointType(db, rowId)
     await queryEndpoint.insertEndpoint(
       db,
       sid,

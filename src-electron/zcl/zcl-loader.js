@@ -18,6 +18,7 @@
 const fs = require('fs')
 const path = require('path')
 const queryPackage = require('../db/query-package.js')
+const queryCommand = require('../db/query-command.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const fsp = fs.promises
 const sLoad = require('./zcl-loader-silabs.js')
@@ -238,7 +239,7 @@ async function qualifyZclFile(
  */
 async function processZclPostLoading(db) {
   await queryZcl.updateDeviceTypeEntityReferences(db)
-  return queryZcl.updateCommandRequestResponseReferences(db)
+  return queryCommand.updateCommandRequestResponseReferences(db)
 }
 
 exports.loadZcl = loadZcl
