@@ -182,7 +182,7 @@ function all_user_cluster_commands(options) {
       )
     )
     .then((endpointsAndClusters) =>
-      queryZcl.exportCommandDetailsFromAllEndpointTypesAndClusters(
+      queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
         this.global.db,
         endpointsAndClusters
       )
@@ -222,17 +222,17 @@ function all_user_cluster_command_util(
     )
     .then((endpointsAndClusters) => {
       if (isIrrespectiveOfManufacturingSpecification) {
-        return queryZcl.exportCommandDetailsFromAllEndpointTypesAndClusters(
+        return queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
           currentContext.global.db,
           endpointsAndClusters
         )
       } else if (isManufacturingSpecific) {
-        return queryZcl.exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
+        return queryCommand.selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
           currentContext.global.db,
           endpointsAndClusters
         )
       } else {
-        return queryZcl.exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
+        return queryCommand.selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
           currentContext.global.db,
           endpointsAndClusters
         )
@@ -389,7 +389,7 @@ async function all_commands_for_user_enabled_clusters(options) {
     this.global.db,
     endpointTypes
   )
-  let endpointCommands = await queryZcl.exportAllCommandDetailsFromEnabledClusters(
+  let endpointCommands = await queryCommand.selectAllCommandDetailsFromEnabledClusters(
     this.global.db,
     endpointsAndClusters
   )
@@ -410,7 +410,7 @@ async function all_cli_commands_for_user_enabled_clusters(options) {
     endpointTypes
   )
 
-  let endpointCommands = await queryZcl.exportAllCliCommandDetailsFromEnabledClusters(
+  let endpointCommands = await queryCommand.selectAllCliCommandDetailsFromEnabledClusters(
     this.global.db,
     endpointsAndClusters
   )
@@ -538,7 +538,7 @@ async function user_cluster_has_enabled_command(name, side) {
     endpointTypes
   )
 
-  let endpointCommands = await queryZcl.exportCommandDetailsFromAllEndpointTypesAndClusters(
+  let endpointCommands = await queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
     this.global.db,
     endpointsAndClusters
   )

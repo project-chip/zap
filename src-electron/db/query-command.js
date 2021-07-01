@@ -617,6 +617,261 @@ WHERE
   )
 }
 
+function commandMapFunction(x) {
+  return {
+    id: x.COMMAND_ID,
+    name: x.NAME,
+    code: x.CODE,
+    commandSource: x.SOURCE,
+    source: x.SOURCE,
+    mfgCode: x.MANUFACTURER_CODE,
+    incoming: x.INCOMING,
+    outgoing: x.OUTGOING,
+    description: x.DESCRIPTION,
+    clusterSide: x.SIDE,
+    clusterName: x.CLUSTER_NAME,
+    clusterDefine: x.CLUSTER_DEFINE,
+    isClusterEnabled: x.ENABLED,
+  }
+}
+
+/**
+ * Returns a promise of data for commands inside an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the command data.
+ */
+async function selectAllCommandDetailsFromEnabledClusters(
+  db,
+  endpointsAndClusters
+) {
+  let endpointTypeClusterRef = endpointsAndClusters
+    .map((ep) => ep.endpointTypeClusterRef)
+    .toString()
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    COMMAND.COMMAND_ID,
+    COMMAND.NAME,
+    COMMAND.CODE,
+    COMMAND.SOURCE,
+    COMMAND.MANUFACTURER_CODE,
+    COMMAND.DESCRIPTION,
+    ENDPOINT_TYPE_CLUSTER.SIDE,
+    CLUSTER.NAME AS CLUSTER_NAME,
+    ENDPOINT_TYPE_CLUSTER.ENABLED
+  FROM COMMAND
+  INNER JOIN CLUSTER
+  ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  INNER JOIN ENDPOINT_TYPE_CLUSTER
+  ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
+  GROUP BY COMMAND.NAME
+        `
+    )
+    .then((rows) => rows.map(commandMapFunction))
+}
+
+/**
+ *
+ * @param db
+ * @param endpointsAndClusters
+ * @returns  Returns a promise of data for commands with cli inside an endpoint type.
+ */
+async function selectAllCliCommandDetailsFromEnabledClusters(
+  db,
+  endpointsAndClusters
+) {
+  let endpointTypeClusterRef = endpointsAndClusters
+    .map((ep) => ep.endpointTypeClusterRef)
+    .toString()
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    COMMAND.COMMAND_ID,
+    COMMAND.NAME,
+    COMMAND.CODE,
+    COMMAND.SOURCE,
+    COMMAND.MANUFACTURER_CODE,
+    COMMAND.DESCRIPTION,
+    ENDPOINT_TYPE_CLUSTER.SIDE,
+    CLUSTER.NAME AS CLUSTER_NAME,
+    CLUSTER.DEFINE AS CLUSTER_DEFINE,
+    ENDPOINT_TYPE_CLUSTER.ENABLED
+  FROM COMMAND
+  INNER JOIN CLUSTER
+  ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  INNER JOIN ENDPOINT_TYPE_CLUSTER
+  ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+  INNER JOIN PACKAGE_OPTION
+  ON PACKAGE_OPTION.OPTION_CODE = COMMAND.NAME
+  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef}) AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+  GROUP BY COMMAND.NAME, CLUSTER.NAME
+        `
+    )
+    .then((rows) => rows.map(commandMapFunction))
+}
+
+/**
+ * Returns a promise of data for commands inside an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise that resolves with the command data.
+ */
+async function selectCommandDetailsFromAllEndpointTypesAndClusters(
+  db,
+  endpointsAndClusters
+) {
+  let endpointTypeIds = endpointsAndClusters
+    .map((ep) => ep.endpointId)
+    .toString()
+  let endpointClusterIds = endpointsAndClusters
+    .map((ep) => ep.endpointClusterId)
+    .toString()
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    COMMAND.COMMAND_ID,
+    COMMAND.NAME,
+    COMMAND.CODE,
+    COMMAND.SOURCE,
+    COMMAND.MANUFACTURER_CODE,
+    ENDPOINT_TYPE_COMMAND.INCOMING,
+    ENDPOINT_TYPE_COMMAND.OUTGOING,
+    COMMAND.DESCRIPTION,
+    ENDPOINT_TYPE_CLUSTER.SIDE,
+    CLUSTER.NAME AS CLUSTER_NAME,
+    ENDPOINT_TYPE_CLUSTER.ENABLED
+  FROM
+    COMMAND
+  INNER JOIN
+    ENDPOINT_TYPE_COMMAND
+  ON
+    COMMAND.COMMAND_ID = ENDPOINT_TYPE_COMMAND.COMMAND_REF
+  INNER JOIN
+    ENDPOINT_TYPE_CLUSTER
+  ON
+    ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  INNER JOIN
+    CLUSTER
+  ON
+    COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  WHERE
+    ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds}) 
+    AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
+  GROUP BY
+    COMMAND.NAME, COMMAND.COMMAND_ID
+        `
+    )
+    .then((rows) => rows.map(commandMapFunction))
+}
+
+/**
+ * Returns a promise of data for manufacturing/non-manufacturing specific commands
+ * inside an endpoint type.
+ *
+ * @param db
+ * @param endpointTypeId
+ * @returns Promise that resolves with the manufacturing/non-manufacturing
+ * specific command data.
+ */
+async function selectCommandDetailsFromAllEndpointTypesAndClustersUtil(
+  db,
+  endpointsAndClusters,
+  isManufacturingSpecific
+) {
+  let endpointTypeIds = endpointsAndClusters
+    .map((ep) => ep.endpointId)
+    .toString()
+  let endpointClusterIds = endpointsAndClusters
+    .map((ep) => ep.endpointClusterId)
+    .toString()
+  return dbApi
+    .dbAll(
+      db,
+      `
+  SELECT
+    COMMAND.COMMAND_ID,
+    COMMAND.NAME,
+    COMMAND.CODE,
+    COMMAND.SOURCE,
+    COMMAND.MANUFACTURER_CODE,
+    ENDPOINT_TYPE_COMMAND.INCOMING,
+    ENDPOINT_TYPE_COMMAND.OUTGOING,
+    COMMAND.DESCRIPTION,
+    ENDPOINT_TYPE_CLUSTER.SIDE,
+    CLUSTER.NAME AS CLUSTER_NAME,
+    ENDPOINT_TYPE_CLUSTER.ENABLED
+  FROM
+    COMMAND
+  INNER JOIN
+    ENDPOINT_TYPE_COMMAND
+  ON
+    COMMAND.COMMAND_ID = ENDPOINT_TYPE_COMMAND.COMMAND_REF
+  INNER JOIN
+    ENDPOINT_TYPE_CLUSTER
+  ON
+    ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  INNER JOIN
+    CLUSTER
+  ON
+    COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  WHERE
+    ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+    AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
+    AND COMMAND.MANUFACTURER_CODE IS ${
+      isManufacturingSpecific ? `NOT` : ``
+    } NULL
+  GROUP BY COMMAND.NAME
+        `
+    )
+    .then((rows) => rows.map(commandMapFunction))
+}
+
+/**
+ * Returns a promise of data for manufacturing specific commands inside an endpoint type.
+ *
+ * @param db
+ * @param endpointTypeId
+ * @returns Promise that resolves with the manufacturing specific command data.
+ */
+async function selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
+  db,
+  endpointsAndClusters
+) {
+  return selectCommandDetailsFromAllEndpointTypesAndClustersUtil(
+    db,
+    endpointsAndClusters,
+    true
+  )
+}
+
+/**
+ * Returns a promise of data for commands with no manufacturing specific information inside an endpoint type.
+ *
+ * @param db
+ * @param endpointTypeId
+ * @returns Promise that resolves with the non-manufacturing specific command data.
+ */
+async function selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
+  db,
+  endpointsAndClusters
+) {
+  return selectCommandDetailsFromAllEndpointTypesAndClustersUtil(
+    db,
+    endpointsAndClusters,
+    false
+  )
+}
+
 exports.selectCliCommandCountFromEndpointTypeCluster = selectCliCommandCountFromEndpointTypeCluster
 exports.selectCliCommandsFromCluster = selectCliCommandsFromCluster
 exports.selectAllAvailableClusterCommandDetailsFromEndpointTypes = selectAllAvailableClusterCommandDetailsFromEndpointTypes
@@ -632,3 +887,10 @@ exports.selectCommandArgumentsCountByCommandId = selectCommandArgumentsCountByCo
 exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
 exports.selectCommandTree = selectCommandTree
 exports.updateCommandRequestResponseReferences = updateCommandRequestResponseReferences
+
+exports.selectAllCommandDetailsFromEnabledClusters = selectAllCommandDetailsFromEnabledClusters
+exports.selectAllCliCommandDetailsFromEnabledClusters = selectAllCliCommandDetailsFromEnabledClusters
+
+exports.selectCommandDetailsFromAllEndpointTypesAndClusters = selectCommandDetailsFromAllEndpointTypesAndClusters
+exports.selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
+exports.selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
