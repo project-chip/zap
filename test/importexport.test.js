@@ -29,7 +29,6 @@ const generationEngine = require('../src-electron/generator/generation-engine.js
 const querySession = require('../src-electron/db/query-session.js')
 const testUtil = require('./test-util.js')
 const testQuery = require('./test-query.js')
-const queryConfig = require('../src-electron/db/query-config.js')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
 const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const util = require('../src-electron/util/util.js')

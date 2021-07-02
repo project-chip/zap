@@ -17,3 +17,50 @@
  *
  * @jest-environment node
  */
+const path = require('path')
+const fs = require('fs')
+const importJs = require('../src-electron/importexport/import.js')
+const exportJs = require('../src-electron/importexport/export.js')
+const dbEnum = require('../src-shared/db-enum.js')
+const dbApi = require('../src-electron/db/db-api.js')
+const env = require('../src-electron/util/env.js')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
+const generationEngine = require('../src-electron/generator/generation-engine.js')
+const querySession = require('../src-electron/db/query-session.js')
+const testUtil = require('./test-util.js')
+const testQuery = require('./test-query.js')
+const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
+const queryEndpoint = require('../src-electron/db/query-endpoint.js')
+const util = require('../src-electron/util/util.js')
+
+let sleepyGenericZap = path.join(__dirname, 'resource/isc/sleepy-generic.zap')
+
+beforeAll(() => {
+  env.setDevelopmentEnv()
+  let file = env.sqliteTestFile('script-api')
+  return dbApi
+    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
+    .then((d) => {
+      db = d
+      env.logInfo(`Test database initialized: ${file}.`)
+    })
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
+    .catch((err) => env.logError(`Error: ${err}`))
+}, testUtil.timeout.medium())
+
+afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
+
+test(
+  path.basename(sleepyGenericZap) + ' - import',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, sleepyGenericZap, {
+      sessionId: sid,
+      postImportScript: path.join(__dirname, 'resource/test-script-2.js'),
+    })
+    let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
+    expect(endpoints.length).toBe(1)
+    expect(endpoints[0].deviceIdentifier).toBe(1281)
+  },
+  testUtil.timeout.medium()
+)

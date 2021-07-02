@@ -18,14 +18,21 @@
 const path = require('path')
 const scriptApi = require('./script-api.js')
 
-async function executeScriptFunction(functionName, db, sessionId, script) {
+/**
+ * Executes a named function from a given script.
+ * Arguments passed to the function are:
+ *   api: which is the result of require('script-api.js')
+ *   context: which contains 'db', 'sessionId', etc.
+ *
+ * @param {*} functionName
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} script
+ */
+async function executeScriptFunction(functionName, context, script) {
   let resolvedPath = path.resolve(script)
   let loadedScript = require(resolvedPath)
   if (loadedScript[functionName]) {
-    let context = {
-      db: db,
-      sessionId: sessionId,
-    }
     await loadedScript[functionName](scriptApi, context)
   }
 }

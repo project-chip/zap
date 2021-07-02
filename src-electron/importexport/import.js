@@ -58,10 +58,13 @@ async function readDataFromFile(filePath, defaultZclMetafile) {
 }
 
 async function executePostImportScript(db, sessionId, scriptFile) {
+  let context = {
+    db: db,
+    sessionId: sessionId,
+  }
   return script.executeScriptFunction(
     script.functions.postLoad,
-    db,
-    sessionId,
+    context,
     scriptFile
   )
 }
