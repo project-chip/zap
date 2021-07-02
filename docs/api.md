@@ -28,7 +28,7 @@
 <dt><a href="#module_DB API_ endpoint type queries against the database.">DB API: endpoint type queries against the database.</a></dt>
 <dd><p>This module provides queries for endpoint type.</p>
 </dd>
-<dt><a href="#module_DB API_ evebt queries.">DB API: evebt queries.</a></dt>
+<dt><a href="#module_DB API_ event queries.">DB API: event queries.</a></dt>
 <dd><p>This module provides queries related to events.</p>
 </dd>
 <dt><a href="#module_DB API_ package-based queries.">DB API: package-based queries.</a></dt>
@@ -72,6 +72,10 @@
 <dd></dd>
 <dt><a href="#module_REST API_ user data">REST API: user data</a></dt>
 <dd><p>This module provides the API to access zcl specific information.</p>
+</dd>
+<dt><a href="#module_JS API_ post-import.">JS API: post-import.</a></dt>
+<dd><p>This module contains the API functions for the post-load
+scripting functionality.</p>
 </dd>
 <dt><a href="#module_REST API_ admin functions">REST API: admin functions</a></dt>
 <dd><p>This module provides the REST API to the admin functions.</p>
@@ -311,10 +315,6 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.</p>
-</dd>
-<dt><a href="#queryEndpoint">queryEndpoint</a></dt>
-<dd><p>This module contains the API functions for the post-load
-scripting functionality.</p>
 </dd>
 <dt><a href="#env">env</a></dt>
 <dd><p>This file is used specifically and only for development. It installs
@@ -624,27 +624,6 @@ with the succesfull writing into the database.</p>
 </dd>
 <dt><a href="#readJsonData">readJsonData(filePath, data)</a> ⇒</dt>
 <dd><p>Parses JSON file and creates a state object out of it, which is passed further down the chain.</p>
-</dd>
-<dt><a href="#print">print(text)</a></dt>
-<dd><p>Prints a text to console.</p>
-</dd>
-<dt><a href="#endpoints">endpoints(context)</a></dt>
-<dd><p>Returns an array of endpoints.</p>
-</dd>
-<dt><a href="#clusters">clusters(context, endpoint)</a></dt>
-<dd><p>Returns an array of clusters defined on a given endpoint.</p>
-</dd>
-<dt><a href="#attributes">attributes(context, endpoint, cluster)</a></dt>
-<dd><p>Returns an array of attributes for a given cluster.</p>
-</dd>
-<dt><a href="#commands">commands(context, endpoint, cluster)</a></dt>
-<dd><p>Returns an array of commands for a given cluster</p>
-</dd>
-<dt><a href="#functions">functions()</a></dt>
-<dd><p>Returns array of function names available in this module.</p>
-</dd>
-<dt><a href="#sessionId">sessionId(context)</a> ⇒</dt>
-<dd><p>Returns the session id in the context.</p>
 </dd>
 <dt><a href="#createOrShowAboutWindow">createOrShowAboutWindow(port)</a></dt>
 <dd><p>Call this function to create a new or show an existing preference window.</p>
@@ -1379,9 +1358,9 @@ This module provides queries for endpoint configuration.
 
 This module provides queries for endpoint type.
 
-<a name="module_DB API_ evebt queries."></a>
+<a name="module_DB API_ event queries."></a>
 
-## DB API: evebt queries.
+## DB API: event queries.
 
 This module provides queries related to events.
 
@@ -6223,6 +6202,13 @@ HTTP GET: Project packages
 HTTP POST: Add new project package
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+<a name="module_JS API_ post-import."></a>
+
+## JS API: post-import.
+
+This module contains the API functions for the post-load
+scripting functionality.
+
 <a name="module_REST API_ admin functions"></a>
 
 ## REST API: admin functions
@@ -7823,14 +7809,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
-<a name="queryEndpoint"></a>
-
-## queryEndpoint
-
-This module contains the API functions for the post-load
-scripting functionality.
-
-**Kind**: global constant  
 <a name="env"></a>
 
 ## env
@@ -8635,91 +8613,6 @@ Parses JSON file and creates a state object out of it, which is passed further d
 | -------- | --------------- |
 | filePath | <code>\*</code> |
 | data     | <code>\*</code> |
-
-<a name="print"></a>
-
-## print(text)
-
-Prints a text to console.
-
-**Kind**: global function
-
-| Param | Type            |
-| ----- | --------------- |
-| text  | <code>\*</code> |
-
-<a name="endpoints"></a>
-
-## endpoints(context)
-
-Returns an array of endpoints.
-
-**Kind**: global function
-
-| Param   | Type            |
-| ------- | --------------- |
-| context | <code>\*</code> |
-
-<a name="clusters"></a>
-
-## clusters(context, endpoint)
-
-Returns an array of clusters defined on a given endpoint.
-
-**Kind**: global function
-
-| Param    | Type            |
-| -------- | --------------- |
-| context  | <code>\*</code> |
-| endpoint | <code>\*</code> |
-
-<a name="attributes"></a>
-
-## attributes(context, endpoint, cluster)
-
-Returns an array of attributes for a given cluster.
-
-**Kind**: global function
-
-| Param    | Type            |
-| -------- | --------------- |
-| context  | <code>\*</code> |
-| endpoint | <code>\*</code> |
-| cluster  | <code>\*</code> |
-
-<a name="commands"></a>
-
-## commands(context, endpoint, cluster)
-
-Returns an array of commands for a given cluster
-
-**Kind**: global function
-
-| Param    | Type            |
-| -------- | --------------- |
-| context  | <code>\*</code> |
-| endpoint | <code>\*</code> |
-| cluster  | <code>\*</code> |
-
-<a name="functions"></a>
-
-## functions()
-
-Returns array of function names available in this module.
-
-**Kind**: global function  
-<a name="sessionId"></a>
-
-## sessionId(context) ⇒
-
-Returns the session id in the context.
-
-**Kind**: global function  
-**Returns**: sessionId
-
-| Param   | Type            |
-| ------- | --------------- |
-| context | <code>\*</code> |
 
 <a name="createOrShowAboutWindow"></a>
 

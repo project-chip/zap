@@ -18,6 +18,8 @@
 /**
  * This module contains the API functions for the post-load
  * scripting functionality.
+ *
+ *  @module JS API: post-import.
  */
 const queryEndpoint = require('../db/query-endpoint.js')
 
