@@ -27,7 +27,7 @@ const importJson = require('./import-json.js')
 const dbApi = require('../db/db-api.js')
 const querySession = require('../db/query-session.js')
 const env = require('../util/env.js')
-const postLoadApi = require('./post-load-api.js')
+const script = require('../util/script.js')
 
 /**
  * Reads the data from the file and resolves with the state object if all is good.
@@ -57,16 +57,13 @@ async function readDataFromFile(filePath, defaultZclMetafile) {
   }
 }
 
-async function executePostImportScript(db, sessionId, script) {
-  let resolvedPath = path.resolve(script)
-  let loadedScript = require(resolvedPath)
-  if (loadedScript.postLoad) {
-    let context = {
-      db: db,
-      sessionId: sessionId,
-    }
-    await loadedScript.postLoad(postLoadApi, context)
-  }
+async function executePostImportScript(db, sessionId, scriptFile) {
+  return script.executeScriptFunction(
+    script.functions.postLoad,
+    db,
+    sessionId,
+    scriptFile
+  )
 }
 
 /**
