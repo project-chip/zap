@@ -65,7 +65,7 @@ async function executePostImportScript(db, sessionId, script) {
       db: db,
       sessionId: sessionId,
     }
-    loadedScript.postLoad(postLoadApi, context)
+    await loadedScript.postLoad(postLoadApi, context)
   }
 }
 

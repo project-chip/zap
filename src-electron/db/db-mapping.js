@@ -304,6 +304,7 @@ exports.map = {
       id: x.ENDPOINT_ID,
       endpointRef: x.ENDPOINT_ID,
       sessionRef: x.SESSION_REF,
+      endpointIdentifier: x.ENDPOINT_IDENTIFIER,
       endpointId: x.ENDPOINT_IDENTIFIER,
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       profileId: x.PROFILE,

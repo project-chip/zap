@@ -35,7 +35,53 @@ function print(text) {
  *
  * @param {*} context
  */
-function endpoints(context) {}
+function endpoints(context) {
+  return queryEndpoint.selectAllEndpoints(context.db, context.sessionId)
+}
+
+/**
+ * Returns an array of clusters defined on a given endpoint.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ */
+function clusters(context, endpoint) {
+  return queryEndpoint.selectEndpointClusters(
+    context.db,
+    endpoint.endpointTypeRef
+  )
+}
+
+/**
+ * Returns an array of attributes for a given cluster.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} cluster
+ */
+function attributes(context, endpoint, cluster) {
+  return queryEndpoint.selectEndpointClusterAttributes(
+    context.db,
+    cluster.clusterId,
+    cluster.side,
+    endpoint.endpointTypeRef
+  )
+}
+
+/**
+ * Returns an array of commands for a given cluster
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} cluster
+ */
+function commands(context, endpoint, cluster) {
+  return queryEndpoint.selectEndpointClusterCommands(
+    context.db,
+    cluster.clusterId,
+    endpoint.endpointTypeRef
+  )
+}
 
 /**
  * Returns array of function names available in this module.
@@ -57,3 +103,8 @@ function sessionId(context) {
 exports.print = print
 exports.functions = functions
 exports.sessionId = sessionId
+
+exports.endpoints = endpoints
+exports.clusters = clusters
+exports.attributes = attributes
+exports.commands = commands
