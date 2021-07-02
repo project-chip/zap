@@ -69,6 +69,8 @@ function atomicType(arg = { name: 'unknown', size: 0 }) {
     switch (name) {
       case 'utc_time':
       case 'date':
+      case 'time_of_day':
+      case 'bacnet_oid':
         return 'uint32_t'
       case 'attribute_id':
       case 'cluster_id':
