@@ -13,14 +13,23 @@
 <dt><a href="#module_DB API_ DB mappings between columns and JS object keys.">DB API: DB mappings between columns and JS object keys.</a></dt>
 <dd><p>This module provides mappings between database columns and JS keys.</p>
 </dd>
+<dt><a href="#module_DB API_ attribute queries.">DB API: attribute queries.</a></dt>
+<dd><p>This module provides queries related to attributes.</p>
+</dd>
+<dt><a href="#module_DB API_ command queries.">DB API: command queries.</a></dt>
+<dd><p>This module provides queries related to commands.</p>
+</dd>
 <dt><a href="#module_DB API_ user configuration queries against the database.">DB API: user configuration queries against the database.</a></dt>
 <dd><p>This module provides queries for user configuration.</p>
 </dd>
 <dt><a href="#module_DB API_ endpoint configuration queries against the database.">DB API: endpoint configuration queries against the database.</a></dt>
 <dd><p>This module provides queries for endpoint configuration.</p>
 </dd>
-<dt><a href="#module_DB API_ generic queries against the database.">DB API: generic queries against the database.</a></dt>
-<dd><p>This module provides generic queries.</p>
+<dt><a href="#module_DB API_ endpoint type queries against the database.">DB API: endpoint type queries against the database.</a></dt>
+<dd><p>This module provides queries for endpoint type.</p>
+</dd>
+<dt><a href="#module_DB API_ evebt queries.">DB API: evebt queries.</a></dt>
+<dd><p>This module provides queries related to events.</p>
 </dd>
 <dt><a href="#module_DB API_ package-based queries.">DB API: package-based queries.</a></dt>
 <dd><p>This module provides queries related to imports and exports of files.</p>
@@ -99,6 +108,49 @@
 <dd></dd>
 <dt><a href="#module_JS API_ random utilities">JS API: random utilities</a></dt>
 <dd></dd>
+<dt><a href="#module_REST API_ various zcl utilities">REST API: various zcl utilities</a></dt>
+<dd><p>This module provides the API to access various zcl utilities.</p>
+</dd>
+</dl>
+
+## Members
+
+<dl>
+<dt><a href="#renderer_api">renderer_api</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#GLOBAL_SYMBOL_INFO">GLOBAL_SYMBOL_INFO</a></dt>
+<dd><p>Global symbol that carries the API info metadata</p>
+</dd>
+<dt><a href="#GLOBAL_SYMBOL_EXECUTE">GLOBAL_SYMBOL_EXECUTE</a></dt>
+<dd><p>Global function that can execute the APIs.</p>
+</dd>
+<dt><a href="#GLOBAL_SYMBOL_NOTIFY">GLOBAL_SYMBOL_NOTIFY</a></dt>
+<dd><p>Global function that can be overloaded by jxbrowser for notifications</p>
+</dd>
+<dt><a href="#watchDogId">watchDogId</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
 </dl>
 
 ## Constants
@@ -143,6 +195,19 @@
    See the License for the specific language governing permissions and
    limitations under the License.</p>
 </dd>
+<dt><a href="#queryZcl">queryZcl</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
 <dt><a href="#templateUtil">templateUtil</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -156,7 +221,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.</p>
 </dd>
-<dt><a href="#queryPackage">queryPackage</a></dt>
+<dt><a href="#dbEnum">dbEnum</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -247,6 +312,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.</p>
 </dd>
+<dt><a href="#queryEndpoint">queryEndpoint</a></dt>
+<dd><p>This module contains the API functions for the post-load
+scripting functionality.</p>
+</dd>
 <dt><a href="#env">env</a></dt>
 <dd><p>This file is used specifically and only for development. It installs
 <code>electron-debug</code> &amp; <code>vue-devtools</code>. There shouldn&#39;t be any need to
@@ -279,7 +348,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.</p>
 </dd>
-<dt><a href="#restApi">restApi</a></dt>
+<dt><a href="#rendApi">rendApi</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -397,6 +466,9 @@ things were successful or not.</p>
 <dt><a href="#emit">emit(key, object)</a></dt>
 <dd><p>Sends a message to server.</p>
 </dd>
+<dt><a href="#attributeDefault">attributeDefault()</a> ⇒</dt>
+<dd><p>Valid within a cluster context, requires code.</p>
+</dd>
 <dt><a href="#endpoint_type_count">endpoint_type_count(options)</a> ⇒</dt>
 <dd><p>Returns number of endpoint types.</p>
 </dd>
@@ -509,7 +581,7 @@ resolves with a state object that needs to be saved into a file.</p>
 at contains clusterId, attributeId, isClient, mfgCode and possibly value</p>
 </dd>
 <dt><a href="#parseAttribute">parseAttribute(attributeString, [value])</a></dt>
-<dd><p>Parrses attribute string in a form:
+<dd><p>Parses attribute string in a form:
    cl:0xABCD, at:0xABCD, di: [client|server], mf:0xABCD</p>
 </dd>
 <dt><a href="#parseZclAfv2Line">parseZclAfv2Line(state, line)</a></dt>
@@ -525,13 +597,23 @@ ZCL relevant.</p>
 <dt><a href="#loadEndpointType">loadEndpointType(db, sessionId, zclPackages, endpointType)</a></dt>
 <dd><p>Load individual endpoint types.</p>
 </dd>
-<dt><a href="#collectAttributeLoadingPromises">collectAttributeLoadingPromises(db, state, sessionId)</a></dt>
+<dt><a href="#loadAttributes">loadAttributes(db, state, sessionId)</a></dt>
 <dd><p>This method returns an array of promises that contain all the
 queries that are needed to load the attribute state</p>
+</dd>
+<dt><a href="#loadSessionKeyValues">loadSessionKeyValues(db, sessionId, keyValues)</a></dt>
+<dd><p>Loads the session key values from the keyValues object</p>
 </dd>
 <dt><a href="#iscDataLoader">iscDataLoader(db, state, sessionId)</a></dt>
 <dd><p>Function that actually loads the data out of a state object.
 Session at this point is blank, and has no packages.</p>
+</dd>
+<dt><a href="#readDataFromFile">readDataFromFile(filePath)</a> ⇒</dt>
+<dd><p>Reads the data from the file and resolves with the state object if all is good.</p>
+</dd>
+<dt><a href="#importDataFromFile">importDataFromFile(db, filePath)</a> ⇒</dt>
+<dd><p>Writes the data from the file into a new session.
+NOTE: This function does NOT initialize session packages.</p>
 </dd>
 <dt><a href="#importSessionKeyValues">importSessionKeyValues(db, sessionId, keyValuePairs)</a></dt>
 <dd><p>Resolves with a promise that imports session key values.</p>
@@ -543,11 +625,26 @@ with the succesfull writing into the database.</p>
 <dt><a href="#readJsonData">readJsonData(filePath, data)</a> ⇒</dt>
 <dd><p>Parses JSON file and creates a state object out of it, which is passed further down the chain.</p>
 </dd>
-<dt><a href="#readDataFromFile">readDataFromFile(filePath)</a> ⇒</dt>
-<dd><p>Reads the data from the file and resolves with the state object if all is good.</p>
+<dt><a href="#print">print(text)</a></dt>
+<dd><p>Prints a text to console.</p>
 </dd>
-<dt><a href="#importDataFromFile">importDataFromFile(db, filePath)</a> ⇒</dt>
-<dd><p>Writes the data from the file into a new session.</p>
+<dt><a href="#endpoints">endpoints(context)</a></dt>
+<dd><p>Returns an array of endpoints.</p>
+</dd>
+<dt><a href="#clusters">clusters(context, endpoint)</a></dt>
+<dd><p>Returns an array of clusters defined on a given endpoint.</p>
+</dd>
+<dt><a href="#attributes">attributes(context, endpoint, cluster)</a></dt>
+<dd><p>Returns an array of attributes for a given cluster.</p>
+</dd>
+<dt><a href="#commands">commands(context, endpoint, cluster)</a></dt>
+<dd><p>Returns an array of commands for a given cluster</p>
+</dd>
+<dt><a href="#functions">functions()</a></dt>
+<dd><p>Returns array of function names available in this module.</p>
+</dd>
+<dt><a href="#sessionId">sessionId(context)</a> ⇒</dt>
+<dd><p>Returns the session id in the context.</p>
 </dd>
 <dt><a href="#createOrShowAboutWindow">createOrShowAboutWindow(port)</a></dt>
 <dd><p>Call this function to create a new or show an existing preference window.</p>
@@ -564,16 +661,22 @@ with the succesfull writing into the database.</p>
 <dt><a href="#outputFile">outputFile(inputFile, outputPattern)</a> ⇒</dt>
 <dd><p>Returns the output file out of input file and a pattern</p>
 </dd>
+<dt><a href="#gatherFiles">gatherFiles(filesArg, options)</a></dt>
+<dd><p>This method gathers all the files to process.</p>
+</dd>
 <dt><a href="#startConvert">startConvert(files, output)</a></dt>
 <dd><p>Perform file conversion.</p>
 </dd>
 <dt><a href="#startAnalyze">startAnalyze(paths, [options])</a></dt>
 <dd><p>Perform file analysis.</p>
 </dd>
+<dt><a href="#startServer">startServer(options)</a> ⇒</dt>
+<dd><p>Starts zap in a server mode.</p>
+</dd>
 <dt><a href="#startSelfCheck">startSelfCheck()</a></dt>
 <dd><p>Start up applicationa in self-check mode.</p>
 </dd>
-<dt><a href="#startGeneration">startGeneration(output, genTemplateJsonFile, zclProperties, [zapFile])</a> ⇒</dt>
+<dt><a href="#startGeneration">startGeneration()</a> ⇒</dt>
 <dd><p>Performs headless regeneration for given parameters.</p>
 </dd>
 <dt><a href="#clearDatabaseFile">clearDatabaseFile(path)</a></dt>
@@ -588,8 +691,17 @@ with the succesfull writing into the database.</p>
 <dt><a href="#startUpMainInstance">startUpMainInstance(isElectron)</a></dt>
 <dd><p>Default startup method.</p>
 </dd>
+<dt><a href="#start">start(expirationInterval, triggerFunction)</a></dt>
+<dd><p>Starts a zap watchdog.</p>
+</dd>
+<dt><a href="#reset">reset()</a></dt>
+<dd><p>Resets a zap watchdog.</p>
+</dd>
 <dt><a href="#socketPath">socketPath()</a></dt>
 <dd><p>Returns the socket path for the IPC.</p>
+</dd>
+<dt><a href="#preHandler">preHandler()</a></dt>
+<dd><p>Runs just before every time IPC request is processed.</p>
 </dd>
 <dt><a href="#initServer">initServer(options)</a></dt>
 <dd><p>IPC initialization.</p>
@@ -603,16 +715,11 @@ with the succesfull writing into the database.</p>
 <dt><a href="#doOpen">doOpen(menuItem, browserWindow, event)</a></dt>
 <dd><p>Perform a file-&gt;open operation.</p>
 </dd>
-<dt><a href="#doSave">doSave(menuItem, browserWindow, event)</a></dt>
+<dt><a href="#doSave">doSave(browserWindow)</a></dt>
 <dd><p>Perform a save, defering to save as if file is not yet selected.</p>
 </dd>
 <dt><a href="#doSaveAs">doSaveAs(menuItem, browserWindow, event)</a></dt>
 <dd><p>Perform save as.</p>
-</dd>
-<dt><a href="#generateInDir">generateInDir(browserWindow)</a></dt>
-<dd><p>This function gets the directory where user wants the output and
-calls generateCode function which generates the code in the user selected
-output.</p>
 </dd>
 <dt><a href="#fileSave">fileSave(db, browserWindow, filePath)</a> ⇒</dt>
 <dd><p>perform the save.</p>
@@ -641,7 +748,14 @@ a new window if all is good.</p>
 notification via the renderer API. It pops the open dialog and
 reports result back through the API.</p>
 </dd>
-<dt><a href="#windowCreate">windowCreate(port, [filePath], [uiMode], [embeddedMode])</a> ⇒</dt>
+<dt><a href="#initializeElectronUi">initializeElectronUi(port)</a></dt>
+<dd><p>Electron UI initialization.</p>
+<p>Note: You might be tempted to pass <code>db</code> to this function. Don&#39;t.
+That was done before and it&#39;s just a lazy way to cut through the
+layers between UI and back-end. Should not be done. Any information
+UI needs from the database should be retrieved via renderer API.</p>
+</dd>
+<dt><a href="#windowCreate">windowCreate(port, [filePath], [uiMode])</a> ⇒</dt>
 <dd><p>Create a window, possibly with a given file path.</p>
 </dd>
 <dt><a href="#processCommandLineArguments">processCommandLineArguments(argv)</a> ⇒</dt>
@@ -788,6 +902,29 @@ that will be resolved when all the XML files are done, or rejected if at least o
 <dd><p>Toplevel function that loads the xml library file
 and orchestrates the promise chain.</p>
 </dd>
+<dt><a href="#recordToplevelPackage">recordToplevelPackage(db, metadataFile, crc)</a> ⇒</dt>
+<dd><p>Records the toplevel package information and resolves into packageId</p>
+</dd>
+<dt><a href="#recordVersion">recordVersion(db, ctx)</a></dt>
+<dd><p>Records the version into the database.</p>
+</dd>
+<dt><a href="#loadZcl">loadZcl(db, metadataFile)</a> ⇒</dt>
+<dd><p>Toplevel function that loads the zcl file and passes it off to the correct zcl loader.</p>
+</dd>
+<dt><a href="#bindValidationScript">bindValidationScript(db, basePackageId)</a></dt>
+<dd><p>This function creates a validator function with signatuee fn(stringToValidateOn)</p>
+</dd>
+<dt><a href="#getSchemaAndValidationScript">getSchemaAndValidationScript(db, basePackageId)</a></dt>
+<dd><p>Returns an object with zclSchema and zclValidation elements.</p>
+</dd>
+<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
+<dd><p>Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}</p>
+</dd>
+<dt><a href="#processZclPostLoading">processZclPostLoading(db)</a> ⇒</dt>
+<dd><p>Promises to perform a post loading step.</p>
+</dd>
 <dt><a href="#collectDataFromJsonFile">collectDataFromJsonFile(ctx)</a> ⇒</dt>
 <dd><p>Promises to read the JSON file and resolve all the data.</p>
 </dd>
@@ -831,6 +968,9 @@ and it has an attribute code=&quot;0xXYZ&quot; where code is a cluster code.</p>
 <dd><p>Processes the globals in the XML files. The <code>global</code> tag contains
 attributes and commands in a same way as cluster or clusterExtension</p>
 </dd>
+<dt><a href="#processTags">processTags(db, filePath, packageId, tags)</a></dt>
+<dd><p>Processes the tags in the XML.</p>
+</dd>
 <dt><a href="#prepareDomain">prepareDomain(domain)</a> ⇒</dt>
 <dd><p>Convert domain from XMl to domain for DB.</p>
 </dd>
@@ -866,10 +1006,10 @@ that will be resolved when all the XML files are done, or rejected if at least o
 <dt><a href="#parseManufacturerData">parseManufacturerData(db, ctx)</a> ⇒</dt>
 <dd><p>Parses the manufacturers xml.</p>
 </dd>
-<dt><a href="#parseZclSchema">parseZclSchema(db, ctx)</a></dt>
+<dt><a href="#parseZclSchema">parseZclSchema(db)</a></dt>
 <dd><p>Parses the ZCL Schema</p>
 </dd>
-<dt><a href="#parseOptions">parseOptions(db, ctx)</a> ⇒</dt>
+<dt><a href="#parseOptions">parseOptions(db)</a> ⇒</dt>
 <dd><p>Parses and loads the text and boolean options.</p>
 </dd>
 <dt><a href="#parseTextOptions">parseTextOptions(db, pkgRef, textOptions)</a> ⇒</dt>
@@ -890,35 +1030,6 @@ that will be resolved when all the XML files are done, or rejected if at least o
 <dt><a href="#loadSilabsZcl">loadSilabsZcl(db, ctx)</a> ⇒</dt>
 <dd><p>Toplevel function that loads the toplevel metafile
 and orchestrates the promise chain.</p>
-</dd>
-<dt><a href="#readMetadataFile">readMetadataFile(ctx)</a> ⇒</dt>
-<dd><p>Reads the properties file into ctx.data and also calculates crc into ctx.crc</p>
-</dd>
-<dt><a href="#recordToplevelPackage">recordToplevelPackage(ctx)</a></dt>
-<dd><p>Records the toplevel package information and puts ctx.packageId into the context.</p>
-</dd>
-<dt><a href="#recordVersion">recordVersion(db, ctx)</a></dt>
-<dd><p>Records the version into the database.</p>
-</dd>
-<dt><a href="#loadZcl">loadZcl(db, metadataFile)</a> ⇒</dt>
-<dd><p>Toplevel function that loads the zcl file and passes it off to the correct zcl loader.</p>
-</dd>
-<dt><a href="#bindValidationScript">bindValidationScript(db, basePackageId)</a></dt>
-<dd><p>This function creates a validator function with signatuee fn(stringToValidateOn)</p>
-</dd>
-<dt><a href="#getSchemaAndValidationScript">getSchemaAndValidationScript(db, basePackageId)</a></dt>
-<dd><p>Returns an object with zclSchema and zclValidation elements.</p>
-</dd>
-<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
-<dd><p>Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}</p>
-</dd>
-<dt><a href="#processZclPostLoading">processZclPostLoading(db)</a> ⇒</dt>
-<dd><p>Promises to perform a post loading step.</p>
-</dd>
-<dt><a href="#parseZclFile">parseZclFile(argument, validator)</a> ⇒</dt>
-<dd><p>Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }</p>
 </dd>
 </dl>
 
@@ -1031,7 +1142,7 @@ Returns a promise to execute a DELETE FROM query.
 Returns a promise to execute an update query.
 
 **Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
-**Returns**: A promise that resolves without an argument, or rejects with an error from the query.
+**Returns**: A promise that resolves with a number of changed rows, or rejects with an error from the query.
 
 | Param | Type            |
 | ----- | --------------- |
@@ -1238,6 +1349,18 @@ Returns a true or false JS boolean from the value that was read in the database.
 
 This module provides mappings between database columns and JS keys.
 
+<a name="module_DB API_ attribute queries."></a>
+
+## DB API: attribute queries.
+
+This module provides queries related to attributes.
+
+<a name="module_DB API_ command queries."></a>
+
+## DB API: command queries.
+
+This module provides queries related to commands.
+
 <a name="module_DB API_ user configuration queries against the database."></a>
 
 ## DB API: user configuration queries against the database.
@@ -1250,11 +1373,17 @@ This module provides queries for user configuration.
 
 This module provides queries for endpoint configuration.
 
-<a name="module_DB API_ generic queries against the database."></a>
+<a name="module_DB API_ endpoint type queries against the database."></a>
 
-## DB API: generic queries against the database.
+## DB API: endpoint type queries against the database.
 
-This module provides generic queries.
+This module provides queries for endpoint type.
+
+<a name="module_DB API_ evebt queries."></a>
+
+## DB API: evebt queries.
+
+This module provides queries related to events.
 
 <a name="module_DB API_ package-based queries."></a>
 
@@ -1272,9 +1401,10 @@ This module provides queries for ZCL loading
   - [~insertGlobals(db, packageId, data)](#module*DB API* zcl loading queries..insertGlobals) ⇒
   - [~insertClusterExtensions(db, packageId, data)](#module*DB API* zcl loading queries..insertClusterExtensions) ⇒
   - [~insertClusters(db, packageId, data)](#module*DB API* zcl loading queries..insertClusters) ⇒
+  - [~insertTags(db, packageId, data)](#module*DB API* zcl loading queries..insertTags) ⇒
   - [~insertDomains(db, packageId, data)](#module*DB API* zcl loading queries..insertDomains) ⇒
   - [~insertSpecs(db, packageId, data)](#module*DB API* zcl loading queries..insertSpecs) ⇒
-  - [~insertGlobalAttributeDefault(db, packageId, data)](#module*DB API* zcl loading queries..insertGlobalAttributeDefault) ⇒
+  - [~insertGlobalAttributeDefault(db, packageId, clusterData)](#module*DB API* zcl loading queries..insertGlobalAttributeDefault) ⇒
   - [~insertStructs(db, packageId, data)](#module*DB API* zcl loading queries..insertStructs) ⇒
   - [~insertEnums(db, packageId, data)](#module*DB API* zcl loading queries..insertEnums) ⇒
   - [~insertBitmaps(db, packageId, data)](#module*DB API* zcl loading queries..insertBitmaps) ⇒
@@ -1328,6 +1458,22 @@ Inserts clusters into the database.
 | packageId | <code>\*</code> |                                                                                                                    |
 | data      | <code>\*</code> | an array of objects that must contain: code, name, description, define. It also contains commands: and attributes: |
 
+<a name="module_DB API_ zcl loading queries..insertTags"></a>
+
+### DB API: zcl loading queries~insertTags(db, packageId, data) ⇒
+
+Inserts tags into the database.
+data is an array of objects, containing 'name' and 'description'
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module*DB API* zcl loading queries)  
+**Returns**: A promise that resolves with array of rowids.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
+| data      | <code>\*</code> |
+
 <a name="module_DB API_ zcl loading queries..insertDomains"></a>
 
 ### DB API: zcl loading queries~insertDomains(db, packageId, data) ⇒
@@ -1361,18 +1507,18 @@ Inserts a spec into the database.
 
 <a name="module_DB API_ zcl loading queries..insertGlobalAttributeDefault"></a>
 
-### DB API: zcl loading queries~insertGlobalAttributeDefault(db, packageId, data) ⇒
+### DB API: zcl loading queries~insertGlobalAttributeDefault(db, packageId, clusterData) ⇒
 
 Inserts global attribute defaults into the database.
 
 **Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module*DB API* zcl loading queries)  
 **Returns**: Promise of data insertion.
 
-| Param     | Type            | Description                                                                                                               |
-| --------- | --------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| db        | <code>\*</code> |                                                                                                                           |
-| packageId | <code>\*</code> |                                                                                                                           |
-| data      | <code>\*</code> | array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value |
+| Param       | Type            | Description                                                                                                               |
+| ----------- | --------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| db          | <code>\*</code> |                                                                                                                           |
+| packageId   | <code>\*</code> |                                                                                                                           |
+| clusterData | <code>\*</code> | array of objects that contain: code, manufacturerCode and subarrays of globalAttribute[] which contain: side, code, value |
 
 <a name="module_DB API_ zcl loading queries..insertStructs"></a>
 
@@ -1506,10 +1652,10 @@ This module provides queries for ZCL static queries.
   - [~selectAllClusters(db)](#module*DB API* zcl database access..selectAllClusters) ⇒
   - [~selectClusterById(db, clusterId, packageId)](#module*DB API* zcl database access..selectClusterById) ⇒
   - [~selectAllDeviceTypes(db)](#module*DB API* zcl database access..selectAllDeviceTypes) ⇒
+  - [~selectAttributesByClusterIdIncludingGlobal(db, clusterId, packageId)](#module*DB API* zcl database access..selectAttributesByClusterIdIncludingGlobal) ⇒
+  - [~selectAttributesByClusterCodeAndManufacturerCode(db, packageId, clusterCode, manufacturerCode)](#module*DB API* zcl database access..selectAttributesByClusterCodeAndManufacturerCode) ⇒
   - [~selectAttributeByAttributeIdAndClusterRef(db, attributeId, clusterRef)](#module*DB API* zcl database access..selectAttributeByAttributeIdAndClusterRef)
   - [~selectAllAttributesBySide(db, side, packageId)](#module*DB API* zcl database access..selectAllAttributesBySide) ⇒
-  - [~selectCommandsByClusterId(db, clusterId)](#module*DB API* zcl database access..selectCommandsByClusterId) ⇒
-  - [~selectCommandTree(db, packageId)](#module*DB API* zcl database access..selectCommandTree) ⇒
   - [~updateClusterReferencesForDeviceTypeClusters(db)](#module*DB API* zcl database access..updateClusterReferencesForDeviceTypeClusters) ⇒
   - [~updateAttributeReferencesForDeviceTypeReferences(db)](#module*DB API* zcl database access..updateAttributeReferencesForDeviceTypeReferences) ⇒
   - [~updateCommandReferencesForDeviceTypeReferences(db)](#module*DB API* zcl database access..updateCommandReferencesForDeviceTypeReferences) ⇒
@@ -1517,26 +1663,9 @@ This module provides queries for ZCL static queries.
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicByName(db, name, packageId)](#module*DB API* zcl database access..selectAtomicByName)
   - [~selectAllAtomics(db, packageId)](#module*DB API* zcl database access..selectAllAtomics)
-  - [~getAtomicSizeFromType(db, packageId, type)](#module*DB API* zcl database access..getAtomicSizeFromType)
-  - [~exportClustersAndEndpointDetailsFromEndpointTypes(db, endpointTypeId)](#module*DB API* zcl database access..exportClustersAndEndpointDetailsFromEndpointTypes) ⇒
-  - [~exportCommandDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId)](#module*DB API* zcl database access..exportCommandDetailsFromAllEndpointTypesAndClusters) ⇒
-  - [~exportCommandDetailsFromAllEndpointTypesAndClustersUtil(db, endpointTypeId)](#module*DB API* zcl database access..exportCommandDetailsFromAllEndpointTypesAndClustersUtil) ⇒
-  - [~exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId)](#module*DB API* zcl database access..exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters) ⇒
-  - [~exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId)](#module*DB API* zcl database access..exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters) ⇒
-  - [~exportAttributeDetailsFromAllEndpointTypesAndClustersUtil(db, endpointTypeId)](#module*DB API* zcl database access..exportAttributeDetailsFromAllEndpointTypesAndClustersUtil) ⇒
-  - [~exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId)](#module*DB API* zcl database access..exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters) ⇒
-  - [~exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId)](#module*DB API* zcl database access..exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters) ⇒
-  - [~exportAllCommandDetailsFromEnabledClusters(db, endpointTypeId)](#module*DB API* zcl database access..exportAllCommandDetailsFromEnabledClusters) ⇒
-  - [~exportAllAttributeDetailsFromEnabledClusters(db, endpointTypeId)](#module*DB API* zcl database access..exportAllAttributeDetailsFromEnabledClusters) ⇒
-  - [~exportAllCliCommandDetailsFromEnabledClusters(db, endpointsAndClusters)](#module*DB API* zcl database access..exportAllCliCommandDetailsFromEnabledClusters) ⇒
-  - [~selectCommandArgumentsCountByCommandId(db, commandId, [packageId])](#module*DB API* zcl database access..selectCommandArgumentsCountByCommandId) ⇒
-  - [~selectCommandArgumentsByCommandId(db, commandId, [packageId])](#module*DB API* zcl database access..selectCommandArgumentsByCommandId) ⇒
+  - [~selectAtomicSizeFromType(db, packageId, type)](#module*DB API* zcl database access..selectAtomicSizeFromType)
   - [~determineType(db, packageId, type)](#module*DB API* zcl database access..determineType)
-  - [~exportAllClustersDetailsFromEndpointTypes(db, endpointTypeId)](#module*DB API* zcl database access..exportAllClustersDetailsFromEndpointTypes) ⇒
-  - [~exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(db, endpointTypeId)](#module*DB API* zcl database access..exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes) ⇒
-  - [~exportAllClustersNamesFromEndpointTypes(db, endpointTypeId)](#module*DB API* zcl database access..exportAllClustersNamesFromEndpointTypes) ⇒
-  - [~exportCommandDetailsFromAllEndpointTypeCluster(db, endpointTypeId)](#module*DB API* zcl database access..exportCommandDetailsFromAllEndpointTypeCluster) ⇒
-  - [~exportCliCommandsFromCluster(db, endpointClusterId)](#module*DB API* zcl database access..exportCliCommandsFromCluster)
+  - [~exportClusterDetailsFromEnabledClusters(db, endpointsAndClusters)](#module*DB API* zcl database access..exportClusterDetailsFromEnabledClusters) ⇒
 
 <a name="module_DB API_ zcl database access..selectAllEnums"></a>
 
@@ -1643,6 +1772,44 @@ Retrieves all the device types in the database.
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..selectAttributesByClusterIdIncludingGlobal"></a>
+
+### DB API: zcl database access~selectAttributesByClusterIdIncludingGlobal(db, clusterId, packageId) ⇒
+
+Returns attributes for a given cluster.
+IMPORTANT:
+packageId is needed to properly deal with the global attributes.
+
+This method will NOT only return the attributes that link to
+a given cluster, but will ALSO return the attributes that have
+empty clusterRef (which are global attributes), and the check
+in that case will be made via packageId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: promise of a list of attributes, including global attributes
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| clusterId | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAttributesByClusterCodeAndManufacturerCode"></a>
+
+### DB API: zcl database access~selectAttributesByClusterCodeAndManufacturerCode(db, packageId, clusterCode, manufacturerCode) ⇒
+
+Queries for attributes inside a cluster.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: promise that resolves into attributes.
+
+| Param            | Type            |
+| ---------------- | --------------- |
+| db               | <code>\*</code> |
+| packageId        | <code>\*</code> |
+| clusterCode      | <code>\*</code> |
+| manufacturerCode | <code>\*</code> |
+
 <a name="module_DB API_ zcl database access..selectAttributeByAttributeIdAndClusterRef"></a>
 
 ### DB API: zcl database access~selectAttributeByAttributeIdAndClusterRef(db, attributeId, clusterRef)
@@ -1670,38 +1837,6 @@ Query for attributes by side.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | side      | <code>\*</code> |
-| packageId | <code>\*</code> |
-
-<a name="module_DB API_ zcl database access..selectCommandsByClusterId"></a>
-
-### DB API: zcl database access~selectCommandsByClusterId(db, clusterId) ⇒
-
-Retrieves commands for a given cluster Id.
-This method DOES NOT retrieve global commands, since those have a cluster_ref = null
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: promise of an array of command rows, which represent per-cluster commands, excluding global commands.
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| clusterId | <code>\*</code> |
-
-<a name="module_DB API_ zcl database access..selectCommandTree"></a>
-
-### DB API: zcl database access~selectCommandTree(db, packageId) ⇒
-
-This method returns all commands, joined with their
-respective arguments and clusters, so it's a long query.
-If you are just looking for a quick query across all commands
-use the selectAllCommands query.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: promise that resolves into a list of all commands and arguments.
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
 | packageId | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..updateClusterReferencesForDeviceTypeClusters"></a>
@@ -1805,9 +1940,9 @@ Retrieves all atomic types under a given package Id.
 | db        | <code>\*</code> |
 | packageId | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access..getAtomicSizeFromType"></a>
+<a name="module_DB API_ zcl database access..selectAtomicSizeFromType"></a>
 
-### DB API: zcl database access~getAtomicSizeFromType(db, packageId, type)
+### DB API: zcl database access~selectAtomicSizeFromType(db, packageId, type)
 
 Retrieves the size from atomic type.
 
@@ -1818,193 +1953,6 @@ Retrieves the size from atomic type.
 | db        | <code>\*</code> |
 | packageId | <code>\*</code> |
 | type      | <code>\*</code> |
-
-<a name="module_DB API_ zcl database access..exportClustersAndEndpointDetailsFromEndpointTypes"></a>
-
-### DB API: zcl database access~exportClustersAndEndpointDetailsFromEndpointTypes(db, endpointTypeId) ⇒
-
-Exports clusters and endpoint ids
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the data that contains cluster
-and endpoint id references
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ zcl database access..exportCommandDetailsFromAllEndpointTypesAndClusters"></a>
-
-### DB API: zcl database access~exportCommandDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId) ⇒
-
-Returns a promise of data for commands inside an endpoint type.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the command data.
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ zcl database access..exportCommandDetailsFromAllEndpointTypesAndClustersUtil"></a>
-
-### DB API: zcl database access~exportCommandDetailsFromAllEndpointTypesAndClustersUtil(db, endpointTypeId) ⇒
-
-Returns a promise of data for manufacturing/non-manufacturing specific commands
-inside an endpoint type.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the manufacturing/non-manufacturing
-specific command data.
-
-| Param          |
-| -------------- |
-| db             |
-| endpointTypeId |
-
-<a name="module_DB API_ zcl database access..exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters"></a>
-
-### DB API: zcl database access~exportManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId) ⇒
-
-Returns a promise of data for manufacturing specific commands inside an endpoint type.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the manufacturing specific command data.
-
-| Param          |
-| -------------- |
-| db             |
-| endpointTypeId |
-
-<a name="module_DB API_ zcl database access..exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters"></a>
-
-### DB API: zcl database access~exportNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId) ⇒
-
-Returns a promise of data for commands with no manufacturing specific information inside an endpoint type.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the non-manufacturing specific command data.
-
-| Param          |
-| -------------- |
-| db             |
-| endpointTypeId |
-
-<a name="module_DB API_ zcl database access..exportAttributeDetailsFromAllEndpointTypesAndClustersUtil"></a>
-
-### DB API: zcl database access~exportAttributeDetailsFromAllEndpointTypesAndClustersUtil(db, endpointTypeId) ⇒
-
-Returns a promise of data for manufacturing/non-manufacturing specific attributes
-inside an endpoint type.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the manufacturing/non-manufacturing
-specific attribute data.
-
-| Param          |
-| -------------- |
-| db             |
-| endpointTypeId |
-
-<a name="module_DB API_ zcl database access..exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters"></a>
-
-### DB API: zcl database access~exportManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId) ⇒
-
-Returns a promise of data for manufacturing specific attributes inside an endpoint type.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the manufacturing specific attribute data.
-
-| Param          |
-| -------------- |
-| db             |
-| endpointTypeId |
-
-<a name="module_DB API_ zcl database access..exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters"></a>
-
-### DB API: zcl database access~exportNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(db, endpointTypeId) ⇒
-
-Returns a promise of data for attributes with no manufacturing specific information inside an endpoint type.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the non-manufacturing specific attribute data.
-
-| Param          |
-| -------------- |
-| db             |
-| endpointTypeId |
-
-<a name="module_DB API_ zcl database access..exportAllCommandDetailsFromEnabledClusters"></a>
-
-### DB API: zcl database access~exportAllCommandDetailsFromEnabledClusters(db, endpointTypeId) ⇒
-
-Returns a promise of data for commands inside an endpoint type.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the command data.
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ zcl database access..exportAllAttributeDetailsFromEnabledClusters"></a>
-
-### DB API: zcl database access~exportAllAttributeDetailsFromEnabledClusters(db, endpointTypeId) ⇒
-
-Returns a promise of data for attributes inside an endpoint type.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the attribute data.
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ zcl database access..exportAllCliCommandDetailsFromEnabledClusters"></a>
-
-### DB API: zcl database access~exportAllCliCommandDetailsFromEnabledClusters(db, endpointsAndClusters) ⇒
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Returns a promise of data for commands with cli inside an endpoint type.
-
-| Param                |
-| -------------------- |
-| db                   |
-| endpointsAndClusters |
-
-<a name="module_DB API_ zcl database access..selectCommandArgumentsCountByCommandId"></a>
-
-### DB API: zcl database access~selectCommandArgumentsCountByCommandId(db, commandId, [packageId]) ⇒
-
-Get the number of command arguments for a command
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: A promise with number of command arguments for a command
-
-| Param       | Type            | Default       |
-| ----------- | --------------- | ------------- |
-| db          | <code>\*</code> |               |
-| commandId   | <code>\*</code> |               |
-| [packageId] | <code>\*</code> | <code></code> |
-
-<a name="module_DB API_ zcl database access..selectCommandArgumentsByCommandId"></a>
-
-### DB API: zcl database access~selectCommandArgumentsByCommandId(db, commandId, [packageId]) ⇒
-
-Extract the command arguments for a command
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: A promise with command arguments for a command
-
-| Param       | Type            | Default       |
-| ----------- | --------------- | ------------- |
-| db          | <code>\*</code> |               |
-| commandId   | <code>\*</code> |               |
-| [packageId] | <code>\*</code> | <code></code> |
 
 <a name="module_DB API_ zcl database access..determineType"></a>
 
@@ -2021,72 +1969,19 @@ values.
 | packageId | <code>\*</code> |
 | type      | <code>\*</code> |
 
-<a name="module_DB API_ zcl database access..exportAllClustersDetailsFromEndpointTypes"></a>
+<a name="module_DB API_ zcl database access..exportClusterDetailsFromEnabledClusters"></a>
 
-### DB API: zcl database access~exportAllClustersDetailsFromEndpointTypes(db, endpointTypeId) ⇒
+### DB API: zcl database access~exportClusterDetailsFromEnabledClusters(db, endpointsAndClusters) ⇒
 
-Exports clusters to an externalized form.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the data that should go into the external form.
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ zcl database access..exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes"></a>
-
-### DB API: zcl database access~exportAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(db, endpointTypeId) ⇒
-
-Exports clusters to an externalized form irrespecive of side.
+All cluster details along with their attribute details per endpoint.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the data that should go into the external form.
+**Returns**: cluster details along with their attribute details per endpoint.
 
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ zcl database access..exportAllClustersNamesFromEndpointTypes"></a>
-
-### DB API: zcl database access~exportAllClustersNamesFromEndpointTypes(db, endpointTypeId) ⇒
-
-Exports clusters to an externalized form without duplicates caused by side.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the data that should go into the external form.
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ zcl database access..exportCommandDetailsFromAllEndpointTypeCluster"></a>
-
-### DB API: zcl database access~exportCommandDetailsFromAllEndpointTypeCluster(db, endpointTypeId) ⇒
-
-Returns a promise of data for commands inside all existing endpoint types.
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: Promise that resolves with the command data.
-
-| Param          | Type            |
-| -------------- | --------------- |
-| db             | <code>\*</code> |
-| endpointTypeId | <code>\*</code> |
-
-<a name="module_DB API_ zcl database access..exportCliCommandsFromCluster"></a>
-
-### DB API: zcl database access~exportCliCommandsFromCluster(db, endpointClusterId)
-
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
-
-| Param             | Description                                                          |
-| ----------------- | -------------------------------------------------------------------- |
-| db                |                                                                      |
-| endpointClusterId | Returns: A promise with all commands with cli for a given cluster id |
+| Param                |
+| -------------------- |
+| db                   |
+| endpointsAndClusters |
 
 <a name="module_JS API_ generator logic"></a>
 
@@ -2095,6 +1990,7 @@ Returns a promise of data for commands inside all existing endpoint types.
 - [JS API: generator logic](#module*JS API* generator logic)
   - [~loadGenTemplate()](#module*JS API* generator logic..loadGenTemplate) ⇒
   - [~recordTemplatesPackage(context)](#module*JS API* generator logic..recordTemplatesPackage) ⇒
+  - [~decodePackageExtensionEntity(entityType, entity)](#module*JS API* generator logic..decodePackageExtensionEntity) ⇒
   - [~loadZclExtensions(zclExt)](#module*JS API* generator logic..loadZclExtensions) ⇒
   - [~loadTemplates(db, genTemplatesJson)](#module*JS API* generator logic..loadTemplates) ⇒
   - [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
@@ -2106,6 +2002,7 @@ Returns a promise of data for commands inside all existing endpoint types.
   - [~postProcessGeneratedFiles(outputDirectory, genResult)](#module*JS API* generator logic..postProcessGeneratedFiles) ⇒
   - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
   - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
+  - [~produceCompiledTemplate(singleTemplatePkg)](#module*JS API* generator logic..produceCompiledTemplate) ⇒
   - [~produceContent(db, sessionId, singlePkg, overridePath:)](#module*JS API* generator logic..produceContent) ⇒
   - [~wrapOverridable(originalFn, overrideFn)](#module*JS API* generator logic..wrapOverridable) ⇒
   - [~loadOverridable(genTemplatePackageId)](#module*JS API* generator logic..loadOverridable)
@@ -2117,10 +2014,12 @@ Returns a promise of data for commands inside all existing endpoint types.
   - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
   - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
+  - [~ensureEndpointTypeIds(context)](#module*JS API* generator logic..ensureEndpointTypeIds) ⇒
   - [~ensureZclClusterSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclClusterSdkExtensions) ⇒
   - [~ensureZclDeviceTypeSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclDeviceTypeSdkExtensions) ⇒
   - [~ensureZclAttributeSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclAttributeSdkExtensions) ⇒
   - [~ensureZclCommandSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclCommandSdkExtensions) ⇒
+  - [~ensureZclEventSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclEventSdkExtensions) ⇒
   - [~templatePromise(global, promise)](#module*JS API* generator logic..templatePromise)
   - [~deprecatedHelper(fn, explanation)](#module*JS API* generator logic..deprecatedHelper) ⇒
 
@@ -2149,6 +2048,22 @@ Given a loading context, it records the package into the packages table and adds
 | Param   | Type            |
 | ------- | --------------- |
 | context | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..decodePackageExtensionEntity"></a>
+
+### JS API: generator logic~decodePackageExtensionEntity(entityType, entity) ⇒
+
+This method takes extension data in JSON, and converts it into
+an object that contains:
+entityCode, entityQualifier, parentCode, manufacturerCode and value
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: object that can be used for database injection
+
+| Param      | Type            |
+| ---------- | --------------- |
+| entityType | <code>\*</code> |
+| entity     | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..loadZclExtensions"></a>
 
@@ -2186,11 +2101,11 @@ Generates all the templates inside a toplevel package.
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
 
-| Param              | Type            | Default       | Description                                                                                        |
-| ------------------ | --------------- | ------------- | -------------------------------------------------------------------------------------------------- |
-| genResult          | <code>\*</code> |               |                                                                                                    |
-| genTemplateJsonPkg | <code>\*</code> |               | Package that points to genTemplate.json file                                                       |
-| generateOnly       | <code>\*</code> | <code></code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
+| Param              | Type            | Description                                                                                        |
+| ------------------ | --------------- | -------------------------------------------------------------------------------------------------- |
+| genResult          | <code>\*</code> |                                                                                                    |
+| genTemplateJsonPkg | <code>\*</code> | Package that points to genTemplate.json file                                                       |
+| generateOnly       | <code>\*</code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
 
 <a name="module_JS API_ generator logic..generateSingleTemplate"></a>
 
@@ -2303,6 +2218,19 @@ Generates a single file and feeds it back for preview.
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
 | fileName  | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..produceCompiledTemplate"></a>
+
+### JS API: generator logic~produceCompiledTemplate(singleTemplatePkg) ⇒
+
+Resolves into a precompiled template, either from previous precompile or freshly compiled.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: templates
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| singleTemplatePkg | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..produceContent"></a>
 
@@ -2441,6 +2369,19 @@ Returns the promise that resolves with the ZCL properties package id.
 | ------- | --------------- |
 | context | <code>\*</code> |
 
+<a name="module_JS API_ generator logic..ensureEndpointTypeIds"></a>
+
+### JS API: generator logic~ensureEndpointTypeIds(context) ⇒
+
+Populate the endpoint type ids into the global context.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: endpoint type ids
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
 <a name="module_JS API_ generator logic..ensureZclClusterSdkExtensions"></a>
 
 ### JS API: generator logic~ensureZclClusterSdkExtensions(context, templatePackageId) ⇒
@@ -2489,6 +2430,21 @@ exist, it will populate them.
 <a name="module_JS API_ generator logic..ensureZclCommandSdkExtensions"></a>
 
 ### JS API: generator logic~ensureZclCommandSdkExtensions(context, templatePackageId) ⇒
+
+Resolves with cached command extensions, but if they don't
+exist, it will populate them.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: promise that resolves with command extensions.
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| context           | <code>\*</code> |
+| templatePackageId | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..ensureZclEventSdkExtensions"></a>
+
+### JS API: generator logic~ensureZclEventSdkExtensions(context, templatePackageId) ⇒
 
 Resolves with cached command extensions, but if they don't
 exist, it will populate them.
@@ -2558,10 +2514,12 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~dataTypeForBitmap(db, bitmap_name, packageId)](#module*Templating API* C formatting helpers..dataTypeForBitmap)
   - [~dataTypeForEnum(db, enum_name, packageId)](#module*Templating API* C formatting helpers..dataTypeForEnum)
   - [~addOne(number)](#module*Templating API* C formatting helpers..addOne)
+  - [~is_number_greater_than(num1, num2)](#module*Templating API* C formatting helpers..is_number_greater_than) ⇒
   - [~cluster_extension(options)](#module*Templating API* C formatting helpers..cluster_extension) ⇒
   - [~device_type_extension(options)](#module*Templating API* C formatting helpers..device_type_extension) ⇒
-  - [~command_extension(options)](#module*Templating API* C formatting helpers..command_extension) ⇒
   - [~attribute_extension(options)](#module*Templating API* C formatting helpers..attribute_extension) ⇒
+  - [~command_extension(options)](#module*Templating API* C formatting helpers..command_extension) ⇒
+  - [~event_extension(options)](#module*Templating API* C formatting helpers..event_extension) ⇒
 
 <a name="module_Templating API_ C formatting helpers..asOffset"></a>
 
@@ -2795,6 +2753,20 @@ Returns the number by adding 1 to it.
 | ------ | --------------- |
 | number | <code>\*</code> |
 
+<a name="module_Templating API_ C formatting helpers..is_number_greater_than"></a>
+
+### Templating API: C formatting helpers~is_number_greater_than(num1, num2) ⇒
+
+Return true if number1 is greater than number2
+
+**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
+**Returns**: true if num1 is greater than num2 else returns false
+
+| Param |
+| ----- |
+| num1  |
+| num2  |
+
 <a name="module_Templating API_ C formatting helpers..cluster_extension"></a>
 
 ### Templating API: C formatting helpers~cluster_extension(options) ⇒
@@ -2825,6 +2797,21 @@ specified by property="propName" attribute.
 | ------- | --------------- |
 | options | <code>\*</code> |
 
+<a name="module_Templating API_ C formatting helpers..attribute_extension"></a>
+
+### Templating API: C formatting helpers~attribute_extension(options) ⇒
+
+When inside a context that contains 'code' and parent 'code', this
+helper will output the value of the attribute extension
+specified by property="propName" attribute.
+
+**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
+**Returns**: Value of the attribute extension property.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
 <a name="module_Templating API_ C formatting helpers..command_extension"></a>
 
 ### Templating API: C formatting helpers~command_extension(options) ⇒
@@ -2840,16 +2827,16 @@ specified by property="propName" attribute.
 | ------- | --------------- |
 | options | <code>\*</code> |
 
-<a name="module_Templating API_ C formatting helpers..attribute_extension"></a>
+<a name="module_Templating API_ C formatting helpers..event_extension"></a>
 
-### Templating API: C formatting helpers~attribute_extension(options) ⇒
+### Templating API: C formatting helpers~event_extension(options) ⇒
 
 When inside a context that contains 'code' and parent 'code', this
-helper will output the value of the attribute extension
+helper will output the value of the command extension
 specified by property="propName" attribute.
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
-**Returns**: Value of the attribute extension property.
+**Returns**: Value of the command extension property.
 
 | Param   | Type            |
 | ------- | --------------- |
@@ -2880,10 +2867,12 @@ This module contains the API for accessing SDK extensions.
   - [~dataTypeForBitmap(db, bitmap_name, packageId)](#module*Templating API* C formatting helpers..dataTypeForBitmap)
   - [~dataTypeForEnum(db, enum_name, packageId)](#module*Templating API* C formatting helpers..dataTypeForEnum)
   - [~addOne(number)](#module*Templating API* C formatting helpers..addOne)
+  - [~is_number_greater_than(num1, num2)](#module*Templating API* C formatting helpers..is_number_greater_than) ⇒
   - [~cluster_extension(options)](#module*Templating API* C formatting helpers..cluster_extension) ⇒
   - [~device_type_extension(options)](#module*Templating API* C formatting helpers..device_type_extension) ⇒
-  - [~command_extension(options)](#module*Templating API* C formatting helpers..command_extension) ⇒
   - [~attribute_extension(options)](#module*Templating API* C formatting helpers..attribute_extension) ⇒
+  - [~command_extension(options)](#module*Templating API* C formatting helpers..command_extension) ⇒
+  - [~event_extension(options)](#module*Templating API* C formatting helpers..event_extension) ⇒
 
 <a name="module_Templating API_ C formatting helpers..asOffset"></a>
 
@@ -3117,6 +3106,20 @@ Returns the number by adding 1 to it.
 | ------ | --------------- |
 | number | <code>\*</code> |
 
+<a name="module_Templating API_ C formatting helpers..is_number_greater_than"></a>
+
+### Templating API: C formatting helpers~is_number_greater_than(num1, num2) ⇒
+
+Return true if number1 is greater than number2
+
+**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
+**Returns**: true if num1 is greater than num2 else returns false
+
+| Param |
+| ----- |
+| num1  |
+| num2  |
+
 <a name="module_Templating API_ C formatting helpers..cluster_extension"></a>
 
 ### Templating API: C formatting helpers~cluster_extension(options) ⇒
@@ -3147,21 +3150,6 @@ specified by property="propName" attribute.
 | ------- | --------------- |
 | options | <code>\*</code> |
 
-<a name="module_Templating API_ C formatting helpers..command_extension"></a>
-
-### Templating API: C formatting helpers~command_extension(options) ⇒
-
-When inside a context that contains 'code' and parent 'code', this
-helper will output the value of the command extension
-specified by property="propName" attribute.
-
-**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
-**Returns**: Value of the command extension property.
-
-| Param   | Type            |
-| ------- | --------------- |
-| options | <code>\*</code> |
-
 <a name="module_Templating API_ C formatting helpers..attribute_extension"></a>
 
 ### Templating API: C formatting helpers~attribute_extension(options) ⇒
@@ -3177,6 +3165,36 @@ specified by property="propName" attribute.
 | ------- | --------------- |
 | options | <code>\*</code> |
 
+<a name="module_Templating API_ C formatting helpers..command_extension"></a>
+
+### Templating API: C formatting helpers~command_extension(options) ⇒
+
+When inside a context that contains 'code' and parent 'code', this
+helper will output the value of the command extension
+specified by property="propName" attribute.
+
+**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
+**Returns**: Value of the command extension property.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ C formatting helpers..event_extension"></a>
+
+### Templating API: C formatting helpers~event_extension(options) ⇒
+
+When inside a context that contains 'code' and parent 'code', this
+helper will output the value of the command extension
+specified by property="propName" attribute.
+
+**Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)  
+**Returns**: Value of the command extension property.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
 <a name="module_Templating API_ user-data specific helpers"></a>
 
 ## Templating API: user-data specific helpers
@@ -3184,6 +3202,7 @@ specified by property="propName" attribute.
 This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
 
 - [Templating API: user-data specific helpers](#module*Templating API* user-data specific helpers)
+  - [~user_endpoints(options)](#module*Templating API* user-data specific helpers..user_endpoints)
   - [~user_endpoint_types(options)](#module*Templating API* user-data specific helpers..user_endpoint_types)
   - [~user_clusters(options)](#module*Templating API* user-data specific helpers..user_clusters)
   - [~user_cluster_attributes(options)](#module*Templating API* user-data specific helpers..user_cluster_attributes) ⇒
@@ -3208,6 +3227,29 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~all_user_cluster_commands_irrespective_of_manufaturing_specification(options)](#module*Templating API* user-data specific helpers..all_user_cluster_commands_irrespective_of_manufaturing_specification) ⇒
   - [~all_user_cluster_attributes_irrespective_of_manufatucuring_specification(options)](#module*Templating API* user-data specific helpers..all_user_cluster_attributes_irrespective_of_manufatucuring_specification) ⇒
   - [~user_session_key(options)](#module*Templating API* user-data specific helpers..user_session_key) ⇒
+  - [~all_user_cluster_attributes_for_generated_defaults(name, side, options)](#module*Templating API* user-data specific helpers..all_user_cluster_attributes_for_generated_defaults) ⇒
+  - [~all_user_cluster_generated_attributes(options)](#module*Templating API* user-data specific helpers..all_user_cluster_generated_attributes) ⇒
+  - [~all_user_reportable_attributes(options)](#module*Templating API* user-data specific helpers..all_user_reportable_attributes) ⇒
+  - [~all_user_cluster_generated_commands(options)](#module*Templating API* user-data specific helpers..all_user_cluster_generated_commands) ⇒
+  - [~all_user_clusters_with_incoming_commands(options)](#module*Templating API* user-data specific helpers..all_user_clusters_with_incoming_commands) ⇒
+  - [~all_incoming_commands_for_cluster(clusterName, options)](#module*Templating API* user-data specific helpers..all_incoming_commands_for_cluster) ⇒
+  - [~generated_clustes_details(options)](#module*Templating API* user-data specific helpers..generated_clustes_details) ⇒
+  - [~generated_endpoint_type_details(options)](#module*Templating API* user-data specific helpers..generated_endpoint_type_details) ⇒
+  - [~all_user_cluster_attributes_min_max_defaults(name, side, options)](#module*Templating API* user-data specific helpers..all_user_cluster_attributes_min_max_defaults) ⇒
+  - [~generated_defaults_index(clusterName, attributeName, attributeValueType, attributeValue, prefixReturn, postFixReturn)](#module*Templating API* user-data specific helpers..generated_defaults_index) ⇒
+  - [~generated_attributes_min_max_index(name, side, options)](#module*Templating API* user-data specific helpers..generated_attributes_min_max_index) ⇒
+
+<a name="module_Templating API_ user-data specific helpers..user_endpoints"></a>
+
+### Templating API: user-data specific helpers~user_endpoints(options)
+
+Creates block iterator over the endpoints.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
 
 <a name="module_Templating API_ user-data specific helpers..user_endpoint_types"></a>
 
@@ -3410,7 +3452,7 @@ clusters.
 
 ### Templating API: user-data specific helpers~all_user_clusters(options) ⇒
 
-Creates cluster command iterator for all endpoints.
+Creates cluster iterator for all endpoints.
 
 **Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
 **Returns**: Promise of the resolved blocks iterating over cluster commands.
@@ -3544,6 +3586,171 @@ Helper that resolves into a user session key value.
 | ------- | --------------- |
 | options | <code>\*</code> |
 
+<a name="module_Templating API_ user-data specific helpers..all_user_cluster_attributes_for_generated_defaults"></a>
+
+### Templating API: user-data specific helpers~all_user_cluster_attributes_for_generated_defaults(name, side, options) ⇒
+
+Default values for the attributes longer than a pointer.
+All attribute values with size greater than 2 bytes.
+Excluding 0 values and externally saved values
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: Attribute values greater than 2 bytes and not 0 nor externally saved.
+
+| Param   |
+| ------- |
+| name    |
+| side    |
+| options |
+
+<a name="module_Templating API_ user-data specific helpers..all_user_cluster_generated_attributes"></a>
+
+### Templating API: user-data specific helpers~all_user_cluster_generated_attributes(options) ⇒
+
+Entails the list of all attributes which have been enabled. Given the
+cluster is enabled as well. The helper retrieves the attributes across
+all endpoints.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: enabled attributes
+
+| Param   |
+| ------- |
+| options |
+
+<a name="module_Templating API_ user-data specific helpers..all_user_reportable_attributes"></a>
+
+### Templating API: user-data specific helpers~all_user_reportable_attributes(options) ⇒
+
+Entails the list of reportable attributes which have been enabled. Given the
+cluster is enabled as well. The helper retrieves the reportable attributes
+per endpoint per cluster.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: Reportable attributes
+
+| Param   |
+| ------- |
+| options |
+
+<a name="module_Templating API_ user-data specific helpers..all_user_cluster_generated_commands"></a>
+
+### Templating API: user-data specific helpers~all_user_cluster_generated_commands(options) ⇒
+
+All available cluster commands across all endpoints and clusters.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: All available cluster commands across all endpoints and clusters
+
+| Param   |
+| ------- |
+| options |
+
+<a name="module_Templating API_ user-data specific helpers..all_user_clusters_with_incoming_commands"></a>
+
+### Templating API: user-data specific helpers~all_user_clusters_with_incoming_commands(options) ⇒
+
+All clusters with side that have available incoming commands
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: All clusters with side that have available incoming commands across
+all endpoints.
+
+| Param   |
+| ------- |
+| options |
+
+<a name="module_Templating API_ user-data specific helpers..all_incoming_commands_for_cluster"></a>
+
+### Templating API: user-data specific helpers~all_incoming_commands_for_cluster(clusterName, options) ⇒
+
+All commands that need to be parsed for a given cluster
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: all commands that need to be parsed for a given cluster
+
+| Param       |
+| ----------- |
+| clusterName |
+| options     |
+
+<a name="module_Templating API_ user-data specific helpers..generated_clustes_details"></a>
+
+### Templating API: user-data specific helpers~generated_clustes_details(options) ⇒
+
+Entails the Cluster details per endpoint
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: Cluster Details per endpoint with attribute summaries within the clusters
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ user-data specific helpers..generated_endpoint_type_details"></a>
+
+### Templating API: user-data specific helpers~generated_endpoint_type_details(options) ⇒
+
+Entails Endpoint type details along with their cluster summaries
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: Endpoint type details along with their cluster summaries
+
+| Param   |
+| ------- |
+| options |
+
+<a name="module_Templating API_ user-data specific helpers..all_user_cluster_attributes_min_max_defaults"></a>
+
+### Templating API: user-data specific helpers~all_user_cluster_attributes_min_max_defaults(name, side, options) ⇒
+
+Returns attributes inside an endpoint type that either have a default or a
+bounded attribute.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: endpoints with bounds or defaults
+
+| Param   |
+| ------- |
+| name    |
+| side    |
+| options |
+
+<a name="module_Templating API_ user-data specific helpers..generated_defaults_index"></a>
+
+### Templating API: user-data specific helpers~generated_defaults_index(clusterName, attributeName, attributeValueType, attributeValue, prefixReturn, postFixReturn) ⇒
+
+Extracts the index of generated defaults array which come from
+all_user_cluster_attributes_for_generated_defaults
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: index of the generated default array
+
+| Param              |
+| ------------------ |
+| clusterName        |
+| attributeName      |
+| attributeValueType |
+| attributeValue     |
+| prefixReturn       |
+| postFixReturn      |
+
+<a name="module_Templating API_ user-data specific helpers..generated_attributes_min_max_index"></a>
+
+### Templating API: user-data specific helpers~generated_attributes_min_max_index(name, side, options) ⇒
+
+Extracts the index of generated min max defaults array which come from
+all_user_cluster_attributes_min_max_defaults
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: index of the generated min max default array
+
+| Param   |
+| ------- |
+| name    |
+| side    |
+| options |
+
 <a name="module_Templating API_ toplevel utility helpers"></a>
 
 ## Templating API: toplevel utility helpers
@@ -3560,12 +3767,16 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~not_last(optionms)](#module*Templating API* toplevel utility helpers..not_last) ⇒
   - [~middle(options)](#module*Templating API* toplevel utility helpers..middle) ⇒
   - [~template_option_with_code(options, key)](#module*Templating API* toplevel utility helpers..template_option_with_code)
+  - [~fail(options)](#module*Templating API* toplevel utility helpers..fail)
   - [~isEqual(string_a, string_b)](#module*Templating API* toplevel utility helpers..isEqual)
   - [~is_lowercase_equal(string_a, string_b)](#module*Templating API* toplevel utility helpers..is_lowercase_equal)
   - [~trim_string(str)](#module*Templating API* toplevel utility helpers..trim_string) ⇒
   - [~asLastWord(str)](#module*Templating API* toplevel utility helpers..asLastWord)
   - [~iterate()](#module*Templating API* toplevel utility helpers..iterate)
   - [~concatenate()](#module*Templating API* toplevel utility helpers..concatenate)
+  - [~is_num_equal(numA, numB)](#module*Templating API* toplevel utility helpers..is_num_equal) ⇒
+  - [~is_defined(value)](#module*Templating API* toplevel utility helpers..is_defined) ⇒
+  - [~replace_string(mainString, replaceString, replaceWithString)](#module*Templating API* toplevel utility helpers..replace_string) ⇒
 
 <a name="module_Templating API_ toplevel utility helpers..zap_header"></a>
 
@@ -3679,6 +3890,18 @@ This fetches a promise which returns template options if provided
 | options | <code>\*</code> |
 | key     | <code>\*</code> |
 
+<a name="module_Templating API_ toplevel utility helpers..fail"></a>
+
+### Templating API: toplevel utility helpers~fail(options)
+
+Forced fail halper.
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
 <a name="module_Templating API_ toplevel utility helpers..isEqual"></a>
 
 ### Templating API: toplevel utility helpers~isEqual(string_a, string_b)
@@ -3745,6 +3968,42 @@ Given: A list of strings
 Returns a concatenated string with spaces between each string
 
 **Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)  
+<a name="module_Templating API_ toplevel utility helpers..is_num_equal"></a>
+
+### Templating API: toplevel utility helpers~is_num_equal(numA, numB) ⇒
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)  
+**Returns**: true if both numbers are equal else returns false
+
+| Param |
+| ----- |
+| numA  |
+| numB  |
+
+<a name="module_Templating API_ toplevel utility helpers..is_defined"></a>
+
+### Templating API: toplevel utility helpers~is_defined(value) ⇒
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)  
+**Returns**: true or false based on whether the value is undefined or not
+
+| Param |
+| ----- |
+| value |
+
+<a name="module_Templating API_ toplevel utility helpers..replace_string"></a>
+
+### Templating API: toplevel utility helpers~replace_string(mainString, replaceString, replaceWithString) ⇒
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module*Templating API* toplevel utility helpers)  
+**Returns**: A string replaced with another string in the mainString
+
+| Param             |
+| ----------------- |
+| mainString        |
+| replaceString     |
+| replaceWithString |
+
 <a name="module_Templating API_ static zcl helpers"></a>
 
 ## Templating API: static zcl helpers
@@ -3761,6 +4020,7 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~zcl_device_types(options)](#module*Templating API* static zcl helpers..zcl_device_types) ⇒
   - [~zcl_clusters(options)](#module*Templating API* static zcl helpers..zcl_clusters) ⇒
   - [~zcl_commands(options)](#module*Templating API* static zcl helpers..zcl_commands) ⇒
+  - [~zcl_events(options)](#module*Templating API* static zcl helpers..zcl_events) ⇒
   - [~zcl_command_tree(options)](#module*Templating API* static zcl helpers..zcl_command_tree) ⇒
   - [~zcl_global_commands(options)](#module*Templating API* static zcl helpers..zcl_global_commands) ⇒
   - [~zcl_attributes(options)](#module*Templating API* static zcl helpers..zcl_attributes) ⇒
@@ -3773,9 +4033,13 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~if_command_arguments_exist(commandId, argument_return, no_argument_return)](#module*Templating API* static zcl helpers..if_command_arguments_exist)
   - [~if_command_arguments_have_fixed_length_with_current_context(commandId, fixedLengthReturn, notFixedLengthReturn, currentContext)](#module*Templating API* static zcl helpers..if_command_arguments_have_fixed_length_with_current_context)
   - [~if_command_arguments_have_fixed_length(commandId, fixedLengthReturn, notFixedLengthReturn)](#module*Templating API* static zcl helpers..if_command_arguments_have_fixed_length)
+  - [~if_command_is_fixed_length(commandId, fixedLengthReturn, notFixedLengthReturn)](#module*Templating API* static zcl helpers..if_command_is_fixed_length)
+  - [~if_command_is_not_fixed_length_but_command_argument_is_always_present(command, commandArg, trueReturn, falseReturn)](#module*Templating API* static zcl helpers..if_command_is_not_fixed_length_but_command_argument_is_always_present) ⇒
+  - [~as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present(type, command, commandArg, appendString, options)](#module*Templating API* static zcl helpers..as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present) ⇒
   - [~as_underlying_zcl_type_if_command_is_not_fixed_length(type, commandId, appendString, options)](#module*Templating API* static zcl helpers..as_underlying_zcl_type_if_command_is_not_fixed_length)
   - [~command_arguments_total_length(commandId)](#module*Templating API* static zcl helpers..command_arguments_total_length)
   - [~zcl_command_arguments(options)](#module*Templating API* static zcl helpers..zcl_command_arguments) ⇒
+  - [~zcl_event_fields(options)](#module*Templating API* static zcl helpers..zcl_event_fields)
   - [~zcl_command_argument_data_type(typeName, options)](#module*Templating API* static zcl helpers..zcl_command_argument_data_type)
   - [~zcl_command_argument_type_to_cli_data_type(typeName, options)](#module*Templating API* static zcl helpers..zcl_command_argument_type_to_cli_data_type)
   - [~defaultMessageForTypeConversion(fromType, toType, noWarning)](#module*Templating API* static zcl helpers..defaultMessageForTypeConversion)
@@ -3790,17 +4054,30 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~isEnum(db, enum_name, packageId)](#module*Templating API* static zcl helpers..isEnum) ⇒
   - [~isStruct(db, struct_name, packageId)](#module*Templating API* static zcl helpers..isStruct) ⇒
   - [~isBitmap(db, bitmap_name, packageId)](#module*Templating API* static zcl helpers..isBitmap) ⇒
+  - [~if_is_bitmap(type)](#module*Templating API* static zcl helpers..if_is_bitmap) ⇒
+  - [~if_is_enum(type)](#module*Templating API* static zcl helpers..if_is_enum) ⇒
   - [~isClient(side)](#module*Templating API* static zcl helpers..isClient) ⇒
   - [~isServer(side)](#module*Templating API* static zcl helpers..isServer) ⇒
   - [~as_underlying_zcl_type_command_argument_always_present(type:, commandId:, appendString:, introducedInRef:, removedInRef:, presentIf:, options:)](#module*Templating API* static zcl helpers..as_underlying_zcl_type_command_argument_always_present) ⇒
   - [~if_command_argument_always_present(commandId, introducedInRef, removedInRef, presentIf, argumentPresentReturn, argumentNotPresentReturn)](#module*Templating API* static zcl helpers..if_command_argument_always_present) ⇒
   - [~as_underlying_zcl_type_command_argument_not_always_present_no_presentif(type:, commandId:, appendString:, introducedInRef:, removedInRef:, presentIf:, options:)](#module*Templating API* static zcl helpers..as_underlying_zcl_type_command_argument_not_always_present_no_presentif) ⇒
+  - [~as_underlying_zcl_type_ca_not_always_present_no_presentif(commandArg, appendString, options)](#module*Templating API* static zcl helpers..as_underlying_zcl_type_ca_not_always_present_no_presentif) ⇒
   - [~if_command_argument_not_always_present_no_presentif(commandId, introducedInRef, removedInRef, presentIf, argumentNotInAllVersionsReturn, argumentInAllVersionsReturn)](#module*Templating API* static zcl helpers..if_command_argument_not_always_present_no_presentif) ⇒
+  - [~if_ca_not_always_present_no_presentif(commandArg, trueReturn, falseReturn)](#module*Templating API* static zcl helpers..if_ca_not_always_present_no_presentif) ⇒
   - [~as_underlying_zcl_type_command_argument_not_always_present_with_presentif(type:, commandId:, appendString:, introducedInRef:, removedInRef:, presentIf:, options:)](#module*Templating API* static zcl helpers..as_underlying_zcl_type_command_argument_not_always_present_with_presentif) ⇒
+  - [~as_underlying_zcl_type_ca_not_always_present_with_presentif(commandArg, appendString, options)](#module*Templating API* static zcl helpers..as_underlying_zcl_type_ca_not_always_present_with_presentif) ⇒
   - [~if_command_argument_not_always_present_with_presentif(commandId, introducedInRef, removedInRef, presentIf, argumentNotInAllVersionsPresentIfReturn, argumentInAllVersionsReturn)](#module*Templating API* static zcl helpers..if_command_argument_not_always_present_with_presentif) ⇒
+  - [~if_ca_not_always_present_with_presentif(commandArg, trueReturn, falseReturn)](#module*Templating API* static zcl helpers..if_ca_not_always_present_with_presentif) ⇒
   - [~as_underlying_zcl_type_command_argument_always_present_with_presentif(type:, commandId:, appendString:, introducedInRef:, removedInRef:, presentIf:, options:)](#module*Templating API* static zcl helpers..as_underlying_zcl_type_command_argument_always_present_with_presentif) ⇒
+  - [~as_underlying_zcl_type_ca_always_present_with_presentif(commandArg, appendString, options)](#module*Templating API* static zcl helpers..as_underlying_zcl_type_ca_always_present_with_presentif) ⇒
   - [~if_command_argument_always_present_with_presentif(commandId, introducedInRef, removedInRef, presentIf, argumentNotInAllVersionsPresentIfReturn, argumentInAllVersionsReturn)](#module*Templating API* static zcl helpers..if_command_argument_always_present_with_presentif) ⇒
+  - [~if_ca_always_present_with_presentif(commandArg, trueReturn, falseReturn)](#module*Templating API* static zcl helpers..if_ca_always_present_with_presentif) ⇒
   - [~if_manufacturing_specific_cluster(clusterId, manufacturer_specific_return, null_manufacturer_specific_return)](#module*Templating API* static zcl helpers..if_manufacturing_specific_cluster) ⇒
+  - [~as_generated_default_macro(value, attributeSize, options)](#module*Templating API* static zcl helpers..as_generated_default_macro) ⇒
+  - [~attribute_mask(writable, storageOption, minMax, mfgSpecific, clusterCode, client, isSingleton, prefixString, postfixString)](#module*Templating API* static zcl helpers..attribute_mask) ⇒
+  - [~command_mask(commmandSource, clusterSide, isIncomingEnabled, isOutgoingEnabled, manufacturingCode, prefixForMask)](#module*Templating API* static zcl helpers..command_mask) ⇒
+  - [~command_mask_sub_helper(commandMask, str)](#module*Templating API* static zcl helpers..command_mask_sub_helper) ⇒
+  - [~format_zcl_string_as_characters_for_generated_defaults(stringVal, sizeOfString)](#module*Templating API* static zcl helpers..format_zcl_string_as_characters_for_generated_defaults) ⇒
 
 <a name="module_Templating API_ static zcl helpers..zcl_bitmaps"></a>
 
@@ -3913,6 +4190,22 @@ Block helper iterating over all commands.
 There are two modes of this helper:
 when used in a global context, it iterates over ALL commands in the database.
 when used inside a `zcl_cluster` block helper, it iterates only over the commands for that cluster.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: Promise of content.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..zcl_events"></a>
+
+### Templating API: static zcl helpers~zcl_events(options) ⇒
+
+Block helper iterating over all events.
+There are two modes of this helper:
+when used in a global context, it iterates over ALL events in the database.
+when used inside a `zcl_cluster` block helper, it iterates only over the events for that cluster.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
 **Returns**: Promise of content.
@@ -4069,11 +4362,55 @@ Helper to extract the number of command arguments in a command
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)
 
-| Param                | Description                                                                                           |
-| -------------------- | ----------------------------------------------------------------------------------------------------- |
-| commandId            |                                                                                                       |
-| fixedLengthReturn    |                                                                                                       |
-| notFixedLengthReturn | Returns fixedLengthReturn or notFixedLengthReturn based on whether the command is fixed length or not |
+| Param                | Description                                                                                                                                                           |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| commandId            |                                                                                                                                                                       |
+| fixedLengthReturn    |                                                                                                                                                                       |
+| notFixedLengthReturn | Returns fixedLengthReturn or notFixedLengthReturn based on whether the command is fixed length or not. Does not check if command arguments are always present or not. |
+
+<a name="module_Templating API_ static zcl helpers..if_command_is_fixed_length"></a>
+
+### Templating API: static zcl helpers~if_command_is_fixed_length(commandId, fixedLengthReturn, notFixedLengthReturn)
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)
+
+| Param                | Description                                                                                                                                                            |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| commandId            |                                                                                                                                                                        |
+| fixedLengthReturn    |                                                                                                                                                                        |
+| notFixedLengthReturn | Returns fixedLengthReturn or notFixedLengthReturn based on whether the command is fixed length or not. Also checks if the command arguments are always present or not. |
+
+<a name="module_Templating API_ static zcl helpers..if_command_is_not_fixed_length_but_command_argument_is_always_present"></a>
+
+### Templating API: static zcl helpers~if_command_is_not_fixed_length_but_command_argument_is_always_present(command, commandArg, trueReturn, falseReturn) ⇒
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: trueReturn if command is not fixed length but command argument is
+always present else returns falseReturn
+
+| Param       |
+| ----------- |
+| command     |
+| commandArg  |
+| trueReturn  |
+| falseReturn |
+
+<a name="module_Templating API_ static zcl helpers..as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present"></a>
+
+### Templating API: static zcl helpers~as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present(type, command, commandArg, appendString, options) ⇒
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: the underlying zcl type of a command argument if the argument is
+not fixed length but is always present. If the condition is not met then
+returns an empty string.
+
+| Param        |
+| ------------ |
+| type         |
+| command      |
+| commandArg   |
+| appendString |
+| options      |
 
 <a name="module_Templating API_ static zcl helpers..as_underlying_zcl_type_if_command_is_not_fixed_length"></a>
 
@@ -4107,6 +4444,18 @@ or a command tree.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
 **Returns**: Promise of command argument iteration.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..zcl_event_fields"></a>
+
+### Templating API: static zcl helpers~zcl_event_fields(options)
+
+Block helper iterating over the event fields inside an event.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)
 
 | Param   | Type            |
 | ------- | --------------- |
@@ -4310,6 +4659,46 @@ Local function that checks if a bitmap by the name exists
 | bitmap_name | <code>\*</code> |
 | packageId   | <code>\*</code> |
 
+<a name="module_Templating API_ static zcl helpers..if_is_bitmap"></a>
+
+### Templating API: static zcl helpers~if_is_bitmap(type) ⇒
+
+If helper that checks if a type is a bitmap
+
+example:
+{{#if_is_bitmap type}}
+type is bitmap
+{{else}}
+type is not bitmap
+{{/if_is_bitmap}}
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: Promise of content.
+
+| Param | Type            |
+| ----- | --------------- |
+| type  | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..if_is_enum"></a>
+
+### Templating API: static zcl helpers~if_is_enum(type) ⇒
+
+If helper that checks if a type is an enum
+
+- example:
+  {{#if_is_enum type}}
+  type is bitmap
+  {{else}}
+  type is not bitmap
+  {{/if_is_enum}}
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: Promise of content.
+
+| Param | Type            |
+| ----- | --------------- |
+| type  | <code>\*</code> |
+
 <a name="module_Templating API_ static zcl helpers..isClient"></a>
 
 ### Templating API: static zcl helpers~isClient(side) ⇒
@@ -4391,6 +4780,21 @@ on the command argument.
 | presentIf:       | If the command argument is present conditionally then this will be a condition and not null                                                       |
 | options:         | options which can be passed to asUnderlyingZclTypeWithPackageId for determining the underlying zcl type for the provided argument type            |
 
+<a name="module_Templating API_ static zcl helpers..as_underlying_zcl_type_ca_not_always_present_no_presentif"></a>
+
+### Templating API: static zcl helpers~as_underlying_zcl_type_ca_not_always_present_no_presentif(commandArg, appendString, options) ⇒
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: A string as an underlying zcl type if the command is not fixed
+length, the command argument is not always present in all zcl specifications
+and there is no present if conditionality on the command argument.
+
+| Param        | Description                                                                                                                            |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| commandArg   | command argument                                                                                                                       |
+| appendString | append the string to the argument                                                                                                      |
+| options      | options which can be passed to asUnderlyingZclTypeWithPackageId for determining the underlying zcl type for the provided argument type |
+
 <a name="module_Templating API_ static zcl helpers..if_command_argument_not_always_present_no_presentif"></a>
 
 ### Templating API: static zcl helpers~if_command_argument_not_always_present_no_presentif(commandId, introducedInRef, removedInRef, presentIf, argumentNotInAllVersionsReturn, argumentInAllVersionsReturn) ⇒
@@ -4408,6 +4812,20 @@ conditions else returns argumentNotPresentReturn
 | presentIf                      |
 | argumentNotInAllVersionsReturn |
 | argumentInAllVersionsReturn    |
+
+<a name="module_Templating API_ static zcl helpers..if_ca_not_always_present_no_presentif"></a>
+
+### Templating API: static zcl helpers~if_ca_not_always_present_no_presentif(commandArg, trueReturn, falseReturn) ⇒
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: trueReturn if command argument is not always present and there is no
+presentIf condition else returns false
+
+| Param       |
+| ----------- |
+| commandArg  |
+| trueReturn  |
+| falseReturn |
 
 <a name="module_Templating API_ static zcl helpers..as_underlying_zcl_type_command_argument_not_always_present_with_presentif"></a>
 
@@ -4428,6 +4846,21 @@ on the command argument.
 | presentIf:       | If the command argument is present conditionally then this will be a condition and not null                                                       |
 | options:         | options which can be passed to asUnderlyingZclTypeWithPackageId for determining the underlying zcl type for the provided argument type            |
 
+<a name="module_Templating API_ static zcl helpers..as_underlying_zcl_type_ca_not_always_present_with_presentif"></a>
+
+### Templating API: static zcl helpers~as_underlying_zcl_type_ca_not_always_present_with_presentif(commandArg, appendString, options) ⇒
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: A string as an underlying zcl type if the command is not fixed
+length, the command argument is not always present in all zcl specifications
+but there is a present if conditionality on the command argument.
+
+| Param        | Description                                                                                                                            |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| commandArg   | command argument                                                                                                                       |
+| appendString | append the string to the argument                                                                                                      |
+| options      | options which can be passed to asUnderlyingZclTypeWithPackageId for determining the underlying zcl type for the provided argument type |
+
 <a name="module_Templating API_ static zcl helpers..if_command_argument_not_always_present_with_presentif"></a>
 
 ### Templating API: static zcl helpers~if_command_argument_not_always_present_with_presentif(commandId, introducedInRef, removedInRef, presentIf, argumentNotInAllVersionsPresentIfReturn, argumentInAllVersionsReturn) ⇒
@@ -4445,6 +4878,20 @@ conditions exist as well else returns argumentNotPresentReturn
 | presentIf                               |
 | argumentNotInAllVersionsPresentIfReturn |
 | argumentInAllVersionsReturn             |
+
+<a name="module_Templating API_ static zcl helpers..if_ca_not_always_present_with_presentif"></a>
+
+### Templating API: static zcl helpers~if_ca_not_always_present_with_presentif(commandArg, trueReturn, falseReturn) ⇒
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: trueReturn if command argument is not always present and there is a
+presentIf condition else returns false
+
+| Param       |
+| ----------- |
+| commandArg  |
+| trueReturn  |
+| falseReturn |
 
 <a name="module_Templating API_ static zcl helpers..as_underlying_zcl_type_command_argument_always_present_with_presentif"></a>
 
@@ -4465,6 +4912,21 @@ on the command argument.
 | presentIf:       | If the command argument is present conditionally then this will be a condition and not null                                                       |
 | options:         | options which can be passed to asUnderlyingZclTypeWithPackageId for determining the underlying zcl type for the provided argument type            |
 
+<a name="module_Templating API_ static zcl helpers..as_underlying_zcl_type_ca_always_present_with_presentif"></a>
+
+### Templating API: static zcl helpers~as_underlying_zcl_type_ca_always_present_with_presentif(commandArg, appendString, options) ⇒
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: A string as an underlying zcl type if the command is not fixed
+length, the command argument is always present in all zcl specifications
+but there is a present if conditionality on the command argument.
+
+| Param        | Description                                                                                                                            |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| commandArg   | command argument                                                                                                                       |
+| appendString | append the string to the argument                                                                                                      |
+| options      | options which can be passed to asUnderlyingZclTypeWithPackageId for determining the underlying zcl type for the provided argument type |
+
 <a name="module_Templating API_ static zcl helpers..if_command_argument_always_present_with_presentif"></a>
 
 ### Templating API: static zcl helpers~if_command_argument_always_present_with_presentif(commandId, introducedInRef, removedInRef, presentIf, argumentNotInAllVersionsPresentIfReturn, argumentInAllVersionsReturn) ⇒
@@ -4482,6 +4944,20 @@ argument is always present and presentIf conditions exist else returns argumentN
 | argumentNotInAllVersionsPresentIfReturn |
 | argumentInAllVersionsReturn             |
 
+<a name="module_Templating API_ static zcl helpers..if_ca_always_present_with_presentif"></a>
+
+### Templating API: static zcl helpers~if_ca_always_present_with_presentif(commandArg, trueReturn, falseReturn) ⇒
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: trueReturn if command argument is always present and there is a
+presentIf condition else returns false
+
+| Param       |
+| ----------- |
+| commandArg  |
+| trueReturn  |
+| falseReturn |
+
 <a name="module_Templating API_ static zcl helpers..if_manufacturing_specific_cluster"></a>
 
 ### Templating API: static zcl helpers~if_manufacturing_specific_cluster(clusterId, manufacturer_specific_return, null_manufacturer_specific_return) ⇒
@@ -4497,6 +4973,99 @@ not manufacturer specific.
 | manufacturer_specific_return      | <code>\*</code> |
 | null_manufacturer_specific_return | <code>\*</code> |
 
+<a name="module_Templating API_ static zcl helpers..as_generated_default_macro"></a>
+
+### Templating API: static zcl helpers~as_generated_default_macro(value, attributeSize, options) ⇒
+
+Given the value and size of an attribute along with endian as an option.
+This helper returns the attribute value as big/little endian.
+Example: {{as_generated_default_macro 0x00003840 4 endian="big"}}
+will return: 0x00, 0x00, 0x38, 0x40,
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: Formatted attribute value based on given arguments
+
+| Param         |
+| ------------- |
+| value         |
+| attributeSize |
+| options       |
+
+<a name="module_Templating API_ static zcl helpers..attribute_mask"></a>
+
+### Templating API: static zcl helpers~attribute_mask(writable, storageOption, minMax, mfgSpecific, clusterCode, client, isSingleton, prefixString, postfixString) ⇒
+
+Given the attributes of a zcl attribute. Creates an attribute mask based on
+the given options
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: attribute mask based on given values
+
+| Param         |
+| ------------- |
+| writable      |
+| storageOption |
+| minMax        |
+| mfgSpecific   |
+| clusterCode   |
+| client        |
+| isSingleton   |
+| prefixString  |
+| postfixString |
+
+<a name="module_Templating API_ static zcl helpers..command_mask"></a>
+
+### Templating API: static zcl helpers~command_mask(commmandSource, clusterSide, isIncomingEnabled, isOutgoingEnabled, manufacturingCode, prefixForMask) ⇒
+
+Given the attributes of a zcl command. Creates a command mask based on
+the given options
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: command mask based on given values
+
+| Param             |
+| ----------------- |
+| commmandSource    |
+| clusterSide       |
+| isIncomingEnabled |
+| isOutgoingEnabled |
+| manufacturingCode |
+| prefixForMask     |
+
+<a name="module_Templating API_ static zcl helpers..command_mask_sub_helper"></a>
+
+### Templating API: static zcl helpers~command_mask_sub_helper(commandMask, str) ⇒
+
+A Sub helper api for command_mask to reduce code redundancy
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: command mask addition based on the arguments
+
+| Param       |
+| ----------- |
+| commandMask |
+| str         |
+
+<a name="module_Templating API_ static zcl helpers..format_zcl_string_as_characters_for_generated_defaults"></a>
+
+### Templating API: static zcl helpers~format_zcl_string_as_characters_for_generated_defaults(stringVal, sizeOfString) ⇒
+
+This may be used within all_user_cluster_attributes_for_generated_defaults
+for example:
+{{format_zcl_string_as_characters_for_generated_defaults 'abc' 5}}
+will return as follows:
+3, 'a', 'b', 'c' 0x00, 0x00
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: Formatted string for generated defaults starting with the lenth of a
+string then each character and then filler for the size allocated for the
+string
+
+| Param        |
+| ------------ |
+| stringVal    |
+| sizeOfString |
+
 <a name="module_Templating API_ Overridable functions."></a>
 
 ## Templating API: Overridable functions.
@@ -4510,6 +5079,7 @@ This module contains the API for templating. For more detailed instructions, rea
 - [JS API: generator logic](#module*JS API* generator logic)
   - [~loadGenTemplate()](#module*JS API* generator logic..loadGenTemplate) ⇒
   - [~recordTemplatesPackage(context)](#module*JS API* generator logic..recordTemplatesPackage) ⇒
+  - [~decodePackageExtensionEntity(entityType, entity)](#module*JS API* generator logic..decodePackageExtensionEntity) ⇒
   - [~loadZclExtensions(zclExt)](#module*JS API* generator logic..loadZclExtensions) ⇒
   - [~loadTemplates(db, genTemplatesJson)](#module*JS API* generator logic..loadTemplates) ⇒
   - [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
@@ -4521,6 +5091,7 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~postProcessGeneratedFiles(outputDirectory, genResult)](#module*JS API* generator logic..postProcessGeneratedFiles) ⇒
   - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
   - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
+  - [~produceCompiledTemplate(singleTemplatePkg)](#module*JS API* generator logic..produceCompiledTemplate) ⇒
   - [~produceContent(db, sessionId, singlePkg, overridePath:)](#module*JS API* generator logic..produceContent) ⇒
   - [~wrapOverridable(originalFn, overrideFn)](#module*JS API* generator logic..wrapOverridable) ⇒
   - [~loadOverridable(genTemplatePackageId)](#module*JS API* generator logic..loadOverridable)
@@ -4532,10 +5103,12 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
   - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
+  - [~ensureEndpointTypeIds(context)](#module*JS API* generator logic..ensureEndpointTypeIds) ⇒
   - [~ensureZclClusterSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclClusterSdkExtensions) ⇒
   - [~ensureZclDeviceTypeSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclDeviceTypeSdkExtensions) ⇒
   - [~ensureZclAttributeSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclAttributeSdkExtensions) ⇒
   - [~ensureZclCommandSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclCommandSdkExtensions) ⇒
+  - [~ensureZclEventSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclEventSdkExtensions) ⇒
   - [~templatePromise(global, promise)](#module*JS API* generator logic..templatePromise)
   - [~deprecatedHelper(fn, explanation)](#module*JS API* generator logic..deprecatedHelper) ⇒
 
@@ -4564,6 +5137,22 @@ Given a loading context, it records the package into the packages table and adds
 | Param   | Type            |
 | ------- | --------------- |
 | context | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..decodePackageExtensionEntity"></a>
+
+### JS API: generator logic~decodePackageExtensionEntity(entityType, entity) ⇒
+
+This method takes extension data in JSON, and converts it into
+an object that contains:
+entityCode, entityQualifier, parentCode, manufacturerCode and value
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: object that can be used for database injection
+
+| Param      | Type            |
+| ---------- | --------------- |
+| entityType | <code>\*</code> |
+| entity     | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..loadZclExtensions"></a>
 
@@ -4601,11 +5190,11 @@ Generates all the templates inside a toplevel package.
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
 
-| Param              | Type            | Default       | Description                                                                                        |
-| ------------------ | --------------- | ------------- | -------------------------------------------------------------------------------------------------- |
-| genResult          | <code>\*</code> |               |                                                                                                    |
-| genTemplateJsonPkg | <code>\*</code> |               | Package that points to genTemplate.json file                                                       |
-| generateOnly       | <code>\*</code> | <code></code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
+| Param              | Type            | Description                                                                                        |
+| ------------------ | --------------- | -------------------------------------------------------------------------------------------------- |
+| genResult          | <code>\*</code> |                                                                                                    |
+| genTemplateJsonPkg | <code>\*</code> | Package that points to genTemplate.json file                                                       |
+| generateOnly       | <code>\*</code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
 
 <a name="module_JS API_ generator logic..generateSingleTemplate"></a>
 
@@ -4718,6 +5307,19 @@ Generates a single file and feeds it back for preview.
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
 | fileName  | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..produceCompiledTemplate"></a>
+
+### JS API: generator logic~produceCompiledTemplate(singleTemplatePkg) ⇒
+
+Resolves into a precompiled template, either from previous precompile or freshly compiled.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: templates
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| singleTemplatePkg | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..produceContent"></a>
 
@@ -4851,6 +5453,19 @@ Returns the promise that resolves with the ZCL properties package id.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: promise that resolves with the package id.
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..ensureEndpointTypeIds"></a>
+
+### JS API: generator logic~ensureEndpointTypeIds(context) ⇒
+
+Populate the endpoint type ids into the global context.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: endpoint type ids
 
 | Param   | Type            |
 | ------- | --------------- |
@@ -4916,6 +5531,21 @@ exist, it will populate them.
 | context           | <code>\*</code> |
 | templatePackageId | <code>\*</code> |
 
+<a name="module_JS API_ generator logic..ensureZclEventSdkExtensions"></a>
+
+### JS API: generator logic~ensureZclEventSdkExtensions(context, templatePackageId) ⇒
+
+Resolves with cached command extensions, but if they don't
+exist, it will populate them.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: promise that resolves with command extensions.
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| context           | <code>\*</code> |
+| templatePackageId | <code>\*</code> |
+
 <a name="module_JS API_ generator logic..templatePromise"></a>
 
 ### JS API: generator logic~templatePromise(global, promise)
@@ -4955,6 +5585,7 @@ Function wrapper that can be used when a helper is deprecated.
 - [JS API: generator logic](#module*JS API* generator logic)
   - [~loadGenTemplate()](#module*JS API* generator logic..loadGenTemplate) ⇒
   - [~recordTemplatesPackage(context)](#module*JS API* generator logic..recordTemplatesPackage) ⇒
+  - [~decodePackageExtensionEntity(entityType, entity)](#module*JS API* generator logic..decodePackageExtensionEntity) ⇒
   - [~loadZclExtensions(zclExt)](#module*JS API* generator logic..loadZclExtensions) ⇒
   - [~loadTemplates(db, genTemplatesJson)](#module*JS API* generator logic..loadTemplates) ⇒
   - [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
@@ -4966,6 +5597,7 @@ Function wrapper that can be used when a helper is deprecated.
   - [~postProcessGeneratedFiles(outputDirectory, genResult)](#module*JS API* generator logic..postProcessGeneratedFiles) ⇒
   - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
   - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
+  - [~produceCompiledTemplate(singleTemplatePkg)](#module*JS API* generator logic..produceCompiledTemplate) ⇒
   - [~produceContent(db, sessionId, singlePkg, overridePath:)](#module*JS API* generator logic..produceContent) ⇒
   - [~wrapOverridable(originalFn, overrideFn)](#module*JS API* generator logic..wrapOverridable) ⇒
   - [~loadOverridable(genTemplatePackageId)](#module*JS API* generator logic..loadOverridable)
@@ -4977,10 +5609,12 @@ Function wrapper that can be used when a helper is deprecated.
   - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
   - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
+  - [~ensureEndpointTypeIds(context)](#module*JS API* generator logic..ensureEndpointTypeIds) ⇒
   - [~ensureZclClusterSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclClusterSdkExtensions) ⇒
   - [~ensureZclDeviceTypeSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclDeviceTypeSdkExtensions) ⇒
   - [~ensureZclAttributeSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclAttributeSdkExtensions) ⇒
   - [~ensureZclCommandSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclCommandSdkExtensions) ⇒
+  - [~ensureZclEventSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclEventSdkExtensions) ⇒
   - [~templatePromise(global, promise)](#module*JS API* generator logic..templatePromise)
   - [~deprecatedHelper(fn, explanation)](#module*JS API* generator logic..deprecatedHelper) ⇒
 
@@ -5009,6 +5643,22 @@ Given a loading context, it records the package into the packages table and adds
 | Param   | Type            |
 | ------- | --------------- |
 | context | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..decodePackageExtensionEntity"></a>
+
+### JS API: generator logic~decodePackageExtensionEntity(entityType, entity) ⇒
+
+This method takes extension data in JSON, and converts it into
+an object that contains:
+entityCode, entityQualifier, parentCode, manufacturerCode and value
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: object that can be used for database injection
+
+| Param      | Type            |
+| ---------- | --------------- |
+| entityType | <code>\*</code> |
+| entity     | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..loadZclExtensions"></a>
 
@@ -5046,11 +5696,11 @@ Generates all the templates inside a toplevel package.
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: Promise that resolves with genResult, that contains all the generated templates, keyed by their 'output'
 
-| Param              | Type            | Default       | Description                                                                                        |
-| ------------------ | --------------- | ------------- | -------------------------------------------------------------------------------------------------- |
-| genResult          | <code>\*</code> |               |                                                                                                    |
-| genTemplateJsonPkg | <code>\*</code> |               | Package that points to genTemplate.json file                                                       |
-| generateOnly       | <code>\*</code> | <code></code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
+| Param              | Type            | Description                                                                                        |
+| ------------------ | --------------- | -------------------------------------------------------------------------------------------------- |
+| genResult          | <code>\*</code> |                                                                                                    |
+| genTemplateJsonPkg | <code>\*</code> | Package that points to genTemplate.json file                                                       |
+| generateOnly       | <code>\*</code> | if NULL then generate all templates, else only generate template whose out file name matches this. |
 
 <a name="module_JS API_ generator logic..generateSingleTemplate"></a>
 
@@ -5163,6 +5813,19 @@ Generates a single file and feeds it back for preview.
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
 | fileName  | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..produceCompiledTemplate"></a>
+
+### JS API: generator logic~produceCompiledTemplate(singleTemplatePkg) ⇒
+
+Resolves into a precompiled template, either from previous precompile or freshly compiled.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: templates
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| singleTemplatePkg | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..produceContent"></a>
 
@@ -5301,6 +5964,19 @@ Returns the promise that resolves with the ZCL properties package id.
 | ------- | --------------- |
 | context | <code>\*</code> |
 
+<a name="module_JS API_ generator logic..ensureEndpointTypeIds"></a>
+
+### JS API: generator logic~ensureEndpointTypeIds(context) ⇒
+
+Populate the endpoint type ids into the global context.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: endpoint type ids
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
 <a name="module_JS API_ generator logic..ensureZclClusterSdkExtensions"></a>
 
 ### JS API: generator logic~ensureZclClusterSdkExtensions(context, templatePackageId) ⇒
@@ -5349,6 +6025,21 @@ exist, it will populate them.
 <a name="module_JS API_ generator logic..ensureZclCommandSdkExtensions"></a>
 
 ### JS API: generator logic~ensureZclCommandSdkExtensions(context, templatePackageId) ⇒
+
+Resolves with cached command extensions, but if they don't
+exist, it will populate them.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: promise that resolves with command extensions.
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| context           | <code>\*</code> |
+| templatePackageId | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..ensureZclEventSdkExtensions"></a>
+
+### JS API: generator logic~ensureZclEventSdkExtensions(context, templatePackageId) ⇒
 
 Resolves with cached command extensions, but if they don't
 exist, it will populate them.
@@ -5657,9 +6348,9 @@ HTTP POST: endpoint
 **Kind**: inner method of [<code>REST API: endpoint</code>](#module*REST API* endpoint)  
 **Returns**: callback for the express uri registration
 
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
+| Param | Type            | Description                             |
+| ----- | --------------- | --------------------------------------- |
+| db    | <code>\*</code> | Main database to use for the operation. |
 
 <a name="module_REST API_ endpoint..httpPostEndpointType"></a>
 
@@ -5703,6 +6394,7 @@ This module provides the REST API to the generation.
   - [~httpGetPreviewNameIndex(db)](#module*REST API* generation functions..httpGetPreviewNameIndex) ⇒
   - [~httpGetPreviewName(db)](#module*REST API* generation functions..httpGetPreviewName) ⇒
   - [~httpGetPreview(db)](#module*REST API* generation functions..httpGetPreview) ⇒
+  - [~httpPutGenerate(db)](#module*REST API* generation functions..httpPutGenerate) ⇒
   - [~httpPostComponentAdd(db)](#module*REST API* generation functions..httpPostComponentAdd)
 
 <a name="module_REST API_ generation functions..httpGetPreviewNameIndex"></a>
@@ -5736,6 +6428,19 @@ HTTP GET: Preview a single file.
 ### REST API: generation functions~httpGetPreview(db) ⇒
 
 HTTP GET: total preview object.
+
+**Kind**: inner method of [<code>REST API: generation functions</code>](#module*REST API* generation functions)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ generation functions..httpPutGenerate"></a>
+
+### REST API: generation functions~httpPutGenerate(db) ⇒
+
+HTTP PUT: performs local generation into a specified directory.
 
 **Kind**: inner method of [<code>REST API: generation functions</code>](#module*REST API* generation functions)  
 **Returns**: callback for the express uri registration
@@ -5801,6 +6506,7 @@ This module provides the REST API to the generation.
   - [~httpGetPreviewNameIndex(db)](#module*REST API* generation functions..httpGetPreviewNameIndex) ⇒
   - [~httpGetPreviewName(db)](#module*REST API* generation functions..httpGetPreviewName) ⇒
   - [~httpGetPreview(db)](#module*REST API* generation functions..httpGetPreview) ⇒
+  - [~httpPutGenerate(db)](#module*REST API* generation functions..httpPutGenerate) ⇒
   - [~httpPostComponentAdd(db)](#module*REST API* generation functions..httpPostComponentAdd)
 
 <a name="module_REST API_ generation functions..httpGetPreviewNameIndex"></a>
@@ -5834,6 +6540,19 @@ HTTP GET: Preview a single file.
 ### REST API: generation functions~httpGetPreview(db) ⇒
 
 HTTP GET: total preview object.
+
+**Kind**: inner method of [<code>REST API: generation functions</code>](#module*REST API* generation functions)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ generation functions..httpPutGenerate"></a>
+
+### REST API: generation functions~httpPutGenerate(db) ⇒
+
+HTTP PUT: performs local generation into a specified directory.
 
 **Kind**: inner method of [<code>REST API: generation functions</code>](#module*REST API* generation functions)  
 **Returns**: callback for the express uri registration
@@ -6005,6 +6724,8 @@ This module provides the HTTP server functionality.
   - [~shutdownHttpServer()](#module*JS API* http server..shutdownHttpServer) ⇒
   - [~shutdownHttpServerSync()](#module*JS API* http server..shutdownHttpServerSync) ⇒
   - [~httpServerPort()](#module*JS API* http server..httpServerPort) ⇒
+  - [~httpServerUrl()](#module*JS API* http server..httpServerUrl) ⇒
+  - [~httpServerStartupMessage()](#module*JS API* http server..httpServerStartupMessage)
 
 <a name="module_JS API_ http server..registerRestApi"></a>
 
@@ -6060,6 +6781,21 @@ Port http server is listening on.
 
 **Kind**: inner method of [<code>JS API: http server</code>](#module*JS API* http server)  
 **Returns**: port  
+<a name="module_JS API_ http server..httpServerUrl"></a>
+
+### JS API: http server~httpServerUrl() ⇒
+
+Returns the URL of the server.
+
+**Kind**: inner method of [<code>JS API: http server</code>](#module*JS API* http server)  
+**Returns**: the server URL  
+<a name="module_JS API_ http server..httpServerStartupMessage"></a>
+
+### JS API: http server~httpServerStartupMessage()
+
+Returns the startup message that needs to be printed out.
+
+**Kind**: inner method of [<code>JS API: http server</code>](#module*JS API* http server)  
 <a name="module_JS API_ websocket server"></a>
 
 ## JS API: websocket server
@@ -6161,8 +6897,10 @@ a given socket and data object.
 - [JS API: renderer API related utilities](#module*JS API* renderer API related utilities)
   - [~getSessionUuidFromBrowserWindow(browserWindow)](#module*JS API* renderer API related utilities..getSessionUuidFromBrowserWindow) ⇒
   - [~getRendererApiInformation(browserWindow)](#module*JS API* renderer API related utilities..getRendererApiInformation) ⇒
+  - [~execRendererApi(browserWindow, rendererApiCommand, ...theArgs)](#module*JS API* renderer API related utilities..execRendererApi)
+  - [~execFileOpen(browserWindow, filePath)](#module*JS API* renderer API related utilities..execFileOpen) ⇒
   - [~processRendererNotify(message)](#module*JS API* renderer API related utilities..processRendererNotify) ⇒
-  - [~reportFiles(browserWindow, filesArray)](#module*JS API* renderer API related utilities..reportFiles)
+  - [~reportFiles(browserWindow, result)](#module*JS API* renderer API related utilities..reportFiles)
   - [~getUserKeyFromCookieValue(cookieValue)](#module*JS API* renderer API related utilities..getUserKeyFromCookieValue) ⇒
   - [~getUserKeyFromBrowserCookie(browserCookie)](#module*JS API* renderer API related utilities..getUserKeyFromBrowserCookie)
   - [~getUserKeyFromBrowserWindow(browserWindow)](#module*JS API* renderer API related utilities..getUserKeyFromBrowserWindow)
@@ -6193,6 +6931,34 @@ Returns descriptive text about renderer api.
 | ------------- | --------------- |
 | browserWindow | <code>\*</code> |
 
+<a name="module_JS API_ renderer API related utilities..execRendererApi"></a>
+
+### JS API: renderer API related utilities~execRendererApi(browserWindow, rendererApiCommand, ...theArgs)
+
+Execute RendererApi commands
+
+**Kind**: inner method of [<code>JS API: renderer API related utilities</code>](#module*JS API* renderer API related utilities)
+
+| Param              | Type             |
+| ------------------ | ---------------- |
+| browserWindow      | <code>\*</code>  |
+| rendererApiCommand | <code>\*</code>  |
+| ...theArgs         | <code>any</code> |
+
+<a name="module_JS API_ renderer API related utilities..execFileOpen"></a>
+
+### JS API: renderer API related utilities~execFileOpen(browserWindow, filePath) ⇒
+
+Executes the file open renderer API action.
+
+**Kind**: inner method of [<code>JS API: renderer API related utilities</code>](#module*JS API* renderer API related utilities)  
+**Returns**: Result of file open call.
+
+| Param         | Type            |
+| ------------- | --------------- |
+| browserWindow | <code>\*</code> |
+| filePath      | <code>\*</code> |
+
 <a name="module_JS API_ renderer API related utilities..processRendererNotify"></a>
 
 ### JS API: renderer API related utilities~processRendererNotify(message) ⇒
@@ -6210,7 +6976,7 @@ If it's not it returns false.
 
 <a name="module_JS API_ renderer API related utilities..reportFiles"></a>
 
-### JS API: renderer API related utilities~reportFiles(browserWindow, filesArray)
+### JS API: renderer API related utilities~reportFiles(browserWindow, result)
 
 This method calls the reportFiles renderer API call.
 
@@ -6219,7 +6985,7 @@ This method calls the reportFiles renderer API call.
 | Param         | Type            |
 | ------------- | --------------- |
 | browserWindow | <code>\*</code> |
-| filesArray    | <code>\*</code> |
+| result        | <code>\*</code> |
 
 <a name="module_JS API_ renderer API related utilities..getUserKeyFromCookieValue"></a>
 
@@ -6357,6 +7123,8 @@ Returns true if given character is a digit.
   - [~typeSizeAttribute(db, zclPackageId, at, [defaultValue])](#module*JS API* type related utilities..typeSizeAttribute) ⇒
   - [~longTypeDefaultValue(size, type, value)](#module*JS API* type related utilities..longTypeDefaultValue) ⇒
   - [~convertToCliType(str)](#module*JS API* type related utilities..convertToCliType) ⇒
+  - [~isString(type)](#module*JS API* type related utilities..isString) ⇒
+  - [~isFloat(type)](#module*JS API* type related utilities..isFloat) ⇒
   - [~isOneBytePrefixedString(type)](#module*JS API* type related utilities..isOneBytePrefixedString) ⇒
   - [~isTwoBytePrefixedString(type)](#module*JS API* type related utilities..isTwoBytePrefixedString) ⇒
 
@@ -6422,6 +7190,32 @@ with a proper type engine.
 | ----- | --------------- |
 | str   | <code>\*</code> |
 
+<a name="module_JS API_ type related utilities..isString"></a>
+
+### JS API: type related utilities~isString(type) ⇒
+
+Returns true if a given ZCL type is a string type.
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module*JS API* type related utilities)  
+**Returns**: true if type is string, false otherwise
+
+| Param | Type            |
+| ----- | --------------- |
+| type  | <code>\*</code> |
+
+<a name="module_JS API_ type related utilities..isFloat"></a>
+
+### JS API: type related utilities~isFloat(type) ⇒
+
+Returns true if a given ZCL type is a float type.
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module*JS API* type related utilities)  
+**Returns**: true if type is float, false otherwise
+
+| Param | Type            |
+| ----- | --------------- |
+| type  | <code>\*</code> |
+
 <a name="module_JS API_ type related utilities..isOneBytePrefixedString"></a>
 
 ### JS API: type related utilities~isOneBytePrefixedString(type) ⇒
@@ -6453,46 +7247,50 @@ Checks if type is a two-byte lengh string.
 ## JS API: random utilities
 
 - [JS API: random utilities](#module*JS API* random utilities)
-  - [~calculateCrc(context)](#module*JS API* random utilities..calculateCrc) ⇒
-  - [~initializeSessionPackage(db, sessionId)](#module*JS API* random utilities..initializeSessionPackage) ⇒
+  - [~checksum(data)](#module*JS API* random utilities..checksum) ⇒
+  - [~initializeSessionPackage(db, sessionId, metafiles:)](#module*JS API* random utilities..initializeSessionPackage) ⇒
   - [~createBackupFile(filePath)](#module*JS API* random utilities..createBackupFile)
   - [~matchFeatureLevel(featureLevel)](#module*JS API* random utilities..matchFeatureLevel)
   - [~sessionReport(db, sessionId)](#module*JS API* random utilities..sessionReport) ⇒
+  - [~sessionDump(db, sessionId)](#module*JS API* random utilities..sessionDump) ⇒
   - [~executePromisesSequentially(arrayOfData, promiseCreator)](#module*JS API* random utilities..executePromisesSequentially)
   - [~createAbsolutePath(relativePath, relativity, zapFilePath)](#module*JS API* random utilities..createAbsolutePath)
   - [~locateRelativeFilePath(rootFileLocations, relativeFilePath)](#module*JS API* random utilities..locateRelativeFilePath) ⇒
   - [~executeExternalProgram(cmd)](#module*JS API* random utilities..executeExternalProgram)
-  - [~getClusterExtensionDefault(extensions, property, clusterCode)](#module*JS API* random utilities..getClusterExtensionDefault) ⇒
+  - [~getClusterExtensionDefault(extensions, extensionId, clusterCode)](#module*JS API* random utilities..getClusterExtensionDefault) ⇒
   - [~getClusterExtension(extensions, property, clusterCode)](#module*JS API* random utilities..getClusterExtension) ⇒
   - [~createUuid()](#module*JS API* random utilities..createUuid)
   - [~waitFor(time)](#module*JS API* random utilities..waitFor)
+  - [~parseXml(fileContent)](#module*JS API* random utilities..parseXml) ⇒
+  - [~readFileContentAndCrc(metadata)](#module*JS API* random utilities..readFileContentAndCrc) ⇒
 
-<a name="module_JS API_ random utilities..calculateCrc"></a>
+<a name="module_JS API_ random utilities..checksum"></a>
 
-### JS API: random utilities~calculateCrc(context) ⇒
+### JS API: random utilities~checksum(data) ⇒
 
-Promises to calculate the CRC of the file, and resolve with an object { filePath, data, actualCrc }
+Returns the CRC of the data that is passed.
 
 **Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
-**Returns**: Promise that resolves with the same object, just adds the 'crc' key into it.
+**Returns**: Calculated CRC of a data.
 
-| Param   | Type            | Description                                                                     |
-| ------- | --------------- | ------------------------------------------------------------------------------- |
-| context | <code>\*</code> | that contains 'filePath' and 'data' keys for the file and contents of the file. |
+| Param | Type            |
+| ----- | --------------- |
+| data  | <code>\*</code> |
 
 <a name="module_JS API_ random utilities..initializeSessionPackage"></a>
 
-### JS API: random utilities~initializeSessionPackage(db, sessionId) ⇒
+### JS API: random utilities~initializeSessionPackage(db, sessionId, metafiles:) ⇒
 
 This function assigns a proper package ID to the session.
 
 **Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
 **Returns**: Promise that resolves with the packages array.
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param      | Type            | Description                            |
+| ---------- | --------------- | -------------------------------------- |
+| db         | <code>\*</code> |                                        |
+| sessionId  | <code>\*</code> |                                        |
+| metafiles: | <code>\*</code> | object containing 'zcl' and 'template' |
 
 <a name="module_JS API_ random utilities..createBackupFile"></a>
 
@@ -6523,6 +7321,20 @@ message: in case of missmatch, the message shown to user.
 <a name="module_JS API_ random utilities..sessionReport"></a>
 
 ### JS API: random utilities~sessionReport(db, sessionId) ⇒
+
+Produces a text dump of a session data for human consumption.
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
+**Returns**: promise that resolves into a text report for the session.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+
+<a name="module_JS API_ random utilities..sessionDump"></a>
+
+### JS API: random utilities~sessionDump(db, sessionId) ⇒
 
 Produces a text dump of a session data for human consumption.
 
@@ -6596,17 +7408,18 @@ Returns a promise of an execution of an external program.
 
 <a name="module_JS API_ random utilities..getClusterExtensionDefault"></a>
 
-### JS API: random utilities~getClusterExtensionDefault(extensions, property, clusterCode) ⇒
+### JS API: random utilities~getClusterExtensionDefault(extensions, extensionId, clusterCode) ⇒
 
 Retrieve specific entry from extensions defaults(array) via 'clusterCode' key fields
 
 **Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
-**Returns**: Value of the cluster extension property.
+**Returns**: Value of the cluster extension property.  
+**Parem**: <code>\*</code> clusterRole: one of server/client enums, or null for either.
 
 | Param       | Type            | Description                         |
 | ----------- | --------------- | ----------------------------------- |
 | extensions  | <code>\*</code> |                                     |
-| property    | <code>\*</code> | field name under specific extension |
+| extensionId | <code>\*</code> | field name under specific extension |
 | clusterCode | <code>\*</code> | search key                          |
 
 <a name="module_JS API_ random utilities..getClusterExtension"></a>
@@ -6643,6 +7456,145 @@ Returns a promise that resolves after time milliseconds
 | ----- |
 | time  |
 
+<a name="module_JS API_ random utilities..parseXml"></a>
+
+### JS API: random utilities~parseXml(fileContent) ⇒
+
+Returns a promise that resolve into a parsed XML object.
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
+**Returns**: promise that resolves into parsed object.
+
+| Param       | Type            |
+| ----------- | --------------- |
+| fileContent | <code>\*</code> |
+
+<a name="module_JS API_ random utilities..readFileContentAndCrc"></a>
+
+### JS API: random utilities~readFileContentAndCrc(metadata) ⇒
+
+Reads the properties file and returns object containing
+'data', 'filePath' and 'crc'
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
+**Returns**: Promise to populate data, filePath and crc into the context.
+
+| Param    | Type            | Description |
+| -------- | --------------- | ----------- |
+| metadata | <code>\*</code> | file        |
+
+<a name="module_REST API_ various zcl utilities"></a>
+
+## REST API: various zcl utilities
+
+This module provides the API to access various zcl utilities.
+
+- [REST API: various zcl utilities](#module*REST API* various zcl utilities)
+  - [~clusterComparator(a, b)](#module*REST API* various zcl utilities..clusterComparator) ⇒
+  - [~attributeComparator(a, b)](#module*REST API* various zcl utilities..attributeComparator) ⇒
+  - [~commandComparator(a, b)](#module*REST API* various zcl utilities..commandComparator) ⇒
+
+<a name="module_REST API_ various zcl utilities..clusterComparator"></a>
+
+### REST API: various zcl utilities~clusterComparator(a, b) ⇒
+
+Comparator for sorting clusters.
+
+**Kind**: inner method of [<code>REST API: various zcl utilities</code>](#module*REST API* various zcl utilities)  
+**Returns**: -1, 0 or 1
+
+| Param | Type            |
+| ----- | --------------- |
+| a     | <code>\*</code> |
+| b     | <code>\*</code> |
+
+<a name="module_REST API_ various zcl utilities..attributeComparator"></a>
+
+### REST API: various zcl utilities~attributeComparator(a, b) ⇒
+
+Comparator for sorting attribute.
+
+**Kind**: inner method of [<code>REST API: various zcl utilities</code>](#module*REST API* various zcl utilities)  
+**Returns**: -1, 0 or 1
+
+| Param | Type            |
+| ----- | --------------- |
+| a     | <code>\*</code> |
+| b     | <code>\*</code> |
+
+<a name="module_REST API_ various zcl utilities..commandComparator"></a>
+
+### REST API: various zcl utilities~commandComparator(a, b) ⇒
+
+Comparator for sorting commands.
+
+**Kind**: inner method of [<code>REST API: various zcl utilities</code>](#module*REST API* various zcl utilities)  
+**Returns**: -1, 0 or 1
+
+| Param | Type            |
+| ----- | --------------- |
+| a     | <code>\*</code> |
+| b     | <code>\*</code> |
+
+<a name="renderer_api"></a>
+
+## renderer_api
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global variable  
+<a name="GLOBAL_SYMBOL_INFO"></a>
+
+## GLOBAL_SYMBOL_INFO
+
+Global symbol that carries the API info metadata
+
+**Kind**: global variable  
+<a name="GLOBAL_SYMBOL_EXECUTE"></a>
+
+## GLOBAL_SYMBOL_EXECUTE
+
+Global function that can execute the APIs.
+
+**Kind**: global variable  
+<a name="GLOBAL_SYMBOL_NOTIFY"></a>
+
+## GLOBAL_SYMBOL_NOTIFY
+
+Global function that can be overloaded by jxbrowser for notifications
+
+**Kind**: global variable  
+<a name="watchDogId"></a>
+
+## watchDogId
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global variable  
 <a name="uri"></a>
 
 ## uri
@@ -6700,6 +7652,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
+<a name="queryZcl"></a>
+
+## queryZcl
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
 <a name="templateUtil"></a>
 
 ## templateUtil
@@ -6719,9 +7690,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
-<a name="queryPackage"></a>
+<a name="dbEnum"></a>
 
-## queryPackage
+## dbEnum
 
 Copyright (c) 2020 Silicon Labs
 
@@ -6852,6 +7823,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
+<a name="queryEndpoint"></a>
+
+## queryEndpoint
+
+This module contains the API functions for the post-load
+scripting functionality.
+
+**Kind**: global constant  
 <a name="env"></a>
 
 ## env
@@ -6900,9 +7879,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
-<a name="restApi"></a>
+<a name="rendApi"></a>
 
-## restApi
+## rendApi
 
 Copyright (c) 2020 Silicon Labs
 
@@ -7098,6 +8077,14 @@ Sends a message to server.
 | key    | <code>\*</code> |
 | object | <code>\*</code> |
 
+<a name="attributeDefault"></a>
+
+## attributeDefault() ⇒
+
+Valid within a cluster context, requires code.
+
+**Kind**: global function  
+**Returns**: Produces attribute defaults.  
 <a name="endpoint_type_count"></a>
 
 ## endpoint_type_count(options) ⇒
@@ -7467,7 +8454,7 @@ at contains clusterId, attributeId, isClient, mfgCode and possibly value
 
 ## parseAttribute(attributeString, [value])
 
-Parrses attribute string in a form:
+Parses attribute string in a form:
 cl:0xABCD, at:0xABCD, di: [client|server], mf:0xABCD
 
 **Kind**: global function
@@ -7533,9 +8520,9 @@ Load individual endpoint types.
 | zclPackages  | <code>\*</code> | Array of package IDs for zcl queries. |
 | endpointType | <code>\*</code> |                                       |
 
-<a name="collectAttributeLoadingPromises"></a>
+<a name="loadAttributes"></a>
 
-## collectAttributeLoadingPromises(db, state, sessionId)
+## loadAttributes(db, state, sessionId)
 
 This method returns an array of promises that contain all the
 queries that are needed to load the attribute state
@@ -7547,6 +8534,20 @@ queries that are needed to load the attribute state
 | db        | <code>\*</code> |
 | state     | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="loadSessionKeyValues"></a>
+
+## loadSessionKeyValues(db, sessionId, keyValues)
+
+Loads the session key values from the keyValues object
+
+**Kind**: global function
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+| keyValues | <code>\*</code> |
 
 <a name="iscDataLoader"></a>
 
@@ -7562,6 +8563,34 @@ Session at this point is blank, and has no packages.
 | db        | <code>\*</code> |
 | state     | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="readDataFromFile"></a>
+
+## readDataFromFile(filePath) ⇒
+
+Reads the data from the file and resolves with the state object if all is good.
+
+**Kind**: global function  
+**Returns**: Promise of file reading.
+
+| Param    | Type            |
+| -------- | --------------- |
+| filePath | <code>\*</code> |
+
+<a name="importDataFromFile"></a>
+
+## importDataFromFile(db, filePath) ⇒
+
+Writes the data from the file into a new session.
+NOTE: This function does NOT initialize session packages.
+
+**Kind**: global function  
+**Returns**: a promise that resolves with the import result object that contains: sessionId, errors, warnings.
+
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| filePath | <code>\*</code> |
 
 <a name="importSessionKeyValues"></a>
 
@@ -7607,32 +8636,90 @@ Parses JSON file and creates a state object out of it, which is passed further d
 | filePath | <code>\*</code> |
 | data     | <code>\*</code> |
 
-<a name="readDataFromFile"></a>
+<a name="print"></a>
 
-## readDataFromFile(filePath) ⇒
+## print(text)
 
-Reads the data from the file and resolves with the state object if all is good.
+Prints a text to console.
 
-**Kind**: global function  
-**Returns**: Promise of file reading.
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| text  | <code>\*</code> |
+
+<a name="endpoints"></a>
+
+## endpoints(context)
+
+Returns an array of endpoints.
+
+**Kind**: global function
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
+<a name="clusters"></a>
+
+## clusters(context, endpoint)
+
+Returns an array of clusters defined on a given endpoint.
+
+**Kind**: global function
 
 | Param    | Type            |
 | -------- | --------------- |
-| filePath | <code>\*</code> |
+| context  | <code>\*</code> |
+| endpoint | <code>\*</code> |
 
-<a name="importDataFromFile"></a>
+<a name="attributes"></a>
 
-## importDataFromFile(db, filePath) ⇒
+## attributes(context, endpoint, cluster)
 
-Writes the data from the file into a new session.
+Returns an array of attributes for a given cluster.
 
-**Kind**: global function  
-**Returns**: a promise that resolves with the import result object that contains: sessionId, errors, warnings.
+**Kind**: global function
 
 | Param    | Type            |
 | -------- | --------------- |
-| db       | <code>\*</code> |
-| filePath | <code>\*</code> |
+| context  | <code>\*</code> |
+| endpoint | <code>\*</code> |
+| cluster  | <code>\*</code> |
+
+<a name="commands"></a>
+
+## commands(context, endpoint, cluster)
+
+Returns an array of commands for a given cluster
+
+**Kind**: global function
+
+| Param    | Type            |
+| -------- | --------------- |
+| context  | <code>\*</code> |
+| endpoint | <code>\*</code> |
+| cluster  | <code>\*</code> |
+
+<a name="functions"></a>
+
+## functions()
+
+Returns array of function names available in this module.
+
+**Kind**: global function  
+<a name="sessionId"></a>
+
+## sessionId(context) ⇒
+
+Returns the session id in the context.
+
+**Kind**: global function  
+**Returns**: sessionId
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
 
 <a name="createOrShowAboutWindow"></a>
 
@@ -7694,6 +8781,19 @@ Returns the output file out of input file and a pattern
 | inputFile     | <code>\*</code> |
 | outputPattern | <code>\*</code> |
 
+<a name="gatherFiles"></a>
+
+## gatherFiles(filesArg, options)
+
+This method gathers all the files to process.
+
+**Kind**: global function
+
+| Param    | Type            | Description              |
+| -------- | --------------- | ------------------------ |
+| filesArg | <code>\*</code> | array of files arguments |
+| options  | <code>\*</code> |                          |
+
 <a name="startConvert"></a>
 
 ## startConvert(files, output)
@@ -7720,6 +8820,19 @@ Perform file analysis.
 | paths     | <code>\*</code>      |                                        | List of paths to analyze |
 | [options] | <code>boolean</code> | <code>{ log: true, quit: true }</code> |                          |
 
+<a name="startServer"></a>
+
+## startServer(options) ⇒
+
+Starts zap in a server mode.
+
+**Kind**: global function  
+**Returns**: promise of a startup
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
 <a name="startSelfCheck"></a>
 
 ## startSelfCheck()
@@ -7729,20 +8842,12 @@ Start up applicationa in self-check mode.
 **Kind**: global function  
 <a name="startGeneration"></a>
 
-## startGeneration(output, genTemplateJsonFile, zclProperties, [zapFile]) ⇒
+## startGeneration() ⇒
 
 Performs headless regeneration for given parameters.
 
 **Kind**: global function  
-**Returns**: Nothing, triggers app.quit()
-
-| Param               | Type            | Default       | Description                                                                         |
-| ------------------- | --------------- | ------------- | ----------------------------------------------------------------------------------- |
-| output              | <code>\*</code> |               | Directory where to write files.                                                     |
-| genTemplateJsonFile | <code>\*</code> |               | gen-teplate.json file to use for template loading.                                  |
-| zclProperties       | <code>\*</code> |               | zcl.properties file to use for ZCL properties.                                      |
-| [zapFile]           | <code>\*</code> | <code></code> | .zap file that contains application stater, or null if generating from clean state. |
-
+**Returns**: Nothing, triggers app.quit()  
 <a name="clearDatabaseFile"></a>
 
 ## clearDatabaseFile(path)
@@ -7786,11 +8891,38 @@ Default startup method.
 | ---------- | --------------- |
 | isElectron | <code>\*</code> |
 
+<a name="start"></a>
+
+## start(expirationInterval, triggerFunction)
+
+Starts a zap watchdog.
+
+**Kind**: global function
+
+| Param              | Type            |
+| ------------------ | --------------- |
+| expirationInterval | <code>\*</code> |
+| triggerFunction    | <code>\*</code> |
+
+<a name="reset"></a>
+
+## reset()
+
+Resets a zap watchdog.
+
+**Kind**: global function  
 <a name="socketPath"></a>
 
 ## socketPath()
 
 Returns the socket path for the IPC.
+
+**Kind**: global function  
+<a name="preHandler"></a>
+
+## preHandler()
+
+Runs just before every time IPC request is processed.
 
 **Kind**: global function  
 <a name="initServer"></a>
@@ -7842,7 +8974,7 @@ Perform a file->open operation.
 
 <a name="doSave"></a>
 
-## doSave(menuItem, browserWindow, event)
+## doSave(browserWindow)
 
 Perform a save, defering to save as if file is not yet selected.
 
@@ -7850,9 +8982,7 @@ Perform a save, defering to save as if file is not yet selected.
 
 | Param         | Type            |
 | ------------- | --------------- |
-| menuItem      | <code>\*</code> |
 | browserWindow | <code>\*</code> |
-| event         | <code>\*</code> |
 
 <a name="doSaveAs"></a>
 
@@ -7867,20 +8997,6 @@ Perform save as.
 | menuItem      | <code>\*</code> |
 | browserWindow | <code>\*</code> |
 | event         | <code>\*</code> |
-
-<a name="generateInDir"></a>
-
-## generateInDir(browserWindow)
-
-This function gets the directory where user wants the output and
-calls generateCode function which generates the code in the user selected
-output.
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| browserWindow | <code>\*</code> |
 
 <a name="fileSave"></a>
 
@@ -7958,10 +9074,10 @@ Creates a new window with a blank configuration.
 
 **Kind**: global function
 
-| Param    | Type            | Description          |
-| -------- | --------------- | -------------------- |
-| httpPort | <code>\*</code> |                      |
-| options: | <code>\*</code> | uiMode, embeddedMode |
+| Param    | Type            | Description         |
+| -------- | --------------- | ------------------- |
+| httpPort | <code>\*</code> |                     |
+| options: | <code>\*</code> | uiMode, debugNavBar |
 
 <a name="toggleDirtyFlag"></a>
 
@@ -7986,26 +9102,42 @@ reports result back through the API.
 
 **Kind**: global function
 
-| Param         | Type            |
-| ------------- | --------------- |
-| browserWindow | <code>\*</code> |
-| options       | <code>\*</code> |
+| Param         | Type            | Description                           |
+| ------------- | --------------- | ------------------------------------- |
+| browserWindow | <code>\*</code> |                                       |
+| options       | <code>\*</code> | 'key', 'title', 'mode', 'defaultPath' |
+
+<a name="initializeElectronUi"></a>
+
+## initializeElectronUi(port)
+
+Electron UI initialization.
+
+Note: You might be tempted to pass `db` to this function. Don't.
+That was done before and it's just a lazy way to cut through the
+layers between UI and back-end. Should not be done. Any information
+UI needs from the database should be retrieved via renderer API.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| port  | <code>\*</code> |
 
 <a name="windowCreate"></a>
 
-## windowCreate(port, [filePath], [uiMode], [embeddedMode]) ⇒
+## windowCreate(port, [filePath], [uiMode]) ⇒
 
 Create a window, possibly with a given file path.
 
 **Kind**: global function  
 **Returns**: BrowserWindow that got created
 
-| Param          | Type            | Default       |
-| -------------- | --------------- | ------------- |
-| port           | <code>\*</code> |               |
-| [filePath]     | <code>\*</code> | <code></code> |
-| [uiMode]       | <code>\*</code> | <code></code> |
-| [embeddedMode] | <code>\*</code> | <code></code> |
+| Param      | Type            | Default       |
+| ---------- | --------------- | ------------- |
+| port       | <code>\*</code> |               |
+| [filePath] | <code>\*</code> | <code></code> |
+| [uiMode]   | <code>\*</code> | <code></code> |
 
 <a name="processCommandLineArguments"></a>
 
@@ -8558,6 +9690,104 @@ and orchestrates the promise chain.
 | db    | <code>\*</code> |                     |
 | ctx   | <code>\*</code> | Context of loading. |
 
+<a name="recordToplevelPackage"></a>
+
+## recordToplevelPackage(db, metadataFile, crc) ⇒
+
+Records the toplevel package information and resolves into packageId
+
+**Kind**: global function  
+**Returns**: packageId
+
+| Param        | Type            |
+| ------------ | --------------- |
+| db           | <code>\*</code> |
+| metadataFile | <code>\*</code> |
+| crc          | <code>\*</code> |
+
+<a name="recordVersion"></a>
+
+## recordVersion(db, ctx)
+
+Records the version into the database.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+| ctx   | <code>\*</code> |
+
+<a name="loadZcl"></a>
+
+## loadZcl(db, metadataFile) ⇒
+
+Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
+
+**Kind**: global function  
+**Returns**: a Promise that resolves with the db.
+
+| Param        | Type            |
+| ------------ | --------------- |
+| db           | <code>\*</code> |
+| metadataFile | <code>\*</code> |
+
+<a name="bindValidationScript"></a>
+
+## bindValidationScript(db, basePackageId)
+
+This function creates a validator function with signatuee fn(stringToValidateOn)
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| basePackageId | <code>\*</code> |
+
+<a name="getSchemaAndValidationScript"></a>
+
+## getSchemaAndValidationScript(db, basePackageId)
+
+Returns an object with zclSchema and zclValidation elements.
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| basePackageId | <code>\*</code> |
+
+<a name="qualifyZclFile"></a>
+
+## qualifyZclFile(db, info, parentPackageId) ⇒
+
+Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}
+
+**Kind**: global function  
+**Returns**: Promise that resolves int he object of data.
+
+| Param           | Type            |
+| --------------- | --------------- |
+| db              | <code>\*</code> |
+| info            | <code>\*</code> |
+| parentPackageId | <code>\*</code> |
+
+<a name="processZclPostLoading"></a>
+
+## processZclPostLoading(db) ⇒
+
+Promises to perform a post loading step.
+
+**Kind**: global function  
+**Returns**: Promise to deal with the post-loading cleanup.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
 <a name="collectDataFromJsonFile"></a>
 
 ## collectDataFromJsonFile(ctx) ⇒
@@ -8748,6 +9978,21 @@ attributes and commands in a same way as cluster or clusterExtension
 | packageId | <code>\*</code> |
 | data      | <code>\*</code> |
 
+<a name="processTags"></a>
+
+## processTags(db, filePath, packageId, tags)
+
+Processes the tags in the XML.
+
+**Kind**: global function
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| filePath  | <code>\*</code> |
+| packageId | <code>\*</code> |
+| tags      | <code>\*</code> |
+
 <a name="prepareDomain"></a>
 
 ## prepareDomain(domain) ⇒
@@ -8910,7 +10155,7 @@ Parses the manufacturers xml.
 
 <a name="parseZclSchema"></a>
 
-## parseZclSchema(db, ctx)
+## parseZclSchema(db)
 
 Parses the ZCL Schema
 
@@ -8919,11 +10164,10 @@ Parses the ZCL Schema
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
-| ctx   | <code>\*</code> |
 
 <a name="parseOptions"></a>
 
-## parseOptions(db, ctx) ⇒
+## parseOptions(db) ⇒
 
 Parses and loads the text and boolean options.
 
@@ -8933,7 +10177,6 @@ Parses and loads the text and boolean options.
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
-| ctx   | <code>\*</code> |
 
 <a name="parseTextOptions"></a>
 
@@ -9021,125 +10264,3 @@ and orchestrates the promise chain.
 | ----- | --------------- | ----------------------- |
 | db    | <code>\*</code> |                         |
 | ctx   | <code>\*</code> | The context of loading. |
-
-<a name="readMetadataFile"></a>
-
-## readMetadataFile(ctx) ⇒
-
-Reads the properties file into ctx.data and also calculates crc into ctx.crc
-
-**Kind**: global function  
-**Returns**: Promise to populate data, filePath and crc into the context.
-
-| Param | Type            |
-| ----- | --------------- |
-| ctx   | <code>\*</code> |
-
-<a name="recordToplevelPackage"></a>
-
-## recordToplevelPackage(ctx)
-
-Records the toplevel package information and puts ctx.packageId into the context.
-
-**Kind**: global function
-
-| Param | Type            |
-| ----- | --------------- |
-| ctx   | <code>\*</code> |
-
-<a name="recordVersion"></a>
-
-## recordVersion(db, ctx)
-
-Records the version into the database.
-
-**Kind**: global function
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-| ctx   | <code>\*</code> |
-
-<a name="loadZcl"></a>
-
-## loadZcl(db, metadataFile) ⇒
-
-Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
-
-**Kind**: global function  
-**Returns**: a Promise that resolves with the db.
-
-| Param        | Type            |
-| ------------ | --------------- |
-| db           | <code>\*</code> |
-| metadataFile | <code>\*</code> |
-
-<a name="bindValidationScript"></a>
-
-## bindValidationScript(db, basePackageId)
-
-This function creates a validator function with signatuee fn(stringToValidateOn)
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| db            | <code>\*</code> |
-| basePackageId | <code>\*</code> |
-
-<a name="getSchemaAndValidationScript"></a>
-
-## getSchemaAndValidationScript(db, basePackageId)
-
-Returns an object with zclSchema and zclValidation elements.
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| db            | <code>\*</code> |
-| basePackageId | <code>\*</code> |
-
-<a name="qualifyZclFile"></a>
-
-## qualifyZclFile(db, info, parentPackageId) ⇒
-
-Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}
-
-**Kind**: global function  
-**Returns**: Promise that resolves int he object of data.
-
-| Param           | Type            |
-| --------------- | --------------- |
-| db              | <code>\*</code> |
-| info            | <code>\*</code> |
-| parentPackageId | <code>\*</code> |
-
-<a name="processZclPostLoading"></a>
-
-## processZclPostLoading(db) ⇒
-
-Promises to perform a post loading step.
-
-**Kind**: global function  
-**Returns**: Promise to deal with the post-loading cleanup.
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-
-<a name="parseZclFile"></a>
-
-## parseZclFile(argument, validator) ⇒
-
-Promises to parse the ZCL file, expecting object of { filePath, data, packageId, msg }
-
-**Kind**: global function  
-**Returns**: promise that resolves with the array [filePath,result,packageId,msg,data]
-
-| Param     | Type            | Default       | Description                                                                                           |
-| --------- | --------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
-| argument  | <code>\*</code> |               |                                                                                                       |
-| validator | <code>\*</code> | <code></code> | validator is a function that takes in an buffer, and returns an array of errors. This can be optional |
