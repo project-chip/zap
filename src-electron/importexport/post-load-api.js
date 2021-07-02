@@ -19,6 +19,7 @@
  * This module contains the API functions for the post-load
  * scripting functionality.
  */
+const queryEndpoint = require('../db/query-endpoint.js')
 
 /**
  * Prints a text to console.
@@ -28,6 +29,13 @@
 function print(text) {
   console.log(text)
 }
+
+/**
+ * Returns an array of endpoints.
+ *
+ * @param {*} context
+ */
+function endpoints(context) {}
 
 /**
  * Returns array of function names available in this module.

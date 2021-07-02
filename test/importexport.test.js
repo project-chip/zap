@@ -31,6 +31,7 @@ const testUtil = require('./test-util.js')
 const testQuery = require('./test-query.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
+const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const util = require('../src-electron/util/util.js')
 
 let db
@@ -151,7 +152,7 @@ test(
   async () => {
     let sid = await querySession.createBlankSession(db)
     await importJs.importDataFromFile(db, sleepyGenericZap, { sessionId: sid })
-    let endpoints = await queryConfig.selectAllEndpoints(db, sid)
+    let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].deviceIdentifier).toBe(1281)
   },
@@ -163,7 +164,7 @@ test(
   async () => {
     let sid = await querySession.createBlankSession(db)
     await importJs.importDataFromFile(db, sleepyGenericIsc, { sessionId: sid })
-    let endpoints = await queryConfig.selectAllEndpoints(db, sid)
+    let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].deviceIdentifier).toBe(1281)
   },
@@ -197,7 +198,7 @@ test(
     expect(endpointTypes[0].name).toBe('Centralized')
     expect(endpointTypes[1].name).toBe('GreenPower')
     expect(endpointTypes[2].name).toBe('Touchlink')
-    let endpoints = await queryConfig.selectAllEndpoints(db, sid)
+    let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(3)
     let drp = await querySession.getSessionKeyValue(
       db,
@@ -217,7 +218,7 @@ test(
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryEndpointType.selectAllEndpointTypes(db, sid)
     expect(endpointTypes.length).toBe(1)
-    let endpoints = await queryConfig.selectAllEndpoints(db, sid)
+    let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].deviceIdentifier).toBe(10)
     let clusterState = await testQuery.getAllEndpointTypeClusterState(
@@ -244,7 +245,7 @@ test(
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryEndpointType.selectAllEndpointTypes(db, sid)
     expect(endpointTypes.length).toBe(2)
-    let endpoints = await queryConfig.selectAllEndpoints(db, sid)
+    let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(2)
     expect(endpoints[0].networkId).toBe(0)
     expect(endpoints[1].networkId).toBe(0)
@@ -284,7 +285,7 @@ test(
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryEndpointType.selectAllEndpointTypes(db, sid)
     expect(endpointTypes.length).toBe(1)
-    let endpoints = await queryConfig.selectAllEndpoints(db, sid)
+    let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
     expect(endpoints[0].networkId).toBe(0)
     let ps = []

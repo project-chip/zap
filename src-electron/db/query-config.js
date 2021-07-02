@@ -363,35 +363,6 @@ async function selectCountOfEndpointsWithGivenEndpointIdentifier(
 }
 
 /**
- * Returns a promise resolving into all endpoints.
- *
- * @param {*} db
- * @param {*} sessionId
- * @returns Promise resolving into all endpoints.
- */
-async function selectAllEndpoints(db, sessionId) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-SELECT
-  ENDPOINT_ID,
-  SESSION_REF,
-  ENDPOINT_TYPE_REF,
-  PROFILE,
-  ENDPOINT_IDENTIFIER,
-  NETWORK_IDENTIFIER,
-  DEVICE_VERSION,
-  DEVICE_IDENTIFIER
-FROM ENDPOINT
-WHERE SESSION_REF = ?
-ORDER BY ENDPOINT_IDENTIFIER
-    `,
-    [sessionId]
-  )
-  return rows.map(dbMapping.map.endpoint)
-}
-
-/**
  * Promises to add an endpoint type.
  *
  * @export
@@ -1052,7 +1023,6 @@ exports.updateEndpoint = updateEndpoint
 exports.insertEndpointType = insertEndpointType
 exports.updateEndpointType = updateEndpointType
 
-exports.selectAllEndpoints = selectAllEndpoints
 exports.selectCountOfEndpointsWithGivenEndpointIdentifier = selectCountOfEndpointsWithGivenEndpointIdentifier
 exports.selectEndpointTypeCount = selectEndpointTypeCount
 exports.selectEndpointTypeCountByCluster = selectEndpointTypeCountByCluster

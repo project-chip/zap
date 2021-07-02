@@ -268,7 +268,7 @@ async function sessionDump(db, sessionId) {
     usedPackages: [],
     packageReport: '',
   }
-  let endpoints = await queryConfig.selectAllEndpoints(db, sessionId)
+  let endpoints = await queryEndpoint.selectAllEndpoints(db, sessionId)
   dump.endpoints = endpoints
 
   let epts = await queryEndpointType.selectAllEndpointTypes(db, sessionId)

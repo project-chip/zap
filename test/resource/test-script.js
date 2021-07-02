@@ -1,6 +1,6 @@
 // Example file for the post load functionality.
 
-function postLoad(api, context) {
+async function postLoad(api, context) {
   api.print('Test post-load function.')
   for (fn of api.functions()) {
     api.print(`Function: ${fn}`)

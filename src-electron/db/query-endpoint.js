@@ -25,6 +25,35 @@ const bin = require('../util/bin.js')
 const dbMapping = require('./db-mapping.js')
 
 /**
+ * Returns a promise resolving into all endpoints.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise resolving into all endpoints.
+ */
+async function selectAllEndpoints(db, sessionId) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT
+  ENDPOINT_ID,
+  SESSION_REF,
+  ENDPOINT_TYPE_REF,
+  PROFILE,
+  ENDPOINT_IDENTIFIER,
+  NETWORK_IDENTIFIER,
+  DEVICE_VERSION,
+  DEVICE_IDENTIFIER
+FROM ENDPOINT
+WHERE SESSION_REF = ?
+ORDER BY ENDPOINT_IDENTIFIER
+    `,
+    [sessionId]
+  )
+  return rows.map(dbMapping.map.endpoint)
+}
+
+/**
  * Retrieves clusters on an endpoint.
  *
  * @param {*} db
@@ -303,3 +332,4 @@ exports.selectEndpointClusterCommands = selectEndpointClusterCommands
 exports.insertEndpoint = insertEndpoint
 exports.deleteEndpoint = deleteEndpoint
 exports.selectEndpoint = selectEndpoint
+exports.selectAllEndpoints = selectAllEndpoints

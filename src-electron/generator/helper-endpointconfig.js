@@ -18,8 +18,6 @@
 const templateUtil = require('./template-util')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
-const queryZcl = require('../db/query-zcl.js')
-const queryConfig = require('../db/query-config.js')
 const bin = require('../util/bin.js')
 const types = require('../util/types.js')
 const zclUtil = require('../util/zcl-util.js')
@@ -687,7 +685,7 @@ function endpoint_config(options) {
   let sessionId = this.global.sessionId
   let promise = templateUtil
     .ensureZclPackageId(newContext)
-    .then(() => queryConfig.selectAllEndpoints(db, sessionId))
+    .then(() => queryEndpoint.selectAllEndpoints(db, sessionId))
     .then((endpoints) => {
       newContext.endpoints = endpoints
       let endpointTypeIds = []
