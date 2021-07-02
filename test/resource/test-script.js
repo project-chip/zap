@@ -23,6 +23,7 @@ async function postLoad(api, context) {
       }
     }
   }
+  api.deleteEndpoint(context, endpoints[0])
 }
 
 exports.postLoad = postLoad

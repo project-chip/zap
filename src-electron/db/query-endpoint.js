@@ -319,8 +319,10 @@ SELECT
   NETWORK_IDENTIFIER,
   DEVICE_VERSION,
   DEVICE_IDENTIFIER
-FROM ENDPOINT
-WHERE ENDPOINT_ID = ?`,
+FROM
+  ENDPOINT
+WHERE
+  ENDPOINT_ID = ?`,
       [endpointId]
     )
     .then(dbMapping.map.endpoint)

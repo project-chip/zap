@@ -42,6 +42,16 @@ function endpoints(context) {
 }
 
 /**
+ * Deletes an endpoint
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ */
+function deleteEndpoint(context, endpoint) {
+  return queryEndpoint.deleteEndpoint(context.db, endpoint.id)
+}
+
+/**
  * Returns an array of clusters defined on a given endpoint.
  *
  * @param {*} context
@@ -107,6 +117,8 @@ exports.functions = functions
 exports.sessionId = sessionId
 
 exports.endpoints = endpoints
+exports.deleteEndpoint = deleteEndpoint
+
 exports.clusters = clusters
 exports.attributes = attributes
 exports.commands = commands
