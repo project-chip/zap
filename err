@@ -1,0 +1,202 @@
+Hash: 3fdd25b84c732acf5747
+Version: webpack 4.44.2
+Time: 11854ms
+Built at: 07/06/2021 5:21:28 PM
+      Asset      Size  Chunks                   Chunk Names
+    main.js  14.5 MiB    main  [emitted]        main
+main.js.map   7.6 MiB    main  [emitted] [dev]  main
+Entrypoint main = main.js main.js.map
+[./apack.json] 2.07 KiB {main} [optional] [built]
+[./node_modules/@babel/runtime/helpers/asyncToGenerator/index.js] 887 bytes {main} [built]
+[./node_modules/core-js/internals/add-to-unscopables.js] 666 bytes {main} [built]
+[./node_modules/core-js/internals/array-includes.js] 1.26 KiB {main} [built]
+[./node_modules/core-js/internals/correct-is-regexp-logic.js] 366 bytes {main} [built]
+[./node_modules/core-js/internals/export.js] 2.46 KiB {main} [built]
+[./node_modules/core-js/internals/not-a-regexp.js] 194 bytes {main} [built]
+[./node_modules/core-js/modules/es.array.includes.js] 559 bytes {main} [built]
+[./node_modules/core-js/modules/es.string.includes.js] 660 bytes {main} [built]
+[./src-electron/main-process/electron-main.js] 2.88 KiB {main} [built]
+[./src-electron/main-process/startup.js] 32 KiB {main} [built]
+[./src-electron/ui/window.js] 4.55 KiB {main} [built]
+[./src-electron/util/args.js] 6.81 KiB {main} [built]
+[./src-electron/util/env.js] 11.2 KiB {main} [built]
+[electron] external "electron" 42 bytes {main} [built]
+    + 2036 hidden modules
+
+WARNING in ./src-electron/zcl/zcl-loader.js 274:21-43
+Critical dependency: the request of a dependency is an expression
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./src-electron/util/script.js 49:27-48
+Critical dependency: the request of a dependency is an expression
+ @ ./src-electron/importexport/import.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./src-electron/generator/template-engine.js 154:20-41
+Critical dependency: the request of a dependency is an expression
+ @ ./src-electron/generator/generation-engine.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./src-electron/generator/template-engine.js 214:16-29
+Critical dependency: the request of a dependency is an expression
+ @ ./src-electron/generator/generation-engine.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./src-electron/generator/template-engine.js 237:12-25
+Critical dependency: the request of a dependency is an expression
+ @ ./src-electron/generator/generation-engine.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/yargs/build/lib/utils/apply-extends.js 14:32-63
+Critical dependency: the request of a dependency is an expression
+ @ ./node_modules/yargs/build/lib/yargs-factory.js
+ @ ./node_modules/yargs/index.mjs
+ @ ./src-electron/util/args.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/yargs/build/lib/utils/apply-extends.js 27:14-37
+Critical dependency: the request of a dependency is an expression
+ @ ./node_modules/yargs/build/lib/yargs-factory.js
+ @ ./node_modules/yargs/index.mjs
+ @ ./src-electron/util/args.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/sqlite3/lib/sqlite3-binding.js 4:14-35
+Critical dependency: the request of a dependency is an expression
+ @ ./node_modules/sqlite3/lib/sqlite3.js
+ @ ./src-electron/db/db-api.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/pre-binding.js 20:22-48
+Critical dependency: the request of a dependency is an expression
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/node-pre-gyp.js
+ @ ./node_modules/sqlite3/lib/sqlite3-binding.js
+ @ ./node_modules/sqlite3/lib/sqlite3.js
+ @ ./src-electron/db/db-api.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/util/versioning.js 17:20-67
+Critical dependency: the request of a dependency is an expression
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib sync ^\.\/.*$
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/node-pre-gyp.js
+ @ ./node_modules/sqlite3/lib/sqlite3-binding.js
+ @ ./node_modules/sqlite3/lib/sqlite3.js
+ @ ./src-electron/db/db-api.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/express/lib/view.js 81:13-25
+Critical dependency: the request of a dependency is an expression
+ @ ./node_modules/express/lib/application.js
+ @ ./node_modules/express/lib/express.js
+ @ ./node_modules/express/index.js
+ @ ./src-electron/server/http-server.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./src-electron/util/env.js
+Module not found: Error: Can't resolve '../../.version.json' in '/Users/jiteng/repo/zap/src-electron/util'
+ @ ./src-electron/util/env.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/bytebuffer/dist/bytebuffer-node.js
+Module not found: Error: Can't resolve 'memcpy' in '/Users/jiteng/repo/zap/node_modules/bytebuffer/dist'
+ @ ./node_modules/bytebuffer/dist/bytebuffer-node.js
+ @ ./src-electron/util/bin.js
+ @ ./src-electron/zcl/zcl-loader-silabs.js
+ @ ./src-electron/zcl/zcl-loader.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/util/compile.js
+Module not found: Error: Can't resolve 'npm' in '/Users/jiteng/repo/zap/node_modules/sqlite3/node_modules/node-pre-gyp/lib/util'
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/util/compile.js
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/build.js
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib sync ^\.\/.*$
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/node-pre-gyp.js
+ @ ./node_modules/sqlite3/lib/sqlite3-binding.js
+ @ ./node_modules/sqlite3/lib/sqlite3.js
+ @ ./src-electron/db/db-api.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/pino/lib/tools.js
+Module not found: Error: Can't resolve 'pino-pretty' in '/Users/jiteng/repo/zap/node_modules/pino/lib'
+ @ ./node_modules/pino/lib/tools.js
+ @ ./node_modules/pino/pino.js
+ @ ./src-electron/util/env.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/util/nw-pre-gyp/index.html 1:0
+Module parse failed: Unexpected token (1:0)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+> <!doctype html>
+| <html>
+| <head>
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib sync ^\.\/.*$ ./util/nw-pre-gyp/index.html
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/node-pre-gyp.js
+ @ ./node_modules/sqlite3/lib/sqlite3-binding.js
+ @ ./node_modules/sqlite3/lib/sqlite3.js
+ @ ./src-electron/db/db-api.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/sqlite3/node_modules/node-gyp/lib/Find-VS2017.cs 7:6
+Module parse failed: Unexpected token (7:6)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+| // Usage:
+| // powershell -ExecutionPolicy Unrestricted -Version "2.0" -Command "&{Add-Type -Path Find-VS2017.cs; [VisualStudioConfiguration.Main]::Query()}"
+> using System;
+| using System.Text;
+| using System.Runtime.InteropServices;
+ @ ./node_modules/sqlite3/node_modules/node-gyp/lib sync ^\.\/.*$ ./Find-VS2017.cs
+ @ ./node_modules/sqlite3/node_modules/node-gyp/lib/node-gyp.js
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/util/compile.js
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/build.js
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib sync ^\.\/.*$
+ @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/node-pre-gyp.js
+ @ ./node_modules/sqlite3/lib/sqlite3-binding.js
+ @ ./node_modules/sqlite3/lib/sqlite3.js
+ @ ./src-electron/db/db-api.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/handlebars/lib/index.js 22:38-56
+require.extensions is not supported by webpack. Use a loader instead.
+ @ ./src-electron/generator/template-engine.js 39:36-57
+ @ ./src-electron/generator/generation-engine.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/handlebars/lib/index.js 23:2-20
+require.extensions is not supported by webpack. Use a loader instead.
+ @ ./src-electron/generator/template-engine.js 39:36-57
+ @ ./src-electron/generator/generation-engine.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+WARNING in ./node_modules/handlebars/lib/index.js 24:2-20
+require.extensions is not supported by webpack. Use a loader instead.
+ @ ./src-electron/generator/template-engine.js 39:36-57
+ @ ./src-electron/generator/generation-engine.js
+ @ ./src-electron/main-process/startup.js
+ @ ./src-electron/main-process/electron-main.js
+
+ERROR in ./node_modules/yargs/lib/platform-shims/esm.mjs 18:41
+Module parse failed: Unexpected token (18:41)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+| const REQUIRE_DIRECTORY_ERROR = 'loading a directory of commands is not supported yet for ESM'
+| 
+> const mainFilename = fileURLToPath(import.meta.url).split('node_modules')[0]
+| const __dirname = fileURLToPath(import.meta.url)
+| 
+ @ ./node_modules/yargs/index.mjs 4:0-59 7:28-43
+ @ ./src-electron/util/args.js
+ @ ./src-electron/main-process/electron-main.js
