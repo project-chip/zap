@@ -1140,7 +1140,11 @@ async function loadIndividualSilabsFile(db, filePath, boundValidator) {
       throw new Error('Validation Failed')
     }
     let laterPromises = await processParsedZclData(db, result)
-    await Promise.all(laterPromises.flat(1).map((promise) => promise()))
+    await Promise.all(
+      laterPromises.flat(1).map((promise) => {
+        if (promise != null && promise != undefined) return promise()
+      })
+    )
     await zclLoader.processZclPostLoading(db)
     return { succeeded: true, packageId: pkgId }
   } catch (err) {
