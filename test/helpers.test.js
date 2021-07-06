@@ -297,3 +297,11 @@ test(
   },
   testUtil.timeout.short()
 )
+
+test(
+  'replace string',
+  () => {
+    expect(zapHelper.replace_string('testString', 'test', '')).toBe('String')
+  },
+  testUtil.timeout.short()
+)

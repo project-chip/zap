@@ -28,6 +28,7 @@ const path = require('path')
 const childProcess = require('child_process')
 const queryPackage = require('../db/query-package.js')
 const queryEndpoint = require('../db/query-endpoint.js')
+const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryCommand = require('../db/query-command.js')
@@ -198,55 +199,57 @@ function matchFeatureLevel(featureLevel) {
  * @returns promise that resolves into a text report for the session.
  */
 async function sessionReport(db, sessionId) {
-  return queryConfig.selectAllEndpointTypes(db, sessionId).then((epts) => {
-    let ps = []
-    epts.forEach((ept) => {
-      ps.push(
-        queryEndpoint.selectEndpointClusters(db, ept.id).then((clusters) => {
-          let s = `Endpoint: ${ept.name} \n`
-          let ps2 = []
-          for (let c of clusters) {
-            let rpt = `  - ${c.hexCode}: cluster: ${c.name} (${c.side})\n`
-            ps2.push(
-              queryEndpoint
-                .selectEndpointClusterAttributes(
-                  db,
-                  c.clusterId,
-                  c.side,
-                  ept.id
-                )
-                .then((attrs) => {
-                  for (let at of attrs) {
-                    rpt = rpt.concat(
-                      `    - ${at.hexCode}: attribute: ${at.name} [${at.type}] [bound: ${at.isBound}]\n`
-                    )
-                  }
-                })
-                .then(() =>
-                  queryEndpoint.selectEndpointClusterCommands(
+  return queryEndpointType
+    .selectAllEndpointTypes(db, sessionId)
+    .then((epts) => {
+      let ps = []
+      epts.forEach((ept) => {
+        ps.push(
+          queryEndpoint.selectEndpointClusters(db, ept.id).then((clusters) => {
+            let s = `Endpoint: ${ept.name} \n`
+            let ps2 = []
+            for (let c of clusters) {
+              let rpt = `  - ${c.hexCode}: cluster: ${c.name} (${c.side})\n`
+              ps2.push(
+                queryEndpoint
+                  .selectEndpointClusterAttributes(
                     db,
                     c.clusterId,
+                    c.side,
                     ept.id
                   )
-                )
-                .then((cmds) => {
-                  for (let cmd of cmds) {
-                    rpt = rpt.concat(
-                      `    - ${cmd.hexCode}: command: ${cmd.name}\n`
+                  .then((attrs) => {
+                    for (let at of attrs) {
+                      rpt = rpt.concat(
+                        `    - ${at.hexCode}: attribute: ${at.name} [${at.type}] [bound: ${at.isBound}]\n`
+                      )
+                    }
+                  })
+                  .then(() =>
+                    queryEndpoint.selectEndpointClusterCommands(
+                      db,
+                      c.clusterId,
+                      ept.id
                     )
-                  }
-                  return rpt
-                })
-            )
-          }
-          return Promise.all(ps2)
-            .then((rpts) => rpts.join(''))
-            .then((r) => s.concat(r))
-        })
-      )
+                  )
+                  .then((cmds) => {
+                    for (let cmd of cmds) {
+                      rpt = rpt.concat(
+                        `    - ${cmd.hexCode}: command: ${cmd.name}\n`
+                      )
+                    }
+                    return rpt
+                  })
+              )
+            }
+            return Promise.all(ps2)
+              .then((rpts) => rpts.join(''))
+              .then((r) => s.concat(r))
+          })
+        )
+      })
+      return Promise.all(ps).then((results) => results.join('\n'))
     })
-    return Promise.all(ps).then((results) => results.join('\n'))
-  })
 }
 
 /**
@@ -265,10 +268,10 @@ async function sessionDump(db, sessionId) {
     usedPackages: [],
     packageReport: '',
   }
-  let endpoints = await queryConfig.selectAllEndpoints(db, sessionId)
+  let endpoints = await queryEndpoint.selectAllEndpoints(db, sessionId)
   dump.endpoints = endpoints
 
-  let epts = await queryConfig.selectAllEndpointTypes(db, sessionId)
+  let epts = await queryEndpointType.selectAllEndpointTypes(db, sessionId)
   let ps = []
 
   epts.forEach((ept) => {

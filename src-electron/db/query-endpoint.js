@@ -22,6 +22,36 @@
  */
 const dbApi = require('./db-api.js')
 const bin = require('../util/bin.js')
+const dbMapping = require('./db-mapping.js')
+
+/**
+ * Returns a promise resolving into all endpoints.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise resolving into all endpoints.
+ */
+async function selectAllEndpoints(db, sessionId) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT
+  ENDPOINT_ID,
+  SESSION_REF,
+  ENDPOINT_TYPE_REF,
+  PROFILE,
+  ENDPOINT_IDENTIFIER,
+  NETWORK_IDENTIFIER,
+  DEVICE_VERSION,
+  DEVICE_IDENTIFIER
+FROM ENDPOINT
+WHERE SESSION_REF = ?
+ORDER BY ENDPOINT_IDENTIFIER
+    `,
+    [sessionId]
+  )
+  return rows.map(dbMapping.map.endpoint)
+}
 
 /**
  * Retrieves clusters on an endpoint.
@@ -210,81 +240,98 @@ ORDER BY C.CODE
 }
 
 /**
- * Extracts endpoint type ids.
+ * Deletes an endpoint.
  *
  * @export
  * @param {*} db
- * @param {*} sessionId
- * @returns promise that resolves into rows in the database table.
+ * @param {*} id
+ * @returns Promise to delete an endpoint that resolves with the number of rows that were deleted.
  */
-async function selectEndPointTypeIds(db, sessionId) {
-  let mapFunction = (x) => {
-    return {
-      endpointTypeId: x.ENDPOINT_TYPE_ID,
-    }
-  }
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  ENDPOINT_TYPE.ENDPOINT_TYPE_ID
-FROM
-  ENDPOINT_TYPE
-LEFT JOIN
-  DEVICE_TYPE
-ON
-  ENDPOINT_TYPE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
-WHERE
-  ENDPOINT_TYPE.SESSION_REF = ?
-ORDER BY ENDPOINT_TYPE.NAME`,
-      [sessionId]
-    )
-    .then((rows) => rows.map(mapFunction))
+async function deleteEndpoint(db, id) {
+  return dbApi.dbRemove(db, 'DELETE FROM ENDPOINT WHERE ENDPOINT_ID = ?', [id])
 }
 
 /**
- * Extracts endpoint type ids which belong to user endpoints.
- * There have been occasions when the endpoint types are present but they do
- * not belong to any endpoints. Which makes these endpoint type additional meta
- * data in a zap file.
+ * Promises to add an endpoint.
  *
  * @export
  * @param {*} db
  * @param {*} sessionId
- * @returns promise that resolves into rows in the database table.
+ * @param {*} endpointIdentifier
+ * @param {*} endpointTypeRef
+ * @param {*} networkIdentifier
+ * @returns Promise to update endpoints.
  */
-async function selectUsedEndPointTypeIds(db, sessionId) {
-  let mapFunction = (x) => {
-    return {
-      endpointTypeId: x.ENDPOINT_TYPE_ID,
-    }
-  }
+async function insertEndpoint(
+  db,
+  sessionId,
+  endpointIdentifier,
+  endpointTypeRef,
+  networkIdentifier,
+  profileIdentifier,
+  endpointVersion,
+  deviceIdentifier
+) {
+  return dbApi.dbInsert(
+    db,
+    `
+INSERT OR REPLACE
+INTO ENDPOINT (
+  SESSION_REF,
+  ENDPOINT_IDENTIFIER,
+  ENDPOINT_TYPE_REF,
+  NETWORK_IDENTIFIER,
+  DEVICE_VERSION,
+  DEVICE_IDENTIFIER,
+  PROFILE
+) VALUES ( ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      sessionId,
+      endpointIdentifier,
+      endpointTypeRef,
+      networkIdentifier,
+      endpointVersion,
+      deviceIdentifier,
+      profileIdentifier,
+    ]
+  )
+}
+
+/**
+ * Returns a promise of a single endpoint.
+ * Mayb resolve into null if invalid reference.
+ *
+ * @param {*} db
+ * @param {*} endpointId
+ * @returns Promise of an endpoint.
+ */
+async function selectEndpoint(db, endpointId) {
   return dbApi
-    .dbAll(
+    .dbGet(
       db,
       `
 SELECT
-  ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+  ENDPOINT_ID,
+  SESSION_REF,
+  ENDPOINT_IDENTIFIER,
+  ENDPOINT_TYPE_REF,
+  PROFILE,
+  NETWORK_IDENTIFIER,
+  DEVICE_VERSION,
+  DEVICE_IDENTIFIER
 FROM
-  ENDPOINT_TYPE
-INNER JOIN ENDPOINT
-on
-endpoint_type.endpoint_type_id = endpoint.endpoint_type_ref
-LEFT JOIN
-  DEVICE_TYPE
-ON
-  ENDPOINT_TYPE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+  ENDPOINT
 WHERE
-  ENDPOINT_TYPE.SESSION_REF = ?
-ORDER BY ENDPOINT_TYPE.NAME`,
-      [sessionId]
+  ENDPOINT_ID = ?`,
+      [endpointId]
     )
-    .then((rows) => rows.map(mapFunction))
+    .then(dbMapping.map.endpoint)
 }
 
 exports.selectEndpointClusters = selectEndpointClusters
 exports.selectEndpointClusterAttributes = selectEndpointClusterAttributes
 exports.selectEndpointClusterCommands = selectEndpointClusterCommands
-exports.selectEndPointTypeIds = selectEndPointTypeIds
-exports.selectUsedEndPointTypeIds = selectUsedEndPointTypeIds
+exports.insertEndpoint = insertEndpoint
+exports.deleteEndpoint = deleteEndpoint
+exports.selectEndpoint = selectEndpoint
+exports.selectAllEndpoints = selectAllEndpoints

@@ -18,7 +18,7 @@
 /**
  * This module provides queries related to events.
  *
- * @module DB API: evebt queries.
+ * @module DB API: event queries.
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')

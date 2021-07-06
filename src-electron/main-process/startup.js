@@ -240,6 +240,7 @@ async function startConvert(
       importJs
         .importDataFromFile(db, singlePath, {
           defaultZclMetafile: argv.zclProperties,
+          postImportScript: argv.postImportScript,
         })
         .then((importResult) => {
           return util
@@ -316,6 +317,7 @@ async function startAnalyze(
         importJs
           .importDataFromFile(db, singlePath, {
             defaultZclMetafile: argv.zclProperties,
+            postImportScript: argv.postImportScript,
           })
           .then((importResult) =>
             util.sessionReport(db, importResult.sessionId)
@@ -448,6 +450,7 @@ async function generateSingleFile(
     logger: console.log,
     zcl: env.builtinSilabsZclMetafile,
     template: env.builtinTemplateMetafile,
+    postImportScript: null,
   }
 ) {
   let hrstart = process.hrtime()
@@ -461,6 +464,7 @@ async function generateSingleFile(
     options.logger(`👉 using input file: ${f}`)
     let importResult = await importJs.importDataFromFile(db, f, {
       defaultZclMetafile: options.zcl,
+      postImportScript: options.postImportScript,
     })
     sessionId = importResult.sessionId
     output = outputFile(f, outputPattern, index)
@@ -540,6 +544,7 @@ async function startGeneration(
   options.backup = false
   options.genResultFile = genResultFile
   options.skipPostGeneration = skipPostGeneration
+  options.postImportScript = argv.postImportScript
 
   let hrend = process.hrtime(hrstart)
   options.logger(`🕐 Setup time: ${hrend[0]}s ${hrend[1] / 1000000}ms `)

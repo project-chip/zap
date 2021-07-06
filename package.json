@@ -51,6 +51,7 @@
     "genblank": "node src-script/zap-generate.js -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json -o ./tmp",
     "convert": "node src-script/zap-convert.js -o {basename}.zap -z ./zcl-builtin/silabs/zcl.json -g test/gen-template/zigbee/gen-templates.json ./test/resource/isc/*.isc ./test/resource/*.zap",
     "convert-dl": "node src-script/zap-convert.js -o {basename}.zap -z ./zcl-builtin/silabs/zcl.json -g test/gen-template/zigbee/gen-templates.json ./test/resource/isc/ha-door-lock.isc",
+    "post-import": "node src-script/zap-start.js convert --postImportScript test/resource/test-script.js test/resource/three-endpoint-device.zap -o test.zap",
     "analyze": "node src-script/zap-start.js analyze -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json ./test/resource/three-endpoint-device.zap -o ./tmp",
     "pack": "node src-script/build-spa.js && electron-builder --dir",
     "dist": "electron-builder",

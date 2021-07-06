@@ -17,6 +17,7 @@
 
 const queryPackage = require('../db/query-package.js')
 const queryEndpoint = require('../db/query-endpoint.js')
+const queryEndpointType = require('../db/query-endpoint-type.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env.js')
 const _ = require('lodash')
@@ -167,7 +168,7 @@ async function ensureEndpointTypeIds(context) {
   if ('endpointTypeIds' in context.global) {
     return context.global.endpointTypeIds
   } else {
-    let epts = await queryEndpoint.selectEndPointTypeIds(
+    let epts = await queryEndpointType.selectEndpointTypeIds(
       context.global.db,
       context.global.sessionId
     )

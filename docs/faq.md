@@ -57,7 +57,7 @@ src-script/install-packages-fedora
 
 ```
 apt-get update
-apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-devhttp://localhost:8080
+apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev
 ```
 
 or run script:

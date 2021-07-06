@@ -24,6 +24,8 @@
 const env = require('../util/env.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
+const queryEndpointType = require('../db/query-endpoint-type.js')
+const queryEndpoint = require('../db/query-endpoint.js')
 const querySession = require('../db/query-session.js')
 const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
@@ -256,14 +258,14 @@ function httpGetInitialState(db) {
     let state = {}
 
     let statePopulators = []
-    let endpointTypes = queryConfig
+    let endpointTypes = queryEndpointType
       .selectAllEndpointTypes(db, sessionId)
       .then((rows) => {
         state.endpointTypes = rows
       })
     statePopulators.push(endpointTypes)
 
-    let endpoints = queryConfig
+    let endpoints = queryEndpoint
       .selectAllEndpoints(db, sessionId)
       .then((rows) => {
         state.endpoints = rows

@@ -17,6 +17,7 @@
 
 const path = require('path')
 const queryConfig = require('../db/query-config.js')
+const queryEndpoint = require('../db/query-endpoint.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryPackage = require('../db/query-package.js')
@@ -573,7 +574,7 @@ async function iscDataLoader(db, state, sessionId) {
       })
       if (endpointTypeId != undefined) {
         endpointInsertionPromises.push(
-          queryConfig
+          queryEndpoint
             .insertEndpoint(
               db,
               sessionId,

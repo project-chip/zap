@@ -869,7 +869,8 @@ async function parseSingleZclFile(db, packageId, file) {
     }
     return processParsedZclData(db, result)
   } catch (err) {
-    env.logError(`Could not load ${file}`, err)
+    err.message = `Error reading xml file: ${file}\n` + err.message
+    throw err
   }
 }
 
@@ -887,8 +888,8 @@ async function parseZclFiles(db, packageId, zclFiles) {
   let individualFilePromise = zclFiles.map((file) =>
     parseSingleZclFile(db, packageId, file)
   )
-
-  let laterPromises = (await Promise.all(individualFilePromise)).flat(2)
+  let individualResults = await Promise.all(individualFilePromise)
+  let laterPromises = individualResults.flat(2)
   await Promise.all(laterPromises.map((promise) => promise()))
   return zclLoader.processZclPostLoading(db)
 }
@@ -1139,7 +1140,11 @@ async function loadIndividualSilabsFile(db, filePath, boundValidator) {
       throw new Error('Validation Failed')
     }
     let laterPromises = await processParsedZclData(db, result)
-    await Promise.all(laterPromises.flat(1).map((promise) => promise()))
+    await Promise.all(
+      laterPromises.flat(1).map((promise) => {
+        if (promise != null && promise != undefined) return promise()
+      })
+    )
     await zclLoader.processZclPostLoading(db)
     return { succeeded: true, packageId: pkgId }
   } catch (err) {

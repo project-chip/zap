@@ -163,6 +163,11 @@ function processCommandLineArguments(argv) {
       type: 'boolean',
       default: false,
     })
+    .option('postImportScript', {
+      desc: 'Script to execute after data is loaded.',
+      type: 'string',
+      default: null,
+    })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${zapVersion.featureLevel}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`

@@ -322,64 +322,6 @@ WHERE ENDPOINT_TYPE_REF = ?
 }
 
 /**
- * Promises to add an endpoint.
- *
- * @export
- * @param {*} db
- * @param {*} sessionId
- * @param {*} endpointIdentifier
- * @param {*} endpointTypeRef
- * @param {*} networkIdentifier
- * @returns Promise to update endpoints.
- */
-async function insertEndpoint(
-  db,
-  sessionId,
-  endpointIdentifier,
-  endpointTypeRef,
-  networkIdentifier,
-  profileIdentifier,
-  endpointVersion,
-  deviceIdentifier
-) {
-  return dbApi.dbInsert(
-    db,
-    `
-INSERT OR REPLACE
-INTO ENDPOINT (
-  SESSION_REF,
-  ENDPOINT_IDENTIFIER,
-  ENDPOINT_TYPE_REF,
-  NETWORK_IDENTIFIER,
-  DEVICE_VERSION,
-  DEVICE_IDENTIFIER,
-  PROFILE
-) VALUES ( ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      sessionId,
-      endpointIdentifier,
-      endpointTypeRef,
-      networkIdentifier,
-      endpointVersion,
-      deviceIdentifier,
-      profileIdentifier,
-    ]
-  )
-}
-
-/**
- * Deletes an endpoint.
- *
- * @export
- * @param {*} db
- * @param {*} id
- * @returns Promise to delete an endpoint that resolves with the number of rows that were deleted.
- */
-async function deleteEndpoint(db, id) {
-  return dbApi.dbRemove(db, 'DELETE FROM ENDPOINT WHERE ENDPOINT_ID = ?', [id])
-}
-
-/**
  * Returns a promise to update the endpoint
  *
  * @param {*} db
@@ -418,79 +360,6 @@ async function selectCountOfEndpointsWithGivenEndpointIdentifier(
       [endpointIdentifier, sessionId]
     )
     .then((x) => x['COUNT(ENDPOINT_IDENTIFIER)'])
-}
-
-/**
- * Returns a promise resolving into all endpoints.
- *
- * @param {*} db
- * @param {*} sessionId
- * @returns Promise resolving into all endpoints.
- */
-async function selectAllEndpoints(db, sessionId) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-SELECT
-  ENDPOINT_ID,
-  SESSION_REF,
-  ENDPOINT_TYPE_REF,
-  PROFILE,
-  ENDPOINT_IDENTIFIER,
-  NETWORK_IDENTIFIER,
-  DEVICE_VERSION,
-  DEVICE_IDENTIFIER
-FROM ENDPOINT
-WHERE SESSION_REF = ?
-ORDER BY ENDPOINT_IDENTIFIER
-    `,
-    [sessionId]
-  )
-  return rows.map(dbMapping.map.endpoint)
-}
-
-/**
- * Returns a promise of a single endpoint.
- * Mayb resolve into null if invalid reference.
- *
- * @param {*} db
- * @param {*} endpointId
- * @returns Promise of an endpoint.
- */
-async function selectEndpoint(db, endpointId) {
-  return dbApi
-    .dbGet(
-      db,
-      `
-SELECT
-  ENDPOINT_ID,
-  SESSION_REF,
-  ENDPOINT_IDENTIFIER,
-  ENDPOINT_TYPE_REF,
-  PROFILE,
-  NETWORK_IDENTIFIER,
-  DEVICE_VERSION,
-  DEVICE_IDENTIFIER
-FROM ENDPOINT
-WHERE ENDPOINT_ID = ?`,
-      [endpointId]
-    )
-    .then(dbMapping.map.endpoint)
-}
-
-/**
- * Promise to delete an endpoint type.
- * @param {*} db
- * @param {*} sessionId
- * @param {*} id
- */
-
-async function deleteEndpointType(db, id) {
-  return dbApi.dbRemove(
-    db,
-    'DELETE FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?',
-    [id]
-  )
 }
 
 /**
@@ -918,31 +787,6 @@ WHERE SESSION_REF = ?
 }
 
 /**
- * Extracts raw endpoint types rows.
- *
- * @export
- * @param {*} db
- * @param {*} sessionId
- * @returns promise that resolves into rows in the database table.
- */
-async function selectAllEndpointTypes(db, sessionId) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-SELECT
-  ENDPOINT_TYPE_ID,
-  NAME,
-  DEVICE_TYPE_REF,
-  SESSION_REF
-FROM
-  ENDPOINT_TYPE
-WHERE SESSION_REF = ? ORDER BY NAME`,
-    [sessionId]
-  )
-  return rows.map(dbMapping.map.endpointType)
-}
-
-/**
  * Get or inserts default endpoint type cluster given endpoint type, cluster ref, and side.
  * @param {*} db
  * @param {*} endpointTypeId
@@ -1174,17 +1018,11 @@ exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState
 exports.insertOrUpdateCommandState = insertOrUpdateCommandState
 exports.convertRestKeyToDbColumn = convertRestKeyToDbColumn
 
-exports.insertEndpoint = insertEndpoint
-exports.deleteEndpoint = deleteEndpoint
 exports.updateEndpoint = updateEndpoint
-exports.selectEndpoint = selectEndpoint
 
 exports.insertEndpointType = insertEndpointType
-exports.deleteEndpointType = deleteEndpointType
 exports.updateEndpointType = updateEndpointType
-exports.selectAllEndpointTypes = selectAllEndpointTypes
 
-exports.selectAllEndpoints = selectAllEndpoints
 exports.selectCountOfEndpointsWithGivenEndpointIdentifier = selectCountOfEndpointsWithGivenEndpointIdentifier
 exports.selectEndpointTypeCount = selectEndpointTypeCount
 exports.selectEndpointTypeCountByCluster = selectEndpointTypeCountByCluster

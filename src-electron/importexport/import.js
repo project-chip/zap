@@ -20,11 +20,15 @@
  * and imports it into a database.
  */
 const fsp = require('fs').promises
+const path = require('path')
+
 const importIsc = require('./import-isc.js')
 const importJson = require('./import-json.js')
 const dbApi = require('../db/db-api.js')
 const querySession = require('../db/query-session.js')
 const env = require('../util/env.js')
+const script = require('../util/script.js')
+
 /**
  * Reads the data from the file and resolves with the state object if all is good.
  *
@@ -53,6 +57,18 @@ async function readDataFromFile(filePath, defaultZclMetafile) {
   }
 }
 
+async function executePostImportScript(db, sessionId, scriptFile) {
+  let context = {
+    db: db,
+    sessionId: sessionId,
+  }
+  return script.executeScriptFunction(
+    script.functions.postLoad,
+    context,
+    scriptFile
+  )
+}
+
 /**
  * Writes the data from the file into a new session.
  * NOTE: This function does NOT initialize session packages.
@@ -68,6 +84,7 @@ async function importDataFromFile(
   options = {
     sessionId: null,
     defaultZclMetafile: env.builtinSilabsZclMetafile,
+    postImportScript: null,
   }
 ) {
   let state = await readDataFromFile(filePath, options.defaultZclMetafile)
@@ -81,8 +98,18 @@ async function importDataFromFile(
       }
     })
     .then((sid) => state.loader(db, state, sid))
+    .then((loaderResult) => {
+      if (options.postImportScript != null)
+        return executePostImportScript(
+          db,
+          loaderResult.sessionId,
+          options.postImportScript
+        ).then(() => loaderResult)
+      else return loaderResult
+    })
     .finally(() => dbApi.dbCommit(db))
 }
+
 // exports
 exports.readDataFromFile = readDataFromFile
 exports.importDataFromFile = importDataFromFile

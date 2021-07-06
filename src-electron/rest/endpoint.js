@@ -20,6 +20,8 @@
  *
  * @module REST API: endpoint
  */
+const queryEndpointType = require('../db/query-endpoint-type.js')
+const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
@@ -33,7 +35,7 @@ const restApi = require('../../src-shared/rest-api.js')
 function httpDeleteEndpoint(db) {
   return (request, response) => {
     let id = request.query.id
-    queryConfig.deleteEndpoint(db, id).then((removed) => {
+    queryEndpoint.deleteEndpoint(db, id).then((removed) => {
       response.json({
         successful: removed > 0,
         id: id,
@@ -52,7 +54,7 @@ function httpDeleteEndpoint(db) {
 function httpDeleteEndpointType(db) {
   return (request, response) => {
     let id = request.query.id
-    queryConfig.deleteEndpointType(db, id).then((removed) => {
+    queryEndpointType.deleteEndpointType(db, id).then((removed) => {
       response.json({
         successful: removed > 0,
         id: id,
@@ -79,7 +81,7 @@ function httpPostEndpoint(db) {
       deviceIdentifier,
     } = request.body
     let sessionIdexport = request.zapSessionId
-    queryConfig
+    queryEndpoint
       .insertEndpoint(
         db,
         sessionIdexport,
