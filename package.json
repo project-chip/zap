@@ -125,7 +125,7 @@
     "eslint-plugin-vue": "^7.13.0",
     "file-loader": "^6.2.0",
     "folder-hash": "^4.0.1",
-    "husky": "^6.0.0",
+    "husky": "^7.0.1",
     "jest": "^27.0.6",
     "jest-junit": "^12.2.0",
     "jest-sonar-reporter": "^2.0.0",
