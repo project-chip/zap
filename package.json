@@ -1,4 +1,5 @@
 {
+  "type": "commonjs",
   "name": "zap",
   "version": "0.99.6",
   "description": "Configuration tool for the Zigbee Cluster Library",
@@ -14,6 +15,7 @@
   "homepage": "https://github.com/project-chip/zap",
   "main": "src-electron/main-process/electron-main.js",
   "scripts": {
+    "wp": "npm run version-stamp && webpack -c webpack.main.config.js --progress",
     "lic": "node src-script/license-check.js --production",
     "lint": "eslint --ext .js,.vue src src-electron src-shared src-script test",
     "lintfix": "eslint --fix --ext .js,.vue src src-electron src-shared src-script test",
@@ -25,6 +27,7 @@
     "test:unit:watch": "jest --watch",
     "test:unit:watchAll": "jest --watchAll",
     "postinstall": "electron-builder install-app-deps && husky install",
+    "wpzap": "quasar build && npm run wp && npx electron ./dist/electron-main.js",
     "zap": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json",
     "zap-dev": "npm run build-spa && quasar dev -m electron",
     "zap-devserver": "node src-script/zap-start.js server --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
@@ -141,7 +144,8 @@
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
     "quasar": "^1.15.10",
-    "webpack-cli": "^4.7.2"
+    "webpack-cli": "^4.7.2",
+    "webpack-node-externals": "^2.5.2"
   },
   "engines": {
     "node": ">= 8.9.0",
