@@ -401,6 +401,7 @@ function prepareCluster(cluster, isExtension = false) {
         side: event.$.side,
         priority: event.$.priority,
         description: event.description[0].trim(),
+        isOptional: event.$.optional == 'true',
       }
       if (ev.manufacturerCode == null) {
         ev.manufacturerCode = ret.manufacturerCode

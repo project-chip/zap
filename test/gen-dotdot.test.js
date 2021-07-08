@@ -124,5 +124,5 @@ test(
           types.includes('// Bitmap: LevelOptions, type: map8')
         ).toBeTruthy()
       }),
-  testUtil.timeout.medium()
+  testUtil.timeout.long()
 )
