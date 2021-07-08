@@ -1,5 +1,4 @@
 const path = require('path')
-
 const nodeExternals = require('webpack-node-externals')
 
 const config = {
@@ -10,7 +9,7 @@ const config = {
   mode: 'development',
   target: 'electron-main',
   entry:
-    path.resolve(__dirname, 'src-electron') + '/main-process/electron-main.ts',
+    path.resolve(__dirname, 'src-electron') + '/main-process/electron-main',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'electron-main.js',
@@ -28,7 +27,20 @@ const config = {
       },
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: [
+          {
+            loader: 'babel-loader',
+          },
+          {
+            loader: 'ts-loader',
+            options: {
+              compilerOptions: {
+                noEmit: false,
+              },
+            },
+          },
+        ],
+
         exclude: /node_modules/,
       },
       { test: /\.js$/, exclude: /node_modules/, use: 'babel-loader' },

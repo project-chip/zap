@@ -17,7 +17,7 @@
 
 const { app } = require('electron')
 
-const args = require('../util/args.js')
+import args = require('../util/args')
 const env = require('../util/env.js')
 const windowJs = require('../ui/window.js')
 const startup = require('./startup.js')
@@ -30,7 +30,7 @@ if (process.env.DEV) {
   env.setProductionEnv()
 }
 
-function hookSecondInstanceEvents(argv) {
+function hookSecondInstanceEvents(argv: args.Arguments) {
   app.allowRendererProcessReuse = false
   app
     .whenReady()
@@ -44,7 +44,7 @@ function hookSecondInstanceEvents(argv) {
 /**
  * Hook up all the events for the electron app object.
  */
-function hookMainInstanceEvents(argv) {
+function hookMainInstanceEvents(argv: args.Arguments) {
   app.allowRendererProcessReuse = false
   app
     .whenReady()
