@@ -10,7 +10,7 @@ const config = {
   mode: 'development',
   target: 'electron-main',
   entry:
-    path.resolve(__dirname, 'src-electron') + '/main-process/electron-main.js',
+    path.resolve(__dirname, 'src-electron') + '/main-process/electron-main.ts',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'electron-main.js',
@@ -26,6 +26,11 @@ const config = {
           formatter: require('eslint').CLIEngine.getFormatter('stylish'),
         },
       },
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
       { test: /\.js$/, exclude: /node_modules/, use: 'babel-loader' },
       {
         enforce: 'pre',
@@ -37,6 +42,9 @@ const config = {
         },
       },
     ],
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
   },
   devtool: 'source-map',
   externals: [nodeExternals()], // in order to ignore all modules in node_modules folder

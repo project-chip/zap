@@ -15,6 +15,8 @@
  *    limitations under the License.
  */
 
+export {}
+
 const yargs = require('yargs')
 const path = require('path')
 const os = require('os')
@@ -40,21 +42,21 @@ function environmentVariablesDescription() {
  * @param {*} argv
  * @returns parsed argv object
  */
-function processCommandLineArguments(argv) {
+function processCommandLineArguments(argv: string[]) {
   let zapVersion = env.zapVersion()
-  let commands = {
-    generate: 'Generate ZCL artifacts.',
-    selfCheck: 'Perform the self-check of the application.',
-    analyze: 'Analyze the zap file without doing anything.',
-    convert: 'Convert a zap or ISC file to latest zap file.',
-    status: 'Query the status of a zap server.',
-    server: 'Run zap in a server mode.',
-    stop: 'Stop zap server if one is running.',
-    new: 'If in client mode, start a new window on a main instance.',
-  }
+  let commands = new Map([
+    ['generate', 'Generate ZCL artifacts.'],
+    ['selfCheck', 'Perform the self-check of the application.'],
+    ['analyze', 'Analyze the zap file without doing anything.'],
+    ['convert', 'Convert a zap or ISC file to latest zap file.'],
+    ['status', 'Query the status of a zap server.'],
+    ['server', 'Run zap in a server mode.'],
+    ['stop', 'Stop zap server if one is running.'],
+    ['new', 'If in client mode, start a new window on a main instance.'],
+  ])
   let y = yargs
-  for (const cmd of Object.keys(commands)) {
-    y.command(cmd, commands[cmd])
+  for (let cmd of commands.entries()) {
+    y.command(cmd[0], cmd[1])
   }
   let ret = y
     .option('httpPort', {
