@@ -24,7 +24,7 @@
     "test:unit:coverage": "jest --coverage",
     "test:unit:watch": "jest --watch",
     "test:unit:watchAll": "jest --watchAll",
-    "postinstall": "electron-builder install-app-deps && husky install",
+    "postinstall": "electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary",
     "zap": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json",
     "zap-dev": "npm run build-spa && quasar dev -m electron",
     "zap-devserver": "node src-script/zap-start.js server --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
