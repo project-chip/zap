@@ -187,12 +187,3 @@ The solution for this is discussed in this Stack Overflow thread: https://stacko
 ```
 
 then run: `npm rebuild canvas --update-binary`
-
-**Q: WHat should I do if I run into an xmljs.node issue?**
-**A:** If you see an error like the following:
-
-```
-Module did not self-register: 'xmljs.node'.
-```
-
-then run: npm rebuild libxmljs --update-binary
