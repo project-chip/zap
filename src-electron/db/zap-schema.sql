@@ -204,6 +204,7 @@ CREATE TABLE IF NOT EXISTS "EVENT" (
   "NAME" text,
   "DESCRIPTION" text,
   "SIDE" text,
+  "IS_OPTIONAL" text,
   "PRIORITY" text,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,

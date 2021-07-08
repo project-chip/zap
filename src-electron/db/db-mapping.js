@@ -122,6 +122,7 @@ exports.map = {
       name: x.NAME,
       description: x.DESCRIPTION,
       side: x.SIDE,
+      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       priority: x.PRIORITY,
     }
   },
