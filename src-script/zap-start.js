@@ -22,15 +22,14 @@ const scriptUtil = require('./script-util.js')
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 let startTime = process.hrtime()
 let args = process.argv.slice(2)
-let executor = 'electron'
 
 scriptUtil
   .stampVersion()
   .then(() => scriptUtil.rebuildSpaIfNeeded())
   .then(() => {
-    let cmdArgs = ['src-electron/main-process/electron-main.js']
+    let cmdArgs = ['electron', 'src-electron/main-process/electron-main.js']
 
-    if (executor === 'electron' && process.platform == 'linux') {
+    if (process.platform == 'linux') {
       if (!process.env.DISPLAY) {
         console.log(`
 ⛔ You are on Linux and you are attempting to run zap in UI mode without DISPLAY set.
@@ -39,7 +38,7 @@ scriptUtil
       }
     }
     cmdArgs.push(...args)
-    return scriptUtil.executeCmd(null, executor, cmdArgs)
+    return scriptUtil.executeCmd(null, 'npx', cmdArgs)
   })
   .then(() => {
     let endTime = process.hrtime(startTime)
