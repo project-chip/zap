@@ -184,7 +184,8 @@ function all_user_cluster_commands(options) {
     .then((endpointsAndClusters) =>
       queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
         this.global.db,
-        endpointsAndClusters
+        endpointsAndClusters,
+        true
       )
     )
     .then((endpointCommands) =>
@@ -224,7 +225,8 @@ function all_user_cluster_command_util(
       if (isIrrespectiveOfManufacturingSpecification) {
         return queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
           currentContext.global.db,
-          endpointsAndClusters
+          endpointsAndClusters,
+          true
         )
       } else if (isManufacturingSpecific) {
         return queryCommand.selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
@@ -550,7 +552,8 @@ async function user_cluster_has_enabled_command(name, side) {
   let endpointCommands =
     await queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
       this.global.db,
-      endpointsAndClusters
+      endpointsAndClusters,
+      false
     )
   let cmdCount = 0
   endpointCommands.forEach((command) => {

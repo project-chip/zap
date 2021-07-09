@@ -826,7 +826,8 @@ async function selectAllCliCommandDetailsFromEnabledClusters(
  */
 async function selectCommandDetailsFromAllEndpointTypesAndClusters(
   db,
-  endpointsAndClusters
+  endpointsAndClusters,
+  doGroupBy
 ) {
   let endpointTypeIds = endpointsAndClusters
     .map((ep) => ep.endpointId)
@@ -834,10 +835,7 @@ async function selectCommandDetailsFromAllEndpointTypesAndClusters(
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
     .toString()
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let query = `
   SELECT
     COMMAND.COMMAND_ID,
     COMMAND.NAME,
@@ -866,12 +864,14 @@ async function selectCommandDetailsFromAllEndpointTypesAndClusters(
     COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
   WHERE
     ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds}) 
-    AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
-  GROUP BY
-    COMMAND.NAME, COMMAND.COMMAND_ID
-        `
-    )
-    .then((rows) => rows.map(commandMapFunction))
+    AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds}) `
+
+  if (doGroupBy) {
+    // See: https://github.com/project-chip/zap/issues/192
+    query = query + ` GROUP BY COMMAND.NAME, COMMAND.COMMAND_ID`
+  }
+
+  return dbApi.dbAll(db, query).then((rows) => rows.map(commandMapFunction))
 }
 
 /**
