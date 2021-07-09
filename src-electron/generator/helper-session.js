@@ -22,7 +22,7 @@
  */
 const templateUtil = require('./template-util.js')
 const queryImpexp = require('../db/query-impexp.js')
-const queryEndpoint = require('../db/query-endpoint.js')
+const queryCluster = require('../db/query-cluster.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryCommand = require('../db/query-command.js')
 const queryAttribute = require('../db/query-attribute.js')
@@ -891,10 +891,11 @@ async function generated_clustes_details(options) {
       this.global.db,
       endpointTypes
     )
-  let endpointCommands = await queryZcl.exportClusterDetailsFromEnabledClusters(
-    this.global.db,
-    endpointsAndClusters
-  )
+  let endpointCommands =
+    await queryCluster.selectClusterDetailsFromEnabledClusters(
+      this.global.db,
+      endpointsAndClusters
+    )
   return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
