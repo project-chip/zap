@@ -28,7 +28,6 @@ const testUtil = require('./test-util.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 
 let db
-const templateCount = 3
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 let sessionId
 let templateContext
@@ -55,7 +54,9 @@ test(
         expect(context.templateData).not.toBeNull()
         expect(context.templateData.name).toEqual('Dotdot templates')
         expect(context.templateData.version).toEqual('test-dotdot-v1')
-        expect(context.templateData.templates.length).toEqual(templateCount)
+        expect(context.templateData.templates.length).toEqual(
+          testUtil.testTemplate.dotdotCount
+        )
         expect(context.packageId).not.toBeNull()
         templateContext = context
       }),

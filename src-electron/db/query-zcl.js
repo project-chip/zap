@@ -161,7 +161,8 @@ async function selectDomainById(db, id) {
 }
 
 /**
- * Retrieves all the structs in the database.
+ * Retrieves all the structs in the database, including the count
+ * of items.
  *
  * @export
  * @param {*} db
@@ -171,7 +172,21 @@ async function selectAllStructs(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT STRUCT.STRUCT_ID, STRUCT.NAME, COUNT(ITEM.NAME) AS ITEM_COUNT FROM STRUCT LEFT JOIN STRUCT_ITEM AS ITEM ON STRUCT.STRUCT_ID = ITEM.STRUCT_REF WHERE STRUCT.PACKAGE_REF = ? GROUP BY STRUCT.NAME ORDER BY STRUCT.NAME',
+      `
+SELECT
+  STRUCT.STRUCT_ID,
+  STRUCT.NAME,
+  COUNT(ITEM.NAME) AS ITEM_COUNT
+FROM
+  STRUCT
+LEFT JOIN
+  STRUCT_ITEM AS ITEM
+ON
+  STRUCT.STRUCT_ID = ITEM.STRUCT_REF
+WHERE
+  STRUCT.PACKAGE_REF = ?
+GROUP BY STRUCT.NAME
+ORDER BY STRUCT.NAME`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.struct))
