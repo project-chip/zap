@@ -102,3 +102,6 @@ exports.totalSpecCount = 24
 exports.totalEnumCount = 209
 exports.totalEnumItemCount = 1595
 exports.longTimeout = 12000
+
+exports.totalDotDotEnums = 104
+exports.totalDotDotEnumItems = 637
