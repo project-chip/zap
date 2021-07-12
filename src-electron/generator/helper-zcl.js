@@ -464,47 +464,35 @@ function zcl_command_arguments_count(commandId) {
  * Returns fixedLengthReturn or notFixedLengthReturn based on whether the
  * command is fixed length or not
  */
-function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
+async function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
   commandId,
   fixedLengthReturn,
   notFixedLengthReturn,
   currentContext
 ) {
-  return templateUtil
-    .ensureZclPackageId(currentContext)
-    .then((packageId) =>
-      queryCommand.selectCommandArgumentsByCommandId(
-        currentContext.global.db,
-        commandId,
-        packageId
-      )
-    )
-    .then(
-      (commandArgs) =>
-        new Promise((resolve, reject) => {
-          for (let argIndex = 0; argIndex < commandArgs.length; argIndex++) {
-            if (
-              commandArgs[argIndex].isArray ||
-              is_zcl_string(commandArgs[argIndex].type)
-            ) {
-              resolve(false)
-            }
-          }
-          resolve(true)
-        })
-    )
-    .then((fixedLength) => {
-      if (fixedLength) {
-        return fixedLengthReturn
-      } else {
-        return notFixedLengthReturn
-      }
-    })
-    .catch((err) => {
-      env.logError(
-        'Unable to determine if arguments are fixed length or not: ' + err
-      )
-    })
+  let packageId = await templateUtil.ensureZclPackageId(currentContext)
+  let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
+    currentContext.global.db,
+    commandId,
+    packageId
+  )
+
+  let isFixedLength = true
+
+  for (let argIndex = 0; argIndex < commandArgs.length; argIndex++) {
+    if (
+      commandArgs[argIndex].isArray ||
+      is_zcl_string(commandArgs[argIndex].type)
+    ) {
+      isFixedLength = false
+    }
+  }
+
+  if (fixedLength) {
+    return fixedLengthReturn
+  } else {
+    return notFixedLengthReturn
+  }
 }
 
 /**
