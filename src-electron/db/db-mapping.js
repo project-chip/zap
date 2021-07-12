@@ -148,6 +148,8 @@ exports.map = {
       argPresentIf: x.ARG_PRESENT_IF,
       argCountArg: x.ARG_COUNT_ARG,
       responseRef: x.RESPONSE_REF,
+      isIncoming: x.INCOMING,
+      isOutgoing: x.OUTGOING,
     }
   },
 

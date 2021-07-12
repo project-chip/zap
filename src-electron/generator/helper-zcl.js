@@ -457,44 +457,6 @@ function zcl_command_arguments_count(commandId) {
 
 /**
  *
- * @param {*} commandId
- * @param {*} argument_return
- * @param {*} no_argument_return
- *
- * If the command arguments for a command exist then returns argument_return
- * else returns no_argument_return
- * Example: {{if_command_arguments_exist [command-id] "," ""}}
- * The above will return ',' if the command arguments for a command exist
- * and will return nothing if the command arguments for a command do not exist.
- *
- */
-function if_command_arguments_exist(
-  commandId,
-  argument_return,
-  no_argument_return
-) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
-      let res = queryCommand.selectCommandArgumentsCountByCommandId(
-        this.global.db,
-        commandId,
-        packageId
-      )
-      return res
-    })
-    .then((res) => {
-      if (res > 0) {
-        return argument_return
-      } else {
-        return no_argument_return
-      }
-    })
-  return templateUtil.templatePromise(this.global, promise)
-}
-
-/**
- *
  * @param commandId
  * @param fixedLengthReturn
  * @param notFixedLengthReturn
@@ -502,7 +464,7 @@ function if_command_arguments_exist(
  * Returns fixedLengthReturn or notFixedLengthReturn based on whether the
  * command is fixed length or not
  */
-function if_command_arguments_have_fixed_length_with_current_context(
+function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
   commandId,
   fixedLengthReturn,
   notFixedLengthReturn,
@@ -559,7 +521,7 @@ function if_command_arguments_have_fixed_length(
   fixedLengthReturn,
   notFixedLengthReturn
 ) {
-  return if_command_arguments_have_fixed_length_with_current_context(
+  return ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     fixedLengthReturn,
     notFixedLengthReturn,
@@ -776,7 +738,7 @@ function as_underlying_zcl_type_if_command_is_not_fixed_length(
   appendString,
   options
 ) {
-  let promise = if_command_arguments_have_fixed_length_with_current_context(
+  let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -1736,7 +1698,7 @@ function isLastElement(index, count) {
 }
 
 function isFirstElement(index, count) {
-  return index == count - 1
+  return index == 0
 }
 
 function isEnabled(enable) {
@@ -1780,7 +1742,7 @@ function as_underlying_zcl_type_command_argument_always_present(
   presentIf,
   options
 ) {
-  let promise = if_command_arguments_have_fixed_length_with_current_context(
+  let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -1834,7 +1796,7 @@ function if_command_argument_always_present(
   argumentPresentReturn,
   argumentNotPresentReturn
 ) {
-  return if_command_arguments_have_fixed_length_with_current_context(
+  return ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -1879,7 +1841,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
   presentIf,
   options
 ) {
-  let promise = if_command_arguments_have_fixed_length_with_current_context(
+  let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -1975,7 +1937,7 @@ function if_command_argument_not_always_present_no_presentif(
   argumentNotInAllVersionsReturn,
   argumentInAllVersionsReturn
 ) {
-  return if_command_arguments_have_fixed_length_with_current_context(
+  return ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -2041,7 +2003,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
   presentIf,
   options
 ) {
-  let promise = if_command_arguments_have_fixed_length_with_current_context(
+  let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -2137,7 +2099,7 @@ function if_command_argument_not_always_present_with_presentif(
   argumentNotInAllVersionsPresentIfReturn,
   argumentInAllVersionsReturn
 ) {
-  return if_command_arguments_have_fixed_length_with_current_context(
+  return ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -2204,7 +2166,7 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
   presentIf,
   options
 ) {
-  let promise = if_command_arguments_have_fixed_length_with_current_context(
+  let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -2299,7 +2261,7 @@ async function if_command_argument_always_present_with_presentif(
   argumentInAllVersionsPresentIfReturn,
   argumentNotAlwaysThereReturn
 ) {
-  let res = await if_command_arguments_have_fixed_length_with_current_context(
+  let res = await ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -2312,29 +2274,6 @@ async function if_command_argument_always_present_with_presentif(
       return argumentInAllVersionsPresentIfReturn
     }
     return argumentNotAlwaysThereReturn
-  }
-}
-
-/**
- *
- * @param commandArg
- * @param trueReturn
- * @param falseReturn
- * @returns trueReturn if command argument is always present and there is a
- * presentIf condition else returns false
- */
-function if_ca_always_present_with_presentif(
-  commandArg,
-  trueReturn,
-  falseReturn
-) {
-  if (
-    !(commandArg.introducedInRef || commandArg.removedInRef) &&
-    commandArg.presentIf
-  ) {
-    return trueReturn
-  } else {
-    return falseReturn
   }
 }
 
@@ -2657,7 +2596,6 @@ exports.isStruct = dep(isStruct, { to: 'is_struct' })
 exports.is_enum = isEnum
 exports.isEnum = dep(isEnum, { to: 'is_enum' })
 
-exports.if_command_arguments_exist = if_command_arguments_exist
 exports.if_manufacturing_specific_cluster = if_manufacturing_specific_cluster
 exports.zcl_command_argument_type_to_cli_data_type =
   zcl_command_argument_type_to_cli_data_type
@@ -2725,5 +2663,3 @@ exports.if_ca_not_always_present_with_presentif =
   if_ca_not_always_present_with_presentif
 exports.as_underlying_zcl_type_ca_always_present_with_presentif =
   as_underlying_zcl_type_ca_always_present_with_presentif
-exports.if_ca_always_present_with_presentif =
-  if_ca_always_present_with_presentif

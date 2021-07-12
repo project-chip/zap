@@ -33,6 +33,7 @@ const includedHelpers = [
   './helper-sdkextension.js',
   './helper-tokens.js',
   './helper-attribute.js',
+  './helper-command.js',
 ]
 
 let globalHelpersInitialized = false
