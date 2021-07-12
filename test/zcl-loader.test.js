@@ -223,9 +223,9 @@ test(
       x = await queryZcl.selectAllBitmaps(db, packageId)
       expect(x.length).toEqual(61)
       x = await queryZcl.selectAllEnums(db, packageId)
-      expect(x.length).toEqual(105)
+      expect(x.length).toEqual(testUtil.totalDotDotEnums)
       x = await testQuery.selectCountFrom(db, 'ENUM_ITEM')
-      expect(x).toEqual(639)
+      expect(x).toEqual(testUtil.totalDotDotEnumItems)
       x = await queryZcl.selectAllStructs(db, packageId)
       expect(x.length).toEqual(20)
       x = await testQuery.selectCountFrom(db, 'STRUCT_ITEM')
@@ -277,7 +277,7 @@ test(
         )
       })
 
-      expect(nonUniqueEnum.length).toBeGreaterThan(0)
+      expect(nonUniqueEnum.length).toBe(0)
       expect(unmatched.length).toBeGreaterThan(0)
       expect(nullAttribute.length).toEqual(0)
     } finally {

@@ -18,6 +18,11 @@
       "path": "dotdot-type.zapt",
       "name": "Dot dot types",
       "output": "dotdot-type.h"
+    },
+    {
+      "path": "enum.zapt",
+      "name": "Enums",
+      "output": "enum.h"
     }
   ]
 }

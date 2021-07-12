@@ -136,11 +136,12 @@ async function insertOrUpdateAttributeState(
     side
   )
 
-  let staticAttribute = await queryZcl.selectAttributeByAttributeIdAndClusterRef(
-    db,
-    attributeId,
-    clusterRef
-  )
+  let staticAttribute =
+    await queryZcl.selectAttributeByAttributeIdAndClusterRef(
+      db,
+      attributeId,
+      clusterRef
+    )
 
   if (staticAttribute == null) {
     throw new Error(`COULD NOT LOCATE ATTRIBUTE: ${attributeId} `)
@@ -572,10 +573,11 @@ async function resolveDefaultDeviceTypeAttributes(
 }
 
 async function resolveCommandState(db, endpointTypeId, deviceCommand) {
-  let deviceTypeCluster = await queryZcl.selectDeviceTypeClusterByDeviceTypeClusterId(
-    db,
-    deviceCommand.deviceTypeClusterRef
-  )
+  let deviceTypeCluster =
+    await queryZcl.selectDeviceTypeClusterByDeviceTypeClusterId(
+      db,
+      deviceCommand.deviceTypeClusterRef
+    )
   if (deviceCommand.commandRef == null) return null
 
   let command = await queryCommand.selectCommandById(
@@ -1023,7 +1025,8 @@ exports.updateEndpoint = updateEndpoint
 exports.insertEndpointType = insertEndpointType
 exports.updateEndpointType = updateEndpointType
 
-exports.selectCountOfEndpointsWithGivenEndpointIdentifier = selectCountOfEndpointsWithGivenEndpointIdentifier
+exports.selectCountOfEndpointsWithGivenEndpointIdentifier =
+  selectCountOfEndpointsWithGivenEndpointIdentifier
 exports.selectEndpointTypeCount = selectEndpointTypeCount
 exports.selectEndpointTypeCountByCluster = selectEndpointTypeCountByCluster
 exports.selectAllSessionAttributes = selectAllSessionAttributes
