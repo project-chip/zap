@@ -85,6 +85,59 @@ function if_ca_always_present_with_presentif(
   }
 }
 
+/**
+ *
+ * @param command
+ * @param commandArg
+ * @param trueReturn
+ * @param falseReturn
+ * @returns trueReturn if command is not fixed length but command argument is
+ * always present else returns falseReturn
+ */
+async function if_command_is_not_fixed_length_but_command_argument_is_always_present(
+  command,
+  commandArg,
+  trueReturn,
+  falseReturn
+) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+
+  let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
+    this.global.db,
+    command,
+    packageId
+  )
+  let isFixedLengthCommand = true
+  for (let ca of commandArgs) {
+    if (
+      ca.isArray ||
+      types.isString(ca.type) ||
+      ca.introducedInRef ||
+      ca.removedInRef ||
+      ca.presentIf
+    ) {
+      isFixedLengthCommand = false
+    }
+  }
+
+  if (isFixedLengthCommand) {
+    return falseReturn
+  } else if (
+    !(
+      commandArg.isArray ||
+      commandArg.introducedInRef ||
+      commandArg.removedInRef ||
+      commandArg.presentIf
+    )
+  ) {
+    return trueReturn
+  } else {
+    return falseReturn
+  }
+}
+
 exports.if_command_arguments_exist = if_command_arguments_exist
 exports.if_ca_always_present_with_presentif =
   if_ca_always_present_with_presentif
+exports.if_command_is_not_fixed_length_but_command_argument_is_always_present =
+  if_command_is_not_fixed_length_but_command_argument_is_always_present
