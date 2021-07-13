@@ -1469,15 +1469,12 @@ function zcl_string_type_return(type, options) {
   ) {
     throw new Error('Specify all options for the helper')
   }
-  switch (type.toUpperCase()) {
-    case 'CHAR_STRING':
-    case 'OCTET_STRING':
-      return options.hash.short_string
-    case 'LONG_CHAR_STRING':
-    case 'LONG_OCTET_STRING':
-      return options.hash.long_string
-    default:
-      return options.hash.default
+  if (types.isOneBytePrefixedString(type)) {
+    return options.hash.short_string
+  } else if (types.isTwoBytePrefixedString(type)) {
+    return options.hash.long_string
+  } else {
+    return options.hash.default
   }
 }
 
