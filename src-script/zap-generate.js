@@ -52,6 +52,12 @@ let arg = yargs
     demandOption: false,
     default: '~/.zap',
   })
+  .option('genResultFile', {
+    desc: 'Gen result file',
+    type: 'boolean',
+    demandOption: false,
+    default: false,
+  })
   .demandOption(
     ['zcl', 'out', 'generationTemplate'],
     'Please provide required options!'
@@ -75,6 +81,9 @@ let cli = [
   '--out',
   arg.out,
 ]
+if (arg.genResultFile) {
+  cli.push('--genResultFile')
+}
 if (arg.in != null) {
   cli.push(arg.in)
 }

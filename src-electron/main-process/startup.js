@@ -476,6 +476,7 @@ async function generateSingleFile(
   let nsDuration = process.hrtime.bigint() - hrstart
   options.logger(`🕐 File loading time: ${util.duration(nsDuration)}`)
 
+  options.fileLoadTime = nsDuration
   let genResult = await generatorEngine.generateAndWriteFiles(
     db,
     sessionId,
