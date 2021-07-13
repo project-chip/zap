@@ -136,8 +136,112 @@ async function if_command_is_not_fixed_length_but_command_argument_is_always_pre
   }
 }
 
+/**
+ *
+ * @param commandArg
+ * @param trueReturn
+ * @param falseReturn
+ * @returns trueReturn if command argument is not always present and there is no
+ * presentIf condition else returns false
+ */
+function if_ca_not_always_present_no_presentif(
+  commandArg,
+  trueReturn,
+  falseReturn
+) {
+  if (
+    (commandArg.introducedInRef || commandArg.removedInRef) &&
+    !commandArg.presentIf
+  ) {
+    return trueReturn
+  }
+  return falseReturn
+}
+
+/**
+ *
+ * @param commandArg
+ * @param trueReturn
+ * @param falseReturn
+ * @returns trueReturn if command argument is not always present and there is a
+ * presentIf condition else returns false
+ */
+function if_ca_not_always_present_with_presentif(
+  commandArg,
+  trueReturn,
+  falseReturn
+) {
+  if (
+    (commandArg.introducedInRef || commandArg.removedInRef) &&
+    commandArg.presentIf
+  ) {
+    return trueReturn
+  } else {
+    return falseReturn
+  }
+}
+
+/**
+ *
+ * @param commandId
+ * @param fixedLengthReturn
+ * @param notFixedLengthReturn
+ * Returns fixedLengthReturn or notFixedLengthReturn based on whether the
+ * command is fixed length or not. Also checks if the command arguments are
+ * always present or not.
+ */
+function if_command_is_fixed_length(
+  commandId,
+  fixedLengthReturn,
+  notFixedLengthReturn
+) {
+  return templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      queryCommand.selectCommandArgumentsByCommandId(
+        this.global.db,
+        commandId,
+        packageId
+      )
+    )
+    .then(
+      (commandArgs) =>
+        new Promise((resolve, reject) => {
+          for (let commandArg of commandArgs) {
+            if (
+              commandArg.isArray ||
+              types.isString(commandArg.type) ||
+              commandArg.introducedInRef ||
+              commandArg.removedInRef ||
+              commandArg.presentIf
+            ) {
+              resolve(false)
+            }
+          }
+          resolve(true)
+        })
+    )
+    .then((fixedLength) => {
+      if (fixedLength) {
+        return fixedLengthReturn
+      } else {
+        return notFixedLengthReturn
+      }
+    })
+    .catch((err) => {
+      env.logError(
+        'Unable to determine if command is fixed length or not: ' + err
+      )
+    })
+}
+
 exports.if_command_arguments_exist = if_command_arguments_exist
+exports.if_command_is_fixed_length = if_command_is_fixed_length
 exports.if_ca_always_present_with_presentif =
   if_ca_always_present_with_presentif
 exports.if_command_is_not_fixed_length_but_command_argument_is_always_present =
   if_command_is_not_fixed_length_but_command_argument_is_always_present
+exports.if_ca_not_always_present_no_presentif =
+  if_ca_not_always_present_no_presentif
+exports.if_ca_not_always_present_with_presentif =
+  if_ca_not_always_present_with_presentif
