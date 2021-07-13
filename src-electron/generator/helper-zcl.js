@@ -1415,9 +1415,9 @@ function zcl_string_type_return(type, options) {
   ) {
     throw new Error('Specify all options for the helper')
   }
-  if (types.isOneBytePrefixedString(type)) {
+  if (types.isOneBytePrefixedString(type.toLowerCase())) {
     return options.hash.short_string
-  } else if (types.isTwoBytePrefixedString(type)) {
+  } else if (types.isTwoBytePrefixedString(type.toLowerCase())) {
     return options.hash.long_string
   } else {
     return options.hash.default
