@@ -624,7 +624,7 @@ async function generateAndWriteFiles(
     skipPostGeneration: false,
   }
 ) {
-  let hrstart = process.hrtime()
+  let hrstart = process.hrtime.bigint()
   let genOptions = await queryPackage.selectAllOptionsValues(
     db,
     templatePackageId,
@@ -666,8 +666,8 @@ async function generateAndWriteFiles(
       options.logger(err)
     }
   }
-  let hrend = process.hrtime(hrstart)
-  options.logger(`🕐 Generation time: ${hrend[0]}s ${hrend[1] / 1000000}ms `)
+  let nsDuration = process.hrtime.bigint() - hrstart
+  options.logger(`🕐 Generation time: ${util.duration(nsDuration)} `)
   promises.push(
     generateGenerationContent(genResult).then((generatedContent) => {
       if (options.genResultFile) {

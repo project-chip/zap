@@ -180,6 +180,35 @@ async function stampVersion() {
     })
 }
 
+/**
+ * This method takes a nanosecond duration and prints out
+ * decently human readable time out of it.
+ *
+ * @param {*} nsDifference
+ * @returns
+ */
+function duration(nsDifference) {
+  let diff = Number(nsDifference)
+  let out = ''
+  if (diff > 1000000000) {
+    out += `${Math.floor(diff / 1000000000)}s `
+  }
+  out += `${Math.round((diff % 1000000000) / 1000000)}ms`
+  return out
+}
+
+/**
+ * Printout of timings at the end of a script.
+ *
+ * @param {*} startTime
+ */
+function doneStamp(startTime) {
+  let nsDuration = process.hrtime.bigint() - startTime
+  console.log(`😎 All done: ${duration(nsDuration)}.`)
+}
+
 exports.executeCmd = executeCmd
 exports.rebuildSpaIfNeeded = rebuildSpaIfNeeded
 exports.stampVersion = stampVersion
+exports.duration = duration
+exports.doneStamp = doneStamp

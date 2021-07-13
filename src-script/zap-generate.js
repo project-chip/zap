@@ -19,7 +19,7 @@
 const yargs = require('yargs')
 const scriptUtil = require('./script-util.js')
 
-let startTime = process.hrtime()
+let startTime = process.hrtime.bigint()
 
 let arg = yargs
   .option('zcl', {
@@ -83,10 +83,7 @@ scriptUtil
   .stampVersion()
   .then(() => scriptUtil.executeCmd(ctx, 'node', cli))
   .then(() => {
-    let endTime = process.hrtime(startTime)
-    console.log(
-      `😎 All done: ${endTime[0]}s, ${Math.round(endTime[1] / 1000000)}ms.`
-    )
+    scriptUtil.doneStamp(startTime)
     process.exit(0)
   })
   .catch((code) => {
