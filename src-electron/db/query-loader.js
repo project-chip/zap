@@ -309,12 +309,12 @@ async function insertGlobals(db, packageId, data) {
  * @param {*} data
  * @returns Promise of cluster extension insertion.
  */
-async function insertClusterExtensions(db, packageId, data) {
+async function insertClusterExtensions(db, dataPackageId, knownPackages, data) {
   return dbApi
     .dbMultiSelect(
       db,
-      'SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ?',
-      data.map((cluster) => [packageId, cluster.code])
+      `SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF IN (${knownPackages.toString()}) AND CODE = ?`,
+      data.map((cluster) => [cluster.code])
     )
     .then((rows) => {
       let commandsToLoad = []
@@ -327,13 +327,13 @@ async function insertClusterExtensions(db, packageId, data) {
           lastId = row.CLUSTER_ID
           if ('commands' in data[i]) {
             let commands = data[i].commands
-            commandsToLoad.push(...commandMap(lastId, packageId, commands))
+            commandsToLoad.push(...commandMap(lastId, dataPackageId, commands))
             argsForCommands.push(...commands.map((command) => command.args))
           }
           if ('attributes' in data[i]) {
             let attributes = data[i].attributes
             attributesToLoad.push(
-              ...attributeMap(lastId, packageId, attributes)
+              ...attributeMap(lastId, dataPackageId, attributes)
             )
           }
         } else {
@@ -346,7 +346,7 @@ async function insertClusterExtensions(db, packageId, data) {
       }
       let pCommand = insertCommands(
         db,
-        packageId,
+        dataPackageId,
         commandsToLoad,
         argsForCommands
       )
