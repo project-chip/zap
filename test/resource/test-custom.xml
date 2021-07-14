@@ -91,7 +91,7 @@ limitations under the License.
       Framework can be extended to include manufacturer specific clusters.
       </description>
     <!-- Cluster Id must be within the mfg spec range 0xfc00 - 0xffff -->
-    <code>0xABCD</code>
+    <code>0xFFCD</code>
     <define>SAMPLE_MFG_SPECIFIC_CLUSTER</define>
     <client init="false" tick="false">true</client>
     <server init="false" tick="false">true</server>
