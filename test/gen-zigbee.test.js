@@ -263,6 +263,13 @@ test(
             'IMPLEMENTED_COMMANDS>ResetToFactoryDefaults,IdentifyQueryResponse,IdentifyQuery,EZModeInvoke,UpdateCommissionState,<END'
           )
         ).toBeTruthy()
+
+        // Testing {{#if_is_struct}} helper
+        expect(zclId.includes(`attributeIds is not struct`)).toBeTruthy()
+
+        expect(
+          zclId.includes(`readAttributeStatusRecords is struct`)
+        ).toBeTruthy()
       }),
   testUtil.timeout.long()
 )
