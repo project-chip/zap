@@ -457,44 +457,6 @@ function zcl_command_arguments_count(commandId) {
 
 /**
  *
- * @param {*} commandId
- * @param {*} argument_return
- * @param {*} no_argument_return
- *
- * If the command arguments for a command exist then returns argument_return
- * else returns no_argument_return
- * Example: {{if_command_arguments_exist [command-id] "," ""}}
- * The above will return ',' if the command arguments for a command exist
- * and will return nothing if the command arguments for a command do not exist.
- *
- */
-function if_command_arguments_exist(
-  commandId,
-  argument_return,
-  no_argument_return
-) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
-      let res = queryCommand.selectCommandArgumentsCountByCommandId(
-        this.global.db,
-        commandId,
-        packageId
-      )
-      return res
-    })
-    .then((res) => {
-      if (res > 0) {
-        return argument_return
-      } else {
-        return no_argument_return
-      }
-    })
-  return templateUtil.templatePromise(this.global, promise)
-}
-
-/**
- *
  * @param commandId
  * @param fixedLengthReturn
  * @param notFixedLengthReturn
@@ -502,47 +464,35 @@ function if_command_arguments_exist(
  * Returns fixedLengthReturn or notFixedLengthReturn based on whether the
  * command is fixed length or not
  */
-function if_command_arguments_have_fixed_length_with_current_context(
+async function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
   commandId,
   fixedLengthReturn,
   notFixedLengthReturn,
   currentContext
 ) {
-  return templateUtil
-    .ensureZclPackageId(currentContext)
-    .then((packageId) =>
-      queryCommand.selectCommandArgumentsByCommandId(
-        currentContext.global.db,
-        commandId,
-        packageId
-      )
-    )
-    .then(
-      (commandArgs) =>
-        new Promise((resolve, reject) => {
-          for (let argIndex = 0; argIndex < commandArgs.length; argIndex++) {
-            if (
-              commandArgs[argIndex].isArray ||
-              is_zcl_string(commandArgs[argIndex].type)
-            ) {
-              resolve(false)
-            }
-          }
-          resolve(true)
-        })
-    )
-    .then((fixedLength) => {
-      if (fixedLength) {
-        return fixedLengthReturn
-      } else {
-        return notFixedLengthReturn
-      }
-    })
-    .catch((err) => {
-      env.logError(
-        'Unable to determine if arguments are fixed length or not: ' + err
-      )
-    })
+  let packageId = await templateUtil.ensureZclPackageId(currentContext)
+  let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
+    currentContext.global.db,
+    commandId,
+    packageId
+  )
+
+  let isFixedLength = true
+
+  for (let argIndex = 0; argIndex < commandArgs.length; argIndex++) {
+    if (
+      commandArgs[argIndex].isArray ||
+      types.isString(commandArgs[argIndex].type)
+    ) {
+      isFixedLength = false
+    }
+  }
+
+  if (fixedLength) {
+    return fixedLengthReturn
+  } else {
+    return notFixedLengthReturn
+  }
 }
 
 /**
@@ -559,133 +509,12 @@ function if_command_arguments_have_fixed_length(
   fixedLengthReturn,
   notFixedLengthReturn
 ) {
-  return if_command_arguments_have_fixed_length_with_current_context(
+  return ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     fixedLengthReturn,
     notFixedLengthReturn,
     this
   )
-}
-
-/**
- *
- * @param commandId
- * @param fixedLengthReturn
- * @param notFixedLengthReturn
- * Returns fixedLengthReturn or notFixedLengthReturn based on whether the
- * command is fixed length or not. Also checks if the command arguments are
- * always present or not.
- */
-function if_command_is_fixed_length(
-  commandId,
-  fixedLengthReturn,
-  notFixedLengthReturn
-) {
-  return templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryCommand.selectCommandArgumentsByCommandId(
-        this.global.db,
-        commandId,
-        packageId
-      )
-    )
-    .then(
-      (commandArgs) =>
-        new Promise((resolve, reject) => {
-          for (let commandArg of commandArgs) {
-            if (
-              commandArg.isArray ||
-              is_zcl_string(commandArg.type) ||
-              commandArg.introducedInRef ||
-              commandArg.removedInRef ||
-              commandArg.presentIf
-            ) {
-              resolve(false)
-            }
-          }
-          resolve(true)
-        })
-    )
-    .then((fixedLength) => {
-      if (fixedLength) {
-        return fixedLengthReturn
-      } else {
-        return notFixedLengthReturn
-      }
-    })
-    .catch((err) => {
-      env.logError(
-        'Unable to determine if command is fixed length or not: ' + err
-      )
-    })
-}
-
-/**
- *
- * @param command
- * @param commandArg
- * @param trueReturn
- * @param falseReturn
- * @returns trueReturn if command is not fixed length but command argument is
- * always present else returns falseReturn
- */
-function if_command_is_not_fixed_length_but_command_argument_is_always_present(
-  command,
-  commandArg,
-  trueReturn,
-  falseReturn
-) {
-  return templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryCommand.selectCommandArgumentsByCommandId(
-        this.global.db,
-        command,
-        packageId
-      )
-    )
-    .then(
-      (commandArgs) =>
-        new Promise((resolve, reject) => {
-          for (let ca of commandArgs) {
-            if (
-              ca.isArray ||
-              is_zcl_string(ca.type) ||
-              ca.introducedInRef ||
-              ca.removedInRef ||
-              ca.presentIf
-            ) {
-              resolve(false)
-            }
-          }
-          resolve(true)
-        })
-    )
-    .then(
-      (isFixedLengthCommand) =>
-        new Promise((resolve, reject) => {
-          if (isFixedLengthCommand) {
-            resolve(falseReturn)
-          } else if (
-            !(
-              commandArg.isArray ||
-              commandArg.introducedInRef ||
-              commandArg.removedInRef ||
-              commandArg.presentIf
-            )
-          ) {
-            resolve(trueReturn)
-          }
-          resolve(falseReturn)
-        })
-    )
-    .catch((err) => {
-      env.logError(
-        'Failure in if_command_is_not_fixed_length_but_command_argument_is_always_present: ' +
-          err
-      )
-    })
 }
 
 /**
@@ -721,7 +550,7 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
           for (let ca of commandArgs) {
             if (
               ca.isArray ||
-              is_zcl_string(ca.type) ||
+              types.isString(ca.type) ||
               ca.introducedInRef ||
               ca.removedInRef ||
               ca.presentIf
@@ -776,7 +605,7 @@ function as_underlying_zcl_type_if_command_is_not_fixed_length(
   appendString,
   options
 ) {
-  let promise = if_command_arguments_have_fixed_length_with_current_context(
+  let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -1586,15 +1415,12 @@ function zcl_string_type_return(type, options) {
   ) {
     throw new Error('Specify all options for the helper')
   }
-  switch (type.toUpperCase()) {
-    case 'CHAR_STRING':
-    case 'OCTET_STRING':
-      return options.hash.short_string
-    case 'LONG_CHAR_STRING':
-    case 'LONG_OCTET_STRING':
-      return options.hash.long_string
-    default:
-      return options.hash.default
+  if (types.isOneBytePrefixedString(type.toLowerCase())) {
+    return options.hash.short_string
+  } else if (types.isTwoBytePrefixedString(type.toLowerCase())) {
+    return options.hash.long_string
+  } else {
+    return options.hash.default
   }
 }
 
@@ -1604,15 +1430,7 @@ function zcl_string_type_return(type, options) {
  * Return: true or false based on whether the type is a string or not.
  */
 function is_zcl_string(type) {
-  switch (type.toUpperCase()) {
-    case 'CHAR_STRING':
-    case 'OCTET_STRING':
-    case 'LONG_CHAR_STRING':
-    case 'LONG_OCTET_STRING':
-      return true
-    default:
-      return false
-  }
+  return types.isString(type)
 }
 
 /**
@@ -1708,6 +1526,31 @@ function if_is_enum(type, options) {
 }
 
 /**
+ * If helper that checks if a type is an struct
+ *
+ * * example:
+ * {{#if_is_struct type}}
+ * type is struct
+ * {{else}}
+ * type is not struct
+ * {{/if_is_struct}}
+ *
+ * @param type
+ * @returns Promise of content.
+ */
+function if_is_struct(type, options) {
+  let promise = templateUtil.ensureZclPackageId(this).then((packageId) =>
+    queryZcl.selectStructByName(this.global.db, type, packageId).then((st) => {
+      if (st) {
+        return options.fn(this)
+      }
+      return options.inverse(this)
+    })
+  )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Checks if the side is client or not
  *
  * @param {*} side
@@ -1736,7 +1579,7 @@ function isLastElement(index, count) {
 }
 
 function isFirstElement(index, count) {
-  return index == count - 1
+  return index == 0
 }
 
 function isEnabled(enable) {
@@ -1780,7 +1623,7 @@ function as_underlying_zcl_type_command_argument_always_present(
   presentIf,
   options
 ) {
-  let promise = if_command_arguments_have_fixed_length_with_current_context(
+  let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -1834,7 +1677,7 @@ function if_command_argument_always_present(
   argumentPresentReturn,
   argumentNotPresentReturn
 ) {
-  return if_command_arguments_have_fixed_length_with_current_context(
+  return ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -1879,7 +1722,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
   presentIf,
   options
 ) {
-  let promise = if_command_arguments_have_fixed_length_with_current_context(
+  let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -1975,7 +1818,7 @@ function if_command_argument_not_always_present_no_presentif(
   argumentNotInAllVersionsReturn,
   argumentInAllVersionsReturn
 ) {
-  return if_command_arguments_have_fixed_length_with_current_context(
+  return ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -1990,28 +1833,6 @@ function if_command_argument_not_always_present_no_presentif(
       return argumentInAllVersionsReturn
     }
   })
-}
-
-/**
- *
- * @param commandArg
- * @param trueReturn
- * @param falseReturn
- * @returns trueReturn if command argument is not always present and there is no
- * presentIf condition else returns false
- */
-function if_ca_not_always_present_no_presentif(
-  commandArg,
-  trueReturn,
-  falseReturn
-) {
-  if (
-    (commandArg.introducedInRef || commandArg.removedInRef) &&
-    !commandArg.presentIf
-  ) {
-    return trueReturn
-  }
-  return falseReturn
 }
 
 /**
@@ -2041,7 +1862,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
   presentIf,
   options
 ) {
-  let promise = if_command_arguments_have_fixed_length_with_current_context(
+  let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -2137,7 +1958,7 @@ function if_command_argument_not_always_present_with_presentif(
   argumentNotInAllVersionsPresentIfReturn,
   argumentInAllVersionsReturn
 ) {
-  return if_command_arguments_have_fixed_length_with_current_context(
+  return ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -2152,29 +1973,6 @@ function if_command_argument_not_always_present_with_presentif(
       return argumentInAllVersionsReturn
     }
   })
-}
-
-/**
- *
- * @param commandArg
- * @param trueReturn
- * @param falseReturn
- * @returns trueReturn if command argument is not always present and there is a
- * presentIf condition else returns false
- */
-function if_ca_not_always_present_with_presentif(
-  commandArg,
-  trueReturn,
-  falseReturn
-) {
-  if (
-    (commandArg.introducedInRef || commandArg.removedInRef) &&
-    commandArg.presentIf
-  ) {
-    return trueReturn
-  } else {
-    return falseReturn
-  }
 }
 
 /**
@@ -2204,7 +2002,7 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
   presentIf,
   options
 ) {
-  let promise = if_command_arguments_have_fixed_length_with_current_context(
+  let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -2299,7 +2097,7 @@ async function if_command_argument_always_present_with_presentif(
   argumentInAllVersionsPresentIfReturn,
   argumentNotAlwaysThereReturn
 ) {
-  let res = await if_command_arguments_have_fixed_length_with_current_context(
+  let res = await ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
@@ -2312,29 +2110,6 @@ async function if_command_argument_always_present_with_presentif(
       return argumentInAllVersionsPresentIfReturn
     }
     return argumentNotAlwaysThereReturn
-  }
-}
-
-/**
- *
- * @param commandArg
- * @param trueReturn
- * @param falseReturn
- * @returns trueReturn if command argument is always present and there is a
- * presentIf condition else returns false
- */
-function if_ca_always_present_with_presentif(
-  commandArg,
-  trueReturn,
-  falseReturn
-) {
-  if (
-    !(commandArg.introducedInRef || commandArg.removedInRef) &&
-    commandArg.presentIf
-  ) {
-    return trueReturn
-  } else {
-    return falseReturn
   }
 }
 
@@ -2657,17 +2432,13 @@ exports.isStruct = dep(isStruct, { to: 'is_struct' })
 exports.is_enum = isEnum
 exports.isEnum = dep(isEnum, { to: 'is_enum' })
 
-exports.if_command_arguments_exist = if_command_arguments_exist
 exports.if_manufacturing_specific_cluster = if_manufacturing_specific_cluster
-exports.zcl_command_argument_type_to_cli_data_type =
-  zcl_command_argument_type_to_cli_data_type
+exports.zcl_command_argument_type_to_cli_data_type = zcl_command_argument_type_to_cli_data_type
 exports.zcl_string_type_return = zcl_string_type_return
 exports.is_zcl_string = is_zcl_string
-exports.if_command_arguments_have_fixed_length =
-  if_command_arguments_have_fixed_length
+exports.if_command_arguments_have_fixed_length = if_command_arguments_have_fixed_length
 exports.command_arguments_total_length = command_arguments_total_length
-exports.as_underlying_zcl_type_if_command_is_not_fixed_length =
-  as_underlying_zcl_type_if_command_is_not_fixed_length
+exports.as_underlying_zcl_type_if_command_is_not_fixed_length = as_underlying_zcl_type_if_command_is_not_fixed_length
 exports.if_command_argument_always_present = dep(
   if_command_argument_always_present,
   {
@@ -2677,53 +2448,44 @@ exports.if_command_argument_always_present = dep(
 exports.as_underlying_zcl_type_command_argument_always_present = dep(
   as_underlying_zcl_type_command_argument_always_present,
   {
-    to: 'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present',
+    to:
+      'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present',
   }
 )
 exports.if_command_argument_always_present_with_presentif = dep(
   if_command_argument_always_present_with_presentif,
   { to: 'if_ca_always_present_with_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_always_present_with_presentif =
-  dep(as_underlying_zcl_type_command_argument_always_present_with_presentif, {
+exports.as_underlying_zcl_type_command_argument_always_present_with_presentif = dep(
+  as_underlying_zcl_type_command_argument_always_present_with_presentif,
+  {
     to: 'as_underlying_zcl_type_ca_always_present_with_presentif',
-  })
+  }
+)
 exports.if_command_argument_not_always_present_with_presentif = dep(
   if_command_argument_not_always_present_with_presentif,
   { to: 'if_ca_not_always_present_with_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif =
-  dep(
-    as_underlying_zcl_type_command_argument_not_always_present_with_presentif,
-    { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' }
-  )
+exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif = dep(
+  as_underlying_zcl_type_command_argument_not_always_present_with_presentif,
+  { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' }
+)
 exports.if_command_argument_not_always_present_no_presentif = dep(
   if_command_argument_not_always_present_no_presentif,
   { to: 'if_ca_not_always_present_no_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif =
-  dep(as_underlying_zcl_type_command_argument_not_always_present_no_presentif, {
+exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif = dep(
+  as_underlying_zcl_type_command_argument_not_always_present_no_presentif,
+  {
     to: 'as_underlying_zcl_type_ca_not_always_present_no_presentif',
-  })
+  }
+)
 exports.as_generated_default_macro = as_generated_default_macro
 exports.attribute_mask = attribute_mask
 exports.command_mask = command_mask
-exports.format_zcl_string_as_characters_for_generated_defaults =
-  format_zcl_string_as_characters_for_generated_defaults
-exports.if_command_is_fixed_length = if_command_is_fixed_length
-exports.if_command_is_not_fixed_length_but_command_argument_is_always_present =
-  if_command_is_not_fixed_length_but_command_argument_is_always_present
-exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present =
-  as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
-exports.as_underlying_zcl_type_ca_not_always_present_no_presentif =
-  as_underlying_zcl_type_ca_not_always_present_no_presentif
-exports.if_ca_not_always_present_no_presentif =
-  if_ca_not_always_present_no_presentif
-exports.as_underlying_zcl_type_ca_not_always_present_with_presentif =
-  as_underlying_zcl_type_ca_not_always_present_with_presentif
-exports.if_ca_not_always_present_with_presentif =
-  if_ca_not_always_present_with_presentif
-exports.as_underlying_zcl_type_ca_always_present_with_presentif =
-  as_underlying_zcl_type_ca_always_present_with_presentif
-exports.if_ca_always_present_with_presentif =
-  if_ca_always_present_with_presentif
+exports.format_zcl_string_as_characters_for_generated_defaults = format_zcl_string_as_characters_for_generated_defaults
+exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present = as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
+exports.as_underlying_zcl_type_ca_not_always_present_no_presentif = as_underlying_zcl_type_ca_not_always_present_no_presentif
+exports.as_underlying_zcl_type_ca_not_always_present_with_presentif = as_underlying_zcl_type_ca_not_always_present_with_presentif
+exports.as_underlying_zcl_type_ca_always_present_with_presentif = as_underlying_zcl_type_ca_always_present_with_presentif
+exports.if_is_struct = if_is_struct

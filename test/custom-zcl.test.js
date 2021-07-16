@@ -52,6 +52,27 @@ afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 test(
   'Test custom xml',
   async () => {
+    let testClusterCode = 43981
+    x = await dbApi.dbAll(
+      db,
+      'SELECT * FROM CLUSTER WHERE MANUFACTURER_CODE = ?',
+      [testClusterCode]
+    )
+    expect(x.length).toEqual(0)
+
+    x = await dbApi.dbAll(
+      db,
+      'SELECT * FROM ATTRIBUTE WHERE MANUFACTURER_CODE = ?',
+      [testClusterCode]
+    )
+    expect(x.length).toEqual(0)
+
+    x = await dbApi.dbAll(
+      db,
+      'SELECT * FROM COMMAND WHERE MANUFACTURER_CODE = ?',
+      [testClusterCode]
+    )
+    expect(x.length).toEqual(0)
     let result = await zclLoader.loadIndividualFile(
       db,
       testUtil.testCustomXml,
@@ -61,6 +82,27 @@ test(
       console.log(`Test failure: ${result.err}`)
     }
     expect(result.succeeded).toBeTruthy()
+
+    x = await dbApi.dbAll(
+      db,
+      'SELECT * FROM CLUSTER WHERE MANUFACTURER_CODE = ?',
+      [testClusterCode]
+    )
+    expect(x.length).toEqual(1)
+
+    x = await dbApi.dbAll(
+      db,
+      'SELECT * FROM ATTRIBUTE WHERE MANUFACTURER_CODE = ?',
+      [testClusterCode]
+    )
+    expect(x.length).toEqual(4)
+
+    x = await dbApi.dbAll(
+      db,
+      'SELECT * FROM COMMAND WHERE MANUFACTURER_CODE = ?',
+      [testClusterCode]
+    )
+    expect(x.length).toEqual(3)
   },
   testUtil.timeout.medium()
 )

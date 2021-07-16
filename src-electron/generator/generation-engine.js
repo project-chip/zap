@@ -588,17 +588,18 @@ async function writeFileWithBackup(fileName, content, doBackup) {
  *
  * @param {*} genResult
  */
-async function generateGenerationContent(genResult) {
+async function generateGenerationContent(genResult, timing = {}) {
   let out = {
     writeTime: new Date().toString(),
     featureLevel: env.zapVersion().featureLevel,
     creator: 'zap',
     content: [],
+    timing: timing,
   }
   for (const f of Object.keys(genResult.content)) {
     out.content.push(f)
   }
-  return Promise.resolve(JSON.stringify(out))
+  return Promise.resolve(JSON.stringify(out, null, 2))
 }
 
 /**
@@ -624,7 +625,14 @@ async function generateAndWriteFiles(
     skipPostGeneration: false,
   }
 ) {
-  let hrstart = process.hrtime()
+  let timing = {}
+  if (options.fileLoadTime) {
+    timing.fileLoad = {
+      nsDuration: Number(options.fileLoadTime),
+      readableDuration: util.duration(options.fileLoadTime),
+    }
+  }
+  let hrstart = process.hrtime.bigint()
   let genOptions = await queryPackage.selectAllOptionsValues(
     db,
     templatePackageId,
@@ -666,10 +674,14 @@ async function generateAndWriteFiles(
       options.logger(err)
     }
   }
-  let hrend = process.hrtime(hrstart)
-  options.logger(`🕐 Generation time: ${hrend[0]}s ${hrend[1] / 1000000}ms `)
+  let nsDuration = process.hrtime.bigint() - hrstart
+  options.logger(`🕐 Generation time: ${util.duration(nsDuration)} `)
+  timing.generation = {
+    nsDuration: Number(nsDuration),
+    readableDuration: util.duration(nsDuration),
+  }
   promises.push(
-    generateGenerationContent(genResult).then((generatedContent) => {
+    generateGenerationContent(genResult, timing).then((generatedContent) => {
       if (options.genResultFile) {
         return writeFileWithBackup(
           path.join(outputDirectory, 'genResult.json'),

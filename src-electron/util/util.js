@@ -533,6 +533,23 @@ async function readFileContentAndCrc(metadataFile) {
   }
 }
 
+/**
+ * This method takes a nanosecond duration and prints out
+ * decently human readable time out of it.
+ *
+ * @param {*} nsDifference
+ * @returns String with human readable time duration.
+ */
+function duration(nsDifference) {
+  let diff = Number(nsDifference)
+  let out = ''
+  if (diff > 1000000000) {
+    out += `${Math.floor(diff / 1000000000)}s `
+  }
+  out += `${Math.round((diff % 1000000000) / 1000000)}ms`
+  return out
+}
+
 exports.createBackupFile = createBackupFile
 exports.checksum = checksum
 exports.initializeSessionPackage = initializeSessionPackage
@@ -549,3 +566,4 @@ exports.getClusterExtension = getClusterExtension
 exports.getClusterExtensionDefault = getClusterExtensionDefault
 exports.parseXml = parseXml
 exports.readFileContentAndCrc = readFileContentAndCrc
+exports.duration = duration
