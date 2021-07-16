@@ -758,7 +758,14 @@ function endpoint_config(options) {
   return templateUtil.templatePromise(this.global, promise)
 }
 
-exports.endpoint_attribute_long_defaults_count = endpoint_attribute_long_defaults_count
+// WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
+//
+// Note: these exports are public API. Templates that might have been created in the past and are
+// available in the wild might depend on these names.
+// If you rename the functions, you need to still maintain old exports list.
+
+exports.endpoint_attribute_long_defaults_count =
+  endpoint_attribute_long_defaults_count
 exports.endpoint_attribute_long_defaults = endpoint_attribute_long_defaults
 exports.endpoint_config = endpoint_config
 exports.endpoint_attribute_min_max_list = endpoint_attribute_min_max_list
@@ -769,24 +776,32 @@ exports.endpoint_cluster_list = endpoint_cluster_list
 exports.endpoint_cluster_count = endpoint_cluster_count
 exports.endpoint_types_list = endpoint_types_list
 exports.endpoint_type_count = endpoint_type_count
-exports.endpoint_cluster_manufacturer_codes = endpoint_cluster_manufacturer_codes
-exports.endpoint_cluster_manufacturer_code_count = endpoint_cluster_manufacturer_code_count
-exports.endpoint_command_manufacturer_codes = endpoint_command_manufacturer_codes
-exports.endpoint_command_manufacturer_code_count = endpoint_command_manufacturer_code_count
-exports.endpoint_attribute_manufacturer_codes = endpoint_attribute_manufacturer_codes
-exports.endpoint_attribute_manufacturer_code_count = endpoint_attribute_manufacturer_code_count
+exports.endpoint_cluster_manufacturer_codes =
+  endpoint_cluster_manufacturer_codes
+exports.endpoint_cluster_manufacturer_code_count =
+  endpoint_cluster_manufacturer_code_count
+exports.endpoint_command_manufacturer_codes =
+  endpoint_command_manufacturer_codes
+exports.endpoint_command_manufacturer_code_count =
+  endpoint_command_manufacturer_code_count
+exports.endpoint_attribute_manufacturer_codes =
+  endpoint_attribute_manufacturer_codes
+exports.endpoint_attribute_manufacturer_code_count =
+  endpoint_attribute_manufacturer_code_count
 exports.endpoint_largest_attribute_size = endpoint_largest_attribute_size
 exports.endpoint_total_storage_size = endpoint_total_storage_size
 exports.endpoint_singletons_size = endpoint_singletons_size
 exports.endpoint_fixed_endpoint_array = endpoint_fixed_endpoint_array
 exports.endpoint_fixed_endpoint_type_array = endpoint_fixed_endpoint_type_array
 exports.endpoint_fixed_device_id_array = endpoint_fixed_device_id_array
-exports.endpoint_fixed_device_version_array = endpoint_fixed_device_version_array
+exports.endpoint_fixed_device_version_array =
+  endpoint_fixed_device_version_array
 exports.endpoint_fixed_profile_id_array = endpoint_fixed_profile_id_array
 exports.endpoint_fixed_network_array = endpoint_fixed_network_array
 exports.endpoint_command_list = endpoint_command_list
 exports.endpoint_command_count = endpoint_command_count
 exports.endpoint_reporting_config_defaults = endpoint_reporting_config_defaults
-exports.endpoint_reporting_config_default_count = endpoint_reporting_config_default_count
+exports.endpoint_reporting_config_default_count =
+  endpoint_reporting_config_default_count
 exports.endpoint_count = endpoint_count
 exports.endpoint_config_macros = endpoint_config_macros

@@ -220,6 +220,12 @@ function event_extension(options) {
   return subentityExtension(this, prop, dbEnum.packageExtensionEntity.event)
 }
 
+// WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
+//
+// Note: these exports are public API. Templates that might have been created in the past and are
+// available in the wild might depend on these names.
+// If you rename the functions, you need to still maintain old exports list.
+
 exports.cluster_extension = cluster_extension
 exports.command_extension = command_extension
 exports.event_extension = event_extension

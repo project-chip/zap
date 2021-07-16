@@ -72,5 +72,11 @@ async function attributeDefault(options) {
   return templateUtil.templatePromise(this.global, p)
 }
 
+// WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
+//
+// Note: these exports are public API. Templates that might have been created in the past and are
+// available in the wild might depend on these names.
+// If you rename the functions, you need to still maintain old exports list.
+
 exports.global_attribute_default = attributeDefault
 exports.feature_bits = featureBits

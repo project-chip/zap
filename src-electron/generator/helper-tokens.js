@@ -232,5 +232,11 @@ function debug_object(obj) {
   return JSON.stringify(obj)
 }
 
+// WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
+//
+// Note: these exports are public API. Templates that might have been created in the past and are
+// available in the wild might depend on these names.
+// If you rename the functions, you need to still maintain old exports list.
+
 exports.tokens_context = tokens_context
 exports.token_next = token_next
