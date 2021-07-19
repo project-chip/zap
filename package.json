@@ -229,7 +229,8 @@
       "!**/node_modules/sqlite3/build/Release/**/*",
       "!quasar*",
       "!test.*",
-      "!src-script/**/*"
+      "!src-script/**/*",
+      "!zcl-builtin/**/*"
     ]
   }
 }
