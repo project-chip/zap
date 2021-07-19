@@ -1,15 +1,16 @@
 const path = require('path')
 const nodeExternals = require('webpack-node-externals')
+const CopyPlugin = require('copy-webpack-plugin')
 
 const config = {
   node: {
-    __dirname: true,
+    __dirname: false,
     __filename: true,
   },
-  mode: 'development',
+  mode: 'production',
   target: 'electron-main',
-  entry:
-    path.resolve(__dirname, 'src-electron') + '/main-process/electron-main',
+  context: path.resolve(__dirname + '/src-electron/main-process/'),
+  entry: './electron-main',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'electron-main.js',
@@ -19,11 +20,18 @@ const config = {
       {
         enforce: 'pre',
         test: /\.js$/,
-        loader: 'eslint-loader',
         exclude: /node_modules/,
-        options: {
-          formatter: require('eslint').CLIEngine.getFormatter('stylish'),
-        },
+        use: [
+          {
+            loader: 'babel-loader',
+          },
+          {
+            loader: 'eslint-loader',
+            options: {
+              formatter: require('eslint').CLIEngine.getFormatter('stylish'),
+            },
+          },
+        ],
       },
       {
         test: /\.tsx?$/,
@@ -40,18 +48,13 @@ const config = {
             },
           },
         ],
-
         exclude: /node_modules/,
       },
-      { test: /\.js$/, exclude: /node_modules/, use: 'babel-loader' },
       {
         enforce: 'pre',
-        test: /\.(sql)$/,
+        test: /\.sql$/,
         loader: 'file-loader',
         exclude: /node_modules/,
-        options: {
-          name: '[path][name].[ext]',
-        },
       },
     ],
   },
@@ -60,6 +63,14 @@ const config = {
   },
   devtool: 'source-map',
   externals: [nodeExternals()], // in order to ignore all modules in node_modules folder
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        { from: '../db/zap-schema.sql', to: 'backend/db/' },
+        { from: '../../zcl-builtin', to: 'backend/zcl-builtin' },
+      ],
+    }),
+  ],
 }
 
 module.exports = config

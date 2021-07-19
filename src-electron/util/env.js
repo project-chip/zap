@@ -24,17 +24,23 @@ const zapUrlLog = 'zap.url'
 
 const builtinSilabsZclMetafile = path.join(
   __dirname,
-  '../../zcl-builtin/silabs/zcl.json'
+  process.env.DEV
+    ? '../../zcl-builtin/silabs/zcl.json'
+    : 'backend/zcl-builtin/silabs/zcl.json'
 )
 
 const builtinMatterZclMetafile = path.join(
   __dirname,
-  '../../zcl-builtin/matter/zcl.json'
+  process.env.DEV
+    ? '../../zcl-builtin/matter/zcl.json'
+    : 'backend/zcl-builtin/matter/zcl.json'
 )
 
 const builtinDotdotZclMetafile = path.join(
   __dirname,
-  '../../zcl-builtin/dotdot/library.xml'
+  process.env.DEV
+    ? '../../zcl-builtin/dotdot/library.xml'
+    : 'backend/zcl-builtin/dotdot/library.xml'
 )
 
 const builtinTemplateMetafile = null // No default.
@@ -95,10 +101,16 @@ let applicationStateDirectory = null
 function setDevelopmentEnv() {
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
   httpStaticContent = path.join(__dirname, '../../spa')
+  global.__statics_backend = path
+    .join(__dirname, '../statics')
+    .replace(/\\/g, '\\\\')
 }
 
 function setProductionEnv() {
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
+  global.__statics_backend = path
+    .join(__dirname, '/backend/statics')
+    .replace(/\\/g, '\\\\')
   httpStaticContent = path.join('.').replace(/\\/g, '\\\\')
 }
 
@@ -165,7 +177,10 @@ function iconsDirectory() {
 }
 
 function schemaFile() {
-  return path.join(__dirname, '../db/zap-schema.sql')
+  console.log(__dirname)
+  console.log(global.__statics_backend)
+  console.log(path.join(global.__statics_backend, './../db/zap-schema.sql'))
+  return path.join(global.__statics_backend, '/db/zap-schema.sql')
 }
 
 function sqliteFile(filename = 'zap') {
@@ -398,4 +413,5 @@ exports.environmentVariable = environmentVariable
 exports.builtinSilabsZclMetafile = builtinSilabsZclMetafile
 exports.builtinMatterZclMetafile = builtinMatterZclMetafile
 exports.builtinDotdotZclMetafile = builtinDotdotZclMetafile
+exports.builtinTemplateMetafile = builtinTemplateMetafile
 exports.builtinTemplateMetafile = builtinTemplateMetafile
