@@ -15,7 +15,6 @@
   "homepage": "https://github.com/project-chip/zap",
   "main": "dist/electron-main.js",
   "scripts": {
-    "wp": "webpack -c webpack.main.config.js --progress",
     "lic": "node src-script/license-check.js --production",
     "lint": "eslint --ext .js,.vue src src-electron src-shared src-script test",
     "lintfix": "eslint --fix --ext .js,.vue src src-electron src-shared src-script test",
@@ -27,7 +26,7 @@
     "test:unit:watch": "jest --watch",
     "test:unit:watchAll": "jest --watchAll",
     "postinstall": "electron-builder install-app-deps && husky install",
-    "wpzap": "quasar build && npm run wp && npm run dist-mac",
+    "wpzap": "npm run build-spa && npm run wp && npm run dist-mac",
     "zap": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json",
     "zap-dev": "npm run build-spa && quasar dev -m electron",
     "zap-devserver": "node src-script/zap-start.js server --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
