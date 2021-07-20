@@ -37,6 +37,7 @@ let haCombinedIsc = path.join(
 )
 
 beforeAll(async () => {
+  process.env.DEV = true
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('conversion')
   db = await dbApi.initDatabaseAndLoadSchema(
@@ -44,8 +45,8 @@ beforeAll(async () => {
     env.schemaFile(),
     env.zapVersion()
   )
-  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
-  await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
+  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
+  await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
 }, testUtil.timeout.long())
 
 afterAll(async () => dbApi.closeDatabase(db), testUtil.timeout.short())

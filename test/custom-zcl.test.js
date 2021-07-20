@@ -34,7 +34,7 @@ beforeAll(async () => {
     env.schemaFile(),
     env.zapVersion()
   )
-  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   let userSession = await querySession.ensureZapUserAndSession(
     db,
     'USER',
@@ -42,7 +42,7 @@ beforeAll(async () => {
   )
   sid = userSession.sessionId
   return util.initializeSessionPackage(db, sid, {
-    zcl: env.builtinSilabsZclMetafile,
+    zcl: env.builtinSilabsZclMetafile(),
     template: env.builtinTemplateMetafile,
   })
 }, testUtil.timeout.medium())

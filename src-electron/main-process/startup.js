@@ -448,8 +448,8 @@ async function generateSingleFile(
   index,
   options = {
     logger: console.log,
-    zcl: env.builtinSilabsZclMetafile,
-    template: env.builtinTemplateMetafile,
+    zcl: env.builtinSilabsZclMetafile(),
+    template: env.builtinTemplateMetafile(),
     postImportScript: null,
   }
 ) {

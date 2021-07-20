@@ -65,7 +65,7 @@ test(
 test(
   'Load ZCL stuff',
   () =>
-    zclLoader.loadZcl(db, env.builtinSilabsZclMetafile).then((context) => {
+    zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()).then((context) => {
       zclContext = context
 
       let globalCtx = {

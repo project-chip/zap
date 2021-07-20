@@ -158,7 +158,7 @@ test(
 
 test(
   'Now actually load the static data.',
-  () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
+  () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()),
   testUtil.timeout.medium()
 )
 
@@ -176,7 +176,7 @@ describe('Session specific queries', () => {
         .then((userSession) => {
           sid = userSession.sessionId
           return util.initializeSessionPackage(db, sid, {
-            zcl: env.builtinSilabsZclMetafile,
+            zcl: env.builtinSilabsZclMetafile(),
             template: env.builtinTemplateMetafile,
           })
         }),

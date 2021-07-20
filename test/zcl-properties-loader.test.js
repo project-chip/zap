@@ -33,6 +33,11 @@ const zclTestPropertiesFile = path.join(
   '../zcl-builtin/silabs/zcl-test.properties'
 )
 
+beforeAll(() => {
+  process.env.DEV = true
+  env.setProductionEnv()
+})
+
 test(
   'test Silabs zcl data loading in memory',
   async () => {

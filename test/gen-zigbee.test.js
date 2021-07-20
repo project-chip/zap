@@ -43,7 +43,7 @@ beforeAll(async () => {
     env.schemaFile(),
     env.zapVersion()
   )
-  return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+  return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
 }, testUtil.timeout.medium())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
@@ -96,7 +96,7 @@ test(
       templateContext.db,
       templateContext.sessionId,
       {
-        zcl: env.builtinSilabsZclMetafile,
+        zcl: env.builtinSilabsZclMetafile(),
         template: env.builtinTemplateMetafile,
       }
     )
@@ -526,7 +526,7 @@ test(
     )
 
     await utilJs.initializeSessionPackage(db, sessionId, {
-      zcl: env.builtinSilabsZclMetafile,
+      zcl: env.builtinSilabsZclMetafile(),
       template: env.builtinTemplateMetafile,
     })
 

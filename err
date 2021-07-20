@@ -1,202 +1,1775 @@
-Hash: 3fdd25b84c732acf5747
-Version: webpack 4.44.2
-Time: 11854ms
-Built at: 07/06/2021 5:21:28 PM
-      Asset      Size  Chunks                   Chunk Names
-    main.js  14.5 MiB    main  [emitted]        main
-main.js.map   7.6 MiB    main  [emitted] [dev]  main
-Entrypoint main = main.js main.js.map
-[./apack.json] 2.07 KiB {main} [optional] [built]
-[./node_modules/@babel/runtime/helpers/asyncToGenerator/index.js] 887 bytes {main} [built]
-[./node_modules/core-js/internals/add-to-unscopables.js] 666 bytes {main} [built]
-[./node_modules/core-js/internals/array-includes.js] 1.26 KiB {main} [built]
-[./node_modules/core-js/internals/correct-is-regexp-logic.js] 366 bytes {main} [built]
-[./node_modules/core-js/internals/export.js] 2.46 KiB {main} [built]
-[./node_modules/core-js/internals/not-a-regexp.js] 194 bytes {main} [built]
-[./node_modules/core-js/modules/es.array.includes.js] 559 bytes {main} [built]
-[./node_modules/core-js/modules/es.string.includes.js] 660 bytes {main} [built]
-[./src-electron/main-process/electron-main.js] 2.88 KiB {main} [built]
-[./src-electron/main-process/startup.js] 32 KiB {main} [built]
-[./src-electron/ui/window.js] 4.55 KiB {main} [built]
-[./src-electron/util/args.js] 6.81 KiB {main} [built]
-[./src-electron/util/env.js] 11.2 KiB {main} [built]
-[electron] external "electron" 42 bytes {main} [built]
-    + 2036 hidden modules
 
-WARNING in ./src-electron/zcl/zcl-loader.js 274:21-43
-Critical dependency: the request of a dependency is an expression
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
+> zap@0.99.6 test
+> node src-script/zap-versionstamp.js && jest --reporters=jest-junit --reporters=default --updateSnapshot
 
-WARNING in ./src-electron/util/script.js 49:27-48
-Critical dependency: the request of a dependency is an expression
- @ ./src-electron/importexport/import.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
+🚀 Executing: git log -1 --format={"hash": "%H","timestamp": %ct}
+🔍 Git commit: 5be6c2e9c25350e7c391a479b63ef7150cd09942 from Tue Jul 20 2021 16:11:53 GMT-0400 (Eastern Daylight Time)
+😎 All done: 0s, 40ms.
+{"level":50,"time":1626820400250,"pid":15077,"hostname":"mac0016464","name":"zap","msg":{"errno":-2,"code":"ENOENT","syscall":"open","path":"/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json"}}
+{"level":50,"time":1626820400284,"pid":15077,"hostname":"mac0016464","name":"zap","msg":{"errno":-2,"code":"ENOENT","syscall":"open","path":"/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json"}}
+{"level":50,"time":1626820400315,"pid":15075,"hostname":"mac0016464","name":"zap","msg":{"errno":-2,"code":"ENOENT","syscall":"open","path":"/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json"}}
+{"level":50,"time":1626820400325,"pid":15075,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+{"level":30,"time":1626820400326,"pid":15075,"hostname":"mac0016464","name":"zap","msg":"No generation template metafile found for session."}
+{"level":30,"time":1626820400326,"pid":15079,"hostname":"mac0016464","name":"zap","msg":"Test database initialized: /Users/jiteng/repo/zap/test/.zap/test-script-api.sqlite."}
+{"level":50,"time":1626820400328,"pid":15079,"hostname":"mac0016464","name":"zap","msg":{"errno":-2,"code":"ENOENT","syscall":"open","path":"/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json"}}
+{"level":50,"time":1626820400329,"pid":15079,"hostname":"mac0016464","name":"zap","msg":"Error: Error: ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'"}
+FAIL test/zcl-properties-loader.test.js
+  ● test Silabs zcl data loading in memory
 
-WARNING in ./src-electron/generator/template-engine.js 154:20-41
-Critical dependency: the request of a dependency is an expression
- @ ./src-electron/generator/generation-engine.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
+    TypeError: The "path" argument must be of type string. Received undefinedTypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
 
-WARNING in ./src-electron/generator/template-engine.js 214:16-29
-Critical dependency: the request of a dependency is an expression
- @ ./src-electron/generator/generation-engine.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
+      182 |
+      183 | function schemaFile() {
+    > 184 |   return path.join(global.__backend, '/db/zap-schema.sql')
+          |               ^
+      185 | }
+      186 |
+      187 | function sqliteFile(filename = 'zap') {
 
-WARNING in ./src-electron/generator/template-engine.js 237:12-25
-Critical dependency: the request of a dependency is an expression
- @ ./src-electron/generator/generation-engine.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
+      at Object.schemaFile (src-electron/util/env.js:184:15)
+      at _callee$ (test/zcl-properties-loader.test.js:41:38)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
 
-WARNING in ./node_modules/yargs/build/lib/utils/apply-extends.js 14:32-63
-Critical dependency: the request of a dependency is an expression
- @ ./node_modules/yargs/build/lib/yargs-factory.js
- @ ./node_modules/yargs/index.mjs
- @ ./src-electron/util/args.js
- @ ./src-electron/main-process/electron-main.js
+FAIL test/zcl-loader-consecutive.test.js
+  ● that that parallel loading of zcl and dotdot and matter is possible
 
-WARNING in ./node_modules/yargs/build/lib/utils/apply-extends.js 27:14-37
-Critical dependency: the request of a dependency is an expression
- @ ./node_modules/yargs/build/lib/yargs-factory.js
- @ ./node_modules/yargs/index.mjs
- @ ./src-electron/util/args.js
- @ ./src-electron/main-process/electron-main.js
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
 
-WARNING in ./node_modules/sqlite3/lib/sqlite3-binding.js 4:14-35
-Critical dependency: the request of a dependency is an expression
- @ ./node_modules/sqlite3/lib/sqlite3.js
- @ ./src-electron/db/db-api.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
 
-WARNING in ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/pre-binding.js 20:22-48
-Critical dependency: the request of a dependency is an expression
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/node-pre-gyp.js
- @ ./node_modules/sqlite3/lib/sqlite3-binding.js
- @ ./node_modules/sqlite3/lib/sqlite3.js
- @ ./src-electron/db/db-api.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
 
-WARNING in ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/util/versioning.js 17:20-67
-Critical dependency: the request of a dependency is an expression
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib sync ^\.\/.*$
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/node-pre-gyp.js
- @ ./node_modules/sqlite3/lib/sqlite3-binding.js
- @ ./node_modules/sqlite3/lib/sqlite3.js
- @ ./src-electron/db/db-api.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
+  ● test that consecutive loading of metafiles properly avoids duplication
 
-WARNING in ./node_modules/express/lib/view.js 81:13-25
-Critical dependency: the request of a dependency is an expression
- @ ./node_modules/express/lib/application.js
- @ ./node_modules/express/lib/express.js
- @ ./node_modules/express/index.js
- @ ./src-electron/server/http-server.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
 
-WARNING in ./src-electron/util/env.js
-Module not found: Error: Can't resolve '../../.version.json' in '/Users/jiteng/repo/zap/src-electron/util'
- @ ./src-electron/util/env.js
- @ ./src-electron/main-process/electron-main.js
 
-WARNING in ./node_modules/bytebuffer/dist/bytebuffer-node.js
-Module not found: Error: Can't resolve 'memcpy' in '/Users/jiteng/repo/zap/node_modules/bytebuffer/dist'
- @ ./node_modules/bytebuffer/dist/bytebuffer-node.js
- @ ./src-electron/util/bin.js
- @ ./src-electron/zcl/zcl-loader-silabs.js
- @ ./src-electron/zcl/zcl-loader.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
 
-WARNING in ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/util/compile.js
-Module not found: Error: Can't resolve 'npm' in '/Users/jiteng/repo/zap/node_modules/sqlite3/node_modules/node-pre-gyp/lib/util'
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/util/compile.js
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/build.js
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib sync ^\.\/.*$
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/node-pre-gyp.js
- @ ./node_modules/sqlite3/lib/sqlite3-binding.js
- @ ./node_modules/sqlite3/lib/sqlite3.js
- @ ./src-electron/db/db-api.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
+FAIL test/script-api.test.js
+  ● sleepy-generic.zap - import
 
-WARNING in ./node_modules/pino/lib/tools.js
-Module not found: Error: Can't resolve 'pino-pretty' in '/Users/jiteng/repo/zap/node_modules/pino/lib'
- @ ./node_modules/pino/lib/tools.js
- @ ./node_modules/pino/pino.js
- @ ./src-electron/util/env.js
- @ ./src-electron/main-process/electron-main.js
+    No packages of type zcl-properties found in the database.
 
-WARNING in ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/util/nw-pre-gyp/index.html 1:0
-Module parse failed: Unexpected token (1:0)
-You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
-> <!doctype html>
-| <html>
-| <head>
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib sync ^\.\/.*$ ./util/nw-pre-gyp/index.html
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/node-pre-gyp.js
- @ ./node_modules/sqlite3/lib/sqlite3-binding.js
- @ ./node_modules/sqlite3/lib/sqlite3.js
- @ ./src-electron/db/db-api.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
+      86 |       return null
+      87 |     } else {
+    > 88 |       throw new Error(`No packages of type ${pkg.type} found in the database.`)
+         |             ^
+      89 |     }
+      90 |   } else if (packages.length == 1) {
+      91 |     env.logDebug(
 
-WARNING in ./node_modules/sqlite3/node_modules/node-gyp/lib/Find-VS2017.cs 7:6
-Module parse failed: Unexpected token (7:6)
-You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
-| // Usage:
-| // powershell -ExecutionPolicy Unrestricted -Version "2.0" -Command "&{Add-Type -Path Find-VS2017.cs; [VisualStudioConfiguration.Main]::Query()}"
-> using System;
-| using System.Text;
-| using System.Runtime.InteropServices;
- @ ./node_modules/sqlite3/node_modules/node-gyp/lib sync ^\.\/.*$ ./Find-VS2017.cs
- @ ./node_modules/sqlite3/node_modules/node-gyp/lib/node-gyp.js
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/util/compile.js
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/build.js
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib sync ^\.\/.*$
- @ ./node_modules/sqlite3/node_modules/node-pre-gyp/lib/node-pre-gyp.js
- @ ./node_modules/sqlite3/lib/sqlite3-binding.js
- @ ./node_modules/sqlite3/lib/sqlite3.js
- @ ./src-electron/db/db-api.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
+      at _callee2$ (src-electron/importexport/import-json.js:88:13)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
 
-WARNING in ./node_modules/handlebars/lib/index.js 22:38-56
-require.extensions is not supported by webpack. Use a loader instead.
- @ ./src-electron/generator/template-engine.js 39:36-57
- @ ./src-electron/generator/generation-engine.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
+FAIL test/conversion.test.js
+  ● ha-light.isc - conversion
 
-WARNING in ./node_modules/handlebars/lib/index.js 23:2-20
-require.extensions is not supported by webpack. Use a loader instead.
- @ ./src-electron/generator/template-engine.js 39:36-57
- @ ./src-electron/generator/generation-engine.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
 
-WARNING in ./node_modules/handlebars/lib/index.js 24:2-20
-require.extensions is not supported by webpack. Use a loader instead.
- @ ./src-electron/generator/template-engine.js 39:36-57
- @ ./src-electron/generator/generation-engine.js
- @ ./src-electron/main-process/startup.js
- @ ./src-electron/main-process/electron-main.js
 
-ERROR in ./node_modules/yargs/lib/platform-shims/esm.mjs 18:41
-Module parse failed: Unexpected token (18:41)
-You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
-| const REQUIRE_DIRECTORY_ERROR = 'loading a directory of commands is not supported yet for ESM'
-| 
-> const mainFilename = fileURLToPath(import.meta.url).split('node_modules')[0]
-| const __dirname = fileURLToPath(import.meta.url)
-| 
- @ ./node_modules/yargs/index.mjs 4:0-59 7:28-43
- @ ./src-electron/util/args.js
- @ ./src-electron/main-process/electron-main.js
+
+  ● ha-combined-interface.isc - conversion
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● ha-combined-interface.isc - conversion
+
+    No zcl packages found for ISC import.
+
+      515 |
+      516 |   if (zclPackages.length == 0) {
+    > 517 |     throw new Error('No zcl packages found for ISC import.')
+          |           ^
+      518 |   }
+      519 |
+      520 |   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+
+      at _callee6$ (src-electron/importexport/import-isc.js:517:11)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+{"level":30,"time":1626820400752,"pid":15076,"hostname":"mac0016464","name":"zap","msg":"Test database initialized: /Users/jiteng/repo/zap/test/.zap/test-importexport.sqlite."}
+{"level":50,"time":1626820400758,"pid":15076,"hostname":"mac0016464","name":"zap","msg":{"errno":-2,"code":"ENOENT","syscall":"open","path":"/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json"}}
+{"level":50,"time":1626820400759,"pid":15076,"hostname":"mac0016464","name":"zap","msg":"Error: Error: ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'"}
+{"level":50,"time":1626820400915,"pid":15076,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+{"level":50,"time":1626820400950,"pid":15076,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+{"level":50,"time":1626820400959,"pid":15076,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+{"level":50,"time":1626820400964,"pid":15076,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+{"level":50,"time":1626820400971,"pid":15076,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+FAIL test/importexport.test.js
+  ● save-file-1.zap - import
+
+    No packages of type zcl-properties found in the database.
+
+      86 |       return null
+      87 |     } else {
+    > 88 |       throw new Error(`No packages of type ${pkg.type} found in the database.`)
+         |             ^
+      89 |     }
+      90 |   } else if (packages.length == 1) {
+      91 |     env.logDebug(
+
+      at _callee2$ (src-electron/importexport/import-json.js:88:13)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● save-file-2.zap - import
+
+    No packages of type zcl-properties found in the database.
+
+      86 |       return null
+      87 |     } else {
+    > 88 |       throw new Error(`No packages of type ${pkg.type} found in the database.`)
+         |             ^
+      89 |     }
+      90 |   } else if (packages.length == 1) {
+      91 |     env.logDebug(
+
+      at _callee2$ (src-electron/importexport/import-json.js:88:13)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● sleepy-generic.zap - import
+
+    No packages of type zcl-properties found in the database.
+
+      86 |       return null
+      87 |     } else {
+    > 88 |       throw new Error(`No packages of type ${pkg.type} found in the database.`)
+         |             ^
+      89 |     }
+      90 |   } else if (packages.length == 1) {
+      91 |     env.logDebug(
+
+      at _callee2$ (src-electron/importexport/import-json.js:88:13)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● sleepy-generic.isc - import
+
+    No zcl packages found for ISC import.
+
+      515 |
+      516 |   if (zclPackages.length == 0) {
+    > 517 |     throw new Error('No zcl packages found for ISC import.')
+          |           ^
+      518 |   }
+      519 |
+      520 |   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+
+      at _callee6$ (src-electron/importexport/import-isc.js:517:11)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● test-light.isc - import
+
+    No zcl packages found for ISC import.
+
+      515 |
+      516 |   if (zclPackages.length == 0) {
+    > 517 |     throw new Error('No zcl packages found for ISC import.')
+          |           ^
+      518 |   }
+      519 |
+      520 |   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+
+      at _callee6$ (src-electron/importexport/import-isc.js:517:11)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● ha-door-lock.isc - import
+
+    No zcl packages found for ISC import.
+
+      515 |
+      516 |   if (zclPackages.length == 0) {
+    > 517 |     throw new Error('No zcl packages found for ISC import.')
+          |           ^
+      518 |   }
+      519 |
+      520 |   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+
+      at _callee6$ (src-electron/importexport/import-isc.js:517:11)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● ha-light.isc - import
+
+    No zcl packages found for ISC import.
+
+      515 |
+      516 |   if (zclPackages.length == 0) {
+    > 517 |     throw new Error('No zcl packages found for ISC import.')
+          |           ^
+      518 |   }
+      519 |
+      520 |   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+
+      at _callee6$ (src-electron/importexport/import-isc.js:517:11)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● ha-combined-interface.isc - import
+
+    No zcl packages found for ISC import.
+
+      515 |
+      516 |   if (zclPackages.length == 0) {
+    > 517 |     throw new Error('No zcl packages found for ISC import.')
+          |           ^
+      518 |   }
+      519 |
+      520 |   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+
+      at _callee6$ (src-electron/importexport/import-isc.js:517:11)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+{"level":50,"time":1626820401370,"pid":15074,"hostname":"mac0016464","name":"zap","msg":{"errno":-2,"code":"ENOENT","syscall":"open","path":"/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json"}}
+PASS test/templates.test.js
+FAIL test/server-session.test.js
+  ● get index.html
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● get index.html
+
+    connect ECONNREFUSED 127.0.0.1:9076
+
+
+
+{"level":50,"time":1626820401624,"pid":15073,"hostname":"mac0016464","name":"zap","msg":{"errno":-2,"code":"ENOENT","syscall":"open","path":"/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json"}}
+FAIL test/startup.test.js
+  ● startup: start generation
+
+    TypeError: The "path" argument must be of type string. Received undefinedTypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+
+      182 |
+      183 | function schemaFile() {
+    > 184 |   return path.join(global.__backend, '/db/zap-schema.sql')
+          |               ^
+      185 | }
+      186 |
+      187 | function sqliteFile(filename = 'zap') {
+
+      at Object.schemaFile (src-electron/util/env.js:184:15)
+      at _callee8$ (src-electron/main-process/startup.js:526:9)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:32:7
+
+  ● startup: self-check
+
+    TypeError: The "path" argument must be of type string. Received undefinedTypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+
+      182 |
+      183 | function schemaFile() {
+    > 184 |   return path.join(global.__backend, '/db/zap-schema.sql')
+          |               ^
+      185 | }
+      186 |
+      187 | function sqliteFile(filename = 'zap') {
+
+      at Object.schemaFile (src-electron/util/env.js:184:15)
+      at _callee6$ (src-electron/main-process/startup.js:411:44)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:32:7
+
+  ● startup: convert
+
+    TypeError: The "path" argument must be of type string. Received undefinedTypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+
+      182 |
+      183 | function schemaFile() {
+    > 184 |   return path.join(global.__backend, '/db/zap-schema.sql')
+          |               ^
+      185 | }
+      186 |
+      187 | function sqliteFile(filename = 'zap') {
+
+      at Object.schemaFile (src-electron/util/env.js:184:15)
+      at _callee2$ (src-electron/main-process/startup.js:227:9)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:32:7
+
+  ● startup: analyze
+
+    TypeError: The "path" argument must be of type string. Received undefinedTypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+
+      182 |
+      183 | function schemaFile() {
+    > 184 |   return path.join(global.__backend, '/db/zap-schema.sql')
+          |               ^
+      185 | }
+      186 |
+      187 | function sqliteFile(filename = 'zap') {
+
+      at Object.schemaFile (src-electron/util/env.js:184:15)
+      at _callee3$ (src-electron/main-process/startup.js:309:44)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:32:7
+
+PASS test/helper-api.test.js
+PASS test/mixin.test.js
+{"level":30,"time":1626820401730,"pid":15082,"hostname":"mac0016464","name":"zap","msg":"Info log test."}
+{"level":40,"time":1626820401730,"pid":15082,"hostname":"mac0016464","name":"zap","msg":"Warn log test."}
+{"level":50,"time":1626820401730,"pid":15082,"hostname":"mac0016464","name":"zap","msg":"Error log test."}
+PASS test/env.test.js
+FAIL test/server-with-zcl.test.js
+  ● get index.html
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● get index.html
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › test manufacturer codes
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › test manufacturer codes
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › load a file
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › load a file
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › session key values existence test
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › session key values existence test
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › add session key value test
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › add session key value test
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › all clusters
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › all clusters
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › all device types
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › all device types
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › all domains
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › all domains
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › all bitmaps
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › all bitmaps
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › all enums
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › all enums
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › all structs
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › all structs
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+PASS test/bin.test.js
+PASS test/mapping.test.js
+PASS test/mutations.test.js
+PASS test/rendererapi.test.js
+FAIL test/electron.test.js
+  ● Test suite failed to run
+
+    Cannot find module '../src-electron/main-process/electron-main.js' from 'test/electron.test.js'
+
+      19 |  */
+      20 |
+    > 21 | const electronMain = require('../src-electron/main-process/electron-main.js')
+         |                      ^
+      22 | const window = require('../src-electron/ui/window.js')
+      23 | const { timeout } = require('./test-util.js')
+      24 |
+
+      at Resolver.resolveModule (node_modules/jest-resolve/build/index.js:306:11)
+      at Object.<anonymous> (test/electron.test.js:21:22)
+
+PASS test/string.test.js
+FAIL test/gen-matter.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+{"level":50,"time":1626820402311,"pid":15078,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+{"level":30,"time":1626820402312,"pid":15078,"hostname":"mac0016464","name":"zap","msg":"No generation template metafile found for session."}
+{"level":30,"time":1626820402346,"pid":15078,"hostname":"mac0016464","name":"zap","msg":"Exporting data for session: 1"}
+{"level":30,"time":1626820402402,"pid":15075,"hostname":"mac0016464","name":"zap","msg":"Can not read templates from: /Users/jiteng/repo/zap/test/gen-template/matter/gen-test.json"}
+FAIL test/arg.test.js
+  ● Test suite failed to run
+
+    Cannot find module '../src-electron/util/args.js' from 'test/arg.test.js'
+
+      20 |
+      21 | const yargs = require('yargs')
+    > 22 | const args = require('../src-electron/util/args.js')
+         |              ^
+      23 | const { timeout } = require('./test-util.js')
+      24 |
+      25 | function x(arg = 'blah') {
+
+      at Resolver.resolveModule (node_modules/jest-resolve/build/index.js:306:11)
+      at Object.<anonymous> (test/arg.test.js:22:14)
+
+PASS test/ipc.test.js
+PASS test/server-bare.test.js
+{"level":50,"time":1626820402741,"pid":15073,"hostname":"mac0016464","name":"zap","msg":{"errno":-2,"code":"ENOENT","syscall":"open","path":"/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json"}}
+{"level":30,"time":1626820402795,"pid":15072,"hostname":"mac0016464","name":"zap","msg":"Can not read templates from: /Users/jiteng/repo/zap/test/gen-template/dotdot/dotdot-templates.json"}
+{"level":30,"time":1626820402814,"pid":15082,"hostname":"mac0016464","name":"zap","msg":"Can not read templates from: /Users/jiteng/repo/zap/test/gen-template/zigbee/gen-templates.json"}
+{"level":50,"time":1626820402892,"pid":15073,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+{"level":50,"time":1626820402913,"pid":15073,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+{"level":50,"time":1626820402957,"pid":15073,"hostname":"mac0016464","name":"zap","msg":{"error":"Could not create session: The \"path\" argument must be of type string. Received function builtinTemplateMetafile","errorMessage":{"code":"ERR_INVALID_ARG_TYPE"}}}
+{"level":50,"time":1626820402957,"pid":15073,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+{"level":30,"time":1626820402969,"pid":15075,"hostname":"mac0016464","name":"zap","msg":"Can not read templates from: /Users/jiteng/repo/zap/test/gen-template/zigbee/gen-templates.json"}
+FAIL test/validation.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/custom-zcl.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+{"level":30,"time":1626820403282,"pid":15079,"hostname":"mac0016464","name":"zap","msg":"Can not read templates from: /Users/jiteng/repo/zap/test/gen-template/zigbee/gen-templates.json"}
+{"level":30,"time":1626820403333,"pid":15081,"hostname":"mac0016464","name":"zap","msg":"Can not read templates from: /Users/jiteng/repo/zap/test/gen-template/test/gen-test.json"}
+{"level":30,"time":1626820403392,"pid":15078,"hostname":"mac0016464","name":"zap","msg":"Can not read templates from: /Users/jiteng/repo/zap/test/gen-template/zigbee/gen-templates.json"}
+PASS test/frontend.test.js
+PASS test/ui.test.js
+{"level":50,"time":1626820403534,"pid":15077,"hostname":"mac0016464","name":"zap","msg":{"errno":-2,"code":"ENOENT","syscall":"open","path":"/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/dotdot/library.xml"}}
+{"level":50,"time":1626820403943,"pid":15073,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+{"level":50,"time":1626820403944,"pid":15073,"hostname":"mac0016464","name":"zap","msg":{"error":"Could not create session: The \"path\" argument must be of type string. Received function builtinTemplateMetafile","errorMessage":{"code":"ERR_INVALID_ARG_TYPE"}}}
+{"level":40,"time":1626820404092,"pid":15080,"hostname":"mac0016464","name":"zap","msg":"Found Non Unique Bitmap in Silabs XML: ShadeClosureStatus BITMAP8 2"}
+{"level":40,"time":1626820404093,"pid":15080,"hostname":"mac0016464","name":"zap","msg":"Found Non Unique Bitmap in Silabs XML: ShadeClosureStatus BITMAP8 2"}
+{"level":50,"time":1626820404944,"pid":15073,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+{"level":50,"time":1626820404945,"pid":15073,"hostname":"mac0016464","name":"zap","msg":{"error":"Could not create session: The \"path\" argument must be of type string. Received function builtinTemplateMetafile","errorMessage":{"code":"ERR_INVALID_ARG_TYPE"}}}
+{"level":50,"time":1626820405948,"pid":15073,"hostname":"mac0016464","name":"zap","msg":"No zcl.properties found for session."}
+{"level":50,"time":1626820405948,"pid":15073,"hostname":"mac0016464","name":"zap","msg":{"error":"Could not create session: The \"path\" argument must be of type string. Received function builtinTemplateMetafile","errorMessage":{"code":"ERR_INVALID_ARG_TYPE"}}}
+FAIL test/gen-dotdot.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/tokens.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/query.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+{"level":30,"time":1626820408128,"pid":15076,"hostname":"mac0016464","name":"zap","msg":"Can not read templates from: /Users/jiteng/repo/zap/test/gen-template/zigbee/gen-templates.json"}
+FAIL test/gen-zigbee.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/helpers.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+{"level":40,"time":1626820409134,"pid":15080,"hostname":"mac0016464","name":"zap","msg":"Attempting to insert cluster extension, but the cluster was not found: 0"}
+PASS test/zcl-loader.test.js (12.412 s)
+FAIL test/generation.test.js
+  ● Test suite failed to run
+
+    Timeout - Async callback was not invoked within the 5000 ms timeout specified by jest.setTimeout.Error: Timeout - Async callback was not invoked within the 5000 ms timeout specified by jest.setTimeout.
+
+      at mapper (node_modules/jest-jasmine2/build/queueRunner.js:27:45)
+
+FAIL test/endpoint-config.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/gen-test.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks.
+-----------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------
+File                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                 
+-----------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------
+All files                          |   42.04 |    26.69 |   29.75 |   42.33 |                                                                                                                   
+ src                               |       0 |        0 |       0 |       0 |                                                                                                                   
+  App.vue                          |       0 |        0 |       0 |       0 | 25-119                                                                                                            
+ src-electron/client               |   89.47 |      100 |   83.33 |   89.47 |                                                                                                                   
+  ipc-client.js                    |   89.47 |      100 |   83.33 |   89.47 | 48-49,54-55                                                                                                       
+ src-electron/db                   |   58.46 |    47.07 |   46.67 |   58.07 |                                                                                                                   
+  db-api.js                        |   73.33 |       50 |   91.67 |   76.47 | 35-36,48-50,97-98,116-124,143-144,166-167,189-190,214-215,266,274,339-342,355,375,407-413,436-438,464-465,468-471 
+  db-mapping.js                    |     100 |      100 |     100 |     100 |                                                                                                                   
+  query-attribute.js               |   15.28 |        0 |       0 |   15.28 | 27-845                                                                                                            
+  query-command.js                 |   30.77 |        0 |    9.62 |   32.18 | 37-356,383-499,621-868                                                                                            
+  query-config.js                  |   12.57 |        0 |       0 |   12.97 | 52-1007                                                                                                           
+  query-endpoint-type.js           |   24.59 |      100 |    3.03 |   26.79 | 34,75-516                                                                                                         
+  query-endpoint.js                |      50 |      100 |      10 |      50 | 64-309                                                                                                            
+  query-event.js                   |   42.86 |      100 |       0 |   42.86 | 34-138                                                                                                            
+  query-impexp.js                  |   44.23 |        0 |      28 |   46.94 | 33,74,78,126,173,237-526                                                                                          
+  query-loader.js                  |     100 |    90.79 |     100 |     100 | 246,286-291,656-697,825-849                                                                                       
+  query-package.js                 |   69.23 |    42.31 |   63.27 |   68.63 | 54-60,128-134,164-170,233-248,282,327-356,411-435,519,663-714                                                     
+  query-session.js                 |    71.6 |    52.38 |   65.22 |   71.25 | 67-75,115-138,323-327,378-422,441                                                                                 
+  query-zcl.js                     |   52.32 |     5.26 |   34.67 |   53.74 | 45-76,103-133,158,181-220,255-274,313,352-516,609-746,777,821-838,955-970,1007,1022-1172                          
+ src-electron/generator            |   20.05 |      3.4 |    3.54 |   20.59 |                                                                                                                   
+  generation-engine.js             |   39.53 |    24.27 |   31.37 |   40.16 | 51,80,211-213,269,293,331,338,353,381-383,388-390,403-404,427-835                                                 
+  helper-attribute.js              |      44 |        0 |       0 |   45.83 | 29-72                                                                                                             
+  helper-c.js                      |   35.46 |        0 |       4 |   36.23 | 39-40,62-347                                                                                                      
+  helper-endpointconfig.js         |    11.3 |        0 |       0 |   11.75 | 32-758                                                                                                            
+  helper-sdkextension.js           |   11.49 |        0 |       0 |   13.89 | 37-220                                                                                                            
+  helper-session.js                |   21.89 |        0 |       0 |   22.37 | 41-944                                                                                                            
+  helper-tokens.js                 |   14.29 |        0 |       0 |   14.29 | 29-232                                                                                                            
+  helper-zap.js                    |    27.5 |        0 |       0 |   28.21 | 33-373                                                                                                            
+  helper-zcl.js                    |   11.94 |        0 |       0 |   12.17 | 40-2583                                                                                                           
+  overridable.js                   |       0 |        0 |       0 |       0 | 26-99                                                                                                             
+  template-engine.js               |   31.25 |     6.67 |    12.5 |   31.75 | 52-177,199,211-217                                                                                                
+  template-util.js                 |   25.41 |    15.22 |    4.76 |      25 | 36-304,317,319,321,323-324,328-331,334-343                                                                        
+ src-electron/ide-integration      |   27.61 |        5 |    4.35 |   26.92 |                                                                                                                   
+  studio-rest-api.js               |   29.09 |     5.88 |    5.26 |   28.04 | 44-207,224,228,241-306                                                                                            
+  zcl.js                           |   20.83 |        0 |       0 |   21.74 | 39-90                                                                                                             
+ src-electron/importexport         |   65.38 |       60 |   56.52 |   66.34 |                                                                                                                   
+  export.js                        |   74.03 |    45.45 |   69.57 |   78.08 | 31-53,69,76,79,98-101,169                                                                                         
+  import-isc.js                    |   63.96 |    66.86 |    37.5 |   63.93 | 170-171,190,192,202,204,230-231,239-240,307,314-316,320,337-491,520-603                                           
+  import-json.js                   |   59.23 |    37.04 |   62.07 |    60.8 | 101-149,168-171,202-204,211-272,300-301,344,370,380                                                               
+  import.js                        |   83.33 |    81.82 |      75 |   83.33 | 54-65,103-107                                                                                                     
+ src-electron/main-process         |   19.94 |     4.17 |    6.85 |   20.51 |                                                                                                                   
+  about.js                         |   27.78 |        0 |       0 |   27.78 | 25-61                                                                                                             
+  electron-main.dev.js             |       0 |        0 |       0 |       0 | 25-51                                                                                                             
+  preference.js                    |   27.78 |        0 |       0 |   27.78 | 25-61                                                                                                             
+  startup.js                       |   18.83 |     3.95 |    6.67 |    19.4 | 58-170,181-202,230-281,304-305,311-387,406-407,413-489,530-705                                                    
+  watchdog.js                      |   57.14 |       50 |      50 |   66.67 | 27-28                                                                                                             
+ src-electron/rest                 |   39.39 |       10 |   39.13 |   39.39 |                                                                                                                   
+  admin.js                         |   92.86 |       50 |   83.33 |   92.86 | 59                                                                                                                
+  endpoint.js                      |   29.79 |      100 |   26.09 |   29.79 | 37-43,56-62,82-108,120-142,156-167,179-196                                                                        
+  file-ops.js                      |   25.53 |        0 |   18.18 |   25.53 | 42-90,103-139                                                                                                     
+  generation.js                    |   34.48 |        0 |   28.57 |   34.48 | 37-47,61-64,76-79,91-113                                                                                          
+  static-zcl.js                    |   53.97 |    19.23 |   79.17 |   53.97 | 41,121-164,201-233                                                                                                
+  uc-api-handler.js                |   40.91 |        0 |      25 |   40.91 | 31-60,71,76-83                                                                                                    
+  user-data.js                     |   35.19 |        0 |   31.25 |   35.19 | 44-48,61-74,87-127,146-188,211-244,296-304,314-318,328-348,355-364                                                
+ src-electron/server               |   67.23 |       56 |   54.93 |   67.67 |                                                                                                                   
+  http-server.js                   |   85.45 |    78.13 |   82.76 |   85.05 | 118-129,156-162,168,215-220,267                                                                                   
+  ipc-server.js                    |   63.51 |       50 |   48.15 |   64.38 | 65-129,192,199,242                                                                                                
+  ws-server.js                     |   35.19 |        0 |   13.33 |   36.54 | 47-76,81-82,87-148                                                                                                
+ src-electron/ui                   |   28.77 |    10.26 |    3.13 |   28.77 |                                                                                                                   
+  browser-api.js                   |   42.11 |     38.1 |   16.67 |   42.31 | 32-131,169-174                                                                                                    
+  menu.js                          |   16.92 |        0 |       0 |   17.19 | 37-356                                                                                                            
+  tray.js                          |   27.27 |        0 |       0 |   27.27 | 27-63                                                                                                             
+  ui-util.js                       |   28.57 |        0 |       0 |   28.57 | 29-97                                                                                                             
+  window.js                        |   29.79 |        0 |       0 |   30.43 | 41-138                                                                                                            
+ src-electron/util                 |   61.67 |    44.03 |   54.62 |   62.94 |                                                                                                                   
+  bin.js                           |   94.81 |    94.74 |     100 |   95.71 | 204-206                                                                                                           
+  env.js                           |   75.68 |    63.64 |   77.42 |   78.01 | 53,116-118,129-157,169-170,194,222-223,230-231,240,247,370-373,381-384                                            
+  script-api.js                    |   52.94 |      100 |       0 |   52.94 | 32-112                                                                                                            
+  script.js                        |      50 |        0 |       0 |      50 | 33-36                                                                                                             
+  string.js                        |   94.12 |    88.89 |      80 |   95.31 | 49-52                                                                                                             
+  types.js                         |   28.81 |        8 |      25 |   28.81 | 55-183                                                                                                            
+  util.js                          |   44.67 |     32.2 |   43.75 |   44.44 | 66-67,74-79,84,103-117,137-143,202-343,369,375,418-493                                                            
+  zcl-util.js                      |   11.54 |        0 |       0 |   18.75 | 32-69                                                                                                             
+ src-electron/validation           |   22.08 |        0 |       0 |   23.29 |                                                                                                                   
+  validation.js                    |   22.08 |        0 |       0 |   23.29 | 30-166                                                                                                            
+ src-electron/zcl                  |   82.16 |    68.97 |   87.02 |   83.38 |                                                                                                                   
+  zcl-loader-dotdot.js             |   96.36 |    89.83 |   97.37 |   97.11 | 87,104,185,633-634,668-669                                                                                        
+  zcl-loader-silabs.js             |    79.9 |    62.14 |   86.75 |   81.68 | 46-47,99-155,176,303,370,408,455,769,872-873,925-945,983,1011-1013,1052-1062,1067,1116-1151,1208,1228             
+  zcl-loader.js                    |      48 |       25 |      50 |      48 | 30,73,77-162,212-225                                                                                              
+ src-shared                        |    97.5 |        0 |       0 |    97.5 |                                                                                                                   
+  common-url.js                    |     100 |      100 |     100 |     100 |                                                                                                                   
+  db-enum.js                       |     100 |      100 |     100 |     100 |                                                                                                                   
+  rend-api.js                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  rest-api.js                      |   92.86 |        0 |       0 |   92.86 | 62                                                                                                                
+ src/api                           |      20 |        0 |    12.5 |   20.59 |                                                                                                                   
+  renderer_api.js                  |      20 |        0 |    12.5 |   20.59 | 48-115                                                                                                            
+ src/boot                          |    27.1 |     4.76 |    3.03 |    29.9 |                                                                                                                   
+  axios.js                         |      20 |     3.45 |       0 |   22.92 | 40-166                                                                                                            
+  globalapi.js                     |       0 |      100 |     100 |       0 | 31-45                                                                                                             
+  ws.js                            |   36.73 |     7.69 |    6.67 |   39.13 | 36-74,90-93,99-100,104,108,112,116-129,133-135,139                                                                
+ src/components                    |   25.71 |     9.66 |    24.4 |   25.71 |                                                                                                                   
+  SqlQuery.vue                     |    8.33 |        0 |       0 |    8.33 | 36-52                                                                                                             
+  UcComponentSetup.vue             |   35.29 |        0 |   42.86 |   35.29 | 64-82                                                                                                             
+  ZclAttributeManager.vue          |    8.11 |        0 |    8.33 |    8.11 | 222-341                                                                                                           
+  ZclAttributeReportingManager.vue |      16 |        0 |      20 |      16 | 174-176,187-212,272-301                                                                                           
+  ZclClusterManager.vue            |   26.09 |        0 |   21.05 |   26.09 | 105-127,148-186                                                                                                   
+  ZclClusterView.vue               |   91.67 |    66.67 |      80 |   91.67 | 120                                                                                                               
+  ZclCommandManager.vue            |   29.41 |        0 |   22.22 |   29.41 | 129-182                                                                                                           
+  ZclCreateModifyEndpoint.vue      |   14.29 |      3.7 |      10 |   14.29 | 124-139,162-191,199-207,213-373                                                                                   
+  ZclCustomZclView.vue             |   26.09 |     12.5 |   22.22 |   26.09 | 93-119,124-130                                                                                                    
+  ZclDomainClusterView.vue         |   16.98 |    16.67 |   13.04 |   16.98 | 143-148,158,160-161,168-251,271-311                                                                               
+  ZclEndpointCard.vue              |   47.83 |        0 |   53.33 |   47.83 | 156-175,207,217                                                                                                   
+  ZclEndpointManager.vue           |   63.64 |       50 |   42.86 |   63.64 | 73-76,84,91                                                                                                       
+  ZclGeneralOptionsBar.vue         |   39.29 |    33.33 |   31.25 |   39.29 | 93,105,118-119,136,157-183                                                                                        
+  ZclInformationSetup.vue          |   33.33 |      100 |   33.33 |   33.33 | 39-44                                                                                                             
+ src/layouts                       |   32.79 |        0 |      24 |   32.79 |                                                                                                                   
+  ZclClusterLayout.vue             |     100 |      100 |     100 |     100 |                                                                                                                   
+  ZclConfiguratorLayout.vue        |   61.54 |      100 |   42.86 |   61.54 | 70-80,90                                                                                                          
+  ZclLayout.vue                    |    23.4 |        0 |   11.76 |    23.4 | 152-218,251-253,258                                                                                               
+ src/pages                         |   46.15 |     12.5 |   55.56 |   46.15 |                                                                                                                   
+  About.vue                        |   28.57 |    16.67 |   66.67 |   28.57 | 35-47                                                                                                             
+  Preference.vue                   |     100 |      100 |     100 |     100 |                                                                                                                   
+  PreferenceUser.vue               |      75 |      100 |      50 |      75 | 30                                                                                                                
+  ZclSettings.vue                  |      25 |        0 |   33.33 |      25 | 34-36                                                                                                             
+ src/router                        |   42.86 |       50 |   11.11 |   42.86 |                                                                                                                   
+  index.js                         |      75 |      100 |      50 |      75 | 36                                                                                                                
+  routes.js                        |      30 |       50 |       0 |      30 | 21-40,48                                                                                                          
+ src/store                         |   57.14 |       50 |      50 |   57.14 |                                                                                                                   
+  index.js                         |   57.14 |       50 |      50 |   57.14 | 51-53                                                                                                             
+ src/store/zap                     |   19.83 |    22.34 |   12.57 |   20.23 |                                                                                                                   
+  actions.js                       |    0.51 |        0 |       0 |    0.53 | 25-659                                                                                                            
+  getters.js                       |       0 |      100 |       0 |       0 | 19                                                                                                                
+  index.js                         |       0 |        0 |       0 |       0 |                                                                                                                   
+  mutations.js                     |   45.89 |       70 |   31.34 |   45.52 | 219-227,238-239,245-320,331-443,450,456-467                                                                       
+  state.js                         |      20 |      100 |   11.11 |      25 | 38-60                                                                                                             
+ src/util                          |   18.38 |     8.14 |   26.97 |   18.54 |                                                                                                                   
+  common-mixin.js                  |   35.71 |    16.67 |   46.43 |   36.59 | 33,53,107-171                                                                                                     
+  editable-attributes-mixin.js     |    2.35 |        0 |    5.41 |    2.41 | 44-390                                                                                                            
+  observable.js                    |     100 |       75 |     100 |     100 | 37                                                                                                                
+  storage.js                       |   33.33 |      100 |   33.33 |   33.33 | 25,46                                                                                                             
+  util.js                          |   15.22 |     7.69 |   18.75 |   14.29 | 31-113,127                                                                                                        
+-----------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------
+Jest: "global" coverage threshold for statements (67%) not met: 42.04%
+Jest: "global" coverage threshold for branches (54%) not met: 26.69%
+Jest: "global" coverage threshold for lines (68%) not met: 42.33%
+Jest: "global" coverage threshold for functions (60%) not met: 29.75%
+Summary of all failing tests
+FAIL test/zcl-properties-loader.test.js
+  ● test Silabs zcl data loading in memory
+
+    TypeError: The "path" argument must be of type string. Received undefinedTypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+
+      182 |
+      183 | function schemaFile() {
+    > 184 |   return path.join(global.__backend, '/db/zap-schema.sql')
+          |               ^
+      185 | }
+      186 |
+      187 | function sqliteFile(filename = 'zap') {
+
+      at Object.schemaFile (src-electron/util/env.js:184:15)
+      at _callee$ (test/zcl-properties-loader.test.js:41:38)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+
+FAIL test/zcl-loader-consecutive.test.js
+  ● that that parallel loading of zcl and dotdot and matter is possible
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● test that consecutive loading of metafiles properly avoids duplication
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+FAIL test/script-api.test.js
+  ● sleepy-generic.zap - import
+
+    No packages of type zcl-properties found in the database.
+
+      86 |       return null
+      87 |     } else {
+    > 88 |       throw new Error(`No packages of type ${pkg.type} found in the database.`)
+         |             ^
+      89 |     }
+      90 |   } else if (packages.length == 1) {
+      91 |     env.logDebug(
+
+      at _callee2$ (src-electron/importexport/import-json.js:88:13)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+FAIL test/conversion.test.js
+  ● ha-light.isc - conversion
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● ha-combined-interface.isc - conversion
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● ha-combined-interface.isc - conversion
+
+    No zcl packages found for ISC import.
+
+      515 |
+      516 |   if (zclPackages.length == 0) {
+    > 517 |     throw new Error('No zcl packages found for ISC import.')
+          |           ^
+      518 |   }
+      519 |
+      520 |   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+
+      at _callee6$ (src-electron/importexport/import-isc.js:517:11)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+FAIL test/importexport.test.js
+  ● save-file-1.zap - import
+
+    No packages of type zcl-properties found in the database.
+
+      86 |       return null
+      87 |     } else {
+    > 88 |       throw new Error(`No packages of type ${pkg.type} found in the database.`)
+         |             ^
+      89 |     }
+      90 |   } else if (packages.length == 1) {
+      91 |     env.logDebug(
+
+      at _callee2$ (src-electron/importexport/import-json.js:88:13)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● save-file-2.zap - import
+
+    No packages of type zcl-properties found in the database.
+
+      86 |       return null
+      87 |     } else {
+    > 88 |       throw new Error(`No packages of type ${pkg.type} found in the database.`)
+         |             ^
+      89 |     }
+      90 |   } else if (packages.length == 1) {
+      91 |     env.logDebug(
+
+      at _callee2$ (src-electron/importexport/import-json.js:88:13)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● sleepy-generic.zap - import
+
+    No packages of type zcl-properties found in the database.
+
+      86 |       return null
+      87 |     } else {
+    > 88 |       throw new Error(`No packages of type ${pkg.type} found in the database.`)
+         |             ^
+      89 |     }
+      90 |   } else if (packages.length == 1) {
+      91 |     env.logDebug(
+
+      at _callee2$ (src-electron/importexport/import-json.js:88:13)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● sleepy-generic.isc - import
+
+    No zcl packages found for ISC import.
+
+      515 |
+      516 |   if (zclPackages.length == 0) {
+    > 517 |     throw new Error('No zcl packages found for ISC import.')
+          |           ^
+      518 |   }
+      519 |
+      520 |   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+
+      at _callee6$ (src-electron/importexport/import-isc.js:517:11)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● test-light.isc - import
+
+    No zcl packages found for ISC import.
+
+      515 |
+      516 |   if (zclPackages.length == 0) {
+    > 517 |     throw new Error('No zcl packages found for ISC import.')
+          |           ^
+      518 |   }
+      519 |
+      520 |   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+
+      at _callee6$ (src-electron/importexport/import-isc.js:517:11)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● ha-door-lock.isc - import
+
+    No zcl packages found for ISC import.
+
+      515 |
+      516 |   if (zclPackages.length == 0) {
+    > 517 |     throw new Error('No zcl packages found for ISC import.')
+          |           ^
+      518 |   }
+      519 |
+      520 |   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+
+      at _callee6$ (src-electron/importexport/import-isc.js:517:11)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● ha-light.isc - import
+
+    No zcl packages found for ISC import.
+
+      515 |
+      516 |   if (zclPackages.length == 0) {
+    > 517 |     throw new Error('No zcl packages found for ISC import.')
+          |           ^
+      518 |   }
+      519 |
+      520 |   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+
+      at _callee6$ (src-electron/importexport/import-isc.js:517:11)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+  ● ha-combined-interface.isc - import
+
+    No zcl packages found for ISC import.
+
+      515 |
+      516 |   if (zclPackages.length == 0) {
+    > 517 |     throw new Error('No zcl packages found for ISC import.')
+          |           ^
+      518 |   }
+      519 |
+      520 |   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
+
+      at _callee6$ (src-electron/importexport/import-isc.js:517:11)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at tryCallOne (node_modules/promise/lib/core.js:37:12)
+      at node_modules/promise/lib/core.js:123:15
+      at flush (node_modules/asap/raw.js:50:29)
+
+FAIL test/server-session.test.js
+  ● get index.html
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● get index.html
+
+    connect ECONNREFUSED 127.0.0.1:9076
+
+
+
+FAIL test/startup.test.js
+  ● startup: start generation
+
+    TypeError: The "path" argument must be of type string. Received undefinedTypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+
+      182 |
+      183 | function schemaFile() {
+    > 184 |   return path.join(global.__backend, '/db/zap-schema.sql')
+          |               ^
+      185 | }
+      186 |
+      187 | function sqliteFile(filename = 'zap') {
+
+      at Object.schemaFile (src-electron/util/env.js:184:15)
+      at _callee8$ (src-electron/main-process/startup.js:526:9)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:32:7
+
+  ● startup: self-check
+
+    TypeError: The "path" argument must be of type string. Received undefinedTypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+
+      182 |
+      183 | function schemaFile() {
+    > 184 |   return path.join(global.__backend, '/db/zap-schema.sql')
+          |               ^
+      185 | }
+      186 |
+      187 | function sqliteFile(filename = 'zap') {
+
+      at Object.schemaFile (src-electron/util/env.js:184:15)
+      at _callee6$ (src-electron/main-process/startup.js:411:44)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:32:7
+
+  ● startup: convert
+
+    TypeError: The "path" argument must be of type string. Received undefinedTypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+
+      182 |
+      183 | function schemaFile() {
+    > 184 |   return path.join(global.__backend, '/db/zap-schema.sql')
+          |               ^
+      185 | }
+      186 |
+      187 | function sqliteFile(filename = 'zap') {
+
+      at Object.schemaFile (src-electron/util/env.js:184:15)
+      at _callee2$ (src-electron/main-process/startup.js:227:9)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:32:7
+
+  ● startup: analyze
+
+    TypeError: The "path" argument must be of type string. Received undefinedTypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+
+      182 |
+      183 | function schemaFile() {
+    > 184 |   return path.join(global.__backend, '/db/zap-schema.sql')
+          |               ^
+      185 | }
+      186 |
+      187 | function sqliteFile(filename = 'zap') {
+
+      at Object.schemaFile (src-electron/util/env.js:184:15)
+      at _callee3$ (src-electron/main-process/startup.js:309:44)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:32:7
+
+FAIL test/server-with-zcl.test.js
+  ● get index.html
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● get index.html
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › test manufacturer codes
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › test manufacturer codes
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › load a file
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › load a file
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › session key values existence test
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › session key values existence test
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › add session key value test
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › add session key value test
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › all clusters
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › all clusters
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › all device types
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › all device types
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › all domains
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › all domains
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › all bitmaps
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › all bitmaps
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › all enums
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › all enums
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+  ● Miscelaneous REST API tests › all structs
+
+    ENOENT: no such file or directory, open '/Users/jiteng/repo/zap/src-electron/util/backend/zcl-builtin/silabs/zcl.json'
+
+
+
+  ● Miscelaneous REST API tests › all structs
+
+    connect ECONNREFUSED 127.0.0.1:9074
+
+
+
+FAIL test/electron.test.js
+  ● Test suite failed to run
+
+    Cannot find module '../src-electron/main-process/electron-main.js' from 'test/electron.test.js'
+
+      19 |  */
+      20 |
+    > 21 | const electronMain = require('../src-electron/main-process/electron-main.js')
+         |                      ^
+      22 | const window = require('../src-electron/ui/window.js')
+      23 | const { timeout } = require('./test-util.js')
+      24 |
+
+      at Resolver.resolveModule (node_modules/jest-resolve/build/index.js:306:11)
+      at Object.<anonymous> (test/electron.test.js:21:22)
+
+FAIL test/gen-matter.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/arg.test.js
+  ● Test suite failed to run
+
+    Cannot find module '../src-electron/util/args.js' from 'test/arg.test.js'
+
+      20 |
+      21 | const yargs = require('yargs')
+    > 22 | const args = require('../src-electron/util/args.js')
+         |              ^
+      23 | const { timeout } = require('./test-util.js')
+      24 |
+      25 | function x(arg = 'blah') {
+
+      at Resolver.resolveModule (node_modules/jest-resolve/build/index.js:306:11)
+      at Object.<anonymous> (test/arg.test.js:22:14)
+
+FAIL test/validation.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/custom-zcl.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/gen-dotdot.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/tokens.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/query.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/gen-zigbee.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/helpers.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/generation.test.js
+  ● Test suite failed to run
+
+    Timeout - Async callback was not invoked within the 5000 ms timeout specified by jest.setTimeout.Error: Timeout - Async callback was not invoked within the 5000 ms timeout specified by jest.setTimeout.
+
+      at mapper (node_modules/jest-jasmine2/build/queueRunner.js:27:45)
+
+FAIL test/endpoint-config.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+FAIL test/gen-test.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read property 'close' of undefined
+
+      323 |   return new Promise((resolve, reject) => {
+      324 |     env.logSql('About to close database.')
+    > 325 |     database.close((err) => {
+          |              ^
+      326 |       if (err) return reject(err)
+      327 |       env.logSql('Database is closed.')
+      328 |       resolve()
+
+      at src-electron/db/db-api.js:325:14
+      at tryCallTwo (node_modules/promise/lib/core.js:45:5)
+      at doResolve (node_modules/promise/lib/core.js:200:13)
+      at new Promise (node_modules/promise/lib/core.js:66:3)
+      at _callee11$ (src-electron/db/db-api.js:323:10)
+      at tryCatch (node_modules/regenerator-runtime/runtime.js:63:40)
+      at Generator.invoke [as _invoke] (node_modules/regenerator-runtime/runtime.js:293:22)
+      at Generator.next (node_modules/regenerator-runtime/runtime.js:118:21)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:24)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:25:9)
+
+
+Test Suites: 21 failed, 14 passed, 35 total
+Tests:       29 failed, 1 skipped, 129 passed, 159 total
+Snapshots:   0 total
+Time:        18.29 s
+Ran all test suites.

@@ -40,7 +40,7 @@ beforeAll(async () => {
     env.schemaFile(),
     env.zapVersion()
   )
-  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
 }, testUtil.timeout.medium())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
@@ -79,7 +79,7 @@ test(
       templateContext.db,
       templateContext.sessionId,
       {
-        zcl: env.builtinSilabsZclMetafile,
+        zcl: env.builtinSilabsZclMetafile(),
         template: env.builtinTemplateMetafile,
       }
     )

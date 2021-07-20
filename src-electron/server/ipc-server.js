@@ -119,7 +119,7 @@ async function handlerGenerate(context, data) {
         {
           logger: (x) =>
             serverIpc.server.emit(context.socket, eventType.over, x),
-          zcl: env.builtinSilabsZclMetafile,
+          zcl: env.builtinSilabsZclMetafile(),
           template: env.builtinTemplateMetafile,
         }
       )

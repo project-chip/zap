@@ -22,28 +22,36 @@ const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
 
-const builtinSilabsZclMetafile = path.join(
-  __dirname,
-  process.env.DEV
-    ? '../../zcl-builtin/silabs/zcl.json'
-    : 'backend/zcl-builtin/silabs/zcl.json'
-)
+function builtinSilabsZclMetafile() {
+  return path.join(
+    __dirname,
+    process.env.DEV
+      ? '../../zcl-builtin/silabs/zcl.json'
+      : 'backend/zcl-builtin/silabs/zcl.json'
+  )
+}
 
-const builtinMatterZclMetafile = path.join(
-  __dirname,
-  process.env.DEV
-    ? '../../zcl-builtin/matter/zcl.json'
-    : 'backend/zcl-builtin/matter/zcl.json'
-)
+function builtinMatterZclMetafile() {
+  return path.join(
+    __dirname,
+    process.env.DEV
+      ? '../../zcl-builtin/matter/zcl.json'
+      : 'backend/zcl-builtin/matter/zcl.json'
+  )
+}
 
-const builtinDotdotZclMetafile = path.join(
-  __dirname,
-  process.env.DEV
-    ? '../../zcl-builtin/dotdot/library.xml'
-    : 'backend/zcl-builtin/dotdot/library.xml'
-)
+function builtinDotdotZclMetafile() {
+  return path.join(
+    __dirname,
+    process.env.DEV
+      ? '../../zcl-builtin/dotdot/library.xml'
+      : 'backend/zcl-builtin/dotdot/library.xml'
+  )
+}
 
-const builtinTemplateMetafile = null // No default.
+function builtinTemplateMetafile() {
+  return null // No default.
+}
 
 let environmentVariable = {
   logLevel: {
@@ -101,16 +109,12 @@ let applicationStateDirectory = null
 function setDevelopmentEnv() {
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
   httpStaticContentPath = path.join(__dirname, '../../spa')
-  global.__statics_backend = path
-    .join(__dirname, '../statics')
-    .replace(/\\/g, '\\\\')
+  global.__backend = path.join(__dirname, '../').replace(/\\/g, '\\\\')
 }
 
 function setProductionEnv() {
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
-  global.__statics_backend = path
-    .join(__dirname, '/backend/statics')
-    .replace(/\\/g, '\\\\')
+  global.__backend = path.join(__dirname, '/backend/').replace(/\\/g, '\\\\')
   httpStaticContentPath = path.join(__dirname, '../spa').replace(/\\/g, '\\\\')
 }
 
@@ -177,10 +181,7 @@ function iconsDirectory() {
 }
 
 function schemaFile() {
-  console.log(__dirname)
-  console.log(global.__statics_backend)
-  console.log(path.join(global.__statics_backend, './../db/zap-schema.sql'))
-  return path.join(global.__statics_backend, '/db/zap-schema.sql')
+  return path.join(global.__backend, '/db/zap-schema.sql')
 }
 
 function sqliteFile(filename = 'zap') {
@@ -422,5 +423,4 @@ exports.environmentVariable = environmentVariable
 exports.builtinSilabsZclMetafile = builtinSilabsZclMetafile
 exports.builtinMatterZclMetafile = builtinMatterZclMetafile
 exports.builtinDotdotZclMetafile = builtinDotdotZclMetafile
-exports.builtinTemplateMetafile = builtinTemplateMetafile
 exports.builtinTemplateMetafile = builtinTemplateMetafile

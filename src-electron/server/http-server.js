@@ -107,7 +107,7 @@ async function initHttpServer(
   studioPort,
   options = {
     allowCors: false,
-    zcl: env.builtinSilabsZclMetafile,
+    zcl: env.builtinSilabsZclMetafile(),
     template: env.builtinTemplateMetafile,
   }
 ) {

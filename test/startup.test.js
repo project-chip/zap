@@ -23,6 +23,11 @@ const startup = require('../src-electron/main-process/startup.js')
 const env = require('../src-electron/util/env.js')
 const testUtil = require('./test-util.js')
 
+beforeAll(async () => {
+  process.env.DEV = true
+  env.setDevelopmentEnv()
+})
+
 test(
   'startup: start generation',
   () => {
@@ -34,7 +39,7 @@ test(
         skipPostGeneration: true,
         output: testGenDir,
         generationTemplate: testUtil.testTemplate.zigbee,
-        zclProperties: env.builtinSilabsZclMetafile,
+        zclProperties: env.builtinSilabsZclMetafile(),
         zapFiles: null,
       },
       {
@@ -51,7 +56,7 @@ test(
   () => {
     return startup.startSelfCheck(
       {
-        zclProperties: env.builtinSilabsZclMetafile,
+        zclProperties: env.builtinSilabsZclMetafile(),
       },
       { logger: (msg) => {}, quit: false }
     )
@@ -74,7 +79,7 @@ test(
         {
           zapFiles: files,
           output: output,
-          zclProperties: env.builtinSilabsZclMetafile,
+          zclProperties: env.builtinSilabsZclMetafile(),
           noZapFileLog: true,
         },
         {
@@ -98,7 +103,7 @@ test(
     return startup.startAnalyze(
       {
         zapFiles: files,
-        zclProperties: env.builtinSilabsZclMetafile,
+        zclProperties: env.builtinSilabsZclMetafile(),
       },
       {
         quit: false,

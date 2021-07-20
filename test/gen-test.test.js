@@ -65,7 +65,7 @@ test(
 test(
   'Load ZCL stuff',
   async () => {
-    zclContext = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+    zclContext = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   },
   testUtil.timeout.medium()
 )

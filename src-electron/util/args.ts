@@ -21,7 +21,7 @@ const yargs = require('yargs')
 const path = require('path')
 const os = require('os')
 const fs = require('fs')
-const restApi = require(`../../src-shared/rest-api.js`)
+const restApi = require('../../src-shared/rest-api.js')
 const commonUrl = require('../../src-shared/common-url.js')
 const env = require('./env.js')
 
@@ -109,7 +109,7 @@ export function processCommandLineArguments(argv: string[]) {
       desc: 'zcl.properties file to read in.',
       alias: ['zcl', 'z'],
       type: 'string',
-      default: env.builtinSilabsZclMetafile,
+      default: env.builtinSilabsZclMetafile(),
     })
     .option('generationTemplate', {
       desc: 'generation template metafile (gen-template.json) to read in.',

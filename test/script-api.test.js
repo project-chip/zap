@@ -30,6 +30,7 @@ const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 let sleepyGenericZap = path.join(__dirname, 'resource/isc/sleepy-generic.zap')
 
 beforeAll(() => {
+  process.env.DEV = true
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('script-api')
   return dbApi
@@ -38,7 +39,7 @@ beforeAll(() => {
       db = d
       env.logInfo(`Test database initialized: ${file}.`)
     })
-    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()))
     .catch((err) => env.logError(`Error: ${err}`))
 }, testUtil.timeout.medium())
 

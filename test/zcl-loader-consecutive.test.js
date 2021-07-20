@@ -27,6 +27,11 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const env = require('../src-electron/util/env.js')
 const testUtil = require('./test-util.js')
 
+beforeAll(async () => {
+  process.env.DEV = true
+  env.setDevelopmentEnv()
+})
+
 test(
   'that that parallel loading of zcl and dotdot and matter is possible',
   async () => {
@@ -34,8 +39,8 @@ test(
     await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
 
     let promises = []
-    promises.push(zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
-    promises.push(zclLoader.loadZcl(db, env.builtinDotdotZclMetafile))
+    promises.push(zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()))
+    promises.push(zclLoader.loadZcl(db, env.builtinDotdotZclMetafile()))
 
     await Promise.all(promises)
 
@@ -52,15 +57,15 @@ test(
       await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
 
       let dotdotPackageId
-      let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+      let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
       let jsonPackageId = ctx.packageId
 
-      ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+      ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
       expect(ctx.packageId).toEqual(jsonPackageId)
       let p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
       expect(p.version).toEqual('ZCL Test Data')
-      await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
-      ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
+      await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
+      ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
       dotdotPackageId = ctx.packageId
       expect(dotdotPackageId).not.toEqual(jsonPackageId)
       p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)

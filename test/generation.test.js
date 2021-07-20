@@ -61,7 +61,7 @@ describe('Session specific tests', () => {
 
   test(
     'Now actually load the static data.',
-    () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
+    () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()),
     testUtil.timeout.medium()
   )
 

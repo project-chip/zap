@@ -29,6 +29,11 @@ const types = require('../src-electron/util/types.js')
 const testUtil = require('./test-util.js')
 const testQuery = require('./test-query.js')
 
+beforeAll(async () => {
+  process.env.DEV = true
+  env.setDevelopmentEnv()
+})
+
 test(
   'test opening and closing the database',
   async () => {
@@ -55,7 +60,7 @@ test(
     try {
       await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
 
-      let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+      let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
       let packageId = ctx.packageId
 
       let p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
@@ -197,7 +202,7 @@ test(
     let db = await dbApi.initRamDatabase()
     try {
       await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
-      let ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
+      let ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
       let packageId = ctx.packageId
       let p = await queryPackage.getPackageByPackageId(ctx.db, packageId)
       expect(p.version).toEqual('1.0')
@@ -293,7 +298,7 @@ test(
     let db = await dbApi.initRamDatabase()
     try {
       await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
-      let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+      let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
       let packageIdSilabs = ctx.packageId
 
       let p = await queryPackage.getPackageByPackageId(ctx.db, packageIdSilabs)
@@ -305,7 +310,7 @@ test(
       )
       expect(rows.length).toEqual(1)
 
-      ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile)
+      ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
       let packageIdDotdot = ctx.packageId
 
       p = await queryPackage.getPackageByPackageId(ctx.db, packageIdDotdot)
@@ -348,7 +353,7 @@ test(
     let db = await dbApi.initRamDatabase()
     try {
       await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
-      let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile)
+      let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
       let packageId = ctx.packageId
       let p = await queryPackage.getPackageByPackageId(ctx.db, packageId)
       expect(p.version).toEqual('Matter Test Data')

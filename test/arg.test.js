@@ -19,7 +19,7 @@
  */
 
 const yargs = require('yargs')
-const args = require('../src-electron/util/args.js')
+const args = require('../src-electron/util/args')
 const { timeout } = require('./test-util.js')
 
 function x(arg = 'blah') {
