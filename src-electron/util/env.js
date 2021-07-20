@@ -94,13 +94,13 @@ const pinoOptions = {
 let pino_logger = pino(pinoOptions)
 
 let explicit_logger_set = false
-let httpStaticContent = path.join(__dirname, '../../spa')
+let httpStaticContentPath = path.join(__dirname, '../../spa')
 let versionObject = null
 let applicationStateDirectory = null
 
 function setDevelopmentEnv() {
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
-  httpStaticContent = path.join(__dirname, '../../spa')
+  httpStaticContentPath = path.join(__dirname, '../../spa')
   global.__statics_backend = path
     .join(__dirname, '../statics')
     .replace(/\\/g, '\\\\')
@@ -111,7 +111,7 @@ function setProductionEnv() {
   global.__statics_backend = path
     .join(__dirname, '/backend/statics')
     .replace(/\\/g, '\\\\')
-  httpStaticContent = path.join('.').replace(/\\/g, '\\\\')
+  httpStaticContentPath = path.join(__dirname, '../spa').replace(/\\/g, '\\\\')
 }
 
 function logInitStdout() {
@@ -385,6 +385,15 @@ function versionsCheck() {
     )
   }
   return ret
+}
+
+/**
+ * Returns path to HTTP static content while taking into account DEV / PROD modes.
+ *
+ * @returns full path to HTTP static content
+ */
+function httpStaticContent() {
+  return httpStaticContentPath
 }
 
 exports.setDevelopmentEnv = setDevelopmentEnv

@@ -146,9 +146,8 @@ async function initHttpServer(
     registerAllRestModules(db, app)
 
     // Static content
-    env.logDebug(`HTTP static content location: ${env.httpStaticContent}`)
-    app.use(express.static(env.httpStaticContent))
-
+    env.logDebug(`HTTP static content location: ${env.httpStaticContent()}`)
+    app.use(express.static(env.httpStaticContent()))
     httpServer = app.listen(port, () => {
       resolve(app)
     })
