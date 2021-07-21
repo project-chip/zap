@@ -165,7 +165,7 @@ AND (
       (ENDPOINT_TYPE_COMMAND.INCOMING=1 AND COMMAND.SOURCE!=ENDPOINT_TYPE_CLUSTER.SIDE) OR
       (ENDPOINT_TYPE_COMMAND.OUTGOING=1 AND COMMAND.SOURCE=ENDPOINT_TYPE_CLUSTER.SIDE)
     )
-GROUP BY CLUSTER.NAME, COMMAND.NAME, ENDPOINT_TYPE_CLUSTER.SIDE ) GROUP BY CLUSTER_NAME, COMMAND_NAME ORDER BY CLUSTER_NAME, COMMAND_NAME`
+GROUP BY CLUSTER.NAME, COMMAND.NAME, ENDPOINT_TYPE_CLUSTER.SIDE ) GROUP BY CLUSTER_NAME, COMMAND_NAME ORDER BY CLUSTER_CODE, COMMAND_CODE`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -972,40 +972,27 @@ async function selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAn
   )
 }
 
-exports.selectCliCommandCountFromEndpointTypeCluster =
-  selectCliCommandCountFromEndpointTypeCluster
+exports.selectCliCommandCountFromEndpointTypeCluster = selectCliCommandCountFromEndpointTypeCluster
 exports.selectCliCommandsFromCluster = selectCliCommandsFromCluster
-exports.selectAllAvailableClusterCommandDetailsFromEndpointTypes =
-  selectAllAvailableClusterCommandDetailsFromEndpointTypes
-exports.selectAllClustersWithIncomingCommands =
-  selectAllClustersWithIncomingCommands
-exports.selectAllClustersWithIncomingCommandsCombined =
-  selectAllClustersWithIncomingCommandsCombined
-exports.selectAllIncomingCommandsForCluster =
-  selectAllIncomingCommandsForCluster
-exports.selectAllIncomingCommandsForClusterCombined =
-  selectAllIncomingCommandsForClusterCombined
+exports.selectAllAvailableClusterCommandDetailsFromEndpointTypes = selectAllAvailableClusterCommandDetailsFromEndpointTypes
+exports.selectAllClustersWithIncomingCommands = selectAllClustersWithIncomingCommands
+exports.selectAllClustersWithIncomingCommandsCombined = selectAllClustersWithIncomingCommandsCombined
+exports.selectAllIncomingCommandsForCluster = selectAllIncomingCommandsForCluster
+exports.selectAllIncomingCommandsForClusterCombined = selectAllIncomingCommandsForClusterCombined
 exports.selectAllCommands = selectAllCommands
 exports.selectCommandsByClusterId = selectCommandsByClusterId
 exports.selectCommandById = selectCommandById
 exports.selectAllGlobalCommands = selectAllGlobalCommands
 exports.selectAllClusterCommands = selectAllClusterCommands
 exports.selectAllCommandArguments = selectAllCommandArguments
-exports.selectCommandArgumentsCountByCommandId =
-  selectCommandArgumentsCountByCommandId
+exports.selectCommandArgumentsCountByCommandId = selectCommandArgumentsCountByCommandId
 exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
 exports.selectCommandTree = selectCommandTree
-exports.updateCommandRequestResponseReferences =
-  updateCommandRequestResponseReferences
+exports.updateCommandRequestResponseReferences = updateCommandRequestResponseReferences
 
-exports.selectAllCommandDetailsFromEnabledClusters =
-  selectAllCommandDetailsFromEnabledClusters
-exports.selectAllCliCommandDetailsFromEnabledClusters =
-  selectAllCliCommandDetailsFromEnabledClusters
+exports.selectAllCommandDetailsFromEnabledClusters = selectAllCommandDetailsFromEnabledClusters
+exports.selectAllCliCommandDetailsFromEnabledClusters = selectAllCliCommandDetailsFromEnabledClusters
 
-exports.selectCommandDetailsFromAllEndpointTypesAndClusters =
-  selectCommandDetailsFromAllEndpointTypesAndClusters
-exports.selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters =
-  selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
-exports.selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters =
-  selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
+exports.selectCommandDetailsFromAllEndpointTypesAndClusters = selectCommandDetailsFromAllEndpointTypesAndClusters
+exports.selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
+exports.selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
