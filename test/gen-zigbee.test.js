@@ -445,7 +445,7 @@ test(
         // Test GENERATED_COMMANDS
         expect(
           genResult.content['zap-config-version-2.h'].includes(
-            '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 28, Cluster: Groups, Command: ViewGroupResponse*/'
+            '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 7, Cluster: Groups, Command: ViewGroupResponse*/'
           )
         ).toBeTruthy()
       })
