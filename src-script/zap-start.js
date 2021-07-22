@@ -28,7 +28,7 @@ scriptUtil
   .stampVersion()
   .then(() => scriptUtil.rebuildSpaIfNeeded())
   .then(() => {
-    let cmdArgs = ['src-electron/main-process/electron-main.js']
+    let cmdArgs = ['dist/electron-main.js']
 
     if (executor === 'electron' && process.platform == 'linux') {
       if (!process.env.DISPLAY) {
