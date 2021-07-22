@@ -235,6 +235,12 @@ function if_command_is_fixed_length(
     })
 }
 
+// WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
+//
+// Note: these exports are public API. Templates that might have been created in the past and are
+// available in the wild might depend on these names.
+// If you rename the functions, you need to still maintain old exports list.
+
 exports.if_command_arguments_exist = if_command_arguments_exist
 exports.if_command_is_fixed_length = if_command_is_fixed_length
 exports.if_ca_always_present_with_presentif =

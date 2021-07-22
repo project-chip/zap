@@ -144,6 +144,7 @@ CREATE TABLE IF NOT EXISTS "CLUSTER" (
   "DESCRIPTION" text,
   "DEFINE" text,
   "IS_SINGLETON" integer,
+  "REVISION" integer,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),

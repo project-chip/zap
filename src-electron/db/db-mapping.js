@@ -73,6 +73,7 @@ exports.map = {
       define: x.DEFINE,
       domainName: x.DOMAIN_NAME,
       isSingleton: dbApi.fromDbBool(x.IS_SINGLETON),
+      revision: x.REVISION,
     }
   },
 

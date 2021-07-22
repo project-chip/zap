@@ -801,172 +801,161 @@ function zcl_command_argument_data_type(type, options) {
 }
 
 /**
+ *
+ * @param currentContext
+ * @param packageId
+ * @param type
+ * @param options
+ * @returns zcl cli type for an array
+ */
+async function array_to_cli_data_type(
+  currentContext,
+  packageId,
+  type,
+  options
+) {
+  const arrayAtomicResult = await queryZcl.selectAtomicType(
+    currentContext.global.db,
+    packageId,
+    type
+  )
+  let arrayAtomicSize = undefined
+  if (arrayAtomicResult) {
+    arrayAtomicSize = await calculateBytes(
+      arrayAtomicResult.name,
+      options,
+      currentContext.global.db,
+      packageId,
+      false
+    )
+  } else {
+    arrayAtomicSize = await calculateBytes(
+      type,
+      options,
+      currentContext.global.db,
+      packageId,
+      false
+    )
+  }
+  if (arrayAtomicSize == undefined || arrayAtomicSize.isNaN) {
+    return helperC.as_zcl_cli_type(dbEnum.zclType.string, true, false)
+  } else {
+    if (arrayAtomicResult) {
+      return helperC.as_zcl_cli_type(
+        arrayAtomicSize,
+        true,
+        arrayAtomicResult.isSigned
+      )
+    } else {
+      return helperC.as_zcl_cli_type(arrayAtomicSize, true, false)
+    }
+  }
+}
+
+/**
+ *
+ * @param currentContext
+ * @param packageId
+ * @param type
+ * @param options
+ * @returns zcl cli type for an enum
+ */
+async function enum_to_cli_data_type(currentContext, packageId, type, options) {
+  const enumRecord = await queryZcl.selectEnumByName(
+    currentContext.global.db,
+    type,
+    packageId
+  )
+  const enumType = await queryZcl.selectAtomicType(
+    currentContext.global.db,
+    packageId,
+    enumRecord.type
+  )
+  const enumSize = await calculateBytes(
+    enumType.name,
+    options,
+    currentContext.global.db,
+    packageId,
+    false
+  )
+  return helperC.as_zcl_cli_type(enumSize, false, false)
+}
+
+/**
+ *
+ * @param currentContext
+ * @param packageId
+ * @param type
+ * @param options
+ * @returns zcl cli type for a bitmap
+ */
+async function bitmap_to_cli_data_type(
+  currentContext,
+  packageId,
+  type,
+  options
+) {
+  const bitmapRecord = await queryZcl.selectBitmapByName(
+    currentContext.global.db,
+    packageId,
+    type
+  )
+  const bitmapType = await queryZcl.selectAtomicType(
+    currentContext.global.db,
+    packageId,
+    bitmapRecord.type
+  )
+  const bitmapSize = await calculateBytes(
+    bitmapType.name,
+    options,
+    currentContext.global.db,
+    packageId,
+    false
+  )
+  return helperC.as_zcl_cli_type(bitmapSize, false, false)
+}
+
+/**
  * Helper that deals with the type of the argument.
  *
  * @param {*} typeName
  * @param {*} options
  */
-function zcl_command_argument_type_to_cli_data_type(type, options) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      Promise.all([
-        new Promise((resolve, reject) => {
-          if ('isArray' in this && this.isArray) resolve(dbEnum.zclType.array)
-          else resolve(dbEnum.zclType.unknown)
-        }),
-        isEnum(this.global.db, type, packageId),
-        isStruct(this.global.db, type, packageId),
-        isBitmap(this.global.db, type, packageId),
-      ])
-        .then(
-          (res) =>
-            new Promise((resolve, reject) => {
-              for (let i = 0; i < res.length; i++) {
-                if (res[i] != 'unknown') {
-                  resolve(res[i])
-                  return
-                }
-              }
-              resolve(dbEnum.zclType.unknown)
-            })
-        )
-        .then((resType) => {
-          switch (resType) {
-            case dbEnum.zclType.array:
-              return queryZcl
-                .selectAtomicType(this.global.db, packageId, type)
-                .then((res) => {
-                  if (res) {
-                    return calculateBytes(
-                      res.name,
-                      options,
-                      this.global.db,
-                      packageId,
-                      false
-                    )
-                  } else {
-                    return calculateBytes(
-                      type,
-                      options,
-                      this.global.db,
-                      packageId,
-                      false
-                    )
-                  }
-                })
-                .then((size) => {
-                  if (size == undefined || size.isNaN) {
-                    return helperC.as_zcl_cli_type(
-                      dbEnum.zclType.string,
-                      true,
-                      false
-                    )
-                  } else {
-                    if (type && type.toLowerCase().endsWith('u')) {
-                      return helperC.as_zcl_cli_type(size, true, false)
-                    } else {
-                      return helperC.as_zcl_cli_type(size, true, true)
-                    }
-                  }
-                })
-            case dbEnum.zclType.bitmap:
-              return queryZcl
-                .selectBitmapByName(this.global.db, packageId, type)
-                .then((bitmap) =>
-                  queryZcl.selectAtomicType(
-                    this.global.db,
-                    packageId,
-                    bitmap.type
-                  )
-                )
-                .then((res) =>
-                  calculateBytes(
-                    res.name,
-                    options,
-                    this.global.db,
-                    packageId,
-                    false
-                  )
-                )
-                .then((size) => helperC.as_zcl_cli_type(size, false, false))
-            case dbEnum.zclType.enum:
-              return queryZcl
-                .selectEnumByName(this.global.db, type, packageId)
-                .then((enumRec) =>
-                  queryZcl.selectAtomicType(
-                    this.global.db,
-                    packageId,
-                    enumRec.type
-                  )
-                )
-                .then((res) =>
-                  calculateBytes(
-                    res.name,
-                    options,
-                    this.global.db,
-                    packageId,
-                    false
-                  )
-                )
-                .then((size) => helperC.as_zcl_cli_type(size, false, false))
-            case dbEnum.zclType.struct:
-            case dbEnum.zclType.atomic:
-            case dbEnum.zclType.unknown:
-            default:
-              return queryZcl
-                .selectAtomicType(this.global.db, packageId, type)
-                .then((res) => {
-                  if (res) {
-                    return calculateBytes(
-                      res.name,
-                      options,
-                      this.global.db,
-                      packageId,
-                      false
-                    )
-                  } else {
-                    return calculateBytes(
-                      type,
-                      options,
-                      this.global.db,
-                      packageId,
-                      false
-                    )
-                  }
-                })
-                .then((size) => {
-                  if (size == undefined || size.isNaN) {
-                    return helperC.as_zcl_cli_type(
-                      dbEnum.zclType.string,
-                      false,
-                      false
-                    )
-                  } else {
-                    if (
-                      type &&
-                      (type.toLowerCase().endsWith('u') ||
-                        type.toLowerCase().startsWith(dbEnum.zclType.enum) ||
-                        type.toLowerCase().startsWith(dbEnum.zclType.bitmap))
-                    ) {
-                      return helperC.as_zcl_cli_type(size, false, false)
-                    } else {
-                      return helperC.as_zcl_cli_type(size, false, true)
-                    }
-                  }
-                })
-          }
-        })
-        .catch((err) => {
-          env.logError('Unable to convert to zcl cli type: ' + err)
-          throw err
-        })
+async function zcl_command_argument_type_to_cli_data_type(type, options) {
+  const packageId = await templateUtil.ensureZclPackageId(this)
+  const isEnumType = await isEnum(this.global.db, type, packageId)
+  const isBitmapType = await isBitmap(this.global.db, type, packageId)
+  if ('isArray' in this && this.isArray) {
+    return array_to_cli_data_type(this, packageId, type, options)
+  } else if (isEnumType == dbEnum.zclType.enum) {
+    return enum_to_cli_data_type(this, packageId, type, options)
+  } else if (isBitmapType == dbEnum.zclType.bitmap) {
+    return bitmap_to_cli_data_type(this, packageId, type, options)
+  } else {
+    const atomicResult = await queryZcl.selectAtomicType(
+      this.global.db,
+      packageId,
+      type
     )
-    .catch((err) => {
-      env.logError('Unable to convert to zcl cli type: ' + err)
-      throw err
-    })
-  return templateUtil.templatePromise(this.global, promise)
+    const atomicSize = atomicResult
+      ? await calculateBytes(
+          atomicResult.name,
+          options,
+          this.global.db,
+          packageId,
+          false
+        )
+      : await calculateBytes(type, options, this.global.db, packageId, false)
+    if (atomicSize == undefined || atomicSize.isNaN) {
+      return helperC.as_zcl_cli_type(dbEnum.zclType.string, false, false)
+    } else {
+      if (atomicResult) {
+        return helperC.as_zcl_cli_type(atomicSize, false, atomicResult.isSigned)
+      } else {
+        return helperC.as_zcl_cli_type(atomicSize, false, false)
+      }
+    }
+  }
 }
 
 /**
@@ -2433,12 +2422,15 @@ exports.is_enum = isEnum
 exports.isEnum = dep(isEnum, { to: 'is_enum' })
 
 exports.if_manufacturing_specific_cluster = if_manufacturing_specific_cluster
-exports.zcl_command_argument_type_to_cli_data_type = zcl_command_argument_type_to_cli_data_type
+exports.zcl_command_argument_type_to_cli_data_type =
+  zcl_command_argument_type_to_cli_data_type
 exports.zcl_string_type_return = zcl_string_type_return
 exports.is_zcl_string = is_zcl_string
-exports.if_command_arguments_have_fixed_length = if_command_arguments_have_fixed_length
+exports.if_command_arguments_have_fixed_length =
+  if_command_arguments_have_fixed_length
 exports.command_arguments_total_length = command_arguments_total_length
-exports.as_underlying_zcl_type_if_command_is_not_fixed_length = as_underlying_zcl_type_if_command_is_not_fixed_length
+exports.as_underlying_zcl_type_if_command_is_not_fixed_length =
+  as_underlying_zcl_type_if_command_is_not_fixed_length
 exports.if_command_argument_always_present = dep(
   if_command_argument_always_present,
   {
@@ -2448,44 +2440,45 @@ exports.if_command_argument_always_present = dep(
 exports.as_underlying_zcl_type_command_argument_always_present = dep(
   as_underlying_zcl_type_command_argument_always_present,
   {
-    to:
-      'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present',
+    to: 'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present',
   }
 )
 exports.if_command_argument_always_present_with_presentif = dep(
   if_command_argument_always_present_with_presentif,
   { to: 'if_ca_always_present_with_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_always_present_with_presentif = dep(
-  as_underlying_zcl_type_command_argument_always_present_with_presentif,
-  {
+exports.as_underlying_zcl_type_command_argument_always_present_with_presentif =
+  dep(as_underlying_zcl_type_command_argument_always_present_with_presentif, {
     to: 'as_underlying_zcl_type_ca_always_present_with_presentif',
-  }
-)
+  })
 exports.if_command_argument_not_always_present_with_presentif = dep(
   if_command_argument_not_always_present_with_presentif,
   { to: 'if_ca_not_always_present_with_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif = dep(
-  as_underlying_zcl_type_command_argument_not_always_present_with_presentif,
-  { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' }
-)
+exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif =
+  dep(
+    as_underlying_zcl_type_command_argument_not_always_present_with_presentif,
+    { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' }
+  )
 exports.if_command_argument_not_always_present_no_presentif = dep(
   if_command_argument_not_always_present_no_presentif,
   { to: 'if_ca_not_always_present_no_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif = dep(
-  as_underlying_zcl_type_command_argument_not_always_present_no_presentif,
-  {
+exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif =
+  dep(as_underlying_zcl_type_command_argument_not_always_present_no_presentif, {
     to: 'as_underlying_zcl_type_ca_not_always_present_no_presentif',
-  }
-)
+  })
 exports.as_generated_default_macro = as_generated_default_macro
 exports.attribute_mask = attribute_mask
 exports.command_mask = command_mask
-exports.format_zcl_string_as_characters_for_generated_defaults = format_zcl_string_as_characters_for_generated_defaults
-exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present = as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
-exports.as_underlying_zcl_type_ca_not_always_present_no_presentif = as_underlying_zcl_type_ca_not_always_present_no_presentif
-exports.as_underlying_zcl_type_ca_not_always_present_with_presentif = as_underlying_zcl_type_ca_not_always_present_with_presentif
-exports.as_underlying_zcl_type_ca_always_present_with_presentif = as_underlying_zcl_type_ca_always_present_with_presentif
+exports.format_zcl_string_as_characters_for_generated_defaults =
+  format_zcl_string_as_characters_for_generated_defaults
+exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present =
+  as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
+exports.as_underlying_zcl_type_ca_not_always_present_no_presentif =
+  as_underlying_zcl_type_ca_not_always_present_no_presentif
+exports.as_underlying_zcl_type_ca_not_always_present_with_presentif =
+  as_underlying_zcl_type_ca_not_always_present_with_presentif
+exports.as_underlying_zcl_type_ca_always_present_with_presentif =
+  as_underlying_zcl_type_ca_always_present_with_presentif
 exports.if_is_struct = if_is_struct

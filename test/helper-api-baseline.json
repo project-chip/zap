@@ -173,6 +173,7 @@
   { "name": "if_extension_true" },
   { "name": "if_is_bitmap" },
   { "name": "if_is_enum" },
+  { "name": "if_is_struct" },
   { "name": "if_manufacturing_specific_cluster" },
   { "name": "indent" },
   { "name": "is_bitmap" },

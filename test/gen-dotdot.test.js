@@ -26,6 +26,9 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 const queryPackage = require('../src-electron/db/query-package.js')
+const {
+  exportClustersFromEndpointType,
+} = require('../src-electron/db/query-impexp.js')
 
 let db
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
@@ -112,17 +115,23 @@ test(
           epc.includes('EmberAfDrlkOperMode OperatingMode; // attribute type')
         ).toBeTruthy()
 
-        mqtt = genResult.content['mqtt.cpp']
+        let mqtt = genResult.content['mqtt.cpp']
         expect(mqtt).not.toBeNull()
         expect(mqtt.includes('Bitmap_DaysMask = "DrlkDaysMask"')).toBeTruthy()
         expect(mqtt.includes('Bitmap_RelayStatus = "map8"')).toBeTruthy()
         expect(mqtt.includes('Enum_StatusCode = "zclStatus"')).toBeTruthy()
         expect(mqtt.includes('Enum_AlarmCode = "enum8"')).toBeTruthy()
 
-        types = genResult.content['dotdot-type.h']
+        let types = genResult.content['dotdot-type.h']
         expect(types).not.toBeNull()
         expect(
           types.includes('// Bitmap: LevelOptions, type: map8')
+        ).toBeTruthy()
+
+        let clusters = genResult.content['dotdot-cluster.xml']
+        expect(clusters).not.toBeNull()
+        expect(
+          clusters.includes('<cluster code="0x0000" revision="2">')
         ).toBeTruthy()
       }),
   testUtil.timeout.long()

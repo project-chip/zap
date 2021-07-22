@@ -255,7 +255,8 @@ SELECT
   DESCRIPTION,
   DEFINE,
   DOMAIN_NAME,
-  IS_SINGLETON
+  IS_SINGLETON,
+  REVISION
 FROM CLUSTER
 WHERE PACKAGE_REF = ?
 ORDER BY CODE`,
@@ -265,13 +266,28 @@ ORDER BY CODE`,
 }
 
 async function selectClusterByCode(db, packageId, clusterCode, mfgCode = null) {
-  let query
+  let query = `
+SELECT
+  CLUSTER_ID,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  DEFINE,
+  DOMAIN_NAME,
+  IS_SINGLETON,
+  REVISION
+FROM
+  CLUSTER
+WHERE
+  PACKAGE_REF = ? AND CODE = ?`
+
   let args
   if (mfgCode == null || mfgCode == 0) {
-    query = `SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME, IS_SINGLETON FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? AND MANUFACTURER_CODE IS NULL`
+    query = query + ` AND MANUFACTURER_CODE IS NULL`
     args = [packageId, clusterCode]
   } else {
-    query = `SELECT CLUSTER_ID, CODE, MANUFACTURER_CODE, NAME, DESCRIPTION, DEFINE, DOMAIN_NAME, IS_SINGLETON FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ? AND MANUFACTURER_CODE = ?`
+    query = qyery + ` AND MANUFACTURER_CODE = ?`
     args = [packageId, clusterCode, mfgCode]
   }
   return dbApi.dbGet(db, query, args).then(dbMapping.map.cluster)
@@ -299,9 +315,12 @@ SELECT
   DESCRIPTION,
   DEFINE,
   DOMAIN_NAME,
-  IS_SINGLETON
-FROM CLUSTER
-WHERE CLUSTER_ID = ?`,
+  IS_SINGLETON,
+  REVISION
+FROM
+  CLUSTER
+WHERE
+  CLUSTER_ID = ?`,
       [clusterId]
     )
     .then(dbMapping.map.cluster)
