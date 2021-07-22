@@ -397,7 +397,7 @@ test(
         // Test GENERATED_CLUSTERS
         expect(
           genResult.content['zap-config-version-2.h'].includes(
-            '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[70]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 6, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/'
+            '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[70]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/'
           )
         ).toBeTruthy()
         // Test GENERATED_ENDPOINT_TYPE_COUNT
