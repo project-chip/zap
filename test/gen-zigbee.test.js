@@ -267,6 +267,11 @@ test(
         // Testing {{#if_is_struct}} helper
         expect(zclId.includes(`attributeIds is not struct`)).toBeTruthy()
 
+        // Testing {{#zcl_struct_items_by_struct_name}} helper
+        expect(
+          zclId.includes(`configureReportingRecords::direction struct item`)
+        ).toBeTruthy()
+
         expect(
           zclId.includes(`readAttributeStatusRecords is struct`)
         ).toBeTruthy()

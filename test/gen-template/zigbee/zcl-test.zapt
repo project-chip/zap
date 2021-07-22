@@ -66,6 +66,9 @@ Last item
     {{#zcl_command_arguments}}
         {{#if_is_struct type}}
             {{name}} is struct
+            {{#zcl_struct_items_by_struct_name type}}
+                {{parent.name}}::{{label}} struct item
+            {{/zcl_struct_items_by_struct_name}}
         {{else}}
             {{name}} is not struct
         {{/if_is_struct}}

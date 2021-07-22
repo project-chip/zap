@@ -109,6 +109,20 @@ function zcl_struct_items(options) {
 }
 
 /**
+ * Block helper iterating over all struct items given the struct name.
+ *
+ * @param name
+ * @param options
+ * @returns Promise of content.
+ */
+function zcl_struct_items_by_struct_name(name, options) {
+  let promise = queryZcl
+    .selectAllStructItemsByStructName(this.global.db, name)
+    .then((st) => templateUtil.collectBlocks(st, options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Block helper iterating over all deviceTypes.
  *
  * @param {*} options
@@ -2360,6 +2374,7 @@ exports.zcl_enums = zcl_enums
 exports.zcl_enum_items = zcl_enum_items
 exports.zcl_structs = zcl_structs
 exports.zcl_struct_items = zcl_struct_items
+exports.zcl_struct_items_by_struct_name = zcl_struct_items_by_struct_name
 exports.zcl_clusters = zcl_clusters
 exports.zcl_device_types = zcl_device_types
 exports.zcl_commands = zcl_commands
