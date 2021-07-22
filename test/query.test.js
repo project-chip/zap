@@ -51,6 +51,7 @@ let sid
 let pkgId
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('query')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
@@ -177,7 +178,7 @@ describe('Session specific queries', () => {
           sid = userSession.sessionId
           return util.initializeSessionPackage(db, sid, {
             zcl: env.builtinSilabsZclMetafile(),
-            template: env.builtinTemplateMetafile,
+            template: env.builtinTemplateMetafile(),
           })
         }),
     testUtil.timeout.medium()

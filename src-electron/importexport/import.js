@@ -47,7 +47,7 @@ async function readDataFromFile(filePath, defaultZclMetafile) {
       filePath,
       data,
       defaultZclMetafile == null
-        ? env.builtinSilabsZclMetafile
+        ? env.builtinSilabsZclMetafile()
         : defaultZclMetafile
     )
   } else {
@@ -83,7 +83,7 @@ async function importDataFromFile(
   filePath,
   options = {
     sessionId: null,
-    defaultZclMetafile: env.builtinSilabsZclMetafile,
+    defaultZclMetafile: env.builtinSilabsZclMetafile(),
     postImportScript: null,
   }
 ) {

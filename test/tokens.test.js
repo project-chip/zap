@@ -34,6 +34,7 @@ const testFile = path.join(__dirname, 'resource/tokens-test.zap')
 let templateContext
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('tokens')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
@@ -80,7 +81,7 @@ test(
       templateContext.sessionId,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile,
+        template: env.builtinTemplateMetafile(),
       }
     )
   },

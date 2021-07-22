@@ -37,7 +37,6 @@ let haCombinedIsc = path.join(
 )
 
 beforeAll(async () => {
-  process.env.DEV = true
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('conversion')
   db = await dbApi.initDatabaseAndLoadSchema(

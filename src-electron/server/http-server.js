@@ -108,7 +108,7 @@ async function initHttpServer(
   options = {
     allowCors: false,
     zcl: env.builtinSilabsZclMetafile(),
-    template: env.builtinTemplateMetafile,
+    template: env.builtinTemplateMetafile(),
   }
 ) {
   return new Promise((resolve, reject) => {

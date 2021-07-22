@@ -37,6 +37,7 @@ let sid
 let pkgId
 
 beforeAll(() => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('validation')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
@@ -50,7 +51,7 @@ afterAll(() => dbApi.closeDatabase(db), timeout.short())
 test(
   'Load the static data.',
   async () => {
-    let context = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+    let context = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
     pkgId = context.packageId
   },
   timeout.medium()
@@ -283,7 +284,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
   let eptId
   let pkgId
   beforeAll(async () => {
-    let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+    let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
     pkgId = ctx.packageId
     let userSession = await querySession.ensureZapUserAndSession(
       db,
@@ -291,8 +292,8 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       'SESSION'
     )
     await util.initializeSessionPackage(db, userSession.sessionId, {
-      zcl: env.builtinSilabsZclMetafile,
-      template: env.builtinTemplateMetafile,
+      zcl: env.builtinSilabsZclMetafile(),
+      template: env.builtinTemplateMetafile(),
     })
 
     sid = userSession.sessionId

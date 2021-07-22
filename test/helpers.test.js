@@ -34,6 +34,7 @@ let zclContext
 let ctx
 
 beforeAll(() => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('helpers')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())

@@ -28,6 +28,7 @@ let db
 let sid
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('custom-validation')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
@@ -43,7 +44,7 @@ beforeAll(async () => {
   sid = userSession.sessionId
   return util.initializeSessionPackage(db, sid, {
     zcl: env.builtinSilabsZclMetafile(),
-    template: env.builtinTemplateMetafile,
+    template: env.builtinTemplateMetafile(),
   })
 }, testUtil.timeout.medium())
 

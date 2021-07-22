@@ -37,6 +37,7 @@ const testFile2 = path.join(__dirname, 'resource/three-endpoint-device.zap')
 const testFile3 = path.join(__dirname, 'resource/zll-on-off-switch-test.zap')
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('genengine')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
@@ -97,7 +98,7 @@ test(
       templateContext.sessionId,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile,
+        template: env.builtinTemplateMetafile(),
       }
     )
 
@@ -527,7 +528,7 @@ test(
 
     await utilJs.initializeSessionPackage(db, sessionId, {
       zcl: env.builtinSilabsZclMetafile(),
-      template: env.builtinTemplateMetafile,
+      template: env.builtinTemplateMetafile(),
     })
 
     expect(errors.length).toBe(0)

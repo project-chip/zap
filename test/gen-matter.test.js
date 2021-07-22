@@ -41,13 +41,14 @@ const testFile = path.join(__dirname, 'resource/matter-test.zap')
 const templateCount = testUtil.testTemplate.matterCount
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('gen-matter')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
     env.zapVersion()
   )
-  let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile)
+  let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
   zclPackageId = ctx.packageId
 }, testUtil.timeout.medium())
 
@@ -127,7 +128,7 @@ test(
       templateContext.db,
       templateContext.sessionId,
       {
-        zcl: env.builtinMatterZclMetafile,
+        zcl: env.builtinMatterZclMetafile(),
         template: testUtil.testTemplate.matter,
       }
     )

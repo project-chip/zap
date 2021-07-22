@@ -401,6 +401,7 @@ async function loadTemplates(db, genTemplatesJson) {
     .then((ctx) => recordTemplatesPackage(ctx))
     .catch((err) => {
       env.logInfo(`Can not read templates from: ${context.path}`)
+      console.log(`JING: ${JSON.stringify(err)}`)
       throw err
     })
     .finally(() => {

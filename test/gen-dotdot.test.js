@@ -35,6 +35,7 @@ let templateContext
 let zclContext
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('dotdotgen')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
@@ -65,7 +66,7 @@ test(
 test(
   'Load DotDot ZCL stuff',
   () =>
-    zclLoader.loadZcl(db, env.builtinDotdotZclMetafile).then((context) => {
+    zclLoader.loadZcl(db, env.builtinDotdotZclMetafile()).then((context) => {
       zclContext = context
     }),
   testUtil.timeout.medium()

@@ -115,7 +115,7 @@ export function processCommandLineArguments(argv: string[]) {
       desc: 'generation template metafile (gen-template.json) to read in.',
       alias: ['gen', 'g'],
       type: 'string',
-      default: env.builtinTemplateMetafile,
+      default: env.builtinTemplateMetafile(),
     })
     .option('uiMode', {
       desc: 'Mode of the UI to begin in. Options are: ZIGBEE',

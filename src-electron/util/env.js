@@ -107,6 +107,7 @@ let versionObject = null
 let applicationStateDirectory = null
 
 function setDevelopmentEnv() {
+  process.env.DEV = true
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
   httpStaticContentPath = path.join(__dirname, '../../spa')
   global.__backend = path.join(__dirname, '../').replace(/\\/g, '\\\\')

@@ -35,6 +35,7 @@ let templateContext
 let zclContext
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('testgen')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,

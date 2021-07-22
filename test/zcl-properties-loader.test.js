@@ -34,8 +34,7 @@ const zclTestPropertiesFile = path.join(
 )
 
 beforeAll(() => {
-  process.env.DEV = true
-  env.setProductionEnv()
+  env.setDevelopmentEnv()
 })
 
 test(
