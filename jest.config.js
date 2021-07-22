@@ -48,7 +48,7 @@ module.exports = {
   },
   transform: {
     '.*\\.vue$': 'vue-jest',
-    '.*\\.js$': 'babel-jest',
+    '.*\\.[jt]sx?$': 'babel-jest',
     '.+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$':
       'jest-transform-stub',
     // use these if NPM is being flaky
