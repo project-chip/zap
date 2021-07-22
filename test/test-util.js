@@ -80,7 +80,7 @@ exports.testTemplate = {
   matter: './test/gen-template/matter/gen-test.json',
   matterCount: 3,
   dotdot: './test/gen-template/dotdot/dotdot-templates.json',
-  dotdotCount: 4,
+  dotdotCount: 5,
   unittest: './test/gen-template/test/gen-test.json',
 }
 

@@ -365,7 +365,7 @@ function prepareCluster(cluster, types, isExtension = false) {
     ret.define = cluster.$.name // TODO: no define in dotdot zcl
     ret.domain = cluster.classification[0].$.role
     //ret.manufacturerCode = '' // TODO: no manufacturer code in dotdot zcl
-    ret.revision = cluster.$.revision // TODO: revision present in dotdot zcl
+    ret.revision = cluster.$.revision
     ret.isSingleton = false // TODO: dotdot is not supporting singletons
   }
   let sides = [
@@ -634,11 +634,10 @@ async function loadZclData(db, ctx) {
   let types = { atomics: [], enums: [], bitmaps: [], structs: [] }
   prepareTypes(ctx.zclTypes, types)
   prepareTypes(ctx.zclGlobalTypes, types)
-  let cs = []
+  let preparedClusters = []
   ctx.zclClusters.forEach((cluster) => {
     env.logDebug(`loading cluster: ${cluster.$.name}`)
-    let c = prepareCluster(cluster, types)
-    cs.push(c)
+    preparedClusters.push(prepareCluster(cluster, types))
   })
   // Global attributes don't have a side listed, so they have to be looped through once for each side
   let gas = []
@@ -658,7 +657,7 @@ async function loadZclData(db, ctx) {
     let d = prepareDeviceType(deviceType)
     ds.push(d)
   })
-  await queryLoader.insertClusters(db, ctx.packageId, cs)
+  await queryLoader.insertClusters(db, ctx.packageId, preparedClusters)
 
   await queryPackage.insertOptionsKeyValues(
     db,
