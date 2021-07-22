@@ -379,13 +379,13 @@ test(
         // Test GENERATED_ATTRIBUTES
         expect(
           genResult.content['zap-config-version-2.h'].includes(
-            '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x00  } }, /* 16 Cluster: Color Control, Attribute: color control options, Side: server*/'
+            '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x00  } }, /* 46 Cluster: Color Control, Attribute: color control options, Side: server*/'
           )
         ).toBeTruthy()
         // Test is_number_greater_than within GENERATED_ATTRIBUTES
         expect(
           genResult.content['zap-config-version-2.h'].includes(
-            '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 70 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
+            '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 35 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
           )
         ).toBeTruthy()
         // Test GENERATED_CLUSTER_COUNT
@@ -397,7 +397,7 @@ test(
         // Test GENERATED_CLUSTERS
         expect(
           genResult.content['zap-config-version-2.h'].includes(
-            '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[70]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/'
+            '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[70]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 6, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/'
           )
         ).toBeTruthy()
         // Test GENERATED_ENDPOINT_TYPE_COUNT
