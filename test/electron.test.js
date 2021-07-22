@@ -18,7 +18,7 @@
  * @jest-environment node
  */
 
-const electronMain = require('../dist/electron-main.js')
+const electronMain = require('../src-electron/main-process/electron-main')
 const window = require('../src-electron/ui/window.js')
 const { timeout } = require('./test-util.js')
 
