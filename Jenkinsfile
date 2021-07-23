@@ -159,7 +159,6 @@ pipeline
         }
         stage('Building distribution artifacts') {
             parallel {
-                lock('mac build') {
                 stage('Building for Mac')
                 {
                     agent { label 'bgbuild-mac' }
@@ -190,7 +189,6 @@ pipeline
                             }
                         }
                     }
-                }
                 }
                 stage('Building for Windows / Linux')
                 {
