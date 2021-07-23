@@ -545,6 +545,69 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
+async function selectAllCommandsBySource(db, source, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  RESPONSE_REF
+FROM COMMAND
+WHERE
+  SOURCE = ?
+  AND PACKAGE_REF = ?
+ORDER BY CODE`,
+      [source, packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
+/**
+ * Retrieves filtered commands for a given cluster Id based on the source.
+ * This method DOES NOT retrieve global commands, since those have a cluster_ref = null
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @returns promise of an array of command rows, which represent per-cluster commands, excluding global commands.
+ */
+async function selectCommandsByClusterIdAndSource(
+  db,
+  clusterId,
+  source,
+  packageId
+) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL
+FROM COMMAND
+WHERE
+  CLUSTER_REF = ?
+  AND SOURCE = ?
+  AND PACKAGE_REF = ?
+ORDER BY CODE`,
+      [clusterId, source, packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
 async function selectAllGlobalCommands(db, packageId) {
   return dbApi
     .dbAll(
@@ -1048,6 +1111,8 @@ exports.selectAllIncomingCommandsForClusterCombined = selectAllIncomingCommandsF
 exports.selectAllCommands = selectAllCommands
 exports.selectCommandsByClusterId = selectCommandsByClusterId
 exports.selectCommandById = selectCommandById
+exports.selectAllCommandsBySource = selectAllCommandsBySource
+exports.selectCommandsByClusterIdAndSource = selectCommandsByClusterIdAndSource
 exports.selectAllGlobalCommands = selectAllGlobalCommands
 exports.selectAllClusterCommands = selectAllClusterCommands
 exports.selectAllCommandArguments = selectAllCommandArguments

@@ -181,6 +181,67 @@ function zcl_commands(options) {
 }
 
 /**
+ * @ignore - Used as an internal helper
+ * Block helper iterating over all commands based on the source.
+ * There are two modes of this helper:
+ *   when used in a global context, it iterates over ALL commands in the database based on the source.
+ *   when used inside a `zcl_cluster` block helper, it iterates only over the source commands for that cluster.
+ *
+ * @param {*} options
+ * @param {*} source
+ * @returns Promise of content.
+ */
+function zcl_commands_by_source(options, source) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) => {
+      if ('id' in this) {
+        // We're functioning inside a nested context with an id, so we will only query for this cluster.
+        return queryCommand.selectCommandsByClusterIdAndSource(
+          this.global.db,
+          this.id,
+          source,
+          packageId
+        )
+      } else {
+        return queryCommand.selectAllCommandsBySource(
+          this.global.db,
+          source,
+          packageId
+        )
+      }
+    })
+    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Block helper iterating over all client commands.
+ * There are two modes of this helper:
+ *   when used in a global context, it iterates over ALL client commands in the database.
+ *   when used inside a `zcl_cluster` block helper, it iterates only over the commands for that client cluster.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_commands_source_client(options) {
+  return zcl_commands_by_source.bind(this)(options, dbEnum.source.client)
+}
+
+/**
+ * Block helper iterating over all server commands.
+ * There are two modes of this helper:
+ *   when used in a global context, it iterates over ALL server commands in the database.
+ *   when used inside a `zcl_cluster` block helper, it iterates only over the commands for that server cluster.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_commands_source_server(options) {
+  return zcl_commands_by_source.bind(this)(options, dbEnum.source.server)
+}
+
+/**
  * Block helper iterating over all events.
  * There are two modes of this helper:
  *   when used in a global context, it iterates over ALL events in the database.
@@ -2378,6 +2439,8 @@ exports.zcl_struct_items_by_struct_name = zcl_struct_items_by_struct_name
 exports.zcl_clusters = zcl_clusters
 exports.zcl_device_types = zcl_device_types
 exports.zcl_commands = zcl_commands
+exports.zcl_commands_source_client = zcl_commands_source_client
+exports.zcl_commands_source_server = zcl_commands_source_server
 exports.zcl_events = zcl_events
 exports.zcl_event_fields = zcl_event_fields
 exports.zcl_command_tree = zcl_command_tree
