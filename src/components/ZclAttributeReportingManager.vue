@@ -56,6 +56,7 @@ limitations under the License.
           <q-td key="min" :props="props" auto-width>
             <q-input
               dense
+              type="number"
               :borderless="!editableAttributesReporting[props.row.id]"
               :outlined="editableAttributesReporting[props.row.id]"
               :disable="!editableAttributesReporting[props.row.id]"
@@ -80,6 +81,7 @@ limitations under the License.
           <q-td key="max" :props="props" auto-width>
             <q-input
               dense
+              type="number"
               :borderless="!editableAttributesReporting[props.row.id]"
               :outlined="editableAttributesReporting[props.row.id]"
               :disable="!editableAttributesReporting[props.row.id]"
