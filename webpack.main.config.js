@@ -16,6 +16,7 @@ const config = {
     filename: 'electron-main.js',
   },
   module: {
+    noParse: /\/native-require.js$/,
     rules: [
       {
         enforce: 'pre',

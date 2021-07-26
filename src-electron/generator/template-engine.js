@@ -20,19 +20,20 @@
  */
 
 const _ = require('lodash')
+const nativeRequire = require('../util/native-require')
 const fsPromise = require('fs').promises
 const promisedHandlebars = require('promised-handlebars')
 const handlebars = promisedHandlebars(require('handlebars'))
 
 const includedHelpers = [
-  './helper-zcl.js',
-  './helper-zap.js',
-  './helper-c.js',
-  './helper-session.js',
-  './helper-endpointconfig.js',
-  './helper-sdkextension.js',
-  './helper-tokens.js',
-  './helper-attribute.js',
+  require('./helper-zcl.js'),
+  require('./helper-zap.js'),
+  require('./helper-c.js'),
+  require('./helper-session.js'),
+  require('./helper-endpointconfig.js'),
+  require('./helper-sdkextension.js'),
+  require('./helper-tokens.js'),
+  require('./helper-attribute.js'),
 ]
 
 let globalHelpersInitialized = false
@@ -123,7 +124,7 @@ function loadOverridable(overridePath) {
   if (overridePath == null) {
     return shallowCopy
   } else {
-    let overrides = require(overridePath)
+    let overrides = nativeRequire(overridePath)
     Object.keys(overrides).forEach((name) => {
       if (name in shallowCopy) {
         shallowCopy[name] = wrapOverridable(shallowCopy[name], overrides[name])
@@ -169,10 +170,26 @@ function helperWrapper(wrappedHelper) {
 /**
  * Function that loads the helpers.
  *
- * @param {*} path
+ * @param {*} helpers - a string path if value is passed through CLI,
+ *                      the nativeRequire() is leverage the native js function instead
+ *                      of webpack's special sauce.
+ *                      a required() module if invoked by backend js code.
+ *                      this is required to force webpack to resolve the included files
+ *                      as path will be difference after being packed for production.
  */
-function loadHelper(path) {
-  let helpers = require(path)
+
+/**
+ *
+ * @param {*} helpers
+ */
+function loadHelper(helpers) {
+  // helper
+  // when template path are passed via CLI
+  // Other paths are 'required()' to workaround webpack path issue.
+  if (_.isString(helpers)) {
+    helpers = nativeRequire(helpers)
+  }
+
   for (const singleHelper of Object.keys(helpers)) {
     handlebars.registerHelper(
       singleHelper,
@@ -192,9 +209,8 @@ function allGlobalHelpers() {
     api: {}, // keyed functions
     duplicates: [], // array of duplicates
   }
-  includedHelpers.forEach((path) => {
-    let h = require(path)
-    for (const singleHelper of Object.keys(h)) {
+  includedHelpers.forEach((helperPkg) => {
+    for (const singleHelper of Object.keys(helperPkg)) {
       if (allHelpers.api[singleHelper] != null) {
         allHelpers.duplicates.push(singleHelper)
       }
