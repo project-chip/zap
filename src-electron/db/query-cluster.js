@@ -161,4 +161,5 @@ ORDER BY
     .then((rows) => rows.map(mapFunction))
 }
 
-exports.selectClusterDetailsFromEnabledClusters = selectClusterDetailsFromEnabledClusters
+exports.selectClusterDetailsFromEnabledClusters =
+  selectClusterDetailsFromEnabledClusters
