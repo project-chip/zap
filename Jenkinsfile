@@ -259,6 +259,7 @@ pipeline
                         dir('test_apack_bin') {
                             script
                             {
+                                cleanWs()
                                 unstash 'zap_apack_win'
                                 unzip zipFile: 'dist/zap_apack_win.zip'
                                 String response = bat(script: 'zap.exe --version', returnStdout: true).trim()
