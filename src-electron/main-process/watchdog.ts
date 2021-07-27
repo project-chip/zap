@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-let watchDogId = null
+let watchDogId: NodeJS.Timeout = null
 
 /**
  * Starts a zap watchdog.
@@ -23,7 +23,7 @@ let watchDogId = null
  * @param {*} expirationInterval
  * @param {*} triggerFunction
  */
-function start(expirationInterval, triggerFunction) {
+function start(expirationInterval: number, triggerFunction: () => void) {
   watchDogId = setTimeout(triggerFunction, expirationInterval)
   watchDogId.unref()
 }
