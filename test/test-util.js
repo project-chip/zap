@@ -82,6 +82,7 @@ exports.testTemplate = {
   dotdot: './test/gen-template/dotdot/dotdot-templates.json',
   dotdotCount: 5,
   unittest: './test/gen-template/test/gen-test.json',
+  testCount: 2,
 }
 
 exports.testServer = testServer

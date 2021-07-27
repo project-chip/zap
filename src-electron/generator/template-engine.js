@@ -34,6 +34,7 @@ const includedHelpers = [
   './helper-tokens.js',
   './helper-attribute.js',
   './helper-command.js',
+  './helper-future.js',
 ]
 
 let globalHelpersInitialized = false

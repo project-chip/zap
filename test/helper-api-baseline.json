@@ -141,6 +141,7 @@
   { "name": "format_value" },
   { "name": "format_zcl_string_as_characters_for_generated_defaults" },
   { "name": "formatValue", "isDeprecated": true },
+  { "name": "future" },
   { "name": "generated_attributes_min_max_index" },
   { "name": "generated_clustes_details" },
   { "name": "generated_defaults_index" },
@@ -171,6 +172,7 @@
   },
   { "name": "if_extension_false" },
   { "name": "if_extension_true" },
+  { "name": "if_future" },
   { "name": "if_is_bitmap" },
   { "name": "if_is_enum" },
   { "name": "if_is_struct" },
@@ -212,6 +214,7 @@
   { "name": "not_first" },
   { "name": "not_last" },
   { "name": "replace_string" },
+  { "name": "set_future" },
   { "name": "template_option_with_code" },
   { "name": "template_options" },
   { "name": "toggle" },
@@ -256,5 +259,6 @@
   { "name": "zcl_global_commands" },
   { "name": "zcl_string_type_return" },
   { "name": "zcl_struct_items" },
+  { "name": "zcl_struct_items_by_struct_name" },
   { "name": "zcl_structs" }
 ]

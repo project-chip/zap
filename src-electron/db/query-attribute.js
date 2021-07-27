@@ -348,7 +348,7 @@ async function selectAttributeDetailsFromEnabledClusters(
              END
         ELSE ATOMIC.ATOMIC_SIZE
     END AS ATOMIC_SIZE,
-    ROW_NUMBER() OVER (PARTITION BY CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE) CLUSTER_INDEX,
+    ROW_NUMBER() OVER (PARTITION BY CLUSTER.CODE, ENDPOINT_TYPE_CLUSTER.SIDE ORDER BY CLUSTER.CODE, ATTRIBUTE.CODE) CLUSTER_INDEX,
     COUNT (ATTRIBUTE.MANUFACTURER_CODE) OVER () AS MANUFACTURING_SPECIFIC_ATTRIBUTE_COUNT,
     SUM (CASE WHEN ENDPOINT_TYPE_ATTRIBUTE.SINGLETON=1 THEN 
           CASE WHEN ATOMIC.IS_STRING=1 THEN 
@@ -378,6 +378,7 @@ async function selectAttributeDetailsFromEnabledClusters(
   WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF IN (${endpointClusterIds})
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_CLUSTER.ENABLED=1 AND ENDPOINT_TYPE_CLUSTER.SIDE=ATTRIBUTE.SIDE
   GROUP BY CLUSTER.NAME, ATTRIBUTE.NAME, ATTRIBUTE.SIDE
+  ORDER BY CLUSTER.CODE, ENDPOINT_TYPE_CLUSTER.SIDE, ATTRIBUTE.CODE
         `
     )
     .then((rows) => rows.map(mapFunction))
@@ -640,7 +641,7 @@ async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
              END
         ELSE ATOMIC.ATOMIC_SIZE
     END AS ATOMIC_SIZE,
-    ROW_NUMBER() OVER (PARTITION BY CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE) CLUSTER_INDEX,
+    ROW_NUMBER() OVER (PARTITION BY CLUSTER.CODE, ENDPOINT_TYPE_CLUSTER.SIDE ORDER BY CLUSTER.CODE, ATTRIBUTE.CODE) CLUSTER_INDEX,
     COUNT (ATTRIBUTE.MANUFACTURER_CODE) OVER () AS MANUFACTURING_SPECIFIC_ATTRIBUTE_COUNT,
     SUM (CASE WHEN ENDPOINT_TYPE_ATTRIBUTE.SINGLETON=1 THEN 
       CASE WHEN ATOMIC.IS_STRING=1 THEN 
@@ -674,6 +675,7 @@ async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_CLUSTER.ENABLED=1 AND ENDPOINT_TYPE_CLUSTER.SIDE=ATTRIBUTE.SIDE
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED_REPORTABLE = 1
   GROUP BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME, ATTRIBUTE.NAME, ATTRIBUTE.SIDE
+  ORDER BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.CODE, ATTRIBUTE.CODE
         `
     )
     .then((rows) => rows.map(mapFunction))
@@ -847,12 +849,18 @@ ORDER BY
     )
 }
 
-exports.selectAllAttributeDetailsFromEnabledClusters = selectAllAttributeDetailsFromEnabledClusters
-exports.selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
-exports.selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters = selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
-exports.selectAttributeDetailsWithABoundFromEnabledClusters = selectAttributeDetailsWithABoundFromEnabledClusters
-exports.selectAttributeDetailsFromEnabledClusters = selectAttributeDetailsFromEnabledClusters
+exports.selectAllAttributeDetailsFromEnabledClusters =
+  selectAllAttributeDetailsFromEnabledClusters
+exports.selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters =
+  selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
+exports.selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters =
+  selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
+exports.selectAttributeDetailsWithABoundFromEnabledClusters =
+  selectAttributeDetailsWithABoundFromEnabledClusters
+exports.selectAttributeDetailsFromEnabledClusters =
+  selectAttributeDetailsFromEnabledClusters
 exports.selectAttributeBoundDetails = selectAttributeBoundDetails
-exports.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints = selectReportableAttributeDetailsFromEnabledClustersAndEndpoints
+exports.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints =
+  selectReportableAttributeDetailsFromEnabledClustersAndEndpoints
 exports.selectGlobalAttributeDefaults = selectGlobalAttributeDefaults
 exports.selectAttributeByCode = selectAttributeByCode
