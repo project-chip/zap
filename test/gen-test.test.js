@@ -107,6 +107,10 @@ test(
     expect(err.message.includes('this is where the failure lies')).toBeTruthy()
     expect(err.message.includes('line: 3, column: 0')).toBeTruthy()
     expect(err.message.includes('test-fail.zapt')).toBeTruthy()
+
+    let testFutures = genResult.content['test-future.out']
+    expect(testFutures.includes('x=1')).toBeTruthy()
+    expect(testFutures.includes('y=1')).not.toBeTruthy()
   },
   testUtil.timeout.medium()
 )
