@@ -30,7 +30,7 @@ const webSocket = require('./ws-server.js')
 const studio = require('../ide-integration/studio-rest-api.js')
 const restApi = require('../../src-shared/rest-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const watchdog = require('../main-process/watchdog.ts')
+const watchdog = require('../main-process/watchdog.js')
 
 const restApiModules = [
   require('../rest/admin.js'),
