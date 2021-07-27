@@ -14,10 +14,9 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-const templateUtil = require('./template-util.js')
 const futureKey = 'futures'
 const valueKey = 'futureValues'
-
+const timeoutMessage = '!---timeout---!'
 /**
  * Block helper resolving the block if the
  * value of the specified future matches.
@@ -34,7 +33,9 @@ function ifFuture(options) {
   if (futurePromise == null) return
 
   return futurePromise.then((result) => {
-    if (value == result) {
+    if (result == timeoutMessage) {
+      return ''
+    } else if (value == result) {
       return options.fn(this)
     } else {
       return ''
@@ -62,6 +63,15 @@ function setFuture(options) {
  */
 function future(options) {
   let name = options.hash.name
+  let toS = options.hash.timeout
+
+  let timeout
+  if (toS == null) {
+    timeout = 5000 // 5 second default timeout
+  } else {
+    timeout = parseInt(toS)
+  }
+
   if (!(futureKey in this.global)) {
     this.global[futureKey] = {}
   }
@@ -78,6 +88,10 @@ function future(options) {
         clearInterval(interval)
       }
       x++
+      if (10 * x > timeout) {
+        resolve(timeoutMessage)
+        clearInterval(interval)
+      }
     }, 10)
   })
   this.global[futureKey][name] = futurePromise
