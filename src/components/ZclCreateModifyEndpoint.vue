@@ -29,6 +29,7 @@ limitations under the License.
             filled
             class="col"
             :rules="[reqPosInt, reqUniqueEndpoint]"
+            min="0"
           />
           <q-input
             label="Profile ID"
@@ -75,6 +76,7 @@ limitations under the License.
               filled
               stack-label
               :rules="[reqPosInt]"
+              min="0"
             >
               <q-tooltip>
                 An endpoint can be assigned a network id that corresponds to
@@ -91,6 +93,7 @@ limitations under the License.
               filled
               stack-label
               :rules="[reqPosInt]"
+              min="0"
             />
           </div>
         </q-form>
@@ -136,9 +139,8 @@ export default {
       this.shownEndpoint.deviceVersion = parseInt(
         this.endpointVersion[this.endpointReference]
       )
-      this.shownEndpoint.deviceTypeRef = this.endpointDeviceTypeRef[
-        this.endpointType[this.endpointReference]
-      ]
+      this.shownEndpoint.deviceTypeRef =
+        this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
     } else {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
@@ -270,16 +272,14 @@ export default {
               profileId: parseInt(this.shownEndpoint.profileIdentifier),
               endpointType: response.id,
               endpointVersion: this.shownEndpoint.deviceVersion,
-              deviceIdentifier: this.zclDeviceTypes[
-                this.shownEndpoint.deviceTypeRef
-              ].code,
+              deviceIdentifier:
+                this.zclDeviceTypes[this.shownEndpoint.deviceTypeRef].code,
             })
             .then((res) => {
               this.$store.dispatch('zap/updateSelectedEndpointType', {
                 endpointType: this.endpointType[res.id],
-                deviceTypeRef: this.endpointDeviceTypeRef[
-                  this.endpointType[res.id]
-                ],
+                deviceTypeRef:
+                  this.endpointDeviceTypeRef[this.endpointType[res.id]],
               })
 
               // collect all cluster id from new endpoint
@@ -353,9 +353,8 @@ export default {
 
       this.$store.dispatch('zap/updateSelectedEndpointType', {
         endpointType: endpointReference,
-        deviceTypeRef: this.endpointDeviceTypeRef[
-          this.endpointType[this.endpointReference]
-        ],
+        deviceTypeRef:
+          this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]],
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
     },
