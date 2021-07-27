@@ -69,7 +69,7 @@ const config = {
       patterns: [
         { from: '../db/zap-schema.sql', to: 'backend/db/' },
         { from: '../../zcl-builtin', to: 'backend/zcl-builtin' },
-        { from: '../icons', to: 'backend' },
+        { from: '../icons', to: 'backend/icons' },
       ],
     }),
   ],
