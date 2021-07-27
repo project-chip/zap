@@ -214,7 +214,7 @@ function allGlobalHelpers() {
       if (allHelpers.api[singleHelper] != null) {
         allHelpers.duplicates.push(singleHelper)
       }
-      allHelpers.api[singleHelper] = h[singleHelper]
+      allHelpers.api[singleHelper] = singleHelper
     }
   })
   return allHelpers
