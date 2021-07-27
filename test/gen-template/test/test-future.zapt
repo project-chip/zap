@@ -1,0 +1,14 @@
+{{future name="x"}}
+{{future name="y"}}
+
+{{#if_future name="x" value="1"}}
+x=1
+{{/if_future}}
+
+{{#if_future name="y" value="1"}}
+y=1
+{{/if_future}}
+
+
+{{set_future name="x" value="1"}}
+{{set_future name="y" value="2"}}

@@ -28,7 +28,6 @@ const testUtil = require('./test-util.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 
 let db
-const templateCount = 1
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 let sessionId
 let templateContext
@@ -56,7 +55,9 @@ test(
     expect(templateContext.templateData).not.toBeNull()
     expect(templateContext.templateData.name).toEqual('Unit test templates')
     expect(templateContext.templateData.version).toEqual('unit-test')
-    expect(templateContext.templateData.templates.length).toEqual(templateCount)
+    expect(templateContext.templateData.templates.length).toEqual(
+      testUtil.testTemplate.testCount
+    )
     expect(templateContext.packageId).not.toBeNull()
   },
   testUtil.timeout.medium()
