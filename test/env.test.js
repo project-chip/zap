@@ -33,6 +33,10 @@ describe(
     let filePath = 'foobarBackupTestFile.txt'
     let backupPath = filePath + '~'
 
+    beforeAll(async () => {
+      env.setDevelopmentEnv()
+    })
+
     afterAll(() => {
       fs.unlinkSync(backupPath)
     }, timeout.short())

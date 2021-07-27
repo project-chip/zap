@@ -28,7 +28,6 @@ const env = require('../src-electron/util/env.js')
 const testUtil = require('./test-util.js')
 
 beforeAll(async () => {
-  process.env.DEV = true
   env.setDevelopmentEnv()
 })
 
