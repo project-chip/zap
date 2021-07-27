@@ -178,7 +178,7 @@ function appDirectory() {
 }
 
 function iconsDirectory() {
-  return path.join(__dirname, '../icons')
+  return path.join(global.__backend, '/icons')
 }
 
 function schemaFile() {
