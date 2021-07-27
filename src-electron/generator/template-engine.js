@@ -214,7 +214,7 @@ function allGlobalHelpers() {
       if (allHelpers.api[singleHelper] != null) {
         allHelpers.duplicates.push(singleHelper)
       }
-      allHelpers.api[singleHelper] = singleHelper
+      allHelpers.api[singleHelper] = helperPkg[singleHelper]
     }
   })
   return allHelpers
