@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-let watchDogId: NodeJS.Timeout = null
+let watchDogId: NodeJS.Timeout
 
 /**
  * Starts a zap watchdog.
