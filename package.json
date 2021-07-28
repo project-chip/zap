@@ -203,7 +203,7 @@
       "output": "dist"
     },
     "nodeGypRebuild": false,
-    "npmRebuild": false,
+    "npmRebuild": true,
     "files": [
       "**/*",
       "dist/backend",
