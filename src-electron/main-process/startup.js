@@ -34,7 +34,7 @@ const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const uiJs = require('../ui/ui-util.js')
-const watchdog = require('./watchdog.js')
+const watchdog = require('./watchdog.ts')
 
 // This file contains various startup modes.
 
