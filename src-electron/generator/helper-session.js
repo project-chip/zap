@@ -31,6 +31,7 @@ const querySession = require('../db/query-session.js')
 const queryZcl = require('../db/query-zcl.js')
 const helperZcl = require('./helper-zcl.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const iteratorUtil = require('../util/iterator-util.js')
 
 /**
  * Creates block iterator over the endpoints.
@@ -173,25 +174,11 @@ function user_all_attributes(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function all_user_cluster_commands(options) {
-  let promise = templateUtil
-    .ensureEndpointTypeIds(this)
-    .then((endpointTypes) =>
-      queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
-        this.global.db,
-        endpointsAndClusters,
-        true
-      )
-    )
+  let promise = iteratorUtil.all_user_cluster_commands_helper.call(this, options)
     .then((endpointCommands) =>
       templateUtil.collectBlocks(endpointCommands, options, this)
     )
-  return promise
+  return promise;
 }
 
 /**
