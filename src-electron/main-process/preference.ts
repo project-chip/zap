@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-import { WebPreferences, BrowserWindow } from "electron"
+import { BrowserWindow } from "electron"
 
 const path = require('path')
 const env = require('../util/env.js')
