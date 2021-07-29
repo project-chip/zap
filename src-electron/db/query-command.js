@@ -165,7 +165,7 @@ AND (
       (ENDPOINT_TYPE_COMMAND.INCOMING=1 AND COMMAND.SOURCE!=ENDPOINT_TYPE_CLUSTER.SIDE) OR
       (ENDPOINT_TYPE_COMMAND.OUTGOING=1 AND COMMAND.SOURCE=ENDPOINT_TYPE_CLUSTER.SIDE)
     )
-GROUP BY CLUSTER.NAME, COMMAND.NAME, ENDPOINT_TYPE_CLUSTER.SIDE ) GROUP BY CLUSTER_NAME, COMMAND_NAME ORDER BY CLUSTER_NAME, COMMAND_NAME`
+GROUP BY CLUSTER.NAME, COMMAND.NAME, ENDPOINT_TYPE_CLUSTER.SIDE ) GROUP BY CLUSTER_NAME, COMMAND_NAME ORDER BY CLUSTER_CODE, COMMAND_CODE`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -230,6 +230,106 @@ GROUP BY
   CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE`
     )
     .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * All Clusters with available incoming commands. This function seeks to consolidate endpoint type clusters
+ * that are differentiated by sides into one entry.
+ * @param db
+ * @param endpointTypes
+ * @returns All Clusters that have available incoming commands.
+ * Note: The relationship between the endpoint_type_cluster being enabled and a
+ * endpoint_type_command is indirect. The reason for this being the endpoint
+ * type command is not precisely linked to the sides of the cluster as commands
+ * do not belong to a side of a cluster like an attribute.
+ */
+async function selectAllClustersWithIncomingCommandsCombined(
+  db,
+  endpointTypes
+) {
+  let uncombinedClusters = selectAllClustersWithIncomingCommands(
+    db,
+    endpointTypes
+  )
+  let reduceFunction = (combinedClusters, currentValue) => {
+    // Find out if current cluster is in combinedClusters, or just use currentValue otherwise.
+    let newVal = combinedClusters.has(currentValue.id)
+      ? combinedClusters.get(currentValue.id)
+      : currentValue
+
+    //Add side enabled keys
+    if (currentValue.clusterSide == 'client') {
+      newVal['clientSideEnabled'] = true
+    } else if (currentValue.clusterSide == 'server') {
+      newVal['serverSideEnabled'] = true
+    }
+    // Delete extraneous keys
+    delete newVal['clusterSide']
+    delete newVal['enabled']
+
+    combinedClusters.set(currentValue.id, newVal)
+    return combinedClusters
+  }
+  return uncombinedClusters.then((rows) => {
+    return Array.from(
+      rows.reduce(reduceFunction, new Map()),
+      (value, key) => value[1]
+    )
+  })
+}
+
+/**
+ * This function returns all incoming commands that are on enabled sides for a cluster.
+ * @param db
+ * @param endpointTypes
+ * @param clName
+ * @param clientSideEnabled
+ * @param serverSideEnabled
+ * @param isMfgSpecific
+ * @return All commands that are enabled on their incoming side. This is unique based on the command name across a cluster.
+ *
+ */
+async function selectAllIncomingCommandsForClusterCombined(
+  db,
+  endpointTypes,
+  clName,
+  clientSideEnabled,
+  serverSideEnabled,
+  isMfgSpecific
+) {
+  let client = clientSideEnabled
+    ? await selectAllIncomingCommandsForCluster(
+        db,
+        endpointTypes,
+        clName,
+        'client',
+        isMfgSpecific
+      )
+    : []
+  let server = serverSideEnabled
+    ? await selectAllIncomingCommandsForCluster(
+        db,
+        endpointTypes,
+        clName,
+        'server',
+        isMfgSpecific
+      )
+    : []
+  // The assumption here is that, given that this is inside a cluster already; that the command name are unique and sufficient outside of
+  // the clusterSide duplication.
+  let combinedClusters = client.concat(server)
+
+  let reduceFunction = (combinedMap, currentValue) => {
+    if (!combinedMap.has(currentValue.commandName)) {
+      combinedMap.set(currentValue.commandName, currentValue)
+    }
+    return combinedMap
+  }
+
+  return Array.from(
+    combinedClusters.reduce(reduceFunction, new Map()),
+    (value, key) => value[1]
+  )
 }
 
 async function selectAllIncomingCommandsForCluster(
@@ -300,6 +400,72 @@ AND ENDPOINT_TYPE_CLUSTER.SIDE IN ("client", "server") AND ENDPOINT_TYPE_CLUSTER
 AND ENDPOINT_TYPE_COMMAND.INCOMING=1 AND COMMAND.SOURCE!=ENDPOINT_TYPE_CLUSTER.SIDE
 AND CLUSTER.NAME = "${clName}" AND ENDPOINT_TYPE_CLUSTER.SIDE = "${clSide}" 
 ${mfgSpecificString} GROUP BY COMMAND.NAME`
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+async function selectAllIncomingCommands(db, endpointTypes, isMfgSpecific) {
+  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  let mfgSpecificString =
+    isMfgSpecific === undefined
+      ? ``
+      : isMfgSpecific
+      ? ` AND COMMAND.MANUFACTURER_CODE IS NOT NULL `
+      : ` AND COMMAND.MANUFACTURER_CODE IS NULL `
+  let mapFunction = (x) => {
+    return {
+      clusterId: x.CLUSTER_ID,
+      clusterName: x.CLUSTER_NAME,
+      clusterCode: x.CLUSTER_CODE,
+      clusterDefine: x.CLUSTER_DEFINE,
+      commandMfgCode: x.COMMAND_MANUFACTURER_CODE,
+      clusterSide: x.CLUSTER_SIDE,
+      clusterEnabled: x.CLUSTER_ENABLED,
+      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+      numberOfClusterSidesEnabled: x.NO_OF_CLUSTER_SIDES_ENABLED,
+      id: x.COMMAND_ID,
+      commandName: x.COMMAND_NAME,
+      commandSource: x.COMMAND_SOURCE,
+      code: x.COMMAND_CODE,
+      incoming: x.INCOMING,
+      outgoing: x.OUTGOING,
+      mfgCommandCount: x.MANUFACTURING_SPECIFIC_COMMAND_COUNT,
+    }
+  }
+
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  CLUSTER.CLUSTER_ID,
+  CLUSTER.NAME AS CLUSTER_NAME,
+  CLUSTER.CODE AS CLUSTER_CODE,
+  CLUSTER.DEFINE AS CLUSTER_DEFINE,
+  COMMAND.MANUFACTURER_CODE AS COMMAND_MANUFACTURER_CODE,
+  ENDPOINT_TYPE_CLUSTER.SIDE AS CLUSTER_SIDE,
+  ENDPOINT_TYPE_CLUSTER.ENABLED AS CLUSTER_ENABLED,
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
+  COUNT(*) OVER (PARTITION BY CLUSTER.NAME, COMMAND.NAME) AS NO_OF_CLUSTER_SIDES_ENABLED,
+  COMMAND.COMMAND_ID AS COMMAND_ID,
+  COMMAND.NAME AS COMMAND_NAME,
+  COMMAND.SOURCE AS COMMAND_SOURCE,
+  COMMAND.CODE AS COMMAND_CODE,
+  ENDPOINT_TYPE_COMMAND.INCOMING AS INCOMING,
+  ENDPOINT_TYPE_COMMAND.OUTGOING AS OUTGOING,
+  COUNT(COMMAND.MANUFACTURER_CODE) OVER () AS MANUFACTURING_SPECIFIC_COMMAND_COUNT
+FROM COMMAND
+INNER JOIN ENDPOINT_TYPE_COMMAND
+ON ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+INNER JOIN CLUSTER
+ON CLUSTER.CLUSTER_ID = COMMAND.CLUSTER_REF
+INNER JOIN ENDPOINT_TYPE_CLUSTER
+ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+AND ENDPOINT_TYPE_CLUSTER.SIDE IN ("client", "server") AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+AND ENDPOINT_TYPE_COMMAND.INCOMING=1 AND COMMAND.SOURCE!=ENDPOINT_TYPE_CLUSTER.SIDE 
+${mfgSpecificString} GROUP BY COMMAND.NAME
+ORDER BY CLUSTER.NAME, COMMAND.NAME`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -726,7 +892,8 @@ async function selectAllCliCommandDetailsFromEnabledClusters(
  */
 async function selectCommandDetailsFromAllEndpointTypesAndClusters(
   db,
-  endpointsAndClusters
+  endpointsAndClusters,
+  doGroupBy
 ) {
   let endpointTypeIds = endpointsAndClusters
     .map((ep) => ep.endpointId)
@@ -734,10 +901,7 @@ async function selectCommandDetailsFromAllEndpointTypesAndClusters(
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
     .toString()
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let query = `
   SELECT
     COMMAND.COMMAND_ID,
     COMMAND.NAME,
@@ -766,12 +930,14 @@ async function selectCommandDetailsFromAllEndpointTypesAndClusters(
     COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
   WHERE
     ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds}) 
-    AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
-  GROUP BY
-    COMMAND.NAME, COMMAND.COMMAND_ID
-        `
-    )
-    .then((rows) => rows.map(commandMapFunction))
+    AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds}) `
+
+  if (doGroupBy) {
+    // See: https://github.com/project-chip/zap/issues/192
+    query = query + ` GROUP BY COMMAND.NAME, COMMAND.COMMAND_ID`
+  }
+
+  return dbApi.dbAll(db, query).then((rows) => rows.map(commandMapFunction))
 }
 
 /**
@@ -876,7 +1042,9 @@ exports.selectCliCommandCountFromEndpointTypeCluster = selectCliCommandCountFrom
 exports.selectCliCommandsFromCluster = selectCliCommandsFromCluster
 exports.selectAllAvailableClusterCommandDetailsFromEndpointTypes = selectAllAvailableClusterCommandDetailsFromEndpointTypes
 exports.selectAllClustersWithIncomingCommands = selectAllClustersWithIncomingCommands
+exports.selectAllClustersWithIncomingCommandsCombined = selectAllClustersWithIncomingCommandsCombined
 exports.selectAllIncomingCommandsForCluster = selectAllIncomingCommandsForCluster
+exports.selectAllIncomingCommandsForClusterCombined = selectAllIncomingCommandsForClusterCombined
 exports.selectAllCommands = selectAllCommands
 exports.selectCommandsByClusterId = selectCommandsByClusterId
 exports.selectCommandById = selectCommandById
@@ -894,3 +1062,4 @@ exports.selectAllCliCommandDetailsFromEnabledClusters = selectAllCliCommandDetai
 exports.selectCommandDetailsFromAllEndpointTypesAndClusters = selectCommandDetailsFromAllEndpointTypesAndClusters
 exports.selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
 exports.selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
+exports.selectAllIncomingCommands = selectAllIncomingCommands

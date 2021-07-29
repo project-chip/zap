@@ -6,6 +6,16 @@
       "path": "test-fail.zapt",
       "name": "Test Fail",
       "output": "test-fail.out"
+    },
+    {
+      "path": "test-missing.zapt",
+      "name": "Test Missing",
+      "output": "test-missing.out"
+    },
+    {
+      "path": "test-future.zapt",
+      "name": "Test Future",
+      "output": "test-future.out"
     }
   ]
 }

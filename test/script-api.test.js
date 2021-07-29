@@ -27,7 +27,7 @@ const querySession = require('../src-electron/db/query-session.js')
 const testUtil = require('./test-util.js')
 const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 
-let sleepyGenericZap = path.join(__dirname, 'resource/isc/sleepy-generic.zap')
+let testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 
 beforeAll(() => {
   process.env.DEV = true
@@ -46,16 +46,16 @@ beforeAll(() => {
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
-  path.basename(sleepyGenericZap) + ' - import',
+  path.basename(testFile) + ' - import',
   async () => {
     let sid = await querySession.createBlankSession(db)
-    await importJs.importDataFromFile(db, sleepyGenericZap, {
+    await importJs.importDataFromFile(db, testFile, {
       sessionId: sid,
       postImportScript: path.join(__dirname, 'resource/test-script-2.js'),
     })
     let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
-    expect(endpoints.length).toBe(1)
-    expect(endpoints[0].deviceIdentifier).toBe(1281)
+    expect(endpoints.length).toBe(2)
+    expect(endpoints[0].endpointIdentifier).toBe(42)
   },
   testUtil.timeout.medium()
 )

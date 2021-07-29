@@ -87,27 +87,27 @@ async function importDataFromFile(
     postImportScript: null,
   }
 ) {
-  let state = await readDataFromFile(filePath, options.defaultZclMetafile)
-  return dbApi
-    .dbBeginTransaction(db)
-    .then(() => {
-      if (options.sessionId == null) {
-        return querySession.createBlankSession(db)
-      } else {
-        return options.sessionId
-      }
-    })
-    .then((sid) => state.loader(db, state, sid))
-    .then((loaderResult) => {
-      if (options.postImportScript != null)
-        return executePostImportScript(
-          db,
-          loaderResult.sessionId,
-          options.postImportScript
-        ).then(() => loaderResult)
-      else return loaderResult
-    })
-    .finally(() => dbApi.dbCommit(db))
+  try {
+    let state = await readDataFromFile(filePath, options.defaultZclMetafile)
+    await dbApi.dbBeginTransaction(db)
+    let sid
+    if (options.sessionId == null) {
+      sid = await querySession.createBlankSession(db)
+    } else {
+      sid = options.sessionId
+    }
+    let loaderResult = await state.loader(db, state, sid)
+    if (options.postImportScript != null) {
+      await executePostImportScript(
+        db,
+        loaderResult.sessionId,
+        options.postImportScript
+      )
+    }
+    return loaderResult
+  } finally {
+    dbApi.dbCommit(db)
+  }
 }
 
 // exports

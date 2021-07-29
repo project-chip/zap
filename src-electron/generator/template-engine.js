@@ -34,6 +34,8 @@ const includedHelpers = [
   require('./helper-sdkextension.js'),
   require('./helper-tokens.js'),
   require('./helper-attribute.js'),
+  require('./helper-command.js'),
+  require('./helper-future.js')
 ]
 
 let globalHelpersInitialized = false

@@ -34,7 +34,7 @@ async function executeScriptFunction(functionName, context, script) {
   let resolvedPath = path.resolve(script)
   let loadedScript = nativeRequire(resolvedPath)
   if (loadedScript[functionName]) {
-    await loadedScript[functionName](scriptApi, context)
+    return loadedScript[functionName](scriptApi, context)
   }
 }
 

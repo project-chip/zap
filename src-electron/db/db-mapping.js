@@ -73,6 +73,7 @@ exports.map = {
       define: x.DEFINE,
       domainName: x.DOMAIN_NAME,
       isSingleton: dbApi.fromDbBool(x.IS_SINGLETON),
+      revision: x.REVISION,
     }
   },
 
@@ -122,6 +123,7 @@ exports.map = {
       name: x.NAME,
       description: x.DESCRIPTION,
       side: x.SIDE,
+      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       priority: x.PRIORITY,
     }
   },
@@ -147,6 +149,8 @@ exports.map = {
       argPresentIf: x.ARG_PRESENT_IF,
       argCountArg: x.ARG_COUNT_ARG,
       responseRef: x.RESPONSE_REF,
+      isIncoming: x.INCOMING,
+      isOutgoing: x.OUTGOING,
     }
   },
 

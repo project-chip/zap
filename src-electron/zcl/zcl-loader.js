@@ -97,7 +97,7 @@ async function loadIndividualFile(db, filePath, sessionId) {
 
   let ext = path.extname(filePath)
   if (ext == '.xml') {
-    return sLoad.loadIndividualSilabsFile(db, filePath, validator)
+    return sLoad.loadIndividualSilabsFile(db, filePath, validator, sessionId)
   } else {
     return Promise.reject('Unknown extension file')
   }

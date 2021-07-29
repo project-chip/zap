@@ -18,6 +18,16 @@
       "path": "dotdot-type.zapt",
       "name": "Dot dot types",
       "output": "dotdot-type.h"
+    },
+    {
+      "path": "cluster.zapt",
+      "name": "Dot dot clusters",
+      "output": "dotdot-cluster.xml"
+    },
+    {
+      "path": "enum.zapt",
+      "name": "Enums",
+      "output": "enum.h"
     }
   ]
 }

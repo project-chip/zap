@@ -288,7 +288,7 @@ SELECT * FROM (
              END
         ELSE ATOMIC.ATOMIC_SIZE
     END AS ATOMIC_SIZE,
-    ROW_NUMBER() OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE) CLUSTER_INDEX,
+    ROW_NUMBER() OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.CODE, ENDPOINT_TYPE_CLUSTER.SIDE) CLUSTER_INDEX,
     ROW_NUMBER() OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER) ENDPOINT_INDEX,
     ROW_NUMBER() OVER () ROW_INDEX,
     (DENSE_RANK() over (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER ORDER BY CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE) + DENSE_RANK() OVER (PARTITION BY ENDPOINT_TYPE.ENDPOINT_TYPE_ID ORDER BY CLUSTER.NAME DESC, ENDPOINT_TYPE_CLUSTER.SIDE DESC) - 1) AS CLUSTER_COUNT,
@@ -521,11 +521,17 @@ exports.selectAllEndpointTypes = selectAllEndpointTypes
 exports.selectEndpointTypeIds = selectEndpointTypeIds
 exports.selectUsedEndpointTypeIds = selectUsedEndpointTypeIds
 exports.selectEndpointType = selectEndpointType
-exports.selectAllClustersDetailsFromEndpointTypes = selectAllClustersDetailsFromEndpointTypes
-exports.selectEndpointDetailsFromAddedEndpoints = selectEndpointDetailsFromAddedEndpoints
+exports.selectAllClustersDetailsFromEndpointTypes =
+  selectAllClustersDetailsFromEndpointTypes
+exports.selectEndpointDetailsFromAddedEndpoints =
+  selectEndpointDetailsFromAddedEndpoints
 
-exports.selectAllClustersNamesFromEndpointTypes = selectAllClustersNamesFromEndpointTypes
-exports.selectAllClustersDetailsIrrespectiveOfSideFromEndpointTypes = selectAllClustersDetailsIrrespectiveOfSideFromEndpointTypes
-exports.selectCommandDetailsFromAllEndpointTypeCluster = selectCommandDetailsFromAllEndpointTypeCluster
+exports.selectAllClustersNamesFromEndpointTypes =
+  selectAllClustersNamesFromEndpointTypes
+exports.selectAllClustersDetailsIrrespectiveOfSideFromEndpointTypes =
+  selectAllClustersDetailsIrrespectiveOfSideFromEndpointTypes
+exports.selectCommandDetailsFromAllEndpointTypeCluster =
+  selectCommandDetailsFromAllEndpointTypeCluster
 
-exports.selectClustersAndEndpointDetailsFromEndpointTypes = selectClustersAndEndpointDetailsFromEndpointTypes
+exports.selectClustersAndEndpointDetailsFromEndpointTypes =
+  selectClustersAndEndpointDetailsFromEndpointTypes

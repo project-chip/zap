@@ -147,7 +147,7 @@ test(
       expect(x.length).toEqual(61)
 
       x = await queryZcl.selectAllEnums(db, dotdotPackageId)
-      expect(x.length).toEqual(105)
+      expect(x.length).toEqual(testUtil.totalDotDotEnums)
 
       x = await queryZcl.selectAllAttributesBySide(
         db,
@@ -157,7 +157,7 @@ test(
       expect(x.length).toBe(615)
 
       x = await queryZcl.selectAllEnumItems(db, dotdotPackageId)
-      expect(x.length).toEqual(639)
+      expect(x.length).toEqual(testUtil.totalDotDotEnumItems)
 
       x = await queryZcl.selectAllStructs(db, dotdotPackageId)
       expect(x.length).toEqual(20)

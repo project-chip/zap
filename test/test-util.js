@@ -80,7 +80,9 @@ exports.testTemplate = {
   matter: './test/gen-template/matter/gen-test.json',
   matterCount: 3,
   dotdot: './test/gen-template/dotdot/dotdot-templates.json',
+  dotdotCount: 5,
   unittest: './test/gen-template/test/gen-test.json',
+  testCount: 3,
 }
 
 exports.testServer = testServer
@@ -101,3 +103,6 @@ exports.totalSpecCount = 24
 exports.totalEnumCount = 209
 exports.totalEnumItemCount = 1595
 exports.longTimeout = 12000
+
+exports.totalDotDotEnums = 104
+exports.totalDotDotEnumItems = 637

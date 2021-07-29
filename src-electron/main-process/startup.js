@@ -453,7 +453,7 @@ async function generateSingleFile(
     postImportScript: null,
   }
 ) {
-  let hrstart = process.hrtime()
+  let hrstart = process.hrtime.bigint()
   let sessionId
   let output
   if (f === BLANK_SESSION) {
@@ -473,9 +473,10 @@ async function generateSingleFile(
 
   await util.initializeSessionPackage(db, sessionId, options)
 
-  let hrend = process.hrtime(hrstart)
-  options.logger(`🕐 File loading time: ${hrend[0]}s ${hrend[1] / 1000000}ms `)
+  let nsDuration = process.hrtime.bigint() - hrstart
+  options.logger(`🕐 File loading time: ${util.duration(nsDuration)}`)
 
+  options.fileLoadTime = nsDuration
   let genResult = await generatorEngine.generateAndWriteFiles(
     db,
     sessionId,
@@ -509,7 +510,7 @@ async function startGeneration(
   let genResultFile = argv.genResultFile
   let skipPostGeneration = argv.skipPostGeneration
 
-  let hrstart = process.hrtime()
+  let hrstart = process.hrtime.bigint()
   options.logger(
     `🤖 ZAP generation started: 
     🔍 input files: ${zapFiles}
@@ -546,8 +547,8 @@ async function startGeneration(
   options.skipPostGeneration = skipPostGeneration
   options.postImportScript = argv.postImportScript
 
-  let hrend = process.hrtime(hrstart)
-  options.logger(`🕐 Setup time: ${hrend[0]}s ${hrend[1] / 1000000}ms `)
+  let nsDuration = process.hrtime.bigint() - hrstart
+  options.logger(`🕐 Setup time: ${util.duration(nsDuration)} `)
 
   await util.executePromisesSequentially(files, (f, index) =>
     generateSingleFile(mainDb, f, ctx.packageId, output, index, options)

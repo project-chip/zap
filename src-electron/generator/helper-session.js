@@ -22,7 +22,7 @@
  */
 const templateUtil = require('./template-util.js')
 const queryImpexp = require('../db/query-impexp.js')
-const queryEndpoint = require('../db/query-endpoint.js')
+const queryCluster = require('../db/query-cluster.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryCommand = require('../db/query-command.js')
 const queryAttribute = require('../db/query-attribute.js')
@@ -31,6 +31,7 @@ const querySession = require('../db/query-session.js')
 const queryZcl = require('../db/query-zcl.js')
 const helperZcl = require('./helper-zcl.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const iteratorUtil = require('../util/iterator-util.js')
 
 /**
  * Creates block iterator over the endpoints.
@@ -173,24 +174,11 @@ function user_all_attributes(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function all_user_cluster_commands(options) {
-  let promise = templateUtil
-    .ensureEndpointTypeIds(this)
-    .then((endpointTypes) =>
-      queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
-    )
-    .then((endpointsAndClusters) =>
-      queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
-        this.global.db,
-        endpointsAndClusters
-      )
-    )
+  let promise = iteratorUtil.all_user_cluster_commands_helper.call(this, options)
     .then((endpointCommands) =>
       templateUtil.collectBlocks(endpointCommands, options, this)
     )
-  return promise
+  return promise;
 }
 
 /**
@@ -224,7 +212,8 @@ function all_user_cluster_command_util(
       if (isIrrespectiveOfManufacturingSpecification) {
         return queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
           currentContext.global.db,
-          endpointsAndClusters
+          endpointsAndClusters,
+          true
         )
       } else if (isManufacturingSpecific) {
         return queryCommand.selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
@@ -540,7 +529,8 @@ async function user_cluster_has_enabled_command(name, side) {
 
   let endpointCommands = await queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
     this.global.db,
-    endpointsAndClusters
+    endpointsAndClusters,
+    false
   )
   let cmdCount = 0
   endpointCommands.forEach((command) => {
@@ -779,6 +769,83 @@ function all_user_clusters_with_incoming_commands(options) {
 }
 
 /**
+ * All clusters that have available incoming commands.
+ * If there is a client and server enabled on the endpoint, this combines them
+ * into a single entry.
+ * @param options
+ * @returns All clusters that have available incoming commands across
+ * all endpoints.
+ */
+function all_user_clusters_with_incoming_commands_combined(options) {
+  return queryEndpointType
+    .selectUsedEndpointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryCommand.selectAllClustersWithIncomingCommandsCombined(
+        this.global.db,
+        endpointTypes
+      )
+    )
+    .then((clustersWithIncomingCommands) =>
+      templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
+    )
+}
+
+/**
+ * All commands that need to be parsed for a given cluster. This takes in booleans
+ * for if the client and or server are included.
+ * @param clusterName
+ * @param clientSide
+ * @param serverSide
+ * @param options
+ * @returns all commands that need to be parsed for a given cluster
+ */
+function all_incoming_commands_for_cluster_combined(
+  clusterName,
+  clientSide,
+  serverSide,
+  options
+) {
+  let isMfgSpec =
+    'isMfgSpecific' in options.hash
+      ? options.hash.isMfgSpecific.toLowerCase() === 'true'
+      : undefined
+  return queryEndpointType
+    .selectUsedEndpointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryCommand.selectAllIncomingCommandsForClusterCombined(
+        this.global.db,
+        endpointTypes,
+        clusterName,
+        clientSide,
+        serverSide,
+        isMfgSpec
+      )
+    )
+    .then((clustersWithIncomingCommands) =>
+      templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
+    )
+}
+
+function all_user_incoming_commands_for_all_clusters(options) {
+  let isMfgSpec =
+    'isMfgSpecific' in options.hash
+      ? options.hash.isMfgSpecific.toLowerCase() === 'true'
+      : undefined
+  return queryEndpointType
+    .selectUsedEndpointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryCommand.selectAllIncomingCommands(
+        this.global.db,
+        endpointTypes,
+        isMfgSpec
+      )
+    )
+    .then((clustersWithIncomingCommands) =>
+      templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
+    )
+}
+
+/**
  * All commands that need to be parsed for a given cluster
  * @param clusterName
  * @param options
@@ -816,7 +883,7 @@ async function generated_clustes_details(options) {
     this.global.db,
     endpointTypes
   )
-  let endpointCommands = await queryZcl.exportClusterDetailsFromEnabledClusters(
+  let endpointCommands = await queryCluster.selectClusterDetailsFromEnabledClusters(
     this.global.db,
     endpointsAndClusters
   )
@@ -944,6 +1011,8 @@ async function generated_attributes_min_max_index(clusterName, attributeName) {
   return dataPtr
 }
 
+const dep = templateUtil.deprecatedHelper
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -988,4 +1057,15 @@ exports.all_user_cluster_attributes_min_max_defaults = all_user_cluster_attribut
 exports.generated_defaults_index = generated_defaults_index
 exports.generated_attributes_min_max_index = generated_attributes_min_max_index
 exports.all_user_clusters_with_incoming_commands = all_user_clusters_with_incoming_commands
+exports.all_user_incoming_commands_for_all_clusters = all_user_incoming_commands_for_all_clusters
+exports.all_user_clusters_with_incoming_commands_combined = all_user_clusters_with_incoming_commands_combined
+exports.all_user_clusters_with_incoming_commands_combined = dep(
+  all_user_clusters_with_incoming_commands_combined,
+  { to: 'all_user_incoming_commands_for_all_clusters' }
+)
 exports.all_incoming_commands_for_cluster = all_incoming_commands_for_cluster
+exports.all_incoming_commands_for_cluster_combined = all_incoming_commands_for_cluster_combined
+exports.all_incoming_commands_for_cluster_combined = dep(
+  all_incoming_commands_for_cluster_combined,
+  { to: 'all_user_incoming_commands_for_all_clusters' }
+)

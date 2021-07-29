@@ -401,6 +401,7 @@ function prepareCluster(cluster, isExtension = false) {
         side: event.$.side,
         priority: event.$.priority,
         description: event.description[0].trim(),
+        isOptional: event.$.optional == 'true',
       }
       if (ev.manufacturerCode == null) {
         ev.manufacturerCode = ret.manufacturerCode
@@ -512,11 +513,20 @@ function processClusterGlobalAttributes(db, filePath, packageId, data) {
  * @param {*} data
  * @returns promise to resolve the clusterExtension tags
  */
-async function processClusterExtensions(db, filePath, packageId, data) {
-  env.logDebug(`${filePath}, ${packageId}: ${data.length} cluster extensions.`)
+async function processClusterExtensions(
+  db,
+  filePath,
+  dataPackageId,
+  knownPackages,
+  data
+) {
+  env.logDebug(
+    `${filePath}, ${dataPackageId}: ${data.length} cluster extensions.`
+  )
   return queryLoader.insertClusterExtensions(
     db,
-    packageId,
+    dataPackageId,
+    knownPackages,
     data.map((x) => prepareCluster(x, true))
   )
 }
@@ -761,10 +771,12 @@ async function processDeviceTypes(db, filePath, packageId, data) {
  * @param {*} argument
  * @returns promise that resolves when all the subtags are parsed.
  */
-async function processParsedZclData(db, argument) {
+async function processParsedZclData(db, argument, previouslyKnownPackages) {
   let filePath = argument.filePath
   let data = argument.result
   let packageId = argument.packageId
+  previouslyKnownPackages.add(packageId)
+  let knownPackages = Array.from(previouslyKnownPackages)
   if (!('result' in argument)) {
     return []
   } else {
@@ -836,6 +848,7 @@ async function processParsedZclData(db, argument) {
             db,
             filePath,
             packageId,
+            knownPackages,
             data.configurator.clusterExtension
           )
         )
@@ -848,6 +861,14 @@ async function processParsedZclData(db, argument) {
   }
 }
 
+/**
+ * This function is used for parsing each individual ZCL file at a grouped zcl file package level.
+ * This should _not_ be used for custom XML addition due to custom xmls potentially relying on existing packges.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} file
+ * @returns A promise for when the last stage of the loading pipeline finishes.
+ */
 async function parseSingleZclFile(db, packageId, file) {
   try {
     let fileContent = await fsp.readFile(file)
@@ -867,7 +888,7 @@ async function parseSingleZclFile(db, packageId, file) {
       result.result = await util.parseXml(fileContent)
       delete result.data
     }
-    return processParsedZclData(db, result)
+    return processParsedZclData(db, result, new Set())
   } catch (err) {
     err.message = `Error reading xml file: ${file}\n` + err.message
     throw err
@@ -1106,13 +1127,21 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
 }
 
 /**
- * Parses a single file.
+ * Parses a single file. This function is used specifically
+ * for adding a package through an existing session because of its reliance
+ * on relating the new XML content to the packages associated with that session.
+ * e.g. for ClusterExtensions.
  *
  * @param {*} db
  * @param {*} filePath
  * @returns Promise of a loaded file.
  */
-async function loadIndividualSilabsFile(db, filePath, boundValidator) {
+async function loadIndividualSilabsFile(
+  db,
+  filePath,
+  boundValidator,
+  sessionId
+) {
   try {
     let fileContent = await fsp.readFile(filePath)
     let data = {
@@ -1139,7 +1168,15 @@ async function loadIndividualSilabsFile(db, filePath, boundValidator) {
     if (result.validation && result.validation.isValid == false) {
       throw new Error('Validation Failed')
     }
-    let laterPromises = await processParsedZclData(db, result)
+    let sessionPackages = await queryPackage.getSessionZclPackages(
+      db,
+      sessionId
+    )
+    let packageSet = new Set()
+    sessionPackages.map((sessionPackage) => {
+      packageSet.add(sessionPackage.packageRef)
+    })
+    let laterPromises = await processParsedZclData(db, result, packageSet)
     await Promise.all(
       laterPromises.flat(1).map((promise) => {
         if (promise != null && promise != undefined) return promise()
@@ -1148,6 +1185,7 @@ async function loadIndividualSilabsFile(db, filePath, boundValidator) {
     await zclLoader.processZclPostLoading(db)
     return { succeeded: true, packageId: pkgId }
   } catch (err) {
+    env.logError(`Error reading xml file: ${file}\n` + err.message)
     return { succeeded: false, err: err }
   }
 }

@@ -94,14 +94,15 @@ CREATE TABLE "PACKAGE_EXTENSION_DEFAULT" (
   foreign key (PACKAGE_EXTENSION_REF) references PACKAGE_EXTENSION(PACKAGE_EXTENSION_ID)
 );
 /*
- *  $$$$$$\    $$\                $$\     $$\                       $$\            $$\               
- * $$  __$$\   $$ |               $$ |    \__|                      $$ |           $$ |              
- * $$ /  \__|$$$$$$\    $$$$$$\ $$$$$$\   $$\  $$$$$$$\        $$$$$$$ | $$$$$$\ $$$$$$\    $$$$$$\  
- * \$$$$$$\  \_$$  _|   \____$$\\_$$  _|  $$ |$$  _____|      $$  __$$ | \____$$\\_$$  _|   \____$$\ 
- *  \____$$\   $$ |     $$$$$$$ | $$ |    $$ |$$ /            $$ /  $$ | $$$$$$$ | $$ |     $$$$$$$ |
- * $$\   $$ |  $$ |$$\ $$  __$$ | $$ |$$\ $$ |$$ |            $$ |  $$ |$$  __$$ | $$ |$$\ $$  __$$ |
- * \$$$$$$  |  \$$$$  |\$$$$$$$ | \$$$$  |$$ |\$$$$$$$\       \$$$$$$$ |\$$$$$$$ | \$$$$  |\$$$$$$$ |
- *  \______/    \____/  \_______|  \____/ \__| \_______|       \_______| \_______|  \____/  \_______|
+ *
+ * $$$$$$$$\          $$\       $$\      $$\                 $$\           $$\ 
+ * \____$$  |         $$ |      $$$\    $$$ |                $$ |          $$ |
+ *     $$  / $$$$$$$\ $$ |      $$$$\  $$$$ | $$$$$$\   $$$$$$$ | $$$$$$\  $$ |
+ *    $$  / $$  _____|$$ |      $$\$$\$$/$$ |$$  __$$\ $$  __$$ |$$  __$$\ $$ |
+ *   $$  /  $$ /      $$ |      $$ \$$$ .$$ |$$ /  $$ |$$ /  $$ |$$$$$$$$ |$$ |
+ *  $$  /   $$ |      $$ |      $$ |\$  /$$ |$$ |  $$ |$$ |  $$ |$$   ____|$$ |
+ * $$$$$$$$\\$$$$$$$\ $$ |      $$ | \_/ $$ |\$$$$$$  |\$$$$$$$ |\$$$$$$$\ $$ |
+ * \________|\_______|\__|      \__|     \__| \______/  \_______| \_______|\__|                                                                                                                                                                                                                                    
  */
 /*
  SPEC table contains the spec information.
@@ -143,6 +144,7 @@ CREATE TABLE IF NOT EXISTS "CLUSTER" (
   "DESCRIPTION" text,
   "DEFINE" text,
   "IS_SINGLETON" integer,
+  "REVISION" integer,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
@@ -204,6 +206,7 @@ CREATE TABLE IF NOT EXISTS "EVENT" (
   "NAME" text,
   "DESCRIPTION" text,
   "SIDE" text,
+  "IS_OPTIONAL" text,
   "PRIORITY" text,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
@@ -295,6 +298,86 @@ CREATE TABLE IF NOT EXISTS "GLOBAL_ATTRIBUTE_BIT" (
   foreign key(TAG_REF) references TAG(TAG_ID)
 );
 /*
+ DEVICE_TYPE table contains device types directly loaded from packages.
+ */
+DROP TABLE IF EXISTS "DEVICE_TYPE";
+CREATE TABLE IF NOT EXISTS "DEVICE_TYPE" (
+  "DEVICE_TYPE_ID" integer primary key autoincrement,
+  "PACKAGE_REF" integer,
+  "DOMAIN" text,
+  "CODE" integer,
+  "PROFILE_ID" integer,
+  "NAME" text,
+  "DESCRIPTION" text,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+);
+/*
+ DEVICE_TYPE_CLUSTER contains clusters that belong to the device type.
+ */
+DROP TABLE IF EXISTS "DEVICE_TYPE_CLUSTER";
+CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_CLUSTER" (
+  "DEVICE_TYPE_CLUSTER_ID" integer primary key autoincrement,
+  "DEVICE_TYPE_REF" integer,
+  "CLUSTER_REF" integer,
+  "CLUSTER_NAME" text,
+  "INCLUDE_CLIENT" integer,
+  "INCLUDE_SERVER" integer,
+  "LOCK_CLIENT" integer,
+  "LOCK_SERVER" integer,
+  foreign key (DEVICE_TYPE_REF) references DEVICE_TYPE(DEVICE_TYPE_ID),
+  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID)
+);
+/*
+ DEVICE_TYPE_ATTRIBUTE contains attribuets that belong to a device type cluster. 
+ */
+DROP TABLE IF EXISTS "DEVICE_TYPE_ATTRIBUTE";
+CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_ATTRIBUTE" (
+  "DEVICE_TYPE_CLUSTER_REF" integer,
+  "ATTRIBUTE_REF" integer,
+  "ATTRIBUTE_NAME" text,
+  foreign key (DEVICE_TYPE_CLUSTER_REF) references DEVICE_TYPE_CLUSTER(DEVICE_TYPE_CLUSTER_ID),
+  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID)
+);
+/*
+ DEVICE_TYPE_COMMAND contains attributes that belong to a device type cluster. 
+ */
+DROP TABLE IF EXISTS "DEVICE_TYPE_COMMAND";
+CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_COMMAND" (
+  "DEVICE_TYPE_CLUSTER_REF" integer,
+  "COMMAND_REF" integer,
+  "COMMAND_NAME" text,
+  foreign key (DEVICE_TYPE_CLUSTER_REF) references DEVICE_TYPE_CLUSTER(DEVICE_TYPE_CLUSTER_ID),
+  foreign key (COMMAND_REF) references COMMAND(COMMAND_ID)
+);
+/*
+ TAG table contains tags. They can be used for access control and feature maps.
+ */
+DROP TABLE IF EXISTS "TAG";
+CREATE TABLE IF NOT EXISTS "TAG" (
+  "TAG_ID" integer primary key autoincrement,
+  "PACKAGE_REF" integer,
+  "CLUSTER_REF" integer,
+  "NAME" text,
+  "DESCRIPTION" text,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
+  UNIQUE(PACKAGE_REF, NAME)
+);
+/*
+ *
+ * $$$$$$$$\                                      
+ * \__$$  __|                                     
+ *    $$ |$$\   $$\  $$$$$$\   $$$$$$\   $$$$$$$\ 
+ *    $$ |$$ |  $$ |$$  __$$\ $$  __$$\ $$  _____|
+ *    $$ |$$ |  $$ |$$ /  $$ |$$$$$$$$ |\$$$$$$\  
+ *    $$ |$$ |  $$ |$$ |  $$ |$$   ____| \____$$\ 
+ *    $$ |\$$$$$$$ |$$$$$$$  |\$$$$$$$\ $$$$$$$  |
+ *    \__| \____$$ |$$  ____/  \_______|\_______/ 
+ *        $$\   $$ |$$ |                          
+ *        \$$$$$$  |$$ |                          
+ *         \______/ \__|                          
+ */
+/*
  ATOMIC table contains the atomic types loaded from packages
  */
 DROP TABLE IF EXISTS "ATOMIC";
@@ -383,72 +466,6 @@ CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
   foreign key (STRUCT_REF) references STRUCT(STRUCT_ID)
 );
 /*
- DEVICE_TYPE table contains device types directly loaded from packages.
- */
-DROP TABLE IF EXISTS "DEVICE_TYPE";
-CREATE TABLE IF NOT EXISTS "DEVICE_TYPE" (
-  "DEVICE_TYPE_ID" integer primary key autoincrement,
-  "PACKAGE_REF" integer,
-  "DOMAIN" text,
-  "CODE" integer,
-  "PROFILE_ID" integer,
-  "NAME" text,
-  "DESCRIPTION" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
-);
-/*
- DEVICE_TYPE_CLUSTER contains clusters that belong to the device type.
- */
-DROP TABLE IF EXISTS "DEVICE_TYPE_CLUSTER";
-CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_CLUSTER" (
-  "DEVICE_TYPE_CLUSTER_ID" integer primary key autoincrement,
-  "DEVICE_TYPE_REF" integer,
-  "CLUSTER_REF" integer,
-  "CLUSTER_NAME" text,
-  "INCLUDE_CLIENT" integer,
-  "INCLUDE_SERVER" integer,
-  "LOCK_CLIENT" integer,
-  "LOCK_SERVER" integer,
-  foreign key (DEVICE_TYPE_REF) references DEVICE_TYPE(DEVICE_TYPE_ID),
-  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID)
-);
-/*
- DEVICE_TYPE_ATTRIBUTE contains attribuets that belong to a device type cluster. 
- */
-DROP TABLE IF EXISTS "DEVICE_TYPE_ATTRIBUTE";
-CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_ATTRIBUTE" (
-  "DEVICE_TYPE_CLUSTER_REF" integer,
-  "ATTRIBUTE_REF" integer,
-  "ATTRIBUTE_NAME" text,
-  foreign key (DEVICE_TYPE_CLUSTER_REF) references DEVICE_TYPE_CLUSTER(DEVICE_TYPE_CLUSTER_ID),
-  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID)
-);
-/*
- DEVICE_TYPE_COMMAND contains attribuets that belong to a device type cluster. 
- */
-DROP TABLE IF EXISTS "DEVICE_TYPE_COMMAND";
-CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_COMMAND" (
-  "DEVICE_TYPE_CLUSTER_REF" integer,
-  "COMMAND_REF" integer,
-  "COMMAND_NAME" text,
-  foreign key (DEVICE_TYPE_CLUSTER_REF) references DEVICE_TYPE_CLUSTER(DEVICE_TYPE_CLUSTER_ID),
-  foreign key (COMMAND_REF) references COMMAND(COMMAND_ID)
-);
-/*
- TAG table contains tags. They can be used for access control and feature maps.
- */
-DROP TABLE IF EXISTS "TAG";
-CREATE TABLE IF NOT EXISTS "TAG" (
-  "TAG_ID" integer primary key autoincrement,
-  "PACKAGE_REF" integer,
-  "CLUSTER_REF" integer,
-  "NAME" text,
-  "DESCRIPTION" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
-  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  UNIQUE(PACKAGE_REF, NAME)
-);
-/*
  *
  *  $$$$$$\                                $$\                                 $$\            $$\               
  * $$  __$$\                               \__|                                $$ |           $$ |              
@@ -497,26 +514,6 @@ CREATE TABLE IF NOT EXISTS "SESSION_KEY_VALUE" (
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
   UNIQUE(SESSION_REF, KEY)
 );
-CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_SESSION_KEY_VALUE"
-AFTER
-INSERT ON "SESSION_KEY_VALUE" BEGIN
-UPDATE SESSION
-SET DIRTY = 1
-WHERE SESSION_ID = NEW.SESSION_REF;
-END;
-CREATE TRIGGER IF NOT EXISTS "UPDATE_TRIGGER_SESSION_KEY_VALUE"
-AFTER
-UPDATE ON "SESSION_KEY_VALUE" BEGIN
-UPDATE SESSION
-SET DIRTY = 1
-WHERE SESSION_ID = NEW.SESSION_REF;
-END;
-CREATE TRIGGER IF NOT EXISTS "DELETE_TRIGGER_SESSION_KEY_VALUE"
-AFTER DELETE ON "SESSION_KEY_VALUE" BEGIN
-UPDATE SESSION
-SET DIRTY = 1
-WHERE SESSION_ID = OLD.SESSION_REF;
-END;
 /*
  SESSION_LOG table contains general purpose text log for the session
  */
@@ -527,26 +524,6 @@ CREATE TABLE IF NOT EXISTS "SESSION_LOG" (
   "LOG" text,
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade
 );
-CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_SESSION_LOG"
-AFTER
-INSERT ON "SESSION_LOG" BEGIN
-UPDATE SESSION
-SET DIRTY = 1
-WHERE SESSION_ID = NEW.SESSION_REF;
-END;
-CREATE TRIGGER IF NOT EXISTS "UPDATE_TRIGGER_SESSION_LOG"
-AFTER
-UPDATE ON "SESSION_LOG" BEGIN
-UPDATE SESSION
-SET DIRTY = 1
-WHERE SESSION_ID = NEW.SESSION_REF;
-END;
-CREATE TRIGGER IF NOT EXISTS "DELETE_TRIGGER_SESSION_LOG"
-AFTER DELETE ON "SESSION_LOG" BEGIN
-UPDATE SESSION
-SET DIRTY = 1
-WHERE SESSION_ID = OLD.SESSION_REF;
-END;
 /*
  SESSION_PACKAGE table is a junction table, listing which packages
  are used for a given session.
@@ -573,6 +550,183 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE" (
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
   foreign key(DEVICE_TYPE_REF) references DEVICE_TYPE(DEVICE_TYPE_ID)
 );
+/*
+ ENDPOINT table contains the toplevel configured endpoints.
+ */
+DROP TABLE IF EXISTS "ENDPOINT";
+CREATE TABLE IF NOT EXISTS "ENDPOINT" (
+  "ENDPOINT_ID" integer primary key autoincrement,
+  "SESSION_REF" integer,
+  "ENDPOINT_TYPE_REF" integer,
+  "PROFILE" integer,
+  "ENDPOINT_IDENTIFIER" integer,
+  "NETWORK_IDENTIFIER" integer,
+  "DEVICE_IDENTIFIER" integer,
+  "DEVICE_VERSION" integer,
+  foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
+  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete
+  set NULL
+);
+/*
+ SESSION_CLUSTER contains the on/off values for cluster.
+ SIDE is client or server
+ STATE is 1 for ON and 0 for OFF.
+ */
+DROP TABLE IF EXISTS "ENDPOINT_TYPE_CLUSTER";
+CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_CLUSTER" (
+  "ENDPOINT_TYPE_CLUSTER_ID" integer primary key autoincrement,
+  "ENDPOINT_TYPE_REF" integer,
+  "CLUSTER_REF" integer,
+  "SIDE" text,
+  "ENABLED" integer default false,
+  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
+  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
+  UNIQUE(ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE)
+);
+/*
+ ENDPOINT_TYPE_ATTRIBUTE table contains the user data configuration for the various parameters that exist
+ for an attribute on an endpoint. This essentially lets you determine if something should be included or not.
+ */
+DROP TABLE IF EXISTS "ENDPOINT_TYPE_ATTRIBUTE";
+CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
+  "ENDPOINT_TYPE_ATTRIBUTE_ID" integer primary key autoincrement,
+  "ENDPOINT_TYPE_REF" integer,
+  "ENDPOINT_TYPE_CLUSTER_REF" integer,
+  "ATTRIBUTE_REF" integer,
+  "INCLUDED" integer default false,
+  "STORAGE_OPTION" text,
+  "SINGLETON" integer default false,
+  "BOUNDED" integer default false,
+  "DEFAULT_VALUE" text,
+  "INCLUDED_REPORTABLE" integer default false,
+  "MIN_INTERVAL" integer default 0,
+  "MAX_INTERVAL" integer default 65344,
+  "REPORTABLE_CHANGE" integer default 0,
+  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
+  foreign key (ENDPOINT_TYPE_CLUSTER_REF) references ENDPOINT_TYPE_CLUSTER(ENDPOINT_TYPE_CLUSTER_ID),
+  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID),
+  UNIQUE(
+    ENDPOINT_TYPE_REF,
+    ATTRIBUTE_REF,
+    ENDPOINT_TYPE_CLUSTER_REF
+  )
+);
+/*
+ ENDPOINT_TYPE_COMMAND table contains the user data configuration for the various parameters that exist
+ for commands on an endpoint. This essentially lets you determine if something should be included or not.
+ */
+DROP TABLE IF EXISTS "ENDPOINT_TYPE_COMMAND";
+CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_COMMAND" (
+  "ENDPOINT_TYPE_COMMAND_ID" integer primary key autoincrement,
+  "ENDPOINT_TYPE_REF" integer,
+  "ENDPOINT_TYPE_CLUSTER_REF" integer,
+  "COMMAND_REF" integer,
+  "INCOMING" integer default false,
+  "OUTGOING" integer default false,
+  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
+  foreign key (ENDPOINT_TYPE_CLUSTER_REF) references ENDPOINT_TYPE_CLUSTER(ENDPOINT_TYPE_CLUSTER_ID),
+  foreign key (COMMAND_REF) references COMMAND(COMMAND_ID),
+  UNIQUE(
+    ENDPOINT_TYPE_REF,
+    COMMAND_REF,
+    ENDPOINT_TYPE_CLUSTER_REF
+  )
+);
+/*
+ ENDPOINT_TYPE_EVENT table contains the user data configuration for the various parameters that exist
+ for events on an endpoint. This essentially lets you determine if something should be included or not.
+ */
+DROP TABLE IF EXISTS "ENDPOINT_TYPE_EVENT";
+CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_EVENT" (
+  "ENDPOINT_TYPE_EVENT_ID" integer primary key autoincrement,
+  "ENDPOINT_TYPE_REF" integer,
+  "ENDPOINT_TYPE_CLUSTER_REF" integer,
+  "EVENT_REF" integer,
+  "INCLUDED" integer default false,
+  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
+  foreign key (ENDPOINT_TYPE_CLUSTER_REF) references ENDPOINT_TYPE_CLUSTER(ENDPOINT_TYPE_CLUSTER_ID),
+  foreign key (EVENT_REF) references EVENT(EVENT_ID),
+  UNIQUE(
+    ENDPOINT_TYPE_REF,
+    EVENT_REF,
+    ENDPOINT_TYPE_CLUSTER_REF
+  )
+);
+/**
+ PACKAGE_EXTENSION_VALUE contains the value of the given package
+ extension for a given entity.
+ */
+DROP TABLE IF EXISTS "PACKAGE_EXTENSION_VALUE";
+CREATE TABLE IF NOT EXISTS "PACKAGE_EXTENSION_VALUE" (
+  "PACKAGE_EXTENSION_VALUE_ID" integer primary key autoincrement,
+  "PACKAGE_EXTENSION_REF" integer,
+  "SESSION_REF" integer,
+  "ENTITY_CODE" integer,
+  "PARENT_CODE" integer,
+  "VALUE" text,
+  foreign key (PACKAGE_EXTENSION_REF) references PACKAGE_EXTENSION(PACKAGE_EXTENSION_ID) on delete cascade,
+  foreign key (SESSION_REF) references SESSION(SESSION_ID),
+  UNIQUE(
+    PACKAGE_EXTENSION_REF,
+    SESSION_REF,
+    ENTITY_CODE,
+    PARENT_CODE
+  )
+);
+/*
+ * 
+ * $$$$$$$$\        $$\                                                   
+ * \__$$  __|       \__|                                                  
+ *    $$ | $$$$$$\  $$\  $$$$$$\   $$$$$$\   $$$$$$\   $$$$$$\   $$$$$$$\ 
+ *    $$ |$$  __$$\ $$ |$$  __$$\ $$  __$$\ $$  __$$\ $$  __$$\ $$  _____|
+ *    $$ |$$ |  \__|$$ |$$ /  $$ |$$ /  $$ |$$$$$$$$ |$$ |  \__|\$$$$$$\  
+ *    $$ |$$ |      $$ |$$ |  $$ |$$ |  $$ |$$   ____|$$ |       \____$$\ 
+ *    $$ |$$ |      $$ |\$$$$$$$ |\$$$$$$$ |\$$$$$$$\ $$ |      $$$$$$$  |
+ *    \__|\__|      \__| \____$$ | \____$$ | \_______|\__|      \_______/ 
+ *                      $$\   $$ |$$\   $$ |                              
+ *                      \$$$$$$  |\$$$$$$  |                              
+ *                       \______/  \______/                               
+ */
+CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_SESSION_KEY_VALUE"
+AFTER
+INSERT ON "SESSION_KEY_VALUE" BEGIN
+UPDATE SESSION
+SET DIRTY = 1
+WHERE SESSION_ID = NEW.SESSION_REF;
+END;
+CREATE TRIGGER IF NOT EXISTS "UPDATE_TRIGGER_SESSION_KEY_VALUE"
+AFTER
+UPDATE ON "SESSION_KEY_VALUE" BEGIN
+UPDATE SESSION
+SET DIRTY = 1
+WHERE SESSION_ID = NEW.SESSION_REF;
+END;
+CREATE TRIGGER IF NOT EXISTS "DELETE_TRIGGER_SESSION_KEY_VALUE"
+AFTER DELETE ON "SESSION_KEY_VALUE" BEGIN
+UPDATE SESSION
+SET DIRTY = 1
+WHERE SESSION_ID = OLD.SESSION_REF;
+END;
+CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_SESSION_LOG"
+AFTER
+INSERT ON "SESSION_LOG" BEGIN
+UPDATE SESSION
+SET DIRTY = 1
+WHERE SESSION_ID = NEW.SESSION_REF;
+END;
+CREATE TRIGGER IF NOT EXISTS "UPDATE_TRIGGER_SESSION_LOG"
+AFTER
+UPDATE ON "SESSION_LOG" BEGIN
+UPDATE SESSION
+SET DIRTY = 1
+WHERE SESSION_ID = NEW.SESSION_REF;
+END;
+CREATE TRIGGER IF NOT EXISTS "DELETE_TRIGGER_SESSION_LOG"
+AFTER DELETE ON "SESSION_LOG" BEGIN
+UPDATE SESSION
+SET DIRTY = 1
+WHERE SESSION_ID = OLD.SESSION_REF;
+END;
 CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_ENDPOINT_TYPE"
 AFTER
 INSERT ON "ENDPOINT_TYPE" BEGIN
@@ -593,23 +747,6 @@ UPDATE SESSION
 SET DIRTY = 1
 WHERE SESSION_ID = OLD.SESSION_REF;
 END;
-/*
- ENDPOINT table contains the toplevel configured endpoints.
- */
-DROP TABLE IF EXISTS "ENDPOINT";
-CREATE TABLE IF NOT EXISTS "ENDPOINT" (
-  "ENDPOINT_ID" integer primary key autoincrement,
-  "SESSION_REF" integer,
-  "ENDPOINT_TYPE_REF" integer,
-  "PROFILE" integer,
-  "ENDPOINT_IDENTIFIER" integer,
-  "NETWORK_IDENTIFIER" integer,
-  "DEVICE_IDENTIFIER" integer,
-  "DEVICE_VERSION" integer,
-  foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
-  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete
-  set NULL
-);
 CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_ENDPOINT"
 AFTER
 INSERT ON "ENDPOINT" BEGIN
@@ -630,22 +767,6 @@ UPDATE SESSION
 SET DIRTY = 1
 WHERE SESSION_ID = OLD.SESSION_REF;
 END;
-/*
- SESSION_CLUSTER contains the on/off values for cluster.
- SIDE is client or server
- STATE is 1 for ON and 0 for OFF.
- */
-DROP TABLE IF EXISTS "ENDPOINT_TYPE_CLUSTER";
-CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_CLUSTER" (
-  "ENDPOINT_TYPE_CLUSTER_ID" integer primary key autoincrement,
-  "ENDPOINT_TYPE_REF" integer,
-  "CLUSTER_REF" integer,
-  "SIDE" text,
-  "ENABLED" integer default false,
-  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
-  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  UNIQUE(ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE)
-);
 CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_ENDPOINT_TYPE_CLUSTER"
 AFTER
 INSERT ON "ENDPOINT_TYPE_CLUSTER" BEGIN
@@ -678,34 +799,6 @@ WHERE SESSION_ID = (
     WHERE ENDPOINT_TYPE_ID = OLD.ENDPOINT_TYPE_REF
   );
 END;
-/*
- ENDPOINT_TYPE_ATTRIBUTE table contains the user data configuration for the various parameters that exist
- for an attribute on an endpoint. This essentially lets you determine if something should be included or not.
- */
-DROP TABLE IF EXISTS "ENDPOINT_TYPE_ATTRIBUTE";
-CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
-  "ENDPOINT_TYPE_ATTRIBUTE_ID" integer primary key autoincrement,
-  "ENDPOINT_TYPE_REF" integer,
-  "ENDPOINT_TYPE_CLUSTER_REF" integer,
-  "ATTRIBUTE_REF" integer,
-  "INCLUDED" integer default false,
-  "STORAGE_OPTION" text,
-  "SINGLETON" integer default false,
-  "BOUNDED" integer default false,
-  "DEFAULT_VALUE" text,
-  "INCLUDED_REPORTABLE" integer default false,
-  "MIN_INTERVAL" integer default 0,
-  "MAX_INTERVAL" integer default 65344,
-  "REPORTABLE_CHANGE" integer default 0,
-  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
-  foreign key (ENDPOINT_TYPE_CLUSTER_REF) references ENDPOINT_TYPE_CLUSTER(ENDPOINT_TYPE_CLUSTER_ID),
-  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID),
-  UNIQUE(
-    ENDPOINT_TYPE_REF,
-    ATTRIBUTE_REF,
-    ENDPOINT_TYPE_CLUSTER_REF
-  )
-);
 CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_ENDPOINT_TYPE_ATTRIBUTE"
 AFTER
 INSERT ON "ENDPOINT_TYPE_ATTRIBUTE" BEGIN
@@ -738,27 +831,6 @@ WHERE SESSION_ID = (
     WHERE ENDPOINT_TYPE_ID = OLD.ENDPOINT_TYPE_REF
   );
 END;
-/*
- ENDPOINT_TYPE_COMMAND table contains the user data configuration for the various parameters that exist
- for commands on an endpoint. This essentially lets you determine if something should be included or not.
- */
-DROP TABLE IF EXISTS "ENDPOINT_TYPE_COMMAND";
-CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_COMMAND" (
-  "ENDPOINT_TYPE_COMMAND_ID" integer primary key autoincrement,
-  "ENDPOINT_TYPE_REF" integer,
-  "ENDPOINT_TYPE_CLUSTER_REF" integer,
-  "COMMAND_REF" integer,
-  "INCOMING" integer default false,
-  "OUTGOING" integer default false,
-  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
-  foreign key (ENDPOINT_TYPE_CLUSTER_REF) references ENDPOINT_TYPE_CLUSTER(ENDPOINT_TYPE_CLUSTER_ID),
-  foreign key (COMMAND_REF) references COMMAND(COMMAND_ID),
-  UNIQUE(
-    ENDPOINT_TYPE_REF,
-    COMMAND_REF,
-    ENDPOINT_TYPE_CLUSTER_REF
-  )
-);
 CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_ENDPOINT_TYPE_COMMAND"
 AFTER
 INSERT ON "ENDPOINT_TYPE_COMMAND" BEGIN
@@ -791,23 +863,58 @@ WHERE SESSION_ID = (
     WHERE ENDPOINT_TYPE_ID = OLD.ENDPOINT_TYPE_REF
   );
 END;
-DROP TABLE IF EXISTS "PACKAGE_EXTENSION_VALUE";
-CREATE TABLE IF NOT EXISTS "PACKAGE_EXTENSION_VALUE" (
-  "PACKAGE_EXTENSION_VALUE_ID" integer primary key autoincrement,
-  "PACKAGE_EXTENSION_REF" integer,
-  "SESSION_REF" integer,
-  "ENTITY_CODE" integer,
-  "PARENT_CODE" integer,
-  "VALUE" text,
-  foreign key (PACKAGE_EXTENSION_REF) references PACKAGE_EXTENSION(PACKAGE_EXTENSION_ID) on delete cascade,
-  foreign key (SESSION_REF) references SESSION(SESSION_ID),
-  UNIQUE(
-    PACKAGE_EXTENSION_REF,
-    SESSION_REF,
-    ENTITY_CODE,
-    PARENT_CODE
-  )
-);
+CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_ENDPOINT_TYPE_EVENT"
+AFTER
+INSERT ON "ENDPOINT_TYPE_EVENT" BEGIN
+UPDATE SESSION
+SET DIRTY = 1
+WHERE SESSION_ID = (
+    SELECT SESSION_REF
+    FROM ENDPOINT_TYPE
+    WHERE ENDPOINT_TYPE_ID = NEW.ENDPOINT_TYPE_REF
+  );
+END;
+CREATE TRIGGER IF NOT EXISTS "UPDATE_TRIGGER_ENDPOINT_TYPE_EVENT"
+AFTER
+UPDATE ON "ENDPOINT_TYPE_EVENT" BEGIN
+UPDATE SESSION
+SET DIRTY = 1
+WHERE SESSION_ID = (
+    SELECT SESSION_REF
+    FROM ENDPOINT_TYPE
+    WHERE ENDPOINT_TYPE_ID = NEW.ENDPOINT_TYPE_REF
+  );
+END;
+CREATE TRIGGER IF NOT EXISTS "DELETE_TRIGGER_ENDPOINT_TYPE_EVENT"
+AFTER DELETE ON "ENDPOINT_TYPE_EVENT" BEGIN
+UPDATE SESSION
+SET DIRTY = 1
+WHERE SESSION_ID = (
+    SELECT SESSION_REF
+    FROM ENDPOINT_TYPE
+    WHERE ENDPOINT_TYPE_ID = OLD.ENDPOINT_TYPE_REF
+  );
+END;
+CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_PACKAGE_EXTENSION_VALUE"
+AFTER
+INSERT ON "PACKAGE_EXTENSION_VALUE" BEGIN
+UPDATE SESSION
+SET DIRTY = 1
+WHERE SESSION_ID = NEW.SESSION_REF;
+END;
+CREATE TRIGGER IF NOT EXISTS "UPDATE_TRIGGER_PACKAGE_EXTENSION_VALUE"
+AFTER
+UPDATE ON "PACKAGE_EXTENSION_VALUE" BEGIN
+UPDATE SESSION
+SET DIRTY = 1
+WHERE SESSION_ID = NEW.SESSION_REF;
+END;
+CREATE TRIGGER IF NOT EXISTS "DELETE_TRIGGER_PACKAGE_EXTENSION_VALUE"
+AFTER DELETE ON "PACKAGE_EXTENSION_VALUE" BEGIN
+UPDATE SESSION
+SET DIRTY = 1
+WHERE SESSION_ID = OLD.SESSION_REF;
+END;
 /*
  * 
  *  $$$$$$\  $$\           $$\                 $$\             $$\            $$\               

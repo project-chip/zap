@@ -31,14 +31,16 @@ INSERT INTO CLUSTER (
   PACKAGE_REF,
   CODE,
   MANUFACTURER_CODE,
-  NAME, DESCRIPTION,
+  NAME,
+  DESCRIPTION,
   DEFINE,
   DOMAIN_NAME,
   IS_SINGLETON,
+  REVISION,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
@@ -53,11 +55,12 @@ INSERT INTO EVENT (
   NAME,
   DESCRIPTION,
   SIDE,
+  IS_OPTIONAL,
   PRIORITY,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
@@ -155,9 +158,9 @@ function attributeMap(clusterId, packageId, attributes) {
     attribute.maxLength,
     attribute.isWritable,
     attribute.defaultValue,
-    attribute.isOptional ? 1 : 0,
-    attribute.isReportable ? 1 : 0,
-    attribute.isSceneRequired ? 1 : 0,
+    dbApi.toDbBool(attribute.isOptional),
+    dbApi.toDbBool(attribute.isReportable),
+    dbApi.toDbBool(attribute.isSceneRequired),
     attribute.entryType,
     attribute.manufacturerCode,
     attribute.introducedIn,
@@ -176,6 +179,7 @@ function eventMap(clusterId, packageId, events) {
     event.name,
     event.description,
     event.side,
+    dbApi.toDbBool(event.isOptional),
     event.priority,
     event.introducedIn,
     packageId,
@@ -192,7 +196,7 @@ function commandMap(clusterId, packageId, commands) {
     command.name,
     command.description,
     command.source,
-    command.isOptional ? 1 : 0,
+    dbApi.toDbBool(command.isOptional),
     command.responseName,
     command.manufacturerCode,
     command.introducedIn,
@@ -220,7 +224,7 @@ function argMap(cmdId, packageId, args) {
     cmdId,
     arg.name,
     arg.type,
-    arg.isArray ? 1 : 0,
+    dbApi.toDbBool(arg.isArray),
     arg.presentIf,
     arg.countArg,
     arg.fieldIdentifier,
@@ -307,12 +311,12 @@ async function insertGlobals(db, packageId, data) {
  * @param {*} data
  * @returns Promise of cluster extension insertion.
  */
-async function insertClusterExtensions(db, packageId, data) {
+async function insertClusterExtensions(db, dataPackageId, knownPackages, data) {
   return dbApi
     .dbMultiSelect(
       db,
-      'SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF = ? AND CODE = ?',
-      data.map((cluster) => [packageId, cluster.code])
+      `SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF IN (${knownPackages.toString()}) AND CODE = ?`,
+      data.map((cluster) => [cluster.code])
     )
     .then((rows) => {
       let commandsToLoad = []
@@ -325,13 +329,13 @@ async function insertClusterExtensions(db, packageId, data) {
           lastId = row.CLUSTER_ID
           if ('commands' in data[i]) {
             let commands = data[i].commands
-            commandsToLoad.push(...commandMap(lastId, packageId, commands))
+            commandsToLoad.push(...commandMap(lastId, dataPackageId, commands))
             argsForCommands.push(...commands.map((command) => command.args))
           }
           if ('attributes' in data[i]) {
             let attributes = data[i].attributes
             attributesToLoad.push(
-              ...attributeMap(lastId, packageId, attributes)
+              ...attributeMap(lastId, dataPackageId, attributes)
             )
           }
         } else {
@@ -344,7 +348,7 @@ async function insertClusterExtensions(db, packageId, data) {
       }
       let pCommand = insertCommands(
         db,
-        packageId,
+        dataPackageId,
         commandsToLoad,
         argsForCommands
       )
@@ -379,6 +383,7 @@ async function insertClusters(db, packageId, data) {
           cluster.define,
           cluster.domain,
           cluster.isSingleton,
+          cluster.revision,
           cluster.introducedIn,
           packageId,
           cluster.removedIn,

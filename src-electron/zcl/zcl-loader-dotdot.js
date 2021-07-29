@@ -200,34 +200,91 @@ function prepareAttributes(attributes, side, types, cluster = null) {
     attributes.attribute === undefined ? attributes : attributes.attribute
   for (let i = 0; i < atts.length; i++) {
     let a = atts[i]
-    let attributeData = {
-      code: parseInt(normalizeHexValue(a.$.id)),
-      //manufacturerCode: '', // TODO: no manuf code in dotdot xml
-      name: a.$.name,
-      type: a.$.type,
-      side: side,
-      define: a.$.name,
-      min: normalizeHexValue(a.$.min),
-      max: normalizeHexValue(a.$.max),
-      minLength: 0,
-      maxLength: null,
-      isWritable: a.$.writable == 'true',
-      defaultValue: normalizeHexValue(a.$.default),
-      isOptional: a.$.required != 'true',
-      isReportable:
-        a.$.reportRequired === undefined ? false : a.$.reportRequired == 'true',
-      isSceneRequired:
-        a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true',
-    }
-    if (a.restriction) {
-      if (a.restriction[0]['type:minLength'] != null) {
-        a.minLength = a.restriction[0]['type:minLength'][0].$.value
+    if (side == dbEnum.side.both) {
+      let attributeDataServer = {
+        code: parseInt(normalizeHexValue(a.$.id)),
+        //manufacturerCode: '', // TODO: no manuf code in dotdot xml
+        name: a.$.name,
+        type: a.$.type,
+        side: dbEnum.side.server,
+        define: a.$.name,
+        min: normalizeHexValue(a.$.min),
+        max: normalizeHexValue(a.$.max),
+        minLength: 0,
+        maxLength: null,
+        isWritable: a.$.writable == 'true',
+        defaultValue: normalizeHexValue(a.$.default),
+        isOptional: a.$.required != 'true',
+        isReportable:
+          a.$.reportRequired === undefined
+            ? false
+            : a.$.reportRequired == 'true',
+        isSceneRequired:
+          a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true',
       }
-      if (a.restriction[0]['type:maxLength'] != null) {
-        a.maxLength = a.restriction[0]['type:maxLength'][0].$.value
+      let attributeDataClient = {
+        code: parseInt(normalizeHexValue(a.$.id)),
+        //manufacturerCode: '', // TODO: no manuf code in dotdot xml
+        name: a.$.name,
+        type: a.$.type,
+        side: dbEnum.side.client,
+        define: a.$.name,
+        min: normalizeHexValue(a.$.min),
+        max: normalizeHexValue(a.$.max),
+        minLength: 0,
+        maxLength: null,
+        isWritable: a.$.writable == 'true',
+        defaultValue: normalizeHexValue(a.$.default),
+        isOptional: a.$.required != 'true',
+        isReportable:
+          a.$.reportRequired === undefined
+            ? false
+            : a.$.reportRequired == 'true',
+        isSceneRequired:
+          a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true',
       }
+      if (a.restriction) {
+        if (a.restriction[0]['type:minLength'] != null) {
+          a.minLength = a.restriction[0]['type:minLength'][0].$.value
+        }
+        if (a.restriction[0]['type:maxLength'] != null) {
+          a.maxLength = a.restriction[0]['type:maxLength'][0].$.value
+        }
+      }
+      ret.push(attributeDataServer)
+      ret.push(attributeDataClient)
+    } else {
+      let attributeData = {
+        code: parseInt(normalizeHexValue(a.$.id)),
+        //manufacturerCode: '', // TODO: no manuf code in dotdot xml
+        name: a.$.name,
+        type: a.$.type,
+        side: side,
+        define: a.$.name,
+        min: normalizeHexValue(a.$.min),
+        max: normalizeHexValue(a.$.max),
+        minLength: 0,
+        maxLength: null,
+        isWritable: a.$.writable == 'true',
+        defaultValue: normalizeHexValue(a.$.default),
+        isOptional: a.$.required != 'true',
+        isReportable:
+          a.$.reportRequired === undefined
+            ? false
+            : a.$.reportRequired == 'true',
+        isSceneRequired:
+          a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true',
+      }
+      if (a.restriction) {
+        if (a.restriction[0]['type:minLength'] != null) {
+          a.minLength = a.restriction[0]['type:minLength'][0].$.value
+        }
+        if (a.restriction[0]['type:maxLength'] != null) {
+          a.maxLength = a.restriction[0]['type:maxLength'][0].$.value
+        }
+      }
+      ret.push(attributeData)
     }
-    ret.push(attributeData)
     // TODO: Attributes have types and they may not be unique so we prepend the cluster name
     prepareAttributeType(a, types, cluster)
   }
@@ -308,7 +365,7 @@ function prepareCluster(cluster, types, isExtension = false) {
     ret.define = cluster.$.name // TODO: no define in dotdot zcl
     ret.domain = cluster.classification[0].$.role
     //ret.manufacturerCode = '' // TODO: no manufacturer code in dotdot zcl
-    ret.revision = cluster.$.revision // TODO: revision present in dotdot zcl
+    ret.revision = cluster.$.revision
     ret.isSingleton = false // TODO: dotdot is not supporting singletons
   }
   let sides = [
@@ -577,18 +634,15 @@ async function loadZclData(db, ctx) {
   let types = { atomics: [], enums: [], bitmaps: [], structs: [] }
   prepareTypes(ctx.zclTypes, types)
   prepareTypes(ctx.zclGlobalTypes, types)
-  let cs = []
+  let preparedClusters = []
   ctx.zclClusters.forEach((cluster) => {
     env.logDebug(`loading cluster: ${cluster.$.name}`)
-    let c = prepareCluster(cluster, types)
-    cs.push(c)
+    preparedClusters.push(prepareCluster(cluster, types))
   })
   // Global attributes don't have a side listed, so they have to be looped through once for each side
   let gas = []
   ctx.zclGlobalAttributes.forEach((a) => {
-    let pa = prepareAttributes([a], 'server', types)
-    gas = gas.concat(pa)
-    pa = prepareAttributes([a], 'client', types)
+    let pa = prepareAttributes([a], dbEnum.side.both, types)
     gas = gas.concat(pa)
   })
   let gs = [
@@ -603,7 +657,7 @@ async function loadZclData(db, ctx) {
     let d = prepareDeviceType(deviceType)
     ds.push(d)
   })
-  await queryLoader.insertClusters(db, ctx.packageId, cs)
+  await queryLoader.insertClusters(db, ctx.packageId, preparedClusters)
 
   await queryPackage.insertOptionsKeyValues(
     db,

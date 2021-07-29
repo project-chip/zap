@@ -28,7 +28,6 @@ const testUtil = require('./test-util.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 
 let db
-const templateCount = 1
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 let sessionId
 let templateContext
@@ -57,7 +56,9 @@ test(
     expect(templateContext.templateData).not.toBeNull()
     expect(templateContext.templateData.name).toEqual('Unit test templates')
     expect(templateContext.templateData.version).toEqual('unit-test')
-    expect(templateContext.templateData.templates.length).toEqual(templateCount)
+    expect(templateContext.templateData.templates.length).toEqual(
+      testUtil.testTemplate.testCount
+    )
     expect(templateContext.packageId).not.toBeNull()
   },
   testUtil.timeout.medium()
@@ -83,7 +84,7 @@ test(
 )
 
 test(
-  'Test dotdot generation',
+  'Test template generation',
   async () => {
     let genResult = await genEngine.generate(
       db,
@@ -101,12 +102,23 @@ test(
 
     let epc = genResult.content['test-fail.out']
     expect(epc).not.toBeNull()
+
     expect(genResult.hasErrors).toBeTruthy()
 
     let err = genResult.errors['test-fail.out']
     expect(err.message.includes('this is where the failure lies')).toBeTruthy()
     expect(err.message.includes('line: 3, column: 0')).toBeTruthy()
     expect(err.message.includes('test-fail.zapt')).toBeTruthy()
+
+    err = genResult.errors['test-missing.out']
+    // This is weird. If helpers are not defined, they are simply
+    // ignored. Hence there is no error here.
+    expect(err).toBeUndefined()
+    //  expect(err.message.includes('"non_existent_helper" not defined')).toBeTruthy()
+
+    let testFutures = genResult.content['test-future.out']
+    expect(testFutures.includes('x=1')).toBeTruthy()
+    expect(testFutures.includes('y=1')).not.toBeTruthy()
   },
   testUtil.timeout.medium()
 )

@@ -20,18 +20,17 @@ const scriptUtil = require('./script-util.js')
 
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
-let startTime = process.hrtime()
+let startTime = process.hrtime.bigint()
 let args = process.argv.slice(2)
-let executor = 'electron'
 
 scriptUtil
   .stampVersion()
   .then(() => scriptUtil.rebuildSpaIfNeeded())
   .then(() => scriptUtil.rebuildBackendIfNeeded())
   .then(() => {
-    let cmdArgs = ['dist/electron-main.js']
+    let cmdArgs = ['electron', 'dist/electron-main.js']
 
-    if (executor === 'electron' && process.platform == 'linux') {
+    if (process.platform == 'linux') {
       if (!process.env.DISPLAY) {
         console.log(`
 ⛔ You are on Linux and you are attempting to run zap in UI mode without DISPLAY set.
@@ -40,13 +39,10 @@ scriptUtil
       }
     }
     cmdArgs.push(...args)
-    return scriptUtil.executeCmd(null, executor, cmdArgs)
+    return scriptUtil.executeCmd(null, 'npx', cmdArgs)
   })
   .then(() => {
-    let endTime = process.hrtime(startTime)
-    console.log(
-      `😎 All done: ${endTime[0]}s, ${Math.round(endTime[1] / 1000000)}ms.`
-    )
+    scriptUtil.doneStamp(startTime)
     process.exit(0)
   })
   .catch((err) => {

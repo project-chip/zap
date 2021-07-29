@@ -44,6 +44,7 @@ exports.side = {
   client: 'client',
   server: 'server',
   either: 'either',
+  both: 'both',
 }
 exports.source = {
   client: 'client',
