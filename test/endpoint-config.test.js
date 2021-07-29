@@ -29,7 +29,7 @@ const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const types = require('../src-electron/util/types.js')
-const bin = require('../src-electron/util/bin.js')
+const bin = require('../src-electron/util/bin.ts')
 
 let db
 const templateCount = testUtil.testTemplate.zigbeeCount

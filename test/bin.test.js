@@ -18,7 +18,7 @@
  * @jest-environment node
  */
 
-const bin = require('../src-electron/util/bin.js')
+import bin from '../src-electron/util/bin.ts'
 const { timeout } = require('./test-util.js')
 
 test(

@@ -17,7 +17,7 @@
 
 // Binary utilities to deal with hex numbers and such.
 
-import byteBuffer = require('bytebuffer')
+import byteBuffer from 'bytebuffer'
 /**
  * Takes an int8 value and turns it into a hex.
  *
@@ -123,7 +123,9 @@ function hexToBinary(hex: string) {
     cleansedHex = cleansedHex.slice(2)
   cleansedHex = cleansedHex.toUpperCase()
 
-  return parseInt(hex, 16).toString(2).padStart(8, '0')
+  cleansedHex = cleansedHex.replace(/[^0-F]/g, '')
+
+  return parseInt(cleansedHex, 16).toString(2).padStart(cleansedHex.length*4, '0')
 }
 
 /**
