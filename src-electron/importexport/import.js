@@ -27,7 +27,7 @@ const importJson = require('./import-json.js')
 const dbApi = require('../db/db-api.js')
 const querySession = require('../db/query-session.js')
 const env = require('../util/env')
-const script = require('../util/script.js')
+const script = require('../util/script')
 
 /**
  * Reads the data from the file and resolves with the state object if all is good.
