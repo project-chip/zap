@@ -21,7 +21,7 @@ const templateUtil = require('./template-util.js')
 const bin = require('../util/bin')
 const env = require('../util/env')
 const types = require('../util/types.js')
-const string = require('../util/string.js')
+const string = require('../util/string')
 const _ = require('lodash')
 const dbEnum = require('../../src-shared/db-enum.js')
 

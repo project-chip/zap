@@ -22,7 +22,7 @@ const bin = require('../util/bin')
 const types = require('../util/types.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const cUtils = require('../../src-shared/db-enum.js')
-const string = require('../util/string.js')
+const string = require('../util/string')
 const helperC = require('./helper-c.js')
 
 function token_cluster_create(config) {
