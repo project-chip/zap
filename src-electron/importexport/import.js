@@ -26,7 +26,7 @@ const importIsc = require('./import-isc.js')
 const importJson = require('./import-json.js')
 const dbApi = require('../db/db-api.js')
 const querySession = require('../db/query-session.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const script = require('../util/script.js')
 
 /**

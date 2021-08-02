@@ -18,7 +18,7 @@
 import { BrowserWindow } from "electron"
 
 const path = require('path')
-const env = require('../util/env.js')
+const env = require('../util/env')
 
 let window: BrowserWindow | null
 

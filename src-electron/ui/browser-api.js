@@ -17,7 +17,7 @@
 
 const rendApi = require('../../src-shared/rend-api.js')
 const uiUtil = require('./ui-util.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 
 /**
  * @module JS API: renderer API related utilities

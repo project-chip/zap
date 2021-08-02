@@ -16,7 +16,7 @@
  */
 
 const ipc = require('node-ipc')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const path = require('path')
 const uiUtil = require('../ui/ui-util.js')
 const util = require('../util/util.js')

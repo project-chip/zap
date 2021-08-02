@@ -23,7 +23,7 @@
 const ws = require('ws')
 const events = require('events')
 
-const env = require('../util/env.js')
+const env = require('../util/env')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
 

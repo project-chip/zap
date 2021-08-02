@@ -18,7 +18,7 @@
 const { app } = require('electron')
 
 import * as args from '../util/args'
-const env = require('../util/env.js')
+const env = require('../util/env')
 const windowJs = require('../ui/window.js')
 const startup = require('./startup.js')
 

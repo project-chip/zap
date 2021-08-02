@@ -17,7 +17,7 @@
 
 const fs = require('fs')
 const fsp = fs.promises
-const env = require('../util/env.js')
+const env = require('../util/env')
 const path = require('path')
 const zclLoader = require('./zcl-loader')
 const dbApi = require('../db/db-api.js')

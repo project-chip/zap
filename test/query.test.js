@@ -29,7 +29,7 @@ const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const querySession = require('../src-electron/db/query-session.js')
 
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const util = require('../src-electron/util/util.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const exportJs = require('../src-electron/importexport/export.js')

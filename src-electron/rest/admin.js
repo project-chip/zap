@@ -17,7 +17,7 @@
 
 const dbApi = require('../db/db-api.js')
 const restApi = require('../../src-shared/rest-api.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 
 /**
  * This module provides the REST API to the admin functions.

@@ -20,7 +20,7 @@
 const path = require('path')
 const fs = require('fs')
 const startup = require('../src-electron/main-process/startup.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const testUtil = require('./test-util.js')
 
 beforeAll(async () => {

@@ -19,7 +19,7 @@
  */
 
 const cHelper = require('../src-electron/generator/helper-c')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const dbApi = require('../src-electron/db/db-api.js')
 const genEngine = require('../src-electron/generator/generation-engine.js')
 const testUtil = require('./test-util.js')

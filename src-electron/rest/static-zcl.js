@@ -27,7 +27,7 @@ const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
 const util = require('../util/util.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const http = require('http-status-codes')
 
 // This function builds a function that has the following skeleton.

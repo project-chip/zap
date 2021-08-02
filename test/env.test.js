@@ -18,7 +18,7 @@
  * @jest-environment node
  */
 
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const util = require('../src-electron/util/util.js')
 const browserApi = require('../src-electron/ui/browser-api.js')
 const fs = require('fs')

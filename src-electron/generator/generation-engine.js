@@ -25,7 +25,7 @@ const path = require('path')
 const util = require('../util/util.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
 

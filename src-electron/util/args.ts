@@ -23,7 +23,7 @@ const os = require('os')
 const fs = require('fs')
 const restApi = require('../../src-shared/rest-api.js')
 const commonUrl = require('../../src-shared/common-url.js')
-const env = require('./env.js')
+const env = require('./env')
 
 function environmentVariablesDescription() {
   let vars = env.environmentVariable

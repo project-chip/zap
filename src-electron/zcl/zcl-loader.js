@@ -24,7 +24,7 @@ const fsp = fs.promises
 const sLoad = require('./zcl-loader-silabs.js')
 const dLoad = require('./zcl-loader-dotdot.js')
 const queryZcl = require('../db/query-zcl.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const nativeRequire = require('../util/native-require')
 
 const defaultValidator = (zclData) => {

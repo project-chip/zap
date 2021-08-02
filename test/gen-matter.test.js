@@ -20,7 +20,7 @@
 
 const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const queryAttribute = require('../src-electron/db/query-attribute.js')

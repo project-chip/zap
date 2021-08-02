@@ -22,7 +22,7 @@ const _ = require('lodash')
 
 const dbApi = require('../db/db-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const zclLoader = require('../zcl/zcl-loader.js')
 const windowJs = require('../ui/window.js')
 const httpServer = require('../server/http-server.js')

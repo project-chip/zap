@@ -17,10 +17,11 @@
 
 const path = require('path')
 const os = require('os')
-const fs = require('fs')
+import fs from 'fs'
 const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
+import { VersionType, ErrorType } from '../types/EnvTypes'
 
 function builtinSilabsZclMetafile() {
   return path.join(
@@ -103,18 +104,23 @@ let pino_logger = pino(pinoOptions)
 
 let explicit_logger_set = false
 let httpStaticContentPath = path.join(__dirname, '../../spa')
-let versionObject = null
-let applicationStateDirectory = null
+let versionObject: VersionType | null = null
+let applicationStateDirectory: string | null = null
 
 function setDevelopmentEnv() {
+  // @ts-ignore
   process.env.DEV = true
+  // @ts-ignore
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
   httpStaticContentPath = path.join(__dirname, '../../spa')
+  // @ts-ignore
   global.__backend = path.join(__dirname, '../').replace(/\\/g, '\\\\')
 }
 
 function setProductionEnv() {
+  // @ts-ignore
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
+  // @ts-ignore
   global.__backend = path.join(__dirname, '/backend/').replace(/\\/g, '\\\\')
   httpStaticContentPath = path.join(__dirname, '../spa').replace(/\\/g, '\\\\')
 }
@@ -143,7 +149,7 @@ function logInitLogFile() {
  *
  * @param {*} path Absolute path. Typically '~/.zap'.
  */
-function setAppDirectory(directoryPath) {
+function setAppDirectory(directoryPath: string) {
   let appDir
   if (directoryPath.startsWith('~/')) {
     appDir = path.join(os.homedir(), directoryPath.substring(2))
@@ -151,9 +157,7 @@ function setAppDirectory(directoryPath) {
     appDir = directoryPath
   }
   if (!fs.existsSync(appDir)) {
-    fs.mkdirSync(appDir, { recursive: true }, (err) => {
-      if (err) throw err
-    })
+    fs.mkdirSync(appDir, { recursive: true })
   }
   applicationStateDirectory = appDir
 }
@@ -167,9 +171,7 @@ function appDirectory() {
   if (applicationStateDirectory == null) {
     let appDir = path.join(os.homedir(), '.zap')
     if (!fs.existsSync(appDir)) {
-      fs.mkdirSync(appDir, { recursive: true }, (err) => {
-        if (err) throw err
-      })
+      fs.mkdirSync(appDir, { recursive: true })
     }
     applicationStateDirectory = appDir
     return appDir
@@ -178,10 +180,12 @@ function appDirectory() {
 }
 
 function iconsDirectory() {
+  // @ts-ignore
   return path.join(global.__backend, '/icons')
 }
 
 function schemaFile() {
+  // @ts-ignore
   return path.join(global.__backend, '/db/zap-schema.sql')
 }
 
@@ -189,7 +193,7 @@ function sqliteFile(filename = 'zap') {
   return path.join(appDirectory(), `${filename}.sqlite`)
 }
 
-function sqliteTestFile(id, deleteExistingFile = true) {
+function sqliteTestFile(id: string, deleteExistingFile = true) {
   let dir = path.join(__dirname, '../../test/.zap')
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
@@ -215,7 +219,13 @@ function zapVersionAsString() {
  */
 function zapVersion() {
   if (versionObject == null) {
-    versionObject = {}
+    versionObject = {
+      version: '',
+      featureLevel: 0,
+      hash: 0,
+      timestamp: 0,
+      date: '',
+    }
     try {
       let p = require('../../package.json')
       versionObject.version = p.version
@@ -255,12 +265,16 @@ function baseUrl() {
  * @param {*} msg
  * @param {*} err
  */
-function log(level, msg, err = null) {
-  let objectToLog = {
+function log(level: string, msg: string, err = null) {
+  let objectToLog: ErrorType = {
     msg: msg,
+    err: {
+      alert: ''
+    }
   }
   if (err != null) {
     objectToLog.err = err
+    // @ts-ignore
     objectToLog.err.alert = '⛔'
   }
   pino_logger[level](objectToLog)
@@ -272,7 +286,7 @@ function log(level, msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logInfo(msg, err = null) {
+function logInfo(msg: string, err = null) {
   log('info', msg, err)
 }
 
@@ -282,7 +296,7 @@ function logInfo(msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logError(msg, err = null) {
+function logError(msg: string, err = null) {
   log('error', msg, err)
 }
 
@@ -292,7 +306,7 @@ function logError(msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logWarning(msg, err = null) {
+function logWarning(msg: string, err = null) {
   log('warn', msg, err)
 }
 
@@ -302,7 +316,7 @@ function logWarning(msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logSql(msg, err = null) {
+function logSql(msg: string, err = null) {
   log('sql', msg, err)
 }
 
@@ -312,7 +326,7 @@ function logSql(msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logBrowser(msg, err = null) {
+function logBrowser(msg: string, err = null) {
   log('browser', msg, err)
 }
 
@@ -322,7 +336,7 @@ function logBrowser(msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logIpc(msg, err = null) {
+function logIpc(msg: string, err = null) {
   log('ipc', msg, err)
 }
 
@@ -332,12 +346,12 @@ function logIpc(msg, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logDebug(msg, err = null) {
+function logDebug(msg: string, err = null) {
   log('debug', msg, err)
 }
 
 // Returns true if major or minor component of versions is different.
-function isMatchingVersion(versionsArray, providedVersion) {
+function isMatchingVersion(versionsArray: string[], providedVersion: string) {
   let ret = false
   let v2 = providedVersion.split('.')
   versionsArray.forEach((element) => {

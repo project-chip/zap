@@ -23,7 +23,7 @@
 
 const express = require('express')
 const session = require('express-session')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const webSocket = require('./ws-server.js')
