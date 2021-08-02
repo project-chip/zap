@@ -6,7 +6,6 @@
     "module": "commonjs",
     "sourceMap": true,
     "target": "es2020",
-    "jsx": "react",
     "allowJs": true,
     "moduleResolution": "node",
     "baseUrl": "."
