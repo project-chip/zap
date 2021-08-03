@@ -303,6 +303,20 @@ test(
         expect(
           zapId.includes('#define ZCL_GET_PROFILE_RESPONSE_COMMAND_ID (0x00)')
         ).toBeTruthy()
+
+        // Testing {{#zcl_commands_source_client}} helper
+        expect(
+          zapId.includes(
+            '#define ZCL_IDENTIFY_C_TO_S_IDENTIFY_QUERY_COMMAND_ID (0x01)'
+          )
+        ).toBeTruthy()
+        // Testing {{#zcl_commands_source_server}} helper
+        expect(
+          zapId.includes(
+            '#define ZCL_IDENTIFY_S_TO_C_IDENTIFY_QUERY_RESPONSE_COMMAND_ID (0x00)'
+          )
+        ).toBeTruthy()
+
         expect(
           zapId.includes(
             '// Client attributes for cluster: Fluoride Concentration Measurement'

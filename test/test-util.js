@@ -15,6 +15,8 @@
  *    limitations under the License.
  */
 
+const path = require('path')
+
 function testServer(fileName) {
   let testPort
   if (fileName.includes('server-bare.test')) {
@@ -83,7 +85,10 @@ exports.testTemplate = {
   dotdotCount: 5,
   unittest: './test/gen-template/test/gen-test.json',
   testCount: 3,
+  meta: './test/resource/meta/gen-test.json',
 }
+
+exports.testZclMetafile = path.join(__dirname, './resource/meta/zcl.json')
 
 exports.testServer = testServer
 
