@@ -1,8 +1,9 @@
 {
   "version": "Matter Test Data",
   "xmlRoot": ".",
-  "xmlFile": ["test1.xml"],
+  "xmlFile": ["types.xml", "test1.xml"],
   "zclSchema": "../../../zcl-builtin/shared/schema/zcl.xsd",
+  "supportCustomZclDevice": true,
   "manufacturersXml": "../../../zcl-builtin/shared/manufacturers.xml",
   "options": {
     "text": {
