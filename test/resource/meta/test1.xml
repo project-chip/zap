@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!--
+Copyright (c) 2021 Project CHIP Authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<configurator>
+  <domain name="Test" spec="test-0.0"/>
+  <cluster>
+    <name>Test 1</name>
+    <domain>Test</domain>
+    <description>Test 1 description</description>
+    <code>0xABCD</code>
+    <define>TEST_1</define>
+    <attribute side="server" code="0x0000" define="AT1" type="INT16U" writable="false" optional="true">at1</attribute>
+    <attribute side="server" code="0x0001" define="AT2" type="INT16U" writable="false" optional="true">at2</attribute>
+    <command source="client" code="0x01" name="TestCommand1" optional="false">
+      <description>TestCmd1</description>
+      <arg name="A" type="INT8U"/>
+      <arg name="B" type="CHAR_STRING"/>
+    </command>
+    <event code="0x0001" name="HelloEvent" priority="info" side="server">
+      <description>Example test event</description>
+      <field id="1" name="arg1" type="INT8U"/>
+      <field id="2" name="arg2" type="INT32U"/>
+      <field id="3" name="arg3" type="CHAR_STRING"/>
+    </event>
+  </cluster>
+</configurator>
