@@ -22,6 +22,7 @@
  */
 
 const dbApi = require('./db-api.js')
+import * as t from '../../src-shared/types/db-types'
 
 exports.map = {
   package: (x) => {
@@ -33,7 +34,7 @@ exports.map = {
       type: x.TYPE,
       version: x.VERSION,
       parentId: x.PARENT_PACKAGE_REF,
-    }
+    } as t.DbPackageType
   },
   options: (x) => {
     if (x == null) return undefined
@@ -43,7 +44,7 @@ exports.map = {
       optionCategory: x.OPTION_CATEGORY,
       optionCode: x.OPTION_CODE,
       optionLabel: x.OPTION_LABEL,
-    }
+    } as t.DbPackageOptionType
   },
   optionDefaults: (x) => {
     if (x == null) return undefined
@@ -52,7 +53,7 @@ exports.map = {
       packageRef: x.PACKAGE_REF,
       optionCategory: x.OPTION_CATEGORY,
       optionRef: x.OPTION_REF,
-    }
+    } as t.DbPackageOptionDefaultType
   },
   trackedFile: (x) => {
     if (x == null) return undefined
@@ -64,17 +65,17 @@ exports.map = {
   cluster: (x) => {
     if (x == null) return undefined
     return {
-      id: x.CLUSTER_ID,
-      packageRef: x.PACKAGE_REF,
-      code: x.CODE,
-      manufacturerCode: x.MANUFACTURER_CODE,
-      label: x.NAME,
       caption: x.DESCRIPTION,
+      code: x.CODE,
       define: x.DEFINE,
       domainName: x.DOMAIN_NAME,
+      id: x.CLUSTER_ID,
       isSingleton: dbApi.fromDbBool(x.IS_SINGLETON),
+      label: x.NAME,
+      manufacturerCode: x.MANUFACTURER_CODE,
+      packageRef: x.PACKAGE_REF,
       revision: x.REVISION,
-    }
+    } as t.DbClusterType
   },
 
   attribute: (x) => {
@@ -99,7 +100,7 @@ exports.map = {
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isReportable: dbApi.fromDbBool(x.IS_REPORTABLE),
       isSceneRequired: dbApi.fromDbBool(x.IS_SCENE_REQUIRED),
-    }
+    } as t.DbAttributeType
   },
 
   eventField: (x) => {

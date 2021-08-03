@@ -27,14 +27,14 @@ export interface DbPackageType {
 export interface DbPackageOptionType {
   optionCategory: string
   optionCode: string
-  optionId: number
+  id: number
   optionLabel: string
   packageRef: number
 }
 
 export interface DbPackageOptionDefaultType {
   optionCategory: string
-  optionDefaultId: number
+  id: number
   optionRef: number
   packageRef: number
 }
@@ -78,12 +78,12 @@ export interface DbClusterType {
   id: number
   code: number
   define: string
-  description: string
+  caption: string
   domainName: string
   introducedInRef: number
   isSingleton: number
   manufacturerCode: number
-  name: string
+  label: string
   packageRef: number
   removedInRef: number
   revision: number
@@ -142,12 +142,12 @@ export interface DbEventFieldType {
 }
 
 export interface DbAttributeType {
-  arrayType: string
-  id: number
+  arrayType?: string
   clusterRef: number
   code: number
   defaultValue: string
   define: string
+  id: number
   introducedInRef: number
   isOptional: number
   isReportable: number
@@ -158,9 +158,9 @@ export interface DbAttributeType {
   maxLength: number
   min: string
   minLength: number
-  name: string
+  label: string
   packageRef: number
-  removedInRef: number
+  removedInRef?: number
   side: string
   type: string
 }

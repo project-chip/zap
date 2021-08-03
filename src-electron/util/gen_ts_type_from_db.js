@@ -77,15 +77,23 @@ async function main() {
     })
 
     results[index].forEach((r) => {
+      let k = r.name
+      let v = sqlToTypescriptTypes[r.type]
       if (r.name === `${name.toUpperCase()}_ID`) {
-        output.push(`  id: ${sqlToTypescriptTypes[r.type]}`)
+        k = 'id'
+      } else if (
+        r.name === `${name.toUpperCase().replace(/^PACKAGE_/, '')}_ID`
+      ) {
+        k = 'id'
       } else if (r.name === `PARENT_${name.toUpperCase()}_REF`) {
-        output.push(`  parentId: ${sqlToTypescriptTypes[r.type]}`)
-      } else {
-        output.push(
-          `  ${_.camelCase(r.name)}: ${sqlToTypescriptTypes[r.type]}`
-        )
+        k = 'parentId'
+      } else if (name === 'CLUSTER' && r.name === `DESCRIPTION`) {
+        k = 'caption'
+      } else if (name === 'CLUSTER' && r.name === `NAME`) {
+        k = 'label'
       }
+
+      output.push(`  ${_.camelCase(k)}: ${v}`)
     })
     output.push(`}\n`)
   })
