@@ -51,7 +51,7 @@ async function main() {
     "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%'"
   ).then((tables) => tables.map((x) => x.name))
 
-  console.log("Generating TypeScript interfaces for the following tables:")
+  console.log('Generating TypeScript interfaces for the following tables:')
   console.log(JSON.stringify(names))
 
   let promises = names.map((name) =>
@@ -62,8 +62,30 @@ async function main() {
     // console.log(`TABLE: ${name}`)
     // console.log(`${JSON.stringify(results[index])}`)
     output.push(`export interface Db${_.upperFirst(_.camelCase(name))}Type {`)
+    results[index].sort(function (a, b) {
+      let nameA = a.name.toUpperCase() // ignore upper and lowercase
+      let nameB = b.name.toUpperCase() // ignore upper and lowercase
+      if (nameA < nameB) {
+        return -1
+      }
+      if (nameA > nameB) {
+        return 1
+      }
+
+      // names must be equal
+      return 0
+    })
+
     results[index].forEach((r) => {
-      output.push(`  ${_.camelCase(r.name)}: ${sqlToTypescriptTypes[r.type]},`)
+      if (r.name === `${name.toUpperCase()}_ID`) {
+        output.push(`  id: ${sqlToTypescriptTypes[r.type]}`)
+      } else if (r.name === `PARENT_${name.toUpperCase()}_REF`) {
+        output.push(`  parentId: ${sqlToTypescriptTypes[r.type]}`)
+      } else {
+        output.push(
+          `  ${_.camelCase(r.name)}: ${sqlToTypescriptTypes[r.type]}`
+        )
+      }
     })
     output.push(`}\n`)
   })

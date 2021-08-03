@@ -16,373 +16,373 @@
  */
 
 export interface DbPackageType {
-  packageId: number,
-  parentPackageRef: number,
-  path: string,
-  type: string,
-  crc: number,
-  version: string,
+  crc: number
+  id: number
+  parentId: number
+  path: string
+  type: string
+  version: string
 }
 
 export interface DbPackageOptionType {
-  optionId: number,
-  packageRef: number,
-  optionCategory: string,
-  optionCode: string,
-  optionLabel: string,
+  optionCategory: string
+  optionCode: string
+  optionId: number
+  optionLabel: string
+  packageRef: number
 }
 
 export interface DbPackageOptionDefaultType {
-  optionDefaultId: number,
-  packageRef: number,
-  optionCategory: string,
-  optionRef: number,
+  optionCategory: string
+  optionDefaultId: number
+  optionRef: number
+  packageRef: number
 }
 
 export interface DbPackageExtensionType {
-  packageExtensionId: number,
-  packageRef: number,
-  entity: string,
-  property: string,
-  type: string,
-  configurability: string,
-  label: string,
-  globalDefault: string,
+  configurability: string
+  entity: string
+  globalDefault: string
+  label: string
+  id: number
+  packageRef: number
+  property: string
+  type: string
 }
 
 export interface DbPackageExtensionDefaultType {
-  packageExtensionRef: number,
-  entityCode: number,
-  entityQualifier: string,
-  parentCode: number,
-  manufacturerCode: number,
-  value: string,
+  entityCode: number
+  entityQualifier: string
+  manufacturerCode: number
+  packageExtensionRef: number
+  parentCode: number
+  value: string
 }
 
 export interface DbSpecType {
-  specId: number,
-  packageRef: number,
-  code: string,
-  description: string,
-  certifiable: number,
+  certifiable: number
+  code: string
+  description: string
+  packageRef: number
+  id: number
 }
 
 export interface DbDomainType {
-  domainId: number,
-  packageRef: number,
-  name: string,
-  latestSpecRef: number,
+  id: number
+  latestSpecRef: number
+  name: string
+  packageRef: number
 }
 
 export interface DbClusterType {
-  clusterId: number,
-  packageRef: number,
-  domainName: string,
-  code: number,
-  manufacturerCode: number,
-  name: string,
-  description: string,
-  define: string,
-  isSingleton: number,
-  revision: number,
-  introducedInRef: number,
-  removedInRef: number,
+  id: number
+  code: number
+  define: string
+  description: string
+  domainName: string
+  introducedInRef: number
+  isSingleton: number
+  manufacturerCode: number
+  name: string
+  packageRef: number
+  removedInRef: number
+  revision: number
 }
 
 export interface DbCommandType {
-  commandId: number,
-  clusterRef: number,
-  packageRef: number,
-  code: number,
-  manufacturerCode: number,
-  name: string,
-  description: string,
-  source: string,
-  isOptional: number,
-  introducedInRef: number,
-  removedInRef: number,
-  responseName: number,
-  responseRef: number,
+  clusterRef: number
+  code: number
+  id: number
+  description: string
+  introducedInRef: number
+  isOptional: number
+  manufacturerCode: number
+  name: string
+  packageRef: number
+  removedInRef: number
+  responseName: number
+  responseRef: number
+  source: string
 }
 
 export interface DbCommandArgType {
-  commandRef: number,
-  fieldIdentifier: number,
-  name: string,
-  type: string,
-  isArray: number,
-  presentIf: string,
-  countArg: string,
-  introducedInRef: number,
-  removedInRef: number,
+  commandRef: number
+  countArg: string
+  fieldIdentifier: number
+  introducedInRef: number
+  isArray: number
+  name: string
+  presentIf: string
+  removedInRef: number
+  type: string
 }
 
 export interface DbEventType {
-  eventId: number,
-  clusterRef: number,
-  packageRef: number,
-  code: number,
-  manufacturerCode: number,
-  name: string,
-  description: string,
-  side: string,
-  isOptional: string,
-  priority: string,
-  introducedInRef: number,
-  removedInRef: number,
+  clusterRef: number
+  code: number
+  description: string
+  id: number
+  introducedInRef: number
+  isOptional: string
+  manufacturerCode: number
+  name: string
+  packageRef: number
+  priority: string
+  removedInRef: number
+  side: string
 }
 
 export interface DbEventFieldType {
-  eventRef: number,
-  fieldIdentifier: number,
-  name: string,
-  type: string,
-  introducedInRef: number,
-  removedInRef: number,
+  eventRef: number
+  fieldIdentifier: number
+  introducedInRef: number
+  name: string
+  removedInRef: number
+  type: string
 }
 
 export interface DbAttributeType {
-  attributeId: number,
-  clusterRef: number,
-  packageRef: number,
-  code: number,
-  manufacturerCode: number,
-  name: string,
-  type: string,
-  side: string,
-  define: string,
-  min: string,
-  max: string,
-  minLength: number,
-  maxLength: number,
-  isWritable: number,
-  defaultValue: string,
-  isSceneRequired: number,
-  isOptional: number,
-  isReportable: number,
-  arrayType: string,
-  introducedInRef: number,
-  removedInRef: number,
+  arrayType: string
+  id: number
+  clusterRef: number
+  code: number
+  defaultValue: string
+  define: string
+  introducedInRef: number
+  isOptional: number
+  isReportable: number
+  isSceneRequired: number
+  isWritable: number
+  manufacturerCode: number
+  max: string
+  maxLength: number
+  min: string
+  minLength: number
+  name: string
+  packageRef: number
+  removedInRef: number
+  side: string
+  type: string
 }
 
 export interface DbGlobalAttributeDefaultType {
-  globalAttributeDefaultId: number,
-  clusterRef: number,
-  attributeRef: number,
-  defaultValue: string,
+  attributeRef: number
+  clusterRef: number
+  defaultValue: string
+  id: number
 }
 
 export interface DbGlobalAttributeBitType {
-  globalAttributeDefaultRef: number,
-  bit: number,
-  value: number,
-  tagRef: number,
+  bit: number
+  globalAttributeDefaultRef: number
+  tagRef: number
+  value: number
 }
 
 export interface DbDeviceTypeType {
-  deviceTypeId: number,
-  packageRef: number,
-  domain: string,
-  code: number,
-  profileId: number,
-  name: string,
-  description: string,
+  code: number
+  description: string
+  id: number
+  domain: string
+  name: string
+  packageRef: number
+  profileId: number
 }
 
 export interface DbDeviceTypeClusterType {
-  deviceTypeClusterId: number,
-  deviceTypeRef: number,
-  clusterRef: number,
-  clusterName: string,
-  includeClient: number,
-  includeServer: number,
-  lockClient: number,
-  lockServer: number,
+  clusterName: string
+  clusterRef: number
+  id: number
+  deviceTypeRef: number
+  includeClient: number
+  includeServer: number
+  lockClient: number
+  lockServer: number
 }
 
 export interface DbDeviceTypeAttributeType {
-  deviceTypeClusterRef: number,
-  attributeRef: number,
-  attributeName: string,
+  attributeName: string
+  attributeRef: number
+  deviceTypeClusterRef: number
 }
 
 export interface DbDeviceTypeCommandType {
-  deviceTypeClusterRef: number,
-  commandRef: number,
-  commandName: string,
+  commandName: string
+  commandRef: number
+  deviceTypeClusterRef: number
 }
 
 export interface DbTagType {
-  tagId: number,
-  packageRef: number,
-  clusterRef: number,
-  name: string,
-  description: string,
+  clusterRef: number
+  description: string
+  name: string
+  packageRef: number
+  id: number
 }
 
 export interface DbAtomicType {
-  atomicId: number,
-  packageRef: number,
-  name: string,
-  description: string,
-  atomicIdentifier: number,
-  atomicSize: number,
-  isDiscrete: number,
-  isString: number,
-  isLong: number,
-  isChar: number,
-  isSigned: number,
+  id: number
+  atomicIdentifier: number
+  atomicSize: number
+  description: string
+  isChar: number
+  isDiscrete: number
+  isLong: number
+  isSigned: number
+  isString: number
+  name: string
+  packageRef: number
 }
 
 export interface DbBitmapType {
-  bitmapId: number,
-  packageRef: number,
-  name: string,
-  type: string,
+  id: number
+  name: string
+  packageRef: number
+  type: string
 }
 
 export interface DbBitmapFieldType {
-  bitmapRef: number,
-  fieldIdentifier: number,
-  name: string,
-  mask: number,
-  type: string,
+  bitmapRef: number
+  fieldIdentifier: number
+  mask: number
+  name: string
+  type: string
 }
 
 export interface DbEnumType {
-  enumId: number,
-  packageRef: number,
-  name: string,
-  type: string,
+  id: number
+  name: string
+  packageRef: number
+  type: string
 }
 
 export interface DbEnumItemType {
-  enumRef: number,
-  fieldIdentifier: number,
-  name: string,
-  value: number,
+  enumRef: number
+  fieldIdentifier: number
+  name: string
+  value: number
 }
 
 export interface DbStructType {
-  structId: number,
-  packageRef: number,
-  name: string,
+  name: string
+  packageRef: number
+  id: number
 }
 
 export interface DbStructItemType {
-  structRef: number,
-  fieldIdentifier: number,
-  name: string,
-  type: string,
-  arrayType: string,
-  minLength: number,
-  maxLength: number,
-  isWritable: number,
+  arrayType: string
+  fieldIdentifier: number
+  isWritable: number
+  maxLength: number
+  minLength: number
+  name: string
+  structRef: number
+  type: string
 }
 
 export interface DbUserType {
-  userId: number,
-  userKey: string,
-  creationTime: number,
+  creationTime: number
+  id: number
+  userKey: string
 }
 
 export interface DbSessionType {
-  sessionId: number,
-  userRef: number,
-  sessionKey: string,
-  creationTime: number,
-  dirty: number,
+  creationTime: number
+  dirty: number
+  id: number
+  sessionKey: string
+  userRef: number
 }
 
 export interface DbSessionKeyValueType {
-  sessionRef: number,
-  key: string,
-  value: string,
+  key: string
+  sessionRef: number
+  value: string
 }
 
 export interface DbSessionLogType {
-  sessionRef: number,
-  timestamp: string,
-  log: string,
+  log: string
+  sessionRef: number
+  timestamp: string
 }
 
 export interface DbSessionPackageType {
-  sessionRef: number,
-  packageRef: number,
-  required: number,
-  enabled: number,
+  enabled: number
+  packageRef: number
+  required: number
+  sessionRef: number
 }
 
 export interface DbEndpointTypeType {
-  endpointTypeId: number,
-  sessionRef: number,
-  name: string,
-  deviceTypeRef: number,
+  deviceTypeRef: number
+  id: number
+  name: string
+  sessionRef: number
 }
 
 export interface DbEndpointType {
-  endpointId: number,
-  sessionRef: number,
-  endpointTypeRef: number,
-  profile: number,
-  endpointIdentifier: number,
-  networkIdentifier: number,
-  deviceIdentifier: number,
-  deviceVersion: number,
+  deviceIdentifier: number
+  deviceVersion: number
+  id: number
+  endpointIdentifier: number
+  endpointTypeRef: number
+  networkIdentifier: number
+  profile: number
+  sessionRef: number
 }
 
 export interface DbEndpointTypeClusterType {
-  endpointTypeClusterId: number,
-  endpointTypeRef: number,
-  clusterRef: number,
-  side: string,
-  enabled: number,
+  clusterRef: number
+  enabled: number
+  id: number
+  endpointTypeRef: number
+  side: string
 }
 
 export interface DbEndpointTypeAttributeType {
-  endpointTypeAttributeId: number,
-  endpointTypeRef: number,
-  endpointTypeClusterRef: number,
-  attributeRef: number,
-  included: number,
-  storageOption: string,
-  singleton: number,
-  bounded: number,
-  defaultValue: string,
-  includedReportable: number,
-  minInterval: number,
-  maxInterval: number,
-  reportableChange: number,
+  attributeRef: number
+  bounded: number
+  defaultValue: string
+  id: number
+  endpointTypeClusterRef: number
+  endpointTypeRef: number
+  included: number
+  includedReportable: number
+  maxInterval: number
+  minInterval: number
+  reportableChange: number
+  singleton: number
+  storageOption: string
 }
 
 export interface DbEndpointTypeCommandType {
-  endpointTypeCommandId: number,
-  endpointTypeRef: number,
-  endpointTypeClusterRef: number,
-  commandRef: number,
-  incoming: number,
-  outgoing: number,
+  commandRef: number
+  endpointTypeClusterRef: number
+  id: number
+  endpointTypeRef: number
+  incoming: number
+  outgoing: number
 }
 
 export interface DbEndpointTypeEventType {
-  endpointTypeEventId: number,
-  endpointTypeRef: number,
-  endpointTypeClusterRef: number,
-  eventRef: number,
-  included: number,
+  endpointTypeClusterRef: number
+  id: number
+  endpointTypeRef: number
+  eventRef: number
+  included: number
 }
 
 export interface DbPackageExtensionValueType {
-  packageExtensionValueId: number,
-  packageExtensionRef: number,
-  sessionRef: number,
-  entityCode: number,
-  parentCode: number,
-  value: string,
+  entityCode: number
+  packageExtensionRef: number
+  id: number
+  parentCode: number
+  sessionRef: number
+  value: string
 }
 
 export interface DbSettingType {
-  category: string,
-  key: string,
-  value: string,
+  category: string
+  key: string
+  value: string
 }
