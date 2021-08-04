@@ -15,12 +15,12 @@ limitations under the License.
 -->
 <template>
   <div>
-    <div class="text-h4 q-mb-md">Zigbee Cluster Library</div>
-    <p>Zcl preferences.</p>
+    <div class="text-h4 q-mb-md">Zcl packages</div>
+    <p>Zcl packages.</p>
   </div>
 </template>
 <script>
 export default {
-  name: 'PreferenceZcl',
+  name: 'PreferencePackage',
 }
 </script>

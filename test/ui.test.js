@@ -81,7 +81,7 @@ import Error404 from '../src/pages/Error404.vue'
 import Preference from '../src/pages/Preference.vue'
 import PreferenceGeneration from '../src/pages/PreferenceGeneration.vue'
 import PreferenceUser from '../src/pages/PreferenceUser.vue'
-import PreferenceZcl from '../src/pages/PreferenceZcl.vue'
+import PreferencePackage from '../src/pages/PreferencePackage.vue'
 import ZclSettings from '../src/pages/ZclSettings.vue'
 import UcComponentSetup from '../src/components/UcComponentSetup.vue'
 import ZclCustomZclView from '../src/components/ZclCustomZclView.vue'
@@ -287,9 +287,9 @@ describe('Component mounting test', () => {
     timeout.short()
   )
   test(
-    'PreferenceZcl',
+    'PreferencePackage',
     () => {
-      const wrapper = shallowMount(PreferenceZcl, { store: ZapStore() })
+      const wrapper = shallowMount(PreferencePackage, { store: ZapStore() })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
     timeout.short()
