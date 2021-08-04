@@ -48,6 +48,14 @@ limitations under the License.
               @input="changeDomainFilter($event)"
             />
           </div>
+          &nbsp;
+          <div v-for="actionOption in actionOptions" :key="actionOption">
+            <q-btn
+              outline
+              @click="doActionFilter(actionOption)"
+              :label="actionOption.label"
+            />
+          </div>
         </div>
         <q-space />
         <q-input
@@ -143,6 +151,11 @@ export default {
         return this.$store.state.zap.clusterManager.filterString
       },
     },
+    actionOptions: {
+      get() {
+        return this.$store.state.zap.clusterManager.actionOptions
+      },
+    },
   },
   methods: {
     clusterDomains(domainName) {
@@ -178,6 +191,12 @@ export default {
     },
     changeDomainFilter(filter) {
       this.$store.dispatch('zap/setDomainFilter', {
+        filter: filter,
+        enabledClusters: this.enabledClusters,
+      })
+    },
+    doActionFilter(filter) {
+      this.$store.dispatch('zap/doActionFilter', {
         filter: filter,
         enabledClusters: this.enabledClusters,
       })

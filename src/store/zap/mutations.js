@@ -435,6 +435,24 @@ export function setDomainFilter(state, filterEnabledClusterPair) {
   })
 }
 
+export function doActionFilter(state, filterEnabledClusterPair) {
+  let filter = filterEnabledClusterPair.filter
+  // When we close all, we also clear all filters.
+  resetFilters(state)
+  state.domains.map((domainName) => {
+    setOpenDomain(state, {
+      domainName: domainName,
+      value: filter.domainFilterFn(
+        domainName,
+        state.clusterManager.openDomains,
+        {
+          enabledClusters: filterEnabledClusterPair.enabledClusters,
+        }
+      ),
+    })
+  })
+}
+
 export function setFilterString(state, filterString) {
   state.clusterManager.filterString = filterString
 }

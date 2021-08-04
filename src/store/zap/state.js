@@ -55,6 +55,8 @@ export default function () {
             context.enabledClusters.find((a) => cluster.id == a.id) !=
             undefined,
         },
+      ],
+      actionOptions: [
         {
           label: 'Close All',
           domainFilterFn: (domain, currentOpenDomains, context) => false,

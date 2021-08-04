@@ -626,6 +626,10 @@ export function setDomainFilter(context, filterEnabledClusterPair) {
   context.commit('setDomainFilter', filterEnabledClusterPair)
 }
 
+export function doActionFilter(context, filterEnabledClusterPair) {
+  context.commit('doActionFilter', filterEnabledClusterPair)
+}
+
 export function setFilterString(context, filterString) {
   context.commit('setFilterString', filterString)
 }
@@ -641,9 +645,8 @@ export function setIndividualClusterFilterString(context, filterString) {
 export function updateUcComponentState(context, projectInfoJson) {
   let ucComponents = Util.getUcComponents(projectInfoJson)
   let selectedUcComponents = Util.getSelectedUcComponents(ucComponents)
-  let selectedUcComponentIds = Util.getClusterIdsByUcComponents(
-    selectedUcComponents
-  )
+  let selectedUcComponentIds =
+    Util.getClusterIdsByUcComponents(selectedUcComponents)
   context.commit('updateUcComponentState', {
     projectInfoJson,
     ucComponents,
