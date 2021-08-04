@@ -642,6 +642,14 @@ export function setIndividualClusterFilterString(context, filterString) {
   context.commit('setIndividualClusterFilterString', filterString)
 }
 
+export function setLastSelectedDomain(context, domainNameString) {
+  context.commit('setLastSelectedDomain', domainNameString)
+}
+
+export function clearLastSelectedDomain(context) {
+  context.commit('clearLastSelectedDomain')
+}
+
 export function updateUcComponentState(context, projectInfoJson) {
   let ucComponents = Util.getUcComponents(projectInfoJson)
   let selectedUcComponents = Util.getSelectedUcComponents(ucComponents)

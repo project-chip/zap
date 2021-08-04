@@ -32,6 +32,7 @@ export default function () {
     projectPackages: [],
     clusterManager: {
       openDomains: {},
+      lastSelectedDomain: null,
       filter: {
         label: 'No Filter',
         domainFilterFn: (domain, currentOpenDomains, context) =>

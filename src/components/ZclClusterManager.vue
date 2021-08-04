@@ -16,92 +16,102 @@ limitations under the License.
 
 <template>
   <div v-show="selectedEndpointTypeId.length != 0">
-    <q-card flat square>
-      <div class="row">
-        <q-toolbar>
-          <q-toolbar-title style="font-weight: bolder">
-            Endpoint
-            {{ this.endpointId[this.selectedEndpointId] }} Clusters
-          </q-toolbar-title>
-        </q-toolbar>
-      </div>
-      <div class="row bar align=left;">
+    <q-scroll-area style="height: 100vh; max-width: 200vh">
+      <q-card flat square>
         <div class="row">
-          <div
-            style="
-              vertical-align: middle;
-              text-align: center;
-              padding: 10px 0 0 0;
-            "
-          >
-            Show
-          </div>
-          &nbsp; &nbsp;
-
-          <div>
-            <q-select
-              outlined
-              :value="filter"
-              :options="filterOptions"
-              dense
-              class="col-2"
-              @input="changeDomainFilter($event)"
-            />
-          </div>
-          &nbsp;
-          <div v-for="actionOption in actionOptions" :key="actionOption">
-            <q-btn
-              outline
-              @click="doActionFilter(actionOption)"
-              :label="actionOption.label"
-            />
-          </div>
+          <q-toolbar>
+            <q-toolbar-title style="font-weight: bolder">
+              Endpoint
+              {{ this.endpointId[this.selectedEndpointId] }} Clusters
+            </q-toolbar-title>
+          </q-toolbar>
         </div>
-        <q-space />
-        <q-input
-          dense
-          outlined
-          clearable
-          class="col-4"
-          placeholder="Search Clusters"
-          @input="changeFilterString($event)"
-          @clear="changeFilterString('')"
-          :value="filterString"
-        >
-          <template v-slot:prepend>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </div>
-      <q-list>
-        <div v-for="domainName in domainNames" :key="domainName">
-          <div v-show="clusterDomains(domainName).length > 0">
-            <q-expansion-item
-              switch-toggle-side
-              :label="domainName"
-              @input="setOpenDomain(domainName, $event)"
-              :value="getDomainOpenState(domainName)"
+        <div class="row bar align=left;">
+          <div class="row">
+            <div
+              style="
+                vertical-align: middle;
+                text-align: center;
+                padding: 10px 0 0 0;
+              "
             >
-              <zcl-domain-cluster-view
-                :domainName="domainName"
-                :clusters="clusterDomains(domainName)"
+              Show
+            </div>
+            &nbsp; &nbsp;
+
+            <div>
+              <q-select
+                outlined
+                :value="filter"
+                :options="filterOptions"
+                dense
+                class="col-2"
+                @input="changeDomainFilter($event)"
               />
-            </q-expansion-item>
-            <q-separator />
+            </div>
+            &nbsp;
+            <div v-for="actionOption in actionOptions" :key="actionOption">
+              <q-btn
+                outline
+                @click="doActionFilter(actionOption)"
+                :label="actionOption.label"
+              />
+            </div>
           </div>
+          <q-space />
+          <q-input
+            dense
+            outlined
+            clearable
+            class="col-4"
+            placeholder="Search Clusters"
+            @input="changeFilterString($event)"
+            @clear="changeFilterString('')"
+            :value="filterString"
+          >
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
         </div>
-      </q-list>
-    </q-card>
+        <q-list>
+          <div v-for="domainName in domainNames" :key="domainName">
+            <div v-show="clusterDomains(domainName).length > 0">
+              <q-expansion-item
+                :id="domainName"
+                switch-toggle-side
+                :label="domainName"
+                @input="setOpenDomain(domainName, $event)"
+                :value="getDomainOpenState(domainName)"
+              >
+                <zcl-domain-cluster-view
+                  :domainName="domainName"
+                  :clusters="clusterDomains(domainName)"
+                />
+              </q-expansion-item>
+              <q-separator />
+            </div>
+          </div>
+        </q-list>
+      </q-card>
+    </q-scroll-area>
   </div>
 </template>
 <script>
 import ZclDomainClusterView from './ZclDomainClusterView.vue'
 import CommonMixin from '../util/common-mixin'
+import { scroll } from 'quasar'
+const { getScrollTarget, setScrollPosition } = scroll
 
 export default {
   name: 'ZclClusterManager',
   props: ['endpointTypeReference'],
   mixins: [CommonMixin],
+  mounted() {
+    if (this.domainNames.length > 0 && this.lastSelectedDomain) {
+      this.scrollToElementById(this.lastSelectedDomain)
+    }
+  },
   computed: {
     domainNames: {
       get() {
@@ -116,6 +126,11 @@ export default {
     clusters: {
       get() {
         return this.$store.state.zap.clusters
+      },
+    },
+    lastSelectedDomain: {
+      get() {
+        return this.$store.state.zap.clusterManager.lastSelectedDomain
       },
     },
     relevantClusters: {
@@ -158,6 +173,12 @@ export default {
     },
   },
   methods: {
+    scrollToElementById(tag) {
+      const el = document.getElementById(tag)
+      const target = getScrollTarget(el)
+      const offset = el.offsetTop
+      setScrollPosition(target, offset)
+    },
     clusterDomains(domainName) {
       return this.relevantClusters
         .filter((a) => {

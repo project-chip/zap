@@ -461,6 +461,14 @@ export function setIndividualClusterFilterString(state, filterString) {
   state.clusterManager.individualClusterFilterString = filterString
 }
 
+export function setLastSelectedDomain(state, domainNameString) {
+  state.clusterManager.lastSelectedDomain = domainNameString
+}
+
+export function clearLastSelectedDomain(state) {
+  state.clusterManager.lastSelectedDomain = null
+}
+
 export function resetFilters(state) {
   state.clusterManager.filter = {
     label: 'No filter',
