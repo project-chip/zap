@@ -17,7 +17,7 @@
  *
  * @jest-environment node
  */
-const dbMapping = require('../src-electron/db/db-mapping.ts')
+const dbMapping = require('../src-electron/db/db-mapping.js')
 const { timeout } = require('./test-util.js')
 
 test(

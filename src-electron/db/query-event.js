@@ -21,7 +21,7 @@
  * @module DB API: event queries.
  */
 const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping')
+const dbMapping = require('./db-mapping.js')
 
 /**
  * Retrieves events for a given cluster Id.

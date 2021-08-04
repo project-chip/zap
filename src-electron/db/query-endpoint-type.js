@@ -21,7 +21,7 @@
  * @module DB API: endpoint type queries against the database.
  */
 const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping')
+const dbMapping = require('./db-mapping.js')
 
 /**
  * Promise to delete an endpoint type.

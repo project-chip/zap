@@ -21,7 +21,7 @@
  * @module DB API: user configuration queries against the database.
  */
 const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping')
+const dbMapping = require('./db-mapping.js')
 const queryPackage = require('./query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')

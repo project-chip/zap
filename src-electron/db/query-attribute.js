@@ -21,7 +21,7 @@
  * @module DB API: attribute queries.
  */
 const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping')
+const dbMapping = require('./db-mapping.js')
 
 function attributeExportMapping(x) {
   return {
