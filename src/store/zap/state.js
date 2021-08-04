@@ -64,7 +64,7 @@ export default function () {
       individualClusterFilterString: '',
     },
     endpointView: {
-      selectedEndpoint: [],
+      selectedEndpoint: null,
       endpointId: {},
       endpointType: {},
       networkId: {},

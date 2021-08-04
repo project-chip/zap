@@ -50,9 +50,9 @@ limitations under the License.
     </template>
 
     <q-dialog v-model="newEndpointDialog" class="background-color:transparent">
-      <zcl-create-modify-endpoint 
+      <zcl-create-modify-endpoint
         v-bind:endpointReference="null"
-        v-on:saveOrCreateValidated="newEndpointDialog = false" 
+        v-on:saveOrCreateValidated="newEndpointDialog = false"
       />
     </q-dialog>
   </div>
@@ -67,6 +67,12 @@ export default {
   name: 'ZclEndpointManager',
   components: { ZclEndpointCard, ZclCreateModifyEndpoint },
   mixins: [CommonMixin],
+  mounted() {
+    // initialize ZclClusterManager with first endpoint info.
+    if (this.endpointIdSorted.size && !this.selectedEndpointId) {
+      this.setSelectedEndpointType(this.endpointIdSorted.keys().next().value)
+    }
+  },
   computed: {
     leftDrawerOpen: {
       get() {
@@ -86,12 +92,6 @@ export default {
     },
     endpoints: {
       get() {
-        // initialize ZclClusterManager with first endpoint info.
-        if (this.endpointIdSorted.size) {
-          this.setSelectedEndpointType(
-            this.endpointIdSorted.keys().next().value
-          )
-        }
         return Array.from(this.endpointIdSorted.keys()).map((id) => ({
           id: id,
         }))

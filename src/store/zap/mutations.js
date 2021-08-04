@@ -260,7 +260,7 @@ export function removeEndpointType(state, endpointType) {
 }
 
 export function deleteEndpoint(state, endpoint) {
-  state.endpointView.selectedEndpoint = []
+  state.endpointView.selectedEndpoint = null
   Vue.delete(state.endpointView.endpointId, endpoint.id)
   Vue.delete(state.endpointView.endpointType, endpoint.id)
   Vue.delete(state.endpointView.networkId, endpoint.id)
