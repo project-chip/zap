@@ -21,7 +21,7 @@
  * @module DB API: cluster queries.
  */
 const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping.js')
+const dbMapping = require('./db-mapping')
 
 /**
  * All cluster details along with their attribute details per endpoint.

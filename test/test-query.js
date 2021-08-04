@@ -21,7 +21,7 @@
  * @module DB API: user configuration queries against the database.
  */
 const dbApi = require('../src-electron/db/db-api.js')
-const dbMapping = require('../src-electron/db/db-mapping.js')
+const dbMapping = require('../src-electron/db/db-mapping.ts')
 
 /**
  * Resolves into all the cluster states.

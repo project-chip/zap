@@ -22,7 +22,7 @@
  */
 const dbApi = require('./db-api.js')
 const bin = require('../util/bin')
-const dbMapping = require('./db-mapping.js')
+const dbMapping = require('./db-mapping')
 
 /**
  * Returns a promise resolving into all endpoints.

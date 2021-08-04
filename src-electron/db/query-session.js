@@ -21,7 +21,7 @@
  * @module DB API: session related queries.
  */
 const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping.js')
+const dbMapping = require('./db-mapping')
 const util = require('../util/util.js')
 
 /**

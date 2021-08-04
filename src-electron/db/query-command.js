@@ -21,7 +21,7 @@
  * @module DB API: command queries.
  */
 const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping.js')
+const dbMapping = require('./db-mapping')
 
 /**
  * Returns the count of the number of cluster commands with cli for a cluster
