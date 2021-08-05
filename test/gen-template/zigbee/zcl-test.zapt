@@ -74,3 +74,12 @@ Last item
         {{/if_is_struct}}
     {{/zcl_command_arguments}}
 {{/zcl_commands}}
+/******************************************/
+
+/******** COMMAND DISCOVERY TEST **********/
+{{#if_command_discovery_enabled}}
+#define EMBER_AF_SUPPORT_COMMAND_DISCOVERY
+{{else}}
+#undef EMBER_AF_SUPPORT_COMMAND_DISCOVERY
+{{/if_command_discovery_enabled}}
+/******************************************/
