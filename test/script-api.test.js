@@ -24,9 +24,11 @@ const dbApi = require('../src-electron/db/db-api.js')
 const env = require('../src-electron/util/env.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const querySession = require('../src-electron/db/query-session.js')
+const querySessionZcl = require('../src-electron/db/query-session-zcl.js')
 const testUtil = require('./test-util.js')
 const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const dbEnum = require('../src-shared/db-enum.js')
+const utilJs = require('../src-electron/util/util.js')
 let testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 
 let testScript3 = path.join(__dirname, 'resource/test-script-3.js')
@@ -66,10 +68,14 @@ test(
   path.basename(testScript3),
   async () => {
     let sid = await querySession.createBlankSession(db)
+    await utilJs.initializeSessionPackage(db, sid, {
+      zcl: env.builtinSilabsZclMetafile,
+    })
     await importJs.importDataFromFile(db, testFile, {
       sessionId: sid,
       postImportScript: testScript3,
     })
+    let allClusters = await querySessionZcl.selectAllSessionClusters(db, sid)
     let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(3)
     // get clusters on first endpoint
@@ -77,11 +83,12 @@ test(
       db,
       endpoints[0].endpointTypeRef
     )
-    // code 2 = device temperature, get client
+    // Script 3 is supposed to remove that cluster client with code
+    // 2 so verify that this in fact happened.
     let deviceTemps = clusters.filter(
       (cl) => cl.code == 2 && cl.side == dbEnum.side.client
     )
-    expect(deviceTemps.length).toBe(1)
+    expect(deviceTemps.length).toBe(0)
   },
   testUtil.timeout.medium()
 )

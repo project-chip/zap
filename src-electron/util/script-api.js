@@ -25,6 +25,7 @@ const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryPackage = require('../db/query-package.js')
+const querySessionZcl = require('../db/query-session-zcl.js')
 
 /**
  * Prints a text to console.
@@ -115,20 +116,33 @@ function sessionId(context) {
   return context.sessionId
 }
 
+/**
+ * Returns all available clusters.
+ *
+ * @param {*} context
+ * @returns all available clusters
+ */
+async function availableClusters(context) {
+  return querySessionZcl.selectAllSessionClusters(context.db, context.sessionId)
+}
+
 // Finds the cluster database primary key from code and context.
-async function findClusterId(context, code) {
-  let sessionId = sessionId(context)
-  querySession.get
-  return 0
+async function findCluster(context, code) {
+  return querySessionZcl.selectSessionClusterByCode(
+    context.db,
+    context.sessionId,
+    code
+  )
 }
 
 // Non-public, common function to modify cluster.
 async function modifyCluster(context, endpoint, code, side, enabled) {
-  let clusterId = await findClusterId(context, code)
+  let cluster = await findCluster(context, code)
+  if (cluster == null) return null
   return queryConfig.insertOrReplaceClusterState(
     context.db,
     endpoint.endpointTypeRef,
-    clusterId,
+    cluster.id,
     side,
     enabled
   )
@@ -155,6 +169,8 @@ async function enableClientCluster(context, endpoint, code) {
 async function enableServerCluster(context, endpoint, code) {
   return modifyCluster(context, endpoint, code, dbEnum.side.server, true)
 }
+
+exports.availableClusters = availableClusters
 
 exports.print = print
 exports.functions = functions
