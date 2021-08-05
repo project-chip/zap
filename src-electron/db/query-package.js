@@ -357,7 +357,7 @@ async function getSessionGenTemplates(db, sessionId) {
 }
 
 /**
- * Resolves into an array of IDs that are the packageIds that all the ZCL queries should resolve into.
+ * Resolves into an array of package objects that all the ZCL queries should resolve into.
  * @param {*} db
  * @param {*} sessionId
  */
@@ -383,6 +383,17 @@ WHERE
       [sessionId]
     )
     .then((rows) => rows.map(dbMapping.map.sessionPackage))
+}
+
+/**
+ * Resolves into an array of IDs that are the packageIds that all the ZCL queries should resolve into.
+ * @param {*} db
+ * @param {*} sessionId
+ */
+async function getSessionZclPackageIds(db, sessionId) {
+  return getSessionZclPackages(db, sessionId).then((rows) =>
+    rows.map((r) => r.packageRef)
+  )
 }
 
 /**
@@ -721,8 +732,10 @@ exports.getPackageByPathAndParent = getPackageByPathAndParent
 exports.getPackageByPackageId = getPackageByPackageId
 exports.getPackagesByType = getPackagesByType
 exports.getPackageByParent = getPackageByParent
-exports.getPackageIdByPathAndTypeAndVersion = getPackageIdByPathAndTypeAndVersion
-exports.getPackageSessionPackagePairBySessionId = getPackageSessionPackagePairBySessionId
+exports.getPackageIdByPathAndTypeAndVersion =
+  getPackageIdByPathAndTypeAndVersion
+exports.getPackageSessionPackagePairBySessionId =
+  getPackageSessionPackagePairBySessionId
 
 exports.getPathCrc = getPathCrc
 exports.insertPathCrc = insertPathCrc
@@ -741,6 +754,7 @@ exports.selectAllDefaultOptions = selectAllDefaultOptions
 exports.selectOptionValueByOptionDefaultId = selectOptionValueByOptionDefaultId
 exports.getPackagesByParentAndType = getPackagesByParentAndType
 exports.getSessionZclPackages = getSessionZclPackages
+exports.getSessionZclPackageIds = getSessionZclPackageIds
 exports.insertPackageExtension = insertPackageExtension
 exports.selectPackageExtension = selectPackageExtension
 exports.deleteSessionPackage = deleteSessionPackage

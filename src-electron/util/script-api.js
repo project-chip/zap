@@ -22,6 +22,9 @@
  *  @module JS API: post-import.
  */
 const queryEndpoint = require('../db/query-endpoint.js')
+const queryConfig = require('../db/query-config.js')
+const dbEnum = require('../../src-shared/db-enum.js')
+const queryPackage = require('../db/query-package.js')
 
 /**
  * Prints a text to console.
@@ -112,13 +115,46 @@ function sessionId(context) {
   return context.sessionId
 }
 
-function disableClientCluster(context, code) {}
+// Finds the cluster database primary key from code and context.
+async function findClusterId(context, code) {
+  let sessionId = sessionId(context)
+  querySession.get
+  return 0
+}
 
-function disableServerCluster(context, code) {}
+// Non-public, common function to modify cluster.
+async function modifyCluster(context, endpoint, code, side, enabled) {
+  let clusterId = await findClusterId(context, code)
+  return queryConfig.insertOrReplaceClusterState(
+    context.db,
+    endpoint.endpointTypeRef,
+    clusterId,
+    side,
+    enabled
+  )
+}
 
-function enableClientCluster(context, code) {}
+/**
+ * Disables the client cluster on an endpoint.
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} code
+ */
+async function disableClientCluster(context, endpoint, code) {
+  return modifyCluster(context, endpoint, code, dbEnum.side.client, false)
+}
 
-function enableServerCluster(context, code) {}
+async function disableServerCluster(context, endpoint, code) {
+  return modifyCluster(context, endpoint, code, dbEnum.side.server, false)
+}
+
+async function enableClientCluster(context, endpoint, code) {
+  return modifyCluster(context, endpoint, code, dbEnum.side.client, true)
+}
+
+async function enableServerCluster(context, endpoint, code) {
+  return modifyCluster(context, endpoint, code, dbEnum.side.server, true)
+}
 
 exports.print = print
 exports.functions = functions
