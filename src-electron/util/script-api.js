@@ -158,16 +158,118 @@ async function disableClientCluster(context, endpoint, code) {
   return modifyCluster(context, endpoint, code, dbEnum.side.client, false)
 }
 
+/**
+ * Disables the server cluster on an endpoint.
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} code
+ */
 async function disableServerCluster(context, endpoint, code) {
   return modifyCluster(context, endpoint, code, dbEnum.side.server, false)
 }
 
+/**
+ * Enables the client cluster on an endpoint.
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} code
+ */
 async function enableClientCluster(context, endpoint, code) {
   return modifyCluster(context, endpoint, code, dbEnum.side.client, true)
 }
 
+/**
+ * Enables the server cluster on an endpoint.
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} code
+ */
 async function enableServerCluster(context, endpoint, code) {
   return modifyCluster(context, endpoint, code, dbEnum.side.server, true)
+}
+
+/**
+ * Internal function that actually processes the attribute toggles.
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} clusterCode
+ * @param {*} attributeCode
+ * @param {*} side
+ * @param {*} enable
+ */
+async function modifyAttribute(
+  context,
+  endpoint,
+  clusterCode,
+  attributeCode,
+  side,
+  enable
+) {
+  return
+}
+
+async function disableClientAttribute(
+  context,
+  endpoint,
+  clusterCode,
+  attributeCode
+) {
+  return modifyAttribute(
+    context,
+    endpoint,
+    clusterCode,
+    attributeCode,
+    dbEnum.side.client,
+    false
+  )
+}
+
+async function enableClientAttribute(
+  context,
+  endpoint,
+  clusterCode,
+  attributeCode
+) {
+  return modifyAttribute(
+    context,
+    endpoint,
+    clusterCode,
+    attributeCode,
+    dbEnum.side.client,
+    true
+  )
+}
+
+async function disableServerAttribute(
+  context,
+  endpoint,
+  clusterCode,
+  attributeCode
+) {
+  return modifyAttribute(
+    context,
+    endpoint,
+    clusterCode,
+    attributeCode,
+    dbEnum.side.server,
+    false
+  )
+}
+
+async function enableServerAttribute(
+  context,
+  endpoint,
+  clusterCode,
+  attributeCode
+) {
+  return modifyAttribute(
+    context,
+    endpoint,
+    clusterCode,
+    attributeCode,
+    dbEnum.side.server,
+    true
+  )
 }
 
 exports.availableClusters = availableClusters
@@ -187,3 +289,8 @@ exports.disableClientCluster = disableClientCluster
 exports.disableServerCluster = disableServerCluster
 exports.enableClientCluster = enableClientCluster
 exports.enableServerCluster = enableServerCluster
+
+exports.disableClientAttribute = disableClientAttribute
+exports.enableClientAttribute = enableClientAttribute
+exports.disableServerAttribute = disableServerAttribute
+exports.enableServerAttribute = enableServerAttribute
