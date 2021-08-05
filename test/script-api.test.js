@@ -75,7 +75,6 @@ test(
       sessionId: sid,
       postImportScript: testScript3,
     })
-    let allClusters = await querySessionZcl.selectAllSessionClusters(db, sid)
     let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(3)
     // get clusters on first endpoint
@@ -89,6 +88,18 @@ test(
       (cl) => cl.code == 2 && cl.side == dbEnum.side.client
     )
     expect(deviceTemps.length).toBe(0)
+
+    let basicCluster = clusters.filter((cl) => cl.code == 0)[0]
+    let basicAttributes = await queryEndpoint.selectEndpointClusterAttributes(
+      db,
+      basicCluster.clusterId,
+      dbEnum.side.server,
+      endpoints[0].endpointTypeRef
+    )
+    expect(basicAttributes.length).toBe(5)
+    let manufName = basicAttributes.filter((at) => at.code == 4)
+    expect(manufName.length).toBe(1)
+    //console.log(basicAttributes)
   },
   testUtil.timeout.medium()
 )
