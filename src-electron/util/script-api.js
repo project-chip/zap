@@ -112,6 +112,14 @@ function sessionId(context) {
   return context.sessionId
 }
 
+function disableClientCluster(context, code) {}
+
+function disableServerCluster(context, code) {}
+
+function enableClientCluster(context, code) {}
+
+function enableServerCluster(context, code) {}
+
 exports.print = print
 exports.functions = functions
 exports.sessionId = sessionId
@@ -122,3 +130,8 @@ exports.deleteEndpoint = deleteEndpoint
 exports.clusters = clusters
 exports.attributes = attributes
 exports.commands = commands
+
+exports.disableClientCluster = disableClientCluster
+exports.disableServerCluster = disableServerCluster
+exports.enableClientCluster = enableClientCluster
+exports.enableServerCluster = enableServerCluster

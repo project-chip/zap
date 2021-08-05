@@ -29,6 +29,9 @@ const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 
 let testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 
+let testScript3 = path.join(__dirname, 'resource/test-script-3.js')
+let testScript2 = path.join(__dirname, 'resource/test-script-2.js')
+
 beforeAll(() => {
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('script-api')
@@ -45,16 +48,30 @@ beforeAll(() => {
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
-  path.basename(testFile) + ' - import',
+  path.basename(testScript2),
   async () => {
     let sid = await querySession.createBlankSession(db)
     await importJs.importDataFromFile(db, testFile, {
       sessionId: sid,
-      postImportScript: path.join(__dirname, 'resource/test-script-2.js'),
+      postImportScript: testScript2,
     })
     let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(2)
     expect(endpoints[0].endpointIdentifier).toBe(42)
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  path.basename(testScript3),
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile, {
+      sessionId: sid,
+      postImportScript: testScript3,
+    })
+    let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
+    expect(endpoints.length).toBe(3)
   },
   testUtil.timeout.medium()
 )
