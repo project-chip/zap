@@ -7,7 +7,7 @@ const config = {
     __dirname: false,
     __filename: true,
   },
-  mode: 'production',
+  mode: 'development',
   target: 'electron-main',
   context: path.resolve(__dirname + '/src-electron/main-process/'),
   entry: './electron-main',
@@ -62,7 +62,7 @@ const config = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
   externals: [nodeExternals()], // in order to ignore all modules in node_modules folder
   plugins: [
     new CopyPlugin({
