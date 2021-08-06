@@ -145,6 +145,15 @@ async function findAttribute(context, clusterCode, attributeCode) {
   )
 }
 
+async function findCommand(context, clusterCode, commandCode) {
+  return querySessionZcl.selectSessionCommandByCode(
+    context.db,
+    context.sessionId,
+    clusterCode,
+    commandCode
+  )
+}
+
 // Non-public, common function to modify cluster.
 async function modifyCluster(context, endpoint, code, side, enabled) {
   let cluster = await findCluster(context, code)
@@ -198,8 +207,16 @@ async function modifyCommand(
 ) {
   let cluster = await findCluster(context, clusterCode)
   if (cluster == null) return null
-
-  return
+  let command = await findCommand(context, clusterCode, commandCode)
+  return queryConfig.insertOrUpdateCommandState(
+    context.db,
+    endpoint.endpointTypeRef,
+    cluster.id,
+    command.source,
+    command.id,
+    enable ? 1 : 0,
+    isIncoming
+  )
 }
 
 /**

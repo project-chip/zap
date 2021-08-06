@@ -101,11 +101,11 @@ WHERE
 }
 
 /**
- * Returns the cluster available to this session by the code.
+ * Returns the attribute available to this session by the code.
  *
  * @param {*} db
  * @param {*} sessionId
- * @returns all the cluster objects for a given session.
+ * @returns the session attribute
  */
 async function selectSessionAttributeByCode(
   db,
@@ -152,6 +152,53 @@ WHERE
     .then(dbMapping.map.attribute)
 }
 
+/**
+ * Returns the command available to this session by the code.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns the session attribute
+ */
+async function selectSessionCommandByCode(
+  db,
+  sessionId,
+  clusterCode,
+  commandCode
+) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  CMD.COMMAND_ID,
+  CMD.CLUSTER_REF,
+  CMD.PACKAGE_REF,
+  CMD.CODE,
+  CMD.MANUFACTURER_CODE,
+  CMD.NAME,
+  CMD.DESCRIPTION,
+  CMD.SOURCE,
+  CMD.IS_OPTIONAL,
+  CMD.RESPONSE_REF
+FROM
+  COMMAND AS CMD
+INNER JOIN
+  CLUSTER AS C
+ON
+  CMD.CLUSTER_REF = C.CLUSTER_ID
+INNER JOIN
+  SESSION_PACKAGE AS SP
+ON
+  C.PACKAGE_REF = SP.PACKAGE_REF
+WHERE
+  SP.SESSION_REF = ? AND C.CODE = ? AND CMD.CODE = ?
+`,
+      [sessionId, clusterCode, commandCode]
+    )
+    .then(dbMapping.map.command)
+}
+
 exports.selectAllSessionClusters = selectAllSessionClusters
 exports.selectSessionClusterByCode = selectSessionClusterByCode
 exports.selectSessionAttributeByCode = selectSessionAttributeByCode
+exports.selectSessionCommandByCode = selectSessionCommandByCode
