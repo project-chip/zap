@@ -15,6 +15,8 @@
  *    limitations under the License.
  */
 
+// This file is generated via ./src-script/regen-ts-type.js.  Do not hand edit this file!
+
 export interface DbPackageType {
   crc: number
   id: number
@@ -142,12 +144,12 @@ export interface DbEventFieldType {
 }
 
 export interface DbAttributeType {
-  arrayType?: string
+  arrayType: string
+  id: number
   clusterRef: number
   code: number
   defaultValue: string
   define: string
-  id: number
   introducedInRef: number
   isOptional: number
   isReportable: number
@@ -158,9 +160,9 @@ export interface DbAttributeType {
   maxLength: number
   min: string
   minLength: number
-  label: string
+  name: string
   packageRef: number
-  removedInRef?: number
+  removedInRef: number
   side: string
   type: string
 }

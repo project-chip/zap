@@ -4,8 +4,8 @@ const fs = require('fs')
 const path = require('path')
 
 const db = new sqlite3.Database(':memory:')
-const schema = path.resolve('../db/zap-schema.sql')
-const outputFile = path.resolve('../../src-shared/types/db-types.ts')
+const schema = path.resolve(__dirname,'../src-electron/db/zap-schema.sql')
+const outputFile = path.resolve(__dirname, '../src-shared/types/db-types.ts')
 
 // Utility function for generating TypeScript interface types from ZAP table schema
 
@@ -25,7 +25,7 @@ db.serialize(async function () {
   })
 })
 
-async function main() {
+async function regenDatabaseTypes() {
   let output = [
     `/**
  *
@@ -43,6 +43,8 @@ async function main() {
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+// This file is generated via ./src-script/regen-ts-type.js.  Do not hand edit this file!
 `,
   ]
 
@@ -51,8 +53,7 @@ async function main() {
     "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%'"
   ).then((tables) => tables.map((x) => x.name))
 
-  console.log('Generating TypeScript interfaces for the following tables:')
-  console.log(JSON.stringify(names))
+  console.log('Generating TypeScript interfaces via zap-schema.sql')
 
   let promises = names.map((name) =>
     dbAll(db, "PRAGMA table_info('" + name + "')")
@@ -104,7 +105,7 @@ async function main() {
       return
     }
 
-    console.log(`Generated TypeScrip interfaces to file: ${outputFile}`)
+    console.log(`Generated TypeScript interfaces: ${outputFile}`)
   })
 }
 
@@ -122,4 +123,4 @@ async function dbAll(db, query, args) {
   })
 }
 
-main()
+regenDatabaseTypes()
