@@ -272,6 +272,58 @@ async function enableServerAttribute(
   )
 }
 
+async function modifyCommand(
+  context,
+  endpoint,
+  clusterCode,
+  commandCode,
+  isIncoming,
+  enable
+) {}
+
+async function disableIncomingCommand(
+  context,
+  endpoint,
+  clusterCode,
+  commandCode
+) {
+  return modifyCommand(context, endpoint, clusterCode, commandCode, true, false)
+}
+
+async function enableIncomingCommand(
+  context,
+  endpoint,
+  clusterCode,
+  commandCode
+) {
+  return modifyCommand(context, endpoint, clusterCode, commandCode, true, true)
+}
+
+async function disableOutgoingCommand(
+  context,
+  endpoint,
+  clusterCode,
+  commandCode
+) {
+  return modifyCommand(
+    context,
+    endpoint,
+    clusterCode,
+    commandCode,
+    false,
+    false
+  )
+}
+
+async function enableOutgoingCommand(
+  context,
+  endpoint,
+  clusterCode,
+  commandCode
+) {
+  return modifyCommand(context, endpoint, clusterCode, commandCode, false, true)
+}
+
 exports.availableClusters = availableClusters
 
 exports.print = print
@@ -294,3 +346,13 @@ exports.disableClientAttribute = disableClientAttribute
 exports.enableClientAttribute = enableClientAttribute
 exports.disableServerAttribute = disableServerAttribute
 exports.enableServerAttribute = enableServerAttribute
+
+exports.disableClientAttribute = disableClientAttribute
+exports.enableClientAttribute = enableClientAttribute
+exports.disableServerAttribute = disableServerAttribute
+exports.enableServerAttribute = enableServerAttribute
+
+exports.disableIncomingCommand = disableIncomingCommand
+exports.enableIncomingCommand = enableIncomingCommand
+exports.disableOutgoingCommand = disableOutgoingCommand
+exports.enableOutgoingCommand = enableOutgoingCommand
