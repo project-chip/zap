@@ -208,6 +208,14 @@ async function modifyAttribute(
   return
 }
 
+/**
+ * Disable client attribute.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} clusterCode
+ * @param {*} attributeCode
+ */
 async function disableClientAttribute(
   context,
   endpoint,
@@ -224,6 +232,14 @@ async function disableClientAttribute(
   )
 }
 
+/**
+ * Enable client attribute.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} clusterCode
+ * @param {*} attributeCode
+ */
 async function enableClientAttribute(
   context,
   endpoint,
@@ -240,6 +256,14 @@ async function enableClientAttribute(
   )
 }
 
+/**
+ * Disable server attribute.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} clusterCode
+ * @param {*} attributeCode
+ */
 async function disableServerAttribute(
   context,
   endpoint,
@@ -256,6 +280,14 @@ async function disableServerAttribute(
   )
 }
 
+/**
+ * Enable server attribute.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} clusterCode
+ * @param {*} attributeCode
+ */
 async function enableServerAttribute(
   context,
   endpoint,
@@ -272,6 +304,16 @@ async function enableServerAttribute(
   )
 }
 
+/**
+ * Internal function managing the state of commands.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} clusterCode
+ * @param {*} commandCode
+ * @param {*} isIncoming
+ * @param {*} enable
+ */
 async function modifyCommand(
   context,
   endpoint,
@@ -281,6 +323,14 @@ async function modifyCommand(
   enable
 ) {}
 
+/**
+ * Disable incoming commands.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} clusterCode
+ * @param {*} commandCode
+ */
 async function disableIncomingCommand(
   context,
   endpoint,
@@ -290,6 +340,14 @@ async function disableIncomingCommand(
   return modifyCommand(context, endpoint, clusterCode, commandCode, true, false)
 }
 
+/**
+ * Enable incoming commands.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} clusterCode
+ * @param {*} commandCode
+ */
 async function enableIncomingCommand(
   context,
   endpoint,
@@ -299,6 +357,14 @@ async function enableIncomingCommand(
   return modifyCommand(context, endpoint, clusterCode, commandCode, true, true)
 }
 
+/**
+ * Disable outgoing commands.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} clusterCode
+ * @param {*} commandCode
+ */
 async function disableOutgoingCommand(
   context,
   endpoint,
@@ -315,6 +381,14 @@ async function disableOutgoingCommand(
   )
 }
 
+/**
+ * Enable outgoing commands.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} clusterCode
+ * @param {*} commandCode
+ */
 async function enableOutgoingCommand(
   context,
   endpoint,
