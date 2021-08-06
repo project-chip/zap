@@ -185,7 +185,6 @@ async function modifyAttribute(
       value: enable,
     },
   ]
-
   return queryConfig.insertOrUpdateAttributeState(
     context.db,
     endpoint.endpointTypeRef,

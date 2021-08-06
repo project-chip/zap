@@ -89,6 +89,9 @@ test(
     )
     expect(deviceTemps.length).toBe(0)
 
+    // Script 3 is also to set the manufacturer name
+    // attributed to not be included any more, so
+    // we check that it in fact gets turned off.
     let basicCluster = clusters.filter((cl) => cl.code == 0)[0]
     let basicAttributes = await queryEndpoint.selectEndpointClusterAttributes(
       db,
@@ -97,9 +100,10 @@ test(
       endpoints[0].endpointTypeRef
     )
     expect(basicAttributes.length).toBe(5)
-    let manufName = basicAttributes.filter((at) => at.code == 4)
-    expect(manufName.length).toBe(1)
-    //console.log(basicAttributes)
+    let manufName = basicAttributes.filter(
+      (at) => at.code == 4 && at.isIncluded == 1
+    )
+    expect(manufName.length).toBe(0)
   },
   testUtil.timeout.medium()
 )
