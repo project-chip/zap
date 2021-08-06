@@ -100,5 +100,58 @@ WHERE
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
 
+/**
+ * Returns the cluster available to this session by the code.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns all the cluster objects for a given session.
+ */
+async function selectSessionAttributeByCode(
+  db,
+  sessionId,
+  clusterCode,
+  attributeCode
+) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  A.ATTRIBUTE_ID,
+  A.CLUSTER_REF,
+  A.CODE,
+  A.MANUFACTURER_CODE,
+  A.NAME,
+  A.TYPE,
+  A.SIDE,
+  A.DEFINE,
+  A.MIN,
+  A.MAX,
+  A.IS_WRITABLE,
+  A.DEFAULT_VALUE,
+  A.IS_OPTIONAL,
+  A.IS_REPORTABLE,
+  A.IS_SCENE_REQUIRED,
+  A.ARRAY_TYPE
+FROM
+  ATTRIBUTE AS A
+INNER JOIN
+  CLUSTER AS C
+ON
+  A.CLUSTER_REF = C.CLUSTER_ID
+INNER JOIN
+  SESSION_PACKAGE AS SP
+ON
+  C.PACKAGE_REF = SP.PACKAGE_REF
+WHERE
+  SP.SESSION_REF = ? AND C.CODE = ? AND A.CODE = ?
+`,
+      [sessionId, clusterCode, attributeCode]
+    )
+    .then(dbMapping.map.attribute)
+}
+
 exports.selectAllSessionClusters = selectAllSessionClusters
 exports.selectSessionClusterByCode = selectSessionClusterByCode
+exports.selectSessionAttributeByCode = selectSessionAttributeByCode

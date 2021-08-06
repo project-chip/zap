@@ -26,6 +26,7 @@ const queryConfig = require('../db/query-config.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryPackage = require('../db/query-package.js')
 const querySessionZcl = require('../db/query-session-zcl.js')
+const restApi = require('../../src-shared/rest-api.js')
 
 /**
  * Prints a text to console.
@@ -135,6 +136,15 @@ async function findCluster(context, code) {
   )
 }
 
+async function findAttribute(context, clusterCode, attributeCode) {
+  return querySessionZcl.selectSessionAttributeByCode(
+    context.db,
+    context.sessionId,
+    clusterCode,
+    attributeCode
+  )
+}
+
 // Non-public, common function to modify cluster.
 async function modifyCluster(context, endpoint, code, side, enabled) {
   let cluster = await findCluster(context, code)
@@ -146,6 +156,50 @@ async function modifyCluster(context, endpoint, code, side, enabled) {
     side,
     enabled
   )
+}
+
+// Non-public, common function to modify attribute.
+async function modifyAttribute(
+  context,
+  endpoint,
+  clusterCode,
+  attributeCode,
+  side,
+  enable
+) {
+  let cluster = await findCluster(context, clusterCode)
+  if (cluster == null) return null
+  let attribute = await findAttribute(context, clusterCode, attributeCode)
+  let params = [
+    {
+      key: restApi.updateKey.attributeSelected,
+      value: enable,
+    },
+  ]
+
+  return queryConfig.insertOrUpdateAttributeState(
+    context.db,
+    endpoint.endpointTypeRef,
+    cluster.id,
+    side,
+    attribute.id,
+    params
+  )
+}
+
+// Non-public, common function to modify command.
+async function modifyCommand(
+  context,
+  endpoint,
+  clusterCode,
+  commandCode,
+  isIncoming,
+  enable
+) {
+  let cluster = await findCluster(context, clusterCode)
+  if (cluster == null) return null
+
+  return
 }
 
 /**
@@ -186,26 +240,6 @@ async function enableClientCluster(context, endpoint, code) {
  */
 async function enableServerCluster(context, endpoint, code) {
   return modifyCluster(context, endpoint, code, dbEnum.side.server, true)
-}
-
-/**
- * Internal function that actually processes the attribute toggles.
- * @param {*} context
- * @param {*} endpoint
- * @param {*} clusterCode
- * @param {*} attributeCode
- * @param {*} side
- * @param {*} enable
- */
-async function modifyAttribute(
-  context,
-  endpoint,
-  clusterCode,
-  attributeCode,
-  side,
-  enable
-) {
-  return
 }
 
 /**
@@ -303,25 +337,6 @@ async function enableServerAttribute(
     true
   )
 }
-
-/**
- * Internal function managing the state of commands.
- *
- * @param {*} context
- * @param {*} endpoint
- * @param {*} clusterCode
- * @param {*} commandCode
- * @param {*} isIncoming
- * @param {*} enable
- */
-async function modifyCommand(
-  context,
-  endpoint,
-  clusterCode,
-  commandCode,
-  isIncoming,
-  enable
-) {}
 
 /**
  * Disable incoming commands.
