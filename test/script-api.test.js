@@ -104,6 +104,14 @@ test(
       (at) => at.code == 4 && at.isIncluded == 1
     )
     expect(manufName.length).toBe(0)
+
+    let groupsCluster = clusters.filter((cl) => cl.code == 4)[0]
+    let groupsCommands = await queryEndpoint.selectEndpointClusterCommands(
+      db,
+      groupsCluster.clusterId,
+      endpoints[0].endpointTypeRef
+    )
+    expect(groupsCommands.length).toBe(10)
   },
   testUtil.timeout.medium()
 )
