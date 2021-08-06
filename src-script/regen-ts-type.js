@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 
 const db = new sqlite3.Database(':memory:')
-const schema = path.resolve(__dirname,'../src-electron/db/zap-schema.sql')
+const schema = path.resolve(__dirname, '../src-electron/db/zap-schema.sql')
 const outputFile = path.resolve(__dirname, '../src-shared/types/db-types.ts')
 
 // Utility function for generating TypeScript interface types from ZAP table schema
@@ -24,6 +24,21 @@ db.serialize(async function () {
     }
   })
 })
+
+function tableNames(db) {
+  return dbAll(
+    db,
+    "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%'"
+  ).then((tables) => tables.map((x) => x.name))
+}
+
+function tableDetails(db) {
+  return tableNames(db).then((names) =>
+    Promise.all(
+      names.map((name) => dbAll(db, "PRAGMA table_info('" + name + "')"))
+    )
+  )
+}
 
 async function regenDatabaseTypes() {
   let output = [
@@ -48,22 +63,13 @@ async function regenDatabaseTypes() {
 `,
   ]
 
-  let names = await dbAll(
-    db,
-    "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%'"
-  ).then((tables) => tables.map((x) => x.name))
-
   console.log('Generating TypeScript interfaces via zap-schema.sql')
 
-  let promises = names.map((name) =>
-    dbAll(db, "PRAGMA table_info('" + name + "')")
-  )
-  let results = await Promise.all(promises)
+  let names = await tableNames(db)
+  let details = await tableDetails(db)
   names.forEach((name, index) => {
-    // console.log(`TABLE: ${name}`)
-    // console.log(`${JSON.stringify(results[index])}`)
     output.push(`export interface Db${_.upperFirst(_.camelCase(name))}Type {`)
-    results[index].sort(function (a, b) {
+    details[index].sort(function (a, b) {
       let nameA = a.name.toUpperCase() // ignore upper and lowercase
       let nameB = b.name.toUpperCase() // ignore upper and lowercase
       if (nameA < nameB) {
@@ -77,7 +83,7 @@ async function regenDatabaseTypes() {
       return 0
     })
 
-    results[index].forEach((r) => {
+    details[index].forEach((r) => {
       let k = r.name
       let v = sqlToTypescriptTypes[r.type]
       if (r.name === `${name.toUpperCase()}_ID`) {
