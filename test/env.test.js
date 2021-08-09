@@ -212,4 +212,14 @@ describe('Environment Tests', () => {
     },
     timeout.short()
   )
+
+  test('Stack traces', () => {
+    try {
+      throw new Error('Stack trace test')
+    } catch (e) {
+      // Test that the stack trace is coming from
+      // line of 218 in this file.
+      expect(e.stack.includes('env.test.js:218')).toBeTruthy()
+    }
+  })
 })
