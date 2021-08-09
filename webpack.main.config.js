@@ -24,9 +24,6 @@ const config = {
         exclude: /node_modules/,
         use: [
           {
-            loader: 'babel-loader',
-          },
-          {
             loader: 'eslint-loader',
             options: {
               formatter: require('eslint').CLIEngine.getFormatter('stylish'),
@@ -37,9 +34,6 @@ const config = {
       {
         test: /\.tsx?$/,
         use: [
-          {
-            loader: 'babel-loader',
-          },
           {
             loader: 'ts-loader',
             options: {
@@ -62,7 +56,7 @@ const config = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
-  devtool: 'inline-source-map',
+  devtool: 'eval-cheap-module-source-map',
   externals: [nodeExternals()], // in order to ignore all modules in node_modules folder
   plugins: [
     new CopyPlugin({
