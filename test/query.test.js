@@ -28,6 +28,7 @@ const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
 const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const querySession = require('../src-electron/db/query-session.js')
+const querySessionZcl = require('../src-electron/db/query-session-zcl.js')
 
 const env = require('../src-electron/util/env.js')
 const util = require('../src-electron/util/util.js')
@@ -193,7 +194,7 @@ describe('Session specific queries', () => {
   ) // One for zclpropertie and one for gen template
 
   test(
-    'Test that ZCL package id for session is preset.',
+    'Test that ZCL package id for session is present.',
     () =>
       queryPackage
         .getSessionZclPackages(db, sid)
@@ -573,6 +574,13 @@ describe('Endpoint Type Config Queries', () => {
       }),
     testUtil.timeout.medium()
   )
+
+  test('Test session clusters', async () => {
+    let clusters = await querySessionZcl.selectAllSessionClusters(db, sid)
+    expect(clusters.length).toBeGreaterThan(10)
+    let c = await querySessionZcl.selectSessionClusterByCode(db, sid, 2305)
+    expect(c.label).toBe('Data Sharing')
+  })
 
   test(
     'Delete Endpoint Type',

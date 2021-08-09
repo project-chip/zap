@@ -181,6 +181,67 @@ function zcl_commands(options) {
 }
 
 /**
+ * Block helper iterating over all commands based on the source.
+ * There are two modes of this helper:
+ *   when used in a global context, it iterates over ALL commands in the database based on the source.
+ *   when used inside a `zcl_cluster` block helper, it iterates only over the source commands for that cluster.
+ *
+ * @param {*} options
+ * @param {*} source
+ * @returns Promise of content.
+ * @ignore
+ */
+function zcl_commands_by_source(options, source) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) => {
+      if ('id' in this) {
+        // We're functioning inside a nested context with an id, so we will only query for this cluster.
+        return queryCommand.selectCommandsByClusterIdAndSource(
+          this.global.db,
+          this.id,
+          source,
+          packageId
+        )
+      } else {
+        return queryCommand.selectAllCommandsBySource(
+          this.global.db,
+          source,
+          packageId
+        )
+      }
+    })
+    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Block helper iterating over all client commands.
+ * There are two modes of this helper:
+ *   when used in a global context, it iterates over ALL client commands in the database.
+ *   when used inside a `zcl_cluster` block helper, it iterates only over the commands for that client cluster.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_commands_source_client(options) {
+  return zcl_commands_by_source.bind(this)(options, dbEnum.source.client)
+}
+
+/**
+ * Block helper iterating over all server commands.
+ * There are two modes of this helper:
+ *   when used in a global context, it iterates over ALL server commands in the database.
+ *   when used inside a `zcl_cluster` block helper, it iterates only over the commands for that server cluster.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+function zcl_commands_source_server(options) {
+  return zcl_commands_by_source.bind(this)(options, dbEnum.source.server)
+}
+
+/**
  * Block helper iterating over all events.
  * There are two modes of this helper:
  *   when used in a global context, it iterates over ALL events in the database.
@@ -2378,6 +2439,8 @@ exports.zcl_struct_items_by_struct_name = zcl_struct_items_by_struct_name
 exports.zcl_clusters = zcl_clusters
 exports.zcl_device_types = zcl_device_types
 exports.zcl_commands = zcl_commands
+exports.zcl_commands_source_client = zcl_commands_source_client
+exports.zcl_commands_source_server = zcl_commands_source_server
 exports.zcl_events = zcl_events
 exports.zcl_event_fields = zcl_event_fields
 exports.zcl_command_tree = zcl_command_tree
@@ -2437,15 +2500,12 @@ exports.is_enum = isEnum
 exports.isEnum = dep(isEnum, { to: 'is_enum' })
 
 exports.if_manufacturing_specific_cluster = if_manufacturing_specific_cluster
-exports.zcl_command_argument_type_to_cli_data_type =
-  zcl_command_argument_type_to_cli_data_type
+exports.zcl_command_argument_type_to_cli_data_type = zcl_command_argument_type_to_cli_data_type
 exports.zcl_string_type_return = zcl_string_type_return
 exports.is_zcl_string = is_zcl_string
-exports.if_command_arguments_have_fixed_length =
-  if_command_arguments_have_fixed_length
+exports.if_command_arguments_have_fixed_length = if_command_arguments_have_fixed_length
 exports.command_arguments_total_length = command_arguments_total_length
-exports.as_underlying_zcl_type_if_command_is_not_fixed_length =
-  as_underlying_zcl_type_if_command_is_not_fixed_length
+exports.as_underlying_zcl_type_if_command_is_not_fixed_length = as_underlying_zcl_type_if_command_is_not_fixed_length
 exports.if_command_argument_always_present = dep(
   if_command_argument_always_present,
   {
@@ -2455,45 +2515,44 @@ exports.if_command_argument_always_present = dep(
 exports.as_underlying_zcl_type_command_argument_always_present = dep(
   as_underlying_zcl_type_command_argument_always_present,
   {
-    to: 'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present',
+    to:
+      'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present',
   }
 )
 exports.if_command_argument_always_present_with_presentif = dep(
   if_command_argument_always_present_with_presentif,
   { to: 'if_ca_always_present_with_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_always_present_with_presentif =
-  dep(as_underlying_zcl_type_command_argument_always_present_with_presentif, {
+exports.as_underlying_zcl_type_command_argument_always_present_with_presentif = dep(
+  as_underlying_zcl_type_command_argument_always_present_with_presentif,
+  {
     to: 'as_underlying_zcl_type_ca_always_present_with_presentif',
-  })
+  }
+)
 exports.if_command_argument_not_always_present_with_presentif = dep(
   if_command_argument_not_always_present_with_presentif,
   { to: 'if_ca_not_always_present_with_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif =
-  dep(
-    as_underlying_zcl_type_command_argument_not_always_present_with_presentif,
-    { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' }
-  )
+exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif = dep(
+  as_underlying_zcl_type_command_argument_not_always_present_with_presentif,
+  { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' }
+)
 exports.if_command_argument_not_always_present_no_presentif = dep(
   if_command_argument_not_always_present_no_presentif,
   { to: 'if_ca_not_always_present_no_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif =
-  dep(as_underlying_zcl_type_command_argument_not_always_present_no_presentif, {
+exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif = dep(
+  as_underlying_zcl_type_command_argument_not_always_present_no_presentif,
+  {
     to: 'as_underlying_zcl_type_ca_not_always_present_no_presentif',
-  })
+  }
+)
 exports.as_generated_default_macro = as_generated_default_macro
 exports.attribute_mask = attribute_mask
 exports.command_mask = command_mask
-exports.format_zcl_string_as_characters_for_generated_defaults =
-  format_zcl_string_as_characters_for_generated_defaults
-exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present =
-  as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
-exports.as_underlying_zcl_type_ca_not_always_present_no_presentif =
-  as_underlying_zcl_type_ca_not_always_present_no_presentif
-exports.as_underlying_zcl_type_ca_not_always_present_with_presentif =
-  as_underlying_zcl_type_ca_not_always_present_with_presentif
-exports.as_underlying_zcl_type_ca_always_present_with_presentif =
-  as_underlying_zcl_type_ca_always_present_with_presentif
+exports.format_zcl_string_as_characters_for_generated_defaults = format_zcl_string_as_characters_for_generated_defaults
+exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present = as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
+exports.as_underlying_zcl_type_ca_not_always_present_no_presentif = as_underlying_zcl_type_ca_not_always_present_no_presentif
+exports.as_underlying_zcl_type_ca_not_always_present_with_presentif = as_underlying_zcl_type_ca_not_always_present_with_presentif
+exports.as_underlying_zcl_type_ca_always_present_with_presentif = as_underlying_zcl_type_ca_always_present_with_presentif
 exports.if_is_struct = if_is_struct

@@ -1,0 +1,11 @@
+{
+  "name": "Meta test templates",
+  "version": "meta-test",
+  "templates": [
+    {
+      "path": "test1.zapt",
+      "name": "Test 1",
+      "output": "test1.out"
+    }
+  ]
+}

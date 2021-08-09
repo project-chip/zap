@@ -174,11 +174,12 @@ function user_all_attributes(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 function all_user_cluster_commands(options) {
-  let promise = iteratorUtil.all_user_cluster_commands_helper.call(this, options)
+  let promise = iteratorUtil.all_user_cluster_commands_helper
+    .call(this, options)
     .then((endpointCommands) =>
       templateUtil.collectBlocks(endpointCommands, options, this)
     )
-  return promise;
+  return promise
 }
 
 /**
@@ -374,14 +375,16 @@ function all_user_cluster_non_manufacturer_specific_attributes(
  */
 async function all_commands_for_user_enabled_clusters(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let endpointsAndClusters = await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
-  let endpointCommands = await queryCommand.selectAllCommandDetailsFromEnabledClusters(
-    this.global.db,
-    endpointsAndClusters
-  )
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
+  let endpointCommands =
+    await queryCommand.selectAllCommandDetailsFromEnabledClusters(
+      this.global.db,
+      endpointsAndClusters
+    )
   return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 /**
@@ -394,15 +397,17 @@ async function all_commands_for_user_enabled_clusters(options) {
  */
 async function all_cli_commands_for_user_enabled_clusters(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let endpointsAndClusters = await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
 
-  let endpointCommands = await queryCommand.selectAllCliCommandDetailsFromEnabledClusters(
-    this.global.db,
-    endpointsAndClusters
-  )
+  let endpointCommands =
+    await queryCommand.selectAllCliCommandDetailsFromEnabledClusters(
+      this.global.db,
+      endpointsAndClusters
+    )
   return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
@@ -415,10 +420,11 @@ async function all_cli_commands_for_user_enabled_clusters(options) {
 async function all_user_clusters(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
 
-  let clusters = await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
+  let clusters =
+    await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
 
   return templateUtil.collectBlocks(clusters, options, this)
 }
@@ -432,10 +438,11 @@ async function all_user_clusters(options) {
 async function all_user_clusters_irrespective_of_side(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
 
-  let clusters = await queryEndpointType.selectAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
+  let clusters =
+    await queryEndpointType.selectAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
 
   return templateUtil.collectBlocks(clusters, options, this)
 }
@@ -449,10 +456,11 @@ async function all_user_clusters_irrespective_of_side(options) {
  */
 async function all_user_clusters_names(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let clusters = await queryEndpointType.selectAllClustersNamesFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
+  let clusters =
+    await queryEndpointType.selectAllClustersNamesFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
 
   return templateUtil.collectBlocks(clusters, options, this)
 }
@@ -500,11 +508,12 @@ async function user_cluster_commands_with_cli(options) {
  */
 async function user_cluster_commands_all_endpoints(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let endpointCommands = await queryEndpointType.selectCommandDetailsFromAllEndpointTypeCluster(
-    this.global.db,
-    endpointTypes,
-    this.endpointClusterId
-  )
+  let endpointCommands =
+    await queryEndpointType.selectCommandDetailsFromAllEndpointTypeCluster(
+      this.global.db,
+      endpointTypes,
+      this.endpointClusterId
+    )
   return endpointsAndClusterstemplateUtil.collectBlocks(
     endpointCommands,
     options,
@@ -522,16 +531,18 @@ async function user_cluster_commands_all_endpoints(options) {
  */
 async function user_cluster_has_enabled_command(name, side) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let endpointsAndClusters = await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
 
-  let endpointCommands = await queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
-    this.global.db,
-    endpointsAndClusters,
-    false
-  )
+  let endpointCommands =
+    await queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
+      this.global.db,
+      endpointsAndClusters,
+      false
+    )
   let cmdCount = 0
   endpointCommands.forEach((command) => {
     if (helperZcl.isStrEqual(name, command.clusterName)) {
@@ -601,6 +612,30 @@ async function user_session_key(options) {
   if (options.hash.toupper == 'true' && value != null)
     return value.toUpperCase()
   else return value
+}
+
+/**
+ * If helper that checks if command discovery is enabled
+ *
+ * example:
+ * {{#if_command_discovery_enabled}}
+ * command discovery is enabled
+ * {{else}}
+ * command discovery is not enabled
+ * {{/if_command_discovery_enabled}}
+ */
+async function if_command_discovery_enabled(options) {
+  const key = 'commandDiscovery'
+  let value = await querySession.getSessionKeyValue(
+    this.global.db,
+    this.global.sessionId,
+    key
+  )
+  if (value == 1) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
+  }
 }
 
 async function user_manufacturer_code(options) {
@@ -680,10 +715,11 @@ async function endpoint_type_index(endpointTypeId) {
  */
 async function all_user_cluster_attributes_for_generated_defaults(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let endpointsAndClusters = await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
   let endpointCommands = await queryAttribute.selectAttributeBoundDetails(
     this.global.db,
     endpointsAndClusters
@@ -700,14 +736,16 @@ async function all_user_cluster_attributes_for_generated_defaults(options) {
  */
 async function all_user_cluster_generated_attributes(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let endpointsAndClusters = await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
-  let endpointCommands = await queryAttribute.selectAttributeDetailsFromEnabledClusters(
-    this.global.db,
-    endpointsAndClusters
-  )
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
+  let endpointCommands =
+    await queryAttribute.selectAttributeDetailsFromEnabledClusters(
+      this.global.db,
+      endpointsAndClusters
+    )
   return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
@@ -720,14 +758,16 @@ async function all_user_cluster_generated_attributes(options) {
  */
 async function all_user_reportable_attributes(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let endpointsAndClusters = await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
-  let endpointCommands = await queryAttribute.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
-    this.global.db,
-    endpointsAndClusters
-  )
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
+  let endpointCommands =
+    await queryAttribute.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
+      this.global.db,
+      endpointsAndClusters
+    )
   return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
@@ -741,10 +781,11 @@ async function all_user_cluster_generated_commands(options) {
     this.global.db,
     this.global.sessionId
   )
-  let endpointCommands = await queryCommand.selectAllAvailableClusterCommandDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
+  let endpointCommands =
+    await queryCommand.selectAllAvailableClusterCommandDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
   return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
@@ -879,14 +920,16 @@ function all_incoming_commands_for_cluster(clusterName, clusterSide, options) {
  */
 async function generated_clustes_details(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let endpointsAndClusters = await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
-  let endpointCommands = await queryCluster.selectClusterDetailsFromEnabledClusters(
-    this.global.db,
-    endpointsAndClusters
-  )
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
+  let endpointCommands =
+    await queryCluster.selectClusterDetailsFromEnabledClusters(
+      this.global.db,
+      endpointsAndClusters
+    )
   return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
@@ -897,14 +940,16 @@ async function generated_clustes_details(options) {
  */
 async function generated_endpoint_type_details(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let endpointsAndClusters = await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
-  let endpointCommands = await queryEndpointType.selectEndpointDetailsFromAddedEndpoints(
-    this.global.db,
-    endpointsAndClusters
-  )
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
+  let endpointCommands =
+    await queryEndpointType.selectEndpointDetailsFromAddedEndpoints(
+      this.global.db,
+      endpointsAndClusters
+    )
   return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
@@ -919,14 +964,16 @@ async function generated_endpoint_type_details(options) {
  */
 async function all_user_cluster_attributes_min_max_defaults(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let endpointsAndClusters = await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
-  let endpointCommands = await queryAttribute.selectAttributeDetailsWithABoundFromEnabledClusters(
-    this.global.db,
-    endpointsAndClusters
-  )
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
+  let endpointCommands =
+    await queryAttribute.selectAttributeDetailsWithABoundFromEnabledClusters(
+      this.global.db,
+      endpointsAndClusters
+    )
   return templateUtil.collectBlocks(endpointCommands, options, this)
 }
 
@@ -951,10 +998,11 @@ async function generated_defaults_index(
 ) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
 
-  let endpointsAndClusters = await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
 
   let endpointAttributes = await queryAttribute.selectAttributeBoundDetails(
     this.global.db,
@@ -990,15 +1038,17 @@ async function generated_defaults_index(
  */
 async function generated_attributes_min_max_index(clusterName, attributeName) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-  let endpointsAndClusters = await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-    this.global.db,
-    endpointTypes
-  )
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
+    )
 
-  let endpointAttributes = await queryAttribute.selectAttributeDetailsWithABoundFromEnabledClusters(
-    this.global.db,
-    endpointsAndClusters
-  )
+  let endpointAttributes =
+    await queryAttribute.selectAttributeDetailsWithABoundFromEnabledClusters(
+      this.global.db,
+      endpointsAndClusters
+    )
   let dataPtr = 0
   for (let i = 0; i < endpointAttributes.length; i++) {
     if (
@@ -1029,43 +1079,63 @@ exports.user_all_attributes = user_all_attributes
 exports.all_user_cluster_commands = all_user_cluster_commands
 exports.all_user_clusters = all_user_clusters
 exports.all_user_clusters_names = all_user_clusters_names
-exports.user_cluster_command_count_with_cli = user_cluster_command_count_with_cli
-exports.user_cluster_commands_all_endpoints = user_cluster_commands_all_endpoints
+exports.user_cluster_command_count_with_cli =
+  user_cluster_command_count_with_cli
+exports.user_cluster_commands_all_endpoints =
+  user_cluster_commands_all_endpoints
 exports.user_cluster_has_enabled_command = user_cluster_has_enabled_command
 exports.user_session_key = user_session_key
 exports.user_manufacturer_code = user_manufacturer_code
 exports.user_default_response_policy = user_default_response_policy
 exports.endpoint_type_identifier = endpoint_type_identifier
 exports.endpoint_type_index = endpoint_type_index
-exports.all_commands_for_user_enabled_clusters = all_commands_for_user_enabled_clusters
-exports.all_user_clusters_irrespective_of_side = all_user_clusters_irrespective_of_side
-exports.all_user_cluster_manufacturer_specific_commands = all_user_cluster_manufacturer_specific_commands
-exports.all_user_cluster_non_manufacturer_specific_commands = all_user_cluster_non_manufacturer_specific_commands
+exports.all_commands_for_user_enabled_clusters =
+  all_commands_for_user_enabled_clusters
+exports.all_user_clusters_irrespective_of_side =
+  all_user_clusters_irrespective_of_side
+exports.all_user_cluster_manufacturer_specific_commands =
+  all_user_cluster_manufacturer_specific_commands
+exports.all_user_cluster_non_manufacturer_specific_commands =
+  all_user_cluster_non_manufacturer_specific_commands
 exports.user_cluster_commands_with_cli = user_cluster_commands_with_cli
-exports.all_cli_commands_for_user_enabled_clusters = all_cli_commands_for_user_enabled_clusters
-exports.all_user_cluster_commands_irrespective_of_manufaturing_specification = all_user_cluster_commands_irrespective_of_manufaturing_specification
-exports.all_user_cluster_manufacturer_specific_attributes = all_user_cluster_manufacturer_specific_attributes
-exports.all_user_cluster_non_manufacturer_specific_attributes = all_user_cluster_non_manufacturer_specific_attributes
-exports.all_user_cluster_attributes_irrespective_of_manufatucuring_specification = all_user_cluster_attributes_irrespective_of_manufatucuring_specification
-exports.all_user_cluster_attributes_for_generated_defaults = all_user_cluster_attributes_for_generated_defaults
-exports.all_user_cluster_generated_attributes = all_user_cluster_generated_attributes
+exports.all_cli_commands_for_user_enabled_clusters =
+  all_cli_commands_for_user_enabled_clusters
+exports.all_user_cluster_commands_irrespective_of_manufaturing_specification =
+  all_user_cluster_commands_irrespective_of_manufaturing_specification
+exports.all_user_cluster_manufacturer_specific_attributes =
+  all_user_cluster_manufacturer_specific_attributes
+exports.all_user_cluster_non_manufacturer_specific_attributes =
+  all_user_cluster_non_manufacturer_specific_attributes
+exports.all_user_cluster_attributes_irrespective_of_manufatucuring_specification =
+  all_user_cluster_attributes_irrespective_of_manufatucuring_specification
+exports.all_user_cluster_attributes_for_generated_defaults =
+  all_user_cluster_attributes_for_generated_defaults
+exports.all_user_cluster_generated_attributes =
+  all_user_cluster_generated_attributes
 exports.all_user_reportable_attributes = all_user_reportable_attributes
-exports.all_user_cluster_generated_commands = all_user_cluster_generated_commands
+exports.all_user_cluster_generated_commands =
+  all_user_cluster_generated_commands
 exports.generated_clustes_details = generated_clustes_details
 exports.generated_endpoint_type_details = generated_endpoint_type_details
-exports.all_user_cluster_attributes_min_max_defaults = all_user_cluster_attributes_min_max_defaults
+exports.all_user_cluster_attributes_min_max_defaults =
+  all_user_cluster_attributes_min_max_defaults
 exports.generated_defaults_index = generated_defaults_index
 exports.generated_attributes_min_max_index = generated_attributes_min_max_index
-exports.all_user_clusters_with_incoming_commands = all_user_clusters_with_incoming_commands
-exports.all_user_incoming_commands_for_all_clusters = all_user_incoming_commands_for_all_clusters
-exports.all_user_clusters_with_incoming_commands_combined = all_user_clusters_with_incoming_commands_combined
+exports.all_user_clusters_with_incoming_commands =
+  all_user_clusters_with_incoming_commands
+exports.all_user_incoming_commands_for_all_clusters =
+  all_user_incoming_commands_for_all_clusters
+exports.all_user_clusters_with_incoming_commands_combined =
+  all_user_clusters_with_incoming_commands_combined
 exports.all_user_clusters_with_incoming_commands_combined = dep(
   all_user_clusters_with_incoming_commands_combined,
   { to: 'all_user_incoming_commands_for_all_clusters' }
 )
 exports.all_incoming_commands_for_cluster = all_incoming_commands_for_cluster
-exports.all_incoming_commands_for_cluster_combined = all_incoming_commands_for_cluster_combined
+exports.all_incoming_commands_for_cluster_combined =
+  all_incoming_commands_for_cluster_combined
 exports.all_incoming_commands_for_cluster_combined = dep(
   all_incoming_commands_for_cluster_combined,
   { to: 'all_user_incoming_commands_for_all_clusters' }
 )
+exports.if_command_discovery_enabled = if_command_discovery_enabled

@@ -464,7 +464,7 @@ ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
 WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
 AND ENDPOINT_TYPE_CLUSTER.SIDE IN ("client", "server") AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
 AND ENDPOINT_TYPE_COMMAND.INCOMING=1 AND COMMAND.SOURCE!=ENDPOINT_TYPE_CLUSTER.SIDE 
-${mfgSpecificString} GROUP BY COMMAND.NAME
+${mfgSpecificString} GROUP BY CLUSTER.NAME, COMMAND.NAME
 ORDER BY CLUSTER.NAME, COMMAND.NAME`
     )
     .then((rows) => rows.map(mapFunction))
@@ -541,6 +541,69 @@ FROM COMMAND
   WHERE PACKAGE_REF = ?
 ORDER BY CODE`,
       [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
+async function selectAllCommandsBySource(db, source, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  RESPONSE_REF
+FROM COMMAND
+WHERE
+  SOURCE = ?
+  AND PACKAGE_REF = ?
+ORDER BY CODE`,
+      [source, packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
+/**
+ * Retrieves filtered commands for a given cluster Id based on the source.
+ * This method DOES NOT retrieve global commands, since those have a cluster_ref = null
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @returns promise of an array of command rows, which represent per-cluster commands, excluding global commands.
+ */
+async function selectCommandsByClusterIdAndSource(
+  db,
+  clusterId,
+  source,
+  packageId
+) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL
+FROM COMMAND
+WHERE
+  CLUSTER_REF = ?
+  AND SOURCE = ?
+  AND PACKAGE_REF = ?
+ORDER BY CODE`,
+      [clusterId, source, packageId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1038,28 +1101,43 @@ async function selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAn
   )
 }
 
-exports.selectCliCommandCountFromEndpointTypeCluster = selectCliCommandCountFromEndpointTypeCluster
+exports.selectCliCommandCountFromEndpointTypeCluster =
+  selectCliCommandCountFromEndpointTypeCluster
 exports.selectCliCommandsFromCluster = selectCliCommandsFromCluster
-exports.selectAllAvailableClusterCommandDetailsFromEndpointTypes = selectAllAvailableClusterCommandDetailsFromEndpointTypes
-exports.selectAllClustersWithIncomingCommands = selectAllClustersWithIncomingCommands
-exports.selectAllClustersWithIncomingCommandsCombined = selectAllClustersWithIncomingCommandsCombined
-exports.selectAllIncomingCommandsForCluster = selectAllIncomingCommandsForCluster
-exports.selectAllIncomingCommandsForClusterCombined = selectAllIncomingCommandsForClusterCombined
+exports.selectAllAvailableClusterCommandDetailsFromEndpointTypes =
+  selectAllAvailableClusterCommandDetailsFromEndpointTypes
+exports.selectAllClustersWithIncomingCommands =
+  selectAllClustersWithIncomingCommands
+exports.selectAllClustersWithIncomingCommandsCombined =
+  selectAllClustersWithIncomingCommandsCombined
+exports.selectAllIncomingCommandsForCluster =
+  selectAllIncomingCommandsForCluster
+exports.selectAllIncomingCommandsForClusterCombined =
+  selectAllIncomingCommandsForClusterCombined
 exports.selectAllCommands = selectAllCommands
 exports.selectCommandsByClusterId = selectCommandsByClusterId
 exports.selectCommandById = selectCommandById
+exports.selectAllCommandsBySource = selectAllCommandsBySource
+exports.selectCommandsByClusterIdAndSource = selectCommandsByClusterIdAndSource
 exports.selectAllGlobalCommands = selectAllGlobalCommands
 exports.selectAllClusterCommands = selectAllClusterCommands
 exports.selectAllCommandArguments = selectAllCommandArguments
-exports.selectCommandArgumentsCountByCommandId = selectCommandArgumentsCountByCommandId
+exports.selectCommandArgumentsCountByCommandId =
+  selectCommandArgumentsCountByCommandId
 exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
 exports.selectCommandTree = selectCommandTree
-exports.updateCommandRequestResponseReferences = updateCommandRequestResponseReferences
+exports.updateCommandRequestResponseReferences =
+  updateCommandRequestResponseReferences
 
-exports.selectAllCommandDetailsFromEnabledClusters = selectAllCommandDetailsFromEnabledClusters
-exports.selectAllCliCommandDetailsFromEnabledClusters = selectAllCliCommandDetailsFromEnabledClusters
+exports.selectAllCommandDetailsFromEnabledClusters =
+  selectAllCommandDetailsFromEnabledClusters
+exports.selectAllCliCommandDetailsFromEnabledClusters =
+  selectAllCliCommandDetailsFromEnabledClusters
 
-exports.selectCommandDetailsFromAllEndpointTypesAndClusters = selectCommandDetailsFromAllEndpointTypesAndClusters
-exports.selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
-exports.selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters = selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
+exports.selectCommandDetailsFromAllEndpointTypesAndClusters =
+  selectCommandDetailsFromAllEndpointTypesAndClusters
+exports.selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters =
+  selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
+exports.selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters =
+  selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
 exports.selectAllIncomingCommands = selectAllIncomingCommands

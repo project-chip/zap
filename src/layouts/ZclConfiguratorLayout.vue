@@ -81,6 +81,9 @@ export default {
       })
     },
   },
+  mounted() {
+    this.$store.dispatch('zap/clearLastSelectedDomain')
+  },
   computed: {
     leftDrawerOpen: {
       get() {

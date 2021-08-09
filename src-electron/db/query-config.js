@@ -287,7 +287,7 @@ async function insertOrUpdateCommandState(
   endpointTypeId,
   clusterRef,
   side,
-  id,
+  commandId,
   value,
   isIncoming
 ) {
@@ -308,7 +308,7 @@ INTO ENDPOINT_TYPE_COMMAND (
   COMMAND_REF
 ) VALUES( ?, ?, ? )
 `,
-    [endpointTypeId, cluster.endpointTypeClusterId, id]
+    [endpointTypeId, cluster.endpointTypeClusterId, commandId]
   )
   return dbApi.dbUpdate(
     db,
@@ -318,7 +318,7 @@ SET ${isIncoming ? 'INCOMING' : 'OUTGOING'} = ?
 WHERE ENDPOINT_TYPE_REF = ?
   AND ENDPOINT_TYPE_CLUSTER_REF = ?
   AND COMMAND_REF = ? `,
-    [value, endpointTypeId, cluster.endpointTypeClusterId, id]
+    [value, endpointTypeId, cluster.endpointTypeClusterId, commandId]
   )
 }
 

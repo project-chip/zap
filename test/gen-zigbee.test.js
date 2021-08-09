@@ -267,6 +267,11 @@ test(
         // Testing {{#if_is_struct}} helper
         expect(zclId.includes(`attributeIds is not struct`)).toBeTruthy()
 
+        // Testing {{#if_command_discovery_enabled}} helper
+        expect(
+          zclId.includes(`#define EMBER_AF_SUPPORT_COMMAND_DISCOVERY`)
+        ).toBeTruthy()
+
         // Testing {{#zcl_struct_items_by_struct_name}} helper
         expect(
           zclId.includes(`configureReportingRecords::direction struct item`)
@@ -302,6 +307,20 @@ test(
         expect(
           zapId.includes('#define ZCL_GET_PROFILE_RESPONSE_COMMAND_ID (0x00)')
         ).toBeTruthy()
+
+        // Testing {{#zcl_commands_source_client}} helper
+        expect(
+          zapId.includes(
+            '#define ZCL_IDENTIFY_C_TO_S_IDENTIFY_QUERY_COMMAND_ID (0x01)'
+          )
+        ).toBeTruthy()
+        // Testing {{#zcl_commands_source_server}} helper
+        expect(
+          zapId.includes(
+            '#define ZCL_IDENTIFY_S_TO_C_IDENTIFY_QUERY_RESPONSE_COMMAND_ID (0x00)'
+          )
+        ).toBeTruthy()
+
         expect(
           zapId.includes(
             '// Client attributes for cluster: Fluoride Concentration Measurement'

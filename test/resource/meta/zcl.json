@@ -1,0 +1,23 @@
+{
+  "version": "Matter Test Data",
+  "xmlRoot": ".",
+  "xmlFile": ["types.xml", "test1.xml"],
+  "zclSchema": "../../../zcl-builtin/shared/schema/zcl.xsd",
+  "supportCustomZclDevice": true,
+  "manufacturersXml": "../../../zcl-builtin/shared/manufacturers.xml",
+  "options": {
+    "text": {
+      "defaultResponsePolicy": ["Always", "Conditional", "Never"]
+    },
+    "bool": ["commandDiscovery"]
+  },
+  "defaults": {
+    "text": {
+      "manufacturerCodes": "0x1002",
+      "defaultResponsePolicy": "always"
+    },
+    "bool": {
+      "commandDiscovery": true
+    }
+  }
+}

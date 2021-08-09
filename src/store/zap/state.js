@@ -32,6 +32,7 @@ export default function () {
     projectPackages: [],
     clusterManager: {
       openDomains: {},
+      lastSelectedDomain: null,
       filter: {
         label: 'No Filter',
         domainFilterFn: (domain, currentOpenDomains, context) =>
@@ -55,6 +56,8 @@ export default function () {
             context.enabledClusters.find((a) => cluster.id == a.id) !=
             undefined,
         },
+      ],
+      actionOptions: [
         {
           label: 'Close All',
           domainFilterFn: (domain, currentOpenDomains, context) => false,
@@ -64,7 +67,7 @@ export default function () {
       individualClusterFilterString: '',
     },
     endpointView: {
-      selectedEndpoint: [],
+      selectedEndpoint: null,
       endpointId: {},
       endpointType: {},
       networkId: {},

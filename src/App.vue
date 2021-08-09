@@ -94,6 +94,9 @@ export default {
 
     if (`debugNavBar` in query) {
       this.$store.dispatch('zap/setDebugNavBar', query[`debugNavBar`])
+    } else {
+      // If we don't specify it, default is on.
+      this.$store.dispatch('zap/setDebugNavBar', true)
     }
 
     this.zclDialogTitle = 'ZCL tab!'
