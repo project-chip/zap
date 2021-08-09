@@ -12,14 +12,14 @@ async function postLoad(api, context) {
     api.print(`  - endpoint: ${ep.endpointIdentifier}`)
     let clusters = await api.clusters(context, ep)
     for (cl of clusters) {
-      api.print(`    - cluster: ${cl.name} [${cl.side}]`)
+      api.print(`    - cluster ${cl.code}: ${cl.name} [${cl.side}]`)
       let attributes = await api.attributes(context, ep, cl)
       for (at of attributes) {
-        api.print(`      - attribute: ${at.name}`)
+        api.print(`      - attribute ${at.code}: ${at.name}`)
       }
       let commands = await api.commands(context, ep, cl)
       for (co of commands) {
-        api.print(`      - command: ${co.name}`)
+        api.print(`      - command ${co.code}: ${co.name}`)
       }
     }
   }

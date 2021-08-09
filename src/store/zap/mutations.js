@@ -260,7 +260,7 @@ export function removeEndpointType(state, endpointType) {
 }
 
 export function deleteEndpoint(state, endpoint) {
-  state.endpointView.selectedEndpoint = []
+  state.endpointView.selectedEndpoint = null
   Vue.delete(state.endpointView.endpointId, endpoint.id)
   Vue.delete(state.endpointView.endpointType, endpoint.id)
   Vue.delete(state.endpointView.networkId, endpoint.id)
@@ -435,12 +435,38 @@ export function setDomainFilter(state, filterEnabledClusterPair) {
   })
 }
 
+export function doActionFilter(state, filterEnabledClusterPair) {
+  let filter = filterEnabledClusterPair.filter
+  // When we close all, we also clear all filters.
+  resetFilters(state)
+  state.domains.map((domainName) => {
+    setOpenDomain(state, {
+      domainName: domainName,
+      value: filter.domainFilterFn(
+        domainName,
+        state.clusterManager.openDomains,
+        {
+          enabledClusters: filterEnabledClusterPair.enabledClusters,
+        }
+      ),
+    })
+  })
+}
+
 export function setFilterString(state, filterString) {
   state.clusterManager.filterString = filterString
 }
 
 export function setIndividualClusterFilterString(state, filterString) {
   state.clusterManager.individualClusterFilterString = filterString
+}
+
+export function setLastSelectedDomain(state, domainNameString) {
+  state.clusterManager.lastSelectedDomain = domainNameString
+}
+
+export function clearLastSelectedDomain(state) {
+  state.clusterManager.lastSelectedDomain = null
 }
 
 export function resetFilters(state) {

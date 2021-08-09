@@ -15,10 +15,10 @@ limitations under the License.
 -->
 <template>
   <div>
-    <q-splitter v-model="splitterModel" style="height: 250px;">
+    <q-splitter v-model="splitterModel" style="height: 250px">
       <template v-slot:before>
         <q-tabs v-model="tab" vertical class="text-teal">
-          <q-tab name="zcl" icon="mdi-lan" label="ZCL settings" />
+          <q-tab name="package" icon="mdi-lan" label="Zcl packages" />
           <q-tab
             name="gen"
             icon="mdi-file-document-edit-outline"
@@ -37,8 +37,8 @@ limitations under the License.
           transition-prev="jump-up"
           transition-next="jump-up"
         >
-          <q-tab-panel name="zcl">
-            <PreferenceZcl />
+          <q-tab-panel name="package">
+            <PreferencePackage />
           </q-tab-panel>
 
           <q-tab-panel name="gen">
@@ -54,19 +54,19 @@ limitations under the License.
   </div>
 </template>
 <script>
-import PreferenceZcl from './PreferenceZcl.vue'
+import PreferencePackage from './PreferencePackage.vue'
 import PreferenceGeneration from './PreferenceGeneration.vue'
 import PreferenceUser from './PreferenceUser.vue'
 export default {
   name: 'Preference',
   components: {
-    PreferenceZcl,
+    PreferencePackage,
     PreferenceGeneration,
     PreferenceUser,
   },
   data() {
     return {
-      tab: 'zcl',
+      tab: 'package',
       splitterModel: 20,
     }
   },

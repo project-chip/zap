@@ -232,14 +232,13 @@ export default {
       })
     },
     selectCluster(cluster) {
-      this.$store
-        .dispatch('zap/updateSelectedCluster', cluster)
-        .then(
-          this.$store.dispatch(
-            'zap/refreshEndpointTypeCluster',
-            this.selectedEndpointTypeId
-          )
+      this.$store.dispatch('zap/updateSelectedCluster', cluster).then(() => {
+        this.$store.dispatch(
+          'zap/refreshEndpointTypeCluster',
+          this.selectedEndpointTypeId
         )
+        this.$store.dispatch('zap/setLastSelectedDomain', this.domainName)
+      })
     },
     ucLabel(id) {
       let list = this.$store.state.zap.studio.ucComponents.filter(

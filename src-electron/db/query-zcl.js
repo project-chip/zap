@@ -258,13 +258,23 @@ SELECT
   IS_SINGLETON,
   REVISION
 FROM CLUSTER
-WHERE PACKAGE_REF = ?
+WHERE
+  PACKAGE_REF = ?
 ORDER BY CODE`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
 
+/**
+ * Finds cluster by code.
+ *
+ * @param {*} db
+ * @param {*} packageId Single packageId or an array of them.
+ * @param {*} clusterCode
+ * @param {*} mfgCode
+ * @returns cluster by code in a single package id.
+ */
 async function selectClusterByCode(db, packageId, clusterCode, mfgCode = null) {
   let query = `
 SELECT
@@ -280,7 +290,8 @@ SELECT
 FROM
   CLUSTER
 WHERE
-  PACKAGE_REF = ? AND CODE = ?`
+  PACKAGE_REF = ?
+  AND CODE = ?`
 
   let args
   if (mfgCode == null || mfgCode == 0) {
