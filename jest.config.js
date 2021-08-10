@@ -32,7 +32,7 @@ module.exports = {
       lines: 68,
     },
   },
-  testMatch: ['<rootDir>/test/*.test.js'],
+  testMatch: ['<rootDir>/test/*.test.js', '<rootDir>/test/*.test.ts'],
   moduleFileExtensions: ['vue', 'js', 'jsx', 'json', 'ts', 'tsx'],
   moduleNameMapper: {
     '^vue$': '<rootDir>/node_modules/vue/dist/vue.common.js',
