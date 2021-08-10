@@ -21,7 +21,7 @@ import fs from 'fs'
 const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
-import { VersionType, ErrorType } from '../types/EnvTypes'
+import { VersionType, ErrorType } from '../types/env-types'
 
 function builtinSilabsZclMetafile() {
   return path.join(
