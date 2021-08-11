@@ -112,6 +112,9 @@ export default function () {
       // These are based off of the selected ZCL Endpoint Device Type
       requiredCommands: [],
     },
+    eventView: {
+      selectedEvents: [],
+    },
     calledArgs: {
       defaultUiMode: restApi.uiMode.ZIGBEE,
     },

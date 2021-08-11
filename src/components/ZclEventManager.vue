@@ -40,6 +40,23 @@ limitations under the License.
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">
+          <q-td key="included" :props="props" auto-width>
+            <q-toggle
+              class="q-mt-xs"
+              v-model="selectedEvents"
+              :val="hashEventIdClusterId(props.row.id, selectedCluster.id)"
+              indeterminate-value="false"
+              keep-color
+              @input="
+                handleEventSelection(
+                  selectedEvents,
+                  'selectedEvents',
+                  props.row,
+                  selectedCluster.id
+                )
+              "
+            />
+          </q-td>
           <q-td key="eventId" :props="props" auto-width>{{
             asHex(props.row.code, 2)
           }}</q-td>
@@ -72,12 +89,18 @@ limitations under the License.
 </template>
 
 <script>
+import * as Util from '../util/util.js'
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
 
 export default {
   name: 'ZclEventManager',
   mixins: [EditableAttributesMixin],
   computed: {
+    selectedEvents: {
+      get() {
+        return this.$store.state.zap.eventView.selectedEvents
+      },
+    },
     eventData: {
       get() {
         return this.$store.state.zap.events.filter((event) => {
@@ -90,12 +113,48 @@ export default {
       },
     },
   },
+  methods: {
+    handleEventSelection(list, listType, eventData, clusterId) {
+      // We determine the ID that we need to toggle within the list.
+      // This ID comes from hashing the base event ID and cluster data.
+      let indexOfValue = list.indexOf(
+        this.hashEventIdClusterId(eventData.id, clusterId)
+      )
+
+      let addedValue
+      if (indexOfValue === -1) {
+        addedValue = true
+      } else {
+        addedValue = false
+      }
+      let editContext = {
+        action: 'boolean',
+        endpointTypeId: this.selectedEndpointTypeId,
+        id: eventData.id,
+        value: addedValue,
+        listType: listType,
+        clusterRef: clusterId,
+        eventSide: eventData.side,
+      }
+      this.$store.dispatch('zap/updateSelectedEvents', editContext)
+    },
+    hashEventIdClusterId(eventId, clusterId) {
+      return Util.cantorPair(eventId, clusterId)
+    },
+  },
   data() {
     return {
       pagination: {
         rowsPerPage: 0,
       },
       columns: [
+        {
+          name: 'included',
+          label: 'On/Off',
+          field: 'included',
+          align: 'left',
+          style: 'width:1%',
+        },
         {
           name: 'eventId',
           align: 'left',

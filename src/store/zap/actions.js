@@ -137,6 +137,22 @@ export function updateSelectedCommands(context, selectionContext) {
     })
 }
 
+export function updateSelectedEvents(context, selectionContext) {
+  Vue.prototype
+    .$serverPost(restApi.uri.eventUpdate, selectionContext)
+    .then((res) => {
+      let arg = res.data
+      if (arg.action === 'boolean') {
+        context.commit('updateInclusionList', {
+          id: Util.cantorPair(arg.id, arg.clusterRef),
+          added: arg.added,
+          listType: arg.listType,
+          view: 'eventView',
+        })
+      }
+    })
+}
+
 export function updateSelectedComponent(context, payload) {
   let op = payload.added ? restApi.uc.componentAdd : restApi.uc.componentRemove
   return Vue.prototype.$serverPost(op, payload)
