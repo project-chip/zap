@@ -30,10 +30,13 @@ limitations under the License.
             (item) =>
               item.optionLabel == NULL || item.optionCode == NULL
                 ? 'NULL'
-                : item.optionLabel + ' (' + item.optionCode + ')'
+                : getMfgOptionLabel(item.optionCode)
           "
           @input="
-            handleOptionChange(DbEnum.sessionOption.manufacturerCodes, $event)
+            handleOptionChange(
+              DbEnum.sessionOption.manufacturerCodes,
+              $event.optionCode
+            )
           "
           v-model="selectedManufacturerCode"
           @filter="filterMfgCode"
@@ -48,7 +51,10 @@ limitations under the License.
         v-model="selectedDefaultResponsePolicy"
         :option-label="(item) => (item === null ? 'NULL' : item.optionLabel)"
         @input="
-          handleOptionChange(DbEnum.sessionOption.defaultResponsePolicy, $event)
+          handleEnumeratedOptionChange(
+            DbEnum.sessionOption.defaultResponsePolicy,
+            $event
+          )
         "
         outlined
         dense
@@ -60,7 +66,7 @@ limitations under the License.
           label="Enable Command Discovery"
           dense
           left-label
-          @input="handleCommandOptionChange('commandDiscovery', $event)"
+          @input="handleOptionChange('commandDiscovery', $event)"
         >
           <q-tooltip> Enable Command Discovery for your project </q-tooltip>
         </q-toggle>
@@ -107,11 +113,17 @@ export default {
         ]
       },
     },
+    defaultManufacturerCodes: {
+      get() {
+        return this.manufacturerCodesOptions.map((option) => option.optionCode)
+      },
+    },
     selectedDefaultResponsePolicy: {
       get() {
-        let drp = this.$store.state.zap.genericOptions[
-          DbEnum.sessionOption.defaultResponsePolicy
-        ]
+        let drp =
+          this.$store.state.zap.genericOptions[
+            DbEnum.sessionOption.defaultResponsePolicy
+          ]
         if (drp == null) {
           return ''
         } else {
@@ -127,9 +139,10 @@ export default {
     },
     selectedManufacturerCode: {
       get() {
-        let mc = this.$store.state.zap.genericOptions[
-          DbEnum.sessionOption.manufacturerCodes
-        ]
+        let mc =
+          this.$store.state.zap.genericOptions[
+            DbEnum.sessionOption.manufacturerCodes
+          ]
         return mc == null
           ? ''
           : mc.find(
@@ -153,21 +166,26 @@ export default {
     }
   },
   methods: {
-    handleOptionChange(option, value) {
+    handleEnumeratedOptionChange(option, value) {
       this.$store.dispatch('zap/setSelectedGenericKey', {
         key: option,
         value: value.optionCode,
       })
     },
-    handleCommandOptionChange(option, value) {
+    handleOptionChange(option, value) {
       this.$store.dispatch('zap/setSelectedGenericKey', {
         key: option,
         value: value,
       })
     },
-
-    getMfgLabel(item) {
-      return item.optionLabel + ' (' + item.optionCode + ')'
+    getMfgOptionLabel(code) {
+      let mfgOption =
+        this.manufacturerCodesOptions == null
+          ? null
+          : this.manufacturerCodesOptions.find((o) => o.optionCode === code)
+      return mfgOption
+        ? mfgOption.optionLabel + ' (' + mfgOption.optionCode + ')'
+        : code
     },
     filterMfgCode(val, update) {
       if (val === '') {
@@ -180,7 +198,10 @@ export default {
       update(() => {
         const needle = val.toLowerCase()
         this.mfgOptions = this.manufacturerCodesOptions.filter((v) => {
-          return this.getMfgLabel(v).toLowerCase().indexOf(needle) > -1
+          return (
+            this.getMfgOptionLabel(v.optionCode).toLowerCase().indexOf(needle) >
+            -1
+          )
         })
       })
     },
