@@ -62,7 +62,7 @@ limitations under the License.
         <q-tab name="attributes" label="Attributes" />
         <q-tab name="reporting" label="Attribute Reporting" />
         <q-tab name="commands" label="Commands" />
-        <q-tab name="events" label="Events" />
+        <q-tab name="events" label="Events" v-show="events.length > 0" />
       </q-tabs>
 
       <q-separator />
@@ -117,6 +117,11 @@ export default {
       get() {
         return this.$store.state.zap.clusterManager
           .individualClusterFilterString
+      },
+    },
+    events: {
+      get() {
+        return this.$store.state.zap.events
       },
     },
   },

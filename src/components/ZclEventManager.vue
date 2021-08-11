@@ -59,7 +59,9 @@ limitations under the License.
           <q-td key="priority" :props="props" auto-width>{{
             props.row.priority
           }}</q-td>
-
+          <q-td key="required" :props="props" auto-width>{{
+            props.row.isOptional ? '' : 'Yes'
+          }}</q-td>
           <q-td key="description" :props="props" auto-width>{{
             props.row.description
           }}</q-td>
@@ -70,7 +72,6 @@ limitations under the License.
 </template>
 
 <script>
-import * as Util from '../util/util.js'
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
 
 export default {
@@ -135,7 +136,14 @@ export default {
           sortable: true,
           style: 'width:1%',
         },
-
+        {
+          name: 'required',
+          label: 'Required',
+          field: 'isOptional',
+          align: 'left',
+          sortable: true,
+          style: 'width:1%',
+        },
         {
           name: 'description',
           label: 'Description',
