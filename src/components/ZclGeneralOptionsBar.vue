@@ -26,17 +26,10 @@ limitations under the License.
           fill-input
           input-debounce="0"
           :options="mfgOptions"
-          :option-label="
-            (item) =>
-              item.optionLabel == NULL || item.optionCode == NULL
-                ? 'NULL'
-                : getMfgOptionLabel(item.optionCode)
-          "
+          :option-label="(item) => getMfgOptionLabel(item)"
+          @new-value="createValue"
           @input="
-            handleOptionChange(
-              DbEnum.sessionOption.manufacturerCodes,
-              $event.optionCode
-            )
+            handleOptionChange(DbEnum.sessionOption.manufacturerCodes, $event)
           "
           v-model="selectedManufacturerCode"
           @filter="filterMfgCode"
@@ -90,6 +83,7 @@ limitations under the License.
 
 <script>
 import * as DbEnum from '../../src-shared/db-enum'
+import * as Util from '../util/util'
 
 export default {
   name: 'ZclGeneralOptionsBar',
@@ -139,19 +133,11 @@ export default {
     },
     selectedManufacturerCode: {
       get() {
-        let mc =
-          this.$store.state.zap.genericOptions[
+        return this.getMfgOptionLabel(
+          this.$store.state.zap.selectedGenericOptions[
             DbEnum.sessionOption.manufacturerCodes
           ]
-        return mc == null
-          ? ''
-          : mc.find(
-              (o) =>
-                o.optionCode ===
-                this.$store.state.zap.selectedGenericOptions[
-                  DbEnum.sessionOption.manufacturerCodes
-                ]
-            )
+        )
       },
     },
     commandDiscoverySetting: {
@@ -162,7 +148,7 @@ export default {
   },
   data() {
     return {
-      mfgOptions: this.manufacturerCodesOptions,
+      mfgOptions: this.defaultManufacturerCodes,
     }
   },
   methods: {
@@ -173,16 +159,25 @@ export default {
       })
     },
     handleOptionChange(option, value) {
+      console.log(value)
       this.$store.dispatch('zap/setSelectedGenericKey', {
         key: option,
         value: value,
       })
+    },
+    createValue(val, done) {
+      try {
+        done(Util.asHex(parseInt(val), 4), 'add-unique')
+      } catch (err) {
+        //Catch bad inputs.
+      }
     },
     getMfgOptionLabel(code) {
       let mfgOption =
         this.manufacturerCodesOptions == null
           ? null
           : this.manufacturerCodesOptions.find((o) => o.optionCode === code)
+
       return mfgOption
         ? mfgOption.optionLabel + ' (' + mfgOption.optionCode + ')'
         : code
@@ -190,18 +185,15 @@ export default {
     filterMfgCode(val, update) {
       if (val === '') {
         update(() => {
-          this.mfgOptions = this.manufacturerCodesOptions
+          this.mfgOptions = this.defaultManufacturerCodes
         })
         return
       }
 
       update(() => {
         const needle = val.toLowerCase()
-        this.mfgOptions = this.manufacturerCodesOptions.filter((v) => {
-          return (
-            this.getMfgOptionLabel(v.optionCode).toLowerCase().indexOf(needle) >
-            -1
-          )
+        this.mfgOptions = this.defaultManufacturerCodes.filter((v) => {
+          return this.getMfgOptionLabel(v).toLowerCase().indexOf(needle) > -1
         })
       })
     },
