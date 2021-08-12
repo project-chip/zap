@@ -68,7 +68,7 @@ let arg = yargs
 let ctx = {}
 
 let cli = [
-  'dist/electron-main.js',
+  'dist/src-electron/main-process/electron-main.js',
   'generate',
   '--noUi',
   '--noServer',
