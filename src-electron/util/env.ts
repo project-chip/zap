@@ -121,7 +121,7 @@ function setProductionEnv() {
   // @ts-ignore
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
   // @ts-ignore
-  global.__backend = path.join(__dirname, '/backend/').replace(/\\/g, '\\\\')
+  global.__backend = path.join(__dirname, '../../../src-electron').replace(/\\/g, '\\\\')
   httpStaticContentPath = path.join(__dirname, '../../../spa').replace(/\\/g, '\\\\')
 }
 
