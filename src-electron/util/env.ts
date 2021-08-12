@@ -97,7 +97,7 @@ function setDevelopmentEnv() {
   process.env.DEV = true
   // @ts-ignore
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
-  httpStaticContentPath = path.join(__dirname, '../../../spa')
+  httpStaticContentPath = path.join(__dirname, '../../spa')
   // @ts-ignore
   global.__backend = path.join(__dirname, '../').replace(/\\/g, '\\\\')
 }
