@@ -23,6 +23,7 @@
 
 const queryZcl = require('../db/query-zcl.js')
 const queryCommand = require('../db/query-command.js')
+const queryEvent = require('../db/query-event.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
@@ -57,21 +58,32 @@ function returnZclEntitiesForClusterId(db, clusterId, packageId) {
       zclEntityQuery(
         queryCommand.selectAllCommands,
         queryCommand.selectCommandsByClusterId
-      )(db, clusterId, packageId).then((z) => {
-        return { clusterData: x, attributeData: y, commandData: z }
-      })
+      )(db, clusterId, packageId).then((z) =>
+        zclEntityQuery(
+          queryEvent.selectAllEvents,
+          queryEvent.selectEventsByClusterId
+        )(db, clusterId, packageId).then((g) => {
+          return {
+            clusterData: x,
+            attributeData: y,
+            commandData: z,
+            eventData: g,
+          }
+        })
+      )
     )
   )
 }
 
 // This is the special merge function used for the CLUSTER path
-function mergeZclClusterAttributeCommandData(accumulated, currentValue) {
+function mergeZclClusterAttributeCommandEventData(accumulated, currentValue) {
   return {
     clusterData: [accumulated.clusterData, currentValue.clusterData].flat(1),
     commandData: [accumulated.commandData, currentValue.commandData].flat(1),
     attributeData: [accumulated.attributeData, currentValue.attributeData].flat(
       1
     ),
+    eventData: [accumulated.eventData, currentValue.eventData].flat(1),
   }
 }
 //This maps over each packageId, and runs the query callback.
@@ -101,13 +113,14 @@ function parseForZclData(db, entity, id, packageIdArray) {
         id,
         packageIdArray,
         returnZclEntitiesForClusterId,
-        mergeZclClusterAttributeCommandData,
-        { clusterData: [], attributeData: [], commandData: [] }
+        mergeZclClusterAttributeCommandEventData,
+        { clusterData: [], attributeData: [], commandData: [], eventData: [] }
       ).then((data) => {
         return {
           clusterData: data.clusterData,
           attributeData: data.attributeData,
           commandData: data.commandData,
+          eventData: data.eventData,
         }
       })
     case 'domain':

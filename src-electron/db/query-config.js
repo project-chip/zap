@@ -323,6 +323,57 @@ WHERE ENDPOINT_TYPE_REF = ?
 }
 
 /**
+ * Promise to update the event state.
+ * If the attribute entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
+ * Afterwards, update entry.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} clusterRef // Note that this is the clusterRef from CLUSTER and not the ENDPOINT_TYPE_CLUSTER
+ * @param {*} side // client or server
+ * @param {*} eventId
+ * @param {*} value
+ */
+async function insertOrUpdateEventState(
+  db,
+  endpointTypeId,
+  clusterRef,
+  side,
+  eventId,
+  value
+) {
+  let cluster = await insertOrSelectDefaultEndpointTypeCluster(
+    db,
+    endpointTypeId,
+    clusterRef,
+    side
+  )
+
+  await dbApi.dbInsert(
+    db,
+    `
+INSERT OR IGNORE
+INTO ENDPOINT_TYPE_EVENT (
+  ENDPOINT_TYPE_REF,
+  ENDPOINT_TYPE_CLUSTER_REF,
+  EVENT_REF
+) VALUES( ?, ?, ? )
+`,
+    [endpointTypeId, cluster.endpointTypeClusterId, eventId]
+  )
+  return dbApi.dbUpdate(
+    db,
+    `
+UPDATE ENDPOINT_TYPE_EVENT
+SET INCLUDED = ? 
+WHERE ENDPOINT_TYPE_REF = ?
+  AND ENDPOINT_TYPE_CLUSTER_REF = ?
+  AND EVENT_REF = ? `,
+    [value, endpointTypeId, cluster.endpointTypeClusterId, eventId]
+  )
+}
+
+/**
  * Returns a promise to update the endpoint
  *
  * @param {*} db
@@ -1018,6 +1069,7 @@ exports.insertOrReplaceClusterState = insertOrReplaceClusterState
 exports.selectClusterState = selectClusterState
 exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState
 exports.insertOrUpdateCommandState = insertOrUpdateCommandState
+exports.insertOrUpdateEventState = insertOrUpdateEventState
 exports.convertRestKeyToDbColumn = convertRestKeyToDbColumn
 
 exports.updateEndpoint = updateEndpoint

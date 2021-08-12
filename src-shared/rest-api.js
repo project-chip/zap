@@ -25,6 +25,7 @@ const uri = {
   initialState: '/initialState',
   option: '/option',
   commandUpdate: '/command/update',
+  eventUpdate: '/event/update',
   cluster: '/cluster',
   attributeUpdate: '/attribute/update',
   preview: '/preview/',
