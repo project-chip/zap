@@ -29,6 +29,11 @@ const responseWaitPeriod = 500
  * This test suite is testing the basic functionality of the
  * IPC between the secondary and primary zap processes.
  */
+
+beforeAll(async () => {
+  env.setDevelopmentEnv()
+})
+
 test('test no server', () => expect(ipcServer.isServerRunning()).toBeFalsy())
 
 test(

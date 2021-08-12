@@ -24,30 +24,15 @@ const zapUrlLog = 'zap.url'
 import { VersionType, ErrorType } from '../types/env-types'
 
 function builtinSilabsZclMetafile() {
-  return path.join(
-    __dirname,
-    process.env.DEV
-      ? '../../zcl-builtin/silabs/zcl.json'
-      : '../../../zcl-builtin/silabs/zcl.json'
-  )
+  return pathFromProjBaseDir('./zcl-builtin/silabs/zcl.json')
 }
 
 function builtinMatterZclMetafile() {
-  return path.join(
-    __dirname,
-    process.env.DEV
-      ? '../../zcl-builtin/matter/zcl.json'
-      : '../../../zcl-builtin/matter/zcl.json'
-  )
+  return pathFromProjBaseDir('./zcl-builtin/matter/zcl.json')
 }
 
 function builtinDotdotZclMetafile() {
-  return path.join(
-    __dirname,
-    process.env.DEV
-      ? '../../zcl-builtin/dotdot/library.xml'
-      : '../../../zcl-builtin/dotdot/library.xml'
-  )
+  return pathFromProjBaseDir('./zcl-builtin/dotdot/library.xml')
 }
 
 function builtinTemplateMetafile() {
@@ -121,8 +106,12 @@ function setProductionEnv() {
   // @ts-ignore
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
   // @ts-ignore
-  global.__backend = path.join(__dirname, '../../../src-electron').replace(/\\/g, '\\\\')
-  httpStaticContentPath = path.join(__dirname, '../../../spa').replace(/\\/g, '\\\\')
+  global.__backend = path
+    .join(__dirname, '../../../src-electron')
+    .replace(/\\/g, '\\\\')
+  httpStaticContentPath = path
+    .join(__dirname, '../../../spa')
+    .replace(/\\/g, '\\\\')
 }
 
 function logInitStdout() {
@@ -211,6 +200,13 @@ function zapVersionAsString() {
   return `ver. ${vo.version}, featureLevel ${vo.featureLevel}, commit: ${vo.hash} from ${vo.date}`
 }
 
+function pathFromProjBaseDir(filePath: string): string {
+  if (process.env.DEV) {
+    return path.join(__dirname, '../../', filePath)
+  } else {
+    return path.join(__dirname, '../../../', filePath)
+  }
+}
 /**
  * Returns the zap version.
  *
@@ -227,7 +223,7 @@ function zapVersion() {
       date: '',
     }
     try {
-      let p = require('../../../package.json')
+      let p = require(pathFromProjBaseDir('./package.json'))
       versionObject.version = p.version
     } catch (err) {
       logError('Could not retrieve version from package.json')
@@ -235,7 +231,7 @@ function zapVersion() {
     }
 
     try {
-      let p = require('../../../apack.json')
+      let p = require(pathFromProjBaseDir('./apack.json'))
       versionObject.featureLevel = p.featureLevel
     } catch (err) {
       logError('Could not retrieve featureLevel from apack.json')
@@ -243,7 +239,7 @@ function zapVersion() {
     }
 
     try {
-      let ver = require('../../../.version.json')
+      let ver = require(pathFromProjBaseDir('./.version.json'))
       versionObject.hash = ver.hash
       versionObject.timestamp = ver.timestamp
       versionObject.date = ver.date
