@@ -30,8 +30,6 @@ scriptUtil
   .then(() => {
     let cmdArgs = [
       'electron',
-      '-r',
-      'source-map-support/register',
       'dist/src-electron/main-process/electron-main.js',
     ]
 

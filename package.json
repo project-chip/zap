@@ -98,6 +98,7 @@
     "promised-handlebars": "^2.0.1",
     "properties": "^1.2.1",
     "request": "^2.88.2",
+    "source-map-support": "^0.5.19",
     "sqlite3": "^5.0.2",
     "utf-8-validate": "^5.0.5",
     "uuid": "^8.3.2",
@@ -213,8 +214,8 @@
     "files": [
       "**/*",
       "dist/backend",
-      "dist/electron-main.js",
-      "dist/electron-main.js.map",
+      "dist/src-electron",
+      "dist/src-shared",
       "!test/**/*",
       "!tmp/**/*",
       "!**/node_modules/*/{CHANGES.md,History.md,CONTRIBUTING.md,CHANGELOG.md,README.md,README.md~,HISTORY.md,README,readme.md,readme}",

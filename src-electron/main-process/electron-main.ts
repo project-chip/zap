@@ -17,6 +17,9 @@
 
 const { app } = require('electron')
 
+// enable stack trace to be mapped back to the correct line number in TypeScript source files.
+require('source-map-support').install()
+
 import * as args from '../util/args'
 const env = require('../util/env')
 const windowJs = require('../ui/window.js')
