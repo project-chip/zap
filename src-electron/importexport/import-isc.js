@@ -460,7 +460,17 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
 }
 
 /**
- * This method returns an array of promises that contain all the
+ * This method resolves promises that contain all the
+ * queries that are needed to load the attribute state
+ *
+ * @param {*} db
+ * @param {*} state
+ * @param {*} sessionId
+ */
+async function loadCommands(db, state, packageId, endpointTypeIdArray) {}
+
+/**
+ * This method resolves promises that contain all the
  * queries that are needed to load the attribute state
  *
  * @param {*} db
@@ -609,6 +619,9 @@ async function iscDataLoader(db, state, sessionId) {
   return Promise.all(endpointInsertionPromises)
     .then((endpointTypeIds) =>
       loadAttributes(db, state, packageId, endpointTypeIds)
+    )
+    .then((endpointTypeIds) =>
+      loadCommands(db, state, packageId, endpointTypeIds)
     )
     .then(() => loadSessionKeyValues(db, sessionId, state.sessionKey))
     .then(() => querySession.setSessionClean(db, sessionId))
