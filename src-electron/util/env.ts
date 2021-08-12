@@ -28,7 +28,7 @@ function builtinSilabsZclMetafile() {
     __dirname,
     process.env.DEV
       ? '../../zcl-builtin/silabs/zcl.json'
-      : 'backend/zcl-builtin/silabs/zcl.json'
+      : '../../../zcl-builtin/silabs/zcl.json'
   )
 }
 
@@ -37,7 +37,7 @@ function builtinMatterZclMetafile() {
     __dirname,
     process.env.DEV
       ? '../../zcl-builtin/matter/zcl.json'
-      : 'backend/zcl-builtin/matter/zcl.json'
+      : '../../../zcl-builtin/matter/zcl.json'
   )
 }
 
@@ -46,7 +46,7 @@ function builtinDotdotZclMetafile() {
     __dirname,
     process.env.DEV
       ? '../../zcl-builtin/dotdot/library.xml'
-      : 'backend/zcl-builtin/dotdot/library.xml'
+      : '../../../zcl-builtin/dotdot/library.xml'
   )
 }
 
@@ -103,7 +103,7 @@ const pinoOptions = {
 let pino_logger = pino(pinoOptions)
 
 let explicit_logger_set = false
-let httpStaticContentPath = path.join(__dirname, '../../spa')
+let httpStaticContentPath = path.join(__dirname, '../../../spa')
 let versionObject: VersionType | null = null
 let applicationStateDirectory: string | null = null
 
@@ -112,7 +112,7 @@ function setDevelopmentEnv() {
   process.env.DEV = true
   // @ts-ignore
   global.__statics = path.join('src', 'statics').replace(/\\/g, '\\\\')
-  httpStaticContentPath = path.join(__dirname, '../../spa')
+  httpStaticContentPath = path.join(__dirname, '../../../spa')
   // @ts-ignore
   global.__backend = path.join(__dirname, '../').replace(/\\/g, '\\\\')
 }
@@ -122,7 +122,7 @@ function setProductionEnv() {
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
   // @ts-ignore
   global.__backend = path.join(__dirname, '/backend/').replace(/\\/g, '\\\\')
-  httpStaticContentPath = path.join(__dirname, '../spa').replace(/\\/g, '\\\\')
+  httpStaticContentPath = path.join(__dirname, '../../../spa').replace(/\\/g, '\\\\')
 }
 
 function logInitStdout() {
@@ -227,7 +227,7 @@ function zapVersion() {
       date: '',
     }
     try {
-      let p = require('../../package.json')
+      let p = require('../../../package.json')
       versionObject.version = p.version
     } catch (err) {
       logError('Could not retrieve version from package.json')
@@ -235,7 +235,7 @@ function zapVersion() {
     }
 
     try {
-      let p = require('../../apack.json')
+      let p = require('../../../apack.json')
       versionObject.featureLevel = p.featureLevel
     } catch (err) {
       logError('Could not retrieve featureLevel from apack.json')
@@ -243,7 +243,7 @@ function zapVersion() {
     }
 
     try {
-      let ver = require('../../.version.json')
+      let ver = require('../../../.version.json')
       versionObject.hash = ver.hash
       versionObject.timestamp = ver.timestamp
       versionObject.date = ver.date

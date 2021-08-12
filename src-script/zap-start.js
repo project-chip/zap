@@ -28,7 +28,12 @@ scriptUtil
   .then(() => scriptUtil.rebuildSpaIfNeeded())
   .then(() => scriptUtil.rebuildBackendIfNeeded())
   .then(() => {
-    let cmdArgs = ['electron', 'dist/electron-main.js']
+    let cmdArgs = [
+      'electron',
+      '-r',
+      'source-map-support/register',
+      'dist/src-electron/main-process/electron-main.js',
+    ]
 
     if (process.platform == 'linux') {
       if (!process.env.DISPLAY) {

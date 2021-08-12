@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "outDir": "../dist",
+    "noImplicitAny": true,
+    "module": "commonjs",
+    "sourceMap": true,
+    "target": "es2020",
+    "allowJs": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "paths": {
+      "../src-shared/*": ["../src-shared/*"]
+    }
+  },
+  "include": ["**/*"]
+}

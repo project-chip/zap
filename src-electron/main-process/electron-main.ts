@@ -35,10 +35,6 @@ function hookSecondInstanceEvents(argv: args.Arguments) {
   app
     .whenReady()
     .then(() => startup.startUpSecondaryInstance(argv))
-    .catch((err) => {
-      console.log(err)
-      app.exit(1)
-    })
 }
 
 /**
@@ -49,10 +45,6 @@ function hookMainInstanceEvents(argv: args.Arguments) {
   app
     .whenReady()
     .then(() => startup.startUpMainInstance(true, argv))
-    .catch((err) => {
-      console.log(err)
-      app.exit(1)
-    })
 
   if (!argv._.includes('server')) {
     app.on('window-all-closed', () => {
@@ -70,7 +62,7 @@ function hookMainInstanceEvents(argv: args.Arguments) {
     startup.shutdown()
   })
 
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
+  app.on('second-instance', (event: Event, commandLine: string[], workingDirectory: string) => {
     env.logInfo(`Zap instance started with command line: ${commandLine}`)
   })
 }

@@ -203,9 +203,9 @@ async function rebuildBackendIfNeeded() {
     )
     .then((ctx) => {
       if (ctx.needsRebuild)
-        return scriptUtil.executeCmd(ctx, 'webpack', [
-          '-c',
-          'webpack.main.config.js'
+        return scriptUtil.executeCmd(ctx, 'npm', [
+          'run',
+          'build-backend'
         ])
       else return Promise.resolve(ctx)
     })
