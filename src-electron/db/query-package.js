@@ -663,6 +663,71 @@ ON CONFLICT DO NOTHING`,
 }
 
 /**
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} property
+ * @param {*} entityType One of the packageExtensionEntity enums
+ */
+async function selectPackageExtensionByPropertyAndEntity(
+  db,
+  packageId,
+  property,
+  entity
+) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT
+  PE.TYPE,
+  PE.CONFIGURABILITY,
+  PE.LABEL,
+  PE.GLOBAL_DEFAULT,
+  PED.ENTITY_CODE,
+  PED.ENTITY_QUALIFIER,
+  PED.PARENT_CODE,
+  PED.MANUFACTURER_CODE,
+  PED.VALUE
+FROM 
+  PACKAGE_EXTENSION AS PE
+LEFT OUTER JOIN
+  PACKAGE_EXTENSION_DEFAULT AS PED
+ON
+  PE.PACKAGE_EXTENSION_ID = PED.PACKAGE_EXTENSION_REF
+WHERE
+  PE.PACKAGE_REF = ?
+  AND PE.ENTITY = ?
+  AND PE.PROPERTY = ?
+ORDER BY
+  PE.PROPERTY,
+  PED.PARENT_CODE,
+  PED.ENTITY_CODE`,
+    [packageId, entity, property]
+  )
+  if (rows != null && rows.length > 0) {
+    let res = {
+      type: rows[0].TYPE,
+      configurability: rows[0].CONFIGURABILITY,
+      label: rows[0].LABEL,
+      globalDefault: rows[0].GLOBAL_DEFAULT,
+      defaults: [],
+    }
+    return rows.reduce((acc, x) => {
+      acc.defaults.push({
+        entityCode: x.ENTITY_CODE,
+        parentCode: x.PARENT_CODE,
+        manufacturerCode: x.MANUFACURER_CODE,
+        qualifier: x.ENTITY_QUALIFIER,
+        value: x.VALUE,
+      })
+      return acc
+    }, res)
+  } else {
+    return null
+  }
+}
+
+/**
  * Select extensions for a given entity type for a package.
  *
  * @param {*} db
@@ -698,7 +763,9 @@ WHERE
   PE.PACKAGE_REF = ?
   AND PE.ENTITY = ?
 ORDER BY
-  PE.PROPERTY, PED.PARENT_CODE, PED.ENTITY_CODE`,
+  PE.PROPERTY,
+  PED.PARENT_CODE,
+  PED.ENTITY_CODE`,
       [packageId, entity]
     )
     .then((rows) =>
@@ -755,6 +822,9 @@ exports.selectOptionValueByOptionDefaultId = selectOptionValueByOptionDefaultId
 exports.getPackagesByParentAndType = getPackagesByParentAndType
 exports.getSessionZclPackages = getSessionZclPackages
 exports.getSessionZclPackageIds = getSessionZclPackageIds
+
 exports.insertPackageExtension = insertPackageExtension
 exports.selectPackageExtension = selectPackageExtension
+exports.selectPackageExtensionByPropertyAndEntity =
+  selectPackageExtensionByPropertyAndEntity
 exports.deleteSessionPackage = deleteSessionPackage

@@ -151,6 +151,19 @@ describe('Session specific tests', () => {
           expect(extensions[0].defaults[0].entityCode).toBe(0)
           expect(extensions[0].defaults[1].entityCode).toBe(1)
         })
+        .then(() =>
+          queryPackage.selectPackageExtensionByPropertyAndEntity(
+            db,
+            packageId,
+            'implementedCommands',
+            dbEnum.packageExtensionEntity.command
+          )
+        )
+        .then((ext) => {
+          expect(ext.type).toBe('boolean')
+          expect(ext.globalDefault).toBe('0')
+          expect(ext.defaults.length).toBe(5)
+        })
     },
     testUtil.timeout.medium()
   )
