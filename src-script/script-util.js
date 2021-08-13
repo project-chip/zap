@@ -159,72 +159,8 @@ async function rebuildSpaIfNeeded() {
 }
 
 async function rebuildBackendIfNeeded() {
-  let backendHash = await folderHash.hashElement('src-electron', hashOptions)
-  console.log(`🔍 Current src-electron hash: ${backendHash.hash}`)
-  let srcSharedHash = await folderHash.hashElement('src-shared', hashOptions)
-  console.log(`🔍 Current src-shared hash: ${srcSharedHash.hash}`)
-  let ctx = {
-    hash: {
-      backendHash: backendHash.hash,
-      srcSharedHash: srcSharedHash.hash,
-    },
-  }
-  return Promise.resolve(ctx)
-    .then(
-      (ctx) =>
-        new Promise((resolve, reject) => {
-          fs.readFile(backendHashFileName, (err, data) => {
-            let oldHash = null
-            if (err) {
-              console.log(`👎 Error reading old hash file: ${backendHashFileName}`)
-              ctx.needsRebuild = true
-            } else {
-              oldHash = JSON.parse(data)
-              console.log(`🔍 Previous backend hash: ${oldHash.backendHash}`)
-              console.log(
-                `🔍 Previous src-shared hash: ${oldHash.srcSharedHash}`
-              )
-              ctx.needsRebuild =
-                oldHash.srcSharedHash != ctx.hash.srcSharedHash ||
-                oldHash.backendHash != ctx.hash.backendHash
-            }
-            if (ctx.needsRebuild) {
-              console.log(
-                `🐝 Back-end code changed, so we need to rebuild backend.`
-              )
-            } else {
-              console.log(
-                `👍 There were no changes to back-end code, so we don't have to rebuild the backend.`
-              )
-            }
-            resolve(ctx)
-          })
-        })
-    )
-    .then((ctx) => {
-      if (ctx.needsRebuild)
-        return scriptUtil.executeCmd(ctx, 'npm', [
-          'run',
-          'build-backend'
-        ])
-      else return Promise.resolve(ctx)
-    })
-    .then(
-      (ctx) =>
-        new Promise((resolve, reject) => {
-          if (ctx.needsRebuild) {
-            console.log('✍ Writing out new hash file.')
-            fs.writeFile(backendHashFileName, JSON.stringify(ctx.hash), (err) => {
-              if (err) reject(err)
-              else resolve(ctx)
-            })
-          } else {
-            resolve(ctx)
-          }
-        })
-    )
+  return scriptUtil.executeCmd({}, 'npm', ['run', 'build-backend'])
 }
-
 
 /**
  * Executes:

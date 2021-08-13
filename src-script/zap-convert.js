@@ -66,6 +66,7 @@ arg._.forEach((x) => cli.push(x))
 
 scriptUtil
   .stampVersion()
+  .then(() => scriptUtil.rebuildBackendIfNeeded())
   .then(() => scriptUtil.executeCmd(ctx, 'node', cli))
   .then(() => {
     scriptUtil.doneStamp(startTime)

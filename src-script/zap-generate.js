@@ -90,6 +90,7 @@ if (arg.in != null) {
 
 scriptUtil
   .stampVersion()
+  .then(() => scriptUtil.rebuildBackendIfNeeded())
   .then(() => scriptUtil.executeCmd(ctx, 'node', cli))
   .then(() => {
     scriptUtil.doneStamp(startTime)
