@@ -133,24 +133,24 @@ pipeline
         }
         stage('Test generation') {
             parallel {
-                stage('Test blank generation') {
+                stage('Test Zigbee generation') {
                     steps {
                         script {
                             sh 'xvfb-run -a npm run gen'
                         }
                     }
                 }
-                stage('Test CHIP generation') {
+                stage('Test Matter generation') {
                     steps {
                         script {
-                            sh 'npm run genmatter'
+                            sh 'xvfb-run -a npm run genmatter'
                         }
                     }
                 }
-                stage('Test generation with dotdot XML') {
+                stage('Test Dotdot generation') {
                     steps {
                         script {
-                            sh ' xvfb-run -a npm run gen3'
+                            sh 'xvfb-run -a npm run gen3'
                         }
                     }
                 }
