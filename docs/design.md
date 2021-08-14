@@ -114,7 +114,7 @@ The HTTP methods are strictly observed:
 
 ## Generator and backend
 
-The Zap back-end is a node.js application. The general design guidelines for the back-end logic are:
+The Zap back-end is a node.js application. It was originally written in plain JavaScript, using common.js module mechanism, but has been then converted to use TypeScript. The conversion is ongoing. The general design guidelines for the back-end logic are:
 
 - fully embrace and make use of the asynchronous node.js callback model, thus ensuring least-blocking and maximum-performing infrastructure. Use of JS `promises` is a chosen pattern to follow asynchronicity.
 - use npm as a package manager.
