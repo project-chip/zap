@@ -21,7 +21,7 @@ const queryEvent = require('../db/query-event.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
 const helperC = require('./helper-c.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const types = require('../util/types.js')
 
 /**

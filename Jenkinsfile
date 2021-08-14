@@ -86,6 +86,16 @@ pipeline
                 }
             }
         }
+        stage('Build backend')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'npm run build-backend'
+                }
+            }
+        }
         stage('ESLint execution')
         {
             steps
@@ -182,6 +192,7 @@ pipeline
                                     sh 'security unlock-keychain -u  "/Library/Keychains/System.keychain"'
                                     sh 'npm run version-stamp'
                                     sh 'npm run build-spa'
+                                    sh 'npm run build-backend'
                                     sh 'npm run dist-mac'
                                     sh 'npm run apack:mac'
                                     stash includes: 'dist/zap_apack_mac.zip', name: 'zap_apack_mac'
@@ -245,6 +256,7 @@ pipeline
                     agent { label 'windows10' }
                     steps
                     {
+                        cleanWs()
                         dir('test_apack_bin') {
                             script
                             {

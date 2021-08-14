@@ -25,7 +25,7 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 
 /**
  * Locates or adds an attribute, and returns it.

@@ -15,3 +15,6 @@ WTFPL OR ISC
 WTFPL
 (MIT OR CC0-1.0)
 (MIT OR Apache-2.0)
+(MIT AND BSD-3-Clause)
+(MIT AND Zlib)
+

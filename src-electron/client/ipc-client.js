@@ -16,7 +16,7 @@
  */
 
 const ipc = require('node-ipc')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const ipcServer = require('../server/ipc-server.js')
 const util = require('../util/util.js')
 

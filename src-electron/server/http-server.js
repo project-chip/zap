@@ -23,14 +23,14 @@
 
 const express = require('express')
 const session = require('express-session')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const webSocket = require('./ws-server.js')
 const studio = require('../ide-integration/studio-rest-api.js')
 const restApi = require('../../src-shared/rest-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const watchdog = require('../main-process/watchdog.js')
+const watchdog = require('../main-process/watchdog')
 
 const restApiModules = [
   require('../rest/admin.js'),
@@ -107,8 +107,8 @@ async function initHttpServer(
   studioPort,
   options = {
     allowCors: false,
-    zcl: env.builtinSilabsZclMetafile,
-    template: env.builtinTemplateMetafile,
+    zcl: env.builtinSilabsZclMetafile(),
+    template: env.builtinTemplateMetafile(),
   }
 ) {
   return new Promise((resolve, reject) => {
@@ -146,9 +146,8 @@ async function initHttpServer(
     registerAllRestModules(db, app)
 
     // Static content
-    env.logDebug(`HTTP static content location: ${env.httpStaticContent}`)
-    app.use(express.static(env.httpStaticContent))
-
+    env.logDebug(`HTTP static content location: ${env.httpStaticContent()}`)
+    app.use(express.static(env.httpStaticContent()))
     httpServer = app.listen(port, () => {
       resolve(app)
     })

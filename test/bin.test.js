@@ -18,8 +18,13 @@
  * @jest-environment node
  */
 
-const bin = require('../src-electron/util/bin.js')
+import bin from '../src-electron/util/bin.ts'
 const { timeout } = require('./test-util.js')
+const env = require('../src-electron/util/env.ts')
+
+beforeAll(() => {
+  env.setDevelopmentEnv()
+})
 
 test(
   '32-bit hex conversions',

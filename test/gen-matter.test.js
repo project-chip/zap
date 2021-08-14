@@ -20,7 +20,7 @@
 
 const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const queryAttribute = require('../src-electron/db/query-attribute.js')
@@ -41,13 +41,14 @@ const testFile = path.join(__dirname, 'resource/matter-test.zap')
 const templateCount = testUtil.testTemplate.matterCount
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('gen-matter')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
     env.zapVersion()
   )
-  let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile)
+  let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
   zclPackageId = ctx.packageId
 }, testUtil.timeout.medium())
 
@@ -127,7 +128,7 @@ test(
       templateContext.db,
       templateContext.sessionId,
       {
-        zcl: env.builtinMatterZclMetafile,
+        zcl: env.builtinMatterZclMetafile(),
         template: testUtil.testTemplate.matter,
       }
     )

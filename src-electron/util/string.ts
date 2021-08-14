@@ -26,7 +26,7 @@
  * @parem {*} firstLower if True the it starts with lowecase.
  * @returns a spaced out string in lowercase
  */
- function toCamelCase(label, firstLower = true) {
+function toCamelCase(label: string, firstLower = true) {
   let str = label.replace(/[+()&]/g, '').split(/ |_|-|\//)
   let res = ''
   for (let i = 0; i < str.length; i++) {
@@ -45,10 +45,12 @@
   return res
 }
 
-function toSpacedLowercase(str) {
-  let res = str.replace(/[+()&]/g, '').replace(/\.?([A-Z][a-z])/g, function (x, y) {
-    return ' ' + y
-  })
+function toSpacedLowercase(str: string) {
+  let res = str
+    .replace(/[+()&]/g, '')
+    .replace(/\.?([A-Z][a-z])/g, function (x, y) {
+      return ' ' + y
+    })
   return res.toLowerCase()
 }
 
@@ -58,12 +60,14 @@ function toSpacedLowercase(str) {
  *    VerySimpleLabel will turn into VERY_SIMPLE_LABEL
  * @param {*} label
  */
-function toSnakeCaseAllCaps(label) {
+function toSnakeCaseAllCaps(label: string) {
   let ret = ''
   if (label == null) return ret
-  label = label.replace(/[+()&]/g, '').replace(/\.?([A-Z][a-z])/g, function (x, y) {
-    return '_' + y
-  })
+  label = label
+    .replace(/[+()&]/g, '')
+    .replace(/\.?([A-Z][a-z])/g, function (x, y) {
+      return '_' + y
+    })
   let wasUp = false
   for (let i = 0; i < label.length; i++) {
     let ch = label.charAt(i)
@@ -88,7 +92,7 @@ function toSnakeCaseAllCaps(label) {
   return toCleanMacro(ret)
 }
 
-function toSnakeCase(str) {
+function toSnakeCase(str: string) {
   return toSnakeCaseAllCaps(str).toLowerCase()
 }
 
@@ -96,7 +100,7 @@ function toSnakeCase(str) {
  * returns a string after converting ':' and '-' into '_'
  * @param {*} label
  */
-function toCleanSymbol(label) {
+function toCleanSymbol(label: string) {
   let l = label.trim()
   l = l.replace(/ /g, '_')
   l = l.replace(/[:/-]/g, '_')
@@ -108,7 +112,7 @@ function toCleanSymbol(label) {
  * returns a string after converting ':' and '_' into '-'
  * @param {*} label
  */
-function toCleanSymbolAsKebabCase(label) {
+function toCleanSymbolAsKebabCase(label: string) {
   let l = label.trim()
   l = l.replace(/ /g, '-')
   l = l.replace(/[:/_]/g, '-')
@@ -123,7 +127,7 @@ function toCleanSymbolAsKebabCase(label) {
  * @param {*} label
  * @returns Label formatted as C macro.
  */
-function toCleanMacro(label) {
+function toCleanMacro(label: string) {
   let l = label.toUpperCase().replace(/ /g, '_')
   l = l.replace(/[:/-]/g, '_')
   while (l.includes('__')) {
@@ -141,6 +145,7 @@ function toCleanMacro(label) {
  * Returns true if given character is a digit.
  * @param {*} ch
  */
+// @ts-ignore TypeScript doesn't have character type
 function isDigit(ch) {
   return ch >= '0' && ch <= '9'
 }

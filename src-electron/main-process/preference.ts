@@ -15,14 +15,16 @@
  *    limitations under the License.
  */
 
-const { BrowserWindow } = require('electron')
+import { BrowserWindow } from "electron"
+
 const path = require('path')
-const env = require('../util/env.js')
+const env = require('../util/env')
 
-let window = null
+let window: BrowserWindow | null
 
-function createPreferencesWindow(parentWindow, port) {
-  let webPreferences = {
+function createPreferencesWindow(parentWindow: Electron.BrowserWindow, port: number) {
+  let webPreferences: Electron.WebPreferences
+   = {
     nodeIntegration: false,
   }
   if (parentWindow != null && 'webContents' in parentWindow) {
@@ -40,7 +42,7 @@ function createPreferencesWindow(parentWindow, port) {
   })
   window.setMenu(null)
   window.loadURL(`http://localhost:${port}/#/preference`)
-  window.on('close', (e) => {
+  window.on('close', () => {
     window = null
   })
   window.on('page-title-updated', (e) => {
@@ -54,7 +56,7 @@ function createPreferencesWindow(parentWindow, port) {
  * @export
  * @param {*} port
  */
-function createOrShowPreferencesWindow(parentWindow, port) {
+function createOrShowPreferencesWindow(parentWindow: Electron.BrowserWindow, port: number) {
   if (window == null) {
     createPreferencesWindow(parentWindow, port)
   } else {

@@ -21,7 +21,7 @@
 const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
 const httpServer = require('../src-electron/server/http-server.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const testUtil = require('./test-util.js')
 const restApi = require('../src-shared/rest-api.js')
@@ -34,6 +34,7 @@ let sessionUuid = util.createUuid()
 
 beforeAll(async () => {
   const { port, baseUrl } = testUtil.testServer(__filename)
+  process.env.DEV = true
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('server-session')
   axiosInstance = axios.create({ baseURL: baseUrl })
@@ -42,7 +43,7 @@ beforeAll(async () => {
     env.schemaFile(),
     env.zapVersion()
   )
-  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   await httpServer.initHttpServer(db, port)
 }, testUtil.timeout.medium())
 

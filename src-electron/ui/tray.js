@@ -18,7 +18,7 @@
 const { Menu, Tray, nativeImage, app } = require('electron')
 const path = require('path')
 const fs = require('fs')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const uiUtil = require('./ui-util.js')
 
 let tray

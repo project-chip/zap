@@ -23,7 +23,7 @@
 
 const sqlite = require('sqlite3')
 const fsp = require('fs').promises
-const env = require('../util/env.js')
+const env = require('../util/env')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 

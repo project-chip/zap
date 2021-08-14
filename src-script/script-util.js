@@ -17,11 +17,13 @@
 const { spawn } = require('cross-spawn')
 const folderHash = require('folder-hash')
 const spaDir = 'spa'
+const backendDir = 'dist'
 const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
 const scriptUtil = require('./script-util.js')
 const spaHashFileName = path.join(spaDir, 'hash.json')
+const backendHashFileName = path.join(backendDir, 'hash.json')
 process.env.PATH = process.env.PATH + ':./node_modules/.bin/'
 
 const hashOptions = {}
@@ -156,6 +158,10 @@ async function rebuildSpaIfNeeded() {
     )
 }
 
+async function rebuildBackendIfNeeded() {
+  return scriptUtil.executeCmd({}, 'npm', ['run', 'build-backend'])
+}
+
 /**
  * Executes:
  *   git log -1 --format="{\"hash\": \"%H\",\"date\": \"%cI\"}"
@@ -209,6 +215,7 @@ function doneStamp(startTime) {
 
 exports.executeCmd = executeCmd
 exports.rebuildSpaIfNeeded = rebuildSpaIfNeeded
+exports.rebuildBackendIfNeeded = rebuildBackendIfNeeded
 exports.stampVersion = stampVersion
 exports.duration = duration
 exports.doneStamp = doneStamp

@@ -20,7 +20,7 @@
  *
  * @module DB API: zcl loading queries
  */
-const env = require('../util/env.js')
+const env = require('../util/env')
 const dbApi = require('./db-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 

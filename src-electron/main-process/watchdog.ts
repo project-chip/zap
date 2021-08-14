@@ -14,8 +14,26 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-const env = require('../src-electron/util/env.ts')
 
-module.exports = async () => {
-  env.logDebug('Global setup.')
+let watchDogId: NodeJS.Timeout
+
+/**
+ * Starts a zap watchdog.
+ *
+ * @param {*} expirationInterval
+ * @param {*} triggerFunction
+ */
+function start(expirationInterval: number, triggerFunction: () => void) {
+  watchDogId = setTimeout(triggerFunction, expirationInterval)
+  watchDogId.unref()
 }
+
+/**
+ * Resets a zap watchdog.
+ */
+function reset() {
+  if (watchDogId != null) watchDogId.refresh()
+}
+
+exports.start = start
+exports.reset = reset

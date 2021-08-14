@@ -20,7 +20,7 @@
 
 const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
@@ -29,7 +29,7 @@ const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
 const queryConfig = require('../src-electron/db/query-config.js')
 const types = require('../src-electron/util/types.js')
-const bin = require('../src-electron/util/bin.js')
+const bin = require('../src-electron/util/bin.ts')
 
 let db
 const templateCount = testUtil.testTemplate.zigbeeCount
@@ -39,6 +39,7 @@ let templateContext
 let zclContext
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('endpointconfig')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
@@ -69,7 +70,7 @@ test(
 test(
   'Load ZCL stuff',
   async () => {
-    zclContext = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+    zclContext = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   },
   testUtil.timeout.medium()
 )

@@ -21,7 +21,7 @@
  * @module REST API: user data
  */
 
-const env = require('../util/env.js')
+const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')

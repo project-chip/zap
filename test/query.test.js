@@ -30,7 +30,7 @@ const queryPackage = require('../src-electron/db/query-package.js')
 const querySession = require('../src-electron/db/query-session.js')
 const querySessionZcl = require('../src-electron/db/query-session-zcl.js')
 
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const util = require('../src-electron/util/util.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const exportJs = require('../src-electron/importexport/export.js')
@@ -52,6 +52,7 @@ let sid
 let pkgId
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('query')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
@@ -159,7 +160,7 @@ test(
 
 test(
   'Now actually load the static data.',
-  () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
+  () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()),
   testUtil.timeout.medium()
 )
 
@@ -177,8 +178,8 @@ describe('Session specific queries', () => {
         .then((userSession) => {
           sid = userSession.sessionId
           return util.initializeSessionPackage(db, sid, {
-            zcl: env.builtinSilabsZclMetafile,
-            template: env.builtinTemplateMetafile,
+            zcl: env.builtinSilabsZclMetafile(),
+            template: env.builtinTemplateMetafile(),
           })
         }),
     testUtil.timeout.medium()

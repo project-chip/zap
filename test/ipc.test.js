@@ -21,7 +21,7 @@
 const ipcClient = require('../src-electron/client/ipc-client.js')
 const ipcServer = require('../src-electron/server/ipc-server.js')
 const util = require('../src-electron/util/util.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const { timeout } = require('./test-util.js')
 
 const responseWaitPeriod = 500
@@ -29,6 +29,11 @@ const responseWaitPeriod = 500
  * This test suite is testing the basic functionality of the
  * IPC between the secondary and primary zap processes.
  */
+
+beforeAll(async () => {
+  env.setDevelopmentEnv()
+})
+
 test('test no server', () => expect(ipcServer.isServerRunning()).toBeFalsy())
 
 test(

@@ -17,8 +17,11 @@
 
 const { app } = require('electron')
 
-const args = require('../util/args.js')
-const env = require('../util/env.js')
+// enable stack trace to be mapped back to the correct line number in TypeScript source files.
+require('source-map-support').install()
+
+import * as args from '../util/args'
+const env = require('../util/env')
 const windowJs = require('../ui/window.js')
 const startup = require('./startup.js')
 
@@ -30,29 +33,21 @@ if (process.env.DEV) {
   env.setProductionEnv()
 }
 
-function hookSecondInstanceEvents(argv) {
+function hookSecondInstanceEvents(argv: args.Arguments) {
   app.allowRendererProcessReuse = false
   app
     .whenReady()
     .then(() => startup.startUpSecondaryInstance(argv))
-    .catch((err) => {
-      console.log(err)
-      app.exit(1)
-    })
 }
 
 /**
  * Hook up all the events for the electron app object.
  */
-function hookMainInstanceEvents(argv) {
+function hookMainInstanceEvents(argv: args.Arguments) {
   app.allowRendererProcessReuse = false
   app
     .whenReady()
     .then(() => startup.startUpMainInstance(true, argv))
-    .catch((err) => {
-      console.log(err)
-      app.exit(1)
-    })
 
   if (!argv._.includes('server')) {
     app.on('window-all-closed', () => {
@@ -70,7 +65,7 @@ function hookMainInstanceEvents(argv) {
     startup.shutdown()
   })
 
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
+  app.on('second-instance', (event: Event, commandLine: string[], workingDirectory: string) => {
     env.logInfo(`Zap instance started with command line: ${commandLine}`)
   })
 }

@@ -19,7 +19,7 @@ const queryPackage = require('../db/query-package.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const _ = require('lodash')
 
 /**

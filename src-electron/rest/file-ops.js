@@ -22,7 +22,7 @@
  */
 
 const restApi = require('../../src-shared/rest-api.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const path = require('path')

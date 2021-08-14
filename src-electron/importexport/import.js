@@ -26,7 +26,7 @@ const importIsc = require('./import-isc.js')
 const importJson = require('./import-json.js')
 const dbApi = require('../db/db-api.js')
 const querySession = require('../db/query-session.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const script = require('../util/script.js')
 
 /**
@@ -47,7 +47,7 @@ async function readDataFromFile(filePath, defaultZclMetafile) {
       filePath,
       data,
       defaultZclMetafile == null
-        ? env.builtinSilabsZclMetafile
+        ? env.builtinSilabsZclMetafile()
         : defaultZclMetafile
     )
   } else {
@@ -83,7 +83,7 @@ async function importDataFromFile(
   filePath,
   options = {
     sessionId: null,
-    defaultZclMetafile: env.builtinSilabsZclMetafile,
+    defaultZclMetafile: env.builtinSilabsZclMetafile(),
     postImportScript: null,
   }
 ) {

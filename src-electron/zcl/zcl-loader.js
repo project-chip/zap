@@ -24,7 +24,8 @@ const fsp = fs.promises
 const sLoad = require('./zcl-loader-silabs.js')
 const dLoad = require('./zcl-loader-dotdot.js')
 const queryZcl = require('../db/query-zcl.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
+const nativeRequire = require('../util/native-require')
 
 const defaultValidator = (zclData) => {
   return []
@@ -120,7 +121,7 @@ async function bindValidationScript(db, basePackageId) {
     } else {
       let zclSchema = data[dbEnum.packageType.zclSchema]
       let zclValidation = data[dbEnum.packageType.zclValidation]
-      let module = require(zclValidation)
+      let module = nativeRequire(zclValidation)
       let validateZclFile = module.validateZclFile
 
       env.logDebug(`Reading individual file: ${zclSchema}`)

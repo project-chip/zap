@@ -18,7 +18,7 @@
  * @jest-environment node
  */
 
-const string = require('../src-electron/util/string.js')
+const string = require('../src-electron/util/string.ts')
 const { timeout } = require('./test-util.js')
 
 test(

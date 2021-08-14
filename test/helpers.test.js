@@ -19,7 +19,7 @@
  */
 
 const cHelper = require('../src-electron/generator/helper-c')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const dbApi = require('../src-electron/db/db-api.js')
 const genEngine = require('../src-electron/generator/generation-engine.js')
 const testUtil = require('./test-util.js')
@@ -34,6 +34,7 @@ let zclContext
 let ctx
 
 beforeAll(() => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('helpers')
   return dbApi
     .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
@@ -65,7 +66,7 @@ test(
 test(
   'Load ZCL stuff',
   () =>
-    zclLoader.loadZcl(db, env.builtinSilabsZclMetafile).then((context) => {
+    zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()).then((context) => {
       zclContext = context
 
       let globalCtx = {

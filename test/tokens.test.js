@@ -20,7 +20,7 @@
 
 const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
@@ -34,13 +34,14 @@ const testFile = path.join(__dirname, 'resource/tokens-test.zap')
 let templateContext
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('tokens')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
     env.zapVersion()
   )
-  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
 }, testUtil.timeout.medium())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
@@ -79,8 +80,8 @@ test(
       templateContext.db,
       templateContext.sessionId,
       {
-        zcl: env.builtinSilabsZclMetafile,
-        template: env.builtinTemplateMetafile,
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile(),
       }
     )
   },

@@ -16,11 +16,11 @@
  */
 
 const ipc = require('node-ipc')
-const env = require('../util/env.js')
+const env = require('../util/env')
 const path = require('path')
 const uiUtil = require('../ui/ui-util.js')
 const util = require('../util/util.js')
-const watchdog = require('../main-process/watchdog.js')
+const watchdog = require('../main-process/watchdog')
 const httpServer = require('../server/http-server.js')
 const startup = require('../main-process/startup.js')
 const serverIpc = new ipc.IPC()
@@ -119,8 +119,8 @@ async function handlerGenerate(context, data) {
         {
           logger: (x) =>
             serverIpc.server.emit(context.socket, eventType.over, x),
-          zcl: env.builtinSilabsZclMetafile,
-          template: env.builtinTemplateMetafile,
+          zcl: env.builtinSilabsZclMetafile(),
+          template: env.builtinTemplateMetafile(),
         }
       )
     )

@@ -20,7 +20,7 @@
 
 const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const testUtil = require('./test-util.js')
 const querySession = require('../src-electron/db/query-session.js')
 const util = require('../src-electron/util/util.js')
@@ -28,13 +28,14 @@ let db
 let sid
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('custom-validation')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
     env.zapVersion()
   )
-  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile)
+  await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   let userSession = await querySession.ensureZapUserAndSession(
     db,
     'USER',
@@ -42,8 +43,8 @@ beforeAll(async () => {
   )
   sid = userSession.sessionId
   return util.initializeSessionPackage(db, sid, {
-    zcl: env.builtinSilabsZclMetafile,
-    template: env.builtinTemplateMetafile,
+    zcl: env.builtinSilabsZclMetafile(),
+    template: env.builtinTemplateMetafile(),
   })
 }, testUtil.timeout.medium())
 
