@@ -35,6 +35,7 @@ const templateCount = testUtil.testTemplate.zigbeeCount
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 const testFile2 = path.join(__dirname, 'resource/three-endpoint-device.zap')
 const testFile3 = path.join(__dirname, 'resource/zll-on-off-switch-test.zap')
+const testFile4 = path.join(__dirname, 'resource/mfg-specific-clusters-commands.zap')
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -542,6 +543,64 @@ test(
         expect(
           genResult.content['zap-command-parser-ver-3.c'].includes(
             'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
+          )
+        ).toBeTruthy()
+      })
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Testing zap command parser generation for manufacturing specific clusters',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile4, { sessionId: sid })
+
+    return genEngine
+      .generate(
+        db,
+        sid,
+        templateContext.packageId,
+        {},
+        {
+          disableDeprecationWarnings: true,
+        }
+      )
+      .then((genResult) => {
+        // Test Cluster command parsers for manufacturing specific clusters
+        expect(
+          genResult.content['zap-command-parser-ver-4.c'].includes(
+            'case 0xFC57: //Manufacturing Specific cluster'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-4.c'].includes(
+            'case 0x1217: // Cluster: SL Works With All Hubs'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-4.c'].includes(
+            'result = emberAfSlWorksWithAllHubsClusterClientCommandParse(cmd);'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-4.c'].includes(
+            'case 0xFC02: //Manufacturing Specific cluster'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-4.c'].includes(
+            'case 0x1002: // Cluster: MFGLIB Cluster'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-4.c'].includes(
+            'result = emberAfMfglibClusterClusterServerCommandParse(cmd);'
           )
         ).toBeTruthy()
       })
