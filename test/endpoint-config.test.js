@@ -204,7 +204,7 @@ test(
     ).toBeTruthy()
     expect(
       epc.includes(
-        '{ 0x0004, ZAP_TYPE(CHAR_STRING), 32, ZAP_ATTRIBUTE_MASK(TOKENIZE), ZAP_LONG_DEFAULTS_INDEX(5) }'
+        '{ 0x0004, ZAP_TYPE(CHAR_STRING), 33, ZAP_ATTRIBUTE_MASK(TOKENIZE), ZAP_LONG_DEFAULTS_INDEX(5) }'
       )
     ).toBeTruthy()
     expect(epc.includes(bin.hexToCBytes(bin.stringToHex('Very long user id'))))
