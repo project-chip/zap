@@ -15,13 +15,15 @@
  *    limitations under the License.
  */
 
+export {}
+
 const yargs = require('yargs')
 const path = require('path')
 const os = require('os')
 const fs = require('fs')
-const restApi = require(`../../src-shared/rest-api.js`)
+const restApi = require('../../src-shared/rest-api.js')
 const commonUrl = require('../../src-shared/common-url.js')
-const env = require('./env.js')
+const env = require('./env')
 
 function environmentVariablesDescription() {
   let vars = env.environmentVariable
@@ -32,6 +34,33 @@ function environmentVariablesDescription() {
   return desc
 }
 
+export interface Arguments {
+  [x: string]: unknown
+  httpPort: number
+  studioHttpPort: number
+  zapFile: string | undefined
+  zclProperties: string | undefined
+  generationTemplate: string | undefined
+  uiMode: string | undefined
+  debugNavBar: boolean
+  noUi: boolean
+  noServer: boolean
+  genResultFile: boolean
+  showUrl: boolean
+  output: string | undefined
+  clearDb: string | undefined
+  stateDirectory: string | undefined
+  tempState: boolean
+  skipPostGeneration: boolean
+  noZapFileLog: boolean
+  reuseZapInstance: boolean
+  watchdogTimer: number
+  allowCors: boolean
+  postImportScript: string | undefined
+  _: string[]
+  $0: string
+}
+
 /**
  * Process the command line arguments and resets the state in this file
  * to the specified values.
@@ -40,21 +69,21 @@ function environmentVariablesDescription() {
  * @param {*} argv
  * @returns parsed argv object
  */
-function processCommandLineArguments(argv) {
+export function processCommandLineArguments(argv: string[]) {
   let zapVersion = env.zapVersion()
-  let commands = {
-    generate: 'Generate ZCL artifacts.',
-    selfCheck: 'Perform the self-check of the application.',
-    analyze: 'Analyze the zap file without doing anything.',
-    convert: 'Convert a zap or ISC file to latest zap file.',
-    status: 'Query the status of a zap server.',
-    server: 'Run zap in a server mode.',
-    stop: 'Stop zap server if one is running.',
-    new: 'If in client mode, start a new window on a main instance.',
-  }
+  let commands = new Map([
+    ['generate', 'Generate ZCL artifacts.'],
+    ['selfCheck', 'Perform the self-check of the application.'],
+    ['analyze', 'Analyze the zap file without doing anything.'],
+    ['convert', 'Convert a zap or ISC file to latest zap file.'],
+    ['status', 'Query the status of a zap server.'],
+    ['server', 'Run zap in a server mode.'],
+    ['stop', 'Stop zap server if one is running.'],
+    ['new', 'If in client mode, start a new window on a main instance.'],
+  ])
   let y = yargs
-  for (const cmd of Object.keys(commands)) {
-    y.command(cmd, commands[cmd])
+  for (let cmd of commands.entries()) {
+    y.command(cmd[0], cmd[1])
   }
   let ret = y
     .option('httpPort', {
@@ -80,13 +109,13 @@ function processCommandLineArguments(argv) {
       desc: 'zcl.properties file to read in.',
       alias: ['zcl', 'z'],
       type: 'string',
-      default: env.builtinSilabsZclMetafile,
+      default: env.builtinSilabsZclMetafile(),
     })
     .option('generationTemplate', {
       desc: 'generation template metafile (gen-template.json) to read in.',
       alias: ['gen', 'g'],
       type: 'string',
-      default: env.builtinTemplateMetafile,
+      default: env.builtinTemplateMetafile(),
     })
     .option('uiMode', {
       desc: 'Mode of the UI to begin in. Options are: ZIGBEE',
@@ -185,11 +214,11 @@ For more information, see ${commonUrl.projectUrl}`
     .parse(argv)
 
   // Collect files that are passed as loose arguments
-  let allFiles = ret._.filter((arg, index) => {
+  let allFiles = ret._.filter((arg: string | number, index: number) => {
     if (index == 0) return false
     if (typeof arg == 'number') return false
     if (arg.endsWith('.js')) return false
-    if (arg in commands) return false
+    if (commands.has(arg)) return false
     return true
   })
   if (ret.zapFile != null) allFiles.push(ret.zapFile)
@@ -205,5 +234,3 @@ For more information, see ${commonUrl.projectUrl}`
 
   return ret
 }
-
-exports.processCommandLineArguments = processCommandLineArguments

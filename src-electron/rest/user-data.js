@@ -21,7 +21,7 @@
  * @module REST API: user data
  */
 
-const env = require('../util/env.js')
+const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
 const queryConfig = require('../db/query-config.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
@@ -247,6 +247,40 @@ function httpPostCommandUpdate(db) {
 }
 
 /**
+ * HTTP POST: command update
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpPostEventUpdate(db) {
+  return (request, response) => {
+    let { action, endpointTypeId, id, value, listType, clusterRef, eventSide } =
+      request.body
+    queryConfig
+      .insertOrUpdateEventState(
+        db,
+        endpointTypeId,
+        clusterRef,
+        eventSide,
+        id,
+        value
+      )
+      .then(() => {
+        response.json({
+          action: action,
+          endpointTypeId: endpointTypeId,
+          id: id,
+          added: value,
+          listType: listType,
+          side: eventSide,
+          clusterRef: clusterRef,
+        })
+        return response.status(restApi.httpCode.ok).send()
+      })
+  }
+}
+
+/**
  * HTTP GET: initial state
  *
  * @param {*} db
@@ -378,6 +412,10 @@ exports.post = [
   {
     uri: restApi.uri.commandUpdate,
     callback: httpPostCommandUpdate,
+  },
+  {
+    uri: restApi.uri.eventUpdate,
+    callback: httpPostEventUpdate,
   },
   {
     uri: restApi.uri.saveSessionKeyValue,

@@ -21,7 +21,7 @@ const path = require('path')
 const fs = require('fs')
 const importJs = require('../src-electron/importexport/import.js')
 const dbApi = require('../src-electron/db/db-api.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const querySession = require('../src-electron/db/query-session.js')
 const querySessionZcl = require('../src-electron/db/query-session-zcl.js')
@@ -35,6 +35,7 @@ let testScript3 = path.join(__dirname, 'resource/test-script-3.js')
 let testScript2 = path.join(__dirname, 'resource/test-script-2.js')
 
 beforeAll(() => {
+  process.env.DEV = true
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('script-api')
   return dbApi
@@ -43,7 +44,7 @@ beforeAll(() => {
       db = d
       env.logInfo(`Test database initialized: ${file}.`)
     })
-    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()))
     .catch((err) => env.logError(`Error: ${err}`))
 }, testUtil.timeout.medium())
 

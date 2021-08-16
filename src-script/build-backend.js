@@ -15,25 +15,21 @@
  *    limitations under the License.
  */
 
-let watchDogId = null
+const scriptUtil = require('./script-util.js')
 
-/**
- * Starts a zap watchdog.
- *
- * @param {*} expirationInterval
- * @param {*} triggerFunction
- */
-function start(expirationInterval, triggerFunction) {
-  watchDogId = setTimeout(triggerFunction, expirationInterval)
-  watchDogId.unref()
-}
+let startTime = process.hrtime()
 
-/**
- * Resets a zap watchdog.
- */
-function reset() {
-  if (watchDogId != null) watchDogId.refresh()
-}
+//workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
+process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 
-exports.start = start
-exports.reset = reset
+scriptUtil
+  .rebuildBackendIfNeeded()
+  .then(() => {
+    let endTime = process.hrtime(startTime)
+    console.log(
+      `😎 All done: ${endTime[0]}s, ${Math.round(endTime[1] / 1000000)}ms.`
+    )
+  })
+  .catch((err) => {
+    console.log(err)
+  })

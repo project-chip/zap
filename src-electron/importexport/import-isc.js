@@ -25,7 +25,7 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
-const env = require('../util/env.js')
+const env = require('../util/env')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -104,8 +104,10 @@ function parseZclAfv2Line(state, line) {
       } else if (tok.startsWith('*ep:')) {
         endpoint.endpoint = parseInt(tok.substring('*ep:'.length))
       } else if (tok.startsWith('pi:')) {
+        // This might be -1 and should be overriden from the actual device from the endpoint type
         endpoint.profileId = parseInt(tok.substring('pi:'.length))
       } else if (tok.startsWith('di:')) {
+        // This might be -1 and should be overriden from the actual device from the endpoint type
         endpoint.deviceId = parseInt(tok.substring('di:'.length))
       } else if (tok.startsWith('dv:')) {
         endpoint.deviceVersion = parseInt(tok.substring('dv:'.length))
@@ -458,7 +460,17 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
 }
 
 /**
- * This method returns an array of promises that contain all the
+ * This method resolves promises that contain all the
+ * queries that are needed to load the attribute state
+ *
+ * @param {*} db
+ * @param {*} state
+ * @param {*} sessionId
+ */
+async function loadCommands(db, state, packageId, endpointTypeIdArray) {}
+
+/**
+ * This method resolves promises that contain all the
  * queries that are needed to load the attribute state
  *
  * @param {*} db
@@ -517,12 +529,14 @@ async function iscDataLoader(db, state, sessionId) {
     throw new Error('No zcl packages found for ISC import.')
   }
 
+  // Remove endpoint types that are not used.
   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
   for (let endpointTypeKey of Object.keys(endpointTypes)) {
     if (!usedEndpointTypes.includes(endpointTypeKey)) {
       delete endpointTypes[endpointTypeKey]
     }
   }
+
   let packageId = zclPackages[0].id
   for (let key of Object.keys(endpointTypes)) {
     promises.push(
@@ -570,8 +584,17 @@ async function iscDataLoader(db, state, sessionId) {
       results.forEach((res) => {
         if (res.endpointType.typeName == ep.endpointType) {
           endpointTypeId = res.endpointTypeId
+
+          // Now let's deal with the endpoint id and device id
+          if (ep.profileId == -1) {
+            ep.profileId = res.endpointType.profileId
+          }
+          if (ep.deviceId == -1) {
+            ep.deviceId = res.endpointType.deviceId
+          }
         }
       })
+
       if (endpointTypeId != undefined) {
         endpointInsertionPromises.push(
           queryEndpoint
@@ -596,6 +619,9 @@ async function iscDataLoader(db, state, sessionId) {
   return Promise.all(endpointInsertionPromises)
     .then((endpointTypeIds) =>
       loadAttributes(db, state, packageId, endpointTypeIds)
+    )
+    .then((endpointTypeIds) =>
+      loadCommands(db, state, packageId, endpointTypeIds)
     )
     .then(() => loadSessionKeyValues(db, sessionId, state.sessionKey))
     .then(() => querySession.setSessionClean(db, sessionId))

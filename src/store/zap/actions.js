@@ -45,6 +45,7 @@ export function updateSelectedCluster(context, cluster) {
       context.commit('updateSelectedCluster', [cluster])
       updateAttributes(context, res.data.attributeData || [])
       updateCommands(context, res.data.commandData || [])
+      updateEvents(context, res.data.eventData || [])
     })
 }
 
@@ -54,6 +55,10 @@ export function updateAttributes(context, attributes) {
 
 export function updateCommands(context, commands) {
   context.commit('updateCommands', commands)
+}
+
+export function updateEvents(context, events) {
+  context.commit('updateEvents', events)
 }
 
 export function updateZclDeviceTypes(context) {
@@ -127,6 +132,22 @@ export function updateSelectedCommands(context, selectionContext) {
           added: arg.added,
           listType: arg.listType,
           view: 'commandView',
+        })
+      }
+    })
+}
+
+export function updateSelectedEvents(context, selectionContext) {
+  Vue.prototype
+    .$serverPost(restApi.uri.eventUpdate, selectionContext)
+    .then((res) => {
+      let arg = res.data
+      if (arg.action === 'boolean') {
+        context.commit('updateInclusionList', {
+          id: Util.cantorPair(arg.id, arg.clusterRef),
+          added: arg.added,
+          listType: arg.listType,
+          view: 'eventView',
         })
       }
     })

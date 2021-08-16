@@ -26,8 +26,12 @@ let args = process.argv.slice(2)
 scriptUtil
   .stampVersion()
   .then(() => scriptUtil.rebuildSpaIfNeeded())
+  .then(() => scriptUtil.rebuildBackendIfNeeded())
   .then(() => {
-    let cmdArgs = ['electron', 'src-electron/main-process/electron-main.js']
+    let cmdArgs = [
+      'electron',
+      'dist/src-electron/main-process/electron-main.js',
+    ]
 
     if (process.platform == 'linux') {
       if (!process.env.DISPLAY) {

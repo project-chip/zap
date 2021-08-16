@@ -50,7 +50,10 @@ limitations under the License.
               />
             </div>
             &nbsp;
-            <div v-for="actionOption in actionOptions" :key="actionOption">
+            <div
+              v-for="actionOption in actionOptions"
+              :key="actionOption.label"
+            >
               <q-btn
                 outline
                 @click="doActionFilter(actionOption)"
@@ -75,7 +78,7 @@ limitations under the License.
           </q-input>
         </div>
         <q-list>
-          <div v-for="domainName in domainNames" :key="domainName">
+          <div v-for="domainName in domainNames" :key="domainName.id">
             <div v-show="clusterDomains(domainName).length > 0">
               <q-expansion-item
                 :id="domainName"

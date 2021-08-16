@@ -18,7 +18,7 @@
  * @jest-environment node
  */
 
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const util = require('../src-electron/util/util.js')
 const browserApi = require('../src-electron/ui/browser-api.js')
 const fs = require('fs')
@@ -32,6 +32,10 @@ describe(
   () => {
     let filePath = 'foobarBackupTestFile.txt'
     let backupPath = filePath + '~'
+
+    beforeAll(async () => {
+      env.setDevelopmentEnv()
+    })
 
     afterAll(() => {
       fs.unlinkSync(backupPath)
@@ -212,4 +216,14 @@ describe('Environment Tests', () => {
     },
     timeout.short()
   )
+
+  test('Stack traces', () => {
+    try {
+      throw new Error('Stack trace test')
+    } catch (e) {
+      // Test that the stack trace is coming from
+      // line of 218 in this file.
+      expect(e.stack.includes('env.test.js:222')).toBeTruthy()
+    }
+  })
 })

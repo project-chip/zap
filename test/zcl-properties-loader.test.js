@@ -23,7 +23,7 @@ const dbEnum = require('../src-shared/db-enum.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const path = require('path')
 const testQuery = require('./test-query.js')
 const { timeout } = require('./test-util.js')
@@ -32,6 +32,10 @@ const zclTestPropertiesFile = path.join(
   __dirname,
   '../zcl-builtin/silabs/zcl-test.properties'
 )
+
+beforeAll(() => {
+  env.setDevelopmentEnv()
+})
 
 test(
   'test Silabs zcl data loading in memory',

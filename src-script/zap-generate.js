@@ -68,7 +68,7 @@ let arg = yargs
 let ctx = {}
 
 let cli = [
-  'src-electron/main-process/electron-main.js',
+  'dist/src-electron/main-process/electron-main.js',
   'generate',
   '--noUi',
   '--noServer',
@@ -90,6 +90,7 @@ if (arg.in != null) {
 
 scriptUtil
   .stampVersion()
+  .then(() => scriptUtil.rebuildBackendIfNeeded())
   .then(() => scriptUtil.executeCmd(ctx, 'node', cli))
   .then(() => {
     scriptUtil.doneStamp(startTime)

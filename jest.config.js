@@ -32,7 +32,7 @@ module.exports = {
       lines: 68,
     },
   },
-  testMatch: ['<rootDir>/test/*.test.js'],
+  testMatch: ['<rootDir>/test/*.test.js', '<rootDir>/test/*.test.ts'],
   moduleFileExtensions: ['vue', 'js', 'jsx', 'json', 'ts', 'tsx'],
   moduleNameMapper: {
     '^vue$': '<rootDir>/node_modules/vue/dist/vue.common.js',
@@ -48,7 +48,7 @@ module.exports = {
   },
   transform: {
     '.*\\.vue$': 'vue-jest',
-    '.*\\.js$': 'babel-jest',
+    '.*\\.[jt]sx?$': 'babel-jest',
     '.+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$':
       'jest-transform-stub',
     // use these if NPM is being flaky

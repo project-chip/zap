@@ -22,7 +22,7 @@ const axios = require('axios')
 const dbApi = require('../src-electron/db/db-api.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 const dbEnum = require('../src-shared/db-enum.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const httpServer = require('../src-electron/server/http-server.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
@@ -61,7 +61,7 @@ describe('Session specific tests', () => {
 
   test(
     'Now actually load the static data.',
-    () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile),
+    () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()),
     testUtil.timeout.medium()
   )
 
@@ -150,6 +150,19 @@ describe('Session specific tests', () => {
           expect(extensions[0].defaults[0].parentCode).toBe(0)
           expect(extensions[0].defaults[0].entityCode).toBe(0)
           expect(extensions[0].defaults[1].entityCode).toBe(1)
+        })
+        .then(() =>
+          queryPackage.selectPackageExtensionByPropertyAndEntity(
+            db,
+            packageId,
+            'implementedCommands',
+            dbEnum.packageExtensionEntity.command
+          )
+        )
+        .then((ext) => {
+          expect(ext.type).toBe('boolean')
+          expect(ext.globalDefault).toBe('0')
+          expect(ext.defaults.length).toBe(5)
         })
     },
     testUtil.timeout.medium()

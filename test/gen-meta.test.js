@@ -20,7 +20,7 @@
 
 const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
@@ -34,6 +34,7 @@ let templateContext
 let zclContext
 
 beforeAll(async () => {
+  env.setDevelopmentEnv()
   let file = env.sqliteTestFile('testmeta')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,

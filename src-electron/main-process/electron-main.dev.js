@@ -22,7 +22,7 @@
  *  environment.
  */
 
-const env = require('../util/env.js')
+const env = require('../util/env')
 
 // Install `electron-debug` with `devtron`
 require('electron-debug')({ showDevTools: false })

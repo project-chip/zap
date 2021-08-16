@@ -23,7 +23,7 @@ const importJs = require('../src-electron/importexport/import.js')
 const exportJs = require('../src-electron/importexport/export.js')
 const dbEnum = require('../src-shared/db-enum.js')
 const dbApi = require('../src-electron/db/db-api.js')
-const env = require('../src-electron/util/env.js')
+const env = require('../src-electron/util/env.ts')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const generationEngine = require('../src-electron/generator/generation-engine.js')
 const querySession = require('../src-electron/db/query-session.js')
@@ -59,7 +59,7 @@ beforeAll(() => {
       db = d
       env.logInfo(`Test database initialized: ${file}.`)
     })
-    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile))
+    .then(() => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()))
     .catch((err) => env.logError(`Error: ${err}`))
 }, testUtil.timeout.medium())
 
@@ -175,7 +175,7 @@ test(
   async () => {
     let state = await importJs.readDataFromFile(
       testLightIsc,
-      env.builtinSilabsZclMetafile
+      env.builtinSilabsZclMetafile()
     )
     expect(Object.keys(state.endpointTypes).length).toBe(4)
     expect(Object.keys(state.endpoint).length).toBe(3)

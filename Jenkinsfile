@@ -86,6 +86,16 @@ pipeline
                 }
             }
         }
+        stage('Build backend')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'npm run build-backend'
+                }
+            }
+        }
         stage('ESLint execution')
         {
             steps
@@ -123,24 +133,24 @@ pipeline
         }
         stage('Test generation') {
             parallel {
-                stage('Test blank generation') {
+                stage('Test Zigbee generation') {
                     steps {
                         script {
                             sh 'xvfb-run -a npm run gen'
                         }
                     }
                 }
-                stage('Test CHIP generation') {
+                stage('Test Matter generation') {
                     steps {
                         script {
-                            sh 'npm run genmatter'
+                            sh 'xvfb-run -a npm run genmatter'
                         }
                     }
                 }
-                stage('Test generation with dotdot XML') {
+                stage('Test Dotdot generation') {
                     steps {
                         script {
-                            sh ' xvfb-run -a npm run gen3'
+                            sh 'xvfb-run -a npm run gen3'
                         }
                     }
                 }
@@ -182,6 +192,7 @@ pipeline
                                     sh 'security unlock-keychain -u  "/Library/Keychains/System.keychain"'
                                     sh 'npm run version-stamp'
                                     sh 'npm run build-spa'
+                                    sh 'npm run build-backend'
                                     sh 'npm run dist-mac'
                                     sh 'npm run apack:mac'
                                     stash includes: 'dist/zap_apack_mac.zip', name: 'zap_apack_mac'
@@ -245,6 +256,7 @@ pipeline
                     agent { label 'windows10' }
                     steps
                     {
+                        cleanWs()
                         dir('test_apack_bin') {
                             script
                             {

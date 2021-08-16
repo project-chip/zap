@@ -25,6 +25,7 @@ export default function () {
     domains: [],
     attributes: [],
     commands: [],
+    events: [],
     zclDeviceTypes: {},
     endpoints: [],
     genericOptions: {},
@@ -110,6 +111,9 @@ export default function () {
       selectedOut: [],
       // These are based off of the selected ZCL Endpoint Device Type
       requiredCommands: [],
+    },
+    eventView: {
+      selectedEvents: [],
     },
     calledArgs: {
       defaultUiMode: restApi.uiMode.ZIGBEE,
