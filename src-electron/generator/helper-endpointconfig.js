@@ -469,19 +469,24 @@ async function collectAttributes(endpointTypes) {
 
       // Go over all the attributes in the endpoint and add them to the list.
       c.attributes.forEach((a) => {
+        let typeSize = a.typeSize
         let defaultValueIsMacro = false
         let attributeDefaultValue = a.defaultValue
-        if (a.typeSize > 2) {
+        if (typeSize > 2) {
           // We will need to generate the GENERATED_DEFAULTS
           longDefaults.push(a)
-          let def = types.longTypeDefaultValue(
-            a.typeSize,
-            a.type,
-            a.defaultValue
-          )
+
+          // Various types stores the length of the actual content in bytes
+          if (types.isOneBytePrefixedString(a.type)) {
+            typeSize += 1
+          } else if (types.isTwoBytePrefixedString(a.type)) {
+            typeSize += 2
+          }
+
+          let def = types.longTypeDefaultValue(typeSize, a.type, a.defaultValue)
           let longDef = {
             value: def,
-            size: a.typeSize,
+            size: typeSize,
             index: longDefaultsIndex,
             name: a.name,
             comment: cluster.comment,
@@ -489,7 +494,7 @@ async function collectAttributes(endpointTypes) {
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           defaultValueIsMacro = true
           longDefaultsList.push(longDef)
-          longDefaultsIndex += a.typeSize
+          longDefaultsIndex += typeSize
         }
         if (a.isBound) {
           let minMax = {
@@ -524,14 +529,14 @@ async function collectAttributes(endpointTypes) {
           }
           reportList.push(rpt)
         }
-        if (a.typeSize > largestAttribute) {
-          largestAttribute = a.typeSize
+        if (typeSize > largestAttribute) {
+          largestAttribute = typeSize
         }
         if (a.isSingleton) {
-          singletonsSize += a.typeSize
+          singletonsSize += typeSize
         }
-        clusterAttributeSize += a.typeSize
-        totalAttributeSize += a.typeSize
+        clusterAttributeSize += typeSize
+        totalAttributeSize += typeSize
         let mask = []
         if (a.side == dbEnum.side.client) {
           mask.push('client')
@@ -547,7 +552,7 @@ async function collectAttributes(endpointTypes) {
         let attr = {
           id: a.hexCode, // attribute code
           type: `ZAP_TYPE(${a.type.toUpperCase()})`, // type
-          size: a.typeSize, // size
+          size: typeSize, // size
           mask: mask, // array of special properties
           defaultValue: attributeDefaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
           isMacro: defaultValueIsMacro,
@@ -764,8 +769,7 @@ function endpoint_config(options) {
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
 
-exports.endpoint_attribute_long_defaults_count =
-  endpoint_attribute_long_defaults_count
+exports.endpoint_attribute_long_defaults_count = endpoint_attribute_long_defaults_count
 exports.endpoint_attribute_long_defaults = endpoint_attribute_long_defaults
 exports.endpoint_config = endpoint_config
 exports.endpoint_attribute_min_max_list = endpoint_attribute_min_max_list
@@ -776,32 +780,24 @@ exports.endpoint_cluster_list = endpoint_cluster_list
 exports.endpoint_cluster_count = endpoint_cluster_count
 exports.endpoint_types_list = endpoint_types_list
 exports.endpoint_type_count = endpoint_type_count
-exports.endpoint_cluster_manufacturer_codes =
-  endpoint_cluster_manufacturer_codes
-exports.endpoint_cluster_manufacturer_code_count =
-  endpoint_cluster_manufacturer_code_count
-exports.endpoint_command_manufacturer_codes =
-  endpoint_command_manufacturer_codes
-exports.endpoint_command_manufacturer_code_count =
-  endpoint_command_manufacturer_code_count
-exports.endpoint_attribute_manufacturer_codes =
-  endpoint_attribute_manufacturer_codes
-exports.endpoint_attribute_manufacturer_code_count =
-  endpoint_attribute_manufacturer_code_count
+exports.endpoint_cluster_manufacturer_codes = endpoint_cluster_manufacturer_codes
+exports.endpoint_cluster_manufacturer_code_count = endpoint_cluster_manufacturer_code_count
+exports.endpoint_command_manufacturer_codes = endpoint_command_manufacturer_codes
+exports.endpoint_command_manufacturer_code_count = endpoint_command_manufacturer_code_count
+exports.endpoint_attribute_manufacturer_codes = endpoint_attribute_manufacturer_codes
+exports.endpoint_attribute_manufacturer_code_count = endpoint_attribute_manufacturer_code_count
 exports.endpoint_largest_attribute_size = endpoint_largest_attribute_size
 exports.endpoint_total_storage_size = endpoint_total_storage_size
 exports.endpoint_singletons_size = endpoint_singletons_size
 exports.endpoint_fixed_endpoint_array = endpoint_fixed_endpoint_array
 exports.endpoint_fixed_endpoint_type_array = endpoint_fixed_endpoint_type_array
 exports.endpoint_fixed_device_id_array = endpoint_fixed_device_id_array
-exports.endpoint_fixed_device_version_array =
-  endpoint_fixed_device_version_array
+exports.endpoint_fixed_device_version_array = endpoint_fixed_device_version_array
 exports.endpoint_fixed_profile_id_array = endpoint_fixed_profile_id_array
 exports.endpoint_fixed_network_array = endpoint_fixed_network_array
 exports.endpoint_command_list = endpoint_command_list
 exports.endpoint_command_count = endpoint_command_count
 exports.endpoint_reporting_config_defaults = endpoint_reporting_config_defaults
-exports.endpoint_reporting_config_default_count =
-  endpoint_reporting_config_default_count
+exports.endpoint_reporting_config_default_count = endpoint_reporting_config_default_count
 exports.endpoint_count = endpoint_count
 exports.endpoint_config_macros = endpoint_config_macros
