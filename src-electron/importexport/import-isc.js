@@ -486,7 +486,7 @@ async function loadImplementedCommandsForEndpoint(
     }
   }
   // We have an array of codes now that we have to load into the database.
-  for (const c in codes) {
+  for (const c of Object.keys(codes)) {
     let clusterCode = parseInt(c)
     let commandIds = codes[c]
     let cluster = await queryZcl.selectClusterByCode(
@@ -494,7 +494,7 @@ async function loadImplementedCommandsForEndpoint(
       zclPackageId,
       clusterCode
     )
-    for (const commandCode in commandIds) {
+    for (const commandCode of Object.keys(commandIds)) {
       let command = await queryCommand.selectCommandByCode(
         db,
         zclPackageId,
