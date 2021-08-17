@@ -503,9 +503,10 @@ async function loadImplementedCommandsForEndpoint(
       )
 
       if (cluster != null && command != null) {
-        console.log(
-          `ENDPOINT ${endpointId}: INJECTING CLUSTER ${cluster.code}, COMMAND ${command.code}`
-        )
+        // Inject the corresponding cluster command combo into endpoint
+        //console.log(
+        //  `ENDPOINT ${endpointId}: INJECTING CLUSTER ${cluster.code}, COMMAND ${command.code}`
+        //)
       }
     }
   }
@@ -742,22 +743,16 @@ async function iscDataLoader(db, state, sessionId) {
   if (state.log != null) {
     querySession.writeLog(db, sessionId, state.log)
   }
-  return Promise.all(endpointInsertionPromises)
-    .then((endpointTypeIds) =>
-      loadAttributes(db, state, zclPackageId, endpointTypeIds)
-    )
-    .then((endpointTypeIds) =>
-      loadCommands(db, state, zclPackageId, genPackageId, endpointTypeIds)
-    )
-    .then(() => loadSessionKeyValues(db, sessionId, state.sessionKey))
-    .then(() => querySession.setSessionClean(db, sessionId))
-    .then(() => {
-      return {
-        sessionId: sessionId,
-        errors: [],
-        warnings: [],
-      }
-    })
+  let endpointTypeIds = await Promise.all(endpointInsertionPromises)
+  await loadAttributes(db, state, zclPackageId, endpointTypeIds)
+  await loadCommands(db, state, zclPackageId, genPackageId, endpointTypeIds)
+  await loadSessionKeyValues(db, sessionId, state.sessionKey)
+  await querySession.setSessionClean(db, sessionId)
+  return {
+    sessionId: sessionId,
+    errors: [],
+    warnings: [],
+  }
 }
 
 exports.readIscData = readIscData
