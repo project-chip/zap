@@ -563,7 +563,7 @@ async function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     }
   }
 
-  if (fixedLength) {
+  if (isFixedLength) {
     return fixedLengthReturn
   } else {
     return notFixedLengthReturn
