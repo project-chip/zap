@@ -20,6 +20,7 @@ const queryConfig = require('../db/query-config.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
+const queryCommand = require('../db/query-command.js')
 const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
@@ -475,16 +476,39 @@ async function loadImplementedCommandsForEndpoint(
   commandExtensions,
   endpointId
 ) {
-  let codes = []
+  let codes = {}
   for (const ext of commandExtensions.defaults) {
     if (ext.value == 1) {
-      codes.push({
-        commandId: ext.entityCode,
-        clusterId: ext.parentCode,
-      })
+      if (!(ext.parentCode in codes)) {
+        codes[ext.parentCode] = []
+      }
+      codes[ext.parentCode].push(ext.entityCode)
     }
   }
   // We have an array of codes now that we have to load into the database.
+  for (const c in codes) {
+    let clusterCode = parseInt(c)
+    let commandIds = codes[c]
+    let cluster = await queryZcl.selectClusterByCode(
+      db,
+      zclPackageId,
+      clusterCode
+    )
+    for (const commandCode in commandIds) {
+      let command = await queryCommand.selectCommandByCode(
+        db,
+        zclPackageId,
+        clusterCode,
+        commandCode
+      )
+
+      if (cluster != null && command != null) {
+        console.log(
+          `ENDPOINT ${endpointId}: INJECTING CLUSTER ${cluster.code}, COMMAND ${command.code}`
+        )
+      }
+    }
+  }
 }
 
 /**

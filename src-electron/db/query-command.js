@@ -470,6 +470,99 @@ ORDER BY CLUSTER.NAME, COMMAND.NAME`
     .then((rows) => rows.map(mapFunction))
 }
 
+async function selectCommandByCode(
+  db,
+  packageId,
+  clusterCode,
+  commandCode,
+  mfgCode = null
+) {
+  if (clusterCode == null) {
+    return selectGlobalCommandByCode(db, packageId, commandCode, mfgCode)
+  } else {
+    return selectNonGlobalCommandByCode(
+      db,
+      packageId,
+      clusterCode,
+      commandCode,
+      mfgCode
+    )
+  }
+}
+
+async function selectNonGlobalCommandByCode(
+  db,
+  packageId,
+  clusterCode,
+  commandCode,
+  mfgCode = null
+) {
+  let query = `
+  SELECT
+    C.COMMAND_ID,
+    C.CLUSTER_REF,
+    C.PACKAGE_REF,
+    C.CODE,
+    C.MANUFACTURER_CODE,
+    C.NAME,
+    C.DESCRIPTION,
+    C.SOURCE,
+    C.IS_OPTIONAL,
+    C.RESPONSE_REF
+  FROM COMMAND AS C
+  INNER JOIN CLUSTER AS CL
+  ON CL.CLUSTER_ID = C.CLUSTER_REF
+  WHERE
+    C.PACKAGE_REF = ?
+    AND C.CODE = ?
+    AND CL.CODE = ?`
+  let args
+  if (mfgCode == null || mfgCode == 0) {
+    query = query + ` AND C.MANUFACTURER_CODE IS NULL`
+    args = [packageId, commandCode, clusterCode]
+  } else {
+    query = qyery + ` AND C.MANUFACTURER_CODE = ?`
+    args = [packageId, commandCode, clusterCode, mfgCode]
+  }
+
+  return dbApi.dbGet(db, query, args).then(dbMapping.map.command)
+}
+
+async function selectGlobalCommandByCode(
+  db,
+  packageId,
+  commandCode,
+  mfgCode = null
+) {
+  let query = `
+  SELECT
+    C.COMMAND_ID,
+    C.CLUSTER_REF,
+    C.PACKAGE_REF,
+    C.CODE,
+    C.MANUFACTURER_CODE,
+    C.NAME,
+    C.DESCRIPTION,
+    C.SOURCE,
+    C.IS_OPTIONAL,
+    C.RESPONSE_REF
+  FROM
+    COMMAND AS C
+  WHERE
+    C.PACKAGE_REF = ?
+    AND C.CODE = ?`
+  let args
+  if (mfgCode == null || mfgCode == 0) {
+    query = query + ` AND C.MANUFACTURER_CODE IS NULL`
+    args = [packageId, commandCode]
+  } else {
+    query = qyery + ` AND C.MANUFACTURER_CODE = ?`
+    args = [packageId, commandCode, mfgCode]
+  }
+
+  return dbApi.dbGet(db, query, args).then(dbMapping.map.command)
+}
+
 async function selectCommandById(db, id) {
   return dbApi
     .dbGet(
@@ -1117,6 +1210,7 @@ exports.selectAllIncomingCommandsForClusterCombined =
 exports.selectAllCommands = selectAllCommands
 exports.selectCommandsByClusterId = selectCommandsByClusterId
 exports.selectCommandById = selectCommandById
+exports.selectCommandByCode = selectCommandByCode
 exports.selectAllCommandsBySource = selectAllCommandsBySource
 exports.selectCommandsByClusterIdAndSource = selectCommandsByClusterIdAndSource
 exports.selectAllGlobalCommands = selectAllGlobalCommands
