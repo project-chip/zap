@@ -467,14 +467,14 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
  * @param {*} zclPackageId
  * @param {*} state
  * @param {*} commandExtensions
- * @param {*} endpointId
+ * @param {*} endpointTypeId
  */
 async function loadImplementedCommandsForEndpoint(
   db,
   zclPackageId,
   state,
   commandExtensions,
-  endpointId
+  endpointTypeId
 ) {
   let codes = {}
   for (const ext of commandExtensions.defaults) {
