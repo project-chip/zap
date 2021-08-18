@@ -255,6 +255,14 @@ function baseUrl() {
 }
 
 /**
+ * Prints the data to stderr, without much fuss.
+ * @param msg 
+ */
+function printToStderr(msg: string): void {
+  console.error(msg)
+}
+
+/**
  * Base level common logger.
  *
  * @param {*} level
@@ -435,3 +443,4 @@ exports.builtinSilabsZclMetafile = builtinSilabsZclMetafile
 exports.builtinMatterZclMetafile = builtinMatterZclMetafile
 exports.builtinDotdotZclMetafile = builtinDotdotZclMetafile
 exports.builtinTemplateMetafile = builtinTemplateMetafile
+exports.printToStderr = printToStderr
