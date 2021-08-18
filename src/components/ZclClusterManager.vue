@@ -26,7 +26,7 @@ limitations under the License.
             </q-toolbar-title>
           </q-toolbar>
         </div>
-        <div class="row bar align=left;">
+        <div class="row bar align=left section-header">
           <div class="row">
             <div
               style="
@@ -240,4 +240,5 @@ export default {
 .bar {
   padding: 15px 15px 15px 15px;
 }
+
 </style>

@@ -26,7 +26,7 @@ limitations under the License.
       flat
       square
       bordered
-      :table-header-style="{ backgroundColor: '#cccccc' }"
+      table-header-class="section-header"
     >
       <template v-slot:body="props">
         <q-tr
@@ -329,4 +329,5 @@ export default {
   background-color: $grey-4;
   padding: 15px 15px 15px 15px;
 }
+
 </style>

@@ -32,7 +32,6 @@ limitations under the License.
             v-for="col in props.cols"
             :key="col.name"
             :props="props"
-            style="background: #eeeeee"
           >
             {{ col.label }}
           </q-th>
