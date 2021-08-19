@@ -235,14 +235,49 @@ function if_command_is_fixed_length(
     })
 }
 
+/**
+ * If helpers which checks if a command is fixed length or not
+ * @param commandId
+ * @param options
+ * example:
+ * {{#if_command_fixed_length commandId}}
+ * command is fixed length
+ * {{else}}
+ * command is not fixed length
+ * {{/if_command_fixed_length}}
+ */
+ async function if_command_fixed_length(
+  commandId,
+  options
+) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
+    this.global.db,
+    commandId,
+    packageId
+  )
+  for (let commandArg of commandArgs) {
+    if (
+      commandArg.isArray ||
+      types.isString(commandArg.type) ||
+      commandArg.introducedInRef ||
+      commandArg.removedInRef ||
+      commandArg.presentIf
+    ) {
+      return options.inverse(this)
+    }
+  }
+  return options.fn(this)
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
+const dep = templateUtil.deprecatedHelper
 
 exports.if_command_arguments_exist = if_command_arguments_exist
-exports.if_command_is_fixed_length = if_command_is_fixed_length
 exports.if_ca_always_present_with_presentif =
   if_ca_always_present_with_presentif
 exports.if_command_is_not_fixed_length_but_command_argument_is_always_present =
@@ -251,3 +286,8 @@ exports.if_ca_not_always_present_no_presentif =
   if_ca_not_always_present_no_presentif
 exports.if_ca_not_always_present_with_presentif =
   if_ca_not_always_present_with_presentif
+exports.if_command_fixed_length = if_command_fixed_length
+exports.if_command_is_fixed_length = dep(
+  if_command_is_fixed_length,
+  { to: 'if_command_fixed_length' }
+)
