@@ -236,15 +236,19 @@ function if_command_is_fixed_length(
 }
 
 /**
- * If helpers which checks if a command is fixed length or not
- * @param commandId
- * @param options
+ * If helper which checks if a command is fixed length or not
+ * 
  * example:
  * {{#if_command_fixed_length commandId}}
  * command is fixed length
  * {{else}}
  * command is not fixed length
  * {{/if_command_fixed_length}}
+ * 
+ * @param commandId
+ * @param options
+ * Returns content in the handlebar template based on the command being fixed
+ * length or not as shown in the example above.
  */
  async function if_command_fixed_length(
   commandId,
