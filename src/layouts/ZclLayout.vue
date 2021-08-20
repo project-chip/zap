@@ -27,7 +27,7 @@ limitations under the License.
       </q-card>
     </q-dialog>
     <div class="q-gutter-y-md height: 10vh">
-      <q-toolbar class="shadow-2 section-header" v-if="this.$store.state.zap.debugNavBar">
+      <q-toolbar class="shadow-2" v-if="this.$store.state.zap.debugNavBar">
         <q-tabs flat v-model="tab">
           <q-tab name="general" label="General" />
           <q-tab :name="restApi.uiMode.ZIGBEE" label="ZCL" />
