@@ -35,7 +35,7 @@ limitations under the License.
           @filter="filterMfgCode"
           outlined
           dense
-          data-cy='manufacturer_name_or_code'
+          data-cy='manufacturer-name-or-code'
         />
       </div>
       <div class="q-mr-sm vertical-align:middle">Default Response Policy</div>
@@ -52,7 +52,7 @@ limitations under the License.
         "
         outlined
         dense
-        data-cy='default_response_policy'
+        data-cy='default-response-policy'
       />
       <div>
         <q-toggle
