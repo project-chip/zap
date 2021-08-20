@@ -63,6 +63,35 @@ function if_command_arguments_exist(
 }
 
 /**
+ * If helper which checks if command arguments exist for a command or not
+ * example:
+ * {{#if_command_args_exist commandId}}
+ *  command arguments exist for the command
+ * {{else}}
+ *  command arguments do not exist for the command
+ * {{/if_command_args_exist}}
+ * 
+ * @param commandId
+ * @param options
+ * @returns Returns content in the handlebar template based on whether the
+ * command arguments are present or not.
+ *
+ */
+ async function if_command_args_exist(
+  commandId,
+  options
+) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let res = await queryCommand.selectCommandArgumentsCountByCommandId(
+    this.global.db,
+    commandId,
+    packageId)
+  if (res>0) {
+    return options.fn(this)
+  } return options.inverse(this)
+}
+
+/**
  *
  * @param commandArg
  * @param trueReturn
@@ -429,7 +458,8 @@ exports.if_command_is_fixed_length = dep(
   if_command_is_fixed_length,
   { to: 'if_command_fixed_length'}
 )
-exports.if_command_arguments_exist = if_command_arguments_exist
+exports.if_command_arguments_exist = dep (if_command_arguments_exist,
+  {to: 'if_command_args_exist'})
 exports.if_ca_always_present_with_presentif =
 dep(
   if_ca_always_present_with_presentif,
@@ -455,3 +485,4 @@ exports.if_command_not_fixed_length_command_argument_always_present = if_command
 exports.if_command_arg_not_always_present_no_presentif = if_command_arg_not_always_present_no_presentif
 exports.if_command_arg_not_always_present_with_presentif = if_command_arg_not_always_present_with_presentif
 exports.if_command_arg_always_present_with_presentif = if_command_arg_always_present_with_presentif
+exports.if_command_args_exist = if_command_args_exist
