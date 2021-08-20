@@ -22,24 +22,25 @@ const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
 import { VersionType, ErrorType } from '../types/env-types'
+import * as sqlite from 'sqlite3'
 
-function builtinSilabsZclMetafile() {
+export function builtinSilabsZclMetafile() {
   return pathFromProjBaseDir('./zcl-builtin/silabs/zcl.json')
 }
 
-function builtinMatterZclMetafile() {
+export function builtinMatterZclMetafile() {
   return pathFromProjBaseDir('./zcl-builtin/matter/zcl.json')
 }
 
-function builtinDotdotZclMetafile() {
+export function builtinDotdotZclMetafile() {
   return pathFromProjBaseDir('./zcl-builtin/dotdot/library.xml')
 }
 
-function builtinTemplateMetafile() {
+export function builtinTemplateMetafile() {
   return null // No default.
 }
 
-let environmentVariable = {
+export const environmentVariable = {
   logLevel: {
     name: 'ZAP_LOGLEVEL',
     description: 'Sets the log level. If unset, then default is: warn.',
@@ -92,7 +93,7 @@ let httpStaticContentPath = path.join(__dirname, '../../../spa')
 let versionObject: VersionType | null = null
 let applicationStateDirectory: string | null = null
 
-function setDevelopmentEnv() {
+export function setDevelopmentEnv() {
   // @ts-ignore
   process.env.DEV = true
   // @ts-ignore
@@ -102,7 +103,7 @@ function setDevelopmentEnv() {
   global.__backend = path.join(__dirname, '../').replace(/\\/g, '\\\\')
 }
 
-function setProductionEnv() {
+export function setProductionEnv() {
   // @ts-ignore
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
   // @ts-ignore
@@ -114,14 +115,14 @@ function setProductionEnv() {
     .replace(/\\/g, '\\\\')
 }
 
-function logInitStdout() {
+export function logInitStdout() {
   if (!explicit_logger_set) {
     pino_logger = pino(pinoOptions, pino.destination(1))
     explicit_logger_set = true
   }
 }
 
-function logInitLogFile() {
+export function logInitLogFile() {
   if (!explicit_logger_set) {
     pino_logger = pino(
       pinoOptions,
@@ -138,7 +139,7 @@ function logInitLogFile() {
  *
  * @param {*} path Absolute path. Typically '~/.zap'.
  */
-function setAppDirectory(directoryPath: string) {
+export function setAppDirectory(directoryPath: string) {
   let appDir
   if (directoryPath.startsWith('~/')) {
     appDir = path.join(os.homedir(), directoryPath.substring(2))
@@ -156,7 +157,7 @@ function setAppDirectory(directoryPath: string) {
  *
  * @returns state directory, which is guaranteed to be already existing
  */
-function appDirectory() {
+export function appDirectory() {
   if (applicationStateDirectory == null) {
     let appDir = path.join(os.homedir(), '.zap')
     if (!fs.existsSync(appDir)) {
@@ -168,21 +169,21 @@ function appDirectory() {
   return applicationStateDirectory
 }
 
-function iconsDirectory() {
+export function iconsDirectory() {
   // @ts-ignore
   return path.join(global.__backend, '/icons')
 }
 
-function schemaFile() {
+export function schemaFile() {
   // @ts-ignore
   return path.join(global.__backend, '/db/zap-schema.sql')
 }
 
-function sqliteFile(filename = 'zap') {
+export function sqliteFile(filename = 'zap') {
   return path.join(appDirectory(), `${filename}.sqlite`)
 }
 
-function sqliteTestFile(id: string, deleteExistingFile = true) {
+export function sqliteTestFile(id: string, deleteExistingFile = true) {
   let dir = path.join(__dirname, '../../test/.zap')
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
@@ -195,12 +196,12 @@ function sqliteTestFile(id: string, deleteExistingFile = true) {
  * Returns a version as a single on-line string.
  *
  */
-function zapVersionAsString() {
+export function zapVersionAsString() {
   let vo = zapVersion()
   return `ver. ${vo.version}, featureLevel ${vo.featureLevel}, commit: ${vo.hash} from ${vo.date}`
 }
 
-function pathFromProjBaseDir(filePath: string): string {
+export function pathFromProjBaseDir(filePath: string): string {
   if (process.env.DEV) {
     return path.join(__dirname, '../../', filePath)
   } else {
@@ -213,7 +214,7 @@ function pathFromProjBaseDir(filePath: string): string {
  * @returns zap version, which is an object that
  * contains 'version', 'featureLevel', 'hash', 'timestamp' and 'date'
  */
-function zapVersion() {
+export function zapVersion() {
   if (versionObject == null) {
     versionObject = {
       version: '',
@@ -250,7 +251,7 @@ function zapVersion() {
   return versionObject
 }
 
-function baseUrl() {
+export function baseUrl() {
   return zapBaseUrl
 }
 
@@ -258,7 +259,7 @@ function baseUrl() {
  * Prints the data to stderr, without much fuss.
  * @param msg 
  */
-function printToStderr(msg: string): void {
+export function printToStderr(msg: string): void {
   console.error(msg)
 }
 
@@ -269,7 +270,7 @@ function printToStderr(msg: string): void {
  * @param {*} msg
  * @param {*} err
  */
-function log(level: string, msg: string, err = null) {
+export function log(level: string, msg: string, err = null) {
   let objectToLog: ErrorType = {
     msg: msg,
     err: {
@@ -290,7 +291,7 @@ function log(level: string, msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logInfo(msg: string, err = null) {
+export function logInfo(msg: string, err = null) {
   log('info', msg, err)
 }
 
@@ -300,7 +301,7 @@ function logInfo(msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logError(msg: string, err = null) {
+export function logError(msg: string, err = null) {
   log('error', msg, err)
 }
 
@@ -310,7 +311,7 @@ function logError(msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logWarning(msg: string, err = null) {
+export function logWarning(msg: string, err = null) {
   log('warn', msg, err)
 }
 
@@ -320,7 +321,7 @@ function logWarning(msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logSql(msg: string, err = null) {
+export function logSql(msg: string, err = null) {
   log('sql', msg, err)
 }
 
@@ -330,7 +331,7 @@ function logSql(msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logBrowser(msg: string, err = null) {
+export function logBrowser(msg: string, err = null) {
   log('browser', msg, err)
 }
 
@@ -340,7 +341,7 @@ function logBrowser(msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logIpc(msg: string, err = null) {
+export function logIpc(msg: string, err = null) {
   log('ipc', msg, err)
 }
 
@@ -350,12 +351,12 @@ function logIpc(msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-function logDebug(msg: string, err = null) {
+export function logDebug(msg: string, err = null) {
   log('debug', msg, err)
 }
 
 // Returns true if major or minor component of versions is different.
-function isMatchingVersion(versionsArray: string[], providedVersion: string) {
+export function isMatchingVersion(versionsArray: string[], providedVersion: string) {
   let ret = false
   let v2 = providedVersion.split('.')
   versionsArray.forEach((element) => {
@@ -379,7 +380,7 @@ function isMatchingVersion(versionsArray: string[], providedVersion: string) {
  *
  * @returns true or false, depending on match
  */
-function versionsCheck() {
+export function versionsCheck() {
   let expectedNodeVersion = ['v14.x.x', 'v12.x.x']
   let expectedElectronVersion = ['12.0.x']
   let nodeVersion = process.version
@@ -412,35 +413,8 @@ function versionsCheck() {
  *
  * @returns full path to HTTP static content
  */
-function httpStaticContent() {
+export function httpStaticContent() {
   return httpStaticContentPath
 }
 
-exports.setDevelopmentEnv = setDevelopmentEnv
-exports.setProductionEnv = setProductionEnv
-exports.appDirectory = appDirectory
-exports.iconsDirectory = iconsDirectory
-exports.schemaFile = schemaFile
-exports.sqliteFile = sqliteFile
-exports.sqliteTestFile = sqliteTestFile
-exports.logInitStdout = logInitStdout
-exports.logInitLogFile = logInitLogFile
-exports.logInfo = logInfo
-exports.logError = logError
-exports.logWarning = logWarning
-exports.logSql = logSql
-exports.logBrowser = logBrowser
-exports.logIpc = logIpc
-exports.logDebug = logDebug
-exports.zapVersion = zapVersion
-exports.zapVersionAsString = zapVersionAsString
-exports.baseUrl = baseUrl
-exports.versionsCheck = versionsCheck
-exports.setAppDirectory = setAppDirectory
-exports.httpStaticContent = httpStaticContent
-exports.environmentVariable = environmentVariable
-exports.builtinSilabsZclMetafile = builtinSilabsZclMetafile
-exports.builtinMatterZclMetafile = builtinMatterZclMetafile
-exports.builtinDotdotZclMetafile = builtinDotdotZclMetafile
-exports.builtinTemplateMetafile = builtinTemplateMetafile
-exports.printToStderr = printToStderr
+export type dbType = sqlite.Database

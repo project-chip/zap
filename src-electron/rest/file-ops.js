@@ -29,7 +29,7 @@ const path = require('path')
 const http = require('http-status-codes')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const studio = require('../ide-integration/studio-rest-api.js')
+const studio = require('../ide-integration/studio-rest-api')
 
 /**
  * HTTP POST: IDE open

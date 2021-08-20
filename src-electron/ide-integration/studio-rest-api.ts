@@ -23,24 +23,27 @@
 // dirty flag reporting interval
 const DIRTY_FLAG_REPORT_INTERVAL_MS = 1000
 const UC_COMPONENT_STATE_REPORTING_INTERVAL_ID = 6000
-const axios = require('axios')
-const env = require('../util/env')
-const querySession = require('../db/query-session.js')
+import axios, { AxiosPromise, AxiosResponse } from 'axios'
+import * as env from '../util/env'
+import * as querySession from '../db/query-session.js'
 const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const http = require('http-status-codes')
-const zcl = require('./zcl.js')
+import * as ucTypes from '../../src-shared/types/uc-component-types'
+import * as dbMappingTypes from '../types/db-mapping-types'
+import * as http from 'http-status-codes'
+import zcl from './zcl.js'
+import * as sqlite from 'sqlite3'
 
 const localhost = 'http://localhost:'
 const op_tree = '/rest/clic/components/all/project/'
 const op_add = '/rest/clic/component/add/project/'
 const op_remove = '/rest/clic/component/remove/project/'
 
-let dirtyFlagStatusId = null
-let ucComponentStateReportId = null
-let studioHttpPort = null
+let dirtyFlagStatusId: NodeJS.Timeout
+let ucComponentStateReportId: NodeJS.Timeout
+let studioHttpPort: number
 
-function projectPath(db, sessionId) {
+function projectPath(db: env.dbType, sessionId: number) {
   return querySession.getSessionKeyValue(
     db,
     sessionId,
@@ -54,10 +57,10 @@ function projectPath(db, sessionId) {
  * @param {*} sessionId
  * @returns - Promise to studio project path
  */
-function integrationEnabled(db, sessionId) {
+function integrationEnabled(db: env.dbType, sessionId: number) {
   return querySession
     .getSessionKeyValue(db, sessionId, dbEnum.sessionKey.ideProjectPath)
-    .then((path) => typeof path !== 'undefined')
+    .then((path: string) => typeof path !== 'undefined')
 }
 
 /**
@@ -66,7 +69,7 @@ function integrationEnabled(db, sessionId) {
  * @param {*} sessionId
  * @returns '' if retrival failed
  */
-function projectName(studioProjectPath) {
+function projectName(studioProjectPath: string) {
   const prefix = '_2F'
   if (studioProjectPath && studioProjectPath.includes(prefix)) {
     return studioProjectPath.substr(
@@ -83,7 +86,13 @@ function projectName(studioProjectPath) {
  * @param {*} sessionId
  * @returns - HTTP RESP with project info in JSON form
  */
-async function getProjectInfo(db, sessionId) {
+async function getProjectInfo(
+  db: env.dbType,
+  sessionId: number
+): Promise<{
+  data: string[],
+  status?: http.StatusCodes
+}> {
   let studioProjectPath = await projectPath(db, sessionId)
   if (studioProjectPath) {
     let name = await projectName(studioProjectPath)
@@ -121,12 +130,12 @@ async function getProjectInfo(db, sessionId) {
  *                data - HTTP response data field
  */
 async function updateComponentByClusterIdAndComponentId(
-  db,
-  sessionId,
-  componentIds,
-  clusterId,
-  add,
-  side
+  db: env.dbType,
+  sessionId: number,
+  componentIds: string[],
+  clusterId: number,
+  add: boolean,
+  side: string
 ) {
   if (!integrationEnabled(db, sessionId)) {
     env.logInfo(
@@ -140,7 +149,9 @@ async function updateComponentByClusterIdAndComponentId(
   if (clusterId) {
     let ids = zcl
       .getComponentIdsByCluster(db, sessionId, clusterId, side)
-      .then((response) => Promise.resolve(response.componentIds))
+      .then((response: ucTypes.UcComponentIds) =>
+        Promise.resolve(response.componentIds)
+      )
     promises.push(ids)
   }
 
@@ -168,9 +179,16 @@ async function updateComponentByClusterIdAndComponentId(
  *                status - boolean. true if HTTP REQ status code is OK,
  *                data - HTTP response data field
  */
-async function updateComponentByComponentIds(db, sessionId, componentIds, add) {
+async function updateComponentByComponentIds(
+  db: env.dbType,
+  sessionId: number,
+  componentIds: string[],
+  add: boolean
+) {
   componentIds = componentIds.filter((x) => x)
-  let promises = []
+  let promises: Promise<
+    AxiosResponse | ucTypes.UcComponentUpdateResponseWrapper
+  >[] = []
   let project = await projectPath(db, sessionId)
   let name = await projectName(project)
 
@@ -192,7 +210,11 @@ async function updateComponentByComponentIds(db, sessionId, componentIds, add) {
   )
 }
 
-function httpPostComponentUpdate(project, componentId, add) {
+function httpPostComponentUpdate(
+  project: string,
+  componentId: string,
+  add: boolean
+) {
   let operation = add ? op_add : op_remove
   let operationText = add ? 'add' : 'remove'
   return axios
@@ -200,6 +222,7 @@ function httpPostComponentUpdate(project, componentId, add) {
       componentId: componentId,
     })
     .then((res) => {
+      // @ts-ignore
       res.componentId = componentId
       return Promise.resolve(res)
     })
@@ -218,7 +241,7 @@ function httpPostComponentUpdate(project, componentId, add) {
  * Start the dirty flag reporting interval.
  *
  */
-function initIdeIntegration(db, studioPort) {
+function initIdeIntegration(db: env.dbType, studioPort: number) {
   studioHttpPort = studioPort
   dirtyFlagStatusId = setInterval(() => {
     sendDirtyFlagStatus(db)
@@ -233,11 +256,11 @@ function initIdeIntegration(db, studioPort) {
  * Clears up the reporting interval.
  */
 function deinit() {
-  if (dirtyFlagStatusId != null) clearInterval(dirtyFlagStatusId)
-  if (ucComponentStateReportId != null) clearInterval(ucComponentStateReportId)
+  if (dirtyFlagStatusId) clearInterval(dirtyFlagStatusId)
+  if (ucComponentStateReportId) clearInterval(ucComponentStateReportId)
 }
 
-async function sendUcComponentStateReport(db) {
+async function sendUcComponentStateReport(db: env.dbType) {
   let sessions = await querySession.getAllSessions(db)
   for (const session of sessions) {
     let socket = wsServer.clientSocket(session.sessionKey)
@@ -254,8 +277,9 @@ async function sendUcComponentStateReport(db) {
   }
 }
 
-function sendDirtyFlagStatus(db) {
-  querySession.getAllSessions(db).then((sessions) => {
+function sendDirtyFlagStatus(db: env.dbType) {
+  // TODO: delegate type declaration to actual function
+  querySession.getAllSessions(db).then((sessions: dbMappingTypes.SessionType[]) => {
     sessions.forEach((session) => {
       let socket = wsServer.clientSocket(session.sessionKey)
       if (socket) {
@@ -279,8 +303,9 @@ function sendDirtyFlagStatus(db) {
  * Notify front-end that current session failed to load.
  * @param {} err
  */
-function sendSessionCreationErrorStatus(db, err) {
-  querySession.getAllSessions(db).then((sessions) =>
+function sendSessionCreationErrorStatus(db: env.dbType, err: string) {
+  // TODO: delegate type declaration to actual function
+  querySession.getAllSessions(db).then((sessions: dbMappingTypes.SessionType[]) =>
     sessions.forEach((session) => {
       let socket = wsServer.clientSocket(session.sessionKey)
       if (socket) {
@@ -297,8 +322,8 @@ function sendSessionCreationErrorStatus(db, err) {
  * Notify front-end that current session failed to load.
  * @param {*} err
  */
-function sendComponentUpdateStatus(db, sessionId, data) {
-  querySession.getAllSessions(db).then((sessions) =>
+function sendComponentUpdateStatus(db: env.dbType, sessionId: number, data: any) {
+  querySession.getAllSessions(db).then((sessions: dbMappingTypes.SessionType[]) =>
     sessions.forEach((session) => {
       if (session.sessionId == sessionId) {
         let socket = wsServer.clientSocket(session.sessionKey)
@@ -315,7 +340,8 @@ function sendComponentUpdateStatus(db, sessionId, data) {
 
 exports.getProjectInfo = getProjectInfo
 exports.updateComponentByComponentIds = updateComponentByComponentIds
-exports.updateComponentByClusterIdAndComponentId = updateComponentByClusterIdAndComponentId
+exports.updateComponentByClusterIdAndComponentId =
+  updateComponentByClusterIdAndComponentId
 exports.projectName = projectName
 exports.integrationEnabled = integrationEnabled
 exports.initIdeIntegration = initIdeIntegration
