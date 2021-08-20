@@ -86,6 +86,35 @@ function if_ca_always_present_with_presentif(
 }
 
 /**
+ * If helper that checks if a command argument is always present with a
+ * presentIf condition.
+ * example:
+ * {{#if_command_arg_always_present_with_presentif commandArg}}
+ *  command argument has a presentIf condition
+ * {{else}}
+ *  command argument does not have a presentIf condition
+ * {{/if_command_arg_always_present_with_presentif}}
+ * 
+ * @param commandArg
+ * @param options
+ * @returns Returns content in the handlebar template based on the command
+ * argument having a presentIf condition or not
+ */
+function if_command_arg_always_present_with_presentif(
+  commandArg,
+  options
+) {
+  if (
+    !(commandArg.introducedInRef || commandArg.removedInRef) &&
+    commandArg.presentIf
+  ) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
+  }
+}
+
+/**
  *
  * @param command
  * @param commandArg
@@ -137,6 +166,62 @@ async function if_command_is_not_fixed_length_but_command_argument_is_always_pre
 }
 
 /**
+ * If helper that checks if command is not fixed lenth and that the command is
+ * always present.
+ * example:
+ * {{#if_command_not_fixed_length_command_argument_always_present commandId}}
+ *  command is not fixed length and command argument is always present
+ * {{else}}
+ *  either command is fixed length or command argument is not always present
+ * {{/if_command_not_fixed_length_command_argument_always_present}}
+ * 
+ * @param command
+ * @param commandArg
+ * @param options
+ * @returns Returns content in the handlebar template based on the command being
+ * fixed length or not and whether the command argument is always present
+ */
+ async function if_command_not_fixed_length_command_argument_always_present(
+  command,
+  commandArg,
+  options
+) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
+    this.global.db,
+    command,
+    packageId
+  )
+  let isFixedLengthCommand = true
+  for (let ca of commandArgs) {
+    if (
+      ca.isArray ||
+      types.isString(ca.type) ||
+      ca.introducedInRef ||
+      ca.removedInRef ||
+      ca.presentIf
+    ) {
+      isFixedLengthCommand = false
+    }
+  }
+
+  if (isFixedLengthCommand) {
+    return options.inverse(this)
+  } else if (
+    !(
+      commandArg.isArray ||
+      commandArg.introducedInRef ||
+      commandArg.removedInRef ||
+      commandArg.presentIf
+    )
+  ) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
+  }
+}
+
+/**
  *
  * @param commandArg
  * @param trueReturn
@@ -159,6 +244,35 @@ function if_ca_not_always_present_no_presentif(
 }
 
 /**
+ * If helper that checks if a command argument is not always present because it
+ * has a introduced in or removed in clause. The helper also checks that there
+ * is no presentIf condition.
+ * example:
+ * {{#if_command_arg_not_always_present_no_presentif commandArg}}
+ *  command argument is not always present and there is no presentIf condition
+ * {{else}}
+ *  Either command argument is always present or there is a presentIf condition
+ * {{/if_command_arg_not_always_present_no_presentif}}
+ * 
+ * @param commandArg
+ * @param options
+ * @returns Returns content in the handlebar template based on the command
+ * argument being present and if there is a presentIf condition.
+ */
+ function if_command_arg_not_always_present_no_presentif(
+  commandArg,
+  options
+) {
+  if (
+    (commandArg.introducedInRef || commandArg.removedInRef) &&
+    !commandArg.presentIf
+  ) {
+    return options.fn(this)
+  }
+  return options.inverse(this)
+}
+
+/**
  *
  * @param commandArg
  * @param trueReturn
@@ -178,6 +292,36 @@ function if_ca_not_always_present_with_presentif(
     return trueReturn
   } else {
     return falseReturn
+  }
+}
+
+/**
+ * If helper that checks if a command argument is not always present because it
+ * has a introduced in or removed in clause. The helper also checks that there
+ * is a presentIf condition.
+ * example:
+ * {{#if_command_arg_not_always_present_with_presentif commandArg}}
+ *  command argument is not always present and there is a presentIf condition
+ * {{else}}
+ *  Either command argument is always present or there is no presentIf condition
+ * {{/if_command_arg_not_always_present_with_presentif}}
+ * 
+ * @param commandArg
+ * @param options
+ * @returns Returns content in the handlebar template based on the command
+ * argument being present and if there is a presentIf condition.
+ */
+ function if_command_arg_not_always_present_with_presentif(
+  commandArg,
+  options
+) {
+  if (
+    (commandArg.introducedInRef || commandArg.removedInRef) &&
+    commandArg.presentIf
+  ) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
   }
 }
 
@@ -281,17 +425,33 @@ function if_command_is_fixed_length(
 // If you rename the functions, you need to still maintain old exports list.
 const dep = templateUtil.deprecatedHelper
 
-exports.if_command_arguments_exist = if_command_arguments_exist
-exports.if_ca_always_present_with_presentif =
-  if_ca_always_present_with_presentif
-exports.if_command_is_not_fixed_length_but_command_argument_is_always_present =
-  if_command_is_not_fixed_length_but_command_argument_is_always_present
-exports.if_ca_not_always_present_no_presentif =
-  if_ca_not_always_present_no_presentif
-exports.if_ca_not_always_present_with_presentif =
-  if_ca_not_always_present_with_presentif
-exports.if_command_fixed_length = if_command_fixed_length
 exports.if_command_is_fixed_length = dep(
   if_command_is_fixed_length,
-  { to: 'if_command_fixed_length' }
+  { to: 'if_command_fixed_length'}
 )
+exports.if_command_arguments_exist = if_command_arguments_exist
+exports.if_ca_always_present_with_presentif =
+dep(
+  if_ca_always_present_with_presentif,
+  { to: 'if_command_arg_always_present_with_presentif' }
+)
+exports.if_command_is_not_fixed_length_but_command_argument_is_always_present =
+dep(
+  if_command_is_not_fixed_length_but_command_argument_is_always_present,
+  { to: 'if_command_not_fixed_length_command_argument_always_present' }
+)
+exports.if_ca_not_always_present_no_presentif =
+dep(
+  if_ca_not_always_present_no_presentif,
+  { to: 'if_command_arg_not_always_present_no_presentif' }
+)
+exports.if_ca_not_always_present_with_presentif =
+dep(
+  if_ca_not_always_present_with_presentif,
+  { to: 'if_command_arg_not_always_present_with_presentif' }
+)
+exports.if_command_fixed_length = if_command_fixed_length
+exports.if_command_not_fixed_length_command_argument_always_present = if_command_not_fixed_length_command_argument_always_present
+exports.if_command_arg_not_always_present_no_presentif = if_command_arg_not_always_present_no_presentif
+exports.if_command_arg_not_always_present_with_presentif = if_command_arg_not_always_present_with_presentif
+exports.if_command_arg_always_present_with_presentif = if_command_arg_always_present_with_presentif
