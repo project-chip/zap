@@ -35,7 +35,7 @@ const includedHelpers = [
   require('./helper-tokens.js'),
   require('./helper-attribute.js'),
   require('./helper-command.js'),
-  require('./helper-future.js')
+  require('./helper-future.js'),
 ]
 
 let globalHelpersInitialized = false
@@ -71,7 +71,7 @@ async function produceCompiledTemplate(singleTemplatePkg) {
  * @param {*} overridePath: if passed, it provides a path to the override file that can override the overridable.js
  * @returns Promise that resolves with the 'utf8' string that contains the generated content.
  */
-function produceContent(
+async function produceContent(
   db,
   sessionId,
   singleTemplatePkg,
@@ -81,20 +81,25 @@ function produceContent(
     disableDeprecationWarnings: false,
   }
 ) {
-  return produceCompiledTemplate(singleTemplatePkg).then((template) =>
-    template({
-      global: {
-        disableDeprecationWarnings: options.disableDeprecationWarnings,
-        deprecationWarnings: {},
-        db: db,
-        sessionId: sessionId,
-        templatePath: singleTemplatePkg.path,
-        promises: [],
-        genTemplatePackageId: genTemplateJsonPackageId,
-        overridable: loadOverridable(options.overridePath),
-      },
-    })
-  )
+  let template = await produceCompiledTemplate(singleTemplatePkg)
+  let context = {
+    global: {
+      disableDeprecationWarnings: options.disableDeprecationWarnings,
+      deprecationWarnings: {},
+      db: db,
+      sessionId: sessionId,
+      templatePath: singleTemplatePkg.path,
+      promises: [],
+      genTemplatePackageId: genTemplateJsonPackageId,
+      overridable: loadOverridable(options.overridePath),
+      stats: {},
+    },
+  }
+  let content = await template(context)
+  return {
+    content: content,
+    stats: context.global.stats,
+  }
 }
 
 /**
@@ -151,6 +156,22 @@ function loadPartial(name, path) {
 
 function helperWrapper(wrappedHelper) {
   return function w(...args) {
+    let helperName = wrappedHelper.name
+    if (wrappedHelper.originalHelper != null) {
+      helperName = wrappedHelper.originalHelper
+    }
+    let isDeprecated = false
+    if (wrappedHelper.isDeprecated) {
+      isDeprecated = true
+    }
+    if (helperName in this.global.stats) {
+      this.global.stats[helperName].useCount++
+    } else {
+      this.global.stats[helperName] = {
+        useCount: 1,
+        isDeprecated: isDeprecated,
+      }
+    }
     try {
       return wrappedHelper.call(this, ...args)
     } catch (err) {

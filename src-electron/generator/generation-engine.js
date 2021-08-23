@@ -506,23 +506,22 @@ async function generateSingleTemplate(
     disableDeprecationWarnings: false,
   }
 ) {
-  return templateEngine
-    .produceContent(
+  try {
+    let result = await templateEngine.produceContent(
       genResult.db,
       genResult.sessionId,
       singleTemplatePkg,
       genTemplateJsonPackageId,
       options
     )
-    .then((data) => {
-      genResult.content[singleTemplatePkg.version] = data
-      genResult.partial = true
-      return genResult
-    })
-    .catch((err) => {
-      genResult.errors[singleTemplatePkg.version] = err
-      genResult.hasErrors = true
-    })
+    genResult.content[singleTemplatePkg.version] = result.content
+    genResult.stats[singleTemplatePkg.version] = result.stats
+    genResult.partial = true
+    return genResult
+  } catch (err) {
+    genResult.errors[singleTemplatePkg.version] = err
+    genResult.hasErrors = true
+  }
 }
 
 /**
@@ -551,6 +550,7 @@ async function generate(
         db: db,
         sessionId: sessionId,
         content: {},
+        stats: {},
         errors: {},
         hasErrors: false,
         generatorOptions: templateGeneratorOptions,
@@ -596,6 +596,7 @@ async function generateGenerationContent(genResult, timing = {}) {
     content: [],
     timing: timing,
   }
+  out.stats = genResult.stats
   for (const f of Object.keys(genResult.content)) {
     out.content.push(f)
   }
@@ -683,11 +684,9 @@ async function generateAndWriteFiles(
   promises.push(
     generateGenerationContent(genResult, timing).then((generatedContent) => {
       if (options.genResultFile) {
-        return writeFileWithBackup(
-          path.join(outputDirectory, 'genResult.json'),
-          generatedContent,
-          options.backup
-        )
+        let resultPath = path.join(outputDirectory, 'genResult.json')
+        options.logger(`    ✍  Result: ${resultPath}`)
+        return writeFileWithBackup(resultPath, generatedContent, options.backup)
       } else {
         return
       }

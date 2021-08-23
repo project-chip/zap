@@ -342,6 +342,7 @@ function deprecatedHelper(fn, explanation) {
     }
     return fn.apply(this, arguments)
   }
+  f.originalHelper = fn.name
   f.isDeprecated = true
   if (to != null) f.replacementHelper = to
   return f
