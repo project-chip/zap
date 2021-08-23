@@ -25,6 +25,7 @@
 function cleanseUints(uint) {
   if (uint == 'uint24_t') return 'uint32_t'
   if (uint == 'uint48_t') return 'uint8_t *'
+  if (uint == 'uint64_t') return 'uint8_t *'
   return uint
 }
 
