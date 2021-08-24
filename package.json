@@ -35,6 +35,7 @@
     "status": "node src-script/zap-start.js status --reuseZapInstance",
     "zaphelp": "node src-script/zap-start.js --help",
     "zap-dotdot": "node src-script/zap-start.js --logToStdout --zcl ./zcl-builtin/dotdot/library.xml",
+    "build": "npm run build-spa && npm run build-backend",
     "build-spa": "node src-script/build-spa.js",
     "build-backend": "npx tsc --build ./tsconfig.json",
     "regen-ts-type": "node src-script/regen-ts-type.js",
