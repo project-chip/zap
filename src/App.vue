@@ -99,6 +99,10 @@ export default {
       this.$store.dispatch('zap/setDebugNavBar', true)
     }
 
+    if ('standalone' in query) {
+      this.$store.dispatch('zap/setStandalone', query['standalone'])
+    }
+
     this.zclDialogTitle = 'ZCL tab!'
     this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
     this.zclDialogFlag = false

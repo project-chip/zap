@@ -33,7 +33,7 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
-const uiJs = require('../ui/ui-util.js')
+const uiJs = require('../ui/ui-util')
 const watchdog = require('./watchdog')
 
 // This file contains various startup modes.
@@ -110,6 +110,7 @@ async function startNormal(
         if (zapFiles.length == 0) {
           return uiJs.openNewConfiguration(port, {
             uiMode: argv.uiMode,
+            standalone: argv.standalone,
             embeddedMode: argv.embeddedMode,
           })
         } else {
@@ -704,6 +705,7 @@ async function startUpMainInstance(isElectron, argv) {
   } else {
     // If we run with node only, we force no UI as it won't work.
     if (!isElectron) argv.noUi = true
+    argv.standalone = isElectron === true
     return startNormal(argv, {})
   }
 }

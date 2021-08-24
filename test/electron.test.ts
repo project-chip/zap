@@ -19,7 +19,7 @@
  */
 
 const electronMain = require('../src-electron/main-process/electron-main')
-const window = require('../src-electron/ui/window.js')
+import window from '../src-electron/ui/window.js'
 const { timeout } = require('./test-util.js')
 
 test(
@@ -33,11 +33,16 @@ test(
 test(
   'Test constructing queries for the window',
   () => {
+    // @ts-ignore
     process.env.DEV = true
     process.env.MODE = 'electron'
-    let query = window.createQueryString('um', 1234)
-    expect(query).toBe(`?uiMode=um&restPort=1234`)
+    let query = window.createQueryString('um', false, 1234)
+    expect(query).toBe(`?uiMode=um&standalone=false&restPort=1234`)
 
+    query = window.createQueryString('um', true, 1234)
+    expect(query).toBe(`?uiMode=um&standalone=true&restPort=1234`)
+
+    // @ts-ignore
     process.env.DEV = false
     process.env.MODE = ''
     query = window.createQueryString('um')

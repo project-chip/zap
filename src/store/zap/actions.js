@@ -631,6 +631,10 @@ export function setDebugNavBar(context, debugNavBar) {
   context.commit('setDebugNavBar', debugNavBar)
 }
 
+export function setStandalone(context, standalone) {
+  context.commit('setStandalone', standalone)
+}
+
 export function setAttributeEditting(context, editContext) {
   context.commit('setAttributeEditting', editContext)
 }

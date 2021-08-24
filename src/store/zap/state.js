@@ -119,6 +119,7 @@ export default function () {
       defaultUiMode: restApi.uiMode.ZIGBEE,
     },
     debugNavBar: false, // default visibility mode for debug navigation bar
+    standalone: false, // flag indicating if ZAP frontend is running outside of Studio.
     studio: {
       projectInfoJson: [], // HTTP response from Studio jetty server
       ucComponents: [],

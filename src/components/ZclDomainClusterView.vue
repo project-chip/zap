@@ -138,6 +138,11 @@ export default {
   props: ['domainName', 'clusters'],
   mixins: [CommonMixin],
   computed: {
+    showStatus: {
+      get() {
+        return !this.$store.state.zap.standalone
+      },
+    },
     recommendedClients: {
       get() {
         return this.$store.state.zap.clustersView.recommendedClients
@@ -259,8 +264,6 @@ export default {
         { label: 'Server', client: false, server: true },
         { label: 'Client & Server', client: true, server: true },
       ],
-      // TODO: auto-hide when all dependencies are met.
-      showStatus: true,
       columns: [
         {
           name: 'status',

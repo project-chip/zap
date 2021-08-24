@@ -402,6 +402,10 @@ export function setDebugNavBar(state, debugNavBar) {
   state.debugNavBar = debugNavBar
 }
 
+export function setStandalone(state, standalone) {
+  state.standalone = standalone
+}
+
 export function setAttributeEditting(state, context) {
   Vue.set(
     state.attributeView.editableAttributes,
