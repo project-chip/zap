@@ -102,7 +102,7 @@ function openFileDialogAndReportResult(
   } else if (options.mode == 'directory') {
     p.properties = ['openDirectory']
   }
-  dialog.showOpenDialog(browserWindow, options).then((result) => {
+  dialog.showOpenDialog(browserWindow, p).then((result) => {
     if (!result.canceled) {
       let output = {
         context: options.context,
