@@ -52,20 +52,10 @@ limitations under the License.
             :options="deviceTypeOptions"
             v-model="shownEndpoint.deviceTypeRef"
             :rules="[(val) => val != null || '* Required', reqPosInt]"
-            :option-label="
-              (item) =>
-                item == null
-                  ? ''
-                  : zclDeviceTypes[item].description +
-                    ' (' +
-                    asHex(zclDeviceTypes[item].code, 4) +
-                    ')'
-            "
+            :option-label="getDeviceOptionLabel"
             @filter="filterDeviceTypes"
             @input="setDeviceTypeCallback"
-          >
-          </q-select>
-
+          />
           <div class="q-gutter-md row">
             <q-input
               label="Network"
@@ -130,17 +120,17 @@ export default {
       this.shownEndpoint.networkIdentifier = parseInt(
         this.networkId[this.endpointReference]
       )
-
       this.shownEndpoint.profileIdentifier = this.asHex(
         parseInt(this.profileId[this.endpointReference]),
         4
       )
-
       this.shownEndpoint.deviceVersion = parseInt(
         this.endpointVersion[this.endpointReference]
       )
       this.shownEndpoint.deviceTypeRef =
         this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
+      this.shownEndpoint.deviceIdentifier =
+        this.endpointDeviceId[this.endpointReference]
     } else {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
@@ -154,6 +144,7 @@ export default {
         networkIdentifier: 0,
         deviceTypeRef: null,
         deviceVersion: 1,
+        deviceIdentifier: null
       },
       saveOrCreateCloseFlag: false,
     }
@@ -193,6 +184,11 @@ export default {
         return this.$store.state.zap.endpointTypeView.deviceTypeRef
       },
     },
+    endpointDeviceId: {
+      get() {
+        return this.$store.state.zap.endpointView.deviceId
+      }
+    }
   },
   methods: {
     getSmallestUnusedEndpointId() {
@@ -222,8 +218,8 @@ export default {
       } else {
         profileId = this.asHex(this.zclDeviceTypes[value].profileId, 4)
       }
-
       this.shownEndpoint.profileIdentifier = profileId
+      this.shownEndpoint.deviceIdentifier =  this.zclDeviceTypes[value].code
     },
     saveOrCreateHandler() {
       if (
@@ -272,8 +268,7 @@ export default {
               profileId: parseInt(this.shownEndpoint.profileIdentifier),
               endpointType: response.id,
               endpointVersion: this.shownEndpoint.deviceVersion,
-              deviceIdentifier:
-                this.zclDeviceTypes[this.shownEndpoint.deviceTypeRef].code,
+              deviceIdentifier: this.shownEndpoint.deviceIdentifier,
             })
             .then((res) => {
               this.$store.dispatch('zap/updateSelectedEndpointType', {
@@ -331,6 +326,10 @@ export default {
             updatedKey: RestApi.updateKey.endpointVersion,
             value: shownEndpoint.deviceVersion,
           },
+          {
+            updatedKey: RestApi.updateKey.deviceId,
+            value: parseInt(shownEndpoint.deviceIdentifier),
+          }
         ],
       })
 
@@ -358,7 +357,14 @@ export default {
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
     },
-
+    getDeviceOptionLabel(item) {
+      return item == null
+               ? ''
+               : this.zclDeviceTypes[item].description +
+                 ' (' +
+                  this.asHex(this.zclDeviceTypes[item].code, 4) +
+                 ')'
+    },
     filterDeviceTypes(val, update) {
       if (val === '') {
         update(() => {

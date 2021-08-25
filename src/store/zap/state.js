@@ -73,6 +73,7 @@ export default function () {
       endpointType: {},
       networkId: {},
       profileId: {},
+      deviceId: {},
       endpointVersion: {},
       endpointIdValidationIssues: {},
       networkIdValidationIssues: {},
