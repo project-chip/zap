@@ -2226,8 +2226,8 @@ async function as_generated_default_macro(value, attributeSize, options) {
     for (let i = 0; i < padding_length; i++) {
       default_macro_signature += '0x00, '
     }
-    for (let j = 0; j < default_macro.length; j++) {
-      default_macro_signature += ' 0x' + default_macro[j] + ','
+    for (let m of default_macro.length) {
+      default_macro_signature += ' 0x' + m + ','
     }
     // Applying endianess to attributes with size less than equal to 8 bytes.
     // Thus only swapping int64u or smaller
