@@ -50,8 +50,8 @@ limitations under the License.
             hide-selected
             fill-input
             :options="deviceTypeOptions"
-            v-model="shownEndpoint.deviceTypeRef"
-            :rules="[(val) => val != null || '* Required', reqPosInt]"
+            v-model="shownEndpoint.deviceTypeRefAndDeviceIdPair"
+            :rules="[(val) => val != null || '* Required']"
             :option-label="getDeviceOptionLabel"
             @filter="filterDeviceTypes"
             @input="setDeviceTypeCallback"
@@ -127,10 +127,10 @@ export default {
       this.shownEndpoint.deviceVersion = parseInt(
         this.endpointVersion[this.endpointReference]
       )
-      this.shownEndpoint.deviceTypeRef =
-        this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
-      this.shownEndpoint.deviceIdentifier =
-        this.endpointDeviceId[this.endpointReference]
+      this.shownEndpoint.deviceTypeRefAndDeviceIdPair = {
+        deviceTypeRef: this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]],
+        deviceIdentifier: this.endpointDeviceId[this.endpointReference]
+      }
     } else {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
@@ -142,9 +142,11 @@ export default {
         endpointIdentifier: 1,
         profileIdentifier: null,
         networkIdentifier: 0,
-        deviceTypeRef: null,
         deviceVersion: 1,
-        deviceIdentifier: null
+        deviceTypeRefAndDeviceIdPair: {
+          deviceTypeRef: null,
+          deviceIdentifier: null
+        }
       },
       saveOrCreateCloseFlag: false,
     }
@@ -156,7 +158,9 @@ export default {
         let keys = Object.keys(dt).sort((a, b) => {
           return dt[a].description.localeCompare(dt[b].description)
         })
-        return keys
+        return keys.map(item => {
+          return {deviceTypeRef: item, deviceIdentifier: dt[item].deviceId}
+        })
       },
     },
     zclProfileIdString: {
@@ -208,18 +212,19 @@ export default {
       return id
     },
     setDeviceTypeCallback(value) {
+      let deviceTypeRef = value.deviceTypeRef
       let profileId = this.shownEndpoint.profileIdentifier
       // On change of device type, reset the profileId to the current deviceType _unless_ the default profileId is custom
       if (this.shownEndpoint.profileIdentifier != null) {
         profileId =
-          this.zclDeviceTypes[value].profileId == DbEnum.customDevice.profileId
+          this.zclDeviceTypes[deviceTypeRef].profileId == DbEnum.customDevice.profileId
             ? this.asHex(profileId, 4)
-            : this.asHex(this.zclDeviceTypes[value].profileId, 4)
+            : this.asHex(this.zclDeviceTypes[deviceTypeRef].profileId, 4)
       } else {
-        profileId = this.asHex(this.zclDeviceTypes[value].profileId, 4)
+        profileId = this.asHex(this.zclDeviceTypes[deviceTypeRef].profileId, 4)
       }
       this.shownEndpoint.profileIdentifier = profileId
-      this.shownEndpoint.deviceIdentifier =  this.zclDeviceTypes[value].code
+      this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceIdentifier =  this.zclDeviceTypes[deviceTypeRef].code
     },
     saveOrCreateHandler() {
       if (
@@ -258,7 +263,7 @@ export default {
       this.$store
         .dispatch(`zap/addEndpointType`, {
           name: 'Anonymous Endpoint Type',
-          deviceTypeRef: shownEndpoint.deviceTypeRef,
+          deviceTypeRef: shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef,
         })
         .then((response) => {
           this.$store
@@ -268,7 +273,7 @@ export default {
               profileId: parseInt(this.shownEndpoint.profileIdentifier),
               endpointType: response.id,
               endpointVersion: this.shownEndpoint.deviceVersion,
-              deviceIdentifier: this.shownEndpoint.deviceIdentifier,
+              deviceIdentifier: this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceIdentifier,
             })
             .then((res) => {
               this.$store.dispatch('zap/updateSelectedEndpointType', {
@@ -304,7 +309,7 @@ export default {
       this.$store.dispatch('zap/updateEndpointType', {
         endpointTypeId: endpointTypeReference,
         updatedKey: RestApi.updateKey.deviceTypeRef,
-        updatedValue: shownEndpoint.deviceTypeRef,
+        updatedValue: shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef,
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
@@ -328,7 +333,7 @@ export default {
           },
           {
             updatedKey: RestApi.updateKey.deviceId,
-            value: parseInt(shownEndpoint.deviceIdentifier),
+            value: parseInt(shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceIdentifier),
           }
         ],
       })
@@ -358,11 +363,14 @@ export default {
       this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
     },
     getDeviceOptionLabel(item) {
-      return item == null
+      if ( item == null) 
+        return ''
+
+      return item.deviceTypeRef == null
                ? ''
-               : this.zclDeviceTypes[item].description +
+               : this.zclDeviceTypes[item.deviceTypeRef].description +
                  ' (' +
-                  this.asHex(this.zclDeviceTypes[item].code, 4) +
+                  this.asHex(this.zclDeviceTypes[item.deviceTypeRef].code, 4) +
                  ')'
     },
     filterDeviceTypes(val, update) {
@@ -375,7 +383,7 @@ export default {
         let dt = this.$store.state.zap.zclDeviceTypes
         const needle = val.toLowerCase()
         this.deviceTypeOptions = this.zclDeviceTypeOptions.filter((v) => {
-          return dt[v].description.toLowerCase().indexOf(needle) > -1
+          return dt[v.deviceTypeRef].description.toLowerCase().indexOf(needle) > -1
         })
       })
     },
