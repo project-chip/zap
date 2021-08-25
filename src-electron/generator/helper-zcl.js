@@ -2226,7 +2226,7 @@ async function as_generated_default_macro(value, attributeSize, options) {
     for (let i = 0; i < padding_length; i++) {
       default_macro_signature += '0x00, '
     }
-    for (let m of default_macro.length) {
+    for (let m of default_macro) {
       default_macro_signature += ' 0x' + m + ','
     }
     // Applying endianess to attributes with size less than equal to 8 bytes.
