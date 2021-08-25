@@ -36,6 +36,8 @@ const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 const testFile2 = path.join(__dirname, 'resource/three-endpoint-device.zap')
 const testFile3 = path.join(__dirname, 'resource/zll-on-off-switch-test.zap')
 const testFile4 = path.join(__dirname, 'resource/mfg-specific-clusters-commands.zap')
+const testFile5 = path.join(__dirname, 'resource/gp-combo-basic-test.zap')
+
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -469,6 +471,56 @@ test(
             '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 7, Cluster: Groups, Command: ViewGroupResponse*/'
           )
         ).toBeTruthy()
+      })
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Test generated defaults',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile5, { sessionId: sid })
+
+    return genEngine
+      .generate(
+        db,
+        sid,
+        templateContext.packageId,
+        {},
+        {
+          disableDeprecationWarnings: true,
+        }
+      )
+      .then((genResult) => {
+        expect(genResult).not.toBeNull()
+        expect(genResult.partial).toBeFalsy()
+        expect(genResult.content).not.toBeNull()
+
+        // Test GENERATED_DEFAULTS big endian
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '0x0F, 0xAE, 0x2F, /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server */'
+          )
+        ).toBeTruthy()
+        // Test GENERATED_DEFAULTS little endian
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '0x2F, 0xAE, 0x0F,  /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server*/'
+          )
+        ).toBeTruthy()
+        // Test GENERATED_DEFAULTS big endian for attribute of size > 8
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F, 0x0G, 0x0H, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client */'
+          )
+        ).toBeTruthy()
+        // Test GENERATED_DEFAULTS little endian for attribute of size > 8 is same as big endian. Bytes are not inverted
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            `0x0H, 0x0G, 0x0F, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client*/`
+          )
+        ).toBeFalsy()
       })
   },
   testUtil.timeout.long()
