@@ -270,6 +270,7 @@ export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
 export function updateEndpoint(context, endpoint) {
   Vue.prototype.$serverPatch(restApi.uri.endpoint, endpoint).then((res) => {
     let arg = res.data
+    console.log(arg)
     context.commit('updateEndpoint', {
       id: arg.endpointId,
       changes: arg.changes,
@@ -290,6 +291,7 @@ export function addEndpoint(context, newEndpointContext) {
         endpointTypeRef: arg.endpointType,
         networkId: arg.networkId,
         profileId: arg.profileId,
+        deviceId: arg.deviceId,
         endpointVersion: arg.endpointVersion,
         endpointIdValidationIssues: arg.validationIssues.endpointId,
         networkIdValidationIssues: arg.validationIssues.networkId,

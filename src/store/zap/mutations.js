@@ -141,6 +141,7 @@ export function addEndpoint(state, endpoint) {
   )
   Vue.set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
   Vue.set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
+  Vue.set(state.endpointView.deviceId, endpoint.id, endpoint.deviceId)
   Vue.set(
     state.endpointView.endpointVersion,
     endpoint.id,

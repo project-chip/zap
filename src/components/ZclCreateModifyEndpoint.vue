@@ -50,11 +50,12 @@ limitations under the License.
             hide-selected
             fill-input
             :options="deviceTypeOptions"
-            v-model="shownEndpoint.deviceTypeRefAndDeviceIdPair"
+            v-model="computedDeviceTypeRefAndDeviceIdPair"
             :rules="[(val) => val != null || '* Required']"
             :option-label="getDeviceOptionLabel"
             @filter="filterDeviceTypes"
             @input="setDeviceTypeCallback"
+            @new-value="createValue"
           />
           <div class="q-gutter-md row">
             <q-input
@@ -192,6 +193,11 @@ export default {
       get() {
         return this.$store.state.zap.endpointView.deviceId
       }
+    },
+    computedDeviceTypeRefAndDeviceIdPair: {
+      get() {
+        return this.shownEndpoint.deviceTypeRefAndDeviceIdPair
+      }
     }
   },
   methods: {
@@ -225,6 +231,7 @@ export default {
       }
       this.shownEndpoint.profileIdentifier = profileId
       this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceIdentifier =  this.zclDeviceTypes[deviceTypeRef].code
+      this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef = value.deviceTypeRef
     },
     saveOrCreateHandler() {
       if (
@@ -363,15 +370,24 @@ export default {
       this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
     },
     getDeviceOptionLabel(item) {
-      if ( item == null) 
+      if ( item == null || item.deviceTypeRef == null)
         return ''
-
-      return item.deviceTypeRef == null
-               ? ''
-               : this.zclDeviceTypes[item.deviceTypeRef].description +
+      if ( item.deviceIdentifier != this.zclDeviceTypes[item.deviceTypeRef].code ) {
+        return this.asHex(item.deviceIdentifier, 4)
+      } else {
+        return this.zclDeviceTypes[item.deviceTypeRef].description +
                  ' (' +
                   this.asHex(this.zclDeviceTypes[item.deviceTypeRef].code, 4) +
                  ')'
+      }
+    },
+    createValue(val, done) {
+      try {
+        done({deviceTypeRef: this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef, deviceIdentifier: parseInt(val)})
+      } catch (err) {
+        //Catch bad inputs.
+        console.err(err)
+      }
     },
     filterDeviceTypes(val, update) {
       if (val === '') {
