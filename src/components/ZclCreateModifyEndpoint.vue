@@ -159,7 +159,7 @@ export default {
           return dt[a].description.localeCompare(dt[b].description)
         })
         return keys.map(item => {
-          return {deviceTypeRef: item, deviceIdentifier: dt[item].deviceId}
+          return {deviceTypeRef: item, deviceIdentifier: dt[item].code}
         })
       },
     },
