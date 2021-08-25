@@ -179,6 +179,15 @@ export default {
         return this.$store.state.zap.endpointView.profileId
       },
     },
+    customDeviceIdReference:{
+      get() {
+        let dt = this.$store.state.zap.zclDeviceTypes
+        let val =  Object.keys(dt).find(a => {
+          return parseInt(dt[a].code) == parseInt(DbEnum.customDevice.code)
+        })
+        return val
+      }
+    },
     endpointVersion: {
       get() {
         return this.$store.state.zap.endpointView.endpointVersion
@@ -383,10 +392,10 @@ export default {
     },
     createValue(val, done) {
       try {
-        done({deviceTypeRef: this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef, deviceIdentifier: parseInt(val)}, 'add-unique')
+        done({deviceTypeRef: this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef ? this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef : this.customDeviceIdReference, deviceIdentifier: parseInt(val)}, 'add-unique')
       } catch (err) {
         //Catch bad inputs.
-        console.err(err)
+        console.log(err)
       }
     },
     filterDeviceTypes(val, update) {
