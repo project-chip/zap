@@ -230,8 +230,8 @@ export default {
         profileId = this.asHex(this.zclDeviceTypes[deviceTypeRef].profileId, 4)
       }
       this.shownEndpoint.profileIdentifier = profileId
-      this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceIdentifier =  this.zclDeviceTypes[deviceTypeRef].code
       this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef = value.deviceTypeRef
+      this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceIdentifier =  value.deviceIdentifier
     },
     saveOrCreateHandler() {
       if (
@@ -383,7 +383,7 @@ export default {
     },
     createValue(val, done) {
       try {
-        done({deviceTypeRef: this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef, deviceIdentifier: parseInt(val)})
+        done({deviceTypeRef: this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef, deviceIdentifier: parseInt(val)}, 'add-unique')
       } catch (err) {
         //Catch bad inputs.
         console.err(err)

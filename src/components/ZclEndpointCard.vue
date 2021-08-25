@@ -156,12 +156,16 @@ export default {
       this.deleteEpt()
     },
     getDeviceOptionLabel(){
-        return this.deviceType
-                ? this.deviceType.description +
+      if ( this.deviceType == null)
+        return ''
+      if ( this.deviceId[this.endpointReference] != this.deviceType.code ) {
+        return this.asHex(this.deviceId[this.endpointReference], 4)
+      } else {
+        return this.deviceType.description +
                   ' (' +
                   this.asHex(this.deviceType.code, 4) +
                   ')'
-                : ''
+      }
     },
     handleDeletionDialog() {
       if (this.getStorageParam() == 'true') {
