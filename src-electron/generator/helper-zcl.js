@@ -2229,7 +2229,9 @@ async function as_generated_default_macro(value, attributeSize, options) {
     for (let j = 0; j < default_macro.length; j++) {
       default_macro_signature += ' 0x' + default_macro[j] + ','
     }
-    if (options.hash.endian != 'big') {
+    // Applying endianess to attributes with size less than equal to 8 bytes.
+    // Thus only swapping int64u or smaller
+    if (options.hash.endian != 'big' && attributeSize <= 8) {
       default_macro_signature = default_macro_signature
         .split(' ')
         .reverse()
