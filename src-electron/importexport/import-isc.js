@@ -485,6 +485,7 @@ async function loadImplementedCommandsForEndpoint(
       codes[ext.parentCode].push(ext.entityCode)
     }
   }
+  let insertionPromises = []
   // We have an array of codes now that we have to load into the database.
   for (const c of Object.keys(codes)) {
     let clusterCode = parseInt(c)
@@ -501,15 +502,22 @@ async function loadImplementedCommandsForEndpoint(
         clusterCode,
         commandCode
       )
-
       if (cluster != null && command != null) {
         // Inject the corresponding cluster command combo into endpoint
-        //console.log(
-        //  `ENDPOINT ${endpointId}: INJECTING CLUSTER ${cluster.code}, COMMAND ${command.code}`
-        //)
+        let p = queryConfig.insertOrUpdateCommandState(
+          db,
+          endpointTypeId,
+          cluster.id,
+          command.source,
+          command.id,
+          1,
+          true
+        )
+        insertionPromises.push(p)
       }
     }
   }
+  return Promise.all(insertionPromises)
 }
 
 /**
