@@ -38,7 +38,7 @@ const includedHelpers = [
   require('./helper-future.js'),
 ]
 
-let globalHelpersInitialized = false
+let helpersInitializationList = null
 
 const templateCompileOptions = {
   noEscape: true,
@@ -200,12 +200,7 @@ function helperWrapper(wrappedHelper) {
  *                      this is required to force webpack to resolve the included files
  *                      as path will be difference after being packed for production.
  */
-
-/**
- *
- * @param {*} helpers
- */
-function loadHelper(helpers) {
+function loadHelper(helpers, collectionList = null) {
   // helper
   // when template path are passed via CLI
   // Other paths are 'required()' to workaround webpack path issue.
@@ -218,6 +213,9 @@ function loadHelper(helpers) {
       singleHelper,
       helperWrapper(helpers[singleHelper])
     )
+    if (collectionList != null) {
+      collectionList.push(singleHelper)
+    }
   }
 }
 
@@ -247,13 +245,16 @@ function allGlobalHelpers() {
  * Global helper initialization
  */
 function initializeGlobalHelpers() {
-  if (globalHelpersInitialized) return
+  if (helpersInitializationList != null) return
 
+  helpersInitializationList = []
   includedHelpers.forEach((element) => {
-    loadHelper(element)
+    loadHelper(element, helpersInitializationList)
   })
+}
 
-  globalHelpersInitialized = true
+function globalHelpersList() {
+  return helpersInitializationList
 }
 
 exports.produceContent = produceContent
@@ -261,3 +262,4 @@ exports.loadHelper = loadHelper
 exports.loadPartial = loadPartial
 exports.initializeGlobalHelpers = initializeGlobalHelpers
 exports.allGlobalHelpers = allGlobalHelpers
+exports.globalHelpersList = globalHelpersList

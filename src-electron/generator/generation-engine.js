@@ -595,11 +595,26 @@ async function generateGenerationContent(genResult, timing = {}) {
     creator: 'zap',
     content: [],
     timing: timing,
+    stats: {},
   }
-  out.stats = genResult.stats
+  out.stats.templates = genResult.stats
   for (const f of Object.keys(genResult.content)) {
     out.content.push(f)
   }
+  out.stats.allHelpers = {}
+
+  let allHelpers = [...templateEngine.globalHelpersList()].sort()
+  allHelpers.forEach((h) => {
+    out.stats.allHelpers[h] = 0
+  })
+
+  for (const [template, stat] of Object.entries(out.stats.templates)) {
+    for (const [helper, value] of Object.entries(stat)) {
+      let count = value.useCount
+      out.stats.allHelpers[helper] += count
+    }
+  }
+
   return Promise.resolve(JSON.stringify(out, null, 2))
 }
 
