@@ -141,6 +141,7 @@ export function addEndpoint(state, endpoint) {
   )
   Vue.set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
   Vue.set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
+  Vue.set(state.endpointView.deviceId, endpoint.id, endpoint.deviceIdentifier)
   Vue.set(
     state.endpointView.endpointVersion,
     endpoint.id,
@@ -400,6 +401,10 @@ export function setDefaultUiMode(state, uiMode) {
 
 export function setDebugNavBar(state, debugNavBar) {
   state.debugNavBar = debugNavBar
+}
+
+export function setStandalone(state, standalone) {
+  state.standalone = standalone
 }
 
 export function setAttributeEditting(state, context) {

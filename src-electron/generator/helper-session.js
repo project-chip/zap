@@ -798,10 +798,40 @@ async function all_user_cluster_generated_commands(options) {
 function all_user_clusters_with_incoming_commands(options) {
   return queryEndpointType
     .selectUsedEndpointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryCommand.selectAllClustersWithIncomingCommands(
+    .then((endpointTypes) => (('uniqueClusterCodes' in options.hash)
+      && options.hash.uniqueClusterCodes == 'true')
+      ? queryCommand.selectAllClustersWithIncomingCommands(
         this.global.db,
-        endpointTypes
+        endpointTypes,
+        true
+      )
+      : queryCommand.selectAllClustersWithIncomingCommands(
+        this.global.db,
+        endpointTypes,
+        false
+      )
+    )
+    .then((clustersWithIncomingCommands) =>
+      templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
+    )
+}
+
+/**
+ * Provide all manufacturing specific clusters that have incoming commands with
+ * the given cluster code.
+ * @param clusterCode 
+ * @param options 
+ * @returns Details of manufacturing specific clusters that have incoming
+ * commands with the given cluster code
+ */
+function manufacturing_clusters_with_incoming_commands(clusterCode, options) {
+  return queryEndpointType
+    .selectUsedEndpointTypeIds(this.global.db, this.global.sessionId)
+    .then((endpointTypes) =>
+      queryCommand.selectMfgClustersWithIncomingCommandsForClusterCode(
+        this.global.db,
+        endpointTypes,
+        clusterCode
       )
     )
     .then((clustersWithIncomingCommands) =>
@@ -1139,3 +1169,4 @@ exports.all_incoming_commands_for_cluster_combined = dep(
   { to: 'all_user_incoming_commands_for_all_clusters' }
 )
 exports.if_command_discovery_enabled = if_command_discovery_enabled
+exports.manufacturing_clusters_with_incoming_commands = manufacturing_clusters_with_incoming_commands

@@ -32,14 +32,7 @@ limitations under the License.
             <strong>Device</strong>
           </div>
           <div class="col-md-6">
-            {{
-              deviceType
-                ? deviceType.description +
-                  ' (' +
-                  asHex(deviceType.code, 4) +
-                  ')'
-                : ''
-            }}
+            {{ getDeviceOptionLabel() }}
           </div>
         </q-item>
         <q-item class="row">
@@ -162,6 +155,18 @@ export default {
       )
       this.deleteEpt()
     },
+    getDeviceOptionLabel(){
+      if ( this.deviceType == null)
+        return ''
+      if ( this.deviceId[this.endpointReference] != this.deviceType.code ) {
+        return this.asHex(this.deviceId[this.endpointReference], 4)
+      } else {
+        return this.deviceType.description +
+                  ' (' +
+                  this.asHex(this.deviceType.code, 4) +
+                  ')'
+      }
+    },
     handleDeletionDialog() {
       if (this.getStorageParam() == 'true') {
         this.deleteEpt()
@@ -196,6 +201,11 @@ export default {
       get() {
         return this.$store.state.zap.endpointView.profileId
       },
+    },
+    deviceId: {
+      get() {
+        return this.$store.state.zap.endpointView.deviceId
+      }
     },
     endpointVersion: {
       get() {

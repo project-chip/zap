@@ -33,7 +33,7 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
-const uiJs = require('../ui/ui-util.js')
+const uiJs = require('../ui/ui-util')
 const watchdog = require('./watchdog')
 
 // This file contains various startup modes.
@@ -110,6 +110,7 @@ async function startNormal(
         if (zapFiles.length == 0) {
           return uiJs.openNewConfiguration(port, {
             uiMode: argv.uiMode,
+            standalone: argv.standalone,
             embeddedMode: argv.embeddedMode,
           })
         } else {
@@ -672,7 +673,7 @@ async function startUpMainInstance(isElectron, argv) {
   if (argv._.includes('status')) {
     console.log('⛔ Server is not running.')
     logRemoteData({ zapServerStatus: 'missing' })
-    process.exit(0)
+    cleanExit(0)
   } else if (argv._.includes('selfCheck')) {
     return startSelfCheck(argv)
   } else if (argv._.includes('analyze')) {
@@ -690,21 +691,27 @@ async function startUpMainInstance(isElectron, argv) {
       quit: true,
     }).catch((code) => {
       console.log(code)
-      process.exit(1)
+      cleanExit(1)
     })
   } else if (argv._.includes('stop')) {
     console.log('No server running, nothing to stop.')
-    process.exit(0)
+    cleanExit(0)
   } else if (argv._.includes('generate')) {
-    return startGeneration(argv).catch((code) => {
-      console.log(code)
-      process.exit(1)
+    return startGeneration(argv).catch((err) => {
+      console.log(err)
+      env.printToStderr(`Zap generation error: ${err}`)
+      cleanExit(1)
     })
   } else {
     // If we run with node only, we force no UI as it won't work.
     if (!isElectron) argv.noUi = true
+    argv.standalone = isElectron === true
     return startNormal(argv, {})
   }
+}
+
+function cleanExit(code) {
+  util.waitFor(1000).then(() => process.exit(code))
 }
 
 exports.startGeneration = startGeneration

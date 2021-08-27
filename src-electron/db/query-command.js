@@ -175,19 +175,24 @@ GROUP BY CLUSTER.NAME, COMMAND.NAME, ENDPOINT_TYPE_CLUSTER.SIDE ) GROUP BY CLUST
  * @param db
  * @param endpointTypes
  * @returns All Clusters with side that have available incoming commands.
+ * uniqueClusterCodes can be used to get unique clusters based on a cluster code
+ * and this can eliminate duplicate cluster code entries when manufacturing 
+ * specific clusters exist with the same cluster code.
  * Note: The relationship between the endpoint_type_cluster being enabled and a
  * endpoint_type_command is indirect. The reason for this being the endpoint
  * type command is not precisely linked to the sides of the cluster as commands
  * do not belong to a side of a cluster like an attribute.
  */
-async function selectAllClustersWithIncomingCommands(db, endpointTypes) {
-  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+async function selectAllClustersWithIncomingCommands(db, endpointTypes, uniqueClusterCodes=false) {
+  let endpointTypeIds = await endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  let sqlGroupBy = uniqueClusterCodes ? 'CLUSTER.CODE' : 'CLUSTER.NAME'
   let mapFunction = (x) => {
     return {
       id: x.CLUSTER_ID,
       clusterName: x.CLUSTER_NAME,
       code: x.CLUSTER_CODE,
       clusterDefine: x.CLUSTER_DEFINE,
+      clusterMfgCode:x.MANUFACTURER_CODE,
       clusterSide: x.CLUSTER_SIDE,
       clusterEnabled: x.CLUSTER_ENABLED,
       endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
@@ -203,6 +208,7 @@ SELECT
   CLUSTER.NAME AS CLUSTER_NAME,
   CLUSTER.CODE AS CLUSTER_CODE,
   CLUSTER.DEFINE AS CLUSTER_DEFINE,
+  CLUSTER.MANUFACTURER_CODE AS MANUFACTURER_CODE,
   ENDPOINT_TYPE_CLUSTER.SIDE AS CLUSTER_SIDE,
   ENDPOINT_TYPE_CLUSTER.ENABLED AS CLUSTER_ENABLED,
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
@@ -227,7 +233,74 @@ WHERE
   AND ENDPOINT_TYPE_COMMAND.INCOMING = 1
   AND COMMAND.SOURCE != ENDPOINT_TYPE_CLUSTER.SIDE
 GROUP BY
-  CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE`
+  ${sqlGroupBy}, ENDPOINT_TYPE_CLUSTER.SIDE ORDER BY CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE`
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ * All Manufacturing Clusters with available incoming commands for a given
+ * cluster code.
+ * @param db
+ * @param endpointTypes
+ * @returns  All Manufacturing Clusters with available incoming commands for a
+ * given cluster code.
+ * Note: The relationship between the endpoint_type_cluster being enabled and a
+ * endpoint_type_command is indirect. The reason for this being the endpoint
+ * type command is not precisely linked to the sides of the cluster as commands
+ * do not belong to a side of a cluster like an attribute.
+ */
+ async function selectMfgClustersWithIncomingCommandsForClusterCode(db, endpointTypes, clusterCode) {
+  let endpointTypeIds = await endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  let mapFunction = (x) => {
+    return {
+      id: x.CLUSTER_ID,
+      clusterName: x.CLUSTER_NAME,
+      code: x.CLUSTER_CODE,
+      clusterDefine: x.CLUSTER_DEFINE,
+      clusterMfgCode:x.MANUFACTURER_CODE,
+      clusterSide: x.CLUSTER_SIDE,
+      clusterEnabled: x.CLUSTER_ENABLED,
+      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+    }
+  }
+
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  CLUSTER.CLUSTER_ID,
+  CLUSTER.NAME AS CLUSTER_NAME,
+  CLUSTER.CODE AS CLUSTER_CODE,
+  CLUSTER.DEFINE AS CLUSTER_DEFINE,
+  CLUSTER.MANUFACTURER_CODE AS MANUFACTURER_CODE,
+  ENDPOINT_TYPE_CLUSTER.SIDE AS CLUSTER_SIDE,
+  ENDPOINT_TYPE_CLUSTER.ENABLED AS CLUSTER_ENABLED,
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+FROM
+  COMMAND
+INNER JOIN
+  ENDPOINT_TYPE_COMMAND
+ON
+  ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+INNER JOIN
+  CLUSTER
+ON
+  CLUSTER.CLUSTER_ID = COMMAND.CLUSTER_REF
+INNER JOIN
+  ENDPOINT_TYPE_CLUSTER
+ON
+  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+WHERE
+  ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+  AND ENDPOINT_TYPE_CLUSTER.SIDE IN ("client", "server")
+  AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
+  AND ENDPOINT_TYPE_COMMAND.INCOMING = 1
+  AND COMMAND.SOURCE != ENDPOINT_TYPE_CLUSTER.SIDE
+  AND CLUSTER.CODE = ${clusterCode}
+GROUP BY
+  CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE ORDER BY CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -468,6 +541,99 @@ ${mfgSpecificString} GROUP BY CLUSTER.NAME, COMMAND.NAME
 ORDER BY CLUSTER.NAME, COMMAND.NAME`
     )
     .then((rows) => rows.map(mapFunction))
+}
+
+async function selectCommandByCode(
+  db,
+  packageId,
+  clusterCode,
+  commandCode,
+  mfgCode = null
+) {
+  if (clusterCode == null) {
+    return selectGlobalCommandByCode(db, packageId, commandCode, mfgCode)
+  } else {
+    return selectNonGlobalCommandByCode(
+      db,
+      packageId,
+      clusterCode,
+      commandCode,
+      mfgCode
+    )
+  }
+}
+
+async function selectNonGlobalCommandByCode(
+  db,
+  packageId,
+  clusterCode,
+  commandCode,
+  mfgCode = null
+) {
+  let query = `
+  SELECT
+    C.COMMAND_ID,
+    C.CLUSTER_REF,
+    C.PACKAGE_REF,
+    C.CODE,
+    C.MANUFACTURER_CODE,
+    C.NAME,
+    C.DESCRIPTION,
+    C.SOURCE,
+    C.IS_OPTIONAL,
+    C.RESPONSE_REF
+  FROM COMMAND AS C
+  INNER JOIN CLUSTER AS CL
+  ON CL.CLUSTER_ID = C.CLUSTER_REF
+  WHERE
+    C.PACKAGE_REF = ?
+    AND C.CODE = ?
+    AND CL.CODE = ?`
+  let args
+  if (mfgCode == null || mfgCode == 0) {
+    query = query + ` AND C.MANUFACTURER_CODE IS NULL`
+    args = [packageId, commandCode, clusterCode]
+  } else {
+    query = qyery + ` AND C.MANUFACTURER_CODE = ?`
+    args = [packageId, commandCode, clusterCode, mfgCode]
+  }
+
+  return dbApi.dbGet(db, query, args).then(dbMapping.map.command)
+}
+
+async function selectGlobalCommandByCode(
+  db,
+  packageId,
+  commandCode,
+  mfgCode = null
+) {
+  let query = `
+  SELECT
+    C.COMMAND_ID,
+    C.CLUSTER_REF,
+    C.PACKAGE_REF,
+    C.CODE,
+    C.MANUFACTURER_CODE,
+    C.NAME,
+    C.DESCRIPTION,
+    C.SOURCE,
+    C.IS_OPTIONAL,
+    C.RESPONSE_REF
+  FROM
+    COMMAND AS C
+  WHERE
+    C.PACKAGE_REF = ?
+    AND C.CODE = ?`
+  let args
+  if (mfgCode == null || mfgCode == 0) {
+    query = query + ` AND C.MANUFACTURER_CODE IS NULL`
+    args = [packageId, commandCode]
+  } else {
+    query = qyery + ` AND C.MANUFACTURER_CODE = ?`
+    args = [packageId, commandCode, mfgCode]
+  }
+
+  return dbApi.dbGet(db, query, args).then(dbMapping.map.command)
 }
 
 async function selectCommandById(db, id) {
@@ -1117,6 +1283,7 @@ exports.selectAllIncomingCommandsForClusterCombined =
 exports.selectAllCommands = selectAllCommands
 exports.selectCommandsByClusterId = selectCommandsByClusterId
 exports.selectCommandById = selectCommandById
+exports.selectCommandByCode = selectCommandByCode
 exports.selectAllCommandsBySource = selectAllCommandsBySource
 exports.selectCommandsByClusterIdAndSource = selectCommandsByClusterIdAndSource
 exports.selectAllGlobalCommands = selectAllGlobalCommands
@@ -1141,3 +1308,4 @@ exports.selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters 
 exports.selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters =
   selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters
 exports.selectAllIncomingCommands = selectAllIncomingCommands
+exports.selectMfgClustersWithIncomingCommandsForClusterCode = selectMfgClustersWithIncomingCommandsForClusterCode

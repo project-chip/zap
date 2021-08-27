@@ -20,6 +20,7 @@ const queryConfig = require('../db/query-config.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
+const queryCommand = require('../db/query-command.js')
 const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
@@ -460,6 +461,98 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
 }
 
 /**
+ * Loads all implemented commands for a single endpoint.
+ *
+ * @param {*} db
+ * @param {*} zclPackageId
+ * @param {*} state
+ * @param {*} commandExtensions
+ * @param {*} endpointTypeId
+ */
+async function loadImplementedCommandsForEndpoint(
+  db,
+  zclPackageId,
+  state,
+  commandExtensions,
+  endpointTypeId
+) {
+  let codes = {}
+  for (const ext of commandExtensions.defaults) {
+    if (ext.value == 1) {
+      if (!(ext.parentCode in codes)) {
+        codes[ext.parentCode] = []
+      }
+      codes[ext.parentCode].push(ext.entityCode)
+    }
+  }
+  let insertionPromises = []
+  // We have an array of codes now that we have to load into the database.
+  for (const c of Object.keys(codes)) {
+    let clusterCode = parseInt(c)
+    let commandIds = codes[c]
+    let cluster = await queryZcl.selectClusterByCode(
+      db,
+      zclPackageId,
+      clusterCode
+    )
+    for (const commandCode of Object.keys(commandIds)) {
+      let command = await queryCommand.selectCommandByCode(
+        db,
+        zclPackageId,
+        clusterCode,
+        commandCode
+      )
+      if (cluster != null && command != null) {
+        // Inject the corresponding cluster command combo into endpoint
+        let p = queryConfig.insertOrUpdateCommandState(
+          db,
+          endpointTypeId,
+          cluster.id,
+          command.source,
+          command.id,
+          1,
+          true
+        )
+        insertionPromises.push(p)
+      }
+    }
+  }
+  return Promise.all(insertionPromises)
+}
+
+/**
+ * This method goes over the endpoint type and the state, and enables
+ * commands that belong to enabled clusters and are listed in the
+ * commandExtensions as "implemented".
+ * @param {*} db
+ * @param {*} zclPackageId
+ * @param {*} state
+ * @param {*} commandExtensions
+ * @param {*} endpointTypeIdArray
+ */
+async function loadImplementedCommandsExtensions(
+  db,
+  zclPackageId,
+  state,
+  commandExtensions,
+  endpointTypeIdArray
+) {
+  let promises = []
+  for (let endpointTypeId of endpointTypeIdArray) {
+    promises.push(
+      loadImplementedCommandsForEndpoint(
+        db,
+        zclPackageId,
+        state,
+        commandExtensions,
+        endpointTypeId
+      )
+    )
+  }
+  return Promise.all(promises)
+}
+
+/**
  * This method resolves promises that contain all the
  * queries that are needed to load the attribute state
  *
@@ -467,7 +560,36 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
  * @param {*} state
  * @param {*} sessionId
  */
-async function loadCommands(db, state, packageId, endpointTypeIdArray) {}
+async function loadCommands(
+  db,
+  state,
+  zclPackageId,
+  genPackageId,
+  endpointTypeIdArray
+) {
+  if (genPackageId != null) {
+    let commandExtensions =
+      await queryPackage.selectPackageExtensionByPropertyAndEntity(
+        db,
+        genPackageId,
+        'implementedCommands',
+        dbEnum.packageExtensionEntity.command
+      )
+    if (
+      commandExtensions != null &&
+      commandExtensions.defaults != null &&
+      commandExtensions.defaults.length > 0
+    ) {
+      await loadImplementedCommandsExtensions(
+        db,
+        zclPackageId,
+        state,
+        commandExtensions,
+        endpointTypeIdArray
+      )
+    }
+  }
+}
 
 /**
  * This method resolves promises that contain all the
@@ -525,9 +647,23 @@ async function iscDataLoader(db, state, sessionId) {
     dbEnum.packageType.zclProperties
   )
 
+  let genPackages = await queryPackage.getSessionPackagesByType(
+    db,
+    sessionId,
+    dbEnum.packageType.genTemplatesJson
+  )
+
   if (zclPackages.length == 0) {
     throw new Error('No zcl packages found for ISC import.')
   }
+
+  let genPackageId = null
+  if (genPackages.length == 0) {
+    env.logWarning('No gen packages, missing the extensions matching.')
+  } else {
+    genPackageId = genPackages[0].id
+  }
+  let zclPackageId = zclPackages[0].id
 
   // Remove endpoint types that are not used.
   let usedEndpointTypes = state.endpoint.map((ep) => ep.endpointType)
@@ -537,10 +673,9 @@ async function iscDataLoader(db, state, sessionId) {
     }
   }
 
-  let packageId = zclPackages[0].id
   for (let key of Object.keys(endpointTypes)) {
     promises.push(
-      loadEndpointType(db, sessionId, packageId, endpointTypes[key])
+      loadEndpointType(db, sessionId, zclPackageId, endpointTypes[key])
         .then((newEndpointTypeId) => {
           return {
             endpointTypeId: newEndpointTypeId,
@@ -557,7 +692,7 @@ async function iscDataLoader(db, state, sessionId) {
             clusterOverridePromises.push(
               queryConfig.setClusterIncluded(
                 db,
-                packageId,
+                zclPackageId,
                 endpointTypeIds.endpointTypeId,
                 clusterCode,
                 isIncluded,
@@ -616,22 +751,16 @@ async function iscDataLoader(db, state, sessionId) {
   if (state.log != null) {
     querySession.writeLog(db, sessionId, state.log)
   }
-  return Promise.all(endpointInsertionPromises)
-    .then((endpointTypeIds) =>
-      loadAttributes(db, state, packageId, endpointTypeIds)
-    )
-    .then((endpointTypeIds) =>
-      loadCommands(db, state, packageId, endpointTypeIds)
-    )
-    .then(() => loadSessionKeyValues(db, sessionId, state.sessionKey))
-    .then(() => querySession.setSessionClean(db, sessionId))
-    .then(() => {
-      return {
-        sessionId: sessionId,
-        errors: [],
-        warnings: [],
-      }
-    })
+  let endpointTypeIds = await Promise.all(endpointInsertionPromises)
+  await loadAttributes(db, state, zclPackageId, endpointTypeIds)
+  await loadCommands(db, state, zclPackageId, genPackageId, endpointTypeIds)
+  await loadSessionKeyValues(db, sessionId, state.sessionKey)
+  await querySession.setSessionClean(db, sessionId)
+  return {
+    sessionId: sessionId,
+    errors: [],
+    warnings: [],
+  }
 }
 
 exports.readIscData = readIscData

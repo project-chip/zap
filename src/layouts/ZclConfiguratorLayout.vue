@@ -118,4 +118,14 @@ export default {
   vertical-align: middle;
   margin: 0px 5px 5px 0px;
 }
+
+.body--dark .zclConfiguratorLayoutHeader {
+  background: $dark-header-bar-bg;
+  color: white;
+}
+
+body.body--dark {
+  background: #272821
+}
+
 </style>

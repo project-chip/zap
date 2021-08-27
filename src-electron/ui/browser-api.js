@@ -16,7 +16,7 @@
  */
 
 const rendApi = require('../../src-shared/rend-api.js')
-const uiUtil = require('./ui-util.js')
+const uiUtil = require('./ui-util')
 const env = require('../util/env')
 
 /**

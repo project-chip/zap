@@ -35,6 +35,9 @@ const templateCount = testUtil.testTemplate.zigbeeCount
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 const testFile2 = path.join(__dirname, 'resource/three-endpoint-device.zap')
 const testFile3 = path.join(__dirname, 'resource/zll-on-off-switch-test.zap')
+const testFile4 = path.join(__dirname, 'resource/mfg-specific-clusters-commands.zap')
+const testFile5 = path.join(__dirname, 'resource/gp-combo-basic-test.zap')
+
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -474,6 +477,56 @@ test(
 )
 
 test(
+  'Test generated defaults',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile5, { sessionId: sid })
+
+    return genEngine
+      .generate(
+        db,
+        sid,
+        templateContext.packageId,
+        {},
+        {
+          disableDeprecationWarnings: true,
+        }
+      )
+      .then((genResult) => {
+        expect(genResult).not.toBeNull()
+        expect(genResult.partial).toBeFalsy()
+        expect(genResult.content).not.toBeNull()
+
+        // Test GENERATED_DEFAULTS big endian
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '0x0F, 0xAE, 0x2F, /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server */'
+          )
+        ).toBeTruthy()
+        // Test GENERATED_DEFAULTS little endian
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '0x2F, 0xAE, 0x0F,  /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server*/'
+          )
+        ).toBeTruthy()
+        // Test GENERATED_DEFAULTS big endian for attribute of size > 8
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            '0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F, 0x0G, 0x0H, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client */'
+          )
+        ).toBeTruthy()
+        // Test GENERATED_DEFAULTS little endian for attribute of size > 8 is same as big endian. Bytes are not inverted
+        expect(
+          genResult.content['zap-config-version-2.h'].includes(
+            `0x0H, 0x0G, 0x0F, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client*/`
+          )
+        ).toBeFalsy()
+      })
+  },
+  testUtil.timeout.long()
+)
+
+test(
   'Testing zap command parser generation',
   async () => {
     let sid = await querySession.createBlankSession(db)
@@ -542,6 +595,64 @@ test(
         expect(
           genResult.content['zap-command-parser-ver-3.c'].includes(
             'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
+          )
+        ).toBeTruthy()
+      })
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Testing zap command parser generation for manufacturing specific clusters',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile4, { sessionId: sid })
+
+    return genEngine
+      .generate(
+        db,
+        sid,
+        templateContext.packageId,
+        {},
+        {
+          disableDeprecationWarnings: true,
+        }
+      )
+      .then((genResult) => {
+        // Test Cluster command parsers for manufacturing specific clusters
+        expect(
+          genResult.content['zap-command-parser-ver-4.c'].includes(
+            'case 0xFC57: //Manufacturing Specific cluster'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-4.c'].includes(
+            'case 0x1217: // Cluster: SL Works With All Hubs'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-4.c'].includes(
+            'result = emberAfSlWorksWithAllHubsClusterClientCommandParse(cmd);'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-4.c'].includes(
+            'case 0xFC02: //Manufacturing Specific cluster'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-4.c'].includes(
+            'case 0x1002: // Cluster: MFGLIB Cluster'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-4.c'].includes(
+            'result = emberAfMfglibClusterClusterServerCommandParse(cmd);'
           )
         ).toBeTruthy()
       })

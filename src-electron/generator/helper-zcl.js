@@ -563,7 +563,7 @@ async function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     }
   }
 
-  if (fixedLength) {
+  if (isFixedLength) {
     return fixedLengthReturn
   } else {
     return notFixedLengthReturn
@@ -2226,10 +2226,12 @@ async function as_generated_default_macro(value, attributeSize, options) {
     for (let i = 0; i < padding_length; i++) {
       default_macro_signature += '0x00, '
     }
-    for (let j = 0; j < default_macro.length; j++) {
-      default_macro_signature += ' 0x' + default_macro[j] + ','
+    for (let m of default_macro) {
+      default_macro_signature += ' 0x' + m + ','
     }
-    if (options.hash.endian != 'big') {
+    // Applying endianess to attributes with size less than equal to 8 bytes.
+    // Thus only swapping int64u or smaller
+    if (options.hash.endian != 'big' && attributeSize <= 8) {
       default_macro_signature = default_macro_signature
         .split(' ')
         .reverse()

@@ -220,6 +220,8 @@ function convertRestKeyToDbColumn(key) {
       return 'NETWORK_IDENTIFIER'
     case restApi.updateKey.profileId:
       return 'PROFILE'
+    case restApi.updateKey.deviceId:
+      return 'DEVICE_IDENTIFIER'
     case restApi.updateKey.endpointVersion:
       return 'DEVICE_VERSION'
     case restApi.updateKey.deviceTypeRef:

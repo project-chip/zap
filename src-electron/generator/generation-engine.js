@@ -401,7 +401,6 @@ async function loadTemplates(db, genTemplatesJson) {
     .then((ctx) => recordTemplatesPackage(ctx))
     .catch((err) => {
       env.logInfo(`Can not read templates from: ${context.path}`)
-      console.log(`JING: ${JSON.stringify(err)}`)
       throw err
     })
     .finally(() => {
@@ -507,23 +506,22 @@ async function generateSingleTemplate(
     disableDeprecationWarnings: false,
   }
 ) {
-  return templateEngine
-    .produceContent(
+  try {
+    let result = await templateEngine.produceContent(
       genResult.db,
       genResult.sessionId,
       singleTemplatePkg,
       genTemplateJsonPackageId,
       options
     )
-    .then((data) => {
-      genResult.content[singleTemplatePkg.version] = data
-      genResult.partial = true
-      return genResult
-    })
-    .catch((err) => {
-      genResult.errors[singleTemplatePkg.version] = err
-      genResult.hasErrors = true
-    })
+    genResult.content[singleTemplatePkg.version] = result.content
+    genResult.stats[singleTemplatePkg.version] = result.stats
+    genResult.partial = true
+    return genResult
+  } catch (err) {
+    genResult.errors[singleTemplatePkg.version] = err
+    genResult.hasErrors = true
+  }
 }
 
 /**
@@ -552,6 +550,7 @@ async function generate(
         db: db,
         sessionId: sessionId,
         content: {},
+        stats: {},
         errors: {},
         hasErrors: false,
         generatorOptions: templateGeneratorOptions,
@@ -596,10 +595,26 @@ async function generateGenerationContent(genResult, timing = {}) {
     creator: 'zap',
     content: [],
     timing: timing,
+    stats: {},
   }
+  out.stats.templates = genResult.stats
   for (const f of Object.keys(genResult.content)) {
     out.content.push(f)
   }
+  out.stats.allHelpers = {}
+
+  let allHelpers = [...templateEngine.globalHelpersList()].sort()
+  allHelpers.forEach((h) => {
+    out.stats.allHelpers[h] = 0
+  })
+
+  for (const [template, stat] of Object.entries(out.stats.templates)) {
+    for (const [helper, value] of Object.entries(stat)) {
+      let count = value.useCount
+      out.stats.allHelpers[helper] += count
+    }
+  }
+
   return Promise.resolve(JSON.stringify(out, null, 2))
 }
 
@@ -684,11 +699,9 @@ async function generateAndWriteFiles(
   promises.push(
     generateGenerationContent(genResult, timing).then((generatedContent) => {
       if (options.genResultFile) {
-        return writeFileWithBackup(
-          path.join(outputDirectory, 'genResult.json'),
-          generatedContent,
-          options.backup
-        )
+        let resultPath = path.join(outputDirectory, 'genResult.json')
+        options.logger(`    ✍  Result: ${resultPath}`)
+        return writeFileWithBackup(resultPath, generatedContent, options.backup)
       } else {
         return
       }

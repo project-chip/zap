@@ -290,6 +290,7 @@ export function addEndpoint(context, newEndpointContext) {
         endpointTypeRef: arg.endpointType,
         networkId: arg.networkId,
         profileId: arg.profileId,
+        deviceIdentifier: arg.deviceId,
         endpointVersion: arg.endpointVersion,
         endpointIdValidationIssues: arg.validationIssues.endpointId,
         networkIdValidationIssues: arg.validationIssues.networkId,
@@ -629,6 +630,10 @@ export function setDefaultUiMode(context, uiMode) {
 
 export function setDebugNavBar(context, debugNavBar) {
   context.commit('setDebugNavBar', debugNavBar)
+}
+
+export function setStandalone(context, standalone) {
+  context.commit('setStandalone', standalone)
 }
 
 export function setAttributeEditting(context, editContext) {

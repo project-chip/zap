@@ -14,9 +14,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-const { dialog } = require('electron')
-const windowJs = require('./window.js')
-const browserApi = require('./browser-api.js')
+import { dialog } from 'electron'
+import windowJs from './window.js'
+import browserApi from './browser-api.js'
+import * as uiTypes from '../../src-shared/types/ui-types'
 
 /**
  * Simple dialog to show error messages from electron renderer scope.
@@ -24,7 +25,7 @@ const browserApi = require('./browser-api.js')
  * @param {*} title
  * @param {*} err
  */
-function showErrorMessage(title, err) {
+function showErrorMessage(title: string, err: Error | string) {
   let msg
   if (err instanceof Error) {
     msg = err.toString() + '\n\nStack trace:\n' + err.stack
@@ -42,9 +43,14 @@ function showErrorMessage(title, err) {
  * @param {*} filePath
  * @param {*} httpPort Server port for the URL that will be constructed.
  */
-function openFileConfiguration(filePath, httpPort) {
+function openFileConfiguration(
+  filePath: string,
+  httpPort: number,
+  standalone: boolean = false
+) {
   windowJs.windowCreate(httpPort, {
-    filePath: filePath,
+    filePath,
+    standalone,
   })
 }
 
@@ -54,7 +60,7 @@ function openFileConfiguration(filePath, httpPort) {
  * @param {*} httpPort
  * @param {*} options: uiMode, debugNavBar
  */
-async function openNewConfiguration(httpPort, options = {}) {
+async function openNewConfiguration(httpPort: number, options = {}) {
   windowJs.windowCreate(httpPort, options)
 }
 
@@ -64,8 +70,12 @@ async function openNewConfiguration(httpPort, options = {}) {
  * @param {*} browserWindow window to affect
  * @param {*} dirty true if this windows is now dirty, false if otherwise
  */
-function toggleDirtyFlag(browserWindow, dirty) {
+function toggleDirtyFlag(
+  browserWindow: Electron.BrowserWindow,
+  dirty: boolean
+) {
   let title = browserWindow.getTitle()
+  // @ts-ignore TODO: type 'isDirty' somehow.
   browserWindow.isDirty = dirty
   if (title.startsWith('* ') && !dirty) {
     browserWindow.setTitle(title.slice(2))
@@ -82,13 +92,17 @@ function toggleDirtyFlag(browserWindow, dirty) {
  * @param {*} browserWindow
  * @param {*} options 'key', 'title', 'mode', 'defaultPath'
  */
-function openFileDialogAndReportResult(browserWindow, options) {
+function openFileDialogAndReportResult(
+  browserWindow: Electron.BrowserWindow,
+  options: uiTypes.UiFileBrowseOptionsType
+) {
+  let p: Electron.OpenDialogOptions = {}
   if (options.mode === 'file') {
-    options.properties = ['openFile']
+    p.properties = ['openFile']
   } else if (options.mode == 'directory') {
-    options.properties = ['openDirectory']
+    p.properties = ['openDirectory']
   }
-  dialog.showOpenDialog(browserWindow, options).then((result) => {
+  dialog.showOpenDialog(browserWindow, p).then((result) => {
     if (!result.canceled) {
       let output = {
         context: options.context,

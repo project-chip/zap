@@ -99,6 +99,7 @@ function httpPostEndpoint(db) {
             endpointId: endpointId,
             endpointType: endpointType,
             networkId: networkId,
+            deviceId: deviceIdentifier,
             profileId: profileId,
             endpointVersion: endpointVersion,
             validationIssues: validationData,

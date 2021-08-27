@@ -48,19 +48,27 @@ function windowCreateIfNotThere(port) {
   }
 }
 
-function createQueryString(uiMode, restPort) {
+function createQueryString(uiMode, standalone, restPort) {
   let params = {}
 
   if (!arguments.length) {
     return ''
   }
 
-  if (uiMode) {
+  if (uiMode !== undefined) {
     params.uiMode = uiMode
   }
 
+  if (standalone !== undefined) {
+    params.standalone = standalone
+  }
+
   // Electron/Development mode
-  if (process.env.DEV && process.env.MODE === 'electron' && restPort) {
+  if (
+    process.env.DEV &&
+    process.env.MODE === 'electron' &&
+    restPort !== undefined
+  ) {
     params.restPort = restPort
   }
 
@@ -95,7 +103,11 @@ function windowCreate(port, args = {}) {
     webPreferences: webPreferences,
   })
 
-  let queryString = createQueryString(args.uiMode, httpServer.httpServerPort())
+  let queryString = createQueryString(
+    args.uiMode,
+    args.standalone,
+    httpServer.httpServerPort()
+  )
 
   w.isDirty = false
   w.loadURL(`http://localhost:${port}/` + queryString).then(async () => {
