@@ -39,8 +39,12 @@ function cleanseUints(uint, size, signed) {
  *
  * @param {*} arg
  */
-function nonAtomicType(arg = { name: 'unknown' }) {
-  return `EmberAf${arg.name}`
+function nonAtomicType(arg = { name: 'unknown', isStruct: false }) {
+  if (arg.isStruct) {
+    return arg.name
+  } else {
+    return `EmberAf${arg.name}`
+  }
 }
 
 /**
