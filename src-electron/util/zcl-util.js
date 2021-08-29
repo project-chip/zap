@@ -69,6 +69,19 @@ function commandComparator(a, b) {
   return 0
 }
 
+/**
+ * This method retrieves a bunch of structs sorted
+ * alphabetically. It's expected to resort the structs into a list
+ * where they are sorted in a way where dependency is observed.
+ *
+ * @param {*} structs
+ * @returns
+ */
+async function sortStructsByDependency(structs) {
+  return structs
+}
+
 exports.clusterComparator = clusterComparator
 exports.attributeComparator = attributeComparator
 exports.commandComparator = commandComparator
+exports.sortStructsByDependency = sortStructsByDependency

@@ -73,4 +73,17 @@ limitations under the License.
     <type id="0xF1" name="security_key" size="16" description="128-bit security key" discrete="true"/>
     <type id="0xFF" name="unknown" size="0" description="Unknown"/>
   </atomic>
+  <struct name="SimpleStruct">
+    <item name="a" type="UINT8U" optional="false"/>
+    <item name="b" type="BOOLEAN" optional="false"/>
+    <item name="c" define="SIMPLE_ENUM" type="ENUM8" optional="false"/>
+    <item name="d" type="OCTET_STRING" optional="false"/>
+    <item name="e" type="CHAR_STRING" optional="false"/>
+  </struct>   
+
+  <struct name="NestedStruct">
+    <item name="a" type="UINT8U" optional="false"/>
+    <item name="b" type="BOOLEAN" optional="false"/>
+    <item name="c" type="SimpleStruct" optional="false"/>
+   </struct>
 </configurator>

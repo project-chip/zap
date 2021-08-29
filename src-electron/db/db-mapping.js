@@ -213,13 +213,15 @@ exports.map = {
   structItem: (x) => {
     if (x == null) return undefined
     return {
+      name: x.NAME,
       label: x.NAME,
+      fieldIdentifier: x.FIELD_IDENTIFIER,
       structRef: x.STRUCT_REF,
       type: x.TYPE,
       minLength: x.MIN_LENGTH,
       maxLength: x.MAX_LENGTH,
+      arrayType: x.ARRAY_TYPE,
       isWritable: dbApi.fromDbBool(x.IS_WRITABLE),
-      caption: `Struct Item of type ${x.TYPE}`,
     }
   },
 

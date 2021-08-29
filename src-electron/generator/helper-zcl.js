@@ -15,14 +15,15 @@
  *    limitations under the License.
  */
 
-const queryZcl = require('../db/query-zcl.js')
-const queryCommand = require('../db/query-command.js')
-const queryEvent = require('../db/query-event.js')
-const dbEnum = require('../../src-shared/db-enum.js')
-const templateUtil = require('./template-util.js')
-const helperC = require('./helper-c.js')
+const queryZcl = require('../db/query-zcl')
+const queryCommand = require('../db/query-command')
+const queryEvent = require('../db/query-event')
+const dbEnum = require('../../src-shared/db-enum')
+const templateUtil = require('./template-util')
+const helperC = require('./helper-c')
 const env = require('../util/env')
-const types = require('../util/types.js')
+const types = require('../util/types')
+const zclUtil = require('../util/zcl-util')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -90,8 +91,11 @@ function zcl_enum_items(options) {
 function zcl_structs(options) {
   let promise = templateUtil
     .ensureZclPackageId(this)
-    .then((packageId) => queryZcl.selectAllStructs(this.global.db, packageId))
-    .then((st) => templateUtil.collectBlocks(st, options, this))
+    .then((packageId) =>
+      queryZcl.selectAllStructsWithItemCount(this.global.db, packageId)
+    )
+    .then((structs) => zclUtil.sortStructsByDependency(structs))
+    .then((structs) => templateUtil.collectBlocks(structs, options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -2502,12 +2506,15 @@ exports.is_enum = isEnum
 exports.isEnum = dep(isEnum, { to: 'is_enum' })
 
 exports.if_manufacturing_specific_cluster = if_manufacturing_specific_cluster
-exports.zcl_command_argument_type_to_cli_data_type = zcl_command_argument_type_to_cli_data_type
+exports.zcl_command_argument_type_to_cli_data_type =
+  zcl_command_argument_type_to_cli_data_type
 exports.zcl_string_type_return = zcl_string_type_return
 exports.is_zcl_string = is_zcl_string
-exports.if_command_arguments_have_fixed_length = if_command_arguments_have_fixed_length
+exports.if_command_arguments_have_fixed_length =
+  if_command_arguments_have_fixed_length
 exports.command_arguments_total_length = command_arguments_total_length
-exports.as_underlying_zcl_type_if_command_is_not_fixed_length = as_underlying_zcl_type_if_command_is_not_fixed_length
+exports.as_underlying_zcl_type_if_command_is_not_fixed_length =
+  as_underlying_zcl_type_if_command_is_not_fixed_length
 exports.if_command_argument_always_present = dep(
   if_command_argument_always_present,
   {
@@ -2517,44 +2524,45 @@ exports.if_command_argument_always_present = dep(
 exports.as_underlying_zcl_type_command_argument_always_present = dep(
   as_underlying_zcl_type_command_argument_always_present,
   {
-    to:
-      'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present',
+    to: 'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present',
   }
 )
 exports.if_command_argument_always_present_with_presentif = dep(
   if_command_argument_always_present_with_presentif,
   { to: 'if_ca_always_present_with_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_always_present_with_presentif = dep(
-  as_underlying_zcl_type_command_argument_always_present_with_presentif,
-  {
+exports.as_underlying_zcl_type_command_argument_always_present_with_presentif =
+  dep(as_underlying_zcl_type_command_argument_always_present_with_presentif, {
     to: 'as_underlying_zcl_type_ca_always_present_with_presentif',
-  }
-)
+  })
 exports.if_command_argument_not_always_present_with_presentif = dep(
   if_command_argument_not_always_present_with_presentif,
   { to: 'if_ca_not_always_present_with_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif = dep(
-  as_underlying_zcl_type_command_argument_not_always_present_with_presentif,
-  { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' }
-)
+exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif =
+  dep(
+    as_underlying_zcl_type_command_argument_not_always_present_with_presentif,
+    { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' }
+  )
 exports.if_command_argument_not_always_present_no_presentif = dep(
   if_command_argument_not_always_present_no_presentif,
   { to: 'if_ca_not_always_present_no_presentif' }
 )
-exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif = dep(
-  as_underlying_zcl_type_command_argument_not_always_present_no_presentif,
-  {
+exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif =
+  dep(as_underlying_zcl_type_command_argument_not_always_present_no_presentif, {
     to: 'as_underlying_zcl_type_ca_not_always_present_no_presentif',
-  }
-)
+  })
 exports.as_generated_default_macro = as_generated_default_macro
 exports.attribute_mask = attribute_mask
 exports.command_mask = command_mask
-exports.format_zcl_string_as_characters_for_generated_defaults = format_zcl_string_as_characters_for_generated_defaults
-exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present = as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
-exports.as_underlying_zcl_type_ca_not_always_present_no_presentif = as_underlying_zcl_type_ca_not_always_present_no_presentif
-exports.as_underlying_zcl_type_ca_not_always_present_with_presentif = as_underlying_zcl_type_ca_not_always_present_with_presentif
-exports.as_underlying_zcl_type_ca_always_present_with_presentif = as_underlying_zcl_type_ca_always_present_with_presentif
+exports.format_zcl_string_as_characters_for_generated_defaults =
+  format_zcl_string_as_characters_for_generated_defaults
+exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present =
+  as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
+exports.as_underlying_zcl_type_ca_not_always_present_no_presentif =
+  as_underlying_zcl_type_ca_not_always_present_no_presentif
+exports.as_underlying_zcl_type_ca_not_always_present_with_presentif =
+  as_underlying_zcl_type_ca_not_always_present_with_presentif
+exports.as_underlying_zcl_type_ca_always_present_with_presentif =
+  as_underlying_zcl_type_ca_always_present_with_presentif
 exports.if_is_struct = if_is_struct
