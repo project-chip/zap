@@ -22,10 +22,14 @@
  */
 
 // Local utility function
-function cleanseUints(uint) {
-  if (uint == 'uint24_t') return 'uint32_t'
-  if (uint == 'uint48_t') return 'uint8_t *'
-  return uint
+function cleanseUints(uint, size, signed) {
+  if (size > 32) {
+    return signed ? 'int8_t *' : 'uint8_t *'
+  } else if (size == 24) {
+    return signed ? 'int32_t' : 'uint32_t'
+  } else {
+    return uint
+  }
 }
 
 /**
@@ -35,8 +39,12 @@ function cleanseUints(uint) {
  *
  * @param {*} arg
  */
-function nonAtomicType(arg = { name: 'unknown' }) {
-  return `EmberAf${arg.name}`
+function nonAtomicType(arg = { name: 'unknown', isStruct: false }) {
+  if (arg.isStruct) {
+    return arg.name
+  } else {
+    return `EmberAf${arg.name}`
+  }
 }
 
 /**
@@ -59,12 +67,12 @@ function atomicType(arg = { name: 'unknown', size: 0 }) {
     let ret = `${signed ? '' : 'u'}int${size * 8}_t`
 
     // few exceptions
-    ret = cleanseUints(ret)
+    ret = cleanseUints(ret, size * 8, signed)
     return ret
   } else if (name.startsWith('enum') || name.startsWith('data')) {
-    return cleanseUints(`uint${name.slice(4)}_t`)
+    return cleanseUints(`uint${name.slice(4)}_t`, name.slice(4), false)
   } else if (name.startsWith('bitmap')) {
-    return cleanseUints(`uint${name.slice(6)}_t`)
+    return cleanseUints(`uint${name.slice(6)}_t`, name.slice(6), false)
   } else {
     switch (name) {
       case 'utc_time':

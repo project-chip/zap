@@ -597,6 +597,24 @@ test(
             'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
           )
         ).toBeTruthy()
+
+        // Test command argument declarations for data types greater than 4
+        // bytes and make sure they are declared as pointers
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'case ZCL_GP_PROXY_TABLE_REQUEST_COMMAND_ID:'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'uint64_t gpdIeee;'
+          )
+        ).toBeFalsy()
+        expect(
+          genResult.content['zap-command-parser-ver-3.c'].includes(
+            'uint8_t *  gpdIeee;'
+          )
+        ).toBeTruthy()
       })
   },
   testUtil.timeout.long()

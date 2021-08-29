@@ -97,8 +97,15 @@ async function asUnderlyingType(value) {
     }
   }
 
+  // Check if it's maybe a struct
+  let struct = await queryZcl.selectStructByName(
+    this.global.db,
+    value,
+    this.global.zclPackageId
+  )
+
   if (atomic == null) {
-    return this.global.overridable.nonAtomicType({ name: value })
+    return this.global.overridable.nonAtomicType({ name: value, isStruct: (struct != null)})
   } else {
     let opt = await queryPackage.selectSpecificOptionValue(
       this.global.db,
