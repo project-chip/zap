@@ -128,6 +128,10 @@ INSERT INTO ATTRIBUTE (
   MAX,
   MIN_LENGTH,
   MAX_LENGTH,
+  REPORT_MIN_INTERVAL,
+  REPORT_MAX_INTERVAL,
+  REPORTABLE_CHANGE,
+  REPORTABLE_CHANGE_LENGTH,
   IS_WRITABLE,
   DEFAULT_VALUE,
   IS_OPTIONAL,
@@ -138,7 +142,7 @@ INSERT INTO ATTRIBUTE (
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -156,6 +160,10 @@ function attributeMap(clusterId, packageId, attributes) {
     attribute.max,
     attribute.minLength,
     attribute.maxLength,
+    attribute.reportMinInterval,
+    attribute.reportMaxInterval,
+    attribute.reportableChange,
+    attribute.reportableChangeLength,
     attribute.isWritable,
     attribute.defaultValue,
     dbApi.toDbBool(attribute.isOptional),

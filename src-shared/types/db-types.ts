@@ -163,6 +163,10 @@ export interface DbAttributeType {
   name: string
   packageRef: number
   removedInRef: number
+  reportableChange: string
+  reportableChangeLength: number
+  reportMaxInterval: number
+  reportMinInterval: number
   side: string
   type: string
 }
