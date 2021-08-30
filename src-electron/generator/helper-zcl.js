@@ -92,7 +92,7 @@ function zcl_structs(options) {
   let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
-      queryZcl.selectAllStructsWithItemCount(this.global.db, packageId)
+      queryZcl.selectAllStructsWithItems(this.global.db, packageId)
     )
     .then((structs) => zclUtil.sortStructsByDependency(structs))
     .then((structs) => templateUtil.collectBlocks(structs, options, this))

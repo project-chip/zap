@@ -86,4 +86,21 @@ limitations under the License.
     <item name="b" type="BOOLEAN" optional="false"/>
     <item name="c" type="SimpleStruct" optional="false"/>
    </struct>
+
+   <struct name="A">
+     <item name="x" type="UINT8U"/>
+     <item name="b" type="B"/>
+     <item name="c" type="C"/>
+   </struct>
+   <struct name="B">
+     <item name="x" type="UINT8U"/>
+     <item name="d" type="D"/>
+   </struct>
+   <struct name="C">
+     <item name="x" type="UINT8U"/>
+   </struct>
+   <struct name="D">
+     <item name="x" type="UINT8U"/>
+     <item name="c" type="C"/>
+   </struct>
 </configurator>

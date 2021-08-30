@@ -206,6 +206,7 @@ async function selectAllStructsWithItems(db, packageId) {
       db,
       `
 SELECT
+  STRUCT.STRUCT_ID AS STRUCT_ID,
   STRUCT.NAME AS STRUCT_NAME,
   ITEM.NAME AS ITEM_NAME,
   ITEM.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
@@ -231,7 +232,9 @@ ORDER BY STRUCT.NAME, ITEM.FIELD_IDENTIFIER`,
         if (acc.length == 0 || acc[acc.length - 1].name != value.STRUCT_NAME) {
           // Create a new object
           objectToActOn = {
+            id: value.STRUCT_ID,
             name: value.STRUCT_NAME,
+            label: value.STRUCT_NAME,
             items: [],
           }
           acc.push(objectToActOn)
