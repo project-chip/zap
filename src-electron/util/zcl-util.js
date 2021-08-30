@@ -84,11 +84,10 @@ function findStructByName(structs, name) {
  * alphabetically. It's expected to resort the structs into a list
  * where they are sorted in a way where dependency is observed.
  *
- * It uses the DFS algorithm to traverse the DAG in a way the
- * dependencies are observed.
+ * It uses the DFS-based topological sort algorithm.
  *
  * @param {*} structs
- * @returns
+ * @returns sorted structs according to topological search.
  */
 async function sortStructsByDependency(structs) {
   let allStructNames = structs.map((s) => s.name)
