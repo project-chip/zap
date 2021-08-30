@@ -38,6 +38,7 @@ exports.packageOptionCategory = {
   manufacturerCodes: 'manufacturerCodes',
   typeMap: 'typeMap',
   generator: 'generator',
+  profileCodes: 'profileCodes'
 }
 
 exports.side = {
@@ -109,6 +110,7 @@ exports.generatorOptions = {
 exports.sessionOption = {
   defaultResponsePolicy: 'defaultResponsePolicy',
   manufacturerCodes: 'manufacturerCodes',
+  profileCodes: 'profileCodes'
 }
 
 // When SDK supports a custom device, these are the default values for it.

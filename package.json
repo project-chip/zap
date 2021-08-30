@@ -102,6 +102,7 @@
     "request": "^2.88.2",
     "source-map-support": "^0.5.19",
     "sqlite3": "^5.0.2",
+    "toposort": "^2.0.2",
     "utf-8-validate": "^5.0.5",
     "uuid": "^8.3.2",
     "ws": "^7.5.2",

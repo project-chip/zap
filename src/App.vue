@@ -38,6 +38,10 @@ function initLoad(store) {
     key: 'manufacturerCodes',
     type: 'object',
   })
+  store.dispatch('zap/loadOptions', {
+    key: 'profileCodes',
+    type: 'object',
+  })
   store.dispatch('zap/loadSessionKeyValues')
 
   let promises = []

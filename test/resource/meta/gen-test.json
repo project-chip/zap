@@ -6,6 +6,11 @@
       "path": "test1.zapt",
       "name": "Test 1",
       "output": "test1.out"
+    },
+    {
+      "path": "struct.zapt",
+      "name": "Struct",
+      "output": "struct.h"
     }
   ]
 }

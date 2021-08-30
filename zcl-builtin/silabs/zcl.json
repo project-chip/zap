@@ -29,6 +29,7 @@
   "zclSchema": "../shared/schema/zcl.xsd",
   "supportCustomZclDevice": true,
   "manufacturersXml": "../shared/manufacturers.xml",
+  "profilesXml": "../shared/profiles.xml",
   "zclValidation": "./schema/zcl-validation.js",
   "options": {
     "text": {

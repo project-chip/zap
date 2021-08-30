@@ -20,6 +20,7 @@
  *
  * @module REST API: various zcl utilities
  */
+const toposort = require('toposort')
 
 /**
  * Comparator for sorting clusters.
@@ -69,6 +70,53 @@ function commandComparator(a, b) {
   return 0
 }
 
+function findStructByName(structs, name) {
+  for (const s of structs) {
+    if (s.name == name) {
+      return s
+    }
+  }
+  return null
+}
+
+/**
+ * This method retrieves a bunch of structs sorted
+ * alphabetically. It's expected to resort the structs into a list
+ * where they are sorted in a way where dependency is observed.
+ *
+ * It uses the DFS-based topological sort algorithm.
+ *
+ * @param {*} structs
+ * @returns sorted structs according to topological search.
+ */
+async function sortStructsByDependency(structs) {
+  let allStructNames = structs.map((s) => s.name)
+  let edges = []
+
+  // Add edges
+  structs.forEach((s) => {
+    s.items.forEach((i) => {
+      const type = i.type
+      if (allStructNames.includes(type)) {
+        edges.push([s.name, type])
+      }
+    })
+  })
+
+  let sortedEdges = toposort(edges).reverse()
+
+  let finalSort = []
+  sortedEdges.forEach((s) => {
+    finalSort.push(findStructByName(structs, s))
+  })
+  allStructNames.forEach((s) => {
+    if (!sortedEdges.includes(s)) finalSort.push(findStructByName(structs, s))
+  })
+
+  return finalSort
+}
+
 exports.clusterComparator = clusterComparator
 exports.attributeComparator = attributeComparator
 exports.commandComparator = commandComparator
+exports.sortStructsByDependency = sortStructsByDependency

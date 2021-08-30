@@ -27,6 +27,7 @@
   ],
   "zclSchema": "../shared/schema/zcl.xsd",
   "manufacturersXml": "../shared/manufacturers.xml",
+  "profilesXml": "../shared/profiles.xml",
   "options": {
     "text": {
       "defaultResponsePolicy": ["Always", "Conditional", "Never"]

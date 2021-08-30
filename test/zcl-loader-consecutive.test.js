@@ -118,7 +118,7 @@ test(
       x = await queryZcl.selectAllEnumItems(db, jsonPackageId)
       expect(x.length).toEqual(testUtil.totalEnumItemCount)
 
-      x = await queryZcl.selectAllStructs(db, jsonPackageId)
+      x = await queryZcl.selectAllStructsWithItemCount(db, jsonPackageId)
       expect(x.length).toEqual(54)
 
       x = await queryZcl.selectAllBitmaps(db, jsonPackageId)
@@ -159,7 +159,7 @@ test(
       x = await queryZcl.selectAllEnumItems(db, dotdotPackageId)
       expect(x.length).toEqual(testUtil.totalDotDotEnumItems)
 
-      x = await queryZcl.selectAllStructs(db, dotdotPackageId)
+      x = await queryZcl.selectAllStructsWithItemCount(db, dotdotPackageId)
       expect(x.length).toEqual(20)
 
       x = await queryZcl.selectAllAtomics(db, dotdotPackageId)

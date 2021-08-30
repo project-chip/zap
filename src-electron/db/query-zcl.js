@@ -168,7 +168,7 @@ async function selectDomainById(db, id) {
  * @param {*} db
  * @returns Promise that resolves with the rows of structs.
  */
-async function selectAllStructs(db, packageId) {
+async function selectAllStructsWithItemCount(db, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -192,6 +192,70 @@ ORDER BY STRUCT.NAME`,
     .then((rows) => rows.map(dbMapping.map.struct))
 }
 
+/**
+ * Retrieves all the structs in the database, including the count
+ * of items.
+ *
+ * @export
+ * @param {*} db
+ * @returns Promise that resolves with the rows of structs, each one containing items field with rows of items.
+ */
+async function selectAllStructsWithItems(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  STRUCT.STRUCT_ID AS STRUCT_ID,
+  STRUCT.NAME AS STRUCT_NAME,
+  ITEM.NAME AS ITEM_NAME,
+  ITEM.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
+  ITEM.TYPE AS ITEM_TYPE,
+  ITEM.ARRAY_TYPE AS ITEM_ARRAY_TYPE,
+  ITEM.MIN_LENGTH AS ITEM_MIN_LENGTH,
+  ITEM.MAX_LENGTH AS ITEM_MAX_LENGTH,
+  ITEM.IS_WRITABLE AS ITEM_IS_WRITABLE
+FROM
+  STRUCT
+LEFT JOIN
+  STRUCT_ITEM AS ITEM
+ON
+  STRUCT.STRUCT_ID = ITEM.STRUCT_REF
+WHERE
+  STRUCT.PACKAGE_REF = ?
+ORDER BY STRUCT.NAME, ITEM.FIELD_IDENTIFIER`,
+      [packageId]
+    )
+    .then((rows) =>
+      rows.reduce((acc, value) => {
+        let objectToActOn
+        if (acc.length == 0 || acc[acc.length - 1].name != value.STRUCT_NAME) {
+          // Create a new object
+          objectToActOn = {
+            id: value.STRUCT_ID,
+            name: value.STRUCT_NAME,
+            label: value.STRUCT_NAME,
+            items: [],
+          }
+          acc.push(objectToActOn)
+        } else {
+          objectToActOn = acc[acc.length - 1]
+        }
+        objectToActOn.items.push({
+          name: value.ITEM_NAME,
+          label: value.ITEM_NAME,
+          fieldIdentifier: value.ITEM_IDENTIFIER,
+          type: value.ITEM_TYPE,
+          arrayType: value.ITEM_ARRAY_TYPE,
+          minLength: value.ITEM_MIN_LENGTH,
+          maxLength: value.ITEM_MAX_LENGTH,
+          isWritable: dbApi.fromDbBool(value.ITEM_IS_WRITABLE),
+        })
+        return acc
+      }, [])
+    )
+}
+
 async function selectStructById(db, id) {
   return dbApi
     .dbGet(db, 'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ?', [id])
@@ -212,7 +276,20 @@ async function selectAllStructItemsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, TYPE, STRUCT_REF, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE FROM STRUCT_ITEM WHERE STRUCT_REF = ? ORDER BY FIELD_IDENTIFIER',
+      `
+SELECT
+  NAME,
+  TYPE,
+  STRUCT_REF,
+  ARRAY_TYPE,
+  MIN_LENGTH,
+  MAX_LENGTH,
+  IS_WRITABLE
+FROM
+  STRUCT_ITEM
+WHERE STRUCT_REF = ?
+ORDER BY
+  FIELD_IDENTIFIER`,
       [id]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))
@@ -229,7 +306,23 @@ async function selectAllStructItemsByStructName(db, name) {
   return dbApi
     .dbAll(
       db,
-      'SELECT STRUCT_ITEM.NAME, STRUCT_ITEM.TYPE, STRUCT_ITEM.STRUCT_REF, STRUCT_ITEM.ARRAY_TYPE FROM STRUCT_ITEM INNER JOIN STRUCT ON STRUCT.STRUCT_ID = STRUCT_ITEM.STRUCT_REF WHERE STRUCT.NAME = ? ORDER BY FIELD_IDENTIFIER',
+      `
+SELECT
+  STRUCT_ITEM.NAME,
+  STRUCT_ITEM.TYPE,
+  STRUCT_ITEM.STRUCT_REF,
+  STRUCT_ITEM.ARRAY_TYPE,
+  STRUCT_ITEM.MIN_LENGTH,
+  STRUCT_ITEM.MAX_LENGTH,
+  STRUCT_ITEM.IS_WRITABLE
+FROM
+  STRUCT_ITEM
+INNER JOIN
+  STRUCT
+ON
+  STRUCT.STRUCT_ID = STRUCT_ITEM.STRUCT_REF
+WHERE STRUCT.NAME = ?
+ORDER BY FIELD_IDENTIFIER`,
       [name]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))
@@ -1100,7 +1193,9 @@ exports.selectAllAtomics = selectAllAtomics
 exports.selectAtomicSizeFromType = selectAtomicSizeFromType
 exports.selectAtomicType = selectAtomicType
 
-exports.selectAllStructs = selectAllStructs
+exports.selectAllStructsWithItemCount = selectAllStructsWithItemCount
+exports.selectAllStructsWithItems = selectAllStructsWithItems
+
 exports.selectStructById = selectStructById
 exports.selectAllStructItemsById = selectAllStructItemsById
 exports.selectAllStructItemsByStructName = selectAllStructItemsByStructName
