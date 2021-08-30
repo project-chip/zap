@@ -33,12 +33,13 @@ limitations under the License.
           />
           <q-input
             label="Profile ID"
-            v-model="shownEndpoint.profileIdentifier"
+            v-model="computedProfileId"
             ref="profile"
             outlined
             filled
             class="col"
             :rules="[reqPosInt]"
+            @input="setProfileId"
           />
           <q-select
             label="Device"
@@ -207,7 +208,26 @@ export default {
       get() {
         return this.shownEndpoint.deviceTypeRefAndDeviceIdPair
       }
-    }
+    },
+    computedProfileId: {
+      get() {
+        let profileOption =
+        this.profileCodesOptions == null
+          ? null
+          : this.profileCodesOptions.find((o) => o.optionCode === this.shownEndpoint.profileIdentifier)
+
+        return profileOption
+          ? profileOption.optionCode + ' (' + profileOption.optionLabel + ')'
+          : this.shownEndpoint.profileIdentifier
+      }
+    },
+    profileCodesOptions: {
+      get() {
+        return this.$store.state.zap.genericOptions[
+          DbEnum.sessionOption.profileCodes
+        ]
+      },
+    },
   },
   methods: {
     getSmallestUnusedEndpointId() {
@@ -225,6 +245,9 @@ export default {
         }
       }
       return id
+    },
+    setProfileId(value) {
+      this.shownEndpoint.profileIdentifier = value
     },
     setDeviceTypeCallback(value) {
       let deviceTypeRef = value.deviceTypeRef

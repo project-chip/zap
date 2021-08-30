@@ -61,6 +61,10 @@ async function collectDataFromJsonFile(metadataFile, data) {
   f = util.locateRelativeFilePath(fileLocations, obj.manufacturersXml)
   if (f != null) returnObject.manufacturersXml = f
 
+  // Profiles XML File
+  f = util.locateRelativeFilePath(fileLocations, obj.profilesXml)
+  if (f != null) returnObject.profilesXml = f
+
   // Zcl XSD file
   f = util.locateRelativeFilePath(fileLocations, obj.zclSchema)
   if (f != null) returnObject.zclSchema = f
@@ -129,6 +133,13 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
           zclProps.manufacturersXml
         )
         if (f != null) returnObject.manufacturersXml = f
+
+        // Profiles XML file.
+        f = util.locateRelativeFilePath(
+          fileLocations,
+          zclProps.profilesXml
+        )
+        if (f != null) returnObject.profilesXml = f
 
         // Zcl XSD file
         f = util.locateRelativeFilePath(fileLocations, zclProps.zclSchema)
@@ -939,6 +950,30 @@ async function parseManufacturerData(db, packageId, manufacturersXml) {
 }
 
 /**
+ * Parses the profiles xml.
+ *
+ * @param {*} db
+ * @param {*} ctx
+ * @returns Promise of a parsed profiles file.
+ */
+ async function parseProfilesData(db, packageId, profilesXml) {
+  let data = await fsp.readFile(profilesXml)
+
+  let profilesMap = await util.parseXml(data)
+
+  return queryPackage.insertOptionsKeyValues(
+    db,
+    packageId,
+    dbEnum.packageOptionCategory.profileCodes,
+    profilesMap.map.mapping.map((datum) => {
+      let profilePair = datum['$']
+      return { code: profilePair['code'], label: profilePair['translation'] }
+    })
+  )
+}
+
+
+/**
  * Parses the ZCL Schema
  * @param {*} db
  */
@@ -1252,6 +1287,9 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     await parseZclFiles(db, ctx.packageId, ctx.zclFiles)
     if (ctx.manufacturersXml) {
       await parseManufacturerData(db, ctx.packageId, ctx.manufacturersXml)
+    }
+    if (ctx.profilesXml) {
+      await parseProfilesData(db, ctx.packageId, ctx.profilesXml)
     }
     if (ctx.supportCustomZclDevice) {
       await processCustomZclDeviceType(db, ctx.packageId)
