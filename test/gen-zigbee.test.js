@@ -615,7 +615,82 @@ test(
             'uint8_t *  gpdIeee;'
           )
         ).toBeTruthy()
-      })
+      
+      
+//********* Test the new helpers for the same content as above******************
+        // Test Cluster command parsers that should be defined
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'EmberAfStatus emberAfGroupsClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'EmberAfStatus emberAfGroupsClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'EmberAfStatus emberAfIdentifyClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'EmberAfStatus emberAfLevelControlClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'EmberAfStatus emberAfOnOffClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'EmberAfStatus emberAfScenesClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'EmberAfStatus emberAfZllCommissioningClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+          )
+        ).toBeTruthy()
+
+        // Test Command callback
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
+          )
+        ).toBeTruthy()
+
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
+          )
+        ).toBeTruthy()
+
+        // Test command argument declarations for data types greater than 4
+        // bytes and make sure they are declared as pointers
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'case ZCL_GP_PROXY_TABLE_REQUEST_COMMAND_ID:'
+          )
+        ).toBeTruthy()
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'uint64_t gpdIeee;'
+          )
+        ).toBeFalsy()
+        expect(
+          genResult.content['zap-command-parser-ver-5.c'].includes(
+            'uint8_t *  gpdIeee;'
+          )
+        ).toBeTruthy()
+        })
   },
   testUtil.timeout.long()
 )

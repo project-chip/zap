@@ -171,6 +171,11 @@
       "output": "zap-command-parser-ver-4.c"
     },
     {
+      "path": "zap-command-parser-ver-5.c.zapt",
+      "name": "Version 5 of zap command parser c file",
+      "output": "zap-command-parser-ver-5.c"
+    },
+    {
       "path": "zap-command.zapt",
       "name": "ZCL command APIs",
       "output": "zap-command.h"
