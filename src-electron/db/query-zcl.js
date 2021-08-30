@@ -236,6 +236,7 @@ ORDER BY STRUCT.NAME, ITEM.FIELD_IDENTIFIER`,
             name: value.STRUCT_NAME,
             label: value.STRUCT_NAME,
             items: [],
+            itemCnt: 0,
           }
           acc.push(objectToActOn)
         } else {
@@ -251,6 +252,7 @@ ORDER BY STRUCT.NAME, ITEM.FIELD_IDENTIFIER`,
           maxLength: value.ITEM_MAX_LENGTH,
           isWritable: dbApi.fromDbBool(value.ITEM_IS_WRITABLE),
         })
+        objectToActOn.itemCnt++
         return acc
       }, [])
     )
