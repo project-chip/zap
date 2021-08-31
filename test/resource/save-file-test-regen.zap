@@ -57,7 +57,7 @@
               "defaultValue": "1",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -83,7 +83,7 @@
               "defaultValue": "1",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -98,7 +98,7 @@
               "defaultValue": "1",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -113,7 +113,7 @@
               "defaultValue": "0",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -128,7 +128,7 @@
               "defaultValue": "0",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -143,7 +143,7 @@
               "defaultValue": "",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -158,7 +158,7 @@
               "defaultValue": "",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -173,7 +173,7 @@
               "defaultValue": "",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -188,7 +188,7 @@
               "defaultValue": "0",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -203,7 +203,7 @@
               "defaultValue": "1",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -289,7 +289,7 @@
               "defaultValue": "1",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -315,7 +315,7 @@
               "defaultValue": "",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -330,7 +330,7 @@
               "defaultValue": "0",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -345,7 +345,7 @@
               "defaultValue": "1",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -371,7 +371,7 @@
               "defaultValue": "1",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -397,7 +397,7 @@
               "defaultValue": "1",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]

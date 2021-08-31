@@ -57,7 +57,7 @@
               "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -83,7 +83,7 @@
               "defaultValue": "0x03",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -98,7 +98,7 @@
               "defaultValue": "0x00",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -113,7 +113,7 @@
               "defaultValue": "0x00",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -128,7 +128,7 @@
               "defaultValue": "0x00",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -143,7 +143,7 @@
               "defaultValue": "",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -158,7 +158,7 @@
               "defaultValue": "",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -173,7 +173,7 @@
               "defaultValue": "",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -188,7 +188,7 @@
               "defaultValue": "0x00",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -203,7 +203,7 @@
               "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -331,7 +331,7 @@
               "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -357,7 +357,7 @@
               "defaultValue": "",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -372,7 +372,7 @@
               "defaultValue": "0x00",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -387,7 +387,7 @@
               "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -430,7 +430,7 @@
               "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -465,7 +465,7 @@
               "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -508,7 +508,7 @@
               "defaultValue": "0x00",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -523,7 +523,7 @@
               "defaultValue": "0x1E",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -538,7 +538,7 @@
               "defaultValue": "0x00",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -553,7 +553,7 @@
               "defaultValue": "",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -568,7 +568,7 @@
               "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -619,7 +619,7 @@
               "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -662,7 +662,7 @@
               "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -705,7 +705,7 @@
               "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -756,7 +756,7 @@
               "defaultValue": "0x0000",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -771,7 +771,7 @@
               "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
@@ -841,7 +841,7 @@
               "defaultValue": "0x0000",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             },
             {
@@ -856,7 +856,7 @@
               "defaultValue": "0x0001",
               "reportable": 0,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 65534,
               "reportableChange": 0
             }
           ]

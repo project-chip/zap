@@ -196,7 +196,7 @@ test(
       "17, 'V', 'e', 'r', 'y', ' ', 'l', 'o', 'n', 'g', ' ', 'u', 's', 'e', 'r', ' ', 'i', 'd', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,"
     )
     expect(epc).toContain(
-      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x0101, 0x0000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65344, 0 }} }, /* lock state */'
+      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x0101, 0x0000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* lock state */'
     )
     expect(epc).toContain(
       '{ 0x0004, ZAP_TYPE(CHAR_STRING), 33, ZAP_ATTRIBUTE_MASK(TOKENIZE), ZAP_LONG_DEFAULTS_INDEX(5) }'
