@@ -1,8 +1,5 @@
 {{zap_header}}
 
-#ifndef __ZAP_GEN_TYPE__
-#define __ZAP_GEN_TYPE__
-
 // ZCL attribute types
 enum {
 {{#zcl_atomics}}

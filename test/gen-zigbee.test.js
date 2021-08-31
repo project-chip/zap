@@ -343,9 +343,6 @@ test(
         expect(zapTypes.includes('uint32_t snapshotCause')).toBeTruthy()
         expect(zapTypes.includes('typedef uint8_t EphemeralData;')).toBeTruthy()
 
-        let zapCli = genResult.content['zap-cli.c']
-        expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
-
         let zapCommandParser = genResult.content['zap-command-parser.c']
         expect(zapCommandParser).not.toBeNull()
         expect(
@@ -378,15 +375,6 @@ test(
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
 
-        let zapCli = genResult.content['zap-cli.c']
-        expect(zapCli.includes('#include <stdlib.h>')).toBeTruthy()
-        //expect(zapCli.includes('void sli_zigbee_cli_zcl_identify_id_command(sl_cli_command_arg_t *arguments);')).toBeTruthy()
-        //expect(zapCli.includes('SL_CLI_COMMAND(sli_zigbee_cli_zcl_identify_id_command,')).toBeTruthy()
-        //expect(zapCli.includes('{ "id", &cli_cmd_zcl_identify_cluster_identify, false },')).toBeTruthy()
-        //expect(zapCli.includes('SL_CLI_COMMAND_GROUP(zcl_identify_cluster_command_table, "ZCL identify cluster commands");')).toBeTruthy()
-        expect(
-          zapCli.includes('{ "identify", &cli_cmd_identify_group, false },')
-        ).toBeTruthy()
         // Test GENERATED_DEFAULTS
         expect(
           genResult.content['zap-config-version-2.h'].includes(
@@ -477,7 +465,7 @@ test(
 )
 
 test(
-  'Test generated defaults',
+  'Test generated defaults and cli',
   async () => {
     let sid = await querySession.createBlankSession(db)
     await importJs.importDataFromFile(db, testFile5, { sessionId: sid })
@@ -521,6 +509,12 @@ test(
             `0x0H, 0x0G, 0x0F, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client*/`
           )
         ).toBeFalsy()
+
+        // Testing zap cli helpers
+        expect(genResult.content['zap-cli.c'].includes('static const sl_cli_command_entry_t zcl_identify_cluster_command_table[]')).toBeTruthy()
+        expect(genResult.content['zap-cli.c'].includes('static const sl_cli_command_info_t cli_cmd_identify_group')).toBeTruthy()
+        expect(genResult.content['zap-cli.c'].includes('SL_CLI_COMMAND_GROUP(zcl_identify_cluster_command_table, "ZCL identify cluster commands");')).toBeTruthy()
+        expect(genResult.content['zap-cli.c'].includes('{ "identify", &cli_cmd_identify_group, false },')).toBeTruthy()
       })
   },
   testUtil.timeout.long()

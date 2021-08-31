@@ -1,8 +1,5 @@
 {{zap_header}}
 
-#ifndef __ZAP_GEN_ID__
-#define __ZAP_GEN_ID__
-
 // Global, non-cluster-specific things
 {{#zcl_global_commands}}
 #define ZCL_{{asDelimitedMacro label}}_COMMAND_ID ({{asHex code 2}})

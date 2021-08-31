@@ -1,28 +1,6 @@
-#include "sl_component_catalog.h"
-#ifdef SL_CATALOG_ZIGBEE_ZCL_FRAMEWORK_CORE_PRESENT
-
-#include <stdint.h>
-
-#include "af.h"
-#include "zap-type.h"
-#include "zap-command-parser.h"
-
 {{#all_user_clusters_with_incoming_commands}}
 EmberAfStatus emberAf{{asCamelCased clusterName false}}Cluster{{asCamelCased clusterSide false}}CommandParse(EmberAfClusterCommand * cmd);
 {{/all_user_clusters_with_incoming_commands}}
-
-static EmberAfStatus status(bool wasHandled, bool clusterExists, bool mfgSpecific)
-{
-  if (wasHandled) {
-    return EMBER_ZCL_STATUS_SUCCESS;
-  } else if (mfgSpecific) {
-    return EMBER_ZCL_STATUS_UNSUP_MANUF_CLUSTER_COMMAND;
-  } else if (clusterExists) {
-    return EMBER_ZCL_STATUS_UNSUP_COMMAND;
-  } else {
-    return EMBER_ZCL_STATUS_UNSUPPORTED_CLUSTER;
-  }
-}
 
 
 // Main command parsing controller.
