@@ -249,7 +249,15 @@ async function startConvert(
               zcl: argv.zclProperties,
               template: argv.generationTemplate,
             })
-            .then((pkgs) => importResult.sessionId)
+            .then(() => {
+              if ( argv.postImportScript) {
+                  return importJs.executePostImportScript(
+                  db,
+                  importResult.sessionId,
+                  argv.postImportScript)
+              }
+            })
+            .then(() => importResult.sessionId)
         })
         .then((sessionId) => {
           options.logger(`    👈 read in: ${singlePath}`)

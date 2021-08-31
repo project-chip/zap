@@ -113,3 +113,4 @@ async function importDataFromFile(
 // exports
 exports.readDataFromFile = readDataFromFile
 exports.importDataFromFile = importDataFromFile
+exports.executePostImportScript = executePostImportScript
