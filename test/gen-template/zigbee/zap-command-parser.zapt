@@ -1,39 +1,10 @@
 {{chip_header}}
 
-#include <stdint.h>
-
-#include "af-structs.h"
-#include "call-command-handler.h"
-#include "callback.h"
-#include "command-id.h"
-#include "util.h"
-
 {{#all_user_clusters}}
 {{#if (isEnabled enabled)}}
 EmberAfStatus emberAf{{asCamelCased name false}}Cluster{{asCamelCased side false}}CommandParse(EmberAfClusterCommand * cmd);
 {{/if}}
 {{/all_user_clusters}}
-
-
-static EmberAfStatus status(bool wasHandled, bool clusterExists, bool mfgSpecific)
-{
-    if (wasHandled)
-    {
-        return EMBER_ZCL_STATUS_SUCCESS;
-    }
-    else if (mfgSpecific)
-    {
-        return EMBER_ZCL_STATUS_UNSUP_MANUF_CLUSTER_COMMAND;
-    }
-    else if (clusterExists)
-    {
-        return EMBER_ZCL_STATUS_UNSUP_COMMAND;
-    }
-    else
-    {
-        return EMBER_ZCL_STATUS_UNSUPPORTED_CLUSTER;
-    }
-}
 
 
 // Main command parsing controller.

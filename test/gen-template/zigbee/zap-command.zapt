@@ -1,18 +1,5 @@
 {{zap_header}}
 
-// Enclosing macro to prevent multiple inclusion
-#ifndef SILABS_CLUSTER_CLIENT_API
-#define SILABS_CLUSTER_CLIENT_API
-
-// This is generated client API
-
-/**
-* @addtogroup command Application Framework command interface Reference
-* This document describes the ZCL command interface used by the Silabs
-* Application Framework for filling ZCL command buffers.
-* @{
-*/
-
 {{#zcl_command_tree}}
 
 /** @brief Command description for {{label}}

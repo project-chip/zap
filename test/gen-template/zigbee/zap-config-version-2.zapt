@@ -1,12 +1,5 @@
 {{zap_header}}
 
-#ifndef SILABS_AF_ENDPOINT_CONFIG
-#define SILABS_AF_ENDPOINT_CONFIG 1
-
-// Default values for the attributes longer than a pointer,
-// in a form of a binary blob. All attribute values with size greater than 2 bytes.
-// Excluding 0 values and externally saved values
-// Separate block is generated for big-endian and little-endian cases.
 #if BIGENDIAN_CPU
 {{#all_user_cluster_attributes_for_generated_defaults}}
 	{{~#first}}#define GENERATED_DEFAULTS_COUNT ({{count}}) {{new_line 1}}{{/first}}

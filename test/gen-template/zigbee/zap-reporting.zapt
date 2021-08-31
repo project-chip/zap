@@ -1,8 +1,5 @@
 {{zap_header}}
 
-#ifndef SILABS_AF_REPORTING
-#define SILABS_AF_REPORTING 1
-
 // Array of EmberAfPluginReportingEntry structures.
 #define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS {                                                       \
     { EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 1, 0x0006, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 1, 65534, 0 }, \
