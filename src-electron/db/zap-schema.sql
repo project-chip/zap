@@ -604,7 +604,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
   "DEFAULT_VALUE" text,
   "INCLUDED_REPORTABLE" integer default false,
   "MIN_INTERVAL" integer default 0,
-  "MAX_INTERVAL" integer default 65344,
+  "MAX_INTERVAL" integer default 65334,
   "REPORTABLE_CHANGE" integer default 0,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
   foreign key (ENDPOINT_TYPE_CLUSTER_REF) references ENDPOINT_TYPE_CLUSTER(ENDPOINT_TYPE_CLUSTER_ID),
