@@ -99,6 +99,11 @@ test(
 
     let epc = genResult.content['test1.out']
     expect(epc).not.toBeNull()
+    expect(epc).toContain('Test1 template.')
+
+    epc = genResult.content['out/test1.out']
+    expect(epc).not.toBeNull()
+    expect(epc).toContain('validating')
   },
   testUtil.timeout.medium()
 )
