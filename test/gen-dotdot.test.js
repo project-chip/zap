@@ -107,33 +107,27 @@ test(
 
         let epc = genResult.content['test1.h']
         expect(epc).not.toBeNull()
-        expect(
-          epc.includes(
-            'EmberAfDrlkOperMode OperatingModeDuringHoliday // command type'
-          )
-        ).toBeTruthy()
-        expect(
-          epc.includes('EmberAfDrlkOperMode OperatingMode; // attribute type')
-        ).toBeTruthy()
+        expect(epc).toContain(
+          'EmberAfDrlkOperMode OperatingModeDuringHoliday // command type'
+        )
+        expect(epc).toContain(
+          'EmberAfDrlkOperMode OperatingMode; // attribute type'
+        )
 
         let mqtt = genResult.content['mqtt.cpp']
         expect(mqtt).not.toBeNull()
-        expect(mqtt.includes('Bitmap_DaysMask = "DrlkDaysMask"')).toBeTruthy()
-        expect(mqtt.includes('Bitmap_RelayStatus = "map8"')).toBeTruthy()
-        expect(mqtt.includes('Enum_StatusCode = "zclStatus"')).toBeTruthy()
-        expect(mqtt.includes('Enum_AlarmCode = "enum8"')).toBeTruthy()
+        expect(mqtt).toContain('Bitmap_DaysMask = "DrlkDaysMask"')
+        expect(mqtt).toContain('Bitmap_RelayStatus = "map8"')
+        expect(mqtt).toContain('Enum_StatusCode = "zclStatus"')
+        expect(mqtt).toContain('Enum_AlarmCode = "enum8"')
 
         let types = genResult.content['dotdot-type.h']
         expect(types).not.toBeNull()
-        expect(
-          types.includes('// Bitmap: LevelOptions, type: map8')
-        ).toBeTruthy()
+        expect(types).toContain('// Bitmap: LevelOptions, type: map8')
 
         let clusters = genResult.content['dotdot-cluster.xml']
         expect(clusters).not.toBeNull()
-        expect(
-          clusters.includes('<cluster code="0x0000" revision="2">')
-        ).toBeTruthy()
+        expect(clusters).toContain('<cluster code="0x0000" revision="2">')
       }),
   testUtil.timeout.long()
 )

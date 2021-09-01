@@ -168,17 +168,14 @@ test(
         ).toBeTruthy()
 
         let simpleTest = genResult.content['simple-test.h']
-        expect(
-          simpleTest.includes(
-            'Cluster Name : Groups+Command Name : RemoveAllGroups'
-          )
-        ).toBeTruthy()
+        expect(simpleTest).toContain(
+          'Cluster Name : Groups+Command Name : RemoveAllGroups'
+        )
 
         let featureMap = genResult.content['feature-map.h']
         expect(featureMap).not.toBeNull()
-        expect(
-          featureMap.includes(
-            `Cluster: Network Provisioning
+        expect(featureMap).toContain(
+          `Cluster: Network Provisioning
 - default value: 0x0055
 - feature bits for the feature map attribute:
     0: Bit 0 is assigned to tag F0 => value = 1
@@ -187,8 +184,7 @@ test(
     3: Bit 3 is assigned to tag C1 => value = 0
     4: Bit 4 is assigned to tag F2 => value = 1
     5: Bit 6 is assigned to tag F3 => value = 0`
-          )
-        ).toBeTruthy()
+        )
       }),
   testUtil.timeout.long()
 )

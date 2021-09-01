@@ -106,19 +106,19 @@ test(
     expect(genResult.hasErrors).toBeTruthy()
 
     let err = genResult.errors['test-fail.out']
-    expect(err.message.includes('this is where the failure lies')).toBeTruthy()
-    expect(err.message.includes('line: 3, column: 0')).toBeTruthy()
-    expect(err.message.includes('test-fail.zapt')).toBeTruthy()
+    expect(err.message).toContain('this is where the failure lies')
+    expect(err.message).toContain('line: 3, column: 0')
+    expect(err.message).toContain('test-fail.zapt')
 
     err = genResult.errors['test-missing.out']
     // This is weird. If helpers are not defined, they are simply
     // ignored. Hence there is no error here.
     expect(err).toBeUndefined()
-    //  expect(err.message.includes('"non_existent_helper" not defined')).toBeTruthy()
+    //  expect(err.message).toContain('"non_existent_helper" not defined')).toBeTruthy()
 
     let testFutures = genResult.content['test-future.out']
-    expect(testFutures.includes('x=1')).toBeTruthy()
-    expect(testFutures.includes('y=1')).not.toBeTruthy()
+    expect(testFutures).toContain('x=1')
+    expect(testFutures).not.toContain('y=1')
   },
   testUtil.timeout.medium()
 )

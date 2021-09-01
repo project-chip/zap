@@ -35,9 +35,11 @@ const templateCount = testUtil.testTemplate.zigbeeCount
 const testFile = path.join(__dirname, 'resource/generation-test-file-1.zap')
 const testFile2 = path.join(__dirname, 'resource/three-endpoint-device.zap')
 const testFile3 = path.join(__dirname, 'resource/zll-on-off-switch-test.zap')
-const testFile4 = path.join(__dirname, 'resource/mfg-specific-clusters-commands.zap')
+const testFile4 = path.join(
+  __dirname,
+  'resource/mfg-specific-clusters-commands.zap'
+)
 const testFile5 = path.join(__dirname, 'resource/gp-combo-basic-test.zap')
-
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -127,7 +129,7 @@ test(
         expect(genResult.content).not.toBeNull()
         let simpleTest = genResult.content['simple-test.out']
         expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
-        expect(simpleTest.includes('Strange type: bacnet_type_t')).toBeTruthy()
+        expect(simpleTest).toContain('Strange type: bacnet_type_t')
       }),
   testUtil.timeout.long()
 )
@@ -149,141 +151,95 @@ test(
         expect(genResult.content).not.toBeNull()
         let simpleTest = genResult.content['simple-test.out']
         expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
-        expect(simpleTest.includes(helperZap.zap_header())).toBeTruthy()
-        expect(
-          simpleTest.includes(`SessionId: ${genResult.sessionId}`)
-        ).toBeTruthy()
-        expect(
-          simpleTest.includes('Addon: This is example of test addon helper')
-        ).toBeTruthy()
+        expect(simpleTest).toContain(helperZap.zap_header())
+        expect(simpleTest).toContain(`SessionId: ${genResult.sessionId}`)
+        expect(simpleTest).toContain(
+          'Addon: This is example of test addon helper'
+        )
 
         let zclId = genResult.content['zcl-test.out']
         //expect(zclId).toEqual('random placeholder')
-        expect(
-          zclId.includes(
-            `// ${testUtil.totalEnumCount - 1}/${
-              testUtil.totalEnumCount
-            }: label=>ZllStatus caption=>Enum of type ENUM8`
-          )
-        ).toBeTruthy()
-        expect(
-          zclId.includes(`Label count: ${testUtil.totalEnumCount}`)
-        ).toBeTruthy()
-        expect(
-          zclId.includes(
-            `// 129/${testUtil.totalEnumCount}: label=>MeteringBlockEnumerations caption=>Enum of type ENUM8`
-          )
-        ).toBeTruthy()
-        expect(
-          zclId.includes('// struct: ReadReportingConfigurationAttributeRecord')
-        ).toBeTruthy()
-        expect(zclId.includes('cluster: 0x0700 Price')).toBeTruthy()
-        expect(zclId.includes('cmd: 0x0A GetUserStatusResponse')).toBeTruthy()
-        expect(
-          zclId.includes('att: 0x0002 gps communication mode')
-        ).toBeTruthy()
-        expect(
-          zclId.includes('First item\n// struct: BlockThreshold')
-        ).toBeTruthy()
-        expect(
-          zclId.includes('// struct: WwahClusterStatusToUseTC\nLast item')
-        ).toBeTruthy()
-        expect(zclId.includes('// event: 0x0001 HelloEvent')).toBeTruthy()
-        expect(zclId.includes('-> field: 0x0002 arg2 INT32U')).toBeTruthy()
+        expect(zclId).toContain(
+          `// ${testUtil.totalEnumCount - 1}/${
+            testUtil.totalEnumCount
+          }: label=>ZllStatus caption=>Enum of type ENUM8`
+        )
+        expect(zclId).toContain(`Label count: ${testUtil.totalEnumCount}`)
+        expect(zclId).toContain(
+          `// 129/${testUtil.totalEnumCount}: label=>MeteringBlockEnumerations caption=>Enum of type ENUM8`
+        )
+        expect(zclId).toContain(
+          '// struct: ReadReportingConfigurationAttributeRecord'
+        )
+        expect(zclId).toContain('cluster: 0x0700 Price')
+        expect(zclId).toContain('cmd: 0x0A GetUserStatusResponse')
+        expect(zclId).toContain('att: 0x0002 gps communication mode')
+        expect(zclId).toContain('First item\n// struct: BlockThreshold')
+        expect(zclId).toContain(
+          '// struct: WwahClusterStatusToUseTC\nLast item'
+        )
+        expect(zclId).toContain('// event: 0x0001 HelloEvent')
+        expect(zclId).toContain('-> field: 0x0002 arg2 INT32U')
 
         let accumulator = genResult.content['accumulator.out']
-        expect(accumulator.includes('Iteration: 19 out of 20')).toBeTruthy()
-        expect(accumulator.includes('Cumulative size: 16 / 206')).toBeTruthy()
-        expect(accumulator.includes('Cumulative size: 8 / 109')).toBeTruthy()
-        expect(accumulator.includes('Cumulative size: 0 / 206')).toBeTruthy()
+        expect(accumulator).toContain('Iteration: 19 out of 20')
+        expect(accumulator).toContain('Cumulative size: 16 / 206')
+        expect(accumulator).toContain('Cumulative size: 8 / 109')
+        expect(accumulator).toContain('Cumulative size: 0 / 206')
 
         let atomics = genResult.content['atomics.out']
-        expect(atomics.includes('C type: bacnet_type_t')).toBeTruthy()
+        expect(atomics).toContain('C type: bacnet_type_t')
         // Now check for the override
-        expect(
-          atomics.includes('C type: security_key_type_override')
-        ).toBeTruthy()
+        expect(atomics).toContain('C type: security_key_type_override')
 
         let zapCommand = genResult.content['zap-command.h']
         expect(zapCommand).not.toBeNull()
-        expect(
-          zapCommand.includes(
-            '#define emberAfFillCommandGlobalReadAttributesResponse(clusterId,'
-          )
-        ).toBeTruthy()
+        expect(zapCommand).toContain(
+          '#define emberAfFillCommandGlobalReadAttributesResponse(clusterId,'
+        )
 
         let zapPrint = genResult.content['zap-print.h']
-        expect(
-          zapPrint.includes(
-            '#define SILABS_PRINTCLUSTER_POWER_CONFIG_CLUSTER {ZCL_POWER_CONFIG_CLUSTER_ID, 0x0000, "Power Configuration" },'
-          )
-        ).toBeTruthy()
+        expect(zapPrint).toContain(
+          '#define SILABS_PRINTCLUSTER_POWER_CONFIG_CLUSTER {ZCL_POWER_CONFIG_CLUSTER_ID, 0x0000, "Power Configuration" },'
+        )
 
         let sdkExtension = genResult.content['sdk-extension.out']
-        expect(
-          sdkExtension.includes(
-            "// cluster: 0x0000 Basic, text extension: 'Extension to basic cluster'"
-          )
-        ).toBeTruthy()
-        expect(
-          sdkExtension.includes(
-            "// cluster: 0x0002 Device Temperature Configuration, text extension: 'Extension to temperature config cluster'"
-          )
-        ).toBeTruthy()
-        expect(
-          sdkExtension.includes(
-            "// server cluster: 0x0001 Power Configuration, text extension: 'Extension to power cluster'"
-          )
-        ).toBeTruthy()
-        expect(
-          sdkExtension.includes(
-            "// client cluster: 0x0001 Power Configuration, text extension: ''"
-          )
-        ).toBeTruthy()
-        expect(
-          sdkExtension.includes(
-            "// attribute: 0x0000 / 0x0000 => ZCL version, extensions: '42', '99'"
-          )
-        ).toBeTruthy()
-        expect(
-          sdkExtension.includes(
-            "// cluster: 0x0003 Identify, text extension: ''"
-          )
-        ).toBeTruthy()
-        expect(
-          sdkExtension.includes(
-            "// command: 0x0000 / 0x00 => ResetToFactoryDefaults, test extension: '1'"
-          )
-        ).toBeTruthy()
-
-        expect(
-          sdkExtension.includes(
-            "// device type: HA / 0x0006 => HA-remote // extension: 'path/to/remote.c'"
-          )
-        ).toBeTruthy()
-
-        expect(
-          sdkExtension.includes(
-            'IMPLEMENTED_COMMANDS>ResetToFactoryDefaults,IdentifyQueryResponse,IdentifyQuery,EZModeInvoke,UpdateCommissionState,<END'
-          )
-        ).toBeTruthy()
-
+        expect(sdkExtension).toContain(
+          "// cluster: 0x0000 Basic, text extension: 'Extension to basic cluster'"
+        )
+        expect(sdkExtension).toContain(
+          "// cluster: 0x0002 Device Temperature Configuration, text extension: 'Extension to temperature config cluster'"
+        )
+        expect(sdkExtension).toContain(
+          "// server cluster: 0x0001 Power Configuration, text extension: 'Extension to power cluster'"
+        )
+        expect(sdkExtension).toContain(
+          "// client cluster: 0x0001 Power Configuration, text extension: ''"
+        )
+        expect(sdkExtension).toContain(
+          "// attribute: 0x0000 / 0x0000 => ZCL version, extensions: '42', '99'"
+        )
+        expect(sdkExtension).toContain(
+          "// cluster: 0x0003 Identify, text extension: ''"
+        )
+        expect(sdkExtension).toContain(
+          "// command: 0x0000 / 0x00 => ResetToFactoryDefaults, test extension: '1'"
+        )
+        expect(sdkExtension).toContain(
+          "// device type: HA / 0x0006 => HA-remote // extension: 'path/to/remote.c'"
+        )
+        expect(sdkExtension).toContain(
+          'IMPLEMENTED_COMMANDS>ResetToFactoryDefaults,IdentifyQueryResponse,IdentifyQuery,EZModeInvoke,UpdateCommissionState,<END'
+        )
         // Testing {{#if_is_struct}} helper
-        expect(zclId.includes(`attributeIds is not struct`)).toBeTruthy()
-
+        expect(zclId).toContain(`attributeIds is not struct`)
         // Testing {{#if_command_discovery_enabled}} helper
-        expect(
-          zclId.includes(`#define EMBER_AF_SUPPORT_COMMAND_DISCOVERY`)
-        ).toBeTruthy()
-
+        expect(zclId).toContain(`#define EMBER_AF_SUPPORT_COMMAND_DISCOVERY`)
         // Testing {{#zcl_struct_items_by_struct_name}} helper
-        expect(
-          zclId.includes(`configureReportingRecords::direction struct item`)
-        ).toBeTruthy()
-
-        expect(
-          zclId.includes(`readAttributeStatusRecords is struct`)
-        ).toBeTruthy()
+        expect(zclId).toContain(
+          `configureReportingRecords::direction struct item`
+        )
+        expect(zclId).toContain(`readAttributeStatusRecords is struct`)
       }),
   testUtil.timeout.long()
 )
@@ -307,49 +263,36 @@ test(
         let zapId = genResult.content['zap-id.h']
         //expect(zapId).toEqual('random placeholder')
 
-        expect(zapId.includes('// Definitions for cluster: Basic')).toBeTruthy()
-        expect(
-          zapId.includes('#define ZCL_GET_PROFILE_RESPONSE_COMMAND_ID (0x00)')
-        ).toBeTruthy()
-
+        expect(zapId).toContain('// Definitions for cluster: Basic')
+        expect(zapId).toContain(
+          '#define ZCL_GET_PROFILE_RESPONSE_COMMAND_ID (0x00)'
+        )
         // Testing {{#zcl_commands_source_client}} helper
-        expect(
-          zapId.includes(
-            '#define ZCL_IDENTIFY_C_TO_S_IDENTIFY_QUERY_COMMAND_ID (0x01)'
-          )
-        ).toBeTruthy()
+        expect(zapId).toContain(
+          '#define ZCL_IDENTIFY_C_TO_S_IDENTIFY_QUERY_COMMAND_ID (0x01)'
+        )
         // Testing {{#zcl_commands_source_server}} helper
-        expect(
-          zapId.includes(
-            '#define ZCL_IDENTIFY_S_TO_C_IDENTIFY_QUERY_RESPONSE_COMMAND_ID (0x00)'
-          )
-        ).toBeTruthy()
-
-        expect(
-          zapId.includes(
-            '// Client attributes for cluster: Fluoride Concentration Measurement'
-          )
-        ).toBeTruthy()
-        expect(
-          zapId.includes('#define ZCL_NUMBER_OF_RESETS_ATTRIBUTE_ID (0x0000)')
-        ).toBeTruthy()
-
+        expect(zapId).toContain(
+          '#define ZCL_IDENTIFY_S_TO_C_IDENTIFY_QUERY_RESPONSE_COMMAND_ID (0x00)'
+        )
+        expect(zapId).toContain(
+          '// Client attributes for cluster: Fluoride Concentration Measurement'
+        )
+        expect(zapId).toContain(
+          '#define ZCL_NUMBER_OF_RESETS_ATTRIBUTE_ID (0x0000)'
+        )
         let zapTypes = genResult.content['zap-type.h']
-        expect(
-          zapTypes.includes(
-            'ZCL_INT16U_ATTRIBUTE_TYPE = 0x21, // Unsigned 16-bit integer'
-          )
-        ).toBeTruthy()
-        expect(zapTypes.includes('uint32_t snapshotCause')).toBeTruthy()
-        expect(zapTypes.includes('typedef uint8_t EphemeralData;')).toBeTruthy()
+        expect(zapTypes).toContain(
+          'ZCL_INT16U_ATTRIBUTE_TYPE = 0x21, // Unsigned 16-bit integer'
+        )
+        expect(zapTypes).toContain('uint32_t snapshotCause')
+        expect(zapTypes).toContain('typedef uint8_t EphemeralData;')
 
         let zapCommandParser = genResult.content['zap-command-parser.c']
         expect(zapCommandParser).not.toBeNull()
-        expect(
-          zapCommandParser.includes(
-            'EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)'
-          )
-        ).toBeTruthy()
+        expect(zapCommandParser).toContain(
+          'EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)'
+        )
       }),
   testUtil.timeout.long()
 )
@@ -375,90 +318,49 @@ test(
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
 
+        let cfgVer2 = genResult.content['zap-config-version-2.h']
         // Test GENERATED_DEFAULTS
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* 0,DEFAULT value for cluster: Over the Air Bootloading, attribute: OTA Upgrade Server ID, side: client*/'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain(
+          '0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* 0,DEFAULT value for cluster: Over the Air Bootloading, attribute: OTA Upgrade Server ID, side: client*/'
+        )
         // Test GENERATED_ATTRIBUTE_COUNT
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '#define GENERATED_ATTRIBUTE_COUNT 81'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain('#define GENERATED_ATTRIBUTE_COUNT 81')
         // Test GENERATED_ATTRIBUTES
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x00  } }, /* 46 Cluster: Color Control, Attribute: color control options, Side: server*/'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain(
+          '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x00  } }, /* 46 Cluster: Color Control, Attribute: color control options, Side: server*/'
+        )
         // Test is_number_greater_than within GENERATED_ATTRIBUTES
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 35 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain(
+          '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 35 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
+        )
         // Test GENERATED_CLUSTER_COUNT
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '#define GENERATED_CLUSTER_COUNT 18'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain('#define GENERATED_CLUSTER_COUNT 18')
         // Test GENERATED_CLUSTERS
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[35]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain(
+          '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[35]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/'
+        )
         // Test GENERATED_ENDPOINT_TYPE_COUNT
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '#define GENERATED_ENDPOINT_TYPE_COUNT (2)'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain('#define GENERATED_ENDPOINT_TYPE_COUNT (2)')
         // Test GENERATED_ENDPOINT_TYPES
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 241 },'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain(
+          '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 241 },'
+        )
         // Test ATTRIBUTE_LARGEST
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '#define ATTRIBUTE_LARGEST (65)'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain('#define ATTRIBUTE_LARGEST (65)')
         // Test ATTRIBUTE_SINGLETONS_SIZE
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '#define ATTRIBUTE_SINGLETONS_SIZE (191)'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain('#define ATTRIBUTE_SINGLETONS_SIZE (191)')
         // Test ATTRIBUTE_MAX_SIZE
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '#define ATTRIBUTE_MAX_SIZE (546)'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain('#define ATTRIBUTE_MAX_SIZE (546)')
         // Test FIXED_ENDPOINT_COUNT
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '#define FIXED_ENDPOINT_COUNT (2)'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain('#define FIXED_ENDPOINT_COUNT (2)')
         // Test EMBER_AF_GENERATED_COMMAND_COUNT
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '#define EMBER_AF_GENERATED_COMMAND_COUNT  (88)'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain(
+          '#define EMBER_AF_GENERATED_COMMAND_COUNT  (88)'
+        )
         // Test GENERATED_COMMANDS
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 7, Cluster: Groups, Command: ViewGroupResponse*/'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain(
+          '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 7, Cluster: Groups, Command: ViewGroupResponse*/'
+        )
       })
   },
   testUtil.timeout.long()
@@ -484,37 +386,42 @@ test(
         expect(genResult).not.toBeNull()
         expect(genResult.partial).toBeFalsy()
         expect(genResult.content).not.toBeNull()
+        let cfgVer2 = genResult.content['zap-config-version-2.h']
 
         // Test GENERATED_DEFAULTS big endian
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '0x0F, 0xAE, 0x2F, /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server */'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain(
+          '0x0F, 0xAE, 0x2F, /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server */'
+        )
+
         // Test GENERATED_DEFAULTS little endian
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '0x2F, 0xAE, 0x0F,  /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server*/'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain(
+          '0x2F, 0xAE, 0x0F,  /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server*/'
+        )
+
         // Test GENERATED_DEFAULTS big endian for attribute of size > 8
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            '0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F, 0x0G, 0x0H, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client */'
-          )
-        ).toBeTruthy()
+        expect(cfgVer2).toContain(
+          '0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F, 0x0G, 0x0H, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client */'
+        )
+
         // Test GENERATED_DEFAULTS little endian for attribute of size > 8 is same as big endian. Bytes are not inverted
-        expect(
-          genResult.content['zap-config-version-2.h'].includes(
-            `0x0H, 0x0G, 0x0F, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client*/`
-          )
-        ).toBeFalsy()
+        expect(cfgVer2).not.toContain(
+          `0x0H, 0x0G, 0x0F, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client*/`
+        )
 
         // Testing zap cli helpers
-        expect(genResult.content['zap-cli.c'].includes('static const sl_cli_command_entry_t zcl_identify_cluster_command_table[]')).toBeTruthy()
-        expect(genResult.content['zap-cli.c'].includes('static const sl_cli_command_info_t cli_cmd_identify_group')).toBeTruthy()
-        expect(genResult.content['zap-cli.c'].includes('SL_CLI_COMMAND_GROUP(zcl_identify_cluster_command_table, "ZCL identify cluster commands");')).toBeTruthy()
-        expect(genResult.content['zap-cli.c'].includes('{ "identify", &cli_cmd_identify_group, false },')).toBeTruthy()
+        expect(genResult.content['zap-cli.c']).toContain(
+          'static const sl_cli_command_entry_t zcl_identify_cluster_command_table[]'
+        )
+
+        expect(genResult.content['zap-cli.c']).toContain(
+          'static const sl_cli_command_info_t cli_cmd_identify_group'
+        )
+        expect(genResult.content['zap-cli.c']).toContain(
+          'SL_CLI_COMMAND_GROUP(zcl_identify_cluster_command_table, "ZCL identify cluster commands");'
+        )
+        expect(genResult.content['zap-cli.c']).toContain(
+          '{ "identify", &cli_cmd_identify_group, false },'
+        )
       })
   },
   testUtil.timeout.long()
@@ -537,154 +444,85 @@ test(
         }
       )
       .then((genResult) => {
+        let pv3 = genResult.content['zap-command-parser-ver-3.c']
         // Test Cluster command parsers that should be defined
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'EmberAfStatus emberAfGroupsClusterClientCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'EmberAfStatus emberAfGroupsClusterServerCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'EmberAfStatus emberAfIdentifyClusterClientCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'EmberAfStatus emberAfLevelControlClusterServerCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'EmberAfStatus emberAfOnOffClusterServerCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'EmberAfStatus emberAfScenesClusterServerCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'EmberAfStatus emberAfZllCommissioningClusterClientCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-
+        expect(pv3).toContain(
+          'EmberAfStatus emberAfGroupsClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv3).toContain(
+          'EmberAfStatus emberAfGroupsClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv3).toContain(
+          'EmberAfStatus emberAfIdentifyClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv3).toContain(
+          'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv3).toContain(
+          'EmberAfStatus emberAfLevelControlClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv3).toContain(
+          'EmberAfStatus emberAfOnOffClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv3).toContain(
+          'EmberAfStatus emberAfScenesClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv3).toContain(
+          'EmberAfStatus emberAfZllCommissioningClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+        )
         // Test Command callback
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
-          )
-        ).toBeTruthy()
-
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
-          )
-        ).toBeTruthy()
-
+        expect(pv3).toContain(
+          'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
+        )
+        expect(pv3).toContain(
+          'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
+        )
         // Test command argument declarations for data types greater than 4
         // bytes and make sure they are declared as pointers
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'case ZCL_GP_PROXY_TABLE_REQUEST_COMMAND_ID:'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'uint64_t gpdIeee;'
-          )
-        ).toBeFalsy()
-        expect(
-          genResult.content['zap-command-parser-ver-3.c'].includes(
-            'uint8_t *  gpdIeee;'
-          )
-        ).toBeTruthy()
-      
-      
-//********* Test the new helpers for the same content as above******************
+        expect(pv3).toContain('case ZCL_GP_PROXY_TABLE_REQUEST_COMMAND_ID:')
+        expect(pv3).not.toContain('uint64_t gpdIeee;')
+        expect(pv3).toContain('uint8_t *  gpdIeee;')
+
+        //********* Test the new helpers for the same content as above******************
         // Test Cluster command parsers that should be defined
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'EmberAfStatus emberAfGroupsClusterClientCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'EmberAfStatus emberAfGroupsClusterServerCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'EmberAfStatus emberAfIdentifyClusterClientCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'EmberAfStatus emberAfLevelControlClusterServerCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'EmberAfStatus emberAfOnOffClusterServerCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'EmberAfStatus emberAfScenesClusterServerCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'EmberAfStatus emberAfZllCommissioningClusterClientCommandParse(EmberAfClusterCommand * cmd);'
-          )
-        ).toBeTruthy()
-
+        let pv5 = genResult.content['zap-command-parser-ver-5.c']
+        expect(pv5).toContain(
+          'EmberAfStatus emberAfGroupsClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv5).toContain(
+          'EmberAfStatus emberAfGroupsClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv5).toContain(
+          'EmberAfStatus emberAfIdentifyClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv5).toContain(
+          'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv5).toContain(
+          'EmberAfStatus emberAfLevelControlClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv5).toContain(
+          'EmberAfStatus emberAfOnOffClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv5).toContain(
+          'EmberAfStatus emberAfScenesClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+        )
+        expect(pv5).toContain(
+          'EmberAfStatus emberAfZllCommissioningClusterClientCommandParse(EmberAfClusterCommand * cmd);'
+        )
         // Test Command callback
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
-          )
-        ).toBeTruthy()
-
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
-          )
-        ).toBeTruthy()
-
+        expect(pv5).toContain(
+          'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
+        )
+        expect(pv5).toContain(
+          'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
+        )
         // Test command argument declarations for data types greater than 4
         // bytes and make sure they are declared as pointers
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'case ZCL_GP_PROXY_TABLE_REQUEST_COMMAND_ID:'
-          )
-        ).toBeTruthy()
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'uint64_t gpdIeee;'
-          )
-        ).toBeFalsy()
-        expect(
-          genResult.content['zap-command-parser-ver-5.c'].includes(
-            'uint8_t *  gpdIeee;'
-          )
-        ).toBeTruthy()
-        })
+        expect(pv5).toContain('case ZCL_GP_PROXY_TABLE_REQUEST_COMMAND_ID:')
+        expect(pv5).not.toContain('uint64_t gpdIeee;')
+        expect(pv5).toContain('uint8_t *  gpdIeee;')
+      })
   },
   testUtil.timeout.long()
 )
@@ -706,42 +544,18 @@ test(
         }
       )
       .then((genResult) => {
+        let pv4 = genResult.content['zap-command-parser-ver-4.c']
         // Test Cluster command parsers for manufacturing specific clusters
-        expect(
-          genResult.content['zap-command-parser-ver-4.c'].includes(
-            'case 0xFC57: //Manufacturing Specific cluster'
-          )
-        ).toBeTruthy()
-
-        expect(
-          genResult.content['zap-command-parser-ver-4.c'].includes(
-            'case 0x1217: // Cluster: SL Works With All Hubs'
-          )
-        ).toBeTruthy()
-
-        expect(
-          genResult.content['zap-command-parser-ver-4.c'].includes(
-            'result = emberAfSlWorksWithAllHubsClusterClientCommandParse(cmd);'
-          )
-        ).toBeTruthy()
-
-        expect(
-          genResult.content['zap-command-parser-ver-4.c'].includes(
-            'case 0xFC02: //Manufacturing Specific cluster'
-          )
-        ).toBeTruthy()
-
-        expect(
-          genResult.content['zap-command-parser-ver-4.c'].includes(
-            'case 0x1002: // Cluster: MFGLIB Cluster'
-          )
-        ).toBeTruthy()
-
-        expect(
-          genResult.content['zap-command-parser-ver-4.c'].includes(
-            'result = emberAfMfglibClusterClusterServerCommandParse(cmd);'
-          )
-        ).toBeTruthy()
+        expect(pv4).toContain('case 0xFC57: //Manufacturing Specific cluster')
+        expect(pv4).toContain('case 0x1217: // Cluster: SL Works With All Hubs')
+        expect(pv4).toContain(
+          'result = emberAfSlWorksWithAllHubsClusterClientCommandParse(cmd);'
+        )
+        expect(pv4).toContain('case 0xFC02: //Manufacturing Specific cluster')
+        expect(pv4).toContain('case 0x1002: // Cluster: MFGLIB Cluster')
+        expect(pv4).toContain(
+          'result = emberAfMfglibClusterClusterServerCommandParse(cmd);'
+        )
       })
   },
   testUtil.timeout.long()
@@ -805,22 +619,14 @@ test.skip(
           expect(genResult.partial).toBeFalsy()
           expect(genResult.content).not.toBeNull()
           let zapCommandParser = genResult.content['zap-command-parser-2.c']
-          expect(
-            zapCommandParser.includes('#include "zap-command-parser.h"')
-          ).toBeTruthy()
-          expect(
-            zapCommandParser.includes(
-              'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
-            )
-          ).toBeTruthy()
-          expect(
-            zapCommandParser.includes('case ZCL_IDENTIFY_CLUSTER_ID:')
-          ).toBeTruthy()
-          expect(
-            zapCommandParser.includes(
-              'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
-            )
-          ).toBeTruthy()
+          expect(zapCommandParser).toContain('#include "zap-command-parser.h"')
+          expect(zapCommandParser).toContain(
+            'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
+          )
+          expect(zapCommandParser).toContain('case ZCL_IDENTIFY_CLUSTER_ID:')
+          expect(zapCommandParser).toContain(
+            'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
+          )
         }
       })
   },
