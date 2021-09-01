@@ -2210,6 +2210,32 @@ function if_manufacturing_specific_cluster(
 }
 
 /**
+ * If helper which checks if cluster is manufacturing specific or not
+ * example:
+ * {{#if_mfg_specific_cluster clusterId}}
+ *  cluster is manufacturing specific
+ * {{else}}
+ *  cluster is not manufacturing specific
+ * {{/if_mfg_specific_cluster}}
+ *
+ * @param clusterId
+ * @param options
+ * @returns Returns content in the handlebar template based on whether the
+ * command is manufacturing specific or not.
+ */
+ async function if_mfg_specific_cluster(
+  clusterId,
+  options
+) {
+  let res = await queryZcl.selectClusterById(this.global.db, clusterId)
+  if (res.manufacturerCode != null) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
+  }
+}
+
+/**
  * Given the value and size of an attribute along with endian as an option.
  * This helper returns the attribute value as big/little endian.
  * Example: {{as_generated_default_macro 0x00003840 4 endian="big"}}
@@ -2467,7 +2493,7 @@ exports.is_server = isServer
 exports.isServer = dep(isServer, { to: 'is_server' })
 
 exports.is_str_equal = isStrEqual
-exports.isStrEqual = dep(isStrEqual, { to: 'str_equal' })
+exports.isStrEqual = dep(isStrEqual, { to: 'is_str_equal' })
 
 exports.is_last_element = isLastElement
 exports.isLastElement = dep(isLastElement, {
@@ -2505,9 +2531,9 @@ exports.isStruct = dep(isStruct, { to: 'is_struct' })
 exports.is_enum = isEnum
 exports.isEnum = dep(isEnum, { to: 'is_enum' })
 
-exports.if_manufacturing_specific_cluster = if_manufacturing_specific_cluster
-exports.zcl_command_argument_type_to_cli_data_type =
-  zcl_command_argument_type_to_cli_data_type
+exports.if_manufacturing_specific_cluster = dep(if_manufacturing_specific_cluster,
+  {to: 'if_mfg_specific_cluster'})
+exports.zcl_command_argument_type_to_cli_data_type = zcl_command_argument_type_to_cli_data_type
 exports.zcl_string_type_return = zcl_string_type_return
 exports.is_zcl_string = is_zcl_string
 exports.if_command_arguments_have_fixed_length =
@@ -2555,14 +2581,18 @@ exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif 
 exports.as_generated_default_macro = as_generated_default_macro
 exports.attribute_mask = attribute_mask
 exports.command_mask = command_mask
-exports.format_zcl_string_as_characters_for_generated_defaults =
-  format_zcl_string_as_characters_for_generated_defaults
+exports.format_zcl_string_as_characters_for_generated_defaults = format_zcl_string_as_characters_for_generated_defaults
 exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present =
-  as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present
+dep (as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present,
+  'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present has been deprecated. Use as_underlying_zcl_type and if_command_not_fixed_length_command_argument_always_present instead')
 exports.as_underlying_zcl_type_ca_not_always_present_no_presentif =
-  as_underlying_zcl_type_ca_not_always_present_no_presentif
+dep (as_underlying_zcl_type_ca_not_always_present_no_presentif,
+  'as_underlying_zcl_type_ca_not_always_present_no_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_not_always_present_no_presentif instead')
 exports.as_underlying_zcl_type_ca_not_always_present_with_presentif =
-  as_underlying_zcl_type_ca_not_always_present_with_presentif
+dep (as_underlying_zcl_type_ca_not_always_present_with_presentif,
+  'as_underlying_zcl_type_ca_not_always_present_with_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_not_always_present_with_presentif instead')
 exports.as_underlying_zcl_type_ca_always_present_with_presentif =
-  as_underlying_zcl_type_ca_always_present_with_presentif
+dep(as_underlying_zcl_type_ca_always_present_with_presentif,
+  'as_underlying_zcl_type_ca_always_present_with_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_always_present_with_presentif instead.')
 exports.if_is_struct = if_is_struct
+exports.if_mfg_specific_cluster = if_mfg_specific_cluster

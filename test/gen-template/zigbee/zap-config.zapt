@@ -1,8 +1,5 @@
 {{zap_header}}
 
-#ifndef SILABS_AF_ENDPOINT_CONFIG
-#define SILABS_AF_ENDPOINT_CONFIG 1
-
 {{#endpoint_config}}
 
 {{endpoint_config_macros minMaxDefaults="minMaxDefault" longDefaults="generatedDefaults"}}

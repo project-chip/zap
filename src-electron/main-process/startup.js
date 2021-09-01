@@ -249,7 +249,15 @@ async function startConvert(
               zcl: argv.zclProperties,
               template: argv.generationTemplate,
             })
-            .then((pkgs) => importResult.sessionId)
+            .then(() => {
+              if ( argv.postImportScript) {
+                  return importJs.executePostImportScript(
+                  db,
+                  importResult.sessionId,
+                  argv.postImportScript)
+              }
+            })
+            .then(() => importResult.sessionId)
         })
         .then((sessionId) => {
           options.logger(`    👈 read in: ${singlePath}`)
@@ -486,7 +494,10 @@ async function generateSingleFile(
     options
   )
 
-  if (genResult.hasErrors) throw new Error(`Generation failed: ${f}`)
+  if (genResult.hasErrors) {
+    console.log(JSON.stringify(genResult.hasErrors))
+    throw new Error(`Generation failed: ${f}`)
+  }
 
   return genResult
 }

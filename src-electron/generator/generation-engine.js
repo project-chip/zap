@@ -575,10 +575,11 @@ async function generate(
 async function writeFileWithBackup(fileName, content, doBackup) {
   if (doBackup && fs.existsSync(fileName)) {
     let backupName = fileName.concat('~')
-    fsPromise
-      .rename(fileName, backupName)
-      .then(() => fsPromise.writeFile(fileName, content))
+    await fsPromise.rename(fileName, backupName)
+    return fsPromise.writeFile(fileName, content)
   } else {
+    // we need to ensure that directories exist.
+    await fsPromise.mkdir(path.dirname(fileName), { recursive: true })
     return fsPromise.writeFile(fileName, content)
   }
 }

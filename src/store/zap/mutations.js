@@ -46,7 +46,7 @@ export function updateAttributes(state, attributes) {
       Vue.set(state.attributeView.reportingMin, attribute.id, 0)
     }
     if (state.attributeView.reportingMax[attribute.id] === undefined) {
-      Vue.set(state.attributeView.reportingMax, attribute.id, 65344)
+      Vue.set(state.attributeView.reportingMax, attribute.id, 65534)
     }
     if (state.attributeView.reportableChange[attribute.id] === undefined) {
       Vue.set(state.attributeView.reportableChange, attribute.id, 0)
@@ -292,7 +292,7 @@ export function resetAttributeDefaults(state) {
     )
     Vue.set(state.attributeView.storageOption, attribute.id, 'ram')
     Vue.set(state.attributeView.reportingMin, attribute.id, 0)
-    Vue.set(state.attributeView.reportingMax, attribute.id, 65344)
+    Vue.set(state.attributeView.reportingMax, attribute.id, 65534)
     Vue.set(state.attributeView.reportableChange, attribute.id, 0)
   })
 }
