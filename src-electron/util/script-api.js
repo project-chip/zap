@@ -191,7 +191,10 @@ async function modifyAttribute(
     cluster.id,
     side,
     attribute.id,
-    params
+    params,
+    attribute.reportMinInterval,
+    attribute.reportMaxInterval,
+    attribute.reportableChange
   )
 }
 

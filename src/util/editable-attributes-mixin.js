@@ -126,6 +126,9 @@ export default {
         listType: listType,
         clusterRef: clusterId,
         attributeSide: attributeData.side,
+        reportMinInterval: attributeData.reportMinInterval,
+        reportMaxInterval: attributeData.reportMaxInterval,
+        reportableChange: attributeData.reportableChange,
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
@@ -179,6 +182,8 @@ export default {
           listType: listType,
           clusterRef: clusterId,
           attributeSide: attributeData.side,
+          reportMinInterval: attributeData.reportMinInterval,
+          reportMaxInterval: attributeData.reportMaxInterval,
         }
         this.$store.dispatch('zap/updateSelectedAttribute', editContext)
       }
@@ -204,6 +209,8 @@ export default {
         listType: listType,
         clusterRef: clusterId,
         attributeSide: attributeData.side,
+        reportMinInterval: attributeData.reportMinInterval,
+        reportMaxInterval: attributeData.reportMaxInterval,
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
@@ -222,6 +229,8 @@ export default {
         listType: 'init',
         clusterRef: selectedClusterId,
         attributeSide: attributeData.side,
+        reportMinInterval: attributeData.reportMinInterval,
+        reportMaxInterval: attributeData.reportMaxInterval,
       }
       this.$store
         .dispatch('zap/initSelectedAttribute', initContext)

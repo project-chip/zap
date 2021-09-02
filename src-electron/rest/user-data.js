@@ -143,6 +143,9 @@ function httpPostAttributeUpdate(db) {
       listType,
       clusterRef,
       attributeSide,
+      reportMinInterval,
+      reportMaxInterval,
+      reportableChange,
     } = request.body
     let paramType
     switch (listType) {
@@ -166,7 +169,10 @@ function httpPostAttributeUpdate(db) {
         clusterRef,
         attributeSide,
         id,
-        paramArray
+        paramArray,
+        reportMinInterval,
+        reportMaxInterval,
+        reportableChange
       )
       .then((row) =>
         queryZcl
