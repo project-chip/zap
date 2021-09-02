@@ -373,6 +373,15 @@ function replace_string(mainString, replaceString, replaceWithString) {
   return mainString.replace(replaceString, replaceWithString)
 }
 
+async function add_prefix_to_all_strings(str, prefixStr) {
+  var strs = await str.match(/[A-Za-z]+/g).map(String);
+  let res = ''
+  for (let s of strs) {
+    res = await str.replace(s, prefixStr+s)
+  }
+  return res
+}
+
 const dep = templateUtil.deprecatedHelper
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -412,3 +421,4 @@ exports.is_num_equal = is_num_equal
 exports.is_defined = is_defined
 exports.fail = fail
 exports.replace_string = replace_string
+exports.add_prefix_to_all_strings = add_prefix_to_all_strings
