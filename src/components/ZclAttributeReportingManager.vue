@@ -105,10 +105,11 @@ limitations under the License.
           </q-td>
           <q-td key="reportable" :props="props" auto-width>
             <q-input
+              v-show="isAttributeAnalog(props.row)"
               dense
               :borderless="!editableAttributesReporting[props.row.id]"
               :outlined="editableAttributesReporting[props.row.id]"
-              :disable="!editableAttributesReporting[props.row.id]"
+              :disable="isRowDisabled(props.row.id)"
               v-model.number="
                 selectionReportableChange[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
@@ -125,6 +126,12 @@ limitations under the License.
                 )
               "
               type="number"
+            />
+            <q-input
+                v-show="!isAttributeAnalog(props.row)"
+                label="<<not analog>>"
+                disable
+                borderless
             />
           </q-td>
           <q-td key="edit" :props="props" auto-width>
@@ -182,6 +189,11 @@ export default {
     })
   },
   computed: {
+    atomics: {
+      get() {
+        return this.$store.state.zap.atomics
+      }
+    },
     attributeData: {
       get() {
         return this.$store.state.zap.attributes
@@ -271,6 +283,22 @@ export default {
     }
   },
   methods: {
+    isRowDisabled(attributeId) {
+      return !this.editableAttributesReporting[attributeId]
+    },
+    isAttributeAnalog(props) {
+      return this.isTypeAnalog(props.type)
+    },
+    isTypeAnalog(typeName) {
+      let atomicType = this.atomics.filter(a => {
+        return a.name == typeName
+      }) 
+      if ( atomicType.length > 0) {
+        return !atomicType[0].isDiscrete
+      } else {
+        return true
+      }
+    },
     customAttributeSort(rows, sortBy, descending) {
       const data = [...rows]
 
