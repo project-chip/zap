@@ -108,6 +108,7 @@ export default {
           if (packageStatus.isValid) {
             this.error = null
             this.$store.dispatch('zap/updateClusters')
+            this.$store.dispatch('zap/updateAtomics')
           } else {
             this.error = packageStatus.err
           }
@@ -117,6 +118,7 @@ export default {
       this.$store
         .dispatch('zap/deleteSessionPackage', packageToDelete.sessionPackage)
         .then((x) => this.$store.dispatch('zap/updateClusters'))
+        .then((x) => this.$store.dispatch('zap/updateAtomics'))
     },
   },
   mounted() {

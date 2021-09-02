@@ -46,6 +46,7 @@ function initLoad(store) {
 
   let promises = []
   promises.push(store.dispatch('zap/updateClusters'))
+  promises.push(store.dispatch('zap/updateAtomics'))
   promises.push(store.dispatch('zap/updateZclDeviceTypes'))
   promises.push(store.dispatch(`zap/getProjectPackages`))
   promises.push(store.dispatch(`zap/loadZclClusterToUcComponentDependencyMap`))

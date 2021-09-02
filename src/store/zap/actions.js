@@ -38,6 +38,12 @@ export function updateClusters(context) {
   })
 }
 
+export function updateAtomics(context) {
+  Vue.prototype.$serverGet(restApi.uri.zclAtomics + 'all').then((response) => {
+    context.commit('updateAtomics', response.data)
+  })
+}
+
 export function updateSelectedCluster(context, cluster) {
   Vue.prototype
     .$serverGet(restApi.uri.zclCluster + `${cluster.id}`)

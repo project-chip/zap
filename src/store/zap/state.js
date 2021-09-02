@@ -22,6 +22,7 @@ export default function () {
     miniState: false,
     informationText: '',
     clusters: [],
+    atomics: [],
     domains: [],
     attributes: [],
     commands: [],

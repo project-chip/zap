@@ -25,6 +25,10 @@ export function updateClusters(state, clusters) {
   state.domains = [...new Set(state.clusters.map((a) => a.domainName))]
 }
 
+export function updateAtomics(state, atomics) {
+  state.atomics = atomics
+}
+
 export function updateSelectedCluster(state, cluster) {
   state.clustersView.selected = cluster
 }
