@@ -71,7 +71,8 @@ function clusters(context, endpoint) {
 
 /**
  * Returns an array of attributes for a given cluster.
- *
+ * The cluster input is required to come from a script-api in this module.
+ * 
  * @param {*} context
  * @param {*} endpoint
  * @param {*} cluster
@@ -87,6 +88,7 @@ function attributes(context, endpoint, cluster) {
 
 /**
  * Returns an array of commands for a given cluster
+ * The clusters input is required to come from a script-api in this module. 
  *
  * @param {*} context
  * @param {*} endpoint
@@ -127,21 +129,26 @@ async function availableClusters(context) {
   return querySessionZcl.selectAllSessionClusters(context.db, context.sessionId)
 }
 
-// Finds the cluster database primary key from code and context.
-async function findCluster(context, code) {
+// Finds the cluster database primary key from code,manufacturing code, and context.
+// Note that by default, a standard ZCL library cluster will have manufacturing code of null
+// in the database. 
+async function findCluster(context, code, mfgCode = null) {
   return querySessionZcl.selectSessionClusterByCode(
     context.db,
     context.sessionId,
-    code
+    code,
+    mfgCode
   )
 }
 
-async function findAttribute(context, clusterCode, attributeCode) {
+async function findAttribute(context, clusterCode, side, attributeCode, mfgCode = null) {
   return querySessionZcl.selectSessionAttributeByCode(
     context.db,
     context.sessionId,
     clusterCode,
-    attributeCode
+    side,
+    attributeCode,
+    mfgCode
   )
 }
 
@@ -178,7 +185,7 @@ async function modifyAttribute(
 ) {
   let cluster = await findCluster(context, clusterCode)
   if (cluster == null) return null
-  let attribute = await findAttribute(context, clusterCode, attributeCode)
+  let attribute = await findAttribute(context, clusterCode, side, attributeCode)
   let params = [
     {
       key: restApi.updateKey.attributeSelected,
@@ -444,6 +451,8 @@ exports.deleteEndpoint = deleteEndpoint
 exports.clusters = clusters
 exports.attributes = attributes
 exports.commands = commands
+
+exports.findCluster = findCluster
 
 exports.disableClientCluster = disableClientCluster
 exports.disableServerCluster = disableServerCluster
