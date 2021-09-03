@@ -93,14 +93,12 @@ export function processCommandLineArguments(argv: string[]) {
       default: 9070,
     })
     .option('studioHttpPort', {
-      desc:
-        "Port used for integration with Silicon Labs Simplicity Studio's internal HTTP server",
+      desc: "Port used for integration with Silicon Labs Simplicity Studio's internal HTTP server",
       type: 'number',
       default: 9000,
     })
     .option('zapFile', {
-      desc:
-        'input .zap file to read in. You can also specify them without an option, directly.',
+      desc: 'input .zap file to read in. You can also specify them without an option, directly.',
       alias: ['zap', 'in', 'i'],
       type: 'string',
       default: null,
@@ -124,8 +122,7 @@ export function processCommandLineArguments(argv: string[]) {
       default: restApi.uiMode.ZIGBEE,
     })
     .option('debugNavBar', {
-      desc:
-        'Boolean for when you want to embed purely the ZCL parts of the ZAP tool',
+      desc: 'Boolean for when you want to embed purely the ZCL parts of the ZAP tool',
       alias: 'embed',
       type: 'boolean',
       default: exports.debugNavBar,
@@ -134,8 +131,7 @@ export function processCommandLineArguments(argv: string[]) {
       desc: "Don't show the main window when starting.",
     })
     .options('noServer', {
-      desc:
-        "Don't run the http or IPC server. You should probably also specify -noUi with this.",
+      desc: "Don't run the http or IPC server. You should probably also specify -noUi with this.",
       default: false,
     })
     .options('genResultFile', {
@@ -147,8 +143,7 @@ export function processCommandLineArguments(argv: string[]) {
       desc: 'Print out the URL that an external browser should use.',
     })
     .option('output', {
-      desc:
-        'Specifying the output directory for generation or output file for conversion.',
+      desc: 'Specifying the output directory for generation or output file for conversion.',
       alias: ['out', 'o'],
       type: 'string',
     })
@@ -166,8 +161,7 @@ export function processCommandLineArguments(argv: string[]) {
       default: process.env[env.environmentVariable.uniqueStateDir.name] == '1',
     })
     .option('skipPostGeneration', {
-      desc:
-        'If there is a defined post-generation action for zap, you can set this to variable to 1 to skip it.',
+      desc: 'If there is a defined post-generation action for zap, you can set this to variable to 1 to skip it.',
       type: 'boolean',
       default: process.env[env.environmentVariable.skipPostGen.name] == '1',
     })

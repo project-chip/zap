@@ -62,7 +62,7 @@ export const environmentVariable = {
   },
   reuseZapInstance: {
     name: 'ZAP_REUSE_INSTANCE',
-    descrpition:
+    description:
       'If set to 1, default behavior of zap will be to reuse existing instance.',
   },
 }
@@ -257,7 +257,7 @@ export function baseUrl() {
 
 /**
  * Prints the data to stderr, without much fuss.
- * @param msg 
+ * @param msg
  */
 export function printToStderr(msg: string): void {
   console.error(msg)
@@ -274,8 +274,8 @@ export function log(level: string, msg: string, err = null) {
   let objectToLog: ErrorType = {
     msg: msg,
     err: {
-      alert: ''
-    }
+      alert: '',
+    },
   }
   if (err != null) {
     objectToLog.err = err
@@ -356,7 +356,10 @@ export function logDebug(msg: string, err = null) {
 }
 
 // Returns true if major or minor component of versions is different.
-export function isMatchingVersion(versionsArray: string[], providedVersion: string) {
+export function isMatchingVersion(
+  versionsArray: string[],
+  providedVersion: string
+) {
   let ret = false
   let v2 = providedVersion.split('.')
   versionsArray.forEach((element) => {
