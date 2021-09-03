@@ -170,7 +170,8 @@ async function selectSessionCommandByCode(
   db,
   sessionId,
   clusterCode,
-  commandCode
+  commandCode,
+  source
 ) {
   return dbApi
     .dbGet(
@@ -198,9 +199,9 @@ INNER JOIN
 ON
   C.PACKAGE_REF = SP.PACKAGE_REF
 WHERE
-  SP.SESSION_REF = ? AND C.CODE = ? AND CMD.CODE = ?
+  SP.SESSION_REF = ? AND C.CODE = ? AND CMD.CODE = ? AND CMD.SOURCE = ?
 `,
-      [sessionId, clusterCode, commandCode]
+      [sessionId, clusterCode, commandCode, source]
     )
     .then(dbMapping.map.command)
 }
