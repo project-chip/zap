@@ -39,6 +39,18 @@ limitations under the License.
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">
+                  <q-td key="status" :props="props" class="q-px-none">
+            <q-icon
+              v-show="displayCommandWarning(props.row)"
+              name="warning"
+              class="text-amber"
+              style="font-size: 1.5rem"
+            >
+            <q-tooltip>
+                This command is mandatory for the cluster and device type configuration you have enabled
+              </q-tooltip>
+            </q-icon>
+          </q-td>
           <q-td key="out" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
@@ -150,6 +162,14 @@ export default {
     },
   },
   methods: {
+    displayCommandWarning(row) {
+      return this.isCommandRequired(row) &&
+      (this.selectionClients.includes(this.selectedCluster.id) &&
+                  row.source == 'client') ||
+                (this.selectionServers.includes(this.selectedCluster.id) &&
+                  row.source == 'server')
+      && !this.selectionOut.includes(this.hashCommandIdClusterId(row.id, this.selectedCluster.id))
+    },
     handleCommandSelection(list, listType, commandData, clusterId) {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base Command ID and cluster data.
@@ -187,6 +207,13 @@ export default {
         rowsPerPage: 0,
       },
       columns: [
+        {
+          name: 'status',
+          required: false,
+          label: '',
+          align: 'left',
+          style: 'width:1%',
+        },
         {
           name: 'out',
           label: 'Out',

@@ -36,6 +36,18 @@ limitations under the License.
     >
       <template v-slot:body="props">
         <q-tr :props="props">
+        <q-td key="status" :props="props" class="q-px-none">
+            <q-icon
+              v-show="displayAttrWarning(props.row)"
+              name="warning"
+              class="text-amber"
+              style="font-size: 1.5rem"
+            >
+            <q-tooltip>
+                This attribute is mandatory for the cluster and device type configuration you have enabled
+              </q-tooltip>
+            </q-icon>
+          </q-td>
           <q-td key="included" :props="props" auto-width>
             <q-toggle
               class="q-mt-xs"
@@ -231,6 +243,9 @@ export default {
     isAttributeRequired(attribute) {
       return this.requiredAttributes.includes(attribute.id)
     },
+    displayAttrWarning(row) {
+      return this.isAttributeRequired(row) && !this.selection.includes(this.hashAttributeIdClusterId(row.id, this.selectedCluster.id))
+    },
     customAttributeSort(rows, sortBy, descending) {
       const data = [...rows]
 
@@ -349,6 +364,13 @@ export default {
         sortBy: 'clientServer',
       },
       columns: [
+        {
+          name: 'status',
+          required: false,
+          label: '',
+          align: 'left',
+          style: 'width:1%',
+        },
         {
           name: 'included',
           label: 'On/Off',
