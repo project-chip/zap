@@ -377,7 +377,10 @@ async function add_prefix_to_all_strings(str, prefixStr) {
   var strs = await str.match(/[A-Za-z]+/g).map(String);
   let res = ''
   for (let s of strs) {
-    res = await str.replace(s, prefixStr+s)
+    // Creating an exception for  hex values and not applying this there
+    if (s!='x') {
+      res = await str.replace(s, prefixStr+s)
+    }
   }
   return res
 }
