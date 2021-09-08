@@ -42,11 +42,25 @@ limitations under the License.
               name="warning"
               class="text-amber"
               style="font-size: 1.5rem"
+            />
+            <q-popup-edit
+              :disable="!displayAttrWarning(props.row)"
+              :cover="false"
+              :offset="[0, -54]"
+              content-class="bg-white text-black"
+              style="overflow-wrap: break-word; padding: 0px"
             >
-            <q-tooltip>
+              <div class="row items-center" items-center style="padding: 0px">
+                <q-icon
+                  name="warning"
+                  class="text-amber q-mr-sm"
+                  style="font-size: 1.5rem"
+                ></q-icon>
+                <div class="vertical-middle text-subtitle2">
                 This attribute is mandatory for the cluster and device type configuration you have enabled
-              </q-tooltip>
-            </q-icon>
+                </div>
+              </div>
+            </q-popup-edit>
           </q-td>
           <q-td key="included" :props="props" auto-width>
             <q-toggle
