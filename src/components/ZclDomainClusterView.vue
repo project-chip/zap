@@ -39,20 +39,21 @@ limitations under the License.
         >
           <q-td key="status" :props="props" class="q-px-none">
             <q-icon
-              v-if="missingRequiredUcComponents(props.row).length"
+              v-show="doesClusterHaveAnyWarnings(props.row)"
               name="warning"
               class="text-amber"
               style="font-size: 1.5rem"
               @click="selectCluster(props.row)"
             ></q-icon>
             <q-popup-edit
-              :disable="!missingRequiredUcComponents(props.row).length"
+              :disable="!doesClusterHaveAnyWarnings(props.row)"
               :cover="false"
               :offset="[0, -54]"
               v-model="uc_label"
               content-class="bg-white text-black"
               style="overflow-wrap: break-word; padding: 0px"
             >
+            <div v-show="missingRequiredUcComponents(props.row).length"  class="row">
               <div class="row items-center" items-center style="padding: 0px">
                 <q-icon
                   name="warning"
@@ -86,6 +87,16 @@ limitations under the License.
                   >Install</q-btn
                 >
               </div>
+            </div>
+
+            <div class="row no-wrap" v-show="isRequiredClusterMissingForId(props.row.id)">
+              <q-icon
+                  name="warning"
+                  class="text-amber q-mr-sm"
+                  style="font-size: 1.5rem"
+                ></q-icon>
+                  The configuration is missing the {{missingClusterMessage(props.row)}}
+            </div>
             </q-popup-edit>
           </q-td>
           <q-td key="label" :props="props" auto-width>
@@ -159,9 +170,9 @@ export default {
       // show/hide 'status' column depending on this.showStatus
       let statusColumn = 'status'
       let statusShown = names.indexOf(statusColumn) > -1
-      if (this.showStatus && !statusShown) {
+      if (this.hasWarning() && !statusShown) {
         names.push(statusColumn)
-      } else if (!this.showStatus && statusShown) {
+      } else if (!this.hasWarning() && statusShown) {
         let i = names.indexOf(statusColumn)
         names.splice(i, 1)
       }
@@ -172,6 +183,20 @@ export default {
     toggleStatus: function () {
       this.showStatus = !this.showStatus
     },
+    hasWarning: function () {
+      return this.showStatus || this.isAnyRequiredClusterNotEnabled()
+    },
+    missingClusterMessage(clusterData) {
+      let missingRequiredClusterPair = this.getMissingRequiredClusterPair(clusterData.id)
+      let msg = ""
+      if ( missingRequiredClusterPair.missingClient && missingRequiredClusterPair.missingServer) {
+        msg = "server and client clusters, which are" 
+      } else {
+       msg = missingRequiredClusterPair.missingClient ? 'client' : 'server' 
+       msg = msg + ' cluster which is'
+      }
+      return msg + ' required for this endpoint\'s device type.'
+    },
     isClusterRequired(id) {
       let clientRequired = this.recommendedClients.includes(id)
       let serverRequired = this.recommendedServers.includes(id)
@@ -179,11 +204,6 @@ export default {
       if (clientRequired) return 'Client'
       if (serverRequired) return 'Server'
       return ''
-    },
-    isClusterEnabled(id) {
-      return (
-        this.selectionClients.includes(id) || this.selectionServers.includes(id)
-      )
     },
     getClusterEnabledStatus(id) {
       let hasClient = this.selectionClients.includes(id)
@@ -193,7 +213,46 @@ export default {
       if (hasServer) return 'Server'
       return '---'
     },
-
+    isAnyRequiredClusterNotEnabled() {
+      let lackingRequiredCluster = false
+      this.recommendedClients.forEach(id => {
+        if (!this.isClientEnabled(id)) {
+          lackingRequiredCluster = true
+        }
+      })
+      this.recommendedServers.forEach(id => {
+        if (!this.isServerEnabled(id)) {
+          lackingRequiredCluster = true
+        }
+      })
+      return lackingRequiredCluster
+    },
+    getMissingRequiredClusterPair(id) {
+      return {missingClient: this.recommendedClients.includes(id) && !this.isClientEnabled(id),
+              missingServer: this.recommendedServers.includes(id) && !this.isServerEnabled(id)}
+    },
+    isRequiredClusterMissingForId(id) {
+      let missingRequiredClusterPair = this.getMissingRequiredClusterPair(id)
+      if ( missingRequiredClusterPair.missingClient || missingRequiredClusterPair.missingServer) return true
+      return false
+    },
+    doesClusterHaveAnyWarnings(clusterData) {
+      let id = clusterData.id
+      if (this.isRequiredClusterMissingForId(id)) return true
+      if (this.missingRequiredUcComponents(clusterData).length) return true
+      return false
+    },
+    isClusterEnabled(id) {
+      return (
+        this.selectionClients.includes(id) || this.selectionServers.includes(id)
+      )
+    },
+    isClientEnabled(id) {
+      return this.selectionClients.includes(id)
+    },
+    isServerEnabled(id) {
+      return this.selectionServers.includes(id)
+    },
     handleClusterSelection(id, event) {
       let clientSelected = event.client
       let serverSelected = event.server
