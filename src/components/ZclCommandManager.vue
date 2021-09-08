@@ -164,10 +164,10 @@ export default {
   methods: {
     displayCommandWarning(row) {
       return this.isCommandRequired(row) &&
-      (this.selectionClients.includes(this.selectedCluster.id) &&
+      ((this.selectionClients.includes(this.selectedCluster.id) &&
                   row.source == 'client') ||
                 (this.selectionServers.includes(this.selectedCluster.id) &&
-                  row.source == 'server')
+                  row.source == 'server'))
       && !this.selectionOut.includes(this.hashCommandIdClusterId(row.id, this.selectedCluster.id))
     },
     handleCommandSelection(list, listType, commandData, clusterId) {
