@@ -415,10 +415,10 @@ test(
 
         // Testing GENERATED ATTRIBUTES to see that they are refering to the correct generation defaults
         expect(cfgVer2).toContain(
-          `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_CLIENT), \{ (uint8_t*)&(generatedDefaults[28]) \} \}, /* 25 Cluster: Green Power, Attribute: gp link key, Side: client*/`
+          `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[28]) } }, /* 25 Cluster: Green Power, Attribute: gp link key, Side: client*/`
         )
         expect(cfgVer2).toContain(
-          `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE), \{ (uint8_t*)&(generatedDefaults[6]) \} \}, /* 37 Cluster: Green Power, Attribute: gp link key, Side: server*/`
+          `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)&(generatedDefaults[6]) } }, /* 37 Cluster: Green Power, Attribute: gp link key, Side: server*/`
         )
 
         // Testing zap cli helpers
