@@ -15,6 +15,7 @@ limitations under the License.
 -->
 <template>
   <div>
+    <q-card bordered class="q-pa-sm">
     <div class="row q-py-md">
       <strong>
         <q-breadcrumbs>
@@ -81,6 +82,7 @@ limitations under the License.
         </div>
       </div>
     </div>
+    </q-card>
   </div>
 </template>
 <script>
