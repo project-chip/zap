@@ -1030,6 +1030,7 @@ async function all_user_cluster_attributes_min_max_defaults(options) {
 async function generated_defaults_index(
   clusterName,
   attributeName,
+  attributeSide,
   attributeValueType,
   attributeValue,
   prefixReturn,
@@ -1053,6 +1054,7 @@ async function generated_defaults_index(
     if (
       ea.clusterName === clusterName &&
       ea.name === attributeName &&
+      ea.side === attributeSide &&
       ea.attributeValueType === attributeValueType
     ) {
       dataPtr = ea.arrayIndex ? ea.arrayIndex : 0
@@ -1075,7 +1077,7 @@ async function generated_defaults_index(
  * @param options
  * @returns index of the generated min max default array
  */
-async function generated_attributes_min_max_index(clusterName, attributeName) {
+async function generated_attributes_min_max_index(clusterName, attributeName, attributeSide) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
   let endpointsAndClusters =
     await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
@@ -1092,7 +1094,8 @@ async function generated_attributes_min_max_index(clusterName, attributeName) {
   for (let i = 0; i < endpointAttributes.length; i++) {
     if (
       endpointAttributes[i].clusterName === clusterName &&
-      endpointAttributes[i].name === attributeName
+      endpointAttributes[i].name === attributeName &&
+      endpointAttributes[i].side === attributeSide
     ) {
       dataPtr = i
     }
