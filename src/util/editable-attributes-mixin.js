@@ -22,19 +22,6 @@ import CommonMixin from '../util/common-mixin'
  */
 export default {
   mixins: [CommonMixin],
-  data() {
-    return {
-      edittedData: {
-        bounded: [],
-        singleton: [],
-      },
-      editableDefaults: {},
-      editableStorage: {},
-      editableMin: {},
-      editableMax: {},
-      editableReportable: {},
-    }
-  },
   computed: {
     relevantAttributeData: {
       get() {
@@ -118,7 +105,7 @@ export default {
         localChanges,
         listType,
         attributeData,
-        clusterId,
+        clusterId
       )
     },
     handleLocalSelection(selectedList, listType, attributeData, clusterId) {
@@ -128,10 +115,10 @@ export default {
         selectedList.includes(hash),
         listType,
         attributeData,
-        clusterId,
+        clusterId
       )
     },
-    setAttributeSelection(enable,listType, attributeData, clusterId) {
+    setAttributeSelection(enable, listType, attributeData, clusterId) {
       let editContext = {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointTypeId,
@@ -240,33 +227,6 @@ export default {
       this.$store
         .dispatch('zap/initSelectedAttribute', initContext)
         .then(() => {
-          let attrClusterHash = this.hashAttributeIdClusterId(
-            attributeData.id,
-            selectedClusterId
-          )
-          this.initializeBooleanEditableList(
-            this.selectionBounded,
-            this.edittedData['bounded'],
-            attrClusterHash
-          )
-          this.initializeBooleanEditableList(
-            this.selectionSingleton,
-            this.edittedData['singleton'],
-            attrClusterHash
-          )
-
-          this.initializeTextEditableList(
-            this.selectionDefault,
-            this.editableDefaults,
-            attrClusterHash
-          )
-
-          this.initializeTextEditableList(
-            this.selectionStorageOption,
-            this.editableStorage,
-            attrClusterHash
-          )
-
           this.$store.dispatch('zap/setAttributeEditting', {
             attributeId: attributeData.id,
             editState: true,
@@ -274,29 +234,6 @@ export default {
         })
     },
     setEditableAttributeReporting(attributeId, selectedClusterId) {
-      let attrClusterHash = this.hashAttributeIdClusterId(
-        attributeId,
-        selectedClusterId
-      )
-
-      this.initializeTextEditableList(
-        this.selectionMin,
-        this.editableMin,
-        attrClusterHash
-      )
-
-      this.initializeTextEditableList(
-        this.selectionMax,
-        this.editableMax,
-        attrClusterHash
-      )
-
-      this.initializeTextEditableList(
-        this.selectionReportableChange,
-        this.editableReportable,
-        attrClusterHash
-      )
-
       this.$store.dispatch('zap/setAttributeReportingEditting', {
         attributeId: attributeId,
         editState: true,
@@ -316,35 +253,6 @@ export default {
       })
     },
 
-    commitEdittedAttributeReporting(attributeData, clusterId) {
-      let hash = this.hashAttributeIdClusterId(attributeData.id, clusterId)
-
-      this.handleAttributeDefaultChange(
-        this.editableMin[hash],
-        'reportingMin',
-        attributeData,
-        clusterId
-      )
-      this.handleAttributeDefaultChange(
-        this.editableMax[hash],
-        'reportingMax',
-        attributeData,
-        clusterId
-      )
-
-      this.$store.dispatch('zap/setAttributeReportingEditting', {
-        attributeId: attributeData.id,
-        editState: false,
-      })
-    },
-    commitEdittedAttribute(attributeData, clusterId) {
-      let hash = this.hashAttributeIdClusterId(attributeData.id, clusterId)
-
-      this.$store.dispatch('zap/setAttributeEditting', {
-        attributeId: attributeData.id,
-        editState: false,
-      })
-    },
     sortByText(x, y, ascendingA, ascendingB, callback = (i, j) => 0) {
       return x.toLowerCase() > y.toLowerCase()
         ? 1

@@ -94,8 +94,6 @@ export default function () {
     },
     attributeView: {
       selectedAttributes: [],
-      editableAttributes: {},
-      editableAttributesReporting: {},
       selectedSingleton: [],
       selectedBounded: [],
       defaultValue: {},

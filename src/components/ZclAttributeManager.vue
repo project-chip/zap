@@ -201,12 +201,6 @@ export default {
   name: 'ZclAttributeManager',
   mixins: [EditableAttributeMixin],
   destroyed() {
-    Object.keys(this.editableAttributes).forEach((attrId) => {
-      this.commitEdittedAttribute(
-        this.getAttributeById(attrId),
-        this.selectedCluster.id
-      )
-    })
   },
   methods: {
     isAttributeRequired(attribute) {
@@ -315,11 +309,6 @@ export default {
               this.requiredDeviceTypeAttributes.includes(attribute.id)
           )
           .map((attribute) => attribute.id)
-      },
-    },
-    editableAttributes: {
-      get() {
-        return this.$store.state.zap.attributeView.editableAttributes
       },
     },
     storageOptions: {
