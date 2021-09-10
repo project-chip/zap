@@ -101,25 +101,20 @@ limitations under the License.
           <q-td key="storageOption" :props="props" auto-width>
             <q-select
               :value="
-                !editableAttributes[props.row.id]
-                  ? selectionStorageOption[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
-                  : editableStorage[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
+                selectionStorageOption[
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                ]
               "
               class="col"
               :options="storageOptions"
               dense
-              :borderless="!editableAttributes[props.row.id]"
-              :outlined="editableAttributes[props.row.id]"
-              :disable="!editableAttributes[props.row.id]"
+              outlined
               @input="
                 handleLocalChange(
                   $event,
-                  'editableStorage',
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  'storageOption',
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
@@ -127,19 +122,14 @@ limitations under the License.
           <q-td key="singleton" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
-              :value="
-                !editableAttributes[props.row.id]
-                  ? selectionSingleton
-                  : edittedData['singleton']
-              "
+              :value="selectionSingleton"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
-              :disable="!editableAttributes[props.row.id]"
-              :dimmed="!editableAttributes[props.row.id]"
               @input="
                 handleLocalSelection(
-                  edittedData['singleton'],
-                  props.row.id,
+                  $event,
+                  'selectedSingleton',
+                  props.row,
                   selectedCluster.id
                 )
               "
@@ -148,19 +138,14 @@ limitations under the License.
           <q-td key="bounded" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
-              :value="
-                !editableAttributes[props.row.id]
-                  ? selectionBounded
-                  : edittedData['bounded']
-              "
+              :value="selectionBounded"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
-              :disable="!editableAttributes[props.row.id]"
-              :dimmed="!editableAttributes[props.row.id]"
               @input="
                 handleLocalSelection(
-                  edittedData['bounded'],
-                  props.row.id,
+                  $event,
+                  'selectedBounded',
+                  props.row,
                   selectedCluster.id
                 )
               "
@@ -174,17 +159,11 @@ limitations under the License.
               dense
               bottom-slots
               hide-bottom-space
-              :borderless="!editableAttributes[props.row.id]"
-              :outlined="editableAttributes[props.row.id]"
-              :disable="!editableAttributes[props.row.id]"
+              outlined
               :value="
-                !editableAttributes[props.row.id]
-                  ? selectionDefault[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
-                  : editableDefaults[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
+                selectionDefault[
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                ]
               "
               :error="
                 !isDefaultValueValid(
@@ -199,34 +178,10 @@ limitations under the License.
               @input="
                 handleLocalChange(
                   $event,
-                  'editableDefaults',
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  'defaultValue',
+                  props.row,
+                  selectedCluster.id
                 )
-              "
-            />
-          </q-td>
-          <q-td key="edit" :props="props" auto-width>
-            <q-btn
-              dense
-              flat
-              icon="close"
-              color="blue"
-              :style="{
-                visibility: editableAttributes[props.row.id]
-                  ? 'visible'
-                  : 'hidden',
-              }"
-              @click="resetAttribute(props.row.id)"
-            />
-            <q-btn
-              dense
-              flat
-              :icon="editableAttributes[props.row.id] ? 'done' : 'create'"
-              color="blue"
-              @click="
-                editableAttributes[props.row.id]
-                  ? commitEdittedAttribute(props.row, selectedCluster.id)
-                  : setEditableAttribute(props.row, selectedCluster.id)
               "
             />
           </q-td>
@@ -292,13 +247,15 @@ export default {
                 this.sortByClusterAndManufacturerCode
               )
             case 'storageOption': {
-              let i = this.selectionStorageOption[
-                this.hashAttributeIdClusterId(x.id, this.selectedCluster.id)
-              ]
+              let i =
+                this.selectionStorageOption[
+                  this.hashAttributeIdClusterId(x.id, this.selectedCluster.id)
+                ]
               i = i ? i : ''
-              let j = this.selectionStorageOption[
-                this.hashAttributeIdClusterId(y.id, this.selectedCluster.id)
-              ]
+              let j =
+                this.selectionStorageOption[
+                  this.hashAttributeIdClusterId(y.id, this.selectedCluster.id)
+                ]
               j = j ? j : ''
               return this.sortByText(
                 i,
@@ -459,12 +416,6 @@ export default {
           align: 'left',
           label: 'Default',
           field: 'default',
-        },
-        {
-          name: 'edit',
-          align: 'left',
-          label: 'Edit',
-          field: 'edit',
         },
       ],
     }

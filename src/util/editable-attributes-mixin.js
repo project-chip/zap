@@ -113,11 +113,25 @@ export default {
     },
   },
   methods: {
-    handleLocalChange(value, list, hash) {
-      Vue.set(this[list], hash, value)
-      this[list] = Object.assign({}, this[list])
+    handleLocalChange(localChanges, listType, attributeData, clusterId) {
+      this.handleAttributeDefaultChange(
+        localChanges,
+        listType,
+        attributeData,
+        clusterId,
+      )
     },
-    setAttributeSelection(listType, attributeData, clusterId, enable) {
+    handleLocalSelection(selectedList, listType, attributeData, clusterId) {
+      let hash = this.hashAttributeIdClusterId(attributeData.id, clusterId)
+
+      this.setAttributeSelection(
+        selectedList.includes(hash),
+        listType,
+        attributeData,
+        clusterId,
+      )
+    },
+    setAttributeSelection(enable,listType, attributeData, clusterId) {
       let editContext = {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointTypeId,
@@ -146,15 +160,6 @@ export default {
             ''
           )
         : ''
-    },
-    handleLocalSelection(list, attributeDataId, clusterId) {
-      let hash = this.hashAttributeIdClusterId(attributeDataId, clusterId)
-      let indexOfValue = list.indexOf(hash)
-      if (indexOfValue === -1) {
-        list.push(hash)
-      } else {
-        list.splice(indexOfValue, 1)
-      }
     },
     initializeBooleanEditableList(
       originatingList,
@@ -335,32 +340,6 @@ export default {
     commitEdittedAttribute(attributeData, clusterId) {
       let hash = this.hashAttributeIdClusterId(attributeData.id, clusterId)
 
-      this.handleAttributeDefaultChange(
-        this.editableDefaults[hash],
-        'defaultValue',
-        attributeData,
-        clusterId
-      )
-
-      this.handleAttributeDefaultChange(
-        this.editableStorage[hash],
-        'storageOption',
-        attributeData,
-        clusterId
-      )
-
-      this.setAttributeSelection(
-        'selectedSingleton',
-        attributeData,
-        clusterId,
-        this.edittedData['singleton'].includes(hash)
-      )
-      this.setAttributeSelection(
-        'selectedBounded',
-        attributeData,
-        clusterId,
-        this.edittedData['bounded'].includes(hash)
-      )
       this.$store.dispatch('zap/setAttributeEditting', {
         attributeId: attributeData.id,
         editState: false,
