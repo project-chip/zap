@@ -25,6 +25,17 @@ const util = require('../util/util.js')
  * @module Templating API: C formatting helpers
  */
 
+async function clusterExtension(context, prop, clusterCode, role) {
+  return templateUtil
+    .ensureTemplatePackageId(context)
+    .then((packageId) =>
+      templateUtil.ensureZclClusterSdkExtensions(context, packageId)
+    )
+    .then((extensions) =>
+      util.getClusterExtensionDefault(extensions, prop, clusterCode, role)
+    )
+}
+
 /**
  * When inside a context that contains 'code', this
  * helper will output the value of the cluster extension
@@ -36,17 +47,14 @@ const util = require('../util/util.js')
 function cluster_extension(options) {
   let prop = options.hash.property
   let role = options.hash.role
+  let code = options.hash.code
+  if (code == null) {
+    code = 'code'
+  }
   if (prop == null) {
     return ''
   } else {
-    return templateUtil
-      .ensureTemplatePackageId(this)
-      .then((packageId) =>
-        templateUtil.ensureZclClusterSdkExtensions(this, packageId)
-      )
-      .then((extensions) =>
-        util.getClusterExtensionDefault(extensions, prop, this.code, role)
-      )
+    return clusterExtension(this, prop, this[code], role)
   }
 }
 
@@ -147,7 +155,7 @@ async function subentityExtension(context, prop, entityType) {
   return val
 }
 
-function if_extension_true(options) {
+function if_command_extension_true(options) {
   let prop = options.hash.property
   if (prop == '') return ''
 
@@ -164,7 +172,7 @@ function if_extension_true(options) {
   })
 }
 
-function if_extension_false(options) {
+function if_command_extension_false(options) {
   let prop = options.hash.property
   if (prop == '') return ''
 
@@ -173,6 +181,32 @@ function if_extension_false(options) {
     prop,
     dbEnum.packageExtensionEntity.command
   ).then((val) => {
+    if (val == false || val == 0) {
+      return options.fn(this)
+    } else {
+      return ''
+    }
+  })
+}
+
+function if_cluster_extension_true(options) {
+  let prop = options.hash.property
+  if (prop == '') return ''
+
+  return clusterExtension(this, prop, this[clusterCode], null).then((val) => {
+    if (val == true || val == 1) {
+      return options.fn(this)
+    } else {
+      return ''
+    }
+  })
+}
+
+function if_cluster_extension_false(options) {
+  let prop = options.hash.property
+  if (prop == '') return ''
+
+  return clusterExtension(this, prop, this[clusterCode], null).then((val) => {
     if (val == false || val == 0) {
       return options.fn(this)
     } else {
@@ -231,5 +265,7 @@ exports.command_extension = command_extension
 exports.event_extension = event_extension
 exports.attribute_extension = attribute_extension
 exports.device_type_extension = device_type_extension
-exports.if_extension_true = if_extension_true
-exports.if_extension_false = if_extension_false
+exports.if_command_extension_true = if_command_extension_true
+exports.if_command_extension_false = if_command_extension_false
+exports.if_cluster_extension_true = if_cluster_extension_true
+exports.if_cluster_extension_false = if_cluster_extension_false
