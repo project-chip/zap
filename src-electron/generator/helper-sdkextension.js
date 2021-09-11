@@ -191,9 +191,11 @@ function if_command_extension_false(options) {
 
 function if_cluster_extension_true(options) {
   let prop = options.hash.property
+  let code = options.hash.code
   if (prop == '') return ''
+  if (code == null) code = 'clusterCode'
 
-  return clusterExtension(this, prop, this.clusterCode, null).then((val) => {
+  return clusterExtension(this, prop, this[code], null).then((val) => {
     if (val == true || val == 1) {
       return options.fn(this)
     } else {
@@ -204,9 +206,11 @@ function if_cluster_extension_true(options) {
 
 function if_cluster_extension_false(options) {
   let prop = options.hash.property
+  let code = options.hash.code
   if (prop == '') return ''
+  if (code == null) code = 'clusterCode'
 
-  return clusterExtension(this, prop, this.clusterCode, null).then((val) => {
+  return clusterExtension(this, prop, this[code], null).then((val) => {
     if (val == false || val == 0) {
       return options.fn(this)
     } else {
