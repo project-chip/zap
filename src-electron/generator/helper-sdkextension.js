@@ -193,7 +193,7 @@ function if_cluster_extension_true(options) {
   let prop = options.hash.property
   if (prop == '') return ''
 
-  return clusterExtension(this, prop, this[clusterCode], null).then((val) => {
+  return clusterExtension(this, prop, this.clusterCode, null).then((val) => {
     if (val == true || val == 1) {
       return options.fn(this)
     } else {
@@ -206,7 +206,7 @@ function if_cluster_extension_false(options) {
   let prop = options.hash.property
   if (prop == '') return ''
 
-  return clusterExtension(this, prop, this[clusterCode], null).then((val) => {
+  return clusterExtension(this, prop, this.clusterCode, null).then((val) => {
     if (val == false || val == 0) {
       return options.fn(this)
     } else {
