@@ -1163,13 +1163,9 @@ async function selectAllAtomics(db, packageId) {
  * @param {*} db
  * @param {*} packageId
  */
- async function selectAtomicById(db, id) {
+async function selectAtomicById(db, id) {
   return dbApi
-    .dbGet(
-      db,
-      `${ATOMIC_QUERY} WHERE ATOMIC_ID = ?`,
-      [id]
-    )
+    .dbGet(db, `${ATOMIC_QUERY} WHERE ATOMIC_ID = ?`, [id])
     .then((rows) => rows.map(dbMapping.map.atomic))
 }
 

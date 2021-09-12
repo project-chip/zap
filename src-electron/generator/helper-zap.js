@@ -374,12 +374,12 @@ function replace_string(mainString, replaceString, replaceWithString) {
 }
 
 async function add_prefix_to_all_strings(str, prefixStr) {
-  let strs = await str.match(/[A-Za-z]+/g).map(String);
+  let strs = await str.match(/[A-Za-z]+/g).map(String)
   let res = ''
   for (let s of strs) {
     // Creating an exception for  hex values and not applying this there
-    if (s!='x') {
-      res = await str.replace(s, prefixStr+s)
+    if (s != 'x') {
+      res = await str.replace(s, prefixStr + s)
     }
   }
   return res

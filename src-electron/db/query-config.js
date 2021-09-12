@@ -137,7 +137,7 @@ async function insertOrUpdateAttributeState(
   }
 
   if (reportMaxInterval === undefined || reportMaxInterval === null) {
-    reportMaxInterval = 0xffff-1
+    reportMaxInterval = 0xffff - 1
   }
 
   if (reportableChange === undefined || reportableChange === null) {
@@ -195,7 +195,7 @@ INTO ENDPOINT_TYPE_ATTRIBUTE (
       clusterRef,
       reportMinInterval,
       reportMaxInterval,
-      reportableChange
+      reportableChange,
     ]
   )
 

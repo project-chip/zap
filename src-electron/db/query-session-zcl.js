@@ -34,7 +34,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @returns all the cluster objects for a given session.
  */
 async function selectSessionClusterByCode(db, sessionId, code, mfgCode) {
-  let args = [sessionId, code] 
+  let args = [sessionId, code]
   if (!(mfgCode == 0 || mfgCode == null)) args.push(mfgCode)
   return dbApi
     .dbGet(

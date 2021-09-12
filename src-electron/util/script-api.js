@@ -72,7 +72,7 @@ function clusters(context, endpoint) {
 /**
  * Returns an array of attributes for a given cluster.
  * The cluster input is required to come from a script-api in this module.
- * 
+ *
  * @param {*} context
  * @param {*} endpoint
  * @param {*} cluster
@@ -88,7 +88,7 @@ function attributes(context, endpoint, cluster) {
 
 /**
  * Returns an array of commands for a given cluster
- * The clusters input is required to come from a script-api in this module. 
+ * The clusters input is required to come from a script-api in this module.
  *
  * @param {*} context
  * @param {*} endpoint
@@ -131,7 +131,7 @@ async function availableClusters(context) {
 
 // Finds the cluster database primary key from code,manufacturing code, and context.
 // Note that by default, a standard ZCL library cluster will have manufacturing code of null
-// in the database. 
+// in the database.
 async function findCluster(context, code, mfgCode = null) {
   return querySessionZcl.selectSessionClusterByCode(
     context.db,
@@ -141,7 +141,13 @@ async function findCluster(context, code, mfgCode = null) {
   )
 }
 
-async function findAttribute(context, clusterCode, side, attributeCode, mfgCode = null) {
+async function findAttribute(
+  context,
+  clusterCode,
+  side,
+  attributeCode,
+  mfgCode = null
+) {
   return querySessionZcl.selectSessionAttributeByCode(
     context.db,
     context.sessionId,

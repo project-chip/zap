@@ -16,7 +16,7 @@
  *    limitations under the License.
  */
 
-const templateEngine = require('../src-electron/generator/template-engine.js')
+const templateEngine = require('../dist/src-electron/generator/template-engine')
 const fs = require('fs')
 
 let helpers = templateEngine.allGlobalHelpers()
