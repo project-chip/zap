@@ -798,18 +798,19 @@ async function all_user_cluster_generated_commands(options) {
 function all_user_clusters_with_incoming_commands(options) {
   return queryEndpointType
     .selectUsedEndpointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) => (('uniqueClusterCodes' in options.hash)
-      && options.hash.uniqueClusterCodes == 'true')
-      ? queryCommand.selectAllClustersWithIncomingCommands(
-        this.global.db,
-        endpointTypes,
-        true
-      )
-      : queryCommand.selectAllClustersWithIncomingCommands(
-        this.global.db,
-        endpointTypes,
-        false
-      )
+    .then((endpointTypes) =>
+      'uniqueClusterCodes' in options.hash &&
+      options.hash.uniqueClusterCodes == 'true'
+        ? queryCommand.selectAllClustersWithIncomingCommands(
+            this.global.db,
+            endpointTypes,
+            true
+          )
+        : queryCommand.selectAllClustersWithIncomingCommands(
+            this.global.db,
+            endpointTypes,
+            false
+          )
     )
     .then((clustersWithIncomingCommands) =>
       templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
@@ -819,8 +820,8 @@ function all_user_clusters_with_incoming_commands(options) {
 /**
  * Provide all manufacturing specific clusters that have incoming commands with
  * the given cluster code.
- * @param clusterCode 
- * @param options 
+ * @param clusterCode
+ * @param options
  * @returns Details of manufacturing specific clusters that have incoming
  * commands with the given cluster code
  */
@@ -897,23 +898,25 @@ function all_incoming_commands_for_cluster_combined(
     )
 }
 
-function all_user_incoming_commands_for_all_clusters(options) {
+async function all_user_incoming_commands_for_all_clusters(options) {
   let isMfgSpec =
     'isMfgSpecific' in options.hash
       ? options.hash.isMfgSpecific.toLowerCase() === 'true'
       : undefined
-  return queryEndpointType
-    .selectUsedEndpointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryCommand.selectAllIncomingCommands(
-        this.global.db,
-        endpointTypes,
-        isMfgSpec
-      )
+
+  let endpointTypes = await queryEndpointType.selectUsedEndpointTypeIds(
+    this.global.db,
+    this.global.sessionId
+  )
+
+  let clustersWithIncomingCommands =
+    await queryCommand.selectAllIncomingCommands(
+      this.global.db,
+      endpointTypes,
+      isMfgSpec
     )
-    .then((clustersWithIncomingCommands) =>
-      templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
-    )
+
+  return templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
 }
 
 /**
@@ -922,25 +925,31 @@ function all_user_incoming_commands_for_all_clusters(options) {
  * @param options
  * @returns all commands that need to be parsed for a given cluster
  */
-function all_incoming_commands_for_cluster(clusterName, clusterSide, options) {
+async function all_incoming_commands_for_cluster(
+  clusterName,
+  clusterSide,
+  options
+) {
   let isMfgSpec =
     'isMfgSpecific' in options.hash
       ? options.hash.isMfgSpecific.toLowerCase() === 'true'
       : undefined
-  return queryEndpointType
-    .selectUsedEndpointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryCommand.selectAllIncomingCommandsForCluster(
-        this.global.db,
-        endpointTypes,
-        clusterName,
-        clusterSide,
-        isMfgSpec
-      )
+
+  let endpointTypes = await queryEndpointType.selectUsedEndpointTypeIds(
+    this.global.db,
+    this.global.sessionId
+  )
+
+  let clustersWithIncomingCommands =
+    await queryCommand.selectAllIncomingCommandsForCluster(
+      this.global.db,
+      endpointTypes,
+      clusterName,
+      clusterSide,
+      isMfgSpec
     )
-    .then((clustersWithIncomingCommands) =>
-      templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
-    )
+
+  return templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
 }
 
 /**
@@ -1169,4 +1178,5 @@ exports.all_incoming_commands_for_cluster_combined = dep(
   { to: 'all_user_incoming_commands_for_all_clusters' }
 )
 exports.if_command_discovery_enabled = if_command_discovery_enabled
-exports.manufacturing_clusters_with_incoming_commands = manufacturing_clusters_with_incoming_commands
+exports.manufacturing_clusters_with_incoming_commands =
+  manufacturing_clusters_with_incoming_commands
