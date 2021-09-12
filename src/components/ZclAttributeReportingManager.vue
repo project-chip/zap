@@ -128,10 +128,10 @@ limitations under the License.
               type="number"
             />
             <q-input
-                v-show="!isAttributeAnalog(props.row)"
-                label="<<not analog>>"
-                disable
-                borderless
+              v-show="!isAttributeAnalog(props.row)"
+              label="<<not analog>>"
+              disable
+              borderless
             />
           </q-td>
           <q-td key="edit" :props="props" auto-width>
@@ -192,7 +192,7 @@ export default {
     atomics: {
       get() {
         return this.$store.state.zap.atomics
-      }
+      },
     },
     attributeData: {
       get() {
@@ -290,10 +290,10 @@ export default {
       return this.isTypeAnalog(props.type)
     },
     isTypeAnalog(typeName) {
-      let atomicType = this.atomics.filter(a => {
+      let atomicType = this.atomics.filter((a) => {
         return a.name == typeName
-      }) 
-      if ( atomicType.length > 0) {
+      })
+      if (atomicType.length > 0) {
         return !atomicType[0].isDiscrete
       } else {
         return true

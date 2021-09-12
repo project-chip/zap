@@ -109,8 +109,8 @@ function parseForZclData(db, entity, id, packageIdArray) {
   switch (entity) {
     case 'atomics':
       return reduceAndConcatenateZclEntity(
-        db, 
-        id, 
+        db,
+        id,
         packageIdArray,
         zclEntityQuery(queryZcl.selectAllAtomics, queryZcl.selectAtomicById)
       )

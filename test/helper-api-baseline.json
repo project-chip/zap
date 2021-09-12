@@ -1,5 +1,6 @@
 [
   { "name": "add_one" },
+  { "name": "add_prefix_to_all_strings" },
   { "name": "add_to_accumulator" },
   { "name": "addOne", "isDeprecated": true },
   { "name": "addToAccumulator", "isDeprecated": true },
@@ -7,7 +8,10 @@
   { "name": "all_cli_commands_for_user_enabled_clusters" },
   { "name": "all_commands_for_user_enabled_clusters" },
   { "name": "all_incoming_commands_for_cluster" },
-  { "name": "all_incoming_commands_for_cluster_combined" },
+  {
+    "name": "all_incoming_commands_for_cluster_combined",
+    "isDeprecated": true
+  },
   { "name": "all_user_cluster_attributes_for_generated_defaults" },
   {
     "name": "all_user_cluster_attributes_irrespective_of_manufatucuring_specification"
@@ -27,7 +31,11 @@
   { "name": "all_user_clusters_irrespective_of_side" },
   { "name": "all_user_clusters_names" },
   { "name": "all_user_clusters_with_incoming_commands" },
-  { "name": "all_user_clusters_with_incoming_commands_combined" },
+  {
+    "name": "all_user_clusters_with_incoming_commands_combined",
+    "isDeprecated": true
+  },
+  { "name": "all_user_incoming_commands_for_all_clusters" },
   { "name": "all_user_reportable_attributes" },
   { "name": "as_bytes" },
   { "name": "as_camel_cased" },
@@ -43,9 +51,18 @@
   { "name": "as_type" },
   { "name": "as_underlying_type" },
   { "name": "as_underlying_zcl_type" },
-  { "name": "as_underlying_zcl_type_ca_always_present_with_presentif" },
-  { "name": "as_underlying_zcl_type_ca_not_always_present_no_presentif" },
-  { "name": "as_underlying_zcl_type_ca_not_always_present_with_presentif" },
+  {
+    "name": "as_underlying_zcl_type_ca_always_present_with_presentif",
+    "isDeprecated": true
+  },
+  {
+    "name": "as_underlying_zcl_type_ca_not_always_present_no_presentif",
+    "isDeprecated": true
+  },
+  {
+    "name": "as_underlying_zcl_type_ca_not_always_present_with_presentif",
+    "isDeprecated": true
+  },
   {
     "name": "as_underlying_zcl_type_command_argument_always_present",
     "isDeprecated": true
@@ -63,7 +80,8 @@
     "isDeprecated": true
   },
   {
-    "name": "as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present"
+    "name": "as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present",
+    "isDeprecated": true
   },
   { "name": "as_underlying_zcl_type_if_command_is_not_fixed_length" },
   { "name": "as_underscore_lowercase" },
@@ -148,9 +166,15 @@
   { "name": "generated_endpoint_type_details" },
   { "name": "global_attribute_default" },
   { "name": "ident", "isDeprecated": true },
-  { "name": "if_ca_always_present_with_presentif" },
-  { "name": "if_ca_not_always_present_no_presentif" },
-  { "name": "if_ca_not_always_present_with_presentif" },
+  { "name": "if_ca_always_present_with_presentif", "isDeprecated": true },
+  { "name": "if_ca_not_always_present_no_presentif", "isDeprecated": true },
+  { "name": "if_ca_not_always_present_with_presentif", "isDeprecated": true },
+  { "name": "if_cluster_extension_false" },
+  { "name": "if_cluster_extension_true" },
+  { "name": "if_command_arg_always_present_with_presentif" },
+  { "name": "if_command_arg_not_always_present_no_presentif" },
+  { "name": "if_command_arg_not_always_present_with_presentif" },
+  { "name": "if_command_args_exist" },
   { "name": "if_command_argument_always_present", "isDeprecated": true },
   {
     "name": "if_command_argument_always_present_with_presentif",
@@ -164,19 +188,24 @@
     "name": "if_command_argument_not_always_present_with_presentif",
     "isDeprecated": true
   },
-  { "name": "if_command_arguments_exist" },
+  { "name": "if_command_arguments_exist", "isDeprecated": true },
   { "name": "if_command_arguments_have_fixed_length" },
-  { "name": "if_command_is_fixed_length" },
+  { "name": "if_command_discovery_enabled" },
+  { "name": "if_command_extension_false" },
+  { "name": "if_command_extension_true" },
+  { "name": "if_command_fixed_length" },
+  { "name": "if_command_is_fixed_length", "isDeprecated": true },
   {
-    "name": "if_command_is_not_fixed_length_but_command_argument_is_always_present"
+    "name": "if_command_is_not_fixed_length_but_command_argument_is_always_present",
+    "isDeprecated": true
   },
-  { "name": "if_extension_false" },
-  { "name": "if_extension_true" },
+  { "name": "if_command_not_fixed_length_command_argument_always_present" },
   { "name": "if_future" },
   { "name": "if_is_bitmap" },
   { "name": "if_is_enum" },
   { "name": "if_is_struct" },
-  { "name": "if_manufacturing_specific_cluster" },
+  { "name": "if_manufacturing_specific_cluster", "isDeprecated": true },
+  { "name": "if_mfg_specific_cluster" },
   { "name": "indent" },
   { "name": "is_bitmap" },
   { "name": "is_client" },
@@ -209,6 +238,7 @@
   { "name": "iterate_accumulator" },
   { "name": "iterateAccumulator", "isDeprecated": true },
   { "name": "last" },
+  { "name": "manufacturing_clusters_with_incoming_commands" },
   { "name": "middle" },
   { "name": "new_line" },
   { "name": "not_first" },
@@ -251,6 +281,8 @@
   { "name": "zcl_command_arguments_count" },
   { "name": "zcl_command_tree" },
   { "name": "zcl_commands" },
+  { "name": "zcl_commands_source_client" },
+  { "name": "zcl_commands_source_server" },
   { "name": "zcl_device_types" },
   { "name": "zcl_enum_items" },
   { "name": "zcl_enums" },
