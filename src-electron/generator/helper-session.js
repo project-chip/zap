@@ -1017,6 +1017,39 @@ async function all_user_cluster_attributes_min_max_defaults(options) {
 }
 
 /**
+ * 
+ * @param clusterName 
+ * @param attributeName 
+ * @param attributeSide 
+ * @param attributeValue 
+ * @param attributeValueType 
+ * @param endpointAttributes 
+ * @returns arrayIndex
+ */
+function checkAttributeMatch(clusterName,
+                             attributeName,
+                             attributeSide,
+                             attributeValue,
+                             attributeValueType,
+                             endpointAttributes) {
+  return new Promise((resolve, reject) => {
+    let dataPtr
+    for (const ea of endpointAttributes) {
+      if (
+        ea.clusterName === clusterName &&
+        ea.name === attributeName &&
+        ea.side === attributeSide &&
+        ea.attributeValueType === attributeValueType
+      ) {
+        dataPtr = ea.arrayIndex ? ea.arrayIndex : 0
+        resolve(dataPtr)
+      }
+    }
+    resolve(attributeValue)
+  })
+}
+
+/**
  * Extracts the index of generated defaults array which come from
  * all_user_cluster_attributes_for_generated_defaults
  * @param clusterName
@@ -1049,17 +1082,12 @@ async function generated_defaults_index(
     endpointsAndClusters
   )
 
-  let dataPtr = attributeValue
-  for (const ea of endpointAttributes) {
-    if (
-      ea.clusterName === clusterName &&
-      ea.name === attributeName &&
-      ea.side === attributeSide &&
-      ea.attributeValueType === attributeValueType
-    ) {
-      dataPtr = ea.arrayIndex ? ea.arrayIndex : 0
-    }
-  }
+  let dataPtr = await checkAttributeMatch(clusterName,
+                                      attributeName,
+                                      attributeSide,
+                                      attributeValue,
+                                      attributeValueType,
+                                      endpointAttributes)
   if (dataPtr === attributeValue) {
     dataPtr = dataPtr ? '(uint8_t*)' + dataPtr : 'NULL'
   } else {
