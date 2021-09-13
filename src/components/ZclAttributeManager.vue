@@ -36,6 +36,32 @@ limitations under the License.
     >
       <template v-slot:body="props">
         <q-tr :props="props">
+        <q-td key="status" :props="props" class="q-px-none">
+            <q-icon
+              v-show="displayAttrWarning(props.row)"
+              name="warning"
+              class="text-amber"
+              style="font-size: 1.5rem"
+            />
+            <q-popup-edit
+              :disable="!displayAttrWarning(props.row)"
+              :cover="false"
+              :offset="[0, -54]"
+              content-class="bg-white text-black"
+              style="overflow-wrap: break-word; padding: 0px"
+            >
+              <div class="row items-center" items-center style="padding: 0px">
+                <q-icon
+                  name="warning"
+                  class="text-amber q-mr-sm"
+                  style="font-size: 1.5rem"
+                ></q-icon>
+                <div class="vertical-middle text-subtitle2">
+                This attribute is mandatory for the cluster and device type configuration you have enabled
+                </div>
+              </div>
+            </q-popup-edit>
+          </q-td>
           <q-td key="included" :props="props" auto-width>
             <q-toggle
               class="q-mt-xs"
@@ -75,25 +101,20 @@ limitations under the License.
           <q-td key="storageOption" :props="props" auto-width>
             <q-select
               :value="
-                !editableAttributes[props.row.id]
-                  ? selectionStorageOption[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
-                  : editableStorage[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
+                selectionStorageOption[
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                ]
               "
               class="col"
               :options="storageOptions"
               dense
-              :borderless="!editableAttributes[props.row.id]"
-              :outlined="editableAttributes[props.row.id]"
-              :disable="!editableAttributes[props.row.id]"
+              outlined
               @input="
                 handleLocalChange(
                   $event,
-                  'editableStorage',
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  'storageOption',
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
@@ -101,19 +122,14 @@ limitations under the License.
           <q-td key="singleton" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
-              :value="
-                !editableAttributes[props.row.id]
-                  ? selectionSingleton
-                  : edittedData['singleton']
-              "
+              :value="selectionSingleton"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
-              :disable="!editableAttributes[props.row.id]"
-              :dimmed="!editableAttributes[props.row.id]"
               @input="
                 handleLocalSelection(
-                  edittedData['singleton'],
-                  props.row.id,
+                  $event,
+                  'selectedSingleton',
+                  props.row,
                   selectedCluster.id
                 )
               "
@@ -122,19 +138,14 @@ limitations under the License.
           <q-td key="bounded" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
-              :value="
-                !editableAttributes[props.row.id]
-                  ? selectionBounded
-                  : edittedData['bounded']
-              "
+              :value="selectionBounded"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
-              :disable="!editableAttributes[props.row.id]"
-              :dimmed="!editableAttributes[props.row.id]"
               @input="
                 handleLocalSelection(
-                  edittedData['bounded'],
-                  props.row.id,
+                  $event,
+                  'selectedBounded',
+                  props.row,
                   selectedCluster.id
                 )
               "
@@ -148,17 +159,11 @@ limitations under the License.
               dense
               bottom-slots
               hide-bottom-space
-              :borderless="!editableAttributes[props.row.id]"
-              :outlined="editableAttributes[props.row.id]"
-              :disable="!editableAttributes[props.row.id]"
+              outlined
               :value="
-                !editableAttributes[props.row.id]
-                  ? selectionDefault[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
-                  : editableDefaults[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
+                selectionDefault[
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                ]
               "
               :error="
                 !isDefaultValueValid(
@@ -173,34 +178,10 @@ limitations under the License.
               @input="
                 handleLocalChange(
                   $event,
-                  'editableDefaults',
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  'defaultValue',
+                  props.row,
+                  selectedCluster.id
                 )
-              "
-            />
-          </q-td>
-          <q-td key="edit" :props="props" auto-width>
-            <q-btn
-              dense
-              flat
-              icon="close"
-              color="blue"
-              :style="{
-                visibility: editableAttributes[props.row.id]
-                  ? 'visible'
-                  : 'hidden',
-              }"
-              @click="resetAttribute(props.row.id)"
-            />
-            <q-btn
-              dense
-              flat
-              :icon="editableAttributes[props.row.id] ? 'done' : 'create'"
-              color="blue"
-              @click="
-                editableAttributes[props.row.id]
-                  ? commitEdittedAttribute(props.row, selectedCluster.id)
-                  : setEditableAttribute(props.row, selectedCluster.id)
               "
             />
           </q-td>
@@ -220,16 +201,13 @@ export default {
   name: 'ZclAttributeManager',
   mixins: [EditableAttributeMixin],
   destroyed() {
-    Object.keys(this.editableAttributes).forEach((attrId) => {
-      this.commitEdittedAttribute(
-        this.getAttributeById(attrId),
-        this.selectedCluster.id
-      )
-    })
   },
   methods: {
     isAttributeRequired(attribute) {
       return this.requiredAttributes.includes(attribute.id)
+    },
+    displayAttrWarning(row) {
+      return this.isAttributeRequired(row) && !this.selection.includes(this.hashAttributeIdClusterId(row.id, this.selectedCluster.id))
     },
     customAttributeSort(rows, sortBy, descending) {
       const data = [...rows]
@@ -263,13 +241,15 @@ export default {
                 this.sortByClusterAndManufacturerCode
               )
             case 'storageOption': {
-              let i = this.selectionStorageOption[
-                this.hashAttributeIdClusterId(x.id, this.selectedCluster.id)
-              ]
+              let i =
+                this.selectionStorageOption[
+                  this.hashAttributeIdClusterId(x.id, this.selectedCluster.id)
+                ]
               i = i ? i : ''
-              let j = this.selectionStorageOption[
-                this.hashAttributeIdClusterId(y.id, this.selectedCluster.id)
-              ]
+              let j =
+                this.selectionStorageOption[
+                  this.hashAttributeIdClusterId(y.id, this.selectedCluster.id)
+                ]
               j = j ? j : ''
               return this.sortByText(
                 i,
@@ -331,11 +311,6 @@ export default {
           .map((attribute) => attribute.id)
       },
     },
-    editableAttributes: {
-      get() {
-        return this.$store.state.zap.attributeView.editableAttributes
-      },
-    },
     storageOptions: {
       get() {
         return Object.values(DbEnum.storageOption)
@@ -349,6 +324,13 @@ export default {
         sortBy: 'clientServer',
       },
       columns: [
+        {
+          name: 'status',
+          required: false,
+          label: '',
+          align: 'left',
+          style: 'width:1%',
+        },
         {
           name: 'included',
           label: 'On/Off',
@@ -423,12 +405,6 @@ export default {
           align: 'left',
           label: 'Default',
           field: 'default',
-        },
-        {
-          name: 'edit',
-          align: 'left',
-          label: 'Edit',
-          field: 'edit',
         },
       ],
     }

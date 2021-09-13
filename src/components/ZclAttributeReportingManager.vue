@@ -57,23 +57,18 @@ limitations under the License.
             <q-input
               dense
               type="number"
-              :borderless="!editableAttributesReporting[props.row.id]"
-              :outlined="editableAttributesReporting[props.row.id]"
-              :disable="!editableAttributesReporting[props.row.id]"
+              outlined
               :value="
-                !editableAttributesReporting[props.row.id]
-                  ? selectionMin[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
-                  : editableMin[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
+                selectionMin[
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                ]
               "
               @input="
                 handleLocalChange(
                   $event,
-                  'editableMin',
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  'reportingMin',
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
@@ -82,33 +77,27 @@ limitations under the License.
             <q-input
               dense
               type="number"
-              :borderless="!editableAttributesReporting[props.row.id]"
-              :outlined="editableAttributesReporting[props.row.id]"
-              :disable="!editableAttributesReporting[props.row.id]"
+              outlined
               :value="
-                !editableAttributesReporting[props.row.id]
-                  ? selectionMax[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
-                  : editableMax[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
+                selectionMax[
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                ]
               "
               @input="
                 handleLocalChange(
                   $event,
-                  'editableMax',
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  'reportingMax',
+                  props.row,
+                  selectedCluster.id
                 )
               "
             />
           </q-td>
           <q-td key="reportable" :props="props" auto-width>
             <q-input
+              v-show="isAttributeAnalog(props.row)"
               dense
-              :borderless="!editableAttributesReporting[props.row.id]"
-              :outlined="editableAttributesReporting[props.row.id]"
-              :disable="!editableAttributesReporting[props.row.id]"
+              outlined
               v-model.number="
                 selectionReportableChange[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
@@ -116,9 +105,7 @@ limitations under the License.
               "
               @input="
                 handleAttributeDefaultChange(
-                  selectionReportableChange[
-                    hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                  ],
+                  $event,
                   'reportableChange',
                   props.row,
                   selectedCluster.id
@@ -126,38 +113,11 @@ limitations under the License.
               "
               type="number"
             />
-          </q-td>
-          <q-td key="edit" :props="props" auto-width>
-            <q-btn
-              dense
-              flat
-              icon="close"
-              color="blue"
-              :style="{
-                visibility: editableAttributesReporting[props.row.id]
-                  ? 'visible'
-                  : 'hidden',
-              }"
-              @click="resetAttributeReporting(props.row.id)"
-            />
-            <q-btn
-              dense
-              flat
-              :icon="
-                editableAttributesReporting[props.row.id] ? 'done' : 'create'
-              "
-              color="blue"
-              @click="
-                editableAttributesReporting[props.row.id]
-                  ? commitEdittedAttributeReporting(
-                      props.row,
-                      selectedCluster.id
-                    )
-                  : setEditableAttributeReporting(
-                      props.row.id,
-                      selectedCluster.id
-                    )
-              "
+            <q-input
+              v-show="!isAttributeAnalog(props.row)"
+              label="<<not analog>>"
+              disable
+              borderless
             />
           </q-td>
         </q-tr>
@@ -173,15 +133,12 @@ import EditableAttributeMixin from '../util/editable-attributes-mixin'
 export default {
   name: 'ZclAttributeReportingManager',
   mixins: [EditableAttributeMixin],
-  destroyed() {
-    Object.keys(this.editableAttributesReporting).forEach((attrId) => {
-      this.commitEdittedAttributeReporting(
-        this.getAttributeById(attrId),
-        this.selectedCluster.id
-      )
-    })
-  },
   computed: {
+    atomics: {
+      get() {
+        return this.$store.state.zap.atomics
+      },
+    },
     attributeData: {
       get() {
         return this.$store.state.zap.attributes
@@ -207,11 +164,6 @@ export default {
                   .toLowerCase()
                   .includes(this.individualClusterFilterString.toLowerCase())
           })
-      },
-    },
-    editableAttributesReporting: {
-      get() {
-        return this.$store.state.zap.attributeView.editableAttributesReporting
       },
     },
   },
@@ -261,16 +213,26 @@ export default {
           label: 'Reportable Change',
           field: 'reportable',
         },
-        {
-          name: 'edit',
-          align: 'left',
-          label: 'Edit',
-          field: 'edit',
-        },
       ],
     }
   },
   methods: {
+    isRowDisabled(attributeId) {
+      return !this.editableAttributesReporting[attributeId]
+    },
+    isAttributeAnalog(props) {
+      return this.isTypeAnalog(props.type)
+    },
+    isTypeAnalog(typeName) {
+      let atomicType = this.atomics.filter((a) => {
+        return a.name == typeName
+      })
+      if (atomicType.length > 0) {
+        return !atomicType[0].isDiscrete
+      } else {
+        return true
+      }
+    },
     customAttributeSort(rows, sortBy, descending) {
       const data = [...rows]
 

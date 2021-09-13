@@ -33,7 +33,9 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} sessionId
  * @returns all the cluster objects for a given session.
  */
-async function selectSessionClusterByCode(db, sessionId, code) {
+async function selectSessionClusterByCode(db, sessionId, code, mfgCode) {
+  let args = [sessionId, code]
+  if (!(mfgCode == 0 || mfgCode == null)) args.push(mfgCode)
   return dbApi
     .dbGet(
       db,
@@ -56,9 +58,13 @@ INNER JOIN
 ON
   C.PACKAGE_REF = SP.PACKAGE_REF
 WHERE
-  SP.SESSION_REF = ? AND C.CODE = ?
+  SP.SESSION_REF = ? AND C.CODE = ? AND ${
+    mfgCode == 0 || mfgCode == null
+      ? 'C.MANUFACTURER_CODE IS NULL'
+      : 'C.MANUFACTURER_CODE = ?'
+  }
 `,
-      [sessionId, code]
+      args
     )
     .then(dbMapping.map.cluster)
 }
@@ -111,47 +117,44 @@ async function selectSessionAttributeByCode(
   db,
   sessionId,
   clusterCode,
-  attributeCode
+  side,
+  attributeCode,
+  mfgCode
 ) {
   return dbApi
     .dbGet(
       db,
       `
 SELECT
-  A.ATTRIBUTE_ID,
-  A.CLUSTER_REF,
-  A.CODE,
-  A.MANUFACTURER_CODE,
-  A.NAME,
-  A.TYPE,
-  A.SIDE,
-  A.DEFINE,
-  A.MIN,
-  A.MAX,
-  A.REPORT_MIN_INTERVAL,
-  A.REPORT_MAX_INTERVAL,
-  A.REPORTABLE_CHANGE,
-  A.REPORTABLE_CHANGE_LENGTH,
-  A.IS_WRITABLE,
-  A.DEFAULT_VALUE,
-  A.IS_OPTIONAL,
-  A.IS_REPORTABLE,
-  A.IS_SCENE_REQUIRED,
-  A.ARRAY_TYPE
+  ATTRIBUTE.ATTRIBUTE_ID,
+  ATTRIBUTE.CLUSTER_REF,
+  ATTRIBUTE.CODE,
+  ATTRIBUTE.MANUFACTURER_CODE,
+  ATTRIBUTE.NAME,
+  ATTRIBUTE.TYPE,
+  ATTRIBUTE.SIDE,
+  ATTRIBUTE.DEFINE,
+  ATTRIBUTE.MIN,
+  ATTRIBUTE.MAX,
+  ATTRIBUTE.REPORT_MIN_INTERVAL,
+  ATTRIBUTE.REPORT_MAX_INTERVAL,
+  ATTRIBUTE.REPORTABLE_CHANGE,
+  ATTRIBUTE.REPORTABLE_CHANGE_LENGTH,
+  ATTRIBUTE.IS_WRITABLE,
+  ATTRIBUTE.DEFAULT_VALUE,
+  ATTRIBUTE.IS_OPTIONAL,
+  ATTRIBUTE.IS_REPORTABLE,
+  ATTRIBUTE.IS_SCENE_REQUIRED,
+  ATTRIBUTE.ARRAY_TYPE
 FROM
-  ATTRIBUTE AS A
-INNER JOIN
-  CLUSTER AS C
-ON
-  A.CLUSTER_REF = C.CLUSTER_ID
-INNER JOIN
-  SESSION_PACKAGE AS SP
-ON
-  C.PACKAGE_REF = SP.PACKAGE_REF
+  ATTRIBUTE, CLUSTER, SESSION_PACKAGE
 WHERE
-  SP.SESSION_REF = ? AND C.CODE = ? AND A.CODE = ?
+  SESSION_PACKAGE.SESSION_REF = ? AND
+  ATTRIBUTE.PACKAGE_REF = SESSION_PACKAGE.PACKAGE_REF AND ATTRIBUTE.CODE = ? AND
+  ((ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID AND CLUSTER.CODE = ?) OR 
+  (ATTRIBUTE.CLUSTER_REF IS NULL)) AND ATTRIBUTE.SIDE = ?
 `,
-      [sessionId, clusterCode, attributeCode]
+      [sessionId, attributeCode, clusterCode, side]
     )
     .then(dbMapping.map.attribute)
 }
@@ -167,7 +170,8 @@ async function selectSessionCommandByCode(
   db,
   sessionId,
   clusterCode,
-  commandCode
+  commandCode,
+  source
 ) {
   return dbApi
     .dbGet(
@@ -195,9 +199,9 @@ INNER JOIN
 ON
   C.PACKAGE_REF = SP.PACKAGE_REF
 WHERE
-  SP.SESSION_REF = ? AND C.CODE = ? AND CMD.CODE = ?
+  SP.SESSION_REF = ? AND C.CODE = ? AND CMD.CODE = ? AND CMD.SOURCE = ?
 `,
-      [sessionId, clusterCode, commandCode]
+      [sessionId, clusterCode, commandCode, source]
     )
     .then(dbMapping.map.command)
 }

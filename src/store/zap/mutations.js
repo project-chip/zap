@@ -25,6 +25,10 @@ export function updateClusters(state, clusters) {
   state.domains = [...new Set(state.clusters.map((a) => a.domainName))]
 }
 
+export function updateAtomics(state, atomics) {
+  state.atomics = atomics
+}
+
 export function updateSelectedCluster(state, cluster) {
   state.clustersView.selected = cluster
 }
@@ -405,22 +409,6 @@ export function setDebugNavBar(state, debugNavBar) {
 
 export function setStandalone(state, standalone) {
   state.standalone = standalone
-}
-
-export function setAttributeEditting(state, context) {
-  Vue.set(
-    state.attributeView.editableAttributes,
-    context.attributeId,
-    context.editState
-  )
-}
-
-export function setAttributeReportingEditting(state, context) {
-  Vue.set(
-    state.attributeView.editableAttributesReporting,
-    context.attributeId,
-    context.editState
-  )
 }
 
 export function setOpenDomain(state, context) {

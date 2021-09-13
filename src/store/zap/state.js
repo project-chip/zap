@@ -22,6 +22,7 @@ export default function () {
     miniState: false,
     informationText: '',
     clusters: [],
+    atomics: [],
     domains: [],
     attributes: [],
     commands: [],
@@ -93,8 +94,6 @@ export default function () {
     },
     attributeView: {
       selectedAttributes: [],
-      editableAttributes: {},
-      editableAttributesReporting: {},
       selectedSingleton: [],
       selectedBounded: [],
       defaultValue: {},

@@ -109,9 +109,8 @@ export default {
     setSelectedEndpointType(endpointReference) {
       this.$store.dispatch('zap/updateSelectedEndpointType', {
         endpointType: this.endpointType[endpointReference],
-        deviceTypeRef: this.endpointDeviceTypeRef[
-          this.endpointType[endpointReference]
-        ],
+        deviceTypeRef:
+          this.endpointDeviceTypeRef[this.endpointType[endpointReference]],
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
     },
@@ -123,17 +122,27 @@ export default {
     },
 
     /**
+     * Whether ZAP is running in standalone / Electron mode or not.
+     * @returns
+     */
+    standaloneMode() {
+      return this.$store.state.zap.standalone
+    },
+
+    /**
      * Enable components by pinging backend, which pings Studio jetty server.
      * @param {*} params
      */
     updateSelectedComponentRequest(params) {
-      this.$store
-        .dispatch('zap/updateSelectedComponent', params)
-        .then((response) => {
-          if (response.status != http.StatusCodes.OK) {
-            console.log('Failed to update selected components!')
-          }
-        })
+      if (!standaloneMode()) {
+        this.$store
+          .dispatch('zap/updateSelectedComponent', params)
+          .then((response) => {
+            if (response.status != http.StatusCodes.OK) {
+              console.log('Failed to update selected components!')
+            }
+          })
+      }
     },
 
     /**

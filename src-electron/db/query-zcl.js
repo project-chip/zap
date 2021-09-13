@@ -1159,6 +1159,17 @@ async function selectAllAtomics(db, packageId) {
 }
 
 /**
+ * Retrieves atomic type by a given Id.
+ * @param {*} db
+ * @param {*} packageId
+ */
+async function selectAtomicById(db, id) {
+  return dbApi
+    .dbGet(db, `${ATOMIC_QUERY} WHERE ATOMIC_ID = ?`, [id])
+    .then((rows) => rows.map(dbMapping.map.atomic))
+}
+
+/**
  * Retrieves the size from atomic type.
  *
  * @param {*} db
@@ -1222,6 +1233,7 @@ exports.selectAtomicByName = selectAtomicByName
 exports.selectAllAtomics = selectAllAtomics
 exports.selectAtomicSizeFromType = selectAtomicSizeFromType
 exports.selectAtomicType = selectAtomicType
+exports.selectAtomicById = selectAtomicById
 
 exports.selectAllStructsWithItemCount = selectAllStructsWithItemCount
 exports.selectAllStructsWithItems = selectAllStructsWithItems

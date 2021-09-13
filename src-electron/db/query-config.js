@@ -127,8 +127,23 @@ async function insertOrUpdateAttributeState(
   clusterRef,
   side,
   attributeId,
-  paramValuePairArray
+  paramValuePairArray,
+  reportMinInterval,
+  reportMaxInterval,
+  reportableChange
 ) {
+  if (reportMinInterval === undefined || reportMinInterval === null) {
+    reportMinInterval = 1
+  }
+
+  if (reportMaxInterval === undefined || reportMaxInterval === null) {
+    reportMaxInterval = 0xffff - 1
+  }
+
+  if (reportableChange === undefined || reportableChange === null) {
+    reportableChange = 0
+  }
+
   let cluster = await insertOrSelectDefaultEndpointTypeCluster(
     db,
     endpointTypeId,
@@ -156,14 +171,20 @@ INTO ENDPOINT_TYPE_ATTRIBUTE (
     ATTRIBUTE_REF,
     DEFAULT_VALUE,
     STORAGE_OPTION,
-    SINGLETON
+    SINGLETON,
+    MIN_INTERVAL,
+    MAX_INTERVAL,
+    REPORTABLE_CHANGE
 ) VALUES (
   ?,
   ?,
   ?,
   ?,
   ?,
-  ( SELECT IS_SINGLETON FROM CLUSTER WHERE CLUSTER_ID = ? )
+  ( SELECT IS_SINGLETON FROM CLUSTER WHERE CLUSTER_ID = ? ),
+  ?,
+  ?,
+  ?
 )`,
     [
       endpointTypeId,
@@ -172,6 +193,9 @@ INTO ENDPOINT_TYPE_ATTRIBUTE (
       staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
       dbEnum.storageOption.ram,
       clusterRef,
+      reportMinInterval,
+      reportMaxInterval,
+      reportableChange,
     ]
   )
 
@@ -616,7 +640,10 @@ async function resolveDefaultDeviceTypeAttributes(
                       key: restApi.updateKey.attributeReporting,
                       value: deviceAttribute.isReportable == true,
                     },
-                  ]
+                  ],
+                  attribute.reportMinInterval,
+                  attribute.reportMaxInterval,
+                  attribute.reportableChange
                 )
               )
           }
@@ -785,7 +812,10 @@ async function resolveNonOptionalAndReportableAttributes(
           cluster.clusterRef,
           attribute.side,
           attribute.id,
-          settings
+          settings,
+          attribute.reportMinInterval,
+          attribute.reportMaxInterval,
+          attribute.reportableChange
         )
       } else {
         return Promise.resolve()

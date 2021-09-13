@@ -68,16 +68,17 @@ limitations under the License.
       </div>
       <q-btn
         class="q-mr-sm"
-        align="left"
+        align="center"
         text-color="primary"
-        icon="add"
-        label="Add Custom ZCL"
         flat
         :ripple="false"
         :unelevated="false"
         :outline="none"
         to="/customZcl"
-      />
+      >
+        <q-icon name="add" class="text-align"/>
+        <div class="text-align">Add Custom ZCL</div>
+      </q-btn>
       <q-space />
     </q-toolbar>
   </div>

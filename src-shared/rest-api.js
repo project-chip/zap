@@ -43,6 +43,7 @@ const uri = {
   zclBitmap: '/zcl/bitmap/',
   zclEnum: '/zcl/enum/',
   zclStruct: '/zcl/struct/',
+  zclAtomics: '/zcl/atomics/',
   endpointTypeClusters: '/zcl/endpointTypeClusters/',
   endpointTypeAttributes: '/zcl/endpointTypeAttributes/',
   endpointTypeCommands: '/zcl/endpointTypeCommands/',

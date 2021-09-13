@@ -71,6 +71,7 @@ function clusters(context, endpoint) {
 
 /**
  * Returns an array of attributes for a given cluster.
+ * The cluster input is required to come from a script-api in this module.
  *
  * @param {*} context
  * @param {*} endpoint
@@ -87,6 +88,7 @@ function attributes(context, endpoint, cluster) {
 
 /**
  * Returns an array of commands for a given cluster
+ * The clusters input is required to come from a script-api in this module.
  *
  * @param {*} context
  * @param {*} endpoint
@@ -117,6 +119,10 @@ function sessionId(context) {
   return context.sessionId
 }
 
+function dbEnums() {
+  return dbEnum
+}
+
 /**
  * Returns all available clusters.
  *
@@ -127,30 +133,42 @@ async function availableClusters(context) {
   return querySessionZcl.selectAllSessionClusters(context.db, context.sessionId)
 }
 
-// Finds the cluster database primary key from code and context.
-async function findCluster(context, code) {
+// Finds the cluster database primary key from code,manufacturing code, and context.
+// Note that by default, a standard ZCL library cluster will have manufacturing code of null
+// in the database.
+async function findCluster(context, code, mfgCode = null) {
   return querySessionZcl.selectSessionClusterByCode(
     context.db,
     context.sessionId,
-    code
+    code,
+    mfgCode
   )
 }
 
-async function findAttribute(context, clusterCode, attributeCode) {
+async function findAttribute(
+  context,
+  clusterCode,
+  side,
+  attributeCode,
+  mfgCode = null
+) {
   return querySessionZcl.selectSessionAttributeByCode(
     context.db,
     context.sessionId,
     clusterCode,
-    attributeCode
+    side,
+    attributeCode,
+    mfgCode
   )
 }
 
-async function findCommand(context, clusterCode, commandCode) {
+async function findCommand(context, clusterCode, commandCode, source) {
   return querySessionZcl.selectSessionCommandByCode(
     context.db,
     context.sessionId,
     clusterCode,
-    commandCode
+    commandCode,
+    source
   )
 }
 
@@ -178,7 +196,7 @@ async function modifyAttribute(
 ) {
   let cluster = await findCluster(context, clusterCode)
   if (cluster == null) return null
-  let attribute = await findAttribute(context, clusterCode, attributeCode)
+  let attribute = await findAttribute(context, clusterCode, side, attributeCode)
   let params = [
     {
       key: restApi.updateKey.attributeSelected,
@@ -191,7 +209,10 @@ async function modifyAttribute(
     cluster.id,
     side,
     attribute.id,
-    params
+    params,
+    attribute.reportMinInterval,
+    attribute.reportMaxInterval,
+    attribute.reportableChange
   )
 }
 
@@ -201,12 +222,13 @@ async function modifyCommand(
   endpoint,
   clusterCode,
   commandCode,
+  source,
   isIncoming,
   enable
 ) {
   let cluster = await findCluster(context, clusterCode)
   if (cluster == null) return null
-  let command = await findCommand(context, clusterCode, commandCode)
+  let command = await findCommand(context, clusterCode, commandCode, source)
   return queryConfig.insertOrUpdateCommandState(
     context.db,
     endpoint.endpointTypeRef,
@@ -356,57 +378,67 @@ async function enableServerAttribute(
 
 /**
  * Disable incoming commands.
+ * Source should be derived from dbEnums().source.client/server
  *
  * @param {*} context
  * @param {*} endpoint
  * @param {*} clusterCode
  * @param {*} commandCode
+ * @param {*} source
  */
 async function disableIncomingCommand(
   context,
   endpoint,
   clusterCode,
-  commandCode
+  commandCode,
+  source
 ) {
-  return modifyCommand(context, endpoint, clusterCode, commandCode, true, false)
+  return modifyCommand(context, endpoint, clusterCode, commandCode, source, true, false)
 }
 
 /**
  * Enable incoming commands.
+ * Source should be derived from dbEnums().source.client/server
  *
  * @param {*} context
  * @param {*} endpoint
  * @param {*} clusterCode
  * @param {*} commandCode
+ * @param {*} source
  */
 async function enableIncomingCommand(
   context,
   endpoint,
   clusterCode,
-  commandCode
+  commandCode,
+  source
 ) {
-  return modifyCommand(context, endpoint, clusterCode, commandCode, true, true)
+  return modifyCommand(context, endpoint, clusterCode, commandCode, source, true, true)
 }
 
 /**
  * Disable outgoing commands.
+ * Source should be derived from dbEnums().source.client/server
  *
  * @param {*} context
  * @param {*} endpoint
  * @param {*} clusterCode
  * @param {*} commandCode
+ * @param {*} source
  */
 async function disableOutgoingCommand(
   context,
   endpoint,
   clusterCode,
-  commandCode
+  commandCode,
+  source
 ) {
   return modifyCommand(
     context,
     endpoint,
     clusterCode,
     commandCode,
+    source,
     false,
     false
   )
@@ -414,19 +446,22 @@ async function disableOutgoingCommand(
 
 /**
  * Enable outgoing commands.
+ * Source should be derived from dbEnums().source.client/server
  *
  * @param {*} context
  * @param {*} endpoint
  * @param {*} clusterCode
  * @param {*} commandCode
+ * @param {*} source
  */
 async function enableOutgoingCommand(
   context,
   endpoint,
   clusterCode,
-  commandCode
+  commandCode,
+  source
 ) {
-  return modifyCommand(context, endpoint, clusterCode, commandCode, false, true)
+  return modifyCommand(context, endpoint, clusterCode, commandCode, source, false, true)
 }
 
 exports.availableClusters = availableClusters
@@ -434,6 +469,7 @@ exports.availableClusters = availableClusters
 exports.print = print
 exports.functions = functions
 exports.sessionId = sessionId
+exports.dbEnums = dbEnums
 
 exports.endpoints = endpoints
 exports.deleteEndpoint = deleteEndpoint
@@ -441,6 +477,8 @@ exports.deleteEndpoint = deleteEndpoint
 exports.clusters = clusters
 exports.attributes = attributes
 exports.commands = commands
+
+exports.findCluster = findCluster
 
 exports.disableClientCluster = disableClientCluster
 exports.disableServerCluster = disableServerCluster

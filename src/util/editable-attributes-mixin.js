@@ -22,19 +22,6 @@ import CommonMixin from '../util/common-mixin'
  */
 export default {
   mixins: [CommonMixin],
-  data() {
-    return {
-      edittedData: {
-        bounded: [],
-        singleton: [],
-      },
-      editableDefaults: {},
-      editableStorage: {},
-      editableMin: {},
-      editableMax: {},
-      editableReportable: {},
-    }
-  },
   computed: {
     relevantAttributeData: {
       get() {
@@ -113,11 +100,25 @@ export default {
     },
   },
   methods: {
-    handleLocalChange(value, list, hash) {
-      Vue.set(this[list], hash, value)
-      this[list] = Object.assign({}, this[list])
+    handleLocalChange(localChanges, listType, attributeData, clusterId) {
+      this.handleAttributeDefaultChange(
+        localChanges,
+        listType,
+        attributeData,
+        clusterId
+      )
     },
-    setAttributeSelection(listType, attributeData, clusterId, enable) {
+    handleLocalSelection(selectedList, listType, attributeData, clusterId) {
+      let hash = this.hashAttributeIdClusterId(attributeData.id, clusterId)
+
+      this.setAttributeSelection(
+        selectedList.includes(hash),
+        listType,
+        attributeData,
+        clusterId
+      )
+    },
+    setAttributeSelection(enable, listType, attributeData, clusterId) {
       let editContext = {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointTypeId,
@@ -126,6 +127,9 @@ export default {
         listType: listType,
         clusterRef: clusterId,
         attributeSide: attributeData.side,
+        reportMinInterval: attributeData.reportMinInterval,
+        reportMaxInterval: attributeData.reportMaxInterval,
+        reportableChange: attributeData.reportableChange,
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
@@ -143,15 +147,6 @@ export default {
             ''
           )
         : ''
-    },
-    handleLocalSelection(list, attributeDataId, clusterId) {
-      let hash = this.hashAttributeIdClusterId(attributeDataId, clusterId)
-      let indexOfValue = list.indexOf(hash)
-      if (indexOfValue === -1) {
-        list.push(hash)
-      } else {
-        list.splice(indexOfValue, 1)
-      }
     },
     initializeBooleanEditableList(
       originatingList,
@@ -179,6 +174,8 @@ export default {
           listType: listType,
           clusterRef: clusterId,
           attributeSide: attributeData.side,
+          reportMinInterval: attributeData.reportMinInterval,
+          reportMaxInterval: attributeData.reportMaxInterval,
         }
         this.$store.dispatch('zap/updateSelectedAttribute', editContext)
       }
@@ -204,6 +201,8 @@ export default {
         listType: listType,
         clusterRef: clusterId,
         attributeSide: attributeData.side,
+        reportMinInterval: attributeData.reportMinInterval,
+        reportMaxInterval: attributeData.reportMaxInterval,
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
@@ -222,37 +221,12 @@ export default {
         listType: 'init',
         clusterRef: selectedClusterId,
         attributeSide: attributeData.side,
+        reportMinInterval: attributeData.reportMinInterval,
+        reportMaxInterval: attributeData.reportMaxInterval,
       }
       this.$store
         .dispatch('zap/initSelectedAttribute', initContext)
         .then(() => {
-          let attrClusterHash = this.hashAttributeIdClusterId(
-            attributeData.id,
-            selectedClusterId
-          )
-          this.initializeBooleanEditableList(
-            this.selectionBounded,
-            this.edittedData['bounded'],
-            attrClusterHash
-          )
-          this.initializeBooleanEditableList(
-            this.selectionSingleton,
-            this.edittedData['singleton'],
-            attrClusterHash
-          )
-
-          this.initializeTextEditableList(
-            this.selectionDefault,
-            this.editableDefaults,
-            attrClusterHash
-          )
-
-          this.initializeTextEditableList(
-            this.selectionStorageOption,
-            this.editableStorage,
-            attrClusterHash
-          )
-
           this.$store.dispatch('zap/setAttributeEditting', {
             attributeId: attributeData.id,
             editState: true,
@@ -260,29 +234,6 @@ export default {
         })
     },
     setEditableAttributeReporting(attributeId, selectedClusterId) {
-      let attrClusterHash = this.hashAttributeIdClusterId(
-        attributeId,
-        selectedClusterId
-      )
-
-      this.initializeTextEditableList(
-        this.selectionMin,
-        this.editableMin,
-        attrClusterHash
-      )
-
-      this.initializeTextEditableList(
-        this.selectionMax,
-        this.editableMax,
-        attrClusterHash
-      )
-
-      this.initializeTextEditableList(
-        this.selectionReportableChange,
-        this.editableReportable,
-        attrClusterHash
-      )
-
       this.$store.dispatch('zap/setAttributeReportingEditting', {
         attributeId: attributeId,
         editState: true,
@@ -302,61 +253,6 @@ export default {
       })
     },
 
-    commitEdittedAttributeReporting(attributeData, clusterId) {
-      let hash = this.hashAttributeIdClusterId(attributeData.id, clusterId)
-
-      this.handleAttributeDefaultChange(
-        this.editableMin[hash],
-        'reportingMin',
-        attributeData,
-        clusterId
-      )
-      this.handleAttributeDefaultChange(
-        this.editableMax[hash],
-        'reportingMax',
-        attributeData,
-        clusterId
-      )
-
-      this.$store.dispatch('zap/setAttributeReportingEditting', {
-        attributeId: attributeData.id,
-        editState: false,
-      })
-    },
-    commitEdittedAttribute(attributeData, clusterId) {
-      let hash = this.hashAttributeIdClusterId(attributeData.id, clusterId)
-
-      this.handleAttributeDefaultChange(
-        this.editableDefaults[hash],
-        'defaultValue',
-        attributeData,
-        clusterId
-      )
-
-      this.handleAttributeDefaultChange(
-        this.editableStorage[hash],
-        'storageOption',
-        attributeData,
-        clusterId
-      )
-
-      this.setAttributeSelection(
-        'selectedSingleton',
-        attributeData,
-        clusterId,
-        this.edittedData['singleton'].includes(hash)
-      )
-      this.setAttributeSelection(
-        'selectedBounded',
-        attributeData,
-        clusterId,
-        this.edittedData['bounded'].includes(hash)
-      )
-      this.$store.dispatch('zap/setAttributeEditting', {
-        attributeId: attributeData.id,
-        editState: false,
-      })
-    },
     sortByText(x, y, ascendingA, ascendingB, callback = (i, j) => 0) {
       return x.toLowerCase() > y.toLowerCase()
         ? 1

@@ -413,7 +413,10 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
         clusterRef,
         at.side,
         attributeRef,
-        [{ key: restApi.updateKey.attributeSelected, value: 1 }]
+        [{ key: restApi.updateKey.attributeSelected, value: 1 }],
+        attribute.reportMinInterval,
+        attribute.reportMaxInterval,
+        attribute.reportableChange
       )
     } else {
       // This is ok: we are iterating over all endpoint type ids,
