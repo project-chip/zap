@@ -1174,9 +1174,9 @@ function calculate_bytes_for_types(res, options, db, packageId) {
     })
 }
 
-function calculate_bytes_for_structs(res, options, db, packageId) {
+async function calculate_bytes_for_structs(res, options, db, packageId) {
   if ('struct' in options.hash) {
-    return Promise.resolve(options.hash.struct)
+    return options.hash.struct
   } else {
     return queryZcl
       .selectAllStructItemsByStructName(db, res)
@@ -1198,7 +1198,7 @@ function calculate_bytes_for_structs(res, options, db, packageId) {
             ' calculate_size_for_structs: ' +
             err
         )
-        return Promise.resolve(0)
+        return 0
       })
   }
 }
@@ -1227,31 +1227,35 @@ function user_defined_output_or_default(options, optionsKey, defaultValue) {
  * @param {*} resType
  * Character associated to a zcl/c data type.
  */
-function dataTypeCharacterFormatter(db, packageId, type, options, resType) {
+async function dataTypeCharacterFormatter(
+  db,
+  packageId,
+  type,
+  options,
+  resType
+) {
   switch (resType) {
     case dbEnum.zclType.array:
       if (dbEnum.zclType.array in options.hash) {
-        return Promise.resolve(options.hash.array)
+        return options.hash.array
       } else {
-        return Promise.resolve('b')
+        return 'b'
       }
     case dbEnum.zclType.bitmap:
       return queryZcl
         .selectBitmapByName(db, packageId, type)
-        .then((bitmap) => {
-          return queryZcl.selectAtomicType(db, packageId, bitmap.type)
-        })
+        .then((bitmap) => queryZcl.selectAtomicType(db, packageId, bitmap.type))
         .then((res) => calculateBytes(res.name, options, db, packageId, false))
     case dbEnum.zclType.enum:
       return queryZcl
         .selectEnumByName(db, type, packageId)
-        .then((enumRec) => {
-          return queryZcl.selectAtomicType(db, packageId, enumRec.type)
-        })
+        .then((enumRec) =>
+          queryZcl.selectAtomicType(db, packageId, enumRec.type)
+        )
         .then((res) => calculateBytes(res.name, options, db, packageId, false))
     case dbEnum.zclType.struct:
       if (dbEnum.zclType.struct in options.hash) {
-        return Promise.resolve(options.hash.struct)
+        return options.hash.struct
       } else {
         return calculateBytes(type, options, db, packageId, true)
       }
@@ -1268,9 +1272,10 @@ function dataTypeCharacterFormatter(db, packageId, type, options, resType) {
               atomic.name == 'long_octet_string' ||
               atomic.name == 'long_char_string')
           ) {
-            return Promise.resolve(atomic.name)
+            return atomic.name
+          } else {
+            return type
           }
-          return Promise.resolve(type)
         })
         .then((res) => calculateBytes(res, options, db, packageId, false))
   }
@@ -1306,9 +1311,7 @@ function dataTypeHelper(
       } else {
         return queryZcl
           .selectAtomicType(db, packageId, dbEnum.zclType.array)
-          .then((atomic) => {
-            return overridable.atomicType(atomic)
-          })
+          .then((atomic) => overridable.atomicType(atomic))
       }
     case dbEnum.zclType.bitmap:
       if ('bitmap' in options.hash) {
@@ -1320,12 +1323,10 @@ function dataTypeHelper(
       } else {
         return queryZcl
           .selectBitmapByName(db, packageId, type)
-          .then((bitmap) => {
-            return queryZcl.selectAtomicType(db, packageId, bitmap.type)
-          })
-          .then((res) => {
-            return overridable.atomicType(res)
-          })
+          .then((bitmap) =>
+            queryZcl.selectAtomicType(db, packageId, bitmap.type)
+          )
+          .then((res) => overridable.atomicType(res))
       }
     case dbEnum.zclType.enum:
       if ('enum' in options.hash) {
@@ -1337,12 +1338,10 @@ function dataTypeHelper(
       } else {
         return queryZcl
           .selectEnumByName(db, type, packageId)
-          .then((enumRec) => {
-            return queryZcl.selectAtomicType(db, packageId, enumRec.type)
-          })
-          .then((res) => {
-            return overridable.atomicType(res)
-          })
+          .then((enumRec) =>
+            queryZcl.selectAtomicType(db, packageId, enumRec.type)
+          )
+          .then((res) => overridable.atomicType(res))
       }
     case dbEnum.zclType.struct:
       if ('struct' in options.hash) {
@@ -1357,9 +1356,9 @@ function dataTypeHelper(
     case dbEnum.zclType.atomic:
     case dbEnum.zclType.unknown:
     default:
-      return queryZcl.selectAtomicType(db, packageId, type).then((atomic) => {
-        return overridable.atomicType(atomic)
-      })
+      return queryZcl
+        .selectAtomicType(db, packageId, type)
+        .then((atomic) => overridable.atomicType(atomic))
   }
 }
 
@@ -2223,10 +2222,7 @@ function if_manufacturing_specific_cluster(
  * @returns Returns content in the handlebar template based on whether the
  * command is manufacturing specific or not.
  */
- async function if_mfg_specific_cluster(
-  clusterId,
-  options
-) {
+async function if_mfg_specific_cluster(clusterId, options) {
   let res = await queryZcl.selectClusterById(this.global.db, clusterId)
   if (res.manufacturerCode != null) {
     return options.fn(this)
@@ -2531,9 +2527,12 @@ exports.isStruct = dep(isStruct, { to: 'is_struct' })
 exports.is_enum = isEnum
 exports.isEnum = dep(isEnum, { to: 'is_enum' })
 
-exports.if_manufacturing_specific_cluster = dep(if_manufacturing_specific_cluster,
-  {to: 'if_mfg_specific_cluster'})
-exports.zcl_command_argument_type_to_cli_data_type = zcl_command_argument_type_to_cli_data_type
+exports.if_manufacturing_specific_cluster = dep(
+  if_manufacturing_specific_cluster,
+  { to: 'if_mfg_specific_cluster' }
+)
+exports.zcl_command_argument_type_to_cli_data_type =
+  zcl_command_argument_type_to_cli_data_type
 exports.zcl_string_type_return = zcl_string_type_return
 exports.is_zcl_string = is_zcl_string
 exports.if_command_arguments_have_fixed_length =
@@ -2581,18 +2580,24 @@ exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif 
 exports.as_generated_default_macro = as_generated_default_macro
 exports.attribute_mask = attribute_mask
 exports.command_mask = command_mask
-exports.format_zcl_string_as_characters_for_generated_defaults = format_zcl_string_as_characters_for_generated_defaults
+exports.format_zcl_string_as_characters_for_generated_defaults =
+  format_zcl_string_as_characters_for_generated_defaults
 exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present =
-dep (as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present,
-  'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present has been deprecated. Use as_underlying_zcl_type and if_command_not_fixed_length_command_argument_always_present instead')
-exports.as_underlying_zcl_type_ca_not_always_present_no_presentif =
-dep (as_underlying_zcl_type_ca_not_always_present_no_presentif,
-  'as_underlying_zcl_type_ca_not_always_present_no_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_not_always_present_no_presentif instead')
-exports.as_underlying_zcl_type_ca_not_always_present_with_presentif =
-dep (as_underlying_zcl_type_ca_not_always_present_with_presentif,
-  'as_underlying_zcl_type_ca_not_always_present_with_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_not_always_present_with_presentif instead')
-exports.as_underlying_zcl_type_ca_always_present_with_presentif =
-dep(as_underlying_zcl_type_ca_always_present_with_presentif,
-  'as_underlying_zcl_type_ca_always_present_with_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_always_present_with_presentif instead.')
+  dep(
+    as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present,
+    'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present has been deprecated. Use as_underlying_zcl_type and if_command_not_fixed_length_command_argument_always_present instead'
+  )
+exports.as_underlying_zcl_type_ca_not_always_present_no_presentif = dep(
+  as_underlying_zcl_type_ca_not_always_present_no_presentif,
+  'as_underlying_zcl_type_ca_not_always_present_no_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_not_always_present_no_presentif instead'
+)
+exports.as_underlying_zcl_type_ca_not_always_present_with_presentif = dep(
+  as_underlying_zcl_type_ca_not_always_present_with_presentif,
+  'as_underlying_zcl_type_ca_not_always_present_with_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_not_always_present_with_presentif instead'
+)
+exports.as_underlying_zcl_type_ca_always_present_with_presentif = dep(
+  as_underlying_zcl_type_ca_always_present_with_presentif,
+  'as_underlying_zcl_type_ca_always_present_with_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_always_present_with_presentif instead.'
+)
 exports.if_is_struct = if_is_struct
 exports.if_mfg_specific_cluster = if_mfg_specific_cluster
