@@ -700,6 +700,38 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
+/**
+ * 
+ * @param db 
+ * @param packageId 
+ * @returns all commands along with their cluster information
+ */
+async function selectAllCommandsWithClusterInfo(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  COMMAND.COMMAND_ID,
+  COMMAND.CLUSTER_REF,
+  COMMAND.CODE,
+  COMMAND.MANUFACTURER_CODE,
+  COMMAND.NAME,
+  COMMAND.DESCRIPTION,
+  COMMAND.SOURCE,
+  COMMAND.IS_OPTIONAL,
+  COMMAND.RESPONSE_REF,
+  CLUSTER.NAME AS CLUSTER_NAME,
+  CLUSTER.CODE AS CLUSTER_CODE
+FROM COMMAND
+INNER JOIN CLUSTER ON CLUSTER.CLUSTER_ID = COMMAND.CLUSTER_REF
+  WHERE COMMAND.PACKAGE_REF = ?
+ORDER BY CLUSTER.CODE, COMMAND.CODE`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.command))
+}
+
 async function selectAllCommands(db, packageId) {
   return dbApi
     .dbAll(
@@ -1322,3 +1354,4 @@ exports.selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndCluste
 exports.selectAllIncomingCommands = selectAllIncomingCommands
 exports.selectMfgClustersWithIncomingCommandsForClusterCode =
   selectMfgClustersWithIncomingCommandsForClusterCode
+exports.selectAllCommandsWithClusterInfo = selectAllCommandsWithClusterInfo

@@ -185,6 +185,22 @@ function zcl_commands(options) {
 }
 
 /**
+ * Block helper iterating over all commands with cluster information.
+ * Note: Similar to zcl_commands but has cluster information as well.
+ * @param {*} options
+ * @returns Promise of content.
+ */
+ function zcl_commands_with_cluster_info(options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) => {
+      return queryCommand.selectAllCommandsWithClusterInfo(this.global.db, packageId)
+    })
+    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Block helper iterating over all commands based on the source.
  * There are two modes of this helper:
  *   when used in a global context, it iterates over ALL commands in the database based on the source.
@@ -2601,3 +2617,4 @@ exports.as_underlying_zcl_type_ca_always_present_with_presentif = dep(
 )
 exports.if_is_struct = if_is_struct
 exports.if_mfg_specific_cluster = if_mfg_specific_cluster
+exports.zcl_commands_with_cluster_info = zcl_commands_with_cluster_info
