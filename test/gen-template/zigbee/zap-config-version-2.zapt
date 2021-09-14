@@ -18,9 +18,9 @@
 	{{~#first}}#define GENERATED_MIN_MAX_DEFAULT_COUNT {{count}}{{new_line 1}}{{/first}}
 	{{~#first}}#define GENERATED_MIN_MAX_DEFAULTS { {{/first~}}
 {	\
-	{{generated_defaults_index ./clusterName ./name ./side 'DEFAULT' ./defaultValue '(uint8_t*)&(generatedDefaults[' '])'}}, /* Cluster: {{clusterName}}, Attribute Default Value: {{name}} interval */ \
-	{{generated_defaults_index ./clusterName ./name ./side 'MINIMUM' ./attributeMinValue '(uint8_t*)&(generatedDefaults[' '])'}}, /* Cluster: {{clusterName}}, Attribute Minimum Value: {{name}} interval */ \
-	{{generated_defaults_index ./clusterName ./name ./side 'MAXIMUM' ./attributeMaxValue '(uint8_t*)&(generatedDefaults[' '])'}} /* Cluster: {{clusterName}}, Attribute Maximum Value: {{name}} interval */ \
+	{{generated_default_index ./clusterName ./name ./side 'DEFAULT' ./defaultValue '(uint8_t*)&(generatedDefaults[' '])'}}, /* Cluster: {{clusterName}}, Attribute Default Value: {{name}} interval */ \
+	{{generated_default_index ./clusterName ./name ./side 'MINIMUM' ./attributeMinValue '(uint8_t*)&(generatedDefaults[' '])'}}, /* Cluster: {{clusterName}}, Attribute Minimum Value: {{name}} interval */ \
+	{{generated_default_index ./clusterName ./name ./side 'MAXIMUM' ./attributeMaxValue '(uint8_t*)&(generatedDefaults[' '])'}} /* Cluster: {{clusterName}}, Attribute Maximum Value: {{name}} interval */ \
 }{{~#not_last~}}, \ {{/not_last}}{{#last}} } {{/last}}
 {{/all_user_cluster_attributes_min_max_defaults}}
 
@@ -31,9 +31,9 @@
 #define GENERATED_ATTRIBUTES { \
 {{#all_user_cluster_generated_attributes}}
 	{{#if isAttributeBounded}}
-		{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { (uint8_t*)&(minMaxDefaults[{{generated_attributes_min_max_index clusterName name ./side}}]) } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ \
+		{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { (uint8_t*)&(minMaxDefaults[{{generated_attribute_min_max_index clusterName name ./side}}]) } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ \
 	{{else if (is_number_greater_than attributeSize 2)}}
-		{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { {{generated_defaults_index ./clusterName ./name ./side 'DEFAULT' ./defaultValue '(uint8_t*)&(generatedDefaults[' '])'}} } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ \
+		{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { {{generated_default_index ./clusterName ./name ./side 'DEFAULT' ./defaultValue '(uint8_t*)&(generatedDefaults[' '])'}} } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ \
 	{{else}}
 		{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { (uint8_t*){{#if defaultValue}}{{defaultValue}}{{else}}0x00{{/if}}  } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ \
 	{{/if}}
