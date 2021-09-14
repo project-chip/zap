@@ -379,7 +379,7 @@ async function add_prefix_to_all_strings(str, prefixStr) {
   for (let s of strs) {
     // Creating an exception for  hex values and not applying this there
     if (s != 'x') {
-      res = str.replace(s, prefixStr + s)
+      res = str.replaceAll(s, prefixStr + s)
     }
   }
   return res
