@@ -400,12 +400,25 @@ test(
 
         // Test GENERATED_DEFAULTS big endian for attribute of size > 8
         expect(cfgVer2).toContain(
-          '0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F, 0x0G, 0x0H, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client */'
+          '0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F, 0x0G, 0x0H, /* 6,DEFAULT value for cluster: Green Power, attribute: gp link key, side: server */'
+        )
+
+        // Test GENERATED_DEFAULTS for same attribute name but different side of cluster, compare it to above test
+        expect(cfgVer2).toContain(
+          '0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F, 0x0G, 0x0H, /* 28,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client */'
         )
 
         // Test GENERATED_DEFAULTS little endian for attribute of size > 8 is same as big endian. Bytes are not inverted
         expect(cfgVer2).not.toContain(
           `0x0H, 0x0G, 0x0F, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client*/`
+        )
+
+        // Testing GENERATED ATTRIBUTES to see that they are refering to the correct generation defaults
+        expect(cfgVer2).toContain(
+          `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[28]) } }, /* 25 Cluster: Green Power, Attribute: gp link key, Side: client*/`
+        )
+        expect(cfgVer2).toContain(
+          `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)&(generatedDefaults[6]) } }, /* 37 Cluster: Green Power, Attribute: gp link key, Side: server*/`
         )
 
         // Testing zap cli helpers
