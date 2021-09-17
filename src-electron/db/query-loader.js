@@ -607,41 +607,37 @@ INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_BIT (
  * @returns A promise that resolves with an array of struct item rowids.
  */
 async function insertStructs(db, packageId, data) {
-  return dbApi
-    .dbMultiInsert(
-      db,
-      'INSERT INTO STRUCT (PACKAGE_REF, NAME) VALUES (?, ?)',
-      data.map((struct) => {
-        return [packageId, struct.name]
-      })
-    )
-    .then((lastIdsArray) => {
-      let i
-      let itemsToLoad = []
-      for (i = 0; i < lastIdsArray.length; i++) {
-        if ('items' in data[i]) {
-          let lastId = lastIdsArray[i]
-          let items = data[i].items
-          itemsToLoad.push(
-            ...items.map((item) => [
-              lastId,
-              item.name,
-              item.type,
-              item.fieldIdentifier,
-              item.entryType,
-              item.minLength,
-              item.maxLength,
-              item.isWritable,
-            ])
-          )
-        }
-      }
-      return dbApi.dbMultiInsert(
-        db,
-        'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, FIELD_IDENTIFIER, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE) VALUES (?,?,?,?,?,?,?,?)',
-        itemsToLoad
-      )
+  let itemsToLoad = []
+  const lastIdsArray = await dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO STRUCT (PACKAGE_REF, NAME) VALUES (?, ?)',
+    data.map((struct) => {
+      return [packageId, struct.name]
     })
+  )
+  for (let i = 0; i < lastIdsArray.length; i++) {
+    if ('items' in data[i]) {
+      let lastId = lastIdsArray[i]
+      let items = data[i].items
+      itemsToLoad.push(
+        ...items.map((item) => [
+          lastId,
+          item.name,
+          item.type,
+          item.fieldIdentifier,
+          item.entryType,
+          item.minLength,
+          item.maxLength,
+          item.isWritable,
+        ])
+      )
+    }
+  }
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, FIELD_IDENTIFIER, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE) VALUES (?,?,?,?,?,?,?,?)',
+    itemsToLoad
+  )
 }
 
 /**
@@ -654,37 +650,33 @@ async function insertStructs(db, packageId, data) {
  * @returns A promise of enum insertion.
  */
 async function insertEnums(db, packageId, data) {
-  return dbApi
-    .dbMultiInsert(
-      db,
-      'INSERT INTO ENUM (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
-      data.map((en) => {
-        return [packageId, en.name, en.type]
-      })
-    )
-    .then((lastIdsArray) => {
-      let i
-      let itemsToLoad = []
-      for (i = 0; i < lastIdsArray.length; i++) {
-        if ('items' in data[i]) {
-          let lastId = lastIdsArray[i]
-          let items = data[i].items
-          itemsToLoad.push(
-            ...items.map((item) => [
-              lastId,
-              item.name,
-              item.value,
-              item.fieldIdentifier,
-            ])
-          )
-        }
-      }
-      return dbApi.dbMultiInsert(
-        db,
-        'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER) VALUES (?, ?, ?, ?)',
-        itemsToLoad
-      )
+  let itemsToLoad = []
+  const lastIdsArray = await dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO ENUM (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
+    data.map((en) => {
+      return [packageId, en.name, en.type]
     })
+  )
+  for (let i = 0; i < lastIdsArray.length; i++) {
+    if ('items' in data[i]) {
+      let lastId = lastIdsArray[i]
+      let items = data[i].items
+      itemsToLoad.push(
+        ...items.map((item) => [
+          lastId,
+          item.name,
+          item.value,
+          item.fieldIdentifier,
+        ])
+      )
+    }
+  }
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER) VALUES (?, ?, ?, ?)',
+    itemsToLoad
+  )
 }
 
 /**
