@@ -74,17 +74,17 @@ limitations under the License.
     <type id="0xFF" name="unknown" size="0" description="Unknown"/>
   </atomic>
   <struct name="SimpleStruct">
-    <item name="a" type="UINT8U" optional="false"/>
-    <item name="b" type="BOOLEAN" optional="false"/>
-    <item name="c" define="SIMPLE_ENUM" type="ENUM8" optional="false"/>
-    <item name="d" type="OCTET_STRING" optional="false"/>
-    <item name="e" type="CHAR_STRING" optional="false"/>
+    <item name="a" type="UINT8U"/>
+    <item name="b" type="BOOLEAN"/>
+    <item name="c" type="ENUM8"/>
+    <item name="d" type="OCTET_STRING"/>
+    <item name="e" type="CHAR_STRING"/>
   </struct>   
 
   <struct name="NestedStruct">
-    <item name="a" type="UINT8U" optional="false"/>
-    <item name="b" type="BOOLEAN" optional="false"/>
-    <item name="c" type="SimpleStruct" optional="false"/>
+    <item name="a" type="UINT8U"/>
+    <item name="b" type="BOOLEAN"/>
+    <item name="c" type="SimpleStruct"/>
    </struct>
 
    <struct name="A">
