@@ -642,11 +642,11 @@ async function processDomains(db, filePath, packageId, data) {
 function prepareStruct(struct) {
   let ret = {
     name: struct.$.name,
-    cluster: [],
   }
   if ('cluster' in struct) {
+    ret.clusters = []
     struct.cluster.forEach((cl) => {
-      ret.cluster.push(parseInt(cl.$.code))
+      ret.clusters.push(parseInt(cl.$.code))
     })
   }
   if ('item' in struct) {
@@ -694,11 +694,11 @@ function prepareEnum(en) {
   let ret = {
     name: en.$.name,
     type: en.$.type,
-    cluster: [],
   }
   if ('cluster' in en) {
+    ret.clusters = []
     en.cluster.forEach((cl) => {
-      ret.cluster.push(parseInt(cl.$.code))
+      ret.clusters.push(parseInt(cl.$.code))
     })
   }
 

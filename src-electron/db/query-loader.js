@@ -607,7 +607,6 @@ INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_BIT (
  * @returns A promise that resolves with an array of struct item rowids.
  */
 async function insertStructs(db, packageId, data) {
-  let itemsToLoad = []
   const lastIdsArray = await dbApi.dbMultiInsert(
     db,
     'INSERT INTO STRUCT (PACKAGE_REF, NAME) VALUES (?, ?)',
@@ -615,6 +614,23 @@ async function insertStructs(db, packageId, data) {
       return [packageId, struct.name]
     })
   )
+
+  let clustersToLoad = []
+  for (let i = 0; i < lastIdsArray.length; i++) {
+    if ('clusters' in data[i]) {
+      let lastId = lastIdsArray[i]
+      let clusters = data[i].clusters
+      clustersToLoad.push(...clusters.map((cl) => [lastId, cl]))
+    }
+  }
+  if (clustersToLoad.length > 0)
+    await dbApi.dbMultiInsert(
+      db,
+      `INSERT INTO STRUCT_CLUSTER ( STRUCT_REF, CLUSTER_CODE) VALUES (?,?)`,
+      clustersToLoad
+    )
+
+  let itemsToLoad = []
   for (let i = 0; i < lastIdsArray.length; i++) {
     if ('items' in data[i]) {
       let lastId = lastIdsArray[i]
@@ -633,11 +649,13 @@ async function insertStructs(db, packageId, data) {
       )
     }
   }
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, FIELD_IDENTIFIER, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE) VALUES (?,?,?,?,?,?,?,?)',
-    itemsToLoad
-  )
+
+  if (itemsToLoad.length > 0)
+    await dbApi.dbMultiInsert(
+      db,
+      'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, FIELD_IDENTIFIER, ARRAY_TYPE, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE) VALUES (?,?,?,?,?,?,?,?)',
+      itemsToLoad
+    )
 }
 
 /**
@@ -650,7 +668,6 @@ async function insertStructs(db, packageId, data) {
  * @returns A promise of enum insertion.
  */
 async function insertEnums(db, packageId, data) {
-  let itemsToLoad = []
   const lastIdsArray = await dbApi.dbMultiInsert(
     db,
     'INSERT INTO ENUM (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
@@ -658,6 +675,23 @@ async function insertEnums(db, packageId, data) {
       return [packageId, en.name, en.type]
     })
   )
+
+  let clustersToLoad = []
+  for (let i = 0; i < lastIdsArray.length; i++) {
+    if ('clusters' in data[i]) {
+      let lastId = lastIdsArray[i]
+      let clusters = data[i].clusters
+      clustersToLoad.push(...clusters.map((cl) => [lastId, cl]))
+    }
+  }
+  if (clustersToLoad.length > 0)
+    await dbApi.dbMultiInsert(
+      db,
+      `INSERT INTO ENUM_CLUSTER ( ENUM_REF, CLUSTER_CODE) VALUES (?,?)`,
+      clustersToLoad
+    )
+
+  let itemsToLoad = []
   for (let i = 0; i < lastIdsArray.length; i++) {
     if ('items' in data[i]) {
       let lastId = lastIdsArray[i]
