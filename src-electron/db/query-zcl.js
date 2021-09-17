@@ -1013,7 +1013,7 @@ WHERE
  * @param {*} db
  * @returns promise of completion
  */
-async function updateClusterReferencesForDeviceTypeClusters(db) {
+async function updateClusterReferencesForDeviceTypeClusters(db, packageId) {
   return dbApi.dbUpdate(
     db,
     `
@@ -1025,9 +1025,12 @@ SET
       CLUSTER.CLUSTER_ID
     FROM
       CLUSTER
-    WHERE lower(CLUSTER.NAME) = lower(DEVICE_TYPE_CLUSTER.CLUSTER_NAME)
+    WHERE
+      lower(CLUSTER.NAME) = lower(DEVICE_TYPE_CLUSTER.CLUSTER_NAME)
+    AND
+      CLUSTER.PACKAGE_REF = ?
   )`,
-    []
+    [packageId]
   )
 }
 
@@ -1038,7 +1041,7 @@ SET
  * @param {*} db
  * @returns promise of completion
  */
-async function updateAttributeReferencesForDeviceTypeReferences(db) {
+async function updateAttributeReferencesForDeviceTypeReferences(db, packageId) {
   return dbApi.dbUpdate(
     db,
     `
@@ -1050,9 +1053,12 @@ SET
       ATTRIBUTE.ATTRIBUTE_ID
     FROM
       ATTRIBUTE
-    WHERE upper(ATTRIBUTE.DEFINE) = upper(DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_NAME)
+    WHERE
+      upper(ATTRIBUTE.DEFINE) = upper(DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_NAME)
+    AND
+      ATTRIBUTE.PACKAGE_REF = ?
   )`,
-    []
+    [packageId]
   )
 }
 
@@ -1063,7 +1069,7 @@ SET
  * @param {*} db
  * @returns promise of completion
  */
-async function updateCommandReferencesForDeviceTypeReferences(db) {
+async function updateCommandReferencesForDeviceTypeReferences(db, packageId) {
   return dbApi.dbUpdate(
     db,
     `
@@ -1075,9 +1081,12 @@ SET
       COMMAND.COMMAND_ID
     FROM
       COMMAND
-    WHERE upper(COMMAND.NAME) = upper(DEVICE_TYPE_COMMAND.COMMAND_NAME)
+    WHERE
+      upper(COMMAND.NAME) = upper(DEVICE_TYPE_COMMAND.COMMAND_NAME)
+    AND
+      COMMAND.PACKAGE_REF = ?
   )`,
-    []
+    [packageId]
   )
 }
 
@@ -1092,10 +1101,10 @@ SET
  * @param {*} db
  * @returns promise of completed linking
  */
-async function updateDeviceTypeEntityReferences(db) {
-  await updateClusterReferencesForDeviceTypeClusters(db)
-  await updateAttributeReferencesForDeviceTypeReferences(db)
-  return updateCommandReferencesForDeviceTypeReferences(db)
+async function updateDeviceTypeEntityReferences(db, packageId) {
+  await updateClusterReferencesForDeviceTypeClusters(db, packageId)
+  await updateAttributeReferencesForDeviceTypeReferences(db, packageId)
+  return updateCommandReferencesForDeviceTypeReferences(db, packageId)
 }
 
 const ATOMIC_QUERY = `

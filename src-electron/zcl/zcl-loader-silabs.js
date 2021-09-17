@@ -946,7 +946,7 @@ async function parseZclFiles(db, packageId, zclFiles) {
   let individualResults = await Promise.all(individualFilePromise)
   let laterPromises = individualResults.flat(2)
   await Promise.all(laterPromises.map((promise) => promise()))
-  return zclLoader.processZclPostLoading(db)
+  return zclLoader.processZclPostLoading(db, packageId)
 }
 
 /**
@@ -1239,7 +1239,7 @@ async function loadIndividualSilabsFile(
         if (promise != null && promise != undefined) return promise()
       })
     )
-    await zclLoader.processZclPostLoading(db)
+    await zclLoader.processZclPostLoading(db, pkgId)
     return { succeeded: true, packageId: pkgId }
   } catch (err) {
     env.logError(`Error reading xml file: ${file}\n` + err.message)

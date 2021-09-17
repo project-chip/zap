@@ -717,7 +717,7 @@ async function loadDotdotZcl(db, metafile) {
     }
     await parseZclFiles(db, ctx)
     await loadZclData(db, ctx)
-    await zclLoader.processZclPostLoading(db)
+    await zclLoader.processZclPostLoading(db, ctx.packageId)
   } catch (err) {
     env.logError(err)
     throw err

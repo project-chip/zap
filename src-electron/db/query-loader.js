@@ -898,6 +898,10 @@ async function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
   )
 }
 
+async function updateEnumClusterReferences(db, packageId) {}
+
+async function updateStructClusterReferences(db, packageId) {}
+
 exports.insertGlobals = insertGlobals
 exports.insertClusterExtensions = insertClusterExtensions
 exports.insertClusters = insertClusters
@@ -910,3 +914,5 @@ exports.insertEnums = insertEnums
 exports.insertBitmaps = insertBitmaps
 exports.insertDeviceTypes = insertDeviceTypes
 exports.insertTags = insertTags
+exports.updateEnumClusterReferences = updateEnumClusterReferences
+exports.updateStructClusterReferences = updateStructClusterReferences
