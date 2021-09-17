@@ -46,6 +46,9 @@ Copyright 2012, Silicon Laboratories Inc.
     <xs:attribute name="fieldId" type="xs:integer"/>
     <xs:attribute name="countArg" type="xs:string" use="optional"/>
   </xs:complexType>
+  <xs:complexType name="clusterRef">
+    <xs:attribute name="code" type="xs:string"/>
+  </xs:complexType>
   <xs:complexType name="item">
     <xs:attribute name="introducedIn" type="zclSpecVersion"/>
     <xs:attribute name="name" use="required" type="xs:string"/>
@@ -288,6 +291,7 @@ Copyright 2012, Silicon Laboratories Inc.
   <xs:element name="enum">
     <xs:complexType>
       <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="cluster" type="clusterRef"/>
         <xs:element maxOccurs="unbounded" name="item" type="item"/>
       </xs:sequence>
       <xs:attribute name="description"/>
@@ -298,6 +302,7 @@ Copyright 2012, Silicon Laboratories Inc.
   <xs:element name="struct">
     <xs:complexType>
       <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="cluster" type="clusterRef"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="item" type="item"/>
       </xs:sequence>
       <xs:attribute name="length" type="xs:integer"/>
