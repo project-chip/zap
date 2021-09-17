@@ -898,9 +898,53 @@ async function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
   )
 }
 
-async function updateEnumClusterReferences(db, packageId) {}
+async function updateEnumClusterReferences(db, packageId) {
+  return dbApi.dbUpdate(
+    db,
+    `
+UPDATE
+  ENUM_CLUSTER
+SET
+  CLUSTER_REF =
+  (
+    SELECT
+      CLUSTER_ID
+    FROM
+      CLUSTER
+    WHERE
+      CLUSTER.CODE = ENUM_CLUSTER.CLUSTER_CODE
+    AND
+      CLUSTER.PACKAGE_REF = ?
+  )
+  
+`,
+    [packageId]
+  )
+}
 
-async function updateStructClusterReferences(db, packageId) {}
+async function updateStructClusterReferences(db, packageId) {
+  return dbApi.dbUpdate(
+    db,
+    `
+UPDATE
+  STRUCT_CLUSTER
+SET
+  CLUSTER_REF =
+  (
+    SELECT
+      CLUSTER_ID
+    FROM
+      CLUSTER
+    WHERE
+      CLUSTER.CODE = STRUCT_CLUSTER.CLUSTER_CODE
+    AND
+      CLUSTER.PACKAGE_REF = ?
+  )
+  
+`,
+    [packageId]
+  )
+}
 
 exports.insertGlobals = insertGlobals
 exports.insertClusterExtensions = insertClusterExtensions
