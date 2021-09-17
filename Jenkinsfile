@@ -64,16 +64,6 @@ pipeline
                         }
                     }
                 }
-                stage('Validate XML files')
-                {
-                    steps
-                    {
-                        script
-                        {
-                            sh 'npm run xml-validate'
-                        }
-                    }
-                }
                 stage('Generate HTML documentation')
                 {
                     steps
