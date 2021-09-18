@@ -58,15 +58,51 @@ function zcl_bitmap_items(options) {
 
 /**
  * Block helper iterating over all enums.
+ * If existing independently, it iterates over ALL the enums.
+ * Within a context of a cluster, it iterates only over the
+ * enums belonging to a cluster.
  *
  * @param {*} options
  * @returns Promise of content.
  */
-function zcl_enums(options) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => queryZcl.selectAllEnums(this.global.db, packageId))
-    .then((ens) => templateUtil.collectBlocks(ens, options, this))
+async function zcl_enums(options) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let ens
+  if (this.id != null) {
+    ens = await queryZcl.selectClusterEnums(this.global.db, packageId, this.id)
+  } else {
+    ens = await queryZcl.selectAllEnums(this.global.db, packageId)
+  }
+  let promise = templateUtil.collectBlocks(ens, options, this)
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Block helper iterating over all structs.
+ * If existing independently, it iterates over ALL the structs.
+ * Within a context of a cluster, it iterates only over the
+ * structs belonging to a cluster.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+async function zcl_structs(options) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let structs
+  if (this.id != null) {
+    structs = await queryZcl.selectClusterStructsWithItems(
+      this.global.db,
+      packageId,
+      this.id
+    )
+  } else {
+    structs = await queryZcl.selectAllStructsWithItems(
+      this.global.db,
+      packageId
+    )
+  }
+  structs = await zclUtil.sortStructsByDependency(structs)
+  let promise = templateUtil.collectBlocks(structs, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -78,24 +114,6 @@ function zcl_enum_items(options) {
   let promise = queryZcl
     .selectAllEnumItemsById(this.global.db, this.id)
     .then((items) => templateUtil.collectBlocks(items, options, this))
-  return templateUtil.templatePromise(this.global, promise)
-}
-
-/**
- * Block helper iterating over all structs.
- *function macroList(options)
-
- * @param {*} options
- * @returns Promise of content.
- */
-function zcl_structs(options) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryZcl.selectAllStructsWithItems(this.global.db, packageId)
-    )
-    .then((structs) => zclUtil.sortStructsByDependency(structs))
-    .then((structs) => templateUtil.collectBlocks(structs, options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -190,11 +208,14 @@ function zcl_commands(options) {
  * @param {*} options
  * @returns Promise of content.
  */
- function zcl_commands_with_cluster_info(options) {
+function zcl_commands_with_cluster_info(options) {
   let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => {
-      return queryCommand.selectAllCommandsWithClusterInfo(this.global.db, packageId)
+      return queryCommand.selectAllCommandsWithClusterInfo(
+        this.global.db,
+        packageId
+      )
     })
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
   return templateUtil.templatePromise(this.global, promise)

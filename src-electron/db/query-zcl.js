@@ -35,8 +35,39 @@ async function selectAllEnums(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT ENUM_ID, NAME, TYPE FROM ENUM  WHERE PACKAGE_REF = ? ORDER BY NAME',
+      `SELECT ENUM_ID, NAME, TYPE FROM ENUM  WHERE PACKAGE_REF = ? ORDER BY NAME`,
       [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.enum))
+}
+
+/**
+ * Retrieves all the enums in the database.
+ *
+ * @export
+ * @param {*} db
+ * @returns Promise that resolves with the rows of enums.
+ */
+async function selectClusterEnums(db, packageId, clusterId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  E.ENUM_ID,
+  E.NAME,
+  E.TYPE
+FROM
+  ENUM AS E
+INNER JOIN
+  ENUM_CLUSTER AS EC
+ON
+  E.ENUM_ID = EC.ENUM_REF
+WHERE
+  E.PACKAGE_REF = ?
+  AND EC.CLUSTER_REF = ?
+ORDER BY NAME`,
+      [packageId, clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.enum))
 }
@@ -192,6 +223,12 @@ ORDER BY STRUCT.NAME`,
     .then((rows) => rows.map(dbMapping.map.struct))
 }
 
+/**
+ * Returns an array of clusters that struct belongs to.
+ * @param {*} db
+ * @param {*} structId
+ * @returns clusters
+ */
 async function selectStructClusters(db, structId) {
   return dbApi
     .dbAll(
@@ -221,6 +258,12 @@ WHERE
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
 
+/**
+ * Returns an array of clusters that enum belongs to.
+ * @param {*} db
+ * @param {*} enumId
+ * @returns clusters
+ */
 async function selectEnumClusters(db, enumId) {
   return dbApi
     .dbAll(
@@ -251,69 +294,111 @@ WHERE
 }
 
 /**
- * Retrieves all the structs in the database, including the count
- * of items.
+ * Retrieves all the cluster-related structs in the database with the items.
+ *
+ * @export
+ * @param {*} db
+ * @returns Promise that resolves with the rows of structs, each one containing items field with rows of items.
+ */
+async function selectClusterStructsWithItems(db, packageId, clusterId) {
+  return selectStructsWithItemsImpl(db, packageId, clusterId)
+}
+
+/**
+ * Retrieves all the structs in the database with the items.
  *
  * @export
  * @param {*} db
  * @returns Promise that resolves with the rows of structs, each one containing items field with rows of items.
  */
 async function selectAllStructsWithItems(db, packageId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  STRUCT.STRUCT_ID AS STRUCT_ID,
-  STRUCT.NAME AS STRUCT_NAME,
-  ITEM.NAME AS ITEM_NAME,
-  ITEM.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
-  ITEM.TYPE AS ITEM_TYPE,
-  ITEM.ARRAY_TYPE AS ITEM_ARRAY_TYPE,
-  ITEM.MIN_LENGTH AS ITEM_MIN_LENGTH,
-  ITEM.MAX_LENGTH AS ITEM_MAX_LENGTH,
-  ITEM.IS_WRITABLE AS ITEM_IS_WRITABLE
-FROM
-  STRUCT
-LEFT JOIN
-  STRUCT_ITEM AS ITEM
-ON
-  STRUCT.STRUCT_ID = ITEM.STRUCT_REF
-WHERE
-  STRUCT.PACKAGE_REF = ?
-ORDER BY STRUCT.NAME, ITEM.FIELD_IDENTIFIER`,
-      [packageId]
-    )
-    .then((rows) =>
-      rows.reduce((acc, value) => {
-        let objectToActOn
-        if (acc.length == 0 || acc[acc.length - 1].name != value.STRUCT_NAME) {
-          // Create a new object
-          objectToActOn = {
-            id: value.STRUCT_ID,
-            name: value.STRUCT_NAME,
-            label: value.STRUCT_NAME,
-            items: [],
-            itemCnt: 0,
-          }
-          acc.push(objectToActOn)
-        } else {
-          objectToActOn = acc[acc.length - 1]
-        }
-        objectToActOn.items.push({
-          name: value.ITEM_NAME,
-          label: value.ITEM_NAME,
-          fieldIdentifier: value.ITEM_IDENTIFIER,
-          type: value.ITEM_TYPE,
-          arrayType: value.ITEM_ARRAY_TYPE,
-          minLength: value.ITEM_MIN_LENGTH,
-          maxLength: value.ITEM_MAX_LENGTH,
-          isWritable: dbApi.fromDbBool(value.ITEM_IS_WRITABLE),
-        })
-        objectToActOn.itemCnt++
-        return acc
-      }, [])
-    )
+  return selectStructsWithItemsImpl(db, packageId, null)
+}
+
+async function selectStructsWithItemsImpl(db, packageId, clusterId) {
+  let query
+  let args
+  if (clusterId == null) {
+    query = `
+    SELECT
+      S.STRUCT_ID AS STRUCT_ID,
+      S.NAME AS STRUCT_NAME,
+      SI.NAME AS ITEM_NAME,
+      SI.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
+      SI.TYPE AS ITEM_TYPE,
+      SI.ARRAY_TYPE AS ITEM_ARRAY_TYPE,
+      SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
+      SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
+      SI.IS_WRITABLE AS ITEM_IS_WRITABLE
+    FROM
+      STRUCT AS S
+    LEFT JOIN
+      STRUCT_ITEM AS SI
+    ON
+      S.STRUCT_ID = SI.STRUCT_REF
+    WHERE
+      S.PACKAGE_REF = ?
+    ORDER BY S.NAME, SI.FIELD_IDENTIFIER`
+    args = [packageId]
+  } else {
+    query = `
+    SELECT
+      S.STRUCT_ID AS STRUCT_ID,
+      S.NAME AS STRUCT_NAME,
+      SI.NAME AS ITEM_NAME,
+      SI.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
+      SI.TYPE AS ITEM_TYPE,
+      SI.ARRAY_TYPE AS ITEM_ARRAY_TYPE,
+      SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
+      SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
+      SI.IS_WRITABLE AS ITEM_IS_WRITABLE
+    FROM
+      STRUCT AS S
+    INNER JOIN
+      STRUCT_CLUSTER AS SC
+    ON
+      S.STRUCT_ID = SC.STRUCT_REF
+    LEFT JOIN
+      STRUCT_ITEM AS SI
+    ON
+      S.STRUCT_ID = SI.STRUCT_REF
+    WHERE
+      S.PACKAGE_REF = ?
+    AND
+      SC.CLUSTER_REF = ?
+    ORDER BY S.NAME, SI.FIELD_IDENTIFIER`
+    args = [packageId, clusterId]
+  }
+
+  let rows = await dbApi.dbAll(db, query, args)
+  return rows.reduce((acc, value) => {
+    let objectToActOn
+    if (acc.length == 0 || acc[acc.length - 1].name != value.STRUCT_NAME) {
+      // Create a new object
+      objectToActOn = {
+        id: value.STRUCT_ID,
+        name: value.STRUCT_NAME,
+        label: value.STRUCT_NAME,
+        items: [],
+        itemCnt: 0,
+      }
+      acc.push(objectToActOn)
+    } else {
+      objectToActOn = acc[acc.length - 1]
+    }
+    objectToActOn.items.push({
+      name: value.ITEM_NAME,
+      label: value.ITEM_NAME,
+      fieldIdentifier: value.ITEM_IDENTIFIER,
+      type: value.ITEM_TYPE,
+      arrayType: value.ITEM_ARRAY_TYPE,
+      minLength: value.ITEM_MIN_LENGTH,
+      maxLength: value.ITEM_MAX_LENGTH,
+      isWritable: dbApi.fromDbBool(value.ITEM_IS_WRITABLE),
+    })
+    objectToActOn.itemCnt++
+    return acc
+  }, [])
 }
 
 async function selectStructById(db, id) {
@@ -1282,6 +1367,7 @@ async function determineType(db, type, packageId) {
 
 // exports
 exports.selectAllEnums = selectAllEnums
+exports.selectClusterEnums = selectClusterEnums
 exports.selectAllEnumItemsById = selectAllEnumItemsById
 exports.selectAllEnumItems = selectAllEnumItems
 exports.selectEnumById = selectEnumById
@@ -1304,6 +1390,7 @@ exports.selectAtomicById = selectAtomicById
 
 exports.selectAllStructsWithItemCount = selectAllStructsWithItemCount
 exports.selectAllStructsWithItems = selectAllStructsWithItems
+exports.selectClusterStructsWithItems = selectClusterStructsWithItems
 
 exports.selectStructById = selectStructById
 exports.selectAllStructItemsById = selectAllStructItemsById

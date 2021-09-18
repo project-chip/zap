@@ -74,6 +74,11 @@ limitations under the License.
     <type id="0xFF" name="unknown" size="0" description="Unknown"/>
   </atomic>
 
+  <enum name="SimpleEnum" type="ENUM8">
+    <item name="aaa" value="0x00"/>
+    <item name="bbb" value="0x01"/>
+  </enum>
+
   <enum name="TestEnum" type="ENUM8">
     <cluster code="0xABCD"/>
     <item name="A" value="0x00"/>

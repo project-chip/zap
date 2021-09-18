@@ -16,6 +16,11 @@
       "path": "struct.zapt",
       "name": "Struct",
       "output": "struct.h"
+    },
+    {
+      "path": "struct-and-enum-by-cluster.zapt",
+      "name": "Struct",
+      "output": "struct-and-enum-by-cluster.h"
     }
   ]
 }
