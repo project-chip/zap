@@ -19,13 +19,14 @@
  */
 
 const path = require('path')
-const genEngine = require('../src-electron/generator/generation-engine.js')
-const env = require('../src-electron/util/env.ts')
-const dbApi = require('../src-electron/db/db-api.js')
-const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const importJs = require('../src-electron/importexport/import.js')
-const testUtil = require('./test-util.js')
-const queryPackage = require('../src-electron/db/query-package.js')
+const genEngine = require('../src-electron/generator/generation-engine')
+const env = require('../src-electron/util/env')
+const dbApi = require('../src-electron/db/db-api')
+const zclLoader = require('../src-electron/zcl/zcl-loader')
+const importJs = require('../src-electron/importexport/import')
+const testUtil = require('./test-util')
+const queryPackage = require('../src-electron/db/query-package')
+const queryZcl = require('../src-electron/db/query-zcl')
 
 let db
 const testFile = path.join(__dirname, 'resource/test-meta.zap')
@@ -65,6 +66,31 @@ test(
   'Meta test - zcl loading',
   async () => {
     zclContext = await zclLoader.loadZcl(db, testUtil.testZclMetafile)
+    const structs = await queryZcl.selectAllStructsWithItemCount(
+      db,
+      zclContext.packageId
+    )
+    const enums = await queryZcl.selectAllEnums(db, zclContext.packageId)
+
+    for (const s of structs) {
+      let clusters = await queryZcl.selectStructClusters(db, s.id)
+      if (s.name == 'SimpleStruct') {
+        expect(clusters.length).toBe(1)
+        expect(clusters[0].code).toBe(0xabcd)
+      } else {
+        expect(clusters.length).toBe(0)
+      }
+    }
+
+    for (const e of enums) {
+      let clusters = await queryZcl.selectEnumClusters(db, e.id)
+      if (e.name == 'TestEnum') {
+        expect(clusters.length).toBe(1)
+        expect(clusters[0].code).toBe(0xabcd)
+      } else {
+        expect(clusters.length).toBe(0)
+      }
+    }
   },
   testUtil.timeout.medium()
 )

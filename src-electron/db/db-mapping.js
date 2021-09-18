@@ -189,6 +189,7 @@ exports.map = {
     return {
       id: x.ENUM_ID,
       label: x.NAME,
+      name: x.NAME,
       type: x.TYPE,
       caption: `Enum of type ${x.TYPE}`,
     }
@@ -209,6 +210,7 @@ exports.map = {
     return {
       id: x.STRUCT_ID,
       label: x.NAME,
+      name: x.NAME,
       itemCnt: x.ITEM_COUNT,
       caption: `Struct, named ${x.NAME}`,
     }

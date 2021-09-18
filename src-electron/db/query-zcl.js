@@ -192,6 +192,64 @@ ORDER BY STRUCT.NAME`,
     .then((rows) => rows.map(dbMapping.map.struct))
 }
 
+async function selectStructClusters(db, structId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  C.CLUSTER_ID,
+  C.CODE,
+  C.MANUFACTURER_CODE,
+  C.NAME,
+  C.DESCRIPTION,
+  C.DEFINE,
+  C.DOMAIN_NAME,
+  C.IS_SINGLETON,
+  C.REVISION
+FROM
+  CLUSTER AS C
+INNER JOIN
+  STRUCT_CLUSTER AS SC
+ON
+  C.CLUSTER_ID = SC.CLUSTER_REF
+WHERE
+  SC.STRUCT_REF = ?
+    `,
+      [structId]
+    )
+    .then((rows) => rows.map(dbMapping.map.cluster))
+}
+
+async function selectEnumClusters(db, enumId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  C.CLUSTER_ID,
+  C.CODE,
+  C.MANUFACTURER_CODE,
+  C.NAME,
+  C.DESCRIPTION,
+  C.DEFINE,
+  C.DOMAIN_NAME,
+  C.IS_SINGLETON,
+  C.REVISION
+FROM
+  CLUSTER AS C
+INNER JOIN
+  ENUM_CLUSTER AS EC
+ON
+  C.CLUSTER_ID = EC.CLUSTER_REF
+WHERE
+  EC.ENUM_REF = ?
+    `,
+      [enumId]
+    )
+    .then((rows) => rows.map(dbMapping.map.cluster))
+}
+
 /**
  * Retrieves all the structs in the database, including the count
  * of items.
@@ -1289,5 +1347,8 @@ exports.selectDeviceTypeAttributesByDeviceTypeRef =
 exports.selectDeviceTypeCommandsByDeviceTypeRef =
   selectDeviceTypeCommandsByDeviceTypeRef
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
+
+exports.selectEnumClusters = selectEnumClusters
+exports.selectStructClusters = selectStructClusters
 
 exports.determineType = determineType
