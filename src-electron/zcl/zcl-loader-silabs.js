@@ -135,10 +135,7 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
         if (f != null) returnObject.manufacturersXml = f
 
         // Profiles XML file.
-        f = util.locateRelativeFilePath(
-          fileLocations,
-          zclProps.profilesXml
-        )
+        f = util.locateRelativeFilePath(fileLocations, zclProps.profilesXml)
         if (f != null) returnObject.profilesXml = f
 
         // Zcl XSD file
@@ -455,7 +452,9 @@ function prepareCluster(cluster, isExtension = false) {
         reportMinInterval: attribute.$.reportMinInterval,
         reportMaxInterval: attribute.$.reportMaxInterval,
         reportableChange: attribute.$.reportableChange,
-        reportableChangeLength: attribute.$.reportableChangeLength ? attribute.$.reportableChangeLength : null,
+        reportableChangeLength: attribute.$.reportableChangeLength
+          ? attribute.$.reportableChangeLength
+          : null,
         isWritable: attribute.$.writable == 'true',
         defaultValue: attribute.$.default,
         isOptional: attribute.$.optional == 'true',
@@ -641,7 +640,15 @@ async function processDomains(db, filePath, packageId, data) {
  * @returns Object ready to insert into the database.
  */
 function prepareStruct(struct) {
-  let ret = { name: struct.$.name }
+  let ret = {
+    name: struct.$.name,
+  }
+  if ('cluster' in struct) {
+    ret.clusters = []
+    struct.cluster.forEach((cl) => {
+      ret.clusters.push(parseInt(cl.$.code))
+    })
+  }
   if ('item' in struct) {
     ret.items = []
     struct.item.forEach((item, index) => {
@@ -684,7 +691,17 @@ async function processStructs(db, filePath, packageId, data) {
  * @returns An object ready to go to the database.
  */
 function prepareEnum(en) {
-  let ret = { name: en.$.name, type: en.$.type }
+  let ret = {
+    name: en.$.name,
+    type: en.$.type,
+  }
+  if ('cluster' in en) {
+    ret.clusters = []
+    en.cluster.forEach((cl) => {
+      ret.clusters.push(parseInt(cl.$.code))
+    })
+  }
+
   if ('item' in en) {
     ret.items = []
     en.item.forEach((item, index) => {
@@ -795,30 +812,31 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
   if (!('result' in argument)) {
     return []
   } else {
-    let promisesStep1 = []
-    let promisesStep2 = []
-    let promisesStep3 = []
+    let loadTagsAndDomains = []
+    let loadClusters = []
+    let loadTypes = []
+    let loadGlobalAttributesAndClusterExtensions = []
     if ('configurator' in data) {
       if ('tag' in data.configurator) {
-        promisesStep1.push(
+        loadTagsAndDomains.push(
           processTags(db, filePath, packageId, data.configurator.tag)
         )
       }
       if ('atomic' in data.configurator) {
-        promisesStep2.push(
+        loadTypes.push(
           processAtomics(db, filePath, packageId, data.configurator.atomic)
         )
       }
       if ('bitmap' in data.configurator) {
-        promisesStep2.push(
+        loadTypes.push(
           processBitmaps(db, filePath, packageId, data.configurator.bitmap)
         )
       }
       if ('cluster' in data.configurator) {
-        promisesStep2.push(
+        loadClusters.push(
           processClusters(db, filePath, packageId, data.configurator.cluster)
         )
-        promisesStep3.push(() =>
+        loadGlobalAttributesAndClusterExtensions.push(() =>
           processClusterGlobalAttributes(
             db,
             filePath,
@@ -828,22 +846,22 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
         )
       }
       if ('domain' in data.configurator) {
-        promisesStep1.push(
+        loadTagsAndDomains.push(
           processDomains(db, filePath, packageId, data.configurator.domain)
         )
       }
       if ('enum' in data.configurator) {
-        promisesStep2.push(
+        loadTypes.push(
           processEnums(db, filePath, packageId, data.configurator.enum)
         )
       }
       if ('struct' in data.configurator) {
-        promisesStep2.push(
+        loadTypes.push(
           processStructs(db, filePath, packageId, data.configurator.struct)
         )
       }
       if ('deviceType' in data.configurator) {
-        promisesStep2.push(
+        loadClusters.push(
           processDeviceTypes(
             db,
             filePath,
@@ -853,12 +871,12 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
         )
       }
       if ('global' in data.configurator) {
-        promisesStep2.push(
+        loadClusters.push(
           processGlobals(db, filePath, packageId, data.configurator.global)
         )
       }
       if ('clusterExtension' in data.configurator) {
-        promisesStep3.push(() =>
+        loadGlobalAttributesAndClusterExtensions.push(() =>
           processClusterExtensions(
             db,
             filePath,
@@ -870,9 +888,10 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
       }
     }
     // This thing resolves the immediate promises and then resolves itself with passing the later promises down the chain.
-    await Promise.all(promisesStep1)
-    await Promise.all(promisesStep2)
-    return Promise.all(promisesStep3)
+    await Promise.all(loadTagsAndDomains)
+    await Promise.all(loadClusters)
+    await Promise.all(loadTypes)
+    return Promise.all(loadGlobalAttributesAndClusterExtensions)
   }
 }
 
@@ -927,7 +946,7 @@ async function parseZclFiles(db, packageId, zclFiles) {
   let individualResults = await Promise.all(individualFilePromise)
   let laterPromises = individualResults.flat(2)
   await Promise.all(laterPromises.map((promise) => promise()))
-  return zclLoader.processZclPostLoading(db)
+  return zclLoader.processZclPostLoading(db, packageId)
 }
 
 /**
@@ -960,7 +979,7 @@ async function parseManufacturerData(db, packageId, manufacturersXml) {
  * @param {*} ctx
  * @returns Promise of a parsed profiles file.
  */
- async function parseProfilesData(db, packageId, profilesXml) {
+async function parseProfilesData(db, packageId, profilesXml) {
   let data = await fsp.readFile(profilesXml)
 
   let profilesMap = await util.parseXml(data)
@@ -975,7 +994,6 @@ async function parseManufacturerData(db, packageId, manufacturersXml) {
     })
   )
 }
-
 
 /**
  * Parses the ZCL Schema
@@ -1221,7 +1239,7 @@ async function loadIndividualSilabsFile(
         if (promise != null && promise != undefined) return promise()
       })
     )
-    await zclLoader.processZclPostLoading(db)
+    await zclLoader.processZclPostLoading(db, pkgId)
     return { succeeded: true, packageId: pkgId }
   } catch (err) {
     env.logError(`Error reading xml file: ${file}\n` + err.message)

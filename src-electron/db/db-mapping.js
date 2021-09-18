@@ -69,6 +69,7 @@ exports.map = {
       code: x.CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
       label: x.NAME,
+      name: x.NAME,
       caption: x.DESCRIPTION,
       define: x.DEFINE,
       domainName: x.DOMAIN_NAME,
@@ -189,6 +190,7 @@ exports.map = {
     return {
       id: x.ENUM_ID,
       label: x.NAME,
+      name: x.NAME,
       type: x.TYPE,
       caption: `Enum of type ${x.TYPE}`,
     }
@@ -197,6 +199,7 @@ exports.map = {
   enumItem: (x) => {
     if (x == null) return undefined
     return {
+      name: x.NAME,
       label: x.NAME,
       value: x.VALUE,
       enumRef: x.ENUM_REF,
@@ -209,6 +212,7 @@ exports.map = {
     return {
       id: x.STRUCT_ID,
       label: x.NAME,
+      name: x.NAME,
       itemCnt: x.ITEM_COUNT,
       caption: `Struct, named ${x.NAME}`,
     }

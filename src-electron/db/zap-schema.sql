@@ -445,6 +445,18 @@ CREATE TABLE IF NOT EXISTS "ENUM_ITEM" (
   foreign key (ENUM_REF) references ENUM(ENUM_ID)
 );
 /*
+ ENUM_CLUSTER table is a junction table, optionally linking an enum to one or more clusters
+ */
+DROP TABLE IF EXISTS "ENUM_CLUSTER";
+CREATE TABLE IF NOT EXISTS "ENUM_CLUSTER" (
+  "ENUM_REF" integer,
+  "CLUSTER_CODE" integer,
+  "CLUSTER_REF" integer,
+  foreign key (ENUM_REF) references ENUM(ENUM_ID),
+  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
+  UNIQUE(ENUM_REF, CLUSTER_REF)
+);
+/*
  STRUCT table contains structs directly loaded from packages.
  */
 DROP TABLE IF EXISTS "STRUCT";
@@ -468,6 +480,18 @@ CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
   "MAX_LENGTH" integer,
   "IS_WRITABLE" integer,
   foreign key (STRUCT_REF) references STRUCT(STRUCT_ID)
+);
+/*
+ STRUCT_CLUSTER table is a junction table, optionally linking a struct to one or more clusters
+ */
+DROP TABLE IF EXISTS "STRUCT_CLUSTER";
+CREATE TABLE IF NOT EXISTS "STRUCT_CLUSTER" (
+  "STRUCT_REF" integer,
+  "CLUSTER_CODE" integer,
+  "CLUSTER_REF" integer,
+  foreign key (STRUCT_REF) references STRUCT(STRUCT_ID),
+  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
+  UNIQUE(STRUCT_REF, CLUSTER_REF)
 );
 /*
  *
@@ -939,3 +963,4 @@ CREATE TABLE IF NOT EXISTS "SETTING" (
   "VALUE" text,
   UNIQUE(CATEGORY, KEY)
 );
+/* EO SCHEMA */

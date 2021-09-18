@@ -701,9 +701,9 @@ ORDER BY CODE`,
 }
 
 /**
- * 
- * @param db 
- * @param packageId 
+ *
+ * @param db
+ * @param packageId
  * @returns all commands along with their cluster information
  */
 async function selectAllCommandsWithClusterInfo(db, packageId) {
@@ -1011,8 +1011,7 @@ SET
     FROM
       COMMAND AS CMD_REF
     WHERE
-      ( CMD_REF.NAME = COMMAND.RESPONSE_NAME
-      ) AND (
+      ( CMD_REF.NAME = COMMAND.RESPONSE_NAME ) AND (
         ( CMD_REF.CLUSTER_REF = COMMAND.CLUSTER_REF )
         OR
         ( CMD_REF.CLUSTER_REF IS NULL AND COMMAND.CLUSTER_REF IS NULL )
