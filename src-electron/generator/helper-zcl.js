@@ -102,6 +102,13 @@ async function zcl_structs(options) {
     )
   }
   structs = await zclUtil.sortStructsByDependency(structs)
+  structs.forEach((st) => {
+    st.items.forEach((i) => {
+      if (i.isArray) {
+        st.struct_contains_array = true
+      }
+    })
+  })
   let promise = templateUtil.collectBlocks(structs, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }

@@ -74,7 +74,7 @@ test(
 
     for (const s of structs) {
       let clusters = await queryZcl.selectStructClusters(db, s.id)
-      if (s.name == 'SimpleStruct') {
+      if (s.name == 'SimpleStruct' || s.name == 'StructWithArray') {
         expect(clusters.length).toBe(1)
         expect(clusters[0].code).toBe(0xabcd)
       } else {

@@ -656,10 +656,10 @@ function prepareStruct(struct) {
         name: item.$.name,
         type: item.$.type,
         fieldIdentifier: item.$.fieldId ? parseInt(item.$.fieldId) : index + 1,
-        entryType: item.$.entryType,
         minLength: 0,
         maxLength: item.$.length ? item.$.length : null,
         isWritable: item.$.writable == 'true',
+        isArray: item.$.array == 'true' ? true : false,
       })
     })
   }

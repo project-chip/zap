@@ -228,7 +228,7 @@ exports.map = {
       type: x.TYPE,
       minLength: x.MIN_LENGTH,
       maxLength: x.MAX_LENGTH,
-      arrayType: x.ARRAY_TYPE,
+      isArray: dbApi.fromDbBool(x.IS_ARRAY),
       isWritable: dbApi.fromDbBool(x.IS_WRITABLE),
     }
   },

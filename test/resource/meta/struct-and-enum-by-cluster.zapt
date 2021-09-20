@@ -5,10 +5,17 @@ Cluster: {{name}}
 
 Structs for cluster {{name}}:
 {{#zcl_structs}}
-   * Struct: {{name}}
+{{#if struct_contains_array}}
+   * Struct with array: {{name}}
 {{#zcl_struct_items}}
       - item: {{name}}
 {{/zcl_struct_items}}
+{{else}}
+   * Struct without array: {{name}}
+{{#zcl_struct_items}}
+      - item: {{name}}
+{{/zcl_struct_items}}
+{{/if}}
 {{/zcl_structs}}
 
 Enums for cluster {{name}}:

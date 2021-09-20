@@ -97,6 +97,13 @@ limitations under the License.
     <item name="e" type="CHAR_STRING"/>
   </struct>   
 
+  <struct name="StructWithArray">
+    <cluster code="0xABCD"/>
+    <item name="a" type="UINT8U"/>
+    <item name="b" type="BOOLEAN"/>
+    <item name="c" type="UINT8U" array="true"/>
+  </struct>   
+
   <struct name="NestedStruct">
     <item name="a" type="UINT8U"/>
     <item name="b" type="BOOLEAN"/>

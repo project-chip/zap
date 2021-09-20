@@ -276,7 +276,7 @@ export interface DbStructType {
 }
 
 export interface DbStructItemType {
-  arrayType: string
+  isArray: boolean
   fieldIdentifier: number
   isWritable: number
   maxLength: number
