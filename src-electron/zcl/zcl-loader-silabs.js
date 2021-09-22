@@ -660,6 +660,7 @@ function prepareStruct(struct) {
         maxLength: item.$.length ? item.$.length : null,
         isWritable: item.$.writable == 'true',
         isArray: item.$.array == 'true' ? true : false,
+        isEnum: item.$.enum == 'true' ? true : false,
       })
     })
   }

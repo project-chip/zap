@@ -92,7 +92,7 @@ limitations under the License.
     <cluster code="0xABCD"/>
     <item name="a" type="UINT8U"/>
     <item name="b" type="BOOLEAN"/>
-    <item name="c" type="ENUM8"/>
+    <item name="c" enum="true" type="ENUM8"/>
     <item name="d" type="OCTET_STRING"/>
     <item name="e" type="CHAR_STRING"/>
   </struct>   

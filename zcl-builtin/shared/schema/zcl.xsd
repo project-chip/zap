@@ -55,6 +55,7 @@ Copyright 2012, Silicon Laboratories Inc.
     <xs:attribute name="type" type="xs:string"/>
     <xs:attribute name="value" type="xs:string"/>
     <xs:attribute name="array" type="xs:boolean"/>
+    <xs:attribute name="enum" type="xs:boolean"/>
     <xs:attribute name="fieldId" type="xs:integer"/>
   </xs:complexType>
   <xs:complexType name="featureBit" mixed="true">
