@@ -130,6 +130,9 @@ test(
     epc = genResult.content['out/test1.out']
     expect(epc).not.toBeNull()
     expect(epc).toContain('validating')
+
+    epc = genResult.content['struct-and-enum-by-cluster.h']
+    expect(epc).toContain('enum item: c')
   },
   testUtil.timeout.medium()
 )

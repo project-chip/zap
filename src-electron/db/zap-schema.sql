@@ -476,6 +476,7 @@ CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
   "NAME" text,
   "TYPE" text,
   "IS_ARRAY" integer,
+  "IS_ENUM" integer,
   "MIN_LENGTH" integer,
   "MAX_LENGTH" integer,
   "IS_WRITABLE" integer,
