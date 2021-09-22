@@ -327,6 +327,7 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
       SI.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
       SI.TYPE AS ITEM_TYPE,
       SI.IS_ARRAY AS ITEM_IS_ARRAY,
+      SI.IS_ENUM AS ITEM_IS_ENUM,
       SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
       SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
       SI.IS_WRITABLE AS ITEM_IS_WRITABLE
@@ -349,6 +350,7 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
       SI.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
       SI.TYPE AS ITEM_TYPE,
       SI.IS_ARRAY AS ITEM_IS_ARRAY,
+      SI.IS_ENUM AS ITEM_IS_ENUM,
       SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
       SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
       SI.IS_WRITABLE AS ITEM_IS_WRITABLE
@@ -392,6 +394,7 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
       fieldIdentifier: value.ITEM_IDENTIFIER,
       type: value.ITEM_TYPE,
       isArray: dbApi.fromDbBool(value.ITEM_IS_ARRAY),
+      isEnum: dbApi.fromDbBool(value.ITEM_IS_ENUM),
       minLength: value.ITEM_MIN_LENGTH,
       maxLength: value.ITEM_MAX_LENGTH,
       isWritable: dbApi.fromDbBool(value.ITEM_IS_WRITABLE),
@@ -427,6 +430,7 @@ SELECT
   TYPE,
   STRUCT_REF,
   IS_ARRAY,
+  IS_ENUM,
   MIN_LENGTH,
   MAX_LENGTH,
   IS_WRITABLE
@@ -453,19 +457,20 @@ async function selectAllStructItemsByStructName(db, name) {
       db,
       `
 SELECT
-  STRUCT_ITEM.NAME,
-  STRUCT_ITEM.TYPE,
-  STRUCT_ITEM.STRUCT_REF,
-  STRUCT_ITEM.IS_ARRAY,
-  STRUCT_ITEM.MIN_LENGTH,
-  STRUCT_ITEM.MAX_LENGTH,
-  STRUCT_ITEM.IS_WRITABLE
+  SI.NAME,
+  SI.TYPE,
+  SI.STRUCT_REF,
+  SI.IS_ARRAY,
+  SI.IS_ENUM,
+  SI.MIN_LENGTH,
+  SI.MAX_LENGTH,
+  SI.IS_WRITABLE
 FROM
-  STRUCT_ITEM
+  STRUCT_ITEM AS SI
 INNER JOIN
   STRUCT
 ON
-  STRUCT.STRUCT_ID = STRUCT_ITEM.STRUCT_REF
+  STRUCT.STRUCT_ID = SI.STRUCT_REF
 WHERE STRUCT.NAME = ?
 ORDER BY FIELD_IDENTIFIER`,
       [name]

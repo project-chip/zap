@@ -229,6 +229,7 @@ exports.map = {
       minLength: x.MIN_LENGTH,
       maxLength: x.MAX_LENGTH,
       isArray: dbApi.fromDbBool(x.IS_ARRAY),
+      isEnum: dbApi.fromDbBool(x.IS_ENUM),
       isWritable: dbApi.fromDbBool(x.IS_WRITABLE),
     }
   },
