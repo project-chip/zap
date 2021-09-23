@@ -85,6 +85,7 @@ limitations under the License.
 import CommonMixin from '../util/common-mixin'
 import rendApi from '../../src-shared/rend-api.js'
 const observable = require('../util/observable.js')
+import { Notify } from 'quasar'
 
 export default {
   mixins: [CommonMixin],
@@ -111,6 +112,12 @@ export default {
             this.$store.dispatch('zap/updateAtomics')
           } else {
             this.error = packageStatus.err
+            Notify.create({
+              message: this.error,
+              color: 'negative',
+              position: 'top',
+              html: true,
+            })
           }
         })
     },
