@@ -87,6 +87,8 @@ async function zcl_enums(options) {
  * @returns Promise of content.
  */
 async function zcl_structs(options) {
+  let checkForDoubleNestedArray =
+    options.hash.checkForDoubleNestedArray == 'true'
   let packageId = await templateUtil.ensureZclPackageId(this)
   let structs
   if (this.id != null) {
@@ -103,12 +105,39 @@ async function zcl_structs(options) {
   }
   structs = await zclUtil.sortStructsByDependency(structs)
   structs.forEach((st) => {
+    st.struct_contains_array = false
     st.items.forEach((i) => {
       if (i.isArray) {
         st.struct_contains_array = true
       }
     })
   })
+  if (checkForDoubleNestedArray) {
+    // If this is set to true in a template, then we populate the
+    // struct_contains_nested_array variable with true
+    // if struct contains array of structs that contain an array.
+    // There is a hit in processing if you turn this on, so it's not automatic.
+    for (const st of structs) {
+      st.struct_contains_nested_array = false
+      for (const i of st.items) {
+        if (i.isArray) {
+          // Found an array. Now let's check if it points to a struct that also contains an array.
+          let sis = await queryZcl.selectAllStructItemsByStructName(
+            this.global.db,
+            i.type,
+            packageId
+          )
+          if (sis.length > 0) {
+            for (const ss of sis) {
+              if (ss.isArray) {
+                st.struct_contains_nested_array = true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   let promise = templateUtil.collectBlocks(structs, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -144,9 +173,10 @@ function zcl_struct_items(options) {
  * @param options
  * @returns Promise of content.
  */
-function zcl_struct_items_by_struct_name(name, options) {
+async function zcl_struct_items_by_struct_name(name, options) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
   let promise = queryZcl
-    .selectAllStructItemsByStructName(this.global.db, name)
+    .selectAllStructItemsByStructName(this.global.db, name, packageId)
     .then((st) => templateUtil.collectBlocks(st, options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -1223,7 +1253,7 @@ async function calculate_bytes_for_structs(res, options, db, packageId) {
     return options.hash.struct
   } else {
     return queryZcl
-      .selectAllStructItemsByStructName(db, res)
+      .selectAllStructItemsByStructName(db, res, packageId)
       .then((items) => {
         let promises = []
         items.forEach((item) =>

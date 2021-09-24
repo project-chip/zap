@@ -451,7 +451,7 @@ ORDER BY
  * @param  name
  * @returns the details of the struct items given the name of the struct
  */
-async function selectAllStructItemsByStructName(db, name) {
+async function selectAllStructItemsByStructName(db, name, packageId) {
   return dbApi
     .dbAll(
       db,
@@ -472,8 +472,9 @@ INNER JOIN
 ON
   STRUCT.STRUCT_ID = SI.STRUCT_REF
 WHERE STRUCT.NAME = ?
+  AND STRUCT.PACKAGE_REF = ?
 ORDER BY FIELD_IDENTIFIER`,
-      [name]
+      [name, packageId]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))
 }

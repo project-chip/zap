@@ -1,4 +1,10 @@
-{{#zcl_structs}}
+{{#zcl_structs checkForDoubleNestedArray="true"}}
+// Struct name: {{label}}
+// Struct contains array: {{struct_contains_array}}
+// Struct contains array of structs containing an array: {{struct_contains_nested_array}}
+{{#if struct_contains_nested_array}}
+Because this structs contains a nested array of arrays, you can do special stuff here!
+{{/if}}
 {{#zcl_struct_items}}
 {{#first}}
 // Struct for {{parent.label}}
