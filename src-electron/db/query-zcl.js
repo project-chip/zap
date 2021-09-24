@@ -417,6 +417,35 @@ async function selectStructByName(db, name, packageId) {
     .then(dbMapping.map.struct)
 }
 
+async function selectStructContainsArrayByName(db, name, packageId) {
+  return dbApi
+      .dbGet(
+          db,
+          'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT.NAME = ? AND PACKAGE_REF = ? ORDER BY NAME',
+          [name, packageId]
+      )
+      .then(dbMapping.map.struct)
+}
+
+async function selectStructContainsArrayByName(db, name, packageId) {
+  return dbApi
+      .dbAll(
+          db,
+          `
+SELECT
+  STRUCT_ITEM.IS_ARRAY
+FROM
+  STRUCT_ITEM
+INNER JOIN
+  STRUCT
+ON
+  STRUCT.STRUCT_ID = STRUCT_ITEM.STRUCT_REF
+WHERE STRUCT.NAME = ? AND STRUCT_ITEM.IS_ARRAY = 1 AND PACKAGE_REF = ?`,
+          [name, packageId]
+      )
+      .then(dbMapping.map.struct)
+}
+
 async function selectAllStructItemsById(db, id) {
   return dbApi
     .dbAll(
@@ -1362,6 +1391,9 @@ async function determineType(db, type, packageId) {
   let theBitmap = await selectBitmapByName(db, packageId, type)
   if (theBitmap != null) return dbEnum.zclType.bitmap
 
+  let thestruct = await selectStructContainsArrayByName(db, type, packageId)
+  if (thestruct != null) return dbEnum.zclType.struct
+
   return dbEnum.zclType.unknown
 }
 
@@ -1396,6 +1428,7 @@ exports.selectStructById = selectStructById
 exports.selectAllStructItemsById = selectAllStructItemsById
 exports.selectAllStructItemsByStructName = selectAllStructItemsByStructName
 exports.selectStructByName = selectStructByName
+exports.selectStructContainsArrayByName = selectStructContainsArrayByName
 
 exports.selectAllClusters = selectAllClusters
 exports.selectClusterById = selectClusterById

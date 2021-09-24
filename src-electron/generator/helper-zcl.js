@@ -1662,6 +1662,23 @@ function if_is_struct(type, options) {
 }
 
 /**
+ * If helper that checks if a struct with array inside
+ * @param {*} type
+ * @returns Promise of content.
+ */
+function if_is_struct_contains_array(type, options) {
+  let promise = templateUtil.ensureZclPackageId(this).then((packageId) =>
+      queryZcl.selectStructContainsArrayByName(this.global.db, type, packageId).then((st) => {
+        if (st) {
+          return options.fn(this)
+        }
+        return options.inverse(this)
+      })
+  )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Checks if the side is client or not
  *
  * @param {*} side
@@ -2644,5 +2661,6 @@ exports.as_underlying_zcl_type_ca_always_present_with_presentif = dep(
   'as_underlying_zcl_type_ca_always_present_with_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_always_present_with_presentif instead.'
 )
 exports.if_is_struct = if_is_struct
+exports.if_is_struct_contains_array = if_is_struct_contains_array
 exports.if_mfg_specific_cluster = if_mfg_specific_cluster
 exports.zcl_commands_with_cluster_info = zcl_commands_with_cluster_info
