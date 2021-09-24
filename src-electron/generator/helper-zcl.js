@@ -159,10 +159,28 @@ function zcl_enum_items(options) {
  * @param {*} options
  * @returns Promise of content.
  */
-function zcl_struct_items(options) {
-  let promise = queryZcl
-    .selectAllStructItemsById(this.global.db, this.id)
-    .then((st) => templateUtil.collectBlocks(st, options, this))
+async function zcl_struct_items(options) {
+  let checkForDoubleNestedArray =
+    options.hash.checkForDoubleNestedArray == 'true'
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let sis = await queryZcl.selectAllStructItemsById(this.global.db, this.id)
+  if (checkForDoubleNestedArray) {
+    for (const si of sis) {
+      si.struct_item_contains_nested_array = false
+      // For each item, let's check if it's a struct itself
+      let structItems = await queryZcl.selectAllStructItemsByStructName(
+        this.global.db,
+        si.type,
+        packageId
+      )
+      if (structItems.length > 0) {
+        for (const s of structItems) {
+          if (s.isArray) si.struct_item_contains_nested_array = true
+        }
+      }
+    }
+  }
+  let promise = templateUtil.collectBlocks(sis, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 
