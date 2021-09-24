@@ -126,4 +126,13 @@ limitations under the License.
      <item name="x" type="UINT8U"/>
      <item name="c" type="C"/>
    </struct>
+
+  <struct name="Nest">
+    <item name="simple1" type="UINT8U"/>
+    <item name="array" type="UINT8U" array="true"/>
+  </struct>
+  <struct name="DoubleNest">
+    <item name="simple1" type="UINT8U"/>
+    <item name="complex" type="Nest" array="true"/>
+  </struct>
 </configurator>
