@@ -133,6 +133,10 @@ test(
 
     epc = genResult.content['struct-and-enum-by-cluster.h']
     expect(epc).toContain('enum item: c')
+
+    epc = genResult.content['struct.h']
+    expect(epc).toContain('Nest complex;// <- has nested array')
+    expect(epc).toContain('// DoubleNest <- contains nested array')
   },
   testUtil.timeout.medium()
 )

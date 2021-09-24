@@ -3,14 +3,14 @@
 // Struct contains array: {{struct_contains_array}}
 // Struct contains array of structs containing an array: {{struct_contains_nested_array}}
 {{#if struct_contains_nested_array}}
-Because this structs contains a nested array of arrays, you can do special stuff here!
+// {{label}} <- contains nested array
 {{/if}}
-{{#zcl_struct_items}}
+{{#zcl_struct_items checkForDoubleNestedArray="true"}}
 {{#first}}
 // Struct for {{parent.label}}
 typedef struct _{{asType parent.label}} {
 {{/first}}
-{{ident}}{{asUnderlyingType type}} {{asSymbol label}};
+{{ident}}{{asUnderlyingType type}} {{asSymbol label}};{{#if struct_item_contains_nested_array}}// <- has nested array{{/if}}
 {{#last}}
 } {{asType parent.label}};
 
