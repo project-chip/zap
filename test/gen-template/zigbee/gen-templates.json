@@ -117,7 +117,9 @@
     }
   },
   "override": "addon-override.js",
-  "helpers": ["addon-helper.js"],
+  "helpers": [
+    "addon-helper.js"
+  ],
   "templates": [
     {
       "path": "simple-test.zapt",
@@ -219,6 +221,11 @@
       "path": "atomics.zapt",
       "name": "ZCL Atomics",
       "output": "atomics.out"
+    },
+    {
+      "path": "zap-command-structs.zapt",
+      "name": "Command structs",
+      "output": "zap-command-structs.h"
     },
     {
       "path": "sdk-extension.zapt",

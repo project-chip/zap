@@ -700,6 +700,127 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
+async function selectAllCommandsWithArguments(db, packageId) {
+  let mapFunction = (x) => {
+    return {
+      commandCode: x.CODE,
+      commandMfgCode: x.MANUFACTURER_CODE,
+      name: x.NAME,
+      commandName: x.NAME,
+      commandDescription: x.DESCRIPTION,
+      commandSource: x.SOURCE,
+      commandIsOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
+      clusterName: x.CLUSTER_NAME,
+      clusterCode: x.CLUSTER_CODE,
+      clusterMfgCode: x.CLUSTER_MANUFACTURER_CODE,
+      argName: x.ARG_NAME,
+      argType: x.ARG_TYPE,
+      argFieldId: x.FIELD_IDENTIFIER,
+      argIsArray: x.ARG_IS_ARRAY,
+      argPresentIf: x.ARG_PRESENT_IF,
+      argCountArg: x.ARG_COUNT_ARG,
+      argIntroducedIn: x.INTRODUCED_IN_REF,
+      argRemovedIn: x.REMOVED_IN_REF,
+    }
+  }
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT
+  CO.COMMAND_ID,
+  CO.CLUSTER_REF,
+  CO.CODE,
+  CO.MANUFACTURER_CODE,
+  CO.NAME,
+  CO.DESCRIPTION,
+  CO.SOURCE,
+  CO.IS_OPTIONAL,
+  CO.RESPONSE_REF,
+  CL.NAME AS CLUSTER_NAME,
+  CL.CODE AS CLUSTER_CODE,
+  CL.MANUFACTURER_CODE AS CLUSTER_MANUFACTURER_CODE,
+  CA.NAME AS ARG_NAME,
+  CA.TYPE AS ARG_TYPE,
+  CA.FIELD_IDENTIFIER,
+  CA.IS_ARRAY AS ARG_IS_ARRAY,
+  CA.PRESENT_IF AS ARG_PRESENT_IF,
+  CA.COUNT_ARG AS ARG_COUNT_ARG,
+  CA.INTRODUCED_IN_REF,
+  CA.REMOVED_IN_REF
+FROM
+  COMMAND AS CO
+INNER JOIN
+  CLUSTER AS CL
+ON
+  CL.CLUSTER_ID = CO.CLUSTER_REF
+LEFT JOIN
+  COMMAND_ARG AS CA
+ON
+  CA.COMMAND_REF = CO.COMMAND_ID
+WHERE
+  CO.PACKAGE_REF = ?
+ORDER BY
+  CL.CODE, CO.CODE, CA.FIELD_IDENTIFIER`,
+    [packageId]
+  )
+  rows = rows.map(mapFunction)
+  let reduction = rows.reduce((total, current) => {
+    let lastItem = null
+    if (total.length > 0) lastItem = total[total.length - 1]
+
+    let extractArg = (x) => {
+      const ret = {
+        name: x.argName,
+        label: x.argName,
+        type: x.argType,
+        fieldId: x.argFieldId,
+        isArray: x.argIsArray,
+        presentIf: x.argPresentIf,
+        countArg: x.argCountArg,
+        introducedIn: x.argIntroducedIn,
+        removedIn: x.argRemovedIn,
+      }
+      delete x.argName
+      delete x.argType
+      delete x.argFieldId
+      delete x.argIsArray
+      delete x.argPresentIf
+      delete x.argCountArg
+      delete x.argIntroducedIn
+      delete x.argRemovedIn
+      return ret
+    }
+    if (
+      lastItem == null ||
+      !(
+        lastItem.commandCode == current.commandCode &&
+        lastItem.commandMfgCode == current.commandMfgCode &&
+        lastItem.clusterCode == current.clusterCode &&
+        lastItem.clusterMfgCode == current.clusterMfgCode
+      )
+    ) {
+      // We have a new command
+      current.commandArgs = []
+      current.argCount = 0
+      if (current.argName != null) {
+        current.commandArgs.push(extractArg(current))
+        current.argCount++
+      }
+      total.push(current)
+    } else {
+      // We just aggregate args.
+      if (!('args' in lastItem)) lastItem.commandArgs = []
+      if (current.argName != null) {
+        lastItem.commandArgs.push(extractArg(current))
+        lastItem.argCount++
+      }
+    }
+
+    return total
+  }, [])
+  return reduction
+}
+
 /**
  *
  * @param db
@@ -1354,3 +1475,4 @@ exports.selectAllIncomingCommands = selectAllIncomingCommands
 exports.selectMfgClustersWithIncomingCommandsForClusterCode =
   selectMfgClustersWithIncomingCommandsForClusterCode
 exports.selectAllCommandsWithClusterInfo = selectAllCommandsWithClusterInfo
+exports.selectAllCommandsWithArguments = selectAllCommandsWithArguments

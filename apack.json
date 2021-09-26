@@ -2,26 +2,27 @@
   "id": "zclConfigurator",
   "label": "Zigbee Cluster Configurator",
   "description": "Graphical configuration tool for application and libraries based on Zigbee Cluster Library.",
-  "path": [".", "node_modules/.bin/", "ZAP.app/Contents/MacOS"],
+  "path": [
+    ".",
+    "node_modules/.bin/",
+    "ZAP.app/Contents/MacOS"
+  ],
   "requiredFeatureLevel": "apack.core:9",
-  "featureLevel": 55,
+  "featureLevel": 56,
   "uc.triggerExtension": "zap",
   "executable": {
     "zap:win32.x86_64": {
       "exe": "zap.exe",
       "optional": true
     },
-
     "zap:linux.x86_64": {
       "exe": "zap",
       "optional": true
     },
-
     "zap:macosx.x86_64": {
       "exe": "zap.app/Contents/MacOS/zap",
       "optional": true
     },
-
     "zap": {
       "engine": "node",
       "optional": true,

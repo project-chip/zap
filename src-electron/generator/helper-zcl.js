@@ -263,16 +263,29 @@ function zcl_commands(options) {
  * @param {*} options
  * @returns Promise of content.
  */
-function zcl_commands_with_cluster_info(options) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
-      return queryCommand.selectAllCommandsWithClusterInfo(
-        this.global.db,
-        packageId
-      )
-    })
-    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+async function zcl_commands_with_cluster_info(options) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let cmds = await queryCommand.selectAllCommandsWithClusterInfo(
+    this.global.db,
+    packageId
+  )
+  let promise = templateUtil.collectBlocks(cmds, options, this)
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Helper that retrieves all commands that contain arguments.
+ *
+ * @param {*} options
+ */
+async function zcl_commands_with_arguments(options) {
+  let sortBy = options.hash.sortBy
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let cmds = await queryCommand.selectAllCommandsWithArguments(
+    this.global.db,
+    packageId
+  )
+  let promise = templateUtil.collectBlocks(cmds, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -858,7 +871,7 @@ function command_arguments_total_length(commandId) {
  * @param {*} options
  * @returns Promise of command argument iteration.
  */
-function zcl_command_arguments(options) {
+async function zcl_command_arguments(options) {
   let commandArgs = this.commandArgs
   let p
 
@@ -2694,3 +2707,4 @@ exports.as_underlying_zcl_type_ca_always_present_with_presentif = dep(
 exports.if_is_struct = if_is_struct
 exports.if_mfg_specific_cluster = if_mfg_specific_cluster
 exports.zcl_commands_with_cluster_info = zcl_commands_with_cluster_info
+exports.zcl_commands_with_arguments = zcl_commands_with_arguments
