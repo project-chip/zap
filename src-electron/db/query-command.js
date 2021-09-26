@@ -760,7 +760,7 @@ ON
 WHERE
   CO.PACKAGE_REF = ?
 ORDER BY
-  CL.CODE, CO.CODE, CA.FIELD_IDENTIFIER`,
+  CL.CODE, CO.SOURCE, CO.CODE,  CA.FIELD_IDENTIFIER`,
     [packageId]
   )
   rows = rows.map(mapFunction)
@@ -795,6 +795,7 @@ ORDER BY
       !(
         lastItem.commandCode == current.commandCode &&
         lastItem.commandMfgCode == current.commandMfgCode &&
+        lastItem.commandSource == current.commandSource &&
         lastItem.clusterCode == current.clusterCode &&
         lastItem.clusterMfgCode == current.clusterMfgCode
       )
@@ -809,7 +810,6 @@ ORDER BY
       total.push(current)
     } else {
       // We just aggregate args.
-      if (!('commandArgs' in lastItem)) lastItem.commandArgs = []
       if (current.argName != null) {
         lastItem.commandArgs.push(extractArg(current))
         lastItem.argCount++
