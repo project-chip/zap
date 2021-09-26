@@ -809,7 +809,7 @@ ORDER BY
       total.push(current)
     } else {
       // We just aggregate args.
-      if (!('args' in lastItem)) lastItem.commandArgs = []
+      if (!('commandArgs' in lastItem)) lastItem.commandArgs = []
       if (current.argName != null) {
         lastItem.commandArgs.push(extractArg(current))
         lastItem.argCount++
