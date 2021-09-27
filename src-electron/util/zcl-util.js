@@ -21,6 +21,8 @@
  * @module REST API: various zcl utilities
  */
 const toposort = require('toposort')
+const queryZcl = require('../db/query-zcl')
+const dbEnum = require('../../src-shared/db-enum')
 
 /**
  * Comparator for sorting clusters.
@@ -116,7 +118,52 @@ async function sortStructsByDependency(structs) {
   return finalSort
 }
 
+/**
+ * Local function that checks if an enum by the name exists
+ *
+ * @param {*} db
+ * @param {*} enum_name
+ * @param {*} packageId
+ * @returns Promise of content.
+ */
+function isEnum(db, enum_name, packageId) {
+  return queryZcl
+    .selectEnumByName(db, enum_name, packageId)
+    .then((enums) => (enums ? dbEnum.zclType.enum : dbEnum.zclType.unknown))
+}
+
+/**
+ * Local function that checks if an enum by the name exists
+ *
+ * @param {*} db
+ * @param {*} struct_name
+ * @param {*} packageId
+ * @returns Promise of content.
+ */
+function isStruct(db, struct_name, packageId) {
+  return queryZcl
+    .selectStructByName(db, struct_name, packageId)
+    .then((st) => (st ? dbEnum.zclType.struct : dbEnum.zclType.unknown))
+}
+
+/**
+ * Local function that checks if a bitmap by the name exists
+ *
+ * @param {*} db
+ * @param {*} bitmap_name
+ * @param {*} packageId
+ * @returns Promise of content.
+ */
+function isBitmap(db, bitmap_name, packageId) {
+  return queryZcl
+    .selectBitmapByName(db, packageId, bitmap_name)
+    .then((st) => (st ? dbEnum.zclType.bitmap : dbEnum.zclType.unknown))
+}
+
 exports.clusterComparator = clusterComparator
 exports.attributeComparator = attributeComparator
 exports.commandComparator = commandComparator
 exports.sortStructsByDependency = sortStructsByDependency
+exports.isEnum = isEnum
+exports.isBitmap = isBitmap
+exports.isStruct = isStruct

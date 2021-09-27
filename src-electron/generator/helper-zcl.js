@@ -957,9 +957,9 @@ function zcl_command_argument_data_type(type, options) {
     .ensureZclPackageId(this)
     .then((packageId) =>
       Promise.all([
-        isEnum(this.global.db, type, packageId),
-        isStruct(this.global.db, type, packageId),
-        isBitmap(this.global.db, type, packageId),
+        zclUtil.isEnum(this.global.db, type, packageId),
+        zclUtil.isStruct(this.global.db, type, packageId),
+        zclUtil.isBitmap(this.global.db, type, packageId),
       ])
         .then(
           (res) =>
@@ -1126,8 +1126,8 @@ async function bitmap_to_cli_data_type(
  */
 async function zcl_command_argument_type_to_cli_data_type(type, options) {
   const packageId = await templateUtil.ensureZclPackageId(this)
-  const isEnumType = await isEnum(this.global.db, type, packageId)
-  const isBitmapType = await isBitmap(this.global.db, type, packageId)
+  const isEnumType = await zclUtil.isEnum(this.global.db, type, packageId)
+  const isBitmapType = await zclUtil.isBitmap(this.global.db, type, packageId)
   if ('isArray' in this && this.isArray) {
     return array_to_cli_data_type(this, packageId, type, options)
   } else if (isEnumType == dbEnum.zclType.enum) {
@@ -1512,9 +1512,9 @@ function asUnderlyingZclTypeWithPackageId(
         resolve(dbEnum.zclType.array)
       else resolve(dbEnum.zclType.unknown)
     }),
-    isEnum(currentInstance.global.db, type, packageId),
-    isStruct(currentInstance.global.db, type, packageId),
-    isBitmap(currentInstance.global.db, type, packageId),
+    zclUtil.isEnum(currentInstance.global.db, type, packageId),
+    zclUtil.isStruct(currentInstance.global.db, type, packageId),
+    zclUtil.isBitmap(currentInstance.global.db, type, packageId),
   ])
     .then(
       (res) =>
@@ -1571,16 +1571,17 @@ function asUnderlyingZclTypeWithPackageId(
  * For the above if asUnderlyingZclType was given [array type] then the above
  * will return 'b'
  */
-function asUnderlyingZclType(type, options) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
-    )
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
+async function asUnderlyingZclType(type, options) {
+  const packageId = await templateUtil.ensureZclPackageId(this)
+  let promise = asUnderlyingZclTypeWithPackageId(
+    type,
+    options,
+    packageId,
+    this
+  ).catch((err) => {
+    env.logError(err)
+    throw err
+  })
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -1622,48 +1623,6 @@ function zcl_string_type_return(type, options) {
  */
 function is_zcl_string(type) {
   return types.isString(type)
-}
-
-/**
- * Local function that checks if an enum by the name exists
- *
- * @param {*} db
- * @param {*} enum_name
- * @param {*} packageId
- * @returns Promise of content.
- */
-function isEnum(db, enum_name, packageId) {
-  return queryZcl
-    .selectEnumByName(db, enum_name, packageId)
-    .then((enums) => (enums ? dbEnum.zclType.enum : dbEnum.zclType.unknown))
-}
-
-/**
- * Local function that checks if an enum by the name exists
- *
- * @param {*} db
- * @param {*} struct_name
- * @param {*} packageId
- * @returns Promise of content.
- */
-function isStruct(db, struct_name, packageId) {
-  return queryZcl
-    .selectStructByName(db, struct_name, packageId)
-    .then((st) => (st ? dbEnum.zclType.struct : dbEnum.zclType.unknown))
-}
-
-/**
- * Local function that checks if a bitmap by the name exists
- *
- * @param {*} db
- * @param {*} bitmap_name
- * @param {*} packageId
- * @returns Promise of content.
- */
-function isBitmap(db, bitmap_name, packageId) {
-  return queryZcl
-    .selectBitmapByName(db, packageId, bitmap_name)
-    .then((st) => (st ? dbEnum.zclType.bitmap : dbEnum.zclType.unknown))
 }
 
 /**
@@ -2638,18 +2597,18 @@ exports.asUnderlyingZclType = dep(asUnderlyingZclType, {
   to: 'as_underlying_zcl_type',
 })
 
-exports.is_bitmap = isBitmap
-exports.isBitmap = dep(isBitmap, { to: 'is_bitmap' })
-
 exports.if_is_bitmap = if_is_bitmap
 
 exports.if_is_enum = if_is_enum
 
-exports.is_struct = isStruct
-exports.isStruct = dep(isStruct, { to: 'is_struct' })
+exports.is_bitmap = zclUtil.isBitmap
+exports.isBitmap = dep(zclUtil.isBitmap, { to: 'is_bitmap' })
 
-exports.is_enum = isEnum
-exports.isEnum = dep(isEnum, { to: 'is_enum' })
+exports.is_struct = zclUtil.isStruct
+exports.isStruct = dep(zclUtil.isStruct, { to: 'is_struct' })
+
+exports.is_enum = zclUtil.isEnum
+exports.isEnum = dep(zclUtil.isEnum, { to: 'is_enum' })
 
 exports.if_manufacturing_specific_cluster = dep(
   if_manufacturing_specific_cluster,

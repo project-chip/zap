@@ -1,4 +1,4 @@
-{{~#zcl_commands_with_arguments~}}
+{{~#zcl_commands_with_arguments sortBy="signature"~}}
   {{#if argCount }}
 // Command Struct for {{clusterName}} cluster and {{commandName}} command
 // SIGNATURE: {{signature}}

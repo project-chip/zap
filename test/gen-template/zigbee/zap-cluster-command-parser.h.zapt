@@ -26,12 +26,12 @@
 #include "af.h"
 #include "zap-command-structs.h"{{~new_line 1~}}
 
-{{~#zcl_commands_with_cluster_info~}}
-    {{~#if_command_args_exist id~}}
-        {{~indent 0~}}// Command parser for {{clusterName}} cluster and {{name}} command{{~new_line 1~}}
-        {{~indent 0~}}EmberAfStatus zcl_decode_{{as_underscore_lowercase clusterName}}_cluster_{{as_underscore_lowercase name}}_command (EmberAfClusterCommand * cmd, sl_zcl_{{as_underscore_lowercase clusterName}}_cluster_{{as_underscore_lowercase name}}_command_t *cmd_struct);{{~new_line 1~}}
-    {{~/if_command_args_exist~}}
-{{~/zcl_commands_with_cluster_info~}}
+{{#zcl_commands_with_arguments}}
+    {{#if argCount}}
+// Command parser for {{clusterName}} cluster and {{name}} command
+EmberAfStatus zcl_decode_{{as_underscore_lowercase clusterName}}_cluster_{{as_underscore_lowercase name}}_command (EmberAfClusterCommand * cmd, sl_zcl_{{as_underscore_lowercase clusterName}}_cluster_{{as_underscore_lowercase name}}_command_t *cmd_struct);
+    {{/if}}
+{{/zcl_commands_with_arguments}}
 
 #endif //End of SL_CATALOG_ZIGBEE_ZCL_FRAMEWORK_CORE_PRESENT
 
