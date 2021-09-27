@@ -228,6 +228,16 @@
       "output": "zap-command-structs.h"
     },
     {
+      "path": "zap-cluster-command-parser.c.zapt",
+      "name": "Command struct parser functions",
+      "output": "zap-cluster-command-parser.c"
+    },
+    {
+      "path": "zap-cluster-command-parser.h.zapt",
+      "name": "Command struct parser prototypes",
+      "output": "zap-cluster-command-parser.h"
+    },
+    {
       "path": "sdk-extension.zapt",
       "name": "SDK Extension",
       "output": "sdk-extension.out"

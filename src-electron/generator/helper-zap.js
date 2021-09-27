@@ -374,26 +374,32 @@ function replace_string(mainString, replaceString, replaceWithString) {
 }
 
 /**
- * 
- * @param str 
- * @param prefixStr 
+ *
+ * @param str
+ * @param prefixStr
  * @returns A resultant string with all string values prefixed with prefixStr
  */
-async function add_prefix_to_all_strings(str, prefixStr) {
+function add_prefix_to_all_strings(str, prefixStr) {
   // Remove hex values from the string
   let hexValueMatch = str.match(/[0x|x][0-9|A-F]+/g)
   let hexValues = hexValueMatch ? hexValueMatch.map(String) : []
   let strWithoutHexValues = str
   for (let h of hexValues) {
-    strWithoutHexValues = await strWithoutHexValues.replaceAll(h, '')
+    let re = new RegExp(h, 'g')
+    strWithoutHexValues = strWithoutHexValues.replace(re, '')
   }
   //Getting unique strings
-  let strs = strWithoutHexValues.match(/[A-Za-z]+/g).map(String).filter((v, i, a) => a.indexOf(v) === i);
+  let strs = strWithoutHexValues
+    .match(/[A-Za-z]+/g)
+    .map(String)
+    .filter((v, i, a) => a.indexOf(v) === i)
   let res = str
+
   for (let s of strs) {
     // Creating an exception for  hex values and not applying this there
     if (!(s.startsWith('x') || s.startsWith('0x'))) {
-      res = await res.replaceAll(s, prefixStr + s)
+      let re = new RegExp(s, 'g')
+      res = res.replace(re, prefixStr + s)
     }
   }
   return res

@@ -285,6 +285,25 @@ async function zcl_commands_with_arguments(options) {
     this.global.db,
     packageId
   )
+  if ('signature' == sortBy) {
+    for (const cmd of cmds) {
+      let sig = ''
+      for (const arg of cmd.commandArgs) {
+        let t = await queryZcl.determineType(
+          this.global.db,
+          arg.type,
+          packageId
+        )
+        sig += `${t} ${arg.type}`
+        if (arg.isArray) {
+          sig += '[]'
+        }
+        sig += '|'
+      }
+      cmd.signature = sig
+    }
+    cmds.sort((a, b) => a.signature.localeCompare(b.signature))
+  }
   let promise = templateUtil.collectBlocks(cmds, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
