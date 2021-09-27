@@ -592,6 +592,26 @@ async function determineType(db, type, packageId) {
   }
 }
 
+async function createCommandSignature(db, packageId, cmd) {
+  let sig = ''
+  for (const arg of cmd.commandArgs) {
+    let t = await determineType(db, arg.type, packageId)
+    sig += `${t.atomicType == null ? 'NULL' : t.atomicType.toLowerCase()}`
+    if (arg.isArray) {
+      sig += '[]'
+    }
+    if (
+      arg.removedIn != null ||
+      arg.introducedIn != null ||
+      arg.presentIf != null
+    ) {
+      sig += '?'
+    }
+    sig += '|'
+  }
+  return sig
+}
+
 exports.clusterComparator = clusterComparator
 exports.attributeComparator = attributeComparator
 exports.commandComparator = commandComparator
@@ -603,3 +623,4 @@ exports.asUnderlyingZclTypeWithPackageId = asUnderlyingZclTypeWithPackageId
 exports.determineType = determineType
 exports.dataTypeCharacterFormatter = dataTypeCharacterFormatter
 exports.calculateBytes = calculateBytes
+exports.createCommandSignature = createCommandSignature

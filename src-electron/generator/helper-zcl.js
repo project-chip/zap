@@ -287,23 +287,11 @@ async function zcl_commands_with_arguments(options) {
   )
   if ('signature' == sortBy) {
     for (const cmd of cmds) {
-      let sig = ''
-      for (const arg of cmd.commandArgs) {
-        let t = await zclUtil.determineType(this.global.db, arg.type, packageId)
-        sig += `${t.atomicType == null ? 'NULL' : t.atomicType.toLowerCase()}`
-        if (arg.isArray) {
-          sig += '[]'
-        }
-        if (
-          arg.removedIn != null ||
-          arg.introducedIn != null ||
-          arg.presentIf != null
-        ) {
-          sig += '?'
-        }
-        sig += '|'
-      }
-      cmd.signature = sig
+      cmd.signature = await zclUtil.createCommandSignature(
+        this.global.db,
+        packageId,
+        cmd
+      )
     }
     cmds.sort((a, b) => a.signature.localeCompare(b.signature))
   }
@@ -679,8 +667,7 @@ async function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
   let packageId = await templateUtil.ensureZclPackageId(currentContext)
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     currentContext.global.db,
-    commandId,
-    packageId
+    commandId
   )
 
   let isFixedLength = true
@@ -744,11 +731,7 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
   return templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
-      queryCommand.selectCommandArgumentsByCommandId(
-        this.global.db,
-        command,
-        packageId
-      )
+      queryCommand.selectCommandArgumentsByCommandId(this.global.db, command)
     )
     .then(
       (commandArgs) =>
@@ -859,8 +842,7 @@ function command_arguments_total_length(commandId) {
     .then((packageId) => {
       let res = queryCommand.selectCommandArgumentsByCommandId(
         this.global.db,
-        commandId,
-        packageId
+        commandId
       )
       return res
     })

@@ -70,25 +70,24 @@ function if_command_arguments_exist(
  * {{else}}
  *  command arguments do not exist for the command
  * {{/if_command_args_exist}}
- * 
+ *
  * @param commandId
  * @param options
  * @returns Returns content in the handlebar template based on whether the
  * command arguments are present or not.
  *
  */
- async function if_command_args_exist(
-  commandId,
-  options
-) {
+async function if_command_args_exist(commandId, options) {
   let packageId = await templateUtil.ensureZclPackageId(this)
   let res = await queryCommand.selectCommandArgumentsCountByCommandId(
     this.global.db,
     commandId,
-    packageId)
-  if (res>0) {
+    packageId
+  )
+  if (res > 0) {
     return options.fn(this)
-  } return options.inverse(this)
+  }
+  return options.inverse(this)
 }
 
 /**
@@ -123,16 +122,13 @@ function if_ca_always_present_with_presentif(
  * {{else}}
  *  command argument does not have a presentIf condition
  * {{/if_command_arg_always_present_with_presentif}}
- * 
+ *
  * @param commandArg
  * @param options
  * @returns Returns content in the handlebar template based on the command
  * argument having a presentIf condition or not
  */
-function if_command_arg_always_present_with_presentif(
-  commandArg,
-  options
-) {
+function if_command_arg_always_present_with_presentif(commandArg, options) {
   if (
     !(commandArg.introducedInRef || commandArg.removedInRef) &&
     commandArg.presentIf
@@ -153,17 +149,14 @@ function if_command_arg_always_present_with_presentif(
  * always present else returns falseReturn
  */
 async function if_command_is_not_fixed_length_but_command_argument_is_always_present(
-  command,
+  commandId,
   commandArg,
   trueReturn,
   falseReturn
 ) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
-
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     this.global.db,
-    command,
-    packageId
+    commandId
   )
   let isFixedLengthCommand = true
   for (let ca of commandArgs) {
@@ -203,23 +196,21 @@ async function if_command_is_not_fixed_length_but_command_argument_is_always_pre
  * {{else}}
  *  either command is fixed length or command argument is not always present
  * {{/if_command_not_fixed_length_command_argument_always_present}}
- * 
+ *
  * @param command
  * @param commandArg
  * @param options
  * @returns Returns content in the handlebar template based on the command being
  * fixed length or not and whether the command argument is always present
  */
- async function if_command_not_fixed_length_command_argument_always_present(
+async function if_command_not_fixed_length_command_argument_always_present(
   command,
   commandArg,
   options
 ) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     this.global.db,
-    command,
-    packageId
+    command
   )
   let isFixedLengthCommand = true
   for (let ca of commandArgs) {
@@ -282,16 +273,13 @@ function if_ca_not_always_present_no_presentif(
  * {{else}}
  *  Either command argument is always present or there is a presentIf condition
  * {{/if_command_arg_not_always_present_no_presentif}}
- * 
+ *
  * @param commandArg
  * @param options
  * @returns Returns content in the handlebar template based on the command
  * argument being present and if there is a presentIf condition.
  */
- function if_command_arg_not_always_present_no_presentif(
-  commandArg,
-  options
-) {
+function if_command_arg_not_always_present_no_presentif(commandArg, options) {
   if (
     (commandArg.introducedInRef || commandArg.removedInRef) &&
     !commandArg.presentIf
@@ -334,16 +322,13 @@ function if_ca_not_always_present_with_presentif(
  * {{else}}
  *  Either command argument is always present or there is no presentIf condition
  * {{/if_command_arg_not_always_present_with_presentif}}
- * 
+ *
  * @param commandArg
  * @param options
  * @returns Returns content in the handlebar template based on the command
  * argument being present and if there is a presentIf condition.
  */
- function if_command_arg_not_always_present_with_presentif(
-  commandArg,
-  options
-) {
+function if_command_arg_not_always_present_with_presentif(commandArg, options) {
   if (
     (commandArg.introducedInRef || commandArg.removedInRef) &&
     commandArg.presentIf
@@ -363,75 +348,56 @@ function if_ca_not_always_present_with_presentif(
  * command is fixed length or not. Also checks if the command arguments are
  * always present or not.
  */
-function if_command_is_fixed_length(
+async function if_command_is_fixed_length(
   commandId,
   fixedLengthReturn,
   notFixedLengthReturn
 ) {
-  return templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryCommand.selectCommandArgumentsByCommandId(
-        this.global.db,
-        commandId,
-        packageId
-      )
-    )
-    .then(
-      (commandArgs) =>
-        new Promise((resolve, reject) => {
-          for (let commandArg of commandArgs) {
-            if (
-              commandArg.isArray ||
-              types.isString(commandArg.type) ||
-              commandArg.introducedInRef ||
-              commandArg.removedInRef ||
-              commandArg.presentIf
-            ) {
-              resolve(false)
-            }
-          }
-          resolve(true)
-        })
-    )
-    .then((fixedLength) => {
-      if (fixedLength) {
-        return fixedLengthReturn
-      } else {
-        return notFixedLengthReturn
-      }
-    })
-    .catch((err) => {
-      env.logError(
-        'Unable to determine if command is fixed length or not: ' + err
-      )
-    })
+  let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
+    this.global.db,
+    commandId
+  )
+
+  let fixedLength = true
+  for (let commandArg of commandArgs) {
+    if (
+      commandArg.isArray ||
+      types.isString(commandArg.type) ||
+      commandArg.introducedInRef ||
+      commandArg.removedInRef ||
+      commandArg.presentIf
+    ) {
+      fixedLength = false
+      break
+    }
+  }
+
+  if (fixedLength) {
+    return fixedLengthReturn
+  } else {
+    return notFixedLengthReturn
+  }
 }
 
 /**
  * If helper which checks if a command is fixed length or not
- * 
+ *
  * example:
  * {{#if_command_fixed_length commandId}}
  * command is fixed length
  * {{else}}
  * command is not fixed length
  * {{/if_command_fixed_length}}
- * 
+ *
  * @param commandId
  * @param options
  * Returns content in the handlebar template based on the command being fixed
  * length or not as shown in the example above.
  */
- async function if_command_fixed_length(
-  commandId,
-  options
-) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
+async function if_command_fixed_length(commandId, options) {
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     this.global.db,
-    commandId,
-    packageId
+    commandId
   )
   for (let commandArg of commandArgs) {
     if (
@@ -454,35 +420,35 @@ function if_command_is_fixed_length(
 // If you rename the functions, you need to still maintain old exports list.
 const dep = templateUtil.deprecatedHelper
 
-exports.if_command_is_fixed_length = dep(
-  if_command_is_fixed_length,
-  { to: 'if_command_fixed_length'}
-)
-exports.if_command_arguments_exist = dep (if_command_arguments_exist,
-  {to: 'if_command_args_exist'})
-exports.if_ca_always_present_with_presentif =
-dep(
+exports.if_command_is_fixed_length = dep(if_command_is_fixed_length, {
+  to: 'if_command_fixed_length',
+})
+exports.if_command_arguments_exist = dep(if_command_arguments_exist, {
+  to: 'if_command_args_exist',
+})
+exports.if_ca_always_present_with_presentif = dep(
   if_ca_always_present_with_presentif,
   { to: 'if_command_arg_always_present_with_presentif' }
 )
 exports.if_command_is_not_fixed_length_but_command_argument_is_always_present =
-dep(
-  if_command_is_not_fixed_length_but_command_argument_is_always_present,
-  { to: 'if_command_not_fixed_length_command_argument_always_present' }
-)
-exports.if_ca_not_always_present_no_presentif =
-dep(
+  dep(if_command_is_not_fixed_length_but_command_argument_is_always_present, {
+    to: 'if_command_not_fixed_length_command_argument_always_present',
+  })
+exports.if_ca_not_always_present_no_presentif = dep(
   if_ca_not_always_present_no_presentif,
   { to: 'if_command_arg_not_always_present_no_presentif' }
 )
-exports.if_ca_not_always_present_with_presentif =
-dep(
+exports.if_ca_not_always_present_with_presentif = dep(
   if_ca_not_always_present_with_presentif,
   { to: 'if_command_arg_not_always_present_with_presentif' }
 )
 exports.if_command_fixed_length = if_command_fixed_length
-exports.if_command_not_fixed_length_command_argument_always_present = if_command_not_fixed_length_command_argument_always_present
-exports.if_command_arg_not_always_present_no_presentif = if_command_arg_not_always_present_no_presentif
-exports.if_command_arg_not_always_present_with_presentif = if_command_arg_not_always_present_with_presentif
-exports.if_command_arg_always_present_with_presentif = if_command_arg_always_present_with_presentif
+exports.if_command_not_fixed_length_command_argument_always_present =
+  if_command_not_fixed_length_command_argument_always_present
+exports.if_command_arg_not_always_present_no_presentif =
+  if_command_arg_not_always_present_no_presentif
+exports.if_command_arg_not_always_present_with_presentif =
+  if_command_arg_not_always_present_with_presentif
+exports.if_command_arg_always_present_with_presentif =
+  if_command_arg_always_present_with_presentif
 exports.if_command_args_exist = if_command_args_exist
