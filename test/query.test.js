@@ -19,26 +19,28 @@
  */
 const fs = require('fs')
 
-const dbApi = require('../src-electron/db/db-api.js')
-const queryZcl = require('../src-electron/db/query-zcl.js')
-const queryCommand = require('../src-electron/db/query-command.js')
-const queryLoader = require('../src-electron/db/query-loader.js')
-const queryConfig = require('../src-electron/db/query-config.js')
-const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
-const queryEndpoint = require('../src-electron/db/query-endpoint.js')
-const queryPackage = require('../src-electron/db/query-package.js')
-const querySession = require('../src-electron/db/query-session.js')
-const querySessionZcl = require('../src-electron/db/query-session-zcl.js')
+const dbApi = require('../src-electron/db/db-api')
+const queryZcl = require('../src-electron/db/query-zcl')
+const queryCommand = require('../src-electron/db/query-command')
+const queryLoader = require('../src-electron/db/query-loader')
+const queryConfig = require('../src-electron/db/query-config')
+const queryEndpointType = require('../src-electron/db/query-endpoint-type')
+const queryEndpoint = require('../src-electron/db/query-endpoint')
+const queryPackage = require('../src-electron/db/query-package')
+const querySession = require('../src-electron/db/query-session')
+const querySessionZcl = require('../src-electron/db/query-session-zcl')
 
-const env = require('../src-electron/util/env.ts')
-const util = require('../src-electron/util/util.js')
-const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const exportJs = require('../src-electron/importexport/export.js')
-const dbEnum = require('../src-shared/db-enum.js')
-const generationEngine = require('../src-electron/generator/generation-engine.js')
-const testUtil = require('./test-util.js')
-const testQuery = require('./test-query.js')
-const restApi = require('../src-shared/rest-api.js')
+const env = require('../src-electron/util/env')
+const util = require('../src-electron/util/util')
+const zclUtil = require('../src-electron/util/zcl-util')
+
+const zclLoader = require('../src-electron/zcl/zcl-loader')
+const exportJs = require('../src-electron/importexport/export')
+const dbEnum = require('../src-shared/db-enum')
+const generationEngine = require('../src-electron/generator/generation-engine')
+const testUtil = require('./test-util')
+const testQuery = require('./test-query')
+const restApi = require('../src-shared/rest-api')
 
 /*
  * Created Date: Friday, March 13th 2020, 7:44:12 pm
@@ -676,16 +678,16 @@ test(
 test(
   'Test determineType',
   () => {
-    return queryZcl
+    return zclUtil
       .determineType(db, 'patate', pkgId)
       .then((type) => expect(type).toEqual(dbEnum.zclType.unknown))
-      .then(() => queryZcl.determineType(db, 'Status', pkgId))
+      .then(() => zclUtil.determineType(db, 'Status', pkgId))
       .then((type) => expect(type).toEqual(dbEnum.zclType.enum))
-      .then(() => queryZcl.determineType(db, 'Protocol', pkgId))
+      .then(() => zclUtil.determineType(db, 'Protocol', pkgId))
       .then((type) => expect(type).toEqual(dbEnum.zclType.struct))
-      .then(() => queryZcl.determineType(db, 'CO2TrailingDigit', pkgId))
+      .then(() => zclUtil.determineType(db, 'CO2TrailingDigit', pkgId))
       .then((type) => expect(type).toEqual(dbEnum.zclType.bitmap))
-      .then(() => queryZcl.determineType(db, 'int8u', pkgId))
+      .then(() => zclUtil.determineType(db, 'int8u', pkgId))
       .then((type) => expect(type).toEqual(dbEnum.zclType.atomic))
   },
   testUtil.timeout.medium()

@@ -1294,9 +1294,9 @@ async function selectAtomicType(db, packageId, typeName) {
  */
 async function selectAtomicByName(db, name, packageId) {
   return dbApi
-    .dbGet(db, `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? AND NAME = ?`, [
+    .dbGet(db, `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? AND UPPER(NAME) = ?`, [
       packageId,
-      name,
+      name.toUpperCase(),
     ])
     .then(dbMapping.map.atomic)
 }
@@ -1345,30 +1345,6 @@ async function selectAtomicSizeFromType(db, packageId, type) {
   } else {
     return row.ATOMIC_SIZE
   }
-}
-
-/**
- * Returns a promise that resolves into one of the zclType enum
- * values.
- *
- * @param {*} db
- * @param {*} packageId
- * @param {*} type
- */
-async function determineType(db, type, packageId) {
-  let atomic = await selectAtomicByName(db, type, packageId)
-  if (atomic != null) return dbEnum.zclType.atomic
-
-  let theEnum = await selectEnumByName(db, type, packageId)
-  if (theEnum != null) return dbEnum.zclType.enum
-
-  let struct = await selectStructByName(db, type, packageId)
-  if (struct != null) return dbEnum.zclType.struct
-
-  let theBitmap = await selectBitmapByName(db, packageId, type)
-  if (theBitmap != null) return dbEnum.zclType.bitmap
-
-  return dbEnum.zclType.unknown
 }
 
 // exports
@@ -1443,5 +1419,3 @@ exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 
 exports.selectEnumClusters = selectEnumClusters
 exports.selectStructClusters = selectStructClusters
-
-exports.determineType = determineType

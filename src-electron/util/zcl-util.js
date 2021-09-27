@@ -23,6 +23,8 @@
 const toposort = require('toposort')
 const queryZcl = require('../db/query-zcl')
 const dbEnum = require('../../src-shared/db-enum')
+const env = require('./env')
+const types = require('./types')
 
 /**
  * Comparator for sorting clusters.
@@ -119,6 +121,225 @@ async function sortStructsByDependency(structs) {
 }
 
 /**
+ * This function calculates the number of bytes in the data type and based on
+ * that returns the option specified in the template.
+ * for eg: Given that options are as follows:
+ * options.hash.array="b"
+ * options.hash.one_byte="u"
+ * options.hash.two_byte="v"
+ * options.hash.three_byte="x"
+ * options.hash.four_byte="w"
+ * options.hash.short_string="s"
+ * options.hash.long_string="l"
+ * options.hash.default="b"
+ *
+ * calculateBytes("char_string", options)
+ * will return 's'
+ *
+ * @param {*} res
+ * @param {*} options
+ */
+function calculateBytes(res, options, db, packageId, isStructType) {
+  if (!isStructType) {
+    return calculateBytesForTypes(res, options, db, packageId)
+  } else {
+    return calculateBytesForStructs(res, options, db, packageId)
+  }
+}
+
+/**
+ *
+ * @param options
+ * @param optionsKey
+ * @param defaultValue
+ * Given the values determine to give the user defined value or the calculated value
+ */
+function optionsHashOrDefault(options, optionsKey, defaultValue) {
+  if (optionsKey in options.hash) {
+    return options.hash[optionsKey]
+  } else {
+    return defaultValue
+  }
+}
+
+function calculateBytesForTypes(res, options, db, packageId) {
+  return types
+    .typeSize(db, packageId, res.toLowerCase())
+    .then((x) => {
+      return new Promise((resolve, reject) => {
+        let result = 0
+        switch (x) {
+          case 1:
+            result = optionsHashOrDefault(options, 'one_byte', x)
+            break
+          case 2:
+            result = optionsHashOrDefault(options, 'two_byte', x)
+            break
+          case 3:
+            result = optionsHashOrDefault(options, 'three_byte', x)
+            break
+          case 4:
+            result = optionsHashOrDefault(options, 'four_byte', x)
+            break
+          case 5:
+            result = optionsHashOrDefault(options, 'five_byte', x)
+            break
+          case 6:
+            result = optionsHashOrDefault(options, 'six_byte', x)
+            break
+          case 7:
+            result = optionsHashOrDefault(options, 'seven_byte', x)
+            break
+          case 8:
+            result = optionsHashOrDefault(options, 'eight_byte', x)
+            break
+          case 9:
+            result = optionsHashOrDefault(options, 'nine_byte', x)
+            break
+          case 10:
+            result = optionsHashOrDefault(options, 'ten_byte', x)
+            break
+          case 11:
+            result = optionsHashOrDefault(options, 'eleven_byte', x)
+            break
+          case 12:
+            result = optionsHashOrDefault(options, 'twelve_byte', x)
+            break
+          case 13:
+            result = optionsHashOrDefault(options, 'thirteen_byte', x)
+            break
+          case 14:
+            result = optionsHashOrDefault(options, 'fourteen_byte', x)
+            break
+          case 15:
+            result = optionsHashOrDefault(options, 'fifteen_byte', x)
+            break
+          case 16:
+            result = optionsHashOrDefault(options, 'sixteen_byte', x)
+            break
+          default:
+            if (
+              res != null &&
+              res.includes('long') &&
+              res.includes(dbEnum.zclType.string)
+            ) {
+              result = optionsHashOrDefault(options, 'long_string', 'l')
+            } else if (
+              res != null &&
+              !res.includes('long') &&
+              res.includes(dbEnum.zclType.string)
+            ) {
+              result = optionsHashOrDefault(options, 'short_string', 's')
+            } else if ('default' in options.hash) {
+              result = options.hash.default
+            }
+            break
+        }
+        resolve(result)
+      })
+    })
+    .catch((err) => {
+      env.logError(
+        'Could not find size of the given type in' +
+          ' calculateBytesForTypes: ' +
+          err
+      )
+    })
+}
+
+async function calculateBytesForStructs(res, options, db, packageId) {
+  if ('struct' in options.hash) {
+    return options.hash.struct
+  } else {
+    return queryZcl
+      .selectAllStructItemsByStructName(db, res, packageId)
+      .then((items) => {
+        let promises = []
+        items.forEach((item) =>
+          promises.push(
+            dataTypeCharacterFormatter(db, packageId, item, options, type)
+          )
+        )
+        return Promise.all(promises)
+      })
+      .then((resolvedPromises) =>
+        resolvedPromises.reduce((acc, cur) => acc + cur, 0)
+      )
+      .catch((err) => {
+        env.logError(
+          'Could not find size of struct in' +
+            ' calculate_size_for_structs: ' +
+            err
+        )
+        return 0
+      })
+  }
+}
+
+/**
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} type
+ * @param {*} options
+ * @param {*} resType
+ * Character associated to a zcl/c data type.
+ */
+async function dataTypeCharacterFormatter(
+  db,
+  packageId,
+  type,
+  options,
+  resType
+) {
+  switch (resType) {
+    case dbEnum.zclType.array:
+      if (dbEnum.zclType.array in options.hash) {
+        return options.hash.array
+      } else {
+        return 'b'
+      }
+    case dbEnum.zclType.bitmap:
+      return queryZcl
+        .selectBitmapByName(db, packageId, type)
+        .then((bitmap) => queryZcl.selectAtomicType(db, packageId, bitmap.type))
+        .then((res) => calculateBytes(res.name, options, db, packageId, false))
+    case dbEnum.zclType.enum:
+      return queryZcl
+        .selectEnumByName(db, type, packageId)
+        .then((enumRec) =>
+          queryZcl.selectAtomicType(db, packageId, enumRec.type)
+        )
+        .then((res) => calculateBytes(res.name, options, db, packageId, false))
+    case dbEnum.zclType.struct:
+      if (dbEnum.zclType.struct in options.hash) {
+        return options.hash.struct
+      } else {
+        return calculateBytes(type, options, db, packageId, true)
+      }
+    case dbEnum.zclType.atomic:
+    case dbEnum.zclType.unknown:
+    default:
+      return queryZcl
+        .selectAtomicType(db, packageId, type)
+        .then((atomic) => {
+          if (
+            atomic &&
+            (atomic.name == 'char_string' ||
+              atomic.name == 'octet_string' ||
+              atomic.name == 'long_octet_string' ||
+              atomic.name == 'long_char_string')
+          ) {
+            return atomic.name
+          } else {
+            return type
+          }
+        })
+        .then((res) => calculateBytes(res, options, db, packageId, false))
+  }
+}
+
+/**
  * Local function that checks if an enum by the name exists
  *
  * @param {*} db
@@ -160,6 +381,196 @@ function isBitmap(db, bitmap_name, packageId) {
     .then((st) => (st ? dbEnum.zclType.bitmap : dbEnum.zclType.unknown))
 }
 
+/**
+ *
+ * @param {*} fromType
+ * @param {*} toType
+ * @param {*} noWarning
+ *
+ * Type warning message. If noWarning is set to true then the warning message
+ * will not be shown.
+ */
+function defaultMessageForTypeConversion(fromType, toType, noWarning) {
+  if (!noWarning) {
+    return `/* TYPE WARNING: ${fromType} defaults to */ ` + toType
+  } else {
+    return toType
+  }
+}
+
+/**
+ *
+ *
+ * @param {*} type
+ * @param {*} options
+ * @param {*} packageId
+ * @param {*} db
+ * @param {*} resolvedType
+ * @param {*} overridable
+ * @returns the data type associated with the resolvedType
+ */
+function dataTypeHelper(
+  type,
+  options,
+  packageId,
+  db,
+  resolvedType,
+  overridable
+) {
+  switch (resolvedType) {
+    case dbEnum.zclType.array:
+      if ('array' in options.hash) {
+        return defaultMessageForTypeConversion(
+          `${type} array`,
+          options.hash.array,
+          options.hash.no_warning
+        )
+      } else {
+        return queryZcl
+          .selectAtomicType(db, packageId, dbEnum.zclType.array)
+          .then((atomic) => overridable.atomicType(atomic))
+      }
+    case dbEnum.zclType.bitmap:
+      if ('bitmap' in options.hash) {
+        return defaultMessageForTypeConversion(
+          `${type}`,
+          options.hash.bitmap,
+          options.hash.no_warning
+        )
+      } else {
+        return queryZcl
+          .selectBitmapByName(db, packageId, type)
+          .then((bitmap) =>
+            queryZcl.selectAtomicType(db, packageId, bitmap.type)
+          )
+          .then((res) => overridable.atomicType(res))
+      }
+    case dbEnum.zclType.enum:
+      if ('enum' in options.hash) {
+        return defaultMessageForTypeConversion(
+          `${type}`,
+          options.hash.enum,
+          options.hash.no_warning
+        )
+      } else {
+        return queryZcl
+          .selectEnumByName(db, type, packageId)
+          .then((enumRec) =>
+            queryZcl.selectAtomicType(db, packageId, enumRec.type)
+          )
+          .then((res) => overridable.atomicType(res))
+      }
+    case dbEnum.zclType.struct:
+      if ('struct' in options.hash) {
+        return defaultMessageForTypeConversion(
+          `${type}`,
+          options.hash.struct,
+          options.hash.no_warning
+        )
+      } else {
+        return type
+      }
+    case dbEnum.zclType.atomic:
+    case dbEnum.zclType.unknown:
+    default:
+      return queryZcl
+        .selectAtomicType(db, packageId, type)
+        .then((atomic) => overridable.atomicType(atomic))
+  }
+}
+
+/**
+ *
+ * @param type
+ * @param options
+ * @param packageId
+ * @param currentInstance
+ *
+ * Note: If the options has zclCharFormatter set to true then the function will
+ * return the user defined data associated with the zcl data type and not the
+ * actual data type. It can also be used to calculate the size of the data types
+ *
+ * This is a utility function which is called from other helper functions using ut current
+ * instance. See comments in asUnderlyingZclType for usage instructions.
+ */
+function asUnderlyingZclTypeWithPackageId(
+  type,
+  options,
+  packageId,
+  currentInstance
+) {
+  return Promise.all([
+    new Promise((resolve, reject) => {
+      if ('isArray' in currentInstance && currentInstance.isArray)
+        resolve(dbEnum.zclType.array)
+      else resolve(dbEnum.zclType.unknown)
+    }),
+    isEnum(currentInstance.global.db, type, packageId),
+    isStruct(currentInstance.global.db, type, packageId),
+    isBitmap(currentInstance.global.db, type, packageId),
+  ])
+    .then(
+      (res) =>
+        new Promise((resolve, reject) => {
+          for (let i = 0; i < res.length; i++) {
+            if (res[i] != 'unknown') {
+              resolve(res[i])
+              return
+            }
+          }
+          resolve(dbEnum.zclType.unknown)
+        })
+    )
+    .then((resType) => {
+      if (dbEnum.zclType.zclCharFormatter in options.hash) {
+        return dataTypeCharacterFormatter(
+          currentInstance.global.db,
+          packageId,
+          type,
+          options,
+          resType
+        )
+      } else {
+        return dataTypeHelper(
+          type,
+          options,
+          packageId,
+          currentInstance.global.db,
+          resType,
+          currentInstance.global.overridable
+        )
+      }
+    })
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+}
+
+/**
+ * Returns a promise that resolves into one of the zclType enum
+ * values.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} type
+ */
+async function determineType(db, type, packageId) {
+  let atomic = await queryZcl.selectAtomicByName(db, type, packageId)
+  if (atomic != null) return dbEnum.zclType.atomic
+
+  let theEnum = await queryZcl.selectEnumByName(db, type, packageId)
+  if (theEnum != null) return dbEnum.zclType.enum
+
+  let struct = await queryZcl.selectStructByName(db, type, packageId)
+  if (struct != null) return dbEnum.zclType.struct
+
+  let theBitmap = await queryZcl.selectBitmapByName(db, packageId, type)
+  if (theBitmap != null) return dbEnum.zclType.bitmap
+
+  return dbEnum.zclType.unknown
+}
+
 exports.clusterComparator = clusterComparator
 exports.attributeComparator = attributeComparator
 exports.commandComparator = commandComparator
@@ -167,3 +578,7 @@ exports.sortStructsByDependency = sortStructsByDependency
 exports.isEnum = isEnum
 exports.isBitmap = isBitmap
 exports.isStruct = isStruct
+exports.asUnderlyingZclTypeWithPackageId = asUnderlyingZclTypeWithPackageId
+exports.determineType = determineType
+exports.dataTypeCharacterFormatter = dataTypeCharacterFormatter
+exports.calculateBytes = calculateBytes
