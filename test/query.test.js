@@ -677,18 +677,19 @@ test(
 
 test(
   'Test determineType',
-  () => {
-    return zclUtil
-      .determineType(db, 'patate', pkgId)
-      .then((type) => expect(type).toEqual(dbEnum.zclType.unknown))
-      .then(() => zclUtil.determineType(db, 'Status', pkgId))
-      .then((type) => expect(type).toEqual(dbEnum.zclType.enum))
-      .then(() => zclUtil.determineType(db, 'Protocol', pkgId))
-      .then((type) => expect(type).toEqual(dbEnum.zclType.struct))
-      .then(() => zclUtil.determineType(db, 'CO2TrailingDigit', pkgId))
-      .then((type) => expect(type).toEqual(dbEnum.zclType.bitmap))
-      .then(() => zclUtil.determineType(db, 'int8u', pkgId))
-      .then((type) => expect(type).toEqual(dbEnum.zclType.atomic))
+  async () => {
+    let type
+
+    type = await zclUtil.determineType(db, 'patate', pkgId)
+    expect(type.type).toEqual(dbEnum.zclType.unknown)
+    type = await zclUtil.determineType(db, 'Status', pkgId)
+    expect(type.type).toEqual(dbEnum.zclType.enum)
+    type = await zclUtil.determineType(db, 'Protocol', pkgId)
+    expect(type.type).toEqual(dbEnum.zclType.struct)
+    type = await zclUtil.determineType(db, 'CO2TrailingDigit', pkgId)
+    expect(type.type).toEqual(dbEnum.zclType.bitmap)
+    type = await zclUtil.determineType(db, 'int8u', pkgId)
+    expect(type.type).toEqual(dbEnum.zclType.atomic)
   },
   testUtil.timeout.medium()
 )

@@ -548,8 +548,10 @@ function asUnderlyingZclTypeWithPackageId(
 }
 
 /**
- * Returns a promise that resolves into one of the zclType enum
- * values.
+ * Returns a promise that resolves into an object containing:
+ *   type:
+ *   atomicType:
+ * Base type for struct is a null.
  *
  * @param {*} db
  * @param {*} packageId
@@ -557,18 +559,37 @@ function asUnderlyingZclTypeWithPackageId(
  */
 async function determineType(db, type, packageId) {
   let atomic = await queryZcl.selectAtomicByName(db, type, packageId)
-  if (atomic != null) return dbEnum.zclType.atomic
+  if (atomic != null)
+    return {
+      type: dbEnum.zclType.atomic,
+      atomicType: atomic.name,
+    }
 
   let theEnum = await queryZcl.selectEnumByName(db, type, packageId)
-  if (theEnum != null) return dbEnum.zclType.enum
+  if (theEnum != null)
+    return {
+      type: dbEnum.zclType.enum,
+      atomicType: theEnum.type,
+    }
 
   let struct = await queryZcl.selectStructByName(db, type, packageId)
-  if (struct != null) return dbEnum.zclType.struct
+  if (struct != null)
+    return {
+      type: dbEnum.zclType.struct,
+      atomicType: null,
+    }
 
   let theBitmap = await queryZcl.selectBitmapByName(db, packageId, type)
-  if (theBitmap != null) return dbEnum.zclType.bitmap
+  if (theBitmap != null)
+    return {
+      type: dbEnum.zclType.bitmap,
+      atomicType: theBitmap.type,
+    }
 
-  return dbEnum.zclType.unknown
+  return {
+    type: dbEnum.zclType.unknown,
+    atomicType: null,
+  }
 }
 
 exports.clusterComparator = clusterComparator
