@@ -290,9 +290,16 @@ async function zcl_commands_with_arguments(options) {
       let sig = ''
       for (const arg of cmd.commandArgs) {
         let t = await zclUtil.determineType(this.global.db, arg.type, packageId)
-        sig += `${t.type} ${arg.type}`
+        sig += `${t.atomicType == null ? 'NULL' : t.atomicType.toLowerCase()}`
         if (arg.isArray) {
           sig += '[]'
+        }
+        if (
+          arg.removedIn != null ||
+          arg.introducedIn != null ||
+          arg.presentIf != null
+        ) {
+          sig += '?'
         }
         sig += '|'
       }
