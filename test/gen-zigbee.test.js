@@ -40,6 +40,7 @@ const testFile4 = path.join(
   'resource/mfg-specific-clusters-commands.zap'
 )
 const testFile5 = path.join(__dirname, 'resource/gp-combo-basic-test.zap')
+const testFile6 = path.join(__dirname, 'resource/mfgSpecificConfig.zap')
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -435,6 +436,119 @@ test(
         expect(genResult.content['zap-cli.c']).toContain(
           '{ "identify", &cli_cmd_identify_group, false },'
         )
+      })
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Test zap config for mfg specific content',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile6, { sessionId: sid })
+
+    return genEngine
+      .generate(
+        db,
+        sid,
+        templateContext.packageId,
+        {},
+        {
+          disableDeprecationWarnings: true,
+        }
+      )
+      .then((genResult) => {
+        expect(genResult).not.toBeNull()
+        expect(genResult.partial).toBeFalsy()
+        expect(genResult.content).not.toBeNull()
+        let cfgVer3 = genResult.content['zap-config-version-3.h']
+
+        // Test GENERATED_ATTRIBUTES for the same attribute name but different attribute code
+        expect(cfgVer3).toContain(
+          '{ 0x0000, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x0000  } }, /* 53 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/'
+        )
+
+        expect(cfgVer3).toContain(
+          '{ 0x0001, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x0000  } } /* 54 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/'
+        )
+
+        // Test GENERATED_CLUSTERS for attribute index and size on endpoint 1 and endpoint 2
+        expect(cfgVer3).toContain(
+          '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[43]), 2, 3, CLUSTER_MASK_CLIENT, NULL }, /* 9, Endpoint Id: 1, Cluster: Sample Mfg Specific Cluster, Side: client*/'
+        )
+
+        expect(cfgVer3).toContain(
+          '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[45]), 4, 5, CLUSTER_MASK_SERVER, NULL }, /* 10, Endpoint Id: 1, Cluster: Sample Mfg Specific Cluster, Side: server*/'
+        )
+
+        expect(cfgVer3).toContain(
+          '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[43]), 2, 3, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Sample Mfg Specific Cluster, Side: client*/'
+        )
+
+        expect(cfgVer3).toContain(
+          '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[49]), 2, 3, CLUSTER_MASK_CLIENT, NULL }, /* 16, Endpoint Id: 2, Cluster: Sample Mfg Specific Cluster 2, Side: client*/'
+        )
+
+        expect(cfgVer3).toContain(
+          '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[45]), 4, 5, CLUSTER_MASK_SERVER, NULL }, /* 17, Endpoint Id: 2, Cluster: Sample Mfg Specific Cluster, Side: server*/'
+        )
+
+        expect(cfgVer3).toContain(
+          '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[51]), 3, 5, CLUSTER_MASK_SERVER, NULL } /* 18, Endpoint Id: 2, Cluster: Sample Mfg Specific Cluster 2, Side: server*/'
+        )
+
+        // Test GENERATED_COMMANDS and its mask
+        expect(cfgVer3).toContain(
+          '{ 0xFC00, 0x00, COMMAND_MASK_INCOMING_SERVER | COMMAND_MASK_OUTGOING_CLIENT | COMMAND_MASK_MANUFACTURER_SPECIFIC }, /* 69, Cluster: Sample Mfg Specific Cluster, Command: CommandOne*/'
+        )
+
+        expect(cfgVer3).toContain(
+          '{ 0xFC00, 0x00, COMMAND_MASK_INCOMING_SERVER | COMMAND_MASK_OUTGOING_CLIENT | COMMAND_MASK_MANUFACTURER_SPECIFIC }, /* 70, Cluster: Sample Mfg Specific Cluster 2, Command: CommandTwo*/'
+        )
+
+        // Test GENERATED_COMMAND_MANUFACTURER_CODES
+        expect(cfgVer3).toContain(
+          '{ 69, 0x1002 },'
+        )
+
+        expect(cfgVer3).toContain(
+          '{ 70, 0x1049 },'
+        )
+
+        // Test GENERATED_CLUSTER_MANUFACTURER_CODES
+        expect(cfgVer3).toContain(
+          '{ 9, 0x1002 },'
+        )
+        expect(cfgVer3).toContain(
+          '{ 10, 0x1002 },'
+        )
+        expect(cfgVer3).toContain(
+          '{ 15, 0x1002 },'
+        )
+        expect(cfgVer3).toContain(
+          '{ 16, 0x1049 },'
+        )
+        expect(cfgVer3).toContain(
+          '{ 17, 0x1002 },'
+        )
+        expect(cfgVer3).toContain(
+          '{ 18, 0x1049 },'
+        )
+
+        // Test GENERATED_ATTRIBUTE_MANUFACTURER_CODES, global attributes do not show up here
+        expect(cfgVer3).toContain(
+          '{ 47, 0x1002 },'
+        )
+        expect(cfgVer3).toContain(
+          '{ 48, 0x1002 },'
+        )
+        expect(cfgVer3).toContain(
+          '{ 53, 0x1049 },'
+        )
+        expect(cfgVer3).toContain(
+          '{ 54, 0x1049 },'
+        )
+
       })
   },
   testUtil.timeout.long()
