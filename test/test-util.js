@@ -71,7 +71,7 @@ exports.timeout = {
     } else if (zto in process.env) {
       return parseInt(process.env[zto])
     } else {
-      return 20000
+      return 40000
     }
   },
 }
