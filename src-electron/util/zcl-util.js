@@ -593,23 +593,24 @@ async function determineType(db, type, packageId) {
 }
 
 async function createCommandSignature(db, packageId, cmd) {
-  let sig = ''
+  let sig = []
   for (const arg of cmd.commandArgs) {
+    let single = ''
     let t = await determineType(db, arg.type, packageId)
-    sig += `${t.atomicType == null ? 'NULL' : t.atomicType.toLowerCase()}`
+    single += `${t.atomicType == null ? 'NULL' : t.atomicType.toLowerCase()}`
     if (arg.isArray) {
-      sig += '[]'
+      single += '[]'
     }
     if (
       arg.removedIn != null ||
       arg.introducedIn != null ||
       arg.presentIf != null
     ) {
-      sig += '?'
+      single += '?'
     }
-    sig += '|'
+    sig.push(single)
   }
-  return sig
+  return sig.toString()
 }
 
 exports.clusterComparator = clusterComparator

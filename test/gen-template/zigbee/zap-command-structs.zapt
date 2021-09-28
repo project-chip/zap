@@ -1,7 +1,7 @@
 {{~#zcl_commands_with_arguments sortBy="signature"~}}
   {{#if argCount }}
 // Command Struct for {{clusterName}} cluster and {{commandName}} command
-// Signature: {{signature}}            <- {{clusterName}}/{{commandName}}
+// Signature: --{{signature}}--            <- {{clusterName}}/{{commandName}}
 typedef struct __zcl_{{as_underscore_lowercase clusterName}}_cluster_{{as_underscore_lowercase commandName}}_command {
     {{#zcl_command_arguments}}
   {{as_underlying_zcl_type type struct="uint8_t *" array="uint8_t *"}} {{as_symbol label}};
