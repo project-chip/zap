@@ -163,7 +163,7 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
 
         // Feature Flags
         if (zclProps.featureFlags) {
-          returnObject.featureFlags = obj.featureFlags
+          returnObject.featureFlags = zclProps.featureFlags
         }
 
         returnObject.supportCustomZclDevice = zclProps.supportCustomZclDevice
