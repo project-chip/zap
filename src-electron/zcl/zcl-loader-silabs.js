@@ -162,7 +162,7 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
         }
 
         // Feature Flags
-        if (obj.featureFlags) {
+        if (zclProps.featureFlags) {
           returnObject.featureFlags = obj.featureFlags
         }
 
