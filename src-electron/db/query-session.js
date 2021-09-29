@@ -75,6 +75,22 @@ async function getSessionDirtyFlag(db, sessionId) {
     return dbApi.fromDbBool(row.DIRTY)
   }
 }
+/**
+ * Resolves w/ the session tied to a session id. 
+ * 
+ * @param {*} db 
+ * @param {*} sessionId 
+ * @returns A promise that resolves into a session
+ */
+async function getSessionFromSessionId(db, sessionId) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION WHERE SESSION_ID = ?',
+      [sessionId]
+    )
+    .then(dbMapping.map.session)
+}
 
 /**
  * Resolves into a session id, obtained from window id.
@@ -449,6 +465,7 @@ async function getAllSessionKeyValues(db, sessionId) {
 exports.getAllSessions = getAllSessions
 exports.setSessionClean = setSessionClean
 exports.getSessionDirtyFlag = getSessionDirtyFlag
+exports.getSessionFromSessionId = getSessionFromSessionId
 exports.getSessionInfoFromSessionKey = getSessionInfoFromSessionKey
 exports.ensureZapSessionId = ensureZapSessionId
 exports.ensureZapUserAndSession = ensureZapUserAndSession

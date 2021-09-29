@@ -38,7 +38,8 @@ exports.packageOptionCategory = {
   manufacturerCodes: 'manufacturerCodes',
   typeMap: 'typeMap',
   generator: 'generator',
-  profileCodes: 'profileCodes'
+  profileCodes: 'profileCodes',
+  validationTimersFlags: 'validationTimersFlags'
 }
 
 exports.side = {
@@ -84,6 +85,7 @@ exports.pathRelativity = {
 exports.wsCategory = {
   generic: 'generic',
   dirtyFlag: 'dirtyFlag',
+  validation: 'validation',
   sessionCreationError: 'sessionCreationError',
   componentUpdateStatus: 'componentUpdateStatus',
   ucComponentStateReport: 'ucComponentStateReport',

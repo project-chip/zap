@@ -45,5 +45,10 @@
     "bool": {
       "commandDiscovery": true
     }
+  },
+  "featureFlags": {
+    "validationTimersFlags": {
+      "zigbeeEnforceCommonCluster": true
+    }
   }
 }
