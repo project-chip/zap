@@ -465,11 +465,11 @@ test(
 
         // Test GENERATED_ATTRIBUTES for the same attribute name but different attribute code
         expect(cfgVer3).toContain(
-          '{ 0x0000, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x0000  } }, /* 53 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/'
+          '{ 0x0000, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x0000  } }, /* 51 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/'
         )
 
         expect(cfgVer3).toContain(
-          '{ 0x0001, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x0000  } } /* 54 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/'
+          '{ 0x0001, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x0000  } }, /* 52 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/'
         )
 
         // Test GENERATED_CLUSTERS for attribute index and size on endpoint 1 and endpoint 2
@@ -537,16 +537,16 @@ test(
 
         // Test GENERATED_ATTRIBUTE_MANUFACTURER_CODES, global attributes do not show up here
         expect(cfgVer3).toContain(
-          '{ 47, 0x1002 },'
+          '{ 45, 0x1002 },'
         )
         expect(cfgVer3).toContain(
-          '{ 48, 0x1002 },'
+          '{ 46, 0x1002 },'
         )
         expect(cfgVer3).toContain(
-          '{ 53, 0x1049 },'
+          '{ 51, 0x1049 },'
         )
         expect(cfgVer3).toContain(
-          '{ 54, 0x1049 },'
+          '{ 52, 0x1049 },'
         )
 
       })
