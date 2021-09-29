@@ -287,13 +287,19 @@ async function zcl_commands_with_arguments(options) {
   )
   if ('signature' == sortBy) {
     for (const cmd of cmds) {
-      cmd.signature = await zclUtil.createCommandSignature(
+      let sig = await zclUtil.createCommandSignature(
         this.global.db,
         packageId,
         cmd
       )
+      cmd.signature = sig.signature
+      cmd.isSignatureSimple = sig.isSimple
     }
-    cmds.sort((a, b) => a.signature.localeCompare(b.signature))
+    cmds.sort((a, b) => {
+      if (a.isSignatureSimple && !b.isSignatureSimple) return -1
+      if (!a.isSignatureSimple && b.isSignatureSimple) return 1
+      return a.signature.localeCompare(b.signature)
+    })
   }
   let promise = templateUtil.collectBlocks(cmds, options, this)
   return templateUtil.templatePromise(this.global, promise)
