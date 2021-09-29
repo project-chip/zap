@@ -703,6 +703,8 @@ ORDER BY CODE`,
 async function selectAllCommandsWithArguments(db, packageId) {
   let mapFunction = (x) => {
     return {
+      id: x.COMMAND_ID,
+      commandId: x.COMMAND_ID,
       commandCode: x.CODE,
       commandMfgCode: x.MANUFACTURER_CODE,
       name: x.NAME,
@@ -779,6 +781,8 @@ ORDER BY
         countArg: x.argCountArg,
         introducedIn: x.argIntroducedIn,
         removedIn: x.argRemovedIn,
+        introducedInRef: x.argIntroducedIn,
+        removedInRef: x.argRemovedIn,
       }
       delete x.argName
       delete x.argType

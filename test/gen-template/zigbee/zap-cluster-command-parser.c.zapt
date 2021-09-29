@@ -1,35 +1,28 @@
-/***************************************************************************//**
- * @file  zap-cluster-command-parser.c
- * @brief This file contains a set of generated functions that parse the
- * incomming zcl command messages.
- * This file is generated. Do not update file manually.
- *******************************************************************************
- * # License
- * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is distributed to you in Source Code format and is governed by the
- * sections of the MSLA applicable to Source Code.
- *
- ******************************************************************************/
+// Generated interface function
+static EmberAfStatus sli_do_decode(EmberAfClusterCommand *cmd,
+                                   sl_signature_t sig,
+                                   uint8_t *outputBuffer) {
+  sl_signature_decode_status_t ret;
+  ret = sl_signature_decode(cmd->buffer, 
+                            cmd->bufLen, 
+                            cmd->payloadStartIndex, 
+                            sig, 
+                            outputBuffer);
+  if ( ret == SL_SIGNATURE_DECODE_OK )
+    return EMBER_ZCL_STATUS_SUCCESS;
+  else
+    return EMBER_ZCL_STATUS_MALFORMED_COMMAND;
+}
 
-#include "sl_component_catalog.h"
-#ifdef SL_CATALOG_ZIGBEE_ZCL_FRAMEWORK_CORE_PRESENT
-
-#include <stdint.h>
-
-#include "af.h"
-#include "zap-type.h"
-#include "zap-cluster-command-parser.h"
-
-{{#zcl_commands_with_cluster_info}}
-    {{#if_command_args_exist id}}
+{{#zcl_commands_with_arguments sortBy="signature"}}{{#if argCount }}
 // Command parser for {{name}} command
 EmberAfStatus zcl_decode_{{as_underscore_lowercase clusterName}}_cluster_{{as_underscore_lowercase name}}_command (EmberAfClusterCommand * cmd, sl_zcl_{{as_underscore_lowercase clusterName}}_cluster_{{as_underscore_lowercase name}}_command_t *cmd_struct) {
+{{#if isSignatureSimple}}
+  // Use signature-decoding mechanism to parse this command.
+  sl_signature_t sig = sl_zcl_{{as_underscore_lowercase clusterName}}_cluster_{{as_underscore_lowercase name}}_command_signature;
+  return sli_do_decode(cmd, sig, (uint8_t*)cmd_struct);
+{{else}}
+  // Use classic mechanism to parse this command.
   uint16_t payloadOffset = cmd->payloadStartIndex;
 {{#if_command_fixed_length id}}
   // Command is fixed length
@@ -135,7 +128,7 @@ EmberAfStatus zcl_decode_{{as_underscore_lowercase clusterName}}_cluster_{{as_un
 {{/if}}
 {{/zcl_command_arguments}}
   return EMBER_ZCL_STATUS_SUCCESS;
+{{/if}}
 } 
-{{/if_command_args_exist}}
-{{/zcl_commands_with_cluster_info}}
-#endif //End of SL_CATALOG_ZIGBEE_ZCL_FRAMEWORK_CORE_PRESENT
+
+{{/if}}{{/zcl_commands_with_arguments}}
