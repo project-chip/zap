@@ -617,13 +617,15 @@ async function createCommandSignature(db, packageId, cmd) {
     }
 
     // Deal with optionality
+    arg.isOptional = false
     if (
       arg.removedIn != null ||
       arg.introducedIn != null ||
       arg.presentIf != null
     ) {
       single += '?'
-      isSimple = false
+      arg.isOptional = true
+      if (arg.presentIf != null) isSimple = false
     }
 
     sig.push(single)

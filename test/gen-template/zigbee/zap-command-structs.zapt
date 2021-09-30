@@ -15,7 +15,7 @@ typedef struct __zcl_{{as_underscore_lowercase clusterName}}_cluster_{{as_unders
  */
 #define sl_zcl_{{as_underscore_lowercase clusterName}}_cluster_{{as_underscore_lowercase commandName}}_command_signature  { \
   {{argCount}}, \
-{{#zcl_command_arguments}}  ZAP_SIGNATURE_TYPE_{{as_underscore_uppercase baseType}}, offsetof(sl_zcl_{{as_underscore_lowercase ../clusterName}}_cluster_{{as_underscore_lowercase ../commandName}}_command_t, {{as_symbol label}}), \ 
+{{#zcl_command_arguments}}  {{#if isOptional}}OPTIONAL_FIELD|{{/if}}ZAP_SIGNATURE_TYPE_{{as_underscore_uppercase baseType}}, offsetof(sl_zcl_{{as_underscore_lowercase ../clusterName}}_cluster_{{as_underscore_lowercase ../commandName}}_command_t, {{as_symbol label}}), \ 
 {{/zcl_command_arguments}}
 }
 {{/if}}
