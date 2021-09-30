@@ -598,8 +598,13 @@ async function generateGenerationContent(genResult, timing = {}) {
     timing: timing,
     stats: {},
   }
-  out.stats.templates = genResult.stats
-  for (const f of Object.keys(genResult.content)) {
+  out.stats.templates = {}
+
+  for (const statKey of Object.keys(genResult.stats).sort()) {
+    out.stats.templates[statKey] = genResult.stats[statKey]
+  }
+
+  for (const f of Object.keys(genResult.content).sort()) {
     out.content.push(f)
   }
   out.stats.allHelpers = {}
