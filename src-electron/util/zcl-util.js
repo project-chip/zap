@@ -626,7 +626,6 @@ async function createCommandSignature(db, packageId, cmd) {
       isSimple = false
     }
 
-    isSimple = false
     sig.push(single)
     index++
   }
