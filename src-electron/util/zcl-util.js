@@ -595,6 +595,7 @@ async function determineType(db, type, packageId) {
 async function createCommandSignature(db, packageId, cmd) {
   let sig = []
   let isSimple = true
+  let index = 0
   for (const arg of cmd.commandArgs) {
     let single = ''
     let t = await determineType(db, arg.type, packageId)
@@ -607,10 +608,15 @@ async function createCommandSignature(db, packageId, cmd) {
     }
     arg.baseType = recordedType
     single += `${recordedType}`
+
+    // Deal with arrays
     if (arg.isArray) {
       single += '[]'
-      isSimple = false
+      arg.baseType = 'ARRAY'
+      if (index < cmd.commandArgs.length - 1) isSimple = false
     }
+
+    // Deal with optionality
     if (
       arg.removedIn != null ||
       arg.introducedIn != null ||
@@ -619,8 +625,12 @@ async function createCommandSignature(db, packageId, cmd) {
       single += '?'
       isSimple = false
     }
+
+    isSimple = false
     sig.push(single)
+    index++
   }
+
   return {
     signature: sig.toString(),
     isSimple: isSimple,
