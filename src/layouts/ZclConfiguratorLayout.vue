@@ -30,6 +30,7 @@ limitations under the License.
           <q-space />
 
           <q-btn
+            class="hidden"
             outline
             color="primary"
             label="View Manual"
@@ -125,7 +126,6 @@ export default {
 }
 
 body.body--dark {
-  background: #272821
+  background: #272821;
 }
-
 </style>
