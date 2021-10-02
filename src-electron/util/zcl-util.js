@@ -601,8 +601,13 @@ async function createCommandSignature(db, packageId, cmd) {
     let t = await determineType(db, arg.type, packageId)
     let recordedType
     if (t.atomicType == null) {
-      isSimple = false
-      recordedType = 'NULL'
+      // if it's not a last arg, we call it not simple.
+      if (index < cmd.commandArgs.length - 1) {
+        isSimple = false
+        recordedType = 'NULL'
+      } else {
+        recordedType = 'POINTER'
+      }
     } else {
       recordedType = t.atomicType.toLowerCase()
     }
