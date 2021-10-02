@@ -28,6 +28,7 @@ const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const querySession = require('../db/query-session.js')
 const queryPackage = require('../db/query-package.js')
+const asyncValidation = require('../validation/async-validation.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
 const zclLoader = require('../zcl/zcl-loader.js')
@@ -296,6 +297,10 @@ function httpGetInitialState(db) {
   return (request, response) => {
     let sessionId = request.zapSessionId
     let state = {}
+
+    querySession.getSessionFromSessionId(db, sessionId).then(session => {
+      asyncValidation.initAsyncValidation(db, session)
+    })
 
     let statePopulators = []
     let endpointTypes = queryEndpointType

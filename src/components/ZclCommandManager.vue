@@ -74,7 +74,8 @@ limitations under the License.
                 (selectionClients.includes(selectedCluster.id) &&
                   props.row.source == 'client') ||
                 (selectionServers.includes(selectedCluster.id) &&
-                  props.row.source == 'server')
+                  props.row.source == 'server'  ||
+                  props.row.source == 'either')
               "
               indeterminate-value="false"
               keep-color
@@ -99,7 +100,8 @@ limitations under the License.
                 (selectionServers.includes(selectedCluster.id) &&
                   props.row.source == 'client') ||
                 (selectionClients.includes(selectedCluster.id) &&
-                  props.row.source == 'server')
+                  props.row.source == 'server' ||
+                  props.row.source == 'either')
               "
               @input="
                 handleCommandSelection(
@@ -114,7 +116,8 @@ limitations under the License.
           <q-td key="direction" :props="props" auto-width>{{
             props.row.source === 'client'
               ? 'Client ➞ Server'
-              : 'Server ➞ Client'
+              : props.row.source === 'server' ? 'Server ➞ Client'
+                : "Client ↔ Server"
           }}</q-td>
           <q-td key="commandId" :props="props" auto-width>{{
             asHex(props.row.code, 2)

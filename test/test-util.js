@@ -71,14 +71,14 @@ exports.timeout = {
     } else if (zto in process.env) {
       return parseInt(process.env[zto])
     } else {
-      return 20000
+      return 40000
     }
   },
 }
 
 exports.testTemplate = {
   zigbee: './test/gen-template/zigbee/gen-templates.json',
-  zigbeeCount: 21,
+  zigbeeCount: 25,
   matter: './test/gen-template/matter/gen-test.json',
   matterCount: 3,
   dotdot: './test/gen-template/dotdot/dotdot-templates.json',

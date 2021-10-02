@@ -112,6 +112,10 @@ onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) => {
   window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.dirtyFlag, data)
 })
 
+onWebSocket(dbEnum.wsCategory.validation, (data) => {
+  console.log(`Validation recieved: ${data}`)
+})
+
 onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
   let html = `<center>
   <strong>${data.error}</strong>

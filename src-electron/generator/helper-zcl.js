@@ -263,16 +263,45 @@ function zcl_commands(options) {
  * @param {*} options
  * @returns Promise of content.
  */
-function zcl_commands_with_cluster_info(options) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
-      return queryCommand.selectAllCommandsWithClusterInfo(
+async function zcl_commands_with_cluster_info(options) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let cmds = await queryCommand.selectAllCommandsWithClusterInfo(
+    this.global.db,
+    packageId
+  )
+  let promise = templateUtil.collectBlocks(cmds, options, this)
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Helper that retrieves all commands that contain arguments.
+ *
+ * @param {*} options
+ */
+async function zcl_commands_with_arguments(options) {
+  let sortBy = options.hash.sortBy
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let cmds = await queryCommand.selectAllCommandsWithArguments(
+    this.global.db,
+    packageId
+  )
+  if ('signature' == sortBy) {
+    for (const cmd of cmds) {
+      let sig = await zclUtil.createCommandSignature(
         this.global.db,
-        packageId
+        packageId,
+        cmd
       )
+      cmd.signature = sig.signature
+      cmd.isSignatureSimple = sig.isSimple
+    }
+    cmds.sort((a, b) => {
+      if (a.isSignatureSimple && !b.isSignatureSimple) return -1
+      if (!a.isSignatureSimple && b.isSignatureSimple) return 1
+      return a.signature.localeCompare(b.signature)
     })
-    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  }
+  let promise = templateUtil.collectBlocks(cmds, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -644,8 +673,7 @@ async function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
   let packageId = await templateUtil.ensureZclPackageId(currentContext)
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     currentContext.global.db,
-    commandId,
-    packageId
+    commandId
   )
 
   let isFixedLength = true
@@ -709,11 +737,7 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
   return templateUtil
     .ensureZclPackageId(this)
     .then((packageId) =>
-      queryCommand.selectCommandArgumentsByCommandId(
-        this.global.db,
-        command,
-        packageId
-      )
+      queryCommand.selectCommandArgumentsByCommandId(this.global.db, command)
     )
     .then(
       (commandArgs) =>
@@ -746,7 +770,12 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
         return templateUtil
           .ensureZclPackageId(this)
           .then((packageId) =>
-            asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+            zclUtil.asUnderlyingZclTypeWithPackageId(
+              type,
+              options,
+              packageId,
+              this
+            )
           )
       }
       return ''
@@ -789,7 +818,12 @@ function as_underlying_zcl_type_if_command_is_not_fixed_length(
         return templateUtil
           .ensureZclPackageId(this)
           .then((packageId) =>
-            asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+            zclUtil.asUnderlyingZclTypeWithPackageId(
+              type,
+              options,
+              packageId,
+              this
+            )
           )
       }
     })
@@ -814,8 +848,7 @@ function command_arguments_total_length(commandId) {
     .then((packageId) => {
       let res = queryCommand.selectCommandArgumentsByCommandId(
         this.global.db,
-        commandId,
-        packageId
+        commandId
       )
       return res
     })
@@ -830,7 +863,7 @@ function command_arguments_total_length(commandId) {
           let argLength = templateUtil
             .ensureZclPackageId(this)
             .then((packageId) =>
-              asUnderlyingZclTypeWithPackageId(
+              zclUtil.asUnderlyingZclTypeWithPackageId(
                 argType,
                 argOptions,
                 packageId,
@@ -858,7 +891,7 @@ function command_arguments_total_length(commandId) {
  * @param {*} options
  * @returns Promise of command argument iteration.
  */
-function zcl_command_arguments(options) {
+async function zcl_command_arguments(options) {
   let commandArgs = this.commandArgs
   let p
 
@@ -925,9 +958,9 @@ function zcl_command_argument_data_type(type, options) {
     .ensureZclPackageId(this)
     .then((packageId) =>
       Promise.all([
-        isEnum(this.global.db, type, packageId),
-        isStruct(this.global.db, type, packageId),
-        isBitmap(this.global.db, type, packageId),
+        zclUtil.isEnum(this.global.db, type, packageId),
+        zclUtil.isStruct(this.global.db, type, packageId),
+        zclUtil.isBitmap(this.global.db, type, packageId),
       ])
         .then(
           (res) =>
@@ -992,7 +1025,7 @@ async function array_to_cli_data_type(
   )
   let arrayAtomicSize = undefined
   if (arrayAtomicResult) {
-    arrayAtomicSize = await calculateBytes(
+    arrayAtomicSize = await zclUtil.calculateBytes(
       arrayAtomicResult.name,
       options,
       currentContext.global.db,
@@ -1000,7 +1033,7 @@ async function array_to_cli_data_type(
       false
     )
   } else {
-    arrayAtomicSize = await calculateBytes(
+    arrayAtomicSize = await zclUtil.calculateBytes(
       type,
       options,
       currentContext.global.db,
@@ -1042,7 +1075,7 @@ async function enum_to_cli_data_type(currentContext, packageId, type, options) {
     packageId,
     enumRecord.type
   )
-  const enumSize = await calculateBytes(
+  const enumSize = await zclUtil.calculateBytes(
     enumType.name,
     options,
     currentContext.global.db,
@@ -1076,7 +1109,7 @@ async function bitmap_to_cli_data_type(
     packageId,
     bitmapRecord.type
   )
-  const bitmapSize = await calculateBytes(
+  const bitmapSize = await zclUtil.calculateBytes(
     bitmapType.name,
     options,
     currentContext.global.db,
@@ -1094,8 +1127,8 @@ async function bitmap_to_cli_data_type(
  */
 async function zcl_command_argument_type_to_cli_data_type(type, options) {
   const packageId = await templateUtil.ensureZclPackageId(this)
-  const isEnumType = await isEnum(this.global.db, type, packageId)
-  const isBitmapType = await isBitmap(this.global.db, type, packageId)
+  const isEnumType = await zclUtil.isEnum(this.global.db, type, packageId)
+  const isBitmapType = await zclUtil.isBitmap(this.global.db, type, packageId)
   if ('isArray' in this && this.isArray) {
     return array_to_cli_data_type(this, packageId, type, options)
   } else if (isEnumType == dbEnum.zclType.enum) {
@@ -1109,14 +1142,20 @@ async function zcl_command_argument_type_to_cli_data_type(type, options) {
       type
     )
     const atomicSize = atomicResult
-      ? await calculateBytes(
+      ? await zclUtil.calculateBytes(
           atomicResult.name,
           options,
           this.global.db,
           packageId,
           false
         )
-      : await calculateBytes(type, options, this.global.db, packageId, false)
+      : await zclUtil.calculateBytes(
+          type,
+          options,
+          this.global.db,
+          packageId,
+          false
+        )
     if (atomicSize == undefined || atomicSize.isNaN) {
       return helperC.as_zcl_cli_type(dbEnum.zclType.string, false, false)
     } else {
@@ -1127,399 +1166,6 @@ async function zcl_command_argument_type_to_cli_data_type(type, options) {
       }
     }
   }
-}
-
-/**
- *
- * @param {*} fromType
- * @param {*} toType
- * @param {*} noWarning
- *
- * Type warning message. If noWarning is set to true then the warning message
- * will not be shown.
- */
-function defaultMessageForTypeConversion(fromType, toType, noWarning) {
-  if (!noWarning) {
-    return `/* TYPE WARNING: ${fromType} defaults to */ ` + toType
-  } else {
-    return toType
-  }
-}
-
-/**
- * This function calculates the number of bytes in the data type and based on
- * that returns the option specified in the template.
- * for eg: Given that options are as follows:
- * options.hash.array="b"
- * options.hash.one_byte="u"
- * options.hash.two_byte="v"
- * options.hash.three_byte="x"
- * options.hash.four_byte="w"
- * options.hash.short_string="s"
- * options.hash.long_string="l"
- * options.hash.default="b"
- *
- * calculateBytes("char_string", options)
- * will return 's'
- *
- * @param {*} res
- * @param {*} options
- */
-function calculateBytes(res, options, db, packageId, isStructType) {
-  if (!isStructType) {
-    return calculate_bytes_for_types(res, options, db, packageId)
-  } else {
-    return calculate_bytes_for_structs(res, options, db, packageId)
-  }
-}
-
-function calculate_bytes_for_types(res, options, db, packageId) {
-  return types
-    .typeSize(db, packageId, res.toLowerCase())
-    .then((x) => {
-      return new Promise((resolve, reject) => {
-        let result = 0
-        switch (x) {
-          case 1:
-            result = user_defined_output_or_default(options, 'one_byte', x)
-            break
-          case 2:
-            result = user_defined_output_or_default(options, 'two_byte', x)
-            break
-          case 3:
-            result = user_defined_output_or_default(options, 'three_byte', x)
-            break
-          case 4:
-            result = user_defined_output_or_default(options, 'four_byte', x)
-            break
-          case 5:
-            result = user_defined_output_or_default(options, 'five_byte', x)
-            break
-          case 6:
-            result = user_defined_output_or_default(options, 'six_byte', x)
-            break
-          case 7:
-            result = user_defined_output_or_default(options, 'seven_byte', x)
-            break
-          case 8:
-            result = user_defined_output_or_default(options, 'eight_byte', x)
-            break
-          case 9:
-            result = user_defined_output_or_default(options, 'nine_byte', x)
-            break
-          case 10:
-            result = user_defined_output_or_default(options, 'ten_byte', x)
-            break
-          case 11:
-            result = user_defined_output_or_default(options, 'eleven_byte', x)
-            break
-          case 12:
-            result = user_defined_output_or_default(options, 'twelve_byte', x)
-            break
-          case 13:
-            result = user_defined_output_or_default(options, 'thirteen_byte', x)
-            break
-          case 14:
-            result = user_defined_output_or_default(options, 'fourteen_byte', x)
-            break
-          case 15:
-            result = user_defined_output_or_default(options, 'fifteen_byte', x)
-            break
-          case 16:
-            result = user_defined_output_or_default(options, 'sixteen_byte', x)
-            break
-          default:
-            if (
-              res != null &&
-              res.includes('long') &&
-              res.includes(dbEnum.zclType.string)
-            ) {
-              result = user_defined_output_or_default(
-                options,
-                'long_string',
-                'l'
-              )
-            } else if (
-              res != null &&
-              !res.includes('long') &&
-              res.includes(dbEnum.zclType.string)
-            ) {
-              result = user_defined_output_or_default(
-                options,
-                'short_string',
-                's'
-              )
-            } else if ('default' in options.hash) {
-              result = options.hash.default
-            }
-            break
-        }
-        resolve(result)
-      })
-    })
-    .catch((err) => {
-      env.logError(
-        'Could not find size of the given type in' +
-          ' calculate_bytes_for_types: ' +
-          err
-      )
-    })
-}
-
-async function calculate_bytes_for_structs(res, options, db, packageId) {
-  if ('struct' in options.hash) {
-    return options.hash.struct
-  } else {
-    return queryZcl
-      .selectAllStructItemsByStructName(db, res, packageId)
-      .then((items) => {
-        let promises = []
-        items.forEach((item) =>
-          promises.push(
-            dataTypeCharacterFormatter(db, packageId, item, options, type)
-          )
-        )
-        return Promise.all(promises)
-      })
-      .then((resolvedPromises) =>
-        resolvedPromises.reduce((acc, cur) => acc + cur, 0)
-      )
-      .catch((err) => {
-        env.logError(
-          'Could not find size of struct in' +
-            ' calculate_size_for_structs: ' +
-            err
-        )
-        return 0
-      })
-  }
-}
-
-/**
- *
- * @param options
- * @param optionsKey
- * @param defaultValue
- * Given the values determine to give the user defined value or the calculated value
- */
-function user_defined_output_or_default(options, optionsKey, defaultValue) {
-  if (optionsKey in options.hash) {
-    return options.hash[optionsKey]
-  } else {
-    return defaultValue
-  }
-}
-
-/**
- *
- * @param {*} db
- * @param {*} packageId
- * @param {*} type
- * @param {*} options
- * @param {*} resType
- * Character associated to a zcl/c data type.
- */
-async function dataTypeCharacterFormatter(
-  db,
-  packageId,
-  type,
-  options,
-  resType
-) {
-  switch (resType) {
-    case dbEnum.zclType.array:
-      if (dbEnum.zclType.array in options.hash) {
-        return options.hash.array
-      } else {
-        return 'b'
-      }
-    case dbEnum.zclType.bitmap:
-      return queryZcl
-        .selectBitmapByName(db, packageId, type)
-        .then((bitmap) => queryZcl.selectAtomicType(db, packageId, bitmap.type))
-        .then((res) => calculateBytes(res.name, options, db, packageId, false))
-    case dbEnum.zclType.enum:
-      return queryZcl
-        .selectEnumByName(db, type, packageId)
-        .then((enumRec) =>
-          queryZcl.selectAtomicType(db, packageId, enumRec.type)
-        )
-        .then((res) => calculateBytes(res.name, options, db, packageId, false))
-    case dbEnum.zclType.struct:
-      if (dbEnum.zclType.struct in options.hash) {
-        return options.hash.struct
-      } else {
-        return calculateBytes(type, options, db, packageId, true)
-      }
-    case dbEnum.zclType.atomic:
-    case dbEnum.zclType.unknown:
-    default:
-      return queryZcl
-        .selectAtomicType(db, packageId, type)
-        .then((atomic) => {
-          if (
-            atomic &&
-            (atomic.name == 'char_string' ||
-              atomic.name == 'octet_string' ||
-              atomic.name == 'long_octet_string' ||
-              atomic.name == 'long_char_string')
-          ) {
-            return atomic.name
-          } else {
-            return type
-          }
-        })
-        .then((res) => calculateBytes(res, options, db, packageId, false))
-  }
-}
-
-/**
- *
- *
- * @param {*} type
- * @param {*} options
- * @param {*} packageId
- * @param {*} db
- * @param {*} resolvedType
- * @param {*} overridable
- * @returns the data type associated with the resolvedType
- */
-function dataTypeHelper(
-  type,
-  options,
-  packageId,
-  db,
-  resolvedType,
-  overridable
-) {
-  switch (resolvedType) {
-    case dbEnum.zclType.array:
-      if ('array' in options.hash) {
-        return defaultMessageForTypeConversion(
-          `${type} array`,
-          options.hash.array,
-          options.hash.no_warning
-        )
-      } else {
-        return queryZcl
-          .selectAtomicType(db, packageId, dbEnum.zclType.array)
-          .then((atomic) => overridable.atomicType(atomic))
-      }
-    case dbEnum.zclType.bitmap:
-      if ('bitmap' in options.hash) {
-        return defaultMessageForTypeConversion(
-          `${type}`,
-          options.hash.bitmap,
-          options.hash.no_warning
-        )
-      } else {
-        return queryZcl
-          .selectBitmapByName(db, packageId, type)
-          .then((bitmap) =>
-            queryZcl.selectAtomicType(db, packageId, bitmap.type)
-          )
-          .then((res) => overridable.atomicType(res))
-      }
-    case dbEnum.zclType.enum:
-      if ('enum' in options.hash) {
-        return defaultMessageForTypeConversion(
-          `${type}`,
-          options.hash.enum,
-          options.hash.no_warning
-        )
-      } else {
-        return queryZcl
-          .selectEnumByName(db, type, packageId)
-          .then((enumRec) =>
-            queryZcl.selectAtomicType(db, packageId, enumRec.type)
-          )
-          .then((res) => overridable.atomicType(res))
-      }
-    case dbEnum.zclType.struct:
-      if ('struct' in options.hash) {
-        return defaultMessageForTypeConversion(
-          `${type}`,
-          options.hash.struct,
-          options.hash.no_warning
-        )
-      } else {
-        return type
-      }
-    case dbEnum.zclType.atomic:
-    case dbEnum.zclType.unknown:
-    default:
-      return queryZcl
-        .selectAtomicType(db, packageId, type)
-        .then((atomic) => overridable.atomicType(atomic))
-  }
-}
-
-/**
- *
- * @param type
- * @param options
- * @param packageId
- * @param currentInstance
- *
- * Note: If the options has zclCharFormatter set to true then the function will
- * return the user defined data associated with the zcl data type and not the
- * actual data type. It can also be used to calculate the size of the data types
- *
- * This is a utility function which is called from other helper functions using ut current
- * instance. See comments in asUnderlyingZclType for usage instructions.
- */
-function asUnderlyingZclTypeWithPackageId(
-  type,
-  options,
-  packageId,
-  currentInstance
-) {
-  return Promise.all([
-    new Promise((resolve, reject) => {
-      if ('isArray' in currentInstance && currentInstance.isArray)
-        resolve(dbEnum.zclType.array)
-      else resolve(dbEnum.zclType.unknown)
-    }),
-    isEnum(currentInstance.global.db, type, packageId),
-    isStruct(currentInstance.global.db, type, packageId),
-    isBitmap(currentInstance.global.db, type, packageId),
-  ])
-    .then(
-      (res) =>
-        new Promise((resolve, reject) => {
-          for (let i = 0; i < res.length; i++) {
-            if (res[i] != 'unknown') {
-              resolve(res[i])
-              return
-            }
-          }
-          resolve(dbEnum.zclType.unknown)
-        })
-    )
-    .then((resType) => {
-      if (dbEnum.zclType.zclCharFormatter in options.hash) {
-        return dataTypeCharacterFormatter(
-          currentInstance.global.db,
-          packageId,
-          type,
-          options,
-          resType
-        )
-      } else {
-        return dataTypeHelper(
-          type,
-          options,
-          packageId,
-          currentInstance.global.db,
-          resType,
-          currentInstance.global.overridable
-        )
-      }
-    })
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
 }
 
 /**
@@ -1539,12 +1185,10 @@ function asUnderlyingZclTypeWithPackageId(
  * For the above if asUnderlyingZclType was given [array type] then the above
  * will return 'b'
  */
-function asUnderlyingZclType(type, options) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
-    )
+async function asUnderlyingZclType(type, options) {
+  const packageId = await templateUtil.ensureZclPackageId(this)
+  let promise = zclUtil
+    .asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
     .catch((err) => {
       env.logError(err)
       throw err
@@ -1590,48 +1234,6 @@ function zcl_string_type_return(type, options) {
  */
 function is_zcl_string(type) {
   return types.isString(type)
-}
-
-/**
- * Local function that checks if an enum by the name exists
- *
- * @param {*} db
- * @param {*} enum_name
- * @param {*} packageId
- * @returns Promise of content.
- */
-function isEnum(db, enum_name, packageId) {
-  return queryZcl
-    .selectEnumByName(db, enum_name, packageId)
-    .then((enums) => (enums ? dbEnum.zclType.enum : dbEnum.zclType.unknown))
-}
-
-/**
- * Local function that checks if an enum by the name exists
- *
- * @param {*} db
- * @param {*} struct_name
- * @param {*} packageId
- * @returns Promise of content.
- */
-function isStruct(db, struct_name, packageId) {
-  return queryZcl
-    .selectStructByName(db, struct_name, packageId)
-    .then((st) => (st ? dbEnum.zclType.struct : dbEnum.zclType.unknown))
-}
-
-/**
- * Local function that checks if a bitmap by the name exists
- *
- * @param {*} db
- * @param {*} bitmap_name
- * @param {*} packageId
- * @returns Promise of content.
- */
-function isBitmap(db, bitmap_name, packageId) {
-  return queryZcl
-    .selectBitmapByName(db, packageId, bitmap_name)
-    .then((st) => (st ? dbEnum.zclType.bitmap : dbEnum.zclType.unknown))
 }
 
 /**
@@ -1768,7 +1370,7 @@ function isCommandAvailable(clusterSide, incoming, outgoing, source, name) {
  * @param presentIf: If the command argument is present conditionally then this will be a condition
  * and not null
  *
- * @param options: options which can be passed to asUnderlyingZclTypeWithPackageId
+ * @param options: options which can be passed to zclUtil.asUnderlyingZclTypeWithPackageId
  * for determining the underlying zcl type for the provided argument type
  * @returns A string as an underlying zcl type if the command is not fixed length and the command
  * argument is always present in all zcl specifications.
@@ -1801,7 +1403,12 @@ function as_underlying_zcl_type_command_argument_always_present(
           return templateUtil
             .ensureZclPackageId(this)
             .then((packageId) =>
-              asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+              zclUtil.asUnderlyingZclTypeWithPackageId(
+                type,
+                options,
+                packageId,
+                this
+              )
             )
         }
       }
@@ -1865,7 +1472,7 @@ function if_command_argument_always_present(
  * specifications and was removed in a certain specification version then this will not be null
  * @param presentIf: If the command argument is present conditionally then this will be a condition
  * and not null
- * @param options: options which can be passed to asUnderlyingZclTypeWithPackageId
+ * @param options: options which can be passed to zclUtil.asUnderlyingZclTypeWithPackageId
  * for determining the underlying zcl type for the provided argument type
  * @returns A string as an underlying zcl type if the command is not fixed length, the command
  * argument is not always present in all zcl specifications and there is no present if conditionality
@@ -1896,7 +1503,12 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
           return templateUtil
             .ensureZclPackageId(this)
             .then((packageId) =>
-              asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+              zclUtil.asUnderlyingZclTypeWithPackageId(
+                type,
+                options,
+                packageId,
+                this
+              )
             )
         } else {
           return ''
@@ -1915,7 +1527,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
 /**
  * @param commandArg command argument
  * @param appendString append the string to the argument
- * @param options options which can be passed to asUnderlyingZclTypeWithPackageId
+ * @param options options which can be passed to zclUtil.asUnderlyingZclTypeWithPackageId
  * for determining the underlying zcl type for the provided argument type
  * @returns A string as an underlying zcl type if the command is not fixed
  * length, the command argument is not always present in all zcl specifications
@@ -1935,7 +1547,7 @@ function as_underlying_zcl_type_ca_not_always_present_no_presentif(
     let promise = templateUtil
       .ensureZclPackageId(this)
       .then((packageId) =>
-        asUnderlyingZclTypeWithPackageId(
+        zclUtil.asUnderlyingZclTypeWithPackageId(
           commandArg.type,
           options,
           packageId,
@@ -2006,7 +1618,7 @@ function if_command_argument_not_always_present_no_presentif(
  * specifications and was removed in a certain specification version then this will not be null
  * @param presentIf: If the command argument is present conditionally then this will be a condition
  * and not null
- * @param options: options which can be passed to asUnderlyingZclTypeWithPackageId
+ * @param options: options which can be passed to zclUtil.asUnderlyingZclTypeWithPackageId
  * for determining the underlying zcl type for the provided argument type
  * @returns A string as an underlying zcl type if the command is not fixed length, the command
  * argument is not always present in all zcl specifications and there is a present if conditionality
@@ -2036,7 +1648,12 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
           return templateUtil
             .ensureZclPackageId(this)
             .then((packageId) =>
-              asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+              zclUtil.asUnderlyingZclTypeWithPackageId(
+                type,
+                options,
+                packageId,
+                this
+              )
             )
         } else {
           return ''
@@ -2055,7 +1672,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
 /**
  * @param commandArg command argument
  * @param appendString append the string to the argument
- * @param options options which can be passed to asUnderlyingZclTypeWithPackageId
+ * @param options options which can be passed to zclUtil.asUnderlyingZclTypeWithPackageId
  * for determining the underlying zcl type for the provided argument type
  * @returns A string as an underlying zcl type if the command is not fixed
  * length, the command argument is not always present in all zcl specifications
@@ -2075,7 +1692,7 @@ function as_underlying_zcl_type_ca_not_always_present_with_presentif(
     let promise = templateUtil
       .ensureZclPackageId(this)
       .then((packageId) =>
-        asUnderlyingZclTypeWithPackageId(
+        zclUtil.asUnderlyingZclTypeWithPackageId(
           commandArg.type,
           options,
           packageId,
@@ -2146,7 +1763,7 @@ function if_command_argument_not_always_present_with_presentif(
  * specifications and was removed in a certain specification version then this will not be null
  * @param presentIf: If the command argument is present conditionally then this will be a condition
  * and not null
- * @param options: options which can be passed to asUnderlyingZclTypeWithPackageId
+ * @param options: options which can be passed to zclUtil.asUnderlyingZclTypeWithPackageId
  * for determining the underlying zcl type for the provided argument type
  * @returns A string as an underlying zcl type if the command is not fixed length, the command
  * argument is always present in all zcl specifications and there is a present if conditionality
@@ -2176,7 +1793,12 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
           return templateUtil
             .ensureZclPackageId(this)
             .then((packageId) =>
-              asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+              zclUtil.asUnderlyingZclTypeWithPackageId(
+                type,
+                options,
+                packageId,
+                this
+              )
             )
         } else {
           return ''
@@ -2195,7 +1817,7 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
 /**
  * @param commandArg command argument
  * @param appendString append the string to the argument
- * @param options options which can be passed to asUnderlyingZclTypeWithPackageId
+ * @param options options which can be passed to zclUtil.asUnderlyingZclTypeWithPackageId
  * for determining the underlying zcl type for the provided argument type
  * @returns A string as an underlying zcl type if the command is not fixed
  * length, the command argument is always present in all zcl specifications
@@ -2215,7 +1837,7 @@ function as_underlying_zcl_type_ca_always_present_with_presentif(
     let promise = templateUtil
       .ensureZclPackageId(this)
       .then((packageId) =>
-        asUnderlyingZclTypeWithPackageId(
+        zclUtil.asUnderlyingZclTypeWithPackageId(
           commandArg.type,
           options,
           packageId,
@@ -2606,18 +2228,18 @@ exports.asUnderlyingZclType = dep(asUnderlyingZclType, {
   to: 'as_underlying_zcl_type',
 })
 
-exports.is_bitmap = isBitmap
-exports.isBitmap = dep(isBitmap, { to: 'is_bitmap' })
-
 exports.if_is_bitmap = if_is_bitmap
 
 exports.if_is_enum = if_is_enum
 
-exports.is_struct = isStruct
-exports.isStruct = dep(isStruct, { to: 'is_struct' })
+exports.is_bitmap = zclUtil.isBitmap
+exports.isBitmap = dep(zclUtil.isBitmap, { to: 'is_bitmap' })
 
-exports.is_enum = isEnum
-exports.isEnum = dep(isEnum, { to: 'is_enum' })
+exports.is_struct = zclUtil.isStruct
+exports.isStruct = dep(zclUtil.isStruct, { to: 'is_struct' })
+
+exports.is_enum = zclUtil.isEnum
+exports.isEnum = dep(zclUtil.isEnum, { to: 'is_enum' })
 
 exports.if_manufacturing_specific_cluster = dep(
   if_manufacturing_specific_cluster,
@@ -2694,3 +2316,4 @@ exports.as_underlying_zcl_type_ca_always_present_with_presentif = dep(
 exports.if_is_struct = if_is_struct
 exports.if_mfg_specific_cluster = if_mfg_specific_cluster
 exports.zcl_commands_with_cluster_info = zcl_commands_with_cluster_info
+exports.zcl_commands_with_arguments = zcl_commands_with_arguments

@@ -83,6 +83,11 @@ async function collectDataFromJsonFile(metadataFile, data) {
     returnObject.defaults = obj.defaults
   }
 
+  // Feature Flags
+  if (obj.featureFlags) {
+    returnObject.featureFlags = obj.featureFlags
+  }
+
   returnObject.version = obj.version
   returnObject.supportCustomZclDevice = obj.supportCustomZclDevice
 
@@ -155,6 +160,12 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
         if (zclProps.defaults) {
           returnObject.defaults = zclProps.defaults
         }
+
+        // Feature Flags
+        if (zclProps.featureFlags) {
+          returnObject.featureFlags = zclProps.featureFlags
+        }
+
         returnObject.supportCustomZclDevice = zclProps.supportCustomZclDevice
         returnObject.version = zclProps.version
         env.logDebug(
@@ -1030,6 +1041,19 @@ async function parseZclSchema(db, packageId, zclSchema, zclValidation) {
   )
 }
 
+async function parseFeatureFlags(db, packageId, featureFlags) {
+  return Promise.all(Object.keys(featureFlags).map(featureCategory => {
+    return queryPackage.insertOptionsKeyValues(
+      db,
+      packageId,
+      featureCategory,
+      Object.keys(featureFlags[featureCategory]).map(data => {
+        return {code: data, label: featureFlags[featureCategory][data] == "1" ? true : false}
+      })
+    )
+  }))
+}
+
 /**
  * Parses and loads the text and boolean options.
  *
@@ -1325,6 +1349,9 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     }
     if (ctx.zclSchema && ctx.zclValidation) {
       await parseZclSchema(db, ctx.packageId, ctx.zclSchema, ctx.zclValidation)
+    }
+    if (ctx.featureFlags) {
+      await parseFeatureFlags(db, ctx.packageId, ctx.featureFlags)
     }
   } catch (err) {
     env.logError(err)

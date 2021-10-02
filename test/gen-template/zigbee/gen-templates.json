@@ -117,7 +117,9 @@
     }
   },
   "override": "addon-override.js",
-  "helpers": ["addon-helper.js"],
+  "helpers": [
+    "addon-helper.js"
+  ],
   "templates": [
     {
       "path": "simple-test.zapt",
@@ -219,6 +221,26 @@
       "path": "atomics.zapt",
       "name": "ZCL Atomics",
       "output": "atomics.out"
+    },
+    {
+      "path": "zap-command-structs.zapt",
+      "name": "Command structs",
+      "output": "zap-command-structs.h"
+    },
+    {
+      "path": "zap-cluster-command-parser.c.zapt",
+      "name": "Command struct parser functions",
+      "output": "zap-cluster-command-parser.c"
+    },
+    {
+      "path": "zap-cluster-command-parser-2.c.zapt",
+      "name": "Command struct parser functions, ver 2",
+      "output": "zap-cluster-command-parser-2.c"
+    },
+    {
+      "path": "zap-cluster-command-parser.h.zapt",
+      "name": "Command struct parser prototypes",
+      "output": "zap-cluster-command-parser.h"
     },
     {
       "path": "sdk-extension.zapt",
