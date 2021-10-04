@@ -78,7 +78,7 @@ exports.timeout = {
 
 exports.testTemplate = {
   zigbee: './test/gen-template/zigbee/gen-templates.json',
-  zigbeeCount: 25,
+  zigbeeCount: 26,
   matter: './test/gen-template/matter/gen-test.json',
   matterCount: 3,
   dotdot: './test/gen-template/dotdot/dotdot-templates.json',
@@ -95,15 +95,15 @@ exports.testServer = testServer
 exports.testCustomXml = './test/resource/test-custom.xml'
 exports.badTestCustomXml = './test/resource/bad-test-custom.xml'
 
-exports.totalClusterCount = 109
+exports.totalClusterCount = 111
 exports.totalDomainCount = 20
-exports.totalCommandArgsCount = 1784
-exports.totalCommandCount = 625
+exports.totalCommandArgsCount = 1786
+exports.totalCommandCount = 632
 exports.totalEventFieldCount = 3
 exports.totalEventCount = 1
-exports.totalAttributeCount = 3430
-exports.totalClusterCommandCount = 602
-exports.totalServerAttributeCount = 2954
+exports.totalAttributeCount = 3438
+exports.totalClusterCommandCount = 609
+exports.totalServerAttributeCount = 2962
 exports.totalSpecCount = 24
 exports.totalEnumCount = 209
 exports.totalEnumItemCount = 1595

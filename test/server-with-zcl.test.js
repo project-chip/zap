@@ -145,7 +145,7 @@ describe('Miscelaneous REST API tests', () => {
       axiosInstance
         .get(`${restApi.uri.zclCluster}all?sessionId=${sessionUuid}`)
         .then((response) => {
-          expect(response.data.clusterData.length).toBe(109)
+          expect(response.data.clusterData.length).toBe(testUtil.totalClusterCount)
         }),
     testUtil.timeout.medium()
   )
