@@ -187,7 +187,7 @@
 #define GENERATED_COMMANDS { {{backslash}}
 {{#all_user_cluster_generated_commands}}
 	{{~#if (is_num_equal 2 numberOfClusterSidesEnabled)}}
-		{{~indent 1}}{ {{as_hex clusterCode 4}}, {{as_hex commandCode 2}}, {{command_mask  commandSource "either" incoming outgoing commandMfgCode "COMMAND_MASK_"}} }, /* {{index}}, Cluster: {{clusterName}}, Command: {{commandName}}*/ {{backslash}}
+		{{~indent 1}}{ {{as_hex clusterCode 4}}, {{as_hex commandCode 2}}, {{command_mask  commandSource "either" 1 1 commandMfgCode "COMMAND_MASK_"}} }, /* {{index}}, Cluster: {{clusterName}}, Command: {{commandName}}*/ {{backslash}}
 	{{else}}
 		{{~indent 1}}{ {{as_hex clusterCode 4}}, {{as_hex commandCode 2}}, {{command_mask  commandSource clusterSide incoming outgoing commandMfgCode "COMMAND_MASK_"}} }, /* {{index}}, Cluster: {{clusterName}}, Command: {{commandName}}*/ {{backslash}}
 	{{/if}}
