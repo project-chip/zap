@@ -190,9 +190,7 @@ async function selectAllClustersWithIncomingCommands(
   endpointTypes,
   uniqueClusterCodes = false
 ) {
-  let endpointTypeIds = endpointTypes
-    .map((ep) => ep.endpointTypeId)
-    .toString()
+  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let sqlGroupBy = uniqueClusterCodes ? 'CLUSTER.CODE' : 'CLUSTER.NAME'
   let mapFunction = (x) => {
     return {
@@ -263,9 +261,7 @@ async function selectMfgClustersWithIncomingCommandsForClusterCode(
   endpointTypes,
   clusterCode
 ) {
-  let endpointTypeIds = endpointTypes
-      .map((ep) => ep.endpointTypeId)
-      .toString()
+  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mapFunction = (x) => {
     return {
       id: x.CLUSTER_ID,
@@ -608,7 +604,7 @@ async function selectNonGlobalCommandByCode(
     query = query + ` AND C.MANUFACTURER_CODE IS NULL`
     args = [packageId, commandCode, clusterCode]
   } else {
-    query = qyery + ` AND C.MANUFACTURER_CODE = ?`
+    query = query + ` AND C.MANUFACTURER_CODE = ?`
     args = [packageId, commandCode, clusterCode, mfgCode]
   }
 
@@ -643,7 +639,7 @@ async function selectGlobalCommandByCode(
     query = query + ` AND C.MANUFACTURER_CODE IS NULL`
     args = [packageId, commandCode]
   } else {
-    query = qyery + ` AND C.MANUFACTURER_CODE = ?`
+    query = query + ` AND C.MANUFACTURER_CODE = ?`
     args = [packageId, commandCode, mfgCode]
   }
 

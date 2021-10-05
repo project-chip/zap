@@ -542,7 +542,7 @@ WHERE
     query = query + ` AND MANUFACTURER_CODE IS NULL`
     args = [packageId, clusterCode]
   } else {
-    query = qyery + ` AND MANUFACTURER_CODE = ?`
+    query = query + ` AND MANUFACTURER_CODE = ?`
     args = [packageId, clusterCode, mfgCode]
   }
   return dbApi.dbGet(db, query, args).then(dbMapping.map.cluster)
