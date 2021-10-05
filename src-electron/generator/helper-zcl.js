@@ -238,22 +238,31 @@ function zcl_clusters(options) {
  * @param {*} options
  * @returns Promise of content.
  */
-function zcl_commands(options) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
-      if ('id' in this) {
-        // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryCommand.selectCommandsByClusterId(
-          this.global.db,
-          this.id,
-          packageId
-        )
-      } else {
-        return queryCommand.selectAllCommands(this.global.db, packageId)
+async function zcl_commands(options) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let commands
+  if (this.id != null) {
+    commands = await queryCommand.selectClusterCommandsWithArguments(
+        this.global.db,
+        this.id,
+        packageId
+    )
+  } else {
+    commands = await queryCommand.selectAllCommands(
+        this.global.db,
+        packageId
+    )
+  }
+
+  commands.forEach((cmd) => {
+    cmd.command_contains_array = false
+    cmd.args.forEach((i) => {
+      if (i.isArray) {
+        cmd.command_contains_array = true
       }
     })
-    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  })
+  let promise = templateUtil.collectBlocks(commands, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 

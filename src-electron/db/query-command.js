@@ -1013,6 +1013,97 @@ ORDER BY COMMAND_REF, FIELD_IDENTIFIER`,
     .then((rows) => rows.map(dbMapping.map.commandArgument))
 }
 
+async function selectClusterCommandsWithArguments(db, packageId, clusterId) {
+  let query
+  let args
+  if (clusterId == null) {
+    query = `
+    SELECT
+      C.CLUSTER_REF AS CLUSTER_REF,
+      C.COMMAND_ID AS COMMAND_ID,
+      C.NAME AS COMMAND_NAME,
+      C.CODE AS CODE,
+      C.MANUFACTURER_CODE as MANUFACTURER_CODE,
+      C.DESCRIPTION as DESCRIPTION,
+      C.SOURCE AS SOURCE,
+      C.IS_OPTIONAL AS IS_OPTIONAL,
+      CA.NAME AS ARG_NAME,
+      CA.COMMAND_REF AS ARG_COMMAND_REF,
+      CA.TYPE AS ARG_TYPE,
+      CA.IS_ARRAY AS ARG_IS_ARRAY
+    FROM
+      COMMAND AS C
+    LEFT JOIN
+      COMMAND_ARG AS CA
+    ON
+      C.COMMAND_ID = CA.COMMAND_REF
+    WHERE
+      S.PACKAGE_REF = ?
+    ORDER BY C.NAME, CA.NAME`
+    args = [packageId]
+  } else {
+    query = `
+    SELECT
+      C.CLUSTER_REF AS CLUSTER_REF,
+      C.COMMAND_ID AS COMMAND_ID,
+      C.NAME AS NAME,
+      C.CODE AS CODE,
+      C.SOURCE AS SOURCE,
+      C.IS_OPTIONAL AS IS_OPTIONAL,
+      CA.NAME AS ARG_NAME,
+      CA.COMMAND_REF AS ARG_COMMAND_REF,
+      CA.TYPE AS ARG_TYPE,
+      CA.IS_ARRAY AS ARG_IS_ARRAY
+    FROM
+      COMMAND AS C
+    INNER JOIN 
+        CLUSTER
+    ON C.CLUSTER_REF = CLUSTER.CLUSTER_ID
+    LEFT JOIN
+      COMMAND_ARG AS CA
+    ON
+      C.COMMAND_ID = CA.COMMAND_REF
+    WHERE
+      C.PACKAGE_REF = ?
+    AND
+      C.CLUSTER_REF = ?
+    ORDER BY C.NAME, CA.NAME`
+    args = [packageId, clusterId]
+  }
+
+  let rows = await dbApi.dbAll(db, query, args)
+  return rows.reduce((acc, value) => {
+    let objectToActOn
+    if (acc.length == 0 || acc[acc.length - 1].name != value.NAME) {
+      // Create a new object
+      objectToActOn = {
+        clusterRef: value.CLUSTER_REF,
+        id: value.COMMAND_ID,
+        code: value.CODE,
+        name: value.NAME,
+        label: value.NAME,
+        source:value.SOURCE,
+        manufacturerCode:value.MANUFACTURER_CODE,
+        description:value.DESCRIPTION,
+        isOptional:value.IS_OPTIONAL,
+        args: [],
+        argCnt: 0,
+      }
+      acc.push(objectToActOn)
+    } else {
+      objectToActOn = acc[acc.length - 1]
+    }
+    objectToActOn.args.push({
+      name: value.ARG_NAME,
+      label: value.ARG_NAME,
+      type: value.ARG_TYPE,
+      isArray: dbApi.fromDbBool(value.ARG_IS_ARRAY),
+    })
+    objectToActOn.argCnt++
+    return acc
+  }, [])
+}
+
 /**
  * Get the number of command arguments for a command
  *
@@ -1457,6 +1548,7 @@ exports.selectCommandsByClusterIdAndSource = selectCommandsByClusterIdAndSource
 exports.selectAllGlobalCommands = selectAllGlobalCommands
 exports.selectAllClusterCommands = selectAllClusterCommands
 exports.selectAllCommandArguments = selectAllCommandArguments
+exports.selectClusterCommandsWithArguments = selectClusterCommandsWithArguments
 exports.selectCommandArgumentsCountByCommandId =
   selectCommandArgumentsCountByCommandId
 exports.selectCommandArgumentsByCommandId = selectCommandArgumentsByCommandId
