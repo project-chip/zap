@@ -15,6 +15,8 @@
  *    limitations under the License.
  */
 
+export {}
+
 const { session, BrowserWindow, dialog } = require('electron')
 const path = require('path')
 const env = require('../util/env')
@@ -24,6 +26,7 @@ const tray = require('./tray.js')
 const browserApi = require('./browser-api.js')
 const querystringUtil = require('querystring')
 const httpServer = require('../server/http-server.js')
+import {WindowCreateArgs} from '../types/window-types'
 
 let windowCounter = 0
 
@@ -37,30 +40,34 @@ let windowCounter = 0
  *
  * @param {*} port
  */
-function initializeElectronUi(port) {
+export function initializeElectronUi(port: number) {
   menu.initMenu(port)
   tray.initTray(port)
 }
 
-function windowCreateIfNotThere(port) {
+export function windowCreateIfNotThere(port: number) {
   if (BrowserWindow.getAllWindows().length == 0) {
     windowCreate(port)
   }
 }
 
-function createQueryString(uiMode, standalone, restPort) {
-  let params = {}
+export function createQueryString(
+  uiMode?: string | undefined,
+  standalone?: boolean | undefined,
+  restPort?: number
+) {
+  var params = new Map();
 
   if (!arguments.length) {
     return ''
   }
 
   if (uiMode !== undefined) {
-    params.uiMode = uiMode
+    params.set('uiMode', uiMode)
   }
 
   if (standalone !== undefined) {
-    params.standalone = standalone
+    params.set('standalone', standalone)
   }
 
   // Electron/Development mode
@@ -69,10 +76,10 @@ function createQueryString(uiMode, standalone, restPort) {
     process.env.MODE === 'electron' &&
     restPort !== undefined
   ) {
-    params.restPort = restPort
+    params.set('restPort', restPort)
   }
 
-  return '?' + querystringUtil.stringify(params)
+  return '?' + querystringUtil.stringify(Object.fromEntries(params))
 }
 
 /**
@@ -84,7 +91,7 @@ function createQueryString(uiMode, standalone, restPort) {
  * @param {*} [uiMode=null]
  * @returns BrowserWindow that got created
  */
-function windowCreate(port, args = {}) {
+export function windowCreate(port: number, args?: WindowCreateArgs) {
   let webPreferences = {
     nodeIntegration: false,
     worldSafeExecuteJavaScript: true,
@@ -98,21 +105,22 @@ function windowCreate(port, args = {}) {
     resizable: true,
     center: true,
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
-    title: args.filePath == null ? menu.newConfiguration : args.filePath,
+    title: args?.filePath == null ? menu.newConfiguration : args?.filePath,
     useContentSize: true,
     webPreferences: webPreferences,
   })
 
   let queryString = createQueryString(
-    args.uiMode,
-    args.standalone,
+    args?.uiMode,
+    args?.standalone,
     httpServer.httpServerPort()
   )
 
+  // @ts-ignore
   w.isDirty = false
   w.loadURL(`http://localhost:${port}/` + queryString).then(async () => {
-    if (args.filePath != null) {
-      browserApi.execFileOpen(w, args.filePath)
+    if (args?.filePath != null) {
+      browserApi.execFileOpen(w, args?.filePath)
     }
   })
 
@@ -122,6 +130,7 @@ function windowCreate(port, args = {}) {
 
   w.on('close', (e) => {
     e.preventDefault()
+    // @ts-ignore
     if (w.isDirty) {
       const result = dialog.showMessageBoxSync(w, {
         type: 'warning',
@@ -149,8 +158,3 @@ function windowCreate(port, args = {}) {
   )
   return w
 }
-// exports
-exports.initializeElectronUi = initializeElectronUi
-exports.windowCreateIfNotThere = windowCreateIfNotThere
-exports.windowCreate = windowCreate
-exports.createQueryString = createQueryString

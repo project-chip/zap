@@ -15,9 +15,10 @@
  *    limitations under the License.
  */
 import { dialog } from 'electron'
-import windowJs from './window.js'
+import * as window from './window'
 import browserApi from './browser-api.js'
 import * as uiTypes from '../../src-shared/types/ui-types'
+import { WindowCreateArgs } from 'types/window-types'
 
 /**
  * Simple dialog to show error messages from electron renderer scope.
@@ -48,7 +49,7 @@ function openFileConfiguration(
   httpPort: number,
   standalone: boolean = false
 ) {
-  windowJs.windowCreate(httpPort, {
+  window.windowCreate(httpPort, {
     filePath,
     standalone,
   })
@@ -60,8 +61,8 @@ function openFileConfiguration(
  * @param {*} httpPort
  * @param {*} options: uiMode, debugNavBar
  */
-async function openNewConfiguration(httpPort: number, options = {}) {
-  windowJs.windowCreate(httpPort, options)
+async function openNewConfiguration(httpPort: number, options?: WindowCreateArgs) {
+  window.windowCreate(httpPort, options)
 }
 
 /**
