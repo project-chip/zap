@@ -720,11 +720,11 @@ async function all_user_cluster_attributes_for_generated_defaults(options) {
       this.global.db,
       endpointTypes
     )
-  let endpointCommands = await queryAttribute.selectAttributeBoundDetails(
+  let endpointAttributes = await queryAttribute.selectAttributeBoundDetails(
     this.global.db,
     endpointsAndClusters
   )
-  return templateUtil.collectBlocks(endpointCommands, options, this)
+  return templateUtil.collectBlocks(endpointAttributes, options, this)
 }
 
 /**
@@ -741,12 +741,12 @@ async function all_user_cluster_generated_attributes(options) {
       this.global.db,
       endpointTypes
     )
-  let endpointCommands =
+  let endpointAttributes =
     await queryAttribute.selectAttributeDetailsFromEnabledClusters(
       this.global.db,
       endpointsAndClusters
     )
-  return templateUtil.collectBlocks(endpointCommands, options, this)
+  return templateUtil.collectBlocks(endpointAttributes, options, this)
 }
 
 /**
@@ -763,12 +763,12 @@ async function all_user_reportable_attributes(options) {
       this.global.db,
       endpointTypes
     )
-  let endpointCommands =
+  let endpointAttributes =
     await queryAttribute.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
       this.global.db,
       endpointsAndClusters
     )
-  return templateUtil.collectBlocks(endpointCommands, options, this)
+  return templateUtil.collectBlocks(endpointAttributes, options, this)
 }
 
 /**
@@ -964,12 +964,12 @@ async function generated_clustes_details(options) {
       this.global.db,
       endpointTypes
     )
-  let endpointCommands =
+  let clusterDetails =
     await queryCluster.selectClusterDetailsFromEnabledClusters(
       this.global.db,
       endpointsAndClusters
     )
-  return templateUtil.collectBlocks(endpointCommands, options, this)
+  return templateUtil.collectBlocks(clusterDetails, options, this)
 }
 
 /**
@@ -984,12 +984,12 @@ async function generated_endpoint_type_details(options) {
       this.global.db,
       endpointTypes
     )
-  let endpointCommands =
+  let endpointDetails =
     await queryEndpointType.selectEndpointDetailsFromAddedEndpoints(
       this.global.db,
       endpointsAndClusters
     )
-  return templateUtil.collectBlocks(endpointCommands, options, this)
+  return templateUtil.collectBlocks(endpointDetails, options, this)
 }
 
 /**
@@ -1008,12 +1008,12 @@ async function all_user_cluster_attributes_min_max_defaults(options) {
       this.global.db,
       endpointTypes
     )
-  let endpointCommands =
+  let endpointAttributes =
     await queryAttribute.selectAttributeDetailsWithABoundFromEnabledClusters(
       this.global.db,
       endpointsAndClusters
     )
-  return templateUtil.collectBlocks(endpointCommands, options, this)
+  return templateUtil.collectBlocks(endpointAttributes, options, this)
 }
 
 /**
