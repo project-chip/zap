@@ -331,6 +331,41 @@ WHERE
 }
 
 /**
+ * Returns an array of clusters that enum belongs to.
+ * @param {*} db
+ * @param {*} enumId
+ * @returns clusters
+ */
+async function selectBitmapClusters(db, bitmapId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  C.CLUSTER_ID,
+  C.CODE,
+  C.MANUFACTURER_CODE,
+  C.NAME,
+  C.DESCRIPTION,
+  C.DEFINE,
+  C.DOMAIN_NAME,
+  C.IS_SINGLETON,
+  C.REVISION
+FROM
+  CLUSTER AS C
+INNER JOIN
+  BITMAP_CLUSTER AS BC
+ON
+  C.CLUSTER_ID = BC.CLUSTER_REF
+WHERE
+  BC.BITMAP_REF = ?
+    `,
+      [bitmapId]
+    )
+    .then((rows) => rows.map(dbMapping.map.cluster))
+}
+
+/**
  * Retrieves all the cluster-related structs in the database with the items.
  *
  * @export
@@ -1457,3 +1492,4 @@ exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 
 exports.selectEnumClusters = selectEnumClusters
 exports.selectStructClusters = selectStructClusters
+exports.selectBitmapClusters = selectBitmapClusters

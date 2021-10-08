@@ -254,6 +254,7 @@ exports.map = {
     return {
       id: x.BITMAP_ID,
       label: x.NAME,
+      name: x.NAME,
       type: x.TYPE,
     }
   },

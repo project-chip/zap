@@ -34,5 +34,12 @@ Enums for cluster {{name}}:
 {{/zcl_enum_items}}
 {{/zcl_enums}}
 
+Bitmaps for cluster {{name}}:
+{{#zcl_bitmaps}}
+   * Bitmap: {{name}}
+{{#zcl_bitmap_items}}
+      - item: {{name}}
+{{/zcl_bitmap_items}}
+{{/zcl_bitmaps}}
 
 {{/zcl_clusters}}
