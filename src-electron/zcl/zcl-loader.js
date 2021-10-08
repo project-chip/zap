@@ -102,7 +102,7 @@ async function loadIndividualFile(db, filePath, sessionId) {
   } else {
     let error = new Error('Custom ZCL XML Error: Unknown extension file')
     env.logError(`Error reading xml file: ${filePath}\n ` + error)
-    return { succeeded: false, err: error}
+    return { succeeded: false, err: error }
   }
 }
 
@@ -244,6 +244,7 @@ async function qualifyZclFile(
 async function processZclPostLoading(db, packageId) {
   await queryLoader.updateEnumClusterReferences(db, packageId)
   await queryLoader.updateStructClusterReferences(db, packageId)
+  await queryLoader.updateBitmapClusterReferences(db, packageId)
   await queryZcl.updateDeviceTypeEntityReferences(db, packageId)
   return queryCommand.updateCommandRequestResponseReferences(db)
 }

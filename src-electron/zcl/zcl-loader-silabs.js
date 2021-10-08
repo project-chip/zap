@@ -206,6 +206,12 @@ function maskToType(mask) {
  */
 function prepareBitmap(bm) {
   let ret = { name: bm.$.name, type: bm.$.type }
+  if ('cluster' in bm) {
+    ret.clusters = []
+    bm.cluster.forEach((cl) => {
+      ret.clusters.push(parseInt(cl.$.code))
+    })
+  }
   if ('field' in bm) {
     ret.fields = []
     bm.field.forEach((field, index) => {
@@ -1042,16 +1048,21 @@ async function parseZclSchema(db, packageId, zclSchema, zclValidation) {
 }
 
 async function parseFeatureFlags(db, packageId, featureFlags) {
-  return Promise.all(Object.keys(featureFlags).map(featureCategory => {
-    return queryPackage.insertOptionsKeyValues(
-      db,
-      packageId,
-      featureCategory,
-      Object.keys(featureFlags[featureCategory]).map(data => {
-        return {code: data, label: featureFlags[featureCategory][data] == "1" ? true : false}
-      })
-    )
-  }))
+  return Promise.all(
+    Object.keys(featureFlags).map((featureCategory) => {
+      return queryPackage.insertOptionsKeyValues(
+        db,
+        packageId,
+        featureCategory,
+        Object.keys(featureFlags[featureCategory]).map((data) => {
+          return {
+            code: data,
+            label: featureFlags[featureCategory][data] == '1' ? true : false,
+          }
+        })
+      )
+    })
+  )
 }
 
 /**

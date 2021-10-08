@@ -66,7 +66,7 @@ ON
 WHERE
   E.PACKAGE_REF = ?
   AND EC.CLUSTER_REF = ?
-ORDER BY NAME`,
+ORDER BY E.NAME`,
       [packageId, clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.enum))
@@ -124,8 +124,45 @@ async function selectAllBitmaps(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE PACKAGE_REF = ? ORDER BY NAME',
+      `
+SELECT
+  BITMAP_ID,
+  NAME,
+  TYPE
+FROM BITMAP
+WHERE PACKAGE_REF = ? ORDER BY NAME`,
       [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.bitmap))
+}
+
+/**
+ * Retrieves all the bitmaps that are associated with a cluster.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} clusterId
+ * @returns cluster-related bitmaps
+ */
+async function selectClusterBitmaps(db, packageId, clusterId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  B.BITMAP_ID,
+  B.NAME,
+  B.TYPE
+FROM
+  BITMAP AS B
+INNER JOIN
+  BITMAP_CLUSTER AS BC
+ON
+  B.BITMAP_ID = BC.BITMAP_REF
+WHERE
+  B.PACKAGE_REF = ?
+  AND BC.CLUSTER_REF = ?
+ORDER BY B.NAME`,
+      [packageId, clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmap))
 }
@@ -289,6 +326,41 @@ WHERE
   EC.ENUM_REF = ?
     `,
       [enumId]
+    )
+    .then((rows) => rows.map(dbMapping.map.cluster))
+}
+
+/**
+ * Returns an array of clusters that enum belongs to.
+ * @param {*} db
+ * @param {*} enumId
+ * @returns clusters
+ */
+async function selectBitmapClusters(db, bitmapId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  C.CLUSTER_ID,
+  C.CODE,
+  C.MANUFACTURER_CODE,
+  C.NAME,
+  C.DESCRIPTION,
+  C.DEFINE,
+  C.DOMAIN_NAME,
+  C.IS_SINGLETON,
+  C.REVISION
+FROM
+  CLUSTER AS C
+INNER JOIN
+  BITMAP_CLUSTER AS BC
+ON
+  C.CLUSTER_ID = BC.CLUSTER_REF
+WHERE
+  BC.BITMAP_REF = ?
+    `,
+      [bitmapId]
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
@@ -1356,6 +1428,7 @@ exports.selectEnumById = selectEnumById
 exports.selectEnumByName = selectEnumByName
 
 exports.selectAllBitmaps = selectAllBitmaps
+exports.selectClusterBitmaps = selectClusterBitmaps
 exports.selectAllBitmapFields = selectAllBitmapFields
 exports.selectBitmapById = selectBitmapById
 exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById
@@ -1419,3 +1492,4 @@ exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 
 exports.selectEnumClusters = selectEnumClusters
 exports.selectStructClusters = selectStructClusters
+exports.selectBitmapClusters = selectBitmapClusters

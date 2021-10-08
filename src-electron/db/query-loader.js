@@ -724,36 +724,50 @@ async function insertEnums(db, packageId, data) {
  * @returns A promise of bitmap insertions.
  */
 async function insertBitmaps(db, packageId, data) {
-  return dbApi
-    .dbMultiInsert(
+  const lastIdsArray = await dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO BITMAP (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
+    data.map((bm) => [packageId, bm.name, bm.type])
+  )
+
+  let clustersToLoad = []
+  for (let i = 0; i < lastIdsArray.length; i++) {
+    if ('clusters' in data[i]) {
+      let lastId = lastIdsArray[i]
+      let clusters = data[i].clusters
+      clustersToLoad.push(...clusters.map((cl) => [lastId, cl]))
+    }
+  }
+
+  if (clustersToLoad.length > 0) {
+    await dbApi.dbMultiInsert(
       db,
-      'INSERT INTO BITMAP (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
-      data.map((bm) => [packageId, bm.name, bm.type])
+      `INSERT INTO BITMAP_CLUSTER ( BITMAP_REF, CLUSTER_CODE) VALUES (?,?)`,
+      clustersToLoad
     )
-    .then((lastIdsArray) => {
-      let i
-      let fieldsToLoad = []
-      for (i = 0; i < lastIdsArray.length; i++) {
-        if ('fields' in data[i]) {
-          let lastId = lastIdsArray[i]
-          let fields = data[i].fields
-          fieldsToLoad.push(
-            ...fields.map((field) => [
-              lastId,
-              field.name,
-              field.mask,
-              field.type,
-              field.fieldIdentifier,
-            ])
-          )
-        }
-      }
-      return dbApi.dbMultiInsert(
-        db,
-        'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, TYPE, FIELD_IDENTIFIER) VALUES (?, ?, ?, ?, ?)',
-        fieldsToLoad
+  }
+
+  let fieldsToLoad = []
+  for (let i = 0; i < lastIdsArray.length; i++) {
+    if ('fields' in data[i]) {
+      let lastId = lastIdsArray[i]
+      let fields = data[i].fields
+      fieldsToLoad.push(
+        ...fields.map((field) => [
+          lastId,
+          field.name,
+          field.mask,
+          field.type,
+          field.fieldIdentifier,
+        ])
       )
-    })
+    }
+  }
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, TYPE, FIELD_IDENTIFIER) VALUES (?, ?, ?, ?, ?)',
+    fieldsToLoad
+  )
 }
 
 /**
@@ -947,6 +961,30 @@ SET
   )
 }
 
+async function updateBitmapClusterReferences(db, packageId) {
+  return dbApi.dbUpdate(
+    db,
+    `
+UPDATE
+  BITMAP_CLUSTER
+SET
+  CLUSTER_REF =
+  (
+    SELECT
+      CLUSTER_ID
+    FROM
+      CLUSTER
+    WHERE
+      CLUSTER.CODE = BITMAP_CLUSTER.CLUSTER_CODE
+    AND
+      CLUSTER.PACKAGE_REF = ?
+  )
+  
+`,
+    [packageId]
+  )
+}
+
 exports.insertGlobals = insertGlobals
 exports.insertClusterExtensions = insertClusterExtensions
 exports.insertClusters = insertClusters
@@ -961,3 +999,4 @@ exports.insertDeviceTypes = insertDeviceTypes
 exports.insertTags = insertTags
 exports.updateEnumClusterReferences = updateEnumClusterReferences
 exports.updateStructClusterReferences = updateStructClusterReferences
+exports.updateBitmapClusterReferences = updateBitmapClusterReferences

@@ -66,12 +66,11 @@ test(
   'Meta test - zcl loading',
   async () => {
     zclContext = await zclLoader.loadZcl(db, testUtil.testZclMetafile)
+
     const structs = await queryZcl.selectAllStructsWithItemCount(
       db,
       zclContext.packageId
     )
-    const enums = await queryZcl.selectAllEnums(db, zclContext.packageId)
-
     for (const s of structs) {
       let clusters = await queryZcl.selectStructClusters(db, s.id)
       if (s.name == 'SimpleStruct' || s.name == 'StructWithArray') {
@@ -82,9 +81,22 @@ test(
       }
     }
 
+    const enums = await queryZcl.selectAllEnums(db, zclContext.packageId)
     for (const e of enums) {
       let clusters = await queryZcl.selectEnumClusters(db, e.id)
       if (e.name == 'TestEnum') {
+        expect(clusters.length).toBe(1)
+        expect(clusters[0].code).toBe(0xabcd)
+      } else {
+        expect(clusters.length).toBe(0)
+      }
+    }
+
+    const bitmaps = await queryZcl.selectAllBitmaps(db, zclContext.packageId)
+    expect(bitmaps.length).toBe(2)
+    for (const b of bitmaps) {
+      let clusters = await queryZcl.selectBitmapClusters(db, b.id)
+      if (b.name == 'ClusterBitmap') {
         expect(clusters.length).toBe(1)
         expect(clusters[0].code).toBe(0xabcd)
       } else {
@@ -131,8 +143,9 @@ test(
     expect(epc).not.toBeNull()
     expect(epc).toContain('validating')
 
-    epc = genResult.content['struct-and-enum-by-cluster.h']
+    epc = genResult.content['type-by-cluster.h']
     expect(epc).toContain('enum item: c')
+    expect(epc).toContain('Bitmap: ClusterBitmap')
 
     epc = genResult.content['struct.h']
     expect(epc).toContain('Nest complex;// <- has nested array')

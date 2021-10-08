@@ -135,4 +135,12 @@ limitations under the License.
     <item name="simple1" type="UINT8U"/>
     <item name="complex" type="Nest" array="true"/>
   </struct>
+
+  <bitmap name="TestBitmap">
+    <field name="f1" mask="0x01"/>
+  </bitmap>
+  <bitmap name="ClusterBitmap">
+    <cluster code="0xABCD"/>
+    <field name="f1" mask="0x01"/>
+  </bitmap>
 </configurator>
