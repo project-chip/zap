@@ -871,7 +871,7 @@ function all_user_clusters_with_incoming_commands_combined(options) {
  * @param options
  * @returns all commands that need to be parsed for a given cluster
  */
-function all_incoming_commands_for_cluster_combined(
+async function all_incoming_commands_for_cluster_combined(
   clusterName,
   clientSide,
   serverSide,
@@ -881,21 +881,22 @@ function all_incoming_commands_for_cluster_combined(
     'isMfgSpecific' in options.hash
       ? options.hash.isMfgSpecific.toLowerCase() === 'true'
       : undefined
-  return queryEndpointType
-    .selectUsedEndpointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      queryCommand.selectAllIncomingCommandsForClusterCombined(
-        this.global.db,
-        endpointTypes,
-        clusterName,
-        clientSide,
-        serverSide,
-        isMfgSpec
-      )
+  let endpointTypes = await queryEndpointType.selectUsedEndpointTypeIds(
+    this.global.db,
+    this.global.sessionId
+  )
+
+  let clustersWithIncomingCommands =
+    await queryCommand.selectAllIncomingCommandsForClusterCombined(
+      this.global.db,
+      endpointTypes,
+      clusterName,
+      clientSide,
+      serverSide,
+      isMfgSpec
     )
-    .then((clustersWithIncomingCommands) =>
-      templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
-    )
+
+  return templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
 }
 
 async function all_user_incoming_commands_for_all_clusters(options) {
@@ -1017,36 +1018,36 @@ async function all_user_cluster_attributes_min_max_defaults(options) {
 }
 
 /**
- * 
- * @param clusterName 
- * @param attributeName 
- * @param attributeSide 
- * @param attributeValue 
- * @param attributeValueType 
- * @param endpointAttributes 
+ *
+ * @param clusterName
+ * @param attributeName
+ * @param attributeSide
+ * @param attributeValue
+ * @param attributeValueType
+ * @param endpointAttributes
  * @returns arrayIndex
  */
-function checkAttributeMatch(clusterName,
-                             attributeName,
-                             attributeSide,
-                             attributeValue,
-                             attributeValueType,
-                             endpointAttributes) {
-  return new Promise((resolve, reject) => {
-    let dataPtr
-    for (const ea of endpointAttributes) {
-      if (
-        ea.clusterName === clusterName &&
-        ea.name === attributeName &&
-        ea.side === attributeSide &&
-        ea.attributeValueType === attributeValueType
-      ) {
-        dataPtr = ea.arrayIndex ? ea.arrayIndex : 0
-        resolve(dataPtr)
-      }
+async function checkAttributeMatch(
+  clusterName,
+  attributeName,
+  attributeSide,
+  attributeValue,
+  attributeValueType,
+  endpointAttributes
+) {
+  let dataPtr
+  for (const ea of endpointAttributes) {
+    if (
+      ea.clusterName === clusterName &&
+      ea.name === attributeName &&
+      ea.side === attributeSide &&
+      ea.attributeValueType === attributeValueType
+    ) {
+      dataPtr = ea.arrayIndex ? ea.arrayIndex : 0
+      return dataPtr
     }
-    resolve(attributeValue)
-  })
+  }
+  return attributeValue
 }
 
 /**
@@ -1111,7 +1112,7 @@ async function generated_defaults_index(
  * @param postFixReturn
  * @returns deafult value's index in the generated default array
  */
- async function generated_default_index(
+async function generated_default_index(
   clusterName,
   attributeName,
   attributeSide,
@@ -1133,12 +1134,14 @@ async function generated_defaults_index(
     endpointsAndClusters
   )
 
-  let dataPtr = await checkAttributeMatch(clusterName,
-                                      attributeName,
-                                      attributeSide,
-                                      attributeValue,
-                                      attributeValueType,
-                                      endpointAttributes)
+  let dataPtr = await checkAttributeMatch(
+    clusterName,
+    attributeName,
+    attributeSide,
+    attributeValue,
+    attributeValueType,
+    endpointAttributes
+  )
   if (dataPtr === attributeValue) {
     dataPtr = dataPtr ? '(uint8_t*)' + dataPtr : 'NULL'
   } else {
@@ -1191,7 +1194,11 @@ async function generated_attributes_min_max_index(clusterName, attributeName) {
  * @param options
  * @returns index of the generated min max default in the array
  */
- async function generated_attribute_min_max_index(clusterName, attributeName, attributeSide) {
+async function generated_attribute_min_max_index(
+  clusterName,
+  attributeName,
+  attributeSide
+) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
   let endpointsAndClusters =
     await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
@@ -1275,10 +1282,9 @@ exports.generated_clustes_details = generated_clustes_details
 exports.generated_endpoint_type_details = generated_endpoint_type_details
 exports.all_user_cluster_attributes_min_max_defaults =
   all_user_cluster_attributes_min_max_defaults
-exports.generated_defaults_index = dep(
-  generated_defaults_index,
-  { to: 'generated_default_index' }
-)
+exports.generated_defaults_index = dep(generated_defaults_index, {
+  to: 'generated_default_index',
+})
 exports.generated_default_index = generated_default_index
 exports.generated_attributes_min_max_index = dep(
   generated_attributes_min_max_index,
