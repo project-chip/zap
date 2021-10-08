@@ -66,7 +66,7 @@ ON
 WHERE
   E.PACKAGE_REF = ?
   AND EC.CLUSTER_REF = ?
-ORDER BY NAME`,
+ORDER BY E.NAME`,
       [packageId, clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.enum))
@@ -124,8 +124,45 @@ async function selectAllBitmaps(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE PACKAGE_REF = ? ORDER BY NAME',
+      `
+SELECT
+  BITMAP_ID,
+  NAME,
+  TYPE
+FROM BITMAP
+WHERE PACKAGE_REF = ? ORDER BY NAME`,
       [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.bitmap))
+}
+
+/**
+ * Retrieves all the bitmaps that are associated with a cluster.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} clusterId
+ * @returns cluster-related bitmaps
+ */
+async function selectClusterBitmaps(db, packageId, clusterId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  B.BITMAP_ID,
+  B.NAME,
+  B.TYPE
+FROM
+  BITMAP AS B
+INNER JOIN
+  BITMAP_CLUSTER AS BC
+ON
+  B.BITMAP_ID = BC.BITMAP_REF
+WHERE
+  B.PACKAGE_REF = ?
+  AND BC.CLUSTER_REF = ?
+ORDER BY B.NAME`,
+      [packageId, clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmap))
 }
@@ -1356,6 +1393,7 @@ exports.selectEnumById = selectEnumById
 exports.selectEnumByName = selectEnumByName
 
 exports.selectAllBitmaps = selectAllBitmaps
+exports.selectClusterBitmaps = selectClusterBitmaps
 exports.selectAllBitmapFields = selectAllBitmapFields
 exports.selectBitmapById = selectBitmapById
 exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById

@@ -37,11 +37,19 @@ const zclUtil = require('../util/zcl-util')
  * @param {*} options
  * @returns Promise of content.
  */
-function zcl_bitmaps(options) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => queryZcl.selectAllBitmaps(this.global.db, packageId))
-    .then((ens) => templateUtil.collectBlocks(ens, options, this))
+async function zcl_bitmaps(options) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let ens
+  if (this.id != null) {
+    ens = await queryZcl.selectClusterBitmaps(
+      this.global.db,
+      packageId,
+      this.id
+    )
+  } else {
+    ens = await queryZcl.selectAllBitmaps(this.global.db, packageId)
+  }
+  let promise = templateUtil.collectBlocks(ens, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 
