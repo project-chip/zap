@@ -430,7 +430,7 @@ CREATE TABLE IF NOT EXISTS "BITMAP_CLUSTER" (
   "BITMAP_REF" integer,
   "CLUSTER_CODE" integer,
   "CLUSTER_REF" integer,
-  foreign_key(BITMAP_REF) references BITMAP(BITMAP_ID),
+  foreign key(BITMAP_REF) references BITMAP(BITMAP_ID),
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
   UNIQUE(BITMAP_REF, CLUSTER_REF)
 );
