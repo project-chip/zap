@@ -1266,9 +1266,9 @@ function if_is_bitmap(type, options) {
  *
  * * example:
  * {{#if_is_enum type}}
- * type is bitmap
+ * type is enum
  * {{else}}
- * type is not bitmap
+ * type is not enum
  * {{/if_is_enum}}
  *
  * @param {*} type

@@ -343,6 +343,8 @@ export default {
           label: 'Attribute ID',
           field: 'attrID',
           sortable: true,
+          style: 'max-width: 90px',
+          headerStyle: 'max-width: 90px'
         },
         {
           name: 'attrName',
@@ -405,6 +407,8 @@ export default {
           align: 'left',
           label: 'Default',
           field: 'default',
+          style: 'min-width: 80px',
+          headerStyle: 'min-width: 80px'
         },
       ],
     }

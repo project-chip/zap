@@ -19,7 +19,7 @@
  */
 
 const electronMain = require('../src-electron/main-process/electron-main')
-import window from '../src-electron/ui/window.js'
+import * as window from '../src-electron/ui/window'
 const { timeout } = require('./test-util.js')
 
 test(

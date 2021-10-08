@@ -170,21 +170,21 @@ test(
         'SELECT MANUFACTURER_CODE FROM CLUSTER WHERE MANUFACTURER_CODE NOT NULL',
         []
       )
-      expect(x.length).toEqual(3)
+      expect(x.length).toEqual(5)
 
       x = await dbApi.dbAll(
         db,
         'SELECT MANUFACTURER_CODE FROM COMMAND WHERE MANUFACTURER_CODE NOT NULL',
         []
       )
-      expect(x.length).toEqual(51)
+      expect(x.length).toEqual(58)
 
       x = await dbApi.dbAll(
         db,
         'SELECT MANUFACTURER_CODE FROM ATTRIBUTE WHERE MANUFACTURER_CODE NOT NULL',
         []
       )
-      expect(x.length).toEqual(22)
+      expect(x.length).toEqual(30)
 
       rows = await dbApi.dbMultiSelect(
         db,

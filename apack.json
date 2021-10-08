@@ -8,7 +8,7 @@
     "ZAP.app/Contents/MacOS"
   ],
   "requiredFeatureLevel": "apack.core:9",
-  "featureLevel": 60,
+  "featureLevel": 62,
   "uc.triggerExtension": "zap",
   "executable": {
     "zap:win32.x86_64": {
