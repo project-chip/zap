@@ -21,6 +21,7 @@
  */
 const os = require('os')
 const fs = require('fs')
+const fsp = fs.promises
 const path = require('path')
 const env = require('../util/env')
 const querySession = require('../db/query-session.js')
@@ -38,17 +39,19 @@ async function exportEndpointType(db, endpointType) {
   let ps = data.map(async (endpointCluster) => {
     let endpointClusterId = endpointCluster.endpointClusterId
     delete endpointCluster.endpointClusterId
-    endpointCluster.commands = await queryImpExp.exportCommandsFromEndpointTypeCluster(
-      db,
-      endpointType.endpointTypeId,
-      endpointClusterId
-    )
+    endpointCluster.commands =
+      await queryImpExp.exportCommandsFromEndpointTypeCluster(
+        db,
+        endpointType.endpointTypeId,
+        endpointClusterId
+      )
 
-    endpointCluster.attributes = await queryImpExp.exportAttributesFromEndpointTypeCluster(
-      db,
-      endpointType.endpointTypeId,
-      endpointClusterId
-    )
+    endpointCluster.attributes =
+      await queryImpExp.exportAttributesFromEndpointTypeCluster(
+        db,
+        endpointType.endpointTypeId,
+        endpointClusterId
+      )
   })
   return Promise.all(ps)
 }
@@ -126,17 +129,18 @@ async function exportDataIntoFile(
   filePath,
   options = {
     removeLog: false,
+    createBackup: false,
   }
 ) {
   env.logDebug(`Writing state from session ${sessionId} into file ${filePath}`)
   let state = await createStateFromDatabase(db, sessionId)
-  await new Promise((resolve, reject) => {
-    if (options.removeLog) delete state.log
-    fs.writeFile(filePath, JSON.stringify(state, null, 2), (err) => {
-      if (err) reject(err)
-      resolve()
-    })
-  })
+  if (options.removeLog) delete state.log
+
+  if (fs.existsSync(filePath)) {
+    fs.copyFileSync(filePath, filePath + '~')
+  }
+
+  await fsp.writeFile(filePath, JSON.stringify(state, null, 2))
   await querySession.setSessionClean(db, sessionId)
   return filePath
 }

@@ -250,11 +250,12 @@ async function startConvert(
               template: argv.generationTemplate,
             })
             .then(() => {
-              if ( argv.postImportScript) {
-                  return importJs.executePostImportScript(
+              if (argv.postImportScript) {
+                return importJs.executePostImportScript(
                   db,
                   importResult.sessionId,
-                  argv.postImportScript)
+                  argv.postImportScript
+                )
               }
             })
             .then(() => importResult.sessionId)
@@ -277,6 +278,7 @@ async function startConvert(
             .then(() =>
               exportJs.exportDataIntoFile(db, sessionId, of, {
                 removeLog: argv.noZapFileLog,
+                createBackup: true,
               })
             )
         })
