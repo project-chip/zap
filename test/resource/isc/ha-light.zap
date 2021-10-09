@@ -1,5 +1,5 @@
 {
-  "featureLevel": 39,
+  "featureLevel": 62,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -43,7 +43,16 @@
           "define": "BASIC_CLUSTER",
           "side": "client",
           "enabled": 0,
-          "commands": [],
+          "commands": [
+            {
+              "name": "ResetToFactoryDefaults",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            }
+          ],
           "attributes": [
             {
               "name": "cluster revision",
@@ -56,7 +65,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -82,7 +91,7 @@
               "bounded": 1,
               "defaultValue": "0x08",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -97,7 +106,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -112,7 +121,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -127,7 +136,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -142,7 +151,7 @@
               "bounded": 1,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -157,7 +166,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -172,7 +181,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -201,6 +210,22 @@
               "source": "client",
               "incoming": 1,
               "outgoing": 1
+            },
+            {
+              "name": "EZModeInvoke",
+              "code": 2,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "UpdateCommissionState",
+              "code": 3,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
             }
           ],
           "attributes": [
@@ -215,7 +240,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -250,7 +275,7 @@
               "bounded": 1,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -265,7 +290,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -340,7 +365,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -399,7 +424,7 @@
               "bounded": 1,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -414,7 +439,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -497,7 +522,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -572,7 +597,7 @@
               "bounded": 1,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -587,7 +612,7 @@
               "bounded": 1,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -602,7 +627,7 @@
               "bounded": 1,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -617,7 +642,7 @@
               "bounded": 1,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -632,7 +657,7 @@
               "bounded": 1,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -647,7 +672,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -698,7 +723,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -724,7 +749,7 @@
               "bounded": 1,
               "defaultValue": "0x00",
               "reportable": 1,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -739,7 +764,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -830,7 +855,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -856,7 +881,7 @@
               "bounded": 1,
               "defaultValue": "0x00",
               "reportable": 1,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -871,7 +896,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -886,7 +911,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -901,7 +926,7 @@
               "bounded": 0,
               "defaultValue": "0xFE",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -916,7 +941,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -959,7 +984,7 @@
               "bounded": 0,
               "defaultValue": "0x0001",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -994,7 +1019,7 @@
               "bounded": 0,
               "defaultValue": "0x0001",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1020,7 +1045,7 @@
               "bounded": 0,
               "defaultValue": "0x00000000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1063,7 +1088,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1098,7 +1123,7 @@
               "bounded": 0,
               "defaultValue": "0x00003840",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1113,7 +1138,7 @@
               "bounded": 0,
               "defaultValue": "0x00000014",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1128,7 +1153,7 @@
               "bounded": 0,
               "defaultValue": "0x0002",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1143,7 +1168,7 @@
               "bounded": 0,
               "defaultValue": "0x0028",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1158,7 +1183,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1179,7 +1204,16 @@
           "define": "BASIC_CLUSTER",
           "side": "client",
           "enabled": 0,
-          "commands": [],
+          "commands": [
+            {
+              "name": "ResetToFactoryDefaults",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            }
+          ],
           "attributes": [
             {
               "name": "cluster revision",
@@ -1192,7 +1226,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1218,7 +1252,7 @@
               "bounded": 1,
               "defaultValue": "0x08",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1233,7 +1267,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1248,7 +1282,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1263,7 +1297,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1278,7 +1312,7 @@
               "bounded": 1,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1293,7 +1327,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1308,11 +1342,54 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
           ]
+        },
+        {
+          "name": "Identify",
+          "code": 3,
+          "mfgCode": null,
+          "define": "IDENTIFY_CLUSTER",
+          "side": "client",
+          "enabled": 0,
+          "commands": [
+            {
+              "name": "Identify",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "IdentifyQuery",
+              "code": 1,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "EZModeInvoke",
+              "code": 2,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "UpdateCommissionState",
+              "code": 3,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            }
+          ],
+          "attributes": []
         },
         {
           "name": "Level Control",
@@ -1334,7 +1411,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1349,7 +1426,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1364,7 +1441,7 @@
               "bounded": 0,
               "defaultValue": "0xFE",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1390,7 +1467,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1416,7 +1493,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1431,7 +1508,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1446,7 +1523,7 @@
               "bounded": 0,
               "defaultValue": "0x00000000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1461,7 +1538,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1474,11 +1551,11 @@
     {
       "endpointTypeName": "ha-light",
       "endpointTypeIndex": 0,
-      "profileId": -1,
+      "profileId": 260,
       "endpointId": 6,
       "networkId": 0,
       "endpointVersion": 1,
-      "deviceIdentifier": -1
+      "deviceIdentifier": 3
     },
     {
       "endpointTypeName": "zigbee custom",

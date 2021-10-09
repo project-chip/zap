@@ -1,5 +1,5 @@
 {
-  "featureLevel": 45,
+  "featureLevel": 62,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -18,14 +18,14 @@
   "package": [
     {
       "pathRelativity": "relativeToZap",
-      "path": "meta/zcl.json",
-      "version": "Matter Test Data",
+      "path": "../../zcl-builtin/silabs/zcl.json",
+      "version": "ZCL Test Data",
       "type": "zcl-properties"
     },
     {
       "pathRelativity": "relativeToZap",
-      "path": "meta/gen-test.json",
-      "version": "meta-test",
+      "path": "../gen-template/zigbee/gen-templates.json",
+      "version": "test-v1",
       "type": "gen-templates-json"
     }
   ],
@@ -35,105 +35,14 @@
       "deviceTypeName": "Custom ZCL Device Type",
       "deviceTypeCode": 65535,
       "deviceTypeProfileId": 65535,
-      "clusters": [
-        {
-          "name": "Test 1",
-          "code": 43981,
-          "mfgCode": null,
-          "define": "TEST_1",
-          "side": "client",
-          "enabled": 1,
-          "commands": [
-            {
-              "name": "TestCommand1",
-              "code": 1,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 1
-            }
-          ],
-          "attributes": []
-        },
-        {
-          "name": "Test 1",
-          "code": 43981,
-          "mfgCode": null,
-          "define": "TEST_1",
-          "side": "server",
-          "enabled": 1,
-          "commands": [],
-          "attributes": [
-            {
-              "name": "at1",
-              "code": 0,
-              "mfgCode": null,
-              "side": "server",
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65534,
-              "reportableChange": 0
-            },
-            {
-              "name": "at2",
-              "code": 1,
-              "mfgCode": null,
-              "side": "server",
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65534,
-              "reportableChange": 0
-            }
-          ]
-        }
-      ]
+      "clusters": []
     },
     {
       "name": "Anonymous Endpoint Type",
       "deviceTypeName": "Custom ZCL Device Type",
       "deviceTypeCode": 65535,
       "deviceTypeProfileId": 65535,
-      "clusters": [
-        {
-          "name": "Test 1",
-          "code": 43981,
-          "mfgCode": null,
-          "define": "TEST_1",
-          "side": "client",
-          "enabled": 1,
-          "commands": [
-            {
-              "name": "TestCommand1",
-              "code": 1,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 1
-            }
-          ],
-          "attributes": []
-        },
-        {
-          "name": "Test 1",
-          "code": 43981,
-          "mfgCode": null,
-          "define": "TEST_1",
-          "side": "server",
-          "enabled": 1,
-          "commands": [],
-          "attributes": []
-        }
-      ]
+      "clusters": []
     }
   ],
   "endpoints": [
@@ -155,6 +64,5 @@
       "endpointVersion": 1,
       "deviceIdentifier": 65535
     }
-  ],
-  "log": []
+  ]
 }

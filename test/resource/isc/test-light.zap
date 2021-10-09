@@ -1,5 +1,5 @@
 {
-  "featureLevel": 39,
+  "featureLevel": 62,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -43,7 +43,16 @@
           "define": "BASIC_CLUSTER",
           "side": "client",
           "enabled": 0,
-          "commands": [],
+          "commands": [
+            {
+              "name": "ResetToFactoryDefaults",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            }
+          ],
           "attributes": [
             {
               "name": "cluster revision",
@@ -56,7 +65,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -82,7 +91,7 @@
               "bounded": 0,
               "defaultValue": "0x08",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -97,7 +106,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -112,7 +121,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -127,7 +136,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -142,7 +151,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -157,7 +166,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -172,7 +181,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -187,7 +196,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -202,7 +211,7 @@
               "bounded": 0,
               "defaultValue": "0xFF",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -217,7 +226,7 @@
               "bounded": 0,
               "defaultValue": "0xFF",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -232,7 +241,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -247,7 +256,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -262,7 +271,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -277,7 +286,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -308,6 +317,22 @@
               "outgoing": 0
             },
             {
+              "name": "EZModeInvoke",
+              "code": 2,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "UpdateCommissionState",
+              "code": 3,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
               "name": "TriggerEffect",
               "code": 64,
               "mfgCode": null,
@@ -328,7 +353,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -363,7 +388,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -378,7 +403,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -453,7 +478,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -512,7 +537,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -527,7 +552,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -634,7 +659,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -709,7 +734,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -724,7 +749,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -739,7 +764,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -754,7 +779,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -769,7 +794,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -784,7 +809,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -859,7 +884,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -885,7 +910,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -900,7 +925,7 @@
               "bounded": 0,
               "defaultValue": "0x01",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -915,7 +940,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -930,7 +955,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -945,7 +970,7 @@
               "bounded": 0,
               "defaultValue": "0xFF",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -960,7 +985,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1051,7 +1076,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1092,7 +1117,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1107,7 +1132,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1122,7 +1147,7 @@
               "bounded": 0,
               "defaultValue": "0x33",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1137,7 +1162,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1188,7 +1213,7 @@
               "bounded": 0,
               "defaultValue": "0xffffffffffffffff",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1203,7 +1228,7 @@
               "bounded": 0,
               "defaultValue": "0xffffffff",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1218,7 +1243,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1233,7 +1258,7 @@
               "bounded": 0,
               "defaultValue": "4",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1292,7 +1317,7 @@
               "bounded": 0,
               "defaultValue": "4",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1318,7 +1343,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1344,7 +1369,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 1,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1359,7 +1384,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1374,7 +1399,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1389,7 +1414,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1496,7 +1521,7 @@
               "bounded": 0,
               "defaultValue": "0x0001",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1587,7 +1612,7 @@
               "bounded": 0,
               "defaultValue": "0x0001",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1608,7 +1633,16 @@
           "define": "BASIC_CLUSTER",
           "side": "client",
           "enabled": 0,
-          "commands": [],
+          "commands": [
+            {
+              "name": "ResetToFactoryDefaults",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            }
+          ],
           "attributes": [
             {
               "name": "cluster revision",
@@ -1621,7 +1655,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1647,7 +1681,7 @@
               "bounded": 0,
               "defaultValue": "0x08",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1662,7 +1696,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1677,7 +1711,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1692,7 +1726,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1707,7 +1741,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1722,7 +1756,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1737,7 +1771,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1752,7 +1786,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1767,7 +1801,7 @@
               "bounded": 0,
               "defaultValue": "0xFF",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1782,7 +1816,7 @@
               "bounded": 0,
               "defaultValue": "0xFF",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1797,7 +1831,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1812,7 +1846,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1827,7 +1861,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1842,7 +1876,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1873,6 +1907,22 @@
               "outgoing": 0
             },
             {
+              "name": "EZModeInvoke",
+              "code": 2,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "UpdateCommissionState",
+              "code": 3,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
               "name": "TriggerEffect",
               "code": 64,
               "mfgCode": null,
@@ -1893,7 +1943,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -1928,7 +1978,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -1943,7 +1993,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -2018,7 +2068,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -2077,7 +2127,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2092,7 +2142,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -2199,7 +2249,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -2274,7 +2324,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2289,7 +2339,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2304,7 +2354,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2319,7 +2369,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2334,7 +2384,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2349,7 +2399,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -2424,7 +2474,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -2450,7 +2500,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2465,7 +2515,7 @@
               "bounded": 0,
               "defaultValue": "0x01",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2480,7 +2530,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2495,7 +2545,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2510,7 +2560,7 @@
               "bounded": 0,
               "defaultValue": "0xFF",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2525,7 +2575,7 @@
               "bounded": 0,
               "defaultValue": "2",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -2616,7 +2666,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -2657,7 +2707,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2672,7 +2722,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2687,7 +2737,7 @@
               "bounded": 0,
               "defaultValue": "0x33",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2702,7 +2752,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -2753,7 +2803,7 @@
               "bounded": 0,
               "defaultValue": "0xffffffffffffffff",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2768,7 +2818,7 @@
               "bounded": 0,
               "defaultValue": "0xffffffff",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2783,7 +2833,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -2798,7 +2848,7 @@
               "bounded": 0,
               "defaultValue": "4",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -2857,7 +2907,7 @@
               "bounded": 0,
               "defaultValue": "4",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -3036,7 +3086,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -3062,7 +3112,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3077,7 +3127,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3092,7 +3142,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3107,7 +3157,7 @@
               "bounded": 0,
               "defaultValue": "0x616B",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3122,7 +3172,7 @@
               "bounded": 0,
               "defaultValue": "0x607D",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3137,7 +3187,7 @@
               "bounded": 0,
               "defaultValue": "0x00FA",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3152,7 +3202,7 @@
               "bounded": 0,
               "defaultValue": "0x01",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3167,7 +3217,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3182,7 +3232,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3197,7 +3247,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3212,7 +3262,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3227,7 +3277,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3242,7 +3292,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3257,7 +3307,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3272,7 +3322,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3287,7 +3337,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3302,7 +3352,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3317,7 +3367,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3332,7 +3382,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3347,7 +3397,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3362,7 +3412,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3377,7 +3427,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3392,7 +3442,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3407,7 +3457,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3422,7 +3472,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3437,7 +3487,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3452,7 +3502,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3467,7 +3517,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3482,7 +3532,7 @@
               "bounded": 0,
               "defaultValue": "0x01",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3497,7 +3547,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3512,7 +3562,7 @@
               "bounded": 0,
               "defaultValue": "0x00",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3527,7 +3577,7 @@
               "bounded": 0,
               "defaultValue": "0x0019",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3542,7 +3592,7 @@
               "bounded": 0,
               "defaultValue": "0x2300",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3557,7 +3607,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3572,7 +3622,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3587,7 +3637,7 @@
               "bounded": 0,
               "defaultValue": "0x0000",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3602,7 +3652,7 @@
               "bounded": 0,
               "defaultValue": "0xFEFF",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3617,7 +3667,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3632,7 +3682,7 @@
               "bounded": 0,
               "defaultValue": "0x4444",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3647,7 +3697,7 @@
               "bounded": 0,
               "defaultValue": "3",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -3754,7 +3804,7 @@
               "bounded": 0,
               "defaultValue": "0x0001",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -3845,7 +3895,7 @@
               "bounded": 0,
               "defaultValue": "0x0001",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -3859,6 +3909,68 @@
       "deviceTypeCode": 97,
       "deviceTypeProfileId": 41440,
       "clusters": [
+        {
+          "name": "Basic",
+          "code": 0,
+          "mfgCode": null,
+          "define": "BASIC_CLUSTER",
+          "side": "client",
+          "enabled": 0,
+          "commands": [
+            {
+              "name": "ResetToFactoryDefaults",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            }
+          ],
+          "attributes": []
+        },
+        {
+          "name": "Identify",
+          "code": 3,
+          "mfgCode": null,
+          "define": "IDENTIFY_CLUSTER",
+          "side": "client",
+          "enabled": 0,
+          "commands": [
+            {
+              "name": "Identify",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "IdentifyQuery",
+              "code": 1,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "EZModeInvoke",
+              "code": 2,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "UpdateCommissionState",
+              "code": 3,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            }
+          ],
+          "attributes": []
+        },
         {
           "name": "Green Power",
           "code": 33,
@@ -3879,7 +3991,7 @@
               "bounded": 0,
               "defaultValue": "0x14",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3894,7 +4006,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3909,7 +4021,7 @@
               "bounded": 0,
               "defaultValue": "0x09AC2F",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3924,7 +4036,7 @@
               "bounded": 0,
               "defaultValue": "0xFFFFFF",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3939,7 +4051,7 @@
               "bounded": 0,
               "defaultValue": "0x5a6967426565416c6c69616e63653039",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3954,7 +4066,7 @@
               "bounded": 0,
               "defaultValue": "0x0001",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -3980,7 +4092,7 @@
               "bounded": 0,
               "defaultValue": "0x05",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -3995,7 +4107,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -4010,7 +4122,7 @@
               "bounded": 0,
               "defaultValue": "0x01",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -4025,7 +4137,7 @@
               "bounded": 0,
               "defaultValue": "0x02",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -4040,7 +4152,7 @@
               "bounded": 0,
               "defaultValue": "0x01",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -4055,7 +4167,7 @@
               "bounded": 0,
               "defaultValue": "",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -4070,7 +4182,7 @@
               "bounded": 0,
               "defaultValue": "0xFFFFFF",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -4085,7 +4197,7 @@
               "bounded": 0,
               "defaultValue": "0x5a6967426565416c6c69616e63653039",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             },
@@ -4100,7 +4212,7 @@
               "bounded": 0,
               "defaultValue": "0x0001",
               "reportable": 0,
-              "minInterval": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -4113,11 +4225,11 @@
     {
       "endpointTypeName": "Centralized",
       "endpointTypeIndex": 0,
-      "profileId": -1,
+      "profileId": 260,
       "endpointId": 1,
       "networkId": 0,
       "endpointVersion": 1,
-      "deviceIdentifier": -1
+      "deviceIdentifier": 257
     },
     {
       "endpointTypeName": "Touchlink",
@@ -4131,11 +4243,11 @@
     {
       "endpointTypeName": "GreenPower",
       "endpointTypeIndex": 2,
-      "profileId": -1,
+      "profileId": 41440,
       "endpointId": 242,
       "networkId": 0,
       "endpointVersion": 1,
-      "deviceIdentifier": -1
+      "deviceIdentifier": 97
     }
   ]
 }
