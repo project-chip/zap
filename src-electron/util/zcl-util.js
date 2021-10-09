@@ -163,8 +163,8 @@ function optionsHashOrDefault(options, optionsKey, defaultValue) {
 }
 
 function calculateBytesForTypes(res, options, db, packageId) {
-  return types
-    .typeSize(db, packageId, res.toLowerCase())
+  return queryZcl
+    .selectAtomicSizeFromType(db, packageId, res.toLowerCase())
     .then((x) => {
       return new Promise((resolve, reject) => {
         let result = 0

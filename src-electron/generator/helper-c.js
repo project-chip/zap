@@ -105,7 +105,10 @@ async function asUnderlyingType(value) {
   )
 
   if (atomic == null) {
-    return this.global.overridable.nonAtomicType({ name: value, isStruct: (struct != null)})
+    return this.global.overridable.nonAtomicType({
+      name: value,
+      isStruct: struct != null,
+    })
   } else {
     let opt = await queryPackage.selectSpecificOptionValue(
       this.global.db,
@@ -177,13 +180,15 @@ function formatValue(value, length, type) {
  *
  * @param {*} value
  */
-function asBytes(value, type) {
+async function asBytes(value, type) {
   if (type == null) {
-    return Promise.resolve(value)
+    return value
   } else {
     return templateUtil
       .ensureZclPackageId(this)
-      .then((packageId) => types.typeSize(this.global.db, packageId, type))
+      .then((packageId) =>
+        queryZcl.selectAtomicSizeFromType(this.global.db, packageId, type)
+      )
       .then((x) => {
         if (x == null) {
           if (value == null) {
