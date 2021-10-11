@@ -56,15 +56,6 @@ const uiMode = {
   ZIGBEE: `zigbee`,
 }
 
-const httpCode = {
-  ok: 200,
-  badRequest: 400,
-  notFound: 404,
-  isSuccess: (code) => {
-    return code >= 200 && code < 300
-  },
-}
-
 const uc = {
   // command id
   componentTree: '/uc/component/tree',
@@ -113,7 +104,6 @@ exports.param = {
 }
 
 exports.uri = uri
-exports.httpCode = httpCode
 exports.uiMode = uiMode
 exports.uc = uc
 exports.ide = ide

@@ -26,7 +26,7 @@ const env = require('../util/env')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const path = require('path')
-const http = require('http-status-codes')
+const { StatusCodes } = require('http-status-codes')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const studio = require('../ide-integration/studio-rest-api')
@@ -38,7 +38,7 @@ const studio = require('../ide-integration/studio-rest-api')
  * @returns callback for the express uri registration
  */
 function httpPostFileOpen(db) {
-  return (req, res) => {
+  return async (req, res) => {
     let { zapFilePath, ideProjectPath } = req.body
     let name = ''
 
@@ -82,12 +82,12 @@ function httpPostFileOpen(db) {
           err.project = zapFilePath
           studio.sendSessionCreationErrorStatus(db, err)
           env.logError(JSON.stringify(err))
-          res.status(http.StatusCodes.BAD_REQUEST).send(err)
+          res.status(StatusCodes.BAD_REQUEST).send(err)
         })
     } else {
       let msg = `Opening/Loading project: Missing zap file path.`
       env.logWarning(msg)
-      res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
+      res.status(StatusCodes.BAD_REQUEST).send({ error: msg })
     }
   }
 }
@@ -126,18 +126,18 @@ function httpPostFileSave(db) {
         exportJs
           .exportDataIntoFile(db, req.zapSessionId, actualPath)
           .then((filePath) => {
-            res.status(http.StatusCodes.OK).send({ filePath: filePath })
+            res.status(StatusCodes.OK).send({ filePath: filePath })
           })
           .catch((err) => {
             let msg = `Unable to save project.`
             env.logError(msg, err)
-            res.status(http.StatusCodes.BAD_REQUEST).send({
+            res.status(StatusCodes.BAD_REQUEST).send({
               error: msg,
             })
           })
       } else {
         res
-          .status(http.StatusCodes.BAD_REQUEST)
+          .status(StatusCodes.BAD_REQUEST)
           .send({ error: 'No file specified.' })
       }
     })

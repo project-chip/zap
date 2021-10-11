@@ -33,6 +33,7 @@ const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const { StatusCodes } = require('http-status-codes')
 
 /**
  * HTTP GET: session key values
@@ -41,13 +42,13 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @returns callback for the express uri registration
  */
 function httpGetSessionKeyValues(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let sessionId = request.zapSessionId
-    querySession
-      .getAllSessionKeyValues(db, sessionId)
-      .then((sessionKeyValues) =>
-        response.status(restApi.httpCode.ok).json(sessionKeyValues)
-      )
+    let sessionKeyValues = await querySession.getAllSessionKeyValues(
+      db,
+      sessionId
+    )
+    response.status(StatusCodes.OK).json(sessionKeyValues)
   }
 }
 
@@ -58,22 +59,15 @@ function httpGetSessionKeyValues(db) {
  * @returns callback for the express uri registration
  */
 function httpPostSaveSessionKeyValue(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let { key, value } = request.body
     let sessionId = request.zapSessionId
     env.logDebug(`[${sessionId}]: Saving: ${key} => ${value}`)
-    querySession
-      .updateSessionKeyValue(db, sessionId, key, value)
-      .then(() => {
-        response.json({
-          key: key,
-          value: value,
-        })
-        response.status(restApi.httpCode.ok).send()
-      })
-      .catch((err) => {
-        throw err
-      })
+    await querySession.updateSessionKeyValue(db, sessionId, key, value)
+    response.status(StatusCodes.OK).json({
+      key: key,
+      value: value,
+    })
   }
 }
 
@@ -122,10 +116,10 @@ function httpPostCluster(db) {
                 side: side,
                 flag: flag,
               })
-              .status(restApi.httpCode.ok)
+              .status(StatusCodes.OK)
               .send()
           )
-          .catch((err) => response.status(restApi.httpCode.badRequest).send())
+          .catch((err) => response.status(StatusCodes.BAD_REQUEST).send())
       })
   }
 }
@@ -192,7 +186,7 @@ function httpPostAttributeUpdate(db) {
                   validationIssues: validationData,
                   endpointTypeAttributeData: eptAttr,
                 })
-                return response.status(restApi.httpCode.ok).send()
+                return response.status(StatusCodes.OK).send()
               })
           )
       )
@@ -248,7 +242,7 @@ function httpPostCommandUpdate(db) {
           side: commandSide,
           clusterRef: clusterRef,
         })
-        return response.status(restApi.httpCode.ok).send()
+        return response.status(StatusCodes.OK).send()
       })
   }
 }
@@ -282,7 +276,7 @@ function httpPostEventUpdate(db) {
           side: eventSide,
           clusterRef: clusterRef,
         })
-        return response.status(restApi.httpCode.ok).send()
+        return response.status(StatusCodes.OK).send()
       })
   }
 }
@@ -298,7 +292,7 @@ function httpGetInitialState(db) {
     let sessionId = request.zapSessionId
     let state = {}
 
-    querySession.getSessionFromSessionId(db, sessionId).then(session => {
+    querySession.getSessionFromSessionId(db, sessionId).then((session) => {
       asyncValidation.initAsyncValidation(db, session)
     })
 
@@ -325,7 +319,7 @@ function httpGetInitialState(db) {
     statePopulators.push(sessionKeyValues)
 
     Promise.all(statePopulators).then(() => {
-      return response.status(restApi.httpCode.ok).json(state)
+      return response.status(StatusCodes.OK).json(state)
     })
   }
 }
@@ -346,7 +340,7 @@ function httpGetOption(db) {
       )
       Promise.all(p)
         .then((data) => data.flat(1))
-        .then((data) => response.status(restApi.httpCode.ok).json(data))
+        .then((data) => response.status(StatusCodes.OK).json(data))
     })
   }
 }
@@ -360,7 +354,7 @@ function httpGetPackages(db) {
     queryPackage
       .getPackageSessionPackagePairBySessionId(db, sessionId)
       .then((packageSessionPackagePairs) =>
-        response.status(restApi.httpCode.ok).json(packageSessionPackagePairs)
+        response.status(StatusCodes.OK).json(packageSessionPackagePairs)
       )
   }
 }
@@ -386,11 +380,11 @@ function httpPostAddNewPackage(db) {
         }
       })
       .then((status) => {
-        return res.status(restApi.httpCode.ok).json(status)
+        return res.status(StatusCodes.OK).json(status)
       })
       .catch((err) => {
         console.log(err)
-        return res.status(restApi.httpCode.badRequest).send()
+        return res.status(StatusCodes.BAD_REQUEST).send()
       })
   }
 }
@@ -406,7 +400,7 @@ function httpDeleteSessionPackage(db) {
           sessionRef: sessionRef,
           packageRef: packageRef,
         })
-        return response.status(restApi.httpCode.ok).send()
+        return response.status(StatusCodes.OK).send()
       })
   }
 }

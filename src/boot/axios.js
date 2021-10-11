@@ -45,6 +45,9 @@ function fillUrl(url) {
   }
 }
 
+function isHttpCodeSuccess(code) {
+  return code >= 200 && code < 300
+}
 /**
  * Internal function that processes response from the server for any request.
  *
@@ -56,7 +59,7 @@ function fillUrl(url) {
 function processResponse(method, url, response) {
   if (log) console.log(`${method} ← : ${url}, ${response.status}`)
   if (log) console.log(response)
-  if (!restApi.httpCode.isSuccess(response.status)) {
+  if (!isHttpCodeSuccess(response.status)) {
     throw response
   }
   return response
@@ -73,17 +76,15 @@ function processResponse(method, url, response) {
 function fillConfig(config) {
   if (config == null) {
     config = { params: {} }
-    config.params[restApi.param.sessionId] = window.sessionStorage.getItem(
-      'session_uuid'
-    )
+    config.params[restApi.param.sessionId] =
+      window.sessionStorage.getItem('session_uuid')
     return config
   } else {
     if (!('params' in config)) {
       config.params = {}
     }
-    config.params[restApi.param.sessionId] = window.sessionStorage.getItem(
-      'session_uuid'
-    )
+    config.params[restApi.param.sessionId] =
+      window.sessionStorage.getItem('session_uuid')
     return config
   }
 }

@@ -18,6 +18,7 @@
 const dbApi = require('../db/db-api.js')
 const restApi = require('../../src-shared/rest-api.js')
 const env = require('../util/env')
+const { StatusCodes } = require('http-status-codes')
 
 /**
  * This module provides the REST API to the admin functions.
@@ -52,9 +53,9 @@ function httpPostSql(db) {
     if (sql) {
       try {
         let rows = await dbApi.dbAll(db, sql, [])
-        response.json({ result: rows })
+        response.status(StatusCodes.OK).json({ result: rows })
       } catch (err) {
-        response.json({ error: err })
+        response.status(StatusCodes.OK).json({ error: err })
       }
     }
   }
@@ -79,7 +80,7 @@ function httpPostSql(db) {
 function httpGetVersion(db) {
   return (request, response) => {
     let version = env.zapVersion()
-    response.json(version)
+    response.status(StatusCodes.OK).json(version)
   }
 }
 
