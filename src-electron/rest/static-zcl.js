@@ -196,14 +196,16 @@ function parseForZclData(db, entity, id, packageIdArray) {
  */
 
 function httpGetZclEntity(db) {
-  return (request, response) => {
+  return async (request, response) => {
     const { id, entity } = request.params
     let sessionId = request.zapSessionId
 
-    queryPackage
-      .getSessionZclPackageIds(db, sessionId)
-      .then((packageIdArray) => parseForZclData(db, entity, id, packageIdArray))
-      .then((resultData) => response.json(resultData))
+    let packageIdArray = await queryPackage.getSessionZclPackageIds(
+      db,
+      sessionId
+    )
+    let resultData = await parseForZclData(db, entity, id, packageIdArray)
+    response.status(StatusCodes.OK).json(resultData)
   }
 }
 /**

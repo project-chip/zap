@@ -42,11 +42,10 @@ function httpGetComponentTree(db) {
   }
 }
 
-function httpPostComponentUpdateHandler(db, request, response, add) {
+async function httpPostComponentUpdateHandler(db, request, response, add) {
   let { clusterId, side, componentIds } = request.body
-
-  studio
-    .updateComponentByClusterIdAndComponentId(
+  try {
+    let res = await studio.updateComponentByClusterIdAndComponentId(
       db,
       request.zapSessionId,
       componentIds,
@@ -54,18 +53,14 @@ function httpPostComponentUpdateHandler(db, request, response, add) {
       add,
       side
     )
-    .then((res) => {
-      // invoke reportComponentStatus() ws notification
-      response.send(res)
-      studio.sendComponentUpdateStatus(db, request.zapSessionId, {
-        data: res,
-        added: add,
-      })
+    studio.sendComponentUpdateStatus(db, request.zapSessionId, {
+      data: res,
+      added: add,
     })
-    .finally((err) => {
-      // invoke reportComponentStatus() ws notification
-      response.send(err)
-    })
+    response.send(res)
+  } catch (err) {
+    response.send(err)
+  }
 }
 
 /**

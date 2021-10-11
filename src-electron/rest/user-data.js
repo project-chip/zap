@@ -313,8 +313,8 @@ function httpGetInitialState(db) {
  */
 function httpGetOption(db) {
   return async (request, response) => {
-    let sessionId = request.zapSessionId
     const { category } = request.params
+    let sessionId = request.zapSessionId
     let packages = await queryPackage.getSessionPackages(db, sessionId)
     let p = packages.map((pkg) =>
       queryPackage.selectAllOptionsValues(db, pkg.packageRef, category)
