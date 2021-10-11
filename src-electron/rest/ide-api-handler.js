@@ -16,7 +16,7 @@
  */
 
 /**
- * This module provides the REST API to the generation.
+ * This module provides the REST API to the IDE component handling.
  *
  * @module REST API: generation functions
  */
@@ -25,13 +25,20 @@ const env = require('../util/env')
 const studio = require('../ide-integration/studio-rest-api')
 const restApi = require('../../src-shared/rest-api.js')
 const querySession = require('../db/query-session.js')
+const { StatusCodes } = require('http-status-codes')
 
 function httpGetComponentTree(db) {
-  return (req, res) => {
-    studio
-      .getProjectInfo(db, req.zapSessionId)
-      .then((r) => res.send(r.data))
-      .catch((err) => handleError(err, res))
+  return async (req, res) => {
+    try {
+      let r = await studio.getProjectInfo(db, req.zapSessionId)
+      res.status(StatusCodes.OK).send(r.data)
+    } catch (err) {
+      if (err.response) {
+        res.send(err.response.data)
+      } else {
+        res.send(err.message)
+      }
+    }
   }
 }
 
@@ -74,14 +81,6 @@ function httpPostComponentAdd(db) {
 function httpPostComponentRemove(db) {
   return (request, response) =>
     httpPostComponentUpdateHandler(db, request, response, false)
-}
-
-function handleError(err, res) {
-  if (err.response) {
-    res.send(err.response.data)
-  } else {
-    res.send(err.message)
-  }
 }
 
 exports.get = [

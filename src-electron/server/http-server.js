@@ -37,7 +37,7 @@ const restApiModules = [
   require('../rest/static-zcl.js'),
   require('../rest/generation.js'),
   require('../rest/file-ops.js'),
-  require('../rest/uc-api-handler.js'),
+  require('../rest/ide-api-handler.js'),
   require('../rest/endpoint.js'),
   require('../rest/user-data.js'),
 ]

@@ -129,7 +129,7 @@ function httpPostCluster(db) {
  * @param {*} db
  * @returns callback for the express uri registration */
 function httpPostAttributeUpdate(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let {
       action,
       endpointTypeId,
@@ -157,39 +157,42 @@ function httpPostAttributeUpdate(db) {
         ? null
         : [{ key: listType, value: value, type: paramType }]
 
-    queryConfig
-      .insertOrUpdateAttributeState(
-        db,
-        endpointTypeId,
-        clusterRef,
-        attributeSide,
-        id,
-        paramArray,
-        reportMinInterval,
-        reportMaxInterval,
-        reportableChange
-      )
-      .then((row) =>
-        queryZcl
-          .selectEndpointTypeAttribute(db, endpointTypeId, id, clusterRef)
-          .then((eptAttr) =>
-            validation
-              .validateAttribute(db, endpointTypeId, id, clusterRef)
-              .then((validationData) => {
-                response.json({
-                  action: action,
-                  endpointTypeId: endpointTypeId,
-                  clusterRef: clusterRef,
-                  id: id,
-                  added: value,
-                  listType: listType,
-                  validationIssues: validationData,
-                  endpointTypeAttributeData: eptAttr,
-                })
-                return response.status(StatusCodes.OK).send()
-              })
-          )
-      )
+    await queryConfig.insertOrUpdateAttributeState(
+      db,
+      endpointTypeId,
+      clusterRef,
+      attributeSide,
+      id,
+      paramArray,
+      reportMinInterval,
+      reportMaxInterval,
+      reportableChange
+    )
+
+    let eptAttr = await queryZcl.selectEndpointTypeAttribute(
+      db,
+      endpointTypeId,
+      id,
+      clusterRef
+    )
+
+    let validationData = await validation.validateAttribute(
+      db,
+      endpointTypeId,
+      id,
+      clusterRef
+    )
+
+    response.status(StatusCodes.OK).json({
+      action: action,
+      endpointTypeId: endpointTypeId,
+      clusterRef: clusterRef,
+      id: id,
+      added: value,
+      listType: listType,
+      validationIssues: validationData,
+      endpointTypeAttributeData: eptAttr,
+    })
   }
 }
 
@@ -200,7 +203,7 @@ function httpPostAttributeUpdate(db) {
  * @returns callback for the express uri registration
  */
 function httpPostCommandUpdate(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let {
       action,
       endpointTypeId,
@@ -222,28 +225,24 @@ function httpPostCommandUpdate(db) {
       default:
         break
     }
-    queryConfig
-      .insertOrUpdateCommandState(
-        db,
-        endpointTypeId,
-        clusterRef,
-        commandSide,
-        id,
-        value,
-        isIncoming
-      )
-      .then(() => {
-        response.json({
-          action: action,
-          endpointTypeId: endpointTypeId,
-          id: id,
-          added: value,
-          listType: listType,
-          side: commandSide,
-          clusterRef: clusterRef,
-        })
-        return response.status(StatusCodes.OK).send()
-      })
+    await queryConfig.insertOrUpdateCommandState(
+      db,
+      endpointTypeId,
+      clusterRef,
+      commandSide,
+      id,
+      value,
+      isIncoming
+    )
+    response.status(StatusCodes.OK).json({
+      action: action,
+      endpointTypeId: endpointTypeId,
+      id: id,
+      added: value,
+      listType: listType,
+      side: commandSide,
+      clusterRef: clusterRef,
+    })
   }
 }
 
@@ -254,30 +253,27 @@ function httpPostCommandUpdate(db) {
  * @returns callback for the express uri registration
  */
 function httpPostEventUpdate(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let { action, endpointTypeId, id, value, listType, clusterRef, eventSide } =
       request.body
-    queryConfig
-      .insertOrUpdateEventState(
-        db,
-        endpointTypeId,
-        clusterRef,
-        eventSide,
-        id,
-        value
-      )
-      .then(() => {
-        response.json({
-          action: action,
-          endpointTypeId: endpointTypeId,
-          id: id,
-          added: value,
-          listType: listType,
-          side: eventSide,
-          clusterRef: clusterRef,
-        })
-        return response.status(StatusCodes.OK).send()
-      })
+    await queryConfig.insertOrUpdateEventState(
+      db,
+      endpointTypeId,
+      clusterRef,
+      eventSide,
+      id,
+      value
+    )
+
+    response.status(StatusCodes.OK).json({
+      action: action,
+      endpointTypeId: endpointTypeId,
+      id: id,
+      added: value,
+      listType: listType,
+      side: eventSide,
+      clusterRef: clusterRef,
+    })
   }
 }
 
