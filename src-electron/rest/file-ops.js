@@ -99,19 +99,19 @@ function httpPostFileOpen(db) {
  * @returns callback for the express uri registration
  */
 function httpPostFileSave(db) {
-  return (req, res) => {
+  return async (req, res) => {
     let zapPath = req.body.path
     env.logDebug(`Saving session: id = ${req.zapSessionId}. path = ${zapPath}`)
 
-    let p
+    let actualPath
     if (zapPath == null || zapPath.length == 0) {
-      p = querySession.getSessionKeyValue(
+      actualPath = await querySession.getSessionKeyValue(
         db,
         req.zapSessionId,
         dbEnum.sessionKey.filePath
       )
     } else {
-      p = querySession
+      actualPath = await querySession
         .updateSessionKeyValue(
           db,
           req.zapSessionId,
@@ -121,26 +121,24 @@ function httpPostFileSave(db) {
         .then(() => zapPath)
     }
 
-    p.then((actualPath) => {
-      if (actualPath != null && actualPath.length > 0) {
-        exportJs
-          .exportDataIntoFile(db, req.zapSessionId, actualPath)
-          .then((filePath) => {
-            res.status(StatusCodes.OK).send({ filePath: filePath })
-          })
-          .catch((err) => {
-            let msg = `Unable to save project.`
-            env.logError(msg, err)
-            res.status(StatusCodes.BAD_REQUEST).send({
-              error: msg,
-            })
-          })
-      } else {
-        res
-          .status(StatusCodes.BAD_REQUEST)
-          .send({ error: 'No file specified.' })
+    if (actualPath != null && actualPath.length > 0) {
+      try {
+        let filePath = await exportJs.exportDataIntoFile(
+          db,
+          req.zapSessionId,
+          actualPath
+        )
+        res.status(StatusCodes.OK).send({ filePath: filePath })
+      } catch (err) {
+        let msg = `Unable to save project.`
+        env.logError(msg, err)
+        res.status(StatusCodes.BAD_REQUEST).send({
+          error: msg,
+        })
       }
-    })
+    } else {
+      res.status(StatusCodes.BAD_REQUEST).send({ error: 'No file specified.' })
+    }
   }
 }
 
