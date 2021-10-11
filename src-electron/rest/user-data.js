@@ -345,13 +345,11 @@ function httpGetOption(db) {
  * HTTP GET: Project packages
  */
 function httpGetPackages(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let sessionId = request.zapSessionId
-    queryPackage
-      .getPackageSessionPackagePairBySessionId(db, sessionId)
-      .then((packageSessionPackagePairs) =>
-        response.status(StatusCodes.OK).json(packageSessionPackagePairs)
-      )
+    let packageSessionPackagePairs =
+      await queryPackage.getPackageSessionPackagePairBySessionId(db, sessionId)
+    response.status(StatusCodes.OK).json(packageSessionPackagePairs)
   }
 }
 
@@ -359,45 +357,51 @@ function httpGetPackages(db) {
  * HTTP POST: Add new project package
  */
 function httpPostAddNewPackage(db) {
-  return (req, res) => {
+  return async (req, res) => {
     let sessionId = req.zapSessionId
     let filePath = req.body.path
-    zclLoader
-      .loadIndividualFile(db, filePath, sessionId)
-      .then((data) => {
-        if (data.err) {
-          return Promise.resolve({ isValid: false, err: data.err.message })
-        } else {
-          return queryPackage
-            .insertSessionPackage(db, sessionId, data.packageId, false)
-            .then(() => {
-              return { isValid: true, sessionId: sessionId }
-            })
+    try {
+      let data = await zclLoader.loadIndividualFile(db, filePath, sessionId)
+      let status
+      if (data.err) {
+        status = {
+          isValid: false,
+          err: data.err.message,
         }
-      })
-      .then((status) => {
-        return res.status(StatusCodes.OK).json(status)
-      })
-      .catch((err) => {
-        console.log(err)
-        return res.status(StatusCodes.BAD_REQUEST).send()
-      })
+      } else {
+        await queryPackage.insertSessionPackage(
+          db,
+          sessionId,
+          data.packageId,
+          false
+        )
+        status = {
+          isValid: true,
+          sessionId: sessionId,
+        }
+      }
+      res.status(StatusCodes.OK).json(status)
+    } catch (err) {
+      env.logError(err)
+      res.status(StatusCodes.BAD_REQUEST).send()
+    }
   }
 }
 
 function httpDeleteSessionPackage(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let { sessionRef, packageRef } = request.query
-    queryPackage
-      .deleteSessionPackage(db, sessionRef, packageRef)
-      .then((removed) => {
-        response.json({
-          successful: removed > 0,
-          sessionRef: sessionRef,
-          packageRef: packageRef,
-        })
-        return response.status(StatusCodes.OK).send()
-      })
+    let removed = await queryPackage.deleteSessionPackage(
+      db,
+      sessionRef,
+      packageRef
+    )
+
+    response.status(StatusCodes.OK).json({
+      successful: removed > 0,
+      sessionRef: sessionRef,
+      packageRef: packageRef,
+    })
   }
 }
 
