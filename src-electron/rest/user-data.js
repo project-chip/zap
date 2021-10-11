@@ -327,17 +327,16 @@ function httpGetInitialState(db) {
  * @returns callback for the express uri registration
  */
 function httpGetOption(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let sessionId = request.zapSessionId
     const { category } = request.params
-    queryPackage.getSessionPackages(db, sessionId).then((packages) => {
-      let p = packages.map((pkg) =>
-        queryPackage.selectAllOptionsValues(db, pkg.packageRef, category)
-      )
-      Promise.all(p)
-        .then((data) => data.flat(1))
-        .then((data) => response.status(StatusCodes.OK).json(data))
-    })
+    let packages = await queryPackage.getSessionPackages(db, sessionId)
+    let p = packages.map((pkg) =>
+      queryPackage.selectAllOptionsValues(db, pkg.packageRef, category)
+    )
+    let data = await Promise.all(p)
+    data = data.flat(1)
+    response.status(StatusCodes.OK).json(data)
   }
 }
 
