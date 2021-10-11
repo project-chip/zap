@@ -363,7 +363,7 @@ async function readJsonData(filePath, data) {
   let state = JSON.parse(data)
 
   cleanJsonState(state)
-  let status = util.matchFeatureLevel(state.featureLevel)
+  let status = util.matchFeatureLevel(state.featureLevel, filePath)
 
   if (status.match) {
     if (!('keyValuePairs' in state)) {

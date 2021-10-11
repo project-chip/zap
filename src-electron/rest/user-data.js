@@ -284,39 +284,24 @@ function httpPostEventUpdate(db) {
  * @returns callback for the express uri registration
  */
 function httpGetInitialState(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let sessionId = request.zapSessionId
     let state = {}
 
-    querySession.getSessionFromSessionId(db, sessionId).then((session) => {
-      asyncValidation.initAsyncValidation(db, session)
-    })
+    let session = await querySession.getSessionFromSessionId(db, sessionId)
+    asyncValidation.initAsyncValidation(db, session)
 
-    let statePopulators = []
-    let endpointTypes = queryEndpointType
-      .selectAllEndpointTypes(db, sessionId)
-      .then((rows) => {
-        state.endpointTypes = rows
-      })
-    statePopulators.push(endpointTypes)
+    let results = await Promise.all([
+      queryEndpointType.selectAllEndpointTypes(db, sessionId),
+      queryEndpoint.selectAllEndpoints(db, sessionId),
+      querySession.getAllSessionKeyValues(db, sessionId),
+    ])
 
-    let endpoints = queryEndpoint
-      .selectAllEndpoints(db, sessionId)
-      .then((rows) => {
-        state.endpoints = rows
-      })
-    statePopulators.push(endpoints)
+    state.endpointTypes = results[0]
+    state.endpoints = results[1]
+    state.sessionKeyValues = results[2]
 
-    let sessionKeyValues = querySession
-      .getAllSessionKeyValues(db, sessionId)
-      .then((rows) => {
-        state.sessionKeyValues = rows
-      })
-    statePopulators.push(sessionKeyValues)
-
-    Promise.all(statePopulators).then(() => {
-      return response.status(StatusCodes.OK).json(state)
-    })
+    response.status(StatusCodes.OK).json(state)
   }
 }
 

@@ -178,11 +178,13 @@ function createBackupFile(filePath) {
  *    message: in case of missmatch, the message shown to user.
  * @param {*} featureLevel
  */
-function matchFeatureLevel(featureLevel) {
+function matchFeatureLevel(featureLevel, requirementSource = null) {
   if (featureLevel > env.zapVersion().featureLevel) {
     return {
       match: false,
-      message: `File requires feature level ${featureLevel}, we only have ${
+      message: `${
+        requirementSource == null ? 'File' : requirementSource
+      } requires feature level ${featureLevel}, we only have ${
         env.zapVersion().featureLevel
       }. Please upgrade your zap!`,
     }
