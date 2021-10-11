@@ -47,17 +47,15 @@ const env = require('../util/env')
  * @returns callback for the express uri registration
  */
 function httpPostSql(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let sql = request.body.sql
     if (sql) {
-      dbApi
-        .dbAll(db, sql, [])
-        .then((rows) => {
-          response.json({ result: rows })
-        })
-        .catch((err) => {
-          response.json({ error: err })
-        })
+      try {
+        let rows = await dbApi.dbAll(db, sql, [])
+        response.json({ result: rows })
+      } catch (err) {
+        response.json({ error: err })
+      }
     }
   }
 }

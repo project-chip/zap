@@ -37,21 +37,19 @@ const types = require('../util/types.js')
  * and will return nothing if the command arguments for a command do not exist.
  *
  */
-function if_command_arguments_exist(
+async function if_command_arguments_exist(
   commandId,
   argument_return,
   no_argument_return
 ) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
-      let res = queryCommand.selectCommandArgumentsCountByCommandId(
-        this.global.db,
-        commandId,
-        packageId
-      )
-      return res
-    })
+  let packageId = await templateUtil.ensureZclPackageId(this)
+
+  let promise = queryCommand
+    .selectCommandArgumentsCountByCommandId(
+      this.global.db,
+      commandId,
+      packageId
+    )
     .then((res) => {
       if (res > 0) {
         return argument_return
@@ -59,6 +57,7 @@ function if_command_arguments_exist(
         return no_argument_return
       }
     })
+
   return templateUtil.templatePromise(this.global, promise)
 }
 
