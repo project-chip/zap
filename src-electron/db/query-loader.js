@@ -955,6 +955,42 @@ VALUES
   )
 }
 
+/**
+ * Inserts a default access.
+ * Default access is object that contains type and access array of {op,role,modifier}
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} defaultAccess
+ */
+async function insertDefaultAccess(db, packageId, defaultAccess) {
+  let ids = await dbApi.dbMultiInsert(
+    db,
+    `
+INSERT INTO ACCESS
+  (OPERATION_REF, ROLE_REF, ACCESS_MODIFIER_REF)
+VALUES (
+  (SELECT OPERATION_ID FROM OPERATION WHERE NAME = ? AND PACKAGE_REF = ?),
+  (SELECT ROLE_ID FROM ROLE WHERE NAME = ? AND PACKAGE_REF = ?),
+  (SELECT ACCESS_MODIFIER_ID FROM ACCESS_MODIFIER WHERE NAME = ? AND PACKAGE_REF = ?)
+)
+    `,
+    defaultAccess.access.map((a) => [
+      a.op,
+      packageId,
+      a.role,
+      packageId,
+      a.modifiers,
+      packageId,
+    ])
+  )
+
+  return dbApi.dbMultiInsert(
+    db,
+    `INSERT INTO DEFAULT_ACCESS ( ENTITY_TYPE, ACCESS_REF) VALUES ( ?, ?)`,
+    ids.map((id) => [defaultAccess.type, id])
+  )
+}
+
 async function updateEnumClusterReferences(db, packageId) {
   return dbApi.dbUpdate(
     db,
@@ -1045,3 +1081,4 @@ exports.updateBitmapClusterReferences = updateBitmapClusterReferences
 exports.insertAccessModifiers = insertAccessModifiers
 exports.insertAccessOperations = insertAccessOperations
 exports.insertAccessRoles = insertAccessRoles
+exports.insertDefaultAccess = insertDefaultAccess

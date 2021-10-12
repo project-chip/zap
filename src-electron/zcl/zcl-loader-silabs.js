@@ -601,15 +601,25 @@ async function processDefaultAccess(
   packageId,
   defaultAccessList
 ) {
+  let p = []
   for (const da of defaultAccessList) {
-    let type = da.$.type
+    let type = {
+      type: da.$.type,
+      access: [],
+    }
     for (const ac of da.access) {
       let op = ac.$.op
       let role = ac.$.role
       let modifier = ac.$.modifier
-      console.log(`${type} | ${op} | ${role} | ${modifier}`)
+      type.access.push({
+        op: op,
+        role: role,
+        modifier: modifier,
+      })
     }
+    p.push(queryLoader.insertDefaultAccess(db, packageId, type))
   }
+  return Promise.all(p)
 }
 
 /**
