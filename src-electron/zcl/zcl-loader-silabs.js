@@ -834,73 +834,69 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
     let loadClusters = []
     let loadTypes = []
     let loadGlobalAttributesAndClusterExtensions = []
+    let toplevel = null
+
     if ('configurator' in data) {
-      if ('tag' in data.configurator) {
+      toplevel = data.configurator
+    }
+    if ('zap' in data) {
+      toplevel = data.zap
+    }
+
+    if (toplevel != null) {
+      if ('tag' in toplevel) {
         loadTagsAndDomains.push(
-          processTags(db, filePath, packageId, data.configurator.tag)
+          processTags(db, filePath, packageId, toplevel.tag)
         )
       }
-      if ('atomic' in data.configurator) {
-        loadTypes.push(
-          processAtomics(db, filePath, packageId, data.configurator.atomic)
-        )
+      if ('atomic' in toplevel) {
+        loadTypes.push(processAtomics(db, filePath, packageId, toplevel.atomic))
       }
-      if ('bitmap' in data.configurator) {
-        loadTypes.push(
-          processBitmaps(db, filePath, packageId, data.configurator.bitmap)
-        )
+      if ('bitmap' in toplevel) {
+        loadTypes.push(processBitmaps(db, filePath, packageId, toplevel.bitmap))
       }
-      if ('cluster' in data.configurator) {
+      if ('cluster' in toplevel) {
         loadClusters.push(
-          processClusters(db, filePath, packageId, data.configurator.cluster)
+          processClusters(db, filePath, packageId, toplevel.cluster)
         )
         loadGlobalAttributesAndClusterExtensions.push(() =>
           processClusterGlobalAttributes(
             db,
             filePath,
             packageId,
-            data.configurator.cluster
+            toplevel.cluster
           )
         )
       }
-      if ('domain' in data.configurator) {
+      if ('domain' in toplevel) {
         loadTagsAndDomains.push(
-          processDomains(db, filePath, packageId, data.configurator.domain)
+          processDomains(db, filePath, packageId, toplevel.domain)
         )
       }
-      if ('enum' in data.configurator) {
-        loadTypes.push(
-          processEnums(db, filePath, packageId, data.configurator.enum)
-        )
+      if ('enum' in toplevel) {
+        loadTypes.push(processEnums(db, filePath, packageId, toplevel.enum))
       }
-      if ('struct' in data.configurator) {
-        loadTypes.push(
-          processStructs(db, filePath, packageId, data.configurator.struct)
-        )
+      if ('struct' in toplevel) {
+        loadTypes.push(processStructs(db, filePath, packageId, toplevel.struct))
       }
-      if ('deviceType' in data.configurator) {
+      if ('deviceType' in toplevel) {
         loadClusters.push(
-          processDeviceTypes(
-            db,
-            filePath,
-            packageId,
-            data.configurator.deviceType
-          )
+          processDeviceTypes(db, filePath, packageId, toplevel.deviceType)
         )
       }
-      if ('global' in data.configurator) {
+      if ('global' in toplevel) {
         loadClusters.push(
-          processGlobals(db, filePath, packageId, data.configurator.global)
+          processGlobals(db, filePath, packageId, toplevel.global)
         )
       }
-      if ('clusterExtension' in data.configurator) {
+      if ('clusterExtension' in toplevel) {
         loadGlobalAttributesAndClusterExtensions.push(() =>
           processClusterExtensions(
             db,
             filePath,
             packageId,
             knownPackages,
-            data.configurator.clusterExtension
+            toplevel.clusterExtension
           )
         )
       }

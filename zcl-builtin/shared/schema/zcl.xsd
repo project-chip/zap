@@ -19,7 +19,7 @@ limitations under the License.
     <xs:documentation>
 This schema describes the format of the XML files, that describe the ZCL specification.
 
-Copyright 2012, Silicon Laboratories Inc.
+(c) Copyright 2012, 2021, Silicon Laboratories Inc.
   </xs:documentation>
   </xs:annotation>
   <xs:complexType name="eventField">
@@ -70,6 +70,15 @@ Copyright 2012, Silicon Laboratories Inc.
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="accessControl">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="access"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="fabric"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="privilege"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="group">
     <xs:complexType>
       <xs:sequence>
@@ -79,6 +88,7 @@ Copyright 2012, Silicon Laboratories Inc.
       <xs:attribute name="name" use="required"/>
     </xs:complexType>
   </xs:element>
+  <xs:element name="zap" substitutionGroup="configurator"/>
   <xs:element name="configurator">
     <xs:complexType>
       <xs:sequence>
@@ -96,6 +106,7 @@ Copyright 2012, Silicon Laboratories Inc.
           <xs:element ref="domain"/>
           <xs:element ref="global"/>
           <xs:element ref="tag"/>
+          <xs:element ref="accessControl"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>
@@ -209,7 +220,8 @@ Copyright 2012, Silicon Laboratories Inc.
   <xs:element name="bitmap">
     <xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="field"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="cluster"/>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="field"/>
       </xs:sequence>
       <xs:attribute name="name" use="required" type="xs:string"/>
       <xs:attribute name="type" use="required" type="xs:string"/>

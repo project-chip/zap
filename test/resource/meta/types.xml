@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<configurator>
+<zap>
   <atomic>
     <type id="0x00" name="no_data" size="0" description="No data"/>
     <type id="0x08" name="data8" size="1" description="8-bit data" discrete="true"/>
@@ -136,11 +136,11 @@ limitations under the License.
     <item name="complex" type="Nest" array="true"/>
   </struct>
 
-  <bitmap name="TestBitmap">
+  <bitmap name="TestBitmap" type="UINT8U">
     <field name="f1" mask="0x01"/>
   </bitmap>
-  <bitmap name="ClusterBitmap">
+  <bitmap name="ClusterBitmap" type="UINT16U">
     <cluster code="0xABCD"/>
     <field name="f1" mask="0x01"/>
   </bitmap>
-</configurator>
+</zap>

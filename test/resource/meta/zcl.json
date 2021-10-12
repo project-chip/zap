@@ -1,15 +1,25 @@
 {
   "version": "Matter Test Data",
   "xmlRoot": ".",
-  "xmlFile": ["types.xml", "test1.xml"],
+  "xmlFile": [
+    "types.xml",
+    "test1.xml",
+    "access.xml"
+  ],
   "zclSchema": "../../../zcl-builtin/shared/schema/zcl.xsd",
   "supportCustomZclDevice": true,
   "manufacturersXml": "../../../zcl-builtin/shared/manufacturers.xml",
   "options": {
     "text": {
-      "defaultResponsePolicy": ["Always", "Conditional", "Never"]
+      "defaultResponsePolicy": [
+        "Always",
+        "Conditional",
+        "Never"
+      ]
     },
-    "bool": ["commandDiscovery"]
+    "bool": [
+      "commandDiscovery"
+    ]
   },
   "defaults": {
     "text": {
