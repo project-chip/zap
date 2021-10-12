@@ -986,8 +986,8 @@ VALUES (
 
   return dbApi.dbMultiInsert(
     db,
-    `INSERT INTO DEFAULT_ACCESS ( ENTITY_TYPE, ACCESS_REF) VALUES ( ?, ?)`,
-    ids.map((id) => [defaultAccess.type, id])
+    `INSERT INTO DEFAULT_ACCESS ( PACKAGE_REF, ENTITY_TYPE, ACCESS_REF) VALUES (?, ?, ?)`,
+    ids.map((id) => [packageId, defaultAccess.type, id])
   )
 }
 

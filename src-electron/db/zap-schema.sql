@@ -580,9 +580,11 @@ CREATE TABLE IF NOT EXISTS "EVENT_ACCESS" (
 );
 DROP TABLE IF EXISTS "DEFAULT_ACCESS";
 CREATE TABLE IF NOT EXISTS "DEFAULT_ACCESS" (
+  "PACKAGE_REF" integer,
   "ENTITY_TYPE" text,
   "ACCESS_REF" integer,
-  foreign key(ACCESS_REF) references ACCESS(ACCESS_ID)
+  foreign key(ACCESS_REF) references ACCESS(ACCESS_ID),
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade
 );
 /*
  *
