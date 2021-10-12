@@ -578,6 +578,12 @@ CREATE TABLE IF NOT EXISTS "EVENT_ACCESS" (
   foreign key(ACCESS_REF) references ACCESS(ACCESS_ID),
   foreign key(EVENT_REF) references EVENT(EVENT_ID)
 );
+DROP TABLE IF EXISTS "DEFAULT_ACCESS";
+CREATE TABLE IF NOT EXISTS "DEFAULT_ACCESS" (
+  "ENTITY_TYPE" text,
+  "ACCESS_REF" integer,
+  foreign key(ACCESS_REF) references ACCESS(ACCESS_ID)
+);
 /*
  *
  *  $$$$$$\                                $$\                                 $$\            $$\               
