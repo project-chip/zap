@@ -22,6 +22,11 @@ This schema describes the format of the XML files, that describe the ZCL specifi
 (c) Copyright 2012, 2021, Silicon Laboratories Inc.
   </xs:documentation>
   </xs:annotation>
+  <xs:complexType name="access">
+    <xs:attribute name="op" type="xs:string"/>
+    <xs:attribute name="role" type="xs:string"/>
+    <xs:attribute name="modifier" type="xs:string"/>
+  </xs:complexType>
   <xs:complexType name="eventField">
     <xs:attribute name="id" use="required" type="xs:string"/>
     <xs:attribute name="name" use="required" type="xs:string"/>
@@ -70,12 +75,20 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="defaultAccess">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="access" type="access"/>
+      </xs:sequence>
+      <xs:attribute name="type" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="accessControl">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="access"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="fabric"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="privilege"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="operation"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="modifier"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="role"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -107,6 +120,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
           <xs:element ref="global"/>
           <xs:element ref="tag"/>
           <xs:element ref="accessControl"/>
+          <xs:element ref="defaultAccess"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>

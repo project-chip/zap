@@ -589,11 +589,35 @@ function prepareTag(tag) {
 }
 
 /**
+ * Process defaultAccess tag in the XML.
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} defaultAccessList
+ */
+async function processDefaultAccess(
+  db,
+  filePath,
+  packageId,
+  defaultAccessList
+) {
+  for (const da of defaultAccessList) {
+    let type = da.$.type
+    for (const ac of da.access) {
+      let op = ac.$.op
+      let role = ac.$.role
+      let modifier = ac.$.modifier
+      console.log(`${type} | ${op} | ${role} | ${modifier}`)
+    }
+  }
+}
+
+/**
  * Process accessControl tag in the XML.
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
- * @param {*} tags
+ * @param {*} accessControlList
  */
 async function processAccessControl(
   db,
@@ -606,27 +630,27 @@ async function processAccessControl(
   let accessModifiers = []
 
   for (const ac of accessControlList) {
-    if ('access' in ac) {
-      for (const access of ac.access) {
+    if ('operation' in ac) {
+      for (const op of ac.operation) {
         operations.push({
-          name: access.$.type,
-          description: access.$.description,
+          name: op.$.type,
+          description: op.$.description,
         })
       }
     }
-    if ('privilege' in ac) {
-      for (const privilege of ac.privilege) {
+    if ('role' in ac) {
+      for (const role of ac.role) {
         roles.push({
-          name: privilege.$.type,
-          description: privilege.$.description,
+          name: role.$.type,
+          description: role.$.description,
         })
       }
     }
-    if ('fabric' in ac) {
-      for (const fabric of ac.fabric) {
+    if ('modifier' in ac) {
+      for (const modifier of ac.modifier) {
         accessModifiers.push({
-          name: fabric.$.type,
-          description: fabric.$.description,
+          name: modifier.$.type,
+          description: modifier.$.description,
         })
       }
     }
@@ -898,6 +922,11 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
       if ('accessControl' in toplevel) {
         loadPreClusterData.push(
           processAccessControl(db, filePath, packageId, toplevel.accessControl)
+        )
+      }
+      if ('defaultAccess' in toplevel) {
+        loadTypes.push(
+          processDefaultAccess(db, filePath, packageId, toplevel.defaultAccess)
         )
       }
       if ('tag' in toplevel) {
