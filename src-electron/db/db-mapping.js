@@ -432,6 +432,27 @@ exports.map = {
       creationTime: x.CREATION_TIME,
     }
   },
+  accessRole: (x) => {
+    if (x == null) return undefined
+    return {
+      name: x.NAME,
+      description: x.DESCRIPTION,
+    }
+  },
+  accessOperation: (x) => {
+    if (x == null) return undefined
+    return {
+      name: x.NAME,
+      description: x.DESCRIPTION,
+    }
+  },
+  accessModifier: (x) => {
+    if (x == null) return undefined
+    return {
+      name: x.NAME,
+      description: x.DESCRIPTION,
+    }
+  },
 }
 
 exports.reverseMap = {

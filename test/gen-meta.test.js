@@ -27,6 +27,7 @@ const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
 const queryPackage = require('../src-electron/db/query-package')
 const queryZcl = require('../src-electron/db/query-zcl')
+const queryAccess = require('../src-electron/db/query-access')
 
 let db
 const testFile = path.join(__dirname, 'resource/test-meta.zap')
@@ -103,6 +104,19 @@ test(
         expect(clusters.length).toBe(0)
       }
     }
+
+    const ops = await queryAccess.selectAccessOperations(
+      db,
+      zclContext.packageId
+    )
+    expect(ops.length).toBe(3)
+    const roles = await queryAccess.selectAccessRoles(db, zclContext.packageId)
+    expect(roles.length).toBe(4)
+    const mods = await queryAccess.selectAccessModifiers(
+      db,
+      zclContext.packageId
+    )
+    expect(mods.length).toBe(2)
   },
   testUtil.timeout.medium()
 )

@@ -22,3 +22,43 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
+
+async function selectAccessOperations(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT NAME, DESCRIPTION FROM OPERATION WHERE PACKAGE_REF = ? ORDER BY NAME
+`,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.accessOperation))
+}
+
+async function selectAccessRoles(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT NAME, DESCRIPTION FROM ROLE WHERE PACKAGE_REF = ? ORDER BY NAME
+    `,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.accessRole))
+}
+
+async function selectAccessModifiers(db, packageId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT NAME, DESCRIPTION FROM ACCESS_MODIFIER WHERE PACKAGE_REF = ? ORDER BY NAME
+    `,
+      [packageId]
+    )
+    .then((rows) => rows.map(dbMapping.map.accessModifier))
+}
+
+exports.selectAccessModifiers = selectAccessModifiers
+exports.selectAccessRoles = selectAccessRoles
+exports.selectAccessOperations = selectAccessOperations

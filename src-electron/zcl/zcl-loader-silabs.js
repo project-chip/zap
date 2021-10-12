@@ -589,6 +589,57 @@ function prepareTag(tag) {
 }
 
 /**
+ * Process accessControl tag in the XML.
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} tags
+ */
+async function processAccessControl(
+  db,
+  filePath,
+  packageId,
+  accessControlList
+) {
+  let operations = []
+  let roles = []
+  let accessModifiers = []
+
+  for (const ac of accessControlList) {
+    if ('access' in ac) {
+      for (const access of ac.access) {
+        operations.push({
+          name: access.$.type,
+          description: access.$.description,
+        })
+      }
+    }
+    if ('privilege' in ac) {
+      for (const privilege of ac.privilege) {
+        roles.push({
+          name: privilege.$.type,
+          description: privilege.$.description,
+        })
+      }
+    }
+    if ('fabric' in ac) {
+      for (const fabric of ac.fabric) {
+        accessModifiers.push({
+          name: fabric.$.type,
+          description: fabric.$.description,
+        })
+      }
+    }
+  }
+
+  let p = []
+  p.push(queryLoader.insertAccessRoles(db, packageId, roles))
+  p.push(queryLoader.insertAccessOperations(db, packageId, operations))
+  p.push(queryLoader.insertAccessModifiers(db, packageId, accessModifiers))
+  return Promise.all(p)
+}
+
+/**
  * Processes the tags in the XML.
  * @param {*} db
  * @param {*} filePath
@@ -830,7 +881,7 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
   if (!('result' in argument)) {
     return []
   } else {
-    let loadTagsAndDomains = []
+    let loadPreClusterData = []
     let loadClusters = []
     let loadTypes = []
     let loadGlobalAttributesAndClusterExtensions = []
@@ -844,8 +895,13 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
     }
 
     if (toplevel != null) {
+      if ('accessControl' in toplevel) {
+        loadPreClusterData.push(
+          processAccessControl(db, filePath, packageId, toplevel.accessControl)
+        )
+      }
       if ('tag' in toplevel) {
-        loadTagsAndDomains.push(
+        loadPreClusterData.push(
           processTags(db, filePath, packageId, toplevel.tag)
         )
       }
@@ -869,7 +925,7 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
         )
       }
       if ('domain' in toplevel) {
-        loadTagsAndDomains.push(
+        loadPreClusterData.push(
           processDomains(db, filePath, packageId, toplevel.domain)
         )
       }
@@ -902,7 +958,7 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
       }
     }
     // This thing resolves the immediate promises and then resolves itself with passing the later promises down the chain.
-    await Promise.all(loadTagsAndDomains)
+    await Promise.all(loadPreClusterData)
     await Promise.all(loadClusters)
     await Promise.all(loadTypes)
     return Promise.all(loadGlobalAttributesAndClusterExtensions)

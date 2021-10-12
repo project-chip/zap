@@ -913,6 +913,48 @@ async function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
   )
 }
 
+async function insertAccessOperations(db, packageId, operations) {
+  let data = operations.map((o) => [packageId, o.name, o.description])
+  return dbApi.dbMultiInsert(
+    db,
+    `
+INSERT INTO OPERATION
+  (PACKAGE_REF, NAME, DESCRIPTION)
+VALUES
+  (?, ?, ?)
+`,
+    data
+  )
+}
+
+async function insertAccessRoles(db, packageId, roles) {
+  let data = roles.map((r) => [packageId, r.name, r.description])
+  return dbApi.dbMultiInsert(
+    db,
+    `
+INSERT INTO ROLE
+  (PACKAGE_REF, NAME, DESCRIPTION)
+VALUES
+  (?, ?, ?)
+`,
+    data
+  )
+}
+
+async function insertAccessModifiers(db, packageId, modifiers) {
+  let data = modifiers.map((m) => [packageId, m.name, m.description])
+  return dbApi.dbMultiInsert(
+    db,
+    `
+INSERT INTO ACCESS_MODIFIER
+  (PACKAGE_REF, NAME, DESCRIPTION)
+VALUES
+  (?, ?, ?)
+`,
+    data
+  )
+}
+
 async function updateEnumClusterReferences(db, packageId) {
   return dbApi.dbUpdate(
     db,
@@ -1000,3 +1042,6 @@ exports.insertTags = insertTags
 exports.updateEnumClusterReferences = updateEnumClusterReferences
 exports.updateStructClusterReferences = updateStructClusterReferences
 exports.updateBitmapClusterReferences = updateBitmapClusterReferences
+exports.insertAccessModifiers = insertAccessModifiers
+exports.insertAccessOperations = insertAccessOperations
+exports.insertAccessRoles = insertAccessRoles

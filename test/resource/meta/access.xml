@@ -1,13 +1,13 @@
 <zap>
   <accessControl>
-    <access type="read"/>
-    <access type="write"/>
-    <access type="invoke"/>
-    <fabric type="scoped"/>
-    <fabric type="sensitive"/>
-    <privilege type="view"/>
-    <privilege type="operate"/>
-    <privilege type="manage"/>
-    <privilege type="administer"/>
+    <access type="read" description="Read operation"/>
+    <access type="write" description="Write operation"/>
+    <access type="invoke" description="Invoke operation"/>
+    <fabric type="scoped" description="Fabric-scoped data"/>
+    <fabric type="sensitive" description="Fabric-sensitive data"/>
+    <privilege type="view" description="View privilege"/>
+    <privilege type="operate" description="Operate privilege"/>
+    <privilege type="manage" description="Managing privilege"/>
+    <privilege type="administer" description="Administrative privilege"/>
   </accessControl>
 </zap>
