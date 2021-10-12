@@ -507,6 +507,78 @@ CREATE TABLE IF NOT EXISTS "STRUCT_CLUSTER" (
   UNIQUE(STRUCT_REF, CLUSTER_REF)
 );
 /*
+ *  $$$$$$\                                                    
+ * $$  __$$\                                                   
+ * $$ /  $$ | $$$$$$$\  $$$$$$$\  $$$$$$\   $$$$$$$\  $$$$$$$\ 
+ * $$$$$$$$ |$$  _____|$$  _____|$$  __$$\ $$  _____|$$  _____|
+ * $$  __$$ |$$ /      $$ /      $$$$$$$$ |\$$$$$$\  \$$$$$$\  
+ * $$ |  $$ |$$ |      $$ |      $$   ____| \____$$\  \____$$\ 
+ * $$ |  $$ |\$$$$$$$\ \$$$$$$$\ \$$$$$$$\ $$$$$$$  |$$$$$$$  |
+ * \__|  \__| \_______| \_______| \_______|\_______/ \_______/ 
+ */
+DROP TABLE IF EXISTS "OPERATION";
+CREATE TABLE IF NOT EXISTS "OPERATION" (
+  "OPERATION_ID" integer primary key autoincrement,
+  "PACKAGE_REF" integer,
+  "NAME" text,
+  "DESCRIPTION" text,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade
+);
+DROP TABLE IF EXISTS "ROLE";
+CREATE TABLE IF NOT EXISTS "ROLE" (
+  "ROLE_ID" integer primary key autoincrement,
+  "PACKAGE_REF" integer,
+  "NAME" text,
+  "DESCRIPTION" text,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade
+);
+DROP TABLE IF EXISTS "ACCESS_MODIFIER";
+CREATE TABLE IF NOT EXISTS "ACCESS_MODIFIER" (
+  "ACCESS_MODIFIER_ID" integer primary key autoincrement,
+  "PACKAGE_REF" integer,
+  "NAME" text,
+  "DESCRIPTION" text,
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade
+);
+DROP TABLE IF EXISTS "ACCESS";
+CREATE TABLE IF NOT EXISTS "ACCESS" (
+  "ACCESS_ID" integer primary key autoincrement,
+  "OPERATION_REF" integer,
+  "ROLE_REF" integer,
+  "ACCESS_MODIFIER_REF" integer,
+  foreign key (OPERATION_REF) references OPERATION(OPERATION_ID),
+  foreign key (ROLE_REF) references ROLE(ROLE_ID),
+  foreign key (ACCESS_MODIFIER_REF) references ACCESS_MODIFIER(ACCESS_MODIFIER_ID)
+);
+DROP TABLE IF EXISTS "CLUSTER_ACCESS";
+CREATE TABLE IF NOT EXISTS "CLUSTER_ACCESS" (
+  "CLUSTER_REF" integer,
+  "ACCESS_REF" integer,
+  foreign key(ACCESS_REF) references ACCESS(ACCESS_ID),
+  foreign key(CLUSTER_REF) references CLUSTER(CLUSTER_ID)
+);
+DROP TABLE IF EXISTS "ATTRIBUTE_ACCESS";
+CREATE TABLE IF NOT EXISTS "ATTRIBUTE_ACCESS" (
+  "ATTRIBUTE_REF" integer,
+  "ACCESS_REF" integer,
+  foreign key(ACCESS_REF) references ACCESS(ACCESS_ID),
+  foreign key(ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID)
+);
+DROP TABLE IF EXISTS "COMMAND_ACCESS";
+CREATE TABLE IF NOT EXISTS "COMMAND_ACCESS" (
+  "COMMAND_REF" integer,
+  "ACCESS_REF" integer,
+  foreign key(ACCESS_REF) references ACCESS(ACCESS_ID),
+  foreign key(COMMAND_REF) references COMMAND(COMMAND_ID)
+);
+DROP TABLE IF EXISTS "EVENT_ACCESS";
+CREATE TABLE IF NOT EXISTS "EVENT_ACCESS" (
+  "EVENT_REF" integer,
+  "ACCESS_REF" integer,
+  foreign key(ACCESS_REF) references ACCESS(ACCESS_ID),
+  foreign key(EVENT_REF) references EVENT(EVENT_ID)
+);
+/*
  *
  *  $$$$$$\                                $$\                                 $$\            $$\               
  * $$  __$$\                               \__|                                $$ |           $$ |              
