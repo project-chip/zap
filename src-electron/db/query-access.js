@@ -59,6 +59,36 @@ SELECT NAME, DESCRIPTION FROM ACCESS_MODIFIER WHERE PACKAGE_REF = ? ORDER BY NAM
     .then((rows) => rows.map(dbMapping.map.accessModifier))
 }
 
+async function selectDefaultAccess(db, packageId, type) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  OPERATION.NAME AS OP_NAME,
+  ROLE.NAME AS ROLE_NAME,
+  ACCESS_MODIFIER.NAME AS MODIFIER_NAME
+FROM
+  DEFAULT_ACCESS AS DA
+INNER JOIN
+  ACCESS AS A
+ON
+  DA.ACCESS_REF = A.ACCESS_ID
+LEFT JOIN OPERATION
+ON A.OPERATION_REF = OPERATION.OPERATION_ID
+LEFT JOIN ROLE
+ON A.ROLE_REF = ROLE.ROLE_ID
+LEFT JOIN ACCESS_MODIFIER
+ON A.ACCESS_MODIFIER_REF = ACCESS_MODIFIER.ACCESS_MODIFIER_ID
+WHERE DA.PACKAGE_REF = ? AND DA.ENTITY_TYPE = ?
+ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
+`,
+      [packageId, type]
+    )
+    .then((rows) => rows.map(dbMapping.map.access))
+}
+
 exports.selectAccessModifiers = selectAccessModifiers
 exports.selectAccessRoles = selectAccessRoles
 exports.selectAccessOperations = selectAccessOperations
+exports.selectDefaultAccess = selectDefaultAccess

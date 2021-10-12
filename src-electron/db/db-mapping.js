@@ -453,6 +453,14 @@ exports.map = {
       description: x.DESCRIPTION,
     }
   },
+  access: (x) => {
+    if (x == null) return undefined
+    return {
+      operation: x.OP_NAME,
+      role: x.ROLE_NAME,
+      access_modifier: x.MODIFIER_NAME,
+    }
+  },
 }
 
 exports.reverseMap = {

@@ -117,6 +117,27 @@ test(
       zclContext.packageId
     )
     expect(mods.length).toBe(2)
+
+    let d
+
+    d = await queryAccess.selectDefaultAccess(
+      db,
+      zclContext.packageId,
+      'command'
+    )
+    expect(d.length).toBe(1)
+    d = await queryAccess.selectDefaultAccess(
+      db,
+      zclContext.packageId,
+      'cluster'
+    )
+    expect(d.length).toBe(2)
+    d = await queryAccess.selectDefaultAccess(
+      db,
+      zclContext.packageId,
+      'attribute'
+    )
+    expect(d.length).toBe(2)
   },
   testUtil.timeout.medium()
 )
