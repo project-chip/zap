@@ -244,11 +244,51 @@ function argMap(cmdId, packageId, args) {
   ])
 }
 
-async function insertAttributeAccessData(db, accessData) {}
-async function insertCommandAccessData(db, accessData) {}
-async function insertEventAccessData(db, accessData) {}
+// access data is array of objects, containing id/op/role/modifier
+async function insertAttributeAccessData(db, packageId, accessData) {
+  let rowIds = await createAccessRows(db, packageId, accessData)
+  let insertData = []
+  for (let i = 0; i < rowIds.length; i++) {
+    insertData.push([accessData[i].id, rowIds[i]])
+  }
 
-async function insertAttributes(db, attributes) {
+  return dbApi.dbMultiInsert(
+    db,
+    `INSERT INTO ATTRIBUTE_ACCESS (ATTRIBUTE_REF, ACCESS_REF) VALUES (?,?)`,
+    insertData
+  )
+}
+
+// access data is array of objects, containing id/op/role/modifier
+async function insertCommandAccessData(db, packageId, accessData) {
+  let rowIds = await createAccessRows(db, packageId, accessData)
+  let insertData = []
+  for (let i = 0; i < rowIds.length; i++) {
+    insertData.push([accessData[i].id, rowIds[i]])
+  }
+
+  return dbApi.dbMultiInsert(
+    db,
+    `INSERT INTO COMMAND_ACCESS (COMMAND_REF, ACCESS_REF) VALUES (?,?)`,
+    insertData
+  )
+}
+// access data is array of objects, containing id/op/role/modifier
+async function insertEventAccessData(db, packageId, accessData) {
+  let rowIds = await createAccessRows(db, packageId, accessData)
+  let insertData = []
+  for (let i = 0; i < rowIds.length; i++) {
+    insertData.push([accessData[i].id, rowIds[i]])
+  }
+
+  return dbApi.dbMultiInsert(
+    db,
+    `INSERT INTO EVENT_ACCESS (EVENT_REF, ACCESS_REF) VALUES (?,?)`,
+    insertData
+  )
+}
+
+async function insertAttributes(db, packageId, attributes) {
   let data = attributes.data
   let access = attributes.access
   if (data == null || data.length == 0) return
@@ -261,13 +301,18 @@ async function insertAttributes(db, attributes) {
     let atAccess = access[i] // Array of accesses
     if (atAccess != null && atAccess.length > 0) {
       for (let ac of atAccess) {
-        accessData.push([atId, ac.op, ac.role, ac.modifier])
+        accessData.push({
+          id: atId,
+          op: ac.op,
+          role: ac.role,
+          modifier: ac.modifier,
+        })
       }
     }
   }
 
   if (accessData.length > 0) {
-    await insertAttributeAccessData(db, accessData)
+    await insertAttributeAccessData(db, packageId, accessData)
   }
 }
 
@@ -294,13 +339,18 @@ async function insertEvents(db, packageId, events) {
     let evAccess = access[i] // Array of accesses
     if (evAccess != null && evAccess.length > 0) {
       for (let ac of evAccess) {
-        accessData.push([evId, ac.op, ac.role, ac.modifier])
+        accessData.push({
+          id: evId,
+          op: ac.op,
+          role: ac.role,
+          modifier: ac.modifier,
+        })
       }
     }
   }
 
   if (accessData.length > 0) {
-    await insertEventAccessData(db, accessData)
+    await insertEventAccessData(db, packageId, accessData)
   }
 }
 
@@ -327,13 +377,18 @@ async function insertCommands(db, packageId, commands) {
     let cmdAccess = access[i] // Array of accesses
     if (cmdAccess != null && cmdAccess.length > 0) {
       for (let ac of cmdAccess) {
-        accessData.push([cmdId, ac.op, ac.role, ac.modifier])
+        accessData.push({
+          id: cmdId,
+          op: ac.op,
+          role: ac.role,
+          modifier: ac.modifier,
+        })
       }
     }
   }
 
   if (accessData.length > 0) {
-    await insertCommandAccessData(db, accessData)
+    await insertCommandAccessData(db, packageId, accessData)
   }
 }
 /**
@@ -369,7 +424,7 @@ async function insertGlobals(db, packageId, data) {
     }
   }
   let pCommand = insertCommands(db, packageId, commands)
-  let pAttribute = insertAttributes(db, attributes)
+  let pAttribute = insertAttributes(db, packageId, attributes)
   return Promise.all([pCommand, pAttribute])
 }
 
@@ -382,7 +437,7 @@ async function insertGlobals(db, packageId, data) {
  * @param {*} data
  * @returns Promise of cluster extension insertion.
  */
-async function insertClusterExtensions(db, dataPackageId, knownPackages, data) {
+async function insertClusterExtensions(db, packageId, knownPackages, data) {
   return dbApi
     .dbMultiSelect(
       db,
@@ -406,12 +461,12 @@ async function insertClusterExtensions(db, dataPackageId, knownPackages, data) {
           lastId = row.CLUSTER_ID
           if ('commands' in data[i]) {
             let cmds = data[i].commands
-            commands.data.push(...commandMap(lastId, dataPackageId, cmds))
+            commands.data.push(...commandMap(lastId, packageId, cmds))
             commands.args.push(...cmds.map((command) => command.args))
           }
           if ('attributes' in data[i]) {
             let atts = data[i].attributes
-            attributes.data.push(...attributeMap(lastId, dataPackageId, atts))
+            attributes.data.push(...attributeMap(lastId, packageId, atts))
           }
         } else {
           // DANGER: We got here, but we don't have rows. Why not?
@@ -421,8 +476,8 @@ async function insertClusterExtensions(db, dataPackageId, knownPackages, data) {
           )
         }
       }
-      let pCommand = insertCommands(db, dataPackageId, commands)
-      let pAttribute = insertAttributes(db, attributes)
+      let pCommand = insertCommands(db, packageId, commands)
+      let pAttribute = insertAttributes(db, packageId, attributes)
       return Promise.all([pCommand, pAttribute])
     })
 }
@@ -503,7 +558,7 @@ async function insertClusters(db, packageId, data) {
         }
       }
       let pCommand = insertCommands(db, packageId, commands)
-      let pAttribute = insertAttributes(db, attributes)
+      let pAttribute = insertAttributes(db, packageId, attributes)
       let pEvent = insertEvents(db, packageId, events)
       let pArray = [pCommand, pAttribute, pEvent]
       if (pTags != null) pArray.push(pTags)
