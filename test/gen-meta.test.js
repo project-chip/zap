@@ -125,19 +125,30 @@ test(
       zclContext.packageId,
       'command'
     )
+    expect(d[0].operation).toBe('invoke')
+    expect(d[0].role).toBeNull()
+    expect(d[0].accessModifier).toBeNull()
     expect(d.length).toBe(1)
+
     d = await queryAccess.selectDefaultAccess(
       db,
       zclContext.packageId,
       'cluster'
     )
     expect(d.length).toBe(2)
+    expect(d[0].operation).toBe('read')
+    expect(d[1].operation).toBe('write')
+
     d = await queryAccess.selectDefaultAccess(
       db,
       zclContext.packageId,
       'attribute'
     )
     expect(d.length).toBe(2)
+    expect(d[0].operation).toBe('read')
+    expect(d[1].operation).toBe('write')
+    expect(d[0].role).toBe('view')
+    expect(d[1].role).toBe('operate')
   },
   testUtil.timeout.medium()
 )

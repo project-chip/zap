@@ -458,7 +458,7 @@ exports.map = {
     return {
       operation: x.OP_NAME,
       role: x.ROLE_NAME,
-      access_modifier: x.MODIFIER_NAME,
+      accessModifier: x.MODIFIER_NAME,
     }
   },
 }

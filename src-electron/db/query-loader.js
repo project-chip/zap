@@ -979,7 +979,7 @@ VALUES (
       packageId,
       a.role,
       packageId,
-      a.modifiers,
+      a.modifier,
       packageId,
     ])
   )

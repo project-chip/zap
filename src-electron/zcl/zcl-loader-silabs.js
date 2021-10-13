@@ -915,10 +915,6 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
   if (!('result' in argument)) {
     return []
   } else {
-    let loadPreClusterData = []
-    let loadClusters = []
-    let loadTypes = []
-    let loadGlobalAttributesAndClusterExtensions = []
     let toplevel = null
 
     if ('configurator' in data) {
@@ -928,79 +924,91 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
       toplevel = data.zap
     }
 
-    if (toplevel != null) {
-      if ('accessControl' in toplevel) {
-        loadPreClusterData.push(
-          processAccessControl(db, filePath, packageId, toplevel.accessControl)
-        )
-      }
-      if ('defaultAccess' in toplevel) {
-        loadTypes.push(
-          processDefaultAccess(db, filePath, packageId, toplevel.defaultAccess)
-        )
-      }
-      if ('tag' in toplevel) {
-        loadPreClusterData.push(
-          processTags(db, filePath, packageId, toplevel.tag)
-        )
-      }
-      if ('atomic' in toplevel) {
-        loadTypes.push(processAtomics(db, filePath, packageId, toplevel.atomic))
-      }
-      if ('bitmap' in toplevel) {
-        loadTypes.push(processBitmaps(db, filePath, packageId, toplevel.bitmap))
-      }
-      if ('cluster' in toplevel) {
-        loadClusters.push(
-          processClusters(db, filePath, packageId, toplevel.cluster)
-        )
-        loadGlobalAttributesAndClusterExtensions.push(() =>
-          processClusterGlobalAttributes(
-            db,
-            filePath,
-            packageId,
-            toplevel.cluster
-          )
-        )
-      }
-      if ('domain' in toplevel) {
-        loadPreClusterData.push(
-          processDomains(db, filePath, packageId, toplevel.domain)
-        )
-      }
-      if ('enum' in toplevel) {
-        loadTypes.push(processEnums(db, filePath, packageId, toplevel.enum))
-      }
-      if ('struct' in toplevel) {
-        loadTypes.push(processStructs(db, filePath, packageId, toplevel.struct))
-      }
-      if ('deviceType' in toplevel) {
-        loadClusters.push(
-          processDeviceTypes(db, filePath, packageId, toplevel.deviceType)
-        )
-      }
-      if ('global' in toplevel) {
-        loadClusters.push(
-          processGlobals(db, filePath, packageId, toplevel.global)
-        )
-      }
-      if ('clusterExtension' in toplevel) {
-        loadGlobalAttributesAndClusterExtensions.push(() =>
-          processClusterExtensions(
-            db,
-            filePath,
-            packageId,
-            knownPackages,
-            toplevel.clusterExtension
-          )
-        )
-      }
+    if (toplevel == null) return []
+
+    // We load in multiple batches, since each batch needs to resolve
+    // before the next batch can be loaded, as later data depends on
+    // previous data. Final batch is delayed, meaning that
+    // the promises there can't start yet, until all files are loaded.
+
+    // Batch 1: load accessControl, tag and domain
+    let batch1 = []
+    if ('accessControl' in toplevel) {
+      batch1.push(
+        processAccessControl(db, filePath, packageId, toplevel.accessControl)
+      )
     }
-    // This thing resolves the immediate promises and then resolves itself with passing the later promises down the chain.
-    await Promise.all(loadPreClusterData)
-    await Promise.all(loadClusters)
-    await Promise.all(loadTypes)
-    return Promise.all(loadGlobalAttributesAndClusterExtensions)
+    if ('tag' in toplevel) {
+      batch1.push(processTags(db, filePath, packageId, toplevel.tag))
+    }
+    if ('domain' in toplevel) {
+      batch1.push(processDomains(db, filePath, packageId, toplevel.domain))
+    }
+    await Promise.all(batch1)
+
+    // Batch 2: device types, globals, clusters
+    let batch2 = []
+    if ('deviceType' in toplevel) {
+      batch2.push(
+        processDeviceTypes(db, filePath, packageId, toplevel.deviceType)
+      )
+    }
+    if ('global' in toplevel) {
+      batch2.push(processGlobals(db, filePath, packageId, toplevel.global))
+    }
+    if ('cluster' in toplevel) {
+      batch2.push(processClusters(db, filePath, packageId, toplevel.cluster))
+    }
+    await Promise.all(batch2)
+
+    // Batch 3: defaultAccess, types.
+    let batch3 = []
+    if ('defaultAccess' in toplevel) {
+      batch3.push(
+        processDefaultAccess(db, filePath, packageId, toplevel.defaultAccess)
+      )
+    }
+    if ('atomic' in toplevel) {
+      batch3.push(processAtomics(db, filePath, packageId, toplevel.atomic))
+    }
+    if ('bitmap' in toplevel) {
+      batch3.push(processBitmaps(db, filePath, packageId, toplevel.bitmap))
+    }
+    if ('enum' in toplevel) {
+      batch3.push(processEnums(db, filePath, packageId, toplevel.enum))
+    }
+    if ('struct' in toplevel) {
+      batch3.push(processStructs(db, filePath, packageId, toplevel.struct))
+    }
+    await Promise.all(batch3)
+
+    // Batch 4: cluster extensions and global attributes
+    //   These don't start right away, but are delayed. So we don't return
+    //   promises that have already started, but functions that return promises.
+    let delayedPromises = []
+
+    if ('cluster' in toplevel) {
+      delayedPromises.push(() =>
+        processClusterGlobalAttributes(
+          db,
+          filePath,
+          packageId,
+          toplevel.cluster
+        )
+      )
+    }
+    if ('clusterExtension' in toplevel) {
+      delayedPromises.push(() =>
+        processClusterExtensions(
+          db,
+          filePath,
+          packageId,
+          knownPackages,
+          toplevel.clusterExtension
+        )
+      )
+    }
+    return Promise.all(delayedPromises)
   }
 }
 
