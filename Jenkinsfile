@@ -261,8 +261,8 @@ pipeline
                     {
                         script
                         {
-                            archiveArtifacts artifacts:'./docs/releasenotes.md', fingerprint: true
-                            archiveArtifacts artifacts:'./apack_zap.package', fingerprint: true
+                            archiveArtifacts artifacts:'docs/releasenotes.md', fingerprint: true
+                            archiveArtifacts artifacts:'apack_zap.package', fingerprint: true
                         }
                     }
                 }
