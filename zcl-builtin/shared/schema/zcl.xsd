@@ -388,6 +388,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="description"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="access" type="access"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="field" type="eventField"/>
       </xs:sequence>
       <xs:attribute name="code" type="xs:string"/>
@@ -400,6 +401,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="description"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="access" type="access"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="arg" type="arg"/>
       </xs:sequence>
       <xs:attribute name="cli"/>

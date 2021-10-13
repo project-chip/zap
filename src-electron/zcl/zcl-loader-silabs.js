@@ -334,6 +334,20 @@ function prepareClusterGlobalAttribute(cluster) {
   }
 }
 
+function extractAccessIntoArray(xmlElement) {
+  let accessArray = []
+  if ('access' in xmlElement) {
+    for (const ac of xmlElement.access) {
+      accessArray.push({
+        op: ac.$.op,
+        role: ac.$.role,
+        modifier: ac.$.modifier,
+      })
+    }
+  }
+  return accessArray
+}
+
 /**
  * Prepare XML cluster for insertion into the database.
  * This method can also prepare clusterExtensions.
@@ -389,6 +403,7 @@ function prepareCluster(cluster, isExtension = false) {
         removedIn: command.$.removedIn,
         responseName: command.$.response == null ? null : command.$.response,
       }
+      cmd.access = extractAccessIntoArray(command)
       if (cmd.manufacturerCode == null) {
         cmd.manufacturerCode = ret.manufacturerCode
       } else {
@@ -428,6 +443,7 @@ function prepareCluster(cluster, isExtension = false) {
         description: event.description[0].trim(),
         isOptional: event.$.optional == 'true',
       }
+      ev.access = extractAccessIntoArray(event)
       if (ev.manufacturerCode == null) {
         ev.manufacturerCode = ret.manufacturerCode
       } else {
@@ -485,6 +501,7 @@ function prepareCluster(cluster, isExtension = false) {
         removedIn: attribute.$.removedIn,
         entryType: attribute.$.entryType,
       }
+      att.access = extractAccessIntoArray(attribute)
       if (att.manufacturerCode == null) {
         att.manufacturerCode = ret.manufacturerCode
       } else {
