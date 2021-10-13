@@ -46,8 +46,8 @@ function delayBeginTransaction(db, resolve, reject) {
   let interval = setInterval(() => {
     if (inTransaction) {
       cnt++
-      if (cnt > 50) {
-        reject('Waited for 5s for transaction to relinquish, but it did not.')
+      if (cnt > 100) {
+        reject('Waited for 10s for transaction to relinquish, but it did not.')
       }
     } else {
       clearInterval(interval)
