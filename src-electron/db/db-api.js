@@ -27,6 +27,12 @@ const env = require('../util/env')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
+// This is a SQLITE specific thing. With SQLITE databases,
+// we can't have multiple transactions. So this mechanism
+// here is handling this.
+// If this code ever runs against a database engine that
+// supports multiple transactions, this can all go away.
+//
 let inTransaction = false
 
 function executeBeginTransaction(db, resolve, reject) {
