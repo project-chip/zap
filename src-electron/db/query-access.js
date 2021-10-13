@@ -59,6 +59,14 @@ SELECT NAME, DESCRIPTION FROM ACCESS_MODIFIER WHERE PACKAGE_REF = ? ORDER BY NAM
     .then((rows) => rows.map(dbMapping.map.accessModifier))
 }
 
+/**
+ * Retrieves the default access list for a given type.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} type
+ * @returns array of {operation/role/accessModifier} objects.
+ */
 async function selectDefaultAccess(db, packageId, type) {
   return dbApi
     .dbAll(
@@ -88,14 +96,97 @@ ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
     .then((rows) => rows.map(dbMapping.map.access))
 }
 
-/**
- *
- * @param {*} db
- * @param {*} accessData Array of ID/op/role/modifier
- */
-async function insertAttributeAccessData(db, accessData) {}
+async function selectAttributeAccess(db, attributeId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  OPERATION.NAME AS OP_NAME,
+  ROLE.NAME AS ROLE_NAME,
+  ACCESS_MODIFIER.NAME AS MODIFIER_NAME
+FROM
+  ATTRIBUTE_ACCESS AS AA
+INNER JOIN
+  ACCESS AS A
+ON
+  AA.ACCESS_REF = A.ACCESS_ID
+LEFT JOIN OPERATION
+ON A.OPERATION_REF = OPERATION.OPERATION_ID
+LEFT JOIN ROLE
+ON A.ROLE_REF = ROLE.ROLE_ID
+LEFT JOIN ACCESS_MODIFIER
+ON A.ACCESS_MODIFIER_REF = ACCESS_MODIFIER.ACCESS_MODIFIER_ID
+WHERE AA.ATTRIBUTE_REF = ?
+ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
+`,
+      [attributeId]
+    )
+    .then((rows) => rows.map(dbMapping.map.access))
+}
+
+async function selectCommandAccess(db, commandId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+OPERATION.NAME AS OP_NAME,
+ROLE.NAME AS ROLE_NAME,
+ACCESS_MODIFIER.NAME AS MODIFIER_NAME
+FROM
+COMMAND_ACCESS AS CA
+INNER JOIN
+ACCESS AS A
+ON
+CA.ACCESS_REF = A.ACCESS_ID
+LEFT JOIN OPERATION
+ON A.OPERATION_REF = OPERATION.OPERATION_ID
+LEFT JOIN ROLE
+ON A.ROLE_REF = ROLE.ROLE_ID
+LEFT JOIN ACCESS_MODIFIER
+ON A.ACCESS_MODIFIER_REF = ACCESS_MODIFIER.ACCESS_MODIFIER_ID
+WHERE CA.COMMAND_REF = ?
+ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
+`,
+      [commandId]
+    )
+    .then((rows) => rows.map(dbMapping.map.access))
+}
+
+async function selectEventAccess(db, eventId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+OPERATION.NAME AS OP_NAME,
+ROLE.NAME AS ROLE_NAME,
+ACCESS_MODIFIER.NAME AS MODIFIER_NAME
+FROM
+EVENT_ACCESS AS EA
+INNER JOIN
+ACCESS AS A
+ON
+CA.ACCESS_REF = A.ACCESS_ID
+LEFT JOIN OPERATION
+ON A.OPERATION_REF = OPERATION.OPERATION_ID
+LEFT JOIN ROLE
+ON A.ROLE_REF = ROLE.ROLE_ID
+LEFT JOIN ACCESS_MODIFIER
+ON A.ACCESS_MODIFIER_REF = ACCESS_MODIFIER.ACCESS_MODIFIER_ID
+WHERE EA.EVENT_REF = ?
+ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
+`,
+      [commandId]
+    )
+    .then((rows) => rows.map(dbMapping.map.access))
+}
 
 exports.selectAccessModifiers = selectAccessModifiers
 exports.selectAccessRoles = selectAccessRoles
 exports.selectAccessOperations = selectAccessOperations
 exports.selectDefaultAccess = selectDefaultAccess
+exports.selectAttributeAccess = selectAttributeAccess
+exports.selectCommandAccess = selectCommandAccess
+exports.selectEventAccess = selectEventAccess

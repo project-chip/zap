@@ -76,6 +76,18 @@ test(
     expect(attributes[0].name).toBe('at1')
     expect(attributes[1].name).toBe('at2')
 
+    let access
+    access = await queryAccess.selectAttributeAccess(db, attributes[0].id)
+    expect(access.length).toBe(1)
+    expect(access[0].operation).toBe('write')
+    expect(access[0].role).toBe('manage')
+    expect(access[0].accessModifier).toBe('fabric-scoped')
+    access = await queryAccess.selectAttributeAccess(db, attributes[1].id)
+    expect(access.length).toBe(1)
+    expect(access[0].operation).toBeNull()
+    expect(access[0].role).toBeNull()
+    expect(access[0].accessModifier).toBe('fabric-sensitive')
+
     const structs = await queryZcl.selectAllStructsWithItemCount(
       db,
       zclContext.packageId
