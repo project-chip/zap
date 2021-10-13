@@ -104,7 +104,7 @@ exports.map = {
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isReportable: dbApi.fromDbBool(x.IS_REPORTABLE),
       isSceneRequired: dbApi.fromDbBool(x.IS_SCENE_REQUIRED),
-      arrayType: x.ARRAY_TYPE,
+      entryType: x.ARRAY_TYPE,
     }
   },
 
