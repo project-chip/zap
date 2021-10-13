@@ -88,6 +88,13 @@ ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
     .then((rows) => rows.map(dbMapping.map.access))
 }
 
+/**
+ *
+ * @param {*} db
+ * @param {*} accessData Array of ID/op/role/modifier
+ */
+async function insertAttributeAccessData(db, accessData) {}
+
 exports.selectAccessModifiers = selectAccessModifiers
 exports.selectAccessRoles = selectAccessRoles
 exports.selectAccessOperations = selectAccessOperations
