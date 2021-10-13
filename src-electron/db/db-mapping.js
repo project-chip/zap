@@ -87,6 +87,7 @@ exports.map = {
       code: x.CODE,
       clusterCode: x.CLUSTER_CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
+      name: x.NAME,
       label: x.NAME,
       type: x.TYPE,
       side: x.SIDE,

@@ -455,10 +455,14 @@ function prepareCluster(cluster, isExtension = false) {
   if ('attribute' in cluster) {
     ret.attributes = []
     cluster.attribute.forEach((attribute) => {
+      let name = attribute._
+      if ('description' in attribute && name == null) {
+        name = attribute.description.join('')
+      }
       let att = {
         code: parseInt(attribute.$.code),
         manufacturerCode: attribute.$.manufacturerCode,
-        name: attribute._,
+        name: name,
         type: attribute.$.type.toLowerCase(),
         side: attribute.$.side,
         define: attribute.$.define,

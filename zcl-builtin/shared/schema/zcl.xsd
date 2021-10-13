@@ -420,6 +420,10 @@ This schema describes the format of the XML files, that describe the ZCL specifi
   </xs:element>
   <xs:element name="attribute">
     <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="description"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="access" type="access"/>
+      </xs:sequence>
       <xs:attribute name="code" use="required" type="zclCode"/>
       <xs:attribute name="default"/>
       <xs:attribute name="define" use="required" type="zclAttributeDefine"/>
