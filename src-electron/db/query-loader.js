@@ -262,7 +262,9 @@ async function insertEvents(db, packageId, eventsToLoad, fieldsForEvents) {
   return dbApi.dbMultiInsert(db, INSERT_EVENT_FIELD_QUERY, fieldsToLoad)
 }
 
-async function insertCommands(db, packageId, commandsToLoad, argsForCommands) {
+async function insertCommands(db, packageId, commands) {
+  let commandsToLoad = commands.data
+  let argsForCommands = commands.args
   if (commandsToLoad == null || commandsToLoad.length == 0) return
   let commandIds = await dbApi.dbMultiInsert(
     db,
@@ -290,22 +292,24 @@ async function insertCommands(db, packageId, commandsToLoad, argsForCommands) {
  */
 async function insertGlobals(db, packageId, data) {
   env.logDebug(`Insert globals: ${data.length}`)
-  let commandsToLoad = []
+  let commands = {
+    data: [],
+    args: [],
+  }
   let attributesToLoad = []
-  let argsForCommands = []
   let i
   for (i = 0; i < data.length; i++) {
     if ('commands' in data[i]) {
-      let commands = data[i].commands
-      commandsToLoad.push(...commandMap(null, packageId, commands))
-      argsForCommands.push(...commands.map((command) => command.args))
+      let cmds = data[i].commands
+      commands.data.push(...commandMap(null, packageId, cmds))
+      commands.args.push(...cmds.map((command) => command.args))
     }
     if ('attributes' in data[i]) {
       let attributes = data[i].attributes
       attributesToLoad.push(...attributeMap(null, packageId, attributes))
     }
   }
-  let pCommand = insertCommands(db, packageId, commandsToLoad, argsForCommands)
+  let pCommand = insertCommands(db, packageId, commands)
   let pAttribute = insertAttributes(db, attributesToLoad)
   return Promise.all([pCommand, pAttribute])
 }
@@ -327,18 +331,20 @@ async function insertClusterExtensions(db, dataPackageId, knownPackages, data) {
       data.map((cluster) => [cluster.code])
     )
     .then((rows) => {
-      let commandsToLoad = []
+      let commands = {
+        data: [],
+        args: [],
+      }
       let attributesToLoad = []
-      let argsForCommands = []
       let i, lastId
       for (i = 0; i < rows.length; i++) {
         let row = rows[i]
         if (row != null) {
           lastId = row.CLUSTER_ID
           if ('commands' in data[i]) {
-            let commands = data[i].commands
-            commandsToLoad.push(...commandMap(lastId, dataPackageId, commands))
-            argsForCommands.push(...commands.map((command) => command.args))
+            let cmds = data[i].commands
+            commands.data.push(...commandMap(lastId, dataPackageId, cmds))
+            commands.args.push(...cmds.map((command) => command.args))
           }
           if ('attributes' in data[i]) {
             let attributes = data[i].attributes
@@ -354,12 +360,7 @@ async function insertClusterExtensions(db, dataPackageId, knownPackages, data) {
           )
         }
       }
-      let pCommand = insertCommands(
-        db,
-        dataPackageId,
-        commandsToLoad,
-        argsForCommands
-      )
+      let pCommand = insertCommands(db, dataPackageId, commands)
       let pAttribute = insertAttributes(db, attributesToLoad)
       return Promise.all([pCommand, pAttribute])
     })
@@ -400,20 +401,24 @@ async function insertClusters(db, packageId, data) {
       })
     )
     .then((lastIdsArray) => {
-      let commandsToLoad = []
+      let commands = {
+        data: [],
+        args: [],
+        access: [],
+      }
       let eventsToLoad = []
+      let eventFields = []
       let attributesToLoad = []
-      let argsForCommands = []
-      let fieldsForEvents = []
       let pTags = null
 
       let i
       for (i = 0; i < lastIdsArray.length; i++) {
         let lastId = lastIdsArray[i]
         if ('commands' in data[i]) {
-          let commands = data[i].commands
-          commandsToLoad.push(...commandMap(lastId, packageId, commands))
-          argsForCommands.push(...commands.map((command) => command.args))
+          let cmds = data[i].commands
+          commands.data.push(...commandMap(lastId, packageId, cmds))
+          commands.args.push(...cmds.map((command) => command.args))
+          commands.access.push(...cmds.map((command) => command.access))
         }
         if ('attributes' in data[i]) {
           let attributes = data[i].attributes
@@ -422,20 +427,15 @@ async function insertClusters(db, packageId, data) {
         if ('events' in data[i]) {
           let events = data[i].events
           eventsToLoad.push(...eventMap(lastId, packageId, events))
-          fieldsForEvents.push(...events.map((event) => event.fields))
+          eventFields.push(...events.map((event) => event.fields))
         }
         if ('tags' in data[i]) {
           pTags = insertTags(db, packageId, data[i].tags, lastId)
         }
       }
-      let pCommand = insertCommands(
-        db,
-        packageId,
-        commandsToLoad,
-        argsForCommands
-      )
+      let pCommand = insertCommands(db, packageId, commands)
       let pAttribute = insertAttributes(db, attributesToLoad)
-      let pEvent = insertEvents(db, packageId, eventsToLoad, fieldsForEvents)
+      let pEvent = insertEvents(db, packageId, eventsToLoad, eventFields)
       let pArray = [pCommand, pAttribute, pEvent]
       if (pTags != null) pArray.push(pTags)
       return Promise.all(pArray)
