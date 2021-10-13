@@ -3,8 +3,8 @@
     <operation type="read" description="Read operation"/>
     <operation type="write" description="Write operation"/>
     <operation type="invoke" description="Invoke operation"/>
-    <modifier type="scoped" description="Fabric-scoped data"/>
-    <modifier type="sensitive" description="Fabric-sensitive data"/>
+    <modifier type="fabric-scoped" description="Fabric-scoped data"/>
+    <modifier type="fabric-sensitive" description="Fabric-sensitive data"/>
     <role type="view" description="View privilege"/>
     <role type="operate" description="Operate privilege"/>
     <role type="manage" description="Managing privilege"/>
