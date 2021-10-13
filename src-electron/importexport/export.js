@@ -21,6 +21,7 @@
  */
 const os = require('os')
 const fs = require('fs')
+const fsp = fs.promises
 const path = require('path')
 const env = require('../util/env')
 const querySession = require('../db/query-session.js')
@@ -38,17 +39,19 @@ async function exportEndpointType(db, endpointType) {
   let ps = data.map(async (endpointCluster) => {
     let endpointClusterId = endpointCluster.endpointClusterId
     delete endpointCluster.endpointClusterId
-    endpointCluster.commands = await queryImpExp.exportCommandsFromEndpointTypeCluster(
-      db,
-      endpointType.endpointTypeId,
-      endpointClusterId
-    )
+    endpointCluster.commands =
+      await queryImpExp.exportCommandsFromEndpointTypeCluster(
+        db,
+        endpointType.endpointTypeId,
+        endpointClusterId
+      )
 
-    endpointCluster.attributes = await queryImpExp.exportAttributesFromEndpointTypeCluster(
-      db,
-      endpointType.endpointTypeId,
-      endpointClusterId
-    )
+    endpointCluster.attributes =
+      await queryImpExp.exportAttributesFromEndpointTypeCluster(
+        db,
+        endpointType.endpointTypeId,
+        endpointClusterId
+      )
   })
   return Promise.all(ps)
 }
@@ -126,19 +129,46 @@ async function exportDataIntoFile(
   filePath,
   options = {
     removeLog: false,
+    createBackup: false,
   }
 ) {
   env.logDebug(`Writing state from session ${sessionId} into file ${filePath}`)
   let state = await createStateFromDatabase(db, sessionId)
-  await new Promise((resolve, reject) => {
-    if (options.removeLog) delete state.log
-    fs.writeFile(filePath, JSON.stringify(state, null, 2), (err) => {
-      if (err) reject(err)
-      resolve()
-    })
-  })
+  if (options.removeLog) delete state.log
+
+  if (fs.existsSync(filePath)) {
+    fs.copyFileSync(filePath, filePath + '~')
+  }
+
+  await fsp.writeFile(filePath, JSON.stringify(state, null, 2))
   await querySession.setSessionClean(db, sessionId)
   return filePath
+}
+
+async function getSessionKeyValues(db, sessionId, excludedKeys) {
+  let keyValues = await querySession.getAllSessionKeyValues(db, sessionId)
+
+  env.logDebug(`Retrieved session keys: ${keyValues.length}`)
+  let zapFilePath = null
+  let storedKeyValuePairs = keyValues.filter(
+    (datum) => !excludedKeys.includes(datum.key)
+  )
+  let x = keyValues.filter((datum) => datum.key == dbEnum.sessionKey.filePath)
+  if (x.length > 0) zapFilePath = x[0].value
+
+  let exportedKeyValues = {
+    key: 'keyValuePairs',
+    data: storedKeyValuePairs,
+    zapFilePath: zapFilePath,
+  }
+
+  let d = await exportSessionPackages(
+    db,
+    sessionId,
+    exportedKeyValues.zapFilePath
+  )
+
+  return [exportedKeyValues, { key: 'package', data: d }]
 }
 
 /**
@@ -159,31 +189,8 @@ async function createStateFromDatabase(db, sessionId) {
   let excludedKeys = [dbEnum.sessionKey.filePath]
 
   env.logInfo(`Exporting data for session: ${sessionId}`)
-  // Deal with the key/value table
-  let getKeyValuesPromise = querySession
-    .getAllSessionKeyValues(db, sessionId)
-    .then((data) => {
-      env.logDebug(`Retrieved session keys: ${data.length}`)
-      let zapFilePath = null
-      let storedKeyValuePairs = data.filter(
-        (datum) => !excludedKeys.includes(datum.key)
-      )
-      let x = data.filter((datum) => datum.key == dbEnum.sessionKey.filePath)
-      if (x.length > 0) zapFilePath = x[0].value
-      return {
-        key: 'keyValuePairs',
-        data: storedKeyValuePairs,
-        zapFilePath: zapFilePath,
-      }
-    })
-    .then((data) => {
-      return exportSessionPackages(db, sessionId, data.zapFilePath).then(
-        (d) => {
-          return [data, { key: 'package', data: d }]
-        }
-      )
-    })
-  promises.push(getKeyValuesPromise)
+
+  promises.push(getSessionKeyValues(db, sessionId, excludedKeys))
 
   let allEndpointTypes = await exportEndpointTypes(db, sessionId)
 

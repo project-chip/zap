@@ -27,6 +27,8 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const testUtil = require('./test-util.js')
 const path = require('path')
 const util = require('../src-electron/util/util.js')
+const { StatusCodes } = require('http-status-codes')
+
 let db
 let axiosInstance = null
 
@@ -89,7 +91,7 @@ describe('Miscelaneous REST API tests', () => {
           ),
         })
         .then((response) => {
-          expect(response.status).toBe(restApi.httpCode.ok)
+          expect(response.status).toBe(StatusCodes.OK)
         }),
     testUtil.timeout.medium()
   )
@@ -145,7 +147,9 @@ describe('Miscelaneous REST API tests', () => {
       axiosInstance
         .get(`${restApi.uri.zclCluster}all?sessionId=${sessionUuid}`)
         .then((response) => {
-          expect(response.data.clusterData.length).toBe(testUtil.totalClusterCount)
+          expect(response.data.clusterData.length).toBe(
+            testUtil.totalClusterCount
+          )
         }),
     testUtil.timeout.medium()
   )

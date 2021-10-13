@@ -27,6 +27,7 @@ const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
 const queryPackage = require('../src-electron/db/query-package')
 const queryZcl = require('../src-electron/db/query-zcl')
+const queryAccess = require('../src-electron/db/query-access')
 
 let db
 const testFile = path.join(__dirname, 'resource/test-meta.zap')
@@ -67,6 +68,26 @@ test(
   async () => {
     zclContext = await zclLoader.loadZcl(db, testUtil.testZclMetafile)
 
+    const attributes = await queryZcl.selectAllAttributes(
+      db,
+      zclContext.packageId
+    )
+    expect(attributes.length).toBe(2)
+    expect(attributes[0].name).toBe('at1')
+    expect(attributes[1].name).toBe('at2')
+
+    let access
+    access = await queryAccess.selectAttributeAccess(db, attributes[0].id)
+    expect(access.length).toBe(1)
+    expect(access[0].operation).toBe('write')
+    expect(access[0].role).toBe('manage')
+    expect(access[0].accessModifier).toBe('fabric-scoped')
+    access = await queryAccess.selectAttributeAccess(db, attributes[1].id)
+    expect(access.length).toBe(1)
+    expect(access[0].operation).toBeNull()
+    expect(access[0].role).toBeNull()
+    expect(access[0].accessModifier).toBe('fabric-sensitive')
+
     const structs = await queryZcl.selectAllStructsWithItemCount(
       db,
       zclContext.packageId
@@ -103,6 +124,51 @@ test(
         expect(clusters.length).toBe(0)
       }
     }
+
+    const ops = await queryAccess.selectAccessOperations(
+      db,
+      zclContext.packageId
+    )
+    expect(ops.length).toBe(3)
+    const roles = await queryAccess.selectAccessRoles(db, zclContext.packageId)
+    expect(roles.length).toBe(4)
+    const mods = await queryAccess.selectAccessModifiers(
+      db,
+      zclContext.packageId
+    )
+    expect(mods.length).toBe(2)
+
+    let d
+
+    d = await queryAccess.selectDefaultAccess(
+      db,
+      zclContext.packageId,
+      'command'
+    )
+    expect(d[0].operation).toBe('invoke')
+    expect(d[0].role).toBeNull()
+    expect(d[0].accessModifier).toBeNull()
+    expect(d.length).toBe(1)
+
+    d = await queryAccess.selectDefaultAccess(
+      db,
+      zclContext.packageId,
+      'cluster'
+    )
+    expect(d.length).toBe(2)
+    expect(d[0].operation).toBe('read')
+    expect(d[1].operation).toBe('write')
+
+    d = await queryAccess.selectDefaultAccess(
+      db,
+      zclContext.packageId,
+      'attribute'
+    )
+    expect(d.length).toBe(2)
+    expect(d[0].operation).toBe('read')
+    expect(d[1].operation).toBe('write')
+    expect(d[0].role).toBe('view')
+    expect(d[1].role).toBe('operate')
   },
   testUtil.timeout.medium()
 )

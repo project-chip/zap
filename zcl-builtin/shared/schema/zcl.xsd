@@ -19,9 +19,14 @@ limitations under the License.
     <xs:documentation>
 This schema describes the format of the XML files, that describe the ZCL specification.
 
-Copyright 2012, Silicon Laboratories Inc.
+(c) Copyright 2012, 2021, Silicon Laboratories Inc.
   </xs:documentation>
   </xs:annotation>
+  <xs:complexType name="access">
+    <xs:attribute name="op" type="xs:string"/>
+    <xs:attribute name="role" type="xs:string"/>
+    <xs:attribute name="modifier" type="xs:string"/>
+  </xs:complexType>
   <xs:complexType name="eventField">
     <xs:attribute name="id" use="required" type="xs:string"/>
     <xs:attribute name="name" use="required" type="xs:string"/>
@@ -70,6 +75,23 @@ Copyright 2012, Silicon Laboratories Inc.
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="defaultAccess">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="access" type="access"/>
+      </xs:sequence>
+      <xs:attribute name="type" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="accessControl">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="operation"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="modifier"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="role"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="group">
     <xs:complexType>
       <xs:sequence>
@@ -79,6 +101,7 @@ Copyright 2012, Silicon Laboratories Inc.
       <xs:attribute name="name" use="required"/>
     </xs:complexType>
   </xs:element>
+  <xs:element name="zap" substitutionGroup="configurator"/>
   <xs:element name="configurator">
     <xs:complexType>
       <xs:sequence>
@@ -96,6 +119,8 @@ Copyright 2012, Silicon Laboratories Inc.
           <xs:element ref="domain"/>
           <xs:element ref="global"/>
           <xs:element ref="tag"/>
+          <xs:element ref="accessControl"/>
+          <xs:element ref="defaultAccess"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>
@@ -209,7 +234,8 @@ Copyright 2012, Silicon Laboratories Inc.
   <xs:element name="bitmap">
     <xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="field"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="cluster"/>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="field"/>
       </xs:sequence>
       <xs:attribute name="name" use="required" type="xs:string"/>
       <xs:attribute name="type" use="required" type="xs:string"/>
@@ -362,6 +388,7 @@ Copyright 2012, Silicon Laboratories Inc.
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="description"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="access" type="access"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="field" type="eventField"/>
       </xs:sequence>
       <xs:attribute name="code" type="xs:string"/>
@@ -374,6 +401,7 @@ Copyright 2012, Silicon Laboratories Inc.
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="description"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="access" type="access"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="arg" type="arg"/>
       </xs:sequence>
       <xs:attribute name="cli"/>
@@ -394,6 +422,10 @@ Copyright 2012, Silicon Laboratories Inc.
   </xs:element>
   <xs:element name="attribute">
     <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="description"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="access" type="access"/>
+      </xs:sequence>
       <xs:attribute name="code" use="required" type="zclCode"/>
       <xs:attribute name="default"/>
       <xs:attribute name="define" use="required" type="zclAttributeDefine"/>

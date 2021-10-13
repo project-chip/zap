@@ -23,6 +23,7 @@
 const env = require('../util/env')
 const dbApi = require('./db-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const queryAccess = require('./query-access')
 
 // Some loading queries that are reused few times.
 
@@ -243,41 +244,152 @@ function argMap(cmdId, packageId, args) {
   ])
 }
 
-async function insertAttributes(db, attributesToLoad) {
-  if (attributesToLoad == null || attributesToLoad.length == 0) return
-  return dbApi.dbMultiInsert(db, INSERT_ATTRIBUTE_QUERY, attributesToLoad)
+// access data is array of objects, containing id/op/role/modifier
+async function insertAttributeAccessData(db, packageId, accessData) {
+  let rowIds = await createAccessRows(db, packageId, accessData)
+  let insertData = []
+  for (let i = 0; i < rowIds.length; i++) {
+    insertData.push([accessData[i].id, rowIds[i]])
+  }
+
+  return dbApi.dbMultiInsert(
+    db,
+    `INSERT INTO ATTRIBUTE_ACCESS (ATTRIBUTE_REF, ACCESS_REF) VALUES (?,?)`,
+    insertData
+  )
 }
 
-async function insertEvents(db, packageId, eventsToLoad, fieldsForEvents) {
-  if (eventsToLoad == null || eventsToLoad.length == 0) return
-  let eventIds = await dbApi.dbMultiInsert(db, INSERT_EVENT_QUERY, eventsToLoad)
+// access data is array of objects, containing id/op/role/modifier
+async function insertCommandAccessData(db, packageId, accessData) {
+  let rowIds = await createAccessRows(db, packageId, accessData)
+  let insertData = []
+  for (let i = 0; i < rowIds.length; i++) {
+    insertData.push([accessData[i].id, rowIds[i]])
+  }
+
+  return dbApi.dbMultiInsert(
+    db,
+    `INSERT INTO COMMAND_ACCESS (COMMAND_REF, ACCESS_REF) VALUES (?,?)`,
+    insertData
+  )
+}
+// access data is array of objects, containing id/op/role/modifier
+async function insertEventAccessData(db, packageId, accessData) {
+  let rowIds = await createAccessRows(db, packageId, accessData)
+  let insertData = []
+  for (let i = 0; i < rowIds.length; i++) {
+    insertData.push([accessData[i].id, rowIds[i]])
+  }
+
+  return dbApi.dbMultiInsert(
+    db,
+    `INSERT INTO EVENT_ACCESS (EVENT_REF, ACCESS_REF) VALUES (?,?)`,
+    insertData
+  )
+}
+
+async function insertAttributes(db, packageId, attributes) {
+  let data = attributes.data
+  let access = attributes.access
+  if (data == null || data.length == 0) return
+
+  let attributeIds = await dbApi.dbMultiInsert(db, INSERT_ATTRIBUTE_QUERY, data)
+
+  let accessData = []
+  for (let i = 0; i < attributeIds.length; i++) {
+    let atId = attributeIds[i]
+    let atAccess = access[i] // Array of accesses
+    if (atAccess != null && atAccess.length > 0) {
+      for (let ac of atAccess) {
+        accessData.push({
+          id: atId,
+          op: ac.op,
+          role: ac.role,
+          modifier: ac.modifier,
+        })
+      }
+    }
+  }
+
+  if (accessData.length > 0) {
+    await insertAttributeAccessData(db, packageId, accessData)
+  }
+}
+
+async function insertEvents(db, packageId, events) {
+  let data = events.data
+  let fieldData = events.fields
+  let access = events.access
+
+  if (data == null || data.length == 0) return
+  let eventIds = await dbApi.dbMultiInsert(db, INSERT_EVENT_QUERY, data)
   let fieldsToLoad = []
-  for (let j = 0; j < eventIds.length; j++) {
-    let lastEventId = eventIds[j]
-    let fields = fieldsForEvents[j]
+  for (let i = 0; i < eventIds.length; i++) {
+    let lastEventId = eventIds[i]
+    let fields = fieldData[i]
     if (fields != undefined && fields != null) {
       fieldsToLoad.push(...fieldMap(lastEventId, packageId, fields))
     }
   }
-  return dbApi.dbMultiInsert(db, INSERT_EVENT_FIELD_QUERY, fieldsToLoad)
+  await dbApi.dbMultiInsert(db, INSERT_EVENT_FIELD_QUERY, fieldsToLoad)
+
+  let accessData = []
+  for (let i = 0; i < eventIds.length; i++) {
+    let evId = eventIds[i]
+    let evAccess = access[i] // Array of accesses
+    if (evAccess != null && evAccess.length > 0) {
+      for (let ac of evAccess) {
+        accessData.push({
+          id: evId,
+          op: ac.op,
+          role: ac.role,
+          modifier: ac.modifier,
+        })
+      }
+    }
+  }
+
+  if (accessData.length > 0) {
+    await insertEventAccessData(db, packageId, accessData)
+  }
 }
 
-async function insertCommands(db, packageId, commandsToLoad, argsForCommands) {
-  if (commandsToLoad == null || commandsToLoad.length == 0) return
-  let commandIds = await dbApi.dbMultiInsert(
-    db,
-    INSERT_COMMAND_QUERY,
-    commandsToLoad
-  )
+async function insertCommands(db, packageId, commands) {
+  let data = commands.data
+  let argData = commands.args
+  let access = commands.access
+
+  if (data == null || data.length == 0) return
+  let commandIds = await dbApi.dbMultiInsert(db, INSERT_COMMAND_QUERY, data)
   let argsToLoad = []
-  for (let j = 0; j < commandIds.length; j++) {
-    let lastCmdId = commandIds[j]
-    let args = argsForCommands[j]
+  for (let i = 0; i < commandIds.length; i++) {
+    let lastCmdId = commandIds[i]
+    let args = argData[i]
     if (args != undefined && args != null) {
       argsToLoad.push(...argMap(lastCmdId, packageId, args))
     }
   }
-  return dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
+  await dbApi.dbMultiInsert(db, INSERT_COMMAND_ARG_QUERY, argsToLoad)
+
+  let accessData = []
+  for (let i = 0; i < commandIds.length; i++) {
+    let cmdId = commandIds[i]
+    let cmdAccess = access[i] // Array of accesses
+    if (cmdAccess != null && cmdAccess.length > 0) {
+      for (let ac of cmdAccess) {
+        accessData.push({
+          id: cmdId,
+          op: ac.op,
+          role: ac.role,
+          modifier: ac.modifier,
+        })
+      }
+    }
+  }
+
+  if (accessData.length > 0) {
+    await insertCommandAccessData(db, packageId, accessData)
+  }
 }
 /**
  * Inserts globals into the database.
@@ -290,23 +402,29 @@ async function insertCommands(db, packageId, commandsToLoad, argsForCommands) {
  */
 async function insertGlobals(db, packageId, data) {
   env.logDebug(`Insert globals: ${data.length}`)
-  let commandsToLoad = []
-  let attributesToLoad = []
-  let argsForCommands = []
+  let commands = {
+    data: [],
+    args: [],
+    access: [],
+  }
+  let attributes = {
+    data: [],
+    access: [],
+  }
   let i
   for (i = 0; i < data.length; i++) {
     if ('commands' in data[i]) {
-      let commands = data[i].commands
-      commandsToLoad.push(...commandMap(null, packageId, commands))
-      argsForCommands.push(...commands.map((command) => command.args))
+      let cmds = data[i].commands
+      commands.data.push(...commandMap(null, packageId, cmds))
+      commands.args.push(...cmds.map((command) => command.args))
     }
     if ('attributes' in data[i]) {
-      let attributes = data[i].attributes
-      attributesToLoad.push(...attributeMap(null, packageId, attributes))
+      let atts = data[i].attributes
+      attributes.data.push(...attributeMap(null, packageId, atts))
     }
   }
-  let pCommand = insertCommands(db, packageId, commandsToLoad, argsForCommands)
-  let pAttribute = insertAttributes(db, attributesToLoad)
+  let pCommand = insertCommands(db, packageId, commands)
+  let pAttribute = insertAttributes(db, packageId, attributes)
   return Promise.all([pCommand, pAttribute])
 }
 
@@ -319,7 +437,7 @@ async function insertGlobals(db, packageId, data) {
  * @param {*} data
  * @returns Promise of cluster extension insertion.
  */
-async function insertClusterExtensions(db, dataPackageId, knownPackages, data) {
+async function insertClusterExtensions(db, packageId, knownPackages, data) {
   return dbApi
     .dbMultiSelect(
       db,
@@ -327,24 +445,28 @@ async function insertClusterExtensions(db, dataPackageId, knownPackages, data) {
       data.map((cluster) => [cluster.code])
     )
     .then((rows) => {
-      let commandsToLoad = []
-      let attributesToLoad = []
-      let argsForCommands = []
+      let commands = {
+        data: [],
+        args: [],
+        access: [],
+      }
+      let attributes = {
+        data: [],
+        access: [],
+      }
       let i, lastId
       for (i = 0; i < rows.length; i++) {
         let row = rows[i]
         if (row != null) {
           lastId = row.CLUSTER_ID
           if ('commands' in data[i]) {
-            let commands = data[i].commands
-            commandsToLoad.push(...commandMap(lastId, dataPackageId, commands))
-            argsForCommands.push(...commands.map((command) => command.args))
+            let cmds = data[i].commands
+            commands.data.push(...commandMap(lastId, packageId, cmds))
+            commands.args.push(...cmds.map((command) => command.args))
           }
           if ('attributes' in data[i]) {
-            let attributes = data[i].attributes
-            attributesToLoad.push(
-              ...attributeMap(lastId, dataPackageId, attributes)
-            )
+            let atts = data[i].attributes
+            attributes.data.push(...attributeMap(lastId, packageId, atts))
           }
         } else {
           // DANGER: We got here, but we don't have rows. Why not?
@@ -354,13 +476,8 @@ async function insertClusterExtensions(db, dataPackageId, knownPackages, data) {
           )
         }
       }
-      let pCommand = insertCommands(
-        db,
-        dataPackageId,
-        commandsToLoad,
-        argsForCommands
-      )
-      let pAttribute = insertAttributes(db, attributesToLoad)
+      let pCommand = insertCommands(db, packageId, commands)
+      let pAttribute = insertAttributes(db, packageId, attributes)
       return Promise.all([pCommand, pAttribute])
     })
 }
@@ -400,42 +517,49 @@ async function insertClusters(db, packageId, data) {
       })
     )
     .then((lastIdsArray) => {
-      let commandsToLoad = []
-      let eventsToLoad = []
-      let attributesToLoad = []
-      let argsForCommands = []
-      let fieldsForEvents = []
+      let commands = {
+        data: [],
+        args: [],
+        access: [],
+      }
+      let events = {
+        data: [],
+        fields: [],
+        access: [],
+      }
+      let attributes = {
+        data: [],
+        access: [],
+      }
       let pTags = null
 
       let i
       for (i = 0; i < lastIdsArray.length; i++) {
         let lastId = lastIdsArray[i]
         if ('commands' in data[i]) {
-          let commands = data[i].commands
-          commandsToLoad.push(...commandMap(lastId, packageId, commands))
-          argsForCommands.push(...commands.map((command) => command.args))
+          let cmds = data[i].commands
+          commands.data.push(...commandMap(lastId, packageId, cmds))
+          commands.args.push(...cmds.map((command) => command.args))
+          commands.access.push(...cmds.map((command) => command.access))
         }
         if ('attributes' in data[i]) {
-          let attributes = data[i].attributes
-          attributesToLoad.push(...attributeMap(lastId, packageId, attributes))
+          let atts = data[i].attributes
+          attributes.data.push(...attributeMap(lastId, packageId, atts))
+          attributes.access.push(...atts.map((at) => at.access))
         }
         if ('events' in data[i]) {
-          let events = data[i].events
-          eventsToLoad.push(...eventMap(lastId, packageId, events))
-          fieldsForEvents.push(...events.map((event) => event.fields))
+          let evs = data[i].events
+          events.data.push(...eventMap(lastId, packageId, evs))
+          events.fields.push(...evs.map((event) => event.fields))
+          events.access.push(...evs.map((event) => event.access))
         }
         if ('tags' in data[i]) {
           pTags = insertTags(db, packageId, data[i].tags, lastId)
         }
       }
-      let pCommand = insertCommands(
-        db,
-        packageId,
-        commandsToLoad,
-        argsForCommands
-      )
-      let pAttribute = insertAttributes(db, attributesToLoad)
-      let pEvent = insertEvents(db, packageId, eventsToLoad, fieldsForEvents)
+      let pCommand = insertCommands(db, packageId, commands)
+      let pAttribute = insertAttributes(db, packageId, attributes)
+      let pEvent = insertEvents(db, packageId, events)
       let pArray = [pCommand, pAttribute, pEvent]
       if (pTags != null) pArray.push(pTags)
       return Promise.all(pArray)
@@ -913,6 +1037,86 @@ async function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
   )
 }
 
+async function insertAccessOperations(db, packageId, operations) {
+  let data = operations.map((o) => [packageId, o.name, o.description])
+  return dbApi.dbMultiInsert(
+    db,
+    `
+INSERT INTO OPERATION
+  (PACKAGE_REF, NAME, DESCRIPTION)
+VALUES
+  (?, ?, ?)
+`,
+    data
+  )
+}
+
+async function insertAccessRoles(db, packageId, roles) {
+  let data = roles.map((r) => [packageId, r.name, r.description])
+  return dbApi.dbMultiInsert(
+    db,
+    `
+INSERT INTO ROLE
+  (PACKAGE_REF, NAME, DESCRIPTION)
+VALUES
+  (?, ?, ?)
+`,
+    data
+  )
+}
+
+async function insertAccessModifiers(db, packageId, modifiers) {
+  let data = modifiers.map((m) => [packageId, m.name, m.description])
+  return dbApi.dbMultiInsert(
+    db,
+    `
+INSERT INTO ACCESS_MODIFIER
+  (PACKAGE_REF, NAME, DESCRIPTION)
+VALUES
+  (?, ?, ?)
+`,
+    data
+  )
+}
+
+/**
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data array of objects that must have op/role/modifier
+ */
+async function createAccessRows(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    `
+INSERT INTO ACCESS
+  (OPERATION_REF, ROLE_REF, ACCESS_MODIFIER_REF)
+VALUES (
+  (SELECT OPERATION_ID FROM OPERATION WHERE NAME = ? AND PACKAGE_REF = ?),
+  (SELECT ROLE_ID FROM ROLE WHERE NAME = ? AND PACKAGE_REF = ?),
+  (SELECT ACCESS_MODIFIER_ID FROM ACCESS_MODIFIER WHERE NAME = ? AND PACKAGE_REF = ?)
+)
+    `,
+    data.map((x) => [x.op, packageId, x.role, packageId, x.modifier, packageId])
+  )
+}
+
+/**
+ * Inserts a default access.
+ * Default access is object that contains type and access array of {op,role,modifier}
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} defaultAccess
+ */
+async function insertDefaultAccess(db, packageId, defaultAccess) {
+  let ids = await createAccessRows(db, packageId, defaultAccess.access)
+  return dbApi.dbMultiInsert(
+    db,
+    `INSERT INTO DEFAULT_ACCESS ( PACKAGE_REF, ENTITY_TYPE, ACCESS_REF) VALUES (?, ?, ?)`,
+    ids.map((id) => [packageId, defaultAccess.type, id])
+  )
+}
+
 async function updateEnumClusterReferences(db, packageId) {
   return dbApi.dbUpdate(
     db,
@@ -1000,3 +1204,7 @@ exports.insertTags = insertTags
 exports.updateEnumClusterReferences = updateEnumClusterReferences
 exports.updateStructClusterReferences = updateStructClusterReferences
 exports.updateBitmapClusterReferences = updateBitmapClusterReferences
+exports.insertAccessModifiers = insertAccessModifiers
+exports.insertAccessOperations = insertAccessOperations
+exports.insertAccessRoles = insertAccessRoles
+exports.insertDefaultAccess = insertDefaultAccess

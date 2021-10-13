@@ -91,22 +91,22 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
       db,
       `
 SELECT
-  ENDPOINT_TYPE.NAME,
-  ENDPOINT.ENDPOINT_TYPE_REF,
-  ENDPOINT.PROFILE,
-  ENDPOINT.ENDPOINT_IDENTIFIER,
-  ENDPOINT.NETWORK_IDENTIFIER,
-  ENDPOINT.DEVICE_VERSION,
-  ENDPOINT.DEVICE_IDENTIFIER
+  ET.NAME,
+  E.ENDPOINT_TYPE_REF,
+  E.PROFILE,
+  E.ENDPOINT_IDENTIFIER,
+  E.NETWORK_IDENTIFIER,
+  E.DEVICE_VERSION,
+  E.DEVICE_IDENTIFIER
 FROM
-  ENDPOINT
+  ENDPOINT AS E
 LEFT JOIN
-  ENDPOINT_TYPE
+  ENDPOINT_TYPE AS ET
 ON
-  ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+  E.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
 WHERE
-  ENDPOINT.SESSION_REF = ?
-ORDER BY ENDPOINT.ENDPOINT_IDENTIFIER
+  E.SESSION_REF = ?
+ORDER BY E.ENDPOINT_IDENTIFIER
     `,
       [sessionId]
     )
@@ -559,9 +559,11 @@ exports.importEndpointType = importEndpointType
 exports.exportClustersFromEndpointType = exportClustersFromEndpointType
 exports.importClusterForEndpointType = importClusterForEndpointType
 exports.exportPackagesFromSession = exportPackagesFromSession
-exports.exportAttributesFromEndpointTypeCluster = exportAttributesFromEndpointTypeCluster
+exports.exportAttributesFromEndpointTypeCluster =
+  exportAttributesFromEndpointTypeCluster
 exports.importAttributeForEndpointType = importAttributeForEndpointType
-exports.exportCommandsFromEndpointTypeCluster = exportCommandsFromEndpointTypeCluster
+exports.exportCommandsFromEndpointTypeCluster =
+  exportCommandsFromEndpointTypeCluster
 exports.importCommandForEndpointType = importCommandForEndpointType
 exports.exportEndpoints = exportEndpoints
 exports.importEndpoint = importEndpoint

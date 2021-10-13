@@ -1,5 +1,5 @@
 {
-  "featureLevel": 49,
+  "featureLevel": 62,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -18,13 +18,13 @@
   "package": [
     {
       "pathRelativity": "relativeToZap",
-      "path": "../../../../../../../../../zap/zcl-builtin/silabs/zcl.json",
+      "path": "../../zcl-builtin/silabs/zcl.json",
       "version": "ZCL Test Data",
       "type": "zcl-properties"
     },
     {
       "pathRelativity": "relativeToZap",
-      "path": "../../../../../../../../../zap/test/gen-template/zigbee/gen-templates.json",
+      "path": "../gen-template/zigbee/gen-templates.json",
       "version": "test-v1",
       "type": "gen-templates-json"
     }
@@ -11673,6 +11673,5 @@
       "endpointVersion": 0,
       "deviceIdentifier": 102
     }
-  ],
-  "log": []
+  ]
 }

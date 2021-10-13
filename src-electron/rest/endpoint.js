@@ -25,6 +25,7 @@ const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
+const { StatusCodes } = require('http-status-codes')
 
 /**
  * HTTP DELETE: endpoint
@@ -33,14 +34,13 @@ const restApi = require('../../src-shared/rest-api.js')
  * @returns callback for the express uri registration
  */
 function httpDeleteEndpoint(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let id = request.query.id
-    queryEndpoint.deleteEndpoint(db, id).then((removed) => {
-      response.json({
-        successful: removed > 0,
-        id: id,
-      })
-      return response.status(restApi.httpCode.ok).send()
+    let removed = await queryEndpoint.deleteEndpoint(db, id)
+
+    response.status(StatusCodes.OK).json({
+      successful: removed > 0,
+      id: id,
     })
   }
 }
@@ -52,14 +52,12 @@ function httpDeleteEndpoint(db) {
  * @returns callback for the express uri registration
  */
 function httpDeleteEndpointType(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let id = request.query.id
-    queryEndpointType.deleteEndpointType(db, id).then((removed) => {
-      response.json({
-        successful: removed > 0,
-        id: id,
-      })
-      return response.status(restApi.httpCode.ok).send()
+    let removed = await queryEndpointType.deleteEndpointType(db, id)
+    response.status(StatusCodes.OK).json({
+      successful: removed > 0,
+      id: id,
     })
   }
 }
@@ -71,7 +69,7 @@ function httpDeleteEndpointType(db) {
  * @returns callback for the express uri registration
  */
 function httpPostEndpoint(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let {
       endpointId,
       networkId,
@@ -81,32 +79,32 @@ function httpPostEndpoint(db) {
       deviceIdentifier,
     } = request.body
     let sessionIdexport = request.zapSessionId
-    queryEndpoint
-      .insertEndpoint(
-        db,
-        sessionIdexport,
-        endpointId,
-        endpointType,
-        networkId,
-        profileId,
-        endpointVersion,
-        deviceIdentifier
-      )
-      .then((newId) =>
-        validation.validateEndpoint(db, newId).then((validationData) => {
-          response.json({
-            id: newId,
-            endpointId: endpointId,
-            endpointType: endpointType,
-            networkId: networkId,
-            deviceId: deviceIdentifier,
-            profileId: profileId,
-            endpointVersion: endpointVersion,
-            validationIssues: validationData,
-          })
-        })
-      )
-      .catch((err) => response.status(restApi.httpCode.badRequest).send())
+    let newId = await queryEndpoint.insertEndpoint(
+      db,
+      sessionIdexport,
+      endpointId,
+      endpointType,
+      networkId,
+      profileId,
+      endpointVersion,
+      deviceIdentifier
+    )
+    try {
+      let validationData = await validation.validateEndpoint(db, newId)
+
+      response.status(StatusCodes.OK).json({
+        id: newId,
+        endpointId: endpointId,
+        endpointType: endpointType,
+        networkId: networkId,
+        deviceId: deviceIdentifier,
+        profileId: profileId,
+        endpointVersion: endpointVersion,
+        validationIssues: validationData,
+      })
+    } catch (err) {
+      response.status(StatusCodes.BAD_REQUEST).send()
+    }
   }
 }
 
@@ -117,7 +115,7 @@ function httpPostEndpoint(db) {
  * @returns callback for the express uri registration
  */
 function httpPatchEndpoint(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let context = request.body
     let sessionIdexport = request.zapSessionId
     let changes = context.changes.map((data) => {
@@ -128,21 +126,13 @@ function httpPatchEndpoint(db) {
         type: paramType,
       }
     })
-
-    queryConfig
-      .updateEndpoint(db, sessionIdexport, context.id, changes)
-      .then((data) => {
-        return validation
-          .validateEndpoint(db, context.id)
-          .then((validationData) => {
-            response.json({
-              endpointId: context.id,
-              changes: context.changes,
-              validationIssues: validationData,
-            })
-            return response.status(restApi.httpCode.ok).send()
-          })
-      })
+    await queryConfig.updateEndpoint(db, sessionIdexport, context.id, changes)
+    let validationData = await validation.validateEndpoint(db, context.id)
+    response.status(StatusCodes.OK).json({
+      endpointId: context.id,
+      changes: context.changes,
+      validationIssues: validationData,
+    })
   }
 }
 
@@ -153,19 +143,25 @@ function httpPatchEndpoint(db) {
  * @returns callback for the express uri registration
  */
 function httpPostEndpointType(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let { name, deviceTypeRef } = request.body
     let sessionId = request.zapSessionId
-    queryConfig
-      .insertEndpointType(db, sessionId, name, deviceTypeRef)
-      .then((newId) =>
-        response.json({
-          id: newId,
-          name: name,
-          deviceTypeRef: deviceTypeRef,
-        })
+    try {
+      let newId = await queryConfig.insertEndpointType(
+        db,
+        sessionId,
+        name,
+        deviceTypeRef
       )
-      .catch((err) => response.status(restApi.httpCode.badRequest).send())
+
+      response.status(StatusCodes.OK).json({
+        id: newId,
+        name: name,
+        deviceTypeRef: deviceTypeRef,
+      })
+    } catch (err) {
+      response.status(StatusCodes.BAD_REQUEST).send()
+    }
   }
 }
 
@@ -176,26 +172,23 @@ function httpPostEndpointType(db) {
  * @returns callback for the express uri registration
  */
 function httpPatchEndpointType(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let { endpointTypeId, updatedKey, updatedValue } = request.body
     let sessionId = request.zapSessionId
 
-    queryConfig
-      .updateEndpointType(
-        db,
-        sessionId,
-        endpointTypeId,
-        updatedKey,
-        updatedValue
-      )
-      .then(() => {
-        response.json({
-          endpointTypeId: endpointTypeId,
-          updatedKey: updatedKey,
-          updatedValue: updatedValue,
-        })
-        return response.status(restApi.httpCode.ok).send()
-      })
+    await queryConfig.updateEndpointType(
+      db,
+      sessionId,
+      endpointTypeId,
+      updatedKey,
+      updatedValue
+    )
+
+    response.status(StatusCodes.OK).json({
+      endpointTypeId: endpointTypeId,
+      updatedKey: updatedKey,
+      updatedValue: updatedValue,
+    })
   }
 }
 

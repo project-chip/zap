@@ -334,6 +334,20 @@ function prepareClusterGlobalAttribute(cluster) {
   }
 }
 
+function extractAccessIntoArray(xmlElement) {
+  let accessArray = []
+  if ('access' in xmlElement) {
+    for (const ac of xmlElement.access) {
+      accessArray.push({
+        op: ac.$.op,
+        role: ac.$.role,
+        modifier: ac.$.modifier,
+      })
+    }
+  }
+  return accessArray
+}
+
 /**
  * Prepare XML cluster for insertion into the database.
  * This method can also prepare clusterExtensions.
@@ -389,6 +403,7 @@ function prepareCluster(cluster, isExtension = false) {
         removedIn: command.$.removedIn,
         responseName: command.$.response == null ? null : command.$.response,
       }
+      cmd.access = extractAccessIntoArray(command)
       if (cmd.manufacturerCode == null) {
         cmd.manufacturerCode = ret.manufacturerCode
       } else {
@@ -428,6 +443,7 @@ function prepareCluster(cluster, isExtension = false) {
         description: event.description[0].trim(),
         isOptional: event.$.optional == 'true',
       }
+      ev.access = extractAccessIntoArray(event)
       if (ev.manufacturerCode == null) {
         ev.manufacturerCode = ret.manufacturerCode
       } else {
@@ -455,10 +471,14 @@ function prepareCluster(cluster, isExtension = false) {
   if ('attribute' in cluster) {
     ret.attributes = []
     cluster.attribute.forEach((attribute) => {
+      let name = attribute._
+      if ('description' in attribute && name == null) {
+        name = attribute.description.join('')
+      }
       let att = {
         code: parseInt(attribute.$.code),
         manufacturerCode: attribute.$.manufacturerCode,
-        name: attribute._,
+        name: name,
         type: attribute.$.type.toLowerCase(),
         side: attribute.$.side,
         define: attribute.$.define,
@@ -481,6 +501,7 @@ function prepareCluster(cluster, isExtension = false) {
         removedIn: attribute.$.removedIn,
         entryType: attribute.$.entryType,
       }
+      att.access = extractAccessIntoArray(attribute)
       if (att.manufacturerCode == null) {
         att.manufacturerCode = ret.manufacturerCode
       } else {
@@ -586,6 +607,91 @@ function prepareTag(tag) {
     name: tag.$.name,
     description: tag.$.description,
   }
+}
+
+/**
+ * Process defaultAccess tag in the XML.
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} defaultAccessList
+ */
+async function processDefaultAccess(
+  db,
+  filePath,
+  packageId,
+  defaultAccessList
+) {
+  let p = []
+  for (const da of defaultAccessList) {
+    let type = {
+      type: da.$.type,
+      access: [],
+    }
+    for (const ac of da.access) {
+      let op = ac.$.op
+      let role = ac.$.role
+      let modifier = ac.$.modifier
+      type.access.push({
+        op: op,
+        role: role,
+        modifier: modifier,
+      })
+    }
+    p.push(queryLoader.insertDefaultAccess(db, packageId, type))
+  }
+  return Promise.all(p)
+}
+
+/**
+ * Process accessControl tag in the XML.
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} accessControlList
+ */
+async function processAccessControl(
+  db,
+  filePath,
+  packageId,
+  accessControlList
+) {
+  let operations = []
+  let roles = []
+  let accessModifiers = []
+
+  for (const ac of accessControlList) {
+    if ('operation' in ac) {
+      for (const op of ac.operation) {
+        operations.push({
+          name: op.$.type,
+          description: op.$.description,
+        })
+      }
+    }
+    if ('role' in ac) {
+      for (const role of ac.role) {
+        roles.push({
+          name: role.$.type,
+          description: role.$.description,
+        })
+      }
+    }
+    if ('modifier' in ac) {
+      for (const modifier of ac.modifier) {
+        accessModifiers.push({
+          name: modifier.$.type,
+          description: modifier.$.description,
+        })
+      }
+    }
+  }
+
+  let p = []
+  p.push(queryLoader.insertAccessRoles(db, packageId, roles))
+  p.push(queryLoader.insertAccessOperations(db, packageId, operations))
+  p.push(queryLoader.insertAccessModifiers(db, packageId, accessModifiers))
+  return Promise.all(p)
 }
 
 /**
@@ -830,86 +936,100 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
   if (!('result' in argument)) {
     return []
   } else {
-    let loadTagsAndDomains = []
-    let loadClusters = []
-    let loadTypes = []
-    let loadGlobalAttributesAndClusterExtensions = []
+    let toplevel = null
+
     if ('configurator' in data) {
-      if ('tag' in data.configurator) {
-        loadTagsAndDomains.push(
-          processTags(db, filePath, packageId, data.configurator.tag)
-        )
-      }
-      if ('atomic' in data.configurator) {
-        loadTypes.push(
-          processAtomics(db, filePath, packageId, data.configurator.atomic)
-        )
-      }
-      if ('bitmap' in data.configurator) {
-        loadTypes.push(
-          processBitmaps(db, filePath, packageId, data.configurator.bitmap)
-        )
-      }
-      if ('cluster' in data.configurator) {
-        loadClusters.push(
-          processClusters(db, filePath, packageId, data.configurator.cluster)
-        )
-        loadGlobalAttributesAndClusterExtensions.push(() =>
-          processClusterGlobalAttributes(
-            db,
-            filePath,
-            packageId,
-            data.configurator.cluster
-          )
-        )
-      }
-      if ('domain' in data.configurator) {
-        loadTagsAndDomains.push(
-          processDomains(db, filePath, packageId, data.configurator.domain)
-        )
-      }
-      if ('enum' in data.configurator) {
-        loadTypes.push(
-          processEnums(db, filePath, packageId, data.configurator.enum)
-        )
-      }
-      if ('struct' in data.configurator) {
-        loadTypes.push(
-          processStructs(db, filePath, packageId, data.configurator.struct)
-        )
-      }
-      if ('deviceType' in data.configurator) {
-        loadClusters.push(
-          processDeviceTypes(
-            db,
-            filePath,
-            packageId,
-            data.configurator.deviceType
-          )
-        )
-      }
-      if ('global' in data.configurator) {
-        loadClusters.push(
-          processGlobals(db, filePath, packageId, data.configurator.global)
-        )
-      }
-      if ('clusterExtension' in data.configurator) {
-        loadGlobalAttributesAndClusterExtensions.push(() =>
-          processClusterExtensions(
-            db,
-            filePath,
-            packageId,
-            knownPackages,
-            data.configurator.clusterExtension
-          )
-        )
-      }
+      toplevel = data.configurator
     }
-    // This thing resolves the immediate promises and then resolves itself with passing the later promises down the chain.
-    await Promise.all(loadTagsAndDomains)
-    await Promise.all(loadClusters)
-    await Promise.all(loadTypes)
-    return Promise.all(loadGlobalAttributesAndClusterExtensions)
+    if ('zap' in data) {
+      toplevel = data.zap
+    }
+
+    if (toplevel == null) return []
+
+    // We load in multiple batches, since each batch needs to resolve
+    // before the next batch can be loaded, as later data depends on
+    // previous data. Final batch is delayed, meaning that
+    // the promises there can't start yet, until all files are loaded.
+
+    // Batch 1: load accessControl, tag and domain
+    let batch1 = []
+    if ('accessControl' in toplevel) {
+      batch1.push(
+        processAccessControl(db, filePath, packageId, toplevel.accessControl)
+      )
+    }
+    if ('tag' in toplevel) {
+      batch1.push(processTags(db, filePath, packageId, toplevel.tag))
+    }
+    if ('domain' in toplevel) {
+      batch1.push(processDomains(db, filePath, packageId, toplevel.domain))
+    }
+    await Promise.all(batch1)
+
+    // Batch 2: device types, globals, clusters
+    let batch2 = []
+    if ('deviceType' in toplevel) {
+      batch2.push(
+        processDeviceTypes(db, filePath, packageId, toplevel.deviceType)
+      )
+    }
+    if ('global' in toplevel) {
+      batch2.push(processGlobals(db, filePath, packageId, toplevel.global))
+    }
+    if ('cluster' in toplevel) {
+      batch2.push(processClusters(db, filePath, packageId, toplevel.cluster))
+    }
+    await Promise.all(batch2)
+
+    // Batch 3: defaultAccess, types.
+    let batch3 = []
+    if ('defaultAccess' in toplevel) {
+      batch3.push(
+        processDefaultAccess(db, filePath, packageId, toplevel.defaultAccess)
+      )
+    }
+    if ('atomic' in toplevel) {
+      batch3.push(processAtomics(db, filePath, packageId, toplevel.atomic))
+    }
+    if ('bitmap' in toplevel) {
+      batch3.push(processBitmaps(db, filePath, packageId, toplevel.bitmap))
+    }
+    if ('enum' in toplevel) {
+      batch3.push(processEnums(db, filePath, packageId, toplevel.enum))
+    }
+    if ('struct' in toplevel) {
+      batch3.push(processStructs(db, filePath, packageId, toplevel.struct))
+    }
+    await Promise.all(batch3)
+
+    // Batch 4: cluster extensions and global attributes
+    //   These don't start right away, but are delayed. So we don't return
+    //   promises that have already started, but functions that return promises.
+    let delayedPromises = []
+
+    if ('cluster' in toplevel) {
+      delayedPromises.push(() =>
+        processClusterGlobalAttributes(
+          db,
+          filePath,
+          packageId,
+          toplevel.cluster
+        )
+      )
+    }
+    if ('clusterExtension' in toplevel) {
+      delayedPromises.push(() =>
+        processClusterExtensions(
+          db,
+          filePath,
+          packageId,
+          knownPackages,
+          toplevel.clusterExtension
+        )
+      )
+    }
+    return Promise.all(delayedPromises)
   }
 }
 

@@ -46,7 +46,7 @@ async function typeSize(db, zclPackageId, type) {
  * @returns Promise that resolves into the size of the attribute.
  */
 async function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
-  let size = await typeSize(db, zclPackageId, at.type)
+  let size = await queryZcl.selectAtomicSizeFromType(db, zclPackageId, at.type)
 
   if (size) {
     return size

@@ -27,6 +27,12 @@ const env = require('../util/env')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
+// This is a SQLITE specific thing. With SQLITE databases,
+// we can't have multiple transactions. So this mechanism
+// here is handling this.
+// If this code ever runs against a database engine that
+// supports multiple transactions, this can all go away.
+//
 let inTransaction = false
 
 function executeBeginTransaction(db, resolve, reject) {
@@ -46,8 +52,8 @@ function delayBeginTransaction(db, resolve, reject) {
   let interval = setInterval(() => {
     if (inTransaction) {
       cnt++
-      if (cnt > 50) {
-        reject('Waited for 5s for transaction to relinquish, but it did not.')
+      if (cnt > 100) {
+        reject('Waited for 10s for transaction to relinquish, but it did not.')
       }
     } else {
       clearInterval(interval)

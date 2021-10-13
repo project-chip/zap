@@ -47,6 +47,7 @@
     "pretty-quick": "pretty-quick",
     "self-check": "node src-script/zap-start.js selfCheck -g ./test/gen-template/zigbee/gen-templates.json",
     "version-stamp": "node src-script/zap-versionstamp.js",
+    "package-metadata": "node src-script/zap-package-metadata.js",
     "refresh-zap": "node src-script/zap-convert.js -z zcl-builtin/silabs/zcl.json test/resource/three-endpoint-device.zap -g test/gen-template/zigbee/gen-templates.json -o test/resource/three-endpoint-device.zap",
     "gen": "node src-script/zap-generate.js --genResultFile --stateDirectory ~/.zap/gen -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/three-endpoint-device.zap -o ./tmp",
     "gen2": "node src-script/zap-generate.js --genResultFile -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/generation-test-file-1.zap -o ./tmp",

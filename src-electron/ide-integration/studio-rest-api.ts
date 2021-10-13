@@ -57,10 +57,13 @@ function projectPath(db: env.dbType, sessionId: number) {
  * @param {*} sessionId
  * @returns - Promise to studio project path
  */
-function integrationEnabled(db: env.dbType, sessionId: number) {
-  return querySession
-    .getSessionKeyValue(db, sessionId, dbEnum.sessionKey.ideProjectPath)
-    .then((path: string) => typeof path !== 'undefined')
+async function integrationEnabled(db: env.dbType, sessionId: number) {
+  let path: string = await querySession.getSessionKeyValue(
+    db,
+    sessionId,
+    dbEnum.sessionKey.ideProjectPath
+  )
+  return typeof path !== 'undefined'
 }
 
 /**
@@ -90,7 +93,7 @@ async function getProjectInfo(
   db: env.dbType,
   sessionId: number
 ): Promise<{
-  data: string[],
+  data: string[]
   status?: http.StatusCodes
 }> {
   let studioProjectPath = await projectPath(db, sessionId)
@@ -279,24 +282,26 @@ async function sendUcComponentStateReport(db: env.dbType) {
 
 function sendDirtyFlagStatus(db: env.dbType) {
   // TODO: delegate type declaration to actual function
-  querySession.getAllSessions(db).then((sessions: dbMappingTypes.SessionType[]) => {
-    sessions.forEach((session) => {
-      let socket = wsServer.clientSocket(session.sessionKey)
-      if (socket) {
-        querySession
-          .getSessionDirtyFlag(db, session.sessionId)
-          .then((flag) => {
-            wsServer.sendWebSocketMessage(socket, {
-              category: dbEnum.wsCategory.dirtyFlag,
-              payload: flag,
+  querySession
+    .getAllSessions(db)
+    .then((sessions: dbMappingTypes.SessionType[]) => {
+      sessions.forEach((session) => {
+        let socket = wsServer.clientSocket(session.sessionKey)
+        if (socket) {
+          querySession
+            .getSessionDirtyFlag(db, session.sessionId)
+            .then((flag) => {
+              wsServer.sendWebSocketMessage(socket, {
+                category: dbEnum.wsCategory.dirtyFlag,
+                payload: flag,
+              })
             })
-          })
-          .catch((err) => {
-            env.logWarning('Could not query dirty status.')
-          })
-      }
+            .catch((err) => {
+              env.logWarning('Could not query dirty status.')
+            })
+        }
+      })
     })
-  })
 }
 
 /**
@@ -305,37 +310,45 @@ function sendDirtyFlagStatus(db: env.dbType) {
  */
 function sendSessionCreationErrorStatus(db: env.dbType, err: string) {
   // TODO: delegate type declaration to actual function
-  querySession.getAllSessions(db).then((sessions: dbMappingTypes.SessionType[]) =>
-    sessions.forEach((session) => {
-      let socket = wsServer.clientSocket(session.sessionKey)
-      if (socket) {
-        wsServer.sendWebSocketMessage(socket, {
-          category: dbEnum.wsCategory.sessionCreationError,
-          payload: err,
-        })
-      }
-    })
-  )
+  querySession
+    .getAllSessions(db)
+    .then((sessions: dbMappingTypes.SessionType[]) =>
+      sessions.forEach((session) => {
+        let socket = wsServer.clientSocket(session.sessionKey)
+        if (socket) {
+          wsServer.sendWebSocketMessage(socket, {
+            category: dbEnum.wsCategory.sessionCreationError,
+            payload: err,
+          })
+        }
+      })
+    )
 }
 
 /**
  * Notify front-end that current session failed to load.
  * @param {*} err
  */
-function sendComponentUpdateStatus(db: env.dbType, sessionId: number, data: any) {
-  querySession.getAllSessions(db).then((sessions: dbMappingTypes.SessionType[]) =>
-    sessions.forEach((session) => {
-      if (session.sessionId == sessionId) {
-        let socket = wsServer.clientSocket(session.sessionKey)
-        if (socket) {
-          wsServer.sendWebSocketMessage(socket, {
-            category: dbEnum.wsCategory.componentUpdateStatus,
-            payload: data,
-          })
+function sendComponentUpdateStatus(
+  db: env.dbType,
+  sessionId: number,
+  data: any
+) {
+  querySession
+    .getAllSessions(db)
+    .then((sessions: dbMappingTypes.SessionType[]) =>
+      sessions.forEach((session) => {
+        if (session.sessionId == sessionId) {
+          let socket = wsServer.clientSocket(session.sessionKey)
+          if (socket) {
+            wsServer.sendWebSocketMessage(socket, {
+              category: dbEnum.wsCategory.componentUpdateStatus,
+              payload: data,
+            })
+          }
         }
-      }
-    })
-  )
+      })
+    )
 }
 
 exports.getProjectInfo = getProjectInfo

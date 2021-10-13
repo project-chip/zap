@@ -87,6 +87,7 @@ exports.map = {
       code: x.CODE,
       clusterCode: x.CLUSTER_CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
+      name: x.NAME,
       label: x.NAME,
       type: x.TYPE,
       side: x.SIDE,
@@ -431,6 +432,35 @@ exports.map = {
       userId: x.USER_ID,
       userKey: x.USER_KEY,
       creationTime: x.CREATION_TIME,
+    }
+  },
+  accessRole: (x) => {
+    if (x == null) return undefined
+    return {
+      name: x.NAME,
+      description: x.DESCRIPTION,
+    }
+  },
+  accessOperation: (x) => {
+    if (x == null) return undefined
+    return {
+      name: x.NAME,
+      description: x.DESCRIPTION,
+    }
+  },
+  accessModifier: (x) => {
+    if (x == null) return undefined
+    return {
+      name: x.NAME,
+      description: x.DESCRIPTION,
+    }
+  },
+  access: (x) => {
+    if (x == null) return undefined
+    return {
+      operation: x.OP_NAME,
+      role: x.ROLE_NAME,
+      accessModifier: x.MODIFIER_NAME,
     }
   },
 }

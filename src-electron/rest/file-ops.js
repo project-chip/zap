@@ -26,7 +26,7 @@ const env = require('../util/env')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const path = require('path')
-const http = require('http-status-codes')
+const { StatusCodes } = require('http-status-codes')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const studio = require('../ide-integration/studio-rest-api')
@@ -38,7 +38,7 @@ const studio = require('../ide-integration/studio-rest-api')
  * @returns callback for the express uri registration
  */
 function httpPostFileOpen(db) {
-  return (req, res) => {
+  return async (req, res) => {
     let { zapFilePath, ideProjectPath } = req.body
     let name = ''
 
@@ -48,46 +48,44 @@ function httpPostFileOpen(db) {
     }
 
     if (zapFilePath) {
-      importJs
-        .importDataFromFile(db, zapFilePath, { sessionId: req.zapSessionId })
-        .then((importResult) => {
-          let response = {
-            sessionId: importResult.sessionId,
-            sessionKey: req.session.id,
-          }
-          env.logDebug(
-            `Loaded project(${name}) into database. RESP: ${JSON.stringify(
-              response
-            )}`
-          )
-          res.send(response)
-          return req.zapSessionId
+      try {
+        let importResult = await importJs.importDataFromFile(db, zapFilePath, {
+          sessionId: req.zapSessionId,
         })
-        .then((sessionId) => {
-          if (ideProjectPath) {
-            env.logDebug(
-              `IDE: setting project path(${name}) to ${ideProjectPath}`
-            )
 
-            // store studio project path
-            querySession.updateSessionKeyValue(
-              db,
-              sessionId,
-              dbEnum.sessionKey.ideProjectPath,
-              ideProjectPath
-            )
-          }
-        })
-        .catch(function (err) {
-          err.project = zapFilePath
-          studio.sendSessionCreationErrorStatus(db, err)
-          env.logError(JSON.stringify(err))
-          res.status(http.StatusCodes.BAD_REQUEST).send(err)
-        })
+        let response = {
+          sessionId: importResult.sessionId,
+          sessionKey: req.session.id,
+        }
+        env.logDebug(
+          `Loaded project(${name}) into database. RESP: ${JSON.stringify(
+            response
+          )}`
+        )
+
+        if (ideProjectPath) {
+          env.logDebug(
+            `IDE: setting project path(${name}) to ${ideProjectPath}`
+          )
+          // store studio project path
+          await querySession.updateSessionKeyValue(
+            db,
+            req.zapSessionId,
+            dbEnum.sessionKey.ideProjectPath,
+            ideProjectPath
+          )
+        }
+        res.status(StatusCodes.OK).json(response)
+      } catch (err) {
+        err.project = zapFilePath
+        studio.sendSessionCreationErrorStatus(db, err)
+        env.logError(JSON.stringify(err))
+        res.status(StatusCodes.BAD_REQUEST).send(err)
+      }
     } else {
       let msg = `Opening/Loading project: Missing zap file path.`
       env.logWarning(msg)
-      res.status(http.StatusCodes.BAD_REQUEST).send({ error: msg })
+      res.status(StatusCodes.BAD_REQUEST).send({ error: msg })
     }
   }
 }
@@ -99,19 +97,19 @@ function httpPostFileOpen(db) {
  * @returns callback for the express uri registration
  */
 function httpPostFileSave(db) {
-  return (req, res) => {
+  return async (req, res) => {
     let zapPath = req.body.path
     env.logDebug(`Saving session: id = ${req.zapSessionId}. path = ${zapPath}`)
 
-    let p
+    let actualPath
     if (zapPath == null || zapPath.length == 0) {
-      p = querySession.getSessionKeyValue(
+      actualPath = await querySession.getSessionKeyValue(
         db,
         req.zapSessionId,
         dbEnum.sessionKey.filePath
       )
     } else {
-      p = querySession
+      actualPath = await querySession
         .updateSessionKeyValue(
           db,
           req.zapSessionId,
@@ -121,26 +119,24 @@ function httpPostFileSave(db) {
         .then(() => zapPath)
     }
 
-    p.then((actualPath) => {
-      if (actualPath != null && actualPath.length > 0) {
-        exportJs
-          .exportDataIntoFile(db, req.zapSessionId, actualPath)
-          .then((filePath) => {
-            res.status(http.StatusCodes.OK).send({ filePath: filePath })
-          })
-          .catch((err) => {
-            let msg = `Unable to save project.`
-            env.logError(msg, err)
-            res.status(http.StatusCodes.BAD_REQUEST).send({
-              error: msg,
-            })
-          })
-      } else {
-        res
-          .status(http.StatusCodes.BAD_REQUEST)
-          .send({ error: 'No file specified.' })
+    if (actualPath != null && actualPath.length > 0) {
+      try {
+        let filePath = await exportJs.exportDataIntoFile(
+          db,
+          req.zapSessionId,
+          actualPath
+        )
+        res.status(StatusCodes.OK).send({ filePath: filePath })
+      } catch (err) {
+        let msg = `Unable to save project.`
+        env.logError(msg, err)
+        res.status(StatusCodes.BAD_REQUEST).send({
+          error: msg,
+        })
       }
-    })
+    } else {
+      res.status(StatusCodes.BAD_REQUEST).send({ error: 'No file specified.' })
+    }
   }
 }
 

@@ -44,7 +44,7 @@ async function loadGenTemplate(context) {
   if ('requiredFeatureLevel' in context.templateData) {
     requiredFeatureLevel = context.templateData.requiredFeatureLevel
   }
-  let status = util.matchFeatureLevel(requiredFeatureLevel)
+  let status = util.matchFeatureLevel(requiredFeatureLevel, context.path)
   if (status.match) {
     return context
   } else {

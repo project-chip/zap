@@ -25,6 +25,7 @@ const generationEngine = require('../generator/generation-engine.js')
 const queryPackage = require('../db/query-package.js')
 const restApi = require('../../src-shared/rest-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const { StatusCodes } = require('http-status-codes')
 
 /**
  * HTTP GET: preview single file with index.
@@ -33,20 +34,22 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @returns callback for the express uri registration
  */
 function httpGetPreviewNameIndex(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let sessionId = request.zapSessionId
-    generationEngine
-      .generateSingleFileForPreview(db, sessionId, request.params.name)
-      .then((previewObject) => {
-        if (request.params.index in previewObject) {
-          return response.json({
-            result: previewObject[request.params.index],
-            size: Object.keys(previewObject).length,
-          })
-        } else {
-          return response.json({})
-        }
+    let previewObject = await generationEngine.generateSingleFileForPreview(
+      db,
+      sessionId,
+      request.params.name
+    )
+
+    if (request.params.index in previewObject) {
+      response.status(StatusCodes.OK).json({
+        result: previewObject[request.params.index],
+        size: Object.keys(previewObject).length,
       })
+    } else {
+      response.status(StatusCodes.OK).json({})
+    }
   }
 }
 
@@ -57,11 +60,14 @@ function httpGetPreviewNameIndex(db) {
  * @returns callback for the express uri registration
  */
 function httpGetPreviewName(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let sessionId = request.zapSessionId
-    generationEngine
-      .generateSingleFileForPreview(db, sessionId, request.params.name)
-      .then((previewObject) => response.json(previewObject))
+    let previewObject = await generationEngine.generateSingleFileForPreview(
+      db,
+      sessionId,
+      request.params.name
+    )
+    response.status(StatusCodes.OK).json(previewObject)
   }
 }
 
@@ -72,11 +78,10 @@ function httpGetPreviewName(db) {
  * @returns callback for the express uri registration
  */
 function httpGetPreview(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let sessionId = request.zapSessionId
-    queryPackage
-      .getSessionGenTemplates(db, sessionId)
-      .then((previewObject) => response.json(previewObject))
+    let previewObject = await queryPackage.getSessionGenTemplates(db, sessionId)
+    response.status(StatusCodes.OK).json(previewObject)
   }
 }
 
@@ -87,30 +92,28 @@ function httpGetPreview(db) {
  * @returns callback for the express uri registration
  */
 function httpPutGenerate(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let sessionId = request.zapSessionId
     let generationDirectory = request.body.generationDirectory
-    queryPackage
-      .getSessionPackagesByType(
-        db,
-        sessionId,
-        dbEnum.packageType.genTemplatesJson
+    let pkgs = await queryPackage.getSessionPackagesByType(
+      db,
+      sessionId,
+      dbEnum.packageType.genTemplatesJson
+    )
+
+    let promises = []
+    pkgs.forEach((pkg) => {
+      promises.push(
+        generationEngine.generateAndWriteFiles(
+          db,
+          sessionId,
+          pkg.id,
+          generationDirectory
+        )
       )
-      .then((pkgs) => {
-        let promises = []
-        pkgs.forEach((pkg) => {
-          promises.push(
-            generationEngine.generateAndWriteFiles(
-              db,
-              sessionId,
-              pkg.id,
-              generationDirectory
-            )
-          )
-        })
-        return Promise.all(promises)
-      })
-      .then(() => response.status(restApi.httpCode.ok).send())
+    })
+    await Promise.all(promises)
+    response.status(StatusCodes.OK).send()
   }
 }
 

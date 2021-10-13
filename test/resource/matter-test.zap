@@ -1,6 +1,5 @@
 {
-  "writeTime": "Thu Oct 15 2020 14:18:16 GMT-0400 (GMT-04:00)",
-  "featureLevel": 1,
+  "featureLevel": 62,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -12,22 +11,20 @@
       "value": "always"
     },
     {
-      "key": "filePath",
-      "value": "/Users/jepenven/workspace/zap/test/resource/chip/chip_test.zap"
-    },
-    {
       "key": "manufacturerCodes",
       "value": "0x1002"
     }
   ],
   "package": [
     {
-      "path": "/Users/jepenven/workspace/zap/zcl-builtin/silabs/zcl.json",
+      "pathRelativity": "relativeToZap",
+      "path": "../../zcl-builtin/silabs/zcl.json",
       "version": "ZCL Test Data",
       "type": "zcl-properties"
     },
     {
-      "path": "/Users/jepenven/workspace/zap/test/gen-template/chip/gen-templates.json",
+      "pathRelativity": "relativeToZap",
+      "path": "../gen-template/zigbee/gen-templates.json",
       "version": "test-v1",
       "type": "gen-templates-json"
     }
@@ -35,9 +32,9 @@
   "endpointTypes": [
     {
       "name": "Anonymous Endpoint Type",
-      "deviceTypeName": "LO-onofflight",
-      "deviceTypeCode": "0x0100",
-      "deviceTypeProfileId": "0x0104",
+      "deviceTypeName": "ZLL-dimmablelight",
+      "deviceTypeCode": 256,
+      "deviceTypeProfileId": 260,
       "clusters": [
         {
           "name": "Basic",
@@ -56,11 +53,13 @@
           "define": "BASIC_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [],
           "attributes": [
             {
               "name": "ZCL version",
               "code": 0,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -75,6 +74,7 @@
               "name": "application version",
               "code": 1,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -89,6 +89,7 @@
               "name": "stack version",
               "code": 2,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -103,6 +104,7 @@
               "name": "hardware version",
               "code": 3,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -117,6 +119,7 @@
               "name": "manufacturer name",
               "code": 4,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -131,6 +134,7 @@
               "name": "model identifier",
               "code": 5,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -145,6 +149,7 @@
               "name": "date code",
               "code": 6,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -159,6 +164,7 @@
               "name": "power source",
               "code": 7,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -173,6 +179,7 @@
               "name": "generic device class",
               "code": 8,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -187,6 +194,7 @@
               "name": "generic device type",
               "code": 9,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -201,6 +209,7 @@
               "name": "product code",
               "code": 10,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -215,6 +224,7 @@
               "name": "product url",
               "code": 11,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -229,6 +239,7 @@
               "name": "sw build id",
               "code": 16384,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -239,295 +250,7 @@
               "maxInterval": 65534,
               "reportableChange": 0
             }
-          ],
-          "commands": []
-        },
-        {
-          "name": "ZLL Commissioning",
-          "code": 4096,
-          "mfgCode": null,
-          "define": "ZLL_COMMISSIONING_CLUSTER",
-          "side": "client",
-          "enabled": 0,
-          "attributes": [],
-          "commands": [
-            {
-              "name": "ScanRequest",
-              "code": 0,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 0
-            },
-            {
-              "name": "DeviceInformationRequest",
-              "code": 2,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 0
-            },
-            {
-              "name": "IdentifyRequest",
-              "code": 6,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 0
-            },
-            {
-              "name": "ResetToFactoryNewRequest",
-              "code": 7,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 0
-            },
-            {
-              "name": "NetworkStartRequest",
-              "code": 16,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 0
-            },
-            {
-              "name": "NetworkJoinRouterRequest",
-              "code": 18,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 0
-            },
-            {
-              "name": "NetworkJoinEndDeviceRequest",
-              "code": 20,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 0
-            },
-            {
-              "name": "NetworkUpdateRequest",
-              "code": 22,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 0
-            },
-            {
-              "name": "GetGroupIdentifiersRequest",
-              "code": 65,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 0
-            },
-            {
-              "name": "GetEndpointListRequest",
-              "code": 66,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 1,
-              "outgoing": 0
-            }
           ]
-        },
-        {
-          "name": "ZLL Commissioning",
-          "code": 4096,
-          "mfgCode": null,
-          "define": "ZLL_COMMISSIONING_CLUSTER",
-          "side": "server",
-          "enabled": 1,
-          "attributes": [],
-          "commands": [
-            {
-              "name": "ScanResponse",
-              "code": 1,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 0,
-              "outgoing": 1
-            },
-            {
-              "name": "DeviceInformationResponse",
-              "code": 3,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 0,
-              "outgoing": 1
-            },
-            {
-              "name": "NetworkStartResponse",
-              "code": 17,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 0,
-              "outgoing": 1
-            },
-            {
-              "name": "NetworkJoinRouterResponse",
-              "code": 19,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 0,
-              "outgoing": 1
-            },
-            {
-              "name": "NetworkJoinEndDeviceResponse",
-              "code": 21,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 0,
-              "outgoing": 1
-            },
-            {
-              "name": "EndpointInformation",
-              "code": 64,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 0,
-              "outgoing": 1
-            },
-            {
-              "name": "GetGroupIdentifiersResponse",
-              "code": 65,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 0,
-              "outgoing": 1
-            },
-            {
-              "name": "GetEndpointListResponse",
-              "code": 66,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 0,
-              "outgoing": 1
-            }
-          ]
-        },
-        {
-          "name": "Over the Air Bootloading",
-          "code": 25,
-          "mfgCode": null,
-          "define": "OTA_BOOTLOAD_CLUSTER",
-          "side": "client",
-          "enabled": 1,
-          "commands": [
-            {
-              "name": "QueryNextImageRequest",
-              "code": 1,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 0,
-              "outgoing": 1
-            },
-            {
-              "name": "ImageBlockRequest",
-              "code": 3,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 0,
-              "outgoing": 1
-            },
-            {
-              "name": "UpgradeEndRequest",
-              "code": 6,
-              "mfgCode": null,
-              "source": "client",
-              "incoming": 0,
-              "outgoing": 1
-            }
-          ],
-          "attributes": [
-            {
-              "name": "OTA Upgrade Server ID",
-              "code": 0,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0xffffffffffffffff",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65534,
-              "reportableChange": 0
-            },
-            {
-              "name": "Offset (address) into the file",
-              "code": 1,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0xffffffff",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65534,
-              "reportableChange": 0
-            },
-            {
-              "name": "OTA Upgrade Status",
-              "code": 6,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x00",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65534,
-              "reportableChange": 0
-            }
-          ]
-        },
-        {
-          "name": "Over the Air Bootloading",
-          "code": 25,
-          "mfgCode": null,
-          "define": "OTA_BOOTLOAD_CLUSTER",
-          "side": "server",
-          "enabled": 0,
-          "commands": [
-            {
-              "name": "ImageNotify",
-              "code": 0,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 1,
-              "outgoing": 0
-            },
-            {
-              "name": "QueryNextImageResponse",
-              "code": 2,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 1,
-              "outgoing": 0
-            },
-            {
-              "name": "ImageBlockResponse",
-              "code": 5,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 1,
-              "outgoing": 0
-            },
-            {
-              "name": "UpgradeEndResponse",
-              "code": 7,
-              "mfgCode": null,
-              "source": "server",
-              "incoming": 1,
-              "outgoing": 0
-            }
-          ],
-          "attributes": []
         },
         {
           "name": "Identify",
@@ -586,6 +309,7 @@
               "name": "identify time",
               "code": 0,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -703,6 +427,7 @@
               "name": "name support",
               "code": 0,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -868,6 +593,7 @@
               "name": "scene count",
               "code": 0,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -882,6 +608,7 @@
               "name": "current scene",
               "code": 1,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -896,6 +623,7 @@
               "name": "current group",
               "code": 2,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -910,6 +638,7 @@
               "name": "scene valid",
               "code": 3,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -924,6 +653,7 @@
               "name": "name support",
               "code": 4,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -1008,6 +738,7 @@
               "name": "on/off",
               "code": 0,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -1019,23 +750,10 @@
               "reportableChange": 0
             },
             {
-              "name": "start up on off",
-              "code": 16387,
-              "mfgCode": null,
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "",
-              "reportable": 0,
-              "minInterval": 0,
-              "maxInterval": 65534,
-              "reportableChange": 0
-            },
-            {
               "name": "global scene control",
               "code": 16384,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -1050,6 +768,7 @@
               "name": "on time",
               "code": 16385,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -1064,11 +783,27 @@
               "name": "off wait time",
               "code": 16386,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0x0000",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65534,
+              "reportableChange": 0
+            },
+            {
+              "name": "start up on off",
+              "code": 16387,
+              "mfgCode": null,
+              "side": "server",
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "",
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65534,
@@ -1158,11 +893,13 @@
           "define": "LEVEL_CONTROL_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [],
           "attributes": [
             {
               "name": "current level",
               "code": 0,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -1173,8 +910,131 @@
               "maxInterval": 65534,
               "reportableChange": 0
             }
+          ]
+        },
+        {
+          "name": "Over the Air Bootloading",
+          "code": 25,
+          "mfgCode": null,
+          "define": "OTA_BOOTLOAD_CLUSTER",
+          "side": "client",
+          "enabled": 1,
+          "commands": [
+            {
+              "name": "QueryNextImageRequest",
+              "code": 1,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 0,
+              "outgoing": 1
+            },
+            {
+              "name": "ImageBlockRequest",
+              "code": 3,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 0,
+              "outgoing": 1
+            },
+            {
+              "name": "UpgradeEndRequest",
+              "code": 6,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 0,
+              "outgoing": 1
+            }
           ],
-          "commands": []
+          "attributes": [
+            {
+              "name": "OTA Upgrade Server ID",
+              "code": 0,
+              "mfgCode": null,
+              "side": "client",
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0xffffffffffffffff",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65534,
+              "reportableChange": 0
+            },
+            {
+              "name": "Offset (address) into the file",
+              "code": 1,
+              "mfgCode": null,
+              "side": "client",
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0xffffffff",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65534,
+              "reportableChange": 0
+            },
+            {
+              "name": "OTA Upgrade Status",
+              "code": 6,
+              "mfgCode": null,
+              "side": "client",
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x00",
+              "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 65534,
+              "reportableChange": 0
+            }
+          ]
+        },
+        {
+          "name": "Over the Air Bootloading",
+          "code": 25,
+          "mfgCode": null,
+          "define": "OTA_BOOTLOAD_CLUSTER",
+          "side": "server",
+          "enabled": 0,
+          "commands": [
+            {
+              "name": "ImageNotify",
+              "code": 0,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "QueryNextImageResponse",
+              "code": 2,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "ImageBlockResponse",
+              "code": 5,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "UpgradeEndResponse",
+              "code": 7,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 1,
+              "outgoing": 0
+            }
+          ],
+          "attributes": []
         },
         {
           "name": "Occupancy Sensing",
@@ -1199,6 +1059,7 @@
               "name": "occupancy",
               "code": 0,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -1213,6 +1074,7 @@
               "name": "occupancy sensor type",
               "code": 1,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -1227,6 +1089,7 @@
               "name": "occupancy sensor type bitmap",
               "code": 2,
               "mfgCode": null,
+              "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -1238,6 +1101,172 @@
               "reportableChange": 0
             }
           ]
+        },
+        {
+          "name": "ZLL Commissioning",
+          "code": 4096,
+          "mfgCode": null,
+          "define": "ZLL_COMMISSIONING_CLUSTER",
+          "side": "client",
+          "enabled": 0,
+          "commands": [
+            {
+              "name": "ScanRequest",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "DeviceInformationRequest",
+              "code": 2,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "IdentifyRequest",
+              "code": 6,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "ResetToFactoryNewRequest",
+              "code": 7,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "NetworkStartRequest",
+              "code": 16,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "NetworkJoinRouterRequest",
+              "code": 18,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "NetworkJoinEndDeviceRequest",
+              "code": 20,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "NetworkUpdateRequest",
+              "code": 22,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "GetGroupIdentifiersRequest",
+              "code": 65,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            },
+            {
+              "name": "GetEndpointListRequest",
+              "code": 66,
+              "mfgCode": null,
+              "source": "client",
+              "incoming": 1,
+              "outgoing": 0
+            }
+          ],
+          "attributes": []
+        },
+        {
+          "name": "ZLL Commissioning",
+          "code": 4096,
+          "mfgCode": null,
+          "define": "ZLL_COMMISSIONING_CLUSTER",
+          "side": "server",
+          "enabled": 1,
+          "commands": [
+            {
+              "name": "ScanResponse",
+              "code": 1,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 0,
+              "outgoing": 1
+            },
+            {
+              "name": "DeviceInformationResponse",
+              "code": 3,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 0,
+              "outgoing": 1
+            },
+            {
+              "name": "NetworkStartResponse",
+              "code": 17,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 0,
+              "outgoing": 1
+            },
+            {
+              "name": "NetworkJoinRouterResponse",
+              "code": 19,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 0,
+              "outgoing": 1
+            },
+            {
+              "name": "NetworkJoinEndDeviceResponse",
+              "code": 21,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 0,
+              "outgoing": 1
+            },
+            {
+              "name": "EndpointInformation",
+              "code": 64,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 0,
+              "outgoing": 1
+            },
+            {
+              "name": "GetGroupIdentifiersResponse",
+              "code": 65,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 0,
+              "outgoing": 1
+            },
+            {
+              "name": "GetEndpointListResponse",
+              "code": 66,
+              "mfgCode": null,
+              "source": "server",
+              "incoming": 0,
+              "outgoing": 1
+            }
+          ],
+          "attributes": []
         }
       ]
     }
@@ -1248,7 +1277,9 @@
       "endpointTypeIndex": 0,
       "profileId": "0x0104",
       "endpointId": 1,
-      "networkId": "Primary"
+      "networkId": "Primary",
+      "endpointVersion": null,
+      "deviceIdentifier": null
     }
   ]
 }

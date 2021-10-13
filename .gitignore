@@ -63,3 +63,7 @@ spa/
 
 # Version file
 .version.json
+
+# Backup files
+*~
+

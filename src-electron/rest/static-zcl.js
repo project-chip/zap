@@ -29,7 +29,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
 const util = require('../util/util.js')
 const env = require('../util/env')
-const http = require('http-status-codes')
+const { StatusCodes } = require('http-status-codes')
 
 // This function builds a function that has the following skeleton.
 // This is used to simplify all the logic where we have selectAll and selectById for
@@ -45,7 +45,7 @@ function zclEntityQuery(selectAllFunction, selectByIdFunction) {
 }
 
 // For the CLUSTER path, we have special handling to also sideload attributes and commands relevant to that cluster.
-function returnZclEntitiesForClusterId(db, clusterId, packageId) {
+async function returnZclEntitiesForClusterId(db, clusterId, packageId) {
   return zclEntityQuery(queryZcl.selectAllClusters, queryZcl.selectClusterById)(
     db,
     clusterId,
@@ -196,14 +196,16 @@ function parseForZclData(db, entity, id, packageIdArray) {
  */
 
 function httpGetZclEntity(db) {
-  return (request, response) => {
+  return async (request, response) => {
     const { id, entity } = request.params
     let sessionId = request.zapSessionId
 
-    queryPackage
-      .getSessionZclPackageIds(db, sessionId)
-      .then((packageIdArray) => parseForZclData(db, entity, id, packageIdArray))
-      .then((resultData) => response.json(resultData))
+    let packageIdArray = await queryPackage.getSessionZclPackageIds(
+      db,
+      sessionId
+    )
+    let resultData = await parseForZclData(db, entity, id, packageIdArray)
+    response.status(StatusCodes.OK).json(resultData)
   }
 }
 /**
@@ -219,7 +221,7 @@ function httpGetZclExtension(db) {
     if (!sessionId) {
       let err = 'Unable to retrieve zcl extension. Invalid sessionId!'
       env.logError(err)
-      return response.status(http.StatusCodes.NOT_FOUND).send(err)
+      return response.status(StatusCodes.NOT_FOUND).send(err)
     }
 
     // enable components
@@ -239,14 +241,14 @@ function httpGetZclExtension(db) {
       .then((exts) => {
         let clusterExt = util.getClusterExtension(exts, extensionId)
         if (clusterExt.length) {
-          return response.json(clusterExt[0])
+          return response.status(StatusCodes.OK).json(clusterExt[0])
         } else {
           throw new Error(`Unable to find cluster extension by ${extensionId}.`)
         }
       })
       .catch((err) => {
         env.logError(err)
-        return response.status(http.StatusCodes.NOT_FOUND).send(err)
+        return response.status(StatusCodes.NOT_FOUND).send(err)
       })
   }
 }
