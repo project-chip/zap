@@ -44,6 +44,15 @@ pipeline
                         }
                     }
                 }
+                stage('Generate Eclipse packaging metadata')        {
+                    steps
+                    {
+                                script
+                        {
+                                    sh 'npm run package-metadata'
+                        }
+                    }
+                }
                 stage('License check')
                 {
                     steps
@@ -243,6 +252,17 @@ pipeline
                         script
                         {
                             archiveArtifacts artifacts:'dist/zap*', fingerprint: true
+                        }
+                    }
+                }
+                stage('Eclipse packaging metadata')
+                {
+                    steps
+                    {
+                        script
+                        {
+                            archiveArtifacts artifacts:'./docs/releasenotes.md', fingerprint: true
+                            archiveArtifacts artifacts:'./apack_zap.package', fingerprint: true
                         }
                     }
                 }
