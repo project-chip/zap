@@ -1,4 +1,4 @@
 #!/bin/sh
-#. "$(dirname "$0")/_/husky.sh"
+. "$(dirname "$0")/_/husky.sh"
 
-#npx pretty-quick --staged && npx jsdoc src-electron src-shared -r -d ./generated-html/ && npx eslint --ext .js,.vue src src-electron src-shared src-script test
+npx pretty-quick --staged && npx jsdoc src-electron src-shared -r -d ./generated-html/ && npx eslint --ext .js,.vue src src-electron src-shared src-script test
