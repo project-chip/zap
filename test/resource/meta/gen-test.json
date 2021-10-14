@@ -21,6 +21,11 @@
       "path": "type-by-cluster.zapt",
       "name": "Types by cluster",
       "output": "type-by-cluster.h"
+    },
+    {
+      "path": "access.zapt",
+      "name": "Access data example",
+      "output": "access.out"
     }
   ]
 }

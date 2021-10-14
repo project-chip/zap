@@ -1,7 +1,7 @@
 # Access control features
 
 ZAP supports access control on all ZCL entities. It's down to the implementation of the SDK to map
-these features to the required and supported access control SDK features.
+these features to the required and supported access control SDK features. ZAP generally just provides a data model and a mechanism to encode it in the meta-info files, and propagate that data to the generation templates, without assigning specific meanings to the data points.
 
 ## Base terms
 

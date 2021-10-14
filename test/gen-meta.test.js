@@ -216,6 +216,13 @@ test(
     epc = genResult.content['struct.h']
     expect(epc).toContain('Nest complex;// <- has nested array')
     expect(epc).toContain('// DoubleNest <- contains nested array')
+
+    epc = genResult.content['access.out']
+    expect(epc).not.toBeNull()
+    expect(epc).toContain(
+      '* Op: write / Role: manage / Modifier: fabric-scoped'
+    )
+    expect(epc).toContain('* Op:  / Role:  / Modifier: fabric-sensitive')
   },
   testUtil.timeout.medium()
 )
