@@ -26,16 +26,17 @@ const promisedHandlebars = require('promised-handlebars')
 const handlebars = promisedHandlebars(require('handlebars'))
 
 const includedHelpers = [
-  require('./helper-zcl.js'),
-  require('./helper-zap.js'),
-  require('./helper-c.js'),
-  require('./helper-session.js'),
-  require('./helper-endpointconfig.js'),
-  require('./helper-sdkextension.js'),
-  require('./helper-tokens.js'),
-  require('./helper-attribute.js'),
-  require('./helper-command.js'),
-  require('./helper-future.js'),
+  require('./helper-zcl'),
+  require('./helper-zap'),
+  require('./helper-c'),
+  require('./helper-session'),
+  require('./helper-endpointconfig'),
+  require('./helper-sdkextension'),
+  require('./helper-tokens'),
+  require('./helper-attribute'),
+  require('./helper-command'),
+  require('./helper-future'),
+  require('./helper-access'),
 ]
 
 let helpersInitializationList = null
