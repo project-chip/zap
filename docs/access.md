@@ -66,3 +66,35 @@ Example:
 
 ```
 
+## Template helpers
+
+The basic template helper to use is the `{{#access}} ... {{/access}}` iterator. This iterator iterates over all the given access triplets.
+It supports 2 options:
+   * `entity="attribute/command/event"` - if the entity can't be determined from context, this sets the entity type.
+   * `includeDefault="true/false"` - determines if default values are included or not.
+
+Example:
+```
+{{#zcl_clusters}}
+Cluster: {{name}} [{{code}}]
+{{#zcl_attributes}}
+  - attribute: {{name}} [{{code}}]
+  {{#access entity="attribute"}}
+    * Op: {{operation}} / Role: {{role}} / Modifier: {{accessModifier}}
+  {{/access}}
+{{/zcl_attributes}}
+{{#zcl_commands}}
+  - command: {{name}} [{{code}}]
+  {{#access entity="command"}}
+    * Op: {{operation}} / Role: {{role}} / Modifier: {{accessModifier}}
+  {{/access}}
+{{/zcl_commands}}
+{{#zcl_events}}
+  - event: {{name}} [{{code}}]
+  {{#access entity="event"}}
+    * Op: {{operation}} / Role: {{role}} / Modifier: {{accessModifier}}
+  {{/access}}
+{{/zcl_events}}
+
+{{/zcl_clusters}}
+```
