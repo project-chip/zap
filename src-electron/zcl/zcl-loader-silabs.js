@@ -457,6 +457,7 @@ function prepareCluster(cluster, isExtension = false) {
             ev.fields.push({
               name: field.$.name,
               type: field.$.type,
+              isArray: field.$.array == 'true' ? 1 : 0,
               isNullable: field.$.isNullable == 'true' ? true : false,
               fieldIdentifier: field.$.id ? parseInt(field.$.id) : index + 1,
               introducedIn: field.$.introducedIn,

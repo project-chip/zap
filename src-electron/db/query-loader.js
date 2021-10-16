@@ -72,11 +72,12 @@ INSERT INTO EVENT_FIELD (
   FIELD_IDENTIFIER,
   NAME,
   TYPE,
+  IS_ARRAY,
   IS_NULLABLE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
@@ -225,6 +226,7 @@ function fieldMap(eventId, packageId, fields) {
     field.fieldIdentifier,
     field.name,
     field.type,
+    dbApi.toDbBool(field.isArray),
     dbApi.toDbBool(field.isNullable),
     field.introducedIn,
     packageId,

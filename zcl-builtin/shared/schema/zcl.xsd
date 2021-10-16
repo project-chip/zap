@@ -31,6 +31,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:attribute name="id" use="required" type="xs:string"/>
     <xs:attribute name="name" use="required" type="xs:string"/>
     <xs:attribute name="type" use="required" type="xs:string"/>
+    <xs:attribute name="array" use="optional" type="xs:boolean"/>
     <xs:attribute name="isNullable" use="optional" type="xs:boolean"/>
   </xs:complexType>
   <xs:complexType name="tag">

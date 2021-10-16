@@ -116,6 +116,7 @@ exports.map = {
       fieldIdentifier: x.FIELD_IDENTIFIER,
       name: x.NAME,
       type: x.TYPE,
+      isArray: dbApi.fromDbBool(x.IS_ARRAY),
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
     }
   },
