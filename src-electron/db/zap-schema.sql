@@ -186,6 +186,7 @@ CREATE TABLE IF NOT EXISTS "COMMAND_ARG" (
   "TYPE" text,
   "IS_ARRAY" integer,
   "PRESENT_IF" text,
+  "IS_NULLABLE" integer,
   "COUNT_ARG" text,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
@@ -224,6 +225,8 @@ CREATE TABLE IF NOT EXISTS "EVENT_FIELD" (
   "FIELD_IDENTIFIER" integer,
   "NAME" text,
   "TYPE" text,
+  "IS_ARRAY" integer,
+  "IS_NULLABLE" integer,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
@@ -257,6 +260,7 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   "IS_SCENE_REQUIRED" integer,
   "IS_OPTIONAL" integer,
   "IS_REPORTABLE" integer,
+  "IS_NULLABLE" integer,
   "ARRAY_TYPE" text,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
@@ -492,6 +496,7 @@ CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
   "MIN_LENGTH" integer,
   "MAX_LENGTH" integer,
   "IS_WRITABLE" integer,
+  "IS_NULLABLE" integer,
   foreign key (STRUCT_REF) references STRUCT(STRUCT_ID)
 );
 /*

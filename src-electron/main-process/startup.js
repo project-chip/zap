@@ -497,7 +497,7 @@ async function generateSingleFile(
   )
 
   if (genResult.hasErrors) {
-    console.log(JSON.stringify(genResult.hasErrors))
+    console.log(JSON.stringify(genResult.errors))
     throw new Error(`Generation failed: ${f}`)
   }
 

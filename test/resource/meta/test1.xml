@@ -28,19 +28,19 @@ limitations under the License.
       <description>at1</description>
       <access op="write" role="manage" modifier="fabric-scoped"/>
     </attribute>
-    <attribute side="server" code="0x0001" define="AT2" type="INT16U" writable="false" optional="true">
+    <attribute side="server" code="0x0001" define="AT2" type="INT16U" writable="false" optional="true" isNullable="true">
       <description>at2</description>
       <access modifier="fabric-sensitive"/>
     </attribute>
     <command source="client" code="0x01" name="TestCommand1" optional="false">
       <description>TestCmd1</description>
-      <arg name="A" type="INT8U"/>
+      <arg name="A" type="INT8U" isNullable="true"/>
       <arg name="B" type="CHAR_STRING"/>
     </command>
     <event code="0x0001" name="HelloEvent" priority="info" side="server">
       <description>Example test event</description>
-      <field id="1" name="arg1" type="INT8U"/>
-      <field id="2" name="arg2" type="INT32U"/>
+      <field id="1" name="arg1" type="INT8U" isNullable="true"/>
+      <field id="2" name="arg2" type="INT32U" array="true"/>
       <field id="3" name="arg3" type="CHAR_STRING"/>
     </event>
   </cluster>
