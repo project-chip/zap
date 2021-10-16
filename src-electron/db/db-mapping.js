@@ -101,6 +101,7 @@ exports.map = {
       reportableChange: x.REPORTABLE_CHANGE,
       reportableChangeLength: x.REPORTABLE_CHANGE_LENGTH,
       isWritable: dbApi.fromDbBool(x.IS_WRITABLE),
+      isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
       defaultValue: x.DEFAULT_VALUE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isReportable: dbApi.fromDbBool(x.IS_REPORTABLE),
@@ -115,6 +116,7 @@ exports.map = {
       fieldIdentifier: x.FIELD_IDENTIFIER,
       name: x.NAME,
       type: x.TYPE,
+      isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
     }
   },
 
@@ -155,6 +157,7 @@ exports.map = {
       argIsArray: dbApi.fromDbBool(x.ARG_IS_ARRAY),
       argPresentIf: x.ARG_PRESENT_IF,
       argCountArg: x.ARG_COUNT_ARG,
+      argIsNullable: x.ARG_IS_NULLABLE,
       responseRef: x.RESPONSE_REF,
       isIncoming: x.INCOMING,
       isOutgoing: x.OUTGOING,
@@ -171,6 +174,7 @@ exports.map = {
       code: x.CODE,
       isArray: dbApi.fromDbBool(x.IS_ARRAY),
       presentIf: x.PRESENT_IF,
+      isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
       introducedInRef: x.INTRODUCED_IN_REF,
       removedInRef: x.REMOVED_IN_REF,
       countArg: x.COUNT_ARG,
@@ -233,6 +237,7 @@ exports.map = {
       isArray: dbApi.fromDbBool(x.IS_ARRAY),
       isEnum: dbApi.fromDbBool(x.IS_ENUM),
       isWritable: dbApi.fromDbBool(x.IS_WRITABLE),
+      isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
     }
   },
 

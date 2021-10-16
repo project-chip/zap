@@ -72,10 +72,11 @@ INSERT INTO EVENT_FIELD (
   FIELD_IDENTIFIER,
   NAME,
   TYPE,
+  IS_NULLABLE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, 
+  ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
@@ -106,12 +107,13 @@ INSERT INTO COMMAND_ARG (
   TYPE,
   IS_ARRAY,
   PRESENT_IF,
+  IS_NULLABLE,
   COUNT_ARG,
   FIELD_IDENTIFIER,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -137,13 +139,14 @@ INSERT INTO ATTRIBUTE (
   DEFAULT_VALUE,
   IS_OPTIONAL,
   IS_REPORTABLE,
+  IS_NULLABLE,
   IS_SCENE_REQUIRED,
   ARRAY_TYPE,
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -169,6 +172,7 @@ function attributeMap(clusterId, packageId, attributes) {
     attribute.defaultValue,
     dbApi.toDbBool(attribute.isOptional),
     dbApi.toDbBool(attribute.isReportable),
+    dbApi.toDbBool(attribute.isNullable),
     dbApi.toDbBool(attribute.isSceneRequired),
     attribute.entryType,
     attribute.manufacturerCode,
@@ -221,6 +225,7 @@ function fieldMap(eventId, packageId, fields) {
     field.fieldIdentifier,
     field.name,
     field.type,
+    dbApi.toDbBool(field.isNullable),
     field.introducedIn,
     packageId,
     field.removedIn,
@@ -235,6 +240,7 @@ function argMap(cmdId, packageId, args) {
     arg.type,
     dbApi.toDbBool(arg.isArray),
     arg.presentIf,
+    dbApi.toDbBool(arg.isNullable),
     arg.countArg,
     arg.fieldIdentifier,
     arg.introducedIn,
@@ -765,11 +771,12 @@ async function insertStructs(db, packageId, data) {
           item.name,
           item.type,
           item.fieldIdentifier,
-          item.isArray,
-          item.isEnum,
+          dbApi.toDbBool(item.isArray),
+          dbApi.toDbBool(item.isEnum),
           item.minLength,
           item.maxLength,
-          item.isWritable,
+          dbApi.toDbBool(item.isWritable),
+          dbApi.toDbBool(item.isNullable),
         ])
       )
     }
@@ -778,7 +785,7 @@ async function insertStructs(db, packageId, data) {
   if (itemsToLoad.length > 0)
     await dbApi.dbMultiInsert(
       db,
-      'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE) VALUES (?,?,?,?,?,?,?,?,?)',
+      'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, IS_NULLABLE) VALUES (?,?,?,?,?,?,?,?,?, ?)',
       itemsToLoad
     )
 }

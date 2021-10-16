@@ -724,6 +724,7 @@ async function selectAllCommandsWithArguments(db, packageId) {
       argFieldId: x.FIELD_IDENTIFIER,
       argIsArray: x.ARG_IS_ARRAY,
       argPresentIf: x.ARG_PRESENT_IF,
+      argIsNullable: x.ARG_IS_NULLABLE,
       argCountArg: x.ARG_COUNT_ARG,
       argIntroducedIn: x.INTRODUCED_IN_REF,
       argRemovedIn: x.REMOVED_IN_REF,
@@ -750,6 +751,7 @@ SELECT
   CA.FIELD_IDENTIFIER,
   CA.IS_ARRAY AS ARG_IS_ARRAY,
   CA.PRESENT_IF AS ARG_PRESENT_IF,
+  CA.IS_NULLABLE AS ARG_IS_NULLABLE,
   CA.COUNT_ARG AS ARG_COUNT_ARG,
   CA.INTRODUCED_IN_REF,
   CA.REMOVED_IN_REF
@@ -782,6 +784,7 @@ ORDER BY
         fieldId: x.argFieldId,
         isArray: x.argIsArray,
         presentIf: x.argPresentIf,
+        isNullable: x.argIsNullable,
         countArg: x.argCountArg,
         introducedIn: x.argIntroducedIn,
         removedIn: x.argRemovedIn,
@@ -793,6 +796,7 @@ ORDER BY
       delete x.argFieldId
       delete x.argIsArray
       delete x.argPresentIf
+      delete x.argIsNullable
       delete x.argCountArg
       delete x.argIntroducedIn
       delete x.argRemovedIn
@@ -1004,6 +1008,7 @@ SELECT
   COMMAND_ARG.TYPE,
   COMMAND_ARG.IS_ARRAY,
   COMMAND_ARG.PRESENT_IF,
+  COMMAND_ARG.IS_NULLABLE,
   COMMAND_ARG.INTRODUCED_IN_REF,
   COMMAND_ARG.REMOVED_IN_REF,
   COMMAND_ARG.COUNT_ARG
@@ -1056,6 +1061,7 @@ SELECT
   TYPE,
   IS_ARRAY,
   PRESENT_IF,
+  IS_NULLABLE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF,
   COUNT_ARG
@@ -1098,6 +1104,7 @@ SELECT
   CA.TYPE AS ARG_TYPE,
   CA.IS_ARRAY AS ARG_IS_ARRAY,
   CA.PRESENT_IF AS ARG_PRESENT_IF,
+  CA.IS_NULLABLE AS ARG_IS_NULLABLE,
   CA.COUNT_ARG AS ARG_COUNT_ARG
 FROM 
   COMMAND AS CMD

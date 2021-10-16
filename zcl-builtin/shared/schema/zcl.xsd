@@ -31,6 +31,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:attribute name="id" use="required" type="xs:string"/>
     <xs:attribute name="name" use="required" type="xs:string"/>
     <xs:attribute name="type" use="required" type="xs:string"/>
+    <xs:attribute name="isNullable" use="optional" type="xs:boolean"/>
   </xs:complexType>
   <xs:complexType name="tag">
     <xs:attribute name="name" use="required" type="xs:string"/>
@@ -50,6 +51,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:attribute name="optional" type="xs:integer"/>
     <xs:attribute name="fieldId" type="xs:integer"/>
     <xs:attribute name="countArg" type="xs:string" use="optional"/>
+    <xs:attribute name="isNullable" type="xs:boolean"/>
   </xs:complexType>
   <xs:complexType name="clusterRef">
     <xs:attribute name="code" type="xs:string"/>
@@ -62,6 +64,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:attribute name="array" type="xs:boolean"/>
     <xs:attribute name="enum" type="xs:boolean"/>
     <xs:attribute name="fieldId" type="xs:integer"/>
+    <xs:attribute name="isNullable" type="xs:boolean"/>
   </xs:complexType>
   <xs:complexType name="featureBit" mixed="true">
     <xs:attribute name="tag" use="required" type="xs:string"/>
@@ -444,6 +447,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="writable" type="xs:boolean"/>
       <xs:attribute name="reportable" type="xs:boolean"/>
       <xs:attribute name="array" type="xs:boolean"/>
+      <xs:attribute name="isNullable" type="xs:boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="description">

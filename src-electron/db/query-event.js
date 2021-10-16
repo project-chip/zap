@@ -101,7 +101,8 @@ async function selectAllEventFields(db, packageId) {
 SELECT
   EF.FIELD_IDENTIFIER,
   EF.NAME,
-  EF.TYPE
+  EF.TYPE,
+  EF.IS_NULLABLE
 FROM
   EVENT_FIELD AS EF
 INNER JOIN
@@ -126,7 +127,8 @@ async function selectEventFieldsByEventId(db, eventId) {
 SELECT
   FIELD_IDENTIFIER,
   NAME,
-  TYPE
+  TYPE,
+  IS_NULLABLE
 FROM
   EVENT_FIELD
 WHERE

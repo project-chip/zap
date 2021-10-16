@@ -398,7 +398,7 @@ function prepareCluster(cluster, isExtension = false) {
         name: command.$.name,
         description: command.description[0].trim(),
         source: command.$.source,
-        isOptional: command.$.optional == 'true',
+        isOptional: command.$.optional == 'true' ? true : false,
         introducedIn: command.$.introducedIn,
         removedIn: command.$.removedIn,
         responseName: command.$.response == null ? null : command.$.response,
@@ -419,6 +419,7 @@ function prepareCluster(cluster, isExtension = false) {
               type: arg.$.type,
               isArray: arg.$.array == 'true' ? 1 : 0,
               presentIf: arg.$.presentIf,
+              isNullable: arg.$.isNullable == 'true' ? true : false,
               countArg: arg.$.countArg,
               fieldIdentifier: arg.$.fieldId
                 ? parseInt(arg.$.fieldId)
@@ -456,6 +457,7 @@ function prepareCluster(cluster, isExtension = false) {
             ev.fields.push({
               name: field.$.name,
               type: field.$.type,
+              isNullable: field.$.isNullable == 'true' ? true : false,
               fieldIdentifier: field.$.id ? parseInt(field.$.id) : index + 1,
               introducedIn: field.$.introducedIn,
               removedIn: field.$.removedIn,
@@ -499,6 +501,7 @@ function prepareCluster(cluster, isExtension = false) {
         isSceneRequired: attribute.$.sceneRequired == 'true',
         introducedIn: attribute.$.introducedIn,
         removedIn: attribute.$.removedIn,
+        isNullable: attribute.$.isNullable == 'true' ? true : false,
         entryType: attribute.$.entryType,
       }
       att.access = extractAccessIntoArray(attribute)
@@ -784,6 +787,7 @@ function prepareStruct(struct) {
         isWritable: item.$.writable == 'true',
         isArray: item.$.array == 'true' ? true : false,
         isEnum: item.$.enum == 'true' ? true : false,
+        isNullable: item.$.isNullable == 'true' ? true : false,
       })
     })
   }
