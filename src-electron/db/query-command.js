@@ -1186,7 +1186,7 @@ SET
         )
   )
 WHERE
-  COMMAND.NAME NOT LIKE '%Response'
+  COMMAND.NAME NOT LIKE '%Response' AND COMMAND.RESPONSE_NAME IS NULL
     `
   )
 }
