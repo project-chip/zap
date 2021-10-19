@@ -38,6 +38,15 @@ function print(text) {
 }
 
 /**
+ * Prints error message to the console.
+ *
+ * @param {*} text
+ */
+function printError(text) {
+  console.log(`⛔ SCRIPT API ERROR: ${text}`)
+}
+
+/**
  * Returns an array of endpoints.
  *
  * @param {*} context
@@ -195,8 +204,20 @@ async function modifyAttribute(
   enable
 ) {
   let cluster = await findCluster(context, clusterCode)
-  if (cluster == null) return null
+  if (cluster == null) {
+    printError(`Cluster 0x${clusterCode.toString(16)} does not exist.`)
+    return null
+  }
   let attribute = await findAttribute(context, clusterCode, side, attributeCode)
+  if (attribute == null) {
+    printError(
+      `Attribute 0x${attributeCode.toString(
+        16
+      )} in cluster 0x${clusterCode.toString(16)} does not exist.`
+    )
+    return null
+  }
+
   let params = [
     {
       key: restApi.updateKey.attributeSelected,
@@ -227,8 +248,19 @@ async function modifyCommand(
   enable
 ) {
   let cluster = await findCluster(context, clusterCode)
-  if (cluster == null) return null
+  if (cluster == null) {
+    printError(`Cluster 0x${clusterCode.toString(16)} does not exist.`)
+    return null
+  }
   let command = await findCommand(context, clusterCode, commandCode, source)
+  if (command == null) {
+    printError(
+      `Command 0x${commandCode.toString(
+        16
+      )} in cluster 0x${clusterCode.toString(16)} does not exist.`
+    )
+    return null
+  }
   return queryConfig.insertOrUpdateCommandState(
     context.db,
     endpoint.endpointTypeRef,
@@ -393,7 +425,15 @@ async function disableIncomingCommand(
   commandCode,
   source
 ) {
-  return modifyCommand(context, endpoint, clusterCode, commandCode, source, true, false)
+  return modifyCommand(
+    context,
+    endpoint,
+    clusterCode,
+    commandCode,
+    source,
+    true,
+    false
+  )
 }
 
 /**
@@ -413,7 +453,15 @@ async function enableIncomingCommand(
   commandCode,
   source
 ) {
-  return modifyCommand(context, endpoint, clusterCode, commandCode, source, true, true)
+  return modifyCommand(
+    context,
+    endpoint,
+    clusterCode,
+    commandCode,
+    source,
+    true,
+    true
+  )
 }
 
 /**
@@ -461,7 +509,15 @@ async function enableOutgoingCommand(
   commandCode,
   source
 ) {
-  return modifyCommand(context, endpoint, clusterCode, commandCode, source, false, true)
+  return modifyCommand(
+    context,
+    endpoint,
+    clusterCode,
+    commandCode,
+    source,
+    false,
+    true
+  )
 }
 
 exports.availableClusters = availableClusters
