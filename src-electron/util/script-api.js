@@ -555,3 +555,7 @@ exports.disableIncomingCommand = disableIncomingCommand
 exports.enableIncomingCommand = enableIncomingCommand
 exports.disableOutgoingCommand = disableOutgoingCommand
 exports.enableOutgoingCommand = enableOutgoingCommand
+
+// Constants that are used a lot
+exports.client = dbEnum.source.client
+exports.server = dbEnum.source.server
