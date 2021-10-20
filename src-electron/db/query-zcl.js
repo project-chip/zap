@@ -1421,7 +1421,8 @@ async function selectAtomicSizeFromType(db, packageId, type) {
   let row = await dbApi.dbGet(
     db,
     'SELECT ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
-    [packageId, type]
+    // The types in the ATOMIC table are always lowercase.
+    [packageId, type.toLowerCase()]
   )
   if (row == null) {
     return null
