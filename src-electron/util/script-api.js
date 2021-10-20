@@ -26,6 +26,7 @@ const queryConfig = require('../db/query-config.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryPackage = require('../db/query-package.js')
 const querySessionZcl = require('../db/query-session-zcl.js')
+const queryZcl = require('../db/query-zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 /**
@@ -184,7 +185,10 @@ async function findCommand(context, clusterCode, commandCode, source) {
 // Non-public, common function to modify cluster.
 async function modifyCluster(context, endpoint, code, side, enabled) {
   let cluster = await findCluster(context, code)
-  if (cluster == null) return null
+  if (cluster == null) {
+    printError(`Cluster 0x${code.toString(16)} does not exist.`)
+    return null
+  }
   return queryConfig.insertOrReplaceClusterState(
     context.db,
     endpoint.endpointTypeRef,

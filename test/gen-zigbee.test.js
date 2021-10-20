@@ -304,65 +304,60 @@ test(
     let sid = await querySession.createBlankSession(db)
     await importJs.importDataFromFile(db, testFile, { sessionId: sid })
 
-    return genEngine
-      .generate(
-        db,
-        sid,
-        templateContext.packageId,
-        {},
-        {
-          disableDeprecationWarnings: true,
-        }
-      )
-      .then((genResult) => {
-        expect(genResult).not.toBeNull()
-        expect(genResult.partial).toBeFalsy()
-        expect(genResult.content).not.toBeNull()
+    let genResult = await genEngine.generate(
+      db,
+      sid,
+      templateContext.packageId,
+      {},
+      {
+        disableDeprecationWarnings: true,
+      }
+    )
+    expect(genResult).not.toBeNull()
+    expect(genResult.partial).toBeFalsy()
+    expect(genResult.content).not.toBeNull()
 
-        let cfgVer2 = genResult.content['zap-config-version-2.h']
-        // Test GENERATED_DEFAULTS
-        expect(cfgVer2).toContain(
-          '0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* 0,DEFAULT value for cluster: Over the Air Bootloading, attribute: OTA Upgrade Server ID, side: client*/'
-        )
-        // Test GENERATED_ATTRIBUTE_COUNT
-        expect(cfgVer2).toContain('#define GENERATED_ATTRIBUTE_COUNT 81')
-        // Test GENERATED_ATTRIBUTES
-        expect(cfgVer2).toContain(
-          '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x00  } }, /* 46 Cluster: Color Control, Attribute: color control options, Side: server*/'
-        )
-        // Test is_number_greater_than within GENERATED_ATTRIBUTES
-        expect(cfgVer2).toContain(
-          '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 35 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
-        )
-        // Test GENERATED_CLUSTER_COUNT
-        expect(cfgVer2).toContain('#define GENERATED_CLUSTER_COUNT 18')
-        // Test GENERATED_CLUSTERS
-        expect(cfgVer2).toContain(
-          '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[35]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/'
-        )
-        // Test GENERATED_ENDPOINT_TYPE_COUNT
-        expect(cfgVer2).toContain('#define GENERATED_ENDPOINT_TYPE_COUNT (2)')
-        // Test GENERATED_ENDPOINT_TYPES
-        expect(cfgVer2).toContain(
-          '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 241 },'
-        )
-        // Test ATTRIBUTE_LARGEST
-        expect(cfgVer2).toContain('#define ATTRIBUTE_LARGEST (65)')
-        // Test ATTRIBUTE_SINGLETONS_SIZE
-        expect(cfgVer2).toContain('#define ATTRIBUTE_SINGLETONS_SIZE (191)')
-        // Test ATTRIBUTE_MAX_SIZE
-        expect(cfgVer2).toContain('#define ATTRIBUTE_MAX_SIZE (546)')
-        // Test FIXED_ENDPOINT_COUNT
-        expect(cfgVer2).toContain('#define FIXED_ENDPOINT_COUNT (2)')
-        // Test EMBER_AF_GENERATED_COMMAND_COUNT
-        expect(cfgVer2).toContain(
-          '#define EMBER_AF_GENERATED_COMMAND_COUNT  (88)'
-        )
-        // Test GENERATED_COMMANDS
-        expect(cfgVer2).toContain(
-          '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 7, Cluster: Groups, Command: ViewGroupResponse*/'
-        )
-      })
+    let cfgVer2 = genResult.content['zap-config-version-2.h']
+    // Test GENERATED_DEFAULTS
+    expect(cfgVer2).toContain(
+      '0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* 0,DEFAULT value for cluster: Over the Air Bootloading, attribute: OTA Upgrade Server ID, side: client*/'
+    )
+    // Test GENERATED_ATTRIBUTE_COUNT
+    expect(cfgVer2).toContain('#define GENERATED_ATTRIBUTE_COUNT 81')
+    // Test GENERATED_ATTRIBUTES
+    expect(cfgVer2).toContain(
+      '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x00  } }, /* 46 Cluster: Color Control, Attribute: color control options, Side: server*/'
+    )
+    // Test is_number_greater_than within GENERATED_ATTRIBUTES
+    expect(cfgVer2).toContain(
+      '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 35 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
+    )
+    // Test GENERATED_CLUSTER_COUNT
+    expect(cfgVer2).toContain('#define GENERATED_CLUSTER_COUNT 18')
+    // Test GENERATED_CLUSTERS
+    expect(cfgVer2).toContain(
+      '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[35]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/'
+    )
+    // Test GENERATED_ENDPOINT_TYPE_COUNT
+    expect(cfgVer2).toContain('#define GENERATED_ENDPOINT_TYPE_COUNT (2)')
+    // Test GENERATED_ENDPOINT_TYPES
+    expect(cfgVer2).toContain(
+      '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 241 },'
+    )
+    // Test ATTRIBUTE_LARGEST
+    expect(cfgVer2).toContain('#define ATTRIBUTE_LARGEST (65)')
+    // Test ATTRIBUTE_SINGLETONS_SIZE
+    expect(cfgVer2).toContain('#define ATTRIBUTE_SINGLETONS_SIZE (191)')
+    // Test ATTRIBUTE_MAX_SIZE
+    expect(cfgVer2).toContain('#define ATTRIBUTE_MAX_SIZE (546)')
+    // Test FIXED_ENDPOINT_COUNT
+    expect(cfgVer2).toContain('#define FIXED_ENDPOINT_COUNT (2)')
+    // Test EMBER_AF_GENERATED_COMMAND_COUNT
+    expect(cfgVer2).toContain('#define EMBER_AF_GENERATED_COMMAND_COUNT  (88)')
+    // Test GENERATED_COMMANDS
+    expect(cfgVer2).toContain(
+      '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 7, Cluster: Groups, Command: ViewGroupResponse*/'
+    )
   },
   testUtil.timeout.long()
 )
@@ -507,48 +502,23 @@ test(
         )
 
         // Test GENERATED_COMMAND_MANUFACTURER_CODES
-        expect(cfgVer3).toContain(
-          '{ 69, 0x1002 },'
-        )
+        expect(cfgVer3).toContain('{ 69, 0x1002 },')
 
-        expect(cfgVer3).toContain(
-          '{ 70, 0x1049 },'
-        )
+        expect(cfgVer3).toContain('{ 70, 0x1049 },')
 
         // Test GENERATED_CLUSTER_MANUFACTURER_CODES
-        expect(cfgVer3).toContain(
-          '{ 9, 0x1002 },'
-        )
-        expect(cfgVer3).toContain(
-          '{ 10, 0x1002 },'
-        )
-        expect(cfgVer3).toContain(
-          '{ 15, 0x1002 },'
-        )
-        expect(cfgVer3).toContain(
-          '{ 16, 0x1049 },'
-        )
-        expect(cfgVer3).toContain(
-          '{ 17, 0x1002 },'
-        )
-        expect(cfgVer3).toContain(
-          '{ 18, 0x1049 },'
-        )
+        expect(cfgVer3).toContain('{ 9, 0x1002 },')
+        expect(cfgVer3).toContain('{ 10, 0x1002 },')
+        expect(cfgVer3).toContain('{ 15, 0x1002 },')
+        expect(cfgVer3).toContain('{ 16, 0x1049 },')
+        expect(cfgVer3).toContain('{ 17, 0x1002 },')
+        expect(cfgVer3).toContain('{ 18, 0x1049 },')
 
         // Test GENERATED_ATTRIBUTE_MANUFACTURER_CODES, global attributes do not show up here
-        expect(cfgVer3).toContain(
-          '{ 45, 0x1002 },'
-        )
-        expect(cfgVer3).toContain(
-          '{ 46, 0x1002 },'
-        )
-        expect(cfgVer3).toContain(
-          '{ 51, 0x1049 },'
-        )
-        expect(cfgVer3).toContain(
-          '{ 52, 0x1049 },'
-        )
-
+        expect(cfgVer3).toContain('{ 45, 0x1002 },')
+        expect(cfgVer3).toContain('{ 46, 0x1002 },')
+        expect(cfgVer3).toContain('{ 51, 0x1049 },')
+        expect(cfgVer3).toContain('{ 52, 0x1049 },')
       })
   },
   testUtil.timeout.long()

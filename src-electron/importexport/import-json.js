@@ -183,9 +183,8 @@ async function importPackages(db, sessionId, packages, zapFilePath) {
       allQueries.push(importSinglePackage(db, sessionId, p, zapFilePath))
     })
   }
-  return Promise.all(allQueries).then((data) =>
-    convertPackageResult(sessionId, data)
-  )
+  let data = await Promise.all(allQueries)
+  return convertPackageResult(sessionId, data)
 }
 
 async function importEndpointTypes(
