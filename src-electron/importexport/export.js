@@ -65,25 +65,27 @@ async function exportEndpointType(db, endpointType) {
  * @returns Promise to retrieve all endpoint types.
  */
 async function exportEndpointTypes(db, sessionId) {
-  return queryImpExp
-    .exportEndpointTypes(db, sessionId)
-    .then((endpointTypes) => {
-      let promises = endpointTypes.map((endpointType) =>
-        exportEndpointType(db, endpointType)
-      )
+  let endpointTypes = await queryImpExp.exportEndpointTypes(db, sessionId)
 
-      return Promise.all(promises)
-        .then(() => queryImpExp.exportEndpoints(db, sessionId, endpointTypes))
-        .then((endpoints) => {
-          endpointTypes.forEach((ept) => {
-            delete ept.endpointTypeId
-          })
-          endpoints.forEach((ep) => {
-            delete ep.endpointTypeRef
-          })
-          return { endpointTypes: endpointTypes, endpoints: endpoints }
-        })
-    })
+  let promises = endpointTypes.map((endpointType) =>
+    exportEndpointType(db, endpointType)
+  )
+
+  await Promise.all(promises)
+
+  let endpoints = await queryImpExp.exportEndpoints(
+    db,
+    sessionId,
+    endpointTypes
+  )
+
+  endpointTypes.forEach((ept) => {
+    delete ept.endpointTypeId
+  })
+  endpoints.forEach((ep) => {
+    delete ep.endpointTypeRef
+  })
+  return { endpointTypes: endpointTypes, endpoints: endpoints }
 }
 
 /**
@@ -93,25 +95,25 @@ async function exportEndpointTypes(db, sessionId) {
  * @param {*} sessionId
  */
 async function exportSessionPackages(db, sessionId, zapProjectFileLocation) {
-  return queryImpExp.exportPackagesFromSession(db, sessionId).then((packages) =>
-    packages.map((p) => {
-      let pathRelativity = dbEnum.pathRelativity.relativeToUserHome
-      let relativePath = path.relative(os.homedir(), p.path)
-      if (zapProjectFileLocation != null) {
-        let rel = path.relative(path.dirname(zapProjectFileLocation), p.path)
-        if (rel.length > 0) {
-          relativePath = rel
-          pathRelativity = dbEnum.pathRelativity.relativeToZap
-        }
+  let packages = await queryImpExp.exportPackagesFromSession(db, sessionId)
+
+  return packages.map((p) => {
+    let pathRelativity = dbEnum.pathRelativity.relativeToUserHome
+    let relativePath = path.relative(os.homedir(), p.path)
+    if (zapProjectFileLocation != null) {
+      let rel = path.relative(path.dirname(zapProjectFileLocation), p.path)
+      if (rel.length > 0) {
+        relativePath = rel
+        pathRelativity = dbEnum.pathRelativity.relativeToZap
       }
-      return {
-        pathRelativity: pathRelativity,
-        path: relativePath,
-        version: p.version,
-        type: p.type,
-      }
-    })
-  )
+    }
+    return {
+      pathRelativity: pathRelativity,
+      path: relativePath,
+      version: p.version,
+      type: p.type,
+    }
+  })
 }
 
 /**
