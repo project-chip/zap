@@ -16,12 +16,13 @@
  */
 const { spawn } = require('cross-spawn')
 const folderHash = require('folder-hash')
-const spaDir = 'spa'
-const backendDir = 'dist'
 const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
 const scriptUtil = require('./script-util.js')
+
+const spaDir = path.join(__dirname, '../spa')
+const backendDir = path.join(__dirname, '../dist')
 const spaHashFileName = path.join(spaDir, 'hash.json')
 const backendHashFileName = path.join(backendDir, 'hash.json')
 process.env.PATH = process.env.PATH + ':./node_modules/.bin/'
@@ -95,9 +96,15 @@ async function getStdout(onError, cmd, args) {
  * @returns
  */
 async function rebuildSpaIfNeeded() {
-  let srcHash = await folderHash.hashElement('src', hashOptions)
+  let srcHash = await folderHash.hashElement(
+    path.join(__dirname, '../src'),
+    hashOptions
+  )
   console.log(`🔍 Current src hash: ${srcHash.hash}`)
-  let srcSharedHash = await folderHash.hashElement('src-shared', hashOptions)
+  let srcSharedHash = await folderHash.hashElement(
+    path.join(__dirname, '../src-shared'),
+    hashOptions
+  )
   console.log(`🔍 Current src-shared hash: ${srcSharedHash.hash}`)
   let ctx = {
     hash: {
@@ -139,7 +146,7 @@ async function rebuildSpaIfNeeded() {
     )
     .then((ctx) => {
       if (ctx.needsRebuild)
-        return scriptUtil.executeCmd(ctx, 'quasar', ['build'])
+        return scriptUtil.executeCmd(ctx, 'npx', ['quasar', 'build'])
       else return Promise.resolve(ctx)
     })
     .then(
