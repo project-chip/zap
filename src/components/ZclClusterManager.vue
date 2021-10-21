@@ -83,9 +83,14 @@ limitations under the License.
               <q-expansion-item
                 :id="domainName"
                 switch-toggle-side
-                :label="domainName"
+                :label="getCategoryLabel(domainName)"
                 @input="setOpenDomain(domainName, $event)"
                 :value="getDomainOpenState(domainName)"
+                :header-class="
+                  isCategoryEnabled(domainName)
+                    ? 'text-weight-bolder'
+                    : 'text-weight-regular'
+                "
               >
                 <zcl-domain-cluster-view
                   :domainName="domainName"
@@ -210,8 +215,30 @@ export default {
         value: event,
       })
     },
+    isCategoryEnabled(domainName) {
+      let flag = false
+      this.clusterDomains(domainName).forEach((singleCluster) => {
+        if (
+          this.selectionClients.includes(singleCluster.id) ||
+          this.selectionServers.includes(singleCluster.id)
+        )
+          flag = true
+      })
+      return flag
+    },
     getDomainOpenState(domainName) {
       return this.openDomains[domainName] || this.filterString != ''
+    },
+    getCategoryLabel(domainName){
+      let selectedCount = 0;
+      this.clusterDomains(domainName).forEach((singleCluster) => {
+        if (
+          this.selectionClients.includes(singleCluster.id) ||
+          this.selectionServers.includes(singleCluster.id)
+        )
+          selectedCount++; 
+      })
+      return `${domainName} (${selectedCount} out of ${this.clusterDomains(domainName).length} selected)`
     },
     changeDomainFilter(filter) {
       this.$store.dispatch('zap/setDomainFilter', {
@@ -240,5 +267,4 @@ export default {
 .bar {
   padding: 15px 15px 15px 15px;
 }
-
 </style>
