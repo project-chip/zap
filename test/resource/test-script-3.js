@@ -8,6 +8,9 @@ async function postLoad(api, context) {
 
   // Here we turn off attribute 4 on cluster 0, the manufacturer name
   await api.disableServerAttribute(context, ep, 0, 4)
+
+  await api.enableOutgoingCommand(context, ep, 0x00, 0x00, api.client)
+  await api.disableOutgoingCommand(context, ep, 0x00, 0x00, api.client)
 }
 
 exports.postLoad = postLoad

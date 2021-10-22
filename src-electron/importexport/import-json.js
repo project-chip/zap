@@ -183,9 +183,8 @@ async function importPackages(db, sessionId, packages, zapFilePath) {
       allQueries.push(importSinglePackage(db, sessionId, p, zapFilePath))
     })
   }
-  return Promise.all(allQueries).then((data) =>
-    convertPackageResult(sessionId, data)
-  )
+  let data = await Promise.all(allQueries)
+  return convertPackageResult(sessionId, data)
 }
 
 async function importEndpointTypes(
@@ -290,51 +289,48 @@ async function importEndpointTypes(
  * @returns a promise that resolves into a sessionId that was created.
  */
 async function jsonDataLoader(db, state, sessionId) {
-  return importPackages(db, sessionId, state.package, state.filePath).then(
-    (data) => {
-      // data: { sessionId, packageId, otherIds, optionalIds}
-      let promisesStage0 = []
-      let promisesStage1 = [] // Stage 1 is endpoint types
-      let promisesStage2 = [] // Stage 2 is endpoints, which require endpoint types to be loaded prior.
-      if (data.optionalIds.length > 0) {
-        data.optionalIds.forEach((optionalId) =>
-          promisesStage0.push(
-            queryPackage.insertSessionPackage(db, sessionId, optionalId)
-          )
-        )
-      }
+  let data = await importPackages(db, sessionId, state.package, state.filePath)
 
-      if ('keyValuePairs' in state) {
-        promisesStage1.push(
-          importSessionKeyValues(db, data.sessionId, state.keyValuePairs)
-        )
-      }
+  // data: { sessionId, packageId, otherIds, optionalIds}
+  let promisesStage0 = []
+  let promisesStage1 = [] // Stage 1 is endpoint types
+  let promisesStage2 = [] // Stage 2 is endpoints, which require endpoint types to be loaded prior.
+  if (data.optionalIds.length > 0) {
+    data.optionalIds.forEach((optionalId) =>
+      promisesStage0.push(
+        queryPackage.insertSessionPackage(db, sessionId, optionalId)
+      )
+    )
+  }
 
-      if ('endpointTypes' in state) {
-        promisesStage1.push(
-          importEndpointTypes(
-            db,
-            data.sessionId,
-            data.packageId,
-            state.endpointTypes,
-            state.endpoints
-          )
-        )
-      }
+  if ('keyValuePairs' in state) {
+    promisesStage1.push(
+      importSessionKeyValues(db, data.sessionId, state.keyValuePairs)
+    )
+  }
 
-      return Promise.all(promisesStage0)
-        .then(() => Promise.all(promisesStage1))
-        .then(() => Promise.all(promisesStage2))
-        .then(() => querySession.setSessionClean(db, data.sessionId))
-        .then(() => {
-          return {
-            sessionId: data.sessionId,
-            errors: [],
-            warnings: [],
-          }
-        })
-    }
-  )
+  if ('endpointTypes' in state) {
+    promisesStage1.push(
+      importEndpointTypes(
+        db,
+        data.sessionId,
+        data.packageId,
+        state.endpointTypes,
+        state.endpoints
+      )
+    )
+  }
+
+  await Promise.all(promisesStage0)
+  await Promise.all(promisesStage1)
+  await Promise.all(promisesStage2)
+  await querySession.setSessionClean(db, data.sessionId)
+
+  return {
+    sessionId: data.sessionId,
+    errors: [],
+    warnings: [],
+  }
 }
 
 // This function cleans up some backwards-compatible problems in zap
