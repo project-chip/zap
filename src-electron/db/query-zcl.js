@@ -402,7 +402,8 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
       SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
       SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
       SI.IS_WRITABLE AS ITEM_IS_WRITABLE,
-      SI.IS_NULLABLE AS ITEM_IS_NULLABLE
+      SI.IS_NULLABLE AS ITEM_IS_NULLABLE,
+      SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL
     FROM
       STRUCT AS S
     LEFT JOIN
@@ -426,7 +427,8 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
       SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
       SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
       SI.IS_WRITABLE AS ITEM_IS_WRITABLE,
-      SI.IS_NULLABLE AS ITEM_IS_NULLABLE
+      SI.IS_NULLABLE AS ITEM_IS_NULLABLE,
+      SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL
     FROM
       STRUCT AS S
     INNER JOIN
@@ -472,6 +474,7 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
       maxLength: value.ITEM_MAX_LENGTH,
       isWritable: dbApi.fromDbBool(value.ITEM_IS_WRITABLE),
       isNullable: dbApi.fromDbBool(value.ITEM_IS_NULLABLE),
+      isOptional: dbApi.fromDbBool(value.ITEM_IS_OPTIONAL),
     })
     objectToActOn.itemCnt++
     return acc
@@ -508,7 +511,8 @@ SELECT
   MIN_LENGTH,
   MAX_LENGTH,
   IS_WRITABLE,
-  IS_NULLABLE
+  IS_NULLABLE,
+  IS_OPTIONAL
 FROM
   STRUCT_ITEM
 WHERE STRUCT_REF = ?
@@ -540,7 +544,8 @@ SELECT
   SI.MIN_LENGTH,
   SI.MAX_LENGTH,
   SI.IS_WRITABLE,
-  SI.IS_NULLABLE
+  SI.IS_NULLABLE,
+  SI.IS_OPTIONAL
 FROM
   STRUCT_ITEM AS SI
 INNER JOIN
