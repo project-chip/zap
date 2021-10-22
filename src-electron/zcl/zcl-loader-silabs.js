@@ -420,6 +420,7 @@ function prepareCluster(cluster, isExtension = false) {
               isArray: arg.$.array == 'true' ? 1 : 0,
               presentIf: arg.$.presentIf,
               isNullable: arg.$.isNullable == 'true' ? true : false,
+              isOptional: arg.$.optional == 'true' ? true : false,
               countArg: arg.$.countArg,
               fieldIdentifier: arg.$.fieldId
                 ? parseInt(arg.$.fieldId)
@@ -459,6 +460,7 @@ function prepareCluster(cluster, isExtension = false) {
               type: field.$.type,
               isArray: field.$.array == 'true' ? 1 : 0,
               isNullable: field.$.isNullable == 'true' ? true : false,
+              isOptional: field.$.optional == 'true' ? true : false,
               fieldIdentifier: field.$.id ? parseInt(field.$.id) : index + 1,
               introducedIn: field.$.introducedIn,
               removedIn: field.$.removedIn,
@@ -789,6 +791,7 @@ function prepareStruct(struct) {
         isArray: item.$.array == 'true' ? true : false,
         isEnum: item.$.enum == 'true' ? true : false,
         isNullable: item.$.isNullable == 'true' ? true : false,
+        isOptional: item.$.optional == 'true' ? true : false,
       })
     })
   }
