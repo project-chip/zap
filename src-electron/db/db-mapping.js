@@ -248,6 +248,7 @@ exports.map = {
   atomic: (x) => {
     if (x == null) return undefined
     return {
+      id: x.ATOMIC_ID,
       atomicId: x.ATOMIC_IDENTIFIER,
       name: x.NAME,
       description: x.DESCRIPTION,

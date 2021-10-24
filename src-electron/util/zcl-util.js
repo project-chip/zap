@@ -558,7 +558,7 @@ function asUnderlyingZclTypeWithPackageId(
  * @param {*} type
  */
 async function determineType(db, type, packageId) {
-  let atomic = await queryZcl.selectAtomicByName(db, type, packageId)
+  let atomic = await queryZcl.selectAtomicType(db, packageId, type)
   if (atomic != null)
     return {
       type: dbEnum.zclType.atomic,

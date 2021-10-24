@@ -20,8 +20,9 @@
  *
  * @module DB API: zcl database access
  */
-const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping.js')
+const dbApi = require('./db-api')
+const dbMapping = require('./db-mapping')
+const queryAtomic = require('./query-atomic')
 
 /**
  * Retrieves all the enums in the database.
@@ -1361,98 +1362,6 @@ async function updateDeviceTypeEntityReferences(db, packageId) {
   return updateCommandReferencesForDeviceTypeReferences(db, packageId)
 }
 
-const ATOMIC_QUERY = `
-SELECT
-  ATOMIC_IDENTIFIER,
-  NAME,
-  DESCRIPTION,
-  ATOMIC_SIZE,
-  IS_DISCRETE,
-  IS_STRING,
-  IS_LONG,
-  IS_CHAR,
-  IS_SIGNED
-FROM ATOMIC
-`
-
-/**
- * Locates atomic type based on a type name.
- *
- * @param {*} db
- * @param {*} packageId
- * @param {*} typeName
- */
-async function selectAtomicType(db, packageId, typeName) {
-  return dbApi
-    .dbGet(db, `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? AND NAME = ?`, [
-      packageId,
-      typeName == null ? typeName : typeName.toLowerCase(),
-    ])
-    .then(dbMapping.map.atomic)
-}
-
-/**
- * Retrieve the atomic by name, returning promise that resolves into an atomic, or null.
- * @param {*} db
- * @param {*} name
- * @param {*} packageId
- */
-async function selectAtomicByName(db, name, packageId) {
-  return dbApi
-    .dbGet(db, `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? AND UPPER(NAME) = ?`, [
-      packageId,
-      name.toUpperCase(),
-    ])
-    .then(dbMapping.map.atomic)
-}
-
-/**
- * Retrieves all atomic types under a given package Id.
- * @param {*} db
- * @param {*} packageId
- */
-async function selectAllAtomics(db, packageId) {
-  return dbApi
-    .dbAll(
-      db,
-      `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? ORDER BY ATOMIC_IDENTIFIER`,
-      [packageId]
-    )
-    .then((rows) => rows.map(dbMapping.map.atomic))
-}
-
-/**
- * Retrieves atomic type by a given Id.
- * @param {*} db
- * @param {*} packageId
- */
-async function selectAtomicById(db, id) {
-  return dbApi
-    .dbGet(db, `${ATOMIC_QUERY} WHERE ATOMIC_ID = ?`, [id])
-    .then((rows) => rows.map(dbMapping.map.atomic))
-}
-
-/**
- * Retrieves the size from atomic type.
- *
- * @param {*} db
- * @param {*} packageId
- * @param {*} type
- */
-async function selectAtomicSizeFromType(db, packageId, type) {
-  let row = await dbApi.dbGet(
-    db,
-    'SELECT ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
-    // The types in the ATOMIC table are always lowercase.
-    [packageId, type.toLowerCase()]
-  )
-  if (row == null) {
-    return null
-  } else {
-    return row.ATOMIC_SIZE
-  }
-}
-
 // exports
 exports.selectAllEnums = selectAllEnums
 exports.selectClusterEnums = selectClusterEnums
@@ -1470,12 +1379,6 @@ exports.selectBitmapByName = selectBitmapByName
 
 exports.selectAllDomains = selectAllDomains
 exports.selectDomainById = selectDomainById
-
-exports.selectAtomicByName = selectAtomicByName
-exports.selectAllAtomics = selectAllAtomics
-exports.selectAtomicSizeFromType = selectAtomicSizeFromType
-exports.selectAtomicType = selectAtomicType
-exports.selectAtomicById = selectAtomicById
 
 exports.selectAllStructsWithItemCount = selectAllStructsWithItemCount
 exports.selectAllStructsWithItems = selectAllStructsWithItems
@@ -1527,3 +1430,9 @@ exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 exports.selectEnumClusters = selectEnumClusters
 exports.selectStructClusters = selectStructClusters
 exports.selectBitmapClusters = selectBitmapClusters
+
+// Forwarded exports so we don't break API.
+exports.selectAllAtomics = queryAtomic.selectAllAtomics
+exports.selectAtomicSizeFromType = queryAtomic.selectAtomicSizeFromType
+exports.selectAtomicType = queryAtomic.selectAtomicType
+exports.selectAtomicById = queryAtomic.selectAtomicById
