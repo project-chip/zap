@@ -484,7 +484,10 @@ function prepareCluster(cluster, isExtension = false) {
         code: parseInt(attribute.$.code),
         manufacturerCode: attribute.$.manufacturerCode,
         name: name,
-        type: attribute.$.type.toLowerCase(),
+        type:
+          attribute.$.type.toUpperCase() == attribute.$.type
+            ? attribute.$.type.toLowerCase()
+            : attribute.$.type,
         side: attribute.$.side,
         define: attribute.$.define,
         min: attribute.$.min,
