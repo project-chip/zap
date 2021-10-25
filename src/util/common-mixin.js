@@ -38,7 +38,7 @@ export default {
         return this.$store.state.zap.endpointView.selectedEndpoint
       },
     },
-    endpointIdSorted: {
+    endpointIdListSorted: {
       get() {
         // return sorted endpoint (by endpoint id value, in ascending order) for display
         // parseInt is used as endpoint id value can be int or strings
