@@ -22,6 +22,24 @@
  */
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
+const dbCache = require('./db-cache')
+
+const cacheKey = 'enum'
+
+async function createCache(db, packageId) {
+  let packageSpecificCache = {
+    byName: {},
+    byId: {},
+  }
+  let d = await selectAllEnums(db, packageId)
+  packageSpecificCache.rawData = d
+  for (const en of d) {
+    packageSpecificCache.byName[en.name] = en
+    packageSpecificCache.byId[en.id] = en
+  }
+  dbCache.put(cacheKey, packageId, packageSpecificCache)
+  return packageSpecificCache
+}
 
 /**
  * Retrieves all the enums in the database.
@@ -34,10 +52,29 @@ async function selectAllEnums(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      `SELECT ENUM_ID, NAME, TYPE FROM ENUM  WHERE PACKAGE_REF = ? ORDER BY NAME`,
+      `
+SELECT
+  ENUM_ID,
+  NAME,
+  TYPE
+FROM
+  ENUM
+WHERE
+  PACKAGE_REF = ?
+ORDER BY NAME`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.enum))
+}
+
+async function selectAllEnumsFromCache(db, packageId) {
+  let cache
+  if (dbCache.isCached(cacheKey, packageId)) {
+    cache = dbCache.get(cacheKey, packageId)
+  } else {
+    cache = await createCache(db, packageId)
+  }
+  return cache.rawData
 }
 
 /**
@@ -81,12 +118,27 @@ async function selectAllEnumItemsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, VALUE FROM ENUM_ITEM WHERE ENUM_REF = ? ORDER BY FIELD_IDENTIFIER',
+      `
+SELECT
+  NAME,
+  VALUE
+FROM
+  ENUM_ITEM
+WHERE
+  ENUM_REF = ?
+ORDER BY FIELD_IDENTIFIER`,
       [id]
     )
     .then((rows) => rows.map(dbMapping.map.enumItem))
 }
 
+/**
+ * Select all enum items in a package.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @returns list of enum items
+ */
 async function selectAllEnumItems(db, packageId) {
   return dbApi
     .dbAll(
@@ -110,12 +162,42 @@ ORDER BY EI.ENUM_REF, EI.FIELD_IDENTIFIER`,
     .then((rows) => rows.map(dbMapping.map.enumItem))
 }
 
+/**
+ * Select an enum matched by its primary key.
+ * @param {*} db
+ * @param {*} id
+ * @returns an enum or underfined if not found
+ */
 async function selectEnumById(db, id) {
   return dbApi
     .dbGet(db, 'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE ENUM_ID = ?', [id])
     .then(dbMapping.map.enum)
 }
 
+/**
+ * Select an enum matched by its primary key from cache.
+ * @param {*} db
+ * @param {*} id
+ * @returns an enum or underfined if not found
+ */
+async function selectEnumByIdFromCache(db, id) {
+  let cache
+  if (dbCache.isCached(cacheKey, packageId)) {
+    cache = dbCache.get(cacheKey, packageId)
+  } else {
+    cache = await createCache(db, packageId)
+  }
+  return cache.byId[id]
+}
+
+/**
+ * Select an enum matched by name.
+ *
+ * @param {*} db
+ * @param {*} name
+ * @param {*} packageId
+ * @returns enum or undefined
+ */
 async function selectEnumByName(db, name, packageId) {
   return dbApi
     .dbGet(
@@ -126,10 +208,35 @@ async function selectEnumByName(db, name, packageId) {
     .then(dbMapping.map.enum)
 }
 
+/**
+ * Select an enum matched by name from cache.
+ *
+ * @param {*} db
+ * @param {*} name
+ * @param {*} packageId
+ * @returns enum or undefined
+ */
+async function selectEnumByNameFromCache(db, name, packageId) {
+  let cache
+  if (dbCache.isCached(cacheKey, packageId)) {
+    cache = dbCache.get(cacheKey, packageId)
+  } else {
+    cache = await createCache(db, packageId)
+  }
+  return cache.byName[name]
+}
+
 // exports
-exports.selectAllEnums = selectAllEnums
+exports.selectAllEnums = dbCache.cacheEnabled
+  ? selectAllEnumsFromCache
+  : selectAllEnums
+exports.selectEnumByName = dbCache.cacheEnabled
+  ? selectEnumByNameFromCache
+  : selectEnumByName
+exports.selectEnumById = dbCache.cacheEnabled
+  ? selectEnumByIdFromCache
+  : selectEnumById
+
 exports.selectClusterEnums = selectClusterEnums
 exports.selectAllEnumItemsById = selectAllEnumItemsById
 exports.selectAllEnumItems = selectAllEnumItems
-exports.selectEnumById = selectEnumById
-exports.selectEnumByName = selectEnumByName
