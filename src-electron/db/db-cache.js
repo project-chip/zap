@@ -24,7 +24,14 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 
 const cacheEnabled = true
-const cache = {}
+let cache = {}
+
+/**
+ * Clears the entire cache.
+ */
+function clear() {
+  cache = {}
+}
 
 /**
  * Puts a data object into the cache under a given key/packageId
@@ -66,6 +73,7 @@ function isCached(key, packageId) {
   return keyCache != null && keyCache[packageId] != null
 }
 
+exports.clear = clear
 exports.put = put
 exports.get = get
 exports.isCached = isCached

@@ -24,29 +24,8 @@ const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
 const queryAtomic = require('./query-atomic')
 const queryEnum = require('./query-enum')
-
-/**
- * Retrieves all the bitmaps in the database.
- *
- * @export
- * @param {*} db
- * @returns Promise that resolves with the rows of bitmaps.
- */
-async function selectAllBitmaps(db, packageId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  BITMAP_ID,
-  NAME,
-  TYPE
-FROM BITMAP
-WHERE PACKAGE_REF = ? ORDER BY NAME`,
-      [packageId]
-    )
-    .then((rows) => rows.map(dbMapping.map.bitmap))
-}
+const queryStruct = require('./query-struct')
+const queryBitmap = require('./query-bitmap')
 
 /**
  * Retrieves all the bitmaps that are associated with a cluster.
@@ -97,24 +76,6 @@ async function selectAllBitmapFields(db, packageId) {
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
-}
-
-async function selectBitmapByName(db, packageId, name) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE NAME = ? AND PACKAGE_REF = ? ',
-      [name, packageId]
-    )
-    .then(dbMapping.map.bitmap)
-}
-
-async function selectBitmapById(db, id) {
-  return dbApi
-    .dbGet(db, 'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE BITMAP_ID = ?', [
-      id,
-    ])
-    .then(dbMapping.map.bitmap)
 }
 
 /**
@@ -392,22 +353,6 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
     objectToActOn.itemCnt++
     return acc
   }, [])
-}
-
-async function selectStructById(db, id) {
-  return dbApi
-    .dbGet(db, 'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ?', [id])
-    .then(dbMapping.map.struct)
-}
-
-async function selectStructByName(db, name, packageId) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT STRUCT_ID, NAME FROM STRUCT WHERE NAME = ? AND PACKAGE_REF = ? ORDER BY NAME',
-      [name, packageId]
-    )
-    .then(dbMapping.map.struct)
 }
 
 async function selectAllStructItemsById(db, id) {
@@ -1275,12 +1220,9 @@ async function updateDeviceTypeEntityReferences(db, packageId) {
 }
 
 // exports
-exports.selectAllBitmaps = selectAllBitmaps
 exports.selectClusterBitmaps = selectClusterBitmaps
 exports.selectAllBitmapFields = selectAllBitmapFields
-exports.selectBitmapById = selectBitmapById
 exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById
-exports.selectBitmapByName = selectBitmapByName
 
 exports.selectAllDomains = selectAllDomains
 exports.selectDomainById = selectDomainById
@@ -1289,10 +1231,8 @@ exports.selectAllStructsWithItemCount = selectAllStructsWithItemCount
 exports.selectAllStructsWithItems = selectAllStructsWithItems
 exports.selectClusterStructsWithItems = selectClusterStructsWithItems
 
-exports.selectStructById = selectStructById
 exports.selectAllStructItemsById = selectAllStructItemsById
 exports.selectAllStructItemsByStructName = selectAllStructItemsByStructName
-exports.selectStructByName = selectStructByName
 
 exports.selectAllClusters = selectAllClusters
 exports.selectClusterById = selectClusterById
@@ -1348,3 +1288,10 @@ exports.selectAllEnumItemsById = queryEnum.selectAllEnumItemsById
 exports.selectAllEnumItems = queryEnum.selectAllEnumItems
 exports.selectEnumById = queryEnum.selectEnumById
 exports.selectEnumByName = queryEnum.selectEnumByName
+
+exports.selectStructById = queryStruct.selectStructById
+exports.selectStructByName = queryStruct.selectStructByName
+
+exports.selectBitmapById = queryBitmap.selectBitmapById
+exports.selectAllBitmaps = queryBitmap.selectAllBitmaps
+exports.selectBitmapByName = queryBitmap.selectBitmapByName

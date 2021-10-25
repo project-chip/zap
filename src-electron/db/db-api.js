@@ -26,6 +26,7 @@ const fsp = require('fs').promises
 const env = require('../util/env')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const dbCache = require('./db-cache')
 
 // This is a SQLITE specific thing. With SQLITE databases,
 // we can't have multiple transactions. So this mechanism
@@ -320,6 +321,7 @@ async function dbMultiInsert(db, sql, arrayOfArrays) {
  * @returns A promise that resolves without an argument or rejects with error from the database closing.
  */
 async function closeDatabase(database) {
+  dbCache.clear()
   return new Promise((resolve, reject) => {
     env.logSql('About to close database.')
     database.close((err) => {
@@ -336,6 +338,7 @@ async function closeDatabase(database) {
  * @param {*} database
  */
 function closeDatabaseSync(database) {
+  dbCache.clear()
   env.logSql('About to close database.')
   database.close((err) => {
     if (err) console.log(`Database close error: ${err}`)
@@ -349,6 +352,7 @@ function closeDatabaseSync(database) {
  *  @returns Promise that resolve with the Db.
  */
 async function initRamDatabase() {
+  dbCache.clear()
   return new Promise((resolve, reject) => {
     let db = new sqlite.Database(':memory:', (err) => {
       if (err) {
@@ -369,6 +373,7 @@ async function initRamDatabase() {
  * @returns A promise that resolves with the database object that got created, or rejects with an error if something went wrong.
  */
 async function initDatabase(sqlitePath) {
+  dbCache.clear()
   return new Promise((resolve, reject) => {
     let db = new sqlite.Database(sqlitePath, (err) => {
       if (err) {
