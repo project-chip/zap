@@ -18,14 +18,15 @@
  * @jest-environment node
  */
 
-const dbApi = require('../src-electron/db/db-api.js')
-const dbEnum = require('../src-shared/db-enum.js')
-const queryZcl = require('../src-electron/db/query-zcl.js')
-const queryCommand = require('../src-electron/db/query-command.js')
-const queryPackage = require('../src-electron/db/query-package.js')
-const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const env = require('../src-electron/util/env.ts')
-const testUtil = require('./test-util.js')
+const dbApi = require('../src-electron/db/db-api')
+const dbEnum = require('../src-shared/db-enum')
+const queryZcl = require('../src-electron/db/query-zcl')
+const queryCommand = require('../src-electron/db/query-command')
+const queryPackage = require('../src-electron/db/query-package')
+const zclLoader = require('../src-electron/zcl/zcl-loader')
+const env = require('../src-electron/util/env')
+const testUtil = require('./test-util')
+const testQuery = require('./test-query')
 
 beforeAll(async () => {
   env.setDevelopmentEnv()

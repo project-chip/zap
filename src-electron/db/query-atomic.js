@@ -22,6 +22,7 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
+const dbCache = require('./db-cache')
 
 const ATOMIC_QUERY = `
 SELECT
@@ -38,14 +39,11 @@ SELECT
 FROM ATOMIC
 `
 
-// This module supports caching, because > 20% of all generation time is
-// spent in looking up these atomic types.
-const supportCaching = true
-const cache = {}
+const cacheKey = 'atomic'
 
 // Raw query versions without caching.
 
-async function selectAllAtomicsNoCache(db, packageId) {
+async function selectAllAtomics(db, packageId) {
   let rows = await dbApi.dbAll(
     db,
     `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? ORDER BY ATOMIC_IDENTIFIER`,
@@ -54,7 +52,7 @@ async function selectAllAtomicsNoCache(db, packageId) {
   return rows.map(dbMapping.map.atomic)
 }
 
-async function selectAtomicSizeFromTypeNoCache(db, packageId, type) {
+async function selectAtomicSizeFromType(db, packageId, type) {
   let row = await dbApi.dbGet(
     db,
     'SELECT ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
@@ -75,7 +73,7 @@ async function selectAtomicSizeFromTypeNoCache(db, packageId, type) {
  * @param {*} packageId
  * @param {*} typeName
  */
-async function selectAtomicTypeNoCache(db, packageId, name) {
+async function selectAtomicType(db, packageId, name) {
   return dbApi
     .dbGet(db, `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? AND UPPER(NAME) = ?`, [
       packageId,
@@ -89,23 +87,31 @@ async function selectAtomicTypeNoCache(db, packageId, name) {
  * @param {*} db
  * @param {*} packageId
  */
-async function selectAtomicByIdNoCache(db, id) {
+async function selectAtomicById(db, id) {
   return dbApi
     .dbGet(db, `${ATOMIC_QUERY} WHERE ATOMIC_ID = ?`, [id])
     .then((rows) => rows.map(dbMapping.map.atomic))
 }
 
+/**
+ * Function that populates cache.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @returns Newly created cache object, after it's put into the cache.
+ */
 async function createCache(db, packageId) {
   let packageSpecificCache = {
     byName: {},
     byId: {},
   }
-  let d = await selectAllAtomicsNoCache(db, packageId)
+  let d = await selectAllAtomics(db, packageId)
   packageSpecificCache.rawData = d
   for (const at of d) {
     packageSpecificCache.byName[at.name.toUpperCase()] = at
     packageSpecificCache.byId[at.id] = at
   }
+  dbCache.put(cacheKey, packageId, packageSpecificCache)
   return packageSpecificCache
 }
 
@@ -116,15 +122,14 @@ async function createCache(db, packageId) {
  * @param {*} packageId
  * @param {*} typeName
  */
-async function selectAtomicType(db, packageId, name) {
-  if (supportCaching) {
-    if (cache[packageId] == null) {
-      cache[packageId] = await createCache(db, packageId)
-    }
-    return cache[packageId].byName[name.toUpperCase()]
+async function selectAtomicTypeFromCache(db, packageId, name) {
+  let cache
+  if (dbCache.isCached(cacheKey, packageId)) {
+    cache = dbCache.get(cacheKey, packageId)
   } else {
-    return selectAtomicTypeNoCache(db, packageId, name)
+    cache = await createCache(db, packageId)
   }
+  return cache.byName[name.toUpperCase()]
 }
 
 /**
@@ -132,16 +137,14 @@ async function selectAtomicType(db, packageId, name) {
  * @param {*} db
  * @param {*} packageId
  */
-async function selectAllAtomics(db, packageId) {
-  if (supportCaching) {
-    if (cache[packageId] == null) {
-      cache[packageId] = await createCache(db, packageId)
-    }
-    let ret = cache[packageId].rawData
-    return ret
+async function selectAllAtomicsFromCache(db, packageId) {
+  let cache
+  if (dbCache.isCached(cacheKey, packageId)) {
+    cache = dbCache.get(cacheKey, packageId)
   } else {
-    return selectAllAtomicsNoCache(db, packageId)
+    cache = await createCache(db, packageId)
   }
+  return cache.rawData
 }
 
 /**
@@ -149,15 +152,14 @@ async function selectAllAtomics(db, packageId) {
  * @param {*} db
  * @param {*} packageId
  */
-async function selectAtomicById(db, id) {
-  if (supportCaching) {
-    if (cache[packageId] == null) {
-      cache[packageId] = await createCache(db, packageId)
-    }
-    return cache[packageId].byId[id]
+async function selectAtomicByIdFromCache(db, id) {
+  let cache
+  if (dbCache.isCached(cacheKey, packageId)) {
+    cache = dbCache.get(cacheKey, packageId)
   } else {
-    return selectAtomicByIdNoCache(db, id)
+    cache = await createCache(db, packageId)
   }
+  return cache.byId[id]
 }
 
 /**
@@ -167,31 +169,30 @@ async function selectAtomicById(db, id) {
  * @param {*} packageId
  * @param {*} type
  */
-async function selectAtomicSizeFromType(db, packageId, type) {
-  if (supportCaching) {
-    if (cache[packageId] == null) {
-      cache[packageId] = await createCache(db, packageId)
-    }
-    let at = cache[packageId].byName[type.toUpperCase()]
-    if (at == null) {
-      return null
-    } else {
-      return at.size
-    }
+async function selectAtomicSizeFromTypeFromCache(db, packageId, type) {
+  let cache
+  if (dbCache.isCached(cacheKey, packageId)) {
+    cache = dbCache.get(cacheKey, packageId)
   } else {
-    return selectAtomicSizeFromTypeNoCache(db, packageId, type)
+    cache = await createCache(db, packageId)
+  }
+  let at = cache.byName[type.toUpperCase()]
+  if (at == null) {
+    return null
+  } else {
+    return at.size
   }
 }
 
-exports.selectAllAtomics = supportCaching
-  ? selectAllAtomics
-  : selectAllAtomicsNoCache
-exports.selectAtomicSizeFromType = supportCaching
-  ? selectAtomicSizeFromType
-  : selectAtomicSizeFromTypeNoCache
-exports.selectAtomicType = supportCaching
-  ? selectAtomicType
-  : selectAtomicTypeNoCache
-exports.selectAtomicById = supportCaching
-  ? selectAtomicById
-  : selectAtomicByIdNoCache
+exports.selectAllAtomics = dbCache.cacheEnabled
+  ? selectAllAtomicsFromCache
+  : selectAllAtomics
+exports.selectAtomicSizeFromType = dbCache.cacheEnabled
+  ? selectAtomicSizeFromTypeFromCache
+  : selectAtomicSizeFromType
+exports.selectAtomicType = dbCache.cacheEnabled
+  ? selectAtomicTypeFromCache
+  : selectAtomicType
+exports.selectAtomicById = dbCache.cacheEnabled
+  ? selectAtomicByIdFromCache
+  : selectAtomicById

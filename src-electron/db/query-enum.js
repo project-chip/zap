@@ -23,11 +23,6 @@
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
 
-// This module supports caching, because a lot of generation time is
-// spent in these queries.
-const supportCaching = true
-const cache = {}
-
 /**
  * Retrieves all the enums in the database.
  *
@@ -76,6 +71,12 @@ ORDER BY E.NAME`,
     .then((rows) => rows.map(dbMapping.map.enum))
 }
 
+/**
+ * Returns an enum by ID.
+ * @param {*} db
+ * @param {*} id
+ * @returns enum
+ */
 async function selectAllEnumItemsById(db, id) {
   return dbApi
     .dbAll(
@@ -90,12 +91,20 @@ async function selectAllEnumItems(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      `SELECT ENUM_ITEM.NAME,
-              ENUM_ITEM.VALUE,
-              ENUM_ITEM.ENUM_REF
-       FROM ENUM_ITEM, ENUM
-       WHERE ENUM.PACKAGE_REF = ? AND ENUM.ENUM_ID = ENUM_ITEM.ENUM_REF
-       ORDER BY ENUM_ITEM.ENUM_REF, ENUM_ITEM.FIELD_IDENTIFIER`,
+      `
+SELECT
+  EI.NAME,
+  EI.VALUE,
+  EI.ENUM_REF
+FROM
+  ENUM_ITEM AS EI
+INNER JOIN
+  ENUM AS E
+ON
+  E.ENUM_ID = EI.ENUM_REF
+WHERE
+  E.PACKAGE_REF = ?
+ORDER BY EI.ENUM_REF, EI.FIELD_IDENTIFIER`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.enumItem))
