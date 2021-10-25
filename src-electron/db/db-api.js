@@ -149,7 +149,7 @@ async function dbRemove(db, query, args) {
         env.logError(`Failed remove: ${query}: ${args}`)
         reject(err)
       } else {
-        env.logSql(`Executed remove: ${query}: ${args}`)
+        env.logSql('Executed remove', query, args)
         resolve(this.changes)
       }
     })
@@ -172,7 +172,7 @@ async function dbUpdate(db, query, args) {
         env.logError(`Failed update: ${query}: ${args}`)
         reject(err)
       } else {
-        env.logSql(`Executed update: ${query}: ${args}`)
+        env.logSql('Executed update', query, args)
         resolve(this.changes)
       }
     })
@@ -195,9 +195,7 @@ async function dbInsert(db, query, args) {
         env.logError(`Failed insert: ${query}: ${args} : ${err}`)
         reject(err)
       } else {
-        env.logSql(
-          `Executed insert: ${query}: ${args} => rowid: ${this.lastID}`
-        )
+        env.logSql('Executed insert', query, args)
         resolve(this.lastID)
       }
     })
@@ -217,10 +215,10 @@ async function dbAll(db, query, args) {
   return new Promise((resolve, reject) => {
     db.all(query, args, (err, rows) => {
       if (err) {
-        env.logSql(`Failed all: ${query}: ${args} : ${err}`)
+        env.logError(`Failed all: ${query}: ${args} : ${err}`)
         reject(err)
       } else {
-        env.logSql(`Executed all: ${query}: ${args}`)
+        env.logSql('Executed all', query, args)
         resolve(rows)
       }
     })
@@ -243,7 +241,7 @@ async function dbGet(db, query, args, reportError = true) {
         if (reportError) env.logError(`Failed get: ${query}: ${args} : ${err}`)
         reject(err)
       } else {
-        env.logSql(`Executed get: ${query}: ${args}`)
+        env.logSql('Executed get', query, args)
         resolve(row)
       }
     })
@@ -260,9 +258,7 @@ async function dbGet(db, query, args, reportError = true) {
  */
 async function dbMultiSelect(db, sql, arrayOfArrays) {
   return new Promise((resolve, reject) => {
-    env.logSql(
-      `Preparing statement: ${sql} to select ${arrayOfArrays.length} rows.`
-    )
+    env.logSql('Preparing select', sql, arrayOfArrays.length)
     let rows = []
     let statement = db.prepare(sql, function (err) {
       if (err) reject(err)
@@ -298,9 +294,7 @@ async function dbMultiSelect(db, sql, arrayOfArrays) {
  */
 async function dbMultiInsert(db, sql, arrayOfArrays) {
   return new Promise((resolve, reject) => {
-    env.logSql(
-      `Preparing statement: ${sql} to insert ${arrayOfArrays.length} records.`
-    )
+    env.logSql('Preparing insert', sql, arrayOfArrays.length)
     let lastIds = []
     let statement = db.prepare(sql, function (err) {
       if (err) reject(err)
@@ -426,11 +420,12 @@ async function determineIfSchemaShouldLoad(db, context) {
 }
 
 async function updateCurrentSchemaCrc(db, context) {
-  return dbInsert(
+  await dbInsert(
     db,
     'INSERT OR REPLACE INTO PACKAGE (PATH, CRC, TYPE) VALUES ( ?, ?, ? )',
     [context.filePath, context.crc, dbEnum.packageType.sqlSchema]
-  ).then(() => context)
+  )
+  return context
 }
 
 async function performSchemaLoad(db, schemaContent) {
