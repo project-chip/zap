@@ -193,6 +193,4 @@ exports.selectAtomicSizeFromType = dbCache.cacheEnabled
 exports.selectAtomicType = dbCache.cacheEnabled
   ? selectAtomicTypeFromCache
   : selectAtomicType
-exports.selectAtomicById = dbCache.cacheEnabled
-  ? selectAtomicByIdFromCache
-  : selectAtomicById
+exports.selectAtomicById = selectAtomicById

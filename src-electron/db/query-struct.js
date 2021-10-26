@@ -24,10 +24,56 @@ const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
 const dbCache = require('./db-cache')
 
+const cacheKey = 'struct'
+
+async function createCache(db, packageId) {
+  let packageSpecificCache = {
+    byName: {},
+    byId: {},
+  }
+  let d = await selectAllStructs(db, packageId)
+  packageSpecificCache.rawData = d
+  for (const s of d) {
+    packageSpecificCache.byName[s.name] = s
+    packageSpecificCache.byId[s.id] = s
+  }
+  dbCache.put(cacheKey, packageId, packageSpecificCache)
+  return packageSpecificCache
+}
+
+async function selectAllStructs(db, packageId) {
+  let rows = await dbApi.dbAll(
+    db,
+    'SELECT STRUCT_ID, NAME FROM STRUCT WHERE PACKAGE_REF = ? ORDER BY NAME',
+    [packageId]
+  )
+  return rows.map(dbMapping.map.struct)
+}
+
+async function selectAllStructsFromCache(db, packageId) {
+  let cache
+  if (dbCache.isCached(cacheKey, packageId)) {
+    cache = dbCache.get(cacheKey, packageId)
+  } else {
+    cache = await createCache(db, packageId)
+  }
+  return cache.rawData
+}
+
 async function selectStructById(db, id) {
   return dbApi
     .dbGet(db, 'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ?', [id])
     .then(dbMapping.map.struct)
+}
+
+async function selectStructByIdFromCache(db, id) {
+  let cache
+  if (dbCache.isCached(cacheKey, packageId)) {
+    cache = dbCache.get(cacheKey, packageId)
+  } else {
+    cache = await createCache(db, packageId)
+  }
+  return cache.byId[id]
 }
 
 async function selectStructByName(db, name, packageId) {
@@ -40,5 +86,20 @@ async function selectStructByName(db, name, packageId) {
     .then(dbMapping.map.struct)
 }
 
+async function selectStructByNameFromCache(db, name, packageId) {
+  let cache
+  if (dbCache.isCached(cacheKey, packageId)) {
+    cache = dbCache.get(cacheKey, packageId)
+  } else {
+    cache = await createCache(db, packageId)
+  }
+  return cache.byName[name]
+}
+
 exports.selectStructById = selectStructById
-exports.selectStructByName = selectStructByName
+exports.selectAllStructs = dbCache.cacheEnabled
+  ? selectAllStructsFromCache
+  : selectAllStructs
+exports.selectStructByName = dbCache.cacheEnabled
+  ? selectStructByNameFromCache
+  : selectStructByName

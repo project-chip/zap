@@ -233,10 +233,8 @@ exports.selectAllEnums = dbCache.cacheEnabled
 exports.selectEnumByName = dbCache.cacheEnabled
   ? selectEnumByNameFromCache
   : selectEnumByName
-exports.selectEnumById = dbCache.cacheEnabled
-  ? selectEnumByIdFromCache
-  : selectEnumById
 
+exports.selectEnumById = selectEnumById
 exports.selectClusterEnums = selectClusterEnums
 exports.selectAllEnumItemsById = selectAllEnumItemsById
 exports.selectAllEnumItems = selectAllEnumItems
