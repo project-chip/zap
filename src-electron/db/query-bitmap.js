@@ -126,9 +126,5 @@ async function selectBitmapByIdFromCache(db, id) {
 }
 
 exports.selectBitmapById = selectBitmapById
-exports.selectAllBitmaps = dbCache.cacheEnabled
-  ? selectAllBitmapsFromCache
-  : selectAllBitmaps
-exports.selectBitmapByName = dbCache.cacheEnabled
-  ? selectBitmapByNameFromCache
-  : selectBitmapByName
+exports.selectAllBitmaps = selectAllBitmaps
+exports.selectBitmapByName = selectBitmapByName
