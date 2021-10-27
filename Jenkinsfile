@@ -274,6 +274,7 @@ pipeline
                 stage('Check executable for Windows')
                 {
                     agent { label 'windows10' }
+                    options { skipDefaultCheckout() }
                     steps
                     {
                         cleanWs()
@@ -304,6 +305,7 @@ pipeline
                 stage('Check executable for Mac')
                 {
                     agent { label 'bgbuild-mac' }
+                    options { skipDefaultCheckout() }
                     steps
                     {
                         // WORKAROUND:
