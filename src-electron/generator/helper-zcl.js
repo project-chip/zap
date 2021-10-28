@@ -2024,7 +2024,7 @@ async function attribute_mask(
   if (storageOption === 'NVM') {
     attributeMask +=
       (attributeMask ? '| ' : '') + prefixString + 'TOKENIZE' + postfixString
-  } else if (storageOption === 'EXTERNAL') {
+  } else if (storageOption === 'External') {
     attributeMask +=
       (attributeMask ? '| ' : '') + prefixString + 'EXTERNAL' + postfixString
   }
