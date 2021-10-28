@@ -20,7 +20,7 @@ limitations under the License.
   add action to edit button
 -->
 <template>
-  <div v-show="relevantAttributeData.length > 0">
+  <div v-show="relevantAttributeData.length > 0" >
     <q-table
       class="my-sticky-header-table"
       :data.sync="relevantAttributeData"
@@ -33,8 +33,9 @@ limitations under the License.
       :pagination.sync="pagination"
       :sort-method="customAttributeSort"
       data-cy="Attributes"
+      style="height:calc(100vh - 210px);overflow:hidden;"
     >
-      <template v-slot:body="props">
+      <template v-slot:body="props" >
         <q-tr :props="props">
         <q-td key="status" :props="props" class="q-px-none">
             <q-icon
@@ -415,3 +416,10 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+/deep/ .q-table__bottom.row{
+  background-color:inherit !important;
+}
+
+</style>
