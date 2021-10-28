@@ -2026,7 +2026,10 @@ async function attribute_mask(
       (attributeMask ? '| ' : '') + prefixString + 'TOKENIZE' + postfixString
   } else if (storageOption === 'External') {
     attributeMask +=
-      (attributeMask ? '| ' : '') + prefixString + 'EXTERNAL' + postfixString
+      (attributeMask ? '| ' : '') +
+      prefixString +
+      'EXTERNAL_STORAGE' +
+      postfixString
   }
 
   // mask for bound
