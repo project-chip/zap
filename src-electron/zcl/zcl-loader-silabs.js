@@ -686,6 +686,14 @@ async function processAccessControl(
         })
       }
     }
+    if ('privilege' in ac) {
+      for (const role of ac.privilege) {
+        roles.push({
+          name: role.$.type,
+          description: role.$.description,
+        })
+      }
+    }
     if ('modifier' in ac) {
       for (const modifier of ac.modifier) {
         accessModifiers.push({
