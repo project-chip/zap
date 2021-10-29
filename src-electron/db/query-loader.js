@@ -22,8 +22,6 @@
  */
 const env = require('../util/env')
 const dbApi = require('./db-api.js')
-const dbEnum = require('../../src-shared/db-enum.js')
-const queryAccess = require('./query-access')
 
 // Some loading queries that are reused few times.
 

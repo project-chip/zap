@@ -610,7 +610,7 @@ function zcl_attributes_server(options) {
  * @param {*} options
  * @returns Promise of content.
  */
-function zcl_atomics(options) {
+async function zcl_atomics(options) {
   let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllAtomics(this.global.db, packageId))
@@ -624,7 +624,7 @@ function zcl_atomics(options) {
  * Given: N/A
  * @returns the length of largest cluster name in a list of clusters
  */
-function zcl_cluster_largest_label_length() {
+async function zcl_cluster_largest_label_length() {
   let promise = templateUtil
     .ensureZclPackageId(this)
     .then((packageId) => queryZcl.selectAllClusters(this.global.db, packageId))
@@ -2024,9 +2024,12 @@ async function attribute_mask(
   if (storageOption === 'NVM') {
     attributeMask +=
       (attributeMask ? '| ' : '') + prefixString + 'TOKENIZE' + postfixString
-  } else if (storageOption === 'EXTERNAL') {
+  } else if (storageOption === 'External') {
     attributeMask +=
-      (attributeMask ? '| ' : '') + prefixString + 'EXTERNAL' + postfixString
+      (attributeMask ? '| ' : '') +
+      prefixString +
+      'EXTERNAL_STORAGE' +
+      postfixString
   }
 
   // mask for bound

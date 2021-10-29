@@ -274,6 +274,7 @@ pipeline
                 stage('Check executable for Windows')
                 {
                     agent { label 'windows10' }
+                    options { skipDefaultCheckout() }
                     steps
                     {
                         cleanWs()
@@ -304,6 +305,7 @@ pipeline
                 stage('Check executable for Mac')
                 {
                     agent { label 'bgbuild-mac' }
+                    options { skipDefaultCheckout() }
                     steps
                     {
                         // WORKAROUND:
@@ -409,20 +411,20 @@ pipeline
                                                     [$class: 'DevelopersRecipientProvider']])
 
                 jobName = "${currentBuild.fullDisplayName}".replace('%2', '/')
-                if (currentBuild.result != 'SUCCESS') {
-                    slackMessage = ":zap_failure: FAILED: <${env.RUN_DISPLAY_URL}|" + jobName + '>, changes by: ' + committers
-                    slackColor = 'danger'
+                if (currentBuild.result == 'SUCCESS') {
+                    slackMessage = ":zap_success: SUCCESS: <${env.RUN_DISPLAY_URL}|" + jobName + '>, changes by: ' + committers
+                    slackColor = 'good'
                     slackSend (color: slackColor, channel: '#zap', message: slackMessage)
                 }
                 else if(currentBuild.result == 'UNSTABLE') {
-                    slackMessage = ":warning: WARNING: <${env.RUN_DISPLAY_URL}|" + jobName + '>, changes by: ' + committers
+                    slackMessage = ":zap_warning: WARNING: <${env.RUN_DISPLAY_URL}|" + jobName + '>, changes by: ' + committers
                     slackColor = 'warning'
                     slackSend (color: slackColor, channel: '#zap', message: slackMessage)
                 }
                 else
                 {
-                    slackMessage = ":zap_success: SUCCESS: <${env.RUN_DISPLAY_URL}|" + jobName + '>, changes by: ' + committers
-                    slackColor = 'good'
+                    slackMessage = ":zap_failure: FAILED: <${env.RUN_DISPLAY_URL}|" + jobName + '>, changes by: ' + committers
+                    slackColor = 'danger'
                     slackSend (color: slackColor, channel: '#zap', message: slackMessage)
                 }
             }

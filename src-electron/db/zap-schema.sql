@@ -46,7 +46,7 @@ CREATE TABLE "PACKAGE_OPTION" (
   "OPTION_CATEGORY" text,
   "OPTION_CODE" text,
   "OPTION_LABEL" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
   UNIQUE(PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
 );
 /* 
@@ -76,7 +76,7 @@ CREATE TABLE "PACKAGE_EXTENSION" (
   "CONFIGURABILITY" text,
   "LABEL" text,
   "GLOBAL_DEFAULT" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
   UNIQUE(PACKAGE_REF, ENTITY, PROPERTY)
 );
 /*
@@ -91,7 +91,7 @@ CREATE TABLE "PACKAGE_EXTENSION_DEFAULT" (
   "PARENT_CODE" integer,
   "MANUFACTURER_CODE" integer,
   "VALUE" text,
-  foreign key (PACKAGE_EXTENSION_REF) references PACKAGE_EXTENSION(PACKAGE_EXTENSION_ID)
+  foreign key (PACKAGE_EXTENSION_REF) references PACKAGE_EXTENSION(PACKAGE_EXTENSION_ID) on delete cascade
 );
 /*
  *
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS "SPEC" (
   "CODE" text NOT NULL,
   "DESCRIPTION" text,
   "CERTIFIABLE" integer,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
   UNIQUE(PACKAGE_REF, CODE)
 );
 /*
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS "DOMAIN" (
   "PACKAGE_REF" integer,
   "NAME" text,
   "LATEST_SPEC_REF" integer,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
   foreign key (LATEST_SPEC_REF) references SPEC(SPEC_ID),
   UNIQUE(PACKAGE_REF, NAME)
 );
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS "CLUSTER" (
   "REMOVED_IN_REF" integer,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade
 );
 /*
  COMMAND table contains commands contained inside a cluster.
@@ -172,7 +172,7 @@ CREATE TABLE IF NOT EXISTS "COMMAND" (
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
   foreign key (RESPONSE_REF) references COMMAND(COMMAND_ID)
 );
 /*
@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS "COMMAND_ARG" (
   "REMOVED_IN_REF" integer,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
-  foreign key (COMMAND_REF) references COMMAND(COMMAND_ID)
+  foreign key (COMMAND_REF) references COMMAND(COMMAND_ID) on delete cascade
 );
 /*
  EVENT table contains events for a given cluster. 
@@ -213,7 +213,7 @@ CREATE TABLE IF NOT EXISTS "EVENT" (
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID)
 );
@@ -233,7 +233,7 @@ CREATE TABLE IF NOT EXISTS "EVENT_FIELD" (
   "REMOVED_IN_REF" integer,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
-  foreign key (EVENT_REF) references EVENT(EVENT_ID)
+  foreign key (EVENT_REF) references EVENT(EVENT_ID) on delete cascade
 );
 /*
  ATTRIBUTE table contains attributes for the cluster.
@@ -269,7 +269,7 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade
 );
 /*
  GLOBAL_ATTRIBUTE_DEFAULT table contains default values of attributes per cluster.
@@ -288,7 +288,7 @@ CREATE TABLE IF NOT EXISTS "GLOBAL_ATTRIBUTE_DEFAULT" (
   "ATTRIBUTE_REF" integer NOT NULL,
   "DEFAULT_VALUE" text,
   foreign key(CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  foreign key(ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID)
+  foreign key(ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID) on delete cascade
 );
 /*
  GLOBAL_ATTRIBUTE_BIT is carrying information about the mappings of a 
@@ -304,7 +304,7 @@ CREATE TABLE IF NOT EXISTS "GLOBAL_ATTRIBUTE_BIT" (
   "BIT" integer NOT NULL,
   "VALUE" integer,
   "TAG_REF" integer NOT NULL,
-  foreign key(GLOBAL_ATTRIBUTE_DEFAULT_REF) references GLOBAL_ATTRIBUTE_DEFAULT(GLOBAL_ATTRIBUTE_DEFAULT_ID),
+  foreign key(GLOBAL_ATTRIBUTE_DEFAULT_REF) references GLOBAL_ATTRIBUTE_DEFAULT(GLOBAL_ATTRIBUTE_DEFAULT_ID) on delete cascade,
   foreign key(TAG_REF) references TAG(TAG_ID)
 );
 /*
@@ -319,7 +319,7 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE" (
   "PROFILE_ID" integer,
   "NAME" text,
   "DESCRIPTION" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade
 );
 /*
  DEVICE_TYPE_CLUSTER contains clusters that belong to the device type.
@@ -334,7 +334,7 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_CLUSTER" (
   "INCLUDE_SERVER" integer,
   "LOCK_CLIENT" integer,
   "LOCK_SERVER" integer,
-  foreign key (DEVICE_TYPE_REF) references DEVICE_TYPE(DEVICE_TYPE_ID),
+  foreign key (DEVICE_TYPE_REF) references DEVICE_TYPE(DEVICE_TYPE_ID) on delete cascade,
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID)
 );
 /*
@@ -345,8 +345,8 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_ATTRIBUTE" (
   "DEVICE_TYPE_CLUSTER_REF" integer,
   "ATTRIBUTE_REF" integer,
   "ATTRIBUTE_NAME" text,
-  foreign key (DEVICE_TYPE_CLUSTER_REF) references DEVICE_TYPE_CLUSTER(DEVICE_TYPE_CLUSTER_ID),
-  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID)
+  foreign key (DEVICE_TYPE_CLUSTER_REF) references DEVICE_TYPE_CLUSTER(DEVICE_TYPE_CLUSTER_ID) on delete cascade,
+  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID) on delete cascade
 );
 /*
  DEVICE_TYPE_COMMAND contains attributes that belong to a device type cluster. 
@@ -356,8 +356,8 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_COMMAND" (
   "DEVICE_TYPE_CLUSTER_REF" integer,
   "COMMAND_REF" integer,
   "COMMAND_NAME" text,
-  foreign key (DEVICE_TYPE_CLUSTER_REF) references DEVICE_TYPE_CLUSTER(DEVICE_TYPE_CLUSTER_ID),
-  foreign key (COMMAND_REF) references COMMAND(COMMAND_ID)
+  foreign key (DEVICE_TYPE_CLUSTER_REF) references DEVICE_TYPE_CLUSTER(DEVICE_TYPE_CLUSTER_ID) on delete cascade,
+  foreign key (COMMAND_REF) references COMMAND(COMMAND_ID) on delete cascade
 );
 /*
  TAG table contains tags. They can be used for access control and feature maps.
@@ -369,9 +369,8 @@ CREATE TABLE IF NOT EXISTS "TAG" (
   "CLUSTER_REF" integer,
   "NAME" text,
   "DESCRIPTION" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID),
-  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  UNIQUE(PACKAGE_REF, NAME)
+  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
+  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID) on delete cascade
 );
 /*
  *
