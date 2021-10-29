@@ -334,15 +334,23 @@ function prepareClusterGlobalAttribute(cluster) {
   }
 }
 
+function extractAccessTag(ac) {
+  let e = {
+    op: ac.$.op,
+    role: ac.$.role,
+    modifier: ac.$.modifier,
+  }
+  if ('privilege' in ac.$) {
+    e.role = ac.$.privilege
+  }
+  return e
+}
+
 function extractAccessIntoArray(xmlElement) {
   let accessArray = []
   if ('access' in xmlElement) {
     for (const ac of xmlElement.access) {
-      accessArray.push({
-        op: ac.$.op,
-        role: ac.$.role,
-        modifier: ac.$.modifier,
-      })
+      accessArray.push(extractAccessTag(ac))
     }
   }
   return accessArray
@@ -638,14 +646,7 @@ async function processDefaultAccess(
       access: [],
     }
     for (const ac of da.access) {
-      let op = ac.$.op
-      let role = ac.$.role
-      let modifier = ac.$.modifier
-      type.access.push({
-        op: op,
-        role: role,
-        modifier: modifier,
-      })
+      type.access.push(extractAccessTag(ac))
     }
     p.push(queryLoader.insertDefaultAccess(db, packageId, type))
   }
