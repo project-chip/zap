@@ -88,13 +88,31 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="type" type="xs:string"/>
     </xs:complexType>
   </xs:element>
+  <xs:element name="operation">
+    <xs:complexType>
+      <xs:attribute name="type" type="xs:string"/>
+      <xs:attribute name="description" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="modifier">
+    <xs:complexType>
+      <xs:attribute name="type" type="xs:string"/>
+      <xs:attribute name="description" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="role">
+    <xs:complexType>
+      <xs:attribute name="type" type="xs:string"/>
+      <xs:attribute name="description" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="privilege" substitutionGroup="role"/>
   <xs:element name="accessControl">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="operation"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="modifier"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="role"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="privilege"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="operation"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="modifier"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="role"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
