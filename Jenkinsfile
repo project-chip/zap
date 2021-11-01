@@ -381,26 +381,32 @@ pipeline
 
         stage('Run Adapter_Pack_ZAP_64 on JNKAUS-16.silabs.com')
         {
-            when
+          when
+          {
+            branch 'silabs'
+          }
+          steps
+          {
+            script
             {
-                branch 'silabs'
-            }
-            steps
-            {
-                script
-                {
-                    try {
-                        triggerRemoteJob blockBuildUntilComplete: false,
-                                        job: 'https://jnkaus016.silabs.com/job/Adapter_Pack_ZAP_64/',
-                                        remoteJenkinsName: 'jnkaus016',
-                                        shouldNotFailBuild: true,
-                                        useCrumbCache: true,
-                                        useJobInfoCache: true
-                    } catch (err) {
-                        currentBuild.result = 'UNSTABLE'
-                    }
+              withCredentials([usernamePassword(credentialsId: 'buildengineer',
+                    usernameVariable: 'SL_USERNAME',
+                    passwordVariable: 'SL_PASSWORD')])
+              {
+
+                try {
+                  triggerRemoteJob blockBuildUntilComplete: false,
+                  job: 'https://jnkaus016.silabs.com/job/Adapter_Pack_ZAP_64/',
+                  remoteJenkinsName: 'jnkaus016',
+                  shouldNotFailBuild: true,
+                  useCrumbCache: true,
+                  useJobInfoCache: true
+                } catch (err) {
+                  currentBuild.result = 'UNSTABLE'
                 }
+              }
             }
+          }
         }
     }
     post {
