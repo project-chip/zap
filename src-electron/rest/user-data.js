@@ -79,7 +79,7 @@ function httpPostSaveSessionKeyValue(db) {
  */
 function httpPostCluster(db) {
   return (request, response) => {
-    let { id, side, flag, endpointTypeId } = request.body
+    let { id, side, flag, endpointTypeIdList } = request.body
     let sessionId = request.zapSessionId
     let packageId
 
@@ -88,38 +88,60 @@ function httpPostCluster(db) {
       .then((pkgs) => {
         packageId = pkgs[0].id
       })
-      .then(() => queryConfig.selectClusterState(db, endpointTypeId, id, side))
-      .then((clusterState) => (clusterState == null ? true : false))
-      .then((insertDefaults) => {
-        return queryConfig
-          .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
-          .then(() => {
-            if (insertDefaults) {
-              return queryConfig.insertClusterDefaults(
-                db,
-                endpointTypeId,
-                packageId,
-                {
-                  clusterRef: id,
-                  side: side,
-                }
-              )
-            } else {
-              return Promise.resolve()
-            }
-          })
-          .then(() =>
-            response
-              .json({
-                endpointTypeId: endpointTypeId,
-                id: id,
-                side: side,
-                flag: flag,
-              })
-              .status(StatusCodes.OK)
-              .send()
+      .then(() => {
+        if (endpointTypeIdList.length == 0) {
+          throw new Error('Invalid function parameter: endpointTypeIdList')
+        }
+        return Promise.all(
+          endpointTypeIdList.map((endpointTypeId) =>
+            queryConfig.selectClusterState(db, endpointTypeId, id, side)
           )
-          .catch((err) => response.status(StatusCodes.BAD_REQUEST).send())
+        )
+      })
+      .then((states) => {
+        console.log('states: ' + JSON.stringify(states))
+        if (states.length == 0) {
+          return true
+        } else {
+          return false
+        }
+      })
+      .then((insertDefaults) => {
+        return Promise.all(
+          endpointTypeIdList.map((endpointTypeId) =>
+            queryConfig
+              .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
+              .then(() => {
+                if (insertDefaults) {
+                  return queryConfig.insertClusterDefaults(
+                    db,
+                    endpointTypeId,
+                    packageId,
+                    {
+                      clusterRef: id,
+                      side: side,
+                    }
+                  )
+                } else {
+                  return Promise.resolve()
+                }
+              })
+          )
+        ).then(() =>
+          response
+            .json({
+              endpointTypeIdList: endpointTypeIdList,
+              id: id,
+              side: side,
+              flag: flag,
+            })
+            .status(StatusCodes.OK)
+            .send()
+        )
+      })
+      .catch((err) => {
+        env.logError(err)
+        response.status(StatusCodes.BAD_REQUEST).send()
       })
   }
 }
@@ -372,6 +394,149 @@ function httpPostAddNewPackage(db) {
   }
 }
 
+/**
+ * HTTP POST: Unify all Attributes configuration into one presentation.
+ *
+ * 1) In Zigbee world, the Attribute configuration is a global singleton entity.
+ *    To emulate the global singleton entity, this function ensures Attribute changes
+ *    are applied to all endpoint specific attribute fields.
+ * 2) (native case in ZAP) In Matter, the Attribute configuration are endpoint specific.
+ *
+ */
+function httpPostUnifyAttributesAcrossEndpoints(db) {
+  return async (request, response) => {
+    //   let { endpointTypeIdList } = request.query
+    //   queryAttribute.selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(db,
+    //     )
+    //   let clusters =
+    //     await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
+    //       db,
+    //       endpointTypeIdList
+    //     )
+    //   console.log(JSON.stringify(clusters))
+    //   response.status(StatusCodes.OK).json({
+    //     clusters,
+    //   })
+  }
+}
+
+/**
+ * HTTP POST: Unify all Clusters configuration into one presentation.
+ *
+ * 1) In Zigbee world, the Clusters configuration is a global singleton entity.
+ *    To emulate the global singleton entity, this function ensures changes 1 cluster
+ *    are applied to all endpoint specific cluster fields.
+ * 2) (native case in ZAP) In Matter, the Cluster configuration are endpoint specific.
+ *
+ */
+function httpPostUnifyClustersAcrossEndpoints(db) {
+  return async (request, response) => {
+    let { endpointTypeIdList } = request.body
+    let resp = { oldState: {}, newState: {} }
+
+    // let respJson = {oldState: {
+    //                            endpointTypeId_1: [{cluster_state_1, cluster_state_2}],
+    //                            endpointTypeId_2: [{cluster_state_1, cluster_state_2}],
+    //                           },
+    //                 newState: {
+    //                            endpointTypeId_1: [{cluster_state_1, cluster_state_2}],
+    //                            endpointTypeId_2: [{cluster_state_1, cluster_state_2}],
+    //                           }}
+
+    if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
+      response.status(StatusCodes.BAD_REQUEST).json()
+    } else {
+      if (endpointTypeIdList.length == 1) {
+        return response.status(StatusCodes.OK).json(resp)
+      }
+
+      let unifiedClustersInfo =
+        await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
+          db,
+          endpointTypeIdList.map((x) => {
+            return { endpointTypeId: x }
+          })
+        )
+
+      let oldEndpointClusterInfos = await Promise.all(
+        endpointTypeIdList.map((endpointTypeId) =>
+          queryEndpointType.selectAllClustersDetailsFromEndpointTypes(db, [
+            { endpointTypeId },
+          ])
+        )
+      ).then((endpointClusterInfos) =>
+        // sort by name
+        endpointClusterInfos.map((clus) =>
+          clus.sort((a, b) => a.name.localeCompare(b.name))
+        )
+      )
+
+      // align all cluster states
+      if (endpointTypeIdList.length > 1) {
+        endpointTypeIdList.forEach((endpointTypeId) => {
+          unifiedClustersInfo.forEach((clus) => {
+            queryConfig.insertOrReplaceClusterState(
+              db,
+              endpointTypeId,
+              clus.id,
+              clus.side,
+              clus.enabled
+            )
+          })
+        })
+      }
+
+      resp.oldState = []
+      endpointTypeIdList.forEach((endpointTypeId, index) => {
+        resp.oldState.push({
+          endpointTypeId: endpointTypeId,
+          clusters: oldEndpointClusterInfos[index],
+        })
+      })
+
+      let newEndpointClusterInfos = await Promise.all(
+        endpointTypeIdList.map((endpointTypeId) =>
+          queryEndpointType.selectAllClustersDetailsFromEndpointTypes(db, [
+            { endpointTypeId },
+          ])
+        )
+      ).then((endpointClusterInfos) =>
+        // sort by name
+        endpointClusterInfos.map((clus) =>
+          clus.sort((a, b) => a.name.localeCompare(b.name))
+        )
+      )
+
+      resp.newState = []
+      endpointTypeIdList.forEach((endpointTypeId, index) => {
+        resp.newState.push({
+          endpointTypeId: endpointTypeId,
+          clusters: newEndpointClusterInfos[index],
+        })
+      })
+
+      env.logInfo(`Unifying cluster states across endpoint`)
+      env.logInfo(`Before:`)
+      resp.oldState.forEach((ep) => {
+        ep.clusters.forEach((clus) => {
+          env.logInfo(
+            `ep: ${ep}, clus_id:${clus.id}, name:${clus.name}, side:${clus.side}, enabled:${clus.enabled}`
+          )
+        })
+      })
+      env.logInfo(`After:`)
+      resp.newState.forEach((ep) => {
+        ep.clusters.forEach((clus) => {
+          env.logInfo(
+            `ep_id: ${ep.endpointTypeId}, clus_id:${clus.id}, name:${clus.name}, side:${clus.side}, enabled:${clus.enabled}`
+          )
+        })
+      })
+      response.status(StatusCodes.OK).json(resp)
+    }
+  }
+}
+
 function httpDeleteSessionPackage(db) {
   return async (request, response) => {
     let { sessionRef, packageRef } = request.query
@@ -413,6 +578,14 @@ exports.post = [
   {
     uri: restApi.uri.addNewPackage,
     callback: httpPostAddNewPackage,
+  },
+  {
+    uri: restApi.uri.unifyClustersAcrossEndpoints,
+    callback: httpPostUnifyClustersAcrossEndpoints,
+  },
+  {
+    uri: restApi.uri.unifyAttributesAcrossEndpoints,
+    callback: httpPostUnifyAttributesAcrossEndpoints,
   },
 ]
 

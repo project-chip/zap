@@ -95,6 +95,25 @@ export default {
         return this.$store.state.zap.packages
       },
     },
+    shareConfigsAcrossEndpoints: {
+      get() {
+        return parseInt(
+          this.$store.state.zap.selectedGenericOptions[
+            'shareConfigsAcrossEndpoints'
+          ]
+        )
+      },
+    },
+    endpointTypeIdList: {
+      get() {
+        // this.shareConfigsAcrossEndpoints is a string.
+        if (this.shareConfigsAcrossEndpoints) {
+          return Object.keys(this.endpointId)
+        } else {
+          return [this.selectedEndpointTypeId]
+        }
+      },
+    },
   },
   methods: {
     asHex(value, padding) {
@@ -134,7 +153,7 @@ export default {
      * @param {*} params
      */
     updateSelectedComponentRequest(params) {
-      if (!standaloneMode()) {
+      if (!this.standaloneMode()) {
         this.$store
           .dispatch('zap/updateSelectedComponent', params)
           .then((response) => {

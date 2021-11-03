@@ -66,6 +66,21 @@ limitations under the License.
           <q-tooltip> Enable Command Discovery for your project </q-tooltip>
         </q-toggle>
       </div>
+      <div>
+        <q-toggle
+          class="q-mr-sm"
+          :value="shareConfigsAcrossEndpointsSetting == 1 ? true : false"
+          label="Share configurations across endpoints"
+          dense
+          left-label
+          @input="handleOptionChange('shareConfigsAcrossEndpoints', $event)"
+        >
+          <q-tooltip>
+            Replicate identical endpoint configuration across
+            endpoints</q-tooltip
+          >
+        </q-toggle>
+      </div>
       <q-btn
         class="q-mr-sm"
         align="center"
@@ -78,6 +93,18 @@ limitations under the License.
       >
         <div class="text-align">ZCL Extensions...</div>
       </q-btn>
+      <q-btn
+        class="q-mr-sm"
+        align="center"
+        text-color="primary"
+        flat
+        :ripple="false"
+        :unelevated="false"
+        :outline="none"
+        @click="foo()"
+      >
+        <div class="text-align">Foobar</div>
+      </q-btn>
       <q-space />
     </q-toolbar>
   </div>
@@ -85,10 +112,12 @@ limitations under the License.
 
 <script>
 import * as DbEnum from '../../src-shared/db-enum'
+import CommonMixin from '../util/common-mixin'
 import * as Util from '../util/util'
 
 export default {
   name: 'ZclGeneralOptionsBar',
+  mixins: [CommonMixin],
   computed: {
     DbEnum: {
       get() {
@@ -147,6 +176,13 @@ export default {
         return this.$store.state.zap.selectedGenericOptions['commandDiscovery']
       },
     },
+    shareConfigsAcrossEndpointsSetting: {
+      get() {
+        return this.$store.state.zap.selectedGenericOptions[
+          'shareConfigsAcrossEndpoints'
+        ]
+      },
+    },
   },
   data() {
     return {
@@ -154,6 +190,11 @@ export default {
     }
   },
   methods: {
+    foo() {
+      this.$store.dispatch('zap/unifyClustersAndAttributesAcrossEndpoints', {
+        endpointTypeIdList: this.endpointTypeIdList,
+      })
+    },
     handleEnumeratedOptionChange(option, value) {
       this.$store.dispatch('zap/setSelectedGenericKey', {
         key: option,
@@ -166,6 +207,9 @@ export default {
         key: option,
         value: value,
       })
+
+      // reload all setting values to $store/frontend
+      this.$store.dispatch('zap/loadSessionKeyValues')
     },
     createValue(val, done) {
       try {

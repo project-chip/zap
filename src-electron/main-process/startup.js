@@ -104,6 +104,10 @@ async function startNormal(
       if (process.env.DEV && process.env.MODE === 'electron') {
         port = 8080
       }
+      if (showUrl) {
+        // NOTE: this is parsed/used by Studio as the default landing page.
+        console.log(httpServer.httpServerStartupMessage())
+      }
 
       if (uiEnabled) {
         windowJs.initializeElectronUi(port)
@@ -119,7 +123,7 @@ async function startNormal(
           )
         }
       } else {
-        if (showUrl && !argv.noServer) {
+        if (showUrl) {
           // NOTE: this is parsed/used by Studio as the default landing page.
           logRemoteData(httpServer.httpServerStartupMessage())
         }
