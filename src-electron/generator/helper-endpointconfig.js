@@ -387,13 +387,21 @@ function endpoint_attribute_long_defaults(options) {
 
   let ret = '{ \\\n'
   this.longDefaultsList.forEach((ld) => {
+    let value = ld.value;
+    if (littleEndian && !types.isString(ld.type)) {
+      // ld.value is in big-endian order.  For types for which endianness
+      // matters, we need to reverse it.
+      let valArr = value.split(/\s*,\s*/).filter(s => s.length != 0);
+      valArr.reverse();
+      value = valArr.join(", ") + ", ";
+    }
     if (ld.comment != comment) {
       ret += `\\\n  /* ${ld.comment}, ${
         littleEndian ? 'little-endian' : 'big-endian'
       } */\\\n\\\n`
       comment = ld.comment
     }
-    ret += `  /* ${ld.index} - ${ld.name}, */\\\n  ${ld.value}\\\n\\\n`
+    ret += `  /* ${ld.index} - ${ld.name}, */\\\n  ${value}\\\n\\\n`
   })
   ret += '}\n'
 
@@ -498,6 +506,7 @@ async function collectAttributes(endpointTypes) {
             index: longDefaultsIndex,
             name: a.name,
             comment: cluster.comment,
+            type: a.type,
           }
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           defaultValueIsMacro = true
