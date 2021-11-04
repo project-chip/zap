@@ -557,6 +557,7 @@ async function collectAttributes(endpointTypes) {
         }
         if (a.isSingleton) mask.push('singleton')
         if (a.isWritable) mask.push('writable')
+        if (a.isNullable) mask.push('nullable')
         let attr = {
           id: a.hexCode, // attribute code
           type: `ZAP_TYPE(${a.type.toUpperCase()})`, // type
