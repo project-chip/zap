@@ -92,8 +92,10 @@ exports.testZclMetafile = path.join(__dirname, './resource/meta/zcl.json')
 
 exports.testServer = testServer
 
-exports.testCustomXml = './test/resource/test-custom.xml'
-exports.badTestCustomXml = './test/resource/bad-test-custom.xml'
+exports.testCustomXml = './test/resource/custom-cluster/test-custom.xml'
+exports.customClusterXml =
+  './test/resource/custom-cluster/custom-bead-cluster.xml'
+exports.badTestCustomXml = './test/resource/custom-cluster/bad-test-custom.xml'
 
 exports.totalClusterCount = 111
 exports.totalDomainCount = 20
