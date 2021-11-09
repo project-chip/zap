@@ -18,15 +18,16 @@ limitations under the License.
     <q-card bordered class="q-pa-sm">
     <div class="row q-py-md">
       <strong>
+        <router-link to="/" style="text-decoration:none;color:#027be3;font-weight:bold;"><i aria-hidden="true" role="presentation" class="q-breadcrumbs__el-icon material-icons q-icon notranslate">keyboard_arrow_left</i> Back</router-link>
         <q-breadcrumbs>
           <!-- this needs to be updated depending on how the pages will work -->
-          <q-breadcrumbs-el icon="keyboard_arrow_left" to="/">
+          <q-breadcrumbs-el  >
             Endpoint {{ this.endpointId[this.selectedEndpointId] }}
           </q-breadcrumbs-el>
-          <q-breadcrumbs-el to="/">
+          <q-breadcrumbs-el >
             {{ selectedCluster.domainName }}
           </q-breadcrumbs-el>
-          <q-breadcrumbs-el to="/">{{
+          <q-breadcrumbs-el >{{
             selectedCluster.label
           }}</q-breadcrumbs-el>
         </q-breadcrumbs>

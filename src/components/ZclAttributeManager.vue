@@ -296,13 +296,10 @@ export default {
   },
 
   computed: {
-    requiredDeviceTypeAttributes: {
-      get() {
+    requiredDeviceTypeAttributes() {
         return this.$store.state.zap.attributeView.requiredAttributes
-      },
     },
-    requiredAttributes: {
-      get() {
+    requiredAttributes() {
         return this.relevantAttributeData
           .filter(
             (attribute) =>
@@ -310,12 +307,9 @@ export default {
               this.requiredDeviceTypeAttributes.includes(attribute.id)
           )
           .map((attribute) => attribute.id)
-      },
     },
-    storageOptions: {
-      get() {
+    storageOptions() {
         return Object.values(DbEnum.storageOption)
-      },
     },
   },
   data() {
