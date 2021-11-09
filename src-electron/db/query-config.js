@@ -207,11 +207,24 @@ INTO ENDPOINT_TYPE_ATTRIBUTE (
       getAllParamValuePairArrayClauses(paramValuePairArray) +
       'WHERE ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?'
 
-    return dbApi.dbUpdate(db, query, [
+    await dbApi.dbUpdate(db, query, [
       endpointTypeId,
       cluster.endpointTypeClusterId,
       attributeId,
     ])
+
+    let row = await dbApi.dbGet(
+      db,
+      `
+SELECT
+  ETA.ENDPOINT_TYPE_ATTRIBUTE_ID
+FROM
+  ENDPOINT_TYPE_ATTRIBUTE AS ETA
+WHERE
+  ETA.ENDPOINT_TYPE_REF = ? AND ENDPOINT_TYPE_CLUSTER_REF = ? AND ATTRIBUTE_REF = ?`,
+      [endpointTypeId, cluster.endpointTypeClusterId, attributeId]
+    )
+    return row.ENDPOINT_TYPE_ATTRIBUTE_ID
   }
 }
 
