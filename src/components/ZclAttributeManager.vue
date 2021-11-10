@@ -410,10 +410,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-/deep/ .q-table__bottom.row{
-  background-color:inherit !important;
-}
-
-</style>
