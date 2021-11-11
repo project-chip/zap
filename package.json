@@ -1,7 +1,7 @@
 {
   "type": "commonjs",
   "name": "zap",
-  "version": "2021.10.29",
+  "version": "2021.11.11",
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -36,6 +36,7 @@
     "zaphelp": "node src-script/zap-start.js --help",
     "zap-dotdot": "node src-script/zap-start.js --logToStdout --zcl ./zcl-builtin/dotdot/library.xml",
     "xml-validate": "zcl-builtin/shared/script/validate",
+    "xml-format": "zcl-builtin/shared/script/format",
     "build": "npm run build-spa && npm run build-backend",
     "build-spa": "node src-script/build-spa.js",
     "build-backend": "npx tsc --build ./tsconfig.json",

@@ -14,3 +14,6 @@ done
 for A in ${LOC}/../../../test/resource/meta/*.xml; do
     xmllint --noout --schema ${LOC}/../schema/zcl.xsd  $A
 done
+for A in ${LOC}/../../../test/resource/custom-cluster/[!b]*.xml; do
+    xmllint --noout --schema ${LOC}/../schema/zcl.xsd  $A
+done

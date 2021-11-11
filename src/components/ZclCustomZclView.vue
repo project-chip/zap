@@ -63,7 +63,12 @@ limitations under the License.
                       @click.stop="deletePackage(sessionPackage)"
                       :disable="sessionPackage.sessionPackage.required == 1"
                     />
-                    <q-btn label="Relative to..." outlined v-show="false" @click.stop />
+                    <q-btn
+                      label="Relative to..."
+                      outlined
+                      v-show="false"
+                      @click.stop
+                    />
                   </q-toolbar>
                 </template>
                 Full File path: {{ sessionPackage.pkg.path }} <br />
@@ -121,11 +126,13 @@ export default {
           }
         })
     },
-    deletePackage(packageToDelete) {
-      this.$store
-        .dispatch('zap/deleteSessionPackage', packageToDelete.sessionPackage)
-        .then((x) => this.$store.dispatch('zap/updateClusters'))
-        .then((x) => this.$store.dispatch('zap/updateAtomics'))
+    async deletePackage(packageToDelete) {
+      await this.$store.dispatch(
+        'zap/deleteSessionPackage',
+        packageToDelete.sessionPackage
+      )
+      await this.$store.dispatch('zap/updateClusters')
+      await this.$store.dispatch('zap/updateAtomics')
     },
   },
   mounted() {
