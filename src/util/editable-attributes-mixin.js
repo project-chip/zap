@@ -121,7 +121,7 @@ export default {
     setAttributeSelection(enable, listType, attributeData, clusterId) {
       let editContext = {
         action: 'boolean',
-        endpointTypeId: this.selectedEndpointTypeId,
+        endpointTypeIdList: this.endpointTypeIdList,
         id: attributeData.id,
         value: enable,
         listType: listType,
@@ -168,7 +168,7 @@ export default {
       if (newValue) {
         let editContext = {
           action: 'text',
-          endpointTypeId: this.selectedEndpointTypeId,
+          endpointTypeIdList: this.endpointTypeIdList,
           id: attributeData.id,
           value: newValue,
           listType: listType,
@@ -195,7 +195,7 @@ export default {
 
       let editContext = {
         action: 'boolean',
-        endpointTypeId: this.selectedEndpointTypeId,
+        endpointTypeIdList: this.endpointTypeIdList,
         id: attributeData.id,
         value: addedValue,
         listType: listType,

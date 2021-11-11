@@ -673,7 +673,7 @@ async function resolveDefaultDeviceTypeAttributes(
                 insertOrUpdateAttributeState(
                   db,
                   endpointTypeId,
-                  attribute.clusterRef,
+                  attribute?.clusterRef,
                   attribute.side,
                   deviceAttribute.attributeRef,
                   [
