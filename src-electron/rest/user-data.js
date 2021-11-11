@@ -140,8 +140,7 @@ function httpPostCluster(db) {
         )
       })
       .catch((err) => {
-        env.logError(err)
-        response.status(StatusCodes.BAD_REQUEST).send()
+        response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
       })
   }
 }
@@ -388,8 +387,7 @@ function httpPostAddNewPackage(db) {
       }
       res.status(StatusCodes.OK).json(status)
     } catch (err) {
-      env.logError(err)
-      res.status(StatusCodes.BAD_REQUEST).send()
+      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
     }
   }
 }
@@ -444,7 +442,7 @@ function httpPostUnifyClustersAcrossEndpoints(db) {
     //                           }}
 
     if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
-      response.status(StatusCodes.BAD_REQUEST).json()
+      response.status(StatusCodes.BAD_REQUEST).send()
     } else {
       if (endpointTypeIdList.length == 1) {
         return response.status(StatusCodes.OK).json(resp)

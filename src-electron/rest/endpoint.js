@@ -103,7 +103,7 @@ function httpPostEndpoint(db) {
         validationIssues: validationData,
       })
     } catch (err) {
-      response.status(StatusCodes.BAD_REQUEST).send()
+      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
     }
   }
 }
@@ -160,7 +160,7 @@ function httpPostEndpointType(db) {
         deviceTypeRef: deviceTypeRef,
       })
     } catch (err) {
-      response.status(StatusCodes.BAD_REQUEST).send()
+      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
     }
   }
 }

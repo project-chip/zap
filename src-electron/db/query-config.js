@@ -178,6 +178,9 @@ async function insertOrUpdateAttributeState(
     clusterRef,
     side
   )
+  if (cluster == null) {
+    throw new Error(`Could not locate cluster: ${clusterRef}`)
+  }
 
   let staticAttribute =
     await queryZcl.selectAttributeByAttributeIdAndClusterRef(
@@ -569,6 +572,7 @@ async function setEndpointDefaults(
   )
   if (pkgs == null || pkgs.length < 1)
     throw new Error('Could not locate package id for a given session.')
+
   let packageId = pkgs[0].id
   let clusters = await queryZcl.selectDeviceTypeClustersByDeviceTypeRef(
     db,

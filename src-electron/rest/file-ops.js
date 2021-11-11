@@ -80,7 +80,7 @@ function httpPostFileOpen(db) {
         err.project = zapFilePath
         studio.sendSessionCreationErrorStatus(db, err)
         env.logError(JSON.stringify(err))
-        res.status(StatusCodes.BAD_REQUEST).send(err)
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
       }
     } else {
       let msg = `Opening/Loading project: Missing zap file path.`
@@ -130,9 +130,7 @@ function httpPostFileSave(db) {
       } catch (err) {
         let msg = `Unable to save project.`
         env.logError(msg, err)
-        res.status(StatusCodes.BAD_REQUEST).send({
-          error: msg,
-        })
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
       }
     } else {
       res.status(StatusCodes.BAD_REQUEST).send({ error: 'No file specified.' })
