@@ -93,18 +93,6 @@ limitations under the License.
       >
         <div class="text-align">ZCL Extensions...</div>
       </q-btn>
-      <q-btn
-        class="q-mr-sm"
-        align="center"
-        text-color="primary"
-        flat
-        :ripple="false"
-        :unelevated="false"
-        :outline="none"
-        @click="foo()"
-      >
-        <div class="text-align">Foobar</div>
-      </q-btn>
       <q-space />
     </q-toolbar>
   </div>
@@ -190,11 +178,6 @@ export default {
     }
   },
   methods: {
-    foo() {
-      this.$store.dispatch('zap/unifyClustersAndAttributesAcrossEndpoints', {
-        endpointTypeIdList: this.endpointTypeIdList,
-      })
-    },
     handleEnumeratedOptionChange(option, value) {
       this.$store.dispatch('zap/setSelectedGenericKey', {
         key: option,
