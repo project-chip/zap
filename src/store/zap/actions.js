@@ -44,15 +44,14 @@ export function updateAtomics(context) {
   })
 }
 
-export function updateSelectedCluster(context, cluster) {
-  Vue.prototype
-    .$serverGet(restApi.uri.zclCluster + `${cluster.id}`)
-    .then((res) => {
-      context.commit('updateSelectedCluster', [cluster])
-      updateAttributes(context, res.data.attributeData || [])
-      updateCommands(context, res.data.commandData || [])
-      updateEvents(context, res.data.eventData || [])
-    })
+export async function updateSelectedCluster(context, cluster) {
+  let res = await Vue.prototype.$serverGet(
+    restApi.uri.zclCluster + `${cluster.id}`
+  )
+  context.commit('updateSelectedCluster', [cluster])
+  updateAttributes(context, res.data.attributeData || [])
+  updateCommands(context, res.data.commandData || [])
+  updateEvents(context, res.data.eventData || [])
 }
 
 export function updateAttributes(context, attributes) {
@@ -127,20 +126,20 @@ export function updateSelectedAttribute(context, selectionContext) {
     })
 }
 
-export function updateSelectedCommands(context, selectionContext) {
-  Vue.prototype
-    .$serverPost(restApi.uri.commandUpdate, selectionContext)
-    .then((res) => {
-      let arg = res.data
-      if (arg.action === 'boolean') {
-        context.commit('updateInclusionList', {
-          id: Util.cantorPair(arg.id, arg.clusterRef),
-          added: arg.added,
-          listType: arg.listType,
-          view: 'commandView',
-        })
-      }
+export async function updateSelectedCommands(context, selectionContext) {
+  let res = await Vue.prototype.$serverPost(
+    restApi.uri.commandUpdate,
+    selectionContext
+  )
+  let arg = res.data
+  if (arg.action === 'boolean') {
+    context.commit('updateInclusionList', {
+      id: Util.cantorPair(arg.id, arg.clusterRef),
+      added: arg.added,
+      listType: arg.listType,
+      view: 'commandView',
     })
+  }
 }
 
 export function updateSelectedEvents(context, selectionContext) {
@@ -592,34 +591,39 @@ export function loadOptions(context, option) {
  * @param {*} context
  * @param {*} data Object containing 'key' and 'value'
  */
-export function setSelectedGenericKey(context, data) {
-  Vue.prototype
-    .$serverPost(restApi.uri.saveSessionKeyValue, data)
-    .then((response) => {
-      context.commit('setSelectedGenericOption', response.data)
-    })
+export async function setSelectedGenericKey(context, data) {
+  let response = await Vue.prototype.$serverPost(
+    restApi.uri.saveSessionKeyValue,
+    data
+  )
+  context.commit('setSelectedGenericOption', response.data)
 }
 
-export function loadSessionKeyValues(context) {
-  Vue.prototype
-    .$serverGet(restApi.uri.getAllSessionKeyValues)
-    .then((response) => {
-      context.commit('loadSessionKeyValues', response.data)
-    })
+export async function loadSessionKeyValues(context) {
+  let response = await Vue.prototype.$serverGet(
+    restApi.uri.getAllSessionKeyValues
+  )
+  context.commit('loadSessionKeyValues', response.data)
 }
 
-export function addNewPackage(context, filePath) {
-  return Vue.prototype
-    .$serverPost(restApi.uri.addNewPackage, { path: filePath })
-    .then((response) => {
-      if (response.data.isValid) {
-        return getProjectPackages(context).then((packages) => {
-          return { packages: packages, isValid: response.data.isValid }
-        })
-      } else {
-        return Promise.resolve({ isValid: false, err: response.data.err })
-      }
-    })
+/**
+ * Adds a new custom package.
+ *
+ * @param {*} context
+ * @param {*} filePath
+ * @returns validity object
+ */
+export async function addNewPackage(context, filePath) {
+  let response = await Vue.prototype.$serverPost(restApi.uri.addNewPackage, {
+    path: filePath,
+  })
+
+  if (response.data.isValid) {
+    let packages = await getProjectPackages(context)
+    return { packages: packages, isValid: response.data.isValid }
+  } else {
+    return { isValid: false, err: response.data.err }
+  }
 }
 
 export function deleteSessionPackage(context, sessionPackage) {

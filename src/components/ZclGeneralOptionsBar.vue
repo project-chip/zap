@@ -35,7 +35,7 @@ limitations under the License.
           @filter="filterMfgCode"
           outlined
           dense
-          data-cy='manufacturer-name-or-code'
+          data-cy="manufacturer-name-or-code"
         />
       </div>
       <div class="q-mr-sm vertical-align:middle">Default Response Policy</div>
@@ -52,7 +52,7 @@ limitations under the License.
         "
         outlined
         dense
-        data-cy='default-response-policy'
+        data-cy="default-response-policy"
       />
       <div>
         <q-toggle
@@ -76,8 +76,7 @@ limitations under the License.
         :outline="none"
         to="/customZcl"
       >
-        <q-icon name="add" class="text-align"/>
-        <div class="text-align">Add Custom ZCL</div>
+        <div class="text-align">ZCL Extensions...</div>
       </q-btn>
       <q-space />
     </q-toolbar>
