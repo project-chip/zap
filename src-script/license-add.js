@@ -20,9 +20,9 @@
 let fs = require('fs')
 let path = require('path')
 
-const licenseJs = (year) => `/**
+const licenseJs = (year, who = 'Silicon Labs') => `/**
  *
- *    Copyright (c) ${year} Silicon Labs
+ *    Copyright (c) ${year} ${who}
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -38,9 +38,9 @@ const licenseJs = (year) => `/**
  */
 `
 
-const licenseTestJs = (year, jestEnv = 'node') => `/**
+const licenseTestJs = (year, jestEnv = 'node', who = 'Silicon Labs') => `/**
  *
- *    Copyright (c) ${year} Silicon Labs
+ *    Copyright (c) ${year} ${who}
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -59,8 +59,8 @@ const licenseTestJs = (year, jestEnv = 'node') => `/**
  */
 `
 
-const licenseXml = (year) => `<!--
-Copyright (c) 2008,${year} Silicon Labs.
+const licenseXml = (year, who = 'Silicon Labs') => `<!--
+Copyright (c) 2008,${year} ${who}.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -79,6 +79,7 @@ limitations under the License.
 // Directories that we will scan
 const directories = ['src', 'src-electron', 'test']
 const startYear = 2020
+const whos = ['Silicon Labs', 'Project CHIP Authors']
 
 async function processSingleFile(path) {
   let isVue = path.endsWith('.vue')
@@ -91,25 +92,27 @@ async function processSingleFile(path) {
   fs.readFile(path, 'utf8', (err, data) => {
     if (err) throw err
 
-    for (let year = startYear; year <= currentYear; year++) {
-      if (isTestJs && data.startsWith(licenseTestJs(year, 'node'))) {
-        console.log(`    -  valid: ${path}: `)
-        return
-      }
+    for (const who of whos) {
+      for (let year = startYear; year <= currentYear; year++) {
+        if (isTestJs && data.startsWith(licenseTestJs(year, 'node', who))) {
+          console.log(`    -  valid: ${path}: `)
+          return
+        }
 
-      if (isTestJs && data.startsWith(licenseTestJs(year, 'jsdom'))) {
-        console.log(`    -  valid: ${path}: `)
-        return
-      }
+        if (isTestJs && data.startsWith(licenseTestJs(year, 'jsdom', who))) {
+          console.log(`    -  valid: ${path}: `)
+          return
+        }
 
-      if (isJs && data.startsWith(licenseJs(year))) {
-        console.log(`    -  valid: ${path}: `)
-        return
-      }
+        if (isJs && data.startsWith(licenseJs(year, who))) {
+          console.log(`    -  valid: ${path}: `)
+          return
+        }
 
-      if (isVue && data.startsWith(licenseXml(year))) {
-        console.log(`    -  valid: ${path}: `)
-        return
+        if (isVue && data.startsWith(licenseXml(year, who))) {
+          console.log(`    -  valid: ${path}: `)
+          return
+        }
       }
     }
 

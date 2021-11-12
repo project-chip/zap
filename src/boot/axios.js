@@ -24,7 +24,7 @@ import * as Util from '../util/util.js'
 Vue.prototype.$axios = axios({ withCredentials: true })
 
 // You can set this to false to not log all the roundtrips
-const log = true
+const log = false
 
 if (window.sessionStorage.getItem('session_uuid') == null) {
   window.sessionStorage.setItem('session_uuid', uuidv4())

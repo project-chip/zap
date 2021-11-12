@@ -30,6 +30,32 @@ limitations under the License.
     >
       <template v-slot:body="props">
         <q-tr :props="props">
+          <q-td key="status" :props="props" class="q-px-none">
+            <q-icon
+              v-show="displayAttrWarning(props.row)"
+              name="warning"
+              class="text-amber"
+              style="font-size: 1.5rem"
+            />
+            <q-popup-edit
+              :disable="!displayAttrWarning(props.row)"
+              :cover="false"
+              :offset="[0, -54]"
+              content-class="bg-white text-black"
+              style="overflow-wrap: break-word; padding: 0px"
+            >
+              <div class="row items-center" items-center style="padding: 0px">
+                <q-icon
+                  name="warning"
+                  class="text-amber q-mr-sm"
+                  style="font-size: 1.5rem"
+                ></q-icon>
+                <div class="vertical-middle text-subtitle2">
+                  Reporatble change should be in {{props.row.type.toUpperCase()}} Range
+                </div>
+              </div>
+            </q-popup-edit>
+          </q-td>
           <q-td key="enabled" :props="props" auto-width>
             <q-toggle
               class="q-mt-xs"
@@ -47,8 +73,21 @@ limitations under the License.
               "
             />
           </q-td>
+          <q-td key="attrID" :props="props" auto-width>{{
+            asHex(props.row.code, 4)
+          }}</q-td>
           <q-td key="attrName" :props="props" auto-width>{{
             props.row.label
+          }}</q-td>
+          <q-td key="required" :props="props" auto-width>
+            {{ isAttributeRequired(props.row) ? 'Yes' : '' }}
+          </q-td>
+          <q-td key="mfgID" :props="props" auto-width>{{
+            selectedCluster.manufacturerCode
+              ? asHex(selectedCluster.manufacturerCode, 4)
+              : props.row.manufacturerCode
+              ? asHex(props.row.manufacturerCode, 4)
+              : ''
           }}</q-td>
           <q-td key="clientServer" :props="props" auto-width>{{
             props.row.side === 'client' ? 'Client' : 'Server'
@@ -93,15 +132,29 @@ limitations under the License.
               "
             />
           </q-td>
+          <q-td key="type" :props="props" auto-width>{{
+            props.row.type ? props.row.type.toUpperCase() : 'UNKNOWN'
+          }}</q-td>
           <q-td key="reportable" :props="props" auto-width>
             <q-input
               v-show="isAttributeAnalog(props.row)"
               dense
+              bottom-slots
+              hide-bottom-space
               outlined
-              v-model.number="
-                selectionReportableChange[
+              min="0"
+              v-model="selectionReportableChange[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                ]
+                ]"
+              :error="
+                !isDefaultValueValid(
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                )
+              "
+              :error-message="
+                getDefaultValueErrorMessage(
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                )
               "
               @input="
                 handleAttributeDefaultChange(
@@ -115,7 +168,7 @@ limitations under the License.
             />
             <q-input
               v-show="!isAttributeAnalog(props.row)"
-              label="<<not analog>>"
+              label=" not analog "
               disable
               borderless
             />
@@ -166,6 +219,28 @@ export default {
           })
       },
     },
+    requiredDeviceTypeAttributes: {
+      get() {
+        return this.$store.state.zap.attributeView.requiredAttributes
+      },
+    },
+    requiredAttributes: {
+      get() {
+        console.log(this.relevantAttributeData
+            .filter(
+              (attribute) =>
+                !attribute.isOptional ||
+                this.requiredDeviceTypeAttributes.includes(attribute.id)
+            ))
+        return this.relevantAttributeData
+            .filter(
+              (attribute) =>
+                !attribute.isOptional ||
+                this.requiredDeviceTypeAttributes.includes(attribute.id)
+            )
+            .map((attribute) => attribute.id)
+      },
+    },
   },
   data() {
     return {
@@ -175,11 +250,27 @@ export default {
       },
       columns: [
         {
+          name: 'status',
+          required: false,
+          label: '',
+          align: 'left',
+          style: 'width:1%',
+        },
+        {
           name: 'enabled',
           label: 'Enabled',
           field: 'enabled',
           align: 'left',
           sortable: true,
+        },
+        {
+          name: 'attrID',
+          align: 'left',
+          label: 'Attribute ID',
+          field: 'attrID',
+          sortable: true,
+          style: 'max-width: 90px',
+          headerStyle: 'max-width: 90px'
         },
         {
           name: 'attrName',
@@ -189,10 +280,24 @@ export default {
           sortable: true,
         },
         {
+          name: 'required',
+          label: 'Required',
+          field: 'required',
+          align: 'left',
+          sortable: true,
+        },
+        {
           name: 'clientServer',
           label: 'Client/Server',
           field: 'clientServer',
           align: 'left',
+          sortable: true,
+        },
+        {
+          name: 'mfgID',
+          label: 'Mfg Code',
+          align: 'left',
+          field: 'mfgID',
           sortable: true,
         },
         {
@@ -208,6 +313,13 @@ export default {
           field: 'max',
         },
         {
+          name: 'type',
+          align: 'left',
+          label: 'Type',
+          field: 'type',
+          sortable: true,
+        },
+        {
           name: 'reportable',
           align: 'left',
           label: 'Reportable Change',
@@ -219,6 +331,18 @@ export default {
   methods: {
     isRowDisabled(attributeId) {
       return !this.editableAttributesReporting[attributeId]
+    },
+    displayAttrWarning(row) {
+      // TODO display proper warnings
+    let reporableValue = this.selectionReportableChange[
+                  this.hashAttributeIdClusterId(row.id, this.selectedCluster.id)
+                ];
+      let typeMaxLimit = Number(row.type.match(/int(\d+)/i)?.[1]);
+      return typeMaxLimit && reporableValue && reporableValue>Math.pow(2,typeMaxLimit) ;
+    },
+    isAttributeRequired(attribute) {
+      // TODO set by reporting required
+      return this.requiredAttributes.includes(attribute.id)
     },
     isAttributeAnalog(props) {
       return this.isTypeAnalog(props.type)
@@ -267,3 +391,14 @@ export default {
   },
 }
 </script>
+<style >
+/** disableing numbber input arrows */
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+</style>

@@ -118,6 +118,7 @@ exports.map = {
       type: x.TYPE,
       isArray: dbApi.fromDbBool(x.IS_ARRAY),
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
+      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
     }
   },
 
@@ -176,6 +177,7 @@ exports.map = {
       isArray: dbApi.fromDbBool(x.IS_ARRAY),
       presentIf: x.PRESENT_IF,
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
+      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       introducedInRef: x.INTRODUCED_IN_REF,
       removedInRef: x.REMOVED_IN_REF,
       countArg: x.COUNT_ARG,
@@ -239,12 +241,14 @@ exports.map = {
       isEnum: dbApi.fromDbBool(x.IS_ENUM),
       isWritable: dbApi.fromDbBool(x.IS_WRITABLE),
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
+      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
     }
   },
 
   atomic: (x) => {
     if (x == null) return undefined
     return {
+      id: x.ATOMIC_ID,
       atomicId: x.ATOMIC_IDENTIFIER,
       name: x.NAME,
       description: x.DESCRIPTION,

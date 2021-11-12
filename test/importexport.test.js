@@ -265,7 +265,7 @@ test(
     let boundedCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
     )
-    expect(boundedCounts).toStrictEqual([11, 2])
+    expect(boundedCounts).toStrictEqual([13, 4])
     let singletonCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )

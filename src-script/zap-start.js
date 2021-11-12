@@ -16,6 +16,8 @@
  *    limitations under the License.
  */
 
+const path = require('path')
+
 const scriptUtil = require('./script-util.js')
 
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
@@ -30,7 +32,10 @@ scriptUtil
   .then(() => {
     let cmdArgs = [
       'electron',
-      'dist/src-electron/main-process/electron-main.js',
+      path.join(
+        __dirname,
+        '../dist/src-electron/main-process/electron-main.js'
+      ),
     ]
 
     if (process.platform == 'linux') {

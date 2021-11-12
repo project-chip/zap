@@ -171,6 +171,7 @@ function isFloat(type) {
  * @returns true if the said type is a string prefixed by one byte length
  */
 function isOneBytePrefixedString(type) {
+  type = type.toLowerCase();
   return type == 'char_string' || type == 'octet_string'
 }
 /**
@@ -180,6 +181,7 @@ function isOneBytePrefixedString(type) {
  * @returns true if the said type is a string prefixed by two byte length
  */
 function isTwoBytePrefixedString(type) {
+  type = type.toLowerCase();
   return type == 'long_char_string' || type == 'long_octet_string'
 }
 

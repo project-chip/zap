@@ -7,8 +7,9 @@
     <modifier type="fabric-sensitive" description="Fabric-sensitive data"/>
     <role type="view" description="View privilege"/>
     <role type="operate" description="Operate privilege"/>
-    <role type="manage" description="Managing privilege"/>
-    <role type="administer" description="Administrative privilege"/>
+    <!-- Privilege is an alias to role. Does the same thing. -->
+    <privilege type="manage" description="Managing privilege"/>
+    <privilege type="administer" description="Administrative privilege"/>
   </accessControl>
   <defaultAccess type="command">
     <access op="invoke"/>

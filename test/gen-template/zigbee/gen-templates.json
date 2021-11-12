@@ -14,6 +14,9 @@
     "cli": "cli.json",
     "types": {
       "bacnet_oid": "bacnet_type_t"
+    },
+    "configOptions": {
+      "shareConfigsAcrossEndpoints": false
     }
   },
   "zcl": {
@@ -117,9 +120,7 @@
     }
   },
   "override": "addon-override.js",
-  "helpers": [
-    "addon-helper.js"
-  ],
+  "helpers": ["addon-helper.js"],
   "templates": [
     {
       "path": "simple-test.zapt",

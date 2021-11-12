@@ -53,50 +53,58 @@ limitations under the License.
               content-class="bg-white text-black"
               style="overflow-wrap: break-word; padding: 0px"
             >
-            <div v-show="missingRequiredUcComponents(props.row).length"  class="row">
-              <div class="row items-center" items-center style="padding: 0px">
+              <div
+                v-show="missingRequiredUcComponents(props.row).length"
+                class="row"
+              >
+                <div class="row items-center" items-center style="padding: 0px">
+                  <q-icon
+                    name="warning"
+                    class="text-amber q-mr-sm"
+                    style="font-size: 1.5rem"
+                  ></q-icon>
+                  <div class="vertical-middle text-subtitle2">
+                    Required SLC Component not installed
+                  </div>
+                </div>
+                <div class="row no-wrap">
+                  Install following components to continue endpoint
+                  configuration.
+                </div>
+
+                <div class="row no-wrap">
+                  <ul style="list-style-type: none">
+                    <li
+                      v-for="id in missingRequiredUcComponents(props.row)"
+                      :key="id"
+                    >
+                      {{ ucLabel(id) }}
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="row justify-end">
+                  <q-btn
+                    unelevated
+                    text-color="primary"
+                    @click="enableRequiredComponents(props.row.id)"
+                    >Install</q-btn
+                  >
+                </div>
+              </div>
+
+              <div
+                class="row no-wrap"
+                v-show="isRequiredClusterMissingForId(props.row.id)"
+              >
                 <q-icon
                   name="warning"
                   class="text-amber q-mr-sm"
                   style="font-size: 1.5rem"
                 ></q-icon>
-                <div class="vertical-middle text-subtitle2">
-                  Required SLC Component not installed
-                </div>
+                The configuration is missing the
+                {{ missingClusterMessage(props.row) }}
               </div>
-              <div class="row no-wrap">
-                Install following components to continue endpoint configuration.
-              </div>
-
-              <div class="row no-wrap">
-                <ul style="list-style-type: none">
-                  <li
-                    v-for="id in missingRequiredUcComponents(props.row)"
-                    :key="id"
-                  >
-                    {{ ucLabel(id) }}
-                  </li>
-                </ul>
-              </div>
-
-              <div class="row justify-end">
-                <q-btn
-                  unelevated
-                  text-color="primary"
-                  @click="enableRequiredComponents(props.row.id)"
-                  >Install</q-btn
-                >
-              </div>
-            </div>
-
-            <div class="row no-wrap" v-show="isRequiredClusterMissingForId(props.row.id)">
-              <q-icon
-                  name="warning"
-                  class="text-amber q-mr-sm"
-                  style="font-size: 1.5rem"
-                ></q-icon>
-                  The configuration is missing the {{missingClusterMessage(props.row)}}
-            </div>
             </q-popup-edit>
           </q-td>
           <q-td key="label" :props="props" auto-width>
@@ -187,15 +195,20 @@ export default {
       return this.showStatus || this.isAnyRequiredClusterNotEnabled()
     },
     missingClusterMessage(clusterData) {
-      let missingRequiredClusterPair = this.getMissingRequiredClusterPair(clusterData.id)
-      let msg = ""
-      if ( missingRequiredClusterPair.missingClient && missingRequiredClusterPair.missingServer) {
-        msg = "server and client clusters, which are" 
+      let missingRequiredClusterPair = this.getMissingRequiredClusterPair(
+        clusterData.id
+      )
+      let msg = ''
+      if (
+        missingRequiredClusterPair.missingClient &&
+        missingRequiredClusterPair.missingServer
+      ) {
+        msg = 'server and client clusters, which are'
       } else {
-       msg = missingRequiredClusterPair.missingClient ? 'client' : 'server' 
-       msg = msg + ' cluster which is'
+        msg = missingRequiredClusterPair.missingClient ? 'client' : 'server'
+        msg = msg + ' cluster which is'
       }
-      return msg + ' required for this endpoint\'s device type.'
+      return msg + " required for this endpoint's device type."
     },
     isClusterRequired(id) {
       let clientRequired = this.recommendedClients.includes(id)
@@ -215,12 +228,12 @@ export default {
     },
     isAnyRequiredClusterNotEnabled() {
       let lackingRequiredCluster = false
-      this.recommendedClients.forEach(id => {
+      this.recommendedClients.forEach((id) => {
         if (!this.isClientEnabled(id)) {
           lackingRequiredCluster = true
         }
       })
-      this.recommendedServers.forEach(id => {
+      this.recommendedServers.forEach((id) => {
         if (!this.isServerEnabled(id)) {
           lackingRequiredCluster = true
         }
@@ -228,12 +241,20 @@ export default {
       return lackingRequiredCluster
     },
     getMissingRequiredClusterPair(id) {
-      return {missingClient: this.recommendedClients.includes(id) && !this.isClientEnabled(id),
-              missingServer: this.recommendedServers.includes(id) && !this.isServerEnabled(id)}
+      return {
+        missingClient:
+          this.recommendedClients.includes(id) && !this.isClientEnabled(id),
+        missingServer:
+          this.recommendedServers.includes(id) && !this.isServerEnabled(id),
+      }
     },
     isRequiredClusterMissingForId(id) {
       let missingRequiredClusterPair = this.getMissingRequiredClusterPair(id)
-      if ( missingRequiredClusterPair.missingClient || missingRequiredClusterPair.missingServer) return true
+      if (
+        missingRequiredClusterPair.missingClient ||
+        missingRequiredClusterPair.missingServer
+      )
+        return true
       return false
     },
     doesClusterHaveAnyWarnings(clusterData) {
@@ -259,7 +280,7 @@ export default {
 
       this.$store
         .dispatch('zap/updateSelectedClients', {
-          endpointTypeId: this.selectedEndpointTypeId,
+          endpointTypeIdList: this.endpointTypeIdList,
           id: id,
           added: clientSelected,
           listType: 'selectedClients',
@@ -267,8 +288,7 @@ export default {
         })
         .then(() =>
           this.$store.dispatch('zap/updateSelectedServers', {
-            clusterId: this.selectedClusterId,
-            endpointTypeId: this.selectedEndpointTypeId,
+            endpointTypeIdList: this.endpointTypeIdList,
             id: id,
             added: serverSelected,
             listType: 'selectedServers',
@@ -391,5 +411,4 @@ export default {
   background-color: $grey-4;
   padding: 15px 15px 15px 15px;
 }
-
 </style>

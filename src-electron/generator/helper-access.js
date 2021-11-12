@@ -16,14 +16,7 @@
  */
 
 const queryAccess = require('../db/query-access')
-const queryPackage = require('../db/query-package')
 const templateUtil = require('./template-util')
-const bin = require('../util/bin')
-const env = require('../util/env')
-const types = require('../util/types')
-const string = require('../util/string')
-const _ = require('lodash')
-const dbEnum = require('../../src-shared/db-enum')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}

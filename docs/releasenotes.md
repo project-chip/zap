@@ -1,5 +1,8 @@
 # Release notes
 
-## Pre-release
+2021.10.18:
 
-Nothing has been released yet.
+- Limited support for Custom ZCL device types (446696)
+  If a Custom ZCL device type has overlapping Profile and Device ID with the standard ZCL standard device types, the save / generation process might not behave correctly.
+  A temporary workarounds is to remove the standard ZCL device type from the ZCL XML
+  to accommodate the custom definition.

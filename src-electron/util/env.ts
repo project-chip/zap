@@ -321,8 +321,17 @@ export function logWarning(msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logSql(msg: string, err = null) {
-  log('sql', msg, err)
+export function logSql(msg: string, query: string | null, args: string | null) {
+  if (query == null) {
+    log('sql', msg)
+  } else {
+    // If you want a printout of all the queries for someting,
+    // you can uncomment this next line. This is sometimes useful
+    // in development environment to build a map of which queries
+    // are bottlenecks, so they should be cached.
+    //console.log(`SQL: ${query.replace(/\s/g, ' ')}`)
+    log('sql', `${msg} => ${query}: ${args}`)
+  }
 }
 
 /**
@@ -385,7 +394,7 @@ export function isMatchingVersion(
  */
 export function versionsCheck() {
   let expectedNodeVersion = ['v14.x.x', 'v12.x.x']
-  let expectedElectronVersion = ['12.0.x']
+  let expectedElectronVersion = ['12.2.x']
   let nodeVersion = process.version
   let electronVersion = process.versions.electron
   let ret = true

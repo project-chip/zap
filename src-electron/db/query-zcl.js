@@ -20,120 +20,12 @@
  *
  * @module DB API: zcl database access
  */
-const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping.js')
-
-/**
- * Retrieves all the enums in the database.
- *
- * @export
- * @param {*} db
- * @returns Promise that resolves with the rows of enums.
- */
-async function selectAllEnums(db, packageId) {
-  return dbApi
-    .dbAll(
-      db,
-      `SELECT ENUM_ID, NAME, TYPE FROM ENUM  WHERE PACKAGE_REF = ? ORDER BY NAME`,
-      [packageId]
-    )
-    .then((rows) => rows.map(dbMapping.map.enum))
-}
-
-/**
- * Retrieves all the enums in the database.
- *
- * @export
- * @param {*} db
- * @returns Promise that resolves with the rows of enums.
- */
-async function selectClusterEnums(db, packageId, clusterId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  E.ENUM_ID,
-  E.NAME,
-  E.TYPE
-FROM
-  ENUM AS E
-INNER JOIN
-  ENUM_CLUSTER AS EC
-ON
-  E.ENUM_ID = EC.ENUM_REF
-WHERE
-  E.PACKAGE_REF = ?
-  AND EC.CLUSTER_REF = ?
-ORDER BY E.NAME`,
-      [packageId, clusterId]
-    )
-    .then((rows) => rows.map(dbMapping.map.enum))
-}
-
-async function selectAllEnumItemsById(db, id) {
-  return dbApi
-    .dbAll(
-      db,
-      'SELECT NAME, VALUE FROM ENUM_ITEM WHERE ENUM_REF = ? ORDER BY FIELD_IDENTIFIER',
-      [id]
-    )
-    .then((rows) => rows.map(dbMapping.map.enumItem))
-}
-
-async function selectAllEnumItems(db, packageId) {
-  return dbApi
-    .dbAll(
-      db,
-      `SELECT ENUM_ITEM.NAME,
-              ENUM_ITEM.VALUE,
-              ENUM_ITEM.ENUM_REF
-       FROM ENUM_ITEM, ENUM
-       WHERE ENUM.PACKAGE_REF = ? AND ENUM.ENUM_ID = ENUM_ITEM.ENUM_REF
-       ORDER BY ENUM_ITEM.ENUM_REF, ENUM_ITEM.FIELD_IDENTIFIER`,
-      [packageId]
-    )
-    .then((rows) => rows.map(dbMapping.map.enumItem))
-}
-
-async function selectEnumById(db, id) {
-  return dbApi
-    .dbGet(db, 'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE ENUM_ID = ?', [id])
-    .then(dbMapping.map.enum)
-}
-
-async function selectEnumByName(db, name, packageId) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE NAME = ? AND PACKAGE_REF = ? ORDER BY NAME',
-      [name, packageId]
-    )
-    .then(dbMapping.map.enum)
-}
-
-/**
- * Retrieves all the bitmaps in the database.
- *
- * @export
- * @param {*} db
- * @returns Promise that resolves with the rows of bitmaps.
- */
-async function selectAllBitmaps(db, packageId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  BITMAP_ID,
-  NAME,
-  TYPE
-FROM BITMAP
-WHERE PACKAGE_REF = ? ORDER BY NAME`,
-      [packageId]
-    )
-    .then((rows) => rows.map(dbMapping.map.bitmap))
-}
+const dbApi = require('./db-api')
+const dbMapping = require('./db-mapping')
+const queryAtomic = require('./query-atomic')
+const queryEnum = require('./query-enum')
+const queryStruct = require('./query-struct')
+const queryBitmap = require('./query-bitmap')
 
 /**
  * Retrieves all the bitmaps that are associated with a cluster.
@@ -184,24 +76,6 @@ async function selectAllBitmapFields(db, packageId) {
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
-}
-
-async function selectBitmapByName(db, packageId, name) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE NAME = ? AND PACKAGE_REF = ? ',
-      [name, packageId]
-    )
-    .then(dbMapping.map.bitmap)
-}
-
-async function selectBitmapById(db, id) {
-  return dbApi
-    .dbGet(db, 'SELECT BITMAP_ID, NAME, TYPE FROM BITMAP WHERE BITMAP_ID = ?', [
-      id,
-    ])
-    .then(dbMapping.map.bitmap)
 }
 
 /**
@@ -402,7 +276,8 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
       SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
       SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
       SI.IS_WRITABLE AS ITEM_IS_WRITABLE,
-      SI.IS_NULLABLE AS ITEM_IS_NULLABLE
+      SI.IS_NULLABLE AS ITEM_IS_NULLABLE,
+      SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL
     FROM
       STRUCT AS S
     LEFT JOIN
@@ -426,7 +301,8 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
       SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
       SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
       SI.IS_WRITABLE AS ITEM_IS_WRITABLE,
-      SI.IS_NULLABLE AS ITEM_IS_NULLABLE
+      SI.IS_NULLABLE AS ITEM_IS_NULLABLE,
+      SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL
     FROM
       STRUCT AS S
     INNER JOIN
@@ -472,26 +348,11 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
       maxLength: value.ITEM_MAX_LENGTH,
       isWritable: dbApi.fromDbBool(value.ITEM_IS_WRITABLE),
       isNullable: dbApi.fromDbBool(value.ITEM_IS_NULLABLE),
+      isOptional: dbApi.fromDbBool(value.ITEM_IS_OPTIONAL),
     })
     objectToActOn.itemCnt++
     return acc
   }, [])
-}
-
-async function selectStructById(db, id) {
-  return dbApi
-    .dbGet(db, 'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ?', [id])
-    .then(dbMapping.map.struct)
-}
-
-async function selectStructByName(db, name, packageId) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT STRUCT_ID, NAME FROM STRUCT WHERE NAME = ? AND PACKAGE_REF = ? ORDER BY NAME',
-      [name, packageId]
-    )
-    .then(dbMapping.map.struct)
 }
 
 async function selectAllStructItemsById(db, id) {
@@ -508,7 +369,8 @@ SELECT
   MIN_LENGTH,
   MAX_LENGTH,
   IS_WRITABLE,
-  IS_NULLABLE
+  IS_NULLABLE,
+  IS_OPTIONAL
 FROM
   STRUCT_ITEM
 WHERE STRUCT_REF = ?
@@ -540,7 +402,8 @@ SELECT
   SI.MIN_LENGTH,
   SI.MAX_LENGTH,
   SI.IS_WRITABLE,
-  SI.IS_NULLABLE
+  SI.IS_NULLABLE,
+  SI.IS_OPTIONAL
 FROM
   STRUCT_ITEM AS SI
 INNER JOIN
@@ -729,6 +592,8 @@ SELECT
   DEFINE,
   MIN,
   MAX,
+  MIN_LENGTH,
+  MAX_LENGTH,
   REPORT_MIN_INTERVAL,
   REPORT_MAX_INTERVAL,
   REPORTABLE_CHANGE,
@@ -770,6 +635,8 @@ SELECT
   DEFINE,
   MIN,
   MAX,
+  MIN_LENGTH,
+  MAX_LENGTH,
   REPORT_MIN_INTERVAL,
   REPORT_MAX_INTERVAL,
   REPORTABLE_CHANGE,
@@ -830,6 +697,8 @@ SELECT
   ATTRIBUTE.DEFINE,
   ATTRIBUTE.MIN,
   ATTRIBUTE.MAX,
+  ATTRIBUTE.MIN_LENGTH,
+  ATTRIBUTE.MAX_LENGTH,
   ATTRIBUTE.REPORT_MIN_INTERVAL,
   ATTRIBUTE.REPORT_MAX_INTERVAL,
   ATTRIBUTE.REPORTABLE_CHANGE,
@@ -913,6 +782,8 @@ SELECT
   A.DEFINE,
   A.MIN,
   A.MAX,
+  A.MIN_LENGTH,
+  A.MAX_LENGTH,
   A.REPORT_MIN_INTERVAL,
   A.REPORT_MAX_INTERVAL,
   A.REPORTABLE_CHANGE,
@@ -1001,10 +872,9 @@ ORDER BY
  * @returns promise that resolves into attributes.
  */
 async function selectAllAttributesBySide(db, side, packageId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   ATTRIBUTE_ID,
   CLUSTER_REF,
@@ -1016,6 +886,8 @@ SELECT
   DEFINE,
   MIN,
   MAX,
+  MIN_LENGTH,
+  MAX_LENGTH,
   REPORT_MIN_INTERVAL,
   REPORT_MAX_INTERVAL,
   REPORTABLE_CHANGE,
@@ -1031,16 +903,15 @@ FROM ATTRIBUTE
    WHERE SIDE = ?
    AND PACKAGE_REF = ?
 ORDER BY CODE`,
-      [side, packageId]
-    )
-    .then((rows) => rows.map(dbMapping.map.attribute))
+    [side, packageId]
+  )
+  return rows.map(dbMapping.map.attribute)
 }
 
 async function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   ENDPOINT_TYPE_REF,
   CLUSTER_REF,
@@ -1052,16 +923,15 @@ WHERE
   ENDPOINT_TYPE_REF = ?
 ORDER BY
   CLUSTER_REF`,
-      [endpointTypeId]
-    )
-    .then((rows) => rows.map(dbMapping.map.endpointTypeCluster))
+    [endpointTypeId]
+  )
+  return rows.map(dbMapping.map.endpointTypeCluster)
 }
 
 async function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   ETA.ENDPOINT_TYPE_REF,
   ETC.CLUSTER_REF,
@@ -1082,11 +952,9 @@ WHERE
   ETA.ENDPOINT_TYPE_REF = ?
   AND ETA.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
 ORDER BY ATTRIBUTE_REF`,
-      [endpointTypeId]
-    )
-    .then((rows) => {
-      return rows.map(dbMapping.map.endpointTypeAttribute)
-    })
+    [endpointTypeId]
+  )
+  return rows.map(dbMapping.map.endpointTypeAttribute)
 }
 
 async function selectEndpointTypeAttribute(
@@ -1095,10 +963,9 @@ async function selectEndpointTypeAttribute(
   attributeRef,
   clusterRef
 ) {
-  return dbApi
-    .dbGet(
-      db,
-      `
+  let row = await dbApi.dbGet(
+    db,
+    `
 SELECT
   ETA.ENDPOINT_TYPE_REF,
   ETC.CLUSTER_REF,
@@ -1119,16 +986,15 @@ WHERE
   AND ETA.ATTRIBUTE_REF = ?
   AND ETA.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
   AND ETC.CLUSTER_REF = ?`,
-      [endpointTypeId, attributeRef, clusterRef]
-    )
-    .then(dbMapping.map.endpointTypeAttribute)
+    [endpointTypeId, attributeRef, clusterRef]
+  )
+  return dbMapping.map.endpointTypeAttribute(row)
 }
 
 async function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF,
   ENDPOINT_TYPE_CLUSTER.CLUSTER_REF,
@@ -1141,16 +1007,15 @@ WHERE
   ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ?
   AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
 ORDER BY COMMAND_REF`,
-      [endpointTypeId]
-    )
-    .then((rows) => rows.map(dbMapping.map.endpointTypeCommand))
+    [endpointTypeId]
+  )
+  return rows.map(dbMapping.map.endpointTypeCommand)
 }
 
 async function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   DEVICE_TYPE_CLUSTER_ID,
   DEVICE_TYPE_REF,
@@ -1165,19 +1030,18 @@ FROM
 WHERE
   DEVICE_TYPE_REF = ?
 ORDER BY CLUSTER_REF`,
-      [deviceTypeRef]
-    )
-    .then((rows) => rows.map(dbMapping.map.deviceTypeCluster))
+    [deviceTypeRef]
+  )
+  return rows.map(dbMapping.map.deviceTypeCluster)
 }
 
 async function selectDeviceTypeClusterByDeviceTypeClusterId(
   db,
   deviceTypeClusterId
 ) {
-  return dbApi
-    .dbGet(
-      db,
-      `
+  let row = await dbApi.dbGet(
+    db,
+    `
 SELECT
   DEVICE_TYPE_CLUSTER_ID,
   DEVICE_TYPE_REF,
@@ -1191,16 +1055,15 @@ FROM
   DEVICE_TYPE_CLUSTER
 WHERE
   DEVICE_TYPE_CLUSTER_ID = ?`,
-      [deviceTypeClusterId]
-    )
-    .then(dbMapping.map.deviceTypeCluster)
+    [deviceTypeClusterId]
+  )
+  return dbMapping.map.deviceTypeCluster(row)
 }
 
 async function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   DEVICE_TYPE_CLUSTER.CLUSTER_REF,
   DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF,
@@ -1212,16 +1075,15 @@ FROM
 WHERE
   DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ?
   AND DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF`,
-      [deviceTypeRef]
-    )
-    .then((rows) => rows.map(dbMapping.map.deviceTypeAttribute))
+    [deviceTypeRef]
+  )
+  return rows.map(dbMapping.map.deviceTypeAttribute)
 }
 
 async function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
   DEVICE_TYPE_CLUSTER.CLUSTER_REF,
   DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF,
@@ -1233,9 +1095,9 @@ FROM
 WHERE
   DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ?
   AND DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF`,
-      [deviceTypeRef]
-    )
-    .then((rows) => rows.map(dbMapping.map.deviceTypeCommand))
+    [deviceTypeRef]
+  )
+  return rows.map(dbMapping.map.deviceTypeCommand)
 }
 
 /**
@@ -1288,6 +1150,15 @@ SET
     WHERE
       upper(ATTRIBUTE.DEFINE) = upper(DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_NAME)
     AND
+      ATTRIBUTE.CLUSTER_REF = (
+        SELECT
+          DEVICE_TYPE_CLUSTER.CLUSTER_REF
+        FROM
+          DEVICE_TYPE_CLUSTER
+        WHERE
+          DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF
+      )
+    AND
       ATTRIBUTE.PACKAGE_REF = ?
   )`,
     [packageId]
@@ -1316,6 +1187,15 @@ SET
     WHERE
       upper(COMMAND.NAME) = upper(DEVICE_TYPE_COMMAND.COMMAND_NAME)
     AND
+      COMMAND.CLUSTER_REF =
+      ( SELECT
+          DEVICE_TYPE_CLUSTER.CLUSTER_REF
+        FROM
+          DEVICE_TYPE_CLUSTER
+        WHERE
+          DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF
+      )
+    AND
       COMMAND.PACKAGE_REF = ?
   )`,
     [packageId]
@@ -1339,129 +1219,20 @@ async function updateDeviceTypeEntityReferences(db, packageId) {
   return updateCommandReferencesForDeviceTypeReferences(db, packageId)
 }
 
-const ATOMIC_QUERY = `
-SELECT
-  ATOMIC_IDENTIFIER,
-  NAME,
-  DESCRIPTION,
-  ATOMIC_SIZE,
-  IS_DISCRETE,
-  IS_STRING,
-  IS_LONG,
-  IS_CHAR,
-  IS_SIGNED
-FROM ATOMIC
-`
-
-/**
- * Locates atomic type based on a type name.
- *
- * @param {*} db
- * @param {*} packageId
- * @param {*} typeName
- */
-async function selectAtomicType(db, packageId, typeName) {
-  return dbApi
-    .dbGet(db, `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? AND NAME = ?`, [
-      packageId,
-      typeName == null ? typeName : typeName.toLowerCase(),
-    ])
-    .then(dbMapping.map.atomic)
-}
-
-/**
- * Retrieve the atomic by name, returning promise that resolves into an atomic, or null.
- * @param {*} db
- * @param {*} name
- * @param {*} packageId
- */
-async function selectAtomicByName(db, name, packageId) {
-  return dbApi
-    .dbGet(db, `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? AND UPPER(NAME) = ?`, [
-      packageId,
-      name.toUpperCase(),
-    ])
-    .then(dbMapping.map.atomic)
-}
-
-/**
- * Retrieves all atomic types under a given package Id.
- * @param {*} db
- * @param {*} packageId
- */
-async function selectAllAtomics(db, packageId) {
-  return dbApi
-    .dbAll(
-      db,
-      `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? ORDER BY ATOMIC_IDENTIFIER`,
-      [packageId]
-    )
-    .then((rows) => rows.map(dbMapping.map.atomic))
-}
-
-/**
- * Retrieves atomic type by a given Id.
- * @param {*} db
- * @param {*} packageId
- */
-async function selectAtomicById(db, id) {
-  return dbApi
-    .dbGet(db, `${ATOMIC_QUERY} WHERE ATOMIC_ID = ?`, [id])
-    .then((rows) => rows.map(dbMapping.map.atomic))
-}
-
-/**
- * Retrieves the size from atomic type.
- *
- * @param {*} db
- * @param {*} packageId
- * @param {*} type
- */
-async function selectAtomicSizeFromType(db, packageId, type) {
-  let row = await dbApi.dbGet(
-    db,
-    'SELECT ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
-    [packageId, type]
-  )
-  if (row == null) {
-    return null
-  } else {
-    return row.ATOMIC_SIZE
-  }
-}
-
 // exports
-exports.selectAllEnums = selectAllEnums
-exports.selectClusterEnums = selectClusterEnums
-exports.selectAllEnumItemsById = selectAllEnumItemsById
-exports.selectAllEnumItems = selectAllEnumItems
-exports.selectEnumById = selectEnumById
-exports.selectEnumByName = selectEnumByName
-
-exports.selectAllBitmaps = selectAllBitmaps
 exports.selectClusterBitmaps = selectClusterBitmaps
 exports.selectAllBitmapFields = selectAllBitmapFields
-exports.selectBitmapById = selectBitmapById
 exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById
-exports.selectBitmapByName = selectBitmapByName
 
 exports.selectAllDomains = selectAllDomains
 exports.selectDomainById = selectDomainById
-
-exports.selectAtomicByName = selectAtomicByName
-exports.selectAllAtomics = selectAllAtomics
-exports.selectAtomicSizeFromType = selectAtomicSizeFromType
-exports.selectAtomicType = selectAtomicType
-exports.selectAtomicById = selectAtomicById
 
 exports.selectAllStructsWithItemCount = selectAllStructsWithItemCount
 exports.selectAllStructsWithItems = selectAllStructsWithItems
 exports.selectClusterStructsWithItems = selectClusterStructsWithItems
 
-exports.selectStructById = selectStructById
 exports.selectAllStructItemsById = selectAllStructItemsById
 exports.selectAllStructItemsByStructName = selectAllStructItemsByStructName
-exports.selectStructByName = selectStructByName
 
 exports.selectAllClusters = selectAllClusters
 exports.selectClusterById = selectClusterById
@@ -1504,3 +1275,23 @@ exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 exports.selectEnumClusters = selectEnumClusters
 exports.selectStructClusters = selectStructClusters
 exports.selectBitmapClusters = selectBitmapClusters
+
+// Forwarded exports so we don't break API.
+exports.selectAllAtomics = queryAtomic.selectAllAtomics
+exports.selectAtomicSizeFromType = queryAtomic.selectAtomicSizeFromType
+exports.selectAtomicType = queryAtomic.selectAtomicType
+exports.selectAtomicById = queryAtomic.selectAtomicById
+
+exports.selectAllEnums = queryEnum.selectAllEnums
+exports.selectClusterEnums = queryEnum.selectClusterEnums
+exports.selectAllEnumItemsById = queryEnum.selectAllEnumItemsById
+exports.selectAllEnumItems = queryEnum.selectAllEnumItems
+exports.selectEnumById = queryEnum.selectEnumById
+exports.selectEnumByName = queryEnum.selectEnumByName
+
+exports.selectStructById = queryStruct.selectStructById
+exports.selectStructByName = queryStruct.selectStructByName
+
+exports.selectBitmapById = queryBitmap.selectBitmapById
+exports.selectAllBitmaps = queryBitmap.selectAllBitmaps
+exports.selectBitmapByName = queryBitmap.selectBitmapByName

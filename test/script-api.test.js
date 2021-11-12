@@ -19,20 +19,22 @@
  */
 const path = require('path')
 const fs = require('fs')
-const importJs = require('../src-electron/importexport/import.js')
-const dbApi = require('../src-electron/db/db-api.js')
+const importJs = require('../src-electron/importexport/import')
+const dbApi = require('../src-electron/db/db-api')
 const env = require('../src-electron/util/env.ts')
-const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const querySession = require('../src-electron/db/query-session.js')
-const querySessionZcl = require('../src-electron/db/query-session-zcl.js')
-const testUtil = require('./test-util.js')
-const queryEndpoint = require('../src-electron/db/query-endpoint.js')
-const dbEnum = require('../src-shared/db-enum.js')
-const utilJs = require('../src-electron/util/util.js')
-let testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
+const zclLoader = require('../src-electron/zcl/zcl-loader')
+const querySession = require('../src-electron/db/query-session')
+const queryPackage = require('../src-electron/db/query-package')
+const querySessionZcl = require('../src-electron/db/query-session-zcl')
+const testUtil = require('./test-util')
+const queryEndpoint = require('../src-electron/db/query-endpoint')
+const dbEnum = require('../src-shared/db-enum')
+const utilJs = require('../src-electron/util/util')
 
-let testScript3 = path.join(__dirname, 'resource/test-script-3.js')
+let testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
 let testScript2 = path.join(__dirname, 'resource/test-script-2.js')
+let testScript3 = path.join(__dirname, 'resource/test-script-3.js')
+let testScript4 = path.join(__dirname, 'resource/test-script-4.js')
 
 beforeAll(() => {
   process.env.DEV = true
@@ -113,6 +115,27 @@ test(
       endpoints[0].endpointTypeRef
     )
     expect(groupsCommands.length).toBe(10)
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  path.basename(testScript4),
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await utilJs.initializeSessionPackage(db, sid, {
+      zcl: env.builtinSilabsZclMetafile,
+    })
+    await importJs.importDataFromFile(db, testFile, {
+      sessionId: sid,
+      postImportScript: testScript4,
+    })
+    let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
+    let cl = await querySessionZcl.selectSessionClusterByCode(db, sid, 0x0101)
+    expect(cl).not.toBeNull()
+
+    expect(endpoints.length).toBe(3)
+    expect(endpoints[0].endpointIdentifier).toBe(41)
   },
   testUtil.timeout.medium()
 )

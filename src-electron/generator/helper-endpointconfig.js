@@ -387,13 +387,21 @@ function endpoint_attribute_long_defaults(options) {
 
   let ret = '{ \\\n'
   this.longDefaultsList.forEach((ld) => {
+    let value = ld.value;
+    if (littleEndian && !types.isString(ld.type)) {
+      // ld.value is in big-endian order.  For types for which endianness
+      // matters, we need to reverse it.
+      let valArr = value.split(/\s*,\s*/).filter(s => s.length != 0);
+      valArr.reverse();
+      value = valArr.join(", ") + ", ";
+    }
     if (ld.comment != comment) {
       ret += `\\\n  /* ${ld.comment}, ${
         littleEndian ? 'little-endian' : 'big-endian'
       } */\\\n\\\n`
       comment = ld.comment
     }
-    ret += `  /* ${ld.index} - ${ld.name}, */\\\n  ${ld.value}\\\n\\\n`
+    ret += `  /* ${ld.index} - ${ld.name}, */\\\n  ${value}\\\n\\\n`
   })
   ret += '}\n'
 
@@ -470,18 +478,26 @@ async function collectAttributes(endpointTypes) {
       // Go over all the attributes in the endpoint and add them to the list.
       c.attributes.forEach((a) => {
         let typeSize = a.typeSize
+        // Various types store the length of the actual content in bytes
+        if (types.isOneBytePrefixedString(a.type)) {
+          typeSize += 1
+        } else if (types.isTwoBytePrefixedString(a.type)) {
+          typeSize += 2
+        }
+        // External attributes should be treated as having a typeSize of 0 for
+        // most purposes (e.g. allocating space for them), but should still
+        // affect the "largest attribute size" value, because buffers used to
+        // read attributes, including external ones, may be sized based on that.
+        let contributionToLargestAttribute = typeSize;
+        if (a.storage == dbEnum.storageOption.external) {
+          typeSize = 0;
+        }
+
         let defaultValueIsMacro = false
         let attributeDefaultValue = a.defaultValue
         if (typeSize > 2) {
           // We will need to generate the GENERATED_DEFAULTS
           longDefaults.push(a)
-
-          // Various types stores the length of the actual content in bytes
-          if (types.isOneBytePrefixedString(a.type)) {
-            typeSize += 1
-          } else if (types.isTwoBytePrefixedString(a.type)) {
-            typeSize += 2
-          }
 
           let def = types.longTypeDefaultValue(typeSize, a.type, a.defaultValue)
           let longDef = {
@@ -490,6 +506,7 @@ async function collectAttributes(endpointTypes) {
             index: longDefaultsIndex,
             name: a.name,
             comment: cluster.comment,
+            type: a.type,
           }
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           defaultValueIsMacro = true
@@ -529,8 +546,8 @@ async function collectAttributes(endpointTypes) {
           }
           reportList.push(rpt)
         }
-        if (typeSize > largestAttribute) {
-          largestAttribute = typeSize
+        if (contributionToLargestAttribute > largestAttribute) {
+          largestAttribute = contributionToLargestAttribute;
         }
         if (a.isSingleton) {
           singletonsSize += typeSize
@@ -549,6 +566,7 @@ async function collectAttributes(endpointTypes) {
         }
         if (a.isSingleton) mask.push('singleton')
         if (a.isWritable) mask.push('writable')
+        if (a.isNullable) mask.push('nullable')
         let attr = {
           id: a.hexCode, // attribute code
           type: `ZAP_TYPE(${a.type.toUpperCase()})`, // type

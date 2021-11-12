@@ -334,15 +334,23 @@ function prepareClusterGlobalAttribute(cluster) {
   }
 }
 
+function extractAccessTag(ac) {
+  let e = {
+    op: ac.$.op,
+    role: ac.$.role,
+    modifier: ac.$.modifier,
+  }
+  if ('privilege' in ac.$) {
+    e.role = ac.$.privilege
+  }
+  return e
+}
+
 function extractAccessIntoArray(xmlElement) {
   let accessArray = []
   if ('access' in xmlElement) {
     for (const ac of xmlElement.access) {
-      accessArray.push({
-        op: ac.$.op,
-        role: ac.$.role,
-        modifier: ac.$.modifier,
-      })
+      accessArray.push(extractAccessTag(ac))
     }
   }
   return accessArray
@@ -420,6 +428,7 @@ function prepareCluster(cluster, isExtension = false) {
               isArray: arg.$.array == 'true' ? 1 : 0,
               presentIf: arg.$.presentIf,
               isNullable: arg.$.isNullable == 'true' ? true : false,
+              isOptional: arg.$.optional == 'true' ? true : false,
               countArg: arg.$.countArg,
               fieldIdentifier: arg.$.fieldId
                 ? parseInt(arg.$.fieldId)
@@ -459,6 +468,7 @@ function prepareCluster(cluster, isExtension = false) {
               type: field.$.type,
               isArray: field.$.array == 'true' ? 1 : 0,
               isNullable: field.$.isNullable == 'true' ? true : false,
+              isOptional: field.$.optional == 'true' ? true : false,
               fieldIdentifier: field.$.id ? parseInt(field.$.id) : index + 1,
               introducedIn: field.$.introducedIn,
               removedIn: field.$.removedIn,
@@ -482,7 +492,10 @@ function prepareCluster(cluster, isExtension = false) {
         code: parseInt(attribute.$.code),
         manufacturerCode: attribute.$.manufacturerCode,
         name: name,
-        type: attribute.$.type.toLowerCase(),
+        type:
+          attribute.$.type.toUpperCase() == attribute.$.type
+            ? attribute.$.type.toLowerCase()
+            : attribute.$.type,
         side: attribute.$.side,
         define: attribute.$.define,
         min: attribute.$.min,
@@ -633,14 +646,7 @@ async function processDefaultAccess(
       access: [],
     }
     for (const ac of da.access) {
-      let op = ac.$.op
-      let role = ac.$.role
-      let modifier = ac.$.modifier
-      type.access.push({
-        op: op,
-        role: role,
-        modifier: modifier,
-      })
+      type.access.push(extractAccessTag(ac))
     }
     p.push(queryLoader.insertDefaultAccess(db, packageId, type))
   }
@@ -675,6 +681,14 @@ async function processAccessControl(
     }
     if ('role' in ac) {
       for (const role of ac.role) {
+        roles.push({
+          name: role.$.type,
+          description: role.$.description,
+        })
+      }
+    }
+    if ('privilege' in ac) {
+      for (const role of ac.privilege) {
         roles.push({
           name: role.$.type,
           description: role.$.description,
@@ -789,6 +803,7 @@ function prepareStruct(struct) {
         isArray: item.$.array == 'true' ? true : false,
         isEnum: item.$.enum == 'true' ? true : false,
         isNullable: item.$.isNullable == 'true' ? true : false,
+        isOptional: item.$.optional == 'true' ? true : false,
       })
     })
   }
