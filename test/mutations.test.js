@@ -21,6 +21,7 @@
 import ZapState from '../src/store/zap/state.js'
 import { timeout } from './test-util.js'
 const mutations = require('../src/store/zap/mutations.js')
+const restApi = require('../src-shared/rest-api')
 
 test(
   'updateInformationText',
@@ -197,7 +198,7 @@ test(
     expect(Object.keys(state.clusterManager.openDomains).length).toEqual(3)
     expect(state.clusterManager.filter.label).toEqual('blah')
     mutations.resetFilters(state)
-    expect(state.clusterManager.filter.label).toEqual('No filter')
+    expect(state.clusterManager.filter.label).toEqual(restApi.noFilter)
     expect(Object.keys(state.clusterManager.openDomains).length).toBe(0)
   },
   timeout.short()

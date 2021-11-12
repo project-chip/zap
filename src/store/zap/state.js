@@ -36,13 +36,13 @@ export default function () {
       openDomains: {},
       lastSelectedDomain: null,
       filter: {
-        label: 'No Filter',
+        label: restApi.noFilter,
         domainFilterFn: (domain, currentOpenDomains, context) =>
           currentOpenDomains[domain],
       },
       filterOptions: [
         {
-          label: 'No Filter',
+          label: restApi.noFilter,
           domainFilterFn: (domain, currentOpenDomains, context) =>
             currentOpenDomains[domain],
         },
