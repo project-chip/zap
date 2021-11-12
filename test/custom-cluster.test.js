@@ -53,42 +53,50 @@ beforeAll(async () => {
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
-test('Test initial state of load', async () => {
-  x = await dbApi.dbAll(
-    db,
-    'SELECT * FROM CLUSTER WHERE MANUFACTURER_CODE = ?',
-    [mfgCode]
-  )
-  expect(x.length).toEqual(0)
+test(
+  'Test initial state of load',
+  async () => {
+    x = await dbApi.dbAll(
+      db,
+      'SELECT * FROM CLUSTER WHERE MANUFACTURER_CODE = ?',
+      [mfgCode]
+    )
+    expect(x.length).toEqual(0)
 
-  x = await dbApi.dbAll(
-    db,
-    'SELECT * FROM ATTRIBUTE WHERE MANUFACTURER_CODE = ?',
-    [mfgCode]
-  )
-  expect(x.length).toEqual(0)
+    x = await dbApi.dbAll(
+      db,
+      'SELECT * FROM ATTRIBUTE WHERE MANUFACTURER_CODE = ?',
+      [mfgCode]
+    )
+    expect(x.length).toEqual(0)
 
-  x = await dbApi.dbAll(
-    db,
-    'SELECT * FROM COMMAND WHERE MANUFACTURER_CODE = ?',
-    [mfgCode]
-  )
-  expect(x.length).toEqual(0)
-})
+    x = await dbApi.dbAll(
+      db,
+      'SELECT * FROM COMMAND WHERE MANUFACTURER_CODE = ?',
+      [mfgCode]
+    )
+    expect(x.length).toEqual(0)
+  },
+  testUtil.timeout.medium()
+)
 
-test('Load custom file and insert a package into the session', async () => {
-  let result = await zclLoader.loadIndividualFile(
-    db,
-    testUtil.customClusterXml,
-    sid
-  )
-  expect(result.succeeded).toBeTruthy()
-  expect(result.packageId).not.toBeNull()
-  expect(result.packageId).not.toBeUndefined()
+test(
+  'Load custom file and insert a package into the session',
+  async () => {
+    let result = await zclLoader.loadIndividualFile(
+      db,
+      testUtil.customClusterXml,
+      sid
+    )
+    expect(result.succeeded).toBeTruthy()
+    expect(result.packageId).not.toBeNull()
+    expect(result.packageId).not.toBeUndefined()
 
-  customPackageId = result.packageId
-  await queryPackage.insertSessionPackage(db, sid, result.packageId, false)
-})
+    customPackageId = result.packageId
+    await queryPackage.insertSessionPackage(db, sid, result.packageId, false)
+  },
+  testUtil.timeout.medium()
+)
 
 test(
   'Validate custom load and multiple packages in a session',
