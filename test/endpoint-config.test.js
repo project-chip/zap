@@ -193,7 +193,7 @@ test(
       '#define FIXED_ENDPOINT_ARRAY { 0x0029, 0x002A, 0x002B }'
     )
     expect(epc).toContain(
-      "17, 'V', 'e', 'r', 'y', ' ', 'l', 'o', 'n', 'g', ' ', 'u', 's', 'e', 'r', ' ', 'i', 'd', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,"
+      "17, 'V', 'e', 'r', 'y', ' ', 'l', 'o', 'n', 'g', ' ', 'u', 's', 'e', 'r', ' ', 'i', 'd',"
     )
     expect(epc).toContain(
       '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x0101, 0x0000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* lock state */'
@@ -207,7 +207,7 @@ test(
       '#define FIXED_PROFILE_IDS { 0x0107, 0x0104, 0x0104 }'
     )
     expect(epc).toContain('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
-    expect(epc).toContain('#define GENERATED_DEFAULTS_COUNT (47)')
+    expect(epc).toContain('#define GENERATED_DEFAULTS_COUNT (41)')
     expect(epc).toContain(
       '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0002, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 2, 12, 4 }} }'
     )
@@ -215,7 +215,7 @@ test(
       '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0003, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 3, 13, 6 }} }'
     )
     expect(epc).toContain(
-      `17, 'T', 'e', 's', 't', ' ', 'm', 'a', 'n', 'u', 'f', 'a', 'c', 't', 'u', 'r', 'e', 'r', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,`
+      `17, 'T', 'e', 's', 't', ' ', 'm', 'a', 'n', 'u', 'f', 'a', 'c', 't', 'u', 'r', 'e', 'r',`
     )
     expect(epcLines.length).toBeGreaterThan(100)
     let cnt = 0
