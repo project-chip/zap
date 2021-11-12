@@ -351,7 +351,7 @@ export default {
         {
           name: 'clusterId',
           required: false,
-          label: 'Cluster Id',
+          label: 'Cluster ID',
           align: 'left',
           field: (row) => row.code,
           style: 'width:10%',
