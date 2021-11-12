@@ -335,7 +335,7 @@ function endpoint_attribute_min_max_list(options) {
       (min >= 0 ? '' : '-') + '0x' + Math.abs(min).toString(16).toUpperCase()
     let maxS =
       (max >= 0 ? '' : '-') + '0x' + Math.abs(max).toString(16).toUpperCase()
-    ret += `  { (uint8_t*)${defS}, (uint8_t*)${minS}, (uint8_t*)${maxS} }${
+    ret += `  { (const uint8_t*)${defS}, (const uint8_t*)${minS}, (const uint8_t*)${maxS} }${
       index == this.minMaxList.length - 1 ? '' : ','
     } /* ${mm.name} */ \\\n`
   })
@@ -477,12 +477,22 @@ async function collectAttributes(endpointTypes) {
 
       // Go over all the attributes in the endpoint and add them to the list.
       c.attributes.forEach((a) => {
-        let typeSize = a.typeSize
-        // Various types store the length of the actual content in bytes
+        // typeSize is the size of the attribute in the read/write attribute
+        // store.
+        let typeSize = a.typeSize;
+        // defaultSize is the size of the attribute in the readonly defaults
+        // store.
+        let defaultSize = typeSize;
+        let attributeDefaultValue = a.defaultValue;
+        // Various types store the length of the actual content in bytes.
+        // For those, we can size the default storage to be just big enough for
+        // the actual default value.
         if (types.isOneBytePrefixedString(a.type)) {
-          typeSize += 1
+          typeSize += 1;
+          defaultSize = attributeDefaultValue.length + 1;
         } else if (types.isTwoBytePrefixedString(a.type)) {
-          typeSize += 2
+          typeSize += 2;
+          defaultSize = attributeDefaultValue.length + 2;
         }
         // External attributes should be treated as having a typeSize of 0 for
         // most purposes (e.g. allocating space for them), but should still
@@ -491,18 +501,24 @@ async function collectAttributes(endpointTypes) {
         let contributionToLargestAttribute = typeSize;
         if (a.storage == dbEnum.storageOption.external) {
           typeSize = 0;
+          defaultSize = 0;
         }
 
-        let defaultValueIsMacro = false
-        let attributeDefaultValue = a.defaultValue
-        if (typeSize > 2) {
+        let defaultValueIsMacro = false;
+        // Zero-length strings can just use ZAP_EMPTY_DEFAULT() as the default
+        // and don't need long defaults.  Apart from that, there is one string
+        // case that _could_ fit into our 2-byte default value: a 1-char-long
+        // short string.  But figuring out how to produce a uint8_t* for it as a
+        // literal value is a pain, so just force all strings with nonzero
+        // length to use long defaults.
+        if (defaultSize > 2 || (types.isString(a.type) && a.defaultValue.length > 0)) {
           // We will need to generate the GENERATED_DEFAULTS
           longDefaults.push(a)
 
-          let def = types.longTypeDefaultValue(typeSize, a.type, a.defaultValue)
+          let def = types.longTypeDefaultValue(defaultSize, a.type, a.defaultValue)
           let longDef = {
             value: def,
-            size: typeSize,
+            size: defaultSize,
             index: longDefaultsIndex,
             name: a.name,
             comment: cluster.comment,
@@ -511,7 +527,7 @@ async function collectAttributes(endpointTypes) {
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           defaultValueIsMacro = true
           longDefaultsList.push(longDef)
-          longDefaultsIndex += typeSize
+          longDefaultsIndex += defaultSize;
         }
         if (a.isBound) {
           let minMax = {
