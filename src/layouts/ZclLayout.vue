@@ -55,7 +55,7 @@ limitations under the License.
       <q-layout
         view="hHh Lpr lff"
         container
-        style="height: 100vh"
+        style="height: calc(100vh - 100px)"
         class="shadow-2 rounded-borders"
       >
         <q-page-container>
@@ -260,3 +260,10 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+/deep/ .q-tab-panel {
+  max-height: calc(100vh - 100px);
+  overflow: hidden;
+}
+</style>

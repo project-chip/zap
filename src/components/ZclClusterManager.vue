@@ -77,7 +77,7 @@ limitations under the License.
             </template>
           </q-input>
         </div>
-        <q-list>
+        <q-list style="padding-bottom:250px;">
           <div v-for="domainName in domainNames" :key="domainName.id">
             <div v-show="clusterDomains(domainName).length > 0">
               <q-expansion-item
