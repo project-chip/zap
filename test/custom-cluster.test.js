@@ -28,6 +28,7 @@ const util = require('../src-electron/util/util.js')
 let db
 let sid
 let mfgCode = 0xbead
+let customPackageId
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -52,41 +53,46 @@ beforeAll(async () => {
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
+test('Test initial state of load', async () => {
+  x = await dbApi.dbAll(
+    db,
+    'SELECT * FROM CLUSTER WHERE MANUFACTURER_CODE = ?',
+    [mfgCode]
+  )
+  expect(x.length).toEqual(0)
+
+  x = await dbApi.dbAll(
+    db,
+    'SELECT * FROM ATTRIBUTE WHERE MANUFACTURER_CODE = ?',
+    [mfgCode]
+  )
+  expect(x.length).toEqual(0)
+
+  x = await dbApi.dbAll(
+    db,
+    'SELECT * FROM COMMAND WHERE MANUFACTURER_CODE = ?',
+    [mfgCode]
+  )
+  expect(x.length).toEqual(0)
+})
+
+test('Load custom file and insert a package into the session', async () => {
+  let result = await zclLoader.loadIndividualFile(
+    db,
+    testUtil.customClusterXml,
+    sid
+  )
+  expect(result.succeeded).toBeTruthy()
+  expect(result.packageId).not.toBeNull()
+  expect(result.packageId).not.toBeUndefined()
+
+  customPackageId = result.packageId
+  await queryPackage.insertSessionPackage(db, sid, result.packageId, false)
+})
+
 test(
-  'Test bead cluster loading',
+  'Validate custom load and multiple packages in a session',
   async () => {
-    x = await dbApi.dbAll(
-      db,
-      'SELECT * FROM CLUSTER WHERE MANUFACTURER_CODE = ?',
-      [mfgCode]
-    )
-    expect(x.length).toEqual(0)
-
-    x = await dbApi.dbAll(
-      db,
-      'SELECT * FROM ATTRIBUTE WHERE MANUFACTURER_CODE = ?',
-      [mfgCode]
-    )
-    expect(x.length).toEqual(0)
-
-    x = await dbApi.dbAll(
-      db,
-      'SELECT * FROM COMMAND WHERE MANUFACTURER_CODE = ?',
-      [mfgCode]
-    )
-    expect(x.length).toEqual(0)
-
-    let result = await zclLoader.loadIndividualFile(
-      db,
-      testUtil.customClusterXml,
-      sid
-    )
-    expect(result.succeeded).toBeTruthy()
-    expect(result.packageId).not.toBeNull()
-    expect(result.packageId).not.toBeUndefined()
-
-    await queryPackage.insertSessionPackage(db, sid, result.packageId, false)
-
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM CLUSTER WHERE MANUFACTURER_CODE = ?',
@@ -110,6 +116,9 @@ test(
 
     x = await queryPackage.getSessionPackages(db, sid)
     expect(x.length).toEqual(2)
+    expect(
+      x[0].packageRef == customPackageId || x[1].packageRef == customPackageId
+    ).toBeTruthy()
   },
   testUtil.timeout.medium()
 )
