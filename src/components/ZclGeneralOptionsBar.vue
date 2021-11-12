@@ -17,7 +17,7 @@ limitations under the License.
 <template>
   <div>
     <q-toolbar>
-      <div class="q-mr-sm vertical-align:middle">Manufacturer Name or Code</div>
+      <div class="q-mr-sm vertical-align:middle">Product Manufacturer</div>
       <div>
         <q-select
           class="q-mr-sm"
