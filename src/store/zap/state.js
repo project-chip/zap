@@ -51,7 +51,7 @@ export default function () {
           domainFilterFn: (domain, currentOpenDomains, context) => true,
         },
         {
-          label: 'Only Enabled',
+          label: 'Enabled Clusters',
           domainFilterFn: (domain, currentOpenDomains, context) =>
             context.enabledClusters.map((a) => a.domainName).includes(domain),
           clusterFilterFn: (cluster, context) =>
