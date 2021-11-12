@@ -468,7 +468,7 @@ export function clearLastSelectedDomain(state) {
 
 export function resetFilters(state) {
   state.clusterManager.filter = {
-    label: 'No filter',
+    label: 'No Filter',
     domainFilterFn: (domain, currentOpenDomains, context) =>
       currentOpenDomains[domain],
   }
