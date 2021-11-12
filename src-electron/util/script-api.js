@@ -26,6 +26,7 @@ const queryConfig = require('../db/query-config.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryPackage = require('../db/query-package.js')
 const querySessionZcl = require('../db/query-session-zcl.js')
+const queryZcl = require('../db/query-zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 /**
@@ -35,6 +36,15 @@ const restApi = require('../../src-shared/rest-api.js')
  */
 function print(text) {
   console.log(text)
+}
+
+/**
+ * Prints error message to the console.
+ *
+ * @param {*} text
+ */
+function printError(text) {
+  console.log(`⛔ SCRIPT API ERROR: ${text}`)
 }
 
 /**
@@ -175,7 +185,10 @@ async function findCommand(context, clusterCode, commandCode, source) {
 // Non-public, common function to modify cluster.
 async function modifyCluster(context, endpoint, code, side, enabled) {
   let cluster = await findCluster(context, code)
-  if (cluster == null) return null
+  if (cluster == null) {
+    printError(`Cluster 0x${code.toString(16)} does not exist.`)
+    return null
+  }
   return queryConfig.insertOrReplaceClusterState(
     context.db,
     endpoint.endpointTypeRef,
@@ -195,8 +208,20 @@ async function modifyAttribute(
   enable
 ) {
   let cluster = await findCluster(context, clusterCode)
-  if (cluster == null) return null
+  if (cluster == null) {
+    printError(`Cluster 0x${clusterCode.toString(16)} does not exist.`)
+    return null
+  }
   let attribute = await findAttribute(context, clusterCode, side, attributeCode)
+  if (attribute == null) {
+    printError(
+      `Attribute 0x${attributeCode.toString(
+        16
+      )} in cluster 0x${clusterCode.toString(16)} does not exist.`
+    )
+    return null
+  }
+
   let params = [
     {
       key: restApi.updateKey.attributeSelected,
@@ -227,8 +252,19 @@ async function modifyCommand(
   enable
 ) {
   let cluster = await findCluster(context, clusterCode)
-  if (cluster == null) return null
+  if (cluster == null) {
+    printError(`Cluster 0x${clusterCode.toString(16)} does not exist.`)
+    return null
+  }
   let command = await findCommand(context, clusterCode, commandCode, source)
+  if (command == null) {
+    printError(
+      `Command 0x${commandCode.toString(
+        16
+      )} in cluster 0x${clusterCode.toString(16)} does not exist.`
+    )
+    return null
+  }
   return queryConfig.insertOrUpdateCommandState(
     context.db,
     endpoint.endpointTypeRef,
@@ -393,7 +429,15 @@ async function disableIncomingCommand(
   commandCode,
   source
 ) {
-  return modifyCommand(context, endpoint, clusterCode, commandCode, source, true, false)
+  return modifyCommand(
+    context,
+    endpoint,
+    clusterCode,
+    commandCode,
+    source,
+    true,
+    false
+  )
 }
 
 /**
@@ -413,7 +457,15 @@ async function enableIncomingCommand(
   commandCode,
   source
 ) {
-  return modifyCommand(context, endpoint, clusterCode, commandCode, source, true, true)
+  return modifyCommand(
+    context,
+    endpoint,
+    clusterCode,
+    commandCode,
+    source,
+    true,
+    true
+  )
 }
 
 /**
@@ -461,7 +513,15 @@ async function enableOutgoingCommand(
   commandCode,
   source
 ) {
-  return modifyCommand(context, endpoint, clusterCode, commandCode, source, false, true)
+  return modifyCommand(
+    context,
+    endpoint,
+    clusterCode,
+    commandCode,
+    source,
+    false,
+    true
+  )
 }
 
 exports.availableClusters = availableClusters
@@ -499,3 +559,7 @@ exports.disableIncomingCommand = disableIncomingCommand
 exports.enableIncomingCommand = enableIncomingCommand
 exports.disableOutgoingCommand = disableOutgoingCommand
 exports.enableOutgoingCommand = enableOutgoingCommand
+
+// Constants that are used a lot
+exports.client = dbEnum.source.client
+exports.server = dbEnum.source.server

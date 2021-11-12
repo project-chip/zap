@@ -69,8 +69,10 @@ export default {
   mixins: [CommonMixin],
   mounted() {
     // initialize ZclClusterManager with first endpoint info.
-    if (this.endpointIdSorted.size && !this.selectedEndpointId) {
-      this.setSelectedEndpointType(this.endpointIdSorted.keys().next().value)
+    if (this.endpointIdListSorted.size && !this.selectedEndpointId) {
+      this.setSelectedEndpointType(
+        this.endpointIdListSorted.keys().next().value
+      )
     }
   },
   computed: {
@@ -92,7 +94,7 @@ export default {
     },
     endpoints: {
       get() {
-        return Array.from(this.endpointIdSorted.keys()).map((id) => ({
+        return Array.from(this.endpointIdListSorted.keys()).map((id) => ({
           id: id,
         }))
       },

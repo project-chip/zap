@@ -119,7 +119,7 @@ async function collectBlocks(resultArray, options, context) {
  */
 async function ensureZclPackageId(context) {
   if ('zclPackageId' in context.global) {
-    return Promise.resolve(context.global.zclPackageId)
+    return context.global.zclPackageId
   } else {
     let pkgs = await queryPackage.getSessionPackagesByType(
       context.global.db,

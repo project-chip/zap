@@ -135,7 +135,7 @@ async function selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(
         (isManufacturingSpecific ? `NOT ` : ``) +
         `NULL
     AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
-  GROUP BY ATTIRBUTE.NAME
+  GROUP BY ATTRIBUTE.NAME
         `
     )
     .then((rows) => rows.map(attributeExportMapping))
@@ -305,7 +305,7 @@ async function selectAttributeDetailsFromEnabledClusters(
       isAttributeBounded: x.BOUNDED,
       storageOption: x.STORAGE_OPTION,
       isSingleton: x.SINGLETON,
-      isAtributeReportable: x.INCLUDED_REPORTABLE,
+      isAttributeReportable: x.INCLUDED_REPORTABLE,
       attributeReportableMinValue: x.MIN_INTERVAL,
       attributeReportableMaxValue: x.MAX_INTERVAL,
       attributeReportableChange: x.REPORTABLE_CHANGE,
@@ -610,7 +610,7 @@ async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
       isAttributeBounded: x.BOUNDED,
       storageOption: x.STORAGE_OPTION,
       isSingleton: x.SINGLETON,
-      isAtributeReportable: x.INCLUDED_REPORTABLE,
+      isAttributeReportable: x.INCLUDED_REPORTABLE,
       attributeReportableMinValue: x.MIN_INTERVAL,
       attributeReportableMaxValue: x.MAX_INTERVAL,
       attributeReportableChange: x.REPORTABLE_CHANGE,

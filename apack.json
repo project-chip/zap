@@ -2,13 +2,9 @@
   "id": "zclConfigurator",
   "label": "Zigbee Cluster Configurator",
   "description": "Graphical configuration tool for application and libraries based on Zigbee Cluster Library.",
-  "path": [
-    ".",
-    "node_modules/.bin/",
-    "ZAP.app/Contents/MacOS"
-  ],
+  "path": [".", "node_modules/.bin/", "ZAP.app/Contents/MacOS"],
   "requiredFeatureLevel": "apack.core:9",
-  "featureLevel": 63,
+  "featureLevel": 67,
   "uc.triggerExtension": "zap",
   "executable": {
     "zap:win32.x86_64": {
@@ -65,6 +61,12 @@
     },
     "zapFull": {
       "cmd": "$(zap) --showUrl --zcl ${sdkRoot}/app/zcl/zcl-zap.json"
+    },
+    "zapIscConvert": {
+      "cmd": "$(zap) convert --noUi --noServer --noZapFileLog --zcl ${sdkRoot}/app/zcl/zcl-zap.json --out ${outFile} ${inFile}"
+    },
+    "zapIscOpen": {
+      "cmd": "$(zap) --noServer --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-teplates.json ${inFile}"
     }
   }
 }

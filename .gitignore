@@ -64,6 +64,9 @@ spa/
 # Version file
 .version.json
 
+# Generated packaging file.
+apack_zap.package
+
 # Backup files
 *~
 

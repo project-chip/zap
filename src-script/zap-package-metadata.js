@@ -23,7 +23,12 @@
 
 // apack_zap.package
 const fs = require('fs')
-fs.readFile('./package.json', 'utf8', (err, data) => {
+const path = require('path')
+
+const packageJson = path.join(__dirname, '../package.json')
+const zapPackage = path.join(__dirname, '../apack_zap.package')
+
+fs.readFile(packageJson, 'utf8', (err, data) => {
   if (err) {
     console.log(`Unable to read from package.json:`, err)
     return
@@ -41,6 +46,6 @@ fs.readFile('./package.json', 'utf8', (err, data) => {
   version="${version}"/>
 `
 
-  console.log(`Generating apack_zap.package with version number ${version}`)
-  fs.writeFileSync('./apack_zap.package', template)
+  console.log(`🐝 Generating ${zapPackage} with version number ${version}`)
+  fs.writeFileSync(zapPackage, template)
 })
