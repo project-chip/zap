@@ -359,7 +359,7 @@ export default {
         {
           name: 'manufacturerId',
           required: false,
-          label: 'Manufacturer ID',
+          label: 'Manufacturer Code',
           align: 'left',
           field: (row) => (row.manufacturerCode ? row.manufacturerCode : '---'),
           style: 'width:10%',
