@@ -104,17 +104,21 @@ onWebSocket(dbEnum.wsCategory.init, (data) =>
   console.log(`Init message received: ${data}`)
 )
 
-onWebSocket(dbEnum.wsCategory.tick, (data) =>
-  console.log(`Tick received: ${data}`)
-)
+//commented unnecessary logs and listeners
+
+// onWebSocket(dbEnum.wsCategory.tick, (data) =>
+//   console.log(`Tick received: ${data}`)
+// )
 
 onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) => {
   window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.dirtyFlag, data)
 })
 
-onWebSocket(dbEnum.wsCategory.validation, (data) => {
-  console.log(`Validation recieved: ${data}`)
-})
+//commented unnecessary logs and listeners
+
+// onWebSocket(dbEnum.wsCategory.validation, (data) => {
+//   // console.log(`Validation recieved: ${data}`)
+// })
 
 onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
   let html = `<center>
@@ -133,15 +137,18 @@ onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
   console.log(`sessionCreationError: ${JSON.stringify(data)}`)
 })
 
+//commented unnecessary logs
 onWebSocket(dbEnum.wsCategory.componentUpdateStatus, (obj) => {
   let { data, added } = obj
-  console.log(`componentUpdateStatus: ${JSON.stringify(obj)}`)
+  // console.log(`componentUpdateStatus: ${JSON.stringify(obj)}`)
   Util.notifyComponentUpdateStatus(data, added)
 })
 
-onWebSocket(dbEnum.wsCategory.generic, (data) =>
-  console.log(`Generic message received: ${JSON.stringify(data)}`)
-)
+//commented unnecessary logs and listeners
+
+// onWebSocket(dbEnum.wsCategory.generic, (data) =>
+//   console.log(`Generic message received: ${JSON.stringify(data)}`)
+// )
 
 Vue.prototype.$sendWebSocketData = sendWebSocketData
 Vue.prototype.$sendWebSocketMessage = sendWebSocketMessage
