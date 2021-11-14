@@ -371,7 +371,7 @@ export default {
         {
           name: 'clusterId',
           required: false,
-          label: 'Cluster Id',
+          label: 'Cluster ID',
           align: 'left',
           field: (row) => row.code,
           style: 'width:10%',
@@ -379,7 +379,7 @@ export default {
         {
           name: 'manufacturerId',
           required: false,
-          label: 'Manufacturer ID',
+          label: 'Manufacturer Code',
           align: 'left',
           field: (row) => (row.manufacturerCode ? row.manufacturerCode : '---'),
           style: 'width:10%',

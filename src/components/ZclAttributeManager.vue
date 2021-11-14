@@ -51,7 +51,8 @@ limitations under the License.
               content-class="bg-white text-black"
               style="overflow-wrap: break-word; padding: 0px"
             >
-              <div class="row items-center" items-center style="padding: 0px">
+            <template v-slot="scope">
+              <div class="row items-center" items-center style="padding: 0px" @click.stop="scope.cancel">
                 <q-icon
                   name="warning"
                   class="text-amber q-mr-sm"
@@ -61,6 +62,7 @@ limitations under the License.
                 This attribute is mandatory for the cluster and device type configuration you have enabled
                 </div>
               </div>
+            </template>
             </q-popup-edit>
           </q-td>
           <q-td key="included" :props="props" auto-width>
@@ -296,13 +298,10 @@ export default {
   },
 
   computed: {
-    requiredDeviceTypeAttributes: {
-      get() {
+    requiredDeviceTypeAttributes() {
         return this.$store.state.zap.attributeView.requiredAttributes
-      },
     },
-    requiredAttributes: {
-      get() {
+    requiredAttributes() {
         return this.relevantAttributeData
           .filter(
             (attribute) =>
@@ -310,12 +309,9 @@ export default {
               this.requiredDeviceTypeAttributes.includes(attribute.id)
           )
           .map((attribute) => attribute.id)
-      },
     },
-    storageOptions: {
-      get() {
+    storageOptions() {
         return Object.values(DbEnum.storageOption)
-      },
     },
   },
   data() {
@@ -334,7 +330,7 @@ export default {
         },
         {
           name: 'included',
-          label: 'On/Off',
+          label: 'Enabled',
           field: 'included',
           align: 'left',
         },
@@ -416,10 +412,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-/deep/ .q-table__bottom.row{
-  background-color:inherit !important;
-}
-
-</style>

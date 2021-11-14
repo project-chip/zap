@@ -39,7 +39,7 @@ limitations under the License.
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">
-                  <q-td key="status" :props="props" class="q-px-none">
+          <q-td key="status" :props="props" class="q-px-none">
             <q-icon
               v-show="displayCommandWarning(props.row)"
               name="warning"
@@ -53,7 +53,8 @@ limitations under the License.
               content-class="bg-white text-black"
               style="overflow-wrap: break-word; padding: 0px"
             >
-              <div class="row items-center" items-center style="padding: 0px">
+            <template v-slot="scope">
+              <div class="row items-center" items-center style="padding: 0px"  @click.stop="scope.cancel">
                 <q-icon
                   name="warning"
                   class="text-amber q-mr-sm"
@@ -63,6 +64,7 @@ limitations under the License.
                 The outgoing command is mandatory for the cluster and device type configuration you have enabled
                 </div>
               </div>
+               </template>
             </q-popup-edit>
           </q-td>
           <q-td key="out" :props="props" auto-width>
@@ -185,7 +187,13 @@ export default {
                   row.source == 'client') ||
                 (this.selectionServers.includes(this.selectedCluster.id) &&
                   row.source == 'server'))
-      && !this.selectionOut.includes(this.hashCommandIdClusterId(row.id, this.selectedCluster.id))
+      && !this.selectionOut.includes(this.hashCommandIdClusterId(row.id, this.selectedCluster.id)) ||
+        this.isCommandRequired(row) && (
+        (this.selectionClients.includes(this.selectedCluster.id) &&
+                  row.source == 'server') ||
+                (this.selectionServers.includes(this.selectedCluster.id) &&
+                  row.source == 'client'))
+      && !this.selectionIn.includes(this.hashCommandIdClusterId(row.id, this.selectedCluster.id))
     },
     handleCommandSelection(list, listType, commandData, clusterId) {
       // We determine the ID that we need to toggle within the list.

@@ -110,3 +110,5 @@ exports.uiMode = uiMode
 exports.uc = uc
 exports.ide = ide
 exports.updateKey = updateKey
+
+exports.noFilter = 'No Filter'

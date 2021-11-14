@@ -36,13 +36,13 @@ export default function () {
       openDomains: {},
       lastSelectedDomain: null,
       filter: {
-        label: 'No Filter',
+        label: restApi.noFilter,
         domainFilterFn: (domain, currentOpenDomains, context) =>
           currentOpenDomains[domain],
       },
       filterOptions: [
         {
-          label: 'No Filter',
+          label: restApi.noFilter,
           domainFilterFn: (domain, currentOpenDomains, context) =>
             currentOpenDomains[domain],
         },
@@ -51,7 +51,7 @@ export default function () {
           domainFilterFn: (domain, currentOpenDomains, context) => true,
         },
         {
-          label: 'Only Enabled',
+          label: 'Enabled Clusters',
           domainFilterFn: (domain, currentOpenDomains, context) =>
             context.enabledClusters.map((a) => a.domainName).includes(domain),
           clusterFilterFn: (cluster, context) =>
