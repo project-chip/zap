@@ -1165,8 +1165,15 @@ SET
       )
     AND
       ATTRIBUTE.PACKAGE_REF = ?
-  )`,
-    [packageId]
+  )
+WHERE
+  (
+    SELECT PACKAGE_REF
+    FROM ATTRIBUTE
+    WHERE ATTRIBUTE.ATTRIBUTE_ID = DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+  ) = ?
+  `,
+    [packageId, packageId]
   )
 }
 
