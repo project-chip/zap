@@ -661,40 +661,39 @@ async function resolveDefaultDeviceTypeAttributes(
   endpointTypeId,
   deviceTypeRef
 ) {
-  return queryZcl
-    .selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef)
-    .then((deviceTypeAttributes) =>
-      Promise.all(
-        deviceTypeAttributes.map((deviceAttribute) => {
-          if (deviceAttribute.attributeRef != null) {
-            return queryZcl
-              .selectAttributeById(db, deviceAttribute.attributeRef)
-              .then((attribute) =>
-                insertOrUpdateAttributeState(
-                  db,
-                  endpointTypeId,
-                  attribute?.clusterRef,
-                  attribute.side,
-                  deviceAttribute.attributeRef,
-                  [
-                    {
-                      key: restApi.updateKey.attributeSelected,
-                      value: true,
-                    },
-                    {
-                      key: restApi.updateKey.attributeReporting,
-                      value: deviceAttribute.isReportable == true,
-                    },
-                  ],
-                  attribute.reportMinInterval,
-                  attribute.reportMaxInterval,
-                  attribute.reportableChange
-                )
-              )
-          }
-        })
-      )
-    )
+  let deviceTypeAttributes =
+    await queryZcl.selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef)
+
+  return Promise.all(
+    deviceTypeAttributes.map((deviceAttribute) => {
+      if (deviceAttribute.attributeRef != null) {
+        return queryZcl
+          .selectAttributeById(db, deviceAttribute.attributeRef)
+          .then((attribute) =>
+            insertOrUpdateAttributeState(
+              db,
+              endpointTypeId,
+              attribute?.clusterRef,
+              attribute.side,
+              deviceAttribute.attributeRef,
+              [
+                {
+                  key: restApi.updateKey.attributeSelected,
+                  value: true,
+                },
+                {
+                  key: restApi.updateKey.attributeReporting,
+                  value: deviceAttribute.isReportable == true,
+                },
+              ],
+              attribute.reportMinInterval,
+              attribute.reportMaxInterval,
+              attribute.reportableChange
+            )
+          )
+      }
+    })
+  )
 }
 
 async function resolveCommandState(db, endpointTypeId, deviceCommand) {

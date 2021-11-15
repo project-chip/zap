@@ -18,17 +18,21 @@
  * @jest-environment node
  */
 
-const dbApi = require('../src-electron/db/db-api.js')
-const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const env = require('../src-electron/util/env.ts')
-const testUtil = require('./test-util.js')
-const querySession = require('../src-electron/db/query-session.js')
-const queryPackage = require('../src-electron/db/query-package.js')
-const util = require('../src-electron/util/util.js')
+const dbApi = require('../src-electron/db/db-api')
+const zclLoader = require('../src-electron/zcl/zcl-loader')
+const env = require('../src-electron/util/env')
+const testUtil = require('./test-util')
+const querySession = require('../src-electron/db/query-session')
+const queryPackage = require('../src-electron/db/query-package')
+const queryConfig = require('../src-electron/db/query-config')
+const queryZcl = require('../src-electron/db/query-zcl')
+
+const util = require('../src-electron/util/util')
 let db
 let sid
 let mfgCode = 0xbead
 let customPackageId
+let mainPackageId
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -124,9 +128,29 @@ test(
 
     x = await queryPackage.getSessionPackages(db, sid)
     expect(x.length).toEqual(2)
+
     expect(
       x[0].packageRef == customPackageId || x[1].packageRef == customPackageId
     ).toBeTruthy()
+
+    if (x[0].packageRef == customPackageId) mainPackageId = x[1].packageRef
+    else mainPackageId = x[0].packageRef
+
+    let onOffDevice = await queryZcl.selectDeviceTypeByCodeAndName(
+      db,
+      mainPackageId,
+      0x0000,
+      'ZLL-onofflight'
+    )
+    expect(onOffDevice).not.toBeNull()
+
+    let eptId = await queryConfig.insertEndpointType(
+      db,
+      sid,
+      'EPT',
+      onOffDevice.id
+    )
+    expect(eptId).not.toBeNull()
   },
   testUtil.timeout.medium()
 )

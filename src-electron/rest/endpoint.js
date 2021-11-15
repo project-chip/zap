@@ -78,10 +78,10 @@ function httpPostEndpoint(db) {
       endpointVersion,
       deviceIdentifier,
     } = request.body
-    let sessionIdexport = request.zapSessionId
+    let sessionId = request.zapSessionId
     let newId = await queryEndpoint.insertEndpoint(
       db,
-      sessionIdexport,
+      sessionId,
       endpointId,
       endpointType,
       networkId,
