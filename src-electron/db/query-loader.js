@@ -1216,6 +1216,18 @@ WHERE
   )
 }
 
+/**
+ * Post loading actions.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ */
+async function updateStaticEntityReferences(db, packageId) {
+  await updateEnumClusterReferences(db, packageId)
+  await updateStructClusterReferences(db, packageId)
+  await updateBitmapClusterReferences(db, packageId)
+}
+
 exports.insertGlobals = insertGlobals
 exports.insertClusterExtensions = insertClusterExtensions
 exports.insertClusters = insertClusters
@@ -1228,10 +1240,8 @@ exports.insertEnums = insertEnums
 exports.insertBitmaps = insertBitmaps
 exports.insertDeviceTypes = insertDeviceTypes
 exports.insertTags = insertTags
-exports.updateEnumClusterReferences = updateEnumClusterReferences
-exports.updateStructClusterReferences = updateStructClusterReferences
-exports.updateBitmapClusterReferences = updateBitmapClusterReferences
 exports.insertAccessModifiers = insertAccessModifiers
 exports.insertAccessOperations = insertAccessOperations
 exports.insertAccessRoles = insertAccessRoles
 exports.insertDefaultAccess = insertDefaultAccess
+exports.updateStaticEntityReferences = updateStaticEntityReferences
