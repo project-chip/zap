@@ -1209,8 +1209,14 @@ SET
       )
     AND
       COMMAND.PACKAGE_REF = ?
-  )`,
-    [packageId]
+  )
+WHERE
+  (
+    SELECT PACKAGE_REF
+    FROM COMMAND
+    WHERE COMMAND.COMMAND_ID = DEVICE_TYPE_COMMAND.COMMAND_REF
+  ) = ?`,
+    [packageId, packageId]
   )
 }
 
