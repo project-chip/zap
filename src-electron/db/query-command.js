@@ -1135,7 +1135,7 @@ ORDER BY CL.CODE, CMD.CODE, CA.FIELD_IDENTIFIER`,
  *
  * @param {*} db
  */
-async function updateCommandRequestResponseReferences(db) {
+async function updateCommandRequestResponseReferences(db, packageId) {
   // First we link up all the cases where the response_for_name is present
   await dbApi.dbUpdate(
     db,
@@ -1159,7 +1159,9 @@ SET
   )
 WHERE
   COMMAND.RESPONSE_NAME IS NOT NULL
-  `
+  AND COMMAND.PACKAGE_REF = ?
+  `,
+    [packageId]
   )
 
   // Then we link up the ones where the "response/request" names match.

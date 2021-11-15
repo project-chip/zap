@@ -1123,8 +1123,13 @@ SET
       lower(CLUSTER.NAME) = lower(DEVICE_TYPE_CLUSTER.CLUSTER_NAME)
     AND
       CLUSTER.PACKAGE_REF = ?
-  )`,
-    [packageId]
+  )
+WHERE
+  ( SELECT PACKAGE_REF
+    FROM DEVICE_TYPE
+    WHERE DEVICE_TYPE_ID = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
+  ) = ?`,
+    [packageId, packageId]
   )
 }
 

@@ -583,8 +583,6 @@ async function setEndpointDefaults(
     endpointTypeId,
     clusters
   )
-  defaultClusters = defaultClusters.flat()
-
   let promises = []
 
   promises.push(
@@ -645,7 +643,8 @@ async function resolveDefaultClusters(db, endpointTypeId, clusters) {
     }
     return Promise.all(clientServerPromise)
   })
-  return Promise.all(promises)
+  let allClustersResult = await Promise.all(promises)
+  return allClustersResult.flat()
 }
 
 /**
@@ -664,36 +663,38 @@ async function resolveDefaultDeviceTypeAttributes(
   let deviceTypeAttributes =
     await queryZcl.selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef)
 
-  return Promise.all(
-    deviceTypeAttributes.map((deviceAttribute) => {
-      if (deviceAttribute.attributeRef != null) {
-        return queryZcl
-          .selectAttributeById(db, deviceAttribute.attributeRef)
-          .then((attribute) =>
-            insertOrUpdateAttributeState(
-              db,
-              endpointTypeId,
-              attribute?.clusterRef,
-              attribute.side,
-              deviceAttribute.attributeRef,
-              [
-                {
-                  key: restApi.updateKey.attributeSelected,
-                  value: true,
-                },
-                {
-                  key: restApi.updateKey.attributeReporting,
-                  value: deviceAttribute.isReportable == true,
-                },
-              ],
-              attribute.reportMinInterval,
-              attribute.reportMaxInterval,
-              attribute.reportableChange
-            )
-          )
-      }
-    })
-  )
+  let promises = deviceTypeAttributes.map(async (deviceAttribute) => {
+    if (deviceAttribute.attributeRef != null) {
+      let attribute = await queryZcl.selectAttributeById(
+        db,
+        deviceAttribute.attributeRef
+      )
+
+      let clusterRef = attribute?.clusterRef
+
+      return insertOrUpdateAttributeState(
+        db,
+        endpointTypeId,
+        clusterRef,
+        attribute.side,
+        deviceAttribute.attributeRef,
+        [
+          {
+            key: restApi.updateKey.attributeSelected,
+            value: true,
+          },
+          {
+            key: restApi.updateKey.attributeReporting,
+            value: deviceAttribute.isReportable == true,
+          },
+        ],
+        attribute.reportMinInterval,
+        attribute.reportMaxInterval,
+        attribute.reportableChange
+      )
+    }
+  })
+  return Promise.all(promises)
 }
 
 async function resolveCommandState(db, endpointTypeId, deviceCommand) {
@@ -829,43 +830,44 @@ async function resolveNonOptionalAndReportableAttributes(
   attributes,
   cluster
 ) {
-  return Promise.all(
-    attributes.map((attribute) => {
-      let settings = []
-      if (attribute.isReportable)
-        settings.push({
-          key: restApi.updateKey.attributeReporting,
-          value: true,
-        })
-      if (!attribute.isOptional) {
-        settings.push({
-          key: restApi.updateKey.attributeSelected,
-          value: true,
-        })
-      }
-      if (cluster.isSingleton) {
-        settings.push({
-          key: restApi.updateKey.attributeSingleton,
-          value: true,
-        })
-      }
-      if (settings.length > 0) {
-        return insertOrUpdateAttributeState(
-          db,
-          endpointTypeId,
-          cluster.clusterRef,
-          attribute.side,
-          attribute.id,
-          settings,
-          attribute.reportMinInterval,
-          attribute.reportMaxInterval,
-          attribute.reportableChange
-        )
-      } else {
-        return Promise.resolve()
-      }
-    })
-  )
+  let promises = attributes.map((attribute) => {
+    let settings = []
+    if (attribute.isReportable)
+      settings.push({
+        key: restApi.updateKey.attributeReporting,
+        value: true,
+      })
+    if (!attribute.isOptional) {
+      settings.push({
+        key: restApi.updateKey.attributeSelected,
+        value: true,
+      })
+    }
+    if (cluster.isSingleton) {
+      settings.push({
+        key: restApi.updateKey.attributeSingleton,
+        value: true,
+      })
+    }
+    let clusterRef = cluster.clusterRef
+
+    if (settings.length > 0 && clusterRef != null) {
+      return insertOrUpdateAttributeState(
+        db,
+        endpointTypeId,
+        clusterRef,
+        attribute.side,
+        attribute.id,
+        settings,
+        attribute.reportMinInterval,
+        attribute.reportMaxInterval,
+        attribute.reportableChange
+      )
+    } else {
+      return Promise.resolve()
+    }
+  })
+  return Promise.all(promises)
 }
 
 /**

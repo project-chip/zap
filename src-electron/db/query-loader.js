@@ -1147,9 +1147,14 @@ SET
     AND
       CLUSTER.PACKAGE_REF = ?
   )
+WHERE
+  ( SELECT PACKAGE_REF
+    FROM ENUM
+    WHERE ENUM.ENUM_ID = ENUM_CLUSTER.ENUM_REF
+  ) = ?
   
 `,
-    [packageId]
+    [packageId, packageId]
   )
 }
 
@@ -1171,9 +1176,14 @@ SET
     AND
       CLUSTER.PACKAGE_REF = ?
   )
-  
+WHERE
+  (
+    SELECT PACKAGE_REF
+    FROM STRUCT
+    WHERE STRUCT.STRUCT_ID = STRUCT_CLUSTER.STRUCT_REF
+  ) = ?
 `,
-    [packageId]
+    [packageId, packageId]
   )
 }
 
@@ -1195,9 +1205,14 @@ SET
     AND
       CLUSTER.PACKAGE_REF = ?
   )
-  
+WHERE
+  (
+    SELECT PACKAGE_REF
+    FROM BITMAP
+    WHERE BITMAP.BITMAP_ID = BITMAP_CLUSTER.BITMAP_REF
+  ) = ?
 `,
-    [packageId]
+    [packageId, packageId]
   )
 }
 
