@@ -243,6 +243,7 @@ function httpPostCommandUpdate(db) {
     let {
       action,
       endpointTypeId,
+      endpointTypeIdList,
       id,
       value,
       listType,
@@ -261,18 +262,24 @@ function httpPostCommandUpdate(db) {
       default:
         break
     }
-    await queryConfig.insertOrUpdateCommandState(
-      db,
-      endpointTypeId,
-      clusterRef,
-      commandSide,
-      id,
-      value,
-      isIncoming
+
+    await Promise.all(
+      endpointTypeIdList.map((endpointTypeId) =>
+        queryConfig.insertOrUpdateCommandState(
+          db,
+          endpointTypeId,
+          clusterRef,
+          commandSide,
+          id,
+          value,
+          isIncoming
+        )
+      )
     )
+
     response.status(StatusCodes.OK).json({
       action: action,
-      endpointTypeId: endpointTypeId,
+      endpointTypeIdList: endpointTypeIdList,
       id: id,
       added: value,
       listType: listType,
