@@ -716,7 +716,6 @@ export function unifyClustersAndAttributesAcrossEndpoints(context, data) {
       endpointTypeIdList,
     })
     .then((response) => {
-      // reload UI?
       console.log(restApi.uri.unifyClustersAcrossEndpoints)
     })
 

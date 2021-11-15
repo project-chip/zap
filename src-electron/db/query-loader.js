@@ -1147,9 +1147,14 @@ SET
     AND
       CLUSTER.PACKAGE_REF = ?
   )
+WHERE
+  ( SELECT PACKAGE_REF
+    FROM ENUM
+    WHERE ENUM.ENUM_ID = ENUM_CLUSTER.ENUM_REF
+  ) = ?
   
 `,
-    [packageId]
+    [packageId, packageId]
   )
 }
 
@@ -1171,9 +1176,14 @@ SET
     AND
       CLUSTER.PACKAGE_REF = ?
   )
-  
+WHERE
+  (
+    SELECT PACKAGE_REF
+    FROM STRUCT
+    WHERE STRUCT.STRUCT_ID = STRUCT_CLUSTER.STRUCT_REF
+  ) = ?
 `,
-    [packageId]
+    [packageId, packageId]
   )
 }
 
@@ -1195,10 +1205,27 @@ SET
     AND
       CLUSTER.PACKAGE_REF = ?
   )
-  
+WHERE
+  (
+    SELECT PACKAGE_REF
+    FROM BITMAP
+    WHERE BITMAP.BITMAP_ID = BITMAP_CLUSTER.BITMAP_REF
+  ) = ?
 `,
-    [packageId]
+    [packageId, packageId]
   )
+}
+
+/**
+ * Post loading actions.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ */
+async function updateStaticEntityReferences(db, packageId) {
+  await updateEnumClusterReferences(db, packageId)
+  await updateStructClusterReferences(db, packageId)
+  await updateBitmapClusterReferences(db, packageId)
 }
 
 exports.insertGlobals = insertGlobals
@@ -1213,10 +1240,8 @@ exports.insertEnums = insertEnums
 exports.insertBitmaps = insertBitmaps
 exports.insertDeviceTypes = insertDeviceTypes
 exports.insertTags = insertTags
-exports.updateEnumClusterReferences = updateEnumClusterReferences
-exports.updateStructClusterReferences = updateStructClusterReferences
-exports.updateBitmapClusterReferences = updateBitmapClusterReferences
 exports.insertAccessModifiers = insertAccessModifiers
 exports.insertAccessOperations = insertAccessOperations
 exports.insertAccessRoles = insertAccessRoles
 exports.insertDefaultAccess = insertDefaultAccess
+exports.updateStaticEntityReferences = updateStaticEntityReferences

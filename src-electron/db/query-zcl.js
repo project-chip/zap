@@ -1123,8 +1123,13 @@ SET
       lower(CLUSTER.NAME) = lower(DEVICE_TYPE_CLUSTER.CLUSTER_NAME)
     AND
       CLUSTER.PACKAGE_REF = ?
-  )`,
-    [packageId]
+  )
+WHERE
+  ( SELECT PACKAGE_REF
+    FROM DEVICE_TYPE
+    WHERE DEVICE_TYPE_ID = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
+  ) = ?`,
+    [packageId, packageId]
   )
 }
 
@@ -1160,8 +1165,15 @@ SET
       )
     AND
       ATTRIBUTE.PACKAGE_REF = ?
-  )`,
-    [packageId]
+  )
+WHERE
+  (
+    SELECT PACKAGE_REF
+    FROM ATTRIBUTE
+    WHERE ATTRIBUTE.ATTRIBUTE_ID = DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+  ) = ?
+  `,
+    [packageId, packageId]
   )
 }
 
@@ -1197,8 +1209,14 @@ SET
       )
     AND
       COMMAND.PACKAGE_REF = ?
-  )`,
-    [packageId]
+  )
+WHERE
+  (
+    SELECT PACKAGE_REF
+    FROM COMMAND
+    WHERE COMMAND.COMMAND_ID = DEVICE_TYPE_COMMAND.COMMAND_REF
+  ) = ?`,
+    [packageId, packageId]
   )
 }
 

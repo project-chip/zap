@@ -297,6 +297,8 @@ async function selectAttributeDetailsFromEnabledClusters(
       define: x.DEFINE,
       mfgCode: x.MANUFACTURER_CODE,
       isWritable: x.IS_WRITABLE,
+      clusterRef: x.CLUSTER_REF,
+      clusterId: x.CLUSTER_ID,
       clusterSide: x.CLUSTER_SIDE,
       clusterName: x.CLUSTER_NAME,
       clusterDefine: x.CLUSTER_DEFINE,
@@ -325,8 +327,10 @@ async function selectAttributeDetailsFromEnabledClusters(
       db,
       `
   SELECT
-    ATTRIBUTE.ATTRIBUTE_ID,
+
+  ATTRIBUTE.ATTRIBUTE_ID,
     ATTRIBUTE.NAME,
+    ATTRIBUTE.CLUSTER_REF,
     ATTRIBUTE.CODE,
     ATTRIBUTE.SIDE,
     ATTRIBUTE.TYPE,
@@ -334,6 +338,7 @@ async function selectAttributeDetailsFromEnabledClusters(
     ATTRIBUTE.MANUFACTURER_CODE,
     ATTRIBUTE.IS_WRITABLE,
     ENDPOINT_TYPE_CLUSTER.SIDE AS CLUSTER_SIDE,
+    CLUSTER.CLUSTER_ID AS CLUSTER_ID,
     CLUSTER.NAME AS CLUSTER_NAME,
     CLUSTER.DEFINE AS CLUSTER_DEFINE,
     CLUSTER.CODE AS CLUSTER_CODE,
