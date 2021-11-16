@@ -277,7 +277,8 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
       SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
       SI.IS_WRITABLE AS ITEM_IS_WRITABLE,
       SI.IS_NULLABLE AS ITEM_IS_NULLABLE,
-      SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL
+      SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL,
+      SI.IS_FABRIC_SENSITIVE AS ITEM_IS_FABRIC_SENSITIVE
     FROM
       STRUCT AS S
     LEFT JOIN
@@ -302,7 +303,8 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
       SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
       SI.IS_WRITABLE AS ITEM_IS_WRITABLE,
       SI.IS_NULLABLE AS ITEM_IS_NULLABLE,
-      SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL
+      SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL,
+      SI.IS_FABRIC_SENSITIVE AS ITEM_IS_FABRIC_SENSITIVE
     FROM
       STRUCT AS S
     INNER JOIN
@@ -349,6 +351,7 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
       isWritable: dbApi.fromDbBool(value.ITEM_IS_WRITABLE),
       isNullable: dbApi.fromDbBool(value.ITEM_IS_NULLABLE),
       isOptional: dbApi.fromDbBool(value.ITEM_IS_OPTIONAL),
+      isFabricSensitive: dbApi.fromDbBool(value.ITEM_IS_FABRIC_SENSITIVE),
     })
     objectToActOn.itemCnt++
     return acc
@@ -370,7 +373,8 @@ SELECT
   MAX_LENGTH,
   IS_WRITABLE,
   IS_NULLABLE,
-  IS_OPTIONAL
+  IS_OPTIONAL,
+  IS_FABRIC_SENSITIVE
 FROM
   STRUCT_ITEM
 WHERE STRUCT_REF = ?
@@ -403,7 +407,8 @@ SELECT
   SI.MAX_LENGTH,
   SI.IS_WRITABLE,
   SI.IS_NULLABLE,
-  SI.IS_OPTIONAL
+  SI.IS_OPTIONAL,
+  SI.IS_FABRIC_SENSITIVE
 FROM
   STRUCT_ITEM AS SI
 INNER JOIN
