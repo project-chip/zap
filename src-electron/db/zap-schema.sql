@@ -499,6 +499,7 @@ CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
   "IS_WRITABLE" integer,
   "IS_NULLABLE" integer,
   "IS_OPTIONAL" integer,
+  "IS_FABRIC_SENSITIVE" integer,
   foreign key (STRUCT_REF) references STRUCT(STRUCT_ID)
 );
 /*

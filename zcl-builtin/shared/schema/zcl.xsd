@@ -67,6 +67,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
     <xs:attribute name="enum" type="xs:boolean"/>
     <xs:attribute name="fieldId" type="xs:integer"/>
     <xs:attribute name="isNullable" type="xs:boolean"/>
+    <xs:attribute name="isFabricSensitive" type="xs:boolean"/>
   </xs:complexType>
   <xs:complexType name="featureBit" mixed="true">
     <xs:attribute name="tag" use="required" type="xs:string"/>

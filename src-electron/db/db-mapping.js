@@ -242,6 +242,7 @@ exports.map = {
       isWritable: dbApi.fromDbBool(x.IS_WRITABLE),
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
+      isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
     }
   },
 

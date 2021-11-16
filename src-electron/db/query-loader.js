@@ -782,6 +782,7 @@ async function insertStructs(db, packageId, data) {
           dbApi.toDbBool(item.isWritable),
           dbApi.toDbBool(item.isNullable),
           dbApi.toDbBool(item.isOptional),
+          dbApi.toDbBool(item.isFabricSensitive),
         ])
       )
     }
@@ -790,7 +791,21 @@ async function insertStructs(db, packageId, data) {
   if (itemsToLoad.length > 0)
     await dbApi.dbMultiInsert(
       db,
-      'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+      `
+INSERT INTO STRUCT_ITEM (
+  STRUCT_REF,
+  NAME,
+  TYPE,
+  FIELD_IDENTIFIER,
+  IS_ARRAY,
+  IS_ENUM,
+  MIN_LENGTH,
+  MAX_LENGTH,
+  IS_WRITABLE,
+  IS_NULLABLE,
+  IS_OPTIONAL,
+  IS_FABRIC_SENSITIVE
+) VALUES (?,?,?,?,?,?,?,?,?,?,?, ?)`,
       itemsToLoad
     )
 }
