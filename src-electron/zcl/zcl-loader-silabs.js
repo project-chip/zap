@@ -804,6 +804,7 @@ function prepareStruct(struct) {
         isEnum: item.$.enum == 'true' ? true : false,
         isNullable: item.$.isNullable == 'true' ? true : false,
         isOptional: item.$.optional == 'true' ? true : false,
+        isFabricSensitive: item.$.isFabricSensitive == 'true' ? true : false,
       })
     })
   }
