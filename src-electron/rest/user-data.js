@@ -79,70 +79,60 @@ function httpPostSaveSessionKeyValue(db) {
  * @returns callback for the express uri registration
  */
 function httpPostCluster(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let { id, side, flag, endpointTypeIdList } = request.body
     let sessionId = request.zapSessionId
-    let packageId
 
-    queryPackage
-      .getSessionPackagesByType(db, sessionId, dbEnum.packageType.zclProperties)
-      .then((pkgs) => {
-        packageId = pkgs[0].id
-      })
-      .then(() => {
-        if (endpointTypeIdList.length == 0) {
-          throw new Error('Invalid function parameter: endpointTypeIdList')
-        }
-        return Promise.all(
-          endpointTypeIdList.map((endpointTypeId) =>
-            queryConfig.selectClusterState(db, endpointTypeId, id, side)
-          )
+    try {
+      let pkgs = await queryPackage.getSessionPackagesByType(
+        db,
+        sessionId,
+        dbEnum.packageType.zclProperties
+      )
+
+      let packageId = pkgs[0].id
+
+      if (endpointTypeIdList.length == 0) {
+        throw new Error('Invalid function parameter: endpointTypeIdList')
+      }
+      let states = await Promise.all(
+        endpointTypeIdList.map((endpointTypeId) =>
+          queryConfig.selectClusterState(db, endpointTypeId, id, side)
         )
-      })
-      .then((states) => {
-        console.log('states: ' + JSON.stringify(states))
-        if (states.length == 0) {
-          return true
-        } else {
-          return false
-        }
-      })
-      .then((insertDefaults) => {
-        return Promise.all(
-          endpointTypeIdList.map((endpointTypeId) =>
-            queryConfig
-              .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
-              .then(() => {
-                if (insertDefaults) {
-                  return queryConfig.insertClusterDefaults(
-                    db,
-                    endpointTypeId,
-                    packageId,
-                    {
-                      clusterRef: id,
-                      side: side,
-                    }
-                  )
-                } else {
-                  return Promise.resolve()
+      )
+
+      let insertDefaults = states.length == 0
+
+      let promises = endpointTypeIdList.map((endpointTypeId) =>
+        queryConfig
+          .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
+          .then(() => {
+            if (insertDefaults) {
+              return queryConfig.insertClusterDefaults(
+                db,
+                endpointTypeId,
+                packageId,
+                {
+                  clusterRef: id,
+                  side: side,
                 }
-              })
-          )
-        ).then(() =>
-          response
-            .json({
-              endpointTypeIdList: endpointTypeIdList,
-              id: id,
-              side: side,
-              flag: flag,
-            })
-            .status(StatusCodes.OK)
-            .send()
-        )
-      })
-      .catch((err) => {
-        response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
-      })
+              )
+            }
+          })
+      )
+      await Promise.all(promises)
+      response
+        .status(StatusCodes.OK)
+        .json({
+          endpointTypeIdList: endpointTypeIdList,
+          id: id,
+          side: side,
+          flag: flag,
+        })
+        .send()
+    } catch (err) {
+      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
+    }
   }
 }
 /**
