@@ -49,14 +49,19 @@ async function importSessionKeyValues(db, sessionId, keyValuePairs) {
   return Promise.all(allQueries).then(() => sessionId)
 }
 
+function getPkgPath(pkg, zapFilePath) {
+  if ('pathRelativity' in pkg) {
+    return util.createAbsolutePath(pkg.path, pkg.pathRelativity, zapFilePath)
+  } else {
+    return pkg.path
+  }
+}
+
 // Resolves into a { packageId:, packageType:}
 // object, pkg has`path`, `version`, `type`. It can ALSO have pathRelativity. If pathRelativity is missing
 // path is considered absolute.
 async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
-  let absPath = pkg.path
-  if ('pathRelativity' in pkg) {
-    absPath = util.createAbsolutePath(pkg.path, pkg.pathRelativity, zapFilePath)
-  }
+  let absPath = getPkgPath(pkg, zapFilePath)
   let pkgId = await queryPackage.getPackageIdByPathAndTypeAndVersion(
     db,
     absPath,
@@ -325,6 +330,53 @@ async function jsonDataLoader(db, state, sessionId) {
   await Promise.all(promisesStage1)
   await Promise.all(promisesStage2)
   await querySession.setSessionClean(db, data.sessionId)
+
+  // ensure the PACKAGE_REF is correct inside SESSION_PACKAGE table.
+  // Issue: upon startup, initializeSessionPackage() inits everything from the commandline args.
+  //        when loading an .zap configuration, it might refer to a different package than the startup package.
+  if ('package' in state) {
+    await Promise.all(
+      state.package.map(async (pkg) => {
+        let pkgFilePath = getPkgPath(pkg, state.filePath)
+
+        let sessionPkgs = await queryPackage.getSessionPackagesByType(
+          db,
+          data.sessionId,
+          pkg.type
+        )
+        let invalidSessionPkgs = sessionPkgs.filter(
+          (x) => x.path !== pkgFilePath
+        )
+        let validSessionPkgId =
+          await queryPackage.getPackageIdByPathAndTypeAndVersion(
+            db,
+            pkgFilePath,
+            pkg.type,
+            pkg.version
+          )
+
+        if (validSessionPkgId != null && invalidSessionPkgs.length) {
+          await Promise.all(
+            invalidSessionPkgs.map((y) => {
+              env.logDebug(
+                `Disabling/removing invalid session package. sessionId(${sessionId}), packageId(${y.id}), path(${y.path})`
+              )
+              return queryPackage.deleteSessionPackage(db, sessionId, y.id)
+            })
+          )
+
+          env.logDebug(
+            `Enabling session package. sessionId(${sessionId}), packageId(${validSessionPkgId})`
+          )
+          await queryPackage.insertSessionPackage(
+            db,
+            sessionId,
+            validSessionPkgId
+          )
+        }
+      })
+    )
+  }
 
   return {
     sessionId: data.sessionId,
