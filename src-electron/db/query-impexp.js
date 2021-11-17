@@ -169,27 +169,60 @@ ORDER BY ENDPOINT.ENDPOINT_IDENTIFIER, ENDPOINT_TYPE.NAME, DEVICE_TYPE_CODE, DEV
  * @returns Promise of endpoint insertion.
  */
 async function importEndpointType(db, sessionId, packageId, endpointType) {
-  // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', `deviceTypeProfileId`, 'clusters', 'commands', 'attributes'
-  return dbApi.dbInsert(
+  let multipleDeviceIds = await dbApi.dbAll(
     db,
-    `
-INSERT INTO ENDPOINT_TYPE (
-  SESSION_REF,
-  NAME,
-  DEVICE_TYPE_REF
-) VALUES(
-  ?,
-  ?,
-  (SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND PACKAGE_REF = ?)
-)`,
-    [
-      sessionId,
-      endpointType.name,
-      parseInt(endpointType.deviceTypeCode),
-      parseInt(endpointType.deviceTypeProfileId),
-      packageId,
-    ]
+    `SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = "${parseInt(
+      endpointType.deviceTypeCode
+    )}" AND PROFILE_ID = "${parseInt(
+      endpointType.deviceTypeProfileId
+    )}" AND PACKAGE_REF = "${packageId}"`
   )
+  if (multipleDeviceIds != null && multipleDeviceIds.length > 1) {
+    // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', `deviceTypeProfileId`, 'clusters', 'commands', 'attributes'
+    return dbApi.dbInsert(
+      db,
+      `
+  INSERT INTO ENDPOINT_TYPE (
+    SESSION_REF,
+    NAME,
+    DEVICE_TYPE_REF
+  ) VALUES(
+    ?,
+    ?,
+    (SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND NAME = ? AND PACKAGE_REF = ?)
+  )`,
+      [
+        sessionId,
+        endpointType.name,
+        parseInt(endpointType.deviceTypeCode),
+        parseInt(endpointType.deviceTypeProfileId),
+        endpointType.deviceTypeName,
+        packageId,
+      ]
+    )
+  } else {
+    // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', `deviceTypeProfileId`, 'clusters', 'commands', 'attributes'
+    return dbApi.dbInsert(
+      db,
+      `
+  INSERT INTO ENDPOINT_TYPE (
+    SESSION_REF,
+    NAME,
+    DEVICE_TYPE_REF
+  ) VALUES(
+    ?,
+    ?,
+    (SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND PACKAGE_REF = ?)
+  )`,
+      [
+        sessionId,
+        endpointType.name,
+        parseInt(endpointType.deviceTypeCode),
+        parseInt(endpointType.deviceTypeProfileId),
+        packageId,
+      ]
+    )
+  }
 }
 
 /**
