@@ -1,7 +1,7 @@
 pipeline
 {
-    agent { node{ label 'Build-Farm'
-                  customWorkspace '/mnt/raid/workspaces/zap'    } }
+    agent { node { label 'Build-Farm'
+            customWorkspace '/mnt/raid/workspaces/zap'    } }
 
     options { buildDiscarder(logRotator(artifactNumToKeepStr: '10')) }
 
@@ -53,7 +53,7 @@ pipeline
                         }
                     }
                 }
-                stage('XML validation')
+/*                 stage('XML validation')
                 {
                     steps
                     {
@@ -63,7 +63,7 @@ pipeline
                         }
                     }
                 }
-                stage('License check')
+                */                stage('License check')
                 {
                     steps
                     {
@@ -426,7 +426,7 @@ pipeline
                     slackColor = 'good'
                     slackSend (color: slackColor, channel: '#zap', message: slackMessage)
                 }
-                else if(currentBuild.result == 'UNSTABLE') {
+                else if (currentBuild.result == 'UNSTABLE') {
                     slackMessage = ":zap_warning: WARNING: <${env.RUN_DISPLAY_URL}|" + jobName + '>, changes by: ' + committers
                     slackColor = 'warning'
                     slackSend (color: slackColor, channel: '#zap', message: slackMessage)
