@@ -53,6 +53,16 @@ pipeline
                         }
                     }
                 }
+                stage('XML validation')
+                {
+                    steps
+                    {
+                        script
+                        {
+                            sh 'npm run xml-validate'
+                        }
+                    }
+                }
                 stage('License check')
                 {
                     steps
