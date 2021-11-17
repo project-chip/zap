@@ -192,7 +192,7 @@ function httpPostAttributeUpdate(db) {
     )
 
     // send latest value to frontend to update UI
-    let eptAttr = queryZcl.selectEndpointTypeAttribute(
+    let eptAttr = await queryZcl.selectEndpointTypeAttribute(
       db,
       endpointTypeIdList[0],
       id,
