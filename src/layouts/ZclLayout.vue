@@ -29,10 +29,19 @@ limitations under the License.
     <div class="q-gutter-y-md height: 10vh">
       <q-toolbar class="shadow-2" v-if="this.$store.state.zap.debugNavBar">
         <q-tabs flat v-model="tab">
-          <q-tab name="general" label="General" />
+          <q-tab v-if="devtab" name="general" label="Dev Tools" />
           <q-tab :name="restApi.uiMode.ZIGBEE" label="ZCL" />
         </q-tabs>
         <q-space />
+        <q-toggle
+          class="q-mr-sm"
+          label="Dev Tools"
+          dense
+          left-label
+          v-model="devtab"
+        >
+          <q-tooltip> Enable Dev Tools tab </q-tooltip>
+        </q-toggle>
         <q-btn flat @click="toggleTheme()" label="Dark/Light" />
         <q-btn
           flat
@@ -227,6 +236,7 @@ export default {
   },
   data() {
     return {
+      devtab:true,
       restApi: restApi,
       tab: this.$store.state.zap.calledArgs['defaultUiMode'],
       zclDialogFlag: false,
