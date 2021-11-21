@@ -91,8 +91,7 @@ limitations under the License.
           <q-drawer
             :width="$q.screen.width * 0.6"
             bordered
-            show-if-above
-            overlay
+            
             v-model="drawerRight"
             side="right"
           >
@@ -106,8 +105,8 @@ limitations under the License.
               >
                 <q-list>
                   <q-item
-                    v-for="file in generationFiles"
-                    :key="file"
+                    v-for="(file,i) in generationFiles"
+                    :key="i"
                     clickable
                     v-close-popup
                     @click="
@@ -236,7 +235,7 @@ export default {
   },
   data() {
     return {
-      devtab:true,
+      devtab:false,
       restApi: restApi,
       tab: this.$store.state.zap.calledArgs['defaultUiMode'],
       zclDialogFlag: false,
