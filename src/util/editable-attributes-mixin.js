@@ -99,6 +99,37 @@ export default {
       },
     },
   },
+  watch:{
+    selectedCluster(){
+      const disabledAttributes = this.relevantAttributeData.filter( singleItem => {
+        let indexOfValue = this.selection.indexOf(
+          this.hashAttributeIdClusterId(singleItem.id, this.selectedCluster.id)
+        )
+        if (indexOfValue === -1) {
+          return true
+        } else {
+          return false
+        }
+      });
+      console.log('mehtest',disabledAttributes);
+      // setTimeout(()=>{
+        disabledAttributes.forEach(singleAttribute => {
+          let editContext = {
+            action: 'boolean',
+            endpointTypeId: this.selectedEndpointTypeId,
+            id: singleAttribute.id,
+            value: false,
+            listType: "selectedAttributes",
+            clusterRef: this.selectedCluster.id,
+            attributeSide: singleAttribute.side,
+            reportMinInterval: singleAttribute.reportMinInterval,
+            reportMaxInterval: singleAttribute.reportMaxInterval,
+          }
+          this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+      // },500)
+    })
+    }
+  },
   methods: {
     handleLocalChange(localChanges, listType, attributeData, clusterId) {
       this.handleAttributeDefaultChange(
