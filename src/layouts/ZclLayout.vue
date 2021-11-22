@@ -70,19 +70,21 @@ limitations under the License.
         <q-page-container>
           <q-tab-panels v-model="tab" animated>
             <q-tab-panel name="general">
-              <q-expansion-item
-                expand-separator
-                label="Information Configuration"
-                caption
-              >
-                <ZclInformationSetup />
-              </q-expansion-item>
-              <q-expansion-item expand-separator label="SQL Query Test" caption>
-                <sql-query />
-              </q-expansion-item>
-              <q-expansion-item expand-separator label="UC Components" caption>
-                <UcComponentSetup />
-              </q-expansion-item>
+              <q-scroll-area style="height:80vh ">
+                <q-expansion-item
+                  expand-separator
+                  label="Information Configuration"
+                  caption
+                >
+                  <ZclInformationSetup />
+                </q-expansion-item>
+                <q-expansion-item expand-separator label="SQL Query Test" caption>
+                  <sql-query />
+                </q-expansion-item>
+                <q-expansion-item expand-separator label="UC Components" caption>
+                  <UcComponentSetup />
+                </q-expansion-item>
+                </q-scroll-area>
             </q-tab-panel>
             <q-tab-panel :name="restApi.uiMode.ZIGBEE">
               <zcl-configurator-layout />
