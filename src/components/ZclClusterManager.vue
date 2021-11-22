@@ -114,6 +114,12 @@ export default {
     if (this.domainNames.length > 0 && this.lastSelectedDomain) {
       this.scrollToElementById(this.lastSelectedDomain)
     }
+    this.changeDomainFilter(this.filter);
+  },
+  watch:{
+    enabledClusters() {
+      this.changeDomainFilter(this.filter);
+    }
   },
   computed: {
     domainNames: {
