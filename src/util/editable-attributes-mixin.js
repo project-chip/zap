@@ -196,20 +196,20 @@ export default {
       }
     },
     handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
-      if (newValue) {
-        let editContext = {
-          action: 'text',
-          endpointTypeId: this.selectedEndpointTypeId,
-          id: attributeData.id,
-          value: newValue,
-          listType: listType,
-          clusterRef: clusterId,
-          attributeSide: attributeData.side,
-          reportMinInterval: attributeData.reportMinInterval,
-          reportMaxInterval: attributeData.reportMaxInterval,
-        }
-        this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+      // if (newValue) {
+      let editContext = {
+        action: 'text',
+        endpointTypeId: this.selectedEndpointTypeId,
+        id: attributeData.id,
+        value: newValue,
+        listType: listType,
+        clusterRef: clusterId,
+        attributeSide: attributeData.side,
+        reportMinInterval: attributeData.reportMinInterval,
+        reportMaxInterval: attributeData.reportMaxInterval,
       }
+      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+      // }
     },
     toggleAttributeSelection(list, listType, attributeData, clusterId) {
       // We determine the ID that we need to toggle within the list.
