@@ -111,8 +111,6 @@ export default {
           return false
         }
       });
-      console.log('mehtest',disabledAttributes);
-      // setTimeout(()=>{
         disabledAttributes.forEach(singleAttribute => {
           let editContext = {
             action: 'boolean',
@@ -126,7 +124,6 @@ export default {
             reportMaxInterval: singleAttribute.reportMaxInterval,
           }
           this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-      // },500)
     })
     }
   },
