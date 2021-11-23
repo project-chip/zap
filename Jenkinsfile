@@ -53,7 +53,7 @@ pipeline
                         }
                     }
                 }
-/*                 stage('XML validation')
+                stage('XML validation')
                 {
                     steps
                     {
@@ -63,7 +63,7 @@ pipeline
                         }
                     }
                 }
-                */                stage('License check')
+                stage('License check')
                 {
                     steps
                     {
