@@ -233,6 +233,10 @@ export default {
         reportMaxInterval: attributeData.reportMaxInterval,
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+      if(addedValue && listType === "selectedAttributes" && attributeData.isReportable){
+        editContext.listType = 'selectedReporting';
+        this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+      }
     },
 
     initializeTextEditableList(originatingList, editableList, attrClusterHash) {
