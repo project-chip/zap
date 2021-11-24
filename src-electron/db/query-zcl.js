@@ -364,6 +364,7 @@ async function selectAllStructItemsById(db, id) {
       db,
       `
 SELECT
+  FIELD_IDENTIFIER,
   NAME,
   TYPE,
   STRUCT_REF,
@@ -398,6 +399,7 @@ async function selectAllStructItemsByStructName(db, name, packageId) {
       db,
       `
 SELECT
+  SI.FIELD_IDENTIFIER,
   SI.NAME,
   SI.TYPE,
   SI.STRUCT_REF,
