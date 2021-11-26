@@ -15,16 +15,23 @@ limitations under the License.
 -->
 <template>
   <div>
+    <q-toolbar class="shadow-2" >
+      <q-btn 
+      icon="arrow_back"
+      to="/"
+      label="Back"
+      />
+    </q-toolbar>
     <q-splitter v-model="splitterModel" style="height: 250px">
       <template v-slot:before>
         <q-tabs v-model="tab" vertical class="text-teal">
+          <q-tab name="user" icon="mdi-wrench" label="User settings" />
           <q-tab name="package" icon="mdi-lan" label="Zcl packages" />
           <q-tab
             name="gen"
             icon="mdi-file-document-edit-outline"
             label="Generation"
           />
-          <q-tab name="user" icon="mdi-wrench" label="User settings" />
         </q-tabs>
       </template>
 
@@ -37,6 +44,9 @@ limitations under the License.
           transition-prev="jump-up"
           transition-next="jump-up"
         >
+        <q-tab-panel name="user">
+            <PreferenceUser />
+          </q-tab-panel>
           <q-tab-panel name="package">
             <PreferencePackage />
           </q-tab-panel>
@@ -45,9 +55,7 @@ limitations under the License.
             <PreferenceGeneration />
           </q-tab-panel>
 
-          <q-tab-panel name="user">
-            <PreferenceUser />
-          </q-tab-panel>
+          
         </q-tab-panels>
       </template>
     </q-splitter>
@@ -66,7 +74,7 @@ export default {
   },
   data() {
     return {
-      tab: 'package',
+      tab: 'user',
       splitterModel: 20,
     }
   },

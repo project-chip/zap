@@ -16,6 +16,19 @@ limitations under the License.
 <template>
   <div>
     <div class="text-h4 q-mb-md">User settings</div>
+    <q-separator spaced="md" />
+    <p>UI preferences</p>
+    <q-btn flat @click="toggleTheme()" label="Dark/Light" />
+    <q-toggle
+          class="q-mr-sm"
+          label="Dev Tools"
+          dense
+          left-label
+          v-model="devtab"
+        >
+          <q-tooltip> Enable Dev Tools tab </q-tooltip>
+        </q-toggle>
+    <q-separator spaced="md" />
     <p>User preferences.</p>
     <q-input @input="setPath" v-model="localPath" label="Last file location" />
   </div>
@@ -23,11 +36,23 @@ limitations under the License.
 <script>
 import * as storage from '../util/storage.js'
 import rendApi from '../../src-shared/rend-api.js'
+const observable = require('../util/observable.js')
 export default {
   name: 'PreferenceUser',
   methods: {
+    
     setPath(path) {
       storage.setItem(rendApi.storageKey.fileSave, path)
+    },
+    toggleTheme() {
+      let theme = observable.getObservableAttribute(
+        rendApi.observable.themeData
+      )
+      if (theme == 'dark') {
+        observable.setObservableAttribute(rendApi.observable.themeData, 'light')
+      } else {
+        observable.setObservableAttribute(rendApi.observable.themeData, 'dark')
+      }
     },
   },
   computed: {
@@ -36,6 +61,14 @@ export default {
         return storage.getItem(rendApi.storageKey.fileSave)
       },
     },
+    devtab:{
+      get(){
+        return this.$store.state.zap.showDevTools
+      },
+      set(){
+        return this.$store.dispatch("zap/updateShowDevTools")
+      }
+    }
   },
 }
 </script>

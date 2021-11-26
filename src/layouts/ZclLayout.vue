@@ -29,20 +29,12 @@ limitations under the License.
     <div class="q-gutter-y-md height: 10vh">
       <q-toolbar class="shadow-2" v-if="this.$store.state.zap.debugNavBar">
         <q-tabs flat v-model="tab">
-          <q-tab v-if="devtab" name="general" label="Dev Tools" />
+          <q-tab v-if="this.$store.state.zap.showDevTools" name="general" label="Dev Tools" />
           <q-tab :name="restApi.uiMode.ZIGBEE" label="ZCL" />
         </q-tabs>
         <q-space />
-        <q-toggle
-          class="q-mr-sm"
-          label="Dev Tools"
-          dense
-          left-label
-          v-model="devtab"
-        >
-          <q-tooltip> Enable Dev Tools tab </q-tooltip>
-        </q-toggle>
-        <q-btn flat @click="toggleTheme()" label="Dark/Light" />
+        
+        
         <q-btn
           flat
           @click="generateIntoDirectory(generationDirectory)"
@@ -59,6 +51,12 @@ limitations under the License.
           @click="drawerRight = !drawerRight"
           label="Preview"
           v-on:click="getGeneratedFiles"
+        />
+        <q-btn
+          flat
+          @click="drawerRight = !drawerRight"
+          icon="settings"
+          to="/preference"
         />
       </q-toolbar>
       <q-layout
@@ -170,16 +168,7 @@ export default {
     regenerateIntoDirectory(currentPath) {
       this.doGeneration(currentPath)
     },
-    toggleTheme() {
-      let theme = observable.getObservableAttribute(
-        rendApi.observable.themeData
-      )
-      if (theme == 'dark') {
-        observable.setObservableAttribute(rendApi.observable.themeData, 'light')
-      } else {
-        observable.setObservableAttribute(rendApi.observable.themeData, 'dark')
-      }
-    },
+    
     generateIntoDirectory(currentPath) {
       window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.fileBrowse, {
         context: 'generateDir',
@@ -235,7 +224,6 @@ export default {
   },
   data() {
     return {
-      devtab:false,
       restApi: restApi,
       tab: this.$store.state.zap.calledArgs['defaultUiMode'],
       zclDialogFlag: false,
