@@ -99,6 +99,34 @@ export default {
       },
     },
   },
+  watch:{
+    selectedCluster(){
+      const disabledAttributes = this.relevantAttributeData.filter( singleItem => {
+        let indexOfValue = this.selection.indexOf(
+          this.hashAttributeIdClusterId(singleItem.id, this.selectedCluster.id)
+        )
+        if (indexOfValue === -1) {
+          return true
+        } else {
+          return false
+        }
+      });
+        disabledAttributes.forEach(singleAttribute => {
+          let editContext = {
+            action: 'boolean',
+            endpointTypeId: this.selectedEndpointTypeId,
+            id: singleAttribute.id,
+            value: false,
+            listType: "selectedAttributes",
+            clusterRef: this.selectedCluster.id,
+            attributeSide: singleAttribute.side,
+            reportMinInterval: singleAttribute.reportMinInterval,
+            reportMaxInterval: singleAttribute.reportMaxInterval,
+          }
+          this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+    })
+    }
+  },
   methods: {
     handleLocalChange(localChanges, listType, attributeData, clusterId) {
       this.handleAttributeDefaultChange(
@@ -165,20 +193,20 @@ export default {
       }
     },
     handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
-      if (newValue) {
-        let editContext = {
-          action: 'text',
-          endpointTypeId: this.selectedEndpointTypeId,
-          id: attributeData.id,
-          value: newValue,
-          listType: listType,
-          clusterRef: clusterId,
-          attributeSide: attributeData.side,
-          reportMinInterval: attributeData.reportMinInterval,
-          reportMaxInterval: attributeData.reportMaxInterval,
-        }
-        this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+      // if (newValue) {
+      let editContext = {
+        action: 'text',
+        endpointTypeId: this.selectedEndpointTypeId,
+        id: attributeData.id,
+        value: newValue,
+        listType: listType,
+        clusterRef: clusterId,
+        attributeSide: attributeData.side,
+        reportMinInterval: attributeData.reportMinInterval,
+        reportMaxInterval: attributeData.reportMaxInterval,
       }
+      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+      // }
     },
     toggleAttributeSelection(list, listType, attributeData, clusterId) {
       // We determine the ID that we need to toggle within the list.
