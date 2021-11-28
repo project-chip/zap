@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 
+const cHelper = require('./helper-c.js')
 const templateUtil = require('./template-util')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
@@ -583,9 +584,18 @@ async function collectAttributes(endpointTypes) {
         if (a.isSingleton) mask.push('singleton')
         if (a.isWritable) mask.push('writable')
         if (a.isNullable) mask.push('nullable')
+        let zap_type = "UNKNOWN ATTRIBUTE TYPE";
+        if (a.typeInfo.atomicType) {
+          zap_type = a.typeInfo.atomicType;
+        } else if (a.typeInfo.type == dbEnum.zclType.struct) {
+          zap_type = "STRUCT";
+        } else if (a.typeInfo.type == dbEnum.zclType.unknown) {
+          // In our unit tests we have no db info for these types, apparently.
+          zap_type = a.type;
+        }
         let attr = {
           id: a.hexCode, // attribute code
-          type: `ZAP_TYPE(${a.type.toUpperCase()})`, // type
+          type: `ZAP_TYPE(${cHelper.asDelimitedMacro(zap_type)})`, // type
           size: typeSize, // size
           mask: mask, // array of special properties
           defaultValue: attributeDefaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
@@ -709,6 +719,31 @@ async function collectAttributeSizes(db, zclPackageId, endpointTypes) {
 }
 
 /**
+ * This function goes over all attributes and populates atomic types.
+ * @param {*} endpointTypes
+ * @returns promise that resolves with the passed endpointTypes, after populating the attribute atomic types.
+ *
+ */
+async function collectAttributeTypeInfo(db, zclPackageId, endpointTypes) {
+  let ps = []
+  endpointTypes.forEach((ept) => {
+    ept.clusters.forEach((cl) => {
+      cl.attributes.forEach((at) => {
+        ps.push(
+          zclUtil
+            .determineType(db, at.type, zclPackageId)
+            .then((typeInfo) => {
+              at.typeInfo = typeInfo
+            })
+        )
+      })
+    })
+  })
+  await Promise.all(ps)
+  return endpointTypes;
+}
+
+/**
  * Starts the endpoint configuration block.,
  * longDefaults: longDefaults
  *
@@ -786,6 +821,9 @@ function endpoint_config(options) {
       })
       return Promise.all(promises).then(() => endpointTypes)
     })
+    .then((endpointTypes) =>
+      collectAttributeTypeInfo(db, this.global.zclPackageId, endpointTypes)
+    )
     .then((endpointTypes) =>
       collectAttributeSizes(db, this.global.zclPackageId, endpointTypes)
     )
