@@ -123,7 +123,7 @@ limitations under the License.
                 : '---'
             }}
           </q-td>
-          <q-td key="options" :props="props">
+          <q-td key="enable" :props="props">
             <q-select
               :v-model="getClusterEnabledStatus(props.row.id)"
               :display-value="`${getClusterEnabledStatus(props.row.id)}`"
@@ -224,7 +224,7 @@ export default {
       if (hasClient && hasServer) return 'Client & Server'
       if (hasClient) return 'Client'
       if (hasServer) return 'Server'
-      return '---'
+      return 'Not Enabled'
     },
     isAnyRequiredClusterNotEnabled() {
       let lackingRequiredCluster = false
@@ -338,7 +338,7 @@ export default {
     return {
       uc_label: 'uc label',
       clusterSelectionOptions: [
-        { label: '---', client: false, server: false },
+        { label: 'Not Enabled', client: false, server: false },
         { label: 'Client', client: true, server: false },
         { label: 'Server', client: false, server: true },
         { label: 'Client & Server', client: true, server: true },
@@ -385,9 +385,9 @@ export default {
           style: 'width:10%',
         },
         {
-          name: 'options',
+          name: 'enable',
           required: false,
-          label: 'Options',
+          label: 'Enable',
           align: 'left',
           field: (row) => 'test',
           style: 'width:20%',
