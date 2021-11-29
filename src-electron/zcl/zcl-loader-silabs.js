@@ -88,6 +88,11 @@ async function collectDataFromJsonFile(metadataFile, data) {
     returnObject.featureFlags = obj.featureFlags
   }
 
+  // Default reportability
+  if ('defaultReportable' in obj) {
+    returnObject.defaultReportable = obj.defaultReportable
+  }
+
   returnObject.version = obj.version
   returnObject.supportCustomZclDevice = obj.supportCustomZclDevice
 
@@ -363,7 +368,7 @@ function extractAccessIntoArray(xmlElement) {
  * @param {*} cluster
  * @returns Object containing all data from XML.
  */
-function prepareCluster(cluster, isExtension = false) {
+function prepareCluster(cluster, context, isExtension = false) {
   let ret = {
     isExtension: isExtension,
   }
@@ -511,7 +516,9 @@ function prepareCluster(cluster, isExtension = false) {
         isWritable: attribute.$.writable == 'true',
         defaultValue: attribute.$.default,
         isOptional: attribute.$.optional == 'true',
-        isReportable: attribute.$.reportable == 'true',
+        isReportable: context.defaultReportable
+          ? attribute.$.reportable != 'false'
+          : attribute.$.reportable == 'true',
         isSceneRequired: attribute.$.sceneRequired == 'true',
         introducedIn: attribute.$.introducedIn,
         removedIn: attribute.$.removedIn,
@@ -541,12 +548,12 @@ function prepareCluster(cluster, isExtension = false) {
  * @param {*} data
  * @returns Promise of cluster insertion.
  */
-async function processClusters(db, filePath, packageId, data) {
+async function processClusters(db, filePath, packageId, data, context) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} clusters.`)
   return queryLoader.insertClusters(
     db,
     packageId,
-    data.map((x) => prepareCluster(x))
+    data.map((x) => prepareCluster(x, context))
   )
 }
 
@@ -587,7 +594,8 @@ async function processClusterExtensions(
   filePath,
   dataPackageId,
   knownPackages,
-  data
+  data,
+  context
 ) {
   env.logDebug(
     `${filePath}, ${dataPackageId}: ${data.length} cluster extensions.`
@@ -596,7 +604,7 @@ async function processClusterExtensions(
     db,
     dataPackageId,
     knownPackages,
-    data.map((x) => prepareCluster(x, true))
+    data.map((x) => prepareCluster(x, context, true))
   )
 }
 
@@ -610,12 +618,12 @@ async function processClusterExtensions(
  * @param {*} data
  * @returns promise to resolve the globals
  */
-async function processGlobals(db, filePath, packageId, data) {
+async function processGlobals(db, filePath, packageId, data, context) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} globals.`)
   return queryLoader.insertGlobals(
     db,
     packageId,
-    data.map((x) => prepareCluster(x, true))
+    data.map((x) => prepareCluster(x, context, true))
   )
 }
 
@@ -804,6 +812,7 @@ function prepareStruct(struct) {
         isEnum: item.$.enum == 'true' ? true : false,
         isNullable: item.$.isNullable == 'true' ? true : false,
         isOptional: item.$.optional == 'true' ? true : false,
+        isFabricSensitive: item.$.isFabricSensitive == 'true' ? true : false,
       })
     })
   }
@@ -947,7 +956,12 @@ async function processDeviceTypes(db, filePath, packageId, data) {
  * @param {*} argument
  * @returns promise that resolves when all the subtags are parsed.
  */
-async function processParsedZclData(db, argument, previouslyKnownPackages) {
+async function processParsedZclData(
+  db,
+  argument,
+  previouslyKnownPackages,
+  context
+) {
   let filePath = argument.filePath
   let data = argument.result
   let packageId = argument.packageId
@@ -995,10 +1009,14 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
       )
     }
     if ('global' in toplevel) {
-      batch2.push(processGlobals(db, filePath, packageId, toplevel.global))
+      batch2.push(
+        processGlobals(db, filePath, packageId, toplevel.global, context)
+      )
     }
     if ('cluster' in toplevel) {
-      batch2.push(processClusters(db, filePath, packageId, toplevel.cluster))
+      batch2.push(
+        processClusters(db, filePath, packageId, toplevel.cluster, context)
+      )
     }
     await Promise.all(batch2)
 
@@ -1045,7 +1063,8 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
           filePath,
           packageId,
           knownPackages,
-          toplevel.clusterExtension
+          toplevel.clusterExtension,
+          context
         )
       )
     }
@@ -1061,7 +1080,7 @@ async function processParsedZclData(db, argument, previouslyKnownPackages) {
  * @param {*} file
  * @returns A promise for when the last stage of the loading pipeline finishes.
  */
-async function parseSingleZclFile(db, packageId, file) {
+async function parseSingleZclFile(db, packageId, file, context) {
   try {
     let fileContent = await fsp.readFile(file)
     let data = {
@@ -1080,7 +1099,7 @@ async function parseSingleZclFile(db, packageId, file) {
       result.result = await util.parseXml(fileContent)
       delete result.data
     }
-    return processParsedZclData(db, result, new Set())
+    return processParsedZclData(db, result, new Set(), context)
   } catch (err) {
     err.message = `Error reading xml file: ${file}\n` + err.message
     throw err
@@ -1096,10 +1115,10 @@ async function parseSingleZclFile(db, packageId, file) {
  * @param {*} ctx
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
-async function parseZclFiles(db, packageId, zclFiles) {
+async function parseZclFiles(db, packageId, zclFiles, context) {
   env.logDebug(`Starting to parse ZCL files: ${zclFiles}`)
   let individualFilePromise = zclFiles.map((file) =>
-    parseSingleZclFile(db, packageId, file)
+    parseSingleZclFile(db, packageId, file, context)
   )
   let individualResults = await Promise.all(individualFilePromise)
   let laterPromises = individualResults.flat(2)
@@ -1409,7 +1428,8 @@ async function loadIndividualSilabsFile(
     sessionPackages.map((sessionPackage) => {
       packageSet.add(sessionPackage.packageRef)
     })
-    let laterPromises = await processParsedZclData(db, result, packageSet)
+    // Where do we get metadata from here???
+    let laterPromises = await processParsedZclData(db, result, packageSet, {})
     await Promise.all(
       laterPromises.flat(1).map((promise) => {
         if (promise != null && promise != undefined) return promise()
@@ -1418,7 +1438,7 @@ async function loadIndividualSilabsFile(
     await zclLoader.processZclPostLoading(db, pkgId)
     return { succeeded: true, packageId: pkgId }
   } catch (err) {
-    env.logError(`Error reading xml file: ${file}\n` + err.message)
+    env.logError(`Error reading xml file: ${filePath}\n` + err.message)
     return { succeeded: false, err: err }
   }
 }
@@ -1482,7 +1502,7 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     if (ctx.version != null) {
       await zclLoader.recordVersion(db, ctx.packageId, ctx.version)
     }
-    await parseZclFiles(db, ctx.packageId, ctx.zclFiles)
+    await parseZclFiles(db, ctx.packageId, ctx.zclFiles, ctx)
     if (ctx.manufacturersXml) {
       await parseManufacturerData(db, ctx.packageId, ctx.manufacturersXml)
     }

@@ -1135,7 +1135,7 @@ ORDER BY CL.CODE, CMD.CODE, CA.FIELD_IDENTIFIER`,
  *
  * @param {*} db
  */
-async function updateCommandRequestResponseReferences(db) {
+async function updateCommandRequestResponseReferences(db, packageId) {
   // First we link up all the cases where the response_for_name is present
   await dbApi.dbUpdate(
     db,
@@ -1159,7 +1159,9 @@ SET
   )
 WHERE
   COMMAND.RESPONSE_NAME IS NOT NULL
-  `
+  AND COMMAND.PACKAGE_REF = ?
+  `,
+    [packageId]
   )
 
   // Then we link up the ones where the "response/request" names match.
@@ -1208,6 +1210,7 @@ function commandMapFunction(x) {
     clusterName: x.CLUSTER_NAME,
     clusterDefine: x.CLUSTER_DEFINE,
     isClusterEnabled: x.ENABLED,
+    responseRef: x.RESPONSE_REF,
   }
 }
 
@@ -1236,6 +1239,7 @@ async function selectAllCommandDetailsFromEnabledClusters(
     COMMAND.SOURCE,
     COMMAND.MANUFACTURER_CODE,
     COMMAND.DESCRIPTION,
+    COMMAND.RESPONSE_REF,
     ENDPOINT_TYPE_CLUSTER.SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
     ENDPOINT_TYPE_CLUSTER.ENABLED
@@ -1275,6 +1279,7 @@ async function selectAllCliCommandDetailsFromEnabledClusters(
     COMMAND.SOURCE,
     COMMAND.MANUFACTURER_CODE,
     COMMAND.DESCRIPTION,
+    COMMAND.RESPONSE_REF,
     ENDPOINT_TYPE_CLUSTER.SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
     CLUSTER.DEFINE AS CLUSTER_DEFINE,
@@ -1321,6 +1326,7 @@ async function selectCommandDetailsFromAllEndpointTypesAndClusters(
     ENDPOINT_TYPE_COMMAND.INCOMING,
     ENDPOINT_TYPE_COMMAND.OUTGOING,
     COMMAND.DESCRIPTION,
+    COMMAND.RESPONSE_REF,
     ENDPOINT_TYPE_CLUSTER.SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
     ENDPOINT_TYPE_CLUSTER.ENABLED
@@ -1383,6 +1389,7 @@ async function selectCommandDetailsFromAllEndpointTypesAndClustersUtil(
     ENDPOINT_TYPE_COMMAND.INCOMING,
     ENDPOINT_TYPE_COMMAND.OUTGOING,
     COMMAND.DESCRIPTION,
+    COMMAND.RESPONSE_REF,
     ENDPOINT_TYPE_CLUSTER.SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
     ENDPOINT_TYPE_CLUSTER.ENABLED

@@ -242,11 +242,11 @@ async function qualifyZclFile(
  * @returns Promise to deal with the post-loading cleanup.
  */
 async function processZclPostLoading(db, packageId) {
-  await queryLoader.updateEnumClusterReferences(db, packageId)
-  await queryLoader.updateStructClusterReferences(db, packageId)
-  await queryLoader.updateBitmapClusterReferences(db, packageId)
+  // These queries must make sure that they update ONLY the entities under a given packageId.
+
+  await queryLoader.updateStaticEntityReferences(db, packageId)
   await queryZcl.updateDeviceTypeEntityReferences(db, packageId)
-  return queryCommand.updateCommandRequestResponseReferences(db)
+  return queryCommand.updateCommandRequestResponseReferences(db, packageId)
 }
 
 exports.loadZcl = loadZcl
