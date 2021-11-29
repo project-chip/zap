@@ -16,6 +16,7 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 const bin = require('./bin')
 const env = require('./env')
 
@@ -46,7 +47,28 @@ async function typeSize(db, zclPackageId, type) {
  * @returns Promise that resolves into the size of the attribute.
  */
 async function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
-  let size = await queryZcl.selectAtomicSizeFromType(db, zclPackageId, at.type)
+  let sizeType;
+  if (at.typeInfo) {
+    if (at.typeInfo.type == dbEnum.zclType.unknown) {
+      // We have no idea what this type really is.  Just use it as-is and hope
+      // something else in the system knows about it.  This happens in unit
+      // tests.
+      sizeType = at.type;
+    } else {
+      if (!at.typeInfo.atomicType) {
+        if (at.storage != dbEnum.storageOption.external) {
+          throw new Error(
+            `ERROR: Unknown size for non-external attribute: ${at.label} / ${at.code}`
+          );
+        }
+        return 0;
+      }
+      sizeType = at.typeInfo.atomicType;
+    }
+  } else {
+    sizeType = at.type;
+  }
+  let size = await queryZcl.selectAtomicSizeFromType(db, zclPackageId, sizeType)
 
   if (size) {
     return size
