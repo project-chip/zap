@@ -49,22 +49,15 @@ async function typeSize(db, zclPackageId, type) {
 async function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
   let sizeType;
   if (at.typeInfo) {
-    if (at.typeInfo.type == dbEnum.zclType.unknown) {
-      // We have no idea what this type really is.  Just use it as-is and hope
-      // something else in the system knows about it.  This happens in unit
-      // tests.
-      sizeType = at.type;
-    } else {
-      if (!at.typeInfo.atomicType) {
-        if (at.storage != dbEnum.storageOption.external) {
-          throw new Error(
-            `ERROR: Unknown size for non-external attribute: ${at.label} / ${at.code}`
-          );
-        }
-        return 0;
+    if (!at.typeInfo.atomicType) {
+      if (at.storage != dbEnum.storageOption.external) {
+        throw new Error(
+          `ERROR: Unknown size for non-external attribute: ${at.label} / ${at.code}`
+        );
       }
-      sizeType = at.typeInfo.atomicType;
+      return 0;
     }
+    sizeType = at.typeInfo.atomicType;
   } else {
     sizeType = at.type;
   }
