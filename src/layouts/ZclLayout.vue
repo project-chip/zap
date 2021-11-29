@@ -29,11 +29,12 @@ limitations under the License.
     <div class="q-gutter-y-md height: 10vh">
       <q-toolbar class="shadow-2" v-if="this.$store.state.zap.debugNavBar">
         <q-tabs flat v-model="tab">
-          <q-tab name="general" label="General" />
+          <q-tab v-if="this.$store.state.zap.showDevTools" name="general" label="Dev Tools" />
           <q-tab :name="restApi.uiMode.ZIGBEE" label="ZCL" />
         </q-tabs>
         <q-space />
-        <q-btn flat @click="toggleTheme()" label="Dark/Light" />
+        
+        
         <q-btn
           flat
           @click="generateIntoDirectory(generationDirectory)"
@@ -51,6 +52,12 @@ limitations under the License.
           label="Preview"
           v-on:click="getGeneratedFiles"
         />
+        <q-btn
+          flat
+          @click="drawerRight = !drawerRight"
+          icon="settings"
+          to="/preference"
+        />
       </q-toolbar>
       <q-layout
         view="hHh Lpr lff"
@@ -61,19 +68,21 @@ limitations under the License.
         <q-page-container>
           <q-tab-panels v-model="tab" animated>
             <q-tab-panel name="general">
-              <q-expansion-item
-                expand-separator
-                label="Information Configuration"
-                caption
-              >
-                <ZclInformationSetup />
-              </q-expansion-item>
-              <q-expansion-item expand-separator label="SQL Query Test" caption>
-                <sql-query />
-              </q-expansion-item>
-              <q-expansion-item expand-separator label="UC Components" caption>
-                <UcComponentSetup />
-              </q-expansion-item>
+              <q-scroll-area style="height:80vh ">
+                <q-expansion-item
+                  expand-separator
+                  label="Information Configuration"
+                  caption
+                >
+                  <ZclInformationSetup />
+                </q-expansion-item>
+                <q-expansion-item expand-separator label="SQL Query Test" caption>
+                  <sql-query />
+                </q-expansion-item>
+                <q-expansion-item expand-separator label="UC Components" caption>
+                  <UcComponentSetup />
+                </q-expansion-item>
+                </q-scroll-area>
             </q-tab-panel>
             <q-tab-panel :name="restApi.uiMode.ZIGBEE">
               <zcl-configurator-layout />
@@ -82,8 +91,7 @@ limitations under the License.
           <q-drawer
             :width="$q.screen.width * 0.6"
             bordered
-            show-if-above
-            overlay
+            
             v-model="drawerRight"
             side="right"
           >
@@ -97,8 +105,8 @@ limitations under the License.
               >
                 <q-list>
                   <q-item
-                    v-for="file in generationFiles"
-                    :key="file"
+                    v-for="(file,i) in generationFiles"
+                    :key="i"
                     clickable
                     v-close-popup
                     @click="
@@ -162,16 +170,7 @@ export default {
     regenerateIntoDirectory(currentPath) {
       this.doGeneration(currentPath)
     },
-    toggleTheme() {
-      let theme = observable.getObservableAttribute(
-        rendApi.observable.themeData
-      )
-      if (theme == 'dark') {
-        observable.setObservableAttribute(rendApi.observable.themeData, 'light')
-      } else {
-        observable.setObservableAttribute(rendApi.observable.themeData, 'dark')
-      }
-    },
+    
     generateIntoDirectory(currentPath) {
       window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.fileBrowse, {
         context: 'generateDir',

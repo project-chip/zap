@@ -61,16 +61,16 @@ const template = (httpPort) => [
       {
         type: 'separator',
       },
-      {
-        label: 'Preferences...',
-        httpPort: httpPort,
-        click(menuItem, browserWindow, event) {
-          preference.createOrShowPreferencesWindow(
-            browserWindow,
-            menuItem.httpPort
-          )
-        },
-      },
+      // {
+      //   label: 'Preferences...',
+      //   httpPort: httpPort,
+      //   click(menuItem, browserWindow, event) {
+      //     preference.createOrShowPreferencesWindow(
+      //       browserWindow,
+      //       menuItem.httpPort
+      //     )
+      //   },
+      // },
       {
         type: 'separator',
       },

@@ -21,6 +21,10 @@ import dbEnum from '../../../src-shared/db-enum.js'
 
 const http = require('http-status-codes')
 
+export function updateShowDevTools(context){
+  context.commit("updateShowDevTools")
+}
+
 export function updateInformationText(context, text) {
   Vue.prototype
     .$serverPost(restApi.uri.saveSessionKeyValue, {

@@ -120,6 +120,7 @@ export default function () {
     },
     debugNavBar: false, // default visibility mode for debug navigation bar
     standalone: false, // flag indicating if ZAP frontend is running outside of Studio.
+    showDevTools:false,
     studio: {
       projectInfoJson: [], // HTTP response from Studio jetty server
       ucComponents: [],

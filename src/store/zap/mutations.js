@@ -16,6 +16,9 @@
  */
 import Vue from 'vue'
 
+export const updateShowDevTools=(state)=>{
+  state.showDevTools = !state.showDevTools
+}
 export function updateInformationText(state, text) {
   state.informationText = text
 }
