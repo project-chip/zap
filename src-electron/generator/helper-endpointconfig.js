@@ -318,6 +318,9 @@ function endpoint_attribute_min_max_list(options) {
 
   let ret = '{ \\\n'
   this.minMaxList.forEach((mm, index) => {
+    if (mm.typeSize > 2) {
+      throw new Error(`Can't have min/max for attributes larger than 2 bytes like '${mm.name}'`);
+    }
     if (mm.comment != comment) {
       ret += `\\\n  /* ${mm.comment} */ \\\n`
       comment = mm.comment
@@ -336,7 +339,7 @@ function endpoint_attribute_min_max_list(options) {
       (min >= 0 ? '' : '-') + '0x' + Math.abs(min).toString(16).toUpperCase()
     let maxS =
       (max >= 0 ? '' : '-') + '0x' + Math.abs(max).toString(16).toUpperCase()
-    ret += `  { (const uint8_t*)${defS}, (const uint8_t*)${minS}, (const uint8_t*)${maxS} }${
+    ret += `  { (uint16_t)${defS}, (uint16_t)${minS}, (uint16_t)${maxS} }${
       index == this.minMaxList.length - 1 ? '' : ','
     } /* ${mm.name} */ \\\n`
   })
@@ -530,13 +533,16 @@ async function collectAttributes(endpointTypes) {
           longDefaultsList.push(longDef)
           longDefaultsIndex += defaultSize;
         }
-        if (a.isBound) {
+        let mask = []
+        if ((a.min != null || a.max != null) && a.isWritable) {
+          mask.push("min_max");
           let minMax = {
             default: a.defaultValue,
             min: a.min,
             max: a.max,
             name: a.name,
             comment: cluster.comment,
+            typeSize: typeSize,
           }
           attributeDefaultValue = `ZAP_MIN_MAX_DEFAULTS_INDEX(${minMaxIndex})`
           defaultValueIsMacro = true
@@ -571,7 +577,6 @@ async function collectAttributes(endpointTypes) {
         }
         clusterAttributeSize += typeSize
         totalAttributeSize += typeSize
-        let mask = []
         if (a.side == dbEnum.side.client) {
           mask.push('client')
         }
@@ -589,9 +594,6 @@ async function collectAttributes(endpointTypes) {
           zap_type = a.typeInfo.atomicType;
         } else if (a.typeInfo.type == dbEnum.zclType.struct) {
           zap_type = "STRUCT";
-        } else if (a.typeInfo.type == dbEnum.zclType.unknown) {
-          // In our unit tests we have no db info for these types, apparently.
-          zap_type = a.type;
         }
         let attr = {
           id: a.hexCode, // attribute code

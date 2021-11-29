@@ -28,6 +28,7 @@ const testUtil = require('./test-util.js')
 const queryEndpoint = require('../src-electron/db/query-endpoint.js')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
 const queryConfig = require('../src-electron/db/query-config.js')
+const queryPackage = require('../src-electron/db/query-package.js')
 const types = require('../src-electron/util/types.js')
 const bin = require('../src-electron/util/bin.ts')
 
@@ -77,11 +78,12 @@ test(
 
 test(
   'Test file import',
-  () =>
-    importJs.importDataFromFile(db, testFile).then((importResult) => {
-      sessionId = importResult.sessionId
-      expect(sessionId).not.toBeNull()
-    }),
+  async () => {
+    let importResult = await importJs.importDataFromFile(db, testFile);
+    sessionId = importResult.sessionId
+    expect(sessionId).not.toBeNull()
+    await queryPackage.insertSessionPackage(db, sessionId, zclContext.packageId);
+  },
   testUtil.timeout.medium()
 )
 
@@ -186,6 +188,10 @@ test(
     expect(genResult).not.toBeNull()
     expect(genResult.partial).toBeFalsy()
     expect(genResult.content).not.toBeNull()
+    if (genResult.hasErrors) {
+      console.log(genResult.errors)
+    }
+    expect(genResult.hasErrors).toBeFalsy();
 
     let epc = genResult.content['zap-config.h']
     let epcLines = epc.split(/\r?\n/)
@@ -199,7 +205,7 @@ test(
       '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x0101, 0x0000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* lock state */'
     )
     expect(epc).toContain(
-      '{ 0x0004, ZAP_TYPE(CHAR_STRING), 33, ZAP_ATTRIBUTE_MASK(TOKENIZE), ZAP_LONG_DEFAULTS_INDEX(5) }'
+      '{ 0x0004, ZAP_TYPE(CHAR_STRING), 33, ZAP_ATTRIBUTE_MASK(TOKENIZE), ZAP_LONG_DEFAULTS_INDEX(0) }'
     )
     expect(epc.includes(bin.hexToCBytes(bin.stringToHex('Very long user id'))))
     expect(epc).toContain('#define FIXED_NETWORKS { 1, 1, 2 }')
@@ -207,7 +213,7 @@ test(
       '#define FIXED_PROFILE_IDS { 0x0107, 0x0104, 0x0104 }'
     )
     expect(epc).toContain('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
-    expect(epc).toContain('#define GENERATED_DEFAULTS_COUNT (41)')
+    expect(epc).toContain('#define GENERATED_DEFAULTS_COUNT (12)')
     expect(epc).toContain(
       '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0002, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 2, 12, 4 }} }'
     )
