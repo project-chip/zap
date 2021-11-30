@@ -169,7 +169,7 @@ pipeline
                 stage('Test Dotdot generation') {
                     steps {
                         script {
-                            sh 'xvfb-run -a npm run gen3'
+                            sh 'xvfb-run -a npm run gendotdot'
                         }
                     }
                 }
