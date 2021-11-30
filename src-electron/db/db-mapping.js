@@ -107,6 +107,7 @@ exports.map = {
       isReportable: dbApi.fromDbBool(x.IS_REPORTABLE),
       isSceneRequired: dbApi.fromDbBool(x.IS_SCENE_REQUIRED),
       entryType: x.ARRAY_TYPE,
+      mustUseTimedWrite: dbApi.fromDbBool(x.MUST_USE_TIMED_WRITE),
     }
   },
 
@@ -152,6 +153,7 @@ exports.map = {
       description: x.DESCRIPTION,
       source: x.SOURCE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
+      mustUseTimedInvoke: dbApi.fromDbBool(x.MUST_USE_TIMED_INVOKE),
       clusterCode: x.CLUSTER_CODE,
       clusterName: x.CLUSTER_NAME,
       argName: x.ARG_NAME,

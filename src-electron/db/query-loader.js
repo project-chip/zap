@@ -90,12 +90,13 @@ INSERT INTO COMMAND (
   DESCRIPTION,
   SOURCE,
   IS_OPTIONAL,
+  MUST_USE_TIMED_INVOKE,
   RESPONSE_NAME,
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -143,11 +144,12 @@ INSERT INTO ATTRIBUTE (
   IS_NULLABLE,
   IS_SCENE_REQUIRED,
   ARRAY_TYPE,
+  MUST_USE_TIMED_WRITE,
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -176,6 +178,7 @@ function attributeMap(clusterId, packageId, attributes) {
     dbApi.toDbBool(attribute.isNullable),
     dbApi.toDbBool(attribute.isSceneRequired),
     attribute.entryType,
+    dbApi.toDbBool(attribute.mustUseTimedWrite),
     attribute.manufacturerCode,
     attribute.introducedIn,
     packageId,
@@ -211,6 +214,7 @@ function commandMap(clusterId, packageId, commands) {
     command.description,
     command.source,
     dbApi.toDbBool(command.isOptional),
+    dbApi.toDbBool(command.mustUseTimedInvoke),
     command.responseName,
     command.manufacturerCode,
     command.introducedIn,

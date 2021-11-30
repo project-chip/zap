@@ -412,6 +412,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         description: command.description[0].trim(),
         source: command.$.source,
         isOptional: command.$.optional == 'true' ? true : false,
+        mustUseTimedInvoke: command.$.mustUseTimedInvoke == 'true',
         introducedIn: command.$.introducedIn,
         removedIn: command.$.removedIn,
         responseName: command.$.response == null ? null : command.$.response,
@@ -524,6 +525,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         removedIn: attribute.$.removedIn,
         isNullable: attribute.$.isNullable == 'true' ? true : false,
         entryType: attribute.$.entryType,
+        mustUseTimedWrite: attribute.$.mustUseTimedWrite == 'true',
       }
       att.access = extractAccessIntoArray(attribute)
       if (att.manufacturerCode == null) {
