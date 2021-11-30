@@ -26,10 +26,16 @@ export function cantorPair(x, y) {
   return ((x + y) * (x + y + 1)) / 2 + y
 }
 
-export function asHex(value, padding) {
-  if (value == null) return ''
-  if (value < 0) return value.toString()
-  return '0x' + value.toString(16).padStart(padding, '0').toUpperCase()
+export function asHex(input, padding) {
+  if (input == null) return ''
+  if (input < 0) return input.toString()
+  let output = input
+
+  if (typeof input === 'string' || input instanceof String) {
+    output = parseInt(input)
+  }
+
+  return '0x' + output.toString(16).padStart(padding, '0').toUpperCase()
 }
 
 /**

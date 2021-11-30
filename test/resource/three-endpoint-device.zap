@@ -13,6 +13,10 @@
     {
       "key": "manufacturerCodes",
       "value": "0x1002"
+    },
+    {
+      "key": "shareConfigsAcrossEndpoints",
+      "value": "1"
     }
   ],
   "package": [

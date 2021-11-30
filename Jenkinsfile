@@ -1,7 +1,7 @@
 pipeline
 {
-    agent { node{ label 'Build-Farm'
-                  customWorkspace '/mnt/raid/workspaces/zap'    } }
+    agent { node { label 'Build-Farm'
+            customWorkspace '/mnt/raid/workspaces/zap'    } }
 
     options { buildDiscarder(logRotator(artifactNumToKeepStr: '10')) }
 
@@ -50,6 +50,16 @@ pipeline
                                 script
                         {
                                     sh 'npm run package-metadata'
+                        }
+                    }
+                }
+                stage('XML validation')
+                {
+                    steps
+                    {
+                        script
+                        {
+                            sh 'npm run xml-validate'
                         }
                     }
                 }
@@ -159,7 +169,7 @@ pipeline
                 stage('Test Dotdot generation') {
                     steps {
                         script {
-                            sh 'xvfb-run -a npm run gen3'
+                            sh 'xvfb-run -a npm run gendotdot'
                         }
                     }
                 }
@@ -416,7 +426,7 @@ pipeline
                     slackColor = 'good'
                     slackSend (color: slackColor, channel: '#zap', message: slackMessage)
                 }
-                else if(currentBuild.result == 'UNSTABLE') {
+                else if (currentBuild.result == 'UNSTABLE') {
                     slackMessage = ":zap_warning: WARNING: <${env.RUN_DISPLAY_URL}|" + jobName + '>, changes by: ' + committers
                     slackColor = 'warning'
                     slackSend (color: slackColor, channel: '#zap', message: slackMessage)
