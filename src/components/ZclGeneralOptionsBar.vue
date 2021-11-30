@@ -66,21 +66,6 @@ limitations under the License.
           <q-tooltip> Enable Command Discovery for your project </q-tooltip>
         </q-toggle>
       </div>
-      <div>
-        <q-toggle
-          class="q-mr-sm"
-          :value="shareConfigsAcrossEndpointsSetting == 1 ? true : false"
-          label="Share configurations across endpoints"
-          dense
-          left-label
-          @input="handleOptionChange('shareConfigsAcrossEndpoints', $event)"
-        >
-          <q-tooltip>
-            Replicate identical endpoint configuration across
-            endpoints</q-tooltip
-          >
-        </q-toggle>
-      </div>
       <q-btn
         class="q-mr-sm"
         align="center"
