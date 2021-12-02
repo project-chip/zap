@@ -24,6 +24,7 @@ const helperC = require('./helper-c')
 const env = require('../util/env')
 const types = require('../util/types')
 const zclUtil = require('../util/zcl-util')
+const _ = require('lodash')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -467,7 +468,7 @@ function zcl_command_tree(options) {
           if (el.clusterCode == null) {
             n = n.concat('Global')
           } else {
-            n = n.concat(el.clusterName + 'Cluster')
+            n = n.concat(_.upperFirst(_.camelCase(el.clusterDefineName)))
           }
           if (el.source == dbEnum.source.either) {
             // We will need to create two here.
