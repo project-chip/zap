@@ -135,6 +135,9 @@ limitations under the License.
     <item name="simple1" type="UINT8U"/>
     <item name="complex" type="Nest" array="true"/>
   </struct>
+  <struct name="FabricScoped">
+    <item name="fab_idx" type="FABRIC_IDX"/>
+  </struct>
 
   <bitmap name="TestBitmap" type="UINT8U">
     <field name="f1" mask="0x01"/>

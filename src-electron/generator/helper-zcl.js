@@ -114,9 +114,14 @@ async function zcl_structs(options) {
   structs = await zclUtil.sortStructsByDependency(structs)
   structs.forEach((st) => {
     st.struct_contains_array = false
+    st.struct_is_fabric_scoped = false
     st.items.forEach((i) => {
       if (i.isArray) {
         st.struct_contains_array = true
+      }
+      if (i.type && i.type.toLowerCase() == 'fabric_idx') {
+        st.struct_is_fabric_scoped = true
+        st.struct_fabric_idx_field = i.label
       }
     })
   })

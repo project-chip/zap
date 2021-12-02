@@ -217,6 +217,9 @@ test(
     expect(epc).toContain('Nest complex;// <- has nested array')
     expect(epc).toContain('// DoubleNest <- contains nested array')
     expect(epc).toContain('array;  // FABRIC SENSITIVE')
+    expect(epc).toContain(
+      '// Struct is fabric scroped, fabric index field label: fab_idx'
+    )
 
     epc = genResult.content['access.out']
     expect(epc).not.toBeNull()
