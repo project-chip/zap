@@ -449,8 +449,8 @@ async function collectAttributes(endpointTypes) {
     }
 
     let device = {
-      deviceId: 0,
-      deviceVersion: 1,
+      deviceId: ept.deviceIdentifier,
+      deviceVersion: ept.endpointVersion,
     }
     endpointAttributeSize = 0
     deviceList.push(device)
@@ -768,6 +768,8 @@ function endpoint_config(options) {
       let endpointTypeIds = []
       endpoints.forEach((ep) => {
         endpointTypeIds.push({
+          deviceIdentifier: ep.deviceIdentifier,
+          endpointVersion: ep.endpointVersion,
           endpointTypeId: ep.endpointTypeRef,
           endpointIdentifier: ep.endpointId,
         })
@@ -781,7 +783,9 @@ function endpoint_config(options) {
           queryEndpointType
             .selectEndpointType(db, eptId.endpointTypeId)
             .then((ept) => {
-              ept.endpointId = eptId.endpointIdentifier
+              ept.endpointId = eptId.endpointIdentifier;
+              ept.endpointVersion = eptId.endpointVersion;
+              ept.deviceIdentifier = eptId.deviceIdentifier;
               return ept
             })
         )
